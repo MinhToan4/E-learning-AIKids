@@ -7,8 +7,9 @@ import {
   AVATARS,
   DEMO_ADULT_PIN,
   DEMO_CHILD_PROFILES,
-  MASCOT_SRC,
 } from '@/data/mock'
+
+const HERO = '/assets/mascot-hero.jpg'
 import { useDemoStore } from '@/store/demo-store'
 import { cn } from '@/lib/cn'
 
@@ -71,14 +72,16 @@ export function LoginPage() {
       </div>
 
       <div className="mb-6 text-center">
-        <img
-          src={MASCOT_SRC}
-          alt="Robot Mực Màu"
-          className="mx-auto size-24 sm:size-28"
-          width={112}
-          height={112}
-        />
-        <h1 className="mt-3 font-display text-3xl text-text sm:text-4xl">Đăng nhập</h1>
+        <div className="mx-auto size-28 overflow-hidden rounded-[1.5rem] border-4 border-white shadow-clay sm:size-32">
+          <img
+            src={HERO}
+            alt="Robot Mực Màu"
+            className="size-full object-cover"
+            width={128}
+            height={128}
+          />
+        </div>
+        <h1 className="mt-4 font-display text-3xl text-text sm:text-4xl">Đăng nhập</h1>
         <p className="mt-1 text-muted">
           An toàn cho trẻ 8–11 · Không cần email hay mật khẩu phức tạp
         </p>

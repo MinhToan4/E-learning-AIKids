@@ -14,6 +14,8 @@ export type Course = {
   coverFrom: string
   coverTo: string
   accent: string
+  /** Optional generated cover image under /assets */
+  coverImage?: string
   ageLabel: string
   durationLabel: string
   productLabel: string
@@ -107,6 +109,7 @@ export const COURSES: Course[] = [
     coverFrom: '#7C6CF0',
     coverTo: '#5ED0FF',
     accent: '#7C6CF0',
+    coverImage: '/assets/course-comic.jpg',
     ageLabel: '8–11 tuổi',
     durationLabel: '60–90 phút',
     productLabel: 'Truyện + video',
@@ -125,6 +128,7 @@ export const COURSES: Course[] = [
     coverFrom: '#5EE4B0',
     coverTo: '#5ED0FF',
     accent: '#1F9D6A',
+    coverImage: '/assets/course-safety.jpg',
     ageLabel: '8–11 tuổi',
     durationLabel: '25–35 phút',
     productLabel: 'Huy hiệu an toàn',
@@ -148,6 +152,7 @@ export const COURSES: Course[] = [
     coverFrom: '#FF8FA3',
     coverTo: '#FFD56A',
     accent: '#E85D75',
+    coverImage: '/assets/course-voice.jpg',
     ageLabel: '8–11 tuổi',
     durationLabel: '30–40 phút',
     productLabel: 'Video kể chuyện',
@@ -171,6 +176,7 @@ export const COURSES: Course[] = [
     coverFrom: '#94A3B8',
     coverTo: '#CBD5E1',
     accent: '#64748B',
+    coverImage: '/assets/course-robot.jpg',
     ageLabel: '8–11 tuổi',
     durationLabel: 'Sắp có',
     productLabel: 'Thẻ robot',

@@ -16,7 +16,9 @@ import { Button } from '@/components/ui/Button'
 import { LoadingCreature } from '@/components/feedback/States'
 import { VideoGuideButton } from '@/components/game/VideoGuide'
 import { CheerOverlay, useCheer } from '@/components/game/CheerBurst'
-import { MASCOT_SRC, PROMPT_CHIPS } from '@/data/mock'
+import { PROMPT_CHIPS } from '@/data/mock'
+
+const HERO = '/assets/mascot-hero.jpg'
 import { assemblePrompt, missingSlots, SLOT_LABELS } from '@/lib/prompt'
 import { validateChildText } from '@/lib/safety'
 import { generateImages } from '@/lib/generate'
@@ -211,15 +213,17 @@ export function PromptStudioPage() {
       <CheerOverlay message={cheer} />
 
       {/* Hero */}
-      <div className="mb-5 overflow-hidden rounded-[1.75rem] border-2 border-brand-100 bg-gradient-to-br from-brand-50 via-white to-sky-100 shadow-soft">
+      <div className="mb-5 overflow-hidden rounded-[1.75rem] border-2 border-white bg-gradient-to-br from-brand-50 via-white to-sky-100 shadow-soft">
         <div className="flex flex-col gap-4 p-4 sm:flex-row sm:items-center sm:p-6">
-          <img
-            src={MASCOT_SRC}
-            alt=""
-            className="mx-auto size-24 shrink-0 sm:mx-0 sm:size-28"
-            width={112}
-            height={112}
-          />
+          <div className="mx-auto size-28 shrink-0 overflow-hidden rounded-[1.35rem] border-4 border-white shadow-clay sm:mx-0 sm:size-32">
+            <img
+              src={HERO}
+              alt=""
+              className="size-full object-cover"
+              width={128}
+              height={128}
+            />
+          </div>
           <div className="min-w-0 flex-1 text-center sm:text-left">
             <p className="text-sm font-bold text-brand-500">Nhiệm vụ đặc biệt</p>
             <h1 className="font-display text-3xl leading-tight text-text sm:text-4xl">

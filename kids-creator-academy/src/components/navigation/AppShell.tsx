@@ -273,13 +273,13 @@ export function AppShell() {
 
       {/* Edge-docked playful sidebar */}
       <aside
-        className="sticky top-0 z-40 hidden h-dvh w-[88px] shrink-0 flex-col items-center border-r-2 border-brand-100 bg-white py-4 shadow-[4px_0_24px_rgba(124,108,240,0.06)] xl:flex 2xl:w-[100px]"
+        className="sticky top-0 z-40 hidden h-dvh w-[92px] shrink-0 flex-col items-center border-r border-brand-100 bg-white/95 py-4 shadow-[6px_0_28px_rgba(109,94,252,0.08)] backdrop-blur-sm xl:flex 2xl:w-[104px]"
         aria-label="Thanh bên học sinh"
       >
         <img
-          src={MASCOT_SRC}
+          src="/assets/mascot-hero.jpg"
           alt=""
-          className="mb-4 size-12 2xl:size-14"
+          className="mb-4 size-12 rounded-2xl object-cover shadow-soft ring-2 ring-brand-100 2xl:size-14"
           width={56}
           height={56}
         />
@@ -365,7 +365,7 @@ export function AppShell() {
         {/* Full-width stage — use almost entire viewport next to sidebar */}
         <main
           id="main"
-          className="min-h-0 flex-1 px-3 py-4 pb-28 sm:px-5 sm:py-5 lg:px-6 lg:py-6 xl:pb-6 2xl:px-8"
+          className="min-h-0 flex-1 px-3 py-5 pb-28 sm:px-5 sm:py-6 lg:px-8 lg:py-7 xl:pb-8 2xl:px-10"
         >
           <Outlet />
         </main>
