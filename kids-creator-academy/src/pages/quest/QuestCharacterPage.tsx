@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/Button'
 import { Card, ChoiceCard } from '@/components/ui/Card'
 import { MissionBanner } from '@/components/ui/MissionBanner'
 import { QUESTS } from '@/data/mock'
+import { findQuestAnywhere } from '@/data/courses'
 import { useDemoStore } from '@/store/demo-store'
 
 export function QuestCharacterPage() {
@@ -155,7 +156,8 @@ export function GenericQuestPageWrapper() {
 
 export function GenericQuestPage({ questId }: { questId: string }) {
   const navigate = useNavigate()
-  const quest = QUESTS.find((q) => q.id === questId)
+  const found = findQuestAnywhere(questId)
+  const quest = found?.quest ?? QUESTS.find((q) => q.id === questId)
   const completeQuest = useDemoStore((s) => s.completeQuest)
 
   if (!quest) {
@@ -163,12 +165,13 @@ export function GenericQuestPage({ questId }: { questId: string }) {
       <Card>
         <p className="font-bold">Không tìm thấy nhiệm vụ.</p>
         <Button className="mt-3" onClick={() => navigate('/world')}>
-          Về nhà
+          Về bản đồ
         </Button>
       </Card>
     )
   }
 
+  const total = found?.course.quests.length ?? 8
   const nextRoute =
     quest.id === 'comic'
       ? '/studio/comic'
@@ -181,7 +184,7 @@ export function GenericQuestPage({ questId }: { questId: string }) {
   return (
     <div className="mx-auto max-w-xl space-y-4 sm:max-w-2xl">
       <MissionBanner
-        stepLabel={`Bước ${quest.order}/8`}
+        stepLabel={`Bước ${quest.order}/${total}`}
         doing={quest.title}
         why={quest.skill}
         reward={quest.reward}

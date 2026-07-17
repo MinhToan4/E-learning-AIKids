@@ -14,6 +14,7 @@ export function ComparePage() {
   const saveSelectedToBackpack = useDemoStore((s) => s.saveSelectedToBackpack)
   const addBadge = useDemoStore((s) => s.addBadge)
   const completeQuest = useDemoStore((s) => s.completeQuest)
+  const addStars = useDemoStore((s) => s.addStars)
   const addToast = useDemoStore((s) => s.addToast)
   const child = useDemoStore((s) => s.child)
 
@@ -125,17 +126,19 @@ export function ComparePage() {
             if (checks.odd || results.some((r) => r.oddDetail && r.id !== selected.id)) {
               addBadge('Thám tử AI')
               completeQuest('detective', 30)
+              addStars(15)
             }
             completeQuest('prompt-lab', 100)
+            addStars(20)
             addToast({
               type: 'success',
-              title: 'Đã lưu Character Card!',
-              description: 'Mở Xưởng truyện tranh để ghép 4 khung.',
+              title: 'Giỏi lắm! +sao & thẻ ảnh',
+              description: 'Tiếp theo: làm truyện 4 khung.',
             })
-            navigate('/studio/comic')
+            navigate('/challenge/ch-after-prompt')
           }}
         >
-          Dùng ảnh này
+          Dùng ảnh này (+sao)
         </Button>
       </div>
     </div>

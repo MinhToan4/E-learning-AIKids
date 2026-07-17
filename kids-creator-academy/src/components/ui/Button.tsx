@@ -13,9 +13,9 @@ const variants = {
 } as const
 
 const sizes = {
-  sm: 'min-h-11 px-4 text-sm gap-1.5 font-extrabold',
-  md: 'min-h-12 px-5 text-base gap-2 font-extrabold',
-  lg: 'min-h-14 px-6 text-lg gap-2 font-extrabold sm:px-8',
+  sm: 'min-h-10 px-3 text-sm gap-1.5 font-semibold',
+  md: 'min-h-11 px-4 text-sm gap-2 font-semibold sm:min-h-12 sm:text-base',
+  lg: 'min-h-12 px-5 text-base gap-2 font-bold sm:min-h-[3.25rem] sm:px-6',
 } as const
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

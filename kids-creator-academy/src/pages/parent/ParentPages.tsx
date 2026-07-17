@@ -1,10 +1,55 @@
+import { useState } from 'react'
 import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
 import { ProgressBar } from '@/components/ui/Progress'
 import { PARENT_FEEDBACK_TEMPLATES } from '@/data/mock'
 import { useDemoStore } from '@/store/demo-store'
-import { useState } from 'react'
-import { Check, MessageSquareWarning, Shield } from 'lucide-react'
+import {
+  Check,
+  Download,
+  MessageSquareWarning,
+  Shield,
+  AlertCircle,
+} from 'lucide-react'
+import { cn } from '@/lib/cn'
+
+function PageTitle({
+  title,
+  subtitle,
+}: {
+  title: string
+  subtitle: string
+}) {
+  return (
+    <div className="mb-6 border-b border-slate-200 pb-4">
+      <h1 className="text-2xl font-semibold tracking-tight text-slate-900 sm:text-3xl">
+        {title}
+      </h1>
+      <p className="mt-1 text-sm text-slate-500 sm:text-base">{subtitle}</p>
+    </div>
+  )
+}
+
+function Metric({
+  label,
+  value,
+  hint,
+}: {
+  label: string
+  value: string
+  hint?: string
+}) {
+  return (
+    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+      <p className="text-xs font-semibold uppercase tracking-wide text-slate-500">
+        {label}
+      </p>
+      <p className="mt-2 text-lg font-semibold leading-snug text-slate-900 sm:text-xl">
+        {value}
+      </p>
+      {hint ? <p className="mt-1 text-xs text-slate-400">{hint}</p> : null}
+    </div>
+  )
+}
 
 export function ParentOverviewPage() {
   const child = useDemoStore((s) => s.child)
@@ -13,58 +58,63 @@ export function ParentOverviewPage() {
   const approvals = useDemoStore((s) => s.approvals)
   const privacy = useDemoStore((s) => s.privacy)
   const assets = useDemoStore((s) => s.backpackAssets)
+  const stars = useDemoStore((s) => s.stars)
   const pending = approvals.filter((a) => a.status === 'pending').length
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="font-display text-3xl font-semibold">Tổng quan phụ huynh</h1>
-        <p className="text-muted">
-          Theo dõi sản phẩm của {child.nickname} — không giám sát quá mức.
-        </p>
+      <PageTitle
+        title="Tổng quan phụ huynh"
+        subtitle={`Theo dõi tiến bộ của ${child.nickname} — minh bạch, không giám sát quá mức.`}
+      />
+
+      <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <Metric label="Dự án đang làm" value={project.title} />
+        <Metric label="Chờ duyệt" value={`${pending} yêu cầu`} hint="Chỉ gia đình / lớp" />
+        <Metric label="Sản phẩm" value={`${assets.length} mục`} />
+        <Metric
+          label="Quyền riêng tư"
+          value={privacy.allowClassGallery ? 'Gallery lớp: bật' : 'Cao (mặc định)'}
+        />
       </div>
 
-      <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-        {[
-          { label: 'Dự án đang làm', value: project.title },
-          { label: 'Chờ duyệt', value: `${pending} yêu cầu` },
-          { label: 'Sản phẩm mới', value: `${assets.length} mục` },
-          { label: 'Quyền riêng tư', value: privacy.allowClassGallery ? 'Gallery lớp: bật' : 'Cao (mặc định)' },
-        ].map((m) => (
-          <Card key={m.label}>
-            <p className="text-sm font-bold text-muted">{m.label}</p>
-            <p className="mt-2 font-display text-xl font-semibold leading-snug">{m.value}</p>
-          </Card>
-        ))}
-      </div>
-
-      <Card>
-        <h2 className="font-display text-xl font-semibold">Kỹ năng đã luyện</h2>
-        <div className="mt-4 grid gap-3 md:grid-cols-2">
-          {skills.map((s) => (
-            <div key={s.skillId}>
-              <div className="mb-1 flex justify-between text-sm font-semibold">
-                <span>{s.label}</span>
-                <span className="text-muted">Lv {s.level}</span>
+      <div className="grid gap-4 lg:grid-cols-5">
+        <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm lg:col-span-3">
+          <h2 className="text-base font-semibold text-slate-900">Kỹ năng đã luyện</h2>
+          <div className="mt-4 grid gap-4 sm:grid-cols-2">
+            {skills.map((s) => (
+              <div key={s.skillId}>
+                <div className="mb-1 flex justify-between text-sm">
+                  <span className="font-medium text-slate-700">{s.label}</span>
+                  <span className="text-slate-400">Lv {s.level}</span>
+                </div>
+                <ProgressBar value={s.confidence * 100} />
               </div>
-              <ProgressBar value={s.confidence * 100} />
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </Card>
-
-      <Card className="border-mint-400/30 bg-mint-100/30">
-        <div className="flex items-start gap-3">
-          <Shield className="mt-1 size-5 text-success" aria-hidden />
-          <div>
-            <p className="font-semibold">Tóm tắt an toàn</p>
-            <p className="mt-1 text-sm text-muted">
-              Không sự kiện rủi ro trong phiên demo. Sản phẩm mặc định riêng tư. Không
-              quảng cáo, không chat giữa học sinh.
+        <div className="space-y-3 lg:col-span-2">
+          <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4">
+            <div className="flex gap-2">
+              <Shield className="mt-0.5 size-5 shrink-0 text-emerald-700" aria-hidden />
+              <div>
+                <p className="text-sm font-semibold text-emerald-900">An toàn</p>
+                <p className="mt-1 text-sm text-emerald-800/90">
+                  Không sự kiện rủi ro trong phiên demo. Sản phẩm mặc định riêng tư.
+                  Không quảng cáo, không chat giữa học sinh.
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase text-slate-500">Sao / XP (game học)</p>
+            <p className="mt-1 text-2xl font-semibold text-slate-900">{stars} sao</p>
+            <p className="text-sm text-slate-500">
+              {child.xp} XP · Cấp {child.level} · Phản hồi tích cực, không phạt
             </p>
           </div>
         </div>
-      </Card>
+      </div>
     </div>
   )
 }
@@ -78,44 +128,45 @@ export function ParentApprovalsPage() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="font-display text-3xl font-semibold">Duyệt chia sẻ</h1>
-        <p className="text-muted">Chỉ gia đình hoặc lớp học riêng tư — không public web.</p>
-      </div>
+      <PageTitle
+        title="Duyệt chia sẻ"
+        subtitle="Chỉ Gia đình hoặc Lớp học riêng tư — không public web."
+      />
 
       {approvals.length === 0 ? (
-        <Card>
-          <p>Không có yêu cầu chờ duyệt.</p>
-        </Card>
+        <div className="rounded-xl border border-dashed border-slate-200 bg-white p-8 text-center text-slate-500">
+          Không có yêu cầu chờ duyệt.
+        </div>
       ) : (
-        <div className="grid gap-4">
+        <div className="space-y-3">
           {approvals.map((ap) => (
-            <Card key={ap.id} className="grid gap-4 md:grid-cols-[200px_1fr]">
+            <article
+              key={ap.id}
+              className="grid gap-4 rounded-xl border border-slate-200 bg-white p-4 shadow-sm md:grid-cols-[200px_1fr] md:p-5"
+            >
               <img
                 src={ap.thumbnail}
                 alt=""
-                className="aspect-[4/3] w-full rounded-2xl object-cover"
+                className="aspect-[4/3] w-full rounded-lg object-cover"
               />
               <div>
-                <p className="font-display text-xl font-semibold">{ap.projectTitle}</p>
-                <p className="text-sm text-muted">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <h2 className="text-lg font-semibold text-slate-900">
+                    {ap.projectTitle}
+                  </h2>
+                  <StatusPill status={ap.status} />
+                </div>
+                <p className="mt-1 text-sm text-slate-500">
                   Phạm vi:{' '}
                   {ap.destination === 'family'
                     ? 'Chỉ gia đình'
                     : ap.destination === 'class'
                       ? 'Lớp học riêng tư'
-                      : 'Không chia sẻ'}{' '}
-                  · {ap.aiAssisted ? 'Có AI hỗ trợ' : 'Không AI'} ·{' '}
-                  <strong>
-                    {ap.status === 'pending'
-                      ? 'Chờ duyệt'
-                      : ap.status === 'approved'
-                        ? 'Đã duyệt'
-                        : 'Cần chỉnh'}
-                  </strong>
+                      : 'Không chia sẻ'}
+                  {ap.aiAssisted ? ' · Có AI hỗ trợ' : ''}
                 </p>
                 {ap.feedback ? (
-                  <p className="mt-2 rounded-xl bg-sun-100 px-3 py-2 text-sm font-semibold">
+                  <p className="mt-2 rounded-lg bg-amber-50 px-3 py-2 text-sm text-amber-900">
                     Phản hồi: {ap.feedback}
                   </p>
                 ) : null}
@@ -147,7 +198,7 @@ export function ParentApprovalsPage() {
                       <button
                         key={t}
                         type="button"
-                        className="block min-h-11 w-full cursor-pointer rounded-xl border border-border bg-white px-3 text-left text-sm font-semibold hover:border-brand-500"
+                        className="block min-h-11 w-full cursor-pointer rounded-lg border border-slate-200 bg-slate-50 px-3 text-left text-sm font-medium text-slate-700 hover:border-slate-400"
                         onClick={() => {
                           requestChanges(ap.id, t)
                           setFeedbackFor(null)
@@ -160,11 +211,30 @@ export function ParentApprovalsPage() {
                   </div>
                 ) : null}
               </div>
-            </Card>
+            </article>
           ))}
         </div>
       )}
     </div>
+  )
+}
+
+function StatusPill({ status }: { status: string }) {
+  return (
+    <span
+      className={cn(
+        'rounded-full px-2.5 py-1 text-xs font-semibold',
+        status === 'pending' && 'bg-amber-100 text-amber-800',
+        status === 'approved' && 'bg-emerald-100 text-emerald-800',
+        status === 'changes_requested' && 'bg-slate-100 text-slate-700',
+      )}
+    >
+      {status === 'pending'
+        ? 'Chờ duyệt'
+        : status === 'approved'
+          ? 'Đã duyệt'
+          : 'Cần chỉnh'}
+    </span>
   )
 }
 
@@ -198,52 +268,56 @@ export function ParentPrivacyPage() {
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="font-display text-3xl font-semibold">Quyền riêng tư</h1>
-        <p className="text-muted">
-          High privacy mặc định · Không quảng cáo nhắm mục tiêu · Data minimization
-        </p>
-      </div>
+      <PageTitle
+        title="Quyền riêng tư"
+        subtitle="High privacy mặc định · Không quảng cáo nhắm mục tiêu · Data minimization"
+      />
 
-      <div className="space-y-3">
+      <div className="space-y-2">
         {rows.map((row) => (
-          <Card key={row.key} className="flex items-center justify-between gap-4">
+          <div
+            key={row.key}
+            className="flex items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-4 py-4 shadow-sm"
+          >
             <div>
-              <p className="font-semibold">{row.label}</p>
-              <p className="text-sm text-muted">{row.help}</p>
+              <p className="font-medium text-slate-900">{row.label}</p>
+              <p className="text-sm text-slate-500">{row.help}</p>
             </div>
             <button
               type="button"
               role="switch"
               aria-checked={privacy[row.key]}
               onClick={() => setPrivacy({ [row.key]: !privacy[row.key] })}
-              className={`relative h-8 w-14 shrink-0 cursor-pointer rounded-full transition-colors ${
-                privacy[row.key] ? 'bg-brand-500' : 'bg-border'
-              }`}
+              className={cn(
+                'relative h-8 w-14 shrink-0 cursor-pointer rounded-full transition-colors',
+                privacy[row.key] ? 'bg-slate-900' : 'bg-slate-300',
+              )}
             >
               <span
-                className={`absolute top-1 size-6 rounded-full bg-white shadow transition-transform ${
-                  privacy[row.key] ? 'left-7' : 'left-1'
-                }`}
+                className={cn(
+                  'absolute top-1 size-6 rounded-full bg-white shadow transition-transform',
+                  privacy[row.key] ? 'left-7' : 'left-1',
+                )}
               />
             </button>
-          </Card>
+          </div>
         ))}
       </div>
 
-      <Card className="space-y-3">
-        <h2 className="font-display text-xl font-semibold">Dữ liệu</h2>
-        <div className="flex flex-wrap gap-2">
+      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 className="text-base font-semibold text-slate-900">Dữ liệu</h2>
+        <div className="mt-3 flex flex-wrap gap-2">
           <Button
             variant="secondary"
             onClick={() =>
               addToast({
                 type: 'success',
                 title: 'Tải portfolio (demo)',
-                description: 'Trong production sẽ export JSON/PDF.',
+                description: 'Production sẽ export JSON/PDF.',
               })
             }
           >
+            <Download className="size-4" aria-hidden />
             Tải portfolio
           </Button>
           <Button
@@ -256,11 +330,12 @@ export function ParentPrivacyPage() {
             Xóa hồ sơ demo
           </Button>
         </div>
-        <p className="text-sm text-muted">
-          Production cần tư vấn pháp lý (COPPA / Children’s Code / luật địa phương).
-          Prototype không thu thập email trẻ.
+        <p className="mt-3 flex gap-2 text-sm text-slate-500">
+          <AlertCircle className="mt-0.5 size-4 shrink-0" aria-hidden />
+          Production cần tư vấn pháp lý (COPPA / Children’s Code). Prototype không thu
+          thập email trẻ.
         </p>
-      </Card>
+      </div>
     </div>
   )
 }

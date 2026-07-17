@@ -25,6 +25,7 @@ import {
 } from '@/data/mock'
 import { buildSceneSvg } from '@/lib/svg-scenes'
 import { computeQuestStatuses } from '@/lib/quests'
+import { getCourse } from '@/data/courses'
 import type { Quest } from '@/types'
 
 interface DemoStore {
@@ -40,6 +41,7 @@ interface DemoStore {
     currentCourse: string
     onboarded: boolean
   }
+  selectedCourseId: string
   completedQuestIds: string[]
   currentQuestId: string | null
   currentProject: CreativeProject
@@ -56,6 +58,8 @@ interface DemoStore {
   skills: typeof DEFAULT_SKILLS
   privacy: PrivacySettings
   badges: string[]
+  stars: number
+  challengesPassed: string[]
   selectedVoiceId: string
   selectedMusicId: string
   subtitlesOn: boolean
@@ -69,6 +73,8 @@ interface DemoStore {
 
   setRole: (role: Role) => void
   setHelperOpen: (open: boolean) => void
+  addStars: (n: number) => void
+  passChallenge: (id: string) => void
   loginStudent: (payload: {
     id?: string
     nickname: string
@@ -82,6 +88,7 @@ interface DemoStore {
     avatarId: string
     goal: 'comic' | 'video' | 'character'
   }) => void
+  setSelectedCourseId: (id: string) => void
   setCurrentQuest: (id: string | null) => void
   completeQuest: (id: string, xp?: number) => void
   setPromptChip: (slot: PromptSlotKey, chip: PromptChip | undefined) => void
@@ -137,6 +144,7 @@ function initialState() {
     isLoggedIn: false,
     currentRole: 'student' as Role,
     child: { ...initialChild },
+    selectedCourseId: 'course-comic',
     completedQuestIds: ['meet-mascot'],
     currentQuestId: 'character',
     currentProject: { ...PROJECT_SEED, cover },
@@ -157,6 +165,8 @@ function initialState() {
       allowAudioNarration: true,
     },
     badges: ['Thẻ Nhà sáng tạo'],
+    stars: 30,
+    challengesPassed: [] as string[],
     selectedVoiceId: 'voice-warm',
     selectedMusicId: 'music-soft',
     subtitlesOn: true,
@@ -177,6 +187,23 @@ export const useDemoStore = create<DemoStore>()(
 
       setRole: (role) => set({ currentRole: role }),
       setHelperOpen: (open) => set({ helperOpen: open }),
+
+      addStars: (n) =>
+        set((s) => ({
+          stars: Math.max(0, s.stars + n),
+          child: {
+            ...s.child,
+            xp: s.child.xp + Math.max(0, n),
+            level: Math.floor((s.child.xp + Math.max(0, n)) / 200) + 1,
+          },
+        })),
+
+      passChallenge: (id) =>
+        set((s) =>
+          s.challengesPassed.includes(id)
+            ? s
+            : { challengesPassed: [...s.challengesPassed, id] },
+        ),
 
       loginStudent: ({ id, nickname, avatarId, skipOnboarding }) =>
         set((s) => ({
@@ -217,6 +244,13 @@ export const useDemoStore = create<DemoStore>()(
           },
         })),
 
+      setSelectedCourseId: (id) =>
+        set((s) => ({
+          selectedCourseId: id,
+          // Keep current quest if it belongs to new course; else first available later
+          currentQuestId: s.currentQuestId,
+        })),
+
       setCurrentQuest: (id) => set({ currentQuestId: id }),
 
       completeQuest: (id, xp = 100) =>
@@ -224,6 +258,7 @@ export const useDemoStore = create<DemoStore>()(
           if (s.completedQuestIds.includes(id)) return s
           return {
             completedQuestIds: [...s.completedQuestIds, id],
+            stars: s.stars + Math.round(xp / 5),
             child: {
               ...s.child,
               xp: s.child.xp + xp,
@@ -490,15 +525,23 @@ export const useDemoStore = create<DemoStore>()(
 
       getQuestStatuses: () => {
         const s = get()
-        return computeQuestStatuses(s.completedQuestIds, s.currentQuestId)
+        const course = getCourse(s.selectedCourseId)
+        return computeQuestStatuses(
+          s.completedQuestIds,
+          s.currentQuestId,
+          course.quests,
+        )
       },
     }),
     {
-      name: 'kids-creator-demo-v2',
+      name: 'kids-creator-demo-v4',
       partialize: (s) => ({
         isLoggedIn: s.isLoggedIn,
         currentRole: s.currentRole,
         child: s.child,
+        selectedCourseId: s.selectedCourseId,
+        stars: s.stars,
+        challengesPassed: s.challengesPassed,
         completedQuestIds: s.completedQuestIds,
         currentQuestId: s.currentQuestId,
         currentProject: s.currentProject,

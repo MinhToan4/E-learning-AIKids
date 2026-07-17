@@ -58,6 +58,12 @@ const PortfolioPage = lazy(() =>
 const ProfilePage = lazy(() =>
   import('@/pages/ProfilePage').then((m) => ({ default: m.ProfilePage })),
 )
+const StarsPage = lazy(() =>
+  import('@/pages/StarsPage').then((m) => ({ default: m.StarsPage })),
+)
+const ChallengePage = lazy(() =>
+  import('@/pages/ChallengePage').then((m) => ({ default: m.ChallengePage })),
+)
 const ParentOverviewPage = lazy(() =>
   import('@/pages/parent/ParentPages').then((m) => ({
     default: m.ParentOverviewPage,
@@ -226,6 +232,22 @@ export const router = createBrowserRouter([
         element: (
           <L>
             <ProfilePage />
+          </L>
+        ),
+      },
+      {
+        path: 'stars',
+        element: (
+          <L>
+            <StarsPage />
+          </L>
+        ),
+      },
+      {
+        path: 'challenge/:challengeId',
+        element: (
+          <L>
+            <ChallengePage />
           </L>
         ),
       },

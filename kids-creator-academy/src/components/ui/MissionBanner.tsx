@@ -1,6 +1,6 @@
 import { cn } from '@/lib/cn'
 
-/** Always answer for kids: What am I doing? Why? What do I get? */
+/** Compact mission strip — consistent sizes, no visual noise */
 export function MissionBanner({
   stepLabel,
   doing,
@@ -17,28 +17,28 @@ export function MissionBanner({
   return (
     <div
       className={cn(
-        'rounded-[1.5rem] border-2 border-brand-500/20 bg-white p-4 shadow-soft sm:p-5',
+        'rounded-2xl border border-border bg-white px-3 py-3 shadow-soft sm:px-4',
         className,
       )}
     >
       {stepLabel ? (
-        <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
+        <p className="mb-2 text-xs font-bold uppercase tracking-wide text-brand-500">
           {stepLabel}
         </p>
       ) : null}
-      <dl className="mt-2 grid gap-3 sm:grid-cols-3">
-        <div className="rounded-2xl bg-brand-50 px-3 py-2.5">
-          <dt className="text-xs font-extrabold text-brand-600">Con đang làm gì?</dt>
-          <dd className="mt-0.5 text-sm font-bold text-text sm:text-base">{doing}</dd>
+      <dl className="grid gap-2 sm:grid-cols-3 sm:gap-3">
+        <div className="rounded-xl bg-brand-50 px-3 py-2">
+          <dt className="text-xs font-bold text-brand-600">Đang làm</dt>
+          <dd className="mt-0.5 text-sm font-semibold text-text">{doing}</dd>
         </div>
-        <div className="rounded-2xl bg-sky-100/80 px-3 py-2.5">
-          <dt className="text-xs font-extrabold text-sky-600">Để làm gì?</dt>
-          <dd className="mt-0.5 text-sm font-bold text-text sm:text-base">{why}</dd>
+        <div className="rounded-xl bg-sky-100/80 px-3 py-2">
+          <dt className="text-xs font-bold text-sky-600">Để làm gì</dt>
+          <dd className="mt-0.5 text-sm font-semibold text-text">{why}</dd>
         </div>
-        <div className="rounded-2xl bg-sun-100 px-3 py-2.5">
-          <dt className="text-xs font-extrabold text-warning">Nhận được gì?</dt>
-          <dd className="mt-0.5 text-sm font-bold text-text sm:text-base">
-            {reward ?? 'Một phần truyện của con'}
+        <div className="rounded-xl bg-sun-100 px-3 py-2">
+          <dt className="text-xs font-bold text-warning">Nhận được</dt>
+          <dd className="mt-0.5 text-sm font-semibold text-text">
+            {reward ?? 'Tiến bộ trên bản đồ'}
           </dd>
         </div>
       </dl>
