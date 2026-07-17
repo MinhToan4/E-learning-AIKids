@@ -12,6 +12,7 @@ export function ProfilePage() {
   const skills = useDemoStore((s) => s.skills)
   const completed = useDemoStore((s) => s.completedQuestIds)
   const setRole = useDemoStore((s) => s.setRole)
+  const logout = useDemoStore((s) => s.logout)
   const resetDemo = useDemoStore((s) => s.resetDemo)
   const demoErrorMode = useDemoStore((s) => s.demoErrorMode)
   const setDemoErrorMode = useDemoStore((s) => s.setDemoErrorMode)
@@ -69,6 +70,9 @@ export function ProfilePage() {
         <h2 className="font-display text-lg font-semibold text-muted">Demo controls (ẩn với trẻ)</h2>
         <p className="mt-1 text-sm text-muted">Chỉ dùng khi trình bày prototype.</p>
         <div className="mt-4 flex flex-wrap gap-2">
+          <Button size="sm" variant="secondary" onClick={() => navigate('/login')}>
+            Đổi tài khoản / đăng nhập
+          </Button>
           <Button
             size="sm"
             variant="secondary"
@@ -101,6 +105,16 @@ export function ProfilePage() {
             }}
           >
             Demo lỗi AI: {demoErrorMode ? 'ON' : 'OFF'}
+          </Button>
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={() => {
+              logout()
+              navigate('/login')
+            }}
+          >
+            Đăng xuất
           </Button>
           <Button
             size="sm"

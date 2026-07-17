@@ -7,15 +7,15 @@ const variants = {
   secondary:
     'bg-white text-text border-2 border-border shadow-soft hover:border-brand-500 hover:bg-brand-50',
   soft: 'bg-brand-100 text-brand-600 hover:bg-brand-50',
-  ghost: 'bg-transparent text-text hover:bg-white/70',
+  ghost: 'bg-transparent text-text hover:bg-white/80',
   danger: 'bg-coral-100 text-danger border border-coral-400/40 hover:bg-coral-100/80',
   success: 'bg-mint-100 text-success hover:bg-mint-400/20',
 } as const
 
 const sizes = {
-  sm: 'min-h-11 px-4 text-sm gap-1.5',
-  md: 'min-h-12 px-5 text-base gap-2',
-  lg: 'min-h-14 px-7 text-lg gap-2',
+  sm: 'min-h-11 px-4 text-sm gap-1.5 font-extrabold',
+  md: 'min-h-12 px-5 text-base gap-2 font-extrabold',
+  lg: 'min-h-14 px-6 text-lg gap-2 font-extrabold sm:px-8',
 } as const
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {

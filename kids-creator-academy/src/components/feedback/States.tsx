@@ -69,7 +69,9 @@ export function LoadingCreature({
       <img
         src={MASCOT_SRC}
         alt=""
-        className="size-28 animate-pulse motion-reduce:animate-none"
+        className="size-28 animate-soft-pulse"
+        width={112}
+        height={112}
       />
       <div>
         <p className="font-display text-xl font-semibold text-brand-600">

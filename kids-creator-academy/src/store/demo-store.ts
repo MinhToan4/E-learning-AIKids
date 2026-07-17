@@ -28,6 +28,7 @@ import { computeQuestStatuses } from '@/lib/quests'
 import type { Quest } from '@/types'
 
 interface DemoStore {
+  isLoggedIn: boolean
   currentRole: Role
   child: {
     id: string
@@ -68,6 +69,14 @@ interface DemoStore {
 
   setRole: (role: Role) => void
   setHelperOpen: (open: boolean) => void
+  loginStudent: (payload: {
+    id?: string
+    nickname: string
+    avatarId: string
+    skipOnboarding?: boolean
+  }) => void
+  loginAdult: (role: 'parent' | 'teacher') => void
+  logout: () => void
   completeOnboarding: (payload: {
     nickname: string
     avatarId: string
@@ -115,16 +124,17 @@ const initialChild = {
   id: 'child_may',
   nickname: 'Mây',
   avatarId: 'cloud-fox',
-  level: 3,
-  xp: 120,
+  level: 1,
+  xp: 100,
   goal: null as 'comic' | 'video' | 'character' | null,
-  currentCourse: 'Tạo truyện tranh AI đầu tiên',
+  currentCourse: 'Hành trình Mèo Sao: Học AI bằng cách sáng tạo',
   onboarded: false,
 }
 
 function initialState() {
   const cover = buildSceneSvg('cover', 0)
   return {
+    isLoggedIn: false,
     currentRole: 'student' as Role,
     child: { ...initialChild },
     completedQuestIds: ['meet-mascot'],
@@ -146,7 +156,7 @@ function initialState() {
       allowFreeText: true,
       allowAudioNarration: true,
     },
-    badges: ['Thẻ Creator'],
+    badges: ['Thẻ Nhà sáng tạo'],
     selectedVoiceId: 'voice-warm',
     selectedMusicId: 'music-soft',
     subtitlesOn: true,
@@ -168,8 +178,36 @@ export const useDemoStore = create<DemoStore>()(
       setRole: (role) => set({ currentRole: role }),
       setHelperOpen: (open) => set({ helperOpen: open }),
 
+      loginStudent: ({ id, nickname, avatarId, skipOnboarding }) =>
+        set((s) => ({
+          isLoggedIn: true,
+          currentRole: 'student',
+          child: {
+            ...s.child,
+            id: id ?? s.child.id,
+            nickname,
+            avatarId,
+            onboarded: skipOnboarding ? true : s.child.onboarded,
+          },
+        })),
+
+      loginAdult: (role) =>
+        set({
+          isLoggedIn: true,
+          currentRole: role,
+        }),
+
+      logout: () =>
+        set({
+          isLoggedIn: false,
+          currentRole: 'student',
+          helperOpen: false,
+        }),
+
       completeOnboarding: ({ nickname, avatarId, goal }) =>
         set((s) => ({
+          isLoggedIn: true,
+          currentRole: 'student',
           child: {
             ...s.child,
             nickname,
@@ -456,8 +494,9 @@ export const useDemoStore = create<DemoStore>()(
       },
     }),
     {
-      name: 'kids-creator-demo-v1',
+      name: 'kids-creator-demo-v2',
       partialize: (s) => ({
+        isLoggedIn: s.isLoggedIn,
         currentRole: s.currentRole,
         child: s.child,
         completedQuestIds: s.completedQuestIds,

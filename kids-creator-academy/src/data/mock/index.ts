@@ -14,19 +14,30 @@ import { buildAvatarSvg, buildMascotSvg, buildSceneSvg } from '@/lib/svg-scenes'
 export const MASCOT_SRC = buildMascotSvg()
 
 export const AVATARS = [
-  { id: 'cloud-fox', label: 'Cáo Mây', src: buildAvatarSvg('cloud', ['#6C5CE7', '#45C4F9']) },
-  { id: 'mint-bot', label: 'Bot Bạc Hà', src: buildAvatarSvg('mint', ['#58D8A3', '#45C4F9']) },
-  { id: 'sun-owl', label: 'Cú Nắng', src: buildAvatarSvg('sun', ['#FFD166', '#FF7A90']) },
-  { id: 'coral-whale', label: 'Cá Voi San Hô', src: buildAvatarSvg('whale', ['#FF7A90', '#6C5CE7']) },
-  { id: 'sky-bear', label: 'Gấu Trời', src: buildAvatarSvg('bear', ['#45C4F9', '#FFD166']) },
-  { id: 'ink-rabbit', label: 'Thỏ Mực', src: buildAvatarSvg('rabbit', ['#6C5CE7', '#FF7A90']) },
-  { id: 'leaf-panda', label: 'Gấu Trúc Lá', src: buildAvatarSvg('panda', ['#58D8A3', '#FFD166']) },
-  { id: 'star-otter', label: 'Rái Cá Sao', src: buildAvatarSvg('otter', ['#FFD166', '#45C4F9']) },
+  { id: 'cloud-fox', label: 'Cáo Mây', src: buildAvatarSvg('cloud', ['#7C6CF0', '#5ED0FF']) },
+  { id: 'mint-bot', label: 'Bot Bạc Hà', src: buildAvatarSvg('mint', ['#5EE4B0', '#5ED0FF']) },
+  { id: 'sun-owl', label: 'Cú Nắng', src: buildAvatarSvg('sun', ['#FFD56A', '#FF8FA3']) },
+  { id: 'coral-whale', label: 'Cá Voi Hồng', src: buildAvatarSvg('whale', ['#FF8FA3', '#7C6CF0']) },
+  { id: 'sky-bear', label: 'Gấu Trời', src: buildAvatarSvg('bear', ['#5ED0FF', '#FFD56A']) },
+  { id: 'ink-rabbit', label: 'Thỏ Mực', src: buildAvatarSvg('rabbit', ['#7C6CF0', '#FF8FA3']) },
+  { id: 'leaf-panda', label: 'Gấu Lá', src: buildAvatarSvg('panda', ['#5EE4B0', '#FFD56A']) },
+  { id: 'star-otter', label: 'Rái Sao', src: buildAvatarSvg('otter', ['#FFD56A', '#5ED0FF']) },
 ]
 
 export const NICKNAME_SUGGESTIONS = ['Mây', 'Bắp', 'Sóc', 'Nắng', 'Bo', 'Kẹo', 'Sao', 'Mít']
 
-export const COURSE_TITLE = 'Tạo truyện tranh AI đầu tiên'
+/**
+ * Course redesign for ages 8–11 (AI literacy + creative production)
+ * Principles (UNESCO / Common Sense / project-based learning):
+ * 1) AI is a tool, human decides
+ * 2) Clear instructions (prompt)
+ * 3) AI can be wrong — check
+ * 4) Privacy & kindness
+ * 5) Make a real product every few steps
+ * Language: short VN sentences, no scary failure, one mission per step
+ */
+export const COURSE_TITLE = 'Hành trình Mèo Sao: Học AI bằng cách sáng tạo'
+export const COURSE_TAGLINE = '8 nhiệm vụ vui · Tạo truyện tranh & video của riêng con'
 
 const learn = (
   cards: [string, string, string, LearnCard['kind']][],
@@ -43,148 +54,156 @@ export const QUESTS: Quest[] = [
   {
     id: 'meet-mascot',
     order: 1,
-    title: 'Gặp Robot Mực Màu',
-    skill: 'AI là công cụ, không phải con người',
-    reward: 'Thẻ Creator',
-    duration: 'Khoảng 6 phút',
-    hook: 'Robot Mực Màu mời con vào xưởng vẽ an toàn!',
-    goals: ['Hiểu AI giúp gì', 'Biết AI có thể sai', 'Nhận thẻ Creator'],
+    title: 'Chào AI bạn tốt',
+    skill: 'AI là công cụ giúp việc, không phải bạn bè thật',
+    reward: 'Thẻ Nhà sáng tạo',
+    duration: '5–7 phút',
+    hook: 'Robot Mực Màu nói: “AI vẽ theo lời con — con là chỉ huy!”',
+    goals: ['Biết AI giúp gì', 'Biết AI có thể sai', 'Nhận thẻ sáng tạo'],
     learnCards: learn([
-      ['AI là gì?', 'AI là công cụ vẽ theo mô tả của con.', 'Con là người quyết định.', 'concept'],
-      ['Ví dụ', 'Con nói “mèo bay”, AI vẽ mèo bay.', 'Con có thể chọn lại.', 'example'],
-      ['An toàn', 'Không chia sẻ tên thật hay số điện thoại.', 'Dùng biệt danh vui!', 'safety'],
+      ['AI là gì?', 'AI là máy làm theo mô tả của con.', 'Con chọn, AI giúp.', 'concept'],
+      ['Ví dụ vui', 'Con nói “mèo đội mũ”, AI vẽ mèo đội mũ.', 'Không ưng thì thử lại.', 'example'],
+      ['Giữ bí mật', 'Không ghi tên thật, số điện thoại, trường học.', 'Dùng biệt danh vui!', 'safety'],
     ]),
     status: 'completed',
-    accent: '#6C5CE7',
+    accent: '#7C6CF0',
     icon: 'sparkles',
   },
   {
     id: 'character',
     order: 2,
-    title: 'Tạo nhân vật',
-    skill: 'Chủ thể, tính cách, ngoại hình',
-    reward: 'Character Card',
-    duration: 'Khoảng 8 phút',
-    hook: 'Hãy tạo Mèo Sao — phi hành gia dũng cảm!',
-    goals: ['Chọn loài vật', 'Ghép prompt', 'Lưu thẻ nhân vật'],
+    title: 'Tạo bạn đồng hành',
+    skill: 'Mô tả rõ ai là nhân vật chính',
+    reward: 'Thẻ nhân vật',
+    duration: '8 phút',
+    hook: 'Tạo Mèo Sao — phi hành gia tò mò trên hành tinh kẹo!',
+    goals: ['Chọn hình dáng', 'Chọn tính cách', 'Lưu thẻ nhân vật'],
     learnCards: learn([
-      ['Nhân vật', 'Nhân vật cần ngoại hình và tính cách rõ.', 'Một nhân vật một ý chính.', 'concept'],
-      ['Ví dụ', 'Mèo Sao đội mũ phi hành gia, rất tò mò.', 'Thêm chi tiết vui!', 'example'],
-      ['An toàn', 'Chỉ dùng nhân vật tưởng tượng.', 'Không vẽ người thật.', 'safety'],
+      ['Nhân vật', 'Cần biết: trông thế nào + tính cách ra sao.', 'Một ý chính là đủ.', 'concept'],
+      ['Ví dụ', 'Mèo Sao đội mũ vũ trụ, rất hay hỏi “vì sao?”', 'Thêm chi tiết vui.', 'example'],
+      ['An toàn', 'Chỉ nhân vật tưởng tượng — không vẽ người thật.', 'Không tên người nổi tiếng.', 'safety'],
     ]),
     status: 'available',
-    accent: '#45C4F9',
+    accent: '#5ED0FF',
     icon: 'cat',
   },
   {
     id: 'world-build',
     order: 3,
-    title: 'Xây thế giới',
-    skill: 'Bối cảnh, thời gian, màu sắc',
-    reward: 'Background',
-    duration: 'Khoảng 8 phút',
-    hook: 'Hành tinh tím đang chờ con trang trí!',
-    goals: ['Chọn nơi chốn', 'Chọn màu', 'Lưu bối cảnh'],
+    title: 'Chọn nơi phiêu lưu',
+    skill: 'Bối cảnh giúp câu chuyện dễ hiểu',
+    reward: 'Phông nền',
+    duration: '7 phút',
+    hook: 'Mèo Sao cần một nơi: hành tinh tím, thư viện mây, hay rừng pha lê?',
+    goals: ['Chọn nơi', 'Chọn màu cảm xúc', 'Lưu bối cảnh'],
     learnCards: learn([
-      ['Bối cảnh', 'Nơi chốn giúp câu chuyện dễ hiểu.', 'Hỏi: đang ở đâu?', 'concept'],
-      ['Ví dụ', 'Thư viện trên mây, ánh sáng vàng.', 'Màu giúp tạo cảm xúc.', 'example'],
-      ['An toàn', 'Không dùng địa chỉ thật.', 'Chọn nơi tưởng tượng.', 'safety'],
+      ['Ở đâu?', 'Nơi chốn trả lời: nhân vật đang đứng chỗ nào?', 'Hỏi: đang ở đâu vậy?', 'concept'],
+      ['Ví dụ', 'Thư viện trên mây, ánh sáng vàng ấm.', 'Màu cũng kể chuyện.', 'example'],
+      ['An toàn', 'Không viết địa chỉ nhà hay tên trường thật.', 'Chọn nơi tưởng tượng.', 'safety'],
     ]),
     status: 'locked',
-    accent: '#58D8A3',
+    accent: '#5EE4B0',
     icon: 'globe',
   },
   {
     id: 'plot',
     order: 4,
-    title: 'Sự cố bất ngờ',
-    skill: 'Mở đầu, vấn đề, giải pháp',
-    reward: 'Story outline',
-    duration: 'Khoảng 8 phút',
-    hook: 'Máy tạo cầu vồng bị hỏng — ai sẽ sửa?',
-    goals: ['Tạo vấn đề', 'Tìm giải pháp', 'Lưu dàn ý'],
+    title: 'Có chuyện gì xảy ra?',
+    skill: 'Mở đầu → vấn đề → cách giải quyết',
+    reward: 'Dàn ý truyện',
+    duration: '8 phút',
+    hook: 'Máy tạo cầu vồng hỏng rồi! Làm sao hai bạn sửa được?',
+    goals: ['Chọn sự cố', 'Chọn cách sửa', 'Lưu dàn ý'],
     learnCards: learn([
-      ['Cốt truyện', 'Mở đầu → vấn đề → giải pháp.', 'Giữ ngắn và vui.', 'concept'],
-      ['Ví dụ', 'Máy hỏng, hai bạn tìm bản đồ ánh sáng.', 'Kết thúc tích cực.', 'example'],
-      ['An toàn', 'Không bạo lực.', 'Giải quyết bằng trí tuệ.', 'safety'],
+      ['3 bước truyện', 'Bắt đầu → gặp khó → giải quyết vui.', 'Ngắn gọn là hay.', 'concept'],
+      ['Ví dụ', 'Máy hỏng → tìm bản đồ ánh sáng → cầu vồng trở lại.', 'Kết thúc tích cực.', 'example'],
+      ['An toàn', 'Không bạo lực. Dùng trí khôn và hợp tác.', 'Bạn bè giúp nhau.', 'safety'],
     ]),
     status: 'locked',
-    accent: '#FFD166',
+    accent: '#FFD56A',
     icon: 'zap',
   },
   {
     id: 'prompt-lab',
     order: 5,
-    title: 'Phòng thí nghiệm Prompt',
-    skill: 'Subject + Action + Place + Mood + Style',
-    reward: 'Prompt recipe',
-    duration: 'Khoảng 10 phút',
-    hook: 'Ghép 5 thẻ để AI hiểu đúng ý con!',
-    goals: ['Đủ 5 slot', 'Tạo 3 phiên bản', 'Chọn bản tốt'],
+    title: 'Nói cho AI hiểu',
+    skill: 'Ghép 5 mảnh: ai, làm gì, ở đâu, cảm xúc, phong cách',
+    reward: 'Công thức mô tả',
+    duration: '10 phút',
+    hook: 'AI không đọc suy nghĩ — con ghép thẻ để AI hiểu đúng!',
+    goals: ['Đủ 5 ô thẻ', 'Tạo 3 ảnh thử', 'Chọn ảnh ưng'],
     learnCards: learn([
-      ['Prompt', 'Prompt là mô tả để AI vẽ.', 'Càng rõ càng đẹp.', 'concept'],
-      ['Ví dụ', 'Mèo sửa tàu trên hành tinh tím, vui, màu nước.', 'Đủ 5 phần.', 'example'],
-      ['An toàn', 'Không nhập thông tin cá nhân.', 'Chỉ chi tiết tưởng tượng.', 'safety'],
+      ['Mô tả rõ', 'Càng rõ “ai + làm gì + ở đâu”, ảnh càng đúng.', 'Đủ 5 ô là tuyệt.', 'concept'],
+      ['Ví dụ', 'Mèo sửa tàu / hành tinh tím / vui / màu nước.', 'Thử vài cách.', 'example'],
+      ['An toàn', 'Không ghi thông tin cá nhân vào ô chữ.', 'Chỉ chi tiết tưởng tượng.', 'safety'],
     ]),
     status: 'locked',
-    accent: '#FF7A90',
+    accent: '#FF8FA3',
     icon: 'flask',
   },
   {
     id: 'detective',
     order: 6,
-    title: 'Thám tử AI',
-    skill: 'Phát hiện chi tiết sai',
-    reward: 'Detective badge',
-    duration: 'Khoảng 8 phút',
-    hook: 'AI đôi khi vẽ sai — con là thám tử!',
-    goals: ['So sánh 3 ảnh', 'Tìm chi tiết lạ', 'Chọn ảnh đúng'],
+    title: 'Thám tử kiểm tra AI',
+    skill: 'AI có thể sai — con so sánh và chọn',
+    reward: 'Huy hiệu Thám tử AI',
+    duration: '8 phút',
+    hook: 'Ba bức vẽ — bức nào khớp ý con? Có chi tiết lạ không?',
+    goals: ['So 3 ảnh', 'Tìm điểm lạ', 'Chọn ảnh tốt'],
     learnCards: learn([
-      ['AI có thể sai', 'AI không luôn đúng.', 'Con được kiểm tra.', 'concept'],
-      ['Ví dụ', 'Ba mặt trăng thay vì một.', 'Hỏi: có khớp ý không?', 'example'],
-      ['An toàn', 'Không tin mọi chi tiết AI tạo.', 'Tự chọn và sửa.', 'safety'],
+      ['AI sai được', 'AI không phải lúc nào cũng đúng.', 'Con là người kiểm tra.', 'concept'],
+      ['Ví dụ', 'Câu chuyện 1 mặt trăng nhưng ảnh có 3!', 'Hỏi: khớp ý chưa?', 'example'],
+      ['An toàn', 'Không tin mọi thứ AI tạo ra.', 'Được chọn lại bất cứ lúc nào.', 'safety'],
     ]),
     status: 'locked',
-    accent: '#6C5CE7',
+    accent: '#7C6CF0',
     icon: 'search',
   },
   {
     id: 'comic',
     order: 7,
-    title: 'Xưởng truyện tranh',
-    skill: 'Panel, caption, speech bubble',
-    reward: 'Comic',
-    duration: 'Khoảng 12 phút',
-    hook: 'Kéo cảnh vào 4 khung và thêm hội thoại!',
-    goals: ['Đặt 4 khung', 'Thêm bong bóng', 'Xem trước'],
+    title: 'Làm truyện 4 khung',
+    skill: 'Sắp cảnh + lời thoại ngắn',
+    reward: 'Truyện tranh',
+    duration: '12 phút',
+    hook: 'Kéo nhân vật vào khung, thêm lời nói — truyện của con ra đời!',
+    goals: ['Đặt ảnh vào khung', 'Thêm bong bóng', 'Xem trước'],
     learnCards: learn([
-      ['Panel', 'Mỗi khung là một nhịp câu chuyện.', 'Trái sang phải.', 'concept'],
-      ['Ví dụ', 'Khung 1 gặp nhau, khung 4 chiến thắng.', 'Lời thoại ngắn.', 'example'],
-      ['An toàn', 'Không dùng tên thật trong thoại.', 'Tối đa 80 ký tự.', 'safety'],
+      ['Khung truyện', 'Mỗi khung một nhịp: trái → phải.', '4 khung là đủ vui.', 'concept'],
+      ['Ví dụ', 'Gặp nhau → sự cố → tìm cách → vui vẻ.', 'Lời thoại ngắn.', 'example'],
+      ['An toàn', 'Không viết tên thật trong thoại.', 'Tối đa 80 ký tự.', 'safety'],
     ]),
     status: 'locked',
-    accent: '#45C4F9',
+    accent: '#5ED0FF',
     icon: 'layout',
   },
   {
     id: 'cinema',
     order: 8,
-    title: 'Rạp phim mini',
-    skill: 'Storyboard, voice, subtitle',
-    reward: 'Video',
-    duration: 'Khoảng 12 phút',
-    hook: 'Biến truyện tranh thành video kể chuyện!',
-    goals: ['Chọn giọng', 'Thêm lời kể', 'Render thử'],
+    title: 'Kể thành video',
+    skill: 'Sắp thời gian + lời kể + phụ đề',
+    reward: 'Video mini',
+    duration: '12 phút',
+    hook: 'Biến truyện tranh thành phim ngắn 30–45 giây để khoe gia đình!',
+    goals: ['Chọn giọng kể', 'Bật phụ đề', 'Tạo video thử'],
     learnCards: learn([
-      ['Storyboard', 'Sắp xếp cảnh theo thời gian.', 'Mỗi cảnh 2–6 giây.', 'concept'],
-      ['Ví dụ', 'Giọng ấm + phụ đề giúp dễ hiểu.', 'Bật phụ đề mặc định.', 'example'],
-      ['An toàn', 'Không clone giọng người thật.', 'Dùng giọng giả lập.', 'safety'],
+      ['Video kể chuyện', 'Mỗi cảnh vài giây + lời kể rõ.', 'Phụ đề giúp dễ hiểu.', 'concept'],
+      ['Ví dụ', 'Giọng ấm + chữ dưới màn hình.', 'Nghe thử trước khi xong.', 'example'],
+      ['An toàn', 'Dùng giọng giả lập — không copy giọng người thật.', 'Chia sẻ cần phụ huynh duyệt.', 'safety'],
     ]),
     status: 'locked',
-    accent: '#58D8A3',
+    accent: '#5EE4B0',
     icon: 'clapperboard',
   },
 ]
+
+/** Kid-facing journey stages for UI (maps to quests) */
+export const JOURNEY_CHAPTERS = [
+  { title: 'Làm quen AI', questIds: ['meet-mascot'] },
+  { title: 'Tạo ý tưởng', questIds: ['character', 'world-build', 'plot'] },
+  { title: 'Làm việc với AI', questIds: ['prompt-lab', 'detective'] },
+  { title: 'Sản phẩm của con', questIds: ['comic', 'cinema'] },
+] as const
 
 export const PROMPT_CHIPS: PromptChip[] = [
   { id: 'c-cat', slot: 'character', label: 'Mèo phi hành gia', emoji: '🐱', description: 'Mèo Sao đội mũ vũ trụ' },
@@ -213,9 +232,9 @@ export const DEFAULT_SKILLS: SkillMastery[] = [
   { skillId: 'AI.Foundation', label: 'Hiểu AI', level: 2, confidence: 0.7 },
   { skillId: 'Prompt.Subject', label: 'Nhân vật', level: 1, confidence: 0.5 },
   { skillId: 'Prompt.Environment', label: 'Bối cảnh', level: 1, confidence: 0.4 },
-  { skillId: 'CriticalThinking.Compare', label: 'So sánh', level: 0, confidence: 0.2 },
-  { skillId: 'Media.Composition', label: 'Bố cục', level: 0, confidence: 0.1 },
-  { skillId: 'Safety.PersonalData', label: 'Bảo vệ dữ liệu', level: 2, confidence: 0.8 },
+  { skillId: 'CriticalThinking.Compare', label: 'Kiểm tra AI', level: 0, confidence: 0.2 },
+  { skillId: 'Media.Composition', label: 'Kể bằng hình', level: 0, confidence: 0.1 },
+  { skillId: 'Safety.PersonalData', label: 'Giữ bí mật', level: 2, confidence: 0.8 },
 ]
 
 export const DEFAULT_COMIC: ComicPage = {
@@ -254,6 +273,16 @@ export const PARENT_FEEDBACK_TEMPLATES = [
   'Sản phẩm rất sáng tạo, hãy thêm lời kết nhé.',
 ]
 
+/** Demo accounts — no real PII (COPPA-friendly prototype) */
+export const DEMO_CHILD_PROFILES = [
+  { id: 'child_may', nickname: 'Mây', avatarId: 'cloud-fox', label: 'Học sinh Mây' },
+  { id: 'child_bap', nickname: 'Bắp', avatarId: 'mint-bot', label: 'Học sinh Bắp' },
+  { id: 'child_soc', nickname: 'Sóc', avatarId: 'sun-owl', label: 'Học sinh Sóc' },
+]
+
+/** Adult demo PIN (prototype only) */
+export const DEMO_ADULT_PIN = '2468'
+
 export const MOCK_STUDENTS: StudentRow[] = [
   {
     id: 'st-may',
@@ -269,7 +298,7 @@ export const MOCK_STUDENTS: StudentRow[] = [
     nickname: 'Bắp',
     avatarId: 'mint-bot',
     progress: 40,
-    skillsNeedHelp: ['Prompt', 'So sánh'],
+    skillsNeedHelp: ['Mô tả cho AI', 'Kiểm tra AI'],
     latestProject: 'Robot Vườn Sao',
     status: 'needs_support',
   },
@@ -296,7 +325,7 @@ export const MOCK_STUDENTS: StudentRow[] = [
     nickname: 'Bo',
     avatarId: 'sky-bear',
     progress: 33,
-    skillsNeedHelp: ['Cốt truyện', 'An toàn dữ liệu'],
+    skillsNeedHelp: ['Cốt truyện', 'Giữ bí mật'],
     latestProject: 'Thư Viện Mây',
     status: 'needs_support',
   },
@@ -307,7 +336,7 @@ export function createSeedAssets(): Asset[] {
     {
       id: 'asset-creator-card',
       type: 'badge',
-      name: 'Thẻ Creator',
+      name: 'Thẻ Nhà sáng tạo',
       questId: 'meet-mascot',
       thumbnail: MASCOT_SRC,
       createdAt: new Date().toISOString(),
@@ -377,15 +406,32 @@ export const PROJECT_SEED = {
   title: 'Mèo Sao và Hành tinh Kẹo',
   cover: buildSceneSvg('cover', 0),
   characterName: 'Mèo Sao',
-  reflection: 'Con học được AI có thể sai và con được chọn lại.',
+  reflection: 'Con học được: AI có thể sai và con được chọn lại.',
   skillsLearned: [
-    'Ghép prompt',
-    'So sánh kết quả AI',
-    'Kể chuyện bằng panel',
+    'Mô tả cho AI',
+    'Kiểm tra kết quả AI',
+    'Kể chuyện bằng khung',
     'Thêm lời kể an toàn',
   ],
   shareStatus: 'private' as const,
   approvalStatus: 'none' as const,
   comicReady: false,
   videoReady: false,
+}
+
+/** Resolve next action route for a quest id */
+export function questRoute(questId: string): string {
+  switch (questId) {
+    case 'character':
+      return '/quest/character'
+    case 'prompt-lab':
+    case 'detective':
+      return '/studio/prompt'
+    case 'comic':
+      return '/studio/comic'
+    case 'cinema':
+      return '/studio/video'
+    default:
+      return `/quest/${questId}`
+  }
 }

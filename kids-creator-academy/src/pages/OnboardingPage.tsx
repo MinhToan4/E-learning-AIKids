@@ -54,7 +54,7 @@ export function OnboardingPage() {
       addToast({
         type: 'success',
         title: `Chào ${nickname.trim()}!`,
-        description: 'Ba lô sáng tạo đã sẵn sàng.',
+        description: 'Bắt đầu hành trình Mèo Sao — nhìn nút Làm tiếp nhé.',
       })
       navigate('/world')
     }

@@ -7,6 +7,9 @@ import { RouteError } from '@/components/feedback/RouteError'
 const WelcomePage = lazy(() =>
   import('@/pages/WelcomePage').then((m) => ({ default: m.WelcomePage })),
 )
+const LoginPage = lazy(() =>
+  import('@/pages/LoginPage').then((m) => ({ default: m.LoginPage })),
+)
 const OnboardingPage = lazy(() =>
   import('@/pages/OnboardingPage').then((m) => ({ default: m.OnboardingPage })),
 )
@@ -119,6 +122,14 @@ export const router = createBrowserRouter([
         element: (
           <L>
             <WelcomePage />
+          </L>
+        ),
+      },
+      {
+        path: 'login',
+        element: (
+          <L>
+            <LoginPage />
           </L>
         ),
       },

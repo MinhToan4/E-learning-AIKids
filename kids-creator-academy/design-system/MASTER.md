@@ -8,6 +8,21 @@
 - **Language:** Vietnamese (vi-VN)
 - **Tone:** Warm, playful, trustworthy — not babyish, not neon cyberpunk, not corporate dashboard
 
+## UX rules (8–11, research-backed)
+
+- One primary action per screen (large CTA “Làm tiếp / Bắt đầu ngay”)
+- Max 4 student nav items: Nhà · Làm tiếp · Ba lô · Tôi
+- Short Vietnamese sentences; no public leaderboard; no shame language
+- Login: child avatar/nickname demo; adult PIN — no child email (COPPA pattern)
+- Motion: transform/opacity only, ~150–280ms; respect prefers-reduced-motion
+- Touch ≥ 48px; no hover-only critical actions
+
+## Skills applied
+
+- ui-ux-pro-max (Clay/Soft UI, a11y, anti AI-purple-neon)
+- brand / design-system tokens (MASTER + CSS @theme)
+- Product curriculum scaffolded for AI literacy + creative product
+
 ## Style
 
 **Primary style:** Soft Clay UI Evolution

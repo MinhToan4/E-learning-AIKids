@@ -63,24 +63,26 @@ Mở URL Vite in ra (thường `http://localhost:5173`).
 | `npm run test` | Unit tests |
 | `npm run format` | Prettier |
 
-## Demo / role switch
+## Demo / đăng nhập (COPPA-friendly prototype)
 
-Không có mật khẩu. Trong **Hồ sơ** (hoặc nút góc Welcome):
+**Không email / mật khẩu cho trẻ.** Flow demo:
 
 | Vai | Cách vào |
 |-----|----------|
-| Học sinh | Welcome → Bắt đầu phiêu lưu |
-| Phụ huynh | Welcome → Khu vực phụ huynh / Hồ sơ → Vai phụ huynh |
-| Giáo viên | Welcome → Giáo viên / Hồ sơ → Vai giáo viên |
+| Học sinh | `/login` → Tôi là học sinh → chọn Mây/Bắp/Sóc |
+| Phụ huynh / GV | `/login` → Phụ huynh/GV → PIN demo **`2468`** |
 
-**Reset demo:** Hồ sơ hoặc sidebar adult → Reset demo.
+**Nav học sinh (4 mục):** Nhà · Làm tiếp · Ba lô · Tôi  
+Xưởng prompt/comic/video đi theo nhiệm vụ (không nhồi 5 tab).
 
-**Demo lỗi AI:** Hồ sơ → bật “Demo lỗi AI” rồi tạo ảnh ở Xưởng Prompt.
+**Reset demo:** Hồ sơ hoặc sidebar adult.  
+**Demo lỗi AI:** Hồ sơ → bật “Demo lỗi AI”.
 
 ## Route list
 
 ```
 /welcome
+/login
 /onboarding
 /world
 /quest/character
@@ -122,14 +124,24 @@ UI intelligence skill: repo root `.claude/skills/ui-ux-pro-max` (từ [ui-ux-pro
 
 ## Demo flow (5–8 phút)
 
-1. Welcome → Onboarding (avatar, biệt danh, mục tiêu)  
-2. World Map → Quest **Tạo nhân vật**  
-3. Xưởng Prompt: ghép 5 thẻ → Tạo 3 phiên bản  
-4. Compare: tìm chi tiết lạ (3 mặt trăng) → chọn ảnh tốt  
-5. Comic Studio: đặt asset / bong bóng → Lưu & video  
-6. Rạp phim mini: giọng + phụ đề → Render  
-7. Portfolio → gửi duyệt gia đình  
-8. Parent Approvals → Duyệt  
+1. Welcome → **Login** (học sinh Mây)  
+2. World → nút **Làm tiếp** / Bắt đầu ngay  
+3. Tạo bạn đồng hành → Ghép thẻ → 3 phiên bản  
+4. Thám tử AI (3 mặt trăng) → Comic → Video  
+5. Portfolio → gửi gia đình → Parent PIN `2468` → Duyệt  
+
+### Khóa học 8–11 (AI literacy scaffolded)
+
+1. Chào AI bạn tốt  
+2. Tạo bạn đồng hành  
+3. Chọn nơi phiêu lưu  
+4. Có chuyện gì xảy ra?  
+5. Nói cho AI hiểu  
+6. Thám tử kiểm tra AI  
+7. Làm truyện 4 khung  
+8. Kể thành video  
+
+Tham chiếu pattern: NN/g children UX, UNESCO GenAI education, Common Sense AI literacy, COPPA (no child email).
 
 ## Safety decisions
 
