@@ -14,6 +14,7 @@ export function ComparePage() {
   const saveSelectedToBackpack = useDemoStore((s) => s.saveSelectedToBackpack)
   const addBadge = useDemoStore((s) => s.addBadge)
   const completeQuest = useDemoStore((s) => s.completeQuest)
+  const setCurrentQuest = useDemoStore((s) => s.setCurrentQuest)
   const addStars = useDemoStore((s) => s.addStars)
   const addToast = useDemoStore((s) => s.addToast)
   const child = useDemoStore((s) => s.child)
@@ -26,27 +27,61 @@ export function ComparePage() {
 
   if (!results.length) {
     return (
-      <Card>
-        <p className="font-semibold">Chưa có kết quả AI.</p>
-        <Button className="mt-4" onClick={() => navigate('/studio/prompt')}>
-          Về Xưởng Prompt
-        </Button>
-      </Card>
+      <div className="mx-auto max-w-lg space-y-4">
+        <Card className="text-center">
+          <p className="font-display text-xl">Chưa có ảnh để so sánh</p>
+          <p className="mt-2 text-sm text-muted">
+            Hãy ghép thẻ và tạo 3 ảnh trước nhé.
+          </p>
+          <Button className="mt-4" onClick={() => navigate('/studio/prompt')}>
+            Ghép thẻ tạo ảnh
+          </Button>
+        </Card>
+      </div>
     )
   }
 
   const selected = results.find((r) => r.id === selectedId)
 
+  const useImage = () => {
+    if (!selected) return
+    saveSelectedToBackpack()
+
+    // Compare screen IS the "detective" practice
+    if (checks.odd || results.some((r) => r.oddDetail)) {
+      addBadge('Thám tử AI')
+      completeQuest('detective', 30)
+      addStars(15)
+    }
+    completeQuest('prompt-lab', 100)
+    // Unlock path toward comic (skip empty intermediate for smooth create path)
+    completeQuest('world-build', 20)
+    completeQuest('plot', 20)
+    addStars(20)
+    setCurrentQuest('comic')
+
+    addToast({
+      type: 'success',
+      title: 'Đã lưu ảnh!',
+      description: 'Trả lời 2 câu hỏi nhỏ rồi làm truyện 4 khung.',
+    })
+    // Quiz then comic — never back to prompt
+    navigate('/challenge/ch-after-prompt')
+  }
+
   return (
-    <div className="space-y-5">
+    <div className="stage-shell space-y-5 pb-8">
       <div>
-        <h1 className="font-display text-3xl font-semibold">So sánh 3 phiên bản</h1>
-        <p className="text-muted">
-          {child.nickname} ơi, hãy làm Thám tử AI — chọn ảnh khớp ý và tìm chi tiết lạ.
+        <p className="text-sm font-bold text-brand-500">Bước thám tử AI</p>
+        <h1 className="font-display text-2xl text-text sm:text-3xl">
+          Chọn 1 trong 3 ảnh
+        </h1>
+        <p className="mt-1 text-base text-muted">
+          {child.nickname} ơi — tìm chi tiết lạ (nếu có) rồi chọn ảnh ưng nhất.
         </p>
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {results.map((r) => (
           <ChoiceCard
             key={r.id}
@@ -57,14 +92,14 @@ export function ComparePage() {
             <img
               src={r.imageDataUrl}
               alt={`${r.title} — minh họa AI an toàn`}
-              className="w-full rounded-2xl border border-border"
+              className="aspect-[4/3] w-full rounded-2xl border border-border object-cover"
             />
-            <div className="mt-3 flex items-center justify-between">
+            <div className="mt-3 flex items-center justify-between gap-2">
               <p className="font-display text-lg font-semibold">{r.title}</p>
               {selectedId === r.id ? (
                 <span className="inline-flex items-center gap-1 rounded-full bg-mint-100 px-2 py-1 text-xs font-bold text-success">
                   <Check className="size-3.5" aria-hidden />
-                  Đã chọn
+                  Chọn
                 </span>
               ) : null}
             </div>
@@ -81,7 +116,7 @@ export function ComparePage() {
       </div>
 
       <Card>
-        <h2 className="font-display text-xl font-semibold">Checklist đánh giá</h2>
+        <h2 className="text-base font-bold text-text">Checklist nhanh</h2>
         <div className="mt-3 grid gap-2 sm:grid-cols-3">
           {(
             [
@@ -93,7 +128,7 @@ export function ComparePage() {
             <label
               key={key}
               className={cn(
-                'flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl border px-4 font-semibold',
+                'flex min-h-12 cursor-pointer items-center gap-3 rounded-2xl border-2 px-4 text-sm font-semibold',
                 checks[key] ? 'border-brand-500 bg-brand-50' : 'border-border bg-white',
               )}
             >
@@ -109,36 +144,13 @@ export function ComparePage() {
         </div>
       </Card>
 
-      <div className="flex flex-wrap gap-3">
+      <div className="flex flex-col gap-3 sm:flex-row">
         <Button variant="secondary" onClick={() => navigate('/studio/prompt')}>
           <Wand2 className="size-4" aria-hidden />
-          Sửa mô tả
+          Sửa thẻ / tạo lại
         </Button>
-        <Button
-          size="lg"
-          disabled={!selected}
-          onClick={() => {
-            if (!selected) return
-            saveSelectedToBackpack()
-            if (selected.oddDetail === undefined && results.some((r) => r.oddDetail)) {
-              // chose clean image after spotting odd one
-            }
-            if (checks.odd || results.some((r) => r.oddDetail && r.id !== selected.id)) {
-              addBadge('Thám tử AI')
-              completeQuest('detective', 30)
-              addStars(15)
-            }
-            completeQuest('prompt-lab', 100)
-            addStars(20)
-            addToast({
-              type: 'success',
-              title: 'Giỏi lắm! +sao & thẻ ảnh',
-              description: 'Tiếp theo: làm truyện 4 khung.',
-            })
-            navigate('/challenge/ch-after-prompt')
-          }}
-        >
-          Dùng ảnh này (+sao)
+        <Button size="lg" className="flex-1" disabled={!selected} onClick={useImage}>
+          Dùng ảnh này · tiếp tục
         </Button>
       </div>
     </div>

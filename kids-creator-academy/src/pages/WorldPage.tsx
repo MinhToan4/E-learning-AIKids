@@ -51,12 +51,30 @@ export function WorldPage() {
     : null
 
   const openQuest = (id: string) => {
+    // Smooth create path: detective is done inside Compare, never force quiz gate that loops to prompt
+    if (id === 'detective') {
+      if (useDemoStore.getState().generatedResults.length > 0) {
+        setCurrentQuest(id)
+        navigate('/studio/compare')
+        return
+      }
+      // No images yet → send to prompt, not a broken empty compare
+      setCurrentQuest('prompt-lab')
+      navigate('/studio/prompt')
+      return
+    }
     const prev = quests.find(
       (q) => q.order === (quests.find((x) => x.id === id)?.order ?? 0) - 1,
     )
     if (prev && completed.includes(prev.id)) {
       const ch = challengeAfter(prev.id)
-      if (ch && !challengesPassed.includes(ch.id) && id !== prev.id) {
+      // Only gate with challenge if not the prompt→comic path (handled after compare)
+      if (
+        ch &&
+        ch.id !== 'ch-after-prompt' &&
+        !challengesPassed.includes(ch.id) &&
+        id !== prev.id
+      ) {
         navigate(`/challenge/${ch.id}`)
         return
       }

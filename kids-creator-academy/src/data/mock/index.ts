@@ -419,18 +419,26 @@ export const PROJECT_SEED = {
   videoReady: false,
 }
 
-/** Resolve next action route for a quest id */
+/**
+ * Resolve route for a quest id.
+ * IMPORTANT: detective is compare-results, NOT prompt again (avoids loop after quiz).
+ */
 export function questRoute(questId: string): string {
   switch (questId) {
     case 'character':
       return '/quest/character'
     case 'prompt-lab':
-    case 'detective':
       return '/studio/prompt'
+    case 'detective':
+      return '/studio/compare'
     case 'comic':
       return '/studio/comic'
     case 'cinema':
       return '/studio/video'
+    case 'world-build':
+    case 'plot':
+    case 'meet-mascot':
+      return `/quest/${questId}`
     default:
       return `/quest/${questId}`
   }

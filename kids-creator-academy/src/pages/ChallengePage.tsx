@@ -1,13 +1,12 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 import { Button } from '@/components/ui/Button'
 import { Card, ChoiceCard } from '@/components/ui/Card'
 import { MissionBanner } from '@/components/ui/MissionBanner'
 import { CheerOverlay, useCheer } from '@/components/game/CheerBurst'
 import { CHALLENGES } from '@/data/challenges'
+import { resolveChallengeExit } from '@/lib/flow'
 import { useDemoStore } from '@/store/demo-store'
-import { questRoute } from '@/data/mock'
-import { QUESTS } from '@/data/mock'
 
 export function ChallengePage() {
   const { challengeId } = useParams()
@@ -16,6 +15,7 @@ export function ChallengePage() {
   const passChallenge = useDemoStore((s) => s.passChallenge)
   const addStars = useDemoStore((s) => s.addStars)
   const completeQuest = useDemoStore((s) => s.completeQuest)
+  const setCurrentQuest = useDemoStore((s) => s.setCurrentQuest)
   const addToast = useDemoStore((s) => s.addToast)
   const { cheer, fire } = useCheer()
 
@@ -23,28 +23,41 @@ export function ChallengePage() {
   const [picked, setPicked] = useState<string | null>(null)
   const [feedback, setFeedback] = useState<string | null>(null)
   const [score, setScore] = useState(0)
+  const [advancing, setAdvancing] = useState(false)
 
-  const q = challenge?.questions[qi]
-  const done = challenge ? qi >= challenge.questions.length : false
+  const total = challenge?.questions.length ?? 0
+  const done = !!challenge && qi >= total
+  const q = !done && challenge ? challenge.questions[qi] : undefined
 
-  const nextQuestId = useMemo(() => {
-    if (!challenge) return null
-    const idx = QUESTS.findIndex((x) => x.id === challenge.afterQuestId)
-    return QUESTS[idx + 1]?.id ?? null
-  }, [challenge])
-
-  if (!challenge || !q && !done) {
+  if (!challenge) {
     return (
       <Card>
         <p className="font-bold">Không tìm thấy thử thách.</p>
         <Button className="mt-3" onClick={() => navigate('/world')}>
-          Về nhà
+          Về bản đồ
         </Button>
       </Card>
     )
   }
 
+  const finishChallenge = () => {
+    const exit = resolveChallengeExit(challenge.id)
+    passChallenge(challenge.id)
+    addStars(challenge.starsReward)
+    for (const id of exit.completeQuestIds) {
+      completeQuest(id)
+    }
+    if (exit.nextQuestId) setCurrentQuest(exit.nextQuestId)
+    addToast({
+      type: 'success',
+      title: 'Vượt ải xong!',
+      description: 'Tiếp theo: nhiệm vụ mới.',
+    })
+    navigate(exit.nextPath)
+  }
+
   if (done) {
+    const exit = resolveChallengeExit(challenge.id)
     return (
       <div className="mx-auto max-w-lg space-y-4 text-center">
         <CheerOverlay message={cheer} />
@@ -53,19 +66,14 @@ export function ChallengePage() {
         </p>
         <h1 className="font-display text-3xl text-brand-600">Vượt ải thành công!</h1>
         <p className="font-semibold text-muted">
-          Đúng {score}/{challenge.questions.length} câu · +{challenge.starsReward} sao
+          Đúng {score}/{total} câu · +{challenge.starsReward} sao
         </p>
-        <Button
-          size="lg"
-          fullWidth
-          onClick={() => {
-            passChallenge(challenge.id)
-            addStars(challenge.starsReward)
-            if (nextQuestId) navigate(questRoute(nextQuestId))
-            else navigate('/world')
-          }}
-        >
-          Mở bước tiếp theo
+        <Button size="lg" fullWidth onClick={finishChallenge}>
+          {exit.nextPath.includes('comic')
+            ? 'Làm truyện 4 khung'
+            : exit.nextPath.includes('quest')
+              ? 'Nhiệm vụ tiếp theo'
+              : 'Tiếp tục'}
         </Button>
       </div>
     )
@@ -75,7 +83,7 @@ export function ChallengePage() {
     <div className="mx-auto max-w-lg space-y-4">
       <CheerOverlay message={cheer} />
       <MissionBanner
-        stepLabel={`Thử thách · Câu ${qi + 1}/${challenge.questions.length}`}
+        stepLabel={`Thử thách · Câu ${qi + 1}/${total}`}
         doing={challenge.title}
         why={challenge.intro}
         reward={`+${challenge.starsReward} sao khi xong`}
@@ -88,11 +96,11 @@ export function ChallengePage() {
               key={opt.id}
               selected={picked === opt.id}
               onClick={() => {
-                if (feedback) return
+                if (feedback || advancing) return
                 setPicked(opt.id)
               }}
             >
-              <span className="font-extrabold">{opt.label}</span>
+              <span className="font-bold">{opt.label}</span>
             </ChoiceCard>
           ))}
         </div>
@@ -111,10 +119,11 @@ export function ChallengePage() {
         <Button
           size="lg"
           fullWidth
-          disabled={!picked}
+          disabled={!picked || advancing}
           onClick={() => {
-            if (!picked || !q) return
+            if (!picked || !q || advancing) return
             const opt = q.options.find((o) => o.id === picked)!
+            setAdvancing(true)
             if (opt.correct) {
               setScore((s) => s + 1)
               setFeedback(`Đúng! ${q.explain}`)
@@ -131,8 +140,9 @@ export function ChallengePage() {
             window.setTimeout(() => {
               setFeedback(null)
               setPicked(null)
+              setAdvancing(false)
               setQi((i) => i + 1)
-            }, 1600)
+            }, 1400)
           }}
         >
           Kiểm tra đáp án
@@ -142,13 +152,11 @@ export function ChallengePage() {
         variant="ghost"
         fullWidth
         onClick={() => {
-          // soft skip still completes afterQuest so path continues — optional for demo
-          completeQuest(challenge.afterQuestId)
-          passChallenge(challenge.id)
-          navigate('/world')
+          // Skip quiz but still advance correctly (no loop)
+          finishChallenge()
         }}
       >
-        Quay lại bản đồ (làm sau)
+        Bỏ qua thử thách · tiếp tục
       </Button>
     </div>
   )

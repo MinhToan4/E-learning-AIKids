@@ -12,6 +12,8 @@ export function QuestCharacterPage() {
   const navigate = useNavigate()
   const quest = QUESTS.find((q) => q.id === 'character')!
   const completeQuest = useDemoStore((s) => s.completeQuest)
+  const setCurrentQuest = useDemoStore((s) => s.setCurrentQuest)
+  const addStars = useDemoStore((s) => s.addStars)
   const [stage, setStage] = useState<'intro' | 'pick' | 'done'>('intro')
   const [species, setSpecies] = useState('Mèo')
   const [outfit, setOutfit] = useState('Mũ phi hành gia')
@@ -101,10 +103,12 @@ export function QuestCharacterPage() {
             fullWidth
             onClick={() => {
               completeQuest('character', 100)
+              addStars(15)
+              setCurrentQuest('prompt-lab')
               setStage('done')
             }}
           >
-            Xong bước này → Vẽ bằng AI
+            Xong bước này → Ghép thẻ tạo ảnh
             <ArrowRight className="size-5" aria-hidden />
           </Button>
         </div>
@@ -114,9 +118,16 @@ export function QuestCharacterPage() {
         <Card className="space-y-4 text-center">
           <p className="font-display text-2xl text-success">Giỏi lắm!</p>
           <p className="font-semibold text-muted">
-            Bước tiếp: ghép thẻ để AI vẽ {species} của con.
+            Tiếp theo: ghép thẻ để AI vẽ {species} · {outfit} · {trait}
           </p>
-          <Button size="lg" fullWidth onClick={() => navigate('/studio/prompt')}>
+          <Button
+            size="lg"
+            fullWidth
+            onClick={() => {
+              setCurrentQuest('prompt-lab')
+              navigate('/studio/prompt')
+            }}
+          >
             Ghép thẻ tạo ảnh
             <ArrowRight className="size-5" aria-hidden />
           </Button>
