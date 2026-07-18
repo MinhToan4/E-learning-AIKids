@@ -12,6 +12,8 @@ import type {
 import { buildAvatarSvg, buildMascotSvg, buildSceneSvg } from '@/lib/svg-scenes'
 
 export const MASCOT_SRC = buildMascotSvg()
+/** Cute map character (generated asset) */
+export const MAP_MASCOT_SRC = '/assets/mascot-map.jpg'
 
 export const AVATARS = [
   { id: 'cloud-fox', label: 'Cáo Mây', src: buildAvatarSvg('cloud', ['#7C6CF0', '#5ED0FF']) },

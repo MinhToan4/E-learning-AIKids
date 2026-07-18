@@ -181,7 +181,8 @@ function initialState() {
     selectedCourseId: 'course-comic',
     enrolledCourseIds: ['course-comic', 'course-safety'],
     coursePlayMode: 'adventure' as const,
-    adventureIndex: 0,
+    // meet-mascot done → stand on character (index 1)
+    adventureIndex: 1,
     completedQuestIds: ['meet-mascot'],
     currentQuestId: 'character',
     currentProject: { ...PROJECT_SEED, cover },
@@ -406,7 +407,8 @@ export const useDemoStore = create<DemoStore>()(
             : { enrolledCourseIds: [...s.enrolledCourseIds, id] },
         ),
 
-      setCoursePlayMode: (mode) => set({ coursePlayMode: mode, adventureIndex: 0 }),
+      // Do NOT reset adventureIndex — mascot stays on current learning station
+      setCoursePlayMode: (mode) => set({ coursePlayMode: mode }),
 
       setAdventureIndex: (i) => set({ adventureIndex: Math.max(0, i) }),
 

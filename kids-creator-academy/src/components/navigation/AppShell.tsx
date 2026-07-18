@@ -2,11 +2,9 @@ import { useMemo } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   Backpack,
-  Dumbbell,
   HelpCircle,
   Home,
   LogOut,
-  PlayCircle,
   Star,
   UserRound,
   Shield,
@@ -26,43 +24,21 @@ import { ToastViewport } from '@/components/feedback/Toast'
 import { Button } from '@/components/ui/Button'
 import { computeQuestStatuses } from '@/lib/quests'
 
-/** Student nav — labels short, icons clear */
 /**
- * Nav labels must match real destinations (no vague “Chơi”).
- * “Nhiệm vụ” = open the next/available quest or studio task.
- */
-/**
- * Top-level nav stays light. Nhiệm vụ / Bài tập live INSIDE each course
- * (tabs on /world?view=missions|practice) so content is course-scoped.
+ * Sidebar gọn: Nhiệm vụ & Bài tập nằm TRONG khóa (tab), không lặp ở menu.
+ * 4 mục chính + Trợ giúp.
  */
 const studentNav = [
   {
     to: '/world',
     label: 'Khóa học',
     icon: Home,
-    match: (p: string, search = '') =>
-      p.startsWith('/world') &&
-      !search.includes('missions') &&
-      !search.includes('practice'),
-  },
-  {
-    to: '/world?view=missions',
-    label: 'Nhiệm vụ',
-    icon: PlayCircle,
-    match: (p: string, search = '') =>
+    match: (p: string) =>
+      p.startsWith('/world') ||
+      p.startsWith('/lesson') ||
       p.startsWith('/quest') ||
       p.startsWith('/studio') ||
-      p.startsWith('/challenge') ||
-      p.startsWith('/lesson') ||
-      (p.startsWith('/world') && search.includes('missions')),
-  },
-  {
-    to: '/world?view=practice',
-    label: 'Bài tập',
-    icon: Dumbbell,
-    match: (p: string, search = '') =>
-      p.startsWith('/practice') ||
-      (p.startsWith('/world') && search.includes('practice')),
+      p.startsWith('/challenge'),
   },
   {
     to: '/stars',
@@ -310,20 +286,27 @@ export function AppShell() {
         />
         <nav className="flex flex-1 flex-col items-center gap-1.5" aria-label="Menu chính">
           {studentNav.map(({ to, label, icon: Icon, match }) => {
-            const active = match(location.pathname, location.search)
+            const active = match(location.pathname)
             return (
               <NavLink
                 key={label}
                 to={to}
                 title={label}
                 className={cn(
-                  'flex w-[76px] flex-col items-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold transition-colors duration-150 2xl:w-[88px]',
+                  'flex w-[80px] flex-col items-center gap-1.5 rounded-2xl px-1 py-2.5 text-[11px] font-extrabold transition-all duration-150 2xl:w-[92px]',
                   active
-                    ? 'bg-brand-100 text-brand-600'
+                    ? 'bg-gradient-to-b from-brand-100 to-sky-100 text-brand-600 shadow-soft ring-2 ring-brand-200'
                     : 'text-muted hover:bg-brand-50 hover:text-text',
                 )}
               >
-                <Icon className="size-5" aria-hidden />
+                <span
+                  className={cn(
+                    'flex size-10 items-center justify-center rounded-xl',
+                    active ? 'bg-white shadow-soft' : 'bg-brand-50/80',
+                  )}
+                >
+                  <Icon className="size-5" aria-hidden />
+                </span>
                 <span className="text-center leading-tight">{label}</span>
               </NavLink>
             )
@@ -366,7 +349,7 @@ export function AppShell() {
             </p>
           </div>
           <Button size="sm" className="hidden sm:inline-flex" onClick={goNext}>
-            {nextQuest ? `Làm: ${nextQuest.title}` : 'Về bản đồ'}
+            {nextQuest ? `Tiếp tục học` : 'Khóa học'}
           </Button>
           <button
             type="button"
@@ -406,17 +389,19 @@ export function AppShell() {
             </div>
             <ul className="space-y-2 text-sm font-semibold text-text">
               <li className="rounded-xl bg-brand-50 p-3">
-                <strong>Bản đồ</strong> = xem 8 nhiệm vụ. Nút tím = việc cần làm ngay.
+                <strong>Khóa học</strong> → chọn khóa → tab Bản đồ / Nhiệm vụ / Bài tập
+                (trong khóa, không cần menu ngoài).
               </li>
               <li className="rounded-xl bg-mint-100 p-3">
-                <strong>Nhiệm vụ</strong> = mở bài đang làm (ghép thẻ, truyện, video…).
+                Nhân vật đứng ở <strong>chặng đang học</strong>. Xong → nhảy chặng sau.
+                Muốn xem lại: bấm Trái hoặc chạm trạm cũ.
               </li>
               <li className="rounded-xl bg-sun-100 p-3">
-                Kéo thẻ vào ô cùng loại, hoặc chạm <strong>Chọn</strong> rồi chạm ô trống.
+                Mỗi chặng: xem video → thực hành → trắc nghiệm ngắn.
               </li>
             </ul>
             <Button className="mt-3" fullWidth onClick={goNext}>
-              {nextQuest ? `Làm nhiệm vụ: ${nextQuest.title}` : 'Về bản đồ'}
+              {nextQuest ? `Tiếp: ${nextQuest.title}` : 'Về khóa học'}
             </Button>
             <Button
               className="mt-2"
@@ -436,14 +421,16 @@ export function AppShell() {
       >
         <ul className="mx-auto flex max-w-lg items-stretch justify-between">
           {studentNav.map(({ to, label, icon: Icon, match }) => {
-            const active = match(location.pathname, location.search)
+            const active = match(location.pathname)
             return (
               <li key={label} className="flex-1">
                 <NavLink
                   to={to}
                   className={cn(
-                    'flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-xl text-[11px] font-bold',
-                    active ? 'bg-brand-100 text-brand-600' : 'text-muted',
+                    'flex min-h-[3.75rem] flex-col items-center justify-center gap-0.5 rounded-2xl text-[11px] font-extrabold',
+                    active
+                      ? 'bg-gradient-to-t from-brand-100 to-sky-50 text-brand-600'
+                      : 'text-muted',
                   )}
                 >
                   <Icon className="size-5" aria-hidden />

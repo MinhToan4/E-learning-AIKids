@@ -20,7 +20,7 @@ import {
 import { Button } from '@/components/ui/Button'
 import { ProgressBar } from '@/components/ui/Progress'
 import { useDemoStore } from '@/store/demo-store'
-import { MASCOT_SRC, questRoute } from '@/data/mock'
+import { MAP_MASCOT_SRC, MASCOT_SRC, questRoute } from '@/data/mock'
 import {
   COURSES,
   QUEST_KID,
@@ -425,9 +425,9 @@ function CourseShell({
             <p className="text-sm text-white/90">{course.tagline}</p>
           </div>
         </div>
-        <div className="border-t border-border p-2">
+        <div className="border-t border-border bg-gradient-to-b from-white to-brand-50/40 p-2">
           <nav
-            className="grid grid-cols-3 gap-1 rounded-2xl bg-brand-50/80 p-1"
+            className="grid grid-cols-3 gap-1.5 rounded-[1.25rem] bg-white/90 p-1.5 shadow-inner ring-1 ring-border"
             aria-label="Trong khóa học"
           >
             {tabs.map((t) => (
@@ -436,10 +436,10 @@ function CourseShell({
                 type="button"
                 onClick={() => onTab(t.id)}
                 className={cn(
-                  'flex min-h-12 cursor-pointer items-center justify-center gap-1.5 rounded-xl text-sm font-bold transition-colors',
+                  'flex min-h-12 cursor-pointer flex-col items-center justify-center gap-0.5 rounded-xl text-xs font-extrabold transition-all sm:flex-row sm:gap-1.5 sm:text-sm',
                   activeTab === t.id
-                    ? 'bg-white text-brand-600 shadow-soft'
-                    : 'text-muted hover:text-text',
+                    ? 'bg-gradient-to-br from-brand-500 to-sky-400 text-white shadow-clay'
+                    : 'text-muted hover:bg-brand-50 hover:text-text',
                 )}
               >
                 {t.icon}
@@ -952,8 +952,8 @@ function ModeCard({
 
 /**
  * Adventure path for ONE course.
- * Free roam: go left/right to any unlocked station (including past ones).
- * Only auto-fix if stuck on a locked node.
+ * Default: mascot on current learning station (first incomplete).
+ * After complete: jumps to next. User may roam free to past stations.
  */
 function AdventureMap({
   course,
@@ -979,8 +979,16 @@ function AdventureMap({
   const selectedCourseId = useDemoStore((s) => s.selectedCourseId)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [hop, setHop] = useState(false)
+  /** User manually browsed; stop auto-follow until progress changes */
+  const browsingRef = useRef(false)
+  const completedKey = completed.slice().sort().join('|')
 
   const maxIdx = Math.max(0, quests.length - 1)
+  const activeIdx = getActiveAdventureIndex(
+    selectedCourseId,
+    completed,
+    currentQuestId,
+  )
   const idx = Math.min(Math.max(0, adventureIndex), maxIdx)
   const node = quests[idx]
   const kid = node
@@ -992,38 +1000,40 @@ function AdventureMap({
     (q) => q.status === 'completed' || completed.includes(q.id),
   ).length
 
-  // Only unstick if currently on a locked station (never force-forward from completed)
+  // Park on current learning station when opening map / after progress
   useEffect(() => {
-    const standing = quests[adventureIndex]
-    if (!standing || standing.status !== 'locked') return
-    const active = getActiveAdventureIndex(
-      selectedCourseId,
-      completed,
-      currentQuestId,
-    )
-    if (active !== adventureIndex) {
-      setAdventureIndex(active)
-      setHop(true)
-      const t = window.setTimeout(() => setHop(false), 320)
-      return () => window.clearTimeout(t)
+    browsingRef.current = false
+    setAdventureIndex(activeIdx)
+    setHop(true)
+    const t = window.setTimeout(() => setHop(false), 320)
+    return () => window.clearTimeout(t)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [completedKey, selectedCourseId])
+
+  // Unstick if on locked (safety)
+  useEffect(() => {
+    const standing = quests[idx]
+    if (standing?.status === 'locked') {
+      browsingRef.current = false
+      setAdventureIndex(activeIdx)
     }
-  }, [
-    completed,
-    currentQuestId,
-    selectedCourseId,
-    adventureIndex,
-    quests,
-    setAdventureIndex,
-  ])
+  }, [idx, quests, activeIdx, setAdventureIndex])
 
   const moveTo = (next: number) => {
     const clamped = Math.min(maxIdx, Math.max(0, next))
     if (clamped === idx) return
     const target = quests[clamped]
-    // Free roam: any unlocked (completed / available / in_progress)
     if (target?.status === 'locked') return
+    browsingRef.current = true
     setHop(true)
     setAdventureIndex(clamped)
+    window.setTimeout(() => setHop(false), 280)
+  }
+
+  const jumpToLearning = () => {
+    browsingRef.current = false
+    setHop(true)
+    setAdventureIndex(activeIdx)
     window.setTimeout(() => setHop(false), 280)
   }
 
@@ -1070,9 +1080,17 @@ function AdventureMap({
         </div>
       </div>
 
-      <p className="text-center text-sm font-semibold text-muted">
-        Di chuyển tự do giữa các chặng <strong>đã mở / đã xong</strong> (Trái · Phải hoặc chạm trạm)
-      </p>
+      <div className="flex flex-wrap items-center justify-center gap-2">
+        <p className="text-center text-sm font-semibold text-muted">
+          Đang học: trạm {activeIdx + 1}
+          {idx !== activeIdx ? ' · Bạn đang xem trạm khác' : ''}
+        </p>
+        {idx !== activeIdx ? (
+          <Button size="sm" variant="soft" onClick={jumpToLearning}>
+            Về trạm đang học
+          </Button>
+        ) : null}
+      </div>
 
       {/* Game stage */}
       <div className="relative overflow-hidden rounded-[1.75rem] border-4 border-white shadow-clay">
@@ -1122,6 +1140,7 @@ function AdventureMap({
                     aria-label={`Trạm ${q.order}: ${k.make}${isLocked ? ' (chưa mở)' : ''}${starN ? `, ${starN} sao` : ''}`}
                     onClick={() => {
                       if (!isLocked || isHere) {
+                        browsingRef.current = true
                         setAdventureIndex(i)
                         setHop(true)
                         window.setTimeout(() => setHop(false), 280)
@@ -1134,10 +1153,10 @@ function AdventureMap({
                   >
                     {isHere ? (
                       <img
-                        src={MASCOT_SRC}
-                        alt="Nhân vật của con"
+                        src={MAP_MASCOT_SRC}
+                        alt="Nhân vật đang đứng ở đây"
                         className={cn(
-                          'absolute -top-16 size-12 drop-shadow-lg sm:-top-[4.5rem] sm:size-14',
+                          'absolute -top-[4.25rem] size-14 rounded-full border-2 border-white bg-white object-cover shadow-clay sm:-top-[5rem] sm:size-16',
                           hop && 'animate-bounce',
                           !hop && 'animate-soft-pulse',
                         )}
