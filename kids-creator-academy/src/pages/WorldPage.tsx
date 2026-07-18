@@ -1,16 +1,20 @@
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import {
+  BookOpen,
   ChevronLeft,
   ChevronRight,
   Clock,
+  Dumbbell,
   Flag,
   Gamepad2,
   Lock,
   Map as MapIcon,
   Play,
+  RotateCcw,
   Sparkles,
   Star,
+  Trophy,
   List,
 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
@@ -24,21 +28,31 @@ import {
   getCourse,
   type Course,
 } from '@/data/courses'
-import { challengeAfter } from '@/data/challenges'
 import { cn } from '@/lib/cn'
 import { computeQuestStatuses } from '@/lib/quests'
+import { emptyLessonProgress, ensureLesson } from '@/data/lessons'
+import {
+  getActiveAdventureIndex,
+  isCourseComplete,
+} from '@/lib/course-flow'
 
-type WorldView = 'catalog' | 'pick-mode' | 'list' | 'adventure'
+/** catalog = Netflix hub; inside a course: adventure | missions | practice */
+type WorldView =
+  | 'catalog'
+  | 'pick-mode'
+  | 'adventure'
+  | 'missions'
+  | 'practice'
+
+type CourseTab = 'adventure' | 'missions' | 'practice'
 
 /**
- * Netflix-style course hub for kids + optional Mario-like adventure map.
- * Design notes (kids 8–11):
- * - Catalog: horizontal rows (enrolled / recommended / not enrolled)
- * - Start course: pick Adventure (game path) or List
- * - Adventure: stations = challenges, D-pad move, Accept challenge CTA
+ * Netflix catalog → enter a course → tabs scoped to THAT course:
+ * Bản đồ · Nhiệm vụ · Bài tập (not global shared content).
  */
 export function WorldPage() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const completed = useDemoStore((s) => s.completedQuestIds)
   const currentQuestId = useDemoStore((s) => s.currentQuestId)
   const setCurrentQuest = useDemoStore((s) => s.setCurrentQuest)
@@ -46,14 +60,75 @@ export function WorldPage() {
   const setSelectedCourseId = useDemoStore((s) => s.setSelectedCourseId)
   const enrolledCourseIds = useDemoStore((s) => s.enrolledCourseIds)
   const enrollCourse = useDemoStore((s) => s.enrollCourse)
-  const coursePlayMode = useDemoStore((s) => s.coursePlayMode)
   const setCoursePlayMode = useDemoStore((s) => s.setCoursePlayMode)
+  const setAdventureIndex = useDemoStore((s) => s.setAdventureIndex)
+  const resetCurrentCourseProgress = useDemoStore((s) => s.resetCurrentCourseProgress)
   const child = useDemoStore((s) => s.child)
   const stars = useDemoStore((s) => s.stars)
-  const challengesPassed = useDemoStore((s) => s.challengesPassed)
+  const lessonProgress = useDemoStore((s) => s.lessonProgress)
+  const addToast = useDemoStore((s) => s.addToast)
+  const addStars = useDemoStore((s) => s.addStars)
 
-  const [view, setView] = useState<WorldView>('catalog')
+  const viewParam = searchParams.get('view')
+  const [view, setView] = useState<WorldView>(() => {
+    if (viewParam === 'list') return 'missions'
+    if (
+      viewParam === 'adventure' ||
+      viewParam === 'missions' ||
+      viewParam === 'practice' ||
+      viewParam === 'catalog' ||
+      viewParam === 'pick-mode'
+    ) {
+      return viewParam
+    }
+    return 'catalog'
+  })
   const course = getCourse(selectedCourseId)
+
+  // Deep-link: /world?view=adventure|missions|practice&course=…
+  useEffect(() => {
+    const courseParam = searchParams.get('course')
+    if (courseParam) {
+      setSelectedCourseId(courseParam)
+      if (!enrolledCourseIds.includes(courseParam)) enrollCourse(courseParam)
+    }
+    if (!viewParam || viewParam === 'catalog') {
+      if (viewParam === 'catalog') setView('catalog')
+      return
+    }
+    if (viewParam === 'list') {
+      setView('missions')
+      return
+    }
+    if (
+      viewParam === 'adventure' ||
+      viewParam === 'missions' ||
+      viewParam === 'practice' ||
+      viewParam === 'pick-mode'
+    ) {
+      setView(viewParam)
+    }
+  }, [
+    viewParam,
+    searchParams,
+    setSelectedCourseId,
+    enrolledCourseIds,
+    enrollCourse,
+  ])
+
+  const goView = (v: WorldView) => {
+    setView(v)
+    if (v === 'catalog') {
+      setSearchParams({}, { replace: true })
+    } else {
+      setSearchParams({ view: v }, { replace: true })
+    }
+  }
+
+  const goCourseTab = (tab: CourseTab) => {
+    if (tab === 'adventure') setCoursePlayMode('adventure')
+    goView(tab)
+  }
 
   const quests = useMemo(
     () => computeQuestStatuses(completed, currentQuestId, course.quests),
@@ -71,31 +146,7 @@ export function WorldPage() {
   )
 
   const openQuest = (id: string) => {
-    if (id === 'detective') {
-      if (useDemoStore.getState().generatedResults.length > 0) {
-        setCurrentQuest(id)
-        navigate('/studio/compare')
-        return
-      }
-      setCurrentQuest('prompt-lab')
-      navigate('/studio/prompt')
-      return
-    }
-    const prev = quests.find(
-      (q) => q.order === (quests.find((x) => x.id === id)?.order ?? 0) - 1,
-    )
-    if (prev && completed.includes(prev.id)) {
-      const ch = challengeAfter(prev.id)
-      if (
-        ch &&
-        ch.id !== 'ch-after-prompt' &&
-        !challengesPassed.includes(ch.id) &&
-        id !== prev.id
-      ) {
-        navigate(`/challenge/${ch.id}`)
-        return
-      }
-    }
+    // Always enter lesson shell: Theory → Practice → Quiz
     setCurrentQuest(id)
     navigate(questRoute(id))
   }
@@ -104,8 +155,19 @@ export function WorldPage() {
     if (c.status === 'soon') return
     if (!enrolledCourseIds.includes(c.id)) enrollCourse(c.id)
     setSelectedCourseId(c.id)
-    setView('pick-mode')
+    const prog = courseProgress(c, completed)
+    // Resume path if already progressed; else choose adventure/list
+    if (prog.done > 0) {
+      setCoursePlayMode('adventure')
+      const idx = getActiveAdventureIndex(c.id, completed, currentQuestId)
+      setAdventureIndex(idx)
+      goView('adventure')
+      return
+    }
+    goView('pick-mode')
   }
+
+  const courseFinished = isCourseComplete(selectedCourseId, completed)
 
   if (view === 'catalog') {
     return (
@@ -161,7 +223,7 @@ export function WorldPage() {
       <div className="stage-shell mx-auto max-w-3xl space-y-5 pb-10">
         <button
           type="button"
-          onClick={() => setView('catalog')}
+          onClick={() => goView('catalog')}
           className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-2xl bg-white px-4 text-sm font-bold text-brand-600 shadow-soft ring-1 ring-border"
         >
           <ChevronLeft className="size-4" /> Tất cả khóa học
@@ -201,7 +263,14 @@ export function WorldPage() {
                 highlight
                 onClick={() => {
                   setCoursePlayMode('adventure')
-                  setView('adventure')
+                  setAdventureIndex(
+                    getActiveAdventureIndex(
+                      selectedCourseId,
+                      completed,
+                      currentQuestId,
+                    ),
+                  )
+                  goView('adventure')
                 }}
               />
               <ModeCard
@@ -210,12 +279,12 @@ export function WorldPage() {
                 desc="Xem rõ từng bước như checklist — bấm vào nhiệm vụ muốn làm."
                 onClick={() => {
                   setCoursePlayMode('list')
-                  setView('list')
+                  goView('missions')
                 }}
               />
             </div>
             <p className="text-center text-xs font-semibold text-muted">
-              Mỗi bài tập = một thử thách. Vượt xong → trạm tiếp theo mở ra.
+              Trong khóa: tab Bản đồ · Nhiệm vụ · Bài tập (riêng từng khóa).
             </p>
           </div>
         </div>
@@ -223,84 +292,236 @@ export function WorldPage() {
     )
   }
 
-  if (view === 'adventure' || (coursePlayMode === 'adventure' && view !== 'list')) {
+  // ── Inside a course: shared shell + tab content ──
+  if (view === 'adventure' || view === 'missions' || view === 'practice') {
+    const activeTab: CourseTab =
+      view === 'missions' ? 'missions' : view === 'practice' ? 'practice' : 'adventure'
+
     return (
-      <AdventureMap
+      <CourseShell
         course={course}
-        quests={quests}
-        stars={stars}
-        onBack={() => setView('catalog')}
-        onSwitchList={() => {
-          setCoursePlayMode('list')
-          setView('list')
+        progress={progress}
+        courseFinished={courseFinished}
+        activeTab={activeTab}
+        onBackCatalog={() => goView('catalog')}
+        onTab={goCourseTab}
+        onReplay={() => {
+          resetCurrentCourseProgress()
+          addToast({
+            type: 'success',
+            title: 'Học lại từ đầu!',
+            description: 'Nhân vật về trạm 1 của khóa này.',
+          })
+          goCourseTab('adventure')
         }}
-        onAccept={(questId) => openQuest(questId)}
-      />
+      >
+        {activeTab === 'adventure' ? (
+          <AdventureMap
+            course={course}
+            quests={quests}
+            stars={stars}
+            lessonProgress={lessonProgress}
+            courseFinished={courseFinished}
+            onAccept={(questId) => openQuest(questId)}
+            onReplay={() => {
+              resetCurrentCourseProgress()
+              addToast({
+                type: 'success',
+                title: 'Học lại từ đầu!',
+                description: 'Nhân vật về trạm 1 — chúc con chơi vui!',
+              })
+              goCourseTab('adventure')
+            }}
+          />
+        ) : null}
+        {activeTab === 'missions' ? (
+          <CourseMissionsTab
+            course={course}
+            quests={quests}
+            next={next}
+            onOpen={openQuest}
+            courseFinished={courseFinished}
+            onReplay={() => {
+              resetCurrentCourseProgress()
+              addToast({ type: 'info', title: 'Bắt đầu học lại từ trạm 1' })
+            }}
+          />
+        ) : null}
+        {activeTab === 'practice' ? (
+          <CoursePracticeTab
+            course={course}
+            quests={quests}
+            onOpenStudio={(path) => navigate(path)}
+            addStars={addStars}
+            addToast={addToast}
+          />
+        ) : null}
+      </CourseShell>
     )
   }
 
-  // list mode
-  const nextKid = next
-    ? (QUEST_KID[next.id] ?? { make: next.title, why: next.skill, emoji: '✨' })
-    : null
+  return null
+}
+
+/** Header + 3 tabs scoped to the selected course */
+function CourseShell({
+  course,
+  progress,
+  courseFinished,
+  activeTab,
+  onBackCatalog,
+  onTab,
+  onReplay,
+  children,
+}: {
+  course: Course
+  progress: { done: number; total: number; percent: number }
+  courseFinished: boolean
+  activeTab: CourseTab
+  onBackCatalog: () => void
+  onTab: (t: CourseTab) => void
+  onReplay: () => void
+  children: ReactNode
+}) {
+  const tabs: { id: CourseTab; label: string; icon: ReactNode }[] = [
+    { id: 'adventure', label: 'Bản đồ', icon: <MapIcon className="size-4" /> },
+    { id: 'missions', label: 'Nhiệm vụ', icon: <List className="size-4" /> },
+    { id: 'practice', label: 'Bài tập', icon: <Dumbbell className="size-4" /> },
+  ]
 
   return (
-    <div className="stage-shell space-y-5 pb-8">
-      <div className="flex flex-wrap gap-2">
+    <div className="w-full space-y-4 pb-10">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <button
           type="button"
-          onClick={() => setView('catalog')}
+          onClick={onBackCatalog}
           className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-2xl bg-white px-4 text-sm font-bold text-brand-600 shadow-soft ring-1 ring-border"
         >
-          <ChevronLeft className="size-4" /> Khóa học
+          <ChevronLeft className="size-4" /> Tất cả khóa học
         </button>
-        <Button
-          size="sm"
-          variant="soft"
-          onClick={() => {
-            setCoursePlayMode('adventure')
-            setView('adventure')
-          }}
-        >
-          <MapIcon className="size-4" />
-          Chế độ phiêu lưu
-        </Button>
+        <span className="rounded-full bg-white px-3 py-1.5 text-xs font-bold text-muted shadow-soft ring-1 ring-border">
+          {progress.done}/{progress.total} · {progress.percent}%
+        </span>
       </div>
 
       <div className="ui-card overflow-hidden">
-        <div className="relative h-40 sm:h-48">
+        <div className="relative h-28 sm:h-36">
           {course.coverImage ? (
             <img src={course.coverImage} alt="" className="size-full object-cover" />
-          ) : null}
-          <div className="absolute inset-0 bg-gradient-to-t from-[#1e2740]/85 to-transparent" />
-          <div className="absolute inset-x-0 bottom-0 p-5 text-white">
+          ) : (
+            <div
+              className="size-full"
+              style={{
+                background: `linear-gradient(135deg, ${course.coverFrom}, ${course.coverTo})`,
+              }}
+            />
+          )}
+          <div className="absolute inset-0 bg-gradient-to-t from-[#1e2740]/90 to-transparent" />
+          <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+            <p className="text-xs font-bold text-sun-400">Đang học trong khóa</p>
             <h1 className="font-display text-2xl sm:text-3xl">
               {course.emoji} {course.title}
             </h1>
             <p className="text-sm text-white/90">{course.tagline}</p>
           </div>
         </div>
-        <div className="p-4">
-          <ProgressBar
-            value={courseProgress(course, completed).percent}
-            label={`Đã xong ${progress.done}/${progress.total}`}
-          />
+        <div className="border-t border-border p-2">
+          <nav
+            className="grid grid-cols-3 gap-1 rounded-2xl bg-brand-50/80 p-1"
+            aria-label="Trong khóa học"
+          >
+            {tabs.map((t) => (
+              <button
+                key={t.id}
+                type="button"
+                onClick={() => onTab(t.id)}
+                className={cn(
+                  'flex min-h-12 cursor-pointer items-center justify-center gap-1.5 rounded-xl text-sm font-bold transition-colors',
+                  activeTab === t.id
+                    ? 'bg-white text-brand-600 shadow-soft'
+                    : 'text-muted hover:text-text',
+                )}
+              >
+                {t.icon}
+                {t.label}
+              </button>
+            ))}
+          </nav>
         </div>
       </div>
+
+      {courseFinished ? (
+        <div className="rounded-[1.25rem] border-2 border-mint-400 bg-mint-100/50 px-4 py-3 text-center">
+          <p className="font-display text-lg text-success">
+            ✓ Khóa này đã hoàn thành 100%
+          </p>
+          <Button size="sm" className="mt-2" onClick={onReplay}>
+            <RotateCcw className="size-4" /> Học lại khóa này
+          </Button>
+        </div>
+      ) : null}
+
+      {children}
+    </div>
+  )
+}
+
+/** Nhiệm vụ tab — only quests of THIS course */
+function CourseMissionsTab({
+  course,
+  quests,
+  next,
+  onOpen,
+  courseFinished,
+  onReplay,
+}: {
+  course: Course
+  quests: ReturnType<typeof computeQuestStatuses>
+  next: ReturnType<typeof computeQuestStatuses>[number] | undefined
+  onOpen: (id: string) => void
+  courseFinished: boolean
+  onReplay: () => void
+}) {
+  const nextKid = next
+    ? (QUEST_KID[next.id] ?? { make: next.title, why: next.skill, emoji: '✨' })
+    : null
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h2 className="font-display text-xl text-text">
+          Nhiệm vụ · {course.shortTitle}
+        </h2>
+        <p className="text-sm font-semibold text-muted">
+          Chỉ các chặng của khóa này. Có thể mở lại chặng đã xong để xem lại.
+        </p>
+      </div>
+
+      {courseFinished ? (
+        <div className="rounded-2xl border-2 border-sun-400/50 bg-sun-100/60 p-4 text-center">
+          <Trophy className="mx-auto size-8 text-sun-400" />
+          <p className="mt-1 font-bold">Hết nhiệm vụ — con giỏi lắm!</p>
+          <Button size="sm" className="mt-2" onClick={onReplay}>
+            <RotateCcw className="size-4" /> Học lại
+          </Button>
+        </div>
+      ) : null}
 
       {next && nextKid ? (
         <div className="rounded-[1.5rem] border-2 border-brand-500 bg-gradient-to-br from-brand-50 to-sky-100 p-4 shadow-clay sm:p-5">
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-            <img src={MASCOT_SRC} alt="" className="mx-auto size-20 sm:mx-0" />
+            <img src={MASCOT_SRC} alt="" className="mx-auto size-16 sm:mx-0" />
             <div className="min-w-0 flex-1 text-center sm:text-left">
-              <p className="text-xs font-bold uppercase text-brand-600">Thử thách tiếp theo</p>
+              <p className="text-xs font-bold uppercase text-brand-600">
+                Đang mở
+              </p>
               <p className="font-display text-xl">
                 {nextKid.emoji} {next.order}. {nextKid.make}
               </p>
               <p className="text-sm text-muted">{nextKid.why}</p>
             </div>
-            <Button size="lg" onClick={() => openQuest(next.id)}>
-              <Play className="size-5" /> Nhận thử thách
+            <Button size="lg" onClick={() => onOpen(next.id)}>
+              <Play className="size-5" /> Vào làm
             </Button>
           </div>
         </div>
@@ -317,7 +538,7 @@ export function WorldPage() {
               <button
                 type="button"
                 disabled={locked}
-                onClick={() => !locked && openQuest(q.id)}
+                onClick={() => !locked && onOpen(q.id)}
                 className={cn(
                   'flex w-full items-center gap-3 rounded-2xl border-2 bg-white p-4 text-left shadow-soft',
                   locked && 'cursor-not-allowed opacity-60',
@@ -339,9 +560,13 @@ export function WorldPage() {
                   </span>
                   <span className="mt-0.5 block text-sm text-muted">{kid.why}</span>
                 </span>
-                {current ? (
+                {done ? (
+                  <span className="rounded-full bg-mint-100 px-2 py-1 text-xs font-bold text-success">
+                    Xem lại
+                  </span>
+                ) : current ? (
                   <span className="rounded-full bg-brand-100 px-2 py-1 text-xs font-bold text-brand-600">
-                    Thử thách
+                    Làm
                   </span>
                 ) : null}
               </button>
@@ -349,6 +574,118 @@ export function WorldPage() {
           )
         })}
       </ol>
+    </div>
+  )
+}
+
+/** Bài tập tab — drills only for quests in THIS course */
+function CoursePracticeTab({
+  course,
+  quests,
+  onOpenStudio,
+  addStars,
+  addToast,
+}: {
+  course: Course
+  quests: ReturnType<typeof computeQuestStatuses>
+  onOpenStudio: (path: string) => void
+  addStars: (n: number) => void
+  addToast: (t: { type: 'success' | 'info' | 'warning' | 'error'; title: string; description?: string }) => void
+}) {
+  const drills = useMemo(
+    () =>
+      quests.map((q) => {
+        const lesson = ensureLesson(q.id)
+        const kid = QUEST_KID[q.id] ?? { make: q.title, why: q.skill, emoji: lesson.emoji }
+        return {
+          id: q.id,
+          emoji: kid.emoji,
+          title: kid.make,
+          skill: q.skill,
+          locked: q.status === 'locked',
+          done: q.status === 'completed',
+          lesson,
+        }
+      }),
+    [quests],
+  )
+
+  return (
+    <div className="space-y-4">
+      <div>
+        <h2 className="font-display text-xl text-text">
+          Bài tập · {course.shortTitle}
+        </h2>
+        <p className="text-sm font-semibold text-muted">
+          Luyện kỹ năng của <strong>khóa này</strong> — khác với khóa khác.
+          Chặng đã mở / đã xong mới luyện được.
+        </p>
+      </div>
+
+      <div className="grid gap-3 sm:grid-cols-2">
+        {drills.map((d) => (
+          <article
+            key={d.id}
+            className={cn(
+              'ui-card flex flex-col p-4',
+              d.locked && 'opacity-55',
+            )}
+          >
+            <div className="flex items-start gap-3">
+              <span className="flex size-12 items-center justify-center rounded-2xl bg-brand-50 text-2xl">
+                {d.locked ? '🔒' : d.emoji}
+              </span>
+              <div className="min-w-0 flex-1">
+                <p className="font-display text-lg">{d.title}</p>
+                <p className="text-sm text-muted">{d.skill}</p>
+                {d.done ? (
+                  <span className="mt-1 inline-block text-xs font-bold text-success">
+                    Đã học · luyện lại OK
+                  </span>
+                ) : null}
+              </div>
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <Button
+                size="sm"
+                className="flex-1"
+                disabled={d.locked}
+                onClick={() => {
+                  if (d.locked) {
+                    addToast({
+                      type: 'warning',
+                      title: 'Chưa mở',
+                      description: 'Làm nhiệm vụ trước trên Bản đồ / Nhiệm vụ.',
+                    })
+                    return
+                  }
+                  onOpenStudio(`/lesson/${d.id}`)
+                }}
+              >
+                <BookOpen className="size-4" /> Ôn bài học
+              </Button>
+              <Button
+                size="sm"
+                variant="secondary"
+                className="flex-1"
+                disabled={d.locked}
+                onClick={() => {
+                  if (d.locked) return
+                  addStars(3)
+                  addToast({
+                    type: 'success',
+                    title: 'Luyện nhanh +3 sao',
+                    description: d.lesson.practiceHint,
+                  })
+                  onOpenStudio(d.lesson.practicePath)
+                }}
+              >
+                <Dumbbell className="size-4" /> Luyện xưởng
+              </Button>
+            </div>
+          </article>
+        ))}
+      </div>
     </div>
   )
 }
@@ -613,25 +950,33 @@ function ModeCard({
   )
 }
 
-/** Mario-inspired path: stations = challenges, move left/right, accept challenge */
+/**
+ * Adventure path for ONE course.
+ * Free roam: go left/right to any unlocked station (including past ones).
+ * Only auto-fix if stuck on a locked node.
+ */
 function AdventureMap({
   course,
   quests,
   stars,
-  onBack,
-  onSwitchList,
+  lessonProgress,
+  courseFinished,
   onAccept,
+  onReplay,
 }: {
   course: Course
   quests: ReturnType<typeof computeQuestStatuses>
   stars: number
-  onBack: () => void
-  onSwitchList: () => void
+  lessonProgress: Record<string, { starsEarned: number; quizDone: boolean }>
+  courseFinished: boolean
   onAccept: (questId: string) => void
+  onReplay: () => void
 }) {
   const adventureIndex = useDemoStore((s) => s.adventureIndex)
   const setAdventureIndex = useDemoStore((s) => s.setAdventureIndex)
   const completed = useDemoStore((s) => s.completedQuestIds)
+  const currentQuestId = useDemoStore((s) => s.currentQuestId)
+  const selectedCourseId = useDemoStore((s) => s.selectedCourseId)
   const [confirmOpen, setConfirmOpen] = useState(false)
   const [hop, setHop] = useState(false)
 
@@ -643,16 +988,40 @@ function AdventureMap({
     : null
   const locked = node?.status === 'locked'
   const done = node?.status === 'completed'
-  const doneCount = quests.filter((q) => q.status === 'completed' || completed.includes(q.id)).length
+  const doneCount = quests.filter(
+    (q) => q.status === 'completed' || completed.includes(q.id),
+  ).length
+
+  // Only unstick if currently on a locked station (never force-forward from completed)
+  useEffect(() => {
+    const standing = quests[adventureIndex]
+    if (!standing || standing.status !== 'locked') return
+    const active = getActiveAdventureIndex(
+      selectedCourseId,
+      completed,
+      currentQuestId,
+    )
+    if (active !== adventureIndex) {
+      setAdventureIndex(active)
+      setHop(true)
+      const t = window.setTimeout(() => setHop(false), 320)
+      return () => window.clearTimeout(t)
+    }
+  }, [
+    completed,
+    currentQuestId,
+    selectedCourseId,
+    adventureIndex,
+    quests,
+    setAdventureIndex,
+  ])
 
   const moveTo = (next: number) => {
     const clamped = Math.min(maxIdx, Math.max(0, next))
     if (clamped === idx) return
     const target = quests[clamped]
-    if (target?.status === 'locked' && clamped > idx) {
-      // allow browsing locked ahead? No — stop at first locked
-      return
-    }
+    // Free roam: any unlocked (completed / available / in_progress)
+    if (target?.status === 'locked') return
     setHop(true)
     setAdventureIndex(clamped)
     window.setTimeout(() => setHop(false), 280)
@@ -671,49 +1040,27 @@ function AdventureMap({
       }
       if (e.key === 'Enter' && node && !locked) {
         e.preventDefault()
-        setConfirmOpen(true)
+        if (courseFinished && done) onReplay()
+        else setConfirmOpen(true)
       }
     }
     window.addEventListener('keydown', onKey)
     return () => window.removeEventListener('keydown', onKey)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idx, locked, node, quests])
-
-  // Snap to first available on mount if current locked
-  useEffect(() => {
-    if (node?.status === 'locked') {
-      const firstOpen = quests.findIndex(
-        (q) => q.status === 'available' || q.status === 'in_progress' || q.status === 'completed',
-      )
-      if (firstOpen >= 0) setAdventureIndex(firstOpen)
-    }
-    // only once when opening
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [idx, locked, node, quests, courseFinished, done])
 
   const canGoRight = (() => {
     if (idx >= maxIdx) return false
     const nextQ = quests[idx + 1]
-    if (!nextQ) return false
-    // Can walk onto completed / available stations; locked stays closed
-    return nextQ.status !== 'locked'
+    return !!nextQ && nextQ.status !== 'locked'
   })()
 
   return (
-    <div className="w-full space-y-4 pb-10">
+    <div className="w-full space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <div className="flex flex-wrap gap-2">
-          <button
-            type="button"
-            onClick={onBack}
-            className="inline-flex min-h-11 cursor-pointer items-center gap-2 rounded-2xl bg-white px-4 text-sm font-bold text-brand-600 shadow-soft ring-1 ring-border"
-          >
-            <ChevronLeft className="size-4" /> Khóa học
-          </button>
-          <Button size="sm" variant="soft" onClick={onSwitchList}>
-            <List className="size-4" /> Danh sách
-          </Button>
-        </div>
+        <p className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-600">
+          <Gamepad2 className="size-4" /> Bản đồ · {course.shortTitle}
+        </p>
         <div className="inline-flex items-center gap-2 rounded-2xl bg-white px-3 py-2 text-sm font-bold shadow-soft ring-1 ring-border">
           <Star className="size-4 fill-sun-400 text-sun-400" />
           {stars} sao
@@ -723,17 +1070,9 @@ function AdventureMap({
         </div>
       </div>
 
-      <div className="text-center">
-        <p className="inline-flex items-center gap-1.5 text-sm font-bold text-brand-500">
-          <Gamepad2 className="size-4" /> Chế độ phiêu lưu
-        </p>
-        <h1 className="font-display text-2xl sm:text-3xl">
-          {course.emoji} {course.title}
-        </h1>
-        <p className="text-sm text-muted">
-          Di chuyển · Nhận thử thách · Vượt ải mở trạm sau
-        </p>
-      </div>
+      <p className="text-center text-sm font-semibold text-muted">
+        Di chuyển tự do giữa các chặng <strong>đã mở / đã xong</strong> (Trái · Phải hoặc chạm trạm)
+      </p>
 
       {/* Game stage */}
       <div className="relative overflow-hidden rounded-[1.75rem] border-4 border-white shadow-clay">
@@ -773,12 +1112,14 @@ function AdventureMap({
                 const isLocked = q.status === 'locked'
                 const isCurrent =
                   q.status === 'available' || q.status === 'in_progress'
+                const lp = lessonProgress[q.id] ?? emptyLessonProgress()
+                const starN = isDone ? Math.max(1, lp.starsEarned || 0) : 0
                 return (
                   <button
                     key={q.id}
                     type="button"
                     disabled={isLocked && !isHere}
-                    aria-label={`Trạm ${q.order}: ${k.make}${isLocked ? ' (chưa mở)' : ''}`}
+                    aria-label={`Trạm ${q.order}: ${k.make}${isLocked ? ' (chưa mở)' : ''}${starN ? `, ${starN} sao` : ''}`}
                     onClick={() => {
                       if (!isLocked || isHere) {
                         setAdventureIndex(i)
@@ -796,7 +1137,7 @@ function AdventureMap({
                         src={MASCOT_SRC}
                         alt="Nhân vật của con"
                         className={cn(
-                          'absolute -top-14 size-12 drop-shadow-lg sm:-top-[4.25rem] sm:size-14',
+                          'absolute -top-16 size-12 drop-shadow-lg sm:-top-[4.5rem] sm:size-14',
                           hop && 'animate-bounce',
                           !hop && 'animate-soft-pulse',
                         )}
@@ -820,6 +1161,20 @@ function AdventureMap({
                         k.emoji
                       )}
                     </div>
+                    {/* Phaser-style level stars */}
+                    <span className="flex gap-0.5" aria-hidden>
+                      {[0, 1, 2].map((si) => (
+                        <Star
+                          key={si}
+                          className={cn(
+                            'size-2.5 sm:size-3',
+                            si < starN
+                              ? 'fill-sun-400 text-sun-400'
+                              : 'fill-white/40 text-white/50',
+                          )}
+                        />
+                      ))}
+                    </span>
                     <span className="hidden max-w-[4.5rem] text-center text-[10px] font-bold leading-tight text-[#1e2740] drop-shadow-sm sm:block sm:text-xs">
                       {q.order}. {k.make}
                     </span>
@@ -858,6 +1213,9 @@ function AdventureMap({
                 <p className="mt-2 text-center text-sm font-bold text-text">
                   🎁 Phần thưởng: {node.reward}
                 </p>
+                <p className="text-center text-xs font-semibold text-muted">
+                  Trong trạm: ① Video/lý thuyết → ② Thực hành → ③ Trắc nghiệm
+                </p>
               </>
             ) : null}
 
@@ -876,12 +1234,22 @@ function AdventureMap({
               <Button
                 size="lg"
                 className="min-h-14 min-w-[11rem] text-base shadow-clay"
-                disabled={locked}
-                onClick={() => node && !locked && setConfirmOpen(true)}
+                disabled={locked && !courseFinished}
+                onClick={() => {
+                  if (courseFinished) {
+                    onReplay()
+                    return
+                  }
+                  if (node && !locked) setConfirmOpen(true)
+                }}
               >
-                {done ? (
+                {courseFinished ? (
                   <>
-                    <Sparkles className="size-5" /> Xem lại
+                    <RotateCcw className="size-5" /> Học lại
+                  </>
+                ) : done ? (
+                  <>
+                    <Sparkles className="size-5" /> Xem lại chặng
                   </>
                 ) : locked ? (
                   <>
@@ -889,7 +1257,7 @@ function AdventureMap({
                   </>
                 ) : (
                   <>
-                    <Play className="size-5" /> Nhận thử thách
+                    <Play className="size-5" /> Vào chặng này
                   </>
                 )}
               </Button>
@@ -905,8 +1273,13 @@ function AdventureMap({
               </Button>
             </div>
             <p className="mt-3 text-center text-xs font-semibold text-muted">
-              Mẹo: phím ← → để di chuyển, Enter để nhận thử thách. Chỉ mở trạm đã mở khóa.
+              ← → di chuyển · Enter vào chặng · Có thể quay lại chặng cũ để xem lại
             </p>
+            {courseFinished ? (
+              <Button className="mt-2 w-full" variant="soft" onClick={onReplay}>
+                <RotateCcw className="size-4" /> Học lại khóa từ trạm 1
+              </Button>
+            ) : null}
           </div>
         </div>
       </div>
@@ -925,15 +1298,20 @@ function AdventureMap({
             onClick={(e) => e.stopPropagation()}
           >
             <div className="bg-gradient-to-br from-brand-500 to-sky-400 px-5 py-6 text-center text-white">
-              <p className="text-sm font-bold text-white/90">Thử thách trạm {node.order}</p>
+              <p className="text-sm font-bold text-white/90">Bài học trạm {node.order}</p>
               <p id="challenge-title" className="mt-1 font-display text-2xl">
                 {kid.emoji} {kid.make}
               </p>
             </div>
             <div className="space-y-4 p-5">
               <p className="text-center text-base font-semibold text-text">{kid.why}</p>
+              <ul className="space-y-2 text-left text-sm font-bold text-text">
+                <li className="rounded-xl bg-brand-50 px-3 py-2">① Xem video + lý thuyết</li>
+                <li className="rounded-xl bg-sky-100 px-3 py-2">② Làm thực hành (xưởng)</li>
+                <li className="rounded-xl bg-sun-100 px-3 py-2">③ Trắc nghiệm ngắn → nhận sao</li>
+              </ul>
               <div className="rounded-2xl bg-sun-100 px-4 py-3 text-center text-sm font-bold text-text">
-                Vượt qua sẽ nhận: {node.reward}
+                Phần thưởng: {node.reward} · tối đa 3★
               </div>
               <div className="flex flex-col gap-2 sm:flex-row">
                 <Button
@@ -951,7 +1329,7 @@ function AdventureMap({
                     onAccept(node.id)
                   }}
                 >
-                  <Play className="size-5" /> Bắt đầu ngay!
+                  <Play className="size-5" /> Bắt đầu bài học!
                 </Button>
               </div>
             </div>

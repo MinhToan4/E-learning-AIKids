@@ -13,7 +13,6 @@ export function ComparePage() {
   const selectResult = useDemoStore((s) => s.selectResult)
   const saveSelectedToBackpack = useDemoStore((s) => s.saveSelectedToBackpack)
   const addBadge = useDemoStore((s) => s.addBadge)
-  const completeQuest = useDemoStore((s) => s.completeQuest)
   const setCurrentQuest = useDemoStore((s) => s.setCurrentQuest)
   const addStars = useDemoStore((s) => s.addStars)
   const addToast = useDemoStore((s) => s.addToast)
@@ -47,25 +46,22 @@ export function ComparePage() {
     if (!selected) return
     saveSelectedToBackpack()
 
-    // Compare screen IS the "detective" practice
+    // Compare = detective practice (theory already in /lesson/detective)
     if (checks.odd || results.some((r) => r.oddDetail)) {
       addBadge('Thám tử AI')
-      completeQuest('detective', 30)
-      addStars(15)
+      addStars(10)
     }
-    completeQuest('prompt-lab', 100)
-    // world-build is lightly credited on the create path; plot only after Story studio
-    completeQuest('world-build', 20)
-    addStars(20)
+    useDemoStore.getState().markPracticeDone('detective')
+    useDemoStore.getState().markPracticeDone('prompt-lab')
     setCurrentQuest('detective')
+    addStars(10)
 
     addToast({
       type: 'success',
       title: 'Đã lưu ảnh!',
-      description: 'Trả lời quiz vui → viết cốt truyện → mới xếp 4 khung.',
+      description: 'Làm trắc nghiệm ngắn, rồi viết cốt truyện.',
     })
-    // Quiz → story outline → comic (never back to prompt; never complete plot early)
-    navigate('/challenge/ch-after-prompt')
+    navigate('/lesson/detective?step=quiz')
   }
 
   return (

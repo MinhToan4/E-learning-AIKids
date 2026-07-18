@@ -26,6 +26,10 @@ import {
 import { buildSceneSvg } from '@/lib/svg-scenes'
 import { computeQuestStatuses } from '@/lib/quests'
 import { getCourse } from '@/data/courses'
+import {
+  emptyLessonProgress,
+  type LessonProgress,
+} from '@/data/lessons'
 import type { Quest } from '@/types'
 
 interface DemoStore {
@@ -70,6 +74,8 @@ interface DemoStore {
   badges: string[]
   stars: number
   challengesPassed: string[]
+  /** Per-quest: theory → practice → quiz progress */
+  lessonProgress: Record<string, LessonProgress>
   selectedVoiceId: string
   selectedMusicId: string
   subtitlesOn: boolean
@@ -89,6 +95,20 @@ interface DemoStore {
   setCoursePlayMode: (mode: 'list' | 'adventure') => void
   setAdventureIndex: (i: number) => void
   setStoryOutline: (patch: Partial<DemoStore['storyOutline']>) => void
+  setLessonPhaseDone: (
+    questId: string,
+    phase: 'theory' | 'practice' | 'quiz',
+    done?: boolean,
+  ) => void
+  setLessonVideoSec: (questId: string, sec: number) => void
+  completeLessonQuiz: (
+    questId: string,
+    starsEarned: number,
+    starsReward: number,
+  ) => void
+  markPracticeDone: (questId: string) => void
+  /** Replay current course: clear quest completion for this course only */
+  resetCurrentCourseProgress: () => void
   loginStudent: (payload: {
     id?: string
     nickname: string
@@ -190,6 +210,15 @@ function initialState() {
     badges: ['Thẻ Nhà sáng tạo'],
     stars: 30,
     challengesPassed: [] as string[],
+    lessonProgress: {
+      'meet-mascot': {
+        ...emptyLessonProgress(),
+        theoryDone: true,
+        practiceDone: true,
+        quizDone: true,
+        starsEarned: 3,
+      },
+    } as Record<string, LessonProgress>,
     selectedVoiceId: 'voice-warm',
     selectedMusicId: 'music-soft',
     subtitlesOn: true,
@@ -227,6 +256,103 @@ export const useDemoStore = create<DemoStore>()(
             ? s
             : { challengesPassed: [...s.challengesPassed, id] },
         ),
+
+      setLessonPhaseDone: (questId, phase, done = true) =>
+        set((s) => {
+          const prev = s.lessonProgress[questId] ?? emptyLessonProgress()
+          const next = { ...prev }
+          if (phase === 'theory') next.theoryDone = done
+          if (phase === 'practice') next.practiceDone = done
+          if (phase === 'quiz') next.quizDone = done
+          return {
+            lessonProgress: { ...s.lessonProgress, [questId]: next },
+          }
+        }),
+
+      setLessonVideoSec: (questId, sec) =>
+        set((s) => {
+          const prev = s.lessonProgress[questId] ?? emptyLessonProgress()
+          return {
+            lessonProgress: {
+              ...s.lessonProgress,
+              [questId]: {
+                ...prev,
+                videoWatchedSec: Math.max(prev.videoWatchedSec, sec),
+              },
+            },
+          }
+        }),
+
+      markPracticeDone: (questId) =>
+        set((s) => {
+          const prev = s.lessonProgress[questId] ?? emptyLessonProgress()
+          return {
+            lessonProgress: {
+              ...s.lessonProgress,
+              [questId]: { ...prev, practiceDone: true },
+            },
+          }
+        }),
+
+      completeLessonQuiz: (questId, starsEarned, starsReward) =>
+        set((s) => {
+          const prev = s.lessonProgress[questId] ?? emptyLessonProgress()
+          const already = s.completedQuestIds.includes(questId)
+          const course = getCourse(s.selectedCourseId)
+          const qIdx = course.quests.findIndex((q) => q.id === questId)
+          const nextQuest = qIdx >= 0 ? course.quests[qIdx + 1] : undefined
+          const completedQuestIds = already
+            ? s.completedQuestIds
+            : [...s.completedQuestIds, questId]
+          // Park mascot on next incomplete station (or last if course done)
+          const adventureIndex =
+            nextQuest != null
+              ? Math.min(qIdx + 1, course.quests.length - 1)
+              : Math.max(0, course.quests.length - 1)
+          return {
+            lessonProgress: {
+              ...s.lessonProgress,
+              [questId]: {
+                ...prev,
+                theoryDone: true,
+                practiceDone: true,
+                quizDone: true,
+                starsEarned: Math.max(prev.starsEarned, starsEarned),
+              },
+            },
+            completedQuestIds,
+            currentQuestId: nextQuest?.id ?? questId,
+            adventureIndex,
+            stars: s.stars + (already ? 0 : starsReward),
+            child: {
+              ...s.child,
+              xp: s.child.xp + (already ? 0 : starsReward * 4),
+              level:
+                Math.floor((s.child.xp + (already ? 0 : starsReward * 4)) / 200) +
+                1,
+            },
+          }
+        }),
+
+      resetCurrentCourseProgress: () =>
+        set((s) => {
+          const course = getCourse(s.selectedCourseId)
+          const ids = new Set(course.quests.map((q) => q.id))
+          const lessonProgress = { ...s.lessonProgress }
+          for (const id of ids) {
+            delete lessonProgress[id]
+          }
+          const firstId = course.quests[0]?.id ?? null
+          return {
+            completedQuestIds: s.completedQuestIds.filter((id) => !ids.has(id)),
+            lessonProgress,
+            currentQuestId: firstId,
+            adventureIndex: 0,
+            challengesPassed: s.challengesPassed.filter(
+              (id) => !id.includes('after'),
+            ),
+          }
+        }),
 
       loginStudent: ({ id, nickname, avatarId, skipOnboarding }) =>
         set((s) => ({
@@ -586,7 +712,7 @@ export const useDemoStore = create<DemoStore>()(
       },
     }),
     {
-      name: 'kids-creator-demo-v5',
+      name: 'kids-creator-demo-v6',
       partialize: (s) => ({
         isLoggedIn: s.isLoggedIn,
         currentRole: s.currentRole,
@@ -598,6 +724,7 @@ export const useDemoStore = create<DemoStore>()(
         storyOutline: s.storyOutline,
         stars: s.stars,
         challengesPassed: s.challengesPassed,
+        lessonProgress: s.lessonProgress,
         completedQuestIds: s.completedQuestIds,
         currentQuestId: s.currentQuestId,
         currentProject: s.currentProject,

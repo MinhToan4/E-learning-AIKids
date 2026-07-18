@@ -423,7 +423,17 @@ export const PROJECT_SEED = {
  * Resolve route for a quest id.
  * IMPORTANT: detective is compare-results, NOT prompt again (avoids loop after quiz).
  */
+/**
+ * All course stations enter the lesson shell first:
+ * Theory/Video → Practice → Quiz (Code.org Watch/Do/Check).
+ * Practice destinations live inside each lesson's practicePath.
+ */
 export function questRoute(questId: string): string {
+  return `/lesson/${questId}`
+}
+
+/** Direct practice routes (after theory unlocked) */
+export function practiceRoute(questId: string): string {
   switch (questId) {
     case 'character':
       return '/quest/character'

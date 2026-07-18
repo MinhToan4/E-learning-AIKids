@@ -185,7 +185,9 @@ export function PromptStudioPage() {
       setGenerationStage(null)
       addStars(25)
       fire('Siêu đỉnh!')
-      navigate('/studio/compare')
+      useDemoStore.getState().markPracticeDone('prompt-lab')
+      // Practice done → short quiz in lesson shell (then map unlocks Thám tử)
+      navigate('/lesson/prompt-lab?step=quiz')
     } catch {
       setGenerationStage(null)
       addToast({

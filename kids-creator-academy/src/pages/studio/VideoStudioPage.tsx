@@ -21,7 +21,6 @@ export function VideoStudioPage() {
   const setMusic = useDemoStore((s) => s.setMusic)
   const setSubtitles = useDemoStore((s) => s.setSubtitles)
   const setVideoRendered = useDemoStore((s) => s.setVideoRendered)
-  const completeQuest = useDemoStore((s) => s.completeQuest)
   const addBadge = useDemoStore((s) => s.addBadge)
   const addToast = useDemoStore((s) => s.addToast)
   const project = useDemoStore((s) => s.currentProject)
@@ -39,13 +38,14 @@ export function VideoStudioPage() {
     try {
       await mockRenderVideo(setStage)
       setVideoRendered(true)
-      completeQuest('cinema', 100)
+      useDemoStore.getState().markPracticeDone('cinema')
       addBadge('Đạo diễn mini')
       addToast({
         type: 'success',
         title: 'Video đã sẵn sàng!',
-        description: 'Xem trong Ba lô hoặc Portfolio.',
+        description: 'Làm trắc nghiệm cuối bài, rồi xem Portfolio.',
       })
+      navigate('/lesson/cinema?step=quiz')
     } finally {
       setRendering(false)
       setStage(null)

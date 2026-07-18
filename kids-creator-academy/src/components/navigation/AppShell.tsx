@@ -2,6 +2,7 @@ import { useMemo } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom'
 import {
   Backpack,
+  Dumbbell,
   HelpCircle,
   Home,
   LogOut,
@@ -30,16 +31,38 @@ import { computeQuestStatuses } from '@/lib/quests'
  * Nav labels must match real destinations (no vague “Chơi”).
  * “Nhiệm vụ” = open the next/available quest or studio task.
  */
+/**
+ * Top-level nav stays light. Nhiệm vụ / Bài tập live INSIDE each course
+ * (tabs on /world?view=missions|practice) so content is course-scoped.
+ */
 const studentNav = [
-  { to: '/world', label: 'Bản đồ', icon: Home, match: (p: string) => p.startsWith('/world') },
   {
-    to: '/quest/character',
+    to: '/world',
+    label: 'Khóa học',
+    icon: Home,
+    match: (p: string, search = '') =>
+      p.startsWith('/world') &&
+      !search.includes('missions') &&
+      !search.includes('practice'),
+  },
+  {
+    to: '/world?view=missions',
     label: 'Nhiệm vụ',
     icon: PlayCircle,
-    match: (p: string) =>
+    match: (p: string, search = '') =>
       p.startsWith('/quest') ||
       p.startsWith('/studio') ||
-      p.startsWith('/challenge'),
+      p.startsWith('/challenge') ||
+      p.startsWith('/lesson') ||
+      (p.startsWith('/world') && search.includes('missions')),
+  },
+  {
+    to: '/world?view=practice',
+    label: 'Bài tập',
+    icon: Dumbbell,
+    match: (p: string, search = '') =>
+      p.startsWith('/practice') ||
+      (p.startsWith('/world') && search.includes('practice')),
   },
   {
     to: '/stars',
@@ -287,20 +310,12 @@ export function AppShell() {
         />
         <nav className="flex flex-1 flex-col items-center gap-1.5" aria-label="Menu chính">
           {studentNav.map(({ to, label, icon: Icon, match }) => {
-            const target =
-              label === 'Nhiệm vụ' && nextQuest ? questRoute(nextQuest.id) : to
-            const active = match(location.pathname)
+            const active = match(location.pathname, location.search)
             return (
               <NavLink
                 key={label}
-                to={target}
-                title={
-                  label === 'Nhiệm vụ'
-                    ? nextQuest
-                      ? `Mở nhiệm vụ: ${nextQuest.title}`
-                      : 'Danh sách nhiệm vụ'
-                    : label
-                }
+                to={to}
+                title={label}
                 className={cn(
                   'flex w-[76px] flex-col items-center gap-1 rounded-xl px-1 py-2 text-[11px] font-bold transition-colors duration-150 2xl:w-[88px]',
                   active
@@ -421,13 +436,11 @@ export function AppShell() {
       >
         <ul className="mx-auto flex max-w-lg items-stretch justify-between">
           {studentNav.map(({ to, label, icon: Icon, match }) => {
-            const target =
-              label === 'Nhiệm vụ' && nextQuest ? questRoute(nextQuest.id) : to
-            const active = match(location.pathname)
+            const active = match(location.pathname, location.search)
             return (
               <li key={label} className="flex-1">
                 <NavLink
-                  to={target}
+                  to={to}
                   className={cn(
                     'flex min-h-14 flex-col items-center justify-center gap-0.5 rounded-xl text-[11px] font-bold',
                     active ? 'bg-brand-100 text-brand-600' : 'text-muted',

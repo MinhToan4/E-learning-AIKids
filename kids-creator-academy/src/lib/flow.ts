@@ -60,14 +60,21 @@ export function resolveChallengeExit(challengeId: string): {
   }
 }
 
-/** Main create path for demo (skips empty generic steps when already making product) */
+/**
+ * Main create path: each station = lesson shell (theory → practice → quiz).
+ * Practice routes sit inside each lesson; listed here for smoke navigation.
+ */
 export const MAIN_CREATE_PATH = [
-  '/quest/character',
+  '/lesson/character',
+  '/lesson/prompt-lab',
   '/studio/prompt',
+  '/lesson/detective',
   '/studio/compare',
-  '/challenge/ch-after-prompt',
+  '/lesson/plot',
   '/studio/story',
+  '/lesson/comic',
   '/studio/comic',
+  '/lesson/cinema',
   '/studio/video',
   '/portfolio/star-cat',
 ] as const

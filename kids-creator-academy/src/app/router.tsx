@@ -69,6 +69,12 @@ const StarsPage = lazy(() =>
 const ChallengePage = lazy(() =>
   import('@/pages/ChallengePage').then((m) => ({ default: m.ChallengePage })),
 )
+const LessonPage = lazy(() =>
+  import('@/pages/lesson/LessonPage').then((m) => ({ default: m.LessonPage })),
+)
+const PracticePage = lazy(() =>
+  import('@/pages/PracticePage').then((m) => ({ default: m.PracticePage })),
+)
 const ParentOverviewPage = lazy(() =>
   import('@/pages/parent/ParentPages').then((m) => ({
     default: m.ParentOverviewPage,
@@ -157,6 +163,22 @@ export const router = createBrowserRouter([
         element: (
           <L>
             <WorldPage />
+          </L>
+        ),
+      },
+      {
+        path: 'lesson/:questId',
+        element: (
+          <L>
+            <LessonPage />
+          </L>
+        ),
+      },
+      {
+        path: 'practice',
+        element: (
+          <L>
+            <PracticePage />
           </L>
         ),
       },

@@ -40,7 +40,6 @@ export function ComicStudioPage() {
   const redoComic = useDemoStore((s) => s.redoComic)
   const autoLayoutComic = useDemoStore((s) => s.autoLayoutComic)
   const pushComicHistory = useDemoStore((s) => s.pushComicHistory)
-  const completeQuest = useDemoStore((s) => s.completeQuest)
   const setCurrentQuest = useDemoStore((s) => s.setCurrentQuest)
   const addToast = useDemoStore((s) => s.addToast)
   const addStars = useDemoStore((s) => s.addStars)
@@ -94,15 +93,15 @@ export function ComicStudioPage() {
   }
 
   const saveAndVideo = () => {
-    completeQuest('comic', 100)
-    addStars(30)
-    setCurrentQuest('cinema')
+    useDemoStore.getState().markPracticeDone('comic')
+    addStars(15)
+    setCurrentQuest('comic')
     addToast({
       type: 'success',
       title: 'Đã lưu truyện 4 khung!',
-      description: 'Tiếp theo: làm video kể chuyện.',
+      description: 'Làm trắc nghiệm ngắn, rồi mở studio video.',
     })
-    navigate('/studio/video')
+    navigate('/lesson/comic?step=quiz')
   }
 
   const fillAllQuick = () => {

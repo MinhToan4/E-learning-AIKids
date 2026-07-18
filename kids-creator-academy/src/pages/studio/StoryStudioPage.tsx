@@ -23,7 +23,6 @@ export function StoryStudioPage() {
   const navigate = useNavigate()
   const outline = useDemoStore((s) => s.storyOutline)
   const setStoryOutline = useDemoStore((s) => s.setStoryOutline)
-  const completeQuest = useDemoStore((s) => s.completeQuest)
   const setCurrentQuest = useDemoStore((s) => s.setCurrentQuest)
   const addStars = useDemoStore((s) => s.addStars)
   const addToast = useDemoStore((s) => s.addToast)
@@ -43,16 +42,16 @@ export function StoryStudioPage() {
       })
       return
     }
-    completeQuest('plot', 80)
-    addStars(20)
-    setCurrentQuest('comic')
+    useDemoStore.getState().markPracticeDone('plot')
+    addStars(10)
+    setCurrentQuest('plot')
     fire('Cốt truyện xong!')
     addToast({
       type: 'success',
       title: 'Đã có câu chuyện!',
-      description: 'Tiếp theo: xếp vào truyện tranh 4 khung.',
+      description: 'Làm trắc nghiệm ngắn, rồi xếp 4 khung.',
     })
-    navigate('/studio/comic')
+    navigate('/lesson/plot?step=quiz')
   }
 
   return (

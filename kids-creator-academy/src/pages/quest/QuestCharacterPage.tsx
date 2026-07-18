@@ -11,7 +11,6 @@ import { useDemoStore } from '@/store/demo-store'
 export function QuestCharacterPage() {
   const navigate = useNavigate()
   const quest = QUESTS.find((q) => q.id === 'character')!
-  const completeQuest = useDemoStore((s) => s.completeQuest)
   const setCurrentQuest = useDemoStore((s) => s.setCurrentQuest)
   const addStars = useDemoStore((s) => s.addStars)
   const [stage, setStage] = useState<'intro' | 'pick' | 'done'>('intro')
@@ -102,13 +101,14 @@ export function QuestCharacterPage() {
             size="lg"
             fullWidth
             onClick={() => {
-              completeQuest('character', 100)
-              addStars(15)
-              setCurrentQuest('prompt-lab')
+              // Practice only — quiz + completeQuest happen in /lesson shell
+              useDemoStore.getState().markPracticeDone('character')
+              addStars(5)
+              setCurrentQuest('character')
               setStage('done')
             }}
           >
-            Xong bước này → Ghép thẻ tạo ảnh
+            Xong thực hành → Kiểm tra
             <ArrowRight className="size-5" aria-hidden />
           </Button>
         </div>
@@ -116,19 +116,19 @@ export function QuestCharacterPage() {
 
       {stage === 'done' && (
         <Card className="space-y-4 text-center">
-          <p className="font-display text-2xl text-success">Giỏi lắm!</p>
+          <p className="font-display text-2xl text-success">Thực hành xong!</p>
           <p className="font-semibold text-muted">
-            Tiếp theo: ghép thẻ để AI vẽ {species} · {outfit} · {trait}
+            Nhân vật: {species} · {outfit} · {trait}. Tiếp theo: trắc nghiệm ngắn.
           </p>
           <Button
             size="lg"
             fullWidth
             onClick={() => {
-              setCurrentQuest('prompt-lab')
-              navigate('/studio/prompt')
+              useDemoStore.getState().markPracticeDone('character')
+              navigate('/lesson/character?step=quiz')
             }}
           >
-            Ghép thẻ tạo ảnh
+            Làm bài kiểm tra
             <ArrowRight className="size-5" aria-hidden />
           </Button>
         </Card>
@@ -169,7 +169,8 @@ export function GenericQuestPage({ questId }: { questId: string }) {
   const navigate = useNavigate()
   const found = findQuestAnywhere(questId)
   const quest = found?.quest ?? QUESTS.find((q) => q.id === questId)
-  const completeQuest = useDemoStore((s) => s.completeQuest)
+  const markPracticeDone = useDemoStore((s) => s.markPracticeDone)
+  const addStars = useDemoStore((s) => s.addStars)
 
   if (!quest) {
     return (
@@ -183,23 +184,18 @@ export function GenericQuestPage({ questId }: { questId: string }) {
   }
 
   const total = found?.course.quests.length ?? 8
-  const nextRoute =
-    quest.id === 'comic'
-      ? '/studio/comic'
-      : quest.id === 'cinema'
-        ? '/studio/video'
-        : quest.id === 'prompt-lab' || quest.id === 'detective'
-          ? '/studio/prompt'
-          : '/world'
 
   return (
     <div className="mx-auto max-w-xl space-y-4 sm:max-w-2xl">
       <MissionBanner
-        stepLabel={`Bước ${quest.order}/${total}`}
+        stepLabel={`Thực hành ${quest.order}/${total}`}
         doing={quest.title}
         why={quest.skill}
-        reward={quest.reward}
+        reward="Mở bài kiểm tra ngắn"
       />
+      <p className="text-sm font-bold text-brand-500">
+        Bước thực hành · Lý thuyết đã xem trong bài học
+      </p>
       <h1 className="font-display text-2xl sm:text-3xl">{quest.title}</h1>
       <Card className="bg-gradient-to-br from-brand-50 to-sky-100">
         <p className="text-lg font-bold">{quest.hook}</p>
@@ -210,24 +206,32 @@ export function GenericQuestPage({ questId }: { questId: string }) {
           ))}
         </ul>
       </Card>
-      <div className="space-y-2">
-        {quest.learnCards.map((c) => (
-          <Card key={c.id} className="p-3">
-            <p className="font-extrabold">{c.title}</p>
-            <p className="text-sm font-semibold text-muted">{c.body}</p>
-          </Card>
-        ))}
-      </div>
+      <Card className="space-y-3 p-4">
+        <p className="font-display text-lg">Việc cần làm</p>
+        <p className="text-sm font-semibold text-muted">
+          Đọc mục tiêu, làm theo gợi ý, rồi bấm hoàn thành thực hành để vào trắc nghiệm.
+        </p>
+        <ol className="list-decimal space-y-1 pl-5 text-sm font-semibold">
+          {quest.goals.map((g) => (
+            <li key={g}>{g}</li>
+          ))}
+        </ol>
+      </Card>
       <Button
         size="lg"
         fullWidth
+        className="min-h-14"
         onClick={() => {
-          completeQuest(quest.id)
-          navigate(nextRoute)
+          markPracticeDone(quest.id)
+          addStars(5)
+          navigate(`/lesson/${quest.id}?step=quiz`)
         }}
       >
-        Xong · Nhận {quest.reward}
+        Xong thực hành · Kiểm tra
         <ArrowRight className="size-5" aria-hidden />
+      </Button>
+      <Button variant="secondary" fullWidth onClick={() => navigate(`/lesson/${quest.id}`)}>
+        Về lý thuyết bài học
       </Button>
     </div>
   )
