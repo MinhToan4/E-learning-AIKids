@@ -39,6 +39,11 @@ const PromptStudioPage = lazy(() =>
 const ComparePage = lazy(() =>
   import('@/pages/studio/ComparePage').then((m) => ({ default: m.ComparePage })),
 )
+const StoryStudioPage = lazy(() =>
+  import('@/pages/studio/StoryStudioPage').then((m) => ({
+    default: m.StoryStudioPage,
+  })),
+)
 const ComicStudioPage = lazy(() =>
   import('@/pages/studio/ComicStudioPage').then((m) => ({
     default: m.ComicStudioPage,
@@ -192,6 +197,14 @@ export const router = createBrowserRouter([
         element: (
           <L>
             <ComparePage />
+          </L>
+        ),
+      },
+      {
+        path: 'studio/story',
+        element: (
+          <L>
+            <StoryStudioPage />
           </L>
         ),
       },

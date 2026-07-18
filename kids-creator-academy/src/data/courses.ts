@@ -20,6 +20,10 @@ export type Course = {
   durationLabel: string
   productLabel: string
   status: CourseStatus
+  /** Default enrollment for demo seed */
+  enrolledByDefault?: boolean
+  /** Recommended for ages 8–11 AI starters */
+  recommended?: boolean
   skills: string[]
   quests: Quest[]
 }
@@ -114,6 +118,8 @@ export const COURSES: Course[] = [
     durationLabel: '60–90 phút',
     productLabel: 'Truyện + video',
     status: 'open',
+    enrolledByDefault: true,
+    recommended: true,
     skills: ['Prompt', 'Kể chuyện', 'Kiểm tra AI', 'An toàn'],
     quests: QUESTS,
   },
@@ -133,6 +139,8 @@ export const COURSES: Course[] = [
     durationLabel: '25–35 phút',
     productLabel: 'Huy hiệu an toàn',
     status: 'open',
+    enrolledByDefault: true,
+    recommended: true,
     skills: ['An toàn', 'Tư duy phản biện'],
     quests: [
       mini('safe-hello', 1, 'AI và bí mật', 'Không chia sẻ thông tin thật', 'Huy hiệu bí mật', 'Robot Mực Màu hỏi: con giữ bí mật thế nào?', '#5EE4B0', 'available'),
@@ -157,6 +165,8 @@ export const COURSES: Course[] = [
     durationLabel: '30–40 phút',
     productLabel: 'Video kể chuyện',
     status: 'new',
+    enrolledByDefault: false,
+    recommended: true,
     skills: ['Kể chuyện', 'Giọng kể', 'Phụ đề'],
     quests: [
       mini('voice-idea', 1, 'Ý tưởng lời kể', '3 câu mở đầu – giữa – kết', 'Mảnh kịch bản', 'Kể về một bạn robot đi lạc trong thư viện mây.', '#FF8FA3', 'available'),
@@ -181,6 +191,8 @@ export const COURSES: Course[] = [
     durationLabel: 'Sắp có',
     productLabel: 'Thẻ robot',
     status: 'soon',
+    enrolledByDefault: false,
+    recommended: false,
     skills: ['Sáng tạo', 'Prompt'],
     quests: [
       mini('bot-parts', 1, 'Chọn bộ phận robot', 'Đầu – thân – bánh xe', 'Mảnh robot', 'Lắp robot tưởng tượng của con.', '#94A3B8'),

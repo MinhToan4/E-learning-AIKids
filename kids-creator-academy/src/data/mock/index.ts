@@ -435,8 +435,9 @@ export function questRoute(questId: string): string {
       return '/studio/comic'
     case 'cinema':
       return '/studio/video'
-    case 'world-build':
     case 'plot':
+      return '/studio/story'
+    case 'world-build':
     case 'meet-mascot':
       return `/quest/${questId}`
     default:

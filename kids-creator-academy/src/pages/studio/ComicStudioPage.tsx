@@ -15,6 +15,7 @@ import { Card } from '@/components/ui/Card'
 import { Modal } from '@/components/ui/Modal'
 import { useDemoStore } from '@/store/demo-store'
 import { STICKERS } from '@/data/mock'
+import { storyToPanelHints } from '@/lib/flow'
 import { validateChildText } from '@/lib/safety'
 import type { ComicElement } from '@/types'
 import { cn } from '@/lib/cn'
@@ -44,8 +45,10 @@ export function ComicStudioPage() {
   const addToast = useDemoStore((s) => s.addToast)
   const addStars = useDemoStore((s) => s.addStars)
   const project = useDemoStore((s) => s.currentProject)
+  const storyOutline = useDemoStore((s) => s.storyOutline)
 
   const [previewOpen, setPreviewOpen] = useState(false)
+  const panelHints = useMemo(() => storyToPanelHints(storyOutline), [storyOutline])
   const [bubbleText, setBubbleText] = useState('Xin chào!')
   const [dragId, setDragId] = useState<string | null>(null)
   const [dragOffset, setDragOffset] = useState({ x: 0, y: 0 })
@@ -161,6 +164,37 @@ export function ComicStudioPage() {
         <strong>Cách làm:</strong> 1) Chọn ảnh bên trái → 2) Bấm “Đặt” trên khung → 3)
         Thêm lời thoại nếu muốn → 4) Bấm <strong>Xong · Làm video</strong>
       </div>
+
+      {/* Story guide from previous step */}
+      {(storyOutline.opening || storyOutline.problem || storyOutline.ending) && (
+        <div className="rounded-[1.25rem] border-2 border-sun-400/50 bg-sun-100/60 p-3 sm:p-4">
+          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-sm font-bold text-text">
+              📜 Cốt truyện: {storyOutline.title || 'Truyện của con'}
+            </p>
+            <Button
+              size="sm"
+              variant="soft"
+              onClick={() => navigate('/studio/story')}
+            >
+              Sửa cốt truyện
+            </Button>
+          </div>
+          <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
+            {panelHints.map((h) => (
+              <div
+                key={h.panel}
+                className="rounded-xl border border-white bg-white/90 px-3 py-2 text-xs font-semibold shadow-soft"
+              >
+                <span className="font-bold text-brand-600">
+                  Khung {h.panel} · {h.label}
+                </span>
+                <p className="mt-1 line-clamp-2 text-text">{h.beat}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div
         className={cn(
@@ -296,18 +330,27 @@ export function ComicStudioPage() {
             </p>
           )}
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-            {page.panels.map((panel) => {
+            {page.panels.map((panel, panelIdx) => {
               const els = page.elements
                 .filter((e) => e.panelId === panel.id)
                 .sort((a, b) => a.zIndex - b.zIndex)
+              const hint = panelHints[panelIdx]
               return (
                 <div
                   key={panel.id}
                   className="relative min-h-[200px] overflow-hidden rounded-2xl border-2 border-border bg-gradient-to-br from-sky-50 to-brand-50 sm:aspect-[4/3] sm:min-h-0"
                 >
-                  <div className="absolute left-2 top-2 z-20 rounded-full bg-white px-2.5 py-1 text-xs font-bold shadow-soft">
+                  <div className="absolute left-2 top-2 z-20 max-w-[85%] rounded-full bg-white px-2.5 py-1 text-xs font-bold shadow-soft">
                     {panel.label}
+                    {hint ? (
+                      <span className="ml-1 font-semibold text-muted">· {hint.label}</span>
+                    ) : null}
                   </div>
+                  {hint && els.length === 0 ? (
+                    <p className="pointer-events-none absolute inset-x-3 top-10 z-10 line-clamp-2 rounded-xl bg-white/80 px-2 py-1 text-center text-[11px] font-semibold text-muted">
+                      Gợi ý: {hint.beat}
+                    </p>
+                  ) : null}
                   <button
                     type="button"
                     className={cn(

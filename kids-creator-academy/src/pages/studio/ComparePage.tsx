@@ -54,18 +54,17 @@ export function ComparePage() {
       addStars(15)
     }
     completeQuest('prompt-lab', 100)
-    // Unlock path toward comic (skip empty intermediate for smooth create path)
+    // world-build is lightly credited on the create path; plot only after Story studio
     completeQuest('world-build', 20)
-    completeQuest('plot', 20)
     addStars(20)
-    setCurrentQuest('comic')
+    setCurrentQuest('detective')
 
     addToast({
       type: 'success',
       title: 'Đã lưu ảnh!',
-      description: 'Trả lời 2 câu hỏi nhỏ rồi làm truyện 4 khung.',
+      description: 'Trả lời quiz vui → viết cốt truyện → mới xếp 4 khung.',
     })
-    // Quiz then comic — never back to prompt
+    // Quiz → story outline → comic (never back to prompt; never complete plot early)
     navigate('/challenge/ch-after-prompt')
   }
 

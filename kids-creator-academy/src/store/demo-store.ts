@@ -42,6 +42,10 @@ interface DemoStore {
     onboarded: boolean
   }
   selectedCourseId: string
+  enrolledCourseIds: string[]
+  /** list = classic path, adventure = Mario-style map */
+  coursePlayMode: 'list' | 'adventure'
+  adventureIndex: number
   completedQuestIds: string[]
   currentQuestId: string | null
   currentProject: CreativeProject
@@ -49,6 +53,12 @@ interface DemoStore {
   selectedPromptParts: PromptParts
   generatedResults: GeneratedResult[]
   selectedResultId?: string
+  storyOutline: {
+    title: string
+    opening: string
+    problem: string
+    ending: string
+  }
   comicPages: ComicPage[]
   comicHistory: ComicPage[][]
   comicFuture: ComicPage[][]
@@ -75,6 +85,10 @@ interface DemoStore {
   setHelperOpen: (open: boolean) => void
   addStars: (n: number) => void
   passChallenge: (id: string) => void
+  enrollCourse: (id: string) => void
+  setCoursePlayMode: (mode: 'list' | 'adventure') => void
+  setAdventureIndex: (i: number) => void
+  setStoryOutline: (patch: Partial<DemoStore['storyOutline']>) => void
   loginStudent: (payload: {
     id?: string
     nickname: string
@@ -145,6 +159,9 @@ function initialState() {
     currentRole: 'student' as Role,
     child: { ...initialChild },
     selectedCourseId: 'course-comic',
+    enrolledCourseIds: ['course-comic', 'course-safety'],
+    coursePlayMode: 'adventure' as const,
+    adventureIndex: 0,
     completedQuestIds: ['meet-mascot'],
     currentQuestId: 'character',
     currentProject: { ...PROJECT_SEED, cover },
@@ -152,6 +169,12 @@ function initialState() {
     selectedPromptParts: {} as PromptParts,
     generatedResults: [] as GeneratedResult[],
     selectedResultId: undefined as string | undefined,
+    storyOutline: {
+      title: 'Mèo Sao và Hành tinh Kẹo',
+      opening: '',
+      problem: '',
+      ending: '',
+    },
     comicPages: [{ ...DEFAULT_COMIC, elements: [] }],
     comicHistory: [] as ComicPage[][],
     comicFuture: [] as ComicPage[][],
@@ -245,10 +268,39 @@ export const useDemoStore = create<DemoStore>()(
         })),
 
       setSelectedCourseId: (id) =>
-        set((s) => ({
+        set({
           selectedCourseId: id,
-          // Keep current quest if it belongs to new course; else first available later
-          currentQuestId: s.currentQuestId,
+          adventureIndex: 0,
+        }),
+
+      enrollCourse: (id) =>
+        set((s) =>
+          s.enrolledCourseIds.includes(id)
+            ? s
+            : { enrolledCourseIds: [...s.enrolledCourseIds, id] },
+        ),
+
+      setCoursePlayMode: (mode) => set({ coursePlayMode: mode, adventureIndex: 0 }),
+
+      setAdventureIndex: (i) => set({ adventureIndex: Math.max(0, i) }),
+
+      setStoryOutline: (patch) =>
+        set((s) => ({
+          storyOutline: { ...s.storyOutline, ...patch },
+          currentProject: {
+            ...s.currentProject,
+            title: patch.title ?? s.currentProject.title,
+            reflection:
+              patch.ending || patch.opening
+                ? [
+                    patch.opening || s.storyOutline.opening,
+                    patch.problem || s.storyOutline.problem,
+                    patch.ending || s.storyOutline.ending,
+                  ]
+                    .filter(Boolean)
+                    .join(' ')
+                : s.currentProject.reflection,
+          },
         })),
 
       setCurrentQuest: (id) => set({ currentQuestId: id }),
@@ -534,12 +586,16 @@ export const useDemoStore = create<DemoStore>()(
       },
     }),
     {
-      name: 'kids-creator-demo-v4',
+      name: 'kids-creator-demo-v5',
       partialize: (s) => ({
         isLoggedIn: s.isLoggedIn,
         currentRole: s.currentRole,
         child: s.child,
         selectedCourseId: s.selectedCourseId,
+        enrolledCourseIds: s.enrolledCourseIds,
+        coursePlayMode: s.coursePlayMode,
+        adventureIndex: s.adventureIndex,
+        storyOutline: s.storyOutline,
         stars: s.stars,
         challengesPassed: s.challengesPassed,
         completedQuestIds: s.completedQuestIds,

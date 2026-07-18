@@ -69,11 +69,13 @@ export function ChallengePage() {
           Đúng {score}/{total} câu · +{challenge.starsReward} sao
         </p>
         <Button size="lg" fullWidth onClick={finishChallenge}>
-          {exit.nextPath.includes('comic')
-            ? 'Làm truyện 4 khung'
-            : exit.nextPath.includes('quest')
-              ? 'Nhiệm vụ tiếp theo'
-              : 'Tiếp tục'}
+          {exit.nextPath.includes('story')
+            ? 'Viết cốt truyện tiếp!'
+            : exit.nextPath.includes('comic')
+              ? 'Làm truyện 4 khung'
+              : exit.nextPath.includes('quest')
+                ? 'Nhiệm vụ tiếp theo'
+                : 'Tiếp tục phiêu lưu'}
         </Button>
       </div>
     )

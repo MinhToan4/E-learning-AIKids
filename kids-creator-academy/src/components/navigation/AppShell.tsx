@@ -37,7 +37,9 @@ const studentNav = [
     label: 'Nhiệm vụ',
     icon: PlayCircle,
     match: (p: string) =>
-      p.startsWith('/quest') || p.startsWith('/studio') || p.startsWith('/challenge'),
+      p.startsWith('/quest') ||
+      p.startsWith('/studio') ||
+      p.startsWith('/challenge'),
   },
   {
     to: '/stars',
