@@ -16,5 +16,6 @@ export default defineConfig({
     environment: 'jsdom',
     globals: true,
     setupFiles: './src/test/setup.ts',
+    // Match production base so assetUrl / router basename tests reflect GH Pages
   },
 })

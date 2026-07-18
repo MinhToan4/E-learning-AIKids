@@ -10,10 +10,14 @@ import type {
   VideoScene,
 } from '@/types'
 import { buildAvatarSvg, buildMascotSvg, buildSceneSvg } from '@/lib/svg-scenes'
+import { assetUrl } from '@/lib/assets'
 
 export const MASCOT_SRC = buildMascotSvg()
-/** Cute map character (generated asset) */
-export const MAP_MASCOT_SRC = '/assets/mascot-map.jpg'
+/** Cute map character (generated asset) — BASE_URL aware for GH Pages */
+export const MAP_MASCOT_SRC = assetUrl('assets/mascot-map.jpg')
+export const HERO_MASCOT_SRC = assetUrl('assets/mascot-hero.jpg')
+export const ADVENTURE_MAP_SRC = assetUrl('assets/adventure-map.jpg')
+export const STORY_WORKSHOP_SRC = assetUrl('assets/story-workshop.jpg')
 
 export const AVATARS = [
   { id: 'cloud-fox', label: 'Cáo Mây', src: buildAvatarSvg('cloud', ['#7C6CF0', '#5ED0FF']) },

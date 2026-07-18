@@ -7,11 +7,12 @@ import {
   AVATARS,
   DEMO_ADULT_PIN,
   DEMO_CHILD_PROFILES,
+  HERO_MASCOT_SRC,
 } from '@/data/mock'
-
-const HERO = '/assets/mascot-hero.jpg'
 import { useDemoStore } from '@/store/demo-store'
 import { cn } from '@/lib/cn'
+
+const HERO = HERO_MASCOT_SRC
 
 type Mode = 'pick' | 'student' | 'adult'
 

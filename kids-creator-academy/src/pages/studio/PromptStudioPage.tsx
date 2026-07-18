@@ -16,15 +16,15 @@ import { Button } from '@/components/ui/Button'
 import { LoadingCreature } from '@/components/feedback/States'
 import { VideoGuideButton } from '@/components/game/VideoGuide'
 import { CheerOverlay, useCheer } from '@/components/game/CheerBurst'
-import { PROMPT_CHIPS } from '@/data/mock'
-
-const HERO = '/assets/mascot-hero.jpg'
+import { HERO_MASCOT_SRC, PROMPT_CHIPS } from '@/data/mock'
 import { assemblePrompt, missingSlots, SLOT_LABELS } from '@/lib/prompt'
 import { validateChildText } from '@/lib/safety'
 import { generateImages } from '@/lib/generate'
 import { useDemoStore } from '@/store/demo-store'
 import type { PromptChip, PromptSlotKey } from '@/types'
 import { cn } from '@/lib/cn'
+
+const HERO = HERO_MASCOT_SRC
 
 const SLOTS: PromptSlotKey[] = [
   'character',

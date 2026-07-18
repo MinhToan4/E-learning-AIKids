@@ -18,7 +18,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/lib/cn'
 import { useDemoStore } from '@/store/demo-store'
-import { AVATARS, MASCOT_SRC, questRoute } from '@/data/mock'
+import { AVATARS, HERO_MASCOT_SRC, MASCOT_SRC, questRoute } from '@/data/mock'
 import { getCourse } from '@/data/courses'
 import { ToastViewport } from '@/components/feedback/Toast'
 import { Button } from '@/components/ui/Button'
@@ -278,7 +278,7 @@ export function AppShell() {
         aria-label="Thanh bên học sinh"
       >
         <img
-          src="/assets/mascot-hero.jpg"
+          src={HERO_MASCOT_SRC}
           alt=""
           className="mb-4 size-12 rounded-2xl object-cover shadow-soft ring-2 ring-brand-100 2xl:size-14"
           width={56}

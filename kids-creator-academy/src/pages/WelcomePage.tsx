@@ -1,10 +1,10 @@
 import { useNavigate } from 'react-router-dom'
 import { LogIn, Shield, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
-import { COURSE_TAGLINE } from '@/data/mock'
+import { COURSE_TAGLINE, HERO_MASCOT_SRC } from '@/data/mock'
 import { useDemoStore } from '@/store/demo-store'
 
-const HERO = '/assets/mascot-hero.jpg'
+const HERO = HERO_MASCOT_SRC
 
 export function WelcomePage() {
   const navigate = useNavigate()

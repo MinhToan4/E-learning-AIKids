@@ -11,6 +11,7 @@ import {
   STORY_PROBLEMS,
   storyToPanelHints,
 } from '@/lib/flow'
+import { STORY_WORKSHOP_SRC } from '@/data/mock'
 import { useDemoStore } from '@/store/demo-store'
 import { cn } from '@/lib/cn'
 
@@ -62,7 +63,7 @@ export function StoryStudioPage() {
       <section className="relative overflow-hidden rounded-[1.75rem] border-2 border-white shadow-clay">
         <div className="absolute inset-0">
           <img
-            src="/assets/story-workshop.jpg"
+            src={STORY_WORKSHOP_SRC}
             alt=""
             className="size-full object-cover opacity-90"
           />

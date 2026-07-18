@@ -20,7 +20,12 @@ import {
 import { Button } from '@/components/ui/Button'
 import { ProgressBar } from '@/components/ui/Progress'
 import { useDemoStore } from '@/store/demo-store'
-import { MAP_MASCOT_SRC, MASCOT_SRC, questRoute } from '@/data/mock'
+import {
+  ADVENTURE_MAP_SRC,
+  MAP_MASCOT_SRC,
+  MASCOT_SRC,
+  questRoute,
+} from '@/data/mock'
 import {
   COURSES,
   QUEST_KID,
@@ -1096,7 +1101,7 @@ function AdventureMap({
       <div className="relative overflow-hidden rounded-[1.75rem] border-4 border-white shadow-clay">
         <div className="absolute inset-0">
           <img
-            src="/assets/adventure-map.jpg"
+            src={ADVENTURE_MAP_SRC}
             alt=""
             className="size-full object-cover"
           />

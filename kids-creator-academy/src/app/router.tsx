@@ -3,6 +3,7 @@ import { createBrowserRouter, Navigate } from 'react-router-dom'
 import { AppShell } from '@/components/navigation/AppShell'
 import { LoadingCreature } from '@/components/feedback/States'
 import { RouteError } from '@/components/feedback/RouteError'
+import { routerBasename } from '@/lib/assets'
 
 const WelcomePage = lazy(() =>
   import('@/pages/WelcomePage').then((m) => ({ default: m.WelcomePage })),
@@ -120,7 +121,8 @@ function L({ children }: { children: ReactNode }) {
   )
 }
 
-export const router = createBrowserRouter([
+export const router = createBrowserRouter(
+  [
   {
     path: '/',
     element: <AppShell />,
@@ -344,4 +346,6 @@ export const router = createBrowserRouter([
       },
     ],
   },
-])
+  ],
+  { basename: routerBasename() },
+)
