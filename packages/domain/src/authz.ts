@@ -14,12 +14,25 @@ export type Action =
   | 'portfolio:write'
   | 'approval:request'
   | 'approval:decide'
+  | 'child:create'
+  | 'child:update'
+  | 'child:delete'
+  | 'password:change'
   | 'class:read'
   | 'class:write'
   | 'user:read'
   | 'user:write'
   | 'system:read'
   | 'admin:seed'
+  | 'profile:read'
+  | 'profile:write'
+  | 'notification:read'
+  | 'notification:write'
+  | 'settings:read'
+  | 'settings:write'
+  | 'media:upload'
+  | 'subscription:read'
+  | 'subscription:write'
 
 const ROLE_ACTIONS: Record<Role, Action[]> = {
   student: [
@@ -29,12 +42,25 @@ const ROLE_ACTIONS: Record<Role, Action[]> = {
     'portfolio:read',
     'portfolio:write',
     'approval:request',
+    'notification:read',
+    'notification:write',
+    'media:upload',
   ],
   parent: [
     'course:read',
     'progress:read',
     'portfolio:read',
     'approval:decide',
+    'child:create',
+    'child:update',
+    'child:delete',
+    'password:change',
+    'profile:read',
+    'profile:write',
+    'notification:read',
+    'notification:write',
+    'subscription:read',
+    'subscription:write',
   ],
   teacher: [
     'course:read',
@@ -44,6 +70,12 @@ const ROLE_ACTIONS: Record<Role, Action[]> = {
     'portfolio:read',
     'class:read',
     'class:write',
+    'password:change',
+    'profile:read',
+    'profile:write',
+    'notification:read',
+    'notification:write',
+    'media:upload',
   ],
   admin: [
     'course:read',
@@ -57,6 +89,19 @@ const ROLE_ACTIONS: Record<Role, Action[]> = {
     'user:write',
     'system:read',
     'admin:seed',
+    'password:change',
+    'child:create',
+    'child:update',
+    'child:delete',
+    'profile:read',
+    'profile:write',
+    'notification:read',
+    'notification:write',
+    'settings:read',
+    'settings:write',
+    'media:upload',
+    'subscription:read',
+    'subscription:write',
   ],
 }
 

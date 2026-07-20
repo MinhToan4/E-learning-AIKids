@@ -37,7 +37,25 @@ VITE_API_URL=https://api.yourdomain.com
 
 ## Merge seams → StoryMee `2-MCP-Core`
 
-This monorepo is **merge-ready**, not a full multi-service rewrite:
+This monorepo is **merge-ready**, not a full multi-service rewrite.
+
+### Code seam module
+
+`apps/api/src/shared/seams/storymee-compat.ts` (pure, unit-tested):
+
+| Helper | Purpose |
+|--------|---------|
+| `toStoryMeeAccount(user)` | Map AI Kids public user → StoryMee-shaped account DTO |
+| `buildSessionCookieOptions(...)` | Cookie flags + optional `COOKIE_DOMAIN` for SSO |
+| `rewriteAliasToPrimaryApi(url, prefix)` | `/api/aikids/*` → `/api/*` path math |
+| `seamHealthMeta(...)` | Exposed on `GET /api/health` → `seams` |
+
+### Env knobs
+
+```env
+COOKIE_DOMAIN=.storymee.com          # optional shared cookie domain
+API_ALIAS_PREFIX=/api/aikids         # optional in-process alias (edge rewrite preferred)
+```
 
 | AI Kids module | Core counterpart | Merge approach |
 |----------------|------------------|----------------|
@@ -46,8 +64,11 @@ This monorepo is **merge-ready**, not a full multi-service rewrite:
 | `Quest.videoUrl` | `core-media-api` / asset CDN | Upload via media service; store URL here |
 | Domain package | shared libs | Publish `@aikids/domain` or fold rules into domain skills |
 | Docker compose | `infra/docker-compose*.yml` | Add service `aikids-api` alongside existing |
+| Redis rate-limit | gateway Redis | Key prefix `session:` / rate-limit; share instance carefully |
 
 **Do not** hardcode catalog or secrets — SQL + env stay the contract across merge.
+
+**Production preference:** rewrite `/api/aikids` → `/api` at nginx/Cloudflare; keep in-process alias off unless needed for local gateway simulation.
 
 ## Docker
 

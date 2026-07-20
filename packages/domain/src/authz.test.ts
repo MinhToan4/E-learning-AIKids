@@ -16,11 +16,14 @@ describe('authz can', () => {
     expect(can('student', 'lecture:write')).toBe(false)
   })
 
-  it('parent can decide approvals, not write progress or lectures', () => {
+  it('parent can decide approvals, manage household plan, not write progress or lectures', () => {
     expect(can('parent', 'approval:decide')).toBe(true)
+    expect(can('parent', 'subscription:read')).toBe(true)
+    expect(can('parent', 'subscription:write')).toBe(true)
     expect(can('parent', 'progress:write')).toBe(false)
     expect(can('parent', 'lecture:write')).toBe(false)
     expect(can('parent', 'user:write')).toBe(false)
+    expect(can('student', 'subscription:write')).toBe(false)
   })
 
   it('teacher can read/write class and lectures, not manage all users', () => {
@@ -33,11 +36,15 @@ describe('authz can', () => {
     expect(can('teacher', 'system:read')).toBe(false)
   })
 
-  it('admin can manage users and system, write lectures', () => {
+  it('admin can manage users, system, and AI settings; others cannot write settings', () => {
     expect(can('admin', 'user:read')).toBe(true)
     expect(can('admin', 'user:write')).toBe(true)
     expect(can('admin', 'system:read')).toBe(true)
     expect(can('admin', 'lecture:write')).toBe(true)
+    expect(can('admin', 'settings:read')).toBe(true)
+    expect(can('admin', 'settings:write')).toBe(true)
+    expect(can('teacher', 'settings:write')).toBe(false)
+    expect(can('student', 'settings:read')).toBe(false)
     expect(can('admin', 'admin:seed')).toBe(true)
     // Admin does not submit student practice as themselves
     expect(can('admin', 'progress:write')).toBe(false)
