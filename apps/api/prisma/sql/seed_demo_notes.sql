@@ -1,0 +1,17 @@
+-- Demo data is applied by prisma/seed.ts (bcrypt hashes cannot be static safely).
+-- After seed, optional SQL to set/adjust lecture video URLs only:
+--
+-- UPDATE "Quest" SET "videoUrl" = 'https://cdn.example.com/lectures/meet-mascot.mp4'
+-- WHERE id = 'meet-mascot';
+--
+-- UPDATE "Quest" SET "videoUrl" = 'https://cdn.example.com/lectures/character.mp4'
+-- WHERE id = 'character';
+--
+-- Roles expected after seed.ts:
+--   admin@demo.aikids.local  (role=admin)
+--   teacher@demo.aikids.local
+--   parent@demo.aikids.local
+--   student nickname MựcCon
+--
+-- Full DDL: postgres_init.sql
+-- Runtime seed: ../seed.ts + seed/courses/*

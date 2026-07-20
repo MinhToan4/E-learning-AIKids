@@ -1,0 +1,287 @@
+@import 'tailwindcss';
+
+/*
+  Soft Clay UI — ages 8–11 (Hallmark anti-slop + design-system MASTER)
+  No plastic neon AI SaaS chrome.
+*/
+@theme {
+  --font-sans: 'Nunito', ui-rounded, ui-sans-serif, system-ui, sans-serif;
+  --font-display: 'Baloo 2', 'Nunito', ui-rounded, ui-sans-serif, system-ui, sans-serif;
+
+  --color-brand-500: #6d5efc;
+  --color-brand-600: #5646e8;
+  --color-brand-100: #ebe8ff;
+  --color-brand-50: #f5f3ff;
+
+  --color-sky-400: #3dbfff;
+  --color-sky-100: #e3f6ff;
+  --color-mint-400: #3ed9a0;
+  --color-mint-100: #e2faf0;
+  --color-sun-400: #ffc94a;
+  --color-sun-100: #fff4d6;
+  --color-coral-400: #ff7b93;
+  --color-coral-100: #ffe6eb;
+
+  --color-bg: #f3f0ff;
+  --color-surface: #ffffff;
+  --color-text: #1e2740;
+  --color-muted: #5c657a;
+  --color-border: #e4dff2;
+  --color-success: #178a5c;
+  --color-warning: #a66b12;
+  --color-danger: #c03955;
+  --color-focus: #4338ca;
+
+  --radius-card: 1.5rem;
+  --radius-btn: 1rem;
+  --shadow-soft: 0 12px 32px rgba(30, 39, 64, 0.08);
+  --shadow-clay: 0 6px 0 0 rgba(109, 94, 252, 0.16), 0 16px 36px rgba(30, 39, 64, 0.1);
+  --shadow-press: 0 3px 0 0 rgba(109, 94, 252, 0.22);
+}
+
+@layer base {
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+
+  body {
+    margin: 0;
+    min-height: 100dvh;
+    font-family: var(--font-sans);
+    font-size: 17px;
+    line-height: 1.5;
+    font-weight: 600;
+    color: var(--color-text);
+    background-color: var(--color-bg);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 10% -10%, #dcd6ff 0%, transparent 55%),
+      radial-gradient(ellipse 70% 45% at 95% 5%, #c8eeff 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 50% 110%, #ffe8b8 0%, transparent 45%),
+      linear-gradient(180deg, #f7f5ff 0%, #f3f0ff 40%, #eef9ff 100%);
+    background-attachment: fixed;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  #root {
+    min-height: 100dvh;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--color-focus);
+    outline-offset: 3px;
+  }
+
+  button,
+  a,
+  [role='button'] {
+    touch-action: manipulation;
+  }
+
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  .ui-card {
+    border-radius: var(--radius-card);
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    background: var(--color-surface);
+    box-shadow: var(--shadow-soft);
+  }
+
+  .ui-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    min-height: 48px;
+    padding: 0.75rem 1.25rem;
+    border-radius: var(--radius-btn);
+    font-family: var(--font-sans);
+    font-weight: 800;
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+    transition:
+      transform 0.15s ease,
+      box-shadow 0.15s ease,
+      background 0.15s ease;
+  }
+
+  .ui-btn:active:not(:disabled) {
+    transform: translateY(2px);
+  }
+
+  .ui-btn-primary {
+    background: var(--color-brand-500);
+    color: white;
+    box-shadow: var(--shadow-clay);
+  }
+
+  .ui-btn-primary:hover:not(:disabled) {
+    background: var(--color-brand-600);
+  }
+
+  .ui-btn-primary:active:not(:disabled) {
+    box-shadow: var(--shadow-press);
+  }
+
+  .ui-btn-secondary {
+    background: white;
+    color: var(--color-text);
+    border: 2px solid var(--color-border);
+    box-shadow: 0 4px 0 0 rgba(30, 39, 64, 0.06);
+  }
+
+  .ui-btn-ghost {
+    background: transparent;
+    color: var(--color-muted);
+  }
+
+  .ui-btn:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    min-height: 44px;
+    padding: 0.5rem 0.9rem;
+    border-radius: 999px;
+    border: 2px solid var(--color-border);
+    background: white;
+    font-weight: 700;
+    cursor: pointer;
+    transition:
+      border-color 0.15s,
+      background 0.15s,
+      transform 0.15s;
+  }
+
+  .chip:hover {
+    border-color: var(--color-brand-500);
+  }
+
+  .chip-active {
+    border-color: var(--color-brand-500);
+    background: var(--color-brand-50);
+    box-shadow: 0 4px 0 0 rgba(109, 94, 252, 0.2);
+  }
+
+  .station {
+    position: relative;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    font-weight: 800;
+    border: 4px solid white;
+    box-shadow: var(--shadow-soft);
+    transition: transform 0.18s ease;
+  }
+
+  .station:not(.station-locked):hover {
+    transform: scale(1.06);
+  }
+
+  .station-locked {
+    filter: grayscale(0.4);
+    opacity: 0.7;
+  }
+
+  .station-available {
+    animation: pulse-soft 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-soft {
+    0%,
+    100% {
+      box-shadow: 0 0 0 0 rgba(109, 94, 252, 0.35);
+    }
+    50% {
+      box-shadow: 0 0 0 12px rgba(109, 94, 252, 0);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .station-available {
+      animation: none;
+    }
+  }
+
+  /* Page / section motion — GPU-friendly, respects reduced-motion */
+  .page-enter {
+    animation: page-enter 0.28s ease-out both;
+  }
+
+  .animate-fade-up {
+    animation: fade-up 0.32s ease-out both;
+  }
+
+  .animate-pop {
+    animation: pop-in 0.45s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+  }
+
+  @keyframes page-enter {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes pop-in {
+    0% {
+      opacity: 0;
+      transform: scale(0.92);
+    }
+    100% {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .page-enter,
+    .animate-fade-up,
+    .animate-pop {
+      animation: none;
+    }
+  }
+}

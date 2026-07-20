@@ -1,0 +1,199 @@
+// PostgreSQL only — Supabase or local Docker Postgres.
+// DATABASE_URL = Supabase Connection string (URI) from Dashboard → Settings → Database.
+// Never commit real passwords. See docs/SUPABASE.md.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Roles (User.role string): student | parent | teacher | admin
+// All catalog/lecture content lives in DB — never hardcode production truth in FE.
+
+model User {
+  id           String   @id @default(cuid())
+  role         String // student | parent | teacher | admin
+  email        String?  @unique // adults only
+  passwordHash String? // adults only
+  pinHash      String? // optional parent PIN
+  nickname     String?
+  avatarId     String?
+  level        Int      @default(1)
+  xp           Int      @default(0)
+  onboarded    Boolean  @default(false)
+  goal         String?
+  /// Soft-disable account without deleting progress (admin)
+  active       Boolean  @default(true)
+  parentId     String?
+  parent       User?    @relation("ParentChildren", fields: [parentId], references: [id])
+  children     User[]   @relation("ParentChildren")
+  classId      String?
+  class        ClassRoom? @relation(fields: [classId], references: [id])
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  sessions        Session[]
+  enrollments     Enrollment[]
+  questProgress   QuestProgress[]
+  assets          Asset[]
+  projects        Project[]
+  approvalsMade   Approval[]      @relation("Approver")
+  approvalsOwned  Approval[]      @relation("ChildApprovals")
+  taughtClasses   ClassRoom[]     @relation("TeacherClasses")
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model ClassRoom {
+  id        String   @id @default(cuid())
+  name      String
+  code      String   @unique
+  teacherId String
+  teacher   User     @relation("TeacherClasses", fields: [teacherId], references: [id])
+  students  User[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Course {
+  id            String   @id // stable slug e.g. course-comic
+  title         String
+  shortTitle    String
+  tagline       String
+  description   String
+  coverFrom     String
+  coverTo       String
+  accent        String
+  coverImage    String?
+  ageLabel      String
+  durationLabel String
+  productLabel  String
+  status        String   @default("open") // open | soon | archived
+  recommended   Boolean  @default(false)
+  skillsJson    String   // JSON array — what you learn
+  outcomesJson  String   @default("[]") // JSON array — results after course
+  sortOrder     Int      @default(0)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  quests      Quest[]
+  enrollments Enrollment[]
+}
+
+/// A quest/lecture station. videoUrl holds the lecture video (CDN/object-storage URL).
+model Quest {
+  id             String  @id // stable slug e.g. meet-mascot
+  courseId       String
+  course         Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  order          Int
+  title          String
+  skill          String
+  reward         String
+  duration       String
+  hook           String
+  accent         String
+  icon           String  @default("star")
+  practiceKind   String  @default("chips") // chips | story | comic | detective | character | video | intro
+  /// Public HTTPS URL to lecture video (CDN / storage). Null = no video yet.
+  videoUrl       String?
+  goalsJson      String // JSON string[]
+  learnCardsJson String // JSON LearnCard[]
+  checkJson      String // JSON check questions
+  chipsJson      String? // optional prompt chips for practice
+
+  progress QuestProgress[]
+
+  @@unique([courseId, order])
+  @@index([courseId])
+}
+
+model Enrollment {
+  id        String   @id @default(cuid())
+  userId    String
+  courseId  String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@unique([userId, courseId])
+}
+
+model QuestProgress {
+  id        String   @id @default(cuid())
+  userId    String
+  questId   String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quest     Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
+  status    String   @default("locked") // locked | available | in_progress | completed
+  phase     String   @default("learn") // learn | practice | check
+  stars     Int      @default(0)
+  xpEarned  Int      @default(0)
+  dataJson  String? // practice payload
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+
+  @@unique([userId, questId])
+  @@index([userId])
+}
+
+model Asset {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type      String
+  name      String
+  questId   String?
+  thumbnail String
+  private   Boolean  @default(true)
+  metaJson  String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Project {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title       String
+  kind        String // comic | video | character
+  thumbnail   String
+  private     Boolean  @default(true)
+  shareStatus String   @default("private") // private | pending | shared
+  dataJson    String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  approvals Approval[]
+
+  @@index([userId])
+}
+
+model Approval {
+  id          String   @id @default(cuid())
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  childId     String
+  child       User     @relation("ChildApprovals", fields: [childId], references: [id], onDelete: Cascade)
+  parentId    String?
+  parent      User?    @relation("Approver", fields: [parentId], references: [id])
+  destination String   @default("family") // family | class
+  status      String   @default("pending") // pending | approved | rejected
+  note        String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([parentId, status])
+  @@index([childId])
+}
