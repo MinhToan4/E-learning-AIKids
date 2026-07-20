@@ -6,6 +6,23 @@ import { WelcomePage } from '@/features/auth/pages/WelcomePage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import type { User } from '@/shared/lib/api'
 
+// Lazy auth pages
+const RegisterPage = lazy(() =>
+  import('@/features/auth/pages/RegisterPage').then((m) => ({
+    default: m.RegisterPage,
+  })),
+)
+const ForgotPasswordPage = lazy(() =>
+  import('@/features/auth/pages/ForgotPasswordPage').then((m) => ({
+    default: m.ForgotPasswordPage,
+  })),
+)
+const ResetPasswordPage = lazy(() =>
+  import('@/features/auth/pages/ResetPasswordPage').then((m) => ({
+    default: m.ResetPasswordPage,
+  })),
+)
+
 // Lazy heavy student routes for faster first paint
 const OnboardingPage = lazy(() =>
   import('@/features/auth/pages/OnboardingPage').then((m) => ({
@@ -42,6 +59,11 @@ const ProfilePage = lazy(() =>
     default: m.ProfilePage,
   })),
 )
+const AchievementsPage = lazy(() =>
+  import('@/features/achievements/pages/AchievementsPage').then((m) => ({
+    default: m.AchievementsPage,
+  })),
+)
 const ParentPage = lazy(() =>
   import('@/features/parent/pages/ParentPage').then((m) => ({
     default: m.ParentPage,
@@ -57,11 +79,22 @@ const AdminPage = lazy(() =>
     default: m.AdminPage,
   })),
 )
+const ChildPickerPage = lazy(() =>
+  import('@/features/family/pages/ChildPickerPage').then((m) => ({
+    default: m.ChildPickerPage,
+  })),
+)
 
 function Fallback() {
   return (
-    <div className="flex min-h-[40vh] items-center justify-center font-display text-xl text-brand-500 animate-pulse">
-      Đang mở cổng sao…
+    <div
+      className="flex min-h-[50vh] flex-col items-center justify-center gap-3 px-4"
+      role="status"
+      aria-live="polite"
+    >
+      <div className="ui-skeleton h-14 w-14 rounded-2xl" />
+      <p className="font-display text-xl text-brand-500">Đang mở cổng sao…</p>
+      <p className="text-sm text-muted">Chờ một chút nhé</p>
     </div>
   )
 }
@@ -69,7 +102,8 @@ function Fallback() {
 function homeFor(role: User['role']) {
   if (role === 'admin') return '/admin'
   if (role === 'teacher') return '/teacher'
-  if (role === 'parent') return '/parent'
+  // Shared tablet: parents land on kid picker first
+  if (role === 'parent') return '/kids'
   return '/home'
 }
 
@@ -106,6 +140,17 @@ export function App() {
       <Routes>
         <Route path="/" element={<WelcomePage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route
+          path="/kids"
+          element={
+            <Guard>
+              <ChildPickerPage />
+            </Guard>
+          }
+        />
         <Route
           path="/onboarding"
           element={
@@ -178,6 +223,14 @@ export function App() {
             }
           />
           <Route
+            path="/achievements"
+            element={
+              <Guard roles={['student']} requireOnboarded>
+                <AchievementsPage />
+              </Guard>
+            }
+          />
+          <Route
             path="/parent"
             element={
               <Guard roles={['parent']}>
@@ -190,6 +243,30 @@ export function App() {
             element={
               <Guard roles={['parent']}>
                 <ParentPage tab="kids" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/parent/approvals"
+            element={
+              <Guard roles={['parent']}>
+                <ParentPage tab="approvals" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/parent/profile"
+            element={
+              <Guard roles={['parent']}>
+                <ParentPage tab="profile" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/parent/plan"
+            element={
+              <Guard roles={['parent']}>
+                <ParentPage tab="plan" />
               </Guard>
             }
           />

@@ -71,6 +71,8 @@ export type CourseSummary = {
   accent: string
   coverImage: string | null
   ageLabel: string
+  ageTrack?: string
+  courseKey?: string
   durationLabel: string
   productLabel: string
   status: string
@@ -85,6 +87,7 @@ export type CourseSummary = {
     title: string
     accent: string
     practiceKind: string
+    stage?: string
   }>
 }
 
@@ -99,6 +102,7 @@ export type QuestDetail = {
   hook: string
   accent: string
   practiceKind: string
+  stage?: string
   /** Lecture video URL from API/SQL — not hardcoded in FE */
   videoUrl?: string | null
   goals: string[]
@@ -114,7 +118,39 @@ export type QuestDetail = {
     string,
     Array<{ id: string; slot: string; label: string; emoji: string; description?: string }>
   > | null
+  stations?: {
+    stage: string
+    stations: Array<{
+      id: string
+      kind: string
+      title?: string
+      durationMin?: number
+      practiceKind?: string
+      gameType?: string
+    }>
+  }
 }
+
+export type AchievementRow = {
+  type: string
+  title: string
+  description: string
+  icon: string
+  requiredValue: number
+  unlocked: boolean
+  unlockedAt: string | null
+}
+
+export type NotificationRow = {
+  id: string
+  type: string
+  title: string
+  body: string
+  read: boolean
+  data: string | null
+  createdAt: string
+}
+
 
 export type LectureRow = {
   id: string
@@ -128,6 +164,8 @@ export type LectureRow = {
   accent: string
   practiceKind: string
   videoUrl: string | null
+  archived?: boolean
+  stage?: string
 }
 
 export type QuestProgress = {

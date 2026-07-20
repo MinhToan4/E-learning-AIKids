@@ -2,7 +2,8 @@ import { describe, expect, it } from 'vitest'
 import { existsSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { ART_STYLES } from '@aikids/domain'
-import { designerAssets, styleImage } from './assets.js'
+import { courseCoverHint, designerAssets, styleImage } from './assets.js'
+import { STUDENT_AVATARS, getAvatar } from './avatars.js'
 
 function publicPath(url: string): string {
   return resolve(process.cwd(), 'public', url.replace(/^\//, ''))
@@ -37,5 +38,24 @@ describe('designer AIKid assets on disk', () => {
     expect(existsSync(publicPath(designerAssets.workshop.style))).toBe(true)
     expect(existsSync(publicPath(designerAssets.workshop.comic))).toBe(true)
     expect(existsSync(publicPath(designerAssets.course.comic))).toBe(true)
+  })
+
+  it('chrome + avatar catalog images exist on disk', () => {
+    expect(existsSync(publicPath(designerAssets.chrome.badges))).toBe(true)
+    expect(existsSync(publicPath(designerAssets.chrome.mascotHero))).toBe(true)
+    expect(STUDENT_AVATARS.length).toBeGreaterThanOrEqual(12)
+    for (const a of STUDENT_AVATARS) {
+      if (a.image) {
+        expect(existsSync(publicPath(a.image)), `avatar ${a.id}`).toBe(true)
+      }
+    }
+    expect(getAvatar('avatar-star').emoji).toBe('⭐')
+    expect(getAvatar('unknown-id').id).toBe('avatar-robot')
+  })
+
+  it('courseCoverHint prefers API coverImage then key heuristic', () => {
+    expect(courseCoverHint({ coverImage: '/x.jpg' })).toBe('/x.jpg')
+    expect(courseCoverHint({ courseKey: 'K4' })).toBe(designerAssets.course.comic)
+    expect(courseCoverHint({ courseKey: 'K6' })).toBe(designerAssets.course.voice)
   })
 })

@@ -1,60 +1,89 @@
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
-import { api, type CourseSummary } from '@/shared/lib/api'
+import { api, type AchievementRow, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
-import { designerAssets } from '@/shared/config/assets'
+import { courseCoverHint, designerAssets } from '@/shared/config/assets'
+import { cn } from '@/shared/lib/cn'
+import { CardGridSkeleton, PageSkeleton } from '@/shared/components/ui/Skeleton'
+import { EmptyState } from '@/shared/components/ui/EmptyState'
+import { ErrorState } from '@/shared/components/ui/ErrorState'
+import { PageMotion } from '@/shared/components/ui/PageMotion'
 
-/** AIkid xưởng hub — deep-links into course stations that teach the same mechanics */
-const WORKSHOP_HUB = [
-  {
-    to: '/lesson/character',
-    img: designerAssets.workshop.character,
-    title: 'Nhân vật',
-    sub: 'Xưởng character',
-  },
-  {
-    to: '/lesson/style-pick',
-    img: designerAssets.workshop.style,
-    title: 'Phong cách',
-    sub: 'Art style Soft Clay',
-  },
-  {
-    to: '/lesson/comic',
-    img: designerAssets.workshop.comic,
-    title: 'Truyện tranh',
-    sub: '4 khung comic',
-  },
-  {
-    to: '/course/course-robot',
-    img: designerAssets.workshop.mee,
-    title: 'Mee · Robot',
-    sub: 'Khóa robot sáng tạo',
-  },
-] as const
+type TrackFilter = 'all' | 'L1' | 'L2'
 
 export function HomePage() {
   const user = useAuth((s) => s.user)
   const [courses, setCourses] = useState<CourseSummary[]>([])
+  const [track, setTrack] = useState<TrackFilter>('all')
+  const [streak, setStreak] = useState({ current: 0, longest: 0 })
+  const [badges, setBadges] = useState<AchievementRow[]>([])
+  const [board, setBoard] = useState<
+    Array<{ rank: number; nickname: string | null; xp: number; isMe: boolean }>
+  >([])
   const [error, setError] = useState<string | null>(null)
+  const [loading, setLoading] = useState(true)
 
-  useEffect(() => {
-    void (async () => {
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const [c, s, a, lb] = await Promise.all([
+        api<{ courses: CourseSummary[] }>('/api/courses'),
+        api<{ current: number; longest: number }>('/api/gamification/streak'),
+        api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
+        api<{
+          leaderboard: Array<{
+            rank: number
+            nickname: string | null
+            xp: number
+            isMe: boolean
+          }>
+        }>('/api/gamification/leaderboard').catch(() => ({ leaderboard: [] })),
+      ])
+      setCourses(c.courses)
+      setStreak({ current: s.current, longest: s.longest })
+      setBadges(a.achievements.filter((x) => x.unlocked).slice(0, 3))
+      setBoard(lb.leaderboard.slice(0, 5))
       try {
-        const data = await api<{ courses: CourseSummary[] }>('/api/courses')
-        setCourses(data.courses)
-      } catch (e) {
-        setError(e instanceof Error ? e.message : 'Lỗi tải khóa học')
+        const check = await api<{
+          current: number
+          longest: number
+        }>('/api/gamification/check-in', { method: 'POST' })
+        setStreak({ current: check.current, longest: check.longest })
+      } catch {
+        /* ignore check-in errors */
       }
-    })()
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Lỗi tải khóa học')
+    } finally {
+      setLoading(false)
+    }
   }, [])
 
+  useEffect(() => {
+    void load()
+  }, [load])
+
   const open = courses.filter((c) => c.status === 'open')
-  const enrolled = open.filter((c) => c.enrolled)
-  const explore = open.filter((c) => !c.enrolled)
+  const filtered =
+    track === 'all' ? open : open.filter((c) => c.ageTrack === track)
+  const enrolled = filtered.filter((c) => c.enrolled)
+  const explore = filtered.filter((c) => !c.enrolled)
+  const continueCourse =
+    enrolled[0] ?? open.find((c) => c.recommended) ?? open[0]
+
+  if (loading) {
+    return (
+      <div className="flex flex-col gap-6">
+        <PageSkeleton rows={2} />
+        <CardGridSkeleton count={6} />
+      </div>
+    )
+  }
 
   return (
-    <div className="flex flex-col gap-6">
+    <PageMotion className="flex flex-col gap-6">
       <header className="ui-card relative overflow-hidden p-0">
         <div className="absolute inset-0">
           <img
@@ -81,116 +110,169 @@ export function HomePage() {
               Cấp {user?.level} · {user?.xp} XP · {open.length} khóa đang mở
             </p>
           </div>
-          <Link to="/course/course-comic">
-            <Button>Làm tiếp bản đồ</Button>
-          </Link>
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="rounded-2xl bg-sun-100 px-3 py-2 text-center shadow-soft">
+              <p className="text-xs font-bold text-warning">Chuỗi ngày 🔥</p>
+              <p className="font-display text-2xl text-text">{streak.current}</p>
+              <p className="text-[10px] text-muted">Kỷ lục {streak.longest}</p>
+            </div>
+            {continueCourse && (
+              <Link to={`/course/${continueCourse.id}`}>
+                <Button>Tiếp tục học</Button>
+              </Link>
+            )}
+          </div>
         </div>
       </header>
 
-      <section>
-        <h2 className="font-display mb-3 text-2xl">Xưởng sáng tạo</h2>
-        <p className="mb-3 text-sm text-muted">
-          Cùng cơ chế AIkid: nhân vật · art style · comic — trong lộ trình khóa học.
-        </p>
-        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-          {WORKSHOP_HUB.map((card) => (
-            <Link
-              key={card.to}
-              to={card.to}
-              className="ui-card group overflow-hidden transition hover:-translate-y-0.5"
-            >
-              <img
-                src={card.img}
-                alt=""
-                className="h-28 w-full object-cover transition group-hover:scale-[1.03]"
-              />
-              <div className="p-3">
-                <p className="font-extrabold">{card.title}</p>
-                <p className="text-xs text-muted">{card.sub}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </section>
-
       {error && (
-        <p className="rounded-xl bg-coral-100 px-3 py-2 text-danger" role="alert">
-          {error}
-        </p>
+        <ErrorState message={error} onRetry={() => void load()} inline />
       )}
 
-      {enrolled.length > 0 && (
-        <section>
-          <h2 className="font-display mb-3 text-2xl">Đang học</h2>
-          <div className="grid gap-4 sm:grid-cols-2">{enrolled.map(courseCard)}</div>
+      <section className="ui-card p-4">
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-display text-2xl">Huy hiệu gần đây</h2>
+          <Link
+            to="/achievements"
+            className="text-sm font-bold text-brand-500 hover:underline"
+          >
+            Xem tất cả
+          </Link>
+        </div>
+        {badges.length === 0 ? (
+          <p className="text-sm text-muted">
+            Hoàn thành bài đầu tiên để mở huy hiệu đầu tiên nhé!
+          </p>
+        ) : (
+          <div className="flex flex-wrap gap-3">
+            {badges.map((b) => (
+              <div
+                key={b.type}
+                className="flex items-center gap-2 rounded-2xl bg-brand-50 px-3 py-2"
+              >
+                <span className="ui-badge-clay !h-10 !w-10 !text-xl" aria-hidden>
+                  {b.icon}
+                </span>
+                <span className="text-sm font-bold">{b.title}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {board.length > 0 && (
+        <section className="ui-card p-4">
+          <h2 className="font-display mb-2 text-2xl">Bảng xếp hạng lớp</h2>
+          <p className="mb-3 text-xs text-muted">
+            Chỉ biệt danh · XP — cùng tiến bộ, không so sánh độc hại.
+          </p>
+          <ol className="flex flex-col gap-2">
+            {board.map((row) => (
+              <li
+                key={row.rank}
+                className={cn(
+                  'flex items-center justify-between rounded-xl px-3 py-2 text-sm',
+                  row.isMe ? 'bg-sun-100 font-extrabold' : 'bg-brand-50/60',
+                )}
+              >
+                <span>
+                  #{row.rank} {row.nickname ?? 'Bạn ẩn danh'}
+                  {row.isMe ? ' (con)' : ''}
+                </span>
+                <span className="text-brand-600">{row.xp} XP</span>
+              </li>
+            ))}
+          </ol>
         </section>
       )}
 
       <section>
-        <h2 className="font-display mb-3 text-2xl">Khám phá khóa học</h2>
-        <div className="grid gap-4 sm:grid-cols-2">
-          {(explore.length ? explore : open).map(courseCard)}
+        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+          <h2 className="font-display text-2xl">Lộ trình theo độ tuổi</h2>
+          <div className="flex gap-1 rounded-2xl bg-brand-50 p-1">
+            {(
+              [
+                ['all', 'Tất cả'],
+                ['L1', '6–8 tuổi'],
+                ['L2', '9–11 tuổi'],
+              ] as const
+            ).map(([id, label]) => (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setTrack(id)}
+                className={cn(
+                  'rounded-xl px-3 py-1.5 text-sm font-extrabold transition',
+                  track === id
+                    ? 'bg-white text-brand-600 shadow-soft'
+                    : 'text-muted hover:text-text',
+                )}
+              >
+                {label}
+              </button>
+            ))}
+          </div>
         </div>
-      </section>
-    </div>
-  )
-}
-
-function courseCard(c: CourseSummary) {
-  const cover =
-    c.coverImage ||
-    (c.id === 'course-comic'
-      ? designerAssets.course.comic
-      : c.id === 'course-safety'
-        ? designerAssets.course.safety
-        : c.id === 'course-voice'
-          ? designerAssets.course.voice
-          : c.id === 'course-robot'
-            ? designerAssets.course.robot
-            : null)
-
-  return (
-    <Link
-      key={c.id}
-      to={`/course/${c.id}`}
-      className="ui-card group overflow-hidden transition duration-200 hover:-translate-y-0.5 hover:shadow-soft"
-    >
-      <div
-        className="relative h-36 bg-brand-100"
-        style={{
-          background: `linear-gradient(135deg, ${c.coverFrom}, ${c.coverTo})`,
-        }}
-      >
-        {cover && (
-          <img
-            src={cover}
-            alt=""
-            className="absolute inset-0 h-full w-full object-cover opacity-95"
+        <p className="mb-3 text-sm text-muted">
+          L1 (6–8) và L2 (9–11) · K1→K6 bám sát folder courses · Giai đoạn ideate
+          (không AI) rồi produce (cùng AI).
+        </p>
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          {filtered.map((c) => {
+            const cover = courseCoverHint({
+              courseKey: c.courseKey,
+              ageTrack: c.ageTrack,
+              coverImage: c.coverImage,
+            })
+            return (
+              <Link
+                key={c.id}
+                to={`/course/${c.id}`}
+                className="ui-card group overflow-hidden transition hover:-translate-y-0.5"
+              >
+                <div
+                  className="h-28 bg-cover bg-center"
+                  style={{
+                    backgroundImage: `url(${cover})`,
+                    backgroundColor: c.coverFrom,
+                  }}
+                />
+                <div className="p-3">
+                  <div className="mb-1 flex flex-wrap gap-1">
+                    <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-extrabold text-brand-600">
+                      {c.ageTrack ?? 'L1'} · {c.courseKey ?? ''}
+                    </span>
+                    <span className="rounded-full bg-mint-100 px-2 py-0.5 text-[10px] font-extrabold text-success">
+                      {c.ageLabel}
+                    </span>
+                    {c.enrolled && (
+                      <span className="rounded-full bg-sun-100 px-2 py-0.5 text-[10px] font-extrabold text-warning">
+                        Đang học
+                      </span>
+                    )}
+                  </div>
+                  <h3 className="font-display text-lg leading-tight group-hover:text-brand-600">
+                    {c.shortTitle}
+                  </h3>
+                  <p className="line-clamp-2 text-xs text-muted">{c.tagline}</p>
+                  <p className="mt-1 text-xs font-bold text-muted">
+                    {c.questCount} bài · {c.productLabel}
+                  </p>
+                </div>
+              </Link>
+            )
+          })}
+        </div>
+        {explore.length === 0 && enrolled.length === 0 && (
+          <EmptyState
+            className="mt-3"
+            compact
+            title="Chưa có khóa ở nhóm này"
+            description="Thử lọc “Tất cả” hoặc quay lại sau khi giáo viên mở khóa mới."
+            imageSrc={designerAssets.chrome.adventureMap}
           />
         )}
-        {c.recommended && (
-          <span className="absolute left-3 top-3 rounded-full bg-sun-400 px-2 py-1 text-xs font-extrabold text-text">
-            Gợi ý
-          </span>
-        )}
-        {c.enrolled && (
-          <span className="absolute right-3 top-3 rounded-full bg-mint-400 px-2 py-1 text-xs font-extrabold text-white">
-            Đã ghi danh
-          </span>
-        )}
-      </div>
-      <div className="p-4">
-        <h3 className="font-display text-xl">{c.title}</h3>
-        <p className="text-sm text-muted">{c.tagline}</p>
-        <p className="mt-2 text-xs font-bold text-brand-500">
-          {c.ageLabel} · {c.durationLabel} · {c.questCount} trạm
-        </p>
-        {c.skills?.length > 0 && (
-          <p className="mt-1 line-clamp-2 text-xs text-muted">
-            {c.skills.slice(0, 3).join(' · ')}
-          </p>
-        )}
-      </div>
-    </Link>
+      </section>
+    </PageMotion>
   )
 }

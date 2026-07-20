@@ -46,6 +46,9 @@ export function WelcomePage() {
             <Link to="/login?role=parent">
               <Button variant="secondary">Tôi là ba/mẹ</Button>
             </Link>
+            <Link to="/kids">
+              <Button variant="ghost">Con chọn hồ sơ</Button>
+            </Link>
           </div>
           <div className="mt-2 grid grid-cols-3 gap-2">
             {[

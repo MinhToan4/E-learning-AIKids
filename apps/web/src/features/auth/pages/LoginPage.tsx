@@ -6,15 +6,7 @@ import { ApiError } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
-
-const AVATARS = [
-  { id: 'avatar-robot', emoji: '🤖', label: 'Robot' },
-  { id: 'avatar-cat', emoji: '🐱', label: 'Mèo' },
-  { id: 'avatar-star', emoji: '⭐', label: 'Sao' },
-  { id: 'avatar-dragon', emoji: '🐉', label: 'Rồng' },
-  { id: 'avatar-fox', emoji: '🦊', label: 'Cáo' },
-  { id: 'avatar-owl', emoji: '🦉', label: 'Cú' },
-]
+import { STUDENT_AVATARS } from '@/shared/config/avatars'
 
 export function LoginPage() {
   const [params] = useSearchParams()
@@ -25,8 +17,9 @@ export function LoginPage() {
   const [mode, setMode] = useState<'student' | 'adult'>(initial as 'student' | 'adult')
   const [nickname, setNickname] = useState('MựcCon')
   const [avatarId, setAvatarId] = useState('avatar-robot')
-  const [email, setEmail] = useState('parent@demo.aikids.local')
-  const [password, setPassword] = useState('ParentDemo1!')
+  const [pin, setPin] = useState('')
+  const [email, setEmail] = useState('')
+  const [password, setPassword] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const loginStudent = useAuth((s) => s.loginStudent)
@@ -36,8 +29,8 @@ export function LoginPage() {
   const hint = useMemo(
     () =>
       mode === 'student'
-        ? 'Chọn biệt danh + avatar — không cần email của con.'
-        : 'Phụ huynh / giáo viên đăng nhập bằng email demo.',
+        ? 'Con dùng biệt danh ba/mẹ đã tạo. Không cần mật khẩu của ba/mẹ.'
+        : 'Ba/mẹ hoặc thầy cô đăng nhập bằng email để quản lý và cho con học.',
     [mode],
   )
 
@@ -47,13 +40,15 @@ export function LoginPage() {
     setError(null)
     try {
       if (mode === 'student') {
-        const user = await loginStudent(nickname.trim(), avatarId)
+        const user = await loginStudent(nickname.trim(), avatarId, {
+          pin: pin.trim() || undefined,
+        })
         navigate(user.onboarded ? '/home' : '/onboarding')
       } else {
         const user = await loginAdult(email.trim(), password)
         if (user.role === 'admin') navigate('/admin')
         else if (user.role === 'teacher') navigate('/teacher')
-        else navigate('/parent')
+        else navigate('/kids')
       }
     } catch (err) {
       setError(
@@ -131,26 +126,55 @@ export function LoginPage() {
                   />
                 </label>
                 <div>
-                  <p className="mb-2 text-sm font-bold">Chọn avatar</p>
-                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-6">
-                    {AVATARS.map((a) => (
+                  <p className="mb-2 text-sm font-bold">Avatar (giống lúc ba/mẹ tạo)</p>
+                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
+                    {STUDENT_AVATARS.map((a) => (
                       <button
                         key={a.id}
                         type="button"
                         onClick={() => setAvatarId(a.id)}
                         className={cn(
-                          'flex min-h-16 flex-col items-center justify-center rounded-2xl border-2 bg-white text-2xl',
+                          'flex min-h-16 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-2xl border-2 bg-white',
                           avatarId === a.id
-                            ? 'border-brand-500 bg-brand-50'
+                            ? 'border-brand-500 bg-brand-50 shadow-soft'
                             : 'border-border',
                         )}
                         aria-label={a.label}
                       >
-                        {a.emoji}
+                        {a.image ? (
+                          <img
+                            src={a.image}
+                            alt=""
+                            className="h-10 w-10 rounded-xl object-cover"
+                          />
+                        ) : (
+                          <span className="text-2xl">{a.emoji}</span>
+                        )}
+                        <span className="text-[10px] font-bold text-muted">
+                          {a.label}
+                        </span>
                       </button>
                     ))}
                   </div>
                 </div>
+                <label className="flex flex-col gap-1 text-sm font-bold">
+                  Mã PIN 6 số (nếu ba/mẹ đã đặt)
+                  <input
+                    inputMode="numeric"
+                    pattern="\d{6}"
+                    maxLength={6}
+                    autoComplete="one-time-code"
+                    className="min-h-12 rounded-2xl border-2 border-border px-4 font-mono text-base tracking-widest"
+                    placeholder="······"
+                    value={pin}
+                    onChange={(e) =>
+                      setPin(e.target.value.replace(/\D/g, '').slice(0, 6))
+                    }
+                  />
+                </label>
+                <p className="text-xs text-muted">
+                  Chưa có hồ sơ? Nhờ ba/mẹ đăng nhập, vào mục Con và thêm con nhé.
+                </p>
               </>
             ) : (
               <>
@@ -174,11 +198,11 @@ export function LoginPage() {
                     required
                   />
                 </label>
-                <p className="text-xs text-muted">
-                  Demo: parent@demo.aikids.local / ParentDemo1! ·
-                  teacher@demo.aikids.local / TeacherDemo1! ·
-                  admin@demo.aikids.local / AdminDemo1!
-                </p>
+                <div className="flex items-center justify-between text-xs">
+                  <Link to="/forgot-password" className="font-bold text-brand-500 hover:underline">
+                    Quên mật khẩu?
+                  </Link>
+                </div>
               </>
             )}
 
@@ -194,6 +218,13 @@ export function LoginPage() {
             <Button type="submit" disabled={busy}>
               {busy ? 'Đang vào…' : 'Vào học!'}
             </Button>
+
+            <p className="text-center text-sm text-muted">
+              Chưa có tài khoản?{' '}
+              <Link to="/register" className="font-bold text-brand-500 hover:underline">
+                Đăng ký ngay
+              </Link>
+            </p>
           </form>
         </div>
       </div>

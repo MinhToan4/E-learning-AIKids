@@ -21,8 +21,13 @@ import { Button } from '@/shared/components/ui/Button'
 import { api, type QuestDetail } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets, styleImage } from '@/shared/config/assets'
+import { RefMediaPicker } from '@/features/lesson/components/RefMediaPicker'
+import { SketchCanvas } from '@/features/lesson/components/SketchCanvas'
 
 type Phase = 'learn' | 'practice' | 'check' | 'done'
+
+const GEN_KINDS = new Set(['ai_pick', 'video', 'chips', 'character'])
+
 
 const emptyStory = {
   opening: '',
@@ -55,13 +60,18 @@ export function LessonPage() {
     'Xong rồi!',
   ])
   const [detectivePick, setDetectivePick] = useState<0 | 1 | null>(null)
+  const [journalText, setJournalText] = useState('')
+  const [paletteColors, setPaletteColors] = useState<string[]>(['#6d5efc', '#3dbfff', '#ffc94a'])
   const [answers, setAnswers] = useState<Record<string, number>>({})
   const [checkResult, setCheckResult] = useState<{
     stars: number
     message: string
     nextQuestId: string | null
+    newAchievements?: string[]
   } | null>(null)
   const [busy, setBusy] = useState(false)
+  const [refAssetIds, setRefAssetIds] = useState<string[]>([])
+  const [sketchDataUrl, setSketchDataUrl] = useState<string | null>(null)
 
   const resetLocal = useCallback(() => {
     setPhase('learn')
@@ -75,6 +85,8 @@ export function LessonPage() {
     setStory(emptyStory)
     setComicBubbles(['Xin chào!', 'Ôi không!', 'Mình sửa nhé!', 'Xong rồi!'])
     setDetectivePick(null)
+    setRefAssetIds([])
+    setSketchDataUrl(null)
     setAnswers({})
     setCheckResult(null)
     setQuest(null)
@@ -186,6 +198,20 @@ export function LessonPage() {
     if (quest.practiceKind === 'style' && !styleId) {
       return 'Chọn một phong cách vẽ nhé!'
     }
+    if (
+      (quest.practiceKind === 'journal' ||
+        quest.practiceKind === 'reflect' ||
+        quest.practiceKind === 'ai_pick') &&
+      !journalText.trim()
+    ) {
+      return 'Viết ý tưởng của con vào sổ tay nhé!'
+    }
+    if (quest.practiceKind === 'palette' && paletteColors.length < 3) {
+      return 'Chọn đủ 3 màu nhé!'
+    }
+    if (quest.practiceKind === 'sketch' && !sketchDataUrl) {
+      return 'Hãy vẽ vài nét trên canvas trong bài nhé!'
+    }
     return null
   }
 
@@ -238,13 +264,44 @@ export function LessonPage() {
         payload = { title: 'Video mini', scenes: panels }
       } else if (quest.practiceKind === 'detective') {
         payload = { pickedCorrect: detectivePick === 0 }
+      } else if (quest.practiceKind === 'sketch') {
+        payload = {
+          sketchDataUrl,
+          text: journalText.trim(),
+        }
+      } else if (
+        quest.practiceKind === 'journal' ||
+        quest.practiceKind === 'reflect' ||
+        quest.practiceKind === 'spin' ||
+        quest.practiceKind === 'match' ||
+        quest.practiceKind === 'drag'
+      ) {
+        payload = { text: journalText.trim(), freeText: journalText.trim() }
+      } else if (quest.practiceKind === 'palette') {
+        payload = { colors: paletteColors, text: journalText.trim() }
+      } else if (quest.practiceKind === 'ai_pick') {
+        payload = {
+          prompt: journalText.trim(),
+          freeText: journalText.trim(),
+        }
       } else {
         payload = { ready: true }
       }
 
+      if (GEN_KINDS.has(quest.practiceKind) && refAssetIds.length > 0) {
+        payload = { ...payload, assetIds: refAssetIds }
+      }
+
       const res = await api<{
         result: {
-          generated?: { imageDataUrl: string; title: string }
+          generated?: {
+            imageDataUrl?: string
+            imageUrl?: string
+            videoUrl?: string
+            title: string
+          }
+          asset?: { id: string; url: string }
+          message?: string
         }
       }>(`/api/progress/${questId}/practice`, {
         method: 'POST',
@@ -253,7 +310,19 @@ export function LessonPage() {
           payload,
         }),
       })
-      if (res.result?.generated) setGenerated(res.result.generated)
+      if (res.result?.generated) {
+        const g = res.result.generated
+        setGenerated({
+          imageDataUrl:
+            g.imageDataUrl ?? g.imageUrl ?? g.videoUrl ?? '',
+          title: g.title,
+        })
+      } else if (res.result?.asset?.url) {
+        setGenerated({
+          imageDataUrl: res.result.asset.url,
+          title: 'Bản vẽ của con',
+        })
+      }
       await api(`/api/progress/${questId}/advance`, {
         method: 'POST',
         body: JSON.stringify({ fromPhase: 'practice' }),
@@ -280,6 +349,7 @@ export function LessonPage() {
         stars: number
         message: string
         nextQuestId: string | null
+        newAchievements?: string[]
       }>(`/api/progress/${questId}/check`, {
         method: 'POST',
         body: JSON.stringify({
@@ -502,7 +572,7 @@ export function LessonPage() {
 
           {quest.practiceKind === 'style' && (
             <>
-              <p className="font-extrabold">Chọn phong cách Soft Clay</p>
+              <p className="font-extrabold">Chọn phong cách vẽ</p>
               <p className="text-sm text-muted">
                 Thẻ designer AIkid — ấm, handmade, không bóng nhựa AI.
               </p>
@@ -677,6 +747,96 @@ export function LessonPage() {
             </div>
           )}
 
+          {GEN_KINDS.has(quest.practiceKind) && (
+            <RefMediaPicker
+              questId={questId}
+              selectedIds={refAssetIds}
+              onChange={setRefAssetIds}
+              max={4}
+            />
+          )}
+
+          {quest.practiceKind === 'sketch' && (
+            <div className="flex flex-col gap-3">
+              <SketchCanvas onChange={setSketchDataUrl} />
+              <label className="flex flex-col gap-1 text-sm font-bold">
+                Ghi chú ngắn (tuỳ chọn)
+                <input
+                  className="min-h-11 rounded-xl border-2 border-border px-3 text-sm"
+                  value={journalText}
+                  maxLength={200}
+                  placeholder="Ví dụ: thế giới kẹo của con"
+                  onChange={(e) => setJournalText(e.target.value)}
+                />
+              </label>
+            </div>
+          )}
+
+          {(quest.practiceKind === 'journal' ||
+            quest.practiceKind === 'reflect' ||
+            quest.practiceKind === 'spin' ||
+            quest.practiceKind === 'match' ||
+            quest.practiceKind === 'drag' ||
+            quest.practiceKind === 'ai_pick') && (
+            <div className="flex flex-col gap-2">
+              <p className="font-extrabold">
+                {quest.practiceKind === 'ai_pick'
+                  ? 'Mô tả để máy vẽ giúp — con chọn ý trước nhé!'
+                  : quest.practiceKind === 'spin'
+                    ? 'Vòng quay ý tưởng — ghi 3 từ khoá của con'
+                    : 'Sổ tay thế giới — viết ý của con'}
+              </p>
+              <textarea
+                className="min-h-28 rounded-2xl border-2 border-border p-3 text-sm font-semibold"
+                placeholder="Viết ý tưởng của con (không dùng tên thật)…"
+                value={journalText}
+                maxLength={500}
+                onChange={(e) => setJournalText(e.target.value)}
+              />
+            </div>
+          )}
+
+          {quest.practiceKind === 'palette' && (
+            <div className="flex flex-col gap-3">
+              <p className="font-extrabold">Chọn 3 màu cho thế giới của con</p>
+              <div className="flex flex-wrap gap-3">
+                {paletteColors.map((c, i) => (
+                  <label key={i} className="flex flex-col items-center gap-1 text-xs font-bold">
+                    Màu {i + 1}
+                    <input
+                      type="color"
+                      value={c}
+                      className="h-12 w-12 cursor-pointer rounded-xl border-2 border-border"
+                      onChange={(e) => {
+                        const next = [...paletteColors]
+                        next[i] = e.target.value
+                        setPaletteColors(next)
+                      }}
+                    />
+                  </label>
+                ))}
+              </div>
+              <textarea
+                className="min-h-20 rounded-2xl border-2 border-border p-3 text-sm"
+                placeholder="Vì sao con chọn màu này?"
+                value={journalText}
+                maxLength={200}
+                onChange={(e) => setJournalText(e.target.value)}
+              />
+            </div>
+          )}
+
+          {generated && (
+            <div className="overflow-hidden rounded-2xl border-2 border-border">
+              <img
+                src={generated.imageDataUrl}
+                alt={generated.title}
+                className="max-h-64 w-full object-contain bg-brand-50"
+              />
+              <p className="p-2 text-center text-sm font-bold">{generated.title}</p>
+            </div>
+          )}
+
           <Button onClick={() => void savePractice()} disabled={busy}>
             {busy ? 'Đang lưu…' : 'Xong thực hành → Check'}
           </Button>
@@ -729,6 +889,12 @@ export function LessonPage() {
           <h2 className="font-display text-3xl">Hoàn thành trạm!</h2>
           <p className="text-muted">{checkResult.message}</p>
           <p className="text-sm">Phần thưởng: {quest.reward}</p>
+          {checkResult.newAchievements &&
+            checkResult.newAchievements.length > 0 && (
+              <p className="rounded-2xl bg-sun-100 px-4 py-2 text-sm font-extrabold text-warning">
+                🏆 Huy hiệu mới: {checkResult.newAchievements.join(', ')}
+              </p>
+            )}
           <div className="mt-2 flex flex-wrap justify-center gap-2">
             {checkResult.nextQuestId ? (
               <Button

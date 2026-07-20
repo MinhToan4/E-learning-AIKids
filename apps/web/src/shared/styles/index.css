@@ -284,4 +284,84 @@
       animation: none;
     }
   }
+
+  /* Phase 6 — skeleton pulse (Soft Clay) */
+  .ui-skeleton {
+    background: linear-gradient(
+      90deg,
+      var(--color-brand-50) 0%,
+      #ebe6ff 40%,
+      var(--color-brand-50) 80%
+    );
+    background-size: 200% 100%;
+    animation: skeleton-shimmer 1.2s ease-in-out infinite;
+  }
+
+  @keyframes skeleton-shimmer {
+    0% {
+      background-position: 100% 0;
+    }
+    100% {
+      background-position: -100% 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ui-skeleton {
+      animation: none;
+      background: var(--color-brand-50);
+    }
+  }
+
+  /* Screen-reader only (loading announcements) */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  /* Clay badge chip for achievements */
+  .ui-badge-clay {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.5rem;
+    height: 3.5rem;
+    border-radius: 1.25rem;
+    background: linear-gradient(145deg, #fff9e8, #ffe8b0);
+    border: 3px solid #fff;
+    box-shadow: var(--shadow-clay);
+    font-size: 1.75rem;
+    line-height: 1;
+  }
+
+  .ui-badge-clay-locked {
+    background: linear-gradient(145deg, #f0eef8, #e4dff2);
+    filter: grayscale(0.35);
+    opacity: 0.75;
+    box-shadow: var(--shadow-soft);
+  }
+}
+
+/* Mobile polish — 375 / 414 safe areas */
+@layer utilities {
+  .safe-pb {
+    padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
+  }
+
+  .safe-pt {
+    padding-top: max(0.25rem, env(safe-area-inset-top, 0px));
+  }
+
+  @media (max-width: 414px) {
+    .font-display {
+      letter-spacing: -0.01em;
+    }
+  }
 }

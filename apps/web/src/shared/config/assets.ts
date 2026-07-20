@@ -60,6 +60,11 @@ export const designerAssets = {
     safety: '/assets/designer/lobby/card_diary.jpeg',
     voice: '/assets/designer/lobby/art-video.jpeg',
     robot: '/assets/designer/lobby/card_mee.jpeg',
+    /** Legacy root covers (also used as fallbacks) */
+    comicAlt: '/assets/course-comic.jpg',
+    robotAlt: '/assets/course-robot.jpg',
+    safetyAlt: '/assets/course-safety.jpg',
+    voiceAlt: '/assets/course-voice.jpg',
   },
   workshop: {
     character: '/assets/designer/lobby/home-character.jpeg',
@@ -67,8 +72,30 @@ export const designerAssets = {
     comic: '/assets/designer/lobby/art-comic.jpeg',
     mee: '/assets/designer/lobby/card_mee.jpeg',
   },
+  /** Soft Clay decorative badges for empty / achievement chrome */
+  chrome: {
+    badges: '/assets/ui-badges.jpg',
+    mascotHero: '/assets/mascot-hero.jpg',
+    mascotMap: '/assets/mascot-map.jpg',
+    adventureMap: '/assets/adventure-map.jpg',
+    storyWorkshop: '/assets/story-workshop.jpg',
+  },
 } as const
 
 export function styleImage(id: ArtStyleId): string {
   return designerAssets.styles[id]
+}
+
+/** Pick a course cover image from ageTrack/courseKey heuristics (FE chrome only) */
+export function courseCoverHint(input: {
+  courseKey?: string | null
+  ageTrack?: string | null
+  coverImage?: string | null
+}): string {
+  if (input.coverImage) return input.coverImage
+  const key = input.courseKey ?? 'K1'
+  if (key === 'K4' || key === 'K3') return designerAssets.course.comic
+  if (key === 'K5' || key === 'K6') return designerAssets.course.voice
+  if (key === 'K2') return designerAssets.course.robot
+  return designerAssets.course.safety
 }
