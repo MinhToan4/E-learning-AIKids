@@ -40,6 +40,12 @@ beforeAll(() => {
     env: testEnv,
     stdio: 'pipe',
   })
+  // Postgres CHECK constraints are not managed by Prisma — expand practice kinds
+  execSync('npx tsx prisma/run-fix-practice.ts', {
+    cwd: apiRoot,
+    env: testEnv,
+    stdio: 'pipe',
+  })
   execSync('npx tsx prisma/seed.ts', {
     cwd: apiRoot,
     env: testEnv,
@@ -50,7 +56,7 @@ beforeAll(() => {
 async function inject(
   app: Awaited<ReturnType<typeof import('../app.js').buildApp>>,
   opts: {
-    method: 'GET' | 'POST' | 'PATCH'
+    method: 'GET' | 'POST' | 'PATCH' | 'PUT' | 'DELETE'
     url: string
     payload?: unknown
     cookies?: Record<string, string>
@@ -107,7 +113,20 @@ describe('API integration (Postgres / Supabase)', () => {
     const r = await inject(app, { method: 'GET', url: '/api/health' })
     expect(r.status).toBe(200)
     expect(r.body.ok).toBe(true)
+    expect(r.body.success).toBe(true)
     expect(r.body.db).toBe('postgresql')
+    const data = r.body.data as {
+      db: string
+      seams?: { product: string; sessionCookie: string; apiMount: string }
+    }
+    expect(data.db).toBe('postgresql')
+    // Phase 6 StoryMee seam surface
+    expect(data.seams?.product).toBe('aikids')
+    expect(data.seams?.sessionCookie).toBe('aikids_session')
+    expect(data.seams?.apiMount).toBe('/api')
+    expect((r.body as { seams?: { product: string } }).seams?.product).toBe(
+      'aikids',
+    )
   })
 
   it('rejects unauthenticated catalog', async () => {
@@ -115,7 +134,7 @@ describe('API integration (Postgres / Supabase)', () => {
     expect(r.status).toBe(401)
   })
 
-  it('student can list open courses with creative stations', async () => {
+  it('student can list L1/L2 open courses with creative stations', async () => {
     const login = await inject(app, {
       method: 'POST',
       url: '/api/auth/login/student',
@@ -134,20 +153,160 @@ describe('API integration (Postgres / Supabase)', () => {
       cookies,
     })
     expect(courses.status).toBe(200)
-    const list = courses.body.courses as Array<{ id: string; status: string }>
-    expect(list.filter((c) => c.status === 'open').length).toBeGreaterThanOrEqual(4)
+    const list = courses.body.courses as Array<{
+      id: string
+      status: string
+      ageTrack: string
+      courseKey: string
+    }>
+    const open = list.filter((c) => c.status === 'open')
+    expect(open.length).toBeGreaterThanOrEqual(12)
+    expect(open.some((c) => c.ageTrack === 'L1')).toBe(true)
+    expect(open.some((c) => c.ageTrack === 'L2')).toBe(true)
+    expect(open.filter((c) => c.ageTrack === 'L1')).toHaveLength(6)
+    expect(open.filter((c) => c.ageTrack === 'L2')).toHaveLength(6)
 
-    const detail = await inject(app, {
+    const l1 = await inject(app, {
       method: 'GET',
-      url: '/api/courses/course-comic',
+      url: '/api/courses?ageTrack=L1',
       cookies,
     })
-    const quests = (
-      detail.body.course as { quests: Array<{ id: string; practiceKind: string }> }
+    expect(
+      (l1.body.courses as Array<{ ageTrack: string }>).every(
+        (c) => c.ageTrack === 'L1',
+      ),
+    ).toBe(true)
+
+    const k2 = await inject(app, {
+      method: 'GET',
+      url: '/api/courses/l1-k2-nhan-vat',
+      cookies,
+    })
+    expect(k2.status).toBe(200)
+    const k2quests = (
+      k2.body.course as {
+        quests: Array<{ practiceKind: string; stations?: { stations: unknown[] } }>
+      }
     ).quests
-    expect(quests.some((q) => q.practiceKind === 'character')).toBe(true)
-    expect(quests.some((q) => q.practiceKind === 'style')).toBe(true)
-    expect(quests.some((q) => q.practiceKind === 'comic')).toBe(true)
+    expect(k2quests.some((q) => q.practiceKind === 'character')).toBe(true)
+    expect(k2quests.some((q) => q.practiceKind === 'style')).toBe(true)
+    expect(k2quests[0]?.stations?.stations?.length).toBeGreaterThanOrEqual(4)
+
+    const k4 = await inject(app, {
+      method: 'GET',
+      url: '/api/courses/l1-k4-truyen-tranh',
+      cookies,
+    })
+    const k4quests = (
+      k4.body.course as { quests: Array<{ practiceKind: string }> }
+    ).quests
+    expect(k4quests.some((q) => q.practiceKind === 'comic')).toBe(true)
+  })
+
+  it('admin can set Vidtory API key status without leaking secret; non-admin 403', async () => {
+    const aLogin = await inject(app, {
+      method: 'POST',
+      url: '/api/auth/login/adult',
+      payload: {
+        email: 'admin@demo.aikids.local',
+        password: 'AdminDemo1!',
+      },
+    })
+    expect(aLogin.status).toBe(200)
+    const adminCookie = { aikids_session: aLogin.session! }
+
+    const put = await inject(app, {
+      method: 'PUT',
+      url: '/api/admin/settings/vidtory',
+      cookies: adminCookie,
+      payload: { apiKey: 'vidtory_test_secret_key_for_admin_ui' },
+    })
+    expect(put.status).toBe(200)
+    expect(put.body.configured).toBe(true)
+    expect(put.body.maskedHint).toBeTruthy()
+    expect(JSON.stringify(put.body)).not.toContain(
+      'vidtory_test_secret_key_for_admin_ui',
+    )
+
+    const status = await inject(app, {
+      method: 'GET',
+      url: '/api/admin/settings/vidtory',
+      cookies: adminCookie,
+    })
+    expect(status.status).toBe(200)
+    expect(status.body.configured).toBe(true)
+    expect(status.body.apiKey).toBeUndefined()
+    expect(JSON.stringify(status.body)).not.toContain(
+      'vidtory_test_secret_key_for_admin_ui',
+    )
+
+    const tLogin = await inject(app, {
+      method: 'POST',
+      url: '/api/auth/login/adult',
+      payload: {
+        email: 'teacher@demo.aikids.local',
+        password: 'TeacherDemo1!',
+      },
+    })
+    const denied = await inject(app, {
+      method: 'PUT',
+      url: '/api/admin/settings/vidtory',
+      cookies: { aikids_session: tLogin.session! },
+      payload: { apiKey: 'should_not_work_key_xx' },
+    })
+    expect(denied.status).toBe(403)
+
+    // Admin can save weighted model routing (no secret in response)
+    const routePut = await inject(app, {
+      method: 'PUT',
+      url: '/api/admin/settings/vidtory',
+      cookies: adminCookie,
+      payload: {
+        routing: {
+          baseURL: 'https://bapi.vidtory.net',
+          image: {
+            aspectRatio: 'IMAGE_ASPECT_RATIO_LANDSCAPE',
+            resolution: '1K',
+            models: [
+              { modelId: 'gemini-3.1-flash-image-preview', weight: 40, label: 'A' },
+              { modelId: 'premium-image-model', weight: 60, label: 'B' },
+            ],
+          },
+          video: {
+            aspectRatio: 'VIDEO_ASPECT_RATIO_LANDSCAPE',
+            duration: 6,
+            models: [
+              {
+                modelId: 'veo-3.1-fast-generate-001',
+                weight: 40,
+                label: 'Veo Fast',
+              },
+              {
+                modelId: 'veo-premium-id',
+                weight: 60,
+                label: 'Veo Premium',
+              },
+            ],
+          },
+        },
+      },
+    })
+    expect(routePut.status).toBe(200)
+    const routing = routePut.body.routing as {
+      baseURL: string
+      image: { models: Array<{ modelId: string; weight: number }> }
+      video: { models: Array<{ modelId: string; weight: number }> }
+    }
+    expect(routing.baseURL).toBe('https://bapi.vidtory.net')
+    expect(routing.image.models).toHaveLength(2)
+    expect(routing.image.models.some((m) => m.weight === 40)).toBe(true)
+    // % applies to different modelIds — not t2v/i2v rows
+    expect(routing.video.models.map((m) => m.modelId).sort()).toEqual([
+      'veo-3.1-fast-generate-001',
+      'veo-premium-id',
+    ])
+    const percents = routePut.body.imagePercents as Array<{ percent: number }>
+    expect(percents.map((p) => p.percent).sort()).toEqual([40, 60])
   })
 
   it('teacher ok; parent forbidden on admin', async () => {
@@ -179,6 +338,310 @@ describe('API integration (Postgres / Supabase)', () => {
       method: 'GET',
       url: '/api/admin/system',
       cookies: { aikids_session: pLogin.session! },
+    })
+    expect(denied.status).toBe(403)
+  })
+
+  it('Phase 5: teacher archive/restore lecture + reorder; catalog hides archived', async () => {
+    const tLogin = await inject(app, {
+      method: 'POST',
+      url: '/api/auth/login/adult',
+      payload: {
+        email: 'teacher@demo.aikids.local',
+        password: 'TeacherDemo1!',
+      },
+    })
+    expect(tLogin.status).toBe(200)
+    const tCookie = { aikids_session: tLogin.session! }
+
+    const lectures = await inject(app, {
+      method: 'GET',
+      url: '/api/teacher/lectures',
+      cookies: tCookie,
+    })
+    expect(lectures.status).toBe(200)
+    const courses = lectures.body.courses as Array<{
+      id: string
+      lectures: Array<{ id: string; order: number; archived?: boolean }>
+    }>
+    expect(courses.length).toBeGreaterThan(0)
+    const course = courses[0]!
+    expect(course.lectures.length).toBeGreaterThan(1)
+    const target = course.lectures.find((l) => !l.archived) ?? course.lectures[0]!
+
+    const archived = await inject(app, {
+      method: 'DELETE',
+      url: `/api/teacher/lectures/${target.id}`,
+      cookies: tCookie,
+    })
+    expect(archived.status).toBe(200)
+    expect((archived.body.lecture as { archived: boolean }).archived).toBe(true)
+
+    // Student catalog must not list archived quest
+    const sLogin = await inject(app, {
+      method: 'POST',
+      url: '/api/auth/login/student',
+      payload: { nickname: 'SaoMay', avatarId: 'avatar-star' },
+    })
+    expect(sLogin.status).toBe(200)
+    const courseDetail = await inject(app, {
+      method: 'GET',
+      url: `/api/courses/${course.id}`,
+      cookies: { aikids_session: sLogin.session! },
+    })
+    expect(courseDetail.status).toBe(200)
+    const publicQuests = (
+      courseDetail.body.course as { quests: Array<{ id: string }> }
+    ).quests
+    expect(publicQuests.some((q) => q.id === target.id)).toBe(false)
+
+    const restored = await inject(app, {
+      method: 'POST',
+      url: `/api/teacher/lectures/${target.id}/restore`,
+      cookies: tCookie,
+    })
+    expect(restored.status).toBe(200)
+    expect((restored.body.lecture as { archived: boolean }).archived).toBe(false)
+
+    // Reorder: reverse first two active lectures
+    const ordered = course.lectures.map((l) => l.id)
+    if (ordered.length >= 2) {
+      const swapped = [...ordered]
+      ;[swapped[0], swapped[1]] = [swapped[1]!, swapped[0]!]
+      const reorder = await inject(app, {
+        method: 'POST',
+        url: '/api/teacher/lectures/reorder',
+        cookies: tCookie,
+        payload: { courseId: course.id, orderedQuestIds: swapped },
+      })
+      expect(reorder.status).toBe(200)
+      const after = reorder.body.lectures as Array<{ id: string; order: number }>
+      expect(after[0]?.id).toBe(swapped[0])
+      expect(after[0]?.order).toBe(1)
+      expect(after[1]?.id).toBe(swapped[1])
+      expect(after[1]?.order).toBe(2)
+    }
+
+    const stats = await inject(app, {
+      method: 'GET',
+      url: '/api/teacher/class/stats',
+      cookies: tCookie,
+    })
+    expect(stats.status).toBe(200)
+  })
+
+  it('Family model: parent plan seats, create child, enter as child, enroll gate', async () => {
+    // Isolated household (do not reuse demo parent — seats may be full)
+    const email = `family-parent-${Date.now()}@demo.aikids.local`
+    const reg = await inject(app, {
+      method: 'POST',
+      url: '/api/auth/register/adult',
+      payload: {
+        role: 'parent',
+        email,
+        password: 'FamilyTest1!',
+        nickname: 'BaMeFamily',
+      },
+    })
+    expect(reg.status).toBe(201)
+    const pCookie = { aikids_session: reg.session! }
+
+    const plans = await inject(app, {
+      method: 'GET',
+      url: '/api/parent/plans',
+      cookies: pCookie,
+    })
+    expect(plans.status).toBe(200)
+    const planList = plans.body.plans as Array<{ code: string }>
+    expect(planList.some((p) => p.code === 'free')).toBe(true)
+
+    const sub = await inject(app, {
+      method: 'GET',
+      url: '/api/parent/subscription',
+      cookies: pCookie,
+    })
+    expect(sub.status).toBe(200)
+    expect((sub.body.subscription as { planCode: string }).planCode).toBe(
+      'free',
+    )
+
+    // Free = 1 seat — first child OK
+    const nick = `BeTest${Date.now().toString().slice(-6)}`
+    const created = await inject(app, {
+      method: 'POST',
+      url: '/api/parent/children',
+      cookies: pCookie,
+      payload: {
+        nickname: nick,
+        avatarId: 'avatar-star',
+        pin: '424242',
+      },
+    })
+    expect(created.status).toBe(201)
+    const childId = (created.body.child as { id: string }).id
+
+    // Second child on free plan → 402 seat limit
+    const blocked = await inject(app, {
+      method: 'POST',
+      url: '/api/parent/children',
+      cookies: pCookie,
+      payload: {
+        nickname: `${nick}2`,
+        avatarId: 'avatar-cat',
+      },
+    })
+    expect(blocked.status).toBe(402)
+
+    // Upgrade Plus → more seats
+    const upgrade = await inject(app, {
+      method: 'POST',
+      url: '/api/parent/subscription',
+      cookies: pCookie,
+      payload: { planCode: 'plus' },
+    })
+    expect(upgrade.status).toBe(200)
+
+    // Enter as child (parent session becomes student)
+    const entered = await inject(app, {
+      method: 'POST',
+      url: `/api/parent/children/${childId}/enter`,
+      cookies: pCookie,
+      payload: { pin: '424242' },
+    })
+    expect(entered.status).toBe(200)
+    expect((entered.body.user as { role: string }).role).toBe('student')
+    const childSession = entered.session!
+    expect(childSession).toBeTruthy()
+
+    const courses = await inject(app, {
+      method: 'GET',
+      url: '/api/courses',
+      cookies: { aikids_session: childSession },
+    })
+    expect(courses.status).toBe(200)
+    const open = (
+      courses.body.courses as Array<{ id: string; status: string }>
+    ).find((c) => c.status === 'open')
+    if (open) {
+      const en = await inject(app, {
+        method: 'POST',
+        url: '/api/enrollments',
+        cookies: { aikids_session: childSession },
+        payload: { courseId: open.id },
+      })
+      expect(en.status).toBe(201)
+    }
+
+    const badPin = await inject(app, {
+      method: 'POST',
+      url: '/api/auth/login/student',
+      payload: {
+        nickname: nick,
+        avatarId: 'avatar-star',
+        pin: '000000',
+        createIfMissing: false,
+      },
+    })
+    expect(badPin.status).toBe(401)
+  })
+
+  it('Phase 5: admin analytics, sessions, course PATCH, soft-delete user', async () => {
+    const aLogin = await inject(app, {
+      method: 'POST',
+      url: '/api/auth/login/adult',
+      payload: {
+        email: 'admin@demo.aikids.local',
+        password: 'AdminDemo1!',
+      },
+    })
+    expect(aLogin.status).toBe(200)
+    const adminCookie = { aikids_session: aLogin.session! }
+
+    const analytics = await inject(app, {
+      method: 'GET',
+      url: '/api/admin/analytics',
+      cookies: adminCookie,
+    })
+    expect(analytics.status).toBe(200)
+    const a = analytics.body.analytics as {
+      users: { active: number }
+      courses: { open: number; soon: number }
+      sessions: { active: number }
+    }
+    expect(a.users.active).toBeGreaterThan(0)
+    expect(typeof a.courses.open).toBe('number')
+    expect(a.sessions.active).toBeGreaterThan(0)
+
+    const sessions = await inject(app, {
+      method: 'GET',
+      url: '/api/admin/sessions',
+      cookies: adminCookie,
+    })
+    expect(sessions.status).toBe(200)
+    const sessionList = sessions.body.sessions as Array<{ id: string }>
+    expect(Array.isArray(sessionList)).toBe(true)
+
+    const courses = await inject(app, {
+      method: 'GET',
+      url: '/api/admin/courses',
+      cookies: adminCookie,
+    })
+    expect(courses.status).toBe(200)
+    const list = courses.body.courses as Array<{ id: string; status: string }>
+    expect(list.length).toBeGreaterThan(0)
+    const first = list[0]!
+    const nextStatus = first.status === 'open' ? 'soon' : 'open'
+    const patched = await inject(app, {
+      method: 'PATCH',
+      url: `/api/admin/courses/${first.id}`,
+      cookies: adminCookie,
+      payload: { status: nextStatus },
+    })
+    expect(patched.status).toBe(200)
+    // restore original status
+    await inject(app, {
+      method: 'PATCH',
+      url: `/api/admin/courses/${first.id}`,
+      cookies: adminCookie,
+      payload: { status: first.status },
+    })
+
+    // Create temp adult then soft-delete
+    const email = `phase5-temp-${Date.now()}@demo.aikids.local`
+    const created = await inject(app, {
+      method: 'POST',
+      url: '/api/admin/users',
+      cookies: adminCookie,
+      payload: {
+        role: 'teacher',
+        email,
+        password: 'TempTeacher1!',
+        nickname: 'TempGV',
+      },
+    })
+    expect(created.status).toBe(201)
+    const uid = (created.body.user as { id: string }).id
+    const soft = await inject(app, {
+      method: 'DELETE',
+      url: `/api/admin/users/${uid}`,
+      cookies: adminCookie,
+    })
+    expect(soft.status).toBe(200)
+    expect(soft.body.softDeleted).toBe(true)
+
+    // Teacher cannot hit admin analytics
+    const tLogin = await inject(app, {
+      method: 'POST',
+      url: '/api/auth/login/adult',
+      payload: {
+        email: 'teacher@demo.aikids.local',
+        password: 'TeacherDemo1!',
+      },
+    })
+    const denied = await inject(app, {
+      method: 'GET',
+      url: '/api/admin/analytics',
+      cookies: { aikids_session: tLogin.session! },
     })
     expect(denied.status).toBe(403)
   })

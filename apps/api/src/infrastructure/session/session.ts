@@ -3,6 +3,8 @@ import type { Role } from '@aikids/domain'
 import { env, SESSION_COOKIE, SESSION_DAYS } from '../../config/env.js'
 import { prisma } from '../../infrastructure/database/prisma.js'
 import { createSessionToken, isSessionTokenFormat } from '../security/crypto.js'
+import { getCache } from '../cache/cache.js'
+import { buildSessionCookieOptions } from '../../shared/seams/storymee-compat.js'
 
 export type AuthUser = {
   id: string
@@ -52,6 +54,13 @@ export function publicUser(u: {
   }
 }
 
+/** Session cache TTL — 5 minutes */
+const SESSION_CACHE_TTL_MS = 5 * 60 * 1000
+
+function sessionCacheKey(token: string): string {
+  return `session:${token}`
+}
+
 export async function createSession(
   userId: string,
   reply: FastifyReply,
@@ -61,13 +70,21 @@ export async function createSession(
   await prisma.session.create({
     data: { token, userId, expiresAt },
   })
-  reply.setCookie(SESSION_COOKIE, token, {
-    path: '/',
-    httpOnly: true,
+
+  // Cache session user in Redis for fast lookups
+  const user = await prisma.user.findUnique({ where: { id: userId } })
+  if (user) {
+    const cache = getCache()
+    await cache.set(sessionCacheKey(token), JSON.stringify(publicUser(user)), SESSION_CACHE_TTL_MS)
+  }
+
+  const cookieOpts = buildSessionCookieOptions({
     secure: env.cookieSecure,
     sameSite: env.cookieSameSite,
-    maxAge: SESSION_DAYS * 24 * 60 * 60,
+    maxAgeSeconds: SESSION_DAYS * 24 * 60 * 60,
+    domain: env.cookieDomain,
   })
+  reply.setCookie(SESSION_COOKIE, token, cookieOpts)
   return token
 }
 
@@ -78,8 +95,20 @@ export async function destroySession(
   const token = request.cookies[SESSION_COOKIE]
   if (token) {
     await prisma.session.deleteMany({ where: { token } })
+    // Remove from cache
+    const cache = getCache()
+    await cache.delete(sessionCacheKey(token))
   }
-  reply.clearCookie(SESSION_COOKIE, { path: '/' })
+  const clearOpts = buildSessionCookieOptions({
+    secure: env.cookieSecure,
+    sameSite: env.cookieSameSite,
+    maxAgeSeconds: 0,
+    domain: env.cookieDomain,
+  })
+  reply.clearCookie(SESSION_COOKIE, {
+    path: clearOpts.path,
+    ...(clearOpts.domain ? { domain: clearOpts.domain } : {}),
+  })
 }
 
 export async function loadUserFromRequest(
@@ -88,6 +117,18 @@ export async function loadUserFromRequest(
   const token = request.cookies[SESSION_COOKIE]
   if (!token || !isSessionTokenFormat(token)) return null
 
+  // 1. Try Redis cache first
+  const cache = getCache()
+  const cached = await cache.get(sessionCacheKey(token))
+  if (cached) {
+    try {
+      return JSON.parse(cached) as AuthUser
+    } catch {
+      // Corrupted cache entry — fall through to DB
+    }
+  }
+
+  // 2. Fallback to DB
   const session = await prisma.session.findUnique({
     where: { token },
     include: { user: true },
@@ -101,7 +142,13 @@ export async function loadUserFromRequest(
   if (session.user.active === false) {
     return null
   }
-  return publicUser(session.user)
+
+  const authUser = publicUser(session.user)
+
+  // 3. Re-populate cache for next request
+  await cache.set(sessionCacheKey(token), JSON.stringify(authUser), SESSION_CACHE_TTL_MS)
+
+  return authUser
 }
 
 export function requireUser(request: FastifyRequest): AuthUser {
@@ -125,3 +172,4 @@ export function requireRole(
   }
   return user
 }
+

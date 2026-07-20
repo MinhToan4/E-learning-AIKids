@@ -1,5 +1,5 @@
 import type { FastifyInstance } from 'fastify'
-import { can } from '@aikids/domain'
+import { can, resolveStations } from '@aikids/domain'
 import { prisma } from '../../infrastructure/database/prisma.js'
 import { requireUser } from '../../infrastructure/session/session.js'
 
@@ -14,6 +14,8 @@ function mapCourse(c: {
   accent: string
   coverImage: string | null
   ageLabel: string
+  ageTrack?: string
+  courseKey?: string
   durationLabel: string
   productLabel: string
   status: string
@@ -40,6 +42,8 @@ function mapCourse(c: {
     accent: c.accent,
     coverImage: c.coverImage,
     ageLabel: c.ageLabel,
+    ageTrack: c.ageTrack ?? 'L1',
+    courseKey: c.courseKey ?? 'K1',
     durationLabel: c.durationLabel,
     productLabel: c.productLabel,
     status: c.status,
@@ -63,12 +67,19 @@ function mapQuest(q: {
   accent: string
   icon: string
   practiceKind: string
+  stage?: string
   videoUrl?: string | null
   goalsJson: string
   learnCardsJson: string
   checkJson: string
   chipsJson: string | null
+  stationsJson?: string | null
 }) {
+  const stations = resolveStations(
+    q.stationsJson,
+    q.practiceKind,
+    q.videoUrl,
+  )
   return {
     id: q.id,
     courseId: q.courseId,
@@ -81,6 +92,7 @@ function mapQuest(q: {
     accent: q.accent,
     icon: q.icon,
     practiceKind: q.practiceKind,
+    stage: q.stage ?? stations.stage,
     videoUrl: q.videoUrl ?? null,
     goals: JSON.parse(q.goalsJson) as string[],
     learnCards: JSON.parse(q.learnCardsJson) as unknown[],
@@ -93,6 +105,7 @@ function mapQuest(q: {
       explain: string
     }>).map(({ id, question, options }) => ({ id, question, options })),
     chips: q.chipsJson ? JSON.parse(q.chipsJson) : null,
+    stations,
   }
 }
 
@@ -105,10 +118,29 @@ export async function courseRoutes(app: FastifyInstance) {
       throw err
     }
 
+    const q = request.query as { ageTrack?: string; track?: string }
+    const ageTrack = (q.ageTrack ?? q.track ?? '').toUpperCase()
+    const where =
+      ageTrack === 'L1' || ageTrack === 'L2'
+        ? { ageTrack }
+        : {}
+
     const courses = await prisma.course.findMany({
+      where,
       orderBy: { sortOrder: 'asc' },
       include: {
-        quests: { orderBy: { order: 'asc' }, select: { id: true, order: true, title: true, accent: true, practiceKind: true } },
+        quests: {
+          where: { archived: false },
+          orderBy: { order: 'asc' },
+          select: {
+            id: true,
+            order: true,
+            title: true,
+            accent: true,
+            practiceKind: true,
+            stage: true,
+          },
+        },
       },
     })
 
@@ -121,13 +153,25 @@ export async function courseRoutes(app: FastifyInstance) {
       enrolledIds = new Set(enrollments.map((e) => e.courseId))
     }
 
+    const mapped = courses.map((c) => ({
+      ...mapCourse(c),
+      questCount: c.quests.length,
+      quests: c.quests,
+      enrolled: enrolledIds.has(c.id),
+    }))
+
     return {
-      courses: courses.map((c) => ({
-        ...mapCourse(c),
-        questCount: c.quests.length,
-        quests: c.quests,
-        enrolled: enrolledIds.has(c.id),
-      })),
+      courses: mapped,
+      tracks: {
+        L1: {
+          label: '6–8 tuổi',
+          count: mapped.filter((c) => c.ageTrack === 'L1').length,
+        },
+        L2: {
+          label: '9–11 tuổi',
+          count: mapped.filter((c) => c.ageTrack === 'L2').length,
+        },
+      },
     }
   })
 
@@ -141,7 +185,9 @@ export async function courseRoutes(app: FastifyInstance) {
     const { courseId } = request.params as { courseId: string }
     const course = await prisma.course.findUnique({
       where: { id: courseId },
-      include: { quests: { orderBy: { order: 'asc' } } },
+      include: {
+        quests: { where: { archived: false }, orderBy: { order: 'asc' } },
+      },
     })
     if (!course) {
       const err = new Error('Not found') as Error & { statusCode: number }
@@ -165,7 +211,7 @@ export async function courseRoutes(app: FastifyInstance) {
     }
     const { questId } = request.params as { questId: string }
     const quest = await prisma.quest.findUnique({ where: { id: questId } })
-    if (!quest) {
+    if (!quest || quest.archived) {
       const err = new Error('Not found') as Error & { statusCode: number }
       err.statusCode = 404
       throw err

@@ -10,7 +10,10 @@ import {
   getArtStyle,
   isCharacterShapeId,
   isCharacterVibeId,
+  isCourseCreatedAsset,
   isPromptComplete,
+  parseCourseSketchDataUrl,
+  resolveStations,
   scoreStars,
   validateChildText,
   xpForStars,
@@ -18,9 +21,17 @@ import {
   type QuestStatus,
 } from '@aikids/domain'
 import { prisma } from '../../infrastructure/database/prisma.js'
-import { mockGenerateImage } from '../../shared/generation/mock-image.js'
+import {
+  generatePracticeImage,
+  generatePracticeVideo,
+} from '../../infrastructure/generation/vidtory.adapter.js'
 import { resolveStudentQuestStatus } from '../../shared/access/quest-access.js'
 import { requireRole, requireUser } from '../../infrastructure/session/session.js'
+import {
+  bumpStreakOnActivity,
+  evaluateAndUnlockAchievements,
+} from '../gamification/achievement.service.js'
+import { assertStudentCanEnroll } from '../parent/family.service.js'
 
 export async function progressRoutes(app: FastifyInstance) {
   app.post('/api/enrollments', async (request, reply) => {
@@ -35,6 +46,30 @@ export async function progressRoutes(app: FastifyInstance) {
     })
     if (!course || course.status === 'soon') {
       return reply.code(400).send({ error: 'Khóa học chưa mở' })
+    }
+
+    // Household plan gate via parent entitlement
+    const existing = await prisma.enrollment.findUnique({
+      where: {
+        userId_courseId: { userId: user.id, courseId: course.id },
+      },
+    })
+    if (!existing) {
+      try {
+        await assertStudentCanEnroll(user.id)
+      } catch (e) {
+        const err = e as Error & { statusCode?: number; logCode?: string }
+        request.log.warn(
+          {
+            userId: user.id,
+            courseId: course.id,
+            logCode: err.logCode,
+            err: err.message,
+          },
+          'progress.enroll denied',
+        )
+        throw e
+      }
     }
 
     await prisma.enrollment.upsert({
@@ -350,18 +385,66 @@ export async function progressRoutes(app: FastifyInstance) {
 
     let result: Record<string, unknown> = { saved: true }
 
+    async function resolveRefUrls(
+      payload: Record<string, unknown>,
+    ): Promise<string[]> {
+      const out: string[] = []
+      // Raw arbitrary URLs from client are IGNORED for safety — only owned course assets
+      const assetIds = payload.assetIds
+      if (Array.isArray(assetIds) && assetIds.length > 0) {
+        const ids = assetIds.filter((x): x is string => typeof x === 'string')
+        if (ids.length) {
+          const owned = await prisma.asset.findMany({
+            where: { userId: user.id, id: { in: ids } },
+          })
+          for (const a of owned) {
+            let meta: Record<string, unknown> = {}
+            try {
+              meta = a.metaJson ? JSON.parse(a.metaJson) : {}
+            } catch {
+              meta = {}
+            }
+            if (
+              !isCourseCreatedAsset({
+                questId: a.questId,
+                type: a.type,
+                meta,
+              })
+            ) {
+              continue
+            }
+            if (a.thumbnail) out.push(a.thumbnail)
+          }
+        }
+      }
+      return [...new Set(out)]
+    }
+
     if (body.kind === 'prompt' || body.kind === 'chips') {
       const parts = body.payload.parts as PromptParts | undefined
       if (parts) {
         const promptText = assemblePrompt(parts)
         const complete = isPromptComplete(parts)
+        const refUrls = await resolveRefUrls(body.payload)
         const generated = complete
-          ? mockGenerateImage(promptText, user.id)
+          ? await generatePracticeImage(promptText, user.id, { refUrls })
           : null
         result = {
           promptText,
           complete,
-          generated,
+          generated: generated
+            ? {
+                id: generated.id,
+                title: generated.title,
+                imageDataUrl: generated.imageUrl,
+                imageUrl: generated.imageUrl,
+                mode: generated.mode,
+                source: generated.source,
+                modelId: generated.modelId,
+                refStrategy: generated.refStrategy,
+                storageBackend: generated.storageBackend,
+              }
+            : null,
           hint: complete ? null : 'Ghép đủ 5 thẻ để AI vẽ nhé!',
         }
         if (generated) {
@@ -371,9 +454,17 @@ export async function progressRoutes(app: FastifyInstance) {
               type: 'panel',
               name: generated.title,
               questId,
-              thumbnail: generated.imageDataUrl,
+              thumbnail: generated.imageUrl,
               private: true,
-              metaJson: JSON.stringify({ prompt: promptText }),
+              metaJson: JSON.stringify({
+                prompt: promptText,
+                generationMode: generated.mode,
+                modelId: generated.modelId,
+                refStrategy: generated.refStrategy,
+                storageBackend: generated.storageBackend ?? 'vidtory_cdn',
+                aikids_user_id: user.id,
+                refUrls,
+              }),
             },
           })
         }
@@ -393,20 +484,139 @@ export async function progressRoutes(app: FastifyInstance) {
       }
       const label = buildCharacterLabel({ name, shapeId, vibeId })
       const traits = { shapeId, vibeId, ...(body.payload.traits as object) }
-      // Prefer designer hub character still; mock image is soft placeholder only
-      const thumb = mockGenerateImage(`nhân vật clay soft ${label}`, user.id)
+      const thumb = await generatePracticeImage(
+        `nhân vật clay soft ${label}`,
+        user.id,
+      )
       const asset = await prisma.asset.create({
         data: {
           userId: user.id,
           type: 'character',
           name: label,
           questId,
-          thumbnail: thumb.imageDataUrl,
+          thumbnail: thumb.imageUrl,
           private: true,
-          metaJson: JSON.stringify(traits),
+          metaJson: JSON.stringify({
+            ...traits,
+            generationMode: thumb.mode,
+          }),
         },
       })
-      result = { asset, label }
+      result = { asset, label, generationMode: thumb.mode }
+    }
+
+    if (body.kind === 'sketch') {
+      const sketchRaw =
+        body.payload.sketchDataUrl ??
+        body.payload.imageDataUrl ??
+        body.payload.dataUrl
+      const parsed = parseCourseSketchDataUrl(sketchRaw)
+      if (!parsed.ok) {
+        return reply.code(400).send({ error: parsed.message })
+      }
+      const note =
+        typeof body.payload.text === 'string'
+          ? body.payload.text.trim().slice(0, 200)
+          : ''
+      if (note) {
+        const safe = validateChildText(note)
+        if (!safe.ok) {
+          return reply.code(400).send({ error: safe.message, reason: safe.reason })
+        }
+      }
+      const asset = await prisma.asset.create({
+        data: {
+          userId: user.id,
+          type: 'panel',
+          name: note || `Bản vẽ · ${quest.title}`.slice(0, 80),
+          questId,
+          thumbnail: parsed.dataUrl,
+          private: true,
+          metaJson: JSON.stringify({
+            kind: 'sketch',
+            purpose: 'course_sketch',
+            courseCreated: true,
+            mime: parsed.mime,
+            approxBytes: parsed.approxBytes,
+            note: note || null,
+            aikids_user_id: user.id,
+            // Storage: data URL in DB until promote / private cloud (documented)
+            storageBackend: 'inline_data_url',
+          }),
+        },
+      })
+      result = {
+        saved: true,
+        kind: 'sketch',
+        asset: {
+          id: asset.id,
+          url: asset.thumbnail,
+          questId: asset.questId,
+          courseCreated: true,
+        },
+        message: 'Đã lưu bản vẽ vào ba lô (sản phẩm khóa học — dùng làm ref sau).',
+      }
+    }
+
+    if (body.kind === 'ai_pick' || body.kind === 'journal' || body.kind === 'palette' || body.kind === 'spin' || body.kind === 'match' || body.kind === 'drag' || body.kind === 'reflect') {
+      const free =
+        typeof body.payload.text === 'string'
+          ? body.payload.text
+          : typeof body.payload.freeText === 'string'
+            ? body.payload.freeText
+            : ''
+      if (free.trim()) {
+        const safe = validateChildText(free)
+        if (!safe.ok) {
+          return reply.code(400).send({ error: safe.message, reason: safe.reason })
+        }
+      }
+      let generated = null as null | Record<string, unknown>
+      if (body.kind === 'ai_pick') {
+        const prompt = String(
+          body.payload.prompt ?? (free || 'thế giới clay dễ thương'),
+        )
+        const refUrls = await resolveRefUrls(body.payload)
+        const img = await generatePracticeImage(prompt, user.id, { refUrls })
+        generated = {
+          id: img.id,
+          title: img.title,
+          imageDataUrl: img.imageUrl,
+          imageUrl: img.imageUrl,
+          mode: img.mode,
+          source: img.source,
+          modelId: img.modelId,
+          refStrategy: img.refStrategy,
+          storageBackend: img.storageBackend,
+        }
+        await prisma.asset.create({
+          data: {
+            userId: user.id,
+            type: 'panel',
+            name: img.title,
+            questId,
+            thumbnail: img.imageUrl,
+            private: true,
+            metaJson: JSON.stringify({
+              prompt,
+              generationMode: img.mode,
+              kind: 'ai_pick',
+              courseCreated: true,
+              modelId: img.modelId,
+              refStrategy: img.refStrategy,
+              storageBackend: img.storageBackend ?? 'vidtory_cdn',
+              aikids_user_id: user.id,
+              refUrls,
+            }),
+          },
+        })
+      }
+      result = {
+        saved: true,
+        kind: body.kind,
+        payload: body.payload,
+        generated,
+      }
     }
 
     if (body.kind === 'style') {
@@ -456,23 +666,95 @@ export async function progressRoutes(app: FastifyInstance) {
           dataJson: JSON.stringify(body.payload),
         },
       })
-      result = { project }
+      const newAchievements = await evaluateAndUnlockAchievements(user.id)
+      result = { project, newAchievements }
     }
 
     if (body.kind === 'video') {
       const title = String(body.payload.title ?? 'Video của con')
+      const prompt = String(
+        body.payload.prompt ??
+          body.payload.freeText ??
+          title ??
+          'clip soft clay dễ thương cho trẻ em',
+      )
+      let refUrls = await resolveRefUrls(body.payload)
+      // Fallback: latest COURSE-created assets only (never free uploads)
+      if (refUrls.length === 0) {
+        const lastImgs = await prisma.asset.findMany({
+          where: {
+            userId: user.id,
+            type: { in: ['panel', 'character'] },
+            private: true,
+          },
+          orderBy: { createdAt: 'desc' },
+          take: 12,
+        })
+        refUrls = lastImgs
+          .filter((a) => {
+            let meta: Record<string, unknown> = {}
+            try {
+              meta = a.metaJson ? JSON.parse(a.metaJson) : {}
+            } catch {
+              meta = {}
+            }
+            return isCourseCreatedAsset({
+              questId: a.questId,
+              type: a.type,
+              meta,
+            })
+          })
+          .slice(0, 4)
+          .map((a) => a.thumbnail)
+          .filter(
+            (t) =>
+              t.startsWith('http') ||
+              t.startsWith('data:') ||
+              /^[0-9a-f-]{36}$/i.test(t),
+          )
+      }
+      const generatedVideo = await generatePracticeVideo(prompt, user.id, {
+        refUrls,
+      })
       const project = await prisma.project.create({
         data: {
           userId: user.id,
           title,
           kind: 'video',
-          thumbnail: '/assets/story-workshop.jpg',
+          thumbnail: generatedVideo.videoUrl || '/assets/story-workshop.jpg',
           private: true,
           shareStatus: 'private',
-          dataJson: JSON.stringify(body.payload),
+          dataJson: JSON.stringify({
+            ...body.payload,
+            prompt,
+            videoUrl: generatedVideo.videoUrl || null,
+            generationMode: generatedVideo.mode,
+            generationSource: generatedVideo.source,
+            modelId: generatedVideo.modelId,
+            videoMode: generatedVideo.videoMode,
+            refStrategy: generatedVideo.refStrategy,
+            storageBackend: generatedVideo.storageBackend ?? 'vidtory_cdn',
+            aikids_user_id: user.id,
+            refUrls,
+          }),
         },
       })
-      result = { project }
+      const newAchievements = await evaluateAndUnlockAchievements(user.id)
+      result = {
+        project,
+        generated: {
+          id: generatedVideo.id,
+          title: generatedVideo.title,
+          videoUrl: generatedVideo.videoUrl,
+          mode: generatedVideo.mode,
+          source: generatedVideo.source,
+          modelId: generatedVideo.modelId,
+          videoMode: generatedVideo.videoMode,
+          refStrategy: generatedVideo.refStrategy,
+          storageBackend: generatedVideo.storageBackend,
+        },
+        newAchievements,
+      }
     }
 
     if (body.kind === 'detective') {
@@ -640,7 +922,12 @@ export async function progressRoutes(app: FastifyInstance) {
           metaJson: JSON.stringify({ stars: starsFinal }),
         },
       })
+      await bumpStreakOnActivity(user.id)
     }
+
+    const newAchievements = alreadyDone
+      ? []
+      : await evaluateAndUnlockAchievements(user.id)
 
     return {
       correct,
@@ -650,6 +937,7 @@ export async function progressRoutes(app: FastifyInstance) {
       xpGain,
       details,
       nextQuestId: next?.id ?? null,
+      newAchievements,
       message:
         starsFinal >= 3
           ? 'Xuất sắc! Con đã chinh phục trạm này!'

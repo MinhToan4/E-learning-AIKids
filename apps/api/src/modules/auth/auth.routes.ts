@@ -4,6 +4,8 @@ import { isNicknameSafe } from '@aikids/domain'
 import { env } from '../../config/env.js'
 import { prisma } from '../../infrastructure/database/prisma.js'
 import { hashPassword, verifyPassword } from '../../infrastructure/security/crypto.js'
+import { getCache } from '../../infrastructure/cache/cache.js'
+import { emailService } from '../../infrastructure/email/email.service.js'
 import {
   createSession,
   destroySession,
@@ -19,8 +21,13 @@ const adultLoginSchema = z.object({
 const studentLoginSchema = z.object({
   nickname: z.string().min(1).max(16),
   avatarId: z.string().min(1).max(40),
-  /** Create student row if missing — still gated by env.studentAutoCreate */
-  createIfMissing: z.boolean().optional().default(true),
+  /**
+   * Dev/demo only when STUDENT_AUTO_CREATE=true.
+   * Production (ClassDojo/Khan pattern): parent creates child — no public auto-create.
+   */
+  createIfMissing: z.boolean().optional().default(false),
+  /** Optional 6-digit PIN if parent set one on the child profile */
+  pin: z.string().regex(/^\d{6}$/).optional(),
 })
 
 const registerAdultSchema = z.object({
@@ -102,6 +109,23 @@ export async function authRoutes(app: FastifyInstance) {
         active: true,
       },
     })
+
+    // Auto-create role-specific profile
+    if (body.role === 'parent') {
+      await prisma.parentProfile.create({
+        data: { userId: user.id },
+      })
+      // Khan Kids-style: new family starts on Free household plan
+      const { ensureHouseholdSubscription } = await import(
+        '../parent/family.service.js'
+      )
+      await ensureHouseholdSubscription(user.id)
+    } else if (body.role === 'teacher') {
+      await prisma.teacherProfile.create({
+        data: { userId: user.id, displayName: body.nickname },
+      })
+    }
+
     await createSession(user.id, reply)
     return reply.code(201).send({ user: publicUser(user) })
   })
@@ -110,7 +134,11 @@ export async function authRoutes(app: FastifyInstance) {
     const body = studentLoginSchema.parse(request.body)
     const safe = isNicknameSafe(body.nickname)
     if (!safe.ok) {
-      return reply.code(400).send({ error: safe.message, reason: safe.reason })
+      request.log.warn(
+        { reason: safe.reason, nicknameLen: body.nickname.length },
+        'auth.student_login nickname_rejected',
+      )
+      return reply.code(400).send({ error: safe.message })
     }
 
     let user = await prisma.user.findFirst({
@@ -120,8 +148,17 @@ export async function authRoutes(app: FastifyInstance) {
       },
     })
 
+    // Dev-only orphan create — still attaches default parent when configured
     if (!user && body.createIfMissing && env.studentAutoCreate) {
       const defaults = await resolveStudentDefaults()
+      request.log.info(
+        {
+          nickname: body.nickname.trim(),
+          parentId: defaults.parentId,
+          classId: defaults.classId,
+        },
+        'auth.student_login auto_create_dev',
+      )
       user = await prisma.user.create({
         data: {
           role: 'student',
@@ -138,15 +175,54 @@ export async function authRoutes(app: FastifyInstance) {
     }
 
     if (!user) {
-      return reply.code(404).send({ error: 'Không tìm thấy học viên' })
+      request.log.info(
+        { nickname: body.nickname.trim() },
+        'auth.student_login not_found',
+      )
+      return reply.code(404).send({
+        error:
+          'Chưa tìm thấy bạn nhỏ này. Nhờ ba/mẹ đăng nhập và tạo hồ sơ cho con trước nhé!',
+      })
     }
 
     if (user.active === false) {
-      return reply.code(403).send({ error: 'Tài khoản đã bị vô hiệu hóa' })
+      request.log.warn(
+        { userId: user.id },
+        'auth.student_login inactive',
+      )
+      return reply.code(403).send({
+        error: 'Tài khoản đang tạm khóa. Ba/mẹ kiểm tra giúp con nhé.',
+      })
     }
 
-    // Update avatar on re-login
-    if (user.avatarId !== body.avatarId) {
+    // Production: child must be linked to a parent
+    if (!user.parentId && env.isProd) {
+      request.log.error(
+        { userId: user.id },
+        'auth.student_login missing_parent_link',
+      )
+      return reply.code(403).send({
+        error: 'Hồ sơ chưa sẵn sàng. Nhờ ba/mẹ hoặc thầy cô hỗ trợ nhé.',
+      })
+    }
+
+    if (user.pinHash) {
+      if (!body.pin) {
+        request.log.info({ userId: user.id }, 'auth.student_login pin_required')
+        return reply.code(401).send({
+          error: 'Ba/mẹ đã đặt mã PIN. Con nhập đủ 6 số để vào học nhé.',
+        })
+      }
+      const ok = await verifyPassword(body.pin, user.pinHash)
+      if (!ok) {
+        request.log.warn({ userId: user.id }, 'auth.student_login pin_invalid')
+        return reply.code(401).send({
+          error: 'Mã PIN chưa đúng. Thử lại hoặc hỏi ba/mẹ nhé.',
+        })
+      }
+    }
+
+    if (!user.pinHash && user.avatarId !== body.avatarId) {
       user = await prisma.user.update({
         where: { id: user.id },
         data: { avatarId: body.avatarId },
@@ -154,6 +230,10 @@ export async function authRoutes(app: FastifyInstance) {
     }
 
     await createSession(user.id, reply)
+    request.log.info(
+      { userId: user.id, parentId: user.parentId },
+      'auth.student_login ok',
+    )
     return { user: publicUser(user) }
   })
 
@@ -163,7 +243,9 @@ export async function authRoutes(app: FastifyInstance) {
   })
 
   app.get('/api/auth/me', async (request, reply) => {
-    if (!request.user) return reply.code(401).send({ error: 'Unauthorized' })
+    if (!request.user) {
+      return reply.code(401).send({ error: 'Bạn cần đăng nhập lại nhé.' })
+    }
     return { user: request.user }
   })
 
@@ -196,4 +278,103 @@ export async function authRoutes(app: FastifyInstance) {
     })
     return { user: publicUser(updated) }
   })
+
+  // ── Forgot Password ───────────────────────────────────────
+  app.post('/api/auth/forgot-password', async (request, reply) => {
+    const { email } = z.object({ email: z.string().email() }).parse(request.body)
+    const user = await prisma.user.findUnique({
+      where: { email: email.toLowerCase() },
+    })
+
+    // Always return success to prevent email enumeration
+    if (!user || user.role === 'student' || !user.active) {
+      return { message: 'Nếu email tồn tại, link đặt lại mật khẩu đã được gửi.' }
+    }
+
+    // Generate reset token and store in Redis (1 hour TTL)
+    const { nanoid } = await import('nanoid')
+    const resetToken = nanoid(48)
+    const cache = getCache()
+    await cache.set(`reset:${resetToken}`, user.id, 60 * 60 * 1000) // 1 hour
+
+    // Send email
+    const resetUrl = `${env.appUrl}/reset-password?token=${resetToken}`
+    try {
+      await emailService.sendPasswordResetEmail(user.email!, resetUrl)
+    } catch (err) {
+      console.error('[Auth] Failed to send password reset email:', (err as Error).message)
+    }
+
+    return { message: 'Nếu email tồn tại, link đặt lại mật khẩu đã được gửi.' }
+  })
+
+  // ── Reset Password (from email link) ──────────────────────
+  app.post('/api/auth/reset-password', async (request, reply) => {
+    const body = z.object({
+      token: z.string().min(1),
+      password: z
+        .string()
+        .min(8)
+        .max(128)
+        .regex(/[A-Za-z]/, 'Cần chữ')
+        .regex(/[0-9]/, 'Cần số'),
+    }).parse(request.body)
+
+    const cache = getCache()
+    const userId = await cache.get(`reset:${body.token}`)
+    if (!userId) {
+      return reply.code(400).send({ error: 'Link đã hết hạn hoặc không hợp lệ.' })
+    }
+
+    const passwordHash = await hashPassword(body.password)
+    await prisma.user.update({
+      where: { id: userId },
+      data: { passwordHash },
+    })
+
+    // Delete used token
+    await cache.delete(`reset:${body.token}`)
+
+    // Invalidate all sessions for security
+    await prisma.session.deleteMany({ where: { userId } })
+
+    return { message: 'Mật khẩu đã được đặt lại. Vui lòng đăng nhập lại.' }
+  })
+
+  // ── Change Password (while logged in) ─────────────────────
+  app.post('/api/auth/change-password', async (request, reply) => {
+    const user = requireUser(request)
+    if (user.role === 'student') {
+      return reply.code(403).send({ error: 'Học sinh không cần mật khẩu.' })
+    }
+
+    const body = z.object({
+      currentPassword: z.string().min(1),
+      newPassword: z
+        .string()
+        .min(8)
+        .max(128)
+        .regex(/[A-Za-z]/, 'Cần chữ')
+        .regex(/[0-9]/, 'Cần số'),
+    }).parse(request.body)
+
+    const dbUser = await prisma.user.findUnique({ where: { id: user.id } })
+    if (!dbUser?.passwordHash) {
+      return reply.code(400).send({ error: 'Tài khoản chưa có mật khẩu.' })
+    }
+
+    const ok = await verifyPassword(body.currentPassword, dbUser.passwordHash)
+    if (!ok) {
+      return reply.code(401).send({ error: 'Mật khẩu hiện tại không đúng.' })
+    }
+
+    const passwordHash = await hashPassword(body.newPassword)
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { passwordHash },
+    })
+
+    return { message: 'Mật khẩu đã được thay đổi.' }
+  })
 }
+

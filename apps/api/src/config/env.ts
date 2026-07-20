@@ -66,7 +66,30 @@ export const env = {
     process.env.EXPO_PUBLIC_SUPABASE_KEY ??
     ''
   ).trim(),
+
+  // ── Redis (optional — falls back to InMemory cache) ─────
+  redisUrl: (process.env.REDIS_URL ?? '').trim() || undefined,
+
+  // ── Gmail SMTP (optional in dev — logs to console) ──────
+  gmailUser: (process.env.GMAIL_USER ?? '').trim(),
+  gmailAppPassword: (process.env.GMAIL_APP_PASSWORD ?? '').trim() || undefined,
+
+  // ── App URL (for email links) ───────────────────────────
+  appUrl: (process.env.APP_URL ?? 'http://localhost:5173').trim(),
+
+  /**
+   * Optional cookie Domain for cross-subdomain SSO with StoryMee
+   * (e.g. `.storymee.com`). Leave empty in local dev.
+   */
+  cookieDomain: (process.env.COOKIE_DOMAIN ?? '').trim() || undefined,
+
+  /**
+   * Optional gateway alias — requests under this prefix rewrite to `/api/*`
+   * (e.g. `/api/aikids/health` → `/api/health`). Empty = disabled.
+   */
+  apiAliasPrefix: (process.env.API_ALIAS_PREFIX ?? '').trim() || undefined,
 }
 
 export const SESSION_COOKIE = 'aikids_session'
 export const SESSION_DAYS = 14
+
