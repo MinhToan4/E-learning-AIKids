@@ -22,6 +22,24 @@ export type PromptChip = {
   description?: string
 }
 
+export type PracticeKindSeed =
+  | 'intro'
+  | 'character'
+  | 'style'
+  | 'chips'
+  | 'story'
+  | 'detective'
+  | 'comic'
+  | 'video'
+  | 'journal'
+  | 'palette'
+  | 'match'
+  | 'drag'
+  | 'spin'
+  | 'sketch'
+  | 'ai_pick'
+  | 'reflect'
+
 export type QuestSeed = {
   id: string
   order: number
@@ -31,21 +49,19 @@ export type QuestSeed = {
   duration: string
   hook: string
   accent: string
-  practiceKind:
-    | 'intro'
-    | 'character'
-    | 'style'
-    | 'chips'
-    | 'story'
-    | 'detective'
-    | 'comic'
-    | 'video'
+  practiceKind: PracticeKindSeed
+  stage?: 'ideate' | 'produce'
   /** Lecture video URL stored in SQL (CDN / object storage). */
   videoUrl?: string | null
   goals: string[]
   concept: string
   example: string
   check?: CheckQuestion[]
+  /** Curriculum stations JSON object */
+  stations?: {
+    stage: 'ideate' | 'produce'
+    stations: Array<Record<string, unknown>>
+  }
 }
 
 export type CourseSeed = {
@@ -59,6 +75,8 @@ export type CourseSeed = {
   accent: string
   coverImage: string
   ageLabel: string
+  ageTrack: 'L1' | 'L2'
+  courseKey: 'K1' | 'K2' | 'K3' | 'K4' | 'K5' | 'K6'
   durationLabel: string
   productLabel: string
   status: 'open' | 'soon'

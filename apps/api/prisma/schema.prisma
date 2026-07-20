@@ -1,9 +1,13 @@
-// PostgreSQL only — Supabase or local Docker Postgres.
-// DATABASE_URL = Supabase Connection string (URI) from Dashboard → Settings → Database.
-// Never commit real passwords. See docs/SUPABASE.md.
+// =============================================================================
+// AI Kids Creator Academy — Prisma Schema
+// PostgreSQL (Supabase) — snake_case tables, PascalCase models
+// Date: 2026-07-20
+// =============================================================================
 
 generator client {
   provider = "prisma-client-js"
+  // Isolated path avoids Windows EPERM locks on hoisted root node_modules
+  output   = "../src/generated/prisma"
 }
 
 datasource db {
@@ -11,31 +15,35 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Roles (User.role string): student | parent | teacher | admin
-// All catalog/lecture content lives in DB — never hardcode production truth in FE.
+// ── A. CORE IDENTITY ─────────────────────────────────────────
 
 model User {
-  id           String   @id @default(cuid())
-  role         String // student | parent | teacher | admin
-  email        String?  @unique // adults only
-  passwordHash String? // adults only
-  pinHash      String? // optional parent PIN
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  role         String   // student | parent | teacher | admin
+  email        String?  @unique
+  passwordHash String?  @map("password_hash")
+  pinHash      String?  @map("pin_hash")
   nickname     String?
-  avatarId     String?
+  avatarId     String?  @map("avatar_id")
   level        Int      @default(1)
   xp           Int      @default(0)
   onboarded    Boolean  @default(false)
   goal         String?
-  /// Soft-disable account without deleting progress (admin)
   active       Boolean  @default(true)
-  parentId     String?
+  parentId     String?  @map("parent_id") @db.Uuid
+  classId      String?  @map("class_id") @db.Uuid
+  metadata     Json     @default("{}")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  // Self-references
   parent       User?    @relation("ParentChildren", fields: [parentId], references: [id])
   children     User[]   @relation("ParentChildren")
-  classId      String?
-  class        ClassRoom? @relation(fields: [classId], references: [id])
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
 
+  // FK to classroom
+  class        ClassRoom? @relation("StudentClass", fields: [classId], references: [id])
+
+  // Relations
   sessions        Session[]
   enrollments     Enrollment[]
   questProgress   QuestProgress[]
@@ -44,58 +52,168 @@ model User {
   approvalsMade   Approval[]      @relation("Approver")
   approvalsOwned  Approval[]      @relation("ChildApprovals")
   taughtClasses   ClassRoom[]     @relation("TeacherClasses")
+  achievements    Achievement[]
+  streak          DailyStreak?
+  notifications   Notification[]
+  parentProfile   ParentProfile?
+  teacherProfile  TeacherProfile?
+  /** Household subscriptions where this user is the billing parent */
+  subscriptions   Subscription[] @relation("ParentSubscriptions")
+
+  @@index([role, active])
+  @@map("users")
+}
+
+// ── A2. FAMILY / HOUSEHOLD BILLING (ClassDojo / Khan Kids pattern) ─
+// Parent owns plan + child profiles. Children never hold payment methods.
+
+model Plan {
+  id                     String   @id
+  code                   String   @unique
+  name                   String
+  tagline                String
+  maxChildren            Int      @map("max_children")
+  maxOpenCoursesPerChild Int      @map("max_open_courses_per_child")
+  priceMonthly           Int      @default(0) @map("price_monthly")
+  currency               String   @default("VND")
+  featuresJson           String   @map("features_json")
+  sortOrder              Int      @default(0) @map("sort_order")
+  active                 Boolean  @default(true)
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @default(now()) @updatedAt @map("updated_at")
+
+  subscriptions Subscription[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  parentUserId       String    @map("parent_user_id") @db.Uuid
+  planId             String    @map("plan_id")
+  status             String    @default("active") // active | trialing | cancelled | expired
+  seats              Int
+  currentPeriodStart DateTime  @default(now()) @map("current_period_start")
+  currentPeriodEnd   DateTime? @map("current_period_end")
+  /** manual | stripe | apple | google — v1 uses manual / seed */
+  provider           String    @default("manual")
+  externalId         String?   @map("external_id")
+  metadata           Json      @default("{}")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  parent User @relation("ParentSubscriptions", fields: [parentUserId], references: [id], onDelete: Cascade)
+  plan   Plan @relation(fields: [planId], references: [id])
+
+  @@index([parentUserId, status])
+  @@index([planId])
+  @@map("subscriptions")
+}
+
+model ParentProfile {
+  id                String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String   @unique @map("user_id") @db.Uuid
+  phone             String?
+  preferredLanguage String   @default("vi") @map("preferred_language")
+  notificationPrefs Json     @default("{}") @map("notification_prefs")
+  maxChildren       Int      @default(5) @map("max_children")
+  metadata          Json     @default("{}")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("parent_profiles")
+}
+
+model TeacherProfile {
+  id                 String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId             String   @unique @map("user_id") @db.Uuid
+  displayName        String?  @map("display_name")
+  bio                String?
+  subjects           String[] @default([])
+  languages          String[] @default(["vi"])
+  verificationStatus String   @default("none") @map("verification_status")
+  metadata           Json     @default("{}")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("teacher_profiles")
 }
 
 model Session {
-  id        String   @id @default(cuid())
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   token     String   @unique
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  expiresAt DateTime
-  createdAt DateTime @default(now())
+  userId    String   @map("user_id") @db.Uuid
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
+  @@map("sessions")
 }
 
 model ClassRoom {
-  id        String   @id @default(cuid())
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   name      String
   code      String   @unique
-  teacherId String
-  teacher   User     @relation("TeacherClasses", fields: [teacherId], references: [id])
-  students  User[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  teacherId String   @map("teacher_id") @db.Uuid
+  status    String   @default("active")
+  metadata  Json     @default("{}")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  teacher  User   @relation("TeacherClasses", fields: [teacherId], references: [id], onDelete: Cascade)
+  students User[] @relation("StudentClass")
+
+  @@index([teacherId])
+  @@map("classrooms")
 }
 
+// ── B. CURRICULUM & LEARNING ─────────────────────────────────
+
 model Course {
-  id            String   @id // stable slug e.g. course-comic
+  id            String   @id // stable slug e.g. l1-k1-the-gioi
   title         String
-  shortTitle    String
+  shortTitle    String   @map("short_title")
   tagline       String
   description   String
-  coverFrom     String
-  coverTo       String
+  coverFrom     String   @map("cover_from")
+  coverTo       String   @map("cover_to")
   accent        String
-  coverImage    String?
-  ageLabel      String
-  durationLabel String
-  productLabel  String
-  status        String   @default("open") // open | soon | archived
+  coverImage    String?  @map("cover_image")
+  ageLabel      String   @map("age_label")
+  /// L1 (6–8) | L2 (9–11) — curriculum track
+  ageTrack      String   @default("L1") @map("age_track")
+  /// K1…K6 within a track
+  courseKey     String   @default("K1") @map("course_key")
+  durationLabel String   @map("duration_label")
+  productLabel  String   @map("product_label")
+  status        String   @default("open")
   recommended   Boolean  @default(false)
-  skillsJson    String   // JSON array — what you learn
-  outcomesJson  String   @default("[]") // JSON array — results after course
-  sortOrder     Int      @default(0)
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime @updatedAt
+  skillsJson    String   @map("skills_json")
+  outcomesJson  String   @default("[]") @map("outcomes_json")
+  sortOrder     Int      @default(0) @map("sort_order")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
 
   quests      Quest[]
   enrollments Enrollment[]
+
+  @@index([status, sortOrder])
+  @@index([ageTrack, courseKey])
+  @@map("courses")
 }
 
-/// A quest/lecture station. videoUrl holds the lecture video (CDN/object-storage URL).
 model Quest {
-  id             String  @id // stable slug e.g. meet-mascot
-  courseId       String
-  course         Course  @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  id            String  @id // stable slug e.g. meet-mascot
+  courseId       String  @map("course_id")
   order          Int
   title          String
   skill          String
@@ -104,96 +222,175 @@ model Quest {
   hook           String
   accent         String
   icon           String  @default("star")
-  practiceKind   String  @default("chips") // chips | story | comic | detective | character | video | intro
-  /// Public HTTPS URL to lecture video (CDN / storage). Null = no video yet.
-  videoUrl       String?
-  goalsJson      String // JSON string[]
-  learnCardsJson String // JSON LearnCard[]
-  checkJson      String // JSON check questions
-  chipsJson      String? // optional prompt chips for practice
+  practiceKind   String  @default("chips") @map("practice_kind")
+  /// ideate (no AI) | produce (with AI) — curriculum stages
+  stage          String  @default("ideate")
+  videoUrl       String? @map("video_url")
+  goalsJson      String  @map("goals_json")
+  learnCardsJson String  @map("learn_cards_json")
+  checkJson      String  @map("check_json")
+  chipsJson      String? @map("chips_json")
+  /// Curriculum stations: video → game → practice → check
+  stationsJson   String? @map("stations_json")
+  /// Soft-archive for CMS (hidden from student catalog when true)
+  archived       Boolean @default(false)
 
+  course   Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
   progress QuestProgress[]
 
   @@unique([courseId, order])
   @@index([courseId])
+  @@map("quests")
 }
 
 model Enrollment {
-  id        String   @id @default(cuid())
-  userId    String
-  courseId  String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  course    Course   @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  createdAt DateTime @default(now())
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  courseId   String   @map("course_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course Course @relation(fields: [courseId], references: [id], onDelete: Cascade)
 
   @@unique([userId, courseId])
+  @@index([userId])
+  @@map("enrollments")
 }
 
 model QuestProgress {
-  id        String   @id @default(cuid())
-  userId    String
-  questId   String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  quest     Quest    @relation(fields: [questId], references: [id], onDelete: Cascade)
-  status    String   @default("locked") // locked | available | in_progress | completed
-  phase     String   @default("learn") // learn | practice | check
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  questId   String   @map("quest_id")
+  status    String   @default("locked")
+  phase     String   @default("learn")
   stars     Int      @default(0)
-  xpEarned  Int      @default(0)
-  dataJson  String? // practice payload
-  updatedAt DateTime @updatedAt
-  createdAt DateTime @default(now())
+  xpEarned  Int      @default(0) @map("xp_earned")
+  dataJson  String?  @map("data_json")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  quest Quest @relation(fields: [questId], references: [id], onDelete: Cascade)
 
   @@unique([userId, questId])
   @@index([userId])
+  @@map("quest_progress")
 }
 
+// ── C. PORTFOLIO & SOCIAL ────────────────────────────────────
+
 model Asset {
-  id        String   @id @default(cuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
   type      String
   name      String
-  questId   String?
+  questId   String?  @map("quest_id")
   thumbnail String
   private   Boolean  @default(true)
-  metaJson  String?
-  createdAt DateTime @default(now())
+  metaJson  String?  @map("meta_json")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
+  @@map("assets")
 }
 
 model Project {
-  id          String   @id @default(cuid())
-  userId      String
-  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @map("user_id") @db.Uuid
   title       String
-  kind        String // comic | video | character
+  kind        String
   thumbnail   String
   private     Boolean  @default(true)
-  shareStatus String   @default("private") // private | pending | shared
-  dataJson    String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  shareStatus String   @default("private") @map("share_status")
+  dataJson    String?  @map("data_json")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   approvals Approval[]
 
   @@index([userId])
+  @@map("projects")
 }
 
 model Approval {
-  id          String   @id @default(cuid())
-  projectId   String
-  project     Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
-  childId     String
-  child       User     @relation("ChildApprovals", fields: [childId], references: [id], onDelete: Cascade)
-  parentId    String?
-  parent      User?    @relation("Approver", fields: [parentId], references: [id])
-  destination String   @default("family") // family | class
-  status      String   @default("pending") // pending | approved | rejected
+  id          String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  projectId   String   @map("project_id") @db.Uuid
+  childId     String   @map("child_id") @db.Uuid
+  parentId    String?  @map("parent_id") @db.Uuid
+  destination String   @default("family")
+  status      String   @default("pending")
   note        String?
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
+
+  project Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  child   User    @relation("ChildApprovals", fields: [childId], references: [id], onDelete: Cascade)
+  parent  User?   @relation("Approver", fields: [parentId], references: [id])
 
   @@index([parentId, status])
   @@index([childId])
+  @@map("approvals")
+}
+
+// ── D. GAMIFICATION ──────────────────────────────────────────
+
+model Achievement {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String   @map("user_id") @db.Uuid
+  type       String
+  unlockedAt DateTime @default(now()) @map("unlocked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@index([userId])
+  @@map("achievements")
+}
+
+model DailyStreak {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId         String   @unique @map("user_id") @db.Uuid
+  current        Int      @default(0)
+  longest        Int      @default(0)
+  lastActiveDate String   @map("last_active_date")
+  updatedAt      DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("daily_streaks")
+}
+
+model Notification {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  type      String
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  data      String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, read])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+// ── E. SYSTEM SETTINGS (secrets encrypted at rest) ───────────
+
+model SystemSetting {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key       String   @unique
+  /// AES-GCM ciphertext (base64) — never return raw to clients
+  valueEnc  String?  @map("value_enc")
+  /// Non-secret metadata JSON (e.g. last4, configuredAt)
+  metaJson  String   @default("{}") @map("meta_json")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("system_settings")
 }

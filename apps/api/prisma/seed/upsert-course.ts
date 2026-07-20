@@ -1,4 +1,4 @@
-import type { PrismaClient } from '@prisma/client'
+import type { PrismaClient } from '../../src/generated/prisma/index.js'
 import {
   learn,
   defaultCheck,
@@ -20,10 +20,49 @@ export const CMS_QUEST_FIELDS = [
   'accent',
   'practiceKind',
   'videoUrl',
+  'stage',
+  'stationsJson',
 ] as const
 
 export function seedOverwriteContent(): boolean {
   return process.env.SEED_OVERWRITE_CONTENT === 'true'
+}
+
+function stationsJsonFor(q: QuestSeed): string | null {
+  if (q.stations) return JSON.stringify(q.stations)
+  const stage = q.stage ?? (q.practiceKind === 'ai_pick' || q.practiceKind === 'chips' ? 'produce' : 'ideate')
+  return JSON.stringify({
+    stage,
+    stations: [
+      {
+        id: `${q.id}-video`,
+        kind: 'video',
+        durationMin: 3,
+        title: 'Xem video',
+        videoUrl: q.videoUrl ?? null,
+      },
+      {
+        id: `${q.id}-game`,
+        kind: 'game',
+        durationMin: 5,
+        title: 'Game ghi nhớ',
+        gameType: 'pick',
+      },
+      {
+        id: `${q.id}-practice`,
+        kind: 'practice',
+        durationMin: 8,
+        title: 'Thực hành',
+        practiceKind: q.practiceKind,
+      },
+      {
+        id: `${q.id}-check`,
+        kind: 'check',
+        durationMin: 2,
+        title: 'Kiểm tra nhanh',
+      },
+    ],
+  })
 }
 
 /** Quest update payload: preserve CMS fields unless forced overwrite. */
@@ -43,11 +82,13 @@ export function questUpdateData(
       hook: q.hook,
       accent: q.accent,
       practiceKind: q.practiceKind,
+      stage: q.stage ?? 'ideate',
       videoUrl: q.videoUrl ?? null,
       goalsJson: JSON.stringify(q.goals),
       learnCardsJson: JSON.stringify(learn(q.id, q.concept, q.example)),
       checkJson: JSON.stringify(check),
       chipsJson: JSON.stringify(PROMPT_CHIPS),
+      stationsJson: stationsJsonFor(q),
       courseId: data.id,
     }
   }
@@ -77,6 +118,8 @@ export async function upsertCourse(
       accent: data.accent,
       coverImage: data.coverImage,
       ageLabel: data.ageLabel,
+      ageTrack: data.ageTrack,
+      courseKey: data.courseKey,
       durationLabel: data.durationLabel,
       productLabel: data.productLabel,
       status: data.status,
@@ -101,14 +144,35 @@ export async function upsertCourse(
           sortOrder: data.sortOrder,
           status: data.status,
           ageLabel: data.ageLabel,
+          ageTrack: data.ageTrack,
+          courseKey: data.courseKey,
           durationLabel: data.durationLabel,
           productLabel: data.productLabel,
         }
       : {
-          // Keep CMS/admin course edits; only refresh sort order from seed catalog
           sortOrder: data.sortOrder,
+          ageTrack: data.ageTrack,
+          courseKey: data.courseKey,
+          ageLabel: data.ageLabel,
         },
   })
+
+  // Two-phase order: avoid unique(courseId, order) collisions when seed
+  // re-applies after teacher reorder / partial CMS edits (Phase 5+).
+  const existingInCourse = await prisma.quest.findMany({
+    where: { courseId: data.id },
+    select: { id: true },
+  })
+  if (existingInCourse.length > 0) {
+    let bump = 0
+    for (const row of existingInCourse) {
+      await prisma.quest.update({
+        where: { id: row.id },
+        data: { order: 50_000 + bump },
+      })
+      bump += 1
+    }
+  }
 
   for (const q of data.quests) {
     const check =
@@ -132,11 +196,13 @@ export async function upsertCourse(
         hook: q.hook,
         accent: q.accent,
         practiceKind: q.practiceKind,
+        stage: q.stage ?? 'ideate',
         videoUrl: q.videoUrl ?? null,
         goalsJson: JSON.stringify(q.goals),
         learnCardsJson: JSON.stringify(learn(q.id, q.concept, q.example)),
         checkJson: JSON.stringify(check),
         chipsJson: JSON.stringify(PROMPT_CHIPS),
+        stationsJson: stationsJsonFor(q),
       },
       update: questUpdateData(data, q, check, overwrite),
     })
