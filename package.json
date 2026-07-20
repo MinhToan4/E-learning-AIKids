@@ -11,7 +11,7 @@
     "dev": "npm run dev -w @aikids/api & npm run dev -w @aikids/web",
     "dev:api": "npm run dev -w @aikids/api",
     "dev:web": "npm run dev -w @aikids/web",
-    "build": "npm run build -w @aikids/api && npm run build -w @aikids/web",
+    "build": "npm run build -w @aikids/domain && npm run build -w @aikids/api && npm run build -w @aikids/web",
     "test": "npm run test -w @aikids/domain && npm run test -w @aikids/api",
     "test:all": "npm run test -w @aikids/domain && npm run test -w @aikids/api && npm run test -w @aikids/web",
     "db:generate": "npm run db:generate -w @aikids/api",

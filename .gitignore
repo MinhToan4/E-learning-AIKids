@@ -18,3 +18,5 @@ apps/api/data/
 check-sb.*
 *.pem
 secrets/
+courses/
+packages/vidtory-ai-sdk/
