@@ -75,13 +75,35 @@ export async function resolveStudentDefaults(): Promise<{
 export async function authRoutes(app: FastifyInstance) {
   app.post('/api/auth/login/adult', async (request, reply) => {
     const body = adultLoginSchema.parse(request.body)
+    const ip = (request.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim() ?? request.ip ?? null
+    const ua = (request.headers['user-agent'] as string | undefined) ?? null
+    const emailKey = body.email.toLowerCase()
+
+    // ── Per-account brute-force guard (OWASP A07) ──────────
+    // 5 consecutive failures → 429 for 15 minutes regardless of IP rotation
+    const cache = getCache()
+    const lockKey = `login_fail:${emailKey}`
+    const fails = Number((await cache.get(lockKey)) ?? 0)
+    if (fails >= 5) {
+      void prisma.loginLog
+        .create({ data: { email: emailKey, outcome: 'locked', reason: 'brute_force_blocked', ipAddress: ip, userAgent: ua } })
+        .catch(() => null)
+      return reply.code(429).send({
+        error: 'Quá nhiều lần thử sai. Vui lòng thử lại sau 15 phút.',
+      })
+    }
+
     const user = await prisma.user.findUnique({
-      where: { email: body.email.toLowerCase() },
+      where: { email: emailKey },
     })
     if (!user || user.role === 'student') {
+      // Increment counter — same message regardless (prevent email enumeration)
+      await cache.set(lockKey, String(fails + 1), 15 * 60 * 1000)
+      void prisma.loginLog.create({ data: { email: emailKey, outcome: 'failed', reason: 'user_not_found', ipAddress: ip, userAgent: ua } }).catch(() => null)
       return reply.code(401).send({ error: 'Email hoặc mật khẩu chưa đúng' })
     }
     if (user.active === false) {
+      void prisma.loginLog.create({ data: { userId: user.id, email: user.email, outcome: 'locked', reason: 'account_inactive', ipAddress: ip, userAgent: ua } }).catch(() => null)
       return reply.code(403).send({
         error: 'Tài khoản đang tạm khóa. Liên hệ hỗ trợ nhé.',
       })
@@ -91,15 +113,22 @@ export async function authRoutes(app: FastifyInstance) {
         { userId: user.id, hasGoogle: Boolean(user.googleSub) },
         'auth.adult_login password_missing_use_google',
       )
+      void prisma.loginLog.create({ data: { userId: user.id, email: user.email, outcome: 'failed', reason: 'no_password_use_google', ipAddress: ip, userAgent: ua } }).catch(() => null)
       return reply.code(401).send({
         error:
-          'Tài khoản này đăng nhập bằng Google. Bấm “Tiếp tục với Google” nhé.',
+          'Tài khoản này đăng nhập bằng Google. Bấm "Tiếp tục với Google" nhé.',
       })
     }
     const ok = await verifyPassword(body.password, user.passwordHash)
     if (!ok) {
+      // Increment counter on wrong password
+      await cache.set(lockKey, String(fails + 1), 15 * 60 * 1000)
+      void prisma.loginLog.create({ data: { userId: user.id, email: user.email, outcome: 'failed', reason: 'wrong_password', ipAddress: ip, userAgent: ua } }).catch(() => null)
       return reply.code(401).send({ error: 'Email hoặc mật khẩu chưa đúng' })
     }
+    // ── Success: clear brute-force counter ─────────────────
+    await cache.delete(lockKey)
+    void prisma.loginLog.create({ data: { userId: user.id, email: user.email, outcome: 'success', ipAddress: ip, userAgent: ua } }).catch(() => null)
     await createSession(user.id, reply)
     return { user: publicUser(user) }
   })

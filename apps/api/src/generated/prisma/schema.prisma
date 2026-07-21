@@ -66,6 +66,7 @@ model User {
    * Household subscriptions where this user is the billing parent
    */
   subscriptions  Subscription[]  @relation("ParentSubscriptions")
+  loginLogs      LoginLog[]
 
   @@index([role, active])
   @@map("users")
@@ -402,4 +403,30 @@ model SystemSetting {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("system_settings")
+}
+
+// ── F. LOGIN AUDIT LOG (auto-purged after 24 h) ───────────────
+// Stored in DB, never contains password hashes or tokens.
+// OWASP A07: tracks failed logins for anomaly detection.
+
+model LoginLog {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  /// null when login failed (unknown user)
+  userId    String?  @map("user_id") @db.Uuid
+  email     String?
+  /// success | failed | locked
+  outcome   String
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  /// reason when outcome = failed/locked
+  reason    String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  /// Index on createdAt for efficient 24-h purge query
+  @@index([createdAt])
+  @@index([userId])
+  @@index([outcome])
+  @@map("login_logs")
 }

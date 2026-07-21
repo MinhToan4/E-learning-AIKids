@@ -64,6 +64,7 @@ model User {
   teacherProfile  TeacherProfile?
   /** Household subscriptions where this user is the billing parent */
   subscriptions   Subscription[] @relation("ParentSubscriptions")
+  loginLogs       LoginLog[]
 
   @@index([role, active])
   @@map("users")
@@ -122,6 +123,16 @@ model ParentProfile {
   preferredLanguage String   @default("vi") @map("preferred_language")
   notificationPrefs Json     @default("{}") @map("notification_prefs")
   maxChildren       Int      @default(5) @map("max_children")
+  ///
+  /// Parent Gate PIN — bcrypt hash of the PIN the child enters when tapping
+  /// "Ba/Mẹ ơi!" to hand device back to parent.
+  ///
+  /// ⚠️ DISTINCT FROM user.pinHash:
+  ///   user.pinHash = child enters to LOGIN into their student account
+  ///   gatePin      = child enters to UNLOCK the parent dashboard
+  ///
+  /// Nullable: when unset, gate redirects to parent login page instead.
+  gatePin           String?  @map("gate_pin")
   metadata          Json     @default("{}")
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
@@ -398,4 +409,30 @@ model SystemSetting {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("system_settings")
+}
+
+// ── F. LOGIN AUDIT LOG (auto-purged after 24 h) ───────────────
+// Stored in DB, never contains password hashes or tokens.
+// OWASP A07: tracks failed logins for anomaly detection.
+
+model LoginLog {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  /// null when login failed (unknown user)
+  userId    String?  @map("user_id") @db.Uuid
+  email     String?
+  /// success | failed | locked
+  outcome   String
+  ipAddress String?  @map("ip_address")
+  userAgent String?  @map("user_agent")
+  /// reason when outcome = failed/locked
+  reason    String?
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  /// Index on createdAt for efficient 24-h purge query
+  @@index([createdAt])
+  @@index([userId])
+  @@index([outcome])
+  @@map("login_logs")
 }

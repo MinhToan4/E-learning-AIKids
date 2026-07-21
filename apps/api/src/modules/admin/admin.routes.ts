@@ -616,4 +616,87 @@ export async function adminRoutes(app: FastifyInstance) {
 
     return { message: 'Lớp học đã được xóa.' }
   })
+
+  // ── Login Audit Logs (OWASP A07) ────────────────────────────
+  /**
+   * GET /api/admin/login-logs
+   * Returns last 200 login events within the past 24 hours.
+   * Also auto-purges records older than 24 h to prevent unbounded growth.
+   */
+  app.get('/api/admin/login-logs', async (request, reply) => {
+    const user = requireRole(request, ['admin'])
+    if (!can(user.role, 'system:read')) {
+      return reply.code(403).send({ error: 'Forbidden' })
+    }
+
+    const since24h = new Date(Date.now() - 24 * 60 * 60 * 1000)
+
+    // Auto-purge logs older than 24h — fire-and-forget (non-blocking)
+    void prisma.loginLog
+      .deleteMany({ where: { createdAt: { lt: since24h } } })
+      .catch((e) => request.log.warn({ err: e }, 'login_log_purge_error'))
+
+    const q = request.query as {
+      outcome?: string
+      limit?: string
+    }
+    const take = Math.min(Number(q.limit ?? 200) || 200, 500)
+    const where = {
+      createdAt: { gte: since24h },
+      ...(q.outcome ? { outcome: q.outcome } : {}),
+    }
+
+    const [logs, summary] = await Promise.all([
+      prisma.loginLog.findMany({
+        where,
+        orderBy: { createdAt: 'desc' },
+        take,
+        select: {
+          id: true,
+          userId: true,
+          email: true,
+          outcome: true,
+          ipAddress: true,
+          reason: true,
+          createdAt: true,
+        },
+      }),
+      prisma.loginLog.groupBy({
+        by: ['outcome'],
+        where,
+        _count: true,
+      }),
+    ])
+
+    return {
+      logs,
+      summary: {
+        total: logs.length,
+        byOutcome: Object.fromEntries(
+          summary.map((s) => [s.outcome, s._count]),
+        ),
+        windowHours: 24,
+        purgedAt: new Date().toISOString(),
+      },
+    }
+  })
+
+  /**
+   * DELETE /api/admin/login-logs — manual purge of all logs older than 24h.
+   * Idempotent, safe to call any time.
+   */
+  app.delete('/api/admin/login-logs', async (request, reply) => {
+    const user = requireRole(request, ['admin'])
+    if (!can(user.role, 'system:read')) {
+      return reply.code(403).send({ error: 'Forbidden' })
+    }
+    const cutoff = new Date(Date.now() - 24 * 60 * 60 * 1000)
+    const result = await prisma.loginLog.deleteMany({
+      where: { createdAt: { lt: cutoff } },
+    })
+    return {
+      deleted: result.count,
+      message: `Đã xóa ${result.count} log cũ hơn 24 giờ.`,
+    }
+  })
 }

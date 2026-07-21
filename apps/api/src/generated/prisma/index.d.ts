@@ -103,6 +103,11 @@ export type Notification = $Result.DefaultSelection<Prisma.$NotificationPayload>
  * 
  */
 export type SystemSetting = $Result.DefaultSelection<Prisma.$SystemSettingPayload>
+/**
+ * Model LoginLog
+ * 
+ */
+export type LoginLog = $Result.DefaultSelection<Prisma.$LoginLogPayload>
 
 /**
  * ##  Prisma Client ʲˢ
@@ -401,6 +406,16 @@ export class PrismaClient<
     * ```
     */
   get systemSetting(): Prisma.SystemSettingDelegate<ExtArgs, ClientOptions>;
+
+  /**
+   * `prisma.loginLog`: Exposes CRUD operations for the **LoginLog** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more LoginLogs
+    * const loginLogs = await prisma.loginLog.findMany()
+    * ```
+    */
+  get loginLog(): Prisma.LoginLogDelegate<ExtArgs, ClientOptions>;
 }
 
 export namespace Prisma {
@@ -859,7 +874,8 @@ export namespace Prisma {
     Achievement: 'Achievement',
     DailyStreak: 'DailyStreak',
     Notification: 'Notification',
-    SystemSetting: 'SystemSetting'
+    SystemSetting: 'SystemSetting',
+    LoginLog: 'LoginLog'
   };
 
   export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -878,7 +894,7 @@ export namespace Prisma {
       omit: GlobalOmitOptions
     }
     meta: {
-      modelProps: "user" | "plan" | "subscription" | "parentProfile" | "teacherProfile" | "session" | "classRoom" | "course" | "quest" | "enrollment" | "questProgress" | "asset" | "project" | "approval" | "achievement" | "dailyStreak" | "notification" | "systemSetting"
+      modelProps: "user" | "plan" | "subscription" | "parentProfile" | "teacherProfile" | "session" | "classRoom" | "course" | "quest" | "enrollment" | "questProgress" | "asset" | "project" | "approval" | "achievement" | "dailyStreak" | "notification" | "systemSetting" | "loginLog"
       txIsolationLevel: Prisma.TransactionIsolationLevel
     }
     model: {
@@ -2214,6 +2230,80 @@ export namespace Prisma {
           }
         }
       }
+      LoginLog: {
+        payload: Prisma.$LoginLogPayload<ExtArgs>
+        fields: Prisma.LoginLogFieldRefs
+        operations: {
+          findUnique: {
+            args: Prisma.LoginLogFindUniqueArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginLogPayload> | null
+          }
+          findUniqueOrThrow: {
+            args: Prisma.LoginLogFindUniqueOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginLogPayload>
+          }
+          findFirst: {
+            args: Prisma.LoginLogFindFirstArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginLogPayload> | null
+          }
+          findFirstOrThrow: {
+            args: Prisma.LoginLogFindFirstOrThrowArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginLogPayload>
+          }
+          findMany: {
+            args: Prisma.LoginLogFindManyArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginLogPayload>[]
+          }
+          create: {
+            args: Prisma.LoginLogCreateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginLogPayload>
+          }
+          createMany: {
+            args: Prisma.LoginLogCreateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          createManyAndReturn: {
+            args: Prisma.LoginLogCreateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginLogPayload>[]
+          }
+          delete: {
+            args: Prisma.LoginLogDeleteArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginLogPayload>
+          }
+          update: {
+            args: Prisma.LoginLogUpdateArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginLogPayload>
+          }
+          deleteMany: {
+            args: Prisma.LoginLogDeleteManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateMany: {
+            args: Prisma.LoginLogUpdateManyArgs<ExtArgs>
+            result: BatchPayload
+          }
+          updateManyAndReturn: {
+            args: Prisma.LoginLogUpdateManyAndReturnArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginLogPayload>[]
+          }
+          upsert: {
+            args: Prisma.LoginLogUpsertArgs<ExtArgs>
+            result: $Utils.PayloadToResult<Prisma.$LoginLogPayload>
+          }
+          aggregate: {
+            args: Prisma.LoginLogAggregateArgs<ExtArgs>
+            result: $Utils.Optional<AggregateLoginLog>
+          }
+          groupBy: {
+            args: Prisma.LoginLogGroupByArgs<ExtArgs>
+            result: $Utils.Optional<LoginLogGroupByOutputType>[]
+          }
+          count: {
+            args: Prisma.LoginLogCountArgs<ExtArgs>
+            result: $Utils.Optional<LoginLogCountAggregateOutputType> | number
+          }
+        }
+      }
     }
   } & {
     other: {
@@ -2328,6 +2418,7 @@ export namespace Prisma {
     dailyStreak?: DailyStreakOmit
     notification?: NotificationOmit
     systemSetting?: SystemSettingOmit
+    loginLog?: LoginLogOmit
   }
 
   /* Types for Logging */
@@ -2420,6 +2511,7 @@ export namespace Prisma {
     achievements: number
     notifications: number
     subscriptions: number
+    loginLogs: number
   }
 
   export type UserCountOutputTypeSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -2435,6 +2527,7 @@ export namespace Prisma {
     achievements?: boolean | UserCountOutputTypeCountAchievementsArgs
     notifications?: boolean | UserCountOutputTypeCountNotificationsArgs
     subscriptions?: boolean | UserCountOutputTypeCountSubscriptionsArgs
+    loginLogs?: boolean | UserCountOutputTypeCountLoginLogsArgs
   }
 
   // Custom InputTypes
@@ -2530,6 +2623,13 @@ export namespace Prisma {
    */
   export type UserCountOutputTypeCountSubscriptionsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     where?: SubscriptionWhereInput
+  }
+
+  /**
+   * UserCountOutputType without action
+   */
+  export type UserCountOutputTypeCountLoginLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LoginLogWhereInput
   }
 
 
@@ -3020,6 +3120,7 @@ export namespace Prisma {
     parentProfile?: boolean | User$parentProfileArgs<ExtArgs>
     teacherProfile?: boolean | User$teacherProfileArgs<ExtArgs>
     subscriptions?: boolean | User$subscriptionsArgs<ExtArgs>
+    loginLogs?: boolean | User$loginLogsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
 
@@ -3109,6 +3210,7 @@ export namespace Prisma {
     parentProfile?: boolean | User$parentProfileArgs<ExtArgs>
     teacherProfile?: boolean | User$teacherProfileArgs<ExtArgs>
     subscriptions?: boolean | User$subscriptionsArgs<ExtArgs>
+    loginLogs?: boolean | User$loginLogsArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }
   export type UserIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
@@ -3143,6 +3245,7 @@ export namespace Prisma {
        * * Household subscriptions where this user is the billing parent
        */
       subscriptions: Prisma.$SubscriptionPayload<ExtArgs>[]
+      loginLogs: Prisma.$LoginLogPayload<ExtArgs>[]
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
@@ -3579,6 +3682,7 @@ export namespace Prisma {
     parentProfile<T extends User$parentProfileArgs<ExtArgs> = {}>(args?: Subset<T, User$parentProfileArgs<ExtArgs>>): Prisma__ParentProfileClient<$Result.GetResult<Prisma.$ParentProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     teacherProfile<T extends User$teacherProfileArgs<ExtArgs> = {}>(args?: Subset<T, User$teacherProfileArgs<ExtArgs>>): Prisma__TeacherProfileClient<$Result.GetResult<Prisma.$TeacherProfilePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
     subscriptions<T extends User$subscriptionsArgs<ExtArgs> = {}>(args?: Subset<T, User$subscriptionsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$SubscriptionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+    loginLogs<T extends User$loginLogsArgs<ExtArgs> = {}>(args?: Subset<T, User$loginLogsArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoginLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
      * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -4402,6 +4506,30 @@ export namespace Prisma {
     take?: number
     skip?: number
     distinct?: SubscriptionScalarFieldEnum | SubscriptionScalarFieldEnum[]
+  }
+
+  /**
+   * User.loginLogs
+   */
+  export type User$loginLogsArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginLog
+     */
+    select?: LoginLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginLog
+     */
+    omit?: LoginLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginLogInclude<ExtArgs> | null
+    where?: LoginLogWhereInput
+    orderBy?: LoginLogOrderByWithRelationInput | LoginLogOrderByWithRelationInput[]
+    cursor?: LoginLogWhereUniqueInput
+    take?: number
+    skip?: number
+    distinct?: LoginLogScalarFieldEnum | LoginLogScalarFieldEnum[]
   }
 
   /**
@@ -6859,6 +6987,7 @@ export namespace Prisma {
     phone: string | null
     preferredLanguage: string | null
     maxChildren: number | null
+    gatePin: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6869,6 +6998,7 @@ export namespace Prisma {
     phone: string | null
     preferredLanguage: string | null
     maxChildren: number | null
+    gatePin: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -6880,6 +7010,7 @@ export namespace Prisma {
     preferredLanguage: number
     notificationPrefs: number
     maxChildren: number
+    gatePin: number
     metadata: number
     createdAt: number
     updatedAt: number
@@ -6901,6 +7032,7 @@ export namespace Prisma {
     phone?: true
     preferredLanguage?: true
     maxChildren?: true
+    gatePin?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6911,6 +7043,7 @@ export namespace Prisma {
     phone?: true
     preferredLanguage?: true
     maxChildren?: true
+    gatePin?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -6922,6 +7055,7 @@ export namespace Prisma {
     preferredLanguage?: true
     notificationPrefs?: true
     maxChildren?: true
+    gatePin?: true
     metadata?: true
     createdAt?: true
     updatedAt?: true
@@ -7021,6 +7155,7 @@ export namespace Prisma {
     preferredLanguage: string
     notificationPrefs: JsonValue
     maxChildren: number
+    gatePin: string | null
     metadata: JsonValue
     createdAt: Date
     updatedAt: Date
@@ -7052,6 +7187,7 @@ export namespace Prisma {
     preferredLanguage?: boolean
     notificationPrefs?: boolean
     maxChildren?: boolean
+    gatePin?: boolean
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -7065,6 +7201,7 @@ export namespace Prisma {
     preferredLanguage?: boolean
     notificationPrefs?: boolean
     maxChildren?: boolean
+    gatePin?: boolean
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -7078,6 +7215,7 @@ export namespace Prisma {
     preferredLanguage?: boolean
     notificationPrefs?: boolean
     maxChildren?: boolean
+    gatePin?: boolean
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -7091,12 +7229,13 @@ export namespace Prisma {
     preferredLanguage?: boolean
     notificationPrefs?: boolean
     maxChildren?: boolean
+    gatePin?: boolean
     metadata?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ParentProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "phone" | "preferredLanguage" | "notificationPrefs" | "maxChildren" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["parentProfile"]>
+  export type ParentProfileOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "phone" | "preferredLanguage" | "notificationPrefs" | "maxChildren" | "gatePin" | "metadata" | "createdAt" | "updatedAt", ExtArgs["result"]["parentProfile"]>
   export type ParentProfileInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
   }
@@ -7119,6 +7258,18 @@ export namespace Prisma {
       preferredLanguage: string
       notificationPrefs: Prisma.JsonValue
       maxChildren: number
+      /**
+       * 
+       * Parent Gate PIN — bcrypt hash of the PIN the child enters when tapping
+       * "Ba/Mẹ ơi!" to hand device back to parent.
+       * 
+       * ⚠️ DISTINCT FROM user.pinHash:
+       * user.pinHash = child enters to LOGIN into their student account
+       * gatePin      = child enters to UNLOCK the parent dashboard
+       * 
+       * Nullable: when unset, gate redirects to parent login page instead.
+       */
+      gatePin: string | null
       metadata: Prisma.JsonValue
       createdAt: Date
       updatedAt: Date
@@ -7552,6 +7703,7 @@ export namespace Prisma {
     readonly preferredLanguage: FieldRef<"ParentProfile", 'String'>
     readonly notificationPrefs: FieldRef<"ParentProfile", 'Json'>
     readonly maxChildren: FieldRef<"ParentProfile", 'Int'>
+    readonly gatePin: FieldRef<"ParentProfile", 'String'>
     readonly metadata: FieldRef<"ParentProfile", 'Json'>
     readonly createdAt: FieldRef<"ParentProfile", 'DateTime'>
     readonly updatedAt: FieldRef<"ParentProfile", 'DateTime'>
@@ -23842,6 +23994,1131 @@ export namespace Prisma {
 
 
   /**
+   * Model LoginLog
+   */
+
+  export type AggregateLoginLog = {
+    _count: LoginLogCountAggregateOutputType | null
+    _min: LoginLogMinAggregateOutputType | null
+    _max: LoginLogMaxAggregateOutputType | null
+  }
+
+  export type LoginLogMinAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    email: string | null
+    outcome: string | null
+    ipAddress: string | null
+    userAgent: string | null
+    reason: string | null
+    createdAt: Date | null
+  }
+
+  export type LoginLogMaxAggregateOutputType = {
+    id: string | null
+    userId: string | null
+    email: string | null
+    outcome: string | null
+    ipAddress: string | null
+    userAgent: string | null
+    reason: string | null
+    createdAt: Date | null
+  }
+
+  export type LoginLogCountAggregateOutputType = {
+    id: number
+    userId: number
+    email: number
+    outcome: number
+    ipAddress: number
+    userAgent: number
+    reason: number
+    createdAt: number
+    _all: number
+  }
+
+
+  export type LoginLogMinAggregateInputType = {
+    id?: true
+    userId?: true
+    email?: true
+    outcome?: true
+    ipAddress?: true
+    userAgent?: true
+    reason?: true
+    createdAt?: true
+  }
+
+  export type LoginLogMaxAggregateInputType = {
+    id?: true
+    userId?: true
+    email?: true
+    outcome?: true
+    ipAddress?: true
+    userAgent?: true
+    reason?: true
+    createdAt?: true
+  }
+
+  export type LoginLogCountAggregateInputType = {
+    id?: true
+    userId?: true
+    email?: true
+    outcome?: true
+    ipAddress?: true
+    userAgent?: true
+    reason?: true
+    createdAt?: true
+    _all?: true
+  }
+
+  export type LoginLogAggregateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LoginLog to aggregate.
+     */
+    where?: LoginLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LoginLogs to fetch.
+     */
+    orderBy?: LoginLogOrderByWithRelationInput | LoginLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     */
+    cursor?: LoginLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LoginLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LoginLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned LoginLogs
+    **/
+    _count?: true | LoginLogCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: LoginLogMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: LoginLogMaxAggregateInputType
+  }
+
+  export type GetLoginLogAggregateType<T extends LoginLogAggregateArgs> = {
+        [P in keyof T & keyof AggregateLoginLog]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateLoginLog[P]>
+      : GetScalarType<T[P], AggregateLoginLog[P]>
+  }
+
+
+
+
+  export type LoginLogGroupByArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    where?: LoginLogWhereInput
+    orderBy?: LoginLogOrderByWithAggregationInput | LoginLogOrderByWithAggregationInput[]
+    by: LoginLogScalarFieldEnum[] | LoginLogScalarFieldEnum
+    having?: LoginLogScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: LoginLogCountAggregateInputType | true
+    _min?: LoginLogMinAggregateInputType
+    _max?: LoginLogMaxAggregateInputType
+  }
+
+  export type LoginLogGroupByOutputType = {
+    id: string
+    userId: string | null
+    email: string | null
+    outcome: string
+    ipAddress: string | null
+    userAgent: string | null
+    reason: string | null
+    createdAt: Date
+    _count: LoginLogCountAggregateOutputType | null
+    _min: LoginLogMinAggregateOutputType | null
+    _max: LoginLogMaxAggregateOutputType | null
+  }
+
+  type GetLoginLogGroupByPayload<T extends LoginLogGroupByArgs> = Prisma.PrismaPromise<
+    Array<
+      PickEnumerable<LoginLogGroupByOutputType, T['by']> &
+        {
+          [P in ((keyof T) & (keyof LoginLogGroupByOutputType))]: P extends '_count'
+            ? T[P] extends boolean
+              ? number
+              : GetScalarType<T[P], LoginLogGroupByOutputType[P]>
+            : GetScalarType<T[P], LoginLogGroupByOutputType[P]>
+        }
+      >
+    >
+
+
+  export type LoginLogSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    email?: boolean
+    outcome?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    reason?: boolean
+    createdAt?: boolean
+    user?: boolean | LoginLog$userArgs<ExtArgs>
+  }, ExtArgs["result"]["loginLog"]>
+
+  export type LoginLogSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    email?: boolean
+    outcome?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    reason?: boolean
+    createdAt?: boolean
+    user?: boolean | LoginLog$userArgs<ExtArgs>
+  }, ExtArgs["result"]["loginLog"]>
+
+  export type LoginLogSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
+    id?: boolean
+    userId?: boolean
+    email?: boolean
+    outcome?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    reason?: boolean
+    createdAt?: boolean
+    user?: boolean | LoginLog$userArgs<ExtArgs>
+  }, ExtArgs["result"]["loginLog"]>
+
+  export type LoginLogSelectScalar = {
+    id?: boolean
+    userId?: boolean
+    email?: boolean
+    outcome?: boolean
+    ipAddress?: boolean
+    userAgent?: boolean
+    reason?: boolean
+    createdAt?: boolean
+  }
+
+  export type LoginLogOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "email" | "outcome" | "ipAddress" | "userAgent" | "reason" | "createdAt", ExtArgs["result"]["loginLog"]>
+  export type LoginLogInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | LoginLog$userArgs<ExtArgs>
+  }
+  export type LoginLogIncludeCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | LoginLog$userArgs<ExtArgs>
+  }
+  export type LoginLogIncludeUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    user?: boolean | LoginLog$userArgs<ExtArgs>
+  }
+
+  export type $LoginLogPayload<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    name: "LoginLog"
+    objects: {
+      user: Prisma.$UserPayload<ExtArgs> | null
+    }
+    scalars: $Extensions.GetPayloadResult<{
+      id: string
+      /**
+       * null when login failed (unknown user)
+       */
+      userId: string | null
+      email: string | null
+      /**
+       * success | failed | locked
+       */
+      outcome: string
+      ipAddress: string | null
+      userAgent: string | null
+      /**
+       * reason when outcome = failed/locked
+       */
+      reason: string | null
+      createdAt: Date
+    }, ExtArgs["result"]["loginLog"]>
+    composites: {}
+  }
+
+  type LoginLogGetPayload<S extends boolean | null | undefined | LoginLogDefaultArgs> = $Result.GetResult<Prisma.$LoginLogPayload, S>
+
+  type LoginLogCountArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> =
+    Omit<LoginLogFindManyArgs, 'select' | 'include' | 'distinct' | 'omit'> & {
+      select?: LoginLogCountAggregateInputType | true
+    }
+
+  export interface LoginLogDelegate<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> {
+    [K: symbol]: { types: Prisma.TypeMap<ExtArgs>['model']['LoginLog'], meta: { name: 'LoginLog' } }
+    /**
+     * Find zero or one LoginLog that matches the filter.
+     * @param {LoginLogFindUniqueArgs} args - Arguments to find a LoginLog
+     * @example
+     * // Get one LoginLog
+     * const loginLog = await prisma.loginLog.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUnique<T extends LoginLogFindUniqueArgs>(args: SelectSubset<T, LoginLogFindUniqueArgs<ExtArgs>>): Prisma__LoginLogClient<$Result.GetResult<Prisma.$LoginLogPayload<ExtArgs>, T, "findUnique", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find one LoginLog that matches the filter or throw an error with `error.code='P2025'`
+     * if no matches were found.
+     * @param {LoginLogFindUniqueOrThrowArgs} args - Arguments to find a LoginLog
+     * @example
+     * // Get one LoginLog
+     * const loginLog = await prisma.loginLog.findUniqueOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findUniqueOrThrow<T extends LoginLogFindUniqueOrThrowArgs>(args: SelectSubset<T, LoginLogFindUniqueOrThrowArgs<ExtArgs>>): Prisma__LoginLogClient<$Result.GetResult<Prisma.$LoginLogPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LoginLog that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoginLogFindFirstArgs} args - Arguments to find a LoginLog
+     * @example
+     * // Get one LoginLog
+     * const loginLog = await prisma.loginLog.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirst<T extends LoginLogFindFirstArgs>(args?: SelectSubset<T, LoginLogFindFirstArgs<ExtArgs>>): Prisma__LoginLogClient<$Result.GetResult<Prisma.$LoginLogPayload<ExtArgs>, T, "findFirst", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find the first LoginLog that matches the filter or
+     * throw `PrismaKnownClientError` with `P2025` code if no matches were found.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoginLogFindFirstOrThrowArgs} args - Arguments to find a LoginLog
+     * @example
+     * // Get one LoginLog
+     * const loginLog = await prisma.loginLog.findFirstOrThrow({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     */
+    findFirstOrThrow<T extends LoginLogFindFirstOrThrowArgs>(args?: SelectSubset<T, LoginLogFindFirstOrThrowArgs<ExtArgs>>): Prisma__LoginLogClient<$Result.GetResult<Prisma.$LoginLogPayload<ExtArgs>, T, "findFirstOrThrow", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Find zero or more LoginLogs that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoginLogFindManyArgs} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all LoginLogs
+     * const loginLogs = await prisma.loginLog.findMany()
+     * 
+     * // Get first 10 LoginLogs
+     * const loginLogs = await prisma.loginLog.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const loginLogWithIdOnly = await prisma.loginLog.findMany({ select: { id: true } })
+     * 
+     */
+    findMany<T extends LoginLogFindManyArgs>(args?: SelectSubset<T, LoginLogFindManyArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoginLogPayload<ExtArgs>, T, "findMany", GlobalOmitOptions>>
+
+    /**
+     * Create a LoginLog.
+     * @param {LoginLogCreateArgs} args - Arguments to create a LoginLog.
+     * @example
+     * // Create one LoginLog
+     * const LoginLog = await prisma.loginLog.create({
+     *   data: {
+     *     // ... data to create a LoginLog
+     *   }
+     * })
+     * 
+     */
+    create<T extends LoginLogCreateArgs>(args: SelectSubset<T, LoginLogCreateArgs<ExtArgs>>): Prisma__LoginLogClient<$Result.GetResult<Prisma.$LoginLogPayload<ExtArgs>, T, "create", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Create many LoginLogs.
+     * @param {LoginLogCreateManyArgs} args - Arguments to create many LoginLogs.
+     * @example
+     * // Create many LoginLogs
+     * const loginLog = await prisma.loginLog.createMany({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     *     
+     */
+    createMany<T extends LoginLogCreateManyArgs>(args?: SelectSubset<T, LoginLogCreateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Create many LoginLogs and returns the data saved in the database.
+     * @param {LoginLogCreateManyAndReturnArgs} args - Arguments to create many LoginLogs.
+     * @example
+     * // Create many LoginLogs
+     * const loginLog = await prisma.loginLog.createManyAndReturn({
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Create many LoginLogs and only return the `id`
+     * const loginLogWithIdOnly = await prisma.loginLog.createManyAndReturn({
+     *   select: { id: true },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    createManyAndReturn<T extends LoginLogCreateManyAndReturnArgs>(args?: SelectSubset<T, LoginLogCreateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoginLogPayload<ExtArgs>, T, "createManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Delete a LoginLog.
+     * @param {LoginLogDeleteArgs} args - Arguments to delete one LoginLog.
+     * @example
+     * // Delete one LoginLog
+     * const LoginLog = await prisma.loginLog.delete({
+     *   where: {
+     *     // ... filter to delete one LoginLog
+     *   }
+     * })
+     * 
+     */
+    delete<T extends LoginLogDeleteArgs>(args: SelectSubset<T, LoginLogDeleteArgs<ExtArgs>>): Prisma__LoginLogClient<$Result.GetResult<Prisma.$LoginLogPayload<ExtArgs>, T, "delete", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Update one LoginLog.
+     * @param {LoginLogUpdateArgs} args - Arguments to update one LoginLog.
+     * @example
+     * // Update one LoginLog
+     * const loginLog = await prisma.loginLog.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    update<T extends LoginLogUpdateArgs>(args: SelectSubset<T, LoginLogUpdateArgs<ExtArgs>>): Prisma__LoginLogClient<$Result.GetResult<Prisma.$LoginLogPayload<ExtArgs>, T, "update", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+    /**
+     * Delete zero or more LoginLogs.
+     * @param {LoginLogDeleteManyArgs} args - Arguments to filter LoginLogs to delete.
+     * @example
+     * // Delete a few LoginLogs
+     * const { count } = await prisma.loginLog.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+     */
+    deleteMany<T extends LoginLogDeleteManyArgs>(args?: SelectSubset<T, LoginLogDeleteManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LoginLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoginLogUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many LoginLogs
+     * const loginLog = await prisma.loginLog.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+     */
+    updateMany<T extends LoginLogUpdateManyArgs>(args: SelectSubset<T, LoginLogUpdateManyArgs<ExtArgs>>): Prisma.PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more LoginLogs and returns the data updated in the database.
+     * @param {LoginLogUpdateManyAndReturnArgs} args - Arguments to update many LoginLogs.
+     * @example
+     * // Update many LoginLogs
+     * const loginLog = await prisma.loginLog.updateManyAndReturn({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * 
+     * // Update zero or more LoginLogs and only return the `id`
+     * const loginLogWithIdOnly = await prisma.loginLog.updateManyAndReturn({
+     *   select: { id: true },
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: [
+     *     // ... provide data here
+     *   ]
+     * })
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * 
+     */
+    updateManyAndReturn<T extends LoginLogUpdateManyAndReturnArgs>(args: SelectSubset<T, LoginLogUpdateManyAndReturnArgs<ExtArgs>>): Prisma.PrismaPromise<$Result.GetResult<Prisma.$LoginLogPayload<ExtArgs>, T, "updateManyAndReturn", GlobalOmitOptions>>
+
+    /**
+     * Create or update one LoginLog.
+     * @param {LoginLogUpsertArgs} args - Arguments to update or create a LoginLog.
+     * @example
+     * // Update or create a LoginLog
+     * const loginLog = await prisma.loginLog.upsert({
+     *   create: {
+     *     // ... data to create a LoginLog
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the LoginLog we want to update
+     *   }
+     * })
+     */
+    upsert<T extends LoginLogUpsertArgs>(args: SelectSubset<T, LoginLogUpsertArgs<ExtArgs>>): Prisma__LoginLogClient<$Result.GetResult<Prisma.$LoginLogPayload<ExtArgs>, T, "upsert", GlobalOmitOptions>, never, ExtArgs, GlobalOmitOptions>
+
+
+    /**
+     * Count the number of LoginLogs.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoginLogCountArgs} args - Arguments to filter LoginLogs to count.
+     * @example
+     * // Count the number of LoginLogs
+     * const count = await prisma.loginLog.count({
+     *   where: {
+     *     // ... the filter for the LoginLogs we want to count
+     *   }
+     * })
+    **/
+    count<T extends LoginLogCountArgs>(
+      args?: Subset<T, LoginLogCountArgs>,
+    ): Prisma.PrismaPromise<
+      T extends $Utils.Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], LoginLogCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a LoginLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoginLogAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends LoginLogAggregateArgs>(args: Subset<T, LoginLogAggregateArgs>): Prisma.PrismaPromise<GetLoginLogAggregateType<T>>
+
+    /**
+     * Group by LoginLog.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {LoginLogGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends LoginLogGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: LoginLogGroupByArgs['orderBy'] }
+        : { orderBy?: LoginLogGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends MaybeTupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, LoginLogGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetLoginLogGroupByPayload<T> : Prisma.PrismaPromise<InputErrors>
+  /**
+   * Fields of the LoginLog model
+   */
+  readonly fields: LoginLogFieldRefs;
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for LoginLog.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export interface Prisma__LoginLogClient<T, Null = never, ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
+    readonly [Symbol.toStringTag]: "PrismaPromise"
+    user<T extends LoginLog$userArgs<ExtArgs> = {}>(args?: Subset<T, LoginLog$userArgs<ExtArgs>>): Prisma__UserClient<$Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): $Utils.JsPromise<TResult1 | TResult2>
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): $Utils.JsPromise<T | TResult>
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): $Utils.JsPromise<T>
+  }
+
+
+
+
+  /**
+   * Fields of the LoginLog model
+   */
+  interface LoginLogFieldRefs {
+    readonly id: FieldRef<"LoginLog", 'String'>
+    readonly userId: FieldRef<"LoginLog", 'String'>
+    readonly email: FieldRef<"LoginLog", 'String'>
+    readonly outcome: FieldRef<"LoginLog", 'String'>
+    readonly ipAddress: FieldRef<"LoginLog", 'String'>
+    readonly userAgent: FieldRef<"LoginLog", 'String'>
+    readonly reason: FieldRef<"LoginLog", 'String'>
+    readonly createdAt: FieldRef<"LoginLog", 'DateTime'>
+  }
+    
+
+  // Custom InputTypes
+  /**
+   * LoginLog findUnique
+   */
+  export type LoginLogFindUniqueArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginLog
+     */
+    select?: LoginLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginLog
+     */
+    omit?: LoginLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginLogInclude<ExtArgs> | null
+    /**
+     * Filter, which LoginLog to fetch.
+     */
+    where: LoginLogWhereUniqueInput
+  }
+
+  /**
+   * LoginLog findUniqueOrThrow
+   */
+  export type LoginLogFindUniqueOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginLog
+     */
+    select?: LoginLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginLog
+     */
+    omit?: LoginLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginLogInclude<ExtArgs> | null
+    /**
+     * Filter, which LoginLog to fetch.
+     */
+    where: LoginLogWhereUniqueInput
+  }
+
+  /**
+   * LoginLog findFirst
+   */
+  export type LoginLogFindFirstArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginLog
+     */
+    select?: LoginLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginLog
+     */
+    omit?: LoginLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginLogInclude<ExtArgs> | null
+    /**
+     * Filter, which LoginLog to fetch.
+     */
+    where?: LoginLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LoginLogs to fetch.
+     */
+    orderBy?: LoginLogOrderByWithRelationInput | LoginLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LoginLogs.
+     */
+    cursor?: LoginLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LoginLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LoginLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LoginLogs.
+     */
+    distinct?: LoginLogScalarFieldEnum | LoginLogScalarFieldEnum[]
+  }
+
+  /**
+   * LoginLog findFirstOrThrow
+   */
+  export type LoginLogFindFirstOrThrowArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginLog
+     */
+    select?: LoginLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginLog
+     */
+    omit?: LoginLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginLogInclude<ExtArgs> | null
+    /**
+     * Filter, which LoginLog to fetch.
+     */
+    where?: LoginLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LoginLogs to fetch.
+     */
+    orderBy?: LoginLogOrderByWithRelationInput | LoginLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for LoginLogs.
+     */
+    cursor?: LoginLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LoginLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LoginLogs.
+     */
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of LoginLogs.
+     */
+    distinct?: LoginLogScalarFieldEnum | LoginLogScalarFieldEnum[]
+  }
+
+  /**
+   * LoginLog findMany
+   */
+  export type LoginLogFindManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginLog
+     */
+    select?: LoginLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginLog
+     */
+    omit?: LoginLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginLogInclude<ExtArgs> | null
+    /**
+     * Filter, which LoginLogs to fetch.
+     */
+    where?: LoginLogWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of LoginLogs to fetch.
+     */
+    orderBy?: LoginLogOrderByWithRelationInput | LoginLogOrderByWithRelationInput[]
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing LoginLogs.
+     */
+    cursor?: LoginLogWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` LoginLogs from the position of the cursor.
+     */
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` LoginLogs.
+     */
+    skip?: number
+    distinct?: LoginLogScalarFieldEnum | LoginLogScalarFieldEnum[]
+  }
+
+  /**
+   * LoginLog create
+   */
+  export type LoginLogCreateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginLog
+     */
+    select?: LoginLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginLog
+     */
+    omit?: LoginLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginLogInclude<ExtArgs> | null
+    /**
+     * The data needed to create a LoginLog.
+     */
+    data: XOR<LoginLogCreateInput, LoginLogUncheckedCreateInput>
+  }
+
+  /**
+   * LoginLog createMany
+   */
+  export type LoginLogCreateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to create many LoginLogs.
+     */
+    data: LoginLogCreateManyInput | LoginLogCreateManyInput[]
+    skipDuplicates?: boolean
+  }
+
+  /**
+   * LoginLog createManyAndReturn
+   */
+  export type LoginLogCreateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginLog
+     */
+    select?: LoginLogSelectCreateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginLog
+     */
+    omit?: LoginLogOmit<ExtArgs> | null
+    /**
+     * The data used to create many LoginLogs.
+     */
+    data: LoginLogCreateManyInput | LoginLogCreateManyInput[]
+    skipDuplicates?: boolean
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginLogIncludeCreateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LoginLog update
+   */
+  export type LoginLogUpdateArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginLog
+     */
+    select?: LoginLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginLog
+     */
+    omit?: LoginLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginLogInclude<ExtArgs> | null
+    /**
+     * The data needed to update a LoginLog.
+     */
+    data: XOR<LoginLogUpdateInput, LoginLogUncheckedUpdateInput>
+    /**
+     * Choose, which LoginLog to update.
+     */
+    where: LoginLogWhereUniqueInput
+  }
+
+  /**
+   * LoginLog updateMany
+   */
+  export type LoginLogUpdateManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * The data used to update LoginLogs.
+     */
+    data: XOR<LoginLogUpdateManyMutationInput, LoginLogUncheckedUpdateManyInput>
+    /**
+     * Filter which LoginLogs to update
+     */
+    where?: LoginLogWhereInput
+    /**
+     * Limit how many LoginLogs to update.
+     */
+    limit?: number
+  }
+
+  /**
+   * LoginLog updateManyAndReturn
+   */
+  export type LoginLogUpdateManyAndReturnArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginLog
+     */
+    select?: LoginLogSelectUpdateManyAndReturn<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginLog
+     */
+    omit?: LoginLogOmit<ExtArgs> | null
+    /**
+     * The data used to update LoginLogs.
+     */
+    data: XOR<LoginLogUpdateManyMutationInput, LoginLogUncheckedUpdateManyInput>
+    /**
+     * Filter which LoginLogs to update
+     */
+    where?: LoginLogWhereInput
+    /**
+     * Limit how many LoginLogs to update.
+     */
+    limit?: number
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginLogIncludeUpdateManyAndReturn<ExtArgs> | null
+  }
+
+  /**
+   * LoginLog upsert
+   */
+  export type LoginLogUpsertArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginLog
+     */
+    select?: LoginLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginLog
+     */
+    omit?: LoginLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginLogInclude<ExtArgs> | null
+    /**
+     * The filter to search for the LoginLog to update in case it exists.
+     */
+    where: LoginLogWhereUniqueInput
+    /**
+     * In case the LoginLog found by the `where` argument doesn't exist, create a new LoginLog with this data.
+     */
+    create: XOR<LoginLogCreateInput, LoginLogUncheckedCreateInput>
+    /**
+     * In case the LoginLog was found with the provided `where` argument, update it with this data.
+     */
+    update: XOR<LoginLogUpdateInput, LoginLogUncheckedUpdateInput>
+  }
+
+  /**
+   * LoginLog delete
+   */
+  export type LoginLogDeleteArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginLog
+     */
+    select?: LoginLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginLog
+     */
+    omit?: LoginLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginLogInclude<ExtArgs> | null
+    /**
+     * Filter which LoginLog to delete.
+     */
+    where: LoginLogWhereUniqueInput
+  }
+
+  /**
+   * LoginLog deleteMany
+   */
+  export type LoginLogDeleteManyArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Filter which LoginLogs to delete
+     */
+    where?: LoginLogWhereInput
+    /**
+     * Limit how many LoginLogs to delete.
+     */
+    limit?: number
+  }
+
+  /**
+   * LoginLog.user
+   */
+  export type LoginLog$userArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the User
+     */
+    select?: UserSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the User
+     */
+    omit?: UserOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: UserInclude<ExtArgs> | null
+    where?: UserWhereInput
+  }
+
+  /**
+   * LoginLog without action
+   */
+  export type LoginLogDefaultArgs<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
+    /**
+     * Select specific fields to fetch from the LoginLog
+     */
+    select?: LoginLogSelect<ExtArgs> | null
+    /**
+     * Omit specific fields from the LoginLog
+     */
+    omit?: LoginLogOmit<ExtArgs> | null
+    /**
+     * Choose, which related nodes to fetch as well
+     */
+    include?: LoginLogInclude<ExtArgs> | null
+  }
+
+
+  /**
    * Enums
    */
 
@@ -23923,6 +25200,7 @@ export namespace Prisma {
     preferredLanguage: 'preferredLanguage',
     notificationPrefs: 'notificationPrefs',
     maxChildren: 'maxChildren',
+    gatePin: 'gatePin',
     metadata: 'metadata',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -24146,6 +25424,20 @@ export namespace Prisma {
   export type SystemSettingScalarFieldEnum = (typeof SystemSettingScalarFieldEnum)[keyof typeof SystemSettingScalarFieldEnum]
 
 
+  export const LoginLogScalarFieldEnum: {
+    id: 'id',
+    userId: 'userId',
+    email: 'email',
+    outcome: 'outcome',
+    ipAddress: 'ipAddress',
+    userAgent: 'userAgent',
+    reason: 'reason',
+    createdAt: 'createdAt'
+  };
+
+  export type LoginLogScalarFieldEnum = (typeof LoginLogScalarFieldEnum)[keyof typeof LoginLogScalarFieldEnum]
+
+
   export const SortOrder: {
     asc: 'asc',
     desc: 'desc'
@@ -24310,6 +25602,7 @@ export namespace Prisma {
     parentProfile?: XOR<ParentProfileNullableScalarRelationFilter, ParentProfileWhereInput> | null
     teacherProfile?: XOR<TeacherProfileNullableScalarRelationFilter, TeacherProfileWhereInput> | null
     subscriptions?: SubscriptionListRelationFilter
+    loginLogs?: LoginLogListRelationFilter
   }
 
   export type UserOrderByWithRelationInput = {
@@ -24348,6 +25641,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileOrderByWithRelationInput
     teacherProfile?: TeacherProfileOrderByWithRelationInput
     subscriptions?: SubscriptionOrderByRelationAggregateInput
+    loginLogs?: LoginLogOrderByRelationAggregateInput
   }
 
   export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -24389,6 +25683,7 @@ export namespace Prisma {
     parentProfile?: XOR<ParentProfileNullableScalarRelationFilter, ParentProfileWhereInput> | null
     teacherProfile?: XOR<TeacherProfileNullableScalarRelationFilter, TeacherProfileWhereInput> | null
     subscriptions?: SubscriptionListRelationFilter
+    loginLogs?: LoginLogListRelationFilter
   }, "id" | "email" | "googleSub">
 
   export type UserOrderByWithAggregationInput = {
@@ -24643,6 +25938,7 @@ export namespace Prisma {
     preferredLanguage?: StringFilter<"ParentProfile"> | string
     notificationPrefs?: JsonFilter<"ParentProfile">
     maxChildren?: IntFilter<"ParentProfile"> | number
+    gatePin?: StringNullableFilter<"ParentProfile"> | string | null
     metadata?: JsonFilter<"ParentProfile">
     createdAt?: DateTimeFilter<"ParentProfile"> | Date | string
     updatedAt?: DateTimeFilter<"ParentProfile"> | Date | string
@@ -24656,6 +25952,7 @@ export namespace Prisma {
     preferredLanguage?: SortOrder
     notificationPrefs?: SortOrder
     maxChildren?: SortOrder
+    gatePin?: SortOrderInput | SortOrder
     metadata?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -24672,6 +25969,7 @@ export namespace Prisma {
     preferredLanguage?: StringFilter<"ParentProfile"> | string
     notificationPrefs?: JsonFilter<"ParentProfile">
     maxChildren?: IntFilter<"ParentProfile"> | number
+    gatePin?: StringNullableFilter<"ParentProfile"> | string | null
     metadata?: JsonFilter<"ParentProfile">
     createdAt?: DateTimeFilter<"ParentProfile"> | Date | string
     updatedAt?: DateTimeFilter<"ParentProfile"> | Date | string
@@ -24685,6 +25983,7 @@ export namespace Prisma {
     preferredLanguage?: SortOrder
     notificationPrefs?: SortOrder
     maxChildren?: SortOrder
+    gatePin?: SortOrderInput | SortOrder
     metadata?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -24705,6 +26004,7 @@ export namespace Prisma {
     preferredLanguage?: StringWithAggregatesFilter<"ParentProfile"> | string
     notificationPrefs?: JsonWithAggregatesFilter<"ParentProfile">
     maxChildren?: IntWithAggregatesFilter<"ParentProfile"> | number
+    gatePin?: StringNullableWithAggregatesFilter<"ParentProfile"> | string | null
     metadata?: JsonWithAggregatesFilter<"ParentProfile">
     createdAt?: DateTimeWithAggregatesFilter<"ParentProfile"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"ParentProfile"> | Date | string
@@ -25818,6 +27118,76 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"SystemSetting"> | Date | string
   }
 
+  export type LoginLogWhereInput = {
+    AND?: LoginLogWhereInput | LoginLogWhereInput[]
+    OR?: LoginLogWhereInput[]
+    NOT?: LoginLogWhereInput | LoginLogWhereInput[]
+    id?: UuidFilter<"LoginLog"> | string
+    userId?: UuidNullableFilter<"LoginLog"> | string | null
+    email?: StringNullableFilter<"LoginLog"> | string | null
+    outcome?: StringFilter<"LoginLog"> | string
+    ipAddress?: StringNullableFilter<"LoginLog"> | string | null
+    userAgent?: StringNullableFilter<"LoginLog"> | string | null
+    reason?: StringNullableFilter<"LoginLog"> | string | null
+    createdAt?: DateTimeFilter<"LoginLog"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }
+
+  export type LoginLogOrderByWithRelationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    outcome?: SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    reason?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    user?: UserOrderByWithRelationInput
+  }
+
+  export type LoginLogWhereUniqueInput = Prisma.AtLeast<{
+    id?: string
+    AND?: LoginLogWhereInput | LoginLogWhereInput[]
+    OR?: LoginLogWhereInput[]
+    NOT?: LoginLogWhereInput | LoginLogWhereInput[]
+    userId?: UuidNullableFilter<"LoginLog"> | string | null
+    email?: StringNullableFilter<"LoginLog"> | string | null
+    outcome?: StringFilter<"LoginLog"> | string
+    ipAddress?: StringNullableFilter<"LoginLog"> | string | null
+    userAgent?: StringNullableFilter<"LoginLog"> | string | null
+    reason?: StringNullableFilter<"LoginLog"> | string | null
+    createdAt?: DateTimeFilter<"LoginLog"> | Date | string
+    user?: XOR<UserNullableScalarRelationFilter, UserWhereInput> | null
+  }, "id">
+
+  export type LoginLogOrderByWithAggregationInput = {
+    id?: SortOrder
+    userId?: SortOrderInput | SortOrder
+    email?: SortOrderInput | SortOrder
+    outcome?: SortOrder
+    ipAddress?: SortOrderInput | SortOrder
+    userAgent?: SortOrderInput | SortOrder
+    reason?: SortOrderInput | SortOrder
+    createdAt?: SortOrder
+    _count?: LoginLogCountOrderByAggregateInput
+    _max?: LoginLogMaxOrderByAggregateInput
+    _min?: LoginLogMinOrderByAggregateInput
+  }
+
+  export type LoginLogScalarWhereWithAggregatesInput = {
+    AND?: LoginLogScalarWhereWithAggregatesInput | LoginLogScalarWhereWithAggregatesInput[]
+    OR?: LoginLogScalarWhereWithAggregatesInput[]
+    NOT?: LoginLogScalarWhereWithAggregatesInput | LoginLogScalarWhereWithAggregatesInput[]
+    id?: UuidWithAggregatesFilter<"LoginLog"> | string
+    userId?: UuidNullableWithAggregatesFilter<"LoginLog"> | string | null
+    email?: StringNullableWithAggregatesFilter<"LoginLog"> | string | null
+    outcome?: StringWithAggregatesFilter<"LoginLog"> | string
+    ipAddress?: StringNullableWithAggregatesFilter<"LoginLog"> | string | null
+    userAgent?: StringNullableWithAggregatesFilter<"LoginLog"> | string | null
+    reason?: StringNullableWithAggregatesFilter<"LoginLog"> | string | null
+    createdAt?: DateTimeWithAggregatesFilter<"LoginLog"> | Date | string
+  }
+
   export type UserCreateInput = {
     id?: string
     role: string
@@ -25852,6 +27222,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateInput = {
@@ -25888,6 +27259,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserUpdateInput = {
@@ -25924,6 +27296,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateInput = {
@@ -25960,6 +27333,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateManyInput = {
@@ -26248,6 +27622,7 @@ export namespace Prisma {
     preferredLanguage?: string
     notificationPrefs?: JsonNullValueInput | InputJsonValue
     maxChildren?: number
+    gatePin?: string | null
     metadata?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26261,6 +27636,7 @@ export namespace Prisma {
     preferredLanguage?: string
     notificationPrefs?: JsonNullValueInput | InputJsonValue
     maxChildren?: number
+    gatePin?: string | null
     metadata?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26272,6 +27648,7 @@ export namespace Prisma {
     preferredLanguage?: StringFieldUpdateOperationsInput | string
     notificationPrefs?: JsonNullValueInput | InputJsonValue
     maxChildren?: IntFieldUpdateOperationsInput | number
+    gatePin?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26285,6 +27662,7 @@ export namespace Prisma {
     preferredLanguage?: StringFieldUpdateOperationsInput | string
     notificationPrefs?: JsonNullValueInput | InputJsonValue
     maxChildren?: IntFieldUpdateOperationsInput | number
+    gatePin?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26297,6 +27675,7 @@ export namespace Prisma {
     preferredLanguage?: string
     notificationPrefs?: JsonNullValueInput | InputJsonValue
     maxChildren?: number
+    gatePin?: string | null
     metadata?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -26308,6 +27687,7 @@ export namespace Prisma {
     preferredLanguage?: StringFieldUpdateOperationsInput | string
     notificationPrefs?: JsonNullValueInput | InputJsonValue
     maxChildren?: IntFieldUpdateOperationsInput | number
+    gatePin?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -26320,6 +27700,7 @@ export namespace Prisma {
     preferredLanguage?: StringFieldUpdateOperationsInput | string
     notificationPrefs?: JsonNullValueInput | InputJsonValue
     maxChildren?: IntFieldUpdateOperationsInput | number
+    gatePin?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -27540,6 +28921,82 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type LoginLogCreateInput = {
+    id?: string
+    email?: string | null
+    outcome: string
+    ipAddress?: string | null
+    userAgent?: string | null
+    reason?: string | null
+    createdAt?: Date | string
+    user?: UserCreateNestedOneWithoutLoginLogsInput
+  }
+
+  export type LoginLogUncheckedCreateInput = {
+    id?: string
+    userId?: string | null
+    email?: string | null
+    outcome: string
+    ipAddress?: string | null
+    userAgent?: string | null
+    reason?: string | null
+    createdAt?: Date | string
+  }
+
+  export type LoginLogUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    outcome?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    user?: UserUpdateOneWithoutLoginLogsNestedInput
+  }
+
+  export type LoginLogUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    outcome?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoginLogCreateManyInput = {
+    id?: string
+    userId?: string | null
+    email?: string | null
+    outcome: string
+    ipAddress?: string | null
+    userAgent?: string | null
+    reason?: string | null
+    createdAt?: Date | string
+  }
+
+  export type LoginLogUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    outcome?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoginLogUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    userId?: NullableStringFieldUpdateOperationsInput | string | null
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    outcome?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type UuidFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -27735,6 +29192,12 @@ export namespace Prisma {
     none?: SubscriptionWhereInput
   }
 
+  export type LoginLogListRelationFilter = {
+    every?: LoginLogWhereInput
+    some?: LoginLogWhereInput
+    none?: LoginLogWhereInput
+  }
+
   export type SortOrderInput = {
     sort: SortOrder
     nulls?: NullsOrder
@@ -27781,6 +29244,10 @@ export namespace Prisma {
   }
 
   export type SubscriptionOrderByRelationAggregateInput = {
+    _count?: SortOrder
+  }
+
+  export type LoginLogOrderByRelationAggregateInput = {
     _count?: SortOrder
   }
 
@@ -28140,6 +29607,7 @@ export namespace Prisma {
     preferredLanguage?: SortOrder
     notificationPrefs?: SortOrder
     maxChildren?: SortOrder
+    gatePin?: SortOrder
     metadata?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -28155,6 +29623,7 @@ export namespace Prisma {
     phone?: SortOrder
     preferredLanguage?: SortOrder
     maxChildren?: SortOrder
+    gatePin?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -28165,6 +29634,7 @@ export namespace Prisma {
     phone?: SortOrder
     preferredLanguage?: SortOrder
     maxChildren?: SortOrder
+    gatePin?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -28773,6 +30243,39 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
+  export type LoginLogCountOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    email?: SortOrder
+    outcome?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type LoginLogMaxOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    email?: SortOrder
+    outcome?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+  }
+
+  export type LoginLogMinOrderByAggregateInput = {
+    id?: SortOrder
+    userId?: SortOrder
+    email?: SortOrder
+    outcome?: SortOrder
+    ipAddress?: SortOrder
+    userAgent?: SortOrder
+    reason?: SortOrder
+    createdAt?: SortOrder
+  }
+
   export type UserCreateNestedOneWithoutChildrenInput = {
     create?: XOR<UserCreateWithoutChildrenInput, UserUncheckedCreateWithoutChildrenInput>
     connectOrCreate?: UserCreateOrConnectWithoutChildrenInput
@@ -28887,6 +30390,13 @@ export namespace Prisma {
     connect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
   }
 
+  export type LoginLogCreateNestedManyWithoutUserInput = {
+    create?: XOR<LoginLogCreateWithoutUserInput, LoginLogUncheckedCreateWithoutUserInput> | LoginLogCreateWithoutUserInput[] | LoginLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LoginLogCreateOrConnectWithoutUserInput | LoginLogCreateOrConnectWithoutUserInput[]
+    createMany?: LoginLogCreateManyUserInputEnvelope
+    connect?: LoginLogWhereUniqueInput | LoginLogWhereUniqueInput[]
+  }
+
   export type UserUncheckedCreateNestedManyWithoutParentInput = {
     create?: XOR<UserCreateWithoutParentInput, UserUncheckedCreateWithoutParentInput> | UserCreateWithoutParentInput[] | UserUncheckedCreateWithoutParentInput[]
     connectOrCreate?: UserCreateOrConnectWithoutParentInput | UserCreateOrConnectWithoutParentInput[]
@@ -28987,6 +30497,13 @@ export namespace Prisma {
     connectOrCreate?: SubscriptionCreateOrConnectWithoutParentInput | SubscriptionCreateOrConnectWithoutParentInput[]
     createMany?: SubscriptionCreateManyParentInputEnvelope
     connect?: SubscriptionWhereUniqueInput | SubscriptionWhereUniqueInput[]
+  }
+
+  export type LoginLogUncheckedCreateNestedManyWithoutUserInput = {
+    create?: XOR<LoginLogCreateWithoutUserInput, LoginLogUncheckedCreateWithoutUserInput> | LoginLogCreateWithoutUserInput[] | LoginLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LoginLogCreateOrConnectWithoutUserInput | LoginLogCreateOrConnectWithoutUserInput[]
+    createMany?: LoginLogCreateManyUserInputEnvelope
+    connect?: LoginLogWhereUniqueInput | LoginLogWhereUniqueInput[]
   }
 
   export type StringFieldUpdateOperationsInput = {
@@ -29231,6 +30748,20 @@ export namespace Prisma {
     deleteMany?: SubscriptionScalarWhereInput | SubscriptionScalarWhereInput[]
   }
 
+  export type LoginLogUpdateManyWithoutUserNestedInput = {
+    create?: XOR<LoginLogCreateWithoutUserInput, LoginLogUncheckedCreateWithoutUserInput> | LoginLogCreateWithoutUserInput[] | LoginLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LoginLogCreateOrConnectWithoutUserInput | LoginLogCreateOrConnectWithoutUserInput[]
+    upsert?: LoginLogUpsertWithWhereUniqueWithoutUserInput | LoginLogUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: LoginLogCreateManyUserInputEnvelope
+    set?: LoginLogWhereUniqueInput | LoginLogWhereUniqueInput[]
+    disconnect?: LoginLogWhereUniqueInput | LoginLogWhereUniqueInput[]
+    delete?: LoginLogWhereUniqueInput | LoginLogWhereUniqueInput[]
+    connect?: LoginLogWhereUniqueInput | LoginLogWhereUniqueInput[]
+    update?: LoginLogUpdateWithWhereUniqueWithoutUserInput | LoginLogUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: LoginLogUpdateManyWithWhereWithoutUserInput | LoginLogUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: LoginLogScalarWhereInput | LoginLogScalarWhereInput[]
+  }
+
   export type UserUncheckedUpdateManyWithoutParentNestedInput = {
     create?: XOR<UserCreateWithoutParentInput, UserUncheckedCreateWithoutParentInput> | UserCreateWithoutParentInput[] | UserUncheckedCreateWithoutParentInput[]
     connectOrCreate?: UserCreateOrConnectWithoutParentInput | UserCreateOrConnectWithoutParentInput[]
@@ -29427,6 +30958,20 @@ export namespace Prisma {
     update?: SubscriptionUpdateWithWhereUniqueWithoutParentInput | SubscriptionUpdateWithWhereUniqueWithoutParentInput[]
     updateMany?: SubscriptionUpdateManyWithWhereWithoutParentInput | SubscriptionUpdateManyWithWhereWithoutParentInput[]
     deleteMany?: SubscriptionScalarWhereInput | SubscriptionScalarWhereInput[]
+  }
+
+  export type LoginLogUncheckedUpdateManyWithoutUserNestedInput = {
+    create?: XOR<LoginLogCreateWithoutUserInput, LoginLogUncheckedCreateWithoutUserInput> | LoginLogCreateWithoutUserInput[] | LoginLogUncheckedCreateWithoutUserInput[]
+    connectOrCreate?: LoginLogCreateOrConnectWithoutUserInput | LoginLogCreateOrConnectWithoutUserInput[]
+    upsert?: LoginLogUpsertWithWhereUniqueWithoutUserInput | LoginLogUpsertWithWhereUniqueWithoutUserInput[]
+    createMany?: LoginLogCreateManyUserInputEnvelope
+    set?: LoginLogWhereUniqueInput | LoginLogWhereUniqueInput[]
+    disconnect?: LoginLogWhereUniqueInput | LoginLogWhereUniqueInput[]
+    delete?: LoginLogWhereUniqueInput | LoginLogWhereUniqueInput[]
+    connect?: LoginLogWhereUniqueInput | LoginLogWhereUniqueInput[]
+    update?: LoginLogUpdateWithWhereUniqueWithoutUserInput | LoginLogUpdateWithWhereUniqueWithoutUserInput[]
+    updateMany?: LoginLogUpdateManyWithWhereWithoutUserInput | LoginLogUpdateManyWithWhereWithoutUserInput[]
+    deleteMany?: LoginLogScalarWhereInput | LoginLogScalarWhereInput[]
   }
 
   export type SubscriptionCreateNestedManyWithoutPlanInput = {
@@ -29971,6 +31516,22 @@ export namespace Prisma {
     update?: XOR<XOR<UserUpdateToOneWithWhereWithoutNotificationsInput, UserUpdateWithoutNotificationsInput>, UserUncheckedUpdateWithoutNotificationsInput>
   }
 
+  export type UserCreateNestedOneWithoutLoginLogsInput = {
+    create?: XOR<UserCreateWithoutLoginLogsInput, UserUncheckedCreateWithoutLoginLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLoginLogsInput
+    connect?: UserWhereUniqueInput
+  }
+
+  export type UserUpdateOneWithoutLoginLogsNestedInput = {
+    create?: XOR<UserCreateWithoutLoginLogsInput, UserUncheckedCreateWithoutLoginLogsInput>
+    connectOrCreate?: UserCreateOrConnectWithoutLoginLogsInput
+    upsert?: UserUpsertWithoutLoginLogsInput
+    disconnect?: UserWhereInput | boolean
+    delete?: UserWhereInput | boolean
+    connect?: UserWhereUniqueInput
+    update?: XOR<XOR<UserUpdateToOneWithWhereWithoutLoginLogsInput, UserUpdateWithoutLoginLogsInput>, UserUncheckedUpdateWithoutLoginLogsInput>
+  }
+
   export type NestedUuidFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -30251,6 +31812,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutChildrenInput = {
@@ -30286,6 +31848,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutChildrenInput = {
@@ -30326,6 +31889,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutParentInput = {
@@ -30361,6 +31925,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutParentInput = {
@@ -30727,6 +32292,7 @@ export namespace Prisma {
     preferredLanguage?: string
     notificationPrefs?: JsonNullValueInput | InputJsonValue
     maxChildren?: number
+    gatePin?: string | null
     metadata?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -30738,6 +32304,7 @@ export namespace Prisma {
     preferredLanguage?: string
     notificationPrefs?: JsonNullValueInput | InputJsonValue
     maxChildren?: number
+    gatePin?: string | null
     metadata?: JsonNullValueInput | InputJsonValue
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -30815,6 +32382,36 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type LoginLogCreateWithoutUserInput = {
+    id?: string
+    email?: string | null
+    outcome: string
+    ipAddress?: string | null
+    userAgent?: string | null
+    reason?: string | null
+    createdAt?: Date | string
+  }
+
+  export type LoginLogUncheckedCreateWithoutUserInput = {
+    id?: string
+    email?: string | null
+    outcome: string
+    ipAddress?: string | null
+    userAgent?: string | null
+    reason?: string | null
+    createdAt?: Date | string
+  }
+
+  export type LoginLogCreateOrConnectWithoutUserInput = {
+    where: LoginLogWhereUniqueInput
+    create: XOR<LoginLogCreateWithoutUserInput, LoginLogUncheckedCreateWithoutUserInput>
+  }
+
+  export type LoginLogCreateManyUserInputEnvelope = {
+    data: LoginLogCreateManyUserInput | LoginLogCreateManyUserInput[]
+    skipDuplicates?: boolean
+  }
+
   export type UserUpsertWithoutChildrenInput = {
     update: XOR<UserUpdateWithoutChildrenInput, UserUncheckedUpdateWithoutChildrenInput>
     create: XOR<UserCreateWithoutChildrenInput, UserUncheckedCreateWithoutChildrenInput>
@@ -30859,6 +32456,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutChildrenInput = {
@@ -30894,6 +32492,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithWhereUniqueWithoutParentInput = {
@@ -31296,6 +32895,7 @@ export namespace Prisma {
     preferredLanguage?: StringFieldUpdateOperationsInput | string
     notificationPrefs?: JsonNullValueInput | InputJsonValue
     maxChildren?: IntFieldUpdateOperationsInput | number
+    gatePin?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31307,6 +32907,7 @@ export namespace Prisma {
     preferredLanguage?: StringFieldUpdateOperationsInput | string
     notificationPrefs?: JsonNullValueInput | InputJsonValue
     maxChildren?: IntFieldUpdateOperationsInput | number
+    gatePin?: NullableStringFieldUpdateOperationsInput | string | null
     metadata?: JsonNullValueInput | InputJsonValue
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -31379,6 +32980,36 @@ export namespace Prisma {
     metadata?: JsonFilter<"Subscription">
     createdAt?: DateTimeFilter<"Subscription"> | Date | string
     updatedAt?: DateTimeFilter<"Subscription"> | Date | string
+  }
+
+  export type LoginLogUpsertWithWhereUniqueWithoutUserInput = {
+    where: LoginLogWhereUniqueInput
+    update: XOR<LoginLogUpdateWithoutUserInput, LoginLogUncheckedUpdateWithoutUserInput>
+    create: XOR<LoginLogCreateWithoutUserInput, LoginLogUncheckedCreateWithoutUserInput>
+  }
+
+  export type LoginLogUpdateWithWhereUniqueWithoutUserInput = {
+    where: LoginLogWhereUniqueInput
+    data: XOR<LoginLogUpdateWithoutUserInput, LoginLogUncheckedUpdateWithoutUserInput>
+  }
+
+  export type LoginLogUpdateManyWithWhereWithoutUserInput = {
+    where: LoginLogScalarWhereInput
+    data: XOR<LoginLogUpdateManyMutationInput, LoginLogUncheckedUpdateManyWithoutUserInput>
+  }
+
+  export type LoginLogScalarWhereInput = {
+    AND?: LoginLogScalarWhereInput | LoginLogScalarWhereInput[]
+    OR?: LoginLogScalarWhereInput[]
+    NOT?: LoginLogScalarWhereInput | LoginLogScalarWhereInput[]
+    id?: UuidFilter<"LoginLog"> | string
+    userId?: UuidNullableFilter<"LoginLog"> | string | null
+    email?: StringNullableFilter<"LoginLog"> | string | null
+    outcome?: StringFilter<"LoginLog"> | string
+    ipAddress?: StringNullableFilter<"LoginLog"> | string | null
+    userAgent?: StringNullableFilter<"LoginLog"> | string | null
+    reason?: StringNullableFilter<"LoginLog"> | string | null
+    createdAt?: DateTimeFilter<"LoginLog"> | Date | string
   }
 
   export type SubscriptionCreateWithoutPlanInput = {
@@ -31468,6 +33099,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSubscriptionsInput = {
@@ -31503,6 +33135,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSubscriptionsInput = {
@@ -31591,6 +33224,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSubscriptionsInput = {
@@ -31626,6 +33260,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type PlanUpsertWithoutSubscriptionsInput = {
@@ -31704,6 +33339,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutParentProfileInput = {
@@ -31739,6 +33375,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutParentProfileInput = {
@@ -31790,6 +33427,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutParentProfileInput = {
@@ -31825,6 +33463,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutTeacherProfileInput = {
@@ -31860,6 +33499,7 @@ export namespace Prisma {
     notifications?: NotificationCreateNestedManyWithoutUserInput
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTeacherProfileInput = {
@@ -31895,6 +33535,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTeacherProfileInput = {
@@ -31946,6 +33587,7 @@ export namespace Prisma {
     notifications?: NotificationUpdateManyWithoutUserNestedInput
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTeacherProfileInput = {
@@ -31981,6 +33623,7 @@ export namespace Prisma {
     notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutSessionsInput = {
@@ -32016,6 +33659,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutSessionsInput = {
@@ -32051,6 +33695,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutSessionsInput = {
@@ -32102,6 +33747,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -32137,6 +33783,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutTaughtClassesInput = {
@@ -32172,6 +33819,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutTaughtClassesInput = {
@@ -32207,6 +33855,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutTaughtClassesInput = {
@@ -32247,6 +33896,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutClassInput = {
@@ -32282,6 +33932,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutClassInput = {
@@ -32338,6 +33989,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutTaughtClassesInput = {
@@ -32373,6 +34025,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithWhereUniqueWithoutClassInput = {
@@ -32723,6 +34376,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutEnrollmentsInput = {
@@ -32758,6 +34412,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutEnrollmentsInput = {
@@ -32864,6 +34519,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutEnrollmentsInput = {
@@ -32899,6 +34555,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type CourseUpsertWithoutEnrollmentsInput = {
@@ -32995,6 +34652,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutQuestProgressInput = {
@@ -33030,6 +34688,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutQuestProgressInput = {
@@ -33130,6 +34789,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutQuestProgressInput = {
@@ -33165,6 +34825,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type QuestUpsertWithoutProgressInput = {
@@ -33255,6 +34916,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAssetsInput = {
@@ -33290,6 +34952,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAssetsInput = {
@@ -33341,6 +35004,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAssetsInput = {
@@ -33376,6 +35040,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutProjectsInput = {
@@ -33411,6 +35076,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutProjectsInput = {
@@ -33446,6 +35112,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutProjectsInput = {
@@ -33529,6 +35196,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutProjectsInput = {
@@ -33564,6 +35232,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type ApprovalUpsertWithWhereUniqueWithoutProjectInput = {
@@ -33646,6 +35315,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutApprovalsOwnedInput = {
@@ -33681,6 +35351,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutApprovalsOwnedInput = {
@@ -33721,6 +35392,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutApprovalsMadeInput = {
@@ -33756,6 +35428,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutApprovalsMadeInput = {
@@ -33844,6 +35517,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutApprovalsOwnedInput = {
@@ -33879,6 +35553,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUpsertWithoutApprovalsMadeInput = {
@@ -33925,6 +35600,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutApprovalsMadeInput = {
@@ -33960,6 +35636,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutAchievementsInput = {
@@ -33995,6 +35672,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutAchievementsInput = {
@@ -34030,6 +35708,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutAchievementsInput = {
@@ -34081,6 +35760,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutAchievementsInput = {
@@ -34116,6 +35796,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutStreakInput = {
@@ -34151,6 +35832,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutStreakInput = {
@@ -34186,6 +35868,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutStreakInput = {
@@ -34237,6 +35920,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutStreakInput = {
@@ -34272,6 +35956,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserCreateWithoutNotificationsInput = {
@@ -34307,6 +35992,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogCreateNestedManyWithoutUserInput
   }
 
   export type UserUncheckedCreateWithoutNotificationsInput = {
@@ -34342,6 +36028,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
     teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
     subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+    loginLogs?: LoginLogUncheckedCreateNestedManyWithoutUserInput
   }
 
   export type UserCreateOrConnectWithoutNotificationsInput = {
@@ -34393,6 +36080,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutNotificationsInput = {
@@ -34425,6 +36113,167 @@ export namespace Prisma {
     taughtClasses?: ClassRoomUncheckedUpdateManyWithoutTeacherNestedInput
     achievements?: AchievementUncheckedUpdateManyWithoutUserNestedInput
     streak?: DailyStreakUncheckedUpdateOneWithoutUserNestedInput
+    parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
+    teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
+    subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
+  }
+
+  export type UserCreateWithoutLoginLogsInput = {
+    id?: string
+    role: string
+    email?: string | null
+    passwordHash?: string | null
+    pinHash?: string | null
+    googleSub?: string | null
+    nickname?: string | null
+    avatarId?: string | null
+    level?: number
+    xp?: number
+    onboarded?: boolean
+    goal?: string | null
+    active?: boolean
+    metadata?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    parent?: UserCreateNestedOneWithoutChildrenInput
+    children?: UserCreateNestedManyWithoutParentInput
+    class?: ClassRoomCreateNestedOneWithoutStudentsInput
+    sessions?: SessionCreateNestedManyWithoutUserInput
+    enrollments?: EnrollmentCreateNestedManyWithoutUserInput
+    questProgress?: QuestProgressCreateNestedManyWithoutUserInput
+    assets?: AssetCreateNestedManyWithoutUserInput
+    projects?: ProjectCreateNestedManyWithoutUserInput
+    approvalsMade?: ApprovalCreateNestedManyWithoutParentInput
+    approvalsOwned?: ApprovalCreateNestedManyWithoutChildInput
+    taughtClasses?: ClassRoomCreateNestedManyWithoutTeacherInput
+    achievements?: AchievementCreateNestedManyWithoutUserInput
+    streak?: DailyStreakCreateNestedOneWithoutUserInput
+    notifications?: NotificationCreateNestedManyWithoutUserInput
+    parentProfile?: ParentProfileCreateNestedOneWithoutUserInput
+    teacherProfile?: TeacherProfileCreateNestedOneWithoutUserInput
+    subscriptions?: SubscriptionCreateNestedManyWithoutParentInput
+  }
+
+  export type UserUncheckedCreateWithoutLoginLogsInput = {
+    id?: string
+    role: string
+    email?: string | null
+    passwordHash?: string | null
+    pinHash?: string | null
+    googleSub?: string | null
+    nickname?: string | null
+    avatarId?: string | null
+    level?: number
+    xp?: number
+    onboarded?: boolean
+    goal?: string | null
+    active?: boolean
+    parentId?: string | null
+    classId?: string | null
+    metadata?: JsonNullValueInput | InputJsonValue
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    children?: UserUncheckedCreateNestedManyWithoutParentInput
+    sessions?: SessionUncheckedCreateNestedManyWithoutUserInput
+    enrollments?: EnrollmentUncheckedCreateNestedManyWithoutUserInput
+    questProgress?: QuestProgressUncheckedCreateNestedManyWithoutUserInput
+    assets?: AssetUncheckedCreateNestedManyWithoutUserInput
+    projects?: ProjectUncheckedCreateNestedManyWithoutUserInput
+    approvalsMade?: ApprovalUncheckedCreateNestedManyWithoutParentInput
+    approvalsOwned?: ApprovalUncheckedCreateNestedManyWithoutChildInput
+    taughtClasses?: ClassRoomUncheckedCreateNestedManyWithoutTeacherInput
+    achievements?: AchievementUncheckedCreateNestedManyWithoutUserInput
+    streak?: DailyStreakUncheckedCreateNestedOneWithoutUserInput
+    notifications?: NotificationUncheckedCreateNestedManyWithoutUserInput
+    parentProfile?: ParentProfileUncheckedCreateNestedOneWithoutUserInput
+    teacherProfile?: TeacherProfileUncheckedCreateNestedOneWithoutUserInput
+    subscriptions?: SubscriptionUncheckedCreateNestedManyWithoutParentInput
+  }
+
+  export type UserCreateOrConnectWithoutLoginLogsInput = {
+    where: UserWhereUniqueInput
+    create: XOR<UserCreateWithoutLoginLogsInput, UserUncheckedCreateWithoutLoginLogsInput>
+  }
+
+  export type UserUpsertWithoutLoginLogsInput = {
+    update: XOR<UserUpdateWithoutLoginLogsInput, UserUncheckedUpdateWithoutLoginLogsInput>
+    create: XOR<UserCreateWithoutLoginLogsInput, UserUncheckedCreateWithoutLoginLogsInput>
+    where?: UserWhereInput
+  }
+
+  export type UserUpdateToOneWithWhereWithoutLoginLogsInput = {
+    where?: UserWhereInput
+    data: XOR<UserUpdateWithoutLoginLogsInput, UserUncheckedUpdateWithoutLoginLogsInput>
+  }
+
+  export type UserUpdateWithoutLoginLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    pinHash?: NullableStringFieldUpdateOperationsInput | string | null
+    googleSub?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarId?: NullableStringFieldUpdateOperationsInput | string | null
+    level?: IntFieldUpdateOperationsInput | number
+    xp?: IntFieldUpdateOperationsInput | number
+    onboarded?: BoolFieldUpdateOperationsInput | boolean
+    goal?: NullableStringFieldUpdateOperationsInput | string | null
+    active?: BoolFieldUpdateOperationsInput | boolean
+    metadata?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    parent?: UserUpdateOneWithoutChildrenNestedInput
+    children?: UserUpdateManyWithoutParentNestedInput
+    class?: ClassRoomUpdateOneWithoutStudentsNestedInput
+    sessions?: SessionUpdateManyWithoutUserNestedInput
+    enrollments?: EnrollmentUpdateManyWithoutUserNestedInput
+    questProgress?: QuestProgressUpdateManyWithoutUserNestedInput
+    assets?: AssetUpdateManyWithoutUserNestedInput
+    projects?: ProjectUpdateManyWithoutUserNestedInput
+    approvalsMade?: ApprovalUpdateManyWithoutParentNestedInput
+    approvalsOwned?: ApprovalUpdateManyWithoutChildNestedInput
+    taughtClasses?: ClassRoomUpdateManyWithoutTeacherNestedInput
+    achievements?: AchievementUpdateManyWithoutUserNestedInput
+    streak?: DailyStreakUpdateOneWithoutUserNestedInput
+    notifications?: NotificationUpdateManyWithoutUserNestedInput
+    parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
+    teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
+    subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+  }
+
+  export type UserUncheckedUpdateWithoutLoginLogsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    role?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    passwordHash?: NullableStringFieldUpdateOperationsInput | string | null
+    pinHash?: NullableStringFieldUpdateOperationsInput | string | null
+    googleSub?: NullableStringFieldUpdateOperationsInput | string | null
+    nickname?: NullableStringFieldUpdateOperationsInput | string | null
+    avatarId?: NullableStringFieldUpdateOperationsInput | string | null
+    level?: IntFieldUpdateOperationsInput | number
+    xp?: IntFieldUpdateOperationsInput | number
+    onboarded?: BoolFieldUpdateOperationsInput | boolean
+    goal?: NullableStringFieldUpdateOperationsInput | string | null
+    active?: BoolFieldUpdateOperationsInput | boolean
+    parentId?: NullableStringFieldUpdateOperationsInput | string | null
+    classId?: NullableStringFieldUpdateOperationsInput | string | null
+    metadata?: JsonNullValueInput | InputJsonValue
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    children?: UserUncheckedUpdateManyWithoutParentNestedInput
+    sessions?: SessionUncheckedUpdateManyWithoutUserNestedInput
+    enrollments?: EnrollmentUncheckedUpdateManyWithoutUserNestedInput
+    questProgress?: QuestProgressUncheckedUpdateManyWithoutUserNestedInput
+    assets?: AssetUncheckedUpdateManyWithoutUserNestedInput
+    projects?: ProjectUncheckedUpdateManyWithoutUserNestedInput
+    approvalsMade?: ApprovalUncheckedUpdateManyWithoutParentNestedInput
+    approvalsOwned?: ApprovalUncheckedUpdateManyWithoutChildNestedInput
+    taughtClasses?: ClassRoomUncheckedUpdateManyWithoutTeacherNestedInput
+    achievements?: AchievementUncheckedUpdateManyWithoutUserNestedInput
+    streak?: DailyStreakUncheckedUpdateOneWithoutUserNestedInput
+    notifications?: NotificationUncheckedUpdateManyWithoutUserNestedInput
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
@@ -34562,6 +36411,16 @@ export namespace Prisma {
     updatedAt?: Date | string
   }
 
+  export type LoginLogCreateManyUserInput = {
+    id?: string
+    email?: string | null
+    outcome: string
+    ipAddress?: string | null
+    userAgent?: string | null
+    reason?: string | null
+    createdAt?: Date | string
+  }
+
   export type UserUpdateWithoutParentInput = {
     id?: StringFieldUpdateOperationsInput | string
     role?: StringFieldUpdateOperationsInput | string
@@ -34595,6 +36454,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutParentInput = {
@@ -34630,6 +36490,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutParentInput = {
@@ -34992,6 +36853,36 @@ export namespace Prisma {
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
+  export type LoginLogUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    outcome?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoginLogUncheckedUpdateWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    outcome?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
+  export type LoginLogUncheckedUpdateManyWithoutUserInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    email?: NullableStringFieldUpdateOperationsInput | string | null
+    outcome?: StringFieldUpdateOperationsInput | string
+    ipAddress?: NullableStringFieldUpdateOperationsInput | string | null
+    userAgent?: NullableStringFieldUpdateOperationsInput | string | null
+    reason?: NullableStringFieldUpdateOperationsInput | string | null
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+  }
+
   export type SubscriptionCreateManyPlanInput = {
     id?: string
     parentUserId: string
@@ -35101,6 +36992,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateWithoutClassInput = {
@@ -35136,6 +37028,7 @@ export namespace Prisma {
     parentProfile?: ParentProfileUncheckedUpdateOneWithoutUserNestedInput
     teacherProfile?: TeacherProfileUncheckedUpdateOneWithoutUserNestedInput
     subscriptions?: SubscriptionUncheckedUpdateManyWithoutParentNestedInput
+    loginLogs?: LoginLogUncheckedUpdateManyWithoutUserNestedInput
   }
 
   export type UserUncheckedUpdateManyWithoutClassInput = {

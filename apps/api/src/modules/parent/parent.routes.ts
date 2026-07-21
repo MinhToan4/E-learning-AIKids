@@ -1,4 +1,4 @@
-import type { FastifyInstance } from 'fastify'
+﻿import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import {
   can,
@@ -624,6 +624,89 @@ export async function parentRoutes(app: FastifyInstance) {
         notificationPrefs: profile.notificationPrefs,
         maxChildren: profile.maxChildren,
       },
+    }
+  })
+
+  // ── Parent Gate — child-to-parent handoff ─────────────────
+  //
+  // Child taps "Ba/Me oi!" -> enters parent's LOGIN PASSWORD (not a separate PIN).
+  // The parent's existing email+password (or Google) is the gate.
+  //
+  // Only ONE credential to remember: ba/me's login password.
+  // PIN (user.pinHash) is kept exclusively for the child's own login.
+
+  /**
+   * POST /api/parent/gate/verify
+   * Called from child session. Body: { password: string }
+   * Verifies the PARENT's passwordHash (their login password).
+   * On success: ends child session, starts parent session.
+   */
+  app.post('/api/parent/gate/verify', async (request, reply) => {
+    const child = requireRole(request, ['student'])
+    const body = z
+      .object({ password: z.string().min(1) })
+      .parse(request.body)
+
+    // Find child's parent
+    const childUser = await prisma.user.findUnique({
+      where: { id: child.id },
+      select: { parentId: true, nickname: true },
+    })
+    if (!childUser?.parentId) {
+      return reply.code(400).send({ error: 'Tai khoan con chua duoc lien ket voi ba/me.' })
+    }
+
+    // Brute-force guard: 5 wrong attempts -> 5-min lockout
+    const { getCache } = await import('../../infrastructure/cache/cache.js')
+    const cache = getCache()
+    const lockKey = `gate_fail:${child.id}`
+    const fails = Number((await cache.get(lockKey)) ?? 0)
+    if (fails >= 5) {
+      return reply.code(429).send({
+        error: 'Thu sai qua nhieu lan! Cho 5 phut roi thu lai nhe.',
+      })
+    }
+
+    // Fetch parent and verify their login password
+    const parent = await prisma.user.findUnique({
+      where: { id: childUser.parentId },
+      select: { id: true, passwordHash: true, googleSub: true, active: true },
+    })
+
+    if (!parent || !parent.active) {
+      return reply.code(400).send({ error: 'Tai khoan ba/me khong hop le.' })
+    }
+
+    if (!parent.passwordHash) {
+      // Parent uses Google login — cannot verify by password, use Google flow
+      return reply.code(422).send({
+        useGoogle: true,
+        error: 'Ba/me dang nhap bang Google. Nhan nut Google de chuyen sang tai khoan ba/me.',
+      })
+    }
+
+    const ok = await verifyPassword(body.password, parent.passwordHash)
+    if (!ok) {
+      await cache.set(lockKey, String(fails + 1), 5 * 60 * 1000)
+      const remaining = Math.max(0, 4 - fails)
+      request.log.warn({ childId: child.id, fails: fails + 1 }, 'parent.gate_verify wrong_password')
+      return reply.code(401).send({
+        error: remaining > 0
+          ? `Mat khau chua dung. Con ${remaining} lan thu.`
+          : 'Mat khau chua dung. Lan sau bi khoa 5 phut!',
+      })
+    }
+
+    // Success: clear lock, swap sessions
+    await cache.delete(lockKey)
+    await destroySession(request, reply)
+    await createSession(parent.id, reply)
+
+    const parentUser = await prisma.user.findUnique({ where: { id: parent.id } })
+    request.log.info({ childId: child.id, parentId: parent.id }, 'parent.gate_verify ok')
+    return {
+      user: publicUser(parentUser!),
+      message: `Chao ba/me! ${childUser.nickname} dang cho ba/me nhe.`,
     }
   })
 }

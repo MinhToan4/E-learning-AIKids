@@ -180,6 +180,7 @@ exports.Prisma.ParentProfileScalarFieldEnum = {
   preferredLanguage: 'preferredLanguage',
   notificationPrefs: 'notificationPrefs',
   maxChildren: 'maxChildren',
+  gatePin: 'gatePin',
   metadata: 'metadata',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
@@ -358,6 +359,17 @@ exports.Prisma.SystemSettingScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.LoginLogScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  email: 'email',
+  outcome: 'outcome',
+  ipAddress: 'ipAddress',
+  userAgent: 'userAgent',
+  reason: 'reason',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -402,7 +414,8 @@ exports.Prisma.ModelName = {
   Achievement: 'Achievement',
   DailyStreak: 'DailyStreak',
   Notification: 'Notification',
-  SystemSetting: 'SystemSetting'
+  SystemSetting: 'SystemSetting',
+  LoginLog: 'LoginLog'
 };
 
 /**
