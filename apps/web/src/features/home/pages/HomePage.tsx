@@ -18,9 +18,7 @@ export function HomePage() {
   const [track, setTrack] = useState<TrackFilter>('all')
   const [streak, setStreak] = useState({ current: 0, longest: 0 })
   const [badges, setBadges] = useState<AchievementRow[]>([])
-  const [myRank, setMyRank] = useState<{ rank: number; xp: number } | null>(
-    null,
-  )
+
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -28,23 +26,14 @@ export function HomePage() {
     setLoading(true)
     setError(null)
     try {
-      const [c, s, a, lb] = await Promise.all([
+      const [c, s, a] = await Promise.all([
         api<{ courses: CourseSummary[] }>('/api/courses'),
         api<{ current: number; longest: number }>('/api/gamification/streak'),
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
-        api<{
-          leaderboard: Array<{
-            rank: number
-            xp: number
-            isMe: boolean
-          }>
-        }>('/api/gamification/leaderboard').catch(() => ({ leaderboard: [] })),
       ])
       setCourses(c.courses)
       setStreak({ current: s.current, longest: s.longest })
       setBadges(a.achievements.filter((x) => x.unlocked).slice(0, 3))
-      const me = lb.leaderboard.find((r) => r.isMe)
-      setMyRank(me ? { rank: me.rank, xp: me.xp } : null)
       try {
         const check = await api<{
           current: number
@@ -176,23 +165,7 @@ export function HomePage() {
         )}
       </section>
 
-      <Link
-        to="/leaderboard"
-        className="ui-card flex items-center gap-3 p-4 transition hover:-translate-y-0.5 hover:shadow-clay"
-      >
-        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sun-100 text-2xl shadow-soft">
-          🏆
-        </span>
-        <div className="min-w-0 flex-1">
-          <p className="font-display text-xl text-text">Bảng xếp hạng lớp</p>
-          <p className="text-sm text-muted">
-            {myRank
-              ? `Con đang hạng #${myRank.rank} · ${myRank.xp} XP — cùng cổ vũ bạn bè!`
-              : 'Xem bạn bè cùng tiến bộ (chỉ biệt danh · XP)'}
-          </p>
-        </div>
-        <span className="text-sm font-extrabold text-brand-500">Xem →</span>
-      </Link>
+
 
       <section>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">

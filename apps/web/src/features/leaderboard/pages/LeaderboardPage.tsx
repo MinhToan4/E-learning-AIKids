@@ -120,10 +120,7 @@ export function LeaderboardPage() {
             <h1 className="font-display text-3xl leading-tight text-text">
               Bảng xếp hạng lớp
             </h1>
-            <p className="mt-1 max-w-md text-sm text-muted">
-              Chỉ biệt danh và XP — cổ vũ nhau, không so sánh độc hại. Con giỏi
-              nhất là con đang cố gắng!
-            </p>
+
           </div>
           {me && (
             <div className="rounded-2xl bg-sun-100 px-4 py-3 text-center shadow-soft">
