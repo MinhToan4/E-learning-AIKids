@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { cn } from '@/shared/lib/cn'
 
 export type ToastItem = {
@@ -12,20 +13,22 @@ type Props = {
   onDismiss: (id: string) => void
 }
 
-/** Popup toast container — bottom-right, auto-dismiss 4 s */
+/** Popup toast container — top-right, auto-dismiss 4 s */
 export function ToastContainer({ toasts, onDismiss }: Props) {
-  return (
+  const content = (
     <div
       aria-live="polite"
       aria-atomic="false"
-      className="fixed bottom-5 right-5 z-[9999] flex flex-col gap-2"
-      style={{ maxWidth: 'min(360px, calc(100vw - 2.5rem))' }}
+      className="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none"
     >
       {toasts.map((t) => (
         <ToastCard key={t.id} toast={t} onDismiss={onDismiss} />
       ))}
     </div>
   )
+
+  if (typeof document === 'undefined') return null
+  return createPortal(content, document.body)
 }
 
 function ToastCard({
@@ -48,12 +51,13 @@ function ToastCard({
     <div
       role="alert"
       className={cn(
-        'animate-fade-up flex items-start gap-3 rounded-2xl px-4 py-3 shadow-soft',
+        'animate-fade-down flex items-start gap-3 rounded-2xl px-4 py-3 shadow-soft pointer-events-auto',
         'border-2 bg-white text-sm font-bold',
         toast.type === 'success' && 'border-mint-400 text-success',
         toast.type === 'error' && 'border-coral-400 text-danger',
         toast.type === 'info' && 'border-brand-500 text-brand-600',
       )}
+      style={{ maxWidth: 'min(360px, calc(100vw - 2.5rem))' }}
     >
       <span className="mt-0.5 text-base">
         {toast.type === 'success' ? '✅' : toast.type === 'error' ? '❌' : 'ℹ️'}

@@ -7,6 +7,9 @@ import { designerAssets } from '@/shared/config/assets'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
+import { PinPadModal } from '@/shared/components/ui/PinPadModal'
+import { useToast } from '@/shared/hooks/useToast'
+import { ToastContainer } from '@/shared/components/ui/Toast'
 
 type ChildCard = {
   id: string
@@ -36,18 +39,19 @@ export function ChildPickerPage() {
   const [selected, setSelected] = useState<ChildCard | null>(null)
   const [pin, setPin] = useState('')
   const [busy, setBusy] = useState(false)
+  const { toasts, showToast, dismissToast } = useToast()
 
   const load = useCallback(async () => {
     setLoading(true)
-    setError(null)
     try {
       const data = await api<{ children: ChildCard[] }>('/api/parent/children')
       setKids(data.children.filter((c) => c.active !== false))
     } catch (e) {
-      setError(
+      showToast(
         e instanceof Error
           ? e.message
           : 'Chưa tải được danh sách. Ba/mẹ đăng nhập lại giúp nhé.',
+        'error',
       )
     } finally {
       setLoading(false)
@@ -73,7 +77,6 @@ export function ChildPickerPage() {
 
   async function confirmEnter(child: ChildCard, pinValue?: string) {
     setBusy(true)
-    setError(null)
     try {
       const next = await enterAsChild(
         child.id,
@@ -81,8 +84,9 @@ export function ChildPickerPage() {
       )
       navigate(next.onboarded ? '/home' : '/onboarding', { replace: true })
     } catch (e) {
-      setError(
+      showToast(
         e instanceof Error ? e.message : 'Chưa vào được. Kiểm tra mã PIN nhé.',
+        'error',
       )
       setPin('')
     } finally {
@@ -91,7 +95,6 @@ export function ChildPickerPage() {
   }
 
   function onPick(child: ChildCard) {
-    setError(null)
     setPin('')
     if (child.hasPin) {
       setSelected(child)
@@ -109,11 +112,7 @@ export function ChildPickerPage() {
     }
   }
 
-  function onPinBack() {
-    setPin((p) => p.slice(0, -1))
-  }
-
-  if (loadingAuth || (loading && !error && kids.length === 0 && user?.role === 'parent')) {
+  if (loadingAuth || (loading && kids.length === 0 && user?.role === 'parent')) {
     return (
       <div className="flex min-h-dvh flex-col items-center justify-center gap-3 bg-bg px-4">
         <div className="ui-skeleton h-16 w-16 rounded-3xl" />
@@ -146,21 +145,12 @@ export function ChildPickerPage() {
           </div>
           <Link
             to="/parent"
-            className="ui-btn ui-btn-ghost shrink-0 !min-h-11 !px-3 text-sm"
+            className="ui-btn ui-btn-primary shrink-0 !min-h-11 !px-5 text-sm shadow-soft"
             title="Quay lại khu vực ba/mẹ"
           >
-            Ba/mẹ
+            Khu vực Ba/mẹ
           </Link>
         </header>
-
-        {error && (
-          <p
-            className="mb-4 rounded-2xl bg-coral-100 px-4 py-3 text-center text-sm font-bold text-danger"
-            role="alert"
-          >
-            {error}
-          </p>
-        )}
 
         {kids.length === 0 && !loading ? (
           <div className="ui-card mx-auto flex max-w-md flex-col items-center gap-4 p-8 text-center">
@@ -226,7 +216,7 @@ export function ChildPickerPage() {
         <footer className="mt-auto flex flex-wrap items-center justify-center gap-3 pt-8">
           <button
             type="button"
-            className="text-sm font-bold text-muted underline-offset-2 hover:underline"
+            className="ui-btn ui-btn-secondary !min-h-11 !px-5 text-sm shadow-soft"
             onClick={async () => {
               await logout()
               navigate('/login?role=parent')
@@ -238,114 +228,35 @@ export function ChildPickerPage() {
       </div>
 
       {/* PIN sheet */}
-      {selected && (
-        <div
-          className="fixed inset-0 z-50 flex items-end justify-center bg-text/40 p-0 sm:items-center sm:p-4"
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="pin-title"
-        >
-          <div className="ui-card w-full max-w-md rounded-t-3xl p-5 shadow-clay sm:rounded-3xl">
-            <div className="mb-4 flex items-center gap-3">
-              <span className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl bg-brand-50 text-3xl">
-                {avatarImage(selected.avatarId) ? (
-                  <img
-                    src={avatarImage(selected.avatarId)}
-                    alt=""
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  getAvatar(selected.avatarId).emoji
-                )}
-              </span>
-              <div>
-                <p id="pin-title" className="font-display text-2xl">
-                  Xin chào {selected.nickname}!
-                </p>
-                <p className="text-sm text-muted">Nhập mã PIN 6 số ba/mẹ đã đặt</p>
-              </div>
-            </div>
-
-            <div
-              className="mb-4 flex justify-center gap-2"
-              aria-label="Mã PIN đã nhập"
-            >
-              {Array.from({ length: 6 }).map((_, i) => (
-                <span
-                  key={i}
-                  className={cn(
-                    'flex h-11 w-9 items-center justify-center rounded-xl border-2 text-lg font-extrabold',
-                    pin.length > i
-                      ? 'border-brand-500 bg-brand-50 text-brand-600'
-                      : 'border-border bg-white text-muted',
-                  )}
-                >
-                  {pin.length > i ? '•' : ''}
-                </span>
-              ))}
-            </div>
-
-            <div className="grid grid-cols-3 gap-2">
-              {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'del', '0', 'ok'].map(
-                (key) => {
-                  if (key === 'del') {
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        className="ui-btn ui-btn-secondary !min-h-14 text-lg"
-                        onClick={onPinBack}
-                        disabled={busy}
-                      >
-                        Xóa
-                      </button>
-                    )
-                  }
-                  if (key === 'ok') {
-                    return (
-                      <button
-                        key={key}
-                        type="button"
-                        className="ui-btn ui-btn-primary !min-h-14 text-lg"
-                        disabled={busy || pin.length !== 6}
-                        onClick={() =>
-                          selected && void confirmEnter(selected, pin)
-                        }
-                      >
-                        {busy ? '…' : 'Vào'}
-                      </button>
-                    )
-                  }
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      className="ui-btn ui-btn-secondary !min-h-14 font-display text-2xl"
-                      onClick={() => onPinDigit(key)}
-                      disabled={busy}
-                    >
-                      {key}
-                    </button>
-                  )
-                },
-              )}
-            </div>
-
-            <button
-              type="button"
-              className="mt-4 w-full text-center text-sm font-bold text-muted"
-              onClick={() => {
-                setSelected(null)
-                setPin('')
-                setError(null)
-              }}
-              disabled={busy}
-            >
-              Chọn bạn khác
-            </button>
-          </div>
-        </div>
-      )}
+      <PinPadModal
+        isOpen={!!selected}
+        onClose={() => {
+          setSelected(null)
+          setPin('')
+        }}
+        onSubmit={(p) => selected && confirmEnter(selected, p)}
+        title={selected ? `Xin chào ${selected.nickname}!` : ''}
+        subtitle="Nhập mã PIN 6 số ba/mẹ đã đặt"
+        avatarContent={
+          selected ? (
+            avatarImage(selected.avatarId) ? (
+              <img
+                src={avatarImage(selected.avatarId)!}
+                alt=""
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              getAvatar(selected.avatarId).emoji
+            )
+          ) : null
+        }
+        busy={busy}
+        pin={pin}
+        setPin={setPin}
+        closeLabel="Chọn bạn khác"
+      />
+      
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   )
 }
