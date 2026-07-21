@@ -9,7 +9,7 @@ COPY packages/domain/package.json packages/domain/
 RUN npm ci --workspace=@aikids/web --workspace=@aikids/domain --include-workspace-root
 COPY packages/domain packages/domain
 COPY apps/web apps/web
-# Domain is TS source imported by Vite; no separate domain build needed
+RUN npm run build -w @aikids/domain
 RUN npm run build -w @aikids/web
 
 FROM nginx:1.27-alpine
