@@ -8,7 +8,7 @@ type AuthState = {
   bootstrap: () => Promise<void>
   loginStudent: (
     nickname: string,
-    avatarId: string,
+    avatarId?: string,
     opts?: { pin?: string },
   ) => Promise<User>
   /** Parent hands device to child (ends parent session) */

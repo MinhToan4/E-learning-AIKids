@@ -6,7 +6,7 @@ import { designerAssets } from '@/shared/config/assets'
 export function WelcomePage() {
   return (
     <div
-      className="relative mx-auto flex min-h-dvh max-w-6xl flex-col items-center justify-center gap-8 px-4 py-10"
+      className="relative flex min-h-dvh w-full flex-col items-center justify-center gap-8 px-4 py-10"
       style={{
         backgroundImage: `url(${designerAssets.lobby.bgHome})`,
         backgroundSize: 'cover',

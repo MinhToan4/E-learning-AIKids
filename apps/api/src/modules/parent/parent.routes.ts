@@ -1,4 +1,4 @@
-﻿import type { FastifyInstance } from 'fastify'
+import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import {
   can,
@@ -653,7 +653,7 @@ export async function parentRoutes(app: FastifyInstance) {
       select: { parentId: true, nickname: true },
     })
     if (!childUser?.parentId) {
-      return reply.code(400).send({ error: 'Tai khoan con chua duoc lien ket voi ba/me.' })
+      return reply.code(400).send({ error: 'Tài khoản con chưa được liên kết với ba/mẹ.' })
     }
 
     // Brute-force guard: 5 wrong attempts -> 5-min lockout
@@ -663,7 +663,7 @@ export async function parentRoutes(app: FastifyInstance) {
     const fails = Number((await cache.get(lockKey)) ?? 0)
     if (fails >= 5) {
       return reply.code(429).send({
-        error: 'Thu sai qua nhieu lan! Cho 5 phut roi thu lai nhe.',
+        error: 'Thử sai quá nhiều lần! Chờ 5 phút rồi thử lại nhé.',
       })
     }
 
@@ -674,14 +674,14 @@ export async function parentRoutes(app: FastifyInstance) {
     })
 
     if (!parent || !parent.active) {
-      return reply.code(400).send({ error: 'Tai khoan ba/me khong hop le.' })
+      return reply.code(400).send({ error: 'Tài khoản ba/mẹ không hợp lệ.' })
     }
 
     if (!parent.passwordHash) {
       // Parent uses Google login — cannot verify by password, use Google flow
       return reply.code(422).send({
         useGoogle: true,
-        error: 'Ba/me dang nhap bang Google. Nhan nut Google de chuyen sang tai khoan ba/me.',
+        error: 'Ba/mẹ đăng nhập bằng Google. Nhấn nút Google để chuyển sang tài khoản ba/mẹ.',
       })
     }
 
@@ -692,8 +692,8 @@ export async function parentRoutes(app: FastifyInstance) {
       request.log.warn({ childId: child.id, fails: fails + 1 }, 'parent.gate_verify wrong_password')
       return reply.code(401).send({
         error: remaining > 0
-          ? `Mat khau chua dung. Con ${remaining} lan thu.`
-          : 'Mat khau chua dung. Lan sau bi khoa 5 phut!',
+          ? `Mật khẩu chưa đúng. Còn ${remaining} lần thử.`
+          : 'Mật khẩu chưa đúng. Lần sau bị khóa 5 phút!',
       })
     }
 
@@ -706,7 +706,7 @@ export async function parentRoutes(app: FastifyInstance) {
     request.log.info({ childId: child.id, parentId: parent.id }, 'parent.gate_verify ok')
     return {
       user: publicUser(parentUser!),
-      message: `Chao ba/me! ${childUser.nickname} dang cho ba/me nhe.`,
+      message: `Chào ba/mẹ! ${childUser.nickname} đang chờ ba/mẹ nhé.`,
     }
   })
 }

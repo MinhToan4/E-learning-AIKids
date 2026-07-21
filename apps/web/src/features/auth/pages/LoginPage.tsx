@@ -6,7 +6,9 @@ import { ApiError } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
-import { STUDENT_AVATARS } from '@/shared/config/avatars'
+import { PinPadModal } from '@/shared/components/ui/PinPadModal'
+import { useToast } from '@/shared/hooks/useToast'
+import { ToastContainer } from '@/shared/components/ui/Toast'
 import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
 import type { User } from '@/shared/lib/api'
 
@@ -18,12 +20,12 @@ export function LoginPage() {
       : 'student'
   const [mode, setMode] = useState<'student' | 'adult'>(initial as 'student' | 'adult')
   const [nickname, setNickname] = useState('')
-  const [avatarId, setAvatarId] = useState('avatar-robot')
-  const [pin, setPin] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [showPinModal, setShowPinModal] = useState(false)
+  const [pin, setPin] = useState('')
+  const { toasts, showToast, dismissToast } = useToast()
   const loginStudent = useAuth((s) => s.loginStudent)
   const loginAdult = useAuth((s) => s.loginAdult)
   const setSessionUser = useAuth((s) => s.setSessionUser)
@@ -43,24 +45,40 @@ export function LoginPage() {
     [mode],
   )
 
-  async function onSubmit(e: React.FormEvent) {
-    e.preventDefault()
+  async function onSubmit(e?: React.FormEvent) {
+    if (e) e.preventDefault()
     setBusy(true)
-    setError(null)
     try {
       if (mode === 'student') {
-        const user = await loginStudent(nickname.trim(), avatarId, {
-          pin: pin.trim() || undefined,
-        })
+        const user = await loginStudent(nickname.trim(), undefined)
         navigate(user.onboarded ? '/home' : '/onboarding')
       } else {
         const user = await loginAdult(email.trim(), password)
         goAfterAdult(user)
       }
     } catch (err) {
-      setError(
-        err instanceof ApiError ? err.message : 'Không vào được. Thử lại nhé!',
-      )
+      const msg = err instanceof ApiError ? err.message : 'Không vào được. Thử lại nhé!'
+      if (mode === 'student' && msg.includes('PIN')) {
+        setShowPinModal(true)
+      } else {
+        showToast(msg, 'error')
+      }
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function onSubmitPin(enteredPin: string) {
+    setBusy(true)
+    try {
+      const user = await loginStudent(nickname.trim(), undefined, {
+        pin: enteredPin.trim(),
+      })
+      navigate(user.onboarded ? '/home' : '/onboarding')
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : 'Không vào được. Thử lại nhé!'
+      showToast(msg, 'error')
+      setPin('')
     } finally {
       setBusy(false)
     }
@@ -68,7 +86,7 @@ export function LoginPage() {
 
   return (
     <div
-      className="relative mx-auto flex min-h-dvh max-w-lg flex-col justify-center gap-4 px-4 py-8"
+      className="relative flex min-h-dvh w-full flex-col justify-center px-4 py-8"
       style={{
         backgroundImage: `url(${designerAssets.lobby.bgLogin})`,
         backgroundSize: 'cover',
@@ -76,7 +94,7 @@ export function LoginPage() {
       }}
     >
       <div className="absolute inset-0 bg-[#f7f5ff]/75" />
-      <div className="relative z-10 flex flex-col gap-4">
+      <div className="relative z-10 mx-auto flex w-full max-w-lg flex-col gap-4">
         <Link to="/" className="text-sm font-bold text-brand-500">
           ← Về trang chào
         </Link>
@@ -132,53 +150,6 @@ export function LoginPage() {
                     required
                   />
                 </label>
-                <div>
-                  <p className="mb-2 text-sm font-bold">Avatar (giống lúc ba/mẹ tạo)</p>
-                  <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-6">
-                    {STUDENT_AVATARS.map((a) => (
-                      <button
-                        key={a.id}
-                        type="button"
-                        onClick={() => setAvatarId(a.id)}
-                        className={cn(
-                          'flex min-h-16 flex-col items-center justify-center gap-0.5 overflow-hidden rounded-2xl border-2 bg-white',
-                          avatarId === a.id
-                            ? 'border-brand-500 bg-brand-50 shadow-soft'
-                            : 'border-border',
-                        )}
-                        aria-label={a.label}
-                      >
-                        {a.image ? (
-                          <img
-                            src={a.image}
-                            alt=""
-                            className="h-10 w-10 rounded-xl object-cover"
-                          />
-                        ) : (
-                          <span className="text-2xl">{a.emoji}</span>
-                        )}
-                        <span className="text-[10px] font-bold text-muted">
-                          {a.label}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-                <label className="flex flex-col gap-1 text-sm font-bold">
-                  Mã PIN 6 số
-                  <input
-                    inputMode="numeric"
-                    pattern="\d{6}"
-                    maxLength={6}
-                    autoComplete="one-time-code"
-                    className="min-h-12 rounded-2xl border-2 border-border px-4 font-mono text-base tracking-widest"
-                    placeholder="······"
-                    value={pin}
-                    onChange={(e) =>
-                      setPin(e.target.value.replace(/\D/g, '').slice(0, 6))
-                    }
-                  />
-                </label>
                 <p className="text-xs text-muted">
                   Chưa có hồ sơ? Nhờ ba/mẹ đăng nhập, vào mục Con và thêm con nhé.
                 </p>
@@ -213,15 +184,6 @@ export function LoginPage() {
               </>
             )}
 
-            {error && (
-              <p
-                className="rounded-xl bg-coral-100 px-3 py-2 text-sm text-danger"
-                role="alert"
-              >
-                {error}
-              </p>
-            )}
-
             <Button type="submit" disabled={busy}>
               {busy ? 'Đang vào…' : mode === 'adult' ? 'Đăng nhập' : 'Vào học!'}
             </Button>
@@ -241,7 +203,7 @@ export function LoginPage() {
                     setSessionUser(user)
                     goAfterAdult(user)
                   }}
-                  onError={(msg) => setError(msg)}
+                  onError={(msg) => showToast(msg, 'error')}
                 />
               </div>
             )}
@@ -255,6 +217,20 @@ export function LoginPage() {
           </form>
         </div>
       </div>
+      <PinPadModal
+        isOpen={showPinModal}
+        onClose={() => {
+          setShowPinModal(false)
+          setPin('')
+        }}
+        onSubmit={onSubmitPin}
+        title={`Xin chào ${nickname}!`}
+        subtitle="Nhập mã PIN 6 số ba/mẹ đã đặt"
+        busy={busy}
+        pin={pin}
+        setPin={setPin}
+      />
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   )
 }

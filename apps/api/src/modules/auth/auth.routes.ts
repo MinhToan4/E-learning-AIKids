@@ -21,7 +21,7 @@ const adultLoginSchema = z.object({
 
 const studentLoginSchema = z.object({
   nickname: z.string().min(1).max(16),
-  avatarId: z.string().min(1).max(40),
+  avatarId: z.string().min(1).max(40).optional(),
   /**
    * Dev/demo only when STUDENT_AUTO_CREATE=true.
    * Production: parent creates child — no public auto-create.
@@ -280,7 +280,7 @@ export async function authRoutes(app: FastifyInstance) {
         data: {
           role: 'student',
           nickname: body.nickname.trim(),
-          avatarId: body.avatarId,
+          avatarId: body.avatarId ?? 'avatar-robot',
           parentId: defaults.parentId,
           classId: defaults.classId,
           level: 1,
@@ -339,7 +339,7 @@ export async function authRoutes(app: FastifyInstance) {
       }
     }
 
-    if (!user.pinHash && user.avatarId !== body.avatarId) {
+    if (!user.pinHash && body.avatarId && user.avatarId !== body.avatarId) {
       user = await prisma.user.update({
         where: { id: user.id },
         data: { avatarId: body.avatarId },
