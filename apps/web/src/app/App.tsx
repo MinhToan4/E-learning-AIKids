@@ -287,7 +287,31 @@ export function App() {
             path="/teacher"
             element={
               <Guard roles={['teacher', 'admin']}>
-                <TeacherPage />
+                <TeacherPage tab="class" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/teacher/courses"
+            element={
+              <Guard roles={['teacher', 'admin']}>
+                <TeacherPage tab="courses" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/teacher/lectures"
+            element={
+              <Guard roles={['teacher', 'admin']}>
+                <TeacherPage tab="lectures" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/teacher/stats"
+            element={
+              <Guard roles={['teacher', 'admin']}>
+                <TeacherPage tab="stats" />
               </Guard>
             }
           />
@@ -295,7 +319,55 @@ export function App() {
             path="/admin"
             element={
               <Guard roles={['admin']}>
-                <AdminPage />
+                <AdminPage tab="system" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/admin/analytics"
+            element={
+              <Guard roles={['admin']}>
+                <AdminPage tab="analytics" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/admin/logs"
+            element={
+              <Guard roles={['admin']}>
+                <AdminPage tab="logs" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/admin/users"
+            element={
+              <Guard roles={['admin']}>
+                <AdminPage tab="users" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/admin/sessions"
+            element={
+              <Guard roles={['admin']}>
+                <AdminPage tab="sessions" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/admin/courses"
+            element={
+              <Guard roles={['admin']}>
+                <AdminPage tab="courses" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/admin/ai"
+            element={
+              <Guard roles={['admin']}>
+                <AdminPage tab="ai" />
               </Guard>
             }
           />

@@ -17,7 +17,7 @@ export function LoginPage() {
       ? 'adult'
       : 'student'
   const [mode, setMode] = useState<'student' | 'adult'>(initial as 'student' | 'adult')
-  const [nickname, setNickname] = useState('MựcCon')
+  const [nickname, setNickname] = useState('')
   const [avatarId, setAvatarId] = useState('avatar-robot')
   const [pin, setPin] = useState('')
   const [email, setEmail] = useState('')
@@ -165,7 +165,7 @@ export function LoginPage() {
                   </div>
                 </div>
                 <label className="flex flex-col gap-1 text-sm font-bold">
-                  Mã PIN 6 số (nếu ba/mẹ đã đặt)
+                  Mã PIN 6 số
                   <input
                     inputMode="numeric"
                     pattern="\d{6}"
@@ -243,9 +243,6 @@ export function LoginPage() {
                   }}
                   onError={(msg) => setError(msg)}
                 />
-                <p className="text-center text-xs text-muted">
-                  Cùng một email Google và email đăng ký là một tài khoản duy nhất.
-                </p>
               </div>
             )}
 

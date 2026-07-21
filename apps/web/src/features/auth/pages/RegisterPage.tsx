@@ -210,9 +210,6 @@ export function RegisterPage() {
                 }}
                 onError={(msg) => setError(msg)}
               />
-              <p className="text-center text-xs text-muted">
-                Nếu email Google trùng email đã đăng ký, bạn vào đúng tài khoản đó.
-              </p>
             </div>
 
             <p className="text-center text-sm text-muted">

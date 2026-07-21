@@ -121,21 +121,8 @@ export function ProfilePage() {
         )}
       </div>
 
-      <div className="ui-card flex flex-col gap-3 p-4">
-        <p className="text-sm font-bold text-muted">
-          Xong buổi học? Trả máy cho ba/mẹ để chọn bạn khác hoặc quản lý gói.
-        </p>
-        <Button
-          className="w-full"
-          onClick={async () => {
-            await logout()
-            // Parent signs in again → /kids picker
-            navigate('/login?role=parent')
-          }}
-        >
-          Trả máy cho ba/mẹ
-        </Button>
-        <div className="flex flex-wrap gap-2">
+
+      <div className="ui-card flex flex-wrap gap-2 p-4">
           <Link to="/backpack" className="min-w-0 flex-1">
             <Button variant="secondary" className="w-full">
               Ba lô sáng tạo
@@ -151,8 +138,8 @@ export function ProfilePage() {
           >
             Đăng xuất
           </Button>
-        </div>
       </div>
+
     </PageMotion>
   )
 }
