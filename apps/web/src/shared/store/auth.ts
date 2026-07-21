@@ -14,6 +14,8 @@ type AuthState = {
   /** Parent hands device to child (ends parent session) */
   enterAsChild: (childId: string, pin?: string) => Promise<User>
   loginAdult: (email: string, password: string) => Promise<User>
+  /** After GIS credential verified by API — set session user */
+  setSessionUser: (user: User) => void
   registerAdult: (email: string, password: string, role: 'parent' | 'teacher', nickname?: string) => Promise<User>
   forgotPassword: (email: string) => Promise<void>
   resetPassword: (token: string, password: string) => Promise<void>
@@ -78,6 +80,8 @@ export const useAuth = create<AuthState>((set) => ({
     set({ user })
     return user
   },
+
+  setSessionUser: (user) => set({ user, error: null }),
 
   registerAdult: async (email, password, role, nickname) => {
     set({ error: null })

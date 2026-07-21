@@ -88,6 +88,16 @@ export const env = {
    * (e.g. `/api/aikids/health` → `/api/health`). Empty = disabled.
    */
   apiAliasPrefix: (process.env.API_ALIAS_PREFIX ?? '').trim() || undefined,
+
+  /**
+   * Google Identity Services — OAuth 2.0 Web Client ID (public).
+   * Used to verify ID tokens (aud). Same value on FE as VITE_GOOGLE_CLIENT_ID.
+   */
+  googleClientId: (
+    process.env.GOOGLE_CLIENT_ID ??
+    process.env.VITE_GOOGLE_CLIENT_ID ??
+    ''
+  ).trim(),
 }
 
 export const SESSION_COOKIE = 'aikids_session'

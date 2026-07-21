@@ -19,11 +19,28 @@ export async function api<T = unknown>(
     headers.set('Content-Type', 'application/json')
   }
 
-  const res = await fetch(`${API_BASE}${path}`, {
-    ...options,
-    headers,
-    credentials: 'include',
-  })
+  let res: Response
+  try {
+    res = await fetch(`${API_BASE}${path}`, {
+      ...options,
+      headers,
+      credentials: 'include',
+    })
+  } catch (e) {
+    // Browser "Failed to fetch" = network / CORS / API offline
+    const raw = e instanceof Error ? e.message : String(e)
+    const offline =
+      /failed to fetch|networkerror|load failed|network request failed/i.test(
+        raw,
+      )
+    throw new ApiError(
+      0,
+      offline
+        ? 'Không kết nối được máy chủ. Kiểm tra API đang chạy rồi thử lại nhé.'
+        : 'Mạng gặp sự cố. Thử lại sau một lát nhé.',
+      { cause: raw, path, base: API_BASE || '(same origin)' },
+    )
+  }
 
   let data: unknown = null
   const text = await res.text()
@@ -36,10 +53,13 @@ export async function api<T = unknown>(
   }
 
   if (!res.ok) {
+    // 401 on /me during bootstrap is normal when logged out — still throw for callers
     const msg =
       typeof data === 'object' && data && 'error' in data
         ? String((data as { error: string }).error)
-        : res.statusText
+        : typeof data === 'object' && data && 'message' in data
+          ? String((data as { message: string }).message)
+          : res.statusText || 'Có lỗi xảy ra'
     throw new ApiError(res.status, msg, data)
   }
 

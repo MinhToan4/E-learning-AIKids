@@ -6,6 +6,8 @@ import { ApiError } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
+import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
+import type { User } from '@/shared/lib/api'
 
 export function RegisterPage() {
   const [role, setRole] = useState<'parent' | 'teacher'>('parent')
@@ -16,7 +18,13 @@ export function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const registerAdult = useAuth((s) => s.registerAdult)
+  const setSessionUser = useAuth((s) => s.setSessionUser)
   const navigate = useNavigate()
+
+  function goAfter(user: User) {
+    if (user.role === 'parent') navigate('/kids')
+    else navigate('/teacher')
+  }
 
   const passwordStrength = getPasswordStrength(password)
   const passwordsMatch = confirmPassword === '' || password === confirmPassword
@@ -31,8 +39,7 @@ export function RegisterPage() {
     setError(null)
     try {
       const user = await registerAdult(email.trim(), password, role, nickname.trim() || undefined)
-      if (user.role === 'parent') navigate('/kids')
-      else navigate('/teacher')
+      goAfter(user)
     } catch (err) {
       setError(
         err instanceof ApiError ? err.message : 'Đăng ký thất bại. Vui lòng thử lại.',
@@ -188,6 +195,25 @@ export function RegisterPage() {
             <Button type="submit" disabled={busy || !passwordsMatch}>
               {busy ? 'Đang tạo…' : 'Đăng ký'}
             </Button>
+
+            <div className="flex w-full flex-col gap-2 pt-1">
+              <div className="flex items-center gap-3">
+                <span className="h-px flex-1 bg-border" />
+                <span className="text-xs font-bold text-muted">hoặc</span>
+                <span className="h-px flex-1 bg-border" />
+              </div>
+              <GoogleSignInButton
+                role={role}
+                onSuccess={(user) => {
+                  setSessionUser(user)
+                  goAfter(user)
+                }}
+                onError={(msg) => setError(msg)}
+              />
+              <p className="text-center text-xs text-muted">
+                Nếu email Google trùng email đã đăng ký, bạn vào đúng tài khoản đó.
+              </p>
+            </div>
 
             <p className="text-center text-sm text-muted">
               Đã có tài khoản?{' '}

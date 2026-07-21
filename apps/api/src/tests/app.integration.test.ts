@@ -46,6 +46,12 @@ beforeAll(() => {
     env: testEnv,
     stdio: 'pipe',
   })
+  // Expand users.goal allowed values (K1–K6 onboarding)
+  execSync('npx tsx prisma/run-fix-goal-check.ts', {
+    cwd: apiRoot,
+    env: testEnv,
+    stdio: 'pipe',
+  })
   execSync('npx tsx prisma/seed.ts', {
     cwd: apiRoot,
     env: testEnv,

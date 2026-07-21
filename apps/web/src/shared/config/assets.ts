@@ -72,13 +72,15 @@ export const designerAssets = {
     comic: '/assets/designer/lobby/art-comic.jpeg',
     mee: '/assets/designer/lobby/card_mee.jpeg',
   },
-  /** Soft Clay decorative badges for empty / achievement chrome */
+  /** Decorative chrome (badges, maps) — designer Soft Clay */
   chrome: {
     badges: '/assets/ui-badges.jpg',
     mascotHero: '/assets/mascot-hero.jpg',
     mascotMap: '/assets/mascot-map.jpg',
     adventureMap: '/assets/adventure-map.jpg',
     storyWorkshop: '/assets/story-workshop.jpg',
+    /** Leaderboard / class celebration hero */
+    podium: '/assets/designer/lobby/home-explore.jpeg',
   },
 } as const
 

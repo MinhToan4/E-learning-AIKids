@@ -39,11 +39,24 @@ export async function buildApp() {
   await app.register(helmet, {
     contentSecurityPolicy: false, // API-only; FE sets its own CSP if needed
     crossOriginResourcePolicy: { policy: 'cross-origin' },
+    // Allow Google GIS popup postMessage (default same-origin breaks Sign-In)
+    crossOriginOpenerPolicy: { policy: 'same-origin-allow-popups' },
   })
 
+  // Explicit methods: browser preflight for PATCH /api/auth/me was blocked when
+  // Access-Control-Allow-Methods omitted PATCH (onboarding stuck).
   await app.register(cors, {
     origin: env.corsOrigin,
     credentials: true,
+    methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: [
+      'Content-Type',
+      'Authorization',
+      'Accept',
+      'Origin',
+      'X-Requested-With',
+    ],
+    exposedHeaders: ['Set-Cookie'],
   })
 
   await app.register(cookie, {
@@ -69,7 +82,8 @@ export async function buildApp() {
     if (routeOptions.url?.startsWith('/api/auth/login') ||
         routeOptions.url?.startsWith('/api/auth/register') ||
         routeOptions.url?.startsWith('/api/auth/forgot') ||
-        routeOptions.url?.startsWith('/api/auth/reset')) {
+        routeOptions.url?.startsWith('/api/auth/reset') ||
+        routeOptions.url === '/api/auth/login/google') {
       routeOptions.config = {
         ...routeOptions.config,
         rateLimit: {

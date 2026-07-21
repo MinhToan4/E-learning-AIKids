@@ -61,6 +61,19 @@ function sessionCacheKey(token: string): string {
   return `session:${token}`
 }
 
+/** Drop cached AuthUser for every live session of this user (e.g. after onboard/goal patch). */
+export async function invalidateUserSessionCache(userId: string): Promise<void> {
+  const sessions = await prisma.session.findMany({
+    where: { userId, expiresAt: { gt: new Date() } },
+    select: { token: true },
+  })
+  if (sessions.length === 0) return
+  const cache = getCache()
+  await Promise.all(
+    sessions.map((s) => cache.delete(sessionCacheKey(s.token))),
+  )
+}
+
 export async function createSession(
   userId: string,
   reply: FastifyReply,
@@ -145,9 +158,32 @@ export async function loadUserFromRequest(
 
   const authUser = publicUser(session.user)
 
-  // 3. Re-populate cache for next request
+  // 3. Re-populate cache for next request (always from DB after miss)
   await cache.set(sessionCacheKey(token), JSON.stringify(authUser), SESSION_CACHE_TTL_MS)
 
+  return authUser
+}
+
+/** Re-read user from DB into session cache (after profile/onboard updates). */
+export async function refreshSessionUserCache(
+  token: string | undefined,
+  userId: string,
+): Promise<AuthUser | null> {
+  if (!token) {
+    await invalidateUserSessionCache(userId)
+    return null
+  }
+  const user = await prisma.user.findUnique({ where: { id: userId } })
+  if (!user || user.active === false) {
+    await invalidateUserSessionCache(userId)
+    return null
+  }
+  const authUser = publicUser(user)
+  await getCache().set(
+    sessionCacheKey(token),
+    JSON.stringify(authUser),
+    SESSION_CACHE_TTL_MS,
+  )
   return authUser
 }
 

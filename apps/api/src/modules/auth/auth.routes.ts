@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { isNicknameSafe } from '@aikids/domain'
-import { env } from '../../config/env.js'
+import { env, SESSION_COOKIE } from '../../config/env.js'
 import { prisma } from '../../infrastructure/database/prisma.js'
 import { hashPassword, verifyPassword } from '../../infrastructure/security/crypto.js'
 import { getCache } from '../../infrastructure/cache/cache.js'
@@ -9,6 +9,7 @@ import { emailService } from '../../infrastructure/email/email.service.js'
 import {
   createSession,
   destroySession,
+  invalidateUserSessionCache,
   publicUser,
   requireUser,
 } from '../../infrastructure/session/session.js'
@@ -23,7 +24,7 @@ const studentLoginSchema = z.object({
   avatarId: z.string().min(1).max(40),
   /**
    * Dev/demo only when STUDENT_AUTO_CREATE=true.
-   * Production (ClassDojo/Khan pattern): parent creates child — no public auto-create.
+   * Production: parent creates child — no public auto-create.
    */
   createIfMissing: z.boolean().optional().default(false),
   /** Optional 6-digit PIN if parent set one on the child profile */
@@ -77,11 +78,23 @@ export async function authRoutes(app: FastifyInstance) {
     const user = await prisma.user.findUnique({
       where: { email: body.email.toLowerCase() },
     })
-    if (!user || !user.passwordHash || user.role === 'student') {
+    if (!user || user.role === 'student') {
       return reply.code(401).send({ error: 'Email hoặc mật khẩu chưa đúng' })
     }
     if (user.active === false) {
-      return reply.code(403).send({ error: 'Tài khoản đã bị vô hiệu hóa' })
+      return reply.code(403).send({
+        error: 'Tài khoản đang tạm khóa. Liên hệ hỗ trợ nhé.',
+      })
+    }
+    if (!user.passwordHash) {
+      request.log.info(
+        { userId: user.id, hasGoogle: Boolean(user.googleSub) },
+        'auth.adult_login password_missing_use_google',
+      )
+      return reply.code(401).send({
+        error:
+          'Tài khoản này đăng nhập bằng Google. Bấm “Tiếp tục với Google” nhé.',
+      })
     }
     const ok = await verifyPassword(body.password, user.passwordHash)
     if (!ok) {
@@ -89,6 +102,81 @@ export async function authRoutes(app: FastifyInstance) {
     }
     await createSession(user.id, reply)
     return { user: publicUser(user) }
+  })
+
+  /**
+   * Google Sign-In (GIS credential = OIDC id_token).
+   * Same verified email → same User row (link google_sub, never duplicate).
+   */
+  app.post('/api/auth/login/google', async (request, reply) => {
+    const body = z
+      .object({
+        credential: z.string().min(20).max(8192),
+        /** Only for brand-new accounts; ignored if email already exists */
+        role: z.enum(['parent', 'teacher']).optional().default('parent'),
+      })
+      .parse(request.body)
+
+    const { verifyGoogleIdToken, isGoogleAuthConfigured } = await import(
+      '../../infrastructure/auth/google-id-token.js'
+    )
+    if (!isGoogleAuthConfigured()) {
+      request.log.error('auth.google_login not_configured')
+      return reply.code(503).send({
+        error: 'Đăng nhập Google chưa được bật. Dùng email/mật khẩu nhé.',
+      })
+    }
+
+    try {
+      const profile = await verifyGoogleIdToken(body.credential)
+      const { loginOrLinkGoogleAccount } = await import('./google-account.js')
+      const result = await loginOrLinkGoogleAccount({
+        profile,
+        preferredRole: body.role,
+      })
+      await createSession(result.user.id, reply)
+      request.log.info(
+        {
+          userId: result.user.id,
+          role: result.user.role,
+          created: result.created,
+          linked: result.linked,
+          emailDomain: profile.email.split('@')[1],
+        },
+        'auth.google_login ok',
+      )
+      return {
+        user: result.user,
+        created: result.created,
+        linked: result.linked,
+      }
+    } catch (e) {
+      const err = e as Error & { statusCode?: number; logCode?: string }
+      request.log.warn(
+        {
+          logCode: err.logCode,
+          err: err.message,
+          statusCode: err.statusCode,
+        },
+        'auth.google_login failed',
+      )
+      if (err.statusCode) throw e
+      throw Object.assign(new Error('Không đăng nhập được bằng Google.'), {
+        statusCode: 401,
+        logCode: 'GOOGLE_LOGIN_FAILED',
+      })
+    }
+  })
+
+  app.get('/api/auth/google/config', async () => {
+    const { isGoogleAuthConfigured } = await import(
+      '../../infrastructure/auth/google-id-token.js'
+    )
+    return {
+      enabled: isGoogleAuthConfigured(),
+      /** Public client id for GIS button (safe to expose) */
+      clientId: env.googleClientId || null,
+    }
   })
 
   app.post('/api/auth/register/adult', async (request, reply) => {
@@ -251,10 +339,23 @@ export async function authRoutes(app: FastifyInstance) {
 
   app.patch('/api/auth/me', async (request, reply) => {
     const user = requireUser(request)
+    // Goals align with curriculum tracks K1–K6 (see courses/ + domain COURSE_KEYS)
     const body = z
       .object({
         onboarded: z.boolean().optional(),
-        goal: z.enum(['comic', 'video', 'character']).nullable().optional(),
+        goal: z
+          .enum([
+            'world',
+            'character',
+            'story',
+            'comic',
+            'motion',
+            'film',
+            // legacy aliases kept for older clients
+            'video',
+          ])
+          .nullable()
+          .optional(),
         nickname: z.string().min(1).max(16).optional(),
         avatarId: z.string().min(1).max(40).optional(),
       })
@@ -267,16 +368,45 @@ export async function authRoutes(app: FastifyInstance) {
       }
     }
 
+    // Normalize legacy "video" → film (K6) for curriculum consistency
+    const goal =
+      body.goal === undefined
+        ? undefined
+        : body.goal === 'video'
+          ? 'film'
+          : body.goal
+
     const updated = await prisma.user.update({
       where: { id: user.id },
       data: {
         onboarded: body.onboarded,
-        goal: body.goal === undefined ? undefined : body.goal,
+        goal: goal === undefined ? undefined : goal,
         nickname: body.nickname,
         avatarId: body.avatarId,
       },
     })
-    return { user: publicUser(updated) }
+
+    // Drop stale Redis snapshots (onboarded/goal) then warm current token
+    await invalidateUserSessionCache(user.id)
+    const { refreshSessionUserCache } = await import(
+      '../../infrastructure/session/session.js'
+    )
+    const authUser =
+      (await refreshSessionUserCache(
+        request.cookies[SESSION_COOKIE],
+        user.id,
+      )) ?? publicUser(updated)
+
+    request.log.info(
+      {
+        userId: user.id,
+        onboarded: updated.onboarded,
+        goal: updated.goal,
+      },
+      'auth.patch_me ok',
+    )
+
+    return { user: authUser }
   })
 
   // ── Forgot Password ───────────────────────────────────────

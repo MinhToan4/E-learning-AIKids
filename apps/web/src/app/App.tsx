@@ -64,6 +64,11 @@ const AchievementsPage = lazy(() =>
     default: m.AchievementsPage,
   })),
 )
+const LeaderboardPage = lazy(() =>
+  import('@/features/leaderboard/pages/LeaderboardPage').then((m) => ({
+    default: m.LeaderboardPage,
+  })),
+)
 const ParentPage = lazy(() =>
   import('@/features/parent/pages/ParentPage').then((m) => ({
     default: m.ParentPage,
@@ -227,6 +232,14 @@ export function App() {
             element={
               <Guard roles={['student']} requireOnboarded>
                 <AchievementsPage />
+              </Guard>
+            }
+          />
+          <Route
+            path="/leaderboard"
+            element={
+              <Guard roles={['student']} requireOnboarded>
+                <LeaderboardPage />
               </Guard>
             }
           />

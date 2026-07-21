@@ -75,7 +75,7 @@ CREATE TABLE public.users (
     level         integer DEFAULT 1 NOT NULL,
     xp            integer DEFAULT 0 NOT NULL,
     onboarded     boolean DEFAULT false NOT NULL,
-    goal          text,             -- comic | video | character
+    goal          text,             -- world|character|story|comic|motion|film|video
     active        boolean DEFAULT true NOT NULL,
     parent_id     uuid,             -- student → parent link
     class_id      uuid,             -- student → classroom link
@@ -88,7 +88,10 @@ CREATE TABLE public.users (
         role = ANY (ARRAY['student'::text, 'parent'::text, 'teacher'::text, 'admin'::text])
     ),
     CONSTRAINT users_goal_check CHECK (
-        goal IS NULL OR goal = ANY (ARRAY['comic'::text, 'video'::text, 'character'::text])
+        goal IS NULL OR goal = ANY (ARRAY[
+          'world'::text, 'character'::text, 'story'::text, 'comic'::text,
+          'motion'::text, 'film'::text, 'video'::text
+        ])
     )
 );
 

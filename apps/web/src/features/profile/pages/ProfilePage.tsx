@@ -59,11 +59,19 @@ export function ProfilePage() {
         </p>
         <p className="text-sm text-muted">
           Mục tiêu:{' '}
-          {user?.goal === 'video'
-            ? 'Video'
+          {user?.goal === 'world'
+            ? 'Vẽ thế giới (K1)'
             : user?.goal === 'character'
-              ? 'Nhân vật'
-              : 'Truyện tranh'}
+              ? 'Nhân vật (K2)'
+              : user?.goal === 'story'
+                ? 'Kể chuyện (K3)'
+                : user?.goal === 'comic'
+                  ? 'Truyện tranh (K4)'
+                  : user?.goal === 'motion'
+                    ? 'Chuyển động (K5)'
+                    : user?.goal === 'film' || user?.goal === 'video'
+                      ? 'Phim ngắn (K6)'
+                      : 'Chưa chọn'}
         </p>
       </div>
 

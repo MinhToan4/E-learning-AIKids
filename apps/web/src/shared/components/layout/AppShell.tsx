@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { Award, Backpack, Home, Map, UserRound } from 'lucide-react'
+import { Award, Backpack, Home, Map, Trophy, UserRound } from 'lucide-react'
 import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
@@ -7,7 +7,8 @@ import { NotificationBell } from '@/features/notifications/components/Notificati
 
 const studentNav = [
   { to: '/home', label: 'Nhà', icon: Home },
-  { to: '/world', label: 'Làm tiếp', icon: Map },
+  { to: '/world', label: 'Học', icon: Map },
+  { to: '/leaderboard', label: 'Xếp hạng', icon: Trophy },
   { to: '/achievements', label: 'Huy hiệu', icon: Award },
   { to: '/backpack', label: 'Ba lô', icon: Backpack },
   { to: '/profile', label: 'Tôi', icon: UserRound },

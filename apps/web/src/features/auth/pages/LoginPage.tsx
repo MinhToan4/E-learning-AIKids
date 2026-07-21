@@ -7,6 +7,8 @@ import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
 import { STUDENT_AVATARS } from '@/shared/config/avatars'
+import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
+import type { User } from '@/shared/lib/api'
 
 export function LoginPage() {
   const [params] = useSearchParams()
@@ -24,7 +26,14 @@ export function LoginPage() {
   const [busy, setBusy] = useState(false)
   const loginStudent = useAuth((s) => s.loginStudent)
   const loginAdult = useAuth((s) => s.loginAdult)
+  const setSessionUser = useAuth((s) => s.setSessionUser)
   const navigate = useNavigate()
+
+  function goAfterAdult(user: User) {
+    if (user.role === 'admin') navigate('/admin')
+    else if (user.role === 'teacher') navigate('/teacher')
+    else navigate('/kids')
+  }
 
   const hint = useMemo(
     () =>
@@ -46,9 +55,7 @@ export function LoginPage() {
         navigate(user.onboarded ? '/home' : '/onboarding')
       } else {
         const user = await loginAdult(email.trim(), password)
-        if (user.role === 'admin') navigate('/admin')
-        else if (user.role === 'teacher') navigate('/teacher')
-        else navigate('/kids')
+        goAfterAdult(user)
       }
     } catch (err) {
       setError(
@@ -216,8 +223,31 @@ export function LoginPage() {
             )}
 
             <Button type="submit" disabled={busy}>
-              {busy ? 'Đang vào…' : 'Vào học!'}
+              {busy ? 'Đang vào…' : mode === 'adult' ? 'Đăng nhập' : 'Vào học!'}
             </Button>
+
+            {mode === 'adult' && (
+              <div className="flex w-full flex-col gap-2 pt-1">
+                <div className="flex items-center gap-3">
+                  <span className="h-px flex-1 bg-border" />
+                  <span className="text-xs font-bold text-muted">hoặc</span>
+                  <span className="h-px flex-1 bg-border" />
+                </div>
+                <GoogleSignInButton
+                  role={
+                    params.get('role') === 'teacher' ? 'teacher' : 'parent'
+                  }
+                  onSuccess={(user) => {
+                    setSessionUser(user)
+                    goAfterAdult(user)
+                  }}
+                  onError={(msg) => setError(msg)}
+                />
+                <p className="text-center text-xs text-muted">
+                  Cùng một email Google và email đăng ký là một tài khoản duy nhất.
+                </p>
+              </div>
+            )}
 
             <p className="text-center text-sm text-muted">
               Chưa có tài khoản?{' '}

@@ -18,9 +18,9 @@ export function HomePage() {
   const [track, setTrack] = useState<TrackFilter>('all')
   const [streak, setStreak] = useState({ current: 0, longest: 0 })
   const [badges, setBadges] = useState<AchievementRow[]>([])
-  const [board, setBoard] = useState<
-    Array<{ rank: number; nickname: string | null; xp: number; isMe: boolean }>
-  >([])
+  const [myRank, setMyRank] = useState<{ rank: number; xp: number } | null>(
+    null,
+  )
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -35,7 +35,6 @@ export function HomePage() {
         api<{
           leaderboard: Array<{
             rank: number
-            nickname: string | null
             xp: number
             isMe: boolean
           }>
@@ -44,7 +43,8 @@ export function HomePage() {
       setCourses(c.courses)
       setStreak({ current: s.current, longest: s.longest })
       setBadges(a.achievements.filter((x) => x.unlocked).slice(0, 3))
-      setBoard(lb.leaderboard.slice(0, 5))
+      const me = lb.leaderboard.find((r) => r.isMe)
+      setMyRank(me ? { rank: me.rank, xp: me.xp } : null)
       try {
         const check = await api<{
           current: number
@@ -70,8 +70,24 @@ export function HomePage() {
     track === 'all' ? open : open.filter((c) => c.ageTrack === track)
   const enrolled = filtered.filter((c) => c.enrolled)
   const explore = filtered.filter((c) => !c.enrolled)
+  // Onboarding goal → courseKey (K1–K6 curriculum)
+  const goalToKey: Record<string, string> = {
+    world: 'K1',
+    character: 'K2',
+    story: 'K3',
+    comic: 'K4',
+    motion: 'K5',
+    film: 'K6',
+    video: 'K6',
+  }
+  const preferredKey = user?.goal ? goalToKey[user.goal] : undefined
   const continueCourse =
-    enrolled[0] ?? open.find((c) => c.recommended) ?? open[0]
+    enrolled[0] ??
+    (preferredKey
+      ? open.find((c) => c.courseKey === preferredKey)
+      : undefined) ??
+    open.find((c) => c.recommended) ??
+    open[0]
 
   if (loading) {
     return (
@@ -160,31 +176,23 @@ export function HomePage() {
         )}
       </section>
 
-      {board.length > 0 && (
-        <section className="ui-card p-4">
-          <h2 className="font-display mb-2 text-2xl">Bảng xếp hạng lớp</h2>
-          <p className="mb-3 text-xs text-muted">
-            Chỉ biệt danh · XP — cùng tiến bộ, không so sánh độc hại.
+      <Link
+        to="/leaderboard"
+        className="ui-card flex items-center gap-3 p-4 transition hover:-translate-y-0.5 hover:shadow-clay"
+      >
+        <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sun-100 text-2xl shadow-soft">
+          🏆
+        </span>
+        <div className="min-w-0 flex-1">
+          <p className="font-display text-xl text-text">Bảng xếp hạng lớp</p>
+          <p className="text-sm text-muted">
+            {myRank
+              ? `Con đang hạng #${myRank.rank} · ${myRank.xp} XP — cùng cổ vũ bạn bè!`
+              : 'Xem bạn bè cùng tiến bộ (chỉ biệt danh · XP)'}
           </p>
-          <ol className="flex flex-col gap-2">
-            {board.map((row) => (
-              <li
-                key={row.rank}
-                className={cn(
-                  'flex items-center justify-between rounded-xl px-3 py-2 text-sm',
-                  row.isMe ? 'bg-sun-100 font-extrabold' : 'bg-brand-50/60',
-                )}
-              >
-                <span>
-                  #{row.rank} {row.nickname ?? 'Bạn ẩn danh'}
-                  {row.isMe ? ' (con)' : ''}
-                </span>
-                <span className="text-brand-600">{row.xp} XP</span>
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
+        </div>
+        <span className="text-sm font-extrabold text-brand-500">Xem →</span>
+      </Link>
 
       <section>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">

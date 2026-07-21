@@ -23,6 +23,11 @@ model User {
   email        String?  @unique
   passwordHash String?  @map("password_hash")
   pinHash      String?  @map("pin_hash")
+  /**
+   * Google OIDC subject (`sub`). Optional; same email always one row.
+   * Login with Google links here without creating a second account.
+   */
+  googleSub    String?  @unique @map("google_sub")
   nickname     String?
   avatarId     String?  @map("avatar_id")
   level        Int      @default(1)
@@ -57,9 +62,61 @@ model User {
   notifications  Notification[]
   parentProfile  ParentProfile?
   teacherProfile TeacherProfile?
+  /**
+   * Household subscriptions where this user is the billing parent
+   */
+  subscriptions  Subscription[]  @relation("ParentSubscriptions")
 
   @@index([role, active])
   @@map("users")
+}
+
+// ── A2. FAMILY / HOUSEHOLD BILLING (ClassDojo / Khan Kids pattern) ─
+// Parent owns plan + child profiles. Children never hold payment methods.
+
+model Plan {
+  id                     String   @id
+  code                   String   @unique
+  name                   String
+  tagline                String
+  maxChildren            Int      @map("max_children")
+  maxOpenCoursesPerChild Int      @map("max_open_courses_per_child")
+  priceMonthly           Int      @default(0) @map("price_monthly")
+  currency               String   @default("VND")
+  featuresJson           String   @map("features_json")
+  sortOrder              Int      @default(0) @map("sort_order")
+  active                 Boolean  @default(true)
+  createdAt              DateTime @default(now()) @map("created_at")
+  updatedAt              DateTime @default(now()) @updatedAt @map("updated_at")
+
+  subscriptions Subscription[]
+
+  @@map("plans")
+}
+
+model Subscription {
+  id                 String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  parentUserId       String    @map("parent_user_id") @db.Uuid
+  planId             String    @map("plan_id")
+  status             String    @default("active") // active | trialing | cancelled | expired
+  seats              Int
+  currentPeriodStart DateTime  @default(now()) @map("current_period_start")
+  currentPeriodEnd   DateTime? @map("current_period_end")
+  /**
+   * manual | stripe | apple | google — v1 uses manual / seed
+   */
+  provider           String    @default("manual")
+  externalId         String?   @map("external_id")
+  metadata           Json      @default("{}")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  parent User @relation("ParentSubscriptions", fields: [parentUserId], references: [id], onDelete: Cascade)
+  plan   Plan @relation(fields: [planId], references: [id])
+
+  @@index([parentUserId, status])
+  @@index([planId])
+  @@map("subscriptions")
 }
 
 model ParentProfile {
@@ -184,6 +241,8 @@ model Quest {
   chipsJson      String? @map("chips_json")
   /// Curriculum stations: video → game → practice → check
   stationsJson   String? @map("stations_json")
+  /// Soft-archive for CMS (hidden from student catalog when true)
+  archived       Boolean @default(false)
 
   course   Course          @relation(fields: [courseId], references: [id], onDelete: Cascade)
   progress QuestProgress[]

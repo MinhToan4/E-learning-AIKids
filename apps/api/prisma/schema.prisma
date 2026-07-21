@@ -23,6 +23,11 @@ model User {
   email        String?  @unique
   passwordHash String?  @map("password_hash")
   pinHash      String?  @map("pin_hash")
+  /**
+   * Google OIDC subject (`sub`). Optional; same email always one row.
+   * Login with Google links here without creating a second account.
+   */
+  googleSub    String?  @unique @map("google_sub")
   nickname     String?
   avatarId     String?  @map("avatar_id")
   level        Int      @default(1)
