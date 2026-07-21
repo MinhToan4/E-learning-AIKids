@@ -1,9 +1,11 @@
 import { NavLink, Outlet } from 'react-router-dom'
 import { Award, Backpack, Home, Map, Trophy, UserRound } from 'lucide-react'
+import { useState } from 'react'
 import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
+import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
 
 const studentNav = [
   { to: '/home', label: 'Nhà', icon: Home },
@@ -14,6 +16,10 @@ const studentNav = [
   { to: '/profile', label: 'Tôi', icon: UserRound },
 ]
 
+/**
+ * AdultChrome — top header + centered max-width content.
+ * Used for parent role (less dense, needs max-w for reading comfort).
+ */
 function AdultChrome({
   children,
   nav,
@@ -56,6 +62,72 @@ function AdultChrome({
   )
 }
 
+/**
+ * CmsShell — full-width CMS layout.
+ * Left sidebar fixed, content uses all remaining width.
+ * Used for teacher + admin roles (dense, data-heavy).
+ */
+function CmsShell({
+  nav,
+  brandTo,
+  accentClass = 'text-brand-600',
+  activeBg = 'bg-brand-50',
+}: {
+  nav: Array<{ to: string; label: string; icon?: string; end?: boolean }>
+  brandTo: string
+  accentClass?: string
+  activeBg?: string
+}) {
+  return (
+    <div className="flex min-h-dvh">
+      {/* Sidebar */}
+      <aside
+        className="sticky top-0 hidden h-dvh w-52 shrink-0 flex-col border-r border-border/60 bg-white/95 shadow-soft md:flex"
+        style={{ zIndex: 30 }}
+      >
+        <div className="flex h-14 items-center border-b border-border/40 px-4">
+          <NavLink to={brandTo} aria-label="Trang chủ CMS">
+            <BrandLogo size="sm" />
+          </NavLink>
+        </div>
+        <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2">
+          {nav.map((item) => (
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.end}
+              className={({ isActive }) =>
+                cn(
+                  'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold transition-colors',
+                  isActive
+                    ? `${activeBg} ${accentClass}`
+                    : 'text-muted hover:bg-brand-50/60 hover:text-text',
+                )
+              }
+            >
+              {item.icon && <span className="text-base">{item.icon}</span>}
+              {item.label}
+            </NavLink>
+          ))}
+        </nav>
+      </aside>
+
+      {/* Top bar mobile */}
+      <div className="fixed left-0 right-0 top-0 z-20 flex h-12 items-center justify-between border-b border-border/60 bg-white/95 px-4 backdrop-blur md:hidden">
+        <NavLink to={brandTo} aria-label="Trang chủ CMS">
+          <BrandLogo size="sm" />
+        </NavLink>
+        <span className="text-xs font-extrabold uppercase tracking-wide text-muted">CMS</span>
+      </div>
+
+      {/* Main content — full width */}
+      <main className="page-enter min-w-0 flex-1 px-4 py-5 pt-16 md:pt-5">
+        <Outlet />
+      </main>
+    </div>
+  )
+}
+
 export function AppShell() {
   const user = useAuth((s) => s.user)
 
@@ -77,26 +149,44 @@ export function AppShell() {
 
   if (user?.role === 'teacher') {
     return (
-      <AdultChrome
+      <CmsShell
         brandTo="/teacher"
-        nav={[{ to: '/teacher', label: 'CMS lớp học', end: true }]}
+        accentClass="text-sky-600"
+        activeBg="bg-sky-50"
+        nav={[
+          { to: '/teacher', label: 'Lớp & Học sinh', icon: '🏫', end: true },
+          { to: '/teacher/courses', label: 'Khóa học', icon: '📚' },
+          { to: '/teacher/lectures', label: 'Bài giảng', icon: '🎬' },
+          { to: '/teacher/stats', label: 'Thống kê', icon: '📊' },
+        ]}
       />
     )
   }
 
   if (user?.role === 'admin') {
     return (
-      <AdultChrome
+      <CmsShell
         brandTo="/admin"
+        accentClass="text-brand-600"
+        activeBg="bg-brand-50"
         nav={[
-          { to: '/admin', label: 'Quản trị', end: true },
-          { to: '/teacher', label: 'Xem CMS GV' },
+          { to: '/admin', label: 'Tổng quan', icon: '🖥️', end: true },
+          { to: '/admin/analytics', label: 'Analytics', icon: '📈' },
+          { to: '/admin/logs', label: 'Login Logs', icon: '🔐' },
+          { to: '/admin/users', label: 'Tài khoản', icon: '👥' },
+          { to: '/admin/sessions', label: 'Phiên', icon: '🔑' },
+          { to: '/admin/courses', label: 'Khóa học', icon: '📚' },
+          { to: '/admin/ai', label: 'AI Vidtory', icon: '🤖' },
+          { to: '/teacher', label: '→ Xem CMS GV', icon: '👨‍🏫' },
         ]}
       />
     )
   }
 
   // Student shell — desktop rail + mobile bottom nav
+  const [gateOpen, setGateOpen] = useState(false)
+  const hasParent = Boolean(user?.parentId)
+
   return (
     <div className="min-h-dvh pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-8 md:pl-[5.5rem]">
       <aside className="fixed left-0 top-0 z-30 hidden h-dvh w-[5.5rem] flex-col items-center gap-2 border-r border-border/70 bg-white/90 py-4 backdrop-blur md:flex">
@@ -122,9 +212,34 @@ export function AppShell() {
             {label}
           </NavLink>
         ))}
+
+        {/* Parent Gate button — desktop rail, only for students with a parent */}
+        {hasParent && (
+          <button
+            type="button"
+            onClick={() => setGateOpen(true)}
+            aria-label="Gọi ba mẹ"
+            title="Ba/Mẹ ơi!"
+            className="mt-auto flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-bold text-amber-500 transition-colors hover:bg-amber-50"
+          >
+            <span className="text-2xl leading-none">🏡</span>
+            <span>Ba/Mẹ</span>
+          </button>
+        )}
       </aside>
 
       <div className="fixed right-3 top-3 z-40 flex items-center gap-2 sm:right-4 md:right-6">
+        {/* Parent Gate button — mobile top-right, only for students with a parent */}
+        {hasParent && (
+          <button
+            type="button"
+            onClick={() => setGateOpen(true)}
+            aria-label="Gọi ba mẹ"
+            className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-xl shadow-sm transition hover:bg-amber-100 md:hidden"
+          >
+            🏡
+          </button>
+        )}
         <NotificationBell />
       </div>
 
@@ -152,6 +267,9 @@ export function AppShell() {
           </NavLink>
         ))}
       </nav>
+
+      {/* Parent Gate Modal — child-to-parent handoff */}
+      <ParentGateModal open={gateOpen} onClose={() => setGateOpen(false)} />
     </div>
   )
 }

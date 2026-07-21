@@ -36,8 +36,8 @@ export async function api<T = unknown>(
     throw new ApiError(
       0,
       offline
-        ? 'Không kết nối được máy chủ. Kiểm tra API đang chạy rồi thử lại nhé.'
-        : 'Mạng gặp sự cố. Thử lại sau một lát nhé.',
+        ? 'Ôi, có vẻ mạng đang ngủ quên rồi! 🌙 Kiểm tra Wi-Fi rồi thử lại nhé.'
+        : 'Mạng hơi bận chút. Chờ một xíu rồi thử lại nhé! 😊',
       { cause: raw, path, base: API_BASE || '(same origin)' },
     )
   }
