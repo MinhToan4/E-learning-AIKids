@@ -1,19 +1,37 @@
 import { NavLink, Outlet } from 'react-router-dom'
-import { Award, Backpack, Home, Map, Trophy, UserRound } from 'lucide-react'
 import { useState } from 'react'
 import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
 import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
+import {
+  NavBackpackIcon,
+  NavBadgeIcon,
+  NavHomeIcon,
+  NavLeaderboardIcon,
+  NavProfileIcon,
+  NavWorldIcon,
+} from '@/shared/components/icons/KidNavIcons'
+import {
+  CmsAiIcon,
+  CmsAnalyticsIcon,
+  CmsClassesIcon,
+  CmsCoursesIcon,
+  CmsLecturesIcon,
+  CmsLogsIcon,
+  CmsOverviewIcon,
+  CmsSessionsIcon,
+  CmsUsersIcon,
+} from '@/shared/components/icons/CmsIcons'
 
 const studentNav = [
-  { to: '/home', label: 'Nhà', icon: Home },
-  { to: '/world', label: 'Học', icon: Map },
-  { to: '/leaderboard', label: 'Cùng tiến bộ', icon: Trophy },
-  { to: '/achievements', label: 'Huy hiệu', icon: Award },
-  { to: '/backpack', label: 'Ba lô', icon: Backpack },
-  { to: '/profile', label: 'Tôi', icon: UserRound },
+  { to: '/home', label: 'Nhà', icon: NavHomeIcon },
+  { to: '/world', label: 'Học', icon: NavWorldIcon },
+  { to: '/leaderboard', label: 'Tiến bộ', icon: NavLeaderboardIcon },
+  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon },
+  { to: '/backpack', label: 'Ba lô', icon: NavBackpackIcon },
+  { to: '/profile', label: 'Tôi', icon: NavProfileIcon },
 ]
 
 /**
@@ -73,7 +91,12 @@ function CmsShell({
   accentClass = 'text-brand-600',
   activeBg = 'bg-brand-50',
 }: {
-  nav: Array<{ to: string; label: string; icon?: string; end?: boolean }>
+  nav: Array<{
+    to: string
+    label: string
+    icon?: React.ComponentType<{ size?: number }>
+    end?: boolean
+  }>
   brandTo: string
   accentClass?: string
   activeBg?: string
@@ -105,7 +128,7 @@ function CmsShell({
                 )
               }
             >
-              {item.icon && <span className="text-base">{item.icon}</span>}
+              {item.icon && <item.icon size={20} />}
               {item.label}
             </NavLink>
           ))}
@@ -154,10 +177,10 @@ export function AppShell() {
         accentClass="text-sky-600"
         activeBg="bg-sky-50"
         nav={[
-          { to: '/teacher', label: 'Lớp & Học sinh', icon: '🏫', end: true },
-          { to: '/teacher/courses', label: 'Khóa học', icon: '📚' },
-          { to: '/teacher/lectures', label: 'Bài giảng', icon: '🎬' },
-          { to: '/teacher/stats', label: 'Thống kê', icon: '📊' },
+          { to: '/teacher', label: 'Lớp & Học sinh', icon: CmsClassesIcon, end: true },
+          { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
+          { to: '/teacher/lectures', label: 'Bài giảng', icon: CmsLecturesIcon },
+          { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
         ]}
       />
     )
@@ -170,14 +193,14 @@ export function AppShell() {
         accentClass="text-brand-600"
         activeBg="bg-brand-50"
         nav={[
-          { to: '/admin', label: 'Tổng quan', icon: '🖥️', end: true },
-          { to: '/admin/analytics', label: 'Analytics', icon: '📈' },
-          { to: '/admin/logs', label: 'Login Logs', icon: '🔐' },
-          { to: '/admin/users', label: 'Tài khoản', icon: '👥' },
-          { to: '/admin/sessions', label: 'Phiên', icon: '🔑' },
-          { to: '/admin/courses', label: 'Khóa học', icon: '📚' },
-          { to: '/admin/ai', label: 'AI Vidtory', icon: '🤖' },
-          { to: '/teacher', label: '→ Xem CMS GV', icon: '👨‍🏫' },
+          { to: '/admin', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
+          { to: '/admin/analytics', label: 'Analytics', icon: CmsAnalyticsIcon },
+          { to: '/admin/logs', label: 'Login Logs', icon: CmsLogsIcon },
+          { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
+          { to: '/admin/sessions', label: 'Phiên', icon: CmsSessionsIcon },
+          { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
+          { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
+          { to: '/teacher', label: '→ Xem CMS GV', icon: CmsClassesIcon },
         ]}
       />
     )
@@ -203,12 +226,12 @@ export function AppShell() {
             to={to}
             className={({ isActive }) =>
               cn(
-                'flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-bold text-muted transition-colors duration-150',
-                isActive && 'bg-brand-50 text-brand-600',
+                'flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-extrabold text-muted transition-all duration-150 hover:scale-105',
+                isActive && 'bg-brand-50 text-brand-600 shadow-sm',
               )
             }
           >
-            <Icon size={22} strokeWidth={2.4} />
+            <Icon size={26} />
             {label}
           </NavLink>
         ))}
@@ -220,7 +243,7 @@ export function AppShell() {
             onClick={() => setGateOpen(true)}
             aria-label="Gọi ba mẹ"
             title="Ba/Mẹ ơi!"
-            className="mt-auto flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-bold text-amber-500 transition-colors hover:bg-amber-50"
+            className="mt-auto flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-extrabold text-amber-500 transition-all hover:bg-amber-50 hover:scale-105"
           >
             <span className="text-2xl leading-none">🏡</span>
             <span>Ba/Mẹ</span>
@@ -257,12 +280,12 @@ export function AppShell() {
             to={to}
             className={({ isActive }) =>
               cn(
-                'flex min-h-14 min-w-[3.5rem] flex-1 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px] font-bold text-muted transition-colors duration-150 xs:text-[11px]',
+                'flex min-h-14 min-w-[3.5rem] flex-1 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px] font-extrabold text-muted transition-all duration-150 xs:text-[11px]',
                 isActive && 'bg-brand-50 text-brand-600',
               )
             }
           >
-            <Icon size={22} strokeWidth={2.4} aria-hidden />
+            <Icon size={24} aria-hidden />
             {label}
           </NavLink>
         ))}
