@@ -28,6 +28,10 @@ model User {
    * Login with Google links here without creating a second account.
    */
   googleSub    String?  @unique @map("google_sub")
+  /**
+   * Firebase Auth UID for StoryMee SSO/custom-token bridge.
+   */
+  firebaseUid  String?  @unique @map("firebase_uid")
   nickname     String?
   avatarId     String?  @map("avatar_id")
   level        Int      @default(1)
@@ -60,6 +64,8 @@ model User {
   achievements   Achievement[]
   streak         DailyStreak?
   notifications  Notification[]
+  pushDevices    PushDevice[]
+  storageObjects StorageObject[]
   parentProfile  ParentProfile?
   teacherProfile TeacherProfile?
   /**
@@ -69,6 +75,7 @@ model User {
   loginLogs      LoginLog[]
 
   @@index([role, active])
+  @@index([createdAt])
   @@map("users")
 }
 
@@ -127,6 +134,16 @@ model ParentProfile {
   preferredLanguage String   @default("vi") @map("preferred_language")
   notificationPrefs Json     @default("{}") @map("notification_prefs")
   maxChildren       Int      @default(5) @map("max_children")
+  ///
+  /// Parent Gate PIN — bcrypt hash of the PIN the child enters when tapping
+  /// "Ba/Mẹ ơi!" to hand device back to parent.
+  ///
+  /// ⚠️ DISTINCT FROM user.pinHash:
+  ///   user.pinHash = child enters to LOGIN into their student account
+  ///   gatePin      = child enters to UNLOCK the parent dashboard
+  ///
+  /// Nullable: when unset, gate redirects to parent login page instead.
+  gatePin           String?  @map("gate_pin")
   metadata          Json     @default("{}")
   createdAt         DateTime @default(now()) @map("created_at")
   updatedAt         DateTime @default(now()) @updatedAt @map("updated_at")
@@ -189,29 +206,30 @@ model ClassRoom {
 // ── B. CURRICULUM & LEARNING ─────────────────────────────────
 
 model Course {
-  id            String   @id // stable slug e.g. l1-k1-the-gioi
-  title         String
-  shortTitle    String   @map("short_title")
-  tagline       String
-  description   String
-  coverFrom     String   @map("cover_from")
-  coverTo       String   @map("cover_to")
-  accent        String
-  coverImage    String?  @map("cover_image")
-  ageLabel      String   @map("age_label")
+  id              String   @id // stable slug e.g. l1-k1-the-gioi
+  title           String
+  shortTitle      String   @map("short_title")
+  tagline         String
+  description     String
+  coverFrom       String   @map("cover_from")
+  coverTo         String   @map("cover_to")
+  accent          String
+  coverImage      String?  @map("cover_image")
+  ageLabel        String   @map("age_label")
   /// L1 (6–8) | L2 (9–11) — curriculum track
-  ageTrack      String   @default("L1") @map("age_track")
+  ageTrack        String   @default("L1") @map("age_track")
   /// K1…K6 within a track
-  courseKey     String   @default("K1") @map("course_key")
-  durationLabel String   @map("duration_label")
-  productLabel  String   @map("product_label")
-  status        String   @default("open")
-  recommended   Boolean  @default(false)
-  skillsJson    String   @map("skills_json")
-  outcomesJson  String   @default("[]") @map("outcomes_json")
-  sortOrder     Int      @default(0) @map("sort_order")
-  createdAt     DateTime @default(now()) @map("created_at")
-  updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
+  courseKey       String   @default("K1") @map("course_key")
+  durationLabel   String   @map("duration_label")
+  productLabel    String   @map("product_label")
+  status          String   @default("open")
+  recommended     Boolean  @default(false)
+  skillsJson      String   @map("skills_json")
+  outcomesJson    String   @default("[]") @map("outcomes_json")
+  recognitionJson String   @default("{}") @map("recognition_json")
+  sortOrder       Int      @default(0) @map("sort_order")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @default(now()) @updatedAt @map("updated_at")
 
   quests      Quest[]
   enrollments Enrollment[]
@@ -284,6 +302,7 @@ model QuestProgress {
 
   @@unique([userId, questId])
   @@index([userId])
+  @@index([status, updatedAt])
   @@map("quest_progress")
 }
 
@@ -302,7 +321,7 @@ model Asset {
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
+  @@index([userId, createdAt, id])
   @@map("assets")
 }
 
@@ -321,7 +340,7 @@ model Project {
   user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
   approvals Approval[]
 
-  @@index([userId])
+  @@index([userId, updatedAt, id])
   @@map("projects")
 }
 
@@ -374,20 +393,71 @@ model DailyStreak {
 }
 
 model Notification {
-  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
-  userId    String   @map("user_id") @db.Uuid
-  type      String
-  title     String
-  body      String
-  read      Boolean  @default(false)
-  data      String?
-  createdAt DateTime @default(now()) @map("created_at")
+  id                String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId            String    @map("user_id") @db.Uuid
+  type              String
+  title             String
+  body              String
+  read              Boolean   @default(false)
+  data              String?
+  /// not_requested | queued | processing | sent | failed
+  pushStatus        String    @default("not_requested") @map("push_status")
+  pushAttempts      Int       @default(0) @map("push_attempts")
+  pushNextAttemptAt DateTime? @map("push_next_attempt_at")
+  pushLastError     String?   @map("push_last_error")
+  pushDispatchedAt  DateTime? @map("push_dispatched_at")
+  createdAt         DateTime  @default(now()) @map("created_at")
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, read])
   @@index([createdAt])
+  @@index([pushStatus, pushNextAttemptAt])
   @@map("notifications")
+}
+
+/// Browser/device installation that can receive Firebase Cloud Messaging.
+/// Tokens are server-only and never returned by list-notification APIs.
+model PushDevice {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  token     String
+  tokenHash String   @unique @map("token_hash")
+  platform  String   @default("web")
+  enabled   Boolean  @default(true)
+  userAgent String?  @map("user_agent")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, enabled])
+  @@map("push_devices")
+}
+
+/// Ownership record for direct-to-Firebase-Storage uploads.
+/// The object path is generated by the API; clients cannot choose another owner.
+model StorageObject {
+  id         String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId     String    @map("user_id") @db.Uuid
+  objectPath String    @unique @map("object_path")
+  bucket     String
+  purpose    String
+  fileName   String    @map("file_name")
+  mime       String
+  size       Int?
+  status     String    @default("pending")
+  questId    String?   @map("quest_id")
+  projectId  String?   @map("project_id") @db.Uuid
+  createdAt  DateTime  @default(now()) @map("created_at")
+  updatedAt  DateTime  @default(now()) @updatedAt @map("updated_at")
+  readyAt    DateTime? @map("ready_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([status, createdAt])
+  @@map("storage_objects")
 }
 
 // ── E. SYSTEM SETTINGS (secrets encrypted at rest) ───────────

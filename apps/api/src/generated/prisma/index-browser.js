@@ -128,6 +128,7 @@ exports.Prisma.UserScalarFieldEnum = {
   passwordHash: 'passwordHash',
   pinHash: 'pinHash',
   googleSub: 'googleSub',
+  firebaseUid: 'firebaseUid',
   nickname: 'nickname',
   avatarId: 'avatarId',
   level: 'level',
@@ -348,7 +349,41 @@ exports.Prisma.NotificationScalarFieldEnum = {
   body: 'body',
   read: 'read',
   data: 'data',
+  pushStatus: 'pushStatus',
+  pushAttempts: 'pushAttempts',
+  pushNextAttemptAt: 'pushNextAttemptAt',
+  pushLastError: 'pushLastError',
+  pushDispatchedAt: 'pushDispatchedAt',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.PushDeviceScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  token: 'token',
+  tokenHash: 'tokenHash',
+  platform: 'platform',
+  enabled: 'enabled',
+  userAgent: 'userAgent',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.StorageObjectScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  objectPath: 'objectPath',
+  bucket: 'bucket',
+  purpose: 'purpose',
+  fileName: 'fileName',
+  mime: 'mime',
+  size: 'size',
+  status: 'status',
+  questId: 'questId',
+  projectId: 'projectId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  readyAt: 'readyAt'
 };
 
 exports.Prisma.SystemSettingScalarFieldEnum = {
@@ -415,6 +450,8 @@ exports.Prisma.ModelName = {
   Achievement: 'Achievement',
   DailyStreak: 'DailyStreak',
   Notification: 'Notification',
+  PushDevice: 'PushDevice',
+  StorageObject: 'StorageObject',
   SystemSetting: 'SystemSetting',
   LoginLog: 'LoginLog'
 };
