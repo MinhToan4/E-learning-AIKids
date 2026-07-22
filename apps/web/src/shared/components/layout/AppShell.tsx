@@ -10,7 +10,7 @@ import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
 const studentNav = [
   { to: '/home', label: 'Nhà', icon: Home },
   { to: '/world', label: 'Học', icon: Map },
-  { to: '/leaderboard', label: 'Xếp hạng', icon: Trophy },
+  { to: '/leaderboard', label: 'Cùng tiến bộ', icon: Trophy },
   { to: '/achievements', label: 'Huy hiệu', icon: Award },
   { to: '/backpack', label: 'Ba lô', icon: Backpack },
   { to: '/profile', label: 'Tôi', icon: UserRound },

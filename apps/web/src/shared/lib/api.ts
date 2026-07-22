@@ -99,6 +99,13 @@ export type CourseSummary = {
   recommended: boolean
   skills: string[]
   outcomes?: string[]
+  recognition?: {
+    issuer: string
+    credential: string
+    finalAssessment: string
+    frameworks: Array<{ code: string; title: string }>
+    disclaimer: string
+  }
   questCount: number
   enrolled: boolean
   quests: Array<{
@@ -147,6 +154,11 @@ export type QuestDetail = {
       durationMin?: number
       practiceKind?: string
       gameType?: string
+      gameConfig?: { cards?: string[] }
+      content?: string
+      instruction?: string
+      outcome?: string
+      product?: string
     }>
   }
 }
@@ -199,7 +211,7 @@ export type QuestProgress = {
   accent: string
   practiceKind: string
   status: 'locked' | 'available' | 'in_progress' | 'completed'
-  phase: 'learn' | 'practice' | 'check'
+  phase: 'learn' | 'game' | 'practice' | 'check'
   stars: number
   xpEarned: number
 }

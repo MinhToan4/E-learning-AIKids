@@ -73,6 +73,12 @@ type Analytics = {
   quests: { active: number; archived: number }
   learning: { completedProgress: number; enrollments: number; projects: number }
   sessions: { active: number }
+  trends: Array<{
+    date: string
+    newUsers: number
+    completedQuests: number
+    projects: number
+  }>
 }
 
 type ModelRow = { modelId: string; weight: number; label?: string; enabled?: boolean; percent?: number }
@@ -125,6 +131,99 @@ function MiniBar({ value, max, color = 'bg-brand-500', label }: { value: number;
         <div className={cn('h-full rounded-full transition-all duration-500', color)} style={{ width: `${pct}%` }} />
       </div>
       <span className="w-10 text-right text-xs font-extrabold">{value}</span>
+    </div>
+  )
+}
+
+function TrendChart({ rows }: { rows: Analytics['trends'] }) {
+  const width = 700
+  const height = 230
+  const padX = 38
+  const padY = 24
+  const max = Math.max(
+    1,
+    ...rows.flatMap((row) => [row.newUsers, row.completedQuests, row.projects]),
+  )
+  const x = (index: number) =>
+    padX + (index * (width - padX * 2)) / Math.max(1, rows.length - 1)
+  const y = (value: number) =>
+    height - padY - (value * (height - padY * 2)) / max
+  const points = (key: 'newUsers' | 'completedQuests' | 'projects') =>
+    rows.map((row, index) => `${x(index)},${y(row[key])}`).join(' ')
+  const series = [
+    { key: 'completedQuests' as const, label: 'Bài hoàn thành', color: '#6d5efc' },
+    { key: 'newUsers' as const, label: 'Tài khoản mới', color: '#37b9d5' },
+    { key: 'projects' as const, label: 'Sản phẩm mới', color: '#39a77e' },
+  ]
+
+  return (
+    <div className="ui-card p-5 lg:col-span-2">
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <p className="text-sm font-extrabold uppercase tracking-wide text-muted">
+            Nhịp hoạt động 14 ngày
+          </p>
+          <p className="mt-1 text-xs text-muted">
+            Theo dõi học tập, tăng trưởng và sản phẩm trên cùng một trục thời gian.
+          </p>
+        </div>
+        <div className="flex flex-wrap gap-3 text-xs font-bold">
+          {series.map((item) => (
+            <span key={item.key} className="flex items-center gap-1.5">
+              <span className="h-2.5 w-2.5 rounded-full" style={{ background: item.color }} />
+              {item.label}
+            </span>
+          ))}
+        </div>
+      </div>
+      {rows.length === 0 ? (
+        <p className="mt-6 rounded-2xl bg-page p-6 text-center text-sm text-muted">
+          Chưa có dữ liệu theo ngày.
+        </p>
+      ) : (
+        <div className="mt-4 overflow-x-auto">
+          <svg
+            viewBox={`0 0 ${width} ${height}`}
+            className="min-w-[620px]"
+            role="img"
+            aria-label="Biểu đồ hoạt động hệ thống trong 14 ngày gần nhất"
+          >
+            {[0, 0.25, 0.5, 0.75, 1].map((ratio) => {
+              const lineY = padY + ratio * (height - padY * 2)
+              const value = Math.round(max * (1 - ratio))
+              return (
+                <g key={ratio}>
+                  <line x1={padX} y1={lineY} x2={width - padX} y2={lineY} stroke="#e8e5f2" strokeWidth="1" />
+                  <text x={padX - 8} y={lineY + 4} textAnchor="end" fontSize="10" fill="#726f80">{value}</text>
+                </g>
+              )
+            })}
+            {series.map((item) => (
+              <polyline
+                key={item.key}
+                points={points(item.key)}
+                fill="none"
+                stroke={item.color}
+                strokeWidth="4"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            ))}
+            {rows.map((row, index) =>
+              series.map((item) => (
+                <circle key={`${row.date}-${item.key}`} cx={x(index)} cy={y(row[item.key])} r="4" fill="white" stroke={item.color} strokeWidth="3">
+                  <title>{`${row.date} · ${item.label}: ${row[item.key]}`}</title>
+                </circle>
+              )),
+            )}
+            {[...new Set([0, Math.floor((rows.length - 1) / 2), rows.length - 1])].map((index) => (
+              <text key={index} x={x(index)} y={height - 3} textAnchor="middle" fontSize="10" fill="#726f80">
+                {new Date(`${rows[index].date}T00:00:00`).toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })}
+              </text>
+            ))}
+          </svg>
+        </div>
+      )}
     </div>
   )
 }
@@ -409,6 +508,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         <StatCard label="Dự án" value={analytics.learning.projects} icon="🎨" />
       </div>
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
+        <TrendChart rows={analytics.trends ?? []} />
         <div className="ui-card p-5">
           <p className="mb-4 text-sm font-extrabold uppercase tracking-wide text-muted">Users theo role</p>
           <div className="flex flex-col gap-3">

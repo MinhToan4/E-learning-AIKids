@@ -1,6 +1,7 @@
 import { useEffect, useState, useCallback } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
+import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
 import { api } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
@@ -66,7 +67,19 @@ type QuestProg = {
 
 type ChildProgress = {
   child: { id: string; nickname: string | null; level: number; xp: number }
-  courseId: string
+  courseId: string | null
+  courses: Array<{ id: string; title: string; shortTitle: string; ageLabel: string }>
+  summary: {
+    completed: number
+    total: number
+    totalStars: number
+    currentPhase: string | null
+  }
+  insights: {
+    strengths: string[]
+    nextFocus: string | null
+    outcomes: string[]
+  }
   quests: QuestProg[]
 }
 
@@ -396,6 +409,7 @@ function KidsTab() {
   const [msg, setMsg] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [enterPin, setEnterPin] = useState('')
+  const [deleteTarget, setDeleteTarget] = useState<Child | null>(null)
   const enterAsChild = useAuth((s) => s.enterAsChild)
   const navigate = useNavigate()
 
@@ -419,12 +433,12 @@ function KidsTab() {
     void loadKids()
   }, [loadKids])
 
-  async function viewProgress(childId: string) {
+  async function viewProgress(childId: string, courseId?: string) {
     setSelectedChild(childId)
     setProgress(null)
     try {
       const data = await api<ChildProgress>(
-        `/api/parent/children/${childId}/progress?courseId=course-comic`,
+        `/api/parent/children/${childId}/progress${courseId ? `?courseId=${encodeURIComponent(courseId)}` : ''}`,
       )
       setProgress(data)
     } catch {
@@ -433,27 +447,26 @@ function KidsTab() {
   }
 
   async function deleteChild(childId: string) {
-    if (!confirm('Vô hiệu hóa tài khoản con? (có thể khôi phục sau)')) return
     try {
       await api(`/api/parent/children/${childId}`, { method: 'DELETE' })
       setMsg('Tài khoản con đã được vô hiệu hóa.')
       await loadKids()
+      setDeleteTarget(null)
       if (selectedChild === childId) {
         setSelectedChild(null)
         setProgress(null)
       }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Lỗi')
+      setDeleteTarget(null)
     }
   }
 
   async function playAsChild(child: Child) {
     try {
-      const pin =
-        child.hasPin
-          ? enterPin || prompt('Nhập mã PIN 6 số của con') || ''
-          : undefined
+      const pin = child.hasPin ? enterPin : undefined
       if (child.hasPin && (!pin || pin.length !== 6)) {
+        setSelectedChild(child.id)
         setError('Cần mã PIN đủ 6 số để mở hồ sơ con')
         return
       }
@@ -594,7 +607,7 @@ function KidsTab() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => void deleteChild(k.id)}
+                    onClick={() => setDeleteTarget(k)}
                     className="rounded-lg p-2 text-sm hover:bg-coral-50"
                     title="Vô hiệu hóa"
                   >
@@ -620,11 +633,82 @@ function KidsTab() {
           {progress && (
             <div className="flex flex-col gap-2">
               <div className="mb-2 rounded-xl bg-brand-50 px-3 py-2 text-sm">
-                <span className="font-bold">{progress.child.nickname}</span> — Khóa truyện tranh
+                <div className="flex flex-wrap items-center justify-between gap-2">
+                  <span className="font-bold">{progress.child.nickname}</span>
+                  {progress.courses.length > 0 && (
+                    <select
+                      className="min-h-10 rounded-xl border-2 border-brand-100 bg-white px-2 text-xs font-bold"
+                      value={progress.courseId ?? ''}
+                      onChange={(event) => void viewProgress(progress.child.id, event.target.value)}
+                      aria-label="Chọn khóa học để xem tiến trình"
+                    >
+                      {progress.courses.map((course) => (
+                        <option key={course.id} value={course.id}>
+                          {course.shortTitle || course.title}
+                        </option>
+                      ))}
+                    </select>
+                  )}
+                </div>
                 <span className="ml-2 text-xs text-muted">
                   Lv.{progress.child.level} · {progress.child.xp} XP
                 </span>
               </div>
+              <div className="mb-2 grid grid-cols-3 gap-2">
+                <div className="rounded-2xl bg-mint-100/60 p-3 text-center">
+                  <p className="font-display text-2xl text-success">{progress.summary.completed}/{progress.summary.total}</p>
+                  <p className="text-[11px] font-bold text-muted">Bài hoàn thành</p>
+                </div>
+                <div className="rounded-2xl bg-sun-100/60 p-3 text-center">
+                  <p className="font-display text-2xl text-warning">{progress.summary.totalStars}</p>
+                  <p className="text-[11px] font-bold text-muted">Sao nỗ lực</p>
+                </div>
+                <div className="rounded-2xl bg-sky-100/60 p-3 text-center">
+                  <p className="font-display text-lg text-sky-700">
+                    {progress.summary.currentPhase === 'game'
+                      ? 'Đang chơi'
+                      : progress.summary.currentPhase === 'practice'
+                        ? 'Đang làm'
+                        : progress.summary.currentPhase === 'check'
+                          ? 'Đang thử tài'
+                          : 'Sẵn sàng'}
+                  </p>
+                  <p className="text-[11px] font-bold text-muted">Nhịp hiện tại</p>
+                </div>
+              </div>
+              {(progress.insights.strengths.length > 0 || progress.insights.nextFocus) && (
+                <div className="mb-2 grid gap-3 rounded-2xl bg-gradient-to-br from-sky-50 to-mint-100/40 p-4 sm:grid-cols-2">
+                  <div>
+                    <p className="text-xs font-extrabold uppercase tracking-wide text-success">Điều con đang làm tốt</p>
+                    {progress.insights.strengths.length > 0 ? (
+                      <ul className="mt-2 space-y-1 text-sm">
+                        {progress.insights.strengths.map((skill) => <li key={skill}>🌱 {skill}</li>)}
+                      </ul>
+                    ) : <p className="mt-2 text-sm text-muted">Con đang bắt đầu hành trình; hãy ghi nhận lần thử đầu tiên.</p>}
+                  </div>
+                  <div>
+                    <p className="text-xs font-extrabold uppercase tracking-wide text-sky-700">Ba/mẹ có thể hỏi con</p>
+                    <p className="mt-2 text-sm leading-relaxed text-text">
+                      {progress.insights.nextFocus
+                        ? `“Con muốn kể cho ba/mẹ nghe về ${progress.insights.nextFocus.toLowerCase()} không?”`
+                        : '“Sản phẩm nào trong khóa học làm con tự hào nhất?”'}
+                    </p>
+                  </div>
+                </div>
+              )}
+              {progress.insights.outcomes.length > 0 && (
+                <details className="mb-2 rounded-2xl border border-border bg-white p-3">
+                  <summary className="cursor-pointer text-sm font-extrabold text-brand-600">Khóa học hướng tới những năng lực nào?</summary>
+                  <ul className="mt-2 space-y-1 text-sm text-muted">
+                    {progress.insights.outcomes.map((outcome) => <li key={outcome}>• {outcome}</li>)}
+                  </ul>
+                </details>
+              )}
+              {progress.courses.length === 0 && (
+                <p className="rounded-2xl bg-page p-4 text-sm text-muted">
+                  Con chưa tham gia khóa học nào. Ba/mẹ có thể vào hồ sơ của con để chọn khóa phù hợp.
+                </p>
+              )}
               {progress.quests.map((q) => (
                 <div
                   key={q.id}
@@ -662,6 +746,17 @@ function KidsTab() {
           )}
         </div>
       </div>
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="Tạm khóa hồ sơ của con?"
+        description="Con sẽ chưa thể vào học, nhưng toàn bộ tiến trình và sản phẩm vẫn được giữ để khôi phục sau."
+        confirmLabel="Tạm khóa hồ sơ"
+        danger
+        onCancel={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget) void deleteChild(deleteTarget.id)
+        }}
+      />
     </div>
   )
 }

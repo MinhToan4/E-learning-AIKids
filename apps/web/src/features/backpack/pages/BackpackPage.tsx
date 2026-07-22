@@ -85,7 +85,7 @@ export function BackpackPage() {
       <div>
         <h1 className="font-display text-3xl">Ba lô sáng tạo</h1>
         <p className="text-muted">
-          Sản phẩm con tạo trong khóa học — mặc định chỉ con xem. Không upload ảnh
+          Ba lô lưu những sản phẩm con đã tạo trong bài học — mặc định chỉ con xem.
           tùy ý từ máy.
         </p>
       </div>

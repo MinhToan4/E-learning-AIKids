@@ -13,12 +13,12 @@ function read(rel: string) {
 }
 
 describe('Phase 4 FE surfaces call shipped APIs', () => {
-  it('HomePage loads streak, check-in, achievements, courses, leaderboard', () => {
+  it('HomePage loads private progress and courses without a public leaderboard', () => {
     const src = read('features/home/pages/HomePage.tsx')
     expect(src).toContain('/api/gamification/streak')
     expect(src).toContain('/api/gamification/check-in')
     expect(src).toContain('/api/gamification/achievements')
-    expect(src).toContain('/api/gamification/leaderboard')
+    expect(src).not.toContain('/api/gamification/leaderboard')
     expect(src).toContain('/api/courses')
     expect(src).toContain('ageTrack')
   })
@@ -31,14 +31,27 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(lesson).toContain('sketchDataUrl')
     const picker = read('features/lesson/components/RefMediaPicker.tsx')
     expect(picker).toContain('/api/media/refs')
-    expect(picker).toContain('/api/media/promote')
+    expect(picker).not.toContain('/api/media/promote')
     expect(picker).not.toContain('uploadStudentImage')
-    expect(picker).toContain('không upload ảnh ngoài')
+    expect(picker).toContain('Sản phẩm đồng hành')
+    expect(picker).not.toContain('refImageUrl')
+    expect(picker).not.toContain('startImages')
+    expect(picker).not.toContain('data URL')
+    expect(picker).not.toContain('Vidtory')
     const sketch = read('features/lesson/components/SketchCanvas.tsx')
     expect(sketch).toContain('toDataURL')
     expect(sketch).toContain('không chọn ảnh từ máy')
     const bag = read('features/backpack/pages/BackpackPage.tsx')
     expect(bag).not.toContain('uploadStudentImage')
+  })
+
+  it('completed lesson review is read-only and stale phase is recovered', () => {
+    const lesson = read('features/lesson/pages/LessonPage.tsx')
+    expect(lesson).toContain('reviewMode')
+    expect(lesson).toContain('Quay lại kết quả')
+    expect(lesson).toContain("detail.reason !== 'phase_mismatch'")
+    expect(lesson).toContain('setPhase(detail.currentPhase)')
+    expect(lesson).not.toContain('Tiến trình bài học đã thay đổi')
   })
 
   it('AchievementsPage and NotificationBell exist with real endpoints', () => {
@@ -72,5 +85,13 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     const src = read('app/App.tsx')
     expect(src).toContain('/achievements')
     expect(src).toContain('AchievementsPage')
+  })
+
+  it('root rendering has a child-friendly recovery boundary', () => {
+    const main = read('app/main.tsx')
+    const boundary = read('shared/components/AppErrorBoundary.tsx')
+    expect(main).toContain('AppErrorBoundary')
+    expect(boundary).toContain('Nội dung của con vẫn được giữ an toàn')
+    expect(boundary).not.toContain('componentStack}</')
   })
 })

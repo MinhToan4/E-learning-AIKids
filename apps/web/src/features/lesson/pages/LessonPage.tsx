@@ -18,15 +18,19 @@ import {
   type PromptSlotKey,
 } from '@aikids/domain'
 import { Button } from '@/shared/components/ui/Button'
-import { api, type QuestDetail } from '@/shared/lib/api'
+import { ApiError, api, type QuestDetail } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets, styleImage } from '@/shared/config/assets'
 import { RefMediaPicker } from '@/features/lesson/components/RefMediaPicker'
 import { SketchCanvas } from '@/features/lesson/components/SketchCanvas'
+import {
+  CurriculumGame,
+  type GameEvidence,
+} from '@/features/lesson/components/CurriculumGame'
 
-type Phase = 'learn' | 'practice' | 'check' | 'done'
+type Phase = 'learn' | 'game' | 'practice' | 'check' | 'done'
 
-const GEN_KINDS = new Set(['ai_pick', 'video', 'chips', 'character'])
+const GEN_KINDS = new Set(['ai_pick', 'video', 'chips'])
 
 
 const emptyStory = {
@@ -45,8 +49,9 @@ export function LessonPage() {
   const [loading, setLoading] = useState(true)
   const [parts, setParts] = useState<PromptParts>({})
   const [generated, setGenerated] = useState<{
-    imageDataUrl: string
+    url: string
     title: string
+    mediaKind: 'image' | 'video'
   } | null>(null)
   const [charName, setCharName] = useState('Mèo Sao')
   const [charShape, setCharShape] = useState<CharacterShapeId>('animal')
@@ -68,10 +73,12 @@ export function LessonPage() {
     message: string
     nextQuestId: string | null
     newAchievements?: string[]
+    courseCredential?: string | null
   } | null>(null)
   const [busy, setBusy] = useState(false)
   const [refAssetIds, setRefAssetIds] = useState<string[]>([])
   const [sketchDataUrl, setSketchDataUrl] = useState<string | null>(null)
+  const [reviewMode, setReviewMode] = useState(false)
 
   const resetLocal = useCallback(() => {
     setPhase('learn')
@@ -85,12 +92,35 @@ export function LessonPage() {
     setStory(emptyStory)
     setComicBubbles(['Xin chào!', 'Ôi không!', 'Mình sửa nhé!', 'Xong rồi!'])
     setDetectivePick(null)
+    setJournalText('')
+    setPaletteColors(['#6d5efc', '#3dbfff', '#ffc94a'])
     setRefAssetIds([])
     setSketchDataUrl(null)
     setAnswers({})
     setCheckResult(null)
+    setReviewMode(false)
     setQuest(null)
   }, [])
+
+  function recoverCurrentPhase(error: unknown): boolean {
+    if (!(error instanceof ApiError) || error.status !== 409) return false
+    const body = error.body
+    if (!body || typeof body !== 'object') return false
+    const detail = body as { reason?: unknown; currentPhase?: unknown }
+    if (detail.reason !== 'phase_mismatch') return false
+    if (
+      detail.currentPhase !== 'learn' &&
+      detail.currentPhase !== 'game' &&
+      detail.currentPhase !== 'practice' &&
+      detail.currentPhase !== 'check'
+    ) {
+      return false
+    }
+    setPhase(detail.currentPhase)
+    setReviewMode(false)
+    setError('Bài học vừa được cập nhật. Mình tiếp tục ở phần đang làm nhé!')
+    return true
+  }
 
   useEffect(() => {
     let cancelled = false
@@ -120,6 +150,7 @@ export function LessonPage() {
           })
           // Still fetch next from course map if needed on UI
         } else if (
+          start.progress.phase === 'game' ||
           start.progress.phase === 'practice' ||
           start.progress.phase === 'check'
         ) {
@@ -174,6 +205,12 @@ export function LessonPage() {
 
   const promptText = useMemo(() => assemblePrompt(parts), [parts])
   const panels = useMemo(() => storyToPanelHints(story), [story])
+  const gameStation = quest?.stations?.stations.find(
+    (station) => station.kind === 'game',
+  )
+  const practiceStation = quest?.stations?.stations.find(
+    (station) => station.kind === 'practice',
+  )
 
   function selectChip(chip: PromptChip) {
     setParts((p) => ({ ...p, [chip.slot]: chip }))
@@ -201,6 +238,9 @@ export function LessonPage() {
     if (
       (quest.practiceKind === 'journal' ||
         quest.practiceKind === 'reflect' ||
+        quest.practiceKind === 'spin' ||
+        quest.practiceKind === 'match' ||
+        quest.practiceKind === 'drag' ||
         quest.practiceKind === 'ai_pick') &&
       !journalText.trim()
     ) {
@@ -211,6 +251,9 @@ export function LessonPage() {
     }
     if (quest.practiceKind === 'sketch' && !sketchDataUrl) {
       return 'Hãy vẽ vài nét trên canvas trong bài nhé!'
+    }
+    if (quest.practiceKind === 'video' && !journalText.trim()) {
+      return 'Viết mô tả chuyển động hoặc cảnh phim trước nhé!'
     }
     return null
   }
@@ -223,9 +266,29 @@ export function LessonPage() {
         method: 'POST',
         body: JSON.stringify({ fromPhase: 'learn' }),
       })
+      setPhase('game')
+    } catch (e) {
+      if (!recoverCurrentPhase(e)) {
+        setError(e instanceof Error ? e.message : 'Chưa mở được phần chơi')
+      }
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function advanceFromGame(gameEvidence: GameEvidence) {
+    setBusy(true)
+    setError(null)
+    try {
+      await api(`/api/progress/${questId}/advance`, {
+        method: 'POST',
+        body: JSON.stringify({ fromPhase: 'game', gameEvidence }),
+      })
       setPhase('practice')
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Lỗi')
+      if (!recoverCurrentPhase(e)) {
+        setError(e instanceof Error ? e.message : 'Chưa lưu được lượt chơi')
+      }
     } finally {
       setBusy(false)
     }
@@ -261,7 +324,11 @@ export function LessonPage() {
           panels,
         }
       } else if (quest.practiceKind === 'video') {
-        payload = { title: 'Video mini', scenes: panels }
+        payload = {
+          title: quest.title,
+          scenes: [{ label: 'Cảnh của con', beat: journalText.trim() }],
+          freeText: journalText.trim(),
+        }
       } else if (quest.practiceKind === 'detective') {
         payload = { pickedCorrect: detectivePick === 0 }
       } else if (quest.practiceKind === 'sketch') {
@@ -313,14 +380,15 @@ export function LessonPage() {
       if (res.result?.generated) {
         const g = res.result.generated
         setGenerated({
-          imageDataUrl:
-            g.imageDataUrl ?? g.imageUrl ?? g.videoUrl ?? '',
+          url: g.imageDataUrl ?? g.imageUrl ?? g.videoUrl ?? '',
           title: g.title,
+          mediaKind: g.videoUrl ? 'video' : 'image',
         })
       } else if (res.result?.asset?.url) {
         setGenerated({
-          imageDataUrl: res.result.asset.url,
+          url: res.result.asset.url,
           title: 'Bản vẽ của con',
+          mediaKind: 'image',
         })
       }
       await api(`/api/progress/${questId}/advance`, {
@@ -329,7 +397,9 @@ export function LessonPage() {
       })
       setPhase('check')
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Chưa lưu được')
+      if (!recoverCurrentPhase(e)) {
+        setError(e instanceof Error ? e.message : 'Chưa lưu được')
+      }
     } finally {
       setBusy(false)
     }
@@ -350,6 +420,7 @@ export function LessonPage() {
         message: string
         nextQuestId: string | null
         newAchievements?: string[]
+        courseCredential?: string | null
       }>(`/api/progress/${questId}/check`, {
         method: 'POST',
         body: JSON.stringify({
@@ -362,7 +433,9 @@ export function LessonPage() {
       setCheckResult(res)
       setPhase('done')
     } catch (e) {
-      setError(e instanceof Error ? e.message : 'Chưa gửi được')
+      if (!recoverCurrentPhase(e)) {
+        setError(e instanceof Error ? e.message : 'Chưa gửi được')
+      }
     } finally {
       setBusy(false)
     }
@@ -402,7 +475,7 @@ export function LessonPage() {
           <h1 className="font-display text-3xl">{quest.title}</h1>
         </div>
         <div className="flex gap-1" aria-label="Tiến trình bài">
-          {(['learn', 'practice', 'check'] as const).map((p) => (
+          {(['learn', 'game', 'practice', 'check'] as const).map((p) => (
             <span
               key={p}
               className={cn(
@@ -412,7 +485,13 @@ export function LessonPage() {
                   : 'bg-brand-50 text-muted',
               )}
             >
-              {p === 'learn' ? 'Học' : p === 'practice' ? 'Làm' : 'Check'}
+              {p === 'learn'
+                ? 'Học'
+                : p === 'game'
+                  ? 'Game'
+                  : p === 'practice'
+                    ? 'Làm'
+                    : 'Check'}
             </span>
           ))}
         </div>
@@ -465,14 +544,52 @@ export function LessonPage() {
               <li key={g}>{g}</li>
             ))}
           </ul>
-          <Button onClick={() => void advanceFromLearn()} disabled={busy}>
-            Bắt đầu thực hành
+          <Button
+            onClick={() => {
+              if (reviewMode) {
+                setReviewMode(false)
+                setPhase('done')
+                return
+              }
+              void advanceFromLearn()
+            }}
+            disabled={busy}
+          >
+            {reviewMode ? 'Quay lại kết quả' : 'Bắt đầu trò chơi'}
           </Button>
+        </div>
+      )}
+
+      {phase === 'game' && gameStation && (
+        <div className="ui-card p-5 animate-fade-up">
+          <CurriculumGame
+            gameType={gameStation.gameType}
+            gameConfig={gameStation.gameConfig}
+            instruction={
+              gameStation.instruction ??
+              'Chơi một lượt để ghi nhớ ý chính của bài.'
+            }
+            outcome={gameStation.outcome}
+            onComplete={(evidence) => void advanceFromGame(evidence)}
+          />
         </div>
       )}
 
       {phase === 'practice' && (
         <div className="ui-card flex flex-col gap-4 p-5 animate-fade-up">
+          {practiceStation?.instruction && (
+            <div className="rounded-2xl border-2 border-mint-100 bg-mint-100/40 p-4">
+              <p className="font-display text-xl">✏️ Nhiệm vụ thực hành</p>
+              <p className="mt-1 text-sm font-semibold leading-relaxed">
+                {practiceStation.instruction}
+              </p>
+              {practiceStation.product && (
+                <p className="mt-2 text-xs text-muted">
+                  Sản phẩm cần lưu: {practiceStation.product}
+                </p>
+              )}
+            </div>
+          )}
           {quest.practiceKind === 'chips' && quest.chips && (
             <>
               <p className="font-extrabold">Ghép thẻ để mô tả cho AI</p>
@@ -501,13 +618,6 @@ export function LessonPage() {
               <div className="rounded-2xl bg-sky-100 p-3 text-sm">
                 <strong>Câu mô tả:</strong> {promptText}
               </div>
-              {generated && (
-                <img
-                  src={generated.imageDataUrl}
-                  alt={generated.title}
-                  className="max-h-64 rounded-2xl border-2 border-border"
-                />
-              )}
             </>
           )}
 
@@ -736,13 +846,16 @@ export function LessonPage() {
                   : 'Sắp xếp cảnh video mini — mỗi cảnh một câu kể.'}
               </p>
               {quest.practiceKind === 'video' && (
-                <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm">
-                  {panels.map((p) => (
-                    <li key={p.panel}>
-                      {p.label}: {p.beat}
-                    </li>
-                  ))}
-                </ol>
+                <label className="mt-3 flex flex-col gap-2 text-sm font-bold">
+                  Mô tả chuyển động hoặc cảnh phim của con
+                  <textarea
+                    className="min-h-28 rounded-2xl border-2 border-border bg-white p-3 font-normal"
+                    value={journalText}
+                    maxLength={800}
+                    placeholder="Ai đang làm gì, chuyển động nhanh hay chậm, cảm xúc ra sao?"
+                    onChange={(event) => setJournalText(event.target.value)}
+                  />
+                </label>
               )}
             </div>
           )}
@@ -828,17 +941,29 @@ export function LessonPage() {
 
           {generated && (
             <div className="overflow-hidden rounded-2xl border-2 border-border">
-              <img
-                src={generated.imageDataUrl}
-                alt={generated.title}
-                className="max-h-64 w-full object-contain bg-brand-50"
-              />
+              {generated.mediaKind === 'video' ? (
+                <video
+                  src={generated.url}
+                  controls
+                  playsInline
+                  preload="metadata"
+                  className="max-h-80 w-full bg-black"
+                >
+                  Trình duyệt chưa phát được video này.
+                </video>
+              ) : (
+                <img
+                  src={generated.url}
+                  alt={generated.title}
+                  className="max-h-64 w-full bg-brand-50 object-contain"
+                />
+              )}
               <p className="p-2 text-center text-sm font-bold">{generated.title}</p>
             </div>
           )}
 
           <Button onClick={() => void savePractice()} disabled={busy}>
-            {busy ? 'Đang lưu…' : 'Xong thực hành → Check'}
+            {busy ? 'Đang lưu…' : 'Lưu sản phẩm và thử tài'}
           </Button>
         </div>
       )}
@@ -895,6 +1020,17 @@ export function LessonPage() {
                 🏆 Huy hiệu mới: {checkResult.newAchievements.join(', ')}
               </p>
             )}
+          {checkResult.courseCredential && (
+            <div className="rounded-3xl border-2 border-sun-200 bg-sun-100/60 px-5 py-4">
+              <p className="font-display text-xl">🎓 Huy hiệu hoàn thành khóa</p>
+              <p className="mt-1 text-sm font-bold">
+                {checkResult.courseCredential}
+              </p>
+              <p className="mt-1 text-xs text-muted">
+                Do AI Kids Creator Academy ghi nhận · đã lưu riêng tư vào Vũ trụ của em
+              </p>
+            </div>
+          )}
           <div className="mt-2 flex flex-wrap justify-center gap-2">
             {checkResult.nextQuestId ? (
               <Button
@@ -914,9 +1050,9 @@ export function LessonPage() {
             <Button
               variant="ghost"
               onClick={() => {
+                setReviewMode(true)
                 setPhase('learn')
                 setAnswers({})
-                setCheckResult(null)
               }}
             >
               Xem lại bài

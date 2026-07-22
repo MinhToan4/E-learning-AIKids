@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import { api } from '@/shared/lib/api'
-import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
 type MineAsset = {
@@ -13,7 +12,6 @@ type MineAsset = {
 
 /**
  * Only course-created assets (vẽ/gen trong bài) — no free photo upload.
- * Optional promote to Vidtory CDN for better i2v/startImages.
  */
 export function RefMediaPicker({
   selectedIds,
@@ -26,9 +24,6 @@ export function RefMediaPicker({
   max?: number
 }) {
   const [mine, setMine] = useState<MineAsset[]>([])
-  const [busy, setBusy] = useState(false)
-  const [err, setErr] = useState<string | null>(null)
-  const [msg, setMsg] = useState<string | null>(null)
 
   const load = useCallback(async () => {
     try {
@@ -52,71 +47,28 @@ export function RefMediaPicker({
     onChange([...selectedIds, id])
   }
 
-  async function promoteSelected() {
-    if (selectedIds.length === 0) return
-    setBusy(true)
-    setErr(null)
-    setMsg(null)
-    try {
-      for (const assetId of selectedIds) {
-        await api('/api/media/promote', {
-          method: 'POST',
-          body: JSON.stringify({ assetId, purpose: 'course_ref_promote' }),
-        })
-      }
-      setMsg('Đã đẩy sản phẩm khóa học lên Vidtory (tag aikids_user_id).')
-      await load()
-    } catch (e) {
-      setErr(e instanceof Error ? e.message : 'Không promote được')
-    } finally {
-      setBusy(false)
-    }
-  }
-
   return (
     <div className="rounded-2xl border-2 border-dashed border-brand-100 bg-brand-50/40 p-3">
       <p className="text-sm font-extrabold text-brand-600">
-        Ảnh tham chiếu từ bài học (không upload ảnh ngoài)
+        Sản phẩm đồng hành
       </p>
       <p className="mb-2 text-xs text-muted">
-        Chỉ chọn sản phẩm con đã vẽ/gen trong khóa (quest). 0 ảnh = text · 1 = refImageUrl ·
-        nhiều = startImages. Không cho ảnh tùy ý từ máy.
+        Con có thể chọn tối đa {max} sản phẩm đã tạo trong các bài học để tiếp tục
+        phát triển ý tưởng. Bước này không bắt buộc.
       </p>
-      {err && (
-        <p className="mb-2 text-xs font-bold text-danger" role="alert">
-          {err}
-        </p>
+      {selectedIds.length > 0 && (
+        <button
+          type="button"
+          className="mb-2 min-h-11 rounded-xl px-3 text-xs font-bold text-brand-600 hover:bg-brand-50"
+          onClick={() => onChange([])}
+        >
+          Bỏ chọn ({selectedIds.length})
+        </button>
       )}
-      {msg && (
-        <p className="mb-2 text-xs font-bold text-success">{msg}</p>
-      )}
-      <div className="mb-2 flex flex-wrap gap-2">
-        {selectedIds.length > 0 && (
-          <>
-            <Button
-              type="button"
-              variant="secondary"
-              className="!min-h-9 !px-3 !text-xs"
-              disabled={busy}
-              onClick={() => void promoteSelected()}
-            >
-              {busy ? 'Đang gửi…' : 'Gửi lên Vidtory để xử lý'}
-            </Button>
-            <Button
-              type="button"
-              variant="ghost"
-              className="!min-h-9 !px-3 !text-xs"
-              onClick={() => onChange([])}
-            >
-              Bỏ chọn ({selectedIds.length})
-            </Button>
-          </>
-        )}
-      </div>
       {mine.length === 0 ? (
         <p className="text-xs text-muted">
-          Chưa có sản phẩm trong khóa — hoàn thành trạm vẽ/gen trước, rồi quay lại chọn làm
-          ref.
+          Chưa có sản phẩm phù hợp. Con hãy hoàn thành một nhiệm vụ vẽ hoặc sáng
+          tạo trước, rồi quay lại đây nhé!
         </p>
       ) : (
         <div className="grid grid-cols-4 gap-2 sm:grid-cols-6">

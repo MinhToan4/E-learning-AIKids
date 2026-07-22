@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { BookOpen, Sparkles, Target, Trophy } from 'lucide-react'
+import { Award, BookOpen, ShieldCheck, Sparkles, Target, Trophy } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { api, type CourseSummary } from '@/shared/lib/api'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
@@ -9,6 +9,13 @@ type CourseDetail = CourseSummary & {
   description: string
   outcomes: string[]
   skills: string[]
+  recognition?: {
+    issuer: string
+    credential: string
+    finalAssessment: string
+    frameworks: Array<{ code: string; title: string }>
+    disclaimer: string
+  }
   quests: Array<{ id: string; order: number; title: string; practiceKind: string }>
 }
 
@@ -153,6 +160,53 @@ export function CourseIntroPage() {
         </ul>
       </section>
 
+      {course.recognition?.frameworks && (
+        <section className="ui-card p-5" aria-labelledby="recognition-title">
+          <h2
+            id="recognition-title"
+            className="font-display mb-3 flex items-center gap-2 text-2xl"
+          >
+            <ShieldCheck className="text-brand-500" size={24} />
+            Ghi nhận minh bạch
+          </h2>
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl border-2 border-sun-100 bg-sun-100/40 p-4">
+              <p className="text-xs font-extrabold uppercase tracking-wide text-muted">
+                Đơn vị ghi nhận hoàn thành
+              </p>
+              <p className="mt-1 flex items-start gap-2 font-bold">
+                <Award className="mt-0.5 shrink-0 text-sun-500" size={18} />
+                {course.recognition.issuer}
+              </p>
+              <p className="mt-2 text-sm text-muted">
+                {course.recognition.credential}
+              </p>
+            </div>
+            <div className="rounded-2xl border-2 border-brand-100 bg-brand-50 p-4">
+              <p className="text-xs font-extrabold uppercase tracking-wide text-muted">
+                Cách hoàn thành
+              </p>
+              <p className="mt-1 text-sm font-semibold">
+                {course.recognition.finalAssessment}
+              </p>
+            </div>
+          </div>
+          <div className="mt-3 rounded-2xl border border-border px-4 py-3">
+            <p className="text-sm font-extrabold">Khung nội dung tham chiếu</p>
+            <ul className="mt-2 space-y-1 text-sm text-muted">
+              {course.recognition.frameworks.map((framework) => (
+                <li key={framework.code}>
+                  {framework.code} · {framework.title}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-2 text-xs leading-relaxed text-muted">
+              {course.recognition.disclaimer}
+            </p>
+          </div>
+        </section>
+      )}
+
       <section className="ui-card p-5">
         <h2 className="font-display mb-3 flex items-center gap-2 text-2xl">
           <Trophy className="text-sun-400" size={24} />
@@ -171,7 +225,7 @@ export function CourseIntroPage() {
         </ul>
         <p className="mt-3 text-sm text-muted">
           Sản phẩm chính: <strong>{course.productLabel}</strong> ·{' '}
-          {course.quests?.length ?? 0} trạm · Học → Làm → Check
+          {course.quests?.length ?? 0} nhiệm vụ · Khám phá → Chơi → Sáng tạo → Thử tài
         </p>
       </section>
 

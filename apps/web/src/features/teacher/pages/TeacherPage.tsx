@@ -27,7 +27,27 @@ type StudentRow = {
   projectCount: number
 }
 
-type Lecture = LectureRow & { archived?: boolean; stage?: string; skill?: string; reward?: string; duration?: string; accent?: string }
+type Lecture = LectureRow & {
+  archived?: boolean
+  stage?: string
+  skill?: string
+  reward?: string
+  duration?: string
+  accent?: string
+  goals?: string[]
+  concept?: string
+  example?: string
+  gameType?: string
+  gameInstruction?: string
+  gameOutcome?: string
+  gameCards?: string[]
+  practiceInstruction?: string
+  product?: string
+  checkQuestion?: string
+  checkOptions?: string[]
+  correctIndex?: number
+  checkExplain?: string
+}
 
 type CourseLectures = {
   id: string
@@ -46,7 +66,18 @@ type ClassStats = {
   totalCompletedQuests: number
   openQuestCount: number
   projectCount: number
-  students: Array<{ id: string; nickname: string | null; level: number; xp: number; completedQuests: number }>
+  students: Array<{
+    id: string
+    nickname: string | null
+    level: number
+    xp: number
+    completedQuests: number
+    currentQuest: string | null
+    currentPhase: string | null
+    lastActiveAt: string | null
+    needsSupport: boolean
+    supportReason: string | null
+  }>
 }
 
 type ProgressDetail = {
@@ -57,6 +88,51 @@ type ProgressDetail = {
 export type TeacherTab = 'class' | 'courses' | 'lectures' | 'stats'
 
 const PRACTICE_KINDS = ['intro','journal','sketch','character','style','chips','ai_pick','story','comic','video','detective','palette','reflect','match','drag','spin']
+
+function splitLines(value: string): string[] {
+  return value
+    .split(/\r?\n/)
+    .map((item) => item.trim())
+    .filter(Boolean)
+}
+
+const PHASE_LABELS: Record<string, string> = {
+  learn: 'Khám phá',
+  game: 'Trò chơi',
+  practice: 'Sáng tạo',
+  check: 'Thử tài',
+}
+
+function formatActivity(value: string | null): string {
+  if (!value) return 'Chưa bắt đầu'
+  return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value))
+}
+
+const initialLectureForm = () => ({
+  id: '',
+  title: '',
+  skill: '',
+  hook: '',
+  practiceKind: 'journal',
+  videoUrl: '',
+  concept: '',
+  example: '',
+  reward: '',
+  duration: '25–35 phút',
+  goalsText: '',
+  gameType: 'pick',
+  gameInstruction: '',
+  gameOutcome: '',
+  gameCardsText: '',
+  practiceInstruction: '',
+  product: '',
+  checkQuestion: '',
+  checkOption1: '',
+  checkOption2: '',
+  checkOption3: '',
+  correctIndex: '0',
+  checkExplain: '',
+})
 
 // ── Stat card ────────────────────────────────────────────────
 function StatCard({ label, value, icon }: { label: string; value: number | string; icon: string }) {
@@ -95,18 +171,15 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const [courses, setCourses] = useState<CourseLectures[]>([])
   const [newCourse, setNewCourse] = useState({
     id: '', title: '', shortTitle: '', tagline: '', description: '',
-    productLabel: 'Sản phẩm khóa', ageLabel: '6–8 tuổi',
+    productLabel: '', ageTrack: 'L1', courseKey: 'K1', durationLabel: '8 tuần',
+    skillsText: '', outcomesText: '', credential: '', finalAssessment: '',
   })
 
   // Lectures state
   const [selectedCourseId, setSelectedCourseId] = useState<string>('')
   const [selected, setSelected] = useState<Lecture | null>(null)
-  const [editForm, setEditForm] = useState({ title: '', hook: '', skill: '', practiceKind: 'intro', videoUrl: '' })
-  const [newLecture, setNewLecture] = useState({
-    id: '', title: '', skill: 'Kỹ năng mới', hook: 'Chào con!', practiceKind: 'intro',
-    concept: 'Nội dung bài giảng này', example: 'Ví dụ thực hành', reward: 'Huy hiệu mới',
-    duration: '8–10 phút',
-  })
+  const [editForm, setEditForm] = useState(initialLectureForm)
+  const [newLecture, setNewLecture] = useState(initialLectureForm)
   const [archiveTarget, setArchiveTarget] = useState<Lecture | null>(null)
 
   // Stats state
@@ -161,7 +234,32 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   // ── Handlers ─────────────────────────────────────────────
   function pickLecture(l: Lecture) {
     setSelected(l)
-    setEditForm({ title: l.title, hook: l.hook, skill: l.skill ?? '', practiceKind: l.practiceKind, videoUrl: l.videoUrl ?? '' })
+    setEditForm({
+      ...initialLectureForm(),
+      id: l.id,
+      title: l.title,
+      hook: l.hook,
+      skill: l.skill ?? '',
+      reward: l.reward ?? '',
+      duration: l.duration ?? '',
+      practiceKind: l.practiceKind,
+      videoUrl: l.videoUrl ?? '',
+      goalsText: (l.goals ?? []).join('\n'),
+      concept: l.concept ?? '',
+      example: l.example ?? '',
+      gameType: l.gameType ?? 'pick',
+      gameInstruction: l.gameInstruction ?? '',
+      gameOutcome: l.gameOutcome ?? '',
+      gameCardsText: (l.gameCards ?? []).join('\n'),
+      practiceInstruction: l.practiceInstruction ?? '',
+      product: l.product ?? '',
+      checkQuestion: l.checkQuestion ?? '',
+      checkOption1: l.checkOptions?.[0] ?? '',
+      checkOption2: l.checkOptions?.[1] ?? '',
+      checkOption3: l.checkOptions?.[2] ?? '',
+      correctIndex: String(l.correctIndex ?? 0),
+      checkExplain: l.checkExplain ?? '',
+    })
   }
 
   async function saveLecture(e: React.FormEvent) {
@@ -176,6 +274,21 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           skill: editForm.skill || undefined,
           practiceKind: editForm.practiceKind,
           videoUrl: editForm.videoUrl.trim() === '' ? null : editForm.videoUrl.trim(),
+          reward: editForm.reward,
+          duration: editForm.duration,
+          goals: splitLines(editForm.goalsText),
+          concept: editForm.concept,
+          example: editForm.example,
+          gameType: editForm.gameType,
+          gameInstruction: editForm.gameInstruction,
+          gameOutcome: editForm.gameOutcome,
+          gameCards: splitLines(editForm.gameCardsText),
+          practiceInstruction: editForm.practiceInstruction,
+          product: editForm.product,
+          checkQuestion: editForm.checkQuestion,
+          checkOptions: [editForm.checkOption1, editForm.checkOption2, editForm.checkOption3],
+          correctIndex: Number(editForm.correctIndex),
+          checkExplain: editForm.checkExplain,
         }),
       })
       setSelected({ ...selected, ...data.lecture })
@@ -234,11 +347,18 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
         method: 'POST',
         body: JSON.stringify({
           ...newCourse,
+          ageLabel: newCourse.ageTrack === 'L2' ? '9–11 tuổi' : '6–8 tuổi',
+          skills: splitLines(newCourse.skillsText),
+          outcomes: splitLines(newCourse.outcomesText),
           coverFrom: '#6d5efc', coverTo: '#3dbfff', accent: '#6d5efc', skillsJson: '[]',
         }),
       })
       showToast('Đã tạo khóa học. Thêm bài giảng rồi mở "open" để học sinh thấy.', 'success')
-      setNewCourse({ id: '', title: '', shortTitle: '', tagline: '', description: '', productLabel: 'Sản phẩm khóa', ageLabel: '6–8 tuổi' })
+      setNewCourse({
+        id: '', title: '', shortTitle: '', tagline: '', description: '',
+        productLabel: '', ageTrack: 'L1', courseKey: 'K1', durationLabel: '8 tuần',
+        skillsText: '', outcomesText: '', credential: '', finalAssessment: '',
+      })
       await loadLectures()
       navigate('/teacher/lectures')
     } catch (e) { showToast(e instanceof Error ? e.message : 'Không tạo khóa', 'error') }
@@ -269,10 +389,25 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           example: newLecture.example,
           reward: newLecture.reward,
           duration: newLecture.duration,
+          goals: splitLines(newLecture.goalsText),
+          gameType: newLecture.gameType,
+          gameInstruction: newLecture.gameInstruction,
+          gameOutcome: newLecture.gameOutcome,
+          gameCards: splitLines(newLecture.gameCardsText),
+          practiceInstruction: newLecture.practiceInstruction,
+          product: newLecture.product,
+          checkQuestion: newLecture.checkQuestion,
+          checkOptions: [
+            newLecture.checkOption1,
+            newLecture.checkOption2,
+            newLecture.checkOption3,
+          ],
+          correctIndex: Number(newLecture.correctIndex),
+          checkExplain: newLecture.checkExplain,
         }),
       })
       showToast('Đã tạo bài giảng', 'success')
-      setNewLecture({ id: '', title: '', skill: 'Kỹ năng mới', hook: 'Chào con!', practiceKind: 'intro', concept: 'Nội dung bài giảng này', example: 'Ví dụ thực hành', reward: 'Huy hiệu mới', duration: '8–10 phút' })
+      setNewLecture(initialLectureForm())
       await loadLectures()
     } catch (e) { showToast(e instanceof Error ? e.message : 'Không tạo bài', 'error') }
   }
@@ -481,13 +616,48 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           <textarea className="min-h-24 rounded-xl border-2 border-border px-3 py-2 text-sm normal-case font-normal" placeholder="Mô tả khóa học..." value={newCourse.description} onChange={(e) => setNewCourse((c) => ({ ...c, description: e.target.value }))} required />
         </label>
         <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-          Nhãn tuổi
-          <select className="min-h-10 rounded-xl border-2 border-border px-2 normal-case" value={newCourse.ageLabel} onChange={(e) => setNewCourse((c) => ({ ...c, ageLabel: e.target.value }))}>
-            <option value="6–8 tuổi">6–8 tuổi</option>
-            <option value="9–11 tuổi">9–11 tuổi</option>
+          Nhóm tuổi
+          <select className="min-h-10 rounded-xl border-2 border-border px-2 normal-case" value={newCourse.ageTrack} onChange={(e) => setNewCourse((c) => ({ ...c, ageTrack: e.target.value }))}>
+            <option value="L1">6–8 tuổi · Khám phá có hướng dẫn</option>
+            <option value="L2">9–11 tuổi · Sáng tạo và kiểm chứng</option>
           </select>
         </label>
-        <Button type="submit">🚀 Tạo khóa học</Button>
+        <div className="grid grid-cols-2 gap-2">
+          <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
+            Chặng K
+            <select className="min-h-10 rounded-xl border-2 border-border px-2 normal-case" value={newCourse.courseKey} onChange={(e) => setNewCourse((c) => ({ ...c, courseKey: e.target.value }))}>
+              {['K1','K2','K3','K4','K5','K6'].map((key) => <option key={key}>{key}</option>)}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
+            Thời lượng
+            <input className="min-h-10 rounded-xl border-2 border-border px-3 normal-case" value={newCourse.durationLabel} onChange={(e) => setNewCourse((c) => ({ ...c, durationLabel: e.target.value }))} required />
+          </label>
+        </div>
+        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
+          Sản phẩm cuối khóa
+          <textarea className="min-h-16 rounded-xl border-2 border-border px-3 py-2 text-sm normal-case font-normal" placeholder="Ví dụ: Bộ truyện 4 khung có bản nháp, bản sửa và phần giải thích" value={newCourse.productLabel} onChange={(e) => setNewCourse((c) => ({ ...c, productLabel: e.target.value }))} required />
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
+          Con sẽ học được gì · mỗi dòng một kỹ năng
+          <textarea className="min-h-24 rounded-xl border-2 border-border px-3 py-2 text-sm normal-case font-normal" value={newCourse.skillsText} onChange={(e) => setNewCourse((c) => ({ ...c, skillsText: e.target.value }))} required placeholder={'Lập dàn ý câu chuyện\nKiểm tra và sửa kết quả tạo ra'} />
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
+          Kết quả quan sát được · mỗi dòng một kết quả
+          <textarea className="min-h-24 rounded-xl border-2 border-border px-3 py-2 text-sm normal-case font-normal" value={newCourse.outcomesText} onChange={(e) => setNewCourse((c) => ({ ...c, outcomesText: e.target.value }))} required placeholder={'Hoàn thành sản phẩm cuối khóa\nGiải thích được lựa chọn và điểm cần cải thiện'} />
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
+          Ghi nhận hoàn thành
+          <input className="min-h-10 rounded-xl border-2 border-border px-3 normal-case" value={newCourse.credential} onChange={(e) => setNewCourse((c) => ({ ...c, credential: e.target.value }))} required placeholder="Huy hiệu Nhà sáng tạo truyện có trách nhiệm" />
+        </label>
+        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
+          Cách đánh giá cuối khóa
+          <textarea className="min-h-20 rounded-xl border-2 border-border px-3 py-2 text-sm normal-case font-normal" value={newCourse.finalAssessment} onChange={(e) => setNewCourse((c) => ({ ...c, finalAssessment: e.target.value }))} required placeholder="Con trình bày sản phẩm, thử một tình huống khó và sửa theo phản hồi." />
+        </label>
+        <p className="rounded-2xl bg-sky-50 px-3 py-2 text-xs leading-relaxed text-muted">
+          Đơn vị ghi nhận: <strong>AI Kids Creator Academy</strong>. Khóa chỉ có thể mở sau khi đã có bài học và đủ thông tin đánh giá.
+        </p>
+        <Button type="submit">Tạo bản nháp khóa học</Button>
       </form>
     </div>
   )
@@ -566,14 +736,57 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             <div className="flex flex-col gap-2">
               <input className="min-h-9 rounded-lg border border-border px-2 font-mono text-xs" placeholder="id-slug (vd bai-1-gioi-thieu)" value={newLecture.id} onChange={(e) => setNewLecture((n) => ({ ...n, id: e.target.value.toLowerCase() }))} required pattern="[a-z0-9-]+" />
               <input className="min-h-9 rounded-lg border border-border px-2 text-sm" placeholder="Tiêu đề bài" value={newLecture.title} onChange={(e) => setNewLecture((n) => ({ ...n, title: e.target.value }))} required />
-              <input className="min-h-9 rounded-lg border border-border px-2 text-sm" placeholder="Kỹ năng học (vd Tư duy sáng tạo)" value={newLecture.skill} onChange={(e) => setNewLecture((n) => ({ ...n, skill: e.target.value }))} required />
-              <input className="min-h-9 rounded-lg border border-border px-2 text-sm" placeholder="Câu hook mở đầu" value={newLecture.hook} onChange={(e) => setNewLecture((n) => ({ ...n, hook: e.target.value }))} required />
+              <input className="min-h-9 rounded-lg border border-border px-2 text-sm" placeholder="Kỹ năng quan sát được" value={newLecture.skill} onChange={(e) => setNewLecture((n) => ({ ...n, skill: e.target.value }))} required />
+              <input className="min-h-9 rounded-lg border border-border px-2 text-sm" placeholder="Câu chuyện mở đầu nhiệm vụ" value={newLecture.hook} onChange={(e) => setNewLecture((n) => ({ ...n, hook: e.target.value }))} required />
               <select className="min-h-9 rounded-lg border border-border px-2 text-sm" value={newLecture.practiceKind} onChange={(e) => setNewLecture((n) => ({ ...n, practiceKind: e.target.value }))}>
                 {PRACTICE_KINDS.map((k) => <option key={k} value={k}>{k}</option>)}
               </select>
-              <textarea className="min-h-16 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Nội dung chính bài giảng (concept)" value={newLecture.concept} onChange={(e) => setNewLecture((n) => ({ ...n, concept: e.target.value }))} />
-              <textarea className="min-h-12 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Ví dụ thực hành" value={newLecture.example} onChange={(e) => setNewLecture((n) => ({ ...n, example: e.target.value }))} />
-              <Button type="submit" className="!min-h-9 !text-xs">➕ Tạo bài</Button>
+              <textarea className="min-h-16 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Mục tiêu · mỗi dòng một mục tiêu" value={newLecture.goalsText} onChange={(e) => setNewLecture((n) => ({ ...n, goalsText: e.target.value }))} required />
+              <textarea className="min-h-20 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Ý chính trẻ cần hiểu" value={newLecture.concept} onChange={(e) => setNewLecture((n) => ({ ...n, concept: e.target.value }))} required minLength={10} />
+              <textarea className="min-h-16 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Ví dụ gần gũi với trẻ" value={newLecture.example} onChange={(e) => setNewLecture((n) => ({ ...n, example: e.target.value }))} required />
+
+              <details className="rounded-xl border border-border bg-sky-50/40 p-3" open>
+                <summary className="cursor-pointer text-xs font-extrabold uppercase text-sky-700">Game tương tác</summary>
+                <div className="mt-3 flex flex-col gap-2">
+                  <select className="min-h-9 rounded-lg border border-border px-2 text-sm" value={newLecture.gameType} onChange={(e) => setNewLecture((n) => ({ ...n, gameType: e.target.value }))}>
+                    <option value="pick">Chọn manh mối</option>
+                    <option value="detective">Thám tử</option>
+                    <option value="match">Ghép cặp</option>
+                    <option value="order">Xếp thứ tự</option>
+                    <option value="spin">Vòng quay</option>
+                  </select>
+                  <textarea className="min-h-16 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Hướng dẫn chơi rõ ràng" value={newLecture.gameInstruction} onChange={(e) => setNewLecture((n) => ({ ...n, gameInstruction: e.target.value }))} required />
+                  <input className="min-h-9 rounded-lg border border-border px-2 text-xs" placeholder="Điều trẻ hiểu sau trò chơi" value={newLecture.gameOutcome} onChange={(e) => setNewLecture((n) => ({ ...n, gameOutcome: e.target.value }))} required />
+                  <textarea className="min-h-16 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Thẻ chơi · mỗi dòng một thẻ, tối thiểu 2" value={newLecture.gameCardsText} onChange={(e) => setNewLecture((n) => ({ ...n, gameCardsText: e.target.value }))} required />
+                </div>
+              </details>
+
+              <details className="rounded-xl border border-border bg-mint-100/30 p-3" open>
+                <summary className="cursor-pointer text-xs font-extrabold uppercase text-success">Thực hành và sản phẩm</summary>
+                <div className="mt-3 flex flex-col gap-2">
+                  <textarea className="min-h-20 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Nhiệm vụ thực hành từng bước" value={newLecture.practiceInstruction} onChange={(e) => setNewLecture((n) => ({ ...n, practiceInstruction: e.target.value }))} required />
+                  <input className="min-h-9 rounded-lg border border-border px-2 text-xs" placeholder="Sản phẩm cần lưu sau bài" value={newLecture.product} onChange={(e) => setNewLecture((n) => ({ ...n, product: e.target.value }))} required />
+                  <input className="min-h-9 rounded-lg border border-border px-2 text-xs" placeholder="Phần thưởng phù hợp" value={newLecture.reward} onChange={(e) => setNewLecture((n) => ({ ...n, reward: e.target.value }))} required />
+                </div>
+              </details>
+
+              <details className="rounded-xl border border-border bg-sun-100/30 p-3" open>
+                <summary className="cursor-pointer text-xs font-extrabold uppercase text-warning">Thử tài cuối bài</summary>
+                <div className="mt-3 flex flex-col gap-2">
+                  <textarea className="min-h-16 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Câu hỏi kiểm tra hiểu bài" value={newLecture.checkQuestion} onChange={(e) => setNewLecture((n) => ({ ...n, checkQuestion: e.target.value }))} required />
+                  {[1, 2, 3].map((number) => {
+                    const key = `checkOption${number}` as 'checkOption1' | 'checkOption2' | 'checkOption3'
+                    return <input key={key} className="min-h-9 rounded-lg border border-border px-2 text-xs" placeholder={`Lựa chọn ${number}`} value={newLecture[key]} onChange={(e) => setNewLecture((n) => ({ ...n, [key]: e.target.value }))} required />
+                  })}
+                  <label className="text-xs font-bold text-muted">Đáp án đúng
+                    <select className="ml-2 min-h-9 rounded-lg border border-border px-2" value={newLecture.correctIndex} onChange={(e) => setNewLecture((n) => ({ ...n, correctIndex: e.target.value }))}>
+                      <option value="0">Lựa chọn 1</option><option value="1">Lựa chọn 2</option><option value="2">Lựa chọn 3</option>
+                    </select>
+                  </label>
+                  <textarea className="min-h-16 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Giải thích sau khi trả lời" value={newLecture.checkExplain} onChange={(e) => setNewLecture((n) => ({ ...n, checkExplain: e.target.value }))} required />
+                </div>
+              </details>
+              <Button type="submit" className="!min-h-11 !text-xs">Tạo bài học đầy đủ 4 trạm</Button>
             </div>
           </form>
         )}
@@ -617,7 +830,51 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               <p className="rounded-xl bg-mint-100 px-2 py-1 text-xs text-success">✅ Video đã có</p>
             )}
 
-            <Button type="submit">💾 Lưu thay đổi</Button>
+            <details className="rounded-xl border border-border bg-sky-50/50 p-3" open>
+              <summary className="cursor-pointer text-xs font-extrabold uppercase text-sky-700">Nội dung khám phá</summary>
+              <div className="mt-3 flex flex-col gap-2">
+                <textarea className="min-h-20 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.goalsText} onChange={(e) => setEditForm((f) => ({ ...f, goalsText: e.target.value }))} placeholder="Mỗi dòng một mục tiêu" required />
+                <textarea className="min-h-24 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.concept} onChange={(e) => setEditForm((f) => ({ ...f, concept: e.target.value }))} placeholder="Ý chính trẻ cần hiểu" required minLength={10} />
+                <textarea className="min-h-20 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.example} onChange={(e) => setEditForm((f) => ({ ...f, example: e.target.value }))} placeholder="Ví dụ gần gũi" required />
+              </div>
+            </details>
+
+            <details className="rounded-xl border border-border bg-brand-50/50 p-3">
+              <summary className="cursor-pointer text-xs font-extrabold uppercase text-brand-700">Trò chơi tương tác</summary>
+              <div className="mt-3 flex flex-col gap-2">
+                <select className="min-h-10 rounded-xl border-2 border-border px-2 text-sm" value={editForm.gameType} onChange={(e) => setEditForm((f) => ({ ...f, gameType: e.target.value }))}>
+                  <option value="pick">Chọn manh mối</option><option value="detective">Thám tử</option><option value="match">Ghép cặp</option><option value="order">Xếp thứ tự</option><option value="sort">Phân loại</option><option value="drag">Kéo thả</option><option value="spin">Vòng quay</option>
+                </select>
+                <textarea className="min-h-20 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.gameInstruction} onChange={(e) => setEditForm((f) => ({ ...f, gameInstruction: e.target.value }))} placeholder="Hướng dẫn chơi" required minLength={10} />
+                <input className="min-h-10 rounded-xl border-2 border-border px-2 text-sm" value={editForm.gameOutcome} onChange={(e) => setEditForm((f) => ({ ...f, gameOutcome: e.target.value }))} placeholder="Điều trẻ hiểu sau trò chơi" required />
+                <textarea className="min-h-20 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.gameCardsText} onChange={(e) => setEditForm((f) => ({ ...f, gameCardsText: e.target.value }))} placeholder="Mỗi dòng một thẻ chơi" required />
+              </div>
+            </details>
+
+            <details className="rounded-xl border border-border bg-mint-100/30 p-3">
+              <summary className="cursor-pointer text-xs font-extrabold uppercase text-success">Thực hành và sản phẩm</summary>
+              <div className="mt-3 flex flex-col gap-2">
+                <textarea className="min-h-24 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.practiceInstruction} onChange={(e) => setEditForm((f) => ({ ...f, practiceInstruction: e.target.value }))} placeholder="Nhiệm vụ thực hành từng bước" required minLength={10} />
+                <input className="min-h-10 rounded-xl border-2 border-border px-2 text-sm" value={editForm.product} onChange={(e) => setEditForm((f) => ({ ...f, product: e.target.value }))} placeholder="Sản phẩm trẻ sẽ hoàn thành" required />
+              </div>
+            </details>
+
+            <details className="rounded-xl border border-border bg-sun-100/30 p-3">
+              <summary className="cursor-pointer text-xs font-extrabold uppercase text-warning">Thử tài cuối bài</summary>
+              <div className="mt-3 flex flex-col gap-2">
+                <textarea className="min-h-20 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.checkQuestion} onChange={(e) => setEditForm((f) => ({ ...f, checkQuestion: e.target.value }))} placeholder="Câu hỏi kiểm tra" required />
+                {([1, 2, 3] as const).map((number) => {
+                  const key = `checkOption${number}` as const
+                  return <input key={key} className="min-h-10 rounded-xl border-2 border-border px-2 text-sm" value={editForm[key]} onChange={(e) => setEditForm((f) => ({ ...f, [key]: e.target.value }))} placeholder={`Lựa chọn ${number}`} required />
+                })}
+                <select className="min-h-10 rounded-xl border-2 border-border px-2 text-sm" value={editForm.correctIndex} onChange={(e) => setEditForm((f) => ({ ...f, correctIndex: e.target.value }))} aria-label="Đáp án đúng">
+                  <option value="0">Đúng: lựa chọn 1</option><option value="1">Đúng: lựa chọn 2</option><option value="2">Đúng: lựa chọn 3</option>
+                </select>
+                <textarea className="min-h-20 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.checkExplain} onChange={(e) => setEditForm((f) => ({ ...f, checkExplain: e.target.value }))} placeholder="Giải thích nhẹ nhàng sau khi trả lời" required />
+              </div>
+            </details>
+
+            <Button type="submit">Lưu đầy đủ 4 trạm</Button>
 
             <div className="border-t border-border pt-2">
               {selected.archived ? (
@@ -656,26 +913,42 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             <StatCard label="Quest đang mở" value={stats.openQuestCount} icon="🎯" />
             <StatCard label="Dự án" value={stats.projectCount} icon="🎨" />
           </div>
-          <table className="w-full text-left text-sm">
+          <div className="mb-4 rounded-2xl bg-sun-100/50 px-4 py-3 text-sm leading-relaxed text-text">
+            <strong>{stats.students.filter((student) => student.needsSupport).length} học sinh nên được hỏi thăm.</strong>{' '}
+            Gợi ý dựa trên tiến độ gần đây, không dùng để xếp hạng hay đánh giá trẻ.
+          </div>
+          <div className="overflow-x-auto rounded-2xl border border-border">
+          <table className="min-w-[860px] w-full text-left text-sm">
             <thead className="border-b border-border bg-sky-50/60">
               <tr>
                 <th className="px-3 py-2 font-extrabold">Học sinh</th>
-                <th className="px-3 py-2 font-extrabold">Cấp</th>
-                <th className="px-3 py-2 font-extrabold">XP</th>
                 <th className="px-3 py-2 font-extrabold">Trạm hoàn thành</th>
+                <th className="px-3 py-2 font-extrabold">Đang học</th>
+                <th className="px-3 py-2 font-extrabold">Hoạt động gần nhất</th>
+                <th className="px-3 py-2 font-extrabold">Gợi ý hỗ trợ</th>
               </tr>
             </thead>
             <tbody>
               {stats.students.map((s) => (
-                <tr key={s.id} className="border-b border-border/40">
+                <tr key={s.id} className={cn('border-b border-border/40', s.needsSupport && 'bg-sun-50')}>
                   <td className="px-3 py-2 font-bold">{s.nickname}</td>
-                  <td className="px-3 py-2">Lv{s.level}</td>
-                  <td className="px-3 py-2">{s.xp}</td>
                   <td className="px-3 py-2">{s.completedQuests}</td>
+                  <td className="px-3 py-2">
+                    <span className="block max-w-52 truncate font-semibold">{s.currentQuest ?? 'Chưa bắt đầu'}</span>
+                    {s.currentPhase && <span className="text-xs text-muted">{PHASE_LABELS[s.currentPhase] ?? 'Đang thực hiện'}</span>}
+                  </td>
+                  <td className="px-3 py-2 text-xs text-muted">{formatActivity(s.lastActiveAt)}</td>
+                  <td className="px-3 py-2">
+                    {s.needsSupport
+                      ? <button type="button" className="rounded-full bg-sun-100 px-3 py-1 text-xs font-bold text-warning" onClick={() => void viewProgress(s.id)}>Xem để hỗ trợ</button>
+                      : <span className="text-xs font-semibold text-success">Đang tiến triển tốt</span>}
+                    {s.supportReason && <span className="mt-1 block max-w-48 text-xs text-muted">{s.supportReason}</span>}
+                  </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
         </>
       )}
     </div>
