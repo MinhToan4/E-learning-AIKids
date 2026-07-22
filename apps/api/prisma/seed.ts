@@ -7,6 +7,8 @@ import { PrismaClient } from '../src/generated/prisma/index.js'
 import bcrypt from 'bcryptjs'
 import { PLAN_CATALOG } from '@aikids/domain'
 import { curriculumCourses } from './seed/courses/curriculum.js'
+import { courseAILiteracyL1 } from './seed/courses/ai-literacy-l1.js'
+import { courseAILiteracyL2 } from './seed/courses/ai-literacy-l2.js'
 import { upsertCourse } from './seed/upsert-course.js'
 
 const prisma = new PrismaClient()
@@ -230,11 +232,21 @@ async function main() {
     await upsertCourse(prisma, course)
   }
 
-  const l1 = curriculumCourses.filter((c) => c.ageTrack === 'L1').length
-  const l2 = curriculumCourses.filter((c) => c.ageTrack === 'L2').length
-  const quests = curriculumCourses.reduce((n, c) => n + c.quests.length, 0)
+  // AI Literacy standalone courses (inspired by Little Thinkers AI + Little AI Master)
+  await upsertCourse(prisma, courseAILiteracyL1)
+  await upsertCourse(prisma, courseAILiteracyL2)
+
+  const l1 = curriculumCourses.filter((c) => c.ageTrack === 'L1').length + 1 // +1 for AI Literacy L1
+  const l2 = curriculumCourses.filter((c) => c.ageTrack === 'L2').length + 1 // +1 for AI Literacy L2
+  const quests =
+    curriculumCourses.reduce((n, c) => n + c.quests.length, 0) +
+    courseAILiteracyL1.quests.length +
+    courseAILiteracyL2.quests.length
   console.log(
     `Curriculum seeded: L1 courses=${l1}, L2 courses=${l2}, quests=${quests}`,
+  )
+  console.log(
+    `  AI Literacy: L1=${courseAILiteracyL1.quests.length} quests, L2=${courseAILiteracyL2.quests.length} quests`,
   )
   const styleQuest = await prisma.quest.findFirst({
     where: { practiceKind: 'style' },
