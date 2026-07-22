@@ -53,16 +53,16 @@ export function NotificationBell() {
     <div className="relative">
       <button
         type="button"
-        className="relative flex h-11 w-11 items-center justify-center rounded-2xl bg-brand-50 text-brand-600 transition hover:bg-brand-100"
+        className="relative flex h-10 w-10 items-center justify-center rounded-2xl border border-border/80 bg-white text-muted shadow-xs transition hover:bg-brand-50 hover:text-brand-600"
         aria-label="Thông báo"
         onClick={() => {
           setOpen((o) => !o)
           if (!open) void load()
         }}
       >
-        <Bell size={20} strokeWidth={2.4} />
+        <Bell size={20} strokeWidth={2.2} />
         {unread > 0 && (
-          <span className="absolute -right-0.5 -top-0.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-coral-400 px-1 text-[10px] font-extrabold text-white">
+          <span className="absolute -right-1.5 -top-1.5 flex h-5 min-w-5 items-center justify-center rounded-full bg-gradient-to-r from-red-500 to-rose-600 px-1.5 text-[11px] font-black text-white shadow-md shadow-rose-500/40 ring-2 ring-white">
             {unread > 9 ? '9+' : unread}
           </span>
         )}

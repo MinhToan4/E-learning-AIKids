@@ -19,9 +19,14 @@ export async function api<T = unknown>(
     headers.set('Content-Type', 'application/json')
   }
 
+  let url = path
+  if (API_BASE && API_BASE !== '/api') {
+    url = `${API_BASE}${path}`
+  }
+
   let res: Response
   try {
-    res = await fetch(`${API_BASE}${path}`, {
+    res = await fetch(url, {
       ...options,
       headers,
       credentials: 'include',
