@@ -8,6 +8,7 @@ import { ShieldLockIcon } from '@/shared/components/icons/ParentIcons'
 import { CmsCoursesIcon } from '@/shared/components/icons/CmsIcons'
 import { Button } from '@/shared/components/ui/Button'
 import { api, type CourseSummary } from '@/shared/lib/api'
+import { courseCoverHint } from '@/shared/config/assets'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 
 type CourseDetail = CourseSummary & {
@@ -123,14 +124,21 @@ export function CourseIntroPage() {
             background: `linear-gradient(135deg, ${course.coverFrom}, ${course.coverTo})`,
           }}
         >
-          {course.coverImage && (
-            <img
-              src={course.coverImage}
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover opacity-90"
-              loading="eager"
-            />
-          )}
+          {(() => {
+            const cover = courseCoverHint({
+              courseKey: course.courseKey,
+              ageTrack: course.ageTrack,
+              coverImage: course.coverImage,
+            })
+            return cover ? (
+              <img
+                src={cover}
+                alt=""
+                className="absolute inset-0 h-full w-full object-cover opacity-90"
+                loading="eager"
+              />
+            ) : null
+          })()}
           <div className="absolute inset-0 bg-gradient-to-t from-black/45 to-transparent" />
           <div className="absolute bottom-4 left-4 right-4 text-white">
             <p className="text-sm font-bold opacity-90">

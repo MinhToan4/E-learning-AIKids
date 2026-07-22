@@ -235,9 +235,6 @@ export function HomePage() {
                     {c.shortTitle}
                   </h3>
                   <p className="line-clamp-2 text-xs text-muted">{c.tagline}</p>
-                  <p className="mt-1 text-xs font-bold text-muted">
-                    {c.questCount} trạm · Làm ra: {c.productLabel}
-                  </p>
                 </div>
               </Link>
             )

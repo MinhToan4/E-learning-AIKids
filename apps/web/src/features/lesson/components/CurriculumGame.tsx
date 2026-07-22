@@ -392,7 +392,7 @@ export function CurriculumGame({
                   </span>
                 )
               })}
-              <span className="absolute -top-1 grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-brand-500 text-lg text-white shadow-clay transition-[left] duration-500 motion-reduce:transition-none" style={{ left: `calc(${Math.min(82, progress * 0.82 + 2)}% - 18px)` }}>
+              <span className="absolute -top-1 grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-brand-500 text-lg text-white shadow-clay transition-[left] duration-500 motion-reduce:transition-none" style={{ left: `calc(${progress * 0.8 + 4}% - 4px)` }}>
                 ●
               </span>
             </div>

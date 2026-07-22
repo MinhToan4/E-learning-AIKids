@@ -332,22 +332,25 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
   return (
     // overflow:hidden required — parent must have known height for h-full to work (CSS spec)
     <div className="flex h-full flex-col overflow-hidden">
-      {/* ── Compact canvas header: back nav + style indicator ── */}
-      <div className="flex shrink-0 items-center justify-between gap-3 border-b border-border bg-surface px-3 py-1.5">
-        <button
-          type="button"
-          onClick={() => onBack('style')}
-          className="text-xs font-semibold text-brand-600 hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-200"
-        >
-          ← Chọn phong cách
-        </button>
-        <span className="text-xs font-extrabold text-text">
-          Vẽ tranh · {styleName}
-        </span>
+      {/* ── Top header bar ── */}
+      <div className="w-full max-w-[1440px] mx-auto px-1 pt-2 sm:pt-3 shrink-0">
+        <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/80 bg-white px-4 py-2.5 shadow-sm">
+          <button
+            type="button"
+            onClick={() => onBack('style')}
+            className="text-xs sm:text-sm font-extrabold text-brand-600 hover:text-brand-700 transition hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-200"
+          >
+            ← Chọn phong cách
+          </button>
+          <span className="text-xs sm:text-sm font-extrabold text-text">
+            Vẽ tranh · <span className="text-brand-600 font-black">{styleName}</span>
+          </span>
+        </div>
       </div>
 
-      {/* ── Workspace grid: h-full fills remaining space after header ── */}
-      <div className="grid min-h-0 flex-1 gap-2 p-2 lg:grid-cols-[1fr_1fr]">
+      {/* ── Main workspace grid: max-w-[1440px] aligned with AppShell layout ── */}
+      <div className="mx-auto flex w-full max-w-[1440px] min-h-0 flex-1 flex-col p-2 sm:p-3">
+        <div className="grid min-h-0 flex-1 w-full gap-3 sm:gap-4 lg:grid-cols-2">
         {/* ── Left: Drawing panel ── */}
         <div className="ui-card flex min-h-0 flex-col overflow-hidden">
           {/* Compact toolbar — single row */}
@@ -431,8 +434,8 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
               style={{
                 cursor:
                   tool === 'eraser' ? 'cell'
-                  : tool === 'eyedropper' ? 'crosshair'
-                  : 'default',
+                    : tool === 'eyedropper' ? 'crosshair'
+                      : 'default',
               }}
               onPointerDown={onPointerDown}
               onPointerMove={onPointerMove}
@@ -521,5 +524,6 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
         </div>
       </div>
     </div>
-  )
+  </div>
+)
 }

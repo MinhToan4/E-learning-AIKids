@@ -86,16 +86,24 @@ export function styleImage(id: ArtStyleId): string {
   return designerAssets.styles[id]
 }
 
-/** Pick a course cover image from ageTrack/courseKey heuristics (FE chrome only) */
 export function courseCoverHint(input: {
   courseKey?: string | null
   ageTrack?: string | null
   coverImage?: string | null
 }): string {
-  if (input.coverImage) return input.coverImage
+  if (
+    input.coverImage &&
+    input.coverImage.trim() &&
+    input.coverImage.startsWith('/assets/optimized/')
+  ) {
+    return input.coverImage
+  }
   const key = input.courseKey ?? 'K1'
-  if (key === 'K4' || key === 'K3') return designerAssets.course.comic
-  if (key === 'K5' || key === 'K6') return designerAssets.course.voice
-  if (key === 'K2') return designerAssets.course.robot
-  return designerAssets.course.safety
+  if (key === 'K1') return designerAssets.chrome.adventureMap
+  if (key === 'K2') return designerAssets.workshop.character
+  if (key === 'K3') return designerAssets.course.safety
+  if (key === 'K4') return designerAssets.course.comic
+  if (key === 'K5') return designerAssets.course.robot
+  if (key === 'K6') return designerAssets.course.voice
+  return designerAssets.chrome.adventureMap
 }

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink, Outlet } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router-dom'
 
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
 import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
@@ -220,6 +220,9 @@ export function AppShell() {
 
   const hasParent = Boolean(user?.parentId)
 
+  const location = useLocation()
+  const isCreative = location.pathname.startsWith('/creative')
+
   return (
     <div className="min-h-dvh pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-8 md:pl-[6rem]">
       <aside className="student-rail fixed left-0 top-0 z-30 hidden h-dvh w-24 flex-col items-center gap-1.5 border-r border-border/70 py-4 md:flex">
@@ -276,9 +279,15 @@ export function AppShell() {
         <NotificationBell />
       </div>
 
-      <main className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-6">
-        <Outlet />
-      </main>
+      {isCreative ? (
+        <main className="mx-auto max-w-[1440px] px-2 py-2 sm:px-4">
+          <Outlet />
+        </main>
+      ) : (
+        <main className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-6">
+          <Outlet />
+        </main>
+      )}
 
       <nav
         className="student-bottom-nav fixed inset-x-0 bottom-0 z-30 flex justify-around px-1 py-1.5 safe-pb md:hidden"
