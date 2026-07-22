@@ -953,63 +953,50 @@ export async function progressRoutes(app: FastifyInstance) {
       })
     }
 
-    const prev = await prisma.questProgress.findUnique({
-      where: { userId_questId: { userId: user.id, questId } },
-    })
-    const alreadyDone = prev?.status === 'completed'
-    const xpGain = alreadyDone ? 0 : xp
-    const starsFinal = alreadyDone ? Math.max(prev?.stars ?? 0, stars) : stars
+    // Claim completion atomically. Parallel retries can no longer grant XP/assets twice.
+    const completion = await prisma.$transaction(async (tx) => {
+      const claimed = await tx.questProgress.updateMany({
+        where: { userId: user.id, questId, status: { not: 'completed' } },
+        data: { status: 'completed', phase: 'check', stars, xpEarned: xp },
+      })
+      if (claimed.count === 0) {
+        const existing = await tx.questProgress.findUniqueOrThrow({
+          where: { userId_questId: { userId: user.id, questId } },
+        })
+        if (stars > existing.stars) {
+          await tx.questProgress.update({
+            where: { id: existing.id },
+            data: { stars },
+          })
+        }
+        return { newlyCompleted: false, stars: Math.max(stars, existing.stars), xpEarned: existing.xpEarned }
+      }
 
-    await prisma.questProgress.upsert({
-      where: { userId_questId: { userId: user.id, questId } },
-      create: {
-        userId: user.id,
-        questId,
-        status: 'completed',
-        phase: 'check',
-        stars: starsFinal,
-        xpEarned: xp,
-      },
-      update: {
-        status: 'completed',
-        phase: 'check',
-        stars: starsFinal,
-        xpEarned: alreadyDone ? prev!.xpEarned : xp,
-      },
-    })
-
-    if (xpGain > 0) {
-      await prisma.user.update({
+      const updatedUser = await tx.user.update({
         where: { id: user.id },
-        data: {
-          xp: { increment: xpGain },
-          level: {
-            set: Math.max(1, Math.floor((user.xp + xpGain) / 100) + 1),
-          },
-        },
+        data: { xp: { increment: xp } },
+        select: { xp: true },
       })
-    }
+      await tx.user.update({
+        where: { id: user.id },
+        data: { level: Math.max(1, Math.floor(updatedUser.xp / 100) + 1) },
+      })
 
-    if (next) {
-      await prisma.questProgress.upsert({
-        where: { userId_questId: { userId: user.id, questId: next.id } },
-        create: {
-          userId: user.id,
-          questId: next.id,
-          status: 'available',
-          phase: 'learn',
-        },
-        update: {},
-      })
-      await prisma.questProgress.updateMany({
-        where: {
-          userId: user.id,
-          questId: next.id,
-          status: 'locked',
-        },
-        data: { status: 'available' },
-      })
-    }
+      if (next) {
+        await tx.questProgress.upsert({
+          where: { userId_questId: { userId: user.id, questId: next.id } },
+          create: { userId: user.id, questId: next.id, status: 'available', phase: 'learn' },
+          update: {},
+        })
+        await tx.questProgress.updateMany({
+          where: { userId: user.id, questId: next.id, status: 'locked' },
+          data: { status: 'available' },
+        })
+      }
+      return { newlyCompleted: true, stars, xpEarned: xp }
+    })
+    const alreadyDone = !completion.newlyCompleted
+    const starsFinal = completion.stars
 
     if (!alreadyDone) {
       await prisma.asset.create({
@@ -1043,7 +1030,7 @@ export async function progressRoutes(app: FastifyInstance) {
           const issuer = recognition.issuer
           if (credential && issuer) {
             const achievementType = `course_complete:${course.id}`
-            await prisma.$transaction(async (tx) => {
+            const notificationId = await prisma.$transaction(async (tx) => {
               await tx.achievement.create({
                 data: { userId: user.id, type: achievementType },
               })
@@ -1063,7 +1050,7 @@ export async function progressRoutes(app: FastifyInstance) {
                   }),
                 },
               })
-              await tx.notification.create({
+              const notification = await tx.notification.create({
                 data: {
                   userId: user.id,
                   type: 'course_completion',
@@ -1075,7 +1062,10 @@ export async function progressRoutes(app: FastifyInstance) {
                   }),
                 },
               })
+              return notification.id
             })
+            const { enqueueNotificationPush } = await import('../notification/push.queue.js')
+            await enqueueNotificationPush(notificationId).catch(() => false)
             courseCredential = credential
           }
         } catch {
@@ -1092,8 +1082,8 @@ export async function progressRoutes(app: FastifyInstance) {
       correct,
       total: questions.length,
       stars: starsFinal,
-      xpEarned: alreadyDone ? prev!.xpEarned : xp,
-      xpGain,
+      xpEarned: completion.xpEarned,
+      xpGain: completion.newlyCompleted ? xp : 0,
       details,
       nextQuestId: next?.id ?? null,
       newAchievements,

@@ -33,19 +33,27 @@ export async function evaluateAndUnlockAchievements(userId: string): Promise<
       }),
     ])
 
-  let coursesCompleted = 0
-  for (const en of enrollments) {
-    const total = await prisma.quest.count({ where: { courseId: en.courseId } })
-    if (total === 0) continue
-    const done = await prisma.questProgress.count({
-      where: {
-        userId,
-        status: 'completed',
-        quest: { courseId: en.courseId },
-      },
-    })
-    if (done >= total) coursesCompleted += 1
+  const courseIds = enrollments.map((enrollment) => enrollment.courseId)
+  const [questTotals, completedRows] = courseIds.length === 0
+    ? [[], []] as const
+    : await Promise.all([
+        prisma.quest.groupBy({
+          by: ['courseId'],
+          where: { courseId: { in: courseIds } },
+          _count: { _all: true },
+        }),
+        prisma.questProgress.findMany({
+          where: { userId, status: 'completed', quest: { courseId: { in: courseIds } } },
+          select: { quest: { select: { courseId: true } } },
+        }),
+      ])
+  const completedByCourse = new Map<string, number>()
+  for (const row of completedRows) {
+    completedByCourse.set(row.quest.courseId, (completedByCourse.get(row.quest.courseId) ?? 0) + 1)
   }
+  const coursesCompleted = questTotals.filter(
+    (row) => row._count._all > 0 && (completedByCourse.get(row.courseId) ?? 0) >= row._count._all,
+  ).length
 
   const toUnlock = achievementsToUnlock({
     completedQuests,
@@ -64,7 +72,7 @@ export async function evaluateAndUnlockAchievements(userId: string): Promise<
       })
       const meta = getAchievementMeta(type)
       if (meta) {
-        await prisma.notification.create({
+        const notification = await prisma.notification.create({
           data: {
             userId,
             type: 'achievement',
@@ -73,6 +81,8 @@ export async function evaluateAndUnlockAchievements(userId: string): Promise<
             data: JSON.stringify({ achievementType: type }),
           },
         })
+        const { enqueueNotificationPush } = await import('../notification/push.queue.js')
+        await enqueueNotificationPush(notification.id).catch(() => false)
       }
       newly.push(type)
     } catch {

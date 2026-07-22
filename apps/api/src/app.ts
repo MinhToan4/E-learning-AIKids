@@ -19,6 +19,8 @@ import { adminRoutes } from './modules/admin/admin.routes.js'
 import { gamificationRoutes } from './modules/gamification/gamification.routes.js'
 import { notificationRoutes } from './modules/notification/notification.routes.js'
 import { mediaRoutes } from './modules/media/media.routes.js'
+import { storageRoutes } from './modules/storage/storage.routes.js'
+import { realtimeRoutes } from './modules/realtime/realtime.routes.js'
 import {
   normalizeApiAliasPrefix,
   rewriteAliasToPrimaryApi,
@@ -30,7 +32,7 @@ export async function buildApp() {
 
   const app = Fastify({
     logger: env.nodeEnv !== 'test',
-    trustProxy: true,
+    trustProxy: env.trustProxy,
     // Add request ID for tracing
     genReqId: () => randomUUID(),
   })
@@ -68,8 +70,12 @@ export async function buildApp() {
   const redisCache = getRedisCache()
   await app.register(rateLimit, {
     global: true,
-    max: 200,
+    max: env.globalRateLimitMax,
     timeWindow: '1 minute',
+    hook: 'preHandler',
+    keyGenerator: (request) => request.user
+      ? `user:${request.user.id}`
+      : `ip:${request.ip}`,
     ...(redisCache
       ? {
           redis: redisCache.raw,
@@ -89,6 +95,19 @@ export async function buildApp() {
         rateLimit: {
           max: env.rateLimitMax,
           timeWindow: env.rateLimitWindowMs,
+        },
+      }
+    }
+    if (
+      routeOptions.url === '/api/progress/:questId/practice' ||
+      routeOptions.url === '/api/media/promote' ||
+      routeOptions.url === '/api/media/upload'
+    ) {
+      routeOptions.config = {
+        ...routeOptions.config,
+        rateLimit: {
+          max: env.generationRateLimitMax,
+          timeWindow: '1 minute',
         },
       }
     }
@@ -200,7 +219,7 @@ export async function buildApp() {
   }
 
   // ── 6. Public health check: intentionally avoids infrastructure details ─
-  app.get('/api/health', async () => {
+  app.get('/api/health', { config: { rateLimit: false } }, async () => {
     // Ping dependencies so a load balancer only routes to a ready instance,
     // but collapse concurrent checks and never disclose infrastructure details.
     await ensureReady()
@@ -224,6 +243,8 @@ export async function buildApp() {
   await app.register(gamificationRoutes)
   await app.register(notificationRoutes)
   await app.register(mediaRoutes)
+  await app.register(storageRoutes)
+  await app.register(realtimeRoutes)
 
   /**
    * StoryMee gateway alias (optional).
@@ -283,6 +304,8 @@ export async function buildApp() {
 
   // ── 8. Graceful shutdown ────────────────────────────────────
   app.addHook('onClose', async () => {
+    const { closePushQueue } = await import('./modules/notification/push.queue.js')
+    await closePushQueue()
     await closeCache()
   })
 

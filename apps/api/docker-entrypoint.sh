@@ -1,9 +1,17 @@
 #!/bin/sh
 set -e
 cd /app/apps/api
-# DATABASE_URL must point at Supabase (or any Postgres). No embedded local DB.
-echo "Prisma db push (Supabase/Postgres)..."
-npx prisma db push --skip-generate
+
+# Run migrations once as a deployment job, never concurrently in every API replica.
+if [ "${PROCESS_ROLE:-api}" = "migrate" ]; then
+  echo "Applying database migrations..."
+  exec npx prisma migrate deploy
+fi
+
+if [ "${PROCESS_ROLE:-api}" = "push-worker" ]; then
+  echo "Starting push worker..."
+  exec npx tsx src/workers/push.worker.ts
+fi
 
 case "${SEED_ON_START:-never}" in
   force)

@@ -208,6 +208,73 @@ export async function authRoutes(app: FastifyInstance) {
     }
   })
 
+  /** StoryMee SSO: verify a Firebase ID token, then issue the existing app session. */
+  app.post('/api/auth/login/firebase', {
+    config: { rateLimit: { max: env.rateLimitMax, timeWindow: env.rateLimitWindowMs } },
+  }, async (request, reply) => {
+    const body = z.object({
+      idToken: z.string().min(100).max(16_384),
+      role: z.enum(['parent', 'teacher']).optional().default('parent'),
+    }).parse(request.body)
+
+    try {
+      const { verifyFirebaseIdToken } = await import(
+        '../../infrastructure/firebase/firebase-auth.js'
+      )
+      const profile = await verifyFirebaseIdToken(body.idToken)
+      const { loginOrLinkFirebaseAccount } = await import('./firebase-account.js')
+      const result = await loginOrLinkFirebaseAccount({
+        profile,
+        preferredRole: body.role,
+      })
+      await createSession(result.user.id, reply)
+      request.log.info(
+        { userId: result.user.id, role: result.user.role, created: result.created, linked: result.linked },
+        'auth.firebase_login ok',
+      )
+      return result
+    } catch (error) {
+      const err = error as Error & { statusCode?: number; logCode?: string }
+      request.log.warn({ logCode: err.logCode, statusCode: err.statusCode }, 'auth.firebase_login failed')
+      if (err.statusCode) throw error
+      throw Object.assign(new Error('Không đăng nhập được bằng StoryMee.'), {
+        statusCode: 401,
+        logCode: 'FIREBASE_LOGIN_FAILED',
+      })
+    }
+  })
+
+  /** Existing sessions (including child PIN login) can authenticate to Firebase clients. */
+  app.post('/api/auth/firebase/custom-token', {
+    config: { rateLimit: { max: env.rateLimitMax, timeWindow: env.rateLimitWindowMs } },
+  }, async (request) => {
+    const user = requireUser(request)
+    const { createFirebaseCustomToken } = await import(
+      '../../infrastructure/firebase/firebase-auth.js'
+    )
+    return { customToken: await createFirebaseCustomToken(user) }
+  })
+
+  app.get('/api/auth/firebase/config', async () => {
+    const { isFirebaseConfigured } = await import(
+      '../../infrastructure/firebase/firebase-admin.js'
+    )
+    return {
+      enabled: isFirebaseConfigured(),
+      config: isFirebaseConfigured() && env.firebaseWebApiKey
+        ? {
+            apiKey: env.firebaseWebApiKey,
+            authDomain: env.firebaseWebAuthDomain,
+            projectId: env.firebaseProjectId,
+            storageBucket: env.firebaseStorageBucket,
+            messagingSenderId: env.firebaseWebMessagingSenderId,
+            appId: env.firebaseWebAppId,
+            vapidKey: env.firebaseWebVapidKey,
+          }
+        : null,
+    }
+  })
+
   app.post('/api/auth/register/adult', async (request, reply) => {
     const body = registerAdultSchema.parse(request.body)
     const email = body.email.toLowerCase()
@@ -536,4 +603,3 @@ export async function authRoutes(app: FastifyInstance) {
     return { message: 'Mật khẩu đã được thay đổi.' }
   })
 }
-

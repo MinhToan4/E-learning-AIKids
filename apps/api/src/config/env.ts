@@ -23,6 +23,22 @@ function studentAutoCreateEnabled(): boolean {
   return !isProd
 }
 
+function booleanEnv(name: string, fallback = false): boolean {
+  const value = process.env[name]
+  if (value === undefined || value === '') return fallback
+  if (value === 'true') return true
+  if (value === 'false') return false
+  throw new Error(`${name} must be true or false`)
+}
+
+function positiveIntEnv(name: string, fallback: number): number {
+  const value = Number(process.env[name] ?? fallback)
+  if (!Number.isSafeInteger(value) || value <= 0) {
+    throw new Error(`${name} must be a positive integer`)
+  }
+  return value
+}
+
 // Required: Supabase (or any Postgres) connection URI — never sqlite, never ship to FE
 const databaseUrl = required('DATABASE_URL')
 
@@ -50,8 +66,12 @@ export const env = {
     | 'lax'
     | 'strict'
     | 'none',
-  rateLimitMax: Number(process.env.RATE_LIMIT_MAX ?? 30),
-  rateLimitWindowMs: Number(process.env.RATE_LIMIT_WINDOW_MS ?? 60_000),
+  rateLimitMax: positiveIntEnv('RATE_LIMIT_MAX', 30),
+  rateLimitWindowMs: positiveIntEnv('RATE_LIMIT_WINDOW_MS', 60_000),
+  globalRateLimitMax: positiveIntEnv('GLOBAL_RATE_LIMIT_MAX', 600),
+  generationRateLimitMax: positiveIntEnv('GENERATION_RATE_LIMIT_MAX', 12),
+  /** Only trust forwarding headers when traffic is guaranteed to come through a proxy. */
+  trustProxy: booleanEnv('TRUST_PROXY', false),
   isProd,
   studentAutoCreate: studentAutoCreateEnabled(),
   defaultParentEmail: (process.env.DEFAULT_PARENT_EMAIL ?? '').trim().toLowerCase(),
@@ -98,8 +118,23 @@ export const env = {
     process.env.VITE_GOOGLE_CLIENT_ID ??
     ''
   ).trim(),
+
+  // Firebase Admin is optional. Postgres remains the source of truth.
+  firebaseEnabled: booleanEnv('FIREBASE_ENABLED', false),
+  firebaseProjectId: (process.env.FIREBASE_PROJECT_ID ?? '').trim(),
+  firebaseServiceAccountJsonBase64: (
+    process.env.FIREBASE_SERVICE_ACCOUNT_JSON_BASE64 ?? ''
+  ).trim(),
+  firebaseStorageBucket: (process.env.FIREBASE_STORAGE_BUCKET ?? '').trim(),
+  firebaseWebApiKey: (process.env.FIREBASE_WEB_API_KEY ?? '').trim(),
+  firebaseWebAuthDomain: (process.env.FIREBASE_WEB_AUTH_DOMAIN ?? '').trim(),
+  firebaseWebMessagingSenderId: (
+    process.env.FIREBASE_WEB_MESSAGING_SENDER_ID ?? ''
+  ).trim(),
+  firebaseWebAppId: (process.env.FIREBASE_WEB_APP_ID ?? '').trim(),
+  firebaseWebVapidKey: (process.env.FIREBASE_WEB_VAPID_KEY ?? '').trim(),
+  firebasePushEnabled: booleanEnv('FIREBASE_PUSH_ENABLED', false),
 }
 
 export const SESSION_COOKIE = 'aikids_session'
 export const SESSION_DAYS = 14
-

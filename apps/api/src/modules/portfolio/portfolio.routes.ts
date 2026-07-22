@@ -32,10 +32,19 @@ export async function portfolioRoutes(app: FastifyInstance) {
       ownerId = child.id
     }
 
+    const page = z.object({
+      limit: z.coerce.number().int().min(1).max(100).default(40),
+      cursor: z.string().uuid().optional(),
+      childId: z.string().uuid().optional(),
+    }).parse(request.query)
     const assets = await prisma.asset.findMany({
       where: { userId: ownerId },
-      orderBy: { createdAt: 'desc' },
+      orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
+      take: page.limit + 1,
+      ...(page.cursor ? { cursor: { id: page.cursor }, skip: 1 } : {}),
     })
+    const hasMore = assets.length > page.limit
+    if (hasMore) assets.pop()
     return {
       assets: assets.map((a) => ({
         id: a.id,
@@ -47,6 +56,7 @@ export async function portfolioRoutes(app: FastifyInstance) {
         meta: a.metaJson ? JSON.parse(a.metaJson) : null,
         createdAt: a.createdAt,
       })),
+      nextCursor: hasMore ? assets.at(-1)?.id ?? null : null,
     }
   })
 
@@ -77,10 +87,19 @@ export async function portfolioRoutes(app: FastifyInstance) {
       ownerId = child.id
     }
 
+    const page = z.object({
+      limit: z.coerce.number().int().min(1).max(100).default(40),
+      cursor: z.string().uuid().optional(),
+      childId: z.string().uuid().optional(),
+    }).parse(request.query)
     const projects = await prisma.project.findMany({
       where: { userId: ownerId },
-      orderBy: { updatedAt: 'desc' },
+      orderBy: [{ updatedAt: 'desc' }, { id: 'desc' }],
+      take: page.limit + 1,
+      ...(page.cursor ? { cursor: { id: page.cursor }, skip: 1 } : {}),
     })
+    const hasMore = projects.length > page.limit
+    if (hasMore) projects.pop()
     return {
       projects: projects.map((p) => ({
         id: p.id,
@@ -92,6 +111,7 @@ export async function portfolioRoutes(app: FastifyInstance) {
         createdAt: p.createdAt,
         updatedAt: p.updatedAt,
       })),
+      nextCursor: hasMore ? projects.at(-1)?.id ?? null : null,
     }
   })
 
