@@ -176,20 +176,68 @@ export async function courseRoutes(app: FastifyInstance) {
     })
 
     let enrolledIds = new Set<string>()
+    let progressByCourseId: Map<string, { completedCount: number; totalStars: number }> = new Map()
+
     if (user.role === 'student') {
       const enrollments = await prisma.enrollment.findMany({
         where: { userId: user.id },
         select: { courseId: true },
       })
       enrolledIds = new Set(enrollments.map((e) => e.courseId))
+
+      // Fetch quest progress for all enrolled courses in one query
+      if (enrolledIds.size > 0) {
+        const questIds = courses
+          .filter((c) => enrolledIds.has(c.id))
+          .flatMap((c) => c.quests.map((q) => q.id))
+
+        if (questIds.length > 0) {
+          const progRecords = await prisma.questProgress.findMany({
+            where: { userId: user.id, questId: { in: questIds } },
+            select: { questId: true, status: true, stars: true },
+          })
+
+          // Map questId → courseId for aggregation
+          const questToCourse = new Map<string, string>()
+          for (const c of courses) {
+            for (const quest of c.quests) {
+              questToCourse.set(quest.id, c.id)
+            }
+          }
+
+          for (const rec of progRecords) {
+            const cId = questToCourse.get(rec.questId)
+            if (!cId) continue
+            const existing = progressByCourseId.get(cId) ?? { completedCount: 0, totalStars: 0 }
+            if (rec.status === 'completed') existing.completedCount += 1
+            existing.totalStars += rec.stars
+            progressByCourseId.set(cId, existing)
+          }
+        }
+      }
     }
 
-    const mapped = courses.map((c) => ({
-      ...mapCourse(c),
-      questCount: c.quests.length,
-      quests: c.quests,
-      enrolled: enrolledIds.has(c.id),
-    }))
+    const mapped = courses.map((c) => {
+      const progress = progressByCourseId.get(c.id)
+      const isEnrolled = enrolledIds.has(c.id)
+      return {
+        ...mapCourse(c),
+        questCount: c.quests.length,
+        quests: c.quests.map((quest) => ({
+          ...quest,
+          // Include status hint for enrolled courses so FE can show per-quest status
+          status: isEnrolled ? 'available' : undefined,
+        })),
+        enrolled: isEnrolled,
+        // Progress summary for enrolled students
+        completedCount: progress?.completedCount ?? 0,
+        totalStars: progress?.totalStars ?? 0,
+        progressPct:
+          c.quests.length > 0 && progress
+            ? Math.round((progress.completedCount / c.quests.length) * 100)
+            : 0,
+      }
+    })
 
     return {
       courses: mapped,
@@ -205,6 +253,7 @@ export async function courseRoutes(app: FastifyInstance) {
       },
     }
   })
+
 
   app.get('/api/courses/:courseId', async (request) => {
     const user = requireUser(request)

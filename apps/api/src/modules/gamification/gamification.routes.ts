@@ -91,6 +91,83 @@ export async function gamificationRoutes(app: FastifyInstance) {
       },
     }
   })
+  /**
+   * Daily mission — generates a personalised challenge card.
+   * Based on Little AI Master's daily quest pattern:
+   * - If a quest is in_progress → "finish it"
+   * - Else if no enrollment → "start a course"
+   * - Else → "earn 3 stars on your next quest"
+   */
+  app.get('/api/gamification/daily-mission', async (request) => {
+    const user = requireUser(request)
+
+    const today = todayDateString()
+
+    // Find the student's current active quest
+    const inProgress = await prisma.questProgress.findFirst({
+      where: { userId: user.id, status: 'in_progress' },
+      include: { quest: { select: { id: true, title: true, courseId: true } } },
+      orderBy: { updatedAt: 'desc' },
+    })
+
+    if (inProgress) {
+      return {
+        mission: {
+          id: `daily-${today}-finish`,
+          type: 'finish_quest',
+          title: '🎯 Hoàn thành trạm hôm nay!',
+          description: `Tiếp tục trạm "${inProgress.quest.title}" và nhận sao nhé!`,
+          xpReward: 50,
+          action: {
+            label: 'Tiếp tục ngay',
+            route: `/lesson/${inProgress.questId}`,
+          },
+        },
+      }
+    }
+
+    // Find the next available quest
+    const available = await prisma.questProgress.findFirst({
+      where: { userId: user.id, status: 'available' },
+      include: { quest: { select: { id: true, title: true } } },
+      orderBy: [{ quest: { order: 'asc' } }],
+    })
+
+    if (available) {
+      return {
+        mission: {
+          id: `daily-${today}-next`,
+          type: 'start_quest',
+          title: '⭐ Khám phá trạm mới!',
+          description: `Hôm nay hãy thử trạm "${available.quest.title}"!`,
+          xpReward: 40,
+          action: {
+            label: 'Bắt đầu khám phá',
+            route: `/lesson/${available.questId}`,
+          },
+        },
+      }
+    }
+
+    // No active quests — prompt to enroll
+    const enrollment = await prisma.enrollment.findFirst({
+      where: { userId: user.id },
+    })
+
+    return {
+      mission: {
+        id: `daily-${today}-enroll`,
+        type: 'enroll',
+        title: '🚀 Bắt đầu hành trình AI!',
+        description: 'Chọn khóa học phù hợp với con và bắt đầu sáng tạo ngay hôm nay!',
+        xpReward: 30,
+        action: {
+          label: enrollment ? 'Tiếp tục hành trình' : 'Chọn khóa học',
+          route: '/',
+        },
+      },
+    }
+  })
 }
 
 function todayDateString(): string {
