@@ -11478,6 +11478,7 @@ export namespace Prisma {
     recommended: boolean | null
     skillsJson: string | null
     outcomesJson: string | null
+    recognitionJson: string | null
     sortOrder: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -11502,6 +11503,7 @@ export namespace Prisma {
     recommended: boolean | null
     skillsJson: string | null
     outcomesJson: string | null
+    recognitionJson: string | null
     sortOrder: number | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -11526,6 +11528,7 @@ export namespace Prisma {
     recommended: number
     skillsJson: number
     outcomesJson: number
+    recognitionJson: number
     sortOrder: number
     createdAt: number
     updatedAt: number
@@ -11560,6 +11563,7 @@ export namespace Prisma {
     recommended?: true
     skillsJson?: true
     outcomesJson?: true
+    recognitionJson?: true
     sortOrder?: true
     createdAt?: true
     updatedAt?: true
@@ -11584,6 +11588,7 @@ export namespace Prisma {
     recommended?: true
     skillsJson?: true
     outcomesJson?: true
+    recognitionJson?: true
     sortOrder?: true
     createdAt?: true
     updatedAt?: true
@@ -11608,6 +11613,7 @@ export namespace Prisma {
     recommended?: true
     skillsJson?: true
     outcomesJson?: true
+    recognitionJson?: true
     sortOrder?: true
     createdAt?: true
     updatedAt?: true
@@ -11719,6 +11725,7 @@ export namespace Prisma {
     recommended: boolean
     skillsJson: string
     outcomesJson: string
+    recognitionJson: string
     sortOrder: number
     createdAt: Date
     updatedAt: Date
@@ -11762,6 +11769,7 @@ export namespace Prisma {
     recommended?: boolean
     skillsJson?: boolean
     outcomesJson?: boolean
+    recognitionJson?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -11789,6 +11797,7 @@ export namespace Prisma {
     recommended?: boolean
     skillsJson?: boolean
     outcomesJson?: boolean
+    recognitionJson?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -11813,6 +11822,7 @@ export namespace Prisma {
     recommended?: boolean
     skillsJson?: boolean
     outcomesJson?: boolean
+    recognitionJson?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -11837,12 +11847,13 @@ export namespace Prisma {
     recommended?: boolean
     skillsJson?: boolean
     outcomesJson?: boolean
+    recognitionJson?: boolean
     sortOrder?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type CourseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "shortTitle" | "tagline" | "description" | "coverFrom" | "coverTo" | "accent" | "coverImage" | "ageLabel" | "ageTrack" | "courseKey" | "durationLabel" | "productLabel" | "status" | "recommended" | "skillsJson" | "outcomesJson" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["course"]>
+  export type CourseOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "title" | "shortTitle" | "tagline" | "description" | "coverFrom" | "coverTo" | "accent" | "coverImage" | "ageLabel" | "ageTrack" | "courseKey" | "durationLabel" | "productLabel" | "status" | "recommended" | "skillsJson" | "outcomesJson" | "recognitionJson" | "sortOrder" | "createdAt" | "updatedAt", ExtArgs["result"]["course"]>
   export type CourseInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     quests?: boolean | Course$questsArgs<ExtArgs>
     enrollments?: boolean | Course$enrollmentsArgs<ExtArgs>
@@ -11882,6 +11893,7 @@ export namespace Prisma {
       recommended: boolean
       skillsJson: string
       outcomesJson: string
+      recognitionJson: string
       sortOrder: number
       createdAt: Date
       updatedAt: Date
@@ -12328,6 +12340,7 @@ export namespace Prisma {
     readonly recommended: FieldRef<"Course", 'Boolean'>
     readonly skillsJson: FieldRef<"Course", 'String'>
     readonly outcomesJson: FieldRef<"Course", 'String'>
+    readonly recognitionJson: FieldRef<"Course", 'String'>
     readonly sortOrder: FieldRef<"Course", 'Int'>
     readonly createdAt: FieldRef<"Course", 'DateTime'>
     readonly updatedAt: FieldRef<"Course", 'DateTime'>
@@ -25271,6 +25284,7 @@ export namespace Prisma {
     recommended: 'recommended',
     skillsJson: 'skillsJson',
     outcomesJson: 'outcomesJson',
+    recognitionJson: 'recognitionJson',
     sortOrder: 'sortOrder',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -26250,6 +26264,7 @@ export namespace Prisma {
     recommended?: BoolFilter<"Course"> | boolean
     skillsJson?: StringFilter<"Course"> | string
     outcomesJson?: StringFilter<"Course"> | string
+    recognitionJson?: StringFilter<"Course"> | string
     sortOrder?: IntFilter<"Course"> | number
     createdAt?: DateTimeFilter<"Course"> | Date | string
     updatedAt?: DateTimeFilter<"Course"> | Date | string
@@ -26276,6 +26291,7 @@ export namespace Prisma {
     recommended?: SortOrder
     skillsJson?: SortOrder
     outcomesJson?: SortOrder
+    recognitionJson?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -26305,6 +26321,7 @@ export namespace Prisma {
     recommended?: BoolFilter<"Course"> | boolean
     skillsJson?: StringFilter<"Course"> | string
     outcomesJson?: StringFilter<"Course"> | string
+    recognitionJson?: StringFilter<"Course"> | string
     sortOrder?: IntFilter<"Course"> | number
     createdAt?: DateTimeFilter<"Course"> | Date | string
     updatedAt?: DateTimeFilter<"Course"> | Date | string
@@ -26331,6 +26348,7 @@ export namespace Prisma {
     recommended?: SortOrder
     skillsJson?: SortOrder
     outcomesJson?: SortOrder
+    recognitionJson?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -26363,6 +26381,7 @@ export namespace Prisma {
     recommended?: BoolWithAggregatesFilter<"Course"> | boolean
     skillsJson?: StringWithAggregatesFilter<"Course"> | string
     outcomesJson?: StringWithAggregatesFilter<"Course"> | string
+    recognitionJson?: StringWithAggregatesFilter<"Course"> | string
     sortOrder?: IntWithAggregatesFilter<"Course"> | number
     createdAt?: DateTimeWithAggregatesFilter<"Course"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Course"> | Date | string
@@ -27964,6 +27983,7 @@ export namespace Prisma {
     recommended?: boolean
     skillsJson: string
     outcomesJson?: string
+    recognitionJson?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -27990,6 +28010,7 @@ export namespace Prisma {
     recommended?: boolean
     skillsJson: string
     outcomesJson?: string
+    recognitionJson?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -28016,6 +28037,7 @@ export namespace Prisma {
     recommended?: BoolFieldUpdateOperationsInput | boolean
     skillsJson?: StringFieldUpdateOperationsInput | string
     outcomesJson?: StringFieldUpdateOperationsInput | string
+    recognitionJson?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -28042,6 +28064,7 @@ export namespace Prisma {
     recommended?: BoolFieldUpdateOperationsInput | boolean
     skillsJson?: StringFieldUpdateOperationsInput | string
     outcomesJson?: StringFieldUpdateOperationsInput | string
+    recognitionJson?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -28068,6 +28091,7 @@ export namespace Prisma {
     recommended?: boolean
     skillsJson: string
     outcomesJson?: string
+    recognitionJson?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -28092,6 +28116,7 @@ export namespace Prisma {
     recommended?: BoolFieldUpdateOperationsInput | boolean
     skillsJson?: StringFieldUpdateOperationsInput | string
     outcomesJson?: StringFieldUpdateOperationsInput | string
+    recognitionJson?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -28116,6 +28141,7 @@ export namespace Prisma {
     recommended?: BoolFieldUpdateOperationsInput | boolean
     skillsJson?: StringFieldUpdateOperationsInput | string
     outcomesJson?: StringFieldUpdateOperationsInput | string
+    recognitionJson?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -29774,6 +29800,7 @@ export namespace Prisma {
     recommended?: SortOrder
     skillsJson?: SortOrder
     outcomesJson?: SortOrder
+    recognitionJson?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -29802,6 +29829,7 @@ export namespace Prisma {
     recommended?: SortOrder
     skillsJson?: SortOrder
     outcomesJson?: SortOrder
+    recognitionJson?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -29826,6 +29854,7 @@ export namespace Prisma {
     recommended?: SortOrder
     skillsJson?: SortOrder
     outcomesJson?: SortOrder
+    recognitionJson?: SortOrder
     sortOrder?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -34196,6 +34225,7 @@ export namespace Prisma {
     recommended?: boolean
     skillsJson: string
     outcomesJson?: string
+    recognitionJson?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34221,6 +34251,7 @@ export namespace Prisma {
     recommended?: boolean
     skillsJson: string
     outcomesJson?: string
+    recognitionJson?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34296,6 +34327,7 @@ export namespace Prisma {
     recommended?: BoolFieldUpdateOperationsInput | boolean
     skillsJson?: StringFieldUpdateOperationsInput | string
     outcomesJson?: StringFieldUpdateOperationsInput | string
+    recognitionJson?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34321,6 +34353,7 @@ export namespace Prisma {
     recommended?: BoolFieldUpdateOperationsInput | boolean
     skillsJson?: StringFieldUpdateOperationsInput | string
     outcomesJson?: StringFieldUpdateOperationsInput | string
+    recognitionJson?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34439,6 +34472,7 @@ export namespace Prisma {
     recommended?: boolean
     skillsJson: string
     outcomesJson?: string
+    recognitionJson?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34464,6 +34498,7 @@ export namespace Prisma {
     recommended?: boolean
     skillsJson: string
     outcomesJson?: string
+    recognitionJson?: string
     sortOrder?: number
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -34588,6 +34623,7 @@ export namespace Prisma {
     recommended?: BoolFieldUpdateOperationsInput | boolean
     skillsJson?: StringFieldUpdateOperationsInput | string
     outcomesJson?: StringFieldUpdateOperationsInput | string
+    recognitionJson?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -34613,6 +34649,7 @@ export namespace Prisma {
     recommended?: BoolFieldUpdateOperationsInput | boolean
     skillsJson?: StringFieldUpdateOperationsInput | string
     outcomesJson?: StringFieldUpdateOperationsInput | string
+    recognitionJson?: StringFieldUpdateOperationsInput | string
     sortOrder?: IntFieldUpdateOperationsInput | number
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

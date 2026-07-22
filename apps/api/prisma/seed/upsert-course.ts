@@ -126,6 +126,7 @@ export async function upsertCourse(
       recommended: data.recommended,
       skillsJson: JSON.stringify(data.skills),
       outcomesJson: JSON.stringify(data.outcomes),
+      recognitionJson: JSON.stringify(data.recognition),
       sortOrder: data.sortOrder,
     },
     update: overwrite
@@ -140,6 +141,7 @@ export async function upsertCourse(
           accent: data.accent,
           skillsJson: JSON.stringify(data.skills),
           outcomesJson: JSON.stringify(data.outcomes),
+          recognitionJson: JSON.stringify(data.recognition),
           recommended: data.recommended,
           sortOrder: data.sortOrder,
           status: data.status,

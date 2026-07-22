@@ -102,6 +102,9 @@ CREATE UNIQUE INDEX users_email_key
 CREATE INDEX users_role_active_idx
     ON public.users USING btree (role, active);
 
+CREATE INDEX users_created_at_idx
+    ON public.users USING btree (created_at);
+
 CREATE INDEX users_parent_id_idx
     ON public.users USING btree (parent_id)
     WHERE (parent_id IS NOT NULL);
@@ -341,7 +344,7 @@ CREATE TABLE public.quest_progress (
         status = ANY (ARRAY['locked'::text, 'available'::text, 'in_progress'::text, 'completed'::text])
     ),
     CONSTRAINT quest_progress_phase_check CHECK (
-        phase = ANY (ARRAY['learn'::text, 'practice'::text, 'check'::text])
+        phase = ANY (ARRAY['learn'::text, 'game'::text, 'practice'::text, 'check'::text])
     ),
     CONSTRAINT quest_progress_stars_check CHECK (stars >= 0 AND stars <= 3)
 );
@@ -351,6 +354,9 @@ CREATE UNIQUE INDEX quest_progress_user_quest_key
 
 CREATE INDEX quest_progress_user_id_idx
     ON public.quest_progress USING btree (user_id);
+
+CREATE INDEX quest_progress_status_updated_at_idx
+    ON public.quest_progress USING btree (status, updated_at);
 
 -- Partial index: fast lookup for completed quests (gamification queries)
 CREATE INDEX quest_progress_user_completed_idx
@@ -380,7 +386,10 @@ CREATE TABLE public.assets (
 
     CONSTRAINT assets_pkey PRIMARY KEY (id),
     CONSTRAINT assets_type_check CHECK (
-        type = ANY (ARRAY['comic_panel'::text, 'character'::text, 'video_clip'::text, 'story'::text])
+        type = ANY (ARRAY[
+          'comic_panel'::text, 'character'::text, 'video_clip'::text,
+          'story'::text, 'panel'::text, 'sticker'::text, 'badge'::text
+        ])
     )
 );
 
@@ -420,6 +429,9 @@ CREATE TABLE public.projects (
 
 CREATE INDEX projects_user_id_idx
     ON public.projects USING btree (user_id);
+
+CREATE INDEX projects_created_at_idx
+    ON public.projects USING btree (created_at);
 
 -- Fast lookup for pending approvals
 CREATE INDEX projects_pending_idx
@@ -484,7 +496,7 @@ CREATE TABLE public.achievements (
         type = ANY (ARRAY[
             'first_quest'::text, 'streak_3'::text, 'streak_7'::text, 'streak_30'::text,
             'star_10'::text, 'star_50'::text, 'course_complete'::text, 'project_first'::text
-        ])
+        ]) OR type LIKE 'course_complete:%'
     )
 );
 
@@ -535,7 +547,7 @@ CREATE TABLE public.notifications (
     CONSTRAINT notifications_pkey PRIMARY KEY (id),
     CONSTRAINT notifications_type_check CHECK (
         type = ANY (ARRAY[
-            'achievement'::text, 'approval'::text, 'quest_complete'::text,
+            'achievement'::text, 'approval'::text, 'quest_complete'::text, 'course_completion'::text,
             'streak'::text, 'system'::text
         ])
     )

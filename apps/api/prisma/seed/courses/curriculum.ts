@@ -1,10 +1,10 @@
 /**
- * Full L1 (6–8) + L2 (9–11) catalog aligned to courses/ markdowns.
- * Each course has curriculum stations (video→game→practice→check)
- * and ideate/produce stage split. Representative deep quests for
- * proof paths; all K1–K6 present with open status for pilot.
+ * Production curriculum adapter for the 12 source-of-truth course documents.
+ * Lesson copy is generated from the 12 Markdown course documents; this file
+ * only maps that reviewed content to database seeds.
  */
 import type { CourseSeed, PracticeKindSeed, QuestSeed } from '../types.js'
+import { curriculumContent } from '../generated/curriculum-content.js'
 
 const ACCENTS = {
   L1: ['#6d5efc', '#3dbfff', '#3ed9a0', '#ff7b93', '#ffc94a', '#a78bfa'],
@@ -20,235 +20,191 @@ const COVERS = {
   K6: '/assets/course-voice.jpg',
 } as const
 
-type Track = 'L1' | 'L2'
-type Key = 'K1' | 'K2' | 'K3' | 'K4' | 'K5' | 'K6'
-
-const META: Record<
-  Key,
-  { title: string; short: string; product: string; skills: string[] }
-> = {
-  K1: {
-    title: 'Vẽ Thế Giới Tưởng Tượng',
-    short: 'Thế giới',
-    product: 'Bản đồ thế giới tưởng tượng',
-    skills: ['Tưởng tượng nơi chốn', 'Màu & cảm xúc', 'Mô tả trước AI'],
-  },
-  K2: {
-    title: 'Thiết Kế Nhân Vật',
-    short: 'Nhân vật',
-    product: 'Nhân vật clay của em',
-    skills: ['Đặc điểm nhân vật', 'Tính cách', 'Art style Soft Clay'],
-  },
-  K3: {
-    title: 'Kể Chuyện',
-    short: 'Câu chuyện',
-    product: 'Cốt truyện 5 phần',
-    skills: ['Mở–sự cố–kết', 'Nhân vật hành động', 'Kể an toàn'],
-  },
-  K4: {
-    title: 'Truyện Tranh',
-    short: 'Comic',
-    product: 'Truyện tranh nhiều khung',
-    skills: ['Góc máy', 'Phân khung', 'Thoại bubble'],
-  },
-  K5: {
-    title: 'Đạo Diễn Chuyển Động',
-    short: 'Chuyển động',
-    product: 'Clip chuyển động ngắn',
-    skills: ['Nhịp điệu', 'Cắt cảnh', 'Chỉ đạo AI motion'],
-  },
-  K6: {
-    title: 'Phim Ngắn Đầu Tay',
-    short: 'Phim ngắn',
-    product: 'Phim ngắn đầu tay',
-    skills: ['Kịch bản', 'Dàn dựng', 'Xuất bản an toàn'],
-  },
-}
-
-const SLUG: Record<Key, string> = {
+const SLUG = {
   K1: 'the-gioi',
   K2: 'nhan-vat',
   K3: 'ke-chuyen',
   K4: 'truyen-tranh',
   K5: 'chuyen-dong',
   K6: 'phim-ngan',
-}
+} as const
 
-function q(
-  track: Track,
-  key: Key,
+const SHORT_TITLE = {
+  K1: 'Thế giới',
+  K2: 'Nhân vật',
+  K3: 'Câu chuyện',
+  K4: 'Truyện tranh',
+  K5: 'Chuyển động',
+  K6: 'Phim ngắn',
+} as const
+
+const SKILLS = {
+  K1: ['Xây dựng thế giới', 'Màu sắc & cảm xúc', 'Mô tả ý tưởng rõ ràng', 'Kiểm tra kết quả AI'],
+  K2: ['Thiết kế nhân vật', 'Tính cách qua hành động', 'Giữ hình ảnh nhất quán', 'Thuyết trình sáng tạo'],
+  K3: ['Cấu trúc câu chuyện', 'Xung đột & bước ngoặt', 'Lời thoại & cảm xúc', 'Biên tập có chủ đích'],
+  K4: ['Góc máy & phân khung', 'Nhịp đọc thị giác', 'Thoại & hiệu ứng chữ', 'Hoàn thiện truyện tranh'],
+  K5: ['Ý đồ chuyển động', 'Tốc độ & nhịp điệu', 'Movement prompt', 'Chọn lọc và ghép cảnh'],
+  K6: ['Kịch bản phân cảnh', 'Storyboard', 'Hình ảnh, chuyển động & âm thanh', 'Dựng và giới thiệu phim'],
+} as const
+
+type ContentCourse = (typeof curriculumContent)[number]
+type ContentLesson = ContentCourse['lessons'][number]
+
+function questFor(
+  course: ContentCourse,
+  lesson: ContentLesson,
   order: number,
-  title: string,
-  practiceKind: PracticeKindSeed,
-  stage: 'ideate' | 'produce',
-  skill: string,
-  concept: string,
-  example: string,
 ): QuestSeed {
-  const id = `${track.toLowerCase()}-${key.toLowerCase()}-q${order}`
+  const track = course.track.toLowerCase()
+  const key = course.courseKey.toLowerCase()
+  const id = `${track}-${key}-q${order}`
+  const duration = course.track === 'L1' ? '18 phút' : '20 phút'
+  const check =
+    order === course.lessons.length
+      ? course.rubric.map((criterion, criterionIndex) => ({
+          id: `${id}-rubric-${criterionIndex + 1}`,
+          question: `Con kiểm tra sản phẩm cuối khóa: ${criterion}`,
+          options: ['Đã có trong sản phẩm của con', 'Con cần hoàn thiện thêm'],
+          correctIndex: 0,
+          explain: `Tiêu chí ${criterionIndex + 1}: ${criterion}`,
+        }))
+      : [
+          {
+            id: `${id}-check`,
+            question: 'Ở bước kiểm tra nhanh, con cần làm gì?',
+            options: [
+              lesson.check.content,
+              'Bỏ qua và sang bài tiếp theo',
+              'Nhập thông tin cá nhân để được chấm',
+            ],
+            correctIndex: 0,
+            explain: lesson.check.objective,
+          },
+        ]
   return {
     id,
     order,
-    title,
-    skill,
-    reward: `Huy hiệu · ${title}`,
-    duration: track === 'L1' ? '18 phút' : '20 phút',
-    hook: stage === 'ideate'
-      ? 'Bé cầm lái — chưa dùng AI, chỉ ý tưởng của con!'
-      : 'Lấy đúng ý tưởng đã chốt, cùng AI hoàn thiện.',
-    accent: ACCENTS[track][(order - 1) % 6],
-    practiceKind,
-    stage,
-    videoUrl:
-      'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
-    goals: [
-      stage === 'ideate' ? 'Tự nghĩ ý trước AI' : 'Chọn lọc kết quả AI',
-      skill,
-      'Lưu sản phẩm vào Vũ trụ của em',
-    ],
-    concept,
-    example,
+    title: lesson.title,
+    skill: lesson.objective,
+    reward: `Sản phẩm · ${lesson.product}`,
+    duration,
+    hook:
+      lesson.stage === 'ideate'
+        ? 'Con tự nghĩ và quyết định trước; AI chưa tham gia ở giai đoạn này.'
+        : 'Con dùng đúng ý tưởng đã chốt, rồi kiểm tra kỹ phần AI hỗ trợ.',
+    accent: ACCENTS[course.track][(order - 1) % 6],
+    practiceKind: lesson.practiceKind as PracticeKindSeed,
+    stage: lesson.stage,
+    // No placeholder video: a missing lecture asset must remain visible and honest.
+    videoUrl: null,
+    goals: [lesson.objective, `Hoàn thành: ${lesson.product}`, 'Tự kiểm tra và lưu riêng tư trong Vũ trụ của em'],
+    concept: `${lesson.video.content} Mục tiêu: ${lesson.video.objective}`,
+    example: `Game ghi nhớ: ${lesson.game.content}`,
+    check,
     stations: {
-      stage,
+      stage: lesson.stage,
       stations: [
         {
-          id: `${id}-v`,
+          id: `${id}-video`,
           kind: 'video',
-          durationMin: track === 'L1' ? 3 : 4,
-          title: 'Video lý thuyết',
-          videoUrl:
-            'https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4',
+          durationMin: Number.parseInt(lesson.video.duration, 10),
+          title: 'Bài giảng ngắn',
+          content: lesson.video.content,
+          outcome: lesson.video.objective,
+          videoUrl: null,
         },
         {
-          id: `${id}-g`,
+          id: `${id}-game`,
           kind: 'game',
-          durationMin: track === 'L1' ? 5 : 4,
-          title: 'Game tương tác',
-          gameType:
-            practiceKind === 'spin'
-              ? 'spin'
-              : practiceKind === 'match' || practiceKind === 'drag'
-                ? 'match'
-                : 'pick',
+          durationMin: Number.parseInt(lesson.game.duration, 10),
+          title: 'Game ghi nhớ',
+          instruction: lesson.game.content,
+          outcome: lesson.game.objective,
+          gameType: lesson.game.gameType,
+          gameConfig: lesson.game.gameConfig,
         },
         {
-          id: `${id}-p`,
+          id: `${id}-practice`,
           kind: 'practice',
-          durationMin: track === 'L1' ? 8 : 10,
-          title: 'Thực hành',
-          practiceKind,
+          durationMin: Number.parseInt(lesson.practice.duration, 10),
+          title: 'Xưởng thực hành',
+          instruction: lesson.practice.content,
+          outcome: lesson.practice.objective,
+          product: lesson.product,
+          practiceKind: lesson.practiceKind,
         },
         {
-          id: `${id}-c`,
+          id: `${id}-check`,
           kind: 'check',
-          durationMin: 2,
+          durationMin: Number.parseInt(lesson.check.duration, 10),
           title: 'Kiểm tra nhanh',
+          instruction: lesson.check.content,
+          outcome: lesson.check.objective,
         },
       ],
     },
   }
 }
 
-/** Deep path: 6–8 quests per course covering ideate → produce */
-function questsFor(track: Track, key: Key): QuestSeed[] {
-  const deep: Record<Key, () => QuestSeed[]> = {
-    K1: () => [
-      q(track, key, 1, 'Mọi thế giới bắt đầu từ câu hỏi', 'spin', 'ideate', 'Chọn thế giới tưởng tượng', 'Thế giới bắt đầu từ một ý tưởng rõ ràng của con.', 'Rừng phép thuật / đại dương / vũ trụ kẹo.'),
-      q(track, key, 2, 'Vẽ nét đầu tiên bằng lời', 'journal', 'ideate', 'Mô tả thế giới bằng lời', 'Mô tả cụ thể giúp người khác (và AI) hình dung đúng.', 'To hay nhỏ? Sáng hay tối? Điều đặc biệt?'),
-      q(track, key, 3, 'Màu sắc kể chuyện', 'palette', 'ideate', 'Chọn bảng màu cảm xúc', 'Màu tạo cảm giác vui, bí ẩn hoặc yên bình.', '3 màu chính cho thế giới của con.'),
-      q(track, key, 4, 'Sinh vật đặc biệt & chốt hồ sơ', 'journal', 'ideate', 'Hoàn thiện hồ sơ ý tưởng', 'Trước khi nhờ AI, hồ sơ ý tưởng phải đủ.', 'Sinh vật + cảnh + màu đã chốt.'),
-      q(track, key, 5, 'Từ lời tả thành hình cảnh', 'ai_pick', 'produce', 'Tạo hình cảnh cùng AI', 'AI vẽ theo mô tả con đã chốt — con chọn bản đúng ý.', 'Chọn 1 trong 2–3 bản AI.'),
-      q(track, key, 6, 'Tạo hình sinh vật cùng AI', 'ai_pick', 'produce', 'Tạo sinh vật clay', 'Chỉnh prompt khi chưa khớp ý — bé cầm lái.', 'Sinh vật soft clay, không nhựa bóng.'),
-      q(track, key, 7, 'Ghép bản đồ thế giới', track === 'L1' ? 'comic' : 'chips', 'produce', 'Hoàn thiện bản đồ', 'Gom sản phẩm thành bản đồ thế giới riêng.', 'Cảnh + sinh vật + màu.'),
-      q(track, key, 8, 'Tự kiểm & chia sẻ an toàn', 'reflect', 'produce', 'Phản hồi & an toàn', 'Không dùng tên thật; hỏi ba mẹ trước khi chia sẻ.', 'Sản phẩm private-by-default.'),
-    ],
-    K2: () => [
-      q(track, key, 1, 'Nhân vật cần gì?', 'intro', 'ideate', 'Hiểu cấu trúc nhân vật', 'Hình dáng + tính cách + biệt danh an toàn.', 'Mèo tò mò đội mũ sao.'),
-      q(track, key, 2, 'Chọn hình dạng & vibe', 'character', 'ideate', 'Thiết kế đặc điểm', 'Con chọn trước khi AI vẽ.', 'Robot mực thân thiện.'),
-      q(track, key, 3, 'Chọn phong cách Soft Clay', 'style', 'ideate', 'Art style không nhựa', 'Clay/màu nước/chibi khác chrome bóng.', 'Chọn clay handmade.'),
-      q(track, key, 4, 'Tính cách qua hành động', 'match', 'ideate', 'Gắn vibe với hành động', 'Tính cách hiện qua việc nhân vật làm.', 'Tò mò → khám phá hang.'),
-      q(track, key, 5, 'AI vẽ nhân vật theo hồ sơ', 'ai_pick', 'produce', 'Sinh hình nhân vật', 'Prompt từ hồ sơ đã chốt.', 'Chọn bản giống ý nhất.'),
-      q(track, key, 6, 'Chỉnh & lưu thẻ nhân vật', 'character', 'produce', 'Lưu vào ba lô', 'Thẻ nhân vật private trong portfolio.', 'Biệt danh không PII.'),
-    ],
-    K3: () => [
-      q(track, key, 1, 'Câu chuyện 3–5 nhịp', 'intro', 'ideate', 'Cấu trúc kể chuyện', 'Mở – sự cố – kết (L2: 5 phần).', 'Bạn mèo mất cầu vồng.'),
-      q(track, key, 2, 'Chọn sự cố vui', 'story', 'ideate', 'Xây cốt truyện', 'Sự cố phải an toàn và vui.', 'Máy cầu vồng hỏng.'),
-      q(track, key, 3, 'Thoại & cảm xúc', 'journal', 'ideate', 'Viết lời thoại', 'Thoại ngắn, rõ cảm xúc.', 'Ôi không! Mình sửa nhé!'),
-      q(track, key, 4, 'Thám tử AI sai', 'detective', 'produce', 'Kiểm tra kết quả AI', 'AI có thể sai — con kiểm tra.', 'Chọn mô tả khớp hình.'),
-      q(track, key, 5, 'Kể lại bằng thẻ prompt', 'chips', 'produce', 'Prompt kể chuyện', 'Ghép thẻ thành prompt đủ.', '5 thẻ: nhân vật–hành động–nơi…'),
-      q(track, key, 6, 'Lưu outline câu chuyện', 'story', 'produce', 'Portfolio story', 'Outline sẵn sàng cho K4 comic.', '5 phần đã chốt.'),
-    ],
-    K4: () => [
-      q(track, key, 1, 'Góc máy kể chuyện', 'match', 'ideate', 'Toàn cảnh vs cận cảnh', 'Góc máy đổi cảm xúc người đọc.', 'Cận = cảm xúc; toàn = bối cảnh.'),
-      q(track, key, 2, 'Nhịp đọc & kích thước khung', 'drag', 'ideate', 'Bố cục khung', 'Khung to = quan trọng; nhỏ = chuyển nhanh.', 'Đánh dấu khoảnh khắc khung to.'),
-      q(track, key, 3, 'Phân khung 8–10 cảnh', 'journal', 'ideate', 'Panel script', 'Chia câu chuyện thành khung vẽ.', 'Danh sách 8 khoảnh khắc.'),
-      q(track, key, 4, 'Thoại bubble an toàn', 'comic', 'ideate', 'Viết thoại khung', 'Không PII; thoại ngắn rõ.', '4 bubble vui.'),
-      q(track, key, 5, 'AI vẽ từng khung', 'ai_pick', 'produce', 'Gen panel', 'Mỗi khung một prompt từ script.', 'Chọn bản đúng góc máy.'),
-      q(track, key, 6, 'Hoàn thiện truyện tranh', 'comic', 'produce', 'Xuất comic', 'Gom 4–8 khung thành project.', 'Private + xin ba mẹ chia sẻ.'),
-    ],
-    K5: () => [
-      q(track, key, 1, 'Chuyển động là gì?', 'intro', 'ideate', 'Hiểu motion', 'Chuyển động kể cảm xúc.', 'Nhảy mừng vs chậm buồn.'),
-      q(track, key, 2, 'Chọn nhịp cảnh', 'match', 'ideate', 'Timing', 'Nhanh/chậm theo cảm xúc.', 'Sự cố = nhịp nhanh.'),
-      q(track, key, 3, 'Storyboard chuyển động', 'journal', 'ideate', 'Kế hoạch shot', '3–5 shot trước khi gen video.', 'Shot list đã chốt.'),
-      q(track, key, 4, 'AI motion clip', 'video', 'produce', 'Tạo clip', 'Prompt motion + style clay.', 'Clip ngắn an toàn.'),
-      q(track, key, 5, 'Chọn lọc & cắt ý', 'reflect', 'produce', 'Biên tập ý', 'Con quyết định shot giữ lại.', '1 clip final private.'),
-    ],
-    K6: () => [
-      q(track, key, 1, 'Phim ngắn cần gì?', 'intro', 'ideate', 'Cấu trúc phim', 'Mở–giữa–kết + thông điệp vui.', '90 giây kể một ý.'),
-      q(track, key, 2, 'Kịch bản đầu tay', 'story', 'ideate', 'Viết kịch bản', 'Dựa K3–K5 đã học.', 'Script 5 beat.'),
-      q(track, key, 3, 'Cast & bối cảnh', 'character', 'ideate', 'Chọn asset có sẵn', 'Tái sử dụng nhân vật/thế giới.', 'Cast từ ba lô.'),
-      q(track, key, 4, 'Dàn dựng shot list', 'journal', 'ideate', 'Đạo diễn', 'Thứ tự shot rõ ràng.', 'Shot list 6–8.'),
-      q(track, key, 5, 'AI dựng cảnh/phim', 'video', 'produce', 'Sản xuất', 'Gen theo shot list.', 'Xuất project video.'),
-      q(track, key, 6, 'Công chiếu an toàn', 'reflect', 'produce', 'Chia sẻ có kiểm soát', 'Chỉ family sau parent approve.', 'Private-by-default.'),
-    ],
-  }
-  return deep[key]()
-}
-
-function buildCourse(track: Track, key: Key, index: number): CourseSeed {
-  const m = META[key]
-  const ageLabel = track === 'L1' ? '6–8 tuổi' : '9–11 tuổi'
-  const sortOrder = (track === 'L1' ? 0 : 100) + index
+function buildCourse(course: ContentCourse, index: number): CourseSeed {
+  const lessonCount = course.lessons.length
+  const liveSessions = course.track === 'L1' ? (course.courseKey === 'K6' ? 5 : 4) : 8
+  const ageLabel = course.track === 'L1' ? '6–8 tuổi' : '9–11 tuổi'
   return {
-    id: `${track.toLowerCase()}-${key.toLowerCase()}-${SLUG[key]}`,
-    title: `${track === 'L1' ? 'L1' : 'L2'} · ${m.title}`,
-    shortTitle: m.short,
+    id: `${course.track.toLowerCase()}-${course.courseKey.toLowerCase()}-${SLUG[course.courseKey]}`,
+    title: `${course.track} · ${course.title}`,
+    shortTitle: SHORT_TITLE[course.courseKey],
     tagline:
-      track === 'L1'
-        ? 'Khám phá & lên ý tưởng → hoàn thiện cùng AI (6–8 tuổi)'
-        : 'Đạo diễn sáng tạo nâng cao với AI (9–11 tuổi)',
-    description: `Lộ trình chuẩn ${ageLabel}: ${m.title}. Giai đoạn 1 không AI (ideate), giai đoạn 2 cùng AI (produce). Mỗi bài ~${track === 'L1' ? 18 : 20} phút: video → game → thực hành → kiểm tra.`,
-    coverFrom: ACCENTS[track][0],
-    coverTo: ACCENTS[track][1],
-    accent: ACCENTS[track][index % 6],
-    coverImage: COVERS[key],
+      course.track === 'L1'
+        ? 'Con tự nghĩ trước, vui học từng bước và hoàn thiện sản phẩm cùng AI.'
+        : 'Từ ý tưởng có chủ đích đến sản phẩm sáng tạo hoàn chỉnh cùng AI.',
+    description: `${lessonCount} bài tự học theo nhịp Bài giảng → Game → Thực hành → Kiểm tra. Giai đoạn đầu nuôi ý tưởng độc lập; giai đoạn sau dùng AI như một công cụ và luôn để con giữ quyền quyết định.`,
+    coverFrom: ACCENTS[course.track][0],
+    coverTo: ACCENTS[course.track][1],
+    accent: ACCENTS[course.track][index % 6],
+    coverImage: COVERS[course.courseKey],
     ageLabel,
-    ageTrack: track,
-    courseKey: key,
-    durationLabel: track === 'L1' ? '4 buổi · 8 bài' : '6–8 buổi · 12+ bài',
-    productLabel: m.product,
+    ageTrack: course.track,
+    courseKey: course.courseKey,
+    durationLabel: `${liveSessions} buổi · ${lessonCount} bài`,
+    productLabel: course.product,
     status: 'open',
-    recommended: key === 'K1' || key === 'K4',
-    skills: m.skills,
+    recommended: course.courseKey === 'K1' || course.courseKey === 'K4',
+    skills: [...SKILLS[course.courseKey]],
     outcomes: [
-      m.product,
-      'Portfolio private trong Vũ trụ của em',
-      'Hiểu bé cầm lái, AI hỗ trợ',
-      'Huy hiệu + sao theo trạm',
+      course.product,
+      `Hoàn thành bài đánh giá: ${course.finalTest}`,
+      'Biết tự lên ý tưởng, chọn lọc và giải thích quyết định sáng tạo',
+      'Sản phẩm được lưu riêng tư trong Vũ trụ của em',
     ],
-    sortOrder,
-    quests: questsFor(track, key),
+    recognition: {
+      issuer: 'AI Kids Creator Academy',
+      credential: `Huy hiệu số: ${course.badge}`,
+      finalAssessment: course.finalTest,
+      frameworks: [
+        {
+          code: 'Thông tư 02/2025/TT-BGDĐT',
+          title: 'Khung năng lực số cho người học',
+        },
+        {
+          code: 'Quyết định 3439/QĐ-BGDĐT',
+          title: 'Khung nội dung thí điểm giáo dục trí tuệ nhân tạo cho học sinh phổ thông',
+        },
+      ],
+      disclaimer:
+        'Khóa học được thiết kế có tham chiếu các khung nội dung trên; đây không phải chứng nhận hay phê duyệt khóa học của Bộ Giáo dục và Đào tạo.',
+    },
+    sortOrder: (course.track === 'L1' ? 0 : 100) + index,
+    quests: course.lessons.map((lesson, lessonIndex) =>
+      questFor(course, lesson, lessonIndex + 1),
+    ),
   }
 }
 
-const KEYS: Key[] = ['K1', 'K2', 'K3', 'K4', 'K5', 'K6']
+export const curriculumCourses: CourseSeed[] = curriculumContent.map((course, index) =>
+  buildCourse(course, (index % 6) + 1),
+)
 
-export const curriculumCourses: CourseSeed[] = [
-  ...KEYS.map((k, i) => buildCourse('L1', k, i + 1)),
-  ...KEYS.map((k, i) => buildCourse('L2', k, i + 1)),
-]
-
-/** Legacy 4-course ids → keep as aliases mapped into L tracks if needed */
 export const LEGACY_COURSE_IDS = [
   'course-comic',
   'course-robot',

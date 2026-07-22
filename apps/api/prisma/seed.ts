@@ -207,7 +207,23 @@ async function main() {
         in: ['course-comic', 'course-robot', 'course-safety', 'course-voice'],
       },
     },
-    data: { status: 'soon' },
+    data: {
+      status: 'soon',
+      recognitionJson: JSON.stringify({
+        issuer: 'AI Kids Creator Academy',
+        credential: 'Huy hiệu hoàn thành khóa trải nghiệm AI',
+        finalAssessment:
+          'Con hoàn thành sản phẩm cuối khóa, giải thích lựa chọn và sửa ít nhất một điểm sau khi tự kiểm tra.',
+        frameworks: [
+          {
+            code: 'AI4K12',
+            title: 'Tham chiếu Five Big Ideas in AI và tiến trình năng lực theo lứa tuổi',
+          },
+        ],
+        disclaimer:
+          'Đây là ghi nhận hoàn thành nội bộ của AI Kids Creator Academy. Việc tham chiếu khung năng lực không đồng nghĩa AI4K12 bảo trợ hay cấp chứng chỉ.',
+      }),
+    },
   })
 
   for (const course of curriculumCourses) {

@@ -67,6 +67,7 @@ model User {
   loginLogs       LoginLog[]
 
   @@index([role, active])
+  @@index([createdAt])
   @@map("users")
 }
 
@@ -215,6 +216,7 @@ model Course {
   recommended   Boolean  @default(false)
   skillsJson    String   @map("skills_json")
   outcomesJson  String   @default("[]") @map("outcomes_json")
+  recognitionJson String @default("{}") @map("recognition_json")
   sortOrder     Int      @default(0) @map("sort_order")
   createdAt     DateTime @default(now()) @map("created_at")
   updatedAt     DateTime @default(now()) @updatedAt @map("updated_at")
@@ -290,6 +292,7 @@ model QuestProgress {
 
   @@unique([userId, questId])
   @@index([userId])
+  @@index([status, updatedAt])
   @@map("quest_progress")
 }
 
@@ -328,6 +331,7 @@ model Project {
   approvals Approval[]
 
   @@index([userId])
+  @@index([createdAt])
   @@map("projects")
 }
 

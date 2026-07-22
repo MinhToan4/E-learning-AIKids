@@ -84,6 +84,14 @@ export type CourseSeed = {
   skills: string[]
   /** What the child achieves after finishing (intro screen) */
   outcomes: string[]
+  /** Honest completion issuer and framework references; never implies approval. */
+  recognition: {
+    issuer: string
+    credential: string
+    finalAssessment: string
+    frameworks: Array<{ code: string; title: string }>
+    disclaimer: string
+  }
   sortOrder: number
   quests: QuestSeed[]
 }

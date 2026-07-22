@@ -239,6 +239,7 @@ exports.Prisma.CourseScalarFieldEnum = {
   recommended: 'recommended',
   skillsJson: 'skillsJson',
   outcomesJson: 'outcomesJson',
+  recognitionJson: 'recognitionJson',
   sortOrder: 'sortOrder',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
