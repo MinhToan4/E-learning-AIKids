@@ -5,7 +5,14 @@
 
 export type StationKind = 'video' | 'game' | 'practice' | 'check'
 
-export type GameType = 'match' | 'drag' | 'spin' | 'sort' | 'pick'
+export type GameType =
+  | 'match'
+  | 'drag'
+  | 'spin'
+  | 'sort'
+  | 'order'
+  | 'detective'
+  | 'pick'
 
 export type PracticeKind =
   | 'intro'
@@ -102,6 +109,11 @@ export interface LessonStation {
   /** Minutes, curriculum-aligned */
   durationMin?: number
   title?: string
+  /** Exact curriculum copy shown to the child. */
+  content?: string
+  instruction?: string
+  outcome?: string
+  product?: string
   /** video */
   videoUrl?: string | null
   /** game */
@@ -149,6 +161,11 @@ export function parseStationsJson(
         durationMin:
           typeof row.durationMin === 'number' ? row.durationMin : undefined,
         title: typeof row.title === 'string' ? row.title : undefined,
+        content: typeof row.content === 'string' ? row.content : undefined,
+        instruction:
+          typeof row.instruction === 'string' ? row.instruction : undefined,
+        outcome: typeof row.outcome === 'string' ? row.outcome : undefined,
+        product: typeof row.product === 'string' ? row.product : undefined,
         videoUrl:
           typeof row.videoUrl === 'string' || row.videoUrl === null
             ? (row.videoUrl as string | null)

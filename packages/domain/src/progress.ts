@@ -79,7 +79,8 @@ export function xpForStars(stars: number): number {
 }
 
 export function nextPhase(current: Phase): Phase | 'done' {
-  if (current === 'learn') return 'practice'
+  if (current === 'learn') return 'game'
+  if (current === 'game') return 'practice'
   if (current === 'practice') return 'check'
   return 'done'
 }

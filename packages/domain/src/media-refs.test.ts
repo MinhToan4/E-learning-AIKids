@@ -4,6 +4,7 @@ import {
   buildVideoGenRefs,
   buildVidtoryUploadMetadata,
   isCourseCreatedAsset,
+  isUsableImageReference,
   parseCourseSketchDataUrl,
 } from './media-refs.js'
 
@@ -73,6 +74,17 @@ describe('media-refs', () => {
         meta: { kind: 'sketch', purpose: 'course_sketch', courseCreated: true },
       }),
     ).toBe(true)
+  })
+
+  it('accepts only provider-readable image references', () => {
+    expect(isUsableImageReference('https://cdn.example.com/a.png')).toBe(true)
+    expect(isUsableImageReference('http://localhost:8080/a.webp')).toBe(true)
+    expect(
+      isUsableImageReference(`data:image/png;base64,${'A'.repeat(200)}`),
+    ).toBe(true)
+    expect(isUsableImageReference('/assets/designer/style.jpeg')).toBe(false)
+    expect(isUsableImageReference('javascript:alert(1)')).toBe(false)
+    expect(isUsableImageReference('data:text/html;base64,PGgxPg==')).toBe(false)
   })
 
   it('parseCourseSketchDataUrl accepts canvas png only', () => {

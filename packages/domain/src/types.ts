@@ -6,7 +6,7 @@ export type QuestStatus =
   | 'in_progress'
   | 'completed'
 
-export type Phase = 'learn' | 'practice' | 'check'
+export type Phase = 'learn' | 'game' | 'practice' | 'check'
 
 export type PromptSlotKey =
   | 'character'

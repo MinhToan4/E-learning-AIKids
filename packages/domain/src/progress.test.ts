@@ -66,8 +66,9 @@ describe('scoreStars / xp', () => {
 })
 
 describe('phase advance', () => {
-  it('learn → practice → check → done', () => {
-    expect(advancePhase('learn')).toEqual({ phase: 'practice', complete: false })
+  it('learn → game → practice → check → done', () => {
+    expect(advancePhase('learn')).toEqual({ phase: 'game', complete: false })
+    expect(advancePhase('game')).toEqual({ phase: 'practice', complete: false })
     expect(advancePhase('practice')).toEqual({ phase: 'check', complete: false })
     expect(advancePhase('check')).toEqual({ phase: 'check', complete: true })
   })

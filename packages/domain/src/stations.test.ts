@@ -28,8 +28,20 @@ describe('stations & age tracks', () => {
       stage: 'ideate',
       stations: [
         { id: 'v1', kind: 'video', durationMin: 3 },
-        { id: 'g1', kind: 'game', gameType: 'spin' },
-        { id: 'p1', kind: 'practice', practiceKind: 'journal' },
+        {
+          id: 'g1',
+          kind: 'game',
+          gameType: 'spin',
+          instruction: 'Quay một gợi ý',
+          outcome: 'Chọn được một ý tưởng',
+        },
+        {
+          id: 'p1',
+          kind: 'practice',
+          practiceKind: 'journal',
+          instruction: 'Viết ba từ khóa',
+          product: 'Ba từ khóa an toàn',
+        },
         { id: 'c1', kind: 'check' },
       ],
     })
@@ -37,6 +49,8 @@ describe('stations & age tracks', () => {
     expect(parsed?.stage).toBe('ideate')
     expect(parsed?.stations).toHaveLength(4)
     expect(parsed?.stations[2].practiceKind).toBe('journal')
+    expect(parsed?.stations[1].instruction).toBe('Quay một gợi ý')
+    expect(parsed?.stations[2].product).toBe('Ba từ khóa an toàn')
   })
 
   it('falls back to default 4-station block', () => {

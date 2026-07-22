@@ -103,6 +103,18 @@ export const BLOCKED_REF_PURPOSES = [
 ] as const
 
 /**
+ * Generative providers can read an absolute HTTP(S) URL or an inline image.
+ * Relative UI assets are intentionally rejected: they are browser-local and
+ * caused opaque provider failures when they escaped the reference picker.
+ */
+export function isUsableImageReference(raw: unknown): raw is string {
+  if (typeof raw !== 'string') return false
+  const value = raw.trim()
+  if (/^https?:\/\/[^\s]+$/i.test(value)) return true
+  return /^data:image\/(png|jpe?g|webp);base64,[a-z0-9+/=\s]+$/i.test(value)
+}
+
+/**
  * Only course-created artifacts may be used as AI refs:
  * drawn/generated/completed inside a quest — not arbitrary student photos.
  */
