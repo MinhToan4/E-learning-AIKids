@@ -35,6 +35,20 @@ DATABASE_URL="postgresql://postgres.nabffxfkkheesbzyvrbd:[YOUR-PASSWORD]@aws-0-a
 
 Region may differ — copy the exact string from the dashboard.
 
+## Database riêng cho integration test
+
+`app.integration.test.ts` chạy migration, seed và các thao tác ghi. Vì vậy test chỉ
+được bật khi `TEST_DATABASE_URL` tồn tại và trỏ tới **database khác**
+`DATABASE_URL`. Nếu thiếu hoặc trùng database, suite được skip để không ghi đè
+user, khóa API hoặc cấu hình runtime.
+
+```env
+DATABASE_URL="postgresql://.../aikids_app"
+TEST_DATABASE_URL="postgresql://.../aikids_test"
+```
+
+Không dùng database production làm `TEST_DATABASE_URL`.
+
 ## One-time setup
 
 ```powershell

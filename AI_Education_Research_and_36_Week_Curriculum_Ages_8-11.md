@@ -10,7 +10,7 @@ Phạm vi nghiên cứu
 Phân tích nguồn công khai, kiểm chứng chéo với khung AI4K12, MIT RAISE/Day of AI, Code.org, UNESCO và
 UNICEF; sau đó chuyển hóa thành curriculum 36 tuần, lesson plan, game loop, rubric và yêu cầu sản phẩm dành
 cho trẻ 8-11 tuổi.
-Research date: 19 July 2026
+Research date: 22 July 2026
 Prepared as a source-grounded design reference. Vendor claims are labelled and are not treated as independent audits.
 
 AI Education for Children Ages 8-11 | Research and Curriculum Blueprint
@@ -23,7 +23,7 @@ from current platforms?
 Platforms investigatedLittleAIMaster; Little Thinkers AI; AI4K12; MIT RAISE / Day of AI;
 Code.org AI; Google Teachable Machine; Machine Learning for
 Kids; Experience AI.
-Research cut-off19 July 2026. Pricing, chapter counts, tools and website
+Research cut-off22 July 2026. Pricing, chapter counts, tools and website
 availability may change after this date.
 Evidence ruleDirect official pages are preferred. Partner and
 intergovernmental documents are used for standards and
@@ -53,16 +53,16 @@ about a platform.
 accessed or corroborated.
 Do not use as a factual basis until the
 provider supplies evidence.
-Important limitation: Little Thinkers AI
-The specified blog URL did not load reliably and the exact domain produced no sufficiently authoritative, indexed
-public curriculum evidence during this research. The report therefore includes an evidence audit and verification
-checklist, but does not invent its curriculum, pedagogy, pricing or product features.
+Little Thinkers AI access note
+The JavaScript course player could not be exercised in the available browser session, but the platform's official
+home, curriculum, parent-guide and games pages were indexed and readable on 22 July 2026. Claims below are limited
+to those official pages; interactive behavior that requires the live client remains to be verified in a browser QA pass.
 ## Contents
 No.Section
 01Executive synthesis
 02Research method and source quality
 03LittleAIMaster: product and curriculum analysis
-04Little Thinkers AI: evidence audit
+04Little Thinkers AI: curriculum and learning design
 05Benchmark ecosystem and comparative lessons
 06What children ages 8-11 should learn about AI
 07Proposed 36-week curriculum
@@ -94,9 +94,9 @@ concept-first journey spanning Grades 6-12, a large chapter catalog, interactive
 projects, parent dashboards and school administration. For the requested 8-11 range, however, only the upper edge -
 approximately ages 10-11 / Grade 6 - is directly targeted. Younger learners would require substantial redesign rather
 than simple content reduction. [OFFICIAL][VENDOR CLAIM]
-Little Thinkers AI could not be responsibly characterized from the supplied blog URL because the page and domain
-were not reliably accessible or corroborated. The correct research outcome is therefore an evidence gap, not a
-speculative platform description. [UNVERIFIED]
+Little Thinkers AI publishes a complete parent-led pathway for ages 5-10: three age translations of the same conceptual
+backbone, each with 20 sequential phases, six lessons and a project per phase. For ages 9-10, children read and build
+more independently while the adult becomes a project sponsor and safety gate. [OFFICIAL][VENDOR CLAIM]
 The strongest curriculum backbone comes from AI4K12's Five Big Ideas and grade-band progression, reinforced by
 MIT RAISE/Day of AI's free age-banded lessons, Code.org's short model-training experiences, UNESCO's student
 competency framework and UNICEF's child-centered AI guidance. [BENCHMARK]
@@ -498,41 +498,47 @@ activities, teacher/parent visibility.
 AI Education for Children Ages 8-11 | Research and Curriculum Blueprint
 ## Page 12
 ## 04
-Little Thinkers AI: evidence audit
-What could and could not be verified from the supplied URL.
-4.1 Research result
-Status: insufficient public evidence
-The supplied URL https://www.littlethinkersai.com/blog.html did not load reliably during research, and searches
-for the exact domain did not surface authoritative indexed pages that exposed curriculum, lesson plans, pricing,
-features, team details or learning design. No factual platform profile can be responsibly produced from this
-evidence.
-4.2 What is not safe to claim
-That the service is active or inactive.
-Its intended age band, country, curriculum sequence or educational philosophy.
-Whether it uses games, generative AI, coding, worksheets, tutoring or teacher dashboards.
-Its pricing, privacy policy, child-safety controls, data retention or model providers.
-The content or publication history of its blog.
-4.3 Due-diligence evidence to request from the provider
-Evidence areaRequest
-CurriculumFull scope and sequence; age bands; learning objectives; standards
-mapping; sample units; lesson duration; prerequisites.
-Learning designTeacher-led vs self-paced; story structure; game loop; feedback;
-differentiation; accessibility; offline options.
-AI systemModel providers; permitted use cases; prompt constraints;
-hallucination handling; human review; logging; incident response.
-Child safetyAge assurance; parental consent; content moderation; crisis
-handling; privacy; retention; deletion; advertising/social features.
-AssessmentMastery model; rubrics; project evidence; reporting; data export;
-independent evaluation.
-CommercialPricing; minimum seats; renewal; support; uptime; DPA; data
-residency; IP ownership; training on student data.
-ProofTeacher demo, student demo, sandbox account, customer
-references, sample reports, accessibility statement and security
-documentation.
-4.4 How to incorporate it later
-If the provider supplies materials, score it against the comparison rubric in Appendix B. Do not compare marketing
-language alone: run the same 45-minute learner task across platforms, record adult help required, conceptual
-explanations, error recovery, data handling and whether the child can transfer the idea to a new example.
+Little Thinkers AI: curriculum and learning design
+What the official public curriculum, parent guide and games pages show.
+4.1 Product and delivery model
+Status: official public evidence available; live JavaScript interaction still requires browser QA.
+Little Thinkers AI is a free, no-sign-up, parent-led AI and machine-learning curriculum for ages 5-10. It offers three
+age-banded courses: Little Explorers (5-6), Junior Builders (7-8) and Young Creators (9-10). Each course contains 20
+strictly sequential phases, six lessons per phase and a phase project. Progress is stored on the learner's device rather
+than in an account. The site also publishes nine browser games, three per age band. [OFFICIAL][VENDOR CLAIM]
+4.2 Repeated lesson rhythm
+StepPublic designAdoption for AI Kids 8-11
+PrepareThe adult reads a short explanation and receives exact words or
+questions to use.Convert this into a concise child mission brief, while retaining an adult or teacher guide beside it.
+ExperienceThe child and adult play a 10-40 minute game, experiment, survey or
+build activity.Use concrete or simulated action before abstract explanation; keep every digital interaction bounded.
+MakeEvery phase ends with an owned artifact or demonstration.Make the project the durable assessment evidence,
+not an optional reward screen.
+RecordLearners tick steps complete; bars fill and a certificate unlocks at
+completion.Save station evidence, reflection and artifact provenance in the private portfolio.
+4.3 Age translation, not content shrinking
+The three courses revisit a shared backbone: learning from examples; data and labels; training and testing; errors and
+fairness; then building something real. The mode changes by age. Ages 5-6 use physical play and repetition. Ages 7-8
+use real vocabulary, experiments and a lab notebook. Ages 9-10 read independently, use supervised digital tools and
+finish with an engineering capstone and Demo Day. [OFFICIAL]
+For AI Kids, this supports two deliberate tracks: ages 8-9 use guided experiments plus a lab notebook; ages 10-11 use
+more independent project briefs, structured tool use and project defense. It does not support labeling a 6-8 course as
+an 8-11 product without adapting reading load, autonomy, session length and assessment.
+4.4 Young Creators scope relevant to this project
+The official 9-10 sequence progresses from algorithms and Scratch to spreadsheets, honest charts, probability,
+classifiers, the training loop, neural networks, language models, generative AI, reinforcement learning, robotics,
+history, fairness, safety and a two-phase capstone. Each phase ends with a named project such as a classifier workshop,
+learning-loop simulator, language-AI user manual, generative-AI investigation or Demo Day. [OFFICIAL]
+The strongest pattern to adopt is the explicit chain from concept to investigation to authored artifact. AI Kids should
+not present image or video generation as a detached playground; every generation task must consume a prior brief,
+require comparison or testing, and end in an explained creative decision.
+4.5 Game model and limitation
+The public games page describes nine short games covering sorting and patterns, training and testing, decision trees,
+fairness, neurons, gradient descent and language models. Games are paired with the lesson concept rather than used as
+generic interstitial rewards. [OFFICIAL][VENDOR CLAIM]
+The available environment could not run the JavaScript course player, so control feel, feedback timing, accessibility,
+mobile behavior and persistence implementation remain unverified. These must be checked in a later browser QA pass;
+they are not inferred here.
 
 AI Education for Children Ages 8-11 | Research and Curriculum Blueprint
 ## Page 13
@@ -661,6 +667,25 @@ development.
 Most materials may be too
 abstract for age 8 without
 adaptation.
+5.4a Open-source gameplay patterns used in implementation
+The implementation does not copy proprietary LittleAIMaster or Little Thinkers assets. It adopts observable learning
+mechanics and cross-checks them against projects whose code and license can be inspected. Blockly Games uses a series
+of small, progressively solved programming games; its code is Apache-2.0. Teachable Machine exposes the no-code
+experiment loop directly in the browser and is also Apache-2.0. Rapid Router targets ages 5-11 with level-based Blockly
+puzzles. The Quick, Draw! dataset documents the drawings, labels and recognition metadata behind a child-friendly
+classification experience. [OPEN SOURCE]
+PatternEvidenceAdoption in AI Kids
+- Short solved roundsBlockly Games and Rapid Router advance through bounded puzzles.Use 2-5 rounds, visible progress and immediate retry instead of a decorative card click.
+- Try-observe-improveTeachable Machine makes experimentation possible without code.A game must feed a decision or observation into the following authored project.
+- Concrete labelled examplesQuick, Draw! exposes drawings and category labels.Use visible examples/categories before explaining an abstract AI term.
+- No dead-end punishmentLittle Thinkers pairs games with phase learning and projects.Feedback says what evidence to inspect; completion never depends on speed or public ranking.
+The production implementation applies this register to all 146 lessons across L1 (ages 8-9) and L2 (ages 10-11). Each
+game was reviewed against its source lesson and uses an appropriate bounded mechanic: combine, compare, associate,
+place or order. The games rehearse the exact decision needed by the following creative station, provide immediate
+evidence-based feedback and never require speed or a public leaderboard. The L1-K2 character-shape choices are migrated
+from the fixed catalog in the local `aikid-app` reference project; no proprietary LittleAIMaster or Little Thinkers
+assets were copied. A curriculum contract rejects any future return to the legacy pick/detective/spin flat-card modes
+and requires valid structured data for every lesson mechanic.
 5.5 Intergovernmental competency and safety benchmarks
 SourceCore contributionDesign requirement
 UNESCO AI Competency Framework for
@@ -2068,8 +2093,9 @@ LittleAIMaster is a valuable product reference for a gamified, multi-year AI lea
 10 upward. It demonstrates how curriculum, tools, progression and dashboards can become one coherent product. It
 should not be treated as a complete blueprint for ages 8-11 because the younger half of the range requires a different
 interaction and safeguarding model, and several public metrics need procurement verification.
-Little Thinkers AI remains an open research item. Until the provider supplies accessible evidence, it should not
-influence curriculum or vendor decisions beyond the due-diligence checklist.
+Little Thinkers AI provides the clearest directly relevant pattern for the younger half of the target range: repeat the
+same conceptual spine at a different developmental level, pair every phase with a project, and change the adult from
+teacher to lab assistant to project sponsor as learner independence grows.
 The proposed 36-week curriculum combines the strongest observable patterns with recognized frameworks: AI4K12
 supplies conceptual breadth; MIT RAISE/Day of AI and Code.org demonstrate age-appropriate activities; no-code tools
 provide authentic model behavior; UNESCO and UNICEF anchor human agency, ethics and child rights. The result is a
@@ -2194,15 +2220,36 @@ Human-centered, privacy-protective and age-appropriate generative AI guidance.
 R20. UNICEF - Guidance on AI and children
 https://www.unicef.org/innocenti/reports/policy-guidance-ai-children
 Child rights, safety, privacy, fairness, transparency and wellbeing principles.
-R21. Little Thinkers AI - supplied blog URL
-https://www.littlethinkersai.com/blog.html
-URL investigated; content was not reliably accessible or corroborated at research date.
+R21. Little Thinkers AI - home and learning model
+https://littlethinkersai.com/
+Age bands, lesson rhythm, course length, project cadence, progress and privacy model.
+R22. Little Thinkers AI - complete curriculum
+https://littlethinkersai.com/curriculum.html
+All 60 phases, 360 lessons and 60 projects, including the complete Young Creators sequence.
+R23. Little Thinkers AI - parent guide
+https://littlethinkersai.com/parents.html
+Adult roles by age, sequential design, project rule, session habits and supervised tools.
+R24. Little Thinkers AI - browser games
+https://littlethinkersai.com/games.html
+Nine concept-linked games and their stated topic coverage.
+R25. Blockly Games - source repository
+https://github.com/blockly-games/blockly-games
+Open-source progressive educational games; Apache-2.0 license.
+R26. Google Creative Lab - Teachable Machine v1 source
+https://github.com/googlecreativelab/teachable-machine-v1
+Browser-based no-code machine-learning experiment; Apache-2.0 license (archived reference implementation).
+R27. Code for Life - Rapid Router source
+https://github.com/codeforlife-education/rapid-router
+Blockly game for ages 5-11 and level-based programming-learning implementation.
+R28. Google Creative Lab - Quick, Draw! dataset
+https://github.com/googlecreativelab/quickdraw-dataset
+Official dataset documentation for labelled drawings and recognition metadata.
 Appendix E - Citation and interpretation note
 All website-derived statements in this report are paraphrased and tied to the source register. Platform totals, prices,
 safety mechanisms and feature availability are snapshots of public claims on the research date and may change. The
 curriculum blueprint, analytical scores, adaptations and implementation recommendations are original synthesis
 informed by those sources; they are not claims that any referenced platform uses the exact proposed design.
 ## END OF REPORT
-Evidence snapshot: 19 July 2026
+Evidence snapshot: 22 July 2026
 Recommended next step: prototype Modules 1-4 as a 12-week pilot and validate learning, safety, teacher
 workload and age fit before building the full platform.

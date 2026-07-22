@@ -183,7 +183,7 @@ Authorizations: Cookie Session
     }
   ],
   "tracks": {
-    "L1": { "label": "6-8 tuổi", "count": 2 }
+    "L1": { "label": "8-9 tuổi", "count": 2 }
   }
 }
 ```

@@ -8,8 +8,10 @@ Internal inventory of **done** vs **in progress**, mapped to research sources (A
 |------|------------|--------|
 | Auth | Student nickname+avatar; adult email+bcrypt; httpOnly session | `apps/api` auth module |
 | RBAC | Roles: admin, teacher, parent, student; domain `can()` matrix + settings | `packages/domain` + API guards |
-| Catalog | **L1 6–8 + L2 9–11** K1–K6 courses seeded (stations JSON) | `prisma/seed/courses/curriculum.ts` |
+| Catalog | **L1 8–9 + L2 10–11** K1–K6 courses seeded (stations JSON) | `prisma/seed/courses/curriculum.ts` |
 | Learning | Quest map, stations video→game→practice→check, ideate/produce | progress + domain stations |
+| Lecture playback | YouTube watch URLs → privacy-enhanced embed; HTTPS media → native player | `LectureVideo` + curriculum preview URL |
+| Practice review | Preview sản phẩm riêng tư + phản hồi lưu trước khi trẻ chủ động sang check | `LessonPage` + `practice-result` |
 | Gamification | Streak, achievements (unlock on quest/project), leaderboard, notifications | gamification + achievement.service |
 | Vidtory AI | Server adapter + admin key; model %; Soft Clay; mock fallback | `vidtory.adapter` + Admin AI tab |
 | Media upload | `POST /api/media/upload` → Vidtory media + `aikids_user_id` metadata; Asset per student | `media.routes` + `vidtory.media` |

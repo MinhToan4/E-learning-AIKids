@@ -1,8 +1,11 @@
 # Multi-stage: Vite build → nginx static
 FROM node:22-bookworm-slim AS build
 WORKDIR /app
-ARG VITE_API_URL=http://localhost:4000
-ENV VITE_API_URL=$VITE_API_URL
+# VITE_API_URL intentionally left empty — FE uses relative /api/* paths.
+# nginx.conf (location /api/) proxies to the api container inside Docker network.
+# Supply a value only when FE and API are on different domains.
+ARG VITE_API_URL
+ENV VITE_API_URL=${VITE_API_URL}
 COPY package.json package-lock.json ./
 COPY apps/web/package.json apps/web/
 COPY packages/domain/package.json packages/domain/

@@ -1,7 +1,7 @@
 # Kiểm định 12 khóa học AI Kids
 
-Ngày kiểm định: 2026-07-21  
-Nguồn nội dung: 12 tài liệu Markdown trong thư viện `courses`  
+Ngày kiểm định: 2026-07-22
+Nguồn nội dung: 12 tài liệu Markdown trong thư viện `courses`
 Nguồn chạy thật: PostgreSQL/Supabase qua Prisma
 
 ## Kết quả đồng bộ
@@ -32,8 +32,8 @@ Tổng: **12 khóa / 146 bài**. Mỗi bài lưu đúng bốn trạm từ tài l
 - Catalog chỉ hiển thị 12 khóa L1/L2; bốn khóa legacy được giữ để bảo toàn liên kết cũ nhưng không làm sai số catalog.
 - Khóa bài tuần tự, resume tiến độ và chỉ mở bài tiếp theo sau bài hiện tại.
 - Nội dung, mục tiêu, game, thực hành, sản phẩm và rubric được sinh có kiểm tra từ 12 tài liệu; DB là nguồn runtime duy nhất.
-- Game là một phase được server lưu riêng trong chuỗi `learn → game → practice → check`, có mẫu `spin`, `order/drag`, `match`, `detective` và `pick`; tải lại trang không bỏ qua game và API từ chối yêu cầu nhảy phase.
-- Xưởng hiện có: sổ tay, bảng màu, canvas phác thảo, hồ sơ nhân vật, nhịp truyện, comic 4 khung, chọn ảnh AI, tạo chuyển động/video và tái dùng asset khóa học trước.
+- Game là một phase được server lưu riêng trong chuỗi `learn → game → practice → check`, có mẫu `spin`, `order`, `match`, `detective` và `pick`; tải lại trang không bỏ qua game và API từ chối yêu cầu nhảy phase. Match dùng bàn ghi nhớ lật thẻ, order chỉ bật khi tài liệu có chuỗi đáp án cụ thể, và các bàn chơi được xáo ổn định theo bài.
+- Xưởng hiện có: sổ tay, bảng màu, canvas phác thảo, hồ sơ nhân vật, nhịp truyện, comic 4 khung, chọn ảnh AI, tạo chuyển động/video và tái dùng asset khóa học trước. Sau khi lưu, trẻ được xem lại hình/video/sản phẩm và phản hồi lưu thành công trước khi chủ động sang phần kiểm tra; server vẫn chuyển phase ngay sau khi lưu để tránh tạo trùng khi tải lại trang.
 - Sản phẩm và huy hiệu lưu private theo học sinh; ảnh tùy ý từ bên ngoài không được dùng làm AI reference.
 - Rubric cuối khóa lấy nguyên tiêu chí từ từng tài liệu. Thiếu một tiêu chí thì chưa cấp huy hiệu hoàn thành khóa.
 - Mỗi khóa công bố rõ đơn vị ghi nhận, bài đánh giá, huy hiệu và quan hệ “tham chiếu” với văn bản của Bộ; không tuyên bố được Bộ phê duyệt.
@@ -43,7 +43,8 @@ Tổng: **12 khóa / 146 bài**. Mỗi bài lưu đúng bốn trạm từ tài l
 
 ### Đã mô phỏng đúng luồng nhưng chưa phải studio chuyên dụng
 
-- Các game dùng năm archetype dùng lại và hiển thị đúng nhiệm vụ từng bài; chưa có 146 bộ câu hỏi/hình minh họa riêng.
+- Các game dùng năm archetype với **146 content pack chữ riêng theo từng bài** (nhiệm vụ và bộ thẻ không trùng nhau). Mỗi pack có tối thiểu ba thẻ ngắn, không cắt giữa từ và không dùng emoji-only làm điều khiển; chưa có 146 bộ hình minh họa và âm thanh phản hồi do chuyên gia nội dung duyệt.
+- Toàn bộ 146 bài đang dùng URL YouTube mẫu do chủ dự án cung cấp để kiểm thử player. Đây là fixture phát video, không phải nội dung giảng dạy khớp từng bài.
 - Comic hiện là xưởng 4 khung cơ bản; chưa có canvas tự do nhiều layout, bubble/SFX kéo-thả và xuất PDF.
 - Story/world bible/character bible hiện lưu qua form/portfolio; chưa có editor tài liệu nhiều mục chuyên dụng.
 - Video AI tạo theo mô tả và asset riêng tư; chưa có timeline nhiều track, trim, transition, lồng tiếng và mixer nhạc như phần mềm dựng phim.
@@ -51,8 +52,8 @@ Tổng: **12 khóa / 146 bài**. Mỗi bài lưu đúng bốn trạm từ tài l
 
 ## Đầu vào còn thiếu để nội dung giới thiệu có thể hứa đầy đủ
 
-1. **146 video bài giảng thật** hoặc tối thiểu 146 voice-over + slide đã duyệt. Video mẫu Google đã bị xóa; khi chưa có asset, hệ thống hiển thị bài giảng dạng thẻ chữ và không giả vờ có video.
-2. **Bộ dữ liệu game riêng theo bài**: đáp án, ảnh minh họa và âm thanh phản hồi đã được chuyên gia nội dung duyệt. Hiện hệ thống có engine/archetype, chưa có 146 content pack chuyên biệt.
+1. **146 video bài giảng thật** hoặc tối thiểu 146 voice-over + slide đã duyệt. URL YouTube mẫu hiện phát được qua embed riêng tư nhưng là video âm nhạc, chỉ dùng để kiểm thử kỹ thuật và phải được thay trước khi phát hành nội dung khóa học.
+2. **Bộ media game riêng theo bài**: 146 content pack chữ đã có; còn thiếu đáp án chuyên sâu, ảnh minh họa và âm thanh phản hồi đã được chuyên gia nội dung duyệt.
 3. **Studio ghi âm/dựng phim**: cần chốt nơi lưu object storage, giới hạn thời lượng, thời gian lưu/xóa dữ liệu trẻ em và danh mục nhạc/SFX có giấy phép trước khi bật upload bản ghi cho học sinh.
 4. **Bằng chứng công nhận bên ngoài**: tên tổ chức, phạm vi công nhận và văn bản/đường dẫn xác minh. Khi chưa có bằng chứng, chỉ AI Kids Creator Academy được ghi là đơn vị cấp huy hiệu nội bộ.
 5. **Phiên browser QA** để chụp và duyệt chính thức ở 375 px/1280 px. Build và source accessibility đã qua kiểm tra, nhưng môi trường kiểm định hiện không cung cấp browser session.

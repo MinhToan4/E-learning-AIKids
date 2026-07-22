@@ -60,7 +60,7 @@ Details: [docs/SUPABASE.md](./docs/SUPABASE.md), skill `aikids-security-rbac`.
 |---------|---------|
 | `npm run dev:api` / `dev:web` | Local BE / FE |
 | `npm run db:push` / `db:seed` | Schema + data on Supabase |
-| `npm test` | Domain + API tests |
+| `npm test` | Domain + API tests; DB integration suite runs only with isolated `TEST_DATABASE_URL` |
 | `npm run build` | Production build |
 
 ## Course content
