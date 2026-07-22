@@ -20,3 +20,6 @@ check-sb.*
 secrets/
 courses/
 packages/vidtory-ai-sdk/
+artifacts/
+*.tmp*
+

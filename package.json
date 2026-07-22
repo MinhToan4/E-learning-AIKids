@@ -21,9 +21,10 @@
     "db:setup:reset": "npm run free:port && npm run db:generate && npm run db:push:reset && npm run db:seed",
     "db:push:reset": "npm run db:push:reset -w @aikids/api",
     "free:port": "powershell -ExecutionPolicy Bypass -File ./scripts/free-port-4000.ps1",
+    "load:smoke": "node ./scripts/load-smoke.mjs",
     "start:api": "npm run start -w @aikids/api"
   },
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   }
 }

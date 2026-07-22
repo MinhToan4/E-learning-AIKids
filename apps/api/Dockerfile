@@ -1,5 +1,5 @@
 # API image: Postgres-backed Fastify (tsx runtime keeps @aikids/domain TS source)
-FROM node:20-bookworm-slim AS deps
+FROM node:22-bookworm-slim AS deps
 WORKDIR /app
 COPY package.json package-lock.json ./
 COPY apps/api/package.json apps/api/
@@ -9,7 +9,7 @@ COPY packages/vidtory-ai-sdk/package.json packages/vidtory-ai-sdk/
 COPY packages/vidtory-ai-sdk/dist packages/vidtory-ai-sdk/dist
 RUN npm ci --workspace=@aikids/api --workspace=@aikids/domain --include-workspace-root
 
-FROM node:20-bookworm-slim AS runner
+FROM node:22-bookworm-slim AS runner
 WORKDIR /app
 ENV NODE_ENV=production
 RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates \
