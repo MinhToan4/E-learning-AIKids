@@ -1,11 +1,11 @@
 /// <reference types="vitest" />
-import { defineConfig, splitVendorChunkPlugin } from 'vite'
+import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { resolve } from 'node:path'
 
 export default defineConfig({
-  plugins: [react(), tailwindcss(), splitVendorChunkPlugin()],
+  plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
@@ -28,17 +28,26 @@ export default defineConfig({
     assetsInlineLimit: 4096, // inline SVGs < 4 KB, don't inline images
     rollupOptions: {
       output: {
-        manualChunks: {
-          // Core React runtime — always cached
-          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
-          // Supabase — heavy but stable
-          'vendor-supabase': ['@supabase/supabase-js'],
-          // Firebase — heavy, separate chunk
-          'vendor-firebase': ['firebase'],
-          // Framer Motion — animation library
-          'vendor-motion': ['framer-motion'],
-          // Lucide icons — tree-shaken but still sizeable
-          'vendor-icons': ['lucide-react'],
+        manualChunks(id) {
+          if (id.includes('node_modules/firebase/')) {
+            return 'vendor-firebase'
+          }
+          if (
+            id.includes('node_modules/react/') ||
+            id.includes('node_modules/react-dom/') ||
+            id.includes('node_modules/react-router-dom/')
+          ) {
+            return 'vendor-react'
+          }
+          if (id.includes('node_modules/@supabase/')) {
+            return 'vendor-supabase'
+          }
+          if (id.includes('node_modules/framer-motion/')) {
+            return 'vendor-motion'
+          }
+          if (id.includes('node_modules/lucide-react/')) {
+            return 'vendor-icons'
+          }
         },
       },
     },
