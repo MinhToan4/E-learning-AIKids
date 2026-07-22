@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import { PencilLine } from 'lucide-react'
 import {
@@ -203,10 +203,10 @@ export function LessonPage() {
             prev
               ? { ...prev, nextQuestId: next.id }
               : {
-                  stars: 1,
-                  message: 'Tiếp tục nào!',
-                  nextQuestId: next.id,
-                },
+                stars: 1,
+                message: 'Tiếp tục nào!',
+                nextQuestId: next.id,
+              },
           )
         }
       } catch {
@@ -487,40 +487,49 @@ export function LessonPage() {
     return <p className="text-muted">Không tìm thấy trạm.</p>
   }
 
+  const PHASE_STEPS = [
+    { id: 'learn', label: 'Khám phá', icon: '📖' },
+    { id: 'game', label: 'Chơi', icon: '🎮' },
+    { id: 'practice', label: 'Tạo', icon: '✏️' },
+    { id: 'check', label: 'Thử tài', icon: '⭐' },
+  ] as const
+
+  const phaseOrder: Phase[] = ['learn', 'game', 'practice', 'check']
+  const currentPhaseIdx = phaseOrder.indexOf(phase === 'done' ? 'check' : phase)
+
   return (
     <div className="page-enter flex flex-col gap-4">
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <div>
-          <p className="text-sm font-bold text-brand-500">Trạm {quest.order}</p>
-          <h1 className="font-display text-3xl">{quest.title}</h1>
-          <p className="mt-2 max-w-2xl text-sm font-semibold text-text">
-            <span className="font-extrabold text-brand-600">Hôm nay con sẽ:</span>{' '}
-            {quest.goals[0] ?? gameStation?.outcome ?? 'Khám phá một ý mới và dùng nó để tạo sản phẩm.'}
-          </p>
-          {practiceStation?.product && (
-            <p className="mt-1 max-w-2xl text-xs font-semibold text-muted">
-              Sản phẩm của trạm: <strong>{practiceStation.product}</strong>
-            </p>
-          )}
+      {/* ── Header ──────────────────────────────────────────────── */}
+      <div className="ui-card p-4">
+        <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+          <div className="min-w-0">
+            <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">Trạm {quest.order}</p>
+            <h1 className="font-display text-2xl sm:text-3xl leading-tight">{quest.title}</h1>
+            {practiceStation?.product && (
+              <p className="mt-1 text-xs font-semibold text-muted">
+                Sản phẩm của trạm: <strong className="text-text">{practiceStation.product}</strong>
+              </p>
+            )}
+          </div>
         </div>
-        <div className="flex gap-1" aria-label="Tiến trình bài">
-          {(['learn', 'game', 'practice', 'check'] as const).map((p) => (
-            <span
-              key={p}
-              className={cn(
-                'rounded-full px-3 py-1 text-xs font-extrabold transition-colors duration-200',
-                phase === p || (phase === 'done' && p === 'check')
-                  ? 'bg-brand-500 text-white'
-                  : 'bg-brand-50 text-muted',
+
+        {/* Phase stepper */}
+        <div className="phase-stepper" role="progressbar" aria-label="Tiến trình bài học" aria-valuenow={currentPhaseIdx + 1} aria-valuemax={4}>
+          {PHASE_STEPS.map((step, idx) => (
+            <span key={step.id} className="flex items-center">
+              {idx > 0 && (
+                <span className="phase-step-connector" />
               )}
-            >
-              {p === 'learn'
-                ? 'Khám phá'
-                : p === 'game'
-                  ? 'Chơi'
-                  : p === 'practice'
-                    ? 'Tạo'
-                    : 'Thử tài'}
+              <span
+                className={cn(
+                  'phase-step',
+                  currentPhaseIdx === idx && 'phase-step-active',
+                  currentPhaseIdx > idx && 'phase-step-done',
+                )}
+              >
+                <span aria-hidden>{currentPhaseIdx > idx ? '✓' : step.icon}</span>
+                <span className="hidden sm:inline">{step.label}</span>
+              </span>
             </span>
           ))}
         </div>
@@ -536,30 +545,51 @@ export function LessonPage() {
       )}
 
       {phase === 'learn' && (
-        <div className="ui-card flex flex-col gap-4 p-5 animate-fade-up">
-          <p className="text-lg font-bold">{quest.hook}</p>
+        <div className="ui-card flex flex-col gap-5 p-5 animate-fade-up">
+          {/* Hook highlight */}
+          <div className="hook-highlight">{quest.hook}</div>
+
+          {/* Video if available */}
           {quest.videoUrl && (
             <LectureVideo title={quest.title} url={quest.videoUrl} />
           )}
+
+          {/* Goals */}
+          {quest.goals.length > 0 && (
+            <div className="flex flex-col gap-1.5 rounded-2xl bg-brand-50 border border-brand-100 p-3">
+              <p className="text-xs font-extrabold uppercase tracking-wider text-brand-500">Hôm nay con sẽ:</p>
+              <ul className="flex flex-col gap-1">
+                {quest.goals.map((g) => (
+                  <li key={g} className="flex items-start gap-2 text-sm font-semibold">
+                    <span className="text-brand-500 mt-0.5" aria-hidden>›</span>
+                    {g}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {/* Learn cards */}
           <div className="grid gap-3 sm:grid-cols-3">
-            {quest.learnCards.map((card) => (
-              <div
-                key={card.id}
-                className="rounded-2xl border-2 border-border bg-brand-50/50 p-4"
-              >
-                <p className="text-xs font-extrabold uppercase text-brand-500">
-                  {card.title}
-                </p>
-                <p className="mt-1 text-sm">{card.body}</p>
-                <p className="mt-2 text-xs text-muted">💡 {card.tip}</p>
-              </div>
-            ))}
+            {quest.learnCards.map((card, idx) => {
+              const CARD_ICONS = ['💡', '🔍', '🎯', '✨', '🧩', '🚀']
+              return (
+                <div key={card.id} className="learn-card">
+                  <div className="learn-card-icon" style={{ background: idx % 3 === 0 ? '#ebe8ff' : idx % 3 === 1 ? '#e3f6ff' : '#e2faf0' }}>
+                    {CARD_ICONS[idx % CARD_ICONS.length]}
+                  </div>
+                  <p className="text-xs font-extrabold uppercase tracking-wider text-brand-500 mb-1">
+                    {card.title}
+                  </p>
+                  <p className="text-sm leading-relaxed">{card.body}</p>
+                  {card.tip && (
+                    <p className="mt-2 text-xs text-muted border-t border-border/40 pt-2">💡 {card.tip}</p>
+                  )}
+                </div>
+              )
+            })}
           </div>
-          <ul className="list-inside list-disc text-sm text-muted">
-            {quest.goals.map((g) => (
-              <li key={g}>{g}</li>
-            ))}
-          </ul>
+
           <Button
             onClick={() => {
               if (reviewMode) {
@@ -571,13 +601,21 @@ export function LessonPage() {
             }}
             disabled={busy}
           >
-            {reviewMode ? 'Quay lại kết quả' : 'Bắt đầu trò chơi'}
+            {reviewMode ? 'Quay lại kết quả' : '🎮 Bắt đầu trò chơi'}
           </Button>
         </div>
       )}
 
       {phase === 'game' && gameStation && (
         <div className="ui-card p-5 animate-fade-up">
+          {/* Game header instruction */}
+          <div className="mb-4">
+            <div className="companion-bubble" style={{ maxWidth: 'none', width: '100%' }}>
+              <p className="text-sm font-bold">
+                {gameStation.instruction ?? 'Chơi một lượt để ghi nhớ ý chính của bài! Không sao nếu thử nhiều lần. 😊'}
+              </p>
+            </div>
+          </div>
           <CurriculumGame
             gameType={gameStation.gameType}
             gameConfig={gameStation.gameConfig}
@@ -648,6 +686,9 @@ export function LessonPage() {
                     <img
                       src={designerAssets.workshop.character}
                       alt=""
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none'
+                      }}
                       className="h-28 w-full object-cover opacity-90"
                     />
                   </div>
@@ -872,26 +913,26 @@ export function LessonPage() {
 
               {(quest.practiceKind === 'video' ||
                 quest.practiceKind === 'intro') && (
-                <div className="rounded-2xl bg-mint-100 p-4">
-                  <p className="font-extrabold">
-                    {quest.practiceKind === 'intro'
-                      ? 'Con đã sẵn sàng? Bấm tiếp để kiểm tra kiến thức nhỏ!'
-                      : 'Sắp xếp cảnh video mini — mỗi cảnh một câu kể.'}
-                  </p>
-                  {quest.practiceKind === 'video' && (
-                    <label className="mt-3 flex flex-col gap-2 text-sm font-bold">
-                      Mô tả chuyển động hoặc cảnh phim của con
-                      <textarea
-                        className="min-h-28 rounded-2xl border-2 border-border bg-white p-3 font-normal"
-                        value={journalText}
-                        maxLength={800}
-                        placeholder="Ai đang làm gì, chuyển động nhanh hay chậm, cảm xúc ra sao?"
-                        onChange={(event) => setJournalText(event.target.value)}
-                      />
-                    </label>
-                  )}
-                </div>
-              )}
+                  <div className="rounded-2xl bg-mint-100 p-4">
+                    <p className="font-extrabold">
+                      {quest.practiceKind === 'intro'
+                        ? 'Con đã sẵn sàng? Bấm tiếp để kiểm tra kiến thức nhỏ!'
+                        : 'Sắp xếp cảnh video mini — mỗi cảnh một câu kể.'}
+                    </p>
+                    {quest.practiceKind === 'video' && (
+                      <label className="mt-3 flex flex-col gap-2 text-sm font-bold">
+                        Mô tả chuyển động hoặc cảnh phim của con
+                        <textarea
+                          className="min-h-28 rounded-2xl border-2 border-border bg-white p-3 font-normal"
+                          value={journalText}
+                          maxLength={800}
+                          placeholder="Ai đang làm gì, chuyển động nhanh hay chậm, cảm xúc ra sao?"
+                          onChange={(event) => setJournalText(event.target.value)}
+                        />
+                      </label>
+                    )}
+                  </div>
+                )}
 
               {GEN_KINDS.has(quest.practiceKind) && (
                 <RefMediaPicker
@@ -924,23 +965,23 @@ export function LessonPage() {
                 quest.practiceKind === 'match' ||
                 quest.practiceKind === 'drag' ||
                 quest.practiceKind === 'ai_pick') && (
-                <div className="flex flex-col gap-2">
-                  <p className="font-extrabold">
-                    {quest.practiceKind === 'ai_pick'
-                      ? 'Mô tả để máy vẽ giúp — con chọn ý trước nhé!'
-                      : quest.practiceKind === 'spin'
-                        ? 'Vòng quay ý tưởng — ghi 3 từ khoá của con'
-                        : 'Sổ tay thế giới — viết ý của con'}
-                  </p>
-                  <textarea
-                    className="min-h-28 rounded-2xl border-2 border-border p-3 text-sm font-semibold"
-                    placeholder="Viết ý tưởng của con (không dùng tên thật)…"
-                    value={journalText}
-                    maxLength={500}
-                    onChange={(e) => setJournalText(e.target.value)}
-                  />
-                </div>
-              )}
+                  <div className="flex flex-col gap-2">
+                    <p className="font-extrabold">
+                      {quest.practiceKind === 'ai_pick'
+                        ? 'Mô tả để máy vẽ giúp — con chọn ý trước nhé!'
+                        : quest.practiceKind === 'spin'
+                          ? 'Vòng quay ý tưởng — ghi 3 từ khoá của con'
+                          : 'Sổ tay thế giới — viết ý của con'}
+                    </p>
+                    <textarea
+                      className="min-h-28 rounded-2xl border-2 border-border p-3 text-sm font-semibold"
+                      placeholder="Viết ý tưởng của con (không dùng tên thật)…"
+                      value={journalText}
+                      maxLength={500}
+                      onChange={(e) => setJournalText(e.target.value)}
+                    />
+                  </div>
+                )}
 
               {quest.practiceKind === 'palette' && (
                 <div className="flex flex-col gap-3">
@@ -1036,24 +1077,37 @@ export function LessonPage() {
       )}
 
       {phase === 'check' && (
-        <div className="ui-card flex flex-col gap-4 p-5 animate-fade-up">
-          <p className="font-extrabold">Check nhanh — không sao nếu thử lại!</p>
-          {quest.check.map((q) => (
-            <div key={q.id}>
-              <p className="mb-2 font-bold">{q.question}</p>
-              <div className="flex flex-col gap-2">
+        <div className="ui-card flex flex-col gap-5 p-5 animate-fade-up">
+          <div className="flex items-center gap-2">
+            <span className="text-2xl" aria-hidden>⭐</span>
+            <div>
+              <p className="font-extrabold text-lg">Kiểm tra nhanh</p>
+              <p className="text-xs text-muted">Không sao nếu thử lại nhiều lần!</p>
+            </div>
+          </div>
+          {quest.check.map((q, qIdx) => (
+            <div key={q.id} className="flex flex-col gap-2">
+              <p className="font-bold">
+                <span className="text-brand-500 mr-1">{qIdx + 1}.</span>
+                {q.question}
+              </p>
+              <div className="grid gap-2 sm:grid-cols-2">
                 {q.options.map((opt, idx) => (
                   <button
                     key={opt}
                     type="button"
                     className={cn(
-                      'rounded-2xl border-2 px-4 py-3 text-left text-sm font-semibold transition',
-                      answers[q.id] === idx
-                        ? 'border-brand-500 bg-brand-50'
-                        : 'border-border bg-white',
+                      'game-card text-left text-sm font-semibold',
+                      answers[q.id] === idx && 'game-card-selected',
                     )}
                     onClick={() => setAnswers((a) => ({ ...a, [q.id]: idx }))}
                   >
+                    <span className={cn(
+                      'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-extrabold mr-2 flex-shrink-0',
+                      answers[q.id] === idx ? 'bg-brand-500 text-white' : 'bg-brand-50 text-brand-600'
+                    )}>
+                      {String.fromCharCode(65 + idx)}
+                    </span>
                     {opt}
                   </button>
                 ))}
@@ -1066,52 +1120,88 @@ export function LessonPage() {
               busy || quest.check.some((q) => answers[q.id] === undefined)
             }
           >
-            {busy ? 'Chấm…' : 'Nộp bài & nhận sao'}
+            {busy ? 'Đang chấm…' : '⭐ Nộp bài & nhận sao'}
           </Button>
         </div>
       )}
 
       {phase === 'done' && checkResult && (
-        <div className="ui-card flex flex-col items-center gap-3 p-8 text-center animate-pop">
-          <p className="text-5xl" aria-label={`${checkResult.stars} sao`}>
-            {'⭐'.repeat(Math.max(1, checkResult.stars))}
-          </p>
-          <h2 className="font-display text-3xl">Hoàn thành trạm!</h2>
-          <p className="text-muted">{checkResult.message}</p>
-          <p className="text-sm">Phần thưởng: {quest.reward}</p>
-          {checkResult.newAchievements &&
-            checkResult.newAchievements.length > 0 && (
-              <p className="rounded-2xl bg-sun-100 px-4 py-2 text-sm font-extrabold text-warning">
+        <div className="ui-card flex flex-col items-center gap-4 p-8 text-center animate-pop">
+          {/* Confetti overlay */}
+          <div className="star-burst-overlay" aria-hidden>
+            {['🌟', '⭐', '✨', '🎉', '🎊', '💫', '🌈', '🏆'].map((emoji, i) => (
+              <span
+                key={i}
+                className="confetti-piece"
+                style={{
+                  left: `${10 + i * 11}%`,
+                  fontSize: '1.5rem',
+                  background: 'transparent',
+                  width: 'auto',
+                  height: 'auto',
+                  '--fall-duration': `${2 + (i % 3) * 0.5}s`,
+                  '--fall-delay': `${i * 0.15}s`,
+                  '--spin-amount': `${360 * (i % 2 === 0 ? 1 : -1)}deg`,
+                } as React.CSSProperties}
+              >
+                {emoji}
+              </span>
+            ))}
+          </div>
+
+          {/* Stars */}
+          <div className="stars-row" aria-label={`${checkResult.stars} sao`}>
+            {[1, 2, 3].map((i) => (
+              <span
+                key={i}
+                className="star-icon"
+                style={{ opacity: i <= checkResult.stars ? 1 : 0.25 }}
+              >
+                ⭐
+              </span>
+            ))}
+          </div>
+
+          <div>
+            <h2 className="font-display text-3xl">Hoàn thành trạm! 🎉</h2>
+            <p className="mt-1 text-muted">{checkResult.message}</p>
+          </div>
+
+          {/* Reward */}
+          <div className="rounded-2xl bg-brand-50 border border-brand-100 px-4 py-3 w-full max-w-sm">
+            <p className="text-xs font-extrabold uppercase tracking-wider text-brand-500 mb-1">Phần thưởng</p>
+            <p className="text-sm font-bold">{quest.reward}</p>
+          </div>
+
+          {/* New achievements */}
+          {checkResult.newAchievements && checkResult.newAchievements.length > 0 && (
+            <div className="rounded-2xl bg-sun-100 border border-sun-200 px-4 py-3 w-full max-w-sm">
+              <p className="text-sm font-extrabold text-warning">
                 🏆 Huy hiệu mới: {checkResult.newAchievements.join(', ')}
-              </p>
-            )}
-          {checkResult.courseCredential && (
-            <div className="rounded-3xl border-2 border-sun-200 bg-sun-100/60 px-5 py-4">
-              <p className="font-display text-xl">
-                🎓 Huy hiệu hoàn thành khóa
-              </p>
-              <p className="mt-1 text-sm font-bold">
-                {checkResult.courseCredential}
-              </p>
-              <p className="mt-1 text-xs text-muted">
-                Do AI Kids Creator Academy ghi nhận · đã lưu riêng tư vào Vũ trụ
-                của em
               </p>
             </div>
           )}
-          <div className="mt-2 flex flex-wrap justify-center gap-2">
-            {checkResult.nextQuestId ? (
-              <Button
-                onClick={() => navigate(`/lesson/${checkResult.nextQuestId}`)}
-              >
-                Trạm tiếp theo
+
+          {/* Course credential */}
+          {checkResult.courseCredential && (
+            <div className="rounded-3xl border-2 border-sun-200 bg-gradient-to-br from-sun-100 to-coral-50 px-5 py-4 w-full max-w-sm">
+              <p className="font-display text-xl">🎓 Hoàn thành khóa học!</p>
+              <p className="mt-1 text-sm font-bold">{checkResult.courseCredential}</p>
+              <p className="mt-1 text-xs text-muted">
+                AI Kids Creator Academy · Riêng tư & bảo mật
+              </p>
+            </div>
+          )}
+
+          {/* Action buttons */}
+          <div className="mt-2 flex flex-wrap justify-center gap-3">
+            {checkResult.nextQuestId && (
+              <Button onClick={() => navigate(`/lesson/${checkResult.nextQuestId}`)}>
+                ▶ Trạm tiếp theo
               </Button>
-            ) : null}
-            <Button
-              variant="secondary"
-              onClick={() => navigate(`/world/${quest.courseId}`)}
-            >
-              Về bản đồ
+            )}
+            <Button variant="secondary" onClick={() => navigate(`/world/${quest.courseId}`)}>
+              🗺️ Về bản đồ
             </Button>
             <Button
               variant="ghost"

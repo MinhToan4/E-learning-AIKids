@@ -94,16 +94,17 @@ export function courseCoverHint(input: {
   if (
     input.coverImage &&
     input.coverImage.trim() &&
-    input.coverImage.startsWith('/assets/optimized/')
+    input.coverImage.startsWith('/') &&
+    !input.coverImage.includes('/designer/hub/')
   ) {
     return input.coverImage
   }
   const key = input.courseKey ?? 'K1'
   if (key === 'K1') return designerAssets.chrome.adventureMap
   if (key === 'K2') return designerAssets.workshop.character
-  if (key === 'K3') return designerAssets.course.safety
+  if (key === 'K3') return designerAssets.chrome.storyWorkshop
   if (key === 'K4') return designerAssets.course.comic
-  if (key === 'K5') return designerAssets.course.robot
+  if (key === 'K5') return designerAssets.chrome.podium
   if (key === 'K6') return designerAssets.course.voice
   return designerAssets.chrome.adventureMap
 }

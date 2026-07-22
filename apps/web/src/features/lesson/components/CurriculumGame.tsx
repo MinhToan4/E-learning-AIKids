@@ -363,6 +363,9 @@ export function CurriculumGame({
           <img
             src={GAME_ASSETS.ideaIslandMap}
             alt="Bản đồ Đảo Ý tưởng với đường ba chặng dẫn đến xưởng sáng tạo"
+            onError={(e) => {
+              e.currentTarget.style.display = 'none'
+            }}
             className="absolute inset-0 h-full w-full object-cover"
             loading="lazy"
             decoding="async"
@@ -377,24 +380,59 @@ export function CurriculumGame({
           </div>
           <div className="absolute bottom-3 left-3 right-3 rounded-2xl bg-white/94 p-3 shadow-clay backdrop-blur-sm">
             <div className="flex items-center justify-between gap-3 text-xs font-extrabold text-text">
-              <span className="flex items-center gap-1"><MapPin size={15} className="text-brand-500" /> {missionCompleted}/{missionTotal} chặng</span>
-              <span className="flex items-center gap-1 text-warning"><Trophy size={15} /> {adventure.reward}</span>
-            </div>
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-brand-100" aria-label={`Tiến độ nhiệm vụ ${progress}%`}>
-              <div className="h-full rounded-full bg-gradient-to-r from-brand-400 to-mint-400 transition-[width] duration-500 motion-reduce:transition-none" style={{ width: `${progress}%` }} />
-            </div>
-            <div className="relative mt-2 h-8" aria-hidden="true">
-              {[0, 1, 2].map((stop) => {
-                const reached = progress >= (stop + 1) * 34
-                return (
-                  <span key={stop} className={cn('absolute grid h-7 w-7 place-items-center rounded-full border-2 text-xs font-black transition-colors duration-300 motion-reduce:transition-none', reached ? 'border-mint-500 bg-mint-100 text-mint-700' : 'border-brand-200 bg-white text-brand-400')} style={{ left: `${stop * 40 + 4}%` }}>
-                    {reached ? '✦' : stop + 1}
-                  </span>
-                )
-              })}
-              <span className="absolute -top-1 grid h-9 w-9 place-items-center rounded-full border-2 border-white bg-brand-500 text-lg text-white shadow-clay transition-[left] duration-500 motion-reduce:transition-none" style={{ left: `calc(${progress * 0.8 + 4}% - 4px)` }}>
-                ●
+              <span className="flex items-center gap-1">
+                <MapPin size={15} className="text-brand-500" /> {missionCompleted}/{missionTotal} chặng
               </span>
+              <span className="flex items-center gap-1 text-warning">
+                <Trophy size={15} /> {adventure.reward}
+              </span>
+            </div>
+
+            {/* Stepper progress bar with integrated stop nodes */}
+            <div className="relative mt-3 px-6 py-1" aria-label={`Tiến độ nhiệm vụ ${missionCompleted}/${missionTotal}`}>
+              {/* Background track line */}
+              <div className="absolute left-6 right-6 top-1/2 h-2.5 -translate-y-1/2 rounded-full bg-brand-100" />
+
+              {/* Active filled progress line */}
+              <div
+                className="absolute left-6 top-1/2 h-2.5 -translate-y-1/2 rounded-full bg-gradient-to-r from-brand-400 via-sky-400 to-mint-400 transition-all duration-500 motion-reduce:transition-none"
+                style={{
+                  width: missionTotal <= 1
+                    ? (missionCompleted > 0 ? 'calc(100% - 3rem)' : '0%')
+                    : `calc((100% - 3rem) * ${Math.min(1, Math.max(0, missionCompleted / (missionTotal - 1)))})`,
+                }}
+              />
+
+              {/* Stop nodes aligned along the track */}
+              <div className="relative h-8 w-full" aria-hidden="true">
+                {Array.from({ length: Math.max(1, missionTotal) }, (_, i) => {
+                  const isCompleted = i < missionCompleted
+                  const isCurrent = i === missionCompleted && missionCompleted < missionTotal
+                  const pct = missionTotal <= 1 ? 50 : (i / (missionTotal - 1)) * 100
+
+                  return (
+                    <div
+                      key={i}
+                      className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 transition-all duration-300 motion-reduce:transition-none"
+                      style={{ left: `${pct}%` }}
+                    >
+                      {isCompleted ? (
+                        <span className="grid h-7 w-7 place-items-center rounded-full border-2 border-mint-500 bg-mint-100 text-xs font-extrabold text-mint-700 shadow-sm">
+                          ✦
+                        </span>
+                      ) : isCurrent ? (
+                        <span className="grid h-8 w-8 place-items-center rounded-full border-2 border-white bg-brand-500 text-xs font-black text-white shadow-clay ring-4 ring-brand-200/80">
+                          {i + 1}
+                        </span>
+                      ) : (
+                        <span className="grid h-7 w-7 place-items-center rounded-full border-2 border-brand-200 bg-white text-xs font-bold text-brand-400 shadow-sm">
+                          {i + 1}
+                        </span>
+                      )}
+                    </div>
+                  )
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -423,16 +461,13 @@ export function CurriculumGame({
       </div>
 
       {type === 'combine' ? (
-        <div className="grid gap-3 sm:grid-cols-3" aria-label="Cỗ máy ghép ba mảnh ý tưởng">
+        <div className="flex flex-col gap-3 sm:flex-row" aria-label="Cỗ máy ghép ba mảnh ý tưởng">
           {combineGroups.map((group, groupIndex) => (
-            <fieldset
-              key={group.label}
-              className="rounded-3xl border-2 border-brand-100 bg-brand-50/60 p-3"
-            >
-              <legend className="px-2 text-sm font-extrabold text-brand-700">
+            <fieldset key={group.label} className="combine-col">
+              <legend className="combine-col-label px-1 pb-1">
                 Mảnh {groupIndex + 1} · {group.label}
               </legend>
-              <div className="mt-2 grid gap-2">
+              <div className="mt-1 flex flex-col gap-1.5">
                 {group.options.map((option) => {
                   const active = combineChoices[groupIndex] === option
                   return (
@@ -442,10 +477,8 @@ export function CurriculumGame({
                       aria-pressed={active}
                       onClick={() => chooseCombine(groupIndex, option)}
                       className={cn(
-                        'min-h-12 rounded-2xl border-2 px-3 py-2 text-left text-sm font-extrabold transition-colors',
-                        active
-                          ? 'border-brand-400 bg-white text-brand-700 shadow-clay'
-                          : 'border-transparent bg-white/70 text-text hover:border-brand-200',
+                        'combine-option',
+                        active && 'combine-option-selected',
                       )}
                     >
                       {active ? '✓ ' : ''}{option}
@@ -457,7 +490,7 @@ export function CurriculumGame({
           ))}
           {combineComplete && (
             <p className="rounded-2xl bg-mint-100 p-3 text-sm font-bold text-mint-700 sm:col-span-3" role="status">
-              Ý tưởng của con: {combineGroups.map((group, index) => combineChoices[index]).join(' · ')}
+              ✨ Ý tưởng của con: {combineGroups.map((group, index) => combineChoices[index]).join(' · ')}
             </p>
           )}
         </div>
@@ -598,27 +631,32 @@ export function CurriculumGame({
                   disabled={matched || memoryLocked}
                   onClick={() => chooseMemory(card.id)}
                   className={cn(
-                    'flex min-h-24 items-center justify-center rounded-2xl border-2 px-3 py-3 text-center text-sm font-extrabold transition-colors',
-                    matched
-                      ? 'border-mint-400 bg-mint-100 text-mint-700'
-                      : revealed
-                        ? 'border-brand-400 bg-white text-text shadow-clay'
-                        : 'border-brand-100 bg-brand-50 text-brand-700 hover:border-brand-400',
+                    'memory-card',
+                    revealed && !matched && 'memory-card-open',
+                    matched && 'memory-card-matched',
                   )}
                 >
-                  {revealed ? (
-                    <span>
-                      {matched && (
-                        <CheckCircle2 className="mx-auto mb-1" size={20} />
+                  <div className="memory-card-inner">
+                    {/* Back face (shown when face-down) */}
+                    <div
+                      className="memory-card-face"
+                      style={{ background: 'linear-gradient(135deg, #ebe8ff 0%, #c8eeff 100%)' }}
+                    >
+                      <span className="text-3xl" aria-hidden>🌀</span>
+                    </div>
+                    {/* Front face (shown when flipped) */}
+                    <div
+                      className={cn(
+                        'memory-card-back',
+                        matched && 'bg-mint-100',
                       )}
-                      {card.label}
-                    </span>
-                  ) : (
-                    <span>
-                      <span className="block text-2xl" aria-hidden="true">?</span>
-                      Lật thẻ
-                    </span>
-                  )}
+                    >
+                      {matched && (
+                        <CheckCircle2 className="absolute top-2 right-2" size={16} style={{ color: 'var(--color-success)' }} />
+                      )}
+                      <span className="text-sm font-extrabold text-center leading-tight">{card.label}</span>
+                    </div>
+                  </div>
                 </button>
               )
             })}
@@ -632,7 +670,7 @@ export function CurriculumGame({
       ) : reorderGame ? (
         <div>
           <p className="mb-2 text-sm font-bold text-muted">Kéo thẻ để xếp lại câu chuyện. Nếu dùng bàn phím hoặc màn hình cảm ứng, dùng nút lên/xuống.</p>
-          <ol className="space-y-2" aria-label="Bảng kéo thả thứ tự câu chuyện">
+          <ol className="flex flex-col gap-2" aria-label="Bảng kéo thả thứ tự câu chuyện">
             {dragBoard.map((label, index) => (
               <li
                 key={label}
@@ -640,18 +678,22 @@ export function CurriculumGame({
                 onDragStart={() => setDraggingLabel(label)}
                 onDragOver={(event) => event.preventDefault()}
                 onDrop={() => dropCard(label)}
-                className={cn('flex min-h-14 items-center gap-2 rounded-2xl border-2 bg-white px-3 py-2 transition', draggingLabel === label ? 'border-brand-400 bg-brand-50 opacity-70' : 'border-border')}
+                className={cn(
+                  'drag-item',
+                  draggingLabel === label && 'opacity-60 scale-[1.03]',
+                  dragComplete && 'drag-item-correct',
+                )}
               >
-                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-100 text-sm font-extrabold text-brand-700">{index + 1}</span>
+                <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-100 text-sm font-extrabold text-brand-700" aria-hidden>{index + 1}</span>
                 <span className="min-w-0 flex-1 font-bold">{label}</span>
-                <div className="flex shrink-0 gap-1">
-                  <button type="button" onClick={() => moveCard(label, -1)} disabled={index === 0} className="min-h-10 min-w-10 rounded-xl border border-border bg-white text-sm font-extrabold disabled:opacity-40" aria-label={`Đưa ${label} lên`}>Lên</button>
-                  <button type="button" onClick={() => moveCard(label, 1)} disabled={index === dragBoard.length - 1} className="min-h-10 min-w-10 rounded-xl border border-border bg-white text-sm font-extrabold disabled:opacity-40" aria-label={`Đưa ${label} xuống`}>Xuống</button>
+                <div className="flex shrink-0 gap-1 ml-auto">
+                  <button type="button" onClick={() => moveCard(label, -1)} disabled={index === 0} className="min-h-9 min-w-9 rounded-xl border border-border bg-white text-xs font-extrabold disabled:opacity-40 hover:bg-brand-50" aria-label={`Đưa ${label} lên`}>↑</button>
+                  <button type="button" onClick={() => moveCard(label, 1)} disabled={index === dragBoard.length - 1} className="min-h-9 min-w-9 rounded-xl border border-border bg-white text-xs font-extrabold disabled:opacity-40 hover:bg-brand-50" aria-label={`Đưa ${label} xuống`}>↓</button>
                 </div>
               </li>
             ))}
           </ol>
-          <p className="mt-2 text-xs font-semibold text-muted" role="status">{dragComplete ? 'Đúng thứ tự rồi! Con có thể hoàn thành thử thách.' : 'Xếp từ phần mở đầu đến phần kết thúc.'}</p>
+          <p className="mt-2 text-xs font-semibold text-muted" role="status">{dragComplete ? '✅ Đúng thứ tự rồi! Con có thể hoàn thành thử thách.' : 'Xếp từ phần mở đầu đến phần kết thúc.'}</p>
         </div>
       ) : isOrder ? (
         <div>
@@ -666,19 +708,17 @@ export function CurriculumGame({
                   key={label}
                   type="button"
                   className={cn(
-                    'min-h-12 rounded-2xl border-2 px-4 py-3 text-left font-bold transition-colors',
-                    done
-                      ? 'border-mint-300 bg-mint-100'
-                      : 'border-border bg-white hover:border-brand-300',
+                    'game-card text-left',
+                    done && 'game-card-correct',
                   )}
                   disabled={done || complete}
                   onClick={() => chooseOrder(label)}
                 >
-                  <span className="flex items-center gap-2">
+                  <span className="flex items-center gap-2 text-sm font-bold">
                     {done ? (
-                      <CheckCircle2 size={18} aria-hidden="true" />
+                      <CheckCircle2 size={18} className="text-success flex-shrink-0" aria-hidden />
                     ) : (
-                      <Circle size={18} aria-hidden="true" />
+                      <Circle size={18} className="text-muted flex-shrink-0" aria-hidden />
                     )}
                     {label}
                   </span>
@@ -694,27 +734,35 @@ export function CurriculumGame({
         </div>
       ) : (
         <div>
-          <p className="mb-2 flex items-center gap-2 text-sm font-bold text-muted">
+          <p className="mb-3 flex items-center gap-2 text-sm font-bold text-muted">
             {type === 'detective' && <Search size={17} />}
-            Chọn hai {type === 'detective' ? 'manh mối' : 'ý'} quan trọng nhất.
+            {type === 'detective' ? 'Tìm hai manh mối quan trọng nhất!' : 'Chọn hai ý đúng nhất.'}
           </p>
-          <div className="grid gap-2 sm:grid-cols-3">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
             {cards.map((label, index) => (
               <button
                 key={label}
                 type="button"
                 className={cn(
-                  'min-h-14 rounded-2xl border-2 px-4 py-3 text-left font-bold transition-colors',
-                  selected.includes(label)
-                    ? 'border-brand-400 bg-brand-50 shadow-clay'
-                    : 'border-border bg-white hover:border-brand-300',
+                  'game-card text-left',
+                  selected.includes(label) && 'game-card-selected',
                 )}
                 onClick={() => toggleChoice(label)}
               >
-                <span className="mr-2 inline-grid h-7 w-7 place-items-center rounded-full bg-brand-100 text-sm text-brand-700" aria-hidden="true">
-                  {index + 1}
-                </span>
-                {label}
+                <div className="flex items-start gap-2">
+                  <span
+                    className={cn(
+                      'inline-grid h-7 w-7 flex-shrink-0 place-items-center rounded-full text-sm font-extrabold',
+                      selected.includes(label)
+                        ? 'bg-brand-500 text-white'
+                        : 'bg-brand-100 text-brand-700'
+                    )}
+                    aria-hidden
+                  >
+                    {index + 1}
+                  </span>
+                  <span className="text-sm font-bold leading-snug">{label}</span>
+                </div>
               </button>
             ))}
           </div>
@@ -745,11 +793,20 @@ export function CurriculumGame({
         </fieldset>
       )}
 
-      <div className="flex items-center justify-between gap-3 rounded-2xl bg-page px-3 py-2">
+      <div className="flex items-center justify-between gap-3 rounded-2xl bg-brand-50 border border-brand-100 px-3 py-2">
+        <div className="flex items-center gap-1.5">
+          {/* Progress pips */}
+          {[...Array(Math.min(attempts + 1, 4))].map((_, i) => (
+            <span
+              key={i}
+              className={cn('game-progress-pip', i < attempts && 'game-progress-pip-done')}
+            />
+          ))}
+        </div>
         <p className="text-xs font-semibold text-muted" aria-live="polite">
-          {complete ? 'Con đã sẵn sàng sang xưởng sáng tạo!' : 'Thử thách cần thêm một bước nữa.'}
+          {complete ? '🎉 Xuất sắc! Sẵn sàng sang xưởng!' : 'Cần thêm một bước nữa.'}
         </p>
-        <span className="shrink-0 text-xs font-bold text-brand-500">{attempts} lượt thử</span>
+        <span className="shrink-0 text-xs font-bold text-brand-500">{attempts} lượt</span>
       </div>
 
       <Button onClick={finish} disabled={!complete}>

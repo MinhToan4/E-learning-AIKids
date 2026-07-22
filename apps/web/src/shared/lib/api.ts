@@ -113,6 +113,12 @@ export type CourseSummary = {
   }
   questCount: number
   enrolled: boolean
+  /** Number of completed quests for enrolled users (0 for unenrolled) */
+  completedCount?: number
+  /** Total stars earned for enrolled users */
+  totalStars?: number
+  /** Progress percentage 0-100 for enrolled users */
+  progressPct?: number
   quests: Array<{
     id: string
     order: number
@@ -120,6 +126,7 @@ export type CourseSummary = {
     accent: string
     practiceKind: string
     stage?: string
+    status?: string
   }>
 }
 

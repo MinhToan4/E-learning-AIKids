@@ -791,6 +791,608 @@
   }
 }
 
+@layer components {
+  /* ─── QUEST NODE MAP (Little AI Master zigzag path) ──────────── */
+
+  .quest-path-line {
+    position: absolute;
+    left: 50%;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    transform: translateX(-50%);
+    background: linear-gradient(180deg,
+      var(--color-brand-200, #c4b8ff) 0%,
+      var(--color-sky-200) 40%,
+      var(--color-mint-200) 70%,
+      var(--color-sun-200) 100%
+    );
+    border-radius: 999px;
+  }
+
+  .quest-node {
+    position: relative;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.6rem;
+    font-weight: 900;
+    border: 4px solid white;
+    box-shadow: 0 8px 0 0 rgba(109, 94, 252, 0.2), 0 16px 32px rgba(30, 39, 64, 0.12);
+    transition: transform 0.2s cubic-bezier(0.22, 1.3, 0.36, 1), box-shadow 0.2s;
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .quest-node:hover:not(.quest-node-locked) {
+    transform: scale(1.1) translateY(-2px);
+    box-shadow: 0 12px 0 0 rgba(109, 94, 252, 0.22), 0 20px 40px rgba(30, 39, 64, 0.16);
+  }
+
+  .quest-node-locked {
+    background: var(--color-border, #e4dff2) !important;
+    color: var(--color-muted);
+    box-shadow: 0 4px 0 0 rgba(30, 39, 64, 0.1), 0 8px 20px rgba(30, 39, 64, 0.07);
+    filter: grayscale(0.35);
+  }
+
+  .quest-node-available {
+    animation: quest-pulse 2.4s ease-in-out infinite;
+  }
+
+  .quest-node-completed {
+    background: linear-gradient(135deg, var(--color-mint-400), var(--color-sky-400)) !important;
+  }
+
+  @keyframes quest-pulse {
+    0%, 100% { box-shadow: 0 8px 0 0 rgba(109, 94, 252, 0.2), 0 0 0 0 rgba(109, 94, 252, 0.4); }
+    50% { box-shadow: 0 8px 0 0 rgba(109, 94, 252, 0.15), 0 0 0 16px rgba(109, 94, 252, 0); }
+  }
+
+  .quest-label-card {
+    background: rgba(255, 255, 255, 0.96);
+    border: 1.5px solid rgba(109, 94, 252, 0.12);
+    border-radius: 1.25rem;
+    box-shadow: 0 4px 0 0 rgba(30, 39, 64, 0.06), 0 8px 20px rgba(30, 39, 64, 0.07);
+    padding: 0.75rem 1rem;
+    max-width: 180px;
+    transition: transform 0.18s ease, box-shadow 0.18s;
+  }
+
+  .quest-label-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 0 rgba(30, 39, 64, 0.07), 0 12px 28px rgba(30, 39, 64, 0.1);
+  }
+
+  /* ─── PHASE STEPPER (4-step lesson progress) ─────────────────── */
+
+  .phase-stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 999px;
+    padding: 4px;
+    border: 1.5px solid var(--color-border);
+    box-shadow: 0 2px 8px rgba(30, 39, 64, 0.06);
+  }
+
+  .phase-step {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.8rem;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 800;
+    transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+    color: var(--color-muted);
+    white-space: nowrap;
+  }
+
+  .phase-step-active {
+    background: var(--color-brand-500);
+    color: white;
+    box-shadow: 0 2px 8px rgba(109, 94, 252, 0.3);
+  }
+
+  .phase-step-done {
+    color: var(--color-success);
+  }
+
+  .phase-step-connector {
+    width: 20px;
+    height: 2px;
+    background: var(--color-border);
+    flex-shrink: 0;
+  }
+
+  /* ─── GAME CARDS (visual per game type) ─────────────────────── */
+
+  .game-card {
+    border-radius: 1.25rem;
+    border: 2.5px solid transparent;
+    background: rgba(255, 255, 255, 0.96);
+    box-shadow: 0 6px 0 0 rgba(30, 39, 64, 0.08), 0 12px 24px rgba(30, 39, 64, 0.07);
+    padding: 1.25rem;
+    cursor: pointer;
+    transition:
+      transform 0.18s cubic-bezier(0.22, 1.2, 0.36, 1),
+      box-shadow 0.18s,
+      border-color 0.18s,
+      background 0.18s;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .game-card:hover {
+    transform: translateY(-4px) scale(1.02);
+    box-shadow: 0 10px 0 0 rgba(30, 39, 64, 0.1), 0 20px 36px rgba(30, 39, 64, 0.1);
+  }
+
+  .game-card:active {
+    transform: translateY(1px) scale(0.98);
+    box-shadow: 0 3px 0 0 rgba(30, 39, 64, 0.08), 0 6px 14px rgba(30, 39, 64, 0.08);
+  }
+
+  .game-card-selected {
+    border-color: var(--color-brand-500);
+    background: var(--color-brand-50);
+    box-shadow: 0 6px 0 0 rgba(109, 94, 252, 0.25), 0 14px 28px rgba(109, 94, 252, 0.12);
+  }
+
+  .game-card-correct {
+    border-color: var(--color-mint-400);
+    background: var(--color-mint-50);
+    box-shadow: 0 6px 0 0 rgba(62, 217, 160, 0.25), 0 14px 28px rgba(62, 217, 160, 0.12);
+    animation: card-correct 0.4s cubic-bezier(0.22, 1.3, 0.36, 1);
+  }
+
+  .game-card-wrong {
+    border-color: var(--color-coral-400);
+    background: var(--color-coral-50);
+    animation: card-shake 0.4s ease-in-out;
+  }
+
+  @keyframes card-correct {
+    0% { transform: scale(1); }
+    40% { transform: scale(1.08); }
+    100% { transform: scale(1); }
+  }
+
+  @keyframes card-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
+
+  /* ─── GAME PROGRESS RING ──────────────────────────────────────── */
+
+  .game-progress-ring {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.4rem 0.75rem;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 999px;
+    border: 1.5px solid var(--color-border);
+    font-size: 0.8rem;
+    font-weight: 800;
+  }
+
+  .game-progress-pip {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--color-border);
+    transition: background 0.3s, transform 0.3s;
+  }
+
+  .game-progress-pip-done {
+    background: var(--color-brand-500);
+    transform: scale(1.2);
+  }
+
+  /* ─── AI COMPANION BUBBLE (like Byte from Little AI Master) ──── */
+
+  .companion-bubble {
+    position: relative;
+    background: linear-gradient(135deg, #fff, var(--color-brand-50));
+    border: 2px solid rgba(109, 94, 252, 0.18);
+    border-radius: 1.5rem;
+    padding: 0.875rem 1.1rem;
+    box-shadow: 0 8px 24px rgba(109, 94, 252, 0.12), 0 2px 0 0 rgba(109, 94, 252, 0.12);
+    font-size: 0.9rem;
+    font-weight: 700;
+    animation: companion-enter 0.4s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+    max-width: 280px;
+  }
+
+  .companion-avatar {
+    width: 52px;
+    height: 52px;
+    border-radius: 1.25rem;
+    background: linear-gradient(135deg, var(--color-brand-100), var(--color-sky-100));
+    border: 3px solid white;
+    box-shadow: 0 4px 12px rgba(109, 94, 252, 0.16);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.75rem;
+    animation: companion-float 4s ease-in-out infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes companion-float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
+  }
+
+  @keyframes companion-enter {
+    0% { opacity: 0; transform: translateX(-12px) scale(0.94); }
+    100% { opacity: 1; transform: translateX(0) scale(1); }
+  }
+
+  /* ─── STAR BURST CELEBRATION ─────────────────────────────────── */
+
+  .star-burst-overlay {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 999;
+    overflow: hidden;
+  }
+
+  .confetti-piece {
+    position: absolute;
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
+    animation: confetti-fall var(--fall-duration, 2.5s) var(--fall-delay, 0s) ease-in both;
+  }
+
+  @keyframes confetti-fall {
+    0% {
+      transform: translateY(-20px) rotate(0deg);
+      opacity: 1;
+    }
+    80% { opacity: 1; }
+    100% {
+      transform: translateY(110vh) rotate(var(--spin-amount, 720deg));
+      opacity: 0;
+    }
+  }
+
+  .stars-row {
+    display: flex;
+    gap: 0.5rem;
+    justify-content: center;
+  }
+
+  .star-icon {
+    font-size: 2.5rem;
+    animation: star-pop 0.5s cubic-bezier(0.22, 1.4, 0.36, 1) both;
+  }
+
+  .star-icon:nth-child(1) { animation-delay: 0.1s; }
+  .star-icon:nth-child(2) { animation-delay: 0.25s; }
+  .star-icon:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes star-pop {
+    0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+    60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  /* ─── LEARN CARD (rich concept cards in Learn phase) ─────────── */
+
+  .learn-card {
+    border-radius: 1.25rem;
+    border: 2px solid rgba(109, 94, 252, 0.1);
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), var(--color-brand-50, #f5f3ff));
+    padding: 1.25rem;
+    box-shadow: 0 4px 0 0 rgba(109, 94, 252, 0.1), 0 8px 20px rgba(30, 39, 64, 0.07);
+    transition: transform 0.18s ease, box-shadow 0.18s;
+  }
+
+  .learn-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 0 rgba(109, 94, 252, 0.12), 0 14px 28px rgba(30, 39, 64, 0.1);
+  }
+
+  .learn-card-icon {
+    width: 2.75rem;
+    height: 2.75rem;
+    border-radius: 0.9rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    margin-bottom: 0.6rem;
+    background: white;
+    box-shadow: 0 2px 8px rgba(30, 39, 64, 0.08);
+  }
+
+  /* ─── HOOK HIGHLIGHT (opening hook in lessons) ──────────────── */
+
+  .hook-highlight {
+    position: relative;
+    border-left: 4px solid var(--color-brand-500);
+    background: linear-gradient(to right, var(--color-brand-50), rgba(255, 255, 255, 0));
+    padding: 0.875rem 1.1rem;
+    border-radius: 0 1rem 1rem 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--color-text);
+    font-style: italic;
+  }
+
+  /* ─── DAILY MISSION CARD ─────────────────────────────────────── */
+
+  .mission-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, var(--color-sun-100) 0%, var(--color-coral-50) 100%);
+    border: 2px solid rgba(255, 201, 74, 0.3);
+    box-shadow: 0 6px 0 0 rgba(166, 107, 18, 0.12), 0 12px 28px rgba(30, 39, 64, 0.08);
+  }
+
+  .mission-card::before {
+    content: '🎯';
+    position: absolute;
+    right: -0.5rem;
+    top: -0.5rem;
+    font-size: 4rem;
+    opacity: 0.12;
+    transform: rotate(15deg);
+    pointer-events: none;
+  }
+
+  /* ─── STREAK FLAME ───────────────────────────────────────────── */
+
+  .streak-flame {
+    animation: flame-flicker 1.5s ease-in-out infinite alternate;
+    display: inline-block;
+  }
+
+  @keyframes flame-flicker {
+    0% { transform: scaleY(1) rotate(-2deg); }
+    100% { transform: scaleY(1.08) rotate(2deg); }
+  }
+
+  /* ─── COURSE CARD (enhanced home page) ──────────────────────── */
+
+  .course-card {
+    border-radius: 1.5rem;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.96);
+    border: 1.5px solid rgba(109, 94, 252, 0.1);
+    box-shadow: 0 6px 0 0 rgba(30, 39, 64, 0.06), 0 12px 28px rgba(30, 39, 64, 0.07);
+    transition: transform 0.22s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.22s;
+    cursor: pointer;
+    display: block;
+    text-decoration: none;
+    color: inherit;
+  }
+
+  .course-card:hover {
+    transform: translateY(-5px) rotate(0.5deg);
+    box-shadow: 0 10px 0 0 rgba(30, 39, 64, 0.08), 0 20px 40px rgba(30, 39, 64, 0.12);
+  }
+
+  .course-card-cover {
+    height: 120px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .course-card-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  .course-card:hover .course-card-cover img {
+    transform: scale(1.06);
+  }
+
+  .course-card-progress-bar {
+    height: 5px;
+    background: var(--color-border);
+    border-radius: 0;
+  }
+
+  .course-card-progress-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--color-mint-400), var(--color-brand-500));
+    transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  /* ─── XP BAR ─────────────────────────────────────────────────── */
+
+  .xp-bar-track {
+    height: 10px;
+    border-radius: 999px;
+    background: var(--color-brand-50);
+    border: 1.5px solid rgba(109, 94, 252, 0.15);
+    overflow: hidden;
+  }
+
+  .xp-bar-fill {
+    height: 100%;
+    border-radius: inherit;
+    background: linear-gradient(90deg, var(--color-brand-500), var(--color-sky-400));
+    transition: width 0.8s cubic-bezier(0.22, 1, 0.36, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .xp-bar-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
+    background-size: 200% 100%;
+    animation: xp-shimmer 2s linear infinite;
+  }
+
+  @keyframes xp-shimmer {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  /* ─── COMBINE GAME columns ───────────────────────────────────── */
+
+  .combine-col {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    background: var(--color-brand-50);
+    border-radius: 1.25rem;
+    padding: 0.75rem;
+    border: 2px solid rgba(109, 94, 252, 0.1);
+    min-width: 0;
+  }
+
+  .combine-col-label {
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-brand-600);
+    padding: 0 0.25rem;
+  }
+
+  .combine-option {
+    background: white;
+    border: 2px solid transparent;
+    border-radius: 1rem;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.875rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.16s;
+    text-align: center;
+    box-shadow: 0 2px 6px rgba(30, 39, 64, 0.07);
+  }
+
+  .combine-option:hover {
+    border-color: var(--color-brand-300, #a89fff);
+    transform: translateY(-1px);
+  }
+
+  .combine-option-selected {
+    border-color: var(--color-brand-500);
+    background: var(--color-brand-50);
+    box-shadow: 0 4px 0 0 rgba(109, 94, 252, 0.18);
+  }
+
+  /* ─── ORDER/DRAG game ────────────────────────────────────────── */
+
+  .drag-item {
+    background: white;
+    border: 2px solid var(--color-border);
+    border-radius: 1rem;
+    padding: 0.75rem 1rem;
+    cursor: grab;
+    font-weight: 700;
+    box-shadow: 0 3px 0 0 rgba(30, 39, 64, 0.08);
+    transition: box-shadow 0.15s, transform 0.15s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .drag-item:active {
+    cursor: grabbing;
+    transform: scale(1.03);
+    box-shadow: 0 8px 20px rgba(30, 39, 64, 0.14);
+    border-color: var(--color-brand-400, #8b7dff);
+  }
+
+  .drag-item-correct {
+    border-color: var(--color-mint-400);
+    background: var(--color-mint-50);
+  }
+
+  /* ─── MATCH / MEMORY GAME ────────────────────────────────────── */
+
+  .memory-card {
+    aspect-ratio: 1;
+    border-radius: 1.25rem;
+    border: 3px solid white;
+    cursor: pointer;
+    perspective: 600px;
+    position: relative;
+    transition: transform 0.2s;
+    box-shadow: 0 4px 0 0 rgba(30, 39, 64, 0.1), 0 8px 18px rgba(30, 39, 64, 0.08);
+  }
+
+  .memory-card:hover:not(.memory-card-matched) {
+    transform: translateY(-3px) scale(1.04);
+  }
+
+  .memory-card-inner {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    transform-style: preserve-3d;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    border-radius: inherit;
+  }
+
+  .memory-card-open .memory-card-inner {
+    transform: rotateY(180deg);
+  }
+
+  .memory-card-face,
+  .memory-card-back {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: inherit;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    font-weight: 800;
+    padding: 0.5rem;
+    text-align: center;
+  }
+
+  .memory-card-back {
+    transform: rotateY(180deg);
+    background: linear-gradient(135deg, var(--color-brand-50), white);
+  }
+
+  .memory-card-matched {
+    opacity: 0.65;
+    box-shadow: 0 0 0 3px var(--color-mint-400);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .quest-node-available,
+    .companion-avatar,
+    .streak-flame,
+    .xp-bar-fill::after {
+      animation: none;
+    }
+    .memory-card-inner { transition: none; }
+    .game-card, .course-card, .quest-label-card { transition: none; }
+  }
+}
+
 /* Mobile polish — 375 / 414 safe areas */
 @layer utilities {
   .safe-pb {
@@ -812,4 +1414,318 @@
   .bg-sky-50 { background-color: #f0f9ff; }
   .bg-sky-100 { background-color: #e0f2fe; }
   .text-sky-700 { color: #0369a1; }
+
+  /* ─── DAILY MISSION CARD ─────────────────────────────────────── */
+  .mission-card {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.5rem;
+    padding: 1.25rem;
+    background: linear-gradient(135deg, #fff4d0 0%, #ffe8a3 60%, #ffd6b5 100%);
+    border: 2px solid #ffd166;
+    box-shadow: 0 4px 0 0 #f4c842, 0 8px 24px rgba(244, 200, 66, 0.18);
+  }
+  .mission-card::before {
+    content: '🎯';
+    position: absolute;
+    right: -0.5rem;
+    bottom: -1rem;
+    font-size: 5rem;
+    opacity: 0.10;
+    pointer-events: none;
+    user-select: none;
+  }
+
+  /* ─── GAME CARD (pick / order / check answers) ───────────────── */
+  .game-card {
+    display: block;
+    padding: 0.75rem 1rem;
+    border-radius: 1rem;
+    border: 2.5px solid var(--color-border, #e8e6f0);
+    background: white;
+    font-weight: 700;
+    transition: border-color 0.15s, background 0.15s, transform 0.1s, box-shadow 0.15s;
+    cursor: pointer;
+    text-align: left;
+    min-height: 52px;
+  }
+  .game-card:hover {
+    border-color: var(--color-brand-300, #b8acfe);
+    background: var(--color-brand-50, #f5f3ff);
+    transform: translateY(-1px);
+    box-shadow: 0 3px 0 0 var(--color-brand-200, #d1c8ff);
+  }
+  .game-card:active {
+    transform: translateY(0);
+    box-shadow: none;
+  }
+  .game-card-selected {
+    border-color: var(--color-brand-500, #6d5efc);
+    background: var(--color-brand-50, #f5f3ff);
+    box-shadow: 0 3px 0 0 var(--color-brand-300, #b8acfe);
+  }
+  .game-card-correct {
+    border-color: var(--color-success, #10b981);
+    background: var(--color-mint-100, #d1fae5);
+    color: #065f46;
+  }
+  .game-card-wrong {
+    border-color: var(--color-danger, #f87171);
+    background: #fff1f2;
+  }
+
+  /* ─── MEMORY CARD (3D flip) ─────────────────────────────────── */
+  .memory-card {
+    position: relative;
+    min-height: 96px;
+    border-radius: 1rem;
+    perspective: 600px;
+    cursor: pointer;
+    background: transparent;
+    border: none;
+    padding: 0;
+    outline: none;
+  }
+  .memory-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    min-height: 96px;
+    transform-style: preserve-3d;
+    transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .memory-card-open .memory-card-inner {
+    transform: rotateY(180deg);
+  }
+  .memory-card-matched .memory-card-inner {
+    transform: rotateY(180deg);
+  }
+  .memory-card-face,
+  .memory-card-back {
+    position: absolute;
+    inset: 0;
+    border-radius: 1rem;
+    border: 2.5px solid var(--color-border, #e8e6f0);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+  }
+  .memory-card-face {
+    background: linear-gradient(135deg, #ebe8ff 0%, #c8eeff 100%);
+  }
+  .memory-card-back {
+    transform: rotateY(180deg);
+    background: white;
+    border-color: var(--color-brand-400, #9d8cfb);
+    padding: 0.5rem;
+    flex-direction: column;
+  }
+  .memory-card-matched .memory-card-back {
+    border-color: var(--color-success, #10b981);
+    background: var(--color-mint-100, #d1fae5);
+  }
+
+  /* ─── COMBINE GAME COLUMNS ───────────────────────────────────── */
+  .combine-col {
+    flex: 1;
+    min-width: 0;
+    border-radius: 1.25rem;
+    border: 2px solid var(--color-brand-100, #ede9ff);
+    background: var(--color-brand-50, #f5f3ff);
+    padding: 0.875rem;
+  }
+  .combine-col-label {
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--color-brand-700, #4f3fd4);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border-bottom: 1.5px solid var(--color-brand-100, #ede9ff);
+    padding-bottom: 0.375rem;
+    margin-bottom: 0.5rem;
+  }
+  .combine-option {
+    display: block;
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.75rem;
+    border: 2px solid transparent;
+    background: white;
+    font-size: 0.85rem;
+    font-weight: 700;
+    text-align: left;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+    min-height: 44px;
+  }
+  .combine-option:hover {
+    border-color: var(--color-brand-200, #d1c8ff);
+  }
+  .combine-option-selected {
+    border-color: var(--color-brand-500, #6d5efc);
+    background: var(--color-brand-50, #f5f3ff);
+    color: var(--color-brand-700, #4f3fd4);
+    box-shadow: 0 2px 0 0 var(--color-brand-200, #d1c8ff);
+  }
+
+  /* ─── DRAG ITEM ─────────────────────────────────────────────── */
+  .drag-item {
+    display: flex;
+    align-items: center;
+    gap: 0.625rem;
+    border-radius: 1rem;
+    border: 2.5px solid var(--color-border, #e8e6f0);
+    background: white;
+    padding: 0.625rem 0.875rem;
+    min-height: 52px;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    cursor: grab;
+    user-select: none;
+  }
+  .drag-item:active {
+    cursor: grabbing;
+  }
+  .drag-item:hover {
+    border-color: var(--color-brand-200, #d1c8ff);
+  }
+  .drag-item-correct {
+    border-color: var(--color-success, #10b981);
+    background: var(--color-mint-100, #d1fae5);
+  }
+
+  /* ─── PHASE STEPPER ─────────────────────────────────────────── */
+  .phase-stepper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-wrap: wrap;
+  }
+  .phase-step {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.875rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 800;
+    background: var(--color-brand-50, #f5f3ff);
+    color: var(--color-muted, #7c6d9e);
+    border: 2px solid transparent;
+    transition: background 0.2s, border-color 0.2s, color 0.2s;
+    white-space: nowrap;
+  }
+  .phase-step-active {
+    background: var(--color-brand-500, #6d5efc);
+    color: white;
+    border-color: var(--color-brand-400, #9d8cfb);
+    box-shadow: 0 2px 8px rgba(109, 94, 252, 0.3);
+  }
+  .phase-step-done {
+    background: var(--color-mint-100, #d1fae5);
+    color: #065f46;
+    border-color: var(--color-success, #10b981);
+  }
+  .phase-step-connector {
+    display: inline-block;
+    width: 24px;
+    height: 2px;
+    background: var(--color-border, #e8e6f0);
+    flex-shrink: 0;
+    margin: 0 0.125rem;
+  }
+
+  /* ─── HOOK HIGHLIGHT ─────────────────────────────────────────── */
+  .hook-highlight {
+    position: relative;
+    padding: 0.875rem 1rem 0.875rem 1.25rem;
+    border-left: 4px solid var(--color-brand-400, #9d8cfb);
+    border-radius: 0 1rem 1rem 0;
+    background: var(--color-brand-50, #f5f3ff);
+    font-size: 1.05rem;
+    font-weight: 700;
+    line-height: 1.5;
+    color: var(--color-text, #1a1040);
+  }
+
+  /* ─── LEARN CARD ─────────────────────────────────────────────── */
+  .learn-card {
+    border-radius: 1.25rem;
+    border: 2px solid var(--color-border, #e8e6f0);
+    background: white;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: transform 0.2s, box-shadow 0.2s;
+  }
+  .learn-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 16px rgba(109, 94, 252, 0.1);
+  }
+  .learn-card-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  /* ─── GAME PROGRESS PIPS ─────────────────────────────────────── */
+  .game-progress-pip {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--color-brand-100, #ede9ff);
+    border: 1.5px solid var(--color-brand-200, #d1c8ff);
+    transition: background 0.2s;
+  }
+  .game-progress-pip-done {
+    background: var(--color-brand-500, #6d5efc);
+    border-color: var(--color-brand-400, #9d8cfb);
+  }
+
+  /* ─── STARS ROW (done celebration) ──────────────────────────── */
+  .stars-row {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+    justify-content: center;
+  }
+  .star-icon {
+    font-size: 2.5rem;
+    display: inline-block;
+    animation: star-pop 0.5s cubic-bezier(0.22, 1.4, 0.36, 1) both;
+  }
+  .star-icon:nth-child(1) { animation-delay: 0.1s; }
+  .star-icon:nth-child(2) { animation-delay: 0.25s; }
+  .star-icon:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes star-pop {
+    0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
+  }
+
+  /* ─── STAR BURST OVERLAY (celebration) ──────────────────────── */
+  .star-burst-overlay {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    overflow: hidden;
+  }
+  .confetti-piece {
+    position: absolute;
+    top: -20px;
+    animation: confetti-fall var(--fall-duration, 2.5s) var(--fall-delay, 0s) ease-in both;
+  }
+  @keyframes confetti-fall {
+    0% { top: -20px; transform: rotate(0deg) scale(1); opacity: 1; }
+    80% { opacity: 1; }
+    100% { top: 110%; transform: rotate(var(--spin-amount, 360deg)) scale(0.7); opacity: 0; }
+  }
 }

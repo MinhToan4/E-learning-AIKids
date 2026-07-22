@@ -362,3 +362,73 @@ export function NavProfileIcon({ size = 24, className = '', ...props }: IconProp
     </svg>
   )
 }
+
+/** 3D Soft-Clay Cute Magic Journey Book Icon for "Hành trình của con" */
+export function CourseBookIcon({ size = 24, className = '', ...props }: IconProps) {
+  const rawId = React.useId().replace(/:/g, '')
+  const coverId = `journeyBookCover-${rawId}`
+  const pageId = `journeyBookPage-${rawId}`
+  const starGradId = `journeyStar-${rawId}`
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <defs>
+        <linearGradient id={coverId} x1="16" y1="4" x2="16" y2="28" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#6D5EFC" />
+          <stop offset="1" stopColor="#4436BD" />
+        </linearGradient>
+        <linearGradient id={pageId} x1="16" y1="6" x2="16" y2="25" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FFF9F5" />
+          <stop offset="1" stopColor="#E8F8FF" />
+        </linearGradient>
+        <linearGradient id={starGradId} x1="22" y1="10" x2="22" y2="20" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FFE066" />
+          <stop offset="1" stopColor="#F59E0B" />
+        </linearGradient>
+      </defs>
+      {/* 3D Soft Clay Book Cover */}
+      <rect x="3.5" y="5.5" width="25" height="22" rx="5" fill={`url(#${coverId})`} stroke="#4436BD" strokeWidth="1.2" />
+      {/* Open pages */}
+      <path
+        d="M6 8C9.5 8 13 9.5 16 11C19 9.5 22.5 8 26 8V23.5C22.5 23.5 19 24.5 16 26C13 24.5 9.5 23.5 6 23.5V8Z"
+        fill={`url(#${pageId})`}
+        stroke="#0878B5"
+        strokeWidth="1.1"
+        strokeLinejoin="round"
+      />
+      {/* Spine center shadow */}
+      <line x1="16" y1="11" x2="16" y2="26" stroke="#3DBFFF" strokeWidth="1.5" opacity="0.7" />
+
+      {/* Cute Little Mascot Face on Left Page */}
+      <circle cx="10.5" cy="15" r="1.3" fill="#1E2740" />
+      <circle cx="14.5" cy="15" r="1.3" fill="#1E2740" />
+      <circle cx="10.8" cy="14.5" r="0.5" fill="#FFFFFF" />
+      <circle cx="14.8" cy="14.5" r="0.5" fill="#FFFFFF" />
+      <circle cx="9.2" cy="16.2" r="1" fill="#FF7B93" opacity="0.6" />
+      <circle cx="15.8" cy="16.2" r="1" fill="#FF7B93" opacity="0.6" />
+      <path d="M11.8 17C12.3 17.6 13.2 17.6 13.7 17" stroke="#1E2740" strokeWidth="1" strokeLinecap="round" fill="none" />
+
+      {/* Dotted Adventure Trail on Right Page */}
+      <path d="M18.5 20C19.5 17 21 18 22 15" stroke="#3DBFFF" strokeWidth="1.2" strokeDasharray="1.5 1.5" strokeLinecap="round" />
+      {/* Glowing Star Target */}
+      <path
+        d="M22 10.5L22.7 12.2L24.5 12.5L23.1 13.7L23.5 15.5L22 14.6L20.5 15.5L20.9 13.7L19.5 12.5L21.3 12.2L22 10.5Z"
+        fill={`url(#${starGradId})`}
+        stroke="#A66B12"
+        strokeWidth="0.8"
+      />
+
+      {/* Golden Bookmark Ribbon with star emblem */}
+      <path d="M16 5.5V11.5L14.5 10.2L13 11.5V5.5H16Z" fill="#FFC94A" stroke="#A66B12" strokeWidth="0.8" />
+    </svg>
+  )
+}
+

@@ -58,10 +58,10 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     const lesson = read('features/lesson/pages/LessonPage.tsx')
     expect(lesson).toContain('Hôm nay con sẽ')
     expect(lesson).toContain('Sản phẩm của trạm')
-    expect(lesson).toContain("? 'Khám phá'")
-    expect(lesson).toContain("? 'Chơi'")
-    expect(lesson).toContain("? 'Tạo'")
-    expect(lesson).toContain("'Thử tài'")
+    expect(lesson).toContain("label: 'Khám phá'")
+    expect(lesson).toContain("label: 'Chơi'")
+    expect(lesson).toContain("label: 'Tạo'")
+    expect(lesson).toContain("label: 'Thử tài'")
   })
 
   it('AchievementsPage and NotificationBell exist with real endpoints', () => {

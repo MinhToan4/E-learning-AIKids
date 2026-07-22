@@ -30,6 +30,9 @@ export function EmptyState({
       <img
         src={imageSrc}
         alt=""
+        onError={(e) => {
+          e.currentTarget.style.display = 'none'
+        }}
         className={cn(
           'rounded-2xl object-cover shadow-soft',
           compact ? 'h-16 w-16' : 'h-24 w-24',
