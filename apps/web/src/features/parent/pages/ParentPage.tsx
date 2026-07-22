@@ -92,10 +92,7 @@ type ParentProfileData = {
 
 import {
   ParentApprovalIcon,
-  ParentDashboardIcon,
   ParentKidsIcon,
-  ParentPlanIcon,
-  ParentProfileIcon,
 } from '@/shared/components/icons/ParentIcons'
 import {
   NavBadgeIcon,
@@ -103,14 +100,6 @@ import {
 } from '@/shared/components/icons/KidNavIcons'
 
 type TabKey = 'dashboard' | 'kids' | 'approvals' | 'plan' | 'profile'
-
-const TABS: { key: TabKey; label: string; icon: React.ComponentType<{ size?: number }> }[] = [
-  { key: 'dashboard', label: 'Tổng quan', icon: ParentDashboardIcon },
-  { key: 'kids', label: 'Con của tôi', icon: ParentKidsIcon },
-  { key: 'plan', label: 'Gói gia đình', icon: ParentPlanIcon },
-  { key: 'approvals', label: 'Duyệt chia sẻ', icon: ParentApprovalIcon },
-  { key: 'profile', label: 'Hồ sơ', icon: ParentProfileIcon },
-]
 
 const AVATARS = STUDENT_AVATARS.map((a) => ({
   id: a.id,
@@ -160,36 +149,6 @@ export function ParentPage({
           Đăng xuất
         </Button>
       </div>
-
-      {/* Tab bar */}
-      <nav className="flex flex-wrap gap-2">
-        {TABS.map((t) => {
-          const href =
-            t.key === 'dashboard'
-              ? '/parent'
-              : t.key === 'approvals'
-                ? '/parent/approvals'
-                : t.key === 'profile'
-                  ? '/parent/profile'
-                  : t.key === 'plan'
-                    ? '/parent/plan'
-                    : '/parent/kids'
-          return (
-            <Link
-              key={t.key}
-              to={href}
-              className={cn(
-                'flex items-center gap-1.5 rounded-xl px-4 py-2.5 text-sm font-extrabold transition-all',
-                tab === t.key
-                  ? 'bg-white text-brand-600 shadow-soft ring-1 ring-brand-100'
-                  : 'bg-brand-50/60 text-muted hover:bg-brand-50',
-              )}
-            >
-              <t.icon size={20} /> {t.label}
-            </Link>
-          )
-        })}
-      </nav>
 
       {/* Tab content */}
       {tab === 'dashboard' && <DashboardTab />}
