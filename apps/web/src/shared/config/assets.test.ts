@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { existsSync } from 'node:fs'
+import { existsSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
 import { ART_STYLES } from '@aikids/domain'
 import { courseCoverHint, designerAssets, styleImage } from './assets.js'
@@ -57,5 +57,16 @@ describe('designer AIKid assets on disk', () => {
     expect(courseCoverHint({ coverImage: '/x.jpg' })).toBe('/x.jpg')
     expect(courseCoverHint({ courseKey: 'K4' })).toBe(designerAssets.course.comic)
     expect(courseCoverHint({ courseKey: 'K6' })).toBe(designerAssets.course.voice)
+  })
+
+  it('serves lightweight UI derivatives instead of multi-megabyte source art', () => {
+    const styleBytes = ART_STYLES.reduce(
+      (total, style) => total + statSync(publicPath(styleImage(style.id))).size,
+      0,
+    )
+    expect(styleBytes).toBeLessThan(3 * 1024 * 1024)
+    expect(statSync(publicPath(designerAssets.brand.mascot)).size).toBeLessThan(
+      1024 * 1024,
+    )
   })
 })
