@@ -17,9 +17,11 @@ apps/api/data/
 .turbo/
 check-sb.*
 *.pem
+*firebase-adminsdk*.json
+*service-account*.json
 secrets/
 courses/
 packages/vidtory-ai-sdk/
 artifacts/
 *.tmp*
-
+load/session-tokens.json

@@ -14,3 +14,9 @@ apps/web/dist
 **/.vite
 **/.turbo
 **/coverage
+**/.env
+**/.env.*
+!**/.env.example
+**/*firebase-adminsdk*.json
+**/*service-account*.json
+**/secrets
