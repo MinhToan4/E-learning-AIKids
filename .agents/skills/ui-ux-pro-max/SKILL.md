@@ -8,6 +8,13 @@ description: >-
 
 # UI/UX Pro Max (AI Kids)
 
+## Required source of truth
+
+Read `../../../docs/UI_DESIGN_SYSTEM.md` in full before changing `apps/web`.
+Use it as the authoritative production checklist, especially for the three
+role-specific icon families and the rule that a page-level request must not
+silently redesign global navigation or unrelated roles.
+
 ## When to use
 
 - Building or reviewing any `apps/web` feature page

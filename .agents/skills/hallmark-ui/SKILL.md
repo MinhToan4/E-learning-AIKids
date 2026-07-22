@@ -10,6 +10,15 @@ description: >-
 
 # Hallmark-style UI for AI Kids
 
+## Required source of truth
+
+Before making any material UI change, read
+`../../../docs/UI_DESIGN_SYSTEM.md` in full. Treat it as the production UI
+contract for tokens, role-specific density, icon construction, motion, copy,
+accessibility, performance, review, and verification. If a local request
+conflicts with that contract, preserve unrelated system behavior and surface
+the conflict instead of creating a parallel visual language.
+
 ## When to use
 
 - New student-facing screens (home, world map, lesson, backpack)
