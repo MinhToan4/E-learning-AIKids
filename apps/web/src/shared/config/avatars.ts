@@ -35,7 +35,7 @@ export const STUDENT_AVATARS: readonly AvatarOption[] = [
     id: 'avatar-dragon',
     label: 'Rồng',
     emoji: '🐉',
-    image: designerAssets.hub.cardMee,
+    image: designerAssets.lobby.cardMee,
   },
   {
     id: 'avatar-fox',

@@ -11,7 +11,7 @@ type MineAsset = {
 }
 
 /**
- * Only course-created assets (vẽ/gen trong bài) — no free photo upload.
+ * Only child-owned course/workshop output — no free photo upload.
  */
 export function RefMediaPicker({
   selectedIds,
@@ -53,7 +53,7 @@ export function RefMediaPicker({
         Sản phẩm đồng hành
       </p>
       <p className="mb-2 text-xs text-muted">
-        Con có thể chọn tối đa {max} sản phẩm đã tạo trong các bài học để tiếp tục
+        Con có thể chọn tối đa {max} sản phẩm đã tạo trong bài học hoặc Xưởng sáng tạo để tiếp tục
         phát triển ý tưởng. Bước này không bắt buộc.
       </p>
       {selectedIds.length > 0 && (

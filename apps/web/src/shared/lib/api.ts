@@ -159,7 +159,13 @@ export type QuestDetail = {
       durationMin?: number
       practiceKind?: string
       gameType?: string
-      gameConfig?: { cards?: string[] }
+      gameConfig?: {
+        cards?: string[]
+        groups?: unknown
+        rounds?: unknown
+        pairs?: unknown
+        placements?: unknown
+      }
       content?: string
       instruction?: string
       outcome?: string

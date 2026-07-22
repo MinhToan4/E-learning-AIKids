@@ -23,8 +23,8 @@ describe('designer AIKid assets on disk', () => {
     expect(existsSync(publicPath(designerAssets.lobby.homeCharacter))).toBe(true)
   })
 
-  it('hub + full art-style pack exist (AIkid Soft Clay)', () => {
-    expect(existsSync(publicPath(designerAssets.hub.cardMee))).toBe(true)
+  it('lobby + full art-style pack exist (AIkid Soft Clay)', () => {
+    expect(existsSync(publicPath(designerAssets.lobby.cardMee))).toBe(true)
     for (const s of ART_STYLES) {
       const path = styleImage(s.id)
       expect(existsSync(publicPath(path)), `missing style ${s.id}: ${path}`).toBe(

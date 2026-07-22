@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
-import { Lock, Star } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
+import { NavBadgeIcon } from '@/shared/components/icons/KidNavIcons'
 import { api, type QuestProgress } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets } from '@/shared/config/assets'
 
-const EMOJI: Record<string, string> = {
+export const legacyStationEmoji: Record<string, string> = {
   'meet-mascot': '👋',
   character: '🐱',
   'world-build': '🪐',
@@ -33,6 +33,7 @@ export function WorldPage() {
   const { courseId = 'course-comic' } = useParams()
   const [quests, setQuests] = useState<QuestProgress[]>([])
   const [meta, setMeta] = useState({ totalStars: 0, completedCount: 0 })
+  const [courseTitle, setCourseTitle] = useState('Hành trình sáng tạo')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -46,13 +47,17 @@ export function WorldPage() {
           method: 'POST',
           body: JSON.stringify({ courseId }),
         }).catch(() => null)
-        const data = await api<{
-          quests: QuestProgress[]
-          totalStars: number
-          completedCount: number
-        }>(`/api/progress/${courseId}`)
+        const [data, course] = await Promise.all([
+          api<{
+            quests: QuestProgress[]
+            totalStars: number
+            completedCount: number
+          }>(`/api/progress/${courseId}`),
+          api<{ course: { title: string } }>(`/api/courses/${courseId}`),
+        ])
         setQuests(data.quests)
         setMeta({ totalStars: data.totalStars, completedCount: data.completedCount })
+        setCourseTitle(course.course.title)
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Không tải được bản đồ')
       } finally {
@@ -76,13 +81,7 @@ export function WorldPage() {
         <div className="relative p-5">
           <p className="text-sm font-bold text-brand-500">Bản đồ nhiệm vụ</p>
           <h1 className="font-display text-3xl">
-            {courseId === 'course-safety'
-              ? 'An toàn với AI'
-              : courseId === 'course-voice'
-                ? 'Giọng kể chuyện'
-                : courseId === 'course-robot'
-                  ? 'Robot sáng tạo'
-                  : 'Tạo truyện tranh AI'}
+            {courseTitle}
           </h1>
           <p className="mt-1 text-sm text-muted">
             {meta.completedCount}/{quests.length} trạm · {meta.totalStars} sao
@@ -117,7 +116,6 @@ export function WorldPage() {
               const locked = q.status === 'locked'
               const done = q.status === 'completed'
               const side = i % 2 === 0 ? 'self-start' : 'self-end'
-              const emoji = EMOJI[q.id] ?? '⭐'
               const inner = (
                 <div
                   className={cn(
@@ -134,7 +132,7 @@ export function WorldPage() {
                     )}
                     style={!locked && !done ? { background: q.accent } : undefined}
                   >
-                    {locked ? <Lock size={28} /> : emoji}
+                    {locked ? <span className="text-xs font-extrabold">Khóa</span> : done ? <NavBadgeIcon size={28} /> : <span className="font-display text-xl">{q.order}</span>}
                   </div>
                   <div
                     className={cn(
@@ -146,11 +144,7 @@ export function WorldPage() {
                     <p className="font-extrabold leading-tight">{q.title}</p>
                     <p className="mt-1 text-xs text-muted">{q.duration}</p>
                     {done && (
-                      <p className="mt-1 flex items-center gap-1 text-sm font-bold text-warning">
-                        {Array.from({ length: q.stars }).map((_, si) => (
-                          <Star key={si} size={14} fill="currentColor" />
-                        ))}
-                      </p>
+                      <p className="mt-1 text-sm font-bold text-warning">{q.stars} sao</p>
                     )}
                   </div>
                 </div>

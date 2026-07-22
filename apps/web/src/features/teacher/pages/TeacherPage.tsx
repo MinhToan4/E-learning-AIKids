@@ -6,7 +6,7 @@
  * - Complete course creation flow: course → lectures → edit → publish
  * - Full-width layout (CmsShell handles sidebar)
  */
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
@@ -15,6 +15,20 @@ import { useToast } from '@/shared/hooks/useToast'
 import { api, type LectureRow } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
+import { CourseAuthoringWizard } from '../components/CourseAuthoringWizard'
+import { LectureAuthoringForm } from '../components/LectureAuthoringForm'
+import {
+  PRACTICE_OPTIONS,
+  courseDraftReadiness,
+  lectureDraftReadiness,
+  type CourseDraft,
+} from '../lib/authoring'
+import {
+  CmsAnalyticsIcon,
+  CmsCoursesIcon,
+  CmsLecturesIcon,
+  CmsUsersIcon,
+} from '@/shared/components/icons/CmsIcons'
 
 // ── Types ───────────────────────────────────────────────────
 type StudentRow = {
@@ -87,8 +101,6 @@ type ProgressDetail = {
 
 export type TeacherTab = 'class' | 'courses' | 'lectures' | 'stats'
 
-const PRACTICE_KINDS = ['intro','journal','sketch','character','style','chips','ai_pick','story','comic','video','detective','palette','reflect','match','drag','spin']
-
 function splitLines(value: string): string[] {
   return value
     .split(/\r?\n/)
@@ -135,12 +147,12 @@ const initialLectureForm = () => ({
 })
 
 // ── Stat card ────────────────────────────────────────────────
-function StatCard({ label, value, icon }: { label: string; value: number | string; icon: string }) {
+function StatCard({ label, value, icon }: { label: string; value: number | string; icon: ReactNode }) {
   return (
     <div className="rounded-2xl bg-sky-50 p-4">
       <div className="flex items-center justify-between">
         <p className="text-xs font-bold uppercase tracking-wide text-muted">{label}</p>
-        <span className="text-lg">{icon}</span>
+        <span aria-hidden="true">{icon}</span>
       </div>
       <p className="font-display text-3xl text-sky-600">{value}</p>
     </div>
@@ -153,7 +165,7 @@ function StatusBadge({ status }: { status: string }) {
     <span className={cn('rounded-full px-2 py-0.5 text-xs font-extrabold',
       status === 'open' ? 'bg-mint-100 text-success' : 'bg-sun-100 text-warning'
     )}>
-      {status === 'open' ? '🟢 Mở' : '🟡 Ẩn'}
+      {status === 'open' ? 'Đang mở' : 'Đang ẩn'}
     </span>
   )
 }
@@ -169,7 +181,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
   // Courses state
   const [courses, setCourses] = useState<CourseLectures[]>([])
-  const [newCourse, setNewCourse] = useState({
+  const [newCourse, setNewCourse] = useState<CourseDraft>({
     id: '', title: '', shortTitle: '', tagline: '', description: '',
     productLabel: '', ageTrack: 'L1', courseKey: 'K1', durationLabel: '8 tuần',
     skillsText: '', outcomesText: '', credential: '', finalAssessment: '',
@@ -180,6 +192,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const [selected, setSelected] = useState<Lecture | null>(null)
   const [editForm, setEditForm] = useState(initialLectureForm)
   const [newLecture, setNewLecture] = useState(initialLectureForm)
+  const [creatingLecture, setCreatingLecture] = useState(false)
   const [archiveTarget, setArchiveTarget] = useState<Lecture | null>(null)
 
   // Stats state
@@ -265,6 +278,12 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   async function saveLecture(e: React.FormEvent) {
     e.preventDefault()
     if (!selected) return
+    const readiness = lectureDraftReadiness(editForm)
+    if (!readiness.complete) {
+      const missing = readiness.steps.flatMap((item) => item.missing)
+      showToast(`Bài học còn thiếu: ${missing.slice(0, 3).join(', ')}`, 'error')
+      return
+    }
     try {
       const data = await api<{ lecture: Lecture }>(`/api/teacher/lectures/${selected.id}`, {
         method: 'PATCH',
@@ -342,12 +361,18 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
   async function createCourse(e: React.FormEvent) {
     e.preventDefault()
+    const readiness = courseDraftReadiness(newCourse)
+    if (!readiness.complete) {
+      const missing = readiness.steps.flatMap((item) => item.missing)
+      showToast(`Khóa học còn thiếu: ${missing.slice(0, 3).join(', ')}`, 'error')
+      return
+    }
     try {
       await api('/api/teacher/courses', {
         method: 'POST',
         body: JSON.stringify({
           ...newCourse,
-          ageLabel: newCourse.ageTrack === 'L2' ? '9–11 tuổi' : '6–8 tuổi',
+          ageLabel: newCourse.ageTrack === 'L2' ? '10–11 tuổi' : '8–9 tuổi',
           skills: splitLines(newCourse.skillsText),
           outcomes: splitLines(newCourse.outcomesText),
           coverFrom: '#6d5efc', coverTo: '#3dbfff', accent: '#6d5efc', skillsJson: '[]',
@@ -360,6 +385,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
         skillsText: '', outcomesText: '', credential: '', finalAssessment: '',
       })
       await loadLectures()
+      setSelectedCourseId(newCourse.id)
       navigate('/teacher/lectures')
     } catch (e) { showToast(e instanceof Error ? e.message : 'Không tạo khóa', 'error') }
   }
@@ -367,7 +393,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   async function patchCourseStatus(courseId: string, status: 'open' | 'soon') {
     try {
       await api(`/api/teacher/courses/${courseId}`, { method: 'PATCH', body: JSON.stringify({ status }) })
-      showToast(status === 'open' ? '🟢 Đã mở khóa cho học sinh' : '🟡 Đã ẩn khóa', 'success')
+      showToast(status === 'open' ? 'Đã mở khóa cho học sinh' : 'Đã ẩn khóa', 'success')
       await loadLectures()
     } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi cập nhật khóa', 'error') }
   }
@@ -375,6 +401,12 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   async function createLecture(e: React.FormEvent) {
     e.preventDefault()
     if (!selectedCourseId) { showToast('Chọn khóa học trước', 'error'); return }
+    const readiness = lectureDraftReadiness(newLecture)
+    if (!readiness.complete) {
+      const missing = readiness.steps.flatMap((item) => item.missing)
+      showToast(`Bài học còn thiếu: ${missing.slice(0, 3).join(', ')}`, 'error')
+      return
+    }
     try {
       await api('/api/teacher/lectures', {
         method: 'POST',
@@ -385,9 +417,10 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           skill: newLecture.skill,
           hook: newLecture.hook,
           practiceKind: newLecture.practiceKind,
+          videoUrl: newLecture.videoUrl.trim() || undefined,
           concept: newLecture.concept,
           example: newLecture.example,
-          reward: newLecture.reward,
+          reward: newLecture.reward.trim() || undefined,
           duration: newLecture.duration,
           goals: splitLines(newLecture.goalsText),
           gameType: newLecture.gameType,
@@ -408,6 +441,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
       })
       showToast('Đã tạo bài giảng', 'success')
       setNewLecture(initialLectureForm())
+      setCreatingLecture(false)
       await loadLectures()
     } catch (e) { showToast(e instanceof Error ? e.message : 'Không tạo bài', 'error') }
   }
@@ -493,7 +527,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                     <tr key={s.id} className="border-t border-border/40">
                       <td className="px-4 py-2 font-bold">{s.nickname}</td>
                       <td className="px-4 py-2 text-sm">Lv{s.level} · {s.xp} XP</td>
-                      <td className="px-4 py-2 text-xs text-muted">{s.completedQuests} trạm · {s.totalStars}⭐ · {s.projectCount} dự án</td>
+                      <td className="px-4 py-2 text-xs text-muted">{s.completedQuests} trạm · {s.totalStars} sao · {s.projectCount} sản phẩm</td>
                       <td className="px-4 py-2 text-right">
                         <Button variant="ghost" className="!min-h-8 !px-2 !text-xs" onClick={() => void viewProgress(s.id)}>Chi tiết</Button>
                         <Button variant="ghost" className="!min-h-8 !px-2 !text-xs text-danger" onClick={() => setRemoveTarget(s)}>Gỡ</Button>
@@ -525,7 +559,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               <div className="ui-card p-4">
                 <div className="mb-2 flex items-center justify-between">
                   <h3 className="font-display text-base">Tiến trình · {progressDetail.nickname}</h3>
-                  <button type="button" className="text-xs text-muted" onClick={() => setProgressDetail(null)}>✕</button>
+                  <button type="button" className="min-h-11 rounded-lg px-3 text-sm font-bold text-muted hover:bg-sky-50" aria-label="Đóng chi tiết tiến trình" onClick={() => setProgressDetail(null)}>Đóng</button>
                 </div>
                 <ul className="max-h-48 space-y-1 overflow-y-auto text-sm">
                   {progressDetail.quests.length === 0 ? (
@@ -533,7 +567,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                   ) : progressDetail.quests.map((q, i) => (
                     <li key={i} className="flex justify-between gap-2 rounded-lg bg-brand-50/50 px-2 py-1">
                       <span className="truncate">{q.title}</span>
-                      <span className="shrink-0 text-muted">{q.status} · {q.stars}⭐</span>
+                      <span className="shrink-0 text-muted">{q.status} · {q.stars} sao</span>
                     </li>
                   ))}
                 </ul>
@@ -545,356 +579,210 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     </div>
   )
 
-  // Courses tab — full course creation flow
+
   const coursesTab = (
-    <div className="grid gap-5 lg:grid-cols-[1fr_340px]">
-      {/* Course list */}
-      <div className="ui-card overflow-hidden">
-        <div className="border-b border-border/60 px-4 py-3">
-          <h2 className="font-display text-xl">Danh sách khóa học</h2>
-          <p className="text-xs text-muted">Tạo khóa → Thêm bài giảng → Chuyển "Mở" để học sinh thấy</p>
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(460px,0.9fr)]">
+      <section className="ui-card h-fit overflow-hidden" aria-labelledby="course-list-title">
+        <div className="border-b border-border/60 bg-white px-5 py-4">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 id="course-list-title" className="font-display text-xl text-text">Khóa học của bạn</h2>
+              <p className="mt-1 text-sm text-muted">Chọn đúng việc cần làm tiếp theo cho từng khóa.</p>
+            </div>
+            <p className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700">{courses.length} khóa học</p>
+          </div>
         </div>
+
         {courses.length === 0 ? (
           <div className="p-8 text-center">
-            <p className="text-muted">Chưa có khóa nào. Tạo khóa đầu tiên bên cạnh →</p>
+            <p className="font-display text-lg text-text">Bắt đầu khóa học đầu tiên</p>
+            <p className="mt-1 text-sm text-muted">Biểu mẫu bên cạnh chia nội dung thành ba bước ngắn.</p>
           </div>
         ) : (
-          <ul className="divide-y divide-border/40">
-            {courses.map((c) => (
-              <li key={c.id} className="flex flex-wrap items-center justify-between gap-3 px-4 py-3">
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <p className="font-bold">{c.shortTitle || c.title}</p>
-                    <StatusBadge status={c.status} />
+          <ul className="divide-y divide-border/60">
+            {courses.map((course) => {
+              const activeLectures = course.lectures.filter((lecture) => !lecture.archived)
+              const canPublish = activeLectures.length > 0
+              return (
+                <li key={course.id} className="p-5">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h3 className="font-display text-lg text-text">{course.shortTitle || course.title}</h3>
+                        <StatusBadge status={course.status} />
+                      </div>
+                      <p className="mt-1 text-sm text-muted">{course.ageTrack === 'L2' ? '10–11 tuổi' : '8–9 tuổi'} · {activeLectures.length} bài đang dùng</p>
+                    </div>
+                    <p className={cn('rounded-full px-3 py-1 text-xs font-bold', canPublish ? 'bg-mint-100 text-success' : 'bg-sun-100 text-warning')}>
+                      {canPublish ? 'Sẵn sàng kiểm tra' : 'Cần thêm bài học'}
+                    </p>
                   </div>
-                  <p className="text-xs text-muted">{c.id} · {c.ageTrack ?? '—'} · {c.lectures.length} bài</p>
-                </div>
-                <div className="flex gap-2">
-                  <Button
-                    className="!min-h-8 !text-xs"
-                    variant="secondary"
-                    onClick={() => { setSelectedCourseId(c.id); navigate('/teacher/lectures') }}
-                  >
-                    Bài giảng
-                  </Button>
-                  <Button
-                    className="!min-h-8 !text-xs"
-                    variant="ghost"
-                    onClick={() => void patchCourseStatus(c.id, c.status === 'open' ? 'soon' : 'open')}
-                  >
-                    {c.status === 'open' ? 'Ẩn' : 'Mở'}
-                  </Button>
-                </div>
-              </li>
-            ))}
+
+                  <ol className="mt-4 grid gap-2 sm:grid-cols-3" aria-label={`Tiến trình của ${course.title}`}>
+                    <li className="rounded-xl bg-mint-100/60 px-3 py-2 text-sm font-bold text-success">1. Thông tin đã có</li>
+                    <li className={cn('rounded-xl px-3 py-2 text-sm font-bold', canPublish ? 'bg-mint-100/60 text-success' : 'bg-sun-50 text-warning')}>2. {canPublish ? 'Đã có bài học' : 'Thêm bài học'}</li>
+                    <li className={cn('rounded-xl px-3 py-2 text-sm font-bold', course.status === 'open' ? 'bg-mint-100/60 text-success' : 'bg-sky-50 text-sky-700')}>3. {course.status === 'open' ? 'Đang mở cho học sinh' : 'Kiểm tra và mở khóa'}</li>
+                  </ol>
+
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    <Button
+                      variant="secondary"
+                      onClick={() => {
+                        setSelectedCourseId(course.id)
+                        setSelected(null)
+                        setCreatingLecture(!canPublish)
+                        navigate('/teacher/lectures')
+                      }}
+                    >
+                      {canPublish ? 'Quản lý bài học' : 'Thêm bài học đầu tiên'}
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      disabled={!canPublish && course.status !== 'open'}
+                      onClick={() => void patchCourseStatus(course.id, course.status === 'open' ? 'soon' : 'open')}
+                    >
+                      {course.status === 'open' ? 'Ẩn khỏi học sinh' : 'Mở cho học sinh'}
+                    </Button>
+                  </div>
+                </li>
+              )
+            })}
           </ul>
         )}
-      </div>
+      </section>
 
-      {/* Create course form */}
-      <form className="ui-card flex flex-col gap-3 p-5" onSubmit={(e) => void createCourse(e)}>
-        <h2 className="font-display text-xl">Tạo khóa mới</h2>
-        <p className="text-xs text-muted">Sau khi tạo, thêm bài giảng rồi mở "Mở" để học sinh thấy.</p>
-        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-          ID slug (duy nhất, vd l1-k7-ai-art)
-          <input className="min-h-10 rounded-xl border-2 border-border px-3 font-mono text-sm normal-case" placeholder="l1-k7-ten-khoa" value={newCourse.id} onChange={(e) => setNewCourse((c) => ({ ...c, id: e.target.value.toLowerCase() }))} required pattern="[a-z0-9-]+" />
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-          Tiêu đề đầy đủ
-          <input className="min-h-10 rounded-xl border-2 border-border px-3 normal-case" placeholder="Tên khóa học" value={newCourse.title} onChange={(e) => setNewCourse((c) => ({ ...c, title: e.target.value }))} required />
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-          Tên ngắn (hiển thị thẻ)
-          <input className="min-h-10 rounded-xl border-2 border-border px-3 normal-case" placeholder="Tên ngắn" value={newCourse.shortTitle} onChange={(e) => setNewCourse((c) => ({ ...c, shortTitle: e.target.value }))} required />
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-          Tagline (câu mô tả ngắn)
-          <input className="min-h-10 rounded-xl border-2 border-border px-3 normal-case" placeholder="Học AI sáng tạo cùng bạn bè!" value={newCourse.tagline} onChange={(e) => setNewCourse((c) => ({ ...c, tagline: e.target.value }))} required />
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-          Mô tả chi tiết
-          <textarea className="min-h-24 rounded-xl border-2 border-border px-3 py-2 text-sm normal-case font-normal" placeholder="Mô tả khóa học..." value={newCourse.description} onChange={(e) => setNewCourse((c) => ({ ...c, description: e.target.value }))} required />
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-          Nhóm tuổi
-          <select className="min-h-10 rounded-xl border-2 border-border px-2 normal-case" value={newCourse.ageTrack} onChange={(e) => setNewCourse((c) => ({ ...c, ageTrack: e.target.value }))}>
-            <option value="L1">6–8 tuổi · Khám phá có hướng dẫn</option>
-            <option value="L2">9–11 tuổi · Sáng tạo và kiểm chứng</option>
-          </select>
-        </label>
-        <div className="grid grid-cols-2 gap-2">
-          <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-            Chặng K
-            <select className="min-h-10 rounded-xl border-2 border-border px-2 normal-case" value={newCourse.courseKey} onChange={(e) => setNewCourse((c) => ({ ...c, courseKey: e.target.value }))}>
-              {['K1','K2','K3','K4','K5','K6'].map((key) => <option key={key}>{key}</option>)}
-            </select>
-          </label>
-          <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-            Thời lượng
-            <input className="min-h-10 rounded-xl border-2 border-border px-3 normal-case" value={newCourse.durationLabel} onChange={(e) => setNewCourse((c) => ({ ...c, durationLabel: e.target.value }))} required />
-          </label>
-        </div>
-        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-          Sản phẩm cuối khóa
-          <textarea className="min-h-16 rounded-xl border-2 border-border px-3 py-2 text-sm normal-case font-normal" placeholder="Ví dụ: Bộ truyện 4 khung có bản nháp, bản sửa và phần giải thích" value={newCourse.productLabel} onChange={(e) => setNewCourse((c) => ({ ...c, productLabel: e.target.value }))} required />
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-          Con sẽ học được gì · mỗi dòng một kỹ năng
-          <textarea className="min-h-24 rounded-xl border-2 border-border px-3 py-2 text-sm normal-case font-normal" value={newCourse.skillsText} onChange={(e) => setNewCourse((c) => ({ ...c, skillsText: e.target.value }))} required placeholder={'Lập dàn ý câu chuyện\nKiểm tra và sửa kết quả tạo ra'} />
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-          Kết quả quan sát được · mỗi dòng một kết quả
-          <textarea className="min-h-24 rounded-xl border-2 border-border px-3 py-2 text-sm normal-case font-normal" value={newCourse.outcomesText} onChange={(e) => setNewCourse((c) => ({ ...c, outcomesText: e.target.value }))} required placeholder={'Hoàn thành sản phẩm cuối khóa\nGiải thích được lựa chọn và điểm cần cải thiện'} />
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-          Ghi nhận hoàn thành
-          <input className="min-h-10 rounded-xl border-2 border-border px-3 normal-case" value={newCourse.credential} onChange={(e) => setNewCourse((c) => ({ ...c, credential: e.target.value }))} required placeholder="Huy hiệu Nhà sáng tạo truyện có trách nhiệm" />
-        </label>
-        <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-          Cách đánh giá cuối khóa
-          <textarea className="min-h-20 rounded-xl border-2 border-border px-3 py-2 text-sm normal-case font-normal" value={newCourse.finalAssessment} onChange={(e) => setNewCourse((c) => ({ ...c, finalAssessment: e.target.value }))} required placeholder="Con trình bày sản phẩm, thử một tình huống khó và sửa theo phản hồi." />
-        </label>
-        <p className="rounded-2xl bg-sky-50 px-3 py-2 text-xs leading-relaxed text-muted">
-          Đơn vị ghi nhận: <strong>AI Kids Creator Academy</strong>. Khóa chỉ có thể mở sau khi đã có bài học và đủ thông tin đánh giá.
-        </p>
-        <Button type="submit">Tạo bản nháp khóa học</Button>
-      </form>
+      <CourseAuthoringWizard value={newCourse} onChange={setNewCourse} onSubmit={(event) => void createCourse(event)} />
     </div>
   )
 
-  // Lectures tab — full 3-column CMS
-  const lecturesTab = (
-    <div className="grid gap-4 lg:grid-cols-[220px_1fr_320px]">
-      {/* Col 1: Course selector */}
-      <div className="ui-card p-3">
-        <p className="mb-2 text-xs font-extrabold uppercase text-muted">Chọn khóa học</p>
-        {courses.length === 0 ? (
-          <p className="text-xs text-muted">Chưa có khóa. <button type="button" className="font-bold text-sky-600 underline" onClick={() => navigate('/teacher/courses')}>Tạo khóa</button></p>
-        ) : courses.map((c) => (
-          <button
-            key={c.id}
-            type="button"
-            onClick={() => { setSelectedCourseId(c.id); setSelected(null) }}
-            className={cn('mb-1 w-full rounded-xl px-2 py-2.5 text-left text-sm font-bold transition',
-              selectedCourseId === c.id ? 'bg-sky-100 text-sky-700' : 'hover:bg-sky-50 text-muted'
-            )}
-          >
-            <span className="block truncate">{c.shortTitle || c.title}</span>
-            <span className="text-xs font-normal text-muted">{c.lectures.length} bài · <StatusBadge status={c.status} /></span>
-          </button>
-        ))}
-      </div>
 
-      {/* Col 2: Lecture list + create form */}
-      <div className="ui-card p-3">
-        <div className="mb-2 flex items-center justify-between">
-          <p className="text-xs font-extrabold uppercase text-muted">
-            Bài giảng{activeCourse ? ` · ${activeCourse.shortTitle}` : ''}
-          </p>
-          {activeCourse && (
-            <div className="flex items-center gap-2">
-              <StatusBadge status={activeCourse.status} />
-              <Button
-                variant="ghost"
-                className="!min-h-7 !px-2 !text-xs"
-                onClick={() => void patchCourseStatus(activeCourse.id, activeCourse.status === 'open' ? 'soon' : 'open')}
-              >
-                {activeCourse.status === 'open' ? 'Ẩn khóa' : 'Mở khóa'}
-              </Button>
-            </div>
-          )}
+  const lecturesTab = (
+    <div className="grid items-start gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
+      <aside className="ui-card overflow-hidden lg:sticky lg:top-5" aria-label="Chọn khóa học và bài học">
+        <div className="border-b border-border bg-sky-50/60 p-4">
+          <label className="flex flex-col gap-1.5 text-sm font-bold text-text">
+            Khóa học đang soạn
+            <select
+              className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+              value={selectedCourseId}
+              onChange={(event) => {
+                setSelectedCourseId(event.target.value)
+                setSelected(null)
+                setCreatingLecture(false)
+              }}
+            >
+              <option value="">Chọn một khóa học</option>
+              {courses.map((course) => <option key={course.id} value={course.id}>{course.shortTitle || course.title}</option>)}
+            </select>
+          </label>
         </div>
 
-        {!selectedCourseId ? (
-          <p className="text-sm text-muted">Chọn khóa học bên trái</p>
-        ) : lectures.length === 0 ? (
-          <p className="text-sm text-muted">Chưa có bài giảng nào. Thêm bên dưới.</p>
-        ) : (
-          <ul className="mb-3 space-y-1">
-            {lectures.map((l, idx) => (
-              <li key={l.id} className={cn('flex items-center gap-1 rounded-xl px-2 py-1.5 text-sm transition',
-                selected?.id === l.id ? 'bg-brand-50 border border-brand-500/30' : 'hover:bg-sky-50/50',
-                l.archived ? 'opacity-50' : ''
-              )}>
-                <button type="button" className="min-w-0 flex-1 text-left" onClick={() => pickLecture(l)}>
-                  <span className="font-bold">{l.order}. {l.title}</span>
-                  {l.archived && <span className="ml-1 text-xs text-muted">[ẩn]</span>}
-                  {l.videoUrl && <span className="ml-1 text-xs text-success">🎬</span>}
-                  <span className="ml-2 text-xs text-muted">{l.practiceKind}</span>
-                </button>
-                <button type="button" className="shrink-0 text-xs text-muted disabled:opacity-30" disabled={idx === 0} onClick={() => void moveLecture(l.id, -1)}>↑</button>
-                <button type="button" className="shrink-0 text-xs text-muted disabled:opacity-30" disabled={idx === lectures.length - 1} onClick={() => void moveLecture(l.id, 1)}>↓</button>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {/* Create lecture form */}
-        {selectedCourseId && (
-          <form className="border-t border-border pt-3" onSubmit={(e) => void createLecture(e)}>
-            <p className="mb-2 text-xs font-extrabold uppercase text-muted">Thêm bài giảng mới</p>
-            <div className="flex flex-col gap-2">
-              <input className="min-h-9 rounded-lg border border-border px-2 font-mono text-xs" placeholder="id-slug (vd bai-1-gioi-thieu)" value={newLecture.id} onChange={(e) => setNewLecture((n) => ({ ...n, id: e.target.value.toLowerCase() }))} required pattern="[a-z0-9-]+" />
-              <input className="min-h-9 rounded-lg border border-border px-2 text-sm" placeholder="Tiêu đề bài" value={newLecture.title} onChange={(e) => setNewLecture((n) => ({ ...n, title: e.target.value }))} required />
-              <input className="min-h-9 rounded-lg border border-border px-2 text-sm" placeholder="Kỹ năng quan sát được" value={newLecture.skill} onChange={(e) => setNewLecture((n) => ({ ...n, skill: e.target.value }))} required />
-              <input className="min-h-9 rounded-lg border border-border px-2 text-sm" placeholder="Câu chuyện mở đầu nhiệm vụ" value={newLecture.hook} onChange={(e) => setNewLecture((n) => ({ ...n, hook: e.target.value }))} required />
-              <select className="min-h-9 rounded-lg border border-border px-2 text-sm" value={newLecture.practiceKind} onChange={(e) => setNewLecture((n) => ({ ...n, practiceKind: e.target.value }))}>
-                {PRACTICE_KINDS.map((k) => <option key={k} value={k}>{k}</option>)}
-              </select>
-              <textarea className="min-h-16 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Mục tiêu · mỗi dòng một mục tiêu" value={newLecture.goalsText} onChange={(e) => setNewLecture((n) => ({ ...n, goalsText: e.target.value }))} required />
-              <textarea className="min-h-20 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Ý chính trẻ cần hiểu" value={newLecture.concept} onChange={(e) => setNewLecture((n) => ({ ...n, concept: e.target.value }))} required minLength={10} />
-              <textarea className="min-h-16 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Ví dụ gần gũi với trẻ" value={newLecture.example} onChange={(e) => setNewLecture((n) => ({ ...n, example: e.target.value }))} required />
-
-              <details className="rounded-xl border border-border bg-sky-50/40 p-3" open>
-                <summary className="cursor-pointer text-xs font-extrabold uppercase text-sky-700">Game tương tác</summary>
-                <div className="mt-3 flex flex-col gap-2">
-                  <select className="min-h-9 rounded-lg border border-border px-2 text-sm" value={newLecture.gameType} onChange={(e) => setNewLecture((n) => ({ ...n, gameType: e.target.value }))}>
-                    <option value="pick">Chọn manh mối</option>
-                    <option value="detective">Thám tử</option>
-                    <option value="match">Ghép cặp</option>
-                    <option value="order">Xếp thứ tự</option>
-                    <option value="spin">Vòng quay</option>
-                  </select>
-                  <textarea className="min-h-16 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Hướng dẫn chơi rõ ràng" value={newLecture.gameInstruction} onChange={(e) => setNewLecture((n) => ({ ...n, gameInstruction: e.target.value }))} required />
-                  <input className="min-h-9 rounded-lg border border-border px-2 text-xs" placeholder="Điều trẻ hiểu sau trò chơi" value={newLecture.gameOutcome} onChange={(e) => setNewLecture((n) => ({ ...n, gameOutcome: e.target.value }))} required />
-                  <textarea className="min-h-16 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Thẻ chơi · mỗi dòng một thẻ, tối thiểu 2" value={newLecture.gameCardsText} onChange={(e) => setNewLecture((n) => ({ ...n, gameCardsText: e.target.value }))} required />
-                </div>
-              </details>
-
-              <details className="rounded-xl border border-border bg-mint-100/30 p-3" open>
-                <summary className="cursor-pointer text-xs font-extrabold uppercase text-success">Thực hành và sản phẩm</summary>
-                <div className="mt-3 flex flex-col gap-2">
-                  <textarea className="min-h-20 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Nhiệm vụ thực hành từng bước" value={newLecture.practiceInstruction} onChange={(e) => setNewLecture((n) => ({ ...n, practiceInstruction: e.target.value }))} required />
-                  <input className="min-h-9 rounded-lg border border-border px-2 text-xs" placeholder="Sản phẩm cần lưu sau bài" value={newLecture.product} onChange={(e) => setNewLecture((n) => ({ ...n, product: e.target.value }))} required />
-                  <input className="min-h-9 rounded-lg border border-border px-2 text-xs" placeholder="Phần thưởng phù hợp" value={newLecture.reward} onChange={(e) => setNewLecture((n) => ({ ...n, reward: e.target.value }))} required />
-                </div>
-              </details>
-
-              <details className="rounded-xl border border-border bg-sun-100/30 p-3" open>
-                <summary className="cursor-pointer text-xs font-extrabold uppercase text-warning">Thử tài cuối bài</summary>
-                <div className="mt-3 flex flex-col gap-2">
-                  <textarea className="min-h-16 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Câu hỏi kiểm tra hiểu bài" value={newLecture.checkQuestion} onChange={(e) => setNewLecture((n) => ({ ...n, checkQuestion: e.target.value }))} required />
-                  {[1, 2, 3].map((number) => {
-                    const key = `checkOption${number}` as 'checkOption1' | 'checkOption2' | 'checkOption3'
-                    return <input key={key} className="min-h-9 rounded-lg border border-border px-2 text-xs" placeholder={`Lựa chọn ${number}`} value={newLecture[key]} onChange={(e) => setNewLecture((n) => ({ ...n, [key]: e.target.value }))} required />
-                  })}
-                  <label className="text-xs font-bold text-muted">Đáp án đúng
-                    <select className="ml-2 min-h-9 rounded-lg border border-border px-2" value={newLecture.correctIndex} onChange={(e) => setNewLecture((n) => ({ ...n, correctIndex: e.target.value }))}>
-                      <option value="0">Lựa chọn 1</option><option value="1">Lựa chọn 2</option><option value="2">Lựa chọn 3</option>
-                    </select>
-                  </label>
-                  <textarea className="min-h-16 rounded-lg border border-border px-2 py-1 text-xs" placeholder="Giải thích sau khi trả lời" value={newLecture.checkExplain} onChange={(e) => setNewLecture((n) => ({ ...n, checkExplain: e.target.value }))} required />
-                </div>
-              </details>
-              <Button type="submit" className="!min-h-11 !text-xs">Tạo bài học đầy đủ 4 trạm</Button>
-            </div>
-          </form>
-        )}
-      </div>
-
-      {/* Col 3: Edit selected lecture */}
-      <div className="ui-card p-4">
-        {selected ? (
-          <form className="flex flex-col gap-3" onSubmit={(e) => void saveLecture(e)}>
-            <div className="flex items-start justify-between gap-2">
-              <div>
-                <h2 className="font-display text-lg leading-tight">{selected.title}</h2>
-                <p className="font-mono text-xs text-muted">{selected.id}</p>
-              </div>
-              <button type="button" className="text-xs text-muted" onClick={() => setSelected(null)}>✕</button>
-            </div>
-
-            <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-              Tiêu đề
-              <input className="min-h-10 w-full rounded-xl border-2 border-border px-2 normal-case" value={editForm.title} onChange={(e) => setEditForm((f) => ({ ...f, title: e.target.value }))} />
-            </label>
-            <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-              Hook (câu mở đầu)
-              <textarea className="min-h-16 w-full rounded-xl border-2 border-border px-2 py-1 text-sm normal-case font-normal" value={editForm.hook} onChange={(e) => setEditForm((f) => ({ ...f, hook: e.target.value }))} />
-            </label>
-            <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-              Kỹ năng
-              <input className="min-h-10 w-full rounded-xl border-2 border-border px-2 normal-case" value={editForm.skill} onChange={(e) => setEditForm((f) => ({ ...f, skill: e.target.value }))} />
-            </label>
-            <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-              Loại thực hành
-              <select className="min-h-10 w-full rounded-xl border-2 border-border px-2 normal-case" value={editForm.practiceKind} onChange={(e) => setEditForm((f) => ({ ...f, practiceKind: e.target.value }))}>
-                {PRACTICE_KINDS.map((k) => <option key={k} value={k}>{k}</option>)}
-              </select>
-            </label>
-            <label className="flex flex-col gap-1 text-xs font-extrabold uppercase text-muted">
-              🎬 Video URL (HTTPS)
-              <input className="min-h-10 w-full rounded-xl border-2 border-border px-2 font-mono text-xs normal-case" value={editForm.videoUrl} onChange={(e) => setEditForm((f) => ({ ...f, videoUrl: e.target.value }))} placeholder="https://..." />
-            </label>
-            {editForm.videoUrl && (
-              <p className="rounded-xl bg-mint-100 px-2 py-1 text-xs text-success">✅ Video đã có</p>
-            )}
-
-            <details className="rounded-xl border border-border bg-sky-50/50 p-3" open>
-              <summary className="cursor-pointer text-xs font-extrabold uppercase text-sky-700">Nội dung khám phá</summary>
-              <div className="mt-3 flex flex-col gap-2">
-                <textarea className="min-h-20 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.goalsText} onChange={(e) => setEditForm((f) => ({ ...f, goalsText: e.target.value }))} placeholder="Mỗi dòng một mục tiêu" required />
-                <textarea className="min-h-24 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.concept} onChange={(e) => setEditForm((f) => ({ ...f, concept: e.target.value }))} placeholder="Ý chính trẻ cần hiểu" required minLength={10} />
-                <textarea className="min-h-20 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.example} onChange={(e) => setEditForm((f) => ({ ...f, example: e.target.value }))} placeholder="Ví dụ gần gũi" required />
-              </div>
-            </details>
-
-            <details className="rounded-xl border border-border bg-brand-50/50 p-3">
-              <summary className="cursor-pointer text-xs font-extrabold uppercase text-brand-700">Trò chơi tương tác</summary>
-              <div className="mt-3 flex flex-col gap-2">
-                <select className="min-h-10 rounded-xl border-2 border-border px-2 text-sm" value={editForm.gameType} onChange={(e) => setEditForm((f) => ({ ...f, gameType: e.target.value }))}>
-                  <option value="pick">Chọn manh mối</option><option value="detective">Thám tử</option><option value="match">Ghép cặp</option><option value="order">Xếp thứ tự</option><option value="sort">Phân loại</option><option value="drag">Kéo thả</option><option value="spin">Vòng quay</option>
-                </select>
-                <textarea className="min-h-20 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.gameInstruction} onChange={(e) => setEditForm((f) => ({ ...f, gameInstruction: e.target.value }))} placeholder="Hướng dẫn chơi" required minLength={10} />
-                <input className="min-h-10 rounded-xl border-2 border-border px-2 text-sm" value={editForm.gameOutcome} onChange={(e) => setEditForm((f) => ({ ...f, gameOutcome: e.target.value }))} placeholder="Điều trẻ hiểu sau trò chơi" required />
-                <textarea className="min-h-20 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.gameCardsText} onChange={(e) => setEditForm((f) => ({ ...f, gameCardsText: e.target.value }))} placeholder="Mỗi dòng một thẻ chơi" required />
-              </div>
-            </details>
-
-            <details className="rounded-xl border border-border bg-mint-100/30 p-3">
-              <summary className="cursor-pointer text-xs font-extrabold uppercase text-success">Thực hành và sản phẩm</summary>
-              <div className="mt-3 flex flex-col gap-2">
-                <textarea className="min-h-24 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.practiceInstruction} onChange={(e) => setEditForm((f) => ({ ...f, practiceInstruction: e.target.value }))} placeholder="Nhiệm vụ thực hành từng bước" required minLength={10} />
-                <input className="min-h-10 rounded-xl border-2 border-border px-2 text-sm" value={editForm.product} onChange={(e) => setEditForm((f) => ({ ...f, product: e.target.value }))} placeholder="Sản phẩm trẻ sẽ hoàn thành" required />
-              </div>
-            </details>
-
-            <details className="rounded-xl border border-border bg-sun-100/30 p-3">
-              <summary className="cursor-pointer text-xs font-extrabold uppercase text-warning">Thử tài cuối bài</summary>
-              <div className="mt-3 flex flex-col gap-2">
-                <textarea className="min-h-20 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.checkQuestion} onChange={(e) => setEditForm((f) => ({ ...f, checkQuestion: e.target.value }))} placeholder="Câu hỏi kiểm tra" required />
-                {([1, 2, 3] as const).map((number) => {
-                  const key = `checkOption${number}` as const
-                  return <input key={key} className="min-h-10 rounded-xl border-2 border-border px-2 text-sm" value={editForm[key]} onChange={(e) => setEditForm((f) => ({ ...f, [key]: e.target.value }))} placeholder={`Lựa chọn ${number}`} required />
-                })}
-                <select className="min-h-10 rounded-xl border-2 border-border px-2 text-sm" value={editForm.correctIndex} onChange={(e) => setEditForm((f) => ({ ...f, correctIndex: e.target.value }))} aria-label="Đáp án đúng">
-                  <option value="0">Đúng: lựa chọn 1</option><option value="1">Đúng: lựa chọn 2</option><option value="2">Đúng: lựa chọn 3</option>
-                </select>
-                <textarea className="min-h-20 rounded-xl border-2 border-border px-2 py-1 text-sm" value={editForm.checkExplain} onChange={(e) => setEditForm((f) => ({ ...f, checkExplain: e.target.value }))} placeholder="Giải thích nhẹ nhàng sau khi trả lời" required />
-              </div>
-            </details>
-
-            <Button type="submit">Lưu đầy đủ 4 trạm</Button>
-
-            <div className="border-t border-border pt-2">
-              {selected.archived ? (
-                <Button type="button" variant="secondary" className="w-full" onClick={() => void restoreLecture(selected.id)}>
-                  ♻️ Khôi phục bài
-                </Button>
-              ) : (
-                <Button type="button" variant="ghost" className="w-full text-danger" onClick={() => setArchiveTarget(selected)}>
-                  🙈 Ẩn bài (archive)
-                </Button>
-              )}
-            </div>
-          </form>
-        ) : (
-          <div className="flex h-full min-h-48 flex-col items-center justify-center gap-3 text-center">
-            <span className="text-4xl">👈</span>
-            <p className="text-sm text-muted">Chọn một bài giảng để chỉnh sửa</p>
+        {!activeCourse ? (
+          <div className="p-5 text-center">
+            <p className="text-sm text-muted">Chọn khóa học để xem và sắp xếp bài.</p>
+            <Button className="mt-3" variant="secondary" onClick={() => navigate('/teacher/courses')}>Tạo khóa học</Button>
           </div>
+        ) : (
+          <>
+            <div className="border-b border-border p-4">
+              <div className="flex items-center justify-between gap-2">
+                <StatusBadge status={activeCourse.status} />
+                <span className="text-xs font-bold text-muted">{lectures.filter((lecture) => !lecture.archived).length} bài đang dùng</span>
+              </div>
+              <Button
+                className="mt-3 w-full"
+                onClick={() => {
+                  setSelected(null)
+                  setNewLecture(initialLectureForm())
+                  setCreatingLecture(true)
+                }}
+              >
+                Thêm bài học
+              </Button>
+            </div>
+
+            {lectures.length === 0 ? (
+              <div className="p-5 text-center">
+                <p className="font-bold text-text">Chưa có bài học</p>
+                <p className="mt-1 text-sm text-muted">Tạo bài đầu tiên theo bốn trạm ở khu vực bên cạnh.</p>
+              </div>
+            ) : (
+              <ol className="divide-y divide-border/60" aria-label="Danh sách bài học">
+                {lectures.map((lecture, index) => (
+                  <li key={lecture.id} className={cn('p-3', lecture.archived && 'opacity-60')}>
+                    <button
+                      type="button"
+                      className={cn(
+                        'min-h-11 w-full rounded-xl px-3 py-2 text-left transition',
+                        selected?.id === lecture.id && !creatingLecture ? 'bg-brand-50 text-brand-700 ring-2 ring-brand-200' : 'hover:bg-sky-50',
+                      )}
+                      onClick={() => {
+                        setCreatingLecture(false)
+                        pickLecture(lecture)
+                      }}
+                    >
+                      <span className="block text-xs font-bold text-muted">Bài {index + 1}{lecture.archived ? ' · Đang ẩn' : ''}</span>
+                      <span className="mt-0.5 block font-bold text-text">{lecture.title}</span>
+                      <span className="mt-1 block text-xs text-muted">{PRACTICE_OPTIONS.find((option) => option.id === lecture.practiceKind)?.label ?? 'Hoạt động sáng tạo'}{lecture.videoUrl ? ' · Có video' : ''}</span>
+                    </button>
+                    <div className="mt-1 flex justify-end gap-1">
+                      <button type="button" className="min-h-11 rounded-lg px-3 text-xs font-bold text-muted hover:bg-sky-50 disabled:opacity-30" disabled={index === 0} onClick={() => void moveLecture(lecture.id, -1)} aria-label={`Đưa ${lecture.title} lên trước`}>Lên</button>
+                      <button type="button" className="min-h-11 rounded-lg px-3 text-xs font-bold text-muted hover:bg-sky-50 disabled:opacity-30" disabled={index === lectures.length - 1} onClick={() => void moveLecture(lecture.id, 1)} aria-label={`Đưa ${lecture.title} xuống sau`}>Xuống</button>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+            )}
+          </>
         )}
-      </div>
+      </aside>
+
+      <main className="min-w-0">
+        {creatingLecture && selectedCourseId ? (
+          <LectureAuthoringForm
+            value={newLecture}
+            onChange={setNewLecture}
+            onSubmit={(event) => void createLecture(event)}
+            submitLabel="Tạo bài học"
+            idEditable
+            onCancel={() => setCreatingLecture(false)}
+          />
+        ) : selected ? (
+          <LectureAuthoringForm
+            value={editForm}
+            onChange={setEditForm}
+            onSubmit={(event) => void saveLecture(event)}
+            submitLabel="Lưu thay đổi"
+            onCancel={() => setSelected(null)}
+            secondaryActions={selected.archived ? (
+              <Button type="button" variant="secondary" onClick={() => void restoreLecture(selected.id)}>Khôi phục bài học</Button>
+            ) : (
+              <Button type="button" variant="ghost" className="text-danger" onClick={() => setArchiveTarget(selected)}>Ẩn bài học</Button>
+            )}
+          />
+        ) : activeCourse ? (
+          <section className="ui-card p-8 text-center">
+            <p className="font-display text-2xl text-text">{activeCourse.shortTitle || activeCourse.title}</p>
+            <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted">
+              Chọn một bài bên trái để chỉnh sửa, hoặc thêm bài mới. Mỗi bài cần đủ bốn trạm: Khám phá, Trò chơi, Sáng tạo và Thử tài.
+            </p>
+            <div className="mt-5 flex flex-wrap justify-center gap-2">
+              <Button onClick={() => setCreatingLecture(true)}>Thêm bài học</Button>
+              <Button
+                variant="secondary"
+                disabled={lectures.filter((lecture) => !lecture.archived).length === 0}
+                onClick={() => void patchCourseStatus(activeCourse.id, activeCourse.status === 'open' ? 'soon' : 'open')}
+              >
+                {activeCourse.status === 'open' ? 'Ẩn khỏi học sinh' : 'Mở cho học sinh'}
+              </Button>
+            </div>
+          </section>
+        ) : (
+          <section className="ui-card p-8 text-center">
+            <p className="font-display text-xl text-text">Chọn một khóa học để bắt đầu</p>
+          </section>
+        )}
+      </main>
     </div>
   )
 
@@ -908,10 +796,10 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
         <>
           <p className="mb-4 font-bold">{stats.className} · <span className="font-mono text-sky-600">{stats.code}</span></p>
           <div className="mb-5 grid gap-3 sm:grid-cols-4">
-            <StatCard label="Học sinh" value={stats.studentCount} icon="👧" />
-            <StatCard label="Trạm hoàn thành" value={stats.totalCompletedQuests} icon="⭐" />
-            <StatCard label="Quest đang mở" value={stats.openQuestCount} icon="🎯" />
-            <StatCard label="Dự án" value={stats.projectCount} icon="🎨" />
+            <StatCard label="Học sinh" value={stats.studentCount} icon={<CmsUsersIcon />} />
+            <StatCard label="Trạm hoàn thành" value={stats.totalCompletedQuests} icon={<CmsAnalyticsIcon />} />
+            <StatCard label="Bài học đang mở" value={stats.openQuestCount} icon={<CmsLecturesIcon />} />
+            <StatCard label="Sản phẩm" value={stats.projectCount} icon={<CmsCoursesIcon />} />
           </div>
           <div className="mb-4 rounded-2xl bg-sun-100/50 px-4 py-3 text-sm leading-relaxed text-text">
             <strong>{stats.students.filter((student) => student.needsSupport).length} học sinh nên được hỏi thăm.</strong>{' '}

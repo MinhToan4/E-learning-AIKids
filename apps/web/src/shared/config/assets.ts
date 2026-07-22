@@ -1,13 +1,16 @@
 /**
- * Designer asset catalog — source: Documents/AIkid (new-lobby-page + SVG PNG_backup + AIkidApp public)
- * Soft Clay language: warm, handmade, non–plastic-neon.
- * FE chrome only; course/quest truth lives in SQL/API.
+ * Designer asset catalog — Soft Clay language: warm, handmade, non–plastic-neon.
+ * Single source of truth for all FE static asset paths.
+ * - All art-style thumbnails → /assets/optimized/ (80–200 KB each)
+ * - All lobby/brand images → /assets/optimized/ where available
+ * - FE chrome only; course/quest truth lives in SQL/API.
  */
 import type { ArtStyleId } from '@aikids/domain'
 
 export const designerAssets = {
   brand: {
     logo: '/assets/designer/brand/logo.svg',
+    /** Optimized mascot (333 KB) — raw 6.9 MB files removed */
     mascot: '/assets/optimized/brand-mascot.png',
     playLearn: '/assets/designer/brand/lets_play_and_learn.svg',
     cosmic: '/assets/designer/brand/cosmic_bg.svg',
@@ -29,14 +32,8 @@ export const designerAssets = {
     homeExplore: '/assets/optimized/lobby-home-explore.jpg',
     mii: '/assets/designer/lobby/mii-character.png',
     girl: '/assets/designer/lobby/girl-character.png',
-    characterFeature: '/assets/designer/lobby/character-feature-test.png',
-  },
-  hub: {
-    artComic: '/assets/optimized/lobby-art-comic.jpg',
-    artImage: '/assets/optimized/lobby-art-image.jpg',
-    cardArt: '/assets/optimized/lobby-card_art.jpg',
-    cardMee: '/assets/optimized/lobby-card_mee.jpg',
-    homeCharacter: '/assets/optimized/lobby-home-character.jpg',
+    /** character-feature raw files removed; use optimized mascot as fallback */
+    characterFeature: '/assets/optimized/brand-mascot.png',
   },
   /** Full AIkid art-style pack (filenames match designer export, including farbic typo). */
   styles: {
@@ -56,10 +53,11 @@ export const designerAssets = {
     semirealistic: '/assets/optimized/art-style-semirealistic.jpg',
   } satisfies Record<ArtStyleId, string>,
   course: {
-    comic: '/assets/designer/hub/art-comic.jpeg',
-    safety: '/assets/designer/lobby/card_diary.jpeg',
-    voice: '/assets/designer/lobby/art-video.jpeg',
-    robot: '/assets/designer/lobby/card_mee.jpeg',
+    /** designer/hub deleted — use optimized lobby versions instead */
+    comic: '/assets/optimized/lobby-art-comic.jpg',
+    safety: '/assets/optimized/lobby-card_diary.jpg',
+    voice: '/assets/optimized/lobby-art-video.jpg',
+    robot: '/assets/optimized/lobby-card_mee.jpg',
     /** Legacy root covers (also used as fallbacks) */
     comicAlt: '/assets/course-comic.jpg',
     robotAlt: '/assets/course-robot.jpg',
@@ -67,10 +65,10 @@ export const designerAssets = {
     voiceAlt: '/assets/course-voice.jpg',
   },
   workshop: {
-    character: '/assets/designer/lobby/home-character.jpeg',
-    style: '/assets/designer/styles/art-style-clay.jpeg',
-    comic: '/assets/designer/lobby/art-comic.jpeg',
-    mee: '/assets/designer/lobby/card_mee.jpeg',
+    character: '/assets/optimized/lobby-home-character.jpg',
+    style: '/assets/optimized/art-style-clay.jpg',
+    comic: '/assets/optimized/lobby-art-comic.jpg',
+    mee: '/assets/optimized/lobby-card_mee.jpg',
   },
   /** Decorative chrome (badges, maps) — designer Soft Clay */
   chrome: {
@@ -80,7 +78,7 @@ export const designerAssets = {
     adventureMap: '/assets/adventure-map.jpg',
     storyWorkshop: '/assets/story-workshop.jpg',
     /** Leaderboard / class celebration hero */
-    podium: '/assets/designer/lobby/home-explore.jpeg',
+    podium: '/assets/optimized/lobby-home-explore.jpg',
   },
 } as const
 

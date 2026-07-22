@@ -173,8 +173,8 @@ export function HomePage() {
             {(
               [
                 ['all', 'Tất cả'],
-                ['L1', '6–8 tuổi'],
-                ['L2', '9–11 tuổi'],
+                ['L1', '8–9 tuổi'],
+                ['L2', '10–11 tuổi'],
               ] as const
             ).map(([id, label]) => (
               <button

@@ -66,6 +66,33 @@ export function NavHomeIcon({ size = 24, className = '', ...props }: IconProps) 
   )
 }
 
+/** A little maker desk: the student entry point for the Creative Workshop. */
+export function NavCreativeIcon({ size = 24, className = '', ...props }: IconProps) {
+  const id = React.useId().replace(/:/g, '')
+  const deskId = `creativeDesk-${id}`
+  const paperId = `creativePaper-${id}`
+
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id={deskId} x1="7" y1="21" x2="25" y2="28" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#6D5EFC" />
+          <stop offset="1" stopColor="#4436BD" />
+        </linearGradient>
+        <linearGradient id={paperId} x1="11" y1="6" x2="22" y2="21" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#E8F8FF" />
+          <stop offset="1" stopColor="#3DBFFF" />
+        </linearGradient>
+      </defs>
+      <path d="M8 20.5H24L26.5 27.5C26.8 28.4 26.1 29 25.2 29H6.8C5.9 29 5.2 28.4 5.5 27.5L8 20.5Z" fill={`url(#${deskId})`} stroke="#4436BD" strokeWidth="1.2" strokeLinejoin="round" />
+      <rect x="10" y="5" width="12" height="17" rx="3" fill={`url(#${paperId})`} stroke="#0878B5" strokeWidth="1.2" />
+      <path d="M13.5 11.5H18.5M13.5 15H17" stroke="#0878B5" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M21.8 12.2L25.6 8.4C26.3 7.7 27.4 7.7 28.1 8.4C28.8 9.1 28.8 10.2 28.1 10.9L24.3 14.7L21 15.5L21.8 12.2Z" fill="#FFC94A" stroke="#A66B12" strokeWidth="1.1" strokeLinejoin="round" />
+      <circle cx="8" cy="7" r="2" fill="#3ED9A0" stroke="#178A5C" strokeWidth="1" />
+    </svg>
+  )
+}
+
 export function NavWorldIcon({ size = 24, className = '', ...props }: IconProps) {
   const id = React.useId()
   const oceanId = `worldOcean-${id}`

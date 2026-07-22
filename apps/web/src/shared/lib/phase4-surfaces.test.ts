@@ -54,6 +54,16 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(lesson).not.toContain('Tiến trình bài học đã thay đổi')
   })
 
+  it('lesson always tells the child the goal, product and four-step rhythm', () => {
+    const lesson = read('features/lesson/pages/LessonPage.tsx')
+    expect(lesson).toContain('Hôm nay con sẽ')
+    expect(lesson).toContain('Sản phẩm của trạm')
+    expect(lesson).toContain("? 'Khám phá'")
+    expect(lesson).toContain("? 'Chơi'")
+    expect(lesson).toContain("? 'Tạo'")
+    expect(lesson).toContain("'Thử tài'")
+  })
+
   it('AchievementsPage and NotificationBell exist with real endpoints', () => {
     const ach = read('features/achievements/pages/AchievementsPage.tsx')
     expect(ach).toContain('/api/gamification/achievements')
@@ -79,11 +89,15 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
 
   it('role shells share icon navigation on desktop and mobile', () => {
     const shell = read('shared/components/layout/AppShell.tsx')
+    const kidIcons = read('shared/components/icons/KidNavIcons.tsx')
     expect(shell).toContain('ParentDashboardIcon')
     expect(shell).toContain('ParentKidsIcon')
     expect(shell).toContain('role-nav-link')
     expect(shell).toContain('role-nav-icon')
     expect(shell).toContain('role-mobile-nav')
+    expect(shell).toContain('NavCreativeIcon')
+    expect(shell).not.toContain("from 'lucide-react'")
+    expect(kidIcons).toContain('export function NavCreativeIcon')
   })
 
   it('ProfilePage surfaces streak + achievements APIs', () => {
@@ -107,6 +121,15 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     const src = read('app/App.tsx')
     expect(src).toContain('/achievements')
     expect(src).toContain('AchievementsPage')
+  })
+
+  it('creative art uses the safe in-app sketch workflow before Vidtory generation', () => {
+    const creative = read('features/creative/pages/CreativePage.tsx') + read('features/creative/components/WorkshopCanvas.tsx')
+    expect(creative).toContain('WorkshopCanvas')
+    expect(creative).toContain('/api/creative/create')
+    expect(creative).not.toContain('uploadStudentImage')
+    expect(creative).not.toContain("kind: 'mee'")
+    expect(creative).not.toContain('Tạo Mee')
   })
 
   it('root rendering has a child-friendly recovery boundary', () => {

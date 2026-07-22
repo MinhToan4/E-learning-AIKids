@@ -54,6 +54,11 @@ const BackpackPage = lazy(() =>
     default: m.BackpackPage,
   })),
 )
+const CreativePage = lazy(() =>
+  import('@/features/creative/pages/CreativePage').then((m) => ({
+    default: m.CreativePage,
+  })),
+)
 const ProfilePage = lazy(() =>
   import('@/features/profile/pages/ProfilePage').then((m) => ({
     default: m.ProfilePage,
@@ -216,6 +221,14 @@ export function App() {
             element={
               <Guard roles={['student']} requireOnboarded>
                 <BackpackPage />
+              </Guard>
+            }
+          />
+          <Route
+            path="/creative"
+            element={
+              <Guard roles={['student']} requireOnboarded>
+                <CreativePage />
               </Guard>
             }
           />

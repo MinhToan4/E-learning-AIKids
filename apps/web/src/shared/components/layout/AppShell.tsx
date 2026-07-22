@@ -17,6 +17,7 @@ import {
 import {
   NavBackpackIcon,
   NavBadgeIcon,
+  NavCreativeIcon,
   NavHomeIcon,
   NavLeaderboardIcon,
   NavProfileIcon,
@@ -45,6 +46,7 @@ type RoleNavItem = {
 const studentNav = [
   { to: '/home', label: 'Nhà', icon: NavHomeIcon },
   { to: '/world', label: 'Học', icon: NavWorldIcon },
+  { to: '/creative', label: 'Xưởng', icon: NavCreativeIcon },
   { to: '/leaderboard', label: 'Tiến bộ', icon: NavLeaderboardIcon },
   { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon },
   { to: '/backpack', label: 'Ba lô', icon: NavBackpackIcon },
@@ -153,7 +155,7 @@ function CmsShell({
         <RoleNavigation nav={nav} mobile />
       </div>
 
-      <main className="page-enter min-w-0 px-3 py-5 sm:px-5">
+      <main className="page-enter mx-auto min-w-0 max-w-[1440px] px-3 py-5 sm:px-5">
         <Outlet />
       </main>
     </div>

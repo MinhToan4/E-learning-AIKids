@@ -7,7 +7,7 @@
  * - Login audit log with auto-purge indicator
  * - Full-width layout (CmsShell handles sidebar)
  */
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
@@ -16,6 +16,16 @@ import { useToast } from '@/shared/hooks/useToast'
 import { api } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
+import {
+  CmsAiIcon,
+  CmsAnalyticsIcon,
+  CmsClassesIcon,
+  CmsCoursesIcon,
+  CmsLecturesIcon,
+  CmsLogsIcon,
+  CmsSessionsIcon,
+  CmsUsersIcon,
+} from '@/shared/components/icons/CmsIcons'
 
 // ── Types ───────────────────────────────────────────────────
 type SystemInfo = {
@@ -106,6 +116,13 @@ type LoginLogSummary = {
 }
 
 export type AdminTab = 'system' | 'analytics' | 'logs' | 'ai' | 'users' | 'sessions' | 'courses'
+
+const ROLE_LABELS: Record<string, string> = {
+  student: 'Học sinh',
+  parent: 'Phụ huynh',
+  teacher: 'Giảng viên',
+  admin: 'Quản trị viên',
+}
 
 const emptyRouting = (): RoutingState => ({
   baseURL: 'https://bapi.vidtory.net',
@@ -229,12 +246,12 @@ function TrendChart({ rows }: { rows: Analytics['trends'] }) {
 }
 
 // ── Stat card ────────────────────────────────────────────────
-function StatCard({ label, value, icon, sub }: { label: string; value: number | string; icon: string; sub?: string }) {
+function StatCard({ label, value, icon, sub }: { label: string; value: number | string; icon: ReactNode; sub?: string }) {
   return (
     <div className="ui-card flex flex-col gap-1 p-4">
       <div className="flex items-center justify-between">
         <p className="text-xs font-bold uppercase tracking-wide text-muted">{label}</p>
-        <span className="text-xl">{icon}</span>
+        <span aria-hidden="true">{icon}</span>
       </div>
       <p className="font-display text-3xl text-brand-600">{value}</p>
       {sub && <p className="text-xs text-muted">{sub}</p>}
@@ -269,7 +286,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const [vidtoryStatus, setVidtoryStatus] = useState<{ configured: boolean; maskedHint: string | null; source: string } | null>(null)
   const [routing, setRouting] = useState<RoutingState>(emptyRouting)
   const [form, setForm] = useState({ role: 'teacher' as 'parent' | 'teacher' | 'admin', email: '', password: '', nickname: '' })
-  const [newCourse, setNewCourse] = useState({ id: '', title: '', shortTitle: '', tagline: '', description: '', ageTrack: 'L1' as 'L1' | 'L2', courseKey: 'K1' as 'K1' | 'K2' | 'K3' | 'K4' | 'K5' | 'K6', status: 'soon' as 'open' | 'soon' })
   const [roleFilter, setRoleFilter] = useState('')
   const [loading, setLoading] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null)
@@ -368,16 +384,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     setRouting((r) => ({ ...r, [kind]: { ...r[kind], models: r[kind].models.filter((_, i) => i !== index) } }))
   }
 
-  async function createCourse(e: React.FormEvent) {
-    e.preventDefault()
-    try {
-      await api('/api/admin/courses', { method: 'POST', body: JSON.stringify({ id: newCourse.id.trim(), title: newCourse.title.trim(), shortTitle: newCourse.shortTitle.trim(), tagline: newCourse.tagline.trim(), description: newCourse.description.trim(), ageTrack: newCourse.ageTrack, courseKey: newCourse.courseKey, status: newCourse.status, ageLabel: newCourse.ageTrack === 'L2' ? '9–11 tuổi' : '6–8 tuổi' }) })
-      showToast('Đã tạo khóa học thành công', 'success')
-      setNewCourse({ id: '', title: '', shortTitle: '', tagline: '', description: '', ageTrack: 'L1', courseKey: 'K1', status: 'soon' })
-      await load()
-    } catch (e) { showToast(e instanceof Error ? e.message : 'Không tạo được khóa', 'error') }
-  }
-
   async function createUser(e: React.FormEvent) {
     e.preventDefault()
     try {
@@ -441,7 +447,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // ── Tab content renderers ────────────────────────────────
   const sectionHeader = (title: string, subtitle?: string) => (
     <div className="mb-5">
-      <h1 className="font-display text-2xl text-text">{title}</h1>
+      <h2 className="font-display text-xl text-text">{title}</h2>
       {subtitle && <p className="text-sm text-muted">{subtitle}</p>}
     </div>
   )
@@ -456,13 +462,39 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const systemTab = system && (
     <>
       {sectionHeader('Tổng quan hệ thống', 'Tình trạng dữ liệu + Vidtory AI')}
+      <section className="ui-card mb-4 p-5" aria-labelledby="admin-attention-title">
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">Ưu tiên hôm nay</p>
+            <h3 id="admin-attention-title" className="mt-1 font-display text-xl text-text">Việc cần xử lý</h3>
+          </div>
+          <p className="text-xs text-muted">Cập nhật {new Date(system.time).toLocaleString('vi-VN')}</p>
+        </div>
+        <div className="mt-4 grid gap-3 md:grid-cols-3">
+          <button type="button" className="min-h-24 rounded-2xl border-2 border-border bg-white p-4 text-left transition hover:border-brand-300 hover:bg-brand-50" onClick={() => navigate('/admin/users')}>
+            <span className="flex items-center gap-2 font-bold text-text"><CmsUsersIcon /> Tài khoản chờ duyệt</span>
+            <span className="mt-2 block text-2xl font-display text-brand-600">{system.counts.pendingApprovals}</span>
+            <span className="mt-1 block text-xs text-muted">Xem và xử lý tài khoản mới</span>
+          </button>
+          <button type="button" className="min-h-24 rounded-2xl border-2 border-border bg-white p-4 text-left transition hover:border-brand-300 hover:bg-brand-50" onClick={() => navigate('/admin/logs')}>
+            <span className="flex items-center gap-2 font-bold text-text"><CmsLogsIcon /> Kiểm tra đăng nhập</span>
+            <span className="mt-2 block text-sm font-bold text-brand-600">Xem sự cố trong 24 giờ</span>
+            <span className="mt-1 block text-xs text-muted">Tìm đăng nhập thất bại hoặc bị khóa</span>
+          </button>
+          <button type="button" className={cn('min-h-24 rounded-2xl border-2 p-4 text-left transition', system.vidtory?.configured ? 'border-mint-200 bg-mint-100/50 hover:bg-mint-100' : 'border-sun-200 bg-sun-50 hover:bg-sun-100')} onClick={() => navigate('/admin/ai')}>
+            <span className="flex items-center gap-2 font-bold text-text"><CmsAiIcon /> Dịch vụ tạo nội dung AI</span>
+            <span className={cn('mt-2 block text-sm font-bold', system.vidtory?.configured ? 'text-success' : 'text-warning')}>{system.vidtory?.configured ? 'Đã kết nối' : 'Cần cấu hình'}</span>
+            <span className="mt-1 block text-xs text-muted">Mở phần thiết lập và kiểm tra kết nối</span>
+          </button>
+        </div>
+      </section>
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {[
-          { label: 'Khóa học', value: system.counts.courses, icon: '📚' },
-          { label: 'Bài giảng', value: system.counts.quests, icon: '🎯' },
-          { label: 'Lớp học', value: system.counts.classes, icon: '🏫' },
-          { label: 'Phiên active', value: system.counts.activeSessions, icon: '🔑' },
-          { label: 'Chờ duyệt', value: system.counts.pendingApprovals, icon: '⏳' },
+          { label: 'Khóa học', value: system.counts.courses, icon: <CmsCoursesIcon /> },
+          { label: 'Bài học', value: system.counts.quests, icon: <CmsLecturesIcon /> },
+          { label: 'Lớp học', value: system.counts.classes, icon: <CmsClassesIcon /> },
+          { label: 'Phiên đang hoạt động', value: system.counts.activeSessions, icon: <CmsSessionsIcon /> },
+          { label: 'Tài khoản chờ duyệt', value: system.counts.pendingApprovals, icon: <CmsUsersIcon /> },
         ].map((s) => (
           <StatCard key={s.label} {...s} />
         ))}
@@ -474,14 +506,14 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             {Object.entries(system.counts.usersByRole).map(([role, n]) => {
               const max = Math.max(...Object.values(system.counts.usersByRole))
               const colorMap: Record<string, string> = { student: 'bg-brand-500', teacher: 'bg-sky-400', parent: 'bg-mint-400', admin: 'bg-coral-400' }
-              return <MiniBar key={role} label={role} value={n} max={max} color={colorMap[role] ?? 'bg-brand-500'} />
+              return <MiniBar key={role} label={ROLE_LABELS[role] ?? role} value={n} max={max} color={colorMap[role] ?? 'bg-brand-500'} />
             })}
           </div>
         </div>
         <div className="ui-card p-5">
           <p className="mb-3 text-sm font-extrabold uppercase tracking-wide text-muted">Vidtory AI</p>
           <div className={cn('flex items-center gap-3 rounded-2xl p-3', system.vidtory?.configured ? 'bg-mint-100' : 'bg-sun-100')}>
-            <span className="text-2xl">{system.vidtory?.configured ? '✅' : '⚠️'}</span>
+            <CmsAiIcon size={28} />
             <div>
               <p className="font-bold">{system.vidtory?.configured ? `Đã cấu hình · ${system.vidtory.maskedHint ?? '••••'}` : 'Chưa cấu hình'}</p>
               <p className="text-xs text-muted">{system.vidtory?.configured ? `Nguồn: ${system.vidtory.source}` : 'Vào tab AI Vidtory để thiết lập'}</p>
@@ -496,26 +528,26 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // Analytics tab
   const analyticsTab = analytics && (
     <>
-      {sectionHeader('Analytics', 'Snapshot số liệu toàn hệ thống')}
+      {sectionHeader('Phân tích hoạt động', 'Số liệu tổng hợp toàn hệ thống')}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard label="User active" value={analytics.users.active} icon="👤" />
-        <StatCard label="Khóa mở" value={analytics.courses.open} icon="📖" />
-        <StatCard label="Phiên active" value={analytics.sessions.active} icon="🔐" />
-        <StatCard label="Enrollment" value={analytics.learning.enrollments} icon="📝" />
-        <StatCard label="Quest active" value={analytics.quests.active} icon="🎯" />
-        <StatCard label="Quest ẩn" value={analytics.quests.archived} icon="👁️‍🗨️" />
-        <StatCard label="Hoàn thành trạm" value={analytics.learning.completedProgress} icon="⭐" />
-        <StatCard label="Dự án" value={analytics.learning.projects} icon="🎨" />
+        <StatCard label="Người dùng hoạt động" value={analytics.users.active} icon={<CmsUsersIcon />} />
+        <StatCard label="Khóa học đang mở" value={analytics.courses.open} icon={<CmsCoursesIcon />} />
+        <StatCard label="Phiên đang hoạt động" value={analytics.sessions.active} icon={<CmsSessionsIcon />} />
+        <StatCard label="Lượt tham gia khóa" value={analytics.learning.enrollments} icon={<CmsAnalyticsIcon />} />
+        <StatCard label="Bài học đang dùng" value={analytics.quests.active} icon={<CmsLecturesIcon />} />
+        <StatCard label="Bài học đang ẩn" value={analytics.quests.archived} icon={<CmsLecturesIcon />} />
+        <StatCard label="Trạm đã hoàn thành" value={analytics.learning.completedProgress} icon={<CmsAnalyticsIcon />} />
+        <StatCard label="Sản phẩm học tập" value={analytics.learning.projects} icon={<CmsCoursesIcon />} />
       </div>
       <div className="mt-4 grid gap-4 lg:grid-cols-2">
         <TrendChart rows={analytics.trends ?? []} />
         <div className="ui-card p-5">
-          <p className="mb-4 text-sm font-extrabold uppercase tracking-wide text-muted">Users theo role</p>
+          <p className="mb-4 text-sm font-extrabold uppercase tracking-wide text-muted">Người dùng theo vai trò</p>
           <div className="flex flex-col gap-3">
             {Object.entries(analytics.users.byRole).map(([role, n]) => {
               const max = Math.max(...Object.values(analytics.users.byRole))
               const colorMap: Record<string, string> = { student: 'bg-brand-500', teacher: 'bg-sky-400', parent: 'bg-mint-400', admin: 'bg-coral-400' }
-              return <MiniBar key={role} label={role} value={n} max={max} color={colorMap[role] ?? 'bg-brand-500'} />
+              return <MiniBar key={role} label={ROLE_LABELS[role] ?? role} value={n} max={max} color={colorMap[role] ?? 'bg-brand-500'} />
             })}
           </div>
         </div>
@@ -524,14 +556,14 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           <div className="flex flex-col gap-3">
             {[
               { label: 'Hoàn thành trạm', value: analytics.learning.completedProgress },
-              { label: 'Enrollment', value: analytics.learning.enrollments },
+              { label: 'Lượt tham gia khóa', value: analytics.learning.enrollments },
               { label: 'Dự án', value: analytics.learning.projects },
             ].map((item) => {
               const max = Math.max(analytics.learning.completedProgress, analytics.learning.enrollments, analytics.learning.projects, 1)
               return <MiniBar key={item.label} label={item.label} value={item.value} max={max} color="bg-mint-400" />
             })}
           </div>
-          <p className="mt-3 text-xs text-muted">Snapshot: {new Date(analytics.time).toLocaleString('vi-VN')}</p>
+          <p className="mt-3 text-xs text-muted">Cập nhật: {new Date(analytics.time).toLocaleString('vi-VN')}</p>
         </div>
       </div>
     </>
@@ -540,19 +572,19 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // Login logs tab
   const logsTab = (
     <>
-      {sectionHeader('Login Logs', 'Theo dõi đăng nhập 24 giờ gần nhất · Auto-purge mỗi lần xem')}
+      {sectionHeader('Nhật ký đăng nhập', 'Theo dõi đăng nhập trong 24 giờ gần nhất')}
       {logSummary && (
         <div className="mb-4 grid gap-3 sm:grid-cols-4">
-          <StatCard label="Tổng 24h" value={logSummary.total} icon="📋" />
-          <StatCard label="Thành công" value={logSummary.byOutcome['success'] ?? 0} icon="✅" />
-          <StatCard label="Thất bại" value={logSummary.byOutcome['failed'] ?? 0} icon="❌" />
-          <StatCard label="Bị khóa" value={logSummary.byOutcome['locked'] ?? 0} icon="🔒" />
+          <StatCard label="Tổng trong 24 giờ" value={logSummary.total} icon={<CmsLogsIcon />} />
+          <StatCard label="Thành công" value={logSummary.byOutcome['success'] ?? 0} icon={<CmsSessionsIcon />} />
+          <StatCard label="Thất bại" value={logSummary.byOutcome['failed'] ?? 0} icon={<CmsLogsIcon />} />
+          <StatCard label="Bị khóa" value={logSummary.byOutcome['locked'] ?? 0} icon={<CmsSessionsIcon />} />
         </div>
       )}
       <div className="ui-card overflow-hidden">
         <div className="flex flex-wrap items-center gap-3 border-b border-border/60 px-4 py-3">
           <select
-            className="min-h-9 rounded-xl border-2 border-border px-2 text-sm font-bold"
+            className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold"
             value={logFilter}
             onChange={(e) => setLogFilter(e.target.value)}
           >
@@ -561,11 +593,11 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <option value="failed">Thất bại</option>
             <option value="locked">Bị khóa</option>
           </select>
-          <Button variant="secondary" className="!min-h-9 !px-3 !text-xs" onClick={() => void load()}>
-            🔄 Làm mới
+          <Button variant="secondary" onClick={() => void load()}>
+            Làm mới
           </Button>
-          <Button variant="ghost" className="!min-h-9 !px-3 !text-xs text-muted" onClick={() => void purgeLogs()}>
-            🗑 Xóa thủ công
+          <Button variant="ghost" className="text-muted" onClick={() => void purgeLogs()}>
+            Xóa nhật ký cũ
           </Button>
           {logSummary && (
             <span className="text-xs text-muted">Purged: {new Date(logSummary.purgedAt).toLocaleString('vi-VN')}</span>
@@ -607,13 +639,13 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       <div className="ui-card overflow-hidden">
         {sectionHeader('Tài khoản')}
         <div className="flex flex-wrap items-center gap-2 border-b border-border px-4 pb-3">
-          <p className="text-xs font-bold uppercase text-muted">Lọc role:</p>
-          <select className="min-h-9 rounded-xl border-2 border-border px-2 text-sm font-bold" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
+          <p className="text-xs font-bold uppercase text-muted">Lọc theo vai trò:</p>
+          <select className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
             <option value="">Tất cả</option>
-            <option value="student">student</option>
-            <option value="parent">parent</option>
-            <option value="teacher">teacher</option>
-            <option value="admin">admin</option>
+            <option value="student">Học sinh</option>
+            <option value="parent">Phụ huynh</option>
+            <option value="teacher">Giảng viên</option>
+            <option value="admin">Quản trị viên</option>
           </select>
         </div>
         <div className="overflow-x-auto">
@@ -633,19 +665,19 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                     <p className="font-bold">{u.nickname ?? '—'}</p>
                     <p className="text-xs text-muted">{u.email ?? u.id.slice(0, 10)}</p>
                   </td>
-                  <td className="px-4 py-3 font-bold capitalize">{u.role}</td>
+                  <td className="px-4 py-3 font-bold">{ROLE_LABELS[u.role] ?? u.role}</td>
                   <td className="px-4 py-3">
                     <span className={cn('rounded-full px-2 py-0.5 text-xs font-extrabold', u.active ? 'bg-mint-100 text-success' : 'bg-coral-100 text-danger')}>
-                      {u.active ? 'Active' : 'Off'}
+                      {u.active ? 'Đang hoạt động' : 'Đã vô hiệu hóa'}
                     </span>
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex flex-wrap justify-end gap-1">
-                      <Button variant="secondary" className="!min-h-9 !px-3 !text-xs" onClick={() => void toggleActive(u)}>
+                      <Button variant="secondary" onClick={() => void toggleActive(u)}>
                         {u.active ? 'Tắt' : 'Bật'}
                       </Button>
                       {u.active && (
-                        <Button variant="ghost" className="!min-h-9 !px-3 !text-xs text-danger" onClick={() => setDeleteTarget(u)}>
+                        <Button variant="ghost" className="text-danger" onClick={() => setDeleteTarget(u)}>
                           Xóa
                         </Button>
                       )}
@@ -713,7 +745,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                   <td className="px-4 py-3 font-mono text-xs text-muted">{s.ipAddress ?? '—'}</td>
                   <td className="px-4 py-3 text-xs text-muted">{new Date(s.expiresAt).toLocaleString('vi-VN')}</td>
                   <td className="px-4 py-3 text-right">
-                    <Button variant="secondary" className="!min-h-9 !px-3 !text-xs" onClick={() => setRevokeTarget(s)}>
+                    <Button variant="secondary" onClick={() => setRevokeTarget(s)}>
                       Thu hồi
                     </Button>
                   </td>
@@ -728,22 +760,22 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
 
   // Courses tab
   const coursesTab = (
-    <div className="grid gap-5 xl:grid-cols-[1fr_300px]">
+    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
       <div className="flex flex-col gap-3">
-        {sectionHeader('Khóa học', 'Quản lý catalog khóa học từ admin')}
+        {sectionHeader('Khóa học', 'Theo dõi trạng thái và chuyển sang không gian biên soạn khi cần chỉnh sửa')}
         {courses.map((c) => (
           <div key={c.id} className="ui-card p-4">
             <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
               <div>
                 <h2 className="font-display text-lg">{c.title}</h2>
-                <p className="text-xs text-muted">{c.id}{c.ageTrack ? ` · ${c.ageTrack}` : ''}{c.courseKey ? ` · ${c.courseKey}` : ''}{c.enrollmentCount != null ? ` · ${c.enrollmentCount} enroll` : ''}</p>
+                <p className="text-xs text-muted">{c.ageTrack === 'L2' ? '10–11 tuổi' : '8–9 tuổi'}{c.courseKey ? ` · Chặng ${c.courseKey}` : ''}{c.enrollmentCount != null ? ` · ${c.enrollmentCount} lượt tham gia` : ''}</p>
               </div>
               <div className="flex items-center gap-2">
                 <span className={cn('rounded-full px-3 py-0.5 text-xs font-extrabold', c.status === 'open' ? 'bg-mint-100 text-success' : 'bg-sun-100 text-warning')}>
-                  {c.status} · {c.questCount} bài
+                  {c.status === 'open' ? 'Đang mở' : 'Đang ẩn'} · {c.questCount} bài
                 </span>
-                <Button variant="secondary" className="!min-h-8 !px-3 !text-xs" onClick={() => void setCourseStatus(c.id, c.status === 'open' ? 'soon' : 'open')}>
-                  {c.status === 'open' ? '→ soon' : '→ open'}
+                <Button variant="secondary" onClick={() => void setCourseStatus(c.id, c.status === 'open' ? 'soon' : 'open')}>
+                  {c.status === 'open' ? 'Ẩn khỏi học sinh' : 'Mở cho học sinh'}
                 </Button>
               </div>
             </div>
@@ -751,35 +783,26 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               {c.quests.map((q) => (
                 <li key={q.id} className={cn('flex flex-wrap items-center justify-between gap-2 rounded-xl bg-brand-50/60 px-3 py-1.5', q.archived ? 'opacity-50' : '')}>
                   <span className="font-bold">#{q.order} {q.title}{q.archived ? ' [ẩn]' : ''}</span>
-                  <span className="max-w-[200px] truncate text-xs text-muted">{q.videoUrl ? `🎬 ${q.videoUrl}` : 'Chưa có video'}</span>
+                  <span className="max-w-[200px] truncate text-xs text-muted">{q.videoUrl ? 'Đã có video' : 'Chưa có video'}</span>
                 </li>
               ))}
             </ul>
           </div>
         ))}
       </div>
-      <form className="ui-card flex h-fit flex-col gap-3 p-5" onSubmit={(e) => void createCourse(e)}>
-        <h2 className="font-display text-xl">Tạo khóa (admin)</h2>
-        <input className="min-h-10 rounded-xl border-2 border-border px-3 font-mono text-sm" placeholder="id-slug (vd l1-k7-demo)" value={newCourse.id} onChange={(e) => setNewCourse((c) => ({ ...c, id: e.target.value.toLowerCase() }))} required pattern="[a-z0-9-]+" />
-        <input className="min-h-10 rounded-xl border-2 border-border px-3" placeholder="Tiêu đề" value={newCourse.title} onChange={(e) => setNewCourse((c) => ({ ...c, title: e.target.value }))} required />
-        <input className="min-h-10 rounded-xl border-2 border-border px-3" placeholder="Tên ngắn" value={newCourse.shortTitle} onChange={(e) => setNewCourse((c) => ({ ...c, shortTitle: e.target.value }))} required />
-        <input className="min-h-10 rounded-xl border-2 border-border px-3" placeholder="Tagline" value={newCourse.tagline} onChange={(e) => setNewCourse((c) => ({ ...c, tagline: e.target.value }))} required />
-        <textarea className="min-h-20 rounded-xl border-2 border-border px-3 py-2 text-sm" placeholder="Mô tả" value={newCourse.description} onChange={(e) => setNewCourse((c) => ({ ...c, description: e.target.value }))} required />
-        <div className="grid grid-cols-2 gap-2">
-          <select className="min-h-10 rounded-xl border-2 border-border px-2 text-sm" value={newCourse.ageTrack} onChange={(e) => setNewCourse((c) => ({ ...c, ageTrack: e.target.value as 'L1' | 'L2' }))}>
-            <option value="L1">L1 6–8 tuổi</option>
-            <option value="L2">L2 9–11 tuổi</option>
-          </select>
-          <select className="min-h-10 rounded-xl border-2 border-border px-2 text-sm" value={newCourse.courseKey} onChange={(e) => setNewCourse((c) => ({ ...c, courseKey: e.target.value as typeof newCourse.courseKey }))}>
-            {(['K1','K2','K3','K4','K5','K6'] as const).map((k) => <option key={k} value={k}>{k}</option>)}
-          </select>
+      <aside className="ui-card h-fit p-5 xl:sticky xl:top-5">
+        <div className="flex items-center gap-3">
+          <CmsCoursesIcon size={28} />
+          <h2 className="font-display text-xl text-text">Biên soạn khóa học</h2>
         </div>
-        <select className="min-h-10 rounded-xl border-2 border-border px-2 text-sm" value={newCourse.status} onChange={(e) => setNewCourse((c) => ({ ...c, status: e.target.value as 'open' | 'soon' }))}>
-          <option value="soon">soon (ẩn)</option>
-          <option value="open">open (hiển thị)</option>
-        </select>
-        <Button type="submit">Tạo khóa</Button>
-      </form>
+        <p className="mt-3 text-sm leading-relaxed text-muted">Admin và giảng viên dùng chung một quy trình hoàn chỉnh để tránh hai biểu mẫu khác nhau và thiếu dữ liệu.</p>
+        <ol className="mt-4 space-y-2 text-sm font-bold text-text">
+          <li className="rounded-xl bg-sky-50 px-3 py-2">1. Nhập thông tin khóa học</li>
+          <li className="rounded-xl bg-sky-50 px-3 py-2">2. Soạn đủ bốn trạm cho từng bài</li>
+          <li className="rounded-xl bg-sky-50 px-3 py-2">3. Kiểm tra rồi mở cho học sinh</li>
+        </ol>
+        <Button className="mt-5 w-full" onClick={() => navigate('/teacher/courses')}>Mở không gian biên soạn</Button>
+      </aside>
     </div>
   )
 
@@ -813,27 +836,27 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       </div>
       <form className="ui-card flex flex-col gap-4 p-5" onSubmit={(e) => void saveRouting(e)}>
         <div>
-          <h2 className="font-display text-xl">2. Model & phân tải (%)</h2>
-          <p className="text-sm text-muted"><strong>Weight %</strong> chia giữa các <code className="text-xs">modelId</code>.</p>
+          <h2 className="font-display text-xl">2. Mô hình AI và tỷ lệ sử dụng</h2>
+          <p className="text-sm text-muted">Chia tỷ lệ yêu cầu giữa các mô hình. Tổng tỷ lệ nên bằng 100%.</p>
         </div>
         <label className="flex flex-col gap-1 text-sm font-bold">
-          Base URL
+          Địa chỉ dịch vụ API
           <input className="min-h-11 rounded-xl border-2 border-border px-3 font-mono text-sm" value={routing.baseURL} onChange={(e) => setRouting((r) => ({ ...r, baseURL: e.target.value }))} placeholder="https://bapi.vidtory.net" />
         </label>
         {(['image', 'video'] as const).map((kind) => (
           <section key={kind} className="rounded-2xl border-2 border-border p-4">
-            <h3 className="font-display text-lg text-brand-600 capitalize">{kind === 'image' ? '🖼 Ảnh' : '🎬 Video'}</h3>
+            <h3 className="font-display text-lg text-brand-600">{kind === 'image' ? 'Tạo ảnh' : 'Tạo video'}</h3>
             <div className="mt-3 grid gap-3 sm:grid-cols-2">
               {kind === 'image' ? (
                 <>
-                  <label className="flex flex-col gap-1 text-sm font-bold">aspectRatio
+                  <label className="flex flex-col gap-1 text-sm font-bold">Tỷ lệ khung hình
                     <select className="min-h-11 rounded-xl border-2 border-border px-2" value={routing.image.aspectRatio} onChange={(e) => setRouting((r) => ({ ...r, image: { ...r.image, aspectRatio: e.target.value } }))}>
-                      <option value="IMAGE_ASPECT_RATIO_SQUARE">SQUARE 1:1</option>
-                      <option value="IMAGE_ASPECT_RATIO_LANDSCAPE">LANDSCAPE 16:9</option>
-                      <option value="IMAGE_ASPECT_RATIO_PORTRAIT">PORTRAIT 9:16</option>
+                      <option value="IMAGE_ASPECT_RATIO_SQUARE">Vuông 1:1</option>
+                      <option value="IMAGE_ASPECT_RATIO_LANDSCAPE">Ngang 16:9</option>
+                      <option value="IMAGE_ASPECT_RATIO_PORTRAIT">Dọc 9:16</option>
                     </select>
                   </label>
-                  <label className="flex flex-col gap-1 text-sm font-bold">resolution
+                  <label className="flex flex-col gap-1 text-sm font-bold">Độ phân giải
                     <select className="min-h-11 rounded-xl border-2 border-border px-2" value={routing.image.resolution} onChange={(e) => setRouting((r) => ({ ...r, image: { ...r.image, resolution: e.target.value } }))}>
                       <option value="1K">1K</option><option value="2K">2K</option><option value="4K">4K</option>
                     </select>
@@ -841,13 +864,13 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                 </>
               ) : (
                 <>
-                  <label className="flex flex-col gap-1 text-sm font-bold">aspectRatio
+                  <label className="flex flex-col gap-1 text-sm font-bold">Tỷ lệ khung hình
                     <select className="min-h-11 rounded-xl border-2 border-border px-2" value={routing.video.aspectRatio} onChange={(e) => setRouting((r) => ({ ...r, video: { ...r.video, aspectRatio: e.target.value } }))}>
-                      <option value="VIDEO_ASPECT_RATIO_LANDSCAPE">LANDSCAPE 16:9</option>
-                      <option value="VIDEO_ASPECT_RATIO_PORTRAIT">PORTRAIT 9:16</option>
+                      <option value="VIDEO_ASPECT_RATIO_LANDSCAPE">Ngang 16:9</option>
+                      <option value="VIDEO_ASPECT_RATIO_PORTRAIT">Dọc 9:16</option>
                     </select>
                   </label>
-                  <label className="flex flex-col gap-1 text-sm font-bold">duration (giây)
+                  <label className="flex flex-col gap-1 text-sm font-bold">Thời lượng (giây)
                     <input type="number" min={1} max={30} className="min-h-11 rounded-xl border-2 border-border px-2" value={routing.video.duration} onChange={(e) => setRouting((r) => ({ ...r, video: { ...r.video, duration: Number(e.target.value) || 6 } }))} />
                   </label>
                 </>
@@ -856,18 +879,18 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <div className="mt-3 flex flex-col gap-2">
               {routing[kind].models.map((m, i) => (
                 <div key={`${kind}-${i}`} className="grid gap-2 rounded-xl bg-brand-50/60 p-2 sm:grid-cols-[1fr_1fr_80px_70px_auto]">
-                  <input className="min-h-10 rounded-lg border border-border px-2 font-mono text-xs" placeholder="modelId" value={m.modelId} onChange={(e) => updateModel(kind, i, { modelId: e.target.value })} />
-                  <input className="min-h-10 rounded-lg border border-border px-2 text-sm" placeholder="Nhãn" value={m.label ?? ''} onChange={(e) => updateModel(kind, i, { label: e.target.value })} />
-                  <input type="number" min={0} className="min-h-10 rounded-lg border border-border px-2 text-sm" title="Weight" value={m.weight} onChange={(e) => updateModel(kind, i, { weight: Number(e.target.value) })} />
+                  <input className="min-h-11 rounded-lg border border-border px-3 font-mono text-xs" aria-label={`Mã mô hình ${i + 1}`} placeholder="Mã mô hình" value={m.modelId} onChange={(e) => updateModel(kind, i, { modelId: e.target.value })} />
+                  <input className="min-h-11 rounded-lg border border-border px-3 text-sm" aria-label={`Tên hiển thị mô hình ${i + 1}`} placeholder="Tên hiển thị" value={m.label ?? ''} onChange={(e) => updateModel(kind, i, { label: e.target.value })} />
+                  <input type="number" min={0} max={100} className="min-h-11 rounded-lg border border-border px-3 text-sm" aria-label={`Tỷ lệ sử dụng mô hình ${i + 1}`} value={m.weight} onChange={(e) => updateModel(kind, i, { weight: Number(e.target.value) })} />
                   <span className="flex items-center justify-center text-xs font-extrabold text-brand-600">{m.percent != null ? `${m.percent}%` : '—'}</span>
-                  <Button type="button" variant="ghost" className="!min-h-10 !px-2 !text-xs" onClick={() => removeModel(kind, i)}>Xóa</Button>
+                  <Button type="button" variant="ghost" onClick={() => removeModel(kind, i)}>Xóa</Button>
                 </div>
               ))}
-              <Button type="button" variant="secondary" onClick={() => addModel(kind)}>+ Model {kind === 'image' ? 'ảnh' : 'video'}</Button>
+              <Button type="button" variant="secondary" onClick={() => addModel(kind)}>Thêm mô hình {kind === 'image' ? 'ảnh' : 'video'}</Button>
             </div>
           </section>
         ))}
-        <Button type="submit">Lưu phân tải model</Button>
+        <Button type="submit">Lưu cấu hình mô hình</Button>
       </form>
     </div>
   )
@@ -894,8 +917,8 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">CMS · Quản trị</p>
           <h1 className="font-display text-2xl text-text">
             {tab === 'system' ? 'Hệ thống & tài khoản'
-              : tab === 'analytics' ? 'Analytics'
-              : tab === 'logs' ? 'Login Logs'
+              : tab === 'analytics' ? 'Phân tích hoạt động'
+              : tab === 'logs' ? 'Nhật ký đăng nhập'
               : tab === 'ai' ? 'AI Vidtory'
               : tab === 'users' ? 'Tài khoản'
               : tab === 'sessions' ? 'Phiên đăng nhập'
