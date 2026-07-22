@@ -2,11 +2,15 @@ import { useCallback, useEffect, useState } from 'react'
 import { Bell } from 'lucide-react'
 import { api, type NotificationRow } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
+import { enablePushNotifications, listenForForegroundPush } from '@/shared/lib/firebase-client'
 
 export function NotificationBell() {
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState<NotificationRow[]>([])
   const [unread, setUnread] = useState(0)
+  const [pushEnabled, setPushEnabled] = useState(
+    () => typeof Notification !== 'undefined' && Notification.permission === 'granted',
+  )
 
   const load = useCallback(async () => {
     try {
@@ -23,8 +27,21 @@ export function NotificationBell() {
 
   useEffect(() => {
     void load()
-    const t = window.setInterval(() => void load(), 45_000)
-    return () => window.clearInterval(t)
+    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+      void enablePushNotifications().then(setPushEnabled).catch(() => setPushEnabled(false))
+    }
+    const refreshVisible = () => {
+      if (document.visibilityState === 'visible') void load()
+    }
+    document.addEventListener('visibilitychange', refreshVisible)
+    const t = window.setInterval(refreshVisible, 5 * 60_000)
+    let unsubscribe: () => void = () => undefined
+    void listenForForegroundPush(load).then((stop) => { unsubscribe = stop })
+    return () => {
+      document.removeEventListener('visibilitychange', refreshVisible)
+      window.clearInterval(t)
+      unsubscribe()
+    }
   }, [load])
 
   async function markAll() {
@@ -79,6 +96,17 @@ export function NotificationBell() {
           <div className="absolute right-0 z-50 mt-2 w-[min(100vw-2rem,22rem)] overflow-hidden rounded-2xl border border-border bg-white shadow-clay">
             <div className="flex items-center justify-between border-b border-border px-3 py-2">
               <p className="text-sm font-extrabold">Thông báo</p>
+              {!pushEnabled && typeof Notification !== 'undefined' && Notification.permission !== 'denied' && (
+                <button
+                  type="button"
+                  className="text-xs font-bold text-brand-500 hover:underline"
+                  onClick={() => void enablePushNotifications()
+                    .then(setPushEnabled)
+                    .catch(() => setPushEnabled(false))}
+                >
+                  Bật thông báo
+                </button>
+              )}
               {unread > 0 && (
                 <button
                   type="button"

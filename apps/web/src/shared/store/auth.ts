@@ -1,5 +1,10 @@
 import { create } from 'zustand'
 import { api, type User } from '@/shared/lib/api'
+import { disconnectFirebaseSession } from '@/shared/lib/firebase-client'
+
+async function disconnectFirebase(): Promise<void> {
+  await disconnectFirebaseSession().catch(() => undefined)
+}
 
 type AuthState = {
   user: User | null
@@ -60,6 +65,7 @@ export const useAuth = create<AuthState>((set) => ({
 
   enterAsChild: async (childId, pin) => {
     set({ error: null })
+    await disconnectFirebase()
     const { user } = await api<{ user: User }>(
       `/api/parent/children/${childId}/enter`,
       {
@@ -116,6 +122,7 @@ export const useAuth = create<AuthState>((set) => ({
 
   logout: async () => {
     try {
+      await disconnectFirebase()
       await api('/api/auth/logout', { method: 'POST' })
     } finally {
       set({ user: null })
