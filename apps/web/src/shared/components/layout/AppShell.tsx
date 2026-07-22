@@ -1,18 +1,8 @@
-import { NavLink, Outlet } from 'react-router-dom'
 import { useState } from 'react'
-import { useAuth } from '@/shared/store/auth'
-import { cn } from '@/shared/lib/cn'
-import { BrandLogo } from '@/shared/components/ui/BrandLogo'
+import { NavLink, Outlet } from 'react-router-dom'
+
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
 import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
-import {
-  NavBackpackIcon,
-  NavBadgeIcon,
-  NavHomeIcon,
-  NavLeaderboardIcon,
-  NavProfileIcon,
-  NavWorldIcon,
-} from '@/shared/components/icons/KidNavIcons'
 import {
   CmsAiIcon,
   CmsAnalyticsIcon,
@@ -24,6 +14,33 @@ import {
   CmsSessionsIcon,
   CmsUsersIcon,
 } from '@/shared/components/icons/CmsIcons'
+import {
+  NavBackpackIcon,
+  NavBadgeIcon,
+  NavHomeIcon,
+  NavLeaderboardIcon,
+  NavProfileIcon,
+  NavWorldIcon,
+} from '@/shared/components/icons/KidNavIcons'
+import {
+  ParentApprovalIcon,
+  ParentDashboardIcon,
+  ParentKidsIcon,
+  ParentPlanIcon,
+  ParentProfileIcon,
+} from '@/shared/components/icons/ParentIcons'
+import { BrandLogo } from '@/shared/components/ui/BrandLogo'
+import { cn } from '@/shared/lib/cn'
+import { useAuth } from '@/shared/store/auth'
+
+type NavIcon = React.ComponentType<{ size?: number; className?: string }>
+
+type RoleNavItem = {
+  to: string
+  label: string
+  icon: NavIcon
+  end?: boolean
+}
 
 const studentNav = [
   { to: '/home', label: 'Nhà', icon: NavHomeIcon },
@@ -31,120 +48,112 @@ const studentNav = [
   { to: '/leaderboard', label: 'Tiến bộ', icon: NavLeaderboardIcon },
   { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon },
   { to: '/backpack', label: 'Ba lô', icon: NavBackpackIcon },
-  { to: '/profile', label: 'Tôi', icon: NavProfileIcon },
+  { to: '/profile', label: 'Hồ sơ', icon: NavProfileIcon },
 ]
 
-/**
- * AdultChrome — top header + centered max-width content.
- * Used for parent role (less dense, needs max-w for reading comfort).
- */
+function RoleNavigation({
+  nav,
+  mobile = false,
+}: {
+  nav: RoleNavItem[]
+  mobile?: boolean
+}) {
+  return (
+    <nav
+      className={mobile ? 'role-mobile-nav' : 'role-nav'}
+      aria-label="Điều hướng khu vực"
+    >
+      {nav.map(({ to, label, icon: Icon, end }) => (
+        <NavLink
+          key={to}
+          to={to}
+          end={end}
+          className={({ isActive }) =>
+            cn('role-nav-link', mobile && 'role-nav-link-mobile', isActive && 'role-nav-link-active')
+          }
+        >
+          <span className="role-nav-icon" aria-hidden="true">
+            <Icon size={mobile ? 23 : 26} />
+          </span>
+          <span>{label}</span>
+        </NavLink>
+      ))}
+    </nav>
+  )
+}
+
 function AdultChrome({
   children,
   nav,
   brandTo,
 }: {
   children?: React.ReactNode
-  nav: Array<{ to: string; label: string; end?: boolean }>
+  nav: RoleNavItem[]
   brandTo: string
 }) {
   return (
-    <div className="min-h-dvh safe-pt">
-      <header className="sticky top-0 z-20 border-b border-border/80 bg-white/90 px-3 py-3 backdrop-blur sm:px-4">
-        <div className="mx-auto flex max-w-5xl items-center justify-between gap-2">
-          <NavLink to={brandTo} className="min-w-0 shrink" aria-label="Trang chính">
+    <div className="role-shell role-tone-parent min-h-dvh lg:pl-60">
+      <aside className="role-rail fixed inset-y-0 left-0 z-30 hidden w-60 flex-col lg:flex">
+        <div className="role-brand">
+          <NavLink to={brandTo} aria-label="Trang chính phụ huynh">
+            <BrandLogo size="md" />
+          </NavLink>
+          <p>Góc phụ huynh</p>
+        </div>
+        <RoleNavigation nav={nav} />
+      </aside>
+
+      <div className="role-mobile-chrome lg:hidden">
+        <header className="role-mobile-header">
+          <NavLink to={brandTo} aria-label="Trang chính phụ huynh">
             <BrandLogo size="sm" />
           </NavLink>
-          <nav className="flex max-w-[70%] flex-wrap justify-end gap-1 sm:gap-2">
-            {nav.map((item) => (
-              <NavLink
-                key={item.to}
-                to={item.to}
-                end={item.end}
-                className={({ isActive }) =>
-                  cn(
-                    'ui-btn ui-btn-ghost min-h-10 px-2 text-xs sm:px-3 sm:text-sm',
-                    isActive && 'bg-brand-50 text-brand-600',
-                  )
-                }
-              >
-                {item.label}
-              </NavLink>
-            ))}
-          </nav>
-        </div>
-      </header>
-      <main className="page-enter mx-auto max-w-5xl px-3 py-5 sm:px-4 sm:py-6">
+          <span>Phụ huynh</span>
+        </header>
+        <RoleNavigation nav={nav} mobile />
+      </div>
+
+      <main className="page-enter mx-auto max-w-6xl px-3 py-5 sm:px-5 sm:py-6">
         {children ?? <Outlet />}
       </main>
     </div>
   )
 }
 
-/**
- * CmsShell — full-width CMS layout.
- * Left sidebar fixed, content uses all remaining width.
- * Used for teacher + admin roles (dense, data-heavy).
- */
 function CmsShell({
   nav,
   brandTo,
-  accentClass = 'text-brand-600',
-  activeBg = 'bg-brand-50',
+  roleLabel,
+  tone,
 }: {
-  nav: Array<{
-    to: string
-    label: string
-    icon?: React.ComponentType<{ size?: number }>
-    end?: boolean
-  }>
+  nav: RoleNavItem[]
   brandTo: string
-  accentClass?: string
-  activeBg?: string
+  roleLabel: string
+  tone: 'teacher' | 'admin'
 }) {
   return (
-    <div className="flex min-h-dvh">
-      {/* Sidebar */}
-      <aside
-        className="sticky top-0 hidden h-dvh w-52 shrink-0 flex-col border-r border-border/60 bg-white/95 shadow-soft md:flex"
-        style={{ zIndex: 30 }}
-      >
-        <div className="flex h-14 items-center border-b border-border/40 px-4">
-          <NavLink to={brandTo} aria-label="Trang chủ CMS">
-            <BrandLogo size="sm" />
+    <div className={`role-shell role-tone-${tone} min-h-dvh md:pl-60`}>
+      <aside className="role-rail fixed inset-y-0 left-0 z-30 hidden w-60 flex-col md:flex">
+        <div className="role-brand">
+          <NavLink to={brandTo} aria-label={`Trang chính ${roleLabel}`}>
+            <BrandLogo size="md" />
           </NavLink>
+          <p>{roleLabel}</p>
         </div>
-        <nav className="flex flex-1 flex-col gap-0.5 overflow-y-auto p-2">
-          {nav.map((item) => (
-            <NavLink
-              key={item.to}
-              to={item.to}
-              end={item.end}
-              className={({ isActive }) =>
-                cn(
-                  'flex items-center gap-2.5 rounded-xl px-3 py-2.5 text-sm font-bold transition-colors',
-                  isActive
-                    ? `${activeBg} ${accentClass}`
-                    : 'text-muted hover:bg-brand-50/60 hover:text-text',
-                )
-              }
-            >
-              {item.icon && <item.icon size={20} />}
-              {item.label}
-            </NavLink>
-          ))}
-        </nav>
+        <RoleNavigation nav={nav} />
       </aside>
 
-      {/* Top bar mobile */}
-      <div className="fixed left-0 right-0 top-0 z-20 flex h-12 items-center justify-between border-b border-border/60 bg-white/95 px-4 backdrop-blur md:hidden">
-        <NavLink to={brandTo} aria-label="Trang chủ CMS">
-          <BrandLogo size="sm" />
-        </NavLink>
-        <span className="text-xs font-extrabold uppercase tracking-wide text-muted">CMS</span>
+      <div className="role-mobile-chrome md:hidden">
+        <header className="role-mobile-header">
+          <NavLink to={brandTo} aria-label={`Trang chính ${roleLabel}`}>
+            <BrandLogo size="sm" />
+          </NavLink>
+          <span>{roleLabel}</span>
+        </header>
+        <RoleNavigation nav={nav} mobile />
       </div>
 
-      {/* Main content — full width */}
-      <main className="page-enter min-w-0 flex-1 px-4 py-5 pt-16 md:pt-5">
+      <main className="page-enter min-w-0 px-3 py-5 sm:px-5">
         <Outlet />
       </main>
     </div>
@@ -153,18 +162,19 @@ function CmsShell({
 
 export function AppShell() {
   const user = useAuth((s) => s.user)
+  const [gateOpen, setGateOpen] = useState(false)
 
   if (user?.role === 'parent') {
     return (
       <AdultChrome
         brandTo="/parent"
         nav={[
-          { to: '/kids', label: 'Cho con học' },
-          { to: '/parent', label: 'Tổng quan', end: true },
-          { to: '/parent/kids', label: 'Con' },
-          { to: '/parent/plan', label: 'Gói' },
-          { to: '/parent/approvals', label: 'Duyệt' },
-          { to: '/parent/profile', label: 'Hồ sơ' },
+          { to: '/kids', label: 'Cho con học', icon: NavWorldIcon },
+          { to: '/parent', label: 'Tổng quan', icon: ParentDashboardIcon, end: true },
+          { to: '/parent/kids', label: 'Con của tôi', icon: ParentKidsIcon },
+          { to: '/parent/plan', label: 'Gói học', icon: ParentPlanIcon },
+          { to: '/parent/approvals', label: 'Chờ duyệt', icon: ParentApprovalIcon },
+          { to: '/parent/profile', label: 'Hồ sơ', icon: ParentProfileIcon },
         ]}
       />
     )
@@ -174,10 +184,10 @@ export function AppShell() {
     return (
       <CmsShell
         brandTo="/teacher"
-        accentClass="text-sky-600"
-        activeBg="bg-sky-50"
+        roleLabel="Giáo viên"
+        tone="teacher"
         nav={[
-          { to: '/teacher', label: 'Lớp & Học sinh', icon: CmsClassesIcon, end: true },
+          { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon, end: true },
           { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
           { to: '/teacher/lectures', label: 'Bài giảng', icon: CmsLecturesIcon },
           { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
@@ -190,29 +200,27 @@ export function AppShell() {
     return (
       <CmsShell
         brandTo="/admin"
-        accentClass="text-brand-600"
-        activeBg="bg-brand-50"
+        roleLabel="Quản trị"
+        tone="admin"
         nav={[
           { to: '/admin', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
-          { to: '/admin/analytics', label: 'Analytics', icon: CmsAnalyticsIcon },
-          { to: '/admin/logs', label: 'Login Logs', icon: CmsLogsIcon },
+          { to: '/admin/analytics', label: 'Phân tích', icon: CmsAnalyticsIcon },
+          { to: '/admin/logs', label: 'Nhật ký', icon: CmsLogsIcon },
           { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
-          { to: '/admin/sessions', label: 'Phiên', icon: CmsSessionsIcon },
+          { to: '/admin/sessions', label: 'Phiên đăng nhập', icon: CmsSessionsIcon },
           { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
           { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
-          { to: '/teacher', label: '→ Xem CMS GV', icon: CmsClassesIcon },
+          { to: '/teacher', label: 'Giao diện giáo viên', icon: CmsClassesIcon },
         ]}
       />
     )
   }
 
-  // Student shell — desktop rail + mobile bottom nav
-  const [gateOpen, setGateOpen] = useState(false)
   const hasParent = Boolean(user?.parentId)
 
   return (
-    <div className="min-h-dvh pb-[calc(5.5rem+env(safe-area-inset-bottom,0px))] md:pb-8 md:pl-[5.5rem]">
-      <aside className="fixed left-0 top-0 z-30 hidden h-dvh w-[5.5rem] flex-col items-center gap-2 border-r border-border/70 bg-white/90 py-4 backdrop-blur md:flex">
+    <div className="min-h-dvh pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-8 md:pl-[6rem]">
+      <aside className="student-rail fixed left-0 top-0 z-30 hidden h-dvh w-24 flex-col items-center gap-1.5 border-r border-border/70 py-4 md:flex">
         <NavLink
           to="/home"
           className="mb-3 flex w-full items-center justify-center px-2"
@@ -226,33 +234,33 @@ export function AppShell() {
             to={to}
             className={({ isActive }) =>
               cn(
-                'flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-extrabold text-muted transition-all duration-150 hover:scale-105',
-                isActive && 'bg-brand-50 text-brand-600 shadow-sm',
+                'student-nav-link w-[4.5rem]',
+                isActive && 'student-nav-link-active',
               )
             }
           >
-            <Icon size={26} />
+            <span className="student-nav-icon" aria-hidden="true">
+              <Icon size={27} />
+            </span>
             {label}
           </NavLink>
         ))}
 
-        {/* Parent Gate button — desktop rail, only for students with a parent */}
         {hasParent && (
           <button
             type="button"
             onClick={() => setGateOpen(true)}
             aria-label="Gọi ba mẹ"
             title="Ba/Mẹ ơi!"
-            className="mt-auto flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-extrabold text-amber-500 transition-all hover:bg-amber-50 hover:scale-105"
+            className="mt-auto flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-extrabold text-amber-500 transition-all hover:scale-105 hover:bg-amber-50"
           >
-            <span className="text-2xl leading-none">🏡</span>
+            <span className="text-2xl leading-none" aria-hidden="true">🏡</span>
             <span>Ba/Mẹ</span>
           </button>
         )}
       </aside>
 
       <div className="fixed right-3 top-3 z-40 flex items-center gap-2 sm:right-4 md:right-6">
-        {/* Parent Gate button — mobile top-right, only for students with a parent */}
         {hasParent && (
           <button
             type="button"
@@ -260,18 +268,18 @@ export function AppShell() {
             aria-label="Gọi ba mẹ"
             className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-xl shadow-sm transition hover:bg-amber-100 md:hidden"
           >
-            🏡
+            <span aria-hidden="true">🏡</span>
           </button>
         )}
         <NotificationBell />
       </div>
 
-      <main className="page-enter mx-auto max-w-5xl px-3 py-4 sm:px-4 sm:py-5">
+      <main className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-6">
         <Outlet />
       </main>
 
       <nav
-        className="fixed inset-x-0 bottom-0 z-30 flex justify-around border-t border-border/80 bg-white/95 px-1 py-1.5 backdrop-blur safe-pb md:hidden"
+        className="student-bottom-nav fixed inset-x-0 bottom-0 z-30 flex justify-around px-1 py-1.5 safe-pb md:hidden"
         aria-label="Điều hướng chính"
       >
         {studentNav.map(({ to, label, icon: Icon }) => (
@@ -280,18 +288,19 @@ export function AppShell() {
             to={to}
             className={({ isActive }) =>
               cn(
-                'flex min-h-14 min-w-[3.5rem] flex-1 flex-col items-center justify-center gap-0.5 rounded-xl text-[10px] font-extrabold text-muted transition-all duration-150 xs:text-[11px]',
-                isActive && 'bg-brand-50 text-brand-600',
+                'student-nav-link min-h-[3.75rem] min-w-0 flex-1 gap-0 rounded-xl px-0.5 py-1 text-[11px]',
+                isActive && 'student-nav-link-active',
               )
             }
           >
-            <Icon size={24} aria-hidden />
+            <span className="student-nav-icon !h-8 !w-9 !rounded-xl" aria-hidden="true">
+              <Icon size={23} />
+            </span>
             {label}
           </NavLink>
         ))}
       </nav>
 
-      {/* Parent Gate Modal — child-to-parent handoff */}
       <ParentGateModal open={gateOpen} onClose={() => setGateOpen(false)} />
     </div>
   )

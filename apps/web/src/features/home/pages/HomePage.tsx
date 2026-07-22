@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Button } from '@/shared/components/ui/Button'
 import { api, type AchievementRow, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { courseCoverHint, designerAssets } from '@/shared/config/assets'
@@ -106,24 +105,24 @@ export function HomePage() {
           />
           <div className="min-w-0 flex-1">
             <p className="text-sm font-bold text-brand-500">
-              Xin chào, {user?.nickname}!
+              Chào {user?.nickname}, hôm nay con khỏe không?
             </p>
             <h1 className="font-display text-3xl leading-tight">
-              Sảnh sáng tạo AIkid
+              Mình cùng sáng tạo nhé!
             </h1>
             <p className="text-sm text-muted">
-              Cấp {user?.level} · {user?.xp} XP · {open.length} khóa đang mở
+              Cấp {user?.level} · {user?.xp} điểm sáng tạo · {open.length} hành trình đang mở
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <div className="rounded-2xl bg-sun-100 px-3 py-2 text-center shadow-soft">
-              <p className="text-xs font-bold text-warning">Chuỗi ngày 🔥</p>
+              <p className="text-sm font-bold text-warning">Ngày sáng tạo 🔥</p>
               <p className="font-display text-2xl text-text">{streak.current}</p>
-              <p className="text-[10px] text-muted">Kỷ lục {streak.longest}</p>
+              <p className="text-xs text-muted">Tốt nhất: {streak.longest} ngày</p>
             </div>
             {continueCourse && (
-              <Link to={`/course/${continueCourse.id}`}>
-                <Button>Tiếp tục học</Button>
+              <Link to={`/course/${continueCourse.id}`} className="ui-btn ui-btn-primary">
+                Sáng tạo tiếp
               </Link>
             )}
           </div>
@@ -136,7 +135,7 @@ export function HomePage() {
 
       <section className="ui-card p-4">
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-display text-2xl">Huy hiệu gần đây</h2>
+          <h2 className="font-display text-2xl">Điều con vừa làm được</h2>
           <Link
             to="/achievements"
             className="text-sm font-bold text-brand-500 hover:underline"
@@ -146,7 +145,7 @@ export function HomePage() {
         </div>
         {badges.length === 0 ? (
           <p className="text-sm text-muted">
-            Hoàn thành bài đầu tiên để mở huy hiệu đầu tiên nhé!
+            Hoàn thành thử thách đầu tiên để nhận một huy hiệu thật xinh nhé!
           </p>
         ) : (
           <div className="flex flex-wrap gap-3">
@@ -169,7 +168,7 @@ export function HomePage() {
 
       <section>
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <h2 className="font-display text-2xl">Lộ trình theo độ tuổi</h2>
+          <h2 className="font-display text-2xl">Chọn hành trình của con</h2>
           <div className="flex gap-1 rounded-2xl bg-brand-50 p-1">
             {(
               [
@@ -195,8 +194,8 @@ export function HomePage() {
           </div>
         </div>
         <p className="mb-3 text-sm text-muted">
-          L1 (6–8) và L2 (9–11) · K1→K6 bám sát folder courses · Giai đoạn ideate
-          (không AI) rồi produce (cùng AI).
+          Bắt đầu từ điều con thích. Mỗi hành trình đều có hướng dẫn từng bước,
+          trò chơi nhỏ và một sản phẩm do chính con tạo ra.
         </p>
         <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((c) => {
@@ -221,7 +220,7 @@ export function HomePage() {
                 <div className="p-3">
                   <div className="mb-1 flex flex-wrap gap-1">
                     <span className="rounded-full bg-brand-100 px-2 py-0.5 text-[10px] font-extrabold text-brand-600">
-                      {c.ageTrack ?? 'L1'} · {c.courseKey ?? ''}
+                      Chặng {c.courseKey ?? 'mới'}
                     </span>
                     <span className="rounded-full bg-mint-100 px-2 py-0.5 text-[10px] font-extrabold text-success">
                       {c.ageLabel}
@@ -237,7 +236,7 @@ export function HomePage() {
                   </h3>
                   <p className="line-clamp-2 text-xs text-muted">{c.tagline}</p>
                   <p className="mt-1 text-xs font-bold text-muted">
-                    {c.questCount} bài · {c.productLabel}
+                    {c.questCount} trạm · Làm ra: {c.productLabel}
                   </p>
                 </div>
               </Link>

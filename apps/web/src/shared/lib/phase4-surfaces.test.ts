@@ -64,6 +64,28 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(bell).toContain('/api/notifications/read-all')
   })
 
+  it('Progress page celebrates growth without exposing a child leaderboard', () => {
+    const progress = read('features/leaderboard/pages/LeaderboardPage.tsx')
+    expect(progress).toContain('/api/gamification/class-celebration')
+    expect(progress).toContain('Bước tiếp theo của con')
+    expect(progress).toContain('Khu vườn chung')
+    expect(progress).toContain('designerAssets.chrome.adventureMap')
+    expect(progress).not.toContain('Chỉ ghi nhận nỗ lực, không so sánh bạn nào')
+    expect(progress).not.toContain('progress-spark')
+    expect(progress).not.toContain('lucide-react')
+    expect(progress).not.toContain('xếp hạng')
+    expect(progress).not.toContain('nickname')
+  })
+
+  it('role shells share icon navigation on desktop and mobile', () => {
+    const shell = read('shared/components/layout/AppShell.tsx')
+    expect(shell).toContain('ParentDashboardIcon')
+    expect(shell).toContain('ParentKidsIcon')
+    expect(shell).toContain('role-nav-link')
+    expect(shell).toContain('role-nav-icon')
+    expect(shell).toContain('role-mobile-nav')
+  })
+
   it('ProfilePage surfaces streak + achievements APIs', () => {
     const src = read('features/profile/pages/ProfilePage.tsx')
     expect(src).toContain('/api/gamification/streak')
