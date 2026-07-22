@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { cn } from '@/shared/lib/cn'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
@@ -31,59 +31,74 @@ export function PinPadModal({
   closeLabel = 'Hủy',
 }: PinPadModalProps) {
   const { toasts, showToast, dismissToast } = useToast()
+  const inputRef = useRef<HTMLInputElement>(null)
 
+  // Tự động focus vào ô nhập PIN khi mở modal
   useEffect(() => {
     if (!isOpen) return
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (busy) return
-      
-      if (/^\d$/.test(e.key)) {
-        e.preventDefault()
-        if (pin.length < 6) {
-          const next = pin + e.key
-          setPin(next)
-          if (next.length === 6) {
-            onSubmit(next)
-          }
-        }
-      } else if (e.key === 'Backspace') {
-        e.preventDefault()
-        setPin(pin.slice(0, -1))
-      } else if (e.key === 'Enter' && pin.length === 6) {
-        e.preventDefault()
-        onSubmit(pin)
-      } else if (e.key === 'Escape') {
+    const timer = setTimeout(() => {
+      inputRef.current?.focus()
+    }, 50)
+    return () => clearTimeout(timer)
+  }, [isOpen])
+
+  // Xử lý phím Escape để đóng modal từ bàn phím
+  useEffect(() => {
+    if (!isOpen) return
+    const handleGlobalKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
         e.preventDefault()
         onClose()
-      } else if (
-        e.key.length === 1 && 
-        !e.ctrlKey && 
-        !e.altKey && 
-        !e.metaKey && 
-        /^[a-zA-Z]$/.test(e.key)
-      ) {
-        e.preventDefault()
-        showToast('Chỉ được phép nhập số!', 'error')
       }
     }
-    
-    window.addEventListener('keydown', handleKeyDown)
-    return () => window.removeEventListener('keydown', handleKeyDown)
-  }, [isOpen, busy, pin, setPin, onSubmit, onClose, showToast])
+    window.addEventListener('keydown', handleGlobalKeyDown)
+    return () => window.removeEventListener('keydown', handleGlobalKeyDown)
+  }, [isOpen, onClose])
 
   if (!isOpen) return null
 
+  // Xử lý thay đổi dữ liệu từ bàn phím thực, bàn phím ảo di động hoặc paste (Ctrl+V)
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (busy) return
+    const rawVal = e.target.value
+    const digitsOnly = rawVal.replace(/\D/g, '').slice(0, 6)
+
+    // Nếu người dùng gõ chữ cái / ký tự đặc biệt, cảnh báo nhẹ cho người dùng
+    if (/\D/.test(rawVal)) {
+      showToast('Chỉ được phép nhập số!', 'error')
+    }
+
+    setPin(digitsOnly)
+    if (digitsOnly.length === 6 && digitsOnly !== pin) {
+      onSubmit(digitsOnly)
+    }
+  }
+
+  // Xử lý nhấn Enter để submit mã PIN
+  const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && pin.length === 6 && !busy) {
+      e.preventDefault()
+      onSubmit(pin)
+    }
+  }
+
+  // Xử lý bấm các phím số trên bàn phím ảo (UI Keypad)
   function onPinDigit(d: string) {
     if (busy || pin.length >= 6) return
     const next = (pin + d).slice(0, 6)
     setPin(next)
+    inputRef.current?.focus()
     if (next.length === 6) {
       onSubmit(next)
     }
   }
 
+  // Xử lý phím Xóa trên bàn phím ảo (UI Keypad)
   function onPinBack() {
-    setPin(pin.slice(0, -1))
+    if (busy) return
+    const next = pin.slice(0, -1)
+    setPin(next)
+    inputRef.current?.focus()
   }
 
   return (
@@ -117,25 +132,49 @@ export function PinPadModal({
           </p>
         )}
 
+        {/* Khung hiển thị ô nhập PIN kết hợp HTML input ẩn để nhận phím/bàn phím di động/paste */}
         <div
-          className="mb-4 flex justify-center gap-2"
+          className="relative mb-4 flex justify-center gap-2 cursor-pointer"
+          onClick={() => inputRef.current?.focus()}
           aria-label="Mã PIN đã nhập"
         >
-          {Array.from({ length: 6 }).map((_, i) => (
-            <span
-              key={i}
-              className={cn(
-                'flex h-11 w-9 items-center justify-center rounded-xl border-2 text-lg font-extrabold',
-                pin.length > i
-                  ? 'border-brand-500 bg-brand-50 text-brand-600'
-                  : 'border-border bg-white text-muted',
-              )}
-            >
-              {pin.length > i ? '•' : ''}
-            </span>
-          ))}
+          <input
+            ref={inputRef}
+            type="text"
+            inputMode="numeric"
+            pattern="[0-9]*"
+            maxLength={6}
+            value={pin}
+            onChange={handleInputChange}
+            onKeyDown={handleInputKeyDown}
+            className="absolute inset-0 h-full w-full opacity-0 cursor-pointer z-10"
+            autoComplete="one-time-code"
+            disabled={busy}
+            aria-label="Nhập mã PIN 6 số"
+          />
+
+          {Array.from({ length: 6 }).map((_, i) => {
+            const isFilled = pin.length > i
+            const isCurrentIndex = pin.length === i || (pin.length === 6 && i === 5)
+            return (
+              <span
+                key={i}
+                className={cn(
+                  'flex h-11 w-9 items-center justify-center rounded-xl border-2 text-lg font-extrabold transition-all select-none',
+                  isFilled
+                    ? 'border-brand-500 bg-brand-50 text-brand-600'
+                    : isCurrentIndex
+                      ? 'border-brand-400 bg-white ring-2 ring-brand-300 ring-offset-1'
+                      : 'border-border bg-white text-muted',
+                )}
+              >
+                {isFilled ? '•' : ''}
+              </span>
+            )
+          })}
         </div>
 
+        {/* Bàn phím số trên giao diện (Visual Keypad) */}
         <div className="grid grid-cols-3 gap-2">
           {['1', '2', '3', '4', '5', '6', '7', '8', '9', 'del', '0', 'ok'].map(
             (key) => {
@@ -193,3 +232,4 @@ export function PinPadModal({
     </div>
   )
 }
+
