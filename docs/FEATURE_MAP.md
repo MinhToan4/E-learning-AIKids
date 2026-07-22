@@ -25,7 +25,7 @@ Internal inventory of **done** vs **in progress**, mapped to research sources (A
 | Phase 4 student FE | Streak, achievements page, notification bell, profile stats | web features |
 | Phase 6 polish | Skeletons, empty/error states, PageMotion, mobile safe-area, clay badges | shared UI + pages |
 | Phase 6 assets | Avatar catalog 12+, course cover hints, designer Soft Clay chrome | `assets.ts` / `avatars.ts` |
-| Phase 6 StoryMee seams | Account map, cookie domain, API alias, health `seams` | `shared/seams/storymee-compat` |
+| Phase 6 StoryMee seams | Account map, cookie domain, API alias; health công khai tối giản | `shared/seams/storymee-compat` |
 | Safety | Nickname + free-text PII filter | domain safety |
 | Ops | Docker compose + Redis, env-only secrets | `docker-compose.yml` |
 | Agent skills | UI (Hallmark / UI-UX Pro Max), RBAC, domain, eng workflow | `.agents/skills/` |

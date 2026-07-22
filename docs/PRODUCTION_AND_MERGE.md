@@ -48,7 +48,7 @@ This monorepo is **merge-ready**, not a full multi-service rewrite.
 | `toStoryMeeAccount(user)` | Map AI Kids public user → StoryMee-shaped account DTO |
 | `buildSessionCookieOptions(...)` | Cookie flags + optional `COOKIE_DOMAIN` for SSO |
 | `rewriteAliasToPrimaryApi(url, prefix)` | `/api/aikids/*` → `/api/*` path math |
-| `seamHealthMeta(...)` | Exposed on `GET /api/health` → `seams` |
+| `seamHealthMeta(...)` | Metadata nội bộ dùng khi tích hợp; không công khai qua health |
 
 ### Env knobs
 
