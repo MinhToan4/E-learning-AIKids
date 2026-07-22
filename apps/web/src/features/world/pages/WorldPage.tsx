@@ -170,22 +170,6 @@ export function WorldPage() {
             })}
           </ol>
         </div>
-      )}
-
-      <div className="flex flex-wrap gap-2">
-        {(
-          [
-            ['course-comic', 'Truyện tranh'],
-            ['course-safety', 'An toàn'],
-            ['course-voice', 'Giọng kể'],
-            ['course-robot', 'Robot'],
-          ] as const
-        ).map(([id, label]) => (
-          <Link key={id} to={`/world/${id}`}>
-            <Button variant={courseId === id ? 'primary' : 'secondary'}>{label}</Button>
-          </Link>
-        ))}
-      </div>
-    </div>
+      )}    </div>
   )
 }

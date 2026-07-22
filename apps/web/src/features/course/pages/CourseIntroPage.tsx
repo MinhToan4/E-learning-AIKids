@@ -263,13 +263,11 @@ export function CourseIntroPage() {
 
       <div className="flex flex-wrap gap-3">
         <Button onClick={() => void startCourse()} disabled={busy}>
-          {busy ? 'Đang mở…' : 'Bắt đầu / Tiếp tục bản đồ'}
-        </Button>
-        <Button
-          variant="secondary"
-          onClick={() => navigate(`/world/${course.id}`)}
-        >
-          Xem bản đồ
+          {busy
+            ? 'Đang mở…'
+            : progress?.completedCount
+              ? 'Tiếp tục học'
+              : 'Bắt đầu học'}
         </Button>
       </div>
 
