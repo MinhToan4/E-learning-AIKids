@@ -4,6 +4,7 @@ import {
   buildVideoGenRefs,
   buildVidtoryUploadMetadata,
   isCourseCreatedAsset,
+  isCreativeWorkshopAsset,
   isUsableImageReference,
   parseCourseSketchDataUrl,
 } from './media-refs.js'
@@ -98,5 +99,16 @@ describe('media-refs', () => {
     const bigEnough = `data:image/png;base64,${pad}`
     const ok = parseCourseSketchDataUrl(bigEnough)
     expect(ok.ok).toBe(true)
+  })
+
+  it('allows only explicit workshop creations to continue outside a lesson', () => {
+    expect(
+      isCreativeWorkshopAsset({
+        purpose: 'creative_workshop',
+        creativeKind: 'character',
+      }),
+    ).toBe(true)
+    expect(isCreativeWorkshopAsset({ purpose: 'student_upload' })).toBe(false)
+    expect(isCreativeWorkshopAsset({})).toBe(false)
   })
 })

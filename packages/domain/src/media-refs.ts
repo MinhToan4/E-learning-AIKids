@@ -103,6 +103,20 @@ export const BLOCKED_REF_PURPOSES = [
 ] as const
 
 /**
+ * Workshop creations may be used as references in later creative steps.
+ * An explicit marker keeps camera-roll/free-upload content out of child AI flows.
+ */
+export function isCreativeWorkshopAsset(meta?: Record<string, unknown> | null): boolean {
+  if (!meta || meta.purpose !== 'creative_workshop') return false
+  return (
+    meta.creativeKind === 'character' ||
+    meta.creativeKind === 'art' ||
+    meta.creativeKind === 'comic' ||
+    meta.creativeKind === 'video'
+  )
+}
+
+/**
  * Generative providers can read an absolute HTTP(S) URL or an inline image.
  * Relative UI assets are intentionally rejected: they are browser-local and
  * caused opaque provider failures when they escaped the reference picker.
