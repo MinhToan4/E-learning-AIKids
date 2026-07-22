@@ -378,7 +378,7 @@ export async function adminRoutes(app: FastifyInstance) {
         coverFrom: z.string().min(1).max(20).default('#6d5efc'),
         coverTo: z.string().min(1).max(20).default('#3dbfff'),
         accent: z.string().min(1).max(20).default('#6d5efc'),
-        ageLabel: z.string().min(1).max(20).default('6–8 tuổi'),
+        ageLabel: z.string().min(1).max(20).default('8–9 tuổi'),
         ageTrack: z.enum(['L1', 'L2']).default('L1'),
         courseKey: z
           .enum(['K1', 'K2', 'K3', 'K4', 'K5', 'K6'])

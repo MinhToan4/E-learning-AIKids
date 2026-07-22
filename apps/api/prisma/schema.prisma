@@ -216,7 +216,7 @@ model Course {
   accent          String
   coverImage      String?  @map("cover_image")
   ageLabel        String   @map("age_label")
-  /// L1 (6–8) | L2 (9–11) — curriculum track
+  /// L1 (8–9) | L2 (10–11) — curriculum track
   ageTrack        String   @default("L1") @map("age_track")
   /// K1…K6 within a track
   courseKey       String   @default("K1") @map("course_key")

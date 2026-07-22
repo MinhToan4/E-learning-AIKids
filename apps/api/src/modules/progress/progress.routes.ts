@@ -39,7 +39,18 @@ import {
 } from './practice-policy.js'
 
 const gameEvidenceSchema = z.object({
-  gameType: z.enum(['match', 'drag', 'spin', 'sort', 'order', 'detective', 'pick']),
+  gameType: z.enum([
+    'match',
+    'drag',
+    'spin',
+    'sort',
+    'order',
+    'detective',
+    'pick',
+    'combine',
+    'compare',
+    'place',
+  ]),
   choices: z.array(z.string().min(1).max(80)).max(8),
   attempts: z.number().int().min(1).max(100),
   durationMs: z.number().int().min(0).max(10 * 60 * 1000),
@@ -549,9 +560,11 @@ export async function progressRoutes(app: FastifyInstance) {
       }
       const label = buildCharacterLabel({ name, shapeId, vibeId })
       const traits = { shapeId, vibeId, ...(body.payload.traits as object) }
+      const refUrls = await resolveRefUrls(body.payload)
       const thumb = await generatePracticeImage(
         `nhân vật clay soft ${label}`,
         user.id,
+        { refUrls },
       )
       const asset = await prisma.asset.create({
         data: {
@@ -564,6 +577,8 @@ export async function progressRoutes(app: FastifyInstance) {
           metaJson: JSON.stringify({
             ...traits,
             generationMode: thumb.mode,
+            refUrls,
+            storageBackend: thumb.storageBackend ?? 'vidtory_cdn',
           }),
         },
       })

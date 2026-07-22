@@ -1,25 +1,26 @@
 /**
- * Integration tests: real Fastify app + real Postgres (Supabase or TEST_DATABASE_URL).
- * Loads apps/api/.env so local runs use the same DB as development.
+ * Integration tests: real Fastify app + an explicitly isolated TEST_DATABASE_URL.
+ * Never migrate, seed or mutate the application DATABASE_URL.
  */
 import { afterAll, beforeAll, describe, expect, it } from 'vitest'
 import { config as loadEnv } from 'dotenv'
 import { execSync } from 'node:child_process'
 import { dirname, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
+import { selectIsolatedTestDatabase } from './test-database-policy.js'
 
 const __dirname = dirname(fileURLToPath(import.meta.url))
 const apiRoot = resolve(__dirname, '../..')
 loadEnv({ path: resolve(apiRoot, '.env') })
 
-const databaseUrl = process.env.TEST_DATABASE_URL || process.env.DATABASE_URL
-if (!databaseUrl || databaseUrl.startsWith('file:')) {
-  throw new Error(
-    'Set DATABASE_URL in apps/api/.env to Supabase Postgres (see docs/SUPABASE.md)',
-  )
-}
+const applicationDatabaseUrl = process.env.DATABASE_URL
+const databaseUrl = selectIsolatedTestDatabase(
+  process.env.TEST_DATABASE_URL,
+  applicationDatabaseUrl,
+)
+const integrationEnabled = databaseUrl !== null
 
-process.env.DATABASE_URL = databaseUrl
+if (databaseUrl) process.env.DATABASE_URL = databaseUrl
 process.env.JWT_SECRET =
   process.env.JWT_SECRET || 'test-secret-aikids-creator-academy-32chars'
 process.env.NODE_ENV = 'test'
@@ -32,32 +33,36 @@ process.env.DEFAULT_CLASS_CODE = process.env.DEFAULT_CLASS_CODE || 'STAR-8'
 process.env.SEED_FORCE = process.env.SEED_FORCE || 'true'
 process.env.SEED_OVERWRITE_CONTENT = ''
 
-const testEnv = { ...process.env, DATABASE_URL: databaseUrl }
+const testEnv = databaseUrl
+  ? { ...process.env, DATABASE_URL: databaseUrl }
+  : process.env
 
-beforeAll(() => {
-  execSync('npx prisma db push --skip-generate', {
-    cwd: apiRoot,
-    env: testEnv,
-    stdio: 'pipe',
-  })
-  // Postgres CHECK constraints are not managed by Prisma — expand practice kinds
-  execSync('npx tsx prisma/run-fix-practice.ts', {
-    cwd: apiRoot,
-    env: testEnv,
-    stdio: 'pipe',
-  })
-  // Expand users.goal allowed values (K1–K6 onboarding)
-  execSync('npx tsx prisma/run-fix-goal-check.ts', {
-    cwd: apiRoot,
-    env: testEnv,
-    stdio: 'pipe',
-  })
-  execSync('npx tsx prisma/seed.ts', {
-    cwd: apiRoot,
-    env: testEnv,
-    stdio: 'pipe',
-  })
-}, 180_000)
+if (integrationEnabled) {
+  beforeAll(() => {
+    execSync('npx prisma db push --skip-generate', {
+      cwd: apiRoot,
+      env: testEnv,
+      stdio: 'pipe',
+    })
+    // Postgres CHECK constraints are not managed by Prisma — expand practice kinds
+    execSync('npx tsx prisma/run-fix-practice.ts', {
+      cwd: apiRoot,
+      env: testEnv,
+      stdio: 'pipe',
+    })
+    // Expand users.goal allowed values (K1–K6 onboarding)
+    execSync('npx tsx prisma/run-fix-goal-check.ts', {
+      cwd: apiRoot,
+      env: testEnv,
+      stdio: 'pipe',
+    })
+    execSync('npx tsx prisma/seed.ts', {
+      cwd: apiRoot,
+      env: testEnv,
+      stdio: 'pipe',
+    })
+  }, 180_000)
+}
 
 async function inject(
   app: Awaited<ReturnType<typeof import('../app.js').buildApp>>,
@@ -100,7 +105,9 @@ async function inject(
   }
 }
 
-describe('API integration (Postgres / Supabase)', () => {
+const describeIntegration = integrationEnabled ? describe : describe.skip
+
+describeIntegration('API integration (isolated Postgres)', () => {
   let app: Awaited<ReturnType<typeof import('../app.js').buildApp>>
 
   beforeAll(async () => {

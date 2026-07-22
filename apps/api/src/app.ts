@@ -21,6 +21,7 @@ import { notificationRoutes } from './modules/notification/notification.routes.j
 import { mediaRoutes } from './modules/media/media.routes.js'
 import { storageRoutes } from './modules/storage/storage.routes.js'
 import { realtimeRoutes } from './modules/realtime/realtime.routes.js'
+import { creativeRoutes } from './modules/creative/creative.routes.js'
 import {
   normalizeApiAliasPrefix,
   rewriteAliasToPrimaryApi,
@@ -100,6 +101,7 @@ export async function buildApp() {
     }
     if (
       routeOptions.url === '/api/progress/:questId/practice' ||
+      routeOptions.url === '/api/creative/create' ||
       routeOptions.url === '/api/media/promote' ||
       routeOptions.url === '/api/media/upload'
     ) {
@@ -245,6 +247,7 @@ export async function buildApp() {
   await app.register(mediaRoutes)
   await app.register(storageRoutes)
   await app.register(realtimeRoutes)
+  await app.register(creativeRoutes)
 
   /**
    * StoryMee gateway alias (optional).

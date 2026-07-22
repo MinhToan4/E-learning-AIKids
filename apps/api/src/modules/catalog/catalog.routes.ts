@@ -195,11 +195,11 @@ export async function courseRoutes(app: FastifyInstance) {
       courses: mapped,
       tracks: {
         L1: {
-          label: '6–8 tuổi',
+          label: '8–9 tuổi',
           count: mapped.filter((c) => c.ageTrack === 'L1').length,
         },
         L2: {
-          label: '9–11 tuổi',
+          label: '10–11 tuổi',
           count: mapped.filter((c) => c.ageTrack === 'L2').length,
         },
       },

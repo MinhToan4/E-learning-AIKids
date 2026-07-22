@@ -35,14 +35,43 @@ export const curriculumContent = [
           "content": "Vòng quay thế giới: kéo-thả 3 mảnh ghép (địa điểm + cảm giác + điều đặc biệt) để gợi ý ý tưởng",
           "objective": "Kích hoạt ý tưởng bằng lựa chọn ngẫu nhiên có kiểm soát",
           "duration": "5 phút",
-          "gameType": "spin",
+          "gameType": "combine",
           "gameConfig": {
             "cards": [
               "địa điểm",
               "cảm giác",
               "điều đặc biệt",
-              "kéo-thả 3 mảnh ghép (địa điểm",
-              "điều đặc biệt) để gợi ý ý tưởng"
+              "Mọi thế giới đều bắt đầu từ một câu hỏi",
+              "3 từ khoá + tên thế giới",
+              "Kích hoạt ý tưởng bằng lựa chọn ngẫu nhiên có kiểm soát"
+            ],
+            "groups": [
+              {
+                "label": "Địa điểm",
+                "options": [
+                  "Rừng phép thuật",
+                  "Đại dương",
+                  "Vũ trụ",
+                  "Vương quốc kẹo"
+                ]
+              },
+              {
+                "label": "Cảm giác",
+                "options": [
+                  "Vui",
+                  "Bí ẩn",
+                  "Yên bình"
+                ]
+              },
+              {
+                "label": "Điều đặc biệt",
+                "options": [
+                  "Cây phát sáng",
+                  "Đảo bay trên mây",
+                  "Cá biết hát",
+                  "Mưa kẹo cầu vồng"
+                ]
+              }
             ]
           }
         },
@@ -73,11 +102,44 @@ export const curriculumContent = [
           "content": "Bức tranh đoán ý: xem 2 mô tả, đoán mô tả nào giúp người khác hình dung rõ hơn",
           "objective": "Phân biệt mô tả cụ thể và mô tả còn mơ hồ",
           "duration": "5 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "xem 2 mô tả",
-              "đoán mô tả nào giúp người khác hình dung rõ hơn"
+              "đoán mô tả nào giúp người khác hình dung rõ hơn",
+              "xem 2 mô tả, đoán mô tả nào giúp người khác hình dung r…",
+              "Phân biệt mô tả cụ thể và mô tả còn mơ hồ",
+              "Vẽ nét đầu tiên (bằng tay hoặc bằng lời",
+              "1 bản phác thảo tay hoặc mô tả bằng lời về thế giới"
+            ],
+            "rounds": [
+              {
+                "prompt": "Mô tả nào giúp con hình dung khu rừng rõ hơn?",
+                "options": [
+                  "Một khu rừng đẹp",
+                  "Khu rừng nhỏ, tối, có cây phát sáng"
+                ],
+                "answerIndex": 1,
+                "feedback": "Mô tả B cho biết kích thước, ánh sáng và một chi tiết đặc biệt."
+              },
+              {
+                "prompt": "Mô tả nào cho con nhiều manh mối hơn?",
+                "options": [
+                  "Đại dương rộng, sáng, có cá biết hát",
+                  "Một đại dương kỳ lạ"
+                ],
+                "answerIndex": 0,
+                "feedback": "Mô tả A nói rõ độ rộng, ánh sáng và điều chỉ có ở thế giới này."
+              },
+              {
+                "prompt": "Nếu phải vẽ ngay, con sẽ chọn mô tả nào?",
+                "options": [
+                  "Một vương quốc kẹo",
+                  "Vương quốc kẹo bé xíu, rực sáng, có cầu bằng đường"
+                ],
+                "answerIndex": 1,
+                "feedback": "Mô tả B biến ý tưởng chung thành những chi tiết có thể nhìn thấy và vẽ được."
+              }
             ]
           }
         },
@@ -113,7 +175,24 @@ export const curriculumContent = [
             "cards": [
               "kéo màu vào đúng thế giới vui",
               "buồn",
-              "bí ẩn"
+              "bí ẩn",
+              "Màu sắc kể chuyện",
+              "Bảng màu 3 màu + đoạn mô tả cảnh chính bằng lời",
+              "Luyện liên kết giữa màu sắc và cảm xúc"
+            ],
+            "pairs": [
+              {
+                "left": "Vàng cam",
+                "right": "Vui"
+              },
+              {
+                "left": "Xanh lam nhạt",
+                "right": "Yên bình"
+              },
+              {
+                "left": "Tím đậm",
+                "right": "Bí ẩn"
+              }
             ]
           }
         },
@@ -144,12 +223,33 @@ export const curriculumContent = [
           "content": "Trộn con vật: ghép ngẫu nhiên 2 bộ phận con vật để gợi ý 1 sinh vật lạ",
           "objective": "Kích hoạt sáng tạo bằng cách kết hợp",
           "duration": "5 phút",
-          "gameType": "match",
+          "gameType": "combine",
           "gameConfig": {
             "cards": [
               "ghép ngẫu nhiên 2 bộ phận con vật để gợi ý 1 sinh vật lạ",
-              "Trộn con vật: ghép ngẫu nhiên 2 bộ phận con vật để gợi ý 1 sinh ",
-              "Kích hoạt sáng tạo bằng cách kết hợp"
+              "Kích hoạt sáng tạo bằng cách kết hợp",
+              "Sinh vật đặc biệt & chốt đề bài Giai đoạn 1",
+              "Hồ sơ ý tưởng thế giới hoàn chỉnh (chưa có hình ảnh"
+            ],
+            "groups": [
+              {
+                "label": "Phần đầu",
+                "options": [
+                  "Tai thỏ",
+                  "Bờm sư tử",
+                  "Mỏ chim",
+                  "Sừng hươu"
+                ]
+              },
+              {
+                "label": "Cơ thể hoặc cách di chuyển",
+                "options": [
+                  "Đuôi cá",
+                  "Cánh bướm",
+                  "Chân lò xo",
+                  "Mai rùa"
+                ]
+              }
             ]
           }
         },
@@ -217,12 +317,42 @@ export const curriculumContent = [
           "content": "Bắt lỗi hình: tìm điểm khác nhau giữa mô tả đã viết và hình AI vừa tạo",
           "objective": "Rèn khả năng quan sát chi tiết, đối chiếu với ý tưởng gốc của mình",
           "duration": "5 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "tìm điểm khác nhau giữa mô tả đã viết và hình AI vừa tạo",
-              "Bắt lỗi hình: tìm điểm khác nhau giữa mô tả đã viết và hình AI v",
-              "Rèn khả năng quan sát chi tiết, đối chiếu với ý tưởng gốc của mì"
+              "Rèn khả năng quan sát chi tiết, đối chiếu với ý tưởng…",
+              "Tạo hình sinh vật cùng AI",
+              "1 hình sinh vật hoàn chỉnh"
+            ],
+            "rounds": [
+              {
+                "prompt": "Yêu cầu: lông tím, hai cánh vàng, đuôi cá. Kết quả nào khớp?",
+                "options": [
+                  "Lông tím, hai cánh vàng, đuôi cá",
+                  "Lông tím, hai cánh xanh, đuôi cá"
+                ],
+                "answerIndex": 0,
+                "feedback": "Kết quả A giữ đúng cả màu lông, màu cánh và chiếc đuôi trong yêu cầu."
+              },
+              {
+                "prompt": "Yêu cầu: sinh vật nhỏ ở đại dương tối. Kết quả nào bị lệch?",
+                "options": [
+                  "Sinh vật nhỏ trong đại dương tối",
+                  "Sinh vật khổng lồ trên bầu trời sáng"
+                ],
+                "answerIndex": 1,
+                "feedback": "Kết quả B lệch cả kích thước, nơi ở và ánh sáng so với yêu cầu."
+              },
+              {
+                "prompt": "Yêu cầu có cây phát sáng. Kết quả nào cần tạo lại?",
+                "options": [
+                  "Khu rừng có cây phát sáng",
+                  "Khu rừng chỉ có cây bình thường"
+                ],
+                "answerIndex": 1,
+                "feedback": "Kết quả B làm mất chi tiết đặc biệt nên chưa đúng ý đồ ban đầu."
+              }
             ]
           }
         },
@@ -253,12 +383,29 @@ export const curriculumContent = [
           "content": "Kéo-thả các thành phần (cảnh, sinh vật, tên thế giới) vào đúng vị trí trên khung bản đồ",
           "objective": "Luyện tư duy tổ chức không gian",
           "duration": "5 phút",
-          "gameType": "order",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
               "cảnh",
               "sinh vật",
-              "tên thế giới"
+              "tên thế giới",
+              "Ghép mọi thứ lại",
+              "Bản đồ thế giới hoàn chỉnh",
+              "Luyện tư duy tổ chức không gian"
+            ],
+            "placements": [
+              {
+                "item": "Tên thế giới",
+                "target": "Bảng tên phía trên"
+              },
+              {
+                "item": "Cảnh chính",
+                "target": "Nền bản đồ"
+              },
+              {
+                "item": "Sinh vật đặc biệt",
+                "target": "Vùng sinh sống"
+              }
             ]
           }
         },
@@ -292,8 +439,9 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "Sắp xếp lại thứ tự câu giới thiệu đang bị xáo trộn cho đúng trìn",
-              "Luyện cấu trúc trình bày mạch lạc"
+              "Tên thế giới",
+              "Sinh vật đặc biệt",
+              "Cảm giác chính"
             ]
           }
         },
@@ -341,13 +489,37 @@ export const curriculumContent = [
           "content": "Vòng quay hình dáng: quay ngẫu nhiên gợi ý dáng người/dáng thú/dáng lạ để bé chọn hoặc lấy cảm hứng",
           "objective": "Kích hoạt ý tưởng ban đầu về hình dáng",
           "duration": "5 phút",
-          "gameType": "spin",
+          "gameType": "combine",
           "gameConfig": {
             "cards": [
               "quay ngẫu nhiên gợi ý dáng người",
               "dáng thú",
               "dáng lạ để bé chọn",
-              "lấy cảm hứng"
+              "lấy cảm hứng",
+              "Bắt đầu từ một hình dáng",
+              "Hình dáng + màu sắc chính của nhân vật"
+            ],
+            "groups": [
+              {
+                "label": "Nhân vật là",
+                "options": [
+                  "Con người",
+                  "Con vật",
+                  "Đồ vật",
+                  "Thực vật",
+                  "Robot"
+                ]
+              },
+              {
+                "label": "Hình dáng",
+                "options": [
+                  "Tròn trịa",
+                  "Mảnh mai",
+                  "Nhỏ bé",
+                  "Cao lớn",
+                  "Vuông vức"
+                ]
+              }
             ]
           }
         },
@@ -378,11 +550,44 @@ export const curriculumContent = [
           "content": "Tìm điểm khác: so sánh 2 nhân vật gần giống nhau, tìm chi tiết khiến chúng khác nhau",
           "objective": "Rèn khả năng nhận diện đặc điểm riêng biệt",
           "duration": "5 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "so sánh 2 nhân vật gần giống nhau",
-              "tìm chi tiết khiến chúng khác nhau"
+              "tìm chi tiết khiến chúng khác nhau",
+              "so sánh 2 nhân vật gần giống nhau, tìm chi tiết khiến…",
+              "Rèn khả năng nhận diện đặc điểm riêng biệt",
+              "Điểm nhận diện đặc biệt",
+              "1 chi tiết đặc trưng của nhân vật"
+            ],
+            "rounds": [
+              {
+                "prompt": "Hai chú mèo đều màu cam. Chi tiết nào giúp nhận ra Mít ngay?",
+                "options": [
+                  "Mít đeo khăn xanh",
+                  "Mít là một chú mèo"
+                ],
+                "answerIndex": 0,
+                "feedback": "Chiếc khăn xanh là dấu hiệu riêng; “một chú mèo” vẫn còn quá chung."
+              },
+              {
+                "prompt": "Hai robot đều vuông vức. Chi tiết nào làm Bíp khác bạn còn lại?",
+                "options": [
+                  "Bíp là robot",
+                  "Bíp có một ăng-ten hình ngôi sao"
+                ],
+                "answerIndex": 1,
+                "feedback": "Ăng-ten hình ngôi sao là chi tiết có thể nhìn thấy và nhận diện nhanh."
+              },
+              {
+                "prompt": "Chi tiết nào đáng nhớ hơn cho một nhân vật nhỏ bé?",
+                "options": [
+                  "Có chiếc mũ đỏ rất lớn",
+                  "Có một cái đầu"
+                ],
+                "answerIndex": 0,
+                "feedback": "Chiếc mũ đỏ lớn tạo tương phản và giúp nhân vật không bị lẫn."
+              }
             ]
           }
         },
@@ -417,8 +622,23 @@ export const curriculumContent = [
           "gameConfig": {
             "cards": [
               "nối tính cách với hành động phù hợp",
-              "Ghép tính cách - hành động: nối tính cách với hành động phù hợp",
-              "Luyện liên kết tính cách và hành vi cụ thể"
+              "Luyện liên kết tính cách và hành vi cụ thể",
+              "Nhân vật này tính cách ra sao?",
+              "Tính cách nổi bật + 1 hành động minh hoạ"
+            ],
+            "pairs": [
+              {
+                "left": "Tò mò",
+                "right": "Mở bản đồ để tìm đường mới"
+              },
+              {
+                "left": "Dũng cảm",
+                "right": "Bước lên bảo vệ một người bạn"
+              },
+              {
+                "left": "Tốt bụng",
+                "right": "Chia phần bánh của mình cho bạn"
+              }
             ]
           }
         },
@@ -449,11 +669,44 @@ export const curriculumContent = [
           "content": "Thử biểu cảm: xem 3 biểu cảm khuôn mặt, chọn biểu cảm hợp với tính cách nhân vật nhất",
           "objective": "Luyện liên kết cảm xúc với biểu cảm khuôn mặt",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "xem 3 biểu cảm khuôn mặt",
-              "chọn biểu cảm hợp với tính cách nhân vật nhất"
+              "chọn biểu cảm hợp với tính cách nhân vật nhất",
+              "xem 3 biểu cảm khuôn mặt, chọn biểu cảm hợp với tính…",
+              "Luyện liên kết cảm xúc với biểu cảm khuôn mặt",
+              "Đặt tên & tập biểu cảm",
+              "Tên nhân vật + biểu cảm đặc trưng"
+            ],
+            "rounds": [
+              {
+                "prompt": "Nhân vật vui nhộn vừa nghĩ ra trò chơi mới. Biểu cảm nào hợp nhất?",
+                "options": [
+                  "Mắt sáng, miệng cười rộng",
+                  "Mắt cụp, miệng mếu"
+                ],
+                "answerIndex": 0,
+                "feedback": "Mắt sáng và nụ cười rộng giúp người xem đọc được niềm vui ngay."
+              },
+              {
+                "prompt": "Nhân vật dũng cảm đang bước vào hang tối. Biểu cảm nào kể đúng tính cách?",
+                "options": [
+                  "Mắt nhìn thẳng, miệng mím quyết tâm",
+                  "Nhắm mắt và quay lưng"
+                ],
+                "answerIndex": 0,
+                "feedback": "Ánh mắt thẳng và nét quyết tâm thể hiện hành động dũng cảm."
+              },
+              {
+                "prompt": "Nhân vật tinh nghịch chuẩn bị một bất ngờ. Biểu cảm nào hợp hơn?",
+                "options": [
+                  "Một bên mắt nháy, miệng cười",
+                  "Khuôn mặt buồn ngủ"
+                ],
+                "answerIndex": 0,
+                "feedback": "Cái nháy mắt là tín hiệu rõ cho ý tưởng tinh nghịch."
+              }
             ]
           }
         },
@@ -487,8 +740,10 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "Xếp đúng thứ tự các phần mô tả nhân vật trước khi gửi cho AI",
-              "Làm quen cấu trúc mô tả nhân vật hiệu quả"
+              "Hình dáng",
+              "Màu sắc",
+              "Chi tiết đặc trưng",
+              "Biểu cảm"
             ]
           }
         },
@@ -519,12 +774,42 @@ export const curriculumContent = [
           "content": "Bắt lỗi hình: tìm điểm khác nhau giữa mô tả và hình AI vừa tạo",
           "objective": "Rèn khả năng đối chiếu sản phẩm với mô tả gốc",
           "duration": "5 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "tìm điểm khác nhau giữa mô tả và hình AI vừa tạo",
-              "Bắt lỗi hình: tìm điểm khác nhau giữa mô tả và hình AI vừa tạo",
-              "Rèn khả năng đối chiếu sản phẩm với mô tả gốc"
+              "Rèn khả năng đối chiếu sản phẩm với mô tả gốc",
+              "Tạo hình & chỉnh sửa",
+              "1 hình nhân vật hoàn chỉnh"
+            ],
+            "rounds": [
+              {
+                "prompt": "Mô tả: robot nhỏ, vuông, màu xanh, ăng-ten ngôi sao. Hình nào khớp?",
+                "options": [
+                  "Robot nhỏ vuông màu xanh, ăng-ten ngôi sao",
+                  "Robot cao tròn màu đỏ, không có ăng-ten"
+                ],
+                "answerIndex": 0,
+                "feedback": "Hình A giữ đủ hình dáng, kích thước, màu và chi tiết nhận diện."
+              },
+              {
+                "prompt": "Mô tả: mèo cam đeo khăn xanh, đang cười. Hình nào cần sửa?",
+                "options": [
+                  "Mèo cam đeo khăn xanh, đang cười",
+                  "Mèo cam đeo mũ đỏ, đang khóc"
+                ],
+                "answerIndex": 1,
+                "feedback": "Hình B sai cả phụ kiện và biểu cảm nên cần nói rõ phần phải đổi."
+              },
+              {
+                "prompt": "Chỉ màu áo bị sai. Yêu cầu sửa nào rõ nhất?",
+                "options": [
+                  "Làm lại cho đẹp hơn",
+                  "Giữ nguyên mọi thứ, đổi áo đỏ thành áo vàng"
+                ],
+                "answerIndex": 1,
+                "feedback": "Yêu cầu B chỉ rõ phần giữ lại và đúng một thay đổi cần làm."
+              }
             ]
           }
         },
@@ -555,14 +840,29 @@ export const curriculumContent = [
           "content": "Ghép đúng ô: kéo từng thông tin (tên, tính cách, hình) vào đúng ô trên khung thẻ",
           "objective": "Luyện tư duy tổ chức thông tin có cấu trúc",
           "duration": "5 phút",
-          "gameType": "match",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
               "tên",
               "tính cách",
               "hình",
-              "kéo từng thông tin (tên",
-              "hình) vào đúng ô trên khung thẻ"
+              "Lắp ráp thẻ nhân vật",
+              "Thẻ nhân vật hoàn chỉnh",
+              "Luyện tư duy tổ chức thông tin có cấu trúc"
+            ],
+            "placements": [
+              {
+                "item": "Tên nhân vật",
+                "target": "Ô tên"
+              },
+              {
+                "item": "Hình nhân vật",
+                "target": "Khung chân dung"
+              },
+              {
+                "item": "Tính cách và hành động",
+                "target": "Ô mô tả"
+              }
             ]
           }
         },
@@ -596,8 +896,10 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "Sắp xếp lại câu giới thiệu bị xáo trộn cho đúng thứ tự hợp lý",
-              "Luyện cấu trúc trình bày mạch lạc"
+              "Chào người xem",
+              "Nói tên nhân vật",
+              "Kể tính cách và hành động",
+              "Nêu chi tiết đặc biệt"
             ]
           }
         },
@@ -648,9 +950,9 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "xếp lại 3 câu bị xáo trộn của 1 chuyện ngắn theo đúng thứ tự",
-              "Sắp xếp câu chuyện: xếp lại 3 câu bị xáo trộn của 1 chuyện ngắn ",
-              "Luyện nhận biết trình tự Mở-Bỗng nhiên-Kết"
+              "Mở đầu: Mít muốn tìm ngôi sao rơi",
+              "Bỗng nhiên: cây cầu biến mất",
+              "Kết thúc: Mít tìm được đường và trở về"
             ]
           }
         },
@@ -681,12 +983,31 @@ export const curriculumContent = [
           "content": "Ôn nhanh: kéo đúng tên - hình - tính cách của nhân vật mình đã tạo",
           "objective": "Giúp bé nhớ lại đầy đủ thông tin nhân vật trước khi kể chuyện",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
               "kéo đúng tên - hình - tính cách của nhân vật mình đã tạo",
-              "Ôn nhanh: kéo đúng tên - hình - tính cách của nhân vật mình đã t",
-              "Giúp bé nhớ lại đầy đủ thông tin nhân vật trước khi kể chuyện"
+              "Giúp bé nhớ lại đầy đủ thông tin nhân vật trước khi kể…",
+              "Chọn nhân vật cho câu chuyện",
+              "Nhân vật chính + mong muốn của nhân vật trong chuyện"
+            ],
+            "placements": [
+              {
+                "item": "Mít",
+                "target": "Ô tên nhân vật"
+              },
+              {
+                "item": "Mèo cam đeo khăn xanh",
+                "target": "Khung hình dáng"
+              },
+              {
+                "item": "Tò mò và tốt bụng",
+                "target": "Ô tính cách"
+              },
+              {
+                "item": "Muốn tìm ngôi sao rơi",
+                "target": "Ô mong muốn"
+              }
             ]
           }
         },
@@ -717,12 +1038,42 @@ export const curriculumContent = [
           "content": "Ghép câu Mở đầu: chọn câu giới thiệu nhân vật hay nhất trong 3 lựa chọn",
           "objective": "Luyện cảm nhận câu mở đầu hấp dẫn",
           "duration": "5 phút",
-          "gameType": "match",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "chọn câu giới thiệu nhân vật hay nhất trong 3 lựa chọn",
-              "Ghép câu Mở đầu: chọn câu giới thiệu nhân vật hay nhất trong 3 l",
-              "Luyện cảm nhận câu mở đầu hấp dẫn"
+              "Luyện cảm nhận câu mở đầu hấp dẫn",
+              "Mở đầu: giới thiệu nhân vật và mong muốn",
+              "Đoạn Mở đầu 2-3 câu"
+            ],
+            "rounds": [
+              {
+                "prompt": "Câu nào giới thiệu cả nhân vật và điều nhân vật muốn?",
+                "options": [
+                  "Mít là mèo cam. Mít muốn tìm ngôi sao rơi.",
+                  "Ngày xửa ngày xưa."
+                ],
+                "answerIndex": 0,
+                "feedback": "Câu A cho người nghe biết ai là nhân vật chính và mục tiêu của bạn ấy."
+              },
+              {
+                "prompt": "Mở đầu nào cho thấy tính cách qua hành động?",
+                "options": [
+                  "Bíp rất tò mò.",
+                  "Bíp tò mò mở tấm bản đồ cũ để tìm lối đi mới."
+                ],
+                "answerIndex": 1,
+                "feedback": "Câu B biến từ “tò mò” thành một hành động có thể hình dung."
+              },
+              {
+                "prompt": "Câu nào tạo được câu hỏi để người nghe muốn biết tiếp?",
+                "options": [
+                  "Na muốn mang hạt giống lên đỉnh núi trước khi trời tối.",
+                  "Na ở trên núi."
+                ],
+                "answerIndex": 0,
+                "feedback": "Mục tiêu và giới hạn thời gian khiến người nghe tự hỏi Na sẽ làm thế nào."
+              }
             ]
           }
         },
@@ -753,11 +1104,33 @@ export const curriculumContent = [
           "content": "Bốc thăm vấn đề: rút ngẫu nhiên 1 gợi ý vấn đề rồi biến tấu cho hợp với nhân vật",
           "objective": "Kích hoạt ý tưởng vấn đề bằng gợi ý ngẫu nhiên có kiểm soát",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "combine",
           "gameConfig": {
             "cards": [
-              "rút ngẫu nhiên 1 gợi ý vấn đề",
-              "biến tấu cho hợp với nhân vật"
+              "rút ngẫu nhiên 1 gợi ý vấn đề rồi biến tấu cho hợp với…",
+              "Kích hoạt ý tưởng vấn đề bằng gợi ý ngẫu nhiên có kiểm…",
+              "Vấn đề nhân vật gặp phải",
+              "1 vấn đề/khó khăn của nhân vật"
+            ],
+            "groups": [
+              {
+                "label": "Trở ngại",
+                "options": [
+                  "Lạc mất bản đồ",
+                  "Cây cầu bị gãy",
+                  "Cánh cửa bị khóa",
+                  "Cơn mưa kéo đến"
+                ]
+              },
+              {
+                "label": "Điều làm khó hơn",
+                "options": [
+                  "Trời sắp tối",
+                  "Bạn đồng hành đang sợ",
+                  "Chỉ còn một cơ hội",
+                  "Dấu vết bị xóa"
+                ]
+              }
             ]
           }
         },
@@ -788,11 +1161,33 @@ export const curriculumContent = [
           "content": "Vòng quay Bỗng Nhiên: quay ngẫu nhiên 1 gợi ý bất ngờ rồi biến tấu cho hợp chuyện",
           "objective": "Kích hoạt ý tưởng bất ngờ bằng gợi ý ngẫu nhiên có kiểm soát",
           "duration": "5 phút",
-          "gameType": "spin",
+          "gameType": "combine",
           "gameConfig": {
             "cards": [
-              "quay ngẫu nhiên 1 gợi ý bất ngờ",
-              "biến tấu cho hợp chuyện"
+              "quay ngẫu nhiên 1 gợi ý bất ngờ rồi biến tấu cho hợp…",
+              "Kích hoạt ý tưởng bất ngờ bằng gợi ý ngẫu nhiên có kiểm…",
+              "Điều Bỗng Nhiên xảy ra",
+              "Đoạn 'Bỗng nhiên' của câu chuyện"
+            ],
+            "groups": [
+              {
+                "label": "Bỗng nhiên xuất hiện",
+                "options": [
+                  "Một người bạn tí hon",
+                  "Tấm bản đồ biết nói",
+                  "Cánh cửa bí mật",
+                  "Luồng sáng dẫn đường"
+                ]
+              },
+              {
+                "label": "Cách giúp giải quyết",
+                "options": [
+                  "Chỉ ra manh mối",
+                  "Biến thành một chiếc cầu",
+                  "Gọi mọi người hợp sức",
+                  "Cho nhân vật thử lại"
+                ]
+              }
             ]
           }
         },
@@ -823,14 +1218,44 @@ export const curriculumContent = [
           "content": "Chọn cảm xúc kết: chọn kiểu kết thúc (vui/buồn/ấm áp) hợp với câu chuyện của mình nhất",
           "objective": "Luyện lựa chọn cảm xúc kết thúc có chủ đích",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "vui",
               "buồn",
               "ấm áp",
-              "chọn kiểu kết thúc (vui",
-              "ấm áp) hợp với câu chuyện của mình nhất"
+              "Kết thúc & tạo hình minh hoạ",
+              "Đoạn Kết thúc + 1 hình minh hoạ AI",
+              "Luyện lựa chọn cảm xúc kết thúc có chủ đích"
+            ],
+            "rounds": [
+              {
+                "prompt": "Mít tìm lại được ngôi sao cho cả làng. Kết nào tạo cảm giác ấm áp?",
+                "options": [
+                  "Mọi người cùng ngồi dưới ánh sao và ôm Mít thật chặt.",
+                  "Mít bỏ đi mà không nói gì."
+                ],
+                "answerIndex": 0,
+                "feedback": "Hành động quây quần và cái ôm làm cảm xúc ấm áp hiện ra rõ ràng."
+              },
+              {
+                "prompt": "Bíp làm bánh nhưng chiếc bánh phồng to như quả bóng. Kết nào vui hơn?",
+                "options": [
+                  "Cả nhóm dùng chiếc bánh làm khinh khí cầu.",
+                  "Chiếc bánh nằm trên bàn."
+                ],
+                "answerIndex": 0,
+                "feedback": "Biến tai nạn thành một bất ngờ ngộ nghĩnh giữ đúng giọng vui của chuyện."
+              },
+              {
+                "prompt": "Na vừa vượt qua chuyến đi khó. Kết nào cho thấy niềm tự hào?",
+                "options": [
+                  "Na nhìn lại con đường và mỉm cười: “Mình đã làm được!”",
+                  "Trời đã tối."
+                ],
+                "answerIndex": 0,
+                "feedback": "Nụ cười và lời nói của Na giúp người nghe đọc được cảm xúc kết."
+              }
             ]
           }
         },
@@ -861,12 +1286,44 @@ export const curriculumContent = [
           "content": "Luyện tập với bạn ảo: kể thử 1 đoạn, hệ thống gợi ý chỗ nên lên giọng/xuống giọng",
           "objective": "Luyện kỹ năng biểu cảm giọng kể",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "kể thử 1 đoạn",
               "hệ thống gợi ý chỗ nên lên giọng",
-              "xuống giọng"
+              "xuống giọng",
+              "Luyện giọng kể",
+              "1 lần tập kể hoàn chỉnh",
+              "Luyện kỹ năng biểu cảm giọng kể"
+            ],
+            "rounds": [
+              {
+                "prompt": "Dòng nào nhắc người kể dừng lại để tạo bất ngờ?",
+                "options": [
+                  "Mít mở cửa... và một luồng sáng vụt ra!",
+                  "Mít mở cửa và một luồng sáng vụt ra."
+                ],
+                "answerIndex": 0,
+                "feedback": "Dấu ba chấm tạo một nhịp dừng trước chi tiết bất ngờ."
+              },
+              {
+                "prompt": "Câu hỏi của nhân vật nên được kể thế nào?",
+                "options": [
+                  "Lên giọng ở cuối câu",
+                  "Đọc đều và hạ giọng thật thấp"
+                ],
+                "answerIndex": 0,
+                "feedback": "Lên giọng nhẹ ở cuối giúp người nghe nhận ra đây là câu hỏi."
+              },
+              {
+                "prompt": "Đoạn nhân vật chạy trốn nên có nhịp nào?",
+                "options": [
+                  "Nhanh hơn một chút",
+                  "Chậm và kéo dài mọi từ"
+                ],
+                "answerIndex": 0,
+                "feedback": "Nhịp nhanh hơn một chút truyền được cảm giác gấp gáp nhưng vẫn phải rõ lời."
+              }
             ]
           }
         },
@@ -897,15 +1354,29 @@ export const curriculumContent = [
           "content": "Chọn sticker phù hợp: xem 1 đoạn kể mẫu, chọn sticker cảm xúc (😂/😮/❤️) phù hợp nhất",
           "objective": "Luyện đưa phản hồi tích cực, cụ thể cho người kể chuyện",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "match",
           "gameConfig": {
             "cards": [
-              "😂",
-              "😮",
-              "❤️",
-              "xem 1 đoạn kể mẫu",
-              "chọn sticker cảm xúc (😂",
-              "❤️) phù hợp nhất"
+              "Vui",
+              "Bất ngờ",
+              "Ấm áp",
+              "Kể chuyện chính thức & sticker cảm xúc",
+              "Video/ghi âm kể chuyện hoàn chỉnh",
+              "Luyện đưa phản hồi tích cực, cụ thể cho người kể chuyện"
+            ],
+            "pairs": [
+              {
+                "left": "Một cú ngã rất ngộ nghĩnh",
+                "right": "😂 Buồn cười"
+              },
+              {
+                "left": "Cánh cửa bí mật bật mở",
+                "right": "😮 Bất ngờ"
+              },
+              {
+                "left": "Hai người bạn ôm nhau",
+                "right": "❤️ Ấm áp"
+              }
             ]
           }
         },
@@ -957,8 +1428,23 @@ export const curriculumContent = [
           "gameConfig": {
             "cards": [
               "chọn khung tranh phù hợp nhất cho 1 câu chuyện ngắn mẫu",
-              "Ghép đúng khung: chọn khung tranh phù hợp nhất cho 1 câu chuyện ",
-              "Luyện tư duy hình dung 1 câu chuyện qua hình ảnh"
+              "Luyện tư duy hình dung 1 câu chuyện qua hình ảnh",
+              "Truyện tranh khác chuyện kể thế nào",
+              "Danh sách 4 khoảnh khắc cần vẽ thành khung tranh"
+            ],
+            "pairs": [
+              {
+                "left": "Nhân vật lên đường",
+                "right": "Khung toàn cảnh nơi bắt đầu"
+              },
+              {
+                "left": "Nhân vật phát hiện manh mối",
+                "right": "Khung cận cảnh vật quan trọng"
+              },
+              {
+                "left": "Hai bạn trò chuyện",
+                "right": "Khung có cả hai nhân vật"
+              }
             ]
           }
         },
@@ -989,11 +1475,44 @@ export const curriculumContent = [
           "content": "Rút gọn câu: chọn phiên bản mô tả khung tranh ngắn gọn, rõ ràng nhất",
           "objective": "Luyện cô đọng thông tin cho từng khung tranh",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "chọn phiên bản mô tả khung tranh ngắn gọn",
-              "rõ ràng nhất"
+              "rõ ràng nhất",
+              "chọn phiên bản mô tả khung tranh ngắn gọn, rõ ràng nhất",
+              "Luyện cô đọng thông tin cho từng khung tranh",
+              "Chia câu chuyện thành 4 khung",
+              "4 câu mô tả khung tranh"
+            ],
+            "rounds": [
+              {
+                "prompt": "Mô tả khung nào ngắn mà vẫn vẽ được?",
+                "options": [
+                  "Mít chạy qua cầu gỗ giữa mưa.",
+                  "Mít chạy và lúc ấy bạn ấy đang rất vội vì có nhiều việc phải làm."
+                ],
+                "answerIndex": 0,
+                "feedback": "Câu A giữ nhân vật, hành động, nơi chốn và thời tiết trong một câu gọn."
+              },
+              {
+                "prompt": "Mô tả nào chỉ chứa điều nhìn thấy trong một khung?",
+                "options": [
+                  "Na lo rằng ngày mai có thể thất bại.",
+                  "Na ôm tấm bản đồ rách và cau mày."
+                ],
+                "answerIndex": 1,
+                "feedback": "Câu B biến cảm xúc thành dáng điệu và đồ vật có thể vẽ."
+              },
+              {
+                "prompt": "Khung cuối nên dùng mô tả nào?",
+                "options": [
+                  "Cả nhóm giơ ngôi sao và mỉm cười.",
+                  "Sau đó mọi chuyện tiếp tục diễn ra rất lâu."
+                ],
+                "answerIndex": 0,
+                "feedback": "Câu A cho một khoảnh khắc kết cụ thể thay vì kể một quãng thời gian dài."
+              }
             ]
           }
         },
@@ -1028,8 +1547,23 @@ export const curriculumContent = [
           "gameConfig": {
             "cards": [
               "nối câu thoại phù hợp nhất với khung tranh tương ứng",
-              "Ghép đúng bong bóng: nối câu thoại phù hợp nhất với khung tranh ",
-              "Luyện liên kết lời thoại với tình huống trong khung"
+              "Luyện liên kết lời thoại với tình huống trong khung",
+              "Bong bóng thoại nói lên điều gì",
+              "2 câu thoại cho 2 khung tranh"
+            ],
+            "pairs": [
+              {
+                "left": "Mít thấy cây cầu gãy",
+                "right": "“Ôi, mình qua bên kia thế nào đây?”"
+              },
+              {
+                "left": "Bíp tìm ra lối bí mật",
+                "right": "“Mọi người ơi, đi theo mình!”"
+              },
+              {
+                "left": "Na nhận quà từ bạn",
+                "right": "“Cảm ơn bạn, mình vui quá!”"
+              }
             ]
           }
         },
@@ -1060,12 +1594,27 @@ export const curriculumContent = [
           "content": "Chọn âm thanh đúng: chọn từ tượng thanh phù hợp nhất cho 1 hành động trong khung mẫu",
           "objective": "Luyện liên kết hành động với âm thanh minh hoạ tương ứng",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "match",
           "gameConfig": {
             "cards": [
-              "chọn từ tượng thanh phù hợp nhất cho 1 hành động trong khung mẫu",
-              "Chọn âm thanh đúng: chọn từ tượng thanh phù hợp nhất cho 1 hành ",
-              "Luyện liên kết hành động với âm thanh minh hoạ tương ứng"
+              "chọn từ tượng thanh phù hợp nhất cho 1 hành động trong…",
+              "Luyện liên kết hành động với âm thanh minh hoạ tương ứng",
+              "Âm thanh minh hoạ (SFX",
+              "1 từ tượng thanh (SFX) cho 1 khung tranh"
+            ],
+            "pairs": [
+              {
+                "left": "Cánh cửa đóng sầm",
+                "right": "RẦM!"
+              },
+              {
+                "left": "Giọt nước rơi xuống hồ",
+                "right": "TÕM!"
+              },
+              {
+                "left": "Tên lửa lao vút lên",
+                "right": "VÙ!"
+              }
             ]
           }
         },
@@ -1096,11 +1645,43 @@ export const curriculumContent = [
           "content": "Bắt lỗi: tìm khung nào có nhân vật 'trông khác' so với các khung còn lại",
           "objective": "Rèn khả năng nhận diện sự thiếu nhất quán",
           "duration": "5 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "trông khác",
-              "tìm khung nào có nhân vật 'trông khác' so với các khung còn lại"
+              "tìm khung nào có nhân vật 'trông khác' so với các khung…",
+              "Rèn khả năng nhận diện sự thiếu nhất quán",
+              "Giữ nhân vật giống nhau qua nhiều khung",
+              "Mô tả nhân vật chuẩn (từ K2) sẵn sàng sử dụng"
+            ],
+            "rounds": [
+              {
+                "prompt": "Nhân vật chuẩn: mèo cam, khăn xanh. Khung nào bị lệch?",
+                "options": [
+                  "Mèo cam đeo khăn xanh",
+                  "Mèo xám đeo mũ đỏ"
+                ],
+                "answerIndex": 1,
+                "feedback": "Khung B đổi cả màu lông lẫn phụ kiện nhận diện."
+              },
+              {
+                "prompt": "Bối cảnh chuẩn: phòng có cửa sổ tròn. Khung nào giữ nhất quán?",
+                "options": [
+                  "Căn phòng có cửa sổ tròn",
+                  "Khu rừng có thác nước"
+                ],
+                "answerIndex": 0,
+                "feedback": "Khung A giữ đúng dấu hiệu bối cảnh đã thống nhất."
+              },
+              {
+                "prompt": "Chỉ góc nhìn thay đổi. Chi tiết nào vẫn phải giữ?",
+                "options": [
+                  "Màu sắc và phụ kiện của nhân vật",
+                  "Mọi vật phải đứng đúng một chỗ"
+                ],
+                "answerIndex": 0,
+                "feedback": "Góc nhìn có thể đổi, nhưng đặc điểm nhận diện của nhân vật cần giữ."
+              }
             ]
           }
         },
@@ -1131,12 +1712,42 @@ export const curriculumContent = [
           "content": "Thử thách tốc độ: hoàn thành việc chọn hình ưng ý trong thời gian gợi ý",
           "objective": "Luyện ra quyết định nhanh khi làm việc với nhiều hình",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "hoàn thành việc chọn hình ưng ý trong thời gian gợi ý",
-              "Thử thách tốc độ: hoàn thành việc chọn hình ưng ý trong thời gia",
-              "Luyện ra quyết định nhanh khi làm việc với nhiều hình"
+              "Luyện ra quyết định nhanh khi làm việc với nhiều hình",
+              "Tạo hình 4 khung tranh cùng AI",
+              "4 hình minh hoạ cho 4 khung tranh"
+            ],
+            "rounds": [
+              {
+                "prompt": "Chọn hình cho khung 2: Mít chạy qua cầu trong mưa.",
+                "options": [
+                  "Đúng nhân vật, hành động và bối cảnh",
+                  "Đẹp mắt nhưng là nhân vật khác"
+                ],
+                "answerIndex": 0,
+                "feedback": "Khớp câu chuyện và giữ nhân vật nhất quán quan trọng hơn chỉ “đẹp”."
+              },
+              {
+                "prompt": "Hai hình đều đúng. Nên chọn hình nào?",
+                "options": [
+                  "Hình có hành động đọc rõ hơn",
+                  "Chọn ngẫu nhiên để xong nhanh"
+                ],
+                "answerIndex": 0,
+                "feedback": "Hành động rõ giúp người xem hiểu khung tranh mà không cần quá nhiều chữ."
+              },
+              {
+                "prompt": "Không hình nào giữ chiếc khăn xanh. Nên làm gì?",
+                "options": [
+                  "Chọn đại một hình",
+                  "Sửa yêu cầu và tạo lại một lượt"
+                ],
+                "answerIndex": 1,
+                "feedback": "Một vòng sửa có chủ đích tốt hơn chấp nhận lỗi làm nhân vật bị đổi."
+              }
             ]
           }
         },
@@ -1170,8 +1781,10 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "Kéo-thả để sắp xếp 4 khung",
-              "o đúng vị trí trên khung trang có sẵn"
+              "Khung 1: Nhân vật lên đường",
+              "Khung 2: Gặp trở ngại",
+              "Khung 3: Tìm ra cách giải quyết",
+              "Khung 4: Kết thúc"
             ]
           }
         },
@@ -1202,12 +1815,42 @@ export const curriculumContent = [
           "content": "Đặt tên tập truyện: chọn tên hay nhất trong 3 gợi ý cho tập truyện tranh của mình",
           "objective": "Luyện kỹ năng đặt tên tác phẩm hấp dẫn",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "chọn tên hay nhất trong 3 gợi ý cho tập truyện tranh của mình",
-              "Đặt tên tập truyện: chọn tên hay nhất trong 3 gợi ý cho tập truy",
-              "Luyện kỹ năng đặt tên tác phẩm hấp dẫn"
+              "chọn tên hay nhất trong 3 gợi ý cho tập truyện tranh củ…",
+              "Luyện kỹ năng đặt tên tác phẩm hấp dẫn",
+              "Ra mắt số đầu tiên",
+              "Trang truyện tranh hoàn chỉnh có tên tác phẩm"
+            ],
+            "rounds": [
+              {
+                "prompt": "Truyện về Mít tìm ngôi sao rơi. Tên nào nói đúng điều đặc biệt?",
+                "options": [
+                  "Một câu chuyện",
+                  "Mít và ngôi sao thất lạc"
+                ],
+                "answerIndex": 1,
+                "feedback": "Tên B nêu nhân vật và vật quan trọng nên dễ nhớ hơn."
+              },
+              {
+                "prompt": "Truyện vui về chiếc bánh bay. Tên nào gợi tò mò?",
+                "options": [
+                  "Chiếc bánh biết bay",
+                  "Chuyện của Bíp"
+                ],
+                "answerIndex": 0,
+                "feedback": "Chi tiết chiếc bánh biết bay khiến người đọc muốn mở truyện."
+              },
+              {
+                "prompt": "Tên tác phẩm nên ưu tiên điều gì?",
+                "options": [
+                  "Ngắn, đúng chuyện và có điểm riêng",
+                  "Càng dài và kể hết mọi việc càng tốt"
+                ],
+                "answerIndex": 0,
+                "feedback": "Một tên ngắn, đúng trọng tâm sẽ dễ đọc và dễ nhớ trên bìa."
+              }
             ]
           }
         },
@@ -1258,10 +1901,26 @@ export const curriculumContent = [
           "gameType": "match",
           "gameConfig": {
             "cards": [
-              "nhanh=vui",
-              "chậm=buồn...",
-              "nối kiểu chuyển động với cảm xúc phù hợp (nhanh=vui",
-              "chậm=buồn...)"
+              "nhanh – vui",
+              "chậm – buồn...",
+              "nối kiểu chuyển động với cảm xúc phù hợp (nhanh – vui…",
+              "Luyện liên kết tốc độ chuyển động với cảm xúc",
+              "Nhanh, chậm, nhẹ, mạnh nói lên điều gì",
+              "1 đoạn diễn thử chuyển động theo cảm xúc"
+            ],
+            "pairs": [
+              {
+                "left": "Bước chân nhanh, bật nhẹ",
+                "right": "Vui và háo hức"
+              },
+              {
+                "left": "Bước chậm, vai hạ thấp",
+                "right": "Buồn hoặc mệt"
+              },
+              {
+                "left": "Giật mình rồi lùi nhanh",
+                "right": "Sợ hãi"
+              }
             ]
           }
         },
@@ -1292,11 +1951,42 @@ export const curriculumContent = [
           "content": "Chọn kiểu chuyển động: chọn kiểu di chuyển phù hợp nhất với nhân vật của mình trong 1 tình huống",
           "objective": "Luyện tư duy chọn chuyển động có chủ đích, gắn với nhân vật",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "Chọn kiểu chuyển động: chọn kiểu di chuyển phù hợp nhất với nhân",
-              "Luyện tư duy chọn chuyển động có chủ đích, gắn với nhân vật"
+              "chọn kiểu di chuyển phù hợp nhất với nhân vật của mình…",
+              "Luyện tư duy chọn chuyển động có chủ đích, gắn với nhân…",
+              "Nhân vật của em di chuyển thế nào",
+              "Mô tả chuyển động của nhân vật trong 2 tình huống"
+            ],
+            "rounds": [
+              {
+                "prompt": "Robot vuông vức đang vui. Cách di chuyển nào hợp hơn?",
+                "options": [
+                  "Bật từng nhịp chắc và nhanh",
+                  "Trôi mềm như một dải lụa"
+                ],
+                "answerIndex": 0,
+                "feedback": "Nhịp bật chắc giữ chất robot, tốc độ nhanh cho thấy niềm vui."
+              },
+              {
+                "prompt": "Mèo nhỏ đang sợ tiếng động. Chuyển động nào kể rõ cảm xúc?",
+                "options": [
+                  "Hạ thấp người rồi lùi nhẹ",
+                  "Nhảy cao và vẫy tay liên tục"
+                ],
+                "answerIndex": 0,
+                "feedback": "Hạ người và lùi lại là những dấu hiệu cơ thể dễ đọc của sự sợ hãi."
+              },
+              {
+                "prompt": "Nhân vật mạnh mẽ vừa chiến thắng. Chuyển động nào hợp?",
+                "options": [
+                  "Đứng thẳng, giơ tay dứt khoát",
+                  "Thu người và bước thật chậm"
+                ],
+                "answerIndex": 0,
+                "feedback": "Dáng đứng mở và động tác dứt khoát truyền được sự tự tin."
+              }
             ]
           }
         },
@@ -1319,7 +2009,7 @@ export const curriculumContent = [
         "stage": "ideate",
         "practiceKind": "character",
         "video": {
-          "content": "Hướng dẫn công thức đơn giản: Ai + làm gì + cảm xúc gì, cho trẻ 6-8 tuổi",
+          "content": "Hướng dẫn công thức đơn giản: Ai + làm gì + cảm xúc gì, cho trẻ 8-9 tuổi",
           "objective": "Học công thức ra lệnh đơn giản, dễ nhớ",
           "duration": "3 phút"
         },
@@ -1327,12 +2017,12 @@ export const curriculumContent = [
           "content": "Ghép câu lệnh: chọn đúng thứ tự Ai - làm gì - cảm xúc gì cho 1 câu lệnh mẫu",
           "objective": "Luyện cấu trúc câu lệnh đơn giản",
           "duration": "5 phút",
-          "gameType": "match",
+          "gameType": "order",
           "gameConfig": {
             "cards": [
-              "chọn đúng thứ tự Ai - làm gì - cảm xúc gì cho 1 câu lệnh mẫu",
-              "Ghép câu lệnh: chọn đúng thứ tự Ai - làm gì - cảm xúc gì cho 1 c",
-              "Luyện cấu trúc câu lệnh đơn giản"
+              "Ai: Mít",
+              "Làm gì: chạy qua cầu",
+              "Cảm xúc: háo hức"
             ]
           }
         },
@@ -1363,11 +2053,44 @@ export const curriculumContent = [
           "content": "Chọn khoảnh khắc: từ 3 khoảnh khắc gợi ý trong câu chuyện của mình, chọn 1 khoảnh khắc giàu cảm xúc nhất",
           "objective": "Luyện tư duy chọn lọc khoảnh khắc quan trọng",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "từ 3 khoảnh khắc gợi ý trong câu chuyện của mình",
-              "chọn 1 khoảnh khắc giàu cảm xúc nhất"
+              "chọn 1 khoảnh khắc giàu cảm xúc nhất",
+              "từ 3 khoảnh khắc gợi ý trong câu chuyện của mình, chọn…",
+              "Luyện tư duy chọn lọc khoảnh khắc quan trọng",
+              "Chọn khoảnh khắc để 'làm cho chuyển động",
+              "1 khoảnh khắc được chọn từ câu chuyện"
+            ],
+            "rounds": [
+              {
+                "prompt": "Khoảnh khắc nào giàu chuyển động hơn?",
+                "options": [
+                  "Mít ngồi nhìn chiếc cốc",
+                  "Mít chạy qua cầu khi gió thổi mạnh"
+                ],
+                "answerIndex": 1,
+                "feedback": "Chạy và gió mạnh tạo hành động chính cùng chuyển động phụ rõ ràng."
+              },
+              {
+                "prompt": "Khoảnh khắc nào có cảm xúc dễ đọc?",
+                "options": [
+                  "Bíp nhảy lên khi tìm thấy chìa khóa",
+                  "Bíp đứng yên trong phòng"
+                ],
+                "answerIndex": 0,
+                "feedback": "Cú nhảy gắn với sự kiện tìm thấy chìa khóa thể hiện niềm vui rõ."
+              },
+              {
+                "prompt": "Để làm một đoạn ngắn, nên chọn khoảnh khắc nào?",
+                "options": [
+                  "Một hành động chính có điểm bắt đầu và kết thúc",
+                  "Toàn bộ chuyến phiêu lưu dài"
+                ],
+                "answerIndex": 0,
+                "feedback": "Một hành động trọn vẹn vừa sức cho đoạn chuyển động ngắn."
+              }
             ]
           }
         },
@@ -1398,11 +2121,29 @@ export const curriculumContent = [
           "content": "Xem & đoán: xem 1 đoạn chuyển động ngắn, đoán cảm xúc mà nó đang thể hiện",
           "objective": "Rèn khả năng 'đọc' cảm xúc qua chuyển động",
           "duration": "5 phút",
-          "gameType": "detective",
+          "gameType": "match",
           "gameConfig": {
             "cards": [
               "xem 1 đoạn chuyển động ngắn",
-              "đoán cảm xúc mà nó đang thể hiện"
+              "đoán cảm xúc mà nó đang thể hiện",
+              "xem 1 đoạn chuyển động ngắn, đoán cảm xúc mà nó đang th…",
+              "Rèn khả năng 'đọc' cảm xúc qua chuyển động",
+              "Tạo chuyển động cùng AI",
+              "1 đoạn chuyển động ngắn của nhân vật"
+            ],
+            "pairs": [
+              {
+                "left": "Chạy nhanh, tay vung cao",
+                "right": "Háo hức"
+              },
+              {
+                "left": "Bước chậm, đầu cúi",
+                "right": "Buồn"
+              },
+              {
+                "left": "Lùi lại, người co nhỏ",
+                "right": "Sợ"
+              }
             ]
           }
         },
@@ -1433,11 +2174,44 @@ export const curriculumContent = [
           "content": "Kiểm tra khớp chuyện: xem đoạn chuyển động mẫu, đoán xem có đúng khoảnh khắc trong chuyện không",
           "objective": "Rèn khả năng đối chiếu sản phẩm với câu chuyện gốc",
           "duration": "5 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "xem đoạn chuyển động mẫu",
-              "đoán xem có đúng khoảnh khắc trong chuyện không"
+              "đoán xem có đúng khoảnh khắc trong chuyện không",
+              "xem đoạn chuyển động mẫu, đoán xem có đúng khoảnh khắc…",
+              "Rèn khả năng đối chiếu sản phẩm với câu chuyện gốc",
+              "Tạo chuyển động cho khoảnh khắc đó",
+              "1 đoạn chuyển động minh hoạ khoảnh khắc trong chuyện"
+            ],
+            "rounds": [
+              {
+                "prompt": "Khoảnh khắc gốc: Mít chạy qua cầu trong mưa. Đoạn nào khớp?",
+                "options": [
+                  "Mít chạy trên cầu, mưa rơi",
+                  "Mít ngủ trong căn phòng nắng"
+                ],
+                "answerIndex": 0,
+                "feedback": "Đoạn A giữ đúng nhân vật, hành động, nơi chốn và thời tiết."
+              },
+              {
+                "prompt": "Câu lệnh nói “chạy háo hức”. Kết quả nào cần sửa?",
+                "options": [
+                  "Chạy nhanh, nét mặt vui",
+                  "Đi chậm, vai hạ thấp"
+                ],
+                "answerIndex": 1,
+                "feedback": "Đoạn B truyền cảm xúc buồn hoặc mệt, chưa đúng “háo hức”."
+              },
+              {
+                "prompt": "Nhân vật đúng nhưng bối cảnh sai. Nên yêu cầu sửa thế nào?",
+                "options": [
+                  "Giữ nhân vật, đổi căn phòng thành cây cầu trong mưa",
+                  "Làm lại khác đi"
+                ],
+                "answerIndex": 0,
+                "feedback": "Nói phần giữ và phần đổi giúp vòng chỉnh sửa có mục tiêu rõ."
+              }
             ]
           }
         },
@@ -1468,11 +2242,44 @@ export const curriculumContent = [
           "content": "So sánh trước-sau: xem đoạn chuyển động đầu tiên và đoạn cuối cùng, tìm điểm cải thiện",
           "objective": "Rèn khả năng nhận ra sự tiến bộ của chính mình",
           "duration": "5 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "xem đoạn chuyển động đầu tiên và đoạn cuối cùng",
-              "tìm điểm cải thiện"
+              "tìm điểm cải thiện",
+              "xem đoạn chuyển động đầu tiên và đoạn cuối cùng, tìm…",
+              "Rèn khả năng nhận ra sự tiến bộ của chính mình",
+              "Hoàn thiện đoạn chuyển động",
+              "Đoạn chuyển động hoàn chỉnh cuối cùng"
+            ],
+            "rounds": [
+              {
+                "prompt": "Bản đầu đi đều; bản sau tăng tốc ở đoạn vui. Điểm nào được cải thiện?",
+                "options": [
+                  "Tốc độ thể hiện cảm xúc rõ hơn",
+                  "Màu nền tự đổi"
+                ],
+                "answerIndex": 0,
+                "feedback": "Thay đổi tốc độ đúng lúc giúp người xem đọc được cảm xúc."
+              },
+              {
+                "prompt": "Bản sau giữ khăn xanh xuyên suốt. Điều gì tốt hơn?",
+                "options": [
+                  "Nhân vật nhất quán hơn",
+                  "Đoạn phim dài hơn"
+                ],
+                "answerIndex": 0,
+                "feedback": "Giữ phụ kiện nhận diện giúp người xem biết đó vẫn là cùng nhân vật."
+              },
+              {
+                "prompt": "Bản sau bỏ một chuyển động thừa. Vì sao tốt hơn?",
+                "options": [
+                  "Hành động chính dễ đọc hơn",
+                  "Càng ít chuyển động luôn càng tốt"
+                ],
+                "answerIndex": 0,
+                "feedback": "Bỏ chi tiết thừa có ích khi nó giúp hành động chính rõ hơn."
+              }
             ]
           }
         },
@@ -1500,14 +2307,16 @@ export const curriculumContent = [
           "duration": "3 phút"
         },
         "game": {
-          "content": "Sắp xếp lại câu giới thiệu bị xáo trộn cho đúng thứ tự hợp lý",
-          "objective": "Luyện cấu trúc trình bày mạch lạc",
+          "content": "Xếp đúng buổi chiếu thử: chào khán giả → nói tên đoạn chuyển động → nêu cảm xúc muốn thể hiện → mời mọi người xem",
+          "objective": "Luyện cách giới thiệu sản phẩm chuyển động ngắn gọn, mạch lạc",
           "duration": "5 phút",
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "Sắp xếp lại câu giới thiệu bị xáo trộn cho đúng thứ tự hợp lý",
-              "Luyện cấu trúc trình bày mạch lạc"
+              "Chào khán giả",
+              "Nói tên đoạn chuyển động",
+              "Nêu cảm xúc muốn thể hiện",
+              "Mời mọi người xem"
             ]
           }
         },
@@ -1561,8 +2370,23 @@ export const curriculumContent = [
               "hình ảnh",
               "chuyển động",
               "âm thanh",
-              "chọn ví dụ cho mỗi lớp (hình ảnh",
-              "âm thanh) trong 1 đoạn phim mẫu"
+              "Phim ngắn cần gì",
+              "1 cảnh được chọn từ câu chuyện",
+              "Luyện nhận diện 3 lớp cấu thành 1 phim ngắn"
+            ],
+            "pairs": [
+              {
+                "left": "Hình ảnh",
+                "right": "Mít trên cây cầu trong mưa"
+              },
+              {
+                "left": "Chuyển động",
+                "right": "Mít chạy, áo choàng bay"
+              },
+              {
+                "left": "Âm thanh",
+                "right": "Tiếng mưa và bước chân"
+              }
             ]
           }
         },
@@ -1593,12 +2417,42 @@ export const curriculumContent = [
           "content": "Chọn lý do hợp lý nhất: chọn lý do thuyết phục nhất trong 3 lý do gợi ý cho 1 cảnh mẫu",
           "objective": "Luyện tư duy đánh giá lý do lựa chọn",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "chọn lý do thuyết phục nhất trong 3 lý do gợi ý cho 1 cảnh mẫu",
-              "Chọn lý do hợp lý nhất: chọn lý do thuyết phục nhất trong 3 lý d",
-              "Luyện tư duy đánh giá lý do lựa chọn"
+              "chọn lý do thuyết phục nhất trong 3 lý do gợi ý cho 1…",
+              "Luyện tư duy đánh giá lý do lựa chọn",
+              "Vì sao chọn cảnh này",
+              "1-2 câu giải thích lý do chọn cảnh"
+            ],
+            "rounds": [
+              {
+                "prompt": "Vì sao cảnh Mít chạy qua cầu phù hợp làm phim?",
+                "options": [
+                  "Có hành động, cảm xúc và âm thanh rõ",
+                  "Vì đây là cảnh đầu tiên nhìn thấy"
+                ],
+                "answerIndex": 0,
+                "feedback": "Lý do A chỉ ra những yếu tố cụ thể có thể biến thành phim."
+              },
+              {
+                "prompt": "Lý do nào cho thấy lựa chọn có chủ đích?",
+                "options": [
+                  "Em thích cảnh này",
+                  "Cảnh này là lúc nhân vật vượt qua nỗi sợ"
+                ],
+                "answerIndex": 1,
+                "feedback": "Lý do B gắn cảnh được chọn với thay đổi quan trọng của nhân vật."
+              },
+              {
+                "prompt": "Nếu chỉ làm một cảnh ngắn, lý do nào thực tế hơn?",
+                "options": [
+                  "Cảnh có một hành động chính, vừa sức hoàn thiện",
+                  "Cảnh kể toàn bộ câu chuyện"
+                ],
+                "answerIndex": 0,
+                "feedback": "Một hành động trọn vẹn giúp dự án đầu tay có phạm vi vừa sức."
+              }
             ]
           }
         },
@@ -1629,11 +2483,29 @@ export const curriculumContent = [
           "content": "Ghép đúng phần: chọn đâu là hành động, đâu là lời thoại trong 1 đoạn kịch bản mẫu",
           "objective": "Luyện phân biệt các thành phần của kịch bản",
           "duration": "5 phút",
-          "gameType": "match",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
               "chọn đâu là hành động",
-              "đâu là lời thoại trong 1 đoạn kịch bản mẫu"
+              "đâu là lời thoại trong 1 đoạn kịch bản mẫu",
+              "chọn đâu là hành động, đâu là lời thoại trong 1 đoạn…",
+              "Luyện phân biệt các thành phần của kịch bản",
+              "Kịch bản cần những gì",
+              "Mô tả hành động chính của nhân vật trong cảnh"
+            ],
+            "placements": [
+              {
+                "item": "Mít đeo khăn xanh",
+                "target": "Ô nhân vật"
+              },
+              {
+                "item": "Chạy qua cây cầu trong mưa",
+                "target": "Ô hành động"
+              },
+              {
+                "item": "“Mình sẽ không bỏ cuộc!”",
+                "target": "Ô lời thoại"
+              }
             ]
           }
         },
@@ -1664,11 +2536,42 @@ export const curriculumContent = [
           "content": "Chọn câu thoại phù hợp nhất trong 2-3 gợi ý cho cảnh đã chọn",
           "objective": "Luyện lựa chọn lời thoại phù hợp với tình huống",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "Chọn câu thoại phù hợp nhất trong 2-3 gợi ý cho cảnh đã chọn",
-              "Luyện lựa chọn lời thoại phù hợp với tình huống"
+              "Chọn câu thoại phù hợp nhất trong 2-3 gợi ý cho cảnh đã…",
+              "Luyện lựa chọn lời thoại phù hợp với tình huống",
+              "Thêm lời thoại (nếu cần",
+              "Kịch bản ngắn hoàn chỉnh (hành động + thoại nếu có"
+            ],
+            "rounds": [
+              {
+                "prompt": "Mít sợ nhưng quyết định đi tiếp. Câu thoại nào hợp?",
+                "options": [
+                  "“Mình sẽ thử thêm một lần!”",
+                  "“Hôm nay trời có mưa.”"
+                ],
+                "answerIndex": 0,
+                "feedback": "Câu A nói đúng quyết định và cảm xúc của nhân vật trong cảnh."
+              },
+              {
+                "prompt": "Cảnh chỉ cho thấy nhân vật lén mở cửa. Có cần thoại không?",
+                "options": [
+                  "Không; hành động và âm thanh đã kể đủ",
+                  "Luôn phải thêm một câu thoại"
+                ],
+                "answerIndex": 0,
+                "feedback": "Thoại là tùy chọn; không nên lặp lại điều hình ảnh đã kể rõ."
+              },
+              {
+                "prompt": "Câu nào tự nhiên hơn khi Bíp gọi bạn chạy theo?",
+                "options": [
+                  "“Nhanh lên, lối này!”",
+                  "“Tôi đang thực hiện hoạt động di chuyển.”"
+                ],
+                "answerIndex": 0,
+                "feedback": "Câu A ngắn, đúng tình huống gấp và nghe giống lời nhân vật."
+              }
             ]
           }
         },
@@ -1699,11 +2602,41 @@ export const curriculumContent = [
           "content": "Ghép đúng mô tả: kéo đúng phần mô tả nhân vật + bối cảnh vào ô yêu cầu cho AI",
           "objective": "Luyện tổng hợp thông tin từ nhiều khoá trước",
           "duration": "5 phút",
-          "gameType": "match",
+          "gameType": "combine",
           "gameConfig": {
             "cards": [
               "kéo đúng phần mô tả nhân vật",
-              "bối cảnh vào ô yêu cầu cho AI"
+              "bối cảnh vào ô yêu cầu cho AI",
+              "kéo đúng phần mô tả nhân vật + bối cảnh vào ô yêu cầu…",
+              "Luyện tổng hợp thông tin từ nhiều khoá trước",
+              "Chuẩn bị mô tả cho AI",
+              "1 yêu cầu hoàn chỉnh cho AI (nhân vật + bối cảnh + hành…"
+            ],
+            "groups": [
+              {
+                "label": "Nhân vật",
+                "options": [
+                  "Mèo cam đeo khăn xanh",
+                  "Robot nhỏ có ăng-ten sao",
+                  "Cô bé mang ba lô đỏ"
+                ]
+              },
+              {
+                "label": "Bối cảnh",
+                "options": [
+                  "Cầu gỗ trong mưa",
+                  "Căn phòng có cửa sổ tròn",
+                  "Khu rừng cây phát sáng"
+                ]
+              },
+              {
+                "label": "Hành động",
+                "options": [
+                  "Chạy về phía trước",
+                  "Mở tấm bản đồ",
+                  "Giơ ngôi sao lên cao"
+                ]
+              }
             ]
           }
         },
@@ -1734,12 +2667,42 @@ export const curriculumContent = [
           "content": "Bắt lỗi hình: tìm điểm khác giữa yêu cầu và hình AI vừa tạo",
           "objective": "Rèn khả năng đối chiếu sản phẩm với yêu cầu ban đầu",
           "duration": "5 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "tìm điểm khác giữa yêu cầu và hình AI vừa tạo",
-              "Bắt lỗi hình: tìm điểm khác giữa yêu cầu và hình AI vừa tạo",
-              "Rèn khả năng đối chiếu sản phẩm với yêu cầu ban đầu"
+              "Rèn khả năng đối chiếu sản phẩm với yêu cầu ban đầu",
+              "Tạo hình cảnh phim",
+              "1-2 hình ảnh hoàn chỉnh cho cảnh phim"
+            ],
+            "rounds": [
+              {
+                "prompt": "Yêu cầu: mèo cam, khăn xanh, cầu gỗ trong mưa. Hình nào khớp?",
+                "options": [
+                  "Mèo cam đeo khăn xanh trên cầu mưa",
+                  "Mèo xám đội mũ trong sa mạc"
+                ],
+                "answerIndex": 0,
+                "feedback": "Hình A giữ đúng nhân vật, phụ kiện, nơi chốn và thời tiết."
+              },
+              {
+                "prompt": "Hình đúng bối cảnh nhưng nhân vật mất khăn. Cần sửa gì?",
+                "options": [
+                  "Giữ bối cảnh, thêm lại khăn xanh",
+                  "Đổi toàn bộ cảnh"
+                ],
+                "answerIndex": 0,
+                "feedback": "Chỉ sửa phần lệch giúp giữ những gì đã đúng."
+              },
+              {
+                "prompt": "Hai hình đều đúng mô tả. Hình nào tốt hơn cho chuyển động chạy?",
+                "options": [
+                  "Hình thấy rõ toàn thân và hướng chạy",
+                  "Hình cận mặt, không thấy cơ thể"
+                ],
+                "answerIndex": 0,
+                "feedback": "Thấy toàn thân và hướng đi sẽ thuận lợi hơn khi thêm chuyển động."
+              }
             ]
           }
         },
@@ -1770,12 +2733,12 @@ export const curriculumContent = [
           "content": "Ghép câu lệnh chuyển động: chọn đúng thứ tự Ai-làm gì-cảm xúc cho cảnh phim của mình",
           "objective": "Luyện áp dụng công thức chuyển động vào ngữ cảnh phim",
           "duration": "5 phút",
-          "gameType": "match",
+          "gameType": "order",
           "gameConfig": {
             "cards": [
-              "chọn đúng thứ tự Ai-làm gì-cảm xúc cho cảnh phim của mình",
-              "Ghép câu lệnh chuyển động: chọn đúng thứ tự Ai-làm gì-cảm xúc ch",
-              "Luyện áp dụng công thức chuyển động vào ngữ cảnh phim"
+              "Ai: Mít",
+              "Làm gì: chạy qua cầu",
+              "Cảm xúc: quyết tâm"
             ]
           }
         },
@@ -1806,11 +2769,29 @@ export const curriculumContent = [
           "content": "Chọn nhạc phù hợp: nghe 2-3 đoạn nhạc nền ngắn, chọn đoạn hợp với cảm xúc cảnh nhất",
           "objective": "Luyện liên kết âm nhạc với cảm xúc của cảnh",
           "duration": "5 phút",
-          "gameType": "pick",
+          "gameType": "match",
           "gameConfig": {
             "cards": [
               "nghe 2-3 đoạn nhạc nền ngắn",
-              "chọn đoạn hợp với cảm xúc cảnh nhất"
+              "chọn đoạn hợp với cảm xúc cảnh nhất",
+              "nghe 2-3 đoạn nhạc nền ngắn, chọn đoạn hợp với cảm xúc…",
+              "Luyện liên kết âm nhạc với cảm xúc của cảnh",
+              "Thêm âm thanh/nhạc nền",
+              "Cảnh phim có kèm âm thanh/nhạc nền"
+            ],
+            "pairs": [
+              {
+                "left": "Cảnh chạy đua gấp gáp",
+                "right": "Nhịp trống nhanh"
+              },
+              {
+                "left": "Cảnh bạn bè đoàn tụ",
+                "right": "Giai điệu ấm và nhẹ"
+              },
+              {
+                "left": "Cánh cửa bí mật mở ra",
+                "right": "Âm thanh ngân bí ẩn"
+              }
             ]
           }
         },
@@ -1841,11 +2822,44 @@ export const curriculumContent = [
           "content": "So sánh trước-sau: xem bản phim đầu tiên và bản hiện tại, tìm điểm đã cải thiện",
           "objective": "Rèn khả năng nhận ra sự tiến bộ của chính mình",
           "duration": "5 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "xem bản phim đầu tiên và bản hiện tại",
-              "tìm điểm đã cải thiện"
+              "tìm điểm đã cải thiện",
+              "xem bản phim đầu tiên và bản hiện tại, tìm điểm đã cải…",
+              "Rèn khả năng nhận ra sự tiến bộ của chính mình",
+              "Xem lại & hoàn thiện lần cuối",
+              "Phim ngắn hoàn chỉnh cuối cùng"
+            ],
+            "rounds": [
+              {
+                "prompt": "Bản sau nghe rõ thoại hơn nhạc. Điểm nào được cải thiện?",
+                "options": [
+                  "Cân bằng âm thanh",
+                  "Thời lượng phim"
+                ],
+                "answerIndex": 0,
+                "feedback": "Hạ nhạc để nghe rõ lời là cải thiện về cân bằng âm thanh."
+              },
+              {
+                "prompt": "Bản sau cắt phần đứng yên ở đầu. Kết quả tốt hơn ở đâu?",
+                "options": [
+                  "Cảnh bắt đầu đúng lúc hành động",
+                  "Nhân vật đổi màu"
+                ],
+                "answerIndex": 0,
+                "feedback": "Cắt khoảng chờ giúp cảnh đi vào hành động chính nhanh và rõ."
+              },
+              {
+                "prompt": "Bản sau giữ hình, chuyển động và tiếng bước chân cùng nhịp. Điều gì tốt hơn?",
+                "options": [
+                  "Ba lớp phối hợp khớp nhau",
+                  "Có nhiều hiệu ứng hơn"
+                ],
+                "answerIndex": 0,
+                "feedback": "Các lớp khớp nhau quan trọng hơn việc thêm thật nhiều hiệu ứng."
+              }
             ]
           }
         },
@@ -1879,8 +2893,10 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "Sắp xếp lại câu giới thiệu bị xáo trộn theo đúng thứ tự hợp lý",
-              "Luyện cấu trúc trình bày mạch lạc"
+              "Chào gia đình",
+              "Nói tên phim và cảnh đã chọn",
+              "Kể một điều em tự hào",
+              "Mời mọi người xem phim"
             ]
           }
         },
@@ -1928,14 +2944,35 @@ export const curriculumContent = [
           "content": "Ngân hàng ý tưởng: chọn 1 chủ đề (tự do, tình bạn, dũng cảm...) làm gốc cho thế giới",
           "objective": "Thu hẹp vô vàn ý tưởng thành 1 hướng đi rõ ràng",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "combine",
           "gameConfig": {
             "cards": [
               "tự do",
               "tình bạn",
               "dũng cảm...",
-              "chọn 1 chủ đề (tự do",
-              "dũng cảm...) làm gốc cho thế giới"
+              "Thế giới của em nói lên điều gì?",
+              "Đoạn mô tả ý tưởng + thông điệp thế giới",
+              "Thu hẹp vô vàn ý tưởng thành 1 hướng đi rõ ràng"
+            ],
+            "groups": [
+              {
+                "label": "Chủ đề gốc",
+                "options": [
+                  "Tình bạn",
+                  "Tự do",
+                  "Dũng cảm",
+                  "Chăm sóc thiên nhiên"
+                ]
+              },
+              {
+                "label": "Vì sao quan trọng",
+                "options": [
+                  "Giúp mọi người gần nhau",
+                  "Ai cũng được là chính mình",
+                  "Khuyến khích bước qua nỗi sợ",
+                  "Nhắc mọi người cùng bảo vệ"
+                ]
+              }
             ]
           }
         },
@@ -1966,12 +3003,41 @@ export const curriculumContent = [
           "content": "Thử ghép tên: chọn 2 âm tiết gợi cảm giác đúng để ghép thành tên thế giới",
           "objective": "Luyện cảm nhận âm thanh của ngôn ngữ",
           "duration": "4 phút",
-          "gameType": "match",
+          "gameType": "combine",
           "gameConfig": {
             "cards": [
-              "chọn 2 âm tiết gợi cảm giác đúng để ghép thành tên thế giới",
-              "Thử ghép tên: chọn 2 âm tiết gợi cảm giác đúng để ghép thành tên",
-              "Luyện cảm nhận âm thanh của ngôn ngữ"
+              "chọn 2 âm tiết gợi cảm giác đúng để ghép thành tên thế…",
+              "Luyện cảm nhận âm thanh của ngôn ngữ",
+              "Đặt tên & phác hoạ tổng thể",
+              "Tên thế giới + đoạn phác hoạ tổng thể"
+            ],
+            "groups": [
+              {
+                "label": "Âm đầu",
+                "options": [
+                  "Lumi",
+                  "Astra",
+                  "Mộc",
+                  "Vân"
+                ]
+              },
+              {
+                "label": "Âm cuối",
+                "options": [
+                  "ria",
+                  "nova",
+                  "lâm",
+                  "giới"
+                ]
+              },
+              {
+                "label": "Cảm giác tên gợi ra",
+                "options": [
+                  "Hy vọng",
+                  "Bí ẩn",
+                  "Yên bình"
+                ]
+              }
             ]
           }
         },
@@ -2002,11 +3068,33 @@ export const curriculumContent = [
           "content": "Kéo-thả để chia 1 khung bản đồ trống thành các vùng theo địa hình gợi ý",
           "objective": "Luyện tư duy phân vùng không gian",
           "duration": "4 phút",
-          "gameType": "order",
+          "gameType": "combine",
           "gameConfig": {
             "cards": [
-              "Kéo-thả để chia 1 khung bản đồ trống thành các vùng theo địa hìn",
-              "Luyện tư duy phân vùng không gian"
+              "Kéo-thả để chia 1 khung bản đồ trống thành các vùng the…",
+              "Luyện tư duy phân vùng không gian",
+              "Một thế giới có nhiều vùng đất",
+              "Mô tả 2 vùng đất + đặc điểm mỗi vùng"
+            ],
+            "groups": [
+              {
+                "label": "Vùng đất",
+                "options": [
+                  "Rừng phát sáng",
+                  "Đảo gió",
+                  "Thành phố dưới hồ",
+                  "Thung lũng pha lê"
+                ]
+              },
+              {
+                "label": "Điểm khác biệt",
+                "options": [
+                  "Luôn là ban đêm",
+                  "Di chuyển theo mùa",
+                  "Nhà cửa biết đổi hình",
+                  "Âm thanh tạo ra màu sắc"
+                ]
+              }
             ]
           }
         },
@@ -2037,11 +3125,27 @@ export const curriculumContent = [
           "content": "Xếp hình: đặt đúng các vùng đã mô tả vào vị trí hợp lý trên khung bản đồ",
           "objective": "Luyện tư duy bố cục tổng thể",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
-              "đặt đúng các vùng đã mô tả",
-              "o vị trí hợp lý trên khung bản đồ"
+              "đặt đúng các vùng đã mô tả vào vị trí hợp lý trên khung…",
+              "Luyện tư duy bố cục tổng thể",
+              "Phác thảo bản đồ",
+              "Sơ đồ bản đồ phác thảo"
+            ],
+            "placements": [
+              {
+                "item": "Tên và biểu tượng bản đồ",
+                "target": "Ô chú giải"
+              },
+              {
+                "item": "Con sông nối hai vùng",
+                "target": "Đường liên kết vùng"
+              },
+              {
+                "item": "Tên từng vùng đất",
+                "target": "Bên trong ranh giới vùng"
+              }
             ]
           }
         },
@@ -2072,11 +3176,33 @@ export const curriculumContent = [
           "content": "Bốc thăm ý tưởng: rút ngẫu nhiên 1 gợi ý quy luật rồi biến tấu theo ý mình",
           "objective": "Rèn khả năng biến ý tưởng có sẵn thành ý tưởng riêng",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "combine",
           "gameConfig": {
             "cards": [
-              "rút ngẫu nhiên 1 gợi ý quy luật",
-              "biến tấu theo ý mình"
+              "rút ngẫu nhiên 1 gợi ý quy luật rồi biến tấu theo ý mình",
+              "Rèn khả năng biến ý tưởng có sẵn thành ý tưởng riêng",
+              "Điều gì khác với đời thực?",
+              "Mô tả 1 quy luật đặc biệt + hệ quả"
+            ],
+            "groups": [
+              {
+                "label": "Nguồn quy luật",
+                "options": [
+                  "Ánh sáng",
+                  "Âm thanh",
+                  "Ký ức",
+                  "Thời tiết"
+                ]
+              },
+              {
+                "label": "Tác động đặc biệt",
+                "options": [
+                  "Làm vật thể bay lên",
+                  "Đổi màu theo cảm xúc",
+                  "Mở lối đi bí mật",
+                  "Làm thời gian chậm lại"
+                ]
+              }
             ]
           }
         },
@@ -2107,13 +3233,35 @@ export const curriculumContent = [
           "content": "Câu hỏi tình huống: 'nếu quy luật này đúng, điều gì sẽ xảy ra khi...'",
           "objective": "Luyện tư duy suy luận logic trong thế giới hư cấu",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "nếu quy luật này đúng",
               "điều gì sẽ xảy ra khi...",
-              "'nếu quy luật này đúng",
-              "điều gì sẽ xảy ra khi...'"
+              "nếu quy luật này đúng, điều gì sẽ xảy ra khi...",
+              "Luyện tư duy suy luận logic trong thế giới hư cấu",
+              "Kiểm tra tính nhất quán",
+              "1 đoạn tình huống minh hoạ quy luật"
+            ],
+            "rounds": [
+              {
+                "prompt": "Quy luật: âm thanh tạo ra màu sắc. Khi chuông ngân, điều gì hợp lý?",
+                "options": [
+                  "Một dải màu lan quanh tháp",
+                  "Mọi âm thanh biến mất mà không có dấu hiệu"
+                ],
+                "answerIndex": 0,
+                "feedback": "Kết quả A áp dụng trực tiếp quan hệ âm thanh → màu sắc đã đặt ra."
+              },
+              {
+                "prompt": "Quy luật: ký ức mở lối bí mật. Nhân vật quên mật mã thì sao?",
+                "options": [
+                  "Cửa vẫn tự mở như bình thường",
+                  "Nhân vật cần gợi lại ký ức hoặc tìm cách khác"
+                ],
+                "answerIndex": 1,
+                "feedback": "Kết quả B giữ cho quy luật có hệ quả nhất quán trong tình huống mới."
+              }
             ]
           }
         },
@@ -2147,8 +3295,24 @@ export const curriculumContent = [
           "gameType": "match",
           "gameConfig": {
             "cards": [
-              "chọn 1 tâm trạng",
-              "ghép với bộ màu tương ứng gợi ý"
+              "chọn 1 tâm trạng rồi ghép với bộ màu tương ứng gợi ý",
+              "Luyện liên kết cảm xúc trừu tượng với lựa chọn thị giác…",
+              "Tâm trạng của thế giới",
+              "Tâm trạng chủ đạo + lý do lựa chọn"
+            ],
+            "pairs": [
+              {
+                "left": "Hy vọng",
+                "right": "Vàng ấm và xanh trời sáng"
+              },
+              {
+                "left": "Bí ẩn",
+                "right": "Tím đậm và xanh đêm"
+              },
+              {
+                "left": "Hoài niệm",
+                "right": "Nâu ấm và vàng nhạt"
+              }
             ]
           }
         },
@@ -2179,12 +3343,33 @@ export const curriculumContent = [
           "content": "Ghép mô tả đúng phong cách: chọn đoạn mô tả bằng lời khớp nhất với 1 mood board mẫu",
           "objective": "Luyện khả năng 'đọc' phong cách hình ảnh và diễn đạt lại bằng lời",
           "duration": "4 phút",
-          "gameType": "match",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "chọn đoạn mô tả bằng lời khớp nhất với 1 mood board mẫu",
-              "Ghép mô tả đúng phong cách: chọn đoạn mô tả bằng lời khớp nhất v",
-              "Luyện khả năng 'đọc' phong cách hình ảnh và diễn đạt lại bằng lờ"
+              "Luyện khả năng 'đọc' phong cách hình ảnh và diễn đạt lạ…",
+              "Lên kế hoạch mood board (chưa dùng AI",
+              "Bản kế hoạch mood board bằng lời (3 mô tả góc nhìn +…"
+            ],
+            "rounds": [
+              {
+                "prompt": "Mood board bí ẩn, ánh sáng yếu, tím đậm. Mô tả nào khớp?",
+                "options": [
+                  "Sương tím phủ các lối nhỏ, điểm sáng xa xăm",
+                  "Nắng trưa vàng rực trên cánh đồng"
+                ],
+                "answerIndex": 0,
+                "feedback": "Mô tả A giữ màu, ánh sáng và cảm giác bí ẩn của mood board."
+              },
+              {
+                "prompt": "Ba góc nhìn cùng một thế giới nên giữ điều gì?",
+                "options": [
+                  "Bảng màu và chất ánh sáng chủ đạo",
+                  "Mỗi hình dùng một phong cách không liên quan"
+                ],
+                "answerIndex": 0,
+                "feedback": "Giữ bảng màu và ánh sáng giúp các góc nhìn thuộc cùng một thế giới."
+              }
             ]
           }
         },
@@ -2215,12 +3400,35 @@ export const curriculumContent = [
           "content": "Ma trận sáng tạo: ghép ngẫu nhiên [nơi ở] × [khả năng đặc biệt] để gợi ý cư dân",
           "objective": "Kích hoạt sáng tạo có định hướng bằng ma trận kết hợp",
           "duration": "4 phút",
-          "gameType": "match",
+          "gameType": "combine",
           "gameConfig": {
             "cards": [
-              "ghép ngẫu nhiên [nơi ở] × [khả năng đặc biệt] để gợi ý cư dân",
-              "Ma trận sáng tạo: ghép ngẫu nhiên [nơi ở] × [khả năng đặc biệt] ",
-              "Kích hoạt sáng tạo có định hướng bằng ma trận kết hợp"
+              "nơi ở",
+              "khả năng đặc biệt",
+              "ghép ngẫu nhiên [nơi ở] × [khả năng đặc biệt] để gợi ý…",
+              "Kích hoạt sáng tạo có định hướng bằng ma trận kết hợp",
+              "Ai sống ở đây và họ sống ra sao?",
+              "Mô tả 2 loại cư dân của thế giới"
+            ],
+            "groups": [
+              {
+                "label": "Nơi ở",
+                "options": [
+                  "Tán cây phát sáng",
+                  "Đảo nổi",
+                  "Hang pha lê",
+                  "Thành phố dưới hồ"
+                ]
+              },
+              {
+                "label": "Khả năng",
+                "options": [
+                  "Nghe được tiếng cây",
+                  "Điều khiển gió",
+                  "Lưu giữ ký ức",
+                  "Dệt ánh sáng"
+                ]
+              }
             ]
           }
         },
@@ -2251,11 +3459,35 @@ export const curriculumContent = [
           "content": "Tìm điểm sai: so sánh hình AI tạo với mô tả gốc, tìm chi tiết bị lệch",
           "objective": "Rèn khả năng đối chiếu sản phẩm với ý tưởng ban đầu",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "so sánh hình AI tạo với mô tả gốc",
-              "tìm chi tiết bị lệch"
+              "tìm chi tiết bị lệch",
+              "so sánh hình AI tạo với mô tả gốc, tìm chi tiết bị lệch",
+              "Rèn khả năng đối chiếu sản phẩm với ý tưởng ban đầu",
+              "Tạo hình cư dân bằng AI",
+              "Hình ảnh 2 loại cư dân"
+            ],
+            "rounds": [
+              {
+                "prompt": "Mô tả: cư dân hang pha lê, da phản chiếu tím, giữ ký ức. Hình nào lệch?",
+                "options": [
+                  "Da tím phản sáng, đứng trong hang pha lê",
+                  "Lông xanh, sống trên đảo nổi"
+                ],
+                "answerIndex": 1,
+                "feedback": "Hình B đổi ngoại hình, nơi ở và bỏ mất khả năng đã mô tả."
+              },
+              {
+                "prompt": "Hai cư dân cùng loài ở hai hình. Điều gì cần giữ?",
+                "options": [
+                  "Đặc điểm nhận diện cốt lõi",
+                  "Mọi tư thế và góc máy phải giống hệt"
+                ],
+                "answerIndex": 0,
+                "feedback": "Tư thế có thể đổi, nhưng dấu hiệu nhận diện cần nhất quán."
+              }
             ]
           }
         },
@@ -2291,8 +3523,24 @@ export const curriculumContent = [
             "cards": [
               "giới thiệu",
               "chi tiết",
-              "ghép đúng loại góc nhìn với mục đích sử dụng (giới thiệu",
-              "chi tiết)"
+              "ghép đúng loại góc nhìn với mục đích sử dụng (giới thiệ…",
+              "Luyện tư duy chọn góc nhìn có chủ đích",
+              "Nhiều góc nhìn của một thế giới",
+              "Danh sách 3 góc nhìn cần tạo (dựa trên kế hoạch Buổi 4"
+            ],
+            "pairs": [
+              {
+                "left": "Toàn cảnh",
+                "right": "Giới thiệu các vùng và quan hệ không gian"
+              },
+              {
+                "left": "Trung cảnh",
+                "right": "Cho thấy cư dân hoạt động trong một vùng"
+              },
+              {
+                "left": "Cận cảnh",
+                "right": "Nhấn vào vật liệu hoặc chi tiết đặc biệt"
+              }
             ]
           }
         },
@@ -2323,12 +3571,33 @@ export const curriculumContent = [
           "content": "Thử thách tốc độ: hoàn thành việc chọn ảnh trong giới hạn thời gian gợi ý",
           "objective": "Luyện ra quyết định nhanh, tránh cầu toàn quá mức",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "hoàn thành việc chọn ảnh trong giới hạn thời gian gợi ý",
-              "Thử thách tốc độ: hoàn thành việc chọn ảnh trong giới hạn thời g",
-              "Luyện ra quyết định nhanh, tránh cầu toàn quá mức"
+              "Luyện ra quyết định nhanh, tránh cầu toàn quá mức",
+              "Sản xuất bộ hình ảnh cùng AI",
+              "Bộ 3 hình ảnh thế giới theo 3 góc nhìn"
+            ],
+            "rounds": [
+              {
+                "prompt": "Ảnh đẹp nhưng lệch mood board; ảnh còn lại đúng màu và quy luật. Chọn ảnh nào?",
+                "options": [
+                  "Ảnh đúng kế hoạch hình ảnh",
+                  "Ảnh đẹp nhưng thuộc phong cách khác"
+                ],
+                "answerIndex": 0,
+                "feedback": "Bộ ảnh cần phục vụ world bible và nhất quán với kế hoạch đã lập."
+              },
+              {
+                "prompt": "Bộ đã có toàn cảnh và cận cảnh. Hình tiếp theo nên bổ sung gì?",
+                "options": [
+                  "Trung cảnh cư dân sinh hoạt",
+                  "Một toàn cảnh gần giống hình cũ"
+                ],
+                "answerIndex": 0,
+                "feedback": "Trung cảnh bổ sung chức năng mới thay vì lặp lại góc đã có."
+              }
             ]
           }
         },
@@ -2362,8 +3631,10 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "kéo các phần",
-              "o đúng thứ tự hợp lý của tài liệu"
+              "Tổng quan và chủ đề",
+              "Bản đồ các vùng",
+              "Quy luật đặc biệt",
+              "Cư dân và hình ảnh"
             ]
           }
         },
@@ -2394,11 +3665,31 @@ export const curriculumContent = [
           "content": "Ghép hình đúng mục: kéo các hình đã tạo vào đúng phần nội dung tương ứng",
           "objective": "Rèn khả năng liên kết hình ảnh với nội dung",
           "duration": "4 phút",
-          "gameType": "match",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
-              "kéo các hình đã tạo",
-              "o đúng phần nội dung tương ứng"
+              "kéo các hình đã tạo vào đúng phần nội dung tương ứng",
+              "Rèn khả năng liên kết hình ảnh với nội dung",
+              "Hoàn thiện & trang trí",
+              "World bible mini hoàn chỉnh có hình ảnh"
+            ],
+            "placements": [
+              {
+                "item": "Ảnh toàn cảnh",
+                "target": "Mục tổng quan"
+              },
+              {
+                "item": "Sơ đồ vùng đất",
+                "target": "Mục bản đồ"
+              },
+              {
+                "item": "Chân dung cư dân",
+                "target": "Mục cư dân"
+              },
+              {
+                "item": "Ảnh chi tiết phép thuật",
+                "target": "Mục quy luật"
+              }
             ]
           }
         },
@@ -2432,9 +3723,10 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "xếp lại các ý chính theo đúng thứ tự thuyết trình hợp lý",
-              "Sắp xếp dàn ý: xếp lại các ý chính theo đúng thứ tự thuyết trình",
-              "Luyện tư duy trình bày có cấu trúc"
+              "Tên và chủ đề thế giới",
+              "Bản đồ cùng quy luật",
+              "Cư dân tiêu biểu",
+              "Điều em tự hào nhất"
             ]
           }
         },
@@ -2465,12 +3757,33 @@ export const curriculumContent = [
           "content": "Phòng tập phản biện: chọn cách trả lời phù hợp nhất cho các câu hỏi mẫu",
           "objective": "Luyện phản xạ trả lời câu hỏi bất ngờ",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "chọn cách trả lời phù hợp nhất cho các câu hỏi mẫu",
-              "Phòng tập phản biện: chọn cách trả lời phù hợp nhất cho các câu ",
-              "Luyện phản xạ trả lời câu hỏi bất ngờ"
+              "Luyện phản xạ trả lời câu hỏi bất ngờ",
+              "Buổi thuyết trình chính thức",
+              "Video thuyết trình world bible"
+            ],
+            "rounds": [
+              {
+                "prompt": "“Vì sao cư dân không bay ra ngoài đảo?” Câu trả lời nào dựa trên world bible?",
+                "options": [
+                  "Vì quy luật gió chỉ nâng vật thể trong ranh giới đảo",
+                  "Vì em thích như vậy thôi"
+                ],
+                "answerIndex": 0,
+                "feedback": "Câu A dùng quy luật đã xây để bảo vệ tính nhất quán của thế giới."
+              },
+              {
+                "prompt": "Nếu câu hỏi chỉ ra một chỗ chưa hợp lý, nên trả lời thế nào?",
+                "options": [
+                  "Cảm ơn, ghi nhận và nói cách sẽ chỉnh",
+                  "Bỏ qua câu hỏi"
+                ],
+                "answerIndex": 0,
+                "feedback": "Phản biện là dữ liệu để cải thiện, không phải cuộc thi thắng thua."
+              }
             ]
           }
         },
@@ -2518,14 +3831,35 @@ export const curriculumContent = [
           "content": "Ngân hàng mong muốn: chọn 1 mong muốn gốc (được công nhận, tìm bạn, khám phá...) làm nền",
           "objective": "Thu hẹp ý tưởng mông lung thành 1 động lực rõ ràng",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "combine",
           "gameConfig": {
             "cards": [
               "được công nhận",
               "tìm bạn",
               "khám phá...",
-              "chọn 1 mong muốn gốc (được công nhận",
-              "khám phá...) làm nền"
+              "Mọi nhân vật đều muốn điều gì đó",
+              "Đoạn mô tả mong muốn sâu nhất của nhân vật",
+              "Thu hẹp ý tưởng mông lung thành 1 động lực rõ ràng"
+            ],
+            "groups": [
+              {
+                "label": "Mong muốn gốc",
+                "options": [
+                  "Được công nhận",
+                  "Tìm một người bạn",
+                  "Khám phá điều chưa biết",
+                  "Bảo vệ cộng đồng"
+                ]
+              },
+              {
+                "label": "Điều đó có nghĩa là",
+                "options": [
+                  "Chứng minh giá trị bản thân",
+                  "Không còn cô đơn",
+                  "Hiểu thế giới rộng hơn",
+                  "Giữ người khác an toàn"
+                ]
+              }
             ]
           }
         },
@@ -2560,8 +3894,23 @@ export const curriculumContent = [
           "gameConfig": {
             "cards": [
               "nối 1 sự kiện quá khứ với 1 mong muốn hiện tại phù hợp",
-              "Ghép nguyên nhân - kết quả: nối 1 sự kiện quá khứ với 1 mong muố",
-              "Luyện tư duy nhân-quả trong xây dựng nhân vật"
+              "Luyện tư duy nhân-quả trong xây dựng nhân vật",
+              "Bối cảnh xuất thân ngắn",
+              "1 câu backstory ngắn"
+            ],
+            "pairs": [
+              {
+                "left": "Từng bị bỏ lại trong một chuyến đi",
+                "right": "Muốn tìm một người bạn tin cậy"
+              },
+              {
+                "left": "Lớn lên ở nơi mọi câu hỏi bị cấm",
+                "right": "Muốn khám phá điều chưa biết"
+              },
+              {
+                "left": "Được một người lạ cứu giúp",
+                "right": "Muốn bảo vệ cộng đồng"
+              }
             ]
           }
         },
@@ -2596,8 +3945,23 @@ export const curriculumContent = [
           "gameConfig": {
             "cards": [
               "nối đặc điểm ngoại hình với tính cách mà nó gợi ý",
-              "Ghép đúng: nối đặc điểm ngoại hình với tính cách mà nó gợi ý",
-              "Luyện liên kết hình thức và nội dung nhân vật"
+              "Luyện liên kết hình thức và nội dung nhân vật",
+              "Ngoại hình không phải ngẫu nhiên",
+              "2 chi tiết ngoại hình + lý do lựa chọn"
+            ],
+            "pairs": [
+              {
+                "left": "Ba lô đầy bản đồ và kính quan sát",
+                "right": "Tò mò, thích khám phá"
+              },
+              {
+                "left": "Áo giáp cũ được vá nhiều lần",
+                "right": "Bền bỉ, bảo vệ người khác"
+              },
+              {
+                "left": "Huy hiệu luôn giấu dưới cổ áo",
+                "right": "Muốn được công nhận nhưng thiếu tự tin"
+              }
             ]
           }
         },
@@ -2628,12 +3992,33 @@ export const curriculumContent = [
           "content": "Rà soát mô tả mẫu: tìm phần còn thiếu trong 1 bản mô tả ngoại hình chưa đầy đủ",
           "objective": "Rèn khả năng nhận diện thông tin còn thiếu",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "tìm phần còn thiếu trong 1 bản mô tả ngoại hình chưa đầy đủ",
-              "Rà soát mô tả mẫu: tìm phần còn thiếu trong 1 bản mô tả ngoại hì",
-              "Rèn khả năng nhận diện thông tin còn thiếu"
+              "tìm phần còn thiếu trong 1 bản mô tả ngoại hình chưa đầ…",
+              "Rèn khả năng nhận diện thông tin còn thiếu",
+              "Bản phác thảo mô tả đầy đủ",
+              "Bản mô tả ngoại hình đầy đủ"
+            ],
+            "rounds": [
+              {
+                "prompt": "Mô tả nào đủ để tạo lại nhân vật nhất quán?",
+                "options": [
+                  "Một cô bé thú vị",
+                  "Cô bé nhỏ, tóc xoăn nâu, áo vàng, ba lô đỏ, huy hiệu sao"
+                ],
+                "answerIndex": 1,
+                "feedback": "Mô tả B có hình dáng, màu, trang phục và dấu hiệu nhận diện cụ thể."
+              },
+              {
+                "prompt": "Mô tả đã có dáng, màu và trang phục. Phần nào còn thiếu?",
+                "options": [
+                  "Chi tiết nhận diện cố định",
+                  "Một lời khen chung chung"
+                ],
+                "answerIndex": 0,
+                "feedback": "Chi tiết cố định giúp phân biệt nhân vật qua nhiều hình."
+              }
             ]
           }
         },
@@ -2668,8 +4053,24 @@ export const curriculumContent = [
           "gameConfig": {
             "cards": [
               "mặt trái",
-              "với mỗi điểm mạnh",
-              "chọn 1 điểm yếu 'mặt trái' hợp lý"
+              "với mỗi điểm mạnh, chọn 1 điểm yếu 'mặt trái' hợp lý",
+              "Luyện tư duy nhân vật đa chiều, không một màu",
+              "Không ai hoàn hảo — kể cả nhân vật của em",
+              "1 điểm mạnh + 1 điểm yếu có liên hệ"
+            ],
+            "pairs": [
+              {
+                "left": "Rất cẩn thận",
+                "right": "Dễ chần chừ khi cần quyết định nhanh"
+              },
+              {
+                "left": "Luôn giúp mọi người",
+                "right": "Khó nói “không” và quên nhu cầu của mình"
+              },
+              {
+                "left": "Dũng cảm thử điều mới",
+                "right": "Đôi lúc hành động trước khi suy nghĩ"
+              }
             ]
           }
         },
@@ -2703,9 +4104,24 @@ export const curriculumContent = [
           "gameType": "match",
           "gameConfig": {
             "cards": [
-              "ghép mong muốn đã có ở Buổi 1 với 1 nỗi sợ đối lập hợp lý",
-              "Đối lập hoá: ghép mong muốn đã có ở Buổi 1 với 1 nỗi sợ đối lập ",
-              "Luyện tư duy xây dựng xung đột nội tâm nhân vật"
+              "ghép mong muốn đã có ở Buổi 1 với 1 nỗi sợ đối lập hợp…",
+              "Luyện tư duy xây dựng xung đột nội tâm nhân vật",
+              "Nỗi sợ lớn nhất",
+              "1 câu mô tả nỗi sợ lớn nhất + lý do"
+            ],
+            "pairs": [
+              {
+                "left": "Muốn được công nhận",
+                "right": "Sợ thất bại trước mọi người"
+              },
+              {
+                "left": "Muốn tìm bạn",
+                "right": "Sợ bị từ chối hoặc bỏ lại"
+              },
+              {
+                "left": "Muốn khám phá",
+                "right": "Sợ sự thật làm thay đổi điều mình tin"
+              }
             ]
           }
         },
@@ -2740,7 +4156,25 @@ export const curriculumContent = [
           "gameConfig": {
             "cards": [
               "nối tình huống cảm xúc với biểu cảm",
-              "dáng đứng phù hợp nhất"
+              "dáng đứng phù hợp nhất",
+              "nối tình huống cảm xúc với biểu cảm/dáng đứng phù hợp…",
+              "Luyện liên kết cảm xúc - biểu cảm - tư thế",
+              "Cảm xúc hiện ra trên khuôn mặt và dáng đứng",
+              "Mô tả biểu cảm/tư thế trong 2 tình huống"
+            ],
+            "pairs": [
+              {
+                "left": "Gặp lại người bạn cũ",
+                "right": "Mắt mở sáng, thân người hướng về trước"
+              },
+              {
+                "left": "Nghe tiếng động trong bóng tối",
+                "right": "Vai co, lùi một bước, mắt nhìn quanh"
+              },
+              {
+                "left": "Quyết định bảo vệ nhóm",
+                "right": "Đứng thẳng, chân vững, nhìn thẳng"
+              }
             ]
           }
         },
@@ -2771,11 +4205,34 @@ export const curriculumContent = [
           "content": "Phân biệt sắc thái: chọn đúng mức độ biểu cảm (hơi tức giận vs rất tức giận)",
           "objective": "Rèn khả năng phân biệt sắc thái cảm xúc tinh tế hơn",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "hơi tức giận vs rất tức giận",
-              "chọn đúng mức độ biểu cảm (hơi tức giận vs rất tức giận)"
+              "chọn đúng mức độ biểu cảm (hơi tức giận vs rất tức giận",
+              "Rèn khả năng phân biệt sắc thái cảm xúc tinh tế hơn",
+              "Tình huống thứ ba: khi tức giận hoặc quyết tâm",
+              "Bộ 3 mô tả biểu cảm hoàn chỉnh"
+            ],
+            "rounds": [
+              {
+                "prompt": "“Hơi tức giận” hợp với biểu cảm nào?",
+                "options": [
+                  "Lông mày hơi hạ, môi khép",
+                  "Nghiến răng, nắm tay, toàn thân căng cứng"
+                ],
+                "answerIndex": 0,
+                "feedback": "Biểu cảm A có tín hiệu vừa phải, chưa đạt mức giận dữ dữ dội."
+              },
+              {
+                "prompt": "“Rất quyết tâm” khác “bình tĩnh” ở đâu?",
+                "options": [
+                  "Ánh mắt tập trung và dáng nghiêng về mục tiêu",
+                  "Mắt nhắm và cơ thể thả lỏng"
+                ],
+                "answerIndex": 0,
+                "feedback": "Hướng nhìn và trọng tâm cơ thể cho thấy nhân vật sắp hành động."
+              }
             ]
           }
         },
@@ -2806,12 +4263,33 @@ export const curriculumContent = [
           "content": "Bắt lỗi nhất quán: tìm điểm khác nhau giữa 2 hình AI tạo từ 2 mô tả hơi khác nhau",
           "objective": "Rèn khả năng nhận diện sự thiếu nhất quán",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "tìm điểm khác nhau giữa 2 hình AI tạo từ 2 mô tả hơi khác nhau",
-              "Bắt lỗi nhất quán: tìm điểm khác nhau giữa 2 hình AI tạo từ 2 mô",
-              "Rèn khả năng nhận diện sự thiếu nhất quán"
+              "tìm điểm khác nhau giữa 2 hình AI tạo từ 2 mô tả hơi…",
+              "Rèn khả năng nhận diện sự thiếu nhất quán",
+              "Vì sao cần một mô tả 'chuẩn",
+              "Bản nháp bộ mô tả chuẩn (character prompt"
+            ],
+            "rounds": [
+              {
+                "prompt": "Mô tả A có ba lô đỏ; mô tả B bỏ chi tiết đó. Điều gì dễ xảy ra?",
+                "options": [
+                  "AI có thể làm mất dấu hiệu nhận diện",
+                  "Hai hình chắc chắn giống hệt"
+                ],
+                "answerIndex": 0,
+                "feedback": "Thay đổi mô tả chuẩn có thể làm đặc điểm nhận diện biến mất."
+              },
+              {
+                "prompt": "Phần nào nên thay đổi giữa các tư thế?",
+                "options": [
+                  "Hành động và biểu cảm",
+                  "Màu tóc, trang phục và huy hiệu cố định"
+                ],
+                "answerIndex": 0,
+                "feedback": "Tư thế được đổi, còn đặc điểm cốt lõi cần giữ để nhận ra nhân vật."
+              }
             ]
           }
         },
@@ -2842,12 +4320,33 @@ export const curriculumContent = [
           "content": "Rút gọn thử: chọn phiên bản mô tả ngắn gọn nhất mà vẫn đủ thông tin",
           "objective": "Luyện tư duy cô đọng ngôn ngữ",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "chọn phiên bản mô tả ngắn gọn nhất mà vẫn đủ thông tin",
-              "Rút gọn thử: chọn phiên bản mô tả ngắn gọn nhất mà vẫn đủ thông ",
-              "Luyện tư duy cô đọng ngôn ngữ"
+              "Luyện tư duy cô đọng ngôn ngữ",
+              "Hoàn thiện bộ mô tả chuẩn",
+              "Bộ mô tả chuẩn (character prompt) hoàn chỉnh + 1 hình…"
+            ],
+            "rounds": [
+              {
+                "prompt": "Bản nào ngắn hơn mà vẫn giữ đủ nhận diện?",
+                "options": [
+                  "Cô bé tóc xoăn nâu, áo vàng, ba lô đỏ, huy hiệu sao",
+                  "Một cô bé đẹp và rất đặc biệt"
+                ],
+                "answerIndex": 0,
+                "feedback": "Bản A ngắn nhưng vẫn giữ bốn thuộc tính nhìn thấy được."
+              },
+              {
+                "prompt": "Chi tiết nào có thể bỏ khỏi mô tả hình ảnh chuẩn?",
+                "options": [
+                  "“Ai gặp cũng thấy thật tuyệt vời”",
+                  "Huy hiệu sao trên ba lô đỏ"
+                ],
+                "answerIndex": 0,
+                "feedback": "Lời đánh giá chung không giúp tái tạo ngoại hình; huy hiệu thì có."
+              }
             ]
           }
         },
@@ -2878,11 +4377,33 @@ export const curriculumContent = [
           "content": "Chọn bộ hình cần thiết: chọn 3-4 tư thế/cảm xúc quan trọng nhất cần có",
           "objective": "Luyện tư duy lập kế hoạch sản xuất có mục đích",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
               "chọn 3-4 tư thế",
-              "cảm xúc quan trọng nhất cần có"
+              "cảm xúc quan trọng nhất cần có",
+              "chọn 3-4 tư thế/cảm xúc quan trọng nhất cần có",
+              "Luyện tư duy lập kế hoạch sản xuất có mục đích",
+              "Lên kế hoạch bộ sưu tập",
+              "Danh sách 3-4 hình cần tạo"
+            ],
+            "placements": [
+              {
+                "item": "Chân dung trung tính",
+                "target": "Ảnh tham chiếu chuẩn"
+              },
+              {
+                "item": "Tư thế đang hành động",
+                "target": "Ô chuyển động"
+              },
+              {
+                "item": "Biểu cảm vui",
+                "target": "Ô cảm xúc tích cực"
+              },
+              {
+                "item": "Biểu cảm sợ hoặc quyết tâm",
+                "target": "Ô cảm xúc thử thách"
+              }
             ]
           }
         },
@@ -2913,11 +4434,34 @@ export const curriculumContent = [
           "content": "Thử thách phát hiện: tìm hình nào trong bộ bị 'lệch' nhân vật gốc",
           "objective": "Rèn khả năng kiểm soát chất lượng sản phẩm AI",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "lệch",
-              "tìm hình nào trong bộ bị 'lệch' nhân vật gốc"
+              "tìm hình nào trong bộ bị 'lệch' nhân vật gốc",
+              "Rèn khả năng kiểm soát chất lượng sản phẩm AI",
+              "Sản xuất bộ sưu tập cùng AI",
+              "Bộ 3-4 hình nhân vật hoàn chỉnh"
+            ],
+            "rounds": [
+              {
+                "prompt": "Ba hình giữ tóc, áo, ba lô; hình thứ tư đổi màu áo. Hình nào lệch?",
+                "options": [
+                  "Hình đổi màu áo",
+                  "Ba hình giữ mô tả chuẩn"
+                ],
+                "answerIndex": 0,
+                "feedback": "Màu áo là thuộc tính cố định trong bộ mô tả chuẩn."
+              },
+              {
+                "prompt": "Một hình khác tư thế nhưng giữ đủ nhận diện. Có bị lệch không?",
+                "options": [
+                  "Không, tư thế là phần chủ động thay đổi",
+                  "Có, mọi hình phải cùng một tư thế"
+                ],
+                "answerIndex": 0,
+                "feedback": "Bộ sưu tập cần đa dạng tư thế nhưng nhất quán đặc điểm cốt lõi."
+              }
             ]
           }
         },
@@ -2948,12 +4492,35 @@ export const curriculumContent = [
           "content": "Chọn kiểu quan hệ: chọn giữa bạn thân / đối thủ / người dẫn đường... cho nhân vật phụ",
           "objective": "Luyện tư duy về các kiểu quan hệ nhân vật khác nhau",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "combine",
           "gameConfig": {
             "cards": [
               "chọn giữa bạn thân",
               "đối thủ",
-              "người dẫn đường... cho nhân vật phụ"
+              "người dẫn đường... cho nhân vật phụ",
+              "Nhân vật không sống một mình",
+              "Mô tả ngắn nhân vật phụ + mối quan hệ",
+              "Luyện tư duy về các kiểu quan hệ nhân vật khác nhau"
+            ],
+            "groups": [
+              {
+                "label": "Kiểu quan hệ",
+                "options": [
+                  "Bạn thân",
+                  "Đối thủ",
+                  "Người dẫn đường",
+                  "Anh chị em"
+                ]
+              },
+              {
+                "label": "Vai trò trong câu chuyện",
+                "options": [
+                  "Thách thức điểm yếu",
+                  "Hỗ trợ khi thất bại",
+                  "Giữ một bí mật",
+                  "Cùng theo đuổi một mục tiêu"
+                ]
+              }
             ]
           }
         },
@@ -2984,11 +4551,35 @@ export const curriculumContent = [
           "content": "So sánh cặp đôi: chọn cặp màu sắc/hình dáng hợp lý nhất cho 2 nhân vật đi cùng nhau",
           "objective": "Rèn tư duy thẩm mỹ khi thiết kế nhiều nhân vật",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "chọn cặp màu sắc",
-              "hình dáng hợp lý nhất cho 2 nhân vật đi cùng nhau"
+              "hình dáng hợp lý nhất cho 2 nhân vật đi cùng nhau",
+              "chọn cặp màu sắc/hình dáng hợp lý nhất cho 2 nhân vật đ…",
+              "Rèn tư duy thẩm mỹ khi thiết kế nhiều nhân vật",
+              "Tạo hình nhân vật phụ",
+              "1 hình nhân vật phụ hoàn chỉnh"
+            ],
+            "rounds": [
+              {
+                "prompt": "Hai người là đồng đội. Cặp thiết kế nào vừa liên hệ vừa phân biệt?",
+                "options": [
+                  "Cùng huy hiệu sao, màu áo khác nhau",
+                  "Giống hệt mọi chi tiết"
+                ],
+                "answerIndex": 0,
+                "feedback": "Một chi tiết chung tạo liên hệ; màu khác giúp đọc rõ từng nhân vật."
+              },
+              {
+                "prompt": "Hai người là đối thủ. Cách dùng hình dáng nào rõ hơn?",
+                "options": [
+                  "Một dáng tròn mềm, một dáng góc cạnh",
+                  "Cả hai cùng dáng và cùng màu"
+                ],
+                "answerIndex": 0,
+                "feedback": "Tương phản hình dáng có thể làm quan hệ đối lập đọc nhanh hơn."
+              }
             ]
           }
         },
@@ -3022,8 +4613,10 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "xếp các phần",
-              "o đúng thứ tự hợp lý của tài liệu"
+              "Mong muốn và xuất thân",
+              "Ngoại hình chuẩn",
+              "Điểm mạnh, yếu và nỗi sợ",
+              "Biểu cảm, bộ hình và quan hệ"
             ]
           }
         },
@@ -3054,11 +4647,33 @@ export const curriculumContent = [
           "content": "Phòng tập phản biện: chọn cách trả lời phù hợp cho các câu hỏi mẫu về động lực nhân vật",
           "objective": "Luyện phản xạ trả lời câu hỏi bất ngờ về nhân vật của mình",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "Phòng tập phản biện: chọn cách trả lời phù hợp cho các câu hỏi m",
-              "Luyện phản xạ trả lời câu hỏi bất ngờ về nhân vật của mình"
+              "chọn cách trả lời phù hợp cho các câu hỏi mẫu về động…",
+              "Luyện phản xạ trả lời câu hỏi bất ngờ về nhân vật của…",
+              "Thuyết trình nhân vật",
+              "Video thuyết trình character bible"
+            ],
+            "rounds": [
+              {
+                "prompt": "“Vì sao nhân vật sợ thất bại?” Câu nào có bằng chứng từ hồ sơ?",
+                "options": [
+                  "Vì bạn ấy khao khát được công nhận sau lần từng bị xem thường",
+                  "Vì em chọn nỗi sợ đó"
+                ],
+                "answerIndex": 0,
+                "feedback": "Câu A nối nỗi sợ với mong muốn và xuất thân đã xây."
+              },
+              {
+                "prompt": "Câu hỏi phát hiện một mâu thuẫn trong hồ sơ. Nên làm gì?",
+                "options": [
+                  "Ghi nhận và sửa mối liên hệ chưa rõ",
+                  "Tránh trả lời để giữ nguyên"
+                ],
+                "answerIndex": 0,
+                "feedback": "Phản biện giúp character bible chặt chẽ hơn nếu được dùng để chỉnh sửa."
+              }
             ]
           }
         },
@@ -3109,9 +4724,11 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "xếp lại 5 đoạn của 1 câu chuyện bị xáo trộn theo đúng thứ tự",
-              "Sắp xếp 5 mảnh: xếp lại 5 đoạn của 1 câu chuyện bị xáo trộn theo",
-              "Luyện nhận diện trình tự 5 phần của câu chuyện"
+              "Giới thiệu nhân vật và mong muốn",
+              "Vấn đề cản đường",
+              "Hai lần cố gắng",
+              "Bước ngoặt",
+              "Kết quả và thay đổi"
             ]
           }
         },
@@ -3142,11 +4759,31 @@ export const curriculumContent = [
           "content": "Ôn nhanh: kéo đúng mong muốn - điểm yếu - nỗi sợ của nhân vật mình đã tạo ở K2",
           "objective": "Giúp bé nhớ lại đầy đủ hồ sơ tâm lý nhân vật trước khi viết chuyện",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
-              "Ôn nhanh: kéo đúng mong muốn - điểm yếu - nỗi sợ của nhân vật mì",
-              "Giúp bé nhớ lại đầy đủ hồ sơ tâm lý nhân vật trước khi viết chuy"
+              "kéo đúng mong muốn - điểm yếu - nỗi sợ của nhân vật mìn…",
+              "Giúp bé nhớ lại đầy đủ hồ sơ tâm lý nhân vật trước khi…",
+              "Chọn nhân vật & bối cảnh cho câu chuyện",
+              "Nhân vật chính + bối cảnh câu chuyện"
+            ],
+            "placements": [
+              {
+                "item": "Muốn được công nhận",
+                "target": "Ô mong muốn"
+              },
+              {
+                "item": "Hay chần chừ",
+                "target": "Ô điểm yếu"
+              },
+              {
+                "item": "Sợ thất bại trước mọi người",
+                "target": "Ô nỗi sợ"
+              },
+              {
+                "item": "Thành phố dưới hồ",
+                "target": "Ô bối cảnh"
+              }
             ]
           }
         },
@@ -3177,11 +4814,35 @@ export const curriculumContent = [
           "content": "Chấm điểm đoạn mẫu: so sánh 2 đoạn Giới thiệu, chọn đoạn hiệu quả hơn và giải thích vì sao",
           "objective": "Rèn khả năng phân tích chất lượng văn bản",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "so sánh 2 đoạn Giới thiệu",
-              "chọn đoạn hiệu quả hơn và giải thích vì sao"
+              "chọn đoạn hiệu quả hơn và giải thích vì sao",
+              "so sánh 2 đoạn Giới thiệu, chọn đoạn hiệu quả hơn và…",
+              "Rèn khả năng phân tích chất lượng văn bản",
+              "Giới thiệu: nhân vật, mong muốn, bối cảnh",
+              "Đoạn Giới thiệu 3-4 câu"
+            ],
+            "rounds": [
+              {
+                "prompt": "Đoạn nào giới thiệu đủ nhân vật, mong muốn và bối cảnh?",
+                "options": [
+                  "Na sống dưới hồ và muốn được chọn làm người dẫn đường.",
+                  "Na là một nhân vật rất hay."
+                ],
+                "answerIndex": 0,
+                "feedback": "Đoạn A đặt nhân vật, nơi chốn và mục tiêu cụ thể ngay từ đầu."
+              },
+              {
+                "prompt": "Giới thiệu nào gợi xung đột sắp đến?",
+                "options": [
+                  "Bíp muốn khám phá vùng cấm dù cậu rất sợ bị phát hiện.",
+                  "Bíp đi dạo vào một ngày bình thường."
+                ],
+                "answerIndex": 0,
+                "feedback": "Mong muốn và nỗi sợ cùng xuất hiện tạo lực căng cho câu chuyện."
+              }
             ]
           }
         },
@@ -3212,12 +4873,12 @@ export const curriculumContent = [
           "content": "Đánh giá độ mạnh xung đột: xếp hạng 3 xung đột mẫu theo mức độ kịch tính",
           "objective": "Luyện cảm nhận mức độ 'nặng đô' của một xung đột",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "order",
           "gameConfig": {
             "cards": [
-              "xếp hạng 3 xung đột mẫu theo mức độ kịch tính",
-              "Đánh giá độ mạnh xung đột: xếp hạng 3 xung đột mẫu theo mức độ k",
-              "Luyện cảm nhận mức độ 'nặng đô' của một xung đột"
+              "Bị lỡ chuyến xe",
+              "Mất tấm bản đồ duy nhất",
+              "Đối thủ lấy được chìa khóa trước"
             ]
           }
         },
@@ -3251,8 +4912,9 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "sắp xếp 3 cách giải quyết theo mức độ mạo hiểm",
-              "khó tăng dần"
+              "Hỏi người gác cổng",
+              "Tự giải mật mã cũ",
+              "Băng qua đường hầm đang sập"
             ]
           }
         },
@@ -3283,12 +4945,33 @@ export const curriculumContent = [
           "content": "Chọn cảm xúc hợp lý: chọn phản ứng cảm xúc hợp lý nhất của nhân vật sau thất bại",
           "objective": "Luyện liên kết sự kiện với phản ứng cảm xúc chân thực",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "chọn phản ứng cảm xúc hợp lý nhất của nhân vật sau thất bại",
-              "Chọn cảm xúc hợp lý: chọn phản ứng cảm xúc hợp lý nhất của nhân ",
-              "Luyện liên kết sự kiện với phản ứng cảm xúc chân thực"
+              "chọn phản ứng cảm xúc hợp lý nhất của nhân vật sau thất…",
+              "Luyện liên kết sự kiện với phản ứng cảm xúc chân thực",
+              "Cái giá của thất bại",
+              "1-2 câu mô tả cảm xúc sau thất bại"
+            ],
+            "rounds": [
+              {
+                "prompt": "Na thất bại vì chần chừ. Phản ứng nào đúng hồ sơ nhân vật?",
+                "options": [
+                  "Na xấu hổ, muốn bỏ cuộc nhưng nhớ mục tiêu được công nhận",
+                  "Na cười lớn vì chẳng quan tâm"
+                ],
+                "answerIndex": 0,
+                "feedback": "Phản ứng A nối thất bại với điểm yếu và mong muốn đã đặt ra."
+              },
+              {
+                "prompt": "Hậu quả nào làm câu chuyện tiến lên?",
+                "options": [
+                  "Nhân vật mất cơ hội đầu và phải đổi cách làm",
+                  "Không có gì thay đổi sau thất bại"
+                ],
+                "answerIndex": 0,
+                "feedback": "Một hậu quả cụ thể buộc nhân vật phải học hoặc thử chiến lược mới."
+              }
             ]
           }
         },
@@ -3319,11 +5002,33 @@ export const curriculumContent = [
           "content": "Bốc thăm bước ngoặt: rút ngẫu nhiên 1 kiểu bước ngoặt rồi biến tấu cho hợp chuyện",
           "objective": "Kích hoạt ý tưởng bước ngoặt bằng gợi ý ngẫu nhiên có kiểm soát",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "combine",
           "gameConfig": {
             "cards": [
-              "rút ngẫu nhiên 1 kiểu bước ngoặt",
-              "biến tấu cho hợp chuyện"
+              "rút ngẫu nhiên 1 kiểu bước ngoặt rồi biến tấu cho hợp…",
+              "Kích hoạt ý tưởng bước ngoặt bằng gợi ý ngẫu nhiên có…",
+              "Điều gì làm mọi thứ thay đổi?",
+              "Đoạn mô tả bước ngoặt"
+            ],
+            "groups": [
+              {
+                "label": "Kiểu bước ngoặt",
+                "options": [
+                  "Phát hiện bí mật",
+                  "Nhận sự giúp đỡ bất ngờ",
+                  "Nhận ra mình đã hiểu sai",
+                  "Mất thứ từng dựa vào"
+                ]
+              },
+              {
+                "label": "Cách tiếp cận mới",
+                "options": [
+                  "Hợp tác thay vì làm một mình",
+                  "Dùng điểm yếu như một manh mối",
+                  "Nói thật thay vì che giấu",
+                  "Thử con đường chưa ai chọn"
+                ]
+              }
             ]
           }
         },
@@ -3354,11 +5059,34 @@ export const curriculumContent = [
           "content": "So sánh trước-sau: chọn hành động 'sau bước ngoặt' phù hợp nhất với 1 tình huống mẫu",
           "objective": "Luyện tư duy thể hiện thay đổi qua hành động cụ thể",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "So sánh trước-sau: chọn hành động 'sau bước ngoặt' phù hợp nhất ",
-              "Luyện tư duy thể hiện thay đổi qua hành động cụ thể"
+              "sau bước ngoặt",
+              "chọn hành động 'sau bước ngoặt' phù hợp nhất với 1 tình…",
+              "Luyện tư duy thể hiện thay đổi qua hành động cụ thể",
+              "Nhân vật thay đổi thế nào",
+              "1-2 câu mô tả hành động mới sau bước ngoặt"
+            ],
+            "rounds": [
+              {
+                "prompt": "Trước bước ngoặt Na luôn làm một mình. Hành động sau nào cho thấy thay đổi?",
+                "options": [
+                  "Na nhờ đồng đội cùng giải mật mã",
+                  "Na tiếp tục giấu bản đồ và bỏ đi"
+                ],
+                "answerIndex": 0,
+                "feedback": "Hành động A thể hiện cách tiếp cận mới bằng lựa chọn nhìn thấy được."
+              },
+              {
+                "prompt": "Muốn cho thấy nhân vật bớt sợ thất bại, chi tiết nào hiệu quả?",
+                "options": [
+                  "Thử lại trước mọi người và nhận trách nhiệm",
+                  "Nói rằng mình đã thay đổi"
+                ],
+                "answerIndex": 0,
+                "feedback": "Hành động có rủi ro chứng minh thay đổi mạnh hơn một lời khẳng định."
+              }
             ]
           }
         },
@@ -3389,11 +5117,33 @@ export const curriculumContent = [
           "content": "Chọn kết thúc hợp lý: chọn kiểu kết thúc phù hợp nhất với hành trình nhân vật đã xây dựng",
           "objective": "Luyện tư duy kết nối toàn bộ hành trình với kết thúc",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "Chọn kết thúc hợp lý: chọn kiểu kết thúc phù hợp nhất với hành t",
-              "Luyện tư duy kết nối toàn bộ hành trình với kết thúc"
+              "chọn kiểu kết thúc phù hợp nhất với hành trình nhân vật…",
+              "Luyện tư duy kết nối toàn bộ hành trình với kết thúc",
+              "Kết thúc không chỉ là 'hết chuyện",
+              "Đoạn Kết 2-3 câu"
+            ],
+            "rounds": [
+              {
+                "prompt": "Na học cách hợp tác. Kết nào hoàn tất hành trình?",
+                "options": [
+                  "Na cùng nhóm mở cổng và chia sẻ công lao",
+                  "Na thắng một mình như đầu chuyện"
+                ],
+                "answerIndex": 0,
+                "feedback": "Kết A cho thấy bài học đã đổi cách nhân vật đạt mục tiêu."
+              },
+              {
+                "prompt": "Nhân vật không đạt mong muốn ban đầu nhưng vẫn có thể kết trọn vẹn khi nào?",
+                "options": [
+                  "Khi học được điều làm thay đổi lựa chọn của mình",
+                  "Chỉ khi mọi vấn đề biến mất"
+                ],
+                "answerIndex": 0,
+                "feedback": "Sự thay đổi có thể hoàn tất câu chuyện ngay cả khi mục tiêu ban đầu không đạt đủ."
+              }
             ]
           }
         },
@@ -3424,11 +5174,29 @@ export const curriculumContent = [
           "content": "Đoán thông điệp: đọc 1 đoạn kết mẫu, đoán thông điệp ẩn phía sau",
           "objective": "Luyện khả năng cảm nhận thông điệp ẩn trong câu chuyện",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "match",
           "gameConfig": {
             "cards": [
               "đọc 1 đoạn kết mẫu",
-              "đoán thông điệp ẩn phía sau"
+              "đoán thông điệp ẩn phía sau",
+              "đọc 1 đoạn kết mẫu, đoán thông điệp ẩn phía sau",
+              "Luyện khả năng cảm nhận thông điệp ẩn trong câu chuyện",
+              "Thông điệp muốn gửi gắm",
+              "1 câu thông điệp cá nhân"
+            ],
+            "pairs": [
+              {
+                "left": "Nhân vật thắng nhờ biết nhờ giúp đỡ",
+                "right": "Hợp tác không làm ta yếu đi"
+              },
+              {
+                "left": "Nhân vật dám thử lại sau thất bại",
+                "right": "Can đảm là tiếp tục dù còn sợ"
+              },
+              {
+                "left": "Nhân vật từ bỏ phần thưởng để cứu bạn",
+                "right": "Tình bạn quý hơn sự công nhận"
+              }
             ]
           }
         },
@@ -3463,8 +5231,23 @@ export const curriculumContent = [
           "gameConfig": {
             "cards": [
               "nối câu thoại với tính cách nhân vật phù hợp nhất",
-              "Ghép đúng giọng: nối câu thoại với tính cách nhân vật phù hợp nh",
-              "Luyện liên kết giọng điệu lời nói với tính cách"
+              "Luyện liên kết giọng điệu lời nói với tính cách",
+              "Mỗi nhân vật nói chuyện một kiểu",
+              "1 câu thoại tiêu biểu của nhân vật chính"
+            ],
+            "pairs": [
+              {
+                "left": "“Để mình xem bản đồ thêm một lần nhé.”",
+                "right": "Cẩn thận và suy nghĩ kỹ"
+              },
+              {
+                "left": "“Cứ đi đi, mình sẽ tìm ra cách!”",
+                "right": "Táo bạo và tự tin"
+              },
+              {
+                "left": "“Chúng ta cùng thử, được không?”",
+                "right": "Hợp tác và quan tâm"
+              }
             ]
           }
         },
@@ -3498,9 +5281,9 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "xếp lại 1 đoạn hội thoại bị xáo trộn theo đúng thứ tự hợp lý",
-              "Sắp xếp hội thoại: xếp lại 1 đoạn hội thoại bị xáo trộn theo đún",
-              "Luyện tư duy mạch hội thoại logic"
+              "Na: “Mình đã hiểu sai manh mối.”",
+              "Bíp: “Vậy ta thử đọc nó cùng nhau.”",
+              "Na: “Được, lần này mình sẽ không làm một mình.”"
             ]
           }
         },
@@ -3531,11 +5314,33 @@ export const curriculumContent = [
           "content": "Chọn khoảnh khắc: từ 6 khoảnh khắc gợi ý, chọn ra 3-4 khoảnh khắc quan trọng nhất",
           "objective": "Luyện tư duy chọn lọc thông tin quan trọng",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
               "từ 6 khoảnh khắc gợi ý",
-              "chọn ra 3-4 khoảnh khắc quan trọng nhất"
+              "chọn ra 3-4 khoảnh khắc quan trọng nhất",
+              "từ 6 khoảnh khắc gợi ý, chọn ra 3-4 khoảnh khắc quan…",
+              "Luyện tư duy chọn lọc thông tin quan trọng",
+              "Chọn khoảnh khắc đáng vẽ nhất",
+              "Danh sách 3-4 khoảnh khắc cần minh hoạ"
+            ],
+            "placements": [
+              {
+                "item": "Nhân vật và mong muốn",
+                "target": "Ảnh mở đầu"
+              },
+              {
+                "item": "Xung đột bùng lên",
+                "target": "Ảnh vấn đề"
+              },
+              {
+                "item": "Quyết định mới",
+                "target": "Ảnh bước ngoặt"
+              },
+              {
+                "item": "Kết quả và thay đổi",
+                "target": "Ảnh kết"
+              }
             ]
           }
         },
@@ -3566,12 +5371,34 @@ export const curriculumContent = [
           "content": "Thử thách phát hiện: tìm hình nào trong bộ storyboard bị 'lệch' nhân vật/bối cảnh",
           "objective": "Rèn khả năng kiểm soát chất lượng qua nhiều hình",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "lệch",
-              "tìm hình nào trong bộ storyboard bị 'lệch' nhân vật",
-              "bối cảnh"
+              "tìm hình nào trong bộ storyboard bị 'lệch' nhân vật/bối…",
+              "Rèn khả năng kiểm soát chất lượng qua nhiều hình",
+              "Tạo storyboard mini cùng AI",
+              "Storyboard mini 3-4 hình"
+            ],
+            "rounds": [
+              {
+                "prompt": "Ba ảnh giữ nhân vật; ảnh bước ngoặt đổi tóc và trang phục. Hình nào lệch?",
+                "options": [
+                  "Ảnh bước ngoặt",
+                  "Ba ảnh giữ mô tả chuẩn"
+                ],
+                "answerIndex": 0,
+                "feedback": "Khoảnh khắc có thể đổi, nhưng đặc điểm nhận diện phải xuyên suốt storyboard."
+              },
+              {
+                "prompt": "Bối cảnh cùng căn phòng nhưng góc nhìn đổi. Có phải lỗi không?",
+                "options": [
+                  "Không, nếu dấu hiệu bối cảnh vẫn được giữ",
+                  "Có, mọi góc máy phải giống nhau"
+                ],
+                "answerIndex": 0,
+                "feedback": "Đổi góc nhìn giúp kể chuyện; tính nhất quán nằm ở chi tiết cốt lõi."
+              }
             ]
           }
         },
@@ -3602,12 +5429,35 @@ export const curriculumContent = [
           "content": "Luyện tập với bạn ảo: kể thử 1 đoạn, hệ thống gợi ý chỗ nên ngắt nhịp/nhấn giọng",
           "objective": "Luyện kỹ năng kiểm soát nhịp điệu khi kể chuyện",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "kể thử 1 đoạn",
               "hệ thống gợi ý chỗ nên ngắt nhịp",
-              "nhấn giọng"
+              "nhấn giọng",
+              "Luyện kể với storyboard",
+              "1 lần tập kể hoàn chỉnh có storyboard",
+              "Luyện kỹ năng kiểm soát nhịp điệu khi kể chuyện"
+            ],
+            "rounds": [
+              {
+                "prompt": "Đến bước ngoặt, cách kể nào giúp người nghe nhận ra thay đổi?",
+                "options": [
+                  "Dừng nhẹ trước quyết định mới rồi nhấn câu thoại",
+                  "Đọc đều như mọi đoạn"
+                ],
+                "answerIndex": 0,
+                "feedback": "Nhịp dừng và từ nhấn làm bước ngoặt nổi lên trong cấu trúc năm phần."
+              },
+              {
+                "prompt": "Storyboard nên được dùng thế nào khi kể?",
+                "options": [
+                  "Làm mốc nhớ, vẫn nhìn khán giả",
+                  "Đọc chữ trên ảnh mà không ngẩng lên"
+                ],
+                "answerIndex": 0,
+                "feedback": "Hình là điểm tựa cho mạch kể, không thay thế kết nối với người nghe."
+              }
             ]
           }
         },
@@ -3638,11 +5488,35 @@ export const curriculumContent = [
           "content": "Luyện đưa phản hồi: chọn phản hồi cụ thể, mang tính xây dựng nhất cho 1 đoạn kể mẫu",
           "objective": "Rèn kỹ năng đưa phản hồi tích cực và cụ thể",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "chọn phản hồi cụ thể",
-              "mang tính xây dựng nhất cho 1 đoạn kể mẫu"
+              "mang tính xây dựng nhất cho 1 đoạn kể mẫu",
+              "chọn phản hồi cụ thể, mang tính xây dựng nhất cho 1 đoạ…",
+              "Rèn kỹ năng đưa phản hồi tích cực và cụ thể",
+              "Kể chuyện chính thức & phản hồi có cấu trúc",
+              "Video kể chuyện hoàn chỉnh kèm storyboard"
+            ],
+            "rounds": [
+              {
+                "prompt": "Phản hồi nào cụ thể và dùng được?",
+                "options": [
+                  "Đoạn bước ngoặt rõ; hãy dừng lâu hơn trước câu quyết định",
+                  "Hay lắm!"
+                ],
+                "answerIndex": 0,
+                "feedback": "Phản hồi A nêu điểm mạnh, vị trí và một đề xuất có thể thử."
+              },
+              {
+                "prompt": "Cách nhận phản hồi nào giúp cải thiện?",
+                "options": [
+                  "Hỏi lại một ví dụ rồi chọn điều sẽ thử",
+                  "Bảo vệ mọi lựa chọn ngay lập tức"
+                ],
+                "answerIndex": 0,
+                "feedback": "Làm rõ bằng ví dụ giúp biến ý kiến thành một vòng thử mới."
+              }
             ]
           }
         },
@@ -3695,8 +5569,24 @@ export const curriculumContent = [
             "cards": [
               "giới thiệu bối cảnh",
               "thể hiện cảm xúc",
-              "chọn góc máy phù hợp nhất cho từng mục đích (giới thiệu bối cảnh",
-              "thể hiện cảm xúc)"
+              "chọn góc máy phù hợp nhất cho từng mục đích (giới thiệu…",
+              "Luyện tư duy chọn góc máy có chủ đích",
+              "Góc máy kể chuyện thế nào",
+              "Ghi chú góc máy cho 2 khoảnh khắc"
+            ],
+            "pairs": [
+              {
+                "left": "Giới thiệu cả thành phố",
+                "right": "Toàn cảnh"
+              },
+              {
+                "left": "Cho thấy nét sợ trên mắt nhân vật",
+                "right": "Cận cảnh"
+              },
+              {
+                "left": "Hai nhân vật tranh luận",
+                "right": "Trung cảnh hai người"
+              }
             ]
           }
         },
@@ -3730,9 +5620,10 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "chọn kích thước khung phù hợp cho 1 chuỗi hành động nhanh dần",
-              "Sắp xếp nhịp: chọn kích thước khung phù hợp cho 1 chuỗi hành độn",
-              "Luyện tư duy kiểm soát nhịp điệu bằng bố cục"
+              "Khung lớn: thiết lập khoảnh khắc",
+              "Khung vừa: hành động bắt đầu",
+              "Khung nhỏ: hành động dồn nhanh",
+              "Khung hẹp: cú chốt bất ngờ"
             ]
           }
         },
@@ -3763,11 +5654,36 @@ export const curriculumContent = [
           "content": "Phân bổ khung: quyết định phần nào cần nhiều khung hơn (thường là Bước ngoặt)",
           "objective": "Luyện tư duy phân bổ 'thời lượng hình ảnh' hợp lý",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
               "thường là Bước ngoặt",
-              "quyết định phần nào cần nhiều khung hơn (thường là Bước ngoặt)"
+              "quyết định phần nào cần nhiều khung hơn (thường là Bước…",
+              "Luyện tư duy phân bổ 'thời lượng hình ảnh' hợp lý",
+              "Từ 5 phần câu chuyện thành các khung",
+              "Danh sách 8-10 khoảnh khắc theo 5 phần câu chuyện"
+            ],
+            "placements": [
+              {
+                "item": "Giới thiệu",
+                "target": "1 khung thiết lập"
+              },
+              {
+                "item": "Vấn đề",
+                "target": "1-2 khung làm xung đột rõ"
+              },
+              {
+                "item": "Cố gắng",
+                "target": "2-3 khung cho hành động phát triển"
+              },
+              {
+                "item": "Bước ngoặt",
+                "target": "2 khung nhấn quyết định mới"
+              },
+              {
+                "item": "Kết",
+                "target": "1-2 khung cho kết quả"
+              }
             ]
           }
         },
@@ -3798,12 +5714,33 @@ export const curriculumContent = [
           "content": "Rà soát mô tả mẫu: tìm phần còn thiếu trong 1 mô tả khung chưa đầy đủ",
           "objective": "Rèn khả năng nhận diện thông tin còn thiếu",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "tìm phần còn thiếu trong 1 mô tả khung chưa đầy đủ",
-              "Rà soát mô tả mẫu: tìm phần còn thiếu trong 1 mô tả khung chưa đ",
-              "Rèn khả năng nhận diện thông tin còn thiếu"
+              "Rèn khả năng nhận diện thông tin còn thiếu",
+              "Viết mô tả chi tiết từng khung",
+              "Kịch bản phân khung đầy đủ 8-10 khung"
+            ],
+            "rounds": [
+              {
+                "prompt": "Mô tả: “Na mở cửa.” Phần nào cần bổ sung để dựng khung rõ hơn?",
+                "options": [
+                  "Góc máy, biểu cảm và bối cảnh",
+                  "Một lời khen cho nhân vật"
+                ],
+                "answerIndex": 0,
+                "feedback": "Các chi tiết nhìn thấy và góc máy giúp biến hành động thành một khung cụ thể."
+              },
+              {
+                "prompt": "Khung không có lời thoại. Mô tả vẫn cần gì?",
+                "options": [
+                  "Nhân vật, hành động, góc máy và bối cảnh",
+                  "Một câu thoại bất kỳ"
+                ],
+                "answerIndex": 0,
+                "feedback": "Lời thoại là tùy chọn; các yếu tố hình ảnh vẫn phải đủ."
+              }
             ]
           }
         },
@@ -3834,12 +5771,13 @@ export const curriculumContent = [
           "content": "Theo dấu mắt đọc: chỉ đúng thứ tự đọc các khung trên 1 trang bố cục mẫu",
           "objective": "Luyện tư duy bố cục theo hướng đọc tự nhiên",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "order",
           "gameConfig": {
             "cards": [
-              "chỉ đúng thứ tự đọc các khung trên 1 trang bố cục mẫu",
-              "Theo dấu mắt đọc: chỉ đúng thứ tự đọc các khung trên 1 trang bố ",
-              "Luyện tư duy bố cục theo hướng đọc tự nhiên"
+              "Trên trái",
+              "Trên phải",
+              "Dưới trái",
+              "Dưới phải"
             ]
           }
         },
@@ -3870,11 +5808,31 @@ export const curriculumContent = [
           "content": "Ghép khung vào sơ đồ: kéo-thả các khung vào đúng vị trí trên khung trang trống",
           "objective": "Luyện tư duy tổ chức không gian trang",
           "duration": "4 phút",
-          "gameType": "order",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
-              "kéo-thả các khung",
-              "o đúng vị trí trên khung trang trống"
+              "kéo-thả các khung vào đúng vị trí trên khung trang trống",
+              "Luyện tư duy tổ chức không gian trang",
+              "Vẽ sơ đồ bố cục trang",
+              "Sơ đồ bố cục 2-3 trang"
+            ],
+            "placements": [
+              {
+                "item": "Toàn cảnh mở đầu",
+                "target": "Khung lớn đầu trang"
+              },
+              {
+                "item": "Hai hành động liên tiếp",
+                "target": "Hai khung nhỏ cạnh nhau"
+              },
+              {
+                "item": "Phản ứng cảm xúc",
+                "target": "Khung cận cảnh"
+              },
+              {
+                "item": "Bước ngoặt",
+                "target": "Khung nhấn cuối trang"
+              }
             ]
           }
         },
@@ -3909,8 +5867,23 @@ export const curriculumContent = [
           "gameConfig": {
             "cards": [
               "nối cảm xúc với kiểu bong bóng thoại phù hợp",
-              "Ghép đúng kiểu bong bóng: nối cảm xúc với kiểu bong bóng thoại p",
-              "Luyện liên kết cảm xúc với hình thức trình bày thoại"
+              "Luyện liên kết cảm xúc với hình thức trình bày thoại",
+              "Bong bóng thoại thể hiện cảm xúc",
+              "Lời thoại + kiểu bong bóng cho các khung có nhân vật nói"
+            ],
+            "pairs": [
+              {
+                "left": "Nói bình thường",
+                "right": "Bong bóng tròn, nét đều"
+              },
+              {
+                "left": "Hét lớn",
+                "right": "Bong bóng răng cưa, chữ đậm"
+              },
+              {
+                "left": "Suy nghĩ",
+                "right": "Bong bóng mây, đuôi chấm tròn"
+              }
             ]
           }
         },
@@ -3941,11 +5914,29 @@ export const curriculumContent = [
           "content": "Chọn cách trình bày SFX: chọn kiểu chữ/kích thước phù hợp nhất cho 1 hành động mạnh",
           "objective": "Luyện tư duy thiết kế hiệu ứng có chủ đích",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "match",
           "gameConfig": {
             "cards": [
               "chọn kiểu chữ",
-              "kích thước phù hợp nhất cho 1 hành động mạnh"
+              "kích thước phù hợp nhất cho 1 hành động mạnh",
+              "chọn kiểu chữ/kích thước phù hợp nhất cho 1 hành động…",
+              "Luyện tư duy thiết kế hiệu ứng có chủ đích",
+              "Hiệu ứng âm thanh cho toàn bộ trang",
+              "SFX cho các khung có hành động mạnh"
+            ],
+            "pairs": [
+              {
+                "left": "Cánh cửa nổ tung",
+                "right": "“RẦM!” lớn, đậm, góc cạnh"
+              },
+              {
+                "left": "Lá rơi nhẹ",
+                "right": "“Xào xạc” nhỏ, nét mềm"
+              },
+              {
+                "left": "Tên lửa lao qua trang",
+                "right": "“VÙ!” kéo dài theo hướng chuyển động"
+              }
             ]
           }
         },
@@ -3976,11 +5967,34 @@ export const curriculumContent = [
           "content": "Bắt lỗi nhất quán: tìm khung nào có bối cảnh 'lệch' so với thế giới đã tạo ở K1",
           "objective": "Rèn khả năng kiểm soát tính nhất quán ở quy mô lớn hơn",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "lệch",
-              "tìm khung nào có bối cảnh 'lệch' so với thế giới đã tạo ở K1"
+              "tìm khung nào có bối cảnh 'lệch' so với thế giới đã tạo…",
+              "Rèn khả năng kiểm soát tính nhất quán ở quy mô lớn hơn",
+              "Giữ tính nhất quán qua 8-10 khung",
+              "Bộ mô tả chuẩn cho nhân vật + bối cảnh"
+            ],
+            "rounds": [
+              {
+                "prompt": "World bible: cửa sổ tròn, ánh tím. Khung nào lệch?",
+                "options": [
+                  "Phòng cửa sổ tròn, ánh tím",
+                  "Phòng cửa vuông, nắng vàng"
+                ],
+                "answerIndex": 1,
+                "feedback": "Khung B thay cả dấu hiệu kiến trúc và ánh sáng chủ đạo."
+              },
+              {
+                "prompt": "Khung mới đổi góc máy nhưng giữ vật liệu và bảng màu. Có nhất quán không?",
+                "options": [
+                  "Có",
+                  "Không, góc máy không được đổi"
+                ],
+                "answerIndex": 0,
+                "feedback": "Góc máy thay đổi để kể chuyện; thuộc tính thế giới mới cần giữ."
+              }
             ]
           }
         },
@@ -4014,8 +6028,24 @@ export const curriculumContent = [
           "gameType": "match",
           "gameConfig": {
             "cards": [
-              "ghép đúng phần hành động",
-              "o đúng khung trong danh sách"
+              "ghép đúng phần hành động vào đúng khung trong danh sách",
+              "Luyện tốc độ và độ chính xác khi chuẩn bị prompt hàng…",
+              "Viết prompt riêng cho từng khung",
+              "Bộ prompt hoàn chỉnh cho 8-10 khung"
+            ],
+            "pairs": [
+              {
+                "left": "Khung 1: Na bước vào thành phố",
+                "right": "Hành động: đi qua cổng, nhìn quanh"
+              },
+              {
+                "left": "Khung 4: Na gặp trở ngại",
+                "right": "Hành động: dừng trước cầu gãy"
+              },
+              {
+                "left": "Khung 7: Na đổi cách làm",
+                "right": "Hành động: chìa bản đồ cho đồng đội"
+              }
             ]
           }
         },
@@ -4046,11 +6076,35 @@ export const curriculumContent = [
           "content": "Thử thách tốc độ: chọn hình ưng ý trong số 2-3 phương án cho mỗi khung, trong thời gian gợi ý",
           "objective": "Luyện ra quyết định nhanh, tránh cầu toàn quá mức",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "chọn hình ưng ý trong số 2-3 phương án cho mỗi khung",
-              "trong thời gian gợi ý"
+              "trong thời gian gợi ý",
+              "chọn hình ưng ý trong số 2-3 phương án cho mỗi khung…",
+              "Luyện ra quyết định nhanh, tránh cầu toàn quá mức",
+              "Sản xuất theo lô",
+              "4-5 hình minh hoạ hoàn chỉnh"
+            ],
+            "rounds": [
+              {
+                "prompt": "Phương án A đẹp nhưng sai góc máy; B đúng mô tả và nhân vật. Chọn gì?",
+                "options": [
+                  "B",
+                  "A vì chỉ cần đẹp"
+                ],
+                "answerIndex": 0,
+                "feedback": "Ảnh phải phục vụ chức năng kể chuyện đã chốt trong storyboard."
+              },
+              {
+                "prompt": "Hai ảnh đều đúng. Tiêu chí nào nên quyết định?",
+                "options": [
+                  "Hành động và cảm xúc đọc rõ hơn",
+                  "Chọn ngẫu nhiên để nhanh"
+                ],
+                "answerIndex": 0,
+                "feedback": "Độ rõ kể chuyện là tiêu chí dùng được và có thể giải thích."
+              }
             ]
           }
         },
@@ -4081,11 +6135,35 @@ export const curriculumContent = [
           "content": "Bắt lỗi cuối: rà toàn bộ 8-10 hình, đánh dấu hình nào cần chỉnh sửa thêm",
           "objective": "Rèn khả năng kiểm soát chất lượng ở quy mô toàn bộ sản phẩm",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "rà toàn bộ 8-10 hình",
-              "đánh dấu hình nào cần chỉnh sửa thêm"
+              "đánh dấu hình nào cần chỉnh sửa thêm",
+              "rà toàn bộ 8-10 hình, đánh dấu hình nào cần chỉnh sửa…",
+              "Rèn khả năng kiểm soát chất lượng ở quy mô toàn bộ sản…",
+              "Hoàn thiện & chỉnh sửa toàn bộ",
+              "Bộ 8-10 hình minh hoạ hoàn chỉnh"
+            ],
+            "rounds": [
+              {
+                "prompt": "Khung 6 đổi màu áo nhân vật. Nên xử lý thế nào?",
+                "options": [
+                  "Đánh dấu và tạo lại riêng khung 6",
+                  "Bỏ qua vì chỉ một khung"
+                ],
+                "answerIndex": 0,
+                "feedback": "Sửa đúng khung lỗi giữ tính nhất quán mà không làm lại cả bộ."
+              },
+              {
+                "prompt": "Khung 3 và 4 lặp cùng một hành động. Nên kiểm tra gì?",
+                "options": [
+                  "Mỗi khung có đóng góp khoảnh khắc mới không",
+                  "Có đủ nhiều màu không"
+                ],
+                "answerIndex": 0,
+                "feedback": "Mỗi khung cần làm câu chuyện tiến lên hoặc cho thông tin mới."
+              }
             ]
           }
         },
@@ -4116,11 +6194,27 @@ export const curriculumContent = [
           "content": "Kiểm tra khớp: chọn hình phù hợp nhất về tỉ lệ cho 1 khung có kích thước đặc biệt",
           "objective": "Luyện tư duy căn chỉnh hình ảnh theo khung",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
-              "Kiểm tra khớp: chọn hình phù hợp nhất về tỉ lệ cho 1 khung có kí",
-              "Luyện tư duy căn chỉnh hình ảnh theo khung"
+              "chọn hình phù hợp nhất về tỉ lệ cho 1 khung có kích…",
+              "Luyện tư duy căn chỉnh hình ảnh theo khung",
+              "Ghép hình vào sơ đồ bố cục",
+              "2-3 trang truyện tranh (bản nháp có hình"
+            ],
+            "placements": [
+              {
+                "item": "Ảnh ngang rộng",
+                "target": "Khung toàn cảnh ngang"
+              },
+              {
+                "item": "Ảnh cận mặt dọc",
+                "target": "Khung dọc hẹp"
+              },
+              {
+                "item": "Ảnh hai nhân vật",
+                "target": "Khung trung cảnh vừa"
+              }
             ]
           }
         },
@@ -4151,11 +6245,35 @@ export const curriculumContent = [
           "content": "Chọn bố cục bìa: chọn cách sắp xếp tên truyện + hình bìa hấp dẫn nhất",
           "objective": "Luyện tư duy thẩm mỹ khi thiết kế trang bìa",
           "duration": "4 phút",
-          "gameType": "order",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "chọn cách sắp xếp tên truyện",
-              "hình bìa hấp dẫn nhất"
+              "hình bìa hấp dẫn nhất",
+              "chọn cách sắp xếp tên truyện + hình bìa hấp dẫn nhất",
+              "Luyện tư duy thẩm mỹ khi thiết kế trang bìa",
+              "Chèn thoại, SFX & làm bìa",
+              "Tập truyện tranh hoàn chỉnh có bìa"
+            ],
+            "rounds": [
+              {
+                "prompt": "Bìa nào có thứ bậc thông tin rõ hơn?",
+                "options": [
+                  "Tên truyện lớn, hình chính rõ, tên tác giả nhỏ hơn",
+                  "Mọi chữ và hình cùng kích thước"
+                ],
+                "answerIndex": 0,
+                "feedback": "Thứ bậc giúp mắt đọc tên truyện rồi đến hình và tác giả."
+              },
+              {
+                "prompt": "Hình bìa nên ưu tiên điều gì?",
+                "options": [
+                  "Gợi xung đột hoặc câu hỏi chính mà không kể hết",
+                  "Dùng một hình không liên quan nhưng nhiều màu"
+                ],
+                "answerIndex": 0,
+                "feedback": "Bìa hấp dẫn khi đại diện đúng tác phẩm và tạo tò mò."
+              }
             ]
           }
         },
@@ -4189,11 +6307,10 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "cảm hứng",
-              "quá trình",
-              "điều tự hào",
-              "xếp lại các ý chính (cảm hứng",
-              "điều tự hào) theo thứ tự hợp lý"
+              "Cảm hứng và câu chuyện",
+              "Một quyết định bố cục quan trọng",
+              "Khó khăn và cách đã sửa",
+              "Điều em tự hào nhất"
             ]
           }
         },
@@ -4224,11 +6341,35 @@ export const curriculumContent = [
           "content": "Luyện đưa phản hồi: chọn phản hồi cụ thể, mang tính xây dựng nhất cho 1 tác phẩm mẫu",
           "objective": "Rèn kỹ năng đưa phản hồi tích cực và cụ thể",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "chọn phản hồi cụ thể",
-              "mang tính xây dựng nhất cho 1 tác phẩm mẫu"
+              "mang tính xây dựng nhất cho 1 tác phẩm mẫu",
+              "chọn phản hồi cụ thể, mang tính xây dựng nhất cho 1 tác…",
+              "Rèn kỹ năng đưa phản hồi tích cực và cụ thể",
+              "Buổi ra mắt chính thức",
+              "Video ra mắt tập truyện tranh"
+            ],
+            "rounds": [
+              {
+                "prompt": "Phản hồi nào giúp tác giả sửa trang?",
+                "options": [
+                  "Khung bước ngoặt nổi bật; chữ thoại ở khung 6 cần lớn hơn",
+                  "Truyện đẹp"
+                ],
+                "answerIndex": 0,
+                "feedback": "Phản hồi A có vị trí, điểm mạnh và đề xuất cụ thể."
+              },
+              {
+                "prompt": "Khi nhận hai ý kiến trái nhau, tác giả nên làm gì?",
+                "options": [
+                  "Đối chiếu mục tiêu kể chuyện rồi thử phương án",
+                  "Chọn ý kiến của người nói to hơn"
+                ],
+                "answerIndex": 0,
+                "feedback": "Mục tiêu của trang và một lượt thử giúp đánh giá ý kiến bằng bằng chứng."
+              }
             ]
           }
         },
@@ -4276,11 +6417,33 @@ export const curriculumContent = [
           "content": "Phân biệt vai trò: chọn đúng việc nào là của 'đạo diễn' và việc nào là của 'AI thực hiện'",
           "objective": "Rèn hiểu đúng ranh giới vai trò giữa người và AI",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "match",
           "gameConfig": {
             "cards": [
               "đạo diễn",
-              "AI thực hiện"
+              "AI thực hiện",
+              "chọn đúng việc nào là của 'đạo diễn' và việc nào là của…",
+              "Rèn hiểu đúng ranh giới vai trò giữa người và AI",
+              "Đạo diễn, không phải hoạ sĩ hoạt hình",
+              "1 câu mô tả 1 cảnh muốn 'đạo diễn' chuyển động"
+            ],
+            "pairs": [
+              {
+                "left": "Chọn cảm xúc và nhịp cảnh",
+                "right": "Đạo diễn: đặt ý đồ cảm xúc"
+              },
+              {
+                "left": "Chọn hành động phải đọc rõ",
+                "right": "Đạo diễn: chọn hành động"
+              },
+              {
+                "left": "Tính toán các khung chuyển tiếp",
+                "right": "AI: tạo khung trung gian"
+              },
+              {
+                "left": "Kết xuất đoạn chuyển động",
+                "right": "AI: xử lý tệp đầu ra"
+              }
             ]
           }
         },
@@ -4311,12 +6474,29 @@ export const curriculumContent = [
           "content": "Đoán cảm xúc: xem 1 đoạn chuyển động không lời, đoán cảm xúc/tình huống đang diễn ra",
           "objective": "Rèn khả năng 'đọc' chuyển động như một ngôn ngữ",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "match",
           "gameConfig": {
             "cards": [
               "xem 1 đoạn chuyển động không lời",
               "đoán cảm xúc",
-              "tình huống đang diễn ra"
+              "tình huống đang diễn ra",
+              "Chuyển động kể được điều lời nói không kể được",
+              "1 cảnh được chọn để kể bằng chuyển động, không lời",
+              "Rèn khả năng 'đọc' chuyển động như một ngôn ngữ"
+            ],
+            "pairs": [
+              {
+                "left": "Bước chậm, vai hạ, không nhìn ai",
+                "right": "Thất vọng"
+              },
+              {
+                "left": "Khựng lại rồi lùi một bước",
+                "right": "Bất ngờ hoặc sợ"
+              },
+              {
+                "left": "Chạy tới và dang rộng hai tay",
+                "right": "Vui mừng gặp lại"
+              }
             ]
           }
         },
@@ -4350,8 +6530,10 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "sắp xếp 4 đoạn chuyển động mẫu theo tốc độ tăng dần",
-              "gán đúng cảm xúc"
+              "Rất chậm: trang trọng",
+              "Chậm: buồn hoặc do dự",
+              "Nhanh: vui hoặc gấp",
+              "Rất nhanh: hoảng hốt"
             ]
           }
         },
@@ -4385,8 +6567,10 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "Xây nhịp điệu: sắp xếp thứ tự tốc độ (chậm-nhanh-chậm...) hợp lý",
-              "Luyện tư duy xây dựng nhịp điệu có chủ đích"
+              "Chậm: nhân vật quan sát",
+              "Nhanh dần: phát hiện nguy hiểm",
+              "Rất nhanh: chạy thoát",
+              "Chậm lại: nhận ra đã an toàn"
             ]
           }
         },
@@ -4424,8 +6608,22 @@ export const curriculumContent = [
               "nhẹ",
               "mệt mỏi",
               "hào hứng",
-              "nối kiểu chuyển động (nặng",
-              "nhẹ) với trạng thái nhân vật phù hợp (mệt mỏi"
+              "Nhân vật nặng nề hay nhẹ nhàng",
+              "Mô tả trọng lượng chuyển động của nhân vật trong 1 tình…"
+            ],
+            "pairs": [
+              {
+                "left": "Bước nặng, thân người hạ",
+                "right": "Mệt mỏi hoặc mang gánh nặng"
+              },
+              {
+                "left": "Bật nhẹ, tay mở",
+                "right": "Hào hứng hoặc tự do"
+              },
+              {
+                "left": "Dậm chân mạnh, dứt khoát",
+                "right": "Giận dữ hoặc quyết tâm"
+              }
             ]
           }
         },
@@ -4456,11 +6654,29 @@ export const curriculumContent = [
           "content": "Đoán nguồn lực: xem 1 đoạn chuyển động, đoán lực gì đang tác động lên nhân vật",
           "objective": "Rèn khả năng 'đọc' nguyên nhân vật lý qua chuyển động",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "match",
           "gameConfig": {
             "cards": [
               "xem 1 đoạn chuyển động",
-              "đoán lực gì đang tác động lên nhân vật"
+              "đoán lực gì đang tác động lên nhân vật",
+              "xem 1 đoạn chuyển động, đoán lực gì đang tác động lên…",
+              "Rèn khả năng 'đọc' nguyên nhân vật lý qua chuyển động",
+              "Lực tác động lên nhân vật",
+              "Mô tả 1 khoảnh khắc có lực tác động lên nhân vật"
+            ],
+            "pairs": [
+              {
+                "left": "Áo và tóc bay về một phía",
+                "right": "Gió thổi ngang"
+              },
+              {
+                "left": "Cơ thể bật lùi đột ngột",
+                "right": "Va chạm từ phía trước"
+              },
+              {
+                "left": "Hai tay căng, vật tiến về mình",
+                "right": "Lực kéo"
+              }
             ]
           }
         },
@@ -4491,11 +6707,33 @@ export const curriculumContent = [
           "content": "So sánh sắc thái: chọn hành động phù hợp nhất trong 3 lựa chọn cho 1 sắc thái cảm xúc cụ thể",
           "objective": "Luyện khả năng phân biệt sắc thái tinh tế giữa các lựa chọn hành động",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "So sánh sắc thái: chọn hành động phù hợp nhất trong 3 lựa chọn c",
-              "Luyện khả năng phân biệt sắc thái tinh tế giữa các lựa chọn hành"
+              "chọn hành động phù hợp nhất trong 3 lựa chọn cho 1 sắc…",
+              "Luyện khả năng phân biệt sắc thái tinh tế giữa các lựa…",
+              "Nhiều cách để thể hiện cùng 1 cảm xúc",
+              "2-3 hành động khả dĩ cho cảnh Bước ngoặt"
+            ],
+            "rounds": [
+              {
+                "prompt": "Sắc thái: vui nhưng ngại ngùng. Hành động nào hợp?",
+                "options": [
+                  "Mỉm cười nhỏ, nhìn sang bên rồi bước tới",
+                  "Nhảy cao và hét lớn"
+                ],
+                "answerIndex": 0,
+                "feedback": "Hành động A kết hợp niềm vui với sự dè dặt."
+              },
+              {
+                "prompt": "Sắc thái: quyết tâm bình tĩnh. Hành động nào rõ?",
+                "options": [
+                  "Hít sâu, đứng vững rồi tiến một bước",
+                  "Chạy vòng quanh và vung tay"
+                ],
+                "answerIndex": 0,
+                "feedback": "Nhịp chuẩn bị và bước đi dứt khoát truyền quyết tâm có kiểm soát."
+              }
             ]
           }
         },
@@ -4526,11 +6764,34 @@ export const curriculumContent = [
           "content": "Áp dụng tiêu chí: chấm điểm 3 hành động mẫu theo tiêu chí 'rõ ràng không cần giải thích'",
           "objective": "Luyện áp dụng tiêu chí đánh giá vào tình huống cụ thể",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "Áp dụng tiêu chí: chấm điểm 3 hành động mẫu theo tiêu chí 'rõ rà",
-              "Luyện áp dụng tiêu chí đánh giá vào tình huống cụ thể"
+              "rõ ràng không cần giải thích",
+              "chấm điểm 3 hành động mẫu theo tiêu chí 'rõ ràng không…",
+              "Luyện áp dụng tiêu chí đánh giá vào tình huống cụ thể",
+              "Chọn hành động cuối cùng",
+              "1 hành động được chọn + lý do"
+            ],
+            "rounds": [
+              {
+                "prompt": "Cần thể hiện “nhẹ nhõm” không lời. Lựa chọn nào đọc rõ hơn?",
+                "options": [
+                  "Thở ra, vai hạ xuống, mỉm cười",
+                  "Đứng yên không thay đổi"
+                ],
+                "answerIndex": 0,
+                "feedback": "Chuỗi thay đổi cơ thể làm trạng thái trước-sau hiện ra rõ."
+              },
+              {
+                "prompt": "Hai hành động đều đúng cảm xúc. Nên chọn theo tiêu chí nào?",
+                "options": [
+                  "Phù hợp nhân vật và đọc rõ trong khung hình",
+                  "Hành động nhiều chi tiết nhất"
+                ],
+                "answerIndex": 0,
+                "feedback": "Ý đồ và độ rõ quan trọng hơn độ phức tạp."
+              }
             ]
           }
         },
@@ -4561,11 +6822,13 @@ export const curriculumContent = [
           "content": "Ghép công thức: xếp đúng 4 phần (ai-làm gì-thế nào-cảm xúc) của 1 prompt bị xáo trộn",
           "objective": "Luyện ghi nhớ đúng thứ tự công thức",
           "duration": "4 phút",
-          "gameType": "match",
+          "gameType": "order",
           "gameConfig": {
             "cards": [
-              "Ghép công thức: xếp đúng 4 phần (ai-làm gì-thế nào-cảm xúc) của ",
-              "Luyện ghi nhớ đúng thứ tự công thức"
+              "Ai: Na",
+              "Làm gì: đẩy cánh cửa",
+              "Thế nào: chậm và nặng",
+              "Cảm xúc: quyết tâm"
             ]
           }
         },
@@ -4596,12 +6859,31 @@ export const curriculumContent = [
           "content": "Thực hành nhanh: hoàn thành phần còn thiếu của 2 prompt mẫu khác nhau",
           "objective": "Luyện tốc độ và độ chính xác khi áp dụng công thức",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
               "hoàn thành phần còn thiếu của 2 prompt mẫu khác nhau",
-              "Thực hành nhanh: hoàn thành phần còn thiếu của 2 prompt mẫu khác",
-              "Luyện tốc độ và độ chính xác khi áp dụng công thức"
+              "Luyện tốc độ và độ chính xác khi áp dụng công thức",
+              "Viết thêm prompt cho 1-2 cảnh khác",
+              "1-2 movement prompt bổ sung cho các cảnh khác"
+            ],
+            "placements": [
+              {
+                "item": "Bíp",
+                "target": "Ô Ai"
+              },
+              {
+                "item": "Chạy qua đường hầm",
+                "target": "Ô Làm gì"
+              },
+              {
+                "item": "Nhanh dần, bước nhẹ",
+                "target": "Ô Thế nào"
+              },
+              {
+                "item": "Háo hức",
+                "target": "Ô Cảm xúc"
+              }
             ]
           }
         },
@@ -4632,12 +6914,35 @@ export const curriculumContent = [
           "content": "Xem & đối chiếu: xem 1 đoạn chuyển động AI tạo, đối chiếu với prompt gốc để tìm điểm khớp/lệch",
           "objective": "Rèn khả năng đối chiếu sản phẩm AI với ý đồ ban đầu",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "xem 1 đoạn chuyển động AI tạo",
               "đối chiếu với prompt gốc để tìm điểm khớp",
-              "lệch"
+              "lệch",
+              "Tạo đoạn chuyển động đầu tiên",
+              "1 đoạn chuyển động hoàn chỉnh cho cảnh Bước ngoặt",
+              "Rèn khả năng đối chiếu sản phẩm AI với ý đồ ban đầu"
+            ],
+            "rounds": [
+              {
+                "prompt": "Prompt: Na đẩy cửa chậm, nặng, quyết tâm. Kết quả nào lệch?",
+                "options": [
+                  "Na dùng sức đẩy chậm, dáng vững",
+                  "Na nhảy nhẹ và chạy khỏi cửa"
+                ],
+                "answerIndex": 1,
+                "feedback": "Kết quả B lệch hành động, trọng lượng và cảm xúc."
+              },
+              {
+                "prompt": "Hành động đúng nhưng tốc độ quá nhanh. Yêu cầu sửa nào rõ?",
+                "options": [
+                  "Giữ động tác đẩy, làm chậm và nặng hơn",
+                  "Làm lại cho tốt"
+                ],
+                "answerIndex": 0,
+                "feedback": "Yêu cầu A giữ phần đúng và chỉ rõ thuộc tính cần đổi."
+              }
             ]
           }
         },
@@ -4668,11 +6973,34 @@ export const curriculumContent = [
           "content": "Thử thách phát hiện: tìm đoạn chuyển động nào có nhân vật 'trông khác' so với đoạn còn lại",
           "objective": "Rèn khả năng kiểm soát chất lượng qua nhiều sản phẩm",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "Thử thách phát hiện: tìm đoạn chuyển động nào có nhân vật 'trông",
-              "Rèn khả năng kiểm soát chất lượng qua nhiều sản phẩm"
+              "trông khác",
+              "tìm đoạn chuyển động nào có nhân vật 'trông khác' so vớ…",
+              "Rèn khả năng kiểm soát chất lượng qua nhiều sản phẩm",
+              "Tạo thêm các đoạn chuyển động khác",
+              "2-3 đoạn chuyển động hoàn chỉnh"
+            ],
+            "rounds": [
+              {
+                "prompt": "Hai đoạn giữ tóc và áo; đoạn ba đổi cả nhân vật. Đoạn nào lệch?",
+                "options": [
+                  "Đoạn ba",
+                  "Hai đoạn đầu"
+                ],
+                "answerIndex": 0,
+                "feedback": "Dấu hiệu nhận diện phải giữ qua toàn bộ chuỗi cảnh."
+              },
+              {
+                "prompt": "Khác ánh sáng vì sang bối cảnh mới có phải lỗi không?",
+                "options": [
+                  "Không, nếu thay đổi được câu chuyện giải thích",
+                  "Có, ánh sáng luôn phải giống nhau"
+                ],
+                "answerIndex": 0,
+                "feedback": "Thay đổi có nguyên nhân trong câu chuyện khác với lỗi nhất quán."
+              }
             ]
           }
         },
@@ -4706,8 +7034,10 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "Sắp xếp thử: xếp lại 3 đoạn chuyển động mẫu bị xáo trộn theo đún",
-              "Luyện tư duy sắp xếp trình tự logic"
+              "Nhân vật phát hiện cánh cửa",
+              "Nhân vật cố đẩy nhưng thất bại",
+              "Đồng đội cùng hợp sức",
+              "Cánh cửa mở ra"
             ]
           }
         },
@@ -4738,11 +7068,35 @@ export const curriculumContent = [
           "content": "Xem thử & góp ý: xem 1 chuỗi cảnh mẫu, chỉ ra chỗ nào ghép nối chưa mượt",
           "objective": "Rèn khả năng đánh giá tính liền mạch của sản phẩm",
           "duration": "4 phút",
-          "gameType": "match",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "xem 1 chuỗi cảnh mẫu",
-              "chỉ ra chỗ nào ghép nối chưa mượt"
+              "chỉ ra chỗ nào ghép nối chưa mượt",
+              "xem 1 chuỗi cảnh mẫu, chỉ ra chỗ nào ghép nối chưa mượt",
+              "Rèn khả năng đánh giá tính liền mạch của sản phẩm",
+              "Ghép nối & xem lại tổng thể",
+              "Chuỗi 2-3 đoạn chuyển động đã ghép nối"
+            ],
+            "rounds": [
+              {
+                "prompt": "Cảnh 1 kết bằng tay chạm cửa; cảnh 2 mở bằng tay ở vị trí khác. Lỗi gì?",
+                "options": [
+                  "Điểm nối hành động không liên tục",
+                  "Màu sắc chưa đủ rực"
+                ],
+                "answerIndex": 0,
+                "feedback": "Vị trí kết của cảnh trước cần gần vị trí bắt đầu của cảnh sau."
+              },
+              {
+                "prompt": "Chuyển cảnh làm người xem không biết đã sang nơi khác. Cần thêm gì?",
+                "options": [
+                  "Một dấu hiệu thiết lập bối cảnh mới",
+                  "Nhiều chuyển động ngẫu nhiên"
+                ],
+                "answerIndex": 0,
+                "feedback": "Một hình hoặc nhịp thiết lập giúp người xem định hướng không gian."
+              }
             ]
           }
         },
@@ -4776,11 +7130,10 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "ý đồ",
-              "lựa chọn tốc độ",
-              "cảm xúc muốn truyền tải",
-              "xếp lại ý chính (ý đồ",
-              "cảm xúc muốn truyền tải) theo thứ tự hợp lý"
+              "Ý đồ của chuỗi cảnh",
+              "Lựa chọn tốc độ và trọng lượng",
+              "Cảm xúc muốn truyền tải",
+              "Một lần thử và điều đã chỉnh"
             ]
           }
         },
@@ -4811,11 +7164,34 @@ export const curriculumContent = [
           "content": "Luyện trả lời phản biện: chọn cách trả lời phù hợp nhất cho câu hỏi 'vì sao em chọn tốc độ này?'",
           "objective": "Luyện phản xạ giải thích lựa chọn sáng tạo của mình",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "Luyện trả lời phản biện: chọn cách trả lời phù hợp nhất cho câu ",
-              "Luyện phản xạ giải thích lựa chọn sáng tạo của mình"
+              "vì sao em chọn tốc độ này?",
+              "chọn cách trả lời phù hợp nhất cho câu hỏi 'vì sao em…",
+              "Luyện phản xạ giải thích lựa chọn sáng tạo của mình",
+              "Buổi chiếu thử chính thức",
+              "Video chuỗi cảnh + lời giới thiệu ý đồ đạo diễn"
+            ],
+            "rounds": [
+              {
+                "prompt": "“Vì sao em dùng tốc độ chậm ở đầu?” Câu nào có lý do đạo diễn?",
+                "options": [
+                  "Để khán giả cảm nhận sức nặng trước khi cao trào tăng tốc",
+                  "Vì em chọn ngẫu nhiên"
+                ],
+                "answerIndex": 0,
+                "feedback": "Câu A nối tốc độ với trải nghiệm muốn tạo cho khán giả."
+              },
+              {
+                "prompt": "Nếu khán giả đọc sai cảm xúc, nên làm gì?",
+                "options": [
+                  "Hỏi chi tiết nào gây hiểu nhầm rồi thử chỉnh",
+                  "Nói khán giả xem sai"
+                ],
+                "answerIndex": 0,
+                "feedback": "Phản ứng của khán giả là bằng chứng để kiểm tra độ rõ của ý đồ."
+              }
             ]
           }
         },
@@ -4863,12 +7239,12 @@ export const curriculumContent = [
           "content": "Chấm điểm khoảnh khắc: xếp hạng 3 khoảnh khắc mẫu theo mức độ phù hợp để làm phim",
           "objective": "Luyện tiêu chí đánh giá khoảnh khắc phù hợp làm phim",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "order",
           "gameConfig": {
             "cards": [
-              "xếp hạng 3 khoảnh khắc mẫu theo mức độ phù hợp để làm phim",
-              "Chấm điểm khoảnh khắc: xếp hạng 3 khoảnh khắc mẫu theo mức độ ph",
-              "Luyện tiêu chí đánh giá khoảnh khắc phù hợp làm phim"
+              "Nhân vật đứng yên và nhìn quanh",
+              "Nhân vật nhận một tin bất ngờ",
+              "Nhân vật chạy qua cầu đang sập"
             ]
           }
         },
@@ -4899,11 +7275,33 @@ export const curriculumContent = [
           "content": "Đánh giá lý do: chọn lý do thuyết phục nhất trong 3 lý do gợi ý cho 1 khoảnh khắc mẫu",
           "objective": "Luyện tư duy đánh giá chất lượng lý lẽ",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "Đánh giá lý do: chọn lý do thuyết phục nhất trong 3 lý do gợi ý ",
-              "Luyện tư duy đánh giá chất lượng lý lẽ"
+              "chọn lý do thuyết phục nhất trong 3 lý do gợi ý cho 1…",
+              "Luyện tư duy đánh giá chất lượng lý lẽ",
+              "Vì sao khoảnh khắc này xứng đáng",
+              "2-3 câu giải thích lý do chọn khoảnh khắc"
+            ],
+            "rounds": [
+              {
+                "prompt": "Vì sao cảnh chạy qua cầu xứng đáng làm phim?",
+                "options": [
+                  "Có thay đổi cảm xúc, hành động và âm thanh quan trọng",
+                  "Vì cảnh đó có nhiều màu"
+                ],
+                "answerIndex": 0,
+                "feedback": "Lý do A nêu các lớp điện ảnh và vai trò của khoảnh khắc trong câu chuyện."
+              },
+              {
+                "prompt": "Lý do nào cho thấy phạm vi dự án vừa sức?",
+                "options": [
+                  "Cảnh có một hành động trọn vẹn trong thời lượng ngắn",
+                  "Cảnh kể toàn bộ hành trình tám phần"
+                ],
+                "answerIndex": 0,
+                "feedback": "Một hành động có đầu-cuối giúp phim đầu tay hoàn thiện được."
+              }
             ]
           }
         },
@@ -4937,8 +7335,29 @@ export const curriculumContent = [
           "gameType": "match",
           "gameConfig": {
             "cards": [
-              "Ghép đúng yếu tố: chọn yếu tố nào chỉ có trong kịch bản phim (kh",
-              "Luyện phân biệt đặc trưng của kịch bản phim"
+              "không có trong truyện tranh",
+              "chọn yếu tố nào chỉ có trong kịch bản phim (không có…",
+              "Luyện phân biệt đặc trưng của kịch bản phim",
+              "Kịch bản phân cảnh khác kịch bản truyện tranh thế nào",
+              "Mô tả bối cảnh mở đầu cảnh phim"
+            ],
+            "pairs": [
+              {
+                "left": "Thời lượng 3 giây",
+                "right": "Phim: thời gian cụ thể"
+              },
+              {
+                "left": "Máy quay tiến gần khi nhân vật sợ",
+                "right": "Phim: chuyển động máy quay"
+              },
+              {
+                "left": "Một khung tranh tĩnh",
+                "right": "Truyện tranh: panel tĩnh"
+              },
+              {
+                "left": "Bong bóng thoại trên trang",
+                "right": "Truyện tranh: lời thoại in trên khung"
+              }
             ]
           }
         },
@@ -4969,12 +7388,33 @@ export const curriculumContent = [
           "content": "Rà soát kịch bản mẫu: tìm phần còn thiếu trong 1 kịch bản phân cảnh chưa đầy đủ",
           "objective": "Rèn khả năng nhận diện thông tin còn thiếu",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "tìm phần còn thiếu trong 1 kịch bản phân cảnh chưa đầy đủ",
-              "Rà soát kịch bản mẫu: tìm phần còn thiếu trong 1 kịch bản phân c",
-              "Rèn khả năng nhận diện thông tin còn thiếu"
+              "tìm phần còn thiếu trong 1 kịch bản phân cảnh chưa đầy…",
+              "Rèn khả năng nhận diện thông tin còn thiếu",
+              "Viết trọn kịch bản phân cảnh",
+              "Kịch bản phân cảnh hoàn chỉnh"
+            ],
+            "rounds": [
+              {
+                "prompt": "Kịch bản có hành động và thoại nhưng thiếu gì để dựng theo thời gian?",
+                "options": [
+                  "Thời lượng và thứ tự diễn biến",
+                  "Một lời nhận xét chung"
+                ],
+                "answerIndex": 0,
+                "feedback": "Thời lượng và trình tự cho biết chuyển động xảy ra khi nào và kéo dài bao lâu."
+              },
+              {
+                "prompt": "Ghi chú “Na sợ” còn thiếu gì để đạo diễn hành động?",
+                "options": [
+                  "Dấu hiệu cơ thể hoặc giọng nói cụ thể",
+                  "Tên một màu ngẫu nhiên"
+                ],
+                "answerIndex": 0,
+                "feedback": "Biểu hiện nhìn hoặc nghe được biến cảm xúc thành chỉ dẫn thực hiện."
+              }
             ]
           }
         },
@@ -5005,12 +7445,31 @@ export const curriculumContent = [
           "content": "Phân chia khung hình: chọn số lượng và loại khung hình hợp lý cho 1 kịch bản mẫu",
           "objective": "Luyện tư duy chia nhỏ cảnh thành các khung hình",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
-              "chọn số lượng và loại khung hình hợp lý cho 1 kịch bản mẫu",
-              "Phân chia khung hình: chọn số lượng và loại khung hình hợp lý ch",
-              "Luyện tư duy chia nhỏ cảnh thành các khung hình"
+              "chọn số lượng và loại khung hình hợp lý cho 1 kịch bản…",
+              "Luyện tư duy chia nhỏ cảnh thành các khung hình",
+              "Vẽ phác các cảnh quay",
+              "Danh sách 4-6 khung hình + góc máy"
+            ],
+            "placements": [
+              {
+                "item": "Toàn cảnh cây cầu và cơn bão",
+                "target": "Shot 1: thiết lập"
+              },
+              {
+                "item": "Trung cảnh nhân vật bắt đầu chạy",
+                "target": "Shot 2: hành động"
+              },
+              {
+                "item": "Cận cảnh gương mặt quyết tâm",
+                "target": "Shot 3: cảm xúc"
+              },
+              {
+                "item": "Toàn cảnh nhân vật sang bờ",
+                "target": "Shot 4: kết quả"
+              }
             ]
           }
         },
@@ -5041,11 +7500,29 @@ export const curriculumContent = [
           "content": "Ghép mô tả vào khung: kéo-thả mô tả + kiểu ánh sáng phù hợp vào đúng khung hình trong storyboard mẫu",
           "objective": "Luyện tư duy tổ chức thông tin và chọn ánh sáng có chủ đích theo khung hình",
           "duration": "4 phút",
-          "gameType": "order",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
               "kéo-thả mô tả",
-              "kiểu ánh sáng phù hợp vào đúng khung hình trong storyboard mẫu"
+              "kiểu ánh sáng phù hợp vào đúng khung hình trong…",
+              "kéo-thả mô tả + kiểu ánh sáng phù hợp vào đúng khung…",
+              "Luyện tư duy tổ chức thông tin và chọn ánh sáng có chủ…",
+              "Hoàn thiện storyboard: thêm ánh sáng & mô tả chi tiết",
+              "Storyboard hoàn chỉnh 4-6 khung hình (góc máy + ánh sán…"
+            ],
+            "placements": [
+              {
+                "item": "Ánh xanh tối, chớp từ phía sau",
+                "target": "Shot bão mở đầu"
+              },
+              {
+                "item": "Ánh chớp viền nhân vật, góc thấp",
+                "target": "Shot chạy cao trào"
+              },
+              {
+                "item": "Ánh ấm phía trước, góc rộng",
+                "target": "Shot sang bờ an toàn"
+              }
             ]
           }
         },
@@ -5081,8 +7558,24 @@ export const curriculumContent = [
             "cards": [
               "góc máy",
               "ánh sáng",
-              "chọn đúng phần mô tả (góc máy",
-              "ánh sáng) từ storyboard cho 1 khung hình mẫu"
+              "chọn đúng phần mô tả (góc máy + ánh sáng) từ storyboard…",
+              "Luyện chuyển hoá thông tin đã lên kế hoạch thành yêu cầ…",
+              "Từ storyboard thành hình ảnh",
+              "2-3 hình ảnh đầu tiên cho cảnh phim"
+            ],
+            "pairs": [
+              {
+                "left": "Shot thiết lập cây cầu",
+                "right": "Toàn cảnh, ánh xanh tối, mưa lớn"
+              },
+              {
+                "left": "Shot quyết tâm",
+                "right": "Cận mặt, chớp viền từ phía sau"
+              },
+              {
+                "left": "Shot sang bờ",
+                "right": "Góc rộng, ánh ấm ở phía trước"
+              }
             ]
           }
         },
@@ -5113,12 +7606,34 @@ export const curriculumContent = [
           "content": "Thử thách phát hiện: tìm khung hình nào bị 'lệch' nhân vật hoặc ánh sáng so với các khung còn lại",
           "objective": "Rèn khả năng kiểm soát chất lượng qua nhiều hình",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "lệch",
-              "tìm khung hình nào bị 'lệch' nhân vật",
-              "ánh sáng so với các khung còn lại"
+              "tìm khung hình nào bị 'lệch' nhân vật hoặc ánh sáng so…",
+              "Rèn khả năng kiểm soát chất lượng qua nhiều hình",
+              "Hoàn thiện toàn bộ bộ hình ảnh cùng AI",
+              "4-6 hình ảnh hoàn chỉnh cho cảnh phim"
+            ],
+            "rounds": [
+              {
+                "prompt": "Ba shot bão có ánh xanh; shot giữa thành nắng vàng. Shot nào lệch?",
+                "options": [
+                  "Shot giữa",
+                  "Hai shot còn lại"
+                ],
+                "answerIndex": 0,
+                "feedback": "Shot giữa phá continuity ánh sáng khi bối cảnh và thời gian chưa đổi."
+              },
+              {
+                "prompt": "Shot cuối chuyển sang ánh ấm sau khi qua bờ. Có hợp lý không?",
+                "options": [
+                  "Có, nếu storyboard dùng nó để báo thay đổi trạng thái",
+                  "Không, ánh sáng không bao giờ được đổi"
+                ],
+                "answerIndex": 0,
+                "feedback": "Ánh sáng có chủ đích có thể kể sự chuyển đổi từ nguy hiểm sang an toàn."
+              }
             ]
           }
         },
@@ -5149,12 +7664,31 @@ export const curriculumContent = [
           "content": "Ghép công thức nhanh: hoàn thành phần còn thiếu của 2 movement prompt mẫu cho phim",
           "objective": "Luyện tốc độ và độ chính xác khi áp dụng công thức đã quen thuộc",
           "duration": "4 phút",
-          "gameType": "match",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
-              "hoàn thành phần còn thiếu của 2 movement prompt mẫu cho phim",
-              "Ghép công thức nhanh: hoàn thành phần còn thiếu của 2 movement p",
-              "Luyện tốc độ và độ chính xác khi áp dụng công thức đã quen thuộc"
+              "hoàn thành phần còn thiếu của 2 movement prompt mẫu cho…",
+              "Luyện tốc độ và độ chính xác khi áp dụng công thức đã…",
+              "Áp dụng công thức movement prompt vào phim",
+              "2-3 movement prompt cho các khung hình chính"
+            ],
+            "placements": [
+              {
+                "item": "Na",
+                "target": "Ô Ai"
+              },
+              {
+                "item": "Chạy qua cầu",
+                "target": "Ô Làm gì"
+              },
+              {
+                "item": "Nhanh dần, bước nặng vì gió",
+                "target": "Ô Thế nào"
+              },
+              {
+                "item": "Sợ nhưng quyết tâm",
+                "target": "Ô Cảm xúc"
+              }
             ]
           }
         },
@@ -5185,12 +7719,35 @@ export const curriculumContent = [
           "content": "Xem & đối chiếu: xem 1 đoạn chuyển động, đối chiếu với prompt gốc để tìm điểm khớp/lệch",
           "objective": "Rèn khả năng đối chiếu sản phẩm AI với ý đồ ban đầu",
           "duration": "4 phút",
-          "gameType": "detective",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "xem 1 đoạn chuyển động",
               "đối chiếu với prompt gốc để tìm điểm khớp",
-              "lệch"
+              "lệch",
+              "Tạo chuyển động cho cảnh phim",
+              "Chuyển động hoàn chỉnh cho 2-3 khung hình",
+              "Rèn khả năng đối chiếu sản phẩm AI với ý đồ ban đầu"
+            ],
+            "rounds": [
+              {
+                "prompt": "Prompt nói nhanh dần nhưng đoạn giữ một tốc độ. Điểm nào lệch?",
+                "options": [
+                  "Nhịp tốc độ",
+                  "Màu tóc nhân vật"
+                ],
+                "answerIndex": 0,
+                "feedback": "Kết quả chưa thực hiện chuyển đổi tốc độ đã nêu trong prompt."
+              },
+              {
+                "prompt": "Chuyển động đúng nhưng kết ở tư thế không nối shot sau. Cần sửa gì?",
+                "options": [
+                  "Tư thế và hướng ở cuối đoạn",
+                  "Toàn bộ thiết kế nhân vật"
+                ],
+                "answerIndex": 0,
+                "feedback": "Điểm cuối cần chuẩn bị continuity cho shot kế tiếp."
+              }
             ]
           }
         },
@@ -5221,11 +7778,29 @@ export const curriculumContent = [
           "content": "Chọn giọng phù hợp: nghe 2-3 mẫu giọng đọc, chọn giọng hợp với tính cách nhân vật nhất",
           "objective": "Luyện liên kết giọng nói với tính cách nhân vật",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "match",
           "gameConfig": {
             "cards": [
               "nghe 2-3 mẫu giọng đọc",
-              "chọn giọng hợp với tính cách nhân vật nhất"
+              "chọn giọng hợp với tính cách nhân vật nhất",
+              "nghe 2-3 mẫu giọng đọc, chọn giọng hợp với tính cách…",
+              "Luyện liên kết giọng nói với tính cách nhân vật",
+              "Giọng đọc & lồng tiếng nhân vật",
+              "Bản ghi âm lồng tiếng cho nhân vật"
+            ],
+            "pairs": [
+              {
+                "left": "Nhân vật cẩn thận, hay do dự",
+                "right": "Giọng vừa, ngắt trước quyết định"
+              },
+              {
+                "left": "Nhân vật táo bạo, tự tin",
+                "right": "Giọng rõ, nhịp nhanh, câu dứt khoát"
+              },
+              {
+                "left": "Nhân vật điềm tĩnh, dẫn đường",
+                "right": "Giọng ấm, chậm vừa và ổn định"
+              }
             ]
           }
         },
@@ -5256,11 +7831,29 @@ export const curriculumContent = [
           "content": "Chọn nhạc phù hợp: nghe 2-3 đoạn nhạc nền, chọn đoạn hợp với cảm xúc chủ đạo của cảnh phim",
           "objective": "Luyện liên kết âm nhạc với cảm xúc tổng thể của cảnh",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "match",
           "gameConfig": {
             "cards": [
               "nghe 2-3 đoạn nhạc nền",
-              "chọn đoạn hợp với cảm xúc chủ đạo của cảnh phim"
+              "chọn đoạn hợp với cảm xúc chủ đạo của cảnh phim",
+              "nghe 2-3 đoạn nhạc nền, chọn đoạn hợp với cảm xúc chủ…",
+              "Luyện liên kết âm nhạc với cảm xúc tổng thể của cảnh",
+              "Hiệu ứng âm thanh & nhạc nền",
+              "Nhạc nền + hiệu ứng âm thanh hoàn chỉnh"
+            ],
+            "pairs": [
+              {
+                "left": "Bão và cây cầu sắp sập",
+                "right": "Trống căng nhẹ, gió và tiếng gỗ nứt"
+              },
+              {
+                "left": "Khoảnh khắc quyết định",
+                "right": "Nhạc ngừng ngắn rồi dâng lên"
+              },
+              {
+                "left": "Sang bờ an toàn",
+                "right": "Giai điệu ấm, tiếng mưa nhỏ dần"
+              }
             ]
           }
         },
@@ -5291,11 +7884,27 @@ export const curriculumContent = [
           "content": "Kiểm tra khớp: chọn đoạn âm thanh phù hợp nhất về thời điểm cho 1 khung hình mẫu",
           "objective": "Luyện tư duy căn chỉnh âm thanh khớp với hình ảnh",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "place",
           "gameConfig": {
             "cards": [
-              "Kiểm tra khớp: chọn đoạn âm thanh phù hợp nhất về thời điểm cho ",
-              "Luyện tư duy căn chỉnh âm thanh khớp với hình ảnh"
+              "chọn đoạn âm thanh phù hợp nhất về thời điểm cho 1 khun…",
+              "Luyện tư duy căn chỉnh âm thanh khớp với hình ảnh",
+              "Ghép các lớp lại với nhau",
+              "Bản dựng phim hoàn chỉnh (bản nháp"
+            ],
+            "placements": [
+              {
+                "item": "Tiếng sấm",
+                "target": "Đúng lúc ánh chớp xuất hiện"
+              },
+              {
+                "item": "Tiếng chân chạy",
+                "target": "Khớp nhịp bước nhân vật"
+              },
+              {
+                "item": "Câu thoại quyết tâm",
+                "target": "Sau nhịp dừng trước cao trào"
+              }
             ]
           }
         },
@@ -5326,12 +7935,35 @@ export const curriculumContent = [
           "content": "So sánh nhịp: nghe/xem 2 bản dựng có nhịp khác nhau cho cùng 1 nội dung, chọn bản hợp cảm xúc hơn",
           "objective": "Luyện cảm nhận và đánh giá nhịp phim",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
               "nghe",
               "xem 2 bản dựng có nhịp khác nhau cho cùng 1 nội dung",
-              "chọn bản hợp cảm xúc hơn"
+              "chọn bản hợp cảm xúc hơn",
+              "Chỉnh nhịp phim",
+              "Bản dựng phim đã chỉnh nhịp hoàn chỉnh",
+              "Luyện cảm nhận và đánh giá nhịp phim"
+            ],
+            "rounds": [
+              {
+                "prompt": "Bản nào hợp cảm giác căng thẳng tăng dần?",
+                "options": [
+                  "Mở chậm để định hướng rồi rút ngắn shot khi chạy",
+                  "Mọi shot dài bằng nhau"
+                ],
+                "answerIndex": 0,
+                "feedback": "Thay đổi thời lượng theo hành động tạo nhịp căng dần."
+              },
+              {
+                "prompt": "Khoảnh khắc quyết định bị lướt quá nhanh. Nên chỉnh gì?",
+                "options": [
+                  "Giữ cận cảnh lâu hơn một nhịp",
+                  "Thêm thật nhiều shot mới"
+                ],
+                "answerIndex": 0,
+                "feedback": "Tăng đúng một nhịp cho shot quan trọng giúp khán giả đọc quyết định."
+              }
             ]
           }
         },
@@ -5365,8 +7997,12 @@ export const curriculumContent = [
           "gameType": "order",
           "gameConfig": {
             "cards": [
-              "K1-K6",
-              "xếp lại các mốc hành trình (K1-K6) theo đúng thứ tự thời gian"
+              "K1: Xây thế giới",
+              "K2: Thiết kế nhân vật",
+              "K3: Viết câu chuyện",
+              "K4: Dựng truyện tranh",
+              "K5: Đạo diễn chuyển động",
+              "K6: Hoàn thiện phim"
             ]
           }
         },
@@ -5397,11 +8033,33 @@ export const curriculumContent = [
           "content": "Luyện trả lời phản biện: chọn cách trả lời phù hợp nhất cho câu hỏi về 1 lựa chọn đạo diễn trong phim",
           "objective": "Ôn lại kỹ năng bảo vệ lựa chọn sáng tạo đã luyện ở K1-K5",
           "duration": "4 phút",
-          "gameType": "pick",
+          "gameType": "compare",
           "gameConfig": {
             "cards": [
-              "Luyện trả lời phản biện: chọn cách trả lời phù hợp nhất cho câu ",
-              "Ôn lại kỹ năng bảo vệ lựa chọn sáng tạo đã luyện ở K1-K5"
+              "chọn cách trả lời phù hợp nhất cho câu hỏi về 1 lựa chọ…",
+              "Ôn lại kỹ năng bảo vệ lựa chọn sáng tạo đã luyện ở K1-K5",
+              "Buổi công chiếu chính thức — Ra mắt Đạo diễn nhí",
+              "Phim ngắn đầu tay hoàn chỉnh + buổi công chiếu"
+            ],
+            "rounds": [
+              {
+                "prompt": "“Vì sao ánh sáng đổi ở shot cuối?” Câu trả lời nào có ý đồ?",
+                "options": [
+                  "Để báo nhân vật đã từ nguy hiểm sang an toàn",
+                  "Vì em thấy màu vàng đẹp"
+                ],
+                "answerIndex": 0,
+                "feedback": "Câu A nối lựa chọn hình ảnh với thay đổi trong câu chuyện."
+              },
+              {
+                "prompt": "Nếu khán giả chưa hiểu bước ngoặt, đạo diễn nên phản hồi thế nào?",
+                "options": [
+                  "Hỏi shot nào gây khó hiểu rồi kiểm tra lại nhịp và hình",
+                  "Giải thích rằng khán giả phải tự hiểu"
+                ],
+                "answerIndex": 0,
+                "feedback": "Tìm điểm cụ thể trong bản dựng tạo ra vòng chỉnh sửa dựa trên bằng chứng."
+              }
             ]
           }
         },

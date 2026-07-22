@@ -3,6 +3,7 @@ import { z } from 'zod'
 import {
   can,
   isCourseCreatedAsset,
+  isCreativeWorkshopAsset,
   isUsableImageReference,
 } from '@aikids/domain'
 import { prisma } from '../../infrastructure/database/prisma.js'
@@ -30,7 +31,7 @@ function courseAssetFilter(a: {
     questId: a.questId,
     type: a.type,
     meta: parseMeta(a.metaJson),
-  })
+  }) || isCreativeWorkshopAsset(parseMeta(a.metaJson))
 }
 
 /**

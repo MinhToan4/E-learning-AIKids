@@ -6,6 +6,9 @@
 import type { CourseSeed, PracticeKindSeed, QuestSeed } from '../types.js'
 import { curriculumContent } from '../generated/curriculum-content.js'
 
+/** No generic fixture: a wrong video is worse than a text-led lesson. */
+export const LECTURE_PREVIEW_URL: string | null = null
+
 const ACCENTS = {
   L1: ['#6d5efc', '#3dbfff', '#3ed9a0', '#ff7b93', '#ffc94a', '#a78bfa'],
   L2: ['#5646e8', '#0ea5e9', '#10b981', '#f43f5e', '#f59e0b', '#8b5cf6'],
@@ -59,6 +62,18 @@ function questFor(
   const key = course.courseKey.toLowerCase()
   const id = `${track}-${key}-q${order}`
   const duration = course.track === 'L1' ? '18 phút' : '20 phút'
+  const lessonDistractors = [
+    lesson.practice.content,
+    lesson.game.content,
+    lesson.video.content,
+    lesson.product,
+  ].filter(
+    (option, index, options) =>
+      option !== lesson.check.content && options.indexOf(option) === index,
+  )
+  const correctIndex = order % 3
+  const lessonOptions = lessonDistractors.slice(0, 2)
+  lessonOptions.splice(correctIndex, 0, lesson.check.content)
   const check =
     order === course.lessons.length
       ? course.rubric.map((criterion, criterionIndex) => ({
@@ -71,13 +86,9 @@ function questFor(
       : [
           {
             id: `${id}-check`,
-            question: 'Ở bước kiểm tra nhanh, con cần làm gì?',
-            options: [
-              lesson.check.content,
-              'Bỏ qua và sang bài tiếp theo',
-              'Nhập thông tin cá nhân để được chấm',
-            ],
-            correctIndex: 0,
+            question: `Cách nào giúp con tự kiểm tra đúng mục tiêu bài “${lesson.title}”?`,
+            options: lessonOptions,
+            correctIndex,
             explain: lesson.check.objective,
           },
         ]
@@ -95,8 +106,7 @@ function questFor(
     accent: ACCENTS[course.track][(order - 1) % 6],
     practiceKind: lesson.practiceKind as PracticeKindSeed,
     stage: lesson.stage,
-    // No placeholder video: a missing lecture asset must remain visible and honest.
-    videoUrl: null,
+    videoUrl: LECTURE_PREVIEW_URL,
     goals: [lesson.objective, `Hoàn thành: ${lesson.product}`, 'Tự kiểm tra và lưu riêng tư trong Vũ trụ của em'],
     concept: `${lesson.video.content} Mục tiêu: ${lesson.video.objective}`,
     example: `Game ghi nhớ: ${lesson.game.content}`,
@@ -111,7 +121,7 @@ function questFor(
           title: 'Bài giảng ngắn',
           content: lesson.video.content,
           outcome: lesson.video.objective,
-          videoUrl: null,
+          videoUrl: LECTURE_PREVIEW_URL,
         },
         {
           id: `${id}-game`,
@@ -149,7 +159,7 @@ function questFor(
 function buildCourse(course: ContentCourse, index: number): CourseSeed {
   const lessonCount = course.lessons.length
   const liveSessions = course.track === 'L1' ? (course.courseKey === 'K6' ? 5 : 4) : 8
-  const ageLabel = course.track === 'L1' ? '6–8 tuổi' : '9–11 tuổi'
+  const ageLabel = course.track === 'L1' ? '8–9 tuổi' : '10–11 tuổi'
   return {
     id: `${course.track.toLowerCase()}-${course.courseKey.toLowerCase()}-${SLUG[course.courseKey]}`,
     title: `${course.track} · ${course.title}`,
