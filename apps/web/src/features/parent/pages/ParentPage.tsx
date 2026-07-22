@@ -90,14 +90,26 @@ type ParentProfileData = {
   maxChildren: number
 }
 
+import {
+  ParentApprovalIcon,
+  ParentDashboardIcon,
+  ParentKidsIcon,
+  ParentPlanIcon,
+  ParentProfileIcon,
+} from '@/shared/components/icons/ParentIcons'
+import {
+  NavBadgeIcon,
+  NavLeaderboardIcon,
+} from '@/shared/components/icons/KidNavIcons'
+
 type TabKey = 'dashboard' | 'kids' | 'approvals' | 'plan' | 'profile'
 
-const TABS: { key: TabKey; label: string; icon: string }[] = [
-  { key: 'dashboard', label: 'Tổng quan', icon: '📊' },
-  { key: 'kids', label: 'Con của tôi', icon: '👧' },
-  { key: 'plan', label: 'Gói gia đình', icon: '📦' },
-  { key: 'approvals', label: 'Duyệt chia sẻ', icon: '🔔' },
-  { key: 'profile', label: 'Hồ sơ', icon: '⚙️' },
+const TABS: { key: TabKey; label: string; icon: React.ComponentType<{ size?: number }> }[] = [
+  { key: 'dashboard', label: 'Tổng quan', icon: ParentDashboardIcon },
+  { key: 'kids', label: 'Con của tôi', icon: ParentKidsIcon },
+  { key: 'plan', label: 'Gói gia đình', icon: ParentPlanIcon },
+  { key: 'approvals', label: 'Duyệt chia sẻ', icon: ParentApprovalIcon },
+  { key: 'profile', label: 'Hồ sơ', icon: ParentProfileIcon },
 ]
 
 const AVATARS = STUDENT_AVATARS.map((a) => ({
@@ -173,7 +185,7 @@ export function ParentPage({
                   : 'bg-brand-50/60 text-muted hover:bg-brand-50',
               )}
             >
-              <span>{t.icon}</span> {t.label}
+              <t.icon size={20} /> {t.label}
             </Link>
           )
         })}
@@ -340,10 +352,10 @@ function DashboardTab() {
     <div className="flex flex-col gap-5">
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatCard icon="👧" label="Số con" value={kids.length} color="brand" />
-        <StatCard icon="⭐" label="Tổng sao" value={totalStars} color="sun" />
-        <StatCard icon="🏆" label="Quests xong" value={totalQuests} color="mint" />
-        <StatCard icon="🔔" label="Chờ duyệt" value={pendingCount} color="coral" />
+        <StatCard icon={ParentKidsIcon} label="Số con" value={kids.length} color="brand" />
+        <StatCard icon={NavBadgeIcon} label="Tổng sao" value={totalStars} color="sun" />
+        <StatCard icon={NavLeaderboardIcon} label="Quests xong" value={totalQuests} color="mint" />
+        <StatCard icon={ParentApprovalIcon} label="Chờ duyệt" value={pendingCount} color="coral" />
       </div>
 
       {/* XP summary */}
@@ -1213,28 +1225,28 @@ function ProfileTab() {
 
 // ── Shared UI ─────────────────────────────────────────────────
 function StatCard({
-  icon,
+  icon: Icon,
   label,
   value,
   color,
 }: {
-  icon: string
+  icon: React.ComponentType<{ size?: number }>
   label: string
   value: number
   color: string
 }) {
   return (
-    <div className="ui-card flex items-center gap-3 p-4">
+    <div className="ui-card flex items-center gap-3 p-4 shadow-soft transition-all duration-150 hover:scale-[1.02]">
       <div
         className={cn(
-          'flex h-10 w-10 items-center justify-center rounded-xl text-xl',
-          color === 'brand' && 'bg-brand-100',
-          color === 'sun' && 'bg-sun-100',
-          color === 'mint' && 'bg-mint-100',
-          color === 'coral' && 'bg-coral-100',
+          'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl text-xl shadow-xs',
+          color === 'brand' && 'bg-brand-50 text-brand-600',
+          color === 'sun' && 'bg-sun-50 text-sun-600',
+          color === 'mint' && 'bg-mint-50 text-mint-600',
+          color === 'coral' && 'bg-coral-50 text-coral-600',
         )}
       >
-        {icon}
+        <Icon size={26} />
       </div>
       <div>
         <p className="text-2xl font-extrabold">{value}</p>

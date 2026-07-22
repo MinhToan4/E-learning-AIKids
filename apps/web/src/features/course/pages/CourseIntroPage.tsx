@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { Award, BookOpen, ShieldCheck, Sparkles, Target, Trophy } from 'lucide-react'
+import {
+  NavBadgeIcon,
+  NavLeaderboardIcon,
+} from '@/shared/components/icons/KidNavIcons'
+import { ShieldLockIcon } from '@/shared/components/icons/ParentIcons'
+import { CmsCoursesIcon } from '@/shared/components/icons/CmsIcons'
 import { Button } from '@/shared/components/ui/Button'
 import { api, type CourseSummary } from '@/shared/lib/api'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
@@ -144,7 +149,7 @@ export function CourseIntroPage() {
 
       <section className="ui-card p-5">
         <h2 className="font-display mb-3 flex items-center gap-2 text-2xl">
-          <BookOpen className="text-brand-500" size={24} />
+          <CmsCoursesIcon size={26} />
           Con sẽ học gì?
         </h2>
         <ul className="grid gap-2 sm:grid-cols-2">
@@ -153,7 +158,7 @@ export function CourseIntroPage() {
               key={s}
               className="flex items-start gap-2 rounded-2xl bg-brand-50 px-3 py-2 text-sm font-semibold"
             >
-              <Sparkles className="mt-0.5 shrink-0 text-brand-500" size={16} />
+              <span className="mt-0.5 text-brand-500">✨</span>
               {s}
             </li>
           ))}
@@ -166,7 +171,7 @@ export function CourseIntroPage() {
             id="recognition-title"
             className="font-display mb-3 flex items-center gap-2 text-2xl"
           >
-            <ShieldCheck className="text-brand-500" size={24} />
+            <ShieldLockIcon size={26} />
             Ghi nhận minh bạch
           </h2>
           <div className="grid gap-3 sm:grid-cols-2">
@@ -175,7 +180,7 @@ export function CourseIntroPage() {
                 Đơn vị ghi nhận hoàn thành
               </p>
               <p className="mt-1 flex items-start gap-2 font-bold">
-                <Award className="mt-0.5 shrink-0 text-sun-500" size={18} />
+                <NavBadgeIcon size={20} className="mt-0.5 shrink-0" />
                 {course.recognition.issuer}
               </p>
               <p className="mt-2 text-sm text-muted">
@@ -209,7 +214,7 @@ export function CourseIntroPage() {
 
       <section className="ui-card p-5">
         <h2 className="font-display mb-3 flex items-center gap-2 text-2xl">
-          <Trophy className="text-sun-400" size={24} />
+          <NavLeaderboardIcon size={26} />
           Kết quả sau khóa học
         </h2>
         <ul className="flex flex-col gap-2">
@@ -218,7 +223,7 @@ export function CourseIntroPage() {
               key={o}
               className="flex items-start gap-2 rounded-2xl border-2 border-mint-100 bg-mint-100/40 px-3 py-2 text-sm font-semibold"
             >
-              <Target className="mt-0.5 shrink-0 text-success" size={16} />
+              <span className="mt-0.5 shrink-0 text-mint-600 font-bold">🎯</span>
               {o}
             </li>
           ))}
