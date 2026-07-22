@@ -488,8 +488,13 @@ export async function adminRoutes(app: FastifyInstance) {
       projects,
       activeSessions,
       enrollments,
-    ] = await Promise.all([
-      prisma.user.groupBy({ by: ['role'], _count: true }),
+      dailyTrendRows,
+    ] = await prisma.$transaction([
+      prisma.user.groupBy({
+        by: ['role'],
+        orderBy: { role: 'asc' },
+        _count: true,
+      }),
       prisma.user.count({ where: { active: true } }),
       prisma.course.count({ where: { status: 'open' } }),
       prisma.course.count({ where: { status: 'soon' } }),
@@ -499,6 +504,48 @@ export async function adminRoutes(app: FastifyInstance) {
       prisma.project.count(),
       prisma.session.count({ where: { expiresAt: { gt: new Date() } } }),
       prisma.enrollment.count(),
+      prisma.$queryRaw<
+        Array<{
+          date: string
+          new_users: bigint
+          completed_quests: bigint
+          projects: bigint
+        }>
+      >`
+        WITH days AS (
+          SELECT generate_series(
+            CURRENT_DATE - INTERVAL '13 days',
+            CURRENT_DATE,
+            INTERVAL '1 day'
+          )::date AS day
+        ), signups AS (
+          SELECT created_at::date AS day, COUNT(*)::bigint AS count
+          FROM users
+          WHERE created_at >= CURRENT_DATE - INTERVAL '13 days'
+          GROUP BY created_at::date
+        ), completions AS (
+          SELECT updated_at::date AS day, COUNT(*)::bigint AS count
+          FROM quest_progress
+          WHERE status = 'completed'
+            AND updated_at >= CURRENT_DATE - INTERVAL '13 days'
+          GROUP BY updated_at::date
+        ), creations AS (
+          SELECT created_at::date AS day, COUNT(*)::bigint AS count
+          FROM projects
+          WHERE created_at >= CURRENT_DATE - INTERVAL '13 days'
+          GROUP BY created_at::date
+        )
+        SELECT
+          TO_CHAR(days.day, 'YYYY-MM-DD') AS date,
+          COALESCE(signups.count, 0)::bigint AS new_users,
+          COALESCE(completions.count, 0)::bigint AS completed_quests,
+          COALESCE(creations.count, 0)::bigint AS projects
+        FROM days
+        LEFT JOIN signups USING (day)
+        LEFT JOIN completions USING (day)
+        LEFT JOIN creations USING (day)
+        ORDER BY days.day ASC
+      `,
     ])
 
     return {
@@ -518,6 +565,12 @@ export async function adminRoutes(app: FastifyInstance) {
           projects,
         },
         sessions: { active: activeSessions },
+        trends: dailyTrendRows.map((row) => ({
+          date: row.date,
+          newUsers: Number(row.new_users),
+          completedQuests: Number(row.completed_quests),
+          projects: Number(row.projects),
+        })),
       },
     }
   })

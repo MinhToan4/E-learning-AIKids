@@ -115,24 +115,16 @@ describe('API integration (Postgres / Supabase)', () => {
     await prisma.$disconnect()
   })
 
-  it('health is ok and reports postgresql', async () => {
+  it('health is ready without exposing infrastructure details', async () => {
     const r = await inject(app, { method: 'GET', url: '/api/health' })
     expect(r.status).toBe(200)
     expect(r.body.ok).toBe(true)
     expect(r.body.success).toBe(true)
-    expect(r.body.db).toBe('postgresql')
-    const data = r.body.data as {
-      db: string
-      seams?: { product: string; sessionCookie: string; apiMount: string }
-    }
-    expect(data.db).toBe('postgresql')
-    // Phase 6 StoryMee seam surface
-    expect(data.seams?.product).toBe('aikids')
-    expect(data.seams?.sessionCookie).toBe('aikids_session')
-    expect(data.seams?.apiMount).toBe('/api')
-    expect((r.body as { seams?: { product: string } }).seams?.product).toBe(
-      'aikids',
-    )
+    expect(r.body.data).toEqual({ status: 'ready' })
+    const serialized = JSON.stringify(r.body)
+    expect(serialized).not.toContain('postgresql')
+    expect(serialized).not.toContain('redis')
+    expect(serialized).not.toContain('supabase')
   })
 
   it('rejects unauthenticated catalog', async () => {
@@ -164,6 +156,7 @@ describe('API integration (Postgres / Supabase)', () => {
       status: string
       ageTrack: string
       courseKey: string
+      quests: Array<{ id: string }>
     }>
     const open = list.filter((c) => c.status === 'open')
     expect(open.length).toBeGreaterThanOrEqual(12)
@@ -171,6 +164,9 @@ describe('API integration (Postgres / Supabase)', () => {
     expect(open.some((c) => c.ageTrack === 'L2')).toBe(true)
     expect(open.filter((c) => c.ageTrack === 'L1')).toHaveLength(6)
     expect(open.filter((c) => c.ageTrack === 'L2')).toHaveLength(6)
+    expect(open.reduce((total, course) => total + course.quests.length, 0)).toBe(
+      146,
+    )
 
     const l1 = await inject(app, {
       method: 'GET',
@@ -195,7 +191,7 @@ describe('API integration (Postgres / Supabase)', () => {
       }
     ).quests
     expect(k2quests.some((q) => q.practiceKind === 'character')).toBe(true)
-    expect(k2quests.some((q) => q.practiceKind === 'style')).toBe(true)
+    expect(k2quests.some((q) => q.practiceKind === 'ai_pick')).toBe(true)
     expect(k2quests[0]?.stations?.stations?.length).toBeGreaterThanOrEqual(4)
 
     const k4 = await inject(app, {
@@ -207,6 +203,78 @@ describe('API integration (Postgres / Supabase)', () => {
       k4.body.course as { quests: Array<{ practiceKind: string }> }
     ).quests
     expect(k4quests.some((q) => q.practiceKind === 'comic')).toBe(true)
+
+    const legacyComic = await inject(app, {
+      method: 'GET',
+      url: '/api/courses/course-comic',
+      cookies,
+    })
+    expect(legacyComic.status).toBe(200)
+    expect(
+      (legacyComic.body.course as { recognition: { issuer: string } }).recognition.issuer,
+    ).toBe('AI Kids Creator Academy')
+
+    const started = await inject(app, {
+      method: 'POST',
+      url: '/api/progress/l1-k1-q1/start',
+      cookies,
+    })
+    expect(started.status).toBe(200)
+    expect(started.body.progress.phase).toBe('learn')
+
+    const skippedGame = await inject(app, {
+      method: 'POST',
+      url: '/api/progress/l1-k1-q1/advance',
+      cookies,
+      payload: { fromPhase: 'practice' },
+    })
+    expect(skippedGame.status).toBe(409)
+    expect(skippedGame.body.reason).toBe('phase_mismatch')
+
+    const toGame = await inject(app, {
+      method: 'POST',
+      url: '/api/progress/l1-k1-q1/advance',
+      cookies,
+      payload: { fromPhase: 'learn' },
+    })
+    expect(toGame.status).toBe(200)
+    expect(toGame.body.phase).toBe('game')
+
+    const resumed = await inject(app, {
+      method: 'POST',
+      url: '/api/progress/l1-k1-q1/start',
+      cookies,
+    })
+    expect(resumed.body.progress.phase).toBe('game')
+
+    const toPractice = await inject(app, {
+      method: 'POST',
+      url: '/api/progress/l1-k1-q1/advance',
+      cookies,
+      payload: {
+        fromPhase: 'game',
+        gameEvidence: {
+          gameType: 'pick',
+          choices: ['Quan sát kỹ', 'Nói lý do'],
+          attempts: 2,
+          durationMs: 1200,
+        },
+      },
+    })
+    expect(toPractice.status).toBe(200)
+    expect(toPractice.body.phase).toBe('practice')
+    expect(toPractice.body.gameRecorded).toBe(true)
+
+    const celebration = await inject(app, {
+      method: 'GET',
+      // A caller cannot select or inspect another class through query params.
+      url: '/api/gamification/class-celebration?classId=another-class',
+      cookies,
+    })
+    expect(celebration.status).toBe(200)
+    expect(celebration.body.celebration.personal.xp).toBeTypeOf('number')
+    expect(celebration.body.leaderboard).toBeUndefined()
+    expect(JSON.stringify(celebration.body)).not.toContain('nickname')
   })
 
   it('admin can set Vidtory API key status without leaking secret; non-admin 403', async () => {
@@ -375,6 +443,36 @@ describe('API integration (Postgres / Supabase)', () => {
     expect(course.lectures.length).toBeGreaterThan(1)
     const target = course.lectures.find((l) => !l.archived) ?? course.lectures[0]!
 
+    const edited = await inject(app, {
+      method: 'PATCH',
+      url: `/api/teacher/lectures/${target.id}`,
+      cookies: tCookie,
+      payload: {
+        goals: ['Phân biệt được hai dấu hiệu quan trọng'],
+        concept: 'Máy học từ nhiều ví dụ và trẻ luôn cần kiểm tra kết quả.',
+        example: 'Con thử phân loại đồ chơi theo màu rồi kiểm tra món khó.',
+        gameType: 'match',
+        gameInstruction: 'Ghép từng ví dụ với nhóm phù hợp rồi giải thích lựa chọn.',
+        gameOutcome: 'Nhận ra cách ví dụ ảnh hưởng đến kết quả',
+        gameCards: ['Dữ liệu rõ ràng', 'Kết quả phù hợp'],
+        practiceInstruction: 'Tạo một sản phẩm nhỏ, thử lại và ghi một điều con đã sửa.',
+        product: 'Bản thử có ghi chú cải thiện',
+        checkQuestion: 'Khi kết quả chưa đúng, con nên làm gì?',
+        checkOptions: ['Bỏ qua', 'Kiểm tra ví dụ và thử lại', 'Chia sẻ thông tin riêng'],
+        correctIndex: 1,
+        checkExplain: 'Kiểm tra ví dụ và thử lại giúp sản phẩm tốt hơn.',
+      },
+    })
+    expect(edited.status).toBe(200)
+    const editedLecture = edited.body.lecture as {
+      gameType: string
+      product: string
+      checkOptions: string[]
+    }
+    expect(editedLecture.gameType).toBe('match')
+    expect(editedLecture.product).toBe('Bản thử có ghi chú cải thiện')
+    expect(editedLecture.checkOptions).toHaveLength(3)
+
     const archived = await inject(app, {
       method: 'DELETE',
       url: `/api/teacher/lectures/${target.id}`,
@@ -434,6 +532,12 @@ describe('API integration (Postgres / Supabase)', () => {
       cookies: tCookie,
     })
     expect(stats.status).toBe(200)
+    if (stats.body.stats) {
+      const students = (stats.body.stats as {
+        students: Array<{ needsSupport: boolean; lastActiveAt: string | null }>
+      }).students
+      expect(students.every((student) => typeof student.needsSupport === 'boolean')).toBe(true)
+    }
   })
 
   it('Family model: parent plan seats, create child, enter as child, enroll gate', async () => {
@@ -573,10 +677,18 @@ describe('API integration (Postgres / Supabase)', () => {
       users: { active: number }
       courses: { open: number; soon: number }
       sessions: { active: number }
+      trends: Array<{
+        date: string
+        newUsers: number
+        completedQuests: number
+        projects: number
+      }>
     }
     expect(a.users.active).toBeGreaterThan(0)
     expect(typeof a.courses.open).toBe('number')
     expect(a.sessions.active).toBeGreaterThan(0)
+    expect(a.trends).toHaveLength(14)
+    expect(a.trends.every((row) => /^\d{4}-\d{2}-\d{2}$/.test(row.date))).toBe(true)
 
     const sessions = await inject(app, {
       method: 'GET',

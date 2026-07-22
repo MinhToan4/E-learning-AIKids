@@ -38,8 +38,96 @@ const lectureBodySchema = z.object({
   goals: z.array(z.string().max(200)).max(12).optional(),
   concept: z.string().max(2000).optional(),
   example: z.string().max(2000).optional(),
+  gameType: z.enum(['match', 'drag', 'spin', 'sort', 'order', 'detective', 'pick']).optional(),
+  gameInstruction: z.string().min(10).max(500).optional(),
+  gameOutcome: z.string().min(5).max(300).optional(),
+  gameCards: z.array(z.string().min(2).max(80)).min(2).max(8).optional(),
+  practiceInstruction: z.string().min(10).max(800).optional(),
+  product: z.string().min(3).max(300).optional(),
+  checkQuestion: z.string().min(5).max(500).optional(),
+  checkOptions: z.array(z.string().min(1).max(240)).length(3).optional(),
+  correctIndex: z.number().int().min(0).max(2).optional(),
+  checkExplain: z.string().min(5).max(500).optional(),
   order: z.number().int().min(1).max(100).optional(),
 })
+
+type JsonRecord = Record<string, unknown>
+
+function parseRecord(value: string | null): JsonRecord {
+  if (!value) return {}
+  try {
+    const parsed: unknown = JSON.parse(value)
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? (parsed as JsonRecord)
+      : {}
+  } catch {
+    return {}
+  }
+}
+
+function parseRecords(value: string | null): JsonRecord[] {
+  if (!value) return []
+  try {
+    const parsed: unknown = JSON.parse(value)
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is JsonRecord => Boolean(item) && typeof item === 'object')
+      : []
+  } catch {
+    return []
+  }
+}
+
+function stringValue(value: unknown): string {
+  return typeof value === 'string' ? value : ''
+}
+
+function stringList(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string') : []
+}
+
+function lectureEditorDetail(quest: {
+  goalsJson: string
+  learnCardsJson: string
+  checkJson: string
+  stationsJson: string | null
+}) {
+  const cards = parseRecords(quest.learnCardsJson)
+  const checks = parseRecords(quest.checkJson)
+  const stationEnvelope = parseRecord(quest.stationsJson)
+  const stations = Array.isArray(stationEnvelope.stations)
+    ? stationEnvelope.stations.filter((item): item is JsonRecord => Boolean(item) && typeof item === 'object')
+    : []
+  const game = stations.find((station) => station.kind === 'game') ?? {}
+  const practice = stations.find((station) => station.kind === 'practice') ?? {}
+  const gameConfig = game.gameConfig && typeof game.gameConfig === 'object'
+    ? (game.gameConfig as JsonRecord)
+    : {}
+  const firstCheck = checks[0] ?? {}
+
+  let goals: string[] = []
+  try {
+    const parsed: unknown = JSON.parse(quest.goalsJson)
+    goals = stringList(parsed)
+  } catch {
+    goals = []
+  }
+
+  return {
+    goals,
+    concept: stringValue(cards[0]?.body),
+    example: stringValue(cards[1]?.body),
+    gameType: stringValue(game.gameType) || 'pick',
+    gameInstruction: stringValue(game.instruction),
+    gameOutcome: stringValue(game.outcome),
+    gameCards: stringList(gameConfig.cards),
+    practiceInstruction: stringValue(practice.instruction),
+    product: stringValue(practice.product),
+    checkQuestion: stringValue(firstCheck.question),
+    checkOptions: stringList(firstCheck.options),
+    correctIndex: typeof firstCheck.correctIndex === 'number' ? firstCheck.correctIndex : 0,
+    checkExplain: stringValue(firstCheck.explain),
+  }
+}
 
 function learnCardsJson(questId: string, concept: string, example: string) {
   return JSON.stringify([
@@ -135,24 +223,46 @@ export async function teacherRoutes(app: FastifyInstance) {
       return { class: null, students: [] }
     }
 
-    const summaries = await Promise.all(
-      classroom.students.map(async (s) => {
-        const completed = await prisma.questProgress.count({
-          where: { userId: s.id, status: 'completed' },
-        })
-        const stars = await prisma.questProgress.aggregate({
-          where: { userId: s.id },
-          _sum: { stars: true },
-        })
-        const projects = await prisma.project.count({ where: { userId: s.id } })
-        return {
-          ...s,
-          completedQuests: completed,
-          totalStars: stars._sum.stars ?? 0,
-          projectCount: projects,
-        }
-      }),
-    )
+    const studentIds = classroom.students.map((student) => student.id)
+    const completedMap = new Map<string, number>()
+    const starsMap = new Map<string, number>()
+    const projectsMap = new Map<string, number>()
+    if (studentIds.length > 0) {
+      // Keep database concurrency bounded: class size must not multiply queries.
+      const completedByStudent = await prisma.questProgress.groupBy({
+        by: ['userId'],
+        orderBy: { userId: 'asc' },
+        where: { userId: { in: studentIds }, status: 'completed' },
+        _count: { id: true },
+      })
+      const starsByStudent = await prisma.questProgress.groupBy({
+        by: ['userId'],
+        orderBy: { userId: 'asc' },
+        where: { userId: { in: studentIds } },
+        _sum: { stars: true },
+      })
+      const projectsByStudent = await prisma.project.groupBy({
+        by: ['userId'],
+        orderBy: { userId: 'asc' },
+        where: { userId: { in: studentIds } },
+        _count: { id: true },
+      })
+      completedByStudent.forEach((row) =>
+        completedMap.set(row.userId, row._count.id),
+      )
+      starsByStudent.forEach((row) =>
+        starsMap.set(row.userId, row._sum.stars ?? 0),
+      )
+      projectsByStudent.forEach((row) =>
+        projectsMap.set(row.userId, row._count.id),
+      )
+    }
+    const summaries = classroom.students.map((student) => ({
+      ...student,
+      completedQuests: completedMap.get(student.id) ?? 0,
+      totalStars: starsMap.get(student.id) ?? 0,
+      projectCount: projectsMap.get(student.id) ?? 0,
+    }))
 
     return {
       class: {
@@ -240,6 +350,10 @@ export async function teacherRoutes(app: FastifyInstance) {
             videoUrl: true,
             stage: true,
             archived: true,
+            goalsJson: true,
+            learnCardsJson: true,
+            checkJson: true,
+            stationsJson: true,
           },
         },
       },
@@ -253,7 +367,22 @@ export async function teacherRoutes(app: FastifyInstance) {
         ageTrack: c.ageTrack,
         courseKey: c.courseKey,
         ageLabel: c.ageLabel,
-        lectures: c.quests,
+        lectures: c.quests.map((quest) => ({
+          id: quest.id,
+          courseId: quest.courseId,
+          order: quest.order,
+          title: quest.title,
+          skill: quest.skill,
+          reward: quest.reward,
+          duration: quest.duration,
+          hook: quest.hook,
+          accent: quest.accent,
+          practiceKind: quest.practiceKind,
+          videoUrl: quest.videoUrl,
+          stage: quest.stage,
+          archived: quest.archived,
+          ...lectureEditorDetail(quest),
+        })),
       })),
     }
   })
@@ -277,6 +406,7 @@ export async function teacherRoutes(app: FastifyInstance) {
           ? null
           : body.videoUrl
 
+    const currentEditor = lectureEditorDetail(quest)
     const data: Record<string, unknown> = {}
     if (body.title !== undefined) data.title = body.title
     if (body.skill !== undefined) data.skill = body.skill
@@ -289,9 +419,79 @@ export async function teacherRoutes(app: FastifyInstance) {
     if (videoUrl !== undefined) data.videoUrl = videoUrl
     if (body.goals !== undefined) data.goalsJson = JSON.stringify(body.goals)
     if (body.concept !== undefined || body.example !== undefined) {
-      const concept = body.concept ?? 'Nội dung bài giảng'
-      const example = body.example ?? 'Ví dụ thực hành'
+      const concept = body.concept ?? currentEditor.concept
+      const example = body.example ?? currentEditor.example
       data.learnCardsJson = learnCardsJson(questId, concept, example)
+    }
+
+    const changesGame = body.gameType !== undefined || body.gameInstruction !== undefined ||
+      body.gameOutcome !== undefined || body.gameCards !== undefined
+    const changesPractice = body.practiceInstruction !== undefined || body.product !== undefined ||
+      body.practiceKind !== undefined
+    if (changesGame || changesPractice || videoUrl !== undefined || body.concept !== undefined) {
+      const envelope = parseRecord(quest.stationsJson)
+      const rawStations = Array.isArray(envelope.stations)
+        ? envelope.stations.filter((item): item is JsonRecord => Boolean(item) && typeof item === 'object')
+        : []
+      // Legacy courses may predate stationsJson. Editing one upgrades it to the
+      // same four-station contract used by newly created curriculum content.
+      const baseStations = rawStations.length > 0 ? rawStations : [
+        { id: 'st-video', kind: 'video', title: 'Khám phá nhiệm vụ', durationMin: 5 },
+        { id: 'st-game', kind: 'game', title: 'Chơi để hiểu bài', durationMin: 7 },
+        { id: 'st-practice', kind: 'practice', title: 'Xưởng sáng tạo', durationMin: 15 },
+        { id: 'st-check', kind: 'check', title: 'Thử tài và giải thích', durationMin: 5 },
+      ]
+      const stations = baseStations.map((station) => {
+        if (station.kind === 'video') {
+          return {
+            ...station,
+            ...(body.concept !== undefined ? { content: body.concept } : {}),
+            ...(videoUrl !== undefined ? { videoUrl } : {}),
+          }
+        }
+        if (station.kind === 'game') {
+          return {
+            ...station,
+            gameType: body.gameType ?? currentEditor.gameType,
+            instruction: body.gameInstruction ?? currentEditor.gameInstruction,
+            outcome: body.gameOutcome ?? currentEditor.gameOutcome,
+            gameConfig: { cards: body.gameCards ?? currentEditor.gameCards },
+          }
+        }
+        if (station.kind === 'practice') {
+          return {
+            ...station,
+            practiceKind: body.practiceKind ?? quest.practiceKind,
+            instruction: body.practiceInstruction ?? currentEditor.practiceInstruction,
+            product: body.product ?? currentEditor.product,
+          }
+        }
+        return station
+      })
+      const practiceKind = body.practiceKind ?? quest.practiceKind
+      data.stationsJson = JSON.stringify({
+        ...envelope,
+        stage: ['ai_pick', 'chips', 'video'].includes(practiceKind) ? 'produce' : 'ideate',
+        stations,
+      })
+    }
+
+    if (
+      body.checkQuestion !== undefined || body.checkOptions !== undefined ||
+      body.correctIndex !== undefined || body.checkExplain !== undefined
+    ) {
+      const checks = parseRecords(quest.checkJson)
+      const current = checks[0] ?? {}
+      const updatedCheck = {
+        ...current,
+        id: stringValue(current.id) || 'q1',
+        question: body.checkQuestion ?? stringValue(current.question),
+        options: body.checkOptions ?? stringList(current.options),
+        correctIndex:
+          body.correctIndex ?? (typeof current.correctIndex === 'number' ? current.correctIndex : 0),
+        explain: body.checkExplain ?? stringValue(current.explain),
+      }
+      data.checkJson = JSON.stringify([updatedCheck, ...checks.slice(1)])
     }
 
     const updated = await prisma.quest.update({
@@ -309,10 +509,14 @@ export async function teacherRoutes(app: FastifyInstance) {
         accent: true,
         practiceKind: true,
         videoUrl: true,
+        goalsJson: true,
+        learnCardsJson: true,
+        checkJson: true,
+        stationsJson: true,
       },
     })
 
-    return { lecture: updated }
+    return { lecture: { ...updated, ...lectureEditorDetail(updated) } }
   })
 
   /** Create a new lecture/quest under a course */
@@ -356,9 +560,21 @@ export async function teacherRoutes(app: FastifyInstance) {
           ])
           .default('intro'),
         videoUrl: z.string().url().max(2000).optional().nullable(),
-        goals: z.array(z.string().max(200)).max(12).default([]),
-        concept: z.string().max(2000).default('Nội dung bài giảng'),
-        example: z.string().max(2000).default('Ví dụ thực hành'),
+        goals: z.array(z.string().min(2).max(200)).min(1).max(12),
+        concept: z.string().min(10).max(2000),
+        example: z.string().min(5).max(2000),
+        gameType: z
+          .enum(['match', 'drag', 'spin', 'sort', 'order', 'detective', 'pick'])
+          .default('pick'),
+        gameInstruction: z.string().min(10).max(500),
+        gameOutcome: z.string().min(5).max(300),
+        gameCards: z.array(z.string().min(2).max(80)).min(2).max(8),
+        practiceInstruction: z.string().min(10).max(800),
+        product: z.string().min(3).max(300),
+        checkQuestion: z.string().min(5).max(500),
+        checkOptions: z.array(z.string().min(1).max(240)).length(3),
+        correctIndex: z.number().int().min(0).max(2),
+        checkExplain: z.string().min(5).max(500),
         order: z.number().int().min(1).max(100).optional(),
       })
       .parse(request.body)
@@ -394,8 +610,60 @@ export async function teacherRoutes(app: FastifyInstance) {
         videoUrl: body.videoUrl ?? null,
         goalsJson: JSON.stringify(body.goals),
         learnCardsJson: learnCardsJson(body.id, body.concept, body.example),
-        checkJson: defaultCheckJson(body.skill),
+        checkJson: JSON.stringify([
+          {
+            id: 'q1',
+            question: body.checkQuestion,
+            options: body.checkOptions,
+            correctIndex: body.correctIndex,
+            explain: body.checkExplain,
+          },
+          ...JSON.parse(defaultCheckJson(body.skill)).slice(1),
+        ]),
         chipsJson: null,
+        stationsJson: JSON.stringify({
+          stage:
+            body.practiceKind === 'ai_pick' ||
+            body.practiceKind === 'chips' ||
+            body.practiceKind === 'video'
+              ? 'produce'
+              : 'ideate',
+          stations: [
+            {
+              id: 'st-video',
+              kind: 'video',
+              title: 'Khám phá nhiệm vụ',
+              durationMin: 5,
+              content: body.concept,
+              videoUrl: body.videoUrl ?? null,
+            },
+            {
+              id: 'st-game',
+              kind: 'game',
+              title: 'Chơi để hiểu bài',
+              durationMin: 7,
+              gameType: body.gameType,
+              instruction: body.gameInstruction,
+              outcome: body.gameOutcome,
+              gameConfig: { cards: body.gameCards },
+            },
+            {
+              id: 'st-practice',
+              kind: 'practice',
+              title: 'Xưởng sáng tạo',
+              durationMin: 15,
+              practiceKind: body.practiceKind,
+              instruction: body.practiceInstruction,
+              product: body.product,
+            },
+            {
+              id: 'st-check',
+              kind: 'check',
+              title: 'Thử tài và giải thích',
+              durationMin: 5,
+            },
+          ],
+        }),
       },
       select: {
         id: true,
@@ -620,8 +888,13 @@ export async function teacherRoutes(app: FastifyInstance) {
       accent: z.string().min(1).max(20),
       ageLabel: z.string().min(1).max(20).default('8-11'),
       durationLabel: z.string().min(1).max(40).default('4 tuần'),
-      productLabel: z.string().min(1).max(40),
-      skillsJson: z.string().default('[]'),
+      productLabel: z.string().min(3).max(240),
+      ageTrack: z.enum(['L1', 'L2']).default('L1'),
+      courseKey: z.enum(['K1', 'K2', 'K3', 'K4', 'K5', 'K6']).default('K1'),
+      skills: z.array(z.string().min(2).max(120)).min(1).max(12),
+      outcomes: z.array(z.string().min(2).max(240)).min(1).max(12),
+      credential: z.string().min(3).max(200),
+      finalAssessment: z.string().min(10).max(500),
     }).parse(request.body)
 
     const existing = await prisma.course.findUnique({ where: { id: body.id } })
@@ -641,10 +914,20 @@ export async function teacherRoutes(app: FastifyInstance) {
         coverTo: body.coverTo,
         accent: body.accent,
         ageLabel: body.ageLabel,
-        ageTrack: body.ageLabel.includes('9') ? 'L2' : 'L1',
+        ageTrack: body.ageTrack,
+        courseKey: body.courseKey,
         durationLabel: body.durationLabel,
         productLabel: body.productLabel,
-        skillsJson: body.skillsJson,
+        skillsJson: JSON.stringify(body.skills),
+        outcomesJson: JSON.stringify(body.outcomes),
+        recognitionJson: JSON.stringify({
+          issuer: 'AI Kids Creator Academy',
+          credential: body.credential,
+          finalAssessment: body.finalAssessment,
+          frameworks: [],
+          disclaimer:
+            'Đây là ghi nhận hoàn thành nội bộ của AI Kids Creator Academy, không phải chứng nhận của cơ quan quản lý nhà nước.',
+        }),
         sortOrder: (maxSort._max.sortOrder ?? 0) + 1,
         status: 'soon',
       },
@@ -681,6 +964,37 @@ export async function teacherRoutes(app: FastifyInstance) {
 
     const existing = await prisma.course.findUnique({ where: { id: courseId } })
     if (!existing) return reply.code(404).send({ error: 'Không tìm thấy khóa.' })
+
+    if (body.status === 'open') {
+      const activeQuestCount = await prisma.quest.count({
+        where: { courseId, archived: false },
+      })
+      let skills: unknown = []
+      let outcomes: unknown = []
+      let recognition: Record<string, unknown> = {}
+      try {
+        skills = JSON.parse(existing.skillsJson)
+        outcomes = JSON.parse(existing.outcomesJson)
+        recognition = JSON.parse(existing.recognitionJson) as Record<string, unknown>
+      } catch {
+        // The validation below returns one safe, actionable publishing error.
+      }
+      if (
+        activeQuestCount === 0 ||
+        !Array.isArray(skills) ||
+        skills.length === 0 ||
+        !Array.isArray(outcomes) ||
+        outcomes.length === 0 ||
+        typeof recognition.credential !== 'string' ||
+        typeof recognition.finalAssessment !== 'string'
+      ) {
+        return reply.code(409).send({
+          error:
+            'Khóa học chưa đủ điều kiện xuất bản. Hãy thêm bài học, kỹ năng, kết quả đầu ra và cách đánh giá cuối khóa.',
+          code: 'COURSE_NOT_READY',
+        })
+      }
+    }
 
     const course = await prisma.course.update({
       where: { id: courseId },
@@ -846,28 +1160,62 @@ export async function teacherRoutes(app: FastifyInstance) {
     }
 
     const studentIds = classroom.students.map((s) => s.id)
-    const [completed, totalQuests, projects] = await Promise.all([
-      prisma.questProgress.count({
-        where: { userId: { in: studentIds }, status: 'completed' },
-      }),
-      prisma.quest.count({ where: { archived: false } }),
-      prisma.project.count({ where: { userId: { in: studentIds } } }),
-    ])
+    // Sequential aggregate queries avoid exhausting small production pools.
+    const completed = await prisma.questProgress.count({
+      where: { userId: { in: studentIds }, status: 'completed' },
+    })
+    const totalQuests = await prisma.quest.count({ where: { archived: false } })
+    const projects = await prisma.project.count({
+      where: { userId: { in: studentIds } },
+    })
+    const completedByStudent = await prisma.questProgress.groupBy({
+      by: ['userId'],
+      orderBy: { userId: 'asc' },
+      where: { userId: { in: studentIds }, status: 'completed' },
+      _count: { id: true },
+    })
+    const progressActivity = await prisma.questProgress.findMany({
+      where: { userId: { in: studentIds } },
+      orderBy: { updatedAt: 'desc' },
+      select: {
+        userId: true,
+        status: true,
+        phase: true,
+        updatedAt: true,
+        quest: { select: { title: true } },
+      },
+    })
 
-    const perStudent = await Promise.all(
-      classroom.students.map(async (s) => {
-        const done = await prisma.questProgress.count({
-          where: { userId: s.id, status: 'completed' },
-        })
-        return {
-          id: s.id,
-          nickname: s.nickname,
-          level: s.level,
-          xp: s.xp,
-          completedQuests: done,
-        }
-      }),
+    const completedMap = new Map<string, number>()
+    completedByStudent.forEach((row) =>
+      completedMap.set(row.userId, row._count.id),
     )
+    const latestMap = new Map<string, (typeof progressActivity)[number]>()
+    progressActivity.forEach((row) => {
+      if (!latestMap.has(row.userId)) latestMap.set(row.userId, row)
+    })
+    const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000
+    const perStudent = classroom.students.map((student) => {
+      const latest = latestMap.get(student.id)
+      const needsSupport = !latest ||
+        (latest.status !== 'completed' && latest.updatedAt.getTime() < sevenDaysAgo)
+      return {
+        id: student.id,
+        nickname: student.nickname,
+        level: student.level,
+        xp: student.xp,
+        completedQuests: completedMap.get(student.id) ?? 0,
+        currentQuest: latest?.quest.title ?? null,
+        currentPhase: latest?.phase ?? null,
+        lastActiveAt: latest?.updatedAt.toISOString() ?? null,
+        needsSupport,
+        supportReason: !latest
+          ? 'Chưa bắt đầu nhiệm vụ đầu tiên'
+          : needsSupport
+            ? 'Đang dở một nhiệm vụ hơn 7 ngày'
+            : null,
+      }
+    })
 
     return {
       stats: {
@@ -877,7 +1225,10 @@ export async function teacherRoutes(app: FastifyInstance) {
         totalCompletedQuests: completed,
         openQuestCount: totalQuests,
         projectCount: projects,
-        students: perStudent.sort((a, b) => b.xp - a.xp),
+        students: perStudent.sort((a, b) => {
+          if (a.needsSupport !== b.needsSupport) return a.needsSupport ? -1 : 1
+          return (a.nickname ?? '').localeCompare(b.nickname ?? '', 'vi')
+        }),
       },
     }
   })

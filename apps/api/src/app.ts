@@ -6,6 +6,7 @@ import rateLimit from '@fastify/rate-limit'
 import { ZodError } from 'zod'
 import { randomUUID } from 'node:crypto'
 import { env, SESSION_COOKIE } from './config/env.js'
+import { prisma } from './infrastructure/database/prisma.js'
 import { initCache, getRedisCache, closeCache } from './infrastructure/cache/cache.js'
 import { loadUserFromRequest } from './infrastructure/session/session.js'
 import { authRoutes } from './modules/auth/auth.routes.js'
@@ -21,7 +22,6 @@ import { mediaRoutes } from './modules/media/media.routes.js'
 import {
   normalizeApiAliasPrefix,
   rewriteAliasToPrimaryApi,
-  seamHealthMeta,
 } from './shared/seams/storymee-compat.js'
 
 export async function buildApp() {
@@ -184,35 +184,32 @@ export async function buildApp() {
     })
   })
 
-  // ── 6. Health check (dual shape: success/data + legacy ok/db) ─
-  app.get('/api/health', async () => {
-    const redisOk = redisCache ? await redisCache.ping() : false
-    const time = new Date().toISOString()
-    const seams = seamHealthMeta({
-      cookieDomain: env.cookieDomain,
-      apiAliasPrefix: env.apiAliasPrefix,
-    })
-    const data = {
-      service: 'aikids-api',
-      time,
-      db: 'postgresql' as const,
-      redis: redisOk,
-      supabaseConfigured: Boolean(env.supabaseUrl && env.supabaseAnonKey),
-      seams,
+  let readinessCheckedAt = 0
+  let readinessCheck: Promise<void> | null = null
+  const ensureReady = async () => {
+    if (Date.now() - readinessCheckedAt < 5_000) return
+    if (!readinessCheck) {
+      readinessCheck = Promise.all([
+        prisma.$queryRaw`SELECT 1`,
+        redisCache ? redisCache.ping() : Promise.resolve(false),
+      ])
+        .then(() => { readinessCheckedAt = Date.now() })
+        .finally(() => { readinessCheck = null })
     }
+    await readinessCheck
+  }
+
+  // ── 6. Public health check: intentionally avoids infrastructure details ─
+  app.get('/api/health', async () => {
+    // Ping dependencies so a load balancer only routes to a ready instance,
+    // but collapse concurrent checks and never disclose infrastructure details.
+    await ensureReady()
     return {
       success: true,
       ok: true,
       message: 'OK',
-      data,
-      // Legacy top-level fields (tests + older clients)
-      service: data.service,
-      time: data.time,
-      db: data.db,
-      redis: data.redis,
-      supabaseConfigured: data.supabaseConfigured,
-      seams,
-      timestamp: time,
+      data: { status: 'ready' },
+      timestamp: new Date().toISOString(),
     }
   })
 
@@ -291,4 +288,3 @@ export async function buildApp() {
 
   return app
 }
-

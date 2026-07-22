@@ -11,6 +11,7 @@ import {
   isCharacterShapeId,
   isCharacterVibeId,
   isCourseCreatedAsset,
+  isUsableImageReference,
   isPromptComplete,
   parseCourseSketchDataUrl,
   resolveStations,
@@ -32,6 +33,33 @@ import {
   evaluateAndUnlockAchievements,
 } from '../gamification/achievement.service.js'
 import { assertStudentCanEnroll } from '../parent/family.service.js'
+import {
+  inspectPracticePayload,
+  practiceKindMatchesQuest,
+} from './practice-policy.js'
+
+const gameEvidenceSchema = z.object({
+  gameType: z.enum(['match', 'drag', 'spin', 'sort', 'order', 'detective', 'pick']),
+  choices: z.array(z.string().min(1).max(80)).max(8),
+  attempts: z.number().int().min(1).max(100),
+  durationMs: z.number().int().min(0).max(10 * 60 * 1000),
+})
+
+function mergeProgressData(
+  current: string | null,
+  patch: Record<string, unknown>,
+): string {
+  let base: Record<string, unknown> = {}
+  try {
+    const parsed = current ? JSON.parse(current) : null
+    if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)) {
+      base = parsed as Record<string, unknown>
+    }
+  } catch {
+    base = {}
+  }
+  return JSON.stringify({ ...base, ...patch })
+}
 
 export async function progressRoutes(app: FastifyInstance) {
   app.post('/api/enrollments', async (request, reply) => {
@@ -305,7 +333,8 @@ export async function progressRoutes(app: FastifyInstance) {
 
     const body = z
       .object({
-        fromPhase: z.enum(['learn', 'practice', 'check']).optional(),
+        fromPhase: z.enum(['learn', 'game', 'practice', 'check']).optional(),
+        gameEvidence: gameEvidenceSchema.optional(),
       })
       .parse(request.body ?? {})
 
@@ -314,8 +343,17 @@ export async function progressRoutes(app: FastifyInstance) {
     })
     if (!row) return reply.code(404).send({ error: 'Chưa bắt đầu trạm' })
 
-    const current = (body.fromPhase ?? row.phase) as
+    if (body.fromPhase && body.fromPhase !== row.phase) {
+      return reply.code(409).send({
+        error: 'Bài học vừa được cập nhật. Mình tiếp tục ở phần đang làm nhé!',
+        reason: 'phase_mismatch',
+        currentPhase: row.phase,
+      })
+    }
+
+    const current = row.phase as
       | 'learn'
+      | 'game'
       | 'practice'
       | 'check'
     const { phase, complete } = advancePhase(current)
@@ -328,13 +366,18 @@ export async function progressRoutes(app: FastifyInstance) {
       return { phase: 'check', complete: false, needCheck: true }
     }
 
+    const gameData =
+      current === 'game' && body.gameEvidence
+        ? mergeProgressData(row.dataJson, { game: body.gameEvidence })
+        : undefined
     const updated = await prisma.questProgress.update({
       where: { id: row.id },
-      data: { phase, status: 'in_progress' },
+      data: { phase, status: 'in_progress', dataJson: gameData },
     })
     return {
       phase: updated.phase,
       complete: false,
+      gameRecorded: Boolean(gameData),
       progress: {
         questId: updated.questId,
         status: updated.status,
@@ -367,6 +410,33 @@ export async function progressRoutes(app: FastifyInstance) {
 
     const quest = await prisma.quest.findUnique({ where: { id: questId } })
     if (!quest) return reply.code(404).send({ error: 'Not found' })
+
+    const progress = await prisma.questProgress.findUnique({
+      where: { userId_questId: { userId: user.id, questId } },
+      select: { phase: true, status: true, dataJson: true },
+    })
+    if (!progress || progress.phase !== 'practice') {
+      return reply.code(409).send({
+        error: 'Con hãy hoàn thành phần Học và Game trước khi thực hành.',
+        reason: 'phase_mismatch',
+        currentPhase: progress?.phase ?? 'not_started',
+      })
+    }
+
+    if (!practiceKindMatchesQuest(body.kind, quest.practiceKind)) {
+      return reply.code(400).send({
+        error: 'Loại thực hành không khớp với bài học.',
+        reason: 'practice_kind_mismatch',
+      })
+    }
+
+    const payloadInspection = inspectPracticePayload(body.payload)
+    if (!payloadInspection.ok) {
+      return reply.code(400).send({
+        error: payloadInspection.message,
+        reason: payloadInspection.safetyReason ?? payloadInspection.reason,
+      })
+    }
 
     const freeText = body.payload.freeText
     if (typeof freeText === 'string' && freeText.trim()) {
@@ -413,7 +483,7 @@ export async function progressRoutes(app: FastifyInstance) {
             ) {
               continue
             }
-            if (a.thumbnail) out.push(a.thumbnail)
+            if (isUsableImageReference(a.thumbnail)) out.push(a.thumbnail)
           }
         }
       }
@@ -438,11 +508,6 @@ export async function progressRoutes(app: FastifyInstance) {
                 title: generated.title,
                 imageDataUrl: generated.imageUrl,
                 imageUrl: generated.imageUrl,
-                mode: generated.mode,
-                source: generated.source,
-                modelId: generated.modelId,
-                refStrategy: generated.refStrategy,
-                storageBackend: generated.storageBackend,
               }
             : null,
           hint: complete ? null : 'Ghép đủ 5 thẻ để AI vẽ nhé!',
@@ -502,7 +567,15 @@ export async function progressRoutes(app: FastifyInstance) {
           }),
         },
       })
-      result = { asset, label, generationMode: thumb.mode }
+      result = {
+        asset: {
+          id: asset.id,
+          name: asset.name,
+          type: asset.type,
+          url: asset.thumbnail,
+        },
+        label,
+      }
     }
 
     if (body.kind === 'sketch') {
@@ -583,11 +656,6 @@ export async function progressRoutes(app: FastifyInstance) {
           title: img.title,
           imageDataUrl: img.imageUrl,
           imageUrl: img.imageUrl,
-          mode: img.mode,
-          source: img.source,
-          modelId: img.modelId,
-          refStrategy: img.refStrategy,
-          storageBackend: img.storageBackend,
         }
         await prisma.asset.create({
           data: {
@@ -645,7 +713,15 @@ export async function progressRoutes(app: FastifyInstance) {
           metaJson: JSON.stringify({ styleId, tip: style.tip }),
         },
       })
-      result = { asset, style }
+      result = {
+        asset: {
+          id: asset.id,
+          name: asset.name,
+          type: asset.type,
+          url: asset.thumbnail,
+        },
+        style: { id: style.id, labelVi: style.labelVi, tip: style.tip },
+      }
     }
 
     if (body.kind === 'story') {
@@ -667,7 +743,15 @@ export async function progressRoutes(app: FastifyInstance) {
         },
       })
       const newAchievements = await evaluateAndUnlockAchievements(user.id)
-      result = { project, newAchievements }
+      result = {
+        project: {
+          id: project.id,
+          title: project.title,
+          kind: project.kind,
+          thumbnail: project.thumbnail,
+        },
+        newAchievements,
+      }
     }
 
     if (body.kind === 'video') {
@@ -706,12 +790,7 @@ export async function progressRoutes(app: FastifyInstance) {
           })
           .slice(0, 4)
           .map((a) => a.thumbnail)
-          .filter(
-            (t) =>
-              t.startsWith('http') ||
-              t.startsWith('data:') ||
-              /^[0-9a-f-]{36}$/i.test(t),
-          )
+          .filter(isUsableImageReference)
       }
       const generatedVideo = await generatePracticeVideo(prompt, user.id, {
         refUrls,
@@ -741,17 +820,16 @@ export async function progressRoutes(app: FastifyInstance) {
       })
       const newAchievements = await evaluateAndUnlockAchievements(user.id)
       result = {
-        project,
+        project: {
+          id: project.id,
+          title: project.title,
+          kind: project.kind,
+          thumbnail: project.thumbnail,
+        },
         generated: {
           id: generatedVideo.id,
           title: generatedVideo.title,
           videoUrl: generatedVideo.videoUrl,
-          mode: generatedVideo.mode,
-          source: generatedVideo.source,
-          modelId: generatedVideo.modelId,
-          videoMode: generatedVideo.videoMode,
-          refStrategy: generatedVideo.refStrategy,
-          storageBackend: generatedVideo.storageBackend,
         },
         newAchievements,
       }
@@ -773,12 +851,12 @@ export async function progressRoutes(app: FastifyInstance) {
         questId,
         status: 'in_progress',
         phase: 'practice',
-        dataJson: JSON.stringify(body.payload),
+        dataJson: mergeProgressData(null, { practice: body.payload }),
       },
       update: {
         status: 'in_progress',
         phase: 'practice',
-        dataJson: JSON.stringify(body.payload),
+        dataJson: mergeProgressData(progress.dataJson, { practice: body.payload }),
       },
     })
 
@@ -811,6 +889,18 @@ export async function progressRoutes(app: FastifyInstance) {
 
     const quest = await prisma.quest.findUnique({ where: { id: questId } })
     if (!quest) return reply.code(404).send({ error: 'Not found' })
+
+    const progress = await prisma.questProgress.findUnique({
+      where: { userId_questId: { userId: user.id, questId } },
+      select: { phase: true, status: true },
+    })
+    if (!progress || progress.phase !== 'check') {
+      return reply.code(409).send({
+        error: 'Con hãy hoàn thành phần thực hành trước khi làm Check.',
+        reason: 'phase_mismatch',
+        currentPhase: progress?.phase ?? 'not_started',
+      })
+    }
 
     const questions = JSON.parse(quest.checkJson) as Array<{
       id: string
@@ -848,6 +938,20 @@ export async function progressRoutes(app: FastifyInstance) {
 
     const stars = scoreStars(correct, questions.length)
     const xp = xpForStars(stars)
+    const next = await prisma.quest.findFirst({
+      where: { courseId: quest.courseId, order: quest.order + 1 },
+    })
+    const isCurrentCurriculumFinal =
+      !next && /^(l1|l2)-k[1-6]-/.test(quest.courseId)
+    if (isCurrentCurriculumFinal && correct < questions.length) {
+      return reply.code(400).send({
+        error:
+          'Sản phẩm cuối khóa còn tiêu chí cần hoàn thiện. Con chỉnh lại rồi kiểm tra lần nữa nhé!',
+        correct,
+        total: questions.length,
+        details,
+      })
+    }
 
     const prev = await prisma.questProgress.findUnique({
       where: { userId_questId: { userId: user.id, questId } },
@@ -886,9 +990,6 @@ export async function progressRoutes(app: FastifyInstance) {
       })
     }
 
-    const next = await prisma.quest.findFirst({
-      where: { courseId: quest.courseId, order: quest.order + 1 },
-    })
     if (next) {
       await prisma.questProgress.upsert({
         where: { userId_questId: { userId: user.id, questId: next.id } },
@@ -925,6 +1026,64 @@ export async function progressRoutes(app: FastifyInstance) {
       await bumpStreakOnActivity(user.id)
     }
 
+    let courseCredential: string | null = null
+    if (!next && !alreadyDone) {
+      const course = await prisma.course.findUnique({
+        where: { id: quest.courseId },
+        select: { id: true, title: true, recognitionJson: true },
+      })
+      if (course) {
+        try {
+          const recognition = JSON.parse(course.recognitionJson) as {
+            issuer?: string
+            credential?: string
+            finalAssessment?: string
+          }
+          const credential = recognition.credential
+          const issuer = recognition.issuer
+          if (credential && issuer) {
+            const achievementType = `course_complete:${course.id}`
+            await prisma.$transaction(async (tx) => {
+              await tx.achievement.create({
+                data: { userId: user.id, type: achievementType },
+              })
+              await tx.asset.create({
+                data: {
+                  userId: user.id,
+                  type: 'badge',
+                  name: credential,
+                  questId,
+                  thumbnail: '/assets/ui-badges.jpg',
+                  private: true,
+                  metaJson: JSON.stringify({
+                    courseId: course.id,
+                    courseCompletion: true,
+                    issuer,
+                    finalAssessment: recognition.finalAssessment ?? null,
+                  }),
+                },
+              })
+              await tx.notification.create({
+                data: {
+                  userId: user.id,
+                  type: 'course_completion',
+                  title: '🎓 Hoàn thành khóa học',
+                  body: `${credential} · ${issuer}`,
+                  data: JSON.stringify({
+                    courseId: course.id,
+                    achievementType,
+                  }),
+                },
+              })
+            })
+            courseCredential = credential
+          }
+        } catch {
+          // Invalid/duplicate recognition data must not block lesson completion.
+        }
+      }
+    }
+
     const newAchievements = alreadyDone
       ? []
       : await evaluateAndUnlockAchievements(user.id)
@@ -938,6 +1097,7 @@ export async function progressRoutes(app: FastifyInstance) {
       details,
       nextQuestId: next?.id ?? null,
       newAchievements,
+      courseCredential,
       message:
         starsFinal >= 3
           ? 'Xuất sắc! Con đã chinh phục trạm này!'

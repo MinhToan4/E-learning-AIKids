@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { ACHIEVEMENT_CATALOG } from '@aikids/domain'
 import { prisma } from '../../infrastructure/database/prisma.js'
-import { requireUser } from '../../infrastructure/session/session.js'
+import { requireRole, requireUser } from '../../infrastructure/session/session.js'
 import {
   bumpStreakOnActivity,
   evaluateAndUnlockAchievements,
@@ -58,37 +58,37 @@ export async function gamificationRoutes(app: FastifyInstance) {
     }
   })
 
-  app.get('/api/gamification/leaderboard', async (request) => {
-    const user = requireUser(request)
-    const classId =
-      (request.query as { classId?: string }).classId ?? user.classId
-
-    const where: Record<string, unknown> = { role: 'student', active: true }
-    if (classId) where.classId = classId
-
-    const topStudents = await prisma.user.findMany({
-      where: where as never,
-      select: {
-        id: true,
-        nickname: true,
-        avatarId: true,
-        level: true,
-        xp: true,
-      },
-      orderBy: { xp: 'desc' },
-      take: 10,
-    })
+  app.get('/api/gamification/class-celebration', async (request) => {
+    const user = requireRole(request, ['student'])
+    const classStudents = user.classId
+      ? await prisma.user.findMany({
+          where: { classId: user.classId, role: 'student', active: true },
+          select: { id: true, xp: true },
+        })
+      : [{ id: user.id, xp: user.xp }]
+    const studentIds = classStudents.map((student) => student.id)
+    const [completedQuests, projects] = await prisma.$transaction([
+      prisma.questProgress.count({
+        where: { userId: { in: studentIds }, status: 'completed' },
+      }),
+      prisma.project.count({ where: { userId: { in: studentIds } } }),
+    ])
+    const teamXp = classStudents.reduce((sum, student) => sum + student.xp, 0)
+    const nextGoal = Math.max(10, Math.ceil((completedQuests + 1) / 10) * 10)
 
     return {
-      leaderboard: topStudents.map((s, i) => ({
-        rank: i + 1,
-        id: s.id,
-        nickname: s.nickname,
-        avatarId: s.avatarId,
-        level: s.level,
-        xp: s.xp,
-        isMe: s.id === user.id,
-      })),
+      celebration: {
+        hasClass: Boolean(user.classId),
+        learnerCount: classStudents.length,
+        completedQuests,
+        projects,
+        teamXp,
+        nextGoal,
+        personal: {
+          level: user.level,
+          xp: user.xp,
+        },
+      },
     }
   })
 }

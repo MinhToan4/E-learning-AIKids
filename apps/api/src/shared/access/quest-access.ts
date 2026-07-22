@@ -31,7 +31,7 @@ export async function resolveStudentQuestStatus(
       {
         questId: r.questId,
         status: r.status as QuestStatus,
-        phase: r.phase as 'learn' | 'practice' | 'check',
+        phase: r.phase as 'learn' | 'game' | 'practice' | 'check',
         stars: r.stars,
         xpEarned: r.xpEarned,
       },

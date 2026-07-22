@@ -1,7 +1,28 @@
 import type { FastifyInstance } from 'fastify'
 import { can, resolveStations } from '@aikids/domain'
+import { z } from 'zod'
 import { prisma } from '../../infrastructure/database/prisma.js'
 import { requireUser } from '../../infrastructure/session/session.js'
+
+const recognitionSchema = z.object({
+  issuer: z.string().min(1),
+  credential: z.string().min(1),
+  finalAssessment: z.string().min(1),
+  frameworks: z.array(
+    z.object({ code: z.string().min(1), title: z.string().min(1) }),
+  ),
+  disclaimer: z.string().min(1),
+})
+
+export function parseCourseRecognition(raw?: string | null) {
+  if (!raw) return null
+  try {
+    const parsed = recognitionSchema.safeParse(JSON.parse(raw))
+    return parsed.success ? parsed.data : null
+  } catch {
+    return null
+  }
+}
 
 function mapCourse(c: {
   id: string
@@ -22,6 +43,7 @@ function mapCourse(c: {
   recommended: boolean
   skillsJson: string
   outcomesJson?: string | null
+  recognitionJson?: string | null
   sortOrder: number
   quests?: Array<Record<string, unknown>>
 }) {
@@ -50,6 +72,7 @@ function mapCourse(c: {
     recommended: c.recommended,
     skills: JSON.parse(c.skillsJson) as string[],
     outcomes,
+    recognition: parseCourseRecognition(c.recognitionJson),
     sortOrder: c.sortOrder,
     quests: c.quests,
   }
@@ -122,8 +145,16 @@ export async function courseRoutes(app: FastifyInstance) {
     const ageTrack = (q.ageTrack ?? q.track ?? '').toUpperCase()
     const where =
       ageTrack === 'L1' || ageTrack === 'L2'
-        ? { ageTrack }
-        : {}
+        ? {
+            ageTrack,
+            id: { startsWith: `${ageTrack.toLowerCase()}-` },
+          }
+        : {
+            OR: [
+              { id: { startsWith: 'l1-' } },
+              { id: { startsWith: 'l2-' } },
+            ],
+          }
 
     const courses = await prisma.course.findMany({
       where,

@@ -1,6 +1,10 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
-import { can, isCourseCreatedAsset } from '@aikids/domain'
+import {
+  can,
+  isCourseCreatedAsset,
+  isUsableImageReference,
+} from '@aikids/domain'
 import { prisma } from '../../infrastructure/database/prisma.js'
 import {
   assertImageUpload,
@@ -63,8 +67,9 @@ export async function mediaRoutes(app: FastifyInstance) {
       take: 80,
     })
 
-    const assets = rows.filter(courseAssetFilter).map((a) => {
-      const meta = parseMeta(a.metaJson)
+    const assets = rows
+      .filter((a) => courseAssetFilter(a) && isUsableImageReference(a.thumbnail))
+      .map((a) => {
       return {
         id: a.id,
         name: a.name,
@@ -73,21 +78,10 @@ export async function mediaRoutes(app: FastifyInstance) {
         questId: a.questId,
         private: a.private,
         createdAt: a.createdAt,
-        courseCreated: true,
-        hasVidtoryMediaId: Boolean(meta.vidtoryMediaId),
-        meta: {
-          purpose: meta.purpose ?? null,
-          generationMode: meta.generationMode ?? null,
-          storageBackend: meta.storageBackend ?? null,
-        },
       }
-    })
+      })
 
-    return {
-      assets,
-      policy:
-        'only_course_created_assets_as_ai_refs_no_arbitrary_student_photos',
-    }
+    return { assets }
   })
 
   /** @deprecated name kept for FE; same as /refs (course-only). */
@@ -175,8 +169,8 @@ export async function mediaRoutes(app: FastifyInstance) {
     const file = await loadBytesFromThumbnail(asset.thumbnail)
     if (!file) {
       return reply.code(400).send({
-        error:
-          'Không đọc được nội dung ảnh sản phẩm (cần data URL hoặc http URL hợp lệ).',
+        error: 'Sản phẩm này chưa sẵn sàng. Con hãy chọn một sản phẩm khác nhé!',
+        code: 'REFERENCE_NOT_READY',
       })
     }
 
@@ -227,9 +221,16 @@ export async function mediaRoutes(app: FastifyInstance) {
       }
     } catch (e) {
       const err = e as Error & { statusCode?: number }
+      request.log.error(
+        { err, userId: user.id, assetId: asset.id },
+        'course_reference_promotion_failed',
+      )
       return reply
         .code(err.statusCode ?? 500)
-        .send({ error: err.message || 'Promote thất bại' })
+        .send({
+          error: 'Sản phẩm này chưa sẵn sàng. Con hãy thử lại sau nhé!',
+          code: 'REFERENCE_PREPARATION_FAILED',
+        })
     }
   })
 

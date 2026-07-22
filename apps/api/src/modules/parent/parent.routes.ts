@@ -23,6 +23,17 @@ import {
   getHouseholdEntitlement,
 } from './family.service.js'
 
+function parseStringArray(value: string): string[] {
+  try {
+    const parsed: unknown = JSON.parse(value)
+    return Array.isArray(parsed)
+      ? parsed.filter((item): item is string => typeof item === 'string')
+      : []
+  } catch {
+    return []
+  }
+}
+
 export async function parentRoutes(app: FastifyInstance) {
   /** Catalog of household plans (no payment processor in v1 — manual activate) */
   app.get('/api/parent/plans', async (request) => {
@@ -130,17 +141,37 @@ export async function parentRoutes(app: FastifyInstance) {
       orderBy: { createdAt: 'asc' },
     })
 
-    const enriched = await Promise.all(
-      children.map(async (c) => {
-        const completed = await prisma.questProgress.count({
-          where: { userId: c.id, status: 'completed' },
-        })
-        const stars = await prisma.questProgress.aggregate({
-          where: { userId: c.id },
-          _sum: { stars: true },
-        })
-        const projects = await prisma.project.count({ where: { userId: c.id } })
-        return {
+    const childIds = children.map((child) => child.id)
+    const [completedRows, starRows, projectRows] = await prisma.$transaction([
+      prisma.questProgress.groupBy({
+        by: ['userId'],
+        orderBy: { userId: 'asc' },
+        where: { userId: { in: childIds }, status: 'completed' },
+        _count: true,
+      }),
+      prisma.questProgress.groupBy({
+        by: ['userId'],
+        orderBy: { userId: 'asc' },
+        where: { userId: { in: childIds } },
+        _sum: { stars: true },
+      }),
+      prisma.project.groupBy({
+        by: ['userId'],
+        orderBy: { userId: 'asc' },
+        where: { userId: { in: childIds } },
+        _count: true,
+      }),
+    ])
+    const completedByChild = new Map(
+      completedRows.map((row) => [row.userId, row._count]),
+    )
+    const starsByChild = new Map(
+      starRows.map((row) => [row.userId, row._sum?.stars ?? 0]),
+    )
+    const projectsByChild = new Map(
+      projectRows.map((row) => [row.userId, row._count]),
+    )
+    const enriched = children.map((c) => ({
           id: c.id,
           nickname: c.nickname,
           avatarId: c.avatarId,
@@ -149,12 +180,10 @@ export async function parentRoutes(app: FastifyInstance) {
           onboarded: c.onboarded,
           active: c.active,
           hasPin: Boolean(c.pinHash),
-          completedQuests: completed,
-          totalStars: stars._sum.stars ?? 0,
-          projectCount: projects,
-        }
-      }),
-    )
+          completedQuests: completedByChild.get(c.id) ?? 0,
+          totalStars: starsByChild.get(c.id) ?? 0,
+          projectCount: projectsByChild.get(c.id) ?? 0,
+        }))
 
     return { children: enriched, subscription: entitlement }
   })
@@ -174,8 +203,44 @@ export async function parentRoutes(app: FastifyInstance) {
       return reply.code(403).send({ error: 'Forbidden' })
     }
 
-    const courseId =
-      (request.query as { courseId?: string }).courseId ?? 'course-comic'
+    const requestedCourseId = (request.query as { courseId?: string }).courseId
+    const enrollments = await prisma.enrollment.findMany({
+      where: { userId: childId },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        course: {
+          select: {
+            id: true,
+            title: true,
+            shortTitle: true,
+            ageLabel: true,
+            outcomesJson: true,
+          },
+        },
+      },
+    })
+    const enrolledCourses = enrollments.map((row) => row.course)
+    const courses = enrolledCourses.map(({ outcomesJson: _outcomesJson, ...course }) => course)
+    const courseId = requestedCourseId ?? courses[0]?.id ?? null
+    if (requestedCourseId && !courses.some((course) => course.id === requestedCourseId)) {
+      return reply.code(404).send({ error: 'Con chưa tham gia khóa học này.' })
+    }
+
+    if (!courseId) {
+      return {
+        child: {
+          id: child.id,
+          nickname: child.nickname,
+          level: child.level,
+          xp: child.xp,
+        },
+        courseId: null,
+        courses: [],
+        summary: { completed: 0, total: 0, totalStars: 0, currentPhase: null },
+        insights: { strengths: [], nextFocus: null, outcomes: [] },
+        quests: [],
+      }
+    }
 
     const quests = await prisma.quest.findMany({
       where: { courseId },
@@ -195,6 +260,14 @@ export async function parentRoutes(app: FastifyInstance) {
       },
     })
     const byQuest = new Map(progress.map((p) => [p.questId, p]))
+    const completedSkills = quests
+      .filter((quest) => byQuest.get(quest.id)?.status === 'completed')
+      .map((quest) => quest.skill)
+      .filter((skill, index, all) => all.indexOf(skill) === index)
+      .slice(0, 3)
+    const nextQuest = quests.find((quest) => byQuest.get(quest.id)?.status === 'in_progress') ??
+      quests.find((quest) => byQuest.get(quest.id)?.status !== 'completed')
+    const selectedCourse = enrolledCourses.find((course) => course.id === courseId)
 
     return {
       child: {
@@ -204,6 +277,19 @@ export async function parentRoutes(app: FastifyInstance) {
         xp: child.xp,
       },
       courseId,
+      courses,
+      summary: {
+        completed: progress.filter((item) => item.status === 'completed').length,
+        total: quests.length,
+        totalStars: progress.reduce((sum, item) => sum + item.stars, 0),
+        currentPhase:
+          progress.find((item) => item.status === 'in_progress')?.phase ?? null,
+      },
+      insights: {
+        strengths: completedSkills,
+        nextFocus: nextQuest?.skill ?? null,
+        outcomes: selectedCourse ? parseStringArray(selectedCourse.outcomesJson).slice(0, 4) : [],
+      },
       quests: quests.map((q) => {
         const p = byQuest.get(q.id)
         return {
