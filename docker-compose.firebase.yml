@@ -1,0 +1,22 @@
+services:
+  api:
+    environment:
+      FIREBASE_ENABLED: "true"
+      FIREBASE_PROJECT_ID: storymee-35093
+
+  push-worker:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    env_file:
+      - apps/api/.env
+    environment:
+      NODE_ENV: production
+      PROCESS_ROLE: push-worker
+      REDIS_URL: redis://redis:6379
+      FIREBASE_ENABLED: "true"
+      FIREBASE_PROJECT_ID: storymee-35093
+    depends_on:
+      redis:
+        condition: service_healthy
+    profiles: [push]

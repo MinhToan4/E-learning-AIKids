@@ -1,5 +1,11 @@
 # AI Kids Creator Academy
 
+Hồ sơ tổng kết và bàn giao Firebase Production: [docs/FIREBASE_PRODUCTION_HANDOVER.md](docs/FIREBASE_PRODUCTION_HANDOVER.md).
+
+Tài liệu vận hành tải lớn và Firebase: [docs/CAPACITY-2000-FIREBASE.md](docs/CAPACITY-2000-FIREBASE.md).
+
+Kiểm tra kết nối Firebase an toàn (không in dữ liệu người dùng hoặc secret): `npm run firebase:check -w @aikids/api`.
+
 Experiential AI courses for ages **8–11** (Vietnamese UI): quests, portfolio + parent gate, CMS roles, **Supabase PostgreSQL**.
 
 ## What is what?

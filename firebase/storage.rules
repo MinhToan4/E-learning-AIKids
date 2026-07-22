@@ -1,0 +1,10 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // All application uploads use short-lived V4 signed URLs issued after RBAC checks.
+    // Firebase client SDK access is denied to avoid a second authorization model.
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
