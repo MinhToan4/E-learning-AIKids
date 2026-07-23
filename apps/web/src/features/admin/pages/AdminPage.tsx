@@ -12,7 +12,9 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
+import { Paginator } from '@/shared/components/ui/Paginator'
 import { useToast } from '@/shared/hooks/useToast'
+import { usePagination } from '@/shared/hooks/usePagination'
 import { api } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
@@ -297,6 +299,12 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const { toasts, showToast, dismissToast } = useToast()
   const logout = useAuth((s) => s.logout)
   const navigate = useNavigate()
+
+  // ── Pagination — one hook per data-heavy tab ─────────────────
+  const usersPag  = usePagination(users, 15)
+  const sessionsPag = usePagination(sessions, 15)
+  const logsPag   = usePagination(loginLogs, 20)
+  const coursesPag = usePagination(courses, 8)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -629,9 +637,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               </tr>
             </thead>
             <tbody>
-              {loginLogs.length === 0 ? (
+              {logsPag.slice.length === 0 ? (
                 <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">Chưa có log nào trong 24 giờ qua</td></tr>
-              ) : loginLogs.map((log) => (
+              ) : logsPag.slice.map((log) => (
                 <tr key={log.id} className="border-b border-border/40 hover:bg-brand-50/30">
                   <td className="px-4 py-2 text-xs text-muted">{new Date(log.createdAt).toLocaleString('vi-VN')}</td>
                   <td className="px-4 py-2 font-mono text-xs">{log.email ?? '—'}</td>
@@ -642,6 +650,15 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               ))}
             </tbody>
           </table>
+          <Paginator
+            page={logsPag.page}
+            totalPages={logsPag.totalPages}
+            totalItems={loginLogs.length}
+            pageSize={20}
+            onPrev={logsPag.prev}
+            onNext={logsPag.next}
+            onGoTo={logsPag.goTo}
+          />
         </div>
       </div>
     </>
@@ -673,7 +690,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
+              {usersPag.slice.length === 0 ? (
+                <tr><td colSpan={4} className="px-4 py-8 text-center text-muted">Không có tài khoản nào</td></tr>
+              ) : usersPag.slice.map((u) => (
                 <tr key={u.id} className="border-b border-border/40">
                   <td className="px-4 py-3">
                     <p className="font-bold">{u.nickname ?? '—'}</p>
@@ -711,6 +730,15 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </tbody>
             </table>
           </div>
+          <Paginator
+            page={usersPag.page}
+            totalPages={usersPag.totalPages}
+            totalItems={users.length}
+            pageSize={15}
+            onPrev={usersPag.prev}
+            onNext={usersPag.next}
+            onGoTo={usersPag.goTo}
+          />
 
           {/* Inline edit panel — shown below the table when a user row is selected */}
           {editTarget && (
@@ -793,9 +821,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               </tr>
             </thead>
             <tbody>
-              {sessions.length === 0 ? (
+              {sessionsPag.slice.length === 0 ? (
                 <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">Không có phiên active</td></tr>
-              ) : sessions.map((s) => (
+              ) : sessionsPag.slice.map((s) => (
                 <tr key={s.id} className="border-b border-border/40">
                   <td className="px-4 py-3">
                     <p className="font-bold">{s.nickname ?? '—'}</p>
@@ -813,6 +841,15 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               ))}
             </tbody>
           </table>
+          <Paginator
+            page={sessionsPag.page}
+            totalPages={sessionsPag.totalPages}
+            totalItems={sessions.length}
+            pageSize={15}
+            onPrev={sessionsPag.prev}
+            onNext={sessionsPag.next}
+            onGoTo={sessionsPag.goTo}
+          />
         </div>
       </div>
     </>
@@ -822,8 +859,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const coursesTab = (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
       <div className="flex flex-col gap-3">
-
-        {courses.map((c) => (
+        {coursesPag.slice.map((c) => (
           <div key={c.id} className="ui-card p-4">
             <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
               <div>
@@ -849,6 +885,16 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </ul>
           </div>
         ))}
+        <Paginator
+          page={coursesPag.page}
+          totalPages={coursesPag.totalPages}
+          totalItems={courses.length}
+          pageSize={8}
+          onPrev={coursesPag.prev}
+          onNext={coursesPag.next}
+          onGoTo={coursesPag.goTo}
+          className="rounded-2xl border border-border bg-white"
+        />
       </div>
       <aside className="ui-card h-fit p-5 xl:sticky xl:top-5">
         <div className="flex items-center gap-3">
