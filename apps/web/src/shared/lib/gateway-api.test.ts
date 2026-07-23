@@ -157,4 +157,19 @@ describe('StoryMee Gateway adapter', () => {
       expect.any(Object),
     )
   })
+
+  it('routes teacher classroom and authoring calls to core LMS', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({ class: null, students: [] }))
+      .mockResolvedValueOnce(response({ courses: [] }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await api('/api/teacher/class')
+    await api('/api/teacher/lectures')
+
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      'https://dev-hub.storymee.com/api/v1/lms/aikids/teacher/class',
+      'https://dev-hub.storymee.com/api/v1/lms/aikids/teacher/lectures',
+    ])
+  })
 })

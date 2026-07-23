@@ -270,6 +270,21 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       options: { ...options, method: 'POST' },
     }
   }
+  if (path === '/api/teacher/class' ||
+      path === '/api/teacher/class/stats' ||
+      path === '/api/teacher/class/students' ||
+      path === '/api/teacher/lectures' ||
+      path === '/api/teacher/lectures/reorder' ||
+      path === '/api/teacher/courses' ||
+      /^\/api\/teacher\/class\/students\/[^/?]+$/.test(path) ||
+      /^\/api\/teacher\/students\/[^/?]+\/progress$/.test(path) ||
+      /^\/api\/teacher\/lectures\/[^/?]+(?:\/restore)?$/.test(path) ||
+      /^\/api\/teacher\/courses\/[^/?]+$/.test(path)) {
+    return {
+      path: path.replace('/api/teacher', '/api/v1/lms/aikids/teacher'),
+      options,
+    }
+  }
   const queryIndex = path.indexOf('?')
   const barePath = queryIndex >= 0 ? path.slice(0, queryIndex) : path
   const query = queryIndex >= 0 ? path.slice(queryIndex) : ''
