@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { CheckCircle2, Lock, Star, Trophy, Zap } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { api, type QuestProgress } from '@/shared/lib/api'
@@ -98,7 +98,8 @@ function QuestNode({ quest, index }: { quest: QuestProgress; index: number }) {
 }
 
 export function WorldPage() {
-  const { courseId = 'course-comic' } = useParams()
+  const { courseId } = useParams()
+  const navigate = useNavigate()
   const [quests, setQuests] = useState<QuestProgress[]>([])
   const [meta, setMeta] = useState({ totalStars: 0, completedCount: 0 })
   const [courseTitle, setCourseTitle] = useState('Hành trình sáng tạo')
@@ -110,6 +111,16 @@ export function WorldPage() {
       setLoading(true)
       setError(null)
       try {
+        if (!courseId) {
+          const catalog = await api<{ courses: Array<{ id: string }> }>('/api/courses')
+          const firstCourse = catalog.courses.find((course) => course.id)
+          if (!firstCourse) {
+            setError('Chưa có khóa học nào được xuất bản.')
+            return
+          }
+          navigate(`/world/${firstCourse.id}`, { replace: true })
+          return
+        }
         await api('/api/enrollments', {
           method: 'POST',
           body: JSON.stringify({ courseId }),
@@ -131,7 +142,7 @@ export function WorldPage() {
         setLoading(false)
       }
     })()
-  }, [courseId])
+  }, [courseId, navigate])
 
   const next = quests.find(
     (q) => q.status === 'available' || q.status === 'in_progress',

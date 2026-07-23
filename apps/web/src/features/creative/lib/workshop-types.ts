@@ -7,6 +7,7 @@ export type WorkshopStep =
   | 'hub'
   | 'style'
   | 'canvas'
+  | 'story-mode'
   | 'story-genre'
   | 'story-idea'
   | 'story-library'

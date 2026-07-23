@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { BookOpen, ChevronRight, Sparkles } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
+import { api } from '@/shared/lib/api'
 import { generateCreativeStory } from '@/shared/lib/creative-api'
 import { STORY_GENRES } from '../lib/workshop-types'
 import type { WorkshopStep } from '../lib/workshop-types'
 
 // ── Story flow steps ──────────────────────────────────────────
-type StoryFlowStep = 'genre' | 'idea' | 'result'
+type StoryFlowStep = 'mode' | 'genre' | 'idea' | 'result'
+type StoryMode = 'text' | 'comic'
 
 type StoryDraft = {
   genre: string
@@ -30,12 +32,48 @@ const EMPTY_DRAFT: StoryDraft = {
   setting: '',
 }
 
-export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props) {
+export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) {
   const [flowStep, setFlowStep] = useState<StoryFlowStep>(initialStep)
+  const [mode, setMode] = useState<StoryMode>('text')
   const [draft, setDraft] = useState<StoryDraft>(EMPTY_DRAFT)
   const [generating, setGenerating] = useState(false)
   const [storyResult, setStoryResult] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
+
+  if (flowStep === 'mode') {
+    return (
+      <div className="flex h-full flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
+              Sáng tác truyện · AiKid
+            </p>
+            <h2 className="font-display text-2xl text-text">Con muốn tạo loại truyện nào?</h2>
+          </div>
+          <button type="button" onClick={() => onBack('hub')}
+            className="rounded-btn border border-border bg-white px-4 py-2 text-sm font-bold text-muted">
+            ← Trở về
+          </button>
+        </div>
+        <div className="grid flex-1 gap-4 sm:grid-cols-2">
+          {([
+            ['text', '📖 Truyện chữ', 'Sáng tác câu chuyện bằng văn bản, có mở đầu, cao trào và kết thúc.'],
+            ['comic', '🖼️ Truyện tranh', 'Lập kịch bản 4 khung với cảnh, hành động và lời thoại rõ ràng.'],
+          ] as const).map(([id, title, description]) => (
+            <button key={id} type="button" onClick={() => { setMode(id); setFlowStep('genre') }}
+              className="rounded-3xl border-2 border-border bg-white p-6 text-left shadow-soft transition hover:border-brand-400 hover:bg-brand-50">
+              <span className="font-display text-2xl text-text">{title}</span>
+              <span className="mt-2 block text-sm text-muted">{description}</span>
+              <span className="mt-5 inline-flex items-center gap-1 text-sm font-extrabold text-brand-600">
+                Bắt đầu <ChevronRight size={16} />
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
 
   // ── Genre picker ──────────────────────────────────────────────
   if (flowStep === 'genre') {
@@ -44,14 +82,14 @@ export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props)
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
-              Bước 1 / 3
+              Bước 1 / 3 · {mode === 'comic' ? 'Truyện tranh' : 'Truyện chữ'}
             </p>
             <h2 className="font-display text-2xl text-text">Chọn thể loại truyện</h2>
             <p className="mt-0.5 text-sm text-muted">Con muốn kể câu chuyện gì hôm nay?</p>
           </div>
           <button
             type="button"
-            onClick={() => onBack('hub')}
+            onClick={() => setFlowStep('mode')}
             className="rounded-btn border border-border bg-white px-4 py-2 text-sm font-bold text-muted transition hover:border-brand-300"
           >
             ← Trở về
@@ -202,7 +240,9 @@ export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props)
           <p className="text-xs font-extrabold uppercase tracking-wide text-mint-700">
             Bước 3 / 3 · Hoàn thành
           </p>
-          <h2 className="font-display text-2xl text-text">Câu chuyện của con</h2>
+          <h2 className="font-display text-2xl text-text">
+            {mode === 'comic' ? 'Kịch bản truyện tranh của con' : 'Câu chuyện của con'}
+          </h2>
         </div>
         <button
           type="button"
@@ -225,9 +265,9 @@ export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props)
           className="ui-btn ui-btn-secondary flex-1 gap-2 disabled:opacity-50">
           <Sparkles size={16} /> Viết thêm bản khác
         </button>
-        <button type="button" onClick={handleSave}
-          className="ui-btn ui-btn-primary flex-1 gap-2">
-          Lưu vào Ba lô
+        <button type="button" onClick={() => void handleSave()} disabled={saving}
+          className="ui-btn ui-btn-primary flex-1 gap-2 disabled:opacity-50">
+          {saving ? 'Đang lưu…' : 'Lưu vào Ba lô'}
         </button>
       </div>
     </div>
@@ -239,7 +279,9 @@ export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props)
     try {
       const content = await generateCreativeStory(
         [
-          'Viết một truyện thiếu nhi an toàn bằng tiếng Việt.',
+          mode === 'comic'
+            ? 'Viết kịch bản truyện tranh thiếu nhi an toàn bằng tiếng Việt gồm đúng 4 khung. Mỗi khung có mô tả cảnh, hành động và lời thoại ngắn.'
+            : 'Viết một truyện thiếu nhi an toàn bằng tiếng Việt.',
           `Thể loại: ${draft.genre}.`,
           `Ý tưởng: ${draft.idea}.`,
           `Nhân vật: ${draft.characters}.`,
@@ -256,7 +298,25 @@ export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props)
     }
   }
 
-  function handleSave() {
-    onSaved()
+  async function handleSave() {
+    if (!storyResult) return
+    setSaving(true)
+    setError(null)
+    try {
+      await api('/api/media/promote', {
+        method: 'POST',
+        body: JSON.stringify({
+          purpose: 'creative_workshop',
+          creativeKind: mode === 'comic' ? 'comic' : 'story',
+          title: `${mode === 'comic' ? 'Truyện tranh' : 'Truyện chữ'} · ${draft.genreLabel}`,
+          content: storyResult,
+        }),
+      })
+      onSaved()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Chưa lưu được truyện')
+    } finally {
+      setSaving(false)
+    }
   }
 }

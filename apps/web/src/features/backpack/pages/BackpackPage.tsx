@@ -23,6 +23,7 @@ type Project = {
   title: string
   kind: string
   thumbnail: string
+  content?: string
   shareStatus: string
 }
 
@@ -153,16 +154,25 @@ export function BackpackPage() {
           <div className="grid gap-3 sm:grid-cols-2">
             {projects.map((p) => (
               <div key={p.id} className="ui-card flex gap-3 p-3">
-                <img
-                  src={p.thumbnail}
-                  alt=""
-                  className="h-20 w-20 rounded-xl object-cover"
-                />
+                {isImgUrl(p.thumbnail) ? (
+                  <img
+                    src={p.thumbnail}
+                    alt=""
+                    className="h-20 w-20 rounded-xl object-cover"
+                  />
+                ) : (
+                  <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-3xl">
+                    {p.kind === 'comic' ? '🖼️' : p.kind === 'story' ? '📖' : '🎨'}
+                  </div>
+                )}
                 <div className="min-w-0 flex-1">
                   <p className="font-extrabold">{p.title}</p>
                   <p className="text-xs text-muted">
                     {p.kind} · {p.shareStatus}
                   </p>
+                  {p.content && (
+                    <p className="mt-1 line-clamp-2 text-xs text-muted">{p.content}</p>
+                  )}
                   {p.shareStatus === 'private' && (
                     <Button
                       className="mt-2 !min-h-9 !text-xs"

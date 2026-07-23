@@ -19,9 +19,9 @@ const HUB_CARDS: HubCard[] = [
     img: designerAssets.workshop.comic,
   },
   {
-    id: 'story-genre',
+    id: 'story-mode',
     label: 'Sáng Tác Truyện',
-    desc: 'Chọn thể loại, thêm ý tưởng rồi để AI giúp con viết câu chuyện của riêng mình.',
+    desc: 'Đồng bộ từ AiKid app: chọn Truyện chữ hoặc Truyện tranh, rồi cùng AI phát triển ý tưởng.',
     img: designerAssets.workshop.mee,
   },
   {

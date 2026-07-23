@@ -58,11 +58,12 @@ export function CreativePage() {
         </div>
       )}
 
-      {(step === 'story-genre' || step === 'story-idea' || step === 'story-library') && (
+      {(step === 'story-mode' || step === 'story-genre' || step === 'story-idea' || step === 'story-library') && (
         <div className="flex-1 p-4 sm:p-5">
           <WorkshopStory
             initialStep={
-              step === 'story-idea' ? 'idea'
+              step === 'story-mode' ? 'mode'
+              : step === 'story-idea' ? 'idea'
               : step === 'story-library' ? 'result'
               : 'genre'
             }

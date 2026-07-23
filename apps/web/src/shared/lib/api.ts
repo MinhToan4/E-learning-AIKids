@@ -709,10 +709,11 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     const rows = Array.isArray(payload.items)
       ? payload.items as Array<Record<string, unknown>>
       : []
-    const assets = rows.map((row) => {
+    const assets = rows.flatMap((row) => {
       const metadata = recordValue(row.metadata)
-      const url = String(row.imageUrl ?? row.url ?? '')
-      return {
+      if (metadata.purpose === 'creative_workshop' || metadata.creativeKind) return []
+      const url = browserMediaUrl(row.imageUrl ?? row.url)
+      return [{
         id: String(row.id ?? ''),
         type: String(metadata.assetType ?? 'image'),
         name: String(metadata.originalName ?? 'Sản phẩm sáng tạo'),
@@ -721,7 +722,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         private: true,
         questId: metadata.questId ? String(metadata.questId) : null,
         createdAt: String(row.createdAt ?? ''),
-      }
+      }]
     })
     return path === '/api/media/refs' ? { assets } : { assets }
   }
@@ -730,15 +731,17 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       ? payload.items as Array<Record<string, unknown>>
       : []
     return {
-      projects: rows.map((row) => {
+      projects: rows.flatMap((row) => {
         const metadata = recordValue(row.metadata)
-        return {
+        if (metadata.purpose !== 'creative_workshop' && !metadata.creativeKind) return []
+        return [{
           id: String(row.id ?? ''),
           title: String(metadata.originalName ?? 'Sản phẩm sáng tạo'),
           kind: String(metadata.creativeKind ?? metadata.assetType ?? 'image'),
-          thumbnail: String(row.imageUrl ?? ''),
+          thumbnail: browserMediaUrl(row.imageUrl),
+          content: String(metadata.content ?? ''),
           shareStatus: String(metadata.shareStatus ?? 'private'),
-        }
+        }]
       }),
     }
   }
@@ -911,6 +914,13 @@ function recordValue(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
     : {}
+}
+
+function browserMediaUrl(value: unknown): string {
+  const url = String(value ?? '')
+  return url.startsWith('sb://')
+    ? `https://storage.storymee.com/${url.slice('sb://'.length)}`
+    : url
 }
 
 export type User = {
