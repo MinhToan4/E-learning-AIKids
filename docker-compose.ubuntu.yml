@@ -6,7 +6,7 @@ services:
       - '4000'
     environment:
       DATABASE_URL: >-
-        postgresql://admin:${DB_PASSWORD}@omni-pgbouncer:5432/aikids_db?connection_limit=5&pool_timeout=30
+        postgresql://admin:${DB_PASSWORD}@omni-postgres:5432/aikids_db?connection_limit=5&pool_timeout=30
       STORYMEE_HUB_URL: http://storymee-hub:5100
       STORYMEE_STORAGE_URL: https://storage.storymee.com
       HUB_API_KEY: ${HUB_API_KEY}
