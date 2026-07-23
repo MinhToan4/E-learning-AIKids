@@ -222,4 +222,37 @@ describe('StoryMee Gateway adapter', () => {
       'https://dev-hub.storymee.com/api/v1/account/auth/google',
     ])
   })
+
+  it('routes parent approvals, profile, gate and admin surfaces to core domains', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({ data: { approvals: [] } }))
+      .mockResolvedValueOnce(response({ data: { profile: { preferredLanguage: 'vi' } } }))
+      .mockResolvedValueOnce(response({ data: { user: { id: 'p1', role: 'parent' } } }))
+      .mockResolvedValueOnce(response({ data: { system: { counts: {} } } }))
+      .mockResolvedValueOnce(response({ data: [] }))
+      .mockResolvedValueOnce(response({ courses: [] }))
+      .mockResolvedValueOnce(response({ data: { planProviderPolicy: {} } }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await api('/api/parent/approvals?status=pending')
+    await api('/api/parent/profile')
+    await api('/api/parent/gate/verify', {
+      method: 'POST',
+      body: JSON.stringify({ password: 'secret' }),
+    })
+    await api('/api/admin/system')
+    await api('/api/admin/users')
+    await api('/api/admin/courses')
+    await api('/api/admin/settings/vidtory')
+
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      'https://dev-hub.storymee.com/api/v1/media/gallery/share-requests?status=pending',
+      'https://dev-hub.storymee.com/api/v1/account/parent-profile',
+      'https://dev-hub.storymee.com/api/v1/account/me/verify-password',
+      'https://dev-hub.storymee.com/api/v1/system/aikids/admin/summary',
+      'https://dev-hub.storymee.com/api/v1/account/admin/users',
+      'https://dev-hub.storymee.com/api/v1/lms/aikids/admin/courses',
+      'https://dev-hub.storymee.com/api/v1/jobs/providers/policy',
+    ])
+  })
 })

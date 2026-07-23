@@ -168,6 +168,68 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
   if (path === '/api/media/promote') {
     return { path: '/api/v1/media/gallery/promote', options }
   }
+  if (path === '/api/admin/system' || path === '/api/admin/analytics') {
+    return { path: '/api/v1/system/aikids/admin/summary', options }
+  }
+  if (/^\/api\/admin\/users(?:\/[^/?]+)?(?:\?.*)?$/.test(path) ||
+      /^\/api\/admin\/sessions(?:\/[^/?]+)?$/.test(path) ||
+      /^\/api\/admin\/login-logs(?:\?.*)?$/.test(path)) {
+    return {
+      path: path.replace('/api/admin', '/api/v1/account/admin'),
+      options: path === '/api/admin/users' &&
+        (options.method ?? 'GET').toUpperCase() === 'POST'
+        ? withJson(options, { ...body, name: body.nickname })
+        : options,
+    }
+  }
+  if (/^\/api\/admin\/courses(?:\/[^/?]+)?$/.test(path)) {
+    return {
+      path: path.replace('/api/admin', '/api/v1/lms/aikids/admin'),
+      options,
+    }
+  }
+  if (path === '/api/admin/settings/vidtory') {
+    const method = (options.method ?? 'GET').toUpperCase()
+    if (method === 'GET') {
+      return { path: '/api/v1/jobs/providers/policy', options }
+    }
+    if (method === 'DELETE') {
+      return {
+        path: '/api/v1/jobs/providers/policy',
+        options: withJson({ ...options, method: 'PUT' }, {
+          planProviderPolicy: {},
+          disabledImageProviders: [],
+        }),
+      }
+    }
+    const routing = recordValue(body.routing)
+    const image = recordValue(routing.image)
+    const video = recordValue(routing.video)
+    const imageModels = Array.isArray(image.models)
+      ? image.models as Array<Record<string, unknown>>
+      : []
+    const videoModels = Array.isArray(video.models)
+      ? video.models as Array<Record<string, unknown>>
+      : []
+    const enabled = [...imageModels, ...videoModels]
+      .filter((model) => model.enabled !== false)
+      .map((model) => String(model.modelId ?? '').trim())
+      .filter(Boolean)
+    return {
+      path: '/api/v1/jobs/providers/policy',
+      options: withJson({ ...options, method: 'PUT' }, {
+        planProviderPolicy: {
+          aikids: {
+            allowedProviders: [...new Set(enabled)],
+            defaultImageRoute: imageModels
+              .filter((model) => model.enabled !== false)
+              .map((model) => String(model.modelId ?? '').trim())
+              .filter(Boolean),
+          },
+        },
+      }),
+    }
+  }
   if (path === '/api/auth/login/student') {
     return {
       path: '/api/v1/account/login',
@@ -281,6 +343,25 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
   }
   if (path === '/api/parent/family-login-code') {
     return { path: '/api/v1/account/family/login-code', options }
+  }
+  if (path === '/api/parent/profile') {
+    return { path: '/api/v1/account/parent-profile', options }
+  }
+  if (path === '/api/parent/gate/verify') {
+    return { path: '/api/v1/account/me/verify-password', options }
+  }
+  if (/^\/api\/parent\/approvals(?:\?.*)?$/.test(path)) {
+    return {
+      path: path.replace('/api/parent/approvals', '/api/v1/media/gallery/share-requests'),
+      options,
+    }
+  }
+  const approvalDecision = path.match(/^\/api\/parent\/approvals\/([^/?]+)\/decide$/)
+  if (approvalDecision) {
+    return {
+      path: `/api/v1/media/gallery/share-requests/${encodeURIComponent(approvalDecision[1])}/decide`,
+      options,
+    }
   }
   const child = path.match(/^\/api\/parent\/children\/([^/?]+)$/)
   if (child) {
@@ -442,6 +523,142 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     return { user: mapUser((payload.user ?? payload) as Record<string, unknown>) }
   }
   if (path === '/api/auth/logout') clearAccessToken()
+  if (path === '/api/parent/gate/verify') {
+    return {
+      user: mapUser(recordValue(payload.user)),
+      message: String(payload.message ?? 'Parent password verified'),
+    }
+  }
+  if (path === '/api/parent/profile') {
+    return {
+      profile: {
+        ...recordValue(payload.profile),
+        maxChildren: Number(recordValue(payload.profile).maxChildren ?? 0),
+      },
+    }
+  }
+  if (/^\/api\/parent\/approvals(?:\?.*)?$/.test(path)) {
+    return {
+      approvals: Array.isArray(payload.approvals) ? payload.approvals : [],
+    }
+  }
+  if (path === '/api/admin/system') return { system: payload.system }
+  if (path === '/api/admin/analytics') return { analytics: payload.analytics }
+  if (/^\/api\/admin\/users(?:\?.*)?$/.test(path)) {
+    const rows = Array.isArray(body.data) ? body.data as Array<Record<string, unknown>> : []
+    return {
+      users: rows.map((row) => ({
+        ...row,
+        nickname: row.name ? String(row.name) : null,
+        level: Number(row.level ?? 1),
+        xp: Number(row.xp ?? 0),
+      })),
+    }
+  }
+  if (path === '/api/admin/sessions') {
+    const rows = Array.isArray(body.data) ? body.data as Array<Record<string, unknown>> : []
+    return {
+      sessions: rows.map((row) => ({
+        ...row,
+        email: null,
+        nickname: row.childName ?? null,
+        role: 'student',
+        ipAddress: null,
+        expiresAt: row.expiresAt ?? row.lastSeenAt ?? row.createdAt,
+      })),
+    }
+  }
+  if (path === '/api/admin/login-logs' &&
+      (body.data && typeof body.data === 'object') &&
+      'deleted' in recordValue(body.data)) {
+    const deleted = Number(recordValue(body.data).deleted ?? 0)
+    return { deleted, message: `Đã xóa ${deleted} bản ghi đăng nhập` }
+  }
+  if (/^\/api\/admin\/login-logs(?:\?.*)?$/.test(path)) {
+    const rows = Array.isArray(body.data) ? body.data as Array<Record<string, unknown>> : []
+    const byOutcome = rows.reduce<Record<string, number>>((summary, row) => {
+      const outcome = String(row.outcome ?? 'unknown')
+      summary[outcome] = (summary[outcome] ?? 0) + 1
+      return summary
+    }, {})
+    return {
+      logs: rows.map((row) => ({
+        ...row,
+        email: row.login ?? null,
+        ipAddress: row.ip ?? null,
+        reason: null,
+      })),
+      summary: {
+        total: rows.length,
+        byOutcome,
+        windowHours: 24 * 30,
+        purgedAt: new Date().toISOString(),
+      },
+    }
+  }
+  if (path === '/api/admin/courses') {
+    const rows = Array.isArray(payload.courses)
+      ? payload.courses as Array<Record<string, unknown>>
+      : []
+    return {
+      courses: rows.map((row) => {
+        const lectures = Array.isArray(row.lectures)
+          ? row.lectures as Array<Record<string, unknown>>
+          : []
+        return {
+          ...row,
+          enrollmentCount: Number(row.enrollmentCount ?? 0),
+          questCount: lectures.length,
+          quests: lectures,
+        }
+      }),
+    }
+  }
+  if (path === '/api/admin/settings/vidtory') {
+    const policy = recordValue(payload.planProviderPolicy)
+    const aikids = recordValue(policy.aikids)
+    const imageRoute = Array.isArray(aikids.defaultImageRoute)
+      ? aikids.defaultImageRoute.map(String)
+      : []
+    const providers = Array.isArray(aikids.allowedProviders)
+      ? aikids.allowedProviders.map(String)
+      : imageRoute
+    const imageModels = imageRoute.map((modelId, index) => ({
+      modelId,
+      weight: index === 0 ? 100 : 0,
+      percent: index === 0 ? 100 : 0,
+      enabled: true,
+    }))
+    const videoModels = providers
+      .filter((provider) => !imageRoute.includes(provider))
+      .map((modelId, index) => ({
+        modelId,
+        weight: index === 0 ? 100 : 0,
+        percent: index === 0 ? 100 : 0,
+        enabled: true,
+      }))
+    const routing = {
+      baseURL: 'StoryMee Hub → Job API → Media Rotation',
+      image: {
+        aspectRatio: 'IMAGE_ASPECT_RATIO_LANDSCAPE',
+        resolution: '1K',
+        models: imageModels,
+      },
+      video: {
+        aspectRatio: 'VIDEO_ASPECT_RATIO_LANDSCAPE',
+        duration: 6,
+        models: videoModels,
+      },
+    }
+    return {
+      configured: providers.length > 0,
+      maskedHint: providers.length ? `${providers.length} provider route(s)` : null,
+      source: 'core-job-api',
+      routing,
+      imagePercents: imageModels,
+      videoPercents: videoModels,
+    }
+  }
   if (path === '/api/parent/plans') {
     const rows = Array.isArray(body.data) ? body.data as Array<Record<string, unknown>> : []
     return {
