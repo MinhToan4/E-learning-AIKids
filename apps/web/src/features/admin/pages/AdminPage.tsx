@@ -445,12 +445,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   }
 
   // ── Tab content renderers ────────────────────────────────
-  const sectionHeader = (title: string, subtitle?: string) => (
-    <div className="mb-5">
-      <h2 className="font-display text-xl text-text">{title}</h2>
-      {subtitle && <p className="text-sm text-muted">{subtitle}</p>}
-    </div>
-  )
 
   const loadingEl = (
     <div className="flex h-40 items-center justify-center">
@@ -461,7 +455,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // System tab
   const systemTab = system && (
     <>
-      {sectionHeader('Tổng quan hệ thống', 'Tình trạng dữ liệu + Vidtory AI')}
+
       <section className="ui-card mb-4 p-5" aria-labelledby="admin-attention-title">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -528,7 +522,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // Analytics tab
   const analyticsTab = analytics && (
     <>
-      {sectionHeader('Phân tích hoạt động', 'Số liệu tổng hợp toàn hệ thống')}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Người dùng hoạt động" value={analytics.users.active} icon={<CmsUsersIcon />} />
         <StatCard label="Khóa học đang mở" value={analytics.courses.open} icon={<CmsCoursesIcon />} />
@@ -572,7 +566,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // Login logs tab
   const logsTab = (
     <>
-      {sectionHeader('Nhật ký đăng nhập', 'Theo dõi đăng nhập trong 24 giờ gần nhất')}
+
       {logSummary && (
         <div className="mb-4 grid gap-3 sm:grid-cols-4">
           <StatCard label="Tổng trong 24 giờ" value={logSummary.total} icon={<CmsLogsIcon />} />
@@ -637,7 +631,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const usersTab = (
     <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
       <div className="ui-card overflow-hidden">
-        {sectionHeader('Tài khoản')}
+
         <div className="flex flex-wrap items-center gap-2 border-b border-border px-4 pb-3">
           <p className="text-xs font-bold uppercase text-muted">Lọc theo vai trò:</p>
           <select className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
@@ -719,7 +713,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // Sessions tab
   const sessionsTab = (
     <>
-      {sectionHeader('Phiên đăng nhập', 'Thu hồi phiên buộc đăng nhập lại. Không hiển thị token thô.')}
+
       <div className="ui-card overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-left text-sm">
@@ -762,7 +756,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const coursesTab = (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
       <div className="flex flex-col gap-3">
-        {sectionHeader('Khóa học', 'Theo dõi trạng thái và chuyển sang không gian biên soạn khi cần chỉnh sửa')}
+
         {courses.map((c) => (
           <div key={c.id} className="ui-card p-4">
             <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
@@ -809,7 +803,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // AI tab (unchanged layout, just uses toast)
   const aiTab = (
     <div className="flex flex-col gap-5 max-w-3xl">
-      {sectionHeader('AI Vidtory', 'Cấu hình API Key và phân tải model')}
+
       <div className="ui-card flex flex-col gap-4 p-5">
         <div>
           <h2 className="font-display text-xl">1. API Key Vidtory</h2>
