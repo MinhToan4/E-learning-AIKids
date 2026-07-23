@@ -7,7 +7,8 @@
  * - Login audit log with auto-purge indicator
  * - Full-width layout (CmsShell handles sidebar)
  */
-import { useEffect, useState, useCallback, useMemo, type ReactNode } from 'react'
+import { useEffect, useRef, useState, useCallback, useMemo, type ReactNode } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
@@ -295,13 +296,13 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const [revokeTarget, setRevokeTarget] = useState<SessionRow | null>(null)
   // Inline edit state — tracks which user row is open for editing
   const [editTarget, setEditTarget] = useState<AdminUser | null>(null)
-  const [editForm, setEditForm] = useState({ nickname: '', role: 'student' as AdminUser['role'] })
+  const [editForm, setEditForm] = useState({ nickname: '', role: 'student' as AdminUser['role'], email: '', newPassword: '' })
 
   // ── Search / filter state ──────────────────────────────
-  const [userSearch, setUserSearch]   = useState('')
+  const [userSearch, setUserSearch] = useState('')
   const [userActiveFilter, setUserActiveFilter] = useState<'' | 'active' | 'inactive'>('')
   const [sessionSearch, setSessionSearch] = useState('')
-  const [logSearch, setLogSearch]     = useState('')
+  const [logSearch, setLogSearch] = useState('')
   const [courseSearch, setCourseSearch] = useState('')
   const [courseStatusFilter, setCourseStatusFilter] = useState<'' | 'open' | 'soon'>('')
 
@@ -363,10 +364,10 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   }, [courses, courseSearch, courseStatusFilter])
 
   // ── Pagination — one hook per data-heavy tab ─────────────────
-  const usersPag    = usePagination(filteredUsers, 15)
+  const usersPag = usePagination(filteredUsers, 15)
   const sessionsPag = usePagination(filteredSessions, 15)
-  const logsPag     = usePagination(filteredLogs, 20)
-  const coursesPag  = usePagination(filteredCourses, 8)
+  const logsPag = usePagination(filteredLogs, 20)
+  const coursesPag = usePagination(filteredCourses, 8)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -471,6 +472,8 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     try {
       await api(`/api/admin/users/${u.id}`, { method: 'PATCH', body: JSON.stringify({ active: !u.active }) })
       showToast(u.active ? 'Đã vô hiệu hóa tài khoản' : 'Đã kích hoạt lại tài khoản', 'success')
+      // Close edit panel if it was open for this user — data will be refreshed
+      if (editTarget?.id === u.id) setEditTarget(null)
       await load()
     } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi cập nhật', 'error') }
   }
@@ -480,6 +483,8 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     try {
       await api(`/api/admin/users/${deleteTarget.id}`, { method: 'DELETE' })
       showToast('Đã soft-delete user + thu hồi phiên', 'success')
+      // Close edit panel if the deleted user was open for editing
+      if (editTarget?.id === deleteTarget.id) setEditTarget(null)
       setDeleteTarget(null)
       await load()
     } catch (e) {
@@ -518,6 +523,12 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         body: JSON.stringify({
           nickname: editForm.nickname.trim() || undefined,
           role: editForm.role,
+          // Only send email if changed (non-empty and different from current)
+          email: editForm.email.trim() && editForm.email.trim() !== editTarget.email
+            ? editForm.email.trim().toLowerCase()
+            : undefined,
+          // Only send password if admin typed a new one
+          password: editForm.newPassword.trim() || undefined,
         }),
       })
       showToast('Đã cập nhật tài khoản', 'success')
@@ -779,6 +790,10 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           {(userSearch || roleFilter || userActiveFilter) && (
             <button type="button" className="text-xs font-bold text-muted underline" onClick={() => { setUserSearch(''); setRoleFilter(''); setUserActiveFilter('') }}>Xóa bộ lọc</button>
           )}
+          {/* Background reload indicator — shown when reloading with existing data (stale-while-revalidate) */}
+          {loading && users.length > 0 && (
+            <span className="ml-auto text-xs font-bold text-brand-400 animate-pulse">Đang cập nhật…</span>
+          )}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[560px] text-left text-sm">
@@ -811,7 +826,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                         variant="secondary"
                         onClick={() => {
                           setEditTarget(u)
-                          setEditForm({ nickname: u.nickname ?? '', role: u.role as AdminUser['role'] })
+                          setEditForm({ nickname: u.nickname ?? '', role: u.role as AdminUser['role'], email: u.email ?? '', newPassword: '' })
                         }}
                       >
                         Sửa
@@ -829,51 +844,15 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                 </tr>
               ))}
             </tbody>
-            </table>
-          </div>
-          <Paginator
-            page={usersPag.page} totalPages={usersPag.totalPages}
-            totalItems={filteredUsers.length} pageSize={15}
-            onPrev={usersPag.prev} onNext={usersPag.next} onGoTo={usersPag.goTo}
-          />
-
-          {/* Inline edit panel — shown below the table when a user row is selected */}
-          {editTarget && (
-            <div className="border-t border-border bg-brand-50/40 px-4 py-4">
-              <div className="mb-3 flex items-center justify-between">
-                <p className="font-display text-base text-text">Sửa tài khoản · <span className="text-muted">{editTarget.email ?? editTarget.nickname}</span></p>
-                <button type="button" className="min-h-11 rounded-lg px-3 text-sm font-bold text-muted hover:bg-white" onClick={() => setEditTarget(null)}>Đóng</button>
-              </div>
-              <form className="flex flex-wrap gap-3" onSubmit={(e) => void patchUser(e)}>
-                <label className="flex flex-col gap-1 text-sm font-bold">
-                  Tên hiển thị
-                  <input
-                    className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm"
-                    value={editForm.nickname}
-                    onChange={(e) => setEditForm((f) => ({ ...f, nickname: e.target.value }))}
-                    placeholder={editTarget.nickname ?? '—'}
-                  />
-                </label>
-                <label className="flex flex-col gap-1 text-sm font-bold">
-                  Vai trò
-                  <select
-                    className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm"
-                    value={editForm.role}
-                    onChange={(e) => setEditForm((f) => ({ ...f, role: e.target.value as AdminUser['role'] }))}
-                  >
-                    <option value="student">Học sinh</option>
-                    <option value="parent">Phụ huynh</option>
-                    <option value="teacher">Giảng viên</option>
-                    <option value="admin">Quản trị viên</option>
-                  </select>
-                </label>
-                <div className="flex items-end">
-                  <Button type="submit">Lưu thay đổi</Button>
-                </div>
-              </form>
-            </div>
-          )}
+          </table>
         </div>
+        <Paginator
+          page={usersPag.page} totalPages={usersPag.totalPages}
+          totalItems={filteredUsers.length} pageSize={15}
+          onPrev={usersPag.prev} onNext={usersPag.next} onGoTo={usersPag.goTo}
+        />
+
+      </div>
       <form className="ui-card flex h-fit flex-col gap-3 p-5" onSubmit={(e) => void createUser(e)}>
         <h2 className="font-display text-xl">Tạo tài khoản</h2>
         <label className="flex flex-col gap-1 text-sm font-bold">
@@ -1136,8 +1115,30 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     </div>
   )
 
+  /**
+   * Determine if we have any loaded data for the current tab.
+   * On the very first load (no data yet), show the skeleton.
+   * On subsequent filter-triggered reloads, keep showing existing data
+   * so the edit panel (editTarget) is not destroyed mid-interaction.
+   * This implements a "stale-while-revalidate" UX pattern.
+   */
+  const hasData = () => {
+    switch (tab) {
+      case 'system': return system !== null
+      case 'analytics': return analytics !== null
+      case 'users': return users.length > 0 || !loading
+      case 'sessions': return sessions.length > 0 || !loading
+      case 'logs': return loginLogs.length > 0 || logSummary !== null || !loading
+      case 'courses': return courses.length > 0 || !loading
+      case 'ai': return vidtoryStatus !== null
+      default: return true
+    }
+  }
+
   const tabContent = () => {
-    if (loading) return loadingEl
+    // Only block with skeleton on initial load (no data yet).
+    // For filter reloads, keep rendering existing data so the edit panel stays.
+    if (loading && !hasData()) return loadingEl
     switch (tab) {
       case 'system': return systemTab
       case 'analytics': return analyticsTab
@@ -1159,11 +1160,11 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           <h1 className="font-display text-2xl text-text">
             {tab === 'system' ? 'Hệ thống & tài khoản'
               : tab === 'analytics' ? 'Phân tích hoạt động'
-              : tab === 'logs' ? 'Nhật ký đăng nhập'
-              : tab === 'ai' ? 'AI Vidtory'
-              : tab === 'users' ? 'Tài khoản'
-              : tab === 'sessions' ? 'Phiên đăng nhập'
-              : 'Khóa học'}
+                : tab === 'logs' ? 'Nhật ký đăng nhập'
+                  : tab === 'ai' ? 'AI Vidtory'
+                    : tab === 'users' ? 'Tài khoản'
+                      : tab === 'sessions' ? 'Phiên đăng nhập'
+                        : 'Khóa học'}
           </h1>
         </div>
         <Button
@@ -1199,6 +1200,156 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         onConfirm={() => void revokeSession()}
         onCancel={() => setRevokeTarget(null)}
       />
+
+      {/* ── Edit user modal — fixed overlay so it always appears in viewport center
+           regardless of scroll position. Replaces the old inline panel that was
+           hidden below the table when the list was long. ── */}
+      <EditUserModal
+        target={editTarget}
+        form={editForm}
+        onChange={setEditForm}
+        onSubmit={(e) => void patchUser(e)}
+        onClose={() => setEditTarget(null)}
+      />
     </div>
+  )
+}
+
+// ── Edit user modal ───────────────────────────────────────────
+// Uses createPortal(…, document.body) to escape the CSS transform stacking
+// context created by the page-enter animation on <main>. Without the portal,
+// `position: fixed` is anchored to the transformed <main> element instead of
+// the viewport, causing the offset and partial backdrop seen in the screenshot.
+type EditUserModalProps = {
+  target: AdminUser | null
+  form: { nickname: string; role: AdminUser['role']; email: string; newPassword: string }
+  onChange: React.Dispatch<React.SetStateAction<{ nickname: string; role: AdminUser['role']; email: string; newPassword: string }>>
+  onSubmit: (e: React.FormEvent) => void
+  onClose: () => void
+}
+
+function EditUserModal({ target, form, onChange, onSubmit, onClose }: EditUserModalProps) {
+  const firstInputRef = useRef<HTMLInputElement>(null)
+
+  // Auto-focus nickname input when modal opens
+  useEffect(() => {
+    if (target) {
+      setTimeout(() => firstInputRef.current?.focus(), 50)
+    }
+  }, [target])
+
+  // Close on Escape key
+  useEffect(() => {
+    if (!target) return
+    const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
+    window.addEventListener('keydown', handler)
+    return () => window.removeEventListener('keydown', handler)
+  }, [target, onClose])
+
+  if (!target) return null
+
+  // Render into document.body via portal so the overlay truly covers the full
+  // viewport, unaffected by any CSS transform / will-change on ancestor elements.
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[9999] flex items-center justify-center p-4"
+      style={{ background: 'rgba(20,26,48,0.55)', backdropFilter: 'blur(6px)' }}
+      onClick={onClose}
+    >
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-user-title"
+        className="ui-card w-full max-w-md overflow-y-auto p-6"
+        style={{ maxHeight: 'calc(100dvh - 2rem)' }}
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Header */}
+        <div className="mb-5 flex items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">Sửa tài khoản</p>
+            <h2 id="edit-user-title" className="font-display text-xl text-text">
+              {target.nickname ?? target.email ?? target.id.slice(0, 10)}
+            </h2>
+            <p className="mt-0.5 text-xs text-muted font-mono">{target.id.slice(0, 16)}…</p>
+          </div>
+          <button
+            type="button"
+            className="min-h-11 shrink-0 rounded-lg px-3 text-sm font-bold text-muted hover:bg-brand-50"
+            onClick={onClose}
+            aria-label="Đóng hộp thoại chỉnh sửa"
+          >
+            ✕
+          </button>
+        </div>
+
+        <form className="flex flex-col gap-4" onSubmit={onSubmit}>
+          {/* Nickname */}
+          <label className="flex flex-col gap-1.5 text-sm font-bold">
+            Tên hiển thị
+            <input
+              ref={firstInputRef}
+              className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm outline-none transition focus:border-brand-400"
+              value={form.nickname}
+              onChange={(e) => onChange((f) => ({ ...f, nickname: e.target.value }))}
+              placeholder={target.nickname ?? '—'}
+            />
+          </label>
+
+          {/* Role */}
+          <label className="flex flex-col gap-1.5 text-sm font-bold">
+            Vai trò
+            <select
+              className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm outline-none transition focus:border-brand-400"
+              value={form.role}
+              onChange={(e) => onChange((f) => ({ ...f, role: e.target.value as AdminUser['role'] }))}
+            >
+              <option value="student">Học sinh</option>
+              <option value="parent">Phụ huynh</option>
+              <option value="teacher">Giảng viên</option>
+              <option value="admin">Quản trị viên</option>
+            </select>
+          </label>
+
+          {/* Email — only shown for non-student (students don't have email accounts) */}
+          {target.role !== 'student' && (
+            <label className="flex flex-col gap-1.5 text-sm font-bold">
+              Email
+              <input
+                type="email"
+                autoComplete="email"
+                className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm outline-none transition focus:border-brand-400"
+                value={form.email}
+                onChange={(e) => onChange((f) => ({ ...f, email: e.target.value }))}
+                placeholder={target.email ?? 'email@example.com'}
+              />
+              <span className="text-xs font-normal text-muted">Để trống nếu không muốn thay đổi</span>
+            </label>
+          )}
+
+          {/* New password — optional, only sent when filled */}
+          <label className="flex flex-col gap-1.5 text-sm font-bold">
+            Mật khẩu mới
+            <input
+              type="password"
+              autoComplete="new-password"
+              minLength={8}
+              className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm outline-none transition focus:border-brand-400"
+              value={form.newPassword}
+              onChange={(e) => onChange((f) => ({ ...f, newPassword: e.target.value }))}
+              placeholder="Để trống nếu không đổi mật khẩu"
+            />
+            <span className="text-xs font-normal text-muted">Tối thiểu 8 ký tự. Để trống để giữ nguyên mật khẩu.</span>
+          </label>
+
+          {/* Actions */}
+          <div className="mt-2 flex justify-end gap-3 border-t border-border/60 pt-4">
+            <Button type="button" variant="secondary" onClick={onClose}>Hủy</Button>
+            <Button type="submit">Lưu thay đổi</Button>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body,  // ← portal target: outside any transform context
   )
 }

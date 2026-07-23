@@ -308,9 +308,9 @@ export async function adminRoutes(app: FastifyInstance) {
         classId: true,
       },
     })
-
     return { user: updated }
   })
+
 
   app.get('/api/admin/courses', async (request, reply) => {
     const user = requireRole(request, ['admin'])
