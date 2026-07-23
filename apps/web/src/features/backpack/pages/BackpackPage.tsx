@@ -36,6 +36,26 @@ function isImgUrl(src: string) {
   )
 }
 
+function MediaThumbnail({
+  src,
+  kind,
+  className,
+}: {
+  src: string
+  kind: string
+  className: string
+}) {
+  const [failed, setFailed] = useState(false)
+  if (!isImgUrl(src) || failed) {
+    return (
+      <div className={`${className} flex items-center justify-center bg-brand-50 text-3xl`}>
+        {kind === 'comic' ? '🖼️' : kind === 'story' ? '📖' : '🎨'}
+      </div>
+    )
+  }
+  return <img src={src} alt="" className={className} onError={() => setFailed(true)} />
+}
+
 export function BackpackPage() {
   const [assets, setAssets] = useState<Asset[]>([])
   const [projects, setProjects] = useState<Project[]>([])
@@ -115,15 +135,11 @@ export function BackpackPage() {
             {assets.map((a) => (
               <div key={a.id} className="ui-card overflow-hidden p-2">
                 <div className="flex h-28 items-center justify-center overflow-hidden rounded-xl bg-brand-50">
-                  {isImgUrl(a.thumbnail) ? (
-                    <img
-                      src={a.thumbnail}
-                      alt=""
-                      className="h-full w-full object-cover"
-                    />
-                  ) : (
-                    <span className="text-3xl">🎒</span>
-                  )}
+                  <MediaThumbnail
+                    src={a.thumbnail}
+                    kind={a.type}
+                    className="h-full w-full object-cover"
+                  />
                 </div>
                 <p className="mt-2 truncate text-sm font-extrabold">{a.name}</p>
                 <p className="text-xs text-muted">
@@ -154,17 +170,11 @@ export function BackpackPage() {
           <div className="grid gap-3 sm:grid-cols-2">
             {projects.map((p) => (
               <div key={p.id} className="ui-card flex gap-3 p-3">
-                {isImgUrl(p.thumbnail) ? (
-                  <img
-                    src={p.thumbnail}
-                    alt=""
-                    className="h-20 w-20 rounded-xl object-cover"
-                  />
-                ) : (
-                  <div className="flex h-20 w-20 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-3xl">
-                    {p.kind === 'comic' ? '🖼️' : p.kind === 'story' ? '📖' : '🎨'}
-                  </div>
-                )}
+                <MediaThumbnail
+                  src={p.thumbnail}
+                  kind={p.kind}
+                  className="h-20 w-20 shrink-0 rounded-xl object-cover"
+                />
                 <div className="min-w-0 flex-1">
                   <p className="font-extrabold">{p.title}</p>
                   <p className="text-xs text-muted">
