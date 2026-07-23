@@ -181,6 +181,75 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
   if (course) {
     return { path: `/api/v1/lms/courses/${encodeURIComponent(course[1])}`, options }
   }
+  const courseProgress = path.match(/^\/api\/progress\/([^/?]+)$/)
+  if (courseProgress) {
+    return {
+      path: `/api/v1/lms/compat/courses/${encodeURIComponent(courseProgress[1])}/progress`,
+      options,
+    }
+  }
+  const quest = path.match(/^\/api\/quests\/([^/?]+)$/)
+  if (quest) {
+    return {
+      path: `/api/v1/lms/compat/quests/${encodeURIComponent(quest[1])}`,
+      options,
+    }
+  }
+  const lessonAction = path.match(
+    /^\/api\/progress\/([^/?]+)\/(start|advance|practice|check)$/,
+  )
+  if (lessonAction) {
+    const headers = new Headers(options.headers)
+    if (lessonAction[2] === 'check' && !headers.has('Idempotency-Key')) {
+      headers.set('Idempotency-Key', crypto.randomUUID())
+    }
+    return {
+      path: `/api/v1/lms/compat/lessons/${encodeURIComponent(lessonAction[1])}/${lessonAction[2]}`,
+      options: { ...options, headers },
+    }
+  }
+  if (path === '/api/parent/children') {
+    return {
+      path: '/api/v1/account/family/children',
+      options: options.method === 'POST'
+        ? withJson(options, {
+          name: body.nickname,
+          ageBand: '9-12',
+          avatarUrl: body.avatarId,
+          language: 'vi',
+          allowAiCreate: true,
+        })
+        : options,
+    }
+  }
+  const child = path.match(/^\/api\/parent\/children\/([^/?]+)$/)
+  if (child) {
+    return {
+      path: `/api/v1/account/family/children/${encodeURIComponent(child[1])}`,
+      options: options.method === 'PATCH'
+        ? withJson(options, {
+          name: body.nickname,
+          avatarUrl: body.avatarId,
+        })
+        : options,
+    }
+  }
+  const childPin = path.match(/^\/api\/parent\/children\/([^/?]+)\/pin$/)
+  if (childPin) {
+    return {
+      path: `/api/v1/account/family/children/${encodeURIComponent(childPin[1])}/pin`,
+      options,
+    }
+  }
+  const childProgress = path.match(
+    /^\/api\/parent\/children\/([^/?]+)\/progress(?:\?.*)?$/,
+  )
+  if (childProgress) {
+    return {
+      path: `/api/v1/lms/family/children/${encodeURIComponent(childProgress[1])}/enrollments`,
+      options,
+    }
+  }
   const notificationRead = path.match(/^\/api\/notifications\/([^/]+)\/read$/)
   if (notificationRead) {
     return {
@@ -293,6 +362,74 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
   if (/^\/api\/courses\/[^/?]+$/.test(path) && payload.course) {
     return { course: mapCourse(payload.course as Record<string, unknown>) }
   }
+  if (path === '/api/parent/children' && Array.isArray(payload.children)) {
+    return {
+      children: payload.children.map((item) => {
+        const row = item as Record<string, unknown>
+        return {
+          ...row,
+          nickname: row.name ? String(row.name) : null,
+          avatarId: row.avatarUrl ? String(row.avatarUrl) : null,
+          active: true,
+          level: Number(row.level ?? 1),
+          xp: Number(row.xp ?? 0),
+          hasPin: row.hasPin === true,
+        }
+      }),
+    }
+  }
+  if (/^\/api\/parent\/children\/[^/?]+$/.test(path) && payload.child) {
+    const row = payload.child as Record<string, unknown>
+    return {
+      child: {
+        ...row,
+        nickname: row.name ? String(row.name) : null,
+        avatarId: row.avatarUrl ? String(row.avatarUrl) : null,
+      },
+    }
+  }
+  if (/^\/api\/parent\/children\/[^/?]+\/progress/.test(path)) {
+    const rows = Array.isArray(payload.enrollments)
+      ? payload.enrollments as Array<Record<string, unknown>>
+      : []
+    const selectedId = new URLSearchParams(path.split('?')[1] ?? '').get('courseId')
+    const selected = rows.find((row) => String(row.courseId) === selectedId) ?? rows[0]
+    const progress = selected && Array.isArray(selected.progress)
+      ? selected.progress as Array<Record<string, unknown>>
+      : []
+    const course = selected && typeof selected.course === 'object'
+      ? selected.course as Record<string, unknown>
+      : {}
+    return {
+      child: { id: path.split('/')[4], nickname: null, level: 1, xp: 0 },
+      courseId: selected ? String(selected.courseId ?? '') : null,
+      courses: rows.map((row) => {
+        const item = recordValue(row.course)
+        const metadata = recordValue(item.metadata)
+        return {
+          id: String(row.courseId ?? item.id ?? ''),
+          title: String(item.title ?? ''),
+          shortTitle: String(item.shortTitle ?? item.title ?? ''),
+          ageLabel: String(metadata.ageLabel ?? ''),
+        }
+      }),
+      summary: {
+        completed: progress.filter((row) => row.status === 'completed').length,
+        total: progress.length,
+        totalStars: progress.reduce((sum, row) => sum + Number(row.stars ?? 0), 0),
+        currentPhase: progress.find((row) => row.status === 'in_progress')?.phase ?? null,
+      },
+      insights: { strengths: [], nextFocus: null, outcomes: [] },
+      quests: progress.map((row, index) => ({
+        id: String(row.lessonId ?? ''),
+        order: index + 1,
+        title: `Trạm ${index + 1}`,
+        status: String(row.status ?? 'locked'),
+        stars: Number(row.stars ?? 0),
+        videoUrl: null,
+      })),
+    }
+  }
   if (path.startsWith('/api/notifications')) {
     if (Array.isArray(payload.items)) {
       return {
@@ -367,6 +504,12 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     return { celebration: payload }
   }
   return payload
+}
+
+function recordValue(value: unknown): Record<string, unknown> {
+  return value && typeof value === 'object' && !Array.isArray(value)
+    ? value as Record<string, unknown>
+    : {}
 }
 
 export type User = {

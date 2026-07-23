@@ -772,8 +772,14 @@ function ChildForm({
             ...pinPayload,
           }),
         })
+        if (pin) {
+          await api(`/api/parent/children/${child.id}/pin`, {
+            method: 'POST',
+            body: JSON.stringify({ pin }),
+          })
+        }
       } else {
-        await api('/api/parent/children', {
+        const created = await api<{ child: { id: string } }>('/api/parent/children', {
           method: 'POST',
           body: JSON.stringify({
             nickname: nickname.trim(),
@@ -782,6 +788,12 @@ function ChildForm({
             ...pinPayload,
           }),
         })
+        if (pin && created.child?.id) {
+          await api(`/api/parent/children/${created.child.id}/pin`, {
+            method: 'POST',
+            body: JSON.stringify({ pin }),
+          })
+        }
       }
       onSuccess()
     } catch (err) {

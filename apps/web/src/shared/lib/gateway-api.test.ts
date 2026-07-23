@@ -102,4 +102,59 @@ describe('StoryMee Gateway adapter', () => {
       expect.any(Object),
     )
   })
+
+  it('routes the complete learning flow through the LMS compatibility facade', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({ quests: [], totalStars: 0, completedCount: 0 }))
+      .mockResolvedValueOnce(response({ progress: { status: 'in_progress', phase: 'learn' } }))
+      .mockResolvedValueOnce(response({ stars: 3, nextQuestId: null }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await api('/api/progress/11111111-1111-4111-8111-111111111111')
+    await api('/api/progress/22222222-2222-4222-8222-222222222222/start', {
+      method: 'POST',
+    })
+    await api('/api/progress/22222222-2222-4222-8222-222222222222/check', {
+      method: 'POST',
+      body: JSON.stringify({ answers: [] }),
+    })
+
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      'https://dev-hub.storymee.com/api/v1/lms/compat/courses/11111111-1111-4111-8111-111111111111/progress',
+      'https://dev-hub.storymee.com/api/v1/lms/compat/lessons/22222222-2222-4222-8222-222222222222/start',
+      'https://dev-hub.storymee.com/api/v1/lms/compat/lessons/22222222-2222-4222-8222-222222222222/check',
+    ])
+    const checkHeaders = fetchMock.mock.calls[2][1].headers as Headers
+    expect(checkHeaders.get('Idempotency-Key')).toMatch(/^[0-9a-f-]{36}$/)
+  })
+
+  it('maps Account child profiles to the existing family UI contract', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      status: 'success',
+      data: {
+        children: [{
+          id: 'child-1',
+          name: 'Bé Mây',
+          avatarUrl: 'avatar-robot',
+          level: 2,
+          xp: 40,
+          hasPin: true,
+        }],
+      },
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{ children: Array<{ nickname: string; avatarId: string }> }>(
+      '/api/parent/children',
+    )
+
+    expect(result.children[0]).toMatchObject({
+      nickname: 'Bé Mây',
+      avatarId: 'avatar-robot',
+    })
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://dev-hub.storymee.com/api/v1/account/family/children',
+      expect.any(Object),
+    )
+  })
 })
