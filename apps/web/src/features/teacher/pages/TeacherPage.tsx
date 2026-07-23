@@ -287,7 +287,8 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
       }
     }
     void run()
-  }, [tab])
+    // loadClass / loadStats / loadLectures are stable useCallback refs — safe to include
+  }, [tab, loadClass, loadStats, loadLectures, showToast])
 
   // ── Handlers ─────────────────────────────────────────────
   function pickLecture(l: Lecture) {
@@ -413,6 +414,8 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
       return
     }
     try {
+      // Capture the course id from the draft BEFORE resetting the form
+      const createdId = newCourse.id.trim()
       await api('/api/teacher/courses', {
         method: 'POST',
         body: JSON.stringify({
@@ -430,7 +433,8 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
         skillsText: '', outcomesText: '', credential: '', finalAssessment: '',
       })
       await loadLectures()
-      setSelectedCourseId(newCourse.id)
+      // Use the id captured before reset so the Lectures tab pre-selects the new course
+      if (createdId) setSelectedCourseId(createdId)
       navigate('/teacher/lectures')
     } catch (e) { showToast(e instanceof Error ? e.message : 'Không tạo khóa', 'error') }
   }

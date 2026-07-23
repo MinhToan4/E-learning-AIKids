@@ -293,6 +293,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const [loading, setLoading] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null)
   const [revokeTarget, setRevokeTarget] = useState<SessionRow | null>(null)
+  // Inline edit state — tracks which user row is open for editing
+  const [editTarget, setEditTarget] = useState<AdminUser | null>(null)
+  const [editForm, setEditForm] = useState({ nickname: '', role: 'student' as AdminUser['role'] })
 
   // ── Search / filter state ──────────────────────────────
   const [userSearch, setUserSearch]   = useState('')
@@ -504,6 +507,23 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       showToast(`Khóa học → ${status === 'open' ? 'Mở' : 'Ẩn'}`, 'success')
       await load()
     } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi cập nhật khóa', 'error') }
+  }
+
+  async function patchUser(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editTarget) return
+    try {
+      await api(`/api/admin/users/${editTarget.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          nickname: editForm.nickname.trim() || undefined,
+          role: editForm.role,
+        }),
+      })
+      showToast('Đã cập nhật tài khoản', 'success')
+      setEditTarget(null)
+      await load()
+    } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi cập nhật', 'error') }
   }
 
   async function purgeLogs() {
@@ -787,6 +807,15 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex flex-wrap justify-end gap-1">
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setEditTarget(u)
+                          setEditForm({ nickname: u.nickname ?? '', role: u.role as AdminUser['role'] })
+                        }}
+                      >
+                        Sửa
+                      </Button>
                       <Button variant="secondary" onClick={() => void toggleActive(u)}>
                         {u.active ? 'Tắt' : 'Bật'}
                       </Button>
@@ -845,7 +874,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </div>
           )}
         </div>
-      </div>
       <form className="ui-card flex h-fit flex-col gap-3 p-5" onSubmit={(e) => void createUser(e)}>
         <h2 className="font-display text-xl">Tạo tài khoản</h2>
         <label className="flex flex-col gap-1 text-sm font-bold">
