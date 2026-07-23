@@ -125,6 +125,17 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(src).toContain('AchievementsPage')
   })
 
+  it('publishes store-review legal, support and account deletion routes', () => {
+    const routes = read('app/App.tsx')
+    const legal = read('features/legal/pages/LegalPage.tsx')
+    for (const path of ['/privacy', '/terms', '/account/delete', '/support', '/data-safety']) {
+      expect(routes).toContain(path)
+    }
+    expect(legal).toContain('Chính sách quyền riêng tư')
+    expect(legal).toContain('Xóa tài khoản và dữ liệu')
+    expect(legal).toContain('aikid.vn@gmail.com')
+  })
+
   it('creative art uses StoryMee jobs after the safe in-app sketch workflow', () => {
     const creative = read('features/creative/pages/CreativePage.tsx') +
       read('features/creative/components/WorkshopCanvas.tsx') +

@@ -22,6 +22,11 @@ const ResetPasswordPage = lazy(() =>
     default: m.ResetPasswordPage,
   })),
 )
+const LegalPage = lazy(() =>
+  import('@/features/legal/pages/LegalPage').then((m) => ({
+    default: m.LegalPage,
+  })),
+)
 
 // Lazy heavy student routes for faster first paint
 const OnboardingPage = lazy(() =>
@@ -158,6 +163,12 @@ export function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/legal" element={<LegalPage kind="hub" />} />
+        <Route path="/privacy" element={<LegalPage kind="privacy" />} />
+        <Route path="/terms" element={<LegalPage kind="terms" />} />
+        <Route path="/account/delete" element={<LegalPage kind="delete" />} />
+        <Route path="/support" element={<LegalPage kind="support" />} />
+        <Route path="/data-safety" element={<LegalPage kind="data-safety" />} />
         <Route
           path="/kids"
           element={

@@ -67,6 +67,12 @@ export function WelcomePage() {
           <p className="text-xs text-muted">
             Không dùng email của trẻ · Sáng tạo mặc định riêng tư · Có cổng duyệt phụ huynh
           </p>
+          <nav className="flex flex-wrap gap-x-3 gap-y-1 text-xs font-bold text-brand-600" aria-label="Thông tin pháp lý">
+            <Link to="/privacy">Quyền riêng tư</Link>
+            <Link to="/terms">Điều khoản</Link>
+            <Link to="/account/delete">Xóa tài khoản</Link>
+            <Link to="/support">Hỗ trợ</Link>
+          </nav>
         </div>
       </div>
     </div>
