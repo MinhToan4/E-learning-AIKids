@@ -56,23 +56,53 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
 
   const styleName = ART_STYLES.find((s) => s.id === selectedStyle)?.label ?? 'Màu Nước'
 
-  // ── Canvas init ──────────────────────────────────────────────
+  // ── Canvas init + ResizeObserver ────────────────────────────
+  // willReadFrequently: true avoids repeated getImageData slowness (browser warning)
+  // ResizeObserver keeps canvas buffer in sync with CSS layout so getCoords()
+  // scale is always correct — prevents cursor/pen offset on window resize.
+  //
+  // paintedRef: HTML <canvas> starts with width=300 height=150 and uninitialized
+  // (transparent = black in JPEG) pixels. We must NOT save those pixels on the first
+  // resize tick. Only preserve after we have done our first proper white fill.
+  const paintedRef = useRef(false)
+
   useEffect(() => {
     const canvas = canvasRef.current
     const container = containerRef.current
     if (!canvas || !container) return
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-    const { width, height } = container.getBoundingClientRect()
-    canvas.width = Math.floor(width)
-    canvas.height = Math.floor(height)
-    ctx.fillStyle = '#ffffff'
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
+
+    function initSize() {
+      const ctx = canvas!.getContext('2d', { willReadFrequently: true })
+      if (!ctx) return
+      const { width, height } = container!.getBoundingClientRect()
+      const w = Math.floor(width)
+      const h = Math.floor(height)
+      if (canvas!.width === w && canvas!.height === h) return // already correct
+      // Only preserve drawing after the canvas has been properly initialised.
+      // On the very first resize tick, canvas.width/height are the browser defaults
+      // (300×150) and the pixels are uninitialized transparent → rendered as black
+      // in JPEG. Saving and restoring those would stamp a black rect over the white fill.
+      const saved = paintedRef.current
+        ? ctx.getImageData(0, 0, canvas!.width, canvas!.height)
+        : null
+      canvas!.width = w
+      canvas!.height = h
+      ctx.fillStyle = '#ffffff'
+      ctx.fillRect(0, 0, w, h)
+      if (saved) ctx.putImageData(saved, 0, 0)
+      paintedRef.current = true // canvas is now properly initialised
+    }
+
+    initSize()
+    const ro = new ResizeObserver(initSize)
+    ro.observe(container)
+    return () => ro.disconnect()
   }, [])
 
   // ── Helpers ──────────────────────────────────────────────────
   function getCtx() {
-    return canvasRef.current?.getContext('2d') ?? null
+    // Must pass the same options as init so browser reuses the same context
+    return canvasRef.current?.getContext('2d', { willReadFrequently: true }) ?? null
   }
 
   function saveHistory() {
@@ -128,8 +158,17 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
 
   // ── Pointer events ───────────────────────────────────────────
   function getCoords(e: React.PointerEvent<HTMLCanvasElement>) {
-    const rect = canvasRef.current!.getBoundingClientRect()
-    return { x: e.clientX - rect.left, y: e.clientY - rect.top }
+    const canvas = canvasRef.current!
+    const rect = canvas.getBoundingClientRect()
+    // Scale CSS clientX/Y → canvas buffer coordinates.
+    // When the canvas CSS size ≠ buffer size (browser zoom, responsive resize)
+    // this ratio corrects the mapping so the pen lands exactly under the cursor.
+    const scaleX = canvas.width  / rect.width
+    const scaleY = canvas.height / rect.height
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top)  * scaleY,
+    }
   }
 
   function onPointerDown(e: React.PointerEvent<HTMLCanvasElement>) {
@@ -265,25 +304,71 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
   }
 
   // ── AI generate ──────────────────────────────────────────────
+  // Flow: compress canvas → JPEG (stay < 2.5 MB sketch limit) →
+  //   POST /api/creative/sketch → receive assetId →
+  //   POST /api/creative/create with kind + prompt + assetIds
   const generateAI = useCallback(async () => {
     const canvas = canvasRef.current
     if (!canvas) return
     setAiState('loading')
     setAiError(null)
-    const imageDataUrl = canvas.toDataURL('image/png')
+
     try {
-      const res = await api<{ result: { generated?: { imageUrl?: string; imageDataUrl?: string } } }>(
-        '/api/creative/create',
+      // Step 1: Compress to JPEG (quality 0.82 ≈ 300–600 KB for typical canvas)
+      // PNG base64 can be 2–5 MB and will hit Fastify's 1 MB body limit (413).
+      const sketchDataUrl = canvas.toDataURL('image/jpeg', 0.82)
+
+      // Step 2: Upload sketch — BE stores it and returns assetId
+      const sketchRes = await api<{ asset: { id: string; url: string } }>(
+        '/api/creative/sketch',
         {
           method: 'POST',
           body: JSON.stringify({
-            kind: 'art',
-            styleName,
-            imageDataUrl,
+            title: `Phác thảo ${styleName}`,
+            sketchDataUrl,
           }),
         },
       )
-      const url = res.result.generated?.imageUrl ?? res.result.generated?.imageDataUrl ?? null
+      const assetId = sketchRes.asset.id
+
+      // Step 3: Ask AI to redraw using the uploaded sketch as reference.
+      // AbortSignal.timeout(110_000): Vidtory image generation takes ~60-90s;
+      // give 110s so we don't abort before Vidtory completes.
+      //
+      // NOTE: We do NOT send a free-text `prompt` here — the BE's validateChildText
+      // enforces an 80-char child-safety limit on user-typed prompts. Our auto-generated
+      // strings easily exceed that. The BE builds the full Vidtory prompt via
+      // buildCreativePrompt(kind, title, idea, details) using title + styleId.
+      //
+      // styleId mapping: BE accepts 'watercolor' | 'clay' | 'paper-cut'.
+      // For unsupported FE styles the styleId is omitted and the style name is
+      // already embedded in the title so Vidtory still has style context.
+      const BE_STYLE_MAP: Record<string, 'watercolor' | 'clay' | 'paper-cut'> = {
+        watercolor: 'watercolor',
+        clay: 'clay',
+        'paper-cut': 'paper-cut',
+      }
+      const styleId = BE_STYLE_MAP[selectedStyle]
+
+      const createRes = await api<{ asset: { id: string; url: string } }>(
+        '/api/creative/create',
+        {
+          method: 'POST',
+          signal: AbortSignal.timeout(110_000),
+          body: JSON.stringify({
+            kind: 'art',
+            title: `Tranh ${styleName} của con`,
+            // No prompt — BE uses fallback: "Tác phẩm thiếu nhi: Tranh ${styleName} của con"
+            details: {
+              ...(styleId ? { styleId } : {}),
+              preserve: 'the main subject, its pose and the important colors',
+            },
+            assetIds: [assetId],
+          }),
+        },
+      )
+
+      const url = createRes.asset?.url ?? null
       if (!url) throw new Error('Chưa nhận được ảnh từ AI.')
       setAiUrl(url)
       setAiState('done')

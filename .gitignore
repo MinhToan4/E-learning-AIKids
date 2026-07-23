@@ -25,3 +25,6 @@ packages/vidtory-ai-sdk/
 artifacts/
 *.tmp*
 load/session-tokens.json
+.agents/
+docs/
+skills/

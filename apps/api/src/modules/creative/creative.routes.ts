@@ -74,7 +74,11 @@ function assertSafeText(value: string, fallback: string): string {
  * provenance marker so only child-owned course/workshop output can be reused.
  */
 export async function creativeRoutes(app: FastifyInstance) {
-  app.post('/api/creative/sketch', async (request, reply) => {
+  // Per-route bodyLimit: 3 MB covers JPEG base64 (≈300–600 KB compressed) +
+  // JSON envelope overhead. Zod schema further caps sketchDataUrl at 2.5 M chars.
+  // Global Fastify bodyLimit (1 MB default) stays unchanged for all other routes.
+  app.post('/api/creative/sketch', { bodyLimit: 3 * 1024 * 1024 }, async (request, reply) => {
+
     const user = requireRole(request, ['student'])
     if (!can(user.role, 'progress:write')) {
       return reply.code(403).send({ error: 'Forbidden' })
@@ -106,7 +110,7 @@ export async function creativeRoutes(app: FastifyInstance) {
     return reply.code(201).send({ asset: { id: asset.id, name: asset.name, url: asset.thumbnail } })
   })
 
-  app.post('/api/creative/create', async (request, reply) => {
+  app.post('/api/creative/create', { config: { requestTimeout: 120_000 } }, async (request, reply) => {
     const user = requireRole(request, ['student'])
     if (!can(user.role, 'progress:write')) {
       return reply.code(403).send({ error: 'Forbidden' })

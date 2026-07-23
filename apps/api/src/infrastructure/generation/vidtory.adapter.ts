@@ -204,7 +204,12 @@ async function buildClient(
       process.env.VIDTORY_BASE_URL ||
       DEFAULT_VIDTORY_BASE_URL,
     maxRetries: 1,
+    // timeout = per-request HTTP timeout (each individual fetch, NOT total polling)
+    // SDK polls internally; polling timeout is controlled by pollOptions.timeoutMs below.
     timeout: 90_000,
+    // Log every request, poll tick, and response so we can confirm Vidtory behaviour
+    // from docker logs without guessing. Set VIDTORY_DEBUG=false in prod to silence.
+    debug: process.env.VIDTORY_DEBUG !== 'false',
   }) as unknown as VidtoryClientLike
 }
 
@@ -320,14 +325,25 @@ export async function generatePracticeImage(
 
   try {
     const client = await buildClient(apiKey, routing.baseURL)
-    const res = await client.models.generateImage(genParams)
+    // awaitResult:true (default) — SDK polls until COMPLETED and returns result URL.
+    // timeoutMs: aligned to Fastify requestTimeout (120s) with headroom.
+    // onProgress: logs each poll tick to docker container stderr — ground truth,
+    // no guessing about what Vidtory is doing.
+    const res = await (client.models.generateImage as Function)(genParams, {
+      awaitResult: true,
+      timeoutMs: 110_000,
+      pollIntervalMs: 3_000,
+      onProgress: (status: string) => {
+        console.log(`[Vidtory] poll status=${status}`)
+      },
+    })
     const url = res.result
     if (!url || typeof url !== 'string') {
-      throw new Error('Empty image result')
+      throw new Error(`Empty image result (status=${res.status ?? 'unknown'})`)
     }
     // CURRENT STORAGE: keep Vidtory result URL as-is (no private re-host)
     return {
-      id: res.id ?? `vid-${Date.now()}`,
+      id: res.generationHistoryId ?? `vid-${Date.now()}`,
       title: 'Ảnh AI theo ý con',
       imageUrl: url,
       mode: 'vidtory',
