@@ -20,7 +20,7 @@ export function LoginPage() {
       : 'student'
   const [mode, setMode] = useState<'student' | 'adult'>(initial as 'student' | 'adult')
   const [nickname, setNickname] = useState('')
-  const [email, setEmail] = useState('')
+  const [login, setLogin] = useState('')
   const [password, setPassword] = useState('')
   const [pin, setPin] = useState('')
   const [showPinModal, setShowPinModal] = useState(false)
@@ -41,7 +41,7 @@ export function LoginPage() {
     () =>
       mode === 'student'
         ? 'Con dùng biệt danh và PIN 6 số ba/mẹ đã tạo.'
-        : 'Ba/mẹ hoặc thầy cô đăng nhập bằng email để quản lý và cho con học.',
+        : 'Ba/mẹ hoặc thầy cô đăng nhập bằng email hoặc tên đăng nhập.',
     [mode],
   )
 
@@ -53,7 +53,7 @@ export function LoginPage() {
         setShowPinModal(true)
         return
       } else {
-        const user = await loginAdult(email.trim(), password)
+        const user = await loginAdult(login.trim(), password)
         goAfterAdult(user)
       }
     } catch (err) {
@@ -154,12 +154,16 @@ export function LoginPage() {
             ) : (
               <>
                 <label className="flex flex-col gap-1 text-sm font-bold">
-                  Email
+                  Email hoặc tên đăng nhập
                   <input
-                    type="email"
+                    type="text"
+                    inputMode="email"
+                    autoCapitalize="none"
+                    autoCorrect="off"
+                    autoComplete="username"
                     className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={login}
+                    onChange={(e) => setLogin(e.target.value)}
                     required
                   />
                 </label>

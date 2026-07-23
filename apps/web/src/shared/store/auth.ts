@@ -25,7 +25,7 @@ type AuthState = {
   ) => Promise<User>
   /** Parent hands device to child (ends parent session) */
   enterAsChild: (childId: string, pin?: string) => Promise<User>
-  loginAdult: (email: string, password: string) => Promise<User>
+  loginAdult: (login: string, password: string) => Promise<User>
   /** After GIS credential verified by API — set session user */
   setSessionUser: (user: User) => void
   registerAdult: (
@@ -141,11 +141,11 @@ export const useAuth = create<AuthState>((set, get) => ({
     return user
   },
 
-  loginAdult: async (email, password) => {
+  loginAdult: async (login, password) => {
     set({ error: null })
     const { user } = await api<{ user: User }>('/api/auth/login/adult', {
       method: 'POST',
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ login, password }),
     })
     const hydrated = await hydrateAdultAccess(user)
     set(hydrated)

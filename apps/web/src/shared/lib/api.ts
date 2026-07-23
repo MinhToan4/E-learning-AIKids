@@ -277,8 +277,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     return {
       path: '/api/v1/account/login',
       options: withJson(options, {
-        login: body.email,
-        email: body.email,
+        login: body.login ?? body.email,
         password: body.password,
       }),
     }

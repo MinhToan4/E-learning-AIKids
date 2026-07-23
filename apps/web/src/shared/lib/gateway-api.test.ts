@@ -88,6 +88,27 @@ describe('StoryMee Gateway adapter', () => {
       .toBe('Bearer storymee-jwt')
   })
 
+  it('sends an adult username through the unified account login field', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(response({
+      token: 'storymee-jwt',
+      user: { id: 'u1', actor: 'parent' },
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await api('/api/auth/login/adult', {
+      method: 'POST',
+      body: JSON.stringify({ login: 'storymee_admin', password: 'secret' }),
+    })
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://dev-hub.storymee.com/api/v1/account/login',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ login: 'storymee_admin', password: 'secret' }),
+      }),
+    )
+  })
+
   it('routes gamification to its StoryMee domain and maps streak fields', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response({
       currentStreak: 4,
