@@ -238,17 +238,17 @@ function StudentDrawer() {
         >
           <span className="student-nav-icon !h-8 !w-9 !rounded-xl" aria-hidden="true">
             {open ? (
-              // X icon when open
+              // × when open
               <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
                 <line x1="6" y1="6" x2="16" y2="16" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
                 <line x1="16" y1="6" x2="6" y2="16" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
               </svg>
             ) : (
-              // Bag / collection icon when closed
+              // + icon when closed
               <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
-                <rect x="3" y="8" width="16" height="11" rx="3" stroke="currentColor" strokeWidth="1.9" />
-                <path d="M7.5 8V6.5a3.5 3.5 0 0 1 7 0V8" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
-                <circle cx="11" cy="13.5" r="1.5" fill="currentColor" />
+                <circle cx="11" cy="11" r="9.5" stroke="currentColor" strokeWidth="1.8" />
+                <line x1="11" y1="6.5" x2="11" y2="15.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <line x1="6.5" y1="11" x2="15.5" y2="11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
               </svg>
             )}
           </span>
