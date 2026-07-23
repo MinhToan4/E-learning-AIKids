@@ -6,7 +6,6 @@ import { ApiError } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
-import { PinPadModal } from '@/shared/components/ui/PinPadModal'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
@@ -23,8 +22,6 @@ export function LoginPage() {
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [busy, setBusy] = useState(false)
-  const [showPinModal, setShowPinModal] = useState(false)
-  const [pin, setPin] = useState('')
   const { toasts, showToast, dismissToast } = useToast()
   const loginStudent = useAuth((s) => s.loginStudent)
   const loginAdult = useAuth((s) => s.loginAdult)
@@ -40,7 +37,7 @@ export function LoginPage() {
   const hint = useMemo(
     () =>
       mode === 'student'
-        ? 'Con dùng biệt danh ba/mẹ đã tạo. Không cần mật khẩu của ba/mẹ.'
+        ? 'Con dùng tên đăng nhập và mật khẩu ba/mẹ đã tạo trên StoryMee.'
         : 'Ba/mẹ hoặc thầy cô đăng nhập bằng email để quản lý và cho con học.',
     [mode],
   )
@@ -50,7 +47,7 @@ export function LoginPage() {
     setBusy(true)
     try {
       if (mode === 'student') {
-        const user = await loginStudent(nickname.trim(), undefined)
+        const user = await loginStudent(nickname.trim(), password)
         navigate(user.onboarded ? '/home' : '/onboarding')
       } else {
         const user = await loginAdult(email.trim(), password)
@@ -58,27 +55,7 @@ export function LoginPage() {
       }
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : 'Không vào được. Thử lại nhé!'
-      if (mode === 'student' && msg.includes('PIN')) {
-        setShowPinModal(true)
-      } else {
-        showToast(msg, 'error')
-      }
-    } finally {
-      setBusy(false)
-    }
-  }
-
-  async function onSubmitPin(enteredPin: string) {
-    setBusy(true)
-    try {
-      const user = await loginStudent(nickname.trim(), undefined, {
-        pin: enteredPin.trim(),
-      })
-      navigate(user.onboarded ? '/home' : '/onboarding')
-    } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Không vào được. Thử lại nhé!'
       showToast(msg, 'error')
-      setPin('')
     } finally {
       setBusy(false)
     }
@@ -150,6 +127,16 @@ export function LoginPage() {
                     required
                   />
                 </label>
+                <label className="flex flex-col gap-1 text-sm font-bold">
+                  Mật khẩu
+                  <input
+                    type="password"
+                    className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                  />
+                </label>
                 <p className="text-xs text-muted">
                   Chưa có hồ sơ? Nhờ ba/mẹ đăng nhập, vào mục Con và thêm con nhé.
                 </p>
@@ -217,19 +204,6 @@ export function LoginPage() {
           </form>
         </div>
       </div>
-      <PinPadModal
-        isOpen={showPinModal}
-        onClose={() => {
-          setShowPinModal(false)
-          setPin('')
-        }}
-        onSubmit={onSubmitPin}
-        title={`Xin chào ${nickname}!`}
-        subtitle="Nhập mã PIN 6 số ba/mẹ đã đặt"
-        busy={busy}
-        pin={pin}
-        setPin={setPin}
-      />
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   )

@@ -10,11 +10,11 @@ import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButto
 import type { User } from '@/shared/lib/api'
 
 export function RegisterPage() {
-  const [role, setRole] = useState<'parent' | 'teacher'>('parent')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [confirmPassword, setConfirmPassword] = useState('')
   const [nickname, setNickname] = useState('')
+  const [consentAccepted, setConsentAccepted] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const registerAdult = useAuth((s) => s.registerAdult)
@@ -38,7 +38,13 @@ export function RegisterPage() {
     setBusy(true)
     setError(null)
     try {
-      const user = await registerAdult(email.trim(), password, role, nickname.trim() || undefined)
+      const user = await registerAdult(
+        email.trim(),
+        password,
+        'parent',
+        nickname.trim() || undefined,
+        consentAccepted,
+      )
       goAfter(user)
     } catch (err) {
       setError(
@@ -74,36 +80,8 @@ export function RegisterPage() {
           </div>
           <h1 className="font-display text-3xl text-text">Tạo tài khoản</h1>
           <p className="mt-1 text-sm text-muted">
-            Phụ huynh hoặc giáo viên đăng ký để quản lý hành trình sáng tạo AI.
+            Phụ huynh đăng ký để quản lý hành trình sáng tạo AI của gia đình.
           </p>
-
-          {/* Role toggle */}
-          <div className="mt-4 flex gap-2 rounded-2xl bg-brand-50 p-1">
-            <button
-              type="button"
-              className={cn(
-                'flex-1 rounded-xl py-2 text-sm font-extrabold transition-all',
-                role === 'parent'
-                  ? 'bg-white text-brand-600 shadow-soft'
-                  : 'text-muted hover:text-brand-400',
-              )}
-              onClick={() => setRole('parent')}
-            >
-              👨‍👩‍👧 Phụ huynh
-            </button>
-            <button
-              type="button"
-              className={cn(
-                'flex-1 rounded-xl py-2 text-sm font-extrabold transition-all',
-                role === 'teacher'
-                  ? 'bg-white text-brand-600 shadow-soft'
-                  : 'text-muted hover:text-brand-400',
-              )}
-              onClick={() => setRole('teacher')}
-            >
-              👩‍🏫 Giáo viên
-            </button>
-          </div>
 
           <form className="mt-5 flex flex-col gap-4" onSubmit={onSubmit}>
             <label className="flex flex-col gap-1 text-sm font-bold">
@@ -112,9 +90,23 @@ export function RegisterPage() {
                 className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500 transition-colors"
                 value={nickname}
                 maxLength={40}
-                placeholder={role === 'parent' ? 'VD: Ba/Mẹ Minh' : 'VD: Cô Thu'}
+                placeholder="VD: Ba/Mẹ Minh"
                 onChange={(e) => setNickname(e.target.value)}
               />
+            </label>
+
+            <label className="flex items-start gap-3 text-sm text-muted">
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4"
+                checked={consentAccepted}
+                onChange={(event) => setConsentAccepted(event.target.checked)}
+                required
+              />
+              <span>
+                Tôi là phụ huynh/người giám hộ và đồng ý quản lý tài khoản trẻ em
+                theo điều khoản của StoryMee.
+              </span>
             </label>
 
             <label className="flex flex-col gap-1 text-sm font-bold">
@@ -192,7 +184,7 @@ export function RegisterPage() {
               </p>
             )}
 
-            <Button type="submit" disabled={busy || !passwordsMatch}>
+            <Button type="submit" disabled={busy || !passwordsMatch || !consentAccepted}>
               {busy ? 'Đang tạo…' : 'Đăng ký'}
             </Button>
 
@@ -203,7 +195,7 @@ export function RegisterPage() {
                 <span className="h-px flex-1 bg-border" />
               </div>
               <GoogleSignInButton
-                role={role}
+                role="parent"
                 onSuccess={(user) => {
                   setSessionUser(user)
                   goAfter(user)

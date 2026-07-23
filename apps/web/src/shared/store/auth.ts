@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import { api, type User } from '@/shared/lib/api'
+import { api, clearAccessToken, type User } from '@/shared/lib/api'
 import { disconnectFirebaseSession } from '@/shared/lib/firebase-client'
 
 async function disconnectFirebase(): Promise<void> {
@@ -13,15 +13,20 @@ type AuthState = {
   bootstrap: () => Promise<void>
   loginStudent: (
     nickname: string,
-    avatarId?: string,
-    opts?: { pin?: string },
+    password: string,
   ) => Promise<User>
   /** Parent hands device to child (ends parent session) */
   enterAsChild: (childId: string, pin?: string) => Promise<User>
   loginAdult: (email: string, password: string) => Promise<User>
   /** After GIS credential verified by API — set session user */
   setSessionUser: (user: User) => void
-  registerAdult: (email: string, password: string, role: 'parent' | 'teacher', nickname?: string) => Promise<User>
+  registerAdult: (
+    email: string,
+    password: string,
+    role: 'parent',
+    nickname: string | undefined,
+    parentalConsentAccepted: boolean,
+  ) => Promise<User>
   forgotPassword: (email: string) => Promise<void>
   resetPassword: (token: string, password: string) => Promise<void>
   changePassword: (currentPassword: string, newPassword: string) => Promise<void>
@@ -47,16 +52,14 @@ export const useAuth = create<AuthState>((set) => ({
     }
   },
 
-  loginStudent: async (nickname, avatarId, opts) => {
+  loginStudent: async (nickname, password) => {
     set({ error: null })
     // Parent provisions child — no public auto-create
     const { user } = await api<{ user: User }>('/api/auth/login/student', {
       method: 'POST',
       body: JSON.stringify({
         nickname,
-        avatarId,
-        createIfMissing: false,
-        pin: opts?.pin,
+        password,
       }),
     })
     set({ user })
@@ -89,11 +92,17 @@ export const useAuth = create<AuthState>((set) => ({
 
   setSessionUser: (user) => set({ user, error: null }),
 
-  registerAdult: async (email, password, role, nickname) => {
+  registerAdult: async (email, password, role, nickname, parentalConsentAccepted) => {
     set({ error: null })
     const { user } = await api<{ user: User }>('/api/auth/register/adult', {
       method: 'POST',
-      body: JSON.stringify({ email, password, role, nickname }),
+      body: JSON.stringify({
+        email,
+        password,
+        role,
+        nickname,
+        parentalConsentAccepted,
+      }),
     })
     set({ user })
     return user
@@ -125,6 +134,7 @@ export const useAuth = create<AuthState>((set) => ({
       await disconnectFirebase()
       await api('/api/auth/logout', { method: 'POST' })
     } finally {
+      clearAccessToken()
       set({ user: null })
     }
   },
