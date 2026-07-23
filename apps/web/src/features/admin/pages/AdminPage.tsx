@@ -145,7 +145,8 @@ function MiniBar({ value, max, color = 'bg-brand-500', label }: { value: number;
   const pct = max > 0 ? Math.round((value / max) * 100) : 0
   return (
     <div className="flex items-center gap-3">
-      <span className="w-28 truncate text-xs text-muted">{label}</span>
+      {/* w-20 on mobile, w-28 on sm+ — truncate prevents overflow on 320px */}
+      <span className="w-20 truncate text-xs text-muted sm:w-28">{label}</span>
       <div className="h-2 flex-1 overflow-hidden rounded-full bg-brand-100">
         <div className={cn('h-full rounded-full transition-all duration-500', color)} style={{ width: `${pct}%` }} />
       </div>
@@ -571,6 +572,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           </button>
         </div>
       </section>
+      {/* sm:grid-cols-2 ensures 2-column layout on phones (375px+), not 1-column */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {[
           { label: 'Khóa học', value: system.counts.courses, icon: <CmsCoursesIcon /> },
@@ -1107,9 +1109,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </div>
             <div className="mt-3 flex flex-col gap-2">
               {routing[kind].models.map((m, i) => (
-                <div key={`${kind}-${i}`} className="grid gap-2 rounded-xl bg-brand-50/60 p-2 sm:grid-cols-[1fr_1fr_80px_70px_auto]">
-                  <input className="min-h-11 rounded-lg border border-border px-3 font-mono text-xs" aria-label={`Mã mô hình ${i + 1}`} placeholder="Mã mô hình" value={m.modelId} onChange={(e) => updateModel(kind, i, { modelId: e.target.value })} />
-                  <input className="min-h-11 rounded-lg border border-border px-3 text-sm" aria-label={`Tên hiển thị mô hình ${i + 1}`} placeholder="Tên hiển thị" value={m.label ?? ''} onChange={(e) => updateModel(kind, i, { label: e.target.value })} />
+                <div key={`${kind}-${i}`} className="grid gap-2 rounded-xl bg-brand-50/60 p-2 grid-cols-2 sm:grid-cols-[1fr_1fr_80px_70px_auto]">
+                  <input className="col-span-2 sm:col-span-1 min-h-11 rounded-lg border border-border px-3 font-mono text-xs" aria-label={`Mã mô hình ${i + 1}`} placeholder="Mã mô hình" value={m.modelId} onChange={(e) => updateModel(kind, i, { modelId: e.target.value })} />
+                  <input className="col-span-2 sm:col-span-1 min-h-11 rounded-lg border border-border px-3 text-sm" aria-label={`Tên hiển thị mô hình ${i + 1}`} placeholder="Tên hiển thị" value={m.label ?? ''} onChange={(e) => updateModel(kind, i, { label: e.target.value })} />
                   <input type="number" min={0} max={100} className="min-h-11 rounded-lg border border-border px-3 text-sm" aria-label={`Tỷ lệ sử dụng mô hình ${i + 1}`} value={m.weight} onChange={(e) => updateModel(kind, i, { weight: Number(e.target.value) })} />
                   <span className="flex items-center justify-center text-xs font-extrabold text-brand-600">{m.percent != null ? `${m.percent}%` : '—'}</span>
                   <Button type="button" variant="ghost" onClick={() => removeModel(kind, i)}>Xóa</Button>

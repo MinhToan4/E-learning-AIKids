@@ -155,7 +155,8 @@ function CmsShell({
         <RoleNavigation nav={nav} mobile />
       </div>
 
-      <main className="page-enter mx-auto min-w-0 max-w-[1440px] px-3 py-5 sm:px-5">
+      {/* safe-pb ensures content is not hidden behind home indicator on iPhone */}
+      <main className="page-enter mx-auto min-w-0 max-w-[1440px] px-3 py-5 pb-[max(1.25rem,env(safe-area-inset-bottom,0px))] sm:px-5">
         <Outlet />
       </main>
     </div>
@@ -290,8 +291,9 @@ export function AppShell() {
       )}
 
       <nav
-        className="student-bottom-nav fixed inset-x-0 bottom-0 z-30 flex justify-around px-1 py-1.5 safe-pb md:hidden"
+        className="student-bottom-nav fixed inset-x-0 bottom-0 z-30 flex px-1 py-1.5 safe-pb md:hidden"
         aria-label="Điều hướng chính"
+        style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
       >
         {studentNav.map(({ to, label, icon: Icon }) => (
           <NavLink
@@ -299,7 +301,9 @@ export function AppShell() {
             to={to}
             className={({ isActive }) =>
               cn(
-                'student-nav-link min-h-[3.75rem] min-w-0 flex-1 gap-0 rounded-xl px-0.5 py-1 text-[11px]',
+                // flex-shrink-0 prevents items from being squished below tap target
+                // min-w-[3.25rem] keeps 44px+ touch target on 320px (7 items × 52px = 364px > 320px → scrolls)
+                'student-nav-link min-h-[3.75rem] min-w-[3.25rem] flex-shrink-0 flex-1 gap-0 rounded-xl px-0.5 py-1 text-[10px]',
                 isActive && 'student-nav-link-active',
               )
             }

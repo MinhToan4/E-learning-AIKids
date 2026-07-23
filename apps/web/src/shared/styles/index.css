@@ -67,7 +67,12 @@
     margin: 0;
     min-height: 100dvh;
     font-family: var(--font-sans);
-    font-size: 17px;
+    /*
+     * Responsive base font: 15px on 320px screens, 17px on 405px+.
+     * clamp(min, preferred, max) prevents tiny phones from rendering
+     * "text-2xl" at an illegible 37px — WCAG 1.4.4 (Resize Text).
+     */
+    font-size: clamp(15px, 4.2vw, 17px);
     line-height: 1.5;
     font-weight: 600;
     color: var(--color-text);
@@ -404,6 +409,13 @@
 
   .student-bottom-nav {
     border-top: 1px solid rgba(109, 94, 252, 0.12);
+    /* Hide horizontal scrollbar — still scrollable on 320px with 7 items */
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .student-bottom-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .student-nav-link {
@@ -573,13 +585,17 @@
   }
 
   .role-nav-link-mobile {
-    min-width: 5.5rem;
+    /*
+     * min-width 4rem (64px) keeps 5+ items visible on 320px screens.
+     * Was 5.5rem which caused overflow when there are 5+ nav items.
+     */
+    min-width: 4rem;
     min-height: 3.75rem;
     flex-direction: column;
     justify-content: center;
     gap: 0.15rem;
-    padding: 0.25rem 0.4rem;
-    font-size: 0.7rem;
+    padding: 0.25rem 0.3rem;
+    font-size: 0.68rem;
   }
 
   .role-nav-link-mobile .role-nav-icon {
@@ -878,6 +894,14 @@
     padding: 4px;
     border: 1.5px solid var(--color-border);
     box-shadow: 0 2px 8px rgba(30, 39, 64, 0.06);
+    /* Allow horizontal scroll on tiny screens so steps never clip */
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .phase-stepper::-webkit-scrollbar {
+    display: none;
   }
 
   .phase-step {

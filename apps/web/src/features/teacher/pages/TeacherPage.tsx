@@ -731,7 +731,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
 
   const lecturesTab = (
-    <div className="grid items-start gap-5 lg:grid-cols-[280px_minmax(0,1fr)]">
+    <div className="grid items-start gap-5 md:grid-cols-[280px_minmax(0,1fr)]">{/* md: 768px tablet — was lg:1024px */}
       <aside className="ui-card overflow-hidden lg:sticky lg:top-5" aria-label="Chọn khóa học và bài học">
         <div className="border-b border-border bg-sky-50/60 p-4">
           <label className="flex flex-col gap-1.5 text-sm font-bold text-text">
@@ -907,7 +907,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
   // Stats tab
   const statsTab = (
-    <div className="ui-card p-5">
+    <div className="ui-card min-w-0 p-5">{/* min-w-0 ensures inner overflow-x-auto works */}
       <h2 className="font-display mb-4 text-xl">Thống kê lớp học</h2>
       {!stats ? (
         <p className="text-muted">Chưa có lớp hoặc dữ liệu thống kê.</p>

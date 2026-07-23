@@ -267,8 +267,8 @@ export function HomePage() {
             </div>
           </div>
 
-          {/* Right: streak widget */}
-          <div className="flex items-center gap-2 ml-auto">
+          {/* Right: streak widget — shrink-0 prevents it from being squished on 375px */}
+          <div className="flex shrink-0 items-center gap-2 ml-auto">
             <StreakWidget current={streak.current} longest={streak.longest} />
           </div>
         </div>
