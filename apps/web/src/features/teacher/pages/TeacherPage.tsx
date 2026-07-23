@@ -11,7 +11,9 @@ import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
+import { Paginator } from '@/shared/components/ui/Paginator'
 import { useToast } from '@/shared/hooks/useToast'
+import { usePagination } from '@/shared/hooks/usePagination'
 import { api, type LectureRow } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
@@ -204,6 +206,13 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const { toasts, showToast, dismissToast } = useToast()
   const logout = useAuth((s) => s.logout)
   const navigate = useNavigate()
+
+  // ── Pagination — one hook per data-heavy list ─────────────────
+  const studentsPag = usePagination(students, 15)
+  const lecturesPag = usePagination(lectures, 10)
+  // stats.students is nested; build a stable array ref for pagination
+  const statStudents = stats?.students ?? []
+  const statsPag = usePagination(statStudents, 15)
 
   // ── Load data ────────────────────────────────────────────
   const loadClass = useCallback(async () => {
@@ -521,9 +530,9 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {students.length === 0 ? (
+                  {studentsPag.slice.length === 0 ? (
                     <tr><td colSpan={4} className="px-4 py-8 text-center text-muted">Chưa có học sinh nào</td></tr>
-                  ) : students.map((s) => (
+                  ) : studentsPag.slice.map((s) => (
                     <tr key={s.id} className="border-t border-border/40">
                       <td className="px-4 py-2 font-bold">{s.nickname}</td>
                       <td className="px-4 py-2 text-sm">Lv{s.level} · {s.xp} XP</td>
@@ -537,6 +546,15 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                 </tbody>
               </table>
             </div>
+            <Paginator
+              page={studentsPag.page}
+              totalPages={studentsPag.totalPages}
+              totalItems={students.length}
+              pageSize={15}
+              onPrev={studentsPag.prev}
+              onNext={studentsPag.next}
+              onGoTo={studentsPag.goTo}
+            />
           </div>
 
           {/* Sidebar actions */}
@@ -708,31 +726,44 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               </div>
             ) : (
               <ol className="divide-y divide-border/60" aria-label="Danh sách bài học">
-                {lectures.map((lecture, index) => (
-                  <li key={lecture.id} className={cn('p-3', lecture.archived && 'opacity-60')}>
-                    <button
-                      type="button"
-                      className={cn(
-                        'min-h-11 w-full rounded-xl px-3 py-2 text-left transition',
-                        selected?.id === lecture.id && !creatingLecture ? 'bg-brand-50 text-brand-700 ring-2 ring-brand-200' : 'hover:bg-sky-50',
-                      )}
-                      onClick={() => {
-                        setCreatingLecture(false)
-                        pickLecture(lecture)
-                      }}
-                    >
-                      <span className="block text-xs font-bold text-muted">Bài {index + 1}{lecture.archived ? ' · Đang ẩn' : ''}</span>
-                      <span className="mt-0.5 block font-bold text-text">{lecture.title}</span>
-                      <span className="mt-1 block text-xs text-muted">{PRACTICE_OPTIONS.find((option) => option.id === lecture.practiceKind)?.label ?? 'Hoạt động sáng tạo'}{lecture.videoUrl ? ' · Có video' : ''}</span>
-                    </button>
-                    <div className="mt-1 flex justify-end gap-1">
-                      <button type="button" className="min-h-11 rounded-lg px-3 text-xs font-bold text-muted hover:bg-sky-50 disabled:opacity-30" disabled={index === 0} onClick={() => void moveLecture(lecture.id, -1)} aria-label={`Đưa ${lecture.title} lên trước`}>Lên</button>
-                      <button type="button" className="min-h-11 rounded-lg px-3 text-xs font-bold text-muted hover:bg-sky-50 disabled:opacity-30" disabled={index === lectures.length - 1} onClick={() => void moveLecture(lecture.id, 1)} aria-label={`Đưa ${lecture.title} xuống sau`}>Xuống</button>
-                    </div>
-                  </li>
-                ))}
+                {lecturesPag.slice.map((lecture) => {
+                  // Global index for move-up/down and display number
+                  const index = lectures.indexOf(lecture)
+                  return (
+                    <li key={lecture.id} className={cn('p-3', lecture.archived && 'opacity-60')}>
+                      <button
+                        type="button"
+                        className={cn(
+                          'min-h-11 w-full rounded-xl px-3 py-2 text-left transition',
+                          selected?.id === lecture.id && !creatingLecture ? 'bg-brand-50 text-brand-700 ring-2 ring-brand-200' : 'hover:bg-sky-50',
+                        )}
+                        onClick={() => {
+                          setCreatingLecture(false)
+                          pickLecture(lecture)
+                        }}
+                      >
+                        <span className="block text-xs font-bold text-muted">Bài {index + 1}{lecture.archived ? ' · Đang ẩn' : ''}</span>
+                        <span className="mt-0.5 block font-bold text-text">{lecture.title}</span>
+                        <span className="mt-1 block text-xs text-muted">{PRACTICE_OPTIONS.find((option) => option.id === lecture.practiceKind)?.label ?? 'Hoạt động sáng tạo'}{lecture.videoUrl ? ' · Có video' : ''}</span>
+                      </button>
+                      <div className="mt-1 flex justify-end gap-1">
+                        <button type="button" className="min-h-11 rounded-lg px-3 text-xs font-bold text-muted hover:bg-sky-50 disabled:opacity-30" disabled={index === 0} onClick={() => void moveLecture(lecture.id, -1)} aria-label={`Đưa ${lecture.title} lên trước`}>Lên</button>
+                        <button type="button" className="min-h-11 rounded-lg px-3 text-xs font-bold text-muted hover:bg-sky-50 disabled:opacity-30" disabled={index === lectures.length - 1} onClick={() => void moveLecture(lecture.id, 1)} aria-label={`Đưa ${lecture.title} xuống sau`}>Xuống</button>
+                      </div>
+                    </li>
+                  )
+                })}
               </ol>
             )}
+            <Paginator
+              page={lecturesPag.page}
+              totalPages={lecturesPag.totalPages}
+              totalItems={lectures.length}
+              pageSize={10}
+              onPrev={lecturesPag.prev}
+              onNext={lecturesPag.next}
+              onGoTo={lecturesPag.goTo}
+            />
           </>
         )}
       </aside>
@@ -817,7 +848,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               </tr>
             </thead>
             <tbody>
-              {stats.students.map((s) => (
+              {statsPag.slice.map((s) => (
                 <tr key={s.id} className={cn('border-b border-border/40', s.needsSupport && 'bg-sun-50')}>
                   <td className="px-3 py-2 font-bold">{s.nickname}</td>
                   <td className="px-3 py-2">{s.completedQuests}</td>
@@ -836,6 +867,15 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               ))}
             </tbody>
           </table>
+          <Paginator
+            page={statsPag.page}
+            totalPages={statsPag.totalPages}
+            totalItems={statStudents.length}
+            pageSize={15}
+            onPrev={statsPag.prev}
+            onNext={statsPag.next}
+            onGoTo={statsPag.goTo}
+          />
           </div>
         </>
       )}
