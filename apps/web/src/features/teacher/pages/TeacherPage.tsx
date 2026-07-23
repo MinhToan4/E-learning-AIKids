@@ -207,6 +207,10 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const logout = useAuth((s) => s.logout)
   const navigate = useNavigate()
 
+  // Derive lectures BEFORE pagination hooks to avoid TDZ with `const`
+  const activeCourse = courses.find((c) => c.id === selectedCourseId)
+  const lectures = activeCourse?.lectures ?? []
+
   // ── Pagination — one hook per data-heavy list ─────────────────
   const studentsPag = usePagination(students, 15)
   const lecturesPag = usePagination(lectures, 10)
@@ -251,8 +255,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     // loadClass / loadStats / loadLectures are stable useCallback refs — safe to include
   }, [tab, loadClass, loadStats, loadLectures, showToast])
 
-  const activeCourse = courses.find((c) => c.id === selectedCourseId)
-  const lectures = activeCourse?.lectures ?? []
 
   // ── Handlers ─────────────────────────────────────────────
   function pickLecture(l: Lecture) {
