@@ -125,26 +125,3 @@ export async function listenForForegroundPush(onMessage: () => void): Promise<()
     return () => undefined
   }
 }
-
-export async function subscribeToClassroomEvents(
-  classId: string,
-  onEvent: (event: { id: string; type: string; payload: Record<string, unknown> }) => void,
-): Promise<() => void> {
-  const auth = await firebaseAuth()
-  if (!auth) return () => undefined
-  const firestore = await import('firebase/firestore')
-  const events = firestore.collection(
-    firestore.getFirestore(auth.app),
-    'classrooms',
-    classId,
-    'events',
-  )
-  const latest = firestore.query(events, firestore.orderBy('createdAt', 'desc'), firestore.limit(20))
-  return firestore.onSnapshot(latest, (snapshot) => {
-    for (const change of snapshot.docChanges()) {
-      if (change.type !== 'added') continue
-      const data = change.doc.data() as { type: string; payload: Record<string, unknown> }
-      onEvent({ id: change.doc.id, type: data.type, payload: data.payload })
-    }
-  })
-}

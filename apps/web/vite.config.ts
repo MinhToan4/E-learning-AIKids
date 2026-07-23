@@ -39,9 +39,6 @@ export default defineConfig({
           ) {
             return 'vendor-react'
           }
-          if (id.includes('node_modules/@supabase/')) {
-            return 'vendor-supabase'
-          }
           if (id.includes('node_modules/framer-motion/')) {
             return 'vendor-motion'
           }
@@ -57,4 +54,3 @@ export default defineConfig({
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
   },
 })
-

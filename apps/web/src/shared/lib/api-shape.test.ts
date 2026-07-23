@@ -62,10 +62,4 @@ describe('FE uses shipped domain package', () => {
     expect(CHARACTER_SHAPES.length).toBeGreaterThan(3)
   })
 
-  it('supabase client module exports configuration flag', async () => {
-    const mod = await import('./supabase.js')
-    expect(typeof mod.isSupabaseConfigured).toBe('boolean')
-    // Client is null when VITE_ env missing in vitest; ok either way
-    expect(mod.supabase === null || typeof mod.supabase === 'object').toBe(true)
-  })
 })

@@ -76,17 +76,6 @@ export const env = {
   studentAutoCreate: studentAutoCreateEnabled(),
   defaultParentEmail: (process.env.DEFAULT_PARENT_EMAIL ?? '').trim().toLowerCase(),
   defaultClassCode: (process.env.DEFAULT_CLASS_CODE ?? '').trim().toUpperCase(),
-  /** Supabase project URL (JS client / Storage) */
-  supabaseUrl: (process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL ?? '')
-    .trim(),
-  /** Publishable / anon key — never service_role in the browser */
-  supabaseAnonKey: (
-    process.env.SUPABASE_ANON_KEY ??
-    process.env.VITE_SUPABASE_ANON_KEY ??
-    process.env.EXPO_PUBLIC_SUPABASE_KEY ??
-    ''
-  ).trim(),
-
   // ── Redis (optional — falls back to InMemory cache) ─────
   redisUrl: (process.env.REDIS_URL ?? '').trim() || undefined,
 
