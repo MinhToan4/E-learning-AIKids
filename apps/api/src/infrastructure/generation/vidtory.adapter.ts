@@ -1,13 +1,12 @@
 /**
  * Server-side Vidtory generation adapter.
- * - API key: SystemSetting encrypted or env VIDTORY_API_KEY (never returned to FE)
+ * - Credentials stay in StoryMee Hub; this service never calls a provider SDK.
  * - Routing: admin-configured models + weights → pick modelId per request
  * - Soft Clay prompt bias; mock fallback when unconfigured / errors
  */
 import {
   buildImageGenRefs,
   buildVideoGenRefs,
-  DEFAULT_VIDTORY_BASE_URL,
   DEFAULT_VIDTORY_ROUTING,
   pickWeightedModel,
   resolveVideoMode,
@@ -17,7 +16,7 @@ import {
 } from '@aikids/domain'
 import { mockGenerateImage } from '../../shared/generation/mock-image.js'
 import { prisma } from '../database/prisma.js'
-import { decryptSecret, maskSecret } from '../security/secret-box.js'
+import { createStoryMeeHubMediaClient } from './storymee-hub.client.js'
 
 export const VIDTORY_API_KEY_SETTING = 'vidtory_api_key'
 /** Non-secret routing JSON (modelId + weight + aspect/resolution) */
@@ -90,68 +89,6 @@ export function setVidtoryRoutingOverride(
   routingOverride = config
 }
 
-export async function getVidtoryApiKey(): Promise<string | null> {
-  try {
-    const row = await prisma.systemSetting.findUnique({
-      where: { key: VIDTORY_API_KEY_SETTING },
-    })
-    if (row?.valueEnc) {
-      try {
-        return decryptSecret(row.valueEnc)
-      } catch {
-        return null
-      }
-    }
-  } catch {
-    // DB unavailable — fall through to env
-  }
-  const fromEnv = (process.env.VIDTORY_API_KEY ?? '').trim()
-  return fromEnv || null
-}
-
-export async function getVidtoryKeyStatus(): Promise<{
-  configured: boolean
-  maskedHint: string | null
-  source: 'database' | 'env' | 'none'
-  updatedAt: string | null
-}> {
-  try {
-    const row = await prisma.systemSetting.findUnique({
-      where: { key: VIDTORY_API_KEY_SETTING },
-    })
-    if (row?.valueEnc) {
-      let masked: string | null = null
-      try {
-        const meta = JSON.parse(row.metaJson || '{}') as {
-          last4?: string
-          hint?: string
-        }
-        masked =
-          meta.hint ?? (meta.last4 ? `••••${meta.last4}` : '••••configured')
-      } catch {
-        masked = '••••configured'
-      }
-      return {
-        configured: true,
-        maskedHint: masked,
-        source: 'database',
-        updatedAt: row.updatedAt.toISOString(),
-      }
-    }
-  } catch {
-    /* ignore */
-  }
-  if ((process.env.VIDTORY_API_KEY ?? '').trim()) {
-    return {
-      configured: true,
-      maskedHint: maskSecret(process.env.VIDTORY_API_KEY!),
-      source: 'env',
-      updatedAt: null,
-    }
-  }
-  return { configured: false, maskedHint: null, source: 'none', updatedAt: null }
-}
-
 /**
  * Load routing config from DB (or default). Never contains API key.
  */
@@ -193,19 +130,10 @@ export async function saveVidtoryRouting(
 
 async function buildClient(
   apiKey: string,
-  baseURL?: string,
+  _baseURL?: string,
 ): Promise<VidtoryClientLike> {
   if (clientFactory) return clientFactory(apiKey)
-  const { VidtoryAI } = await import('@vidtory/ai-sdk')
-  return new VidtoryAI({
-    apiKey,
-    baseURL:
-      baseURL ||
-      process.env.VIDTORY_BASE_URL ||
-      DEFAULT_VIDTORY_BASE_URL,
-    maxRetries: 1,
-    timeout: 90_000,
-  }) as unknown as VidtoryClientLike
+  return createStoryMeeHubMediaClient()
 }
 
 function softClayImagePrompt(prompt: string): string {
@@ -303,7 +231,7 @@ export async function generatePracticeImage(
     }
   }
 
-  const apiKey = await getVidtoryApiKey()
+  const apiKey = (process.env.HUB_API_KEY ?? '').trim()
   if (!apiKey) {
     const mock = mockGenerateImage(prompt, seed)
     return {
@@ -440,7 +368,7 @@ export async function generatePracticeVideo(
     }
   }
 
-  const apiKey = await getVidtoryApiKey()
+  const apiKey = (process.env.HUB_API_KEY ?? '').trim()
   if (!apiKey) {
     return {
       id: `mock-vid-${seed}`,

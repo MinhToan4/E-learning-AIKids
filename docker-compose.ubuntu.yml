@@ -1,0 +1,33 @@
+services:
+  api:
+    container_name: aikids-legacy-api
+    ports: !reset []
+    expose:
+      - '4000'
+    environment:
+      DATABASE_URL: >-
+        postgresql://admin:${DB_PASSWORD}@omni-pgbouncer:5432/aikids_db?connection_limit=5&pool_timeout=30
+      STORYMEE_HUB_URL: http://storymee-hub:5100
+      STORYMEE_STORAGE_URL: https://storage.storymee.com
+      HUB_API_KEY: ${HUB_API_KEY}
+      HUB_MEDIA_PROVIDER: auto
+      PROCESS_ROLE: api
+      SEED_ON_START: never
+    networks:
+      - default
+      - storymee
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:4000/api/health').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+networks:
+  storymee:
+    external: true
+    name: storymee_default

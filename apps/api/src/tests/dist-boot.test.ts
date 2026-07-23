@@ -26,10 +26,10 @@ describe('dist production layout', () => {
     expect(src).toMatch(/body\.kind === ['"]video['"]/)
   })
 
-  it('Dockerfile installs vendored @vidtory/ai-sdk package', () => {
+  it('Dockerfile routes media through Hub without vendored Vidtory SDK', () => {
     const docker = readFileSync(resolve(apiRoot, 'Dockerfile'), 'utf8')
-    expect(docker).toContain('packages/vidtory-ai-sdk')
-    expect(docker).toContain('COPY packages/vidtory-ai-sdk')
+    expect(docker).not.toContain('packages/vidtory-ai-sdk')
+    expect(docker).toContain('npx prisma generate')
   })
 
   it('after build, dist/generated/prisma is present for node start', async () => {

@@ -10,15 +10,20 @@ import {
   validateVidtoryRouting,
 } from '@aikids/domain'
 import {
-  getVidtoryKeyStatus,
   getVidtoryRouting,
   saveVidtoryRouting,
   VIDTORY_API_KEY_SETTING,
 } from '../../infrastructure/generation/vidtory.adapter.js'
-import {
-  encryptSecret,
-  maskSecret,
-} from '../../infrastructure/security/secret-box.js'
+import { env } from '../../config/env.js'
+
+function hubMediaStatus() {
+  return {
+    configured: Boolean(env.hubApiKey),
+    maskedHint: env.hubApiKey ? 'StoryMee Hub managed' : null,
+    source: env.hubApiKey ? 'hub' : 'none',
+    updatedAt: null,
+  }
+}
 
 /**
  * Admin CMS: accounts + system overview + AI provider settings.
@@ -41,7 +46,7 @@ export async function adminRoutes(app: FastifyInstance) {
         }),
         prisma.classRoom.count(),
         prisma.approval.count({ where: { status: 'pending' } }),
-        getVidtoryKeyStatus(),
+        Promise.resolve(hubMediaStatus()),
       ])
 
     return {
@@ -74,7 +79,7 @@ export async function adminRoutes(app: FastifyInstance) {
       return reply.code(403).send({ error: 'Forbidden' })
     }
     const [status, routing] = await Promise.all([
-      getVidtoryKeyStatus(),
+      Promise.resolve(hubMediaStatus()),
       getVidtoryRouting(),
     ])
     return {
@@ -105,27 +110,10 @@ export async function adminRoutes(app: FastifyInstance) {
       })
       .parse(request.body)
 
-    let maskedHint: string | undefined
     if (body.apiKey) {
-      const plain = body.apiKey.trim()
-      const valueEnc = encryptSecret(plain)
-      const last4 = plain.slice(-4)
-      const hint = maskSecret(plain)
-      maskedHint = hint
-      const metaJson = JSON.stringify({
-        last4,
-        hint,
-        configuredAt: new Date().toISOString(),
-        configuredBy: user.id,
-      })
-      await prisma.systemSetting.upsert({
-        where: { key: VIDTORY_API_KEY_SETTING },
-        create: {
-          key: VIDTORY_API_KEY_SETTING,
-          valueEnc,
-          metaJson,
-        },
-        update: { valueEnc, metaJson },
+      return reply.code(400).send({
+        error:
+          'Provider keys are managed by StoryMee Hub. Configure HUB_API_KEY on the server.',
       })
     }
 
@@ -138,11 +126,11 @@ export async function adminRoutes(app: FastifyInstance) {
       routing = await saveVidtoryRouting(v.config)
     }
 
-    const status = await getVidtoryKeyStatus()
+    const status = hubMediaStatus()
     return {
       ok: true,
       configured: status.configured,
-      maskedHint: maskedHint ?? status.maskedHint,
+      maskedHint: status.maskedHint,
       routing,
       imagePercents: modelWeightPercents(routing.image.models),
       videoPercents: modelWeightPercents(routing.video.models),

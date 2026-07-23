@@ -3,11 +3,8 @@
  * CURRENT STORAGE REALITY: we persist Vidtory CDN URLs on Asset rows
  * (no AIKids-owned object storage re-host yet). See docs/VIDTORY_MEDIA_*.
  */
-import {
-  buildVidtoryUploadMetadata,
-  DEFAULT_VIDTORY_BASE_URL,
-} from '@aikids/domain'
-import { getVidtoryApiKey, getVidtoryRouting } from './vidtory.adapter.js'
+import { buildVidtoryUploadMetadata } from '@aikids/domain'
+import { createStoryMeeMediaUploadClient } from './storymee-hub.client.js'
 
 export type UploadedMedia = {
   mediaId: string
@@ -52,20 +49,13 @@ async function buildMediaClient(): Promise<{
   apiKey: string
   baseURL: string
 } | null> {
-  const apiKey = await getVidtoryApiKey()
+  const apiKey = (process.env.HUB_API_KEY ?? '').trim()
   if (!apiKey) return null
-  const routing = await getVidtoryRouting()
-  const baseURL = routing.baseURL || DEFAULT_VIDTORY_BASE_URL
+  const baseURL = (process.env.STORYMEE_HUB_URL ?? '').trim()
   if (mediaClientFactory) {
     return { client: mediaClientFactory(apiKey, baseURL), apiKey, baseURL }
   }
-  const { VidtoryAI } = await import('@vidtory/ai-sdk')
-  const client = new VidtoryAI({
-    apiKey,
-    baseURL,
-    maxRetries: 1,
-    timeout: 60_000,
-  }) as unknown as MediaUploadClient
+  const client = createStoryMeeMediaUploadClient('')
   return { client, apiKey, baseURL }
 }
 
@@ -117,7 +107,13 @@ export async function uploadStudentMedia(params: {
     assetId: params.assetId,
   })
 
-  const built = await buildMediaClient()
+  const built = mediaClientFactory
+    ? await buildMediaClient()
+    : {
+        client: createStoryMeeMediaUploadClient(params.userId),
+        apiKey: (process.env.HUB_API_KEY ?? '').trim(),
+        baseURL: (process.env.STORYMEE_HUB_URL ?? '').trim(),
+      }
   if (!built) {
     throw Object.assign(
       new Error(

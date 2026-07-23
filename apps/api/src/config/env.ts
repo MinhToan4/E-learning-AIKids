@@ -39,6 +39,15 @@ function positiveIntEnv(name: string, fallback: number): number {
   return value
 }
 
+function urlEnv(name: string, fallback: string): string {
+  const value = (process.env[name] ?? fallback).trim().replace(/\/$/, '')
+  try {
+    return new URL(value).toString().replace(/\/$/, '')
+  } catch {
+    throw new Error(`${name} must be a valid absolute URL`)
+  }
+}
+
 // Required: Supabase (or any Postgres) connection URI — never sqlite, never ship to FE
 const databaseUrl = required('DATABASE_URL')
 
@@ -78,6 +87,20 @@ export const env = {
   defaultClassCode: (process.env.DEFAULT_CLASS_CODE ?? '').trim().toUpperCase(),
   // ── Redis (optional — falls back to InMemory cache) ─────
   redisUrl: (process.env.REDIS_URL ?? '').trim() || undefined,
+
+  // All AI media generation goes through StoryMee Hub provider rotation.
+  storymeeHubUrl: urlEnv(
+    'STORYMEE_HUB_URL',
+    isProd ? 'http://storymee-hub:5100' : 'https://dev-hub.storymee.com',
+  ),
+  storymeeStorageUrl: urlEnv(
+    'STORYMEE_STORAGE_URL',
+    'https://storage.storymee.com',
+  ),
+  hubApiKey: (process.env.HUB_API_KEY ?? '').trim(),
+  hubMediaProvider: (process.env.HUB_MEDIA_PROVIDER ?? 'auto').trim(),
+  hubMediaTimeoutMs: positiveIntEnv('HUB_MEDIA_TIMEOUT_MS', 180_000),
+  hubMediaPollMs: positiveIntEnv('HUB_MEDIA_POLL_MS', 1_000),
 
   // ── Gmail SMTP (optional in dev — logs to console) ──────
   gmailUser: (process.env.GMAIL_USER ?? '').trim(),
