@@ -953,41 +953,41 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             Gợi ý dựa trên tiến độ gần đây, không dùng để xếp hạng hay đánh giá trẻ.
           </div>
           <div className="overflow-x-auto rounded-2xl border border-border">
-          <table className="min-w-[860px] w-full text-left text-sm">
-            <thead className="border-b border-border bg-sky-50/60">
-              <tr>
-                <th className="px-3 py-2 font-extrabold">Học sinh</th>
-                <th className="px-3 py-2 font-extrabold">Trạm hoàn thành</th>
-                <th className="px-3 py-2 font-extrabold">Đang học</th>
-                <th className="px-3 py-2 font-extrabold">Hoạt động gần nhất</th>
-                <th className="px-3 py-2 font-extrabold">Gợi ý hỗ trợ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {statsPag.slice.map((s) => (
-                <tr key={s.id} className={cn('border-b border-border/40', s.needsSupport && 'bg-sun-50')}>
-                  <td className="px-3 py-2 font-bold">{s.nickname}</td>
-                  <td className="px-3 py-2">{s.completedQuests}</td>
-                  <td className="px-3 py-2">
-                    <span className="block max-w-52 truncate font-semibold">{s.currentQuest ?? 'Chưa bắt đầu'}</span>
-                    {s.currentPhase && <span className="text-xs text-muted">{PHASE_LABELS[s.currentPhase] ?? 'Đang thực hiện'}</span>}
-                  </td>
-                  <td className="px-3 py-2 text-xs text-muted">{formatActivity(s.lastActiveAt)}</td>
-                  <td className="px-3 py-2">
-                    {s.needsSupport
-                      ? <button type="button" className="rounded-full bg-sun-100 px-3 py-1 text-xs font-bold text-warning" onClick={() => void viewProgress(s.id)}>Xem để hỗ trợ</button>
-                      : <span className="text-xs font-semibold text-success">Đang tiến triển tốt</span>}
-                    {s.supportReason && <span className="mt-1 block max-w-48 text-xs text-muted">{s.supportReason}</span>}
-                  </td>
+            <table className="min-w-[860px] w-full text-left text-sm">
+              <thead className="border-b border-border bg-sky-50/60">
+                <tr>
+                  <th className="px-3 py-2 font-extrabold">Học sinh</th>
+                  <th className="px-3 py-2 font-extrabold">Trạm hoàn thành</th>
+                  <th className="px-3 py-2 font-extrabold">Đang học</th>
+                  <th className="px-3 py-2 font-extrabold">Hoạt động gần nhất</th>
+                  <th className="px-3 py-2 font-extrabold">Gợi ý hỗ trợ</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <Paginator
-            page={statsPag.page} totalPages={statsPag.totalPages}
-            totalItems={filteredStatStudents.length} pageSize={15}
-            onPrev={statsPag.prev} onNext={statsPag.next} onGoTo={statsPag.goTo}
-          />
+              </thead>
+              <tbody>
+                {statsPag.slice.map((s) => (
+                  <tr key={s.id} className={cn('border-b border-border/40', s.needsSupport && 'bg-sun-50')}>
+                    <td className="px-3 py-2 font-bold">{s.nickname}</td>
+                    <td className="px-3 py-2">{s.completedQuests}</td>
+                    <td className="px-3 py-2">
+                      <span className="block max-w-52 truncate font-semibold">{s.currentQuest ?? 'Chưa bắt đầu'}</span>
+                      {s.currentPhase && <span className="text-xs text-muted">{PHASE_LABELS[s.currentPhase] ?? 'Đang thực hiện'}</span>}
+                    </td>
+                    <td className="px-3 py-2 text-xs text-muted">{formatActivity(s.lastActiveAt)}</td>
+                    <td className="px-3 py-2">
+                      {s.needsSupport
+                        ? <button type="button" className="rounded-full bg-sun-100 px-3 py-1 text-xs font-bold text-warning" onClick={() => void viewProgress(s.id)}>Xem để hỗ trợ</button>
+                        : <span className="text-xs font-semibold text-success">Đang tiến triển tốt</span>}
+                      {s.supportReason && <span className="mt-1 block max-w-48 text-xs text-muted">{s.supportReason}</span>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <Paginator
+              page={statsPag.page} totalPages={statsPag.totalPages}
+              totalItems={filteredStatStudents.length} pageSize={15}
+              onPrev={statsPag.prev} onNext={statsPag.next} onGoTo={statsPag.goTo}
+            />
           </div>
         </>
       )}
