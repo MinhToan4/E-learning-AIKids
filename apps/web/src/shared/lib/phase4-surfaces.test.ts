@@ -123,10 +123,13 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(src).toContain('AchievementsPage')
   })
 
-  it('creative art uses the safe in-app sketch workflow before Vidtory generation', () => {
-    const creative = read('features/creative/pages/CreativePage.tsx') + read('features/creative/components/WorkshopCanvas.tsx')
+  it('creative art uses StoryMee jobs after the safe in-app sketch workflow', () => {
+    const creative = read('features/creative/pages/CreativePage.tsx') +
+      read('features/creative/components/WorkshopCanvas.tsx') +
+      read('shared/lib/creative-api.ts')
     expect(creative).toContain('WorkshopCanvas')
-    expect(creative).toContain('/api/creative/create')
+    expect(creative).toContain("'/api/v1/jobs'")
+    expect(creative).not.toContain('/api/creative/create')
     expect(creative).not.toContain('uploadStudentImage')
     expect(creative).not.toContain("kind: 'mee'")
     expect(creative).not.toContain('Tạo Mee')

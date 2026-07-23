@@ -36,15 +36,18 @@ export async function uploadCmsImage(params: {
   mediaId: string
   storageBackend: string
 }> {
-  const buf = await params.file.arrayBuffer()
-  const bytes = new Uint8Array(buf)
-  let binary = ''
-  for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]!)
-  const fileBase64 = btoa(binary)
-  const mime = params.file.type || 'image/png'
   const fileName =
     params.fileName ||
     (params.file instanceof File ? params.file.name : 'upload.png')
+
+  const form = new FormData()
+  form.append('file', params.file, fileName)
+  form.append('permanent', '1')
+  form.append('assetType', 'aikids')
+  form.append('tags', JSON.stringify([
+    params.purpose ?? 'cms_media',
+    ...(params.questId ? [`quest:${params.questId}`] : []),
+  ]))
 
   const res = await api<{
     asset: {
@@ -55,13 +58,7 @@ export async function uploadCmsImage(params: {
     }
   }>('/api/media/upload', {
     method: 'POST',
-    body: JSON.stringify({
-      fileBase64,
-      fileName,
-      mime,
-      purpose: params.purpose ?? 'cms_media',
-      questId: params.questId ?? null,
-    }),
+    body: form,
   })
   return res.asset
 }

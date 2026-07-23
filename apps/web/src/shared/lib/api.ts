@@ -31,7 +31,9 @@ export async function api<T = unknown>(
   const request = normalizeGatewayRequest(path, options)
   const headers = new Headers(request.options.headers)
   const token = getAccessToken()
-  if (request.options.body && !headers.has('Content-Type')) {
+  if (request.options.body &&
+      !(request.options.body instanceof FormData) &&
+      !headers.has('Content-Type')) {
     headers.set('Content-Type', 'application/json')
   }
   if (token && !headers.has('Authorization')) {
@@ -102,6 +104,7 @@ function withJson(options: RequestInit, body: Record<string, unknown>): RequestI
 
 function normalizeGatewayRequest(path: string, options: RequestInit): GatewayRequest {
   const body = jsonBody(options)
+  if (path.startsWith('/api/v1/')) return { path, options }
   const direct: Record<string, string> = {
     '/api/auth/me': '/api/v1/account/me',
     '/api/auth/logout': '/api/v1/account/logout',
@@ -145,6 +148,25 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       }
     }
     return { path: '/api/v1/billing/me/subscription', options }
+  }
+  if (path === '/api/media/refs' || path === '/api/backpack') {
+    return { path: '/api/v1/media/gallery', options }
+  }
+  if (path === '/api/projects') {
+    return { path: '/api/v1/media/gallery', options }
+  }
+  const projectShare = path.match(/^\/api\/projects\/([^/?]+)\/request-share$/)
+  if (projectShare) {
+    return {
+      path: `/api/v1/media/gallery/${encodeURIComponent(projectShare[1])}/request-share`,
+      options,
+    }
+  }
+  if (path === '/api/media/upload') {
+    return { path: '/api/v1/media/upload?permanent=1&assetType=aikids', options }
+  }
+  if (path === '/api/media/promote') {
+    return { path: '/api/v1/media/gallery/promote', options }
   }
   if (path === '/api/auth/login/student') {
     return {
@@ -456,6 +478,55 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       },
       message: typeof body.message === 'string' ? body.message : '',
       checkout: body.checkout,
+    }
+  }
+  if (path === '/api/media/refs' || path === '/api/backpack') {
+    const rows = Array.isArray(payload.items)
+      ? payload.items as Array<Record<string, unknown>>
+      : []
+    const assets = rows.map((row) => {
+      const metadata = recordValue(row.metadata)
+      const url = String(row.imageUrl ?? row.url ?? '')
+      return {
+        id: String(row.id ?? ''),
+        type: String(metadata.assetType ?? 'image'),
+        name: String(metadata.originalName ?? 'Sản phẩm sáng tạo'),
+        thumbnail: url,
+        url,
+        private: true,
+        questId: metadata.questId ? String(metadata.questId) : null,
+        createdAt: String(row.createdAt ?? ''),
+      }
+    })
+    return path === '/api/media/refs' ? { assets } : { assets }
+  }
+  if (path === '/api/projects') {
+    const rows = Array.isArray(payload.items)
+      ? payload.items as Array<Record<string, unknown>>
+      : []
+    return {
+      projects: rows.map((row) => {
+        const metadata = recordValue(row.metadata)
+        return {
+          id: String(row.id ?? ''),
+          title: String(metadata.originalName ?? 'Sản phẩm sáng tạo'),
+          kind: String(metadata.creativeKind ?? metadata.assetType ?? 'image'),
+          thumbnail: String(row.imageUrl ?? ''),
+          shareStatus: String(metadata.shareStatus ?? 'private'),
+        }
+      }),
+    }
+  }
+  if (path === '/api/media/upload') {
+    const item = recordValue(payload.libraryItem)
+    const url = String(payload.url ?? payload.imageUrl ?? '')
+    return {
+      asset: {
+        id: String(item.id ?? ''),
+        url,
+        mediaId: String(item.id ?? ''),
+        storageBackend: 'storymee-media',
+      },
     }
   }
   if (path === '/api/courses' && Array.isArray(payload.courses)) {

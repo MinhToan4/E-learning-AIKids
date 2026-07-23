@@ -15,6 +15,7 @@ import {
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { api } from '@/shared/lib/api'
+import { generateCreativeImage } from '@/shared/lib/creative-api'
 import { ART_STYLES } from '../lib/workshop-types'
 import type { WorkshopStep } from '../lib/workshop-types'
 
@@ -272,19 +273,10 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
     setAiError(null)
     const imageDataUrl = canvas.toDataURL('image/png')
     try {
-      const res = await api<{ result: { generated?: { imageUrl?: string; imageDataUrl?: string } } }>(
-        '/api/creative/create',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            kind: 'art',
-            styleName,
-            imageDataUrl,
-          }),
-        },
-      )
-      const url = res.result.generated?.imageUrl ?? res.result.generated?.imageDataUrl ?? null
-      if (!url) throw new Error('Chưa nhận được ảnh từ AI.')
+      const url = await generateCreativeImage({
+        prompt: `Tạo tranh thiếu nhi an toàn theo phong cách ${styleName}. Giữ bố cục và ý tưởng từ ảnh tham chiếu.`,
+        imageDataUrl,
+      })
       setAiUrl(url)
       setAiState('done')
     } catch (err) {

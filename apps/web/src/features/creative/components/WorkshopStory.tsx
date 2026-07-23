@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { BookOpen, ChevronRight, Sparkles } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
-import { api } from '@/shared/lib/api'
+import { generateCreativeStory } from '@/shared/lib/creative-api'
 import { STORY_GENRES } from '../lib/workshop-types'
 import type { WorkshopStep } from '../lib/workshop-types'
 
@@ -237,21 +237,16 @@ export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props)
     setGenerating(true)
     setError(null)
     try {
-      const res = await api<{ result: { generated?: { content?: string } } }>(
-        '/api/creative/create',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            kind: 'story',
-            genre: draft.genre,
-            idea: draft.idea,
-            characters: draft.characters,
-            setting: draft.setting,
-          }),
-        },
+      const content = await generateCreativeStory(
+        [
+          'Viết một truyện thiếu nhi an toàn bằng tiếng Việt.',
+          `Thể loại: ${draft.genre}.`,
+          `Ý tưởng: ${draft.idea}.`,
+          `Nhân vật: ${draft.characters}.`,
+          `Bối cảnh: ${draft.setting}.`,
+          'Nội dung tích cực, phù hợp trẻ em, có mở đầu, cao trào và kết thúc.',
+        ].join('\n'),
       )
-      const content = res.result.generated?.content
-      if (!content) throw new Error('AI chưa trả về nội dung truyện.')
       setStoryResult(content)
       setFlowStep('result')
     } catch (err) {
