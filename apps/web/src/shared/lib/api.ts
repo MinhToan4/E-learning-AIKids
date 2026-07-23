@@ -479,7 +479,7 @@ function mapCourse(raw: Record<string, unknown>): CourseSummary {
     courseKey: raw.slug ? String(raw.slug) : undefined,
     durationLabel: String(metadata.durationLabel ?? ''),
     productLabel: String(metadata.productLabel ?? 'Khóa học StoryMee'),
-    status: 'published',
+    status: 'open',
     recommended: metadata.recommended === true,
     skills: Array.isArray(metadata.skills) ? metadata.skills.map(String) : [],
     outcomes: Array.isArray(metadata.outcomes) ? metadata.outcomes.map(String) : [],
@@ -900,7 +900,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         title: String(mission.title ?? ''),
         description: String(mission.description ?? ''),
         xpReward: Number(mission.xpReward ?? 0),
-        action: { label: 'Học ngay', route: '/home' },
+        action: { label: 'Học ngay', route: '/world' },
       },
     }
   }
