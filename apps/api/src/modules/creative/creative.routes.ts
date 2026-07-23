@@ -21,7 +21,12 @@ const creativeDetailsSchema = z.object({
   appearance: z.string().trim().max(300).optional(),
   personality: z.string().trim().max(200).optional(),
   preserve: z.string().trim().max(300).optional(),
-  styleId: z.enum(['watercolor', 'clay', 'paper-cut']).optional(),
+  // Đồng bộ với artStyles map trong creative-prompts.ts — 14 phong cách vẽ.
+  styleId: z.enum([
+    'watercolor', 'cartoon', 'crayon', 'anime', 'manga', 'comic',
+    'sketch', '3d', 'pixel', 'chibi', 'clay', 'fabric', 'manhwa',
+    'semirealistic', 'paper-cut',
+  ]).optional(),
   panelCount: z.union([z.literal(2), z.literal(4), z.literal(6)]).optional(),
   panels: z.array(z.object({
     action: z.string().trim().min(1).max(240),
