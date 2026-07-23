@@ -89,15 +89,19 @@ export function ParentGateModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/40 backdrop-blur-sm sm:items-center"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 backdrop-blur-sm"
       role="dialog"
       aria-modal="true"
       aria-label="Cổng phụ huynh"
       onClick={(e) => e.target === e.currentTarget && onClose()}
     >
       <div
-        className="w-full max-w-sm overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:rounded-3xl"
-        style={shake ? { animation: 'shake 0.4s ease-in-out' } : undefined}
+        className="w-full max-w-sm overflow-y-auto rounded-3xl bg-white shadow-2xl"
+        style={{
+          maxHeight: 'min(95dvh, 680px)',
+          ...(shake ? { animation: 'shake 0.4s ease-in-out' } : {}),
+        }}
+        onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
         <div className="bg-gradient-to-br from-amber-400 to-orange-500 px-6 pb-6 pt-8 text-center">
