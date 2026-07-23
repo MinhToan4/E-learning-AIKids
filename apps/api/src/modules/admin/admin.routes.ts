@@ -290,6 +290,9 @@ export async function adminRoutes(app: FastifyInstance) {
         nickname: z.string().min(1).max(40).optional(),
         parentId: z.string().nullable().optional(),
         classId: z.string().nullable().optional(),
+        // Admin can update email and password for any account
+        email: z.string().email().max(120).optional(),
+        password: z.string().min(8).max(128).optional(),
       })
       .parse(request.body)
 
@@ -301,6 +304,20 @@ export async function adminRoutes(app: FastifyInstance) {
     const target = await prisma.user.findUnique({ where: { id } })
     if (!target) return reply.code(404).send({ error: 'Not found' })
 
+    // Email uniqueness check — only when a new email is provided
+    if (body.email) {
+      const normalizedEmail = body.email.toLowerCase()
+      const existing = await prisma.user.findUnique({ where: { email: normalizedEmail } })
+      if (existing && existing.id !== id) {
+        return reply.code(409).send({ error: 'Email đã được sử dụng bởi tài khoản khác' })
+      }
+    }
+
+    // Hash new password if provided
+    const passwordHash = body.password
+      ? await hashPassword(body.password)
+      : undefined
+
     const updated = await prisma.user.update({
       where: { id },
       data: {
@@ -309,6 +326,8 @@ export async function adminRoutes(app: FastifyInstance) {
         nickname: body.nickname,
         parentId: body.parentId === undefined ? undefined : body.parentId,
         classId: body.classId === undefined ? undefined : body.classId,
+        email: body.email ? body.email.toLowerCase() : undefined,
+        passwordHash,
       },
       select: {
         id: true,
@@ -323,6 +342,7 @@ export async function adminRoutes(app: FastifyInstance) {
 
     return { user: updated }
   })
+
 
   app.get('/api/admin/courses', async (request, reply) => {
     const user = requireRole(request, ['admin'])
