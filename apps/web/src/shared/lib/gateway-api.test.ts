@@ -279,6 +279,38 @@ describe('StoryMee Gateway adapter', () => {
     ])
   })
 
+  it('adapts admin user edits to the core account contract', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(response({
+      status: 'success',
+      data: { id: 'student-1' },
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await api('/api/admin/users/student-1', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        nickname: 'Bé Bo',
+        role: 'student',
+        email: 'bo@example.com',
+        password: 'new-password',
+      }),
+    })
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://dev-hub.storymee.com/api/v1/account/admin/users/student-1',
+      expect.objectContaining({
+        method: 'PATCH',
+        body: JSON.stringify({
+          nickname: 'Bé Bo',
+          role: 'user',
+          email: 'bo@example.com',
+          password: 'new-password',
+          name: 'Bé Bo',
+        }),
+      }),
+    )
+  })
+
   it('loads account access and exchanges a selected workspace session', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(response({

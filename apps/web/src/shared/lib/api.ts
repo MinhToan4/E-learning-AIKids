@@ -183,12 +183,20 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
   if (/^\/api\/admin\/users(?:\/[^/?]+)?(?:\?.*)?$/.test(path) ||
       /^\/api\/admin\/sessions(?:\/[^/?]+)?$/.test(path) ||
       /^\/api\/admin\/login-logs(?:\?.*)?$/.test(path)) {
+    const isAdminUserPatch = /^\/api\/admin\/users\/[^/?]+$/.test(path) &&
+      (options.method ?? 'GET').toUpperCase() === 'PATCH'
     return {
       path: path.replace('/api/admin', '/api/v1/account/admin'),
       options: path === '/api/admin/users' &&
         (options.method ?? 'GET').toUpperCase() === 'POST'
         ? withJson(options, { ...body, name: body.nickname })
-        : options,
+        : isAdminUserPatch
+          ? withJson(options, {
+            ...body,
+            name: body.nickname,
+            role: body.role === 'student' ? 'user' : body.role,
+          })
+          : options,
     }
   }
   if (/^\/api\/admin\/courses(?:\/[^/?]+)?$/.test(path)) {
