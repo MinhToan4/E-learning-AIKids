@@ -89,6 +89,11 @@ const AdminPage = lazy(() =>
     default: m.AdminPage,
   })),
 )
+const OrganizationPage = lazy(() =>
+  import('@/features/organization/pages/OrganizationPage').then((m) => ({
+    default: m.OrganizationPage,
+  })),
+)
 const ChildPickerPage = lazy(() =>
   import('@/features/family/pages/ChildPickerPage').then((m) => ({
     default: m.ChildPickerPage,
@@ -293,6 +298,14 @@ export function App() {
             element={
               <Guard roles={['parent']}>
                 <ParentPage tab="plan" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/organization"
+            element={
+              <Guard roles={['teacher', 'admin']}>
+                <OrganizationPage />
               </Guard>
             }
           />

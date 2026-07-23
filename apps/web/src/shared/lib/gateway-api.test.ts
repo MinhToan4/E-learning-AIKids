@@ -255,4 +255,40 @@ describe('StoryMee Gateway adapter', () => {
       'https://dev-hub.storymee.com/api/v1/jobs/providers/policy',
     ])
   })
+
+  it('loads account access and exchanges a selected workspace session', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({
+        data: {
+          contexts: [{
+            id: 'organization:org-1',
+            type: 'organization',
+            label: 'Trường Nguyễn Du',
+            actor: 'org_admin',
+            roles: ['admin'],
+            permissions: ['lms.class.manage'],
+            defaultRoute: '/organization',
+          }],
+        },
+      }))
+      .mockResolvedValueOnce(response({
+        data: {
+          accessToken: 'scoped-session',
+          active: { contextId: 'organization:org-1' },
+        },
+      }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await api('/api/auth/access')
+    await api('/api/auth/context', {
+      method: 'POST',
+      body: JSON.stringify({ contextId: 'organization:org-1' }),
+    })
+
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      'https://dev-hub.storymee.com/api/v1/account/me/access',
+      'https://dev-hub.storymee.com/api/v1/account/me/contexts/select',
+    ])
+    expect(localStorage.getItem('storymee.access_token')).toBe('scoped-session')
+  })
 })

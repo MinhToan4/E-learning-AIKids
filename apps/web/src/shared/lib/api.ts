@@ -111,6 +111,9 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     '/api/auth/forgot-password': '/api/v1/account/forgot-password',
     '/api/auth/reset-password': '/api/v1/account/reset-password',
     '/api/auth/change-password': '/api/v1/account/me/password',
+    '/api/auth/access': '/api/v1/account/me/access',
+    '/api/auth/context': '/api/v1/account/me/contexts/select',
+    '/api/auth/tenant': '/api/v1/account/tenant/resolve',
     '/api/courses': '/api/v1/lms/courses',
     '/api/enrollments': '/api/v1/lms/enrollments',
     '/api/notifications': '/api/v1/notifications',
@@ -523,6 +526,11 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     return { user: mapUser((payload.user ?? payload) as Record<string, unknown>) }
   }
   if (path === '/api/auth/logout') clearAccessToken()
+  if (path === '/api/auth/context') {
+    const token = String(payload.accessToken ?? payload.token ?? '')
+    if (token) setAccessToken(token)
+    return payload
+  }
   if (path === '/api/parent/gate/verify') {
     return {
       user: mapUser(recordValue(payload.user)),
@@ -917,6 +925,29 @@ export type User = {
   goal: string | null
   parentId: string | null
   classId: string | null
+}
+
+export type AccessContext = {
+  id: string
+  type: 'family' | 'personal_teacher' | 'personal_student' | 'organization' | 'platform'
+  label: string
+  defaultRoute: string
+  actor: 'parent' | 'teacher' | 'org_admin' | 'org_student' | 'admin'
+  organizationId?: string
+  organizationSlug?: string
+  roles: string[]
+  permissions: string[]
+}
+
+export type AccountAccess = {
+  personas: string[]
+  platformRoles: string[]
+  contexts: AccessContext[]
+  active?: {
+    mode: string
+    contextId?: string | null
+    organizationId?: string | null
+  }
 }
 
 export type CourseSummary = {

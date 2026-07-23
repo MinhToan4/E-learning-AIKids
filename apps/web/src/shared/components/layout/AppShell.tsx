@@ -43,6 +43,42 @@ type RoleNavItem = {
   end?: boolean
 }
 
+function WorkspaceSwitcher() {
+  const access = useAuth((state) => state.access)
+  const active = useAuth((state) => state.activeContext)
+  const selectContext = useAuth((state) => state.selectContext)
+  if (!access || access.contexts.length < 2 || !active) return null
+
+  return (
+    <label className="mx-3 mt-auto mb-3 block text-xs font-bold text-muted">
+      Workspace
+      <select
+        className="mt-1 w-full rounded-xl border border-border bg-white px-2 py-2 text-sm text-text"
+        value={active.id}
+        onChange={async (event) => {
+          const context = await selectContext(event.target.value)
+          const isAikidHost = window.location.hostname === 'app.aikid.vn' ||
+            window.location.hostname.endsWith('.aikid.vn')
+          if (isAikidHost) {
+            const host = context.type === 'organization' && context.organizationSlug
+              ? `${context.organizationSlug}.aikid.vn`
+              : 'app.aikid.vn'
+            window.location.assign(`https://${host}${context.defaultRoute}`)
+            return
+          }
+          window.location.assign(context.defaultRoute)
+        }}
+      >
+        {access.contexts.map((context) => (
+          <option key={context.id} value={context.id}>
+            {context.label}
+          </option>
+        ))}
+      </select>
+    </label>
+  )
+}
+
 const studentNav = [
   { to: '/home', label: 'Nhà', icon: NavHomeIcon },
   { to: '/world', label: 'Học', icon: NavWorldIcon },
@@ -103,6 +139,7 @@ function AdultChrome({
           <p>Góc phụ huynh</p>
         </div>
         <RoleNavigation nav={nav} />
+        <WorkspaceSwitcher />
       </aside>
 
       <div className="role-mobile-chrome lg:hidden">
@@ -143,6 +180,7 @@ function CmsShell({
           <p>{roleLabel}</p>
         </div>
         <RoleNavigation nav={nav} />
+        <WorkspaceSwitcher />
       </aside>
 
       <div className="role-mobile-chrome md:hidden">
@@ -164,6 +202,7 @@ function CmsShell({
 
 export function AppShell() {
   const user = useAuth((s) => s.user)
+  const activeContext = useAuth((s) => s.activeContext)
   const [gateOpen, setGateOpen] = useState(false)
 
   if (user?.role === 'parent') {
@@ -177,6 +216,23 @@ export function AppShell() {
           { to: '/parent/plan', label: 'Gói học', icon: ParentPlanIcon },
           { to: '/parent/approvals', label: 'Chờ duyệt', icon: ParentApprovalIcon },
           { to: '/parent/profile', label: 'Hồ sơ', icon: ParentProfileIcon },
+        ]}
+      />
+    )
+  }
+
+  if (activeContext?.actor === 'org_admin') {
+    return (
+      <CmsShell
+        brandTo="/organization"
+        roleLabel={activeContext.label}
+        tone="teacher"
+        nav={[
+          { to: '/organization', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
+          { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon },
+          { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
+          { to: '/teacher/lectures', label: 'Bài giảng', icon: CmsLecturesIcon },
+          { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
         ]}
       />
     )

@@ -1,5 +1,11 @@
 import { create } from 'zustand'
-import { api, clearAccessToken, type User } from '@/shared/lib/api'
+import {
+  api,
+  clearAccessToken,
+  type AccessContext,
+  type AccountAccess,
+  type User,
+} from '@/shared/lib/api'
 import { disconnectFirebaseSession } from '@/shared/lib/firebase-client'
 
 async function disconnectFirebase(): Promise<void> {
@@ -8,6 +14,8 @@ async function disconnectFirebase(): Promise<void> {
 
 type AuthState = {
   user: User | null
+  access: AccountAccess | null
+  activeContext: AccessContext | null
   loading: boolean
   error: string | null
   bootstrap: () => Promise<void>
@@ -33,10 +41,50 @@ type AuthState = {
   logout: () => Promise<void>
   patchMe: (data: Partial<Pick<User, 'onboarded' | 'goal' | 'nickname' | 'avatarId'>>) => Promise<User>
   setUser: (u: User | null) => void
+  selectContext: (contextId: string) => Promise<AccessContext>
 }
 
-export const useAuth = create<AuthState>((set) => ({
+function roleForContext(context: AccessContext): User['role'] {
+  if (context.actor === 'admin') return 'admin'
+  if (context.actor === 'teacher' || context.actor === 'org_admin') return 'teacher'
+  if (context.actor === 'org_student') return 'student'
+  return 'parent'
+}
+
+function preferredContext(access: AccountAccess): AccessContext | null {
+  const host = typeof window === 'undefined' ? '' : window.location.hostname.toLowerCase()
+  const orgSlug = host.endsWith('.aikid.vn') && host !== 'app.aikid.vn'
+    ? host.slice(0, -'.aikid.vn'.length)
+    : null
+  return (
+    (orgSlug
+      ? access.contexts.find((context) => context.organizationSlug === orgSlug)
+      : undefined) ??
+    access.contexts.find((context) => context.id === access.active?.contextId) ??
+    access.contexts[0] ??
+    null
+  )
+}
+
+async function hydrateAdultAccess(user: User) {
+  const access = await api<AccountAccess>('/api/auth/access')
+  const context = preferredContext(access)
+  if (!context) return { user, access, activeContext: null }
+  await api('/api/auth/context', {
+    method: 'POST',
+    body: JSON.stringify({ contextId: context.id }),
+  })
+  return {
+    user: { ...user, role: roleForContext(context) },
+    access,
+    activeContext: context,
+  }
+}
+
+export const useAuth = create<AuthState>((set, get) => ({
   user: null,
+  access: null,
+  activeContext: null,
   loading: true,
   error: null,
 
@@ -46,9 +94,13 @@ export const useAuth = create<AuthState>((set) => ({
     set({ loading: true, error: null })
     try {
       const { user } = await api<{ user: User }>('/api/auth/me')
-      set({ user, loading: false })
+      if (user.role === 'student') {
+        set({ user, access: null, activeContext: null, loading: false })
+        return
+      }
+      set({ ...(await hydrateAdultAccess(user)), loading: false })
     } catch {
-      set({ user: null, loading: false })
+      set({ user: null, access: null, activeContext: null, loading: false })
     }
   },
 
@@ -62,7 +114,7 @@ export const useAuth = create<AuthState>((set) => ({
         password,
       }),
     })
-    set({ user })
+    set({ user, access: null, activeContext: null })
     return user
   },
 
@@ -86,7 +138,7 @@ export const useAuth = create<AuthState>((set) => ({
         }),
       },
     )
-    set({ user })
+    set({ user, access: null, activeContext: null })
     return user
   },
 
@@ -96,11 +148,12 @@ export const useAuth = create<AuthState>((set) => ({
       method: 'POST',
       body: JSON.stringify({ email, password }),
     })
-    set({ user })
-    return user
+    const hydrated = await hydrateAdultAccess(user)
+    set(hydrated)
+    return hydrated.user
   },
 
-  setSessionUser: (user) => set({ user, error: null }),
+  setSessionUser: (user) => set({ user, access: null, activeContext: null, error: null }),
 
   registerAdult: async (email, password, role, nickname, parentalConsentAccepted) => {
     set({ error: null })
@@ -114,8 +167,9 @@ export const useAuth = create<AuthState>((set) => ({
         parentalConsentAccepted,
       }),
     })
-    set({ user })
-    return user
+    const hydrated = await hydrateAdultAccess(user)
+    set(hydrated)
+    return hydrated.user
   },
 
   forgotPassword: async (email) => {
@@ -145,7 +199,7 @@ export const useAuth = create<AuthState>((set) => ({
       await api('/api/auth/logout', { method: 'POST' })
     } finally {
       clearAccessToken()
-      set({ user: null })
+      set({ user: null, access: null, activeContext: null })
     }
   },
 
@@ -156,5 +210,24 @@ export const useAuth = create<AuthState>((set) => ({
     })
     set({ user })
     return user
+  },
+
+  selectContext: async (contextId) => {
+    const access = get().access
+    const user = get().user
+    const context = access?.contexts.find((item) => item.id === contextId)
+    if (!context || !user) throw new Error('Workspace không khả dụng')
+    await api('/api/auth/context', {
+      method: 'POST',
+      body: JSON.stringify({ contextId }),
+    })
+    set({
+      activeContext: context,
+      user: { ...user, role: roleForContext(context) },
+      access: access
+        ? { ...access, active: { mode: context.type, contextId: context.id, organizationId: context.organizationId } }
+        : null,
+    })
+    return context
   },
 }))
