@@ -44,7 +44,7 @@ export function Paginator({
   return (
     <div
       className={cn(
-        'flex flex-wrap items-center justify-between gap-3 border-t border-border/60 px-4 py-3',
+        'flex flex-col items-center justify-between gap-2 border-t border-border/60 px-3 py-3 min-[380px]:flex-row sm:px-4',
         className,
       )}
     >
@@ -54,7 +54,7 @@ export function Paginator({
       </p>
 
       {/* Controls */}
-      <div className="flex items-center gap-1">
+      <div className="flex max-w-full items-center justify-center gap-0.5 overflow-x-auto">
         <button
           type="button"
           disabled={page === 1}

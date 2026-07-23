@@ -560,8 +560,8 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-extrabold text-sky-600">{students.length} học sinh</span>
             </div>
             {/* Student search bar */}
-            <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-2">
-              <div className="relative flex-1 min-w-[180px]">
+            <div className="flex flex-col gap-2 border-b border-border/60 px-3 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:px-4">
+              <div className="relative w-full min-w-0 flex-1 sm:min-w-[180px]">
                 <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
                 <input
                   type="search"
@@ -578,7 +578,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                 <button type="button" className="text-xs font-bold text-muted underline" onClick={() => setStudentSearch('')}>Xóa</button>
               )}
             </div>
-            <div className="overflow-x-auto">
+            <div className="hidden overflow-x-auto sm:block">
               <table className="w-full min-w-[480px] text-left text-sm">
                 <thead className="bg-sky-50/80">
                   <tr>
@@ -604,6 +604,23 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                   ))}
                 </tbody>
               </table>
+            </div>
+            <div className="divide-y divide-border/60 sm:hidden">
+              {studentsPag.slice.length === 0 ? (
+                <p className="px-4 py-8 text-center text-sm text-muted">{students.length === 0 ? 'Chưa có học sinh nào' : 'Không có học sinh khớp tìm kiếm'}</p>
+              ) : studentsPag.slice.map((s) => (
+                <article key={s.id} className="space-y-3 px-4 py-4">
+                  <div className="flex items-start justify-between gap-3">
+                    <p className="font-bold">{s.nickname}</p>
+                    <span className="shrink-0 rounded-full bg-sky-50 px-2 py-1 text-xs font-bold text-sky-700">Lv{s.level} · {s.xp} XP</span>
+                  </div>
+                  <p className="text-xs text-muted">{s.completedQuests} trạm · {s.totalStars} sao · {s.projectCount} sản phẩm</p>
+                  <div className="grid grid-cols-2 gap-2">
+                    <Button variant="secondary" className="w-full" onClick={() => void viewProgress(s.id)}>Chi tiết</Button>
+                    <Button variant="ghost" className="w-full text-danger" onClick={() => setRemoveTarget(s)}>Gỡ khỏi lớp</Button>
+                  </div>
+                </article>
+              ))}
             </div>
             <Paginator
               page={studentsPag.page} totalPages={studentsPag.totalPages}
@@ -906,7 +923,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
   // Stats tab
   const statsTab = (
-    <div className="ui-card min-w-0 p-5">{/* min-w-0 ensures inner overflow-x-auto works */}
+    <div className="ui-card min-w-0 p-3 sm:p-5">{/* min-w-0 ensures inner overflow-x-auto works */}
       <h2 className="font-display mb-4 text-xl">Thống kê lớp học</h2>
       {!stats ? (
         <p className="text-muted">Chưa có lớp hoặc dữ liệu thống kê.</p>
@@ -920,8 +937,8 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             <StatCard label="Sản phẩm" value={stats.projectCount} icon={<CmsCoursesIcon />} />
           </div>
           {/* Stats search + support filter */}
-          <div className="mb-4 flex flex-wrap items-center gap-2">
-            <div className="relative flex-1 min-w-[200px]">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
+            <div className="relative w-full min-w-0 flex-1 sm:min-w-[200px]">
               <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
               <input
                 type="search"
@@ -932,7 +949,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               />
             </div>
             <select
-              className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm font-bold"
+              className="min-h-11 w-full rounded-xl border-2 border-border bg-white px-3 text-sm font-bold sm:w-auto"
               value={statsSupportFilter}
               onChange={(e) => setStatsSupportFilter(e.target.value as '' | 'needs' | 'ok')}
             >
@@ -951,7 +968,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             <strong>{statStudents.filter((student) => student.needsSupport).length} học sinh nên được hỏi thăm.</strong>{' '}
             Gợi ý dựa trên tiến độ gần đây, không dùng để xếp hạng hay đánh giá trẻ.
           </div>
-          <div className="overflow-x-auto rounded-2xl border border-border">
+          <div className="hidden overflow-x-auto rounded-2xl border border-border sm:block">
           <table className="min-w-[860px] w-full text-left text-sm">
             <thead className="border-b border-border bg-sky-50/60">
               <tr>
@@ -987,6 +1004,33 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             totalItems={filteredStatStudents.length} pageSize={15}
             onPrev={statsPag.prev} onNext={statsPag.next} onGoTo={statsPag.goTo}
           />
+          </div>
+          <div className="divide-y divide-border/60 overflow-hidden rounded-2xl border border-border sm:hidden">
+            {statsPag.slice.length === 0 ? (
+              <p className="px-4 py-8 text-center text-sm text-muted">Không có học sinh khớp bộ lọc</p>
+            ) : statsPag.slice.map((s) => (
+              <article key={s.id} className={cn('space-y-3 px-4 py-4', s.needsSupport && 'bg-sun-50')}>
+                <div className="flex items-start justify-between gap-3">
+                  <p className="font-bold">{s.nickname}</p>
+                  <span className="shrink-0 text-xs font-bold text-muted">{s.completedQuests} trạm</span>
+                </div>
+                <div className="rounded-xl bg-white/70 px-3 py-2">
+                  <p className="text-sm font-semibold">{s.currentQuest ?? 'Chưa bắt đầu'}</p>
+                  <p className="mt-1 text-xs text-muted">{s.currentPhase ? PHASE_LABELS[s.currentPhase] ?? 'Đang thực hiện' : 'Chưa có hoạt động'} · {formatActivity(s.lastActiveAt)}</p>
+                </div>
+                {s.needsSupport ? (
+                  <Button variant="secondary" className="w-full" onClick={() => void viewProgress(s.id)}>Xem để hỗ trợ</Button>
+                ) : (
+                  <p className="text-xs font-semibold text-success">Đang tiến triển tốt</p>
+                )}
+                {s.supportReason && <p className="text-xs text-muted">{s.supportReason}</p>}
+              </article>
+            ))}
+            <Paginator
+              page={statsPag.page} totalPages={statsPag.totalPages}
+              totalItems={filteredStatStudents.length} pageSize={15}
+              onPrev={statsPag.prev} onNext={statsPag.next} onGoTo={statsPag.goTo}
+            />
           </div>
         </>
       )}
