@@ -58,5 +58,13 @@ services:
     depends_on:
       - api
 
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: aikids-cloudflared
+    restart: always
+    command: tunnel --url http://web:80
+    depends_on:
+      - web
+
 volumes:
   redis_data:
