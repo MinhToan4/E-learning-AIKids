@@ -137,6 +137,16 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       }),
     }
   }
+  if (path === '/api/auth/login/child-profile') {
+    return {
+      path: '/api/v1/account/family/child-login',
+      options: withJson(options, {
+        familyCode: body.familyCode,
+        childId: body.childId,
+        pin: body.pin,
+      }),
+    }
+  }
   if (path === '/api/auth/login/adult') {
     return {
       path: '/api/v1/account/login',
@@ -221,6 +231,9 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
         })
         : options,
     }
+  }
+  if (path === '/api/parent/family-login-code') {
+    return { path: '/api/v1/account/family/login-code', options }
   }
   const child = path.match(/^\/api\/parent\/children\/([^/?]+)$/)
   if (child) {
@@ -343,6 +356,20 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
   const payload = (body.data && typeof body.data === 'object'
     ? body.data
     : body) as Record<string, unknown>
+  if (path === '/api/auth/login/child-profile') {
+    const token = String(payload.token ?? payload.accessToken ?? '')
+    if (token) setAccessToken(token)
+    const child = recordValue(payload.child)
+    return {
+      user: mapUser({
+        ...child,
+        actor: 'child',
+        name: child.name,
+        parentId: recordValue(payload.parent).id,
+        onboarded: true,
+      }),
+    }
+  }
   if (path.startsWith('/api/auth/login/') || path === '/api/auth/register/adult') {
     const token = String(payload.token ?? payload.accessToken ?? body.token ?? body.accessToken ?? '')
     if (token) setAccessToken(token)

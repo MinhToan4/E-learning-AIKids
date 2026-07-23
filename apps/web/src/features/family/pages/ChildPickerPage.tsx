@@ -96,11 +96,13 @@ export function ChildPickerPage() {
 
   function onPick(child: ChildCard) {
     setPin('')
-    if (child.hasPin) {
-      setSelected(child)
-      return
+    setSelected(child)
+    if (!child.hasPin) {
+      showToast(
+        'Ba/mẹ cần vào Quản lý con và đặt mã PIN 6 số cho hồ sơ này.',
+        'error',
+      )
     }
-    void confirmEnter(child)
   }
 
   function onPinDigit(d: string) {

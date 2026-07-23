@@ -69,11 +69,21 @@ export const useAuth = create<AuthState>((set) => ({
   enterAsChild: async (childId, pin) => {
     set({ error: null })
     await disconnectFirebase()
+    if (!pin) {
+      throw new Error('Ba/mẹ cần đặt mã PIN 6 số cho hồ sơ con trước khi vào học.')
+    }
+    const code = await api<{ familyCode: string }>(
+      '/api/parent/family-login-code',
+    )
     const { user } = await api<{ user: User }>(
-      `/api/parent/children/${childId}/enter`,
+      '/api/auth/login/child-profile',
       {
         method: 'POST',
-        body: JSON.stringify(pin ? { pin } : {}),
+        body: JSON.stringify({
+          familyCode: code.familyCode,
+          childId,
+          pin,
+        }),
       },
     )
     set({ user })

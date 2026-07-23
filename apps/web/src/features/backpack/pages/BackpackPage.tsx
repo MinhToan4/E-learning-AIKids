@@ -46,14 +46,15 @@ export function BackpackPage() {
     setLoading(true)
     setError(null)
     try {
-      const [a, p] = await Promise.all([
+      const [a, p] = await Promise.allSettled([
         api<{ assets: Asset[] }>('/api/backpack'),
         api<{ projects: Project[] }>('/api/projects'),
       ])
-      setAssets(a.assets)
-      setProjects(p.projects)
-    } catch {
-      setError('Chưa tải được ba lô. Kiểm tra mạng rồi thử lại nhé.')
+      setAssets(a.status === 'fulfilled' ? a.value.assets : [])
+      setProjects(p.status === 'fulfilled' ? p.value.projects : [])
+      if (a.status === 'rejected' && p.status === 'rejected') {
+        setError('Ba lô đang được kết nối với kho media StoryMee.')
+      }
     } finally {
       setLoading(false)
     }

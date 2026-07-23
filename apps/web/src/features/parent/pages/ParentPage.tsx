@@ -284,12 +284,16 @@ function DashboardTab() {
   useEffect(() => {
     async function load() {
       try {
-        const [childrenData, approvalsData] = await Promise.all([
+        const [childrenData, approvalsData] = await Promise.allSettled([
           api<{ children: Child[] }>('/api/parent/children'),
           api<{ approvals: Approval[] }>('/api/parent/approvals?status=pending'),
         ])
-        setKids(childrenData.children)
-        setPendingCount(approvalsData.approvals.length)
+        if (childrenData.status === 'fulfilled') {
+          setKids(childrenData.value.children)
+        }
+        if (approvalsData.status === 'fulfilled') {
+          setPendingCount(approvalsData.value.approvals.length)
+        }
       } catch {
         /* silent */
       } finally {
