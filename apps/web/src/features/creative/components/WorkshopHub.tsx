@@ -19,17 +19,16 @@ const HUB_CARDS: HubCard[] = [
     img: designerAssets.workshop.comic,
   },
   {
-    id: 'story-mode',
-    label: 'Sáng Tác Truyện',
-    desc: 'Đồng bộ từ AiKid app: chọn Truyện chữ hoặc Truyện tranh, rồi cùng AI phát triển ý tưởng.',
-    img: designerAssets.workshop.mee,
+    id: 'character',
+    label: 'Nhân Vật AI',
+    desc: 'Chọn hình dáng, khuôn mặt và trang phục rồi tạo người bạn AI của riêng con.',
+    img: designerAssets.workshop.character,
   },
   {
-    id: 'hub',
-    label: 'Làm Video',
-    desc: 'Sắp ra mắt — biến truyện thành video rực rỡ với AI.',
-    img: designerAssets.workshop.style,
-    comingSoon: true,
+    id: 'story-mode',
+    label: 'Sáng Tác Truyện',
+    desc: 'Chọn Truyện chữ hoặc Truyện tranh, rồi cùng AI phát triển ý tưởng.',
+    img: designerAssets.workshop.mee,
   },
 ]
 

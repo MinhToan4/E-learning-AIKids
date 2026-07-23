@@ -6,6 +6,7 @@ import { WorkshopHub } from '../components/WorkshopHub'
 import { WorkshopStylePicker } from '../components/WorkshopStylePicker'
 import { WorkshopCanvas } from '../components/WorkshopCanvas'
 import { WorkshopStory } from '../components/WorkshopStory'
+import { WorkshopCharacter } from '../components/WorkshopCharacter'
 
 export function CreativePage() {
   const navigate = useNavigate()
@@ -55,6 +56,12 @@ export function CreativePage() {
             onBack={goTo}
             onSaved={handleSaved}
           />
+        </div>
+      )}
+
+      {step === 'character' && (
+        <div className="flex-1 p-4 sm:p-5">
+          <WorkshopCharacter onBack={goTo} onSaved={handleSaved} />
         </div>
       )}
 

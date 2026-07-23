@@ -137,6 +137,18 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(creative).toContain('URL.createObjectURL')
   })
 
+  it('creative hub exposes art, character and story through StoryMee jobs', () => {
+    const hub = read('features/creative/components/WorkshopHub.tsx')
+    const page = read('features/creative/pages/CreativePage.tsx')
+    const character = read('features/creative/components/WorkshopCharacter.tsx')
+    expect(hub).toContain('Vẽ Tranh AI')
+    expect(hub).toContain('Nhân Vật AI')
+    expect(hub).toContain('Sáng Tác Truyện')
+    expect(page).toContain('WorkshopCharacter')
+    expect(character).toContain('generateCreativeImage')
+    expect(character).toContain("creativeKind: 'character'")
+  })
+
   it('root rendering has a child-friendly recovery boundary', () => {
     const main = read('app/main.tsx')
     const boundary = read('shared/components/AppErrorBoundary.tsx')
