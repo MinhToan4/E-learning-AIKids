@@ -43,14 +43,27 @@ type RoleNavItem = {
   end?: boolean
 }
 
-const studentNav = [
-  { to: '/home', label: 'Nhà', icon: NavHomeIcon },
-  { to: '/world', label: 'Học', icon: NavWorldIcon },
-  { to: '/creative', label: 'Xưởng', icon: NavCreativeIcon },
+// ── Student nav split: pinned bar + drawer ───────────────────
+const studentPinnedNav = [
+  { to: '/home',        label: 'Nhà',     icon: NavHomeIcon        },
+  { to: '/world',       label: 'Học',     icon: NavWorldIcon       },
+  { to: '/creative',    label: 'Xưởng',   icon: NavCreativeIcon    },
   { to: '/leaderboard', label: 'Tiến bộ', icon: NavLeaderboardIcon },
-  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon },
-  { to: '/backpack', label: 'Ba lô', icon: NavBackpackIcon },
-  { to: '/profile', label: 'Hồ sơ', icon: NavProfileIcon },
+]
+const studentDrawerNav = [
+  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon   },
+  { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon },
+  { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon },
+]
+// Full list for desktop sidebar (all 7 unchanged)
+const studentNav = [
+  { to: '/home',         label: 'Nhà',      icon: NavHomeIcon        },
+  { to: '/world',        label: 'Học',      icon: NavWorldIcon       },
+  { to: '/creative',     label: 'Xưởng',    icon: NavCreativeIcon    },
+  { to: '/leaderboard',  label: 'Tiến bộ',  icon: NavLeaderboardIcon },
+  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon       },
+  { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon    },
+  { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon     },
 ]
 
 // ── Desktop sidebar nav (vertical) ───────────────────────────
@@ -97,6 +110,116 @@ function AdultBottomLink({
       </span>
       <span>{label}</span>
     </NavLink>
+  )
+}
+
+// ── Student bottom drawer (Huy hiệu / Ba lô / Hồ sơ) ───────────
+function StudentDrawer() {
+  const [open, setOpen] = useState(false)
+
+  // Close drawer on navigate
+  const handleNav = () => setOpen(false)
+
+  // Check if any drawer route is active
+  const drawerPaths = studentDrawerNav.map((n) => n.to)
+  const anyDrawerActive = drawerPaths.some((p) => window.location.pathname.startsWith(p))
+
+  return (
+    <>
+      {/* Backdrop */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1.5px]"
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Drawer sheet — slide up */}
+      <div
+        className={cn(
+          'student-drawer-sheet',
+          open ? 'student-drawer-open' : 'student-drawer-closed',
+        )}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Bộ sưu tập của con"
+      >
+        <div className="student-drawer-handle" aria-hidden="true" />
+        <p className="student-drawer-title">✨ Bộ sưu tập của con</p>
+        <nav className="student-drawer-grid" aria-label="Bộ sưu tập">
+          {studentDrawerNav.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={handleNav}
+              className={({ isActive }) =>
+                cn('student-drawer-item', isActive && 'student-drawer-item-active')
+              }
+            >
+              <span className="student-drawer-icon" aria-hidden="true">
+                <Icon size={26} />
+              </span>
+              <span>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      </div>
+
+      {/* Pinned bottom bar */}
+      <nav
+        className="student-bottom-nav"
+        aria-label="Điều hướng chính"
+      >
+        {studentPinnedNav.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              cn(
+                'student-nav-link min-h-[3.75rem] flex-1 gap-0 rounded-xl px-0.5 py-1 text-[10px]',
+                isActive && 'student-nav-link-active',
+              )
+            }
+          >
+            <span className="student-nav-icon !h-8 !w-9 !rounded-xl" aria-hidden="true">
+              <Icon size={23} />
+            </span>
+            {label}
+          </NavLink>
+        ))}
+
+        {/* More button */}
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-label={open ? 'Đóng bộ sưu tập' : 'Mở bộ sưu tập'}
+          className={cn(
+            'student-nav-link min-h-[3.75rem] flex-1 gap-0 rounded-xl px-0.5 py-1 text-[10px]',
+            (open || anyDrawerActive) && 'student-nav-link-active',
+          )}
+        >
+          <span className="student-nav-icon !h-8 !w-9 !rounded-xl" aria-hidden="true">
+            {open ? (
+              // X icon when open
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <line x1="6" y1="6" x2="16" y2="16" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+                <line x1="16" y1="6" x2="6" y2="16" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+              </svg>
+            ) : (
+              // Bag / collection icon when closed
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <rect x="3" y="8" width="16" height="11" rx="3" stroke="currentColor" strokeWidth="1.9" />
+                <path d="M7.5 8V6.5a3.5 3.5 0 0 1 7 0V8" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
+                <circle cx="11" cy="13.5" r="1.5" fill="currentColor" />
+              </svg>
+            )}
+          </span>
+          {open ? 'Đóng' : 'Khác'}
+        </button>
+      </nav>
+    </>
   )
 }
 
@@ -448,29 +571,11 @@ export function AppShell() {
         </main>
       )}
 
-      <nav
-        className="student-bottom-nav fixed inset-x-0 bottom-0 z-30 flex px-1 py-1.5 safe-pb md:hidden"
-        aria-label="Điều hướng chính"
-        style={{ overflowX: 'auto', scrollbarWidth: 'none' }}
-      >
-        {studentNav.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              cn(
-                'student-nav-link min-h-[3.75rem] min-w-[3.25rem] flex-shrink-0 flex-1 gap-0 rounded-xl px-0.5 py-1 text-[10px]',
-                isActive && 'student-nav-link-active',
-              )
-            }
-          >
-            <span className="student-nav-icon !h-8 !w-9 !rounded-xl" aria-hidden="true">
-              <Icon size={23} />
-            </span>
-            {label}
-          </NavLink>
-        ))}
-      </nav>
+      {/* Mobile student bottom nav — StudentDrawer handles pinned bar + sheet */}
+      <div className="md:hidden">
+        <StudentDrawer />
+      </div>
+
 
       <ParentGateModal open={gateOpen} onClose={() => setGateOpen(false)} />
     </div>
