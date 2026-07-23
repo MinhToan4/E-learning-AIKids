@@ -43,39 +43,44 @@ type RoleNavItem = {
   end?: boolean
 }
 
-const studentNav = [
-  { to: '/home', label: 'Nhà', icon: NavHomeIcon },
-  { to: '/world', label: 'Học', icon: NavWorldIcon },
-  { to: '/creative', label: 'Xưởng', icon: NavCreativeIcon },
+// ── Student nav split: pinned bar + drawer ───────────────────
+const studentPinnedNav = [
+  { to: '/home',        label: 'Nhà',     icon: NavHomeIcon        },
+  { to: '/world',       label: 'Học',     icon: NavWorldIcon       },
+  { to: '/creative',    label: 'Xưởng',   icon: NavCreativeIcon    },
   { to: '/leaderboard', label: 'Tiến bộ', icon: NavLeaderboardIcon },
-  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon },
-  { to: '/backpack', label: 'Ba lô', icon: NavBackpackIcon },
-  { to: '/profile', label: 'Hồ sơ', icon: NavProfileIcon },
+]
+const studentDrawerNav = [
+  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon   },
+  { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon },
+  { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon },
+]
+// Full list for desktop sidebar (all 7 unchanged)
+const studentNav = [
+  { to: '/home',         label: 'Nhà',      icon: NavHomeIcon        },
+  { to: '/world',        label: 'Học',      icon: NavWorldIcon       },
+  { to: '/creative',     label: 'Xưởng',    icon: NavCreativeIcon    },
+  { to: '/leaderboard',  label: 'Tiến bộ',  icon: NavLeaderboardIcon },
+  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon       },
+  { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon    },
+  { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon     },
 ]
 
-function RoleNavigation({
-  nav,
-  mobile = false,
-}: {
-  nav: RoleNavItem[]
-  mobile?: boolean
-}) {
+// ── Desktop sidebar nav (vertical) ───────────────────────────
+function DesktopSideNav({ nav }: { nav: RoleNavItem[] }) {
   return (
-    <nav
-      className={mobile ? 'role-mobile-nav' : 'role-nav'}
-      aria-label="Điều hướng khu vực"
-    >
+    <nav className="role-nav" aria-label="Điều hướng khu vực">
       {nav.map(({ to, label, icon: Icon, end }) => (
         <NavLink
           key={to}
           to={to}
           end={end}
           className={({ isActive }) =>
-            cn('role-nav-link', mobile && 'role-nav-link-mobile', isActive && 'role-nav-link-active')
+            cn('role-nav-link', isActive && 'role-nav-link-active')
           }
         >
           <span className="role-nav-icon" aria-hidden="true">
-            <Icon size={mobile ? 23 : 26} />
+            <Icon size={26} />
           </span>
           <span>{label}</span>
         </NavLink>
@@ -84,57 +89,276 @@ function RoleNavigation({
   )
 }
 
-function AdultChrome({
-  children,
-  nav,
-  brandTo,
-}: {
-  children?: React.ReactNode
-  nav: RoleNavItem[]
-  brandTo: string
-}) {
+// ── Adult bottom nav item ─────────────────────────────────────
+function AdultBottomLink({
+  to,
+  label,
+  icon: Icon,
+  end,
+  tone,
+}: RoleNavItem & { tone: string }) {
   return (
-    <div className="role-shell role-tone-parent min-h-dvh lg:pl-60">
-      <aside className="role-rail fixed inset-y-0 left-0 z-30 hidden w-60 flex-col lg:flex">
-        <div className="role-brand">
-          <NavLink to={brandTo} aria-label="Trang chính phụ huynh">
-            <BrandLogo size="md" />
-          </NavLink>
-          <p>Góc phụ huynh</p>
-        </div>
-        <RoleNavigation nav={nav} />
-      </aside>
-
-      <div className="role-mobile-chrome lg:hidden">
-        <header className="role-mobile-header">
-          <NavLink to={brandTo} aria-label="Trang chính phụ huynh">
-            <BrandLogo size="sm" />
-          </NavLink>
-          <span>Phụ huynh</span>
-        </header>
-        <RoleNavigation nav={nav} mobile />
-      </div>
-
-      <main className="page-enter mx-auto max-w-6xl px-3 py-5 sm:px-5 sm:py-6">
-        {children ?? <Outlet />}
-      </main>
-    </div>
+    <NavLink
+      to={to}
+      end={end}
+      className={({ isActive }) =>
+        cn('adult-bottom-link', `adult-bottom-link-${tone}`, isActive && 'adult-bottom-link-active')
+      }
+    >
+      <span className="adult-bottom-icon" aria-hidden="true">
+        <Icon size={22} />
+      </span>
+      <span>{label}</span>
+    </NavLink>
   )
 }
 
+// ── Student bottom drawer (Huy hiệu / Ba lô / Hồ sơ) ───────────
+function StudentDrawer() {
+  const [open, setOpen] = useState(false)
+
+  // Close drawer on navigate
+  const handleNav = () => setOpen(false)
+
+  // Check if any drawer route is active
+  const drawerPaths = studentDrawerNav.map((n) => n.to)
+  const anyDrawerActive = drawerPaths.some((p) => window.location.pathname.startsWith(p))
+
+  return (
+    <>
+      {/* Backdrop */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/20 backdrop-blur-[1.5px]"
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Drawer sheet — slide up */}
+      <div
+        className={cn(
+          'student-drawer-sheet',
+          open ? 'student-drawer-open' : 'student-drawer-closed',
+        )}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Bộ sưu tập của con"
+      >
+        <div className="student-drawer-handle" aria-hidden="true" />
+        <p className="student-drawer-title">✨ Bộ sưu tập của con</p>
+        <nav className="student-drawer-grid" aria-label="Bộ sưu tập">
+          {studentDrawerNav.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              onClick={handleNav}
+              className={({ isActive }) =>
+                cn('student-drawer-item', isActive && 'student-drawer-item-active')
+              }
+            >
+              <span className="student-drawer-icon" aria-hidden="true">
+                <Icon size={26} />
+              </span>
+              <span>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      </div>
+
+      {/* Pinned bottom bar */}
+      <nav
+        className="student-bottom-nav"
+        aria-label="Điều hướng chính"
+      >
+        {studentPinnedNav.map(({ to, label, icon: Icon }) => (
+          <NavLink
+            key={to}
+            to={to}
+            className={({ isActive }) =>
+              cn(
+                'student-nav-link min-h-[3.75rem] flex-1 gap-0 rounded-xl px-0.5 py-1 text-[10px]',
+                isActive && 'student-nav-link-active',
+              )
+            }
+          >
+            <span className="student-nav-icon !h-8 !w-9 !rounded-xl" aria-hidden="true">
+              <Icon size={23} />
+            </span>
+            {label}
+          </NavLink>
+        ))}
+
+        {/* More button */}
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-label={open ? 'Đóng bộ sưu tập' : 'Mở bộ sưu tập'}
+          className={cn(
+            'student-nav-link min-h-[3.75rem] flex-1 gap-0 rounded-xl px-0.5 py-1 text-[10px]',
+            (open || anyDrawerActive) && 'student-nav-link-active',
+          )}
+        >
+          <span className="student-nav-icon !h-8 !w-9 !rounded-xl" aria-hidden="true">
+            {open ? (
+              // × when open
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <line x1="6" y1="6" x2="16" y2="16" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+                <line x1="16" y1="6" x2="6" y2="16" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+              </svg>
+            ) : (
+              // + icon when closed
+              <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+                <circle cx="11" cy="11" r="9.5" stroke="currentColor" strokeWidth="1.8" />
+                <line x1="11" y1="6.5" x2="11" y2="15.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+                <line x1="6.5" y1="11" x2="15.5" y2="11" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+              </svg>
+            )}
+          </span>
+          {open ? 'Đóng' : 'Khác'}
+        </button>
+      </nav>
+    </>
+  )
+}
+
+// ── Admin drawer (⊕ button opens full menu overlay) ──────────
+function AdminDrawer({
+  nav,
+  pinnedNav,
+  tone,
+}: {
+  nav: RoleNavItem[]
+  pinnedNav: RoleNavItem[]
+  tone: string
+}) {
+  const [open, setOpen] = useState(false)
+
+  return (
+    <>
+      {/* Backdrop */}
+      {open && (
+        <div
+          className="fixed inset-0 z-40 bg-black/30 backdrop-blur-[2px]"
+          onClick={() => setOpen(false)}
+          aria-hidden="true"
+        />
+      )}
+
+      {/* Drawer sheet slides up from bottom */}
+      <div
+        className={cn(
+          'admin-drawer-sheet',
+          open ? 'admin-drawer-sheet-open' : 'admin-drawer-sheet-closed',
+        )}
+        role="dialog"
+        aria-modal="true"
+        aria-label="Tất cả tiện ích quản trị"
+      >
+        {/* Handle bar */}
+        <div className="admin-drawer-handle" aria-hidden="true" />
+
+        <p className="admin-drawer-title">Tiện ích quản trị</p>
+
+        <nav className="admin-drawer-grid" aria-label="Điều hướng quản trị">
+          {nav.map(({ to, label, icon: Icon, end }) => (
+            <NavLink
+              key={to}
+              to={to}
+              end={end}
+              onClick={() => setOpen(false)}
+              className={({ isActive }) =>
+                cn('admin-drawer-item', isActive && 'admin-drawer-item-active')
+              }
+            >
+              <span className="admin-drawer-icon" aria-hidden="true">
+                <Icon size={24} />
+              </span>
+              <span>{label}</span>
+            </NavLink>
+          ))}
+        </nav>
+      </div>
+
+      {/* Bottom bar: pinned items + ⊕ toggle */}
+      <nav
+        className={cn('adult-bottom-nav', `adult-bottom-nav-${tone}`)}
+        aria-label="Điều hướng chính"
+      >
+        {pinnedNav.map((item) => (
+          <AdultBottomLink key={item.to} {...item} tone={tone} />
+        ))}
+
+        {/* ⊕ More button */}
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          aria-expanded={open}
+          aria-label={open ? 'Đóng menu' : 'Mở tất cả tiện ích'}
+          className={cn('adult-bottom-more', open && 'adult-bottom-more-open')}
+        >
+          <span className="adult-bottom-icon" aria-hidden="true">
+            <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
+              <circle cx="11" cy="11" r="10" stroke="currentColor" strokeWidth="1.8" />
+              <line
+                x1="11" y1="6.5" x2="11" y2="15.5"
+                stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                style={{ transformOrigin: '11px 11px', transform: open ? 'rotate(45deg)' : 'rotate(0deg)', transition: 'transform 0.25s' }}
+              />
+              <line
+                x1="6.5" y1="11" x2="15.5" y2="11"
+                stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                style={{ transformOrigin: '11px 11px', transform: open ? 'rotate(45deg)' : 'rotate(0deg)', transition: 'transform 0.25s' }}
+              />
+            </svg>
+          </span>
+          <span>{open ? 'Đóng' : 'Thêm'}</span>
+        </button>
+      </nav>
+    </>
+  )
+}
+
+// ── Simple adult bottom nav (parent / teacher) ────────────────
+function AdultBottomNav({
+  nav,
+  tone,
+}: {
+  nav: RoleNavItem[]
+  tone: string
+}) {
+  return (
+    <nav
+      className={cn('adult-bottom-nav', `adult-bottom-nav-${tone}`)}
+      aria-label="Điều hướng chính"
+    >
+      {nav.map((item) => (
+        <AdultBottomLink key={item.to} {...item} tone={tone} />
+      ))}
+    </nav>
+  )
+}
+
+// ── CmsShell: Teacher / Admin ─────────────────────────────────
 function CmsShell({
   nav,
+  pinnedNav,
   brandTo,
   roleLabel,
   tone,
 }: {
   nav: RoleNavItem[]
+  pinnedNav?: RoleNavItem[]
   brandTo: string
   roleLabel: string
   tone: 'teacher' | 'admin'
 }) {
+  const isAdmin = tone === 'admin'
+
   return (
     <div className={`role-shell role-tone-${tone} min-h-dvh md:pl-60`}>
+      {/* Desktop sidebar */}
       <aside className="role-rail fixed inset-y-0 left-0 z-30 hidden w-60 flex-col md:flex">
         <div className="role-brand">
           <NavLink to={brandTo} aria-label={`Trang chính ${roleLabel}`}>
@@ -142,26 +366,77 @@ function CmsShell({
           </NavLink>
           <p>{roleLabel}</p>
         </div>
-        <RoleNavigation nav={nav} />
+        <DesktopSideNav nav={nav} />
       </aside>
 
-      <div className="role-mobile-chrome md:hidden">
-        <header className="role-mobile-header">
-          <NavLink to={brandTo} aria-label={`Trang chính ${roleLabel}`}>
-            <BrandLogo size="sm" />
-          </NavLink>
-          <span>{roleLabel}</span>
-        </header>
-        <RoleNavigation nav={nav} mobile />
-      </div>
+      {/* Mobile top bar (brand only, no nav) */}
+      <header className="role-mobile-topbar md:hidden">
+        <NavLink to={brandTo} aria-label={`Trang chính ${roleLabel}`}>
+          <BrandLogo size="sm" />
+        </NavLink>
+        <span className="role-mobile-topbar-label">{roleLabel}</span>
+      </header>
 
-      <main className="page-enter mx-auto min-w-0 max-w-[1440px] px-3 py-5 sm:px-5">
+      {/* Main content — extra bottom padding so bottom nav doesn't cover content */}
+      <main className="page-enter mx-auto min-w-0 max-w-[1440px] px-3 py-5 pb-[max(5.5rem,calc(5rem+env(safe-area-inset-bottom,0px)))] sm:px-5 md:pb-6">
         <Outlet />
       </main>
+
+      {/* Mobile bottom nav */}
+      <div className="md:hidden">
+        {isAdmin && pinnedNav ? (
+          <AdminDrawer nav={nav} pinnedNav={pinnedNav} tone={tone} />
+        ) : (
+          <AdultBottomNav nav={nav} tone={tone} />
+        )}
+      </div>
     </div>
   )
 }
 
+// ── AdultChrome: Parent ───────────────────────────────────────
+function AdultChrome({
+  nav,
+  brandTo,
+}: {
+  nav: RoleNavItem[]
+  brandTo: string
+}) {
+  return (
+    <div className="role-shell role-tone-parent min-h-dvh lg:pl-60">
+      {/* Desktop sidebar */}
+      <aside className="role-rail fixed inset-y-0 left-0 z-30 hidden w-60 flex-col lg:flex">
+        <div className="role-brand">
+          <NavLink to={brandTo} aria-label="Trang chính phụ huynh">
+            <BrandLogo size="md" />
+          </NavLink>
+          <p>Góc phụ huynh</p>
+        </div>
+        <DesktopSideNav nav={nav} />
+      </aside>
+
+      {/* Mobile top bar */}
+      <header className="role-mobile-topbar lg:hidden">
+        <NavLink to={brandTo} aria-label="Trang chính phụ huynh">
+          <BrandLogo size="sm" />
+        </NavLink>
+        <span className="role-mobile-topbar-label">Phụ huynh</span>
+      </header>
+
+      {/* Main */}
+      <main className="page-enter mx-auto max-w-6xl px-3 py-5 pb-[max(5.5rem,calc(5rem+env(safe-area-inset-bottom,0px)))] sm:px-5 sm:py-6 lg:pb-6">
+        <Outlet />
+      </main>
+
+      {/* Mobile bottom nav */}
+      <div className="lg:hidden">
+        <AdultBottomNav nav={nav} tone="parent" />
+      </div>
+    </div>
+  )
+}
+
+// ── AppShell root ─────────────────────────────────────────────
 export function AppShell() {
   const user = useAuth((s) => s.user)
   const [gateOpen, setGateOpen] = useState(false)
@@ -199,27 +474,34 @@ export function AppShell() {
   }
 
   if (user?.role === 'admin') {
+    const allNav: RoleNavItem[] = [
+      { to: '/admin', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
+      { to: '/admin/analytics', label: 'Phân tích', icon: CmsAnalyticsIcon },
+      { to: '/admin/logs', label: 'Nhật ký', icon: CmsLogsIcon },
+      { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
+      { to: '/admin/sessions', label: 'Phiên', icon: CmsSessionsIcon },
+      { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
+      { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
+      { to: '/teacher', label: 'Giáo viên', icon: CmsClassesIcon },
+    ]
+    // Show only the most-used items in the pinned bar; the rest live in the drawer
+    const pinnedNav: RoleNavItem[] = [
+      { to: '/admin', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
+      { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
+      { to: '/admin/logs', label: 'Nhật ký', icon: CmsLogsIcon },
+    ]
     return (
       <CmsShell
         brandTo="/admin"
         roleLabel="Quản trị"
         tone="admin"
-        nav={[
-          { to: '/admin', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
-          { to: '/admin/analytics', label: 'Phân tích', icon: CmsAnalyticsIcon },
-          { to: '/admin/logs', label: 'Nhật ký', icon: CmsLogsIcon },
-          { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
-          { to: '/admin/sessions', label: 'Phiên đăng nhập', icon: CmsSessionsIcon },
-          { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
-          { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
-          { to: '/teacher', label: 'Giao diện giáo viên', icon: CmsClassesIcon },
-        ]}
+        nav={allNav}
+        pinnedNav={pinnedNav}
       />
     )
   }
 
   const hasParent = Boolean(user?.parentId)
-
   const location = useLocation()
   const isCreative = location.pathname.startsWith('/creative')
 
@@ -289,28 +571,11 @@ export function AppShell() {
         </main>
       )}
 
-      <nav
-        className="student-bottom-nav fixed inset-x-0 bottom-0 z-30 flex justify-around px-1 py-1.5 safe-pb md:hidden"
-        aria-label="Điều hướng chính"
-      >
-        {studentNav.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              cn(
-                'student-nav-link min-h-[3.75rem] min-w-0 flex-1 gap-0 rounded-xl px-0.5 py-1 text-[11px]',
-                isActive && 'student-nav-link-active',
-              )
-            }
-          >
-            <span className="student-nav-icon !h-8 !w-9 !rounded-xl" aria-hidden="true">
-              <Icon size={23} />
-            </span>
-            {label}
-          </NavLink>
-        ))}
-      </nav>
+      {/* Mobile student bottom nav — StudentDrawer handles pinned bar + sheet */}
+      <div className="md:hidden">
+        <StudentDrawer />
+      </div>
+
 
       <ParentGateModal open={gateOpen} onClose={() => setGateOpen(false)} />
     </div>

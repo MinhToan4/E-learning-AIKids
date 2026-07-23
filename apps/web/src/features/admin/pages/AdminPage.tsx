@@ -7,12 +7,14 @@
  * - Login audit log with auto-purge indicator
  * - Full-width layout (CmsShell handles sidebar)
  */
-import { useEffect, useState, useCallback, type ReactNode } from 'react'
+import { useEffect, useState, useCallback, useMemo, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
+import { Paginator } from '@/shared/components/ui/Paginator'
 import { useToast } from '@/shared/hooks/useToast'
+import { usePagination } from '@/shared/hooks/usePagination'
 import { api } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
@@ -143,7 +145,8 @@ function MiniBar({ value, max, color = 'bg-brand-500', label }: { value: number;
   const pct = max > 0 ? Math.round((value / max) * 100) : 0
   return (
     <div className="flex items-center gap-3">
-      <span className="w-28 truncate text-xs text-muted">{label}</span>
+      {/* w-20 on mobile, w-28 on sm+ — truncate prevents overflow on 320px */}
+      <span className="w-20 truncate text-xs text-muted sm:w-28">{label}</span>
       <div className="h-2 flex-1 overflow-hidden rounded-full bg-brand-100">
         <div className={cn('h-full rounded-full transition-all duration-500', color)} style={{ width: `${pct}%` }} />
       </div>
@@ -290,10 +293,80 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const [loading, setLoading] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null)
   const [revokeTarget, setRevokeTarget] = useState<SessionRow | null>(null)
+  // Inline edit state — tracks which user row is open for editing
+  const [editTarget, setEditTarget] = useState<AdminUser | null>(null)
+  const [editForm, setEditForm] = useState({ nickname: '', role: 'student' as AdminUser['role'] })
+
+  // ── Search / filter state ──────────────────────────────
+  const [userSearch, setUserSearch]   = useState('')
+  const [userActiveFilter, setUserActiveFilter] = useState<'' | 'active' | 'inactive'>('')
+  const [sessionSearch, setSessionSearch] = useState('')
+  const [logSearch, setLogSearch]     = useState('')
+  const [courseSearch, setCourseSearch] = useState('')
+  const [courseStatusFilter, setCourseStatusFilter] = useState<'' | 'open' | 'soon'>('')
 
   const { toasts, showToast, dismissToast } = useToast()
   const logout = useAuth((s) => s.logout)
   const navigate = useNavigate()
+
+  // ── Filtered arrays (client-side) ───────────────────────────
+  const filteredUsers = useMemo(() => {
+    let list = users
+    if (roleFilter) list = list.filter((u) => u.role === roleFilter)
+    if (userActiveFilter === 'active') list = list.filter((u) => u.active)
+    if (userActiveFilter === 'inactive') list = list.filter((u) => !u.active)
+    if (userSearch) {
+      const q = userSearch.toLowerCase()
+      list = list.filter(
+        (u) => u.nickname?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q),
+      )
+    }
+    return list
+  }, [users, roleFilter, userActiveFilter, userSearch])
+
+  const filteredSessions = useMemo(() => {
+    if (!sessionSearch) return sessions
+    const q = sessionSearch.toLowerCase()
+    return sessions.filter(
+      (s) =>
+        s.nickname?.toLowerCase().includes(q) ||
+        s.email?.toLowerCase().includes(q) ||
+        s.role?.toLowerCase().includes(q) ||
+        (s.ipAddress ?? '').includes(q),
+    )
+  }, [sessions, sessionSearch])
+
+  const filteredLogs = useMemo(() => {
+    let list = loginLogs
+    if (logFilter) list = list.filter((l) => l.outcome === logFilter)
+    if (logSearch) {
+      const q = logSearch.toLowerCase()
+      list = list.filter(
+        (l) =>
+          (l.email ?? '').toLowerCase().includes(q) ||
+          (l.ipAddress ?? '').includes(q),
+      )
+    }
+    return list
+  }, [loginLogs, logFilter, logSearch])
+
+  const filteredCourses = useMemo(() => {
+    let list = courses
+    if (courseStatusFilter) list = list.filter((c) => c.status === courseStatusFilter)
+    if (courseSearch) {
+      const q = courseSearch.toLowerCase()
+      list = list.filter(
+        (c) => c.title.toLowerCase().includes(q) || c.id.toLowerCase().includes(q),
+      )
+    }
+    return list
+  }, [courses, courseSearch, courseStatusFilter])
+
+  // ── Pagination — one hook per data-heavy tab ─────────────────
+  const usersPag    = usePagination(filteredUsers, 15)
+  const sessionsPag = usePagination(filteredSessions, 15)
+  const logsPag     = usePagination(filteredLogs, 20)
+  const coursesPag  = usePagination(filteredCourses, 8)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -436,6 +509,23 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi cập nhật khóa', 'error') }
   }
 
+  async function patchUser(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editTarget) return
+    try {
+      await api(`/api/admin/users/${editTarget.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          nickname: editForm.nickname.trim() || undefined,
+          role: editForm.role,
+        }),
+      })
+      showToast('Đã cập nhật tài khoản', 'success')
+      setEditTarget(null)
+      await load()
+    } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi cập nhật', 'error') }
+  }
+
   async function purgeLogs() {
     try {
       const data = await api<{ deleted: number; message: string }>('/api/admin/login-logs', { method: 'DELETE' })
@@ -445,12 +535,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   }
 
   // ── Tab content renderers ────────────────────────────────
-  const sectionHeader = (title: string, subtitle?: string) => (
-    <div className="mb-5">
-      <h2 className="font-display text-xl text-text">{title}</h2>
-      {subtitle && <p className="text-sm text-muted">{subtitle}</p>}
-    </div>
-  )
 
   const loadingEl = (
     <div className="flex h-40 items-center justify-center">
@@ -461,7 +545,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // System tab
   const systemTab = system && (
     <>
-      {sectionHeader('Tổng quan hệ thống', 'Tình trạng dữ liệu + Vidtory AI')}
+
       <section className="ui-card mb-4 p-5" aria-labelledby="admin-attention-title">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -488,6 +572,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           </button>
         </div>
       </section>
+      {/* sm:grid-cols-2 ensures 2-column layout on phones (375px+), not 1-column */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {[
           { label: 'Khóa học', value: system.counts.courses, icon: <CmsCoursesIcon /> },
@@ -528,7 +613,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // Analytics tab
   const analyticsTab = analytics && (
     <>
-      {sectionHeader('Phân tích hoạt động', 'Số liệu tổng hợp toàn hệ thống')}
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Người dùng hoạt động" value={analytics.users.active} icon={<CmsUsersIcon />} />
         <StatCard label="Khóa học đang mở" value={analytics.courses.open} icon={<CmsCoursesIcon />} />
@@ -572,7 +657,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // Login logs tab
   const logsTab = (
     <>
-      {sectionHeader('Nhật ký đăng nhập', 'Theo dõi đăng nhập trong 24 giờ gần nhất')}
       {logSummary && (
         <div className="mb-4 grid gap-3 sm:grid-cols-4">
           <StatCard label="Tổng trong 24 giờ" value={logSummary.total} icon={<CmsLogsIcon />} />
@@ -582,25 +666,33 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         </div>
       )}
       <div className="ui-card overflow-hidden">
-        <div className="flex flex-wrap items-center gap-3 border-b border-border/60 px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-3">
+          {/* Text search */}
+          <div className="relative flex-1 min-w-[180px]">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+            <input
+              type="search"
+              placeholder="Tìm email, IP..."
+              value={logSearch}
+              onChange={(e) => setLogSearch(e.target.value)}
+              className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
+            />
+          </div>
+          {/* Outcome filter */}
           <select
             className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold"
             value={logFilter}
             onChange={(e) => setLogFilter(e.target.value)}
           >
-            <option value="">Tất cả</option>
-            <option value="success">Thành công</option>
-            <option value="failed">Thất bại</option>
-            <option value="locked">Bị khóa</option>
+            <option value="">Tất cả kết quả</option>
+            <option value="success">✅ Thành công</option>
+            <option value="failed">❌ Thất bại</option>
+            <option value="locked">🔒 Bị khóa</option>
           </select>
-          <Button variant="secondary" onClick={() => void load()}>
-            Làm mới
-          </Button>
-          <Button variant="ghost" className="text-muted" onClick={() => void purgeLogs()}>
-            Xóa nhật ký cũ
-          </Button>
-          {logSummary && (
-            <span className="text-xs text-muted">Purged: {new Date(logSummary.purgedAt).toLocaleString('vi-VN')}</span>
+          <Button variant="secondary" onClick={() => void load()}>Làm mới</Button>
+          <Button variant="ghost" className="text-muted" onClick={() => void purgeLogs()}>Xóa nhật ký cũ</Button>
+          {filteredLogs.length !== loginLogs.length && (
+            <span className="text-xs font-bold text-brand-500">{filteredLogs.length} / {loginLogs.length} log</span>
           )}
         </div>
         <div className="overflow-x-auto">
@@ -615,9 +707,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               </tr>
             </thead>
             <tbody>
-              {loginLogs.length === 0 ? (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">Chưa có log nào trong 24 giờ qua</td></tr>
-              ) : loginLogs.map((log) => (
+              {logsPag.slice.length === 0 ? (
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">{loginLogs.length === 0 ? 'Chưa có log nào trong 24 giờ qua' : 'Không có log khớp bộ lọc'}</td></tr>
+              ) : logsPag.slice.map((log) => (
                 <tr key={log.id} className="border-b border-border/40 hover:bg-brand-50/30">
                   <td className="px-4 py-2 text-xs text-muted">{new Date(log.createdAt).toLocaleString('vi-VN')}</td>
                   <td className="px-4 py-2 font-mono text-xs">{log.email ?? '—'}</td>
@@ -628,6 +720,11 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               ))}
             </tbody>
           </table>
+          <Paginator
+            page={logsPag.page} totalPages={logsPag.totalPages}
+            totalItems={filteredLogs.length} pageSize={20}
+            onPrev={logsPag.prev} onNext={logsPag.next} onGoTo={logsPag.goTo}
+          />
         </div>
       </div>
     </>
@@ -637,16 +734,43 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const usersTab = (
     <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
       <div className="ui-card overflow-hidden">
-        {sectionHeader('Tài khoản')}
-        <div className="flex flex-wrap items-center gap-2 border-b border-border px-4 pb-3">
-          <p className="text-xs font-bold uppercase text-muted">Lọc theo vai trò:</p>
+        {/* Professional filter bar */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-3">
+          {/* Text search */}
+          <div className="relative flex-1 min-w-[200px]">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+            <input
+              type="search"
+              placeholder="Tìm tên, email..."
+              value={userSearch}
+              onChange={(e) => setUserSearch(e.target.value)}
+              className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
+            />
+          </div>
+          {/* Role filter */}
           <select className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
-            <option value="">Tất cả</option>
+            <option value="">Tất cả vai trò</option>
             <option value="student">Học sinh</option>
             <option value="parent">Phụ huynh</option>
             <option value="teacher">Giảng viên</option>
             <option value="admin">Quản trị viên</option>
           </select>
+          {/* Active filter */}
+          <select className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={userActiveFilter} onChange={(e) => setUserActiveFilter(e.target.value as '' | 'active' | 'inactive')}>
+            <option value="">Tất cả trạng thái</option>
+            <option value="active">✅ Đang hoạt động</option>
+            <option value="inactive">❌ Vô hiệu hóa</option>
+          </select>
+          {/* Result count badge */}
+          {(userSearch || roleFilter || userActiveFilter) && (
+            <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">
+              {filteredUsers.length} / {users.length} tài khoản
+            </span>
+          )}
+          {/* Clear all */}
+          {(userSearch || roleFilter || userActiveFilter) && (
+            <button type="button" className="text-xs font-bold text-muted underline" onClick={() => { setUserSearch(''); setRoleFilter(''); setUserActiveFilter('') }}>Xóa bộ lọc</button>
+          )}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[560px] text-left text-sm">
@@ -659,7 +783,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               </tr>
             </thead>
             <tbody>
-              {users.map((u) => (
+              {usersPag.slice.length === 0 ? (
+                <tr><td colSpan={4} className="px-4 py-8 text-center text-muted">{users.length === 0 ? 'Không có tài khoản nào' : 'Không có tài khoản khớp bộ lọc'}</td></tr>
+              ) : usersPag.slice.map((u) => (
                 <tr key={u.id} className="border-b border-border/40">
                   <td className="px-4 py-3">
                     <p className="font-bold">{u.nickname ?? '—'}</p>
@@ -673,6 +799,15 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex flex-wrap justify-end gap-1">
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setEditTarget(u)
+                          setEditForm({ nickname: u.nickname ?? '', role: u.role as AdminUser['role'] })
+                        }}
+                      >
+                        Sửa
+                      </Button>
                       <Button variant="secondary" onClick={() => void toggleActive(u)}>
                         {u.active ? 'Tắt' : 'Bật'}
                       </Button>
@@ -686,9 +821,51 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
+          <Paginator
+            page={usersPag.page} totalPages={usersPag.totalPages}
+            totalItems={filteredUsers.length} pageSize={15}
+            onPrev={usersPag.prev} onNext={usersPag.next} onGoTo={usersPag.goTo}
+          />
+
+          {/* Inline edit panel — shown below the table when a user row is selected */}
+          {editTarget && (
+            <div className="border-t border-border bg-brand-50/40 px-4 py-4">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="font-display text-base text-text">Sửa tài khoản · <span className="text-muted">{editTarget.email ?? editTarget.nickname}</span></p>
+                <button type="button" className="min-h-11 rounded-lg px-3 text-sm font-bold text-muted hover:bg-white" onClick={() => setEditTarget(null)}>Đóng</button>
+              </div>
+              <form className="flex flex-wrap gap-3" onSubmit={(e) => void patchUser(e)}>
+                <label className="flex flex-col gap-1 text-sm font-bold">
+                  Tên hiển thị
+                  <input
+                    className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm"
+                    value={editForm.nickname}
+                    onChange={(e) => setEditForm((f) => ({ ...f, nickname: e.target.value }))}
+                    placeholder={editTarget.nickname ?? '—'}
+                  />
+                </label>
+                <label className="flex flex-col gap-1 text-sm font-bold">
+                  Vai trò
+                  <select
+                    className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm"
+                    value={editForm.role}
+                    onChange={(e) => setEditForm((f) => ({ ...f, role: e.target.value as AdminUser['role'] }))}
+                  >
+                    <option value="student">Học sinh</option>
+                    <option value="parent">Phụ huynh</option>
+                    <option value="teacher">Giảng viên</option>
+                    <option value="admin">Quản trị viên</option>
+                  </select>
+                </label>
+                <div className="flex items-end">
+                  <Button type="submit">Lưu thay đổi</Button>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
-      </div>
       <form className="ui-card flex h-fit flex-col gap-3 p-5" onSubmit={(e) => void createUser(e)}>
         <h2 className="font-display text-xl">Tạo tài khoản</h2>
         <label className="flex flex-col gap-1 text-sm font-bold">
@@ -719,8 +896,28 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // Sessions tab
   const sessionsTab = (
     <>
-      {sectionHeader('Phiên đăng nhập', 'Thu hồi phiên buộc đăng nhập lại. Không hiển thị token thô.')}
       <div className="ui-card overflow-hidden">
+        {/* Session search bar */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-3">
+          <div className="relative flex-1 min-w-[220px]">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+            <input
+              type="search"
+              placeholder="Tìm tên, email, IP..."
+              value={sessionSearch}
+              onChange={(e) => setSessionSearch(e.target.value)}
+              className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
+            />
+          </div>
+          {sessionSearch && (
+            <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">
+              {filteredSessions.length} / {sessions.length} phiên
+            </span>
+          )}
+          {sessionSearch && (
+            <button type="button" className="text-xs font-bold text-muted underline" onClick={() => setSessionSearch('')}>Xóa</button>
+          )}
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-border bg-brand-50/80">
@@ -733,9 +930,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               </tr>
             </thead>
             <tbody>
-              {sessions.length === 0 ? (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">Không có phiên active</td></tr>
-              ) : sessions.map((s) => (
+              {sessionsPag.slice.length === 0 ? (
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">{sessions.length === 0 ? 'Không có phiên active' : 'Không có phiên khớp bộ lọc'}</td></tr>
+              ) : sessionsPag.slice.map((s) => (
                 <tr key={s.id} className="border-b border-border/40">
                   <td className="px-4 py-3">
                     <p className="font-bold">{s.nickname ?? '—'}</p>
@@ -753,6 +950,11 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               ))}
             </tbody>
           </table>
+          <Paginator
+            page={sessionsPag.page} totalPages={sessionsPag.totalPages}
+            totalItems={filteredSessions.length} pageSize={15}
+            onPrev={sessionsPag.prev} onNext={sessionsPag.next} onGoTo={sessionsPag.goTo}
+          />
         </div>
       </div>
     </>
@@ -762,8 +964,31 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const coursesTab = (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
       <div className="flex flex-col gap-3">
-        {sectionHeader('Khóa học', 'Theo dõi trạng thái và chuyển sang không gian biên soạn khi cần chỉnh sửa')}
-        {courses.map((c) => (
+        {/* Course search + status filter bar */}
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-white px-4 py-3">
+          <div className="relative flex-1 min-w-[200px]">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+            <input
+              type="search"
+              placeholder="Tìm tên khóa học..."
+              value={courseSearch}
+              onChange={(e) => setCourseSearch(e.target.value)}
+              className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
+            />
+          </div>
+          <select className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={courseStatusFilter} onChange={(e) => setCourseStatusFilter(e.target.value as '' | 'open' | 'soon')}>
+            <option value="">Tất cả trạng thái</option>
+            <option value="open">✅ Đang mở</option>
+            <option value="soon">🔒 Đang ẩn</option>
+          </select>
+          {(courseSearch || courseStatusFilter) && (
+            <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">{filteredCourses.length} khóa học</span>
+          )}
+          {(courseSearch || courseStatusFilter) && (
+            <button type="button" className="text-xs font-bold text-muted underline" onClick={() => { setCourseSearch(''); setCourseStatusFilter('') }}>Xóa bộ lọc</button>
+          )}
+        </div>
+        {coursesPag.slice.map((c) => (
           <div key={c.id} className="ui-card p-4">
             <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
               <div>
@@ -789,6 +1014,12 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </ul>
           </div>
         ))}
+        <Paginator
+          page={coursesPag.page} totalPages={coursesPag.totalPages}
+          totalItems={filteredCourses.length} pageSize={8}
+          onPrev={coursesPag.prev} onNext={coursesPag.next} onGoTo={coursesPag.goTo}
+          className="rounded-2xl border border-border bg-white"
+        />
       </div>
       <aside className="ui-card h-fit p-5 xl:sticky xl:top-5">
         <div className="flex items-center gap-3">
@@ -809,7 +1040,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // AI tab (unchanged layout, just uses toast)
   const aiTab = (
     <div className="flex flex-col gap-5 max-w-3xl">
-      {sectionHeader('AI Vidtory', 'Cấu hình API Key và phân tải model')}
+
       <div className="ui-card flex flex-col gap-4 p-5">
         <div>
           <h2 className="font-display text-xl">1. API Key Vidtory</h2>
@@ -878,9 +1109,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </div>
             <div className="mt-3 flex flex-col gap-2">
               {routing[kind].models.map((m, i) => (
-                <div key={`${kind}-${i}`} className="grid gap-2 rounded-xl bg-brand-50/60 p-2 sm:grid-cols-[1fr_1fr_80px_70px_auto]">
-                  <input className="min-h-11 rounded-lg border border-border px-3 font-mono text-xs" aria-label={`Mã mô hình ${i + 1}`} placeholder="Mã mô hình" value={m.modelId} onChange={(e) => updateModel(kind, i, { modelId: e.target.value })} />
-                  <input className="min-h-11 rounded-lg border border-border px-3 text-sm" aria-label={`Tên hiển thị mô hình ${i + 1}`} placeholder="Tên hiển thị" value={m.label ?? ''} onChange={(e) => updateModel(kind, i, { label: e.target.value })} />
+                <div key={`${kind}-${i}`} className="grid gap-2 rounded-xl bg-brand-50/60 p-2 grid-cols-2 sm:grid-cols-[1fr_1fr_80px_70px_auto]">
+                  <input className="col-span-2 sm:col-span-1 min-h-11 rounded-lg border border-border px-3 font-mono text-xs" aria-label={`Mã mô hình ${i + 1}`} placeholder="Mã mô hình" value={m.modelId} onChange={(e) => updateModel(kind, i, { modelId: e.target.value })} />
+                  <input className="col-span-2 sm:col-span-1 min-h-11 rounded-lg border border-border px-3 text-sm" aria-label={`Tên hiển thị mô hình ${i + 1}`} placeholder="Tên hiển thị" value={m.label ?? ''} onChange={(e) => updateModel(kind, i, { label: e.target.value })} />
                   <input type="number" min={0} max={100} className="min-h-11 rounded-lg border border-border px-3 text-sm" aria-label={`Tỷ lệ sử dụng mô hình ${i + 1}`} value={m.weight} onChange={(e) => updateModel(kind, i, { weight: Number(e.target.value) })} />
                   <span className="flex items-center justify-center text-xs font-extrabold text-brand-600">{m.percent != null ? `${m.percent}%` : '—'}</span>
                   <Button type="button" variant="ghost" onClick={() => removeModel(kind, i)}>Xóa</Button>

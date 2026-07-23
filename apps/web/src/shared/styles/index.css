@@ -67,7 +67,12 @@
     margin: 0;
     min-height: 100dvh;
     font-family: var(--font-sans);
-    font-size: 17px;
+    /*
+     * Responsive base font: 15px on 320px screens, 17px on 405px+.
+     * clamp(min, preferred, max) prevents tiny phones from rendering
+     * "text-2xl" at an illegible 37px — WCAG 1.4.4 (Resize Text).
+     */
+    font-size: clamp(15px, 4.2vw, 17px);
     line-height: 1.5;
     font-weight: 600;
     color: var(--color-text);
@@ -403,7 +408,20 @@
   }
 
   .student-bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    display: flex;
+    align-items: stretch;
+    padding: 0.3rem 0.25rem;
+    padding-bottom: max(0.3rem, env(safe-area-inset-bottom, 0px));
     border-top: 1px solid rgba(109, 94, 252, 0.12);
+  }
+
+  .student-bottom-nav::-webkit-scrollbar {
+    display: none;
   }
 
   .student-nav-link {
@@ -542,62 +560,358 @@
     box-shadow: 0 4px 12px rgba(30, 39, 64, 0.09);
   }
 
-  .role-mobile-chrome {
-    position: sticky;
-    top: 0;
-    z-index: 30;
-    border-bottom: 1px solid rgba(109, 94, 252, 0.1);
-    background: rgba(255, 255, 255, 0.97);
-    box-shadow: 0 8px 24px rgba(30, 39, 64, 0.06);
-    backdrop-filter: blur(16px);
-  }
-
-  .role-mobile-header {
-    display: flex;
-    min-height: 3.25rem;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0.45rem 1rem 0.25rem;
-  }
-
-  .role-mobile-nav {
-    display: flex;
-    gap: 0.25rem;
-    overflow-x: auto;
-    padding: 0.25rem 0.5rem 0.55rem;
-    scrollbar-width: none;
-  }
-
-  .role-mobile-nav::-webkit-scrollbar {
-    display: none;
-  }
-
-  .role-nav-link-mobile {
-    min-width: 5.5rem;
-    min-height: 3.75rem;
-    flex-direction: column;
-    justify-content: center;
-    gap: 0.15rem;
-    padding: 0.25rem 0.4rem;
-    font-size: 0.7rem;
-  }
-
-  .role-nav-link-mobile .role-nav-icon {
-    width: 2.25rem;
-    height: 2rem;
-    background: transparent;
-  }
-
   @media (hover: hover) {
     .role-nav-link:hover {
       background: var(--role-soft);
       color: var(--role-accent);
       transform: translateX(1px);
     }
+  }
 
-    .role-nav-link-mobile:hover {
-      transform: translateY(-1px);
+  /* ── Mobile top bar (brand only — no nav) ────────────────── */
+  .role-mobile-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    min-height: 3.25rem;
+    padding: 0.4rem 1rem;
+    border-bottom: 1px solid rgba(109, 94, 252, 0.1);
+    background: rgba(255, 255, 255, 0.97);
+    box-shadow: 0 4px 12px rgba(30, 39, 64, 0.05);
+    backdrop-filter: blur(16px);
+  }
+
+  .role-mobile-topbar-label {
+    font-size: 0.75rem;
+    font-weight: 900;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--role-accent);
+  }
+
+  /* ── Adult bottom nav (parent / teacher / admin pinned bar) ── */
+  .adult-bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    display: flex;
+    align-items: stretch;
+    padding: 0.3rem 0.25rem;
+    padding-bottom: max(0.3rem, env(safe-area-inset-bottom, 0px));
+    background: rgba(255, 255, 255, 0.97);
+    border-top: 1px solid rgba(109, 94, 252, 0.1);
+    box-shadow: 0 -8px 28px rgba(30, 39, 64, 0.07);
+    backdrop-filter: blur(16px);
+  }
+
+  /* Tone-aware accent colour for bottom nav active state */
+  .adult-bottom-nav-parent  { --bn-accent: var(--color-coral-600); --bn-soft: var(--color-coral-50); }
+  .adult-bottom-nav-teacher { --bn-accent: var(--color-sky-700);   --bn-soft: var(--color-sky-50);   }
+  .adult-bottom-nav-admin   { --bn-accent: var(--color-brand-600); --bn-soft: var(--color-brand-50); }
+
+  .adult-bottom-link {
+    display: flex;
+    flex: 1;
+    flex-shrink: 0;
+    min-width: 3.5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    min-height: 3.5rem;
+    border-radius: 0.875rem;
+    padding: 0.25rem 0.2rem;
+    font-size: 0.67rem;
+    font-weight: 800;
+    color: var(--color-muted);
+    text-align: center;
+    transition: color 0.15s ease, background-color 0.15s ease;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .adult-bottom-link-active {
+    background: var(--bn-soft);
+    color: var(--bn-accent);
+  }
+
+  .adult-bottom-icon {
+    display: grid;
+    width: 2.5rem;
+    height: 2.25rem;
+    place-items: center;
+    border-radius: 0.75rem;
+    flex-shrink: 0;
+    transition: background-color 0.15s ease, transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .adult-bottom-link-active .adult-bottom-icon {
+    background: white;
+    box-shadow: 0 3px 10px rgba(30, 39, 64, 0.09);
+    transform: translateY(-1px);
+  }
+
+  /* ⊕ More button */
+  .adult-bottom-more {
+    display: flex;
+    flex: 1;
+    flex-shrink: 0;
+    min-width: 3.5rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.15rem;
+    min-height: 3.5rem;
+    border-radius: 0.875rem;
+    padding: 0.25rem 0.2rem;
+    font-size: 0.67rem;
+    font-weight: 800;
+    color: var(--color-muted);
+    transition: color 0.15s ease, background-color 0.15s ease;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+  }
+
+  .adult-bottom-more-open {
+    background: var(--bn-soft);
+    color: var(--bn-accent);
+  }
+
+  .adult-bottom-more-open .adult-bottom-icon {
+    background: white;
+    box-shadow: 0 3px 10px rgba(30, 39, 64, 0.09);
+    transform: translateY(-1px);
+  }
+
+  @media (hover: hover) {
+    .adult-bottom-link:hover,
+    .adult-bottom-more:hover {
+      color: var(--bn-accent);
+      background: var(--bn-soft);
     }
+  }
+
+  /* ── Admin drawer sheet (slides up from bottom) ──────────── */
+  .admin-drawer-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    /* sits above bottom nav (z-50 > z-40 backdrop > z-30 bottom-nav) */
+    z-index: 50;
+    border-radius: 1.5rem 1.5rem 0 0;
+    background: white;
+    box-shadow: 0 -16px 48px rgba(30, 39, 64, 0.16);
+    padding: 0 1rem calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+    will-change: transform;
+  }
+
+  .admin-drawer-sheet-open {
+    bottom: 0;
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .admin-drawer-sheet-closed {
+    bottom: 0;
+    transform: translateY(110%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .admin-drawer-handle {
+    width: 2.5rem;
+    height: 4px;
+    border-radius: 999px;
+    background: var(--color-border);
+    margin: 0.75rem auto 0;
+  }
+
+  .admin-drawer-title {
+    font-size: 0.7rem;
+    font-weight: 900;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--color-muted);
+    margin: 0.75rem 0 0.75rem;
+    padding: 0 0.25rem;
+  }
+
+  .admin-drawer-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.5rem;
+  }
+
+  .admin-drawer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.6rem 0.25rem;
+    border-radius: 1rem;
+    font-size: 0.68rem;
+    font-weight: 800;
+    color: var(--color-muted);
+    text-align: center;
+    transition: background-color 0.15s, color 0.15s, transform 0.15s cubic-bezier(0.22, 1, 0.36, 1);
+    border: 2px solid transparent;
+    min-height: 4.5rem;
+  }
+
+  .admin-drawer-icon {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    place-items: center;
+    border-radius: 0.875rem;
+    background: var(--color-brand-50);
+    transition: background-color 0.15s, transform 0.15s;
+  }
+
+  .admin-drawer-item-active {
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+    border-color: rgba(109, 94, 252, 0.15);
+  }
+
+  .admin-drawer-item-active .admin-drawer-icon {
+    background: white;
+    box-shadow: 0 3px 10px rgba(109, 94, 252, 0.15);
+  }
+
+  @media (hover: hover) {
+    .admin-drawer-item:hover {
+      background: var(--color-brand-50);
+      color: var(--color-brand-700);
+      transform: translateY(-2px);
+    }
+    .admin-drawer-item:hover .admin-drawer-icon {
+      transform: scale(1.08);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .admin-drawer-sheet { transition: none; }
+    .admin-drawer-item:hover { transform: none; }
+  }
+
+  /* ── Student drawer (Huy hiệu / Ba lô / Hồ sơ) ─────────── */
+  .student-drawer-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    border-radius: 1.75rem 1.75rem 0 0;
+    /* Warm brand gradient — feels kid-friendly, not corporate */
+    background: linear-gradient(160deg, #fff9ff 0%, #f7f5ff 100%);
+    box-shadow: 0 -20px 60px rgba(109, 94, 252, 0.13);
+    padding: 0 1.25rem calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+    will-change: transform;
+  }
+
+  .student-drawer-open {
+    bottom: 0;
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .student-drawer-closed {
+    bottom: 0;
+    transform: translateY(110%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .student-drawer-handle {
+    width: 2.75rem;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(109, 94, 252, 0.2);
+    margin: 0.85rem auto 0;
+  }
+
+  .student-drawer-title {
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: var(--color-brand-600);
+    margin: 0.85rem 0 1rem;
+    padding: 0 0.25rem;
+    letter-spacing: 0.01em;
+  }
+
+  /* 3 cols — 3 items fit perfectly without crowding */
+  .student-drawer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .student-drawer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 1rem 0.5rem 0.85rem;
+    border-radius: 1.25rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--color-muted);
+    text-align: center;
+    background: white;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 14px rgba(109, 94, 252, 0.07);
+    transition: background-color 0.15s, color 0.15s, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.15s;
+    min-height: 5.5rem;
+  }
+
+  .student-drawer-icon {
+    display: grid;
+    width: 3.25rem;
+    height: 3.25rem;
+    place-items: center;
+    border-radius: 1rem;
+    background: var(--color-brand-50);
+    transition: background-color 0.15s, transform 0.18s;
+  }
+
+  .student-drawer-item-active {
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+    border-color: rgba(109, 94, 252, 0.18);
+    box-shadow: 0 6px 20px rgba(109, 94, 252, 0.12);
+  }
+
+  .student-drawer-item-active .student-drawer-icon {
+    background: white;
+    box-shadow: 0 4px 12px rgba(109, 94, 252, 0.18);
+  }
+
+  @media (hover: hover) {
+    .student-drawer-item:hover {
+      background: var(--color-brand-50);
+      color: var(--color-brand-700);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(109, 94, 252, 0.14);
+    }
+    .student-drawer-item:hover .student-drawer-icon {
+      transform: scale(1.1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .student-drawer-sheet { transition: none; }
+    .student-drawer-item:hover { transform: none; }
   }
 
   /* Progress experience — visual growth without competitive ranking. */
@@ -878,6 +1192,14 @@
     padding: 4px;
     border: 1.5px solid var(--color-border);
     box-shadow: 0 2px 8px rgba(30, 39, 64, 0.06);
+    /* Allow horizontal scroll on tiny screens so steps never clip */
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .phase-stepper::-webkit-scrollbar {
+    display: none;
   }
 
   .phase-step {
