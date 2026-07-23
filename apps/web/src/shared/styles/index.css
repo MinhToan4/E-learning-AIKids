@@ -408,10 +408,16 @@
   }
 
   .student-bottom-nav {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 30;
+    display: flex;
+    align-items: stretch;
+    padding: 0.3rem 0.25rem;
+    padding-bottom: max(0.3rem, env(safe-area-inset-bottom, 0px));
     border-top: 1px solid rgba(109, 94, 252, 0.12);
-    /* Hide horizontal scrollbar — still scrollable on 320px with 7 items */
-    scrollbar-width: none;
-    -webkit-overflow-scrolling: touch;
   }
 
   .student-bottom-nav::-webkit-scrollbar {
@@ -796,6 +802,116 @@
   @media (prefers-reduced-motion: reduce) {
     .admin-drawer-sheet { transition: none; }
     .admin-drawer-item:hover { transform: none; }
+  }
+
+  /* ── Student drawer (Huy hiệu / Ba lô / Hồ sơ) ─────────── */
+  .student-drawer-sheet {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    border-radius: 1.75rem 1.75rem 0 0;
+    /* Warm brand gradient — feels kid-friendly, not corporate */
+    background: linear-gradient(160deg, #fff9ff 0%, #f7f5ff 100%);
+    box-shadow: 0 -20px 60px rgba(109, 94, 252, 0.13);
+    padding: 0 1.25rem calc(5.5rem + env(safe-area-inset-bottom, 0px));
+    transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.22s ease;
+    will-change: transform;
+  }
+
+  .student-drawer-open {
+    bottom: 0;
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .student-drawer-closed {
+    bottom: 0;
+    transform: translateY(110%);
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .student-drawer-handle {
+    width: 2.75rem;
+    height: 4px;
+    border-radius: 999px;
+    background: rgba(109, 94, 252, 0.2);
+    margin: 0.85rem auto 0;
+  }
+
+  .student-drawer-title {
+    font-size: 0.8rem;
+    font-weight: 900;
+    color: var(--color-brand-600);
+    margin: 0.85rem 0 1rem;
+    padding: 0 0.25rem;
+    letter-spacing: 0.01em;
+  }
+
+  /* 3 cols — 3 items fit perfectly without crowding */
+  .student-drawer-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+
+  .student-drawer-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.45rem;
+    padding: 1rem 0.5rem 0.85rem;
+    border-radius: 1.25rem;
+    font-size: 0.75rem;
+    font-weight: 800;
+    color: var(--color-muted);
+    text-align: center;
+    background: white;
+    border: 2px solid transparent;
+    box-shadow: 0 4px 14px rgba(109, 94, 252, 0.07);
+    transition: background-color 0.15s, color 0.15s, transform 0.18s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.15s;
+    min-height: 5.5rem;
+  }
+
+  .student-drawer-icon {
+    display: grid;
+    width: 3.25rem;
+    height: 3.25rem;
+    place-items: center;
+    border-radius: 1rem;
+    background: var(--color-brand-50);
+    transition: background-color 0.15s, transform 0.18s;
+  }
+
+  .student-drawer-item-active {
+    background: var(--color-brand-50);
+    color: var(--color-brand-700);
+    border-color: rgba(109, 94, 252, 0.18);
+    box-shadow: 0 6px 20px rgba(109, 94, 252, 0.12);
+  }
+
+  .student-drawer-item-active .student-drawer-icon {
+    background: white;
+    box-shadow: 0 4px 12px rgba(109, 94, 252, 0.18);
+  }
+
+  @media (hover: hover) {
+    .student-drawer-item:hover {
+      background: var(--color-brand-50);
+      color: var(--color-brand-700);
+      transform: translateY(-3px);
+      box-shadow: 0 8px 24px rgba(109, 94, 252, 0.14);
+    }
+    .student-drawer-item:hover .student-drawer-icon {
+      transform: scale(1.1);
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .student-drawer-sheet { transition: none; }
+    .student-drawer-item:hover { transform: none; }
   }
 
   /* Progress experience — visual growth without competitive ranking. */
