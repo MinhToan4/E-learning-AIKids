@@ -589,7 +589,8 @@
   /* ── Adult bottom nav (parent / teacher / admin pinned bar) ── */
   .adult-bottom-nav {
     position: fixed;
-    inset-x: 0;
+    left: 0;
+    right: 0;
     bottom: 0;
     z-index: 30;
     display: flex;
@@ -694,7 +695,8 @@
   /* ── Admin drawer sheet (slides up from bottom) ──────────── */
   .admin-drawer-sheet {
     position: fixed;
-    inset-x: 0;
+    left: 0;
+    right: 0;
     /* sits above bottom nav (z-50 > z-40 backdrop > z-30 bottom-nav) */
     z-index: 50;
     border-radius: 1.5rem 1.5rem 0 0;
