@@ -1,8 +1,8 @@
 -- CreateSchema
-CREATE SCHEMA IF NOT EXISTS "public";
+CREATE SCHEMA IF NOT EXISTS "aikids_legacy";
 
 -- CreateTable
-CREATE TABLE "public"."achievements" (
+CREATE TABLE "aikids_legacy"."achievements" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" UUID NOT NULL,
     "type" TEXT NOT NULL,
@@ -12,7 +12,7 @@ CREATE TABLE "public"."achievements" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."approvals" (
+CREATE TABLE "aikids_legacy"."approvals" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "project_id" UUID NOT NULL,
     "child_id" UUID NOT NULL,
@@ -27,7 +27,7 @@ CREATE TABLE "public"."approvals" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."assets" (
+CREATE TABLE "aikids_legacy"."assets" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" UUID NOT NULL,
     "type" TEXT NOT NULL,
@@ -42,7 +42,7 @@ CREATE TABLE "public"."assets" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."classrooms" (
+CREATE TABLE "aikids_legacy"."classrooms" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" TEXT NOT NULL,
     "code" TEXT NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE "public"."classrooms" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."courses" (
+CREATE TABLE "aikids_legacy"."courses" (
     "id" TEXT NOT NULL,
     "title" TEXT NOT NULL,
     "short_title" TEXT NOT NULL,
@@ -83,7 +83,7 @@ CREATE TABLE "public"."courses" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."daily_streaks" (
+CREATE TABLE "aikids_legacy"."daily_streaks" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" UUID NOT NULL,
     "current" INTEGER NOT NULL DEFAULT 0,
@@ -95,7 +95,7 @@ CREATE TABLE "public"."daily_streaks" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."enrollments" (
+CREATE TABLE "aikids_legacy"."enrollments" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" UUID NOT NULL,
     "course_id" TEXT NOT NULL,
@@ -105,7 +105,7 @@ CREATE TABLE "public"."enrollments" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."login_logs" (
+CREATE TABLE "aikids_legacy"."login_logs" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" UUID,
     "email" TEXT,
@@ -119,7 +119,7 @@ CREATE TABLE "public"."login_logs" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."notifications" (
+CREATE TABLE "aikids_legacy"."notifications" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" UUID NOT NULL,
     "type" TEXT NOT NULL,
@@ -133,7 +133,7 @@ CREATE TABLE "public"."notifications" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."parent_profiles" (
+CREATE TABLE "aikids_legacy"."parent_profiles" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" UUID NOT NULL,
     "phone" TEXT,
@@ -149,7 +149,7 @@ CREATE TABLE "public"."parent_profiles" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."plans" (
+CREATE TABLE "aikids_legacy"."plans" (
     "id" TEXT NOT NULL,
     "code" TEXT NOT NULL,
     "name" TEXT NOT NULL,
@@ -168,7 +168,7 @@ CREATE TABLE "public"."plans" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."projects" (
+CREATE TABLE "aikids_legacy"."projects" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" UUID NOT NULL,
     "title" TEXT NOT NULL,
@@ -184,7 +184,7 @@ CREATE TABLE "public"."projects" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."quest_progress" (
+CREATE TABLE "aikids_legacy"."quest_progress" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" UUID NOT NULL,
     "quest_id" TEXT NOT NULL,
@@ -200,7 +200,7 @@ CREATE TABLE "public"."quest_progress" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."quests" (
+CREATE TABLE "aikids_legacy"."quests" (
     "id" TEXT NOT NULL,
     "course_id" TEXT NOT NULL,
     "order" INTEGER NOT NULL,
@@ -225,7 +225,7 @@ CREATE TABLE "public"."quests" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."sessions" (
+CREATE TABLE "aikids_legacy"."sessions" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "token" TEXT NOT NULL,
     "user_id" UUID NOT NULL,
@@ -238,7 +238,7 @@ CREATE TABLE "public"."sessions" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."subscriptions" (
+CREATE TABLE "aikids_legacy"."subscriptions" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "parent_user_id" UUID NOT NULL,
     "plan_id" TEXT NOT NULL,
@@ -256,7 +256,7 @@ CREATE TABLE "public"."subscriptions" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."system_settings" (
+CREATE TABLE "aikids_legacy"."system_settings" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "key" TEXT NOT NULL,
     "value_enc" TEXT,
@@ -268,7 +268,7 @@ CREATE TABLE "public"."system_settings" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."teacher_profiles" (
+CREATE TABLE "aikids_legacy"."teacher_profiles" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "user_id" UUID NOT NULL,
     "display_name" TEXT,
@@ -284,7 +284,7 @@ CREATE TABLE "public"."teacher_profiles" (
 );
 
 -- CreateTable
-CREATE TABLE "public"."users" (
+CREATE TABLE "aikids_legacy"."users" (
     "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "role" TEXT NOT NULL,
     "email" TEXT,
@@ -308,169 +308,169 @@ CREATE TABLE "public"."users" (
 );
 
 -- CreateIndex
-CREATE INDEX "achievements_user_id_idx" ON "public"."achievements"("user_id" ASC);
+CREATE INDEX "achievements_user_id_idx" ON "aikids_legacy"."achievements"("user_id" ASC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "achievements_user_id_type_key" ON "public"."achievements"("user_id" ASC, "type" ASC);
+CREATE UNIQUE INDEX "achievements_user_id_type_key" ON "aikids_legacy"."achievements"("user_id" ASC, "type" ASC);
 
 -- CreateIndex
-CREATE INDEX "approvals_child_id_idx" ON "public"."approvals"("child_id" ASC);
+CREATE INDEX "approvals_child_id_idx" ON "aikids_legacy"."approvals"("child_id" ASC);
 
 -- CreateIndex
-CREATE INDEX "approvals_parent_id_status_idx" ON "public"."approvals"("parent_id" ASC, "status" ASC);
+CREATE INDEX "approvals_parent_id_status_idx" ON "aikids_legacy"."approvals"("parent_id" ASC, "status" ASC);
 
 -- CreateIndex
-CREATE INDEX "assets_user_id_idx" ON "public"."assets"("user_id" ASC);
+CREATE INDEX "assets_user_id_idx" ON "aikids_legacy"."assets"("user_id" ASC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "classrooms_code_key" ON "public"."classrooms"("code" ASC);
+CREATE UNIQUE INDEX "classrooms_code_key" ON "aikids_legacy"."classrooms"("code" ASC);
 
 -- CreateIndex
-CREATE INDEX "classrooms_teacher_id_idx" ON "public"."classrooms"("teacher_id" ASC);
+CREATE INDEX "classrooms_teacher_id_idx" ON "aikids_legacy"."classrooms"("teacher_id" ASC);
 
 -- CreateIndex
-CREATE INDEX "courses_age_track_course_key_idx" ON "public"."courses"("age_track" ASC, "course_key" ASC);
+CREATE INDEX "courses_age_track_course_key_idx" ON "aikids_legacy"."courses"("age_track" ASC, "course_key" ASC);
 
 -- CreateIndex
-CREATE INDEX "courses_status_sort_order_idx" ON "public"."courses"("status" ASC, "sort_order" ASC);
+CREATE INDEX "courses_status_sort_order_idx" ON "aikids_legacy"."courses"("status" ASC, "sort_order" ASC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "daily_streaks_user_id_key" ON "public"."daily_streaks"("user_id" ASC);
+CREATE UNIQUE INDEX "daily_streaks_user_id_key" ON "aikids_legacy"."daily_streaks"("user_id" ASC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "enrollments_user_id_course_id_key" ON "public"."enrollments"("user_id" ASC, "course_id" ASC);
+CREATE UNIQUE INDEX "enrollments_user_id_course_id_key" ON "aikids_legacy"."enrollments"("user_id" ASC, "course_id" ASC);
 
 -- CreateIndex
-CREATE INDEX "enrollments_user_id_idx" ON "public"."enrollments"("user_id" ASC);
+CREATE INDEX "enrollments_user_id_idx" ON "aikids_legacy"."enrollments"("user_id" ASC);
 
 -- CreateIndex
-CREATE INDEX "login_logs_created_at_idx" ON "public"."login_logs"("created_at" ASC);
+CREATE INDEX "login_logs_created_at_idx" ON "aikids_legacy"."login_logs"("created_at" ASC);
 
 -- CreateIndex
-CREATE INDEX "login_logs_outcome_idx" ON "public"."login_logs"("outcome" ASC);
+CREATE INDEX "login_logs_outcome_idx" ON "aikids_legacy"."login_logs"("outcome" ASC);
 
 -- CreateIndex
-CREATE INDEX "login_logs_user_id_idx" ON "public"."login_logs"("user_id" ASC);
+CREATE INDEX "login_logs_user_id_idx" ON "aikids_legacy"."login_logs"("user_id" ASC);
 
 -- CreateIndex
-CREATE INDEX "notifications_created_at_idx" ON "public"."notifications"("created_at" ASC);
+CREATE INDEX "notifications_created_at_idx" ON "aikids_legacy"."notifications"("created_at" ASC);
 
 -- CreateIndex
-CREATE INDEX "notifications_user_id_read_idx" ON "public"."notifications"("user_id" ASC, "read" ASC);
+CREATE INDEX "notifications_user_id_read_idx" ON "aikids_legacy"."notifications"("user_id" ASC, "read" ASC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "parent_profiles_user_id_key" ON "public"."parent_profiles"("user_id" ASC);
+CREATE UNIQUE INDEX "parent_profiles_user_id_key" ON "aikids_legacy"."parent_profiles"("user_id" ASC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "plans_code_key" ON "public"."plans"("code" ASC);
+CREATE UNIQUE INDEX "plans_code_key" ON "aikids_legacy"."plans"("code" ASC);
 
 -- CreateIndex
-CREATE INDEX "projects_user_id_idx" ON "public"."projects"("user_id" ASC);
+CREATE INDEX "projects_user_id_idx" ON "aikids_legacy"."projects"("user_id" ASC);
 
 -- CreateIndex
-CREATE INDEX "quest_progress_user_id_idx" ON "public"."quest_progress"("user_id" ASC);
+CREATE INDEX "quest_progress_user_id_idx" ON "aikids_legacy"."quest_progress"("user_id" ASC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "quest_progress_user_id_quest_id_key" ON "public"."quest_progress"("user_id" ASC, "quest_id" ASC);
+CREATE UNIQUE INDEX "quest_progress_user_id_quest_id_key" ON "aikids_legacy"."quest_progress"("user_id" ASC, "quest_id" ASC);
 
 -- CreateIndex
-CREATE INDEX "quests_course_id_idx" ON "public"."quests"("course_id" ASC);
+CREATE INDEX "quests_course_id_idx" ON "aikids_legacy"."quests"("course_id" ASC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "quests_course_id_order_key" ON "public"."quests"("course_id" ASC, "order" ASC);
+CREATE UNIQUE INDEX "quests_course_id_order_key" ON "aikids_legacy"."quests"("course_id" ASC, "order" ASC);
 
 -- CreateIndex
-CREATE INDEX "sessions_expires_at_idx" ON "public"."sessions"("expires_at" ASC);
+CREATE INDEX "sessions_expires_at_idx" ON "aikids_legacy"."sessions"("expires_at" ASC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "sessions_token_key" ON "public"."sessions"("token" ASC);
+CREATE UNIQUE INDEX "sessions_token_key" ON "aikids_legacy"."sessions"("token" ASC);
 
 -- CreateIndex
-CREATE INDEX "sessions_user_id_idx" ON "public"."sessions"("user_id" ASC);
+CREATE INDEX "sessions_user_id_idx" ON "aikids_legacy"."sessions"("user_id" ASC);
 
 -- CreateIndex
-CREATE INDEX "subscriptions_parent_user_id_status_idx" ON "public"."subscriptions"("parent_user_id" ASC, "status" ASC);
+CREATE INDEX "subscriptions_parent_user_id_status_idx" ON "aikids_legacy"."subscriptions"("parent_user_id" ASC, "status" ASC);
 
 -- CreateIndex
-CREATE INDEX "subscriptions_plan_id_idx" ON "public"."subscriptions"("plan_id" ASC);
+CREATE INDEX "subscriptions_plan_id_idx" ON "aikids_legacy"."subscriptions"("plan_id" ASC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "system_settings_key_key" ON "public"."system_settings"("key" ASC);
+CREATE UNIQUE INDEX "system_settings_key_key" ON "aikids_legacy"."system_settings"("key" ASC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "teacher_profiles_user_id_key" ON "public"."teacher_profiles"("user_id" ASC);
+CREATE UNIQUE INDEX "teacher_profiles_user_id_key" ON "aikids_legacy"."teacher_profiles"("user_id" ASC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "users_email_key" ON "public"."users"("email" ASC);
+CREATE UNIQUE INDEX "users_email_key" ON "aikids_legacy"."users"("email" ASC);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "users_google_sub_key" ON "public"."users"("google_sub" ASC);
+CREATE UNIQUE INDEX "users_google_sub_key" ON "aikids_legacy"."users"("google_sub" ASC);
 
 -- CreateIndex
-CREATE INDEX "users_role_active_idx" ON "public"."users"("role" ASC, "active" ASC);
+CREATE INDEX "users_role_active_idx" ON "aikids_legacy"."users"("role" ASC, "active" ASC);
 
 -- AddForeignKey
-ALTER TABLE "public"."achievements" ADD CONSTRAINT "achievements_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."achievements" ADD CONSTRAINT "achievements_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."approvals" ADD CONSTRAINT "approvals_child_id_fkey" FOREIGN KEY ("child_id") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."approvals" ADD CONSTRAINT "approvals_child_id_fkey" FOREIGN KEY ("child_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."approvals" ADD CONSTRAINT "approvals_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "public"."users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."approvals" ADD CONSTRAINT "approvals_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."approvals" ADD CONSTRAINT "approvals_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "public"."projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."approvals" ADD CONSTRAINT "approvals_project_id_fkey" FOREIGN KEY ("project_id") REFERENCES "aikids_legacy"."projects"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."assets" ADD CONSTRAINT "assets_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."assets" ADD CONSTRAINT "assets_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."classrooms" ADD CONSTRAINT "classrooms_teacher_id_fkey" FOREIGN KEY ("teacher_id") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."classrooms" ADD CONSTRAINT "classrooms_teacher_id_fkey" FOREIGN KEY ("teacher_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."daily_streaks" ADD CONSTRAINT "daily_streaks_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."daily_streaks" ADD CONSTRAINT "daily_streaks_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."enrollments" ADD CONSTRAINT "enrollments_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "public"."courses"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."enrollments" ADD CONSTRAINT "enrollments_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "aikids_legacy"."courses"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."enrollments" ADD CONSTRAINT "enrollments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."enrollments" ADD CONSTRAINT "enrollments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."login_logs" ADD CONSTRAINT "login_logs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."login_logs" ADD CONSTRAINT "login_logs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."notifications" ADD CONSTRAINT "notifications_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."notifications" ADD CONSTRAINT "notifications_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."parent_profiles" ADD CONSTRAINT "parent_profiles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."parent_profiles" ADD CONSTRAINT "parent_profiles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."projects" ADD CONSTRAINT "projects_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."projects" ADD CONSTRAINT "projects_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."quest_progress" ADD CONSTRAINT "quest_progress_quest_id_fkey" FOREIGN KEY ("quest_id") REFERENCES "public"."quests"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."quest_progress" ADD CONSTRAINT "quest_progress_quest_id_fkey" FOREIGN KEY ("quest_id") REFERENCES "aikids_legacy"."quests"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."quest_progress" ADD CONSTRAINT "quest_progress_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."quest_progress" ADD CONSTRAINT "quest_progress_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."quests" ADD CONSTRAINT "quests_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "public"."courses"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."quests" ADD CONSTRAINT "quests_course_id_fkey" FOREIGN KEY ("course_id") REFERENCES "aikids_legacy"."courses"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."sessions" ADD CONSTRAINT "sessions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."sessions" ADD CONSTRAINT "sessions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."subscriptions" ADD CONSTRAINT "subscriptions_parent_user_id_fkey" FOREIGN KEY ("parent_user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."subscriptions" ADD CONSTRAINT "subscriptions_parent_user_id_fkey" FOREIGN KEY ("parent_user_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."subscriptions" ADD CONSTRAINT "subscriptions_plan_id_fkey" FOREIGN KEY ("plan_id") REFERENCES "public"."plans"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."subscriptions" ADD CONSTRAINT "subscriptions_plan_id_fkey" FOREIGN KEY ("plan_id") REFERENCES "aikids_legacy"."plans"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."teacher_profiles" ADD CONSTRAINT "teacher_profiles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."teacher_profiles" ADD CONSTRAINT "teacher_profiles_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."users" ADD CONSTRAINT "users_class_id_fkey" FOREIGN KEY ("class_id") REFERENCES "public"."classrooms"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."users" ADD CONSTRAINT "users_class_id_fkey" FOREIGN KEY ("class_id") REFERENCES "aikids_legacy"."classrooms"("id") ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "public"."users" ADD CONSTRAINT "users_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "public"."users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "aikids_legacy"."users" ADD CONSTRAINT "users_parent_id_fkey" FOREIGN KEY ("parent_id") REFERENCES "aikids_legacy"."users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
