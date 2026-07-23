@@ -7,7 +7,7 @@
  * - Login audit log with auto-purge indicator
  * - Full-width layout (CmsShell handles sidebar)
  */
-import { useEffect, useState, useCallback, type ReactNode } from 'react'
+import { useEffect, useState, useCallback, useMemo, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
@@ -294,15 +294,76 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null)
   const [revokeTarget, setRevokeTarget] = useState<SessionRow | null>(null)
 
+  // ── Search / filter state ──────────────────────────────
+  const [userSearch, setUserSearch]   = useState('')
+  const [userActiveFilter, setUserActiveFilter] = useState<'' | 'active' | 'inactive'>('')
+  const [sessionSearch, setSessionSearch] = useState('')
+  const [logSearch, setLogSearch]     = useState('')
+  const [courseSearch, setCourseSearch] = useState('')
+  const [courseStatusFilter, setCourseStatusFilter] = useState<'' | 'open' | 'soon'>('')
+
   const { toasts, showToast, dismissToast } = useToast()
   const logout = useAuth((s) => s.logout)
   const navigate = useNavigate()
 
+  // ── Filtered arrays (client-side) ───────────────────────────
+  const filteredUsers = useMemo(() => {
+    let list = users
+    if (roleFilter) list = list.filter((u) => u.role === roleFilter)
+    if (userActiveFilter === 'active') list = list.filter((u) => u.active)
+    if (userActiveFilter === 'inactive') list = list.filter((u) => !u.active)
+    if (userSearch) {
+      const q = userSearch.toLowerCase()
+      list = list.filter(
+        (u) => u.nickname?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q),
+      )
+    }
+    return list
+  }, [users, roleFilter, userActiveFilter, userSearch])
+
+  const filteredSessions = useMemo(() => {
+    if (!sessionSearch) return sessions
+    const q = sessionSearch.toLowerCase()
+    return sessions.filter(
+      (s) =>
+        s.nickname?.toLowerCase().includes(q) ||
+        s.email?.toLowerCase().includes(q) ||
+        s.role?.toLowerCase().includes(q) ||
+        (s.ipAddress ?? '').includes(q),
+    )
+  }, [sessions, sessionSearch])
+
+  const filteredLogs = useMemo(() => {
+    let list = loginLogs
+    if (logFilter) list = list.filter((l) => l.outcome === logFilter)
+    if (logSearch) {
+      const q = logSearch.toLowerCase()
+      list = list.filter(
+        (l) =>
+          (l.email ?? '').toLowerCase().includes(q) ||
+          (l.ipAddress ?? '').includes(q),
+      )
+    }
+    return list
+  }, [loginLogs, logFilter, logSearch])
+
+  const filteredCourses = useMemo(() => {
+    let list = courses
+    if (courseStatusFilter) list = list.filter((c) => c.status === courseStatusFilter)
+    if (courseSearch) {
+      const q = courseSearch.toLowerCase()
+      list = list.filter(
+        (c) => c.title.toLowerCase().includes(q) || c.id.toLowerCase().includes(q),
+      )
+    }
+    return list
+  }, [courses, courseSearch, courseStatusFilter])
+
   // ── Pagination — one hook per data-heavy tab ─────────────────
-  const usersPag  = usePagination(users, 15)
-  const sessionsPag = usePagination(sessions, 15)
-  const logsPag   = usePagination(loginLogs, 20)
-  const coursesPag = usePagination(courses, 8)
+  const usersPag    = usePagination(filteredUsers, 15)
+  const sessionsPag = usePagination(filteredSessions, 15)
+  const logsPag     = usePagination(filteredLogs, 20)
+  const coursesPag  = usePagination(filteredCourses, 8)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -592,25 +653,33 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         </div>
       )}
       <div className="ui-card overflow-hidden">
-        <div className="flex flex-wrap items-center gap-3 border-b border-border/60 px-4 py-3">
+        <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-3">
+          {/* Text search */}
+          <div className="relative flex-1 min-w-[180px]">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+            <input
+              type="search"
+              placeholder="Tìm email, IP..."
+              value={logSearch}
+              onChange={(e) => setLogSearch(e.target.value)}
+              className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
+            />
+          </div>
+          {/* Outcome filter */}
           <select
             className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold"
             value={logFilter}
             onChange={(e) => setLogFilter(e.target.value)}
           >
-            <option value="">Tất cả</option>
-            <option value="success">Thành công</option>
-            <option value="failed">Thất bại</option>
-            <option value="locked">Bị khóa</option>
+            <option value="">Tất cả kết quả</option>
+            <option value="success">✅ Thành công</option>
+            <option value="failed">❌ Thất bại</option>
+            <option value="locked">🔒 Bị khóa</option>
           </select>
-          <Button variant="secondary" onClick={() => void load()}>
-            Làm mới
-          </Button>
-          <Button variant="ghost" className="text-muted" onClick={() => void purgeLogs()}>
-            Xóa nhật ký cũ
-          </Button>
-          {logSummary && (
-            <span className="text-xs text-muted">Purged: {new Date(logSummary.purgedAt).toLocaleString('vi-VN')}</span>
+          <Button variant="secondary" onClick={() => void load()}>Làm mới</Button>
+          <Button variant="ghost" className="text-muted" onClick={() => void purgeLogs()}>Xóa nhật ký cũ</Button>
+          {filteredLogs.length !== loginLogs.length && (
+            <span className="text-xs font-bold text-brand-500">{filteredLogs.length} / {loginLogs.length} log</span>
           )}
         </div>
         <div className="overflow-x-auto">
@@ -626,7 +695,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </thead>
             <tbody>
               {logsPag.slice.length === 0 ? (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">Chưa có log nào trong 24 giờ qua</td></tr>
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">{loginLogs.length === 0 ? 'Chưa có log nào trong 24 giờ qua' : 'Không có log khớp bộ lọc'}</td></tr>
               ) : logsPag.slice.map((log) => (
                 <tr key={log.id} className="border-b border-border/40 hover:bg-brand-50/30">
                   <td className="px-4 py-2 text-xs text-muted">{new Date(log.createdAt).toLocaleString('vi-VN')}</td>
@@ -639,13 +708,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </tbody>
           </table>
           <Paginator
-            page={logsPag.page}
-            totalPages={logsPag.totalPages}
-            totalItems={loginLogs.length}
-            pageSize={20}
-            onPrev={logsPag.prev}
-            onNext={logsPag.next}
-            onGoTo={logsPag.goTo}
+            page={logsPag.page} totalPages={logsPag.totalPages}
+            totalItems={filteredLogs.length} pageSize={20}
+            onPrev={logsPag.prev} onNext={logsPag.next} onGoTo={logsPag.goTo}
           />
         </div>
       </div>
@@ -657,15 +722,43 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
       <div className="ui-card overflow-hidden">
         {sectionHeader('Tài khoản')}
-        <div className="flex flex-wrap items-center gap-2 border-b border-border px-4 pb-3">
-          <p className="text-xs font-bold uppercase text-muted">Lọc theo vai trò:</p>
+        {/* Professional filter bar */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-3">
+          {/* Text search */}
+          <div className="relative flex-1 min-w-[200px]">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+            <input
+              type="search"
+              placeholder="Tìm tên, email..."
+              value={userSearch}
+              onChange={(e) => setUserSearch(e.target.value)}
+              className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
+            />
+          </div>
+          {/* Role filter */}
           <select className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
-            <option value="">Tất cả</option>
+            <option value="">Tất cả vai trò</option>
             <option value="student">Học sinh</option>
             <option value="parent">Phụ huynh</option>
             <option value="teacher">Giảng viên</option>
             <option value="admin">Quản trị viên</option>
           </select>
+          {/* Active filter */}
+          <select className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={userActiveFilter} onChange={(e) => setUserActiveFilter(e.target.value as '' | 'active' | 'inactive')}>
+            <option value="">Tất cả trạng thái</option>
+            <option value="active">✅ Đang hoạt động</option>
+            <option value="inactive">❌ Vô hiệu hóa</option>
+          </select>
+          {/* Result count badge */}
+          {(userSearch || roleFilter || userActiveFilter) && (
+            <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">
+              {filteredUsers.length} / {users.length} tài khoản
+            </span>
+          )}
+          {/* Clear all */}
+          {(userSearch || roleFilter || userActiveFilter) && (
+            <button type="button" className="text-xs font-bold text-muted underline" onClick={() => { setUserSearch(''); setRoleFilter(''); setUserActiveFilter('') }}>Xóa bộ lọc</button>
+          )}
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[560px] text-left text-sm">
@@ -679,7 +772,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </thead>
             <tbody>
               {usersPag.slice.length === 0 ? (
-                <tr><td colSpan={4} className="px-4 py-8 text-center text-muted">Không có tài khoản nào</td></tr>
+                <tr><td colSpan={4} className="px-4 py-8 text-center text-muted">{users.length === 0 ? 'Không có tài khoản nào' : 'Không có tài khoản khớp bộ lọc'}</td></tr>
               ) : usersPag.slice.map((u) => (
                 <tr key={u.id} className="border-b border-border/40">
                   <td className="px-4 py-3">
@@ -710,13 +803,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </table>
           </div>
           <Paginator
-            page={usersPag.page}
-            totalPages={usersPag.totalPages}
-            totalItems={users.length}
-            pageSize={15}
-            onPrev={usersPag.prev}
-            onNext={usersPag.next}
-            onGoTo={usersPag.goTo}
+            page={usersPag.page} totalPages={usersPag.totalPages}
+            totalItems={filteredUsers.length} pageSize={15}
+            onPrev={usersPag.prev} onNext={usersPag.next} onGoTo={usersPag.goTo}
           />
 
           {/* Inline edit panel — shown below the table when a user row is selected */}
@@ -789,6 +878,27 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     <>
       {sectionHeader('Phiên đăng nhập', 'Thu hồi phiên buộc đăng nhập lại. Không hiển thị token thô.')}
       <div className="ui-card overflow-hidden">
+        {/* Session search bar */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-3">
+          <div className="relative flex-1 min-w-[220px]">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+            <input
+              type="search"
+              placeholder="Tìm tên, email, IP..."
+              value={sessionSearch}
+              onChange={(e) => setSessionSearch(e.target.value)}
+              className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
+            />
+          </div>
+          {sessionSearch && (
+            <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">
+              {filteredSessions.length} / {sessions.length} phiên
+            </span>
+          )}
+          {sessionSearch && (
+            <button type="button" className="text-xs font-bold text-muted underline" onClick={() => setSessionSearch('')}>Xóa</button>
+          )}
+        </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-border bg-brand-50/80">
@@ -802,7 +912,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </thead>
             <tbody>
               {sessionsPag.slice.length === 0 ? (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">Không có phiên active</td></tr>
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">{sessions.length === 0 ? 'Không có phiên active' : 'Không có phiên khớp bộ lọc'}</td></tr>
               ) : sessionsPag.slice.map((s) => (
                 <tr key={s.id} className="border-b border-border/40">
                   <td className="px-4 py-3">
@@ -822,13 +932,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </tbody>
           </table>
           <Paginator
-            page={sessionsPag.page}
-            totalPages={sessionsPag.totalPages}
-            totalItems={sessions.length}
-            pageSize={15}
-            onPrev={sessionsPag.prev}
-            onNext={sessionsPag.next}
-            onGoTo={sessionsPag.goTo}
+            page={sessionsPag.page} totalPages={sessionsPag.totalPages}
+            totalItems={filteredSessions.length} pageSize={15}
+            onPrev={sessionsPag.prev} onNext={sessionsPag.next} onGoTo={sessionsPag.goTo}
           />
         </div>
       </div>
@@ -840,6 +946,30 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
       <div className="flex flex-col gap-3">
         {sectionHeader('Khóa học', 'Theo dõi trạng thái và chuyển sang không gian biên soạn khi cần chỉnh sửa')}
+        {/* Course search + status filter bar */}
+        <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-white px-4 py-3">
+          <div className="relative flex-1 min-w-[200px]">
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+            <input
+              type="search"
+              placeholder="Tìm tên khóa học..."
+              value={courseSearch}
+              onChange={(e) => setCourseSearch(e.target.value)}
+              className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
+            />
+          </div>
+          <select className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={courseStatusFilter} onChange={(e) => setCourseStatusFilter(e.target.value as '' | 'open' | 'soon')}>
+            <option value="">Tất cả trạng thái</option>
+            <option value="open">✅ Đang mở</option>
+            <option value="soon">🔒 Đang ẩn</option>
+          </select>
+          {(courseSearch || courseStatusFilter) && (
+            <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">{filteredCourses.length} khóa học</span>
+          )}
+          {(courseSearch || courseStatusFilter) && (
+            <button type="button" className="text-xs font-bold text-muted underline" onClick={() => { setCourseSearch(''); setCourseStatusFilter('') }}>Xóa bộ lọc</button>
+          )}
+        </div>
         {coursesPag.slice.map((c) => (
           <div key={c.id} className="ui-card p-4">
             <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
@@ -867,13 +997,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           </div>
         ))}
         <Paginator
-          page={coursesPag.page}
-          totalPages={coursesPag.totalPages}
-          totalItems={courses.length}
-          pageSize={8}
-          onPrev={coursesPag.prev}
-          onNext={coursesPag.next}
-          onGoTo={coursesPag.goTo}
+          page={coursesPag.page} totalPages={coursesPag.totalPages}
+          totalItems={filteredCourses.length} pageSize={8}
+          onPrev={coursesPag.prev} onNext={coursesPag.next} onGoTo={coursesPag.goTo}
           className="rounded-2xl border border-border bg-white"
         />
       </div>

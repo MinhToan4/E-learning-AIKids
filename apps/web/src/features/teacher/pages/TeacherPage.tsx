@@ -6,7 +6,7 @@
  * - Complete course creation flow: course → lectures → edit → publish
  * - Full-width layout (CmsShell handles sidebar)
  */
-import { useEffect, useState, useCallback, type ReactNode } from 'react'
+import { useEffect, useState, useCallback, useMemo, type ReactNode } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
@@ -203,16 +203,55 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   // Loading
   const [loading, setLoading] = useState(false)
 
+  // ── Search / filter state ─────────────────────────────
+  const [studentSearch, setStudentSearch] = useState('')
+  const [lectureSearch, setLectureSearch] = useState('')
+  const [lectureArchiveFilter, setLectureArchiveFilter] = useState<'' | 'active' | 'archived'>('')
+  const [statsSearch, setStatsSearch] = useState('')
+  const [statsSupportFilter, setStatsSupportFilter] = useState<'' | 'needs' | 'ok'>('')
+
   const { toasts, showToast, dismissToast } = useToast()
   const logout = useAuth((s) => s.logout)
   const navigate = useNavigate()
 
-  // ── Pagination — one hook per data-heavy list ─────────────────
-  const studentsPag = usePagination(students, 15)
-  const lecturesPag = usePagination(lectures, 10)
-  // stats.students is nested; build a stable array ref for pagination
+  // Derive lectures BEFORE pagination hooks to avoid TDZ with `const`
+  const activeCourse = courses.find((c) => c.id === selectedCourseId)
+  const lectures = activeCourse?.lectures ?? []
+
+  // ── Filtered arrays (client-side search) ────────────────────
+  const filteredStudents = useMemo(() => {
+    if (!studentSearch) return students
+    const q = studentSearch.toLowerCase()
+    return students.filter((s) => s.nickname?.toLowerCase().includes(q))
+  }, [students, studentSearch])
+
+  const filteredLectures = useMemo(() => {
+    let list = lectures
+    if (lectureArchiveFilter === 'active') list = list.filter((l) => !l.archived)
+    if (lectureArchiveFilter === 'archived') list = list.filter((l) => l.archived)
+    if (lectureSearch) {
+      const q = lectureSearch.toLowerCase()
+      list = list.filter((l) => l.title.toLowerCase().includes(q))
+    }
+    return list
+  }, [lectures, lectureSearch, lectureArchiveFilter])
+
   const statStudents = stats?.students ?? []
-  const statsPag = usePagination(statStudents, 15)
+  const filteredStatStudents = useMemo(() => {
+    let list = statStudents
+    if (statsSupportFilter === 'needs') list = list.filter((s) => s.needsSupport)
+    if (statsSupportFilter === 'ok') list = list.filter((s) => !s.needsSupport)
+    if (statsSearch) {
+      const q = statsSearch.toLowerCase()
+      list = list.filter((s) => s.nickname?.toLowerCase().includes(q))
+    }
+    return list
+  }, [statStudents, statsSearch, statsSupportFilter])
+
+  // ── Pagination — one hook per data-heavy list ─────────────────
+  const studentsPag = usePagination(filteredStudents, 15)
+  const lecturesPag = usePagination(filteredLectures, 10)
+  const statsPag = usePagination(filteredStatStudents, 15)
 
   // ── Load data ────────────────────────────────────────────
   const loadClass = useCallback(async () => {
@@ -249,9 +288,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     }
     void run()
   }, [tab])
-
-  const activeCourse = courses.find((c) => c.id === selectedCourseId)
-  const lectures = activeCourse?.lectures ?? []
 
   // ── Handlers ─────────────────────────────────────────────
   function pickLecture(l: Lecture) {
@@ -519,6 +555,25 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               </div>
               <span className="rounded-full bg-sky-100 px-3 py-1 text-xs font-extrabold text-sky-600">{students.length} học sinh</span>
             </div>
+            {/* Student search bar */}
+            <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-2">
+              <div className="relative flex-1 min-w-[180px]">
+                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+                <input
+                  type="search"
+                  placeholder="Tìm biệt danh..."
+                  value={studentSearch}
+                  onChange={(e) => setStudentSearch(e.target.value)}
+                  className="w-full min-h-10 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
+                />
+              </div>
+              {studentSearch && (
+                <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">{filteredStudents.length} / {students.length}</span>
+              )}
+              {studentSearch && (
+                <button type="button" className="text-xs font-bold text-muted underline" onClick={() => setStudentSearch('')}>Xóa</button>
+              )}
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full min-w-[480px] text-left text-sm">
                 <thead className="bg-sky-50/80">
@@ -531,7 +586,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                 </thead>
                 <tbody>
                   {studentsPag.slice.length === 0 ? (
-                    <tr><td colSpan={4} className="px-4 py-8 text-center text-muted">Chưa có học sinh nào</td></tr>
+                    <tr><td colSpan={4} className="px-4 py-8 text-center text-muted">{students.length === 0 ? 'Chưa có học sinh nào' : 'Không có học sinh khớp tìm kiếm'}</td></tr>
                   ) : studentsPag.slice.map((s) => (
                     <tr key={s.id} className="border-t border-border/40">
                       <td className="px-4 py-2 font-bold">{s.nickname}</td>
@@ -547,13 +602,9 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               </table>
             </div>
             <Paginator
-              page={studentsPag.page}
-              totalPages={studentsPag.totalPages}
-              totalItems={students.length}
-              pageSize={15}
-              onPrev={studentsPag.prev}
-              onNext={studentsPag.next}
-              onGoTo={studentsPag.goTo}
+              page={studentsPag.page} totalPages={studentsPag.totalPages}
+              totalItems={filteredStudents.length} pageSize={15}
+              onPrev={studentsPag.prev} onNext={studentsPag.next} onGoTo={studentsPag.goTo}
             />
           </div>
 
@@ -719,10 +770,46 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               </Button>
             </div>
 
+            {/* Lecture search + archive filter */}
+            <div className="flex flex-col gap-2 border-b border-border/60 px-3 py-3">
+              <div className="relative">
+                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+                <input
+                  type="search"
+                  placeholder="Tìm bài học..."
+                  value={lectureSearch}
+                  onChange={(e) => setLectureSearch(e.target.value)}
+                  className="w-full min-h-10 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
+                />
+              </div>
+              <div className="flex items-center gap-2">
+                <select
+                  className="flex-1 min-h-9 rounded-xl border-2 border-border bg-white px-2 text-xs font-bold"
+                  value={lectureArchiveFilter}
+                  onChange={(e) => setLectureArchiveFilter(e.target.value as '' | 'active' | 'archived')}
+                >
+                  <option value="">Tất cả</option>
+                  <option value="active">✅ Đang hiện</option>
+                  <option value="archived">🔒 Đang ẩn</option>
+                </select>
+                {(lectureSearch || lectureArchiveFilter) && (
+                  <span className="shrink-0 rounded-full bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600">{filteredLectures.length} bài</span>
+                )}
+                {(lectureSearch || lectureArchiveFilter) && (
+                  <button type="button" className="text-xs font-bold text-muted underline shrink-0" onClick={() => { setLectureSearch(''); setLectureArchiveFilter('') }}>Xóa</button>
+                )}
+              </div>
+            </div>
+
             {lectures.length === 0 ? (
               <div className="p-5 text-center">
                 <p className="font-bold text-text">Chưa có bài học</p>
                 <p className="mt-1 text-sm text-muted">Tạo bài đầu tiên theo bốn trạm ở khu vực bên cạnh.</p>
+              </div>
+            ) : filteredLectures.length === 0 ? (
+              <div className="p-5 text-center">
+                <p className="font-bold text-text">Không có bài khớp bộ lọc</p>
+                <button type="button" className="mt-2 text-sm font-bold text-brand-500 underline" onClick={() => { setLectureSearch(''); setLectureArchiveFilter('') }}>Xóa bộ lọc</button>
               </div>
             ) : (
               <ol className="divide-y divide-border/60" aria-label="Danh sách bài học">
@@ -756,13 +843,9 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               </ol>
             )}
             <Paginator
-              page={lecturesPag.page}
-              totalPages={lecturesPag.totalPages}
-              totalItems={lectures.length}
-              pageSize={10}
-              onPrev={lecturesPag.prev}
-              onNext={lecturesPag.next}
-              onGoTo={lecturesPag.goTo}
+              page={lecturesPag.page} totalPages={lecturesPag.totalPages}
+              totalItems={filteredLectures.length} pageSize={10}
+              onPrev={lecturesPag.prev} onNext={lecturesPag.next} onGoTo={lecturesPag.goTo}
             />
           </>
         )}
@@ -832,8 +915,36 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             <StatCard label="Bài học đang mở" value={stats.openQuestCount} icon={<CmsLecturesIcon />} />
             <StatCard label="Sản phẩm" value={stats.projectCount} icon={<CmsCoursesIcon />} />
           </div>
+          {/* Stats search + support filter */}
+          <div className="mb-4 flex flex-wrap items-center gap-2">
+            <div className="relative flex-1 min-w-[200px]">
+              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+              <input
+                type="search"
+                placeholder="Tìm học sinh..."
+                value={statsSearch}
+                onChange={(e) => setStatsSearch(e.target.value)}
+                className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
+              />
+            </div>
+            <select
+              className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm font-bold"
+              value={statsSupportFilter}
+              onChange={(e) => setStatsSupportFilter(e.target.value as '' | 'needs' | 'ok')}
+            >
+              <option value="">Tất cả</option>
+              <option value="needs">⚠️ Cần hỗ trợ</option>
+              <option value="ok">✅ Tiến triển tốt</option>
+            </select>
+            {(statsSearch || statsSupportFilter) && (
+              <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">{filteredStatStudents.length} / {statStudents.length} học sinh</span>
+            )}
+            {(statsSearch || statsSupportFilter) && (
+              <button type="button" className="text-xs font-bold text-muted underline" onClick={() => { setStatsSearch(''); setStatsSupportFilter('') }}>Xóa bộ lọc</button>
+            )}
+          </div>
           <div className="mb-4 rounded-2xl bg-sun-100/50 px-4 py-3 text-sm leading-relaxed text-text">
-            <strong>{stats.students.filter((student) => student.needsSupport).length} học sinh nên được hỏi thăm.</strong>{' '}
+            <strong>{statStudents.filter((student) => student.needsSupport).length} học sinh nên được hỏi thăm.</strong>{' '}
             Gợi ý dựa trên tiến độ gần đây, không dùng để xếp hạng hay đánh giá trẻ.
           </div>
           <div className="overflow-x-auto rounded-2xl border border-border">
@@ -868,13 +979,9 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             </tbody>
           </table>
           <Paginator
-            page={statsPag.page}
-            totalPages={statsPag.totalPages}
-            totalItems={statStudents.length}
-            pageSize={15}
-            onPrev={statsPag.prev}
-            onNext={statsPag.next}
-            onGoTo={statsPag.goTo}
+            page={statsPag.page} totalPages={statsPag.totalPages}
+            totalItems={filteredStatStudents.length} pageSize={15}
+            onPrev={statsPag.prev} onNext={statsPag.next} onGoTo={statsPag.goTo}
           />
           </div>
         </>
