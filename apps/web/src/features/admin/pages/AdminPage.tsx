@@ -290,6 +290,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const [loading, setLoading] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null)
   const [revokeTarget, setRevokeTarget] = useState<SessionRow | null>(null)
+  // Inline edit state — tracks which user row is open for editing
+  const [editTarget, setEditTarget] = useState<AdminUser | null>(null)
+  const [editForm, setEditForm] = useState({ nickname: '', role: 'student' as AdminUser['role'] })
 
   const { toasts, showToast, dismissToast } = useToast()
   const logout = useAuth((s) => s.logout)
@@ -434,6 +437,23 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       showToast(`Khóa học → ${status === 'open' ? 'Mở' : 'Ẩn'}`, 'success')
       await load()
     } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi cập nhật khóa', 'error') }
+  }
+
+  async function patchUser(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editTarget) return
+    try {
+      await api(`/api/admin/users/${editTarget.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          nickname: editForm.nickname.trim() || undefined,
+          role: editForm.role,
+        }),
+      })
+      showToast('Đã cập nhật tài khoản', 'success')
+      setEditTarget(null)
+      await load()
+    } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi cập nhật', 'error') }
   }
 
   async function purgeLogs() {
@@ -667,6 +687,15 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                   </td>
                   <td className="px-4 py-3 text-right">
                     <div className="flex flex-wrap justify-end gap-1">
+                      <Button
+                        variant="secondary"
+                        onClick={() => {
+                          setEditTarget(u)
+                          setEditForm({ nickname: u.nickname ?? '', role: u.role as AdminUser['role'] })
+                        }}
+                      >
+                        Sửa
+                      </Button>
                       <Button variant="secondary" onClick={() => void toggleActive(u)}>
                         {u.active ? 'Tắt' : 'Bật'}
                       </Button>
@@ -680,9 +709,46 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                 </tr>
               ))}
             </tbody>
-          </table>
+            </table>
+          </div>
+
+          {/* Inline edit panel — shown below the table when a user row is selected */}
+          {editTarget && (
+            <div className="border-t border-border bg-brand-50/40 px-4 py-4">
+              <div className="mb-3 flex items-center justify-between">
+                <p className="font-display text-base text-text">Sửa tài khoản · <span className="text-muted">{editTarget.email ?? editTarget.nickname}</span></p>
+                <button type="button" className="min-h-11 rounded-lg px-3 text-sm font-bold text-muted hover:bg-white" onClick={() => setEditTarget(null)}>Đóng</button>
+              </div>
+              <form className="flex flex-wrap gap-3" onSubmit={(e) => void patchUser(e)}>
+                <label className="flex flex-col gap-1 text-sm font-bold">
+                  Tên hiển thị
+                  <input
+                    className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm"
+                    value={editForm.nickname}
+                    onChange={(e) => setEditForm((f) => ({ ...f, nickname: e.target.value }))}
+                    placeholder={editTarget.nickname ?? '—'}
+                  />
+                </label>
+                <label className="flex flex-col gap-1 text-sm font-bold">
+                  Vai trò
+                  <select
+                    className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm"
+                    value={editForm.role}
+                    onChange={(e) => setEditForm((f) => ({ ...f, role: e.target.value as AdminUser['role'] }))}
+                  >
+                    <option value="student">Học sinh</option>
+                    <option value="parent">Phụ huynh</option>
+                    <option value="teacher">Giảng viên</option>
+                    <option value="admin">Quản trị viên</option>
+                  </select>
+                </label>
+                <div className="flex items-end">
+                  <Button type="submit">Lưu thay đổi</Button>
+                </div>
+              </form>
+            </div>
+          )}
         </div>
-      </div>
       <form className="ui-card flex h-fit flex-col gap-3 p-5" onSubmit={(e) => void createUser(e)}>
         <h2 className="font-display text-xl">Tạo tài khoản</h2>
         <label className="flex flex-col gap-1 text-sm font-bold">
