@@ -156,6 +156,12 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       }),
     }
   }
+  if (path === '/api/auth/google/config') {
+    return { path: '/api/v1/account/auth/google/config', options }
+  }
+  if (path === '/api/auth/login/google') {
+    return { path: '/api/v1/account/auth/google', options }
+  }
   if (path === '/api/auth/login/child-profile') {
     return {
       path: '/api/v1/account/family/child-login',

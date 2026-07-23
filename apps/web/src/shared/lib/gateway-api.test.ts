@@ -201,4 +201,25 @@ describe('StoryMee Gateway adapter', () => {
       expect.any(Object),
     )
   })
+
+  it('routes direct Google GIS auth to core Account without Firebase', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({ data: { enabled: true, clientId: 'google-client' } }))
+      .mockResolvedValueOnce(response({
+        accessToken: 'google-session',
+        user: { id: 'u-google', role: 'parent', name: 'Google Parent' },
+      }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await api('/api/auth/google/config')
+    await api('/api/auth/login/google', {
+      method: 'POST',
+      body: JSON.stringify({ credential: 'gis-token', role: 'parent' }),
+    })
+
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      'https://dev-hub.storymee.com/api/v1/account/auth/google/config',
+      'https://dev-hub.storymee.com/api/v1/account/auth/google',
+    ])
+  })
 })
