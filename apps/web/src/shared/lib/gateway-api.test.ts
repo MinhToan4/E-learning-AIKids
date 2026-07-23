@@ -72,13 +72,14 @@ describe('StoryMee Gateway adapter', () => {
       method: 'POST',
       body: JSON.stringify({ email: 'parent@example.test', password: 'secret' }),
     })
-    const result = await api<{ courses: Array<{ courseKey?: string; questCount: number }> }>(
+    const result = await api<{ courses: Array<{ courseKey?: string; questCount: number; status: string }> }>(
       '/api/courses',
     )
 
     expect(result.courses[0]).toMatchObject({
       courseKey: 'ai-co-ban',
       questCount: 3,
+      status: 'open',
     })
     const secondRequest = fetchMock.mock.calls[1]
     expect((secondRequest[1].headers as Headers).get('Authorization'))
@@ -101,6 +102,26 @@ describe('StoryMee Gateway adapter', () => {
       'https://dev-hub.storymee.com/api/v1/gamification/me/streak',
       expect.any(Object),
     )
+  })
+
+  it('routes the daily learning mission into the LMS world', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response([{
+      mission: {
+        key: 'daily_lesson',
+        title: 'Học mỗi ngày',
+        description: 'Hoàn thành một bài học hôm nay',
+        cadence: 'daily',
+        xpReward: 10,
+      },
+      progress: 0,
+    }]))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{
+      mission: { action: { route: string } } | null
+    }>('/api/gamification/daily-mission')
+
+    expect(result.mission?.action.route).toBe('/world')
   })
 
   it('routes the complete learning flow through the LMS compatibility facade', async () => {
