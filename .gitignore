@@ -26,3 +26,5 @@ packages/vidtory-ai-sdk/
 artifacts/
 *.tmp*
 load/session-tokens.json
+.vercel/
+.env.local
