@@ -96,17 +96,6 @@ export function NotificationBell() {
           <div className="absolute right-0 z-50 mt-2 w-[min(100vw-2rem,22rem)] overflow-hidden rounded-2xl border border-border bg-white shadow-clay">
             <div className="flex items-center justify-between border-b border-border px-3 py-2">
               <p className="text-sm font-extrabold">Thông báo</p>
-              {!pushEnabled && typeof Notification !== 'undefined' && Notification.permission !== 'denied' && (
-                <button
-                  type="button"
-                  className="text-xs font-bold text-brand-500 hover:underline"
-                  onClick={() => void enablePushNotifications()
-                    .then(setPushEnabled)
-                    .catch(() => setPushEnabled(false))}
-                >
-                  Bật thông báo
-                </button>
-              )}
               {unread > 0 && (
                 <button
                   type="button"
