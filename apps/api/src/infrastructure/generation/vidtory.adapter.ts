@@ -213,8 +213,13 @@ async function buildClient(
   }) as unknown as VidtoryClientLike
 }
 
-function softClayImagePrompt(prompt: string): string {
-  return `${prompt}. Soft clay illustration for children ages 6-11, warm pastel, handmade clay texture, rounded shapes, no plastic neon, no photorealistic chrome, friendly and safe`
+// REMOVED: softClayImagePrompt — nó hardcode clay keywords vào MỌI prompt ảnh,
+// ghi đè bất kỳ phong cách nào người dùng chọn (anime, pixel, manga, v.v.).
+// Style-specific prompt được buildCreativePrompt() xây dựng và truyền vào trực tiếp.
+
+// Safety suffix chung — không ràng buộc phong cách, chỉ đảm bảo an toàn nội dung trẻ em.
+function childSafeImageSuffix(prompt: string): string {
+  return `${prompt}. Child-safe content, friendly and wholesome, appropriate for ages 6-15, no violence, no adult content, no watermark`
 }
 
 function softClayVideoPrompt(prompt: string): string {
@@ -267,7 +272,10 @@ export async function generatePracticeImage(
   }
 
   const genParams = {
-    prompt: softClayImagePrompt(prompt),
+    // Dùng childSafeImageSuffix thay vì softClayImagePrompt:
+    // style keywords đã được buildCreativePrompt() nhúng vào prompt rồi,
+    // không được override bằng clay bias nữa.
+    prompt: childSafeImageSuffix(prompt),
     aspectRatio: routing.image.aspectRatio,
     modelId: picked.modelId,
     resolution: routing.image.resolution,

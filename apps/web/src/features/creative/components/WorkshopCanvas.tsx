@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Brush,
   Circle,
+  Download,
   Eraser,
   Pipette,
   PaintBucket,
@@ -340,15 +341,28 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
       // strings easily exceed that. The BE builds the full Vidtory prompt via
       // buildCreativePrompt(kind, title, idea, details) using title + styleId.
       //
-      // styleId mapping: BE accepts 'watercolor' | 'clay' | 'paper-cut'.
-      // For unsupported FE styles the styleId is omitted and the style name is
-      // already embedded in the title so Vidtory still has style context.
-      const BE_STYLE_MAP: Record<string, 'watercolor' | 'clay' | 'paper-cut'> = {
-        watercolor: 'watercolor',
-        clay: 'clay',
-        'paper-cut': 'paper-cut',
+      // styleId mapping: BE creative-prompts.ts đã được mở rộng để hỗ trợ đủ 14 phong cách.
+      // Mọi style từ FE đều có id tương ứng, không có style nào được để undefined.
+      type BEStyleId = 'watercolor' | 'cartoon' | 'crayon' | 'anime' | 'manga' | 'comic' | 'sketch' | '3d' | 'pixel' | 'chibi' | 'clay' | 'fabric' | 'manhwa' | 'semirealistic' | 'paper-cut'
+      const BE_STYLE_MAP: Record<string, BEStyleId> = {
+        watercolor:    'watercolor',
+        cartoon:       'cartoon',
+        crayon:        'crayon',
+        anime:         'anime',
+        manga:         'manga',
+        comic:         'comic',
+        sketch:        'sketch',
+        '3d':          '3d',
+        pixel:         'pixel',
+        chibi:         'chibi',
+        clay:          'clay',
+        fabric:        'fabric',
+        manhwa:        'manhwa',
+        semirealistic: 'semirealistic',
+        'paper-cut':   'paper-cut',
       }
-      const styleId = BE_STYLE_MAP[selectedStyle]
+      // Nếu user chọn style không rõ, fallback về clay để an toàn.
+      const styleId: BEStyleId = BE_STYLE_MAP[selectedStyle] ?? 'clay'
 
       const createRes = await api<{ asset: { id: string; url: string } }>(
         '/api/creative/create',
@@ -360,8 +374,9 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
             title: `Tranh ${styleName} của con`,
             // No prompt — BE uses fallback: "Tác phẩm thiếu nhi: Tranh ${styleName} của con"
             details: {
-              ...(styleId ? { styleId } : {}),
-              preserve: 'the main subject, its pose and the important colors',
+              styleId,
+              // preserve bị bỏ: prompt mới bảo AI dùng sketch làm concept hint,
+              // không phải cải thiện nét vẽ → không cần "preserve" constraint.
             },
             assetIds: [assetId],
           }),
@@ -376,7 +391,9 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
       setAiState('error')
       setAiError(err instanceof Error ? err.message : 'Lỗi không xác định')
     }
-  }, [styleName])
+  // selectedStyle phải có trong deps: closure dùng selectedStyle để tra BE_STYLE_MAP.
+  // Nếu thiếu → stale closure → styleId luôn undefined → BE fallback sang 'clay'.
+  }, [styleName, selectedStyle])
 
   // ── Save to backpack ─────────────────────────────────────────
   async function saveToBackpack() {
@@ -396,12 +413,27 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
   }
 
   // ── Download ─────────────────────────────────────────────────
-  function download() {
+  // Lý do dùng fetch → Blob: thuộc tính `download` trên thẻ <a> chỉ hoạt động
+  // với same-origin URL. aiUrl là cross-origin (CDN/Supabase) nên browser bỏ qua
+  // `download` và điều hướng thẳng đến URL thay vì tải file.
+  // Giải pháp: kéo ảnh về local memory (Blob) → tạo blob:// URL (same-origin)
+  // → trigger click → revoke URL ngay để tránh memory leak.
+  async function download() {
     if (!aiUrl) return
-    const a = document.createElement('a')
-    a.href = aiUrl
-    a.download = `aikid-art-${Date.now()}.jpg`
-    a.click()
+    try {
+      const res = await fetch(aiUrl)
+      const blob = await res.blob()
+      const blobUrl = URL.createObjectURL(blob)
+      const a = document.createElement('a')
+      a.href = blobUrl
+      a.download = `aikid-art-${Date.now()}.jpg`
+      a.click()
+      // Revoke sau 60s — đủ để browser hoàn thành download
+      setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000)
+    } catch {
+      // Fallback: mở trong tab mới thay vì điều hướng trang hiện tại
+      window.open(aiUrl, '_blank', 'noopener,noreferrer')
+    }
   }
 
   // ── Toolbar items ────────────────────────────────────────────
@@ -544,7 +576,8 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
                 </button>
                 <button type="button" onClick={download} aria-label="Tải ảnh về"
                   className="rounded-btn border border-border px-3 py-1.5 text-xs font-bold text-muted hover:border-brand-300">
-                  <RotateCcw size={12} className="mr-1 inline" /> Tải về
+                  {/* Download icon — phân biệt với nút Làm lại (RotateCcw) */}
+                  <Download size={12} className="mr-1 inline" /> Tải về
                 </button>
               </div>
             )}
