@@ -376,6 +376,7 @@ function DashboardTab() {
 // ── Kids Tab ──────────────────────────────────────────────────
 function KidsTab() {
   const [kids, setKids] = useState<Child[]>([])
+  const [familyCode, setFamilyCode] = useState<string | null>(null)
   const [sub, setSub] = useState<HouseholdSub | null>(null)
   const [selectedChild, setSelectedChild] = useState<string | null>(null)
   const [progress, setProgress] = useState<ChildProgress | null>(null)
@@ -392,12 +393,16 @@ function KidsTab() {
   const loadKids = useCallback(async () => {
     setError(null)
     try {
-      const data = await api<{
-        children: Child[]
-        subscription: HouseholdSub
-      }>('/api/parent/children')
+      const [data, code] = await Promise.all([
+        api<{
+          children: Child[]
+          subscription: HouseholdSub
+        }>('/api/parent/children'),
+        api<{ familyCode: string }>('/api/parent/family-login-code'),
+      ])
       setKids(data.children)
       setSub(data.subscription)
+      setFamilyCode(code.familyCode)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Lỗi tải dữ liệu')
     } finally {
@@ -511,6 +516,27 @@ function KidsTab() {
         Ba/mẹ tạo hồ sơ cho con. Trên máy ở nhà, bấm “Vào học” để đưa máy cho con — không cần mật khẩu
         ba/mẹ.
       </p>
+      {familyCode && (
+        <div className="ui-card flex flex-wrap items-center justify-between gap-3 border-2 border-brand-100 bg-brand-50/70 p-4">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
+              Mã gia đình để con đăng nhập
+            </p>
+            <p className="mt-1 font-mono text-2xl font-black tracking-widest text-brand-700">
+              {familyCode}
+            </p>
+          </div>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              void navigator.clipboard.writeText(familyCode)
+              setMsg('Đã sao chép mã gia đình.')
+            }}
+          >
+            Sao chép mã
+          </Button>
+        </div>
+      )}
 
       {showForm && (
         <ChildForm

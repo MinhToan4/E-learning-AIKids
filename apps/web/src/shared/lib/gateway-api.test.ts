@@ -31,19 +31,23 @@ describe('StoryMee Gateway adapter', () => {
       '/api/auth/login/student',
       {
         method: 'POST',
-        body: JSON.stringify({ nickname: 'be-may', password: 'secret' }),
+        body: JSON.stringify({
+          familyCode: 'SM-ABC123',
+          nickname: 'Bé Mây',
+          pin: '424242',
+        }),
       },
     )
 
     expect(result.user.role).toBe('student')
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://dev-hub.storymee.com/api/v1/account/login',
+      'https://dev-hub.storymee.com/api/v1/account/family/child-login',
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({
-          login: 'be-may',
-          username: 'be-may',
-          password: 'secret',
+          familyCode: 'SM-ABC123',
+          nickname: 'Bé Mây',
+          pin: '424242',
         }),
       }),
     )

@@ -241,11 +241,11 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
   }
   if (path === '/api/auth/login/student') {
     return {
-      path: '/api/v1/account/login',
+      path: '/api/v1/account/family/child-login',
       options: withJson(options, {
-        login: body.nickname,
-        username: body.nickname,
-        password: body.password ?? body.pin,
+        familyCode: body.familyCode,
+        nickname: body.nickname,
+        pin: body.pin,
       }),
     }
   }

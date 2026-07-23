@@ -9,6 +9,7 @@ import { designerAssets } from '@/shared/config/assets'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
+import { PinPadModal } from '@/shared/components/ui/PinPadModal'
 import type { User } from '@/shared/lib/api'
 
 export function LoginPage() {
@@ -19,8 +20,11 @@ export function LoginPage() {
       : 'student'
   const [mode, setMode] = useState<'student' | 'adult'>(initial as 'student' | 'adult')
   const [nickname, setNickname] = useState('')
+  const [familyCode, setFamilyCode] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
+  const [pin, setPin] = useState('')
+  const [showPinModal, setShowPinModal] = useState(false)
   const [busy, setBusy] = useState(false)
   const { toasts, showToast, dismissToast } = useToast()
   const loginStudent = useAuth((s) => s.loginStudent)
@@ -37,7 +41,7 @@ export function LoginPage() {
   const hint = useMemo(
     () =>
       mode === 'student'
-        ? 'Con dùng tên đăng nhập và mật khẩu ba/mẹ đã tạo trên StoryMee.'
+        ? 'Con dùng mã gia đình, biệt danh và PIN 6 số ba/mẹ đã tạo.'
         : 'Ba/mẹ hoặc thầy cô đăng nhập bằng email để quản lý và cho con học.',
     [mode],
   )
@@ -47,8 +51,8 @@ export function LoginPage() {
     setBusy(true)
     try {
       if (mode === 'student') {
-        const user = await loginStudent(nickname.trim(), password)
-        navigate(user.onboarded ? '/home' : '/onboarding')
+        setShowPinModal(true)
+        return
       } else {
         const user = await loginAdult(email.trim(), password)
         goAfterAdult(user)
@@ -56,6 +60,24 @@ export function LoginPage() {
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : 'Không vào được. Thử lại nhé!'
       showToast(msg, 'error')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  async function onSubmitPin(enteredPin: string) {
+    setBusy(true)
+    try {
+      const user = await loginStudent(
+        nickname.trim(),
+        familyCode.trim().toUpperCase(),
+        { pin: enteredPin },
+      )
+      navigate(user.onboarded ? '/home' : '/onboarding')
+    } catch (err) {
+      const msg = err instanceof ApiError ? err.message : 'Mã gia đình, biệt danh hoặc PIN chưa đúng.'
+      showToast(msg, 'error')
+      setPin('')
     } finally {
       setBusy(false)
     }
@@ -118,6 +140,17 @@ export function LoginPage() {
             {mode === 'student' ? (
               <>
                 <label className="flex flex-col gap-1 text-sm font-bold">
+                  Mã gia đình
+                  <input
+                    className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold uppercase tracking-wider outline-none focus:border-brand-500"
+                    value={familyCode}
+                    maxLength={10}
+                    placeholder="SM-XXXXXX"
+                    onChange={(e) => setFamilyCode(e.target.value.toUpperCase())}
+                    required
+                  />
+                </label>
+                <label className="flex flex-col gap-1 text-sm font-bold">
                   Biệt danh
                   <input
                     className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500"
@@ -127,18 +160,8 @@ export function LoginPage() {
                     required
                   />
                 </label>
-                <label className="flex flex-col gap-1 text-sm font-bold">
-                  Mật khẩu
-                  <input
-                    type="password"
-                    className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                  />
-                </label>
                 <p className="text-xs text-muted">
-                  Chưa có hồ sơ? Nhờ ba/mẹ đăng nhập, vào mục Con và thêm con nhé.
+                  Ba/mẹ xem mã gia đình và đặt PIN trong mục Quản lý con.
                 </p>
               </>
             ) : (
@@ -204,6 +227,19 @@ export function LoginPage() {
           </form>
         </div>
       </div>
+      <PinPadModal
+        isOpen={showPinModal}
+        onClose={() => {
+          setShowPinModal(false)
+          setPin('')
+        }}
+        onSubmit={(value) => void onSubmitPin(value)}
+        title={`Xin chào ${nickname || 'bạn nhỏ'}!`}
+        subtitle="Nhập mã PIN 6 số ba/mẹ đã đặt"
+        busy={busy}
+        pin={pin}
+        setPin={setPin}
+      />
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   )

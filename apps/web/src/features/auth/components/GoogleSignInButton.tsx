@@ -40,6 +40,7 @@ export function GoogleSignInButton({
   className,
 }: Props) {
   const [enabled, setEnabled] = useState(false)
+  const [configLoaded, setConfigLoaded] = useState(false)
   const [clientId, setClientId] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const [scriptReady, setScriptReady] = useState(false)
@@ -69,6 +70,8 @@ export function GoogleSignInButton({
           setEnabled(true)
           setClientId(fromEnv)
         }
+      } finally {
+        if (!cancelled) setConfigLoaded(true)
       }
     })()
     return () => {
@@ -190,6 +193,19 @@ export function GoogleSignInButton({
       setBusy(false)
       onError('Không mở được cửa sổ Google. Thử lại nhé.')
     }
+  }
+
+  if (configLoaded && !enabled) {
+    return (
+      <button
+        type="button"
+        onClick={() => onError('Google chưa được cấu hình trên Account API.')}
+        className={cn('ui-btn ui-btn-secondary w-full !min-h-12 gap-3', className)}
+      >
+        <GoogleGIcon className="h-5 w-5 shrink-0" />
+        <span>Tiếp tục với Google</span>
+      </button>
+    )
   }
 
   if (!enabled) return null
