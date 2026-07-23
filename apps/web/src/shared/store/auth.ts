@@ -21,7 +21,6 @@ type AuthState = {
   bootstrap: () => Promise<void>
   loginStudent: (
     nickname: string,
-    familyCode: string,
     opts: { pin: string },
   ) => Promise<User>
   /** Parent hands device to child (ends parent session) */
@@ -105,13 +104,12 @@ export const useAuth = create<AuthState>((set, get) => ({
     }
   },
 
-  loginStudent: async (nickname, familyCode, opts) => {
+  loginStudent: async (nickname, opts) => {
     set({ error: null })
     const { user } = await api<{ user: User }>('/api/auth/login/student', {
       method: 'POST',
       body: JSON.stringify({
         nickname,
-        familyCode,
         pin: opts.pin,
       }),
     })

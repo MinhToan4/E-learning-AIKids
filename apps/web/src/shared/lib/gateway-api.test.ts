@@ -20,7 +20,7 @@ describe('StoryMee Gateway adapter', () => {
     vi.restoreAllMocks()
   })
 
-  it('translates child login and persists the StoryMee JWT', async () => {
+  it('translates nickname + PIN child login without a family code and persists the StoryMee JWT', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response({
       token: 'storymee-jwt',
       user: { id: 'u1', actor: 'child', name: 'Bé Mây' },
@@ -32,7 +32,6 @@ describe('StoryMee Gateway adapter', () => {
       {
         method: 'POST',
         body: JSON.stringify({
-          familyCode: 'SM-ABC123',
           nickname: 'Bé Mây',
           pin: '424242',
         }),
@@ -45,7 +44,6 @@ describe('StoryMee Gateway adapter', () => {
       expect.objectContaining({
         method: 'POST',
         body: JSON.stringify({
-          familyCode: 'SM-ABC123',
           nickname: 'Bé Mây',
           pin: '424242',
         }),

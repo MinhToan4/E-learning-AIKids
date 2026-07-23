@@ -20,7 +20,6 @@ export function LoginPage() {
       : 'student'
   const [mode, setMode] = useState<'student' | 'adult'>(initial as 'student' | 'adult')
   const [nickname, setNickname] = useState('')
-  const [familyCode, setFamilyCode] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [pin, setPin] = useState('')
@@ -41,7 +40,7 @@ export function LoginPage() {
   const hint = useMemo(
     () =>
       mode === 'student'
-        ? 'Con dùng mã gia đình, biệt danh và PIN 6 số ba/mẹ đã tạo.'
+        ? 'Con dùng biệt danh và PIN 6 số ba/mẹ đã tạo.'
         : 'Ba/mẹ hoặc thầy cô đăng nhập bằng email để quản lý và cho con học.',
     [mode],
   )
@@ -70,12 +69,11 @@ export function LoginPage() {
     try {
       const user = await loginStudent(
         nickname.trim(),
-        familyCode.trim().toUpperCase(),
         { pin: enteredPin },
       )
       navigate(user.onboarded ? '/home' : '/onboarding')
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Mã gia đình, biệt danh hoặc PIN chưa đúng.'
+      const msg = err instanceof ApiError ? err.message : 'Biệt danh hoặc PIN chưa đúng.'
       showToast(msg, 'error')
       setPin('')
     } finally {
@@ -140,17 +138,6 @@ export function LoginPage() {
             {mode === 'student' ? (
               <>
                 <label className="flex flex-col gap-1 text-sm font-bold">
-                  Mã gia đình
-                  <input
-                    className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold uppercase tracking-wider outline-none focus:border-brand-500"
-                    value={familyCode}
-                    maxLength={10}
-                    placeholder="SM-XXXXXX"
-                    onChange={(e) => setFamilyCode(e.target.value.toUpperCase())}
-                    required
-                  />
-                </label>
-                <label className="flex flex-col gap-1 text-sm font-bold">
                   Biệt danh
                   <input
                     className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500"
@@ -161,7 +148,7 @@ export function LoginPage() {
                   />
                 </label>
                 <p className="text-xs text-muted">
-                  Ba/mẹ xem mã gia đình và đặt PIN trong mục Quản lý con.
+                  Chưa có hồ sơ? Nhờ ba/mẹ đăng nhập, vào mục Con và thêm con nhé.
                 </p>
               </>
             ) : (
