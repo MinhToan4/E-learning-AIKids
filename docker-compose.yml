@@ -37,7 +37,9 @@ services:
       NODE_ENV: production
       PORT: 4000
       HOST: 0.0.0.0
-      COOKIE_SECURE: ${COOKIE_SECURE:-false}
+      # COOKIE_SECURE must be true when served over HTTPS (Cloudflare Tunnel).
+      # SameSite=None without Secure is rejected by all modern browsers (RFC 6265bis).
+      COOKIE_SECURE: ${COOKIE_SECURE:-true}
       REDIS_URL: redis://redis:6379
     ports:
       - '4000:4000'
