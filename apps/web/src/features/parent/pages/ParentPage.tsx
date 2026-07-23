@@ -416,7 +416,16 @@ function KidsTab() {
       const data = await api<ChildProgress>(
         `/api/parent/children/${childId}/progress${courseId ? `?courseId=${encodeURIComponent(courseId)}` : ''}`,
       )
-      setProgress(data)
+      const child = kids.find((item) => item.id === childId)
+      setProgress(child ? {
+        ...data,
+        child: {
+          ...data.child,
+          nickname: child.nickname,
+          level: child.level,
+          xp: child.xp,
+        },
+      } : data)
     } catch {
       setProgress(null)
     }
