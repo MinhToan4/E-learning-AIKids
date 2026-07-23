@@ -14,6 +14,12 @@ export function clearAccessToken(): void {
   if (typeof localStorage !== 'undefined') localStorage.removeItem(TOKEN_KEY)
 }
 
+export async function fetchRemoteBlob(url: string): Promise<Blob> {
+  const response = await fetch(url)
+  if (!response.ok) throw new Error(`Không tải được tệp (HTTP ${response.status}).`)
+  return response.blob()
+}
+
 export class ApiError extends Error {
   status: number
   body: unknown

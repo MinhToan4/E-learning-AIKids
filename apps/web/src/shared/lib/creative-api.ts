@@ -1,4 +1,4 @@
-import { api } from './api'
+import { api, fetchRemoteBlob } from './api'
 
 type Job = {
   id?: string
@@ -110,4 +110,8 @@ export async function generateCreativeStory(prompt: string): Promise<string> {
   const text = String(job.inputParams?.outputText ?? '').trim()
   if (!text) throw new Error('StoryMee chưa trả về nội dung truyện.')
   return text
+}
+
+export async function fetchCreativeDownload(url: string): Promise<Blob> {
+  return fetchRemoteBlob(url)
 }

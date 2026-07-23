@@ -3,6 +3,7 @@ import {
   ArrowRight,
   Brush,
   Circle,
+  Download,
   Eraser,
   Pipette,
   PaintBucket,
@@ -15,7 +16,14 @@ import {
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { api } from '@/shared/lib/api'
-import { generateCreativeImage } from '@/shared/lib/creative-api'
+import {
+  fetchCreativeDownload,
+  generateCreativeImage,
+} from '@/shared/lib/creative-api'
+import {
+  buildArtGenerationPrompt,
+  isArtStyleId,
+} from '@aikids/domain'
 import { ART_STYLES } from '../lib/workshop-types'
 import type { WorkshopStep } from '../lib/workshop-types'
 
@@ -273,8 +281,9 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
     setAiError(null)
     const imageDataUrl = canvas.toDataURL('image/png')
     try {
+      const styleId = isArtStyleId(selectedStyle) ? selectedStyle : 'clay'
       const url = await generateCreativeImage({
-        prompt: `Tạo tranh thiếu nhi an toàn theo phong cách ${styleName}. Giữ bố cục và ý tưởng từ ảnh tham chiếu.`,
+        prompt: buildArtGenerationPrompt(styleId),
         imageDataUrl,
       })
       setAiUrl(url)
@@ -283,7 +292,7 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
       setAiState('error')
       setAiError(err instanceof Error ? err.message : 'Lỗi không xác định')
     }
-  }, [styleName])
+  }, [selectedStyle])
 
   // ── Save to backpack ─────────────────────────────────────────
   async function saveToBackpack() {
@@ -303,12 +312,18 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
   }
 
   // ── Download ─────────────────────────────────────────────────
-  function download() {
+  async function download() {
     if (!aiUrl) return
-    const a = document.createElement('a')
-    a.href = aiUrl
-    a.download = `aikid-art-${Date.now()}.jpg`
-    a.click()
+    try {
+      const blobUrl = URL.createObjectURL(await fetchCreativeDownload(aiUrl))
+      const anchor = document.createElement('a')
+      anchor.href = blobUrl
+      anchor.download = `aikid-art-${Date.now()}.jpg`
+      anchor.click()
+      window.setTimeout(() => URL.revokeObjectURL(blobUrl), 60_000)
+    } catch {
+      window.open(aiUrl, '_blank', 'noopener,noreferrer')
+    }
   }
 
   // ── Toolbar items ────────────────────────────────────────────
@@ -451,7 +466,7 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
                 </button>
                 <button type="button" onClick={download} aria-label="Tải ảnh về"
                   className="rounded-btn border border-border px-3 py-1.5 text-xs font-bold text-muted hover:border-brand-300">
-                  <RotateCcw size={12} className="mr-1 inline" /> Tải về
+                  <Download size={12} className="mr-1 inline" /> Tải về
                 </button>
               </div>
             )}

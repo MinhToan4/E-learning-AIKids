@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest'
 import {
   ART_STYLES,
   assertArtStyleId,
+  buildArtGenerationPrompt,
   buildCharacterLabel,
   isArtStyleId,
   isCharacterShapeId,
@@ -19,6 +20,15 @@ describe('creative catalogs (AIkid core)', () => {
   it('assertArtStyleId throws CreativeError on bad id', () => {
     expect(() => assertArtStyleId('plastic-neon')).toThrow(CreativeError)
     expect(assertArtStyleId('watercolor')).toBe('watercolor')
+  })
+
+  it('builds provider-neutral style prompts for every workshop style', () => {
+    for (const style of ART_STYLES) {
+      const prompt = buildArtGenerationPrompt(style.id)
+      expect(prompt).toContain(style.promptDescriptor)
+      expect(prompt).toContain('reference sketch')
+      expect(prompt).toContain('Child-safe')
+    }
   })
 
   it('buildCharacterLabel combines safe parts', () => {

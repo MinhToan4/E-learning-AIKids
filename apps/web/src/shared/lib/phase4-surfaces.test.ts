@@ -133,6 +133,8 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(creative).not.toContain('uploadStudentImage')
     expect(creative).not.toContain("kind: 'mee'")
     expect(creative).not.toContain('Tạo Mee')
+    expect(creative).toContain('buildArtGenerationPrompt')
+    expect(creative).toContain('URL.createObjectURL')
   })
 
   it('root rendering has a child-friendly recovery boundary', () => {
