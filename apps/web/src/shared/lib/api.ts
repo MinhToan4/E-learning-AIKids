@@ -127,6 +127,25 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       options: { ...options, method: 'GET', body: undefined },
     }
   }
+  if (path === '/api/parent/plans') {
+    return { path: '/api/v1/billing/plans', options }
+  }
+  if (path === '/api/parent/subscription') {
+    if ((options.method ?? 'GET').toUpperCase() === 'POST') {
+      const plan = String(body.planCode ?? '')
+      const headers = new Headers(options.headers)
+      const key = `aikids-plan-${plan}-${crypto.randomUUID()}`
+      headers.set('Idempotency-Key', key)
+      return {
+        path: '/api/v1/billing/me/checkout',
+        options: {
+          ...withJson(options, { plan, idempotencyKey: key }),
+          headers,
+        },
+      }
+    }
+    return { path: '/api/v1/billing/me/subscription', options }
+  }
   if (path === '/api/auth/login/student') {
     return {
       path: '/api/v1/account/login',
@@ -395,6 +414,44 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     return { user: mapUser((payload.user ?? payload) as Record<string, unknown>) }
   }
   if (path === '/api/auth/logout') clearAccessToken()
+  if (path === '/api/parent/plans') {
+    const rows = Array.isArray(body.data) ? body.data as Array<Record<string, unknown>> : []
+    return {
+      plans: rows.map((row) => ({
+        code: String(row.id ?? ''),
+        name: String(row.name ?? ''),
+        tagline: String(row.tagline ?? ''),
+        maxChildren: Number(row.maxChildren ?? 0),
+        maxOpenCoursesPerChild: Number(row.maxOpenCoursesPerChild ?? 0),
+        priceMonthly: Number(row.amountMinor ?? 0),
+        currency: String(row.currency ?? 'vnd').toUpperCase(),
+        features: Array.isArray(row.features) ? row.features.map(String) : [],
+      })),
+    }
+  }
+  if (path === '/api/parent/subscription') {
+    const subscription = recordValue(payload.subscription ?? payload)
+    const plan = recordValue(subscription.planDef)
+    const planCode = String(subscription.plan ?? plan.id ?? 'free')
+    const maxChildren = Number(plan.maxChildren ?? 0)
+    return {
+      subscription: {
+        planCode,
+        planName: String(plan.name ?? planCode),
+        status: String(subscription.status ?? 'pending'),
+        maxChildren,
+        maxOpenCoursesPerChild: Number(plan.maxOpenCoursesPerChild ?? 0),
+        childCount: 0,
+        seatsRemaining: maxChildren,
+        features: Array.isArray(plan.features) ? plan.features.map(String) : [],
+        currentPeriodEnd: subscription.expiresAt
+          ? String(subscription.expiresAt)
+          : null,
+      },
+      message: typeof body.message === 'string' ? body.message : '',
+      checkout: body.checkout,
+    }
+  }
   if (path === '/api/courses' && Array.isArray(payload.courses)) {
     return {
       courses: payload.courses.map((course) =>

@@ -172,4 +172,33 @@ describe('StoryMee Gateway adapter', () => {
       'https://dev-hub.storymee.com/api/v1/lms/aikids/teacher/lectures',
     ])
   })
+
+  it('maps the server-owned billing catalog for the parent plan UI', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      status: 'success',
+      data: [{
+        id: 'premium_family',
+        name: 'Premium Family',
+        amountMinor: 149000,
+        currency: 'vnd',
+        maxChildren: 4,
+        maxOpenCoursesPerChild: 5,
+        features: ['Family profiles'],
+      }],
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{ plans: Array<{ code: string; maxChildren: number }> }>(
+      '/api/parent/plans',
+    )
+
+    expect(result.plans[0]).toMatchObject({
+      code: 'premium_family',
+      maxChildren: 4,
+    })
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://dev-hub.storymee.com/api/v1/billing/plans',
+      expect.any(Object),
+    )
+  })
 })

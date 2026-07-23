@@ -195,14 +195,15 @@ function PlanTab() {
     setError(null)
     try {
       const data = await api<{
-        subscription: HouseholdSub
+        subscription?: HouseholdSub
         message: string
       }>('/api/parent/subscription', {
         method: 'POST',
         body: JSON.stringify({ planCode: code }),
       })
-      setSub(data.subscription)
+      if (data.subscription) setSub(data.subscription)
       setMsg(data.message)
+      await load()
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Không đổi được gói')
     } finally {
