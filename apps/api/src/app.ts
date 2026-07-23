@@ -48,8 +48,21 @@ export async function buildApp() {
 
   // Explicit methods: browser preflight for PATCH /api/auth/me was blocked when
   // Access-Control-Allow-Methods omitted PATCH (onboarding stuck).
+  //
+  // When CORS_WILDCARD_TUNNEL=true (Docker compose), accept any *.trycloudflare.com
+  // origin so we don't have to update .env every time the tunnel gets a new subdomain.
+  const corsOriginFn = env.corsWildcardTunnel
+    ? (origin: string | undefined, cb: (err: Error | null, allow: boolean) => void) => {
+        if (!origin) return cb(null, true)
+        const allowed =
+          env.corsOrigin.includes(origin) ||
+          /^https:\/\/[a-z0-9-]+\.trycloudflare\.com$/.test(origin)
+        cb(null, allowed)
+      }
+    : env.corsOrigin
+
   await app.register(cors, {
-    origin: env.corsOrigin,
+    origin: corsOriginFn,
     credentials: true,
     methods: ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders: [

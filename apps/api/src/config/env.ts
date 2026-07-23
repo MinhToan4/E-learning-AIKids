@@ -61,6 +61,9 @@ export const env = {
     .split(',')
     .map((s) => s.trim())
     .filter(Boolean),
+  /** When true, any *.trycloudflare.com origin is allowed (Docker + Cloudflare Tunnel). */
+  corsWildcardTunnel: booleanEnv('CORS_WILDCARD_TUNNEL', false),
+
   cookieSecure: process.env.COOKIE_SECURE === 'true',
   cookieSameSite: (process.env.COOKIE_SAME_SITE ?? 'lax') as
     | 'lax'

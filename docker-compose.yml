@@ -37,15 +37,19 @@ services:
       NODE_ENV: production
       PORT: 4000
       HOST: 0.0.0.0
-      # COOKIE_SECURE must be true when served over HTTPS (Cloudflare Tunnel).
-      # SameSite=None without Secure is rejected by all modern browsers (RFC 6265bis).
-      COOKIE_SECURE: ${COOKIE_SECURE:-true}
+      # Cloudflare Tunnel = HTTPS → SameSite=None requires Secure (RFC 6265bis).
+      # These override the dev .env values which use lax/false for HTTP localhost.
+      COOKIE_SECURE: "true"
+      COOKIE_SAME_SITE: none
       REDIS_URL: redis://redis:6379
+      # Allow any trycloudflare.com subdomain dynamically (tunnel URL changes each restart)
+      CORS_WILDCARD_TUNNEL: "true"
     ports:
       - '4000:4000'
     depends_on:
       redis:
         condition: service_healthy
+
 
   web:
     build:
