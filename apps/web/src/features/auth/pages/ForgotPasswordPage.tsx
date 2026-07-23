@@ -32,7 +32,7 @@ export function ForgotPasswordPage() {
 
   return (
     <div
-      className="relative mx-auto flex min-h-dvh max-w-lg flex-col justify-center gap-4 px-4 py-8"
+      className="relative flex min-h-dvh w-full flex-col justify-center px-4 py-8"
       style={{
         backgroundImage: `url(${designerAssets.lobby.bgLogin})`,
         backgroundSize: 'cover',
@@ -40,7 +40,7 @@ export function ForgotPasswordPage() {
       }}
     >
       <div className="absolute inset-0 bg-[#f7f5ff]/75" />
-      <div className="relative z-10 flex flex-col gap-4">
+      <div className="relative z-10 mx-auto flex w-full max-w-lg flex-col gap-4">
         <Link to="/login" className="text-sm font-bold text-brand-500">
           ← Quay lại đăng nhập
         </Link>
