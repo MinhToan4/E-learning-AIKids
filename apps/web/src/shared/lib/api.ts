@@ -114,6 +114,18 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     '/api/notifications/read-all': '/api/v1/notifications/read-all',
     '/api/notifications/preferences': '/api/v1/notifications/preferences',
     '/api/notifications/devices': '/api/v1/notifications/devices',
+    '/api/gamification/streak': '/api/v1/gamification/me/streak',
+    '/api/gamification/achievements': '/api/v1/gamification/me/achievements',
+    '/api/gamification/daily-mission': '/api/v1/gamification/me/missions',
+    '/api/gamification/profile': '/api/v1/gamification/me',
+    '/api/gamification/class-celebration':
+      '/api/v1/gamification/me/celebration',
+  }
+  if (path === '/api/gamification/check-in') {
+    return {
+      path: '/api/v1/gamification/me/streak',
+      options: { ...options, method: 'GET', body: undefined },
+    }
   }
   if (path === '/api/auth/login/student') {
     return {
@@ -291,6 +303,68 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         unreadCount: Number(payload.unreadCount ?? 0),
       }
     }
+  }
+  if (path === '/api/gamification/streak' || path === '/api/gamification/check-in') {
+    return {
+      current: Number(payload.currentStreak ?? 0),
+      longest: Number(payload.longestStreak ?? 0),
+    }
+  }
+  if (path === '/api/gamification/achievements') {
+    const rows = Array.isArray(data)
+      ? data
+      : Array.isArray(payload.achievements)
+        ? payload.achievements
+        : []
+    return {
+      achievements: rows.map((item) => {
+        const row = item as Record<string, unknown>
+        const definition = (
+          row.achievement && typeof row.achievement === 'object'
+            ? row.achievement
+            : row
+        ) as Record<string, unknown>
+        const unlock = (
+          row.unlock && typeof row.unlock === 'object'
+            ? row.unlock
+            : row
+        ) as Record<string, unknown>
+        return {
+          type: String(definition.key ?? row.achievementKey ?? ''),
+          title: String(definition.title ?? ''),
+          description: String(definition.description ?? ''),
+          icon: String(definition.icon ?? '🏅'),
+          requiredValue: Number(definition.threshold ?? 1),
+          unlocked: row.unlocked === true || Boolean(row.unlockedAt),
+          unlockedAt: unlock.unlockedAt ? String(unlock.unlockedAt) : null,
+        }
+      }),
+    }
+  }
+  if (path === '/api/gamification/daily-mission') {
+    const rows = Array.isArray(data)
+      ? data
+      : Array.isArray(payload.missions)
+        ? payload.missions
+        : []
+    const daily = rows.find((item) => {
+      const row = item as Record<string, unknown>
+      const mission = (row.mission ?? row) as Record<string, unknown>
+      return mission.cadence === 'daily'
+    }) as Record<string, unknown> | undefined
+    if (!daily) return { mission: null }
+    const mission = (daily.mission ?? daily) as Record<string, unknown>
+    return {
+      mission: {
+        title: String(mission.title ?? ''),
+        description: String(mission.description ?? ''),
+        xpReward: Number(mission.xpReward ?? 0),
+        action: { label: 'Học ngay', route: '/home' },
+      },
+    }
+  }
+  if (path === '/api/gamification/class-celebration') {
+    return { celebration: payload }
   }
   return payload
 }

@@ -15,20 +15,31 @@ export function ProfilePage() {
   const [streak, setStreak] = useState({ current: 0, longest: 0 })
   const [achievements, setAchievements] = useState<AchievementRow[]>([])
   const [projectCount, setProjectCount] = useState(0)
+  const [gamification, setGamification] = useState({ level: 1, totalXp: 0 })
 
   useEffect(() => {
     void (async () => {
       try {
-        const [s, a, p] = await Promise.all([
+        const [s, a, p, g] = await Promise.allSettled([
           api<{ current: number; longest: number }>('/api/gamification/streak'),
           api<{ achievements: AchievementRow[] }>(
             '/api/gamification/achievements',
           ),
           api<{ projects: unknown[] }>('/api/projects'),
+          api<{ level: number; totalXp: number }>('/api/gamification/profile'),
         ])
-        setStreak({ current: s.current, longest: s.longest })
-        setAchievements(a.achievements.filter((x) => x.unlocked))
-        setProjectCount(p.projects?.length ?? 0)
+        if (s.status === 'fulfilled') {
+          setStreak({ current: s.value.current, longest: s.value.longest })
+        }
+        if (a.status === 'fulfilled') {
+          setAchievements(a.value.achievements.filter((x) => x.unlocked))
+        }
+        if (p.status === 'fulfilled') {
+          setProjectCount(p.value.projects?.length ?? 0)
+        }
+        if (g.status === 'fulfilled') {
+          setGamification({ level: g.value.level, totalXp: g.value.totalXp })
+        }
       } catch {
         /* non-blocking */
       } finally {
@@ -55,7 +66,7 @@ export function ProfilePage() {
         </div>
         <h1 className="font-display text-3xl">{user?.nickname}</h1>
         <p className="text-muted">
-          Cấp {user?.level} · {user?.xp} XP
+          Cấp {gamification.level} · {gamification.totalXp} XP
         </p>
         <p className="text-sm text-muted">
           Mục tiêu:{' '}

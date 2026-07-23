@@ -85,13 +85,21 @@ describe('StoryMee Gateway adapter', () => {
       .toBe('Bearer storymee-jwt')
   })
 
-  it('fails fast for a legacy feature without a StoryMee backend owner', async () => {
-    await expect(api('/api/gamification/streak')).rejects.toMatchObject({
-      status: 501,
-      body: {
-        code: 'FEATURE_NOT_AVAILABLE',
-        legacyPath: '/api/gamification/streak',
-      },
-    })
+  it('routes gamification to its StoryMee domain and maps streak fields', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      currentStreak: 4,
+      longestStreak: 9,
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{ current: number; longest: number }>(
+      '/api/gamification/streak',
+    )
+
+    expect(result).toEqual({ current: 4, longest: 9 })
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://dev-hub.storymee.com/api/v1/gamification/me/streak',
+      expect.any(Object),
+    )
   })
 })
