@@ -36,10 +36,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -48,7 +48,9 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test
+        run: |
+          npm run test -w @aikids/domain -- --maxWorkers=2
+          npm run test -w @aikids/web -- --maxWorkers=2
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
@@ -72,10 +74,10 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v5
         with:
           node-version: 22
           cache: npm
@@ -84,7 +86,9 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: npm test
+        run: |
+          npm run test -w @aikids/domain -- --maxWorkers=2
+          npm run test -w @aikids/web -- --maxWorkers=2
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
