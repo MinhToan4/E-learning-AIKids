@@ -1,4 +1,4 @@
-import { api, fetchRemoteBlob } from './api'
+import { api, fetchRemoteBlob, openAuthorizedStream } from './api'
 
 type Job = {
   id?: string
@@ -40,16 +40,68 @@ function outputUrls(value: Job['outputUrls']): string[] {
 }
 
 async function waitForJob(jobId: string): Promise<Job> {
-  for (let attempt = 0; attempt < 80; attempt += 1) {
+  try {
+    return await waitForJobStream(jobId)
+  } catch {
+    // SSE can be interrupted by proxies or a deploy. Fall back to bounded,
+    // progressively slower polling instead of the old fixed 1.5s loop.
+  }
+  const delays = [2_000, 3_000, 5_000, 8_000, 10_000]
+  for (let attempt = 0; attempt < 30; attempt += 1) {
     const job = await api<Job>(`/api/v1/jobs/${encodeURIComponent(jobId)}`)
     const status = String(job.status ?? '').toLowerCase()
     if (['done', 'success', 'completed'].includes(status)) return job
     if (['failed', 'error', 'cancelled', 'canceled'].includes(status)) {
       throw new Error(job.errorMessage || 'StoryMee không hoàn thành được nội dung.')
     }
-    await new Promise((resolve) => window.setTimeout(resolve, 1_500))
+    await new Promise((resolve) =>
+      window.setTimeout(resolve, delays[Math.min(attempt, delays.length - 1)]),
+    )
   }
   throw new Error('StoryMee đang xử lý lâu hơn dự kiến. Thử lại sau nhé.')
+}
+
+async function waitForJobStream(jobId: string): Promise<Job> {
+  const controller = new AbortController()
+  const timeout = window.setTimeout(() => controller.abort(), 5 * 60_000)
+  try {
+    const response = await openAuthorizedStream(
+      `/api/v1/jobs/${encodeURIComponent(jobId)}/events`,
+      controller.signal,
+    )
+    if (!response.body) throw new Error('Trình duyệt không hỗ trợ luồng trạng thái.')
+
+    const reader = response.body.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+    while (true) {
+      const { value, done } = await reader.read()
+      if (done) throw new Error('Luồng trạng thái đã đóng trước khi job hoàn tất.')
+      buffer += decoder.decode(value, { stream: true })
+      const frames = buffer.split(/\r?\n\r?\n/)
+      buffer = frames.pop() ?? ''
+      for (const frame of frames) {
+        const data = frame
+          .split(/\r?\n/)
+          .filter((line) => line.startsWith('data:'))
+          .map((line) => line.slice(5).trim())
+          .join('\n')
+        if (!data) continue
+        const job = JSON.parse(data) as Job
+        const status = String(job.status ?? '').toLowerCase()
+        if (['done', 'success', 'completed'].includes(status)) {
+          controller.abort()
+          return job
+        }
+        if (['failed', 'error', 'cancelled', 'canceled'].includes(status)) {
+          throw new Error(job.errorMessage || 'StoryMee không hoàn thành được nội dung.')
+        }
+      }
+    }
+  } finally {
+    window.clearTimeout(timeout)
+    controller.abort()
+  }
 }
 
 async function createJob(

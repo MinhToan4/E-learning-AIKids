@@ -3,6 +3,10 @@ import { environment } from '@/shared/config/environment'
 const API_BASE = environment.apiBaseUrl
 const TOKEN_KEY = 'storymee.access_token'
 
+export function gatewayUrl(path: string): string {
+  return `${API_BASE}${path}`
+}
+
 export function getAccessToken(): string | null {
   return typeof localStorage === 'undefined' ? null : localStorage.getItem(TOKEN_KEY)
 }
@@ -92,6 +96,20 @@ export async function api<T = unknown>(
   }
   const normalized = normalizeGatewayResponse(path, data)
   return normalized as T
+}
+
+export async function openAuthorizedStream(
+  path: string,
+  signal?: AbortSignal,
+): Promise<Response> {
+  const headers = new Headers({ Accept: 'text/event-stream' })
+  const token = getAccessToken()
+  if (token) headers.set('Authorization', `Bearer ${token}`)
+  const response = await fetch(gatewayUrl(path), { headers, signal })
+  if (!response.ok) {
+    throw new ApiError(response.status, `Không mở được luồng cập nhật (HTTP ${response.status}).`)
+  }
+  return response
 }
 
 type GatewayRequest = { path: string; options: RequestInit }
