@@ -50,27 +50,18 @@ function StreakWidget({ current, longest }: { current: number; longest: number }
   )
 }
 
-type GamificationProfile = {
-  level: number
-  totalXp: number
-  currentLevelXp: number
-  nextLevelXp: number
-}
-
-function XpWidget({ profile }: { profile: GamificationProfile }) {
-  const levelSpan = Math.max(1, profile.nextLevelXp - profile.currentLevelXp)
-  const levelXp = Math.max(0, profile.totalXp - profile.currentLevelXp)
-  const pct = Math.min(100, Math.round((levelXp / levelSpan) * 100))
+function XpWidget({ level, xp }: { level: number; xp: number }) {
+  // XP cần để lên cấp tiếp theo = level hiện tại × 200
+  const xpToNext = Math.max(200, level * 200)
+  const pct = Math.min(100, Math.round((xp / xpToNext) * 100))
   return (
     <div className="flex flex-col gap-1 rounded-2xl bg-brand-50 border border-brand-100 p-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <Zap size={14} className="text-brand-500" aria-hidden />
-          <span className="text-xs font-extrabold text-brand-700">Cấp {profile.level}</span>
+          <span className="text-xs font-extrabold text-brand-700">Cấp {level}</span>
         </div>
-        <span className="text-[10px] font-bold text-muted">
-          {profile.totalXp}/{profile.nextLevelXp} XP
-        </span>
+        <span className="text-[10px] font-bold text-muted">{xp}/{xpToNext} XP</span>
       </div>
       <div className="xp-bar-track">
         <div
@@ -80,7 +71,7 @@ function XpWidget({ profile }: { profile: GamificationProfile }) {
           aria-valuenow={pct}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label={`${pct}% tiến trình lên cấp ${profile.level + 1}`}
+          aria-label={`${pct}% tiến trình lên cấp ${level + 1}`}
         />
       </div>
     </div>
@@ -165,12 +156,6 @@ export function HomePage() {
   const [courses, setCourses] = useState<CourseSummary[]>([])
   const [track, setTrack] = useState<TrackFilter>('all')
   const [streak, setStreak] = useState({ current: 0, longest: 0 })
-  const [gamification, setGamification] = useState<GamificationProfile>({
-    level: user?.level ?? 1,
-    totalXp: user?.xp ?? 0,
-    currentLevelXp: 0,
-    nextLevelXp: 200,
-  })
   const [badges, setBadges] = useState<AchievementRow[]>([])
   const [dailyMission, setDailyMission] = useState<{
     title: string
@@ -185,16 +170,14 @@ export function HomePage() {
     setLoading(true)
     setError(null)
     try {
-      const [c, s, a, g] = await Promise.all([
+      const [c, s, a] = await Promise.all([
         api<{ courses: CourseSummary[] }>('/api/courses'),
         api<{ current: number; longest: number }>('/api/gamification/streak'),
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
-        api<GamificationProfile>('/api/gamification/profile'),
       ])
       setCourses(c.courses)
       setStreak({ current: s.current, longest: s.longest })
       setBadges(a.achievements.filter((x) => x.unlocked).slice(0, 3))
-      setGamification(g)
       try {
         const check = await api<{
           current: number
@@ -280,7 +263,7 @@ export function HomePage() {
                 {user?.nickname ?? 'Bạn nhỏ'} ✨
               </h1>
               <p className="text-xs font-semibold text-muted mt-0.5">
-                Cấp {gamification.level} · {gamification.totalXp} điểm XP
+                Cấp {user?.level ?? 1} · {user?.xp ?? 0} điểm XP
               </p>
             </div>
           </div>
@@ -293,7 +276,7 @@ export function HomePage() {
 
         {/* XP bar */}
         <div className="relative px-4 pb-4 sm:px-5 sm:pb-5">
-          <XpWidget profile={gamification} />
+          <XpWidget level={user?.level ?? 1} xp={user?.xp ?? 0} />
         </div>
       </header>
 

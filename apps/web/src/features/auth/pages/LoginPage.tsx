@@ -20,7 +20,7 @@ export function LoginPage() {
       : 'student'
   const [mode, setMode] = useState<'student' | 'adult'>(initial as 'student' | 'adult')
   const [nickname, setNickname] = useState('')
-  const [login, setLogin] = useState('')
+  const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [pin, setPin] = useState('')
   const [showPinModal, setShowPinModal] = useState(false)
@@ -40,8 +40,8 @@ export function LoginPage() {
   const hint = useMemo(
     () =>
       mode === 'student'
-        ? 'Con dùng biệt danh và PIN 6 số ba/mẹ đã tạo.'
-        : 'Ba/mẹ hoặc thầy cô đăng nhập bằng email hoặc tên đăng nhập.',
+        ? 'Con dùng biệt danh ba/mẹ đã tạo. Không cần mật khẩu của ba/mẹ.'
+        : 'Ba/mẹ hoặc thầy cô đăng nhập bằng email để quản lý và cho con học.',
     [mode],
   )
 
@@ -50,15 +50,21 @@ export function LoginPage() {
     setBusy(true)
     try {
       if (mode === 'student') {
-        setShowPinModal(true)
-        return
+        // Gọi API trước không có PIN — nếu server yêu cầu PIN thì error message có "PIN"
+        const user = await loginStudent(nickname.trim(), undefined)
+        navigate(user.onboarded ? '/home' : '/onboarding')
       } else {
-        const user = await loginAdult(login.trim(), password)
+        const user = await loginAdult(email.trim(), password)
         goAfterAdult(user)
       }
     } catch (err) {
       const msg = err instanceof ApiError ? err.message : 'Không vào được. Thử lại nhé!'
-      showToast(msg, 'error')
+      // Nếu server yêu cầu PIN → mở PinPadModal thay vì hiện lỗi
+      if (mode === 'student' && msg.includes('PIN')) {
+        setShowPinModal(true)
+      } else {
+        showToast(msg, 'error')
+      }
     } finally {
       setBusy(false)
     }
@@ -67,13 +73,13 @@ export function LoginPage() {
   async function onSubmitPin(enteredPin: string) {
     setBusy(true)
     try {
-      const user = await loginStudent(
-        nickname.trim(),
-        { pin: enteredPin },
-      )
+      // Gọi lại với PIN — dùng tham số thứ 3 opts
+      const user = await loginStudent(nickname.trim(), undefined, {
+        pin: enteredPin.trim(),
+      })
       navigate(user.onboarded ? '/home' : '/onboarding')
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Biệt danh hoặc PIN chưa đúng.'
+      const msg = err instanceof ApiError ? err.message : 'Không vào được. Thử lại nhé!'
       showToast(msg, 'error')
       setPin('')
     } finally {
@@ -116,7 +122,12 @@ export function LoginPage() {
                   ? 'bg-white text-brand-600 shadow-soft'
                   : 'text-muted',
               )}
-              onClick={() => setMode('student')}
+              onClick={() => {
+                setMode('student')
+                // Clear fields khi đổi tab — tránh dữ liệu cũ hiện lại
+                setEmail('')
+                setPassword('')
+              }}
             >
               Học sinh
             </button>
@@ -128,7 +139,11 @@ export function LoginPage() {
                   ? 'bg-white text-brand-600 shadow-soft'
                   : 'text-muted',
               )}
-              onClick={() => setMode('adult')}
+              onClick={() => {
+                setMode('adult')
+                // Clear fields khi đổi tab
+                setNickname('')
+              }}
             >
               Ba mẹ / GV
             </button>
@@ -154,16 +169,13 @@ export function LoginPage() {
             ) : (
               <>
                 <label className="flex flex-col gap-1 text-sm font-bold">
-                  Email hoặc tên đăng nhập
+                  Email
                   <input
-                    type="text"
-                    inputMode="email"
-                    autoCapitalize="none"
-                    autoCorrect="off"
-                    autoComplete="username"
+                    type="email"
+                    autoComplete="email"
                     className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500"
-                    value={login}
-                    onChange={(e) => setLogin(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     required
                   />
                 </label>
@@ -171,6 +183,7 @@ export function LoginPage() {
                   Mật khẩu
                   <input
                     type="password"
+                    autoComplete="current-password"
                     className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}

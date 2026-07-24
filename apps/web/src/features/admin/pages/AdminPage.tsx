@@ -547,13 +547,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   }
 
   // ── Tab content renderers ────────────────────────────────
-  const sectionHeader = (title: string, subtitle?: string) => (
-    <div className="mb-5">
-      <h2 className="font-display text-xl text-text">{title}</h2>
-      {subtitle && <p className="text-sm text-muted">{subtitle}</p>}
-    </div>
-  )
-
   const loadingEl = (
     <div className="flex h-40 items-center justify-center">
       <div className="ui-skeleton h-10 w-48 rounded-2xl" />
@@ -563,7 +556,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // System tab
   const systemTab = system && (
     <>
-      {sectionHeader('Tổng quan hệ thống', 'Tình trạng dữ liệu + Vidtory AI')}
       <section className="ui-card mb-4 p-5" aria-labelledby="admin-attention-title">
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
@@ -590,7 +582,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           </button>
         </div>
       </section>
-      {/* sm:grid-cols-2 ensures 2-column layout on phones (375px+), not 1-column */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
         {[
           { label: 'Khóa học', value: system.counts.courses, icon: <CmsCoursesIcon /> },
@@ -631,7 +622,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // Analytics tab
   const analyticsTab = analytics && (
     <>
-      {sectionHeader('Phân tích hoạt động', 'Số liệu tổng hợp toàn hệ thống')}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Người dùng hoạt động" value={analytics.users.active} icon={<CmsUsersIcon />} />
         <StatCard label="Khóa học đang mở" value={analytics.courses.open} icon={<CmsCoursesIcon />} />
@@ -675,7 +665,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // Login logs tab
   const logsTab = (
     <>
-      {sectionHeader('Nhật ký đăng nhập', 'Theo dõi đăng nhập trong 24 giờ gần nhất')}
       {logSummary && (
         <div className="mb-4 grid gap-3 sm:grid-cols-4">
           <StatCard label="Tổng trong 24 giờ" value={logSummary.total} icon={<CmsLogsIcon />} />
@@ -685,9 +674,8 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         </div>
       )}
       <div className="ui-card overflow-hidden">
-        <div className="flex flex-col gap-2 border-b border-border/60 px-3 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:px-4">
-          {/* Text search */}
-          <div className="relative w-full min-w-0 flex-1 sm:min-w-[180px]">
+        <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-3">
+          <div className="relative flex-1 min-w-[180px]">
             <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
             <input
               type="search"
@@ -697,9 +685,8 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
             />
           </div>
-          {/* Outcome filter */}
           <select
-            className="min-h-11 w-full rounded-xl border-2 border-border px-3 text-sm font-bold sm:w-auto"
+            className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold"
             value={logFilter}
             onChange={(e) => setLogFilter(e.target.value)}
           >
@@ -708,15 +695,10 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <option value="failed">❌ Thất bại</option>
             <option value="locked">🔒 Bị khóa</option>
           </select>
-          <div className="grid grid-cols-2 gap-2 sm:flex">
-            <Button variant="secondary" className="w-full" onClick={() => void load()}>Làm mới</Button>
-            <Button variant="ghost" className="w-full text-muted" onClick={() => void purgeLogs()}>Xóa nhật ký cũ</Button>
-          </div>
-          {filteredLogs.length !== loginLogs.length && (
-            <span className="text-xs font-bold text-brand-500">{filteredLogs.length} / {loginLogs.length} log</span>
-          )}
+          <Button variant="secondary" onClick={() => void load()}>Làm mới</Button>
+          <Button variant="ghost" className="text-muted" onClick={() => void purgeLogs()}>Xóa nhật ký cũ</Button>
         </div>
-        <div className="hidden overflow-x-auto sm:block">
+        <div className="overflow-x-auto">
           <table className="w-full min-w-[600px] text-left text-sm">
             <thead className="border-b border-border bg-brand-50/80">
               <tr>
@@ -742,44 +724,24 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </tbody>
           </table>
         </div>
-        <div className="divide-y divide-border/60 sm:hidden">
-          {logsPag.slice.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-muted">
-              {loginLogs.length === 0 ? 'Chưa có log nào trong 24 giờ qua' : 'Không có log khớp bộ lọc'}
-            </p>
-          ) : logsPag.slice.map((log) => (
-            <article key={log.id} className="space-y-2 px-4 py-4 text-sm">
-              <div className="flex items-start justify-between gap-3">
-                <p className="min-w-0 break-all font-mono text-xs font-bold">{log.email ?? 'Không có email'}</p>
-                <OutcomeBadge outcome={log.outcome} />
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-xs text-muted">
-                <p>{new Date(log.createdAt).toLocaleString('vi-VN')}</p>
-                <p className="break-all text-right font-mono">{log.ipAddress ?? 'Không có IP'}</p>
-              </div>
-              {log.reason && <p className="rounded-xl bg-brand-50 px-3 py-2 text-xs text-muted">{log.reason}</p>}
-            </article>
-          ))}
-        </div>
-        <div>
-          <Paginator
-            page={logsPag.page} totalPages={logsPag.totalPages}
-            totalItems={filteredLogs.length} pageSize={20}
-            onPrev={logsPag.prev} onNext={logsPag.next} onGoTo={logsPag.goTo}
-          />
-        </div>
+        <Paginator
+          page={logsPag.page} totalPages={logsPag.totalPages}
+          totalItems={filteredLogs.length} pageSize={20}
+          onPrev={logsPag.prev} onNext={logsPag.next} onGoTo={logsPag.goTo}
+        />
       </div>
     </>
   )
 
   // Users tab
+
   const usersTab = (
     <div className="grid gap-5 xl:grid-cols-[1fr_320px]">
       <div className="ui-card overflow-hidden">
         {/* Professional filter bar */}
-        <div className="grid gap-2 border-b border-border px-3 py-3 sm:flex sm:flex-wrap sm:items-center sm:px-4">
+        <div className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-3">
           {/* Text search */}
-          <div className="relative w-full min-w-0 flex-1 sm:min-w-[200px]">
+          <div className="relative flex-1 min-w-[200px]">
             <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
             <input
               type="search"
@@ -790,7 +752,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             />
           </div>
           {/* Role filter */}
-          <select className="min-h-11 w-full rounded-xl border-2 border-border px-3 text-sm font-bold sm:w-auto" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
+          <select className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
             <option value="">Tất cả vai trò</option>
             <option value="student">Học sinh</option>
             <option value="parent">Phụ huynh</option>
@@ -798,7 +760,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <option value="admin">Quản trị viên</option>
           </select>
           {/* Active filter */}
-          <select className="min-h-11 w-full rounded-xl border-2 border-border px-3 text-sm font-bold sm:w-auto" value={userActiveFilter} onChange={(e) => setUserActiveFilter(e.target.value as '' | 'active' | 'inactive')}>
+          <select className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={userActiveFilter} onChange={(e) => setUserActiveFilter(e.target.value as '' | 'active' | 'inactive')}>
             <option value="">Tất cả trạng thái</option>
             <option value="active">✅ Đang hoạt động</option>
             <option value="inactive">❌ Vô hiệu hóa</option>
@@ -818,7 +780,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <span className="ml-auto text-xs font-bold text-brand-400 animate-pulse">Đang cập nhật…</span>
           )}
         </div>
-        <div className="hidden overflow-x-auto sm:block">
+        <div className="overflow-x-auto">
           <table className="w-full min-w-[560px] text-left text-sm">
             <thead className="border-b border-border bg-brand-50/80">
               <tr>
@@ -869,42 +831,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </tbody>
           </table>
         </div>
-        <div className="divide-y divide-border/60 sm:hidden">
-          {usersPag.slice.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-muted">{users.length === 0 ? 'Không có tài khoản nào' : 'Không có tài khoản khớp bộ lọc'}</p>
-          ) : usersPag.slice.map((u) => (
-            <article key={u.id} className="space-y-3 px-4 py-4">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="break-words font-bold">{u.nickname ?? '—'}</p>
-                  <p className="break-all text-xs text-muted">{u.email ?? u.id.slice(0, 10)}</p>
-                </div>
-                <span className={cn('shrink-0 rounded-full px-2 py-1 text-[11px] font-extrabold', u.active ? 'bg-mint-100 text-success' : 'bg-coral-100 text-danger')}>
-                  {u.active ? 'Hoạt động' : 'Đã tắt'}
-                </span>
-              </div>
-              <p className="text-xs font-bold text-muted">{ROLE_LABELS[u.role] ?? u.role}</p>
-              <div className="grid grid-cols-3 gap-2">
-                <Button
-                  variant="secondary"
-                  className="w-full px-2"
-                  onClick={() => {
-                    setEditTarget(u)
-                    setEditForm({ nickname: u.nickname ?? '', role: u.role as AdminUser['role'], email: u.email ?? '', newPassword: '' })
-                  }}
-                >
-                  Sửa
-                </Button>
-                <Button variant="secondary" className="w-full px-2" onClick={() => void toggleActive(u)}>
-                  {u.active ? 'Tắt' : 'Bật'}
-                </Button>
-                <Button variant="ghost" className="w-full px-2 text-danger" disabled={!u.active} onClick={() => setDeleteTarget(u)}>
-                  Xóa
-                </Button>
-              </div>
-            </article>
-          ))}
-        </div>
         <Paginator
           page={usersPag.page} totalPages={usersPag.totalPages}
           totalItems={filteredUsers.length} pageSize={15}
@@ -942,11 +868,10 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // Sessions tab
   const sessionsTab = (
     <>
-      {sectionHeader('Phiên đăng nhập', 'Thu hồi phiên buộc đăng nhập lại. Không hiển thị token thô.')}
       <div className="ui-card overflow-hidden">
         {/* Session search bar */}
-        <div className="flex flex-col gap-2 border-b border-border/60 px-3 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:px-4">
-          <div className="relative w-full min-w-0 flex-1 sm:min-w-[220px]">
+        <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-3">
+          <div className="relative flex-1 min-w-[220px]">
             <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
             <input
               type="search"
@@ -965,7 +890,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <button type="button" className="text-xs font-bold text-muted underline" onClick={() => setSessionSearch('')}>Xóa</button>
           )}
         </div>
-        <div className="hidden overflow-x-auto sm:block">
+        <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-left text-sm">
             <thead className="border-b border-border bg-brand-50/80">
               <tr>
@@ -997,28 +922,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               ))}
             </tbody>
           </table>
-        </div>
-        <div className="divide-y divide-border/60 sm:hidden">
-          {sessionsPag.slice.length === 0 ? (
-            <p className="px-4 py-8 text-center text-sm text-muted">{sessions.length === 0 ? 'Không có phiên active' : 'Không có phiên khớp bộ lọc'}</p>
-          ) : sessionsPag.slice.map((s) => (
-            <article key={s.id} className="space-y-3 px-4 py-4 text-sm">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <p className="break-words font-bold">{s.nickname ?? '—'}</p>
-                  <p className="break-all text-xs text-muted">{s.email ?? s.userId.slice(0, 8)}</p>
-                </div>
-                <span className="rounded-full bg-brand-50 px-2 py-1 text-xs font-bold capitalize">{s.role}</span>
-              </div>
-              <div className="grid grid-cols-2 gap-2 text-xs text-muted">
-                <p className="break-all font-mono">{s.ipAddress ?? 'Không có IP'}</p>
-                <p className="text-right">{new Date(s.expiresAt).toLocaleString('vi-VN')}</p>
-              </div>
-              <Button variant="secondary" className="w-full" onClick={() => setRevokeTarget(s)}>Thu hồi phiên</Button>
-            </article>
-          ))}
-        </div>
-        <div>
           <Paginator
             page={sessionsPag.page} totalPages={sessionsPag.totalPages}
             totalItems={filteredSessions.length} pageSize={15}
@@ -1033,7 +936,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const coursesTab = (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
       <div className="flex flex-col gap-3">
-        {sectionHeader('Khóa học', 'Theo dõi trạng thái và chuyển sang không gian biên soạn khi cần chỉnh sửa')}
         {/* Course search + status filter bar */}
         <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-white px-4 py-3">
           <div className="relative flex-1 min-w-[200px]">
@@ -1107,10 +1009,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     </div>
   )
 
-  // AI tab (unchanged layout, just uses toast)
+  // AI tab
   const aiTab = (
     <div className="flex flex-col gap-5 max-w-3xl">
-      {sectionHeader('AI Vidtory', 'Cấu hình API Key và phân tải model')}
       <div className="ui-card flex flex-col gap-4 p-5">
         <div>
           <h2 className="font-display text-xl">1. API Key Vidtory</h2>
