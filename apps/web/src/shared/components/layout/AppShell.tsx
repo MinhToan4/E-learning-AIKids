@@ -96,7 +96,7 @@ function WorkspaceSwitcher({
           {active ? (
             <option value={active.id}>{active.label}</option>
           ) : (
-            <option value="current">Cá nhân</option>
+            <option value="current">{user?.role === "parent" ? "TK Ba/Mẹ" : "Cá nhân"}</option>
           )}
           {access?.contexts
             .filter((c) => c.id !== active?.id)
@@ -128,7 +128,7 @@ function WorkspaceSwitcher({
         {active ? (
           <option value={active.id}>{active.label}</option>
         ) : (
-          <option value="current">Tài khoản cá nhân</option>
+          <option value="current">{user?.role === "parent" ? "Tài khoản Ba/Mẹ" : "Tài khoản cá nhân"}</option>
         )}
         {access?.contexts
           .filter((c) => c.id !== active?.id)
@@ -480,7 +480,10 @@ function CmsShell({
         <NavLink to={brandTo} aria-label={`Trang chính ${roleLabel}`}>
           <BrandLogo size="sm" />
         </NavLink>
-        <span className="role-mobile-topbar-label">{roleLabel}</span>
+        <span className="role-mobile-topbar-label flex-1">{roleLabel}</span>
+        <div className="w-[5rem]">
+          <WorkspaceSwitcher compact />
+        </div>
       </header>
 
       {/* Main content — extra bottom padding so bottom nav doesn't cover content */}
@@ -527,7 +530,10 @@ function AdultChrome({
         <NavLink to={brandTo} aria-label="Trang chính phụ huynh">
           <BrandLogo size="sm" />
         </NavLink>
-        <span className="role-mobile-topbar-label">Phụ huynh</span>
+        <span className="role-mobile-topbar-label flex-1">Phụ huynh</span>
+        <div className="w-[5rem]">
+          <WorkspaceSwitcher compact />
+        </div>
       </header>
 
       {/* Main */}

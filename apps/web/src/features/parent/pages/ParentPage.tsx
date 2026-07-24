@@ -140,7 +140,7 @@ export function ParentPage({
             Phụ huynh
           </p>
           <h1 className="font-display text-2xl md:text-3xl">
-            Xin chào, {user?.nickname ?? 'Ba/Mẹ'} 👋
+            Xin chào, {(user?.nickname || user?.name) ?? 'Ba/Mẹ'} 👋
           </h1>
         </div>
         <Button

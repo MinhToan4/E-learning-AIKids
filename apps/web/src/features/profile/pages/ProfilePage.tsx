@@ -64,7 +64,7 @@ export function ProfilePage() {
             avatarEmoji(user?.avatarId)
           )}
         </div>
-        <h1 className="font-display text-3xl">{user?.nickname || user?.name || 'Bạn nhỏ'}</h1>
+        <h1 className="font-display text-3xl">{(user?.nickname || user?.name) || user?.name || 'Bạn nhỏ'}</h1>
         <p className="text-muted">
           Cấp {gamification.level} · {gamification.totalXp} XP
         </p>

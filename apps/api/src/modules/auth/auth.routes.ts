@@ -22,6 +22,7 @@ const adultLoginSchema = z.object({
 const studentLoginSchema = z.object({
   nickname: z.string().min(1).max(16),
   avatarId: z.string().min(1).max(40).optional(),
+  pin: z.string().optional(),
   /**
    * Dev/demo only when STUDENT_AUTO_CREATE=true.
    * Production: parent creates child — no public auto-create.
@@ -454,6 +455,7 @@ export async function authRoutes(app: FastifyInstance) {
           .optional(),
         nickname: z.string().min(1).max(16).optional(),
         avatarId: z.string().min(1).max(40).optional(),
+  pin: z.string().optional(),
       })
       .parse(request.body)
 

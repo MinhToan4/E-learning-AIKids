@@ -124,11 +124,9 @@ function CourseCard({ course }: { course: CourseSummary }) {
       </div>
 
       {/* Progress bar (only if enrolled) */}
-      {course.enrolled && questCount > 0 && (
-        <div className="course-card-progress-bar">
-          <div className="course-card-progress-fill" style={{ width: `${progressPct}%` }} />
-        </div>
-      )}
+      <div className="course-card-progress-bar">
+        <div className="course-card-progress-fill" style={{ width: `${progressPct}%` }} />
+      </div>
 
       {/* Content */}
       <div className="p-3">
@@ -272,7 +270,7 @@ export function HomePage() {
           }
           return cat === t
         })
-  const enrolled = filtered.filter((c) => c.enrolled)
+  const enrolled = open.filter((c) => c.enrolled)
   const explore = filtered.filter((c) => !c.enrolled)
 
   const goalToKey: Record<string, string> = {
@@ -317,13 +315,13 @@ export function HomePage() {
         <div className="relative flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5">
           {/* Left: kids character avatar + greeting */}
           <div className="flex items-center gap-3.5">
-            <HeaderAvatar nickname={user?.nickname} />
+            <HeaderAvatar nickname={(user?.nickname || user?.name)} />
             <div className="min-w-0">
               <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
                 Xin chào!
               </p>
               <h1 className="font-display text-2xl sm:text-3xl leading-tight">
-                {user?.nickname ?? 'Bạn nhỏ'} ✨
+                {(user?.nickname || user?.name) ?? 'Bạn nhỏ'} ✨
               </h1>
               <p className="text-xs font-semibold text-muted mt-0.5">
                 Cấp {user?.level ?? 1} · {user?.xp ?? 0} điểm XP
