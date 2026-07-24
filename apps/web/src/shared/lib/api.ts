@@ -57,6 +57,8 @@ export async function api<T = unknown>(
     res = await fetch(url, {
       ...request.options,
       headers,
+      // Local Fastify dùng cookie session — phải gửi credentials
+      credentials: environment.isLocalApi ? 'include' : 'omit',
     })
   } catch (e) {
     // Browser "Failed to fetch" = network / CORS / API offline
@@ -129,7 +131,10 @@ function withJson(options: RequestInit, body: Record<string, unknown>): RequestI
 
 function normalizeGatewayRequest(path: string, options: RequestInit): GatewayRequest {
   const body = jsonBody(options)
+  // Local Fastify API phục vụ /api/... trực tiếp — không remap sang /api/v1/...
+  if (environment.isLocalApi) return { path, options }
   if (path.startsWith('/api/v1/')) return { path, options }
+
   const direct: Record<string, string> = {
     '/api/auth/me': '/api/v1/account/me',
     '/api/auth/logout': '/api/v1/account/logout',
@@ -521,8 +526,13 @@ function mapCourse(raw: Record<string, unknown>): CourseSummary {
     accent: String(metadata.accent ?? '#7c3aed'),
     coverImage: metadata.coverImage ? String(metadata.coverImage) : null,
     ageLabel: String(raw.ageBand ?? metadata.ageLabel ?? '8–15 tuổi'),
-    ageTrack: raw.ageBand ? String(raw.ageBand) : undefined,
-    courseKey: raw.slug ? String(raw.slug) : undefined,
+    // ageTrack: thử cả ageBand (gateway format) lẫn ageTrack (local API format)
+    ageTrack: raw.ageBand
+      ? String(raw.ageBand)
+      : raw.ageTrack
+        ? String(raw.ageTrack)
+        : undefined,
+    courseKey: raw.slug ? String(raw.slug) : raw.courseKey ? String(raw.courseKey) : undefined,
     durationLabel: String(metadata.durationLabel ?? ''),
     productLabel: String(metadata.productLabel ?? 'Khóa học StoryMee'),
     status: 'open',
@@ -548,6 +558,13 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
   const payload = (body.data && typeof body.data === 'object'
     ? body.data
     : body) as Record<string, unknown>
+
+  // Local Fastify trả response đúng format, dùng cookie session — trả nguyên data
+  if (environment.isLocalApi) {
+    if (path === '/api/auth/logout') clearAccessToken()
+    return data
+  }
+
   if (path === '/api/auth/login/child-profile') {
     const token = String(payload.token ?? payload.accessToken ?? '')
     if (token) setAccessToken(token)
@@ -805,8 +822,18 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
   }
   if (path === '/api/courses' && Array.isArray(payload.courses)) {
     return {
-      courses: payload.courses.map((course) =>
-        mapCourse(course as Record<string, unknown>)),
+      courses: payload.courses.map((course) => {
+        const raw = course as Record<string, unknown>
+        const mapped = mapCourse(raw)
+        return {
+          ...mapped,
+          // Preserve server-side enrollment & progress — mapCourse hardcodes enrolled=false
+          enrolled: Boolean(raw.enrolled),
+          questCount: raw.questCount != null ? Number(raw.questCount) : mapped.questCount,
+          completedCount: Number(raw.completedCount ?? 0),
+          progressPct: Number(raw.progressPct ?? 0),
+        }
+      }),
     }
   }
   if (/^\/api\/courses\/[^/?]+$/.test(path) && payload.course) {
