@@ -1,5 +1,6 @@
-const API_BASE = (import.meta.env.VITE_API_URL ?? 'https://dev-hub.storymee.com')
-  .replace(/\/$/, '')
+import { environment } from '@/shared/config/environment'
+
+const API_BASE = environment.apiBaseUrl
 const TOKEN_KEY = 'storymee.access_token'
 
 export function getAccessToken(): string | null {
@@ -932,7 +933,7 @@ function recordValue(value: unknown): Record<string, unknown> {
 function browserMediaUrl(value: unknown): string {
   const url = String(value ?? '')
   return url.startsWith('sb://')
-    ? `https://storage.storymee.com/${url.slice('sb://'.length)}`
+    ? `${environment.storagePublicUrl}/${url.slice('sb://'.length)}`
     : url
 }
 

@@ -29,4 +29,15 @@ describe('frontend backend boundary', () => {
 
     expect(violations).toEqual([])
   })
+
+  it('keeps deployable backend origins in the environment module only', () => {
+    const backendOrigin = /https:\/\/(?:dev-hub\.storymee\.com|api\.aikid\.vn)/
+    const violations = sourceFiles.flatMap((file) => {
+      if (file === 'shared/config/environment.ts') return []
+      const source = readFileSync(resolve(sourceRoot, file), 'utf8')
+      return backendOrigin.test(source) ? [file] : []
+    })
+
+    expect(violations).toEqual([])
+  })
 })
