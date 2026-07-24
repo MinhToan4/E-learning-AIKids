@@ -270,7 +270,7 @@ export function HomePage() {
           }
           return cat === t
         })
-  const enrolled = open.filter((c) => c.enrolled)
+  const enrolled = filtered.filter((c) => c.enrolled)
   const explore = filtered.filter((c) => !c.enrolled)
 
   const goalToKey: Record<string, string> = {

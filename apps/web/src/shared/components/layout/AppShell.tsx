@@ -93,11 +93,8 @@ function WorkspaceSwitcher({
           }}
           title="Chuyển đổi tài khoản"
         >
-          {active ? (
-            <option value={active.id}>{active.label}</option>
-          ) : (
-            <option value="current">{user?.role === "parent" ? "TK Ba/Mẹ" : "Cá nhân"}</option>
-          )}
+          {active && <option value={active.id}>{active.label}</option>}
+          <option value="current">{user?.role === "parent" ? (active ? "🏡 Về Ba/Mẹ" : "TK Ba/Mẹ") : "Cá nhân"}</option>
           {access?.contexts
             .filter((c) => c.id !== active?.id)
             .map((context) => (
@@ -125,11 +122,8 @@ function WorkspaceSwitcher({
           e.target.value = active?.id || 'current'
         }}
       >
-        {active ? (
-          <option value={active.id}>{active.label}</option>
-        ) : (
-          <option value="current">{user?.role === "parent" ? "Tài khoản Ba/Mẹ" : "Tài khoản cá nhân"}</option>
-        )}
+        {active && <option value={active.id}>{active.label}</option>}
+        <option value="current">{user?.role === "parent" ? (active ? "🏡 Về tài khoản Ba/Mẹ" : "Tài khoản Ba/Mẹ") : "Tài khoản cá nhân"}</option>
         {access?.contexts
           .filter((c) => c.id !== active?.id)
           .map((context) => (
