@@ -85,28 +85,13 @@ export function RegisterPage() {
 
           <form className="mt-5 flex flex-col gap-4" onSubmit={onSubmit}>
             <label className="flex flex-col gap-1 text-sm font-bold">
-              Biệt danh (hiển thị)
+              Tên hiển thị
               <input
                 className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500 transition-colors"
                 value={nickname}
                 maxLength={40}
-                placeholder="VD: Ba/Mẹ Minh"
                 onChange={(e) => setNickname(e.target.value)}
               />
-            </label>
-
-            <label className="flex items-start gap-3 text-sm text-muted">
-              <input
-                type="checkbox"
-                className="mt-1 h-4 w-4"
-                checked={consentAccepted}
-                onChange={(event) => setConsentAccepted(event.target.checked)}
-                required
-              />
-              <span>
-                Tôi là phụ huynh/người giám hộ và đồng ý quản lý tài khoản trẻ em
-                theo điều khoản của StoryMee.
-              </span>
             </label>
 
             <label className="flex flex-col gap-1 text-sm font-bold">
@@ -183,6 +168,22 @@ export function RegisterPage() {
                 {error}
               </p>
             )}
+
+            <label className="flex items-start gap-3 text-sm text-muted">
+              <input
+                type="checkbox"
+                className="mt-1 h-4 w-4 shrink-0"
+                checked={consentAccepted}
+                onChange={(event) => setConsentAccepted(event.target.checked)}
+                required
+              />
+              <span>
+                Tôi là phụ huynh/người giám hộ và đồng ý quản lý tài khoản trẻ em theo{' '}
+                <Link to="/terms" className="font-bold text-brand-500 hover:underline">
+                  điều khoản của StoryMee
+                </Link>.
+              </span>
+            </label>
 
             <Button type="submit" disabled={busy || !passwordsMatch || !consentAccepted}>
               {busy ? 'Đang tạo…' : 'Đăng ký'}
