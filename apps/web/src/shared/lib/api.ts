@@ -280,10 +280,10 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     return { path: '/api/v1/account/auth/google/config', options }
   }
   if (path === '/api/auth/firebase/config') {
-    return { path, options }
+    return { path: '/api/v1/account/auth/firebase/config', options }
   }
   if (path === '/api/auth/firebase/custom-token') {
-    return { path, options }
+    return { path: '/api/v1/account/auth/firebase/custom-token', options }
   }
   if (path === '/api/auth/login/firebase') {
     return { path: '/api/v1/account/auth/firebase/google', options }
