@@ -22,17 +22,30 @@ async function publicConfig(): Promise<PublicFirebaseConfig | null> {
   return configPromise
 }
 
-async function firebaseAuth(): Promise<import('firebase/auth').Auth | null> {
-  if (authPromise) return authPromise
+let appPromise: Promise<import('firebase/app').FirebaseApp | null> | null = null
+
+export async function firebaseApp(): Promise<import('firebase/app').FirebaseApp | null> {
+  if (appPromise) return appPromise
   const pending = (async () => {
     const config = await publicConfig()
     if (!config) return null
-    const [{ getApps, initializeApp }, { getAuth, signInWithCustomToken }] = await Promise.all([
-      import('firebase/app'),
-      import('firebase/auth'),
-    ])
-    const app = getApps().find((candidate) => candidate.name === FIREBASE_APP_NAME) ??
+    const { getApps, initializeApp } = await import('firebase/app')
+    return getApps().find((candidate) => candidate.name === FIREBASE_APP_NAME) ??
       initializeApp(config, FIREBASE_APP_NAME)
+  })()
+  appPromise = pending
+  void pending.catch(() => {
+    if (appPromise === pending) appPromise = null
+  })
+  return pending
+}
+
+async function firebaseAuth(): Promise<import('firebase/auth').Auth | null> {
+  if (authPromise) return authPromise
+  const pending = (async () => {
+    const app = await firebaseApp()
+    if (!app) return null
+    const { getAuth, signInWithCustomToken } = await import('firebase/auth')
     const auth = getAuth(app)
     // Always bind persisted Firebase Auth to the current httpOnly app session.
     const token = await api<{ customToken: string }>('/api/auth/firebase/custom-token', {
