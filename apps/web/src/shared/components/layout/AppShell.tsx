@@ -43,23 +43,13 @@ type RoleNavItem = {
   end?: boolean
 }
 
-function WorkspaceSwitcher({
-  onParentGate,
-  compact = false,
-}: {
-  onParentGate?: () => void
-  compact?: boolean
-}) {
+function WorkspaceSwitcher({ compact = false }: { compact?: boolean }) {
   const access = useAuth((state) => state.access)
   const active = useAuth((state) => state.activeContext)
   const selectContext = useAuth((state) => state.selectContext)
   const user = useAuth((state) => state.user)
 
   const handleSelect = async (val: string) => {
-    if (val === 'parent_gate') {
-      if (onParentGate) onParentGate()
-      return
-    }
     if (val === 'current') return
 
     const context = await selectContext(val)
@@ -102,9 +92,6 @@ function WorkspaceSwitcher({
                 {context.label}
               </option>
             ))}
-          {onParentGate && (
-            <option value="parent_gate">🏡 Ba/Mẹ</option>
-          )}
         </select>
       </div>
     )
@@ -131,9 +118,6 @@ function WorkspaceSwitcher({
               {context.label}
             </option>
           ))}
-        {onParentGate && (
-          <option value="parent_gate">🏡 Đổi sang Ba/Mẹ</option>
-        )}
       </select>
     </label>
   )
@@ -210,7 +194,7 @@ function AdultBottomLink({
 }
 
 // ── Student bottom drawer (Huy hiệu / Ba lô / Hồ sơ) ───────────
-function StudentDrawer({ onParentGate }: { onParentGate: () => void }) {
+function StudentDrawer() {
   const [open, setOpen] = useState(false)
 
   // Close drawer on navigate
@@ -260,9 +244,6 @@ function StudentDrawer({ onParentGate }: { onParentGate: () => void }) {
             </NavLink>
           ))}
         </nav>
-        <div className="mt-4 px-2 pb-6">
-          <WorkspaceSwitcher onParentGate={onParentGate} />
-        </div>
       </div>
 
       {/* Pinned bottom bar */}
@@ -666,14 +647,11 @@ export function AppShell() {
             title="Ba/Mẹ ơi!"
             className="mt-auto flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-extrabold text-amber-500 transition-all hover:scale-105 hover:bg-amber-50"
           >
-            <span className="text-2xl leading-none" aria-hidden="true">🏡</span>
+            <span className="text-2xl leading-none" aria-hidden="true">🔒</span>
             <span>Ba/Mẹ</span>
           </button>
         )}
         
-        <div className="mt-auto w-full pb-2 pt-2">
-          <WorkspaceSwitcher compact onParentGate={() => setGateOpen(true)} />
-        </div>
       </aside>
 
       <div className="fixed right-3 top-3 z-40 flex items-center gap-2 sm:right-4 md:right-6">
@@ -684,7 +662,7 @@ export function AppShell() {
             aria-label="Gọi ba mẹ"
             className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-xl shadow-sm transition hover:bg-amber-100 md:hidden"
           >
-            <span aria-hidden="true">🏡</span>
+            <span aria-hidden="true">🔒</span>
           </button>
         )}
         <NotificationBell />
@@ -702,7 +680,7 @@ export function AppShell() {
 
       {/* Mobile student bottom nav — StudentDrawer handles pinned bar + sheet */}
       <div className="md:hidden">
-        <StudentDrawer onParentGate={() => setGateOpen(true)} />
+        <StudentDrawer />
       </div>
 
 

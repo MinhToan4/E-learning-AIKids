@@ -402,7 +402,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     return { path: '/api/v1/account/parent-profile', options }
   }
   if (path === '/api/parent/gate/verify') {
-    return { path: '/api/v1/account/me/verify-password', options }
+    return { path: '/api/v1/account/family/gate-verify', options }
   }
   if (/^\/api\/parent\/approvals(?:\?.*)?$/.test(path)) {
     return {
@@ -602,6 +602,8 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     return payload
   }
   if (path === '/api/parent/gate/verify') {
+    const token = String(payload.token ?? payload.accessToken ?? '')
+    if (token) setAccessToken(token)
     return {
       user: mapUser(recordValue(payload.user)),
       message: String(payload.message ?? 'Parent password verified'),
@@ -906,11 +908,19 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       insights: { strengths: [], nextFocus: null, outcomes: [] },
       quests: progress.map((row, index) => ({
         id: String(row.lessonId ?? ''),
-        order: index + 1,
-        title: `Trạm ${index + 1}`,
+        order: Number(row.order ?? index + 1),
+        title: String(row.title ?? `Trạm ${index + 1}`),
+        skill: String(row.skill ?? ''),
+        reward: String(row.reward ?? ''),
+        duration: String(row.duration ?? ''),
+        hook: String(row.hook ?? ''),
+        accent: String(row.accent ?? ''),
+        practiceKind: String(row.practiceKind ?? ''),
         status: String(row.status ?? 'locked'),
+        phase: String(row.phase ?? 'learn'),
         stars: Number(row.stars ?? 0),
-        videoUrl: null,
+        xpEarned: Number(row.xpEarned ?? 0),
+        videoUrl: typeof row.videoUrl === 'string' ? row.videoUrl : null,
       })),
     }
   }

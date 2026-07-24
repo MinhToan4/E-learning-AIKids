@@ -313,7 +313,10 @@ describe('StoryMee Gateway adapter', () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(response({ data: { approvals: [] } }))
       .mockResolvedValueOnce(response({ data: { profile: { preferredLanguage: 'vi' } } }))
-      .mockResolvedValueOnce(response({ data: { user: { id: 'p1', role: 'parent' } } }))
+      .mockResolvedValueOnce(response({
+        user: { id: 'p1', role: 'parent' },
+        token: 'parent-session-token',
+      }))
       .mockResolvedValueOnce(response({ data: { system: { counts: {} } } }))
       .mockResolvedValueOnce(response({ data: [] }))
       .mockResolvedValueOnce(response({ courses: [] }))
@@ -334,12 +337,13 @@ describe('StoryMee Gateway adapter', () => {
     expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
       'https://dev-hub.storymee.com/api/v1/media/gallery/share-requests?status=pending',
       'https://dev-hub.storymee.com/api/v1/account/parent-profile',
-      'https://dev-hub.storymee.com/api/v1/account/me/verify-password',
+      'https://dev-hub.storymee.com/api/v1/account/family/gate-verify',
       'https://dev-hub.storymee.com/api/v1/system/aikids/admin/summary',
       'https://dev-hub.storymee.com/api/v1/account/admin/users',
       'https://dev-hub.storymee.com/api/v1/lms/aikids/admin/courses',
       'https://dev-hub.storymee.com/api/v1/jobs/providers/policy',
     ])
+    expect(localStorage.getItem('storymee.access_token')).toBe('parent-session-token')
   })
 
   it('adapts admin user edits to the core account contract', async () => {

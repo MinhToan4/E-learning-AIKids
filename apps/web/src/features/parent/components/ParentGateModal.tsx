@@ -106,7 +106,7 @@ export function ParentGateModal({
         {/* Header */}
         <div className="bg-gradient-to-br from-amber-400 to-orange-500 px-6 pb-6 pt-8 text-center">
           <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/20 text-5xl shadow-inner">
-            🏡
+            🔒
           </div>
           <h2 className="text-2xl font-black text-white">Ba/Mẹ ơi!</h2>
           <p className="mt-1 text-sm text-white/85">
