@@ -8,7 +8,7 @@ type Section = {
   body: React.ReactNode
 }
 
-const contact = <a className="font-bold text-brand-600 underline" href="mailto:aikid.vn@gmail.com">aikid.vn@gmail.com</a>
+const contact = <a className="font-bold text-brand-600 underline" href="mailto:storymee.com@gmail.com">storymee.com@gmail.com</a>
 
 const privacySections: Section[] = [
   {

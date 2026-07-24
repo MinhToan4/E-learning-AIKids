@@ -133,7 +133,7 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     }
     expect(legal).toContain('Chính sách quyền riêng tư')
     expect(legal).toContain('Xóa tài khoản và dữ liệu')
-    expect(legal).toContain('aikid.vn@gmail.com')
+    expect(legal).toContain('storymee.com@gmail.com')
   })
 
   it('creative art uses StoryMee jobs after the safe in-app sketch workflow', () => {
