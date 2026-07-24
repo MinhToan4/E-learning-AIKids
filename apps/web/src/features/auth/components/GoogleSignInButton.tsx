@@ -46,6 +46,8 @@ export function GoogleSignInButton({
         body: JSON.stringify({
           idToken,
           role: handlers.current.role,
+          parentalConsentAccepted: true,
+          termsAccepted: true,
         }),
       })
       
