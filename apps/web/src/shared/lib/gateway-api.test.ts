@@ -202,6 +202,48 @@ describe('StoryMee Gateway adapter', () => {
     )
   })
 
+  it('maps child creation PIN to the Account credential required for its users row', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      status: 'success',
+      data: {
+        child: {
+          id: 'child-new',
+          name: 'Bé Bo',
+          avatarUrl: 'avatar-robot',
+        },
+      },
+    }, 201))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{ child: { id: string } }>(
+      '/api/parent/children',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          nickname: 'Bé Bo',
+          avatarId: 'avatar-robot',
+          pin: '424242',
+        }),
+      },
+    )
+
+    expect(result.child.id).toBe('child-new')
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://dev-hub.storymee.com/api/v1/account/family/children',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({
+          name: 'Bé Bo',
+          ageBand: '9-12',
+          avatarUrl: 'avatar-robot',
+          language: 'vi',
+          allowAiCreate: true,
+          password: '424242',
+        }),
+      }),
+    )
+  })
+
   it('routes teacher classroom and authoring calls to core LMS', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(response({ class: null, students: [] }))

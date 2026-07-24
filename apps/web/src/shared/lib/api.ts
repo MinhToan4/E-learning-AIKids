@@ -363,6 +363,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     }
   }
   if (path === '/api/parent/children') {
+    const childPin = typeof body.pin === 'string' ? body.pin.trim() : ''
     return {
       path: '/api/v1/account/family/children',
       options: options.method === 'POST'
@@ -372,6 +373,10 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
           avatarUrl: body.avatarId,
           language: 'vi',
           allowAiCreate: true,
+          // core-account creates a users row together with the child profile.
+          // PIN is the only credential exposed by AiKid; use an opaque internal
+          // password until the dedicated PIN endpoint enables child login.
+          password: childPin || crypto.randomUUID(),
         })
         : options,
     }
