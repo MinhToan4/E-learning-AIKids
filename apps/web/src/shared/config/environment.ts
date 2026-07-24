@@ -33,14 +33,15 @@ if (import.meta.env.PROD && !configuredApiUrl) {
   )
 }
 
-// Dev default: local Fastify API (port 4000).
+// Dev default: StoryMee Hub Gateway (port 5100).
 // Production / staging must set VITE_API_URL to the gateway origin.
-const resolvedApiUrl = configuredApiUrl || 'http://localhost:4000'
+const resolvedApiUrl = configuredApiUrl || 'http://localhost:5100'
 
-function isLocalhost(origin: string): boolean {
+function isLocalFastify(origin: string): boolean {
   try {
-    const { hostname } = new URL(origin)
-    return hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1'
+    const url = new URL(origin)
+    // Only treat it as local Fastify if VITE_API_URL explicitly targets port 4000
+    return Boolean(configuredApiUrl) && (url.port === '4000')
   } catch {
     return false
   }
@@ -50,7 +51,7 @@ export const environment = Object.freeze({
   name: resolveEnvironment(),
   apiBaseUrl: normalizeOrigin(resolvedApiUrl, 'VITE_API_URL'),
   // true khi gọi local Fastify — không remap paths sang /api/v1/...
-  isLocalApi: isLocalhost(resolvedApiUrl),
+  isLocalApi: isLocalFastify(resolvedApiUrl),
   storagePublicUrl: normalizeOrigin(
     import.meta.env.VITE_STORAGE_PUBLIC_URL?.trim() || 'https://storage.storymee.com',
     'VITE_STORAGE_PUBLIC_URL',

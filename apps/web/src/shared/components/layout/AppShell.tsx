@@ -43,37 +43,103 @@ type RoleNavItem = {
   end?: boolean
 }
 
-function WorkspaceSwitcher() {
+function WorkspaceSwitcher({
+  onParentGate,
+  compact = false,
+}: {
+  onParentGate?: () => void
+  compact?: boolean
+}) {
   const access = useAuth((state) => state.access)
   const active = useAuth((state) => state.activeContext)
   const selectContext = useAuth((state) => state.selectContext)
-  if (!access || access.contexts.length < 2 || !active) return null
+  const user = useAuth((state) => state.user)
+
+  const handleSelect = async (val: string) => {
+    if (val === 'parent_gate') {
+      if (onParentGate) onParentGate()
+      return
+    }
+    if (val === 'current') return
+
+    const context = await selectContext(val)
+    const isAikidHost =
+      window.location.hostname === 'app.aikid.vn' ||
+      window.location.hostname.endsWith('.aikid.vn')
+    if (isAikidHost) {
+      const host =
+        context.type === 'organization' && context.organizationSlug
+          ? `${context.organizationSlug}.aikid.vn`
+          : 'app.aikid.vn'
+      window.location.assign(`https://${host}${context.defaultRoute}`)
+      return
+    }
+    window.location.assign(context.defaultRoute)
+  }
+
+  if (compact) {
+    return (
+      <div className="flex w-full flex-col items-center gap-1 py-1">
+        <label className="text-[10px] font-extrabold uppercase text-muted tracking-tight text-center">
+          Đổi TK
+        </label>
+        <select
+          className="w-[4.5rem] rounded-xl border border-border/80 bg-white px-1 py-1 text-center font-bold text-[11px] text-text shadow-sm transition hover:border-brand-300 focus:outline-none focus:ring-1 focus:ring-brand-400"
+          value={active?.id || 'current'}
+          onChange={(e) => {
+            const val = e.target.value
+            void handleSelect(val)
+            e.target.value = active?.id || 'current'
+          }}
+          title="Chuyển đổi tài khoản"
+        >
+          {active ? (
+            <option value={active.id}>{active.label}</option>
+          ) : (
+            <option value="current">Cá nhân</option>
+          )}
+          {access?.contexts
+            .filter((c) => c.id !== active?.id)
+            .map((context) => (
+              <option key={context.id} value={context.id}>
+                {context.label}
+              </option>
+            ))}
+          {onParentGate && (
+            <option value="parent_gate">🏡 Ba/Mẹ</option>
+          )}
+        </select>
+      </div>
+    )
+  }
 
   return (
     <label className="mx-3 mt-auto mb-3 block text-xs font-bold text-muted">
-      Workspace
+      Chuyển đổi tài khoản
       <select
-        className="mt-1 w-full rounded-xl border border-border bg-white px-2 py-2 text-sm text-text"
-        value={active.id}
-        onChange={async (event) => {
-          const context = await selectContext(event.target.value)
-          const isAikidHost = window.location.hostname === 'app.aikid.vn' ||
-            window.location.hostname.endsWith('.aikid.vn')
-          if (isAikidHost) {
-            const host = context.type === 'organization' && context.organizationSlug
-              ? `${context.organizationSlug}.aikid.vn`
-              : 'app.aikid.vn'
-            window.location.assign(`https://${host}${context.defaultRoute}`)
-            return
-          }
-          window.location.assign(context.defaultRoute)
+        className="mt-1 w-full rounded-xl border border-border bg-white px-2 py-2 text-sm text-text shadow-sm transition hover:border-brand-300 focus:outline-none focus:ring-1 focus:ring-brand-400"
+        value={active?.id || 'current'}
+        onChange={(e) => {
+          const val = e.target.value
+          void handleSelect(val)
+          e.target.value = active?.id || 'current'
         }}
       >
-        {access.contexts.map((context) => (
-          <option key={context.id} value={context.id}>
-            {context.label}
-          </option>
-        ))}
+        {active ? (
+          <option value={active.id}>{active.label}</option>
+        ) : (
+          <option value="current">Tài khoản cá nhân</option>
+        )}
+        {access?.contexts
+          .filter((c) => c.id !== active?.id)
+          .map((context) => (
+            <option key={context.id} value={context.id}>
+              {context.label}
+            </option>
+          ))}
+        {onParentGate && (
+          <option value="parent_gate">🏡 Đổi sang Ba/Mẹ</option>
+        )}
       </select>
     </label>
   )
@@ -150,7 +216,7 @@ function AdultBottomLink({
 }
 
 // ── Student bottom drawer (Huy hiệu / Ba lô / Hồ sơ) ───────────
-function StudentDrawer() {
+function StudentDrawer({ onParentGate }: { onParentGate: () => void }) {
   const [open, setOpen] = useState(false)
 
   // Close drawer on navigate
@@ -200,6 +266,9 @@ function StudentDrawer() {
             </NavLink>
           ))}
         </nav>
+        <div className="mt-4 px-2 pb-6">
+          <WorkspaceSwitcher onParentGate={onParentGate} />
+        </div>
       </div>
 
       {/* Pinned bottom bar */}
@@ -601,6 +670,10 @@ export function AppShell() {
             <span>Ba/Mẹ</span>
           </button>
         )}
+        
+        <div className="mt-auto w-full pb-2 pt-2">
+          <WorkspaceSwitcher compact onParentGate={() => setGateOpen(true)} />
+        </div>
       </aside>
 
       <div className="fixed right-3 top-3 z-40 flex items-center gap-2 sm:right-4 md:right-6">
@@ -629,7 +702,7 @@ export function AppShell() {
 
       {/* Mobile student bottom nav — StudentDrawer handles pinned bar + sheet */}
       <div className="md:hidden">
-        <StudentDrawer />
+        <StudentDrawer onParentGate={() => setGateOpen(true)} />
       </div>
 
 

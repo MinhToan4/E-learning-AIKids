@@ -481,23 +481,30 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
 }
 
 function mapUser(raw: Record<string, unknown>): User {
-  const actor = String(raw.actor ?? raw.role ?? 'parent')
+  const dataObj = (raw.data && typeof raw.data === 'object' ? raw.data : {}) as Record<string, unknown>
+  const unwrapped = (raw.child ?? dataObj.child ?? raw.user ?? dataObj.user ?? dataObj ?? raw) as Record<string, unknown>
+  const actor = String(unwrapped.actor ?? unwrapped.role ?? raw.actor ?? raw.role ?? 'parent')
   const role: User['role'] =
-    actor === 'child' ? 'student' :
+    actor === 'child' || actor === 'student' ? 'student' :
       actor === 'teacher' ? 'teacher' :
         actor === 'admin' ? 'admin' : 'parent'
+
+  const nameVal = unwrapped.name ?? unwrapped.nickname ?? unwrapped.childName ?? unwrapped.loginUsername ?? raw.name ?? raw.nickname
+  const nameStr = nameVal ? String(nameVal) : null
+
   return {
-    id: String(raw.id ?? raw.userId ?? ''),
+    id: String(unwrapped.id ?? unwrapped.userId ?? raw.id ?? raw.userId ?? ''),
     role,
-    email: raw.email ? String(raw.email) : null,
-    nickname: raw.name ? String(raw.name) : raw.nickname ? String(raw.nickname) : null,
-    avatarId: raw.avatarUrl ? String(raw.avatarUrl) : null,
-    level: Number(raw.level ?? 1),
-    xp: Number(raw.xp ?? 0),
-    onboarded: raw.onboarded !== false,
-    goal: raw.goal ? String(raw.goal) : null,
-    parentId: raw.parentId ? String(raw.parentId) : null,
-    classId: raw.organizationId ? String(raw.organizationId) : null,
+    email: unwrapped.email ? String(unwrapped.email) : raw.email ? String(raw.email) : null,
+    nickname: nameStr,
+    name: nameStr,
+    avatarId: unwrapped.avatarId ? String(unwrapped.avatarId) : unwrapped.avatarUrl ? String(unwrapped.avatarUrl) : raw.avatarId ? String(raw.avatarId) : raw.avatarUrl ? String(raw.avatarUrl) : null,
+    level: Number(unwrapped.level ?? raw.level ?? 1),
+    xp: Number(unwrapped.xp ?? raw.xp ?? 0),
+    onboarded: unwrapped.onboarded !== false && raw.onboarded !== false,
+    goal: unwrapped.goal ? String(unwrapped.goal) : raw.goal ? String(raw.goal) : null,
+    parentId: unwrapped.parentId ? String(unwrapped.parentId) : raw.parentId ? String(raw.parentId) : null,
+    classId: unwrapped.organizationId ? String(unwrapped.organizationId) : raw.organizationId ? String(raw.organizationId) : null,
   }
 }
 
@@ -1000,6 +1007,7 @@ export type User = {
   id: string
   role: 'student' | 'parent' | 'teacher' | 'admin'
   email: string | null
+  name?: string | null
   nickname: string | null
   avatarId: string | null
   level: number

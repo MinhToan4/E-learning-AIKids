@@ -169,10 +169,11 @@ export function LoginPage() {
             ) : (
               <>
                 <label className="flex flex-col gap-1 text-sm font-bold">
-                  Email
+                  Email hoặc Tên đăng nhập
                   <input
-                    type="email"
-                    autoComplete="email"
+                    type="text"
+                    autoComplete="username"
+                    placeholder="Nhập email hoặc tên đăng nhập"
                     className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}

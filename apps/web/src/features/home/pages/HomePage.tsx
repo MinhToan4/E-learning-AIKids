@@ -170,12 +170,33 @@ export function HomePage() {
     setLoading(true)
     setError(null)
     try {
-      const [c, s, a] = await Promise.all([
+      const [c, s, a, eResponse] = await Promise.all([
         api<{ courses: CourseSummary[] }>('/api/courses'),
         api<{ current: number; longest: number }>('/api/gamification/streak'),
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
+        api<{ enrollments: any[] }>('/api/enrollments').catch(() => ({ enrollments: [] })),
       ])
-      setCourses(c.courses)
+      
+      const enrollments = eResponse.enrollments || []
+      const mergedCourses = (c.courses || []).map(course => {
+        const enroll = enrollments.find((e: any) => e.course?.id === course.id)
+        if (enroll) {
+          const progressArr = Array.isArray(enroll.progress) ? enroll.progress : []
+          const completedCount = progressArr.filter((p: any) => p.status === 'completed').length
+          const questCount = Math.max(course.questCount ?? 0, progressArr.length)
+          const progressPct = questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0
+          return {
+            ...course,
+            enrolled: true,
+            completedCount,
+            questCount,
+            progressPct
+          }
+        }
+        return course
+      })
+
+      setCourses(mergedCourses)
       setStreak({ current: s.current, longest: s.longest })
       setBadges(a.achievements.filter((x) => x.unlocked).slice(0, 3))
       try {
@@ -206,9 +227,51 @@ export function HomePage() {
     void load()
   }, [load])
 
-  const open = courses.filter((c) => c.status === 'open')
+  const open = courses.filter((c) => c.status === 'open' || c.status === 'enrolled')
+  
   const filtered =
-    track === 'all' ? open : open.filter((c) => c.ageTrack === track)
+    track === 'all'
+      ? open
+      : open.filter((c) => {
+          const t = track.toUpperCase()
+          const cat = (c.ageTrack || '').toUpperCase()
+          const cid = (c.id || '').toUpperCase()
+          const label = c.ageLabel || ''
+          
+          if (t === 'L1') {
+            return (
+              cat === 'L1' ||
+              cid.startsWith('L1-') ||
+              label.includes('6-8') ||
+              label.includes('6–8') ||
+              label.includes('8–9') ||
+              label.includes('8-9') ||
+              label.includes('6-9') ||
+              cat === '6-8' ||
+              cat === '6-9' ||
+              cat === '8-9'
+            )
+          }
+          if (t === 'L2') {
+            return (
+              cat === 'L2' ||
+              cid.startsWith('L2-') ||
+              label.includes('9-11') ||
+              label.includes('10-11') ||
+              label.includes('9–11') ||
+              label.includes('10–11') ||
+              label.includes('8-11') ||
+              label.includes('8–11') ||
+              label.includes('9-12') ||
+              label.includes('9–12') ||
+              cat === '8-11' ||
+              cat === '9-11' ||
+              cat === '9-12' ||
+              cat === '10-11'
+            )
+          }
+          return cat === t
+        })
   const enrolled = filtered.filter((c) => c.enrolled)
   const explore = filtered.filter((c) => !c.enrolled)
 
