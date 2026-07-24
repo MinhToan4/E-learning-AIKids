@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react'
+import { createPortal } from 'react-dom'
 import { cn } from '@/shared/lib/cn'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
@@ -101,9 +102,9 @@ export function PinPadModal({
     inputRef.current?.focus()
   }
 
-  return (
+  return createPortal(
     <div
-      className="fixed inset-0 z-50 flex items-end justify-center bg-text/40 p-0 sm:items-center sm:p-4"
+      className="fixed inset-0 z-[200] flex items-end justify-center bg-text/40 p-0 sm:items-center sm:p-4"
       role="dialog"
       aria-modal="true"
       aria-labelledby="pin-title"
@@ -229,7 +230,7 @@ export function PinPadModal({
         </button>
       </div>
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-    </div>
+    </div>,
+    document.body,
   )
 }
-
