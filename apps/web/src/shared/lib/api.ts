@@ -279,6 +279,15 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
   if (path === '/api/auth/google/config') {
     return { path: '/api/v1/account/auth/google/config', options }
   }
+  if (path === '/api/auth/firebase/config') {
+    return { path, options }
+  }
+  if (path === '/api/auth/firebase/custom-token') {
+    return { path, options }
+  }
+  if (path === '/api/auth/login/firebase') {
+    return { path: '/api/v1/account/auth/firebase/google', options }
+  }
   if (path === '/api/auth/login/google') {
     return { path: '/api/v1/account/auth/google', options }
   }
