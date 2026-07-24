@@ -33,9 +33,18 @@ jobs:
         run: npm ci
 
       - name: Run tests
+        shell: bash
         run: |
-          npm run test -w @aikids/domain -- --maxWorkers=2
-          npm run test -w @aikids/web -- --maxWorkers=2
+          set +e
+          npm run test -w @aikids/domain -- --maxWorkers=2 2>&1 | tee domain-test.log
+          domain_status=${PIPESTATUS[0]}
+          npm run test -w @aikids/web -- --maxWorkers=2 2>&1 | tee web-test.log
+          web_status=${PIPESTATUS[0]}
+          if (( domain_status != 0 || web_status != 0 )); then
+            diagnostic="$(cat domain-test.log web-test.log | tail -c 6000 | sed ':a;N;$!ba;s/%/%25/g;s/\r/%0D/g;s/\n/%0A/g')"
+            echo "::error title=Frontend test diagnostics::$diagnostic"
+            exit 1
+          fi
 
       - name: Build frontend
         run: npm run build
