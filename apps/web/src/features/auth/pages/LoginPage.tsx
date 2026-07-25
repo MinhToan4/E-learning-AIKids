@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+﻿import { useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { useAuth } from '@/shared/store/auth'
@@ -6,10 +6,10 @@ import { ApiError } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
-import { PinPadModal } from '@/shared/components/ui/PinPadModal'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
+import { PinPadModal } from '@/shared/components/ui/PinPadModal'
 import type { User } from '@/shared/lib/api'
 
 export function LoginPage() {
@@ -22,9 +22,9 @@ export function LoginPage() {
   const [nickname, setNickname] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [busy, setBusy] = useState(false)
-  const [showPinModal, setShowPinModal] = useState(false)
   const [pin, setPin] = useState('')
+  const [showPinModal, setShowPinModal] = useState(false)
+  const [busy, setBusy] = useState(false)
   const { toasts, showToast, dismissToast } = useToast()
   const loginStudent = useAuth((s) => s.loginStudent)
   const loginAdult = useAuth((s) => s.loginAdult)
@@ -40,8 +40,8 @@ export function LoginPage() {
   const hint = useMemo(
     () =>
       mode === 'student'
-        ? 'Con dùng biệt danh ba/mẹ đã tạo. Không cần mật khẩu của ba/mẹ.'
-        : 'Ba/mẹ hoặc thầy cô đăng nhập bằng email để quản lý và cho con học.',
+        ? 'Con d├╣ng biß╗çt danh ba/mß║╣ ─æ├ú tß║ío. Kh├┤ng cß║ºn mß║¡t khß║⌐u cß╗ºa ba/mß║╣.'
+        : 'Ba/mß║╣ hoß║╖c thß║ºy c├┤ ─æ─âng nhß║¡p bß║▒ng email ─æß╗â quß║ún l├╜ v├á cho con hß╗ìc.',
     [mode],
   )
 
@@ -50,6 +50,7 @@ export function LoginPage() {
     setBusy(true)
     try {
       if (mode === 'student') {
+        // Gß╗ìi API tr╞░ß╗¢c kh├┤ng c├│ PIN ΓÇö nß║┐u server y├¬u cß║ºu PIN th├¼ error message c├│ "PIN"
         const user = await loginStudent(nickname.trim(), undefined)
         navigate(user.onboarded ? '/home' : '/onboarding')
       } else {
@@ -57,7 +58,8 @@ export function LoginPage() {
         goAfterAdult(user)
       }
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Không vào được. Thử lại nhé!'
+      const msg = err instanceof ApiError ? err.message : 'Kh├┤ng v├áo ─æ╞░ß╗úc. Thß╗¡ lß║íi nh├⌐!'
+      // Nß║┐u server y├¬u cß║ºu PIN ΓåÆ mß╗ƒ PinPadModal thay v├¼ hiß╗çn lß╗ùi
       if (mode === 'student' && msg.includes('PIN')) {
         setShowPinModal(true)
       } else {
@@ -71,12 +73,13 @@ export function LoginPage() {
   async function onSubmitPin(enteredPin: string) {
     setBusy(true)
     try {
+      // Gß╗ìi lß║íi vß╗¢i PIN ΓÇö d├╣ng tham sß╗æ thß╗⌐ 3 opts
       const user = await loginStudent(nickname.trim(), undefined, {
         pin: enteredPin.trim(),
       })
       navigate(user.onboarded ? '/home' : '/onboarding')
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Không vào được. Thử lại nhé!'
+      const msg = err instanceof ApiError ? err.message : 'Kh├┤ng v├áo ─æ╞░ß╗úc. Thß╗¡ lß║íi nh├⌐!'
       showToast(msg, 'error')
       setPin('')
     } finally {
@@ -96,7 +99,7 @@ export function LoginPage() {
       <div className="absolute inset-0 bg-[#f7f5ff]/75" />
       <div className="relative z-10 mx-auto flex w-full max-w-lg flex-col gap-4">
         <Link to="/" className="text-sm font-bold text-brand-500">
-          ← Về trang chào
+          ΓåÉ Vß╗ü trang ch├áo
         </Link>
         <div className="ui-card p-6">
           <div className="mb-4 flex items-center gap-3">
@@ -107,7 +110,7 @@ export function LoginPage() {
               className="h-14 w-14 rounded-full object-cover"
             />
           </div>
-          <h1 className="font-display text-3xl text-text">Vào cổng sáng tạo</h1>
+          <h1 className="font-display text-3xl text-text">V├áo cß╗òng s├íng tß║ío</h1>
           <p className="mt-1 text-sm text-muted">{hint}</p>
 
           <div className="mt-4 flex gap-2 rounded-2xl bg-brand-50 p-1">
@@ -119,9 +122,14 @@ export function LoginPage() {
                   ? 'bg-white text-brand-600 shadow-soft'
                   : 'text-muted',
               )}
-              onClick={() => setMode('student')}
+              onClick={() => {
+                setMode('student')
+                // Clear fields khi ─æß╗òi tab ΓÇö tr├ính dß╗» liß╗çu c┼⌐ hiß╗çn lß║íi
+                setEmail('')
+                setPassword('')
+              }}
             >
-              Học sinh
+              Hß╗ìc sinh
             </button>
             <button
               type="button"
@@ -131,9 +139,13 @@ export function LoginPage() {
                   ? 'bg-white text-brand-600 shadow-soft'
                   : 'text-muted',
               )}
-              onClick={() => setMode('adult')}
+              onClick={() => {
+                setMode('adult')
+                // Clear fields khi ─æß╗òi tab
+                setNickname('')
+              }}
             >
-              Ba mẹ / GV
+              Ba mß║╣ / GV
             </button>
           </div>
 
@@ -141,7 +153,7 @@ export function LoginPage() {
             {mode === 'student' ? (
               <>
                 <label className="flex flex-col gap-1 text-sm font-bold">
-                  Biệt danh
+                  Biß╗çt danh
                   <input
                     className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500"
                     value={nickname}
@@ -151,15 +163,17 @@ export function LoginPage() {
                   />
                 </label>
                 <p className="text-xs text-muted">
-                  Chưa có hồ sơ? Nhờ ba/mẹ đăng nhập, vào mục Con và thêm con nhé.
+                  Ch╞░a c├│ hß╗ô s╞í? Nhß╗¥ ba/mß║╣ ─æ─âng nhß║¡p, v├áo mß╗Ñc Con v├á th├¬m con nh├⌐.
                 </p>
               </>
             ) : (
               <>
                 <label className="flex flex-col gap-1 text-sm font-bold">
-                  Email
+                  Email hoß║╖c T├¬n ─æ─âng nhß║¡p
                   <input
-                    type="email"
+                    type="text"
+                    autoComplete="username"
+                    placeholder="Nhß║¡p email hoß║╖c t├¬n ─æ─âng nhß║¡p"
                     className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -167,9 +181,10 @@ export function LoginPage() {
                   />
                 </label>
                 <label className="flex flex-col gap-1 text-sm font-bold">
-                  Mật khẩu
+                  Mß║¡t khß║⌐u
                   <input
                     type="password"
+                    autoComplete="current-password"
                     className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -178,21 +193,21 @@ export function LoginPage() {
                 </label>
                 <div className="flex items-center justify-between text-xs">
                   <Link to="/forgot-password" className="font-bold text-brand-500 hover:underline">
-                    Quên mật khẩu?
+                    Qu├¬n mß║¡t khß║⌐u?
                   </Link>
                 </div>
               </>
             )}
 
             <Button type="submit" disabled={busy}>
-              {busy ? 'Đang vào…' : mode === 'adult' ? 'Đăng nhập' : 'Vào học!'}
+              {busy ? '─Éang v├áoΓÇª' : mode === 'adult' ? '─É─âng nhß║¡p' : 'V├áo hß╗ìc!'}
             </Button>
 
             {mode === 'adult' && (
               <div className="flex w-full flex-col gap-2 pt-1">
                 <div className="flex items-center gap-3">
                   <span className="h-px flex-1 bg-border" />
-                  <span className="text-xs font-bold text-muted">hoặc</span>
+                  <span className="text-xs font-bold text-muted">hoß║╖c</span>
                   <span className="h-px flex-1 bg-border" />
                 </div>
                 <GoogleSignInButton
@@ -209,9 +224,9 @@ export function LoginPage() {
             )}
 
             <p className="text-center text-sm text-muted">
-              Chưa có tài khoản?{' '}
+              Ch╞░a c├│ t├ái khoß║ún?{' '}
               <Link to="/register" className="font-bold text-brand-500 hover:underline">
-                Đăng ký ngay
+                ─É─âng k├╜ ngay
               </Link>
             </p>
           </form>
@@ -223,9 +238,9 @@ export function LoginPage() {
           setShowPinModal(false)
           setPin('')
         }}
-        onSubmit={onSubmitPin}
-        title={`Xin chào ${nickname}!`}
-        subtitle="Nhập mã PIN 6 số ba/mẹ đã đặt"
+        onSubmit={(value) => void onSubmitPin(value)}
+        title={`Xin ch├áo ${nickname || 'bß║ín nhß╗Å'}!`}
+        subtitle="Nhß║¡p m├ú PIN 6 sß╗æ ba/mß║╣ ─æ├ú ─æß║╖t"
         busy={busy}
         pin={pin}
         setPin={setPin}

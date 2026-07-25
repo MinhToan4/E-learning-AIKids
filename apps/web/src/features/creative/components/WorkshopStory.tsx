@@ -1,12 +1,14 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { BookOpen, ChevronRight, Sparkles } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { api } from '@/shared/lib/api'
+import { generateCreativeStory } from '@/shared/lib/creative-api'
 import { STORY_GENRES } from '../lib/workshop-types'
 import type { WorkshopStep } from '../lib/workshop-types'
 
-// ── Story flow steps ──────────────────────────────────────────
-type StoryFlowStep = 'genre' | 'idea' | 'result'
+// ΓöÇΓöÇ Story flow steps ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+type StoryFlowStep = 'mode' | 'genre' | 'idea' | 'result'
+type StoryMode = 'text' | 'comic'
 
 type StoryDraft = {
   genre: string
@@ -30,31 +32,67 @@ const EMPTY_DRAFT: StoryDraft = {
   setting: '',
 }
 
-export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props) {
+export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) {
   const [flowStep, setFlowStep] = useState<StoryFlowStep>(initialStep)
+  const [mode, setMode] = useState<StoryMode>('text')
   const [draft, setDraft] = useState<StoryDraft>(EMPTY_DRAFT)
   const [generating, setGenerating] = useState(false)
   const [storyResult, setStoryResult] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
+  const [saving, setSaving] = useState(false)
 
-  // ── Genre picker ──────────────────────────────────────────────
+  if (flowStep === 'mode') {
+    return (
+      <div className="flex h-full flex-col gap-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
+              S├íng t├íc truyß╗çn ┬╖ AiKid
+            </p>
+            <h2 className="font-display text-2xl text-text">Con muß╗æn tß║ío loß║íi truyß╗çn n├áo?</h2>
+          </div>
+          <button type="button" onClick={() => onBack('hub')}
+            className="rounded-btn border border-border bg-white px-4 py-2 text-sm font-bold text-muted">
+            ΓåÉ Trß╗ƒ vß╗ü
+          </button>
+        </div>
+        <div className="grid flex-1 gap-4 sm:grid-cols-2">
+          {([
+            ['text', '≡ƒôû Truyß╗çn chß╗»', 'S├íng t├íc c├óu chuyß╗çn bß║▒ng v─ân bß║ún, c├│ mß╗ƒ ─æß║ºu, cao tr├áo v├á kß║┐t th├║c.'],
+            ['comic', '≡ƒû╝∩╕Å Truyß╗çn tranh', 'Lß║¡p kß╗ïch bß║ún 4 khung vß╗¢i cß║únh, h├ánh ─æß╗Öng v├á lß╗¥i thoß║íi r├╡ r├áng.'],
+          ] as const).map(([id, title, description]) => (
+            <button key={id} type="button" onClick={() => { setMode(id); setFlowStep('genre') }}
+              className="rounded-3xl border-2 border-border bg-white p-6 text-left shadow-soft transition hover:border-brand-400 hover:bg-brand-50">
+              <span className="font-display text-2xl text-text">{title}</span>
+              <span className="mt-2 block text-sm text-muted">{description}</span>
+              <span className="mt-5 inline-flex items-center gap-1 text-sm font-extrabold text-brand-600">
+                Bß║»t ─æß║ºu <ChevronRight size={16} />
+              </span>
+            </button>
+          ))}
+        </div>
+      </div>
+    )
+  }
+
+  // ΓöÇΓöÇ Genre picker ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   if (flowStep === 'genre') {
     return (
       <div className="flex h-full flex-col gap-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
-              Bước 1 / 3
+              B╞░ß╗¢c 1 / 3 ┬╖ {mode === 'comic' ? 'Truyß╗çn tranh' : 'Truyß╗çn chß╗»'}
             </p>
-            <h2 className="font-display text-2xl text-text">Chọn thể loại truyện</h2>
-            <p className="mt-0.5 text-sm text-muted">Con muốn kể câu chuyện gì hôm nay?</p>
+            <h2 className="font-display text-2xl text-text">Chß╗ìn thß╗â loß║íi truyß╗çn</h2>
+            <p className="mt-0.5 text-sm text-muted">Con muß╗æn kß╗â c├óu chuyß╗çn g├¼ h├┤m nay?</p>
           </div>
           <button
             type="button"
-            onClick={() => onBack('hub')}
+            onClick={() => setFlowStep('mode')}
             className="rounded-btn border border-border bg-white px-4 py-2 text-sm font-bold text-muted transition hover:border-brand-300"
           >
-            ← Trở về
+            ΓåÉ Trß╗ƒ vß╗ü
           </button>
         </div>
 
@@ -91,42 +129,42 @@ export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props)
             onClick={() => setFlowStep('idea')}
             className="ui-btn ui-btn-primary gap-2 disabled:opacity-50"
           >
-            Tiếp tục <ChevronRight size={16} />
+            Tiß║┐p tß╗Ñc <ChevronRight size={16} />
           </button>
         </div>
       </div>
     )
   }
 
-  // ── Idea builder ──────────────────────────────────────────────
+  // ΓöÇΓöÇ Idea builder ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   if (flowStep === 'idea') {
     return (
       <div className="flex h-full flex-col gap-4">
         <div className="flex items-center justify-between">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
-              Bước 2 / 3 · {draft.genreLabel}
+              B╞░ß╗¢c 2 / 3 ┬╖ {draft.genreLabel}
             </p>
-            <h2 className="font-display text-2xl text-text">Xây dựng ý tưởng</h2>
+            <h2 className="font-display text-2xl text-text">X├óy dß╗▒ng ├╜ t╞░ß╗ƒng</h2>
           </div>
           <button
             type="button"
             onClick={() => setFlowStep('genre')}
             className="rounded-btn border border-border bg-white px-4 py-2 text-sm font-bold text-muted transition hover:border-brand-300"
           >
-            ← Thể loại
+            ΓåÉ Thß╗â loß║íi
           </button>
         </div>
 
         <div className="flex flex-col gap-4">
           <label className="block">
             <span className="mb-1.5 block text-sm font-extrabold text-text">
-              Ý tưởng chính của câu chuyện *
+              ├¥ t╞░ß╗ƒng ch├¡nh cß╗ºa c├óu chuyß╗çn *
             </span>
             <textarea
               value={draft.idea}
               onChange={(e) => setDraft((d) => ({ ...d, idea: e.target.value }))}
-              placeholder="Ví dụ: Một chú mèo nhỏ phát hiện ra cánh cổng bí ẩn dẫn đến vương quốc thần tiên..."
+              placeholder="V├¡ dß╗Ñ: Mß╗Öt ch├║ m├¿o nhß╗Å ph├ít hiß╗çn ra c├ính cß╗òng b├¡ ß║⌐n dß║½n ─æß║┐n v╞░╞íng quß╗æc thß║ºn ti├¬n..."
               className="w-full rounded-2xl border-2 border-border bg-white p-3 text-sm font-semibold text-text placeholder:text-muted/60 focus:border-brand-400 focus:outline-none"
               rows={3}
               maxLength={300}
@@ -135,13 +173,13 @@ export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props)
 
           <label className="block">
             <span className="mb-1.5 block text-sm font-extrabold text-text">
-              Nhân vật chính
+              Nh├ón vß║¡t ch├¡nh
             </span>
             <input
               type="text"
               value={draft.characters}
               onChange={(e) => setDraft((d) => ({ ...d, characters: e.target.value }))}
-              placeholder="Ví dụ: Mèo Sao, Cô bé Hana, Robot Tita..."
+              placeholder="V├¡ dß╗Ñ: M├¿o Sao, C├┤ b├⌐ Hana, Robot Tita..."
               className="w-full rounded-2xl border-2 border-border bg-white p-3 text-sm font-semibold text-text placeholder:text-muted/60 focus:border-brand-400 focus:outline-none"
               maxLength={100}
             />
@@ -149,13 +187,13 @@ export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props)
 
           <label className="block">
             <span className="mb-1.5 block text-sm font-extrabold text-text">
-              Bối cảnh
+              Bß╗æi cß║únh
             </span>
             <input
               type="text"
               value={draft.setting}
               onChange={(e) => setDraft((d) => ({ ...d, setting: e.target.value }))}
-              placeholder="Ví dụ: Một khu rừng ma thuật, trái đất năm 3000, thành phố ven biển..."
+              placeholder="V├¡ dß╗Ñ: Mß╗Öt khu rß╗½ng ma thuß║¡t, tr├íi ─æß║Ñt n─âm 3000, th├ánh phß╗æ ven biß╗ân..."
               className="w-full rounded-2xl border-2 border-border bg-white p-3 text-sm font-semibold text-text placeholder:text-muted/60 focus:border-brand-400 focus:outline-none"
               maxLength={100}
             />
@@ -174,7 +212,7 @@ export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props)
             onClick={() => setFlowStep('genre')}
             className="rounded-btn border border-border px-4 py-2 text-sm font-bold text-muted"
           >
-            ← Quay lại
+            ΓåÉ Quay lß║íi
           </button>
           <button
             type="button"
@@ -187,29 +225,31 @@ export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props)
             ) : (
               <Sparkles size={16} />
             )}
-            {generating ? 'AI đang viết…' : 'AI Sáng Tác'}
+            {generating ? 'AI ─æang viß║┐tΓÇª' : 'AI S├íng T├íc'}
           </button>
         </div>
       </div>
     )
   }
 
-  // ── Result ────────────────────────────────────────────────────
+  // ΓöÇΓöÇ Result ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
   return (
     <div className="flex h-full flex-col gap-4">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-xs font-extrabold uppercase tracking-wide text-mint-700">
-            Bước 3 / 3 · Hoàn thành
+            B╞░ß╗¢c 3 / 3 ┬╖ Ho├án th├ánh
           </p>
-          <h2 className="font-display text-2xl text-text">Câu chuyện của con</h2>
+          <h2 className="font-display text-2xl text-text">
+            {mode === 'comic' ? 'Kß╗ïch bß║ún truyß╗çn tranh cß╗ºa con' : 'C├óu chuyß╗çn cß╗ºa con'}
+          </h2>
         </div>
         <button
           type="button"
           onClick={() => { setFlowStep('idea'); setStoryResult(null); setError(null) }}
           className="rounded-btn border border-border bg-white px-4 py-2 text-sm font-bold text-muted transition hover:border-brand-300"
         >
-          ← Viết lại
+          ΓåÉ Viß║┐t lß║íi
         </button>
       </div>
 
@@ -223,11 +263,11 @@ export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props)
       <div className="flex gap-3 border-t border-border pt-4">
         <button type="button" onClick={generateStory} disabled={generating}
           className="ui-btn ui-btn-secondary flex-1 gap-2 disabled:opacity-50">
-          <Sparkles size={16} /> Viết thêm bản khác
+          <Sparkles size={16} /> Viß║┐t th├¬m bß║ún kh├íc
         </button>
-        <button type="button" onClick={handleSave}
-          className="ui-btn ui-btn-primary flex-1 gap-2">
-          Lưu vào Ba lô
+        <button type="button" onClick={() => void handleSave()} disabled={saving}
+          className="ui-btn ui-btn-primary flex-1 gap-2 disabled:opacity-50">
+          {saving ? '─Éang l╞░uΓÇª' : 'L╞░u v├áo Ba l├┤'}
         </button>
       </div>
     </div>
@@ -237,31 +277,46 @@ export function WorkshopStory({ initialStep = 'genre', onBack, onSaved }: Props)
     setGenerating(true)
     setError(null)
     try {
-      const res = await api<{ result: { generated?: { content?: string } } }>(
-        '/api/creative/create',
-        {
-          method: 'POST',
-          body: JSON.stringify({
-            kind: 'story',
-            genre: draft.genre,
-            idea: draft.idea,
-            characters: draft.characters,
-            setting: draft.setting,
-          }),
-        },
+      const content = await generateCreativeStory(
+        [
+          mode === 'comic'
+            ? 'Viß║┐t kß╗ïch bß║ún truyß╗çn tranh thiß║┐u nhi an to├án bß║▒ng tiß║┐ng Viß╗çt gß╗ôm ─æ├║ng 4 khung. Mß╗ùi khung c├│ m├┤ tß║ú cß║únh, h├ánh ─æß╗Öng v├á lß╗¥i thoß║íi ngß║»n.'
+            : 'Viß║┐t mß╗Öt truyß╗çn thiß║┐u nhi an to├án bß║▒ng tiß║┐ng Viß╗çt.',
+          `Thß╗â loß║íi: ${draft.genre}.`,
+          `├¥ t╞░ß╗ƒng: ${draft.idea}.`,
+          `Nh├ón vß║¡t: ${draft.characters}.`,
+          `Bß╗æi cß║únh: ${draft.setting}.`,
+          'Nß╗Öi dung t├¡ch cß╗▒c, ph├╣ hß╗úp trß║╗ em, c├│ mß╗ƒ ─æß║ºu, cao tr├áo v├á kß║┐t th├║c.',
+        ].join('\n'),
       )
-      const content = res.result.generated?.content
-      if (!content) throw new Error('AI chưa trả về nội dung truyện.')
       setStoryResult(content)
       setFlowStep('result')
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Lỗi không xác định')
+      setError(err instanceof Error ? err.message : 'Lß╗ùi kh├┤ng x├íc ─æß╗ïnh')
     } finally {
       setGenerating(false)
     }
   }
 
-  function handleSave() {
-    onSaved()
+  async function handleSave() {
+    if (!storyResult) return
+    setSaving(true)
+    setError(null)
+    try {
+      await api('/api/media/promote', {
+        method: 'POST',
+        body: JSON.stringify({
+          purpose: 'creative_workshop',
+          creativeKind: mode === 'comic' ? 'comic' : 'story',
+          title: `${mode === 'comic' ? 'Truyß╗çn tranh' : 'Truyß╗çn chß╗»'} ┬╖ ${draft.genreLabel}`,
+          content: storyResult,
+        }),
+      })
+      onSaved()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Ch╞░a l╞░u ─æ╞░ß╗úc truyß╗çn')
+    } finally {
+      setSaving(false)
+    }
   }
 }

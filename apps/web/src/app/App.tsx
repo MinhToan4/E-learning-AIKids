@@ -1,4 +1,4 @@
-import { lazy, Suspense, useEffect } from 'react'
+﻿import { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from '@/shared/store/auth'
 import { AppShell } from '@/shared/components/layout/AppShell'
@@ -20,6 +20,11 @@ const ForgotPasswordPage = lazy(() =>
 const ResetPasswordPage = lazy(() =>
   import('@/features/auth/pages/ResetPasswordPage').then((m) => ({
     default: m.ResetPasswordPage,
+  })),
+)
+const LegalPage = lazy(() =>
+  import('@/features/legal/pages/LegalPage').then((m) => ({
+    default: m.LegalPage,
   })),
 )
 
@@ -89,6 +94,11 @@ const AdminPage = lazy(() =>
     default: m.AdminPage,
   })),
 )
+const OrganizationPage = lazy(() =>
+  import('@/features/organization/pages/OrganizationPage').then((m) => ({
+    default: m.OrganizationPage,
+  })),
+)
 const ChildPickerPage = lazy(() =>
   import('@/features/family/pages/ChildPickerPage').then((m) => ({
     default: m.ChildPickerPage,
@@ -103,8 +113,8 @@ function Fallback() {
       aria-live="polite"
     >
       <div className="ui-skeleton h-14 w-14 rounded-2xl" />
-      <p className="font-display text-xl text-brand-500">Đang mở cổng sao…</p>
-      <p className="text-sm text-muted">Chờ một chút nhé</p>
+      <p className="font-display text-xl text-brand-500">─Éang mß╗ƒ cß╗òng saoΓÇª</p>
+      <p className="text-sm text-muted">Chß╗¥ mß╗Öt ch├║t nh├⌐</p>
     </div>
   )
 }
@@ -153,6 +163,12 @@ export function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/legal" element={<LegalPage kind="hub" />} />
+        <Route path="/privacy" element={<LegalPage kind="privacy" />} />
+        <Route path="/terms" element={<LegalPage kind="terms" />} />
+        <Route path="/account/delete" element={<LegalPage kind="delete" />} />
+        <Route path="/support" element={<LegalPage kind="support" />} />
+        <Route path="/data-safety" element={<LegalPage kind="data-safety" />} />
         <Route
           path="/kids"
           element={
@@ -293,6 +309,14 @@ export function App() {
             element={
               <Guard roles={['parent']}>
                 <ParentPage tab="plan" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/organization"
+            element={
+              <Guard roles={['teacher', 'admin']}>
+                <OrganizationPage />
               </Guard>
             }
           />

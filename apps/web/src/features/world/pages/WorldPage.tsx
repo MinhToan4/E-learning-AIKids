@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+﻿import { useEffect, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { CheckCircle2, Lock, Star, Trophy, Zap } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { api, type QuestProgress } from '@/shared/lib/api'
@@ -7,7 +7,7 @@ import { cn } from '@/shared/lib/cn'
 import { designerAssets } from '@/shared/config/assets'
 
 // Emoji icons per quest order (fallback to order number)
-const QUEST_ICONS = ['🌟', '🧩', '🎨', '📖', '🎭', '🎬', '🔍', '🤖', '💡', '🚀', '🌈', '🏆']
+const QUEST_ICONS = ['≡ƒîƒ', '≡ƒº⌐', '≡ƒÄ¿', '≡ƒôû', '≡ƒÄ¡', '≡ƒÄ¼', '≡ƒöì', '≡ƒñû', '≡ƒÆí', '≡ƒÜÇ', '≡ƒîê', '≡ƒÅå']
 
 function StarDisplay({ count }: { count: number }) {
   return (
@@ -28,7 +28,7 @@ function QuestNode({ quest, index }: { quest: QuestProgress; index: number }) {
   const locked = quest.status === 'locked'
   const done = quest.status === 'completed'
   const available = quest.status === 'available' || quest.status === 'in_progress'
-  const icon = QUEST_ICONS[(index) % QUEST_ICONS.length] ?? '⭐'
+  const icon = QUEST_ICONS[(index) % QUEST_ICONS.length] ?? 'Γ¡É'
 
   const nodeEl = (
     <div className="flex items-center gap-3" style={{ flexDirection: index % 2 === 0 ? 'row' : 'row-reverse' }}>
@@ -47,7 +47,7 @@ function QuestNode({ quest, index }: { quest: QuestProgress; index: number }) {
               ? undefined
               : undefined
         }
-        aria-label={`Trạm ${quest.order}: ${quest.title}`}
+        aria-label={`Trß║ím ${quest.order}: ${quest.title}`}
       >
         {locked ? (
           <Lock size={28} className="text-muted" aria-hidden />
@@ -61,7 +61,7 @@ function QuestNode({ quest, index }: { quest: QuestProgress; index: number }) {
       {/* Label card */}
       <div className={cn('quest-label-card', locked && 'opacity-60')}>
         <p className="text-[10px] font-extrabold uppercase tracking-wider text-brand-500 mb-0.5">
-          Trạm {quest.order}
+          Trß║ím {quest.order}
         </p>
         <p className="font-extrabold text-sm leading-snug text-text">{quest.title}</p>
         <p className="text-xs text-muted mt-0.5">{quest.duration}</p>
@@ -72,7 +72,7 @@ function QuestNode({ quest, index }: { quest: QuestProgress; index: number }) {
         )}
         {available && (
           <span className="inline-flex items-center gap-1 mt-1.5 text-[10px] font-extrabold text-brand-500 bg-brand-50 rounded-full px-2 py-0.5">
-            <Zap size={10} aria-hidden /> Làm ngay!
+            <Zap size={10} aria-hidden /> L├ám ngay!
           </span>
         )}
       </div>
@@ -98,10 +98,11 @@ function QuestNode({ quest, index }: { quest: QuestProgress; index: number }) {
 }
 
 export function WorldPage() {
-  const { courseId = 'course-comic' } = useParams()
+  const { courseId } = useParams()
+  const navigate = useNavigate()
   const [quests, setQuests] = useState<QuestProgress[]>([])
   const [meta, setMeta] = useState({ totalStars: 0, completedCount: 0 })
-  const [courseTitle, setCourseTitle] = useState('Hành trình sáng tạo')
+  const [courseTitle, setCourseTitle] = useState('H├ánh tr├¼nh s├íng tß║ío')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -110,6 +111,16 @@ export function WorldPage() {
       setLoading(true)
       setError(null)
       try {
+        if (!courseId) {
+          const catalog = await api<{ courses: Array<{ id: string }> }>('/api/courses')
+          const firstCourse = catalog.courses.find((course) => course.id)
+          if (!firstCourse) {
+            setError('Ch╞░a c├│ kh├│a hß╗ìc n├áo ─æ╞░ß╗úc xuß║Ñt bß║ún.')
+            return
+          }
+          navigate(`/world/${firstCourse.id}`, { replace: true })
+          return
+        }
         await api('/api/enrollments', {
           method: 'POST',
           body: JSON.stringify({ courseId }),
@@ -126,12 +137,12 @@ export function WorldPage() {
         setMeta({ totalStars: data.totalStars, completedCount: data.completedCount })
         setCourseTitle(course.course.title)
       } catch (e) {
-        setError(e instanceof Error ? e.message : 'Không tải được bản đồ')
+        setError(e instanceof Error ? e.message : 'Kh├┤ng tß║úi ─æ╞░ß╗úc bß║ún ─æß╗ô')
       } finally {
         setLoading(false)
       }
     })()
-  }, [courseId])
+  }, [courseId, navigate])
 
   const next = quests.find(
     (q) => q.status === 'available' || q.status === 'in_progress',
@@ -152,11 +163,11 @@ export function WorldPage() {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500 mb-1">
-                🗺️ Bản đồ nhiệm vụ
+                ≡ƒù║∩╕Å Bß║ún ─æß╗ô nhiß╗çm vß╗Ñ
               </p>
               <h1 className="font-display text-2xl sm:text-3xl leading-tight">{courseTitle}</h1>
               <p className="mt-1 text-sm text-muted">
-                {meta.completedCount}/{quests.length} trạm hoàn thành
+                {meta.completedCount}/{quests.length} trß║ím ho├án th├ánh
                 {meta.totalStars > 0 && (
                   <span className="ml-2 inline-flex items-center gap-1">
                     <Star size={13} className="text-sun-400 fill-sun-400" aria-hidden />
@@ -168,7 +179,7 @@ export function WorldPage() {
             {next && (
               <Link to={`/lesson/${next.id}`}>
                 <Button className="animate-pop">
-                  ▶ Làm trạm {next.order}
+                  Γû╢ L├ám trß║ím {next.order}
                 </Button>
               </Link>
             )}
@@ -178,7 +189,7 @@ export function WorldPage() {
           {quests.length > 0 && (
             <div className="mt-4">
               <div className="flex items-center justify-between mb-1.5">
-                <span className="text-xs font-bold text-muted">Tiến trình</span>
+                <span className="text-xs font-bold text-muted">Tiß║┐n tr├¼nh</span>
                 <span className="text-xs font-extrabold text-brand-600">{progressPct}%</span>
               </div>
               <div className="progress-track">
@@ -198,15 +209,15 @@ export function WorldPage() {
           <div className="mt-4 flex flex-wrap gap-2">
             <div className="flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-xs font-bold shadow-soft border border-border">
               <Trophy size={13} className="text-sun-600" aria-hidden />
-              {meta.totalStars} sao tổng
+              {meta.totalStars} sao tß╗òng
             </div>
             <div className="flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-xs font-bold shadow-soft border border-border">
               <CheckCircle2 size={13} className="text-success" aria-hidden />
-              {meta.completedCount} trạm xong
+              {meta.completedCount} trß║ím xong
             </div>
             <Link to={`/course/${courseId}`}>
               <div className="flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-xs font-bold shadow-soft border border-border hover:bg-brand-50 transition cursor-pointer">
-                📋 Giới thiệu khóa
+                ≡ƒôï Giß╗¢i thiß╗çu kh├│a
               </div>
             </Link>
           </div>
@@ -244,10 +255,10 @@ export function WorldPage() {
           {quests.length > 0 && meta.completedCount === quests.length && (
             <div className="relative z-10 flex flex-col items-center mt-8 animate-pop">
               <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-sun-400 to-coral-400 text-5xl shadow-clay">
-                🏆
+                ≡ƒÅå
               </div>
-              <p className="mt-3 font-display text-xl text-text">Xuất sắc!</p>
-              <p className="text-sm text-muted">Con đã hoàn thành toàn bộ hành trình!</p>
+              <p className="mt-3 font-display text-xl text-text">Xuß║Ñt sß║»c!</p>
+              <p className="text-sm text-muted">Con ─æ├ú ho├án th├ánh to├án bß╗Ö h├ánh tr├¼nh!</p>
             </div>
           )}
         </div>

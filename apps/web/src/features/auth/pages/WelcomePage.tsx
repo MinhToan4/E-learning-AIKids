@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+﻿import { Link } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
@@ -18,10 +18,10 @@ export function WelcomePage() {
         <div className="relative min-h-72 bg-brand-100">
           <img
             src={designerAssets.lobby.homeCharacter}
-            alt="Nhân vật sáng tạo từ designer AIKid"
+            alt="Nh├ón vß║¡t s├íng tß║ío tß╗½ designer AIKid"
             className="h-full w-full object-cover"
           />
-          {/* Wordmark only — no frame/border around logo */}
+          {/* Wordmark only ΓÇö no frame/border around logo */}
           <BrandLogo
             size="lg"
             className="absolute left-4 top-4 max-w-[160px] drop-shadow-md"
@@ -30,24 +30,21 @@ export function WelcomePage() {
         <div className="flex flex-col justify-center gap-4 p-6 md:p-10">
           <BrandLogo size="xl" className="max-w-[min(100%,300px)]" />
           <p className="text-sm font-bold uppercase tracking-wide text-brand-500">
-            8–11 tuổi · Học qua chơi · Designer AIKid
+            8ΓÇô11 tuß╗òi ┬╖ Hß╗ìc qua ch╞íi ┬╖ Designer AIKid
           </p>
           <h1 className="font-display text-4xl leading-tight text-text md:text-5xl">
             Creator Academy
           </h1>
           <p className="text-muted">
-            Không phải lớp học khô khan — con đi bản đồ nhiệm vụ, ghép thẻ prompt, làm
-            truyện tranh / giọng kể / robot, hiểu bản chất AI qua thực hành an toàn.
+            Kh├┤ng phß║úi lß╗¢p hß╗ìc kh├┤ khan ΓÇö con ─æi bß║ún ─æß╗ô nhiß╗çm vß╗Ñ, gh├⌐p thß║╗ prompt, l├ám
+            truyß╗çn tranh / giß╗ìng kß╗â / robot, hiß╗âu bß║ún chß║Ñt AI qua thß╗▒c h├ánh an to├án.
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
             <Link to="/login">
-              <Button>Bắt đầu ngay</Button>
+              <Button>Bß║»t ─æß║ºu ngay</Button>
             </Link>
             <Link to="/login?role=parent">
-              <Button variant="secondary">Tôi là ba/mẹ</Button>
-            </Link>
-            <Link to="/kids">
-              <Button variant="ghost">Con chọn hồ sơ</Button>
+              <Button variant="secondary">T├┤i l├á ba/mß║╣</Button>
             </Link>
           </div>
           <div className="mt-2 grid grid-cols-3 gap-2">
@@ -65,8 +62,14 @@ export function WelcomePage() {
             ))}
           </div>
           <p className="text-xs text-muted">
-            Không dùng email của trẻ · Sáng tạo mặc định riêng tư · Có cổng duyệt phụ huynh
+            Kh├┤ng d├╣ng email cß╗ºa trß║╗ ┬╖ S├íng tß║ío mß║╖c ─æß╗ïnh ri├¬ng t╞░ ┬╖ C├│ cß╗òng duyß╗çt phß╗Ñ huynh
           </p>
+          <nav className="flex flex-wrap gap-x-3 gap-y-1 text-xs font-bold text-brand-600" aria-label="Th├┤ng tin ph├íp l├╜">
+            <Link to="/privacy">Quyß╗ün ri├¬ng t╞░</Link>
+            <Link to="/terms">─Éiß╗üu khoß║ún</Link>
+            <Link to="/account/delete">X├│a t├ái khoß║ún</Link>
+            <Link to="/support">Hß╗ù trß╗ú</Link>
+          </nav>
         </div>
       </div>
     </div>

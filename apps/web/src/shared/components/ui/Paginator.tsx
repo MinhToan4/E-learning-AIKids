@@ -1,4 +1,4 @@
-import { cn } from '@/shared/lib/cn'
+﻿import { cn } from '@/shared/lib/cn'
 
 type Props = {
   page: number
@@ -12,7 +12,7 @@ type Props = {
 }
 
 /**
- * Pagination bar — shows current range, prev/next buttons, and
+ * Pagination bar ΓÇö shows current range, prev/next buttons, and
  * compact page-number pills for navigating directly to a page.
  * Renders nothing when there is only 1 page.
  */
@@ -31,7 +31,7 @@ export function Paginator({
   const from = (page - 1) * pageSize + 1
   const to = Math.min(page * pageSize, totalItems)
 
-  // Build visible page numbers (always show first, last, current ±1)
+  // Build visible page numbers (always show first, last, current ┬▒1)
   const pages: (number | 'gap')[] = []
   for (let i = 1; i <= totalPages; i++) {
     if (i === 1 || i === totalPages || (i >= page - 1 && i <= page + 1)) {
@@ -44,31 +44,31 @@ export function Paginator({
   return (
     <div
       className={cn(
-        'flex flex-wrap items-center justify-between gap-3 border-t border-border/60 px-4 py-3',
+        'flex flex-col items-center justify-between gap-2 border-t border-border/60 px-3 py-3 min-[380px]:flex-row sm:px-4',
         className,
       )}
     >
       {/* Range info */}
       <p className="text-xs text-muted">
-        {from}–{to} / <span className="font-bold text-text">{totalItems}</span>
+        {from}ΓÇô{to} / <span className="font-bold text-text">{totalItems}</span>
       </p>
 
       {/* Controls */}
-      <div className="flex items-center gap-1">
+      <div className="flex max-w-full items-center justify-center gap-0.5 overflow-x-auto">
         <button
           type="button"
           disabled={page === 1}
           onClick={onPrev}
-          aria-label="Trang trước"
+          aria-label="Trang tr╞░ß╗¢c"
           className="min-h-9 min-w-9 rounded-lg px-2 text-sm font-bold text-muted transition hover:bg-brand-50 disabled:opacity-30"
         >
-          ‹
+          ΓÇ╣
         </button>
 
         {pages.map((p, i) =>
           p === 'gap' ? (
             <span key={`gap-${i}`} className="px-1 text-xs text-muted">
-              …
+              ΓÇª
             </span>
           ) : (
             <button
@@ -96,7 +96,7 @@ export function Paginator({
           aria-label="Trang sau"
           className="min-h-9 min-w-9 rounded-lg px-2 text-sm font-bold text-muted transition hover:bg-brand-50 disabled:opacity-30"
         >
-          ›
+          ΓÇ║
         </button>
       </div>
     </div>

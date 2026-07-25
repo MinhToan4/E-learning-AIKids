@@ -1,4 +1,4 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ART_STYLES } from '../lib/workshop-types'
 import type { WorkshopStep } from '../lib/workshop-types'
@@ -6,6 +6,7 @@ import { WorkshopHub } from '../components/WorkshopHub'
 import { WorkshopStylePicker } from '../components/WorkshopStylePicker'
 import { WorkshopCanvas } from '../components/WorkshopCanvas'
 import { WorkshopStory } from '../components/WorkshopStory'
+import { WorkshopCharacter } from '../components/WorkshopCharacter'
 
 export function CreativePage() {
   const navigate = useNavigate()
@@ -19,17 +20,17 @@ export function CreativePage() {
 
   return (
     <div
-      aria-label="Xưởng Sáng Tạo"
+      aria-label="X╞░ß╗ƒng S├íng Tß║ío"
       className="flex flex-col"
       style={{
         height: 'calc(100dvh - 64px)',
-        // Canvas must not scroll — child needs known height for h-full to work
+        // Canvas must not scroll ΓÇö child needs known height for h-full to work
         overflow: isCanvas ? 'hidden' : 'auto',
       }}
     >
 
 
-      {/* ── Main content ── */}
+      {/* ΓöÇΓöÇ Main content ΓöÇΓöÇ */}
       {step === 'hub' && (
         <div className="flex-1 p-4 sm:p-6">
           <WorkshopHub onGo={goTo} />
@@ -58,11 +59,18 @@ export function CreativePage() {
         </div>
       )}
 
-      {(step === 'story-genre' || step === 'story-idea' || step === 'story-library') && (
+      {step === 'character' && (
+        <div className="flex-1 p-4 sm:p-5">
+          <WorkshopCharacter onBack={goTo} onSaved={handleSaved} />
+        </div>
+      )}
+
+      {(step === 'story-mode' || step === 'story-genre' || step === 'story-idea' || step === 'story-library') && (
         <div className="flex-1 p-4 sm:p-5">
           <WorkshopStory
             initialStep={
-              step === 'story-idea' ? 'idea'
+              step === 'story-mode' ? 'mode'
+              : step === 'story-idea' ? 'idea'
               : step === 'story-library' ? 'result'
               : 'genre'
             }

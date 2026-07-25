@@ -1,4 +1,4 @@
-import { api } from './api'
+﻿import { api } from './api'
 
 const FIREBASE_APP_NAME = 'aikids-web'
 
@@ -16,23 +16,36 @@ let configPromise: Promise<PublicFirebaseConfig | null> | null = null
 let authPromise: Promise<import('firebase/auth').Auth | null> | null = null
 
 async function publicConfig(): Promise<PublicFirebaseConfig | null> {
-  configPromise ??= api<{ enabled: boolean; config: PublicFirebaseConfig | null }>(
-    '/api/auth/firebase/config',
-  ).then((result) => result.enabled ? result.config : null)
-  return configPromise
+  configPromise ??= api<PublicFirebaseConfig>('/api/auth/firebase/config')
+  const config = await configPromise
+  if (!config || !config.apiKey) return null
+  return config
+}
+
+let appPromise: Promise<import('firebase/app').FirebaseApp | null> | null = null
+
+export async function firebaseApp(): Promise<import('firebase/app').FirebaseApp | null> {
+  if (appPromise) return appPromise
+  const pending = (async () => {
+    const config = await publicConfig()
+    if (!config) return null
+    const { getApps, initializeApp } = await import('firebase/app')
+    return getApps().find((candidate) => candidate.name === FIREBASE_APP_NAME) ??
+      initializeApp(config, FIREBASE_APP_NAME)
+  })()
+  appPromise = pending
+  void pending.catch(() => {
+    if (appPromise === pending) appPromise = null
+  })
+  return pending
 }
 
 async function firebaseAuth(): Promise<import('firebase/auth').Auth | null> {
   if (authPromise) return authPromise
   const pending = (async () => {
-    const config = await publicConfig()
-    if (!config) return null
-    const [{ getApps, initializeApp }, { getAuth, signInWithCustomToken }] = await Promise.all([
-      import('firebase/app'),
-      import('firebase/auth'),
-    ])
-    const app = getApps().find((candidate) => candidate.name === FIREBASE_APP_NAME) ??
-      initializeApp(config, FIREBASE_APP_NAME)
+    const app = await firebaseApp()
+    if (!app) return null
+    const { getAuth, signInWithCustomToken } = await import('firebase/auth')
     const auth = getAuth(app)
     // Always bind persisted Firebase Auth to the current httpOnly app session.
     const token = await api<{ customToken: string }>('/api/auth/firebase/custom-token', {
@@ -124,27 +137,4 @@ export async function listenForForegroundPush(onMessage: () => void): Promise<()
   } catch {
     return () => undefined
   }
-}
-
-export async function subscribeToClassroomEvents(
-  classId: string,
-  onEvent: (event: { id: string; type: string; payload: Record<string, unknown> }) => void,
-): Promise<() => void> {
-  const auth = await firebaseAuth()
-  if (!auth) return () => undefined
-  const firestore = await import('firebase/firestore')
-  const events = firestore.collection(
-    firestore.getFirestore(auth.app),
-    'classrooms',
-    classId,
-    'events',
-  )
-  const latest = firestore.query(events, firestore.orderBy('createdAt', 'desc'), firestore.limit(20))
-  return firestore.onSnapshot(latest, (snapshot) => {
-    for (const change of snapshot.docChanges()) {
-      if (change.type !== 'added') continue
-      const data = change.doc.data() as { type: string; payload: Record<string, unknown> }
-      onEvent({ id: change.doc.id, type: data.type, payload: data.payload })
-    }
-  })
 }

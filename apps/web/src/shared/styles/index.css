@@ -1,7 +1,7 @@
-@import 'tailwindcss';
+﻿@import 'tailwindcss';
 
 /*
-  Soft Clay UI — ages 8–11 (Hallmark anti-slop + design-system MASTER)
+  Soft Clay UI ΓÇö ages 8ΓÇô11 (Hallmark anti-slop + design-system MASTER)
   No plastic neon AI SaaS chrome.
 */
 @theme {
@@ -57,7 +57,6 @@
 }
 
 @layer base {
-
   *,
   *::before,
   *::after {
@@ -71,7 +70,7 @@
     /*
      * Responsive base font: 15px on 320px screens, 17px on 405px+.
      * clamp(min, preferred, max) prevents tiny phones from rendering
-     * "text-2xl" at an illegible 37px — WCAG 1.4.4 (Resize Text).
+     * "text-2xl" at an illegible 37px ΓÇö WCAG 1.4.4 (Resize Text).
      */
     font-size: clamp(15px, 4.2vw, 17px);
     line-height: 1.5;
@@ -86,10 +85,20 @@
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
     overflow-wrap: break-word;
+    overflow-x: hidden;
   }
 
   #root {
     min-height: 100dvh;
+    min-width: 0;
+    overflow-x: clip;
+  }
+
+  input,
+  select,
+  textarea {
+    min-width: 0;
+    max-width: 100%;
   }
 
   :focus-visible {
@@ -114,7 +123,6 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-
     *,
     *::before,
     *::after {
@@ -126,6 +134,7 @@
 
 @layer components {
   .ui-card {
+    min-width: 0;
     border-radius: var(--radius-card);
     border: 1px solid rgba(109, 94, 252, 0.11);
     background: rgba(255, 255, 255, 0.96);
@@ -253,12 +262,10 @@
   }
 
   @keyframes pulse-soft {
-
     0%,
     100% {
       box-shadow: 0 0 0 0 rgba(109, 94, 252, 0.35);
     }
-
     50% {
       box-shadow: 0 0 0 12px rgba(109, 94, 252, 0);
     }
@@ -270,7 +277,7 @@
     }
   }
 
-  /* Page / section motion — GPU-friendly, respects reduced-motion */
+  /* Page / section motion ΓÇö GPU-friendly, respects reduced-motion */
   .page-enter {
     animation: page-enter 0.28s ease-out both;
   }
@@ -292,7 +299,6 @@
       opacity: 0;
       transform: translateY(8px);
     }
-
     to {
       opacity: 1;
       transform: translateY(0);
@@ -304,7 +310,6 @@
       opacity: 0;
       transform: translateY(12px);
     }
-
     to {
       opacity: 1;
       transform: translateY(0);
@@ -316,7 +321,6 @@
       opacity: 0;
       transform: translateY(-12px);
     }
-
     to {
       opacity: 1;
       transform: translateY(0);
@@ -328,7 +332,6 @@
       opacity: 0;
       transform: scale(0.92);
     }
-
     100% {
       opacity: 1;
       transform: scale(1);
@@ -336,7 +339,6 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-
     .page-enter,
     .animate-fade-up,
     .animate-fade-down,
@@ -345,12 +347,14 @@
     }
   }
 
-  /* Phase 6 — skeleton pulse (Soft Clay) */
+  /* Phase 6 ΓÇö skeleton pulse (Soft Clay) */
   .ui-skeleton {
-    background: linear-gradient(90deg,
-        var(--color-brand-50) 0%,
-        #ebe6ff 40%,
-        var(--color-brand-50) 80%);
+    background: linear-gradient(
+      90deg,
+      var(--color-brand-50) 0%,
+      #ebe6ff 40%,
+      var(--color-brand-50) 80%
+    );
     background-size: 200% 100%;
     animation: skeleton-shimmer 1.2s ease-in-out infinite;
   }
@@ -359,7 +363,6 @@
     0% {
       background-position: 100% 0;
     }
-
     100% {
       background-position: -100% 0;
     }
@@ -514,7 +517,7 @@
   }
 
   .role-brand p,
-  .role-mobile-header>span {
+  .role-mobile-header > span {
     color: var(--role-accent);
     font-size: 0.75rem;
     font-weight: 900;
@@ -576,7 +579,7 @@
     }
   }
 
-  /* ── Mobile top bar (brand only — no nav) ────────────────── */
+  /* ΓöÇΓöÇ Mobile top bar (brand only ΓÇö no nav) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   .role-mobile-topbar {
     position: sticky;
     top: 0;
@@ -600,7 +603,7 @@
     color: var(--role-accent);
   }
 
-  /* ── Adult bottom nav (parent / teacher / admin pinned bar) ── */
+  /* ΓöÇΓöÇ Adult bottom nav (parent / teacher / admin pinned bar) ΓöÇΓöÇ */
   .adult-bottom-nav {
     position: fixed;
     left: 0;
@@ -618,26 +621,15 @@
   }
 
   /* Tone-aware accent colour for bottom nav active state */
-  .adult-bottom-nav-parent {
-    --bn-accent: var(--color-coral-600);
-    --bn-soft: var(--color-coral-50);
-  }
-
-  .adult-bottom-nav-teacher {
-    --bn-accent: var(--color-sky-700);
-    --bn-soft: var(--color-sky-50);
-  }
-
-  .adult-bottom-nav-admin {
-    --bn-accent: var(--color-brand-600);
-    --bn-soft: var(--color-brand-50);
-  }
+  .adult-bottom-nav-parent  { --bn-accent: var(--color-coral-600); --bn-soft: var(--color-coral-50); }
+  .adult-bottom-nav-teacher { --bn-accent: var(--color-sky-700);   --bn-soft: var(--color-sky-50);   }
+  .adult-bottom-nav-admin   { --bn-accent: var(--color-brand-600); --bn-soft: var(--color-brand-50); }
 
   .adult-bottom-link {
     display: flex;
     flex: 1;
     flex-shrink: 0;
-    min-width: 3.5rem;
+    min-width: 0;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -676,12 +668,12 @@
     transform: translateY(-1px);
   }
 
-  /* ⊕ More button */
+  /* Γèò More button */
   .adult-bottom-more {
     display: flex;
     flex: 1;
     flex-shrink: 0;
-    min-width: 3.5rem;
+    min-width: 0;
     flex-direction: column;
     align-items: center;
     justify-content: center;
@@ -710,7 +702,6 @@
   }
 
   @media (hover: hover) {
-
     .adult-bottom-link:hover,
     .adult-bottom-more:hover {
       color: var(--bn-accent);
@@ -718,7 +709,7 @@
     }
   }
 
-  /* ── Admin drawer sheet (slides up from bottom) ──────────── */
+  /* ΓöÇΓöÇ Admin drawer sheet (slides up from bottom) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   .admin-drawer-sheet {
     position: fixed;
     left: 0;
@@ -814,30 +805,24 @@
       color: var(--color-brand-700);
       transform: translateY(-2px);
     }
-
     .admin-drawer-item:hover .admin-drawer-icon {
       transform: scale(1.08);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .admin-drawer-sheet {
-      transition: none;
-    }
-
-    .admin-drawer-item:hover {
-      transform: none;
-    }
+    .admin-drawer-sheet { transition: none; }
+    .admin-drawer-item:hover { transform: none; }
   }
 
-  /* ── Student drawer (Huy hiệu / Ba lô / Hồ sơ) ─────────── */
+  /* ΓöÇΓöÇ Student drawer (Huy hiß╗çu / Ba l├┤ / Hß╗ô s╞í) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   .student-drawer-sheet {
     position: fixed;
     left: 0;
     right: 0;
     z-index: 50;
     border-radius: 1.75rem 1.75rem 0 0;
-    /* Warm brand gradient — feels kid-friendly, not corporate */
+    /* Warm brand gradient ΓÇö feels kid-friendly, not corporate */
     background: linear-gradient(160deg, #fff9ff 0%, #f7f5ff 100%);
     box-shadow: 0 -20px 60px rgba(109, 94, 252, 0.13);
     padding: 0 1.25rem calc(5.5rem + env(safe-area-inset-bottom, 0px));
@@ -876,7 +861,7 @@
     letter-spacing: 0.01em;
   }
 
-  /* 3 cols — 3 items fit perfectly without crowding */
+  /* 3 cols ΓÇö 3 items fit perfectly without crowding */
   .student-drawer-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -930,23 +915,17 @@
       transform: translateY(-3px);
       box-shadow: 0 8px 24px rgba(109, 94, 252, 0.14);
     }
-
     .student-drawer-item:hover .student-drawer-icon {
       transform: scale(1.1);
     }
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .student-drawer-sheet {
-      transition: none;
-    }
-
-    .student-drawer-item:hover {
-      transform: none;
-    }
+    .student-drawer-sheet { transition: none; }
+    .student-drawer-item:hover { transform: none; }
   }
 
-  /* Progress experience — visual growth without competitive ranking. */
+  /* Progress experience ΓÇö visual growth without competitive ranking. */
   .progress-hero {
     position: relative;
     display: grid;
@@ -1026,25 +1005,10 @@
     border-radius: 1rem;
   }
 
-  .progress-stat-sky .progress-stat-icon {
-    color: var(--color-sky-700);
-    background: var(--color-sky-100);
-  }
-
-  .progress-stat-mint .progress-stat-icon {
-    color: var(--color-mint-700);
-    background: var(--color-mint-100);
-  }
-
-  .progress-stat-sun .progress-stat-icon {
-    color: var(--color-sun-700);
-    background: var(--color-sun-100);
-  }
-
-  .progress-stat-brand .progress-stat-icon {
-    color: var(--color-brand-600);
-    background: var(--color-brand-100);
-  }
+  .progress-stat-sky .progress-stat-icon { color: var(--color-sky-700); background: var(--color-sky-100); }
+  .progress-stat-mint .progress-stat-icon { color: var(--color-mint-700); background: var(--color-mint-100); }
+  .progress-stat-sun .progress-stat-icon { color: var(--color-sun-700); background: var(--color-sun-100); }
+  .progress-stat-brand .progress-stat-icon { color: var(--color-brand-600); background: var(--color-brand-100); }
 
   .progress-garden {
     position: relative;
@@ -1052,7 +1016,7 @@
     overflow: hidden;
   }
 
-  .progress-garden>img,
+  .progress-garden > img,
   .progress-garden-shade {
     position: absolute;
     inset: 0;
@@ -1060,7 +1024,7 @@
     height: 100%;
   }
 
-  .progress-garden>img {
+  .progress-garden > img {
     object-fit: cover;
   }
 
@@ -1148,14 +1112,12 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .progress-track-fill {
-      transition: none;
-    }
+    .progress-track-fill { transition: none; }
   }
 }
 
 @layer components {
-  /* ─── QUEST NODE MAP (Little AI Master zigzag path) ──────────── */
+  /* ΓöÇΓöÇΓöÇ QUEST NODE MAP (Little AI Master zigzag path) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
   .quest-path-line {
     position: absolute;
@@ -1165,10 +1127,11 @@
     width: 4px;
     transform: translateX(-50%);
     background: linear-gradient(180deg,
-        var(--color-brand-200, #c4b8ff) 0%,
-        var(--color-sky-200) 40%,
-        var(--color-mint-200) 70%,
-        var(--color-sun-200) 100%);
+      var(--color-brand-200, #c4b8ff) 0%,
+      var(--color-sky-200) 40%,
+      var(--color-mint-200) 70%,
+      var(--color-sun-200) 100%
+    );
     border-radius: 999px;
   }
 
@@ -1210,15 +1173,8 @@
   }
 
   @keyframes quest-pulse {
-
-    0%,
-    100% {
-      box-shadow: 0 8px 0 0 rgba(109, 94, 252, 0.2), 0 0 0 0 rgba(109, 94, 252, 0.4);
-    }
-
-    50% {
-      box-shadow: 0 8px 0 0 rgba(109, 94, 252, 0.15), 0 0 0 16px rgba(109, 94, 252, 0);
-    }
+    0%, 100% { box-shadow: 0 8px 0 0 rgba(109, 94, 252, 0.2), 0 0 0 0 rgba(109, 94, 252, 0.4); }
+    50% { box-shadow: 0 8px 0 0 rgba(109, 94, 252, 0.15), 0 0 0 16px rgba(109, 94, 252, 0); }
   }
 
   .quest-label-card {
@@ -1236,7 +1192,7 @@
     box-shadow: 0 6px 0 0 rgba(30, 39, 64, 0.07), 0 12px 28px rgba(30, 39, 64, 0.1);
   }
 
-  /* ─── PHASE STEPPER (4-step lesson progress) ─────────────────── */
+  /* ΓöÇΓöÇΓöÇ PHASE STEPPER (4-step lesson progress) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
   .phase-stepper {
     display: flex;
@@ -1287,7 +1243,7 @@
     flex-shrink: 0;
   }
 
-  /* ─── GAME CARDS (visual per game type) ─────────────────────── */
+  /* ΓöÇΓöÇΓöÇ GAME CARDS (visual per game type) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
   .game-card {
     border-radius: 1.25rem;
@@ -1335,44 +1291,20 @@
   }
 
   @keyframes card-correct {
-    0% {
-      transform: scale(1);
-    }
-
-    40% {
-      transform: scale(1.08);
-    }
-
-    100% {
-      transform: scale(1);
-    }
+    0% { transform: scale(1); }
+    40% { transform: scale(1.08); }
+    100% { transform: scale(1); }
   }
 
   @keyframes card-shake {
-
-    0%,
-    100% {
-      transform: translateX(0);
-    }
-
-    20% {
-      transform: translateX(-6px);
-    }
-
-    40% {
-      transform: translateX(6px);
-    }
-
-    60% {
-      transform: translateX(-4px);
-    }
-
-    80% {
-      transform: translateX(4px);
-    }
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
   }
 
-  /* ─── GAME PROGRESS RING ──────────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ GAME PROGRESS RING ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
   .game-progress-ring {
     display: flex;
@@ -1399,7 +1331,7 @@
     transform: scale(1.2);
   }
 
-  /* ─── AI COMPANION BUBBLE (like Byte from Little AI Master) ──── */
+  /* ΓöÇΓöÇΓöÇ AI COMPANION BUBBLE (like Byte from Little AI Master) ΓöÇΓöÇΓöÇΓöÇ */
 
   .companion-bubble {
     position: relative;
@@ -1430,30 +1362,16 @@
   }
 
   @keyframes companion-float {
-
-    0%,
-    100% {
-      transform: translateY(0px);
-    }
-
-    50% {
-      transform: translateY(-5px);
-    }
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-5px); }
   }
 
   @keyframes companion-enter {
-    0% {
-      opacity: 0;
-      transform: translateX(-12px) scale(0.94);
-    }
-
-    100% {
-      opacity: 1;
-      transform: translateX(0) scale(1);
-    }
+    0% { opacity: 0; transform: translateX(-12px) scale(0.94); }
+    100% { opacity: 1; transform: translateX(0) scale(1); }
   }
 
-  /* ─── STAR BURST CELEBRATION ─────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ STAR BURST CELEBRATION ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
   .star-burst-overlay {
     position: fixed;
@@ -1476,11 +1394,7 @@
       transform: translateY(-20px) rotate(0deg);
       opacity: 1;
     }
-
-    80% {
-      opacity: 1;
-    }
-
+    80% { opacity: 1; }
     100% {
       transform: translateY(110vh) rotate(var(--spin-amount, 720deg));
       opacity: 0;
@@ -1498,36 +1412,17 @@
     animation: star-pop 0.5s cubic-bezier(0.22, 1.4, 0.36, 1) both;
   }
 
-  .star-icon:nth-child(1) {
-    animation-delay: 0.1s;
-  }
-
-  .star-icon:nth-child(2) {
-    animation-delay: 0.25s;
-  }
-
-  .star-icon:nth-child(3) {
-    animation-delay: 0.4s;
-  }
+  .star-icon:nth-child(1) { animation-delay: 0.1s; }
+  .star-icon:nth-child(2) { animation-delay: 0.25s; }
+  .star-icon:nth-child(3) { animation-delay: 0.4s; }
 
   @keyframes star-pop {
-    0% {
-      transform: scale(0) rotate(-20deg);
-      opacity: 0;
-    }
-
-    60% {
-      transform: scale(1.3) rotate(10deg);
-      opacity: 1;
-    }
-
-    100% {
-      transform: scale(1) rotate(0deg);
-      opacity: 1;
-    }
+    0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+    60% { transform: scale(1.3) rotate(10deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
   }
 
-  /* ─── LEARN CARD (rich concept cards in Learn phase) ─────────── */
+  /* ΓöÇΓöÇΓöÇ LEARN CARD (rich concept cards in Learn phase) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
   .learn-card {
     border-radius: 1.25rem;
@@ -1556,7 +1451,7 @@
     box-shadow: 0 2px 8px rgba(30, 39, 64, 0.08);
   }
 
-  /* ─── HOOK HIGHLIGHT (opening hook in lessons) ──────────────── */
+  /* ΓöÇΓöÇΓöÇ HOOK HIGHLIGHT (opening hook in lessons) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
   .hook-highlight {
     position: relative;
@@ -1570,7 +1465,7 @@
     font-style: italic;
   }
 
-  /* ─── DAILY MISSION CARD ─────────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ DAILY MISSION CARD ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
   .mission-card {
     position: relative;
@@ -1583,7 +1478,7 @@
   }
 
   .mission-card::before {
-    content: '🎯';
+    content: '≡ƒÄ»';
     position: absolute;
     right: -0.5rem;
     top: -0.5rem;
@@ -1593,7 +1488,7 @@
     pointer-events: none;
   }
 
-  /* ─── STREAK FLAME ───────────────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ STREAK FLAME ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
   .streak-flame {
     animation: flame-flicker 1.5s ease-in-out infinite alternate;
@@ -1601,16 +1496,11 @@
   }
 
   @keyframes flame-flicker {
-    0% {
-      transform: scaleY(1) rotate(-2deg);
-    }
-
-    100% {
-      transform: scaleY(1.08) rotate(2deg);
-    }
+    0% { transform: scaleY(1) rotate(-2deg); }
+    100% { transform: scaleY(1.08) rotate(2deg); }
   }
 
-  /* ─── COURSE CARD (enhanced home page) ──────────────────────── */
+  /* ΓöÇΓöÇΓöÇ COURSE CARD (enhanced home page) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
   .course-card {
     border-radius: 1.5rem;
@@ -1660,7 +1550,7 @@
     transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* ─── XP BAR ─────────────────────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ XP BAR ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
   .xp-bar-track {
     height: 10px;
@@ -1683,22 +1573,17 @@
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
+    background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.35) 50%, transparent 100%);
     background-size: 200% 100%;
     animation: xp-shimmer 2s linear infinite;
   }
 
   @keyframes xp-shimmer {
-    0% {
-      background-position: -200% 0;
-    }
-
-    100% {
-      background-position: 200% 0;
-    }
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
   }
 
-  /* ─── COMBINE GAME columns ───────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ COMBINE GAME columns ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
   .combine-col {
     flex: 1;
@@ -1745,7 +1630,7 @@
     box-shadow: 0 4px 0 0 rgba(109, 94, 252, 0.18);
   }
 
-  /* ─── ORDER/DRAG game ────────────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ ORDER/DRAG game ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
   .drag-item {
     background: white;
@@ -1774,7 +1659,7 @@
     background: var(--color-mint-50);
   }
 
-  /* ─── MATCH / MEMORY GAME ────────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ MATCH / MEMORY GAME ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
 
   .memory-card {
     aspect-ratio: 1;
@@ -1830,27 +1715,18 @@
   }
 
   @media (prefers-reduced-motion: reduce) {
-
     .quest-node-available,
     .companion-avatar,
     .streak-flame,
     .xp-bar-fill::after {
       animation: none;
     }
-
-    .memory-card-inner {
-      transition: none;
-    }
-
-    .game-card,
-    .course-card,
-    .quest-label-card {
-      transition: none;
-    }
+    .memory-card-inner { transition: none; }
+    .game-card, .course-card, .quest-label-card { transition: none; }
   }
 }
 
-/* Mobile polish — 375 / 414 safe areas */
+/* Mobile polish ΓÇö 375 / 414 safe areas */
 @layer utilities {
   .safe-pb {
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
@@ -1867,23 +1743,12 @@
   }
 
   /* Sky color variants for teacher CMS */
-  .text-sky-600 {
-    color: #0284c7;
-  }
+  .text-sky-600 { color: #0284c7; }
+  .bg-sky-50 { background-color: #f0f9ff; }
+  .bg-sky-100 { background-color: #e0f2fe; }
+  .text-sky-700 { color: #0369a1; }
 
-  .bg-sky-50 {
-    background-color: #f0f9ff;
-  }
-
-  .bg-sky-100 {
-    background-color: #e0f2fe;
-  }
-
-  .text-sky-700 {
-    color: #0369a1;
-  }
-
-  /* ─── DAILY MISSION CARD ─────────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ DAILY MISSION CARD ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   .mission-card {
     position: relative;
     overflow: hidden;
@@ -1893,9 +1758,8 @@
     border: 2px solid #ffd166;
     box-shadow: 0 4px 0 0 #f4c842, 0 8px 24px rgba(244, 200, 66, 0.18);
   }
-
   .mission-card::before {
-    content: '🎯';
+    content: '≡ƒÄ»';
     position: absolute;
     right: -0.5rem;
     bottom: -1rem;
@@ -1905,7 +1769,7 @@
     user-select: none;
   }
 
-  /* ─── GAME CARD (pick / order / check answers) ───────────────── */
+  /* ΓöÇΓöÇΓöÇ GAME CARD (pick / order / check answers) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   .game-card {
     display: block;
     padding: 0.75rem 1rem;
@@ -1918,37 +1782,32 @@
     text-align: left;
     min-height: 52px;
   }
-
   .game-card:hover {
     border-color: var(--color-brand-300, #b8acfe);
     background: var(--color-brand-50, #f5f3ff);
     transform: translateY(-1px);
     box-shadow: 0 3px 0 0 var(--color-brand-200, #d1c8ff);
   }
-
   .game-card:active {
     transform: translateY(0);
     box-shadow: none;
   }
-
   .game-card-selected {
     border-color: var(--color-brand-500, #6d5efc);
     background: var(--color-brand-50, #f5f3ff);
     box-shadow: 0 3px 0 0 var(--color-brand-300, #b8acfe);
   }
-
   .game-card-correct {
     border-color: var(--color-success, #10b981);
     background: var(--color-mint-100, #d1fae5);
     color: #065f46;
   }
-
   .game-card-wrong {
     border-color: var(--color-danger, #f87171);
     background: #fff1f2;
   }
 
-  /* ─── MEMORY CARD (3D flip) ─────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ MEMORY CARD (3D flip) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   .memory-card {
     position: relative;
     min-height: 96px;
@@ -1960,7 +1819,6 @@
     padding: 0;
     outline: none;
   }
-
   .memory-card-inner {
     position: relative;
     width: 100%;
@@ -1969,15 +1827,12 @@
     transform-style: preserve-3d;
     transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
   }
-
   .memory-card-open .memory-card-inner {
     transform: rotateY(180deg);
   }
-
   .memory-card-matched .memory-card-inner {
     transform: rotateY(180deg);
   }
-
   .memory-card-face,
   .memory-card-back {
     position: absolute;
@@ -1990,11 +1845,9 @@
     backface-visibility: hidden;
     -webkit-backface-visibility: hidden;
   }
-
   .memory-card-face {
     background: linear-gradient(135deg, #ebe8ff 0%, #c8eeff 100%);
   }
-
   .memory-card-back {
     transform: rotateY(180deg);
     background: white;
@@ -2002,13 +1855,12 @@
     padding: 0.5rem;
     flex-direction: column;
   }
-
   .memory-card-matched .memory-card-back {
     border-color: var(--color-success, #10b981);
     background: var(--color-mint-100, #d1fae5);
   }
 
-  /* ─── COMBINE GAME COLUMNS ───────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ COMBINE GAME COLUMNS ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   .combine-col {
     flex: 1;
     min-width: 0;
@@ -2017,7 +1869,6 @@
     background: var(--color-brand-50, #f5f3ff);
     padding: 0.875rem;
   }
-
   .combine-col-label {
     display: block;
     font-size: 0.75rem;
@@ -2029,7 +1880,6 @@
     padding-bottom: 0.375rem;
     margin-bottom: 0.5rem;
   }
-
   .combine-option {
     display: block;
     width: 100%;
@@ -2044,11 +1894,9 @@
     cursor: pointer;
     min-height: 44px;
   }
-
   .combine-option:hover {
     border-color: var(--color-brand-200, #d1c8ff);
   }
-
   .combine-option-selected {
     border-color: var(--color-brand-500, #6d5efc);
     background: var(--color-brand-50, #f5f3ff);
@@ -2056,7 +1904,7 @@
     box-shadow: 0 2px 0 0 var(--color-brand-200, #d1c8ff);
   }
 
-  /* ─── DRAG ITEM ─────────────────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ DRAG ITEM ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   .drag-item {
     display: flex;
     align-items: center;
@@ -2070,28 +1918,24 @@
     cursor: grab;
     user-select: none;
   }
-
   .drag-item:active {
     cursor: grabbing;
   }
-
   .drag-item:hover {
     border-color: var(--color-brand-200, #d1c8ff);
   }
-
   .drag-item-correct {
     border-color: var(--color-success, #10b981);
     background: var(--color-mint-100, #d1fae5);
   }
 
-  /* ─── PHASE STEPPER ─────────────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ PHASE STEPPER ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   .phase-stepper {
     display: flex;
     align-items: center;
     gap: 0;
     flex-wrap: wrap;
   }
-
   .phase-step {
     display: inline-flex;
     align-items: center;
@@ -2106,20 +1950,17 @@
     transition: background 0.2s, border-color 0.2s, color 0.2s;
     white-space: nowrap;
   }
-
   .phase-step-active {
     background: var(--color-brand-500, #6d5efc);
     color: white;
     border-color: var(--color-brand-400, #9d8cfb);
     box-shadow: 0 2px 8px rgba(109, 94, 252, 0.3);
   }
-
   .phase-step-done {
     background: var(--color-mint-100, #d1fae5);
     color: #065f46;
     border-color: var(--color-success, #10b981);
   }
-
   .phase-step-connector {
     display: inline-block;
     width: 24px;
@@ -2129,7 +1970,7 @@
     margin: 0 0.125rem;
   }
 
-  /* ─── HOOK HIGHLIGHT ─────────────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ HOOK HIGHLIGHT ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   .hook-highlight {
     position: relative;
     padding: 0.875rem 1rem 0.875rem 1.25rem;
@@ -2142,7 +1983,7 @@
     color: var(--color-text, #1a1040);
   }
 
-  /* ─── LEARN CARD ─────────────────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ LEARN CARD ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   .learn-card {
     border-radius: 1.25rem;
     border: 2px solid var(--color-border, #e8e6f0);
@@ -2153,12 +1994,10 @@
     gap: 0.5rem;
     transition: transform 0.2s, box-shadow 0.2s;
   }
-
   .learn-card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 16px rgba(109, 94, 252, 0.1);
   }
-
   .learn-card-icon {
     width: 40px;
     height: 40px;
@@ -2170,7 +2009,7 @@
     flex-shrink: 0;
   }
 
-  /* ─── GAME PROGRESS PIPS ─────────────────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ GAME PROGRESS PIPS ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   .game-progress-pip {
     display: inline-block;
     width: 8px;
@@ -2180,79 +2019,46 @@
     border: 1.5px solid var(--color-brand-200, #d1c8ff);
     transition: background 0.2s;
   }
-
   .game-progress-pip-done {
     background: var(--color-brand-500, #6d5efc);
     border-color: var(--color-brand-400, #9d8cfb);
   }
 
-  /* ─── STARS ROW (done celebration) ──────────────────────────── */
+  /* ΓöÇΓöÇΓöÇ STARS ROW (done celebration) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   .stars-row {
     display: flex;
     gap: 0.5rem;
     align-items: center;
     justify-content: center;
   }
-
   .star-icon {
     font-size: 2.5rem;
     display: inline-block;
     animation: star-pop 0.5s cubic-bezier(0.22, 1.4, 0.36, 1) both;
   }
-
-  .star-icon:nth-child(1) {
-    animation-delay: 0.1s;
-  }
-
-  .star-icon:nth-child(2) {
-    animation-delay: 0.25s;
-  }
-
-  .star-icon:nth-child(3) {
-    animation-delay: 0.4s;
-  }
-
+  .star-icon:nth-child(1) { animation-delay: 0.1s; }
+  .star-icon:nth-child(2) { animation-delay: 0.25s; }
+  .star-icon:nth-child(3) { animation-delay: 0.4s; }
   @keyframes star-pop {
-    0% {
-      transform: scale(0) rotate(-20deg);
-      opacity: 0;
-    }
-
-    100% {
-      transform: scale(1) rotate(0deg);
-      opacity: 1;
-    }
+    0% { transform: scale(0) rotate(-20deg); opacity: 0; }
+    100% { transform: scale(1) rotate(0deg); opacity: 1; }
   }
 
-  /* ─── STAR BURST OVERLAY (celebration) ──────────────────────── */
+  /* ΓöÇΓöÇΓöÇ STAR BURST OVERLAY (celebration) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
   .star-burst-overlay {
     position: absolute;
     inset: 0;
     pointer-events: none;
     overflow: hidden;
   }
-
   .confetti-piece {
     position: absolute;
     top: -20px;
     animation: confetti-fall var(--fall-duration, 2.5s) var(--fall-delay, 0s) ease-in both;
   }
-
   @keyframes confetti-fall {
-    0% {
-      top: -20px;
-      transform: rotate(0deg) scale(1);
-      opacity: 1;
-    }
-
-    80% {
-      opacity: 1;
-    }
-
-    100% {
-      top: 110%;
-      transform: rotate(var(--spin-amount, 360deg)) scale(0.7);
-      opacity: 0;
-    }
+    0% { top: -20px; transform: rotate(0deg) scale(1); opacity: 1; }
+    80% { opacity: 1; }
+    100% { top: 110%; transform: rotate(var(--spin-amount, 360deg)) scale(0.7); opacity: 0; }
   }
 }
