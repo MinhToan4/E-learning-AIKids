@@ -1,4 +1,4 @@
-﻿import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
@@ -14,7 +14,7 @@ import {
   avatarEmoji as avatarEmojiFromCatalog,
 } from '@/shared/config/avatars'
 
-// ΓöÇΓöÇ Types ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Types ─────────────────────────────────────────────────────
 type Approval = {
   id: string
   status: string
@@ -116,7 +116,7 @@ function avatarEmoji(id: string | null) {
   return avatarEmojiFromCatalog(id)
 }
 
-// ΓöÇΓöÇ Main Component ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Main Component ────────────────────────────────────────────
 export function ParentPage({
   tab: initTab = 'dashboard',
 }: {
@@ -137,10 +137,10 @@ export function ParentPage({
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-extrabold uppercase tracking-widest text-brand-400">
-            Phß╗Ñ huynh
+            Phụ huynh
           </p>
           <h1 className="font-display text-2xl md:text-3xl">
-            Xin ch├áo, {(user?.nickname || user?.name) ?? 'Ba/Mß║╣'} ≡ƒæï
+            Xin chào, {(user?.nickname || user?.name) ?? 'Ba/Mẹ'} 👋
           </h1>
         </div>
         <Button
@@ -150,7 +150,7 @@ export function ParentPage({
             navigate('/')
           }}
         >
-          ─É─âng xuß║Ñt
+          Đăng xuất
         </Button>
       </div>
 
@@ -164,7 +164,7 @@ export function ParentPage({
   )
 }
 
-// ΓöÇΓöÇ Plan Tab (g├│i gia ─æ├¼nh) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Plan Tab (gói gia đình) ───────────────────────────────────
 function PlanTab() {
   const [plans, setPlans] = useState<PlanRow[]>([])
   const [sub, setSub] = useState<HouseholdSub | null>(null)
@@ -181,7 +181,7 @@ function PlanTab() {
       setPlans(p.plans)
       setSub(s.subscription)
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Kh├┤ng tß║úi ─æ╞░ß╗úc g├│i', 'error')
+      showToast(e instanceof Error ? e.message : 'Không tải được gói', 'error')
     } finally {
       setLoading(false)
     }
@@ -205,7 +205,7 @@ function PlanTab() {
       showToast(data.message, 'success')
       await load()
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Kh├┤ng ─æß╗òi ─æ╞░ß╗úc g├│i', 'error')
+      showToast(e instanceof Error ? e.message : 'Không đổi được gói', 'error')
     } finally {
       setBusy(null)
     }
@@ -218,17 +218,17 @@ function PlanTab() {
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       <header className="ui-card p-5">
         <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
-          G├│i hß╗ìc gia ─æ├¼nh
+          Gói học gia đình
         </p>
-        <h2 className="font-display text-2xl">Chß╗ìn g├│i ph├╣ hß╗úp</h2>
+        <h2 className="font-display text-2xl">Chọn gói phù hợp</h2>
         <p className="mt-1 text-sm text-muted">
-          Ba/mß║╣ chß╗ìn g├│i, tß║ío hß╗ô s╞í cho tß╗½ng con. Con v├áo hß╗ìc bß║▒ng biß╗çt danh (v├á PIN nß║┐u c├│)
-          ΓÇö kh├┤ng d├╣ng mß║¡t khß║⌐u cß╗ºa ba/mß║╣.
+          Ba/mẹ chọn gói, tạo hồ sơ cho từng con. Con vào học bằng biệt danh (và PIN nếu có)
+          — không dùng mật khẩu của ba/mẹ.
         </p>
         {sub && (
           <p className="mt-3 rounded-xl bg-mint-100 px-3 py-2 text-sm font-bold text-success">
-            ─Éang d├╣ng: {sub.planName} ┬╖ {sub.childCount}/{sub.maxChildren} con ┬╖ tß╗æi ─æa{' '}
-            {sub.maxOpenCoursesPerChild} kh├│a/con
+            Đang dùng: {sub.planName} · {sub.childCount}/{sub.maxChildren} con · tối đa{' '}
+            {sub.maxOpenCoursesPerChild} khóa/con
           </p>
         )}
       </header>
@@ -247,19 +247,19 @@ function PlanTab() {
               <p className="text-sm text-muted">{p.tagline}</p>
               <p className="font-display text-2xl text-brand-600">
                 {p.priceMonthly === 0
-                  ? 'Miß╗àn ph├¡'
-                  : `${p.priceMonthly.toLocaleString('vi-VN')} ${p.currency}/th├íng`}
+                  ? 'Miễn phí'
+                  : `${p.priceMonthly.toLocaleString('vi-VN')} ${p.currency}/tháng`}
               </p>
               <ul className="mt-1 flex-1 space-y-1 text-sm text-muted">
                 {p.features.map((f) => (
-                  <li key={f}>ΓÇó {f}</li>
+                  <li key={f}>• {f}</li>
                 ))}
               </ul>
               <Button
                 disabled={current || busy === p.code}
                 onClick={() => void activate(p.code)}
               >
-                {current ? '─Éang d├╣ng' : busy === p.code ? '─ÉangΓÇª' : 'Chß╗ìn g├│i'}
+                {current ? 'Đang dùng' : busy === p.code ? 'Đang…' : 'Chọn gói'}
               </Button>
             </article>
           )
@@ -269,7 +269,7 @@ function PlanTab() {
   )
 }
 
-// ΓöÇΓöÇ Dashboard Tab ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Dashboard Tab ─────────────────────────────────────────────
 function DashboardTab() {
   const [kids, setKids] = useState<Child[]>([])
   const [pendingCount, setPendingCount] = useState(0)
@@ -309,15 +309,15 @@ function DashboardTab() {
     <div className="flex flex-col gap-5">
       {/* Stats */}
       <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatCard icon={ParentKidsIcon} label="Sß╗æ con" value={kids.length} color="brand" />
-        <StatCard icon={NavBadgeIcon} label="Tß╗òng sao" value={totalStars} color="sun" />
+        <StatCard icon={ParentKidsIcon} label="Số con" value={kids.length} color="brand" />
+        <StatCard icon={NavBadgeIcon} label="Tổng sao" value={totalStars} color="sun" />
         <StatCard icon={NavLeaderboardIcon} label="Quests xong" value={totalQuests} color="mint" />
-        <StatCard icon={ParentApprovalIcon} label="Chß╗¥ duyß╗çt" value={pendingCount} color="coral" />
+        <StatCard icon={ParentApprovalIcon} label="Chờ duyệt" value={pendingCount} color="coral" />
       </div>
 
       {/* XP summary */}
       <div className="ui-card p-4">
-        <h3 className="mb-3 font-display text-lg">≡ƒÄ« Tß╗òng XP gia ─æ├¼nh: {totalXp}</h3>
+        <h3 className="mb-3 font-display text-lg">🎮 Tổng XP gia đình: {totalXp}</h3>
         <div className="flex flex-col gap-2">
           {kids.map((k) => (
             <div key={k.id} className="flex items-center gap-3">
@@ -332,7 +332,7 @@ function DashboardTab() {
                 </div>
               </div>
               <span className="text-xs font-bold text-muted">
-                Lv.{k.level} ┬╖ {k.xp} XP
+                Lv.{k.level} · {k.xp} XP
               </span>
             </div>
           ))}
@@ -345,20 +345,20 @@ function DashboardTab() {
           to="/parent/kids"
           className="ui-card flex items-center gap-3 p-4 transition hover:ring-2 hover:ring-brand-300"
         >
-          <span className="text-3xl">≡ƒæº</span>
+          <span className="text-3xl">👧</span>
           <div>
-            <p className="font-bold">Quß║ún l├╜ con</p>
-            <p className="text-xs text-muted">Th├¬m, sß╗¡a, xem tiß║┐n tr├¼nh</p>
+            <p className="font-bold">Quản lý con</p>
+            <p className="text-xs text-muted">Thêm, sửa, xem tiến trình</p>
           </div>
         </Link>
         <Link
           to="/parent/approvals"
           className="ui-card flex items-center gap-3 p-4 transition hover:ring-2 hover:ring-coral-300"
         >
-          <span className="text-3xl">≡ƒöö</span>
+          <span className="text-3xl">🔔</span>
           <div>
-            <p className="font-bold">Duyß╗çt chia sß║╗</p>
-            <p className="text-xs text-muted">{pendingCount} y├¬u cß║ºu ─æang chß╗¥</p>
+            <p className="font-bold">Duyệt chia sẻ</p>
+            <p className="text-xs text-muted">{pendingCount} yêu cầu đang chờ</p>
           </div>
         </Link>
       </div>
@@ -367,8 +367,8 @@ function DashboardTab() {
 }
 
 
-// ΓöÇΓöÇ Edit Child Modal ΓÇö Full-screen ΓÇö t├¬n, avatar, mß╗Ñc ti├¬u, PIN ΓöÇΓöÇΓöÇΓöÇ
-// Ba/mß║╣ bß║Ñm Γ£Å∩╕Å ΓåÆ modal n├áy mß╗ƒ to├án m├án h├¼nh, bao gß╗ôm cß║ú ─æß╗òi PIN
+// ── Edit Child Modal — Full-screen — tên, avatar, mục tiêu, PIN ────
+// Ba/mẹ bấm ✏️ → modal này mở toàn màn hình, bao gồm cả đổi PIN
 function EditChildModal({
   child,
   isOpen,
@@ -376,7 +376,7 @@ function EditChildModal({
   onSuccess,
   onError,
 }: {
-  child: Child | null     // null = tß║ío mß╗¢i
+  child: Child | null     // null = tạo mới
   isOpen: boolean
   onClose: () => void
   onSuccess: () => void
@@ -388,7 +388,7 @@ function EditChildModal({
   const [pin, setPin] = useState('')
   const [saving, setSaving] = useState(false)
 
-  // Khi mß╗ƒ modal, ─æiß╗ün sß║╡n gi├í trß╗ï hiß╗çn tß║íi (nß║┐u ─æang sß╗¡a)
+  // Khi mở modal, điền sẵn giá trị hiện tại (nếu đang sửa)
   useEffect(() => {
     if (isOpen) {
       setNickname(child?.nickname ?? '')
@@ -398,14 +398,14 @@ function EditChildModal({
     }
   }, [isOpen, child])
 
-  // Kh├│a scroll nß╗ün khi modal mß╗ƒ
+  // Khóa scroll nền khi modal mở
   useEffect(() => {
     if (isOpen) document.body.style.overflow = 'hidden'
     else document.body.style.overflow = ''
     return () => { document.body.style.overflow = '' }
   }, [isOpen])
 
-  // ─É├│ng khi nhß║Ñn Escape
+  // Đóng khi nhấn Escape
   useEffect(() => {
     if (!isOpen) return
     const handler = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose() }
@@ -415,17 +415,17 @@ function EditChildModal({
 
   async function submit(e: React.FormEvent) {
     e.preventDefault()
-    if (!nickname.trim()) { onError('Vui l├▓ng nhß║¡p t├¬n hiß╗ân thß╗ï.'); return }
-    if (pin && !/^\d{6}$/.test(pin)) { onError('M├ú PIN cß║ºn ─æß╗º 6 chß╗» sß╗æ, hoß║╖c ─æß╗â trß╗æng.'); return }
+    if (!nickname.trim()) { onError('Vui lòng nhập tên hiển thị.'); return }
+    if (pin && !/^\d{6}$/.test(pin)) { onError('Mã PIN cần đủ 6 chữ số, hoặc để trống.'); return }
     setSaving(true)
     try {
       if (child) {
-        // Cß║¡p nhß║¡t hß╗ô s╞í con
+        // Cập nhật hồ sơ con
         await api(`/api/parent/children/${child.id}`, {
           method: 'PATCH',
           body: JSON.stringify({ nickname: nickname.trim(), avatarId }),
         })
-        // Cß║¡p nhß║¡t PIN nß║┐u ba/mß║╣ ─æiß╗ün
+        // Cập nhật PIN nếu ba/mẹ điền
         if (pin) {
           await api(`/api/parent/children/${child.id}/pin`, {
             method: 'POST',
@@ -433,7 +433,7 @@ function EditChildModal({
           })
         }
       } else {
-        // Tß║ío hß╗ô s╞í mß╗¢i
+        // Tạo hồ sơ mới
         const created = await api<{ child: { id: string } }>('/api/parent/children', {
           method: 'POST',
           body: JSON.stringify({ nickname: nickname.trim(), avatarId, goal }),
@@ -447,7 +447,7 @@ function EditChildModal({
       }
       onSuccess()
     } catch (err) {
-      onError(err instanceof Error ? err.message : 'Lß╗ùi')
+      onError(err instanceof Error ? err.message : 'Lỗi')
     } finally {
       setSaving(false)
     }
@@ -456,35 +456,35 @@ function EditChildModal({
   if (!isOpen) return null
 
   return createPortal(
-    // Backdrop to├án m├án h├¼nh ΓÇö render ra document.body ─æß╗â tho├ít AppShell stacking context
+    // Backdrop toàn màn hình — render ra document.body để thoát AppShell stacking context
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm"
       onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
     >
       <div className="flex w-full max-w-lg flex-col rounded-3xl bg-white shadow-2xl" style={{ maxHeight: '90dvh' }}>
-        {/* Header ΓÇö cß╗æ ─æß╗ïnh */}
+        {/* Header — cố định */}
         <div className="flex flex-shrink-0 items-center justify-between border-b border-border px-6 py-4">
           <h2 className="font-display text-xl">
-            {child ? `Γ£Å∩╕Å Chß╗ënh sß╗¡a ΓÇö ${child.nickname}` : '≡ƒæ╢ Th├¬m con mß╗¢i'}
+            {child ? `✏️ Chỉnh sửa — ${child.nickname}` : '👶 Thêm con mới'}
           </h2>
           <button
             type="button"
             onClick={onClose}
             className="rounded-xl p-2 text-muted transition hover:bg-brand-50"
-            aria-label="─É├│ng"
+            aria-label="Đóng"
           >
-            Γ£ò
+            ✕
           </button>
         </div>
 
-        {/* Body ΓÇö cuß╗Ön ─æ╞░ß╗úc khi nß╗Öi dung d├ái */}
+        {/* Body — cuộn được khi nội dung dài */}
         <form
           onSubmit={(e) => void submit(e)}
           className="flex flex-col gap-5 overflow-y-auto px-6 py-5"
         >
-          {/* T├¬n hiß╗ân thß╗ï */}
+          {/* Tên hiển thị */}
           <div>
-            <label className="mb-1 block text-sm font-bold" htmlFor="edit-nickname">T├¬n hiß╗ân thß╗ï</label>
+            <label className="mb-1 block text-sm font-bold" htmlFor="edit-nickname">Tên hiển thị</label>
             <input
               id="edit-nickname"
               type="text"
@@ -492,7 +492,7 @@ function EditChildModal({
               onChange={(e) => setNickname(e.target.value)}
               maxLength={20}
               className="w-full rounded-xl border border-brand-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-              placeholder="VD: Mß╗▒cCon, B├⌐ AnΓÇª"
+              placeholder="VD: MựcCon, Bé An…"
               required
               autoFocus
             />
@@ -520,15 +520,15 @@ function EditChildModal({
             </div>
           </div>
 
-          {/* Mß╗Ñc ti├¬u (chß╗ë khi tß║ío mß╗¢i) */}
+          {/* Mục tiêu (chỉ khi tạo mới) */}
           {!child && (
             <div>
-              <label className="mb-2 block text-sm font-bold">Mß╗Ñc ti├¬u s├íng tß║ío</label>
+              <label className="mb-2 block text-sm font-bold">Mục tiêu sáng tạo</label>
               <div className="flex flex-wrap gap-2">
                 {[
-                  { value: 'comic', label: '≡ƒôû Truyß╗çn tranh', color: 'bg-sky-50' },
-                  { value: 'video', label: '≡ƒÄÑ Video', color: 'bg-mint-50' },
-                  { value: 'character', label: '≡ƒÄ¿ Nh├ón vß║¡t', color: 'bg-sun-50' },
+                  { value: 'comic', label: '📖 Truyện tranh', color: 'bg-sky-50' },
+                  { value: 'video', label: '🎥 Video', color: 'bg-mint-50' },
+                  { value: 'character', label: '🎨 Nhân vật', color: 'bg-sun-50' },
                 ].map((g) => (
                   <button
                     key={g.value}
@@ -546,10 +546,10 @@ function EditChildModal({
             </div>
           )}
 
-          {/* ─Éß╗òi m├ú PIN ΓÇö field nhß║¡p b├¼nh th╞░ß╗¥ng */}
+          {/* Đổi mã PIN — field nhập bình thường */}
           <div className="rounded-2xl border border-border bg-brand-50/40 p-4">
             <label className="mb-1 block text-sm font-bold" htmlFor="edit-pin">
-              {child?.hasPin ? '─Éß╗òi m├ú PIN (t├╣y chß╗ìn)' : 'Tß║ío m├ú PIN (t├╣y chß╗ìn)'}
+              {child?.hasPin ? 'Đổi mã PIN (tùy chọn)' : 'Tạo mã PIN (tùy chọn)'}
             </label>
             <input
               id="edit-pin"
@@ -559,22 +559,22 @@ function EditChildModal({
               value={pin}
               onChange={(e) => setPin(e.target.value.replace(/\D/g, '').slice(0, 6))}
               className="w-full max-w-[14rem] rounded-xl border border-brand-200 px-3 py-2.5 font-mono tracking-[0.4em] text-lg focus:outline-none focus:ring-2 focus:ring-brand-400"
-              placeholder="ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó"
+              placeholder="••••••"
             />
             <p className="mt-1.5 text-xs text-muted">
               {child?.hasPin
-                ? 'Nhß║¡p PIN mß╗¢i ─æß╗â ─æß╗òi. ─Éß╗â trß╗æng nß║┐u kh├┤ng muß╗æn thay ─æß╗òi.'
-                : '6 chß╗» sß╗æ. Con nhß║¡p khi v├áo hß╗ìc. ─Éß╗â trß╗æng nß║┐u kh├┤ng cß║ºn PIN.'}
+                ? 'Nhập PIN mới để đổi. Để trống nếu không muốn thay đổi.'
+                : '6 chữ số. Con nhập khi vào học. Để trống nếu không cần PIN.'}
             </p>
           </div>
 
-          {/* Actions ΓÇö cß╗æ ─æß╗ïnh cuß╗æi form */}
+          {/* Actions — cố định cuối form */}
           <div className="flex flex-shrink-0 gap-3 pb-1">
             <Button type="submit" disabled={saving} className="flex-1">
-              {saving ? '─Éang l╞░uΓÇª' : child ? 'L╞░u thay ─æß╗òi' : 'Tß║ío t├ái khoß║ún'}
+              {saving ? 'Đang lưu…' : child ? 'Lưu thay đổi' : 'Tạo tài khoản'}
             </Button>
             <Button type="button" variant="secondary" onClick={onClose}>
-              Hß╗ºy
+              Hủy
             </Button>
           </div>
         </form>
@@ -584,7 +584,7 @@ function EditChildModal({
   )
 }
 
-// ΓöÇΓöÇ Play Pin Modal ΓÇö nhß║¡p PIN tr╞░ß╗¢c khi v├áo hß╗ô s╞í con ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Play Pin Modal — nhập PIN trước khi vào hồ sơ con ─────────
 function PlayPinModal({
   child,
   isOpen,
@@ -607,8 +607,8 @@ function PlayPinModal({
       isOpen={isOpen}
       onClose={onClose}
       onSubmit={(value) => onEntered(value)}
-      title={`Xin ch├áo ${child.nickname ?? 'bß║ín nhß╗Å'}!`}
-      subtitle="Nhß║¡p m├ú PIN 6 sß╗æ ─æß╗â v├áo hß╗ìc"
+      title={`Xin chào ${child.nickname ?? 'bạn nhỏ'}!`}
+      subtitle="Nhập mã PIN 6 số để vào học"
       avatarContent={<span className="text-5xl">{avatarEmoji(child.avatarId)}</span>}
       pin={pin}
       setPin={setPin}
@@ -616,7 +616,7 @@ function PlayPinModal({
   )
 }
 
-// ΓöÇΓöÇ Kids Tab ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Kids Tab ──────────────────────────────────────────────────
 function KidsTab() {
   const [kids, setKids] = useState<Child[]>([])
   const [sub, setSub] = useState<HouseholdSub | null>(null)
@@ -624,7 +624,7 @@ function KidsTab() {
   const [progress, setProgress] = useState<ChildProgress | null>(null)
   const [loading, setLoading] = useState(true)
   const [deleteTarget, setDeleteTarget] = useState<Child | null>(null)
-  // editTarget: null = tß║ío mß╗¢i; Child object = ─æang sß╗¡a; undefined = ─æ├│ng
+  // editTarget: null = tạo mới; Child object = đang sửa; undefined = đóng
   const [editTarget, setEditTarget] = useState<Child | null | undefined>(undefined)
   const [playPinTarget, setPlayPinTarget] = useState<Child | null>(null)
   const { toasts, showToast, dismissToast } = useToast()
@@ -640,7 +640,7 @@ function KidsTab() {
       setKids(data.children)
       setSub(data.subscription)
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Lß╗ùi tß║úi dß╗» liß╗çu', 'error')
+      showToast(e instanceof Error ? e.message : 'Lỗi tải dữ liệu', 'error')
     } finally {
       setLoading(false)
     }
@@ -675,7 +675,7 @@ function KidsTab() {
   async function deleteChild(childId: string) {
     try {
       await api(`/api/parent/children/${childId}`, { method: 'DELETE' })
-      showToast('T├ái khoß║ún con ─æ├ú ─æ╞░ß╗úc tß║ím kh├│a.', 'success')
+      showToast('Tài khoản con đã được tạm khóa.', 'success')
       await loadKids()
       setDeleteTarget(null)
       if (selectedChild === childId) {
@@ -683,18 +683,18 @@ function KidsTab() {
         setProgress(null)
       }
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Lß╗ùi', 'error')
+      showToast(e instanceof Error ? e.message : 'Lỗi', 'error')
       setDeleteTarget(null)
     }
   }
 
-  // V├áo hß╗ô s╞í con ΓÇö nß║┐u c├│ PIN th├¼ mß╗ƒ modal x├íc nhß║¡n tr╞░ß╗¢c
+  // Vào hồ sơ con — nếu có PIN thì mở modal xác nhận trước
   async function playAsChild(child: Child, pin?: string) {
     try {
       await enterAsChild(child.id, pin || undefined)
       navigate('/home')
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Kh├┤ng v├áo ─æ╞░ß╗úc hß╗ô s╞í con', 'error')
+      showToast(e instanceof Error ? e.message : 'Không vào được hồ sơ con', 'error')
     }
   }
 
@@ -713,26 +713,26 @@ function KidsTab() {
 
   return (
     <div className="flex flex-col gap-4">
-      {/* Toast nß╗òi */}
+      {/* Toast nổi */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
       {sub && (
         <div className="ui-card flex flex-wrap items-center justify-between gap-2 bg-brand-50/50 p-4">
           <div>
-            <p className="text-xs font-bold uppercase text-muted">G├│i gia ─æ├¼nh</p>
+            <p className="text-xs font-bold uppercase text-muted">Gói gia đình</p>
             <p className="font-display text-lg text-brand-600">
-              {sub.planName} ┬╖ {sub.childCount}/{sub.maxChildren} ghß║┐ con
+              {sub.planName} · {sub.childCount}/{sub.maxChildren} ghế con
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
             <Link to="/kids">
-              <Button className="!min-h-10 !text-sm">Cho con hß╗ìc</Button>
+              <Button className="!min-h-10 !text-sm">Cho con học</Button>
             </Link>
             <Link
               to="/parent/plan"
               className="text-sm font-bold text-brand-500 hover:underline self-center"
             >
-              ─Éß╗òi g├│i ΓåÆ
+              Đổi gói →
             </Link>
           </div>
         </div>
@@ -740,17 +740,17 @@ function KidsTab() {
 
       <div className="flex flex-wrap items-center justify-between gap-2">
         <h2 className="font-display text-xl">
-          ≡ƒæº Con cß╗ºa t├┤i ({kids.filter((k) => k.active !== false).length}/{maxKids})
+          👧 Con của tôi ({kids.filter((k) => k.active !== false).length}/{maxKids})
         </h2>
         <Button
           onClick={() => setEditTarget(null)}
           disabled={seatsLeft <= 0}
         >
-          + Th├¬m con
+          + Thêm con
         </Button>
       </div>
       <p className="text-sm text-muted">
-        Ba/mß║╣ tß║ío hß╗ô s╞í cho con. Tr├¬n m├íy ß╗ƒ nh├á, bß║Ñm ΓÇ£V├áo hß╗ìcΓÇ¥ ─æß╗â ─æ╞░a m├íy cho con ΓÇö kh├┤ng cß║ºn mß║¡t khß║⌐u ba/mß║╣.
+        Ba/mẹ tạo hồ sơ cho con. Trên máy ở nhà, bấm “Vào học” để đưa máy cho con — không cần mật khẩu ba/mẹ.
       </p>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -758,9 +758,9 @@ function KidsTab() {
         <div className="flex flex-col gap-3">
           {kids.length === 0 && (
             <div className="ui-card p-6 text-center">
-              <p className="text-3xl">≡ƒæ╢</p>
-              <p className="mt-2 font-bold">Ch╞░a c├│ con n├áo</p>
-              <p className="text-sm text-muted">Nhß║Ñn "Th├¬m con" ─æß╗â bß║»t ─æß║ºu</p>
+              <p className="text-3xl">👶</p>
+              <p className="mt-2 font-bold">Chưa có con nào</p>
+              <p className="text-sm text-muted">Nhấn "Thêm con" để bắt đầu</p>
             </div>
           )}
           {kids.map((k) => (
@@ -772,25 +772,25 @@ function KidsTab() {
                 !k.active && 'opacity-50',
               )}
             >
-              {/* Avatar + t├¬n + stats */}
+              {/* Avatar + tên + stats */}
               <div className="flex items-center gap-3">
                 <span className="flex-shrink-0 text-3xl">{avatarEmoji(k.avatarId)}</span>
                 <div className="min-w-0 flex-1">
                   <p className="font-extrabold text-lg leading-tight">{k.nickname}</p>
                   <p className="text-sm text-muted">
-                    Cß║Ñp {k.level} ┬╖ {k.xp} XP ┬╖ {k.completedQuests ?? 0} trß║ím ┬╖ {k.totalStars ?? 0} Γ¡É
+                    Cấp {k.level} · {k.xp} XP · {k.completedQuests ?? 0} trạm · {k.totalStars ?? 0} ⭐
                   </p>
                 </div>
               </div>
 
-              {/* H├áng n├║t */}
+              {/* Hàng nút */}
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 <Button
                   variant="secondary"
                   className="!min-h-9 !px-3 !text-xs"
                   onClick={() => void viewProgress(k.id)}
                 >
-                  ≡ƒôê Xem tiß║┐n tr├¼nh
+                  📈 Xem tiến trình
                 </Button>
 
                 <Button
@@ -798,44 +798,44 @@ function KidsTab() {
                   className="!min-h-9 !px-3 !text-xs"
                   onClick={() => handlePlayPress(k)}
                 >
-                  Γû╢ V├áo hß╗ìc
+                  ▶ Vào học
                 </Button>
 
-                {/* B├║t ch├¼ ΓÇö mß╗ƒ EditChildModal (t├¬n + avatar + PIN) */}
+                {/* Bút chì — mở EditChildModal (tên + avatar + PIN) */}
                 <button
                   type="button"
                   onClick={() => setEditTarget(k)}
                   className="rounded-lg p-2 text-sm transition hover:bg-brand-50"
-                  title="Chß╗ënh sß╗¡a hß╗ô s╞í"
-                  aria-label="Chß╗ënh sß╗¡a hß╗ô s╞í con"
+                  title="Chỉnh sửa hồ sơ"
+                  aria-label="Chỉnh sửa hồ sơ con"
                 >
-                  Γ£Å∩╕Å
+                  ✏️
                 </button>
 
-                {/* Tß║ím kh├│a */}
+                {/* Tạm khóa */}
                 <button
                   type="button"
                   onClick={() => setDeleteTarget(k)}
                   className="ml-auto rounded-lg p-2 text-sm transition hover:bg-coral-50"
-                  title="Tß║ím kh├│a hß╗ô s╞í"
-                  aria-label="Tß║ím kh├│a hß╗ô s╞í con"
+                  title="Tạm khóa hồ sơ"
+                  aria-label="Tạm khóa hồ sơ con"
                 >
-                  ≡ƒùæ∩╕Å
+                  🗑️
                 </button>
               </div>
             </div>
           ))}
         </div>
 
-        {/* Panel tiß║┐n tr├¼nh ΓÇö lu├┤n hiß╗çn h╞░ß╗¢ng dß║½n r├╡ khi ch╞░a chß╗ìn */}
+        {/* Panel tiến trình — luôn hiện hướng dẫn rõ khi chưa chọn */}
         <div className="ui-card p-4">
-          <h3 className="mb-3 font-display text-lg">≡ƒôê Tiß║┐n tr├¼nh hß╗ìc</h3>
+          <h3 className="mb-3 font-display text-lg">📈 Tiến trình học</h3>
           {!selectedChild && (
             <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <span className="text-4xl">≡ƒôè</span>
-              <p className="font-bold text-text">Chß╗ìn con ─æß╗â xem tiß║┐n tr├¼nh</p>
+              <span className="text-4xl">📊</span>
+              <p className="font-bold text-text">Chọn con để xem tiến trình</p>
               <p className="text-sm text-muted">
-                Bß║Ñm n├║t <strong>"≡ƒôê Xem tiß║┐n tr├¼nh"</strong> tr├¬n thß║╗ cß╗ºa tß╗½ng con
+                Bấm nút <strong>"📈 Xem tiến trình"</strong> trên thẻ của từng con
               </p>
             </div>
           )}
@@ -854,7 +854,7 @@ function KidsTab() {
                       className="min-h-10 rounded-xl border-2 border-brand-100 bg-white px-2 text-xs font-bold"
                       value={progress.courseId ?? ''}
                       onChange={(event) => void viewProgress(progress.child.id, event.target.value)}
-                      aria-label="Chß╗ìn kh├│a hß╗ìc ─æß╗â xem tiß║┐n tr├¼nh"
+                      aria-label="Chọn khóa học để xem tiến trình"
                     >
                       {progress.courses.map((course) => (
                         <option key={course.id} value={course.id}>
@@ -865,62 +865,62 @@ function KidsTab() {
                   )}
                 </div>
                 <span className="ml-2 text-xs text-muted">
-                  Lv.{progress.child.level} ┬╖ {progress.child.xp} XP
+                  Lv.{progress.child.level} · {progress.child.xp} XP
                 </span>
               </div>
               <div className="mb-2 grid grid-cols-3 gap-2">
                 <div className="rounded-2xl bg-mint-100/60 p-3 text-center">
                   <p className="font-display text-2xl text-success">{progress.summary.completed}/{progress.summary.total}</p>
-                  <p className="text-[11px] font-bold text-muted">B├ái ho├án th├ánh</p>
+                  <p className="text-[11px] font-bold text-muted">Bài hoàn thành</p>
                 </div>
                 <div className="rounded-2xl bg-sun-100/60 p-3 text-center">
                   <p className="font-display text-2xl text-warning">{progress.summary.totalStars}</p>
-                  <p className="text-[11px] font-bold text-muted">Sao nß╗ù lß╗▒c</p>
+                  <p className="text-[11px] font-bold text-muted">Sao nỗ lực</p>
                 </div>
                 <div className="rounded-2xl bg-sky-100/60 p-3 text-center">
                   <p className="font-display text-lg text-sky-700">
                     {progress.summary.currentPhase === 'game'
-                      ? '─Éang ch╞íi'
+                      ? 'Đang chơi'
                       : progress.summary.currentPhase === 'practice'
-                        ? '─Éang l├ám'
+                        ? 'Đang làm'
                         : progress.summary.currentPhase === 'check'
-                          ? '─Éang thß╗¡ t├ái'
-                          : 'Sß║╡n s├áng'}
+                          ? 'Đang thử tài'
+                          : 'Sẵn sàng'}
                   </p>
-                  <p className="text-[11px] font-bold text-muted">Nhß╗ïp hiß╗çn tß║íi</p>
+                  <p className="text-[11px] font-bold text-muted">Nhịp hiện tại</p>
                 </div>
               </div>
               {(progress.insights.strengths.length > 0 || progress.insights.nextFocus) && (
                 <div className="mb-2 grid gap-3 rounded-2xl bg-gradient-to-br from-sky-50 to-mint-100/40 p-4 sm:grid-cols-2">
                   <div>
-                    <p className="text-xs font-extrabold uppercase tracking-wide text-success">─Éiß╗üu con ─æang l├ám tß╗æt</p>
+                    <p className="text-xs font-extrabold uppercase tracking-wide text-success">Điều con đang làm tốt</p>
                     {progress.insights.strengths.length > 0 ? (
                       <ul className="mt-2 space-y-1 text-sm">
-                        {progress.insights.strengths.map((skill) => <li key={skill}>≡ƒî▒ {skill}</li>)}
+                        {progress.insights.strengths.map((skill) => <li key={skill}>🌱 {skill}</li>)}
                       </ul>
-                    ) : <p className="mt-2 text-sm text-muted">Con ─æang bß║»t ─æß║ºu h├ánh tr├¼nh; h├úy ghi nhß║¡n lß║ºn thß╗¡ ─æß║ºu ti├¬n.</p>}
+                    ) : <p className="mt-2 text-sm text-muted">Con đang bắt đầu hành trình; hãy ghi nhận lần thử đầu tiên.</p>}
                   </div>
                   <div>
-                    <p className="text-xs font-extrabold uppercase tracking-wide text-sky-700">Ba/mß║╣ c├│ thß╗â hß╗Åi con</p>
+                    <p className="text-xs font-extrabold uppercase tracking-wide text-sky-700">Ba/mẹ có thể hỏi con</p>
                     <p className="mt-2 text-sm leading-relaxed text-text">
                       {progress.insights.nextFocus
-                        ? `ΓÇ£Con muß╗æn kß╗â cho ba/mß║╣ nghe vß╗ü ${progress.insights.nextFocus.toLowerCase()} kh├┤ng?ΓÇ¥`
-                        : 'ΓÇ£Sß║ún phß║⌐m n├áo trong kh├│a hß╗ìc l├ám con tß╗▒ h├áo nhß║Ñt?ΓÇ¥'}
+                        ? `“Con muốn kể cho ba/mẹ nghe về ${progress.insights.nextFocus.toLowerCase()} không?”`
+                        : '“Sản phẩm nào trong khóa học làm con tự hào nhất?”'}
                     </p>
                   </div>
                 </div>
               )}
               {progress.insights.outcomes.length > 0 && (
                 <details className="mb-2 rounded-2xl border border-border bg-white p-3">
-                  <summary className="cursor-pointer text-sm font-extrabold text-brand-600">Kh├│a hß╗ìc h╞░ß╗¢ng tß╗¢i nhß╗»ng n─âng lß╗▒c n├áo?</summary>
+                  <summary className="cursor-pointer text-sm font-extrabold text-brand-600">Khóa học hướng tới những năng lực nào?</summary>
                   <ul className="mt-2 space-y-1 text-sm text-muted">
-                    {progress.insights.outcomes.map((outcome) => <li key={outcome}>ΓÇó {outcome}</li>)}
+                    {progress.insights.outcomes.map((outcome) => <li key={outcome}>• {outcome}</li>)}
                   </ul>
                 </details>
               )}
               {progress.courses.length === 0 && (
                 <p className="rounded-2xl bg-page p-4 text-sm text-muted">
-                  Con ch╞░a tham gia kh├│a hß╗ìc n├áo. Ba/mß║╣ c├│ thß╗â v├áo hß╗ô s╞í cß╗ºa con ─æß╗â chß╗ìn kh├│a ph├╣ hß╗úp.
+                  Con chưa tham gia khóa học nào. Ba/mẹ có thể vào hồ sơ của con để chọn khóa phù hợp.
                 </p>
               )}
               {progress.quests.map((q) => (
@@ -942,8 +942,8 @@ function KidsTab() {
                     <span className="text-sm font-bold">{q.title}</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted">
-                    {q.status === 'completed' && <span>{'Γ¡É'.repeat(q.stars)}</span>}
-                    {q.videoUrl && <span>≡ƒÄ¼</span>}
+                    {q.status === 'completed' && <span>{'⭐'.repeat(q.stars)}</span>}
+                    {q.videoUrl && <span>🎬</span>}
                     <span className={cn(
                       'rounded-md px-1.5 py-0.5 font-bold',
                       q.status === 'completed' && 'bg-mint-100 text-mint-700',
@@ -951,7 +951,7 @@ function KidsTab() {
                       q.status === 'available' && 'bg-sky-100 text-sky-700',
                       q.status === 'locked' && 'bg-gray-100 text-gray-500',
                     )}>
-                      {q.status === 'completed' ? 'Ho├án th├ánh' : q.status === 'in_progress' ? '─Éang hß╗ìc' : q.status === 'available' ? 'Sß║╡n s├áng' : 'Kh├│a'}
+                      {q.status === 'completed' ? 'Hoàn thành' : q.status === 'in_progress' ? 'Đang học' : q.status === 'available' ? 'Sẵn sàng' : 'Khóa'}
                     </span>
                   </div>
                 </div>
@@ -962,9 +962,9 @@ function KidsTab() {
       </div>
       <ConfirmDialog
         open={Boolean(deleteTarget)}
-        title="Tß║ím kh├│a hß╗ô s╞í cß╗ºa con?"
-        description="Con sß║╜ ch╞░a thß╗â v├áo hß╗ìc, nh╞░ng to├án bß╗Ö tiß║┐n tr├¼nh v├á sß║ún phß║⌐m vß║½n ─æ╞░ß╗úc giß╗» ─æß╗â kh├┤i phß╗Ñc sau."
-        confirmLabel="Tß║ím kh├│a hß╗ô s╞í"
+        title="Tạm khóa hồ sơ của con?"
+        description="Con sẽ chưa thể vào học, nhưng toàn bộ tiến trình và sản phẩm vẫn được giữ để khôi phục sau."
+        confirmLabel="Tạm khóa hồ sơ"
         danger
         onCancel={() => setDeleteTarget(null)}
         onConfirm={() => {
@@ -972,20 +972,20 @@ function KidsTab() {
         }}
       />
 
-      {/* EditChildModal ΓÇö full-screen, triggered bß║▒ng n├║t b├║t ch├¼ */}
+      {/* EditChildModal — full-screen, triggered bằng nút bút chì */}
       <EditChildModal
         child={editTarget ?? null}
         isOpen={editTarget !== undefined}
         onClose={() => setEditTarget(undefined)}
         onSuccess={async () => {
           setEditTarget(undefined)
-          showToast(editTarget ? 'Γ£à ─É├ú cß║¡p nhß║¡t hß╗ô s╞í con!' : 'Γ£à ─É├ú tß║ío t├ái khoß║ún con!', 'success')
+          showToast(editTarget ? '✅ Đã cập nhật hồ sơ con!' : '✅ Đã tạo tài khoản con!', 'success')
           await loadKids()
         }}
         onError={(e) => showToast(e, 'error')}
       />
 
-      {/* Modal: nhß║¡p PIN ─æß╗â v├áo hß╗ô s╞í con */}
+      {/* Modal: nhập PIN để vào hồ sơ con */}
       {playPinTarget && (
         <PlayPinModal
           child={playPinTarget}
@@ -1001,7 +1001,7 @@ function KidsTab() {
   )
 }
 
-// ΓöÇΓöÇ Approvals Tab ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Approvals Tab ─────────────────────────────────────────────
 
 function ApprovalsTab() {
 
@@ -1031,12 +1031,12 @@ function ApprovalsTab() {
         body: JSON.stringify({ decision }),
       })
       showToast(
-        decision === 'approved' ? 'Γ£à ─É├ú cho ph├⌐p chia sß║╗' : '≡ƒöÆ ─É├ú giß╗» ri├¬ng t╞░',
+        decision === 'approved' ? '✅ Đã cho phép chia sẻ' : '🔒 Đã giữ riêng tư',
         decision === 'approved' ? 'success' : 'info',
       )
       await load()
     } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Lß╗ùi', 'error')
+      showToast(e instanceof Error ? e.message : 'Lỗi', 'error')
     }
   }
 
@@ -1045,16 +1045,16 @@ function ApprovalsTab() {
   return (
     <div className="flex flex-col gap-4">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-      <h2 className="font-display text-xl">≡ƒöö Y├¬u cß║ºu chia sß║╗</h2>
+      <h2 className="font-display text-xl">🔔 Yêu cầu chia sẻ</h2>
       <p className="text-sm text-muted">
-        S├íng tß║ío cß╗ºa trß║╗ mß║╖c ─æß╗ïnh ri├¬ng t╞░ ΓÇö chß╗ë hiß╗çn khi ba/mß║╣ ─æß╗ông ├╜.
+        Sáng tạo của trẻ mặc định riêng tư — chỉ hiện khi ba/mẹ đồng ý.
       </p>
 
       {approvals.length === 0 && (
         <div className="ui-card p-8 text-center">
-          <p className="text-4xl">≡ƒÄë</p>
-          <p className="mt-2 font-bold">Kh├┤ng c├│ y├¬u cß║ºu n├áo!</p>
-          <p className="text-sm text-muted">Tß║Ñt cß║ú ─æ├ú ─æ╞░ß╗úc xß╗¡ l├╜.</p>
+          <p className="text-4xl">🎉</p>
+          <p className="mt-2 font-bold">Không có yêu cầu nào!</p>
+          <p className="text-sm text-muted">Tất cả đã được xử lý.</p>
         </div>
       )}
 
@@ -1065,23 +1065,23 @@ function ApprovalsTab() {
             className="ui-card flex flex-wrap items-center gap-4 p-4 transition hover:shadow-lg"
           >
             <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-brand-50 text-3xl">
-              {a.project.kind === 'comic' ? '≡ƒôû' : a.project.kind === 'video' ? '≡ƒÄ¼' : '≡ƒÄ¿'}
+              {a.project.kind === 'comic' ? '📖' : a.project.kind === 'video' ? '🎬' : '🎨'}
             </div>
             <div className="min-w-0 flex-1">
               <p className="font-extrabold">{a.project.title}</p>
               <p className="text-sm text-muted">
-                <span className="font-bold">{a.child.nickname}</span> muß╗æn chia sß║╗ tß╗¢i{' '}
+                <span className="font-bold">{a.child.nickname}</span> muốn chia sẻ tới{' '}
                 <span className="rounded-md bg-sky-100 px-1.5 py-0.5 text-xs font-bold text-sky-700">
-                  {a.destination === 'family' ? 'Gia ─æ├¼nh' : a.destination === 'class' ? 'Lß╗¢p hß╗ìc' : 'C├┤ng khai'}
+                  {a.destination === 'family' ? 'Gia đình' : a.destination === 'class' ? 'Lớp học' : 'Công khai'}
                 </span>
               </p>
             </div>
             <div className="flex gap-2">
               <Button onClick={() => void decide(a.id, 'approved')}>
-                Γ£à Cho ph├⌐p
+                ✅ Cho phép
               </Button>
               <Button variant="secondary" onClick={() => void decide(a.id, 'rejected')}>
-                ≡ƒöÆ Giß╗» ri├¬ng
+                🔒 Giữ riêng
               </Button>
             </div>
           </div>
@@ -1091,7 +1091,7 @@ function ApprovalsTab() {
   )
 }
 
-// ΓöÇΓöÇ Profile Tab ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Profile Tab ───────────────────────────────────────────────
 function ProfileTab() {
   const user = useAuth((s) => s.user)
   const [profile, setProfile] = useState<ParentProfileData | null>(null)
@@ -1125,9 +1125,9 @@ function ProfileTab() {
         method: 'PATCH',
         body: JSON.stringify({ phone: phone || undefined, preferredLanguage: lang }),
       })
-      showToast('Γ£à ─É├ú l╞░u hß╗ô s╞í!', 'success')
+      showToast('✅ Đã lưu hồ sơ!', 'success')
     } catch {
-      showToast('Γ¥î Lß╗ùi khi l╞░u hß╗ô s╞í', 'error')
+      showToast('❌ Lỗi khi lưu hồ sơ', 'error')
     } finally {
       setSaving(false)
     }
@@ -1136,7 +1136,7 @@ function ProfileTab() {
   async function changePassword(e: React.FormEvent) {
     e.preventDefault()
     if (newPw.length < 8) {
-      showToast('Mß║¡t khß║⌐u mß╗¢i phß║úi ΓëÑ 8 k├╜ tß╗▒', 'error')
+      showToast('Mật khẩu mới phải ≥ 8 ký tự', 'error')
       return
     }
     try {
@@ -1144,12 +1144,12 @@ function ProfileTab() {
         method: 'POST',
         body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw }),
       })
-      showToast('Γ£à ─É├ú ─æß╗òi mß║¡t khß║⌐u!', 'success')
+      showToast('✅ Đã đổi mật khẩu!', 'success')
       setCurrentPw('')
       setNewPw('')
       setChangingPw(false)
     } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Mß║¡t khß║⌐u c┼⌐ kh├┤ng ─æ├║ng', 'error')
+      showToast(err instanceof Error ? err.message : 'Mật khẩu cũ không đúng', 'error')
     }
   }
 
@@ -1158,7 +1158,7 @@ function ProfileTab() {
   return (
     <div className="flex flex-col gap-5">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-      <h2 className="font-display text-xl">ΓÜÖ∩╕Å Hß╗ô s╞í phß╗Ñ huynh</h2>
+      <h2 className="font-display text-xl">⚙️ Hồ sơ phụ huynh</h2>
 
       <form onSubmit={(e) => void saveProfile(e)} className="ui-card flex flex-col gap-4 p-5">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -1176,7 +1176,7 @@ function ProfileTab() {
           </div>
           <div>
             <label className="mb-1 block text-sm font-bold" htmlFor="prof-phone">
-              Sß╗æ ─æiß╗çn thoß║íi
+              Số điện thoại
             </label>
             <input
               id="prof-phone"
@@ -1191,12 +1191,12 @@ function ProfileTab() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-bold">Ng├┤n ngß╗» ╞░a th├¡ch</label>
+          <label className="mb-1 block text-sm font-bold">Ngôn ngữ ưa thích</label>
           <div className="flex gap-2">
             {[
-              { value: 'vi', label: '≡ƒç╗≡ƒç│ Tiß║┐ng Viß╗çt' },
-              { value: 'en', label: '≡ƒç¼≡ƒçº English' },
-              { value: 'bilingual', label: '≡ƒîÉ Song ngß╗»' },
+              { value: 'vi', label: '🇻🇳 Tiếng Việt' },
+              { value: 'en', label: '🇬🇧 English' },
+              { value: 'bilingual', label: '🌐 Song ngữ' },
             ].map((l) => (
               <button
                 key={l.value}
@@ -1216,21 +1216,21 @@ function ProfileTab() {
         </div>
 
         <div className="rounded-xl bg-sky-50 px-3 py-2 text-sm">
-          Tß╗æi ─æa <strong>{profile.maxChildren}</strong> t├ái khoß║ún con
+          Tối đa <strong>{profile.maxChildren}</strong> tài khoản con
         </div>
 
         <Button type="submit" disabled={saving}>
-          {saving ? '─Éang l╞░uΓÇª' : 'L╞░u hß╗ô s╞í'}
+          {saving ? 'Đang lưu…' : 'Lưu hồ sơ'}
         </Button>
       </form>
 
       {/* Password change */}
       <div className="ui-card p-5">
         <div className="flex items-center justify-between">
-          <h3 className="font-display text-lg">≡ƒöÉ Mß║¡t khß║⌐u</h3>
+          <h3 className="font-display text-lg">🔐 Mật khẩu</h3>
           {!changingPw && (
             <Button variant="secondary" onClick={() => setChangingPw(true)}>
-              ─Éß╗òi mß║¡t khß║⌐u
+              Đổi mật khẩu
             </Button>
           )}
         </div>
@@ -1243,7 +1243,7 @@ function ProfileTab() {
               type="password"
               value={currentPw}
               onChange={(e) => setCurrentPw(e.target.value)}
-              placeholder="Mß║¡t khß║⌐u hiß╗çn tß║íi"
+              placeholder="Mật khẩu hiện tại"
               className="w-full rounded-xl border border-brand-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
               required
             />
@@ -1251,14 +1251,14 @@ function ProfileTab() {
               type="password"
               value={newPw}
               onChange={(e) => setNewPw(e.target.value)}
-              placeholder="Mß║¡t khß║⌐u mß╗¢i (ΓëÑ8 k├╜ tß╗▒)"
+              placeholder="Mật khẩu mới (≥8 ký tự)"
               minLength={8}
               className="w-full rounded-xl border border-brand-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
               required
             />
             <div className="flex gap-2">
-              <Button type="submit">X├íc nhß║¡n</Button>
-              <Button type="button" variant="secondary" onClick={() => setChangingPw(false)}>Hß╗ºy</Button>
+              <Button type="submit">Xác nhận</Button>
+              <Button type="button" variant="secondary" onClick={() => setChangingPw(false)}>Hủy</Button>
             </div>
           </form>
         )}
@@ -1267,7 +1267,7 @@ function ProfileTab() {
   )
 }
 
-// ΓöÇΓöÇ Shared UI ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Shared UI ─────────────────────────────────────────────────
 function StatCard({
   icon: Icon,
   label,

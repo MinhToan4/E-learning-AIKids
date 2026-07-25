@@ -1,4 +1,4 @@
-﻿import { create } from 'zustand'
+import { create } from 'zustand'
 import {
   api,
   clearAccessToken,
@@ -27,7 +27,7 @@ type AuthState = {
   /** Parent hands device to child (ends parent session) */
   enterAsChild: (childId: string, pin?: string) => Promise<User>
   loginAdult: (login: string, password: string) => Promise<User>
-  /** After GIS credential verified by API ΓÇö set session user */
+  /** After GIS credential verified by API — set session user */
   setSessionUser: (user: User) => void
   registerAdult: (
     email: string,
@@ -122,7 +122,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     set({ error: null })
     await disconnectFirebase()
     if (!pin) {
-      throw new Error('Ba/mß║╣ cß║ºn ─æß║╖t m├ú PIN 6 sß╗æ cho hß╗ô s╞í con tr╞░ß╗¢c khi v├áo hß╗ìc.')
+      throw new Error('Ba/mẹ cần đặt mã PIN 6 số cho hồ sơ con trước khi vào học.')
     }
     const code = await api<{ familyCode: string }>(
       '/api/parent/family-login-code',
@@ -216,7 +216,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     const access = get().access
     const user = get().user
     const context = access?.contexts.find((item) => item.id === contextId)
-    if (!context || !user) throw new Error('Workspace kh├┤ng khß║ú dß╗Ñng')
+    if (!context || !user) throw new Error('Workspace không khả dụng')
     await api('/api/auth/context', {
       method: 'POST',
       body: JSON.stringify({ contextId }),

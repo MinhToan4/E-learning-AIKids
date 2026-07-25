@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ART_STYLES } from '../lib/workshop-types'
 import type { WorkshopStep } from '../lib/workshop-types'
@@ -20,17 +20,17 @@ export function CreativePage() {
 
   return (
     <div
-      aria-label="X╞░ß╗ƒng S├íng Tß║ío"
+      aria-label="Xưởng Sáng Tạo"
       className="flex flex-col"
       style={{
         height: 'calc(100dvh - 64px)',
-        // Canvas must not scroll ΓÇö child needs known height for h-full to work
+        // Canvas must not scroll — child needs known height for h-full to work
         overflow: isCanvas ? 'hidden' : 'auto',
       }}
     >
 
 
-      {/* ΓöÇΓöÇ Main content ΓöÇΓöÇ */}
+      {/* ── Main content ── */}
       {step === 'hub' && (
         <div className="flex-1 p-4 sm:p-6">
           <WorkshopHub onGo={goTo} />

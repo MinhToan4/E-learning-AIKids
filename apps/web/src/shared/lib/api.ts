@@ -1,4 +1,4 @@
-﻿import { environment } from '@/shared/config/environment'
+import { environment } from '@/shared/config/environment'
 
 const API_BASE = environment.apiBaseUrl
 const TOKEN_KEY = 'storymee.access_token'
@@ -21,7 +21,7 @@ export function clearAccessToken(): void {
 
 export async function fetchRemoteBlob(url: string): Promise<Blob> {
   const response = await fetch(url)
-  if (!response.ok) throw new Error(`Kh├┤ng tß║úi ─æ╞░ß╗úc tß╗çp (HTTP ${response.status}).`)
+  if (!response.ok) throw new Error(`Không tải được tệp (HTTP ${response.status}).`)
   return response.blob()
 }
 
@@ -57,7 +57,7 @@ export async function api<T = unknown>(
     res = await fetch(url, {
       ...request.options,
       headers,
-      // Local Fastify d├╣ng cookie session ΓÇö phß║úi gß╗¡i credentials
+      // Local Fastify dùng cookie session — phải gửi credentials
       credentials: environment.isLocalApi ? 'include' : 'omit',
     })
   } catch (e) {
@@ -70,8 +70,8 @@ export async function api<T = unknown>(
     throw new ApiError(
       0,
       offline
-        ? '├öi, c├│ vß║╗ mß║íng ─æang ngß╗º qu├¬n rß╗ôi! ≡ƒîÖ Kiß╗âm tra Wi-Fi rß╗ôi thß╗¡ lß║íi nh├⌐.'
-        : 'Mß║íng h╞íi bß║¡n ch├║t. Chß╗¥ mß╗Öt x├¡u rß╗ôi thß╗¡ lß║íi nh├⌐! ≡ƒÿè',
+        ? 'Ôi, có vẻ mạng đang ngủ quên rồi! 🌙 Kiểm tra Wi-Fi rồi thử lại nhé.'
+        : 'Mạng hơi bận chút. Chờ một xíu rồi thử lại nhé! 😊',
       { cause: raw, path: request.path, base: API_BASE },
     )
   }
@@ -87,13 +87,13 @@ export async function api<T = unknown>(
   }
 
   if (!res.ok) {
-    // 401 on /me during bootstrap is normal when logged out ΓÇö still throw for callers
+    // 401 on /me during bootstrap is normal when logged out — still throw for callers
     const msg =
       typeof data === 'object' && data && 'error' in data
         ? String((data as { error: string }).error)
         : typeof data === 'object' && data && 'message' in data
           ? String((data as { message: string }).message)
-          : res.statusText || 'C├│ lß╗ùi xß║úy ra'
+          : res.statusText || 'Có lỗi xảy ra'
     throw new ApiError(res.status, msg, data)
   }
   const normalized = normalizeGatewayResponse(path, data)
@@ -109,7 +109,7 @@ export async function openAuthorizedStream(
   if (token) headers.set('Authorization', `Bearer ${token}`)
   const response = await fetch(gatewayUrl(path), { headers, signal })
   if (!response.ok) {
-    throw new ApiError(response.status, `Kh├┤ng mß╗ƒ ─æ╞░ß╗úc luß╗ông cß║¡p nhß║¡t (HTTP ${response.status}).`)
+    throw new ApiError(response.status, `Không mở được luồng cập nhật (HTTP ${response.status}).`)
   }
   return response
 }
@@ -131,7 +131,7 @@ function withJson(options: RequestInit, body: Record<string, unknown>): RequestI
 
 function normalizeGatewayRequest(path: string, options: RequestInit): GatewayRequest {
   const body = jsonBody(options)
-  // Local Fastify API phß╗Ñc vß╗Ñ /api/... trß╗▒c tiß║┐p ΓÇö kh├┤ng remap sang /api/v1/...
+  // Local Fastify API phục vụ /api/... trực tiếp — không remap sang /api/v1/...
   if (environment.isLocalApi) return { path, options }
   if (path.startsWith('/api/v1/')) return { path, options }
 
@@ -475,7 +475,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
   }
   throw new ApiError(
     501,
-    'T├¡nh n─âng n├áy ─æang ─æ╞░ß╗úc chuyß╗ân sang StoryMee Backend.',
+    'Tính năng này đang được chuyển sang StoryMee Backend.',
     { code: 'FEATURE_NOT_AVAILABLE', legacyPath: path },
   )
 }
@@ -532,8 +532,8 @@ function mapCourse(raw: Record<string, unknown>): CourseSummary {
     coverTo: String(metadata.coverTo ?? '#4f46e5'),
     accent: String(metadata.accent ?? '#7c3aed'),
     coverImage: metadata.coverImage ? String(metadata.coverImage) : null,
-    ageLabel: String(raw.ageBand ?? metadata.ageLabel ?? '8ΓÇô15 tuß╗òi'),
-    // ageTrack: thß╗¡ cß║ú ageBand (gateway format) lß║½n ageTrack (local API format)
+    ageLabel: String(raw.ageBand ?? metadata.ageLabel ?? '8–15 tuổi'),
+    // ageTrack: thử cả ageBand (gateway format) lẫn ageTrack (local API format)
     ageTrack: raw.ageBand
       ? String(raw.ageBand)
       : raw.ageTrack
@@ -541,7 +541,7 @@ function mapCourse(raw: Record<string, unknown>): CourseSummary {
         : undefined,
     courseKey: raw.slug ? String(raw.slug) : raw.courseKey ? String(raw.courseKey) : undefined,
     durationLabel: String(metadata.durationLabel ?? ''),
-    productLabel: String(metadata.productLabel ?? 'Kh├│a hß╗ìc StoryMee'),
+    productLabel: String(metadata.productLabel ?? 'Khóa học StoryMee'),
     status: 'open',
     recommended: metadata.recommended === true,
     skills: Array.isArray(metadata.skills) ? metadata.skills.map(String) : [],
@@ -566,7 +566,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     ? body.data
     : body) as Record<string, unknown>
 
-  // Local Fastify trß║ú response ─æ├║ng format, d├╣ng cookie session ΓÇö trß║ú nguy├¬n data
+  // Local Fastify trả response đúng format, dùng cookie session — trả nguyên data
   if (environment.isLocalApi) {
     if (path === '/api/auth/logout') clearAccessToken()
     return data
@@ -652,7 +652,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       (body.data && typeof body.data === 'object') &&
       'deleted' in recordValue(body.data)) {
     const deleted = Number(recordValue(body.data).deleted ?? 0)
-    return { deleted, message: `─É├ú x├│a ${deleted} bß║ún ghi ─æ─âng nhß║¡p` }
+    return { deleted, message: `Đã xóa ${deleted} bản ghi đăng nhập` }
   }
   if (/^\/api\/admin\/login-logs(?:\?.*)?$/.test(path)) {
     const rows = Array.isArray(body.data) ? body.data as Array<Record<string, unknown>> : []
@@ -718,7 +718,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         enabled: true,
       }))
     const routing = {
-      baseURL: 'StoryMee Hub ΓåÆ Job API ΓåÆ Media Rotation',
+      baseURL: 'StoryMee Hub → Job API → Media Rotation',
       image: {
         aspectRatio: 'IMAGE_ASPECT_RATIO_LANDSCAPE',
         resolution: '1K',
@@ -788,7 +788,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       return [{
         id: String(row.id ?? ''),
         type: String(metadata.assetType ?? 'image'),
-        name: String(metadata.originalName ?? 'Sß║ún phß║⌐m s├íng tß║ío'),
+        name: String(metadata.originalName ?? 'Sản phẩm sáng tạo'),
         thumbnail: url,
         url,
         private: true,
@@ -808,7 +808,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         if (metadata.purpose !== 'creative_workshop' && !metadata.creativeKind) return []
         return [{
           id: String(row.id ?? ''),
-          title: String(metadata.originalName ?? 'Sß║ún phß║⌐m s├íng tß║ío'),
+          title: String(metadata.originalName ?? 'Sản phẩm sáng tạo'),
           kind: String(metadata.creativeKind ?? metadata.assetType ?? 'image'),
           thumbnail: browserMediaUrl(row.imageUrl),
           content: String(metadata.content ?? ''),
@@ -836,7 +836,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         const mapped = mapCourse(raw)
         return {
           ...mapped,
-          // Preserve server-side enrollment & progress ΓÇö mapCourse hardcodes enrolled=false
+          // Preserve server-side enrollment & progress — mapCourse hardcodes enrolled=false
           enrolled: Boolean(raw.enrolled),
           questCount: raw.questCount != null ? Number(raw.questCount) : mapped.questCount,
           completedCount: Number(raw.completedCount ?? 0),
@@ -909,7 +909,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       quests: progress.map((row, index) => ({
         id: String(row.lessonId ?? ''),
         order: Number(row.order ?? index + 1),
-        title: String(row.title ?? `Trß║ím ${index + 1}`),
+        title: String(row.title ?? `Trạm ${index + 1}`),
         skill: String(row.skill ?? ''),
         reward: String(row.reward ?? ''),
         duration: String(row.duration ?? ''),
@@ -964,7 +964,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
           type: String(definition.key ?? row.achievementKey ?? ''),
           title: String(definition.title ?? ''),
           description: String(definition.description ?? ''),
-          icon: String(definition.icon ?? '≡ƒÅà'),
+          icon: String(definition.icon ?? '🏅'),
           requiredValue: Number(definition.threshold ?? 1),
           unlocked: row.unlocked === true || Boolean(row.unlockedAt),
           unlockedAt: unlock.unlockedAt ? String(unlock.unlockedAt) : null,
@@ -990,7 +990,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         title: String(mission.title ?? ''),
         description: String(mission.description ?? ''),
         xpReward: Number(mission.xpReward ?? 0),
-        action: { label: 'Hß╗ìc ngay', route: '/world' },
+        action: { label: 'Học ngay', route: '/world' },
       },
     }
   }
@@ -1108,7 +1108,7 @@ export type QuestDetail = {
   accent: string
   practiceKind: string
   stage?: string
-  /** Lecture video URL from API/SQL ΓÇö not hardcoded in FE */
+  /** Lecture video URL from API/SQL — not hardcoded in FE */
   videoUrl?: string | null
   goals: string[]
   learnCards: Array<{

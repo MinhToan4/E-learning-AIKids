@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { useAuth } from '@/shared/store/auth'
@@ -32,7 +32,7 @@ export function RegisterPage() {
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
     if (password !== confirmPassword) {
-      setError('Mß║¡t khß║⌐u x├íc nhß║¡n kh├┤ng khß╗¢p.')
+      setError('Mật khẩu xác nhận không khớp.')
       return
     }
     setBusy(true)
@@ -48,7 +48,7 @@ export function RegisterPage() {
       goAfter(user)
     } catch (err) {
       setError(
-        err instanceof ApiError ? err.message : '─É─âng k├╜ thß║Ñt bß║íi. Vui l├▓ng thß╗¡ lß║íi.',
+        err instanceof ApiError ? err.message : 'Đăng ký thất bại. Vui lòng thử lại.',
       )
     } finally {
       setBusy(false)
@@ -67,7 +67,7 @@ export function RegisterPage() {
       <div className="absolute inset-0 bg-[#f7f5ff]/75" />
       <div className="relative z-10 mx-auto flex w-full max-w-lg flex-col gap-4">
         <Link to="/login" className="text-sm font-bold text-brand-500">
-          ΓåÉ ─É├ú c├│ t├ái khoß║ún? ─É─âng nhß║¡p
+          ← Đã có tài khoản? Đăng nhập
         </Link>
         <div className="ui-card p-6">
           <div className="mb-4 flex items-center gap-3">
@@ -78,14 +78,14 @@ export function RegisterPage() {
               className="h-14 w-14 rounded-full object-cover"
             />
           </div>
-          <h1 className="font-display text-3xl text-text">Tß║ío t├ái khoß║ún</h1>
+          <h1 className="font-display text-3xl text-text">Tạo tài khoản</h1>
           <p className="mt-1 text-sm text-muted">
-            Phß╗Ñ huynh ─æ─âng k├╜ ─æß╗â quß║ún l├╜ h├ánh tr├¼nh s├íng tß║ío AI cß╗ºa gia ─æ├¼nh.
+            Phụ huynh đăng ký để quản lý hành trình sáng tạo AI của gia đình.
           </p>
 
           <form className="mt-5 flex flex-col gap-4" onSubmit={onSubmit}>
             <label className="flex flex-col gap-1 text-sm font-bold">
-              T├¬n hiß╗ân thß╗ï
+              Tên hiển thị
               <input
                 className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500 transition-colors"
                 value={nickname}
@@ -106,7 +106,7 @@ export function RegisterPage() {
             </label>
 
             <label className="flex flex-col gap-1 text-sm font-bold">
-              Mß║¡t khß║⌐u *
+              Mật khẩu *
               <input
                 type="password"
                 className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500 transition-colors"
@@ -137,14 +137,14 @@ export function RegisterPage() {
                     ))}
                   </div>
                   <span className="text-xs text-muted">
-                    {passwordStrength <= 1 ? 'Yß║┐u' : passwordStrength <= 2 ? 'Trung b├¼nh' : passwordStrength <= 3 ? 'Mß║ính' : 'Rß║Ñt mß║ính'}
+                    {passwordStrength <= 1 ? 'Yếu' : passwordStrength <= 2 ? 'Trung bình' : passwordStrength <= 3 ? 'Mạnh' : 'Rất mạnh'}
                   </span>
                 </div>
               )}
             </label>
 
             <label className="flex flex-col gap-1 text-sm font-bold">
-              X├íc nhß║¡n mß║¡t khß║⌐u *
+              Xác nhận mật khẩu *
               <input
                 type="password"
                 className={cn(
@@ -156,7 +156,7 @@ export function RegisterPage() {
                 required
               />
               {!passwordsMatch && (
-                <span className="text-xs text-danger">Mß║¡t khß║⌐u kh├┤ng khß╗¢p</span>
+                <span className="text-xs text-danger">Mật khẩu không khớp</span>
               )}
             </label>
 
@@ -178,21 +178,21 @@ export function RegisterPage() {
                 required
               />
               <span>
-                T├┤i l├á phß╗Ñ huynh/ng╞░ß╗¥i gi├ím hß╗Ö v├á ─æß╗ông ├╜ quß║ún l├╜ t├ái khoß║ún trß║╗ em theo{' '}
+                Tôi là phụ huynh/người giám hộ và đồng ý quản lý tài khoản trẻ em theo{' '}
                 <Link to="/terms" className="font-bold text-brand-500 hover:underline">
-                  ─æiß╗üu khoß║ún cß╗ºa StoryMee
+                  điều khoản của StoryMee
                 </Link>.
               </span>
             </label>
 
             <Button type="submit" disabled={busy || !passwordsMatch || !consentAccepted}>
-              {busy ? '─Éang tß║íoΓÇª' : '─É─âng k├╜'}
+              {busy ? 'Đang tạo…' : 'Đăng ký'}
             </Button>
 
             <div className="flex w-full flex-col gap-2 pt-1">
               <div className="flex items-center gap-3">
                 <span className="h-px flex-1 bg-border" />
-                <span className="text-xs font-bold text-muted">hoß║╖c</span>
+                <span className="text-xs font-bold text-muted">hoặc</span>
                 <span className="h-px flex-1 bg-border" />
               </div>
               <GoogleSignInButton
@@ -206,9 +206,9 @@ export function RegisterPage() {
             </div>
 
             <p className="text-center text-sm text-muted">
-              ─É├ú c├│ t├ái khoß║ún?{' '}
+              Đã có tài khoản?{' '}
               <Link to="/login" className="font-bold text-brand-500 hover:underline">
-                ─É─âng nhß║¡p
+                Đăng nhập
               </Link>
             </p>
           </form>

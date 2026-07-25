@@ -1,4 +1,4 @@
-﻿import { ChevronRight } from 'lucide-react'
+import { ChevronRight } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets } from '@/shared/config/assets'
 import type { WorkshopStep } from '../lib/workshop-types'
@@ -14,20 +14,20 @@ type HubCard = {
 const HUB_CARDS: HubCard[] = [
   {
     id: 'style',
-    label: 'Vß║╜ Tranh AI',
-    desc: 'Vß║╜ ph├íc thß║úo, chß╗ìn phong c├ích rß╗ôi ─æß╗â AI biß║┐n n├│ th├ánh t├íc phß║⌐m nghß╗ç thuß║¡t.',
+    label: 'Vẽ Tranh AI',
+    desc: 'Vẽ phác thảo, chọn phong cách rồi để AI biến nó thành tác phẩm nghệ thuật.',
     img: designerAssets.workshop.comic,
   },
   {
     id: 'character',
-    label: 'Nh├ón Vß║¡t AI',
-    desc: 'Chß╗ìn h├¼nh d├íng, khu├┤n mß║╖t v├á trang phß╗Ñc rß╗ôi tß║ío ng╞░ß╗¥i bß║ín AI cß╗ºa ri├¬ng con.',
+    label: 'Nhân Vật AI',
+    desc: 'Chọn hình dáng, khuôn mặt và trang phục rồi tạo người bạn AI của riêng con.',
     img: designerAssets.workshop.character,
   },
   {
     id: 'story-mode',
-    label: 'S├íng T├íc Truyß╗çn',
-    desc: 'Chß╗ìn Truyß╗çn chß╗» hoß║╖c Truyß╗çn tranh, rß╗ôi c├╣ng AI ph├ít triß╗ân ├╜ t╞░ß╗ƒng.',
+    label: 'Sáng Tác Truyện',
+    desc: 'Chọn Truyện chữ hoặc Truyện tranh, rồi cùng AI phát triển ý tưởng.',
     img: designerAssets.workshop.mee,
   },
 ]
@@ -47,14 +47,14 @@ export function WorkshopHub({ onGo }: Props) {
           className="h-14 w-14 rounded-2xl object-cover shadow-soft"
         />
         <div>
-          <h1 className="font-display text-3xl text-text">X╞░ß╗ƒng S├íng Tß║ío</h1>
+          <h1 className="font-display text-3xl text-text">Xưởng Sáng Tạo</h1>
           <p className="mt-1 text-sm text-muted">
-            H├┤m nay con muß╗æn tß║ío ra ─æiß╗üu g├¼? Chß╗ìn mß╗Öt hoß║ít ─æß╗Öng b├¬n d╞░ß╗¢i nh├⌐!
+            Hôm nay con muốn tạo ra điều gì? Chọn một hoạt động bên dưới nhé!
           </p>
         </div>
       </div>
 
-      {/* Cards ΓÇö natural height, no stretching */}
+      {/* Cards — natural height, no stretching */}
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
         {HUB_CARDS.map((card) => (
           <button
@@ -81,7 +81,7 @@ export function WorkshopHub({ onGo }: Props) {
               {card.comingSoon && (
                 <div className="absolute inset-0 flex items-center justify-center bg-text/30 backdrop-blur-sm">
                   <span className="rounded-full bg-sun-400 px-3 py-1 text-xs font-extrabold text-text">
-                    Sß║»p ra mß║»t
+                    Sắp ra mắt
                   </span>
                 </div>
               )}
@@ -93,7 +93,7 @@ export function WorkshopHub({ onGo }: Props) {
               <p className="flex-1 text-sm text-muted">{card.desc}</p>
               {!card.comingSoon && (
                 <div className="mt-3 flex items-center gap-1 text-sm font-extrabold text-brand-600">
-                  Bß║»t ─æß║ºu <ChevronRight size={14} />
+                  Bắt đầu <ChevronRight size={14} />
                 </div>
               )}
             </div>

@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { useAuth } from '@/shared/store/auth'
@@ -40,8 +40,8 @@ export function LoginPage() {
   const hint = useMemo(
     () =>
       mode === 'student'
-        ? 'Con d├╣ng biß╗çt danh ba/mß║╣ ─æ├ú tß║ío. Kh├┤ng cß║ºn mß║¡t khß║⌐u cß╗ºa ba/mß║╣.'
-        : 'Ba/mß║╣ hoß║╖c thß║ºy c├┤ ─æ─âng nhß║¡p bß║▒ng email ─æß╗â quß║ún l├╜ v├á cho con hß╗ìc.',
+        ? 'Con dùng biệt danh ba/mẹ đã tạo. Không cần mật khẩu của ba/mẹ.'
+        : 'Ba/mẹ hoặc thầy cô đăng nhập bằng email để quản lý và cho con học.',
     [mode],
   )
 
@@ -50,7 +50,7 @@ export function LoginPage() {
     setBusy(true)
     try {
       if (mode === 'student') {
-        // Gß╗ìi API tr╞░ß╗¢c kh├┤ng c├│ PIN ΓÇö nß║┐u server y├¬u cß║ºu PIN th├¼ error message c├│ "PIN"
+        // Gọi API trước không có PIN — nếu server yêu cầu PIN thì error message có "PIN"
         const user = await loginStudent(nickname.trim(), undefined)
         navigate(user.onboarded ? '/home' : '/onboarding')
       } else {
@@ -58,8 +58,8 @@ export function LoginPage() {
         goAfterAdult(user)
       }
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Kh├┤ng v├áo ─æ╞░ß╗úc. Thß╗¡ lß║íi nh├⌐!'
-      // Nß║┐u server y├¬u cß║ºu PIN ΓåÆ mß╗ƒ PinPadModal thay v├¼ hiß╗çn lß╗ùi
+      const msg = err instanceof ApiError ? err.message : 'Không vào được. Thử lại nhé!'
+      // Nếu server yêu cầu PIN → mở PinPadModal thay vì hiện lỗi
       if (mode === 'student' && msg.includes('PIN')) {
         setShowPinModal(true)
       } else {
@@ -73,13 +73,13 @@ export function LoginPage() {
   async function onSubmitPin(enteredPin: string) {
     setBusy(true)
     try {
-      // Gß╗ìi lß║íi vß╗¢i PIN ΓÇö d├╣ng tham sß╗æ thß╗⌐ 3 opts
+      // Gọi lại với PIN — dùng tham số thứ 3 opts
       const user = await loginStudent(nickname.trim(), undefined, {
         pin: enteredPin.trim(),
       })
       navigate(user.onboarded ? '/home' : '/onboarding')
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Kh├┤ng v├áo ─æ╞░ß╗úc. Thß╗¡ lß║íi nh├⌐!'
+      const msg = err instanceof ApiError ? err.message : 'Không vào được. Thử lại nhé!'
       showToast(msg, 'error')
       setPin('')
     } finally {
@@ -99,7 +99,7 @@ export function LoginPage() {
       <div className="absolute inset-0 bg-[#f7f5ff]/75" />
       <div className="relative z-10 mx-auto flex w-full max-w-lg flex-col gap-4">
         <Link to="/" className="text-sm font-bold text-brand-500">
-          ΓåÉ Vß╗ü trang ch├áo
+          ← Về trang chào
         </Link>
         <div className="ui-card p-6">
           <div className="mb-4 flex items-center gap-3">
@@ -110,7 +110,7 @@ export function LoginPage() {
               className="h-14 w-14 rounded-full object-cover"
             />
           </div>
-          <h1 className="font-display text-3xl text-text">V├áo cß╗òng s├íng tß║ío</h1>
+          <h1 className="font-display text-3xl text-text">Vào cổng sáng tạo</h1>
           <p className="mt-1 text-sm text-muted">{hint}</p>
 
           <div className="mt-4 flex gap-2 rounded-2xl bg-brand-50 p-1">
@@ -124,12 +124,12 @@ export function LoginPage() {
               )}
               onClick={() => {
                 setMode('student')
-                // Clear fields khi ─æß╗òi tab ΓÇö tr├ính dß╗» liß╗çu c┼⌐ hiß╗çn lß║íi
+                // Clear fields khi đổi tab — tránh dữ liệu cũ hiện lại
                 setEmail('')
                 setPassword('')
               }}
             >
-              Hß╗ìc sinh
+              Học sinh
             </button>
             <button
               type="button"
@@ -141,11 +141,11 @@ export function LoginPage() {
               )}
               onClick={() => {
                 setMode('adult')
-                // Clear fields khi ─æß╗òi tab
+                // Clear fields khi đổi tab
                 setNickname('')
               }}
             >
-              Ba mß║╣ / GV
+              Ba mẹ / GV
             </button>
           </div>
 
@@ -153,7 +153,7 @@ export function LoginPage() {
             {mode === 'student' ? (
               <>
                 <label className="flex flex-col gap-1 text-sm font-bold">
-                  Biß╗çt danh
+                  Biệt danh
                   <input
                     className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500"
                     value={nickname}
@@ -163,17 +163,17 @@ export function LoginPage() {
                   />
                 </label>
                 <p className="text-xs text-muted">
-                  Ch╞░a c├│ hß╗ô s╞í? Nhß╗¥ ba/mß║╣ ─æ─âng nhß║¡p, v├áo mß╗Ñc Con v├á th├¬m con nh├⌐.
+                  Chưa có hồ sơ? Nhờ ba/mẹ đăng nhập, vào mục Con và thêm con nhé.
                 </p>
               </>
             ) : (
               <>
                 <label className="flex flex-col gap-1 text-sm font-bold">
-                  Email hoß║╖c T├¬n ─æ─âng nhß║¡p
+                  Email hoặc Tên đăng nhập
                   <input
                     type="text"
                     autoComplete="username"
-                    placeholder="Nhß║¡p email hoß║╖c t├¬n ─æ─âng nhß║¡p"
+                    placeholder="Nhập email hoặc tên đăng nhập"
                     className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
@@ -181,7 +181,7 @@ export function LoginPage() {
                   />
                 </label>
                 <label className="flex flex-col gap-1 text-sm font-bold">
-                  Mß║¡t khß║⌐u
+                  Mật khẩu
                   <input
                     type="password"
                     autoComplete="current-password"
@@ -193,21 +193,21 @@ export function LoginPage() {
                 </label>
                 <div className="flex items-center justify-between text-xs">
                   <Link to="/forgot-password" className="font-bold text-brand-500 hover:underline">
-                    Qu├¬n mß║¡t khß║⌐u?
+                    Quên mật khẩu?
                   </Link>
                 </div>
               </>
             )}
 
             <Button type="submit" disabled={busy}>
-              {busy ? '─Éang v├áoΓÇª' : mode === 'adult' ? '─É─âng nhß║¡p' : 'V├áo hß╗ìc!'}
+              {busy ? 'Đang vào…' : mode === 'adult' ? 'Đăng nhập' : 'Vào học!'}
             </Button>
 
             {mode === 'adult' && (
               <div className="flex w-full flex-col gap-2 pt-1">
                 <div className="flex items-center gap-3">
                   <span className="h-px flex-1 bg-border" />
-                  <span className="text-xs font-bold text-muted">hoß║╖c</span>
+                  <span className="text-xs font-bold text-muted">hoặc</span>
                   <span className="h-px flex-1 bg-border" />
                 </div>
                 <GoogleSignInButton
@@ -224,9 +224,9 @@ export function LoginPage() {
             )}
 
             <p className="text-center text-sm text-muted">
-              Ch╞░a c├│ t├ái khoß║ún?{' '}
+              Chưa có tài khoản?{' '}
               <Link to="/register" className="font-bold text-brand-500 hover:underline">
-                ─É─âng k├╜ ngay
+                Đăng ký ngay
               </Link>
             </p>
           </form>
@@ -239,8 +239,8 @@ export function LoginPage() {
           setPin('')
         }}
         onSubmit={(value) => void onSubmitPin(value)}
-        title={`Xin ch├áo ${nickname || 'bß║ín nhß╗Å'}!`}
-        subtitle="Nhß║¡p m├ú PIN 6 sß╗æ ba/mß║╣ ─æ├ú ─æß║╖t"
+        title={`Xin chào ${nickname || 'bạn nhỏ'}!`}
+        subtitle="Nhập mã PIN 6 số ba/mẹ đã đặt"
         busy={busy}
         pin={pin}
         setPin={setPin}

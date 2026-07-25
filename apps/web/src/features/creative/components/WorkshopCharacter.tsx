@@ -1,4 +1,4 @@
-﻿import { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { ChevronRight, RotateCcw, Sparkles } from 'lucide-react'
 import { api } from '@/shared/lib/api'
 import { generateCreativeImage } from '@/shared/lib/creative-api'
@@ -42,7 +42,7 @@ export function WorkshopCharacter({ onBack, onSaved }: Props) {
         prompt: buildCharacterPrompt(idea, answers),
       }))
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ch╞░a tß║ío ─æ╞░ß╗úc nh├ón vß║¡t')
+      setError(err instanceof Error ? err.message : 'Chưa tạo được nhân vật')
     } finally {
       setGenerating(false)
     }
@@ -59,12 +59,12 @@ export function WorkshopCharacter({ onBack, onSaved }: Props) {
           url: result,
           purpose: 'creative_workshop',
           creativeKind: 'character',
-          title: idea.trim() || 'Nh├ón vß║¡t AI cß╗ºa con',
+          title: idea.trim() || 'Nhân vật AI của con',
         }),
       })
       onSaved()
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Ch╞░a l╞░u ─æ╞░ß╗úc nh├ón vß║¡t')
+      setError(err instanceof Error ? err.message : 'Chưa lưu được nhân vật')
     } finally {
       setSaving(false)
     }
@@ -75,23 +75,23 @@ export function WorkshopCharacter({ onBack, onSaved }: Props) {
       <header className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
-            Nh├ón vß║¡t AI ┬╖ ─æß╗ông bß╗Ö tß╗½ AiKid app
+            Nhân vật AI · đồng bộ từ AiKid app
           </p>
-          <h2 className="font-display text-2xl text-text">Con muß╗æn tß║ío ng╞░ß╗¥i bß║ín n├áo?</h2>
-          <p className="mt-1 text-sm text-muted">{completed} ─æß║╖c ─æiß╗âm ─æ├ú chß╗ìn</p>
+          <h2 className="font-display text-2xl text-text">Con muốn tạo người bạn nào?</h2>
+          <p className="mt-1 text-sm text-muted">{completed} đặc điểm đã chọn</p>
         </div>
         <button type="button" onClick={() => onBack('hub')}
           className="rounded-btn border border-border bg-white px-4 py-2 text-sm font-bold text-muted">
-          ΓåÉ Trß╗ƒ vß╗ü
+          ← Trở về
         </button>
       </header>
 
       <div className="grid gap-4 lg:grid-cols-[minmax(0,1.35fr)_minmax(280px,.65fr)]">
         <section className="ui-card flex flex-col gap-4 p-4">
           <label>
-            <span className="mb-1.5 block text-sm font-extrabold">├¥ t╞░ß╗ƒng nhanh</span>
+            <span className="mb-1.5 block text-sm font-extrabold">Ý tưởng nhanh</span>
             <textarea value={idea} onChange={(event) => setIdea(event.target.value)}
-              placeholder="V├¡ dß╗Ñ: mß╗Öt ch├║ m├¿o m├áu cam tr├▓n xoe th├¡ch kh├ím ph├í v┼⌐ trß╗Ñ..."
+              placeholder="Ví dụ: một chú mèo màu cam tròn xoe thích khám phá vũ trụ..."
               rows={2} maxLength={240}
               className="w-full rounded-2xl border-2 border-border p-3 text-sm font-semibold outline-none focus:border-brand-400" />
           </label>
@@ -133,15 +133,15 @@ export function WorkshopCharacter({ onBack, onSaved }: Props) {
 
         <aside className="ui-card flex min-h-[420px] flex-col overflow-hidden">
           <div className="border-b border-border p-3">
-            <p className="font-display text-lg">Bß║ín mß╗¢i cß╗ºa con</p>
+            <p className="font-display text-lg">Bạn mới của con</p>
           </div>
           <div className="flex min-h-0 flex-1 items-center justify-center bg-brand-50/50 p-4">
             {result ? (
-              <img src={result} alt="Nh├ón vß║¡t AI vß╗½a tß║ío" className="max-h-[460px] w-full rounded-2xl object-contain" />
+              <img src={result} alt="Nhân vật AI vừa tạo" className="max-h-[460px] w-full rounded-2xl object-contain" />
             ) : (
               <div className="text-center">
                 <img src={designerAssets.workshop.character} alt="" className="mx-auto h-40 w-40 rounded-3xl object-cover opacity-80" />
-                <p className="mt-3 text-sm font-bold text-muted">Chß╗ìn ─æß║╖c ─æiß╗âm rß╗ôi nhß╗¥ AI vß║╜ nh├⌐!</p>
+                <p className="mt-3 text-sm font-bold text-muted">Chọn đặc điểm rồi nhờ AI vẽ nhé!</p>
               </div>
             )}
           </div>
@@ -150,11 +150,11 @@ export function WorkshopCharacter({ onBack, onSaved }: Props) {
             <button type="button" onClick={() => void generate()} disabled={generating}
               className="ui-btn ui-btn-primary gap-2 disabled:opacity-60">
               {result ? <RotateCcw size={16} /> : <Sparkles size={16} />}
-              {generating ? 'AI ─æang vß║╜ΓÇª' : result ? 'Tß║ío bß║ún kh├íc' : 'Tß║ío nh├ón vß║¡t'}
+              {generating ? 'AI đang vẽ…' : result ? 'Tạo bản khác' : 'Tạo nhân vật'}
             </button>
             <button type="button" onClick={() => void save()} disabled={!result || saving}
               className="ui-btn ui-btn-secondary gap-2 disabled:opacity-50">
-              {saving ? '─Éang l╞░uΓÇª' : 'L╞░u v├áo Ba l├┤'} <ChevronRight size={16} />
+              {saving ? 'Đang lưu…' : 'Lưu vào Ba lô'} <ChevronRight size={16} />
             </button>
           </div>
         </aside>

@@ -1,7 +1,7 @@
-﻿@import 'tailwindcss';
+@import 'tailwindcss';
 
 /*
-  Soft Clay UI ΓÇö ages 8ΓÇô11 (Hallmark anti-slop + design-system MASTER)
+  Soft Clay UI — ages 8–11 (Hallmark anti-slop + design-system MASTER)
   No plastic neon AI SaaS chrome.
 */
 @theme {
@@ -70,7 +70,7 @@
     /*
      * Responsive base font: 15px on 320px screens, 17px on 405px+.
      * clamp(min, preferred, max) prevents tiny phones from rendering
-     * "text-2xl" at an illegible 37px ΓÇö WCAG 1.4.4 (Resize Text).
+     * "text-2xl" at an illegible 37px — WCAG 1.4.4 (Resize Text).
      */
     font-size: clamp(15px, 4.2vw, 17px);
     line-height: 1.5;
@@ -277,7 +277,7 @@
     }
   }
 
-  /* Page / section motion ΓÇö GPU-friendly, respects reduced-motion */
+  /* Page / section motion — GPU-friendly, respects reduced-motion */
   .page-enter {
     animation: page-enter 0.28s ease-out both;
   }
@@ -347,7 +347,7 @@
     }
   }
 
-  /* Phase 6 ΓÇö skeleton pulse (Soft Clay) */
+  /* Phase 6 — skeleton pulse (Soft Clay) */
   .ui-skeleton {
     background: linear-gradient(
       90deg,
@@ -579,7 +579,7 @@
     }
   }
 
-  /* ΓöÇΓöÇ Mobile top bar (brand only ΓÇö no nav) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ── Mobile top bar (brand only — no nav) ────────────────── */
   .role-mobile-topbar {
     position: sticky;
     top: 0;
@@ -603,7 +603,7 @@
     color: var(--role-accent);
   }
 
-  /* ΓöÇΓöÇ Adult bottom nav (parent / teacher / admin pinned bar) ΓöÇΓöÇ */
+  /* ── Adult bottom nav (parent / teacher / admin pinned bar) ── */
   .adult-bottom-nav {
     position: fixed;
     left: 0;
@@ -668,7 +668,7 @@
     transform: translateY(-1px);
   }
 
-  /* Γèò More button */
+  /* ⊕ More button */
   .adult-bottom-more {
     display: flex;
     flex: 1;
@@ -709,7 +709,7 @@
     }
   }
 
-  /* ΓöÇΓöÇ Admin drawer sheet (slides up from bottom) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ── Admin drawer sheet (slides up from bottom) ──────────── */
   .admin-drawer-sheet {
     position: fixed;
     left: 0;
@@ -815,14 +815,14 @@
     .admin-drawer-item:hover { transform: none; }
   }
 
-  /* ΓöÇΓöÇ Student drawer (Huy hiß╗çu / Ba l├┤ / Hß╗ô s╞í) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ── Student drawer (Huy hiệu / Ba lô / Hồ sơ) ─────────── */
   .student-drawer-sheet {
     position: fixed;
     left: 0;
     right: 0;
     z-index: 50;
     border-radius: 1.75rem 1.75rem 0 0;
-    /* Warm brand gradient ΓÇö feels kid-friendly, not corporate */
+    /* Warm brand gradient — feels kid-friendly, not corporate */
     background: linear-gradient(160deg, #fff9ff 0%, #f7f5ff 100%);
     box-shadow: 0 -20px 60px rgba(109, 94, 252, 0.13);
     padding: 0 1.25rem calc(5.5rem + env(safe-area-inset-bottom, 0px));
@@ -861,7 +861,7 @@
     letter-spacing: 0.01em;
   }
 
-  /* 3 cols ΓÇö 3 items fit perfectly without crowding */
+  /* 3 cols — 3 items fit perfectly without crowding */
   .student-drawer-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -925,7 +925,7 @@
     .student-drawer-item:hover { transform: none; }
   }
 
-  /* Progress experience ΓÇö visual growth without competitive ranking. */
+  /* Progress experience — visual growth without competitive ranking. */
   .progress-hero {
     position: relative;
     display: grid;
@@ -1117,7 +1117,7 @@
 }
 
 @layer components {
-  /* ΓöÇΓöÇΓöÇ QUEST NODE MAP (Little AI Master zigzag path) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── QUEST NODE MAP (Little AI Master zigzag path) ──────────── */
 
   .quest-path-line {
     position: absolute;
@@ -1192,7 +1192,7 @@
     box-shadow: 0 6px 0 0 rgba(30, 39, 64, 0.07), 0 12px 28px rgba(30, 39, 64, 0.1);
   }
 
-  /* ΓöÇΓöÇΓöÇ PHASE STEPPER (4-step lesson progress) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── PHASE STEPPER (4-step lesson progress) ─────────────────── */
 
   .phase-stepper {
     display: flex;
@@ -1243,7 +1243,7 @@
     flex-shrink: 0;
   }
 
-  /* ΓöÇΓöÇΓöÇ GAME CARDS (visual per game type) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── GAME CARDS (visual per game type) ─────────────────────── */
 
   .game-card {
     border-radius: 1.25rem;
@@ -1304,7 +1304,7 @@
     80% { transform: translateX(4px); }
   }
 
-  /* ΓöÇΓöÇΓöÇ GAME PROGRESS RING ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── GAME PROGRESS RING ──────────────────────────────────────── */
 
   .game-progress-ring {
     display: flex;
@@ -1331,7 +1331,7 @@
     transform: scale(1.2);
   }
 
-  /* ΓöÇΓöÇΓöÇ AI COMPANION BUBBLE (like Byte from Little AI Master) ΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── AI COMPANION BUBBLE (like Byte from Little AI Master) ──── */
 
   .companion-bubble {
     position: relative;
@@ -1371,7 +1371,7 @@
     100% { opacity: 1; transform: translateX(0) scale(1); }
   }
 
-  /* ΓöÇΓöÇΓöÇ STAR BURST CELEBRATION ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── STAR BURST CELEBRATION ─────────────────────────────────── */
 
   .star-burst-overlay {
     position: fixed;
@@ -1422,7 +1422,7 @@
     100% { transform: scale(1) rotate(0deg); opacity: 1; }
   }
 
-  /* ΓöÇΓöÇΓöÇ LEARN CARD (rich concept cards in Learn phase) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── LEARN CARD (rich concept cards in Learn phase) ─────────── */
 
   .learn-card {
     border-radius: 1.25rem;
@@ -1451,7 +1451,7 @@
     box-shadow: 0 2px 8px rgba(30, 39, 64, 0.08);
   }
 
-  /* ΓöÇΓöÇΓöÇ HOOK HIGHLIGHT (opening hook in lessons) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── HOOK HIGHLIGHT (opening hook in lessons) ──────────────── */
 
   .hook-highlight {
     position: relative;
@@ -1465,7 +1465,7 @@
     font-style: italic;
   }
 
-  /* ΓöÇΓöÇΓöÇ DAILY MISSION CARD ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── DAILY MISSION CARD ─────────────────────────────────────── */
 
   .mission-card {
     position: relative;
@@ -1478,7 +1478,7 @@
   }
 
   .mission-card::before {
-    content: '≡ƒÄ»';
+    content: '🎯';
     position: absolute;
     right: -0.5rem;
     top: -0.5rem;
@@ -1488,7 +1488,7 @@
     pointer-events: none;
   }
 
-  /* ΓöÇΓöÇΓöÇ STREAK FLAME ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── STREAK FLAME ───────────────────────────────────────────── */
 
   .streak-flame {
     animation: flame-flicker 1.5s ease-in-out infinite alternate;
@@ -1500,7 +1500,7 @@
     100% { transform: scaleY(1.08) rotate(2deg); }
   }
 
-  /* ΓöÇΓöÇΓöÇ COURSE CARD (enhanced home page) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── COURSE CARD (enhanced home page) ──────────────────────── */
 
   .course-card {
     border-radius: 1.5rem;
@@ -1550,7 +1550,7 @@
     transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
-  /* ΓöÇΓöÇΓöÇ XP BAR ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── XP BAR ─────────────────────────────────────────────────── */
 
   .xp-bar-track {
     height: 10px;
@@ -1583,7 +1583,7 @@
     100% { background-position: 200% 0; }
   }
 
-  /* ΓöÇΓöÇΓöÇ COMBINE GAME columns ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── COMBINE GAME columns ───────────────────────────────────── */
 
   .combine-col {
     flex: 1;
@@ -1630,7 +1630,7 @@
     box-shadow: 0 4px 0 0 rgba(109, 94, 252, 0.18);
   }
 
-  /* ΓöÇΓöÇΓöÇ ORDER/DRAG game ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── ORDER/DRAG game ────────────────────────────────────────── */
 
   .drag-item {
     background: white;
@@ -1659,7 +1659,7 @@
     background: var(--color-mint-50);
   }
 
-  /* ΓöÇΓöÇΓöÇ MATCH / MEMORY GAME ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── MATCH / MEMORY GAME ────────────────────────────────────── */
 
   .memory-card {
     aspect-ratio: 1;
@@ -1726,7 +1726,7 @@
   }
 }
 
-/* Mobile polish ΓÇö 375 / 414 safe areas */
+/* Mobile polish — 375 / 414 safe areas */
 @layer utilities {
   .safe-pb {
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
@@ -1748,7 +1748,7 @@
   .bg-sky-100 { background-color: #e0f2fe; }
   .text-sky-700 { color: #0369a1; }
 
-  /* ΓöÇΓöÇΓöÇ DAILY MISSION CARD ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── DAILY MISSION CARD ─────────────────────────────────────── */
   .mission-card {
     position: relative;
     overflow: hidden;
@@ -1759,7 +1759,7 @@
     box-shadow: 0 4px 0 0 #f4c842, 0 8px 24px rgba(244, 200, 66, 0.18);
   }
   .mission-card::before {
-    content: '≡ƒÄ»';
+    content: '🎯';
     position: absolute;
     right: -0.5rem;
     bottom: -1rem;
@@ -1769,7 +1769,7 @@
     user-select: none;
   }
 
-  /* ΓöÇΓöÇΓöÇ GAME CARD (pick / order / check answers) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── GAME CARD (pick / order / check answers) ───────────────── */
   .game-card {
     display: block;
     padding: 0.75rem 1rem;
@@ -1807,7 +1807,7 @@
     background: #fff1f2;
   }
 
-  /* ΓöÇΓöÇΓöÇ MEMORY CARD (3D flip) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── MEMORY CARD (3D flip) ─────────────────────────────────── */
   .memory-card {
     position: relative;
     min-height: 96px;
@@ -1860,7 +1860,7 @@
     background: var(--color-mint-100, #d1fae5);
   }
 
-  /* ΓöÇΓöÇΓöÇ COMBINE GAME COLUMNS ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── COMBINE GAME COLUMNS ───────────────────────────────────── */
   .combine-col {
     flex: 1;
     min-width: 0;
@@ -1904,7 +1904,7 @@
     box-shadow: 0 2px 0 0 var(--color-brand-200, #d1c8ff);
   }
 
-  /* ΓöÇΓöÇΓöÇ DRAG ITEM ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── DRAG ITEM ─────────────────────────────────────────────── */
   .drag-item {
     display: flex;
     align-items: center;
@@ -1929,7 +1929,7 @@
     background: var(--color-mint-100, #d1fae5);
   }
 
-  /* ΓöÇΓöÇΓöÇ PHASE STEPPER ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── PHASE STEPPER ─────────────────────────────────────────── */
   .phase-stepper {
     display: flex;
     align-items: center;
@@ -1970,7 +1970,7 @@
     margin: 0 0.125rem;
   }
 
-  /* ΓöÇΓöÇΓöÇ HOOK HIGHLIGHT ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── HOOK HIGHLIGHT ─────────────────────────────────────────── */
   .hook-highlight {
     position: relative;
     padding: 0.875rem 1rem 0.875rem 1.25rem;
@@ -1983,7 +1983,7 @@
     color: var(--color-text, #1a1040);
   }
 
-  /* ΓöÇΓöÇΓöÇ LEARN CARD ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── LEARN CARD ─────────────────────────────────────────────── */
   .learn-card {
     border-radius: 1.25rem;
     border: 2px solid var(--color-border, #e8e6f0);
@@ -2009,7 +2009,7 @@
     flex-shrink: 0;
   }
 
-  /* ΓöÇΓöÇΓöÇ GAME PROGRESS PIPS ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── GAME PROGRESS PIPS ─────────────────────────────────────── */
   .game-progress-pip {
     display: inline-block;
     width: 8px;
@@ -2024,7 +2024,7 @@
     border-color: var(--color-brand-400, #9d8cfb);
   }
 
-  /* ΓöÇΓöÇΓöÇ STARS ROW (done celebration) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── STARS ROW (done celebration) ──────────────────────────── */
   .stars-row {
     display: flex;
     gap: 0.5rem;
@@ -2044,7 +2044,7 @@
     100% { transform: scale(1) rotate(0deg); opacity: 1; }
   }
 
-  /* ΓöÇΓöÇΓöÇ STAR BURST OVERLAY (celebration) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ */
+  /* ─── STAR BURST OVERLAY (celebration) ──────────────────────── */
   .star-burst-overlay {
     position: absolute;
     inset: 0;

@@ -1,4 +1,4 @@
-﻿import { useState } from 'react'
+import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
@@ -71,7 +71,7 @@ function WorkspaceSwitcher({ compact = false }: { compact?: boolean }) {
     return (
       <div className="flex w-full flex-col items-center gap-1 py-1">
         <label className="text-[10px] font-extrabold uppercase text-muted tracking-tight text-center">
-          ─Éß╗òi TK
+          Đổi TK
         </label>
         <select
           className="w-[4.5rem] rounded-xl border border-border/80 bg-white px-1 py-1 text-center font-bold text-[11px] text-text shadow-sm transition hover:border-brand-300 focus:outline-none focus:ring-1 focus:ring-brand-400"
@@ -81,10 +81,10 @@ function WorkspaceSwitcher({ compact = false }: { compact?: boolean }) {
             void handleSelect(val)
             e.target.value = active?.id || 'current'
           }}
-          title="Chuyß╗ân ─æß╗òi t├ái khoß║ún"
+          title="Chuyển đổi tài khoản"
         >
           {active && <option value={active.id}>{active.label}</option>}
-          <option value="current">{user?.role === "parent" ? (active ? "≡ƒÅí Vß╗ü Ba/Mß║╣" : "TK Ba/Mß║╣") : "C├í nh├ón"}</option>
+          <option value="current">{user?.role === "parent" ? (active ? "🏡 Về Ba/Mẹ" : "TK Ba/Mẹ") : "Cá nhân"}</option>
           {access?.contexts
             .filter((c) => c.id !== active?.id)
             .map((context) => (
@@ -99,7 +99,7 @@ function WorkspaceSwitcher({ compact = false }: { compact?: boolean }) {
 
   return (
     <label className="mx-3 mt-auto mb-3 block text-xs font-bold text-muted">
-      Chuyß╗ân ─æß╗òi t├ái khoß║ún
+      Chuyển đổi tài khoản
       <select
         className="mt-1 w-full rounded-xl border border-border bg-white px-2 py-2 text-sm text-text shadow-sm transition hover:border-brand-300 focus:outline-none focus:ring-1 focus:ring-brand-400"
         value={active?.id || 'current'}
@@ -110,7 +110,7 @@ function WorkspaceSwitcher({ compact = false }: { compact?: boolean }) {
         }}
       >
         {active && <option value={active.id}>{active.label}</option>}
-        <option value="current">{user?.role === "parent" ? (active ? "≡ƒÅí Vß╗ü t├ái khoß║ún Ba/Mß║╣" : "T├ái khoß║ún Ba/Mß║╣") : "T├ái khoß║ún c├í nh├ón"}</option>
+        <option value="current">{user?.role === "parent" ? (active ? "🏡 Về tài khoản Ba/Mẹ" : "Tài khoản Ba/Mẹ") : "Tài khoản cá nhân"}</option>
         {access?.contexts
           .filter((c) => c.id !== active?.id)
           .map((context) => (
@@ -123,33 +123,33 @@ function WorkspaceSwitcher({ compact = false }: { compact?: boolean }) {
   )
 }
 
-// ΓöÇΓöÇ Student nav split: pinned bar + drawer ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Student nav split: pinned bar + drawer ───────────────────
 const studentPinnedNav = [
-  { to: '/home',        label: 'Nh├á',     icon: NavHomeIcon        },
-  { to: '/world',       label: 'Hß╗ìc',     icon: NavWorldIcon       },
-  { to: '/creative',    label: 'X╞░ß╗ƒng',   icon: NavCreativeIcon    },
-  { to: '/leaderboard', label: 'Tiß║┐n bß╗Ö', icon: NavLeaderboardIcon },
+  { to: '/home',        label: 'Nhà',     icon: NavHomeIcon        },
+  { to: '/world',       label: 'Học',     icon: NavWorldIcon       },
+  { to: '/creative',    label: 'Xưởng',   icon: NavCreativeIcon    },
+  { to: '/leaderboard', label: 'Tiến bộ', icon: NavLeaderboardIcon },
 ]
 const studentDrawerNav = [
-  { to: '/achievements', label: 'Huy hiß╗çu', icon: NavBadgeIcon   },
-  { to: '/backpack',     label: 'Ba l├┤',    icon: NavBackpackIcon },
-  { to: '/profile',      label: 'Hß╗ô s╞í',    icon: NavProfileIcon },
+  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon   },
+  { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon },
+  { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon },
 ]
 // Full list for desktop sidebar (all 7 unchanged)
 const studentNav = [
-  { to: '/home',         label: 'Nh├á',      icon: NavHomeIcon        },
-  { to: '/world',        label: 'Hß╗ìc',      icon: NavWorldIcon       },
-  { to: '/creative',     label: 'X╞░ß╗ƒng',    icon: NavCreativeIcon    },
-  { to: '/leaderboard',  label: 'Tiß║┐n bß╗Ö',  icon: NavLeaderboardIcon },
-  { to: '/achievements', label: 'Huy hiß╗çu', icon: NavBadgeIcon       },
-  { to: '/backpack',     label: 'Ba l├┤',    icon: NavBackpackIcon    },
-  { to: '/profile',      label: 'Hß╗ô s╞í',    icon: NavProfileIcon     },
+  { to: '/home',         label: 'Nhà',      icon: NavHomeIcon        },
+  { to: '/world',        label: 'Học',      icon: NavWorldIcon       },
+  { to: '/creative',     label: 'Xưởng',    icon: NavCreativeIcon    },
+  { to: '/leaderboard',  label: 'Tiến bộ',  icon: NavLeaderboardIcon },
+  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon       },
+  { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon    },
+  { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon     },
 ]
 
-// ΓöÇΓöÇ Desktop sidebar nav (vertical) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Desktop sidebar nav (vertical) ───────────────────────────
 function DesktopSideNav({ nav }: { nav: RoleNavItem[] }) {
   return (
-    <nav className="role-nav" aria-label="─Éiß╗üu h╞░ß╗¢ng khu vß╗▒c">
+    <nav className="role-nav" aria-label="Điều hướng khu vực">
       {nav.map(({ to, label, icon: Icon, end }) => (
         <NavLink
           key={to}
@@ -169,7 +169,7 @@ function DesktopSideNav({ nav }: { nav: RoleNavItem[] }) {
   )
 }
 
-// ΓöÇΓöÇ Adult bottom nav item ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Adult bottom nav item ─────────────────────────────────────
 function AdultBottomLink({
   to,
   label,
@@ -193,7 +193,7 @@ function AdultBottomLink({
   )
 }
 
-// ΓöÇΓöÇ Student bottom drawer (Huy hiß╗çu / Ba l├┤ / Hß╗ô s╞í) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Student bottom drawer (Huy hiệu / Ba lô / Hồ sơ) ───────────
 function StudentDrawer() {
   const [open, setOpen] = useState(false)
 
@@ -215,7 +215,7 @@ function StudentDrawer() {
         />
       )}
 
-      {/* Drawer sheet ΓÇö slide up */}
+      {/* Drawer sheet — slide up */}
       <div
         className={cn(
           'student-drawer-sheet',
@@ -223,11 +223,11 @@ function StudentDrawer() {
         )}
         role="dialog"
         aria-modal="true"
-        aria-label="Bß╗Ö s╞░u tß║¡p cß╗ºa con"
+        aria-label="Bộ sưu tập của con"
       >
         <div className="student-drawer-handle" aria-hidden="true" />
-        <p className="student-drawer-title">Γ£¿ Bß╗Ö s╞░u tß║¡p cß╗ºa con</p>
-        <nav className="student-drawer-grid" aria-label="Bß╗Ö s╞░u tß║¡p">
+        <p className="student-drawer-title">✨ Bộ sưu tập của con</p>
+        <nav className="student-drawer-grid" aria-label="Bộ sưu tập">
           {studentDrawerNav.map(({ to, label, icon: Icon }) => (
             <NavLink
               key={to}
@@ -249,7 +249,7 @@ function StudentDrawer() {
       {/* Pinned bottom bar */}
       <nav
         className="student-bottom-nav"
-        aria-label="─Éiß╗üu h╞░ß╗¢ng ch├¡nh"
+        aria-label="Điều hướng chính"
       >
         {studentPinnedNav.map(({ to, label, icon: Icon }) => (
           <NavLink
@@ -274,7 +274,7 @@ function StudentDrawer() {
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
-          aria-label={open ? '─É├│ng bß╗Ö s╞░u tß║¡p' : 'Mß╗ƒ bß╗Ö s╞░u tß║¡p'}
+          aria-label={open ? 'Đóng bộ sưu tập' : 'Mở bộ sưu tập'}
           className={cn(
             'student-nav-link min-h-[3.75rem] flex-1 gap-0 rounded-xl px-0.5 py-1 text-[10px]',
             (open || anyDrawerActive) && 'student-nav-link-active',
@@ -282,7 +282,7 @@ function StudentDrawer() {
         >
           <span className="student-nav-icon !h-8 !w-9 !rounded-xl" aria-hidden="true">
             {open ? (
-              // ├ù when open
+              // × when open
               <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
                 <line x1="6" y1="6" x2="16" y2="16" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
                 <line x1="16" y1="6" x2="6" y2="16" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
@@ -296,14 +296,14 @@ function StudentDrawer() {
               </svg>
             )}
           </span>
-          {open ? '─É├│ng' : 'Kh├íc'}
+          {open ? 'Đóng' : 'Khác'}
         </button>
       </nav>
     </>
   )
 }
 
-// ΓöÇΓöÇ Admin drawer (Γèò button opens full menu overlay) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Admin drawer (⊕ button opens full menu overlay) ──────────
 function AdminDrawer({
   nav,
   pinnedNav,
@@ -334,14 +334,14 @@ function AdminDrawer({
         )}
         role="dialog"
         aria-modal="true"
-        aria-label="Tß║Ñt cß║ú tiß╗çn ├¡ch quß║ún trß╗ï"
+        aria-label="Tất cả tiện ích quản trị"
       >
         {/* Handle bar */}
         <div className="admin-drawer-handle" aria-hidden="true" />
 
-        <p className="admin-drawer-title">Tiß╗çn ├¡ch quß║ún trß╗ï</p>
+        <p className="admin-drawer-title">Tiện ích quản trị</p>
 
-        <nav className="admin-drawer-grid" aria-label="─Éiß╗üu h╞░ß╗¢ng quß║ún trß╗ï">
+        <nav className="admin-drawer-grid" aria-label="Điều hướng quản trị">
           {nav.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
@@ -361,21 +361,21 @@ function AdminDrawer({
         </nav>
       </div>
 
-      {/* Bottom bar: pinned items + Γèò toggle */}
+      {/* Bottom bar: pinned items + ⊕ toggle */}
       <nav
         className={cn('adult-bottom-nav', `adult-bottom-nav-${tone}`)}
-        aria-label="─Éiß╗üu h╞░ß╗¢ng ch├¡nh"
+        aria-label="Điều hướng chính"
       >
         {pinnedNav.map((item) => (
           <AdultBottomLink key={item.to} {...item} tone={tone} />
         ))}
 
-        {/* Γèò More button */}
+        {/* ⊕ More button */}
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-expanded={open}
-          aria-label={open ? '─É├│ng menu' : 'Mß╗ƒ tß║Ñt cß║ú tiß╗çn ├¡ch'}
+          aria-label={open ? 'Đóng menu' : 'Mở tất cả tiện ích'}
           className={cn('adult-bottom-more', open && 'adult-bottom-more-open')}
         >
           <span className="adult-bottom-icon" aria-hidden="true">
@@ -393,14 +393,14 @@ function AdminDrawer({
               />
             </svg>
           </span>
-          <span>{open ? '─É├│ng' : 'Th├¬m'}</span>
+          <span>{open ? 'Đóng' : 'Thêm'}</span>
         </button>
       </nav>
     </>
   )
 }
 
-// ΓöÇΓöÇ Simple adult bottom nav (parent / teacher) ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── Simple adult bottom nav (parent / teacher) ────────────────
 function AdultBottomNav({
   nav,
   tone,
@@ -411,7 +411,7 @@ function AdultBottomNav({
   return (
     <nav
       className={cn('adult-bottom-nav', `adult-bottom-nav-${tone}`)}
-      aria-label="─Éiß╗üu h╞░ß╗¢ng ch├¡nh"
+      aria-label="Điều hướng chính"
     >
       {nav.map((item) => (
         <AdultBottomLink key={item.to} {...item} tone={tone} />
@@ -420,7 +420,7 @@ function AdultBottomNav({
   )
 }
 
-// ΓöÇΓöÇ CmsShell: Teacher / Admin ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── CmsShell: Teacher / Admin ─────────────────────────────────
 function CmsShell({
   nav,
   pinnedNav,
@@ -441,7 +441,7 @@ function CmsShell({
       {/* Desktop sidebar */}
       <aside className="role-rail fixed inset-y-0 left-0 z-30 hidden w-60 flex-col md:flex">
         <div className="role-brand">
-          <NavLink to={brandTo} aria-label={`Trang ch├¡nh ${roleLabel}`}>
+          <NavLink to={brandTo} aria-label={`Trang chính ${roleLabel}`}>
             <BrandLogo size="md" />
           </NavLink>
           <p>{roleLabel}</p>
@@ -452,7 +452,7 @@ function CmsShell({
 
       {/* Mobile top bar (brand only, no nav) */}
       <header className="role-mobile-topbar md:hidden">
-        <NavLink to={brandTo} aria-label={`Trang ch├¡nh ${roleLabel}`}>
+        <NavLink to={brandTo} aria-label={`Trang chính ${roleLabel}`}>
           <BrandLogo size="sm" />
         </NavLink>
         <span className="role-mobile-topbar-label flex-1">{roleLabel}</span>
@@ -461,7 +461,7 @@ function CmsShell({
         </div>
       </header>
 
-      {/* Main content ΓÇö extra bottom padding so bottom nav doesn't cover content */}
+      {/* Main content — extra bottom padding so bottom nav doesn't cover content */}
       <main className="page-enter mx-auto min-w-0 max-w-[1440px] px-3 py-5 pb-[max(5.5rem,calc(5rem+env(safe-area-inset-bottom,0px)))] sm:px-5 md:pb-6">
         <Outlet />
       </main>
@@ -478,7 +478,7 @@ function CmsShell({
   )
 }
 
-// ΓöÇΓöÇ AdultChrome: Parent ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── AdultChrome: Parent ───────────────────────────────────────
 function AdultChrome({
   nav,
   brandTo,
@@ -491,10 +491,10 @@ function AdultChrome({
       {/* Desktop sidebar */}
       <aside className="role-rail fixed inset-y-0 left-0 z-30 hidden w-60 flex-col lg:flex">
         <div className="role-brand">
-          <NavLink to={brandTo} aria-label="Trang ch├¡nh phß╗Ñ huynh">
+          <NavLink to={brandTo} aria-label="Trang chính phụ huynh">
             <BrandLogo size="md" />
           </NavLink>
-          <p>G├│c phß╗Ñ huynh</p>
+          <p>Góc phụ huynh</p>
         </div>
         <DesktopSideNav nav={nav} />
         <WorkspaceSwitcher />
@@ -502,10 +502,10 @@ function AdultChrome({
 
       {/* Mobile top bar */}
       <header className="role-mobile-topbar lg:hidden">
-        <NavLink to={brandTo} aria-label="Trang ch├¡nh phß╗Ñ huynh">
+        <NavLink to={brandTo} aria-label="Trang chính phụ huynh">
           <BrandLogo size="sm" />
         </NavLink>
-        <span className="role-mobile-topbar-label flex-1">Phß╗Ñ huynh</span>
+        <span className="role-mobile-topbar-label flex-1">Phụ huynh</span>
         <div className="w-[5rem]">
           <WorkspaceSwitcher compact />
         </div>
@@ -524,7 +524,7 @@ function AdultChrome({
   )
 }
 
-// ΓöÇΓöÇ AppShell root ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+// ── AppShell root ─────────────────────────────────────────────
 export function AppShell() {
   const user = useAuth((s) => s.user)
   const activeContext = useAuth((s) => s.activeContext)
@@ -535,12 +535,12 @@ export function AppShell() {
       <AdultChrome
         brandTo="/parent"
         nav={[
-          { to: '/kids', label: 'Cho con hß╗ìc', icon: NavWorldIcon },
-          { to: '/parent', label: 'Tß╗òng quan', icon: ParentDashboardIcon, end: true },
-          { to: '/parent/kids', label: 'Con cß╗ºa t├┤i', icon: ParentKidsIcon },
-          { to: '/parent/plan', label: 'G├│i hß╗ìc', icon: ParentPlanIcon },
-          { to: '/parent/approvals', label: 'Chß╗¥ duyß╗çt', icon: ParentApprovalIcon },
-          { to: '/parent/profile', label: 'Hß╗ô s╞í', icon: ParentProfileIcon },
+          { to: '/kids', label: 'Cho con học', icon: NavWorldIcon },
+          { to: '/parent', label: 'Tổng quan', icon: ParentDashboardIcon, end: true },
+          { to: '/parent/kids', label: 'Con của tôi', icon: ParentKidsIcon },
+          { to: '/parent/plan', label: 'Gói học', icon: ParentPlanIcon },
+          { to: '/parent/approvals', label: 'Chờ duyệt', icon: ParentApprovalIcon },
+          { to: '/parent/profile', label: 'Hồ sơ', icon: ParentProfileIcon },
         ]}
       />
     )
@@ -553,11 +553,11 @@ export function AppShell() {
         roleLabel={activeContext.label}
         tone="teacher"
         nav={[
-          { to: '/organization', label: 'Tß╗òng quan', icon: CmsOverviewIcon, end: true },
-          { to: '/teacher', label: 'Lß╗¢p hß╗ìc', icon: CmsClassesIcon },
-          { to: '/teacher/courses', label: 'Kh├│a hß╗ìc', icon: CmsCoursesIcon },
-          { to: '/teacher/lectures', label: 'B├ái giß║úng', icon: CmsLecturesIcon },
-          { to: '/teacher/stats', label: 'Thß╗æng k├¬', icon: CmsAnalyticsIcon },
+          { to: '/organization', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
+          { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon },
+          { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
+          { to: '/teacher/lectures', label: 'Bài giảng', icon: CmsLecturesIcon },
+          { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
         ]}
       />
     )
@@ -567,13 +567,13 @@ export function AppShell() {
     return (
       <CmsShell
         brandTo="/teacher"
-        roleLabel="Gi├ío vi├¬n"
+        roleLabel="Giáo viên"
         tone="teacher"
         nav={[
-          { to: '/teacher', label: 'Lß╗¢p hß╗ìc', icon: CmsClassesIcon, end: true },
-          { to: '/teacher/courses', label: 'Kh├│a hß╗ìc', icon: CmsCoursesIcon },
-          { to: '/teacher/lectures', label: 'B├ái giß║úng', icon: CmsLecturesIcon },
-          { to: '/teacher/stats', label: 'Thß╗æng k├¬', icon: CmsAnalyticsIcon },
+          { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon, end: true },
+          { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
+          { to: '/teacher/lectures', label: 'Bài giảng', icon: CmsLecturesIcon },
+          { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
         ]}
       />
     )
@@ -581,25 +581,25 @@ export function AppShell() {
 
   if (user?.role === 'admin') {
     const allNav: RoleNavItem[] = [
-      { to: '/admin', label: 'Tß╗òng quan', icon: CmsOverviewIcon, end: true },
-      { to: '/admin/analytics', label: 'Ph├ón t├¡ch', icon: CmsAnalyticsIcon },
-      { to: '/admin/logs', label: 'Nhß║¡t k├╜', icon: CmsLogsIcon },
-      { to: '/admin/users', label: 'T├ái khoß║ún', icon: CmsUsersIcon },
-      { to: '/admin/sessions', label: 'Phi├¬n', icon: CmsSessionsIcon },
-      { to: '/admin/courses', label: 'Kh├│a hß╗ìc', icon: CmsCoursesIcon },
+      { to: '/admin', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
+      { to: '/admin/analytics', label: 'Phân tích', icon: CmsAnalyticsIcon },
+      { to: '/admin/logs', label: 'Nhật ký', icon: CmsLogsIcon },
+      { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
+      { to: '/admin/sessions', label: 'Phiên', icon: CmsSessionsIcon },
+      { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
       { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
-      { to: '/teacher', label: 'Gi├ío vi├¬n', icon: CmsClassesIcon },
+      { to: '/teacher', label: 'Giáo viên', icon: CmsClassesIcon },
     ]
     // Show only the most-used items in the pinned bar; the rest live in the drawer
     const pinnedNav: RoleNavItem[] = [
-      { to: '/admin', label: 'Tß╗òng quan', icon: CmsOverviewIcon, end: true },
-      { to: '/admin/users', label: 'T├ái khoß║ún', icon: CmsUsersIcon },
-      { to: '/admin/logs', label: 'Nhß║¡t k├╜', icon: CmsLogsIcon },
+      { to: '/admin', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
+      { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
+      { to: '/admin/logs', label: 'Nhật ký', icon: CmsLogsIcon },
     ]
     return (
       <CmsShell
         brandTo="/admin"
-        roleLabel="Quß║ún trß╗ï"
+        roleLabel="Quản trị"
         tone="admin"
         nav={allNav}
         pinnedNav={pinnedNav}
@@ -617,7 +617,7 @@ export function AppShell() {
         <NavLink
           to="/home"
           className="mb-3 flex w-full items-center justify-center px-2"
-          aria-label="Vß╗ü trang nh├á"
+          aria-label="Về trang nhà"
         >
           <BrandLogo size="md" className="max-w-[4.75rem]" />
         </NavLink>
@@ -643,12 +643,12 @@ export function AppShell() {
           <button
             type="button"
             onClick={() => setGateOpen(true)}
-            aria-label="Gß╗ìi ba mß║╣"
-            title="Ba/Mß║╣ ╞íi!"
+            aria-label="Gọi ba mẹ"
+            title="Ba/Mẹ ơi!"
             className="mt-auto flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-extrabold text-amber-500 transition-all hover:scale-105 hover:bg-amber-50"
           >
-            <span className="text-2xl leading-none" aria-hidden="true">≡ƒöÆ</span>
-            <span>Ba/Mß║╣</span>
+            <span className="text-2xl leading-none" aria-hidden="true">🔒</span>
+            <span>Ba/Mẹ</span>
           </button>
         )}
         
@@ -659,10 +659,10 @@ export function AppShell() {
           <button
             type="button"
             onClick={() => setGateOpen(true)}
-            aria-label="Gß╗ìi ba mß║╣"
+            aria-label="Gọi ba mẹ"
             className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-xl shadow-sm transition hover:bg-amber-100 md:hidden"
           >
-            <span aria-hidden="true">≡ƒöÆ</span>
+            <span aria-hidden="true">🔒</span>
           </button>
         )}
         <NotificationBell />
@@ -678,7 +678,7 @@ export function AppShell() {
         </main>
       )}
 
-      {/* Mobile student bottom nav ΓÇö StudentDrawer handles pinned bar + sheet */}
+      {/* Mobile student bottom nav — StudentDrawer handles pinned bar + sheet */}
       <div className="md:hidden">
         <StudentDrawer />
       </div>

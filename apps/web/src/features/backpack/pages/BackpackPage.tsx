@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '@/shared/lib/api'
 import { Button } from '@/shared/components/ui/Button'
@@ -49,7 +49,7 @@ function MediaThumbnail({
   if (!isImgUrl(src) || failed) {
     return (
       <div className={`${className} flex items-center justify-center bg-brand-50 text-3xl`}>
-        {kind === 'comic' ? '≡ƒû╝∩╕Å' : kind === 'story' ? '≡ƒôû' : '≡ƒÄ¿'}
+        {kind === 'comic' ? '🖼️' : kind === 'story' ? '📖' : '🎨'}
       </div>
     )
   }
@@ -74,7 +74,7 @@ export function BackpackPage() {
       setAssets(a.status === 'fulfilled' ? a.value.assets : [])
       setProjects(p.status === 'fulfilled' ? p.value.projects : [])
       if (a.status === 'rejected' && p.status === 'rejected') {
-        setError('Ba l├┤ ─æang ─æ╞░ß╗úc kß║┐t nß╗æi vß╗¢i kho media StoryMee.')
+        setError('Ba lô đang được kết nối với kho media StoryMee.')
       }
     } finally {
       setLoading(false)
@@ -91,10 +91,10 @@ export function BackpackPage() {
         method: 'POST',
         body: JSON.stringify({ destination: 'family' }),
       })
-      setMsg('─É├ú gß╗¡i ba/mß║╣ duyß╗çt chia sß║╗!')
+      setMsg('Đã gửi ba/mẹ duyệt chia sẻ!')
       await load()
     } catch (e) {
-      setMsg(e instanceof Error ? e.message : 'Lß╗ùi')
+      setMsg(e instanceof Error ? e.message : 'Lỗi')
     }
   }
 
@@ -105,10 +105,10 @@ export function BackpackPage() {
   return (
     <PageMotion className="flex flex-col gap-6">
       <div>
-        <h1 className="font-display text-3xl">Ba l├┤ s├íng tß║ío</h1>
+        <h1 className="font-display text-3xl">Ba lô sáng tạo</h1>
         <p className="text-muted">
-          Ba l├┤ l╞░u nhß╗»ng sß║ún phß║⌐m con ─æ├ú tß║ío trong b├ái hß╗ìc ΓÇö mß║╖c ─æß╗ïnh chß╗ë con xem.
-          t├╣y ├╜ tß╗½ m├íy.
+          Ba lô lưu những sản phẩm con đã tạo trong bài học — mặc định chỉ con xem.
+          tùy ý từ máy.
         </p>
       </div>
       {msg && (
@@ -117,16 +117,16 @@ export function BackpackPage() {
       {error && <ErrorState message={error} onRetry={() => void load()} inline />}
 
       <section>
-        <h2 className="font-display mb-3 text-2xl">Vß║¡t phß║⌐m tß╗½ b├ái hß╗ìc</h2>
+        <h2 className="font-display mb-3 text-2xl">Vật phẩm từ bài học</h2>
         {assets.length === 0 ? (
           <EmptyState
             compact
-            title="Ba l├┤ c├▓n trß╗æng"
-            description="Ho├án th├ánh trß║ím vß║╜, gen ß║únh hoß║╖c truyß╗çn tranh ─æß╗â nhß║¡n vß║¡t phß║⌐m nh├⌐!"
+            title="Ba lô còn trống"
+            description="Hoàn thành trạm vẽ, gen ảnh hoặc truyện tranh để nhận vật phẩm nhé!"
             imageSrc={designerAssets.lobby.cardArt}
             action={
               <Link to="/world">
-                <Button variant="secondary">─Éi hß╗ìc tiß║┐p</Button>
+                <Button variant="secondary">Đi học tiếp</Button>
               </Link>
             }
           />
@@ -144,7 +144,7 @@ export function BackpackPage() {
                 <p className="mt-2 truncate text-sm font-extrabold">{a.name}</p>
                 <p className="text-xs text-muted">
                   {a.type}
-                  {a.questId ? ' ┬╖ tß╗½ b├ái hß╗ìc' : ''}
+                  {a.questId ? ' · từ bài học' : ''}
                 </p>
               </div>
             ))}
@@ -153,16 +153,16 @@ export function BackpackPage() {
       </section>
 
       <section>
-        <h2 className="font-display mb-3 text-2xl">T├íc phß║⌐m</h2>
+        <h2 className="font-display mb-3 text-2xl">Tác phẩm</h2>
         {projects.length === 0 ? (
           <EmptyState
             compact
-            title="Ch╞░a c├│ t├íc phß║⌐m"
-            description="L├ám truyß╗çn ß╗ƒ trß║ím Comic ─æß╗â c├│ t├íc phß║⌐m trong ba l├┤!"
+            title="Chưa có tác phẩm"
+            description="Làm truyện ở trạm Comic để có tác phẩm trong ba lô!"
             imageSrc={designerAssets.workshop.comic}
             action={
               <Link to="/home">
-                <Button variant="secondary">Chß╗ìn kh├│a hß╗ìc</Button>
+                <Button variant="secondary">Chọn khóa học</Button>
               </Link>
             }
           />
@@ -178,7 +178,7 @@ export function BackpackPage() {
                 <div className="min-w-0 flex-1">
                   <p className="font-extrabold">{p.title}</p>
                   <p className="text-xs text-muted">
-                    {p.kind} ┬╖ {p.shareStatus}
+                    {p.kind} · {p.shareStatus}
                   </p>
                   {p.content && (
                     <p className="mt-1 line-clamp-2 text-xs text-muted">{p.content}</p>
@@ -189,7 +189,7 @@ export function BackpackPage() {
                       variant="secondary"
                       onClick={() => void requestShare(p.id)}
                     >
-                      Xin ba/mß║╣ chia sß║╗
+                      Xin ba/mẹ chia sẻ
                     </Button>
                   )}
                 </div>

@@ -1,4 +1,4 @@
-﻿import { api } from './api'
+import { api } from './api'
 
 /**
  * Promote a course-created asset to Vidtory media (not free photo upload).

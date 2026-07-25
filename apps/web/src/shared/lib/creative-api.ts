@@ -1,4 +1,4 @@
-﻿import { api, fetchRemoteBlob, openAuthorizedStream } from './api'
+import { api, fetchRemoteBlob, openAuthorizedStream } from './api'
 
 type Job = {
   id?: string
@@ -24,7 +24,7 @@ async function defaultWorkspace(): Promise<string> {
     },
   )
   const id = created.ipId ?? created.id
-  if (!id) throw new Error('Kh├┤ng tß║ío ─æ╞░ß╗úc kh├┤ng gian s├íng tß║ío StoryMee.')
+  if (!id) throw new Error('Không tạo được không gian sáng tạo StoryMee.')
   return id
 }
 
@@ -52,13 +52,13 @@ async function waitForJob(jobId: string): Promise<Job> {
     const status = String(job.status ?? '').toLowerCase()
     if (['done', 'success', 'completed'].includes(status)) return job
     if (['failed', 'error', 'cancelled', 'canceled'].includes(status)) {
-      throw new Error(job.errorMessage || 'StoryMee kh├┤ng ho├án th├ánh ─æ╞░ß╗úc nß╗Öi dung.')
+      throw new Error(job.errorMessage || 'StoryMee không hoàn thành được nội dung.')
     }
     await new Promise((resolve) =>
       window.setTimeout(resolve, delays[Math.min(attempt, delays.length - 1)]),
     )
   }
-  throw new Error('StoryMee ─æang xß╗¡ l├╜ l├óu h╞ín dß╗▒ kiß║┐n. Thß╗¡ lß║íi sau nh├⌐.')
+  throw new Error('StoryMee đang xử lý lâu hơn dự kiến. Thử lại sau nhé.')
 }
 
 async function waitForJobStream(jobId: string): Promise<Job> {
@@ -69,14 +69,14 @@ async function waitForJobStream(jobId: string): Promise<Job> {
       `/api/v1/jobs/${encodeURIComponent(jobId)}/events`,
       controller.signal,
     )
-    if (!response.body) throw new Error('Tr├¼nh duyß╗çt kh├┤ng hß╗ù trß╗ú luß╗ông trß║íng th├íi.')
+    if (!response.body) throw new Error('Trình duyệt không hỗ trợ luồng trạng thái.')
 
     const reader = response.body.getReader()
     const decoder = new TextDecoder()
     let buffer = ''
     while (true) {
       const { value, done } = await reader.read()
-      if (done) throw new Error('Luß╗ông trß║íng th├íi ─æ├ú ─æ├│ng tr╞░ß╗¢c khi job ho├án tß║Ñt.')
+      if (done) throw new Error('Luồng trạng thái đã đóng trước khi job hoàn tất.')
       buffer += decoder.decode(value, { stream: true })
       const frames = buffer.split(/\r?\n\r?\n/)
       buffer = frames.pop() ?? ''
@@ -94,7 +94,7 @@ async function waitForJobStream(jobId: string): Promise<Job> {
           return job
         }
         if (['failed', 'error', 'cancelled', 'canceled'].includes(status)) {
-          throw new Error(job.errorMessage || 'StoryMee kh├┤ng ho├án th├ánh ─æ╞░ß╗úc nß╗Öi dung.')
+          throw new Error(job.errorMessage || 'StoryMee không hoàn thành được nội dung.')
         }
       }
     }
@@ -114,7 +114,7 @@ async function createJob(
     body: JSON.stringify({ jobType, ipId, inputParams }),
   })
   const id = created.id ?? created.jobId
-  if (!id) throw new Error('Kh├┤ng nhß║¡n ─æ╞░ß╗úc Job ID tß╗½ StoryMee.')
+  if (!id) throw new Error('Không nhận được Job ID từ StoryMee.')
   return waitForJob(id)
 }
 
@@ -153,14 +153,14 @@ export async function generateCreativeImage(input: {
       : {}),
   })
   const url = outputUrls(job.outputUrls)[0]
-  if (!url) throw new Error('StoryMee ch╞░a trß║ú vß╗ü ß║únh.')
+  if (!url) throw new Error('StoryMee chưa trả về ảnh.')
   return url
 }
 
 export async function generateCreativeStory(prompt: string): Promise<string> {
   const job = await createJob('llm', { prompt })
   const text = String(job.inputParams?.outputText ?? '').trim()
-  if (!text) throw new Error('StoryMee ch╞░a trß║ú vß╗ü nß╗Öi dung truyß╗çn.')
+  if (!text) throw new Error('StoryMee chưa trả về nội dung truyện.')
   return text
 }
 

@@ -1,4 +1,4 @@
-﻿import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import {
   ArrowRight,
   Brush,
@@ -63,9 +63,9 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
   const startPos = useRef({ x: 0, y: 0 })
   const backupData = useRef<ImageData | null>(null)
 
-  const styleName = ART_STYLES.find((s) => s.id === selectedStyle)?.label ?? 'M├áu N╞░ß╗¢c'
+  const styleName = ART_STYLES.find((s) => s.id === selectedStyle)?.label ?? 'Màu Nước'
 
-  // ΓöÇΓöÇ Canvas init ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ── Canvas init ──────────────────────────────────────────────
   useEffect(() => {
     const canvas = canvasRef.current
     const container = containerRef.current
@@ -79,7 +79,7 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
     ctx.fillRect(0, 0, canvas.width, canvas.height)
   }, [])
 
-  // ΓöÇΓöÇ Helpers ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ── Helpers ──────────────────────────────────────────────────
   function getCtx() {
     return canvasRef.current?.getContext('2d') ?? null
   }
@@ -135,7 +135,7 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
     ctx.fillRect(0, 0, canvas.width, canvas.height)
   }
 
-  // ΓöÇΓöÇ Pointer events ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ── Pointer events ───────────────────────────────────────────
   function getCoords(e: React.PointerEvent<HTMLCanvasElement>) {
     const rect = canvasRef.current!.getBoundingClientRect()
     return { x: e.clientX - rect.left, y: e.clientY - rect.top }
@@ -217,7 +217,7 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
     backupData.current = null
   }
 
-  // ΓöÇΓöÇ Flood fill ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ── Flood fill ───────────────────────────────────────────────
   function floodFill(startX: number, startY: number, fillHex: string) {
     const canvas = canvasRef.current
     const ctx = getCtx()
@@ -248,7 +248,7 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
     ctx.putImageData(imgData, 0, 0)
   }
 
-  // ΓöÇΓöÇ Upload ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ── Upload ───────────────────────────────────────────────────
   function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
     if (!file) return
@@ -273,7 +273,7 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
     e.target.value = ''
   }
 
-  // ΓöÇΓöÇ AI generate ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ── AI generate ──────────────────────────────────────────────
   const generateAI = useCallback(async () => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -290,11 +290,11 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
       setAiState('done')
     } catch (err) {
       setAiState('error')
-      setAiError(err instanceof Error ? err.message : 'Lß╗ùi kh├┤ng x├íc ─æß╗ïnh')
+      setAiError(err instanceof Error ? err.message : 'Lỗi không xác định')
     }
   }, [selectedStyle])
 
-  // ΓöÇΓöÇ Save to backpack ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ── Save to backpack ─────────────────────────────────────────
   async function saveToBackpack() {
     if (!aiUrl) return
     setSaving(true)
@@ -305,13 +305,13 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
       })
       onSaved(aiUrl)
     } catch (err) {
-      setAiError(err instanceof Error ? err.message : 'Ch╞░a l╞░u ─æ╞░ß╗úc')
+      setAiError(err instanceof Error ? err.message : 'Chưa lưu được')
     } finally {
       setSaving(false)
     }
   }
 
-  // ΓöÇΓöÇ Download ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ── Download ─────────────────────────────────────────────────
   async function download() {
     if (!aiUrl) return
     try {
@@ -326,20 +326,20 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
     }
   }
 
-  // ΓöÇΓöÇ Toolbar items ΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇΓöÇ
+  // ── Toolbar items ────────────────────────────────────────────
   const tools = [
-    { id: 'brush' as Tool, icon: <Brush size={18} />, label: 'B├║t vß║╜' },
-    { id: 'eraser' as Tool, icon: <Eraser size={18} />, label: 'Tß║⌐y' },
-    { id: 'bucket' as Tool, icon: <PaintBucket size={18} />, label: 'T├┤ m├áu' },
-    { id: 'rect' as Tool, icon: <Square size={18} />, label: 'H├¼nh vu├┤ng' },
-    { id: 'circle' as Tool, icon: <Circle size={18} />, label: 'H├¼nh tr├▓n' },
-    { id: 'eyedropper' as Tool, icon: <Pipette size={18} />, label: 'H├║t m├áu' },
+    { id: 'brush' as Tool, icon: <Brush size={18} />, label: 'Bút vẽ' },
+    { id: 'eraser' as Tool, icon: <Eraser size={18} />, label: 'Tẩy' },
+    { id: 'bucket' as Tool, icon: <PaintBucket size={18} />, label: 'Tô màu' },
+    { id: 'rect' as Tool, icon: <Square size={18} />, label: 'Hình vuông' },
+    { id: 'circle' as Tool, icon: <Circle size={18} />, label: 'Hình tròn' },
+    { id: 'eyedropper' as Tool, icon: <Pipette size={18} />, label: 'Hút màu' },
   ]
 
   return (
-    // overflow:hidden required ΓÇö parent must have known height for h-full to work (CSS spec)
+    // overflow:hidden required — parent must have known height for h-full to work (CSS spec)
     <div className="flex h-full flex-col overflow-hidden">
-      {/* ΓöÇΓöÇ Top header bar ΓöÇΓöÇ */}
+      {/* ── Top header bar ── */}
       <div className="w-full max-w-[1440px] mx-auto px-1 pt-2 sm:pt-3 shrink-0">
         <div className="flex items-center justify-between gap-3 rounded-2xl border border-border/80 bg-white px-4 py-2.5 shadow-sm">
           <button
@@ -347,20 +347,20 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
             onClick={() => onBack('style')}
             className="text-xs sm:text-sm font-extrabold text-brand-600 hover:text-brand-700 transition hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-200"
           >
-            ΓåÉ Chß╗ìn phong c├ích
+            ← Chọn phong cách
           </button>
           <span className="text-xs sm:text-sm font-extrabold text-text">
-            Vß║╜ tranh ┬╖ <span className="text-brand-600 font-black">{styleName}</span>
+            Vẽ tranh · <span className="text-brand-600 font-black">{styleName}</span>
           </span>
         </div>
       </div>
 
-      {/* ΓöÇΓöÇ Main workspace grid: max-w-[1440px] aligned with AppShell layout ΓöÇΓöÇ */}
+      {/* ── Main workspace grid: max-w-[1440px] aligned with AppShell layout ── */}
       <div className="mx-auto flex w-full max-w-[1440px] min-h-0 flex-1 flex-col p-2 sm:p-3">
         <div className="grid min-h-0 flex-1 w-full gap-3 sm:gap-4 lg:grid-cols-2">
-        {/* ΓöÇΓöÇ Left: Drawing panel ΓöÇΓöÇ */}
+        {/* ── Left: Drawing panel ── */}
         <div className="ui-card flex min-h-0 flex-col overflow-hidden">
-          {/* Compact toolbar ΓÇö single row */}
+          {/* Compact toolbar — single row */}
           <div className="flex items-center gap-2 border-b border-border px-2 py-1.5 flex-wrap">
             {/* Tool buttons */}
             <div className="flex gap-1">
@@ -386,19 +386,19 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
 
             {/* History + upload */}
             <div className="flex gap-1">
-              <button type="button" onClick={undo} disabled={undoStack.length === 0} aria-label="Ho├án t├íc"
+              <button type="button" onClick={undo} disabled={undoStack.length === 0} aria-label="Hoàn tác"
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white text-muted transition hover:border-brand-300 disabled:opacity-40">
                 <RotateCcw size={14} />
               </button>
-              <button type="button" onClick={redo} disabled={redoStack.length === 0} aria-label="L├ám lß║íi"
+              <button type="button" onClick={redo} disabled={redoStack.length === 0} aria-label="Làm lại"
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white text-muted transition hover:border-brand-300 disabled:opacity-40">
                 <RotateCw size={14} />
               </button>
-              <button type="button" onClick={clearCanvas} aria-label="X├│a sß║ích"
+              <button type="button" onClick={clearCanvas} aria-label="Xóa sạch"
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white text-danger transition hover:border-danger">
                 <Trash2 size={14} />
               </button>
-              <button type="button" onClick={() => fileRef.current?.click()} aria-label="Tß║úi ß║únh l├¬n"
+              <button type="button" onClick={() => fileRef.current?.click()} aria-label="Tải ảnh lên"
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white text-muted transition hover:border-brand-300">
                 <Upload size={14} />
               </button>
@@ -411,7 +411,7 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
                   key={c}
                   type="button"
                   onClick={() => setColor(c)}
-                  aria-label={`M├áu ${c}`}
+                  aria-label={`Màu ${c}`}
                   className={cn(
                     'h-5 w-5 rounded-full border-2 transition',
                     color === c ? 'border-text scale-125' : 'border-white hover:scale-110',
@@ -419,21 +419,21 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
                   style={{ background: c }}
                 />
               ))}
-              <label className="relative h-5 w-5 cursor-pointer rounded-full border-2 border-border overflow-hidden" title="Chß╗ìn m├áu kh├íc">
+              <label className="relative h-5 w-5 cursor-pointer rounded-full border-2 border-border overflow-hidden" title="Chọn màu khác">
                 <span className="block h-full w-full rounded-full" style={{ background: 'conic-gradient(red,yellow,lime,cyan,blue,magenta,red)' }} />
                 <input type="color" value={color} onChange={(e) => setColor(e.target.value)}
-                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0" aria-label="Chß╗ìn m├áu t├╣y ├╜" />
+                  className="absolute inset-0 h-full w-full cursor-pointer opacity-0" aria-label="Chọn màu tùy ý" />
               </label>
               <input
                 type="range" min={2} max={40} value={brushSize}
                 onChange={(e) => setBrushSize(Number(e.target.value))}
                 className="w-16 accent-brand-500"
-                aria-label="K├¡ch th╞░ß╗¢c b├║t"
+                aria-label="Kích thước bút"
               />
             </div>
           </div>
 
-          {/* Canvas ΓÇö absolute fill so it always takes all space */}
+          {/* Canvas — absolute fill so it always takes all space */}
           <div ref={containerRef} className="relative min-h-0 flex-1">
             <canvas
               ref={canvasRef}
@@ -454,19 +454,19 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
           <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
         </div>
 
-        {/* ΓöÇΓöÇ Right: AI result panel ΓöÇΓöÇ */}
+        {/* ── Right: AI result panel ── */}
         <div className="ui-card flex min-h-0 flex-col">
           <div className="flex items-center justify-between border-b border-border p-3">
-            <p className="text-sm font-extrabold text-text">AI vß║╜ lß║íi ┬╖ {styleName}</p>
+            <p className="text-sm font-extrabold text-text">AI vẽ lại · {styleName}</p>
             {aiState === 'done' && (
               <div className="flex gap-2">
-                <button type="button" onClick={generateAI} aria-label="L├ám lß║íi ß║únh AI"
+                <button type="button" onClick={generateAI} aria-label="Làm lại ảnh AI"
                   className="rounded-btn border border-border px-3 py-1.5 text-xs font-bold text-muted hover:border-brand-300">
-                  <RotateCcw size={12} className="mr-1 inline" /> L├ám lß║íi
+                  <RotateCcw size={12} className="mr-1 inline" /> Làm lại
                 </button>
-                <button type="button" onClick={download} aria-label="Tß║úi ß║únh vß╗ü"
+                <button type="button" onClick={download} aria-label="Tải ảnh về"
                   className="rounded-btn border border-border px-3 py-1.5 text-xs font-bold text-muted hover:border-brand-300">
-                  <Download size={12} className="mr-1 inline" /> Tß║úi vß╗ü
+                  <Download size={12} className="mr-1 inline" /> Tải về
                 </button>
               </div>
             )}
@@ -477,30 +477,30 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
               <div className="flex flex-col items-center gap-4 text-center">
                 <Sparkles size={48} className="text-brand-300" />
                 <p className="max-w-[200px] text-sm font-semibold text-muted">
-                  Vß║╜ xong rß╗ôi bß║Ñm <strong className="text-brand-600">AI Vß║╜ Lß║íi</strong> ─æß╗â xem ph├⌐p thuß║¡t!
+                  Vẽ xong rồi bấm <strong className="text-brand-600">AI Vẽ Lại</strong> để xem phép thuật!
                 </p>
                 <button type="button" onClick={generateAI}
                   className="ui-btn ui-btn-primary gap-2">
-                  <Sparkles size={18} /> AI Vß║╜ Lß║íi
+                  <Sparkles size={18} /> AI Vẽ Lại
                 </button>
               </div>
             )}
 
             {aiState === 'loading' && (
               <div className="flex flex-col items-center gap-4">
-                <div className="h-12 w-12 animate-spin rounded-full border-4 border-brand-100 border-t-brand-500" role="status" aria-label="─Éang tß║ío ß║únh" />
-                <p className="font-display text-lg text-brand-600">AI ─æang vß║╜ΓÇª</p>
-                <p className="text-xs text-muted">B├⌐ ─æß╗úi ch├║t nh├⌐!</p>
+                <div className="h-12 w-12 animate-spin rounded-full border-4 border-brand-100 border-t-brand-500" role="status" aria-label="Đang tạo ảnh" />
+                <p className="font-display text-lg text-brand-600">AI đang vẽ…</p>
+                <p className="text-xs text-muted">Bé đợi chút nhé!</p>
               </div>
             )}
 
             {aiState === 'error' && (
               <div className="flex flex-col items-center gap-3 rounded-2xl border-2 border-coral-200 bg-coral-50 p-6 text-center">
-                <p className="font-bold text-danger">Ch╞░a vß║╜ ─æ╞░ß╗úc</p>
+                <p className="font-bold text-danger">Chưa vẽ được</p>
                 <p className="text-sm text-muted">{aiError}</p>
                 <button type="button" onClick={generateAI}
                   className="ui-btn ui-btn-secondary text-sm">
-                  Thß╗¡ lß║íi
+                  Thử lại
                 </button>
               </div>
             )}
@@ -509,7 +509,7 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
               <div className="flex h-full w-full flex-col gap-3">
                 <img
                   src={aiUrl}
-                  alt="Tranh AI ─æ├ú vß║╜"
+                  alt="Tranh AI đã vẽ"
                   className="min-h-0 flex-1 rounded-2xl object-contain"
                 />
                 <button
@@ -523,7 +523,7 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
                   ) : (
                     <ArrowRight size={16} />
                   )}
-                  {saving ? '─Éang l╞░uΓÇª' : 'L╞░u v├áo Ba l├┤'}
+                  {saving ? 'Đang lưu…' : 'Lưu vào Ba lô'}
                 </button>
               </div>
             )}

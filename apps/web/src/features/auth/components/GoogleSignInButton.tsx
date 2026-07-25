@@ -1,11 +1,11 @@
-﻿import { useState, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { api, ApiError } from '@/shared/lib/api'
 import type { User } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { firebaseApp } from '@/shared/lib/firebase-client'
 
 type Props = {
-  /** parent | teacher ΓÇö only for brand-new Google accounts */
+  /** parent | teacher — only for brand-new Google accounts */
   role?: 'parent' | 'teacher'
   onSuccess: (user: User) => void
   onError: (message: string) => void
@@ -31,7 +31,7 @@ export function GoogleSignInButton({
     try {
       const app = await firebaseApp()
       if (!app) {
-        throw new Error('Firebase ch╞░a ─æ╞░ß╗úc cß║Ñu h├¼nh.')
+        throw new Error('Firebase chưa được cấu hình.')
       }
 
       const { getAuth, signInWithPopup, GoogleAuthProvider } = await import('firebase/auth')
@@ -63,7 +63,7 @@ export function GoogleSignInButton({
           ? e.message
           : e instanceof Error
             ? e.message
-            : 'Kh├┤ng ─æ─âng nhß║¡p ─æ╞░ß╗úc bß║▒ng Google.',
+            : 'Không đăng nhập được bằng Google.',
       )
     } finally {
       setBusy(false)
@@ -83,7 +83,7 @@ export function GoogleSignInButton({
       >
         <GoogleGIcon className="h-5 w-5 shrink-0" />
         <span>
-          {busy ? '─Éang ─æ─âng nhß║¡pΓÇª' : 'Tiß║┐p tß╗Ñc vß╗¢i Google'}
+          {busy ? 'Đang đăng nhập…' : 'Tiếp tục với Google'}
         </span>
       </button>
     </div>

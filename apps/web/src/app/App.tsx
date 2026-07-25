@@ -1,4 +1,4 @@
-﻿import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from '@/shared/store/auth'
 import { AppShell } from '@/shared/components/layout/AppShell'
@@ -113,8 +113,8 @@ function Fallback() {
       aria-live="polite"
     >
       <div className="ui-skeleton h-14 w-14 rounded-2xl" />
-      <p className="font-display text-xl text-brand-500">─Éang mß╗ƒ cß╗òng saoΓÇª</p>
-      <p className="text-sm text-muted">Chß╗¥ mß╗Öt ch├║t nh├⌐</p>
+      <p className="font-display text-xl text-brand-500">Đang mở cổng sao…</p>
+      <p className="text-sm text-muted">Chờ một chút nhé</p>
     </div>
   )
 }
