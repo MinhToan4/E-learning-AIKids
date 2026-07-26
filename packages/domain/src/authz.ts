@@ -33,6 +33,42 @@ export type Action =
   | 'media:upload'
   | 'subscription:read'
   | 'subscription:write'
+  | 'learning:annotate'
+  | 'learning:offline'
+  | 'pathway:read'
+  | 'pathway:write'
+  | 'age-policy:read'
+  | 'age-policy:write'
+  | 'audit:read'
+  | 'assessment:read'
+  | 'assessment:take'
+  | 'assessment:write'
+  | 'question-bank:write'
+  | 'grading:read'
+  | 'grading:write'
+  | 'grading:publish'
+  | 'competency:read'
+  | 'competency:write'
+  | 'competency:recalculate'
+  | 'credential:read'
+  | 'credential:write'
+  | 'credential:issue'
+  | 'credential:revoke'
+  | 'schedule:read'
+  | 'schedule:write'
+  | 'schedule-policy:write'
+  | 'attendance:write'
+  | 'placement:request'
+  | 'placement:decide'
+  | 'reschedule:request'
+  | 'reschedule:decide'
+  | 'observation:read'
+  | 'observation:write'
+  | 'report:read'
+  | 'report:write'
+  | 'report:approve'
+  | 'report:deliver'
+  | 'report-config:write'
 
 const ROLE_ACTIONS: Record<Role, Action[]> = {
   student: [
@@ -45,6 +81,17 @@ const ROLE_ACTIONS: Record<Role, Action[]> = {
     'notification:read',
     'notification:write',
     'media:upload',
+    'learning:annotate',
+    'learning:offline',
+    'pathway:read',
+    'age-policy:read',
+    'assessment:read',
+    'assessment:take',
+    'competency:read',
+    'credential:read',
+    'schedule:read',
+    'observation:read',
+    'report:read',
   ],
   parent: [
     'course:read',
@@ -61,6 +108,16 @@ const ROLE_ACTIONS: Record<Role, Action[]> = {
     'notification:write',
     'subscription:read',
     'subscription:write',
+    'pathway:read',
+    'age-policy:read',
+    'assessment:read',
+    'competency:read',
+    'credential:read',
+    'schedule:read',
+    'placement:request',
+    'reschedule:request',
+    'observation:read',
+    'report:read',
   ],
   teacher: [
     'course:read',
@@ -76,6 +133,28 @@ const ROLE_ACTIONS: Record<Role, Action[]> = {
     'notification:read',
     'notification:write',
     'media:upload',
+    'pathway:read',
+    'pathway:write',
+    'age-policy:read',
+    'assessment:read',
+    'assessment:write',
+    'question-bank:write',
+    'grading:read',
+    'grading:write',
+    'grading:publish',
+    'competency:read',
+    'credential:read',
+    'credential:issue',
+    'schedule:read',
+    'schedule:write',
+    'attendance:write',
+    'placement:decide',
+    'reschedule:decide',
+    'observation:read',
+    'observation:write',
+    'report:read',
+    'report:write',
+    'report:approve',
   ],
   admin: [
     'course:read',
@@ -102,6 +181,39 @@ const ROLE_ACTIONS: Record<Role, Action[]> = {
     'media:upload',
     'subscription:read',
     'subscription:write',
+    'pathway:read',
+    'pathway:write',
+    'age-policy:read',
+    'age-policy:write',
+    'audit:read',
+    'assessment:read',
+    'assessment:write',
+    'question-bank:write',
+    'grading:read',
+    'grading:write',
+    'grading:publish',
+    'competency:read',
+    'competency:write',
+    'competency:recalculate',
+    'credential:read',
+    'credential:write',
+    'credential:issue',
+    'credential:revoke',
+    'schedule:read',
+    'schedule:write',
+    'schedule-policy:write',
+    'attendance:write',
+    'placement:request',
+    'placement:decide',
+    'reschedule:request',
+    'reschedule:decide',
+    'observation:read',
+    'observation:write',
+    'report:read',
+    'report:write',
+    'report:approve',
+    'report:deliver',
+    'report-config:write',
   ],
 }
 

@@ -10,10 +10,10 @@ import {
 } from './stations.js'
 
 describe('stations & age tracks', () => {
-  it('defines the research-backed 8-9 and 10-11 tracks', () => {
-    expect(AGE_TRACKS.L1.ageMin).toBe(8)
-    expect(AGE_TRACKS.L1.ageMax).toBe(9)
-    expect(AGE_TRACKS.L2.ageMin).toBe(10)
+  it('defines the customer 6-8 and 9-11 course tracks', () => {
+    expect(AGE_TRACKS.L1.ageMin).toBe(6)
+    expect(AGE_TRACKS.L1.ageMax).toBe(8)
+    expect(AGE_TRACKS.L2.ageMin).toBe(9)
     expect(AGE_TRACKS.L2.ageMax).toBe(11)
     expect(COURSE_KEYS).toHaveLength(6)
   })

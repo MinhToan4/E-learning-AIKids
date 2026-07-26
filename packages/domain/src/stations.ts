@@ -42,18 +42,18 @@ export type AgeTrack = 'L1' | 'L2'
 export const AGE_TRACKS = {
   L1: {
     id: 'L1' as const,
-    label: '8–9 tuổi',
-    ageMin: 8,
-    ageMax: 9,
-    ageLabel: '8–9 tuổi',
+    label: '6–8 tuổi',
+    ageMin: 6,
+    ageMax: 8,
+    ageLabel: '6–8 tuổi',
     description: 'Level 1 · Khám phá có hướng dẫn — học qua thử nghiệm và sổ tay',
   },
   L2: {
     id: 'L2' as const,
-    label: '10–11 tuổi',
-    ageMin: 10,
+    label: '9–11 tuổi',
+    ageMin: 9,
     ageMax: 11,
-    ageLabel: '10–11 tuổi',
+    ageLabel: '9–11 tuổi',
     description: 'Level 2 · Sáng tạo tự chủ — làm dự án và bảo vệ quyết định',
   },
 } as const
