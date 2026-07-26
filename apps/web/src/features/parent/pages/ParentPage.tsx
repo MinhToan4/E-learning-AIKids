@@ -32,6 +32,7 @@ type Child = {
   xp: number
   active: boolean
   hasPin?: boolean
+  birthDate?: string | null
   completedQuests?: number
   totalStars?: number
   projectCount?: number
@@ -386,6 +387,8 @@ function EditChildModal({
   const [avatarId, setAvatarId] = useState('avatar-robot')
   const [goal, setGoal] = useState('comic')
   const [pin, setPin] = useState('')
+  // birthDate bắt buộc khi tạo con mới (backend validate 6–17 tuổi)
+  const [birthDate, setBirthDate] = useState('')
   const [saving, setSaving] = useState(false)
 
   // Khi mở modal, điền sẵn giá trị hiện tại (nếu đang sửa)
@@ -395,6 +398,12 @@ function EditChildModal({
       setAvatarId(child?.avatarId ?? 'avatar-robot')
       setGoal('comic')
       setPin('')
+      // Điền sẵn birthDate nếu đang sửa; để trống nếu tạo mới
+      setBirthDate(
+        child?.birthDate
+          ? new Date(child.birthDate).toISOString().split('T')[0]
+          : ''
+      )
     }
   }, [isOpen, child])
 
@@ -417,27 +426,35 @@ function EditChildModal({
     e.preventDefault()
     if (!nickname.trim()) { onError('Vui lòng nhập tên hiển thị.'); return }
     if (pin && !/^\d{6}$/.test(pin)) { onError('Mã PIN cần đủ 6 chữ số, hoặc để trống.'); return }
+    // birthDate bắt buộc khi tạo con mới — backend validate độ tuổi 6-17
+    if (!child && !birthDate) { onError('Vui lòng nhập ngày sinh của con.'); return }
     setSaving(true)
     try {
       if (child) {
-        // Cập nhật hồ sơ con
+        // Cập nhật hồ sơ con — PIN được gộp vào PATCH để giảm số request
         await api(`/api/parent/children/${child.id}`, {
           method: 'PATCH',
-          body: JSON.stringify({ nickname: nickname.trim(), avatarId }),
+          body: JSON.stringify({
+            nickname: nickname.trim(),
+            avatarId,
+            // Chỉ gửi pin nếu ba/mẹ điền; chuỗi rỗng = xóa PIN
+            ...(pin ? { pin } : {}),
+          }),
         })
-        // Cập nhật PIN nếu ba/mẹ điền
-        if (pin) {
-          await api(`/api/parent/children/${child.id}/pin`, {
-            method: 'POST',
-            body: JSON.stringify({ pin }),
-          })
-        }
       } else {
-        // Tạo hồ sơ mới
+        // Tạo hồ sơ mới — birthDate bắt buộc theo domain rule
         const created = await api<{ child: { id: string } }>('/api/parent/children', {
           method: 'POST',
-          body: JSON.stringify({ nickname: nickname.trim(), avatarId, goal }),
+          body: JSON.stringify({
+            nickname: nickname.trim(),
+            avatarId,
+            goal,
+            birthDate,
+            // Gửi PIN kèm lúc tạo nếu ba/mẹ đặt ngay
+            ...(pin ? { pin } : {}),
+          }),
         })
+        // Nếu backend không nhận pin trong body tạo con, gọi route /pin riêng
         if (pin && created.child?.id) {
           await api(`/api/parent/children/${created.child.id}/pin`, {
             method: 'POST',
@@ -519,6 +536,26 @@ function EditChildModal({
               ))}
             </div>
           </div>
+
+          {/* Ngày sinh — bắt buộc khi tạo mới, hiển thị nhưng readonly khi sửa */}
+          {!child && (
+            <div>
+              <label className="mb-1 block text-sm font-bold" htmlFor="edit-birthdate">
+                Ngày sinh của con <span className="text-red-500">*</span>
+              </label>
+              <input
+                id="edit-birthdate"
+                type="date"
+                value={birthDate}
+                onChange={(e) => setBirthDate(e.target.value)}
+                max={new Date(Date.now() - 6 * 365.25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                min={new Date(Date.now() - 17 * 365.25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
+                className="w-full rounded-xl border border-brand-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
+                required
+              />
+              <p className="mt-1 text-xs text-muted">Con từ 6 đến 17 tuổi.</p>
+            </div>
+          )}
 
           {/* Mục tiêu (chỉ khi tạo mới) */}
           {!child && (
@@ -617,6 +654,18 @@ function PlayPinModal({
 }
 
 // ── Kids Tab ──────────────────────────────────────────────────
+type CourseItem = {
+  id: string
+  title: string
+  shortTitle: string
+  ageLabel: string
+  ageTrack: string
+  tagline: string
+  coverImage: string | null
+  enrolled: boolean
+  parentAllowed: boolean | null
+}
+
 function KidsTab() {
   const [kids, setKids] = useState<Child[]>([])
   const [sub, setSub] = useState<HouseholdSub | null>(null)
@@ -627,6 +676,8 @@ function KidsTab() {
   // editTarget: null = tạo mới; Child object = đang sửa; undefined = đóng
   const [editTarget, setEditTarget] = useState<Child | null | undefined>(undefined)
   const [playPinTarget, setPlayPinTarget] = useState<Child | null>(null)
+  // courseSelectTarget: child đang chọn khóa học; null = đóng modal
+  const [courseSelectTarget, setCourseSelectTarget] = useState<Child | null>(null)
   const { toasts, showToast, dismissToast } = useToast()
   const enterAsChild = useAuth((s) => s.enterAsChild)
   const navigate = useNavigate()
@@ -791,6 +842,15 @@ function KidsTab() {
                   onClick={() => void viewProgress(k.id)}
                 >
                   📈 Xem tiến trình
+                </Button>
+
+                {/* Chọn khóa học cho con */}
+                <Button
+                  variant="secondary"
+                  className="!min-h-9 !px-3 !text-xs"
+                  onClick={() => setCourseSelectTarget(k)}
+                >
+                  📚 Chọn khóa học
                 </Button>
 
                 <Button
@@ -997,7 +1057,185 @@ function KidsTab() {
           }}
         />
       )}
+
+      {/* Modal: ba/mẹ chọn khóa học cho con */}
+      {courseSelectTarget && (
+        <CourseSelectModal
+          child={courseSelectTarget}
+          onClose={() => setCourseSelectTarget(null)}
+          onSuccess={(msg) => showToast(msg, 'success')}
+          onError={(msg) => showToast(msg, 'error')}
+        />
+      )}
     </div>
+  )
+}
+
+// ── CourseSelectModal ──────────────────────────────────────────
+/**
+ * Modal để ba/mẹ bật/tắt từng khóa học cho con.
+ * Toggle ON  → POST /api/parent/children/:id/courses { enroll: true }  → con học ngay
+ * Toggle OFF → POST /api/parent/children/:id/courses { enroll: false } → ẩn khỏi lộ trình
+ */
+function CourseSelectModal({
+  child,
+  onClose,
+  onSuccess,
+  onError,
+}: {
+  child: Child
+  onClose: () => void
+  onSuccess: (msg: string) => void
+  onError: (msg: string) => void
+}) {
+  const [courses, setCourses] = useState<CourseItem[]>([])
+  const [loading, setLoading] = useState(true)
+  const [toggling, setToggling] = useState<string | null>(null)
+
+  useEffect(() => {
+    void (async () => {
+      try {
+        const data = await api<{
+          child: { id: string; nickname: string | null; ageBand: string | null }
+          courses: CourseItem[]
+        }>(`/api/parent/children/${child.id}/courses`)
+        setCourses(data.courses)
+      } catch (e) {
+        onError(e instanceof Error ? e.message : 'Không tải được danh sách khóa học')
+      } finally {
+        setLoading(false)
+      }
+    })()
+  }, [child.id, onError])
+
+  async function toggleCourse(courseId: string, currentlyEnrolled: boolean) {
+    setToggling(courseId)
+    try {
+      await api(`/api/parent/children/${child.id}/courses`, {
+        method: 'POST',
+        body: JSON.stringify({ courseId, enroll: !currentlyEnrolled }),
+      })
+      // Cập nhật state local ngay lập tức (optimistic)
+      setCourses((prev) =>
+        prev.map((c) =>
+          c.id === courseId
+            ? { ...c, enrolled: !currentlyEnrolled, parentAllowed: !currentlyEnrolled ? true : null }
+            : c,
+        ),
+      )
+      onSuccess(
+        !currentlyEnrolled
+          ? `✅ Đã thêm khóa học cho ${child.nickname ?? 'con'}!`
+          : `🗑️ Đã bỏ khóa học khỏi lộ trình của ${child.nickname ?? 'con'}.`,
+      )
+    } catch (e) {
+      onError(e instanceof Error ? e.message : 'Lỗi cập nhật')
+    } finally {
+      setToggling(null)
+    }
+  }
+
+  const trackLabel: Record<string, string> = { L1: '6–9 tuổi', L2: '9–11 tuổi' }
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-label={`Chọn khóa học cho ${child.nickname ?? 'con'}`}
+      onClick={(e) => { if (e.target === e.currentTarget) onClose() }}
+    >
+      <div className="w-full max-w-lg rounded-3xl bg-white shadow-xl flex flex-col max-h-[90vh]">
+        {/* Header */}
+        <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-3 border-b border-border">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
+              📚 Chọn khóa học
+            </p>
+            <h2 className="font-display text-xl leading-tight">
+              Lộ trình của {child.nickname ?? 'con'}
+            </h2>
+            <p className="text-xs text-muted mt-0.5">
+              Bật khóa học → con thấy và học được ngay. Tắt → ẩn khỏi lộ trình.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="flex-shrink-0 rounded-xl p-2 text-muted hover:bg-page transition"
+            aria-label="Đóng"
+          >
+            ✕
+          </button>
+        </div>
+
+        {/* Body */}
+        <div className="overflow-y-auto flex-1 px-4 py-3">
+          {loading ? (
+            <div className="flex justify-center py-10">
+              <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500" />
+            </div>
+          ) : courses.length === 0 ? (
+            <p className="py-8 text-center text-muted">Không có khóa học nào đang mở.</p>
+          ) : (
+            <div className="flex flex-col gap-2">
+              {courses.map((course) => {
+                const isToggling = toggling === course.id
+                return (
+                  <div
+                    key={course.id}
+                    className={cn(
+                      'flex items-center gap-3 rounded-2xl border-2 px-4 py-3 transition',
+                      course.enrolled
+                        ? 'border-brand-300 bg-brand-50'
+                        : 'border-border bg-white hover:border-brand-200',
+                    )}
+                  >
+                    {/* Thông tin khóa */}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm leading-tight truncate">{course.title}</p>
+                      <p className="text-xs text-muted mt-0.5">
+                        <span className="inline-block rounded-full bg-brand-100 px-2 py-0.5 font-bold text-brand-700 mr-1">
+                          {trackLabel[course.ageTrack] ?? course.ageTrack}
+                        </span>
+                        {course.ageLabel}
+                      </p>
+                    </div>
+
+                    {/* Toggle button */}
+                    <button
+                      type="button"
+                      id={`course-toggle-${course.id}`}
+                      disabled={isToggling}
+                      onClick={() => void toggleCourse(course.id, course.enrolled)}
+                      className={cn(
+                        'flex-shrink-0 rounded-xl px-4 py-2 text-xs font-extrabold transition',
+                        course.enrolled
+                          ? 'bg-brand-500 text-white hover:bg-brand-600'
+                          : 'bg-page text-muted hover:bg-brand-50 border border-border',
+                        isToggling && 'opacity-50 cursor-wait',
+                      )}
+                      aria-pressed={course.enrolled}
+                      aria-label={`${course.enrolled ? 'Bỏ' : 'Thêm'} khóa ${course.title}`}
+                    >
+                      {isToggling ? '...' : course.enrolled ? '✅ Đang học' : '+ Thêm'}
+                    </button>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Footer */}
+        <div className="px-5 py-4 border-t border-border">
+          <Button className="w-full" onClick={onClose}>
+            Xong
+          </Button>
+        </div>
+      </div>
+    </div>,
+    document.body,
   )
 }
 

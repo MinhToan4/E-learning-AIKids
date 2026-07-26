@@ -2,9 +2,11 @@
  * environment.ts
  *
  * Centralize tất cả biến môi trường của frontend.
- * - Dev default: StoryMee Hub Gateway tại port 5100.
- *   Để dùng local Fastify (port 4000) set VITE_API_URL=http://localhost:4000
- * - Production/Staging: VITE_API_URL bắt buộc.
+ *
+ * Hai chế độ API:
+ * 1. nginx-proxy (Docker): VITE_API_URL rỗng → FE gọi /api/* relative,
+ *    nginx.conf proxy_pass đến container api:4000. apiBaseUrl = '' (same-origin).
+ * 2. Direct URL: VITE_API_URL=http://localhost:4000 (dev) hoặc https://api.example.com (staging/prod).
  */
 
 type AppEnvironment = 'development' | 'staging' | 'production'
@@ -36,34 +38,57 @@ function resolveEnvironment(): AppEnvironment {
 
 const configuredApiUrl = import.meta.env.VITE_API_URL?.trim()
 
+/**
+ * Khi VITE_API_URL rỗng trong PROD build (Docker nginx-proxy mode):
+ * - KHÔNG throw — đây là cấu hình hợp lệ được thiết kế trong docker-compose.yml.
+ * - nginx.conf proxy_pass /api/ → http://api:4000/api/ bên trong Docker network.
+ * - FE dùng same-origin (apiBaseUrl=''), fetch('/api/...') hoạt động bình thường.
+ */
 if (import.meta.env.PROD && !configuredApiUrl) {
-  throw new Error(
-    'VITE_API_URL is required for production builds. Configure it in the deployment environment.',
+  // eslint-disable-next-line no-console
+  console.warn(
+    '[environment] VITE_API_URL is not set. Running in nginx-proxy mode: ' +
+    'all /api/* requests will be proxied by nginx to the API container.',
   )
 }
 
-/**
- * Dev default: StoryMee Hub Gateway (port 5100).
- * Để dùng local Fastify (port 4000) set VITE_API_URL=http://localhost:4000
- * Production / staging phải set VITE_API_URL đến gateway origin.
- */
-const resolvedApiUrl = configuredApiUrl || 'http://localhost:5100'
+function resolveApiBaseUrl(): string {
+  if (configuredApiUrl) {
+    return normalizeOrigin(configuredApiUrl, 'VITE_API_URL')
+  }
+  if (!import.meta.env.PROD) {
+    // Dev local: fallback về StoryMee Hub Gateway
+    return 'http://localhost:5100'
+  }
+  // Docker nginx-proxy mode: same-origin, nginx xử lý /api/* proxy
+  return ''
+}
 
-function isLocalFastify(origin: string): boolean {
+function isLocalFastify(): boolean {
+  const apiMode = import.meta.env.VITE_API_MODE?.trim().toLowerCase()
+  if (apiMode === 'standalone') return true
+  if (apiMode === 'gateway') return false
+
+  if (!configuredApiUrl) {
+    // nginx-proxy mode: gọi Fastify của repo này thông qua nginx → treat như local
+    return import.meta.env.PROD
+  }
   try {
-    const url = new URL(origin)
+    const url = new URL(configuredApiUrl)
     // Chỉ treat là local Fastify khi VITE_API_URL tường minh trỏ đến port 4000
-    return Boolean(configuredApiUrl) && url.port === '4000'
+    return url.port === '4000'
   } catch {
     return false
   }
 }
 
+const resolvedApiBaseUrl = resolveApiBaseUrl()
+
 export const environment = Object.freeze({
   name: resolveEnvironment(),
-  apiBaseUrl: normalizeOrigin(resolvedApiUrl, 'VITE_API_URL'),
-  /** true khi gọi local Fastify — không remap paths sang /api/v1/... */
-  isLocalApi: isLocalFastify(resolvedApiUrl),
+  apiBaseUrl: resolvedApiBaseUrl,
+  /** true khi gọi Fastify của repo này — không remap paths sang gateway /api/v1/... */
+  isLocalApi: isLocalFastify(),
   storagePublicUrl: normalizeOrigin(
     import.meta.env.VITE_STORAGE_PUBLIC_URL?.trim() || 'https://storage.storymee.com',
     'VITE_STORAGE_PUBLIC_URL',

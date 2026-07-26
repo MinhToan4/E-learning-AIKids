@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { CalendarDays, ClipboardCheck, Settings2 } from 'lucide-react'
 
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
 import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
@@ -131,6 +132,7 @@ const studentPinnedNav = [
   { to: '/leaderboard', label: 'Tiến bộ', icon: NavLeaderboardIcon },
 ]
 const studentDrawerNav = [
+  { to: '/assessments', label: 'Bài test', icon: ClipboardCheck },
   { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon   },
   { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon },
   { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon },
@@ -141,6 +143,7 @@ const studentNav = [
   { to: '/world',        label: 'Học',      icon: NavWorldIcon       },
   { to: '/creative',     label: 'Xưởng',    icon: NavCreativeIcon    },
   { to: '/leaderboard',  label: 'Tiến bộ',  icon: NavLeaderboardIcon },
+  { to: '/assessments',  label: 'Bài test', icon: ClipboardCheck     },
   { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon       },
   { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon    },
   { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon     },
@@ -538,9 +541,9 @@ export function AppShell() {
           { to: '/kids', label: 'Cho con học', icon: NavWorldIcon },
           { to: '/parent', label: 'Tổng quan', icon: ParentDashboardIcon, end: true },
           { to: '/parent/kids', label: 'Con của tôi', icon: ParentKidsIcon },
+          { to: '/parent/learning', label: 'Hành trình', icon: CalendarDays },
           { to: '/parent/plan', label: 'Gói học', icon: ParentPlanIcon },
           { to: '/parent/approvals', label: 'Chờ duyệt', icon: ParentApprovalIcon },
-          { to: '/parent/profile', label: 'Hồ sơ', icon: ParentProfileIcon },
         ]}
       />
     )
@@ -555,6 +558,9 @@ export function AppShell() {
         nav={[
           { to: '/organization', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
           { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon },
+          { to: '/teacher/operations', label: 'Điều hành', icon: ClipboardCheck },
+          { to: '/teacher/scheduling', label: 'Lịch học', icon: CalendarDays },
+          { to: '/teacher/assessments', label: 'Bài test', icon: ClipboardCheck },
           { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
           { to: '/teacher/lectures', label: 'Bài giảng', icon: CmsLecturesIcon },
           { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
@@ -571,6 +577,9 @@ export function AppShell() {
         tone="teacher"
         nav={[
           { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon, end: true },
+          { to: '/teacher/operations', label: 'Điều hành', icon: ClipboardCheck },
+          { to: '/teacher/scheduling', label: 'Lịch học', icon: CalendarDays },
+          { to: '/teacher/assessments', label: 'Bài test', icon: ClipboardCheck },
           { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
           { to: '/teacher/lectures', label: 'Bài giảng', icon: CmsLecturesIcon },
           { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
@@ -587,8 +596,11 @@ export function AppShell() {
       { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
       { to: '/admin/sessions', label: 'Phiên', icon: CmsSessionsIcon },
       { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
+      { to: '/admin/learning-config', label: 'Cấu hình học tập', icon: Settings2 },
       { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
       { to: '/teacher', label: 'Giáo viên', icon: CmsClassesIcon },
+      { to: '/teacher/scheduling', label: 'Điều phối lịch', icon: CalendarDays },
+      { to: '/teacher/assessments', label: 'Biên soạn test', icon: ClipboardCheck },
     ]
     // Show only the most-used items in the pinned bar; the rest live in the drawer
     const pinnedNav: RoleNavItem[] = [

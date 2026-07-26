@@ -383,7 +383,8 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       options: options.method === 'POST'
         ? withJson(options, {
           name: body.nickname,
-          ageBand: '9-12',
+          birthDate: body.birthDate,
+          goal: body.goal,
           avatarUrl: body.avatarId,
           language: 'vi',
           allowAiCreate: true,

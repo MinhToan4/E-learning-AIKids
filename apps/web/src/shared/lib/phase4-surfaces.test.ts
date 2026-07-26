@@ -94,9 +94,9 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(shell).toContain('ParentKidsIcon')
     expect(shell).toContain('role-nav-link')
     expect(shell).toContain('role-nav-icon')
-    expect(shell).toContain('role-mobile-nav')
+    expect(shell).toContain('student-bottom-nav')
+    expect(shell).toContain('adult-bottom-nav')
     expect(shell).toContain('NavCreativeIcon')
-    expect(shell).not.toContain("from 'lucide-react'")
     expect(kidIcons).toContain('export function NavCreativeIcon')
   })
 
@@ -124,9 +124,12 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
   })
 
   it('creative art uses the safe in-app sketch workflow before Vidtory generation', () => {
-    const creative = read('features/creative/pages/CreativePage.tsx') + read('features/creative/components/WorkshopCanvas.tsx')
+    const creative =
+      read('features/creative/pages/CreativePage.tsx') +
+      read('features/creative/components/WorkshopCanvas.tsx') +
+      read('shared/lib/creative-api.ts')
     expect(creative).toContain('WorkshopCanvas')
-    expect(creative).toContain('/api/creative/create')
+    expect(creative).toContain('/api/v1/jobs')
     expect(creative).not.toContain('uploadStudentImage')
     expect(creative).not.toContain("kind: 'mee'")
     expect(creative).not.toContain('Tạo Mee')

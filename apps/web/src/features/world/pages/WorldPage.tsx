@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { CheckCircle2, Lock, Star, Trophy, Zap } from 'lucide-react'
+import { CheckCircle2, Compass, Lock, Star, Trophy, Zap } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { api, type QuestProgress } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
@@ -8,6 +8,24 @@ import { designerAssets } from '@/shared/config/assets'
 
 // Emoji icons per quest order (fallback to order number)
 const QUEST_ICONS = ['🌟', '🧩', '🎨', '📖', '🎭', '🎬', '🔍', '🤖', '💡', '🚀', '🌈', '🏆']
+
+type PathwayCourse = {
+  id: string
+  title: string
+  shortTitle: string
+  status: 'completed' | 'active' | 'available' | 'locked'
+  reasonCode: string
+  completionPercent: number
+  missingPrerequisites: string[]
+  coverImage: string | null
+}
+
+type Pathway = {
+  student: { nickname: string | null; ageBand: string }
+  policy: { label: string } | null
+  recommendedCourseId: string | null
+  courses: PathwayCourse[]
+}
 
 function StarDisplay({ count }: { count: number }) {
   return (
@@ -105,6 +123,7 @@ export function WorldPage() {
   const [courseTitle, setCourseTitle] = useState('Hành trình sáng tạo')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [pathway, setPathway] = useState<Pathway | null>(null)
 
   useEffect(() => {
     void (async () => {
@@ -112,27 +131,24 @@ export function WorldPage() {
       setError(null)
       try {
         if (!courseId) {
-          const catalog = await api<{ courses: Array<{ id: string }> }>('/api/courses')
-          const firstCourse = catalog.courses.find((course) => course.id)
-          if (!firstCourse) {
-            setError('Chưa có khóa học nào được xuất bản.')
-            return
-          }
-          navigate(`/world/${firstCourse.id}`, { replace: true })
+          const journey = await api<Pathway>('/api/learning/pathway')
+          setPathway(journey)
           return
         }
-        await api('/api/enrollments', {
-          method: 'POST',
-          body: JSON.stringify({ courseId }),
-        }).catch(() => null)
-        const [data, course] = await Promise.all([
+        const [data, course, journey] = await Promise.all([
           api<{
             quests: QuestProgress[]
             totalStars: number
             completedCount: number
           }>(`/api/progress/${courseId}`),
           api<{ course: { title: string } }>(`/api/courses/${courseId}`),
+          api<Pathway>('/api/learning/pathway'),
         ])
+        const pathRow = journey.courses.find((row) => row.id === courseId)
+        if (!pathRow || pathRow.status === 'locked') {
+          throw new Error('Khóa học này chưa được mở trong lộ trình của con.')
+        }
+        setPathway(journey)
         setQuests(data.quests)
         setMeta({ totalStars: data.totalStars, completedCount: data.completedCount })
         setCourseTitle(course.course.title)
@@ -148,6 +164,28 @@ export function WorldPage() {
     (q) => q.status === 'available' || q.status === 'in_progress',
   )
   const progressPct = quests.length > 0 ? Math.round((meta.completedCount / quests.length) * 100) : 0
+
+  if (!courseId) {
+    if (loading) {
+      return (
+        <div className="space-y-4">
+          <div className="ui-skeleton h-32 rounded-3xl" />
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="ui-skeleton h-40 rounded-3xl" />
+            <div className="ui-skeleton h-40 rounded-3xl" />
+          </div>
+        </div>
+      )
+    }
+    if (error || !pathway) {
+      return (
+        <p className="ui-card p-5 text-danger" role="alert">
+          {error ?? 'Chưa tải được lộ trình học.'}
+        </p>
+      )
+    }
+    return <PathwayOverview pathway={pathway} />
+  }
 
   return (
     <div className="flex flex-col gap-5 page-enter">
@@ -263,6 +301,111 @@ export function WorldPage() {
           )}
         </div>
       )}
+    </div>
+  )
+}
+
+const reasonLabels: Record<string, string> = {
+  completed: 'Đã hoàn thành',
+  in_progress: 'Đang học',
+  manual_override: 'Được giáo viên mở',
+  manual_block: 'Đang tạm khóa',
+  not_entitled: 'Chưa ghi danh',
+  age_mismatch: 'Chưa phù hợp nhóm tuổi',
+  not_available_yet: 'Chưa đến ngày mở',
+  prerequisite_incomplete: 'Cần hoàn thành khóa trước',
+  requirements_met: 'Sẵn sàng học',
+}
+
+function PathwayOverview({ pathway }: { pathway: Pathway }) {
+  const recommended = pathway.courses.find(
+    (course) => course.id === pathway.recommendedCourseId,
+  )
+  return (
+    <div className="page-enter flex flex-col gap-5">
+      <header className="ui-card overflow-hidden p-5 sm:p-7">
+        <div className="flex items-start gap-4">
+          <span className="rounded-3xl bg-brand-100 p-3 text-brand-600">
+            <Compass size={30} aria-hidden="true" />
+          </span>
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
+              Lộ trình cá nhân
+            </p>
+            <h1 className="font-display text-2xl sm:text-3xl">
+              Hành trình của {pathway.student.nickname ?? 'con'}
+            </h1>
+            <p className="mt-1 text-sm text-muted">
+              {pathway.policy?.label ?? `Nhóm tuổi ${pathway.student.ageBand}`}
+            </p>
+          </div>
+        </div>
+        {recommended && (
+          <div className="mt-5 flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-mint-50 p-4">
+            <div>
+              <p className="text-xs font-bold uppercase text-success">Gợi ý tiếp theo</p>
+              <p className="font-display text-lg">{recommended.title}</p>
+            </div>
+            <Link to={`/world/${recommended.id}`}>
+              <Button>Tiếp tục hành trình</Button>
+            </Link>
+          </div>
+        )}
+      </header>
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {pathway.courses.map((course, index) => {
+          const locked = course.status === 'locked'
+          const content = (
+            <article
+              className={cn(
+                'ui-card flex h-full flex-col gap-3 p-5',
+                course.id === pathway.recommendedCourseId && 'ring-2 ring-mint-300',
+                locked && 'opacity-75',
+              )}
+            >
+              <div className="flex items-center justify-between gap-3">
+                <span className="flex h-10 w-10 items-center justify-center rounded-2xl bg-brand-100 font-display text-brand-700">
+                  {index + 1}
+                </span>
+                <span
+                  className={cn(
+                    'rounded-full px-2 py-1 text-xs font-bold',
+                    course.status === 'completed'
+                      ? 'bg-mint-100 text-success'
+                      : locked
+                        ? 'bg-sky-100 text-muted'
+                        : 'bg-sun-100 text-warning',
+                  )}
+                >
+                  {reasonLabels[course.reasonCode] ?? course.status}
+                </span>
+              </div>
+              <div>
+                <p className="text-xs font-bold uppercase text-muted">{course.shortTitle}</p>
+                <h2 className="mt-1 font-display text-xl">{course.title}</h2>
+              </div>
+              <div className="mt-auto">
+                <div className="h-2 overflow-hidden rounded-full bg-brand-100">
+                  <div
+                    className="h-full rounded-full bg-brand-500"
+                    style={{ width: `${course.completionPercent}%` }}
+                  />
+                </div>
+                <p className="mt-1 text-xs text-muted">{course.completionPercent}% hoàn thành</p>
+                {locked && course.reasonCode === 'not_entitled' && (
+                  <Link
+                    className="mt-3 inline-block text-sm font-bold text-brand-600 underline"
+                    to={`/course/${course.id}`}
+                  >
+                    Xem khóa học để ghi danh
+                  </Link>
+                )}
+              </div>
+            </article>
+          )
+          return locked ? <div key={course.id}>{content}</div> : <Link key={course.id} to={`/world/${course.id}`}>{content}</Link>
+        })}
+      </div>
     </div>
   )
 }

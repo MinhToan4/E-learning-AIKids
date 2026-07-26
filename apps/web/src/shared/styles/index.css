@@ -196,6 +196,21 @@
     cursor: not-allowed;
   }
 
+  .field-input {
+    width: 100%;
+    min-height: 44px;
+    border: 2px solid var(--color-border);
+    border-radius: 0.75rem;
+    background: white;
+    padding: 0.625rem 0.75rem;
+    color: var(--color-text);
+    font: inherit;
+  }
+
+  .field-input:focus {
+    border-color: var(--color-brand-500);
+  }
+
   @media (hover: hover) {
     .ui-btn:hover:not(:disabled) {
       transform: translateY(-1px);

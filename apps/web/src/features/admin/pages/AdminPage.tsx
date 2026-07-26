@@ -965,7 +965,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
               <div>
                 <h2 className="font-display text-lg">{c.title}</h2>
-                <p className="text-xs text-muted">{c.ageTrack === 'L2' ? '10–11 tuổi' : '8–9 tuổi'}{c.courseKey ? ` · Chặng ${c.courseKey}` : ''}{c.enrollmentCount != null ? ` · ${c.enrollmentCount} lượt tham gia` : ''}</p>
+                <p className="text-xs text-muted">{c.ageTrack === 'L2' ? '9–11 tuổi' : '6–8 tuổi'}{c.courseKey ? ` · Chặng ${c.courseKey}` : ''}{c.enrollmentCount != null ? ` · ${c.enrollmentCount} lượt tham gia` : ''}</p>
               </div>
               <div className="flex items-center gap-2">
                 <span className={cn('rounded-full px-3 py-0.5 text-xs font-extrabold', c.status === 'open' ? 'bg-mint-100 text-success' : 'bg-sun-100 text-warning')}>

@@ -16,11 +16,16 @@ let configPromise: Promise<PublicFirebaseConfig | null> | null = null
 let authPromise: Promise<import('firebase/auth').Auth | null> | null = null
 
 async function publicConfig(): Promise<PublicFirebaseConfig | null> {
-  configPromise ??= api<PublicFirebaseConfig>('/api/auth/firebase/config')
+  // API trả về { enabled: boolean, config: PublicFirebaseConfig | null }
+  // Cần unwrap field `config` thay vì dùng thẳng response object
+  configPromise ??= api<{ enabled: boolean; config: PublicFirebaseConfig | null }>(
+    '/api/auth/firebase/config',
+  ).then((res) => res?.config ?? null) as Promise<PublicFirebaseConfig | null>
   const config = await configPromise
   if (!config || !config.apiKey) return null
   return config
 }
+
 
 let appPromise: Promise<import('firebase/app').FirebaseApp | null> | null = null
 

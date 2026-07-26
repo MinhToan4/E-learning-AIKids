@@ -103,8 +103,8 @@ export function CourseAuthoringWizard({ value, onChange, onSubmit }: Props) {
             <label className={labelClass}>
               Nhóm tuổi
               <select className={inputClass} value={value.ageTrack} onChange={(event) => setField('ageTrack', event.target.value)}>
-                <option value="L1">8–9 tuổi · Có hướng dẫn</option>
-                <option value="L2">10–11 tuổi · Tự chủ hơn</option>
+                <option value="L1">6–8 tuổi · Có hướng dẫn</option>
+                <option value="L2">9–11 tuổi · Tự chủ hơn</option>
               </select>
             </label>
             <label className={labelClass}>

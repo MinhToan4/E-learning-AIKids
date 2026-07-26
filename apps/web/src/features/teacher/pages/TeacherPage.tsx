@@ -420,7 +420,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
         method: 'POST',
         body: JSON.stringify({
           ...newCourse,
-          ageLabel: newCourse.ageTrack === 'L2' ? '10–11 tuổi' : '8–9 tuổi',
+          ageLabel: newCourse.ageTrack === 'L2' ? '9–11 tuổi' : '6–8 tuổi',
           skills: splitLines(newCourse.skillsText),
           outcomes: splitLines(newCourse.outcomesText),
           coverFrom: '#6d5efc', coverTo: '#3dbfff', accent: '#6d5efc', skillsJson: '[]',
@@ -701,7 +701,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                         <h3 className="font-display text-lg text-text">{course.shortTitle || course.title}</h3>
                         <StatusBadge status={course.status} />
                       </div>
-                      <p className="mt-1 text-sm text-muted">{course.ageTrack === 'L2' ? '10–11 tuổi' : '8–9 tuổi'} · {activeLectures.length} bài đang dùng</p>
+                      <p className="mt-1 text-sm text-muted">{course.ageTrack === 'L2' ? '9–11 tuổi' : '6–8 tuổi'} · {activeLectures.length} bài đang dùng</p>
                     </div>
                     <p className={cn('rounded-full px-3 py-1 text-xs font-bold', canPublish ? 'bg-mint-100 text-success' : 'bg-sun-100 text-warning')}>
                       {canPublish ? 'Sẵn sàng kiểm tra' : 'Cần thêm bài học'}

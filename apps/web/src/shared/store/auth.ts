@@ -7,6 +7,7 @@ import {
   type User,
 } from '@/shared/lib/api'
 import { disconnectFirebaseSession } from '@/shared/lib/firebase-client'
+import { environment } from '@/shared/config/environment'
 
 async function disconnectFirebase(): Promise<void> {
   await disconnectFirebaseSession().catch(() => undefined)
@@ -121,23 +122,34 @@ export const useAuth = create<AuthState>((set, get) => ({
   enterAsChild: async (childId, pin) => {
     set({ error: null })
     await disconnectFirebase()
-    if (!pin) {
-      throw new Error('Ba/mẹ cần đặt mã PIN 6 số cho hồ sơ con trước khi vào học.')
-    }
-    const code = await api<{ familyCode: string }>(
-      '/api/parent/family-login-code',
-    )
-    const { user } = await api<{ user: User }>(
-      '/api/auth/login/child-profile',
-      {
+
+    let user: User
+    if (environment.isLocalApi) {
+      const res = await api<{ user: User }>(`/api/parent/children/${childId}/enter`, {
         method: 'POST',
-        body: JSON.stringify({
-          familyCode: code.familyCode,
-          childId,
-          pin,
-        }),
-      },
-    )
+        body: JSON.stringify(pin ? { pin } : {}),
+      })
+      user = res.user
+    } else {
+      if (!pin) {
+        throw new Error('Ba/mẹ cần đặt mã PIN 6 số cho hồ sơ con trước khi vào học.')
+      }
+      const code = await api<{ familyCode: string }>(
+        '/api/parent/family-login-code',
+      )
+      const res = await api<{ user: User }>(
+        '/api/auth/login/child-profile',
+        {
+          method: 'POST',
+          body: JSON.stringify({
+            familyCode: code.familyCode,
+            childId,
+            pin,
+          }),
+        },
+      )
+      user = res.user
+    }
     set({ user, access: null, activeContext: null })
     return user
   },
