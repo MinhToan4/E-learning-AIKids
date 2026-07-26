@@ -159,7 +159,7 @@ function questFor(
 function buildCourse(course: ContentCourse, index: number): CourseSeed {
   const lessonCount = course.lessons.length
   const liveSessions = course.track === 'L1' ? (course.courseKey === 'K6' ? 5 : 4) : 8
-  const ageLabel = course.track === 'L1' ? '8–9 tuổi' : '10–11 tuổi'
+  const ageLabel = course.track === 'L1' ? '6–8 tuổi' : '9–11 tuổi'
   return {
     id: `${course.track.toLowerCase()}-${course.courseKey.toLowerCase()}-${SLUG[course.courseKey]}`,
     title: `${course.track} · ${course.title}`,

@@ -135,6 +135,8 @@ exports.Prisma.UserScalarFieldEnum = {
   xp: 'xp',
   onboarded: 'onboarded',
   goal: 'goal',
+  birthDate: 'birthDate',
+  ageBand: 'ageBand',
   active: 'active',
   parentId: 'parentId',
   classId: 'classId',
@@ -215,8 +217,231 @@ exports.Prisma.ClassRoomScalarFieldEnum = {
   name: 'name',
   code: 'code',
   teacherId: 'teacherId',
+  courseId: 'courseId',
+  classType: 'classType',
+  allowedAgeBands: 'allowedAgeBands',
+  minLevel: 'minLevel',
+  maxLevel: 'maxLevel',
+  capacity: 'capacity',
+  location: 'location',
+  meetingUrl: 'meetingUrl',
+  confirmedAt: 'confirmedAt',
   status: 'status',
   metadata: 'metadata',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ClassMembershipScalarFieldEnum = {
+  id: 'id',
+  classId: 'classId',
+  studentId: 'studentId',
+  status: 'status',
+  joinedAt: 'joinedAt',
+  leftAt: 'leftAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SchedulePolicyScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  version: 'version',
+  classType: 'classType',
+  maxCapacity: 'maxCapacity',
+  changeDeadlineHours: 'changeDeadlineHours',
+  maxReschedulesPerPeriod: 'maxReschedulesPerPeriod',
+  periodDays: 'periodDays',
+  reminderOffsetsMinutes: 'reminderOffsetsMinutes',
+  reminderChannels: 'reminderChannels',
+  absencePolicyJson: 'absencePolicyJson',
+  makeupPolicyJson: 'makeupPolicyJson',
+  status: 'status',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ClassSessionScalarFieldEnum = {
+  id: 'id',
+  classId: 'classId',
+  questId: 'questId',
+  title: 'title',
+  startsAt: 'startsAt',
+  endsAt: 'endsAt',
+  status: 'status',
+  location: 'location',
+  meetingUrl: 'meetingUrl',
+  enrollmentDeadline: 'enrollmentDeadline',
+  changeDeadline: 'changeDeadline',
+  lessonPlanJson: 'lessonPlanJson',
+  sessionNote: 'sessionNote',
+  attendanceFinalizedAt: 'attendanceFinalizedAt',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AttendanceRecordScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  studentId: 'studentId',
+  status: 'status',
+  note: 'note',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ClassSessionParticipantScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  studentId: 'studentId',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  status: 'status',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AttendanceRevisionScalarFieldEnum = {
+  id: 'id',
+  attendanceId: 'attendanceId',
+  actorId: 'actorId',
+  previousStatus: 'previousStatus',
+  newStatus: 'newStatus',
+  previousNote: 'previousNote',
+  newNote: 'newNote',
+  reason: 'reason',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ClassPlacementRequestScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  courseId: 'courseId',
+  requestedById: 'requestedById',
+  targetClassId: 'targetClassId',
+  requestedLevel: 'requestedLevel',
+  availabilityJson: 'availabilityJson',
+  status: 'status',
+  resolutionNote: 'resolutionNote',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.RescheduleRequestScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  targetSessionId: 'targetSessionId',
+  studentId: 'studentId',
+  requestedById: 'requestedById',
+  preferredStartsAt: 'preferredStartsAt',
+  preferredEndsAt: 'preferredEndsAt',
+  reason: 'reason',
+  status: 'status',
+  handledById: 'handledById',
+  decisionReason: 'decisionReason',
+  handledAt: 'handledAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.SessionReminderDeliveryScalarFieldEnum = {
+  id: 'id',
+  sessionId: 'sessionId',
+  recipientId: 'recipientId',
+  channel: 'channel',
+  scheduledFor: 'scheduledFor',
+  status: 'status',
+  attempts: 'attempts',
+  lastError: 'lastError',
+  providerMessageId: 'providerMessageId',
+  nextAttemptAt: 'nextAttemptAt',
+  sentAt: 'sentAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.TeacherObservationScalarFieldEnum = {
+  id: 'id',
+  teacherId: 'teacherId',
+  studentId: 'studentId',
+  courseId: 'courseId',
+  sessionId: 'sessionId',
+  body: 'body',
+  strengthsJson: 'strengthsJson',
+  developmentJson: 'developmentJson',
+  scorePercent: 'scorePercent',
+  status: 'status',
+  version: 'version',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReportTemplateScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  version: 'version',
+  name: 'name',
+  layoutJson: 'layoutJson',
+  requiredSections: 'requiredSections',
+  status: 'status',
+  createdById: 'createdById',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.ReportPolicyScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  version: 'version',
+  templateId: 'templateId',
+  periodDays: 'periodDays',
+  timezone: 'timezone',
+  requireApproval: 'requireApproval',
+  deliveryChannels: 'deliveryChannels',
+  maxDeliveryAttempts: 'maxDeliveryAttempts',
+  status: 'status',
+  createdById: 'createdById',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.LearningReportScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  templateId: 'templateId',
+  policyId: 'policyId',
+  periodStart: 'periodStart',
+  periodEnd: 'periodEnd',
+  status: 'status',
+  snapshotJson: 'snapshotJson',
+  missingSections: 'missingSections',
+  version: 'version',
+  createdById: 'createdById',
+  approvedById: 'approvedById',
+  approvedAt: 'approvedAt',
+  publishedAt: 'publishedAt',
+  pdfData: 'pdfData',
+  pdfSha256: 'pdfSha256',
+  pdfGeneratedAt: 'pdfGeneratedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ReportDeliveryScalarFieldEnum = {
+  id: 'id',
+  reportId: 'reportId',
+  recipientId: 'recipientId',
+  channel: 'channel',
+  idempotencyKey: 'idempotencyKey',
+  status: 'status',
+  attempts: 'attempts',
+  destinationMasked: 'destinationMasked',
+  providerMessageId: 'providerMessageId',
+  lastError: 'lastError',
+  nextAttemptAt: 'nextAttemptAt',
+  sentAt: 'sentAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 };
@@ -265,7 +490,11 @@ exports.Prisma.QuestScalarFieldEnum = {
   checkJson: 'checkJson',
   chipsJson: 'chipsJson',
   stationsJson: 'stationsJson',
-  archived: 'archived'
+  archived: 'archived',
+  contentVersion: 'contentVersion',
+  offlineAllowed: 'offlineAllowed',
+  offlineMaxAgeHours: 'offlineMaxAgeHours',
+  updatedAt: 'updatedAt'
 };
 
 exports.Prisma.EnrollmentScalarFieldEnum = {
@@ -286,6 +515,397 @@ exports.Prisma.QuestProgressScalarFieldEnum = {
   dataJson: 'dataJson',
   updatedAt: 'updatedAt',
   createdAt: 'createdAt'
+};
+
+exports.Prisma.QuestionBankItemScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  courseId: 'courseId',
+  title: 'title',
+  tags: 'tags',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.QuestionVersionScalarFieldEnum = {
+  id: 'id',
+  questionId: 'questionId',
+  version: 'version',
+  type: 'type',
+  promptJson: 'promptJson',
+  answerKeyJson: 'answerKeyJson',
+  rubricJson: 'rubricJson',
+  explanation: 'explanation',
+  difficulty: 'difficulty',
+  ageBands: 'ageBands',
+  status: 'status',
+  authoredById: 'authoredById',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AssessmentScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  courseId: 'courseId',
+  questId: 'questId',
+  title: 'title',
+  kind: 'kind',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AssessmentVersionScalarFieldEnum = {
+  id: 'id',
+  assessmentId: 'assessmentId',
+  version: 'version',
+  instructionsJson: 'instructionsJson',
+  durationMinutes: 'durationMinutes',
+  passScore: 'passScore',
+  maxAttempts: 'maxAttempts',
+  cooldownMinutes: 'cooldownMinutes',
+  allowResume: 'allowResume',
+  randomizeQuestions: 'randomizeQuestions',
+  feedbackPolicy: 'feedbackPolicy',
+  status: 'status',
+  createdById: 'createdById',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.AssessmentItemScalarFieldEnum = {
+  id: 'id',
+  assessmentVersionId: 'assessmentVersionId',
+  questionVersionId: 'questionVersionId',
+  order: 'order',
+  points: 'points',
+  required: 'required'
+};
+
+exports.Prisma.AssessmentAttemptScalarFieldEnum = {
+  id: 'id',
+  assessmentVersionId: 'assessmentVersionId',
+  studentId: 'studentId',
+  attemptNumber: 'attemptNumber',
+  clientAttemptId: 'clientAttemptId',
+  clientSubmissionId: 'clientSubmissionId',
+  status: 'status',
+  startedAt: 'startedAt',
+  expiresAt: 'expiresAt',
+  itemOrderJson: 'itemOrderJson',
+  submittedAt: 'submittedAt',
+  gradedAt: 'gradedAt',
+  publishedAt: 'publishedAt',
+  earnedPoints: 'earnedPoints',
+  possiblePoints: 'possiblePoints',
+  scorePercent: 'scorePercent',
+  passed: 'passed',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AssessmentResponseScalarFieldEnum = {
+  id: 'id',
+  attemptId: 'attemptId',
+  questionVersionId: 'questionVersionId',
+  responseJson: 'responseJson',
+  autoRatio: 'autoRatio',
+  manualRatio: 'manualRatio',
+  finalRatio: 'finalRatio',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.AssessmentReviewScalarFieldEnum = {
+  id: 'id',
+  responseId: 'responseId',
+  status: 'status',
+  reviewerId: 'reviewerId',
+  rubricScoresJson: 'rubricScoresJson',
+  aiDraftJson: 'aiDraftJson',
+  feedback: 'feedback',
+  reviewedAt: 'reviewedAt',
+  publishedAt: 'publishedAt',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.ArtifactSubmissionScalarFieldEnum = {
+  id: 'id',
+  responseId: 'responseId',
+  studentId: 'studentId',
+  projectId: 'projectId',
+  assetId: 'assetId',
+  storageObjectId: 'storageObjectId',
+  snapshotJson: 'snapshotJson',
+  checksum: 'checksum',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CompetencyFrameworkScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  version: 'version',
+  name: 'name',
+  description: 'description',
+  expectedDomainCount: 'expectedDomainCount',
+  sourceReference: 'sourceReference',
+  alignmentStatement: 'alignmentStatement',
+  disclaimer: 'disclaimer',
+  status: 'status',
+  createdById: 'createdById',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CompetencyDomainScalarFieldEnum = {
+  id: 'id',
+  frameworkId: 'frameworkId',
+  code: 'code',
+  name: 'name',
+  description: 'description',
+  sortOrder: 'sortOrder'
+};
+
+exports.Prisma.CompetencySkillScalarFieldEnum = {
+  id: 'id',
+  domainId: 'domainId',
+  code: 'code',
+  name: 'name',
+  description: 'description',
+  learnerLabel: 'learnerLabel',
+  levelPolicyJson: 'levelPolicyJson',
+  sortOrder: 'sortOrder'
+};
+
+exports.Prisma.CompetencyMappingVersionScalarFieldEnum = {
+  id: 'id',
+  frameworkId: 'frameworkId',
+  version: 'version',
+  calculationPolicyJson: 'calculationPolicyJson',
+  status: 'status',
+  createdById: 'createdById',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CompetencyMappingScalarFieldEnum = {
+  id: 'id',
+  mappingVersionId: 'mappingVersionId',
+  skillId: 'skillId',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  evidenceType: 'evidenceType',
+  weight: 'weight',
+  active: 'active'
+};
+
+exports.Prisma.CompetencyEvidenceScalarFieldEnum = {
+  id: 'id',
+  fingerprint: 'fingerprint',
+  studentId: 'studentId',
+  skillId: 'skillId',
+  mappingId: 'mappingId',
+  sourceType: 'sourceType',
+  sourceId: 'sourceId',
+  sourceVersion: 'sourceVersion',
+  evidenceType: 'evidenceType',
+  scorePercent: 'scorePercent',
+  weightSnapshot: 'weightSnapshot',
+  occurredAt: 'occurredAt',
+  status: 'status',
+  revokedAt: 'revokedAt',
+  metadataJson: 'metadataJson',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CompetencySnapshotScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  skillId: 'skillId',
+  mappingVersionId: 'mappingVersionId',
+  version: 'version',
+  current: 'current',
+  scorePercent: 'scorePercent',
+  level: 'level',
+  evidenceCount: 'evidenceCount',
+  calculationJson: 'calculationJson',
+  computedAt: 'computedAt'
+};
+
+exports.Prisma.CompetencySnapshotEvidenceScalarFieldEnum = {
+  snapshotId: 'snapshotId',
+  evidenceId: 'evidenceId'
+};
+
+exports.Prisma.CompetencyRecalculationRunScalarFieldEnum = {
+  id: 'id',
+  mappingVersionId: 'mappingVersionId',
+  studentId: 'studentId',
+  status: 'status',
+  reason: 'reason',
+  actorId: 'actorId',
+  startedAt: 'startedAt',
+  finishedAt: 'finishedAt',
+  errorMessage: 'errorMessage',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CredentialTemplateScalarFieldEnum = {
+  id: 'id',
+  code: 'code',
+  version: 'version',
+  kind: 'kind',
+  name: 'name',
+  layoutJson: 'layoutJson',
+  status: 'status',
+  createdById: 'createdById',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.CredentialRuleScalarFieldEnum = {
+  id: 'id',
+  courseId: 'courseId',
+  templateId: 'templateId',
+  kind: 'kind',
+  version: 'version',
+  minCompletionPercent: 'minCompletionPercent',
+  requirePassedAssessment: 'requirePassedAssessment',
+  requiredSkillLevelsJson: 'requiredSkillLevelsJson',
+  status: 'status',
+  createdById: 'createdById',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.IssuedCredentialScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  courseId: 'courseId',
+  ruleId: 'ruleId',
+  templateId: 'templateId',
+  kind: 'kind',
+  verificationCode: 'verificationCode',
+  payloadJson: 'payloadJson',
+  status: 'status',
+  issuedById: 'issuedById',
+  issuedAt: 'issuedAt',
+  revokedById: 'revokedById',
+  revokedAt: 'revokedAt',
+  revokeReason: 'revokeReason',
+  supersedesCredentialId: 'supersedesCredentialId'
+};
+
+exports.Prisma.AgeExperiencePolicyScalarFieldEnum = {
+  id: 'id',
+  ageBand: 'ageBand',
+  label: 'label',
+  allowedCourseTracks: 'allowedCourseTracks',
+  uiPolicyJson: 'uiPolicyJson',
+  copyPolicyJson: 'copyPolicyJson',
+  permissionPolicyJson: 'permissionPolicyJson',
+  assessmentPolicyJson: 'assessmentPolicyJson',
+  version: 'version',
+  status: 'status',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CoursePathRuleScalarFieldEnum = {
+  id: 'id',
+  courseId: 'courseId',
+  version: 'version',
+  prerequisiteCourseIds: 'prerequisiteCourseIds',
+  minCompletionPercent: 'minCompletionPercent',
+  minFinalScore: 'minFinalScore',
+  allowedAgeBands: 'allowedAgeBands',
+  availableFrom: 'availableFrom',
+  nextCourseId: 'nextCourseId',
+  status: 'status',
+  createdById: 'createdById',
+  publishedAt: 'publishedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.CourseUnlockOverrideScalarFieldEnum = {
+  id: 'id',
+  studentId: 'studentId',
+  courseId: 'courseId',
+  allowed: 'allowed',
+  reason: 'reason',
+  actorId: 'actorId',
+  expiresAt: 'expiresAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LessonNoteScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  body: 'body',
+  anchorType: 'anchorType',
+  anchorValue: 'anchorValue',
+  version: 'version',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.LessonBookmarkScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  label: 'label',
+  anchorType: 'anchorType',
+  anchorValue: 'anchorValue',
+  createdAt: 'createdAt'
+};
+
+exports.Prisma.LessonResumeScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  percent: 'percent',
+  positionSeconds: 'positionSeconds',
+  sectionId: 'sectionId',
+  version: 'version',
+  lastOccurredAt: 'lastOccurredAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OfflineGrantScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  deviceId: 'deviceId',
+  contentVersion: 'contentVersion',
+  manifestJson: 'manifestJson',
+  status: 'status',
+  expiresAt: 'expiresAt',
+  revokedAt: 'revokedAt',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+};
+
+exports.Prisma.OfflineProgressEventScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  questId: 'questId',
+  deviceId: 'deviceId',
+  clientEventId: 'clientEventId',
+  percent: 'percent',
+  positionSeconds: 'positionSeconds',
+  sectionId: 'sectionId',
+  occurredAt: 'occurredAt',
+  acceptedAt: 'acceptedAt'
 };
 
 exports.Prisma.AssetScalarFieldEnum = {
@@ -406,12 +1026,31 @@ exports.Prisma.LoginLogScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.AuditEventScalarFieldEnum = {
+  id: 'id',
+  actorId: 'actorId',
+  action: 'action',
+  targetType: 'targetType',
+  targetId: 'targetId',
+  reason: 'reason',
+  beforeJson: 'beforeJson',
+  afterJson: 'afterJson',
+  requestId: 'requestId',
+  ipAddress: 'ipAddress',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
 };
 
 exports.Prisma.JsonNullValueInput = {
+  JsonNull: Prisma.JsonNull
+};
+
+exports.Prisma.NullableJsonNullValueInput = {
+  DbNull: Prisma.DbNull,
   JsonNull: Prisma.JsonNull
 };
 
@@ -440,10 +1079,53 @@ exports.Prisma.ModelName = {
   TeacherProfile: 'TeacherProfile',
   Session: 'Session',
   ClassRoom: 'ClassRoom',
+  ClassMembership: 'ClassMembership',
+  SchedulePolicy: 'SchedulePolicy',
+  ClassSession: 'ClassSession',
+  AttendanceRecord: 'AttendanceRecord',
+  ClassSessionParticipant: 'ClassSessionParticipant',
+  AttendanceRevision: 'AttendanceRevision',
+  ClassPlacementRequest: 'ClassPlacementRequest',
+  RescheduleRequest: 'RescheduleRequest',
+  SessionReminderDelivery: 'SessionReminderDelivery',
+  TeacherObservation: 'TeacherObservation',
+  ReportTemplate: 'ReportTemplate',
+  ReportPolicy: 'ReportPolicy',
+  LearningReport: 'LearningReport',
+  ReportDelivery: 'ReportDelivery',
   Course: 'Course',
   Quest: 'Quest',
   Enrollment: 'Enrollment',
   QuestProgress: 'QuestProgress',
+  QuestionBankItem: 'QuestionBankItem',
+  QuestionVersion: 'QuestionVersion',
+  Assessment: 'Assessment',
+  AssessmentVersion: 'AssessmentVersion',
+  AssessmentItem: 'AssessmentItem',
+  AssessmentAttempt: 'AssessmentAttempt',
+  AssessmentResponse: 'AssessmentResponse',
+  AssessmentReview: 'AssessmentReview',
+  ArtifactSubmission: 'ArtifactSubmission',
+  CompetencyFramework: 'CompetencyFramework',
+  CompetencyDomain: 'CompetencyDomain',
+  CompetencySkill: 'CompetencySkill',
+  CompetencyMappingVersion: 'CompetencyMappingVersion',
+  CompetencyMapping: 'CompetencyMapping',
+  CompetencyEvidence: 'CompetencyEvidence',
+  CompetencySnapshot: 'CompetencySnapshot',
+  CompetencySnapshotEvidence: 'CompetencySnapshotEvidence',
+  CompetencyRecalculationRun: 'CompetencyRecalculationRun',
+  CredentialTemplate: 'CredentialTemplate',
+  CredentialRule: 'CredentialRule',
+  IssuedCredential: 'IssuedCredential',
+  AgeExperiencePolicy: 'AgeExperiencePolicy',
+  CoursePathRule: 'CoursePathRule',
+  CourseUnlockOverride: 'CourseUnlockOverride',
+  LessonNote: 'LessonNote',
+  LessonBookmark: 'LessonBookmark',
+  LessonResume: 'LessonResume',
+  OfflineGrant: 'OfflineGrant',
+  OfflineProgressEvent: 'OfflineProgressEvent',
   Asset: 'Asset',
   Project: 'Project',
   Approval: 'Approval',
@@ -453,7 +1135,8 @@ exports.Prisma.ModelName = {
   PushDevice: 'PushDevice',
   StorageObject: 'StorageObject',
   SystemSetting: 'SystemSetting',
-  LoginLog: 'LoginLog'
+  LoginLog: 'LoginLog',
+  AuditEvent: 'AuditEvent'
 };
 
 /**

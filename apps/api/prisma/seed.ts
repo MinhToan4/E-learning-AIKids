@@ -13,6 +13,106 @@ import { upsertCourse } from './seed/upsert-course.js'
 
 const prisma = new PrismaClient()
 
+async function seedCourseFinalAssessments() {
+  for (const course of curriculumCourses) {
+    const objectiveVersions = []
+    const finalChecks = course.quests.at(-1)?.check ?? []
+    for (const [checkIndex, check] of finalChecks.entries()) {
+      const objective = await prisma.questionBankItem.upsert({
+        where: { code: `final-check-${course.id}-${checkIndex + 1}` },
+        create: {
+          code: `final-check-${course.id}-${checkIndex + 1}`,
+          courseId: course.id,
+          title: check.question,
+          tags: ['course-final', 'self-check', course.ageTrack],
+          versions: {
+            create: {
+              version: 1,
+              type: 'single_choice',
+              promptJson: {
+                stem: check.question,
+                options: check.options.map((text, optionIndex) => ({
+                  id: `option-${optionIndex + 1}`,
+                  text,
+                })),
+              },
+              answerKeyJson: {
+                type: 'single_choice',
+                correctOptionIds: [`option-${check.correctIndex + 1}`],
+              },
+              rubricJson: {},
+              explanation: check.explain,
+              difficulty: 'medium',
+              ageBands:
+                course.ageTrack === 'L1'
+                  ? ['6_8']
+                  : ['9_11', '11_plus'],
+              status: 'published',
+              publishedAt: new Date(),
+            },
+          },
+        },
+        update: {},
+        include: {
+          versions: {
+            orderBy: { version: 'desc' },
+            take: 1,
+          },
+        },
+      })
+      const latest = objective.versions[0]
+      if (latest) objectiveVersions.push(latest)
+    }
+    if (objectiveVersions.length === 0) {
+      throw new Error(
+        `Cannot seed final assessment without a reviewed course check: ${course.id}`,
+      )
+    }
+    const assessment = await prisma.assessment.upsert({
+      where: { code: `final-${course.id}` },
+      create: {
+        code: `final-${course.id}`,
+        courseId: course.id,
+        title: `Bài đánh giá cuối khóa: ${course.shortTitle}`,
+        kind: 'course_final',
+      },
+      update: {},
+    })
+    const published = await prisma.assessmentVersion.findFirst({
+      where: { assessmentId: assessment.id, status: 'published' },
+    })
+    if (!published) {
+      await prisma.assessmentVersion.create({
+        data: {
+          assessmentId: assessment.id,
+          version: 1,
+          instructionsJson: {
+            intro:
+              'Con trả lời các câu hỏi tổng kết đã được biên soạn trong nội dung khóa học.',
+          },
+          durationMinutes: 45,
+          passScore: 70,
+          maxAttempts: 3,
+          cooldownMinutes: 0,
+          allowResume: true,
+          randomizeQuestions: false,
+          feedbackPolicy: 'after_publish',
+          status: 'published',
+          publishedAt: new Date(),
+          items: {
+            create: objectiveVersions.map((version, index) => ({
+                questionVersionId: version.id,
+                order: index + 1,
+                points: 1,
+                required: true,
+              })),
+          },
+        },
+      })
+    }
+  }
+}
+
 async function seedPlansAndDemoSubscription(parentUserId: string) {
   for (const p of PLAN_CATALOG) {
     await prisma.plan.upsert({
@@ -140,6 +240,8 @@ async function seedDemoUsers() {
         role: 'student',
         nickname: 'MựcCon',
         avatarId: 'avatar-robot',
+        birthDate: new Date('2016-08-15T00:00:00.000Z'),
+        ageBand: '9_11',
         parentId: parent.id,
         classId: classroom.id,
         onboarded: true,
@@ -202,7 +304,9 @@ async function main() {
     if (demoParent) await seedPlansAndDemoSubscription(demoParent.id)
   }
 
-  // Soft-retire legacy 8–11 blob courses (keep rows for old enrollments)
+  // Legacy 8–11 experiential courses — keep rows and update recognitionJson only.
+  // Status intentionally set to 'open' so admin/teacher can manage visibility via UI.
+  // Do NOT force 'soon' here: that would override any admin toggle on every re-seed.
   await prisma.course.updateMany({
     where: {
       id: {
@@ -210,7 +314,7 @@ async function main() {
       },
     },
     data: {
-      status: 'soon',
+      status: 'open',
       recognitionJson: JSON.stringify({
         issuer: 'AI Kids Creator Academy',
         credential: 'Huy hiệu hoàn thành khóa trải nghiệm AI',
@@ -231,6 +335,7 @@ async function main() {
   for (const course of curriculumCourses) {
     await upsertCourse(prisma, course)
   }
+  await seedCourseFinalAssessments()
 
   // AI Literacy standalone courses (inspired by Little Thinkers AI + Little AI Master)
   await upsertCourse(prisma, courseAILiteracyL1)
