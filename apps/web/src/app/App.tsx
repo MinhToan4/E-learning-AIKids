@@ -2,6 +2,7 @@ import { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router-dom'
 import { useAuth } from '@/shared/store/auth'
 import { AppShell } from '@/shared/components/layout/AppShell'
+import { AgeExperienceProvider } from '@/shared/age-experience/AgeExperienceProvider'
 import { WelcomePage } from '@/features/auth/pages/WelcomePage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
 import type { User } from '@/shared/lib/api'
@@ -79,9 +80,24 @@ const LeaderboardPage = lazy(() =>
     default: m.LeaderboardPage,
   })),
 )
+const CredentialVerifyPage = lazy(() =>
+  import('@/features/achievements/pages/CredentialVerifyPage').then((m) => ({
+    default: m.CredentialVerifyPage,
+  })),
+)
+const AssessmentPage = lazy(() =>
+  import('@/features/assessment/pages/AssessmentPage').then((m) => ({
+    default: m.AssessmentPage,
+  })),
+)
 const ParentPage = lazy(() =>
   import('@/features/parent/pages/ParentPage').then((m) => ({
     default: m.ParentPage,
+  })),
+)
+const ParentLearningPage = lazy(() =>
+  import('@/features/parent/pages/ParentLearningPage').then((m) => ({
+    default: m.ParentLearningPage,
   })),
 )
 const TeacherPage = lazy(() =>
@@ -89,9 +105,29 @@ const TeacherPage = lazy(() =>
     default: m.TeacherPage,
   })),
 )
+const TeacherOperationsPage = lazy(() =>
+  import('@/features/teacher/pages/TeacherOperationsPage').then((m) => ({
+    default: m.TeacherOperationsPage,
+  })),
+)
+const AssessmentAuthoringPage = lazy(() =>
+  import('@/features/teacher/pages/AssessmentAuthoringPage').then((m) => ({
+    default: m.AssessmentAuthoringPage,
+  })),
+)
+const SchedulingPage = lazy(() =>
+  import('@/features/teacher/pages/SchedulingPage').then((m) => ({
+    default: m.SchedulingPage,
+  })),
+)
 const AdminPage = lazy(() =>
   import('@/features/admin/pages/AdminPage').then((m) => ({
     default: m.AdminPage,
+  })),
+)
+const Phase2ConfigPage = lazy(() =>
+  import('@/features/admin/pages/Phase2ConfigPage').then((m) => ({
+    default: m.Phase2ConfigPage,
   })),
 )
 const OrganizationPage = lazy(() =>
@@ -156,8 +192,9 @@ export function App() {
   }, [bootstrap])
 
   return (
-    <Suspense fallback={<Fallback />}>
-      <Routes>
+    <AgeExperienceProvider>
+      <Suspense fallback={<Fallback />}>
+        <Routes>
         <Route path="/" element={<WelcomePage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
@@ -169,6 +206,7 @@ export function App() {
         <Route path="/account/delete" element={<LegalPage kind="delete" />} />
         <Route path="/support" element={<LegalPage kind="support" />} />
         <Route path="/data-safety" element={<LegalPage kind="data-safety" />} />
+        <Route path="/verify/credential/:code" element={<CredentialVerifyPage />} />
         <Route
           path="/kids"
           element={
@@ -273,6 +311,14 @@ export function App() {
             }
           />
           <Route
+            path="/assessments"
+            element={
+              <Guard roles={['student']} requireOnboarded>
+                <AssessmentPage />
+              </Guard>
+            }
+          />
+          <Route
             path="/parent"
             element={
               <Guard roles={['parent']}>
@@ -309,6 +355,14 @@ export function App() {
             element={
               <Guard roles={['parent']}>
                 <ParentPage tab="plan" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/parent/learning"
+            element={
+              <Guard roles={['parent']}>
+                <ParentLearningPage />
               </Guard>
             }
           />
@@ -353,10 +407,42 @@ export function App() {
             }
           />
           <Route
+            path="/teacher/scheduling"
+            element={
+              <Guard roles={['teacher', 'admin']}>
+                <SchedulingPage />
+              </Guard>
+            }
+          />
+          <Route
+            path="/teacher/assessments"
+            element={
+              <Guard roles={['teacher', 'admin']}>
+                <AssessmentAuthoringPage />
+              </Guard>
+            }
+          />
+          <Route
+            path="/teacher/operations"
+            element={
+              <Guard roles={['teacher', 'admin']}>
+                <TeacherOperationsPage />
+              </Guard>
+            }
+          />
+          <Route
             path="/admin"
             element={
               <Guard roles={['admin']}>
                 <AdminPage tab="system" />
+              </Guard>
+            }
+          />
+          <Route
+            path="/admin/learning-config"
+            element={
+              <Guard roles={['admin']}>
+                <Phase2ConfigPage />
               </Guard>
             }
           />
@@ -410,7 +496,8 @@ export function App() {
           />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
-    </Suspense>
+        </Routes>
+      </Suspense>
+    </AgeExperienceProvider>
   )
 }
