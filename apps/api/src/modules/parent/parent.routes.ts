@@ -2,6 +2,7 @@ import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import {
   can,
+  ageBandForBirthDate,
   parentOwnsChild,
   isNicknameSafe,
   isValidChildPin,
@@ -33,6 +34,17 @@ function parseStringArray(value: string): string[] {
     return []
   }
 }
+
+const childBirthDateSchema = z.coerce.date().superRefine((birthDate, context) => {
+  try {
+    ageBandForBirthDate(birthDate)
+  } catch {
+    context.addIssue({
+      code: z.ZodIssueCode.custom,
+      message: 'Ngày sinh phải tương ứng độ tuổi từ 6 đến 17.',
+    })
+  }
+})
 
 export async function parentRoutes(app: FastifyInstance) {
   /** Catalog of household plans (no payment processor in v1 — manual activate) */
@@ -179,6 +191,8 @@ export async function parentRoutes(app: FastifyInstance) {
           xp: c.xp,
           onboarded: c.onboarded,
           active: c.active,
+          birthDate: c.birthDate,
+          ageBand: c.ageBand,
           hasPin: Boolean(c.pinHash),
           completedQuests: completedByChild.get(c.id) ?? 0,
           totalStars: starsByChild.get(c.id) ?? 0,
@@ -413,6 +427,8 @@ export async function parentRoutes(app: FastifyInstance) {
         classCode: z.string().max(20).optional(),
         /** Optional 6-digit PIN for shared devices */
         pin: z.string().regex(/^\d{6}$/).optional(),
+        birthDate: childBirthDateSchema,
+        goal: z.enum(['comic', 'video', 'character']).optional(),
       })
       .parse(request.body)
 
@@ -464,6 +480,7 @@ export async function parentRoutes(app: FastifyInstance) {
     }
 
     const pinHash = body.pin ? await hashPassword(body.pin) : null
+    const ageBand = ageBandForBirthDate(body.birthDate)
 
     const child = await prisma.user.create({
       data: {
@@ -473,6 +490,9 @@ export async function parentRoutes(app: FastifyInstance) {
         parentId: user.id,
         classId,
         pinHash,
+        birthDate: body.birthDate,
+        ageBand,
+        goal: body.goal,
         level: 1,
         xp: 0,
         onboarded: false,
@@ -485,6 +505,8 @@ export async function parentRoutes(app: FastifyInstance) {
         parentId: user.id,
         childId: child.id,
         hasPin: Boolean(pinHash),
+        birthDate: child.birthDate,
+        ageBand: child.ageBand,
         classId: child.classId,
       },
       'parent.child_create ok',
@@ -497,6 +519,8 @@ export async function parentRoutes(app: FastifyInstance) {
         avatarId: child.avatarId,
         classId: child.classId,
         hasPin: Boolean(pinHash),
+        birthDate: child.birthDate,
+        ageBand: child.ageBand,
       },
     })
   })
@@ -576,6 +600,7 @@ export async function parentRoutes(app: FastifyInstance) {
         classCode: z.string().max(20).optional(),
         /** Set new PIN; empty string clears PIN */
         pin: z.union([z.string().regex(/^\d{6}$/), z.literal('')]).optional(),
+        birthDate: childBirthDateSchema.nullable().optional(),
       })
       .parse(request.body)
 
@@ -603,18 +628,46 @@ export async function parentRoutes(app: FastifyInstance) {
     else if (body.pin && isValidChildPin(body.pin)) {
       pinHash = await hashPassword(body.pin)
     }
+    const ageBand = body.birthDate
+      ? ageBandForBirthDate(body.birthDate)
+      : undefined
 
-    const updated = await prisma.user.update({
-      where: { id: childId },
-      data: {
-        nickname: body.nickname?.trim(),
-        avatarId: body.avatarId,
-        classId:
-          classId === undefined && body.classCode === undefined
-            ? undefined
-            : (classId ?? null),
-        pinHash,
-      },
+    const updated = await prisma.$transaction(async (tx) => {
+      const row = await tx.user.update({
+        where: { id: childId },
+        data: {
+          nickname: body.nickname?.trim(),
+          avatarId: body.avatarId,
+          classId:
+            classId === undefined && body.classCode === undefined
+              ? undefined
+              : (classId ?? null),
+          pinHash,
+          birthDate: body.birthDate,
+          ageBand,
+        },
+      })
+      if (body.birthDate && child.ageBand !== row.ageBand) {
+        await tx.auditEvent.create({
+          data: {
+            actorId: user.id,
+            action: 'child.age_band_changed',
+            targetType: 'user',
+            targetId: child.id,
+            beforeJson: {
+              ageBand: child.ageBand,
+              birthDate: child.birthDate?.toISOString() ?? null,
+            },
+            afterJson: {
+              ageBand: row.ageBand,
+              birthDate: row.birthDate?.toISOString() ?? null,
+            },
+            requestId: request.id,
+            ipAddress: request.ip,
+          },
+        })
+      }
+      return row
     })
 
     return {
@@ -624,8 +677,50 @@ export async function parentRoutes(app: FastifyInstance) {
         avatarId: updated.avatarId,
         classId: updated.classId,
         hasPin: Boolean(updated.pinHash),
+        birthDate: updated.birthDate,
+        ageBand: updated.ageBand,
       },
     }
+  })
+
+  // ── Parent sets / clears child PIN ─────────────────────────
+  // Route riêng để đặt/xóa PIN sau khi tạo hoặc chỉnh sửa hồ sơ.
+  // Frontend gọi đây như bước thứ 2 sau PATCH/:childId hoặc POST /children.
+  app.post('/api/parent/children/:childId/pin', async (request, reply) => {
+    const user = requireRole(request, ['parent'])
+    if (!can(user.role, 'child:update')) {
+      return reply.code(403).send({ error: 'Không có quyền.' })
+    }
+
+    const { childId } = request.params as { childId: string }
+    const child = await prisma.user.findUnique({ where: { id: childId } })
+    if (!child || child.role !== 'student') {
+      return reply.code(404).send({ error: 'Không tìm thấy hồ sơ con.' })
+    }
+    if (!parentOwnsChild(user.id, child.parentId)) {
+      return reply.code(403).send({ error: 'Đây không phải hồ sơ con của bạn.' })
+    }
+
+    const body = z
+      .object({
+        // Chuỗi 6 chữ số để đặt PIN, hoặc chuỗi rỗng để xóa PIN
+        pin: z.union([z.string().regex(/^\d{6}$/), z.literal('')]),
+      })
+      .parse(request.body)
+
+    const pinHash =
+      body.pin === '' ? null : await hashPassword(body.pin)
+
+    await prisma.user.update({
+      where: { id: childId },
+      data: { pinHash },
+    })
+
+    request.log.info(
+      { parentId: user.id, childId, cleared: body.pin === '' },
+      'parent.child_pin_set ok',
+    )
+    return reply.code(200).send({ hasPin: body.pin !== '' })
   })
 
   // ── Parent deactivates child account ────────────────────────
@@ -793,6 +888,185 @@ export async function parentRoutes(app: FastifyInstance) {
     return {
       user: publicUser(parentUser!),
       message: `Chào ba/mẹ! ${childUser.nickname} đang chờ ba/mẹ nhé.`,
+    }
+  })
+
+  // ── Parent: xem danh sách khóa học và trạng thái đăng ký của con ──────────
+  /**
+   * GET /api/parent/children/:childId/courses
+   * Trả về tất cả khóa học open + trạng thái đăng ký của con.
+   * RBAC: parent sở hữu con (IDOR guard bằng parentOwnsChild).
+   */
+  app.get('/api/parent/children/:childId/courses', async (request, reply) => {
+    const user = requireRole(request, ['parent'])
+    if (!can(user.role, 'child:update')) {
+      return reply.code(403).send({ error: 'Không có quyền.' })
+    }
+    const { childId } = request.params as { childId: string }
+    const child = await prisma.user.findUnique({ where: { id: childId } })
+    if (!child || child.role !== 'student') {
+      return reply.code(404).send({ error: 'Không tìm thấy.' })
+    }
+    if (!parentOwnsChild(user.id, child.parentId)) {
+      return reply.code(403).send({ error: 'Không phải con của bạn.' })
+    }
+
+    const [courses, enrollments, overrides] = await prisma.$transaction([
+      // Chỉ lấy khóa đang open
+      prisma.course.findMany({
+        where: { status: 'open' },
+        orderBy: { sortOrder: 'asc' },
+        select: {
+          id: true,
+          title: true,
+          shortTitle: true,
+          ageLabel: true,
+          ageTrack: true,
+          coverImage: true,
+          tagline: true,
+        },
+      }),
+      prisma.enrollment.findMany({
+        where: { userId: childId },
+        select: { courseId: true },
+      }),
+      prisma.courseUnlockOverride.findMany({
+        where: {
+          studentId: childId,
+          OR: [{ expiresAt: null }, { expiresAt: { gt: new Date() } }],
+        },
+        select: { courseId: true, allowed: true },
+      }),
+    ])
+
+    const enrolledSet = new Set(enrollments.map((e) => e.courseId))
+    const overrideMap = new Map(overrides.map((o) => [o.courseId, o.allowed]))
+
+    return {
+      child: { id: child.id, nickname: child.nickname, ageBand: child.ageBand },
+      courses: courses.map((course) => ({
+        ...course,
+        enrolled: enrolledSet.has(course.id),
+        // null = không có override, true = parent đã mở, false = parent đã chặn
+        parentAllowed: overrideMap.get(course.id) ?? null,
+      })),
+    }
+  })
+
+  // ── Parent: chọn / bỏ chọn khóa học cho con ──────────────────────────────
+  /**
+   * POST /api/parent/children/:childId/courses
+   * Body: { courseId: string, enroll: boolean }
+   * enroll=true  → tạo CourseUnlockOverride(allowed:true) + Enrollment → con học ngay
+   * enroll=false → xóa CourseUnlockOverride + xóa Enrollment → ẩn khỏi lộ trình
+   *
+   * Bảo mật:
+   *  - RBAC: role=parent với permission child:update
+   *  - IDOR: parentOwnsChild() bắt buộc
+   *  - Audit log mỗi thay đổi
+   */
+  app.post('/api/parent/children/:childId/courses', async (request, reply) => {
+    const user = requireRole(request, ['parent'])
+    if (!can(user.role, 'child:update')) {
+      return reply.code(403).send({ error: 'Không có quyền.' })
+    }
+    const { childId } = request.params as { childId: string }
+    const child = await prisma.user.findUnique({ where: { id: childId } })
+    if (!child || child.role !== 'student') {
+      return reply.code(404).send({ error: 'Không tìm thấy.' })
+    }
+    if (!parentOwnsChild(user.id, child.parentId)) {
+      return reply.code(403).send({ error: 'Không phải con của bạn.' })
+    }
+
+    const body = z
+      .object({
+        courseId: z.string().min(1).max(120),
+        enroll: z.boolean(),
+      })
+      .parse(request.body)
+
+    // Kiểm tra khóa học tồn tại và đang open
+    const course = await prisma.course.findFirst({
+      where: { id: body.courseId, status: 'open' },
+      select: { id: true, title: true },
+    })
+    if (!course) {
+      return reply.code(404).send({ error: 'Khóa học không tồn tại hoặc chưa mở.' })
+    }
+
+    if (body.enroll) {
+      // Mở khóa học: tạo override + enrollment trong 1 transaction
+      await prisma.$transaction(async (tx) => {
+        // CourseUnlockOverride(allowed: true) — bỏ qua age gate cho khóa này
+        await tx.courseUnlockOverride.upsert({
+          where: { studentId_courseId: { studentId: childId, courseId: body.courseId } },
+          create: {
+            studentId: childId,
+            courseId: body.courseId,
+            allowed: true,
+            reason: `Ba/mẹ chọn khóa học cho con (parentId: ${user.id})`,
+            actorId: user.id,
+          },
+          update: {
+            allowed: true,
+            reason: `Ba/mẹ chọn khóa học cho con (parentId: ${user.id})`,
+            actorId: user.id,
+            expiresAt: null, // bỏ hết hạn nếu có
+          },
+        })
+        // Enrollment — con thấy khóa trong lộ trình
+        await tx.enrollment.upsert({
+          where: { userId_courseId: { userId: childId, courseId: body.courseId } },
+          create: { userId: childId, courseId: body.courseId },
+          update: {},
+        })
+        // Audit log
+        await tx.auditEvent.create({
+          data: {
+            actorId: user.id,
+            action: 'parent.course_enrolled',
+            targetType: 'enrollment',
+            targetId: childId,
+            reason: `Ba/mẹ đăng ký khóa "${course.title}" cho con`,
+            afterJson: { childId, courseId: body.courseId, enrolled: true },
+            requestId: request.id,
+            ipAddress: request.ip,
+          },
+        })
+      })
+      request.log.info(
+        { parentId: user.id, childId, courseId: body.courseId },
+        'parent.course_enrolled',
+      )
+      return reply.code(201).send({ ok: true, enrolled: true, courseId: body.courseId })
+    } else {
+      // Bỏ chọn: xóa override + xóa enrollment
+      await prisma.$transaction(async (tx) => {
+        await tx.courseUnlockOverride.deleteMany({
+          where: { studentId: childId, courseId: body.courseId },
+        })
+        await tx.enrollment.deleteMany({
+          where: { userId: childId, courseId: body.courseId },
+        })
+        await tx.auditEvent.create({
+          data: {
+            actorId: user.id,
+            action: 'parent.course_unenrolled',
+            targetType: 'enrollment',
+            targetId: childId,
+            reason: `Ba/mẹ bỏ khóa "${course.title}" khỏi lộ trình của con`,
+            afterJson: { childId, courseId: body.courseId, enrolled: false },
+            requestId: request.id,
+            ipAddress: request.ip,
+          },
+        })
+      })
+      request.log.info(
+        { parentId: user.id, childId, courseId: body.courseId },
+        'parent.course_unenrolled',
+      )
+      return reply.code(200).send({ ok: true, enrolled: false, courseId: body.courseId })
     }
   })
 }

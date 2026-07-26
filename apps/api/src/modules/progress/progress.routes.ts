@@ -34,6 +34,10 @@ import {
 } from '../gamification/achievement.service.js'
 import { assertStudentCanEnroll } from '../parent/family.service.js'
 import {
+  issueEligibleCredentials,
+  recordQuestCompletionEvidence,
+} from '../competency/competency.service.js'
+import {
   inspectPracticePayload,
   practiceKindMatchesQuest,
 } from './practice-policy.js'
@@ -1008,6 +1012,7 @@ export async function progressRoutes(app: FastifyInstance) {
           data: { status: 'available' },
         })
       }
+      await recordQuestCompletionEvidence(tx, user.id, questId)
       return { newlyCompleted: true, stars, xpEarned: xp }
     })
     const alreadyDone = !completion.newlyCompleted
@@ -1029,7 +1034,11 @@ export async function progressRoutes(app: FastifyInstance) {
     }
 
     let courseCredential: string | null = null
+    let issuedCredentials: Array<{ id: string; kind: string }> = []
     if (!next && !alreadyDone) {
+      issuedCredentials = await prisma.$transaction((tx) =>
+        issueEligibleCredentials(tx, user.id, quest.courseId, null),
+      )
       const course = await prisma.course.findUnique({
         where: { id: quest.courseId },
         select: { id: true, title: true, recognitionJson: true },
@@ -1103,6 +1112,7 @@ export async function progressRoutes(app: FastifyInstance) {
       nextQuestId: next?.id ?? null,
       newAchievements,
       courseCredential,
+      issuedCredentials,
       message:
         starsFinal >= 3
           ? 'Xuất sắc! Con đã chinh phục trạm này!'

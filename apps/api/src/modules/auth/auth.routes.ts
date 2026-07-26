@@ -1,5 +1,6 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
+import { parsePublishedAgePolicy } from '../learning/age-policy.js'
 import { isNicknameSafe } from '@aikids/domain'
 import { env, SESSION_COOKIE } from '../../config/env.js'
 import { prisma } from '../../infrastructure/database/prisma.js'
@@ -15,9 +16,12 @@ import {
 } from '../../infrastructure/session/session.js'
 
 const adultLoginSchema = z.object({
-  email: z.string().email().max(120),
+  // Accept both `email` (direct Fastify) and `login` (gateway compat).
+  // FE sends `login` when isLocalApi=true (nginx-proxy Docker mode).
+  email: z.string().email().max(120).optional(),
+  login: z.string().max(120).optional(),
   password: z.string().min(8).max(128),
-})
+}).refine((d) => d.email ?? d.login, { message: 'email is required' })
 
 const studentLoginSchema = z.object({
   nickname: z.string().min(1).max(16),
@@ -77,7 +81,8 @@ export async function authRoutes(app: FastifyInstance) {
     const body = adultLoginSchema.parse(request.body)
     const ip = (request.headers['x-forwarded-for'] as string | undefined)?.split(',')[0]?.trim() ?? request.ip ?? null
     const ua = (request.headers['user-agent'] as string | undefined) ?? null
-    const emailKey = body.email.toLowerCase()
+    // Normalize: FE (nginx-proxy mode) sends `login`, gateway remaps to `email`
+    const emailKey = (body.email ?? body.login ?? '').toLowerCase()
 
     // ── Per-account brute-force guard (OWASP A07) ──────────
     // 5 consecutive failures → 429 for 15 minutes regardless of IP rotation
@@ -457,6 +462,30 @@ export async function authRoutes(app: FastifyInstance) {
       })
       .parse(request.body)
 
+    if (
+      user.role === 'student' &&
+      user.onboarded &&
+      (body.nickname !== undefined || body.avatarId !== undefined)
+    ) {
+      const profile = await prisma.user.findUniqueOrThrow({
+        where: { id: user.id },
+        select: { ageBand: true },
+      })
+      const agePolicy = await prisma.ageExperiencePolicy.findFirst({
+        where: { ageBand: profile.ageBand, status: 'published' },
+        orderBy: { version: 'desc' },
+      })
+      const experience = agePolicy ? parsePublishedAgePolicy(agePolicy) : null
+      if (!experience?.permissionPolicy.canEditProfile) {
+        return reply.code(403).send({
+          error: 'Profile editing is disabled for this age group.',
+          reason: experience
+            ? 'age_permission_denied'
+            : 'age_policy_required',
+        })
+      }
+    }
+
     if (body.nickname) {
       const safe = isNicknameSafe(body.nickname)
       if (!safe.ok) {
@@ -601,5 +630,106 @@ export async function authRoutes(app: FastifyInstance) {
     })
 
     return { message: 'Mật khẩu đã được thay đổi.' }
+  })
+
+  /**
+   * GET /api/auth/access
+   * Returns the AccountAccess object for the current session user.
+   * Used by the FE immediately after login to resolve the active context
+   * (family / personal_teacher / platform) and set the default route.
+   */
+  app.get('/api/auth/access', async (request, reply) => {
+    if (!request.user) {
+      return reply.code(401).send({ error: 'Bạn cần đăng nhập lại nhé.' })
+    }
+
+    const { id, role } = request.user
+
+    type AccessContext = {
+      id: string
+      type: 'family' | 'personal_teacher' | 'personal_student' | 'organization' | 'platform'
+      label: string
+      defaultRoute: string
+      actor: 'parent' | 'teacher' | 'org_admin' | 'org_student' | 'admin'
+      roles: string[]
+      permissions: string[]
+    }
+
+    let contexts: AccessContext[] = []
+    let personas: string[] = []
+    let platformRoles: string[] = []
+    let activeMode = ''
+    let activeContextId = ''
+
+    if (role === 'admin') {
+      const contextId = `platform-${id}`
+      personas = ['admin']
+      platformRoles = ['admin']
+      activeMode = 'platform'
+      activeContextId = contextId
+      contexts = [{
+        id: contextId,
+        type: 'platform',
+        label: 'Quản trị hệ thống',
+        defaultRoute: '/admin',
+        actor: 'admin',
+        roles: ['admin'],
+        permissions: [],
+      }]
+    } else if (role === 'teacher') {
+      const contextId = `personal_teacher-${id}`
+      personas = ['teacher']
+      platformRoles = []
+      activeMode = 'personal_teacher'
+      activeContextId = contextId
+      contexts = [{
+        id: contextId,
+        type: 'personal_teacher',
+        label: 'Giáo viên',
+        defaultRoute: '/teacher',
+        actor: 'teacher',
+        roles: ['teacher'],
+        permissions: [],
+      }]
+    } else {
+      // parent (default)
+      const contextId = `family-${id}`
+      personas = ['parent']
+      platformRoles = []
+      activeMode = 'family'
+      activeContextId = contextId
+      contexts = [{
+        id: contextId,
+        type: 'family',
+        label: 'Gia đình',
+        defaultRoute: '/parent',
+        actor: 'parent',
+        roles: ['parent'],
+        permissions: [],
+      }]
+    }
+
+    return {
+      personas,
+      platformRoles,
+      contexts,
+      active: {
+        mode: activeMode,
+        contextId: activeContextId,
+        organizationId: null,
+      },
+    }
+  })
+
+  /**
+   * POST /api/auth/context
+   * Selects the active context for the session (no-op in single-tenant mode,
+   * always returns the first context for the user's role).
+   */
+  app.post('/api/auth/context', async (request, reply) => {
+    if (!request.user) {
+      return reply.code(401).send({ error: 'Bạn cần đăng nhập lại nhé.' })
+    }
+    return { ok: true }
   })
 }

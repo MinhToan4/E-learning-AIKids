@@ -35,6 +35,8 @@ const lectureBodySchema = z.object({
   videoUrl: z
     .union([z.string().url().max(2000), z.literal(''), z.null()])
     .optional(),
+  offlineAllowed: z.boolean().optional(),
+  offlineMaxAgeHours: z.number().int().min(1).max(720).optional(),
   goals: z.array(z.string().max(200)).max(12).optional(),
   concept: z.string().max(2000).optional(),
   example: z.string().max(2000).optional(),
@@ -350,6 +352,9 @@ export async function teacherRoutes(app: FastifyInstance) {
             videoUrl: true,
             stage: true,
             archived: true,
+            contentVersion: true,
+            offlineAllowed: true,
+            offlineMaxAgeHours: true,
             goalsJson: true,
             learnCardsJson: true,
             checkJson: true,
@@ -381,6 +386,9 @@ export async function teacherRoutes(app: FastifyInstance) {
           videoUrl: quest.videoUrl,
           stage: quest.stage,
           archived: quest.archived,
+          contentVersion: quest.contentVersion,
+          offlineAllowed: quest.offlineAllowed,
+          offlineMaxAgeHours: quest.offlineMaxAgeHours,
           ...lectureEditorDetail(quest),
         })),
       })),
@@ -417,6 +425,10 @@ export async function teacherRoutes(app: FastifyInstance) {
     if (body.practiceKind !== undefined) data.practiceKind = body.practiceKind
     if (body.order !== undefined) data.order = body.order
     if (videoUrl !== undefined) data.videoUrl = videoUrl
+    if (body.offlineAllowed !== undefined) data.offlineAllowed = body.offlineAllowed
+    if (body.offlineMaxAgeHours !== undefined) {
+      data.offlineMaxAgeHours = body.offlineMaxAgeHours
+    }
     if (body.goals !== undefined) data.goalsJson = JSON.stringify(body.goals)
     if (body.concept !== undefined || body.example !== undefined) {
       const concept = body.concept ?? currentEditor.concept
@@ -494,26 +506,42 @@ export async function teacherRoutes(app: FastifyInstance) {
       data.checkJson = JSON.stringify([updatedCheck, ...checks.slice(1)])
     }
 
-    const updated = await prisma.quest.update({
-      where: { id: questId },
-      data,
-      select: {
-        id: true,
-        courseId: true,
-        order: true,
-        title: true,
-        skill: true,
-        reward: true,
-        duration: true,
-        hook: true,
-        accent: true,
-        practiceKind: true,
-        videoUrl: true,
-        goalsJson: true,
-        learnCardsJson: true,
-        checkJson: true,
-        stationsJson: true,
-      },
+    const updated = await prisma.$transaction(async (tx) => {
+      const result = await tx.quest.update({
+        where: { id: questId },
+        // Every editor save changes the cache contract. Incrementing here makes
+        // old offline packages fail closed instead of serving stale curriculum.
+        data: { ...data, contentVersion: { increment: 1 } },
+        select: {
+          id: true,
+          courseId: true,
+          order: true,
+          title: true,
+          skill: true,
+          reward: true,
+          duration: true,
+          hook: true,
+          accent: true,
+          practiceKind: true,
+          videoUrl: true,
+          contentVersion: true,
+          offlineAllowed: true,
+          offlineMaxAgeHours: true,
+          goalsJson: true,
+          learnCardsJson: true,
+          checkJson: true,
+          stationsJson: true,
+        },
+      })
+      await tx.offlineGrant.updateMany({
+        where: {
+          questId,
+          status: 'active',
+          contentVersion: { lt: result.contentVersion },
+        },
+        data: { status: 'stale', revokedAt: new Date() },
+      })
+      return result
     })
 
     return { lecture: { ...updated, ...lectureEditorDetail(updated) } }
@@ -560,6 +588,8 @@ export async function teacherRoutes(app: FastifyInstance) {
           ])
           .default('intro'),
         videoUrl: z.string().url().max(2000).optional().nullable(),
+        offlineAllowed: z.boolean().default(false),
+        offlineMaxAgeHours: z.number().int().min(1).max(720).default(72),
         goals: z.array(z.string().min(2).max(200)).min(1).max(12),
         concept: z.string().min(10).max(2000),
         example: z.string().min(5).max(2000),
@@ -608,6 +638,8 @@ export async function teacherRoutes(app: FastifyInstance) {
         accent: body.accent,
         practiceKind: body.practiceKind,
         videoUrl: body.videoUrl ?? null,
+        offlineAllowed: body.offlineAllowed,
+        offlineMaxAgeHours: body.offlineMaxAgeHours,
         goalsJson: JSON.stringify(body.goals),
         learnCardsJson: learnCardsJson(body.id, body.concept, body.example),
         checkJson: JSON.stringify([
@@ -673,6 +705,9 @@ export async function teacherRoutes(app: FastifyInstance) {
         skill: true,
         videoUrl: true,
         practiceKind: true,
+        contentVersion: true,
+        offlineAllowed: true,
+        offlineMaxAgeHours: true,
       },
     })
 
