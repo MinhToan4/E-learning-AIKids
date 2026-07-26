@@ -36,8 +36,8 @@ describe('12-course curriculum contract', () => {
     expect(
       curriculumCourses.every((course) =>
         course.ageTrack === 'L1'
-          ? course.ageLabel === '8–9 tuổi'
-          : course.ageLabel === '10–11 tuổi',
+          ? course.ageLabel === '6–8 tuổi'
+          : course.ageLabel === '9–11 tuổi',
       ),
     ).toBe(true)
   })

@@ -22,6 +22,11 @@ import { mediaRoutes } from './modules/media/media.routes.js'
 import { storageRoutes } from './modules/storage/storage.routes.js'
 import { realtimeRoutes } from './modules/realtime/realtime.routes.js'
 import { creativeRoutes } from './modules/creative/creative.routes.js'
+import { learningRoutes } from './modules/learning/learning.routes.js'
+import { assessmentRoutes } from './modules/assessment/assessment.routes.js'
+import { competencyModule } from './modules/competency/competency.module.js'
+import { scheduleModule } from './modules/schedule/schedule.module.js'
+import { reportModule } from './modules/report/report.module.js'
 import {
   normalizeApiAliasPrefix,
   rewriteAliasToPrimaryApi,
@@ -248,6 +253,11 @@ export async function buildApp() {
   await app.register(storageRoutes)
   await app.register(realtimeRoutes)
   await app.register(creativeRoutes)
+  await app.register(learningRoutes)
+  await app.register(assessmentRoutes)
+  await app.register(competencyModule)
+  await app.register(scheduleModule)
+  await app.register(reportModule)
 
   /**
    * StoryMee gateway alias (optional).

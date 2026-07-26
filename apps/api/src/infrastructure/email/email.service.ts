@@ -1,6 +1,17 @@
 import { createTransport, type Transporter } from 'nodemailer'
 import { env } from '../../config/env.js'
 
+export type EmailAttachment = {
+  filename: string
+  content: Buffer
+  contentType: string
+}
+
+export type EmailDeliveryResult = {
+  delivered: boolean
+  providerMessageId: string | null
+}
+
 /**
  * Email service — Gmail SMTP via App Password.
  * In dev mode (no GMAIL_APP_PASSWORD), logs to console instead of sending.
@@ -23,22 +34,33 @@ class EmailService {
     }
   }
 
-  async sendMail(to: string, subject: string, html: string): Promise<void> {
+  async sendMail(
+    to: string,
+    subject: string,
+    html: string,
+    attachments: EmailAttachment[] = [],
+  ): Promise<EmailDeliveryResult> {
     if (this.isDev || !this.transporter) {
       console.log(`[Email Dev] To: ${this.maskEmail(to)}`)
       console.log(`[Email Dev] Subject: ${subject}`)
       console.log(`[Email Dev] HTML length: ${html.length} chars`)
-      return
+      return { delivered: false, providerMessageId: null }
     }
 
     try {
-      await this.transporter.sendMail({
+      const result = await this.transporter.sendMail({
         from: `"AI Kids Academy" <${env.gmailUser}>`,
         to,
         subject,
         html,
+        attachments,
       })
       console.log(`[Email] Sent to ${this.maskEmail(to)}: ${subject}`)
+      return {
+        delivered: true,
+        providerMessageId:
+          typeof result.messageId === 'string' ? result.messageId : null,
+      }
     } catch (err) {
       console.error(`[Email] Failed to send to ${this.maskEmail(to)}:`, (err as Error).message)
       throw err

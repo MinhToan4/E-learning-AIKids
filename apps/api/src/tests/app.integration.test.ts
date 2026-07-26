@@ -152,6 +152,20 @@ describeIntegration('API integration (isolated Postgres)', () => {
     expect(login.status).toBe(200)
     const cookies = { aikids_session: login.session! }
 
+    const unconfiguredPathway = await inject(app, {
+      method: 'GET',
+      url: '/api/learning/pathway',
+      cookies,
+    })
+    expect(unconfiguredPathway.status).toBe(200)
+    expect(unconfiguredPathway.body.ageExperienceStatus).toBe(
+      'configuration_required',
+    )
+    expect(unconfiguredPathway.body.configurationReason).toBe(
+      'BIRTH_DATE_REQUIRED',
+    )
+    expect(unconfiguredPathway.body.courses).toEqual([])
+
     const courses = await inject(app, {
       method: 'GET',
       url: '/api/courses',
@@ -166,14 +180,18 @@ describeIntegration('API integration (isolated Postgres)', () => {
       quests: Array<{ id: string }>
     }>
     const open = list.filter((c) => c.status === 'open')
-    expect(open.length).toBeGreaterThanOrEqual(12)
-    expect(open.some((c) => c.ageTrack === 'L1')).toBe(true)
-    expect(open.some((c) => c.ageTrack === 'L2')).toBe(true)
-    expect(open.filter((c) => c.ageTrack === 'L1')).toHaveLength(6)
-    expect(open.filter((c) => c.ageTrack === 'L2')).toHaveLength(6)
-    expect(open.reduce((total, course) => total + course.quests.length, 0)).toBe(
-      146,
+    const requiredTwelve = open.filter((course) =>
+      /^l[12]-k[1-6]-/.test(course.id),
     )
+    expect(open.length).toBeGreaterThanOrEqual(12)
+    expect(requiredTwelve.filter((c) => c.ageTrack === 'L1')).toHaveLength(6)
+    expect(requiredTwelve.filter((c) => c.ageTrack === 'L2')).toHaveLength(6)
+    expect(
+      requiredTwelve.reduce(
+        (total, course) => total + course.quests.length,
+        0,
+      ),
+    ).toBe(146)
 
     const l1 = await inject(app, {
       method: 'GET',
@@ -192,14 +210,15 @@ describeIntegration('API integration (isolated Postgres)', () => {
       cookies,
     })
     expect(k2.status).toBe(200)
-    const k2quests = (
-      k2.body.course as {
+    const k2Course = k2.body.course as {
         quests: Array<{ practiceKind: string; stations?: { stations: unknown[] } }>
+        recognition: { issuer: string }
       }
-    ).quests
+    const k2quests = k2Course.quests
     expect(k2quests.some((q) => q.practiceKind === 'character')).toBe(true)
     expect(k2quests.some((q) => q.practiceKind === 'ai_pick')).toBe(true)
     expect(k2quests[0]?.stations?.stations?.length).toBeGreaterThanOrEqual(4)
+    expect(k2Course.recognition.issuer).toBe('AI Kids Creator Academy')
 
     const k4 = await inject(app, {
       method: 'GET',
@@ -210,16 +229,6 @@ describeIntegration('API integration (isolated Postgres)', () => {
       k4.body.course as { quests: Array<{ practiceKind: string }> }
     ).quests
     expect(k4quests.some((q) => q.practiceKind === 'comic')).toBe(true)
-
-    const legacyComic = await inject(app, {
-      method: 'GET',
-      url: '/api/courses/course-comic',
-      cookies,
-    })
-    expect(legacyComic.status).toBe(200)
-    expect(
-      (legacyComic.body.course as { recognition: { issuer: string } }).recognition.issuer,
-    ).toBe('AI Kids Creator Academy')
 
     const started = await inject(app, {
       method: 'POST',
@@ -423,6 +432,300 @@ describeIntegration('API integration (isolated Postgres)', () => {
     expect(denied.status).toBe(403)
   })
 
+  it('credential revoke and reissue preserve an auditable history chain', async () => {
+    const adminLogin = await inject(app, {
+      method: 'POST',
+      url: '/api/auth/login/adult',
+      payload: {
+        email: 'admin@demo.aikids.local',
+        password: 'AdminDemo1!',
+      },
+    })
+    expect(adminLogin.status).toBe(200)
+    const cookies = { aikids_session: adminLogin.session! }
+    const { prisma } = await import('../infrastructure/database/prisma.js')
+    const student = await prisma.user.findFirstOrThrow({
+      where: { role: 'student', active: true },
+      select: { id: true },
+    })
+    const code = `integration-badge-${Date.now()}`
+    const templateResponse = await inject(app, {
+      method: 'POST',
+      url: '/api/admin/credential-templates',
+      cookies,
+      payload: {
+        code,
+        kind: 'badge',
+        name: 'Integration badge',
+        layout: {
+          title: 'Integration badge',
+          issuerName: 'AI Kids Creator Academy',
+          accentColor: '#6D5BD0',
+          backgroundUrl: 'https://example.com/customer-approved-badge.png',
+          bodyTemplate: 'Hoàn thành điều kiện huy hiệu tích hợp.',
+          allowDownload: true,
+          allowShare: false,
+          publicDisplayName: false,
+        },
+        status: 'published',
+        reason: 'Kiểm thử chuỗi cấp lại',
+      },
+    })
+    expect(templateResponse.status).toBe(201)
+    const templateId = (
+      templateResponse.body.template as { id: string }
+    ).id
+
+    const ruleResponse = await inject(app, {
+      method: 'POST',
+      url: '/api/admin/credential-rules',
+      cookies,
+      payload: {
+        courseId: 'l1-k1-the-gioi',
+        templateId,
+        kind: 'badge',
+        minCompletionPercent: 0,
+        requirePassedAssessment: false,
+        requiredSkillLevels: {},
+        status: 'published',
+        reason: 'Kiểm thử điều kiện cấp lại',
+      },
+    })
+    expect(ruleResponse.status).toBe(201)
+
+    const firstIssue = await inject(app, {
+      method: 'POST',
+      url: '/api/credentials/issue',
+      cookies,
+      payload: {
+        studentId: student.id,
+        courseId: 'l1-k1-the-gioi',
+        reason: 'Cấp lần đầu để kiểm thử',
+      },
+    })
+    expect(firstIssue.status).toBe(201)
+    const first = (
+      firstIssue.body.credentials as Array<{
+        id: string
+        verificationCode: string
+      }>
+    )[0]!
+
+    const revoked = await inject(app, {
+      method: 'POST',
+      url: `/api/admin/credentials/${first.id}/revoke`,
+      cookies,
+      payload: { reason: 'Thu hồi để kiểm thử cấp lại' },
+    })
+    expect(revoked.status).toBe(200)
+    expect((revoked.body.credential as { status: string }).status).toBe(
+      'revoked',
+    )
+
+    const secondIssue = await inject(app, {
+      method: 'POST',
+      url: '/api/credentials/issue',
+      cookies,
+      payload: {
+        studentId: student.id,
+        courseId: 'l1-k1-the-gioi',
+        reason: 'Cấp lại sau khi thu hồi',
+      },
+    })
+    expect(secondIssue.status).toBe(201)
+    const second = (
+      secondIssue.body.credentials as Array<{
+        id: string
+        verificationCode: string
+        supersedesCredentialId: string | null
+      }>
+    )[0]!
+    expect(second.id).not.toBe(first.id)
+    expect(second.verificationCode).not.toBe(first.verificationCode)
+    expect(second.supersedesCredentialId).toBe(first.id)
+
+    const oldVerification = await inject(app, {
+      method: 'GET',
+      url: `/api/public/credentials/${first.verificationCode}`,
+    })
+    expect(oldVerification.status).toBe(403)
+    expect(oldVerification.body.valid).toBe(false)
+    expect(oldVerification.body.status).toBe('sharing_disabled')
+    const oldRecord = await prisma.issuedCredential.findUniqueOrThrow({
+      where: { id: first.id },
+    })
+    expect(oldRecord.status).toBe('revoked')
+  })
+
+  it('a published teacher observation becomes traceable competency evidence', async () => {
+    const adminLogin = await inject(app, {
+      method: 'POST',
+      url: '/api/auth/login/adult',
+      payload: {
+        email: 'admin@demo.aikids.local',
+        password: 'AdminDemo1!',
+      },
+    })
+    const adminCookies = { aikids_session: adminLogin.session! }
+    const suffix = Date.now().toString()
+    const frameworkResponse = await inject(app, {
+      method: 'POST',
+      url: '/api/admin/competency/frameworks',
+      cookies: adminCookies,
+      payload: {
+        code: `integration-framework-${suffix}`,
+        name: 'Khung kiểm thử tích hợp',
+        description: 'Chỉ dùng trong cơ sở dữ liệu kiểm thử cô lập.',
+        expectedDomainCount: 4,
+        sourceReference: 'integration-test',
+        alignmentStatement: 'Phù hợp dữ liệu kiểm thử nội bộ.',
+        disclaimer: 'Không phải cấu hình nghiệp vụ production.',
+        status: 'published',
+        reason: 'Kiểm thử minh chứng nhận xét',
+        domains: [1, 2, 3, 4].map((index) => ({
+          code: `d${index}`,
+          name: `Miền ${index}`,
+          description: `Miền kiểm thử số ${index}`,
+          sortOrder: index,
+          skills: [
+            {
+              code: `d${index}.s1`,
+              name: `Kỹ năng ${index}`,
+              description: `Kỹ năng kiểm thử số ${index}`,
+              learnerLabel: `Kỹ năng ${index}`,
+              levelPolicy: { notMetBelow: 40, achievedFrom: 80 },
+              sortOrder: 1,
+            },
+          ],
+        })),
+      },
+    })
+    expect(frameworkResponse.status).toBe(201)
+    const framework = frameworkResponse.body.framework as {
+      id: string
+      domains: Array<{ skills: Array<{ id: string }> }>
+    }
+    const mappedSkillId = framework.domains[0]!.skills[0]!.id
+
+    const mappingResponse = await inject(app, {
+      method: 'POST',
+      url: '/api/admin/competency/mapping-versions',
+      cookies: adminCookies,
+      payload: {
+        frameworkId: framework.id,
+        calculationPolicy: {
+          aggregation: 'weighted_average',
+          attemptStrategy: 'latest',
+          notMetBelow: 40,
+          achievedFrom: 80,
+        },
+        status: 'published',
+        reason: 'Kiểm thử mapping nhận xét',
+        mappings: [
+          {
+            skillId: mappedSkillId,
+            sourceType: 'course',
+            sourceId: 'l1-k1-the-gioi',
+            evidenceType: 'teacher_observation',
+            weight: 1,
+          },
+        ],
+      },
+    })
+    expect(mappingResponse.status).toBe(201)
+
+    const { prisma } = await import('../infrastructure/database/prisma.js')
+    const [teacher, student] = await Promise.all([
+      prisma.user.findUniqueOrThrow({
+        where: { email: 'teacher@demo.aikids.local' },
+        select: { id: true },
+      }),
+      prisma.user.findFirstOrThrow({
+        where: { role: 'student', active: true },
+        select: { id: true },
+      }),
+    ])
+    const classroom = await prisma.classRoom.create({
+      data: {
+        name: 'Lớp kiểm thử nhận xét',
+        code: `OBS-${suffix}`,
+        teacherId: teacher.id,
+        courseId: 'l1-k1-the-gioi',
+        classType: 'group',
+        allowedAgeBands: ['9_11'],
+        minLevel: 1,
+        maxLevel: 100,
+        capacity: 12,
+        status: 'active',
+        memberships: { create: { studentId: student.id } },
+      },
+    })
+    expect(classroom.id).toBeTruthy()
+    const teacherLogin = await inject(app, {
+      method: 'POST',
+      url: '/api/auth/login/adult',
+      payload: {
+        email: 'teacher@demo.aikids.local',
+        password: 'TeacherDemo1!',
+      },
+    })
+    const teacherCookies = { aikids_session: teacherLogin.session! }
+
+    const missingScore = await inject(app, {
+      method: 'POST',
+      url: '/api/teacher/observations',
+      cookies: teacherCookies,
+      payload: {
+        studentId: student.id,
+        courseId: 'l1-k1-the-gioi',
+        body: 'Nhận xét đủ điều kiện kiểm thử.',
+        strengths: ['Biết giải thích lựa chọn.'],
+        development: ['Tiếp tục luyện tập.'],
+        status: 'published',
+      },
+    })
+    expect(missingScore.status).toBe(400)
+
+    const published = await inject(app, {
+      method: 'POST',
+      url: '/api/teacher/observations',
+      cookies: teacherCookies,
+      payload: {
+        studentId: student.id,
+        courseId: 'l1-k1-the-gioi',
+        body: 'Nhận xét đủ điều kiện kiểm thử.',
+        strengths: ['Biết giải thích lựa chọn.'],
+        development: ['Tiếp tục luyện tập.'],
+        scorePercent: 85,
+        status: 'published',
+      },
+    })
+    expect(published.status).toBe(201)
+    const observationId = (
+      published.body.observation as { id: string }
+    ).id
+    const [evidence, snapshot] = await Promise.all([
+      prisma.competencyEvidence.findFirst({
+        where: {
+          sourceType: 'teacher_observation',
+          sourceId: observationId,
+          skillId: mappedSkillId,
+        },
+      }),
+      prisma.competencySnapshot.findFirst({
+        where: {
+          studentId: student.id,
+          skillId: mappedSkillId,
+          current: true,
+        },
+      }),
+    ])
+    expect(evidence?.scorePercent).toBe(85)
+    expect(evidence?.sourceVersion).toBe(1)
+    expect(snapshot?.scorePercent).toBe(85)
+    expect(snapshot?.level).toBe('achieved')
+  })
+
   it('Phase 5: teacher archive/restore lecture + reorder; catalog hides archived', async () => {
     const tLogin = await inject(app, {
       method: 'POST',
@@ -492,7 +795,11 @@ describeIntegration('API integration (isolated Postgres)', () => {
     const sLogin = await inject(app, {
       method: 'POST',
       url: '/api/auth/login/student',
-      payload: { nickname: 'SaoMay', avatarId: 'avatar-star' },
+      payload: {
+        nickname: 'SaoMay',
+        avatarId: 'avatar-star',
+        createIfMissing: true,
+      },
     })
     expect(sLogin.status).toBe(200)
     const courseDetail = await inject(app, {
@@ -582,6 +889,18 @@ describeIntegration('API integration (isolated Postgres)', () => {
       'free',
     )
 
+    const invalidBirthDate = await inject(app, {
+      method: 'POST',
+      url: '/api/parent/children',
+      cookies: pCookie,
+      payload: {
+        nickname: 'QuaNho',
+        avatarId: 'avatar-star',
+        birthDate: '2024-01-01',
+      },
+    })
+    expect(invalidBirthDate.status).toBe(400)
+
     // Free = 1 seat — first child OK
     const nick = `BeTest${Date.now().toString().slice(-6)}`
     const created = await inject(app, {
@@ -592,6 +911,7 @@ describeIntegration('API integration (isolated Postgres)', () => {
         nickname: nick,
         avatarId: 'avatar-star',
         pin: '424242',
+        birthDate: '2016-08-15',
       },
     })
     expect(created.status).toBe(201)
@@ -605,6 +925,7 @@ describeIntegration('API integration (isolated Postgres)', () => {
       payload: {
         nickname: `${nick}2`,
         avatarId: 'avatar-cat',
+        birthDate: '2017-08-15',
       },
     })
     expect(blocked.status).toBe(402)
