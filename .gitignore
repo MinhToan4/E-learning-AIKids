@@ -23,8 +23,13 @@ secrets/
 courses/
 packages/vidtory-ai-sdk/
 artifacts/
+tmp/
 *.tmp*
 load/session-tokens.json
 .agents/
 docs/
+!docs/
+docs/*
+!docs/PHASE2_GAP_ANALYSIS.md
+!docs/PHASE2_IMPLEMENTATION_HANDOVER.md
 skills/
