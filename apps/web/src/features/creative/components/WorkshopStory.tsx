@@ -1,8 +1,11 @@
 import { useState } from 'react'
 import { BookOpen, ChevronRight, Sparkles } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
-import { api } from '@/shared/lib/api'
-import { generateCreativeStory } from '@/shared/lib/creative-api'
+import {
+  generateCreativeStory,
+  saveCreativeStory,
+  type CreativeStoryOutput,
+} from '@/shared/lib/creative-api'
 import { STORY_GENRES } from '../lib/workshop-types'
 import type { WorkshopStep } from '../lib/workshop-types'
 
@@ -38,6 +41,7 @@ export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) 
   const [draft, setDraft] = useState<StoryDraft>(EMPTY_DRAFT)
   const [generating, setGenerating] = useState(false)
   const [storyResult, setStoryResult] = useState<string | null>(null)
+  const [storyOutput, setStoryOutput] = useState<CreativeStoryOutput | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
@@ -246,7 +250,12 @@ export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) 
         </div>
         <button
           type="button"
-          onClick={() => { setFlowStep('idea'); setStoryResult(null); setError(null) }}
+          onClick={() => {
+            setFlowStep('idea')
+            setStoryResult(null)
+            setStoryOutput(null)
+            setError(null)
+          }}
           className="rounded-btn border border-border bg-white px-4 py-2 text-sm font-bold text-muted transition hover:border-brand-300"
         >
           ← Viết lại
@@ -277,7 +286,7 @@ export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) 
     setGenerating(true)
     setError(null)
     try {
-      const content = await generateCreativeStory(
+      const output = await generateCreativeStory(
         [
           mode === 'comic'
             ? 'Viết kịch bản truyện tranh thiếu nhi an toàn bằng tiếng Việt gồm đúng 4 khung. Mỗi khung có mô tả cảnh, hành động và lời thoại ngắn.'
@@ -288,8 +297,10 @@ export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) 
           `Bối cảnh: ${draft.setting}.`,
           'Nội dung tích cực, phù hợp trẻ em, có mở đầu, cao trào và kết thúc.',
         ].join('\n'),
+        `${mode === 'comic' ? 'Truyện tranh' : 'Truyện chữ'} · ${draft.genreLabel}`,
       )
-      setStoryResult(content)
+      setStoryOutput(output)
+      setStoryResult(output.content)
       setFlowStep('result')
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Lỗi không xác định')
@@ -299,18 +310,14 @@ export function WorkshopStory({ initialStep = 'mode', onBack, onSaved }: Props) 
   }
 
   async function handleSave() {
-    if (!storyResult) return
+    if (!storyOutput) return
     setSaving(true)
     setError(null)
     try {
-      await api('/api/media/promote', {
-        method: 'POST',
-        body: JSON.stringify({
-          purpose: 'creative_workshop',
-          creativeKind: mode === 'comic' ? 'comic' : 'story',
-          title: `${mode === 'comic' ? 'Truyện tranh' : 'Truyện chữ'} · ${draft.genreLabel}`,
-          content: storyResult,
-        }),
+      await saveCreativeStory(storyOutput, {
+        purpose: 'creative_workshop',
+        creativeKind: mode === 'comic' ? 'comic' : 'story',
+        title: `${mode === 'comic' ? 'Truyện tranh' : 'Truyện chữ'} · ${draft.genreLabel}`,
       })
       onSaved()
     } catch (err) {

@@ -11,6 +11,9 @@ describe('buildCreativePrompt', () => {
     })
     expect(comic).toContain('6-panel')
     expect(comic).toContain('Panel 2: Ket thuc; mood or dialogue: Vui mung')
+    expect(
+      buildCreativePrompt('story', 'Chú mèo tốt bụng', 'Giúp đỡ bạn bè', {}),
+    ).toContain('positive ending')
     expect(buildCreativePrompt('video', 'Canh mo dau', 'mot chiec thuyen', { motion: 'luot nhe' })).toContain('Motion: luot nhe')
   })
 })

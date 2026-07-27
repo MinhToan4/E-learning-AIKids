@@ -1,7 +1,10 @@
 import { useMemo, useState } from 'react'
 import { ChevronRight, RotateCcw, Sparkles } from 'lucide-react'
-import { api } from '@/shared/lib/api'
-import { generateCreativeImage } from '@/shared/lib/creative-api'
+import {
+  generateCreativeImage,
+  saveCreativeImage,
+  type CreativeImageOutput,
+} from '@/shared/lib/creative-api'
 import { designerAssets } from '@/shared/config/assets'
 import { cn } from '@/shared/lib/cn'
 import {
@@ -23,7 +26,7 @@ export function WorkshopCharacter({ onBack, onSaved }: Props) {
   const [category, setCategory] = useState<CharacterCategoryId>('shape')
   const [idea, setIdea] = useState('')
   const [answers, setAnswers] = useState<CharacterAnswers>({})
-  const [result, setResult] = useState<string | null>(null)
+  const [result, setResult] = useState<CreativeImageOutput | null>(null)
   const [generating, setGenerating] = useState(false)
   const [saving, setSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -38,9 +41,13 @@ export function WorkshopCharacter({ onBack, onSaved }: Props) {
     setGenerating(true)
     setError(null)
     try {
-      setResult(await generateCreativeImage({
-        prompt: buildCharacterPrompt(idea, answers),
-      }))
+      setResult(
+        await generateCreativeImage({
+          kind: 'character',
+          title: idea.trim() || 'Nhân vật AI của con',
+          prompt: buildCharacterPrompt(idea, answers),
+        }),
+      )
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Chưa tạo được nhân vật')
     } finally {
@@ -53,14 +60,10 @@ export function WorkshopCharacter({ onBack, onSaved }: Props) {
     setSaving(true)
     setError(null)
     try {
-      await api('/api/media/promote', {
-        method: 'POST',
-        body: JSON.stringify({
-          url: result,
-          purpose: 'creative_workshop',
-          creativeKind: 'character',
-          title: idea.trim() || 'Nhân vật AI của con',
-        }),
+      await saveCreativeImage(result, {
+        purpose: 'creative_workshop',
+        creativeKind: 'character',
+        title: idea.trim() || 'Nhân vật AI của con',
       })
       onSaved()
     } catch (err) {
@@ -137,7 +140,7 @@ export function WorkshopCharacter({ onBack, onSaved }: Props) {
           </div>
           <div className="flex min-h-0 flex-1 items-center justify-center bg-brand-50/50 p-4">
             {result ? (
-              <img src={result} alt="Nhân vật AI vừa tạo" className="max-h-[460px] w-full rounded-2xl object-contain" />
+              <img src={result.url} alt="Nhân vật AI vừa tạo" className="max-h-[460px] w-full rounded-2xl object-contain" />
             ) : (
               <div className="text-center">
                 <img src={designerAssets.workshop.character} alt="" className="mx-auto h-40 w-40 rounded-3xl object-cover opacity-80" />

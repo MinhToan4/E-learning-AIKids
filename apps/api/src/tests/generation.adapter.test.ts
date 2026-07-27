@@ -114,6 +114,36 @@ describe('vidtory adapter', () => {
     expect(mock.mode).toBe('mock')
   })
 
+  it('generates child-safe story text through the server-side Vidtory client', async () => {
+    const {
+      generateCreativeText,
+      setVidtoryClientFactory,
+    } = await import('../infrastructure/generation/vidtory.adapter.js')
+
+    let seenPrompt = ''
+    setVidtoryClientFactory(() => ({
+      models: {
+        generateText: async (params) => {
+          seenPrompt = params.prompt
+          return {
+            id: 'job-story',
+            result: 'Ngày xưa có một chú mèo tốt bụng.',
+          }
+        },
+        generateImage: async () => ({ result: 'https://cdn.example.com/x.png' }),
+        generateVideo: async () => ({
+          result: 'https://cdn.example.com/x.mp4',
+        }),
+      },
+    }))
+
+    const result = await generateCreativeText('Một chú mèo giúp đỡ bạn bè.')
+    expect(result.mode).toBe('vidtory')
+    expect(result.text).toBe('Ngày xưa có một chú mèo tốt bụng.')
+    expect(seenPrompt).toContain('Một chú mèo giúp đỡ bạn bè.')
+    expect(seenPrompt).toContain('child-safe')
+  })
+
   it('video mode is situational: text→t2v, ref image→i2v (not weight split)', async () => {
     const {
       generatePracticeVideo,

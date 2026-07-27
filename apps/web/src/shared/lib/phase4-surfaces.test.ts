@@ -87,17 +87,157 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(progress).not.toContain('nickname')
   })
 
+  it('WorldPage uses the kid icon family instead of emoji function icons', () => {
+    const world = read('features/world/pages/WorldPage.tsx')
+    expect(world).toContain('NavWorldIcon')
+    expect(world).toContain('CourseBookIcon')
+    expect(world).not.toContain('QUEST_ICONS')
+    expect(world).not.toMatch(/[🗺️📋🏆🌟🧩🎨📖🎭🎬🔍🤖💡🚀🌈]/u)
+  })
+
+  it('kid journey actions use SVG icons instead of emoji controls', () => {
+    const home = read('features/home/pages/HomePage.tsx')
+    const lesson = read('features/lesson/pages/LessonPage.tsx')
+
+    expect(home).toContain('<Play')
+    expect(lesson).toContain('<Gamepad2')
+    expect(lesson).toContain('<NavWorldIcon')
+    expect(home).not.toContain('▶ {dailyMission.action.label}')
+    expect(lesson).not.toContain("'🎮 Bắt đầu trò chơi'")
+    expect(lesson).not.toContain("'⭐ Nộp bài & nhận sao'")
+    expect(lesson).not.toContain('▶ Trạm tiếp theo')
+    expect(lesson).not.toContain('🗺️ Về bản đồ')
+  })
+
   it('role shells share icon navigation on desktop and mobile', () => {
     const shell = read('shared/components/layout/AppShell.tsx')
     const kidIcons = read('shared/components/icons/KidNavIcons.tsx')
+    const parentIcons = read('shared/components/icons/ParentIcons.tsx')
+    const cmsIcons = read('shared/components/icons/CmsIcons.tsx')
     expect(shell).toContain('ParentDashboardIcon')
     expect(shell).toContain('ParentKidsIcon')
+    expect(shell).toContain('ParentLearningIcon')
+    expect(shell).toContain('NavAssessmentIcon')
+    expect(shell).toContain('CmsOperationsIcon')
+    expect(shell).toContain('CmsScheduleIcon')
+    expect(shell).toContain('CmsAssessmentIcon')
+    expect(shell).toContain('CmsSettingsIcon')
     expect(shell).toContain('role-nav-link')
     expect(shell).toContain('role-nav-icon')
     expect(shell).toContain('student-bottom-nav')
     expect(shell).toContain('adult-bottom-nav')
+    expect(shell).toContain('AdultDrawer')
     expect(shell).toContain('NavCreativeIcon')
     expect(kidIcons).toContain('export function NavCreativeIcon')
+    expect(kidIcons).toContain('export function NavAssessmentIcon')
+    expect(parentIcons).toContain('export function ParentLearningIcon')
+    expect(cmsIcons).toContain('export function CmsOperationsIcon')
+    expect(shell).not.toContain('lucide-react')
+    expect(shell).not.toContain('🏡')
+  })
+
+  it('adult controls use one SVG icon language instead of emoji actions', () => {
+    const adultControls = [
+      read('features/admin/pages/AdminPage.tsx'),
+      read('features/teacher/pages/TeacherPage.tsx'),
+      read('features/parent/components/ParentGateModal.tsx'),
+      read('shared/components/ui/Toast.tsx'),
+      read('shared/components/ui/ErrorState.tsx'),
+    ].join('\n')
+
+    expect(adultControls).toContain('lucide-react')
+    expect(adultControls).not.toMatch(/[🔍✅❌⚠️▶🗑️✏️⚙️🔒🙈👁️]/u)
+  })
+
+  it('critical adult filters and password controls have accessible names', () => {
+    const admin = read('features/admin/pages/AdminPage.tsx')
+    const parent = read('features/parent/pages/ParentPage.tsx')
+    const phase2 = read('features/admin/pages/Phase2ConfigPage.tsx')
+
+    expect(admin).toContain('aria-label="Tìm nhật ký đăng nhập"')
+    expect(admin).toContain('aria-label="Lọc tài khoản theo vai trò"')
+    expect(admin).toContain('aria-label="Lọc khóa học theo trạng thái"')
+    expect(parent).toContain('aria-label="Mật khẩu hiện tại"')
+    expect(parent).toContain('aria-label="Mật khẩu mới"')
+    expect(phase2).toContain('aria-label="Lý do thu hồi chứng chỉ"')
+  })
+
+  it('parent operational surfaces use the shared SVG icon language', () => {
+    const parent =
+      read('features/parent/pages/ParentPage.tsx') +
+      read('features/parent/components/ParentGateModal.tsx')
+
+    expect(parent).toContain('Gamepad2')
+    expect(parent).toContain('PartyPopper')
+    expect(parent).toContain('House')
+    expect(parent).not.toMatch(/[🎮👧👶📊🌱🎬🎉🔐🏡]/u)
+  })
+
+  it('scheduling uses guided lesson-plan fields instead of asking teachers for JSON', () => {
+    const scheduling = read('features/teacher/pages/SchedulingPage.tsx')
+
+    expect(scheduling).toContain('Mục tiêu buổi học')
+    expect(scheduling).toContain('Hoạt động chính')
+    expect(scheduling).toContain('Học liệu cần chuẩn bị')
+    expect(scheduling).toContain('buildLessonPlan')
+    expect(scheduling).not.toContain('Kế hoạch buổi học (JSON)')
+    expect(scheduling).not.toContain('parseJsonObject')
+  })
+
+  it('teacher grading renders learner submissions without raw JSON', () => {
+    const operations = read('features/teacher/pages/TeacherOperationsPage.tsx')
+
+    expect(operations).toContain('reviewResponseSummary')
+    expect(operations).not.toContain('JSON.stringify(review.response')
+  })
+
+  it('teacher operations can reopen observation drafts without exposing teacher-only writes to admin', () => {
+    const operations = read('features/teacher/pages/TeacherOperationsPage.tsx')
+
+    expect(operations).toContain(
+      '/api/teacher/students/${selectedStudentId}/learning-overview',
+    )
+    expect(operations).toContain(
+      '/api/teacher/observations/${editingObservation.id}',
+    )
+    expect(operations).toContain("method: 'PATCH'")
+    expect(operations).toContain('Tiếp tục bản nháp')
+    expect(operations).toContain('canWriteObservation')
+  })
+
+  it('admin can monitor classes without seeing teacher-owned class mutations', () => {
+    const teacher = read('features/teacher/pages/TeacherPage.tsx')
+
+    expect(teacher).toContain('canManageClass')
+    expect(teacher).toContain("role === 'teacher'")
+    expect(teacher).toContain('Việc thêm, gỡ học sinh và đổi mã lớp thuộc giáo viên phụ trách.')
+  })
+
+  it('assessment results remain reachable after a learner leaves the submitted attempt screen', () => {
+    const assessment = read('features/assessment/pages/AssessmentPage.tsx')
+
+    expect(assessment).toContain(
+      '/api/assessment-attempts/${latestAttempt.id}/result',
+    )
+    expect(assessment).toContain('Xem kết quả và góp ý')
+    expect(assessment).toContain('latestAttempt')
+  })
+
+  it('clears learner offline data whenever the authenticated user changes', () => {
+    const auth = read('shared/store/auth.ts')
+    expect(auth).toContain('clearPreviousLearnerData')
+    expect(auth).toContain('clearOfflineLearningData')
+  })
+
+  it('lets learners remove notes and bookmarks with visible error feedback', () => {
+    const tools = read(
+      'features/lesson/components/LearningToolsPanel.tsx',
+    )
+    expect(tools).toContain('/api/learning/notes/${noteId}')
+    expect(tools).toContain('/api/learning/bookmarks/${bookmarkId}')
+    expect(tools).toContain('Không bỏ đánh dấu được.')
+    expect(tools).toContain('Không xóa được ghi chú.')
+    expect(tools).toContain('maxLength={80}')
   })
 
   it('ProfilePage surfaces streak + achievements APIs', () => {
@@ -124,15 +264,22 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
   })
 
   it('creative art uses the safe in-app sketch workflow before Vidtory generation', () => {
-    const creative =
+    const components =
       read('features/creative/pages/CreativePage.tsx') +
       read('features/creative/components/WorkshopCanvas.tsx') +
-      read('shared/lib/creative-api.ts')
-    expect(creative).toContain('WorkshopCanvas')
-    expect(creative).toContain('/api/v1/jobs')
-    expect(creative).not.toContain('uploadStudentImage')
-    expect(creative).not.toContain("kind: 'mee'")
-    expect(creative).not.toContain('Tạo Mee')
+      read('features/creative/components/WorkshopCharacter.tsx') +
+      read('features/creative/components/WorkshopStory.tsx')
+    const client = read('shared/lib/creative-api.ts')
+    expect(components).toContain('WorkshopCanvas')
+    expect(client).toContain('/api/creative/sketch')
+    expect(client).toContain('/api/creative/create')
+    expect(client).toContain('/api/v1/jobs')
+    expect(components).not.toContain('/api/media/promote')
+    expect(components).not.toContain('type="file"')
+    expect(components).not.toContain('new FileReader')
+    expect(components).not.toContain('uploadStudentImage')
+    expect(components).not.toContain("kind: 'mee'")
+    expect(components).not.toContain('Tạo Mee')
   })
 
   it('root rendering has a child-friendly recovery boundary', () => {

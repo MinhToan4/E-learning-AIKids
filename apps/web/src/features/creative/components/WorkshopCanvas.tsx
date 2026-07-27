@@ -12,13 +12,13 @@ import {
   Sparkles,
   Square,
   Trash2,
-  Upload,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
-import { api } from '@/shared/lib/api'
 import {
   fetchCreativeDownload,
   generateCreativeImage,
+  saveCreativeImage,
+  type CreativeImageOutput,
 } from '@/shared/lib/creative-api'
 import {
   buildArtGenerationPrompt,
@@ -45,7 +45,6 @@ const MAX_HISTORY = 30
 export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
-  const fileRef = useRef<HTMLInputElement>(null)
 
   const [tool, setTool] = useState<Tool>('brush')
   const [color, setColor] = useState('#1e2740')
@@ -56,6 +55,7 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
 
   const [aiState, setAiState] = useState<'idle' | 'loading' | 'done' | 'error'>('idle')
   const [aiUrl, setAiUrl] = useState<string | null>(null)
+  const [aiOutput, setAiOutput] = useState<CreativeImageOutput | null>(null)
   const [aiError, setAiError] = useState<string | null>(null)
   const [saving, setSaving] = useState(false)
 
@@ -248,31 +248,6 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
     ctx.putImageData(imgData, 0, 0)
   }
 
-  // ── Upload ───────────────────────────────────────────────────
-  function handleFileUpload(e: React.ChangeEvent<HTMLInputElement>) {
-    const file = e.target.files?.[0]
-    if (!file) return
-    const canvas = canvasRef.current
-    const ctx = getCtx()
-    if (!canvas || !ctx) return
-    saveHistory()
-    const reader = new FileReader()
-    reader.onload = (ev) => {
-      const img = new Image()
-      img.onload = () => {
-        const ratio = Math.max(canvas.width / img.width, canvas.height / img.height)
-        const sw = img.width * ratio
-        const sh = img.height * ratio
-        ctx.fillStyle = '#ffffff'
-        ctx.fillRect(0, 0, canvas.width, canvas.height)
-        ctx.drawImage(img, (canvas.width - sw) / 2, (canvas.height - sh) / 2, sw, sh)
-      }
-      img.src = ev.target!.result as string
-    }
-    reader.readAsDataURL(file)
-    e.target.value = ''
-  }
-
   // ── AI generate ──────────────────────────────────────────────
   const generateAI = useCallback(async () => {
     const canvas = canvasRef.current
@@ -282,11 +257,15 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
     const imageDataUrl = canvas.toDataURL('image/png')
     try {
       const styleId = isArtStyleId(selectedStyle) ? selectedStyle : 'clay'
-      const url = await generateCreativeImage({
+      const output = await generateCreativeImage({
+        kind: 'art',
+        title: 'Tác phẩm của con',
         prompt: buildArtGenerationPrompt(styleId),
         imageDataUrl,
+        details: { styleId },
       })
-      setAiUrl(url)
+      setAiOutput(output)
+      setAiUrl(output.url)
       setAiState('done')
     } catch (err) {
       setAiState('error')
@@ -296,14 +275,14 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
 
   // ── Save to backpack ─────────────────────────────────────────
   async function saveToBackpack() {
-    if (!aiUrl) return
+    if (!aiOutput) return
     setSaving(true)
     try {
-      await api('/api/media/promote', {
-        method: 'POST',
-        body: JSON.stringify({ url: aiUrl, purpose: 'creative_workshop', creativeKind: 'art' }),
+      await saveCreativeImage(aiOutput, {
+        purpose: 'creative_workshop',
+        creativeKind: 'art',
       })
-      onSaved(aiUrl)
+      onSaved(aiOutput.url)
     } catch (err) {
       setAiError(err instanceof Error ? err.message : 'Chưa lưu được')
     } finally {
@@ -398,10 +377,6 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white text-danger transition hover:border-danger">
                 <Trash2 size={14} />
               </button>
-              <button type="button" onClick={() => fileRef.current?.click()} aria-label="Tải ảnh lên"
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white text-muted transition hover:border-brand-300">
-                <Upload size={14} />
-              </button>
             </div>
 
             {/* Color palette + brush size */}
@@ -450,8 +425,6 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
               onPointerLeave={onPointerUp}
             />
           </div>
-
-          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFileUpload} />
         </div>
 
         {/* ── Right: AI result panel ── */}

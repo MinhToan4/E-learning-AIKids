@@ -225,3 +225,11 @@ export function parseStudentResponse(
   }
   return response
 }
+
+export function studentTextMaxLength(
+  type: AssessmentQuestionType,
+  promptValue: unknown,
+): number | undefined {
+  if (type !== 'short_text') return undefined
+  return shortPromptSchema.parse(promptValue).maxLength
+}

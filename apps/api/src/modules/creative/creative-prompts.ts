@@ -1,4 +1,4 @@
-export type CreativeKind = 'character' | 'art' | 'comic' | 'video'
+export type CreativeKind = 'character' | 'art' | 'comic' | 'story' | 'video'
 
 export type CreativeDetails = {
   appearance?: string
@@ -110,6 +110,8 @@ export function buildCreativePrompt(kind: CreativeKind, title: string, idea: str
         `No text, no watermark, no border.`
     case 'comic':
       return `${title}: ${idea}. A ${details.panelCount ?? 4}-panel children's comic page with clear left-to-right visual storytelling. Panel plan: ${(details.panels ?? []).map((panel, index) => `Panel ${index + 1}: ${panel.action}${panel.dialogue ? `; mood or dialogue: ${panel.dialogue}` : ''}`).join(' | ') || 'show a clear beginning, challenge, action and ending'}. Consistent characters, no speech bubbles, no text, no watermark.`
+    case 'story':
+      return `${title}\n\n${idea}\n\nWrite the complete story in Vietnamese with a clear beginning, challenge and positive ending. Keep the language natural, encouraging and age-appropriate.`
     case 'video':
       return `${title}: ${idea}. Motion: ${details.motion || 'a gentle wave and a small joyful movement'}. A short child-safe scene, no on-screen text, no watermark.`
   }

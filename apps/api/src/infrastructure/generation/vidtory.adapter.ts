@@ -25,6 +25,13 @@ export const VIDTORY_ROUTING_SETTING = 'vidtory_routing'
 
 export type GenerationMode = 'vidtory' | 'mock' | 'unavailable'
 
+export type GenerateTextResult = {
+  id: string
+  text: string
+  mode: 'vidtory' | 'unavailable'
+  source: 'vidtory'
+}
+
 export type GenerateImageResult = {
   id: string
   title: string
@@ -53,6 +60,14 @@ export type GenerateVideoResult = {
 /** Injectable client factory for tests */
 export type VidtoryClientLike = {
   models: {
+    generateText?: (params: {
+      prompt: string
+      modelId?: string
+    }) => Promise<{
+      result?: string | null
+      id?: string
+      generationHistoryId?: string
+    }>
     generateImage: (params: {
       prompt: string
       aspectRatio?: string
@@ -222,6 +237,10 @@ function childSafeImageSuffix(prompt: string): string {
   return `${prompt}. Child-safe content, friendly and wholesome, appropriate for ages 6-15, no violence, no adult content, no watermark`
 }
 
+function childSafeTextSuffix(prompt: string): string {
+  return `${prompt}\n\nWrite only child-safe, friendly and wholesome content appropriate for ages 6-15. Do not include violence, adult content, personal data, contact details or unsafe instructions.`
+}
+
 function softClayVideoPrompt(prompt: string): string {
   return `${prompt}. Soft clay stop-motion style for kids, warm, friendly, safe content`
 }
@@ -233,6 +252,89 @@ function refStrategyOf(refs: {
   if (refs.startImages && refs.startImages.length >= 2) return 'startImages'
   if (refs.refImageUrl) return 'refImageUrl'
   return 'none'
+}
+
+export async function generateCreativeText(
+  prompt: string,
+): Promise<GenerateTextResult> {
+  const generationPrompt = childSafeTextSuffix(prompt)
+
+  if (clientFactory) {
+    try {
+      const generateText = clientFactory('test-key').models.generateText
+      if (!generateText) throw new Error('Text generation is not supported')
+      const response = await generateText({ prompt: generationPrompt })
+      const text = response.result?.trim()
+      if (!text) throw new Error('Empty text result')
+      return {
+        id:
+          response.id ??
+          response.generationHistoryId ??
+          `vid-text-${Date.now()}`,
+        text,
+        mode: 'vidtory',
+        source: 'vidtory',
+      }
+    } catch {
+      return {
+        id: `unavailable-text-${Date.now()}`,
+        text: '',
+        mode: 'unavailable',
+        source: 'vidtory',
+      }
+    }
+  }
+
+  const apiKey = await getVidtoryApiKey()
+  if (!apiKey) {
+    return {
+      id: `unavailable-text-${Date.now()}`,
+      text: '',
+      mode: 'unavailable',
+      source: 'vidtory',
+    }
+  }
+
+  try {
+    const routing = await getVidtoryRouting()
+    const client = await buildClient(apiKey, routing.baseURL)
+    const generateText = client.models.generateText
+    if (!generateText) throw new Error('Text generation is not supported')
+    const response = await (generateText as Function)(
+      { prompt: generationPrompt },
+      {
+        awaitResult: true,
+        timeoutMs: 110_000,
+        pollIntervalMs: 3_000,
+        onProgress: (status: string) => {
+          console.log(`[Vidtory] text poll status=${status}`)
+        },
+      },
+    )
+    const text =
+      typeof response.result === 'string' ? response.result.trim() : ''
+    if (!text) throw new Error('Empty text result')
+    return {
+      id:
+        response.id ??
+        response.generationHistoryId ??
+        `vid-text-${Date.now()}`,
+      text,
+      mode: 'vidtory',
+      source: 'vidtory',
+    }
+  } catch (error) {
+    console.error(
+      '[Vidtory] text generation failed:',
+      error instanceof Error ? error.message : 'unknown',
+    )
+    return {
+      id: `unavailable-text-${Date.now()}`,
+      text: '',
+      mode: 'unavailable',
+      source: 'vidtory',
+    }
+  }
 }
 
 /**

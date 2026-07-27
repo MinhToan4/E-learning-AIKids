@@ -1,4 +1,18 @@
 import { api, fetchRemoteBlob, openAuthorizedStream } from './api'
+import { environment } from '@/shared/config/environment'
+
+export type CreativeImageOutput = {
+  url: string
+  assetId?: string
+  projectId?: string
+  persisted: boolean
+}
+
+export type CreativeStoryOutput = {
+  content: string
+  projectId?: string
+  persisted: boolean
+}
 
 type Job = {
   id?: string
@@ -121,7 +135,47 @@ async function createJob(
 export async function generateCreativeImage(input: {
   prompt: string
   imageDataUrl?: string
-}): Promise<string> {
+  kind?: 'character' | 'art' | 'comic' | 'video'
+  title?: string
+  details?: Record<string, unknown>
+}): Promise<CreativeImageOutput> {
+  if (environment.isLocalApi) {
+    const assetIds: string[] = []
+    if (input.imageDataUrl) {
+      const sketch = await api<{
+        asset: { id: string; url: string }
+      }>('/api/creative/sketch', {
+        method: 'POST',
+        body: JSON.stringify({
+          title: input.title ?? 'Bản phác thảo của con',
+          sketchDataUrl: input.imageDataUrl,
+        }),
+      })
+      assetIds.push(sketch.asset.id)
+    }
+    const created = await api<{
+      asset?: { id: string; url: string }
+      project?: { id: string; url?: string }
+    }>('/api/creative/create', {
+      method: 'POST',
+      body: JSON.stringify({
+        kind: input.kind ?? 'art',
+        title: input.title,
+        prompt: input.prompt,
+        details: input.details ?? {},
+        assetIds,
+      }),
+    })
+    const url = created.asset?.url ?? created.project?.url
+    if (!url) throw new Error('Vidtory chưa trả về ảnh.')
+    return {
+      url,
+      assetId: created.asset?.id,
+      projectId: created.project?.id,
+      persisted: true,
+    }
+  }
+
   const references: string[] = []
   if (input.imageDataUrl) {
     const [header, encoded = ''] = input.imageDataUrl.split(',', 2)
@@ -154,14 +208,63 @@ export async function generateCreativeImage(input: {
   })
   const url = outputUrls(job.outputUrls)[0]
   if (!url) throw new Error('StoryMee chưa trả về ảnh.')
-  return url
+  return { url, persisted: false }
 }
 
-export async function generateCreativeStory(prompt: string): Promise<string> {
+export async function generateCreativeStory(
+  prompt: string,
+  title = 'Câu chuyện của con',
+): Promise<CreativeStoryOutput> {
+  if (environment.isLocalApi) {
+    const created = await api<{
+      content: string
+      project: { id: string }
+    }>('/api/creative/create', {
+      method: 'POST',
+      body: JSON.stringify({
+        kind: 'story',
+        title,
+        prompt,
+        details: {},
+        assetIds: [],
+      }),
+    })
+    if (!created.content?.trim()) {
+      throw new Error('Vidtory chưa trả về nội dung truyện.')
+    }
+    return {
+      content: created.content,
+      projectId: created.project.id,
+      persisted: true,
+    }
+  }
+
   const job = await createJob('llm', { prompt })
   const text = String(job.inputParams?.outputText ?? '').trim()
   if (!text) throw new Error('StoryMee chưa trả về nội dung truyện.')
-  return text
+  return { content: text, persisted: false }
+}
+
+export async function saveCreativeImage(
+  output: CreativeImageOutput,
+  metadata: Record<string, unknown>,
+): Promise<void> {
+  if (output.persisted) return
+  await api('/api/media/promote', {
+    method: 'POST',
+    body: JSON.stringify({ url: output.url, ...metadata }),
+  })
+}
+
+export async function saveCreativeStory(
+  output: CreativeStoryOutput,
+  metadata: Record<string, unknown>,
+): Promise<void> {
+  if (output.persisted) return
+  await api('/api/media/promote', {
+    method: 'POST',
+    body: JSON.stringify({ content: output.content, ...metadata }),
+  })
 }
 
 export async function fetchCreativeDownload(url: string): Promise<Blob> {
