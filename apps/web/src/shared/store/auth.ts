@@ -8,9 +8,15 @@ import {
 } from '@/shared/lib/api'
 import { disconnectFirebaseSession } from '@/shared/lib/firebase-client'
 import { environment } from '@/shared/config/environment'
+import { clearOfflineLearningData } from '@/shared/lib/offline-storage'
 
 async function disconnectFirebase(): Promise<void> {
   await disconnectFirebaseSession().catch(() => undefined)
+}
+
+async function clearPreviousLearnerData(): Promise<void> {
+  // Offline grants and progress belong to one learner even on a shared device.
+  await clearOfflineLearningData().catch(() => undefined)
 }
 
 type AuthState = {
@@ -115,6 +121,7 @@ export const useAuth = create<AuthState>((set, get) => ({
         ...(opts?.pin ? { pin: opts.pin } : {}),
       }),
     })
+    await clearPreviousLearnerData()
     set({ user, access: null, activeContext: null })
     return user
   },
@@ -150,6 +157,7 @@ export const useAuth = create<AuthState>((set, get) => ({
       )
       user = res.user
     }
+    await clearPreviousLearnerData()
     set({ user, access: null, activeContext: null })
     return user
   },
@@ -160,12 +168,16 @@ export const useAuth = create<AuthState>((set, get) => ({
       method: 'POST',
       body: JSON.stringify({ login, password }),
     })
+    await clearPreviousLearnerData()
     const hydrated = await hydrateAdultAccess(user)
     set(hydrated)
     return hydrated.user
   },
 
-  setSessionUser: (user) => set({ user, access: null, activeContext: null, error: null }),
+  setSessionUser: (user) => {
+    void clearPreviousLearnerData()
+    set({ user, access: null, activeContext: null, error: null })
+  },
 
   registerAdult: async (email, password, role, nickname, parentalConsentAccepted) => {
     set({ error: null })
@@ -179,6 +191,7 @@ export const useAuth = create<AuthState>((set, get) => ({
         parentalConsentAccepted,
       }),
     })
+    await clearPreviousLearnerData()
     const hydrated = await hydrateAdultAccess(user)
     set(hydrated)
     return hydrated.user
@@ -210,6 +223,7 @@ export const useAuth = create<AuthState>((set, get) => ({
       await disconnectFirebase()
       await api('/api/auth/logout', { method: 'POST' })
     } finally {
+      await clearPreviousLearnerData()
       clearAccessToken()
       set({ user: null, access: null, activeContext: null })
     }

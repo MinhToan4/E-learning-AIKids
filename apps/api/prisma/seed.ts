@@ -234,8 +234,15 @@ async function seedDemoUsers() {
   const existingStudent = await prisma.user.findFirst({
     where: { nickname: 'MựcCon', role: 'student' },
   })
-  if (!existingStudent) {
-    await prisma.user.create({
+  const student = existingStudent
+    ? await prisma.user.update({
+        where: { id: existingStudent.id },
+        data: {
+          parentId: existingStudent.parentId ?? parent.id,
+          classId: classroom.id,
+        },
+      })
+    : await prisma.user.create({
       data: {
         role: 'student',
         nickname: 'MựcCon',
@@ -251,12 +258,24 @@ async function seedDemoUsers() {
         active: true,
       },
     })
-  } else if (!existingStudent.parentId) {
-    await prisma.user.update({
-      where: { id: existingStudent.id },
-      data: { parentId: parent.id, classId: classroom.id },
-    })
-  }
+
+  await prisma.classMembership.upsert({
+    where: {
+      classId_studentId: {
+        classId: classroom.id,
+        studentId: student.id,
+      },
+    },
+    create: {
+      classId: classroom.id,
+      studentId: student.id,
+      status: 'active',
+    },
+    update: {
+      status: 'active',
+      leftAt: null,
+    },
+  })
 
   console.log(
     `Demo users: admin=${admin.email}, parent=${parent.email}, teacher=${teacher.email}, class=${classroom.code}, family=plus`,

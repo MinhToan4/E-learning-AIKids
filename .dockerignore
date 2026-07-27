@@ -1,6 +1,7 @@
 **/node_modules
 **/dist
 !packages/vidtory-ai-sdk/dist
+apps/api/src/generated
 **/.git
 **/*.log
 **/dev.db
