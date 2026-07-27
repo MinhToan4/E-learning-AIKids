@@ -854,15 +854,7 @@ export async function scheduleRoutes(app: FastifyInstance) {
         status,
         studentId,
         ...(user.role === 'parent'
-          ? {
-              student: { parentId: user.id },
-            }
-          : user.role === 'teacher'
-          ? {
-              course: {
-                classrooms: { some: { teacherId: user.id } },
-              },
-            }
+          ? { student: { parentId: user.id } }
           : {}),
       },
       orderBy: { createdAt: 'asc' },
@@ -897,11 +889,11 @@ export async function scheduleRoutes(app: FastifyInstance) {
           z.object({
             decision: z.literal('placed'),
             classId: z.string().uuid(),
-            reason: z.string().min(5).max(500),
+            reason: z.string().max(500).default(''),
           }),
           z.object({
             decision: z.literal('rejected'),
-            reason: z.string().min(5).max(500),
+            reason: z.string().max(500).default(''),
           }),
         ])
         .parse(request.body)
@@ -926,7 +918,7 @@ export async function scheduleRoutes(app: FastifyInstance) {
         return { request: updated }
       }
       const classroom = await assertClassScope(user, body.classId)
-      if (classroom.courseId !== placement.courseId) {
+      if (classroom.courseId && classroom.courseId !== placement.courseId) {
         return reply.code(400).send({ error: 'Class course mismatch.' })
       }
       const currentSize = await prisma.classMembership.count({
@@ -1561,7 +1553,7 @@ export async function scheduleRoutes(app: FastifyInstance) {
         .object({
           decision: z.enum(['approved', 'rejected']),
           targetSessionId: z.string().uuid().nullable().optional(),
-          reason: z.string().min(5).max(1_000),
+          reason: z.string().max(1_000).default(''),
         })
         .parse(request.body)
       const reschedule = await prisma.rescheduleRequest.findUnique({

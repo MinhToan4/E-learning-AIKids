@@ -539,8 +539,12 @@ function PlacementSection({
           key={row.id}
           title={row.student.nickname ?? 'Học viên'}
           description={`${row.course.title} · cấp độ mong muốn ${row.requestedLevel} · nhóm ${row.student.ageBand}`}
-          options={classes.filter((classroom) => classroom.courseId === row.courseId)}
-          optionLabel={(classroom) => `${classroom.name} (${classroom.status})`}
+          options={classes.filter((classroom) => classroom.courseId === row.courseId || classroom.courseId === null)}
+          optionLabel={(classroom) => {
+            const next = classroom.sessions?.[0]
+            const timeInfo = next ? ` - ${new Date(next.startsAt).toLocaleDateString('vi-VN', { weekday: 'short', day: '2-digit', month: '2-digit' })} ${new Date(next.startsAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}` : ' (Chưa có lịch)'
+            return `${classroom.name}${timeInfo}`
+          }}
           onDecide={async (decision, classId, reason) => {
             try {
               await api(`/api/schedule/placement-requests/${row.id}/decide`, {
@@ -633,7 +637,10 @@ function DecisionCard<T extends { id: string }>({
   const [reason, setReason] = useState('')
   const [busy, setBusy] = useState(false)
   async function decide(decision: 'approved' | 'rejected') {
-    if (reason.trim().length < 5) return
+    if (decision === 'approved' && !optionalOption && !optionId) {
+      alert('Vui lòng chọn một phương án (lớp học) trước khi duyệt')
+      return
+    }
     setBusy(true)
     try {
       await onDecide(decision, optionId, reason)
@@ -648,21 +655,21 @@ function DecisionCard<T extends { id: string }>({
         <p className="mt-1 text-sm leading-relaxed text-muted">{description}</p>
       </div>
       <div className="grid gap-3 md:grid-cols-2">
-        <Field label={optionalOption ? 'Buổi thay thế (để trống cho 1:1)' : 'Lớp / buổi phù hợp'}>
-          <select className="field-input" required={!optionalOption} value={optionId} onChange={(event) => setOptionId(event.target.value)}>
-            <option value="">{optionalOption ? 'Dùng thời gian phụ huynh đề xuất' : 'Chọn phương án'}</option>
+        <Field label={optionalOption ? 'Phương án (tùy chọn)' : 'Phương án'}>
+          <select className="field-input" value={optionId} onChange={(event) => setOptionId(event.target.value)}>
+            <option value="">{optionalOption ? 'Đúng thời gian phụ huynh đề xuất' : 'Chọn phương án'}</option>
             {options.map((option) => <option key={option.id} value={option.id}>{optionLabel(option)}</option>)}
           </select>
         </Field>
-        <Field label="Lý do quyết định">
-          <input required minLength={5} maxLength={1_000} className="field-input" value={reason} onChange={(event) => setReason(event.target.value)} />
+        <Field label="Lý do quyết định (không bắt buộc)">
+          <input maxLength={1_000} className="field-input" value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Nhập lý do..." />
         </Field>
       </div>
       <div className="flex flex-wrap justify-end gap-2">
-        <Button variant="ghost" disabled={busy || reason.trim().length < 5} onClick={() => void decide('rejected')}>
+        <Button variant="ghost" disabled={busy} onClick={() => void decide('rejected')}>
           <X size={17} /> Từ chối
         </Button>
-        <Button disabled={busy || reason.trim().length < 5 || (!optionalOption && !optionId)} onClick={() => void decide('approved')}>
+        <Button disabled={busy} onClick={() => void decide('approved')}>
           <Check size={17} /> Duyệt
         </Button>
       </div>
