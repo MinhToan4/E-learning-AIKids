@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '@/shared/lib/api'
+import { useWorkspace } from '@/shared/store/workspace'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
@@ -62,6 +63,7 @@ export function BackpackPage() {
   const [msg, setMsg] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const activeIpId = useWorkspace((s) => s.activeIpId)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -79,7 +81,7 @@ export function BackpackPage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [activeIpId])
 
   useEffect(() => {
     void load()

@@ -183,10 +183,14 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     return { path: '/api/v1/billing/me/subscription', options }
   }
   if (path === '/api/media/refs' || path === '/api/backpack') {
-    return { path: '/api/v1/media/gallery', options }
+    const activeIpId = typeof window !== 'undefined' ? localStorage.getItem('storymee_active_ip_id') : null
+    const ipSuffix = activeIpId ? `?ipId=${encodeURIComponent(activeIpId)}` : ''
+    return { path: `/api/v1/media/gallery${ipSuffix}`, options }
   }
   if (path === '/api/projects') {
-    return { path: '/api/v1/media/gallery', options }
+    const activeIpId = typeof window !== 'undefined' ? localStorage.getItem('storymee_active_ip_id') : null
+    const ipSuffix = activeIpId ? `?ipId=${encodeURIComponent(activeIpId)}` : ''
+    return { path: `/api/v1/media/gallery${ipSuffix}`, options }
   }
   const projectShare = path.match(/^\/api\/projects\/([^/?]+)\/request-share$/)
   if (projectShare) {

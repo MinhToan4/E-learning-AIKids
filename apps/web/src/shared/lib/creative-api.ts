@@ -10,22 +10,23 @@ type Job = {
 }
 
 async function defaultWorkspace(): Promise<string> {
-  const result = await api<{
-    workspaces: Array<{ ipId: string }>
-    defaultIpId?: string | null
-  }>('/api/v1/account/workspaces')
-  if (result.defaultIpId) return result.defaultIpId
-  if (result.workspaces[0]?.ipId) return result.workspaces[0].ipId
-  const created = await api<{ ipId?: string; id?: string }>(
-    '/api/v1/account/workspaces',
-    {
+  const cached = localStorage.getItem('storymee_active_ip_id')
+  if (cached) return cached
+  // fallback: gọi API như cũ
+  const result = await api<{workspaces: Array<{ipId: string}>; defaultIpId?: string | null}>('/api/v1/account/workspaces')
+  const ipId = result.defaultIpId ?? result.workspaces[0]?.ipId
+  if (!ipId) {
+    const created = await api<{ipId?: string; id?: string}>('/api/v1/account/workspaces', {
       method: 'POST',
-      body: JSON.stringify({ name: 'AIKids Creative' }),
-    },
-  )
-  const id = created.ipId ?? created.id
-  if (!id) throw new Error('Không tạo được không gian sáng tạo StoryMee.')
-  return id
+      body: JSON.stringify({ name: 'Không gian của tôi' }),
+    })
+    const id = created.ipId ?? created.id
+    if (!id) throw new Error('Failed to get or create workspace')
+    localStorage.setItem('storymee_active_ip_id', id)
+    return id
+  }
+  localStorage.setItem('storymee_active_ip_id', ipId)
+  return ipId
 }
 
 function outputUrls(value: Job['outputUrls']): string[] {
