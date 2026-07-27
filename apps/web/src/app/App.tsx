@@ -110,6 +110,12 @@ const TeacherOperationsPage = lazy(() =>
     default: m.TeacherOperationsPage,
   })),
 )
+// Teacher overview dashboard with weekly calendar
+const TeacherDashboardPage = lazy(() =>
+  import('@/features/teacher/pages/TeacherDashboardPage').then((m) => ({
+    default: m.TeacherDashboardPage,
+  })),
+)
 const AssessmentAuthoringPage = lazy(() =>
   import('@/features/teacher/pages/AssessmentAuthoringPage').then((m) => ({
     default: m.AssessmentAuthoringPage,
@@ -130,11 +136,7 @@ const Phase2ConfigPage = lazy(() =>
     default: m.Phase2ConfigPage,
   })),
 )
-const OrganizationPage = lazy(() =>
-  import('@/features/organization/pages/OrganizationPage').then((m) => ({
-    default: m.OrganizationPage,
-  })),
-)
+
 const ChildPickerPage = lazy(() =>
   import('@/features/family/pages/ChildPickerPage').then((m) => ({
     default: m.ChildPickerPage,
@@ -157,7 +159,8 @@ function Fallback() {
 
 function homeFor(role: User['role']) {
   if (role === 'admin') return '/admin'
-  if (role === 'teacher') return '/teacher'
+  // Teacher lands on the overview dashboard (not the class tab directly)
+  if (role === 'teacher') return '/teacher/dashboard'
   // Shared tablet: parents land on kid picker first
   if (role === 'parent') return '/kids'
   return '/home'
@@ -366,11 +369,19 @@ export function App() {
               </Guard>
             }
           />
+
+
+          {/* ── Teacher routes ──────────────────────────────────────────────
+              /teacher/dashboard, /teacher, /teacher/courses, /teacher/lectures,
+              /teacher/stats, /teacher/operations  → teacher + admin (thông tin)
+              /teacher/scheduling, /teacher/assessments              → teacher ONLY
+              (Scheduling = điều phối lịch từ phụ huynh; Assessments = biên soạn test)
+          ─────────────────────────────────────────────────────────────────── */}
           <Route
-            path="/organization"
+            path="/teacher/dashboard"
             element={
-              <Guard roles={['teacher', 'admin']}>
-                <OrganizationPage />
+              <Guard roles={['teacher']}>
+                <TeacherDashboardPage />
               </Guard>
             }
           />
@@ -407,22 +418,6 @@ export function App() {
             }
           />
           <Route
-            path="/teacher/scheduling"
-            element={
-              <Guard roles={['teacher', 'admin']}>
-                <SchedulingPage />
-              </Guard>
-            }
-          />
-          <Route
-            path="/teacher/assessments"
-            element={
-              <Guard roles={['teacher', 'admin']}>
-                <AssessmentAuthoringPage />
-              </Guard>
-            }
-          />
-          <Route
             path="/teacher/operations"
             element={
               <Guard roles={['teacher', 'admin']}>
@@ -430,6 +425,25 @@ export function App() {
               </Guard>
             }
           />
+          {/* Strict teacher-only: lịch học và biên soạn test là nghiệp vụ giáo viên */}
+          <Route
+            path="/teacher/scheduling"
+            element={
+              <Guard roles={['teacher']}>
+                <SchedulingPage />
+              </Guard>
+            }
+          />
+          <Route
+            path="/teacher/assessments"
+            element={
+              <Guard roles={['teacher']}>
+                <AssessmentAuthoringPage />
+              </Guard>
+            }
+          />
+
+          {/* ── Admin routes ─────────────────────────────────────────────── */}
           <Route
             path="/admin"
             element={

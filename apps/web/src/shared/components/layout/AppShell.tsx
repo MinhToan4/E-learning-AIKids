@@ -615,39 +615,17 @@ export function AppShell() {
     )
   }
 
-  if (activeContext?.actor === 'org_admin') {
-    return (
-      <CmsShell
-        brandTo="/organization"
-        roleLabel={activeContext.label}
-        tone="teacher"
-        nav={[
-          { to: '/organization', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
-          { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon },
-          { to: '/teacher/operations', label: 'Điều hành', icon: CmsOperationsIcon },
-          { to: '/teacher/scheduling', label: 'Lịch học', icon: CmsScheduleIcon },
-          { to: '/teacher/assessments', label: 'Bài test', icon: CmsAssessmentIcon },
-          { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
-          { to: '/teacher/lectures', label: 'Bài giảng', icon: CmsLecturesIcon },
-          { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
-        ]}
-        pinnedNav={[
-          { to: '/organization', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
-          { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon },
-          { to: '/teacher/operations', label: 'Điều hành', icon: CmsOperationsIcon },
-        ]}
-      />
-    )
-  }
+
 
   if (user?.role === 'teacher') {
     return (
       <CmsShell
-        brandTo="/teacher"
+        brandTo="/teacher/dashboard"
         roleLabel="Giáo viên"
         tone="teacher"
         nav={[
-          { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon, end: true },
+          { to: '/teacher/dashboard', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
+          { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon },
           { to: '/teacher/operations', label: 'Điều hành', icon: CmsOperationsIcon },
           { to: '/teacher/scheduling', label: 'Lịch học', icon: CmsScheduleIcon },
           { to: '/teacher/assessments', label: 'Bài test', icon: CmsAssessmentIcon },
@@ -656,8 +634,8 @@ export function AppShell() {
           { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
         ]}
         pinnedNav={[
-          { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon, end: true },
-          { to: '/teacher/operations', label: 'Điều hành', icon: CmsOperationsIcon },
+          { to: '/teacher/dashboard', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
+          { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon },
           { to: '/teacher/scheduling', label: 'Lịch học', icon: CmsScheduleIcon },
         ]}
       />
@@ -674,9 +652,8 @@ export function AppShell() {
       { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
       { to: '/admin/learning-config', label: 'Cấu hình học tập', icon: CmsSettingsIcon },
       { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
-      { to: '/teacher', label: 'Giáo viên', icon: CmsClassesIcon },
-      { to: '/teacher/scheduling', label: 'Điều phối lịch', icon: CmsScheduleIcon },
-      { to: '/teacher/assessments', label: 'Biên soạn test', icon: CmsAssessmentIcon },
+      // NOTE: Scheduling và Assessment authoring là nghiệp vụ của Giáo viên,
+      // không phải Admin. Admin chỉ cấu hình policy tại /api/admin/schedule-config.
     ]
     // Show only the most-used items in the pinned bar; the rest live in the drawer
     const pinnedNav: RoleNavItem[] = [

@@ -686,7 +686,7 @@ export async function authRoutes(app: FastifyInstance) {
         id: contextId,
         type: 'personal_teacher',
         label: 'Giáo viên',
-        defaultRoute: '/teacher',
+        defaultRoute: '/teacher/dashboard',
         actor: 'teacher',
         roles: ['teacher'],
         permissions: [],
