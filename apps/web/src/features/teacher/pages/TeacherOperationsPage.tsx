@@ -15,6 +15,8 @@ import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
 import { api } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
+import { useAuth } from '@/shared/store/auth'
+import { reviewResponseSummary } from '../lib/grading'
 
 type Learner = {
   id: string
@@ -51,6 +53,18 @@ type ConsoleData = {
   classes: ConsoleClass[]
 }
 type CourseOption = { id: string; title: string }
+type TeacherObservation = {
+  id: string
+  studentId: string
+  courseId: string | null
+  body: string
+  strengthsJson: string[]
+  developmentJson: string[]
+  scorePercent: number | null
+  status: 'draft' | 'published'
+  version: number
+  updatedAt: string
+}
 type RubricCriterion = { id: string; label: string; maxPoints: number }
 type Review = {
   id: string
@@ -70,6 +84,7 @@ type Review = {
     rubric: { criteria?: RubricCriterion[] }
   }
   response: Record<string, unknown>
+  artifact: { snapshotJson?: unknown } | null
 }
 type Session = {
   id: string
@@ -141,6 +156,7 @@ export function TeacherOperationsPage() {
   const [courses, setCourses] = useState<CourseOption[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const role = useAuth((state) => state.user?.role)
   const { toasts, showToast, dismissToast } = useToast()
 
   const load = useCallback(async () => {
@@ -249,6 +265,7 @@ export function TeacherOperationsPage() {
           data={consoleData}
           learners={learners}
           courses={courses}
+          canWriteObservation={role === 'teacher'}
           onDone={() => void load()}
           showToast={showToast}
         />
@@ -300,12 +317,14 @@ function OverviewSection({
   data,
   learners,
   courses,
+  canWriteObservation,
   onDone,
   showToast,
 }: {
   data: ConsoleData
   learners: Learner[]
   courses: CourseOption[]
+  canWriteObservation: boolean
   onDone: () => void
   showToast: (message: string, kind: 'success' | 'error') => void
 }) {
@@ -320,6 +339,9 @@ function OverviewSection({
   const [observationStatus, setObservationStatus] = useState<
     'draft' | 'published'
   >('draft')
+  const [observations, setObservations] = useState<TeacherObservation[]>([])
+  const [editingObservation, setEditingObservation] =
+    useState<TeacherObservation | null>(null)
   const [busy, setBusy] = useState(false)
   const [override, setOverride] = useState({
     studentId: learners[0]?.id ?? '',
@@ -328,27 +350,94 @@ function OverviewSection({
     reason: '',
     expiresAt: '',
   })
+
+  const loadObservations = useCallback(
+    async (selectedStudentId: string) => {
+      if (!canWriteObservation || !selectedStudentId) {
+        setObservations([])
+        return
+      }
+      try {
+        const overview = await api<{ observations: TeacherObservation[] }>(
+          `/api/teacher/students/${selectedStudentId}/learning-overview`,
+        )
+        setObservations(overview.observations)
+      } catch (cause) {
+        setObservations([])
+        showToast(
+          cause instanceof Error
+            ? cause.message
+            : 'Không tải được bản nháp nhận xét.',
+          'error',
+        )
+      }
+    },
+    [canWriteObservation, showToast],
+  )
+
+  useEffect(() => {
+    setEditingObservation(null)
+    setBody('')
+    setStrengths('')
+    setDevelopment('')
+    setScorePercent('')
+    setObservationStatus('draft')
+    void loadObservations(studentId)
+  }, [loadObservations, studentId])
+
+  function editObservation(observation: TeacherObservation) {
+    setEditingObservation(observation)
+    setStudentId(observation.studentId)
+    setObservationCourseId(observation.courseId ?? '')
+    setBody(observation.body)
+    setStrengths(observation.strengthsJson.join('\n'))
+    setDevelopment(observation.developmentJson.join('\n'))
+    setScorePercent(observation.scorePercent ?? '')
+    setObservationStatus(observation.status)
+  }
+
+  function resetObservationForm() {
+    setEditingObservation(null)
+    setBody('')
+    setStrengths('')
+    setDevelopment('')
+    setScorePercent('')
+    setObservationStatus('draft')
+  }
+
   async function submit(event: React.FormEvent) {
     event.preventDefault()
     setBusy(true)
     try {
-      await api('/api/teacher/observations', {
-        method: 'POST',
-        body: JSON.stringify({
-          studentId,
-          courseId: observationCourseId || null,
-          body,
-          strengths: splitValues(strengths),
-          development: splitValues(development),
-          scorePercent:
-            scorePercent === '' ? null : scorePercent,
-          status: observationStatus,
-        }),
-      })
-      setBody('')
-      setStrengths('')
-      setDevelopment('')
-      setScorePercent('')
+      const observationDetails = {
+        body,
+        strengths: splitValues(strengths),
+        development: splitValues(development),
+        scorePercent: scorePercent === '' ? null : scorePercent,
+        status: observationStatus,
+      }
+      await api(
+        editingObservation
+          ? `/api/teacher/observations/${editingObservation.id}`
+          : '/api/teacher/observations',
+        {
+          method: editingObservation ? 'PATCH' : 'POST',
+          body: JSON.stringify(
+            editingObservation
+              ? {
+                  version: editingObservation.version,
+                  ...observationDetails,
+                }
+              : {
+                  studentId,
+                  courseId: observationCourseId || null,
+                  ...observationDetails,
+                },
+          ),
+        },
+      )
+      resetObservationForm()
+      await loadObservations(studentId)
       showToast(
         observationStatus === 'published'
           ? 'Đã công bố nhận xét và cập nhật bằng chứng năng lực.'
@@ -442,15 +531,59 @@ function OverviewSection({
         )}
       </section>
       <div className="space-y-5">
-      <form className="ui-card grid content-start gap-3 p-5" onSubmit={(event) => void submit(event)}>
+        {canWriteObservation ? (
+          <>
+            {observations.some(
+              (observation) => observation.status === 'draft',
+            ) && (
+              <section className="ui-card p-5">
+                <h2 className="font-display text-xl">Bản nháp nhận xét</h2>
+                <p className="mt-1 text-sm text-muted">
+                  Tiếp tục hoàn thiện trước khi gửi cho gia đình.
+                </p>
+                <div className="mt-3 space-y-2">
+                  {observations
+                    .filter((observation) => observation.status === 'draft')
+                    .map((observation) => (
+                      <article
+                        key={observation.id}
+                        className="flex flex-wrap items-center justify-between gap-3 rounded-2xl bg-sky-50 p-3"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="line-clamp-2 text-sm">
+                            {observation.body}
+                          </p>
+                          <p className="mt-1 text-xs text-muted">
+                            Cập nhật {formatDate(observation.updatedAt)}
+                          </p>
+                        </div>
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => editObservation(observation)}
+                        >
+                          Tiếp tục bản nháp
+                        </Button>
+                      </article>
+                    ))}
+                </div>
+              </section>
+            )}
+            <form
+              className="ui-card grid content-start gap-3 p-5"
+              onSubmit={(event) => void submit(event)}
+            >
         <div className="flex items-center gap-2">
           <MessageSquareText className="text-sky-500" aria-hidden="true" />
-          <h2 className="font-display text-xl">Nhận xét mới</h2>
+          <h2 className="font-display text-xl">
+            {editingObservation ? 'Tiếp tục bản nháp' : 'Nhận xét mới'}
+          </h2>
         </div>
         <label className="grid gap-1 text-sm font-bold">
           Học viên
           <select
             required
+            disabled={editingObservation !== null}
             className="min-h-11 rounded-xl border-2 border-border bg-white px-3"
             value={studentId}
             onChange={(event) => setStudentId(event.target.value)}
@@ -466,6 +599,7 @@ function OverviewSection({
           Khóa học liên quan
           <select
             required
+            disabled={editingObservation !== null}
             className="field-input"
             value={observationCourseId}
             onChange={(event) =>
@@ -556,8 +690,31 @@ function OverviewSection({
               ? 'Công bố nhận xét'
               : 'Lưu bản nháp'}
         </Button>
-      </form>
-      <form className="ui-card grid content-start gap-3 p-5" onSubmit={(event) => void saveOverride(event)}>
+        {editingObservation && (
+          <Button
+            type="button"
+            variant="ghost"
+            disabled={busy}
+            onClick={resetObservationForm}
+          >
+            Hủy chỉnh sửa
+          </Button>
+        )}
+            </form>
+          </>
+        ) : (
+          <section className="ui-card p-5">
+            <h2 className="font-display text-xl">Nhận xét của giáo viên</h2>
+            <p className="mt-1 text-sm leading-relaxed text-muted">
+              Quản trị viên có thể theo dõi vận hành tại đây. Việc soạn và công
+              bố nhận xét thuộc giáo viên trực tiếp phụ trách học viên.
+            </p>
+          </section>
+        )}
+        <form
+          className="ui-card grid content-start gap-3 p-5"
+          onSubmit={(event) => void saveOverride(event)}
+        >
         <div>
           <h2 className="font-display text-xl">Ngoại lệ lộ trình</h2>
           <p className="text-sm text-muted">
@@ -633,7 +790,7 @@ function OverviewSection({
         >
           Lưu ngoại lệ
         </Button>
-      </form>
+        </form>
       </div>
     </div>
   )
@@ -812,15 +969,30 @@ function GradingSection({
               {rows.map((review, index) => {
                 const current = form(review)
                 const criteria = review.question.rubric.criteria ?? []
+                const responseSummary = reviewResponseSummary({
+                  questionType: review.question.type,
+                  response: review.response,
+                  artifact: review.artifact,
+                })
                 return (
                   <article key={review.id} className="rounded-2xl bg-sky-50/60 p-4">
                     <p className="text-xs font-bold text-muted">Nội dung {index + 1}</p>
                     <h3 className="mt-1 font-bold">
                       {review.question.prompt.stem ?? 'Sản phẩm học tập'}
                     </h3>
-                    <pre className="mt-2 max-h-44 overflow-auto whitespace-pre-wrap rounded-xl bg-white p-3 text-sm">
-                      {JSON.stringify(review.response, null, 2)}
-                    </pre>
+                    <div className="mt-2 rounded-xl bg-white p-3">
+                      <p className="text-xs font-bold text-muted">
+                        {responseSummary.label}
+                      </p>
+                      <p className="mt-1 whitespace-pre-wrap text-sm leading-relaxed">
+                        {responseSummary.value}
+                      </p>
+                      {responseSummary.detail && (
+                        <p className="mt-1 text-xs text-muted">
+                          {responseSummary.detail}
+                        </p>
+                      )}
+                    </div>
                     <div className="mt-3 grid gap-3 sm:grid-cols-2">
                       {criteria.map((criterion) => (
                         <label key={criterion.id} className="grid gap-1 text-sm font-bold">
@@ -1005,6 +1177,7 @@ function AttendanceSection({
                 >
                   <p className="font-bold">{student.nickname ?? 'Học viên'}</p>
                   <select
+                    aria-label={`Trạng thái điểm danh của ${student.nickname ?? 'học viên'}`}
                     className="min-h-11 rounded-xl border-2 border-border bg-white px-3"
                     value={row.status}
                     onChange={(event) =>
@@ -1023,6 +1196,7 @@ function AttendanceSection({
                     <option value="absent">Vắng</option>
                   </select>
                   <input
+                    aria-label={`Ghi chú điểm danh của ${student.nickname ?? 'học viên'}`}
                     className="min-h-11 rounded-xl border-2 border-border px-3"
                     value={row.note ?? ''}
                     onChange={(event) =>

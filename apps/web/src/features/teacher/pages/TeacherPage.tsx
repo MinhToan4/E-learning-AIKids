@@ -7,8 +7,10 @@
  * - Full-width layout (CmsShell handles sidebar)
  */
 import { useEffect, useState, useCallback, useMemo, type ReactNode } from 'react'
+import { Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
+import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
 import { Paginator } from '@/shared/components/ui/Paginator'
@@ -211,6 +213,8 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const [statsSupportFilter, setStatsSupportFilter] = useState<'' | 'needs' | 'ok'>('')
 
   const { toasts, showToast, dismissToast } = useToast()
+  const role = useAuth((s) => s.user?.role)
+  const canManageClass = role === 'teacher'
   const logout = useAuth((s) => s.logout)
   const navigate = useNavigate()
 
@@ -541,13 +545,26 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const classTab = (
     <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
       {!classInfo ? (
-        <form className="ui-card flex flex-col gap-4 p-5 lg:col-span-2" onSubmit={(e) => void saveClass(e)}>
-          <h2 className="font-display text-xl">Tạo lớp học</h2>
-          <p className="text-sm text-muted">Mỗi giảng viên có một lớp. Học sinh join bằng mã lớp.</p>
-          <input className="min-h-11 rounded-xl border-2 border-border px-3" placeholder="Tên lớp (vd Lớp Sao Sáng)" value={classForm.name} onChange={(e) => setClassForm((c) => ({ ...c, name: e.target.value }))} required minLength={2} />
-          <input className="min-h-11 rounded-xl border-2 border-border px-3 font-mono uppercase" placeholder="Mã lớp (vd STAR-8)" value={classForm.code} onChange={(e) => setClassForm((c) => ({ ...c, code: e.target.value.toUpperCase() }))} required minLength={3} pattern="[A-Za-z0-9-]+" />
-          <Button type="submit">Tạo lớp</Button>
-        </form>
+        canManageClass ? (
+          <form className="ui-card flex flex-col gap-4 p-5 lg:col-span-2" onSubmit={(e) => void saveClass(e)}>
+            <h2 className="font-display text-xl">Tạo lớp học</h2>
+            <p className="text-sm text-muted">Mỗi giảng viên có một lớp. Học sinh tham gia bằng mã lớp.</p>
+            <label className="grid gap-1 text-sm font-bold">
+              Tên lớp
+              <input className="min-h-11 rounded-xl border-2 border-border px-3" placeholder="Ví dụ: Lớp Sao Sáng" value={classForm.name} onChange={(e) => setClassForm((c) => ({ ...c, name: e.target.value }))} required minLength={2} />
+            </label>
+            <label className="grid gap-1 text-sm font-bold">
+              Mã lớp
+              <input className="min-h-11 rounded-xl border-2 border-border px-3 font-mono uppercase" placeholder="Ví dụ: STAR-8" value={classForm.code} onChange={(e) => setClassForm((c) => ({ ...c, code: e.target.value.toUpperCase() }))} required minLength={3} pattern="[A-Za-z0-9-]+" />
+            </label>
+            <Button type="submit">Tạo lớp</Button>
+          </form>
+        ) : (
+          <EmptyState
+            title="Chưa có lớp để theo dõi"
+            description="Khi giáo viên tạo lớp, dữ liệu vận hành sẽ xuất hiện tại đây."
+          />
+        )
       ) : (
         <>
           {/* Student table */}
@@ -562,9 +579,12 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             {/* Student search bar */}
             <div className="flex flex-col gap-2 border-b border-border/60 px-3 py-3 sm:flex-row sm:flex-wrap sm:items-center sm:px-4">
               <div className="relative w-full min-w-0 flex-1 sm:min-w-[180px]">
-                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
+                  <Search size={17} aria-hidden="true" />
+                </span>
                 <input
                   type="search"
+                  aria-label="Tìm học sinh trong lớp"
                   placeholder="Tìm biệt danh..."
                   value={studentSearch}
                   onChange={(e) => setStudentSearch(e.target.value)}
@@ -598,7 +618,9 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                       <td className="px-4 py-2 text-xs text-muted">{s.completedQuests} trạm · {s.totalStars} sao · {s.projectCount} sản phẩm</td>
                       <td className="px-4 py-2 text-right">
                         <Button variant="ghost" className="!min-h-8 !px-2 !text-xs" onClick={() => void viewProgress(s.id)}>Chi tiết</Button>
-                        <Button variant="ghost" className="!min-h-8 !px-2 !text-xs text-danger" onClick={() => setRemoveTarget(s)}>Gỡ</Button>
+                        {canManageClass && (
+                          <Button variant="ghost" className="!min-h-8 !px-2 !text-xs text-danger" onClick={() => setRemoveTarget(s)}>Gỡ</Button>
+                        )}
                       </td>
                     </tr>
                   ))}
@@ -615,9 +637,11 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                     <span className="shrink-0 rounded-full bg-sky-50 px-2 py-1 text-xs font-bold text-sky-700">Lv{s.level} · {s.xp} XP</span>
                   </div>
                   <p className="text-xs text-muted">{s.completedQuests} trạm · {s.totalStars} sao · {s.projectCount} sản phẩm</p>
-                  <div className="grid grid-cols-2 gap-2">
+                  <div className={cn('grid gap-2', canManageClass && 'grid-cols-2')}>
                     <Button variant="secondary" className="w-full" onClick={() => void viewProgress(s.id)}>Chi tiết</Button>
-                    <Button variant="ghost" className="w-full text-danger" onClick={() => setRemoveTarget(s)}>Gỡ khỏi lớp</Button>
+                    {canManageClass && (
+                      <Button variant="ghost" className="w-full text-danger" onClick={() => setRemoveTarget(s)}>Gỡ khỏi lớp</Button>
+                    )}
                   </div>
                 </article>
               ))}
@@ -631,18 +655,38 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
           {/* Sidebar actions */}
           <div className="flex flex-col gap-4">
-            <form className="ui-card flex flex-col gap-3 p-4" onSubmit={(e) => void addStudent(e)}>
-              <h2 className="font-display text-lg">Thêm học sinh</h2>
-              <p className="text-xs text-muted">Nhập đúng biệt danh học sinh đã đăng ký</p>
-              <input className="min-h-11 rounded-xl border-2 border-border px-3" placeholder="Biệt danh" value={newStudent} onChange={(e) => setNewStudent(e.target.value)} required />
-              <Button type="submit">Thêm vào lớp</Button>
-            </form>
-            <form className="ui-card flex flex-col gap-2 p-4" onSubmit={(e) => void saveClass(e)}>
-              <p className="text-xs font-extrabold uppercase text-muted">Đổi tên / mã lớp</p>
-              <input className="min-h-9 w-full rounded-xl border border-border px-2 text-sm" placeholder="Tên lớp" value={classForm.name || classInfo.name} onChange={(e) => setClassForm((c) => ({ ...c, name: e.target.value, code: c.code || classInfo!.code }))} />
-              <input className="min-h-9 w-full rounded-xl border border-border px-2 font-mono text-sm uppercase" placeholder="Mã lớp" value={classForm.code || classInfo.code} onChange={(e) => setClassForm((c) => ({ ...c, code: e.target.value.toUpperCase(), name: c.name || classInfo!.name }))} />
-              <Button type="submit" variant="secondary" className="!min-h-9 !text-xs">Cập nhật lớp</Button>
-            </form>
+            {canManageClass ? (
+              <>
+                <form className="ui-card flex flex-col gap-3 p-4" onSubmit={(e) => void addStudent(e)}>
+                  <h2 className="font-display text-lg">Thêm học sinh</h2>
+                  <p className="text-xs text-muted">Nhập đúng biệt danh học sinh đã đăng ký</p>
+                  <label className="grid gap-1 text-sm font-bold">
+                    Biệt danh học sinh
+                    <input className="min-h-11 rounded-xl border-2 border-border px-3" placeholder="Nhập đúng biệt danh" value={newStudent} onChange={(e) => setNewStudent(e.target.value)} required />
+                  </label>
+                  <Button type="submit">Thêm vào lớp</Button>
+                </form>
+                <form className="ui-card flex flex-col gap-2 p-4" onSubmit={(e) => void saveClass(e)}>
+                  <p className="text-xs font-extrabold uppercase text-muted">Đổi tên / mã lớp</p>
+                  <label className="grid gap-1 text-xs font-bold text-muted">
+                    Tên lớp
+                    <input className="min-h-9 w-full rounded-xl border border-border px-2 text-sm text-text" value={classForm.name || classInfo.name} onChange={(e) => setClassForm((c) => ({ ...c, name: e.target.value, code: c.code || classInfo!.code }))} />
+                  </label>
+                  <label className="grid gap-1 text-xs font-bold text-muted">
+                    Mã lớp
+                    <input className="min-h-9 w-full rounded-xl border border-border px-2 font-mono text-sm uppercase text-text" value={classForm.code || classInfo.code} onChange={(e) => setClassForm((c) => ({ ...c, code: e.target.value.toUpperCase(), name: c.name || classInfo!.name }))} />
+                  </label>
+                  <Button type="submit" variant="secondary" className="!min-h-9 !text-xs">Cập nhật lớp</Button>
+                </form>
+              </>
+            ) : (
+              <section className="ui-card p-4 text-sm text-muted">
+                <h2 className="font-display text-lg text-text">Chế độ theo dõi</h2>
+                <p className="mt-1">
+                  Việc thêm, gỡ học sinh và đổi mã lớp thuộc giáo viên phụ trách.
+                </p>
+              </section>
+            )}
 
             {/* Progress detail popup */}
             {progressDetail && (
@@ -794,9 +838,12 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             {/* Lecture search + archive filter */}
             <div className="flex flex-col gap-2 border-b border-border/60 px-3 py-3">
               <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
+                  <Search size={17} aria-hidden="true" />
+                </span>
                 <input
                   type="search"
+                  aria-label="Tìm bài học"
                   placeholder="Tìm bài học..."
                   value={lectureSearch}
                   onChange={(e) => setLectureSearch(e.target.value)}
@@ -805,13 +852,14 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               </div>
               <div className="flex items-center gap-2">
                 <select
+                  aria-label="Lọc bài học theo trạng thái"
                   className="flex-1 min-h-9 rounded-xl border-2 border-border bg-white px-2 text-xs font-bold"
                   value={lectureArchiveFilter}
                   onChange={(e) => setLectureArchiveFilter(e.target.value as '' | 'active' | 'archived')}
                 >
                   <option value="">Tất cả</option>
-                  <option value="active">✅ Đang hiện</option>
-                  <option value="archived">🔒 Đang ẩn</option>
+                  <option value="active">Đang hiện</option>
+                  <option value="archived">Đang ẩn</option>
                 </select>
                 {(lectureSearch || lectureArchiveFilter) && (
                   <span className="shrink-0 rounded-full bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600">{filteredLectures.length} bài</span>
@@ -939,9 +987,12 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           {/* Stats search + support filter */}
           <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:flex-wrap sm:items-center">
             <div className="relative w-full min-w-0 flex-1 sm:min-w-[200px]">
-              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+              <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
+                <Search size={17} aria-hidden="true" />
+              </span>
               <input
                 type="search"
+                aria-label="Tìm học sinh trong thống kê"
                 placeholder="Tìm học sinh..."
                 value={statsSearch}
                 onChange={(e) => setStatsSearch(e.target.value)}
@@ -949,13 +1000,14 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               />
             </div>
             <select
+              aria-label="Lọc học sinh cần hỗ trợ"
               className="min-h-11 w-full rounded-xl border-2 border-border bg-white px-3 text-sm font-bold sm:w-auto"
               value={statsSupportFilter}
               onChange={(e) => setStatsSupportFilter(e.target.value as '' | 'needs' | 'ok')}
             >
               <option value="">Tất cả</option>
-              <option value="needs">⚠️ Cần hỗ trợ</option>
-              <option value="ok">✅ Tiến triển tốt</option>
+              <option value="needs">Cần hỗ trợ</option>
+              <option value="ok">Tiến triển tốt</option>
             </select>
             {(statsSearch || statsSupportFilter) && (
               <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">{filteredStatStudents.length} / {statStudents.length} học sinh</span>

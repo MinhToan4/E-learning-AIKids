@@ -9,6 +9,7 @@ import { useToast } from '@/shared/hooks/useToast'
 import { api } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
+import { buildLessonPlan } from '../lib/scheduling'
 
 type Section = 'classes' | 'placements' | 'reschedules'
 type Course = { id: string; title: string }
@@ -72,14 +73,6 @@ function displayDate(value: string) {
   }).format(new Date(value))
 }
 
-function parseJsonObject(value: string, label: string) {
-  const parsed: unknown = JSON.parse(value)
-  if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    throw new Error(`${label} phải là JSON object.`)
-  }
-  return parsed as Record<string, unknown>
-}
-
 function initialClass() {
   return {
     name: '',
@@ -93,7 +86,6 @@ function initialClass() {
     capacity: 1,
     location: '',
     meetingUrl: '',
-    lessonPlan: '{}',
     status: 'draft' as 'draft' | 'open',
   }
 }
@@ -109,7 +101,12 @@ function initialSession() {
     endsAt: localDateTime(endsAt),
     location: '',
     meetingUrl: '',
-    lessonPlan: '{}',
+    lessonPlan: {
+      goal: '',
+      activities: '',
+      materials: '',
+      notes: '',
+    },
   }
 }
 
@@ -316,10 +313,7 @@ function ClassAndSessionSection({
           endsAt: new Date(sessionForm.endsAt).toISOString(),
           location: sessionForm.location || null,
           meetingUrl: sessionForm.meetingUrl || null,
-          lessonPlan: parseJsonObject(
-            sessionForm.lessonPlan,
-            'Kế hoạch buổi học',
-          ),
+          lessonPlan: buildLessonPlan(sessionForm.lessonPlan),
         }),
       })
       setSessionForm({ ...initialSession(), classId: sessionForm.classId })
@@ -430,16 +424,71 @@ function ClassAndSessionSection({
           <Field label="Link phòng học ghi đè">
             <input type="url" className="field-input" value={sessionForm.meetingUrl} onChange={(event) => setSessionForm({ ...sessionForm, meetingUrl: event.target.value })} />
           </Field>
-          <Field label="Kế hoạch buổi học (JSON)">
+          <Field label="Mục tiêu buổi học">
             <textarea
               required
-              spellCheck={false}
-              className="min-h-32 field-input font-mono text-xs"
-              value={sessionForm.lessonPlan}
+              maxLength={500}
+              className="min-h-20 field-input"
+              placeholder="Sau buổi học, học viên có thể làm được gì?"
+              value={sessionForm.lessonPlan.goal}
               onChange={(event) =>
                 setSessionForm({
                   ...sessionForm,
-                  lessonPlan: event.target.value,
+                  lessonPlan: {
+                    ...sessionForm.lessonPlan,
+                    goal: event.target.value,
+                  },
+                })
+              }
+            />
+          </Field>
+          <Field label="Hoạt động chính">
+            <textarea
+              maxLength={2_000}
+              className="min-h-24 field-input"
+              placeholder={'Mỗi hoạt động một dòng\nVí dụ: Khởi động bằng trò chơi ghép thẻ'}
+              value={sessionForm.lessonPlan.activities}
+              onChange={(event) =>
+                setSessionForm({
+                  ...sessionForm,
+                  lessonPlan: {
+                    ...sessionForm.lessonPlan,
+                    activities: event.target.value,
+                  },
+                })
+              }
+            />
+          </Field>
+          <Field label="Học liệu cần chuẩn bị">
+            <textarea
+              maxLength={1_000}
+              className="min-h-20 field-input"
+              placeholder="Mỗi học liệu một dòng"
+              value={sessionForm.lessonPlan.materials}
+              onChange={(event) =>
+                setSessionForm({
+                  ...sessionForm,
+                  lessonPlan: {
+                    ...sessionForm.lessonPlan,
+                    materials: event.target.value,
+                  },
+                })
+              }
+            />
+          </Field>
+          <Field label="Ghi chú cho giáo viên">
+            <textarea
+              maxLength={1_000}
+              className="min-h-20 field-input"
+              placeholder="Điều cần lưu ý khi tổ chức buổi học (không bắt buộc)"
+              value={sessionForm.lessonPlan.notes}
+              onChange={(event) =>
+                setSessionForm({
+                  ...sessionForm,
+                  lessonPlan: {
+                    ...sessionForm.lessonPlan,
+                    notes: event.target.value,
+                  },
                 })
               }
             />

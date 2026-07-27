@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { BookPlus, ClipboardCheck, Plus, Save } from 'lucide-react'
+import { QuestionContentEditor } from '@/features/teacher/components/QuestionContentEditor'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
@@ -484,13 +485,21 @@ function QuestionAuthoring({
             />
           </Field>
         )}
-        <JsonField label="Nội dung câu hỏi" value={form.prompt} onChange={(prompt) => setForm({ ...form, prompt })} />
-        <JsonField
-          label="Đáp án — chỉ gửi về máy chủ"
-          value={form.answerKey}
-          onChange={(answerKey) => setForm({ ...form, answerKey })}
+        <QuestionContentEditor
+          type={form.type}
+          prompt={form.prompt}
+          answerKey={form.answerKey}
+          rubric={form.rubric}
+          onPromptChange={(prompt) =>
+            setForm((current) => ({ ...current, prompt }))
+          }
+          onAnswerKeyChange={(answerKey) =>
+            setForm((current) => ({ ...current, answerKey }))
+          }
+          onRubricChange={(rubric) =>
+            setForm((current) => ({ ...current, rubric }))
+          }
         />
-        <JsonField label="Rubric" value={form.rubric} onChange={(rubric) => setForm({ ...form, rubric })} />
         <Field label="Giải thích sau khi được phép xem">
           <textarea
             className="min-h-20 rounded-xl border-2 border-border p-3"
@@ -833,28 +842,6 @@ function AssessmentAuthoring({
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return <label className="grid gap-1 text-sm font-bold">{label}{children}</label>
-}
-
-function JsonField({
-  label,
-  value,
-  onChange,
-}: {
-  label: string
-  value: string
-  onChange: (value: string) => void
-}) {
-  return (
-    <Field label={label}>
-      <textarea
-        required
-        spellCheck={false}
-        className="min-h-36 rounded-xl border-2 border-border bg-slate-950 p-3 font-mono text-xs text-slate-100"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-      />
-    </Field>
-  )
 }
 
 function AgeBandChecks({
