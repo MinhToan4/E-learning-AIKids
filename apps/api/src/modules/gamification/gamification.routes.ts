@@ -1,7 +1,7 @@
 import type { FastifyInstance } from 'fastify'
 import { ACHIEVEMENT_CATALOG } from '@aikids/domain'
 import { prisma } from '../../infrastructure/database/prisma.js'
-import { requireRole, requireUser } from '../../infrastructure/session/session.js'
+import { requireRole } from '../../infrastructure/session/session.js'
 import {
   bumpStreakOnActivity,
   evaluateAndUnlockAchievements,
@@ -9,7 +9,7 @@ import {
 
 export async function gamificationRoutes(app: FastifyInstance) {
   app.get('/api/gamification/streak', async (request) => {
-    const user = requireUser(request)
+    const user = requireRole(request, ['student'])
     const streak = await prisma.dailyStreak.findUnique({
       where: { userId: user.id },
     })
@@ -21,7 +21,7 @@ export async function gamificationRoutes(app: FastifyInstance) {
   })
 
   app.post('/api/gamification/check-in', async (request) => {
-    const user = requireUser(request)
+    const user = requireRole(request, ['student'])
     const before = await prisma.dailyStreak.findUnique({
       where: { userId: user.id },
     })
@@ -43,7 +43,7 @@ export async function gamificationRoutes(app: FastifyInstance) {
   })
 
   app.get('/api/gamification/achievements', async (request) => {
-    const user = requireUser(request)
+    const user = requireRole(request, ['student'])
     const unlocked = await prisma.achievement.findMany({
       where: { userId: user.id },
     })
@@ -99,7 +99,7 @@ export async function gamificationRoutes(app: FastifyInstance) {
    * - Else → "earn 3 stars on your next quest"
    */
   app.get('/api/gamification/daily-mission', async (request) => {
-    const user = requireUser(request)
+    const user = requireRole(request, ['student'])
 
     const today = todayDateString()
 

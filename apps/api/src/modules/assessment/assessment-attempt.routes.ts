@@ -17,6 +17,7 @@ import {
   parseStudentResponse,
   publicQuestion,
   questionTypeSchema,
+  studentTextMaxLength,
 } from './assessment-contract.js'
 import { parsePublishedAgePolicy } from '../learning/age-policy.js'
 
@@ -231,16 +232,33 @@ export async function assessmentAttemptRoutes(app: FastifyInstance) {
       .object({ courseId: z.string().min(1).max(120) })
       .parse(request.params)
     await assertCourseEnrollment(user.id, courseId)
+    const student = await prisma.user.findUniqueOrThrow({
+      where: { id: user.id },
+      select: { ageBand: true },
+    })
+    const compatiblePublishedVersion: Prisma.AssessmentVersionWhereInput = {
+      status: 'published',
+      items: {
+        every: {
+          questionVersion: {
+            OR: [
+              { ageBands: { isEmpty: true } },
+              { ageBands: { has: student.ageBand } },
+            ],
+          },
+        },
+      },
+    }
     const assessments = await prisma.assessment.findMany({
       where: {
         courseId,
         status: 'active',
-        versions: { some: { status: 'published' } },
+        versions: { some: compatiblePublishedVersion },
       },
       orderBy: { createdAt: 'asc' },
       include: {
         versions: {
-          where: { status: 'published' },
+          where: compatiblePublishedVersion,
           orderBy: { version: 'desc' },
           take: 1,
           select: {
@@ -256,7 +274,43 @@ export async function assessmentAttemptRoutes(app: FastifyInstance) {
         },
       },
     })
-    return { assessments }
+    const latestAttempts = await Promise.all(
+      assessments.map((assessment) =>
+        prisma.assessmentAttempt.findFirst({
+          where: {
+            studentId: user.id,
+            assessmentVersion: { assessmentId: assessment.id },
+          },
+          orderBy: { updatedAt: 'desc' },
+          select: {
+            id: true,
+            status: true,
+            attemptNumber: true,
+            scorePercent: true,
+            passed: true,
+            updatedAt: true,
+          },
+        }),
+      ),
+    )
+    return {
+      assessments: assessments.map((assessment, index) => {
+        const latest = latestAttempts[index]
+        return {
+          ...assessment,
+          latestAttempt: latest
+            ? {
+                id: latest.id,
+                status: latest.status,
+                attemptNumber: latest.attemptNumber,
+                scorePercent: latest.scorePercent,
+                passed: latest.passed,
+                updatedAt: latest.updatedAt,
+              }
+            : null,
+        }
+      }),
+    }
   })
 
   app.post('/api/assessments/:assessmentId/attempts', async (request, reply) => {
@@ -559,7 +613,12 @@ export async function assessmentAttemptRoutes(app: FastifyInstance) {
         })
       }
       if ('text' in parsedResponse) {
-        const safe = validateChildText(parsedResponse.text)
+        const safe = validateChildText(parsedResponse.text, {
+          maxLength: studentTextMaxLength(
+            type,
+            item.questionVersion.promptJson,
+          ),
+        })
         if (!safe.ok) return reply.code(400).send({ error: safe.message })
       }
       const saved = await prisma.$transaction(async (tx) => {

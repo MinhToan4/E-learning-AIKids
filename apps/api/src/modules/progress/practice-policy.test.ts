@@ -25,6 +25,19 @@ describe('practice request policy', () => {
     if (!result.ok) expect(result.reason).toBe('unsafe_text')
   })
 
+  it('accepts long-form creative text up to the documented payload limit', () => {
+    expect(
+      inspectPracticePayload({
+        text: 'Em mô tả thế giới tưởng tượng nhiều chi tiết. '.repeat(10),
+      }),
+    ).toEqual({ ok: true })
+    expect(
+      inspectPracticePayload({
+        text: `${'Ý tưởng an toàn. '.repeat(10)} child@example.com`,
+      }),
+    ).toMatchObject({ ok: false, reason: 'unsafe_text' })
+  })
+
   it('does not treat owned asset ids or generated data URLs as child prose', () => {
     expect(
       inspectPracticePayload({

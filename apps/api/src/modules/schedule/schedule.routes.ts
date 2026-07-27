@@ -1239,12 +1239,12 @@ export async function scheduleRoutes(app: FastifyInstance) {
     if (!membership) {
       return reply.code(403).send({ error: 'Learner is not in your class.' })
     }
-    for (const text of [
-      body.body,
-      ...body.strengths,
-      ...body.development,
-    ]) {
-      const safe = validateChildText(text)
+    const safeBody = validateChildText(body.body, { maxLength: 3_000 })
+    if (!safeBody.ok) {
+      return reply.code(400).send({ error: safeBody.message })
+    }
+    for (const text of [...body.strengths, ...body.development]) {
+      const safe = validateChildText(text, { maxLength: 300 })
       if (!safe.ok) return reply.code(400).send({ error: safe.message })
     }
     const observation = await prisma.$transaction(async (tx) => {
@@ -1328,12 +1328,15 @@ export async function scheduleRoutes(app: FastifyInstance) {
             'Published competency observations require an explicit score.',
         })
       }
+      if (body.body) {
+        const safe = validateChildText(body.body, { maxLength: 3_000 })
+        if (!safe.ok) return reply.code(400).send({ error: safe.message })
+      }
       for (const text of [
-        ...(body.body ? [body.body] : []),
         ...(body.strengths ?? []),
         ...(body.development ?? []),
       ]) {
-        const safe = validateChildText(text)
+        const safe = validateChildText(text, { maxLength: 300 })
         if (!safe.ok) return reply.code(400).send({ error: safe.message })
       }
       const observation = await prisma.$transaction(async (tx) => {

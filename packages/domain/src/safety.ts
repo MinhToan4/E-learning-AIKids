@@ -20,16 +20,20 @@ function includesAny(text: string, phrases: string[]): boolean {
  * Child-safe text filter for free-text slots (COPPA / Children's Code patterns).
  * Blocks PII, real celebrities/IP, and unsafe themes.
  */
-export function validateChildText(input: string): SafetyResult {
+export function validateChildText(
+  input: string,
+  options: { maxLength?: number } = {},
+): SafetyResult {
   const raw = input.trim()
   if (!raw) return { ok: true }
   const text = normalizeVi(raw)
+  const maxLength = options.maxLength ?? 80
 
-  if (raw.length > 80) {
+  if (raw.length > maxLength) {
     return {
       ok: false,
       reason: 'too_long',
-      message: 'Câu của con hơi dài. Hãy viết tối đa 80 ký tự nhé!',
+      message: `Câu này hơi dài. Hãy viết tối đa ${maxLength} ký tự nhé!`,
     }
   }
 

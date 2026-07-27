@@ -1,8 +1,40 @@
 import type { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { can } from '@aikids/domain'
+import { Prisma } from '../../generated/prisma/index.js'
 import { prisma } from '../../infrastructure/database/prisma.js'
 import { requireRole, requireUser } from '../../infrastructure/session/session.js'
+
+async function serializable<T>(work: () => Promise<T>): Promise<T> {
+  let lastError: unknown
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      return await work()
+    } catch (error) {
+      lastError = error
+      if (
+        !(error instanceof Prisma.PrismaClientKnownRequestError) ||
+        error.code !== 'P2034'
+      ) {
+        throw error
+      }
+    }
+  }
+  throw lastError
+}
+
+function ownedStoryContent(
+  kind: string,
+  dataJson: string | null,
+): string | null {
+  if (kind !== 'creative_story' || !dataJson) return null
+  try {
+    const data = JSON.parse(dataJson) as { content?: unknown }
+    return typeof data.content === 'string' ? data.content : null
+  } catch {
+    return null
+  }
+}
 
 export async function portfolioRoutes(app: FastifyInstance) {
   app.get('/api/backpack', async (request) => {
@@ -106,6 +138,7 @@ export async function portfolioRoutes(app: FastifyInstance) {
         title: p.title,
         kind: p.kind,
         thumbnail: p.thumbnail,
+        content: ownedStoryContent(p.kind, p.dataJson),
         private: p.private,
         shareStatus: p.shareStatus,
         createdAt: p.createdAt,
@@ -127,31 +160,50 @@ export async function portfolioRoutes(app: FastifyInstance) {
       })
       .parse(request.body ?? {})
 
-    const project = await prisma.project.findFirst({
-      where: { id: projectId, userId: user.id },
-    })
-    if (!project) return reply.code(404).send({ error: 'Not found' })
+    const result = await serializable(() =>
+      prisma.$transaction(
+        async (tx) => {
+          const project = await tx.project.findFirst({
+            where: { id: projectId, userId: user.id },
+            select: { id: true },
+          })
+          if (!project) return null
 
-    const approval = await prisma.approval.create({
-      data: {
-        projectId: project.id,
-        childId: user.id,
-        parentId: user.parentId,
-        destination: body.destination,
-        status: 'pending',
-      },
-    })
+          const pending = await tx.approval.findFirst({
+            where: {
+              projectId: project.id,
+              childId: user.id,
+              status: 'pending',
+            },
+            orderBy: { createdAt: 'desc' },
+          })
+          if (pending) return { approval: pending, created: false }
 
-    await prisma.project.update({
-      where: { id: project.id },
-      data: { shareStatus: 'pending' },
-    })
+          const approval = await tx.approval.create({
+            data: {
+              projectId: project.id,
+              childId: user.id,
+              parentId: user.parentId,
+              destination: body.destination,
+              status: 'pending',
+            },
+          })
+          await tx.project.update({
+            where: { id: project.id },
+            data: { shareStatus: 'pending' },
+          })
+          return { approval, created: true }
+        },
+        { isolationLevel: Prisma.TransactionIsolationLevel.Serializable },
+      ),
+    )
+    if (!result) return reply.code(404).send({ error: 'Not found' })
 
-    return reply.code(201).send({
+    return reply.code(result.created ? 201 : 200).send({
       approval: {
-        id: approval.id,
-        status: approval.status,
-        destination: approval.destination,
+        id: result.approval.id,
+        status: result.approval.status,
+        destination: result.approval.destination,
       },
     })
   })

@@ -10,13 +10,20 @@ import {
 } from '@aikids/domain'
 import { prisma } from '../../infrastructure/database/prisma.js'
 import {
+  generateCreativeText,
   generatePracticeImage,
   generatePracticeVideo,
 } from '../../infrastructure/generation/vidtory.adapter.js'
 import { requireRole } from '../../infrastructure/session/session.js'
 import { buildCreativePrompt, type CreativeDetails } from './creative-prompts.js'
 
-const creativeKindSchema = z.enum(['character', 'art', 'comic', 'video'])
+const creativeKindSchema = z.enum([
+  'character',
+  'art',
+  'comic',
+  'story',
+  'video',
+])
 const creativeDetailsSchema = z.object({
   appearance: z.string().trim().max(300).optional(),
   personality: z.string().trim().max(200).optional(),
@@ -63,9 +70,13 @@ async function resolveOwnedReferences(userId: string, assetIds: string[]): Promi
   })
 }
 
-function assertSafeText(value: string, fallback: string): string {
+function assertSafeText(
+  value: string,
+  fallback: string,
+  maxLength: number,
+): string {
   const normalized = value.trim() || fallback
-  const safe = validateChildText(normalized)
+  const safe = validateChildText(normalized, { maxLength })
   if (!safe.ok) {
     const error = new Error(safe.message) as Error & { statusCode: number }
     error.statusCode = 400
@@ -98,7 +109,7 @@ export async function creativeRoutes(app: FastifyInstance) {
       data: {
         userId: user.id,
         type: 'panel',
-        name: assertSafeText(body.title ?? '', 'Creative sketch'),
+        name: assertSafeText(body.title ?? '', 'Creative sketch', 80),
         thumbnail: parsed.dataUrl,
         private: true,
         metaJson: JSON.stringify({
@@ -124,23 +135,41 @@ export async function creativeRoutes(app: FastifyInstance) {
       .object({
         kind: creativeKindSchema,
         title: z.string().trim().max(80).optional(),
-        prompt: z.string().trim().max(800).optional(),
+        prompt: z.string().trim().max(2_000).optional(),
         details: creativeDetailsSchema,
         assetIds: z.array(z.string().uuid()).max(4).default([]),
       })
       .parse(request.body ?? {})
 
-    const title = assertSafeText(body.title ?? '', 'Tác phẩm sáng tạo của con')
-    const prompt = assertSafeText(body.prompt ?? '', `Tác phẩm thiếu nhi: ${title}`)
+    const title = assertSafeText(
+      body.title ?? '',
+      'Tác phẩm sáng tạo của con',
+      80,
+    )
+    const prompt = assertSafeText(
+      body.prompt ?? '',
+      `Tác phẩm thiếu nhi: ${title}`,
+      2_000,
+    )
     const details: CreativeDetails = {
       ...body.details,
-      appearance: body.details.appearance ? assertSafeText(body.details.appearance, '') : undefined,
-      personality: body.details.personality ? assertSafeText(body.details.personality, '') : undefined,
-      preserve: body.details.preserve ? assertSafeText(body.details.preserve, '') : undefined,
-      motion: body.details.motion ? assertSafeText(body.details.motion, '') : undefined,
+      appearance: body.details.appearance
+        ? assertSafeText(body.details.appearance, '', 300)
+        : undefined,
+      personality: body.details.personality
+        ? assertSafeText(body.details.personality, '', 200)
+        : undefined,
+      preserve: body.details.preserve
+        ? assertSafeText(body.details.preserve, '', 300)
+        : undefined,
+      motion: body.details.motion
+        ? assertSafeText(body.details.motion, '', 300)
+        : undefined,
       panels: body.details.panels?.map((panel) => ({
-        action: assertSafeText(panel.action, ''),
-        dialogue: panel.dialogue ? assertSafeText(panel.dialogue, '') : undefined,
+        action: assertSafeText(panel.action, '', 240),
+        dialogue: panel.dialogue
+          ? assertSafeText(panel.dialogue, '', 160)
+          : undefined,
       })),
     }
     const generationPrompt = buildCreativePrompt(body.kind, title, prompt, details)
@@ -151,6 +180,49 @@ export async function creativeRoutes(app: FastifyInstance) {
       provider: 'vidtory',
       refUrls,
       aikids_user_id: user.id,
+    }
+
+    if (body.kind === 'story') {
+      const story = await generateCreativeText(generationPrompt)
+      if (!story.text || story.mode !== 'vidtory') {
+        return reply.code(503).send({
+          error: 'Creative story generation is not ready yet.',
+        })
+      }
+      const safeStory = validateChildText(story.text, { maxLength: 8_000 })
+      if (!safeStory.ok) {
+        request.log.warn(
+          { reason: safeStory.reason, userId: user.id },
+          'unsafe_creative_story_output_rejected',
+        )
+        return reply.code(502).send({
+          error: 'Nội dung vừa tạo chưa phù hợp. Con hãy thử lại nhé!',
+        })
+      }
+      const project = await prisma.project.create({
+        data: {
+          userId: user.id,
+          title,
+          kind: 'creative_story',
+          thumbnail: '/assets/story-workshop.jpg',
+          private: true,
+          dataJson: JSON.stringify({
+            ...provenance,
+            content: story.text,
+            generationId: story.id,
+            generationMode: story.mode,
+          }),
+        },
+      })
+      return reply.code(201).send({
+        content: story.text,
+        project: {
+          id: project.id,
+          title: project.title,
+          kind: project.kind,
+          url: project.thumbnail,
+        },
+      })
     }
 
     if (body.kind === 'video') {

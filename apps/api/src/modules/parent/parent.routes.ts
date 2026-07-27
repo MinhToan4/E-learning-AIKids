@@ -385,28 +385,70 @@ export async function parentRoutes(app: FastifyInstance) {
       return reply.code(403).send({ error: 'Forbidden' })
     }
 
-    const updated = await prisma.approval.update({
-      where: { id },
-      data: {
-        status: body.decision,
-        note: body.note,
-        parentId: user.id,
-      },
-    })
+    if (approval.status !== 'pending') {
+      if (approval.status !== body.decision) {
+        return reply.code(409).send({
+          error: 'Yêu cầu này đã được xử lý và không thể đảo ngược.',
+        })
+      }
+      return {
+        approval: {
+          id: approval.id,
+          status: approval.status,
+          note: approval.note,
+        },
+        projectShareStatus:
+          approval.status === 'approved' ? 'shared' : 'private',
+      }
+    }
 
-    await prisma.project.update({
-      where: { id: approval.projectId },
-      data: {
-        shareStatus: body.decision === 'approved' ? 'shared' : 'private',
-        private: body.decision !== 'approved',
-      },
+    const decision = await prisma.$transaction(async (tx) => {
+      const claimed = await tx.approval.updateMany({
+        where: { id, status: 'pending' },
+        data: {
+          status: body.decision,
+          note: body.note,
+          parentId: user.id,
+        },
+      })
+      if (claimed.count === 0) {
+        return tx.approval.findUniqueOrThrow({ where: { id } })
+      }
+
+      // Older clients could submit the same project twice. Resolve all of
+      // those pending rows together so a stale request cannot flip the project.
+      await tx.approval.updateMany({
+        where: {
+          projectId: approval.projectId,
+          childId: approval.childId,
+          status: 'pending',
+        },
+        data: {
+          status: body.decision,
+          note: body.note,
+          parentId: user.id,
+        },
+      })
+      await tx.project.update({
+        where: { id: approval.projectId },
+        data: {
+          shareStatus: body.decision === 'approved' ? 'shared' : 'private',
+          private: body.decision !== 'approved',
+        },
+      })
+      return tx.approval.findUniqueOrThrow({ where: { id } })
     })
+    if (decision.status !== body.decision) {
+      return reply.code(409).send({
+        error: 'Yêu cầu này vừa được xử lý bằng một quyết định khác.',
+      })
+    }
 
     return {
       approval: {
-        id: updated.id,
-        status: updated.status,
-        note: updated.note,
+        id: decision.id,
+        status: decision.status,
+        note: decision.note,
       },
       projectShareStatus:
         body.decision === 'approved' ? 'shared' : 'private',

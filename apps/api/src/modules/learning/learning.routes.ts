@@ -105,6 +105,21 @@ async function assertQuestAccess(studentId: string, questId: string) {
         : 'Bài học này chưa được mở.',
     )
   }
+  const enrollment = await prisma.enrollment.findUnique({
+    where: {
+      userId_courseId: {
+        userId: studentId,
+        courseId: access.courseId,
+      },
+    },
+    select: { id: true },
+  })
+  if (!enrollment) {
+    throw httpError(
+      403,
+      'Bài học chưa nằm trong lộ trình của con. Hãy mở khóa học trước nhé.',
+    )
+  }
 }
 
 async function serializable<T>(work: () => Promise<T>): Promise<T> {
@@ -527,7 +542,7 @@ export async function learningRoutes(app: FastifyInstance) {
     const { questId } = request.params as { questId: string }
     await assertQuestAccess(user.id, questId)
     const body = anchorSchema
-      .extend({ body: z.string().min(1).max(2000) })
+      .extend({ body: z.string().min(1).max(80) })
       .parse(request.body)
     const safe = validateChildText(body.body)
     if (!safe.ok) return reply.code(400).send({ error: safe.message })
@@ -548,7 +563,7 @@ export async function learningRoutes(app: FastifyInstance) {
     const body = anchorSchema
       .partial()
       .extend({
-        body: z.string().min(1).max(2000).optional(),
+        body: z.string().min(1).max(80).optional(),
         version: z.number().int().positive(),
       })
       .parse(request.body)
@@ -595,7 +610,7 @@ export async function learningRoutes(app: FastifyInstance) {
     const { questId } = request.params as { questId: string }
     await assertQuestAccess(user.id, questId)
     const body = anchorSchema
-      .extend({ label: z.string().max(120).nullable().optional() })
+      .extend({ label: z.string().max(80).nullable().optional() })
       .parse(request.body)
     if (body.label) {
       const safe = validateChildText(body.label)
@@ -769,7 +784,7 @@ export async function learningRoutes(app: FastifyInstance) {
     const expiresAt = new Date(
       Date.now() + quest.offlineMaxAgeHours * 60 * 60 * 1000,
     )
-    const manifest = buildOfflineManifest(quest, { grantId, expiresAt })
+    let manifest = buildOfflineManifest(quest, { grantId, expiresAt })
     const grant = await prisma.offlineGrant.upsert({
       where: {
         userId_questId_deviceId: {
@@ -796,6 +811,18 @@ export async function learningRoutes(app: FastifyInstance) {
         revokedAt: null,
       },
     })
+    if (manifest.grantId !== grant.id) {
+      // Refreshing an existing device grant keeps its database ID. The
+      // manifest must carry that persisted ID or the next sync is rejected.
+      manifest = buildOfflineManifest(quest, {
+        grantId: grant.id,
+        expiresAt,
+      })
+      await prisma.offlineGrant.update({
+        where: { id: grant.id },
+        data: { manifestJson: manifest as Prisma.InputJsonValue },
+      })
+    }
     return reply.code(201).send({
       grant: {
         id: grant.id,

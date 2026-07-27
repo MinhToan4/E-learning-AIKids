@@ -42,6 +42,18 @@ describe('validateChildText', () => {
     expect(r.ok).toBe(false)
     expect(r.reason).toBe('too_long')
   })
+
+  it('supports a caller-specific length while preserving PII protection', () => {
+    expect(validateChildText('a'.repeat(300), { maxLength: 3_000 }).ok).toBe(
+      true,
+    )
+    const pii = validateChildText(
+      `${'a'.repeat(100)} parent@example.com`,
+      { maxLength: 3_000 },
+    )
+    expect(pii.ok).toBe(false)
+    expect(pii.reason).toBe('pii')
+  })
 })
 
 describe('isNicknameSafe', () => {

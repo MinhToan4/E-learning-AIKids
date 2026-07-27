@@ -19,7 +19,7 @@ export type PracticePayloadInspection =
 const MAX_PAYLOAD_CHARS = 2_500_000
 const MAX_DEPTH = 8
 const MAX_FIELDS = 500
-const MAX_CHILD_TEXT_CHARS = 4_000
+export const MAX_CHILD_TEXT_CHARS = 4_000
 
 /**
  * `chips` is sent as `prompt` by the existing web client. Every other request
@@ -106,7 +106,9 @@ export function inspectPracticePayload(
         }
       }
       if (!value.trim()) return { ok: true }
-      const safe = validateChildText(value)
+      const safe = validateChildText(value, {
+        maxLength: MAX_CHILD_TEXT_CHARS,
+      })
       if (!safe.ok) {
         return {
           ok: false,

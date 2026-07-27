@@ -38,6 +38,7 @@ import {
   recordQuestCompletionEvidence,
 } from '../competency/competency.service.js'
 import {
+  MAX_CHILD_TEXT_CHARS,
   inspectPracticePayload,
   practiceKindMatchesQuest,
 } from './practice-policy.js'
@@ -300,6 +301,21 @@ export async function progressRoutes(app: FastifyInstance) {
         .send({ error: 'Trạm này chưa mở. Hoàn thành trạm trước nhé!' })
     }
 
+    const existingEnrollment = await prisma.enrollment.findUnique({
+      where: {
+        userId_courseId: {
+          userId: user.id,
+          courseId: access.courseId,
+        },
+      },
+      select: { id: true },
+    })
+    if (!existingEnrollment) {
+      // Starting a lesson must enforce the same household entitlement gate as
+      // the explicit enrollment endpoint; otherwise a deep link bypasses it.
+      await assertStudentCanEnroll(user.id)
+    }
+
     await prisma.enrollment.upsert({
       where: {
         userId_courseId: { userId: user.id, courseId: access.courseId },
@@ -455,7 +471,9 @@ export async function progressRoutes(app: FastifyInstance) {
 
     const freeText = body.payload.freeText
     if (typeof freeText === 'string' && freeText.trim()) {
-      const safe = validateChildText(freeText)
+      const safe = validateChildText(freeText, {
+        maxLength: MAX_CHILD_TEXT_CHARS,
+      })
       if (!safe.ok) {
         return reply.code(400).send({ error: safe.message, reason: safe.reason })
       }
@@ -611,7 +629,7 @@ export async function progressRoutes(app: FastifyInstance) {
           ? body.payload.text.trim().slice(0, 200)
           : ''
       if (note) {
-        const safe = validateChildText(note)
+        const safe = validateChildText(note, { maxLength: 200 })
         if (!safe.ok) {
           return reply.code(400).send({ error: safe.message, reason: safe.reason })
         }
@@ -658,7 +676,9 @@ export async function progressRoutes(app: FastifyInstance) {
             ? body.payload.freeText
             : ''
       if (free.trim()) {
-        const safe = validateChildText(free)
+        const safe = validateChildText(free, {
+          maxLength: MAX_CHILD_TEXT_CHARS,
+        })
         if (!safe.ok) {
           return reply.code(400).send({ error: safe.message, reason: safe.reason })
         }
