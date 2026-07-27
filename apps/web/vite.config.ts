@@ -52,5 +52,8 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
+    env: {
+      VITE_API_URL: 'https://dev-hub.storymee.com',
+    },
   },
 })

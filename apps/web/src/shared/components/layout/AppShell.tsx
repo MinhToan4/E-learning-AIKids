@@ -1,7 +1,8 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
 
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
+import { api } from '@/shared/lib/api'
 import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
 import {
   CmsAiIcon,
@@ -43,6 +44,15 @@ type RoleNavItem = {
   end?: boolean
 }
 
+function contextLabel(c: { type: string; label: string }): string {
+  const icon =
+    c.type === 'family' ? '🏠'
+      : c.type === 'organization' ? '🏫'
+        : c.type === 'personal_teacher' ? '👨‍🏫'
+          : '👤'
+  return `${icon} ${c.label}`
+}
+
 function WorkspaceSwitcher({ compact = false }: { compact?: boolean }) {
   const access = useAuth((state) => state.access)
   const active = useAuth((state) => state.activeContext)
@@ -50,7 +60,14 @@ function WorkspaceSwitcher({ compact = false }: { compact?: boolean }) {
   const user = useAuth((state) => state.user)
 
   const handleSelect = async (val: string) => {
-    if (val === 'current') return
+    if (val === 'current') {
+      const familyCtx = access?.contexts.find((c) => c.type === 'family')
+      if (familyCtx) {
+        await selectContext(familyCtx.id)
+        window.location.assign(familyCtx.defaultRoute)
+      }
+      return
+    }
 
     const context = await selectContext(val)
     const isAikidHost =
@@ -83,13 +100,22 @@ function WorkspaceSwitcher({ compact = false }: { compact?: boolean }) {
           }}
           title="Chuyển đổi tài khoản"
         >
-          {active && <option value={active.id}>{active.label}</option>}
-          <option value="current">{user?.role === "parent" ? (active ? "🏡 Về Ba/Mẹ" : "TK Ba/Mẹ") : "Cá nhân"}</option>
+          {/* Active context — luôn show nếu đang ở 1 context */}
+          {active && <option value={active.id}>{contextLabel(active)}</option>}
+
+          {/* "Về tài khoản Ba/Mẹ" — chỉ show khi parent đang ở context KHÔNG phải family */}
+          {user?.role === 'parent' && !active && (
+            <option value="current">Tài khoản Ba/Mẹ</option>
+          )}
+          {user?.role === 'parent' && active?.type !== 'family' && active !== null && (
+            <option value="current">🏡 Về tài khoản Ba/Mẹ</option>
+          )}
+
           {access?.contexts
             .filter((c) => c.id !== active?.id)
             .map((context) => (
               <option key={context.id} value={context.id}>
-                {context.label}
+                {contextLabel(context)}
               </option>
             ))}
         </select>
@@ -109,15 +135,88 @@ function WorkspaceSwitcher({ compact = false }: { compact?: boolean }) {
           e.target.value = active?.id || 'current'
         }}
       >
-        {active && <option value={active.id}>{active.label}</option>}
-        <option value="current">{user?.role === "parent" ? (active ? "🏡 Về tài khoản Ba/Mẹ" : "Tài khoản Ba/Mẹ") : "Tài khoản cá nhân"}</option>
+        {/* Active context — luôn show nếu đang ở 1 context */}
+        {active && <option value={active.id}>{contextLabel(active)}</option>}
+
+        {/* "Về tài khoản Ba/Mẹ" — chỉ show khi parent đang ở context KHÔNG phải family */}
+        {user?.role === 'parent' && !active && (
+          <option value="current">Tài khoản Ba/Mẹ</option>
+        )}
+        {user?.role === 'parent' && active?.type !== 'family' && active !== null && (
+          <option value="current">🏡 Về tài khoản Ba/Mẹ</option>
+        )}
+
         {access?.contexts
           .filter((c) => c.id !== active?.id)
           .map((context) => (
             <option key={context.id} value={context.id}>
-              {context.label}
+              {contextLabel(context)}
             </option>
           ))}
+      </select>
+    </label>
+  )
+}
+
+function WorkspaceSelector() {
+  const user = useAuth((s) => s.user)
+  const [data, setData] = useState<{
+    workspaces: Array<{ipId:string; name:string; type:string; isDefault:boolean}>
+    defaultIpId: string | null
+    childWorkspaces: Array<{
+      childProfileId: string
+      childName: string
+      avatarUrl: string | null
+      workspaces: Array<{ipId:string; name:string; type:string}>
+    }>
+  } | null>(null)
+  const [activeIpId, setActiveIpId] = useState<string | null>(
+    () => typeof window !== 'undefined' ? localStorage.getItem('storymee_active_ip_id') : null
+  )
+
+  useEffect(() => {
+    if (user?.role !== 'parent') return
+    api<{workspaces: any; defaultIpId?: string | null; childWorkspaces?: any}>('/api/v1/account/workspaces')
+      .then(res => setData(res as any))
+      .catch(() => undefined)
+  }, [user?.role])
+
+  if (!data || user?.role !== 'parent') return null
+  const hasChildren = data.childWorkspaces && data.childWorkspaces.some(c => c.workspaces.length > 0)
+  if (!hasChildren && data.workspaces.length <= 1) return null
+
+  const handleChange = async (ipId: string) => {
+    setActiveIpId(ipId)
+    localStorage.setItem('storymee_active_ip_id', ipId)
+    try { await api(`/api/v1/account/workspaces/${ipId}/select`, { method: 'POST' }) } catch { }
+  }
+
+  return (
+    <label className="mx-3 mb-2 block text-xs font-bold text-muted">
+      Không gian làm việc
+      <select
+        className="mt-1 w-full rounded-xl border border-border bg-white px-2 py-2 text-sm text-text shadow-sm transition hover:border-brand-300 focus:outline-none focus:ring-1 focus:ring-brand-400"
+        value={activeIpId ?? data.defaultIpId ?? ''}
+        onChange={(e) => void handleChange(e.target.value)}
+      >
+        <optgroup label="Của tôi">
+          {data.workspaces.map((ws: any) => (
+            <option key={ws.ipId} value={ws.ipId}>
+              {ws.type === 'family' ? '\uD83C\uDFE0' : ws.type === 'school' ? '\uD83C\uDFEB' : '\uD83D\uDCC1'} {ws.name}
+            </option>
+          ))}
+        </optgroup>
+        {(data.childWorkspaces ?? []).map((child: any) =>
+          child.workspaces.length > 0 ? (
+            <optgroup key={child.childProfileId} label={`\uD83D\uDC67 ${child.childName}`}>
+              {child.workspaces.map((ws: any) => (
+                <option key={ws.ipId} value={ws.ipId}>
+                  {ws.type === 'school' ? '\uD83C\uDFEB' : '\uD83D\uDCD6'} {ws.name}
+                </option>
+              ))}
+            </optgroup>
+          ) : null
+        )}
       </select>
     </label>
   )
@@ -497,6 +596,7 @@ function AdultChrome({
           <p>Góc phụ huynh</p>
         </div>
         <DesktopSideNav nav={nav} />
+        <WorkspaceSelector />
         <WorkspaceSwitcher />
       </aside>
 

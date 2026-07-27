@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "description": "Kids AI Creator Academy frontend for the StoryMee core platform",
   "workspaces": [
-    "apps/web",
+    "apps/*",
     "packages/*"
   ],
   "scripts": {
