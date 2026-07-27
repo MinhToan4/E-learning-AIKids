@@ -78,4 +78,4 @@ curl http://localhost:4000/api/health
 # Web: http://localhost:8080
 ```
 
-Dev without Docker: SQLite + `npm run db:setup` + `dev:api` / `dev:web`.
+Dev without Docker (Supabase PostgreSQL required): set `DATABASE_URL` in `apps/api/.env`, then `npm run db:generate && npm run db:seed && npm run dev:api` / `dev:web`.

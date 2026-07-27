@@ -7,6 +7,7 @@
 | `apps/web` | **Presentation (FE)** | Browser | Only public config (`VITE_API_URL`) |
 | `apps/api` | **Application + infrastructure (BE)** | Node server | `DATABASE_URL`, `JWT_SECRET`, cookies |
 | `packages/domain` | **Domain (shared pure logic)** | Imported by FE & BE | **Never** |
+| `packages/vidtory-ai-sdk` | **AI SDK (shared Vidtory adapter types)** | Imported by BE only | **Never** |
 | Supabase Postgres | **Data store** | Cloud | Password only in BE env |
 
 ## Request path (security)
