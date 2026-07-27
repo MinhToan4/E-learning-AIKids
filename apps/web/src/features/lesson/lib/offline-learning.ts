@@ -1,9 +1,13 @@
 import { api } from '@/shared/lib/api'
+import {
+  clearOfflineLearningData,
+  OFFLINE_CACHE_NAME,
+  OFFLINE_DEVICE_KEY,
+  OFFLINE_EVENT_PREFIX,
+  OFFLINE_GRANT_PREFIX,
+} from '@/shared/lib/offline-storage'
 
-const CACHE_NAME = 'aikids-learning-v1'
-const DEVICE_KEY = 'aikids.learning.device-id'
-const GRANT_PREFIX = 'aikids.learning.offline-grant.'
-const EVENT_PREFIX = 'aikids.learning.offline-events.'
+export { clearOfflineLearningData }
 
 export type OfflineManifest = {
   grantId: string
@@ -34,11 +38,17 @@ export type OfflineProgressEvent = {
   occurredAt: string
 }
 
+type OfflineSyncResult = {
+  accepted: number
+  duplicate: number
+  resume: unknown
+}
+
 export function learningDeviceId(): string {
-  const existing = localStorage.getItem(DEVICE_KEY)
+  const existing = localStorage.getItem(OFFLINE_DEVICE_KEY)
   if (existing) return existing
   const created = `web.${crypto.randomUUID()}`
-  localStorage.setItem(DEVICE_KEY, created)
+  localStorage.setItem(OFFLINE_DEVICE_KEY, created)
   return created
 }
 
@@ -49,7 +59,7 @@ function offlineUrl(questId: string) {
 
 export async function cacheOfflineManifest(manifest: OfflineManifest) {
   if (!('caches' in window)) throw new Error('Trình duyệt chưa hỗ trợ bộ nhớ ngoại tuyến.')
-  const cache = await caches.open(CACHE_NAME)
+  const cache = await caches.open(OFFLINE_CACHE_NAME)
   await cache.put(
     offlineUrl(manifest.questId),
     new Response(JSON.stringify(manifest), {
@@ -63,7 +73,7 @@ export async function cacheOfflineManifest(manifest: OfflineManifest) {
     }),
   )
   localStorage.setItem(
-    `${GRANT_PREFIX}${manifest.questId}`,
+    `${OFFLINE_GRANT_PREFIX}${manifest.questId}`,
     JSON.stringify({
       grantId: manifest.grantId,
       contentVersion: manifest.contentVersion,
@@ -76,7 +86,7 @@ export async function cachedOfflineManifest(
   questId: string,
 ): Promise<OfflineManifest | null> {
   if (!('caches' in window)) return null
-  const response = await (await caches.open(CACHE_NAME)).match(offlineUrl(questId))
+  const response = await (await caches.open(OFFLINE_CACHE_NAME)).match(offlineUrl(questId))
   if (!response) return null
   const manifest = (await response.json()) as OfflineManifest
   if (new Date(manifest.expiresAt).getTime() <= Date.now()) return null
@@ -87,7 +97,7 @@ export function queueOfflineProgress(
   questId: string,
   input: Omit<OfflineProgressEvent, 'clientEventId' | 'occurredAt'>,
 ) {
-  const key = `${EVENT_PREFIX}${questId}`
+  const key = `${OFFLINE_EVENT_PREFIX}${questId}`
   let current: OfflineProgressEvent[] = []
   try {
     const parsed = JSON.parse(localStorage.getItem(key) ?? '[]') as unknown
@@ -104,13 +114,13 @@ export function queueOfflineProgress(
 }
 
 export async function syncOfflineProgress(questId: string) {
-  const grantRaw = localStorage.getItem(`${GRANT_PREFIX}${questId}`)
-  const eventsRaw = localStorage.getItem(`${EVENT_PREFIX}${questId}`)
+  const grantRaw = localStorage.getItem(`${OFFLINE_GRANT_PREFIX}${questId}`)
+  const eventsRaw = localStorage.getItem(`${OFFLINE_EVENT_PREFIX}${questId}`)
   if (!grantRaw || !eventsRaw) return { accepted: 0, duplicate: 0 }
   const grant = JSON.parse(grantRaw) as OfflineGrantRecord
   const events = JSON.parse(eventsRaw) as OfflineProgressEvent[]
   if (events.length === 0) return { accepted: 0, duplicate: 0 }
-  const result = await api<{ accepted: number; duplicate: number }>(
+  const result = await api<{ sync: OfflineSyncResult }>(
     `/api/learning/quests/${questId}/offline-sync`,
     {
       method: 'POST',
@@ -122,31 +132,16 @@ export async function syncOfflineProgress(questId: string) {
       }),
     },
   )
-  localStorage.removeItem(`${EVENT_PREFIX}${questId}`)
-  return result
+  localStorage.removeItem(`${OFFLINE_EVENT_PREFIX}${questId}`)
+  return result.sync
 }
 
 export function hasOfflineGrant(questId: string) {
-  const raw = localStorage.getItem(`${GRANT_PREFIX}${questId}`)
+  const raw = localStorage.getItem(`${OFFLINE_GRANT_PREFIX}${questId}`)
   if (!raw) return false
   try {
     return new Date((JSON.parse(raw) as OfflineGrantRecord).expiresAt).getTime() > Date.now()
   } catch {
     return false
-  }
-}
-
-export async function clearOfflineLearningData() {
-  if ('caches' in window) await caches.delete(CACHE_NAME)
-  for (let index = localStorage.length - 1; index >= 0; index -= 1) {
-    const key = localStorage.key(index)
-    if (
-      key &&
-      (key.startsWith(GRANT_PREFIX) ||
-        key.startsWith(EVENT_PREFIX) ||
-        key === DEVICE_KEY)
-    ) {
-      localStorage.removeItem(key)
-    }
   }
 }
