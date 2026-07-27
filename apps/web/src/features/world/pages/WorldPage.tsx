@@ -1,13 +1,14 @@
 import { useEffect, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
-import { CheckCircle2, Compass, Lock, Star, Trophy, Zap } from 'lucide-react'
+import { Link, useParams } from 'react-router-dom'
+import { CheckCircle2, Lock, Star, Trophy, Zap } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
+import {
+  CourseBookIcon,
+  NavWorldIcon,
+} from '@/shared/components/icons/KidNavIcons'
 import { api, type QuestProgress } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets } from '@/shared/config/assets'
-
-// Emoji icons per quest order (fallback to order number)
-const QUEST_ICONS = ['🌟', '🧩', '🎨', '📖', '🎭', '🎬', '🔍', '🤖', '💡', '🚀', '🌈', '🏆']
 
 type PathwayCourse = {
   id: string
@@ -46,7 +47,6 @@ function QuestNode({ quest, index }: { quest: QuestProgress; index: number }) {
   const locked = quest.status === 'locked'
   const done = quest.status === 'completed'
   const available = quest.status === 'available' || quest.status === 'in_progress'
-  const icon = QUEST_ICONS[(index) % QUEST_ICONS.length] ?? '⭐'
 
   const nodeEl = (
     <div className="flex items-center gap-3" style={{ flexDirection: index % 2 === 0 ? 'row' : 'row-reverse' }}>
@@ -72,7 +72,9 @@ function QuestNode({ quest, index }: { quest: QuestProgress; index: number }) {
         ) : done ? (
           <CheckCircle2 size={32} className="text-white" aria-hidden />
         ) : (
-          <span className="font-display" style={{ fontSize: '1.8rem' }}>{icon}</span>
+          <span className="font-display text-2xl text-white" aria-hidden="true">
+            {quest.order}
+          </span>
         )}
       </div>
 
@@ -117,7 +119,6 @@ function QuestNode({ quest, index }: { quest: QuestProgress; index: number }) {
 
 export function WorldPage() {
   const { courseId } = useParams()
-  const navigate = useNavigate()
   const [quests, setQuests] = useState<QuestProgress[]>([])
   const [meta, setMeta] = useState({ totalStars: 0, completedCount: 0 })
   const [courseTitle, setCourseTitle] = useState('Hành trình sáng tạo')
@@ -158,7 +159,7 @@ export function WorldPage() {
         setLoading(false)
       }
     })()
-  }, [courseId, navigate])
+  }, [courseId])
 
   const next = quests.find(
     (q) => q.status === 'available' || q.status === 'in_progress',
@@ -200,8 +201,9 @@ export function WorldPage() {
         <div className="relative p-5 sm:p-6">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500 mb-1">
-                🗺️ Bản đồ nhiệm vụ
+              <p className="mb-1 inline-flex items-center gap-2 text-xs font-extrabold uppercase tracking-widest text-brand-500">
+                <NavWorldIcon size={20} aria-hidden="true" />
+                Bản đồ nhiệm vụ
               </p>
               <h1 className="font-display text-2xl sm:text-3xl leading-tight">{courseTitle}</h1>
               <p className="mt-1 text-sm text-muted">
@@ -217,7 +219,8 @@ export function WorldPage() {
             {next && (
               <Link to={`/lesson/${next.id}`}>
                 <Button className="animate-pop">
-                  ▶ Làm trạm {next.order}
+                  <Zap size={16} aria-hidden="true" />
+                  Làm trạm {next.order}
                 </Button>
               </Link>
             )}
@@ -254,9 +257,10 @@ export function WorldPage() {
               {meta.completedCount} trạm xong
             </div>
             <Link to={`/course/${courseId}`}>
-              <div className="flex items-center gap-1.5 rounded-full bg-white/80 px-3 py-1.5 text-xs font-bold shadow-soft border border-border hover:bg-brand-50 transition cursor-pointer">
-                📋 Giới thiệu khóa
-              </div>
+              <span className="flex min-h-9 items-center gap-1.5 rounded-full border border-border bg-white/80 px-3 py-1.5 text-xs font-bold shadow-soft transition hover:bg-brand-50">
+                <CourseBookIcon size={17} aria-hidden="true" />
+                Giới thiệu khóa
+              </span>
             </Link>
           </div>
         </div>
@@ -292,8 +296,8 @@ export function WorldPage() {
           {/* Completion trophy at bottom */}
           {quests.length > 0 && meta.completedCount === quests.length && (
             <div className="relative z-10 flex flex-col items-center mt-8 animate-pop">
-              <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-sun-400 to-coral-400 text-5xl shadow-clay">
-                🏆
+              <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-sun-400 to-coral-400 shadow-clay">
+                <Trophy size={48} className="text-white" aria-hidden="true" />
               </div>
               <p className="mt-3 font-display text-xl text-text">Xuất sắc!</p>
               <p className="text-sm text-muted">Con đã hoàn thành toàn bộ hành trình!</p>
@@ -326,7 +330,7 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
       <header className="ui-card overflow-hidden p-5 sm:p-7">
         <div className="flex items-start gap-4">
           <span className="rounded-3xl bg-brand-100 p-3 text-brand-600">
-            <Compass size={30} aria-hidden="true" />
+            <CourseBookIcon size={30} aria-hidden="true" />
           </span>
           <div>
             <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">

@@ -1,6 +1,30 @@
 import { useEffect, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router-dom'
+import {
+  Baby,
+  Bell,
+  BookOpen,
+  ChartNoAxesColumnIncreasing,
+  Check,
+  Gamepad2,
+  KeyRound,
+  Languages,
+  LogIn,
+  Lock,
+  Palette,
+  PartyPopper,
+  Pencil,
+  Plus,
+  Settings,
+  Sprout,
+  Trash2,
+  TrendingUp,
+  UserPlus,
+  UsersRound,
+  Video,
+  X,
+} from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
 import { PinPadModal } from '@/shared/components/ui/PinPadModal'
@@ -318,7 +342,10 @@ function DashboardTab() {
 
       {/* XP summary */}
       <div className="ui-card p-4">
-        <h3 className="mb-3 font-display text-lg">🎮 Tổng XP gia đình: {totalXp}</h3>
+        <h3 className="mb-3 flex items-center gap-2 font-display text-lg">
+          <Gamepad2 size={20} aria-hidden="true" />
+          Tổng XP gia đình: {totalXp}
+        </h3>
         <div className="flex flex-col gap-2">
           {kids.map((k) => (
             <div key={k.id} className="flex items-center gap-3">
@@ -346,7 +373,7 @@ function DashboardTab() {
           to="/parent/kids"
           className="ui-card flex items-center gap-3 p-4 transition hover:ring-2 hover:ring-brand-300"
         >
-          <span className="text-3xl">👧</span>
+          <ParentKidsIcon size={32} aria-hidden="true" />
           <div>
             <p className="font-bold">Quản lý con</p>
             <p className="text-xs text-muted">Thêm, sửa, xem tiến trình</p>
@@ -356,7 +383,7 @@ function DashboardTab() {
           to="/parent/approvals"
           className="ui-card flex items-center gap-3 p-4 transition hover:ring-2 hover:ring-coral-300"
         >
-          <span className="text-3xl">🔔</span>
+          <Bell size={30} className="text-coral-500" aria-hidden="true" />
           <div>
             <p className="font-bold">Duyệt chia sẻ</p>
             <p className="text-xs text-muted">{pendingCount} yêu cầu đang chờ</p>
@@ -481,16 +508,26 @@ function EditChildModal({
       <div className="flex w-full max-w-lg flex-col rounded-3xl bg-white shadow-2xl" style={{ maxHeight: '90dvh' }}>
         {/* Header — cố định */}
         <div className="flex flex-shrink-0 items-center justify-between border-b border-border px-6 py-4">
-          <h2 className="font-display text-xl">
-            {child ? `✏️ Chỉnh sửa — ${child.nickname}` : '👶 Thêm con mới'}
+          <h2 className="flex items-center gap-2 font-display text-xl">
+            {child ? (
+              <>
+                <Pencil size={20} aria-hidden="true" />
+                Chỉnh sửa — {child.nickname}
+              </>
+            ) : (
+              <>
+                <UserPlus size={20} aria-hidden="true" />
+                Thêm con mới
+              </>
+            )}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl p-2 text-muted transition hover:bg-brand-50"
+            className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-muted transition hover:bg-brand-50"
             aria-label="Đóng"
           >
-            ✕
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
 
@@ -563,22 +600,26 @@ function EditChildModal({
               <label className="mb-2 block text-sm font-bold">Mục tiêu sáng tạo</label>
               <div className="flex flex-wrap gap-2">
                 {[
-                  { value: 'comic', label: '📖 Truyện tranh', color: 'bg-sky-50' },
-                  { value: 'video', label: '🎥 Video', color: 'bg-mint-50' },
-                  { value: 'character', label: '🎨 Nhân vật', color: 'bg-sun-50' },
-                ].map((g) => (
-                  <button
-                    key={g.value}
-                    type="button"
-                    onClick={() => setGoal(g.value)}
-                    className={cn(
-                      'rounded-xl px-3 py-2 text-sm font-bold transition',
-                      goal === g.value ? 'bg-brand-100 ring-2 ring-brand-500' : `${g.color} hover:ring-1 hover:ring-brand-300`,
-                    )}
-                  >
-                    {g.label}
-                  </button>
-                ))}
+                  { value: 'comic', label: 'Truyện tranh', color: 'bg-sky-50', icon: BookOpen },
+                  { value: 'video', label: 'Video', color: 'bg-mint-50', icon: Video },
+                  { value: 'character', label: 'Nhân vật', color: 'bg-sun-50', icon: Palette },
+                ].map((g) => {
+                  const GoalIcon = g.icon
+                  return (
+                    <button
+                      key={g.value}
+                      type="button"
+                      onClick={() => setGoal(g.value)}
+                      className={cn(
+                        'flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-bold transition',
+                        goal === g.value ? 'bg-brand-100 ring-2 ring-brand-500' : `${g.color} hover:ring-1 hover:ring-brand-300`,
+                      )}
+                    >
+                      <GoalIcon size={17} aria-hidden="true" />
+                      {g.label}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           )}
@@ -790,8 +831,9 @@ function KidsTab() {
       )}
 
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="font-display text-xl">
-          👧 Con của tôi ({kids.filter((k) => k.active !== false).length}/{maxKids})
+        <h2 className="flex items-center gap-2 font-display text-xl">
+          <UsersRound size={22} aria-hidden="true" />
+          Con của tôi ({kids.filter((k) => k.active !== false).length}/{maxKids})
         </h2>
         <Button
           onClick={() => setEditTarget(null)}
@@ -809,7 +851,7 @@ function KidsTab() {
         <div className="flex flex-col gap-3">
           {kids.length === 0 && (
             <div className="ui-card p-6 text-center">
-              <p className="text-3xl">👶</p>
+              <Baby className="mx-auto text-brand-500" size={36} aria-hidden="true" />
               <p className="mt-2 font-bold">Chưa có con nào</p>
               <p className="text-sm text-muted">Nhấn "Thêm con" để bắt đầu</p>
             </div>
@@ -841,7 +883,8 @@ function KidsTab() {
                   className="!min-h-9 !px-3 !text-xs"
                   onClick={() => void viewProgress(k.id)}
                 >
-                  📈 Xem tiến trình
+                  <TrendingUp size={16} aria-hidden="true" />
+                  Xem tiến trình
                 </Button>
 
                 {/* Chọn khóa học cho con */}
@@ -850,7 +893,8 @@ function KidsTab() {
                   className="!min-h-9 !px-3 !text-xs"
                   onClick={() => setCourseSelectTarget(k)}
                 >
-                  📚 Chọn khóa học
+                  <BookOpen size={16} aria-hidden="true" />
+                  Chọn khóa học
                 </Button>
 
                 <Button
@@ -858,29 +902,30 @@ function KidsTab() {
                   className="!min-h-9 !px-3 !text-xs"
                   onClick={() => handlePlayPress(k)}
                 >
-                  ▶ Vào học
+                  <LogIn size={16} aria-hidden="true" />
+                  Vào học
                 </Button>
 
                 {/* Bút chì — mở EditChildModal (tên + avatar + PIN) */}
                 <button
                   type="button"
                   onClick={() => setEditTarget(k)}
-                  className="rounded-lg p-2 text-sm transition hover:bg-brand-50"
+                  className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-sm transition hover:bg-brand-50"
                   title="Chỉnh sửa hồ sơ"
                   aria-label="Chỉnh sửa hồ sơ con"
                 >
-                  ✏️
+                  <Pencil size={17} aria-hidden="true" />
                 </button>
 
                 {/* Tạm khóa */}
                 <button
                   type="button"
                   onClick={() => setDeleteTarget(k)}
-                  className="ml-auto rounded-lg p-2 text-sm transition hover:bg-coral-50"
+                  className="ml-auto flex min-h-11 min-w-11 items-center justify-center rounded-xl text-sm transition hover:bg-coral-50"
                   title="Tạm khóa hồ sơ"
                   aria-label="Tạm khóa hồ sơ con"
                 >
-                  🗑️
+                  <Trash2 size={17} aria-hidden="true" />
                 </button>
               </div>
             </div>
@@ -889,13 +934,20 @@ function KidsTab() {
 
         {/* Panel tiến trình — luôn hiện hướng dẫn rõ khi chưa chọn */}
         <div className="ui-card p-4">
-          <h3 className="mb-3 font-display text-lg">📈 Tiến trình học</h3>
+          <h3 className="mb-3 flex items-center gap-2 font-display text-lg">
+            <TrendingUp size={19} aria-hidden="true" />
+            Tiến trình học
+          </h3>
           {!selectedChild && (
             <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <span className="text-4xl">📊</span>
+              <ChartNoAxesColumnIncreasing
+                className="text-brand-500"
+                size={40}
+                aria-hidden="true"
+              />
               <p className="font-bold text-text">Chọn con để xem tiến trình</p>
               <p className="text-sm text-muted">
-                Bấm nút <strong>"📈 Xem tiến trình"</strong> trên thẻ của từng con
+                Bấm nút <strong>“Xem tiến trình”</strong> trên thẻ của từng con
               </p>
             </div>
           )}
@@ -956,7 +1008,12 @@ function KidsTab() {
                     <p className="text-xs font-extrabold uppercase tracking-wide text-success">Điều con đang làm tốt</p>
                     {progress.insights.strengths.length > 0 ? (
                       <ul className="mt-2 space-y-1 text-sm">
-                        {progress.insights.strengths.map((skill) => <li key={skill}>🌱 {skill}</li>)}
+                        {progress.insights.strengths.map((skill) => (
+                          <li key={skill} className="flex items-start gap-2">
+                            <Sprout className="mt-0.5 shrink-0 text-success" size={16} aria-hidden="true" />
+                            <span>{skill}</span>
+                          </li>
+                        ))}
                       </ul>
                     ) : <p className="mt-2 text-sm text-muted">Con đang bắt đầu hành trình; hãy ghi nhận lần thử đầu tiên.</p>}
                   </div>
@@ -1003,7 +1060,7 @@ function KidsTab() {
                   </div>
                   <div className="flex items-center gap-2 text-xs text-muted">
                     {q.status === 'completed' && <span>{'⭐'.repeat(q.stars)}</span>}
-                    {q.videoUrl && <span>🎬</span>}
+                    {q.videoUrl && <Video size={15} aria-label="Có video" />}
                     <span className={cn(
                       'rounded-md px-1.5 py-0.5 font-bold',
                       q.status === 'completed' && 'bg-mint-100 text-mint-700',
@@ -1039,7 +1096,7 @@ function KidsTab() {
         onClose={() => setEditTarget(undefined)}
         onSuccess={async () => {
           setEditTarget(undefined)
-          showToast(editTarget ? '✅ Đã cập nhật hồ sơ con!' : '✅ Đã tạo tài khoản con!', 'success')
+          showToast(editTarget ? 'Đã cập nhật hồ sơ con!' : 'Đã tạo tài khoản con!', 'success')
           await loadKids()
         }}
         onError={(e) => showToast(e, 'error')}
@@ -1125,8 +1182,8 @@ function CourseSelectModal({
       )
       onSuccess(
         !currentlyEnrolled
-          ? `✅ Đã thêm khóa học cho ${child.nickname ?? 'con'}!`
-          : `🗑️ Đã bỏ khóa học khỏi lộ trình của ${child.nickname ?? 'con'}.`,
+          ? `Đã thêm khóa học cho ${child.nickname ?? 'con'}!`
+          : `Đã bỏ khóa học khỏi lộ trình của ${child.nickname ?? 'con'}.`,
       )
     } catch (e) {
       onError(e instanceof Error ? e.message : 'Lỗi cập nhật')
@@ -1150,7 +1207,10 @@ function CourseSelectModal({
         <div className="flex items-center justify-between gap-3 px-5 pt-5 pb-3 border-b border-border">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
-              📚 Chọn khóa học
+              <span className="flex items-center gap-2">
+                <BookOpen size={16} aria-hidden="true" />
+                Chọn khóa học
+              </span>
             </p>
             <h2 className="font-display text-xl leading-tight">
               Lộ trình của {child.nickname ?? 'con'}
@@ -1162,10 +1222,10 @@ function CourseSelectModal({
           <button
             type="button"
             onClick={onClose}
-            className="flex-shrink-0 rounded-xl p-2 text-muted hover:bg-page transition"
+            className="flex min-h-11 min-w-11 flex-shrink-0 items-center justify-center rounded-xl text-muted transition hover:bg-page"
             aria-label="Đóng"
           >
-            ✕
+            <X size={18} aria-hidden="true" />
           </button>
         </div>
 
@@ -1218,7 +1278,19 @@ function CourseSelectModal({
                       aria-pressed={course.enrolled}
                       aria-label={`${course.enrolled ? 'Bỏ' : 'Thêm'} khóa ${course.title}`}
                     >
-                      {isToggling ? '...' : course.enrolled ? '✅ Đang học' : '+ Thêm'}
+                      {isToggling ? (
+                        '...'
+                      ) : course.enrolled ? (
+                        <span className="flex items-center gap-1.5">
+                          <Check size={15} aria-hidden="true" />
+                          Đang học
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1.5">
+                          <Plus size={15} aria-hidden="true" />
+                          Thêm
+                        </span>
+                      )}
                     </button>
                   </div>
                 )
@@ -1269,7 +1341,7 @@ function ApprovalsTab() {
         body: JSON.stringify({ decision }),
       })
       showToast(
-        decision === 'approved' ? '✅ Đã cho phép chia sẻ' : '🔒 Đã giữ riêng tư',
+        decision === 'approved' ? 'Đã cho phép chia sẻ' : 'Đã giữ riêng tư',
         decision === 'approved' ? 'success' : 'info',
       )
       await load()
@@ -1283,14 +1355,17 @@ function ApprovalsTab() {
   return (
     <div className="flex flex-col gap-4">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-      <h2 className="font-display text-xl">🔔 Yêu cầu chia sẻ</h2>
+      <h2 className="flex items-center gap-2 font-display text-xl">
+        <Bell size={20} aria-hidden="true" />
+        Yêu cầu chia sẻ
+      </h2>
       <p className="text-sm text-muted">
         Sáng tạo của trẻ mặc định riêng tư — chỉ hiện khi ba/mẹ đồng ý.
       </p>
 
       {approvals.length === 0 && (
         <div className="ui-card p-8 text-center">
-          <p className="text-4xl">🎉</p>
+          <PartyPopper className="mx-auto text-brand-500" size={40} aria-hidden="true" />
           <p className="mt-2 font-bold">Không có yêu cầu nào!</p>
           <p className="text-sm text-muted">Tất cả đã được xử lý.</p>
         </div>
@@ -1302,8 +1377,14 @@ function ApprovalsTab() {
             key={a.id}
             className="ui-card flex flex-wrap items-center gap-4 p-4 transition hover:shadow-lg"
           >
-            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-brand-50 text-3xl">
-              {a.project.kind === 'comic' ? '📖' : a.project.kind === 'video' ? '🎬' : '🎨'}
+            <div className="flex h-16 w-16 items-center justify-center rounded-xl bg-brand-50 text-brand-600">
+              {a.project.kind === 'comic' ? (
+                <BookOpen size={30} aria-hidden="true" />
+              ) : a.project.kind === 'video' ? (
+                <Video size={30} aria-hidden="true" />
+              ) : (
+                <Palette size={30} aria-hidden="true" />
+              )}
             </div>
             <div className="min-w-0 flex-1">
               <p className="font-extrabold">{a.project.title}</p>
@@ -1316,10 +1397,12 @@ function ApprovalsTab() {
             </div>
             <div className="flex gap-2">
               <Button onClick={() => void decide(a.id, 'approved')}>
-                ✅ Cho phép
+                <Check size={17} aria-hidden="true" />
+                Cho phép
               </Button>
               <Button variant="secondary" onClick={() => void decide(a.id, 'rejected')}>
-                🔒 Giữ riêng
+                <Lock size={17} aria-hidden="true" />
+                Giữ riêng
               </Button>
             </div>
           </div>
@@ -1363,9 +1446,9 @@ function ProfileTab() {
         method: 'PATCH',
         body: JSON.stringify({ phone: phone || undefined, preferredLanguage: lang }),
       })
-      showToast('✅ Đã lưu hồ sơ!', 'success')
+      showToast('Đã lưu hồ sơ!', 'success')
     } catch {
-      showToast('❌ Lỗi khi lưu hồ sơ', 'error')
+      showToast('Lỗi khi lưu hồ sơ', 'error')
     } finally {
       setSaving(false)
     }
@@ -1382,7 +1465,7 @@ function ProfileTab() {
         method: 'POST',
         body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw }),
       })
-      showToast('✅ Đã đổi mật khẩu!', 'success')
+      showToast('Đã đổi mật khẩu!', 'success')
       setCurrentPw('')
       setNewPw('')
       setChangingPw(false)
@@ -1396,7 +1479,10 @@ function ProfileTab() {
   return (
     <div className="flex flex-col gap-5">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
-      <h2 className="font-display text-xl">⚙️ Hồ sơ phụ huynh</h2>
+      <h2 className="flex items-center gap-2 font-display text-xl">
+        <Settings size={20} aria-hidden="true" />
+        Hồ sơ phụ huynh
+      </h2>
 
       <form onSubmit={(e) => void saveProfile(e)} className="ui-card flex flex-col gap-4 p-5">
         <div className="grid gap-4 sm:grid-cols-2">
@@ -1429,12 +1515,15 @@ function ProfileTab() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-bold">Ngôn ngữ ưa thích</label>
+          <label className="mb-1 flex items-center gap-2 text-sm font-bold">
+            <Languages size={17} aria-hidden="true" />
+            Ngôn ngữ ưa thích
+          </label>
           <div className="flex gap-2">
             {[
-              { value: 'vi', label: '🇻🇳 Tiếng Việt' },
-              { value: 'en', label: '🇬🇧 English' },
-              { value: 'bilingual', label: '🌐 Song ngữ' },
+              { value: 'vi', label: 'Tiếng Việt' },
+              { value: 'en', label: 'English' },
+              { value: 'bilingual', label: 'Song ngữ' },
             ].map((l) => (
               <button
                 key={l.value}
@@ -1465,7 +1554,10 @@ function ProfileTab() {
       {/* Password change */}
       <div className="ui-card p-5">
         <div className="flex items-center justify-between">
-          <h3 className="font-display text-lg">🔐 Mật khẩu</h3>
+          <h3 className="flex items-center gap-2 font-display text-lg">
+            <KeyRound size={19} aria-hidden="true" />
+            Mật khẩu
+          </h3>
           {!changingPw && (
             <Button variant="secondary" onClick={() => setChangingPw(true)}>
               Đổi mật khẩu
@@ -1479,6 +1571,8 @@ function ProfileTab() {
           >
             <input
               type="password"
+              aria-label="Mật khẩu hiện tại"
+              autoComplete="current-password"
               value={currentPw}
               onChange={(e) => setCurrentPw(e.target.value)}
               placeholder="Mật khẩu hiện tại"
@@ -1487,6 +1581,8 @@ function ProfileTab() {
             />
             <input
               type="password"
+              aria-label="Mật khẩu mới"
+              autoComplete="new-password"
               value={newPw}
               onChange={(e) => setNewPw(e.target.value)}
               placeholder="Mật khẩu mới (≥8 ký tự)"

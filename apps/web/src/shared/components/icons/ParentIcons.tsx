@@ -198,6 +198,31 @@ export function ParentProfileIcon({ size = 24, className = '', ...props }: IconP
   )
 }
 
+export function ParentLearningIcon({ size = 24, className = '', ...props }: IconProps) {
+  const id = React.useId().replace(/:/g, '')
+  const coverId = `parentLearningCover-${id}`
+  const pathId = `parentLearningPath-${id}`
+
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className} {...props}>
+      <defs>
+        <linearGradient id={coverId} x1="5" y1="5" x2="27" y2="28" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#FF7B93" />
+          <stop offset="1" stopColor="#C03955" />
+        </linearGradient>
+        <linearGradient id={pathId} x1="10" y1="21" x2="24" y2="9" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#3ED9A0" />
+          <stop offset="1" stopColor="#3DBFFF" />
+        </linearGradient>
+      </defs>
+      <rect x="5" y="4" width="22" height="24" rx="6" fill={`url(#${coverId})`} stroke="#9F2642" strokeWidth="1.2" />
+      <path d="M10 21C12 17 14 18 16 14C18 10 20 12 23 8" stroke={`url(#${pathId})`} strokeWidth="2.2" strokeLinecap="round" strokeDasharray="2 2" />
+      <circle cx="10" cy="21" r="2.2" fill="#FFC94A" />
+      <path d="M23 6L24.2 8.5L27 8.8L25 10.7L25.5 13.5L23 12.1L20.5 13.5L21 10.7L19 8.8L21.8 8.5L23 6Z" fill="#FFC94A" />
+    </svg>
+  )
+}
+
 export function ShieldLockIcon({ size = 20, className = '', ...props }: IconProps) {
   const id = React.useId()
   const shieldId = `shieldId-${id}`

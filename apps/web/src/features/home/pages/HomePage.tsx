@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Star, Zap, Trophy } from 'lucide-react'
+import { Play, Star, Zap, Trophy } from 'lucide-react'
 import { api, type AchievementRow, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { courseCoverHint, designerAssets } from '@/shared/config/assets'
@@ -13,6 +13,9 @@ import { CourseBookIcon, NavLeaderboardIcon } from '@/shared/components/icons/Ki
 
 type TrackFilter = 'all' | 'L1' | 'L2'
 
+function courseBadge(course: CourseSummary) {
+  return /^l[12]-k7-/.test(course.id) ? 'AI' : (course.courseKey ?? 'Mới')
+}
 
 function HeaderAvatar({ nickname }: { nickname?: string | null }) {
   const [failed, setFailed] = useState(false)
@@ -109,7 +112,7 @@ function CourseCard({ course }: { course: CourseSummary }) {
         {/* Tags */}
         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
           <span className="rounded-full bg-white/95 backdrop-blur-sm px-2 py-0.5 text-[10px] font-extrabold text-brand-600 shadow-sm">
-            {course.courseKey ?? 'Mới'}
+            {courseBadge(course)}
           </span>
           <span className="rounded-full bg-white/95 backdrop-blur-sm px-2 py-0.5 text-[10px] font-extrabold text-success shadow-sm">
             {course.ageLabel}
@@ -318,7 +321,8 @@ export function HomePage() {
                   to={dailyMission.action.route}
                   className="ui-btn ui-btn-primary inline-flex items-center gap-1.5 text-xs font-extrabold !py-2 !px-4 !min-h-9"
                 >
-                  ▶ {dailyMission.action.label}
+                  <Play size={14} aria-hidden="true" />
+                  {dailyMission.action.label}
                 </Link>
               </div>
             </div>

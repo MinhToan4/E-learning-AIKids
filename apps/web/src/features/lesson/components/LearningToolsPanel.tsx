@@ -104,6 +104,11 @@ export function LearningToolsPanel({
     try {
       await api(`/api/learning/notes/${noteId}`, { method: 'DELETE' })
       await load()
+      setMessage('Đã xóa ghi chú.')
+    } catch (cause) {
+      setMessage(
+        cause instanceof Error ? cause.message : 'Không xóa được ghi chú.',
+      )
     } finally {
       setBusy(null)
     }
@@ -124,6 +129,23 @@ export function LearningToolsPanel({
       await load()
     } catch (cause) {
       setMessage(cause instanceof Error ? cause.message : 'Không đánh dấu được.')
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function removeBookmark(bookmarkId: string) {
+    setBusy(bookmarkId)
+    try {
+      await api(`/api/learning/bookmarks/${bookmarkId}`, {
+        method: 'DELETE',
+      })
+      await load()
+      setMessage('Đã bỏ đánh dấu.')
+    } catch (cause) {
+      setMessage(
+        cause instanceof Error ? cause.message : 'Không bỏ đánh dấu được.',
+      )
     } finally {
       setBusy(null)
     }
@@ -183,14 +205,18 @@ export function LearningToolsPanel({
           <h2 className="font-bold">Ghi chú riêng</h2>
           <form className="mt-2 grid gap-2" onSubmit={(event) => void addNote(event)}>
             <textarea
+              aria-label="Nội dung ghi chú riêng"
               required
               minLength={1}
-              maxLength={2_000}
+              maxLength={80}
               className="min-h-24 rounded-xl border-2 border-border p-3 text-sm"
               value={note}
               onChange={(event) => setNote(event.target.value)}
               placeholder="Viết điều con muốn nhớ…"
             />
+            <span className="text-right text-xs text-muted">
+              {note.length}/80 ký tự
+            </span>
             <Button type="submit" variant="secondary" disabled={busy === 'note'}>
               Lưu ghi chú
             </Button>
@@ -218,6 +244,7 @@ export function LearningToolsPanel({
           <form className="mt-2 flex gap-2" onSubmit={(event) => void search(event)}>
             <input
               type="search"
+              aria-label="Tìm trong bài học"
               minLength={2}
               maxLength={100}
               className="min-h-11 min-w-0 flex-1 rounded-xl border-2 border-border px-3"
@@ -250,6 +277,30 @@ export function LearningToolsPanel({
               <Bookmark size={17} aria-hidden="true" />
               Đánh dấu phần {phase}
             </Button>
+            {bookmarks.slice(0, 5).map((row) => (
+              <div
+                key={row.id}
+                className="flex items-center gap-2 rounded-xl bg-sun-50 p-2 text-sm"
+              >
+                <Bookmark
+                  size={16}
+                  className="shrink-0 text-warning"
+                  aria-hidden="true"
+                />
+                <span className="min-w-0 flex-1 truncate">
+                  {row.label ?? `Phần ${row.anchorValue}`}
+                </span>
+                <button
+                  type="button"
+                  className="min-h-11 min-w-11 rounded-xl text-danger hover:bg-coral-100"
+                  disabled={busy === row.id}
+                  onClick={() => void removeBookmark(row.id)}
+                  aria-label={`Bỏ đánh dấu ${row.label ?? row.anchorValue}`}
+                >
+                  <Trash2 className="mx-auto" size={16} aria-hidden="true" />
+                </button>
+              </div>
+            ))}
             {agePolicy?.permissionPolicy.canDownloadLessons && (
               <Button
                 variant="secondary"

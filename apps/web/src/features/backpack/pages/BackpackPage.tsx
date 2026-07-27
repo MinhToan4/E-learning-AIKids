@@ -108,7 +108,7 @@ export function BackpackPage() {
         <h1 className="font-display text-3xl">Ba lô sáng tạo</h1>
         <p className="text-muted">
           Ba lô lưu những sản phẩm con đã tạo trong bài học — mặc định chỉ con xem.
-          tùy ý từ máy.
+          Ảnh cá nhân từ thiết bị không được tải lên để giữ an toàn riêng tư.
         </p>
       </div>
       {msg && (

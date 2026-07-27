@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
+import { Eye, EyeOff, House } from 'lucide-react'
 import { useAuth } from '@/shared/store/auth'
 import { api, ApiError, type User } from '@/shared/lib/api'
 import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
@@ -105,8 +106,8 @@ export function ParentGateModal({
       >
         {/* Header */}
         <div className="bg-gradient-to-br from-amber-400 to-orange-500 px-6 pb-6 pt-8 text-center">
-          <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/20 text-5xl shadow-inner">
-            🏡
+          <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/20 shadow-inner">
+            <House size={42} className="text-white" aria-hidden="true" />
           </div>
           <h2 className="text-2xl font-black text-white">Ba/Mẹ ơi!</h2>
           <p className="mt-1 text-sm text-white/85">
@@ -146,12 +147,15 @@ export function ParentGateModal({
               />
               <button
                 type="button"
-                tabIndex={-1}
                 onClick={() => setShowPw((v) => !v)}
-                className="absolute right-3 top-1/2 -translate-y-1/2 text-lg text-gray-400 hover:text-gray-600"
+                className="absolute right-1 top-1/2 flex min-h-11 min-w-11 -translate-y-1/2 items-center justify-center rounded-xl text-gray-400 hover:bg-white hover:text-gray-600"
                 aria-label={showPw ? 'Ẩn mật khẩu' : 'Hiện mật khẩu'}
               >
-                {showPw ? '🙈' : '👁️'}
+                {showPw ? (
+                  <EyeOff size={19} aria-hidden="true" />
+                ) : (
+                  <Eye size={19} aria-hidden="true" />
+                )}
               </button>
             </div>
             {error && (

@@ -62,6 +62,14 @@ type AssessmentSummary = {
   id: string
   title: string
   kind: string
+  latestAttempt: {
+    id: string
+    status: string
+    attemptNumber: number
+    scorePercent: number | null
+    passed: boolean | null
+    updatedAt: string
+  } | null
   versions: Array<{
     id: string
     version: number
@@ -80,6 +88,19 @@ type ArtifactOption = {
   id: string
   label: string
   sourceType: 'project' | 'asset'
+}
+type PublishedResult = {
+  id: string
+  assessment: { title: string }
+  attemptNumber: number
+  scorePercent: number | null
+  passed: boolean | null
+  responses: Array<{
+    question: { prompt: Prompt }
+    points: number
+    ratio: number | null
+    feedback: string | null
+  }>
 }
 
 function responseFromItem(item: AttemptItem): Record<string, unknown> {
@@ -104,6 +125,8 @@ function secondsLeft(expiresAt: string) {
 export function AssessmentPage() {
   const [assessments, setAssessments] = useState<AssessmentWithCourse[]>([])
   const [attempt, setAttempt] = useState<Attempt | null>(null)
+  const [publishedResult, setPublishedResult] =
+    useState<PublishedResult | null>(null)
   const [responses, setResponses] = useState<Record<string, Record<string, unknown>>>({})
   const [artifacts, setArtifacts] = useState<ArtifactOption[]>([])
   const [loading, setLoading] = useState(true)
@@ -203,6 +226,26 @@ export function AssessmentPage() {
     } catch (cause) {
       showToast(
         cause instanceof Error ? cause.message : 'Không thể bắt đầu bài đánh giá.',
+        'error',
+      )
+    } finally {
+      setBusy(null)
+    }
+  }
+
+  async function viewResult(
+    latestAttempt: NonNullable<AssessmentSummary['latestAttempt']>,
+  ) {
+    setBusy(`result-${latestAttempt.id}`)
+    try {
+      const data = await api<{ result: PublishedResult }>(
+        `/api/assessment-attempts/${latestAttempt.id}/result`,
+      )
+      setPublishedResult(data.result)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    } catch (cause) {
+      showToast(
+        cause instanceof Error ? cause.message : 'Chưa mở được kết quả.',
         'error',
       )
     } finally {
@@ -435,6 +478,52 @@ export function AssessmentPage() {
           </div>
         </div>
       </header>
+      {publishedResult && (
+        <section className="ui-card border-mint-200 bg-mint-50 p-5 sm:p-6">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-extrabold uppercase tracking-widest text-success">
+                Kết quả lần {publishedResult.attemptNumber}
+              </p>
+              <h2 className="mt-1 font-display text-2xl">
+                {publishedResult.assessment.title}
+              </h2>
+              <p className="mt-1 font-extrabold text-success">
+                {publishedResult.scorePercent ?? 0}% ·{' '}
+                {publishedResult.passed ? 'Đạt' : 'Mình cùng luyện thêm nhé'}
+              </p>
+            </div>
+            <Button
+              variant="ghost"
+              onClick={() => setPublishedResult(null)}
+            >
+              Đóng kết quả
+            </Button>
+          </div>
+          <div className="mt-4 space-y-3">
+            {publishedResult.responses.map((response, index) => (
+              <article
+                key={`${publishedResult.id}-${index}`}
+                className="rounded-2xl bg-white p-4"
+              >
+                <p className="font-bold">
+                  Câu {index + 1}: {response.question.prompt.stem}
+                </p>
+                <p className="mt-1 text-sm text-muted">
+                  {Math.round((response.ratio ?? 0) * response.points * 10) / 10}/
+                  {response.points} điểm
+                </p>
+                {response.feedback && (
+                  <p className="mt-2 rounded-xl bg-sky-50 p-3 text-sm">
+                    <span className="font-bold">Góp ý của giáo viên:</span>{' '}
+                    {response.feedback}
+                  </p>
+                )}
+              </article>
+            ))}
+          </div>
+        </section>
+      )}
       {agePolicyStatus === 'configuration_required' && (
         <section className="ui-card border-sun-200 bg-sun-50 p-4 text-sm font-semibold text-warning">
           Nhà trường chưa công bố cấu hình bài đánh giá cho nhóm tuổi của con.
@@ -450,6 +539,7 @@ export function AssessmentPage() {
         <div className="grid gap-4 md:grid-cols-2">
           {assessments.map((assessment) => {
             const version = assessment.versions[0]
+            const latestAttempt = assessment.latestAttempt
             return (
               <article key={assessment.id} className="ui-card flex flex-col gap-4 p-5">
                 <div>
@@ -473,6 +563,38 @@ export function AssessmentPage() {
                       <dd className="font-bold">{version.maxAttempts}</dd>
                     </div>
                   </dl>
+                )}
+                {latestAttempt && (
+                  <div
+                    className={cn(
+                      'rounded-2xl p-3 text-sm',
+                      latestAttempt.status === 'published'
+                        ? 'bg-mint-50 text-success'
+                        : latestAttempt.status === 'in_progress'
+                          ? 'bg-sky-50 text-sky-700'
+                          : 'bg-sun-50 text-warning',
+                    )}
+                  >
+                    <p className="font-extrabold">
+                      {latestAttempt.status === 'published'
+                        ? `Kết quả lần ${latestAttempt.attemptNumber}: ${latestAttempt.scorePercent ?? 0}%`
+                        : latestAttempt.status === 'in_progress'
+                          ? `Lần ${latestAttempt.attemptNumber} đang làm dở`
+                          : `Lần ${latestAttempt.attemptNumber} đã nộp, đang chờ công bố`}
+                    </p>
+                    {latestAttempt.status === 'published' && (
+                      <Button
+                        className="mt-2"
+                        variant="secondary"
+                        disabled={busy === `result-${latestAttempt.id}`}
+                        onClick={() => void viewResult(latestAttempt)}
+                      >
+                        {busy === `result-${latestAttempt.id}`
+                          ? 'Đang mở…'
+                          : 'Xem kết quả và góp ý'}
+                      </Button>
+                    )}
+                  </div>
                 )}
                 <Button
                   className="mt-auto w-full"
@@ -545,7 +667,12 @@ function QuestionCard({
           <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
             Câu {index + 1} · {item.points} điểm
           </p>
-          <h2 className="mt-1 text-lg font-bold leading-relaxed">{prompt.stem}</h2>
+          <h2
+            id={`question-${item.question.id}`}
+            className="mt-1 text-lg font-bold leading-relaxed"
+          >
+            {prompt.stem}
+          </h2>
         </div>
         {item.required && (
           <span className="shrink-0 rounded-full bg-coral-50 px-2 py-1 text-xs font-bold text-danger">
@@ -590,6 +717,7 @@ function QuestionCard({
 
       {type === 'short_text' && (
         <textarea
+          aria-labelledby={`question-${item.question.id}`}
           className="min-h-36 w-full rounded-2xl border-2 border-border bg-white p-4 outline-none focus:border-brand-400"
           value={typeof value.text === 'string' ? value.text : ''}
           minLength={prompt.minLength}

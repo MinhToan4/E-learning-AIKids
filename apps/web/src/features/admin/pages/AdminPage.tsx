@@ -9,6 +9,7 @@
  */
 import { useEffect, useRef, useState, useCallback, useMemo, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
+import { Search } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
@@ -676,9 +677,12 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       <div className="ui-card overflow-hidden">
         <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-3">
           <div className="relative flex-1 min-w-[180px]">
-            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
+              <Search size={17} aria-hidden="true" />
+            </span>
             <input
               type="search"
+              aria-label="Tìm nhật ký đăng nhập"
               placeholder="Tìm email, IP..."
               value={logSearch}
               onChange={(e) => setLogSearch(e.target.value)}
@@ -686,14 +690,15 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             />
           </div>
           <select
+            aria-label="Lọc nhật ký theo kết quả"
             className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold"
             value={logFilter}
             onChange={(e) => setLogFilter(e.target.value)}
           >
             <option value="">Tất cả kết quả</option>
-            <option value="success">✅ Thành công</option>
-            <option value="failed">❌ Thất bại</option>
-            <option value="locked">🔒 Bị khóa</option>
+            <option value="success">Thành công</option>
+            <option value="failed">Thất bại</option>
+            <option value="locked">Bị khóa</option>
           </select>
           <Button variant="secondary" onClick={() => void load()}>Làm mới</Button>
           <Button variant="ghost" className="text-muted" onClick={() => void purgeLogs()}>Xóa nhật ký cũ</Button>
@@ -742,9 +747,12 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         <div className="flex flex-wrap items-center gap-2 border-b border-border px-4 py-3">
           {/* Text search */}
           <div className="relative flex-1 min-w-[200px]">
-            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
+              <Search size={17} aria-hidden="true" />
+            </span>
             <input
               type="search"
+              aria-label="Tìm tài khoản"
               placeholder="Tìm tên, email..."
               value={userSearch}
               onChange={(e) => setUserSearch(e.target.value)}
@@ -752,7 +760,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             />
           </div>
           {/* Role filter */}
-          <select className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
+          <select aria-label="Lọc tài khoản theo vai trò" className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}>
             <option value="">Tất cả vai trò</option>
             <option value="student">Học sinh</option>
             <option value="parent">Phụ huynh</option>
@@ -760,10 +768,10 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <option value="admin">Quản trị viên</option>
           </select>
           {/* Active filter */}
-          <select className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={userActiveFilter} onChange={(e) => setUserActiveFilter(e.target.value as '' | 'active' | 'inactive')}>
+          <select aria-label="Lọc tài khoản theo trạng thái" className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={userActiveFilter} onChange={(e) => setUserActiveFilter(e.target.value as '' | 'active' | 'inactive')}>
             <option value="">Tất cả trạng thái</option>
-            <option value="active">✅ Đang hoạt động</option>
-            <option value="inactive">❌ Vô hiệu hóa</option>
+            <option value="active">Đang hoạt động</option>
+            <option value="inactive">Vô hiệu hóa</option>
           </select>
           {/* Result count badge */}
           {(userSearch || roleFilter || userActiveFilter) && (
@@ -872,9 +880,12 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         {/* Session search bar */}
         <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-3">
           <div className="relative flex-1 min-w-[220px]">
-            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
+              <Search size={17} aria-hidden="true" />
+            </span>
             <input
               type="search"
+              aria-label="Tìm phiên đăng nhập"
               placeholder="Tìm tên, email, IP..."
               value={sessionSearch}
               onChange={(e) => setSessionSearch(e.target.value)}
@@ -939,19 +950,22 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         {/* Course search + status filter bar */}
         <div className="flex flex-wrap items-center gap-2 rounded-2xl border border-border bg-white px-4 py-3">
           <div className="relative flex-1 min-w-[200px]">
-            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">🔍</span>
+            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
+              <Search size={17} aria-hidden="true" />
+            </span>
             <input
               type="search"
+              aria-label="Tìm khóa học"
               placeholder="Tìm tên khóa học..."
               value={courseSearch}
               onChange={(e) => setCourseSearch(e.target.value)}
               className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
             />
           </div>
-          <select className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={courseStatusFilter} onChange={(e) => setCourseStatusFilter(e.target.value as '' | 'open' | 'soon')}>
+          <select aria-label="Lọc khóa học theo trạng thái" className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={courseStatusFilter} onChange={(e) => setCourseStatusFilter(e.target.value as '' | 'open' | 'soon')}>
             <option value="">Tất cả trạng thái</option>
-            <option value="open">✅ Đang mở</option>
-            <option value="soon">🔒 Đang ẩn</option>
+            <option value="open">Đang mở</option>
+            <option value="soon">Đang ẩn</option>
           </select>
           {(courseSearch || courseStatusFilter) && (
             <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">{filteredCourses.length} khóa học</span>

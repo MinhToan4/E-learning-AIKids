@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { PencilLine } from 'lucide-react'
+import { Gamepad2, PencilLine, Play, Star } from 'lucide-react'
 import {
   ART_STYLES,
   assemblePrompt,
@@ -30,6 +30,7 @@ import {
 } from '@/features/lesson/components/CurriculumGame'
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 import { LearningToolsPanel } from '@/features/lesson/components/LearningToolsPanel'
+import { NavWorldIcon } from '@/shared/components/icons/KidNavIcons'
 import {
   resolvePracticeReview,
   type PracticePreview,
@@ -522,7 +523,10 @@ export function LessonPage() {
           Nếu trạm bị khóa, hãy hoàn thành trạm trước trên bản đồ.
         </p>
         <Link to="/world" className="mt-4 inline-block">
-          <Button variant="secondary">Về bản đồ</Button>
+          <Button variant="secondary">
+            <NavWorldIcon size={18} aria-hidden="true" />
+            Về bản đồ
+          </Button>
         </Link>
       </div>
     )
@@ -652,7 +656,8 @@ export function LessonPage() {
             }}
             disabled={busy}
           >
-            {reviewMode ? 'Quay lại kết quả' : '🎮 Bắt đầu trò chơi'}
+            {!reviewMode && <Gamepad2 size={18} aria-hidden="true" />}
+            {reviewMode ? 'Quay lại kết quả' : 'Bắt đầu trò chơi'}
           </Button>
         </div>
       )}
@@ -947,6 +952,7 @@ export function LessonPage() {
                         </p>
                         <p className="text-sm text-muted">{p.beat}</p>
                         <input
+                          aria-label={`Lời thoại khung ${p.panel}`}
                           className="mt-2 min-h-10 w-full rounded-xl border border-border px-2 text-sm"
                           value={comicBubbles[idx] ?? ''}
                           maxLength={40}
@@ -1025,6 +1031,7 @@ export function LessonPage() {
                           : 'Sổ tay thế giới — viết ý của con'}
                     </p>
                     <textarea
+                      aria-label="Ý tưởng của con"
                       className="min-h-28 rounded-2xl border-2 border-border p-3 text-sm font-semibold"
                       placeholder="Viết ý tưởng của con (không dùng tên thật)…"
                       value={journalText}
@@ -1060,6 +1067,7 @@ export function LessonPage() {
                     ))}
                   </div>
                   <textarea
+                    aria-label="Lý do chọn bảng màu"
                     className="min-h-20 rounded-2xl border-2 border-border p-3 text-sm"
                     placeholder="Vì sao con chọn màu này?"
                     value={journalText}
@@ -1171,7 +1179,8 @@ export function LessonPage() {
               busy || quest.check.some((q) => answers[q.id] === undefined)
             }
           >
-            {busy ? 'Đang chấm…' : '⭐ Nộp bài & nhận sao'}
+            {!busy && <Star size={18} aria-hidden="true" />}
+            {busy ? 'Đang chấm…' : 'Nộp bài & nhận sao'}
           </Button>
         </div>
       )}
@@ -1248,11 +1257,13 @@ export function LessonPage() {
           <div className="mt-2 flex flex-wrap justify-center gap-3">
             {checkResult.nextQuestId && (
               <Button onClick={() => navigate(`/lesson/${checkResult.nextQuestId}`)}>
-                ▶ Trạm tiếp theo
+                <Play size={18} aria-hidden="true" />
+                Trạm tiếp theo
               </Button>
             )}
             <Button variant="secondary" onClick={() => navigate(`/world/${quest.courseId}`)}>
-              🗺️ Về bản đồ
+              <NavWorldIcon size={18} aria-hidden="true" />
+              Về bản đồ
             </Button>
             <Button
               variant="ghost"

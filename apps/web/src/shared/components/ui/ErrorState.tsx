@@ -1,3 +1,4 @@
+import { TriangleAlert } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
@@ -50,7 +51,7 @@ export function ErrorState({
       )}
     >
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-coral-100 text-2xl">
-        ⚠️
+        <TriangleAlert size={28} aria-hidden="true" />
       </div>
       <h2 className="font-display text-xl text-text">{title}</h2>
       <p className="max-w-sm text-sm text-muted">{message}</p>

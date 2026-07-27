@@ -1,6 +1,5 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NavLink, Outlet, useLocation } from 'react-router-dom'
-import { CalendarDays, ClipboardCheck, Settings2 } from 'lucide-react'
 
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
 import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
@@ -9,14 +8,19 @@ import {
   CmsAnalyticsIcon,
   CmsClassesIcon,
   CmsCoursesIcon,
+  CmsAssessmentIcon,
   CmsLecturesIcon,
   CmsLogsIcon,
   CmsOverviewIcon,
+  CmsOperationsIcon,
+  CmsScheduleIcon,
+  CmsSettingsIcon,
   CmsSessionsIcon,
   CmsUsersIcon,
 } from '@/shared/components/icons/CmsIcons'
 import {
   NavBackpackIcon,
+  NavAssessmentIcon,
   NavBadgeIcon,
   NavCreativeIcon,
   NavHomeIcon,
@@ -28,6 +32,7 @@ import {
   ParentApprovalIcon,
   ParentDashboardIcon,
   ParentKidsIcon,
+  ParentLearningIcon,
   ParentPlanIcon,
   ParentProfileIcon,
 } from '@/shared/components/icons/ParentIcons'
@@ -75,6 +80,7 @@ function WorkspaceSwitcher({ compact = false }: { compact?: boolean }) {
           Đổi TK
         </label>
         <select
+          aria-label="Chuyển đổi tài khoản"
           className="w-[4.5rem] rounded-xl border border-border/80 bg-white px-1 py-1 text-center font-bold text-[11px] text-text shadow-sm transition hover:border-brand-300 focus:outline-none focus:ring-1 focus:ring-brand-400"
           value={active?.id || 'current'}
           onChange={(e) => {
@@ -85,7 +91,7 @@ function WorkspaceSwitcher({ compact = false }: { compact?: boolean }) {
           title="Chuyển đổi tài khoản"
         >
           {active && <option value={active.id}>{active.label}</option>}
-          <option value="current">{user?.role === "parent" ? (active ? "🏡 Về Ba/Mẹ" : "TK Ba/Mẹ") : "Cá nhân"}</option>
+          <option value="current">{user?.role === "parent" ? (active ? "Về Ba/Mẹ" : "TK Ba/Mẹ") : "Cá nhân"}</option>
           {access?.contexts
             .filter((c) => c.id !== active?.id)
             .map((context) => (
@@ -111,7 +117,7 @@ function WorkspaceSwitcher({ compact = false }: { compact?: boolean }) {
         }}
       >
         {active && <option value={active.id}>{active.label}</option>}
-        <option value="current">{user?.role === "parent" ? (active ? "🏡 Về tài khoản Ba/Mẹ" : "Tài khoản Ba/Mẹ") : "Tài khoản cá nhân"}</option>
+        <option value="current">{user?.role === "parent" ? (active ? "Về tài khoản Ba/Mẹ" : "Tài khoản Ba/Mẹ") : "Tài khoản cá nhân"}</option>
         {access?.contexts
           .filter((c) => c.id !== active?.id)
           .map((context) => (
@@ -126,27 +132,27 @@ function WorkspaceSwitcher({ compact = false }: { compact?: boolean }) {
 
 // ── Student nav split: pinned bar + drawer ───────────────────
 const studentPinnedNav = [
-  { to: '/home',        label: 'Nhà',     icon: NavHomeIcon        },
-  { to: '/world',       label: 'Học',     icon: NavWorldIcon       },
-  { to: '/creative',    label: 'Xưởng',   icon: NavCreativeIcon    },
+  { to: '/home', label: 'Nhà', icon: NavHomeIcon },
+  { to: '/world', label: 'Học', icon: NavWorldIcon },
+  { to: '/creative', label: 'Xưởng', icon: NavCreativeIcon },
   { to: '/leaderboard', label: 'Tiến bộ', icon: NavLeaderboardIcon },
 ]
 const studentDrawerNav = [
-  { to: '/assessments', label: 'Bài test', icon: ClipboardCheck },
-  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon   },
-  { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon },
-  { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon },
+  { to: '/assessments', label: 'Bài test', icon: NavAssessmentIcon },
+  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon },
+  { to: '/backpack', label: 'Ba lô', icon: NavBackpackIcon },
+  { to: '/profile', label: 'Hồ sơ', icon: NavProfileIcon },
 ]
 // Full list for desktop sidebar (all 7 unchanged)
 const studentNav = [
-  { to: '/home',         label: 'Nhà',      icon: NavHomeIcon        },
-  { to: '/world',        label: 'Học',      icon: NavWorldIcon       },
-  { to: '/creative',     label: 'Xưởng',    icon: NavCreativeIcon    },
-  { to: '/leaderboard',  label: 'Tiến bộ',  icon: NavLeaderboardIcon },
-  { to: '/assessments',  label: 'Bài test', icon: ClipboardCheck     },
-  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon       },
-  { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon    },
-  { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon     },
+  { to: '/home', label: 'Nhà', icon: NavHomeIcon },
+  { to: '/world', label: 'Học', icon: NavWorldIcon },
+  { to: '/assessments', label: 'Bài test', icon: NavAssessmentIcon },
+  { to: '/creative', label: 'Xưởng', icon: NavCreativeIcon },
+  { to: '/leaderboard', label: 'Tiến bộ', icon: NavLeaderboardIcon },
+  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon },
+  { to: '/backpack', label: 'Ba lô', icon: NavBackpackIcon },
+  { to: '/profile', label: 'Hồ sơ', icon: NavProfileIcon },
 ]
 
 // ── Desktop sidebar nav (vertical) ───────────────────────────
@@ -306,17 +312,54 @@ function StudentDrawer() {
   )
 }
 
-// ── Admin drawer (⊕ button opens full menu overlay) ──────────
-function AdminDrawer({
+// ── Adult drawer: keep mobile navigation scannable at 3–4 pinned items ─────
+function AdultDrawer({
   nav,
   pinnedNav,
   tone,
+  title,
 }: {
   nav: RoleNavItem[]
   pinnedNav: RoleNavItem[]
   tone: string
+  title: string
 }) {
   const [open, setOpen] = useState(false)
+  const drawerRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    if (!open) return
+
+    const previouslyFocused = document.activeElement as HTMLElement | null
+    const drawer = drawerRef.current
+    const focusable = drawer?.querySelectorAll<HTMLElement>('a[href], button')
+    focusable?.[0]?.focus()
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        event.preventDefault()
+        setOpen(false)
+        return
+      }
+      if (event.key !== 'Tab' || !focusable?.length) return
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault()
+        first.focus()
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      if (previouslyFocused?.isConnected) previouslyFocused.focus()
+    }
+  }, [open])
 
   return (
     <>
@@ -331,25 +374,28 @@ function AdminDrawer({
 
       {/* Drawer sheet slides up from bottom */}
       <div
+        ref={drawerRef}
         className={cn(
           'admin-drawer-sheet',
           open ? 'admin-drawer-sheet-open' : 'admin-drawer-sheet-closed',
         )}
         role="dialog"
-        aria-modal="true"
-        aria-label="Tất cả tiện ích quản trị"
+        aria-modal={open ? 'true' : undefined}
+        aria-hidden={!open}
+        aria-label={title}
       >
         {/* Handle bar */}
         <div className="admin-drawer-handle" aria-hidden="true" />
 
-        <p className="admin-drawer-title">Tiện ích quản trị</p>
+        <p className="admin-drawer-title">{title}</p>
 
-        <nav className="admin-drawer-grid" aria-label="Điều hướng quản trị">
+        <nav className="admin-drawer-grid" aria-label={title}>
           {nav.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
               to={to}
               end={end}
+              tabIndex={open ? undefined : -1}
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 cn('admin-drawer-item', isActive && 'admin-drawer-item-active')
@@ -437,8 +483,6 @@ function CmsShell({
   roleLabel: string
   tone: 'teacher' | 'admin'
 }) {
-  const isAdmin = tone === 'admin'
-
   return (
     <div className={`role-shell role-tone-${tone} min-h-dvh md:pl-60`}>
       {/* Desktop sidebar */}
@@ -471,8 +515,13 @@ function CmsShell({
 
       {/* Mobile bottom nav */}
       <div className="md:hidden">
-        {isAdmin && pinnedNav ? (
-          <AdminDrawer nav={nav} pinnedNav={pinnedNav} tone={tone} />
+        {pinnedNav ? (
+          <AdultDrawer
+            nav={nav}
+            pinnedNav={pinnedNav}
+            tone={tone}
+            title={tone === 'admin' ? 'Tiện ích quản trị' : 'Công cụ giáo viên'}
+          />
         ) : (
           <AdultBottomNav nav={nav} tone={tone} />
         )}
@@ -484,9 +533,11 @@ function CmsShell({
 // ── AdultChrome: Parent ───────────────────────────────────────
 function AdultChrome({
   nav,
+  pinnedNav,
   brandTo,
 }: {
   nav: RoleNavItem[]
+  pinnedNav?: RoleNavItem[]
   brandTo: string
 }) {
   return (
@@ -521,7 +572,16 @@ function AdultChrome({
 
       {/* Mobile bottom nav */}
       <div className="lg:hidden">
-        <AdultBottomNav nav={nav} tone="parent" />
+        {pinnedNav ? (
+          <AdultDrawer
+            nav={nav}
+            pinnedNav={pinnedNav}
+            tone="parent"
+            title="Tiện ích phụ huynh"
+          />
+        ) : (
+          <AdultBottomNav nav={nav} tone="parent" />
+        )}
       </div>
     </div>
   )
@@ -541,9 +601,15 @@ export function AppShell() {
           { to: '/kids', label: 'Cho con học', icon: NavWorldIcon },
           { to: '/parent', label: 'Tổng quan', icon: ParentDashboardIcon, end: true },
           { to: '/parent/kids', label: 'Con của tôi', icon: ParentKidsIcon },
-          { to: '/parent/learning', label: 'Hành trình', icon: CalendarDays },
+          { to: '/parent/learning', label: 'Hành trình', icon: ParentLearningIcon },
           { to: '/parent/plan', label: 'Gói học', icon: ParentPlanIcon },
           { to: '/parent/approvals', label: 'Chờ duyệt', icon: ParentApprovalIcon },
+          { to: '/parent/profile', label: 'Hồ sơ', icon: ParentProfileIcon },
+        ]}
+        pinnedNav={[
+          { to: '/kids', label: 'Cho con học', icon: NavWorldIcon },
+          { to: '/parent', label: 'Tổng quan', icon: ParentDashboardIcon, end: true },
+          { to: '/parent/learning', label: 'Hành trình', icon: ParentLearningIcon },
         ]}
       />
     )
@@ -558,12 +624,17 @@ export function AppShell() {
         nav={[
           { to: '/organization', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
           { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon },
-          { to: '/teacher/operations', label: 'Điều hành', icon: ClipboardCheck },
-          { to: '/teacher/scheduling', label: 'Lịch học', icon: CalendarDays },
-          { to: '/teacher/assessments', label: 'Bài test', icon: ClipboardCheck },
+          { to: '/teacher/operations', label: 'Điều hành', icon: CmsOperationsIcon },
+          { to: '/teacher/scheduling', label: 'Lịch học', icon: CmsScheduleIcon },
+          { to: '/teacher/assessments', label: 'Bài test', icon: CmsAssessmentIcon },
           { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
           { to: '/teacher/lectures', label: 'Bài giảng', icon: CmsLecturesIcon },
           { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
+        ]}
+        pinnedNav={[
+          { to: '/organization', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
+          { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon },
+          { to: '/teacher/operations', label: 'Điều hành', icon: CmsOperationsIcon },
         ]}
       />
     )
@@ -577,12 +648,17 @@ export function AppShell() {
         tone="teacher"
         nav={[
           { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon, end: true },
-          { to: '/teacher/operations', label: 'Điều hành', icon: ClipboardCheck },
-          { to: '/teacher/scheduling', label: 'Lịch học', icon: CalendarDays },
-          { to: '/teacher/assessments', label: 'Bài test', icon: ClipboardCheck },
+          { to: '/teacher/operations', label: 'Điều hành', icon: CmsOperationsIcon },
+          { to: '/teacher/scheduling', label: 'Lịch học', icon: CmsScheduleIcon },
+          { to: '/teacher/assessments', label: 'Bài test', icon: CmsAssessmentIcon },
           { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
           { to: '/teacher/lectures', label: 'Bài giảng', icon: CmsLecturesIcon },
           { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
+        ]}
+        pinnedNav={[
+          { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon, end: true },
+          { to: '/teacher/operations', label: 'Điều hành', icon: CmsOperationsIcon },
+          { to: '/teacher/scheduling', label: 'Lịch học', icon: CmsScheduleIcon },
         ]}
       />
     )
@@ -596,11 +672,11 @@ export function AppShell() {
       { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
       { to: '/admin/sessions', label: 'Phiên', icon: CmsSessionsIcon },
       { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
-      { to: '/admin/learning-config', label: 'Cấu hình học tập', icon: Settings2 },
+      { to: '/admin/learning-config', label: 'Cấu hình học tập', icon: CmsSettingsIcon },
       { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
       { to: '/teacher', label: 'Giáo viên', icon: CmsClassesIcon },
-      { to: '/teacher/scheduling', label: 'Điều phối lịch', icon: CalendarDays },
-      { to: '/teacher/assessments', label: 'Biên soạn test', icon: ClipboardCheck },
+      { to: '/teacher/scheduling', label: 'Điều phối lịch', icon: CmsScheduleIcon },
+      { to: '/teacher/assessments', label: 'Biên soạn test', icon: CmsAssessmentIcon },
     ]
     // Show only the most-used items in the pinned bar; the rest live in the drawer
     const pinnedNav: RoleNavItem[] = [
@@ -659,11 +735,11 @@ export function AppShell() {
             title="Ba/Mẹ ơi!"
             className="mt-auto flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-extrabold text-amber-500 transition-all hover:scale-105 hover:bg-amber-50"
           >
-            <span className="text-2xl leading-none" aria-hidden="true">🏡</span>
+            <span className="text-2xl leading-none">🏠</span>
             <span>Ba/Mẹ</span>
           </button>
         )}
-        
+
       </aside>
 
       <div className="fixed right-3 top-3 z-40 flex items-center gap-2 sm:right-4 md:right-6">
@@ -674,7 +750,7 @@ export function AppShell() {
             aria-label="Gọi ba mẹ"
             className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-xl shadow-sm transition hover:bg-amber-100 md:hidden"
           >
-            <span aria-hidden="true">🏡</span>
+            🏠
           </button>
         )}
         <NotificationBell />

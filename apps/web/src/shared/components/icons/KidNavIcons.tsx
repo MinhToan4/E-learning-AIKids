@@ -363,6 +363,32 @@ export function NavProfileIcon({ size = 24, className = '', ...props }: IconProp
   )
 }
 
+export function NavAssessmentIcon({ size = 24, className = '', ...props }: IconProps) {
+  const id = React.useId().replace(/:/g, '')
+  const pageId = `assessmentPage-${id}`
+  const checkId = `assessmentCheck-${id}`
+
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
+      <defs>
+        <linearGradient id={pageId} x1="7" y1="4" x2="25" y2="29" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#E8F8FF" />
+          <stop offset="1" stopColor="#3DBFFF" />
+        </linearGradient>
+        <linearGradient id={checkId} x1="17" y1="17" x2="27" y2="27" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#3ED9A0" />
+          <stop offset="1" stopColor="#178A5C" />
+        </linearGradient>
+      </defs>
+      <rect x="6" y="4" width="20" height="25" rx="6" fill={`url(#${pageId})`} stroke="#0878B5" strokeWidth="1.2" />
+      <rect x="11" y="2.5" width="10" height="5" rx="2.5" fill="#6D5EFC" />
+      <path d="M11 12H21M11 16H18" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="22" cy="22" r="6" fill={`url(#${checkId})`} stroke="#116B4C" strokeWidth="1" />
+      <path d="M19.5 22L21.3 23.8L24.7 20.3" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
 /** 3D Soft-Clay Cute Magic Journey Book Icon for "Hành trình của con" */
 export function CourseBookIcon({ size = 24, className = '', ...props }: IconProps) {
   const rawId = React.useId().replace(/:/g, '')
@@ -431,4 +457,3 @@ export function CourseBookIcon({ size = 24, className = '', ...props }: IconProp
     </svg>
   )
 }
-

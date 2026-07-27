@@ -104,3 +104,46 @@ export function CmsAiIcon({ size = 20, className = '', ...props }: IconProps) {
     </svg>
   )
 }
+
+export function CmsOperationsIcon({ size = 20, className = '', ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} {...props}>
+      <rect x="4" y="4" width="16" height="17" rx="3" fill="#A29BFE" stroke="#6C5CE7" strokeWidth="1.2" />
+      <rect x="8" y="2.5" width="8" height="4" rx="2" fill="#6C5CE7" />
+      <path d="M8 11L10 13L14 9" stroke="#FFFFFF" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M8 17H16" stroke="#FFFFFF" strokeWidth="1.7" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function CmsScheduleIcon({ size = 20, className = '', ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} {...props}>
+      <rect x="3" y="5" width="18" height="16" rx="3" fill="#74B9FF" stroke="#0984E3" strokeWidth="1.2" />
+      <path d="M3 10H21" stroke="#FFFFFF" strokeWidth="1.5" />
+      <path d="M8 3V7M16 3V7" stroke="#6C5CE7" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="9" cy="15" r="2" fill="#FDCB6E" />
+      <path d="M14 14H18M14 17H17" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
+    </svg>
+  )
+}
+
+export function CmsAssessmentIcon({ size = 20, className = '', ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} {...props}>
+      <path d="M5 4.5C5 3.7 5.7 3 6.5 3H18C18.6 3 19 3.4 19 4V20C19 20.6 18.6 21 18 21H6.5C5.7 21 5 20.3 5 19.5V4.5Z" fill="#FDCB6E" stroke="#E1B12C" strokeWidth="1.2" />
+      <path d="M8 8H16M8 12H13" stroke="#6C5CE7" strokeWidth="1.7" strokeLinecap="round" />
+      <path d="M13.5 16.5L15.2 18.2L18.5 14.8" stroke="#00B894" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}
+
+export function CmsSettingsIcon({ size = 20, className = '', ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} {...props}>
+      <circle cx="12" cy="12" r="4" fill="#74B9FF" stroke="#0984E3" strokeWidth="1.2" />
+      <path d="M12 3V6M12 18V21M3 12H6M18 12H21M5.6 5.6L7.7 7.7M16.3 16.3L18.4 18.4M18.4 5.6L16.3 7.7M7.7 16.3L5.6 18.4" stroke="#6C5CE7" strokeWidth="2" strokeLinecap="round" />
+      <circle cx="12" cy="12" r="1.5" fill="#FFFFFF" />
+    </svg>
+  )
+}
