@@ -16,6 +16,13 @@ RUN npm run build -w @aikids/domain
 RUN npm run build -w @aikids/web
 
 FROM nginx:1.27-alpine
-COPY apps/web/nginx.conf /etc/nginx/conf.d/default.conf
+# envsubst is included in nginx:alpine via gettext package
+RUN apk add --no-cache gettext
+# Store as template; envsubst replaces ${STORYMEE_HUB_UPSTREAM} at container start
+COPY apps/web/nginx.conf /etc/nginx/templates/default.conf.template
 COPY --from=build /app/apps/web/dist /usr/share/nginx/html
+# Default upstream: host machine port 5100 (works on Docker Desktop for Mac/Windows)
+ENV STORYMEE_HUB_UPSTREAM=http://host.docker.internal:5100
 EXPOSE 80
+# nginx:alpine's official entrypoint already processes /etc/nginx/templates/*.template
+# via envsubst automatically — no custom CMD needed.
