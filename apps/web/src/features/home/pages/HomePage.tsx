@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { Star, Zap, Trophy } from 'lucide-react'
+import { Play, Star, Zap, Trophy } from 'lucide-react'
 import { api, type AchievementRow, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { courseCoverHint, designerAssets } from '@/shared/config/assets'
@@ -13,6 +13,9 @@ import { CourseBookIcon, NavLeaderboardIcon } from '@/shared/components/icons/Ki
 
 type TrackFilter = 'all' | 'L1' | 'L2'
 
+function courseBadge(course: CourseSummary) {
+  return /^l[12]-k7-/.test(course.id) ? 'AI' : (course.courseKey ?? 'Mới')
+}
 
 function HeaderAvatar({ nickname }: { nickname?: string | null }) {
   const [failed, setFailed] = useState(false)
@@ -51,8 +54,7 @@ function StreakWidget({ current, longest }: { current: number; longest: number }
 }
 
 function XpWidget({ level, xp }: { level: number; xp: number }) {
-  // XP cần để lên cấp tiếp theo = level hiện tại × 200
-  const xpToNext = Math.max(200, level * 200)
+  const xpToNext = level * 200
   const pct = Math.min(100, Math.round((xp / xpToNext) * 100))
   return (
     <div className="flex flex-col gap-1 rounded-2xl bg-brand-50 border border-brand-100 p-3">
@@ -110,7 +112,7 @@ function CourseCard({ course }: { course: CourseSummary }) {
         {/* Tags */}
         <div className="absolute top-2 left-2 flex flex-wrap gap-1">
           <span className="rounded-full bg-white/95 backdrop-blur-sm px-2 py-0.5 text-[10px] font-extrabold text-brand-600 shadow-sm">
-            {course.courseKey ?? 'Mới'}
+            {courseBadge(course)}
           </span>
           <span className="rounded-full bg-white/95 backdrop-blur-sm px-2 py-0.5 text-[10px] font-extrabold text-success shadow-sm">
             {course.ageLabel}
@@ -124,9 +126,11 @@ function CourseCard({ course }: { course: CourseSummary }) {
       </div>
 
       {/* Progress bar (only if enrolled) */}
-      <div className="course-card-progress-bar">
-        <div className="course-card-progress-fill" style={{ width: `${progressPct}%` }} />
-      </div>
+      {course.enrolled && questCount > 0 && (
+        <div className="course-card-progress-bar">
+          <div className="course-card-progress-fill" style={{ width: `${progressPct}%` }} />
+        </div>
+      )}
 
       {/* Content */}
       <div className="p-3">
@@ -168,33 +172,12 @@ export function HomePage() {
     setLoading(true)
     setError(null)
     try {
-      const [c, s, a, eResponse] = await Promise.all([
+      const [c, s, a] = await Promise.all([
         api<{ courses: CourseSummary[] }>('/api/courses'),
         api<{ current: number; longest: number }>('/api/gamification/streak'),
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
-        api<{ enrollments: any[] }>('/api/enrollments').catch(() => ({ enrollments: [] })),
       ])
-      
-      const enrollments = eResponse.enrollments || []
-      const mergedCourses = (c.courses || []).map(course => {
-        const enroll = enrollments.find((e: any) => e.course?.id === course.id)
-        if (enroll) {
-          const progressArr = Array.isArray(enroll.progress) ? enroll.progress : []
-          const completedCount = progressArr.filter((p: any) => p.status === 'completed').length
-          const questCount = Math.max(course.questCount ?? 0, progressArr.length)
-          const progressPct = questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0
-          return {
-            ...course,
-            enrolled: true,
-            completedCount,
-            questCount,
-            progressPct
-          }
-        }
-        return course
-      })
-
-      setCourses(mergedCourses)
+      setCourses(c.courses)
       setStreak({ current: s.current, longest: s.longest })
       setBadges(a.achievements.filter((x) => x.unlocked).slice(0, 3))
       try {
@@ -225,51 +208,9 @@ export function HomePage() {
     void load()
   }, [load])
 
-  const open = courses.filter((c) => c.status === 'open' || c.status === 'enrolled')
-  
+  const open = courses.filter((c) => c.status === 'open')
   const filtered =
-    track === 'all'
-      ? open
-      : open.filter((c) => {
-          const t = track.toUpperCase()
-          const cat = (c.ageTrack || '').toUpperCase()
-          const cid = (c.id || '').toUpperCase()
-          const label = c.ageLabel || ''
-          
-          if (t === 'L1') {
-            return (
-              cat === 'L1' ||
-              cid.startsWith('L1-') ||
-              label.includes('6-8') ||
-              label.includes('6–8') ||
-              label.includes('8–9') ||
-              label.includes('8-9') ||
-              label.includes('6-9') ||
-              cat === '6-8' ||
-              cat === '6-9' ||
-              cat === '8-9'
-            )
-          }
-          if (t === 'L2') {
-            return (
-              cat === 'L2' ||
-              cid.startsWith('L2-') ||
-              label.includes('9-11') ||
-              label.includes('10-11') ||
-              label.includes('9–11') ||
-              label.includes('10–11') ||
-              label.includes('8-11') ||
-              label.includes('8–11') ||
-              label.includes('9-12') ||
-              label.includes('9–12') ||
-              cat === '8-11' ||
-              cat === '9-11' ||
-              cat === '9-12' ||
-              cat === '10-11'
-            )
-          }
-          return cat === t
-        })
+    track === 'all' ? open : open.filter((c) => c.ageTrack === track)
   const enrolled = filtered.filter((c) => c.enrolled)
   const explore = filtered.filter((c) => !c.enrolled)
 
@@ -315,16 +256,16 @@ export function HomePage() {
         <div className="relative flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5">
           {/* Left: kids character avatar + greeting */}
           <div className="flex items-center gap-3.5">
-            <HeaderAvatar nickname={(user?.nickname || user?.name)} />
+            <HeaderAvatar nickname={user?.nickname} />
             <div className="min-w-0">
               <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
                 Xin chào!
               </p>
               <h1 className="font-display text-2xl sm:text-3xl leading-tight">
-                {(user?.nickname || user?.name) ?? 'Bạn nhỏ'} ✨
+                {user?.nickname ?? 'Bạn nhỏ'} ✨
               </h1>
               <p className="text-xs font-semibold text-muted mt-0.5">
-                Cấp {user?.level ?? 1} · {user?.xp ?? 0} điểm XP
+                Cấp {user?.level} · {user?.xp} điểm XP
               </p>
             </div>
           </div>
@@ -380,7 +321,8 @@ export function HomePage() {
                   to={dailyMission.action.route}
                   className="ui-btn ui-btn-primary inline-flex items-center gap-1.5 text-xs font-extrabold !py-2 !px-4 !min-h-9"
                 >
-                  ▶ {dailyMission.action.label}
+                  <Play size={14} aria-hidden="true" />
+                  {dailyMission.action.label}
                 </Link>
               </div>
             </div>

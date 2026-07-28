@@ -1,7 +1,6 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { api } from '@/shared/lib/api'
-import { useWorkspace } from '@/shared/store/workspace'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
@@ -63,7 +62,6 @@ export function BackpackPage() {
   const [msg, setMsg] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const activeIpId = useWorkspace((s) => s.activeIpId)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -81,7 +79,7 @@ export function BackpackPage() {
     } finally {
       setLoading(false)
     }
-  }, [activeIpId])
+  }, [])
 
   useEffect(() => {
     void load()
@@ -110,7 +108,7 @@ export function BackpackPage() {
         <h1 className="font-display text-3xl">Ba lô sáng tạo</h1>
         <p className="text-muted">
           Ba lô lưu những sản phẩm con đã tạo trong bài học — mặc định chỉ con xem.
-          tùy ý từ máy.
+          Ảnh cá nhân từ thiết bị không được tải lên để giữ an toàn riêng tư.
         </p>
       </div>
       {msg && (

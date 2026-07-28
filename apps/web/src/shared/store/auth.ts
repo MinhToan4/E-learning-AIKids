@@ -7,9 +7,16 @@ import {
   type User,
 } from '@/shared/lib/api'
 import { disconnectFirebaseSession } from '@/shared/lib/firebase-client'
+import { clearOfflineLearningData } from '@/shared/lib/offline-storage'
 
 async function disconnectFirebase(): Promise<void> {
   await disconnectFirebaseSession().catch(() => undefined)
+}
+
+// Offline grants and progress belong to one learner; clear on every session
+// switch so a shared device does not leak one child's data to another.
+async function clearPreviousLearnerData(): Promise<void> {
+  await clearOfflineLearningData().catch(() => undefined)
 }
 
 type AuthState = {
@@ -144,16 +151,20 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   loginAdult: async (login, password) => {
     set({ error: null })
-    const { user } = await api<{ user: User }>('/api/auth/login/adult', {
+    const { user } = await api<{ user: User }>('/api/auth/login', {
       method: 'POST',
       body: JSON.stringify({ login, password }),
     })
+    await clearPreviousLearnerData()
     const hydrated = await hydrateAdultAccess(user)
     set(hydrated)
     return hydrated.user
   },
 
-  setSessionUser: (user) => set({ user, access: null, activeContext: null, error: null }),
+  setSessionUser: (user) => {
+    void clearPreviousLearnerData()
+    set({ user, access: null, activeContext: null, error: null })
+  },
 
   registerAdult: async (email, password, role, nickname, parentalConsentAccepted) => {
     set({ error: null })
@@ -168,6 +179,7 @@ export const useAuth = create<AuthState>((set, get) => ({
       }),
     })
     const hydrated = await hydrateAdultAccess(user)
+    await clearPreviousLearnerData()
     set(hydrated)
     return hydrated.user
   },
@@ -198,6 +210,7 @@ export const useAuth = create<AuthState>((set, get) => ({
       await disconnectFirebase()
       await api('/api/auth/logout', { method: 'POST' })
     } finally {
+      await clearPreviousLearnerData()
       clearAccessToken()
       set({ user: null, access: null, activeContext: null })
     }

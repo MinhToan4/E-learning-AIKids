@@ -6,6 +6,7 @@ import { designerAssets } from '@/shared/config/assets'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
+import { useAgeExperience } from '@/shared/age-experience/AgeExperienceProvider'
 import {
   NavBackpackIcon,
   NavBadgeIcon,
@@ -22,6 +23,42 @@ type Celebration = {
   teamXp: number
   nextGoal: number
   personal: { level: number; xp: number }
+}
+type CompetencyMap = {
+  status: 'ready' | 'configuration_required'
+  frameworks: Array<{
+    id: string
+    name: string
+    disclaimer: string
+    domains: Array<{
+      id: string
+      name: string
+      skills: Array<{
+        id: string
+        name: string
+        learnerLabel: string
+        result: {
+          level: 'no_data' | 'not_met' | 'developing' | 'achieved'
+          scorePercent: number | null
+          evidenceCount: number
+        }
+      }>
+    }>
+  }>
+}
+type Credential = {
+  id: string
+  kind: 'certificate' | 'badge'
+  verificationCode: string
+  issuedAt: string
+  course: { title: string }
+  template: {
+    name: string
+    layoutJson: {
+      backgroundUrl?: string | null
+      allowShare?: boolean
+    }
+  }
 }
 
 function StatTile({
@@ -51,7 +88,10 @@ function StatTile({
 }
 
 export function LeaderboardPage() {
+  const { policy: agePolicy } = useAgeExperience()
   const [celebration, setCelebration] = useState<Celebration | null>(null)
+  const [competency, setCompetency] = useState<CompetencyMap | null>(null)
+  const [credentials, setCredentials] = useState<Credential[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -62,7 +102,21 @@ export function LeaderboardPage() {
       const data = await api<{ celebration: Celebration }>(
         '/api/gamification/class-celebration',
       )
+      const [competencyResult, credentialResult] = await Promise.allSettled([
+        api<CompetencyMap>('/api/competency-map'),
+        api<{ credentials: Credential[] }>('/api/credentials'),
+      ])
       setCelebration(data.celebration)
+      setCompetency(
+        competencyResult.status === 'fulfilled'
+          ? competencyResult.value
+          : { status: 'configuration_required', frameworks: [] },
+      )
+      setCredentials(
+        credentialResult.status === 'fulfilled'
+          ? credentialResult.value.credentials
+          : [],
+      )
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -224,6 +278,116 @@ export function LeaderboardPage() {
               </Link>
             </section>
           </div>
+
+          <section className="ui-card p-5 sm:p-6" aria-labelledby="skills-title">
+            <div>
+              <p className="text-sm font-extrabold text-brand-600">Những năng lực con đã thể hiện</p>
+              <h2 id="skills-title" className="font-display text-2xl font-extrabold">
+                Bản đồ năng lực
+              </h2>
+              <p className="mt-1 text-sm text-muted">
+                “Chưa có dữ liệu” nghĩa là con chưa có đủ bằng chứng, không phải điểm 0.
+              </p>
+            </div>
+            {competency?.status === 'configuration_required' ? (
+              <p className="mt-4 rounded-2xl bg-sun-50 p-4 text-sm font-semibold text-warning">
+                Nhà trường đang hoàn thiện khung năng lực. Hệ thống không tự đặt tên
+                kỹ năng khi chưa có cấu hình đã công bố.
+              </p>
+            ) : (
+              <div className="mt-4 space-y-5">
+                {competency?.frameworks.map((framework) => (
+                  <article key={framework.id}>
+                    <h3 className="font-display text-xl">{framework.name}</h3>
+                    <div className="mt-3 grid gap-3 md:grid-cols-2">
+                      {framework.domains.map((domain) => (
+                        <div key={domain.id} className="rounded-2xl bg-brand-50 p-4">
+                          <p className="font-extrabold text-brand-700">{domain.name}</p>
+                          <div className="mt-3 space-y-2">
+                            {domain.skills.map((skill) => (
+                              <div key={skill.id} className="rounded-xl bg-white p-3">
+                                <div className="flex items-start justify-between gap-2">
+                                  <p className="text-sm font-bold">
+                                    {skill.learnerLabel || skill.name}
+                                  </p>
+                                  <span className="shrink-0 rounded-full bg-sky-100 px-2 py-0.5 text-xs font-extrabold text-sky-700">
+                                    {agePolicy?.copyPolicy
+                                      .competencyLevelLabels[
+                                      skill.result.level
+                                    ] ??
+                                      (skill.result.level === 'achieved'
+                                        ? 'Đã thể hiện tốt'
+                                        : skill.result.level === 'developing'
+                                          ? 'Đang phát triển'
+                                          : skill.result.level === 'not_met'
+                                            ? 'Cần thêm trải nghiệm'
+                                            : 'Chưa có dữ liệu')}
+                                  </span>
+                                </div>
+                                <p className="mt-1 text-xs text-muted">
+                                  {skill.result.evidenceCount} bằng chứng
+                                  {skill.result.scorePercent === null
+                                    ? ''
+                                    : ` · ${skill.result.scorePercent}%`}
+                                </p>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <p className="mt-3 text-xs leading-relaxed text-muted">
+                      {framework.disclaimer}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+
+          <section className="ui-card p-5 sm:p-6" aria-labelledby="credentials-title">
+            <p className="text-sm font-extrabold text-sun-700">Dấu mốc đã đạt</p>
+            <h2 id="credentials-title" className="font-display text-2xl font-extrabold">
+              Chứng nhận xác minh được
+            </h2>
+            {credentials.length === 0 ? (
+              <p className="mt-3 text-sm text-muted">
+                Chứng nhận sẽ xuất hiện khi con đạt đủ điều kiện đã được nhà trường công bố.
+              </p>
+            ) : (
+              <div className="mt-4 grid gap-3 md:grid-cols-2">
+                {credentials.map((credential) => (
+                  <article key={credential.id} className="rounded-2xl bg-sun-50 p-4">
+                    {credential.kind === 'badge' && credential.template.layoutJson.backgroundUrl && (
+                      <img
+                        src={credential.template.layoutJson.backgroundUrl}
+                        alt=""
+                        className="mb-3 h-20 w-20 rounded-2xl object-cover"
+                        loading="lazy"
+                      />
+                    )}
+                    <p className="text-xs font-bold uppercase text-sun-700">
+                      {credential.kind === 'certificate' ? 'Chứng nhận' : 'Huy hiệu'}
+                    </p>
+                    <h3 className="mt-1 font-display text-lg">{credential.template.name}</h3>
+                    <p className="text-sm text-muted">{credential.course.title}</p>
+                    <p className="mt-3 break-all font-mono text-xs">
+                      Mã chứng nhận: {credential.verificationCode}
+                    </p>
+                    {credential.template.layoutJson.allowShare &&
+                      agePolicy?.permissionPolicy.canShareCredentials && (
+                      <Link
+                        className="mt-2 block text-xs font-bold text-brand-600 underline"
+                        to={`/verify/credential/${credential.verificationCode}`}
+                      >
+                        Xác minh / chia sẻ
+                      </Link>
+                    )}
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
         </>
       )}
     </PageMotion>

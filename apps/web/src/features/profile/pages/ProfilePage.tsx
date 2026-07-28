@@ -15,31 +15,20 @@ export function ProfilePage() {
   const [streak, setStreak] = useState({ current: 0, longest: 0 })
   const [achievements, setAchievements] = useState<AchievementRow[]>([])
   const [projectCount, setProjectCount] = useState(0)
-  const [gamification, setGamification] = useState({ level: 1, totalXp: 0 })
 
   useEffect(() => {
     void (async () => {
       try {
-        const [s, a, p, g] = await Promise.allSettled([
+        const [s, a, p] = await Promise.all([
           api<{ current: number; longest: number }>('/api/gamification/streak'),
           api<{ achievements: AchievementRow[] }>(
             '/api/gamification/achievements',
           ),
           api<{ projects: unknown[] }>('/api/projects'),
-          api<{ level: number; totalXp: number }>('/api/gamification/profile'),
         ])
-        if (s.status === 'fulfilled') {
-          setStreak({ current: s.value.current, longest: s.value.longest })
-        }
-        if (a.status === 'fulfilled') {
-          setAchievements(a.value.achievements.filter((x) => x.unlocked))
-        }
-        if (p.status === 'fulfilled') {
-          setProjectCount(p.value.projects?.length ?? 0)
-        }
-        if (g.status === 'fulfilled') {
-          setGamification({ level: g.value.level, totalXp: g.value.totalXp })
-        }
+        setStreak({ current: s.current, longest: s.longest })
+        setAchievements(a.achievements.filter((x) => x.unlocked))
+        setProjectCount(p.projects?.length ?? 0)
       } catch {
         /* non-blocking */
       } finally {
@@ -64,9 +53,9 @@ export function ProfilePage() {
             avatarEmoji(user?.avatarId)
           )}
         </div>
-        <h1 className="font-display text-3xl">{(user?.nickname || user?.name) || user?.name || 'Bạn nhỏ'}</h1>
+        <h1 className="font-display text-3xl">{user?.nickname}</h1>
         <p className="text-muted">
-          Cấp {gamification.level} · {gamification.totalXp} XP
+          Cấp {user?.level} · {user?.xp} XP
         </p>
         <p className="text-sm text-muted">
           Mục tiêu:{' '}

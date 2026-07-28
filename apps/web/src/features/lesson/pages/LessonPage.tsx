@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { PencilLine } from 'lucide-react'
+import { Gamepad2, PencilLine, Play, Star } from 'lucide-react'
 import {
   ART_STYLES,
   assemblePrompt,
@@ -29,11 +29,18 @@ import {
   type GameEvidence,
 } from '@/features/lesson/components/CurriculumGame'
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
+import { LearningToolsPanel } from '@/features/lesson/components/LearningToolsPanel'
+import { NavWorldIcon } from '@/shared/components/icons/KidNavIcons'
 import {
   resolvePracticeReview,
   type PracticePreview,
   type PracticeResult,
 } from '@/features/lesson/lib/practice-result'
+import {
+  cachedOfflineManifest,
+  queueOfflineProgress,
+  type OfflineManifest,
+} from '@/features/lesson/lib/offline-learning'
 
 type Phase = 'learn' | 'game' | 'practice' | 'check' | 'done'
 
@@ -89,6 +96,7 @@ export function LessonPage() {
   const [refAssetIds, setRefAssetIds] = useState<string[]>([])
   const [sketchDataUrl, setSketchDataUrl] = useState<string | null>(null)
   const [reviewMode, setReviewMode] = useState(false)
+  const [offlineManifest, setOfflineManifest] = useState<OfflineManifest | null>(null)
 
   const resetLocal = useCallback(() => {
     setPhase('learn')
@@ -112,6 +120,7 @@ export function LessonPage() {
     setAnswers({})
     setCheckResult(null)
     setReviewMode(false)
+    setOfflineManifest(null)
     setQuest(null)
   }, [])
 
@@ -172,7 +181,17 @@ export function LessonPage() {
         }
       } catch (e) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'Không mở được trạm')
+          const cached = await cachedOfflineManifest(questId)
+          if (cached) {
+            setOfflineManifest(cached)
+            queueOfflineProgress(questId, {
+              percent: 10,
+              positionSeconds: 0,
+              sectionId: 'offline-open',
+            })
+          } else {
+            setError(e instanceof Error ? e.message : 'Không mở được trạm')
+          }
         }
       } finally {
         if (!cancelled) setLoading(false)
@@ -182,6 +201,33 @@ export function LessonPage() {
       cancelled = true
     }
   }, [questId, resetLocal])
+
+  useEffect(() => {
+    if (!quest || !navigator.onLine) return
+    const percentByPhase: Record<Phase, number> = {
+      learn: 10,
+      game: 35,
+      practice: 65,
+      check: 90,
+      done: 100,
+    }
+    const occurredAt = new Date().toISOString()
+    void api(`/api/learning/quests/${questId}/resume`, {
+      method: 'PUT',
+      body: JSON.stringify({
+        percent: percentByPhase[phase],
+        positionSeconds: 0,
+        sectionId: phase,
+        occurredAt,
+      }),
+    }).catch(() => {
+      queueOfflineProgress(questId, {
+        percent: percentByPhase[phase],
+        positionSeconds: 0,
+        sectionId: phase,
+      })
+    })
+  }, [phase, quest, questId])
 
   // Load nextQuestId when reviewing completed station
   useEffect(() => {
@@ -477,10 +523,17 @@ export function LessonPage() {
           Nếu trạm bị khóa, hãy hoàn thành trạm trước trên bản đồ.
         </p>
         <Link to="/world" className="mt-4 inline-block">
-          <Button variant="secondary">Về bản đồ</Button>
+          <Button variant="secondary">
+            <NavWorldIcon size={18} aria-hidden="true" />
+            Về bản đồ
+          </Button>
         </Link>
       </div>
     )
+  }
+
+  if (!quest && offlineManifest) {
+    return <OfflineLessonView manifest={offlineManifest} />
   }
 
   if (!quest) {
@@ -534,6 +587,8 @@ export function LessonPage() {
           ))}
         </div>
       </div>
+
+      <LearningToolsPanel questId={questId} phase={phase} />
 
       {error && (
         <p
@@ -601,7 +656,8 @@ export function LessonPage() {
             }}
             disabled={busy}
           >
-            {reviewMode ? 'Quay lại kết quả' : '🎮 Bắt đầu trò chơi'}
+            {!reviewMode && <Gamepad2 size={18} aria-hidden="true" />}
+            {reviewMode ? 'Quay lại kết quả' : 'Bắt đầu trò chơi'}
           </Button>
         </div>
       )}
@@ -896,6 +952,7 @@ export function LessonPage() {
                         </p>
                         <p className="text-sm text-muted">{p.beat}</p>
                         <input
+                          aria-label={`Lời thoại khung ${p.panel}`}
                           className="mt-2 min-h-10 w-full rounded-xl border border-border px-2 text-sm"
                           value={comicBubbles[idx] ?? ''}
                           maxLength={40}
@@ -974,6 +1031,7 @@ export function LessonPage() {
                           : 'Sổ tay thế giới — viết ý của con'}
                     </p>
                     <textarea
+                      aria-label="Ý tưởng của con"
                       className="min-h-28 rounded-2xl border-2 border-border p-3 text-sm font-semibold"
                       placeholder="Viết ý tưởng của con (không dùng tên thật)…"
                       value={journalText}
@@ -1009,6 +1067,7 @@ export function LessonPage() {
                     ))}
                   </div>
                   <textarea
+                    aria-label="Lý do chọn bảng màu"
                     className="min-h-20 rounded-2xl border-2 border-border p-3 text-sm"
                     placeholder="Vì sao con chọn màu này?"
                     value={journalText}
@@ -1120,7 +1179,8 @@ export function LessonPage() {
               busy || quest.check.some((q) => answers[q.id] === undefined)
             }
           >
-            {busy ? 'Đang chấm…' : '⭐ Nộp bài & nhận sao'}
+            {!busy && <Star size={18} aria-hidden="true" />}
+            {busy ? 'Đang chấm…' : 'Nộp bài & nhận sao'}
           </Button>
         </div>
       )}
@@ -1197,11 +1257,13 @@ export function LessonPage() {
           <div className="mt-2 flex flex-wrap justify-center gap-3">
             {checkResult.nextQuestId && (
               <Button onClick={() => navigate(`/lesson/${checkResult.nextQuestId}`)}>
-                ▶ Trạm tiếp theo
+                <Play size={18} aria-hidden="true" />
+                Trạm tiếp theo
               </Button>
             )}
             <Button variant="secondary" onClick={() => navigate(`/world/${quest.courseId}`)}>
-              🗺️ Về bản đồ
+              <NavWorldIcon size={18} aria-hidden="true" />
+              Về bản đồ
             </Button>
             <Button
               variant="ghost"
@@ -1216,6 +1278,69 @@ export function LessonPage() {
           </div>
         </div>
       )}
+    </div>
+  )
+}
+
+function OfflineLessonView({ manifest }: { manifest: OfflineManifest }) {
+  const [completed, setCompleted] = useState(false)
+  const cards = manifest.lesson.learnCards
+  const stations = manifest.lesson.stations
+  function stringValue(value: unknown) {
+    return typeof value === 'string' ? value : ''
+  }
+  function complete() {
+    queueOfflineProgress(manifest.questId, {
+      percent: 100,
+      positionSeconds: 0,
+      sectionId: 'offline-complete',
+    })
+    setCompleted(true)
+  }
+  return (
+    <div className="page-enter mx-auto flex max-w-4xl flex-col gap-4">
+      <header className="ui-card p-5">
+        <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
+          Bản học ngoại tuyến
+        </p>
+        <h1 className="font-display text-2xl">{manifest.lesson.title}</h1>
+        <p className="mt-2 text-sm text-muted">{manifest.lesson.hook}</p>
+        <p className="mt-3 rounded-xl bg-sun-50 px-3 py-2 text-sm text-warning">
+          Đang mất kết nối. Nội dung đã lưu không chứa đáp án; tiến độ sẽ đồng bộ
+          theo sự kiện có mã riêng khi mạng trở lại.
+        </p>
+      </header>
+      <section className="grid gap-3 sm:grid-cols-2">
+        {cards.map((card, index) => (
+          <article key={stringValue(card.id) || index} className="ui-card p-4">
+            <p className="font-bold">{stringValue(card.title) || `Nội dung ${index + 1}`}</p>
+            <p className="mt-2 text-sm leading-relaxed">
+              {stringValue(card.body) || stringValue(card.content)}
+            </p>
+            {stringValue(card.tip) && (
+              <p className="mt-2 text-xs text-muted">Gợi ý: {stringValue(card.tip)}</p>
+            )}
+          </article>
+        ))}
+      </section>
+      <section className="ui-card p-5">
+        <h2 className="font-display text-xl">Hoạt động đã lưu</h2>
+        <div className="mt-3 space-y-3">
+          {stations.map((station, index) => (
+            <article key={stringValue(station.id) || index} className="rounded-2xl bg-sky-50 p-4">
+              <p className="font-bold">
+                {stringValue(station.title) || `Hoạt động ${index + 1}`}
+              </p>
+              <p className="mt-1 text-sm">
+                {stringValue(station.instruction) || stringValue(station.content)}
+              </p>
+            </article>
+          ))}
+        </div>
+        <Button className="mt-4 w-full" disabled={completed} onClick={complete}>
+          {completed ? 'Đã lưu mốc hoàn thành để đồng bộ' : 'Đánh dấu đã xem xong ngoại tuyến'}
+        </Button>
+      </section>
     </div>
   )
 }

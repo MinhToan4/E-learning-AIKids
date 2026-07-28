@@ -96,13 +96,9 @@ export function ChildPickerPage() {
 
   function onPick(child: ChildCard) {
     setPin('')
-    // Con có PIN → chọn để hiện modal nhập PIN
-    if (child.hasPin) {
-      setSelected(child)
-      return
-    }
-    // Con chưa có PIN → vào thẳng (ba/mẹ chưa đặt PIN)
-    void confirmEnter(child)
+    // PIN bắt buộc (auth store mới yêu cầu). Luôn mở PinPadModal —
+    // nếu con chưa có PIN, server sẽ trả về lỗi hướng dẫn ba/mẹ đặt PIN.
+    setSelected(child)
   }
 
   function onPinDigit(d: string) {
