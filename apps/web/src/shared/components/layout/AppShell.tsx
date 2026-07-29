@@ -60,6 +60,7 @@ const studentDrawerNav = [
   { to: '/storybook',    label: 'Huyền thoại', icon: NavBadgeIcon   },
   { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon   },
   { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon },
+  { to: '/community',    label: 'Bạn bè',   icon: NavProfileIcon },
   { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon },
 ]
 // Full list for desktop sidebar (all 7 unchanged)
@@ -73,6 +74,7 @@ const studentNav = [
   { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon       },
   { to: '/storybook',    label: 'Huyền thoại', icon: NavBadgeIcon     },
   { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon    },
+  { to: '/community',    label: 'Bạn bè',   icon: NavProfileIcon     },
   { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon     },
 ]
 

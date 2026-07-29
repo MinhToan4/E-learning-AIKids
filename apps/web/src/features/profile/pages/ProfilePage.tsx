@@ -133,6 +133,16 @@ export function ProfilePage() {
                       ? 'Phim ngắn (K6)'
                       : 'Chưa chọn'}
             </p>
+            {user && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link to={`/u/${user.id}`} className="rounded-full bg-brand-600 px-4 py-2 text-sm font-extrabold text-white">
+                  Xem trang cá nhân
+                </Link>
+                <Link to="/community" className="rounded-full bg-white px-4 py-2 text-sm font-extrabold text-brand-700 shadow-soft">
+                  🧑‍🤝‍🧑 Bạn bè & Chia sẻ
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </section>

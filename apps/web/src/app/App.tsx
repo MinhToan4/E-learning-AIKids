@@ -75,6 +75,11 @@ const PublicProfilePage = lazy(() =>
     default: m.PublicProfilePage,
   })),
 )
+const CommunityPage = lazy(() =>
+  import('@/features/community/pages/CommunityPage').then((m) => ({
+    default: m.CommunityPage,
+  })),
+)
 const AchievementsPage = lazy(() =>
   import('@/features/achievements/pages/AchievementsPage').then((m) => ({
     default: m.AchievementsPage,
@@ -332,6 +337,14 @@ export function App() {
               element={
                 <Guard roles={['student']} requireOnboarded>
                   <ProfilePage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/community"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <CommunityPage />
                 </Guard>
               }
             />
