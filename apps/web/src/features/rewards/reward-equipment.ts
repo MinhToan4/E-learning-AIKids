@@ -32,7 +32,7 @@ export function applyRewardEquipment(equipment: RewardEquipment): void {
     delete document.documentElement.dataset.rewardTheme
   }
   document.documentElement.dataset.stickerEffect =
-    equipment.perk === 'perk-sticker-sparkle' ? 'sparkle' : ''
+    equipment.effect === 'perk-sticker-sparkle' ? 'sparkle' : ''
 }
 
 export function rewardFrameStyle(frameId?: string): CSSProperties {

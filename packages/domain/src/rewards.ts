@@ -5,6 +5,8 @@ export type RewardKind =
   | 'event_ticket'
   | 'perk'
   | 'title'
+  | 'companion'
+  | 'effect'
 
 export interface RewardDefinition {
   id: string
@@ -32,12 +34,12 @@ export const REWARD_CATALOG: readonly RewardDefinition[] = [
   },
   {
     id: 'avatar-paco-blue',
-    kind: 'avatar',
-    name: 'Avatar Paco Xanh',
-    description: 'Paco đồng hành trong mọi ứng dụng StoryMee.',
+    kind: 'companion',
+    name: 'Paco Xanh Đồng Hành',
+    description: 'Paco xuất hiện cạnh avatar trong mọi ứng dụng StoryMee.',
     icon: '🤖',
     unlock: { type: 'xp_level', value: 2 },
-    equipValue: 'avatar-robot',
+    equipValue: 'paco-blue',
   },
   {
     id: 'frame-rainbow',
@@ -67,9 +69,9 @@ export const REWARD_CATALOG: readonly RewardDefinition[] = [
   },
   {
     id: 'perk-sticker-sparkle',
-    kind: 'perk',
-    name: 'Hiệu ứng Lấp Lánh',
-    description: 'Sticker đã mở có hiệu ứng ánh sao.',
+    kind: 'effect',
+    name: 'Hào Quang Lấp Lánh',
+    description: 'Avatar và sticker đã mở có hiệu ứng ánh sao.',
     icon: '💫',
     unlock: { type: 'xp_level', value: 6 },
     equipValue: 'sparkle',

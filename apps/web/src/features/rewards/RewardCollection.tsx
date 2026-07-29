@@ -20,9 +20,11 @@ const kindLabels: Record<RewardKind, string> = {
   event_ticket: 'Vé sự kiện',
   perk: 'Quyền đặc biệt',
   title: 'Danh hiệu',
+  companion: 'Bạn đồng hành',
+  effect: 'Hiệu ứng',
 }
 
-const wardrobeKinds: RewardKind[] = ['avatar', 'frame', 'title', 'theme']
+const wardrobeKinds: RewardKind[] = ['frame', 'companion', 'effect', 'title', 'theme']
 
 function canEquip(reward: RewardDefinition) {
   return Boolean(reward.equipValue) &&
