@@ -25,6 +25,13 @@ import { designerAssets, styleImage } from '@/shared/config/assets'
 import { RefMediaPicker } from '@/features/lesson/components/RefMediaPicker'
 import { SketchCanvas } from '@/features/lesson/components/SketchCanvas'
 import {
+  EMPTY_PROMPT_LAB,
+  PromptLab,
+  promptLabError,
+  strongPrompt,
+  type PromptLabValue,
+} from '@/features/lesson/components/PromptLab'
+import {
   CurriculumGame,
   type GameEvidence,
 } from '@/features/lesson/components/CurriculumGame'
@@ -79,6 +86,7 @@ export function LessonPage() {
   ])
   const [detectivePick, setDetectivePick] = useState<0 | 1 | null>(null)
   const [journalText, setJournalText] = useState('')
+  const [promptLab, setPromptLab] = useState<PromptLabValue>(EMPTY_PROMPT_LAB)
   const [paletteColors, setPaletteColors] = useState<string[]>([
     '#6d5efc',
     '#3dbfff',
@@ -120,6 +128,7 @@ export function LessonPage() {
     setComicBubbles(['Xin chào!', 'Ôi không!', 'Mình sửa nhé!', 'Xong rồi!'])
     setDetectivePick(null)
     setJournalText('')
+    setPromptLab(EMPTY_PROMPT_LAB)
     setPaletteColors(['#6d5efc', '#3dbfff', '#ffc94a'])
     setRefAssetIds([])
     setSketchDataUrl(null)
@@ -325,6 +334,9 @@ export function LessonPage() {
     if (quest.practiceKind === 'video' && !journalText.trim()) {
       return 'Viết mô tả chuyển động hoặc cảnh phim trước nhé!'
     }
+    if (quest.practiceKind === 'prompt_lab') {
+      return promptLabError(promptLab)
+    }
     return null
   }
 
@@ -425,6 +437,20 @@ export function LessonPage() {
         payload = {
           prompt: journalText.trim(),
           freeText: journalText.trim(),
+        }
+      } else if (quest.practiceKind === 'prompt_lab') {
+        payload = {
+          weakPrompt: promptLab.weak.trim(),
+          mediumPrompt: promptLab.medium.trim(),
+          strongPrompt: strongPrompt(promptLab),
+          strongPromptParts: {
+            role: promptLab.role.trim(),
+            task: promptLab.task.trim(),
+            context: promptLab.context.trim(),
+            format: promptLab.format.trim(),
+          },
+          explanation: promptLab.explanation.trim(),
+          freeText: strongPrompt(promptLab),
         }
       } else {
         payload = { ready: true }
@@ -1108,6 +1134,10 @@ export function LessonPage() {
                     />
                   </label>
                 </div>
+              )}
+
+              {quest.practiceKind === 'prompt_lab' && (
+                <PromptLab value={promptLab} onChange={setPromptLab} />
               )}
 
               {(quest.practiceKind === 'journal' ||
