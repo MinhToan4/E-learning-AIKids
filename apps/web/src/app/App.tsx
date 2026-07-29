@@ -351,12 +351,10 @@ export function App() {
             path="/storybook"
             element={
               <Guard roles={['student']} requireOnboarded>
-                <AppShell />
+                <StorybookPage />
               </Guard>
             }
-          >
-            <Route index element={<StorybookPage />} />
-          </Route>
+          />
           <Route
             path="/leaderboard"
               element={
@@ -369,22 +367,18 @@ export function App() {
             path="/level"
             element={
               <Guard roles={['student']} requireOnboarded>
-                <AppShell />
+                <ExplorerLevelPage />
               </Guard>
             }
-          >
-            <Route index element={<ExplorerLevelPage />} />
-          </Route>
+          />
           <Route
             path="/events"
             element={
               <Guard roles={['student']} requireOnboarded>
-                <AppShell />
+                <EventsPage />
               </Guard>
             }
-          >
-            <Route index element={<EventsPage />} />
-          </Route>
+          />
             {/* Assessment portal: student sees their assessments */}
             <Route
               path="/assessments"
