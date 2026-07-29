@@ -1,11 +1,11 @@
 import {
   REWARD_CATALOG,
-  isRewardUnlocked,
   type RewardDefinition,
   type RewardKind,
 } from '@aikids/domain'
 import { useEffect, useState } from 'react'
 import { avatarImage } from '@/shared/config/avatars'
+import { api } from '@/shared/lib/api'
 import {
   applyRewardEquipment,
   equipReward,
@@ -45,15 +45,39 @@ export function RewardCollection({
   stickerIds?: string[]
 }) {
   const [equipment, setEquipment] = useState(() => readRewardEquipment(userId))
+  const [owned, setOwned] = useState<Set<string>>(new Set())
   const [message, setMessage] = useState('')
   const [activeKind, setActiveKind] = useState<RewardKind>('frame')
   useEffect(() => {
     applyRewardEquipment(equipment)
   }, [equipment])
+  useEffect(() => {
+    void api<{
+      inventory: Array<{ rewardId: string }>
+      equipment: Array<{ kind: RewardKind; rewardId: string }>
+    }>('/api/gamification/storybook')
+      .then((result) => {
+        setOwned(new Set(result.inventory.map((item) => item.rewardId)))
+        const serverEquipment = Object.fromEntries(
+          result.equipment.map((item) => [item.kind, item.rewardId]),
+        )
+        setEquipment(serverEquipment)
+        applyRewardEquipment(serverEquipment)
+      })
+      .catch(() => setMessage('Chưa đồng bộ được kho phần thưởng.'))
+  }, [userId])
 
-  const equip = (reward: RewardDefinition) => {
-    setEquipment(equipReward(userId, reward.kind, reward.id))
-    setMessage(`Đã trang bị ${reward.name}`)
+  const equip = async (reward: RewardDefinition) => {
+    try {
+      await api(`/api/gamification/rewards/equipment/${reward.kind}`, {
+        method: 'PUT',
+        body: JSON.stringify({ rewardId: reward.id }),
+      })
+      setEquipment(equipReward(userId, reward.kind, reward.id))
+      setMessage(`Đã trang bị ${reward.name}`)
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Chưa trang bị được phần thưởng.')
+    }
   }
 
   return (
@@ -91,7 +115,7 @@ export function RewardCollection({
       </div>
       <div className={`mt-4 grid gap-3 ${compact ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'}`}>
         {REWARD_CATALOG.filter((reward) => reward.kind === activeKind).map((reward) => {
-          const unlocked = isRewardUnlocked(reward, { xpLevel, stickerIds })
+          const unlocked = owned.has(reward.id)
           const equipped = equipment[reward.kind] === reward.id
           const rewardAvatar = reward.kind === 'avatar' ? avatarImage(reward.equipValue) : undefined
           return (
@@ -144,7 +168,7 @@ export function RewardCollection({
                 <button
                   type="button"
                   disabled={equipped}
-                  onClick={() => equip(reward)}
+                  onClick={() => void equip(reward)}
                   className="mt-2 w-full rounded-xl bg-brand-50 px-2 py-1.5 text-xs font-extrabold text-brand-700 disabled:bg-mint-100 disabled:text-success"
                 >
                   {equipped ? 'Đang dùng ✓' : `Dùng ${kindLabels[reward.kind].toLowerCase()} này`}

@@ -142,7 +142,7 @@ export function StorybookPage() {
             </button>
           </div>
           <BookSpread page={currentPage} earned={earned} />
-          <ChapterRewardCard page={currentPage} earned={earned} />
+          <ChapterRewardCard page={currentPage} earned={earned} onClaimed={() => void load()} />
           <div className="flex justify-center gap-2">
             {STORYBOOK_PAGES.map((page, index) => (
               <button

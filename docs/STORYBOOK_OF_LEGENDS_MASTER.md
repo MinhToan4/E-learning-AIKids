@@ -145,17 +145,17 @@ Chi tiết nằm trong [STORYBOOK_SOCIAL_INTERACTION.md](./STORYBOOK_SOCIAL_INTE
 | Reward wardrobe/Profile layers | Đã có |
 | Avatar modal camera/upload/gallery | Đã có |
 | Public Profile và module settings | Đã có |
-| Friend code, favorite, request UI | Local prototype |
-| Activity feed/reaction | Local prototype |
-| Workspace audience controls | Local prototype |
+| Friend code, favorite, request UI | Đã nối Core Gamification |
+| Activity feed/reaction | Đã nối Core Gamification |
+| Workspace audience controls | Đã nối Core Account |
 | Reward inventory/Storybook claim trên Fastify API | Đã có server source of truth |
-| Đồng bộ Reward Inventory qua StoryMee Hub | Cần gateway/deploy Hub |
+| Đồng bộ Reward Inventory qua StoryMee Hub | Đã triển khai |
 | Social Graph trên Fastify API | Đã có invite, duyệt phụ huynh, favorite, block |
 | Activity Feed và Reaction trên Fastify API | Đã có audience filter và Paco quota |
 | Public Profile projection trên Fastify API | Đã có module/visibility và safe fields |
 | Workspace ACL trên Fastify API | Đã có parent approval và revoke tức thời |
-| Đồng bộ Social Graph qua StoryMee Hub | Cần gateway/deploy Hub |
-| Public Profile xuyên thiết bị | Cần deploy qua StoryMee Hub |
+| Đồng bộ Social Graph qua StoryMee Hub | Đã triển khai |
+| Public Profile xuyên thiết bị | Đã triển khai |
 | Chapter → Activity event | Đã có trong transaction claim |
 | Event pipeline từ LMS/Media khác | Cần StoryMee Hub/outbox |
 

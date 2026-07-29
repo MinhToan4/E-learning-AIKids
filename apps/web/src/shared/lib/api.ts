@@ -157,6 +157,10 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     '/api/gamification/streak': '/api/v1/gamification/me/streak',
     '/api/gamification/achievements': '/api/v1/gamification/me/achievements',
     '/api/gamification/storybook': '/api/v1/gamification/me/storybook',
+    '/api/gamification/social/graph': '/api/v1/gamification/me/social/graph',
+    '/api/gamification/social/feed': '/api/v1/gamification/me/social/feed',
+    '/api/gamification/social/discover': '/api/v1/gamification/me/social/discover',
+    '/api/gamification/social/invites/pending-review': '/api/v1/gamification/me/social/invites/pending-review',
     '/api/gamification/daily-mission': '/api/v1/gamification/me/missions',
     '/api/gamification/profile': '/api/v1/gamification/me',
     '/api/gamification/class-celebration':
@@ -166,6 +170,15 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     return {
       path: '/api/v1/gamification/me/streak',
       options: { ...options, method: 'GET', body: undefined },
+    }
+  }
+  const gamificationMeAction = path.match(
+    /^\/api\/gamification\/(storybook\/chapters\/[^/?]+\/claim|rewards\/equipment\/[^/?]+|social\/invites(?:\/accept)?|social\/invites\/[^/?]+\/review|social\/connections\/[^/?]+(?:\/favorite)?|social\/activities\/[^/?]+\/reaction)$/,
+  )
+  if (gamificationMeAction) {
+    return {
+      path: `/api/v1/gamification/me/${gamificationMeAction[1]}`,
+      options,
     }
   }
   if (path === '/api/profile/settings') {

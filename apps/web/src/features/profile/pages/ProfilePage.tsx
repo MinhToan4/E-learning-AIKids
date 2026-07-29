@@ -11,6 +11,7 @@ import { RewardCollection } from '@/features/rewards/RewardCollection'
 import {
   profileCardStyle,
   readRewardEquipment,
+  syncRewardEquipment,
 } from '@/features/rewards/reward-equipment'
 import {
   DEFAULT_COMMUNITY_SETTINGS,
@@ -82,7 +83,7 @@ export function ProfilePage() {
 
   useEffect(() => {
     void (async () => {
-      const [s, a, p, media, g, profileSettings, accountWorkspaces] = await Promise.allSettled([
+      const [s, a, p, media, g, profileSettings, accountWorkspaces, rewards] = await Promise.allSettled([
         api<{ current: number }>('/api/gamification/streak'),
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
         api<{ projects: ShowcaseProject[] }>('/api/projects'),
@@ -90,6 +91,7 @@ export function ProfilePage() {
         api<{ celebration: { personal: { xp: number } } }>('/api/gamification/class-celebration'),
         api<PublicProfileSettings>('/api/profile/settings'),
         api<{ workspaces: AccountWorkspace[] }>('/api/account/workspaces'),
+        api<{ equipment: Array<{ kind: keyof ReturnType<typeof readRewardEquipment>; rewardId: string }> }>('/api/gamification/storybook'),
       ])
       if (s.status === 'fulfilled') setStreak(s.value.current)
       if (a.status === 'fulfilled') setAchievements(a.value.achievements.filter((row) => row.unlocked))
@@ -133,6 +135,13 @@ export function ProfilePage() {
       }
       if (accountWorkspaces.status === 'fulfilled') {
         setWorkspaces(accountWorkspaces.value.workspaces ?? [])
+      }
+      if (rewards.status === 'fulfilled' && user) {
+        const synced: ReturnType<typeof readRewardEquipment> = {}
+        for (const item of rewards.value.equipment) {
+          synced[item.kind] = item.rewardId
+        }
+        setEquipment(syncRewardEquipment(user.id, synced))
       }
       setLoading(false)
     })()

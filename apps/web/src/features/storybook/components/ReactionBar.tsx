@@ -1,48 +1,46 @@
-import { canUsePacoPick, getIsoWeekKey, type ReactionType } from '@aikids/domain'
+import type { ReactionType } from '@aikids/domain'
 import { useState } from 'react'
+import { api } from '@/shared/lib/api'
 import { REACTIONS } from '../storybook-data'
 
-const STORAGE_KEY = 'aikids.storybook.social.v1'
-
-type StoredSocial = {
-  weekKey: string
-  pacoPicks: number
-  selected: Record<string, ReactionType>
-}
-
-function readState(): StoredSocial {
-  const empty = { weekKey: getIsoWeekKey(), pacoPicks: 0, selected: {} }
-  try {
-    const parsed = JSON.parse(localStorage.getItem(STORAGE_KEY) ?? '') as StoredSocial
-    return parsed.weekKey === empty.weekKey ? parsed : empty
-  } catch {
-    return empty
-  }
-}
-
-export function ReactionBar({ workId }: { workId: string }) {
-  const [social, setSocial] = useState(readState)
+export function ReactionBar({
+  activityId,
+  initialMine = null,
+  initialCounts = {},
+}: {
+  activityId: string
+  initialMine?: ReactionType | null
+  initialCounts?: Record<string, number>
+}) {
+  const [selected, setSelected] = useState<ReactionType | null>(initialMine)
+  const [counts, setCounts] = useState(initialCounts)
   const [message, setMessage] = useState('')
-  const selected = social.selected[workId]
+  const [busy, setBusy] = useState(false)
 
-  const react = (type: ReactionType) => {
-    if (type === 'PACO_PICK' && selected !== type && !canUsePacoPick(social.pacoPicks)) {
-      setMessage('Con đã dùng hết 3 Paco Pick tuần này rồi 🐾')
-      return
+  const react = async (type: ReactionType) => {
+    if (busy) return
+    const previous = selected
+    const removing = previous === type
+    setBusy(true)
+    setSelected(removing ? null : type)
+    setCounts((current) => ({
+      ...current,
+      ...(previous ? { [previous]: Math.max(0, Number(current[previous] ?? 0) - 1) } : {}),
+      ...(!removing ? { [type]: Number(current[type] ?? 0) + 1 } : {}),
+    }))
+    try {
+      await api(`/api/gamification/social/activities/${activityId}/reaction`, {
+        method: 'PUT',
+        body: JSON.stringify({ type: removing ? null : type }),
+      })
+      setMessage(removing ? 'Đã gỡ reaction' : 'Con vừa gửi một lời động viên!')
+    } catch (error) {
+      setSelected(previous)
+      setCounts(initialCounts)
+      setMessage(error instanceof Error ? error.message : 'Chưa gửi được reaction.')
+    } finally {
+      setBusy(false)
     }
-    const removing = selected === type
-    const next: StoredSocial = {
-      ...social,
-      pacoPicks: social.pacoPicks +
-        (type === 'PACO_PICK' && !removing ? 1 : 0) -
-        (selected === 'PACO_PICK' ? 1 : 0),
-      selected: { ...social.selected },
-    }
-    if (removing) delete next.selected[workId]
-    else next.selected[workId] = type
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next))
-    setSocial(next)
-    setMessage(removing ? 'Đã gỡ reaction' : 'Con vừa gửi một lời động viên!')
   }
 
   return (
@@ -52,21 +50,22 @@ export function ReactionBar({ workId }: { workId: string }) {
           <button
             key={reaction.type}
             type="button"
-            title={reaction.label}
+            disabled={busy}
+            title={`${reaction.label} · ${counts[reaction.type] ?? 0}`}
             aria-pressed={selected === reaction.type}
-            onClick={() => react(reaction.type)}
+            onClick={() => void react(reaction.type)}
             className={`rounded-full border px-2.5 py-1.5 text-base transition ${
               selected === reaction.type
-                ? 'border-brand-500 bg-brand-100 scale-110'
+                ? 'scale-110 border-brand-500 bg-brand-100'
                 : 'border-slate-200 bg-white hover:-translate-y-0.5'
-            }`}
+            } disabled:opacity-60`}
           >
-            {reaction.emoji}
+            {reaction.emoji}<span className="ml-1 text-[10px] font-bold">{counts[reaction.type] || ''}</span>
           </button>
         ))}
       </div>
       <p className="mt-1 min-h-4 text-[11px] font-semibold text-muted" aria-live="polite">
-        {message || `Paco Pick còn ${3 - social.pacoPicks}/3 tuần này`}
+        {message || 'Paco Pick được giới hạn 3 lần mỗi tuần'}
       </p>
     </div>
   )

@@ -25,6 +25,15 @@ export function equipReward(
   return next
 }
 
+export function syncRewardEquipment(
+  userId: string,
+  equipment: RewardEquipment,
+): RewardEquipment {
+  localStorage.setItem(key(userId), JSON.stringify(equipment))
+  applyRewardEquipment(equipment)
+  return equipment
+}
+
 export function applyRewardEquipment(equipment: RewardEquipment): void {
   if (equipment.theme) {
     document.documentElement.dataset.rewardTheme = equipment.theme

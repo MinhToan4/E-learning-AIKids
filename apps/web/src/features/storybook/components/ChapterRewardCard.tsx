@@ -1,26 +1,26 @@
 import { REWARD_CATALOG } from '@aikids/domain'
 import { Link } from 'react-router-dom'
 import { useState } from 'react'
-import { useAuth } from '@/shared/store/auth'
+import { api } from '@/shared/lib/api'
 import type { StorybookPage } from '../storybook-data'
-import { claimChapterSticker, readClaimedChapterStickers } from '../chapter-rewards'
 
 export function ChapterRewardCard({
   page,
   earned,
+  onClaimed,
 }: {
   page: StorybookPage
   earned: ReadonlySet<string>
+  onClaimed?: () => void
 }) {
-  const user = useAuth((state) => state.user)
   const bossId = `${page.slug}-S9`
   const progress = page.stickers.slice(0, 8).filter((sticker) => earned.has(sticker.id)).length
   const reward = REWARD_CATALOG.find((item) =>
     item.unlock.type === 'storybook_sticker' && item.unlock.value === bossId,
   )
-  const [claimed, setClaimed] = useState(() =>
-    user ? readClaimedChapterStickers(user.id).includes(bossId) : false,
-  )
+  const [claimed, setClaimed] = useState(earned.has(bossId))
+  const [message, setMessage] = useState('')
+  const [busy, setBusy] = useState(false)
   if (!reward) return null
   const ready = progress === 8
 
@@ -44,11 +44,17 @@ export function ChapterRewardCard({
         ) : (
           <button
             type="button"
-            disabled={!ready || !user}
+            disabled={!ready || busy}
             onClick={() => {
-              if (!user) return
-              claimChapterSticker(user.id, bossId)
-              setClaimed(true)
+              setBusy(true)
+              setMessage('')
+              void api(`/api/gamification/storybook/chapters/${page.slug}/claim`, { method: 'POST' })
+                .then(() => {
+                  setClaimed(true)
+                  onClaimed?.()
+                })
+                .catch((error) => setMessage(error instanceof Error ? error.message : 'Chưa nhận được phần thưởng.'))
+                .finally(() => setBusy(false))
             }}
             className="rounded-full bg-amber-400 px-4 py-2 text-sm font-black text-amber-950 disabled:bg-slate-200 disabled:text-muted"
           >
@@ -56,6 +62,7 @@ export function ChapterRewardCard({
           </button>
         )}
       </div>
+      {message && <p className="mt-2 text-xs font-bold text-red-600">{message}</p>}
     </aside>
   )
 }

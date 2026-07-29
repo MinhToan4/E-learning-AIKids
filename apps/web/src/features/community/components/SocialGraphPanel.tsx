@@ -1,53 +1,114 @@
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Link } from 'react-router-dom'
 import {
   FAVORITE_FRIEND_LIMIT,
   canFavoriteFriend,
   isValidFriendCode,
   normalizeFriendCode,
 } from '@aikids/domain'
-import {
-  readSocialGraph,
-  saveSocialGraph,
-  type SocialGraphState,
-} from '../community-store'
+import { api } from '@/shared/lib/api'
 
-export function SocialGraphPanel({ childId }: { childId: string }) {
-  const [graph, setGraph] = useState<SocialGraphState>(() => readSocialGraph(childId))
+type Connection = {
+  id: string
+  friend: {
+    id: string
+    name: string
+    avatarUrl?: string | null
+    level: number
+    slug: string
+  }
+  favorite: boolean
+}
+
+type Invite = { id: string; status: string; expiresAt: string }
+type Graph = { connections: Connection[]; invites: Invite[] }
+
+export function SocialGraphPanel({ childId: _childId }: { childId: string }) {
+  const [graph, setGraph] = useState<Graph>({ connections: [], invites: [] })
+  const [myCode, setMyCode] = useState('')
   const [code, setCode] = useState('')
   const [message, setMessage] = useState('')
+  const [busy, setBusy] = useState(false)
   const favorites = useMemo(
     () => graph.connections.filter((connection) => connection.favorite),
     [graph.connections],
   )
 
-  const update = (next: SocialGraphState) => {
-    setGraph(next)
-    saveSocialGraph(childId, next)
+  const load = useCallback(async () => {
+    try {
+      setGraph(await api<Graph>('/api/gamification/social/graph'))
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Chưa tải được vòng tròn bạn bè.')
+    }
+  }, [])
+
+  useEffect(() => { void load() }, [load])
+
+  const createCode = async () => {
+    setBusy(true)
+    try {
+      const result = await api<{ invite: { code: string } }>('/api/gamification/social/invites', { method: 'POST' })
+      setMyCode(result.invite.code)
+      setMessage('Mã có hiệu lực trong 15 phút.')
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Chưa tạo được mã kết bạn.')
+    } finally {
+      setBusy(false)
+    }
   }
 
-  const toggleFavorite = (id: string) => {
-    const target = graph.connections.find((connection) => connection.id === id)
-    if (!target?.favorite && !canFavoriteFriend(favorites.length)) {
+  const toggleFavorite = async (connection: Connection) => {
+    if (!connection.favorite && !canFavoriteFriend(favorites.length)) {
       setMessage(`Con chỉ có thể ghim ${FAVORITE_FRIEND_LIMIT} bạn yêu thích.`)
       return
     }
-    update({
-      ...graph,
-      connections: graph.connections.map((connection) =>
-        connection.id === id
-          ? { ...connection, favorite: !connection.favorite }
-          : connection,
-      ),
-    })
+    const favorite = !connection.favorite
+    setGraph((current) => ({
+      ...current,
+      connections: current.connections.map((item) =>
+        item.id === connection.id ? { ...item, favorite } : item),
+    }))
+    try {
+      await api(`/api/gamification/social/connections/${connection.id}/favorite`, {
+        method: 'PUT',
+        body: JSON.stringify({ favorite }),
+      })
+    } catch (error) {
+      await load()
+      setMessage(error instanceof Error ? error.message : 'Chưa cập nhật được bạn yêu thích.')
+    }
   }
 
-  const sendInvite = () => {
+  const acceptCode = async () => {
     if (!isValidFriendCode(code)) {
       setMessage('Mã bạn bè cần đủ 8 chữ hoặc số.')
       return
     }
-    setMessage('Đã gửi lời mời · đang chờ phụ huynh xác nhận.')
-    setCode('')
+    setBusy(true)
+    try {
+      await api('/api/gamification/social/invites/accept', {
+        method: 'POST',
+        body: JSON.stringify({ code }),
+      })
+      setMessage('Đã nhận lời mời · đang chờ phụ huynh hai bên xác nhận.')
+      setCode('')
+      await load()
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Không sử dụng được mã này.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const block = async (connection: Connection) => {
+    if (!window.confirm(`Ẩn ${connection.friend.name} khỏi vòng tròn và bảng hoạt động?`)) return
+    try {
+      await api(`/api/gamification/social/connections/${connection.id}`, { method: 'DELETE' })
+      setMessage('Đã ẩn kết nối. Ba/mẹ có thể hỗ trợ nếu con muốn kết nối lại.')
+      await load()
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Chưa ẩn được kết nối.')
+    }
   }
 
   return (
@@ -58,36 +119,47 @@ export function SocialGraphPanel({ childId }: { childId: string }) {
           <h2 className="font-display text-2xl">Bạn bè</h2>
           <p className="text-xs text-muted">Ghim tối đa {FAVORITE_FRIEND_LIMIT} bạn lên Profile.</p>
         </div>
-        <div className="rounded-2xl bg-brand-50 px-3 py-2 text-center">
-          <p className="text-[10px] font-black uppercase text-muted">Mã của con</p>
-          <p className="font-mono text-lg font-black tracking-widest text-brand-700">{graph.friendCode}</p>
-        </div>
+        <button
+          type="button"
+          disabled={busy}
+          onClick={() => void createCode()}
+          className="rounded-2xl bg-brand-50 px-3 py-2 text-center disabled:opacity-50"
+        >
+          <span className="block text-[10px] font-black uppercase text-muted">{myCode ? 'Mã của con' : 'Tạo mã 15 phút'}</span>
+          <span className="font-mono text-lg font-black tracking-widest text-brand-700">{myCode || '＋＋＋＋'}</span>
+        </button>
       </div>
 
       <div className="mt-4 flex gap-3 overflow-x-auto pb-1">
-        {graph.connections.map((friend) => (
-          <article key={friend.id} className="relative min-w-28 rounded-2xl bg-brand-50 p-3 text-center">
+        {graph.connections.length === 0 && (
+          <p className="rounded-2xl bg-brand-50 p-4 text-sm text-muted">Chưa có bạn trong vòng tròn. Con có thể tạo hoặc nhập mã kết bạn.</p>
+        )}
+        {graph.connections.map((connection) => (
+          <article key={connection.id} className="relative min-w-28 rounded-2xl bg-brand-50 p-3 text-center">
             <button
               type="button"
-              onClick={() => toggleFavorite(friend.id)}
+              onClick={() => void toggleFavorite(connection)}
               className="absolute right-1 top-1 rounded-full bg-white p-1 text-sm shadow-soft"
-              aria-label={`${friend.favorite ? 'Bỏ ghim' : 'Ghim'} ${friend.name}`}
+              aria-label={`${connection.favorite ? 'Bỏ ghim' : 'Ghim'} ${connection.friend.name}`}
             >
-              {friend.favorite ? '⭐' : '☆'}
+              {connection.favorite ? '⭐' : '☆'}
             </button>
-            <button type="button" className="w-full" aria-label={`Xem hồ sơ ${friend.name}`}>
-              <span className="text-3xl">{friend.avatar}</span>
-              <span className="mt-1 block text-xs font-extrabold">{friend.name}</span>
-              <span className="block text-[10px] text-muted">{friend.label}</span>
+            <Link to={`/u/${connection.friend.slug}`} className="block w-full" aria-label={`Xem hồ sơ ${connection.friend.name}`}>
+              {connection.friend.avatarUrl
+                ? <img src={connection.friend.avatarUrl} alt="" className="mx-auto h-10 w-10 rounded-full object-cover" />
+                : <span className="text-3xl">🧑‍🎨</span>}
+              <span className="mt-1 block text-xs font-extrabold">{connection.friend.name}</span>
+              <span className="block text-[10px] text-muted">Cấp {connection.friend.level}</span>
+            </Link>
+            <button type="button" onClick={() => void block(connection)} className="mt-2 text-[10px] font-bold text-muted hover:text-red-600">
+              Ẩn kết nối
             </button>
           </article>
         ))}
       </div>
 
       <details className="mt-4 rounded-2xl border border-border p-3">
-        <summary className="cursor-pointer list-none text-sm font-extrabold text-brand-700">
-          ＋ Thêm bạn bằng mã hoặc QR
-        </summary>
+        <summary className="cursor-pointer list-none text-sm font-extrabold text-brand-700">＋ Nhập mã kết bạn</summary>
         <div className="mt-3 flex gap-2">
           <input
             value={code}
@@ -96,19 +168,15 @@ export function SocialGraphPanel({ childId }: { childId: string }) {
             maxLength={8}
             className="field-input min-w-0 flex-1 font-mono uppercase"
           />
-          <button type="button" onClick={sendInvite} className="rounded-xl bg-brand-600 px-4 text-sm font-extrabold text-white">
+          <button type="button" disabled={busy} onClick={() => void acceptCode()} className="rounded-xl bg-brand-600 px-4 text-sm font-extrabold text-white disabled:opacity-50">
             Gửi
-          </button>
-          <button type="button" onClick={() => setMessage('Camera QR sẽ dùng Social Graph API trên thiết bị thật.')} className="rounded-xl bg-sky-100 px-3 text-xl" aria-label="Quét mã QR">
-            ▦
           </button>
         </div>
       </details>
 
-      {graph.requests.some((request) => request.status === 'parent_review') && (
+      {graph.invites.some((invite) => invite.status === 'parent_review') && (
         <div className="mt-3 rounded-2xl bg-sun-50 p-3 text-sm">
-          <p className="font-extrabold">⏳ 1 lời mời chờ phụ huynh duyệt</p>
-          <p className="text-xs text-muted">Lan Chi muốn kết bạn với con.</p>
+          <p className="font-extrabold">⏳ Có lời mời chờ phụ huynh hai bên duyệt</p>
         </div>
       )}
       {message && <p className="mt-3 text-xs font-bold text-brand-700" aria-live="polite">{message}</p>}

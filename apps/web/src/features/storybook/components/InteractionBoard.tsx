@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Link } from 'react-router-dom'
 
 const interactions = [
   {
@@ -7,6 +7,7 @@ const interactions = [
     title: 'Remix một ý tưởng',
     description: 'Chọn tác phẩm con yêu thích và tạo phiên bản mang dấu ấn riêng.',
     action: 'Khám phá tác phẩm',
+    href: '/storybook?view=gallery',
     tone: 'from-cyan-500 to-blue-600',
   },
   {
@@ -15,6 +16,7 @@ const interactions = [
     title: 'Thách bạn sáng tạo',
     description: 'Cùng một chủ đề, hai góc nhìn. Cả hai đều nhận phần thưởng.',
     action: 'Tạo thử thách',
+    href: '/creative',
     tone: 'from-orange-400 to-rose-500',
   },
   {
@@ -23,12 +25,12 @@ const interactions = [
     title: 'Ghi nguồn cảm hứng',
     description: 'Cảm ơn người đã giúp ý tưởng của con bắt đầu.',
     action: 'Gửi lời cảm ơn',
+    href: '/storybook?view=gallery',
     tone: 'from-violet-500 to-fuchsia-600',
   },
 ] as const
 
 export function InteractionBoard() {
-  const [selected, setSelected] = useState<string | null>(null)
   return (
     <section className="space-y-5" aria-labelledby="interaction-title">
       <article className="relative overflow-hidden rounded-[2rem] bg-gradient-to-r from-indigo-900 to-violet-700 p-6 text-white shadow-xl">
@@ -42,9 +44,9 @@ export function InteractionBoard() {
         <p className="mt-2 max-w-xl text-sm font-semibold text-white/80">
           Tạo nhân vật, hình ảnh hoặc truyện theo chủ đề tuần. Không có đáp án đúng.
         </p>
-        <button type="button" className="mt-5 rounded-full bg-amber-300 px-5 py-2.5 text-sm font-black text-indigo-950">
+        <Link to="/creative" className="mt-5 inline-block rounded-full bg-amber-300 px-5 py-2.5 text-sm font-black text-indigo-950">
           Bắt đầu sáng tạo
-        </button>
+        </Link>
       </article>
 
       <div className="grid gap-4 md:grid-cols-3">
@@ -56,13 +58,12 @@ export function InteractionBoard() {
             </div>
             <div className="flex flex-1 flex-col p-4">
               <p className="flex-1 text-sm text-muted">{item.description}</p>
-              <button
-                type="button"
-                onClick={() => setSelected(item.id)}
+              <Link
+                to={item.href}
                 className="mt-4 rounded-xl border-2 border-brand-200 px-3 py-2 text-sm font-extrabold text-brand-600 hover:bg-brand-50"
               >
-                {selected === item.id ? 'Sắp ra mắt cùng StoryMee Hub ✓' : item.action}
-              </button>
+                {item.action}
+              </Link>
             </div>
           </article>
         ))}

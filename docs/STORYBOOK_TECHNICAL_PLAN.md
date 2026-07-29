@@ -250,14 +250,14 @@ Không log invite token thô, PIN, prompt riêng tư hoặc media URL nhạy c�
 |---|---|
 | Web product surfaces | Hoàn thành |
 | Pure domain rules | Một phần hoàn thành |
-| Local prototype stores | Hoàn thành |
-| Fastify Storybook/Reward persistence và API | Hoàn thành |
-| Fastify Social Graph/invite/approval/favorite/block | Hoàn thành |
-| Fastify Activity Feed/reaction/Paco quota | Hoàn thành |
-| Fastify Public Profile safe projection | Hoàn thành |
-| Fastify Workspace ACL/parent approval/revoke | Hoàn thành |
-| StoryMee Hub gateway/deployment | Chưa triển khai |
+| Local prototype stores | Đã thay khỏi luồng production |
+| Core Gamification Storybook/Reward persistence và API | Hoàn thành, đã route qua Hub |
+| Core Gamification Social Graph/invite/approval/favorite/block | Hoàn thành, đã route qua Hub |
+| Core Gamification Activity Feed/reaction/Paco quota | Hoàn thành, đã route qua Hub |
+| Core Account Public Profile safe projection | Hoàn thành, đã route qua Hub |
+| Core Account Workspace ACL/parent approval/revoke | Hoàn thành, đã route qua Hub |
+| StoryMee Hub gateway/deployment | Hoàn thành |
 | Signed external Profile share link | Chưa triển khai |
-| Cross-device migration | Chưa triển khai |
+| Cross-device inventory/equipment/social | Hoàn thành |
 
-Ưu tiên backend: Reward Inventory → Storybook claim → Social Graph → Public Profile → Activity Feed → Workspace ACL.
+Luồng production dùng PostgreSQL qua Core Account và Core Gamification. Local storage chỉ còn cache hiển thị thiết bị.

@@ -198,15 +198,16 @@ School có thể:
 
 | Tính năng | Web | Hub |
 |---|---|---|
-| Friend code/QR entry | Có UI | Fastify API đã có; chờ Hub deploy |
-| Parent-reviewed request | Có UI | Fastify API đã có duyệt hai phía |
-| Favorite tối đa 6 | Có domain rule/UI | Fastify API đã lưu server |
-| Block và thu hồi connection | Chưa nối UI đầy đủ | Fastify API đã có |
-| Feed/reaction | Có prototype UI | Fastify API đã có event store và Paco quota |
-| Profile visibility | Có local settings | Fastify API đã có safe projection |
-| Workspace audience | Có local settings | Fastify API đã có ACL + parent approval |
+| Friend code/QR entry | Có UI tạo/nhập mã | Core Gamification đã deploy qua Hub |
+| Parent-reviewed request | Có UI trong trang Ba/Mẹ | Duyệt hai phía trên server |
+| Favorite tối đa 6 | Có domain rule/UI | Lưu server |
+| Block và thu hồi connection | Đã nối UI | Lưu server và loại khỏi feed |
+| Feed/reaction | Dữ liệu server | Event store và Paco quota trên server |
+| Profile visibility | Dữ liệu server | Core Account safe projection |
+| Workspace audience | Dữ liệu server | Core Account ACL + parent approval |
 | Approved Media sharing | Có Media Hub flow | Có request/approval cơ bản |
 
-Social Graph và Activity Feed đã có source of truth trên Fastify/PostgreSQL nhưng
-chỉ được xem là production sau khi migration và route được deploy qua StoryMee
-Hub. Hiện Chapter claim đã phát activity; LMS/Media event khác còn cần outbox.
+Social Graph, Activity Feed, Storybook claim, Reward Inventory và equipment dùng
+PostgreSQL làm source of truth và đã route qua StoryMee Hub. Chapter claim và
+workspace đã duyệt được chiếu thành activity; LMS event khác tiếp tục đi qua
+Gamification projection worker.
