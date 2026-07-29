@@ -22,6 +22,7 @@ import {
 } from '@/features/community/community-store'
 import { SocialGraphPanel } from '@/features/community/components/SocialGraphPanel'
 import { ActivityFeed } from '@/features/community/components/ActivityFeed'
+import { WorkspaceSharingPanel } from '@/features/community/components/WorkspaceSharingPanel'
 import {
   readProfileAvatar,
   saveProfileAvatar,
@@ -29,6 +30,7 @@ import {
   type ProfileAvatar,
   type ShowcaseProject,
 } from '../profile-showcase'
+import { readClaimedChapterStickers } from '@/features/storybook/chapter-rewards'
 
 type MediaAsset = { id: string; name: string; thumbnail: string; type: string }
 
@@ -46,6 +48,9 @@ export function ProfilePage() {
     () => user ? readProfileAvatar(user.id) : null,
   )
   const [explorerXp, setExplorerXp] = useState(0)
+  const [chapterStickers, setChapterStickers] = useState(() =>
+    user ? readClaimedChapterStickers(user.id) : [],
+  )
   const [equipment, setEquipment] = useState(() =>
     user ? readRewardEquipment(user.id) : {},
   )
@@ -85,6 +90,12 @@ export function ProfilePage() {
   }, [user])
 
   useEffect(() => {
+    const sync = () => user && setChapterStickers(readClaimedChapterStickers(user.id))
+    window.addEventListener('aikids:chapter-reward', sync)
+    return () => window.removeEventListener('aikids:chapter-reward', sync)
+  }, [user])
+
+  useEffect(() => {
     if (!user) return
     saveProfileShowcase({
       childId: user.id,
@@ -119,7 +130,7 @@ export function ProfilePage() {
 
   return (
     <PageMotion className="mx-auto flex max-w-5xl flex-col gap-5">
-      <section className="ui-card overflow-hidden p-5 sm:p-6" style={profileCardStyle(equipment.theme)}>
+      <section className="ui-card overflow-hidden p-5 sm:p-6" style={profileCardStyle(equipment.background ?? equipment.theme)}>
         <div className="grid items-center gap-5 md:grid-cols-[1fr_auto]">
           {user && <EquippedProfile user={user} xp={explorerXp} compact />}
           <div className="grid grid-cols-3 gap-2">
@@ -176,7 +187,7 @@ export function ProfilePage() {
             </div>
           </section>
           <div className="ui-card p-5">
-            <RewardCollection userId={user.id} xpLevel={explorerLevelForXp(explorerXp).level} />
+            <RewardCollection userId={user.id} xpLevel={explorerLevelForXp(explorerXp).level} stickerIds={chapterStickers} />
           </div>
         </>
       )}
@@ -256,6 +267,7 @@ export function ProfilePage() {
                 </div>
               </div>
             </details>
+            {user && <WorkspaceSharingPanel childId={user.id} projects={projects} />}
           </div>
         </div>
       )}

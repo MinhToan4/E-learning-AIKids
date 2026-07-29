@@ -30,7 +30,7 @@ export function PublicProfilePage() {
       <div className="mx-auto max-w-4xl space-y-6">
         <header
           className="ui-card flex flex-col items-center gap-4 p-7 text-center sm:flex-row sm:text-left"
-          style={profileCardStyle(equipment.theme)}
+          style={profileCardStyle(equipment.background ?? equipment.theme)}
         >
           <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border-8 border-white bg-brand-100 text-5xl shadow-clay">
             {showcase.avatar
