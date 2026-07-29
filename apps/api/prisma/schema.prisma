@@ -8,7 +8,7 @@ generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
   // Isolated path avoids Windows EPERM locks on hoisted root node_modules
-  output   = "../src/generated/prisma"
+  output        = "../src/generated/prisma"
 }
 
 datasource db {
@@ -54,26 +54,29 @@ model User {
   class ClassRoom? @relation("StudentClass", fields: [classId], references: [id])
 
   // Relations
-  sessions       Session[]
-  enrollments    Enrollment[]
-  questProgress  QuestProgress[]
-  assets         Asset[]
-  projects       Project[]
-  approvalsMade  Approval[]      @relation("Approver")
-  approvalsOwned Approval[]      @relation("ChildApprovals")
-  taughtClasses  ClassRoom[]     @relation("TeacherClasses")
-  achievements   Achievement[]
-  streak         DailyStreak?
-  notifications  Notification[]
-  pushDevices    PushDevice[]
-  storageObjects StorageObject[]
-  parentProfile  ParentProfile?
-  teacherProfile TeacherProfile?
+  sessions          Session[]
+  enrollments       Enrollment[]
+  questProgress     QuestProgress[]
+  assets            Asset[]
+  projects          Project[]
+  approvalsMade     Approval[]         @relation("Approver")
+  approvalsOwned    Approval[]         @relation("ChildApprovals")
+  taughtClasses     ClassRoom[]        @relation("TeacherClasses")
+  achievements      Achievement[]
+  streak            DailyStreak?
+  notifications     Notification[]
+  pushDevices       PushDevice[]
+  storageObjects    StorageObject[]
+  parentProfile     ParentProfile?
+  teacherProfile    TeacherProfile?
   /**
    * Household subscriptions where this user is the billing parent
    */
-  subscriptions  Subscription[]  @relation("ParentSubscriptions")
-  loginLogs      LoginLog[]
+  subscriptions     Subscription[]     @relation("ParentSubscriptions")
+  loginLogs         LoginLog[]
+  storybookStickers StorybookSticker[]
+  rewardInventory   RewardInventory[]
+  rewardEquipment   RewardEquipment[]
 
   @@index([role, active])
   @@index([createdAt])
@@ -391,6 +394,54 @@ model DailyStreak {
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("daily_streaks")
+}
+
+/// Idempotent record of a sticker earned from a trusted domain event.
+model StorybookSticker {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  stickerId     String   @map("sticker_id")
+  sourceEventId String   @unique @map("source_event_id")
+  sourceType    String   @map("source_type")
+  earnedAt      DateTime @default(now()) @map("earned_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, stickerId])
+  @@index([userId, earnedAt])
+  @@map("storybook_stickers")
+}
+
+/// Server-side ownership record. Catalog presentation remains in @aikids/domain.
+model RewardInventory {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId        String   @map("user_id") @db.Uuid
+  rewardId      String   @map("reward_id")
+  sourceEventId String   @unique @map("source_event_id")
+  sourceType    String   @map("source_type")
+  unlockedAt    DateTime @default(now()) @map("unlocked_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, rewardId])
+  @@index([userId, unlockedAt])
+  @@map("reward_inventory")
+}
+
+/// At most one equipped reward per kind for each child.
+model RewardEquipment {
+  id        String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  kind      String
+  rewardId  String   @map("reward_id")
+  updatedAt DateTime @default(now()) @updatedAt @map("updated_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, kind])
+  @@index([userId])
+  @@map("reward_equipment")
 }
 
 model Notification {

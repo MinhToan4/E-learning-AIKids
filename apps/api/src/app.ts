@@ -22,6 +22,7 @@ import { mediaRoutes } from './modules/media/media.routes.js'
 import { storageRoutes } from './modules/storage/storage.routes.js'
 import { realtimeRoutes } from './modules/realtime/realtime.routes.js'
 import { creativeRoutes } from './modules/creative/creative.routes.js'
+import { storybookRoutes } from './modules/storybook/storybook.routes.js'
 import {
   normalizeApiAliasPrefix,
   rewriteAliasToPrimaryApi,
@@ -248,6 +249,7 @@ export async function buildApp() {
   await app.register(storageRoutes)
   await app.register(realtimeRoutes)
   await app.register(creativeRoutes)
+  await app.register(storybookRoutes)
 
   /**
    * StoryMee gateway alias (optional).

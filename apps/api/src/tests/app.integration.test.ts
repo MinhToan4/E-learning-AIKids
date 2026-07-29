@@ -139,6 +139,101 @@ describeIntegration('API integration (isolated Postgres)', () => {
     expect(r.status).toBe(401)
   })
 
+  it('persists Storybook rewards and equipment on the server', async () => {
+    const login = await inject(app, {
+      method: 'POST',
+      url: '/api/auth/login/student',
+      payload: {
+        nickname: `Book${Date.now().toString().slice(-6)}`,
+        avatarId: 'avatar-cat',
+        createIfMissing: true,
+      },
+    })
+    expect(login.status).toBe(200)
+    const cookies = { aikids_session: login.session! }
+    const userId = (login.body.user as { id: string }).id
+
+    const initial = await inject(app, {
+      method: 'GET',
+      url: '/api/v1/storybook/me',
+      cookies,
+    })
+    expect(initial.status).toBe(200)
+    expect(initial.body.pages).toHaveLength(8)
+
+    const rewards = await inject(app, {
+      method: 'GET',
+      url: '/api/v1/rewards/me',
+      cookies,
+    })
+    expect(rewards.status).toBe(200)
+    expect(
+      (rewards.body.inventory as Array<{ rewardId: string }>).some(
+        (item) => item.rewardId === 'title-first-light',
+      ),
+    ).toBe(true)
+
+    const equipped = await inject(app, {
+      method: 'PUT',
+      url: '/api/v1/rewards/me/equipment/title',
+      cookies,
+      payload: { rewardId: 'title-first-light' },
+    })
+    expect(equipped.status).toBe(200)
+    expect(
+      (equipped.body.equipment as { rewardId: string }).rewardId,
+    ).toBe('title-first-light')
+
+    const locked = await inject(app, {
+      method: 'PUT',
+      url: '/api/v1/rewards/me/equipment/frame',
+      cookies,
+      payload: { rewardId: 'frame-rainbow' },
+    })
+    expect(locked.status).toBe(403)
+
+    const incomplete = await inject(app, {
+      method: 'POST',
+      url: '/api/v1/storybook/chapters/P01/claim',
+      cookies,
+    })
+    expect(incomplete.status).toBe(409)
+
+    const { prisma } = await import('../infrastructure/database/prisma.js')
+    await prisma.storybookSticker.createMany({
+      data: Array.from({ length: 8 }, (_, index) => ({
+        userId,
+        stickerId: `P01-S${index + 1}`,
+        sourceEventId: `test:${userId}:P01-S${index + 1}`,
+        sourceType: 'learning',
+      })),
+      skipDuplicates: true,
+    })
+
+    const claimed = await inject(app, {
+      method: 'POST',
+      url: '/api/v1/storybook/chapters/P01/claim',
+      cookies,
+    })
+    expect(claimed.status).toBe(200)
+    expect(
+      (claimed.body.boss as { stickerId: string }).stickerId,
+    ).toBe('P01-S9')
+    expect(
+      (claimed.body.reward as { rewardId: string }).rewardId,
+    ).toBe('background-ai-gate')
+
+    const claimedAgain = await inject(app, {
+      method: 'POST',
+      url: '/api/v1/storybook/chapters/P01/claim',
+      cookies,
+    })
+    expect(claimedAgain.status).toBe(200)
+    expect(
+      (claimedAgain.body.reward as { rewardId: string }).rewardId,
+    ).toBe('background-ai-gate')
+  })
+
   it('student can list L1/L2 open courses with creative stations', async () => {
     const login = await inject(app, {
       method: 'POST',

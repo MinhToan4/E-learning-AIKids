@@ -1,9 +1,11 @@
 import {
   achievementsToUnlock,
   getAchievementMeta,
+  LEGACY_TO_STICKER_MAP,
   type AchievementType,
 } from '@aikids/domain'
 import { prisma } from '../../infrastructure/database/prisma.js'
+import { awardStorybookSticker } from '../storybook/storybook.service.js'
 
 /**
  * Evaluate and persist newly earned achievements after progress events.
@@ -70,6 +72,15 @@ export async function evaluateAndUnlockAchievements(userId: string): Promise<
       await prisma.achievement.create({
         data: { userId, type },
       })
+      const stickerId = LEGACY_TO_STICKER_MAP[type]
+      if (stickerId) {
+        await awardStorybookSticker({
+          userId,
+          stickerId,
+          sourceEventId: `achievement:${userId}:${type}`,
+          sourceType: 'achievement',
+        })
+      }
       const meta = getAchievementMeta(type)
       if (meta) {
         const notification = await prisma.notification.create({

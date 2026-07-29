@@ -73,10 +73,10 @@ Các file `*-store.ts`, `chapter-rewards.ts` đang dùng localStorage và phải
 ```text
 StorybookPage(id, slug, title, group, version)
 StorybookSticker(id, pageId, slot, triggerKey, boss)
-ChildSticker(childId, stickerId, earnedAt, sourceEventId)
+StorybookSticker(userId, stickerId, earnedAt, sourceEventId, sourceType)
 ChapterReward(pageId, rewardId)
-RewardInventory(childId, rewardId, unlockedAt, sourceEventId)
-RewardEquipment(childId, kind, rewardId, updatedAt)
+RewardInventory(userId, rewardId, unlockedAt, sourceEventId, sourceType)
+RewardEquipment(userId, kind, rewardId, updatedAt)
 ```
 
 Ràng buộc:
@@ -249,7 +249,8 @@ Không log invite token thô, PIN, prompt riêng tư hoặc media URL nhạy c�
 | Web product surfaces | Hoàn thành |
 | Pure domain rules | Một phần hoàn thành |
 | Local prototype stores | Hoàn thành |
-| Hub Storybook service | Chưa triển khai |
+| Fastify Storybook/Reward persistence và API | Hoàn thành |
+| StoryMee Hub gateway/deployment | Chưa triển khai |
 | Hub Social Graph | Chưa triển khai |
 | Hub Feed/Profile/ACL | Chưa triển khai |
 | Cross-device migration | Chưa triển khai |

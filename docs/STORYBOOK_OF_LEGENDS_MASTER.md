@@ -144,7 +144,8 @@ Chi tiết nằm trong [STORYBOOK_SOCIAL_INTERACTION.md](./STORYBOOK_SOCIAL_INTE
 | Friend code, favorite, request UI | Local prototype |
 | Activity feed/reaction | Local prototype |
 | Workspace audience controls | Local prototype |
-| Reward inventory server-side | Cần StoryMee Hub |
+| Reward inventory/Storybook claim trên Fastify API | Đã có server source of truth |
+| Đồng bộ Reward Inventory qua StoryMee Hub | Cần gateway/deploy Hub |
 | Social Graph server-side | Cần StoryMee Hub |
 | Public Profile xuyên thiết bị | Cần StoryMee Hub |
 | Activity event pipeline | Cần StoryMee Hub |
