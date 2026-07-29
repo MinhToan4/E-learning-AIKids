@@ -5,7 +5,9 @@ import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { api, type AchievementRow } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
-import { avatarEmoji, avatarImage } from '@/shared/config/avatars'
+import { explorerLevelForXp } from '@aikids/domain'
+import { EquippedProfile } from '@/features/rewards/EquippedProfile'
+import { RewardCollection } from '@/features/rewards/RewardCollection'
 
 export function ProfilePage() {
   const user = useAuth((s) => s.user)
@@ -15,20 +17,25 @@ export function ProfilePage() {
   const [streak, setStreak] = useState({ current: 0, longest: 0 })
   const [achievements, setAchievements] = useState<AchievementRow[]>([])
   const [projectCount, setProjectCount] = useState(0)
+  const [explorerXp, setExplorerXp] = useState(0)
 
   useEffect(() => {
     void (async () => {
       try {
-        const [s, a, p] = await Promise.all([
+        const [s, a, p, g] = await Promise.all([
           api<{ current: number; longest: number }>('/api/gamification/streak'),
           api<{ achievements: AchievementRow[] }>(
             '/api/gamification/achievements',
           ),
           api<{ projects: unknown[] }>('/api/projects'),
+          api<{ celebration: { personal: { xp: number } } }>(
+            '/api/gamification/class-celebration',
+          ),
         ])
         setStreak({ current: s.current, longest: s.longest })
         setAchievements(a.achievements.filter((x) => x.unlocked))
         setProjectCount(p.projects?.length ?? 0)
+        setExplorerXp(g.celebration.personal.xp)
       } catch {
         /* non-blocking */
       } finally {
@@ -41,22 +48,10 @@ export function ProfilePage() {
     return <PageSkeleton rows={3} className="mx-auto max-w-lg" />
   }
 
-  const img = avatarImage(user?.avatarId)
-
   return (
     <PageMotion className="mx-auto flex max-w-lg flex-col gap-4">
       <div className="ui-card flex flex-col items-center gap-3 p-8 text-center">
-        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-brand-100 text-5xl shadow-clay">
-          {img ? (
-            <img src={img} alt="" className="h-full w-full object-cover" />
-          ) : (
-            avatarEmoji(user?.avatarId)
-          )}
-        </div>
-        <h1 className="font-display text-3xl">{user?.nickname}</h1>
-        <p className="text-muted">
-          Cấp {user?.level} · {user?.xp} XP
-        </p>
+        {user && <EquippedProfile user={user} xp={explorerXp} />}
         <p className="text-sm text-muted">
           Mục tiêu:{' '}
           {user?.goal === 'world'
@@ -74,6 +69,16 @@ export function ProfilePage() {
                       : 'Chưa chọn'}
         </p>
       </div>
+
+      {user && (
+        <div className="ui-card p-4">
+          <RewardCollection
+            userId={user.id}
+            xpLevel={explorerLevelForXp(explorerXp).level}
+            compact
+          />
+        </div>
+      )}
 
       <div className="grid grid-cols-3 gap-3">
         <div className="ui-card p-3 text-center">
