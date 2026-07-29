@@ -16,8 +16,12 @@ export function BookSpread({
       <div className="pointer-events-none absolute inset-y-0 left-1/2 z-10 hidden w-8 -translate-x-1/2 bg-gradient-to-r from-black/10 via-white/40 to-black/10 md:block" />
       <div className="grid md:grid-cols-2">
         <div
-          className="relative flex min-h-[27rem] flex-col justify-end overflow-hidden p-7 text-white"
-          style={{ background: `linear-gradient(145deg, ${page.colors[0]}, ${page.colors[1]})` }}
+          className="relative flex min-h-[27rem] flex-col justify-end overflow-hidden bg-cover bg-center p-7 text-white"
+          style={{
+            backgroundImage: page.leftBackgroundUrl
+              ? `linear-gradient(0deg, rgba(15,23,42,.82), rgba(15,23,42,.05)), url("${page.leftBackgroundUrl}")`
+              : `linear-gradient(145deg, ${page.colors[0]}, ${page.colors[1]})`,
+          }}
         >
           <span className="absolute -right-5 -top-8 text-[10rem] opacity-20" aria-hidden>
             {page.emoji}
@@ -40,7 +44,14 @@ export function BookSpread({
           <p className="relative mt-1 text-xs font-bold">{earnedCount}/9 sticker</p>
         </div>
 
-        <div className="grid min-h-[27rem] grid-cols-3 gap-2 bg-[radial-gradient(circle_at_center,#fffdf3,#f7edc9)] p-4 sm:gap-3 sm:p-6">
+        <div
+          className="grid min-h-[27rem] grid-cols-3 gap-2 bg-cover bg-center p-4 sm:gap-3 sm:p-6"
+          style={{
+            backgroundImage: page.stickerPageUrl
+              ? `linear-gradient(rgba(255,253,243,.84), rgba(247,237,201,.84)), url("${page.stickerPageUrl}")`
+              : 'radial-gradient(circle at center, #fffdf3, #f7edc9)',
+          }}
+        >
           {page.stickers.map((item, index) => {
             const unlocked = earned.has(item.id)
             const revealHint = !item.boss || earnedCount >= 6
@@ -55,9 +66,15 @@ export function BookSpread({
                       : 'border-dashed border-slate-200 bg-white/70'
                 }`}
               >
-                <span className={`text-3xl ${unlocked ? '' : 'grayscale opacity-35'}`} aria-hidden>
-                  {unlocked || revealHint ? item.icon : '❔'}
-                </span>
+                {unlocked && item.imageUrl ? (
+                  <img src={item.imageUrl} alt="" className="h-12 w-12 object-contain" />
+                ) : !unlocked && item.placeholderUrl ? (
+                  <img src={item.placeholderUrl} alt="" className="h-12 w-12 object-contain opacity-45 grayscale" />
+                ) : (
+                  <span className={`text-3xl ${unlocked ? '' : 'grayscale opacity-35'}`} aria-hidden>
+                    {unlocked || revealHint ? item.icon : '❔'}
+                  </span>
+                )}
                 <h3 className="mt-1 text-xs font-extrabold leading-tight">
                   {unlocked ? item.name : item.boss ? 'Boss bí ẩn' : `Sticker ${index + 1}`}
                 </h3>

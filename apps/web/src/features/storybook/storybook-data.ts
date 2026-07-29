@@ -9,6 +9,8 @@ export interface StorybookSticker {
   hint: string
   legacyType?: string
   boss?: boolean
+  imageUrl?: string
+  placeholderUrl?: string
 }
 
 export interface StorybookPage {
@@ -19,6 +21,9 @@ export interface StorybookPage {
   colors: [string, string]
   story: string
   stickers: StorybookSticker[]
+  coverUrl?: string
+  leftBackgroundUrl?: string
+  stickerPageUrl?: string
 }
 
 const sticker = (

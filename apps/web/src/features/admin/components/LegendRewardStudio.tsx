@@ -80,6 +80,9 @@ const emptyForm = () => ({
   chapterColorStart: '#4338CA',
   chapterColorEnd: '#F59E0B',
   chapterStory: '',
+  chapterCoverUrl: '',
+  chapterLeftBackgroundUrl: '',
+  chapterStickerPageUrl: '',
   chapterStickersJson: JSON.stringify(Array.from({ length: 9 }, (_, index) => ({
     id: `P09-S${index + 1}`,
     name: index === 8 ? 'Boss huyền thoại' : `Sticker ${index + 1}`,
@@ -103,6 +106,7 @@ export function LegendRewardStudio() {
   const [view, setView] = useState<'library' | 'create'>('library')
   const [previewUrl, setPreviewUrl] = useState('')
   const [assetInfo, setAssetInfo] = useState('')
+  const [chapterUploading, setChapterUploading] = useState('')
   const selectedSpec = assetSpecs[form.kind as RewardKind] ?? assetSpecs.frame
   const fieldClass = 'field-input mt-2 min-h-12 w-full border-2 border-slate-200 bg-white px-4 text-base shadow-sm focus:border-brand-500'
 
@@ -126,6 +130,27 @@ export function LegendRewardStudio() {
     () => filter === 'all' ? items : items.filter((item) => item.contentType === filter),
     [filter, items],
   )
+  const chapterStickers = useMemo(() => {
+    try {
+      return JSON.parse(form.chapterStickersJson) as Array<{
+        id: string
+        name: string
+        icon: string
+        hint: string
+        boss?: boolean
+        imageUrl?: string
+        placeholderUrl?: string
+      }>
+    } catch {
+      return []
+    }
+  }, [form.chapterStickersJson])
+
+  const updateChapterSticker = (index: number, patch: Record<string, unknown>) => {
+    const stickers = [...chapterStickers]
+    stickers[index] = { ...stickers[index], ...patch }
+    setForm((current) => ({ ...current, chapterStickersJson: JSON.stringify(stickers, null, 2) }))
+  }
 
   const inspectAsset = async (file: File) => {
     if (form.contentType !== 'reward') {
@@ -206,6 +231,42 @@ export function LegendRewardStudio() {
     }
   }
 
+  const uploadChapterMedia = async (file: File, target: 'cover' | 'left' | 'stickerPage' | number, placeholder = false) => {
+    const allowed = ['image/png', 'image/webp', 'image/jpeg', 'image/svg+xml']
+    if (!allowed.includes(file.type)) {
+      setMessage('Ảnh Storybook chỉ nhận PNG, WebP, JPG hoặc SVG.')
+      return
+    }
+    if (file.size > 4 * 1024 * 1024) {
+      setMessage('Mỗi ảnh Storybook tối đa 4 MB.')
+      return
+    }
+    const key = typeof target === 'number' ? `sticker-${target}-${placeholder ? 'placeholder' : 'art'}` : target
+    setChapterUploading(key)
+    setMessage('')
+    try {
+      const body = new FormData()
+      body.append('file', file)
+      body.append('purpose', 'storybook_chapter_design')
+      const result = await api<{ asset: { url: string } }>('/api/media/upload', { method: 'POST', body })
+      if (target === 'cover') setForm((current) => ({ ...current, chapterCoverUrl: result.asset.url }))
+      else if (target === 'left') setForm((current) => ({ ...current, chapterLeftBackgroundUrl: result.asset.url }))
+      else if (target === 'stickerPage') setForm((current) => ({ ...current, chapterStickerPageUrl: result.asset.url }))
+      else {
+        setForm((current) => {
+          const stickers = JSON.parse(current.chapterStickersJson) as Array<Record<string, unknown>>
+          stickers[target] = { ...stickers[target], [placeholder ? 'placeholderUrl' : 'imageUrl']: result.asset.url }
+          return { ...current, chapterStickersJson: JSON.stringify(stickers, null, 2) }
+        })
+      }
+      setMessage('Đã tải ảnh Storybook và cập nhật preview.')
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Không tải được ảnh Storybook.')
+    } finally {
+      setChapterUploading('')
+    }
+  }
+
   const create = async (event: React.FormEvent) => {
     event.preventDefault()
     setBusy(true)
@@ -213,7 +274,14 @@ export function LegendRewardStudio() {
     try {
       const createdType = form.contentType
       const displayConfig = form.contentType === 'chapter'
-        ? { emoji: form.chapterEmoji, colors: [form.chapterColorStart, form.chapterColorEnd], layout: 'book_spread' }
+        ? {
+            emoji: form.chapterEmoji,
+            colors: [form.chapterColorStart, form.chapterColorEnd],
+            layout: 'book_spread',
+            coverUrl: form.chapterCoverUrl,
+            leftBackgroundUrl: form.chapterLeftBackgroundUrl,
+            stickerPageUrl: form.chapterStickerPageUrl,
+          }
         : JSON.parse(form.displayJson) as Record<string, unknown>
       const content = form.contentType === 'chapter'
         ? {
@@ -238,9 +306,16 @@ export function LegendRewardStudio() {
           description: form.description,
           kind: form.contentType === 'reward' ? form.kind : null,
           rarity: form.rarity,
-          assets: form.assetUrl
-            ? { thumbnailUrl: form.assetUrl, imageUrl: form.assetUrl }
-            : {},
+          assets: form.contentType === 'chapter'
+            ? {
+                thumbnailUrl: form.chapterCoverUrl || form.chapterLeftBackgroundUrl,
+                coverUrl: form.chapterCoverUrl,
+                leftBackgroundUrl: form.chapterLeftBackgroundUrl,
+                stickerPageUrl: form.chapterStickerPageUrl,
+              }
+            : form.assetUrl
+              ? { thumbnailUrl: form.assetUrl, imageUrl: form.assetUrl }
+              : {},
           displayConfig,
           unlockRule: { type: form.unlockType, value: form.unlockValue },
           content,
@@ -431,12 +506,75 @@ export function LegendRewardStudio() {
                       <input type="color" className={`${fieldClass} p-2`} value={form.chapterColorEnd} onChange={(event) => setForm({ ...form, chapterColorEnd: event.target.value })} />
                     </label>
                   </div>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    {([
+                      ['cover', 'Ảnh bìa chapter', 'Tỉ lệ 4:3 · 1600×1200', form.chapterCoverUrl],
+                      ['left', 'Background trang trái', 'Tỉ lệ 4:3 · ưu tiên vùng chữ', form.chapterLeftBackgroundUrl],
+                      ['stickerPage', 'Nền trang sticker', 'Texture sáng, không làm chìm sticker', form.chapterStickerPageUrl],
+                    ] as const).map(([target, label, hint, url]) => (
+                      <label key={target} className="cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed border-amber-300 bg-white p-3 text-center hover:border-amber-500">
+                        <span className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-amber-50">
+                          {url ? <img src={url} alt="" className="h-full w-full object-cover" /> : <span className="text-4xl">🖼️</span>}
+                        </span>
+                        <span className="mt-2 block text-sm font-extrabold">{chapterUploading === target ? 'Đang tải…' : label}</span>
+                        <span className="block text-[10px] text-muted">{hint}</span>
+                        <input type="file" accept=".png,.webp,.jpg,.jpeg,.svg" className="sr-only" disabled={Boolean(chapterUploading)} onChange={(event) => {
+                          const file = event.target.files?.[0]
+                          if (file) void uploadChapterMedia(file, target)
+                        }} />
+                      </label>
+                    ))}
+                  </div>
                   <label className="block text-sm font-bold">Lời kể của chapter
                     <textarea required className={`${fieldClass} min-h-36 py-3`} placeholder="Đoạn dẫn truyện hiển thị trên trang trái…" value={form.chapterStory} onChange={(event) => setForm({ ...form, chapterStory: event.target.value })} />
                   </label>
-                  <label className="block text-sm font-bold">9 sticker và điều kiện
-                    <textarea required className={`${fieldClass} min-h-64 py-3 font-mono text-xs`} value={form.chapterStickersJson} onChange={(event) => setForm({ ...form, chapterStickersJson: event.target.value })} />
-                  </label>
+                  <div>
+                    <div className="flex flex-wrap items-end justify-between gap-2">
+                      <div>
+                        <h4 className="font-extrabold">9 sticker và khuôn placeholder</h4>
+                        <p className="text-xs text-muted">PNG/SVG nền trong suốt. Placeholder nên là silhouette/outline cùng đúng kích thước sticker thật.</p>
+                      </div>
+                      <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-900">{chapterStickers.filter((sticker) => sticker.imageUrl && sticker.placeholderUrl).length}/9 đủ bộ ảnh</span>
+                    </div>
+                    <div className="mt-3 grid gap-3 md:grid-cols-2">
+                      {chapterStickers.map((sticker, index) => (
+                        <article key={sticker.id || index} className={`rounded-2xl border-2 bg-white p-4 ${sticker.boss ? 'border-violet-300' : 'border-amber-200'}`}>
+                          <div className="flex items-center justify-between">
+                            <p className="font-extrabold">{sticker.boss ? '🏆 Boss sticker' : `Sticker ${index + 1}`}</p>
+                            <code className="text-[10px] text-muted">{sticker.id}</code>
+                          </div>
+                          <div className="mt-3 grid grid-cols-2 gap-2">
+                            <label className="cursor-pointer rounded-xl border-2 border-dashed border-slate-300 p-2 text-center">
+                              <span className="flex aspect-square items-center justify-center overflow-hidden rounded-lg bg-slate-100">
+                                {sticker.placeholderUrl ? <img src={sticker.placeholderUrl} alt="" className="h-full w-full object-contain" /> : <span className="text-3xl opacity-30">❔</span>}
+                              </span>
+                              <span className="mt-1 block text-[10px] font-bold">{chapterUploading === `sticker-${index}-placeholder` ? 'Đang tải…' : 'Khuôn chưa mở'}</span>
+                              <input type="file" accept=".png,.webp,.svg" className="sr-only" disabled={Boolean(chapterUploading)} onChange={(event) => {
+                                const file = event.target.files?.[0]
+                                if (file) void uploadChapterMedia(file, index, true)
+                              }} />
+                            </label>
+                            <label className="cursor-pointer rounded-xl border-2 border-dashed border-emerald-300 p-2 text-center">
+                              <span className="flex aspect-square items-center justify-center overflow-hidden rounded-lg bg-emerald-50">
+                                {sticker.imageUrl ? <img src={sticker.imageUrl} alt="" className="h-full w-full object-contain" /> : <span className="text-3xl">{sticker.icon || '⭐'}</span>}
+                              </span>
+                              <span className="mt-1 block text-[10px] font-bold">{chapterUploading === `sticker-${index}-art` ? 'Đang tải…' : 'Ảnh khi đạt'}</span>
+                              <input type="file" accept=".png,.webp,.svg" className="sr-only" disabled={Boolean(chapterUploading)} onChange={(event) => {
+                                const file = event.target.files?.[0]
+                                if (file) void uploadChapterMedia(file, index)
+                              }} />
+                            </label>
+                          </div>
+                          <input className={`${fieldClass} min-h-10 text-sm`} value={sticker.name} onChange={(event) => updateChapterSticker(index, { name: event.target.value })} aria-label={`Tên sticker ${index + 1}`} />
+                          <input className={`${fieldClass} min-h-10 text-sm`} value={sticker.hint} onChange={(event) => updateChapterSticker(index, { hint: event.target.value })} aria-label={`Điều kiện sticker ${index + 1}`} />
+                        </article>
+                      ))}
+                    </div>
+                    <details className="mt-3 rounded-xl border border-border p-3">
+                      <summary className="cursor-pointer text-xs font-bold">JSON nâng cao của sticker</summary>
+                      <textarea required className={`${fieldClass} min-h-64 py-3 font-mono text-xs`} value={form.chapterStickersJson} onChange={(event) => setForm({ ...form, chapterStickersJson: event.target.value })} />
+                    </details>
+                  </div>
                 </>
               )}
               {form.contentType === 'event' && (
@@ -487,7 +625,7 @@ export function LegendRewardStudio() {
                   </div>
                 </div>
               )}
-              <label className="block min-h-40 cursor-pointer rounded-2xl border-2 border-dashed border-brand-400 bg-white p-8 text-center shadow-sm hover:border-brand-600 hover:bg-brand-50/30">
+              {form.contentType !== 'chapter' && <label className="block min-h-40 cursor-pointer rounded-2xl border-2 border-dashed border-brand-400 bg-white p-8 text-center shadow-sm hover:border-brand-600 hover:bg-brand-50/30">
                 <span className="block text-4xl">☁️</span>
                 <span className="mt-3 block text-base font-extrabold">{uploading ? 'Đang kiểm tra và tải lên…' : 'Chọn file đúng template để preview'}</span>
                 <span className="mt-1 block text-sm text-muted">{form.contentType === 'reward' ? `${selectedSpec.width}×${selectedSpec.height}px · tối đa ${selectedSpec.maxMb} MB` : 'PNG, WebP, JPG, JSON hoặc WebM'}</span>
@@ -498,9 +636,9 @@ export function LegendRewardStudio() {
                     void uploadAsset(file)
                   }
                 }} />
-              </label>
-              {assetInfo && <p className="rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">✓ {assetInfo}</p>}
-              <p className="break-all rounded-xl bg-white p-3 text-xs text-muted">{form.assetUrl || 'Chưa có URL asset — preview tạm sẽ xuất hiện ngay khi chọn file.'}</p>
+              </label>}
+              {form.contentType !== 'chapter' && assetInfo && <p className="rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">✓ {assetInfo}</p>}
+              {form.contentType !== 'chapter' && <p className="break-all rounded-xl bg-white p-3 text-xs text-muted">{form.assetUrl || 'Chưa có URL asset — preview tạm sẽ xuất hiện ngay khi chọn file.'}</p>}
             </section>
 
             <section className="space-y-4 rounded-3xl border border-border bg-slate-50/70 p-4">
@@ -540,16 +678,26 @@ export function LegendRewardStudio() {
             {form.contentType === 'chapter' ? (
               <div className="overflow-hidden rounded-3xl border-[6px] border-amber-900 bg-[#fff9df] shadow-inner">
                 <div className="grid min-h-80 grid-cols-2">
-                  <div className="relative flex flex-col justify-end overflow-hidden p-5 text-left text-white" style={{ background: `linear-gradient(145deg, ${form.chapterColorStart}, ${form.chapterColorEnd})` }}>
+                  <div className="relative flex flex-col justify-end overflow-hidden bg-cover bg-center p-5 text-left text-white" style={{
+                    backgroundImage: form.chapterLeftBackgroundUrl
+                      ? `linear-gradient(0deg, rgba(15,23,42,.78), rgba(15,23,42,.08)), url("${form.chapterLeftBackgroundUrl}")`
+                      : `linear-gradient(145deg, ${form.chapterColorStart}, ${form.chapterColorEnd})`,
+                  }}>
                     <span className="absolute right-2 top-2 text-6xl opacity-25">{form.chapterEmoji}</span>
                     <p className="relative text-[10px] font-black uppercase">{form.chapterSlug} · {form.chapterGroup}</p>
                     <h3 className="relative mt-1 font-display text-xl">{form.name || 'Tên chapter'}</h3>
                     <p className="relative mt-2 line-clamp-5 text-xs font-semibold text-white/90">{form.chapterStory || 'Lời kể của chapter sẽ hiển thị trên trang trái.'}</p>
                   </div>
-                  <div className="grid grid-cols-3 gap-1.5 bg-[radial-gradient(circle_at_center,#fffdf3,#f7edc9)] p-3">
-                    {Array.from({ length: 9 }, (_, index) => (
+                  <div className="grid grid-cols-3 gap-1.5 bg-cover bg-center p-3" style={{
+                    backgroundImage: form.chapterStickerPageUrl
+                      ? `linear-gradient(rgba(255,253,243,.82), rgba(247,237,201,.82)), url("${form.chapterStickerPageUrl}")`
+                      : 'radial-gradient(circle at center, #fffdf3, #f7edc9)',
+                  }}>
+                    {chapterStickers.map((sticker, index) => (
                       <div key={index} className={`flex min-h-16 flex-col items-center justify-center rounded-xl border p-1 ${index === 8 ? 'border-violet-200 bg-violet-50' : 'border-dashed border-amber-200 bg-white/80'}`}>
-                        <span className="text-xl">{index === 8 ? '🏆' : '⭐'}</span>
+                        {sticker.placeholderUrl
+                          ? <img src={sticker.placeholderUrl} alt="" className="h-9 w-9 object-contain opacity-45 grayscale" />
+                          : <span className="text-xl opacity-35">{index === 8 ? '🏆' : '⭐'}</span>}
                         <span className="text-[8px] font-bold">{index === 8 ? 'Boss' : `Sticker ${index + 1}`}</span>
                       </div>
                     ))}

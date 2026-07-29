@@ -12,12 +12,25 @@ Ba loại dùng chung catalog/version/workflow, nhưng dùng ba editor khác nha
 
 - Reward Designer dùng asset template, slot và layer.
 - Storybook Chapter Editor dùng spread hai trang, mã trang, nhóm hành trình,
-  màu trang, lời kể và đúng 9 sticker (sticker thứ 9 là Boss).
+  màu trang, lời kể và đúng 9 sticker (sticker thứ 9 là Boss). Admin có thể
+  upload riêng ảnh bìa, background trang trái và texture trang sticker.
 - Event Builder dùng banner, thời gian bắt đầu/kết thúc, luật tham gia và reward
   pool. Event không dùng layer avatar và Chapter không dùng template Reward.
 
 Chapter đã publish có thể override P01–P08 theo `slug`, hoặc thêm trang mới từ
 P09 trở đi. Client chỉ nhận chapter mới khi có `story` và đúng 9 sticker.
+
+Mỗi sticker hỗ trợ:
+
+- `imageUrl`: PNG/WebP/SVG nền trong suốt, hiển thị sau khi đã đạt.
+- `placeholderUrl`: silhouette/outline cùng kích thước và hình dáng, hiển thị
+  khi chưa đạt.
+- `icon`: emoji fallback nếu chưa có asset riêng.
+
+Runtime giữ nguyên slot của sticker: trạng thái locked render `placeholderUrl`,
+trạng thái unlocked thay trực tiếp bằng `imageUrl`, không thay đổi kích thước
+card. Vì vậy designer phải xuất cặp placeholder/sticker trên cùng một canvas
+vuông, cùng padding và cùng tâm ảnh.
 
 ## Workflow
 

@@ -30,7 +30,13 @@ export function StorybookPage() {
       group?: StorybookPage['group']
       stickers?: StorybookPage['stickers']
     }
-    displayConfig?: { colors?: [string, string]; emoji?: string }
+    displayConfig?: {
+      colors?: [string, string]
+      emoji?: string
+      coverUrl?: string
+      leftBackgroundUrl?: string
+      stickerPageUrl?: string
+    }
   }>>([])
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState('')
@@ -80,6 +86,9 @@ export function StorybookPage() {
         stickers: override.content?.stickers?.length === 9 ? override.content.stickers : page.stickers,
         emoji: override.displayConfig?.emoji || page.emoji,
         colors: override.displayConfig?.colors || page.colors,
+        coverUrl: override.displayConfig?.coverUrl || page.coverUrl,
+        leftBackgroundUrl: override.displayConfig?.leftBackgroundUrl || page.leftBackgroundUrl,
+        stickerPageUrl: override.displayConfig?.stickerPageUrl || page.stickerPageUrl,
       }
     })
     const existingSlugs = new Set(basePages.map((page) => page.slug))
@@ -94,6 +103,9 @@ export function StorybookPage() {
         stickers: item.content.stickers,
         emoji: item.displayConfig?.emoji || '📖',
         colors: item.displayConfig?.colors || ['#4338CA', '#F59E0B'],
+        coverUrl: item.displayConfig?.coverUrl,
+        leftBackgroundUrl: item.displayConfig?.leftBackgroundUrl,
+        stickerPageUrl: item.displayConfig?.stickerPageUrl,
       }]
     })
     return [...basePages, ...addedPages]
