@@ -151,7 +151,7 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   loginAdult: async (login, password) => {
     set({ error: null })
-    const { user } = await api<{ user: User }>('/api/auth/login', {
+    const { user } = await api<{ user: User }>('/api/auth/login/adult', {
       method: 'POST',
       body: JSON.stringify({ login, password }),
     })
