@@ -124,3 +124,15 @@ export function achievementsToUnlock(snap: ProgressSnapshot): AchievementType[] 
 export function getAchievementMeta(type: string): AchievementMeta | undefined {
   return ACHIEVEMENT_CATALOG.find((a) => a.type === type)
 }
+
+/** Compatibility bridge while the legacy achievement API remains live. */
+export const LEGACY_TO_STICKER_MAP: Readonly<Record<string, string>> = {
+  first_quest: 'P01-S1',
+  streak_3: 'P01-S4',
+  streak_7: 'P01-S7',
+  streak_30: 'P04-S8',
+  star_10: 'P01-S6',
+  star_50: 'P02-S8',
+  course_complete: 'P04-S2',
+  project_first: 'P05-S1',
+}
