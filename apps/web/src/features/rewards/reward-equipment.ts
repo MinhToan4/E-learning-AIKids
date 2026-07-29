@@ -102,3 +102,15 @@ export function profileCardStyle(themeId?: string): CSSProperties {
       'radial-gradient(circle at 85% 15%,rgba(61,191,255,.18),transparent 28%),linear-gradient(135deg,#f5f3ff,#f1faff,#fffbec)',
   }
 }
+
+export type ProfileCardTone = 'light' | 'dark'
+
+export function profileCardTone(themeId?: string): ProfileCardTone {
+  return new Set([
+    'background-ai-gate',
+    'background-forest-guardian',
+    'theme-legend',
+  ]).has(themeId ?? '')
+    ? 'dark'
+    : 'light'
+}

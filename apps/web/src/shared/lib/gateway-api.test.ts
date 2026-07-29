@@ -113,6 +113,7 @@ describe('StoryMee Gateway adapter', () => {
     const fetchMock = vi.fn().mockResolvedValue(response({
       currentStreak: 4,
       longestStreak: 9,
+      lastActivityDate: '2026-07-29T00:00:00.000Z',
     }))
     vi.stubGlobal('fetch', fetchMock)
 
@@ -120,7 +121,11 @@ describe('StoryMee Gateway adapter', () => {
       '/api/gamification/streak',
     )
 
-    expect(result).toEqual({ current: 4, longest: 9 })
+    expect(result).toEqual({
+      current: 4,
+      longest: 9,
+      lastActivityDate: '2026-07-29T00:00:00.000Z',
+    })
     expect(fetchMock).toHaveBeenCalledWith(
       'https://dev-hub.storymee.com/api/v1/gamification/me/streak',
       expect.any(Object),
@@ -184,14 +189,24 @@ describe('StoryMee Gateway adapter', () => {
 
   it('builds the learning pathway from the deployed LMS course catalog', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response({
-      courses: [{
-        id: 'course-1',
-        title: 'AI cơ bản',
-        shortTitle: 'Khởi đầu',
-        ageBand: '8-11',
-        enrolled: true,
-        progressPct: 25,
-      }],
+      courses: [
+        {
+          id: 'course-1',
+          title: 'AI cơ bản',
+          shortTitle: 'Khởi đầu',
+          ageBand: '8-11',
+          enrolled: true,
+          progressPct: 25,
+        },
+        {
+          id: 'course-not-enrolled',
+          title: 'Khóa chưa đăng ký',
+          shortTitle: 'Không thuộc hành trình',
+          ageBand: '8-11',
+          enrolled: false,
+          progressPct: 0,
+        },
+      ],
     }))
     vi.stubGlobal('fetch', fetchMock)
 
@@ -208,8 +223,9 @@ describe('StoryMee Gateway adapter', () => {
         completionPercent: 25,
       }],
     })
+    expect(result.courses).toHaveLength(1)
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://dev-hub.storymee.com/api/v1/lms/courses',
+      'https://dev-hub.storymee.com/api/v1/lms/me/pathway',
       expect.any(Object),
     )
   })
@@ -221,17 +237,36 @@ describe('StoryMee Gateway adapter', () => {
         title: 'Học mỗi ngày',
         description: 'Hoàn thành một bài học hôm nay',
         cadence: 'daily',
+        target: 1,
         xpReward: 10,
       },
-      progress: 0,
+      periodKey: '2026-07-29',
+      progress: 1,
+      completedAt: '2026-07-29T08:00:00.000Z',
+      claimedAt: '2026-07-29T08:00:00.000Z',
     }]))
     vi.stubGlobal('fetch', fetchMock)
 
     const result = await api<{
-      mission: { action: { route: string } } | null
+      mission: {
+        progress: number
+        target: number
+        periodKey: string
+        completedAt: string | null
+        claimedAt: string | null
+        action: { route: string; label: string }
+      } | null
     }>('/api/gamification/daily-mission')
 
     expect(result.mission?.action.route).toBe('/world')
+    expect(result.mission).toMatchObject({
+      progress: 1,
+      target: 1,
+      periodKey: '2026-07-29',
+      completedAt: '2026-07-29T08:00:00.000Z',
+      claimedAt: '2026-07-29T08:00:00.000Z',
+      action: { label: 'Xem hành trình' },
+    })
   })
 
   it('routes the complete learning flow through the LMS compatibility facade', async () => {

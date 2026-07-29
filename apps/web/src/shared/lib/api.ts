@@ -175,7 +175,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     '/api/auth/tenant': '/api/v1/account/tenant/resolve',
     '/api/courses': '/api/v1/lms/courses',
     '/api/enrollments': '/api/v1/lms/enrollments',
-    '/api/learning/pathway': '/api/v1/lms/courses',
+    '/api/learning/pathway': '/api/v1/lms/compat/pathway',
     '/api/notifications': '/api/v1/notifications',
     '/api/notifications/read-all': '/api/v1/notifications/read-all',
     '/api/notifications/preferences': '/api/v1/notifications/preferences',
@@ -1173,7 +1173,11 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
   }
   if (/^\/api\/learning\/pathway(?:\?.*)?$/.test(path) &&
       Array.isArray(payload.courses)) {
-    const courses = payload.courses.map((course) => {
+    // A pathway is the child's enrolled learning list. Keep this defensive
+    // filter while older LMS deployments may still return the public catalog.
+    const courses = payload.courses
+      .filter((course) => (course as Record<string, unknown>).enrolled === true)
+      .map((course) => {
       const raw = course as Record<string, unknown>
       const mapped = mapCourse(raw)
       const enrolled = raw.enrolled === true
@@ -1193,7 +1197,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         missingPrerequisites: [],
         coverImage: mapped.coverImage,
       }
-    })
+      })
     const recommended = courses.find((course) => course.status === 'active') ??
       courses.find((course) => course.status === 'available') ??
       null
@@ -1209,7 +1213,15 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     }
   }
   if (/^\/api\/courses\/[^/?]+$/.test(path) && payload.course) {
-    return { course: mapCourse(payload.course as Record<string, unknown>) }
+    const raw = payload.course as Record<string, unknown>
+    return {
+      course: {
+        ...mapCourse(raw),
+        enrolled: raw.enrolled === true,
+        enrollmentId: raw.enrollmentId ? String(raw.enrollmentId) : null,
+        enrollmentSource: raw.enrollmentSource ? String(raw.enrollmentSource) : null,
+      },
+    }
   }
   if (path === '/api/parent/children' && Array.isArray(payload.children)) {
     return {
@@ -1507,6 +1519,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     return {
       current: Number(payload.currentStreak ?? 0),
       longest: Number(payload.longestStreak ?? 0),
+      lastActivityDate: payload.lastActivityDate ? String(payload.lastActivityDate) : null,
     }
   }
   if (path === '/api/gamification/achievements') {
@@ -1553,12 +1566,25 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     }) as Record<string, unknown> | undefined
     if (!daily) return { mission: null }
     const mission = (daily.mission ?? daily) as Record<string, unknown>
+    const progress = Number(daily.progress ?? 0)
+    const target = Math.max(1, Number(mission.target ?? 1))
+    const completedAt = daily.completedAt ? String(daily.completedAt) : null
+    const claimedAt = daily.claimedAt ? String(daily.claimedAt) : null
     return {
       mission: {
+        key: String(mission.key ?? ''),
+        periodKey: String(daily.periodKey ?? ''),
         title: String(mission.title ?? ''),
         description: String(mission.description ?? ''),
         xpReward: Number(mission.xpReward ?? 0),
-        action: { label: 'Học ngay', route: '/world' },
+        progress,
+        target,
+        completedAt,
+        claimedAt,
+        action: {
+          label: completedAt ? 'Xem hành trình' : progress > 0 ? 'Tiếp tục học' : 'Học ngay',
+          route: '/world',
+        },
       },
     }
   }

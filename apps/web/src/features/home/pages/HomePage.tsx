@@ -15,44 +15,134 @@ import {
   explorerLevelProgress,
   nextExplorerLevel,
 } from '@/shared/lib/creation/xp-levels'
+import { REWARD_CATALOG } from '@/shared/lib/creation/rewards'
+import { avatarEmoji, avatarImage } from '@/shared/config/avatars'
+import { readProfileAvatar } from '@/features/profile/profile-showcase'
+import {
+  readRewardEquipment,
+  rewardFrameStyle,
+} from '@/features/rewards/reward-equipment'
 
 type TrackFilter = 'all' | 'L1' | 'L2'
+
+type EnrollmentSummary = {
+  courseId: string
+  status: string
+  progress?: Array<{ status?: string; stars?: number }>
+}
+
+export function coursesWithEnrollments(
+  courses: CourseSummary[],
+  enrollments: EnrollmentSummary[],
+): CourseSummary[] {
+  const byCourse = new Map(enrollments.map((row) => [row.courseId, row]))
+  return courses.map((course) => {
+    const enrollment = byCourse.get(course.id)
+    if (!enrollment || !['active', 'completed'].includes(enrollment.status)) {
+      return { ...course, enrolled: false, completedCount: 0, totalStars: 0, progressPct: 0 }
+    }
+    const progress = enrollment.progress ?? []
+    const completedCount = progress.filter((row) => row.status === 'completed').length
+    const questCount = progress.length || course.questCount || 0
+    return {
+      ...course,
+      enrolled: true,
+      questCount,
+      completedCount,
+      totalStars: progress.reduce((sum, row) => sum + Number(row.stars ?? 0), 0),
+      progressPct: questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0,
+    }
+  })
+}
 
 function courseBadge(course: CourseSummary) {
   return /^l[12]-k7-/.test(course.id) ? 'AI' : (course.courseKey ?? 'Mới')
 }
 
-function HeaderAvatar({ nickname }: { nickname?: string | null }) {
+function HeaderAvatar({
+  userId,
+  avatarId,
+  nickname,
+}: {
+  userId?: string
+  avatarId?: string | null
+  nickname?: string | null
+}) {
   const [failed, setFailed] = useState(false)
-  if (failed) {
-    return (
-      <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-br from-brand-400 via-sky-400 to-mint-400 flex items-center justify-center text-3xl font-black text-white shadow-clay flex-shrink-0" aria-hidden>
-        {nickname ? nickname.charAt(0).toUpperCase() : '✨'}
-      </div>
-    )
-  }
+  const [revision, setRevision] = useState(0)
+  useEffect(() => {
+    const sync = () => setRevision((value) => value + 1)
+    window.addEventListener('aikids:profile-avatar', sync)
+    window.addEventListener('aikids:reward-equipped', sync)
+    return () => {
+      window.removeEventListener('aikids:profile-avatar', sync)
+      window.removeEventListener('aikids:reward-equipped', sync)
+    }
+  }, [])
+  const equipment = userId ? readRewardEquipment(userId) : {}
+  const profileAvatar = userId ? readProfileAvatar(userId) : null
+  const avatarReward = REWARD_CATALOG.find((item) => item.id === equipment.avatar)
+  const equippedAvatarId = avatarReward?.equipValue ?? avatarId
+  const image = profileAvatar?.url ?? avatarImage(equippedAvatarId)
+  void revision
+
   return (
-    <img
-      src={designerAssets.lobby.homeCharacter}
-      alt=""
-      onError={() => setFailed(true)}
-      className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-cover shadow-clay flex-shrink-0"
-    />
+    <div className={`relative h-16 w-16 flex-shrink-0 sm:h-20 sm:w-20 ${equipment.effect ? 'drop-shadow-[0_0_12px_rgba(250,204,21,.8)]' : ''}`}>
+      <div
+        className="relative h-full w-full rounded-full bg-white p-1.5 shadow-clay"
+        style={rewardFrameStyle(equipment.frame)}
+      >
+        <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border-2 border-white bg-brand-100 text-3xl font-black text-brand-700">
+          {image && !failed
+            ? <img src={image} alt="" onError={() => setFailed(true)} className="h-full w-full object-cover" />
+            : avatarEmoji(equippedAvatarId) || nickname?.charAt(0).toUpperCase() || '✨'}
+        </div>
+      </div>
+      {equipment.companion && (
+        <span className="absolute -bottom-1 -right-2 z-20 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-sky-100 shadow-soft">
+          <img src={designerAssets.brand.mascot} alt="" className="h-7 w-7 object-contain" />
+        </span>
+      )}
+    </div>
   )
 }
 
-function StreakWidget({ current, longest }: { current: number; longest: number }) {
+function localDay(value: Date): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(value)
+}
+
+function streakState(current: number, lastActivityDate: string | null) {
+  if (!lastActivityDate || current <= 0) {
+    return { icon: '🕯️', label: 'Chưa tạo chuỗi', hint: 'Hoàn thành 1 bài để bắt đầu', tone: 'border-slate-200 bg-slate-50' }
+  }
+  const today = localDay(new Date())
+  const last = localDay(new Date(lastActivityDate))
+  if (last === today) {
+    return { icon: '🔥', label: `${current} ngày liên tục`, hint: 'Hôm nay đã giữ chuỗi', tone: 'border-sun-200/80 bg-gradient-to-br from-sun-100/90 via-sun-50 to-coral-50/80' }
+  }
+  const yesterdayDate = new Date()
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1)
+  if (last === localDay(yesterdayDate)) {
+    return { icon: '⏳', label: `${current} ngày đang chờ`, hint: 'Học hôm nay để giữ chuỗi', tone: 'border-sun-300 bg-sun-50' }
+  }
+  return { icon: '🌱', label: 'Chuỗi đã gián đoạn', hint: 'Hoàn thành 1 bài để bắt đầu lại', tone: 'border-slate-200 bg-slate-50' }
+}
+
+function StreakWidget({ current, longest, lastActivityDate }: { current: number; longest: number; lastActivityDate: string | null }) {
+  const state = streakState(current, lastActivityDate)
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-gradient-to-br from-sun-100/90 via-sun-50 to-coral-50/80 border-2 border-sun-200/80 px-4 py-2.5 shadow-soft">
+    <div className={cn('flex items-center gap-3 rounded-2xl border-2 px-4 py-2.5 shadow-soft', state.tone)}>
       <span className="text-3xl flex-shrink-0 leading-none filter drop-shadow-sm" aria-hidden>
-        🔥
+        {state.icon}
       </span>
       <div className="flex flex-col min-w-0">
-        <div className="flex items-baseline gap-1">
-          <span className="font-display text-2xl text-text leading-none">{current}</span>
-          <span className="text-xs font-bold text-sun-800">ngày liên tục</span>
-        </div>
-        <p className="text-[11px] font-semibold text-muted mt-0.5">Kỷ lục: {longest} ngày</p>
+        <p className="font-display text-base text-text leading-none">{state.label}</p>
+        <p className="mt-1 text-[11px] font-semibold text-muted">{state.hint} · Kỷ lục {longest} ngày</p>
       </div>
     </div>
   )
@@ -105,7 +195,7 @@ function CourseCard({ course }: { course: CourseSummary }) {
   )
 
   return (
-    <Link to={`/course/${course.id}`} className="course-card group">
+    <Link to={course.enrolled ? `/world/${course.id}` : `/course/${course.id}`} className="course-card group">
       {/* Cover image */}
       <div className="course-card-cover overflow-hidden bg-brand-50">
         <img
@@ -165,12 +255,18 @@ export function HomePage() {
   const user = useAuth((s) => s.user)
   const [courses, setCourses] = useState<CourseSummary[]>([])
   const [track, setTrack] = useState<TrackFilter>('all')
-  const [streak, setStreak] = useState({ current: 0, longest: 0 })
+  const [streak, setStreak] = useState({ current: 0, longest: 0, lastActivityDate: null as string | null })
   const [badges, setBadges] = useState<AchievementRow[]>([])
   const [dailyMission, setDailyMission] = useState<{
     title: string
+    key: string
+    periodKey: string
     description: string
     xpReward: number
+    progress: number
+    target: number
+    completedAt: string | null
+    claimedAt: string | null
     action: { label: string; route: string }
   } | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -182,22 +278,23 @@ export function HomePage() {
     setError(null)
     try {
       // WHY: Run all independent API calls in parallel to cut perceived load time
-      // from ~3 serial round-trips down to 1 batched round-trip.
-      const [c, s, a, checkResult, missionResult, profile] = await Promise.all([
+      // from serial round-trips down to one batched round-trip.
+      const [c, enrollmentData, s, a, missionResult, profile] =
+        await Promise.all([
         api<{ courses: CourseSummary[] }>('/api/courses'),
-        api<{ current: number; longest: number }>('/api/gamification/streak'),
+        api<{ enrollments: EnrollmentSummary[] }>('/api/enrollments'),
+        api<{ current: number; longest: number; lastActivityDate: string | null }>('/api/gamification/streak'),
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
-        // Check-in is a GET alias (normalizeGatewayRequest rewrites method to GET)
-        api<{ current: number; longest: number }>('/api/gamification/check-in', { method: 'POST' })
-          .catch(() => null),
         api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission')
           .catch(() => null),
         api<{ totalXp: number; level: number }>('/api/gamification/profile'),
       ])
-      setCourses(c.courses)
-      // Prefer check-in result (it refreshes streak atomically); fall back to streak
-      const streakData = checkResult ?? s
-      setStreak({ current: streakData.current, longest: streakData.longest })
+      setCourses(coursesWithEnrollments(c.courses, enrollmentData.enrollments))
+      setStreak({
+        current: s.current,
+        longest: s.longest,
+        lastActivityDate: s.lastActivityDate,
+      })
       const unlockedBadges = a.achievements.filter((achievement) => achievement.unlocked)
       const firstMilestone = a.achievements.find(
         (achievement) => achievement.type === 'first_quest',
@@ -211,14 +308,24 @@ export function HomePage() {
             ? [firstMilestone]
             : a.achievements.slice(0, 1),
       )
-      if (missionResult?.mission) setDailyMission(missionResult.mission)
+      if (missionResult?.mission) {
+          const mission = missionResult.mission
+          const seenKey = `aikids.daily-mission-seen.${user?.id ?? 'learner'}.${mission.key}.${mission.periodKey}`
+          const completionToken = mission.completedAt ?? ''
+          if (!completionToken || localStorage.getItem(seenKey) !== completionToken) {
+            setDailyMission(mission)
+            if (completionToken) localStorage.setItem(seenKey, completionToken)
+          } else {
+            setDailyMission(null)
+          }
+      }
       setExplorerXp(profile.totalXp)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Lỗi tải khóa học')
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user?.id])
 
 
   useEffect(() => {
@@ -274,7 +381,7 @@ export function HomePage() {
         <div className="relative flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5">
           {/* Left: kids character avatar + greeting */}
           <div className="flex items-center gap-3.5">
-            <HeaderAvatar nickname={user?.nickname} />
+            <HeaderAvatar userId={user?.id} avatarId={user?.avatarId} nickname={user?.nickname} />
             <div className="min-w-0">
               <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
                 Xin chào!
@@ -290,7 +397,7 @@ export function HomePage() {
 
           {/* Right: streak widget — shrink-0 prevents it from being squished on 375px */}
           <div className="flex shrink-0 items-center gap-2 ml-auto">
-            <StreakWidget current={streak.current} longest={streak.longest} />
+            <StreakWidget current={streak.current} longest={streak.longest} lastActivityDate={streak.lastActivityDate} />
           </div>
         </div>
 
@@ -330,8 +437,23 @@ export function HomePage() {
 
               <div className="my-2">
                 <p className="text-xs font-semibold text-text/90 leading-relaxed line-clamp-2">
-                  {dailyMission.description}
+                  <strong>{dailyMission.title}</strong> · {dailyMission.description}
                 </p>
+                <div className="mt-2">
+                  <div className="flex items-center justify-between text-[11px] font-bold">
+                    <span>{dailyMission.completedAt ? 'Đã hoàn thành' : `${Math.min(dailyMission.progress, dailyMission.target)}/${dailyMission.target} bài`}</span>
+                    <span>{Math.round(Math.min(1, dailyMission.progress / dailyMission.target) * 100)}%</span>
+                  </div>
+                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-sun-100">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-sun-400 to-coral-400 transition-all"
+                      style={{ width: `${Math.min(100, (dailyMission.progress / dailyMission.target) * 100)}%` }}
+                    />
+                  </div>
+                  {dailyMission.claimedAt && (
+                    <p className="mt-1 text-[11px] font-extrabold text-success">✓ Đã cộng +{dailyMission.xpReward} XP</p>
+                  )}
+                </div>
               </div>
 
               <div className="pt-1">
@@ -400,7 +522,7 @@ export function HomePage() {
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-display text-2xl font-black flex items-center gap-2.5 text-text">
             <CourseBookIcon size={32} aria-hidden />
-            Hành trình của con
+            Khóa con đang học
           </h2>
           {/* Age filter tabs */}
           <div className="flex gap-1 rounded-2xl bg-brand-50 p-1 border border-brand-100">
@@ -432,11 +554,11 @@ export function HomePage() {
           Mỗi hành trình có trò chơi nhỏ, video và sản phẩm do con tạo ra. Bắt đầu từ điều con thích!
         </p>
 
-        {/* Enrolled courses (priority) */}
+        {/* Only real enrollments belong to the child's learning list. */}
         {enrolled.length > 0 && (
           <div className="mb-4">
             <p className="mb-2 text-xs font-extrabold uppercase tracking-wider text-brand-500">
-              ⭐ Đang học
+              ⭐ Enrollment đang hoạt động
             </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {enrolled.map((c) => (
@@ -446,14 +568,20 @@ export function HomePage() {
           </div>
         )}
 
-        {/* Explore courses */}
+        {enrolled.length === 0 && (
+          <div className="mb-5 rounded-3xl border-2 border-dashed border-brand-200 bg-brand-50/60 p-5 text-center">
+            <p className="font-display text-lg">Con chưa đăng ký khóa học nào</p>
+            <p className="mt-1 text-sm text-muted">Chọn một khóa bên dưới để xem nội dung và đăng ký. Các khóa đã đăng ký mới xuất hiện trong phần Học.</p>
+          </div>
+        )}
+
+        {/* Catalog remains separate so purchase/approval can be introduced without
+            treating access to a public course description as an enrollment. */}
         {explore.length > 0 && (
           <div>
-            {enrolled.length > 0 && (
-              <p className="mb-2 text-xs font-extrabold uppercase tracking-wider text-muted">
-                🔍 Khám phá thêm
-              </p>
-            )}
+            <p className="mb-2 text-xs font-extrabold uppercase tracking-wider text-muted">
+              🔍 Khám phá & đăng ký khóa mới
+            </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {explore.map((c) => (
                 <CourseCard key={c.id} course={c} />

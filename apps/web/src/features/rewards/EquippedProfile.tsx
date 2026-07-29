@@ -12,11 +12,13 @@ export function EquippedProfile({
   xp,
   compact = false,
   onAvatarClick,
+  tone = 'light',
 }: {
   user: User
   xp: number
   compact?: boolean
   onAvatarClick?: () => void
+  tone?: 'light' | 'dark'
 }) {
   const [equipment, setEquipment] = useState(() => readRewardEquipment(user.id))
   const [profileAvatar, setProfileAvatar] = useState(() => readProfileAvatar(user.id))
@@ -80,14 +82,20 @@ export function EquippedProfile({
         )}
       </div>
       <div>
-        <p className="text-xs font-black uppercase tracking-[.2em] text-brand-500">
+        <p className={`text-xs font-black uppercase tracking-[.2em] ${
+          tone === 'dark' ? 'text-white/70' : 'text-brand-500'
+        }`}>
           Hồ sơ Nhà Khám Phá
         </p>
-        <h1 className={`mt-1 font-display ${compact ? 'text-3xl' : 'text-4xl'}`}>{user.nickname}</h1>
+        <h1 className={`mt-1 font-display ${
+          tone === 'dark' ? 'text-white' : 'text-text'
+        } ${compact ? 'text-3xl' : 'text-4xl'}`}>{user.nickname}</h1>
         <p className="mt-1 inline-flex items-center gap-2 rounded-full bg-sun-100 px-4 py-1.5 font-extrabold text-sun-700">
           {titleReward?.icon ?? '✨'} {title ?? level.title}
         </p>
-        <p className="mt-2 text-sm font-bold text-muted">{xp} XP toàn hệ sinh thái</p>
+        <p className={`mt-2 text-sm font-bold ${
+          tone === 'dark' ? 'text-white/75' : 'text-muted'
+        }`}>{xp} XP toàn hệ sinh thái</p>
       </div>
       {!compact && <div className="flex flex-wrap justify-center gap-2 text-xs font-bold">
         <span className="rounded-full bg-white/80 px-3 py-1.5 text-brand-700 shadow-soft">
