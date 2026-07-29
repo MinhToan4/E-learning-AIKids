@@ -75,9 +75,24 @@ const AchievementsPage = lazy(() =>
     default: m.AchievementsPage,
   })),
 )
+const StorybookPage = lazy(() =>
+  import('@/features/storybook/pages/StorybookPage').then((m) => ({
+    default: m.StorybookPage,
+  })),
+)
 const LeaderboardPage = lazy(() =>
   import('@/features/leaderboard/pages/LeaderboardPage').then((m) => ({
     default: m.LeaderboardPage,
+  })),
+)
+const ExplorerLevelPage = lazy(() =>
+  import('@/features/level/pages/ExplorerLevelPage').then((m) => ({
+    default: m.ExplorerLevelPage,
+  })),
+)
+const EventsPage = lazy(() =>
+  import('@/features/events/pages/EventsPage').then((m) => ({
+    default: m.EventsPage,
   })),
 )
 const ParentPage = lazy(() =>
@@ -314,22 +329,52 @@ export function App() {
                 </Guard>
               }
             />
-            <Route
-              path="/achievements"
+          <Route
+            path="/achievements"
               element={
                 <Guard roles={['student']} requireOnboarded>
                   <AchievementsPage />
                 </Guard>
               }
-            />
-            <Route
-              path="/leaderboard"
+          />
+          <Route
+            path="/storybook"
+            element={
+              <Guard roles={['student']} requireOnboarded>
+                <AppShell />
+              </Guard>
+            }
+          >
+            <Route index element={<StorybookPage />} />
+          </Route>
+          <Route
+            path="/leaderboard"
               element={
                 <Guard roles={['student']} requireOnboarded>
                   <LeaderboardPage />
                 </Guard>
               }
-            />
+          />
+          <Route
+            path="/level"
+            element={
+              <Guard roles={['student']} requireOnboarded>
+                <AppShell />
+              </Guard>
+            }
+          >
+            <Route index element={<ExplorerLevelPage />} />
+          </Route>
+          <Route
+            path="/events"
+            element={
+              <Guard roles={['student']} requireOnboarded>
+                <AppShell />
+              </Guard>
+            }
+          >
+            <Route index element={<EventsPage />} />
+          </Route>
             {/* Assessment portal: student sees their assessments */}
             <Route
               path="/assessments"
