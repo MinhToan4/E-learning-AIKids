@@ -16,11 +16,41 @@ Nội dung đã publish là immutable. Muốn sửa, admin tạo cùng `code`; b
 tăng `version`. Khi publish version mới, version published cũ chuyển sang
 `retired`, nhưng asset và inventory cũ vẫn được giữ để không làm hỏng Profile.
 
-## Asset
+## Template asset bắt buộc
 
-Studio upload asset qua Core Media. Định dạng UI chấp nhận PNG, WebP, JPEG, SVG,
-Lottie JSON và WebM. URL Media được lưu trong `assets` của version, không lưu
-binary trong Gamification database.
+| Reward | Kích thước | Định dạng | Dung lượng | Nền / vùng an toàn |
+| --- | ---: | --- | ---: | --- |
+| Background | 1600×1200 | WebP, JPG, PNG | 3 MB | Được phủ kín; giữ vùng giữa 60% thoáng |
+| Avatar | 1024×1024 | WebP, PNG, JPG | 2 MB | Mặt trong vòng tròn giữa 72% |
+| Frame | 1024×1024 | PNG, WebP | 2 MB | Bắt buộc trong suốt; giữa trống tối thiểu 58% |
+| Companion | 512×512 | PNG, WebP | 1.5 MB | Bắt buộc trong suốt; chừa 5% mỗi cạnh |
+| Effect | 1024×1024 | WebM, WebP, PNG | 4 MB | Trong suốt; không che vùng mặt giữa 50% |
+| Title | 1200×320 | PNG, WebP | 1.5 MB | Trong suốt; chừa vùng chữ giữa 70%×55% |
+| Theme | 1600×1200 canvas | JSON | 0.5 MB | Chỉ token màu/font, không nhúng base64 |
+| Event ticket | 1200×675 | WebP, JPG, PNG | 2 MB | Chừa 20% bên trái cho text |
+| Perk badge | 512×512 | PNG, WebP | 1 MB | Trong suốt; icon trong vùng giữa 80% |
+
+Studio kiểm tra MIME, dung lượng và kích thước pixel trước khi upload. Với asset
+ảnh cần trong suốt, UI còn kiểm tra kênh alpha. URL Media được lưu trong
+`assets` của version, không lưu binary trong Gamification database.
+
+## Quy tắc kết hợp reward
+
+Mỗi loại dùng một `slot`; một profile chỉ được trang bị tối đa một reward trong
+mỗi slot. Thứ tự render từ dưới lên:
+
+1. layer 0: `profile_background`
+2. layer 10: `profile_theme`
+3. layer 20: `profile_avatar`
+4. layer 30: `avatar_frame`
+5. layer 40: `avatar_companion`
+6. layer 50: `avatar_effect`
+7. layer 60: `profile_title` hoặc `perk_badge`
+
+Background là lớp duy nhất được phép phủ kín canvas. Frame, companion và effect
+phải trong suốt; effect không được che safe area khuôn mặt. Khi admin đổi loại
+reward, Studio tự sinh lại `displayConfig` gồm `slot`, `layer`, `canvas`,
+`transparent` và `fit` để client render thống nhất.
 
 ## Cấu hình
 

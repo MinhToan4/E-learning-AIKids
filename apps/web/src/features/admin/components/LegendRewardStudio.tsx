@@ -23,7 +23,46 @@ type StudioItem = {
 const kindOptions = [
   'frame', 'background', 'companion', 'effect', 'theme', 'title',
   'event_ticket', 'perk', 'avatar',
-]
+] as const
+type RewardKind = typeof kindOptions[number]
+
+type AssetSpec = {
+  label: string
+  width: number
+  height: number
+  formats: string[]
+  maxMb: number
+  transparent: boolean
+  layer: number
+  slot: string
+  safeArea: string
+  combinesWith: string
+}
+
+const assetSpecs: Record<RewardKind, AssetSpec> = {
+  background: { label: 'Background hồ sơ', width: 1600, height: 1200, formats: ['image/webp', 'image/jpeg', 'image/png'], maxMb: 3, transparent: false, layer: 0, slot: 'profile_background', safeArea: 'Giữ chủ thể ngoài vùng giữa 60%', combinesWith: 'Avatar + Frame + Companion + Effect + Title' },
+  avatar: { label: 'Avatar', width: 1024, height: 1024, formats: ['image/webp', 'image/png', 'image/jpeg'], maxMb: 2, transparent: false, layer: 20, slot: 'profile_avatar', safeArea: 'Mặt nằm trong vòng tròn giữa 72%', combinesWith: 'Background + Frame + Companion + Effect' },
+  frame: { label: 'Khung avatar', width: 1024, height: 1024, formats: ['image/png', 'image/webp'], maxMb: 2, transparent: true, layer: 30, slot: 'avatar_frame', safeArea: 'Giữa ảnh phải trong suốt tối thiểu 58%', combinesWith: 'Background + Avatar + 1 Companion + 1 Effect' },
+  companion: { label: 'Bạn đồng hành', width: 512, height: 512, formats: ['image/png', 'image/webp'], maxMb: 1.5, transparent: true, layer: 40, slot: 'avatar_companion', safeArea: 'Nhân vật trong 90%, chừa 5% mỗi cạnh', combinesWith: 'Background + Avatar + Frame + Effect' },
+  effect: { label: 'Hiệu ứng', width: 1024, height: 1024, formats: ['video/webm', 'image/webp', 'image/png'], maxMb: 4, transparent: true, layer: 50, slot: 'avatar_effect', safeArea: 'Không che vùng mặt ở giữa 50%', combinesWith: 'Background + Avatar + Frame + Companion' },
+  title: { label: 'Khung danh hiệu', width: 1200, height: 320, formats: ['image/png', 'image/webp'], maxMb: 1.5, transparent: true, layer: 60, slot: 'profile_title', safeArea: 'Chừa vùng chữ giữa 70% × 55%', combinesWith: 'Theme + Background; nằm dưới profile card' },
+  theme: { label: 'Theme trang cá nhân', width: 1600, height: 1200, formats: ['application/json'], maxMb: 0.5, transparent: false, layer: 10, slot: 'profile_theme', safeArea: 'JSON token màu; không nhúng ảnh base64', combinesWith: 'Background + Frame + Title; theme chỉ điều khiển màu/font' },
+  event_ticket: { label: 'Vé / banner sự kiện', width: 1200, height: 675, formats: ['image/webp', 'image/jpeg', 'image/png'], maxMb: 2, transparent: false, layer: 0, slot: 'event_card', safeArea: 'Chừa 20% bên trái cho tên và thời gian', combinesWith: 'Dùng độc lập trong card sự kiện' },
+  perk: { label: 'Biểu tượng đặc quyền', width: 512, height: 512, formats: ['image/png', 'image/webp'], maxMb: 1, transparent: true, layer: 60, slot: 'perk_badge', safeArea: 'Icon trong 80% vùng giữa', combinesWith: 'Hiển thị độc lập ở ba lô và badge' },
+}
+
+const displayTemplate = (kind: RewardKind) => {
+  const spec = assetSpecs[kind]
+  return JSON.stringify({
+    slot: spec.slot,
+    layer: spec.layer,
+    canvas: { width: spec.width, height: spec.height },
+    transparent: spec.transparent,
+    fit: 'contain',
+    glowColor: '#A78BFA',
+    intensity: 0.6,
+  }, null, 2)
+}
 
 const emptyForm = () => ({
   contentType: 'reward' as ContentType,
@@ -35,7 +74,7 @@ const emptyForm = () => ({
   assetUrl: '',
   unlockType: 'xp_level',
   unlockValue: '1',
-  displayJson: '{\n  "glowColor": "#A78BFA",\n  "intensity": 0.6\n}',
+  displayJson: displayTemplate('frame'),
   contentJson: '{}',
 })
 
@@ -48,6 +87,9 @@ export function LegendRewardStudio() {
   const [uploading, setUploading] = useState(false)
   const [view, setView] = useState<'library' | 'create'>('library')
   const [previewUrl, setPreviewUrl] = useState('')
+  const [assetInfo, setAssetInfo] = useState('')
+  const selectedSpec = assetSpecs[form.kind as RewardKind] ?? assetSpecs.frame
+  const fieldClass = 'field-input mt-2 min-h-12 w-full border-2 border-slate-200 bg-white px-4 text-base shadow-sm focus:border-brand-500'
 
   const load = useCallback(async () => {
     try {
@@ -70,10 +112,66 @@ export function LegendRewardStudio() {
     [filter, items],
   )
 
+  const inspectAsset = async (file: File) => {
+    if (form.contentType !== 'reward') {
+      const allowed = ['image/png', 'image/webp', 'image/jpeg', 'application/json', 'video/webm']
+      if (!allowed.includes(file.type)) throw new Error('Chapter/Event chỉ nhận PNG, WebP, JPG, JSON hoặc WebM.')
+      if (file.size > 6 * 1024 * 1024) throw new Error('Asset Chapter/Event tối đa 6 MB.')
+      return `${file.name} · ${(file.size / 1024).toFixed(0)} KB · định dạng hợp lệ`
+    }
+    const spec = selectedSpec
+    if (!spec.formats.includes(file.type)) {
+      throw new Error(`Sai định dạng. ${spec.label} chỉ nhận: ${spec.formats.map((format) => format.split('/')[1].toUpperCase()).join(', ')}.`)
+    }
+    if (file.size > spec.maxMb * 1024 * 1024) {
+      throw new Error(`File vượt quá ${spec.maxMb} MB theo template ${spec.label}.`)
+    }
+    if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') {
+      return `${file.name} · ${(file.size / 1024).toFixed(0)} KB · định dạng hợp lệ`
+    }
+    const dimensions = await new Promise<{ width: number; height: number; hasTransparency: boolean }>((resolve, reject) => {
+      const image = new Image()
+      const objectUrl = URL.createObjectURL(file)
+      image.onload = () => {
+        const canvas = document.createElement('canvas')
+        canvas.width = 64
+        canvas.height = 64
+        const context = canvas.getContext('2d')
+        context?.drawImage(image, 0, 0, 64, 64)
+        const pixels = context?.getImageData(0, 0, 64, 64).data
+        let hasTransparency = false
+        if (pixels) {
+          for (let index = 3; index < pixels.length; index += 4) {
+            if (pixels[index] < 250) {
+              hasTransparency = true
+              break
+            }
+          }
+        }
+        URL.revokeObjectURL(objectUrl)
+        resolve({ width: image.naturalWidth, height: image.naturalHeight, hasTransparency })
+      }
+      image.onerror = () => {
+        URL.revokeObjectURL(objectUrl)
+        reject(new Error('Không đọc được kích thước ảnh.'))
+      }
+      image.src = objectUrl
+    })
+    if (dimensions.width !== spec.width || dimensions.height !== spec.height) {
+      throw new Error(`Sai kích thước ${dimensions.width}×${dimensions.height}px. Template ${spec.label} yêu cầu đúng ${spec.width}×${spec.height}px.`)
+    }
+    if (spec.transparent && !dimensions.hasTransparency) {
+      throw new Error(`${spec.label} bắt buộc có nền trong suốt để ghép với các reward khác.`)
+    }
+    return `${file.name} · ${dimensions.width}×${dimensions.height}px · ${(file.size / 1024).toFixed(0)} KB · đạt chuẩn`
+  }
+
   const uploadAsset = async (file: File) => {
     setUploading(true)
     setMessage('')
     try {
+      const inspection = await inspectAsset(file)
+      setAssetInfo(inspection)
       const body = new FormData()
       body.append('file', file)
       body.append('purpose', 'legend_reward_design')
@@ -83,8 +181,10 @@ export function LegendRewardStudio() {
       })
       setForm((current) => ({ ...current, assetUrl: result.asset.url }))
       setPreviewUrl(result.asset.url)
-      setMessage('Đã tải asset lên StoryMee Media. Preview đã được cập nhật.')
+      setMessage('Asset đạt chuẩn và đã tải lên StoryMee Media. Preview đã được cập nhật.')
     } catch (error) {
+      setAssetInfo('')
+      setPreviewUrl('')
       setMessage(error instanceof Error ? error.message : 'Không tải được asset.')
     } finally {
       setUploading(false)
@@ -118,6 +218,7 @@ export function LegendRewardStudio() {
       })
       setForm(emptyForm())
       setPreviewUrl('')
+      setAssetInfo('')
       setFilter(createdType)
       setView('library')
       setMessage('Đã tạo bản nháp. Hãy preview trước khi phát hành.')
@@ -247,25 +348,25 @@ export function LegendRewardStudio() {
             <section className="space-y-4 rounded-3xl border border-border bg-slate-50/70 p-4">
               <h3 className="font-extrabold">1. Thông tin cơ bản</h3>
               <label className="block text-sm font-bold">Loại nội dung
-                <select className="field-input mt-1 w-full bg-white" value={form.contentType} onChange={(event) => setForm({ ...form, contentType: event.target.value as ContentType })}>
+                <select className={fieldClass} value={form.contentType} onChange={(event) => setForm({ ...form, contentType: event.target.value as ContentType })}>
                   <option value="reward">Reward / vật phẩm</option><option value="chapter">Chapter Storybook</option><option value="event">Sự kiện</option>
                 </select>
               </label>
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="text-sm font-bold">Mã định danh
-                  <input required minLength={3} className="field-input mt-1 w-full bg-white" placeholder="frame-galaxy" value={form.code} onChange={(event) => setForm({ ...form, code: event.target.value })} />
+                  <input required minLength={3} className={fieldClass} placeholder="frame-galaxy" value={form.code} onChange={(event) => setForm({ ...form, code: event.target.value })} />
                 </label>
                 <label className="text-sm font-bold">Độ hiếm
-                  <select className="field-input mt-1 w-full bg-white" value={form.rarity} onChange={(event) => setForm({ ...form, rarity: event.target.value })}>
+                  <select className={fieldClass} value={form.rarity} onChange={(event) => setForm({ ...form, rarity: event.target.value })}>
                     <option value="common">Common</option><option value="rare">Rare</option><option value="epic">Epic</option><option value="legendary">Legendary</option>
                   </select>
                 </label>
               </div>
               <label className="block text-sm font-bold">Tên hiển thị
-                <input required className="field-input mt-1 w-full bg-white" placeholder="Ví dụ: Khung Dải Ngân Hà" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
+                <input required className={fieldClass} placeholder="Ví dụ: Khung Dải Ngân Hà" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
               </label>
               <label className="block text-sm font-bold">Mô tả
-                <textarea className="field-input mt-1 min-h-24 w-full bg-white" placeholder="Mô tả giá trị và cách trẻ nhận phần thưởng…" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
+                <textarea className={`${fieldClass} min-h-32 py-3`} placeholder="Mô tả giá trị và cách trẻ nhận phần thưởng…" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
               </label>
             </section>
 
@@ -273,15 +374,41 @@ export function LegendRewardStudio() {
               <h3 className="font-extrabold">2. Asset thiết kế</h3>
               {form.contentType === 'reward' && (
                 <label className="block text-sm font-bold">Loại vật phẩm
-                  <select className="field-input mt-1 w-full bg-white" value={form.kind} onChange={(event) => setForm({ ...form, kind: event.target.value })}>
-                    {kindOptions.map((kind) => <option key={kind} value={kind}>{kind}</option>)}
+                  <select className={fieldClass} value={form.kind} onChange={(event) => {
+                    const kind = event.target.value as RewardKind
+                    setForm({ ...form, kind, displayJson: displayTemplate(kind), assetUrl: '' })
+                    setPreviewUrl('')
+                    setAssetInfo('')
+                  }}>
+                    {kindOptions.map((kind) => <option key={kind} value={kind}>{assetSpecs[kind].label}</option>)}
                   </select>
                 </label>
               )}
-              <label className="block cursor-pointer rounded-2xl border-2 border-dashed border-brand-200 bg-white p-5 text-center hover:border-brand-500">
-                <span className="block text-3xl">☁️</span>
-                <span className="mt-2 block text-sm font-extrabold">{uploading ? 'Đang tải và xử lý…' : 'Chọn file để tải lên & preview'}</span>
-                <span className="block text-xs text-muted">PNG, WebP, JPG, SVG, JSON hoặc WebM</span>
+              {form.contentType === 'reward' && (
+                <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/70 p-4">
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <p className="text-xs font-black uppercase tracking-wider text-brand-600">Template bắt buộc</p>
+                      <h4 className="mt-1 text-lg font-extrabold">{selectedSpec.label}</h4>
+                    </div>
+                    <span className="rounded-full bg-white px-3 py-1 text-sm font-black text-brand-700">{selectedSpec.width} × {selectedSpec.height}px</span>
+                  </div>
+                  <div className="mt-4 grid gap-3 sm:grid-cols-2">
+                    <p className="rounded-xl bg-white p-3 text-sm"><strong>Định dạng:</strong><br />{selectedSpec.formats.map((format) => format.split('/')[1].toUpperCase()).join(' · ')}</p>
+                    <p className="rounded-xl bg-white p-3 text-sm"><strong>Dung lượng:</strong><br />Tối đa {selectedSpec.maxMb} MB</p>
+                    <p className="rounded-xl bg-white p-3 text-sm"><strong>Nền:</strong><br />{selectedSpec.transparent ? 'Bắt buộc trong suốt' : 'Được phép phủ toàn bộ nền'}</p>
+                    <p className="rounded-xl bg-white p-3 text-sm"><strong>Safe area:</strong><br />{selectedSpec.safeArea}</p>
+                  </div>
+                  <div className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">
+                    <strong>Ghép lớp:</strong> {selectedSpec.combinesWith}<br />
+                    <span className="text-xs">Slot <code>{selectedSpec.slot}</code> · layer {selectedSpec.layer}. Mỗi profile chỉ dùng tối đa một asset cho mỗi slot.</span>
+                  </div>
+                </div>
+              )}
+              <label className="block min-h-40 cursor-pointer rounded-2xl border-2 border-dashed border-brand-400 bg-white p-8 text-center shadow-sm hover:border-brand-600 hover:bg-brand-50/30">
+                <span className="block text-4xl">☁️</span>
+                <span className="mt-3 block text-base font-extrabold">{uploading ? 'Đang kiểm tra và tải lên…' : 'Chọn file đúng template để preview'}</span>
+                <span className="mt-1 block text-sm text-muted">{form.contentType === 'reward' ? `${selectedSpec.width}×${selectedSpec.height}px · tối đa ${selectedSpec.maxMb} MB` : 'PNG, WebP, JPG, JSON hoặc WebM'}</span>
                 <input type="file" accept=".png,.webp,.jpg,.jpeg,.svg,.json,.webm" className="sr-only" disabled={uploading} onChange={(event) => {
                   const file = event.target.files?.[0]
                   if (file) {
@@ -290,6 +417,7 @@ export function LegendRewardStudio() {
                   }
                 }} />
               </label>
+              {assetInfo && <p className="rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">✓ {assetInfo}</p>}
               <p className="break-all rounded-xl bg-white p-3 text-xs text-muted">{form.assetUrl || 'Chưa có URL asset — preview tạm sẽ xuất hiện ngay khi chọn file.'}</p>
             </section>
 
@@ -297,12 +425,12 @@ export function LegendRewardStudio() {
               <h3 className="font-extrabold">3. Điều kiện mở khóa</h3>
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="text-sm font-bold">Điều kiện
-                  <select className="field-input mt-1 w-full bg-white" value={form.unlockType} onChange={(event) => setForm({ ...form, unlockType: event.target.value })}>
+                  <select className={fieldClass} value={form.unlockType} onChange={(event) => setForm({ ...form, unlockType: event.target.value })}>
                     <option value="xp_level">XP level</option><option value="storybook_sticker">Tiến độ Storybook</option><option value="event">Tham gia sự kiện</option>
                   </select>
                 </label>
                 <label className="text-sm font-bold">Giá trị
-                  <input className="field-input mt-1 w-full bg-white" value={form.unlockValue} onChange={(event) => setForm({ ...form, unlockValue: event.target.value })} />
+                  <input className={fieldClass} value={form.unlockValue} onChange={(event) => setForm({ ...form, unlockValue: event.target.value })} />
                 </label>
               </div>
             </section>
@@ -310,10 +438,10 @@ export function LegendRewardStudio() {
             <details className="rounded-3xl border border-border bg-slate-50/70 p-4">
               <summary className="cursor-pointer font-extrabold">4. Cấu hình nâng cao (JSON)</summary>
               <label className="mt-4 block text-xs font-bold">Display JSON
-                <textarea className="field-input mt-1 min-h-32 w-full bg-white font-mono text-xs" value={form.displayJson} onChange={(event) => setForm({ ...form, displayJson: event.target.value })} />
+                <textarea className={`${fieldClass} min-h-40 py-3 font-mono text-xs`} value={form.displayJson} onChange={(event) => setForm({ ...form, displayJson: event.target.value })} />
               </label>
               <label className="mt-3 block text-xs font-bold">Chapter/Event JSON
-                <textarea className="field-input mt-1 min-h-24 w-full bg-white font-mono text-xs" value={form.contentJson} onChange={(event) => setForm({ ...form, contentJson: event.target.value })} />
+                <textarea className={`${fieldClass} min-h-32 py-3 font-mono text-xs`} value={form.contentJson} onChange={(event) => setForm({ ...form, contentJson: event.target.value })} />
               </label>
             </details>
             <div className="flex gap-3">
@@ -344,6 +472,27 @@ export function LegendRewardStudio() {
               <p className="mt-1"><strong>Mở khóa:</strong> {form.unlockType} = {form.unlockValue}</p>
               <p className="mt-1 break-all"><strong>Mã:</strong> {form.code || 'chưa nhập'}</p>
             </div>
+            {form.contentType === 'reward' && (
+              <div className="rounded-2xl border border-border p-4">
+                <h3 className="text-sm font-extrabold">Cấu trúc ghép reward</h3>
+                <div className="mt-3 space-y-2 text-xs">
+                  {[
+                    ['60', 'Danh hiệu / badge', 'bg-amber-100'],
+                    ['50', 'Hiệu ứng glow / animation', 'bg-fuchsia-100'],
+                    ['40', 'Paco / bạn đồng hành', 'bg-sky-100'],
+                    ['30', 'Khung avatar trong suốt', 'bg-violet-100'],
+                    ['20', 'Avatar của trẻ', 'bg-emerald-100'],
+                    ['10', 'Theme màu và typography', 'bg-slate-100'],
+                    ['0', 'Background profile', 'bg-orange-100'],
+                  ].map(([layer, label, color]) => (
+                    <div key={layer} className={`flex items-center justify-between rounded-lg px-3 py-2 ${color}`}>
+                      <span className="font-bold">{label}</span><code>layer {layer}</code>
+                    </div>
+                  ))}
+                </div>
+                <p className="mt-3 text-xs text-muted">Frame, effect và companion phải có nền trong suốt. Background là lớp duy nhất được phủ kín canvas. Mỗi slot chỉ trang bị một reward.</p>
+              </div>
+            )}
             <p className="text-xs text-muted">Preview tạm xuất hiện ngay khi chọn file; URL chính thức được thay thế sau khi upload thành công.</p>
           </aside>
         </div>
