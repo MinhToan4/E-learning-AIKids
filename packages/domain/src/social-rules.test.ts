@@ -8,6 +8,7 @@ import {
   getIsoWeekKey,
   isReactionType,
   isSocialActivityType,
+  isShareableWorkspaceKind,
   isValidFriendCode,
   normalizeFriendCode,
 } from './social-rules.js'
@@ -77,5 +78,11 @@ describe('social rules', () => {
     expect(isReactionType('DISLIKE')).toBe(false)
     expect(isSocialActivityType('chapter_completed')).toBe(true)
     expect(isSocialActivityType('free_text_status')).toBe(false)
+  })
+
+  it('never allows video or film workspaces to be shared', () => {
+    expect(isShareableWorkspaceKind('creative_comic')).toBe(true)
+    expect(isShareableWorkspaceKind('creative_video')).toBe(false)
+    expect(isShareableWorkspaceKind('storybook-film')).toBe(false)
   })
 })

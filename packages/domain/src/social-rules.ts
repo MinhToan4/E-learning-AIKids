@@ -20,6 +20,23 @@ export const REACTION_TYPES = [
 
 export type ActivityAudience = 'friends' | 'family' | 'school'
 
+export type ProfileModule =
+  | 'storybook'
+  | 'progress'
+  | 'achievements'
+  | 'works'
+  | 'friends'
+  | 'activity'
+
+export const PROFILE_MODULES = [
+  'storybook',
+  'progress',
+  'achievements',
+  'works',
+  'friends',
+  'activity',
+] as const satisfies readonly ProfileModule[]
+
 export type SocialActivityType =
   | 'chapter_completed'
   | 'reward_unlocked'
@@ -49,6 +66,10 @@ export function isSocialActivityType(
   value: string,
 ): value is SocialActivityType {
   return SOCIAL_ACTIVITY_TYPES.includes(value as SocialActivityType)
+}
+
+export function isShareableWorkspaceKind(kind: string): boolean {
+  return !/(?:^|[_-])(video|film|movie)(?:$|[_-])/i.test(kind.trim())
 }
 
 export type ReactionCounts = Record<ReactionType, number>
