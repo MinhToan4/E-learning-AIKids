@@ -7,6 +7,7 @@ export type RewardKind =
   | 'title'
   | 'companion'
   | 'effect'
+  | 'background'
 
 export interface RewardDefinition {
   id: string
@@ -129,6 +130,78 @@ export const REWARD_CATALOG: readonly RewardDefinition[] = [
     icon: '⚔️',
     unlock: { type: 'storybook_sticker', value: 'event-creative-challenge-S9' },
     equipValue: 'Chiến Binh Sáng Tạo',
+  },
+  {
+    id: 'background-ai-gate',
+    kind: 'background',
+    name: 'Bình Minh Cổng AI',
+    description: 'Background Profile nhận khi hoàn thành Cánh Cổng Thế Giới AI.',
+    icon: '🌅',
+    unlock: { type: 'storybook_sticker', value: 'P01-S9' },
+    equipValue: 'ai-gate',
+  },
+  {
+    id: 'frame-language-kingdom',
+    kind: 'frame',
+    name: 'Khung Thư Viện Cổ',
+    description: 'Khung Profile nhận khi hoàn thành Vương Quốc Ngôn Ngữ.',
+    icon: '📚',
+    unlock: { type: 'storybook_sticker', value: 'P02-S9' },
+    equipValue: 'language-kingdom',
+  },
+  {
+    id: 'background-ocean-artist',
+    kind: 'background',
+    name: 'Đại Dương Sáng Tạo',
+    description: 'Background Profile nhận khi hoàn thành Đại Dương Hình Ảnh.',
+    icon: '🌊',
+    unlock: { type: 'storybook_sticker', value: 'P03-S9' },
+    equipValue: 'ocean-artist',
+  },
+  {
+    id: 'frame-summit-gold',
+    kind: 'frame',
+    name: 'Khung Đỉnh Núi Vàng',
+    description: 'Khung Profile nhận khi chinh phục Đỉnh Núi Tri Thức.',
+    icon: '🏔️',
+    unlock: { type: 'storybook_sticker', value: 'P04-S9' },
+    equipValue: 'summit-gold',
+  },
+  {
+    id: 'theme-paco-workshop',
+    kind: 'theme',
+    name: 'Theme Xưởng Paco',
+    description: 'Theme trang cá nhân nhận khi hoàn thành Xưởng Của Paco.',
+    icon: '⚙️',
+    unlock: { type: 'storybook_sticker', value: 'P05-S9' },
+    equipValue: 'paco-workshop',
+  },
+  {
+    id: 'background-forest-guardian',
+    kind: 'background',
+    name: 'Rừng Hộ Vệ',
+    description: 'Background Profile nhận khi hoàn thành Rừng Nhân Vật.',
+    icon: '🌳',
+    unlock: { type: 'storybook_sticker', value: 'P06-S9' },
+    equipValue: 'forest-guardian',
+  },
+  {
+    id: 'frame-galaxy-storyteller',
+    kind: 'frame',
+    name: 'Khung Người Kể Chuyện Thiên Hà',
+    description: 'Khung Profile nhận khi hoàn thành Thiên Hà Câu Chuyện.',
+    icon: '🌠',
+    unlock: { type: 'storybook_sticker', value: 'P07-S9' },
+    equipValue: 'galaxy-storyteller',
+  },
+  {
+    id: 'theme-community-legend',
+    kind: 'theme',
+    name: 'Theme Trái Tim Kết Nối',
+    description: 'Theme trang cá nhân nhận khi hoàn thành Trái Tim Kết Nối.',
+    icon: '💞',
+    unlock: { type: 'storybook_sticker', value: 'P08-S9' },
+    equipValue: 'community-legend',
   },
 ] as const
 

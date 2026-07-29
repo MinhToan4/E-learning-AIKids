@@ -8,6 +8,7 @@ import { GalleryWall } from '../components/GalleryWall'
 import { InteractionBoard } from '../components/InteractionBoard'
 import { SocialLeaderboard } from '../components/SocialLeaderboard'
 import { STORYBOOK_PAGES } from '../storybook-data'
+import { ChapterRewardCard } from '../components/ChapterRewardCard'
 
 type View = 'book' | 'gallery' | 'leaderboard' | 'interaction'
 const views: Array<{ id: View; label: string }> = [
@@ -147,6 +148,7 @@ export function StorybookPage() {
             </button>
           </div>
           <BookSpread page={currentPage} earned={earned} />
+          <ChapterRewardCard page={currentPage} earned={earned} />
           <div className="flex justify-center gap-2">
             {STORYBOOK_PAGES.map((page, index) => (
               <button

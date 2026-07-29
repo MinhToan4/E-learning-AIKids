@@ -57,10 +57,24 @@ export function rewardFrameStyle(frameId?: string): CSSProperties {
       boxShadow: '0 8px 30px rgba(14,165,233,.28)',
     }
   }
+  if (frameId === 'frame-language-kingdom') {
+    return { padding: 7, background: 'conic-gradient(#166534,#fbbf24,#166534)', boxShadow: '0 8px 30px rgba(22,101,52,.3)' }
+  }
+  if (frameId === 'frame-summit-gold') {
+    return { padding: 7, background: 'linear-gradient(135deg,#78350f,#fbbf24,#fff7ed)', boxShadow: '0 8px 30px rgba(120,53,15,.32)' }
+  }
+  if (frameId === 'frame-galaxy-storyteller') {
+    return { padding: 7, background: 'conic-gradient(#312e81,#c084fc,#fbbf24,#312e81)', boxShadow: '0 0 25px rgba(192,132,252,.55)' }
+  }
   return {}
 }
 
 export function profileCardStyle(themeId?: string): CSSProperties {
+  if (themeId === 'background-ai-gate') return { background: 'linear-gradient(135deg,#6b46c1,#f6e05e)' }
+  if (themeId === 'background-ocean-artist') return { background: 'radial-gradient(circle at 80% 20%,#fb7185,transparent 28%),linear-gradient(135deg,#e0f2fe,#38bdf8)' }
+  if (themeId === 'background-forest-guardian') return { background: 'radial-gradient(circle at 85% 20%,#a3e635,transparent 25%),linear-gradient(135deg,#dcfce7,#166534)', color: 'white' }
+  if (themeId === 'theme-paco-workshop') return { background: 'radial-gradient(circle at 82% 18%,#fcd34d,transparent 24%),linear-gradient(135deg,#fff7ed,#fed7aa)' }
+  if (themeId === 'theme-community-legend') return { background: 'radial-gradient(circle at 82% 18%,#f9a8d4,transparent 26%),linear-gradient(135deg,#fdf2f8,#fce7f3)' }
   if (themeId === 'theme-workshop') {
     return {
       background:

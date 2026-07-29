@@ -22,9 +22,10 @@ const kindLabels: Record<RewardKind, string> = {
   title: 'Danh hiệu',
   companion: 'Bạn đồng hành',
   effect: 'Hiệu ứng',
+  background: 'Background',
 }
 
-const wardrobeKinds: RewardKind[] = ['frame', 'companion', 'effect', 'title', 'theme']
+const wardrobeKinds: RewardKind[] = ['frame', 'background', 'companion', 'effect', 'title', 'theme']
 
 function canEquip(reward: RewardDefinition) {
   return Boolean(reward.equipValue) &&
@@ -36,10 +37,12 @@ export function RewardCollection({
   userId,
   xpLevel,
   compact = false,
+  stickerIds = [],
 }: {
   userId: string
   xpLevel: number
   compact?: boolean
+  stickerIds?: string[]
 }) {
   const [equipment, setEquipment] = useState(() => readRewardEquipment(userId))
   const [message, setMessage] = useState('')
@@ -88,7 +91,7 @@ export function RewardCollection({
       </div>
       <div className={`mt-4 grid gap-3 ${compact ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'}`}>
         {REWARD_CATALOG.filter((reward) => reward.kind === activeKind).map((reward) => {
-          const unlocked = isRewardUnlocked(reward, { xpLevel })
+          const unlocked = isRewardUnlocked(reward, { xpLevel, stickerIds })
           const equipped = equipment[reward.kind] === reward.id
           const rewardAvatar = reward.kind === 'avatar' ? avatarImage(reward.equipValue) : undefined
           return (
