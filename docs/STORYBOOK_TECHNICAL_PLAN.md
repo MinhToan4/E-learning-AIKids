@@ -1,6 +1,11 @@
 # STORYBOOK OF LEGENDS — Technical Implementation Plan
 > Tài Liệu Kỹ Thuật · Version 1.0 · 27/07/2026
 
+> **Implementation note · 29/07/2026:** `apps/api` đã được retire và không còn
+> thuộc build/deploy path. Phase đầu được triển khai trong domain + web, đọc tiến
+> trình từ StoryMee Hub qua gateway hiện hữu. Các model/endpoint Prisma bên dưới
+> là contract đề xuất cho backend Hub, không được migrate vào `apps/api`.
+
 ---
 
 ## I. TỔNG QUAN KIẾN TRÚC
