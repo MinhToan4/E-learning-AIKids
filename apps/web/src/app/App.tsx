@@ -70,6 +70,11 @@ const ProfilePage = lazy(() =>
     default: m.ProfilePage,
   })),
 )
+const PublicProfilePage = lazy(() =>
+  import('@/features/profile/pages/PublicProfilePage').then((m) => ({
+    default: m.PublicProfilePage,
+  })),
+)
 const AchievementsPage = lazy(() =>
   import('@/features/achievements/pages/AchievementsPage').then((m) => ({
     default: m.AchievementsPage,
@@ -238,6 +243,7 @@ export function App() {
           <Route path="/terms" element={<LegalPage kind="terms" />} />
           <Route path="/account/delete" element={<LegalPage kind="delete" />} />
           <Route path="/support" element={<LegalPage kind="support" />} />
+          <Route path="/u/:childId" element={<PublicProfilePage />} />
           <Route path="/data-safety" element={<LegalPage kind="data-safety" />} />
           {/* Public credential verification — no auth required */}
           <Route path="/credentials/:code" element={<CredentialVerifyPage />} />

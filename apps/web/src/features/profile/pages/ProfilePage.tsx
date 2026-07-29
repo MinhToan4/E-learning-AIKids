@@ -8,6 +8,20 @@ import { useAuth } from '@/shared/store/auth'
 import { explorerLevelForXp } from '@aikids/domain'
 import { EquippedProfile } from '@/features/rewards/EquippedProfile'
 import { RewardCollection } from '@/features/rewards/RewardCollection'
+import {
+  readProfileAvatar,
+  saveProfileAvatar,
+  saveProfileShowcase,
+  type ProfileAvatar,
+  type ShowcaseProject,
+} from '../profile-showcase'
+
+type MediaAsset = {
+  id: string
+  name: string
+  thumbnail: string
+  type: string
+}
 
 export function ProfilePage() {
   const user = useAuth((s) => s.user)
@@ -17,24 +31,39 @@ export function ProfilePage() {
   const [streak, setStreak] = useState({ current: 0, longest: 0 })
   const [achievements, setAchievements] = useState<AchievementRow[]>([])
   const [projectCount, setProjectCount] = useState(0)
+  const [projects, setProjects] = useState<ShowcaseProject[]>([])
+  const [avatarChoices, setAvatarChoices] = useState<ProfileAvatar[]>([])
+  const [selectedAvatar, setSelectedAvatar] = useState<ProfileAvatar | null>(
+    () => user ? readProfileAvatar(user.id) : null,
+  )
   const [explorerXp, setExplorerXp] = useState(0)
 
   useEffect(() => {
     void (async () => {
       try {
-        const [s, a, p, g] = await Promise.all([
+        const [s, a, p, media, g] = await Promise.all([
           api<{ current: number; longest: number }>('/api/gamification/streak'),
           api<{ achievements: AchievementRow[] }>(
             '/api/gamification/achievements',
           ),
-          api<{ projects: unknown[] }>('/api/projects'),
+          api<{ projects: ShowcaseProject[] }>('/api/projects'),
+          api<{ assets: MediaAsset[] }>('/api/backpack'),
           api<{ celebration: { personal: { xp: number } } }>(
             '/api/gamification/class-celebration',
           ),
         ])
         setStreak({ current: s.current, longest: s.longest })
         setAchievements(a.achievements.filter((x) => x.unlocked))
+        setProjects(p.projects ?? [])
         setProjectCount(p.projects?.length ?? 0)
+        setAvatarChoices((media.assets ?? [])
+          .filter((asset) => asset.thumbnail)
+          .map((asset) => ({
+            id: asset.id,
+            url: asset.thumbnail,
+            label: asset.name,
+            source: asset.type.includes('generated') ? 'generated' : 'library',
+          })))
         setExplorerXp(g.celebration.personal.xp)
       } catch {
         /* non-blocking */
@@ -43,6 +72,19 @@ export function ProfilePage() {
       }
     })()
   }, [])
+
+  useEffect(() => {
+    if (!user) return
+    saveProfileShowcase({
+      childId: user.id,
+      nickname: user.nickname ?? 'Nhà sáng tạo nhí',
+      avatar: selectedAvatar,
+      projects: projects.filter((project) =>
+        ['approved', 'public', 'shared'].includes(project.shareStatus),
+      ),
+      updatedAt: new Date().toISOString(),
+    })
+  }, [projects, selectedAvatar, user])
 
   if (loading) {
     return <PageSkeleton rows={3} className="mx-auto max-w-lg" />
@@ -96,6 +138,50 @@ export function ProfilePage() {
       </section>
 
       {user && (
+        <section className="ui-card p-5 sm:p-6">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-wider text-brand-600">Ảnh đại diện</p>
+              <h2 className="font-display text-2xl">Chọn từ kho sáng tạo</h2>
+              <p className="text-sm text-muted">Ảnh upload, ảnh AI tạo và ảnh trong thư viện của con.</p>
+            </div>
+            <Link to="/backpack" className="text-sm font-extrabold text-brand-600 hover:underline">
+              Mở thư viện
+            </Link>
+          </div>
+          {avatarChoices.length === 0 ? (
+            <p className="mt-4 rounded-2xl bg-brand-50 p-4 text-sm text-muted">
+              Chưa có ảnh trong thư viện. Hãy tạo hoặc upload ảnh từ App AIKids trước nhé.
+            </p>
+          ) : (
+            <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
+              {avatarChoices.map((choice) => {
+                const active = selectedAvatar?.id === choice.id
+                return (
+                  <button
+                    key={choice.id}
+                    type="button"
+                    onClick={() => {
+                      saveProfileAvatar(user.id, choice)
+                      setSelectedAvatar(choice)
+                    }}
+                    className={`w-24 shrink-0 rounded-2xl border-2 p-2 text-left ${
+                      active ? 'border-brand-500 bg-brand-50' : 'border-border bg-white'
+                    }`}
+                  >
+                    <img src={choice.url} alt="" className="h-20 w-20 rounded-xl object-cover" />
+                    <span className="mt-1 block truncate text-xs font-extrabold">
+                      {active ? 'Đang dùng ✓' : choice.label}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </section>
+      )}
+
+      {user && (
         <div className="ui-card p-5 sm:p-6">
           <RewardCollection
             userId={user.id}
@@ -134,6 +220,36 @@ export function ProfilePage() {
         )}
       </div>
 
+      <section className="ui-card p-5">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-wider text-brand-600">Góc triển lãm</p>
+            <h2 className="font-display text-2xl">Tác phẩm của con</h2>
+          </div>
+          {user && (
+            <Link to={`/u/${user.id}`} className="rounded-full bg-brand-600 px-4 py-2 text-sm font-extrabold text-white">
+              Xem trang cá nhân
+            </Link>
+          )}
+        </div>
+        {projects.length === 0 ? (
+          <p className="mt-3 text-sm text-muted">Chưa có tác phẩm — vào Xưởng để sáng tạo nhé!</p>
+        ) : (
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {projects.slice(0, 4).map((project) => (
+              <article key={project.id} className="overflow-hidden rounded-2xl bg-brand-50">
+                <div className="flex aspect-square items-center justify-center overflow-hidden text-4xl">
+                  {project.thumbnail
+                    ? <img src={project.thumbnail} alt="" className="h-full w-full object-cover" />
+                    : '🎨'}
+                </div>
+                <p className="truncate px-3 pt-2 text-sm font-extrabold">{project.title}</p>
+                <p className="px-3 pb-3 text-[11px] text-muted">{project.shareStatus}</p>
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
 
       <div className="ui-card flex flex-wrap gap-2 p-4">
           <Link to="/backpack" className="min-w-0 flex-1">
