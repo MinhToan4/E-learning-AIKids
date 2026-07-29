@@ -132,23 +132,22 @@ export function WorldPage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [pathway, setPathway] = useState<Pathway | null>(null)
+  const [enrollmentRequired, setEnrollmentRequired] = useState(false)
 
   useEffect(() => {
     void (async () => {
       setLoading(true)
       setError(null)
+      setEnrollmentRequired(false)
+      setQuests([])
+      setMeta({ totalStars: 0, completedCount: 0 })
       try {
         if (!courseId) {
           const journey = await api<Pathway>('/api/learning/pathway')
           setPathway(journey)
           return
         }
-        const [data, course, journey] = await Promise.all([
-          api<{
-            quests: QuestProgress[]
-            totalStars: number
-            completedCount: number
-          }>(`/api/progress/${courseId}`),
+        const [course, journey] = await Promise.all([
           api<{ course: { title: string } }>(`/api/courses/${courseId}`),
           api<Pathway>('/api/learning/pathway'),
         ])
@@ -157,9 +156,18 @@ export function WorldPage() {
           throw new Error('Khóa học này chưa được mở trong lộ trình của con.')
         }
         setPathway(journey)
+        setCourseTitle(course.course.title)
+        if (pathRow.status === 'available') {
+          setEnrollmentRequired(true)
+          return
+        }
+        const data = await api<{
+          quests: QuestProgress[]
+          totalStars: number
+          completedCount: number
+        }>(`/api/progress/${courseId}`)
         setQuests(data.quests)
         setMeta({ totalStars: data.totalStars, completedCount: data.completedCount })
-        setCourseTitle(course.course.title)
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Không tải được bản đồ')
       } finally {
@@ -279,6 +287,19 @@ export function WorldPage() {
         </p>
       )}
 
+      {enrollmentRequired && !loading && (
+        <section className="ui-card mx-auto w-full max-w-xl p-6 text-center">
+          <CourseBookIcon size={42} className="mx-auto text-brand-500" aria-hidden="true" />
+          <h2 className="mt-3 font-display text-2xl">Hành trình chưa bắt đầu</h2>
+          <p className="mt-2 text-sm text-muted">
+            Xem giới thiệu và bắt đầu khóa học để mở trạm đầu tiên.
+          </p>
+          <Link className="mt-4 inline-block" to={`/course/${courseId}`}>
+            <Button>Bắt đầu hành trình</Button>
+          </Link>
+        </section>
+      )}
+
       {/* Quest Node Map */}
       {loading ? (
         <div className="flex flex-col items-center gap-5 py-8">
@@ -289,7 +310,7 @@ export function WorldPage() {
             </div>
           ))}
         </div>
-      ) : (
+      ) : !enrollmentRequired && !error ? (
         <div className="relative mx-auto w-full max-w-md py-4 px-2">
           {/* Vertical path line */}
           <div className="quest-path-line" />
@@ -311,7 +332,7 @@ export function WorldPage() {
             </div>
           )}
         </div>
-      )}
+      ) : null}
     </div>
   )
 }
@@ -332,6 +353,10 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
   const recommended = pathway.courses.find(
     (course) => course.id === pathway.recommendedCourseId,
   )
+  const courseHref = (course: PathwayCourse) =>
+    course.status === 'active' || course.status === 'completed'
+      ? `/world/${course.id}`
+      : `/course/${course.id}`
   return (
     <div className="page-enter flex flex-col gap-5">
       <header className="ui-card overflow-hidden p-5 sm:p-7">
@@ -357,8 +382,12 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
               <p className="text-xs font-bold uppercase text-success">Gợi ý tiếp theo</p>
               <p className="font-display text-lg">{recommended.title}</p>
             </div>
-            <Link to={`/world/${recommended.id}`}>
-              <Button>Tiếp tục hành trình</Button>
+            <Link to={courseHref(recommended)}>
+              <Button>
+                {recommended.status === 'available'
+                  ? 'Xem & bắt đầu'
+                  : 'Tiếp tục hành trình'}
+              </Button>
             </Link>
           </div>
         )}
@@ -414,7 +443,9 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
               </div>
             </article>
           )
-          return locked ? <div key={course.id}>{content}</div> : <Link key={course.id} to={`/world/${course.id}`}>{content}</Link>
+          return locked
+            ? <div key={course.id}>{content}</div>
+            : <Link key={course.id} to={courseHref(course)}>{content}</Link>
         })}
       </div>
     </div>
