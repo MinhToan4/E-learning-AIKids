@@ -62,3 +62,37 @@ export function normalizeFriendCode(value: string): string {
 export function isValidFriendCode(value: string): boolean {
   return /^[A-Z0-9]{8}$/.test(normalizeFriendCode(value))
 }
+
+export type FriendInviteStatus =
+  | 'created'
+  | 'parent_review'
+  | 'active'
+  | 'declined'
+  | 'expired'
+  | 'blocked'
+
+export function canonicalConnectionPair(
+  firstChildId: string,
+  secondChildId: string,
+): [string, string] {
+  if (!firstChildId || !secondChildId || firstChildId === secondChildId) {
+    throw new Error('A connection requires two different children.')
+  }
+  return firstChildId < secondChildId
+    ? [firstChildId, secondChildId]
+    : [secondChildId, firstChildId]
+}
+
+export function friendInviteStatus(input: {
+  recipientAccepted: boolean
+  senderParentApproved: boolean
+  recipientParentApproved: boolean
+  terminalStatus?: 'declined' | 'expired' | 'blocked'
+}): FriendInviteStatus {
+  if (input.terminalStatus) return input.terminalStatus
+  if (!input.recipientAccepted) return 'created'
+  if (input.senderParentApproved && input.recipientParentApproved) {
+    return 'active'
+  }
+  return 'parent_review'
+}

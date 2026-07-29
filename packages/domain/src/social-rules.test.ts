@@ -2,7 +2,9 @@ import { describe, expect, it } from 'vitest'
 import {
   canUsePacoPick,
   canFavoriteFriend,
+  canonicalConnectionPair,
   computeReactionScore,
+  friendInviteStatus,
   getIsoWeekKey,
   isValidFriendCode,
   normalizeFriendCode,
@@ -34,5 +36,37 @@ describe('social rules', () => {
     expect(normalizeFriendCode('ab-12 cd_34')).toBe('AB12CD34')
     expect(isValidFriendCode('AB12-CD34')).toBe(true)
     expect(isValidFriendCode('short')).toBe(false)
+  })
+
+  it('uses one canonical pair regardless of connection direction', () => {
+    expect(canonicalConnectionPair('child-b', 'child-a')).toEqual([
+      'child-a',
+      'child-b',
+    ])
+    expect(() => canonicalConnectionPair('child-a', 'child-a')).toThrow()
+  })
+
+  it('only activates an accepted invite after both parents approve', () => {
+    expect(friendInviteStatus({
+      recipientAccepted: false,
+      senderParentApproved: false,
+      recipientParentApproved: false,
+    })).toBe('created')
+    expect(friendInviteStatus({
+      recipientAccepted: true,
+      senderParentApproved: true,
+      recipientParentApproved: false,
+    })).toBe('parent_review')
+    expect(friendInviteStatus({
+      recipientAccepted: true,
+      senderParentApproved: true,
+      recipientParentApproved: true,
+    })).toBe('active')
+    expect(friendInviteStatus({
+      recipientAccepted: true,
+      senderParentApproved: true,
+      recipientParentApproved: true,
+      terminalStatus: 'blocked',
+    })).toBe('blocked')
   })
 })
