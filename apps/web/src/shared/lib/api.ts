@@ -907,7 +907,11 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
   }
   if (/^\/api\/learning\/pathway(?:\?.*)?$/.test(path) &&
       Array.isArray(payload.courses)) {
-    const courses = payload.courses.map((course) => {
+    // A pathway is the child's enrolled learning list. Keep this defensive
+    // filter while older LMS deployments may still return the public catalog.
+    const courses = payload.courses
+      .filter((course) => (course as Record<string, unknown>).enrolled === true)
+      .map((course) => {
       const raw = course as Record<string, unknown>
       const mapped = mapCourse(raw)
       const enrolled = raw.enrolled === true
@@ -927,7 +931,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         missingPrerequisites: [],
         coverImage: mapped.coverImage,
       }
-    })
+      })
     const recommended = courses.find((course) => course.status === 'active') ??
       courses.find((course) => course.status === 'available') ??
       null

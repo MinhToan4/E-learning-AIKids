@@ -161,14 +161,24 @@ describe('StoryMee Gateway adapter', () => {
 
   it('builds the learning pathway from the deployed LMS course catalog', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response({
-      courses: [{
-        id: 'course-1',
-        title: 'AI cơ bản',
-        shortTitle: 'Khởi đầu',
-        ageBand: '8-11',
-        enrolled: true,
-        progressPct: 25,
-      }],
+      courses: [
+        {
+          id: 'course-1',
+          title: 'AI cơ bản',
+          shortTitle: 'Khởi đầu',
+          ageBand: '8-11',
+          enrolled: true,
+          progressPct: 25,
+        },
+        {
+          id: 'course-not-enrolled',
+          title: 'Khóa chưa đăng ký',
+          shortTitle: 'Không thuộc hành trình',
+          ageBand: '8-11',
+          enrolled: false,
+          progressPct: 0,
+        },
+      ],
     }))
     vi.stubGlobal('fetch', fetchMock)
 
@@ -185,6 +195,7 @@ describe('StoryMee Gateway adapter', () => {
         completionPercent: 25,
       }],
     })
+    expect(result.courses).toHaveLength(1)
     expect(fetchMock).toHaveBeenCalledWith(
       'https://dev-hub.storymee.com/api/v1/lms/compat/pathway',
       expect.any(Object),
