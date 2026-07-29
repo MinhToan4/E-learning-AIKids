@@ -127,6 +127,65 @@ describe('StoryMee Gateway adapter', () => {
     )
   })
 
+  it('accepts a trailing slash on achievements and maps the Hub response', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response([{
+      achievement: {
+        key: 'first_lesson',
+        title: 'Bước đầu tiên',
+        description: 'Hoàn thành bài học đầu tiên',
+        icon: '🌱',
+        threshold: 1,
+      },
+      unlocked: true,
+      unlock: { unlockedAt: '2026-07-23T00:00:00.000Z' },
+    }]))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{
+      achievements: Array<{ type: string; unlocked: boolean }>
+    }>('/api/gamification/achievements/')
+
+    expect(result.achievements).toEqual([
+      expect.objectContaining({ type: 'first_lesson', unlocked: true }),
+    ])
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://dev-hub.storymee.com/api/v1/gamification/me/achievements',
+      expect.any(Object),
+    )
+  })
+
+  it('builds the learning pathway from the deployed LMS course catalog', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      courses: [{
+        id: 'course-1',
+        title: 'AI cơ bản',
+        shortTitle: 'Khởi đầu',
+        ageBand: '8-11',
+        enrolled: true,
+        progressPct: 25,
+      }],
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{
+      recommendedCourseId: string | null
+      courses: Array<{ id: string; status: string; completionPercent: number }>
+    }>('/api/learning/pathway')
+
+    expect(result).toMatchObject({
+      recommendedCourseId: 'course-1',
+      courses: [{
+        id: 'course-1',
+        status: 'active',
+        completionPercent: 25,
+      }],
+    })
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://dev-hub.storymee.com/api/v1/lms/courses',
+      expect.any(Object),
+    )
+  })
+
   it('routes the daily learning mission into the LMS world', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response([{
       mission: {

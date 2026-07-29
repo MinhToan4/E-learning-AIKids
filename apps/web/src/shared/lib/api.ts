@@ -39,7 +39,10 @@ export async function api<T = unknown>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
-  const request = normalizeGatewayRequest(path, options)
+  // Some callers and browser-restored requests retain a trailing slash. Treat
+  // both legacy URL forms as the same contract before routing to StoryMee Hub.
+  const legacyPath = path.replace(/\/(?=\?|$)/, '')
+  const request = normalizeGatewayRequest(legacyPath, options)
   const headers = new Headers(request.options.headers)
   const token = getAccessToken()
   if (request.options.body &&
@@ -96,7 +99,7 @@ export async function api<T = unknown>(
           : res.statusText || 'Có lỗi xảy ra'
     throw new ApiError(res.status, msg, data)
   }
-  const normalized = normalizeGatewayResponse(path, data)
+  const normalized = normalizeGatewayResponse(legacyPath, data)
   return normalized as T
 }
 
@@ -146,6 +149,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     '/api/auth/tenant': '/api/v1/account/tenant/resolve',
     '/api/courses': '/api/v1/lms/courses',
     '/api/enrollments': '/api/v1/lms/enrollments',
+    '/api/learning/pathway': '/api/v1/lms/courses',
     '/api/notifications': '/api/v1/notifications',
     '/api/notifications/read-all': '/api/v1/notifications/read-all',
     '/api/notifications/preferences': '/api/v1/notifications/preferences',
@@ -847,6 +851,43 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
           progressPct: Number(raw.progressPct ?? 0),
         }
       }),
+    }
+  }
+  if (/^\/api\/learning\/pathway(?:\?.*)?$/.test(path) &&
+      Array.isArray(payload.courses)) {
+    const courses = payload.courses.map((course) => {
+      const raw = course as Record<string, unknown>
+      const mapped = mapCourse(raw)
+      const enrolled = raw.enrolled === true
+      const progressPct = Number(raw.progressPct ?? 0)
+      const completed = progressPct >= 100
+      return {
+        id: mapped.id,
+        title: mapped.title,
+        shortTitle: mapped.shortTitle,
+        status: completed ? 'completed' : enrolled ? 'active' : 'available',
+        reasonCode: completed
+          ? 'completed'
+          : enrolled
+            ? 'in_progress'
+            : 'requirements_met',
+        completionPercent: progressPct,
+        missingPrerequisites: [],
+        coverImage: mapped.coverImage,
+      }
+    })
+    const recommended = courses.find((course) => course.status === 'active') ??
+      courses.find((course) => course.status === 'available') ??
+      null
+    const firstRaw = payload.courses[0] as Record<string, unknown> | undefined
+    return {
+      student: {
+        nickname: null,
+        ageBand: String(firstRaw?.ageBand ?? '8-11'),
+      },
+      policy: { label: 'Lộ trình học AI theo tiến độ của con' },
+      recommendedCourseId: recommended?.id ?? null,
+      courses,
     }
   }
   if (/^\/api\/courses\/[^/?]+$/.test(path) && payload.course) {
