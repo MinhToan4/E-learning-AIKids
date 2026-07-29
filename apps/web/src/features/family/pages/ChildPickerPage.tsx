@@ -61,7 +61,7 @@ export function ChildPickerPage() {
   useEffect(() => {
     if (loadingAuth) return
     if (!user) {
-      navigate('/login?role=parent&next=/kids', { replace: true })
+      navigate('/login?mode=adult&next=/kids', { replace: true })
       return
     }
     if (user.role === 'student') {
@@ -217,7 +217,7 @@ export function ChildPickerPage() {
             className="ui-btn ui-btn-secondary !min-h-11 !px-5 text-sm shadow-soft"
             onClick={async () => {
               await logout()
-              navigate('/login?role=parent')
+              navigate('/login?mode=adult')
             }}
           >
             Đăng xuất ba/mẹ
