@@ -59,3 +59,23 @@ export function rewardFrameStyle(frameId?: string): CSSProperties {
   }
   return {}
 }
+
+export function profileCardStyle(themeId?: string): CSSProperties {
+  if (themeId === 'theme-workshop') {
+    return {
+      background:
+        'radial-gradient(circle at 85% 20%,rgba(251,191,36,.28),transparent 25%),linear-gradient(135deg,#fff7ed,#ffedd5,#fff)',
+    }
+  }
+  if (themeId === 'theme-legend') {
+    return {
+      background:
+        'radial-gradient(circle at 85% 18%,rgba(250,204,21,.2),transparent 25%),linear-gradient(135deg,#312e81,#6d28d9)',
+      color: 'white',
+    }
+  }
+  return {
+    background:
+      'radial-gradient(circle at 85% 15%,rgba(61,191,255,.18),transparent 28%),linear-gradient(135deg,#f5f3ff,#f1faff,#fffbec)',
+  }
+}

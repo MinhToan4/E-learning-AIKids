@@ -6,7 +6,15 @@ import type { User } from '@/shared/lib/api'
 import { readProfileAvatar } from '@/features/profile/profile-showcase'
 import { readRewardEquipment, rewardFrameStyle } from './reward-equipment'
 
-export function EquippedProfile({ user, xp }: { user: User; xp: number }) {
+export function EquippedProfile({
+  user,
+  xp,
+  compact = false,
+}: {
+  user: User
+  xp: number
+  compact?: boolean
+}) {
   const [equipment, setEquipment] = useState(() => readRewardEquipment(user.id))
   const [profileAvatar, setProfileAvatar] = useState(() => readProfileAvatar(user.id))
   useEffect(() => {
@@ -32,14 +40,16 @@ export function EquippedProfile({ user, xp }: { user: User; xp: number }) {
   const level = useMemo(() => explorerLevelForXp(xp), [xp])
 
   return (
-    <div className="flex flex-col items-center gap-4 text-center">
+    <div className={`flex items-center gap-5 ${compact ? 'flex-row text-left' : 'flex-col text-center'}`}>
       <div className={`relative ${effect ? 'drop-shadow-[0_0_18px_rgba(250,204,21,.8)]' : ''}`}>
         <div
           className="rounded-full bg-white p-2 shadow-[0_18px_50px_rgba(76,29,149,.2)]"
           style={rewardFrameStyle(frameReward)}
           aria-label={frame ? `Đang dùng ${frame.name}` : 'Khung cơ bản'}
         >
-          <div className="flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-brand-100 text-7xl shadow-inner sm:h-44 sm:w-44">
+          <div className={`flex items-center justify-center overflow-hidden rounded-full border-4 border-white bg-brand-100 shadow-inner ${
+            compact ? 'h-24 w-24 text-5xl sm:h-28 sm:w-28' : 'h-36 w-36 text-7xl sm:h-44 sm:w-44'
+          }`}>
           {img ? <img src={img} alt="" className="h-full w-full object-cover" /> : avatarEmoji(avatarId)}
           </div>
         </div>
@@ -47,8 +57,10 @@ export function EquippedProfile({ user, xp }: { user: User; xp: number }) {
           CẤP {level.level}
         </span>
         {companion && (
-          <div className="absolute -right-8 bottom-2 flex h-20 w-20 rotate-6 items-center justify-center rounded-full border-4 border-white bg-sky-100 shadow-clay">
-            <img src={designerAssets.brand.mascot} alt={companion.name} className="h-16 w-16 object-contain" />
+          <div className={`absolute rotate-6 items-center justify-center rounded-full border-4 border-white bg-sky-100 shadow-clay ${
+            compact ? '-right-5 bottom-0 flex h-12 w-12' : '-right-8 bottom-2 flex h-20 w-20'
+          }`}>
+            <img src={designerAssets.brand.mascot} alt={companion.name} className={compact ? 'h-10 w-10 object-contain' : 'h-16 w-16 object-contain'} />
           </div>
         )}
       </div>
@@ -56,13 +68,13 @@ export function EquippedProfile({ user, xp }: { user: User; xp: number }) {
         <p className="text-xs font-black uppercase tracking-[.2em] text-brand-500">
           Hồ sơ Nhà Khám Phá
         </p>
-        <h1 className="mt-1 font-display text-4xl">{user.nickname}</h1>
+        <h1 className={`mt-1 font-display ${compact ? 'text-3xl' : 'text-4xl'}`}>{user.nickname}</h1>
         <p className="mt-1 inline-flex items-center gap-2 rounded-full bg-sun-100 px-4 py-1.5 font-extrabold text-sun-700">
           {titleReward?.icon ?? '✨'} {title ?? level.title}
         </p>
         <p className="mt-2 text-sm font-bold text-muted">{xp} XP toàn hệ sinh thái</p>
       </div>
-      <div className="flex flex-wrap justify-center gap-2 text-xs font-bold">
+      {!compact && <div className="flex flex-wrap justify-center gap-2 text-xs font-bold">
         <span className="rounded-full bg-white/80 px-3 py-1.5 text-brand-700 shadow-soft">
           {frame?.icon ?? '⭕'} {frame?.name ?? 'Khung cơ bản'}
         </span>
@@ -79,7 +91,7 @@ export function EquippedProfile({ user, xp }: { user: User; xp: number }) {
             {effect.icon} {effect.name}
           </span>
         )}
-      </div>
+      </div>}
     </div>
   )
 }
