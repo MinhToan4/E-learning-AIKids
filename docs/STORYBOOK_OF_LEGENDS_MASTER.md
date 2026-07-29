@@ -147,9 +147,11 @@ Chi tiết nằm trong [STORYBOOK_SOCIAL_INTERACTION.md](./STORYBOOK_SOCIAL_INTE
 | Reward inventory/Storybook claim trên Fastify API | Đã có server source of truth |
 | Đồng bộ Reward Inventory qua StoryMee Hub | Cần gateway/deploy Hub |
 | Social Graph trên Fastify API | Đã có invite, duyệt phụ huynh, favorite, block |
+| Activity Feed và Reaction trên Fastify API | Đã có audience filter và Paco quota |
 | Đồng bộ Social Graph qua StoryMee Hub | Cần gateway/deploy Hub |
 | Public Profile xuyên thiết bị | Cần StoryMee Hub |
-| Activity event pipeline | Cần StoryMee Hub |
+| Chapter → Activity event | Đã có trong transaction claim |
+| Event pipeline từ LMS/Media khác | Cần StoryMee Hub/outbox |
 
 ## 9. Chỉ số thành công
 

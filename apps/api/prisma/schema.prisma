@@ -84,6 +84,8 @@ model User {
   favoriteConnections   FavoriteConnection[]
   blocksCreated         ChildBlock[]         @relation("BlockCreator")
   blocksReceived        ChildBlock[]         @relation("BlockTarget")
+  socialActivities      SocialActivity[]
+  socialReactions       SocialReaction[]
 
   @@index([role, active])
   @@index([createdAt])
@@ -523,6 +525,47 @@ model ChildBlock {
   @@unique([blockerChildId, blockedChildId])
   @@index([blockedChildId])
   @@map("child_blocks")
+}
+
+/// Server-generated milestone card. No free-text child-authored status exists.
+model SocialActivity {
+  id            String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  actorChildId  String   @map("actor_child_id") @db.Uuid
+  type          String
+  title         String
+  summary       String
+  icon          String?
+  coverUrl      String?  @map("cover_url")
+  rewardId      String?  @map("reward_id")
+  referenceId   String?  @map("reference_id")
+  audiences     String[]
+  sourceEventId String   @unique @map("source_event_id")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  actor     User             @relation(fields: [actorChildId], references: [id], onDelete: Cascade)
+  reactions SocialReaction[]
+
+  @@index([actorChildId, createdAt])
+  @@index([createdAt])
+  @@map("social_activities")
+}
+
+/// One selected reaction per child/activity; changing reaction updates this row.
+model SocialReaction {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  activityId   String   @map("activity_id") @db.Uuid
+  actorChildId String   @map("actor_child_id") @db.Uuid
+  type         String
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @default(now()) @updatedAt @map("updated_at")
+
+  activity   SocialActivity @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  actorChild User           @relation(fields: [actorChildId], references: [id], onDelete: Cascade)
+
+  @@unique([activityId, actorChildId])
+  @@index([actorChildId, type, createdAt])
+  @@index([activityId, type])
+  @@map("social_reactions")
 }
 
 model Notification {

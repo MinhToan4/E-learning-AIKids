@@ -10,6 +10,7 @@ import {
   type RewardKind,
 } from '@aikids/domain'
 import { prisma } from '../../infrastructure/database/prisma.js'
+import { publishSocialActivity } from '../social/activity.service.js'
 
 type StorybookSource =
   | 'achievement'
@@ -180,6 +181,18 @@ export async function claimChapter(
         sourceEventId: `chapter:${userId}:${definition.slug}:reward`,
         sourceType: 'chapter_claim',
       },
+    })
+    await publishSocialActivity({
+      database: tx,
+      actorChildId: userId,
+      type: 'chapter_completed',
+      title: `Hoàn thành “${definition.title}”`,
+      summary: `Mở khóa ${rewardDefinition.name}`,
+      icon: rewardDefinition.icon,
+      rewardId: rewardDefinition.id,
+      referenceId: definition.slug,
+      audiences: ['friends', 'family'],
+      sourceEventId: `chapter:${userId}:${definition.slug}:activity`,
     })
     return { chapter: definition, boss, reward, rewardDefinition }
   })

@@ -342,6 +342,60 @@ describeIntegration('API integration (isolated Postgres)', () => {
     expect(favorite.status).toBe(200)
     expect((favorite.body.favorite as { position: number }).position).toBe(1)
 
+    const { prisma } = await import('../infrastructure/database/prisma.js')
+    const activityRows = await Promise.all(
+      Array.from({ length: 4 }, (_, index) =>
+        prisma.socialActivity.create({
+          data: {
+            actorChildId: second.childId,
+            type: 'work_shared',
+            title: `Tác phẩm an toàn ${index + 1}`,
+            summary: 'Đã được phụ huynh duyệt.',
+            audiences: ['friends'],
+            sourceEventId: `test:social:${second.childId}:${index + 1}`,
+          },
+        }),
+      ),
+    )
+    const feed = await inject(app, {
+      method: 'GET',
+      url: '/api/v1/social/feed',
+      cookies: first.childCookies,
+    })
+    expect(feed.status).toBe(200)
+    expect((feed.body.activities as unknown[]).length).toBeGreaterThanOrEqual(4)
+
+    const love = await inject(app, {
+      method: 'POST',
+      url: `/api/v1/social/activities/${activityRows[0].id}/reactions`,
+      cookies: first.childCookies,
+      payload: { type: 'LOVE' },
+    })
+    expect(love.status).toBe(200)
+    const firstPaco = await inject(app, {
+      method: 'POST',
+      url: `/api/v1/social/activities/${activityRows[0].id}/reactions`,
+      cookies: first.childCookies,
+      payload: { type: 'PACO_PICK' },
+    })
+    expect(firstPaco.status).toBe(200)
+    for (const activity of activityRows.slice(1, 3)) {
+      const paco = await inject(app, {
+        method: 'POST',
+        url: `/api/v1/social/activities/${activity.id}/reactions`,
+        cookies: first.childCookies,
+        payload: { type: 'PACO_PICK' },
+      })
+      expect(paco.status).toBe(200)
+    }
+    const overPacoLimit = await inject(app, {
+      method: 'POST',
+      url: `/api/v1/social/activities/${activityRows[3].id}/reactions`,
+      cookies: first.childCookies,
+      payload: { type: 'PACO_PICK' },
+    })
+    expect(overPacoLimit.status).toBe(409)
+
     const blocked = await inject(app, {
       method: 'POST',
       url: '/api/v1/social/blocks',
@@ -355,6 +409,12 @@ describeIntegration('API integration (isolated Postgres)', () => {
       cookies: first.childCookies,
     })
     expect(afterBlock.body.connections).toEqual([])
+    const feedAfterBlock = await inject(app, {
+      method: 'GET',
+      url: '/api/v1/social/feed',
+      cookies: first.childCookies,
+    })
+    expect(feedAfterBlock.body.activities).toEqual([])
   })
 
   it('student can list L1/L2 open courses with creative stations', async () => {

@@ -199,10 +199,11 @@ School có thể:
 | Parent-reviewed request | Có UI | Fastify API đã có duyệt hai phía |
 | Favorite tối đa 6 | Có domain rule/UI | Fastify API đã lưu server |
 | Block và thu hồi connection | Chưa nối UI đầy đủ | Fastify API đã có |
-| Feed/reaction | Có prototype | Chưa có event store |
+| Feed/reaction | Có prototype UI | Fastify API đã có event store và Paco quota |
 | Profile visibility | Có local settings | Chưa đồng bộ |
 | Workspace audience | Có local settings | Chưa có ACL |
 | Approved Media sharing | Có Media Hub flow | Có request/approval cơ bản |
 
-Social Graph đã có source of truth trên Fastify/PostgreSQL nhưng chỉ được xem là
-production sau khi migration và route được deploy qua StoryMee Hub.
+Social Graph và Activity Feed đã có source of truth trên Fastify/PostgreSQL nhưng
+chỉ được xem là production sau khi migration và route được deploy qua StoryMee
+Hub. Hiện Chapter claim đã phát activity; LMS/Media event khác còn cần outbox.

@@ -100,7 +100,7 @@ Favorite giới hạn 6 bằng transaction/server validation, không chỉ clien
 ### Feed
 
 ```text
-SocialActivity(id, actorChildId, type, payloadJson, audience, sourceEventId, createdAt)
+SocialActivity(id, actorChildId, type, safeFields, audiences[], sourceEventId, createdAt)
 SocialReaction(id, activityId, actorChildId, type, createdAt)
 ```
 
@@ -251,8 +251,9 @@ Không log invite token thô, PIN, prompt riêng tư hoặc media URL nhạy c�
 | Local prototype stores | Hoàn thành |
 | Fastify Storybook/Reward persistence và API | Hoàn thành |
 | Fastify Social Graph/invite/approval/favorite/block | Hoàn thành |
+| Fastify Activity Feed/reaction/Paco quota | Hoàn thành |
 | StoryMee Hub gateway/deployment | Chưa triển khai |
-| Hub Feed/Profile/ACL | Chưa triển khai |
+| Hub Profile/Workspace ACL | Chưa triển khai |
 | Cross-device migration | Chưa triển khai |
 
 Ưu tiên backend: Reward Inventory → Storybook claim → Social Graph → Public Profile → Activity Feed → Workspace ACL.
