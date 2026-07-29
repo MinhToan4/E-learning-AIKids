@@ -74,6 +74,21 @@ const emptyForm = () => ({
   assetUrl: '',
   unlockType: 'xp_level',
   unlockValue: '1',
+  chapterSlug: 'P09',
+  chapterGroup: 'learning',
+  chapterEmoji: '📖',
+  chapterColorStart: '#4338CA',
+  chapterColorEnd: '#F59E0B',
+  chapterStory: '',
+  chapterStickersJson: JSON.stringify(Array.from({ length: 9 }, (_, index) => ({
+    id: `P09-S${index + 1}`,
+    name: index === 8 ? 'Boss huyền thoại' : `Sticker ${index + 1}`,
+    icon: index === 8 ? '🏆' : '⭐',
+    hint: index === 8 ? 'Hoàn thành 8 sticker thường' : 'Mô tả điều kiện mở khóa',
+    boss: index === 8,
+  })), null, 2),
+  eventStartsAt: '',
+  eventEndsAt: '',
   displayJson: displayTemplate('frame'),
   contentJson: '{}',
 })
@@ -197,8 +212,23 @@ export function LegendRewardStudio() {
     setMessage('')
     try {
       const createdType = form.contentType
-      const displayConfig = JSON.parse(form.displayJson) as Record<string, unknown>
-      const content = JSON.parse(form.contentJson) as Record<string, unknown>
+      const displayConfig = form.contentType === 'chapter'
+        ? { emoji: form.chapterEmoji, colors: [form.chapterColorStart, form.chapterColorEnd], layout: 'book_spread' }
+        : JSON.parse(form.displayJson) as Record<string, unknown>
+      const content = form.contentType === 'chapter'
+        ? {
+            slug: form.chapterSlug.toUpperCase(),
+            group: form.chapterGroup,
+            story: form.chapterStory,
+            stickers: JSON.parse(form.chapterStickersJson) as unknown[],
+          }
+        : form.contentType === 'event'
+          ? {
+              ...JSON.parse(form.contentJson) as Record<string, unknown>,
+              startsAt: form.eventStartsAt,
+              endsAt: form.eventEndsAt,
+            }
+          : JSON.parse(form.contentJson) as Record<string, unknown>
       await api('/api/admin/legend-studio', {
         method: 'POST',
         body: JSON.stringify({
@@ -352,15 +382,15 @@ export function LegendRewardStudio() {
                   <option value="reward">Reward / vật phẩm</option><option value="chapter">Chapter Storybook</option><option value="event">Sự kiện</option>
                 </select>
               </label>
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className={`grid gap-3 ${form.contentType === 'reward' ? 'sm:grid-cols-2' : ''}`}>
                 <label className="text-sm font-bold">Mã định danh
-                  <input required minLength={3} className={fieldClass} placeholder="frame-galaxy" value={form.code} onChange={(event) => setForm({ ...form, code: event.target.value })} />
+                  <input required minLength={3} className={fieldClass} placeholder={form.contentType === 'reward' ? 'frame-galaxy' : form.contentType === 'chapter' ? 'P09' : 'summer-creative-2026'} value={form.code} onChange={(event) => setForm({ ...form, code: event.target.value })} />
                 </label>
-                <label className="text-sm font-bold">Độ hiếm
+                {form.contentType === 'reward' && <label className="text-sm font-bold">Độ hiếm
                   <select className={fieldClass} value={form.rarity} onChange={(event) => setForm({ ...form, rarity: event.target.value })}>
                     <option value="common">Common</option><option value="rare">Rare</option><option value="epic">Epic</option><option value="legendary">Legendary</option>
                   </select>
-                </label>
+                </label>}
               </div>
               <label className="block text-sm font-bold">Tên hiển thị
                 <input required className={fieldClass} placeholder="Ví dụ: Khung Dải Ngân Hà" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
@@ -371,7 +401,59 @@ export function LegendRewardStudio() {
             </section>
 
             <section className="space-y-4 rounded-3xl border border-border bg-slate-50/70 p-4">
-              <h3 className="font-extrabold">2. Asset thiết kế</h3>
+              <h3 className="font-extrabold">
+                {form.contentType === 'reward' ? '2. Asset reward' : form.contentType === 'chapter' ? '2. Nội dung cuốn sách' : '2. Nội dung sự kiện'}
+              </h3>
+              {form.contentType === 'chapter' && (
+                <>
+                  <div className="rounded-2xl border-2 border-amber-300 bg-[#fff9df] p-4">
+                    <p className="text-xs font-black uppercase tracking-wider text-amber-800">Storybook Chapter Template</p>
+                    <p className="mt-1 text-sm text-amber-950">Một chapter gồm bìa/trang trái, nội dung truyện, bảng 9 sticker ở trang phải và quà hoàn thành. Không dùng layer/slot của reward.</p>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-3">
+                    <label className="text-sm font-bold">Mã trang
+                      <input required pattern="P[0-9]{2}" className={fieldClass} value={form.chapterSlug} onChange={(event) => setForm({ ...form, chapterSlug: event.target.value.toUpperCase() })} />
+                    </label>
+                    <label className="text-sm font-bold">Nhóm hành trình
+                      <select className={fieldClass} value={form.chapterGroup} onChange={(event) => setForm({ ...form, chapterGroup: event.target.value })}>
+                        <option value="learning">Học tập</option><option value="creative">Sáng tạo</option><option value="milestone">Cột mốc</option><option value="social">Kết nối</option>
+                      </select>
+                    </label>
+                    <label className="text-sm font-bold">Biểu tượng
+                      <input className={fieldClass} value={form.chapterEmoji} onChange={(event) => setForm({ ...form, chapterEmoji: event.target.value })} />
+                    </label>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="text-sm font-bold">Màu trang trái
+                      <input type="color" className={`${fieldClass} p-2`} value={form.chapterColorStart} onChange={(event) => setForm({ ...form, chapterColorStart: event.target.value })} />
+                    </label>
+                    <label className="text-sm font-bold">Màu chuyển sắc
+                      <input type="color" className={`${fieldClass} p-2`} value={form.chapterColorEnd} onChange={(event) => setForm({ ...form, chapterColorEnd: event.target.value })} />
+                    </label>
+                  </div>
+                  <label className="block text-sm font-bold">Lời kể của chapter
+                    <textarea required className={`${fieldClass} min-h-36 py-3`} placeholder="Đoạn dẫn truyện hiển thị trên trang trái…" value={form.chapterStory} onChange={(event) => setForm({ ...form, chapterStory: event.target.value })} />
+                  </label>
+                  <label className="block text-sm font-bold">9 sticker và điều kiện
+                    <textarea required className={`${fieldClass} min-h-64 py-3 font-mono text-xs`} value={form.chapterStickersJson} onChange={(event) => setForm({ ...form, chapterStickersJson: event.target.value })} />
+                  </label>
+                </>
+              )}
+              {form.contentType === 'event' && (
+                <>
+                  <div className="rounded-2xl border-2 border-sky-200 bg-sky-50 p-4 text-sm">
+                    Event Builder quản lý banner, thời gian diễn ra, luật tham gia và reward pool; không sử dụng cấu trúc trang sách hoặc layer avatar.
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="text-sm font-bold">Bắt đầu
+                      <input required type="datetime-local" className={fieldClass} value={form.eventStartsAt} onChange={(event) => setForm({ ...form, eventStartsAt: event.target.value })} />
+                    </label>
+                    <label className="text-sm font-bold">Kết thúc
+                      <input required type="datetime-local" className={fieldClass} value={form.eventEndsAt} onChange={(event) => setForm({ ...form, eventEndsAt: event.target.value })} />
+                    </label>
+                  </div>
+                </>
+              )}
               {form.contentType === 'reward' && (
                 <label className="block text-sm font-bold">Loại vật phẩm
                   <select className={fieldClass} value={form.kind} onChange={(event) => {
@@ -435,7 +517,7 @@ export function LegendRewardStudio() {
               </div>
             </section>
 
-            <details className="rounded-3xl border border-border bg-slate-50/70 p-4">
+            {form.contentType !== 'chapter' && <details className="rounded-3xl border border-border bg-slate-50/70 p-4">
               <summary className="cursor-pointer font-extrabold">4. Cấu hình nâng cao (JSON)</summary>
               <label className="mt-4 block text-xs font-bold">Display JSON
                 <textarea className={`${fieldClass} min-h-40 py-3 font-mono text-xs`} value={form.displayJson} onChange={(event) => setForm({ ...form, displayJson: event.target.value })} />
@@ -443,7 +525,7 @@ export function LegendRewardStudio() {
               <label className="mt-3 block text-xs font-bold">Chapter/Event JSON
                 <textarea className={`${fieldClass} min-h-32 py-3 font-mono text-xs`} value={form.contentJson} onChange={(event) => setForm({ ...form, contentJson: event.target.value })} />
               </label>
-            </details>
+            </details>}
             <div className="flex gap-3">
               <Button type="button" variant="secondary" onClick={() => setView('library')} className="flex-1">Hủy</Button>
               <Button type="submit" disabled={busy || uploading} className="flex-[2]">Lưu bản nháp</Button>
@@ -455,7 +537,27 @@ export function LegendRewardStudio() {
               <p className="text-xs font-black uppercase tracking-wider text-brand-600">Preview trực tiếp</p>
               <h2 className="font-display text-xl">Trẻ sẽ nhìn thấy</h2>
             </div>
-            <div className="overflow-hidden rounded-3xl border border-brand-100 bg-gradient-to-br from-violet-100 via-sky-50 to-amber-50 p-5 text-center shadow-inner">
+            {form.contentType === 'chapter' ? (
+              <div className="overflow-hidden rounded-3xl border-[6px] border-amber-900 bg-[#fff9df] shadow-inner">
+                <div className="grid min-h-80 grid-cols-2">
+                  <div className="relative flex flex-col justify-end overflow-hidden p-5 text-left text-white" style={{ background: `linear-gradient(145deg, ${form.chapterColorStart}, ${form.chapterColorEnd})` }}>
+                    <span className="absolute right-2 top-2 text-6xl opacity-25">{form.chapterEmoji}</span>
+                    <p className="relative text-[10px] font-black uppercase">{form.chapterSlug} · {form.chapterGroup}</p>
+                    <h3 className="relative mt-1 font-display text-xl">{form.name || 'Tên chapter'}</h3>
+                    <p className="relative mt-2 line-clamp-5 text-xs font-semibold text-white/90">{form.chapterStory || 'Lời kể của chapter sẽ hiển thị trên trang trái.'}</p>
+                  </div>
+                  <div className="grid grid-cols-3 gap-1.5 bg-[radial-gradient(circle_at_center,#fffdf3,#f7edc9)] p-3">
+                    {Array.from({ length: 9 }, (_, index) => (
+                      <div key={index} className={`flex min-h-16 flex-col items-center justify-center rounded-xl border p-1 ${index === 8 ? 'border-violet-200 bg-violet-50' : 'border-dashed border-amber-200 bg-white/80'}`}>
+                        <span className="text-xl">{index === 8 ? '🏆' : '⭐'}</span>
+                        <span className="text-[8px] font-bold">{index === 8 ? 'Boss' : `Sticker ${index + 1}`}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="overflow-hidden rounded-3xl border border-brand-100 bg-gradient-to-br from-violet-100 via-sky-50 to-amber-50 p-5 text-center shadow-inner">
               <div className="mx-auto flex aspect-square max-w-56 items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-white/70 shadow-lg">
                 {previewUrl
                   ? previewUrl.toLowerCase().includes('.webm')
@@ -466,7 +568,8 @@ export function LegendRewardStudio() {
               <span className="mt-4 inline-block rounded-full bg-white/90 px-3 py-1 text-xs font-black uppercase text-brand-700 shadow">{form.rarity}</span>
               <h3 className="mt-2 font-display text-xl">{form.name || 'Tên nội dung'}</h3>
               <p className="mt-1 text-xs text-muted">{form.description || 'Mô tả sẽ hiển thị tại đây.'}</p>
-            </div>
+              </div>
+            )}
             <div className="rounded-2xl border border-border p-4 text-sm">
               <p><strong>Nhóm:</strong> {form.contentType === 'reward' ? `Reward · ${form.kind}` : form.contentType === 'chapter' ? 'Storybook chapter' : 'Sự kiện'}</p>
               <p className="mt-1"><strong>Mở khóa:</strong> {form.unlockType} = {form.unlockValue}</p>

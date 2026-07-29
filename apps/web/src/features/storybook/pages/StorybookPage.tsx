@@ -24,7 +24,12 @@ export function StorybookPage() {
     code: string
     name: string
     description: string
-    content?: { slug?: string; story?: string }
+    content?: {
+      slug?: string
+      story?: string
+      group?: StorybookPage['group']
+      stickers?: StorybookPage['stickers']
+    }
     displayConfig?: { colors?: [string, string]; emoji?: string }
   }>>([])
   const [loading, setLoading] = useState(true)
@@ -62,18 +67,37 @@ export function StorybookPage() {
   useEffect(() => { void load() }, [load])
 
   const earned = useMemo(() => new Set(earnedStickerIds), [earnedStickerIds])
-  const pages = useMemo(() => STORYBOOK_PAGES.map((page): StorybookPage => {
-    const override = studioChapters.find((item) =>
-      item.content?.slug?.toUpperCase() === page.slug || item.code.toUpperCase() === page.slug)
-    if (!override) return page
-    return {
-      ...page,
-      title: override.name || page.title,
-      story: override.content?.story || override.description || page.story,
-      emoji: override.displayConfig?.emoji || page.emoji,
-      colors: override.displayConfig?.colors || page.colors,
-    }
-  }), [studioChapters])
+  const pages = useMemo(() => {
+    const basePages = STORYBOOK_PAGES.map((page): StorybookPage => {
+      const override = studioChapters.find((item) =>
+        item.content?.slug?.toUpperCase() === page.slug || item.code.toUpperCase() === page.slug)
+      if (!override) return page
+      return {
+        ...page,
+        title: override.name || page.title,
+        story: override.content?.story || override.description || page.story,
+        group: override.content?.group || page.group,
+        stickers: override.content?.stickers?.length === 9 ? override.content.stickers : page.stickers,
+        emoji: override.displayConfig?.emoji || page.emoji,
+        colors: override.displayConfig?.colors || page.colors,
+      }
+    })
+    const existingSlugs = new Set(basePages.map((page) => page.slug))
+    const addedPages = studioChapters.flatMap((item): StorybookPage[] => {
+      const slug = item.content?.slug?.toUpperCase() || item.code.toUpperCase()
+      if (existingSlugs.has(slug) || !item.content?.story || item.content.stickers?.length !== 9) return []
+      return [{
+        slug,
+        title: item.name,
+        story: item.content.story,
+        group: item.content.group || 'learning',
+        stickers: item.content.stickers,
+        emoji: item.displayConfig?.emoji || '📖',
+        colors: item.displayConfig?.colors || ['#4338CA', '#F59E0B'],
+      }]
+    })
+    return [...basePages, ...addedPages]
+  }, [studioChapters])
   const currentPage = pages[pageIndex]
 
   return (

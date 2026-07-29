@@ -8,6 +8,17 @@ Trang quản trị: `/admin/legends`.
 - Chapter: nội dung, hình ảnh và display config cho Storybook.
 - Event: metadata, lịch và cấu hình hoạt động theo mùa.
 
+Ba loại dùng chung catalog/version/workflow, nhưng dùng ba editor khác nhau:
+
+- Reward Designer dùng asset template, slot và layer.
+- Storybook Chapter Editor dùng spread hai trang, mã trang, nhóm hành trình,
+  màu trang, lời kể và đúng 9 sticker (sticker thứ 9 là Boss).
+- Event Builder dùng banner, thời gian bắt đầu/kết thúc, luật tham gia và reward
+  pool. Event không dùng layer avatar và Chapter không dùng template Reward.
+
+Chapter đã publish có thể override P01–P08 theo `slug`, hoặc thêm trang mới từ
+P09 trở đi. Client chỉ nhận chapter mới khi có `story` và đúng 9 sticker.
+
 ## Workflow
 
 `draft → review/scheduled → published → retired`
