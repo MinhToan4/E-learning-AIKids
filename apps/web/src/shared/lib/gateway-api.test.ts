@@ -230,6 +230,44 @@ describe('StoryMee Gateway adapter', () => {
     )
   })
 
+  it('keeps canonical LMS enrollments that use status instead of enrolled', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      recommendedCourseId: 'course-1',
+      courses: [
+        {
+          id: 'course-1',
+          title: 'AI cơ bản',
+          shortTitle: 'Khởi đầu',
+          status: 'active',
+          completionPercent: 40,
+          enrollmentId: 'enrollment-1',
+        },
+        {
+          id: 'course-2',
+          title: 'Sáng tạo nâng cao',
+          shortTitle: 'Nâng cao',
+          status: 'completed',
+          completionPercent: 100,
+          enrollmentId: 'enrollment-2',
+        },
+      ],
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{
+      recommendedCourseId: string | null
+      courses: Array<{ id: string; status: string; completionPercent: number }>
+    }>('/api/learning/pathway')
+
+    expect(result).toMatchObject({
+      recommendedCourseId: 'course-1',
+      courses: [
+        { id: 'course-1', status: 'active', completionPercent: 40 },
+        { id: 'course-2', status: 'completed', completionPercent: 100 },
+      ],
+    })
+  })
+
   it('routes the daily learning mission into the LMS world', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response([{
       mission: {

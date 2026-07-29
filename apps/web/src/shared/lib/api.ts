@@ -1176,21 +1176,34 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     // A pathway is the child's enrolled learning list. Keep this defensive
     // filter while older LMS deployments may still return the public catalog.
     const courses = payload.courses
-      .filter((course) => (course as Record<string, unknown>).enrolled === true)
+      .filter((course) => {
+        const raw = course as Record<string, unknown>
+        return raw.enrolled === true ||
+          raw.status === 'active' ||
+          raw.status === 'completed'
+      })
       .map((course) => {
       const raw = course as Record<string, unknown>
       const mapped = mapCourse(raw)
       const enrolled = raw.enrolled === true
-      const progressPct = Number(raw.progressPct ?? 0)
+      const progressPct = Number(
+        raw.completionPercent ?? raw.progressPct ?? 0,
+      )
       const completed = progressPct >= 100
+      const canonicalStatus =
+        raw.status === 'active' || raw.status === 'completed'
+          ? raw.status
+          : null
       return {
         id: mapped.id,
         title: mapped.title,
         shortTitle: mapped.shortTitle,
-        status: completed ? 'completed' : enrolled ? 'active' : 'available',
+        status:
+          canonicalStatus ??
+          (completed ? 'completed' : enrolled ? 'active' : 'available'),
         reasonCode: completed
           ? 'completed'
-          : enrolled
+          : canonicalStatus === 'active' || enrolled
             ? 'in_progress'
             : 'requirements_met',
         completionPercent: progressPct,
