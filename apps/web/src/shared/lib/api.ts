@@ -1,4 +1,5 @@
 import { environment } from '@/shared/config/environment'
+import { createUuid } from './uuid'
 
 const API_BASE = environment.apiBaseUrl
 const TOKEN_KEY = 'storymee.access_token'
@@ -225,7 +226,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     if ((options.method ?? 'GET').toUpperCase() === 'POST') {
       const plan = String(body.planCode ?? '')
       const headers = new Headers(options.headers)
-      const key = `aikids-plan-${plan}-${crypto.randomUUID()}`
+      const key = `aikids-plan-${plan}-${createUuid()}`
       headers.set('Idempotency-Key', key)
       return {
         path: '/api/v1/billing/me/checkout',
@@ -428,7 +429,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
   if (lessonAction) {
     const headers = new Headers(options.headers)
     if (lessonAction[2] === 'check' && !headers.has('Idempotency-Key')) {
-      headers.set('Idempotency-Key', crypto.randomUUID())
+      headers.set('Idempotency-Key', createUuid())
     }
     return {
       path: `/api/v1/lms/compat/lessons/${encodeURIComponent(lessonAction[1])}/${lessonAction[2]}`,
@@ -449,7 +450,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
           // core-account creates a users row together with the child profile.
           // PIN is the only credential exposed by AiKid; use an opaque internal
           // password until the dedicated PIN endpoint enables child login.
-          password: childPin || crypto.randomUUID(),
+          password: childPin || createUuid(),
         })
         : options,
     }
