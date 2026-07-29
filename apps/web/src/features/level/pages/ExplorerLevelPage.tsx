@@ -11,8 +11,9 @@ import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { api } from '@/shared/lib/api'
 
-type Celebration = {
-  personal: { level: number; xp: number }
+type GamificationProfile = {
+  level: number
+  totalXp: number
 }
 
 const sources = [
@@ -32,10 +33,8 @@ export function ExplorerLevelPage() {
     setLoading(true)
     setError(null)
     try {
-      const data = await api<{ celebration: Celebration }>(
-        '/api/gamification/class-celebration',
-      )
-      setXp(data.celebration.personal.xp)
+      const data = await api<GamificationProfile>('/api/gamification/profile')
+      setXp(data.totalXp)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Chưa tải được XP')
     } finally {

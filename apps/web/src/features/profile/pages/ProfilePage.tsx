@@ -88,7 +88,7 @@ export function ProfilePage() {
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
         api<{ projects: ShowcaseProject[] }>('/api/projects'),
         api<{ assets: MediaAsset[] }>('/api/backpack'),
-        api<{ celebration: { personal: { xp: number } } }>('/api/gamification/class-celebration'),
+        api<{ totalXp: number }>('/api/gamification/profile'),
         api<PublicProfileSettings>('/api/profile/settings'),
         api<{ workspaces: AccountWorkspace[] }>('/api/account/workspaces'),
         api<{ equipment: Array<{ kind: keyof ReturnType<typeof readRewardEquipment>; rewardId: string }> }>('/api/gamification/storybook'),
@@ -104,7 +104,7 @@ export function ProfilePage() {
           source: asset.type.includes('generated') ? 'generated' : 'library',
         })))
       }
-      if (g.status === 'fulfilled') setExplorerXp(g.value.celebration.personal.xp)
+      if (g.status === 'fulfilled') setExplorerXp(g.value.totalXp)
       if (profileSettings.status === 'fulfilled') {
         setProfileSlug(profileSettings.value.slug)
         setProfileAppearance({

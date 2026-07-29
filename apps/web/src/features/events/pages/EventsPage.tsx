@@ -19,9 +19,9 @@ const statusLabel = {
 export function EventsPage() {
   const [xp, setXp] = useState(0)
   useEffect(() => {
-    void api<{ celebration: { personal: { xp: number } } }>(
-      '/api/gamification/class-celebration',
-    ).then((data) => setXp(data.celebration.personal.xp)).catch(() => undefined)
+    void api<{ totalXp: number }>('/api/gamification/profile')
+      .then((data) => setXp(data.totalXp))
+      .catch(() => undefined)
   }, [])
   const level = explorerLevelForXp(xp).level
 
