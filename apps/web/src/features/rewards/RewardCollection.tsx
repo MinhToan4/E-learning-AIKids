@@ -26,6 +26,10 @@ const kindLabels: Record<RewardKind, string> = {
 }
 
 const wardrobeKinds: RewardKind[] = ['frame', 'background', 'companion', 'effect', 'title', 'theme']
+type CatalogReward = RewardDefinition & {
+  assets?: { thumbnailUrl?: string; imageUrl?: string }
+  displayConfig?: Record<string, unknown>
+}
 
 function canEquip(reward: RewardDefinition) {
   return Boolean(reward.equipValue) &&
@@ -46,23 +50,55 @@ export function RewardCollection({
 }) {
   const [equipment, setEquipment] = useState(() => readRewardEquipment(userId))
   const [owned, setOwned] = useState<Set<string>>(new Set())
+  const [catalog, setCatalog] = useState<CatalogReward[]>([...REWARD_CATALOG])
   const [message, setMessage] = useState('')
   const [activeKind, setActiveKind] = useState<RewardKind>('frame')
   useEffect(() => {
     applyRewardEquipment(equipment)
   }, [equipment])
   useEffect(() => {
-    void api<{
-      inventory: Array<{ rewardId: string }>
-      equipment: Array<{ kind: RewardKind; rewardId: string }>
-    }>('/api/gamification/storybook')
-      .then((result) => {
+    void Promise.all([
+      api<{
+        inventory: Array<{ rewardId: string }>
+        equipment: Array<{ kind: RewardKind; rewardId: string }>
+      }>('/api/gamification/storybook'),
+      api<{ items: Array<{
+        code: string
+        name: string
+        description: string
+        kind: RewardKind
+        assets?: CatalogReward['assets']
+        displayConfig?: Record<string, unknown>
+        unlockRule?: { type?: string; value?: string | number }
+      }> }>('/api/gamification/catalog?type=reward'),
+    ])
+      .then(([result, studio]) => {
         setOwned(new Set(result.inventory.map((item) => item.rewardId)))
         const serverEquipment = Object.fromEntries(
           result.equipment.map((item) => [item.kind, item.rewardId]),
         )
         setEquipment(serverEquipment)
         applyRewardEquipment(serverEquipment)
+        if (studio.items.length) {
+          const dynamic = studio.items
+            .filter((item) => wardrobeKinds.includes(item.kind))
+            .map((item): CatalogReward => ({
+              id: item.code,
+              kind: item.kind,
+              name: item.name,
+              description: item.description,
+              icon: String(item.displayConfig?.icon ?? '✨'),
+              unlock: {
+                type: item.unlockRule?.type === 'xp_level' ? 'xp_level' : 'storybook_sticker',
+                value: item.unlockRule?.value ?? '',
+              },
+              equipValue: String(item.displayConfig?.equipValue ?? item.code),
+              assets: item.assets,
+              displayConfig: item.displayConfig,
+            }))
+          const dynamicIds = new Set(dynamic.map((item) => item.id))
+          setCatalog([...REWARD_CATALOG.filter((item) => !dynamicIds.has(item.id)), ...dynamic])
+        }
       })
       .catch(() => setMessage('Chưa đồng bộ được kho phần thưởng.'))
   }, [userId])
@@ -114,7 +150,7 @@ export function RewardCollection({
         ))}
       </div>
       <div className={`mt-4 grid gap-3 ${compact ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'}`}>
-        {REWARD_CATALOG.filter((reward) => reward.kind === activeKind).map((reward) => {
+        {catalog.filter((reward) => reward.kind === activeKind).map((reward) => {
           const unlocked = owned.has(reward.id)
           const equipped = equipment[reward.kind] === reward.id
           const rewardAvatar = reward.kind === 'avatar' ? avatarImage(reward.equipValue) : undefined
@@ -133,7 +169,9 @@ export function RewardCollection({
                 <span className="absolute right-2 top-2 text-sm" aria-label="Chưa mở">🔒</span>
               )}
               <div className={`flex h-20 items-center justify-center ${unlocked ? '' : 'grayscale opacity-30'}`}>
-                {rewardAvatar ? (
+                {reward.assets?.thumbnailUrl || reward.assets?.imageUrl ? (
+                  <img src={reward.assets.thumbnailUrl ?? reward.assets.imageUrl} alt="" className="h-16 w-16 object-contain" />
+                ) : rewardAvatar ? (
                   <img src={rewardAvatar} alt="" className="h-16 w-16 rounded-full object-cover shadow-soft" />
                 ) : reward.kind === 'frame' ? (
                   <div

@@ -513,6 +513,7 @@ export function AppShell() {
       { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
       { to: '/admin/sessions', label: 'Phiên', icon: CmsSessionsIcon },
       { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
+      { to: '/admin/legends', label: 'Huyền thoại & Reward', icon: CmsAiIcon },
       { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
       { to: '/teacher', label: 'Giáo viên', icon: CmsClassesIcon },
     ]

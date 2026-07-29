@@ -574,6 +574,14 @@ export function App() {
               }
             />
             <Route
+              path="/admin/legends"
+              element={
+                <Guard roles={['admin']}>
+                  <AdminPage tab="legends" />
+                </Guard>
+              }
+            />
+            <Route
               path="/admin/ai"
               element={
                 <Guard roles={['admin']}>

@@ -6,7 +6,7 @@ import { BookSpread } from '../components/BookSpread'
 import { GalleryWall } from '../components/GalleryWall'
 import { InteractionBoard } from '../components/InteractionBoard'
 import { SocialLeaderboard } from '../components/SocialLeaderboard'
-import { STORYBOOK_PAGES } from '../storybook-data'
+import { STORYBOOK_PAGES, type StorybookPage } from '../storybook-data'
 import { ChapterRewardCard } from '../components/ChapterRewardCard'
 
 type View = 'book' | 'gallery' | 'leaderboard' | 'interaction'
@@ -20,6 +20,13 @@ const views: Array<{ id: View; label: string }> = [
 export function StorybookPage() {
   const [searchParams] = useSearchParams()
   const [earnedStickerIds, setEarnedStickerIds] = useState<string[]>([])
+  const [studioChapters, setStudioChapters] = useState<Array<{
+    code: string
+    name: string
+    description: string
+    content?: { slug?: string; story?: string }
+    displayConfig?: { colors?: [string, string]; emoji?: string }
+  }>>([])
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState('')
   const requestedView = searchParams.get('view')
@@ -36,10 +43,14 @@ export function StorybookPage() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const data = await api<{ earnedStickerIds: string[] }>(
+      const data = await api<{
+        earnedStickerIds: string[]
+        studio?: { chapters?: typeof studioChapters }
+      }>(
         '/api/gamification/storybook',
       )
       setEarnedStickerIds(data.earnedStickerIds)
+      setStudioChapters(data.studio?.chapters ?? [])
       setNotice('')
     } catch {
       setNotice('Chưa đồng bộ được tiến trình. Cuốn sách vẫn mở để con khám phá.')
@@ -51,7 +62,19 @@ export function StorybookPage() {
   useEffect(() => { void load() }, [load])
 
   const earned = useMemo(() => new Set(earnedStickerIds), [earnedStickerIds])
-  const currentPage = STORYBOOK_PAGES[pageIndex]
+  const pages = useMemo(() => STORYBOOK_PAGES.map((page): StorybookPage => {
+    const override = studioChapters.find((item) =>
+      item.content?.slug?.toUpperCase() === page.slug || item.code.toUpperCase() === page.slug)
+    if (!override) return page
+    return {
+      ...page,
+      title: override.name || page.title,
+      story: override.content?.story || override.description || page.story,
+      emoji: override.displayConfig?.emoji || page.emoji,
+      colors: override.displayConfig?.colors || page.colors,
+    }
+  }), [studioChapters])
+  const currentPage = pages[pageIndex]
 
   return (
     <PageMotion className="flex flex-col gap-6">
@@ -118,7 +141,7 @@ export function StorybookPage() {
               ← Trang trước
             </button>
             <div className="flex items-center gap-1.5" aria-label="Chọn trang sách">
-              {STORYBOOK_PAGES.map((page, index) => (
+              {pages.map((page, index) => (
                 <button
                   key={page.slug}
                   type="button"
@@ -134,8 +157,8 @@ export function StorybookPage() {
             </div>
             <button
               type="button"
-              onClick={() => setPageIndex((index) => Math.min(STORYBOOK_PAGES.length - 1, index + 1))}
-              disabled={pageIndex === STORYBOOK_PAGES.length - 1}
+              onClick={() => setPageIndex((index) => Math.min(pages.length - 1, index + 1))}
+              disabled={pageIndex === pages.length - 1}
               className="rounded-full border-2 border-amber-700 bg-[#fff9df] px-4 py-2 text-sm font-black text-amber-900 disabled:opacity-30"
             >
               Trang sau →
@@ -144,7 +167,7 @@ export function StorybookPage() {
           <BookSpread page={currentPage} earned={earned} />
           <ChapterRewardCard page={currentPage} earned={earned} onClaimed={() => void load()} />
           <div className="flex justify-center gap-2">
-            {STORYBOOK_PAGES.map((page, index) => (
+            {pages.map((page, index) => (
               <button
                 key={page.slug}
                 type="button"

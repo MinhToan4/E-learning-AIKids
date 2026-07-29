@@ -165,11 +165,21 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     '/api/gamification/profile': '/api/v1/gamification/me',
     '/api/gamification/class-celebration':
       '/api/v1/gamification/me/celebration',
+    '/api/gamification/catalog': '/api/v1/gamification/catalog',
   }
   if (path === '/api/gamification/check-in') {
     return {
       path: '/api/v1/gamification/me/streak',
       options: { ...options, method: 'GET', body: undefined },
+    }
+  }
+  if (path.startsWith('/api/gamification/catalog?')) {
+    return { path: path.replace('/api/gamification/catalog', '/api/v1/gamification/catalog'), options }
+  }
+  if (path.startsWith('/api/admin/legend-studio')) {
+    return {
+      path: path.replace('/api/admin/legend-studio', '/api/v1/gamification/admin/studio'),
+      options,
     }
   }
   const gamificationMeAction = path.match(
