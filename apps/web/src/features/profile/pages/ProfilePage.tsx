@@ -14,12 +14,14 @@ import {
 } from '@/features/rewards/reward-equipment'
 import {
   DEFAULT_COMMUNITY_SETTINGS,
-  DEMO_CONNECTIONS,
   readCommunitySettings,
   saveCommunitySettings,
   type Audience,
+  type ProfileModule,
   type SharedSurface,
 } from '@/features/community/community-store'
+import { SocialGraphPanel } from '@/features/community/components/SocialGraphPanel'
+import { ActivityFeed } from '@/features/community/components/ActivityFeed'
 import {
   readProfileAvatar,
   saveProfileAvatar,
@@ -99,6 +101,15 @@ export function ProfilePage() {
     const next = {
       ...sharing,
       [surface]: { ...sharing[surface], [audience]: !sharing[surface][audience] },
+    }
+    setSharing(next)
+    if (user) saveCommunitySettings(user.id, next)
+  }
+
+  const toggleModule = (module: ProfileModule) => {
+    const next = {
+      ...sharing,
+      modules: { ...sharing.modules, [module]: !sharing.modules[module] },
     }
     setSharing(next)
     if (user) saveCommunitySettings(user.id, next)
@@ -197,24 +208,7 @@ export function ProfilePage() {
           </section>
 
           <div className="flex flex-col gap-5">
-            <section className="ui-card p-5">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-wider text-brand-600">Vòng tròn an toàn</p>
-                  <h2 className="font-display text-2xl">Bạn bè</h2>
-                </div>
-                <span className="rounded-full bg-mint-100 px-3 py-1 text-xs font-extrabold text-success">{DEMO_CONNECTIONS.length} kết nối</span>
-              </div>
-              <div className="mt-4 flex gap-3 overflow-x-auto">
-                {DEMO_CONNECTIONS.map((friend) => (
-                  <button key={friend.id} type="button" className="min-w-24 rounded-2xl bg-brand-50 p-3 text-center">
-                    <span className="text-3xl">{friend.avatar}</span>
-                    <span className="mt-1 block text-xs font-extrabold">{friend.name}</span>
-                  </button>
-                ))}
-              </div>
-              <p className="mt-3 text-[11px] text-muted">Danh sách mẫu; Social Graph API sẽ cung cấp bạn bè thật.</p>
-            </section>
+            {user && sharing.modules.friends && <SocialGraphPanel childId={user.id} />}
 
             <details className="ui-card p-5">
               <summary className="cursor-pointer list-none font-display text-xl">⚙️ Quyền xem hồ sơ & workspace</summary>
@@ -237,10 +231,36 @@ export function ProfilePage() {
                   </div>
                 ))}
               </div>
+              <div className="mt-5 border-t border-border pt-4">
+                <p className="mb-2 text-xs font-black uppercase tracking-wider text-muted">Module trên trang cá nhân</p>
+                <div className="flex flex-wrap gap-2">
+                  {([
+                    ['storybook', '📖 Storybook'],
+                    ['progress', '📈 Tiến độ'],
+                    ['achievements', '🏅 Danh hiệu'],
+                    ['works', '🎨 Tác phẩm'],
+                    ['friends', '🧑‍🤝‍🧑 Bạn bè'],
+                    ['activity', '✨ Hoạt động'],
+                  ] as Array<[ProfileModule, string]>).map(([module, label]) => (
+                    <button
+                      key={module}
+                      type="button"
+                      onClick={() => toggleModule(module)}
+                      className={`rounded-full px-3 py-1.5 text-xs font-extrabold ${
+                        sharing.modules[module] ? 'bg-brand-100 text-brand-700' : 'bg-slate-100 text-muted'
+                      }`}
+                    >
+                      {sharing.modules[module] ? '✓ ' : ''}{label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </details>
           </div>
         </div>
       )}
+
+      {section === 'overview' && sharing.modules.activity && <ActivityFeed />}
 
       <div className="flex justify-end">
         <Button variant="ghost" onClick={async () => { await logout(); navigate('/') }}>Đăng xuất</Button>
