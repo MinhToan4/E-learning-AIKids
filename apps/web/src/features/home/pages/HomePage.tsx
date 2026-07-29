@@ -20,6 +20,36 @@ import {
 
 type TrackFilter = 'all' | 'L1' | 'L2'
 
+type EnrollmentSummary = {
+  courseId: string
+  status: string
+  progress?: Array<{ status?: string; stars?: number }>
+}
+
+export function coursesWithEnrollments(
+  courses: CourseSummary[],
+  enrollments: EnrollmentSummary[],
+): CourseSummary[] {
+  const byCourse = new Map(enrollments.map((row) => [row.courseId, row]))
+  return courses.map((course) => {
+    const enrollment = byCourse.get(course.id)
+    if (!enrollment || !['active', 'completed'].includes(enrollment.status)) {
+      return { ...course, enrolled: false, completedCount: 0, totalStars: 0, progressPct: 0 }
+    }
+    const progress = enrollment.progress ?? []
+    const completedCount = progress.filter((row) => row.status === 'completed').length
+    const questCount = progress.length || course.questCount || 0
+    return {
+      ...course,
+      enrolled: true,
+      questCount,
+      completedCount,
+      totalStars: progress.reduce((sum, row) => sum + Number(row.stars ?? 0), 0),
+      progressPct: questCount > 0 ? Math.round((completedCount / questCount) * 100) : 0,
+    }
+  })
+}
+
 function courseBadge(course: CourseSummary) {
   return /^l[12]-k7-/.test(course.id) ? 'AI' : (course.courseKey ?? 'Mới')
 }
@@ -242,13 +272,14 @@ export function HomePage() {
     setLoading(true)
     setError(null)
     try {
-      const [c, s, a, g] = await Promise.all([
+      const [c, enrollmentData, s, a, g] = await Promise.all([
         api<{ courses: CourseSummary[] }>('/api/courses'),
+        api<{ enrollments: EnrollmentSummary[] }>('/api/enrollments'),
         api<{ current: number; longest: number; lastActivityDate: string | null }>('/api/gamification/streak'),
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
         api<{ totalXp: number; level: number }>('/api/gamification/profile'),
       ])
-      setCourses(c.courses)
+      setCourses(coursesWithEnrollments(c.courses, enrollmentData.enrollments))
       setStreak({ current: s.current, longest: s.longest, lastActivityDate: s.lastActivityDate })
       setBadges(a.achievements.filter((x) => x.unlocked).slice(0, 3))
       setExplorerXp(g.totalXp)

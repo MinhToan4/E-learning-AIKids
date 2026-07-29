@@ -41,12 +41,13 @@ export function CourseIntroPage() {
     void (async () => {
       setError(null)
       try {
-        const [data, catalog] = await Promise.all([
+        const [data, enrollmentData] = await Promise.all([
           api<{ course: CourseDetail }>(`/api/courses/${courseId}`),
-          api<{ courses: CourseSummary[] }>('/api/courses'),
+          api<{ enrollments: Array<{ courseId: string; status: string }> }>('/api/enrollments'),
         ])
         setCourse(data.course)
-        setEnrolled(catalog.courses.some((item) => item.id === courseId && item.enrolled))
+        setEnrolled(enrollmentData.enrollments.some((item) =>
+          item.courseId === courseId && ['active', 'completed'].includes(item.status)))
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Không tải được khóa học')
       }
