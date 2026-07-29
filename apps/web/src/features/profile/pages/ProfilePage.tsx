@@ -23,6 +23,7 @@ import {
 import { SocialGraphPanel } from '@/features/community/components/SocialGraphPanel'
 import { ActivityFeed } from '@/features/community/components/ActivityFeed'
 import { WorkspaceSharingPanel } from '@/features/community/components/WorkspaceSharingPanel'
+import { AvatarPickerModal } from '../components/AvatarPickerModal'
 import {
   readProfileAvatar,
   saveProfileAvatar,
@@ -40,6 +41,7 @@ export function ProfilePage() {
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [section, setSection] = useState<'overview' | 'customize'>('overview')
+  const [avatarPickerOpen, setAvatarPickerOpen] = useState(false)
   const [streak, setStreak] = useState(0)
   const [achievements, setAchievements] = useState<AchievementRow[]>([])
   const [projects, setProjects] = useState<ShowcaseProject[]>([])
@@ -132,7 +134,14 @@ export function ProfilePage() {
     <PageMotion className="mx-auto flex max-w-5xl flex-col gap-5">
       <section className="ui-card overflow-hidden p-5 sm:p-6" style={profileCardStyle(equipment.background ?? equipment.theme)}>
         <div className="grid items-center gap-5 md:grid-cols-[1fr_auto]">
-          {user && <EquippedProfile user={user} xp={explorerXp} compact />}
+          {user && (
+            <EquippedProfile
+              user={user}
+              xp={explorerXp}
+              compact
+              onAvatarClick={() => setAvatarPickerOpen(true)}
+            />
+          )}
           <div className="grid grid-cols-3 gap-2">
             {[
               ['🔥', streak, 'Chuỗi'],
@@ -158,35 +167,10 @@ export function ProfilePage() {
 
       {section === 'customize' && user && (
         <>
-          <section className="ui-card p-5">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-black uppercase tracking-wider text-brand-600">Ảnh đại diện</p>
-                <h2 className="font-display text-2xl">Chọn từ kho sáng tạo</h2>
-              </div>
-              <Link to="/backpack" className="text-sm font-extrabold text-brand-600">Mở thư viện</Link>
-            </div>
-            <div className="mt-4 flex gap-3 overflow-x-auto pb-2">
-              {avatarChoices.map((choice) => {
-                const active = selectedAvatar?.id === choice.id
-                return (
-                  <button
-                    key={choice.id}
-                    type="button"
-                    onClick={() => {
-                      saveProfileAvatar(user.id, choice)
-                      setSelectedAvatar(choice)
-                    }}
-                    className={`w-24 shrink-0 rounded-2xl border-2 p-2 ${active ? 'border-brand-500 bg-brand-50' : 'border-border'}`}
-                  >
-                    <img src={choice.url} alt="" className="h-20 w-20 rounded-xl object-cover" />
-                    <span className="mt-1 block truncate text-xs font-extrabold">{active ? 'Đang dùng ✓' : choice.label}</span>
-                  </button>
-                )
-              })}
-            </div>
-          </section>
           <div className="ui-card p-5">
+            <p className="mb-4 rounded-2xl bg-brand-50 p-3 text-sm font-bold text-brand-700">
+              📷 Đổi ảnh bằng nút camera trên avatar. Phòng thay đồ chỉ dùng cho khung, Paco, hiệu ứng và theme.
+            </p>
             <RewardCollection userId={user.id} xpLevel={explorerLevelForXp(explorerXp).level} stickerIds={chapterStickers} />
           </div>
         </>
@@ -277,6 +261,18 @@ export function ProfilePage() {
       <div className="flex justify-end">
         <Button variant="ghost" onClick={async () => { await logout(); navigate('/') }}>Đăng xuất</Button>
       </div>
+
+      {avatarPickerOpen && user && (
+        <AvatarPickerModal
+          choices={avatarChoices}
+          onClose={() => setAvatarPickerOpen(false)}
+          onChoose={(choice) => {
+            saveProfileAvatar(user.id, choice)
+            setSelectedAvatar(choice)
+            setAvatarPickerOpen(false)
+          }}
+        />
+      )}
     </PageMotion>
   )
 }

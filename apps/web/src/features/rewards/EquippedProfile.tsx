@@ -10,10 +10,12 @@ export function EquippedProfile({
   user,
   xp,
   compact = false,
+  onAvatarClick,
 }: {
   user: User
   xp: number
   compact?: boolean
+  onAvatarClick?: () => void
 }) {
   const [equipment, setEquipment] = useState(() => readRewardEquipment(user.id))
   const [profileAvatar, setProfileAvatar] = useState(() => readProfileAvatar(user.id))
@@ -42,17 +44,29 @@ export function EquippedProfile({
   return (
     <div className={`flex items-center gap-5 ${compact ? 'flex-row text-left' : 'flex-col text-center'}`}>
       <div className={`relative ${effect ? 'drop-shadow-[0_0_18px_rgba(250,204,21,.8)]' : ''}`}>
-        <div
+        <button
+          type="button"
+          onClick={onAvatarClick}
+          disabled={!onAvatarClick}
           className="rounded-full bg-white p-2 shadow-[0_18px_50px_rgba(76,29,149,.2)]"
           style={rewardFrameStyle(frameReward)}
-          aria-label={frame ? `Đang dùng ${frame.name}` : 'Khung cơ bản'}
+          aria-label={onAvatarClick
+            ? `Đổi ảnh đại diện · ${frame?.name ?? 'Khung cơ bản'}`
+            : frame
+              ? `Đang dùng ${frame.name}`
+              : 'Khung cơ bản'}
         >
           <div className={`flex items-center justify-center overflow-hidden rounded-full border-4 border-white bg-brand-100 shadow-inner ${
             compact ? 'h-24 w-24 text-5xl sm:h-28 sm:w-28' : 'h-36 w-36 text-7xl sm:h-44 sm:w-44'
           }`}>
           {img ? <img src={img} alt="" className="h-full w-full object-cover" /> : avatarEmoji(avatarId)}
           </div>
-        </div>
+        </button>
+        {onAvatarClick && (
+          <span className="pointer-events-none absolute -right-1 top-0 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-brand-600 text-lg text-white shadow-soft" aria-hidden>
+            📷
+          </span>
+        )}
         <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border-2 border-white bg-brand-600 px-3 py-1 text-xs font-black text-white shadow-soft">
           CẤP {level.level}
         </span>
