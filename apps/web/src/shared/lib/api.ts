@@ -424,7 +424,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     }
   }
   const lessonAction = path.match(
-    /^\/api\/progress\/([^/?]+)\/(start|advance|practice|check)$/,
+    /^\/api\/progress\/([^/?]+)\/(start|advance|practice|check|check-answer)$/,
   )
   if (lessonAction) {
     const headers = new Headers(options.headers)
