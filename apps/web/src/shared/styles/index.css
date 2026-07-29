@@ -56,6 +56,22 @@
   --shadow-press: 0 3px 0 0 rgba(109, 94, 252, 0.22);
 }
 
+html[data-reward-theme='theme-workshop'] body {
+  background-image:
+    radial-gradient(circle at 15% 20%, rgb(251 191 36 / 18%), transparent 24rem),
+    radial-gradient(circle at 85% 75%, rgb(249 115 22 / 14%), transparent 26rem);
+}
+
+html[data-reward-theme='theme-legend'] body {
+  background-image:
+    radial-gradient(circle at 20% 15%, rgb(124 58 237 / 20%), transparent 26rem),
+    radial-gradient(circle at 80% 80%, rgb(250 204 21 / 15%), transparent 24rem);
+}
+
+html[data-sticker-effect='sparkle'] .ui-badge-clay {
+  filter: drop-shadow(0 0 7px rgb(250 204 21 / 70%));
+}
+
 @layer base {
   *,
   *::before,
@@ -459,6 +475,8 @@
     font-size: 0.75rem;
     font-weight: 900;
     line-height: 1.1;
+    white-space: nowrap;
+    letter-spacing: -0.015em;
     transition:
       color 0.16s ease,
       background-color 0.16s ease,
@@ -1449,6 +1467,66 @@
   .star-icon:nth-child(1) { animation-delay: 0.1s; }
   .star-icon:nth-child(2) { animation-delay: 0.25s; }
   .star-icon:nth-child(3) { animation-delay: 0.4s; }
+
+  .lesson-star-rack {
+    position: relative;
+    display: flex;
+    gap: 0.35rem;
+    border-radius: 1rem;
+    border: 2px solid var(--color-sun-200, #ffe8a3);
+    background: var(--color-sun-50, #fffaf0);
+    padding: 0.5rem 0.75rem;
+  }
+
+  .lesson-star-placeholder,
+  .result-star-slot {
+    color: var(--color-border, #ded9ef);
+    fill: transparent;
+    transition: color 0.25s ease, fill 0.25s ease, transform 0.25s ease;
+  }
+
+  .lesson-star-earned,
+  .result-star-earned {
+    color: var(--color-sun-400, #ffc94a);
+    fill: currentColor;
+    filter: drop-shadow(0 3px 3px rgb(255 180 0 / 28%));
+  }
+
+  .lesson-star-earned {
+    animation: star-pop 0.55s cubic-bezier(0.22, 1.4, 0.36, 1) both;
+  }
+
+  .lesson-star-fly {
+    position: absolute;
+    right: 40%;
+    bottom: -4rem;
+    z-index: 3;
+    font-size: 2rem;
+    pointer-events: none;
+    animation: star-fly-into-rack 0.8s var(--star-fly-delay, 0s)
+      cubic-bezier(0.2, 0.8, 0.3, 1.2) both;
+  }
+
+  .lesson-answer-correct {
+    border-color: var(--color-mint-400, #35c991) !important;
+    background: var(--color-mint-100, #dcfaef) !important;
+  }
+
+  .lesson-answer-wrong {
+    border-color: var(--color-coral-300, #ff9e91) !important;
+    background: var(--color-coral-50, #fff3f1) !important;
+  }
+
+  .result-star-slot {
+    animation: star-pop 0.5s cubic-bezier(0.22, 1.4, 0.36, 1) both;
+  }
+
+  @keyframes star-fly-into-rack {
+    0% { transform: translateY(0) scale(0.55) rotate(-25deg); opacity: 0; }
+    25% { opacity: 1; }
+    75% { transform: translateY(-3.5rem) scale(1.35) rotate(12deg); opacity: 1; }
+    100% { transform: translateY(-4rem) scale(0.3) rotate(0); opacity: 0; }
+  }
 
   @keyframes star-pop {
     0% { transform: scale(0) rotate(-20deg); opacity: 0; }

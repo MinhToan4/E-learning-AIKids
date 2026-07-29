@@ -91,6 +91,12 @@ export function LessonPage() {
     '#ffc94a',
   ])
   const [answers, setAnswers] = useState<Record<string, number>>({})
+  const [answerFeedback, setAnswerFeedback] = useState<
+    Record<string, { correct: boolean; explanation: string }>
+  >({})
+  const [checkingQuestionId, setCheckingQuestionId] = useState<string | null>(null)
+  const [liveStars, setLiveStars] = useState(0)
+  const [starBurst, setStarBurst] = useState<{ id: number; count: number } | null>(null)
   const [checkResult, setCheckResult] = useState<{
     stars: number
     message: string
@@ -124,6 +130,10 @@ export function LessonPage() {
     setRefAssetIds([])
     setSketchDataUrl(null)
     setAnswers({})
+    setAnswerFeedback({})
+    setCheckingQuestionId(null)
+    setLiveStars(0)
+    setStarBurst(null)
     setCheckResult(null)
     setReviewMode(false)
     setOfflineManifest(null)
@@ -170,9 +180,10 @@ export function LessonPage() {
         if (start.progress.status === 'completed') {
           setPhase('done')
           setCheckResult({
-            stars: start.progress.stars || 1,
-            message:
-              'Con đã hoàn thành trạm này! Có thể xem lại hoặc sang trạm mới.',
+            stars: start.progress.stars,
+            message: start.progress.stars > 0
+              ? 'Con đã hoàn thành trạm này! Có thể thử lại để nâng số sao.'
+              : 'Lần trước con chưa nhận được sao. Hãy thử lại phần Thử tài nhé!',
             nextQuestId: null,
           })
           // Still fetch next from course map if needed on UI
@@ -510,6 +521,49 @@ export function LessonPage() {
       }
     } finally {
       setBusy(false)
+    }
+  }
+
+  async function chooseCheckAnswer(questionId: string, optionIndex: number) {
+    if (answerFeedback[questionId] || checkingQuestionId) return
+    setAnswers((current) => ({ ...current, [questionId]: optionIndex }))
+    setCheckingQuestionId(questionId)
+    setError(null)
+    try {
+      const feedback = await api<{
+        questionId: string
+        correct: boolean
+        explanation: string
+      }>(`/api/progress/${questId}/check-answer`, {
+        method: 'POST',
+        body: JSON.stringify({ questionId, optionIndex }),
+      })
+      setAnswerFeedback((current) => ({
+        ...current,
+        [questionId]: {
+          correct: feedback.correct,
+          explanation: feedback.explanation,
+        },
+      }))
+      if (feedback.correct && quest) {
+        const correctCount =
+          Object.values(answerFeedback).filter((row) => row.correct).length + 1
+        const score = Math.round((correctCount / quest.check.length) * 100)
+        const nextStars = score >= 90 ? 3 : score >= 60 ? 2 : score > 0 ? 1 : 0
+        setLiveStars(nextStars)
+        // Mỗi câu đúng chỉ bay một ngôi sao. Ô thưởng hoàn thành có thể
+        // tự bật sáng thêm để khớp thang điểm 3 sao của backend.
+        setStarBurst({ id: Date.now(), count: 1 })
+      }
+    } catch (e) {
+      setAnswers((current) => {
+        const next = { ...current }
+        delete next[questionId]
+        return next
+      })
+      setError(e instanceof Error ? e.message : 'Chưa kiểm tra được đáp án')
+    } finally {
+      setCheckingQuestionId(null)
     }
   }
 
@@ -1143,11 +1197,36 @@ export function LessonPage() {
 
       {phase === 'check' && (
         <div className="ui-card flex flex-col gap-5 p-5 animate-fade-up">
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
             <span className="text-2xl" aria-hidden>⭐</span>
             <div>
               <p className="font-extrabold text-lg">Kiểm tra nhanh</p>
-              <p className="text-xs text-muted">Không sao nếu thử lại nhiều lần!</p>
+              <p className="text-xs text-muted">Chọn từng đáp án để biết ngay đúng hay chưa.</p>
+            </div>
+            </div>
+            <div className="lesson-star-rack" aria-label={`${liveStars} sao đang nhận`}>
+              {[1, 2, 3].map((star) => (
+                <Star
+                  key={star}
+                  size={30}
+                  className={cn(
+                    'lesson-star-placeholder',
+                    star <= liveStars && 'lesson-star-earned',
+                  )}
+                  aria-hidden="true"
+                />
+              ))}
+              {starBurst && Array.from({ length: starBurst.count }, (_, index) => (
+                <span
+                  key={`${starBurst.id}-${index}`}
+                  className="lesson-star-fly"
+                  style={{ '--star-fly-delay': `${index * 0.12}s` } as React.CSSProperties}
+                  aria-hidden="true"
+                >
+                  ⭐
+                </span>
+              ))}
             </div>
           </div>
           {quest.check.map((q, qIdx) => (
@@ -1164,8 +1243,16 @@ export function LessonPage() {
                     className={cn(
                       'game-card text-left text-sm font-semibold',
                       answers[q.id] === idx && 'game-card-selected',
+                      answers[q.id] === idx &&
+                        answerFeedback[q.id]?.correct &&
+                        'lesson-answer-correct',
+                      answers[q.id] === idx &&
+                        answerFeedback[q.id] &&
+                        !answerFeedback[q.id].correct &&
+                        'lesson-answer-wrong',
                     )}
-                    onClick={() => setAnswers((a) => ({ ...a, [q.id]: idx }))}
+                    disabled={Boolean(answerFeedback[q.id]) || checkingQuestionId === q.id}
+                    onClick={() => void chooseCheckAnswer(q.id, idx)}
                   >
                     <span className={cn(
                       'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-extrabold mr-2 flex-shrink-0',
@@ -1177,12 +1264,37 @@ export function LessonPage() {
                   </button>
                 ))}
               </div>
+              {checkingQuestionId === q.id && (
+                <p className="text-sm font-bold text-brand-500" role="status">
+                  Đang kiểm tra đáp án…
+                </p>
+              )}
+              {answerFeedback[q.id] && (
+                <div
+                  className={cn(
+                    'rounded-2xl border-2 px-4 py-3 text-sm font-semibold animate-pop',
+                    answerFeedback[q.id].correct
+                      ? 'border-mint-300 bg-mint-100/60 text-mint-700'
+                      : 'border-coral-200 bg-coral-50 text-coral-700',
+                  )}
+                  role="status"
+                >
+                  <p className="font-extrabold">
+                    {answerFeedback[q.id].correct
+                      ? '⭐ Chính xác! Con nhận được sao.'
+                      : '💡 Chưa đúng rồi.'}
+                  </p>
+                  <p className="mt-1">{answerFeedback[q.id].explanation}</p>
+                </div>
+              )}
             </div>
           ))}
           <Button
             onClick={() => void submitCheck()}
             disabled={
-              busy || quest.check.some((q) => answers[q.id] === undefined)
+              busy ||
+              checkingQuestionId !== null ||
+              quest.check.some((q) => !answerFeedback[q.id])
             }
           >
             {!busy && <Star size={18} aria-hidden="true" />}
@@ -1218,26 +1330,32 @@ export function LessonPage() {
           {/* Stars */}
           <div className="stars-row" aria-label={`${checkResult.stars} sao`}>
             {[1, 2, 3].map((i) => (
-              <span
+              <Star
                 key={i}
-                className="star-icon"
-                style={{ opacity: i <= checkResult.stars ? 1 : 0.25 }}
-              >
-                ⭐
-              </span>
+                size={44}
+                className={cn(
+                  'result-star-slot',
+                  i <= checkResult.stars && 'result-star-earned',
+                )}
+                aria-hidden="true"
+              />
             ))}
           </div>
 
           <div>
-            <h2 className="font-display text-3xl">Hoàn thành trạm! 🎉</h2>
+            <h2 className="font-display text-3xl">
+              {checkResult.stars > 0 ? 'Hoàn thành trạm! 🎉' : 'Thử lại để nhận sao ⭐'}
+            </h2>
             <p className="mt-1 text-muted">{checkResult.message}</p>
           </div>
 
           {/* Reward */}
-          <div className="rounded-2xl bg-brand-50 border border-brand-100 px-4 py-3 w-full max-w-sm">
-            <p className="text-xs font-extrabold uppercase tracking-wider text-brand-500 mb-1">Phần thưởng</p>
-            <p className="text-sm font-bold">{quest.reward}</p>
-          </div>
+          {checkResult.stars > 0 && (
+            <div className="rounded-2xl bg-brand-50 border border-brand-100 px-4 py-3 w-full max-w-sm">
+              <p className="text-xs font-extrabold uppercase tracking-wider text-brand-500 mb-1">Phần thưởng</p>
+              <p className="text-sm font-bold">{quest.reward}</p>
+            </div>
+          )}
 
           {/* New achievements */}
           {checkResult.newAchievements && checkResult.newAchievements.length > 0 && (
@@ -1271,6 +1389,22 @@ export function LessonPage() {
               <NavWorldIcon size={18} aria-hidden="true" />
               Về bản đồ
             </Button>
+            {checkResult.stars < 3 && (
+              <Button
+                onClick={() => {
+                  setReviewMode(false)
+                  setAnswers({})
+                  setAnswerFeedback({})
+                  setLiveStars(0)
+                  setStarBurst(null)
+                  setError(null)
+                  setPhase('check')
+                }}
+              >
+                <Star size={18} aria-hidden="true" />
+                {checkResult.stars === 0 ? 'Thử lại để nhận sao' : 'Thử lại để nâng sao'}
+              </Button>
+            )}
             <Button
               variant="ghost"
               onClick={() => {

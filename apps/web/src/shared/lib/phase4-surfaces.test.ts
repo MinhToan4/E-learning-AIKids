@@ -78,7 +78,8 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
   it('Progress page celebrates growth without exposing a child leaderboard', () => {
     const progress = read('features/leaderboard/pages/LeaderboardPage.tsx')
     expect(progress).toContain('/api/gamification/class-celebration')
-    expect(progress).toContain('Bước tiếp theo của con')
+    expect(progress).toContain('Cột mốc học tập kế tiếp')
+    expect(progress).toContain('không phải XP toàn hệ sinh thái')
     expect(progress).toContain('Khu vườn chung')
     expect(progress).toContain('designerAssets.chrome.adventureMap')
     expect(progress).not.toContain('Chỉ ghi nhận nỗ lực, không so sánh bạn nào')

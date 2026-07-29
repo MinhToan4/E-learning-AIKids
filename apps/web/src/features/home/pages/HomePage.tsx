@@ -10,6 +10,11 @@ import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { CourseBookIcon, NavLeaderboardIcon } from '@/shared/components/icons/KidNavIcons'
+import {
+  explorerLevelForXp,
+  explorerLevelProgress,
+  nextExplorerLevel,
+} from '@/shared/lib/creation/xp-levels'
 
 type TrackFilter = 'all' | 'L1' | 'L2'
 
@@ -53,17 +58,20 @@ function StreakWidget({ current, longest }: { current: number; longest: number }
   )
 }
 
-function XpWidget({ level, xp }: { level: number; xp: number }) {
-  const xpToNext = level * 200
-  const pct = Math.min(100, Math.round((xp / xpToNext) * 100))
+function XpWidget({ xp }: { xp: number }) {
+  const current = explorerLevelForXp(xp)
+  const next = nextExplorerLevel(xp)
+  const pct = explorerLevelProgress(xp)
   return (
     <div className="flex flex-col gap-1 rounded-2xl bg-brand-50 border border-brand-100 p-3">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <Zap size={14} className="text-brand-500" aria-hidden />
-          <span className="text-xs font-extrabold text-brand-700">Cấp {level}</span>
+          <span className="text-xs font-extrabold text-brand-700">Cấp {current.level}</span>
         </div>
-        <span className="text-[10px] font-bold text-muted">{xp}/{xpToNext} XP</span>
+        <span className="text-[10px] font-bold text-muted">
+          {xp.toLocaleString('vi-VN')}{next ? `/${next.xpRequired.toLocaleString('vi-VN')}` : ''} XP
+        </span>
       </div>
       <div className="xp-bar-track">
         <div
@@ -73,7 +81,7 @@ function XpWidget({ level, xp }: { level: number; xp: number }) {
           aria-valuenow={pct}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label={`${pct}% tiến trình lên cấp ${level + 1}`}
+          aria-label={next ? `${pct}% tiến trình lên cấp ${next.level}` : 'Đã đạt cấp cao nhất'}
         />
       </div>
     </div>
@@ -167,6 +175,7 @@ export function HomePage() {
   } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [explorerXp, setExplorerXp] = useState(0)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -174,7 +183,7 @@ export function HomePage() {
     try {
       // WHY: Run all independent API calls in parallel to cut perceived load time
       // from ~3 serial round-trips down to 1 batched round-trip.
-      const [c, s, a, checkResult, missionResult] = await Promise.all([
+      const [c, s, a, checkResult, missionResult, profile] = await Promise.all([
         api<{ courses: CourseSummary[] }>('/api/courses'),
         api<{ current: number; longest: number }>('/api/gamification/streak'),
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
@@ -183,6 +192,7 @@ export function HomePage() {
           .catch(() => null),
         api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission')
           .catch(() => null),
+        api<{ totalXp: number; level: number }>('/api/gamification/profile'),
       ])
       setCourses(c.courses)
       // Prefer check-in result (it refreshes streak atomically); fall back to streak
@@ -202,6 +212,7 @@ export function HomePage() {
             : a.achievements.slice(0, 1),
       )
       if (missionResult?.mission) setDailyMission(missionResult.mission)
+      setExplorerXp(profile.totalXp)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Lỗi tải khóa học')
     } finally {
@@ -215,6 +226,7 @@ export function HomePage() {
   }, [load])
 
   const open = courses.filter((c) => c.status === 'open')
+  const explorerLevel = explorerLevelForXp(explorerXp)
   const filtered =
     track === 'all' ? open : open.filter((c) => c.ageTrack === track)
   const enrolled = filtered.filter((c) => c.enrolled)
@@ -271,7 +283,7 @@ export function HomePage() {
                 {user?.nickname ?? 'Bạn nhỏ'} ✨
               </h1>
               <p className="text-xs font-semibold text-muted mt-0.5">
-                Cấp {user?.level} · {user?.xp} điểm XP
+                Cấp {explorerLevel.level} · {explorerXp.toLocaleString('vi-VN')} XP toàn hệ sinh thái
               </p>
             </div>
           </div>
@@ -284,7 +296,7 @@ export function HomePage() {
 
         {/* XP bar */}
         <div className="relative px-4 pb-4 sm:px-5 sm:pb-5">
-          <XpWidget level={user?.level ?? 1} xp={user?.xp ?? 0} />
+          <XpWidget xp={explorerXp} />
         </div>
       </header>
 

@@ -1,4 +1,5 @@
 import { api } from '@/shared/lib/api'
+import { createUuid } from '@/shared/lib/uuid'
 import {
   clearOfflineLearningData,
   OFFLINE_CACHE_NAME,
@@ -47,7 +48,7 @@ type OfflineSyncResult = {
 export function learningDeviceId(): string {
   const existing = localStorage.getItem(OFFLINE_DEVICE_KEY)
   if (existing) return existing
-  const created = `web.${crypto.randomUUID()}`
+  const created = `web.${createUuid()}`
   localStorage.setItem(OFFLINE_DEVICE_KEY, created)
   return created
 }
@@ -107,7 +108,7 @@ export function queueOfflineProgress(
   }
   current.push({
     ...input,
-    clientEventId: crypto.randomUUID(),
+    clientEventId: createUuid(),
     occurredAt: new Date().toISOString(),
   })
   localStorage.setItem(key, JSON.stringify(current.slice(-100)))

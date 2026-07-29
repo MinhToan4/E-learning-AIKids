@@ -114,6 +114,9 @@ const studentPinnedNav = [
   { to: '/leaderboard', label: 'Tiến bộ', icon: NavLeaderboardIcon },
 ]
 const studentDrawerNav = [
+  { to: '/level',        label: 'Cấp độ', icon: NavLeaderboardIcon },
+  { to: '/events',       label: 'Sự kiện', icon: NavWorldIcon },
+  { to: '/storybook',    label: 'Huyền thoại', icon: NavBadgeIcon   },
   { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon   },
   { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon },
   { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon },
@@ -124,7 +127,10 @@ const studentNav = [
   { to: '/world',        label: 'Học',      icon: NavWorldIcon       },
   { to: '/creative',     label: 'Xưởng',    icon: NavCreativeIcon    },
   { to: '/leaderboard',  label: 'Tiến bộ',  icon: NavLeaderboardIcon },
+  { to: '/level',        label: 'Cấp độ',    icon: NavLeaderboardIcon },
+  { to: '/events',       label: 'Sự kiện',   icon: NavWorldIcon       },
   { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon       },
+  { to: '/storybook',    label: 'Huyền thoại', icon: NavBadgeIcon     },
   { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon    },
   { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon     },
 ]
@@ -577,6 +583,7 @@ export function AppShell() {
       { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
       { to: '/admin/sessions', label: 'Phiên', icon: CmsSessionsIcon },
       { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
+      { to: '/admin/legends', label: 'Huyền thoại & Reward', icon: CmsAiIcon },
       { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
       { to: '/teacher', label: 'Giáo viên', icon: CmsClassesIcon },
     ]

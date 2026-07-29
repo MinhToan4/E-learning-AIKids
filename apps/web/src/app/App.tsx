@@ -70,14 +70,34 @@ const ProfilePage = lazy(() =>
     default: m.ProfilePage,
   })),
 )
+const PublicProfilePage = lazy(() =>
+  import('@/features/profile/pages/PublicProfilePage').then((m) => ({
+    default: m.PublicProfilePage,
+  })),
+)
 const AchievementsPage = lazy(() =>
   import('@/features/achievements/pages/AchievementsPage').then((m) => ({
     default: m.AchievementsPage,
   })),
 )
+const StorybookPage = lazy(() =>
+  import('@/features/storybook/pages/StorybookPage').then((m) => ({
+    default: m.StorybookPage,
+  })),
+)
 const LeaderboardPage = lazy(() =>
   import('@/features/leaderboard/pages/LeaderboardPage').then((m) => ({
     default: m.LeaderboardPage,
+  })),
+)
+const ExplorerLevelPage = lazy(() =>
+  import('@/features/level/pages/ExplorerLevelPage').then((m) => ({
+    default: m.ExplorerLevelPage,
+  })),
+)
+const EventsPage = lazy(() =>
+  import('@/features/events/pages/EventsPage').then((m) => ({
+    default: m.EventsPage,
   })),
 )
 const ParentPage = lazy(() =>
@@ -223,6 +243,7 @@ export function App() {
           <Route path="/terms" element={<LegalPage kind="terms" />} />
           <Route path="/account/delete" element={<LegalPage kind="delete" />} />
           <Route path="/support" element={<LegalPage kind="support" />} />
+          <Route path="/u/:childId" element={<PublicProfilePage />} />
           <Route path="/data-safety" element={<LegalPage kind="data-safety" />} />
           {/* Public credential verification — no auth required */}
           <Route path="/credentials/:code" element={<CredentialVerifyPage />} />
@@ -315,21 +336,49 @@ export function App() {
               }
             />
             <Route
-              path="/achievements"
+              path="/community"
+              element={<Navigate to="/profile" replace />}
+            />
+          <Route
+            path="/achievements"
               element={
                 <Guard roles={['student']} requireOnboarded>
                   <AchievementsPage />
                 </Guard>
               }
-            />
-            <Route
-              path="/leaderboard"
+          />
+          <Route
+            path="/storybook"
+            element={
+              <Guard roles={['student']} requireOnboarded>
+                <StorybookPage />
+              </Guard>
+            }
+          />
+          <Route
+            path="/leaderboard"
               element={
                 <Guard roles={['student']} requireOnboarded>
                   <LeaderboardPage />
                 </Guard>
               }
-            />
+          />
+          <Route
+            path="/level"
+            element={
+              <Guard roles={['student']} requireOnboarded>
+                <ExplorerLevelPage />
+              </Guard>
+            }
+          />
+          <Route
+            path="/events"
+            element={
+              <Guard roles={['student']} requireOnboarded>
+                <EventsPage />
+              </Guard>
+            }
+          />
             {/* Assessment portal: student sees their assessments */}
             <Route
               path="/assessments"
@@ -521,6 +570,14 @@ export function App() {
               element={
                 <Guard roles={['admin']}>
                   <AdminPage tab="courses" />
+                </Guard>
+              }
+            />
+            <Route
+              path="/admin/legends"
+              element={
+                <Guard roles={['admin']}>
+                  <AdminPage tab="legends" />
                 </Guard>
               }
             />

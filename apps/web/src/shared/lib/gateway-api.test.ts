@@ -155,6 +155,65 @@ describe('StoryMee Gateway adapter', () => {
     ])
   })
 
+  it('accepts a trailing slash on achievements and maps the Hub response', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response([{
+      achievement: {
+        key: 'first_lesson',
+        title: 'Bước đầu tiên',
+        description: 'Hoàn thành bài học đầu tiên',
+        icon: '🌱',
+        threshold: 1,
+      },
+      unlocked: true,
+      unlock: { unlockedAt: '2026-07-23T00:00:00.000Z' },
+    }]))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{
+      achievements: Array<{ type: string; unlocked: boolean }>
+    }>('/api/gamification/achievements/')
+
+    expect(result.achievements).toEqual([
+      expect.objectContaining({ type: 'first_lesson', unlocked: true }),
+    ])
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://dev-hub.storymee.com/api/v1/gamification/me/achievements',
+      expect.any(Object),
+    )
+  })
+
+  it('builds the learning pathway from the deployed LMS course catalog', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      courses: [{
+        id: 'course-1',
+        title: 'AI cơ bản',
+        shortTitle: 'Khởi đầu',
+        ageBand: '8-11',
+        enrolled: true,
+        progressPct: 25,
+      }],
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{
+      recommendedCourseId: string | null
+      courses: Array<{ id: string; status: string; completionPercent: number }>
+    }>('/api/learning/pathway')
+
+    expect(result).toMatchObject({
+      recommendedCourseId: 'course-1',
+      courses: [{
+        id: 'course-1',
+        status: 'active',
+        completionPercent: 25,
+      }],
+    })
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://dev-hub.storymee.com/api/v1/lms/courses',
+      expect.any(Object),
+    )
+  })
+
   it('routes the daily learning mission into the LMS world', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response([{
       mission: {
@@ -179,12 +238,17 @@ describe('StoryMee Gateway adapter', () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(response({ quests: [], totalStars: 0, completedCount: 0 }))
       .mockResolvedValueOnce(response({ progress: { status: 'in_progress', phase: 'learn' } }))
+      .mockResolvedValueOnce(response({ questionId: 'q1', correct: true }))
       .mockResolvedValueOnce(response({ stars: 3, nextQuestId: null }))
     vi.stubGlobal('fetch', fetchMock)
 
     await api('/api/progress/11111111-1111-4111-8111-111111111111')
     await api('/api/progress/22222222-2222-4222-8222-222222222222/start', {
       method: 'POST',
+    })
+    await api('/api/progress/22222222-2222-4222-8222-222222222222/check-answer', {
+      method: 'POST',
+      body: JSON.stringify({ questionId: 'q1', optionIndex: 1 }),
     })
     await api('/api/progress/22222222-2222-4222-8222-222222222222/check', {
       method: 'POST',
@@ -194,9 +258,10 @@ describe('StoryMee Gateway adapter', () => {
     expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
       'https://dev-hub.storymee.com/api/v1/lms/compat/courses/11111111-1111-4111-8111-111111111111/progress',
       'https://dev-hub.storymee.com/api/v1/lms/compat/lessons/22222222-2222-4222-8222-222222222222/start',
+      'https://dev-hub.storymee.com/api/v1/lms/compat/lessons/22222222-2222-4222-8222-222222222222/check-answer',
       'https://dev-hub.storymee.com/api/v1/lms/compat/lessons/22222222-2222-4222-8222-222222222222/check',
     ])
-    const checkHeaders = fetchMock.mock.calls[2][1].headers as Headers
+    const checkHeaders = fetchMock.mock.calls[3][1].headers as Headers
     expect(checkHeaders.get('Idempotency-Key')).toMatch(/^[0-9a-f-]{36}$/)
   })
 
