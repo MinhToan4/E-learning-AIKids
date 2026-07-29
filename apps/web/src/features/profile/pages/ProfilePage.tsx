@@ -22,7 +22,10 @@ import {
 } from '@/features/community/community-store'
 import { SocialGraphPanel } from '@/features/community/components/SocialGraphPanel'
 import { ActivityFeed } from '@/features/community/components/ActivityFeed'
-import { WorkspaceSharingPanel } from '@/features/community/components/WorkspaceSharingPanel'
+import {
+  WorkspaceSharingPanel,
+  type AccountWorkspace,
+} from '@/features/community/components/WorkspaceSharingPanel'
 import { AvatarPickerModal } from '../components/AvatarPickerModal'
 import {
   readProfileAvatar,
@@ -34,6 +37,16 @@ import {
 import { readClaimedChapterStickers } from '@/features/storybook/chapter-rewards'
 
 type MediaAsset = { id: string; name: string; thumbnail: string; type: string }
+type PublicProfileSettings = {
+  childProfileId: string
+  slug: string
+  enabled: boolean
+  visibility: Audience[]
+  modules: ProfileModule[]
+  themeKey?: string | null
+  frameKey?: string | null
+  backgroundKey?: string | null
+}
 
 export function ProfilePage() {
   const user = useAuth((state) => state.user)
@@ -45,6 +58,13 @@ export function ProfilePage() {
   const [streak, setStreak] = useState(0)
   const [achievements, setAchievements] = useState<AchievementRow[]>([])
   const [projects, setProjects] = useState<ShowcaseProject[]>([])
+  const [workspaces, setWorkspaces] = useState<AccountWorkspace[]>([])
+  const [profileSlug, setProfileSlug] = useState<string | null>(null)
+  const [profileAppearance, setProfileAppearance] = useState({
+    themeKey: null as string | null,
+    frameKey: null as string | null,
+    backgroundKey: null as string | null,
+  })
   const [avatarChoices, setAvatarChoices] = useState<ProfileAvatar[]>([])
   const [selectedAvatar, setSelectedAvatar] = useState<ProfileAvatar | null>(
     () => user ? readProfileAvatar(user.id) : null,
@@ -62,12 +82,14 @@ export function ProfilePage() {
 
   useEffect(() => {
     void (async () => {
-      const [s, a, p, media, g] = await Promise.allSettled([
+      const [s, a, p, media, g, profileSettings, accountWorkspaces] = await Promise.allSettled([
         api<{ current: number }>('/api/gamification/streak'),
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
         api<{ projects: ShowcaseProject[] }>('/api/projects'),
         api<{ assets: MediaAsset[] }>('/api/backpack'),
         api<{ celebration: { personal: { xp: number } } }>('/api/gamification/class-celebration'),
+        api<PublicProfileSettings>('/api/profile/settings'),
+        api<{ workspaces: AccountWorkspace[] }>('/api/account/workspaces'),
       ])
       if (s.status === 'fulfilled') setStreak(s.value.current)
       if (a.status === 'fulfilled') setAchievements(a.value.achievements.filter((row) => row.unlocked))
@@ -81,12 +103,54 @@ export function ProfilePage() {
         })))
       }
       if (g.status === 'fulfilled') setExplorerXp(g.value.celebration.personal.xp)
+      if (profileSettings.status === 'fulfilled') {
+        setProfileSlug(profileSettings.value.slug)
+        setProfileAppearance({
+          themeKey: profileSettings.value.themeKey ?? null,
+          frameKey: profileSettings.value.frameKey ?? null,
+          backgroundKey: profileSettings.value.backgroundKey ?? null,
+        })
+        const visibility = new Set(profileSettings.value.visibility)
+        const modules = new Set(profileSettings.value.modules)
+        const next = {
+          ...sharing,
+          profile: {
+            friends: visibility.has('friends'),
+            family: visibility.has('family'),
+            school: visibility.has('school'),
+          },
+          modules: {
+            storybook: modules.has('storybook'),
+            progress: modules.has('progress'),
+            achievements: modules.has('achievements'),
+            works: modules.has('works'),
+            friends: modules.has('friends'),
+            activity: modules.has('activity'),
+          },
+        }
+        setSharing(next)
+        if (user) saveCommunitySettings(user.id, next)
+      }
+      if (accountWorkspaces.status === 'fulfilled') {
+        setWorkspaces(accountWorkspaces.value.workspaces ?? [])
+      }
       setLoading(false)
     })()
   }, [])
 
   useEffect(() => {
-    const sync = () => user && setEquipment(readRewardEquipment(user.id))
+    const sync = () => {
+      if (!user) return
+      const nextEquipment = readRewardEquipment(user.id)
+      const appearance = {
+        themeKey: nextEquipment.theme ?? null,
+        frameKey: nextEquipment.frame ?? null,
+        backgroundKey: nextEquipment.background ?? null,
+      }
+      setEquipment(nextEquipment)
+      setProfileAppearance(appearance)
+      void persistProfileSettings(sharing, appearance).catch(() => undefined)
+    }
     window.addEventListener('aikids:reward-equipped', sync)
     return () => window.removeEventListener('aikids:reward-equipped', sync)
   }, [user])
@@ -117,6 +181,7 @@ export function ProfilePage() {
     }
     setSharing(next)
     if (user) saveCommunitySettings(user.id, next)
+    if (surface === 'profile') void persistProfileSettings(next).catch(() => undefined)
   }
 
   const toggleModule = (module: ProfileModule) => {
@@ -126,6 +191,29 @@ export function ProfilePage() {
     }
     setSharing(next)
     if (user) saveCommunitySettings(user.id, next)
+    void persistProfileSettings(next).catch(() => undefined)
+  }
+
+  async function persistProfileSettings(
+    next: typeof sharing,
+    appearance = profileAppearance,
+  ) {
+    const visibility = (['friends', 'family', 'school'] as Audience[]).filter(
+      (audience) => next.profile[audience],
+    )
+    const modules = (Object.keys(next.modules) as ProfileModule[]).filter(
+      (module) => next.modules[module],
+    )
+    const saved = await api<PublicProfileSettings>('/api/profile/settings', {
+      method: 'PUT',
+      body: JSON.stringify({
+        enabled: visibility.length > 0,
+        visibility,
+        modules,
+        ...appearance,
+      }),
+    })
+    setProfileSlug(saved.slug)
   }
 
   if (loading) return <PageSkeleton rows={3} className="mx-auto max-w-5xl" />
@@ -161,7 +249,7 @@ export function ProfilePage() {
             <button type="button" onClick={() => setSection('overview')} className={`rounded-full px-4 py-2 ${section === 'overview' ? 'bg-brand-600 text-white' : ''}`}>Tổng quan</button>
             <button type="button" onClick={() => setSection('customize')} className={`rounded-full px-4 py-2 ${section === 'customize' ? 'bg-brand-600 text-white' : ''}`}>✨ Tùy biến card</button>
           </div>
-          {user && <Link to={`/u/${user.id}`} className="rounded-full bg-white px-4 py-2 text-sm font-extrabold text-brand-700 shadow-soft">Xem trang cá nhân ↗</Link>}
+          {profileSlug && <Link to={`/u/${profileSlug}`} className="rounded-full bg-white px-4 py-2 text-sm font-extrabold text-brand-700 shadow-soft">Xem trang cá nhân ↗</Link>}
         </div>
       </section>
 
@@ -211,7 +299,7 @@ export function ProfilePage() {
                 {(['friends', 'family', 'school'] as Audience[]).map((audience) => (
                   <div key={audience} className="grid grid-cols-[1fr_70px_88px] items-center gap-2 text-sm">
                     <span className="font-extrabold">{audience === 'friends' ? '🧑‍🤝‍🧑 Bạn bè' : audience === 'family' ? '🏡 Gia đình' : '🏫 Trường học'}</span>
-                    {(['profile', 'workspace'] as SharedSurface[]).map((surface) => (
+                    {(['profile'] as SharedSurface[]).map((surface) => (
                       <button
                         key={surface}
                         type="button"
@@ -220,7 +308,7 @@ export function ProfilePage() {
                         onClick={() => toggleSharing(surface, audience)}
                         className={`rounded-full px-2 py-1 text-[10px] font-black ${sharing[surface][audience] ? 'bg-mint-100 text-success' : 'bg-slate-100 text-muted'}`}
                       >
-                        {surface === 'profile' ? 'Hồ sơ' : 'Workspace'} {sharing[surface][audience] ? '✓' : '—'}
+                        Hồ sơ {sharing[surface][audience] ? '✓' : '—'}
                       </button>
                     ))}
                   </div>
@@ -251,7 +339,7 @@ export function ProfilePage() {
                 </div>
               </div>
             </details>
-            {user && <WorkspaceSharingPanel childId={user.id} projects={projects} />}
+            <WorkspaceSharingPanel workspaces={workspaces} />
           </div>
         </div>
       )}

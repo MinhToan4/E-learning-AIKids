@@ -156,6 +156,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     '/api/notifications/devices': '/api/v1/notifications/devices',
     '/api/gamification/streak': '/api/v1/gamification/me/streak',
     '/api/gamification/achievements': '/api/v1/gamification/me/achievements',
+    '/api/gamification/storybook': '/api/v1/gamification/me/storybook',
     '/api/gamification/daily-mission': '/api/v1/gamification/me/missions',
     '/api/gamification/profile': '/api/v1/gamification/me',
     '/api/gamification/class-celebration':
@@ -165,6 +166,33 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     return {
       path: '/api/v1/gamification/me/streak',
       options: { ...options, method: 'GET', body: undefined },
+    }
+  }
+  if (path === '/api/profile/settings') {
+    return { path: '/api/v1/account/profiles/me/settings', options }
+  }
+  const publicProfile = path.match(/^\/api\/public\/profiles\/([^/?]+)$/)
+  if (publicProfile) {
+    return {
+      path: `/api/v1/account/profiles/${encodeURIComponent(publicProfile[1])}`,
+      options,
+    }
+  }
+  if (path === '/api/account/workspaces') {
+    return { path: '/api/v1/account/workspaces', options }
+  }
+  const workspaceGrants = path.match(/^\/api\/account\/workspaces\/([^/?]+)\/grants$/)
+  if (workspaceGrants) {
+    return {
+      path: `/api/v1/account/workspaces/${encodeURIComponent(workspaceGrants[1])}/grants`,
+      options,
+    }
+  }
+  const sharedWorkspace = path.match(/^\/api\/public\/workspaces\/([^/?]+)$/)
+  if (sharedWorkspace) {
+    return {
+      path: `/api/v1/account/shared-workspaces/${encodeURIComponent(sharedWorkspace[1])}`,
+      options,
     }
   }
   if (path === '/api/parent/plans') {

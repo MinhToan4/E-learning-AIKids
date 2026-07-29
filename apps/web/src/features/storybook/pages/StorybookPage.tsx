@@ -1,8 +1,7 @@
-import { LEGACY_TO_STICKER_MAP } from '@aikids/domain'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
-import { api, type AchievementRow } from '@/shared/lib/api'
+import { api } from '@/shared/lib/api'
 import { BookSpread } from '../components/BookSpread'
 import { GalleryWall } from '../components/GalleryWall'
 import { InteractionBoard } from '../components/InteractionBoard'
@@ -20,7 +19,7 @@ const views: Array<{ id: View; label: string }> = [
 
 export function StorybookPage() {
   const [searchParams] = useSearchParams()
-  const [achievements, setAchievements] = useState<AchievementRow[]>([])
+  const [earnedStickerIds, setEarnedStickerIds] = useState<string[]>([])
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState('')
   const requestedView = searchParams.get('view')
@@ -37,10 +36,10 @@ export function StorybookPage() {
   const load = useCallback(async () => {
     setLoading(true)
     try {
-      const data = await api<{ achievements: AchievementRow[] }>(
-        '/api/gamification/achievements',
+      const data = await api<{ earnedStickerIds: string[] }>(
+        '/api/gamification/storybook',
       )
-      setAchievements(data.achievements)
+      setEarnedStickerIds(data.earnedStickerIds)
       setNotice('')
     } catch {
       setNotice('Chưa đồng bộ được tiến trình. Cuốn sách vẫn mở để con khám phá.')
@@ -51,12 +50,7 @@ export function StorybookPage() {
 
   useEffect(() => { void load() }, [load])
 
-  const earned = useMemo(() => new Set(
-    achievements
-      .filter((item) => item.unlocked)
-      .map((item) => LEGACY_TO_STICKER_MAP[item.type])
-      .filter(Boolean),
-  ), [achievements])
+  const earned = useMemo(() => new Set(earnedStickerIds), [earnedStickerIds])
   const currentPage = STORYBOOK_PAGES[pageIndex]
 
   return (
