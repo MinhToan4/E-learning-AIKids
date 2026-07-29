@@ -1,8 +1,11 @@
 import { describe, expect, it } from 'vitest'
 import {
   canUsePacoPick,
+  canFavoriteFriend,
   computeReactionScore,
   getIsoWeekKey,
+  isValidFriendCode,
+  normalizeFriendCode,
 } from './social-rules.js'
 
 describe('social rules', () => {
@@ -23,5 +26,13 @@ describe('social rules', () => {
       EXCELLENT: 2, CREATIVE: 1, HOT: 0, LOVE: 3,
       INSIGHTFUL: -5, PACO_PICK: 2,
     })).toBe(16)
+  })
+
+  it('limits favorite friends and normalizes safe invite codes', () => {
+    expect(canFavoriteFriend(5)).toBe(true)
+    expect(canFavoriteFriend(6)).toBe(false)
+    expect(normalizeFriendCode('ab-12 cd_34')).toBe('AB12CD34')
+    expect(isValidFriendCode('AB12-CD34')).toBe(true)
+    expect(isValidFriendCode('short')).toBe(false)
   })
 })

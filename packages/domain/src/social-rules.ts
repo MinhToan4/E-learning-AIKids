@@ -1,4 +1,5 @@
 export const PACO_PICK_WEEKLY_LIMIT = 3
+export const FAVORITE_FRIEND_LIMIT = 6
 
 export type ReactionType =
   | 'EXCELLENT'
@@ -46,4 +47,18 @@ export function computeReactionScore(reactions: ReactionCounts): number {
       score + REACTION_WEIGHTS[type] * Math.max(0, reactions[type] || 0),
     0,
   )
+}
+
+export function canFavoriteFriend(currentFavorites: number): boolean {
+  return Number.isInteger(currentFavorites) &&
+    currentFavorites >= 0 &&
+    currentFavorites < FAVORITE_FRIEND_LIMIT
+}
+
+export function normalizeFriendCode(value: string): string {
+  return value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 8)
+}
+
+export function isValidFriendCode(value: string): boolean {
+  return /^[A-Z0-9]{8}$/.test(normalizeFriendCode(value))
 }
