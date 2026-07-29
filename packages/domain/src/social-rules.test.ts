@@ -6,6 +6,8 @@ import {
   computeReactionScore,
   friendInviteStatus,
   getIsoWeekKey,
+  isReactionType,
+  isSocialActivityType,
   isValidFriendCode,
   normalizeFriendCode,
 } from './social-rules.js'
@@ -68,5 +70,12 @@ describe('social rules', () => {
       recipientParentApproved: true,
       terminalStatus: 'blocked',
     })).toBe('blocked')
+  })
+
+  it('only accepts closed reaction and activity vocabularies', () => {
+    expect(isReactionType('PACO_PICK')).toBe(true)
+    expect(isReactionType('DISLIKE')).toBe(false)
+    expect(isSocialActivityType('chapter_completed')).toBe(true)
+    expect(isSocialActivityType('free_text_status')).toBe(false)
   })
 })

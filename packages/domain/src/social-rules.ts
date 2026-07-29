@@ -9,6 +9,48 @@ export type ReactionType =
   | 'INSIGHTFUL'
   | 'PACO_PICK'
 
+export const REACTION_TYPES = [
+  'EXCELLENT',
+  'CREATIVE',
+  'HOT',
+  'LOVE',
+  'INSIGHTFUL',
+  'PACO_PICK',
+] as const satisfies readonly ReactionType[]
+
+export type ActivityAudience = 'friends' | 'family' | 'school'
+
+export type SocialActivityType =
+  | 'chapter_completed'
+  | 'reward_unlocked'
+  | 'level_reached'
+  | 'achievement_unlocked'
+  | 'course_completed'
+  | 'streak_milestone'
+  | 'work_shared'
+  | 'challenge_completed'
+
+export const SOCIAL_ACTIVITY_TYPES = [
+  'chapter_completed',
+  'reward_unlocked',
+  'level_reached',
+  'achievement_unlocked',
+  'course_completed',
+  'streak_milestone',
+  'work_shared',
+  'challenge_completed',
+] as const satisfies readonly SocialActivityType[]
+
+export function isReactionType(value: string): value is ReactionType {
+  return REACTION_TYPES.includes(value as ReactionType)
+}
+
+export function isSocialActivityType(
+  value: string,
+): value is SocialActivityType {
+  return SOCIAL_ACTIVITY_TYPES.includes(value as SocialActivityType)
+}
+
 export type ReactionCounts = Record<ReactionType, number>
 
 export const REACTION_WEIGHTS: Readonly<Record<ReactionType, number>> = {
