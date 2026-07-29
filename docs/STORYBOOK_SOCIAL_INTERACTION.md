@@ -117,6 +117,9 @@ Child chọn module xuất hiện:
 
 Visibility của Profile và visibility từng tác phẩm là hai lớp khác nhau. Bật Profile cho Friends không tự động công khai mọi tác phẩm.
 
+Endpoint Profile hiện chỉ phục vụ viewer đã đăng nhập thuộc Friends, Family hoặc
+School được bật. Viewer ngoài hệ sinh thái cần signed share token ở phase sau.
+
 ## 6. Chia sẻ workspace
 
 Mỗi workspace có ACL theo audience:
@@ -200,8 +203,8 @@ School có thể:
 | Favorite tối đa 6 | Có domain rule/UI | Fastify API đã lưu server |
 | Block và thu hồi connection | Chưa nối UI đầy đủ | Fastify API đã có |
 | Feed/reaction | Có prototype UI | Fastify API đã có event store và Paco quota |
-| Profile visibility | Có local settings | Chưa đồng bộ |
-| Workspace audience | Có local settings | Chưa có ACL |
+| Profile visibility | Có local settings | Fastify API đã có safe projection |
+| Workspace audience | Có local settings | Fastify API đã có ACL + parent approval |
 | Approved Media sharing | Có Media Hub flow | Có request/approval cơ bản |
 
 Social Graph và Activity Feed đã có source of truth trên Fastify/PostgreSQL nhưng

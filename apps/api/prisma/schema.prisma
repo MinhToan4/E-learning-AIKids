@@ -54,38 +54,40 @@ model User {
   class ClassRoom? @relation("StudentClass", fields: [classId], references: [id])
 
   // Relations
-  sessions              Session[]
-  enrollments           Enrollment[]
-  questProgress         QuestProgress[]
-  assets                Asset[]
-  projects              Project[]
-  approvalsMade         Approval[]           @relation("Approver")
-  approvalsOwned        Approval[]           @relation("ChildApprovals")
-  taughtClasses         ClassRoom[]          @relation("TeacherClasses")
-  achievements          Achievement[]
-  streak                DailyStreak?
-  notifications         Notification[]
-  pushDevices           PushDevice[]
-  storageObjects        StorageObject[]
-  parentProfile         ParentProfile?
-  teacherProfile        TeacherProfile?
+  sessions                Session[]
+  enrollments             Enrollment[]
+  questProgress           QuestProgress[]
+  assets                  Asset[]
+  projects                Project[]
+  approvalsMade           Approval[]           @relation("Approver")
+  approvalsOwned          Approval[]           @relation("ChildApprovals")
+  taughtClasses           ClassRoom[]          @relation("TeacherClasses")
+  achievements            Achievement[]
+  streak                  DailyStreak?
+  notifications           Notification[]
+  pushDevices             PushDevice[]
+  storageObjects          StorageObject[]
+  parentProfile           ParentProfile?
+  teacherProfile          TeacherProfile?
   /**
    * Household subscriptions where this user is the billing parent
    */
-  subscriptions         Subscription[]       @relation("ParentSubscriptions")
-  loginLogs             LoginLog[]
-  storybookStickers     StorybookSticker[]
-  rewardInventory       RewardInventory[]
-  rewardEquipment       RewardEquipment[]
-  sentFriendInvites     FriendInvite[]       @relation("FriendInviteSender")
-  receivedFriendInvites FriendInvite[]       @relation("FriendInviteRecipient")
-  connectionsAsA        ChildConnection[]    @relation("ConnectionChildA")
-  connectionsAsB        ChildConnection[]    @relation("ConnectionChildB")
-  favoriteConnections   FavoriteConnection[]
-  blocksCreated         ChildBlock[]         @relation("BlockCreator")
-  blocksReceived        ChildBlock[]         @relation("BlockTarget")
-  socialActivities      SocialActivity[]
-  socialReactions       SocialReaction[]
+  subscriptions           Subscription[]       @relation("ParentSubscriptions")
+  loginLogs               LoginLog[]
+  storybookStickers       StorybookSticker[]
+  rewardInventory         RewardInventory[]
+  rewardEquipment         RewardEquipment[]
+  sentFriendInvites       FriendInvite[]       @relation("FriendInviteSender")
+  receivedFriendInvites   FriendInvite[]       @relation("FriendInviteRecipient")
+  connectionsAsA          ChildConnection[]    @relation("ConnectionChildA")
+  connectionsAsB          ChildConnection[]    @relation("ConnectionChildB")
+  favoriteConnections     FavoriteConnection[]
+  blocksCreated           ChildBlock[]         @relation("BlockCreator")
+  blocksReceived          ChildBlock[]         @relation("BlockTarget")
+  socialActivities        SocialActivity[]
+  socialReactions         SocialReaction[]
+  publicProfile           PublicProfile?
+  workspaceGrantsApproved WorkspaceGrant[]     @relation("WorkspaceGrantApprover")
 
   @@index([role, active])
   @@index([createdAt])
@@ -350,8 +352,9 @@ model Project {
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @default(now()) @updatedAt @map("updated_at")
 
-  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  approvals Approval[]
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  approvals       Approval[]
+  workspaceGrants WorkspaceGrant[]
 
   @@index([userId, updatedAt, id])
   @@map("projects")
@@ -566,6 +569,44 @@ model SocialReaction {
   @@index([actorChildId, type, createdAt])
   @@index([activityId, type])
   @@map("social_reactions")
+}
+
+/// Child-controlled profile settings. Public reads always use a safe projection.
+model PublicProfile {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  childId    String   @unique @map("child_id") @db.Uuid
+  slug       String   @unique
+  enabled    Boolean  @default(false)
+  visibility String[]
+  modules    String[]
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  child User @relation(fields: [childId], references: [id], onDelete: Cascade)
+
+  @@map("public_profiles")
+}
+
+/// Audience grant for one creative project. Pending grants never authorize reads.
+model WorkspaceGrant {
+  id           String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  projectId    String    @map("project_id") @db.Uuid
+  audience     String
+  permission   String    @default("view")
+  status       String    @default("pending")
+  approvedById String?   @map("approved_by_id") @db.Uuid
+  approvedAt   DateTime? @map("approved_at")
+  revokedAt    DateTime? @map("revoked_at")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  project    Project @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  approvedBy User?   @relation("WorkspaceGrantApprover", fields: [approvedById], references: [id], onDelete: SetNull)
+
+  @@unique([projectId, audience])
+  @@index([status, audience])
+  @@index([approvedById])
+  @@map("workspace_grants")
 }
 
 model Notification {

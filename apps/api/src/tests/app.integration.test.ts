@@ -396,6 +396,96 @@ describeIntegration('API integration (isolated Postgres)', () => {
     })
     expect(overPacoLimit.status).toBe(409)
 
+    const profileSettings = await inject(app, {
+      method: 'PUT',
+      url: '/api/v1/profiles/me/settings',
+      cookies: second.childCookies,
+      payload: {
+        enabled: true,
+        visibility: ['friends'],
+        modules: ['storybook', 'works', 'activity'],
+      },
+    })
+    expect(profileSettings.status).toBe(200)
+    const publicProfile = await inject(app, {
+      method: 'GET',
+      url: `/api/v1/profiles/${second.childId}`,
+      cookies: first.childCookies,
+    })
+    expect(publicProfile.status).toBe(200)
+    expect(
+      (publicProfile.body.profile as { nickname: string }).nickname,
+    ).toContain('ChildB')
+
+    const workspace = await prisma.project.create({
+      data: {
+        userId: second.childId,
+        title: 'Truyện tranh chia sẻ',
+        kind: 'creative_comic',
+        thumbnail: 'https://example.test/comic.png',
+      },
+    })
+    const proposed = await inject(app, {
+      method: 'PUT',
+      url: `/api/v1/workspaces/${workspace.id}/grants`,
+      cookies: second.childCookies,
+      payload: {
+        grants: [{ audience: 'friends', permission: 'view' }],
+      },
+    })
+    expect(proposed.status).toBe(200)
+    expect(
+      (proposed.body.grants as Array<{ status: string }>)[0]?.status,
+    ).toBe('pending')
+
+    const approvedWorkspace = await inject(app, {
+      method: 'POST',
+      url: `/api/v1/workspaces/${workspace.id}/grants/friends/approve`,
+      cookies: second.parentCookies,
+      payload: { decision: 'approved' },
+    })
+    expect(approvedWorkspace.status).toBe(200)
+    const viewedWorkspace = await inject(app, {
+      method: 'GET',
+      url: `/api/v1/workspaces/${workspace.id}`,
+      cookies: first.childCookies,
+    })
+    expect(viewedWorkspace.status).toBe(200)
+    expect(
+      (viewedWorkspace.body.workspace as { permission: string }).permission,
+    ).toBe('view')
+
+    const videoWorkspace = await prisma.project.create({
+      data: {
+        userId: second.childId,
+        title: 'Phim Storybook',
+        kind: 'storybook-film',
+        thumbnail: 'https://example.test/video.png',
+      },
+    })
+    const blockedVideoShare = await inject(app, {
+      method: 'PUT',
+      url: `/api/v1/workspaces/${videoWorkspace.id}/grants`,
+      cookies: second.childCookies,
+      payload: {
+        grants: [{ audience: 'friends', permission: 'view' }],
+      },
+    })
+    expect(blockedVideoShare.status).toBe(403)
+
+    const revoked = await inject(app, {
+      method: 'DELETE',
+      url: `/api/v1/workspaces/${workspace.id}/grants/friends`,
+      cookies: second.childCookies,
+    })
+    expect(revoked.status).toBe(204)
+    const afterRevoke = await inject(app, {
+      method: 'GET',
+      url: `/api/v1/workspaces/${workspace.id}`,
+      cookies: first.childCookies,
+    })
+    expect(afterRevoke.status).toBe(404)
+
     const blocked = await inject(app, {
       method: 'POST',
       url: '/api/v1/social/blocks',
@@ -415,6 +505,12 @@ describeIntegration('API integration (isolated Postgres)', () => {
       cookies: first.childCookies,
     })
     expect(feedAfterBlock.body.activities).toEqual([])
+    const profileAfterBlock = await inject(app, {
+      method: 'GET',
+      url: `/api/v1/profiles/${second.childId}`,
+      cookies: first.childCookies,
+    })
+    expect(profileAfterBlock.status).toBe(404)
   })
 
   it('student can list L1/L2 open courses with creative stations', async () => {

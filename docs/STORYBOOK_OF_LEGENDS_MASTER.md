@@ -105,6 +105,10 @@ Trang cá nhân public có URL `/u/:childId` và chỉ hiển thị module đư�
 
 Trang public phải có nút quay lại Profile của trẻ và về sảnh AIKid. Với người xem ngoài phiên đăng nhập, nút quay lại Profile sẽ đi qua login/guard.
 
+Backend hiện yêu cầu người xem đăng nhập và thuộc audience đã cấp quyền. Link công
+khai ngoài hệ sinh thái chưa được bật cho tới khi có signed share token và consent
+riêng của phụ huynh.
+
 ## 7. Social layer
 
 Social phục vụ ba vòng tròn:
@@ -148,8 +152,10 @@ Chi tiết nằm trong [STORYBOOK_SOCIAL_INTERACTION.md](./STORYBOOK_SOCIAL_INTE
 | Đồng bộ Reward Inventory qua StoryMee Hub | Cần gateway/deploy Hub |
 | Social Graph trên Fastify API | Đã có invite, duyệt phụ huynh, favorite, block |
 | Activity Feed và Reaction trên Fastify API | Đã có audience filter và Paco quota |
+| Public Profile projection trên Fastify API | Đã có module/visibility và safe fields |
+| Workspace ACL trên Fastify API | Đã có parent approval và revoke tức thời |
 | Đồng bộ Social Graph qua StoryMee Hub | Cần gateway/deploy Hub |
-| Public Profile xuyên thiết bị | Cần StoryMee Hub |
+| Public Profile xuyên thiết bị | Cần deploy qua StoryMee Hub |
 | Chapter → Activity event | Đã có trong transaction claim |
 | Event pipeline từ LMS/Media khác | Cần StoryMee Hub/outbox |
 

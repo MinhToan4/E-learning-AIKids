@@ -25,6 +25,8 @@ import { creativeRoutes } from './modules/creative/creative.routes.js'
 import { storybookRoutes } from './modules/storybook/storybook.routes.js'
 import { socialRoutes } from './modules/social/social.routes.js'
 import { activityRoutes } from './modules/social/activity.routes.js'
+import { profileRoutes } from './modules/profile/profile.routes.js'
+import { workspaceRoutes } from './modules/profile/workspace.routes.js'
 import {
   normalizeApiAliasPrefix,
   rewriteAliasToPrimaryApi,
@@ -270,6 +272,8 @@ export async function buildApp() {
   await app.register(storybookRoutes)
   await app.register(socialRoutes)
   await app.register(activityRoutes)
+  await app.register(profileRoutes)
+  await app.register(workspaceRoutes)
 
   /**
    * StoryMee gateway alias (optional).

@@ -144,6 +144,8 @@ WorkspaceGrant(workspaceId, audienceType, audienceId, permission, approvedBy, re
 | GET | `/api/v1/profiles/:slug` | Public Profile đã lọc quyền |
 | PUT | `/api/v1/profiles/me/settings` | Module và audience |
 | PUT | `/api/v1/workspaces/:id/grants` | Cập nhật ACL |
+| POST | `/api/v1/workspaces/:id/grants/:audience/approve` | Parent approve |
+| DELETE | `/api/v1/workspaces/:id/grants/:audience` | Thu hồi ngay |
 
 Không dùng route legacy `/api/social/*` làm source of truth.
 
@@ -252,8 +254,10 @@ Không log invite token thô, PIN, prompt riêng tư hoặc media URL nhạy c�
 | Fastify Storybook/Reward persistence và API | Hoàn thành |
 | Fastify Social Graph/invite/approval/favorite/block | Hoàn thành |
 | Fastify Activity Feed/reaction/Paco quota | Hoàn thành |
+| Fastify Public Profile safe projection | Hoàn thành |
+| Fastify Workspace ACL/parent approval/revoke | Hoàn thành |
 | StoryMee Hub gateway/deployment | Chưa triển khai |
-| Hub Profile/Workspace ACL | Chưa triển khai |
+| Signed external Profile share link | Chưa triển khai |
 | Cross-device migration | Chưa triển khai |
 
 Ưu tiên backend: Reward Inventory → Storybook claim → Social Graph → Public Profile → Activity Feed → Workspace ACL.
