@@ -35,15 +35,18 @@ export function CourseIntroPage() {
   } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
+  const [enrolled, setEnrolled] = useState(false)
 
   useEffect(() => {
     void (async () => {
       setError(null)
       try {
-        const data = await api<{ course: CourseDetail }>(
-          `/api/courses/${courseId}`,
-        )
+        const [data, catalog] = await Promise.all([
+          api<{ course: CourseDetail }>(`/api/courses/${courseId}`),
+          api<{ courses: CourseSummary[] }>('/api/courses'),
+        ])
         setCourse(data.course)
+        setEnrolled(catalog.courses.some((item) => item.id === courseId && item.enrolled))
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Không tải được khóa học')
       }
@@ -52,6 +55,10 @@ export function CourseIntroPage() {
 
   async function startCourse() {
     if (!course) return
+    if (enrolled) {
+      navigate(`/world/${course.id}`)
+      return
+    }
     setBusy(true)
     try {
       await api('/api/enrollments', {
@@ -70,6 +77,7 @@ export function CourseIntroPage() {
         completedCount: p.completedCount,
         nextId: next?.id ?? p.quests[0]?.id ?? null,
       })
+      setEnrolled(true)
       if (next?.id) {
         navigate(`/world/${course.id}`)
       }
@@ -273,10 +281,15 @@ export function CourseIntroPage() {
         <Button onClick={() => void startCourse()} disabled={busy}>
           {busy
             ? 'Đang mở…'
-            : progress?.completedCount
+            : enrolled || progress?.completedCount
               ? 'Tiếp tục học'
-              : 'Bắt đầu học'}
+              : 'Đăng ký khóa học'}
         </Button>
+        {!enrolled && (
+          <p className="basis-full text-xs font-semibold text-muted">
+            Đăng ký tạo enrollment riêng cho con. Khi bổ sung gói trả phí, bước này sẽ kiểm tra quyền sở hữu hoặc yêu cầu ba/mẹ duyệt trước khi mở bài.
+          </p>
+        )}
       </div>
 
       {progress && (

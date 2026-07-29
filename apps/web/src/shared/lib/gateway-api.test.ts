@@ -201,6 +201,7 @@ describe('StoryMee Gateway adapter', () => {
         target: 1,
         xpReward: 10,
       },
+      periodKey: '2026-07-29',
       progress: 1,
       completedAt: '2026-07-29T08:00:00.000Z',
       claimedAt: '2026-07-29T08:00:00.000Z',
@@ -211,6 +212,7 @@ describe('StoryMee Gateway adapter', () => {
       mission: {
         progress: number
         target: number
+        periodKey: string
         completedAt: string | null
         claimedAt: string | null
         action: { route: string; label: string }
@@ -221,6 +223,7 @@ describe('StoryMee Gateway adapter', () => {
     expect(result.mission).toMatchObject({
       progress: 1,
       target: 1,
+      periodKey: '2026-07-29',
       completedAt: '2026-07-29T08:00:00.000Z',
       claimedAt: '2026-07-29T08:00:00.000Z',
       action: { label: 'Xem hành trình' },

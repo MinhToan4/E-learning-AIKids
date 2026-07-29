@@ -160,7 +160,7 @@ function CourseCard({ course }: { course: CourseSummary }) {
   )
 
   return (
-    <Link to={`/course/${course.id}`} className="course-card group">
+    <Link to={course.enrolled ? `/world/${course.id}` : `/course/${course.id}`} className="course-card group">
       {/* Cover image */}
       <div className="course-card-cover overflow-hidden bg-brand-50">
         <img
@@ -224,6 +224,8 @@ export function HomePage() {
   const [badges, setBadges] = useState<AchievementRow[]>([])
   const [dailyMission, setDailyMission] = useState<{
     title: string
+    key: string
+    periodKey: string
     description: string
     xpReward: number
     progress: number
@@ -253,7 +255,16 @@ export function HomePage() {
       // Load daily mission independently — failure shouldn't block the page
       try {
         const m = await api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission')
-        if (m.mission) setDailyMission(m.mission)
+        if (m.mission) {
+          const seenKey = `aikids.daily-mission-seen.${user?.id ?? 'learner'}.${m.mission.key}.${m.mission.periodKey}`
+          const completionToken = m.mission.completedAt ?? ''
+          if (!completionToken || localStorage.getItem(seenKey) !== completionToken) {
+            setDailyMission(m.mission)
+            if (completionToken) localStorage.setItem(seenKey, completionToken)
+          } else {
+            setDailyMission(null)
+          }
+        }
       } catch {
         /* daily mission is non-critical */
       }
@@ -262,7 +273,7 @@ export function HomePage() {
     } finally {
       setLoading(false)
     }
-  }, [])
+  }, [user?.id])
 
 
   useEffect(() => {
@@ -374,7 +385,7 @@ export function HomePage() {
 
               <div className="my-2">
                 <p className="text-xs font-semibold text-text/90 leading-relaxed line-clamp-2">
-                  {dailyMission.description}
+                  <strong>{dailyMission.title}</strong> · {dailyMission.description}
                 </p>
                 <div className="mt-2">
                   <div className="flex items-center justify-between text-[11px] font-bold">
@@ -459,7 +470,7 @@ export function HomePage() {
         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
           <h2 className="font-display text-2xl font-black flex items-center gap-2.5 text-text">
             <CourseBookIcon size={32} aria-hidden />
-            Hành trình của con
+            Khóa con đang học
           </h2>
           {/* Age filter tabs */}
           <div className="flex gap-1 rounded-2xl bg-brand-50 p-1 border border-brand-100">
@@ -491,11 +502,11 @@ export function HomePage() {
           Mỗi hành trình có trò chơi nhỏ, video và sản phẩm do con tạo ra. Bắt đầu từ điều con thích!
         </p>
 
-        {/* Enrolled courses (priority) */}
+        {/* Only real enrollments belong to the child's learning list. */}
         {enrolled.length > 0 && (
           <div className="mb-4">
             <p className="mb-2 text-xs font-extrabold uppercase tracking-wider text-brand-500">
-              ⭐ Đang học
+              ⭐ Enrollment đang hoạt động
             </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {enrolled.map((c) => (
@@ -505,14 +516,20 @@ export function HomePage() {
           </div>
         )}
 
-        {/* Explore courses */}
+        {enrolled.length === 0 && (
+          <div className="mb-5 rounded-3xl border-2 border-dashed border-brand-200 bg-brand-50/60 p-5 text-center">
+            <p className="font-display text-lg">Con chưa đăng ký khóa học nào</p>
+            <p className="mt-1 text-sm text-muted">Chọn một khóa bên dưới để xem nội dung và đăng ký. Các khóa đã đăng ký mới xuất hiện trong phần Học.</p>
+          </div>
+        )}
+
+        {/* Catalog remains separate so purchase/approval can be introduced without
+            treating access to a public course description as an enrollment. */}
         {explore.length > 0 && (
           <div>
-            {enrolled.length > 0 && (
-              <p className="mb-2 text-xs font-extrabold uppercase tracking-wider text-muted">
-                🔍 Khám phá thêm
-              </p>
-            )}
+            <p className="mb-2 text-xs font-extrabold uppercase tracking-wider text-muted">
+              🔍 Khám phá & đăng ký khóa mới
+            </p>
             <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
               {explore.map((c) => (
                 <CourseCard key={c.id} course={c} />

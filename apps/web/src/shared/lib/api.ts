@@ -943,7 +943,15 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     }
   }
   if (/^\/api\/courses\/[^/?]+$/.test(path) && payload.course) {
-    return { course: mapCourse(payload.course as Record<string, unknown>) }
+    const raw = payload.course as Record<string, unknown>
+    return {
+      course: {
+        ...mapCourse(raw),
+        enrolled: raw.enrolled === true,
+        enrollmentId: raw.enrollmentId ? String(raw.enrollmentId) : null,
+        enrollmentSource: raw.enrollmentSource ? String(raw.enrollmentSource) : null,
+      },
+    }
   }
   if (path === '/api/parent/children' && Array.isArray(payload.children)) {
     return {
@@ -1090,6 +1098,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     return {
       mission: {
         key: String(mission.key ?? ''),
+        periodKey: String(daily.periodKey ?? ''),
         title: String(mission.title ?? ''),
         description: String(mission.description ?? ''),
         xpReward: Number(mission.xpReward ?? 0),

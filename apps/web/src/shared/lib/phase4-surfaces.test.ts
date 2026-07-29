@@ -20,6 +20,8 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(src).not.toContain('/api/gamification/check-in')
     expect(src).toContain('/api/gamification/achievements')
     expect(src).not.toContain('/api/gamification/leaderboard')
+    expect(src).toContain('aikids.daily-mission-seen.')
+    expect(src).toContain('Khám phá & đăng ký khóa mới')
     expect(src).toContain('/api/courses')
     expect(src).toContain('ageTrack')
   })
