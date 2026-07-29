@@ -164,9 +164,10 @@ export function LessonPage() {
         if (start.progress.status === 'completed') {
           setPhase('done')
           setCheckResult({
-            stars: start.progress.stars || 1,
-            message:
-              'Con đã hoàn thành trạm này! Có thể xem lại hoặc sang trạm mới.',
+            stars: start.progress.stars,
+            message: start.progress.stars > 0
+              ? 'Con đã hoàn thành trạm này! Có thể thử lại để nâng số sao.'
+              : 'Lần trước con chưa nhận được sao. Hãy thử lại phần Thử tài nhé!',
             nextQuestId: null,
           })
           // Still fetch next from course map if needed on UI
@@ -1223,15 +1224,19 @@ export function LessonPage() {
           </div>
 
           <div>
-            <h2 className="font-display text-3xl">Hoàn thành trạm! 🎉</h2>
+            <h2 className="font-display text-3xl">
+              {checkResult.stars > 0 ? 'Hoàn thành trạm! 🎉' : 'Thử lại để nhận sao ⭐'}
+            </h2>
             <p className="mt-1 text-muted">{checkResult.message}</p>
           </div>
 
           {/* Reward */}
-          <div className="rounded-2xl bg-brand-50 border border-brand-100 px-4 py-3 w-full max-w-sm">
-            <p className="text-xs font-extrabold uppercase tracking-wider text-brand-500 mb-1">Phần thưởng</p>
-            <p className="text-sm font-bold">{quest.reward}</p>
-          </div>
+          {checkResult.stars > 0 && (
+            <div className="rounded-2xl bg-brand-50 border border-brand-100 px-4 py-3 w-full max-w-sm">
+              <p className="text-xs font-extrabold uppercase tracking-wider text-brand-500 mb-1">Phần thưởng</p>
+              <p className="text-sm font-bold">{quest.reward}</p>
+            </div>
+          )}
 
           {/* New achievements */}
           {checkResult.newAchievements && checkResult.newAchievements.length > 0 && (
@@ -1265,6 +1270,19 @@ export function LessonPage() {
               <NavWorldIcon size={18} aria-hidden="true" />
               Về bản đồ
             </Button>
+            {checkResult.stars < 3 && (
+              <Button
+                onClick={() => {
+                  setReviewMode(false)
+                  setAnswers({})
+                  setError(null)
+                  setPhase('check')
+                }}
+              >
+                <Star size={18} aria-hidden="true" />
+                {checkResult.stars === 0 ? 'Thử lại để nhận sao' : 'Thử lại để nâng sao'}
+              </Button>
+            )}
             <Button
               variant="ghost"
               onClick={() => {

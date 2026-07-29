@@ -30,15 +30,22 @@ type Pathway = {
 
 function StarDisplay({ count }: { count: number }) {
   return (
-    <div className="flex gap-0.5">
-      {[1, 2, 3].map((i) => (
-        <Star
-          key={i}
-          size={14}
-          className={i <= count ? 'text-sun-400 fill-sun-400' : 'text-border'}
-          fill={i <= count ? 'currentColor' : 'none'}
-        />
-      ))}
+    <div className="flex flex-wrap items-center gap-1" aria-label={`${count} sao`}>
+      <div className="flex gap-0.5" aria-hidden="true">
+        {[1, 2, 3].map((i) => (
+          <Star
+            key={i}
+            size={14}
+            className={i <= count ? 'text-sun-400 fill-sun-400' : 'text-border'}
+            fill={i <= count ? 'currentColor' : 'none'}
+          />
+        ))}
+      </div>
+      {count === 0 && (
+        <span className="text-[10px] font-extrabold text-coral-500">
+          Thử lại để nhận sao
+        </span>
+      )}
     </div>
   )
 }
