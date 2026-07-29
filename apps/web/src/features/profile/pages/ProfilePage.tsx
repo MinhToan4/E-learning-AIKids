@@ -9,6 +9,7 @@ import { useAuth } from '@/shared/store/auth'
 import { EquippedProfile } from '@/features/rewards/EquippedProfile'
 import { RewardCollection } from '@/features/rewards/RewardCollection'
 import {
+  profileCardTone,
   profileCardStyle,
   readRewardEquipment,
   syncRewardEquipment,
@@ -227,15 +228,23 @@ export function ProfilePage() {
 
   if (loading) return <PageSkeleton rows={3} className="mx-auto max-w-5xl" />
 
+  const cardTheme = equipment.background ?? equipment.theme
+  const cardTone = profileCardTone(cardTheme)
+
   return (
     <PageMotion className="mx-auto flex max-w-5xl flex-col gap-5">
-      <section className="ui-card overflow-hidden p-5 sm:p-6" style={profileCardStyle(equipment.background ?? equipment.theme)}>
+      <section
+        className="ui-card overflow-hidden p-5 sm:p-6"
+        style={profileCardStyle(cardTheme)}
+        data-profile-tone={cardTone}
+      >
         <div className="grid items-center gap-5 md:grid-cols-[1fr_auto]">
           {user && (
             <EquippedProfile
               user={user}
               xp={explorerXp}
               compact
+              tone={cardTone}
               onAvatarClick={() => setAvatarPickerOpen(true)}
             />
           )}
