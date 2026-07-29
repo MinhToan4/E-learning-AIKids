@@ -16,7 +16,8 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
   it('HomePage loads private progress and courses without a public leaderboard', () => {
     const src = read('features/home/pages/HomePage.tsx')
     expect(src).toContain('/api/gamification/streak')
-    expect(src).toContain('/api/gamification/check-in')
+    expect(src).toContain('lastActivityDate')
+    expect(src).not.toContain('/api/gamification/check-in')
     expect(src).toContain('/api/gamification/achievements')
     expect(src).not.toContain('/api/gamification/leaderboard')
     expect(src).toContain('/api/courses')

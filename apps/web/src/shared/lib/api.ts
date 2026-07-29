@@ -1036,6 +1036,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     return {
       current: Number(payload.currentStreak ?? 0),
       longest: Number(payload.longestStreak ?? 0),
+      lastActivityDate: payload.lastActivityDate ? String(payload.lastActivityDate) : null,
     }
   }
   if (path === '/api/gamification/achievements') {
@@ -1082,12 +1083,24 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     }) as Record<string, unknown> | undefined
     if (!daily) return { mission: null }
     const mission = (daily.mission ?? daily) as Record<string, unknown>
+    const progress = Number(daily.progress ?? 0)
+    const target = Math.max(1, Number(mission.target ?? 1))
+    const completedAt = daily.completedAt ? String(daily.completedAt) : null
+    const claimedAt = daily.claimedAt ? String(daily.claimedAt) : null
     return {
       mission: {
+        key: String(mission.key ?? ''),
         title: String(mission.title ?? ''),
         description: String(mission.description ?? ''),
         xpReward: Number(mission.xpReward ?? 0),
-        action: { label: 'Học ngay', route: '/world' },
+        progress,
+        target,
+        completedAt,
+        claimedAt,
+        action: {
+          label: completedAt ? 'Xem hành trình' : progress > 0 ? 'Tiếp tục học' : 'Học ngay',
+          route: '/world',
+        },
       },
     }
   }

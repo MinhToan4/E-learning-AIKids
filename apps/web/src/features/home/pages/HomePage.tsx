@@ -10,7 +10,13 @@ import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { CourseBookIcon, NavLeaderboardIcon } from '@/shared/components/icons/KidNavIcons'
-import { explorerLevelForXp, explorerLevelProgress, nextExplorerLevel } from '@aikids/domain'
+import { REWARD_CATALOG, explorerLevelForXp, explorerLevelProgress, nextExplorerLevel } from '@aikids/domain'
+import { avatarEmoji, avatarImage } from '@/shared/config/avatars'
+import { readProfileAvatar } from '@/features/profile/profile-showcase'
+import {
+  readRewardEquipment,
+  rewardFrameStyle,
+} from '@/features/rewards/reward-equipment'
 
 type TrackFilter = 'all' | 'L1' | 'L2'
 
@@ -18,37 +24,90 @@ function courseBadge(course: CourseSummary) {
   return /^l[12]-k7-/.test(course.id) ? 'AI' : (course.courseKey ?? 'Mới')
 }
 
-function HeaderAvatar({ nickname }: { nickname?: string | null }) {
+function HeaderAvatar({
+  userId,
+  avatarId,
+  nickname,
+}: {
+  userId?: string
+  avatarId?: string | null
+  nickname?: string | null
+}) {
   const [failed, setFailed] = useState(false)
-  if (failed) {
-    return (
-      <div className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl bg-gradient-to-br from-brand-400 via-sky-400 to-mint-400 flex items-center justify-center text-3xl font-black text-white shadow-clay flex-shrink-0" aria-hidden>
-        {nickname ? nickname.charAt(0).toUpperCase() : '✨'}
-      </div>
-    )
-  }
+  const [revision, setRevision] = useState(0)
+  useEffect(() => {
+    const sync = () => setRevision((value) => value + 1)
+    window.addEventListener('aikids:profile-avatar', sync)
+    window.addEventListener('aikids:reward-equipped', sync)
+    return () => {
+      window.removeEventListener('aikids:profile-avatar', sync)
+      window.removeEventListener('aikids:reward-equipped', sync)
+    }
+  }, [])
+  const equipment = userId ? readRewardEquipment(userId) : {}
+  const profileAvatar = userId ? readProfileAvatar(userId) : null
+  const avatarReward = REWARD_CATALOG.find((item) => item.id === equipment.avatar)
+  const equippedAvatarId = avatarReward?.equipValue ?? avatarId
+  const image = profileAvatar?.url ?? avatarImage(equippedAvatarId)
+  void revision
+
   return (
-    <img
-      src={designerAssets.lobby.homeCharacter}
-      alt=""
-      onError={() => setFailed(true)}
-      className="h-16 w-16 sm:h-20 sm:w-20 rounded-2xl object-cover shadow-clay flex-shrink-0"
-    />
+    <div className={`relative h-16 w-16 flex-shrink-0 sm:h-20 sm:w-20 ${equipment.effect ? 'drop-shadow-[0_0_12px_rgba(250,204,21,.8)]' : ''}`}>
+      <div
+        className="relative h-full w-full rounded-full bg-white p-1.5 shadow-clay"
+        style={rewardFrameStyle(equipment.frame)}
+      >
+        <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border-2 border-white bg-brand-100 text-3xl font-black text-brand-700">
+          {image && !failed
+            ? <img src={image} alt="" onError={() => setFailed(true)} className="h-full w-full object-cover" />
+            : avatarEmoji(equippedAvatarId) || nickname?.charAt(0).toUpperCase() || '✨'}
+        </div>
+      </div>
+      {equipment.companion && (
+        <span className="absolute -bottom-1 -right-2 z-20 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-sky-100 shadow-soft">
+          <img src={designerAssets.brand.mascot} alt="" className="h-7 w-7 object-contain" />
+        </span>
+      )}
+    </div>
   )
 }
 
-function StreakWidget({ current, longest }: { current: number; longest: number }) {
+function localDay(value: Date): string {
+  return new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Ho_Chi_Minh',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).format(value)
+}
+
+function streakState(current: number, lastActivityDate: string | null) {
+  if (!lastActivityDate || current <= 0) {
+    return { icon: '🕯️', label: 'Chưa tạo chuỗi', hint: 'Hoàn thành 1 bài để bắt đầu', tone: 'border-slate-200 bg-slate-50' }
+  }
+  const today = localDay(new Date())
+  const last = localDay(new Date(lastActivityDate))
+  if (last === today) {
+    return { icon: '🔥', label: `${current} ngày liên tục`, hint: 'Hôm nay đã giữ chuỗi', tone: 'border-sun-200/80 bg-gradient-to-br from-sun-100/90 via-sun-50 to-coral-50/80' }
+  }
+  const yesterdayDate = new Date()
+  yesterdayDate.setDate(yesterdayDate.getDate() - 1)
+  if (last === localDay(yesterdayDate)) {
+    return { icon: '⏳', label: `${current} ngày đang chờ`, hint: 'Học hôm nay để giữ chuỗi', tone: 'border-sun-300 bg-sun-50' }
+  }
+  return { icon: '🌱', label: 'Chuỗi đã gián đoạn', hint: 'Hoàn thành 1 bài để bắt đầu lại', tone: 'border-slate-200 bg-slate-50' }
+}
+
+function StreakWidget({ current, longest, lastActivityDate }: { current: number; longest: number; lastActivityDate: string | null }) {
+  const state = streakState(current, lastActivityDate)
   return (
-    <div className="flex items-center gap-3 rounded-2xl bg-gradient-to-br from-sun-100/90 via-sun-50 to-coral-50/80 border-2 border-sun-200/80 px-4 py-2.5 shadow-soft">
+    <div className={cn('flex items-center gap-3 rounded-2xl border-2 px-4 py-2.5 shadow-soft', state.tone)}>
       <span className="text-3xl flex-shrink-0 leading-none filter drop-shadow-sm" aria-hidden>
-        🔥
+        {state.icon}
       </span>
       <div className="flex flex-col min-w-0">
-        <div className="flex items-baseline gap-1">
-          <span className="font-display text-2xl text-text leading-none">{current}</span>
-          <span className="text-xs font-bold text-sun-800">ngày liên tục</span>
-        </div>
-        <p className="text-[11px] font-semibold text-muted mt-0.5">Kỷ lục: {longest} ngày</p>
+        <p className="font-display text-base text-text leading-none">{state.label}</p>
+        <p className="mt-1 text-[11px] font-semibold text-muted">{state.hint} · Kỷ lục {longest} ngày</p>
       </div>
     </div>
   )
@@ -161,12 +220,16 @@ export function HomePage() {
   const user = useAuth((s) => s.user)
   const [courses, setCourses] = useState<CourseSummary[]>([])
   const [track, setTrack] = useState<TrackFilter>('all')
-  const [streak, setStreak] = useState({ current: 0, longest: 0 })
+  const [streak, setStreak] = useState({ current: 0, longest: 0, lastActivityDate: null as string | null })
   const [badges, setBadges] = useState<AchievementRow[]>([])
   const [dailyMission, setDailyMission] = useState<{
     title: string
     description: string
     xpReward: number
+    progress: number
+    target: number
+    completedAt: string | null
+    claimedAt: string | null
     action: { label: string; route: string }
   } | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -179,23 +242,14 @@ export function HomePage() {
     try {
       const [c, s, a, g] = await Promise.all([
         api<{ courses: CourseSummary[] }>('/api/courses'),
-        api<{ current: number; longest: number }>('/api/gamification/streak'),
+        api<{ current: number; longest: number; lastActivityDate: string | null }>('/api/gamification/streak'),
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
         api<{ totalXp: number; level: number }>('/api/gamification/profile'),
       ])
       setCourses(c.courses)
-      setStreak({ current: s.current, longest: s.longest })
+      setStreak({ current: s.current, longest: s.longest, lastActivityDate: s.lastActivityDate })
       setBadges(a.achievements.filter((x) => x.unlocked).slice(0, 3))
       setExplorerXp(g.totalXp)
-      try {
-        const check = await api<{
-          current: number
-          longest: number
-        }>('/api/gamification/check-in', { method: 'POST' })
-        setStreak({ current: check.current, longest: check.longest })
-      } catch {
-        /* ignore check-in errors */
-      }
       // Load daily mission independently — failure shouldn't block the page
       try {
         const m = await api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission')
@@ -264,7 +318,7 @@ export function HomePage() {
         <div className="relative flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5">
           {/* Left: kids character avatar + greeting */}
           <div className="flex items-center gap-3.5">
-            <HeaderAvatar nickname={user?.nickname} />
+            <HeaderAvatar userId={user?.id} avatarId={user?.avatarId} nickname={user?.nickname} />
             <div className="min-w-0">
               <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
                 Xin chào!
@@ -280,7 +334,7 @@ export function HomePage() {
 
           {/* Right: streak widget — shrink-0 prevents it from being squished on 375px */}
           <div className="flex shrink-0 items-center gap-2 ml-auto">
-            <StreakWidget current={streak.current} longest={streak.longest} />
+            <StreakWidget current={streak.current} longest={streak.longest} lastActivityDate={streak.lastActivityDate} />
           </div>
         </div>
 
@@ -322,6 +376,21 @@ export function HomePage() {
                 <p className="text-xs font-semibold text-text/90 leading-relaxed line-clamp-2">
                   {dailyMission.description}
                 </p>
+                <div className="mt-2">
+                  <div className="flex items-center justify-between text-[11px] font-bold">
+                    <span>{dailyMission.completedAt ? 'Đã hoàn thành' : `${Math.min(dailyMission.progress, dailyMission.target)}/${dailyMission.target} bài`}</span>
+                    <span>{Math.round(Math.min(1, dailyMission.progress / dailyMission.target) * 100)}%</span>
+                  </div>
+                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-sun-100">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-sun-400 to-coral-400 transition-all"
+                      style={{ width: `${Math.min(100, (dailyMission.progress / dailyMission.target) * 100)}%` }}
+                    />
+                  </div>
+                  {dailyMission.claimedAt && (
+                    <p className="mt-1 text-[11px] font-extrabold text-success">✓ Đã cộng +{dailyMission.xpReward} XP</p>
+                  )}
+                </div>
               </div>
 
               <div className="pt-1">
