@@ -544,11 +544,10 @@ export function LessonPage() {
           Object.values(answerFeedback).filter((row) => row.correct).length + 1
         const score = Math.round((correctCount / quest.check.length) * 100)
         const nextStars = score >= 90 ? 3 : score >= 60 ? 2 : score > 0 ? 1 : 0
-        const earnedNow = Math.max(0, nextStars - liveStars)
         setLiveStars(nextStars)
-        if (earnedNow > 0) {
-          setStarBurst({ id: Date.now(), count: earnedNow })
-        }
+        // Mỗi câu đúng chỉ bay một ngôi sao. Ô thưởng hoàn thành có thể
+        // tự bật sáng thêm để khớp thang điểm 3 sao của backend.
+        setStarBurst({ id: Date.now(), count: 1 })
       }
     } catch (e) {
       setAnswers((current) => {
