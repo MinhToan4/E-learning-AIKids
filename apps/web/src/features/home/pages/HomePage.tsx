@@ -188,7 +188,19 @@ export function HomePage() {
       // Prefer check-in result (it refreshes streak atomically); fall back to streak
       const streakData = checkResult ?? s
       setStreak({ current: streakData.current, longest: streakData.longest })
-      setBadges(a.achievements.filter((x) => x.unlocked).slice(0, 3))
+      const unlockedBadges = a.achievements.filter((achievement) => achievement.unlocked)
+      const firstMilestone = a.achievements.find(
+        (achievement) => achievement.type === 'first_quest',
+      )
+      // WHY: Keep the first milestone visible as a goal without granting it;
+      // the gamification service remains the source of truth for unlock state.
+      setBadges(
+        unlockedBadges.length > 0
+          ? unlockedBadges.slice(0, 3)
+          : firstMilestone
+            ? [firstMilestone]
+            : a.achievements.slice(0, 1),
+      )
       if (missionResult?.mission) setDailyMission(missionResult.mission)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Lỗi tải khóa học')

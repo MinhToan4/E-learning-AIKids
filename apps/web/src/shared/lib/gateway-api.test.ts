@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { api, clearAccessToken } from './api'
+import { api, clearAccessToken, type AchievementRow } from './api'
 
 function response(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -125,6 +125,34 @@ describe('StoryMee Gateway adapter', () => {
       'https://dev-hub.storymee.com/api/v1/gamification/me/streak',
       expect.any(Object),
     )
+  })
+
+  it('maps the first achievement milestone without marking it as unlocked', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response([{
+      key: 'first_quest',
+      title: 'Bước đầu tiên',
+      description: 'Hoàn thành bài học đầu tiên',
+      icon: '🌱',
+      category: 'lessons_completed',
+      threshold: 1,
+      unlocked: false,
+      unlock: null,
+    }]))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{ achievements: AchievementRow[] }>(
+      '/api/gamification/achievements',
+    )
+
+    expect(result.achievements).toEqual([
+      expect.objectContaining({
+        type: 'first_quest',
+        title: 'Bước đầu tiên',
+        description: 'Hoàn thành bài học đầu tiên',
+        icon: '🌱',
+        unlocked: false,
+      }),
+    ])
   })
 
   it('routes the daily learning mission into the LMS world', async () => {
@@ -341,6 +369,30 @@ describe('StoryMee Gateway adapter', () => {
     expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
       `https://dev-hub.storymee.com/api/v1/lms/lessons/${lessonId}/notes`,
       `https://dev-hub.storymee.com/api/v1/lms/lessons/${lessonId}/bookmarks`,
+    ])
+  })
+
+  it('routes student and parent age policies to the learner-owned LMS resources', async () => {
+    const childId = '44444444-4444-4444-8444-444444444444'
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({
+        ageBand: '9-12',
+        status: 'ready',
+        policy: {},
+      }))
+      .mockResolvedValueOnce(response({
+        ageBand: '9-12',
+        status: 'ready',
+        policy: {},
+      }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await api('/api/learning/age-policy')
+    await api(`/api/learning/age-policy?studentId=${childId}`)
+
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      'https://dev-hub.storymee.com/api/v1/lms/me/age-policy',
+      `https://dev-hub.storymee.com/api/v1/lms/family/children/${childId}/age-policy`,
     ])
   })
 

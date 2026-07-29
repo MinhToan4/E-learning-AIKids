@@ -550,6 +550,9 @@ function EditChildModal({
               required
               autoFocus
             />
+            <p className="mt-1 text-xs text-muted">
+              Gợi ý: Đặt biệt danh gần gũi nên có số hoặc ký tự đặc biệt (Ví dụ: Tom123, Bống_nhỏ).
+            </p>
           </div>
 
           {/* Avatar */}

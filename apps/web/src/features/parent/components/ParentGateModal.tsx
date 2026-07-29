@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
-import { Eye, EyeOff, House } from 'lucide-react'
+import { Eye, EyeOff } from 'lucide-react'
 import { useAuth } from '@/shared/store/auth'
 import { api, ApiError, type User } from '@/shared/lib/api'
 import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
+import { ParentHomeIcon } from '@/shared/components/icons/ParentHomeIcon'
 
 /**
  * ParentGateModal — child taps "Ba/Mẹ ơi!" to hand device back to parent.
@@ -107,7 +108,7 @@ export function ParentGateModal({
         {/* Header */}
         <div className="bg-gradient-to-br from-amber-400 to-orange-500 px-6 pb-6 pt-8 text-center">
           <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/20 shadow-inner">
-            <House size={42} className="text-white" aria-hidden="true" />
+            <ParentHomeIcon size={42} />
           </div>
           <h2 className="text-2xl font-black text-white">Ba/Mẹ ơi!</h2>
           <p className="mt-1 text-sm text-white/85">

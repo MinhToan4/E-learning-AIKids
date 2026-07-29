@@ -31,6 +31,7 @@ import {
   ParentPlanIcon,
   ParentProfileIcon,
 } from '@/shared/components/icons/ParentIcons'
+import { ParentHomeIcon } from '@/shared/components/icons/ParentHomeIcon'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { cn } from '@/shared/lib/cn'
 import { useAuth } from '@/shared/store/auth'
@@ -567,7 +568,7 @@ export function AppShell() {
             title="Ba/Mẹ ơi!"
             className="mt-auto flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-extrabold text-amber-500 transition-all hover:scale-105 hover:bg-amber-50"
           >
-            <span className="text-2xl leading-none" aria-hidden="true">🔒</span>
+            <ParentHomeIcon size={24} />
             <span>Ba/Mẹ</span>
           </button>
         )}
@@ -582,7 +583,7 @@ export function AppShell() {
             aria-label="Gọi ba mẹ"
             className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-xl shadow-sm transition hover:bg-amber-100 md:hidden"
           >
-            <span aria-hidden="true">🔒</span>
+            <ParentHomeIcon size={20} />
           </button>
         )}
         <NotificationBell />
