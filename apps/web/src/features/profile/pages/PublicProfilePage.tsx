@@ -19,7 +19,10 @@ export function PublicProfilePage() {
           <p className="text-5xl" aria-hidden>🌱</p>
           <h1 className="mt-3 font-display text-3xl">Trang này chưa được xuất bản</h1>
           <p className="mt-2 text-muted">Nhà sáng tạo nhí đang chuẩn bị triển lãm đầu tiên.</p>
-          <Link to="/" className="mt-5 inline-block font-extrabold text-brand-600">Về AIKid.vn</Link>
+          <div className="mt-5 flex justify-center gap-2">
+            <Link to="/profile" className="rounded-full bg-brand-600 px-4 py-2 font-extrabold text-white">← Hồ sơ của con</Link>
+            <Link to="/" className="rounded-full bg-brand-50 px-4 py-2 font-extrabold text-brand-600">Về AIKid.vn</Link>
+          </div>
         </div>
       </main>
     )
@@ -28,6 +31,12 @@ export function PublicProfilePage() {
   return (
     <main className="min-h-screen bg-[radial-gradient(circle_at_top,#e3f6ff,transparent_38%),linear-gradient(#f7f5ff,#fff)] px-4 py-8">
       <div className="mx-auto max-w-4xl space-y-6">
+        <nav className="flex flex-wrap items-center justify-between gap-2" aria-label="Điều hướng trang cá nhân">
+          <Link to="/profile" className="rounded-full bg-white px-4 py-2 text-sm font-extrabold text-brand-700 shadow-soft">
+            ← Quay lại hồ sơ của con
+          </Link>
+          <Link to="/home" className="text-sm font-extrabold text-brand-600">Về sảnh AIKid</Link>
+        </nav>
         <header
           className="ui-card flex flex-col items-center gap-4 p-7 text-center sm:flex-row sm:text-left"
           style={profileCardStyle(equipment.background ?? equipment.theme)}
