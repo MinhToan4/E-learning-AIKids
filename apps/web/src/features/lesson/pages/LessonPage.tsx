@@ -170,6 +170,7 @@ export function LessonPage() {
         const data = await api<{ quest: QuestDetail }>(`/api/quests/${questId}`)
         if (cancelled) return
         setQuest(data.quest)
+        setLiveStars(start.progress.stars)
         // Resume mid-quest; completed stations open on celebrate/review
         if (start.progress.status === 'completed') {
           setPhase('done')
@@ -349,10 +350,15 @@ export function LessonPage() {
     setBusy(true)
     setError(null)
     try {
-      await api(`/api/progress/${questId}/advance`, {
+      const result = await api<{ progress: { stars: number } }>(
+        `/api/progress/${questId}/advance`,
+        {
         method: 'POST',
         body: JSON.stringify({ fromPhase: 'game', gameEvidence }),
-      })
+        },
+      )
+      setLiveStars(result.progress.stars)
+      setStarBurst({ id: Date.now(), count: 1 })
       setPhase('practice')
     } catch (e) {
       if (!recoverCurrentPhase(e)) {
@@ -444,10 +450,15 @@ export function LessonPage() {
       setPracticeFeedback(review.feedback)
       setPracticeSaved(true)
       try {
-        await api(`/api/progress/${questId}/advance`, {
+        const advance = await api<{ progress: { stars: number } }>(
+          `/api/progress/${questId}/advance`,
+          {
           method: 'POST',
           body: JSON.stringify({ fromPhase: 'practice' }),
-        })
+          },
+        )
+        setLiveStars(advance.progress.stars)
+        setStarBurst({ id: Date.now(), count: 1 })
         setPracticeAdvanced(true)
       } catch {
         setError(
@@ -467,10 +478,15 @@ export function LessonPage() {
     setBusy(true)
     setError(null)
     try {
-      await api(`/api/progress/${questId}/advance`, {
+      const result = await api<{ progress: { stars: number } }>(
+        `/api/progress/${questId}/advance`,
+        {
         method: 'POST',
         body: JSON.stringify({ fromPhase: 'practice' }),
-      })
+        },
+      )
+      setLiveStars(result.progress.stars)
+      setStarBurst({ id: Date.now(), count: 1 })
       setPracticeAdvanced(true)
       setPhase('check')
     } catch (e) {
@@ -493,6 +509,7 @@ export function LessonPage() {
     setError(null)
     try {
       const res = await api<{
+        passed?: boolean
         stars: number
         message: string
         nextQuestId: string | null
@@ -507,6 +524,12 @@ export function LessonPage() {
           })),
         }),
       })
+      if (res.passed === false) {
+        setError(res.message)
+        return
+      }
+      setLiveStars(res.stars)
+      setStarBurst({ id: Date.now(), count: 1 })
       setCheckResult(res)
       setPhase('done')
     } catch (e) {
@@ -519,7 +542,7 @@ export function LessonPage() {
   }
 
   async function chooseCheckAnswer(questionId: string, optionIndex: number) {
-    if (answerFeedback[questionId] || checkingQuestionId) return
+    if (answerFeedback[questionId]?.correct || checkingQuestionId) return
     setAnswers((current) => ({ ...current, [questionId]: optionIndex }))
     setCheckingQuestionId(questionId)
     setError(null)
@@ -539,16 +562,6 @@ export function LessonPage() {
           explanation: feedback.explanation,
         },
       }))
-      if (feedback.correct && quest) {
-        const correctCount =
-          Object.values(answerFeedback).filter((row) => row.correct).length + 1
-        const score = Math.round((correctCount / quest.check.length) * 100)
-        const nextStars = score >= 90 ? 3 : score >= 60 ? 2 : score > 0 ? 1 : 0
-        setLiveStars(nextStars)
-        // Mỗi câu đúng chỉ bay một ngôi sao. Ô thưởng hoàn thành có thể
-        // tự bật sáng thêm để khớp thang điểm 3 sao của backend.
-        setStarBurst({ id: Date.now(), count: 1 })
-      }
     } catch (e) {
       setAnswers((current) => {
         const next = { ...current }
@@ -603,6 +616,9 @@ export function LessonPage() {
 
   const phaseOrder: Phase[] = ['learn', 'game', 'practice', 'check']
   const currentPhaseIdx = phaseOrder.indexOf(phase === 'done' ? 'check' : phase)
+  const allCheckAnswersCorrect =
+    quest.check.length > 0 &&
+    quest.check.every((question) => answerFeedback[question.id]?.correct)
 
   return (
     <div className="page-enter flex flex-col gap-4">
@@ -618,6 +634,30 @@ export function LessonPage() {
               </p>
             )}
           </div>
+          {phase !== 'done' && (
+            <div className="lesson-star-rack" aria-label={`${liveStars} sao đã nhận`}>
+              {[1, 2, 3].map((star) => (
+                <Star
+                  key={star}
+                  size={28}
+                  className={cn(
+                    'lesson-star-placeholder',
+                    star <= liveStars && 'lesson-star-earned',
+                  )}
+                  aria-hidden="true"
+                />
+              ))}
+              {starBurst && Array.from({ length: starBurst.count }, (_, index) => (
+                <span
+                  key={`${starBurst.id}-${index}`}
+                  className="lesson-star-fly"
+                  aria-hidden="true"
+                >
+                  ⭐
+                </span>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Phase stepper */}
@@ -1199,29 +1239,9 @@ export function LessonPage() {
               <p className="text-xs text-muted">Chọn từng đáp án để biết ngay đúng hay chưa.</p>
             </div>
             </div>
-            <div className="lesson-star-rack" aria-label={`${liveStars} sao đang nhận`}>
-              {[1, 2, 3].map((star) => (
-                <Star
-                  key={star}
-                  size={30}
-                  className={cn(
-                    'lesson-star-placeholder',
-                    star <= liveStars && 'lesson-star-earned',
-                  )}
-                  aria-hidden="true"
-                />
-              ))}
-              {starBurst && Array.from({ length: starBurst.count }, (_, index) => (
-                <span
-                  key={`${starBurst.id}-${index}`}
-                  className="lesson-star-fly"
-                  style={{ '--star-fly-delay': `${index * 0.12}s` } as React.CSSProperties}
-                  aria-hidden="true"
-                >
-                  ⭐
-                </span>
-              ))}
-            </div>
+            <p className="rounded-xl bg-sun-50 px-3 py-2 text-xs font-bold text-warning">
+              Sao cuối chỉ sáng khi tất cả câu đều đúng.
+            </p>
           </div>
           {quest.check.map((q, qIdx) => (
             <div key={q.id} className="flex flex-col gap-2">
@@ -1245,7 +1265,10 @@ export function LessonPage() {
                         !answerFeedback[q.id].correct &&
                         'lesson-answer-wrong',
                     )}
-                    disabled={Boolean(answerFeedback[q.id]) || checkingQuestionId === q.id}
+                    disabled={
+                      answerFeedback[q.id]?.correct === true ||
+                      checkingQuestionId === q.id
+                    }
                     onClick={() => void chooseCheckAnswer(q.id, idx)}
                   >
                     <span className={cn(
@@ -1275,25 +1298,30 @@ export function LessonPage() {
                 >
                   <p className="font-extrabold">
                     {answerFeedback[q.id].correct
-                      ? '⭐ Chính xác! Con nhận được sao.'
-                      : '💡 Chưa đúng rồi.'}
+                      ? '✅ Chính xác!'
+                      : '💡 Chưa đúng — con chọn lại ngay nhé.'}
                   </p>
                   <p className="mt-1">{answerFeedback[q.id].explanation}</p>
                 </div>
               )}
             </div>
           ))}
-          <Button
-            onClick={() => void submitCheck()}
-            disabled={
-              busy ||
-              checkingQuestionId !== null ||
-              quest.check.some((q) => !answerFeedback[q.id])
-            }
-          >
-            {!busy && <Star size={18} aria-hidden="true" />}
-            {busy ? 'Đang chấm…' : 'Nộp bài & nhận sao'}
-          </Button>
+          <div className="flex flex-wrap gap-3">
+            <Button
+              onClick={() => void submitCheck()}
+              disabled={busy || checkingQuestionId !== null || !allCheckAnswersCorrect}
+            >
+              {!busy && <Star size={18} aria-hidden="true" />}
+              {busy ? 'Đang hoàn thành…' : 'Hoàn thành'}
+            </Button>
+            <Button
+              variant="secondary"
+              onClick={() => navigate(`/world/${quest.courseId}`)}
+            >
+              <NavWorldIcon size={18} aria-hidden="true" />
+              Thoát về bản đồ
+            </Button>
+          </div>
         </div>
       )}
 

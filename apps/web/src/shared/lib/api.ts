@@ -150,7 +150,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     '/api/auth/tenant': '/api/v1/account/tenant/resolve',
     '/api/courses': '/api/v1/lms/courses',
     '/api/enrollments': '/api/v1/lms/enrollments',
-    '/api/learning/pathway': '/api/v1/lms/courses',
+    '/api/learning/pathway': '/api/v1/lms/compat/pathway',
     '/api/notifications': '/api/v1/notifications',
     '/api/notifications/read-all': '/api/v1/notifications/read-all',
     '/api/notifications/preferences': '/api/v1/notifications/preferences',

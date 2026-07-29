@@ -181,7 +181,7 @@ describe('StoryMee Gateway adapter', () => {
       }],
     })
     expect(fetchMock).toHaveBeenCalledWith(
-      'https://dev-hub.storymee.com/api/v1/lms/courses',
+      'https://dev-hub.storymee.com/api/v1/lms/compat/pathway',
       expect.any(Object),
     )
   })
