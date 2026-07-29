@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useSearchParams, useNavigate } from 'react-router-dom'
+import { Link, useSearchParams, useNavigate } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
 import { api, ApiError } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'

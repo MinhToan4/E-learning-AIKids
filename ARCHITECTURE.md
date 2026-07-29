@@ -1,48 +1,31 @@
-# Architecture — AI Kids Creator Academy
+# Architecture — AI Kids Frontend
 
-Professional monorepo: **apps** (deployables) + **packages** (shared libraries).
-
-```
-E-learning-AIKids-full/
-├── apps/
-│   ├── api/                 # Backend (Fastify + Prisma → Supabase Postgres)
-│   │   ├── prisma/          # schema.prisma, seed, SQL
-│   │   └── src/
-│   │       ├── config/      # env (secrets)
-│   │       ├── infrastructure/  # db, session, crypto, supabase client
-│   │       └── modules/     # auth, catalog, progress, parent, teacher, admin
-│   └── web/                 # Frontend (React + Vite)
-│       └── src/
-│           ├── app/         # router shell
-│           ├── features/    # vertical UI slices
-│           └── shared/      # UI kit, api client, asset map
-├── packages/
-│   └── domain/              # Shared pure business rules (NOT a server, NOT a UI)
-├── docs/                    # Architecture, Supabase, security notes
-├── .agents/skills/          # Agent-readable engineering/security skills
-├── docker-compose.yml       # Optional API+Web images (DB = Supabase)
-└── package.json             # npm workspaces root
+```text
+Browser
+  └─ apps/web (React + Vite)
+       └─ /api/* → StoryMee Hub :5100
+                    ├─ account
+                    ├─ lms
+                    ├─ billing
+                    ├─ notifications
+                    ├─ gamification
+                    ├─ media
+                    └─ jobs/system
 ```
 
-## packages/domain — in one sentence
+## Ownership
 
-**Library of pure TypeScript rules** (RBAC, quest unlock, safety, art styles) imported by both FE and BE so logic is not duplicated. See `packages/domain/README.md`.
+- `apps/web/src/shared/lib/api.ts` là ranh giới HTTP duy nhất của FE.
+- Core services sở hữu auth, RBAC, dữ liệu, validation và business rules.
+- FE route guards chỉ điều hướng UX; backend vẫn phải xác thực và phân quyền.
+- Firebase SDK chỉ được tải động khi người dùng thực sự dùng Google/Push.
+- Helper trong `shared/lib/creation` là logic trình bày thuần client, không phải
+  contract dùng chung với backend.
 
-## Data
+## Runtime
 
-- **Source of truth:** Supabase PostgreSQL  
-- **Access path:** Browser → `apps/api` → Prisma → `DATABASE_URL`  
-- **Schema:** `apps/api/prisma/schema.prisma`  
-- **Seed:** `apps/api/prisma/seed.ts`
-
-## Run (daily)
-
-```powershell
-# DB already on Supabase — no local Postgres required
-npm run dev:api    # :4000
-npm run dev:web    # :5173
-```
-
-## Security baseline
-
-See `.agents/skills/aikids-security-rbac/SKILL.md` and `docs/SUPABASE.md`.
+- Route pages được lazy-load trong `App.tsx`.
+- Mỗi route chỉ mount màn hình đang hoạt động để effect/listener được cleanup.
+- Docker image chỉ build static assets rồi phục vụ bằng nginx.
+- Development proxy và nginx đều đi qua StoryMee Hub, không gọi thẳng port của
+  microservice.

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 
 type LegalKind = 'hub' | 'privacy' | 'terms' | 'delete' | 'support' | 'data-safety'

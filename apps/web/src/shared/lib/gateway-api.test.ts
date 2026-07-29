@@ -259,6 +259,91 @@ describe('StoryMee Gateway adapter', () => {
     ])
   })
 
+  it('routes parent course selection to the owned child LMS resource', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      child: {
+        id: '11111111-1111-4111-8111-111111111111',
+        name: 'Bé Mây',
+        ageBand: '9-12',
+      },
+      courses: [{
+        id: '22222222-2222-4222-8222-222222222222',
+        slug: 'ai-co-ban',
+        title: 'AI cơ bản',
+        shortTitle: 'AI cơ bản',
+        ageBand: '9-12',
+        metadata: { tagline: 'Khám phá AI' },
+        enrolled: true,
+        parentAllowed: true,
+      }],
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const childId = '11111111-1111-4111-8111-111111111111'
+    const result = await api<{
+      child: { nickname: string | null }
+      courses: Array<{ enrolled: boolean; ageTrack: string }>
+    }>(`/api/parent/children/${childId}/courses`)
+
+    expect(result.child.nickname).toBe('Bé Mây')
+    expect(result.courses[0]).toMatchObject({
+      enrolled: true,
+      ageTrack: '9-12',
+    })
+    expect(fetchMock).toHaveBeenCalledWith(
+      `https://dev-hub.storymee.com/api/v1/lms/family/children/${childId}/courses`,
+      expect.any(Object),
+    )
+  })
+
+  it('deduplicates concurrent identical GET requests', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({ courses: [] }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const [first, second] = await Promise.all([
+      api('/api/courses'),
+      api('/api/courses'),
+    ])
+
+    expect(first).toEqual(second)
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it('maps learner notes and bookmarks to the core LMS contracts', async () => {
+    const lessonId = '33333333-3333-4333-8333-333333333333'
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({
+        notes: [{
+          id: 'n1',
+          body: 'Nhớ kiểm tra nguồn',
+          anchor: { sectionId: 'learn' },
+          version: 1,
+        }],
+      }))
+      .mockResolvedValueOnce(response({
+        bookmarks: [{
+          id: 'b1',
+          label: 'Phần thực hành',
+          anchorKey: 'section:practice',
+        }],
+      }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const noteResult = await api<{ notes: Array<{ anchorValue: string }> }>(
+      `/api/learning/quests/${lessonId}/notes`,
+    )
+    const bookmarkResult = await api<{
+      bookmarks: Array<{ anchorValue: string }>
+    }>(`/api/learning/quests/${lessonId}/bookmarks`)
+
+    expect(noteResult.notes[0].anchorValue).toBe('learn')
+    expect(bookmarkResult.bookmarks[0].anchorValue).toBe('practice')
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      `https://dev-hub.storymee.com/api/v1/lms/lessons/${lessonId}/notes`,
+      `https://dev-hub.storymee.com/api/v1/lms/lessons/${lessonId}/bookmarks`,
+    ])
+  })
+
   it('maps the server-owned billing catalog for the parent plan UI', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response({
       status: 'success',

@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { Play, Star, Zap, Trophy } from 'lucide-react'
 import { api, type AchievementRow, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
@@ -172,30 +172,24 @@ export function HomePage() {
     setLoading(true)
     setError(null)
     try {
-      const [c, s, a] = await Promise.all([
+      // WHY: Run all independent API calls in parallel to cut perceived load time
+      // from ~3 serial round-trips down to 1 batched round-trip.
+      const [c, s, a, checkResult, missionResult] = await Promise.all([
         api<{ courses: CourseSummary[] }>('/api/courses'),
         api<{ current: number; longest: number }>('/api/gamification/streak'),
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
+        // Check-in is a GET alias (normalizeGatewayRequest rewrites method to GET)
+        api<{ current: number; longest: number }>('/api/gamification/check-in', { method: 'POST' })
+          .catch(() => null),
+        api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission')
+          .catch(() => null),
       ])
       setCourses(c.courses)
-      setStreak({ current: s.current, longest: s.longest })
+      // Prefer check-in result (it refreshes streak atomically); fall back to streak
+      const streakData = checkResult ?? s
+      setStreak({ current: streakData.current, longest: streakData.longest })
       setBadges(a.achievements.filter((x) => x.unlocked).slice(0, 3))
-      try {
-        const check = await api<{
-          current: number
-          longest: number
-        }>('/api/gamification/check-in', { method: 'POST' })
-        setStreak({ current: check.current, longest: check.longest })
-      } catch {
-        /* ignore check-in errors */
-      }
-      // Load daily mission independently — failure shouldn't block the page
-      try {
-        const m = await api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission')
-        if (m.mission) setDailyMission(m.mission)
-      } catch {
-        /* daily mission is non-critical */
-      }
+      if (missionResult?.mission) setDailyMission(missionResult.mission)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Lỗi tải khóa học')
     } finally {

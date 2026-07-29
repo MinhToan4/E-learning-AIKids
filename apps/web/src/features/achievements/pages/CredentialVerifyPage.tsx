@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router'
 import { BadgeCheck, BadgeX } from 'lucide-react'
 import { api } from '@/shared/lib/api'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'

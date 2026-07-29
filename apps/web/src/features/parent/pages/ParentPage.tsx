@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router'
 import {
   Baby,
   Bell,
@@ -179,7 +179,7 @@ export function ParentPage({
         </Button>
       </div>
 
-      {/* Tab content */}
+      {/* Only the active route owns effects and server state. */}
       {tab === 'dashboard' && <DashboardTab />}
       {tab === 'kids' && <KidsTab />}
       {tab === 'plan' && <PlanTab />}
@@ -722,6 +722,14 @@ function KidsTab() {
   const { toasts, showToast, dismissToast } = useToast()
   const enterAsChild = useAuth((s) => s.enterAsChild)
   const navigate = useNavigate()
+  const showCourseSuccess = useCallback(
+    (message: string) => showToast(message, 'success'),
+    [showToast],
+  )
+  const showCourseError = useCallback(
+    (message: string) => showToast(message, 'error'),
+    [showToast],
+  )
 
   const loadKids = useCallback(async () => {
     try {
@@ -1120,8 +1128,8 @@ function KidsTab() {
         <CourseSelectModal
           child={courseSelectTarget}
           onClose={() => setCourseSelectTarget(null)}
-          onSuccess={(msg) => showToast(msg, 'success')}
-          onError={(msg) => showToast(msg, 'error')}
+          onSuccess={showCourseSuccess}
+          onError={showCourseError}
         />
       )}
     </div>
@@ -1150,19 +1158,24 @@ function CourseSelectModal({
   const [toggling, setToggling] = useState<string | null>(null)
 
   useEffect(() => {
+    const controller = new AbortController()
     void (async () => {
       try {
         const data = await api<{
           child: { id: string; nickname: string | null; ageBand: string | null }
           courses: CourseItem[]
-        }>(`/api/parent/children/${child.id}/courses`)
+        }>(`/api/parent/children/${child.id}/courses`, {
+          signal: controller.signal,
+        })
         setCourses(data.courses)
       } catch (e) {
+        if (controller.signal.aborted) return
         onError(e instanceof Error ? e.message : 'Không tải được danh sách khóa học')
       } finally {
-        setLoading(false)
+        if (!controller.signal.aborted) setLoading(false)
       }
     })()
+    return () => controller.abort()
   }, [child.id, onError])
 
   async function toggleCourse(courseId: string, currentlyEnrolled: boolean) {
@@ -1636,9 +1649,13 @@ function StatCard({
 
 function LoadingSkeleton({ count }: { count: number }) {
   return (
-    <div className="flex flex-col gap-3">
+    <div className="flex flex-col gap-3" role="status" aria-label="Đang tải dữ liệu…">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="ui-card h-20 animate-pulse bg-brand-50/50" />
+        // WHY: varied widths give a more natural skeleton appearance (avoids uniform "bar" look)
+        <div key={i} className="ui-card flex animate-pulse flex-col gap-2 p-4">
+          <div className="h-3 w-24 rounded-full bg-brand-100" />
+          <div className={`h-5 rounded-full bg-brand-50 ${i % 2 === 0 ? 'w-3/4' : 'w-1/2'}`} />
+        </div>
       ))}
     </div>
   )

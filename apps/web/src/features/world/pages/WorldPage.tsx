@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { Link, useParams } from 'react-router'
 import { CheckCircle2, Lock, Star, Trophy, Zap } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import {

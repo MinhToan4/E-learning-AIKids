@@ -151,7 +151,9 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   loginAdult: async (login, password) => {
     set({ error: null })
-    const { user } = await api<{ user: User }>('/api/auth/login', {
+    // WHY: normalizeGatewayRequest maps '/api/auth/login/adult' → '/api/v1/account/login'
+    // The bare '/api/auth/login' has no mapping and would throw ApiError 501.
+    const { user } = await api<{ user: User }>('/api/auth/login/adult', {
       method: 'POST',
       body: JSON.stringify({ login, password }),
     })

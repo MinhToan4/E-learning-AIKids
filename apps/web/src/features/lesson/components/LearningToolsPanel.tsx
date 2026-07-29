@@ -50,16 +50,24 @@ export function LearningToolsPanel({
   const [busy, setBusy] = useState<string | null>(null)
   const [message, setMessage] = useState<string | null>(null)
 
-  const load = useCallback(async () => {
-    const data = await api<{ notes: Note[]; bookmarks: BookmarkRow[] }>(
-      `/api/learning/quests/${questId}/notes`,
-    )
-    setNotes(data.notes)
-    setBookmarks(data.bookmarks)
+  const load = useCallback(async (signal?: AbortSignal) => {
+    const [noteData, bookmarkData] = await Promise.all([
+      api<{ notes: Note[] }>(`/api/learning/quests/${questId}/notes`, {
+        signal,
+      }),
+      api<{ bookmarks: BookmarkRow[] }>(
+        `/api/learning/quests/${questId}/bookmarks`,
+        { signal },
+      ),
+    ])
+    setNotes(noteData.notes)
+    setBookmarks(bookmarkData.bookmarks)
   }, [questId])
 
   useEffect(() => {
-    void load().catch(() => undefined)
+    const controller = new AbortController()
+    void load(controller.signal).catch(() => undefined)
+    return () => controller.abort()
   }, [load])
 
   useEffect(() => {
@@ -156,10 +164,39 @@ export function LearningToolsPanel({
     if (query.trim().length < 2) return
     setBusy('search')
     try {
-      const data = await api<{ results: SearchResult[] }>(
-        `/api/learning/quests/${questId}/search?q=${encodeURIComponent(query)}`,
-      )
-      setResults(data.results)
+      const normalizedQuery = query.trim().toLocaleLowerCase('vi')
+      const matches: SearchResult[] = [
+        ...notes
+          .filter((item) =>
+            item.body.toLocaleLowerCase('vi').includes(normalizedQuery),
+          )
+          .map((item) => ({
+            kind: 'note',
+            title: 'Ghi chú',
+            excerpt: item.body,
+            anchorType: item.anchorType,
+            anchorValue: item.anchorValue,
+          })),
+        ...bookmarks
+          .filter((item) =>
+            (item.label ?? item.anchorValue)
+              .toLocaleLowerCase('vi')
+              .includes(normalizedQuery),
+          )
+          .map((item) => ({
+            kind: 'bookmark',
+            title: item.label ?? 'Đánh dấu',
+            excerpt: item.label ?? item.anchorValue,
+            anchorType: item.anchorType,
+            anchorValue: item.anchorValue,
+          })),
+      ]
+      setResults(matches)
+      if (matches.length === 0) {
+        setMessage('Không tìm thấy trong ghi chú và đánh dấu.')
+      } else {
+        setMessage(null)
+      }
     } catch (cause) {
       setMessage(cause instanceof Error ? cause.message : 'Không tìm được nội dung.')
     } finally {

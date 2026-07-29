@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router'
 import { api } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { avatarImage, getAvatar } from '@/shared/config/avatars'

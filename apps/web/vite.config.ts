@@ -15,9 +15,8 @@ export default defineConfig({
     port: 5173,
     proxy: {
       '/api': {
-        // Keep local dev traffic on the Node API. On Windows, `localhost` may
-        // resolve to ::1 and hit the Docker-published API instead.
-        target: 'http://127.0.0.1:4000',
+        // The browser only talks to the StoryMee gateway.
+        target: 'http://127.0.0.1:5100',
         changeOrigin: true,
       },
     },
@@ -26,6 +25,7 @@ export default defineConfig({
     target: 'es2022',
     chunkSizeWarningLimit: 700,
     assetsInlineLimit: 4096, // inline SVGs < 4 KB, don't inline images
+    cssCodeSplit: true,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -35,17 +35,19 @@ export default defineConfig({
           if (
             id.includes('node_modules/react/') ||
             id.includes('node_modules/react-dom/') ||
-            id.includes('node_modules/react-router-dom/')
+            id.includes('node_modules/react-router/')
           ) {
             return 'vendor-react'
-          }
-          if (id.includes('node_modules/framer-motion/')) {
-            return 'vendor-motion'
           }
           if (id.includes('node_modules/lucide-react/')) {
             return 'vendor-icons'
           }
+          if (id.includes('node_modules/zustand/')) {
+            return 'vendor-state'
+          }
         },
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
       },
     },
   },

@@ -43,7 +43,10 @@ type AttemptItem = {
   points: number
   required: boolean
   question: { id: string; type: QuestionType; prompt: Prompt }
-  response: { responseJson: Record<string, unknown> } | null
+  response: {
+    responseJson: Record<string, unknown>
+    version: number
+  } | null
 }
 type Attempt = {
   id: string
@@ -261,17 +264,30 @@ export function AssessmentPage() {
     if (!attempt) return
     setBusy(item.questionVersionId)
     try {
-      const data = await api<{ saved: { attemptVersion: number } }>(
+      const data = await api<{ saved: { responseVersion: number } }>(
         `/api/assessment-attempts/${attempt.id}/responses/${item.questionVersionId}`,
         {
           method: 'PUT',
           body: JSON.stringify({
-            attemptVersion: attempt.version,
+            responseVersion: item.response?.version ?? 0,
             response: responses[item.questionVersionId],
           }),
         },
       )
-      setAttempt({ ...attempt, version: data.saved.attemptVersion })
+      setAttempt({
+        ...attempt,
+        items: attempt.items.map((row) =>
+          row.questionVersionId === item.questionVersionId
+            ? {
+                ...row,
+                response: {
+                  responseJson: responses[item.questionVersionId] ?? {},
+                  version: data.saved.responseVersion,
+                },
+              }
+            : row,
+        ),
+      })
       showToast('Đã lưu câu trả lời.', 'success')
     } catch (cause) {
       showToast(

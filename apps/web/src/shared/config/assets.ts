@@ -5,7 +5,7 @@
  * - All lobby/brand images → /assets/optimized/ where available
  * - FE chrome only; course/quest truth lives in SQL/API.
  */
-import type { ArtStyleId } from '@aikids/domain'
+import type { ArtStyleId } from '@/shared/lib/creation/creative'
 
 export const designerAssets = {
   brand: {

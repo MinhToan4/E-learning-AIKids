@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
 import { useAuth } from '@/shared/store/auth'
 import { ApiError } from '@/shared/lib/api'

@@ -48,9 +48,10 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: |
-          npm run test -w @aikids/domain -- --maxWorkers=2
-          npm run test -w @aikids/web -- --maxWorkers=2
+        run: npm test
+
+      - name: Typecheck frontend
+        run: npm run typecheck
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
@@ -86,9 +87,10 @@ jobs:
         run: npm ci
 
       - name: Run tests
-        run: |
-          npm run test -w @aikids/domain -- --maxWorkers=2
-          npm run test -w @aikids/web -- --maxWorkers=2
+        run: npm test
+
+      - name: Typecheck frontend
+        run: npm run typecheck
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest

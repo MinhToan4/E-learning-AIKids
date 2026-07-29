@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router-dom'
+import { NavLink, Outlet, useLocation } from 'react-router'
 
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
 import { api } from '@/shared/lib/api'

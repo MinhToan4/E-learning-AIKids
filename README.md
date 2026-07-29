@@ -1,29 +1,34 @@
 # AI Kids Creator Academy
 
-React frontend cho hệ thống StoryMee. Browser chỉ gọi
-`VITE_API_URL` (mặc định `https://dev-hub.storymee.com`); Hub xác thực và chuyển
-tiếp tới `core-account-api`, `core-lms-api`, `core-billing-api`,
-`core-notification-api`, `core-gamification-api`, `core-media-api`,
-`core-job-api` và `core-system-api`.
+Frontend React + Vite của hệ sinh thái StoryMee. Browser chỉ gọi StoryMee Hub;
+repo này không chứa API server, Prisma schema hay database.
 
-`apps/api` là mã nguồn lịch sử từ upstream, không còn nằm trong npm workspace,
-không được build/deploy và không sở hữu database. Source of truth duy nhất là
-PostgreSQL Ubuntu `omni_db.public` do các core service StoryMee quản lý.
+## Chạy local
 
-## Chạy frontend
+Yêu cầu Node.js 22+ và StoryMee Hub ở `http://127.0.0.1:5100`.
 
-```bash
-cp .env.example .env
-npm install
+```powershell
+npm ci
 npm run dev
 ```
 
+Vite phục vụ web tại `http://localhost:5173` và proxy `/api/*` sang Hub. Khi
+deploy khác origin, cấu hình `VITE_API_URL` bằng origin HTTPS của Hub.
+
 ## Kiểm tra
 
-```bash
+```powershell
 npm test
+npm run typecheck
 npm run build
 ```
 
-Firebase/FCM được giữ ở trạng thái tùy chọn cho tới khi provider production được
-cấu hình. Google GIS trực tiếp đã đi qua `core-account-api`.
+## Cấu trúc
+
+- `apps/web`: ứng dụng production.
+- `apps/landing`: landing page tĩnh, không tham gia npm workspace.
+- `.agents/skills`: hướng dẫn FE, domain, security và UI cho coding agents.
+- `docs`: tài liệu sản phẩm/FE còn hiệu lực.
+
+Logic dùng chung với backend thuộc core services tương ứng. FE chỉ giữ các
+helper trình bày thuần client thực sự được UI sử dụng.

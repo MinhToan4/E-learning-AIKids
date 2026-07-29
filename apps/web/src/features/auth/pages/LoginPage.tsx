@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link, useNavigate, useSearchParams } from 'react-router-dom'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
 import { useAuth } from '@/shared/store/auth'
 import { ApiError } from '@/shared/lib/api'

@@ -36,5 +36,5 @@ and another from GitHub Actions.
 
 ## Change the backend URL
 
-Update `VITE_API_BASE_URL` in the Vercel project environment settings for both
+Update `VITE_API_URL` in the Vercel project environment settings for both
 Preview and Production. The workflow pulls those settings before every build.

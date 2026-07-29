@@ -10,7 +10,7 @@
 import { useEffect, useRef, useState, useCallback, useMemo, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Search } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'

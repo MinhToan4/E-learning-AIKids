@@ -1,23 +1,29 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router'
 import { Gamepad2, PencilLine, Play, Star } from 'lucide-react'
 import {
   ART_STYLES,
-  assemblePrompt,
   CHARACTER_SHAPES,
   CHARACTER_VIBES,
+  type ArtStyleId,
+  type CharacterShapeId,
+  type CharacterVibeId,
+} from '@/shared/lib/creation/creative'
+import {
+  assemblePrompt,
   isPromptComplete,
+} from '@/shared/lib/creation/prompt'
+import {
   STORY_ENDINGS,
   STORY_OPENINGS,
   STORY_PROBLEMS,
   storyToPanelHints,
-  type ArtStyleId,
-  type CharacterShapeId,
-  type CharacterVibeId,
+} from '@/shared/lib/creation/story'
+import {
   type PromptChip,
   type PromptParts,
   type PromptSlotKey,
-} from '@aikids/domain'
+} from '@/shared/lib/creation/types'
 import { Button } from '@/shared/components/ui/Button'
 import { ApiError, api, type QuestDetail } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'

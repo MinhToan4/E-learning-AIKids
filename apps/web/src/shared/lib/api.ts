@@ -35,9 +35,37 @@ export class ApiError extends Error {
   }
 }
 
-export async function api<T = unknown>(
+const inFlightGetRequests = new Map<string, Promise<unknown>>()
+
+export function api<T = unknown>(
   path: string,
   options: RequestInit = {},
+): Promise<T> {
+  const method = (options.method ?? 'GET').toUpperCase()
+  const canDedupe =
+    method === 'GET' &&
+    options.body === undefined &&
+    options.headers === undefined &&
+    options.signal === undefined
+  if (!canDedupe) return executeApi<T>(path, options)
+
+  const key = `${getAccessToken() ?? 'anonymous'}:${path}`
+  const pending = inFlightGetRequests.get(key)
+  if (pending) return pending as Promise<T>
+
+  const request = executeApi<T>(path, options)
+  inFlightGetRequests.set(key, request)
+  void request.finally(() => {
+    if (inFlightGetRequests.get(key) === request) {
+      inFlightGetRequests.delete(key)
+    }
+  }).catch(() => undefined)
+  return request
+}
+
+async function executeApi<T>(
+  path: string,
+  options: RequestInit,
 ): Promise<T> {
   const request = normalizeGatewayRequest(path, options)
   const headers = new Headers(request.options.headers)
@@ -57,8 +85,7 @@ export async function api<T = unknown>(
     res = await fetch(url, {
       ...request.options,
       headers,
-      // Local Fastify dùng cookie session — phải gửi credentials
-      credentials: environment.isLocalApi ? 'include' : 'omit',
+      credentials: 'omit',
     })
   } catch (e) {
     // Browser "Failed to fetch" = network / CORS / API offline
@@ -131,8 +158,6 @@ function withJson(options: RequestInit, body: Record<string, unknown>): RequestI
 
 function normalizeGatewayRequest(path: string, options: RequestInit): GatewayRequest {
   const body = jsonBody(options)
-  // Local Fastify API phục vụ /api/... trực tiếp — không remap sang /api/v1/...
-  if (environment.isLocalApi) return { path, options }
   if (path.startsWith('/api/v1/')) return { path, options }
 
   const direct: Record<string, string> = {
@@ -449,6 +474,15 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       options,
     }
   }
+  const childCourses = path.match(
+    /^\/api\/parent\/children\/([^/?]+)\/courses$/,
+  )
+  if (childCourses) {
+    return {
+      path: `/api/v1/lms/family/children/${encodeURIComponent(childCourses[1])}/courses`,
+      options,
+    }
+  }
   const notificationRead = path.match(/^\/api\/notifications\/([^/]+)\/read$/)
   if (notificationRead) {
     return {
@@ -468,6 +502,223 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       /^\/api\/teacher\/courses\/[^/?]+$/.test(path)) {
     return {
       path: path.replace('/api/teacher', '/api/v1/lms/aikids/teacher'),
+      options,
+    }
+  }
+  const legacyUrl = new URL(path, 'https://storymee.local')
+  const studentId = legacyUrl.searchParams.get('studentId')
+  if (legacyUrl.pathname === '/api/learning/pathway') {
+    return {
+      path: studentId
+        ? `/api/v1/lms/family/children/${encodeURIComponent(studentId)}/pathway`
+        : '/api/v1/lms/me/pathway',
+      options,
+    }
+  }
+  if (legacyUrl.pathname === '/api/competency-map') {
+    return {
+      path: studentId
+        ? `/api/v1/lms/family/children/${encodeURIComponent(studentId)}/competency-map`
+        : '/api/v1/lms/me/competency-map',
+      options,
+    }
+  }
+  if (legacyUrl.pathname === '/api/credentials') {
+    return {
+      path: studentId
+        ? `/api/v1/lms/family/children/${encodeURIComponent(studentId)}/credentials`
+        : '/api/v1/lms/me/credentials',
+      options,
+    }
+  }
+  if (legacyUrl.pathname === '/api/reports' && studentId) {
+    return {
+      path: `/api/v1/lms/family/children/${encodeURIComponent(studentId)}/reports`,
+      options,
+    }
+  }
+  if (legacyUrl.pathname === '/api/schedule' && studentId) {
+    const now = new Date()
+    const from = new Date(now.getFullYear(), now.getMonth() - 1, 1)
+    const to = new Date(now.getFullYear() + 1, now.getMonth(), 1)
+    return {
+      path: `/api/v1/lms/family/children/${encodeURIComponent(studentId)}/schedule?from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}`,
+      options,
+    }
+  }
+  if (legacyUrl.pathname === '/api/schedule/placement-requests') {
+    const childProfileId = studentId ?? String(body.studentId ?? '')
+    if (childProfileId) {
+      const status = legacyUrl.searchParams.get('status')
+      return {
+        path: `/api/v1/lms/family/children/${encodeURIComponent(childProfileId)}/placement-requests${status ? `?status=${encodeURIComponent(status)}` : ''}`,
+        options: (options.method ?? 'GET').toUpperCase() === 'POST'
+          ? withJson(options, {
+              courseId: body.courseId,
+              requestedLevel: body.requestedLevel,
+              availability: { slots: body.availability },
+              reason: body.reason || 'Parent requested class placement',
+            })
+          : options,
+      }
+    }
+  }
+  if (legacyUrl.pathname === '/api/schedule/reschedule-requests') {
+    const childProfileId = String(body.studentId ?? '')
+    if (childProfileId) {
+      return {
+        path: `/api/v1/lms/family/children/${encodeURIComponent(childProfileId)}/reschedule-requests`,
+        options: withJson(options, {
+          sessionId: body.sessionId,
+          preferredStartsAt: body.preferredStartsAt,
+          preferredEndsAt: body.preferredEndsAt,
+          reason: body.reason,
+        }),
+      }
+    }
+  }
+  const lessonNotes = legacyUrl.pathname.match(
+    /^\/api\/learning\/quests\/([^/]+)\/notes$/,
+  )
+  if (lessonNotes) {
+    return {
+      path: `/api/v1/lms/lessons/${encodeURIComponent(lessonNotes[1])}/notes`,
+      options: (options.method ?? 'GET').toUpperCase() === 'POST'
+        ? withJson(options, {
+            body: body.body,
+            anchor: body.anchorType === 'section'
+              ? { sectionId: body.anchorValue }
+              : {},
+          })
+        : options,
+    }
+  }
+  const lessonBookmarks = legacyUrl.pathname.match(
+    /^\/api\/learning\/quests\/([^/]+)\/bookmarks$/,
+  )
+  if (lessonBookmarks) {
+    return {
+      path: `/api/v1/lms/lessons/${encodeURIComponent(lessonBookmarks[1])}/bookmarks`,
+      options: (options.method ?? 'GET').toUpperCase() === 'POST'
+        ? withJson(options, {
+            anchorKey: `${String(body.anchorType ?? 'section')}:${String(body.anchorValue ?? '')}`,
+            label: body.label,
+          })
+        : options,
+    }
+  }
+  const lessonNote = legacyUrl.pathname.match(
+    /^\/api\/learning\/notes\/([^/]+)$/,
+  )
+  if (lessonNote) {
+    return {
+      path: `/api/v1/lms/notes/${encodeURIComponent(lessonNote[1])}`,
+      options,
+    }
+  }
+  const lessonBookmark = legacyUrl.pathname.match(
+    /^\/api\/learning\/bookmarks\/([^/]+)$/,
+  )
+  if (lessonBookmark) {
+    return {
+      path: `/api/v1/lms/bookmarks/${encodeURIComponent(lessonBookmark[1])}`,
+      options,
+    }
+  }
+  const lessonResume = legacyUrl.pathname.match(
+    /^\/api\/learning\/quests\/([^/]+)\/resume$/,
+  )
+  if (lessonResume) {
+    return {
+      path: `/api/v1/lms/lessons/${encodeURIComponent(lessonResume[1])}/resume`,
+      options,
+    }
+  }
+  const offlineGrant = legacyUrl.pathname.match(
+    /^\/api\/learning\/quests\/([^/]+)\/offline-manifest$/,
+  )
+  if (offlineGrant) {
+    return {
+      path: `/api/v1/lms/lessons/${encodeURIComponent(offlineGrant[1])}/offline-grants`,
+      options,
+    }
+  }
+  const offlineSync = legacyUrl.pathname.match(
+    /^\/api\/learning\/quests\/([^/]+)\/offline-sync$/,
+  )
+  if (offlineSync) {
+    const events = Array.isArray(body.events)
+      ? body.events.map((event) => ({
+          ...recordValue(event),
+          eventType: 'progress',
+        }))
+      : []
+    return {
+      path: '/api/v1/lms/offline-progress/sync',
+      options: withJson(options, {
+        grantId: body.grantId,
+        deviceId: body.deviceId,
+        events,
+      }),
+    }
+  }
+  const courseAssessments = legacyUrl.pathname.match(
+    /^\/api\/assessments\/course\/([^/]+)$/,
+  )
+  if (courseAssessments) {
+    return {
+      path: `/api/v1/lms/courses/${encodeURIComponent(courseAssessments[1])}/assessments`,
+      options,
+    }
+  }
+  const assessmentAttempt = legacyUrl.pathname.match(
+    /^\/api\/assessments\/([^/]+)\/attempts$/,
+  )
+  if (assessmentAttempt) {
+    return {
+      path: `/api/v1/lms/assessments/${encodeURIComponent(assessmentAttempt[1])}/attempts`,
+      options,
+    }
+  }
+  const attemptResult = legacyUrl.pathname.match(
+    /^\/api\/assessment-attempts\/([^/]+)\/result$/,
+  )
+  if (attemptResult) {
+    return {
+      path: `/api/v1/lms/assessment-attempts/${encodeURIComponent(attemptResult[1])}`,
+      options,
+    }
+  }
+  const attemptAction = legacyUrl.pathname.match(
+    /^\/api\/assessment-attempts\/([^/]+)\/(responses\/[^/]+|submit)$/,
+  )
+  if (attemptAction) {
+    const isSubmit = attemptAction[2] === 'submit'
+    return {
+      path: `/api/v1/lms/assessment-attempts/${encodeURIComponent(attemptAction[1])}/${attemptAction[2]
+        .split('/')
+        .map(encodeURIComponent)
+        .join('/')}`,
+      options: withJson(options, isSubmit
+        ? {
+            clientSubmissionId: body.clientSubmissionId,
+            version: body.attemptVersion,
+          }
+        : {
+            response: body.response,
+            version: body.responseVersion,
+          }),
+    }
+  }
+  // WHY: AgeExperienceProvider calls /api/learning/age-policy to fetch per-student
+  // UI density, copy tone and permission policy from core-lms-api via the gateway.
+  if (path.startsWith('/api/learning/age-policy')) {
+    const agePolicyUrl = new URL(path, 'https://storymee.local')
+    const childProfileId = agePolicyUrl.searchParams.get('studentId')
+    return {
+      path: childProfileId
+        ? `/api/v1/lms/family/children/${encodeURIComponent(childProfileId)}/age-policy`
+        : '/api/v1/lms/me/age-policy',
       options,
     }
   }
@@ -564,17 +815,32 @@ function mapCourse(raw: Record<string, unknown>): CourseSummary {
   }
 }
 
+function mapAssessmentAttempt(raw: Record<string, unknown>) {
+  const items = Array.isArray(raw.items)
+    ? raw.items as Array<Record<string, unknown>>
+    : []
+  return {
+    ...raw,
+    items: items.map((item) => {
+      const response = recordValue(item.response)
+      return {
+        ...item,
+        response: item.response
+          ? {
+              ...response,
+              responseJson: response.response ?? response.responseJson ?? {},
+            }
+          : null,
+      }
+    }),
+  }
+}
+
 function normalizeGatewayResponse(path: string, data: unknown): unknown {
   const body = (data && typeof data === 'object' ? data : {}) as Record<string, unknown>
   const payload = (body.data && typeof body.data === 'object'
     ? body.data
     : body) as Record<string, unknown>
-
-  // Local Fastify trả response đúng format, dùng cookie session — trả nguyên data
-  if (environment.isLocalApi) {
-    if (path === '/api/auth/logout') clearAccessToken()
-    return data
-  }
 
   if (path === '/api/auth/login/child-profile') {
     const token = String(payload.token ?? payload.accessToken ?? '')
@@ -928,6 +1194,211 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       })),
     }
   }
+  if (/^\/api\/parent\/children\/[^/?]+\/courses$/.test(path)) {
+    const child = recordValue(payload.child)
+    const courses = Array.isArray(payload.courses)
+      ? payload.courses as Array<Record<string, unknown>>
+      : []
+    return {
+      child: {
+        id: String(child.id ?? ''),
+        nickname: child.name ? String(child.name) : null,
+        ageBand: child.ageBand ? String(child.ageBand) : null,
+      },
+      courses: courses.map((row) => {
+        const mapped = mapCourse(row)
+        return {
+          id: mapped.id,
+          title: mapped.title,
+          shortTitle: mapped.shortTitle,
+          ageLabel: mapped.ageLabel,
+          ageTrack: mapped.ageTrack ?? '',
+          tagline: mapped.tagline,
+          coverImage: mapped.coverImage,
+          enrolled: row.enrolled === true,
+          parentAllowed:
+            typeof row.parentAllowed === 'boolean'
+              ? row.parentAllowed
+              : null,
+        }
+      }),
+      enrolled: payload.enrolled,
+      enrollment: payload.enrollment,
+    }
+  }
+  if (/^\/api\/learning\/pathway(?:\?.*)?$/.test(path)) {
+    const source = recordValue(payload.pathway ?? payload)
+    const courses = Array.isArray(source.courses)
+      ? source.courses as Array<Record<string, unknown>>
+      : []
+    const recommended =
+      courses.find((course) => course.status === 'active') ??
+      courses.find((course) => course.status === 'available')
+    return {
+      ...source,
+      student: recordValue(source.student),
+      policy: source.policy ?? null,
+      recommendedCourseId:
+        source.recommendedCourseId ?? recommended?.id ?? null,
+      courses: courses.map((course) => ({
+        ...course,
+        shortTitle: String(course.shortTitle ?? course.title ?? ''),
+        coverImage: course.coverImage ? String(course.coverImage) : null,
+      })),
+    }
+  }
+  if (/^\/api\/learning\/quests\/[^/]+\/notes$/.test(path)) {
+    const notes = Array.isArray(payload.notes)
+      ? payload.notes as Array<Record<string, unknown>>
+      : []
+    return {
+      notes: notes.map((note) => {
+        const anchor = recordValue(note.anchor)
+        return {
+          ...note,
+          anchorType: anchor.sectionId ? 'section' : 'lesson',
+          anchorValue: String(anchor.sectionId ?? anchor.blockId ?? ''),
+        }
+      }),
+    }
+  }
+  if (/^\/api\/learning\/quests\/[^/]+\/bookmarks$/.test(path)) {
+    const bookmarks = Array.isArray(payload.bookmarks)
+      ? payload.bookmarks as Array<Record<string, unknown>>
+      : []
+    return {
+      bookmarks: bookmarks.map((bookmark) => {
+        const [anchorType, ...anchorParts] = String(
+          bookmark.anchorKey ?? '',
+        ).split(':')
+        return {
+          ...bookmark,
+          anchorType: anchorType || 'section',
+          anchorValue: anchorParts.join(':'),
+        }
+      }),
+    }
+  }
+  if (/^\/api\/learning\/quests\/[^/]+\/offline-manifest$/.test(path)) {
+    const grant = recordValue(payload.grant)
+    const manifest = recordValue(grant.manifest)
+    const lesson = recordValue(manifest.lesson)
+    const metadata = recordValue(lesson.metadata)
+    const stations = Array.isArray(lesson.stations) ? lesson.stations : []
+    const media = Array.isArray(metadata.media)
+      ? metadata.media.map(String)
+      : []
+    return {
+      manifest: {
+        grantId: String(grant.id ?? ''),
+        questId: String(lesson.id ?? ''),
+        contentVersion: Number(grant.contentVersion ?? 1),
+        expiresAt: String(grant.expiresAt ?? ''),
+        lesson: {
+          title: String(lesson.title ?? ''),
+          hook: String(metadata.hook ?? ''),
+          skill: String(metadata.skill ?? ''),
+          learnCards: Array.isArray(metadata.learnCards)
+            ? metadata.learnCards
+            : [],
+          stations,
+        },
+        media,
+      },
+    }
+  }
+  if (/^\/api\/learning\/quests\/[^/]+\/offline-sync$/.test(path)) {
+    const sync = recordValue(payload.sync)
+    return {
+      sync: {
+        ...sync,
+        duplicate: Number(sync.duplicates ?? sync.duplicate ?? 0),
+      },
+    }
+  }
+  if (/^\/api\/schedule\?/.test(path)) {
+    const sessions = Array.isArray(payload.sessions)
+      ? payload.sessions as Array<Record<string, unknown>>
+      : []
+    const byClassroom = new Map<string, Array<Record<string, unknown>>>()
+    for (const session of sessions) {
+      const classroomId = String(session.classroomId ?? 'unassigned')
+      const rows = byClassroom.get(classroomId) ?? []
+      rows.push(session)
+      byClassroom.set(classroomId, rows)
+    }
+    return {
+      classes: [...byClassroom.entries()].map(([id, rows]) => ({
+        id,
+        name: 'Lớp học',
+        classType: 'group',
+        teacher: { nickname: null },
+        course: null,
+        sessions: rows.map((session) => ({
+          ...session,
+          quest: session.lessonId
+            ? { id: String(session.lessonId), title: String(session.title ?? '') }
+            : null,
+        })),
+      })),
+    }
+  }
+  if (/^\/api\/schedule\/placement-requests(?:\?.*)?$/.test(path)) {
+    const requests = Array.isArray(payload.requests)
+      ? payload.requests as Array<Record<string, unknown>>
+      : []
+    return {
+      requests: requests.map((request) => ({
+        ...request,
+        course: {
+          id: String(request.courseId ?? ''),
+          title: 'Khóa học',
+        },
+        targetClass: null,
+      })),
+    }
+  }
+  if (/^\/api\/assessments\/[^/]+\/attempts$/.test(path)) {
+    return {
+      attempt: mapAssessmentAttempt(recordValue(payload.attempt)),
+    }
+  }
+  if (/^\/api\/assessment-attempts\/[^/]+\/responses\/[^/]+$/.test(path)) {
+    const response = recordValue(payload.response)
+    return {
+      saved: {
+        responseVersion: Number(response.version ?? 0),
+      },
+    }
+  }
+  if (/^\/api\/assessment-attempts\/[^/]+\/submit$/.test(path)) {
+    return {
+      attempt: mapAssessmentAttempt(recordValue(payload.attempt)),
+    }
+  }
+  if (/^\/api\/assessment-attempts\/[^/]+\/result$/.test(path)) {
+    const attempt = mapAssessmentAttempt(recordValue(payload.attempt))
+    const items = Array.isArray(attempt.items)
+      ? attempt.items as Array<Record<string, unknown>>
+      : []
+    return {
+      result: {
+        ...attempt,
+        responses: items.map((item) => {
+          const response = recordValue(item.response)
+          return {
+            question: recordValue(item.question),
+            points: Number(item.points ?? 0),
+            ratio: null,
+            feedback:
+              typeof response.feedback === 'string'
+                ? response.feedback
+                : null,
+          }
+        }),
+      },
+    }
+  }
   if (path.startsWith('/api/notifications')) {
     if (Array.isArray(payload.items)) {
       return {
@@ -1000,6 +1471,11 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
   }
   if (path === '/api/gamification/class-celebration') {
     return { celebration: payload }
+  }
+  // WHY: AgeExperienceProvider expects { ageBand, status, policy } — pass through
+  // whatever the gateway returns for age-policy (already in correct shape from core-lms-api).
+  if (path.startsWith('/api/learning/age-policy')) {
+    return payload
   }
   return payload
 }

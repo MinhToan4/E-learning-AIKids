@@ -1,10 +1,7 @@
 **/node_modules
 **/dist
-!packages/vidtory-ai-sdk/dist
 **/.git
 **/*.log
-**/dev.db
-apps/api/prisma/dev.db
 .git
 AI_Education_Research_and_36_Week_Curriculum_Ages_8-11.pdf
 image.png

@@ -1,73 +1,50 @@
 ---
 name: aikids-engineering
 description: >-
-  Engineering workflow for AI Kids monorepo: TDD seams, modular Fastify,
-  Prisma portable schema, Docker, merge seams to StoryMee 2-MCP-Core.
-  Inspired by mattpocock/skills (small composable skills, domain clarity, TDD).
+  FE-only engineering workflow for AI Kids React/Vite: runtime performance,
+  StoryMee Hub contracts, tests, Docker and minimal production-safe changes.
 ---
 
-# Engineering workflow
+# AI Kids frontend engineering
 
-## Layout
+## Orient before editing
 
-```
-apps/api     Fastify + Prisma modules
-apps/web     React + Vite features
-packages/domain  pure rules (no I/O)
-.agents/skills   agent-readable skills
-docker-compose.yml
-docs/
-```
+- Name the user-visible problem and reproduce or trace its real flow.
+- Touch only `apps/web` and FE configuration in this repo.
+- Treat StoryMee Hub/core services as external contracts.
+- State auth, privacy, API and bundle impact.
 
-## Feedback loops (mattpocock-style)
+## Ponytail ladder
 
-1. **Align** — change should match FEATURE_MAP + role matrix
-2. **Red-green** — failing domain/API test first for behavior changes
-3. **Deep modules** — domain for rules; modules for HTTP; features for UI
-4. **Small PRs** — one vertical slice (e.g. lecture videoUrl end-to-end)
+Stop at the first rung that solves the verified problem:
 
-## Commands
+1. Does this need to exist? If not, delete/skip it.
+2. Is the behavior already in this codebase? Reuse it.
+3. Can React, the browser or CSS do it natively?
+4. Can an installed dependency do it without a wrapper?
+5. Only then write the minimum new code.
 
-```bash
-npm test                 # domain + api
-npm run db:setup         # generate + push + seed
-npm run dev:api
-npm run dev:web
+Never minimize validation, cleanup, error handling, security or accessibility.
+Read the touched route, store, API normalizer and effect lifecycle before
+changing them.
+
+## Boundaries
+
+- All HTTP goes through `shared/lib/api.ts` and StoryMee Hub.
+- Do not call microservice ports or add server/database code here.
+- Server data stays in local feature state; Zustand is for cross-route client
+  state only.
+- Lazy-load route pages and heavyweight optional SDKs.
+- Effects must survive React StrictMode setup → cleanup → setup without leaked
+  listeners, timers or async subscriptions.
+- Do not keep hidden route trees mounted to simulate a cache.
+
+## Verification
+
+```powershell
+npm test
+npm run typecheck
 npm run build
-docker compose up --build
 ```
 
-## Postgres / Supabase
-
-- Local default: SQLite `file:./dev.db`
-- Production: `provider = "postgresql"` + `DATABASE_URL`
-- DDL reference: `apps/api/prisma/sql/postgres_init.sql`
-- Docker entrypoint switches provider automatically
-
-## StoryMee 2-MCP-Core merge seams
-
-| This app | MCP-Core analog |
-|----------|-----------------|
-| `modules/auth` + session cookie | `core-account-api` sessions |
-| `modules/*` Fastify feature folders | microservice modules |
-| env + helmet + rate-limit | shared fastify-common patterns |
-| catalog/media URLs | `core-media-api` / CDN later |
-| single API process | later split via gateway if needed |
-
-Do **not** rewrite every MCP service in this repo; keep compatible modular shape.
-
-## Production add-ons (recommended)
-
-| Tech | Why |
-|------|-----|
-| **Redis** | multi-instance rate limit + optional session store |
-| **CDN** (Cloudflare/Fastly) | lecture videos + designer assets |
-| **Object storage** (S3/R2) | upload video; store only URL in SQL |
-| **Managed Postgres** (Supabase) | auth optional later; use DB + RLS if desired |
-| **Observability** | OpenTelemetry / structured logs |
-
-## Checklist
-
-- [ ] Tests drive real shipped entry points
-- [ ] No production secrets in git
-- [ ] README/Docker path works for new machine
+Review the production chunk report and `git diff --check` before handoff.

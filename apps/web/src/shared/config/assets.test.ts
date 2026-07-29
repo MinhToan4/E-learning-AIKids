@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import { existsSync, statSync } from 'node:fs'
 import { resolve } from 'node:path'
-import { ART_STYLES } from '@aikids/domain'
+import { ART_STYLES } from '@/shared/lib/creation/creative'
 import { courseCoverHint, designerAssets, styleImage } from './assets.js'
 import { STUDENT_AVATARS, getAvatar } from './avatars.js'
 

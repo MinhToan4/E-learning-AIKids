@@ -8,7 +8,7 @@
  */
 import { useEffect, useState, useCallback, useMemo, type ReactNode } from 'react'
 import { Search } from 'lucide-react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ToastContainer } from '@/shared/components/ui/Toast'

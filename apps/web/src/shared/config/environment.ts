@@ -27,31 +27,12 @@ function resolveEnvironment(): AppEnvironment {
 
 const configuredApiUrl = import.meta.env.VITE_API_URL?.trim()
 
-if (import.meta.env.PROD && !configuredApiUrl) {
-  throw new Error(
-    'VITE_API_URL is required for production builds. Configure it in the deployment environment.',
-  )
-}
-
-// Dev default: StoryMee Hub Gateway (port 5100).
-// Production / staging must set VITE_API_URL to the gateway origin.
-const resolvedApiUrl = configuredApiUrl || 'http://localhost:5100'
-
-function isLocalFastify(origin: string): boolean {
-  try {
-    const url = new URL(origin)
-    // Only treat it as local Fastify if VITE_API_URL explicitly targets port 4000
-    return Boolean(configuredApiUrl) && (url.port === '4000')
-  } catch {
-    return false
-  }
-}
-
 export const environment = Object.freeze({
   name: resolveEnvironment(),
-  apiBaseUrl: normalizeOrigin(resolvedApiUrl, 'VITE_API_URL'),
-  // true khi gọi local Fastify — không remap paths sang /api/v1/...
-  isLocalApi: isLocalFastify(resolvedApiUrl),
+  // Empty means same-origin. Vite/nginx proxy /api/* to StoryMee Hub.
+  apiBaseUrl: configuredApiUrl
+    ? normalizeOrigin(configuredApiUrl, 'VITE_API_URL')
+    : '',
   storagePublicUrl: normalizeOrigin(
     import.meta.env.VITE_STORAGE_PUBLIC_URL?.trim() || 'https://storage.storymee.com',
     'VITE_STORAGE_PUBLIC_URL',

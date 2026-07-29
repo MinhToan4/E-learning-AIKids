@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 import { ART_STYLES } from '../lib/workshop-types'
 import type { WorkshopStep } from '../lib/workshop-types'
 import { WorkshopHub } from '../components/WorkshopHub'

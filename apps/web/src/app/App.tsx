@@ -1,5 +1,5 @@
 import { lazy, Suspense, useEffect } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router'
 import { useAuth } from '@/shared/store/auth'
 import { AppShell } from '@/shared/components/layout/AppShell'
 import { AgeExperienceProvider } from '@/shared/age-experience/AgeExperienceProvider'

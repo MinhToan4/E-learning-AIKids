@@ -23,7 +23,7 @@ import {
 import {
   buildArtGenerationPrompt,
   isArtStyleId,
-} from '@aikids/domain'
+} from '@/shared/lib/creation/creative'
 import { ART_STYLES } from '../lib/workshop-types'
 import type { WorkshopStep } from '../lib/workshop-types'
 

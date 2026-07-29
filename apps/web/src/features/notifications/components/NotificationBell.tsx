@@ -8,9 +8,6 @@ export function NotificationBell() {
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState<NotificationRow[]>([])
   const [unread, setUnread] = useState(0)
-  const [pushEnabled, setPushEnabled] = useState(
-    () => typeof Notification !== 'undefined' && Notification.permission === 'granted',
-  )
 
   const load = useCallback(async () => {
     try {
@@ -27,19 +24,32 @@ export function NotificationBell() {
 
   useEffect(() => {
     void load()
-    if (typeof Notification !== 'undefined' && Notification.permission === 'granted') {
-      void enablePushNotifications().then(setPushEnabled).catch(() => setPushEnabled(false))
-    }
     const refreshVisible = () => {
       if (document.visibilityState === 'visible') void load()
     }
     document.addEventListener('visibilitychange', refreshVisible)
     const t = window.setInterval(refreshVisible, 5 * 60_000)
+
+    let disposed = false
     let unsubscribe: () => void = () => undefined
-    void listenForForegroundPush(load).then((stop) => { unsubscribe = stop })
+    // Push startup loads Firebase and touches IndexedDB/service workers. Keep it
+    // off the login hot path and make its async cleanup StrictMode-safe.
+    const pushTimer = window.setTimeout(() => {
+      if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return
+      void (async () => {
+        if (await enablePushNotifications()) {
+          const stop = await listenForForegroundPush(load)
+          if (disposed) stop()
+          else unsubscribe = stop
+        }
+      })().catch(() => undefined)
+    }, 1_000)
+
     return () => {
+      disposed = true
       document.removeEventListener('visibilitychange', refreshVisible)
       window.clearInterval(t)
+      window.clearTimeout(pushTimer)
       unsubscribe()
     }
   }, [load])

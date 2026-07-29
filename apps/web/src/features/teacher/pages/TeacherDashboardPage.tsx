@@ -12,7 +12,7 @@
  *  - Dashboard chỉ hiện badge count, click → redirect
  */
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import {
   BookOpen,
   CalendarDays,

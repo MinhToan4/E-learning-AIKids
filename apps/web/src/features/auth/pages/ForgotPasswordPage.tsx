@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
 import { api, ApiError } from '@/shared/lib/api'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
