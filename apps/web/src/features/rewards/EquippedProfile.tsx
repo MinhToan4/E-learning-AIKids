@@ -15,21 +15,45 @@ export function EquippedProfile({ user, xp }: { user: User; xp: number }) {
   const avatarReward = REWARD_CATALOG.find((item) => item.id === equipment.avatar)
   const avatarId = avatarReward?.equipValue ?? user.avatarId
   const frameReward = equipment.frame
-  const title = REWARD_CATALOG.find((item) => item.id === equipment.title)?.equipValue
+  const frame = REWARD_CATALOG.find((item) => item.id === frameReward)
+  const titleReward = REWARD_CATALOG.find((item) => item.id === equipment.title)
+  const title = titleReward?.equipValue
   const img = avatarImage(avatarId)
   const level = useMemo(() => explorerLevelForXp(xp), [xp])
 
   return (
-    <div className="flex flex-col items-center gap-3 text-center">
-      <div className="rounded-full" style={rewardFrameStyle(frameReward)}>
-        <div className="flex h-24 w-24 items-center justify-center overflow-hidden rounded-full bg-brand-100 text-5xl shadow-clay">
+    <div className="flex flex-col items-center gap-4 text-center">
+      <div className="relative">
+        <div
+          className="rounded-full bg-white p-2 shadow-[0_18px_50px_rgba(76,29,149,.2)]"
+          style={rewardFrameStyle(frameReward)}
+          aria-label={frame ? `Đang dùng ${frame.name}` : 'Khung cơ bản'}
+        >
+          <div className="flex h-36 w-36 items-center justify-center overflow-hidden rounded-full border-4 border-white bg-brand-100 text-7xl shadow-inner sm:h-44 sm:w-44">
           {img ? <img src={img} alt="" className="h-full w-full object-cover" /> : avatarEmoji(avatarId)}
+          </div>
         </div>
+        <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border-2 border-white bg-brand-600 px-3 py-1 text-xs font-black text-white shadow-soft">
+          CẤP {level.level}
+        </span>
       </div>
       <div>
-        <h1 className="font-display text-3xl">{user.nickname}</h1>
-        <p className="font-bold text-brand-600">{title ?? level.title}</p>
-        <p className="text-sm text-muted">Cấp {level.level} · {xp} XP</p>
+        <p className="text-xs font-black uppercase tracking-[.2em] text-brand-500">
+          Hồ sơ Nhà Khám Phá
+        </p>
+        <h1 className="mt-1 font-display text-4xl">{user.nickname}</h1>
+        <p className="mt-1 inline-flex items-center gap-2 rounded-full bg-sun-100 px-4 py-1.5 font-extrabold text-sun-700">
+          {titleReward?.icon ?? '✨'} {title ?? level.title}
+        </p>
+        <p className="mt-2 text-sm font-bold text-muted">{xp} XP toàn hệ sinh thái</p>
+      </div>
+      <div className="flex flex-wrap justify-center gap-2 text-xs font-bold">
+        <span className="rounded-full bg-white/80 px-3 py-1.5 text-brand-700 shadow-soft">
+          {frame?.icon ?? '⭕'} {frame?.name ?? 'Khung cơ bản'}
+        </span>
+        <span className="rounded-full bg-white/80 px-3 py-1.5 text-brand-700 shadow-soft">
+          {avatarReward?.icon ?? avatarEmoji(user.avatarId)} {avatarReward?.name ?? 'Avatar của con'}
+        </span>
       </div>
     </div>
   )

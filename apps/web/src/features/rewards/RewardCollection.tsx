@@ -5,10 +5,12 @@ import {
   type RewardKind,
 } from '@aikids/domain'
 import { useEffect, useState } from 'react'
+import { avatarImage } from '@/shared/config/avatars'
 import {
   applyRewardEquipment,
   equipReward,
   readRewardEquipment,
+  rewardFrameStyle,
 } from './reward-equipment'
 
 const kindLabels: Record<RewardKind, string> = {
@@ -19,6 +21,8 @@ const kindLabels: Record<RewardKind, string> = {
   perk: 'Quyền đặc biệt',
   title: 'Danh hiệu',
 }
+
+const wardrobeKinds: RewardKind[] = ['avatar', 'frame', 'title', 'theme']
 
 function canEquip(reward: RewardDefinition) {
   return Boolean(reward.equipValue) &&
@@ -37,6 +41,7 @@ export function RewardCollection({
 }) {
   const [equipment, setEquipment] = useState(() => readRewardEquipment(userId))
   const [message, setMessage] = useState('')
+  const [activeKind, setActiveKind] = useState<RewardKind>('frame')
   useEffect(() => {
     applyRewardEquipment(equipment)
   }, [equipment])
@@ -51,33 +56,73 @@ export function RewardCollection({
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
           <p className="text-xs font-black uppercase tracking-wider text-brand-600">
-            Kho phần thưởng
+            Phòng thay đồ
           </p>
           <h2 id="reward-collection-title" className="font-display text-2xl">
-            Vật phẩm của con
+            Chọn phong cách của con
           </h2>
         </div>
         <p className="text-xs font-bold text-muted" aria-live="polite">
           {message || `Mở theo Cấp độ khám phá · Cấp ${xpLevel}`}
         </p>
       </div>
+      <div className="mt-4 flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Loại vật phẩm">
+        {wardrobeKinds.map((kind) => (
+          <button
+            key={kind}
+            type="button"
+            role="tab"
+            aria-selected={activeKind === kind}
+            onClick={() => setActiveKind(kind)}
+            className={`min-h-10 whitespace-nowrap rounded-full px-4 text-sm font-extrabold transition ${
+              activeKind === kind
+                ? 'bg-brand-600 text-white shadow-press'
+                : 'bg-brand-50 text-brand-700 hover:bg-brand-100'
+            }`}
+          >
+            {kindLabels[kind]}
+          </button>
+        ))}
+      </div>
       <div className={`mt-4 grid gap-3 ${compact ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'}`}>
-        {REWARD_CATALOG.map((reward) => {
+        {REWARD_CATALOG.filter((reward) => reward.kind === activeKind).map((reward) => {
           const unlocked = isRewardUnlocked(reward, { xpLevel })
           const equipped = equipment[reward.kind] === reward.id
+          const rewardAvatar = reward.kind === 'avatar' ? avatarImage(reward.equipValue) : undefined
           return (
             <article
               key={reward.id}
-              className={`relative overflow-hidden rounded-2xl border-2 p-3 ${
-                unlocked ? 'border-amber-200 bg-white' : 'border-slate-200 bg-slate-50'
+              className={`relative overflow-hidden rounded-3xl border-2 p-3 transition ${
+                equipped
+                  ? 'border-mint-400 bg-mint-50 ring-2 ring-mint-100'
+                  : unlocked
+                    ? 'border-amber-200 bg-white hover:-translate-y-0.5 hover:shadow-soft'
+                    : 'border-slate-200 bg-slate-50'
               }`}
             >
               {!unlocked && (
                 <span className="absolute right-2 top-2 text-sm" aria-label="Chưa mở">🔒</span>
               )}
-              <span className={`text-4xl ${unlocked ? '' : 'grayscale opacity-30'}`} aria-hidden>
-                {reward.icon}
-              </span>
+              <div className={`flex h-20 items-center justify-center ${unlocked ? '' : 'grayscale opacity-30'}`}>
+                {rewardAvatar ? (
+                  <img src={rewardAvatar} alt="" className="h-16 w-16 rounded-full object-cover shadow-soft" />
+                ) : reward.kind === 'frame' ? (
+                  <div
+                    className="flex h-16 w-16 items-center justify-center rounded-full text-3xl"
+                    style={rewardFrameStyle(reward.id)}
+                  >
+                    <span className="flex h-full w-full items-center justify-center rounded-full bg-white">
+                      {reward.icon}
+                    </span>
+                  </div>
+                ) : reward.kind === 'title' ? (
+                  <span className="rounded-full bg-sun-100 px-3 py-2 text-center text-xs font-black text-sun-700">
+                    {reward.icon} {reward.equipValue}
+                  </span>
+                ) : (
+                  <span className="text-5xl" aria-hidden>{reward.icon}</span>
+                )}
+              </div>
               <p className="mt-2 text-[10px] font-black uppercase tracking-wide text-brand-600">
                 {kindLabels[reward.kind]}
               </p>
@@ -97,7 +142,7 @@ export function RewardCollection({
                   onClick={() => equip(reward)}
                   className="mt-2 w-full rounded-xl bg-brand-50 px-2 py-1.5 text-xs font-extrabold text-brand-700 disabled:bg-mint-100 disabled:text-success"
                 >
-                  {equipped ? 'Đang dùng ✓' : 'Trang bị'}
+                  {equipped ? 'Đang dùng ✓' : `Dùng ${kindLabels[reward.kind].toLowerCase()} này`}
                 </button>
               )}
               {unlocked && reward.kind === 'event_ticket' && (

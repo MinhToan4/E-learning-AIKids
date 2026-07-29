@@ -49,11 +49,34 @@ export function ProfilePage() {
   }
 
   return (
-    <PageMotion className="mx-auto flex max-w-lg flex-col gap-4">
-      <div className="ui-card flex flex-col items-center gap-3 p-8 text-center">
-        {user && <EquippedProfile user={user} xp={explorerXp} />}
-        <p className="text-sm text-muted">
-          Mục tiêu:{' '}
+    <PageMotion className="mx-auto flex max-w-5xl flex-col gap-5">
+      <section className="ui-card relative overflow-hidden p-5 sm:p-8">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,.9),transparent_35%),linear-gradient(135deg,rgba(235,232,255,.9),rgba(227,246,255,.85),rgba(255,244,214,.8))]" />
+        <div className="relative grid items-center gap-7 lg:grid-cols-[1.1fr_.9fr]">
+          {user && <EquippedProfile user={user} xp={explorerXp} />}
+          <div className="rounded-3xl border border-white/80 bg-white/70 p-5 text-left shadow-soft backdrop-blur">
+            <p className="text-xs font-black uppercase tracking-widest text-brand-600">
+              Hành trình của con
+            </p>
+            <div className="mt-4 grid grid-cols-3 gap-2">
+              <div className="rounded-2xl bg-coral-50 p-3 text-center">
+                <p className="text-xl" aria-hidden>🔥</p>
+                <p className="font-display text-2xl">{streak.current}</p>
+                <p className="text-[11px] font-bold text-muted">Chuỗi ngày</p>
+              </div>
+              <div className="rounded-2xl bg-sun-50 p-3 text-center">
+                <p className="text-xl" aria-hidden>🏅</p>
+                <p className="font-display text-2xl">{achievements.length}</p>
+                <p className="text-[11px] font-bold text-muted">Huy hiệu</p>
+              </div>
+              <div className="rounded-2xl bg-sky-50 p-3 text-center">
+                <p className="text-xl" aria-hidden>🎨</p>
+                <p className="font-display text-2xl">{projectCount}</p>
+                <p className="text-[11px] font-bold text-muted">Tác phẩm</p>
+              </div>
+            </div>
+            <p className="mt-4 rounded-2xl bg-brand-50 px-4 py-3 text-sm text-muted">
+              <span className="font-extrabold text-text">Mục tiêu sáng tạo: </span>
           {user?.goal === 'world'
             ? 'Vẽ thế giới (K1)'
             : user?.goal === 'character'
@@ -67,34 +90,19 @@ export function ProfilePage() {
                     : user?.goal === 'film' || user?.goal === 'video'
                       ? 'Phim ngắn (K6)'
                       : 'Chưa chọn'}
-        </p>
-      </div>
+            </p>
+          </div>
+        </div>
+      </section>
 
       {user && (
-        <div className="ui-card p-4">
+        <div className="ui-card p-5 sm:p-6">
           <RewardCollection
             userId={user.id}
             xpLevel={explorerLevelForXp(explorerXp).level}
-            compact
           />
         </div>
       )}
-
-      <div className="grid grid-cols-3 gap-3">
-        <div className="ui-card p-3 text-center">
-          <p className="text-xs font-bold text-muted">Chuỗi 🔥</p>
-          <p className="font-display text-2xl">{streak.current}</p>
-          <p className="text-[10px] text-muted">max {streak.longest}</p>
-        </div>
-        <div className="ui-card p-3 text-center">
-          <p className="text-xs font-bold text-muted">Huy hiệu</p>
-          <p className="font-display text-2xl">{achievements.length}</p>
-        </div>
-        <div className="ui-card p-3 text-center">
-          <p className="text-xs font-bold text-muted">Dự án</p>
-          <p className="font-display text-2xl">{projectCount}</p>
-        </div>
-      </div>
 
       <div className="ui-card p-4">
         <div className="mb-2 flex items-center justify-between">
