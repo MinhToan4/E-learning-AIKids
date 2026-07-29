@@ -59,7 +59,33 @@ function roleForContext(context: AccessContext): User['role'] {
   return 'parent'
 }
 
-function preferredContext(access: AccountAccess): AccessContext | null {
+function contextForAccountRole(
+  access: AccountAccess,
+  role: User['role'],
+): AccessContext | undefined {
+  // Platform assignments are the authorization SSOT for administrators. An
+  // admin may also own a family persona, while users.role can remain `parent`.
+  // Never let a previously persisted family context downgrade that account
+  // immediately after login.
+  if ((access.platformRoles?.length ?? 0) > 0) {
+    return access.contexts.find((context) => context.actor === 'admin')
+  }
+  if (role === 'teacher') {
+    return access.contexts.find(
+      (context) =>
+        context.actor === 'teacher' || context.actor === 'org_admin',
+    )
+  }
+  if (role === 'parent') {
+    return access.contexts.find((context) => context.actor === 'parent')
+  }
+  return undefined
+}
+
+function preferredContext(
+  access: AccountAccess,
+  role: User['role'],
+): AccessContext | null {
   const host = typeof window === 'undefined' ? '' : window.location.hostname.toLowerCase()
   const orgSlug = host.endsWith('.aikid.vn') && host !== 'app.aikid.vn'
     ? host.slice(0, -'.aikid.vn'.length)
@@ -68,6 +94,7 @@ function preferredContext(access: AccountAccess): AccessContext | null {
     (orgSlug
       ? access.contexts.find((context) => context.organizationSlug === orgSlug)
       : undefined) ??
+    contextForAccountRole(access, role) ??
     access.contexts.find((context) => context.id === access.active?.contextId) ??
     access.contexts[0] ??
     null
@@ -76,7 +103,7 @@ function preferredContext(access: AccountAccess): AccessContext | null {
 
 async function hydrateAdultAccess(user: User) {
   const access = await api<AccountAccess>('/api/auth/access')
-  const context = preferredContext(access)
+  const context = preferredContext(access, user.role)
   if (!context) return { user, access, activeContext: null }
   await api('/api/auth/context', {
     method: 'POST',

@@ -73,4 +73,69 @@ describe('auth store', () => {
       },
     )
   })
+
+  it('selects the platform context for an admin that also has a parent persona', async () => {
+    mocks.api
+      .mockResolvedValueOnce({
+        user: {
+          id: 'admin-parent-1',
+          role: 'parent',
+          email: 'admin@example.test',
+          nickname: 'Admin',
+          avatarId: null,
+          level: 1,
+          xp: 0,
+          onboarded: true,
+          goal: null,
+          parentId: null,
+          classId: null,
+        },
+      })
+      .mockResolvedValueOnce({
+        personas: ['parent'],
+        platformRoles: ['platform_admin'],
+        active: {
+          mode: 'family',
+          contextId: 'family:admin-parent-1',
+        },
+        contexts: [
+          {
+            id: 'family:admin-parent-1',
+            type: 'family',
+            label: 'Gia đình của tôi',
+            defaultRoute: '/parent',
+            actor: 'parent',
+            roles: ['parent'],
+            permissions: ['family.children.manage'],
+          },
+          {
+            id: 'platform:admin-parent-1',
+            type: 'platform',
+            label: 'Quản trị AIKid',
+            defaultRoute: '/admin',
+            actor: 'admin',
+            roles: ['platform_admin'],
+            permissions: ['platform.admin'],
+          },
+        ],
+      })
+      .mockResolvedValueOnce({
+        accessToken: 'platform-token',
+      })
+
+    const user = await useAuth
+      .getState()
+      .loginAdult('storymee-admin', 'example-password')
+
+    expect(user.role).toBe('admin')
+    expect(useAuth.getState().activeContext?.actor).toBe('admin')
+    expect(mocks.api).toHaveBeenNthCalledWith(
+      3,
+      '/api/auth/context',
+      {
+        method: 'POST',
+        body: JSON.stringify({ contextId: 'platform:admin-parent-1' }),
+      },
+    )
+  })
 })
