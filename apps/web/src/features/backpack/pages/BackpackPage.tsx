@@ -7,9 +7,6 @@ import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { designerAssets } from '@/shared/config/assets'
-import { useAuth } from '@/shared/store/auth'
-import { explorerLevelForXp } from '@aikids/domain'
-import { RewardCollection } from '@/features/rewards/RewardCollection'
 
 type Asset = {
   id: string
@@ -60,28 +57,22 @@ function MediaThumbnail({
 }
 
 export function BackpackPage() {
-  const user = useAuth((state) => state.user)
   const [assets, setAssets] = useState<Asset[]>([])
   const [projects, setProjects] = useState<Project[]>([])
   const [msg, setMsg] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [explorerXp, setExplorerXp] = useState(0)
 
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const [a, p, g] = await Promise.allSettled([
+      const [a, p] = await Promise.allSettled([
         api<{ assets: Asset[] }>('/api/backpack'),
         api<{ projects: Project[] }>('/api/projects'),
-        api<{ celebration: { personal: { xp: number } } }>(
-          '/api/gamification/class-celebration',
-        ),
       ])
       setAssets(a.status === 'fulfilled' ? a.value.assets : [])
       setProjects(p.status === 'fulfilled' ? p.value.projects : [])
-      setExplorerXp(g.status === 'fulfilled' ? g.value.celebration.personal.xp : 0)
       if (a.status === 'rejected' && p.status === 'rejected') {
         setError('Ba lô đang được kết nối với kho media StoryMee.')
       }
@@ -124,15 +115,6 @@ export function BackpackPage() {
         <p className="rounded-xl bg-mint-100 px-3 py-2 text-sm text-success">{msg}</p>
       )}
       {error && <ErrorState message={error} onRetry={() => void load()} inline />}
-
-      {user && (
-        <div className="ui-card p-5">
-          <RewardCollection
-            userId={user.id}
-            xpLevel={explorerLevelForXp(explorerXp).level}
-          />
-        </div>
-      )}
 
       <section>
         <h2 className="font-display mb-3 text-2xl">Vật phẩm từ bài học</h2>
