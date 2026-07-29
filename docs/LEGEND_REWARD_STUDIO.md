@@ -26,11 +26,32 @@ Mỗi sticker hỗ trợ:
 - `placeholderUrl`: silhouette/outline cùng kích thước và hình dáng, hiển thị
   khi chưa đạt.
 - `icon`: emoji fallback nếu chưa có asset riêng.
+- `unlockRule`: điều kiện máy thực thi gồm `metric`, `operator: gte` và `target`.
 
 Runtime giữ nguyên slot của sticker: trạng thái locked render `placeholderUrl`,
 trạng thái unlocked thay trực tiếp bằng `imageUrl`, không thay đổi kích thước
 card. Vì vậy designer phải xuất cặp placeholder/sticker trên cùng một canvas
 vuông, cùng padding và cùng tâm ảnh.
+
+### Điều kiện mở sticker
+
+Admin chọn một trong các metric đã có projection thật:
+
+- `lessons_completed`: số bài học hoàn thành lần đầu từ LMS.
+- `courses_completed`: số khóa học hoàn thành từ LMS.
+- `stars`: tổng sao trong lesson completion ledger.
+- `streak`: chuỗi ngày học hiện tại.
+- `xp`: tổng XP hệ sinh thái.
+- `level`: cấp XP hiện tại.
+
+Backend đọc rule của mọi Chapter đã publish, tính metric từ XP ledger và
+Gamification Profile, rồi hợp nhất kết quả với achievement/sticker cũ thành
+`earnedStickerIds`. `hint` chỉ là câu thân thiện cho trẻ; `unlockRule` mới là
+nguồn quyết định.
+
+Boss sticker luôn dùng `chapter_regular_stickers >= 8`. Khi claim, backend kiểm
+tra đủ 8 sticker thường, cấp `content.rewardId`, lưu boss sticker và tạo social
+activity. Chapter động dùng mã `Pxx` và có cùng quy trình với P01–P08.
 
 ## Workflow
 

@@ -64,6 +64,15 @@ const displayTemplate = (kind: RewardKind) => {
   }, null, 2)
 }
 
+const stickerMetrics = [
+  { value: 'lessons_completed', label: 'Bài học đã hoàn thành', unit: 'bài', source: 'LMS' },
+  { value: 'courses_completed', label: 'Khóa học đã hoàn thành', unit: 'khóa', source: 'LMS' },
+  { value: 'stars', label: 'Tổng số sao học tập', unit: 'sao', source: 'LMS' },
+  { value: 'streak', label: 'Chuỗi ngày học liên tiếp', unit: 'ngày', source: 'Gamification' },
+  { value: 'xp', label: 'Tổng XP hệ sinh thái', unit: 'XP', source: 'Gamification' },
+  { value: 'level', label: 'Cấp XP', unit: 'cấp', source: 'Gamification' },
+] as const
+
 const emptyForm = () => ({
   contentType: 'reward' as ContentType,
   code: '',
@@ -83,12 +92,16 @@ const emptyForm = () => ({
   chapterCoverUrl: '',
   chapterLeftBackgroundUrl: '',
   chapterStickerPageUrl: '',
+  chapterRewardId: '',
   chapterStickersJson: JSON.stringify(Array.from({ length: 9 }, (_, index) => ({
     id: `P09-S${index + 1}`,
     name: index === 8 ? 'Boss huyền thoại' : `Sticker ${index + 1}`,
     icon: index === 8 ? '🏆' : '⭐',
     hint: index === 8 ? 'Hoàn thành 8 sticker thường' : 'Mô tả điều kiện mở khóa',
     boss: index === 8,
+    unlockRule: index === 8
+      ? { metric: 'chapter_regular_stickers', operator: 'gte', target: 8 }
+      : { metric: 'lessons_completed', operator: 'gte', target: index + 1 },
   })), null, 2),
   eventStartsAt: '',
   eventEndsAt: '',
@@ -140,6 +153,7 @@ export function LegendRewardStudio() {
         boss?: boolean
         imageUrl?: string
         placeholderUrl?: string
+        unlockRule?: { metric?: string; operator?: string; target?: number }
       }>
     } catch {
       return []
@@ -288,6 +302,7 @@ export function LegendRewardStudio() {
             slug: form.chapterSlug.toUpperCase(),
             group: form.chapterGroup,
             story: form.chapterStory,
+            rewardId: form.chapterRewardId,
             stickers: JSON.parse(form.chapterStickersJson) as unknown[],
           }
         : form.contentType === 'event'
@@ -528,6 +543,15 @@ export function LegendRewardStudio() {
                   <label className="block text-sm font-bold">Lời kể của chapter
                     <textarea required className={`${fieldClass} min-h-36 py-3`} placeholder="Đoạn dẫn truyện hiển thị trên trang trái…" value={form.chapterStory} onChange={(event) => setForm({ ...form, chapterStory: event.target.value })} />
                   </label>
+                  <label className="block text-sm font-bold">Reward hoàn thành chapter
+                    <select required className={fieldClass} value={form.chapterRewardId} onChange={(event) => setForm({ ...form, chapterRewardId: event.target.value })}>
+                      <option value="">Chọn reward đã publish</option>
+                      {items.filter((item) => item.contentType === 'reward' && item.status === 'published').map((item) => (
+                        <option key={item.id} value={item.code}>{item.name} · {item.code}</option>
+                      ))}
+                    </select>
+                    <span className="mt-1 block text-[10px] text-muted">Boss sticker sẽ cấp reward này sau khi đủ 8 sticker thường.</span>
+                  </label>
                   <div>
                     <div className="flex flex-wrap items-end justify-between gap-2">
                       <div>
@@ -566,7 +590,53 @@ export function LegendRewardStudio() {
                             </label>
                           </div>
                           <input className={`${fieldClass} min-h-10 text-sm`} value={sticker.name} onChange={(event) => updateChapterSticker(index, { name: event.target.value })} aria-label={`Tên sticker ${index + 1}`} />
-                          <input className={`${fieldClass} min-h-10 text-sm`} value={sticker.hint} onChange={(event) => updateChapterSticker(index, { hint: event.target.value })} aria-label={`Điều kiện sticker ${index + 1}`} />
+                          {sticker.boss ? (
+                            <div className="mt-2 rounded-xl bg-violet-50 p-3 text-xs text-violet-900">
+                              <strong>Điều kiện hệ thống:</strong> tự động claim sau khi trẻ có đủ 8 sticker thường của chapter.
+                            </div>
+                          ) : (
+                            <div className="mt-2 rounded-xl border border-slate-200 bg-slate-50 p-3">
+                              <p className="text-[10px] font-black uppercase tracking-wider text-brand-600">Điều kiện máy thực thi</p>
+                              <div className="grid gap-2 sm:grid-cols-[1fr_100px]">
+                                <select
+                                  className={`${fieldClass} min-h-10 text-sm`}
+                                  value={sticker.unlockRule?.metric || 'lessons_completed'}
+                                  onChange={(event) => {
+                                    const metric = event.target.value
+                                    const definition = stickerMetrics.find((item) => item.value === metric)
+                                    const target = sticker.unlockRule?.target || 1
+                                    updateChapterSticker(index, {
+                                      unlockRule: { metric, operator: 'gte', target },
+                                      hint: `Đạt ${target} ${definition?.unit || ''} ${definition?.label.toLowerCase() || ''}`.trim(),
+                                    })
+                                  }}
+                                  aria-label={`Metric sticker ${index + 1}`}
+                                >
+                                  {stickerMetrics.map((metric) => <option key={metric.value} value={metric.value}>{metric.label} · {metric.source}</option>)}
+                                </select>
+                                <input
+                                  type="number"
+                                  min={1}
+                                  className={`${fieldClass} min-h-10 text-sm`}
+                                  value={sticker.unlockRule?.target || 1}
+                                  onChange={(event) => {
+                                    const target = Math.max(1, Number(event.target.value))
+                                    const metric = sticker.unlockRule?.metric || 'lessons_completed'
+                                    const definition = stickerMetrics.find((item) => item.value === metric)
+                                    updateChapterSticker(index, {
+                                      unlockRule: { metric, operator: 'gte', target },
+                                      hint: `Đạt ${target} ${definition?.unit || ''} ${definition?.label.toLowerCase() || ''}`.trim(),
+                                    })
+                                  }}
+                                  aria-label={`Mục tiêu sticker ${index + 1}`}
+                                />
+                              </div>
+                              <p className="mt-2 text-[10px] text-muted">Nguồn được đồng bộ tự động; rule dùng phép so sánh ≥.</p>
+                            </div>
+                          )}
+                          <label className="mt-2 block text-[10px] font-bold text-muted">Mô tả cho trẻ
+                            <input className={`${fieldClass} min-h-10 text-sm`} value={sticker.hint} onChange={(event) => updateChapterSticker(index, { hint: event.target.value })} aria-label={`Điều kiện sticker ${index + 1}`} />
+                          </label>
                         </article>
                       ))}
                     </div>

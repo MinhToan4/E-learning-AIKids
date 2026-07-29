@@ -15,9 +15,14 @@ export function ChapterRewardCard({
 }) {
   const bossId = `${page.slug}-S9`
   const progress = page.stickers.slice(0, 8).filter((sticker) => earned.has(sticker.id)).length
-  const reward = REWARD_CATALOG.find((item) =>
+  const catalogReward = REWARD_CATALOG.find((item) =>
     item.unlock.type === 'storybook_sticker' && item.unlock.value === bossId,
   )
+  const reward = catalogReward ?? (page.rewardId ? {
+    id: page.rewardId,
+    name: 'Quà huyền thoại của Chapter',
+    icon: '🎁',
+  } : null)
   const [claimed, setClaimed] = useState(earned.has(bossId))
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)

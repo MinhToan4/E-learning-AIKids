@@ -24,6 +24,7 @@ export interface StorybookPage {
   coverUrl?: string
   leftBackgroundUrl?: string
   stickerPageUrl?: string
+  rewardId?: string
 }
 
 const sticker = (

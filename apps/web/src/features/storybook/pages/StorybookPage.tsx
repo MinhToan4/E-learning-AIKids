@@ -29,6 +29,7 @@ export function StorybookPage() {
       story?: string
       group?: StorybookPage['group']
       stickers?: StorybookPage['stickers']
+      rewardId?: string
     }
     displayConfig?: {
       colors?: [string, string]
@@ -89,6 +90,7 @@ export function StorybookPage() {
         coverUrl: override.displayConfig?.coverUrl || page.coverUrl,
         leftBackgroundUrl: override.displayConfig?.leftBackgroundUrl || page.leftBackgroundUrl,
         stickerPageUrl: override.displayConfig?.stickerPageUrl || page.stickerPageUrl,
+        rewardId: override.content?.rewardId || page.rewardId,
       }
     })
     const existingSlugs = new Set(basePages.map((page) => page.slug))
@@ -106,6 +108,7 @@ export function StorybookPage() {
         coverUrl: item.displayConfig?.coverUrl,
         leftBackgroundUrl: item.displayConfig?.leftBackgroundUrl,
         stickerPageUrl: item.displayConfig?.stickerPageUrl,
+        rewardId: item.content?.rewardId,
       }]
     })
     return [...basePages, ...addedPages]
