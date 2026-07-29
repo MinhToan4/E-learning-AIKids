@@ -234,6 +234,129 @@ describeIntegration('API integration (isolated Postgres)', () => {
     ).toBe('background-ai-gate')
   })
 
+  it('activates a safe friend connection only after both parents approve', async () => {
+    async function createFamily(label: string) {
+      const registered = await inject(app, {
+        method: 'POST',
+        url: '/api/auth/register/adult',
+        payload: {
+          role: 'parent',
+          email: `social-${label}-${Date.now()}@demo.aikids.local`,
+          password: 'FamilyTest1!',
+          nickname: `Parent${label}`,
+        },
+      })
+      expect(registered.status).toBe(201)
+      const parentCookies = { aikids_session: registered.session! }
+      const child = await inject(app, {
+        method: 'POST',
+        url: '/api/parent/children',
+        cookies: parentCookies,
+        payload: {
+          nickname: `Child${label}${Date.now().toString().slice(-4)}`,
+          avatarId: 'avatar-star',
+          pin: '424242',
+        },
+      })
+      expect(child.status).toBe(201)
+      const childId = (child.body.child as { id: string }).id
+      const entered = await inject(app, {
+        method: 'POST',
+        url: `/api/parent/children/${childId}/enter`,
+        cookies: parentCookies,
+        payload: { pin: '424242' },
+      })
+      expect(entered.status).toBe(200)
+      return {
+        childId,
+        childCookies: { aikids_session: entered.session! },
+        parentCookies,
+      }
+    }
+
+    const first = await createFamily('A')
+    const second = await createFamily('B')
+    const created = await inject(app, {
+      method: 'POST',
+      url: '/api/v1/social/invites',
+      cookies: first.childCookies,
+    })
+    expect(created.status).toBe(201)
+    const invite = created.body.invite as { id: string; code: string }
+    expect(invite.code).toMatch(/^[A-Z0-9]{8}$/)
+
+    const accepted = await inject(app, {
+      method: 'POST',
+      url: '/api/v1/social/invites/accept',
+      cookies: second.childCookies,
+      payload: { code: invite.code },
+    })
+    expect(accepted.status).toBe(200)
+    expect((accepted.body.invite as { status: string }).status).toBe(
+      'parent_review',
+    )
+
+    const beforeApproval = await inject(app, {
+      method: 'GET',
+      url: '/api/v1/social/connections',
+      cookies: first.childCookies,
+    })
+    expect(beforeApproval.body.connections).toEqual([])
+
+    const firstApproval = await inject(app, {
+      method: 'POST',
+      url: `/api/v1/social/invites/${invite.id}/approve`,
+      cookies: first.parentCookies,
+      payload: { decision: 'approved' },
+    })
+    expect(firstApproval.status).toBe(200)
+    expect(firstApproval.body.connection).toBeNull()
+
+    const secondApproval = await inject(app, {
+      method: 'POST',
+      url: `/api/v1/social/invites/${invite.id}/approve`,
+      cookies: second.parentCookies,
+      payload: { decision: 'approved' },
+    })
+    expect(secondApproval.status).toBe(200)
+    const connection = secondApproval.body.connection as { id: string }
+    expect(connection.id).toBeTruthy()
+
+    const connections = await inject(app, {
+      method: 'GET',
+      url: '/api/v1/social/connections',
+      cookies: first.childCookies,
+    })
+    expect(
+      (connections.body.connections as Array<{
+        friend: { id: string }
+      }>)[0]?.friend.id,
+    ).toBe(second.childId)
+
+    const favorite = await inject(app, {
+      method: 'PUT',
+      url: `/api/v1/social/connections/${connection.id}/favorite`,
+      cookies: first.childCookies,
+      payload: { favorite: true },
+    })
+    expect(favorite.status).toBe(200)
+    expect((favorite.body.favorite as { position: number }).position).toBe(1)
+
+    const blocked = await inject(app, {
+      method: 'POST',
+      url: '/api/v1/social/blocks',
+      cookies: first.childCookies,
+      payload: { childId: second.childId },
+    })
+    expect(blocked.status).toBe(201)
+    const afterBlock = await inject(app, {
+      method: 'GET',
+      url: '/api/v1/social/connections',
+      cookies: first.childCookies,
+    })
+    expect(afterBlock.body.connections).toEqual([])
+  })
+
   it('student can list L1/L2 open courses with creative stations', async () => {
     const login = await inject(app, {
       method: 'POST',

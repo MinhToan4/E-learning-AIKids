@@ -23,6 +23,7 @@ import { storageRoutes } from './modules/storage/storage.routes.js'
 import { realtimeRoutes } from './modules/realtime/realtime.routes.js'
 import { creativeRoutes } from './modules/creative/creative.routes.js'
 import { storybookRoutes } from './modules/storybook/storybook.routes.js'
+import { socialRoutes } from './modules/social/social.routes.js'
 import {
   normalizeApiAliasPrefix,
   rewriteAliasToPrimaryApi,
@@ -110,6 +111,22 @@ export async function buildApp() {
         ...routeOptions.config,
         rateLimit: {
           max: env.generationRateLimitMax,
+          timeWindow: '1 minute',
+        },
+      }
+    }
+    if (
+      routeOptions.url === '/api/social/invites' ||
+      routeOptions.url === '/api/v1/social/invites' ||
+      routeOptions.url === '/api/social/invites/accept' ||
+      routeOptions.url === '/api/v1/social/invites/accept' ||
+      routeOptions.url === '/api/social/blocks' ||
+      routeOptions.url === '/api/v1/social/blocks'
+    ) {
+      routeOptions.config = {
+        ...routeOptions.config,
+        rateLimit: {
+          max: 10,
           timeWindow: '1 minute',
         },
       }
@@ -250,6 +267,7 @@ export async function buildApp() {
   await app.register(realtimeRoutes)
   await app.register(creativeRoutes)
   await app.register(storybookRoutes)
+  await app.register(socialRoutes)
 
   /**
    * StoryMee gateway alias (optional).

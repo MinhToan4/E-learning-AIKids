@@ -250,8 +250,8 @@ Không log invite token thô, PIN, prompt riêng tư hoặc media URL nhạy c�
 | Pure domain rules | Một phần hoàn thành |
 | Local prototype stores | Hoàn thành |
 | Fastify Storybook/Reward persistence và API | Hoàn thành |
+| Fastify Social Graph/invite/approval/favorite/block | Hoàn thành |
 | StoryMee Hub gateway/deployment | Chưa triển khai |
-| Hub Social Graph | Chưa triển khai |
 | Hub Feed/Profile/ACL | Chưa triển khai |
 | Cross-device migration | Chưa triển khai |
 

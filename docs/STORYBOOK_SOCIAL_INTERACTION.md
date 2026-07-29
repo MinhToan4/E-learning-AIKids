@@ -195,12 +195,14 @@ School có thể:
 
 | Tính năng | Web | Hub |
 |---|---|---|
-| Friend code/QR entry | Có UI | Chưa có contract deploy |
-| Parent-reviewed request | Có UI | Chưa có |
-| Favorite tối đa 6 | Có domain rule/UI | Chưa đồng bộ |
+| Friend code/QR entry | Có UI | Fastify API đã có; chờ Hub deploy |
+| Parent-reviewed request | Có UI | Fastify API đã có duyệt hai phía |
+| Favorite tối đa 6 | Có domain rule/UI | Fastify API đã lưu server |
+| Block và thu hồi connection | Chưa nối UI đầy đủ | Fastify API đã có |
 | Feed/reaction | Có prototype | Chưa có event store |
 | Profile visibility | Có local settings | Chưa đồng bộ |
 | Workspace audience | Có local settings | Chưa có ACL |
 | Approved Media sharing | Có Media Hub flow | Có request/approval cơ bản |
 
-Không mô tả các prototype local là production social network.
+Social Graph đã có source of truth trên Fastify/PostgreSQL nhưng chỉ được xem là
+production sau khi migration và route được deploy qua StoryMee Hub.

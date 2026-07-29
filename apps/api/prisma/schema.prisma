@@ -54,29 +54,36 @@ model User {
   class ClassRoom? @relation("StudentClass", fields: [classId], references: [id])
 
   // Relations
-  sessions          Session[]
-  enrollments       Enrollment[]
-  questProgress     QuestProgress[]
-  assets            Asset[]
-  projects          Project[]
-  approvalsMade     Approval[]         @relation("Approver")
-  approvalsOwned    Approval[]         @relation("ChildApprovals")
-  taughtClasses     ClassRoom[]        @relation("TeacherClasses")
-  achievements      Achievement[]
-  streak            DailyStreak?
-  notifications     Notification[]
-  pushDevices       PushDevice[]
-  storageObjects    StorageObject[]
-  parentProfile     ParentProfile?
-  teacherProfile    TeacherProfile?
+  sessions              Session[]
+  enrollments           Enrollment[]
+  questProgress         QuestProgress[]
+  assets                Asset[]
+  projects              Project[]
+  approvalsMade         Approval[]           @relation("Approver")
+  approvalsOwned        Approval[]           @relation("ChildApprovals")
+  taughtClasses         ClassRoom[]          @relation("TeacherClasses")
+  achievements          Achievement[]
+  streak                DailyStreak?
+  notifications         Notification[]
+  pushDevices           PushDevice[]
+  storageObjects        StorageObject[]
+  parentProfile         ParentProfile?
+  teacherProfile        TeacherProfile?
   /**
    * Household subscriptions where this user is the billing parent
    */
-  subscriptions     Subscription[]     @relation("ParentSubscriptions")
-  loginLogs         LoginLog[]
-  storybookStickers StorybookSticker[]
-  rewardInventory   RewardInventory[]
-  rewardEquipment   RewardEquipment[]
+  subscriptions         Subscription[]       @relation("ParentSubscriptions")
+  loginLogs             LoginLog[]
+  storybookStickers     StorybookSticker[]
+  rewardInventory       RewardInventory[]
+  rewardEquipment       RewardEquipment[]
+  sentFriendInvites     FriendInvite[]       @relation("FriendInviteSender")
+  receivedFriendInvites FriendInvite[]       @relation("FriendInviteRecipient")
+  connectionsAsA        ChildConnection[]    @relation("ConnectionChildA")
+  connectionsAsB        ChildConnection[]    @relation("ConnectionChildB")
+  favoriteConnections   FavoriteConnection[]
+  blocksCreated         ChildBlock[]         @relation("BlockCreator")
+  blocksReceived        ChildBlock[]         @relation("BlockTarget")
 
   @@index([role, active])
   @@index([createdAt])
@@ -442,6 +449,80 @@ model RewardEquipment {
   @@unique([userId, kind])
   @@index([userId])
   @@map("reward_equipment")
+}
+
+/// Short-lived invitation. Only a keyed hash of the displayed code is stored.
+model FriendInvite {
+  id                        String    @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  senderChildId             String    @map("sender_child_id") @db.Uuid
+  recipientChildId          String?   @map("recipient_child_id") @db.Uuid
+  codeHash                  String    @unique @map("code_hash")
+  status                    String    @default("created")
+  recipientAcceptedAt       DateTime? @map("recipient_accepted_at")
+  senderParentApprovedAt    DateTime? @map("sender_parent_approved_at")
+  recipientParentApprovedAt DateTime? @map("recipient_parent_approved_at")
+  expiresAt                 DateTime  @map("expires_at")
+  createdAt                 DateTime  @default(now()) @map("created_at")
+  updatedAt                 DateTime  @default(now()) @updatedAt @map("updated_at")
+
+  senderChild    User  @relation("FriendInviteSender", fields: [senderChildId], references: [id], onDelete: Cascade)
+  recipientChild User? @relation("FriendInviteRecipient", fields: [recipientChildId], references: [id], onDelete: Cascade)
+
+  @@index([senderChildId, status])
+  @@index([recipientChildId, status])
+  @@index([expiresAt])
+  @@map("friend_invites")
+}
+
+/// Canonically ordered child pair; active rows are the social graph.
+model ChildConnection {
+  id         String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  childAId   String   @map("child_a_id") @db.Uuid
+  childBId   String   @map("child_b_id") @db.Uuid
+  status     String   @default("active")
+  approvedAt DateTime @default(now()) @map("approved_at")
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @default(now()) @updatedAt @map("updated_at")
+
+  childA    User                 @relation("ConnectionChildA", fields: [childAId], references: [id], onDelete: Cascade)
+  childB    User                 @relation("ConnectionChildB", fields: [childBId], references: [id], onDelete: Cascade)
+  favorites FavoriteConnection[]
+
+  @@unique([childAId, childBId])
+  @@index([childAId, status])
+  @@index([childBId, status])
+  @@map("child_connections")
+}
+
+model FavoriteConnection {
+  id           String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  childId      String   @map("child_id") @db.Uuid
+  connectionId String   @map("connection_id") @db.Uuid
+  position     Int
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  child      User            @relation(fields: [childId], references: [id], onDelete: Cascade)
+  connection ChildConnection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+
+  @@unique([childId, connectionId])
+  @@unique([childId, position])
+  @@index([connectionId])
+  @@map("favorite_connections")
+}
+
+/// Directional block. A block revokes the connection for both children.
+model ChildBlock {
+  id             String   @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  blockerChildId String   @map("blocker_child_id") @db.Uuid
+  blockedChildId String   @map("blocked_child_id") @db.Uuid
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  blockerChild User @relation("BlockCreator", fields: [blockerChildId], references: [id], onDelete: Cascade)
+  blockedChild User @relation("BlockTarget", fields: [blockedChildId], references: [id], onDelete: Cascade)
+
+  @@unique([blockerChildId, blockedChildId])
+  @@index([blockedChildId])
+  @@map("child_blocks")
 }
 
 model Notification {
