@@ -104,3 +104,12 @@ export function CmsAiIcon({ size = 20, className = '', ...props }: IconProps) {
     </svg>
   )
 }
+
+export function CmsLogoutIcon({ size = 20, className = '', ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} {...props}>
+      <path d="M10 5H6.5C5.1 5 4 6.1 4 7.5V16.5C4 17.9 5.1 19 6.5 19H10" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M14 8L18 12L14 16M18 12H9" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  )
+}

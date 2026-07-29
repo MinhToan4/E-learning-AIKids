@@ -309,7 +309,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const [courseStatusFilter, setCourseStatusFilter] = useState<'' | 'open' | 'soon'>('')
 
   const { toasts, showToast, dismissToast } = useToast()
-  const logout = useAuth((s) => s.logout)
   const navigate = useNavigate()
 
   // ── Filtered arrays (client-side) ───────────────────────────
@@ -1163,12 +1162,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                         : 'Khóa học'}
           </h1>
         </div>
-        <Button
-          variant="ghost"
-          onClick={async () => { await logout(); navigate('/') }}
-        >
-          Đăng xuất
-        </Button>
       </div>
 
       {/* Tab content */}

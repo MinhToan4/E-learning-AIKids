@@ -93,6 +93,7 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     const parentGate = read('features/parent/components/ParentGateModal.tsx')
     const parentHomeIcon = read('shared/components/icons/ParentHomeIcon.tsx')
     const kidIcons = read('shared/components/icons/KidNavIcons.tsx')
+    const cmsIcons = read('shared/components/icons/CmsIcons.tsx')
     expect(shell).toContain('ParentDashboardIcon')
     expect(shell).toContain('ParentKidsIcon')
     expect(shell).toContain('role-nav-link')
@@ -101,6 +102,19 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(shell).toContain('student-bottom-nav')
     expect(shell).toContain('admin-drawer-sheet')
     expect(shell).toContain('NavCreativeIcon')
+    expect(shell).toContain('<SidebarLogoutButton />')
+    expect(shell).toContain('<MobileLogoutButton />')
+    expect(shell).toContain('className="role-nav-link role-sidebar-logout"')
+    expect(cmsIcons).toContain('CmsLogoutIcon')
+    expect(cmsIcons).toContain('stroke="currentColor"')
+    expect(shell).not.toContain('UnifiedSwitcher')
+    for (const page of [
+      'features/parent/pages/ParentPage.tsx',
+      'features/teacher/pages/TeacherPage.tsx',
+      'features/admin/pages/AdminPage.tsx',
+    ]) {
+      expect(read(page)).not.toContain('Đăng xuất')
+    }
     expect(shell).toContain('<ParentHomeIcon size={24} />')
     expect(shell).toContain('<ParentHomeIcon size={20} />')
     expect(parentGate).toContain('<ParentHomeIcon size={42} />')

@@ -215,7 +215,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const { toasts, showToast, dismissToast } = useToast()
   const role = useAuth((s) => s.user?.role)
   const canManageClass = role === 'teacher'
-  const logout = useAuth((s) => s.logout)
   const navigate = useNavigate()
 
   // Derive lectures BEFORE pagination hooks to avoid TDZ with `const`
@@ -1115,9 +1114,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           <p className="text-xs font-extrabold uppercase tracking-wide text-sky-500">CMS · Giảng viên</p>
           <h1 className="font-display text-2xl text-text">{tabTitles[tab]}</h1>
         </div>
-        <Button variant="ghost" onClick={async () => { await logout(); navigate('/') }}>
-          Đăng xuất
-        </Button>
       </div>
 
       {/* Tab content */}

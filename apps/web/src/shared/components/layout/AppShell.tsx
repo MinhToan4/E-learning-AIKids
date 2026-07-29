@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useLocation } from 'react-router'
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
 import { api } from '@/shared/lib/api'
@@ -11,6 +11,7 @@ import {
   CmsCoursesIcon,
   CmsLecturesIcon,
   CmsLogsIcon,
+  CmsLogoutIcon,
   CmsOverviewIcon,
   CmsSessionsIcon,
   CmsUsersIcon,
@@ -35,7 +36,6 @@ import { ParentHomeIcon } from '@/shared/components/icons/ParentHomeIcon'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { cn } from '@/shared/lib/cn'
 import { useAuth } from '@/shared/store/auth'
-import { UnifiedSwitcher } from './UnifiedSwitcher'
 
 type NavIcon = React.ComponentType<{ size?: number; className?: string }>
 
@@ -44,6 +44,64 @@ type RoleNavItem = {
   label: string
   icon: NavIcon
   end?: boolean
+}
+
+function useLogoutAction() {
+  const logout = useAuth((state) => state.logout)
+  const navigate = useNavigate()
+  const [loggingOut, setLoggingOut] = useState(false)
+
+  const handleLogout = async () => {
+    if (loggingOut) return
+    setLoggingOut(true)
+    try {
+      await logout()
+    } finally {
+      setLoggingOut(false)
+      navigate('/', { replace: true })
+    }
+  }
+
+  return { handleLogout, loggingOut }
+}
+
+function SidebarLogoutButton() {
+  const { handleLogout, loggingOut } = useLogoutAction()
+
+  return (
+    <div className="role-sidebar-footer">
+      <button
+        type="button"
+        onClick={() => void handleLogout()}
+        disabled={loggingOut}
+        className="role-nav-link role-sidebar-logout"
+      >
+        <span className="role-nav-icon" aria-hidden="true">
+          <CmsLogoutIcon size={20} />
+        </span>
+        <span>{loggingOut ? 'Đang đăng xuất…' : 'Đăng xuất'}</span>
+      </button>
+    </div>
+  )
+}
+
+function MobileLogoutButton() {
+  const { handleLogout, loggingOut } = useLogoutAction()
+
+  return (
+    <button
+      type="button"
+      onClick={() => void handleLogout()}
+      disabled={loggingOut}
+      className="adult-bottom-link"
+      aria-label={loggingOut ? 'Đang đăng xuất' : 'Đăng xuất'}
+    >
+      <span className="adult-bottom-icon" aria-hidden="true">
+        <CmsLogoutIcon size={21} />
+      </span>
+      <span>{loggingOut ? 'Đang thoát…' : 'Đăng xuất'}</span>
+    </button>
+  )
 }
 
 
@@ -239,6 +297,7 @@ function AdminDrawer({
   tone: string
 }) {
   const [open, setOpen] = useState(false)
+  const { handleLogout, loggingOut } = useLogoutAction()
 
   return (
     <>
@@ -283,6 +342,17 @@ function AdminDrawer({
               <span>{label}</span>
             </NavLink>
           ))}
+          <button
+            type="button"
+            onClick={() => void handleLogout()}
+            disabled={loggingOut}
+            className="admin-drawer-item"
+          >
+            <span className="admin-drawer-icon" aria-hidden="true">
+              <CmsLogoutIcon size={22} />
+            </span>
+            <span>{loggingOut ? 'Đang thoát…' : 'Đăng xuất'}</span>
+          </button>
         </nav>
       </div>
 
@@ -341,6 +411,7 @@ function AdultBottomNav({
       {nav.map((item) => (
         <AdultBottomLink key={item.to} {...item} tone={tone} />
       ))}
+      <MobileLogoutButton />
     </nav>
   )
 }
@@ -372,7 +443,7 @@ function CmsShell({
           <p>{roleLabel}</p>
         </div>
         <DesktopSideNav nav={nav} />
-        <UnifiedSwitcher />
+        <SidebarLogoutButton />
       </aside>
 
       {/* Mobile top bar (brand only, no nav) */}
@@ -381,7 +452,6 @@ function CmsShell({
           <BrandLogo size="sm" />
         </NavLink>
         <span className="role-mobile-topbar-label flex-1">{roleLabel}</span>
-        <UnifiedSwitcher variant="mobile-header" />
       </header>
 
       {/* Main content — extra bottom padding so bottom nav doesn't cover content */}
@@ -420,7 +490,7 @@ function AdultChrome({
           <p>Góc phụ huynh</p>
         </div>
         <DesktopSideNav nav={nav} />
-        <UnifiedSwitcher />
+        <SidebarLogoutButton />
       </aside>
 
       {/* Mobile top bar */}
@@ -429,7 +499,6 @@ function AdultChrome({
           <BrandLogo size="sm" />
         </NavLink>
         <span className="role-mobile-topbar-label flex-1">Phụ huynh</span>
-        <UnifiedSwitcher variant="mobile-header" />
       </header>
 
       {/* Main */}

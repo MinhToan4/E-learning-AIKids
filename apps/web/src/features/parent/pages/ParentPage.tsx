@@ -149,8 +149,6 @@ export function ParentPage({
 }) {
   const [tab, setTab] = useState<TabKey>(initTab)
   const user = useAuth((s) => s.user)
-  const logout = useAuth((s) => s.logout)
-  const navigate = useNavigate()
 
   useEffect(() => {
     setTab(initTab)
@@ -168,15 +166,6 @@ export function ParentPage({
             Xin chào, {(user?.nickname || user?.name) ?? 'Ba/Mẹ'} 👋
           </h1>
         </div>
-        <Button
-          variant="ghost"
-          onClick={async () => {
-            await logout()
-            navigate('/')
-          }}
-        >
-          Đăng xuất
-        </Button>
       </div>
 
       {/* Only the active route owns effects and server state. */}
