@@ -351,8 +351,18 @@ const reasonLabels: Record<string, string> = {
   enrolled: 'Sẵn sàng học',
 }
 
+export function isPathwayCourseVisible(course: PathwayCourse): boolean {
+  return (
+    course.enrolled ||
+    course.status === 'active' ||
+    course.status === 'completed'
+  )
+}
+
 function PathwayOverview({ pathway }: { pathway: Pathway }) {
-  const visibleCourses = pathway.courses.filter((course) => course.enrolled)
+  // Canonical pathway responses include `enrolled`; status is retained as a
+  // defensive fallback for older cached/deployed gateway responses.
+  const visibleCourses = pathway.courses.filter(isPathwayCourseVisible)
   const recommended = visibleCourses.find(
     (course) => course.id === pathway.recommendedCourseId,
   )

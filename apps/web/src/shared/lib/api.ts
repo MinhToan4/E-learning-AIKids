@@ -1198,6 +1198,10 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         completionPercent: progressPct,
         missingPrerequisites: [],
         coverImage: mapped.coverImage,
+        // Every row has already passed the canonical enrollment filter above.
+        // Keep this explicit because pathway consumers must not infer access
+        // from presentation status alone.
+        enrolled: true,
       }
       })
     const recommended = courses.find((course) => course.status === 'active') ??
