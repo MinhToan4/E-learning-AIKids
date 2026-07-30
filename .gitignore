@@ -20,3 +20,4 @@ secrets/
 artifacts/
 *.tmp*
 .vercel/
+courses/
