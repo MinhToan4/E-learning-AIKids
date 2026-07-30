@@ -149,10 +149,10 @@ function StreakWidget({ current, longest, lastActivityDate }: { current: number;
   )
 }
 
-function XpWidget({ xp }: { xp: number }) {
-  const current = explorerLevelForXp(xp)
-  const next = nextExplorerLevel(xp)
-  const pct = explorerLevelProgress(xp)
+function XpWidget({ xp, level }: { xp: number; level: number }) {
+  const current = explorerLevelForXp(xp, level)
+  const next = nextExplorerLevel(xp, level)
+  const pct = explorerLevelProgress(xp, level)
   return (
     <div className="flex flex-col gap-1 rounded-2xl bg-brand-50 border border-brand-100 p-3">
       <div className="flex items-center justify-between">
@@ -273,6 +273,7 @@ export function HomePage() {
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [explorerXp, setExplorerXp] = useState(0)
+  const [explorerLevel, setExplorerLevel] = useState(1)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -326,6 +327,7 @@ export function HomePage() {
         setDailyMission(null)
       }
       setExplorerXp(profile.totalXp)
+      setExplorerLevel(profile.level)
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Lỗi tải khóa học')
     } finally {
@@ -339,7 +341,6 @@ export function HomePage() {
   }, [load])
 
   const open = courses.filter((c) => c.status === 'open')
-  const explorerLevel = explorerLevelForXp(explorerXp)
   // A child only sees courses explicitly selected by their parent. Adult
   // contexts keep the full catalog for discovery and administration.
   const accessibleCourses =
@@ -399,7 +400,7 @@ export function HomePage() {
                 {user?.nickname ?? 'Bạn nhỏ'} ✨
               </h1>
               <p className="text-xs font-semibold text-muted mt-0.5">
-                Cấp {explorerLevel.level} · {explorerXp.toLocaleString('vi-VN')} XP toàn hệ sinh thái
+                Cấp {explorerLevel} · {explorerXp.toLocaleString('vi-VN')} XP toàn hệ sinh thái
               </p>
             </div>
           </div>
@@ -412,7 +413,7 @@ export function HomePage() {
 
         {/* XP bar */}
         <div className="relative px-4 pb-4 sm:px-5 sm:pb-5">
-          <XpWidget xp={explorerXp} />
+          <XpWidget xp={explorerXp} level={explorerLevel} />
         </div>
       </header>
 

@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { explorerLevelForXp } from '@/shared/lib/creation/xp-levels'
 import { Button } from '@/shared/components/ui/Button'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
@@ -72,6 +71,7 @@ export function ProfilePage() {
     () => user ? readProfileAvatar(user.id) : null,
   )
   const [explorerXp, setExplorerXp] = useState(0)
+  const [explorerLevel, setExplorerLevel] = useState(1)
   const [chapterStickers, setChapterStickers] = useState(() =>
     user ? readClaimedChapterStickers(user.id) : [],
   )
@@ -89,7 +89,7 @@ export function ProfilePage() {
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
         api<{ projects: ShowcaseProject[] }>('/api/projects'),
         api<{ assets: MediaAsset[] }>('/api/backpack'),
-        api<{ totalXp: number }>('/api/gamification/profile'),
+        api<{ totalXp: number; level: number }>('/api/gamification/profile'),
         api<PublicProfileSettings>('/api/profile/settings'),
         api<{ workspaces: AccountWorkspace[] }>('/api/account/workspaces'),
         api<{ equipment: Array<{ kind: keyof ReturnType<typeof readRewardEquipment>; rewardId: string }> }>('/api/gamification/storybook'),
@@ -105,7 +105,10 @@ export function ProfilePage() {
           source: asset.type.includes('generated') ? 'generated' : 'library',
         })))
       }
-      if (g.status === 'fulfilled') setExplorerXp(g.value.totalXp)
+      if (g.status === 'fulfilled') {
+        setExplorerXp(g.value.totalXp)
+        setExplorerLevel(g.value.level)
+      }
       if (profileSettings.status === 'fulfilled') {
         setProfileSlug(profileSettings.value.slug)
         setProfileAppearance({
@@ -243,6 +246,7 @@ export function ProfilePage() {
             <EquippedProfile
               user={user}
               xp={explorerXp}
+              level={explorerLevel}
               compact
               tone={cardTone}
               onAvatarClick={() => setAvatarPickerOpen(true)}
@@ -277,7 +281,7 @@ export function ProfilePage() {
             <p className="mb-4 rounded-2xl bg-brand-50 p-3 text-sm font-bold text-brand-700">
               📷 Đổi ảnh bằng nút camera trên avatar. Phòng thay đồ chỉ dùng cho khung, Paco, hiệu ứng và theme.
             </p>
-            <RewardCollection userId={user.id} xpLevel={explorerLevelForXp(explorerXp).level} stickerIds={chapterStickers} />
+            <RewardCollection userId={user.id} xpLevel={explorerLevel} stickerIds={chapterStickers} />
           </div>
         </>
       )}

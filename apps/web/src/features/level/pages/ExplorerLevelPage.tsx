@@ -1,5 +1,5 @@
 import {
-  EXPLORER_LEVELS,
+  explorerLevelsAfter,
   explorerLevelForXp,
   explorerLevelProgress,
   nextExplorerLevel,
@@ -26,6 +26,7 @@ const sources = [
 
 export function ExplorerLevelPage() {
   const [xp, setXp] = useState(0)
+  const [level, setLevel] = useState(1)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -35,6 +36,7 @@ export function ExplorerLevelPage() {
     try {
       const data = await api<GamificationProfile>('/api/gamification/profile')
       setXp(data.totalXp)
+      setLevel(data.level)
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Chưa tải được XP')
     } finally {
@@ -45,9 +47,9 @@ export function ExplorerLevelPage() {
   useEffect(() => { void load() }, [load])
   if (loading) return <PageSkeleton rows={4} />
 
-  const current = explorerLevelForXp(xp)
-  const next = nextExplorerLevel(xp)
-  const progress = explorerLevelProgress(xp)
+  const current = explorerLevelForXp(xp, level)
+  const next = nextExplorerLevel(xp, level)
+  const progress = explorerLevelProgress(xp, level)
 
   return (
     <PageMotion className="flex flex-col gap-6">
@@ -128,7 +130,7 @@ export function ExplorerLevelPage() {
               </Link>
             </div>
             <div className="mt-4 grid gap-2 md:grid-cols-2">
-              {EXPLORER_LEVELS.slice(current.level, current.level + 4).map((level) => (
+              {explorerLevelsAfter(current.level, 4).map((level) => (
                 <article key={level.level} className="flex items-center gap-3 rounded-2xl bg-brand-50 p-3">
                   <span className="flex h-11 w-11 items-center justify-center rounded-full bg-white font-black text-brand-700">
                     {level.level}
