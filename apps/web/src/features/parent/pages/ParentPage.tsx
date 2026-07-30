@@ -1335,13 +1335,22 @@ function CourseSelectModal({
 function ApprovalsTab() {
 
   const [approvals, setApprovals] = useState<Approval[]>([])
+  const [friendInvites, setFriendInvites] = useState<Array<{
+    id: string
+    sender: { name: string; avatarUrl?: string | null }
+    recipient: { name: string; avatarUrl?: string | null }
+  }>>([])
   const [loading, setLoading] = useState(true)
   const { toasts, showToast, dismissToast } = useToast()
 
   const load = useCallback(async () => {
     try {
-      const data = await api<{ approvals: Approval[] }>('/api/parent/approvals?status=pending')
-      setApprovals(data.approvals)
+      const [sharing, friends] = await Promise.allSettled([
+        api<{ approvals: Approval[] }>('/api/parent/approvals?status=pending'),
+        api<{ invites: typeof friendInvites }>('/api/gamification/social/invites/pending-review'),
+      ])
+      if (sharing.status === 'fulfilled') setApprovals(sharing.value.approvals)
+      if (friends.status === 'fulfilled') setFriendInvites(friends.value.invites)
     } catch {
       /* silent */
     } finally {
@@ -1369,6 +1378,19 @@ function ApprovalsTab() {
     }
   }
 
+  async function decideFriend(id: string, approved: boolean) {
+    try {
+      await api(`/api/gamification/social/invites/${id}/review`, {
+        method: 'POST',
+        body: JSON.stringify({ approved }),
+      })
+      showToast(approved ? 'Đã duyệt lời mời kết bạn' : 'Đã từ chối lời mời', approved ? 'success' : 'info')
+      await load()
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Lỗi', 'error')
+    }
+  }
+
   if (loading) return <LoadingSkeleton count={3} />
 
   return (
@@ -1382,13 +1404,30 @@ function ApprovalsTab() {
         Sáng tạo của trẻ mặc định riêng tư — chỉ hiện khi ba/mẹ đồng ý.
       </p>
 
-      {approvals.length === 0 && (
+      {approvals.length === 0 && friendInvites.length === 0 && (
         <div className="ui-card p-8 text-center">
           <PartyPopper className="mx-auto text-brand-500" size={40} aria-hidden="true" />
           <p className="mt-2 font-bold">Không có yêu cầu nào!</p>
           <p className="text-sm text-muted">Tất cả đã được xử lý.</p>
         </div>
       )}
+
+      {friendInvites.map((invite) => (
+        <div key={invite.id} className="ui-card flex flex-wrap items-center gap-4 p-4">
+          <span className="flex h-16 w-16 items-center justify-center rounded-xl bg-violet-50 text-3xl">🧑‍🤝‍🧑</span>
+          <div className="min-w-0 flex-1">
+            <p className="font-extrabold">Lời mời kết bạn</p>
+            <p className="text-sm text-muted">
+              <strong>{invite.sender.name}</strong> và <strong>{invite.recipient.name}</strong> muốn vào vòng tròn an toàn của nhau.
+            </p>
+            <p className="text-xs text-muted">Chỉ kích hoạt sau khi phụ huynh hai bên cùng đồng ý.</p>
+          </div>
+          <div className="flex gap-2">
+            <Button onClick={() => void decideFriend(invite.id, true)}><Check size={17} /> Đồng ý</Button>
+            <Button variant="secondary" onClick={() => void decideFriend(invite.id, false)}><Lock size={17} /> Từ chối</Button>
+          </div>
+        </div>
+      ))}
 
       <div className="flex flex-col gap-3">
         {approvals.map((a) => (
@@ -1666,4 +1705,3 @@ function LoadingSkeleton({ count }: { count: number }) {
     </div>
   )
 }
-

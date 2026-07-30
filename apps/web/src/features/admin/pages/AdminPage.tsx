@@ -30,6 +30,7 @@ import {
   CmsSessionsIcon,
   CmsUsersIcon,
 } from '@/shared/components/icons/CmsIcons'
+import { LegendRewardStudio } from '../components/LegendRewardStudio'
 
 // ── Types ───────────────────────────────────────────────────
 type SystemInfo = {
@@ -107,7 +108,7 @@ type LoginLogSummary = {
   purgedAt: string
 }
 
-export type AdminTab = 'system' | 'analytics' | 'logs' | 'ai' | 'users' | 'courses'
+export type AdminTab = 'system' | 'analytics' | 'logs' | 'ai' | 'users' | 'sessions' | 'courses' | 'legends'
 
 const ROLE_LABELS: Record<string, string> = {
   student: 'Học sinh',
@@ -370,7 +371,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         const data = await api<{ logs: LoginLogItem[]; summary: LoginLogSummary }>(`/api/admin/login-logs${q}`)
         setLoginLogs(data.logs)
         setLogSummary(data.summary)
-      } else {
+      } else if (tab === 'courses') {
         const data = await api<{ courses: CourseOverview[] }>('/api/admin/courses')
         setCourses(data.courses)
       }
@@ -1009,6 +1010,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       case 'logs': return loginLogs.length > 0 || logSummary !== null || !loading
       case 'courses': return courses.length > 0 || !loading
       case 'ai': return vidtoryStatus !== null
+      case 'legends': return true
       default: return true
     }
   }
@@ -1024,6 +1026,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       case 'users': return usersTab
       case 'courses': return coursesTab
       case 'ai': return aiTab
+      case 'legends': return <LegendRewardStudio />
       default: return null
     }
   }
@@ -1039,6 +1042,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               : tab === 'analytics' ? 'Phân tích hoạt động'
                 : tab === 'logs' ? 'Nhật ký đăng nhập'
                   : tab === 'ai' ? 'AI Vidtory'
+                    : tab === 'legends' ? 'Legend & Reward Studio'
                     : tab === 'users' ? 'Tài khoản'
                       : 'Khóa học'}
           </h1>

@@ -15,7 +15,9 @@ import type { User } from '@/shared/lib/api'
 export function LoginPage() {
   const [params] = useSearchParams()
   const initial =
-    params.get('role') === 'parent' || params.get('role') === 'teacher'
+    params.get('mode') === 'adult' ||
+    params.get('role') === 'parent' ||
+    params.get('role') === 'teacher'
       ? 'adult'
       : 'student'
   const [mode, setMode] = useState<'student' | 'adult'>(initial as 'student' | 'adult')
@@ -41,7 +43,7 @@ export function LoginPage() {
     () =>
       mode === 'student'
         ? 'Con dùng biệt danh ba/mẹ đã tạo. Không cần mật khẩu của ba/mẹ.'
-        : 'Ba/mẹ hoặc thầy cô đăng nhập bằng email để quản lý và cho con học.',
+        : 'Ba/mẹ, giáo viên và quản trị viên dùng chung cổng này. Hệ thống sẽ tự mở đúng không gian sau khi đăng nhập.',
     [mode],
   )
 
@@ -110,7 +112,11 @@ export function LoginPage() {
               className="h-14 w-14 rounded-full object-cover"
             />
           </div>
-          <h1 className="font-display text-3xl text-text">Vào cổng sáng tạo</h1>
+          <h1 className="font-display text-3xl text-text">
+            {mode === 'student'
+              ? 'Vào cổng sáng tạo'
+              : 'Cổng người lớn'}
+          </h1>
           <p className="mt-1 text-sm text-muted">{hint}</p>
 
           <div className="mt-4 flex gap-2 rounded-2xl bg-brand-50 p-1">
@@ -145,7 +151,7 @@ export function LoginPage() {
                 setNickname('')
               }}
             >
-              Ba mẹ / GV
+              Người lớn
             </button>
           </div>
 
@@ -211,9 +217,7 @@ export function LoginPage() {
                   <span className="h-px flex-1 bg-border" />
                 </div>
                 <GoogleSignInButton
-                  role={
-                    params.get('role') === 'teacher' ? 'teacher' : 'parent'
-                  }
+                  role="parent"
                   onSuccess={(user) => {
                     setSessionUser(user)
                     goAfterAdult(user)

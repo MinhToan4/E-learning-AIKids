@@ -1,4 +1,5 @@
 import { environment } from '@/shared/config/environment'
+import { createUuid } from './uuid'
 
 const API_BASE = environment.apiBaseUrl
 const TOKEN_KEY = 'storymee.access_token'
@@ -41,19 +42,22 @@ export function api<T = unknown>(
   path: string,
   options: RequestInit = {},
 ): Promise<T> {
+  // Browser-restored links may retain a trailing slash; normalize before
+  // routing and before deriving the in-flight request cache key.
+  const legacyPath = path.replace(/\/(?=\?|$)/, '')
   const method = (options.method ?? 'GET').toUpperCase()
   const canDedupe =
     method === 'GET' &&
     options.body === undefined &&
     options.headers === undefined &&
     options.signal === undefined
-  if (!canDedupe) return executeApi<T>(path, options)
+  if (!canDedupe) return executeApi<T>(legacyPath, options)
 
-  const key = `${getAccessToken() ?? 'anonymous'}:${path}`
+  const key = `${getAccessToken() ?? 'anonymous'}:${legacyPath}`
   const pending = inFlightGetRequests.get(key)
   if (pending) return pending as Promise<T>
 
-  const request = executeApi<T>(path, options)
+  const request = executeApi<T>(legacyPath, options)
   inFlightGetRequests.set(key, request)
   void request.finally(() => {
     if (inFlightGetRequests.get(key) === request) {
@@ -171,20 +175,72 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     '/api/auth/tenant': '/api/v1/account/tenant/resolve',
     '/api/courses': '/api/v1/lms/courses',
     '/api/enrollments': '/api/v1/lms/enrollments',
+    '/api/learning/pathway': '/api/v1/lms/compat/pathway',
     '/api/notifications': '/api/v1/notifications',
     '/api/notifications/read-all': '/api/v1/notifications/read-all',
     '/api/notifications/preferences': '/api/v1/notifications/preferences',
     '/api/gamification/streak': '/api/v1/gamification/me/streak',
     '/api/gamification/achievements': '/api/v1/gamification/me/achievements',
+    '/api/gamification/storybook': '/api/v1/gamification/me/storybook',
+    '/api/gamification/social/graph': '/api/v1/gamification/me/social/graph',
+    '/api/gamification/social/feed': '/api/v1/gamification/me/social/feed',
+    '/api/gamification/social/discover': '/api/v1/gamification/me/social/discover',
+    '/api/gamification/social/invites/pending-review': '/api/v1/gamification/me/social/invites/pending-review',
     '/api/gamification/daily-mission': '/api/v1/gamification/me/missions',
     '/api/gamification/profile': '/api/v1/gamification/me',
     '/api/gamification/class-celebration':
       '/api/v1/gamification/me/celebration',
+    '/api/gamification/catalog': '/api/v1/gamification/catalog',
   }
   if (path === '/api/gamification/check-in') {
     return {
       path: '/api/v1/gamification/me/streak',
       options: { ...options, method: 'GET', body: undefined },
+    }
+  }
+  if (path.startsWith('/api/gamification/catalog?')) {
+    return { path: path.replace('/api/gamification/catalog', '/api/v1/gamification/catalog'), options }
+  }
+  if (path.startsWith('/api/admin/legend-studio')) {
+    return {
+      path: path.replace('/api/admin/legend-studio', '/api/v1/gamification/admin/studio'),
+      options,
+    }
+  }
+  const gamificationMeAction = path.match(
+    /^\/api\/gamification\/(storybook\/chapters\/[^/?]+\/claim|rewards\/equipment\/[^/?]+|social\/invites(?:\/accept)?|social\/invites\/[^/?]+\/review|social\/connections\/[^/?]+(?:\/favorite)?|social\/activities\/[^/?]+\/reaction)$/,
+  )
+  if (gamificationMeAction) {
+    return {
+      path: `/api/v1/gamification/me/${gamificationMeAction[1]}`,
+      options,
+    }
+  }
+  if (path === '/api/profile/settings') {
+    return { path: '/api/v1/account/profiles/me/settings', options }
+  }
+  const publicProfile = path.match(/^\/api\/public\/profiles\/([^/?]+)$/)
+  if (publicProfile) {
+    return {
+      path: `/api/v1/account/profiles/${encodeURIComponent(publicProfile[1])}`,
+      options,
+    }
+  }
+  if (path === '/api/account/workspaces') {
+    return { path: '/api/v1/account/workspaces', options }
+  }
+  const workspaceGrants = path.match(/^\/api\/account\/workspaces\/([^/?]+)\/grants$/)
+  if (workspaceGrants) {
+    return {
+      path: `/api/v1/account/workspaces/${encodeURIComponent(workspaceGrants[1])}/grants`,
+      options,
+    }
+  }
+  const sharedWorkspace = path.match(/^\/api\/public\/workspaces\/([^/?]+)$/)
+  if (sharedWorkspace) {
+    return {
+      path: `/api/v1/account/shared-workspaces/${encodeURIComponent(sharedWorkspace[1])}`,
+      options,
     }
   }
   if (path === '/api/parent/plans') {
@@ -194,7 +250,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     if ((options.method ?? 'GET').toUpperCase() === 'POST') {
       const plan = String(body.planCode ?? '')
       const headers = new Headers(options.headers)
-      const key = `aikids-plan-${plan}-${crypto.randomUUID()}`
+      const key = `aikids-plan-${plan}-${createUuid()}`
       headers.set('Idempotency-Key', key)
       return {
         path: '/api/v1/billing/me/checkout',
@@ -391,12 +447,12 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     }
   }
   const lessonAction = path.match(
-    /^\/api\/progress\/([^/?]+)\/(start|advance|practice|check)$/,
+    /^\/api\/progress\/([^/?]+)\/(start|advance|practice|check|check-answer)$/,
   )
   if (lessonAction) {
     const headers = new Headers(options.headers)
     if (lessonAction[2] === 'check' && !headers.has('Idempotency-Key')) {
-      headers.set('Idempotency-Key', crypto.randomUUID())
+      headers.set('Idempotency-Key', createUuid())
     }
     return {
       path: `/api/v1/lms/compat/lessons/${encodeURIComponent(lessonAction[1])}/${lessonAction[2]}`,
@@ -417,7 +473,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
           // core-account creates a users row together with the child profile.
           // PIN is the only credential exposed by AiKid; use an opaque internal
           // password until the dedicated PIN endpoint enables child login.
-          password: childPin || crypto.randomUUID(),
+          password: childPin || createUuid(),
         })
         : options,
     }
@@ -1104,8 +1160,70 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       }),
     }
   }
+  if (/^\/api\/learning\/pathway(?:\?.*)?$/.test(path) &&
+      Array.isArray(payload.courses)) {
+    // A pathway is the child's enrolled learning list. Keep this defensive
+    // filter while older LMS deployments may still return the public catalog.
+    const courses = payload.courses
+      .filter((course) => {
+        const raw = course as Record<string, unknown>
+        return raw.enrolled === true ||
+          raw.status === 'active' ||
+          raw.status === 'completed'
+      })
+      .map((course) => {
+      const raw = course as Record<string, unknown>
+      const mapped = mapCourse(raw)
+      const enrolled = raw.enrolled === true
+      const progressPct = Number(
+        raw.completionPercent ?? raw.progressPct ?? 0,
+      )
+      const completed = progressPct >= 100
+      const canonicalStatus =
+        raw.status === 'active' || raw.status === 'completed'
+          ? raw.status
+          : null
+      return {
+        id: mapped.id,
+        title: mapped.title,
+        shortTitle: mapped.shortTitle,
+        status:
+          canonicalStatus ??
+          (completed ? 'completed' : enrolled ? 'active' : 'available'),
+        reasonCode: completed
+          ? 'completed'
+          : canonicalStatus === 'active' || enrolled
+            ? 'in_progress'
+            : 'requirements_met',
+        completionPercent: progressPct,
+        missingPrerequisites: [],
+        coverImage: mapped.coverImage,
+      }
+      })
+    const recommended = courses.find((course) => course.status === 'active') ??
+      courses.find((course) => course.status === 'available') ??
+      null
+    const firstRaw = payload.courses[0] as Record<string, unknown> | undefined
+    return {
+      student: {
+        nickname: null,
+        ageBand: String(firstRaw?.ageBand ?? '8-11'),
+      },
+      policy: { label: 'Lộ trình học AI theo tiến độ của con' },
+      recommendedCourseId: recommended?.id ?? null,
+      courses,
+    }
+  }
   if (/^\/api\/courses\/[^/?]+$/.test(path) && payload.course) {
-    return { course: mapCourse(payload.course as Record<string, unknown>) }
+    const raw = payload.course as Record<string, unknown>
+    return {
+      course: {
+        ...mapCourse(raw),
+        enrolled: raw.enrolled === true,
+        enrollmentId: raw.enrollmentId ? String(raw.enrollmentId) : null,
+        enrollmentSource: raw.enrollmentSource ? String(raw.enrollmentSource) : null,
+      },
+    }
   }
   if (path === '/api/parent/children' && Array.isArray(payload.children)) {
     return {
@@ -1408,6 +1526,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     return {
       current: Number(payload.currentStreak ?? 0),
       longest: Number(payload.longestStreak ?? 0),
+      lastActivityDate: payload.lastActivityDate ? String(payload.lastActivityDate) : null,
     }
   }
   if (path === '/api/gamification/achievements') {
@@ -1454,12 +1573,25 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     }) as Record<string, unknown> | undefined
     if (!daily) return { mission: null }
     const mission = (daily.mission ?? daily) as Record<string, unknown>
+    const progress = Number(daily.progress ?? 0)
+    const target = Math.max(1, Number(mission.target ?? 1))
+    const completedAt = daily.completedAt ? String(daily.completedAt) : null
+    const claimedAt = daily.claimedAt ? String(daily.claimedAt) : null
     return {
       mission: {
+        key: String(mission.key ?? ''),
+        periodKey: String(daily.periodKey ?? ''),
         title: String(mission.title ?? ''),
         description: String(mission.description ?? ''),
         xpReward: Number(mission.xpReward ?? 0),
-        action: { label: 'Học ngay', route: '/world' },
+        progress,
+        target,
+        completedAt,
+        claimedAt,
+        action: {
+          label: completedAt ? 'Xem hành trình' : progress > 0 ? 'Tiếp tục học' : 'Học ngay',
+          route: '/world',
+        },
       },
     }
   }

@@ -8,8 +8,6 @@ import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { useAgeExperience } from '@/shared/age-experience/AgeExperienceProvider'
 import {
-  NavBackpackIcon,
-  NavBadgeIcon,
   NavLeaderboardIcon,
   NavProfileIcon,
   NavWorldIcon,
@@ -154,11 +152,11 @@ export function LeaderboardPage() {
             Tiến bộ của con
           </div>
           <h1 className="font-display mt-3 text-3xl font-extrabold leading-[1.08] text-text sm:text-4xl">
-            Mỗi bước nhỏ đều đáng tự hào!
+            Hành trình học tập của con
           </h1>
           <p className="mt-3 max-w-xl text-base font-semibold leading-relaxed text-muted sm:text-lg">
-            Cùng nhìn lại những điều con đã khám phá và chọn một thử thách vui
-            cho hôm nay nhé.
+            Chỉ hiển thị bài học, kỹ năng và chứng nhận. XP từ game, sáng tạo
+            và sự kiện được theo dõi riêng ở Cấp độ khám phá.
           </p>
         </div>
         <div className="progress-hero-art" aria-hidden="true">
@@ -176,10 +174,10 @@ export function LeaderboardPage() {
 
       {!error && celebration && (
         <>
-          <section className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Những điều đã làm được">
+          <section className="grid grid-cols-2 gap-3" aria-label="Những điều đã làm được">
             <StatTile
               icon={NavProfileIcon}
-              label={celebration.hasClass ? 'bạn cùng vun vườn' : 'nhà sáng tạo'}
+              label={celebration.hasClass ? 'bạn cùng học' : 'hành trình đang học'}
               value={celebration.learnerCount}
               tone="sky"
             />
@@ -189,21 +187,9 @@ export function LeaderboardPage() {
               value={celebration.completedQuests}
               tone="mint"
             />
-            <StatTile
-              icon={NavBackpackIcon}
-              label="sản phẩm đã tạo"
-              value={celebration.projects}
-              tone="sun"
-            />
-            <StatTile
-              icon={NavLeaderboardIcon}
-              label="điểm nỗ lực chung"
-              value={celebration.teamXp}
-              tone="brand"
-            />
           </section>
 
-          <div className="grid gap-5 lg:grid-cols-[1.15fr_0.85fr]">
+          <div className="grid gap-5">
             <section className="progress-garden ui-card" aria-labelledby="garden-title">
               <img
                 src={designerAssets.chrome.adventureMap}
@@ -250,34 +236,33 @@ export function LeaderboardPage() {
               </div>
             </section>
 
-            <section className="next-step-card ui-card" aria-labelledby="next-step-title">
-              <div className="flex items-start justify-between gap-3">
-                <div className="flex h-14 w-14 items-center justify-center rounded-[1.15rem] bg-sun-100 shadow-sm" aria-hidden="true">
-                  <NavBadgeIcon size={32} />
-                </div>
-                <span className="rounded-full bg-brand-50 px-3 py-1.5 text-sm font-extrabold text-brand-600">
-                  Cấp {celebration.personal.level}
-                </span>
-              </div>
-              <div className="mt-5">
-                <p className="text-sm font-extrabold text-brand-600">Hành trình riêng</p>
-                <h2 id="next-step-title" className="font-display text-2xl font-extrabold text-text">
-                  Bước tiếp theo của con
-                </h2>
-                <p className="mt-2 text-base font-semibold leading-relaxed text-muted">
-                  Con đã gom được{' '}
-                  <strong className="text-text">
-                    {celebration.personal.xp.toLocaleString('vi-VN')} điểm sáng tạo
-                  </strong>
-                  . Mỗi lần thử lại cũng là một bước tiến.
-                </p>
-              </div>
-              <Link to="/world" className="ui-btn ui-btn-primary mt-6 w-full">
-                Chọn thử thách mới
-                <span aria-hidden="true">→</span>
-              </Link>
-            </section>
           </div>
+
+          <section className="ui-card grid gap-5 overflow-hidden p-5 md:grid-cols-[1fr_auto] md:items-center sm:p-6" aria-labelledby="learning-next-title">
+            <div>
+              <p className="text-sm font-extrabold text-brand-600">Cột mốc học tập kế tiếp</p>
+              <h2 id="learning-next-title" className="font-display text-2xl font-extrabold">
+                {questsNeeded > 0
+                  ? `Hoàn thành thêm ${questsNeeded} nhiệm vụ`
+                  : 'Cột mốc mới đã sẵn sàng!'}
+              </h2>
+              <p className="mt-2 text-sm font-semibold text-muted">
+                Phần thưởng: sticker Storybook mới và mở tiếp hành trình học.
+                Đây là tiến độ hoàn thành, không phải XP toàn hệ sinh thái.
+              </p>
+              <div className="mt-4 flex flex-wrap gap-3">
+                <Link to="/world" className="ui-btn ui-btn-primary">
+                  Học tiếp →
+                </Link>
+                <Link to="/storybook?page=P01" className="ui-btn ui-btn-secondary">
+                  Xem sticker huyền thoại
+                </Link>
+              </div>
+            </div>
+            <div className="flex h-24 w-24 items-center justify-center rounded-[2rem] bg-gradient-to-br from-amber-100 to-yellow-300 text-5xl shadow-inner" aria-hidden>
+              📖
+            </div>
+          </section>
 
           <section className="ui-card p-5 sm:p-6" aria-labelledby="skills-title">
             <div>

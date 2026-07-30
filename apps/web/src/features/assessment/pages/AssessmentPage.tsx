@@ -19,6 +19,7 @@ import { useAgeExperience } from '@/shared/age-experience/AgeExperienceProvider'
 import { useToast } from '@/shared/hooks/useToast'
 import { api, type CourseSummary } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
+import { createUuid } from '@/shared/lib/uuid'
 
 type QuestionType =
   | 'single_choice'
@@ -212,7 +213,7 @@ export function AssessmentPage() {
         `/api/assessments/${assessmentId}/attempts`,
         {
           method: 'POST',
-          body: JSON.stringify({ clientAttemptId: crypto.randomUUID() }),
+          body: JSON.stringify({ clientAttemptId: createUuid() }),
         },
       )
       setAttempt(data.attempt)
@@ -309,7 +310,7 @@ export function AssessmentPage() {
           method: 'POST',
           body: JSON.stringify({
             attemptVersion: attempt.version,
-            clientSubmissionId: crypto.randomUUID(),
+            clientSubmissionId: createUuid(),
           }),
         },
       )
