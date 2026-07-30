@@ -130,6 +130,21 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(kidIcons).toContain('export function NavCreativeIcon')
   })
 
+  it('login and parent hand-off use the approved adult-gate copy', () => {
+    const login = read('features/auth/pages/LoginPage.tsx')
+    const shell = read('shared/components/layout/AppShell.tsx')
+    const parentGate = read('features/parent/components/ParentGateModal.tsx')
+    expect(login).not.toContain('designerAssets.brand.mascot')
+    expect(login).toContain('uppercase tracking-wide text-brand-600')
+    expect(login).toContain('Vào cổng sáng tạo')
+    expect(login).toContain('Cổng người lớn')
+    for (const source of [login, shell, parentGate]) {
+      expect(source).not.toMatch(/Ba\/Mẹ|Ba\/mẹ|ba\/mẹ/)
+    }
+    expect(shell).toContain('Ba / Mẹ')
+    expect(parentGate).toContain('Ba / Mẹ ơi!')
+  })
+
   it('ProfilePage surfaces streak + achievements APIs', () => {
     const src = read('features/profile/pages/ProfilePage.tsx')
     expect(src).toContain('/api/gamification/streak')

@@ -451,7 +451,7 @@ export function ParentLearningPage() {
       {children.length === 0 && !loading ? (
         <EmptyState
           title="Chưa có hồ sơ học viên"
-          description="Ba/mẹ hãy tạo hồ sơ cho con trước khi xem hành trình học."
+          description="Ba / Mẹ hãy tạo hồ sơ cho con trước khi xem hành trình học."
         />
       ) : loading ? (
         <PageSkeleton rows={4} />

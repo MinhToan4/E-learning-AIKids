@@ -23,7 +23,7 @@ const privacySections: Section[] = [
         <li>Hồ sơ trẻ: biệt danh, nhóm tuổi, ảnh đại diện, tùy chọn học tập và tiến độ.</li>
         <li>Nội dung: câu lệnh, tranh, truyện, nhân vật, tệp tham chiếu và sản phẩm học tập.</li>
         <li>Hoạt động kỹ thuật: phiên đăng nhập, trạng thái tác vụ, phiên bản ứng dụng, lỗi và chẩn đoán mạng cơ bản.</li>
-        <li>Camera/thư viện ảnh chỉ được truy cập khi người dùng chủ động chọn tính năng tương ứng.</li>
+        <li>Camera / thư viện ảnh chỉ được truy cập khi người dùng chủ động chọn tính năng tương ứng.</li>
       </ul>
     ),
   },
@@ -33,11 +33,11 @@ const privacySections: Section[] = [
   },
   {
     title: '4. AI và nhà cung cấp dịch vụ',
-    body: <>Khi người dùng chủ động tạo nội dung, prompt và tệp tham chiếu cần thiết có thể được gửi tới nhà cung cấp AI/media được AI Kid cấu hình. Dữ liệu cũng có thể được xử lý bởi nhà cung cấp hosting, lưu trữ, cơ sở dữ liệu, thông báo và xác thực. Các bên này chỉ được sử dụng dữ liệu để cung cấp dịch vụ theo yêu cầu.</>,
+    body: <>Khi người dùng chủ động tạo nội dung, prompt và tệp tham chiếu cần thiết có thể được gửi tới nhà cung cấp AI / media được AI Kid cấu hình. Dữ liệu cũng có thể được xử lý bởi nhà cung cấp hosting, lưu trữ, cơ sở dữ liệu, thông báo và xác thực. Các bên này chỉ được sử dụng dữ liệu để cung cấp dịch vụ theo yêu cầu.</>,
   },
   {
     title: '5. Trẻ em và sự đồng ý của phụ huynh',
-    body: <>Tài khoản gia đình do phụ huynh/người giám hộ tạo và quản lý. Trẻ không cần cung cấp email riêng. Phụ huynh kiểm soát hồ sơ trẻ, quyền tạo nội dung, chia sẻ và xóa dữ liệu. Chúng tôi giảm thiểu dữ liệu trẻ em và mặc định sản phẩm ở chế độ riêng tư.</>,
+    body: <>Tài khoản gia đình do phụ huynh / người giám hộ tạo và quản lý. Trẻ không cần cung cấp email riêng. Phụ huynh kiểm soát hồ sơ trẻ, quyền tạo nội dung, chia sẻ và xóa dữ liệu. Chúng tôi giảm thiểu dữ liệu trẻ em và mặc định sản phẩm ở chế độ riêng tư.</>,
   },
   {
     title: '6. Lưu trữ và xóa dữ liệu',
@@ -59,7 +59,7 @@ const privacySections: Section[] = [
 
 const termsSections: Section[] = [
   { title: '1. Chấp thuận điều khoản', body: <>Bằng việc tạo tài khoản hoặc sử dụng AI Kid, bạn đồng ý với Điều khoản này và <Link className="font-bold text-brand-600 underline" to="/privacy">Chính sách quyền riêng tư</Link>.</> },
-  { title: '2. Tài khoản gia đình và tổ chức', body: <>Chủ tài khoản phải có năng lực giao kết phù hợp. Phụ huynh/người giám hộ chịu trách nhiệm giám sát hồ sơ trẻ; tổ chức chịu trách nhiệm phân quyền giáo viên, quản trị viên và học sinh của mình.</> },
+  { title: '2. Tài khoản gia đình và tổ chức', body: <>Chủ tài khoản phải có năng lực giao kết phù hợp. Phụ huynh / người giám hộ chịu trách nhiệm giám sát hồ sơ trẻ; tổ chức chịu trách nhiệm phân quyền giáo viên, quản trị viên và học sinh của mình.</> },
   { title: '3. Nội dung người dùng', body: <>Bạn giữ quyền đối với nội dung đã tải lên và cấp cho AI Kid quyền giới hạn để lưu trữ, xử lý, truyền và hiển thị nội dung nhằm vận hành dịch vụ. Bạn phải có quyền sử dụng nội dung đã cung cấp.</> },
   { title: '4. Nội dung do AI tạo', body: <>Kết quả AI có thể không chính xác, không duy nhất hoặc bị giới hạn bởi chính sách của nhà cung cấp. Người dùng phải kiểm tra kết quả trước khi sử dụng hoặc chia sẻ.</> },
   { title: '5. Sử dụng được chấp nhận', body: <>Không được tạo hoặc tải lên nội dung bất hợp pháp, xâm hại trẻ em, xâm phạm quyền của người khác; không tấn công hệ thống, vượt giới hạn, giả mạo hoặc sử dụng dịch vụ để gây hại. Tài khoản vi phạm có thể bị đình chỉ.</> },
@@ -112,10 +112,10 @@ export function LegalPage({ kind }: { kind: LegalKind }) {
     ]} />
   } else if (kind === 'data-safety') {
     content = <Sections sections={[
-      { title: 'Dữ liệu có thể được thu thập', body: <>Tên/biệt danh, email người lớn, ID tài khoản, nội dung do người dùng tạo, ảnh/tệp người dùng chủ động chọn, hoạt động ứng dụng, thông tin thiết bị và chẩn đoán cơ bản.</> },
-      { title: 'Mục đích', body: <>Chức năng ứng dụng, quản lý tài khoản, cá nhân hóa học tập, bảo mật/chống gian lận, hỗ trợ, phân tích độ ổn định và tạo nội dung theo yêu cầu.</> },
+      { title: 'Dữ liệu có thể được thu thập', body: <>Tên / biệt danh, email người lớn, ID tài khoản, nội dung do người dùng tạo, ảnh / tệp người dùng chủ động chọn, hoạt động ứng dụng, thông tin thiết bị và chẩn đoán cơ bản.</> },
+      { title: 'Mục đích', body: <>Chức năng ứng dụng, quản lý tài khoản, cá nhân hóa học tập, bảo mật / chống gian lận, hỗ trợ, phân tích độ ổn định và tạo nội dung theo yêu cầu.</> },
       { title: 'Chia sẻ và bảo vệ', body: <>Không bán dữ liệu. Dữ liệu chỉ được truyền cho hạ tầng hoặc nhà cung cấp AI cần thiết để thực hiện tính năng. Dữ liệu được mã hóa khi truyền; người dùng có thể yêu cầu xóa.</> },
-      { title: 'Lưu ý cho khai báo cửa hàng', body: <>Trang này là bản tóm tắt công khai. Khai báo Data Safety/App Privacy phải bao quát chính xác mọi SDK và hành vi trong từng bản phát hành của ứng dụng.</> },
+      { title: 'Lưu ý cho khai báo cửa hàng', body: <>Trang này là bản tóm tắt công khai. Khai báo Data Safety / App Privacy phải bao quát chính xác mọi SDK và hành vi trong từng bản phát hành của ứng dụng.</> },
     ]} />
   } else {
     content = (

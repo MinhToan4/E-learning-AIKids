@@ -1183,10 +1183,15 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         raw.status === 'active' || raw.status === 'completed'
           ? raw.status
           : null
+      const isEnrolled =
+        enrolled ||
+        canonicalStatus === 'active' ||
+        canonicalStatus === 'completed'
       return {
         id: mapped.id,
         title: mapped.title,
         shortTitle: mapped.shortTitle,
+        enrolled: isEnrolled,
         status:
           canonicalStatus ??
           (completed ? 'completed' : enrolled ? 'active' : 'available'),
@@ -1744,6 +1749,9 @@ export type QuestDetail = {
         rounds?: unknown
         pairs?: unknown
         placements?: unknown
+        selectionMode?: 'required' | 'student_choice'
+        allowedTypes?: string[]
+        difficulty?: 'gentle' | 'steady' | 'challenge'
       }
       content?: string
       instruction?: string

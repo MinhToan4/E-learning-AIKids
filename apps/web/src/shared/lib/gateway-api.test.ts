@@ -212,7 +212,12 @@ describe('StoryMee Gateway adapter', () => {
 
     const result = await api<{
       recommendedCourseId: string | null
-      courses: Array<{ id: string; status: string; completionPercent: number }>
+      courses: Array<{
+        id: string
+        status: string
+        enrolled: boolean
+        completionPercent: number
+      }>
     }>('/api/learning/pathway')
 
     expect(result).toMatchObject({
@@ -262,8 +267,8 @@ describe('StoryMee Gateway adapter', () => {
     expect(result).toMatchObject({
       recommendedCourseId: 'course-1',
       courses: [
-        { id: 'course-1', status: 'active', completionPercent: 40 },
-        { id: 'course-2', status: 'completed', completionPercent: 100 },
+        { id: 'course-1', status: 'active', enrolled: true, completionPercent: 40 },
+        { id: 'course-2', status: 'completed', enrolled: true, completionPercent: 100 },
       ],
     })
   })

@@ -25,6 +25,12 @@ type AuthState = {
   activeContext: AccessContext | null
   loading: boolean
   error: string | null
+  /**
+   * WHY: true chỉ khi phụ huynh dùng luồng "Ba/Mẹ → Chuyển sang con" (enterAsChild).
+   * Con tự đăng nhập bằng nickname sẽ luôn là false.
+   * Đây là SSOT duy nhất để quyết định có hiển thị icon Ba/Mẹ trên Sidebar hay không.
+   */
+  enteredFromParent: boolean
   bootstrap: () => Promise<void>
   loginStudent: (
     nickname: string,
@@ -122,6 +128,8 @@ export const useAuth = create<AuthState>((set, get) => ({
   activeContext: null,
   loading: true,
   error: null,
+  // WHY: false theo mặc định — icon Ba/Mẹ sẽ ẩn cho mọi luồng login thông thường
+  enteredFromParent: false,
 
   setUser: (u) => set({ user: u }),
 
@@ -130,12 +138,13 @@ export const useAuth = create<AuthState>((set, get) => ({
     try {
       const { user } = await api<{ user: User }>('/api/auth/me')
       if (user.role === 'student') {
-        set({ user, access: null, activeContext: null, loading: false })
+        // WHY: bootstrap tức là tự đăng nhập (refresh trình duyệt), không phải từ phụ huynh
+        set({ user, access: null, activeContext: null, loading: false, enteredFromParent: false })
         return
       }
-      set({ ...(await hydrateAdultAccess(user)), loading: false })
+      set({ ...(await hydrateAdultAccess(user)), loading: false, enteredFromParent: false })
     } catch {
-      set({ user: null, access: null, activeContext: null, loading: false })
+      set({ user: null, access: null, activeContext: null, loading: false, enteredFromParent: false })
     }
   },
 
@@ -148,7 +157,8 @@ export const useAuth = create<AuthState>((set, get) => ({
         ...(opts?.pin ? { pin: opts.pin } : {}),
       }),
     })
-    set({ user, access: null, activeContext: null })
+    // WHY: loginStudent là con tự đăng nhập — KHÔNG phải từ phụ huynh chuyển sang
+    set({ user, access: null, activeContext: null, enteredFromParent: false })
     return user
   },
 
@@ -156,7 +166,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     set({ error: null })
     await disconnectFirebase()
     if (!pin) {
-      throw new Error('Ba/mẹ cần đặt mã PIN 6 số cho hồ sơ con trước khi vào học.')
+      throw new Error('Ba / Mẹ cần đặt mã PIN 6 số cho hồ sơ con trước khi vào học.')
     }
     const code = await api<{ familyCode: string }>(
       '/api/parent/family-login-code',
@@ -172,7 +182,9 @@ export const useAuth = create<AuthState>((set, get) => ({
         }),
       },
     )
-    set({ user, access: null, activeContext: null })
+    // WHY: enteredFromParent = true là flag duy nhất phân biệt phiên này với loginStudent.
+    // Không dùng parentId vì học sinh tự đăng nhập cũng có parentId.
+    set({ user, access: null, activeContext: null, enteredFromParent: true })
     return user
   },
 
@@ -241,7 +253,7 @@ export const useAuth = create<AuthState>((set, get) => ({
     } finally {
       await clearPreviousLearnerData()
       clearAccessToken()
-      set({ user: null, access: null, activeContext: null })
+      set({ user: null, access: null, activeContext: null, enteredFromParent: false })
     }
   },
 

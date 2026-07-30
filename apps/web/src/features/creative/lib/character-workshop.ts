@@ -38,13 +38,13 @@ export const CHARACTER_QUESTIONS: Record<CharacterCategoryId, CharacterQuestion[
     { subject: 'Biểu cảm', label: 'Biểu cảm hôm nay?', choices: ['vui vẻ', 'tinh nghịch', 'ngạc nhiên', 'lo lắng', 'dũng cảm'] },
   ],
   hair: [
-    { subject: 'Kiểu tóc/lông', label: 'Tóc hoặc lông thế nào?', choices: ['mượt mà', 'xoăn tít', 'dựng đứng', 'lộn xộn', 'phát sáng'] },
-    { subject: 'Màu tóc/lông', label: 'Màu gì?', choices: ['nâu hạt dẻ', 'hồng pastel', 'vàng kim', 'đen láy', 'xanh mint'] },
+    { subject: 'Kiểu tóc / lông', label: 'Tóc hoặc lông thế nào?', choices: ['mượt mà', 'xoăn tít', 'dựng đứng', 'lộn xộn', 'phát sáng'] },
+    { subject: 'Màu tóc / lông', label: 'Màu gì?', choices: ['nâu hạt dẻ', 'hồng pastel', 'vàng kim', 'đen láy', 'xanh mint'] },
     { subject: 'Phụ kiện đầu', label: 'Đội hoặc cài gì?', choices: ['không phụ kiện', 'nơ màu hồng', 'bờm tai gấu', 'kẹp tóc ngôi sao'] },
   ],
   clothes: [
     { subject: 'Áo', label: 'Mặc áo gì?', choices: ['hoodie khủng long', 'áo thun kẻ sọc', 'áo khoác len', 'áo choàng phép thuật'] },
-    { subject: 'Quần/Váy', label: 'Mặc quần hay váy?', choices: ['váy xếp ly', 'quần yếm bò', 'quần shorts', 'bộ đồ phi hành gia'] },
+    { subject: 'Quần / Váy', label: 'Mặc quần hay váy?', choices: ['váy xếp ly', 'quần yếm bò', 'quần shorts', 'bộ đồ phi hành gia'] },
     { subject: 'Giày dép', label: 'Đi giày gì?', choices: ['giày thể thao trắng', 'ủng đỏ', 'sandal', 'giày phát sáng'] },
     { subject: 'Phụ kiện', label: 'Mang theo gì?', choices: ['khăn quàng đỏ', 'ba lô gấu trúc', 'túi chéo nhỏ', 'đũa phép'] },
   ],

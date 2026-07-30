@@ -166,7 +166,7 @@ export function ParentPage({
             Phụ huynh
           </p>
           <h1 className="font-display text-2xl md:text-3xl">
-            Xin chào, {(user?.nickname || user?.name) ?? 'Ba/Mẹ'} 👋
+            Xin chào, {(user?.nickname || user?.name) ?? 'Ba / Mẹ'} 👋
           </h1>
         </div>
       </div>
@@ -239,13 +239,13 @@ function PlanTab() {
         </p>
         <h2 className="font-display text-2xl">Chọn gói phù hợp</h2>
         <p className="mt-1 text-sm text-muted">
-          Ba/mẹ chọn gói, tạo hồ sơ cho từng con. Con vào học bằng biệt danh (và PIN nếu có)
-          — không dùng mật khẩu của ba/mẹ.
+          Ba / Mẹ chọn gói, tạo hồ sơ cho từng con. Con vào học bằng biệt danh (và PIN nếu có)
+          — không dùng mật khẩu của Ba / Mẹ.
         </p>
         {sub && (
           <p className="mt-3 rounded-xl bg-mint-100 px-3 py-2 text-sm font-bold text-success">
             Đang dùng: {sub.planName} · {sub.childCount}/{sub.maxChildren} con · tối đa{' '}
-            {sub.maxOpenCoursesPerChild} khóa/con
+            {sub.maxOpenCoursesPerChild} khóa / con
           </p>
         )}
       </header>
@@ -388,7 +388,7 @@ function DashboardTab() {
 
 
 // ── Edit Child Modal — Full-screen — tên, avatar, mục tiêu, PIN ────
-// Ba/mẹ bấm ✏️ → modal này mở toàn màn hình, bao gồm cả đổi PIN
+// Ba / Mẹ bấm ✏️ → modal này mở toàn màn hình, bao gồm cả đổi PIN
 function EditChildModal({
   child,
   isOpen,
@@ -446,7 +446,7 @@ function EditChildModal({
           body: JSON.stringify({
             nickname: nickname.trim(),
             avatarId,
-            // Chỉ gửi pin nếu ba/mẹ điền; chuỗi rỗng = xóa PIN
+            // Chỉ gửi pin nếu Ba / Mẹ điền; chuỗi rỗng = xóa PIN
             ...(pin ? { pin } : {}),
           }),
         })
@@ -457,7 +457,7 @@ function EditChildModal({
             nickname: nickname.trim(),
             avatarId,
             goal,
-            // Gửi PIN kèm lúc tạo nếu ba/mẹ đặt ngay
+            // Gửi PIN kèm lúc tạo nếu Ba / Mẹ đặt ngay
             ...(pin ? { pin } : {}),
           }),
         })
@@ -814,7 +814,7 @@ function KidsTab() {
         </Button>
       </div>
       <p className="text-sm text-muted">
-        Ba/mẹ tạo hồ sơ cho con. Trên máy ở nhà, bấm “Vào học” để đưa máy cho con — không cần mật khẩu ba/mẹ.
+        Ba / Mẹ tạo hồ sơ cho con. Trên máy ở nhà, bấm “Vào học” để đưa máy cho con — không cần mật khẩu Ba / Mẹ.
       </p>
 
       <div className="grid gap-4 lg:grid-cols-2">
@@ -989,10 +989,10 @@ function KidsTab() {
                     ) : <p className="mt-2 text-sm text-muted">Con đang bắt đầu hành trình; hãy ghi nhận lần thử đầu tiên.</p>}
                   </div>
                   <div>
-                    <p className="text-xs font-extrabold uppercase tracking-wide text-sky-700">Ba/mẹ có thể hỏi con</p>
+                    <p className="text-xs font-extrabold uppercase tracking-wide text-sky-700">Ba / Mẹ có thể hỏi con</p>
                     <p className="mt-2 text-sm leading-relaxed text-text">
                       {progress.insights.nextFocus
-                        ? `“Con muốn kể cho ba/mẹ nghe về ${progress.insights.nextFocus.toLowerCase()} không?”`
+                        ? `“Con muốn kể cho Ba / Mẹ nghe về ${progress.insights.nextFocus.toLowerCase()} không?”`
                         : '“Sản phẩm nào trong khóa học làm con tự hào nhất?”'}
                     </p>
                   </div>
@@ -1008,7 +1008,7 @@ function KidsTab() {
               )}
               {progress.courses.length === 0 && (
                 <p className="rounded-2xl bg-page p-4 text-sm text-muted">
-                  Con chưa tham gia khóa học nào. Ba/mẹ có thể vào hồ sơ của con để chọn khóa phù hợp.
+                  Con chưa tham gia khóa học nào. Ba / Mẹ có thể vào hồ sơ của con để chọn khóa phù hợp.
                 </p>
               )}
               {progress.quests.map((q) => (
@@ -1086,7 +1086,7 @@ function KidsTab() {
         />
       )}
 
-      {/* Modal: ba/mẹ chọn khóa học cho con */}
+      {/* Modal: Ba / Mẹ chọn khóa học cho con */}
       {courseSelectTarget && (
         <CourseSelectModal
           child={courseSelectTarget}
@@ -1101,7 +1101,7 @@ function KidsTab() {
 
 // ── CourseSelectModal ──────────────────────────────────────────
 /**
- * Modal để ba/mẹ bật/tắt từng khóa học cho con.
+ * Modal để Ba / Mẹ bật/tắt từng khóa học cho con.
  * Toggle ON  → POST /api/parent/children/:id/courses { enroll: true }  → con học ngay
  * Toggle OFF → POST /api/parent/children/:id/courses { enroll: false } → ẩn khỏi lộ trình
  */
@@ -1401,7 +1401,7 @@ function ApprovalsTab() {
         Yêu cầu chia sẻ
       </h2>
       <p className="text-sm text-muted">
-        Sáng tạo của trẻ mặc định riêng tư — chỉ hiện khi ba/mẹ đồng ý.
+        Sáng tạo của trẻ mặc định riêng tư — chỉ hiện khi Ba / Mẹ đồng ý.
       </p>
 
       {approvals.length === 0 && friendInvites.length === 0 && (

@@ -23,6 +23,9 @@ import {
   NavLeaderboardIcon,
   NavProfileIcon,
   NavWorldIcon,
+  NavLevelIcon,
+  NavEventIcon,
+  NavStorybookIcon
 } from '@/shared/components/icons/KidNavIcons'
 import {
   ParentApprovalIcon,
@@ -113,9 +116,9 @@ const studentPinnedNav = [
   { to: '/leaderboard', label: 'Tiến bộ', icon: NavLeaderboardIcon },
 ]
 const studentDrawerNav = [
-  { to: '/level',        label: 'Cấp độ', icon: NavLeaderboardIcon },
-  { to: '/events',       label: 'Sự kiện', icon: NavWorldIcon },
-  { to: '/storybook',    label: 'Huyền thoại', icon: NavBadgeIcon   },
+  { to: '/level',        label: 'Cấp độ', icon: NavLevelIcon },
+  { to: '/events',       label: 'Sự kiện', icon: NavEventIcon },
+  { to: '/storybook',    label: 'Huyền thoại', icon: NavStorybookIcon   },
   { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon   },
   { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon },
   { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon },
@@ -126,10 +129,10 @@ const studentNav = [
   { to: '/world',        label: 'Học',      icon: NavWorldIcon       },
   { to: '/creative',     label: 'Xưởng',    icon: NavCreativeIcon    },
   { to: '/leaderboard',  label: 'Tiến bộ',  icon: NavLeaderboardIcon },
-  { to: '/level',        label: 'Cấp độ',    icon: NavLeaderboardIcon },
-  { to: '/events',       label: 'Sự kiện',   icon: NavWorldIcon       },
+  { to: '/level',        label: 'Cấp độ',    icon: NavLevelIcon },
+  { to: '/events',       label: 'Sự kiện',   icon: NavEventIcon       },
   { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon       },
-  { to: '/storybook',    label: 'Huyền thoại', icon: NavBadgeIcon     },
+  { to: '/storybook',    label: 'Huyền thoại', icon: NavStorybookIcon     },
   { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon    },
   { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon     },
 ]
@@ -148,7 +151,7 @@ function DesktopSideNav({ nav }: { nav: RoleNavItem[] }) {
           }
         >
           <span className="role-nav-icon" aria-hidden="true">
-            <Icon size={26} />
+            <Icon size={23} />
           </span>
           <span>{label}</span>
         </NavLink>
@@ -226,7 +229,7 @@ function StudentDrawer() {
               }
             >
               <span className="student-drawer-icon" aria-hidden="true">
-                <Icon size={26} />
+                <Icon size={23} />
               </span>
               <span>{label}</span>
             </NavLink>
@@ -251,7 +254,7 @@ function StudentDrawer() {
             }
           >
             <span className="student-nav-icon !h-8 !w-9 !rounded-xl" aria-hidden="true">
-              <Icon size={23} />
+              <Icon size={21} />
             </span>
             {label}
           </NavLink>
@@ -523,6 +526,8 @@ function AdultChrome({
 export function AppShell() {
   const user = useAuth((s) => s.user)
   const activeContext = useAuth((s) => s.activeContext)
+  const enteredFromParent = useAuth((s) => s.enteredFromParent)
+
   const [gateOpen, setGateOpen] = useState(false)
 
   if (user?.role === 'parent') {
@@ -531,11 +536,11 @@ export function AppShell() {
         brandTo="/parent"
         nav={[
           { to: '/kids', label: 'Cho con học', icon: NavWorldIcon },
-          { to: '/parent', label: 'Tổng quan', icon: ParentDashboardIcon, end: true },
+          { to: '/parent', label: 'Tổng quan', icon: NavHomeIcon, end: true },
           { to: '/parent/kids', label: 'Con của tôi', icon: ParentKidsIcon },
           { to: '/parent/plan', label: 'Gói học', icon: ParentPlanIcon },
           { to: '/parent/approvals', label: 'Chờ duyệt', icon: ParentApprovalIcon },
-          { to: '/parent/profile', label: 'Hồ sơ', icon: ParentProfileIcon },
+          { to: '/parent/profile', label: 'Hồ sơ', icon: NavProfileIcon },
         ]}
       />
     )
@@ -573,7 +578,6 @@ export function AppShell() {
       />
     )
   }
-
   if (user?.role === 'admin') {
     const allNav: RoleNavItem[] = [
       { to: '/admin', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
@@ -602,7 +606,9 @@ export function AppShell() {
     )
   }
 
-  const hasParent = Boolean(user?.parentId)
+  // WHY: Dùng enteredFromParent thay vì user?.parentId vì học sinh tự login cũng có parentId.
+  // Icon Ba/Mẹ chỉ xuất hiện khi phụ huynh chủ động dùng luồng "Chuyển sang con".
+  const showParentButton = enteredFromParent
   const location = useLocation()
   const isCreative = location.pathname.startsWith('/creative')
 
@@ -628,36 +634,36 @@ export function AppShell() {
             }
           >
             <span className="student-nav-icon" aria-hidden="true">
-              <Icon size={27} />
+              <Icon size={23} />
             </span>
             {label}
           </NavLink>
         ))}
 
-        {hasParent && (
+        {showParentButton && (
           <button
             type="button"
             onClick={() => setGateOpen(true)}
             aria-label="Gọi ba mẹ"
-            title="Ba/Mẹ ơi!"
+            title="Ba / Mẹ ơi!"
             className="mt-auto flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-extrabold text-amber-500 transition-all hover:scale-105 hover:bg-amber-50"
           >
-            <ParentHomeIcon size={24} />
-            <span>Ba/Mẹ</span>
+            <ParentHomeIcon size={28} />
+            <span>Ba / Mẹ</span>
           </button>
         )}
         
       </aside>
 
       <div className="fixed right-3 top-3 z-40 flex items-center gap-2 sm:right-4 md:right-6">
-        {hasParent && (
+        {showParentButton && (
           <button
             type="button"
             onClick={() => setGateOpen(true)}
             aria-label="Gọi ba mẹ"
             className="flex h-10 w-10 items-center justify-center rounded-2xl bg-amber-50 text-xl shadow-sm transition hover:bg-amber-100 md:hidden"
           >
-            <ParentHomeIcon size={20} />
+            <ParentHomeIcon size={24} />
           </button>
         )}
         <NotificationBell />

@@ -20,20 +20,20 @@ export type ArtStyleEntry = {
 }
 
 export const ART_STYLES: ArtStyleEntry[] = [
-  { id: 'watercolor', label: 'Màu Nước', img: '/assets/optimized/art-style-watercolor.jpg' },
-  { id: 'cartoon', label: 'Hoạt Hình', img: '/assets/optimized/art-style-cartoon.jpg' },
-  { id: 'crayon', label: 'Bút Sáp', img: '/assets/optimized/art-style-crayon.jpg' },
-  { id: 'anime', label: 'Anime', img: '/assets/optimized/art-style-anime.jpg' },
-  { id: 'manga', label: 'Manga', img: '/assets/optimized/art-style-manga.jpg' },
-  { id: 'comic', label: 'Truyện Tranh', img: '/assets/optimized/art-style-comic.jpg' },
-  { id: 'sketch', label: 'Tranh Chì', img: '/assets/optimized/art-style-sketch.jpg' },
-  { id: '3d', label: '3D', img: '/assets/optimized/art-style-3D.jpg' },
-  { id: 'pixel', label: 'Pixel', img: '/assets/optimized/art-style-pixel.jpg' },
-  { id: 'chibi', label: 'Chibi', img: '/assets/optimized/art-style-chibi.jpg' },
-  { id: 'clay', label: 'Đất Sét', img: '/assets/optimized/art-style-clay.jpg' },
-  { id: 'fabric', label: 'Vải Nỉ', img: '/assets/optimized/art-style-farbic.jpg' },
-  { id: 'manhwa', label: 'Manhwa', img: '/assets/optimized/art-style-manhwa.jpg' },
-  { id: 'semirealistic', label: 'Bán Tả Thực', img: '/assets/optimized/art-style-semirealistic.jpg' },
+  { id: 'watercolor', label: 'Màu Nước', img: '/assets/optimized/art-style-watercolor.webp' },
+  { id: 'cartoon', label: 'Hoạt Hình', img: '/assets/optimized/art-style-cartoon.webp' },
+  { id: 'crayon', label: 'Bút Sáp', img: '/assets/optimized/art-style-crayon.webp' },
+  { id: 'anime', label: 'Anime', img: '/assets/optimized/art-style-anime.webp' },
+  { id: 'manga', label: 'Manga', img: '/assets/optimized/art-style-manga.webp' },
+  { id: 'comic', label: 'Truyện Tranh', img: '/assets/optimized/art-style-comic.webp' },
+  { id: 'sketch', label: 'Tranh Chì', img: '/assets/optimized/art-style-sketch.webp' },
+  { id: '3d', label: '3D', img: '/assets/optimized/art-style-3D.webp' },
+  { id: 'pixel', label: 'Pixel', img: '/assets/optimized/art-style-pixel.webp' },
+  { id: 'chibi', label: 'Chibi', img: '/assets/optimized/art-style-chibi.webp' },
+  { id: 'clay', label: 'Đất Sét', img: '/assets/optimized/art-style-clay.webp' },
+  { id: 'fabric', label: 'Vải Nỉ', img: '/assets/optimized/art-style-farbic.webp' },
+  { id: 'manhwa', label: 'Manhwa', img: '/assets/optimized/art-style-manhwa.webp' },
+  { id: 'semirealistic', label: 'Bán Tả Thực', img: '/assets/optimized/art-style-semirealistic.webp' },
 ]
 
 export const STORY_GENRES = [

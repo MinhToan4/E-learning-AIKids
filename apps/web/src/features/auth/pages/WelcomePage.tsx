@@ -44,7 +44,7 @@ export function WelcomePage() {
               <Button>Bắt đầu ngay</Button>
             </Link>
             <Link to="/login?mode=adult">
-              <Button variant="secondary">Ba mẹ / Giáo viên</Button>
+              <Button variant="secondary">Ba / Mẹ / Giáo viên</Button>
             </Link>
           </div>
           <div className="mt-2 grid grid-cols-3 gap-2">

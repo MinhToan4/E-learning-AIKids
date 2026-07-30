@@ -23,9 +23,12 @@ import { CourseAuthoringWizard } from '../components/CourseAuthoringWizard'
 import { LectureAuthoringForm } from '../components/LectureAuthoringForm'
 import {
   PRACTICE_OPTIONS,
+  buildLectureGameConfig,
   courseDraftReadiness,
   lectureDraftReadiness,
+  serializeLectureGameConfig,
   type CourseDraft,
+  type LectureDraft,
 } from '../lib/authoring'
 import {
   CmsAnalyticsIcon,
@@ -59,6 +62,15 @@ type Lecture = LectureRow & {
   gameInstruction?: string
   gameOutcome?: string
   gameCards?: string[]
+  gameConfig?: {
+    cards?: string[]
+    selectionMode?: 'required' | 'student_choice'
+    allowedTypes?: string[]
+    difficulty?: 'gentle' | 'steady' | 'challenge'
+    groups?: unknown
+    rounds?: unknown
+    placements?: unknown
+  }
   practiceInstruction?: string
   product?: string
   checkQuestion?: string
@@ -124,7 +136,7 @@ function formatActivity(value: string | null): string {
   return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value))
 }
 
-const initialLectureForm = () => ({
+const initialLectureForm = (): LectureDraft => ({
   id: '',
   title: '',
   skill: '',
@@ -136,10 +148,14 @@ const initialLectureForm = () => ({
   reward: '',
   duration: '25–35 phút',
   goalsText: '',
-  gameType: 'pick',
+  gameType: 'blockly',
+  gameMode: 'required',
+  gameAllowedTypes: ['blockly'],
+  gameDifficulty: 'steady',
   gameInstruction: '',
   gameOutcome: '',
   gameCardsText: '',
+  gameStructuredText: '',
   practiceInstruction: '',
   product: '',
   checkQuestion: '',
@@ -295,6 +311,10 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
   // ── Handlers ─────────────────────────────────────────────
   function pickLecture(l: Lecture) {
+    const gameConfig = l.gameConfig ?? {}
+    const allowedTypes = Array.isArray(gameConfig.allowedTypes)
+      ? gameConfig.allowedTypes.filter((item): item is string => typeof item === 'string')
+      : [l.gameType ?? 'blockly']
     setSelected(l)
     setEditForm({
       ...initialLectureForm(),
@@ -309,10 +329,25 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
       goalsText: (l.goals ?? []).join('\n'),
       concept: l.concept ?? '',
       example: l.example ?? '',
-      gameType: l.gameType ?? 'pick',
+      gameType: l.gameType ?? 'blockly',
+      gameMode:
+        gameConfig.selectionMode === 'student_choice'
+          ? 'student_choice'
+          : 'required',
+      gameAllowedTypes:
+        allowedTypes.length > 0 ? allowedTypes : [l.gameType ?? 'blockly'],
+      gameDifficulty:
+        gameConfig.difficulty === 'gentle' ||
+        gameConfig.difficulty === 'challenge'
+          ? gameConfig.difficulty
+          : 'steady',
       gameInstruction: l.gameInstruction ?? '',
       gameOutcome: l.gameOutcome ?? '',
-      gameCardsText: (l.gameCards ?? []).join('\n'),
+      gameCardsText: (gameConfig.cards ?? l.gameCards ?? []).join('\n'),
+      gameStructuredText: serializeLectureGameConfig(
+        l.gameType ?? 'blockly',
+        gameConfig,
+      ),
       practiceInstruction: l.practiceInstruction ?? '',
       product: l.product ?? '',
       checkQuestion: l.checkQuestion ?? '',
@@ -349,8 +384,9 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           example: editForm.example,
           gameType: editForm.gameType,
           gameInstruction: editForm.gameInstruction,
-          gameOutcome: editForm.gameOutcome,
-          gameCards: splitLines(editForm.gameCardsText),
+           gameOutcome: editForm.gameOutcome,
+           gameCards: splitLines(editForm.gameCardsText),
+           gameConfig: buildLectureGameConfig(editForm),
           practiceInstruction: editForm.practiceInstruction,
           product: editForm.product,
           checkQuestion: editForm.checkQuestion,
@@ -477,8 +513,9 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           goals: splitLines(newLecture.goalsText),
           gameType: newLecture.gameType,
           gameInstruction: newLecture.gameInstruction,
-          gameOutcome: newLecture.gameOutcome,
-          gameCards: splitLines(newLecture.gameCardsText),
+           gameOutcome: newLecture.gameOutcome,
+           gameCards: splitLines(newLecture.gameCardsText),
+           gameConfig: buildLectureGameConfig(newLecture),
           practiceInstruction: newLecture.practiceInstruction,
           product: newLecture.product,
           checkQuestion: newLecture.checkQuestion,

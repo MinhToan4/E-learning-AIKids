@@ -104,7 +104,7 @@ export function SocialGraphPanel({ childId: _childId }: { childId: string }) {
     if (!window.confirm(`Ẩn ${connection.friend.name} khỏi vòng tròn và bảng hoạt động?`)) return
     try {
       await api(`/api/gamification/social/connections/${connection.id}`, { method: 'DELETE' })
-      setMessage('Đã ẩn kết nối. Ba/mẹ có thể hỗ trợ nếu con muốn kết nối lại.')
+      setMessage('Đã ẩn kết nối. Ba / Mẹ có thể hỗ trợ nếu con muốn kết nối lại.')
       await load()
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Chưa ẩn được kết nối.')

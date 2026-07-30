@@ -96,7 +96,7 @@ export function BackpackPage() {
         method: 'POST',
         body: JSON.stringify({ destination: 'family' }),
       })
-      setMsg('Đã gửi ba/mẹ duyệt chia sẻ!')
+      setMsg('Đã gửi Ba / Mẹ duyệt chia sẻ!')
       await load()
     } catch (e) {
       setMsg(e instanceof Error ? e.message : 'Lỗi')
@@ -194,7 +194,7 @@ export function BackpackPage() {
                       variant="secondary"
                       onClick={() => void requestShare(p.id)}
                     >
-                      Xin ba/mẹ chia sẻ
+                      Xin Ba / Mẹ chia sẻ
                     </Button>
                   )}
                 </div>

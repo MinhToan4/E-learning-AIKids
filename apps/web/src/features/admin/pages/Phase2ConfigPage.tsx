@@ -124,7 +124,7 @@ const submissions: Record<ConfigArea, Submission[]> = {
       id: 'framework',
       title: 'Khung năng lực',
       description:
-        'Nhập đúng ma trận miền/kỹ năng đã được khách hàng phê duyệt. Không dùng tuyên bố “được cơ quan nhà nước phê duyệt”.',
+        'Nhập đúng ma trận miền / kỹ năng đã được khách hàng phê duyệt. Không dùng tuyên bố “được cơ quan nhà nước phê duyệt”.',
       endpoint: '/api/admin/competency/frameworks',
       initial: {
         code: '',
@@ -251,7 +251,7 @@ const submissions: Record<ConfigArea, Submission[]> = {
       id: 'report-policy',
       title: 'Chu kỳ và kênh gửi báo cáo',
       description:
-        'Email/push/Zalo chỉ được ghi nhận đã gửi khi nhà cung cấp xác nhận thành công.',
+        'Email / push / Zalo chỉ được ghi nhận đã gửi khi nhà cung cấp xác nhận thành công.',
       endpoint: '/api/admin/report-policies',
       initial: {
         code: '',
@@ -427,7 +427,7 @@ export function Phase2ConfigPage() {
       return [
         { label: 'Mẫu chứng nhận', rows: snapshot.credentials.templates },
         { label: 'Quy tắc cấp', rows: snapshot.credentials.rules },
-        { label: 'Lịch sử cấp/thu hồi', rows: snapshot.credentials.issued },
+        { label: 'Lịch sử cấp / thu hồi', rows: snapshot.credentials.issued },
       ]
     }
     if (area === 'schedule') {
@@ -580,7 +580,7 @@ export function Phase2ConfigPage() {
               />
               <ProcessorCard
                 title="Xử lý hàng đợi gửi báo cáo"
-                description="Chạy tối đa 50 lượt đang chờ/thất bại đủ điều kiện thử lại."
+                description="Chạy tối đa 50 lượt đang chờ / thất bại đủ điều kiện thử lại."
                 endpoint="/api/admin/reports/deliveries/process"
                 onDone={(message, kind) => showToast(message, kind)}
               />

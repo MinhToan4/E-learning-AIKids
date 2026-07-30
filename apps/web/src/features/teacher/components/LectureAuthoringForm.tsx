@@ -2,6 +2,7 @@ import { useMemo, useState, type FormEvent, type ReactNode } from 'react'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 import {
+  GAME_DIFFICULTIES,
   GAME_OPTIONS,
   PRACTICE_OPTIONS,
   lectureDraftReadiness,
@@ -46,6 +47,41 @@ export function LectureAuthoringForm({
       ...value,
       title,
       id: idEditable && (!value.id || value.id === previousAutomaticId) ? slugifyAuthoringId(title) : value.id,
+    })
+  }
+
+  function changeGameType(gameType: string) {
+    onChange({
+      ...value,
+      gameType,
+      gameAllowedTypes:
+        value.gameMode === 'required'
+          ? [gameType]
+          : [...new Set([gameType, ...value.gameAllowedTypes])],
+    })
+  }
+
+  function changeGameMode(gameMode: LectureDraft['gameMode']) {
+    onChange({
+      ...value,
+      gameMode,
+      gameAllowedTypes:
+        gameMode === 'required'
+          ? [value.gameType]
+          : [...new Set([value.gameType, ...value.gameAllowedTypes])],
+    })
+  }
+
+  function toggleAllowedGame(gameType: string) {
+    const selected = value.gameAllowedTypes.includes(gameType)
+    const next = selected
+      ? value.gameAllowedTypes.filter((item) => item !== gameType)
+      : [...value.gameAllowedTypes, gameType]
+    onChange({
+      ...value,
+      gameAllowedTypes: next.includes(value.gameType)
+        ? next
+        : [value.gameType, ...next],
     })
   }
 
@@ -142,12 +178,96 @@ export function LectureAuthoringForm({
 
         {stepIndex === 1 && (
           <div className="grid gap-4">
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className={labelClass}>
+                Quyền chọn game
+                <select
+                  className={inputClass}
+                  value={value.gameMode}
+                  onChange={(event) =>
+                    changeGameMode(event.target.value as LectureDraft['gameMode'])
+                  }
+                >
+                  <option value="required">Bắt buộc game giáo viên chọn</option>
+                  <option value="student_choice">Học sinh chọn trong danh sách</option>
+                </select>
+                <span className="text-xs font-normal text-muted">
+                  Bài đặc thù nên khóa game; bài luyện tập có thể cho trẻ tự chọn.
+                </span>
+              </label>
+              <label className={labelClass}>
+                Nhịp thử thách
+                <select
+                  className={inputClass}
+                  value={value.gameDifficulty}
+                  onChange={(event) =>
+                    setField(
+                      'gameDifficulty',
+                      event.target.value as LectureDraft['gameDifficulty'],
+                    )
+                  }
+                >
+                  {GAME_DIFFICULTIES.map((option) => (
+                    <option key={option.id} value={option.id}>
+                      {option.label} · {option.description}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
             <label className={labelClass}>
-              Kiểu trò chơi
-              <select className={inputClass} value={value.gameType} onChange={(event) => setField('gameType', event.target.value)}>
+              Game chính
+              <select
+                className={inputClass}
+                value={value.gameType}
+                onChange={(event) => changeGameType(event.target.value)}
+              >
                 {GAME_OPTIONS.map((option) => <option key={option.id} value={option.id}>{option.label} · {option.description}</option>)}
               </select>
             </label>
+            {value.gameMode === 'student_choice' && (
+              <fieldset className="rounded-2xl border-2 border-brand-100 bg-brand-50/50 p-4">
+                <legend className="px-2 text-sm font-extrabold text-text">
+                  Những game học sinh được chọn
+                </legend>
+                <p className="mb-3 text-xs text-muted">
+                  Game chính luôn được giữ. Chọn thêm ít nhất một cách chơi cùng phục vụ mục tiêu AI của bài.
+                </p>
+                <div className="grid gap-2 sm:grid-cols-2">
+                  {GAME_OPTIONS.filter(
+                    (option) => option.choiceReady || option.id === value.gameType,
+                  ).map((option) => (
+                    <label
+                      key={option.id}
+                      className={cn(
+                        'flex min-h-12 items-center gap-3 rounded-xl border-2 bg-white px-3 text-sm font-bold',
+                        value.gameAllowedTypes.includes(option.id)
+                          ? 'border-brand-300 text-brand-700'
+                          : 'border-border text-muted',
+                      )}
+                    >
+                      <input
+                        type="checkbox"
+                        checked={value.gameAllowedTypes.includes(option.id)}
+                        disabled={option.id === value.gameType}
+                        onChange={() => toggleAllowedGame(option.id)}
+                        className="size-5 accent-brand-500"
+                      />
+                      <span aria-hidden="true">
+                        {option.id === 'blockly'
+                          ? '🧩'
+                          : option.id === 'math-kids'
+                            ? '🐒'
+                            : option.id === 'battle-math'
+                              ? '🔎'
+                              : '🧠'}
+                      </span>
+                      {option.label}
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
+            )}
             <label className={labelClass}>
               Hướng dẫn chơi
               <textarea className={`${textareaClass} min-h-28`} value={value.gameInstruction} onChange={(event) => setField('gameInstruction', event.target.value)} placeholder="Nói rõ học sinh cần làm gì và khi nào hoàn thành" autoFocus />
@@ -159,8 +279,24 @@ export function LectureAuthoringForm({
             <label className={labelClass}>
               Nội dung các thẻ chơi
               <textarea className={`${textareaClass} min-h-36`} value={value.gameCardsText} onChange={(event) => setField('gameCardsText', event.target.value)} placeholder={'Vẽ một con mèo\nVẽ một con mèo cam đang ngủ trên mái nhà'} />
-              <span className="text-xs font-normal text-muted">Mỗi dòng một thẻ, cần ít nhất hai thẻ.</span>
+              <span className="text-xs font-normal text-muted">
+                Mỗi dòng một ví dụ hoặc khái niệm của bài. Xưởng Edukiz dùng các thẻ này để gắn nhãn; các game khác giữ vòng chơi AI riêng.
+              </span>
             </label>
+            {value.gameType === 'edukiz' && (
+              <label className={labelClass}>
+                Các cặp ví dụ ↔ nhãn cho Xưởng Edukiz (không bắt buộc)
+                <textarea
+                  className={`${textareaClass} min-h-40 font-mono text-xs`}
+                  value={value.gameStructuredText}
+                  onChange={(event) => setField('gameStructuredText', event.target.value)}
+                  placeholder={'Ảnh chú mèo | Nhãn: mèo\nẢnh chú chó | Nhãn: chó'}
+                />
+                <span className="text-xs font-normal leading-relaxed text-muted">
+                  Mỗi dòng gồm ví dụ | nhãn đúng. Để trống, game dùng bộ ví dụ AI an toàn mặc định.
+                </span>
+              </label>
+            )}
           </div>
         )}
 

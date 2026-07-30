@@ -169,8 +169,8 @@ export function LegendRewardStudio() {
   const inspectAsset = async (file: File) => {
     if (form.contentType !== 'reward') {
       const allowed = ['image/png', 'image/webp', 'image/jpeg', 'application/json', 'video/webm']
-      if (!allowed.includes(file.type)) throw new Error('Chapter/Event chỉ nhận PNG, WebP, JPG, JSON hoặc WebM.')
-      if (file.size > 6 * 1024 * 1024) throw new Error('Asset Chapter/Event tối đa 6 MB.')
+      if (!allowed.includes(file.type)) throw new Error('Chapter / Event chỉ nhận PNG, WebP, JPG, JSON hoặc WebM.')
+      if (file.size > 6 * 1024 * 1024) throw new Error('Asset Chapter / Event tối đa 6 MB.')
       return `${file.name} · ${(file.size / 1024).toFixed(0)} KB · định dạng hợp lệ`
     }
     const spec = selectedSpec
@@ -498,7 +498,7 @@ export function LegendRewardStudio() {
                 <>
                   <div className="rounded-2xl border-2 border-amber-300 bg-[#fff9df] p-4">
                     <p className="text-xs font-black uppercase tracking-wider text-amber-800">Storybook Chapter Template</p>
-                    <p className="mt-1 text-sm text-amber-950">Một chapter gồm bìa/trang trái, nội dung truyện, bảng 9 sticker ở trang phải và quà hoàn thành. Không dùng layer/slot của reward.</p>
+                    <p className="mt-1 text-sm text-amber-950">Một chapter gồm bìa / trang trái, nội dung truyện, bảng 9 sticker ở trang phải và quà hoàn thành. Không dùng layer / slot của reward.</p>
                   </div>
                   <div className="grid gap-3 sm:grid-cols-3">
                     <label className="text-sm font-bold">Mã trang
@@ -556,7 +556,7 @@ export function LegendRewardStudio() {
                     <div className="flex flex-wrap items-end justify-between gap-2">
                       <div>
                         <h4 className="font-extrabold">9 sticker và khuôn placeholder</h4>
-                        <p className="text-xs text-muted">PNG/SVG nền trong suốt. Placeholder nên là silhouette/outline cùng đúng kích thước sticker thật.</p>
+                        <p className="text-xs text-muted">PNG / SVG nền trong suốt. Placeholder nên là silhouette / outline cùng đúng kích thước sticker thật.</p>
                       </div>
                       <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-900">{chapterStickers.filter((sticker) => sticker.imageUrl && sticker.placeholderUrl).length}/9 đủ bộ ảnh</span>
                     </div>
@@ -730,7 +730,7 @@ export function LegendRewardStudio() {
               <label className="mt-4 block text-xs font-bold">Display JSON
                 <textarea className={`${fieldClass} min-h-40 py-3 font-mono text-xs`} value={form.displayJson} onChange={(event) => setForm({ ...form, displayJson: event.target.value })} />
               </label>
-              <label className="mt-3 block text-xs font-bold">Chapter/Event JSON
+              <label className="mt-3 block text-xs font-bold">Chapter / Event JSON
                 <textarea className={`${fieldClass} min-h-32 py-3 font-mono text-xs`} value={form.contentJson} onChange={(event) => setForm({ ...form, contentJson: event.target.value })} />
               </label>
             </details>}

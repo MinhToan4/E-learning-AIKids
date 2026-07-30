@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest'
 import {
+  buildLectureGameConfig,
   courseDraftReadiness,
   lectureDraftReadiness,
+  serializeLectureGameConfig,
   slugifyAuthoringId,
 } from './authoring'
 
@@ -66,10 +68,14 @@ describe('lectureDraftReadiness', () => {
     reward: 'Huy hiệu Prompt sáng',
     duration: '25–35 phút',
     goalsText: 'Nhận ra prompt mơ hồ\nViết prompt đủ ba phần',
-    gameType: 'pick',
+    gameType: 'blockly',
+    gameMode: 'required' as const,
+    gameAllowedTypes: ['blockly'],
+    gameDifficulty: 'steady' as const,
     gameInstruction: 'Chọn hướng dẫn rõ ràng nhất để nhân vật AI hoàn thành nhiệm vụ.',
     gameOutcome: 'Phân biệt được prompt rõ và prompt mơ hồ.',
     gameCardsText: 'Vẽ một con mèo\nVẽ một con mèo cam đang ngủ trên mái nhà',
+    gameStructuredText: '',
     practiceInstruction: 'Viết một prompt ba phần và thử cải thiện sau khi xem kết quả.',
     product: 'Một prompt đã được cải thiện',
     checkQuestion: 'Prompt nào giúp AI hiểu nhiệm vụ rõ nhất?',
@@ -88,7 +94,7 @@ describe('lectureDraftReadiness', () => {
     })
 
     expect(readiness.complete).toBe(false)
-    expect(readiness.steps.find((step) => step.id === 'game')?.missing).toContain('Ít nhất 2 thẻ trò chơi')
+    expect(readiness.steps.find((step) => step.id === 'game')?.missing).toContain('Ít nhất 2 thẻ và cấu hình Edukiz đúng định dạng')
     expect(readiness.steps.find((step) => step.id === 'check')?.missing).toContain('3 lựa chọn trả lời')
   })
 
@@ -104,5 +110,56 @@ describe('lectureDraftReadiness', () => {
       completed: 4,
       total: 4,
     })
+  })
+
+  it('requires a real allowlist when students may choose the game', () => {
+    const readiness = lectureDraftReadiness({
+      ...completeDraft,
+      gameMode: 'student_choice',
+      gameAllowedTypes: ['blockly'],
+    })
+
+    expect(readiness.steps.find((step) => step.id === 'game')?.missing)
+      .toContain('Ít nhất 2 game cho học sinh lựa chọn')
+  })
+
+  it('requires shared cards when students can choose among engines', () => {
+    const readiness = lectureDraftReadiness({
+      ...completeDraft,
+      gameType: 'edukiz',
+      gameMode: 'student_choice',
+      gameAllowedTypes: ['edukiz', 'blockly'],
+      gameCardsText: '',
+      gameStructuredText:
+        'Màu vàng | Cảm giác vui\nMàu xanh | Bầu trời',
+    })
+
+    expect(readiness.steps.find((step) => step.id === 'game')?.missing)
+      .toContain('Ít nhất 2 thẻ dùng chung cho các game học sinh được chọn')
+  })
+
+  it('builds and restores Edukiz memory pairs', () => {
+    const draft = {
+      ...completeDraft,
+      gameType: 'edukiz',
+      gameMode: 'required' as const,
+      gameDifficulty: 'challenge' as const,
+      gameStructuredText:
+        'Màu vàng | Cảm giác vui\nMàu xanh | Bầu trời',
+    }
+    const config = buildLectureGameConfig(draft)
+
+    expect(config).toMatchObject({
+      selectionMode: 'required',
+      allowedTypes: ['edukiz'],
+      difficulty: 'challenge',
+      pairs: [
+        { left: 'Màu vàng', right: 'Cảm giác vui' },
+        { left: 'Màu xanh', right: 'Bầu trời' },
+      ],
+    })
+    expect(serializeLectureGameConfig('edukiz', config)).toBe(
+      draft.gameStructuredText,
+    )
   })
 })

@@ -38,6 +38,9 @@ describe('designer AIKid assets on disk', () => {
     expect(existsSync(publicPath(designerAssets.workshop.style))).toBe(true)
     expect(existsSync(publicPath(designerAssets.workshop.comic))).toBe(true)
     expect(existsSync(publicPath(designerAssets.course.comic))).toBe(true)
+    expect(existsSync(publicPath(designerAssets.game.coach))).toBe(true)
+    expect(existsSync(publicPath(designerAssets.game.map))).toBe(true)
+    expect(existsSync(publicPath(designerAssets.game.mapSmall))).toBe(true)
   })
 
   it('chrome + avatar catalog images exist on disk', () => {
@@ -67,6 +70,15 @@ describe('designer AIKid assets on disk', () => {
     expect(styleBytes).toBeLessThan(3 * 1024 * 1024)
     expect(statSync(publicPath(designerAssets.brand.mascot)).size).toBeLessThan(
       1024 * 1024,
+    )
+    expect(statSync(publicPath(designerAssets.game.coach)).size).toBeLessThan(
+      128 * 1024,
+    )
+    expect(statSync(publicPath(designerAssets.game.map)).size).toBeLessThan(
+      350 * 1024,
+    )
+    expect(statSync(publicPath(designerAssets.game.mapSmall)).size).toBeLessThan(
+      180 * 1024,
     )
   })
 })

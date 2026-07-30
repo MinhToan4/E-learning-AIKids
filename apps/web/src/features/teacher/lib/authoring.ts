@@ -43,9 +43,13 @@ export type LectureDraft = {
   duration: string
   goalsText: string
   gameType: string
+  gameMode: 'required' | 'student_choice'
+  gameAllowedTypes: string[]
+  gameDifficulty: 'gentle' | 'steady' | 'challenge'
   gameInstruction: string
   gameOutcome: string
   gameCardsText: string
+  gameStructuredText: string
   practiceInstruction: string
   product: string
   checkQuestion: string
@@ -76,13 +80,16 @@ export const PRACTICE_OPTIONS = [
 ] as const
 
 export const GAME_OPTIONS = [
-  { id: 'pick', label: 'Chọn đáp án', description: 'So sánh các thẻ và chọn phương án tốt nhất.' },
-  { id: 'detective', label: 'Thám tử', description: 'Tìm manh mối để kiểm chứng một kết quả.' },
-  { id: 'match', label: 'Ghép cặp', description: 'Nối hai thẻ có mối liên hệ đúng.' },
-  { id: 'sort', label: 'Phân loại', description: 'Đưa thẻ vào đúng nhóm.' },
-  { id: 'order', label: 'Xếp thứ tự', description: 'Sắp xếp các bước theo trình tự hợp lý.' },
-  { id: 'drag', label: 'Kéo thả', description: 'Đưa từng thẻ vào đúng vị trí.' },
-  { id: 'spin', label: 'Vòng quay', description: 'Nhận thử thách ngẫu nhiên để bắt đầu.' },
+  { id: 'blockly', label: 'Đội Cứu Hộ Dữ Liệu', description: 'Bốn màn lập trình, lệnh lặp và điều kiện.', choiceReady: true },
+  { id: 'math-kids', label: 'Khỉ Leo Cây Dữ Liệu', description: 'Toán ngắn trong tình huống AI học từ dữ liệu.', choiceReady: true },
+  { id: 'battle-math', label: 'Pháo Đài Kiểm Chứng', description: 'So prompt với 3–5 ảnh và bắt lỗi AI.', choiceReady: true },
+  { id: 'edukiz', label: 'Xưởng Huấn Luyện AI', description: 'Gắn nhãn, riêng tư, prompt và kiểm thử.', choiceReady: true },
+] as const
+
+export const GAME_DIFFICULTIES = [
+  { id: 'gentle', label: 'Nhẹ nhàng', description: 'Ít áp lực, ưu tiên gợi ý.' },
+  { id: 'steady', label: 'Vừa sức', description: 'Nhịp mặc định cho đa số học sinh.' },
+  { id: 'challenge', label: 'Nâng cao', description: 'Nhiều điểm thưởng và thử thách hơn.' },
 ] as const
 
 function lines(value: string): string[] {
@@ -91,6 +98,57 @@ function lines(value: string): string[] {
 
 function hasLength(value: string, minimum: number): boolean {
   return value.trim().length >= minimum
+}
+
+function structuredRows(value: string): string[][] {
+  return lines(value)
+    .map((row) => row.split('|').map((cell) => cell.trim()).filter(Boolean))
+    .filter((row) => row.length > 0)
+}
+
+function advancedGameConfigIsReady(draft: LectureDraft): boolean {
+  const rows = structuredRows(draft.gameStructuredText)
+  return draft.gameType !== 'edukiz' || rows.length === 0 ||
+    (rows.length >= 2 && rows.every((row) => row.length === 2))
+}
+
+export function buildLectureGameConfig(draft: LectureDraft) {
+  const cards = lines(draft.gameCardsText)
+  const rows = structuredRows(draft.gameStructuredText)
+  const config: Record<string, unknown> = {
+    cards,
+    selectionMode: draft.gameMode,
+    allowedTypes:
+      draft.gameMode === 'student_choice'
+        ? draft.gameAllowedTypes
+        : [draft.gameType],
+    difficulty: draft.gameDifficulty,
+  }
+
+  if (draft.gameType === 'edukiz' && rows.length > 0) {
+    config.pairs = rows.map(([left, right]) => ({ left, right }))
+  }
+
+  return config
+}
+
+export function serializeLectureGameConfig(
+  gameType: string,
+  value: unknown,
+): string {
+  if (!value || typeof value !== 'object' || Array.isArray(value)) return ''
+  const config = value as Record<string, unknown>
+  if (gameType === 'edukiz' && Array.isArray(config.pairs)) {
+    return config.pairs
+      .map((entry) => {
+        if (!entry || typeof entry !== 'object') return ''
+        const pair = entry as Record<string, unknown>
+        return [String(pair.left ?? ''), String(pair.right ?? '')].join(' | ')
+      })
+      .filter(Boolean)
+      .join('\n')
+  }
+  return ''
 }
 
 function step(id: AuthoringStepId, label: string, checks: Array<[boolean, string]>): AuthoringStep {
@@ -143,6 +201,9 @@ export function courseDraftReadiness(draft: CourseDraft): AuthoringReadiness {
 export function lectureDraftReadiness(draft: LectureDraft): AuthoringReadiness {
   const videoIsValid = !draft.videoUrl.trim() || /^https:\/\//i.test(draft.videoUrl.trim())
   const options = [draft.checkOption1, draft.checkOption2, draft.checkOption3]
+  const gameCardsAreReady =
+    lines(draft.gameCardsText).length >= 2 &&
+    lines(draft.gameCardsText).every((item) => hasLength(item, 2))
 
   return readiness([
     step('learn', 'Khám phá', [
@@ -157,9 +218,20 @@ export function lectureDraftReadiness(draft: LectureDraft): AuthoringReadiness {
     ]),
     step('game', 'Trò chơi', [
       [hasLength(draft.gameType, 2), 'Kiểu trò chơi'],
+      [
+        draft.gameMode === 'required' || draft.gameAllowedTypes.length >= 2,
+        'Ít nhất 2 game cho học sinh lựa chọn',
+      ],
       [hasLength(draft.gameInstruction, 10), 'Hướng dẫn trò chơi'],
       [hasLength(draft.gameOutcome, 5), 'Mục tiêu trò chơi'],
-      [lines(draft.gameCardsText).length >= 2 && lines(draft.gameCardsText).every((item) => hasLength(item, 2)), 'Ít nhất 2 thẻ trò chơi'],
+      [
+        gameCardsAreReady && advancedGameConfigIsReady(draft),
+        'Ít nhất 2 thẻ và cấu hình Edukiz đúng định dạng',
+      ],
+      [
+        draft.gameMode !== 'student_choice' || gameCardsAreReady,
+        'Ít nhất 2 thẻ dùng chung cho các game học sinh được chọn',
+      ],
     ]),
     step('practice', 'Sáng tạo', [
       [hasLength(draft.practiceKind, 2), 'Kiểu thực hành'],

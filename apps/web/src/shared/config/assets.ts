@@ -17,8 +17,8 @@ export const designerAssets = {
   },
   lobby: {
     bgHome: '/assets/designer/lobby/bg-home.png',
-    bgLogin: '/assets/designer/lobby/bg-login.jpeg',
-    bgCharacter: '/assets/designer/lobby/bg-character.png',
+    bgLogin: '/assets/optimized/lobby-bg-login.jpg',
+    bgCharacter: '/assets/optimized/lobby-bg-character.jpg',
     bgArt: '/assets/designer/lobby/bg-art.png',
     cardArt: '/assets/optimized/lobby-card_art.jpg',
     cardMee: '/assets/optimized/lobby-card_mee.jpg',
@@ -30,27 +30,27 @@ export const designerAssets = {
     titleArt: '/assets/designer/lobby/title-art-vn.png',
     homeCharacter: '/assets/optimized/lobby-home-character.jpg',
     homeExplore: '/assets/optimized/lobby-home-explore.jpg',
-    mii: '/assets/designer/lobby/mii-character.png',
-    girl: '/assets/designer/lobby/girl-character.png',
+    mii: '/assets/optimized/lobby-mii-character.jpg',
+    girl: '/assets/designer/lobby/girl-character.jpg',
     /** character-feature raw files removed; use optimized mascot as fallback */
     characterFeature: '/assets/optimized/brand-mascot.png',
   },
   /** Full AIkid art-style pack (filenames match designer export, including farbic typo). */
   styles: {
-    watercolor: '/assets/optimized/art-style-watercolor.jpg',
-    cartoon: '/assets/optimized/art-style-cartoon.jpg',
-    crayon: '/assets/optimized/art-style-crayon.jpg',
-    anime: '/assets/optimized/art-style-anime.jpg',
-    manga: '/assets/optimized/art-style-manga.jpg',
-    comic: '/assets/optimized/art-style-comic.jpg',
-    sketch: '/assets/optimized/art-style-sketch.jpg',
-    '3d': '/assets/optimized/art-style-3D.jpg',
-    pixel: '/assets/optimized/art-style-pixel.jpg',
-    chibi: '/assets/optimized/art-style-chibi.jpg',
-    clay: '/assets/optimized/art-style-clay.jpg',
-    fabric: '/assets/optimized/art-style-farbic.jpg',
-    manhwa: '/assets/optimized/art-style-manhwa.jpg',
-    semirealistic: '/assets/optimized/art-style-semirealistic.jpg',
+    watercolor: '/assets/optimized/art-style-watercolor.webp',
+    cartoon: '/assets/optimized/art-style-cartoon.webp',
+    crayon: '/assets/optimized/art-style-crayon.webp',
+    anime: '/assets/optimized/art-style-anime.webp',
+    manga: '/assets/optimized/art-style-manga.webp',
+    comic: '/assets/optimized/art-style-comic.webp',
+    sketch: '/assets/optimized/art-style-sketch.webp',
+    '3d': '/assets/optimized/art-style-3D.webp',
+    pixel: '/assets/optimized/art-style-pixel.webp',
+    chibi: '/assets/optimized/art-style-chibi.webp',
+    clay: '/assets/optimized/art-style-clay.webp',
+    fabric: '/assets/optimized/art-style-farbic.webp',
+    manhwa: '/assets/optimized/art-style-manhwa.webp',
+    semirealistic: '/assets/optimized/art-style-semirealistic.webp',
   } satisfies Record<ArtStyleId, string>,
   course: {
     /** designer/hub deleted — use optimized lobby versions instead */
@@ -66,9 +66,15 @@ export const designerAssets = {
   },
   workshop: {
     character: '/assets/optimized/lobby-home-character.jpg',
-    style: '/assets/optimized/art-style-clay.jpg',
+    style: '/assets/optimized/art-style-clay.webp',
     comic: '/assets/optimized/lobby-art-comic.jpg',
     mee: '/assets/optimized/lobby-card_mee.jpg',
+  },
+  game: {
+    /** Original StoryMee game companion, generated for the encouraging play loop. */
+    coach: '/assets/game/mii-game-coach.png',
+    map: '/assets/game/idea-island-map.jpg',
+    mapSmall: '/assets/game/idea-island-map-960.jpg',
   },
   /** Decorative chrome (badges, maps) — designer Soft Clay */
   chrome: {

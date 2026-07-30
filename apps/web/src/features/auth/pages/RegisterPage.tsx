@@ -178,7 +178,7 @@ export function RegisterPage() {
                 required
               />
               <span>
-                Tôi là phụ huynh/người giám hộ và đồng ý quản lý tài khoản trẻ em theo{' '}
+                Tôi là phụ huynh / người giám hộ và đồng ý quản lý tài khoản trẻ em theo{' '}
                 <Link to="/terms" className="font-bold text-brand-500 hover:underline">
                   điều khoản của StoryMee
                 </Link>.

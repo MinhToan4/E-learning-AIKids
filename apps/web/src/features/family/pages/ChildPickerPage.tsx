@@ -50,7 +50,7 @@ export function ChildPickerPage() {
       showToast(
         e instanceof Error
           ? e.message
-          : 'Chưa tải được danh sách. Ba/mẹ đăng nhập lại giúp nhé.',
+          : 'Chưa tải được danh sách. Ba / Mẹ đăng nhập lại giúp nhé.',
         'error',
       )
     } finally {
@@ -97,7 +97,7 @@ export function ChildPickerPage() {
   function onPick(child: ChildCard) {
     setPin('')
     // PIN bắt buộc (auth store mới yêu cầu). Luôn mở PinPadModal —
-    // nếu con chưa có PIN, server sẽ trả về lỗi hướng dẫn ba/mẹ đặt PIN.
+    // nếu con chưa có PIN, server sẽ trả về lỗi hướng dẫn Ba / Mẹ đặt PIN.
     setSelected(child)
   }
 
@@ -144,9 +144,9 @@ export function ChildPickerPage() {
           <Link
             to="/parent"
             className="ui-btn ui-btn-primary shrink-0 !min-h-11 !px-5 text-sm shadow-soft"
-            title="Quay lại khu vực ba/mẹ"
+            title="Quay lại khu vực Ba / Mẹ"
           >
-            Khu vực Ba/mẹ
+            Khu vực Ba / Mẹ
           </Link>
         </header>
 
@@ -159,7 +159,7 @@ export function ChildPickerPage() {
             />
             <h2 className="font-display text-2xl">Chưa có hồ sơ con</h2>
             <p className="text-sm text-muted">
-              Ba/mẹ thêm biệt danh và ảnh đại diện cho con trước nhé.
+              Ba / Mẹ thêm biệt danh và ảnh đại diện cho con trước nhé.
             </p>
             <Link to="/parent/kids">
               <Button>Thêm hồ sơ con</Button>
@@ -220,7 +220,7 @@ export function ChildPickerPage() {
               navigate('/login?mode=adult')
             }}
           >
-            Đăng xuất ba/mẹ
+            Đăng xuất Ba / Mẹ
           </button>
         </footer>
       </div>
@@ -234,7 +234,7 @@ export function ChildPickerPage() {
         }}
         onSubmit={(p) => selected && confirmEnter(selected, p)}
         title={selected ? `Xin chào ${selected.nickname}!` : ''}
-        subtitle="Nhập mã PIN 6 số ba/mẹ đã đặt"
+        subtitle="Nhập mã PIN 6 số Ba / Mẹ đã đặt"
         avatarContent={
           selected ? (
             avatarImage(selected.avatarId) ? (

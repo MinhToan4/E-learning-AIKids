@@ -233,7 +233,7 @@ function CourseCard({ course }: { course: CourseSummary }) {
 
       {/* Content */}
       <div className="p-3">
-        <h3 className="font-display text-base leading-snug group-hover:text-brand-600 transition-colors">
+        <h3 className="font-display text-lg font-bold leading-snug group-hover:text-brand-600 transition-colors">
           {course.shortTitle}
         </h3>
         <p className="mt-0.5 text-xs text-muted line-clamp-2">{course.tagline}</p>
@@ -280,22 +280,33 @@ export function HomePage() {
     try {
       // WHY: Run all independent API calls in parallel to cut perceived load time
       // from serial round-trips down to one batched round-trip.
-      const [c, enrollmentData, s, a, missionResult, profile] =
+      const fetchMissionAndStreak = async () => {
+        let streak = null
+        try {
+          streak = await api<{ current: number; longest: number; lastActivityDate: string | null }>('/api/gamification/check-in', { method: 'POST' })
+        } catch {
+          streak = await api<{ current: number; longest: number; lastActivityDate: string | null }>('/api/gamification/streak').catch(() => null)
+        }
+        const mission = await api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission').catch(() => null)
+        return { streak, mission }
+      }
+
+      const [c, enrollmentData, a, profile, gamification] =
         await Promise.all([
         api<{ courses: CourseSummary[] }>('/api/courses'),
         api<{ enrollments: EnrollmentSummary[] }>('/api/enrollments'),
-        api<{ current: number; longest: number; lastActivityDate: string | null }>('/api/gamification/streak'),
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
-        api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission')
-          .catch(() => null),
         api<{ totalXp: number; level: number }>('/api/gamification/profile'),
+        fetchMissionAndStreak()
       ])
       setCourses(coursesWithEnrollments(c.courses, enrollmentData.enrollments))
-      setStreak({
-        current: s.current,
-        longest: s.longest,
-        lastActivityDate: s.lastActivityDate,
-      })
+      if (gamification.streak) {
+        setStreak({
+          current: gamification.streak.current,
+          longest: gamification.streak.longest,
+          lastActivityDate: gamification.streak.lastActivityDate,
+        })
+      }
       const unlockedBadges = a.achievements.filter((achievement) => achievement.unlocked)
       const firstMilestone = a.achievements.find(
         (achievement) => achievement.type === 'first_quest',
@@ -309,16 +320,10 @@ export function HomePage() {
             ? [firstMilestone]
             : a.achievements.slice(0, 1),
       )
-      if (missionResult?.mission) {
-          const mission = missionResult.mission
-          const seenKey = `aikids.daily-mission-seen.${user?.id ?? 'learner'}.${mission.key}.${mission.periodKey}`
-          const completionToken = mission.completedAt ?? ''
-          if (!completionToken || localStorage.getItem(seenKey) !== completionToken) {
-            setDailyMission(mission)
-            if (completionToken) localStorage.setItem(seenKey, completionToken)
-          } else {
-            setDailyMission(null)
-          }
+      if (gamification.mission?.mission) {
+        setDailyMission(gamification.mission.mission)
+      } else {
+        setDailyMission(null)
       }
       setExplorerXp(profile.totalXp)
     } catch (e) {

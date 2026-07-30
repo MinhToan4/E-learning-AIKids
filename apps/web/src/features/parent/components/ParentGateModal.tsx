@@ -6,7 +6,7 @@ import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButto
 import { ParentHomeIcon } from '@/shared/components/icons/ParentHomeIcon'
 
 /**
- * ParentGateModal — child taps "Ba/Mẹ ơi!" to hand device back to parent.
+ * ParentGateModal — child taps "Ba / Mẹ ơi!" to hand device back to parent.
  *
  * Two auth paths:
  *  1. Password  → POST /api/parent/gate/verify (verifies parent's passwordHash)
@@ -61,7 +61,7 @@ export function ParentGateModal({
 
   const handleSubmit = useCallback(async () => {
     if (!password.trim()) {
-      setError('Nhập mật khẩu của ba/mẹ nhé!')
+      setError('Nhập mật khẩu của Ba / Mẹ nhé!')
       return
     }
     setLoading(true)
@@ -110,9 +110,9 @@ export function ParentGateModal({
           <div className="mx-auto mb-3 flex h-20 w-20 items-center justify-center rounded-3xl bg-white/20 shadow-inner">
             <ParentHomeIcon size={42} />
           </div>
-          <h2 className="text-2xl font-black text-white">Ba/Mẹ ơi!</h2>
+          <h2 className="text-2xl font-black text-white">Ba / Mẹ ơi!</h2>
           <p className="mt-1 text-sm text-white/85">
-            Nhập mật khẩu hoặc đăng nhập Google của ba/mẹ
+            Nhập mật khẩu hoặc đăng nhập Google của Ba / Mẹ
           </p>
         </div>
 
@@ -137,7 +137,7 @@ export function ParentGateModal({
                   setError(null)
                 }}
                 onKeyDown={(e) => e.key === 'Enter' && void handleSubmit()}
-                placeholder="Nhập mật khẩu đăng nhập của ba/mẹ"
+                placeholder="Nhập mật khẩu đăng nhập của Ba / Mẹ"
                 autoComplete="current-password"
                 disabled={loading}
                 className={`w-full rounded-2xl border-2 px-4 py-3.5 pr-12 text-sm font-medium outline-none transition-all

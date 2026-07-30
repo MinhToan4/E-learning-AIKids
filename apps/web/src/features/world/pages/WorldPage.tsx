@@ -352,7 +352,14 @@ const reasonLabels: Record<string, string> = {
 }
 
 function PathwayOverview({ pathway }: { pathway: Pathway }) {
-  const visibleCourses = pathway.courses.filter((course) => course.enrolled)
+  // Canonical LMS pathway rows are enrollments by definition. Keep the status
+  // fallback so an older gateway cannot hide a course by omitting `enrolled`.
+  const visibleCourses = pathway.courses.filter(
+    (course) =>
+      course.enrolled ||
+      course.status === 'active' ||
+      course.status === 'completed',
+  )
   const recommended = visibleCourses.find(
     (course) => course.id === pathway.recommendedCourseId,
   )

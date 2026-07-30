@@ -288,7 +288,7 @@ export function CourseIntroPage() {
         </Button>
         {!enrolled && (
           <p className="basis-full text-xs font-semibold text-muted">
-            Đăng ký tạo enrollment riêng cho con. Khi bổ sung gói trả phí, bước này sẽ kiểm tra quyền sở hữu hoặc yêu cầu ba/mẹ duyệt trước khi mở bài.
+            Đăng ký tạo enrollment riêng cho con. Khi bổ sung gói trả phí, bước này sẽ kiểm tra quyền sở hữu hoặc yêu cầu Ba / Mẹ duyệt trước khi mở bài.
           </p>
         )}
       </div>

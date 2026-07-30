@@ -5,365 +5,421 @@ interface IconProps extends React.SVGProps<SVGSVGElement> {
   className?: string
 }
 
-/**
- * 3D Soft-Clay SVG Icon Suite designed specifically for AI Kids Creator Academy.
- * Features warm palettes, rich gradients, rounded geometry, and vibrant friendly depth.
- * Strictly aligned with docs/UI_DESIGN_SYSTEM.md (Section 6).
- */
-
 export function NavHomeIcon({ size = 24, className = '', ...props }: IconProps) {
-  const id = React.useId()
-  const roofId = `homeRoof-${id}`
-  const baseId = `homeBase-${id}`
-  const doorId = `homeDoor-${id}`
-
+  const baseId = React.useId().replace(/:/g, '');
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="0 0 515 516"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       {...props}
     >
-      <defs>
-        <linearGradient id={roofId} x1="16" y1="4" x2="16" y2="17" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FF7B93" />
-          <stop offset="1" stopColor="#C03955" />
-        </linearGradient>
-        <linearGradient id={baseId} x1="16" y1="14" x2="16" y2="28" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FFF9E6" />
-          <stop offset="1" stopColor="#FFC94A" />
-        </linearGradient>
-        <linearGradient id={doorId} x1="16" y1="20" x2="16" y2="28" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#6D5EFC" />
-          <stop offset="1" stopColor="#4436BD" />
-        </linearGradient>
-      </defs>
-      {/* Base */}
-      <path
-        d="M16 4.5L3.5 15C2.8 15.6 3.2 16.8 4.2 16.8H6.5V26.5C6.5 27.6 7.4 28.5 8.5 28.5H23.5C24.6 28.5 25.5 27.6 25.5 26.5V16.8H27.8C28.8 16.8 29.2 15.6 28.5 15L16 4.5Z"
-        fill={`url(#${baseId})`}
-        stroke="#F59E0B"
-        strokeWidth="1.2"
-      />
-      {/* Roof */}
-      <path
-        d="M16 3.5L2.8 14.2C2.1 14.8 2.5 16 3.5 16H28.5C29.5 16 29.9 14.8 29.2 14.2L16 3.5Z"
-        fill={`url(#${roofId})`}
-        stroke="#C03955"
-        strokeWidth="1.2"
-        strokeLinejoin="round"
-      />
-      {/* Door */}
-      <rect x="12" y="19" width="8" height="9.5" rx="4" fill={`url(#${doorId})`} />
-      {/* Door Knob */}
-      <circle cx="18" cy="24" r="1" fill="#FFEAA7" />
-      {/* Window */}
-      <circle cx="16" cy="11.5" r="2.5" fill="#3DBFFF" stroke="#0878B5" strokeWidth="1" />
-    </svg>
-  )
-}
-
-/** A little maker desk: the student entry point for the Creative Workshop. */
-export function NavCreativeIcon({ size = 24, className = '', ...props }: IconProps) {
-  const id = React.useId().replace(/:/g, '')
-  const deskId = `creativeDesk-${id}`
-  const paperId = `creativePaper-${id}`
-
-  return (
-    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" className={className} {...props}>
-      <defs>
-        <linearGradient id={deskId} x1="7" y1="21" x2="25" y2="28" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#6D5EFC" />
-          <stop offset="1" stopColor="#4436BD" />
-        </linearGradient>
-        <linearGradient id={paperId} x1="11" y1="6" x2="22" y2="21" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#E8F8FF" />
-          <stop offset="1" stopColor="#3DBFFF" />
-        </linearGradient>
-      </defs>
-      <path d="M8 20.5H24L26.5 27.5C26.8 28.4 26.1 29 25.2 29H6.8C5.9 29 5.2 28.4 5.5 27.5L8 20.5Z" fill={`url(#${deskId})`} stroke="#4436BD" strokeWidth="1.2" strokeLinejoin="round" />
-      <rect x="10" y="5" width="12" height="17" rx="3" fill={`url(#${paperId})`} stroke="#0878B5" strokeWidth="1.2" />
-      <path d="M13.5 11.5H18.5M13.5 15H17" stroke="#0878B5" strokeWidth="1.5" strokeLinecap="round" />
-      <path d="M21.8 12.2L25.6 8.4C26.3 7.7 27.4 7.7 28.1 8.4C28.8 9.1 28.8 10.2 28.1 10.9L24.3 14.7L21 15.5L21.8 12.2Z" fill="#FFC94A" stroke="#A66B12" strokeWidth="1.1" strokeLinejoin="round" />
-      <circle cx="8" cy="7" r="2" fill="#3ED9A0" stroke="#178A5C" strokeWidth="1" />
+      <path d="M282.782 48.4902C306.53 48.4904 325.781 67.7423 325.782 91.4902V143.543C325.782 145.05 325.703 146.539 325.551 148.006H399.151C422.899 148.006 442.152 167.258 442.152 191.006V472.351C442.152 496.098 422.9 515.35 399.152 515.351H112.284C88.5355 515.351 69.2837 496.098 69.2837 472.35V191.006C69.2837 167.258 88.5354 148.006 112.284 148.006H185.883C185.732 146.539 185.654 145.05 185.654 143.543V91.4902C185.654 67.7422 204.906 48.4902 228.654 48.4902H282.782Z" fill={`url(#paint0_linear_95_91-${baseId})`}/>
+<path d="M253.403 366.453C254.849 366.436 254.849 366.436 256.324 366.418C271.821 366.48 286.64 372.589 297.781 383.383C313.826 400.851 316.501 418.993 316.321 441.781C316.316 443.655 316.313 445.53 316.311 447.404C316.296 454.295 316.254 461.187 316.215 468.078C316.153 483.506 316.091 498.933 316.028 514.828C276.098 514.828 236.168 514.828 195.028 514.828C194.945 498.761 194.863 482.694 194.778 466.141C194.741 461.09 194.705 456.04 194.667 450.837C194.649 444.612 194.649 444.612 194.646 441.686C194.64 439.667 194.626 437.649 194.605 435.63C194.411 415.468 197.249 399.337 211.676 384.113C223.444 372.678 236.953 366.257 253.403 366.453Z" fill={`url(#paint1_linear_95_91-${baseId})`}/>
+<path d="M285.027 208.318C294.501 215.515 301.899 224.106 306.027 235.318C306.563 236.625 306.563 236.625 307.109 237.958C310.954 252.027 308.28 268.035 301.277 280.568C293.382 292.716 283.009 301.062 269.027 305.318C252.803 308.688 238.035 305.751 224.027 297.318C212.955 289.148 204.399 277.064 202.027 263.318C200.483 244.259 203.489 231.158 215.762 216.205C233.968 196.17 262.626 194.404 285.027 208.318Z" fill="#FAF1E1"/>
+<path d="M388.719 23.5901C390.009 23.578 390.009 23.578 391.324 23.5657C393.148 23.5518 394.971 23.5411 396.794 23.5333C398.646 23.5218 400.497 23.5014 402.348 23.4717C424.981 23.1092 424.981 23.1092 433.902 31.0784C438.884 36.5302 442.156 43.1216 442.148 50.555C442.15 52.0127 442.15 52.0127 442.152 53.4997C442.146 55.0965 442.146 55.0965 442.141 56.7256C442.141 57.8477 442.141 58.9698 442.141 60.1259C442.141 63.8432 442.133 67.5604 442.125 71.2776C442.123 73.8517 442.122 76.4257 442.121 78.9998C442.117 85.0877 442.109 91.1756 442.099 97.2635C442.088 104.194 442.083 111.125 442.078 118.057C442.067 132.314 442.05 146.571 442.027 160.828C440.902 159.867 439.778 158.905 438.653 157.942C438.027 157.406 437.4 156.871 436.755 156.319C434.933 154.747 433.157 153.139 431.406 151.489C430.79 150.909 430.173 150.329 429.537 149.731C428.895 149.124 428.252 148.517 427.59 147.891C426.173 146.558 424.757 145.224 423.34 143.891C422.623 143.215 421.906 142.54 421.168 141.844C417.815 138.687 414.452 135.539 411.09 132.391C405.562 127.211 400.043 122.022 394.527 116.828C391.694 114.161 388.861 111.495 386.027 108.828C384.974 107.837 384.974 107.837 383.899 106.825C381.818 104.867 379.736 102.91 377.652 100.953C376.994 100.335 376.336 99.7167 375.658 99.0796C370.821 94.5463 365.921 90.0902 360.969 85.6839C358.378 83.2082 358.055 82.351 357.866 78.7308C357.829 75.1963 357.796 71.6623 357.787 68.1277C357.778 65.8648 357.747 63.6028 357.715 61.3401C357.636 50.7584 358.252 41.1906 365.145 32.6526C372.07 25.9427 379.316 23.674 388.719 23.5901Z" fill={`url(#paint2_linear_95_91-${baseId})`}/>
+<path d="M257.301 7.88186e-05C266.658 -0.0187648 276.047 3.34111 283.484 10.1661L502.095 210.785C517.811 225.208 518.86 249.64 504.437 265.356C490.015 281.072 465.583 282.121 449.867 267.698L257.301 90.9815L64.7378 267.698C49.0218 282.121 24.5891 281.072 10.1666 265.356C-4.25567 249.64 -3.20734 225.208 12.5083 210.785L231.121 10.1661C238.557 3.34146 247.945 -0.0184111 257.301 7.88186e-05Z" fill={`url(#paint3_linear_95_91-${baseId})`}/>
+<defs>
+<linearGradient id={`paint0_linear_95_91-${baseId}`} x1="149.594" y1="127.636" x2="405.657" y2="494.271" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FFC566"/>
+<stop offset="1" stopColor="#FA9D05"/>
+</linearGradient>
+<linearGradient id={`paint1_linear_95_91-${baseId}`} x1="255.462" y1="366.418" x2="255.462" y2="514.828" gradientUnits="userSpaceOnUse">
+<stop stopColor="#1E434F"/>
+<stop offset="0.516721" stopColor="#295C6C"/>
+<stop offset="1" stopColor="#459AB5"/>
+</linearGradient>
+<linearGradient id={`paint2_linear_95_91-${baseId}`} x1="382.628" y1="169.257" x2="382.628" y2="23.3555" gradientUnits="userSpaceOnUse">
+<stop stopColor="#459AB5"/>
+<stop offset="0.480769" stopColor="#327084"/>
+<stop offset="1" stopColor="#1E434F"/>
+</linearGradient>
+<linearGradient id={`paint3_linear_95_91-${baseId}`} x1="137.373" y1="41.5062" x2="234.561" y2="232.971" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FF6E8E"/>
+<stop offset="1" stopColor="#FF315E"/>
+</linearGradient>
+</defs>
     </svg>
   )
 }
 
 export function NavWorldIcon({ size = 24, className = '', ...props }: IconProps) {
-  const id = React.useId()
-  const oceanId = `worldOcean-${id}`
-  const landId = `worldLand-${id}`
-
+  const baseId = React.useId().replace(/:/g, '');
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="0 0 620 449"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       {...props}
     >
-      <defs>
-        <linearGradient id={oceanId} x1="16" y1="4" x2="16" y2="28" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#3DBFFF" />
-          <stop offset="1" stopColor="#0878B5" />
-        </linearGradient>
-        <linearGradient id={landId} x1="16" y1="6" x2="16" y2="26" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#3ED9A0" />
-          <stop offset="1" stopColor="#178A5C" />
-        </linearGradient>
-      </defs>
-      {/* Globe base */}
-      <circle cx="16" cy="16" r="12" fill={`url(#${oceanId})`} stroke="#0878B5" strokeWidth="1.2" />
-      {/* Continents */}
-      <path
-        d="M11 9.5C12.5 8 15 8.5 16 10C17 11.5 15.5 13 14 13.5C12.5 14 10 12.5 9.5 11C9 9.5 9.5 11 11 9.5Z"
-        fill={`url(#${landId})`}
-      />
-      <path
-        d="M20 15C22 14.5 24.5 16 25 18C25.5 20 23.5 22 22 22.5C20.5 23 18.5 21.5 19 19.5C19.5 17.5 18 15.5 20 15Z"
-        fill={`url(#${landId})`}
-      />
-      <path
-        d="M10 21C11.5 20.5 13 22 12.5 23.5C12 25 10 25.5 9 24.5C8 23.5 8.5 21.5 10 21Z"
-        fill={`url(#${landId})`}
-      />
-      {/* Orbit Ring */}
-      <ellipse
-        cx="16"
-        cy="16"
-        rx="14"
-        ry="5"
-        fill="none"
-        stroke="#FFC94A"
-        strokeWidth="1.5"
-        strokeDasharray="2 1"
-        transform="rotate(-20 16 16)"
-      />
-      {/* Orbiting star */}
-      <circle cx="28" cy="11" r="2" fill="#F59E0B" />
+      <path d="M498.134 207.842C501.482 207.842 504.196 210.556 504.196 213.904V364.968C504.196 365.11 504.189 365.25 504.179 365.39C502.809 411.426 416.36 448.562 309.918 448.563C203.476 448.563 117.025 411.426 115.655 365.39C115.645 365.25 115.64 365.11 115.64 364.968V213.904C115.64 210.556 118.353 207.842 121.701 207.842H498.134Z" fill={`url(#paint0_linear_98_139-${baseId})`}/>
+<path d="M569.207 197.226C569.207 220.83 569.207 244.433 569.207 268.752C566.806 268.352 564.406 267.952 561.933 267.54C559.915 267.435 557.893 267.382 555.871 267.388C554.896 267.385 553.921 267.382 552.916 267.379C549.431 267.559 545.979 268.178 542.536 268.752C542.536 248.349 542.536 227.946 542.536 206.924C565.57 197.226 565.57 197.226 569.207 197.226Z" fill={`url(#paint1_linear_98_139-${baseId})`}/>
+<path d="M309.68 0C323.58 0 336.649 3.5634 348.022 9.8251L594.425 112.703C595.003 112.944 595.548 113.232 596.06 113.555C609.806 119.828 619.36 133.693 619.36 149.789C619.36 166.346 609.252 180.539 594.872 186.541C594.725 186.61 594.576 186.678 594.425 186.741L347.418 289.871C342.779 292.373 337.863 294.427 332.728 295.977C332.394 296.093 332.058 296.192 331.721 296.273C324.721 298.286 317.327 299.367 309.68 299.367C296.076 299.367 283.27 295.954 272.07 289.939L26.6837 187.486C26.3606 187.351 26.0478 187.201 25.7449 187.039C10.7002 181.356 0 166.824 0 149.789C0 133.017 10.373 118.668 25.0535 112.806C25.564 112.484 26.108 112.198 26.6837 111.958L271.445 9.76472C282.793 3.53984 295.823 5.0414e-05 309.68 0Z" fill={`url(#paint2_linear_98_139-${baseId})`}/>
+<path d="M522.417 341.42C522.417 329.27 532.267 319.42 544.417 319.42H567.248C579.398 319.42 589.248 329.27 589.248 341.42V384.655C589.248 391.283 583.875 396.655 577.248 396.655H534.417C527.79 396.655 522.417 391.283 522.417 384.655V341.42Z" fill={`url(#paint3_linear_98_139-${baseId})`}/>
+<circle cx="555.832" cy="300.014" r="33.4159" fill={`url(#paint4_linear_98_139-${baseId})`}/>
+<defs>
+<linearGradient id={`paint0_linear_98_139-${baseId}`} x1="309.918" y1="207.842" x2="309.918" y2="448.563" gradientUnits="userSpaceOnUse">
+<stop stopColor="#414668"/>
+<stop offset="0.259615" stopColor="#33394D"/>
+<stop offset="1" stopColor="#1B2129"/>
+</linearGradient>
+<linearGradient id={`paint1_linear_98_139-${baseId}`} x1="555.871" y1="197.226" x2="555.871" y2="268.752" gradientUnits="userSpaceOnUse">
+<stop stopColor="#F8F8F8"/>
+<stop offset="1" stopColor="#B2B2B2"/>
+</linearGradient>
+<linearGradient id={`paint2_linear_98_139-${baseId}`} x1="309.68" y1="299.367" x2="309.68" y2="0" gradientUnits="userSpaceOnUse">
+<stop stopColor="#1B2129"/>
+<stop offset="0.627646" stopColor="#373D52"/>
+<stop offset="1" stopColor="#414668"/>
+</linearGradient>
+<linearGradient id={`paint3_linear_98_139-${baseId}`} x1="537.016" y1="332.532" x2="578.954" y2="392.074" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FDCE01"/>
+<stop offset="1" stopColor="#F59A14"/>
+</linearGradient>
+<linearGradient id={`paint4_linear_98_139-${baseId}`} x1="543.747" y1="284.9" x2="573.259" y2="322.178" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FDCE01"/>
+<stop offset="1" stopColor="#F59A14"/>
+</linearGradient>
+</defs>
     </svg>
   )
 }
 
-export function NavLeaderboardIcon({ size = 24, className = '', ...props }: IconProps) {
-  const id = React.useId()
-  const goldId = `trophyGold-${id}`
-  const baseId = `trophyBase-${id}`
-
+export function NavCreativeIcon({ size = 24, className = '', ...props }: IconProps) {
+  const baseId = React.useId().replace(/:/g, '');
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="0 0 486 523"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       {...props}
     >
-      <defs>
-        <linearGradient id={goldId} x1="16" y1="4" x2="16" y2="20" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FFE066" />
-          <stop offset="0.5" stopColor="#FFC94A" />
-          <stop offset="1" stopColor="#F59E0B" />
-        </linearGradient>
-        <linearGradient id={baseId} x1="16" y1="23" x2="16" y2="29" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#6D5EFC" />
-          <stop offset="1" stopColor="#4436BD" />
-        </linearGradient>
-      </defs>
-      {/* Handles */}
-      <path
-        d="M7 9C4.5 9 3.5 11 4 13.5C4.5 16 7 17 9.5 16.5"
-        stroke="#FFC94A"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-      />
-      <path
-        d="M25 9C27.5 9 28.5 11 28 13.5C27.5 16 25 17 22.5 16.5"
-        stroke="#FFC94A"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-      />
-      {/* Cup body */}
-      <path
-        d="M8 6H24V14C24 18.4 20.4 22 16 22C11.6 22 8 18.4 8 14V6Z"
-        fill={`url(#${goldId})`}
-        stroke="#F59E0B"
-        strokeWidth="1.2"
-      />
-      {/* Stem & Pedestal */}
-      <path d="M14 22H18V25H14V22Z" fill="#FFC94A" />
-      <rect x="10" y="25" width="12" height="4" rx="2" fill={`url(#${baseId})`} />
-      {/* Star emblem */}
-      <path
-        d="M16 9.5L17.2 12.2L20 12.4L17.8 14.2L18.5 17L16 15.5L13.5 17L14.2 14.2L12 12.4L14.8 12.2L16 9.5Z"
-        fill="#FFFFFF"
-      />
-    </svg>
-  )
-}
-
-export function NavBadgeIcon({ size = 24, className = '', ...props }: IconProps) {
-  const id = React.useId()
-  const rLeftId = `badgeRibbonLeft-${id}`
-  const rRightId = `badgeRibbonRight-${id}`
-  const circleId = `badgeCircle-${id}`
-
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      {...props}
-    >
-      <defs>
-        <linearGradient id={rLeftId} x1="12" y1="18" x2="10" y2="29" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FF7B93" />
-          <stop offset="1" stopColor="#C03955" />
-        </linearGradient>
-        <linearGradient id={rRightId} x1="20" y1="18" x2="22" y2="29" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#3DBFFF" />
-          <stop offset="1" stopColor="#0878B5" />
-        </linearGradient>
-        <linearGradient id={circleId} x1="16" y1="3" x2="16" y2="21" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FF7B93" />
-          <stop offset="1" stopColor="#C03955" />
-        </linearGradient>
-      </defs>
-      {/* Ribbons */}
-      <path d="M12 18L8 28.5L13 26.5L16 28.5L14 18H12Z" fill={`url(#${rLeftId})`} />
-      <path d="M20 18L24 28.5L19 26.5L16 28.5L18 18H20Z" fill={`url(#${rRightId})`} />
-      {/* Main Medal Starburst Circle */}
-      <circle cx="16" cy="12" r="9.5" fill={`url(#${circleId})`} stroke="#C03955" strokeWidth="1.2" />
-      <circle cx="16" cy="12" r="7" fill="#FFEAA7" />
-      {/* Center Star */}
-      <path
-        d="M16 7.5L17.1 10.1L19.8 10.2L17.7 12L18.4 14.6L16 13.2L13.6 14.6L14.3 12L12.2 10.2L14.9 10.1L16 7.5Z"
-        fill="#F59E0B"
-      />
-    </svg>
-  )
-}
-
-export function NavBackpackIcon({ size = 24, className = '', ...props }: IconProps) {
-  const id = React.useId()
-  const bagId = `bagMain-${id}`
-  const pocketId = `bagPocket-${id}`
-
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      className={className}
-      {...props}
-    >
-      <defs>
-        <linearGradient id={bagId} x1="16" y1="5" x2="16" y2="28" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#6D5EFC" />
-          <stop offset="1" stopColor="#4436BD" />
-        </linearGradient>
-        <linearGradient id={pocketId} x1="16" y1="16" x2="16" y2="27" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#3ED9A0" />
-          <stop offset="1" stopColor="#178A5C" />
-        </linearGradient>
-      </defs>
-      {/* Top Handle Loop */}
-      <path d="M12 7C12 4.5 13.8 3 16 3C18.2 3 20 4.5 20 7" stroke="#4436BD" strokeWidth="2" strokeLinecap="round" />
-      {/* Main Body */}
-      <rect x="6" y="6" width="20" height="22" rx="7" fill={`url(#${bagId})`} stroke="#4436BD" strokeWidth="1.2" />
-      {/* Side Pocket Accents */}
-      <rect x="4" y="15" width="2.5" height="7" rx="1.2" fill="#3ED9A0" />
-      <rect x="25.5" y="15" width="2.5" height="7" rx="1.2" fill="#3ED9A0" />
-      {/* Front Pocket */}
-      <rect x="9" y="16" width="14" height="10" rx="4" fill={`url(#${pocketId})`} stroke="#178A5C" strokeWidth="1" />
-      {/* Zipper details */}
-      <line x1="11" y1="19" x2="21" y2="19" stroke="#FFFFFF" strokeWidth="1.5" strokeLinecap="round" />
-      <circle cx="12" cy="19" r="1.5" fill="#FFC94A" />
+      <path d="M118.78 309.101C176.804 309.101 223.842 356.14 223.842 414.165C223.842 466.629 185.387 510.11 135.125 517.961C134.413 518.163 133.706 518.328 133.006 518.456C105.162 523.518 -13.1284 530.485 1.19864 500.039C12.1588 476.748 13.7775 441.314 13.7563 417.045C13.7305 416.088 13.7172 415.128 13.7172 414.165C13.7172 356.14 60.7551 309.101 118.78 309.101Z" fill={`url(#paint0_linear_99_190-${baseId})`}/>
+<path d="M141.748 350.178C126.517 337.231 125.206 314.177 138.872 299.586L376.826 45.5187C393.63 27.5758 421.625 26.1602 440.154 42.3164C458.515 58.3257 461.073 85.9297 445.967 105.041L230.947 377.071C218.306 393.063 194.919 395.379 179.387 382.175L141.748 350.178Z" fill={`url(#paint1_linear_99_190-${baseId})`}/>
+<path d="M198.378 236.409C225.747 249.92 266.01 275.462 287.216 306.307L263.027 336.91C245.797 313.141 218.247 280.951 171.385 265.231L198.378 236.409Z" fill={`url(#paint2_linear_99_190-${baseId})`}/>
+<defs>
+<linearGradient id={`paint0_linear_99_190-${baseId}`} x1="64.4733" y1="335.32" x2="176.21" y2="491.285" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FFC573"/>
+<stop offset="1" stopColor="#FFAD3E"/>
+</linearGradient>
+<linearGradient id={`paint1_linear_99_190-${baseId}`} x1="260.467" y1="178.78" x2="333.33" y2="260.527" gradientUnits="userSpaceOnUse">
+<stop stopColor="#E48C42"/>
+<stop offset="1" stopColor="#CD5E1F"/>
+</linearGradient>
+<linearGradient id={`paint2_linear_99_190-${baseId}`} x1="189.338" y1="256.084" x2="265.964" y2="317.996" gradientUnits="userSpaceOnUse">
+<stop stopColor="#EF9C59"/>
+<stop offset="1" stopColor="#D56D2C"/>
+</linearGradient>
+</defs>
     </svg>
   )
 }
 
 export function NavProfileIcon({ size = 24, className = '', ...props }: IconProps) {
-  const id = React.useId()
-  const headId = `kProfHead-${id}`
-  const capId = `kProfCap-${id}`
-  const starId = `kProfStar-${id}`
-  const bodyId = `kProfBody-${id}`
-
+  const baseId = React.useId().replace(/:/g, '');
   return (
     <svg
       width={size}
       height={size}
-      viewBox="0 0 32 32"
+      viewBox="0 0 415 425"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={className}
       {...props}
     >
-      <defs>
-        <linearGradient id={capId} x1="6" y1="3" x2="26" y2="15" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#3DBFFF" />
-          <stop offset="1" stopColor="#0878B5" />
-        </linearGradient>
-        <linearGradient id={headId} x1="8" y1="8" x2="24" y2="22" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FFF9F5" />
-          <stop offset="1" stopColor="#FFEBE3" />
-        </linearGradient>
-        <linearGradient id={bodyId} x1="5" y1="20" x2="27" y2="30" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#6D5EFC" />
-          <stop offset="1" stopColor="#4436BD" />
-        </linearGradient>
-        <linearGradient id={starId} x1="20" y1="2" x2="29" y2="11" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#FFE066" />
-          <stop offset="1" stopColor="#F59E0B" />
-        </linearGradient>
-      </defs>
-
-      {/* Soft rounded shoulders / hoodie */}
-      <path d="M6 28C6 22.5 10 19.5 16 19.5C22 19.5 26 22.5 26 28V29H6V28Z" fill={`url(#${bodyId})`} />
-
-      {/* Hoodie Collar V-accent */}
-      <path d="M13 19.5L16 23L19 19.5" stroke="#EBE8FF" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
-
-      {/* Cute round head */}
-      <circle cx="16" cy="14" r="8" fill={`url(#${headId})`} stroke="#FFD8CC" strokeWidth="0.8" />
-
-      {/* Cute Creator Beret / Cap */}
-      <path d="M8.5 12C7.5 8 11 4.5 16 4.5C21 4.5 24.5 8 23.5 12C21 13 11 13 8.5 12Z" fill={`url(#${capId})`} />
-      <circle cx="16" cy="4" r="1.5" fill="#FFC94A" />
-
-      {/* Big Cute Shiny Eyes */}
-      <circle cx="12.5" cy="13.5" r="2" fill="#1E2740" />
-      <circle cx="19.5" cy="13.5" r="2" fill="#1E2740" />
-      <circle cx="13.2" cy="12.7" r="0.8" fill="#FFFFFF" />
-      <circle cx="20.2" cy="12.7" r="0.8" fill="#FFFFFF" />
-
-      {/* Sweet Rosy Cheeks */}
-      <circle cx="10" cy="15.8" r="1.8" fill="#FF7B93" opacity="0.45" />
-      <circle cx="22" cy="15.8" r="1.8" fill="#FF7B93" opacity="0.45" />
-
-      {/* Cheerful Smile */}
-      <path d="M14 16C14.8 17.2 17.2 17.2 18 16" stroke="#1E2740" strokeWidth="1.5" strokeLinecap="round" fill="none" />
-
-      {/* Golden Creator Star on top right */}
-      <path d="M25 2L25.8 4.2L28 5L25.8 5.8L25 8L24.2 5.8L22 5L24.2 4.2L25 2Z" fill={`url(#${starId})`} />
+      <path d="M206.946 243.658C207.675 243.658 208.403 243.657 209.154 243.657C221.767 243.672 234.076 244.331 246.55 246.343C247.406 246.481 248.261 246.618 249.142 246.76C287.07 253.106 324.335 268.682 353.951 293.435C354.436 293.835 354.92 294.236 355.419 294.648C365.256 302.802 374.145 311.435 382.041 321.524C382.729 322.385 383.418 323.246 384.106 324.106C396.013 339.113 405.207 356.291 411.244 374.46C411.69 375.776 412.181 377.076 412.683 378.371C415.387 385.759 415.662 395.476 412.971 402.901C408.185 412.722 400.621 418.747 390.49 422.542C386.682 423.785 383.446 424.074 379.406 424.079C378.503 424.082 378.503 424.082 377.581 424.085C375.553 424.091 373.525 424.09 371.497 424.09C370.032 424.093 368.568 424.096 367.103 424.099C363.07 424.108 359.037 424.111 355.004 424.113C350.657 424.116 346.31 424.124 341.964 424.131C331.462 424.148 320.959 424.156 310.457 424.163C305.512 424.167 300.567 424.171 295.622 424.176C279.184 424.19 262.746 424.202 246.308 424.208C242.042 424.209 237.775 424.211 233.509 424.212C232.448 424.213 231.388 424.213 230.295 424.214C213.118 424.221 195.941 424.241 178.764 424.268C161.131 424.296 143.497 424.31 125.864 424.313C115.963 424.315 106.062 424.322 96.1604 424.343C87.7277 424.361 79.295 424.368 70.8623 424.36C66.5609 424.356 62.2596 424.358 57.9582 424.374C54.0165 424.388 50.0752 424.387 46.1336 424.375C44.7114 424.373 43.2892 424.376 41.867 424.386C28.5083 424.472 18.2754 421.821 8.35702 412.506C2.42273 406.324 -0.0436795 398.782 0.000584641 390.275C0.859737 362.756 21.5424 333.883 39.1832 314.089C39.5701 313.651 39.9569 313.213 40.3555 312.762C44.3773 308.223 48.4225 303.771 53.0925 299.883C54.4134 298.781 55.7045 297.644 56.978 296.488C97.5709 260.393 153.401 243.695 206.946 243.658Z" fill={`url(#paint0_linear_118_304-${baseId})`}/>
+<path d="M276.286 26.1615C296.222 43.6379 308.883 68.6416 310.991 95.1558C312.443 123.689 304.649 151.197 285.38 172.815C267.255 192.611 243.175 206.078 215.962 207.659C198.261 208.393 181.844 206.453 165.586 199.252C164.603 198.819 163.62 198.385 162.607 197.939C151.873 192.875 142.751 185.943 134.192 177.772C133.706 177.339 133.221 176.905 132.72 176.459C114.943 159.981 104.802 133.9 103.624 110.027C103.58 109.152 103.537 108.278 103.492 107.377C102.842 81.3015 111.64 56.4223 128.409 36.4982C128.867 35.9252 129.325 35.3523 129.796 34.7619C132.825 31.0457 136.277 27.9691 139.975 24.9319C140.721 24.3014 141.466 23.671 142.234 23.0214C153.801 13.6273 166.949 7.37472 181.283 3.45164C182.263 3.17155 183.243 2.89147 184.252 2.60289C217.191 -5.16634 250.804 4.97099 276.286 26.1615Z" fill={`url(#paint1_linear_118_304-${baseId})`}/>
+<defs>
+<linearGradient id={`paint0_linear_118_304-${baseId}`} x1="414.856" y1="334.022" x2="0" y2="334.022" gradientUnits="userSpaceOnUse">
+<stop stopColor="#013BA8"/>
+<stop offset="1" stopColor="#2F88E4"/>
+</linearGradient>
+<linearGradient id={`paint1_linear_118_304-${baseId}`} x1="311.161" y1="103.902" x2="103.458" y2="103.902" gradientUnits="userSpaceOnUse">
+<stop stopColor="#013BA8"/>
+<stop offset="1" stopColor="#2F88E4"/>
+</linearGradient>
+</defs>
     </svg>
   )
 }
 
-/** 3D Soft-Clay Cute Magic Journey Book Icon for "Hành trình của con" */
+export function NavBackpackIcon({ size = 24, className = '', ...props }: IconProps) {
+  const baseId = React.useId().replace(/:/g, '');
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 449 468"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <path d="M30.3655 327.512C32.2431 327.539 32.2431 327.539 34.1585 327.567C37.2283 327.614 40.2965 327.679 43.3655 327.762C43.3714 328.773 43.3773 329.784 43.3833 330.826C43.4408 340.402 43.5137 349.978 43.6013 359.554C43.6458 364.476 43.6851 369.398 43.712 374.32C43.7382 379.079 43.7787 383.838 43.8287 388.598C43.8453 390.404 43.8569 392.21 43.8632 394.016C43.9132 407.077 44.6851 419.123 50.596 431.055C51.3655 432.762 51.3655 432.762 51.3655 434.762C36.9061 435.335 25.7075 434.729 14.3655 424.762C13.7597 424.261 13.1538 423.759 12.5296 423.243C6.40697 417.748 1.98327 409.855 0.36554 401.762C0.264782 399.839 0.217283 397.913 0.204407 395.987C0.194799 394.826 0.185192 393.664 0.175293 392.467C0.171043 391.216 0.166793 389.965 0.162415 388.676C0.156714 387.386 0.151014 386.097 0.145142 384.768C0.134653 382.04 0.128796 379.311 0.125305 376.582C0.119822 373.097 0.0957903 369.611 0.0673332 366.126C0.0441632 362.788 0.0422547 359.451 0.0374146 356.114C0.0250678 354.867 0.0127209 353.62 0 352.335C0.0194084 344.782 0.602562 340.078 5.55304 334.137C13.5489 327.385 20.2166 327.233 30.3655 327.512Z" fill={`url(#paint0_linear_99_160-${baseId})`}/>
+<path d="M275.99 18.431C287.682 28.3304 295.228 39.6863 300.365 54.1185C296.325 54.3808 292.287 54.54 288.24 54.681C287.098 54.7564 285.956 54.8318 284.779 54.9095C276.445 55.1275 276.445 55.1275 273.334 52.22C271.808 49.9148 270.596 47.5901 269.365 45.1185C261.597 34.4807 249.715 27.9297 237.107 24.5052C219.249 21.9867 202.57 25.0433 187.928 35.931C181.892 40.9877 176.9 47.0491 173.365 54.1185C165.115 54.1185 156.865 54.1185 148.365 54.1185C157.292 31.8021 169.856 17.1869 191.732 6.65754C220.354 -5.46834 251.729 -0.731003 275.99 18.431Z" fill={`url(#paint1_linear_99_160-${baseId})`}/>
+<path d="M419.303 327.387C420.407 327.35 421.511 327.312 422.648 327.274C430.244 327.193 436.081 328.316 442.365 332.762C446.849 337.477 448.48 341.928 448.542 348.344C448.561 350.062 448.561 350.062 448.581 351.815C448.589 353.056 448.596 354.297 448.604 355.575C448.612 356.854 448.62 358.133 448.628 359.451C448.643 362.165 448.653 364.878 448.66 367.592C448.671 371.04 448.706 374.488 448.746 377.936C448.778 381.253 448.783 384.57 448.791 387.887C448.809 389.112 448.826 390.336 448.844 391.597C448.815 403.105 445.992 412.083 438.365 420.762C437.864 421.368 437.362 421.974 436.846 422.598C431.329 428.745 423.469 433.088 415.365 434.762C413.924 434.84 412.48 434.87 411.037 434.86C410.238 434.857 409.439 434.853 408.615 434.85C407.79 434.842 406.965 434.833 406.115 434.825C405.275 434.82 404.434 434.816 403.568 434.811C401.501 434.799 399.433 434.781 397.365 434.762C397.565 434.174 397.764 433.586 397.97 432.98C399.363 428.861 400.71 424.73 401.99 420.575C402.23 419.797 402.47 419.02 402.717 418.219C404.167 412.723 404.542 407.323 404.646 401.661C404.665 400.872 404.683 400.083 404.701 399.27C404.74 397.566 404.776 395.862 404.811 394.157C404.866 391.464 404.926 388.771 404.988 386.077C405.141 379.395 405.285 372.712 405.428 366.03C405.549 360.37 405.674 354.71 405.805 349.05C405.865 346.391 405.919 343.731 405.973 341.071C406.009 339.453 406.047 337.834 406.084 336.216C406.098 335.472 406.111 334.727 406.125 333.96C406.343 325.205 411.739 327.481 419.303 327.387Z" fill={`url(#paint2_linear_99_160-${baseId})`}/>
+<rect x="41.6719" y="106.964" width="364.827" height="360.337" rx="60" fill={`url(#paint3_linear_99_160-${baseId})`}/>
+<rect x="20.3965" y="51.6367" width="407.378" height="190.794" rx="54" fill={`url(#paint4_linear_99_160-${baseId})`}/>
+<path d="M141.987 317.374C142.722 317.369 143.457 317.364 144.215 317.358C146.662 317.344 149.109 317.351 151.556 317.358C153.318 317.352 155.079 317.345 156.841 317.337C161.613 317.319 166.386 317.32 171.159 317.326C175.147 317.329 179.136 317.323 183.124 317.317C192.536 317.303 201.947 317.305 211.358 317.316C221.059 317.327 230.759 317.313 240.459 317.287C248.797 317.264 257.134 317.258 265.471 317.264C270.447 317.267 275.423 317.265 280.398 317.247C285.078 317.232 289.757 317.236 294.436 317.255C296.15 317.258 297.864 317.255 299.578 317.245C309.665 317.188 316.963 317.342 325.115 324.012C331.479 331.79 332.003 338.628 331.887 348.378C331.865 350.494 331.887 352.607 331.912 354.723C331.943 369.584 327.732 381.079 317.615 392.012C307.478 401.742 295.851 403.062 282.435 403.052C281.023 403.058 279.611 403.065 278.199 403.073C274.379 403.09 270.559 403.095 266.738 403.096C264.346 403.098 261.955 403.102 259.563 403.107C251.206 403.126 242.848 403.134 234.491 403.133C226.723 403.131 218.955 403.152 211.187 403.184C204.5 403.21 197.813 403.221 191.125 403.22C187.139 403.219 183.154 403.225 179.168 403.246C175.415 403.266 171.663 403.265 167.91 403.251C165.892 403.248 163.875 403.264 161.858 403.282C150.209 403.202 141.163 400.493 132.365 392.762C131.759 392.261 131.154 391.759 130.529 391.242C122.411 383.957 117.879 373.157 117.13 362.38C117.013 359.071 116.949 355.774 116.94 352.463C116.928 350.397 116.879 348.335 116.828 346.27C116.714 336.833 117.972 329.271 124.74 322.324C130.674 318.793 135.044 317.387 141.987 317.374Z" fill={`url(#paint5_linear_99_160-${baseId})`}/>
+<path d="M318.491 201.262C325.161 205.024 329.303 210.466 331.366 217.762C331.741 222.038 331.737 226.302 331.736 230.593C331.741 232.625 331.777 234.656 331.815 236.688C331.838 244.657 331.752 251.192 325.953 257.234C324.428 258.575 324.428 258.575 321.366 260.762C320.644 261.36 319.922 261.958 319.178 262.575C313.771 264.858 307.862 264.203 302.178 263.2C295.667 259.872 291.234 255.501 288.366 248.762C287.817 244.245 287.85 239.733 287.865 235.187C287.866 233.031 287.824 230.879 287.78 228.723C287.707 220.522 288.338 213.591 293.366 206.762C295.717 204.508 295.717 204.508 297.991 203.2C299.124 202.517 299.124 202.517 300.28 201.821C306.112 198.861 312.487 198.606 318.491 201.262Z" fill="#E0AB87"/>
+<path d="M151.025 203.063C155.733 206.482 158.546 211.306 160.365 216.762C160.639 221.245 160.678 225.73 160.715 230.221C160.732 231.698 160.759 233.175 160.797 234.651C161.204 250.448 161.204 250.448 155.365 256.762C154.452 257.781 154.452 257.781 153.521 258.821C150.203 261.584 147.822 263.55 143.365 263.762C142.708 263.823 142.05 263.883 141.373 263.946C135.305 264.292 130.494 263.059 125.365 259.762C120.643 255.504 117.664 251.03 117.074 244.583C117.034 241.41 116.994 238.236 116.994 235.062C116.99 233.031 116.954 231.003 116.916 228.973C116.889 220.132 117.566 213.368 123.295 206.422C132.263 199.057 140.633 197.475 151.025 203.063Z" fill="#DFA984"/>
+<rect x="116.821" y="199.709" width="44.1279" height="64.4102" rx="22.064" fill={`url(#paint6_linear_99_160-${baseId})`}/>
+<rect x="287.689" y="199.709" width="44.1279" height="64.4102" rx="22.064" fill={`url(#paint7_linear_99_160-${baseId})`}/>
+<defs>
+<linearGradient id={`paint0_linear_99_160-${baseId}`} x1="25.6828" y1="327.437" x2="25.6828" y2="434.913" gradientUnits="userSpaceOnUse">
+<stop stopColor="#89552E"/>
+<stop offset="1" stopColor="#543426"/>
+</linearGradient>
+<linearGradient id={`paint1_linear_99_160-${baseId}`} x1="224.365" y1="0" x2="224.365" y2="54.9932" gradientUnits="userSpaceOnUse">
+<stop stopColor="#89552E"/>
+<stop offset="1" stopColor="#543426"/>
+</linearGradient>
+<linearGradient id={`paint2_linear_99_160-${baseId}`} x1="423.105" y1="327.188" x2="423.105" y2="434.862" gradientUnits="userSpaceOnUse">
+<stop stopColor="#89552E"/>
+<stop offset="1" stopColor="#543426"/>
+</linearGradient>
+<linearGradient id={`paint3_linear_99_160-${baseId}`} x1="224.085" y1="106.964" x2="224.085" y2="467.301" gradientUnits="userSpaceOnUse">
+<stop stopColor="#C1753E"/>
+<stop offset="1" stopColor="#8A552E"/>
+</linearGradient>
+<linearGradient id={`paint4_linear_99_160-${baseId}`} x1="224.085" y1="51.6367" x2="224.085" y2="242.431" gradientUnits="userSpaceOnUse">
+<stop stopColor="#C1753E"/>
+<stop offset="1" stopColor="#8A552E"/>
+</linearGradient>
+<linearGradient id={`paint5_linear_99_160-${baseId}`} x1="224.367" y1="317.238" x2="224.367" y2="403.282" gradientUnits="userSpaceOnUse">
+<stop stopColor="#89552E"/>
+<stop offset="1" stopColor="#543426"/>
+</linearGradient>
+<linearGradient id={`paint6_linear_99_160-${baseId}`} x1="138.885" y1="199.709" x2="138.885" y2="264.12" gradientUnits="userSpaceOnUse">
+<stop stopColor="#EBBFA3"/>
+<stop offset="1" stopColor="#D7986B"/>
+</linearGradient>
+<linearGradient id={`paint7_linear_99_160-${baseId}`} x1="309.753" y1="199.709" x2="309.753" y2="264.12" gradientUnits="userSpaceOnUse">
+<stop stopColor="#EBBFA3"/>
+<stop offset="1" stopColor="#D7986B"/>
+</linearGradient>
+</defs>
+    </svg>
+  )
+}
+
+export function NavBadgeIcon({ size = 24, className = '', ...props }: IconProps) {
+  const baseId = React.useId().replace(/:/g, '');
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 407 463"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <path d="M60.1441 299.239C78.7445 306.588 88.4427 313.259 97.7446 331.269C99.2689 334.049 100.834 336.807 102.445 339.538C103.409 341.28 103.409 341.28 104.392 343.058C110.336 349.825 117.02 354.342 126.065 355.579C132.944 355.777 139.783 355.604 146.66 355.392C159.747 355.344 167.885 358.472 178.516 366.085C176.543 372.423 174.032 378.363 171.172 384.341C170.726 385.283 170.281 386.225 169.822 387.196C168.373 390.257 166.917 393.316 165.46 396.374C163.436 400.632 161.414 404.891 159.395 409.152C158.89 410.217 158.385 411.282 157.864 412.38C154.662 419.156 151.548 425.966 148.504 432.816C147.761 434.476 147.017 436.136 146.251 437.846C144.871 440.942 143.507 444.045 142.162 447.156C141.544 448.535 140.926 449.913 140.29 451.333C139.768 452.527 139.246 453.72 138.709 454.95C136.24 458.767 133.856 460.238 129.775 462.175C124.988 462.436 124.988 462.436 120.026 460.782C110.754 451.471 104.626 438.176 97.9673 426.906C96.4157 424.285 94.8532 421.671 93.2893 419.058C92.3726 417.51 91.4558 415.962 90.5113 414.367C88.1501 410.37 88.1501 410.37 83.8185 407.863C70.2357 407.577 56.2664 410.824 42.9133 413.036C23.6893 416.054 23.6893 416.054 16.364 411.17C13.4045 406.672 13.2705 403.278 14.188 398.115C16.4078 392.095 19.2116 386.383 22.0215 380.62C22.8377 378.911 23.6519 377.201 24.4643 375.49C26.1776 371.886 27.8999 368.287 29.6285 364.691C33.6229 356.362 37.5077 347.982 41.4023 339.607C42.6119 337.008 43.8244 334.41 45.0383 331.813C50.106 320.97 55.1382 310.111 60.1441 299.239Z" fill={`url(#paint0_linear_106_267-${baseId})`}/>
+<path d="M347.022 299.239C371.083 349.887 371.083 349.887 382.534 374.527C383.275 376.121 384.017 377.715 384.781 379.356C385.461 380.824 386.141 382.291 386.842 383.802C387.719 385.693 387.719 385.693 388.613 387.621C391.817 394.779 393.706 399.862 392.978 407.863C391.673 411.17 391.673 411.17 388.8 413.433C376.85 415.924 365.554 413.489 353.724 411.431C350.717 410.92 347.708 410.413 344.699 409.913C341.979 409.46 339.261 408.993 336.544 408.524C327.692 407.042 327.692 407.042 319.899 410.414C314.833 416.165 311.273 423.078 307.507 429.709C290.529 459.422 290.529 459.422 283.484 461.913C277.86 462.226 276.06 461.663 271.821 457.997C265.818 450.09 262.08 441.054 257.982 432.059C257.195 430.345 256.408 428.63 255.62 426.916C254.391 424.243 253.163 421.57 251.938 418.896C248.984 412.451 245.994 406.024 242.984 399.605C242.149 397.82 241.314 396.035 240.479 394.25C238.885 390.842 237.286 387.437 235.684 384.033C234.965 382.49 234.245 380.947 233.503 379.358C232.867 378.002 232.231 376.645 231.576 375.248C230.266 372.177 229.329 369.343 228.65 366.085C240.922 357.382 250.129 355.046 265.032 355.466C277.739 355.739 287.587 355.448 298.281 347.981C301.44 345.124 301.44 345.124 303.329 341.801C304.105 340.6 304.88 339.399 305.679 338.162C307.36 335.224 308.946 332.231 310.466 329.208C317.217 315.916 323.932 310.199 337.274 303.417C338.547 302.633 339.819 301.848 341.131 301.04C344.237 299.239 344.237 299.239 347.022 299.239Z" fill={`url(#paint1_linear_106_267-${baseId})`}/>
+<path d="M182.659 22.7759C193.794 10.5546 213.027 10.5545 224.161 22.7759L233.407 32.9237C240.794 41.031 252.225 44.0941 262.676 40.7662L275.757 36.6008C291.51 31.5842 308.166 41.2004 311.699 57.3519L314.632 70.7629C316.975 81.4773 325.344 89.8459 336.058 92.1892L349.469 95.1222C365.62 98.6546 375.237 115.31 370.22 131.064L366.055 144.145C362.727 154.596 365.79 166.027 373.897 173.414L384.045 182.659C396.266 193.794 396.266 213.027 384.045 224.161L373.897 233.407C365.79 240.794 362.727 252.225 366.055 262.676L370.22 275.757C375.237 291.51 365.62 308.166 349.469 311.699L336.058 314.632C325.344 316.975 316.975 325.344 314.632 336.058L311.699 349.469C308.166 365.62 291.51 375.237 275.757 370.22L262.676 366.055C252.225 362.727 240.794 365.79 233.407 373.897L224.161 384.045C213.027 396.266 193.794 396.266 182.659 384.045L173.414 373.897C166.027 365.79 154.596 362.727 144.145 366.055L131.064 370.22C115.31 375.237 98.6546 365.62 95.1222 349.469L92.1892 336.058C89.8459 325.344 81.4773 316.975 70.7629 314.632L57.3519 311.699C41.2004 308.166 31.5842 291.51 36.6008 275.757L40.7662 262.676C44.0941 252.225 41.031 240.794 32.9237 233.407L22.7759 224.161C10.5546 213.027 10.5545 193.794 22.7759 182.659L32.9237 173.414C41.031 166.027 44.0941 154.596 40.7662 144.145L36.6008 131.064C31.5842 115.31 41.2004 98.6546 57.3519 95.1222L70.7629 92.1892C81.4773 89.8459 89.8459 81.4773 92.1892 70.7629L95.1222 57.3519C98.6546 41.2004 115.31 31.5842 131.064 36.6008L144.145 40.7662C154.596 44.0941 166.027 41.031 173.414 32.9237L182.659 22.7759Z" fill={`url(#paint2_linear_106_267-${baseId})`}/>
+<path d="M265.151 153.102C270.112 154.408 270.112 154.408 273.507 157.541C275.94 161.823 276.297 163.512 275.683 168.334C273.516 171.478 273.516 171.478 270.438 174.698C269.288 175.913 268.137 177.128 266.952 178.38C265.697 179.66 264.442 180.941 263.149 182.26C261.894 183.55 260.639 184.841 259.345 186.171C255.193 190.414 250.994 194.609 246.792 198.803C245.255 200.34 243.718 201.878 242.182 203.416C238.993 206.607 235.801 209.796 232.607 212.983C228.512 217.071 224.422 221.165 220.334 225.261C217.177 228.424 214.016 231.583 210.855 234.741C209.344 236.251 207.834 237.762 206.326 239.273C204.23 241.373 202.13 243.468 200.028 245.561C198.835 246.753 197.642 247.945 196.413 249.173C192.94 252.434 191.552 253.191 186.811 253.724C181.222 253.168 179.493 251.5 175.502 247.625C174.303 246.477 173.104 245.328 171.868 244.144C170.741 243.024 169.613 241.904 168.452 240.749C167.554 239.888 166.657 239.026 165.732 238.138C160.815 233.354 156.329 228.294 151.887 223.07C149.552 220.514 147.191 218.149 144.674 215.78C143.918 215.06 143.162 214.34 142.382 213.597C140.877 212.174 139.354 210.767 137.813 209.382C133.93 205.688 132.268 203.238 130.879 198.014C130.851 193.401 130.851 193.401 133.724 189.31C137.814 186.438 137.814 186.438 141.731 185.393C153.608 188.188 163.63 202.339 171.933 210.721C173.212 212.006 174.49 213.29 175.807 214.614C178.929 217.752 182.047 220.893 185.163 224.038C190.238 221.901 193.451 218.865 197.308 214.973C198.605 213.671 199.901 212.37 201.237 211.03C202.641 209.607 204.045 208.184 205.449 206.761C206.897 205.304 208.347 203.847 209.797 202.391C213.609 198.561 217.412 194.723 221.214 190.883C227.302 184.735 233.399 178.596 239.501 172.462C241.629 170.319 243.753 168.172 245.877 166.024C247.169 164.722 248.461 163.421 249.792 162.081C250.929 160.932 252.065 159.784 253.237 158.601C257.417 154.632 259.26 152.995 265.151 153.102Z" fill={`url(#paint3_linear_106_267-${baseId})`}/>
+<defs>
+<linearGradient id={`paint0_linear_106_267-${baseId}`} x1="96.1012" y1="299.239" x2="96.1012" y2="462.302" gradientUnits="userSpaceOnUse">
+<stop offset="0.269231" stopColor="#7850E1"/>
+<stop offset="1" stopColor="#4F3398"/>
+</linearGradient>
+<linearGradient id={`paint1_linear_106_267-${baseId}`} x1="310.892" y1="299.239" x2="310.892" y2="461.987" gradientUnits="userSpaceOnUse">
+<stop offset="0.269231" stopColor="#7850E1"/>
+<stop offset="1" stopColor="#4F3398"/>
+</linearGradient>
+<linearGradient id={`paint2_linear_106_267-${baseId}`} x1="203.41" y1="15.6972" x2="203.41" y2="397.602" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FFD91C"/>
+<stop offset="1" stopColor="#FEBA06"/>
+</linearGradient>
+<linearGradient id={`paint3_linear_106_267-${baseId}`} x1="203.41" y1="153.097" x2="203.41" y2="253.724" gradientUnits="userSpaceOnUse">
+<stop stopColor="#EC8500"/>
+<stop offset="1" stopColor="#E46601"/>
+</linearGradient>
+</defs>
+    </svg>
+  )
+}
+
+export function NavStorybookIcon({ size = 24, className = '', ...props }: IconProps) {
+  const baseId = React.useId().replace(/:/g, '');
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 376 459"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <rect x="25.3193" width="349.749" height="458.3" rx="41" fill={`url(#paint0_linear_118_297-${baseId})`}/>
+<path d="M0 67.5263C0 59.8796 6.19889 53.6807 13.8456 53.6807H67.2956C74.9424 53.6807 81.1413 59.8796 81.1413 67.5263C81.1413 75.173 74.9424 81.3719 67.2956 81.3719H13.8456C6.19889 81.3719 0 75.173 0 67.5263Z" fill={`url(#paint1_linear_118_297-${baseId})`}/>
+<path d="M0 337.155C0 329.508 6.19889 323.309 13.8456 323.309H67.2956C74.9424 323.309 81.1413 329.508 81.1413 337.155C81.1413 344.802 74.9424 351 67.2956 351H13.8456C6.19889 351 0 344.802 0 337.155Z" fill={`url(#paint2_linear_118_297-${baseId})`}/>
+<path d="M0 121.253C0 113.606 6.19889 107.407 13.8456 107.407H67.2956C74.9424 107.407 81.1413 113.606 81.1413 121.253C81.1413 128.9 74.9424 135.099 67.2956 135.099H13.8456C6.19889 135.099 0 128.9 0 121.253Z" fill={`url(#paint3_linear_118_297-${baseId})`}/>
+<path d="M0 390.882C0 383.235 6.19889 377.036 13.8456 377.036H67.2956C74.9424 377.036 81.1413 383.235 81.1413 390.882C81.1413 398.528 74.9424 404.727 67.2956 404.727H13.8456C6.19889 404.727 0 398.528 0 390.882Z" fill={`url(#paint4_linear_118_297-${baseId})`}/>
+<path d="M191.57 110.968C195.395 104.182 205.167 104.182 208.993 110.968L225.09 139.527C226.517 142.059 228.974 143.844 231.823 144.419L263.959 150.903C271.595 152.444 274.615 161.739 269.343 167.474L247.156 191.608C245.189 193.748 244.25 196.637 244.584 199.524L248.348 232.09C249.242 239.829 241.336 245.573 234.252 242.331L204.443 228.688C201.8 227.479 198.762 227.479 196.119 228.688L166.31 242.331C159.227 245.573 151.32 239.829 152.215 232.09L155.978 199.524C156.312 196.637 155.373 193.748 153.406 191.608L131.219 167.474C125.947 161.739 128.967 152.444 136.603 150.903L168.739 144.419C171.588 143.844 174.046 142.059 175.473 139.527L191.57 110.968Z" fill={`url(#paint5_linear_118_297-${baseId})`}/>
+<rect x="92.832" y="268.875" width="214.724" height="81.2773" rx="40.6386" fill={`url(#paint6_linear_118_297-${baseId})`}/>
+<defs>
+<linearGradient id={`paint0_linear_118_297-${baseId}`} x1="200.194" y1="0" x2="200.194" y2="458.3" gradientUnits="userSpaceOnUse">
+<stop stopColor="#02BDFF"/>
+<stop offset="1" stopColor="#4867FF"/>
+</linearGradient>
+<linearGradient id={`paint1_linear_118_297-${baseId}`} x1="40.5706" y1="53.6807" x2="40.5706" y2="404.727" gradientUnits="userSpaceOnUse">
+<stop stopColor="#EAF6FF"/>
+<stop offset="1" stopColor="#B0DDFF"/>
+</linearGradient>
+<linearGradient id={`paint2_linear_118_297-${baseId}`} x1="40.5706" y1="53.6807" x2="40.5706" y2="404.727" gradientUnits="userSpaceOnUse">
+<stop stopColor="#EAF6FF"/>
+<stop offset="1" stopColor="#B0DDFF"/>
+</linearGradient>
+<linearGradient id={`paint3_linear_118_297-${baseId}`} x1="40.5706" y1="53.6807" x2="40.5706" y2="404.727" gradientUnits="userSpaceOnUse">
+<stop stopColor="#EAF6FF"/>
+<stop offset="1" stopColor="#B0DDFF"/>
+</linearGradient>
+<linearGradient id={`paint4_linear_118_297-${baseId}`} x1="40.5706" y1="53.6807" x2="40.5706" y2="404.727" gradientUnits="userSpaceOnUse">
+<stop stopColor="#EAF6FF"/>
+<stop offset="1" stopColor="#B0DDFF"/>
+</linearGradient>
+<linearGradient id={`paint5_linear_118_297-${baseId}`} x1="200.281" y1="95.5122" x2="200.281" y2="349.769" gradientUnits="userSpaceOnUse">
+<stop stopColor="#EAF6FF"/>
+<stop offset="1" stopColor="#B0DDFF"/>
+</linearGradient>
+<linearGradient id={`paint6_linear_118_297-${baseId}`} x1="200.194" y1="118.33" x2="200.194" y2="350.153" gradientUnits="userSpaceOnUse">
+<stop stopColor="#EAF6FF"/>
+<stop offset="1" stopColor="#B0DDFF"/>
+</linearGradient>
+</defs>
+    </svg>
+  )
+}
+
+export function NavEventIcon({ size = 24, className = '', ...props }: IconProps) {
+  const baseId = React.useId().replace(/:/g, '');
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 516 549"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <path d="M179.066 260.224C182.569 252.216 190.481 247.041 199.222 247.041H316.499C325.259 247.041 333.183 252.237 336.675 260.27L448.624 517.79C454.94 532.32 444.291 548.561 428.448 548.561H86.5799C70.7153 548.561 60.0661 532.279 66.4238 517.745L179.066 260.224Z" fill={`url(#paint0_linear_106_237-${baseId})`}/>
+<rect x="31.7246" y="342.503" width="30" height="185.049" fill={`url(#paint1_linear_106_237-${baseId})`}/>
+<rect x="453.799" y="342.503" width="30" height="185.049" fill={`url(#paint2_linear_106_237-${baseId})`}/>
+<circle cx="46.0869" cy="322.955" r="46.0869" fill="#FFDDE2"/>
+<circle cx="469.511" cy="322.955" r="46.0869" fill="#FFDDE2"/>
+<rect x="1.2207" y="518.561" width="512.504" height="30" rx="15" fill={`url(#paint3_linear_106_237-${baseId})`}/>
+<path d="M242.421 41.7393C247.504 27.6427 267.44 27.6427 272.523 41.7393L285.18 76.8389C287.405 83.0071 293.167 87.1938 299.721 87.4032L337.014 88.5943C351.991 89.0727 358.152 108.033 346.316 117.224L316.845 140.108C311.666 144.129 309.465 150.903 311.291 157.201L321.683 193.037C325.856 207.429 309.727 219.147 297.329 210.731L266.458 189.774C261.033 186.091 253.91 186.091 248.485 189.774L217.615 210.731C205.216 219.147 189.088 207.429 193.261 193.037L203.652 157.201C205.479 150.903 203.277 144.129 198.098 140.108L168.628 117.224C156.792 108.033 162.953 89.0727 177.93 88.5943L215.223 87.4032C221.777 87.1938 227.539 83.0071 229.764 76.8389L242.421 41.7393Z" fill={`url(#paint4_linear_106_237-${baseId})`}/>
+<defs>
+<linearGradient id={`paint0_linear_106_237-${baseId}`} x1="257.473" y1="247.041" x2="257.473" y2="548.561" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FE7989"/>
+<stop offset="1" stopColor="#FD4185"/>
+</linearGradient>
+<linearGradient id={`paint1_linear_106_237-${baseId}`} x1="46.7246" y1="342.503" x2="46.7246" y2="527.553" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FE7989"/>
+<stop offset="1" stopColor="#FD4185"/>
+</linearGradient>
+<linearGradient id={`paint2_linear_106_237-${baseId}`} x1="468.799" y1="342.503" x2="468.799" y2="527.553" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FE7989"/>
+<stop offset="1" stopColor="#FD4185"/>
+</linearGradient>
+<linearGradient id={`paint3_linear_106_237-${baseId}`} x1="1.2207" y1="533.561" x2="513.725" y2="533.561" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FFC4CE"/>
+<stop offset="1" stopColor="#FFB2BF"/>
+</linearGradient>
+<linearGradient id={`paint4_linear_106_237-${baseId}`} x1="257.472" y1="0" x2="257.472" y2="260.53" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FFA58D"/>
+<stop offset="1" stopColor="#FE7989"/>
+</linearGradient>
+</defs>
+    </svg>
+  )
+}
+
+export function NavLevelIcon({ size = 24, className = '', ...props }: IconProps) {
+  const baseId = React.useId().replace(/:/g, '');
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 449 472"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <path d="M96.9677 373.636C98.3516 373.631 98.3516 373.631 99.7636 373.625C101.279 373.626 101.279 373.626 102.824 373.627C104.438 373.623 104.438 373.623 106.085 373.618C109.702 373.61 113.319 373.608 116.936 373.607C119.525 373.602 122.113 373.597 124.702 373.592C131.743 373.578 138.785 373.572 145.826 373.568C150.224 373.565 154.621 373.561 159.019 373.556C171.197 373.544 183.375 373.534 195.553 373.53C196.332 373.53 197.111 373.53 197.914 373.53C198.696 373.529 199.477 373.529 200.281 373.529C201.864 373.529 203.447 373.528 205.03 373.528C205.815 373.527 206.6 373.527 207.409 373.527C220.13 373.523 232.85 373.506 245.571 373.482C258.634 373.459 271.697 373.446 284.76 373.445C292.093 373.444 299.426 373.438 306.76 373.42C313.657 373.403 320.555 373.401 327.453 373.41C329.985 373.411 332.516 373.407 335.048 373.397C338.505 373.384 341.961 373.39 345.417 373.4C346.418 373.392 347.42 373.384 348.451 373.376C356.498 373.433 363.46 374.853 369.375 380.768C373.238 386.354 374.489 390.962 374.552 397.663C374.565 398.852 374.578 400.04 374.591 401.265C374.602 403.188 374.602 403.188 374.613 405.151C374.617 405.808 374.621 406.464 374.625 407.141C374.646 410.622 374.661 414.102 374.67 417.582C374.681 421.153 374.715 424.723 374.755 428.294C374.782 431.06 374.79 433.826 374.793 436.592C374.8 438.54 374.827 440.489 374.854 442.437C374.834 450.524 374.285 458.441 368.625 464.705C362.171 470.684 356.141 471.061 347.653 471.035C346.014 471.042 346.014 471.042 344.341 471.049C340.671 471.062 337.002 471.06 333.333 471.058C330.704 471.064 328.076 471.071 325.448 471.079C319.046 471.095 312.644 471.101 306.242 471.102C301.037 471.103 295.832 471.107 290.627 471.113C275.867 471.131 261.106 471.14 246.346 471.139C245.55 471.139 244.755 471.139 243.935 471.138C243.139 471.138 242.342 471.138 241.521 471.138C228.613 471.137 215.705 471.157 202.798 471.185C189.54 471.213 176.283 471.227 163.025 471.226C155.583 471.225 148.142 471.23 140.7 471.252C134.364 471.27 128.028 471.274 121.692 471.261C118.46 471.254 115.229 471.256 111.998 471.272C108.491 471.287 104.985 471.278 101.478 471.262C100.461 471.273 99.4454 471.283 98.3986 471.294C90.5788 471.218 85.2037 469.534 79.5623 464.018C74.0489 455.827 73.9302 448.562 73.9764 438.924C73.9744 437.587 73.9715 436.25 73.9677 434.913C73.9633 432.123 73.9696 429.332 73.9837 426.542C74.0008 422.985 73.991 419.428 73.973 415.871C73.9621 413.113 73.9657 410.356 73.9734 407.598C73.9763 405.655 73.9673 403.712 73.958 401.769C74.0283 392.885 74.7813 385.361 81.3748 378.768C86.4218 375.277 90.8736 373.646 96.9677 373.636Z" fill={`url(#paint0_linear_101_206-${baseId})`}/>
+<path d="M373.375 85.7678C379.934 85.675 379.934 85.675 386.625 85.5803C387.978 85.553 389.33 85.5257 390.724 85.4976C406.763 85.389 421.51 89.7507 433.312 100.955C445.339 113.885 448.916 126.768 448.821 143.969C448.813 146.302 448.841 148.632 448.873 150.965C448.999 177.673 438.777 200.862 420.238 219.99C401.416 238.248 377.226 247.203 351.234 246.838C350.291 246.815 349.347 246.792 348.375 246.768C348.86 245.856 349.344 244.945 349.844 244.006C354.812 234.473 358.876 224.754 362.613 214.678C362.918 213.862 363.223 213.046 363.537 212.205C364.409 209.781 364.409 209.781 364.999 207.286C366.511 201.491 366.511 201.491 368.995 199.411C370.999 198.308 373.001 197.427 375.125 196.58C376.58 195.924 378.032 195.262 379.48 194.592C380.164 194.281 380.848 193.969 381.552 193.648C392.181 188.515 398.44 176.359 402.375 165.768C404.448 159.453 404.589 153.046 404.688 146.455C404.705 145.678 404.723 144.901 404.741 144.1C404.735 139.5 404.359 136.493 401.375 132.768C397.987 130.509 396.601 130.475 392.613 130.354C391.606 130.318 390.598 130.283 389.56 130.246C387.643 130.195 387.643 130.195 385.688 130.143C381.624 130.019 377.561 129.895 373.375 129.768C373.375 115.248 373.375 100.728 373.375 85.7678Z" fill={`url(#paint1_linear_101_206-${baseId})`}/>
+<path d="M61.437 85.5803C63.2884 85.5813 63.2884 85.5813 65.1773 85.5823C74.2339 85.6272 74.2339 85.6272 75.3745 86.7678C75.4757 89.8587 75.5142 92.9267 75.5073 96.0178C75.5083 96.9463 75.5092 97.8747 75.5102 98.8313C75.5109 100.798 75.5091 102.766 75.5049 104.733C75.4995 107.755 75.5048 110.777 75.5112 113.799C75.5106 115.705 75.5093 117.612 75.5073 119.518C75.5094 120.428 75.5114 121.339 75.5135 122.277C75.4895 128.653 75.4895 128.653 74.3745 129.768C72.653 129.877 70.9275 129.924 69.2026 129.944C67.6171 129.979 67.6171 129.979 65.9995 130.016C63.7653 130.059 61.5309 130.09 59.2964 130.11C52.9429 130.229 52.9429 130.229 47.1714 132.623C42.3246 138.408 43.9716 148.569 44.3745 155.768C45.8697 168.483 51.7123 181.538 61.7769 189.721C67.0272 193.697 72.1723 196.89 78.2808 199.369C83.257 202.693 84.3782 209.68 86.062 215.143C88.3345 222.272 91.1501 228.859 94.6585 235.465C96.6196 239.161 98.1695 242.759 99.3745 246.768C75.395 247.779 52.796 240.539 34.3745 224.768C33.5753 224.113 32.7761 223.458 31.9526 222.783C14.8247 208.209 3.48678 187.071 0.374516 164.768C0.249163 162.08 0.163862 159.417 0.136234 156.729C0.128163 155.967 0.120091 155.205 0.111775 154.419C0.0980015 152.811 0.0872493 151.202 0.0793497 149.594C0.067869 147.97 0.0474796 146.347 0.0178262 144.724C-0.303925 127.069 3.68279 113.933 15.812 100.58C19.9638 96.6061 24.2913 93.8546 29.3745 91.2678C30.0145 90.9415 30.6544 90.6151 31.3137 90.2788C41.0442 85.6682 50.8226 85.472 61.437 85.5803Z" fill={`url(#paint2_linear_101_206-${baseId})`}/>
+<path d="M181.375 313.768C182.379 314.034 183.383 314.299 184.418 314.573C212.604 321.919 239.273 320.882 267.375 313.768C267.431 315.348 267.431 315.348 267.488 316.959C268.371 337.721 273.047 353.936 285.375 370.768C286.035 371.758 286.695 372.748 287.375 373.768C245.795 373.768 204.215 373.768 161.375 373.768C163.355 371.128 165.335 368.488 167.375 365.768C178.412 349.901 180.541 332.5 181.375 313.768Z" fill={`url(#paint3_linear_101_206-${baseId})`}/>
+<path d="M73.958 21C73.958 9.40204 83.36 0 94.958 0H353.854C365.452 0 374.854 9.40202 374.854 21V169.842C374.854 252.932 307.496 320.29 224.406 320.29C141.316 320.29 73.958 252.933 73.958 169.843V21Z" fill={`url(#paint4_linear_101_206-${baseId})`}/>
+<path d="M353.823 0.000488281C365.421 0.000489024 374.823 9.40251 374.823 21.0005V43.7681H73.9277V21.0005C73.9277 9.40252 83.3298 0.000488281 94.9277 0.000488281H353.823Z" fill={`url(#paint5_linear_101_206-${baseId})`}/>
+<defs>
+<linearGradient id={`paint0_linear_101_206-${baseId}`} x1="224.406" y1="373.376" x2="224.406" y2="471.294" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FDCD02"/>
+<stop offset="1" stopColor="#F59915"/>
+</linearGradient>
+<linearGradient id={`paint1_linear_101_206-${baseId}`} x1="448.874" y1="166.172" x2="360.791" y2="166.172" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FD9802"/>
+<stop offset="1" stopColor="#FF7302"/>
+</linearGradient>
+<linearGradient id={`paint2_linear_101_206-${baseId}`} x1="0" y1="166.211" x2="89.5264" y2="166.211" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FD9802"/>
+<stop offset="1" stopColor="#FF7302"/>
+</linearGradient>
+<linearGradient id={`paint3_linear_101_206-${baseId}`} x1="224.375" y1="373.768" x2="224.375" y2="313.768" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FD9802"/>
+<stop offset="1" stopColor="#FF7302"/>
+</linearGradient>
+<linearGradient id={`paint4_linear_101_206-${baseId}`} x1="103.86" y1="63.0412" x2="303.464" y2="275.57" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FDCD02"/>
+<stop offset="1" stopColor="#F59915"/>
+</linearGradient>
+<linearGradient id={`paint5_linear_101_206-${baseId}`} x1="73.9277" y1="21.8843" x2="374.823" y2="21.8843" gradientUnits="userSpaceOnUse">
+<stop stopColor="#FEAB01"/>
+<stop offset="1" stopColor="#FC9405"/>
+</linearGradient>
+</defs>
+    </svg>
+  )
+}
+
+export function NavLeaderboardIcon({ size = 24, className = '', ...props }: IconProps) {
+  const baseId = React.useId().replace(/:/g, '');
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 514 276"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <path d="M365.584 0.133087C366.978 0.126017 368.372 0.117268 369.766 0.106979C373.528 0.0845962 377.29 0.0873989 381.053 0.0963008C384.204 0.101434 387.355 0.0940996 390.506 0.0868288C397.944 0.0698649 405.382 0.07336 412.82 0.0901184C420.472 0.107037 428.123 0.0912008 435.776 0.0588955C442.366 0.0321348 448.957 0.024941 455.547 0.0334106C459.474 0.0383209 463.401 0.0362281 467.329 0.0156231C471.023 -0.00283677 474.717 0.00334829 478.412 0.0278225C480.399 0.0351546 482.387 0.0180552 484.375 0C492.091 0.0810981 498.228 1.06871 504.594 5.66653C506.932 8.17435 508.856 10.7129 510.594 13.6665C510.942 14.2439 511.29 14.8213 511.649 15.4162C512.85 18.2765 512.851 20.5346 512.861 23.6364C512.87 24.8588 512.878 26.0813 512.887 27.3407C512.886 28.6925 512.885 30.0443 512.884 31.396C512.89 32.822 512.897 34.2481 512.905 35.6741C512.922 39.5462 512.927 43.4182 512.928 47.2903C512.93 49.7113 512.934 52.1322 512.939 54.5531C512.958 63.0043 512.966 71.4555 512.964 79.9068C512.963 87.7753 512.984 95.6435 513.016 103.512C513.042 110.274 513.053 117.036 513.051 123.798C513.051 127.833 513.057 131.869 513.078 135.904C513.097 139.703 513.097 143.501 513.083 147.3C513.081 148.69 513.085 150.08 513.097 151.47C513.169 160.282 512.78 166.7 506.918 173.655C499.555 179.612 493.051 181.661 483.594 180.667C477.198 179.249 472.115 176.134 468.25 170.819C463.459 162.554 463.862 154.09 463.887 144.846C463.874 143.134 463.858 141.422 463.841 139.71C463.801 135.235 463.791 130.761 463.787 126.286C463.777 121.707 463.74 117.128 463.705 112.549C463.641 103.588 463.607 94.6277 463.594 85.6665C462.874 86.3895 462.155 87.1125 461.414 87.8574C443.906 105.454 426.387 123.039 408.856 140.612C400.378 149.11 391.904 157.612 383.439 166.123C376.06 173.542 368.674 180.953 361.28 188.357C357.366 192.276 353.455 196.199 349.552 200.131C345.877 203.833 342.193 207.526 338.501 211.212C337.15 212.564 335.802 213.92 334.457 215.28C332.617 217.14 330.765 218.988 328.909 220.833C328.383 221.37 327.858 221.907 327.317 222.46C321.725 227.963 314.869 231.767 306.906 231.917C292.18 231.639 283.487 219.714 273.738 209.924C272.81 208.996 271.882 208.068 270.926 207.112C268.414 204.601 265.905 202.086 263.397 199.571C260.763 196.93 258.126 194.293 255.489 191.655C250.511 186.674 245.536 181.691 240.562 176.707C234.893 171.027 229.221 165.349 223.549 159.672C211.894 148.006 200.243 136.338 188.594 124.667C184.502 126.288 181.777 129.224 178.751 132.302C178.171 132.884 177.591 133.466 176.993 134.066C175.047 136.02 173.11 137.981 171.171 139.941C169.779 141.343 168.385 142.744 166.992 144.144C163.99 147.163 160.99 150.184 157.993 153.208C153.25 157.993 148.498 162.768 143.744 167.541C130.226 181.117 116.718 194.702 103.225 208.303C95.7736 215.813 88.3136 223.314 80.8437 230.806C76.1196 235.544 71.4067 240.294 66.702 245.052C63.765 248.017 60.8176 250.971 57.8671 253.922C56.5058 255.288 55.1489 256.658 53.7967 258.033C38.574 273.498 38.574 273.498 27.8359 275.295C19.8163 275.137 13.9022 274.65 7.88672 269.088C2.00271 262.732 0.282183 256.546 0 248.022C1.50442 239.52 6.45489 233.064 12.4744 227.151C13.1543 226.463 13.8342 225.776 14.5347 225.067C16.7943 222.788 19.0712 220.526 21.3486 218.265C22.9811 216.625 24.6125 214.985 26.243 213.344C30.6592 208.905 35.091 204.482 39.5265 200.062C44.1729 195.428 48.8071 190.782 53.4433 186.138C61.7265 177.845 70.0232 169.564 78.3244 161.289C85.8413 153.794 93.3451 146.286 100.839 138.769C109.557 130.025 118.283 121.288 127.022 112.565C131.642 107.952 136.259 103.336 140.867 98.7115C145.2 94.3647 149.544 90.0303 153.898 85.7051C155.492 84.1179 157.082 82.5265 158.667 80.9305C160.835 78.7486 163.018 76.5828 165.205 74.4202C165.825 73.7889 166.445 73.1576 167.084 72.5071C172.106 67.5949 177.597 64.3267 184.598 63.1704C201.084 63.548 209.343 74.2555 220.45 85.409C221.378 86.3369 222.306 87.2648 223.262 88.2208C225.774 90.7324 228.283 93.2471 230.791 95.7623C233.425 98.4027 236.062 101.04 238.698 103.678C243.676 108.659 248.651 113.642 253.625 118.626C259.295 124.307 264.967 129.984 270.639 135.661C282.294 147.327 293.945 158.995 305.594 170.667C309.335 169.106 311.707 166.8 314.555 163.946C315.04 163.463 315.525 162.979 316.025 162.481C317.648 160.861 319.264 159.234 320.88 157.607C322.043 156.444 323.206 155.281 324.369 154.119C327.526 150.962 330.677 147.8 333.827 144.636C337.12 141.331 340.418 138.031 343.716 134.731C349.961 128.48 356.2 122.225 362.437 115.967C369.538 108.844 376.645 101.726 383.752 94.6085C398.373 79.9675 412.985 65.3194 427.594 50.6665C426.233 50.6577 426.233 50.6577 424.845 50.6488C416.268 50.5907 407.691 50.5185 399.115 50.4308C394.706 50.3862 390.298 50.3469 385.889 50.3201C381.629 50.294 377.369 50.2535 373.109 50.2033C371.489 50.1867 369.87 50.1752 368.25 50.1689C347.338 50.0798 347.338 50.0798 339.098 42.4126C333.939 36.4228 332.084 29.447 332.594 21.6665C333.946 14.7702 337.038 9.06374 342.594 4.66653C350.004 0.163057 357.098 0.0901282 365.584 0.133087Z" fill={`url(#paint0_linear_106_245-${baseId})`}/>
+<defs>
+<linearGradient id={`paint0_linear_106_245-${baseId}`} x1="498.632" y1="2.40432e-05" x2="41.4949" y2="244.403" gradientUnits="userSpaceOnUse">
+<stop stopColor="#9BD29E"/>
+<stop offset="1" stopColor="#0CB37D"/>
+</linearGradient>
+</defs>
+    </svg>
+  )
+}
+
+
 export function CourseBookIcon({ size = 24, className = '', ...props }: IconProps) {
   const rawId = React.useId().replace(/:/g, '')
   const coverId = `journeyBookCover-${rawId}`
@@ -431,4 +487,3 @@ export function CourseBookIcon({ size = 24, className = '', ...props }: IconProp
     </svg>
   )
 }
-

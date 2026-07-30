@@ -478,7 +478,7 @@ function OverviewSection({
       <section className="space-y-4">
         {data.alerts.configurationRequired && (
           <div className="rounded-2xl bg-sun-50 p-4 text-sm text-warning">
-            Chưa cấu hình ngưỡng “chậm tiến độ/không hoạt động”, nên hệ thống không
+            Chưa cấu hình ngưỡng “chậm tiến độ / không hoạt động”, nên hệ thống không
             tự gắn nhãn trẻ. Cần khách hàng phê duyệt ngưỡng trước.
           </div>
         )}

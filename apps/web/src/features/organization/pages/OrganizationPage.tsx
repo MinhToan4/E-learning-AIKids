@@ -27,7 +27,7 @@ export function OrganizationPage() {
         </Link>
         <Link className="ui-card p-5" to="/world">
           <h2 className="font-display text-lg">Hoạt động chung</h2>
-          <p className="mt-1 text-sm text-muted">Game và hoạt động global dùng chung B2C/B2B.</p>
+          <p className="mt-1 text-sm text-muted">Game và hoạt động global dùng chung B2C / B2B.</p>
         </Link>
       </div>
     </div>

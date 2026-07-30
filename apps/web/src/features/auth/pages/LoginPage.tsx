@@ -42,8 +42,8 @@ export function LoginPage() {
   const hint = useMemo(
     () =>
       mode === 'student'
-        ? 'Con dùng biệt danh ba/mẹ đã tạo. Không cần mật khẩu của ba/mẹ.'
-        : 'Ba/mẹ, giáo viên và quản trị viên dùng chung cổng này. Hệ thống sẽ tự mở đúng không gian sau khi đăng nhập.',
+        ? 'Con dùng biệt danh Ba / Mẹ đã tạo. Không cần mật khẩu của Ba / Mẹ.'
+        : 'Ba / Mẹ, giáo viên và quản trị viên dùng chung cổng này. Hệ thống sẽ tự mở đúng không gian sau khi đăng nhập.',
     [mode],
   )
 
@@ -104,15 +104,10 @@ export function LoginPage() {
           ← Về trang chào
         </Link>
         <div className="ui-card p-6">
-          <div className="mb-4 flex items-center gap-3">
+          <div className="mb-4">
             <BrandLogo size="lg" className="max-w-[200px]" />
-            <img
-              src={designerAssets.brand.mascot}
-              alt=""
-              className="h-14 w-14 rounded-full object-cover"
-            />
           </div>
-          <h1 className="font-display text-3xl text-text">
+          <h1 className="font-display text-3xl uppercase tracking-wide text-brand-600">
             {mode === 'student'
               ? 'Vào cổng sáng tạo'
               : 'Cổng người lớn'}
@@ -169,7 +164,7 @@ export function LoginPage() {
                   />
                 </label>
                 <p className="text-xs text-muted">
-                  Chưa có hồ sơ? Nhờ ba/mẹ đăng nhập, vào mục Con và thêm con nhé.
+                  Chưa có hồ sơ? Nhờ Ba / Mẹ đăng nhập, vào mục Con và thêm con nhé.
                 </p>
               </>
             ) : (
@@ -244,7 +239,7 @@ export function LoginPage() {
         }}
         onSubmit={(value) => void onSubmitPin(value)}
         title={`Xin chào ${nickname || 'bạn nhỏ'}!`}
-        subtitle="Nhập mã PIN 6 số ba/mẹ đã đặt"
+        subtitle="Nhập mã PIN 6 số Ba / Mẹ đã đặt"
         busy={busy}
         pin={pin}
         setPin={setPin}
