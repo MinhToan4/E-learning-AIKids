@@ -1,5 +1,4 @@
 import { Link } from 'react-router'
-import { Button } from '@/shared/components/ui/Button'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
 
@@ -40,12 +39,15 @@ export function WelcomePage() {
             truyện tranh / giọng kể / robot, hiểu bản chất AI qua thực hành an toàn.
           </p>
           <div className="flex flex-wrap gap-3 pt-2">
-            <Link to="/login">
-              <Button>Bắt đầu ngay</Button>
+            <Link to="/login" className="ui-btn ui-btn-primary">
+              Bắt đầu ngay
             </Link>
-            <Link to="/login?mode=adult">
-              <Button variant="secondary">Ba / Mẹ / Giáo viên</Button>
-            </Link>
+            <a
+              href="https://play.aikid.vn/login"
+              className="ui-btn ui-btn-secondary"
+            >
+              AI Studio
+            </a>
           </div>
           <div className="mt-2 grid grid-cols-3 gap-2">
             {[
