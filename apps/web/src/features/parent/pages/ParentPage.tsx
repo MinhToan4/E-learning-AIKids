@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react'
+import { useEffect, useMemo, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
 import { Link, useNavigate } from 'react-router'
 import {
@@ -37,6 +37,10 @@ import {
   STUDENT_AVATARS,
   avatarEmoji as avatarEmojiFromCatalog,
 } from '@/shared/config/avatars'
+import {
+  buildCourseAgeGroups,
+  courseAgeGroupId,
+} from '@/features/parent/lib/course-age-groups'
 
 // ── Types ─────────────────────────────────────────────────────
 type Approval = {
@@ -56,7 +60,6 @@ type Child = {
   xp: number
   active: boolean
   hasPin?: boolean
-  birthDate?: string | null
   completedQuests?: number
   totalStars?: number
   projectCount?: number
@@ -403,8 +406,6 @@ function EditChildModal({
   const [avatarId, setAvatarId] = useState('avatar-robot')
   const [goal, setGoal] = useState('comic')
   const [pin, setPin] = useState('')
-  // birthDate bắt buộc khi tạo con mới (backend validate 6–17 tuổi)
-  const [birthDate, setBirthDate] = useState('')
   const [saving, setSaving] = useState(false)
 
   // Khi mở modal, điền sẵn giá trị hiện tại (nếu đang sửa)
@@ -414,12 +415,6 @@ function EditChildModal({
       setAvatarId(child?.avatarId ?? 'avatar-robot')
       setGoal('comic')
       setPin('')
-      // Điền sẵn birthDate nếu đang sửa; để trống nếu tạo mới
-      setBirthDate(
-        child?.birthDate
-          ? new Date(child.birthDate).toISOString().split('T')[0]
-          : ''
-      )
     }
   }, [isOpen, child])
 
@@ -442,8 +437,6 @@ function EditChildModal({
     e.preventDefault()
     if (!nickname.trim()) { onError('Vui lòng nhập tên hiển thị.'); return }
     if (pin && !/^\d{6}$/.test(pin)) { onError('Mã PIN cần đủ 6 chữ số, hoặc để trống.'); return }
-    // birthDate bắt buộc khi tạo con mới — backend validate độ tuổi 6-17
-    if (!child && !birthDate) { onError('Vui lòng nhập ngày sinh của con.'); return }
     setSaving(true)
     try {
       if (child) {
@@ -458,14 +451,12 @@ function EditChildModal({
           }),
         })
       } else {
-        // Tạo hồ sơ mới — birthDate bắt buộc theo domain rule
         const created = await api<{ child: { id: string } }>('/api/parent/children', {
           method: 'POST',
           body: JSON.stringify({
             nickname: nickname.trim(),
             avatarId,
             goal,
-            birthDate,
             // Gửi PIN kèm lúc tạo nếu ba/mẹ đặt ngay
             ...(pin ? { pin } : {}),
           }),
@@ -565,26 +556,6 @@ function EditChildModal({
               ))}
             </div>
           </div>
-
-          {/* Ngày sinh — bắt buộc khi tạo mới, hiển thị nhưng readonly khi sửa */}
-          {!child && (
-            <div>
-              <label className="mb-1 block text-sm font-bold" htmlFor="edit-birthdate">
-                Ngày sinh của con <span className="text-red-500">*</span>
-              </label>
-              <input
-                id="edit-birthdate"
-                type="date"
-                value={birthDate}
-                onChange={(e) => setBirthDate(e.target.value)}
-                max={new Date(Date.now() - 6 * 365.25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-                min={new Date(Date.now() - 17 * 365.25 * 24 * 60 * 60 * 1000).toISOString().split('T')[0]}
-                className="w-full rounded-xl border border-brand-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-400"
-                required
-              />
-              <p className="mt-1 text-xs text-muted">Con từ 6 đến 17 tuổi.</p>
-            </div>
-          )}
 
           {/* Mục tiêu (chỉ khi tạo mới) */}
           {!child && (
@@ -1148,6 +1119,7 @@ function CourseSelectModal({
   const [courses, setCourses] = useState<CourseItem[]>([])
   const [loading, setLoading] = useState(true)
   const [toggling, setToggling] = useState<string | null>(null)
+  const [activeAgeGroup, setActiveAgeGroup] = useState<string | null>(null)
 
   useEffect(() => {
     const controller = new AbortController()
@@ -1197,7 +1169,16 @@ function CourseSelectModal({
     }
   }
 
-  const trackLabel: Record<string, string> = { L1: '6–9 tuổi', L2: '9–11 tuổi' }
+  const ageGroups = useMemo(() => buildCourseAgeGroups(courses), [courses])
+  const selectedAgeGroup =
+    ageGroups.some((group) => group.id === activeAgeGroup)
+      ? activeAgeGroup
+      : ageGroups[0]?.id ?? null
+  const visibleCourses = selectedAgeGroup
+    ? courses.filter((course) => courseAgeGroupId(course) === selectedAgeGroup)
+    : courses
+  const activeAgeLabel =
+    ageGroups.find((group) => group.id === selectedAgeGroup)?.label ?? ''
 
   return createPortal(
     <div
@@ -1243,8 +1224,41 @@ function CourseSelectModal({
           ) : courses.length === 0 ? (
             <p className="py-8 text-center text-muted">Không có khóa học nào đang mở.</p>
           ) : (
-            <div className="flex flex-col gap-2">
-              {courses.map((course) => {
+            <div className="flex flex-col gap-3">
+              <div
+                className="grid grid-cols-3 gap-2"
+                role="group"
+                aria-label="Nhóm tuổi khóa học"
+              >
+                {ageGroups.map((group) => {
+                  const count = courses.filter(
+                    (course) => courseAgeGroupId(course) === group.id,
+                  ).length
+                  return (
+                    <button
+                      key={group.id}
+                      type="button"
+                      aria-pressed={selectedAgeGroup === group.id}
+                      onClick={() => setActiveAgeGroup(group.id)}
+                      className={cn(
+                        'min-h-11 rounded-xl border px-2 py-2 text-xs font-extrabold transition',
+                        selectedAgeGroup === group.id
+                          ? 'border-brand-500 bg-brand-500 text-white'
+                          : 'border-border bg-white text-muted hover:border-brand-300',
+                      )}
+                    >
+                      {group.label}
+                      <span className="ml-1 opacity-75">({count})</span>
+                    </button>
+                  )
+                })}
+              </div>
+
+              {visibleCourses.length === 0 ? (
+                <p className="rounded-2xl bg-page px-4 py-8 text-center text-sm text-muted">
+                  Chưa có khóa học {activeAgeLabel} đang mở.
+                </p>
+              ) : visibleCourses.map((course) => {
                 const isToggling = toggling === course.id
                 return (
                   <div
@@ -1261,9 +1275,9 @@ function CourseSelectModal({
                       <p className="font-bold text-sm leading-tight truncate">{course.title}</p>
                       <p className="text-xs text-muted mt-0.5">
                         <span className="inline-block rounded-full bg-brand-100 px-2 py-0.5 font-bold text-brand-700 mr-1">
-                          {trackLabel[course.ageTrack] ?? course.ageTrack}
+                          {course.ageLabel}
                         </span>
-                        {course.ageLabel}
+                        {course.shortTitle}
                       </p>
                     </div>
 

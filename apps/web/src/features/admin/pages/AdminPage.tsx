@@ -39,7 +39,6 @@ type SystemInfo = {
     courses: number
     quests: number
     classes: number
-    activeSessions: number
     pendingApprovals: number
     usersByRole: Record<string, number>
   }
@@ -62,22 +61,12 @@ type CourseOverview = {
   title: string
   shortTitle?: string
   status: string
+  ageLabel?: string
   ageTrack?: string
   courseKey?: string
   enrollmentCount?: number
   questCount: number
   quests: Array<{ id: string; order: number; title: string; videoUrl: string | null; archived?: boolean }>
-}
-
-type SessionRow = {
-  id: string
-  userId: string
-  email: string | null
-  nickname: string | null
-  role: string
-  ipAddress: string | null
-  createdAt: string
-  expiresAt: string
 }
 
 type Analytics = {
@@ -86,7 +75,6 @@ type Analytics = {
   courses: { open: number; soon: number }
   quests: { active: number; archived: number }
   learning: { completedProgress: number; enrollments: number; projects: number }
-  sessions: { active: number }
   trends: Array<{
     date: string
     newUsers: number
@@ -119,7 +107,7 @@ type LoginLogSummary = {
   purgedAt: string
 }
 
-export type AdminTab = 'system' | 'analytics' | 'logs' | 'ai' | 'users' | 'sessions' | 'courses'
+export type AdminTab = 'system' | 'analytics' | 'logs' | 'ai' | 'users' | 'courses'
 
 const ROLE_LABELS: Record<string, string> = {
   student: 'Học sinh',
@@ -283,7 +271,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const [system, setSystem] = useState<SystemInfo | null>(null)
   const [users, setUsers] = useState<AdminUser[]>([])
   const [courses, setCourses] = useState<CourseOverview[]>([])
-  const [sessions, setSessions] = useState<SessionRow[]>([])
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [loginLogs, setLoginLogs] = useState<LoginLogItem[]>([])
   const [logSummary, setLogSummary] = useState<LoginLogSummary | null>(null)
@@ -295,7 +282,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const [roleFilter, setRoleFilter] = useState('')
   const [loading, setLoading] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<AdminUser | null>(null)
-  const [revokeTarget, setRevokeTarget] = useState<SessionRow | null>(null)
   // Inline edit state — tracks which user row is open for editing
   const [editTarget, setEditTarget] = useState<AdminUser | null>(null)
   const [editForm, setEditForm] = useState({ nickname: '', role: 'student' as AdminUser['role'], email: '', newPassword: '' })
@@ -303,7 +289,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // ── Search / filter state ──────────────────────────────
   const [userSearch, setUserSearch] = useState('')
   const [userActiveFilter, setUserActiveFilter] = useState<'' | 'active' | 'inactive'>('')
-  const [sessionSearch, setSessionSearch] = useState('')
   const [logSearch, setLogSearch] = useState('')
   const [courseSearch, setCourseSearch] = useState('')
   const [courseStatusFilter, setCourseStatusFilter] = useState<'' | 'open' | 'soon'>('')
@@ -325,18 +310,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     }
     return list
   }, [users, roleFilter, userActiveFilter, userSearch])
-
-  const filteredSessions = useMemo(() => {
-    if (!sessionSearch) return sessions
-    const q = sessionSearch.toLowerCase()
-    return sessions.filter(
-      (s) =>
-        s.nickname?.toLowerCase().includes(q) ||
-        s.email?.toLowerCase().includes(q) ||
-        s.role?.toLowerCase().includes(q) ||
-        (s.ipAddress ?? '').includes(q),
-    )
-  }, [sessions, sessionSearch])
 
   const filteredLogs = useMemo(() => {
     let list = loginLogs
@@ -366,7 +339,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
 
   // ── Pagination — one hook per data-heavy tab ─────────────────
   const usersPag = usePagination(filteredUsers, 15)
-  const sessionsPag = usePagination(filteredSessions, 15)
   const logsPag = usePagination(filteredLogs, 20)
   const coursesPag = usePagination(filteredCourses, 8)
 
@@ -380,9 +352,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         const q = roleFilter ? `?role=${encodeURIComponent(roleFilter)}` : ''
         const data = await api<{ users: AdminUser[] }>(`/api/admin/users${q}`)
         setUsers(data.users)
-      } else if (tab === 'sessions') {
-        const data = await api<{ sessions: SessionRow[] }>('/api/admin/sessions')
-        setSessions(data.sessions)
       } else if (tab === 'analytics') {
         const data = await api<{ analytics: Analytics }>('/api/admin/analytics')
         setAnalytics(data.analytics)
@@ -494,19 +463,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     }
   }
 
-  async function revokeSession() {
-    if (!revokeTarget) return
-    try {
-      await api(`/api/admin/sessions/${revokeTarget.id}`, { method: 'DELETE' })
-      showToast('Đã thu hồi phiên đăng nhập', 'success')
-      setRevokeTarget(null)
-      await load()
-    } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Lỗi revoke', 'error')
-      setRevokeTarget(null)
-    }
-  }
-
   async function setCourseStatus(id: string, status: 'open' | 'soon') {
     try {
       await api(`/api/admin/courses/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) })
@@ -582,12 +538,11 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           </button>
         </div>
       </section>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {[
           { label: 'Khóa học', value: system.counts.courses, icon: <CmsCoursesIcon /> },
           { label: 'Bài học', value: system.counts.quests, icon: <CmsLecturesIcon /> },
           { label: 'Lớp học', value: system.counts.classes, icon: <CmsClassesIcon /> },
-          { label: 'Phiên đang hoạt động', value: system.counts.activeSessions, icon: <CmsSessionsIcon /> },
           { label: 'Tài khoản chờ duyệt', value: system.counts.pendingApprovals, icon: <CmsUsersIcon /> },
         ].map((s) => (
           <StatCard key={s.label} {...s} />
@@ -625,7 +580,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard label="Người dùng hoạt động" value={analytics.users.active} icon={<CmsUsersIcon />} />
         <StatCard label="Khóa học đang mở" value={analytics.courses.open} icon={<CmsCoursesIcon />} />
-        <StatCard label="Phiên đang hoạt động" value={analytics.sessions.active} icon={<CmsSessionsIcon />} />
         <StatCard label="Lượt tham gia khóa" value={analytics.learning.enrollments} icon={<CmsAnalyticsIcon />} />
         <StatCard label="Bài học đang dùng" value={analytics.quests.active} icon={<CmsLecturesIcon />} />
         <StatCard label="Bài học đang ẩn" value={analytics.quests.archived} icon={<CmsLecturesIcon />} />
@@ -872,76 +826,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     </div>
   )
 
-  // Sessions tab
-  const sessionsTab = (
-    <>
-      <div className="ui-card overflow-hidden">
-        {/* Session search bar */}
-        <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-3">
-          <div className="relative flex-1 min-w-[220px]">
-            <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
-              <Search size={17} aria-hidden="true" />
-            </span>
-            <input
-              type="search"
-              aria-label="Tìm phiên đăng nhập"
-              placeholder="Tìm tên, email, IP..."
-              value={sessionSearch}
-              onChange={(e) => setSessionSearch(e.target.value)}
-              className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
-            />
-          </div>
-          {sessionSearch && (
-            <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">
-              {filteredSessions.length} / {sessions.length} phiên
-            </span>
-          )}
-          {sessionSearch && (
-            <button type="button" className="text-xs font-bold text-muted underline" onClick={() => setSessionSearch('')}>Xóa</button>
-          )}
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[640px] text-left text-sm">
-            <thead className="border-b border-border bg-brand-50/80">
-              <tr>
-                <th className="px-4 py-3 font-extrabold">User</th>
-                <th className="px-4 py-3 font-extrabold">Role</th>
-                <th className="px-4 py-3 font-extrabold">IP</th>
-                <th className="px-4 py-3 font-extrabold">Hết hạn</th>
-                <th className="px-4 py-3 font-extrabold" />
-              </tr>
-            </thead>
-            <tbody>
-              {sessionsPag.slice.length === 0 ? (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">{sessions.length === 0 ? 'Không có phiên active' : 'Không có phiên khớp bộ lọc'}</td></tr>
-              ) : sessionsPag.slice.map((s) => (
-                <tr key={s.id} className="border-b border-border/40">
-                  <td className="px-4 py-3">
-                    <p className="font-bold">{s.nickname ?? '—'}</p>
-                    <p className="text-xs text-muted">{s.email ?? s.userId.slice(0, 8)}</p>
-                  </td>
-                  <td className="px-4 py-3 font-bold capitalize">{s.role}</td>
-                  <td className="px-4 py-3 font-mono text-xs text-muted">{s.ipAddress ?? '—'}</td>
-                  <td className="px-4 py-3 text-xs text-muted">{new Date(s.expiresAt).toLocaleString('vi-VN')}</td>
-                  <td className="px-4 py-3 text-right">
-                    <Button variant="secondary" onClick={() => setRevokeTarget(s)}>
-                      Thu hồi
-                    </Button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <Paginator
-            page={sessionsPag.page} totalPages={sessionsPag.totalPages}
-            totalItems={filteredSessions.length} pageSize={15}
-            onPrev={sessionsPag.prev} onNext={sessionsPag.next} onGoTo={sessionsPag.goTo}
-          />
-        </div>
-      </div>
-    </>
-  )
-
   // Courses tab
   const coursesTab = (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_320px]">
@@ -978,7 +862,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <div className="mb-3 flex flex-wrap items-start justify-between gap-2">
               <div>
                 <h2 className="font-display text-lg">{c.title}</h2>
-                <p className="text-xs text-muted">{c.ageTrack === 'L2' ? '9–11 tuổi' : '6–8 tuổi'}{c.courseKey ? ` · Chặng ${c.courseKey}` : ''}{c.enrollmentCount != null ? ` · ${c.enrollmentCount} lượt tham gia` : ''}</p>
+                <p className="text-xs text-muted">{c.ageLabel ?? c.ageTrack ?? 'Chưa cấu hình nhóm tuổi'}{c.courseKey ? ` · Chặng ${c.courseKey}` : ''}{c.enrollmentCount != null ? ` · ${c.enrollmentCount} lượt tham gia` : ''}</p>
               </div>
               <div className="flex items-center gap-2">
                 <span className={cn('rounded-full px-3 py-0.5 text-xs font-extrabold', c.status === 'open' ? 'bg-mint-100 text-success' : 'bg-sun-100 text-warning')}>
@@ -1122,7 +1006,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       case 'system': return system !== null
       case 'analytics': return analytics !== null
       case 'users': return users.length > 0 || !loading
-      case 'sessions': return sessions.length > 0 || !loading
       case 'logs': return loginLogs.length > 0 || logSummary !== null || !loading
       case 'courses': return courses.length > 0 || !loading
       case 'ai': return vidtoryStatus !== null
@@ -1139,7 +1022,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       case 'analytics': return analyticsTab
       case 'logs': return logsTab
       case 'users': return usersTab
-      case 'sessions': return sessionsTab
       case 'courses': return coursesTab
       case 'ai': return aiTab
       default: return null
@@ -1158,8 +1040,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                 : tab === 'logs' ? 'Nhật ký đăng nhập'
                   : tab === 'ai' ? 'AI Vidtory'
                     : tab === 'users' ? 'Tài khoản'
-                      : tab === 'sessions' ? 'Phiên đăng nhập'
-                        : 'Khóa học'}
+                      : 'Khóa học'}
           </h1>
         </div>
       </div>
@@ -1180,16 +1061,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         onConfirm={() => void softDeleteUser()}
         onCancel={() => setDeleteTarget(null)}
       />
-      <ConfirmDialog
-        open={!!revokeTarget}
-        title={`Thu hồi phiên của "${revokeTarget?.nickname ?? revokeTarget?.email}"?`}
-        description="Người dùng sẽ bị đăng xuất ngay lập tức."
-        confirmLabel="Thu hồi"
-        danger
-        onConfirm={() => void revokeSession()}
-        onCancel={() => setRevokeTarget(null)}
-      />
-
       {/* ── Edit user modal — fixed overlay so it always appears in viewport center
            regardless of scroll position. Replaces the old inline panel that was
            hidden below the table when the list was long. ── */}

@@ -19,6 +19,7 @@ type PathwayCourse = {
   completionPercent: number
   missingPrerequisites: string[]
   coverImage: string | null
+  enrolled: boolean
 }
 
 type Pathway = {
@@ -319,12 +320,14 @@ const reasonLabels: Record<string, string> = {
   not_available_yet: 'Chưa đến ngày mở',
   prerequisite_incomplete: 'Cần hoàn thành khóa trước',
   requirements_met: 'Sẵn sàng học',
+  enrolled: 'Sẵn sàng học',
 }
 
 function PathwayOverview({ pathway }: { pathway: Pathway }) {
-  const recommended = pathway.courses.find(
+  const visibleCourses = pathway.courses.filter((course) => course.enrolled)
+  const recommended = visibleCourses.find(
     (course) => course.id === pathway.recommendedCourseId,
-  )
+  ) ?? visibleCourses.find((course) => course.status !== 'locked')
   return (
     <div className="page-enter flex flex-col gap-5">
       <header className="ui-card overflow-hidden p-5 sm:p-7">
@@ -356,8 +359,16 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
           </div>
         )}
       </header>
+      {visibleCourses.length === 0 ? (
+        <div className="ui-card p-6 text-center">
+          <p className="font-display text-xl">Cha mẹ chưa chọn khóa học</p>
+          <p className="mt-2 text-sm text-muted">
+            Nhờ cha mẹ vào mục Con của tôi để chọn và mở khóa học cho con nhé.
+          </p>
+        </div>
+      ) : (
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {pathway.courses.map((course, index) => {
+        {visibleCourses.map((course, index) => {
           const locked = course.status === 'locked'
           const content = (
             <article
@@ -410,6 +421,7 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
           return locked ? <div key={course.id}>{content}</div> : <Link key={course.id} to={`/world/${course.id}`}>{content}</Link>
         })}
       </div>
+      )}
     </div>
   )
 }

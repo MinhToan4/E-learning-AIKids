@@ -11,8 +11,6 @@ import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { CourseBookIcon, NavLeaderboardIcon } from '@/shared/components/icons/KidNavIcons'
 
-type TrackFilter = 'all' | 'L1' | 'L2'
-
 function courseBadge(course: CourseSummary) {
   return /^l[12]-k7-/.test(course.id) ? 'AI' : (course.courseKey ?? 'Mới')
 }
@@ -156,7 +154,6 @@ function CourseCard({ course }: { course: CourseSummary }) {
 export function HomePage() {
   const user = useAuth((s) => s.user)
   const [courses, setCourses] = useState<CourseSummary[]>([])
-  const [track, setTrack] = useState<TrackFilter>('all')
   const [streak, setStreak] = useState({ current: 0, longest: 0 })
   const [badges, setBadges] = useState<AchievementRow[]>([])
   const [dailyMission, setDailyMission] = useState<{
@@ -215,10 +212,12 @@ export function HomePage() {
   }, [load])
 
   const open = courses.filter((c) => c.status === 'open')
-  const filtered =
-    track === 'all' ? open : open.filter((c) => c.ageTrack === track)
-  const enrolled = filtered.filter((c) => c.enrolled)
-  const explore = filtered.filter((c) => !c.enrolled)
+  // A child only sees courses explicitly selected by their parent. Adult
+  // contexts keep the full catalog for discovery and administration.
+  const accessibleCourses =
+    user?.role === 'student' ? open.filter((c) => c.enrolled) : open
+  const enrolled = accessibleCourses.filter((c) => c.enrolled)
+  const explore = accessibleCourses.filter((c) => !c.enrolled)
 
   const goalToKey: Record<string, string> = {
     world: 'K1',
@@ -233,10 +232,10 @@ export function HomePage() {
   const continueCourse =
     enrolled[0] ??
     (preferredKey
-      ? open.find((c) => c.courseKey === preferredKey)
+      ? accessibleCourses.find((c) => c.courseKey === preferredKey)
       : undefined) ??
-    open.find((c) => c.recommended) ??
-    open[0]
+    accessibleCourses.find((c) => c.recommended) ??
+    accessibleCourses[0]
 
   if (loading) {
     return (
@@ -390,30 +389,6 @@ export function HomePage() {
             <CourseBookIcon size={32} aria-hidden />
             Hành trình của con
           </h2>
-          {/* Age filter tabs */}
-          <div className="flex gap-1 rounded-2xl bg-brand-50 p-1 border border-brand-100">
-            {(
-              [
-                ['all', 'Tất cả'],
-                ['L1', '6–8 tuổi'],
-                ['L2', '9–11 tuổi'],
-              ] as const
-            ).map(([id, label]) => (
-              <button
-                key={id}
-                type="button"
-                onClick={() => setTrack(id)}
-                className={cn(
-                  'rounded-xl px-3 py-1.5 text-xs font-extrabold transition',
-                  track === id
-                    ? 'bg-white text-brand-600 shadow-soft'
-                    : 'text-muted hover:text-text',
-                )}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
         </div>
 
         <p className="mb-4 text-sm text-muted">
@@ -454,8 +429,16 @@ export function HomePage() {
           <EmptyState
             className="mt-3"
             compact
-            title="Chưa có khóa ở nhóm này"
-            description={'Thử lọc "Tất cả" hoặc quay lại sau khi giáo viên mở khóa mới.'}
+            title={
+              user?.role === 'student'
+                ? 'Cha mẹ chưa chọn khóa học'
+                : 'Chưa có khóa ở nhóm này'
+            }
+            description={
+              user?.role === 'student'
+                ? 'Nhờ cha mẹ vào mục Con của tôi để chọn và mở khóa học cho con nhé.'
+                : 'Quay lại sau khi giáo viên mở khóa học mới.'
+            }
             imageSrc={designerAssets.chrome.adventureMap}
           />
         )}

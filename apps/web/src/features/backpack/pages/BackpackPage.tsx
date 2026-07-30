@@ -73,8 +73,13 @@ export function BackpackPage() {
       ])
       setAssets(a.status === 'fulfilled' ? a.value.assets : [])
       setProjects(p.status === 'fulfilled' ? p.value.projects : [])
-      if (a.status === 'rejected' && p.status === 'rejected') {
-        setError('Ba lô đang được kết nối với kho media StoryMee.')
+      const rejected = [a, p].find((result) => result.status === 'rejected')
+      if (rejected?.status === 'rejected') {
+        setError(
+          rejected.reason instanceof Error
+            ? rejected.reason.message
+            : 'Không tải được dữ liệu trong Ba lô.',
+        )
       }
     } finally {
       setLoading(false)

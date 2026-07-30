@@ -13,7 +13,6 @@ import {
   CmsLogsIcon,
   CmsLogoutIcon,
   CmsOverviewIcon,
-  CmsSessionsIcon,
   CmsUsersIcon,
 } from '@/shared/components/icons/CmsIcons'
 import {
@@ -575,7 +574,6 @@ export function AppShell() {
       { to: '/admin/analytics', label: 'Phân tích', icon: CmsAnalyticsIcon },
       { to: '/admin/logs', label: 'Nhật ký', icon: CmsLogsIcon },
       { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
-      { to: '/admin/sessions', label: 'Phiên', icon: CmsSessionsIcon },
       { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
       { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
       { to: '/teacher', label: 'Giáo viên', icon: CmsClassesIcon },

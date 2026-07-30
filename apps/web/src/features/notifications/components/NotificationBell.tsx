@@ -2,7 +2,6 @@ import { useCallback, useEffect, useState } from 'react'
 import { Bell } from 'lucide-react'
 import { api, type NotificationRow } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
-import { enablePushNotifications, listenForForegroundPush } from '@/shared/lib/firebase-client'
 
 export function NotificationBell() {
   const [open, setOpen] = useState(false)
@@ -30,27 +29,9 @@ export function NotificationBell() {
     document.addEventListener('visibilitychange', refreshVisible)
     const t = window.setInterval(refreshVisible, 5 * 60_000)
 
-    let disposed = false
-    let unsubscribe: () => void = () => undefined
-    // Push startup loads Firebase and touches IndexedDB/service workers. Keep it
-    // off the login hot path and make its async cleanup StrictMode-safe.
-    const pushTimer = window.setTimeout(() => {
-      if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return
-      void (async () => {
-        if (await enablePushNotifications()) {
-          const stop = await listenForForegroundPush(load)
-          if (disposed) stop()
-          else unsubscribe = stop
-        }
-      })().catch(() => undefined)
-    }, 1_000)
-
     return () => {
-      disposed = true
       document.removeEventListener('visibilitychange', refreshVisible)
       window.clearInterval(t)
-      window.clearTimeout(pushTimer)
-      unsubscribe()
     }
   }, [load])
 

@@ -174,7 +174,6 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     '/api/notifications': '/api/v1/notifications',
     '/api/notifications/read-all': '/api/v1/notifications/read-all',
     '/api/notifications/preferences': '/api/v1/notifications/preferences',
-    '/api/notifications/devices': '/api/v1/notifications/devices',
     '/api/gamification/streak': '/api/v1/gamification/me/streak',
     '/api/gamification/achievements': '/api/v1/gamification/me/achievements',
     '/api/gamification/daily-mission': '/api/v1/gamification/me/missions',
@@ -234,7 +233,6 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     return { path: '/api/v1/system/aikids/admin/summary', options }
   }
   if (/^\/api\/admin\/users(?:\/[^/?]+)?(?:\?.*)?$/.test(path) ||
-      /^\/api\/admin\/sessions(?:\/[^/?]+)?$/.test(path) ||
       /^\/api\/admin\/login-logs(?:\?.*)?$/.test(path)) {
     const isAdminUserPatch = /^\/api\/admin\/users\/[^/?]+$/.test(path) &&
       (options.method ?? 'GET').toUpperCase() === 'PATCH'
@@ -788,12 +786,13 @@ function mapCourse(raw: Record<string, unknown>): CourseSummary {
     accent: String(metadata.accent ?? '#7c3aed'),
     coverImage: metadata.coverImage ? String(metadata.coverImage) : null,
     ageLabel: String(raw.ageBand ?? metadata.ageLabel ?? '8–15 tuổi'),
-    // ageTrack: thử cả ageBand (gateway format) lẫn ageTrack (local API format)
-    ageTrack: raw.ageBand
-      ? String(raw.ageBand)
+    ageTrack: metadata.ageTrack
+      ? String(metadata.ageTrack)
       : raw.ageTrack
         ? String(raw.ageTrack)
-        : undefined,
+        : raw.ageBand
+          ? String(raw.ageBand)
+          : undefined,
     courseKey: raw.slug ? String(raw.slug) : raw.courseKey ? String(raw.courseKey) : undefined,
     durationLabel: String(metadata.durationLabel ?? ''),
     productLabel: String(metadata.productLabel ?? 'Khóa học StoryMee'),
@@ -905,19 +904,6 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       })),
     }
   }
-  if (path === '/api/admin/sessions') {
-    const rows = Array.isArray(body.data) ? body.data as Array<Record<string, unknown>> : []
-    return {
-      sessions: rows.map((row) => ({
-        ...row,
-        email: null,
-        nickname: row.childName ?? null,
-        role: 'student',
-        ipAddress: null,
-        expiresAt: row.expiresAt ?? row.lastSeenAt ?? row.createdAt,
-      })),
-    }
-  }
   if (path === '/api/admin/login-logs' &&
       (body.data && typeof body.data === 'object') &&
       'deleted' in recordValue(body.data)) {
@@ -952,11 +938,14 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       : []
     return {
       courses: rows.map((row) => {
+        const mapped = mapCourse(row)
         const lectures = Array.isArray(row.lectures)
           ? row.lectures as Array<Record<string, unknown>>
           : []
         return {
           ...row,
+          ageLabel: mapped.ageLabel,
+          ageTrack: mapped.ageTrack,
           enrollmentCount: Number(row.enrollmentCount ?? 0),
           questCount: lectures.length,
           quests: lectures,
@@ -1236,7 +1225,12 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       courses.find((course) => course.status === 'available')
     return {
       ...source,
-      student: recordValue(source.student),
+      student: {
+        ...recordValue(source.student),
+        ageBand: String(
+          recordValue(source.student).ageBand ?? source.ageBand ?? '',
+        ),
+      },
       policy: source.policy ?? null,
       recommendedCourseId:
         source.recommendedCourseId ?? recommended?.id ?? null,

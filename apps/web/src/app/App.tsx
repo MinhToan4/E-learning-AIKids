@@ -509,14 +509,6 @@ export function App() {
               }
             />
             <Route
-              path="/admin/sessions"
-              element={
-                <Guard roles={['admin']}>
-                  <AdminPage tab="sessions" />
-                </Guard>
-              }
-            />
-            <Route
               path="/admin/courses"
               element={
                 <Guard roles={['admin']}>

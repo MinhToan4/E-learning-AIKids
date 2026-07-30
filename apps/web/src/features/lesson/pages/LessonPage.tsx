@@ -326,11 +326,14 @@ export function LessonPage() {
     setBusy(true)
     setError(null)
     try {
-      await api(`/api/progress/${questId}/advance`, {
-        method: 'POST',
-        body: JSON.stringify({ fromPhase: 'learn' }),
-      })
-      setPhase('game')
+      const response = await api<{ progress: { phase: Phase } }>(
+        `/api/progress/${questId}/advance`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ fromPhase: 'learn' }),
+        },
+      )
+      setPhase(response.progress.phase)
     } catch (e) {
       if (!recoverCurrentPhase(e)) {
         setError(e instanceof Error ? e.message : 'Chưa mở được phần chơi')
@@ -340,7 +343,9 @@ export function LessonPage() {
     }
   }
 
-  async function advanceFromGame(gameEvidence: GameEvidence) {
+  async function advanceFromGame(
+    gameEvidence: GameEvidence | { skipped: true },
+  ) {
     setBusy(true)
     setError(null)
     try {
@@ -663,7 +668,11 @@ export function LessonPage() {
             disabled={busy}
           >
             {!reviewMode && <Gamepad2 size={18} aria-hidden="true" />}
-            {reviewMode ? 'Quay lại kết quả' : 'Bắt đầu trò chơi'}
+            {reviewMode
+              ? 'Quay lại kết quả'
+              : gameStation
+                ? 'Bắt đầu trò chơi'
+                : 'Bắt đầu thực hành'}
           </Button>
         </div>
       )}
@@ -688,6 +697,21 @@ export function LessonPage() {
             outcome={gameStation.outcome}
             onComplete={(evidence) => void advanceFromGame(evidence)}
           />
+        </div>
+      )}
+
+      {phase === 'game' && !gameStation && (
+        <div className="ui-card flex flex-col items-start gap-3 p-5 animate-fade-up">
+          <p className="font-display text-xl">Bài này không có trò chơi</p>
+          <p className="text-sm text-muted">
+            Con có thể chuyển thẳng sang phần thực hành.
+          </p>
+          <Button
+            disabled={busy}
+            onClick={() => void advanceFromGame({ skipped: true })}
+          >
+            Tiếp tục thực hành
+          </Button>
         </div>
       )}
 
