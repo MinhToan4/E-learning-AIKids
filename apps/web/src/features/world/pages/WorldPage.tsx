@@ -351,15 +351,18 @@ const reasonLabels: Record<string, string> = {
   enrolled: 'Sẵn sàng học',
 }
 
-function PathwayOverview({ pathway }: { pathway: Pathway }) {
-  // Canonical LMS pathway rows are enrollments by definition. Keep the status
-  // fallback so an older gateway cannot hide a course by omitting `enrolled`.
-  const visibleCourses = pathway.courses.filter(
-    (course) =>
-      course.enrolled ||
-      course.status === 'active' ||
-      course.status === 'completed',
+export function isPathwayCourseVisible(course: PathwayCourse): boolean {
+  return (
+    course.enrolled ||
+    course.status === 'active' ||
+    course.status === 'completed'
   )
+}
+
+function PathwayOverview({ pathway }: { pathway: Pathway }) {
+  // Canonical pathway responses include `enrolled`; status is retained as a
+  // defensive fallback for older cached/deployed gateway responses.
+  const visibleCourses = pathway.courses.filter(isPathwayCourseVisible)
   const recommended = visibleCourses.find(
     (course) => course.id === pathway.recommendedCourseId,
   )
