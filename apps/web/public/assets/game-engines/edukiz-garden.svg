@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-labelledby="t d">
+  <title id="t">Khu Vườn Khám Phá StoryMee</title><desc id="d">Khu vườn sáng với chữ cái, thẻ nhớ và các con số.</desc>
+  <defs><linearGradient id="s" x2="0" y2="1"><stop stop-color="#9be7ff"/><stop offset=".65" stop-color="#eaffdf"/><stop offset="1" stop-color="#80d39b"/></linearGradient></defs>
+  <path fill="url(#s)" d="M0 0h1200v360H0z"/><g fill="#fff" opacity=".8"><ellipse cx="210" cy="70" rx="120" ry="30"/><ellipse cx="940" cy="80" rx="145" ry="35"/></g>
+  <path fill="#65bd7c" d="M0 275q140-95 290 0 155-100 320 0 180-110 355 0 130-70 235 0v85H0z"/>
+  <g stroke="#fff" stroke-width="7"><rect x="250" y="115" width="105" height="126" rx="24" fill="#ff8d96" transform="rotate(-8 250 115)"/><rect x="409" y="99" width="105" height="126" rx="24" fill="#ffd15c" transform="rotate(5 409 99)"/><rect x="690" y="108" width="105" height="126" rx="24" fill="#7ddbb2" transform="rotate(-4 690 108)"/><rect x="850" y="103" width="105" height="126" rx="24" fill="#8f83ea" transform="rotate(7 850 103)"/></g>
+  <g fill="#fff" font-family="Arial,sans-serif" font-size="58" font-weight="700" text-anchor="middle"><text x="305" y="196">A</text><text x="462" y="184">3</text><text x="742" y="190">★</text><text x="905" y="190">B</text></g>
+  <g fill="#ffe66d"><circle cx="130" cy="267" r="15"/><circle cx="1080" cy="274" r="18"/></g><g fill="#fff"><circle cx="130" cy="267" r="6"/><circle cx="1080" cy="274" r="7"/></g>
+</svg>

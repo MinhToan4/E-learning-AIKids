@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-labelledby="t d">
+  <title id="t">Vũ trụ Chớp Số StoryMee</title><desc id="d">Các hành tinh toán học bay trong bầu trời sao.</desc>
+  <defs><radialGradient id="b"><stop stop-color="#4f5fd7"/><stop offset="1" stop-color="#17194e"/></radialGradient><linearGradient id="p" x2="1" y2="1"><stop stop-color="#ffcf58"/><stop offset="1" stop-color="#ff7f71"/></linearGradient></defs>
+  <path fill="url(#b)" d="M0 0h1200v360H0z"/><g fill="#fff"><circle cx="75" cy="68" r="3"/><circle cx="220" cy="220" r="4"/><circle cx="460" cy="45" r="3"/><circle cx="820" cy="77" r="4"/><circle cx="1110" cy="245" r="3"/></g>
+  <g fill="none" stroke="#9edfff" opacity=".35"><ellipse cx="600" cy="180" rx="450" ry="110" stroke-width="3"/><ellipse cx="600" cy="180" rx="310" ry="155" stroke-width="2"/></g>
+  <circle cx="620" cy="183" r="82" fill="url(#p)"/><path fill="#fff" opacity=".25" d="M569 130c39-35 96-21 118 13-33-15-75-7-118-13Z"/>
+  <g font-family="Arial,sans-serif" font-size="55" font-weight="700" text-anchor="middle"><text x="620" y="204" fill="#fff">+</text><text x="244" y="157" fill="#fff">×</text><text x="972" y="250" fill="#fff">÷</text></g>
+  <circle cx="244" cy="138" r="51" fill="#6ed8a8"/><circle cx="972" cy="230" r="58" fill="#9b8cff"/><path d="M890 68c35 16 70 47 88 78" fill="none" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".75"/>
+</svg>

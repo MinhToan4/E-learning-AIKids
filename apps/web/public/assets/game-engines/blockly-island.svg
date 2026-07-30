@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-labelledby="t d">
+  <title id="t">Đảo Lập Trình StoryMee</title><desc id="d">Đảo nổi, đường đi và các khối lệnh nhiều màu.</desc>
+  <defs><linearGradient id="s" x2="0" y2="1"><stop stop-color="#5bc9ff"/><stop offset="1" stop-color="#d7f7ff"/></linearGradient><linearGradient id="g"><stop stop-color="#7ce4b2"/><stop offset="1" stop-color="#2fb77b"/></linearGradient></defs>
+  <path fill="url(#s)" d="M0 0h1200v360H0z"/><g fill="#fff" opacity=".75"><ellipse cx="160" cy="85" rx="105" ry="26"/><ellipse cx="980" cy="68" rx="130" ry="30"/></g>
+  <path fill="#784f8e" d="M260 268 410 345h365l176-83-160-76H410z"/><path fill="url(#g)" d="m235 220 180-93 380 10 188 90-202 77H414z"/>
+  <path fill="none" stroke="#fff3be" stroke-width="38" stroke-linecap="round" d="m365 240 90-47 96 39 86-52 128 55 94-34"/>
+  <g stroke="#fff" stroke-width="5"><path fill="#6f62df" d="M312 89h91v50h-22v19h-37v-19h-32z"/><path fill="#ff7a8a" d="M865 92h92v51h-27v18h-37v-18h-28z"/><path fill="#ffc84d" d="M610 70h94v51h-25v18h-40v-18h-29z"/></g>
+  <g fill="#fff" opacity=".9"><circle cx="104" cy="254" r="6"/><circle cx="1100" cy="184" r="8"/><path d="m1050 260 8 18 19 2-15 12 5 19-17-10-17 10 5-19-15-12 19-2z"/></g>
+</svg>

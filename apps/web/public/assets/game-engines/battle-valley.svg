@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 360" role="img" aria-labelledby="t d">
+  <title id="t">Thung Lũng Con Số StoryMee</title><desc id="d">Thung lũng cổ tích với lâu đài và những tia sáng toán học.</desc>
+  <defs><linearGradient id="s" x2="0" y2="1"><stop stop-color="#5947a8"/><stop offset="1" stop-color="#ffb38d"/></linearGradient><linearGradient id="h" x2="0" y2="1"><stop stop-color="#4fbb91"/><stop offset="1" stop-color="#246c61"/></linearGradient></defs>
+  <path fill="url(#s)" d="M0 0h1200v360H0z"/><circle cx="970" cy="80" r="50" fill="#ffe08a"/><path fill="#fff" opacity=".18" d="M0 260 205 112l170 148L574 87l196 173 178-133 252 133v100H0z"/>
+  <path fill="url(#h)" d="M0 276q180-85 350 0t350 0q200-100 500 2v82H0z"/>
+  <g fill="#f7e8c7" stroke="#5f427a" stroke-width="8"><path d="M500 274V151h44v-32h48v32h46v123z"/><path d="M470 274V191h42v83zm167 0v-83h42v83z"/></g>
+  <path fill="#5f427a" d="M556 274v-53a17 17 0 0 1 34 0v53z"/>
+  <g fill="none" stroke="#ffe46b" stroke-width="9" stroke-linecap="round"><path d="m345 97 40 40 30-58"/><path d="m805 110 55 55m0-55-55 55"/></g>
+  <g fill="#fff" opacity=".8"><circle cx="167" cy="85" r="7"/><circle cx="1060" cy="178" r="6"/></g>
+</svg>
