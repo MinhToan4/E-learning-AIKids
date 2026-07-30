@@ -18,9 +18,8 @@ Do not commit the token or send it to another developer.
 2. Open a pull request. `Frontend CI` runs tests and the production build.
 3. For a preview deployment, open **Actions → Deploy Vercel → Run workflow**,
    select the feature branch and choose `preview`.
-4. Merge or push the approved changes into
-   `codex/storymee-backend-integration` only after CI and preview pass.
-5. A push to `codex/storymee-backend-integration` automatically deploys production to
+4. Merge the approved changes into `master` only after CI and preview pass.
+5. A push to `master` automatically deploys production to
    `https://app.aikid.vn`.
 
 An authorized repository developer may also run **Deploy Vercel** manually and
@@ -31,8 +30,8 @@ the developer.
 
 If Vercel Git Integration is also connected to this repository, either disable
 its automatic deployments or remove the Git connection. Otherwise a push to
-`codex/storymee-backend-integration` can create one deployment from Vercel Git
-and another from GitHub Actions.
+`master` can create one deployment from Vercel Git and another from GitHub
+Actions.
 
 ## Change the backend URL
 

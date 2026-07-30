@@ -3,7 +3,7 @@ name: Deploy Vercel
 on:
   push:
     branches:
-      - codex/storymee-backend-integration
+      - master
   workflow_dispatch:
     inputs:
       target:

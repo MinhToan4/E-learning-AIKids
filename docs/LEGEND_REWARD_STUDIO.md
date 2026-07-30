@@ -118,3 +118,15 @@ inventory khi trẻ đọc Storybook/Reward projection.
 
 Các endpoint admin yêu cầu JWT actor `admin`; catalog published dành cho client
 đã đăng nhập.
+
+## Preview assets trong frontend
+
+Các SVG tại `apps/web/public/assets/rewards/` là asset preview/fallback được
+đóng gói cùng frontend. `reward-equipment.ts` ánh xạ catalog key tới các file
+này; `RewardCollection` và `EquippedProfile` dùng cùng một nguồn ánh xạ để card
+và profile không hiển thị khác nhau.
+
+Đây không phải source of truth cho inventory hay quyền sở hữu. Trạng thái
+owned/equipped vẫn phải lấy từ `core-gamification-api` qua StoryMee Hub. Asset
+đã publish từ Media API có thể thay URL preview nhưng không được thay logic
+unlock ở client.

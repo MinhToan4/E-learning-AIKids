@@ -152,8 +152,8 @@ Chi tiết nằm trong [STORYBOOK_SOCIAL_INTERACTION.md](./STORYBOOK_SOCIAL_INTE
 | Đồng bộ Reward Inventory qua StoryMee Hub | Đã triển khai |
 | Social Graph trên Fastify API | Đã có invite, duyệt phụ huynh, favorite, block |
 | Activity Feed và Reaction trên Fastify API | Đã có audience filter và Paco quota |
-| Public Profile projection trên Fastify API | Đã có module/visibility và safe fields |
-| Workspace ACL trên Fastify API | Đã có parent approval và revoke tức thời |
+| Public Profile projection trên StoryMee Core | Đã có visibility và safe fields qua Hub |
+| Workspace ACL trên StoryMee Core | Đã có parent approval và revoke tức thời |
 | Đồng bộ Social Graph qua StoryMee Hub | Đã triển khai |
 | Public Profile xuyên thiết bị | Đã triển khai |
 | Chapter → Activity event | Đã có trong transaction claim |
@@ -172,12 +172,14 @@ Không tối ưu cho thời gian sử dụng vô hạn hoặc số lượt react
 
 ## 10. Nguồn mã chính
 
-- `packages/domain/src/rewards.ts`
-- `packages/domain/src/social-rules.ts`
-- `packages/domain/src/sticker-rules.ts`
+- `apps/web/src/shared/lib/creation/rewards.ts`
+- `apps/web/src/shared/lib/creation/social-rules.ts`
+- `apps/web/src/shared/lib/creation/sticker-rules.ts`
 - `apps/web/src/features/storybook/`
 - `apps/web/src/features/rewards/`
 - `apps/web/src/features/profile/`
 - `apps/web/src/features/community/`
 
-Kế hoạch kỹ thuật và API contract nằm trong [STORYBOOK_TECHNICAL_PLAN.md](./STORYBOOK_TECHNICAL_PLAN.md).
+Contract UI–Hub nằm trong `apps/web/src/shared/lib/api.ts`; backend ownership
+thuộc `core-gamification-api`, `core-account-api` và các service StoryMee liên
+quan.

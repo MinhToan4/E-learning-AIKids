@@ -1,11 +1,15 @@
-import { REWARD_CATALOG } from '@/shared/lib/creation/rewards'
-import { explorerLevelForXp } from '@/shared/lib/creation/xp-levels'
 import { useEffect, useMemo, useState } from 'react'
 import { avatarEmoji, avatarImage } from '@/shared/config/avatars'
 import { designerAssets } from '@/shared/config/assets'
 import type { User } from '@/shared/lib/api'
+import { REWARD_CATALOG } from '@/shared/lib/creation/rewards'
+import { explorerLevelForXp } from '@/shared/lib/creation/xp-levels'
 import { readProfileAvatar } from '@/features/profile/profile-showcase'
-import { readRewardEquipment, rewardFrameStyle } from './reward-equipment'
+import {
+  readRewardEquipment,
+  rewardFrameStyle,
+  getRewardAssetUrl,
+} from './reward-equipment'
 
 export function EquippedProfile({
   user,
@@ -37,21 +41,27 @@ export function EquippedProfile({
   const avatarId = avatarReward?.equipValue ?? user.avatarId
   const frameReward = equipment.frame
   const frame = REWARD_CATALOG.find((item) => item.id === frameReward)
+  const frameAsset = frameReward ? getRewardAssetUrl(frameReward) : undefined
   const titleReward = REWARD_CATALOG.find((item) => item.id === equipment.title)
   const title = titleReward?.equipValue
   const img = profileAvatar?.url ?? avatarImage(avatarId)
   const companion = REWARD_CATALOG.find((item) => item.id === equipment.companion)
+  const companionAsset = companion ? getRewardAssetUrl(companion.id) : undefined
   const effect = REWARD_CATALOG.find((item) => item.id === equipment.effect)
+  const effectAsset = effect ? getRewardAssetUrl(effect.id) : undefined
   const level = useMemo(() => explorerLevelForXp(xp), [xp])
 
   return (
     <div className={`flex items-center gap-5 ${compact ? 'flex-row text-left' : 'flex-col text-center'}`}>
       <div className={`relative ${effect ? 'drop-shadow-[0_0_18px_rgba(250,204,21,.8)]' : ''}`}>
+        {effectAsset && (
+          <img src={effectAsset} alt="" className="pointer-events-none absolute -inset-4 h-[calc(100%+2rem)] w-[calc(100%+2rem)] object-contain z-10 animate-pulse" />
+        )}
         <button
           type="button"
           onClick={onAvatarClick}
           disabled={!onAvatarClick}
-          className="rounded-full bg-white p-2 shadow-[0_18px_50px_rgba(76,29,149,.2)]"
+          className="relative rounded-full bg-white p-2 shadow-[0_18px_50px_rgba(76,29,149,.2)]"
           style={rewardFrameStyle(frameReward)}
           aria-label={onAvatarClick
             ? `Đổi ảnh đại diện · ${frame?.name ?? 'Khung cơ bản'}`
@@ -64,20 +74,23 @@ export function EquippedProfile({
           }`}>
           {img ? <img src={img} alt="" className="h-full w-full object-cover" /> : avatarEmoji(avatarId)}
           </div>
+          {frameAsset && (
+            <img src={frameAsset} alt="" className="pointer-events-none absolute inset-0 h-full w-full object-contain p-0.5" />
+          )}
         </button>
         {onAvatarClick && (
-          <span className="pointer-events-none absolute -right-1 top-0 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-brand-600 text-lg text-white shadow-soft" aria-hidden>
+          <span className="pointer-events-none absolute -right-1 top-0 flex h-9 w-9 items-center justify-center rounded-full border-2 border-white bg-brand-600 text-lg text-white shadow-soft z-20" aria-hidden>
             📷
           </span>
         )}
-        <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border-2 border-white bg-brand-600 px-3 py-1 text-xs font-black text-white shadow-soft">
+        <span className="absolute -bottom-1 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full border-2 border-white bg-brand-600 px-3 py-1 text-xs font-black text-white shadow-soft z-20">
           CẤP {level.level}
         </span>
         {companion && (
-          <div className={`absolute rotate-6 items-center justify-center rounded-full border-4 border-white bg-sky-100 shadow-clay ${
+          <div className={`absolute rotate-6 items-center justify-center rounded-full border-4 border-white bg-sky-100 shadow-clay z-20 ${
             compact ? '-right-5 bottom-0 flex h-12 w-12' : '-right-8 bottom-2 flex h-20 w-20'
           }`}>
-            <img src={designerAssets.brand.mascot} alt={companion.name} className={compact ? 'h-10 w-10 object-contain' : 'h-16 w-16 object-contain'} />
+            <img src={companionAsset ?? designerAssets.brand.mascot} alt={companion.name} className={compact ? 'h-10 w-10 object-contain' : 'h-16 w-16 object-contain'} />
           </div>
         )}
       </div>

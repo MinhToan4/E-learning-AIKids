@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <linearGradient id="gateBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4C1D95"/>
+      <stop offset="60%" stop-color="#7C3AED"/>
+      <stop offset="100%" stop-color="#F59E0B"/>
+    </linearGradient>
+    <filter id="gateGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="4" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  <!-- Background Badge Container -->
+  <rect x="15" y="15" width="170" height="170" rx="35" fill="url(#gateBg)" filter="url(#gateGlow)"/>
+  <rect x="22" y="22" width="156" height="156" rx="28" stroke="#FDE047" stroke-width="2.5" fill="none" opacity="0.8"/>
+  <!-- Glowing AI Gate Archway -->
+  <path d="M 60,150 L 60,90 Q 60,50 100,50 Q 140,50 140,90 L 140,150 Z" stroke="#38BDF8" stroke-width="8" fill="#1E1B4B" filter="url(#gateGlow)"/>
+  <!-- Portal Swirl -->
+  <circle cx="100" cy="95" r="28" fill="#7C3AED"/>
+  <circle cx="100" cy="95" r="18" fill="#FBBF24" opacity="0.9" filter="url(#gateGlow)"/>
+  <circle cx="100" cy="95" r="8" fill="#FFFFFF"/>
+  <!-- Sun Rays -->
+  <polygon points="100,20 104,35 96,35" fill="#FDE047"/>
+  <polygon points="160,40 146,48 152,56" fill="#FDE047"/>
+  <polygon points="40,40 54,48 48,56" fill="#FDE047"/>
+</svg>

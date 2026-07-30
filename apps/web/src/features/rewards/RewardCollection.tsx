@@ -9,6 +9,7 @@ import { api } from '@/shared/lib/api'
 import {
   applyRewardEquipment,
   equipReward,
+  getRewardAssetUrl,
   readRewardEquipment,
   rewardFrameStyle,
 } from './reward-equipment'
@@ -154,6 +155,7 @@ export function RewardCollection({
           const unlocked = owned.has(reward.id)
           const equipped = equipment[reward.kind] === reward.id
           const rewardAvatar = reward.kind === 'avatar' ? avatarImage(reward.equipValue) : undefined
+          const assetUrl = reward.assets?.thumbnailUrl ?? reward.assets?.imageUrl ?? getRewardAssetUrl(reward.id)
           return (
             <article
               key={reward.id}
@@ -169,8 +171,8 @@ export function RewardCollection({
                 <span className="absolute right-2 top-2 text-sm" aria-label="Chưa mở">🔒</span>
               )}
               <div className={`flex h-20 items-center justify-center ${unlocked ? '' : 'grayscale opacity-30'}`}>
-                {reward.assets?.thumbnailUrl || reward.assets?.imageUrl ? (
-                  <img src={reward.assets.thumbnailUrl ?? reward.assets.imageUrl} alt="" className="h-16 w-16 object-contain" />
+                {assetUrl ? (
+                  <img src={assetUrl} alt="" className="h-16 w-16 object-contain" />
                 ) : rewardAvatar ? (
                   <img src={rewardAvatar} alt="" className="h-16 w-16 rounded-full object-cover shadow-soft" />
                 ) : reward.kind === 'frame' ? (

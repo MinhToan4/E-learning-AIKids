@@ -5,7 +5,8 @@ repo này không chứa API server, Prisma schema hay database.
 
 ## Chạy local
 
-Yêu cầu Node.js 22+ và StoryMee Hub ở `http://127.0.0.1:5100`.
+Yêu cầu Node.js 22+. Mặc định Vite proxy `/api/*` tới
+`https://dev-hub.storymee.com`, nên không cần chạy backend trên macOS.
 
 ```powershell
 npm ci
@@ -14,6 +15,12 @@ npm run dev
 
 Vite phục vụ web tại `http://localhost:5173` và proxy `/api/*` sang Hub. Khi
 deploy khác origin, cấu hình `VITE_API_URL` bằng origin HTTPS của Hub.
+
+Chỉ khi đang chạy đầy đủ stack StoryMee local mới đặt:
+
+```powershell
+VITE_API_PROXY_TARGET=http://127.0.0.1:5100 npm run dev
+```
 
 ## Kiểm tra
 
@@ -32,3 +39,5 @@ npm run build
 
 Logic dùng chung với backend thuộc core services tương ứng. FE chỉ giữ các
 helper trình bày thuần client thực sự được UI sử dụng.
+
+Nhánh phát hành và nhánh mặc định là `master`.

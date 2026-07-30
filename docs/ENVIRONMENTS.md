@@ -6,7 +6,7 @@ construct a StoryMee backend URL directly.
 
 | Deployment target | `VITE_APP_ENV` | `VITE_API_URL` |
 | --- | --- | --- |
-| Local development | `development` | empty (Vite proxy → `127.0.0.1:5100`) |
+| Local development | `development` | empty (Vite proxy → `dev-hub.storymee.com`) |
 | Vercel Preview | `staging` | `https://dev-hub.storymee.com` |
 | Vercel Production (current) | `production` | `https://dev-hub.storymee.com` |
 | Vercel Production (after cutover) | `production` | `https://api.aikid.vn` |
@@ -14,6 +14,10 @@ construct a StoryMee backend URL directly.
 `VITE_API_URL` must contain only an origin such as `https://api.aikid.vn`.
 Do not include `/api`, a route, query string or fragment. Vercel must define the
 value; Docker/nginx intentionally leaves it empty to use the same-origin proxy.
+
+For full-stack local development only, set
+`VITE_API_PROXY_TARGET=http://127.0.0.1:5100`. The local Hub must support the
+consumer `/api/v1/*` alias; otherwise keep the deployed dev Hub default.
 
 Vite variables are compiled into the browser bundle. Changing an environment
 variable requires a new Vercel deployment, but no source-code change.

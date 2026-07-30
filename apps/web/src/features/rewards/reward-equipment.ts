@@ -1,5 +1,5 @@
-import type { RewardKind } from '@/shared/lib/creation/rewards'
 import type { CSSProperties } from 'react'
+import type { RewardKind } from '@/shared/lib/creation/rewards'
 
 export type RewardEquipment = Partial<Record<RewardKind, string>>
 
@@ -113,4 +113,22 @@ export function profileCardTone(themeId?: string): ProfileCardTone {
   ]).has(themeId ?? '')
     ? 'dark'
     : 'light'
+}
+
+export function getRewardAssetUrl(rewardId: string): string | undefined {
+  const map: Record<string, string> = {
+    'frame-rainbow': '/assets/rewards/frame-rainbow.svg',
+    'frame-galaxy': '/assets/rewards/frame-galaxy.svg',
+    'frame-cloud-summer': '/assets/rewards/frame-cloud-summer.svg',
+    'frame-language-kingdom': '/assets/rewards/frame-language-kingdom.svg',
+    'frame-summit-gold': '/assets/rewards/frame-summit-gold.svg',
+    'frame-galaxy-storyteller': '/assets/rewards/frame-galaxy-storyteller.svg',
+    'avatar-paco-blue': '/assets/rewards/paco-blue-companion.svg',
+    'perk-sticker-sparkle': '/assets/rewards/effect-sparkle.svg',
+    'background-ai-gate': '/assets/rewards/bg-ai-gate.svg',
+    'theme-workshop': '/assets/rewards/theme-workshop.svg',
+    'theme-legend': '/assets/rewards/theme-legend.svg',
+    'title-first-light': '/assets/rewards/title-first-light.svg',
+  }
+  return map[rewardId]
 }

@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" fill="none">
+  <defs>
+    <filter id="sparkleGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="3.5" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+  </defs>
+  <!-- Orbiting Magic Particles on Transparent Background -->
+  <g filter="url(#sparkleGlow)">
+    <!-- Main Sparkle Burst 1 -->
+    <path d="M 100,20 Q 100,40 120,40 Q 100,40 100,60 Q 100,40 80,40 Q 100,40 100,20 Z" fill="#FBBF24"/>
+    <!-- Sparkle Burst 2 -->
+    <path d="M 160,80 Q 160,95 175,95 Q 160,95 160,110 Q 160,95 145,95 Q 160,95 160,80 Z" fill="#F472B6"/>
+    <!-- Sparkle Burst 3 -->
+    <path d="M 40,120 Q 40,135 55,135 Q 40,135 40,150 Q 40,135 25,135 Q 40,135 40,120 Z" fill="#38BDF8"/>
+    <!-- Sparkle Burst 4 -->
+    <path d="M 130,150 Q 130,162 142,162 Q 130,162 130,174 Q 130,162 118,162 Q 130,162 130,150 Z" fill="#A855F7"/>
+  </g>
+  <!-- Floating Starlets -->
+  <circle cx="50" cy="50" r="4" fill="#FDE047"/>
+  <circle cx="150" cy="35" r="3" fill="#F472B6"/>
+  <circle cx="25" cy="85" r="3.5" fill="#38BDF8"/>
+  <circle cx="175" cy="140" r="4" fill="#FBBF24"/>
+  <circle cx="80" cy="175" r="3" fill="#A855F7"/>
+</svg>
