@@ -112,11 +112,7 @@ export function LoginPage() {
               className="h-14 w-14 rounded-full object-cover"
             />
           </div>
-          <h1 className="font-display text-3xl text-text">
-            {mode === 'student'
-              ? 'Vào cổng sáng tạo'
-              : 'Cổng người lớn'}
-          </h1>
+          <h1 className="font-display text-3xl text-text">Đăng nhập LMS</h1>
           <p className="mt-1 text-sm text-muted">{hint}</p>
 
           <div className="mt-4 flex gap-2 rounded-2xl bg-brand-50 p-1">
