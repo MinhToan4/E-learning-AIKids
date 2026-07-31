@@ -8,8 +8,9 @@ import { useAuth } from '@/shared/store/auth'
 import { EquippedProfile } from '@/features/rewards/EquippedProfile'
 import { RewardCollection } from '@/features/rewards/RewardCollection'
 import {
-  profileCardTone,
-  profileCardStyle,
+  profileCardBackgroundTone,
+  profileCardBackgroundStyle,
+  profilePageThemeStyle,
   readRewardEquipment,
   syncRewardEquipment,
 } from '@/features/rewards/reward-equipment'
@@ -151,6 +152,19 @@ export function ProfilePage() {
     })()
   }, [])
 
+  // Avatar trước đây chỉ được giữ trong localStorage của LMS, nên AI Studio
+  // không thể thấy. Migrate lựa chọn hiện tại sang child profile chung.
+  useEffect(() => {
+    if (!user || user.role !== 'student' || !selectedAvatar?.url) return
+    if (user.avatarId === selectedAvatar.url) return
+    void api('/api/v1/account/family/me/avatar', {
+      method: 'PATCH',
+      body: JSON.stringify({ avatarUrl: selectedAvatar.url }),
+    }).then(() => {
+      useAuth.getState().setUser({ ...user, avatarId: selectedAvatar.url })
+    }).catch(() => undefined)
+  }, [selectedAvatar?.url, user?.id])
+
   useEffect(() => {
     const sync = () => {
       if (!user) return
@@ -231,14 +245,18 @@ export function ProfilePage() {
 
   if (loading) return <PageSkeleton rows={3} className="mx-auto max-w-5xl" />
 
-  const cardTheme = equipment.background ?? equipment.theme
-  const cardTone = profileCardTone(cardTheme)
+  const profilePageTheme = equipment.theme
+  const profileCardBackground = equipment.background
+  const cardTone = profileCardBackgroundTone(profileCardBackground)
 
   return (
-    <PageMotion className="mx-auto flex max-w-5xl flex-col gap-5">
+    <PageMotion
+      className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-5xl flex-col gap-5 rounded-[2rem] p-3 sm:p-5"
+      style={profilePageThemeStyle(profilePageTheme)}
+    >
       <section
         className="ui-card overflow-hidden p-5 sm:p-6"
-        style={profileCardStyle(cardTheme)}
+        style={profileCardBackgroundStyle(profileCardBackground)}
         data-profile-tone={cardTone}
       >
         <div className="grid items-center gap-5 md:grid-cols-[1fr_auto]">
@@ -269,7 +287,7 @@ export function ProfilePage() {
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/60 pt-4">
           <div className="flex rounded-full bg-white/75 p-1 text-sm font-extrabold text-brand-700">
             <button type="button" onClick={() => setSection('overview')} className={`rounded-full px-4 py-2 ${section === 'overview' ? 'bg-brand-600 text-white' : ''}`}>Tổng quan</button>
-            <button type="button" onClick={() => setSection('customize')} className={`rounded-full px-4 py-2 ${section === 'customize' ? 'bg-brand-600 text-white' : ''}`}>✨ Tùy biến card</button>
+            <button type="button" onClick={() => setSection('customize')} className={`rounded-full px-4 py-2 ${section === 'customize' ? 'bg-brand-600 text-white' : ''}`}>Tùy biến hồ sơ</button>
           </div>
           {profileSlug && <Link to={`/u/${profileSlug}`} className="rounded-full bg-white px-4 py-2 text-sm font-extrabold text-brand-700 shadow-soft">Xem trang cá nhân ↗</Link>}
         </div>
@@ -279,7 +297,7 @@ export function ProfilePage() {
         <>
           <div className="ui-card p-5">
             <p className="mb-4 rounded-2xl bg-brand-50 p-3 text-sm font-bold text-brand-700">
-              📷 Đổi ảnh bằng nút camera trên avatar. Phòng thay đồ chỉ dùng cho khung, Paco, hiệu ứng và theme.
+              Đổi ảnh bằng nút camera trên avatar. “Nền trang” phủ toàn bộ trang cá nhân; “Nền thẻ hồ sơ” chỉ nằm trong thẻ có avatar.
             </p>
             <RewardCollection userId={user.id} xpLevel={explorerLevel} stickerIds={chapterStickers} />
           </div>
@@ -380,6 +398,14 @@ export function ProfilePage() {
             saveProfileAvatar(user.id, choice)
             setSelectedAvatar(choice)
             setAvatarPickerOpen(false)
+            if (user.role === 'student') {
+              void api('/api/v1/account/family/me/avatar', {
+                method: 'PATCH',
+                body: JSON.stringify({ avatarUrl: choice.url }),
+              }).then(() => {
+                useAuth.getState().setUser({ ...user, avatarId: choice.url })
+              })
+            }
           }}
         />
       )}

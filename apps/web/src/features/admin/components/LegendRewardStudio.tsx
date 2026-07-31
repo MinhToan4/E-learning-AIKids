@@ -40,13 +40,13 @@ type AssetSpec = {
 }
 
 const assetSpecs: Record<RewardKind, AssetSpec> = {
-  background: { label: 'Background hồ sơ', width: 1600, height: 1200, formats: ['image/webp', 'image/jpeg', 'image/png'], maxMb: 3, transparent: false, layer: 0, slot: 'profile_background', safeArea: 'Giữ chủ thể ngoài vùng giữa 60%', combinesWith: 'Avatar + Frame + Companion + Effect + Title' },
+  background: { label: 'Nền thẻ hồ sơ', width: 1600, height: 1200, formats: ['image/webp', 'image/jpeg', 'image/png'], maxMb: 3, transparent: false, layer: 0, slot: 'profile_background', safeArea: 'Giữ chủ thể ngoài vùng giữa 60%', combinesWith: 'Avatar + Frame + Companion + Effect + Title' },
   avatar: { label: 'Avatar', width: 1024, height: 1024, formats: ['image/webp', 'image/png', 'image/jpeg'], maxMb: 2, transparent: false, layer: 20, slot: 'profile_avatar', safeArea: 'Mặt nằm trong vòng tròn giữa 72%', combinesWith: 'Background + Frame + Companion + Effect' },
   frame: { label: 'Khung avatar', width: 1024, height: 1024, formats: ['image/png', 'image/webp'], maxMb: 2, transparent: true, layer: 30, slot: 'avatar_frame', safeArea: 'Giữa ảnh phải trong suốt tối thiểu 58%', combinesWith: 'Background + Avatar + 1 Companion + 1 Effect' },
   companion: { label: 'Bạn đồng hành', width: 512, height: 512, formats: ['image/png', 'image/webp'], maxMb: 1.5, transparent: true, layer: 40, slot: 'avatar_companion', safeArea: 'Nhân vật trong 90%, chừa 5% mỗi cạnh', combinesWith: 'Background + Avatar + Frame + Effect' },
   effect: { label: 'Hiệu ứng', width: 1024, height: 1024, formats: ['video/webm', 'image/webp', 'image/png'], maxMb: 4, transparent: true, layer: 50, slot: 'avatar_effect', safeArea: 'Không che vùng mặt ở giữa 50%', combinesWith: 'Background + Avatar + Frame + Companion' },
-  title: { label: 'Khung danh hiệu', width: 1200, height: 320, formats: ['image/png', 'image/webp'], maxMb: 1.5, transparent: true, layer: 60, slot: 'profile_title', safeArea: 'Chừa vùng chữ giữa 70% × 55%', combinesWith: 'Theme + Background; nằm dưới profile card' },
-  theme: { label: 'Theme trang cá nhân', width: 1600, height: 1200, formats: ['application/json'], maxMb: 0.5, transparent: false, layer: 10, slot: 'profile_theme', safeArea: 'JSON token màu; không nhúng ảnh base64', combinesWith: 'Background + Frame + Title; theme chỉ điều khiển màu/font' },
+  title: { label: 'Khung danh hiệu', width: 1200, height: 320, formats: ['image/png', 'image/webp'], maxMb: 1.5, transparent: true, layer: 60, slot: 'profile_title', safeArea: 'Chừa vùng chữ giữa 70% × 55%', combinesWith: 'Nền trang + nền thẻ; nằm dưới thẻ hồ sơ' },
+  theme: { label: 'Nền toàn trang cá nhân', width: 1600, height: 1200, formats: ['application/json'], maxMb: 0.5, transparent: false, layer: 10, slot: 'profile_theme', safeArea: 'JSON token màu; không nhúng ảnh base64', combinesWith: 'Nền thẻ + Frame + Title; chỉ áp dụng trong trang cá nhân' },
   event_ticket: { label: 'Vé / banner sự kiện', width: 1200, height: 675, formats: ['image/webp', 'image/jpeg', 'image/png'], maxMb: 2, transparent: false, layer: 0, slot: 'event_card', safeArea: 'Chừa 20% bên trái cho tên và thời gian', combinesWith: 'Dùng độc lập trong card sự kiện' },
   perk: { label: 'Biểu tượng đặc quyền', width: 512, height: 512, formats: ['image/png', 'image/webp'], maxMb: 1, transparent: true, layer: 60, slot: 'perk_badge', safeArea: 'Icon trong 80% vùng giữa', combinesWith: 'Hiển thị độc lập ở ba lô và badge' },
 }
@@ -803,15 +803,15 @@ export function LegendRewardStudio() {
                     ['40', 'Paco / bạn đồng hành', 'bg-sky-100'],
                     ['30', 'Khung avatar trong suốt', 'bg-violet-100'],
                     ['20', 'Avatar của trẻ', 'bg-emerald-100'],
-                    ['10', 'Theme màu và typography', 'bg-slate-100'],
-                    ['0', 'Background profile', 'bg-orange-100'],
+                    ['10', 'Nền toàn trang cá nhân', 'bg-slate-100'],
+                    ['0', 'Nền thẻ hồ sơ', 'bg-orange-100'],
                   ].map(([layer, label, color]) => (
                     <div key={layer} className={`flex items-center justify-between rounded-lg px-3 py-2 ${color}`}>
                       <span className="font-bold">{label}</span><code>layer {layer}</code>
                     </div>
                   ))}
                 </div>
-                <p className="mt-3 text-xs text-muted">Frame, effect và companion phải có nền trong suốt. Background là lớp duy nhất được phủ kín canvas. Mỗi slot chỉ trang bị một reward.</p>
+                <p className="mt-3 text-xs text-muted">Frame, effect và companion phải có nền trong suốt. Nền thẻ hồ sơ là lớp duy nhất phủ kín card; nền trang chỉ phủ khu vực trang cá nhân. Mỗi slot chỉ trang bị một reward.</p>
               </div>
             )}
             <p className="text-xs text-muted">Preview tạm xuất hiện ngay khi chọn file; URL chính thức được thay thế sau khi upload thành công.</p>

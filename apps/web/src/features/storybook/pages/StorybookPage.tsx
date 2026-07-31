@@ -7,7 +7,6 @@ import { GalleryWall } from '../components/GalleryWall'
 import { InteractionBoard } from '../components/InteractionBoard'
 import { SocialLeaderboard } from '../components/SocialLeaderboard'
 import { STORYBOOK_PAGES, type StorybookPage } from '../storybook-data'
-import { ChapterRewardCard } from '../components/ChapterRewardCard'
 
 type View = 'book' | 'gallery' | 'leaderboard' | 'interaction'
 const views: Array<{ id: View; label: string }> = [
@@ -37,6 +36,7 @@ export function StorybookPage() {
       coverUrl?: string
       leftBackgroundUrl?: string
       stickerPageUrl?: string
+      stickerSheetUrl?: string
     }
   }>>([])
   const [loading, setLoading] = useState(true)
@@ -90,6 +90,7 @@ export function StorybookPage() {
         coverUrl: override.displayConfig?.coverUrl || page.coverUrl,
         leftBackgroundUrl: override.displayConfig?.leftBackgroundUrl || page.leftBackgroundUrl,
         stickerPageUrl: override.displayConfig?.stickerPageUrl || page.stickerPageUrl,
+        stickerSheetUrl: override.displayConfig?.stickerSheetUrl || page.stickerSheetUrl,
         rewardId: override.content?.rewardId || page.rewardId,
       }
     })
@@ -108,6 +109,7 @@ export function StorybookPage() {
         coverUrl: item.displayConfig?.coverUrl,
         leftBackgroundUrl: item.displayConfig?.leftBackgroundUrl,
         stickerPageUrl: item.displayConfig?.stickerPageUrl,
+        stickerSheetUrl: item.displayConfig?.stickerSheetUrl,
         rewardId: item.content?.rewardId,
       }]
     })
@@ -203,8 +205,7 @@ export function StorybookPage() {
               Trang sau →
             </button>
           </div>
-          <BookSpread page={currentPage} earned={earned} />
-          <ChapterRewardCard page={currentPage} earned={earned} onClaimed={() => void load()} />
+          <BookSpread page={currentPage} earned={earned} onClaimed={() => void load()} />
           <div className="flex justify-center gap-2">
             {pages.map((page, index) => (
               <button

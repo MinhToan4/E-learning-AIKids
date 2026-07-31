@@ -35,11 +35,6 @@ export function syncRewardEquipment(
 }
 
 export function applyRewardEquipment(equipment: RewardEquipment): void {
-  if (equipment.theme) {
-    document.documentElement.dataset.rewardTheme = equipment.theme
-  } else {
-    delete document.documentElement.dataset.rewardTheme
-  }
   document.documentElement.dataset.stickerEffect =
     equipment.effect === 'perk-sticker-sparkle' ? 'sparkle' : ''
 }
@@ -78,39 +73,54 @@ export function rewardFrameStyle(frameId?: string): CSSProperties {
   return {}
 }
 
-export function profileCardStyle(themeId?: string): CSSProperties {
-  if (themeId === 'background-ai-gate') return { background: 'linear-gradient(135deg,#6b46c1,#f6e05e)' }
-  if (themeId === 'background-ocean-artist') return { background: 'radial-gradient(circle at 80% 20%,#fb7185,transparent 28%),linear-gradient(135deg,#e0f2fe,#38bdf8)' }
-  if (themeId === 'background-forest-guardian') return { background: 'radial-gradient(circle at 85% 20%,#a3e635,transparent 25%),linear-gradient(135deg,#dcfce7,#166534)', color: 'white' }
-  if (themeId === 'theme-paco-workshop') return { background: 'radial-gradient(circle at 82% 18%,#fcd34d,transparent 24%),linear-gradient(135deg,#fff7ed,#fed7aa)' }
-  if (themeId === 'theme-community-legend') return { background: 'radial-gradient(circle at 82% 18%,#f9a8d4,transparent 26%),linear-gradient(135deg,#fdf2f8,#fce7f3)' }
+export function profilePageThemeStyle(themeId?: string): CSSProperties {
+  if (themeId === 'theme-paco-workshop') {
+    return {
+      background:
+        'radial-gradient(circle at 82% 18%,rgba(252,211,77,.32),transparent 24rem),linear-gradient(135deg,#fff7ed,#fed7aa)',
+    }
+  }
+  if (themeId === 'theme-community-legend') {
+    return {
+      background:
+        'radial-gradient(circle at 82% 18%,rgba(249,168,212,.35),transparent 26rem),linear-gradient(135deg,#fdf2f8,#fce7f3)',
+    }
+  }
   if (themeId === 'theme-workshop') {
     return {
       background:
-        'radial-gradient(circle at 85% 20%,rgba(251,191,36,.28),transparent 25%),linear-gradient(135deg,#fff7ed,#ffedd5,#fff)',
+        'radial-gradient(circle at 15% 20%,rgba(251,191,36,.24),transparent 24rem),radial-gradient(circle at 85% 75%,rgba(249,115,22,.18),transparent 26rem),linear-gradient(135deg,#fff7ed,#ffedd5)',
     }
   }
   if (themeId === 'theme-legend') {
     return {
       background:
-        'radial-gradient(circle at 85% 18%,rgba(250,204,21,.2),transparent 25%),linear-gradient(135deg,#312e81,#6d28d9)',
-      color: 'white',
+        'radial-gradient(circle at 20% 15%,rgba(124,58,237,.28),transparent 26rem),radial-gradient(circle at 80% 80%,rgba(250,204,21,.2),transparent 24rem),linear-gradient(135deg,#ede9fe,#fff7d6)',
     }
   }
+  return {
+    background:
+      'radial-gradient(circle at 85% 15%,rgba(61,191,255,.16),transparent 28rem),linear-gradient(135deg,#f5f3ff,#f1faff,#fffbec)',
+  }
+}
+
+export function profileCardBackgroundStyle(backgroundId?: string): CSSProperties {
+  if (backgroundId === 'background-ai-gate') return { background: 'linear-gradient(135deg,#6b46c1,#f6e05e)' }
+  if (backgroundId === 'background-ocean-artist') return { background: 'radial-gradient(circle at 80% 20%,#fb7185,transparent 28%),linear-gradient(135deg,#e0f2fe,#38bdf8)' }
+  if (backgroundId === 'background-forest-guardian') return { background: 'radial-gradient(circle at 85% 20%,#a3e635,transparent 25%),linear-gradient(135deg,#dcfce7,#166534)', color: 'white' }
   return {
     background:
       'radial-gradient(circle at 85% 15%,rgba(61,191,255,.18),transparent 28%),linear-gradient(135deg,#f5f3ff,#f1faff,#fffbec)',
   }
 }
 
-export type ProfileCardTone = 'light' | 'dark'
+export type ProfileCardBackgroundTone = 'light' | 'dark'
 
-export function profileCardTone(themeId?: string): ProfileCardTone {
+export function profileCardBackgroundTone(backgroundId?: string): ProfileCardBackgroundTone {
   return new Set([
     'background-ai-gate',
     'background-forest-guardian',
-    'theme-legend',
-  ]).has(themeId ?? '')
+  ]).has(backgroundId ?? '')
     ? 'dark'
     : 'light'
 }

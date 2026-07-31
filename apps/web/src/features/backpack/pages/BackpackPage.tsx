@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import { api } from '@/shared/lib/api'
 import { Button } from '@/shared/components/ui/Button'
@@ -25,6 +25,39 @@ type Project = {
   thumbnail: string
   content?: string
   shareStatus: string
+}
+
+type GalleryFilter = 'all' | 'image' | 'comic' | 'story'
+
+const FILTERS: Array<{ id: GalleryFilter; label: string }> = [
+  { id: 'all', label: 'Tất cả' },
+  { id: 'image', label: 'Ảnh AI & tranh vẽ' },
+  { id: 'comic', label: 'Truyện tranh' },
+  { id: 'story', label: 'Truyện chữ' },
+]
+
+function filterKind(kind: string): Exclude<GalleryFilter, 'all'> {
+  const normalized = kind.toLowerCase()
+  if (normalized.includes('comic') || normalized.includes('panel')) return 'comic'
+  if (normalized.includes('story') || normalized.includes('text')) return 'story'
+  return 'image'
+}
+
+function kindLabel(kind: string) {
+  const group = filterKind(kind)
+  return group === 'comic'
+    ? 'Truyện tranh'
+    : group === 'story'
+      ? 'Truyện chữ'
+      : kind.includes('character')
+        ? 'Nhân vật AI'
+        : 'Ảnh AI & tranh vẽ'
+}
+
+function shareStatusLabel(status: string) {
+  if (status === 'approved') return 'Đã được duyệt'
+  if (status === 'pending') return 'Đang chờ ba/mẹ duyệt'
+  return 'Chỉ mình con'
 }
 
 function isImgUrl(src: string) {
@@ -62,6 +95,7 @@ export function BackpackPage() {
   const [msg, setMsg] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
+  const [filter, setFilter] = useState<GalleryFilter>('all')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -89,6 +123,23 @@ export function BackpackPage() {
   useEffect(() => {
     void load()
   }, [load])
+
+  const visibleAssets = useMemo(
+    () => filter === 'all' || filter === 'image' ? assets : [],
+    [assets, filter],
+  )
+  const visibleProjects = useMemo(
+    () => projects.filter((project) =>
+      filter === 'all' || filterKind(project.kind) === filter,
+    ),
+    [filter, projects],
+  )
+  const counts = useMemo(() => ({
+    all: assets.length + projects.length,
+    image: assets.length + projects.filter((project) => filterKind(project.kind) === 'image').length,
+    comic: projects.filter((project) => filterKind(project.kind) === 'comic').length,
+    story: projects.filter((project) => filterKind(project.kind) === 'story').length,
+  }), [assets, projects])
 
   async function requestShare(projectId: string) {
     try {
@@ -121,13 +172,31 @@ export function BackpackPage() {
       )}
       {error && <ErrorState message={error} onRetry={() => void load()} inline />}
 
-      <section>
+      <nav aria-label="Lọc sản phẩm trong Ba lô" className="flex flex-wrap gap-2">
+        {FILTERS.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            aria-pressed={filter === item.id}
+            onClick={() => setFilter(item.id)}
+            className={
+              filter === item.id
+                ? 'rounded-full bg-brand-600 px-3 py-2 text-sm font-extrabold text-white'
+                : 'rounded-full border border-border bg-white px-3 py-2 text-sm font-extrabold text-muted hover:border-brand-300'
+            }
+          >
+            {item.label} · {counts[item.id]}
+          </button>
+        ))}
+      </nav>
+
+      {(filter === 'all' || filter === 'image') && <section>
         <h2 className="font-display mb-3 text-2xl">Vật phẩm từ bài học</h2>
-        {assets.length === 0 ? (
+        {visibleAssets.length === 0 ? (
           <EmptyState
             compact
-            title="Ba lô còn trống"
-            description="Hoàn thành trạm vẽ, gen ảnh hoặc truyện tranh để nhận vật phẩm nhé!"
+            title={filter === 'all' ? 'Ba lô còn trống' : 'Không có ảnh ở bộ lọc này'}
+            description="Hoàn thành trạm vẽ hoặc tạo ảnh AI để nhận vật phẩm nhé!"
             imageSrc={designerAssets.lobby.cardArt}
             action={
               <Link to="/world">
@@ -137,7 +206,7 @@ export function BackpackPage() {
           />
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            {assets.map((a) => (
+            {visibleAssets.map((a) => (
               <div key={a.id} className="ui-card overflow-hidden p-2">
                 <div className="flex h-28 items-center justify-center overflow-hidden rounded-xl bg-brand-50">
                   <MediaThumbnail
@@ -148,22 +217,22 @@ export function BackpackPage() {
                 </div>
                 <p className="mt-2 truncate text-sm font-extrabold">{a.name}</p>
                 <p className="text-xs text-muted">
-                  {a.type}
+                  {kindLabel(a.type)}
                   {a.questId ? ' · từ bài học' : ''}
                 </p>
               </div>
             ))}
           </div>
         )}
-      </section>
+      </section>}
 
       <section>
         <h2 className="font-display mb-3 text-2xl">Tác phẩm</h2>
-        {projects.length === 0 ? (
+        {visibleProjects.length === 0 ? (
           <EmptyState
             compact
-            title="Chưa có tác phẩm"
-            description="Làm truyện ở trạm Comic để có tác phẩm trong ba lô!"
+            title={filter === 'all' ? 'Chưa có tác phẩm' : 'Không có tác phẩm ở bộ lọc này'}
+            description="Làm truyện hoặc tạo ảnh ở Xưởng sáng tạo để có tác phẩm trong Ba lô!"
             imageSrc={designerAssets.workshop.comic}
             action={
               <Link to="/home">
@@ -173,7 +242,7 @@ export function BackpackPage() {
           />
         ) : (
           <div className="grid gap-3 sm:grid-cols-2">
-            {projects.map((p) => (
+            {visibleProjects.map((p) => (
               <div key={p.id} className="ui-card flex gap-3 p-3">
                 <MediaThumbnail
                   src={p.thumbnail}
@@ -183,7 +252,7 @@ export function BackpackPage() {
                 <div className="min-w-0 flex-1">
                   <p className="font-extrabold">{p.title}</p>
                   <p className="text-xs text-muted">
-                    {p.kind} · {p.shareStatus}
+                    {kindLabel(p.kind)} · {shareStatusLabel(p.shareStatus)}
                   </p>
                   {p.content && (
                     <p className="mt-1 line-clamp-2 text-xs text-muted">{p.content}</p>

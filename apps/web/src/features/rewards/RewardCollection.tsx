@@ -17,13 +17,13 @@ import {
 const kindLabels: Record<RewardKind, string> = {
   avatar: 'Avatar',
   frame: 'Khung',
-  theme: 'Theme',
+  theme: 'Nền trang',
   event_ticket: 'Vé sự kiện',
   perk: 'Quyền đặc biệt',
   title: 'Danh hiệu',
   companion: 'Bạn đồng hành',
   effect: 'Hiệu ứng',
-  background: 'Background',
+  background: 'Nền thẻ hồ sơ',
 }
 
 const wardrobeKinds: RewardKind[] = ['frame', 'background', 'companion', 'effect', 'title', 'theme']

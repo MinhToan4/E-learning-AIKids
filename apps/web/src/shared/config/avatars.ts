@@ -99,5 +99,13 @@ export function avatarEmoji(id: string | null | undefined): string {
 }
 
 export function avatarImage(id: string | null | undefined): string | undefined {
+  if (
+    id?.startsWith('http://') ||
+    id?.startsWith('https://') ||
+    id?.startsWith('data:') ||
+    id?.startsWith('blob:')
+  ) {
+    return id
+  }
   return getAvatar(id).image
 }

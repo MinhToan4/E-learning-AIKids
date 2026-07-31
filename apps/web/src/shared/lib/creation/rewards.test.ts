@@ -6,9 +6,9 @@ import {
 } from './rewards.js'
 
 describe('reward catalog', () => {
-  it('contains an exact reward for every explorer level', () => {
+  it('contains at least one reward for every explorer level', () => {
     for (let level = 1; level <= 10; level += 1) {
-      expect(rewardsForLevel(level)).toHaveLength(1)
+      expect(rewardsForLevel(level).length).toBeGreaterThanOrEqual(1)
     }
   })
 

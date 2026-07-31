@@ -24,6 +24,7 @@ export interface StorybookPage {
   coverUrl?: string
   leftBackgroundUrl?: string
   stickerPageUrl?: string
+  stickerSheetUrl?: string
   rewardId?: string
 }
 
@@ -43,6 +44,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P01', title: 'Cánh Cổng Thế Giới AI', group: 'learning',
     emoji: '🚪', colors: ['#6b46c1', '#f6e05e'],
+    stickerSheetUrl: '/assets/storybook/generated/p01-stickers-alpha.webp',
     story: 'Mỗi bài học thắp lên một ngôi sao trên con đường của Paco.',
     stickers: [
       sticker('P01', 1, 'Bước Chân Đầu Tiên', '👟', 'Hoàn thành quest đầu tiên', 'first_quest'),
@@ -59,6 +61,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P02', title: 'Vương Quốc Ngôn Ngữ', group: 'learning',
     emoji: '📚', colors: ['#276749', '#d4a017'],
+    stickerSheetUrl: '/assets/storybook/generated/p02-stickers-alpha.webp',
     story: 'Từng từ mới mở thêm một căn phòng trong thư viện cổ.',
     stickers: [
       sticker('P02', 1, 'Từ Mới Đầu Tiên', '📝', 'Học một từ mới'),
@@ -75,6 +78,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P03', title: 'Đại Dương Hình Ảnh', group: 'creative',
     emoji: '🌊', colors: ['#0369a1', '#fb7185'],
+    stickerSheetUrl: '/assets/storybook/generated/p03-stickers-alpha.webp',
     story: 'Ý tưởng của con nổi lên như những hòn đảo chưa ai khám phá.',
     stickers: [
       sticker('P03', 1, 'Họa Sĩ Nhỏ', '🎨', 'Tạo ảnh AI đầu tiên'),
@@ -91,6 +95,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P04', title: 'Đỉnh Núi Tri Thức', group: 'milestone',
     emoji: '⛰️', colors: ['#78350f', '#fbbf24'],
+    stickerSheetUrl: '/assets/storybook/generated/p04-stickers-alpha.webp',
     story: 'Nhìn lại quãng đường con đã bền bỉ leo lên.',
     stickers: [
       sticker('P04', 1, 'Học Sinh Kiên Trì', '💎', 'Streak 14 ngày'),
@@ -107,6 +112,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P05', title: 'Xưởng Của Paco', group: 'creative',
     emoji: '🛠️', colors: ['#c2410c', '#fcd34d'],
+    stickerSheetUrl: '/assets/storybook/generated/p05-stickers-alpha.webp',
     story: 'Nơi những bản nháp vụng về biến thành phát minh tuyệt vời.',
     stickers: [
       sticker('P05', 1, 'Mở Cửa Xưởng', '🔑', 'Tạo dự án đầu tiên', 'project_first'),
@@ -123,6 +129,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P06', title: 'Rừng Nhân Vật', group: 'creative',
     emoji: '🌳', colors: ['#166534', '#a3e635'],
+    stickerSheetUrl: '/assets/storybook/generated/p06-stickers-alpha.webp',
     story: 'Mỗi nhân vật có một tiếng nói và câu chuyện riêng.',
     stickers: [
       sticker('P06', 1, 'Người Bạn Đầu Tiên', '🧑', 'Tạo một nhân vật'),
@@ -139,6 +146,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P07', title: 'Thiên Hà Câu Chuyện', group: 'creative',
     emoji: '🌌', colors: ['#312e81', '#c084fc'],
+    stickerSheetUrl: '/assets/storybook/generated/p07-stickers-alpha.webp',
     story: 'Mỗi câu chuyện là một hành tinh đang chờ được gọi tên.',
     stickers: [
       sticker('P07', 1, 'Trang Đầu Tiên', '📄', 'Viết trang truyện đầu tiên'),
@@ -155,6 +163,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P08', title: 'Trái Tim Kết Nối', group: 'social',
     emoji: '💞', colors: ['#be185d', '#f9a8d4'],
+    stickerSheetUrl: '/assets/storybook/generated/p08-stickers-alpha.webp',
     story: 'Huyền thoại lớn lên khi con nâng đỡ sự sáng tạo của người khác.',
     stickers: [
       sticker('P08', 1, 'Người Đặt Tim Đầu Tiên', '💝', 'React cho bạn lần đầu'),

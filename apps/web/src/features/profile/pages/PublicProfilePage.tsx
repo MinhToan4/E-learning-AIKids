@@ -1,6 +1,11 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router'
 import { ApiError, api } from '@/shared/lib/api'
+import {
+  profileCardBackgroundStyle,
+  profileCardBackgroundTone,
+  profilePageThemeStyle,
+} from '@/features/rewards/reward-equipment'
 
 type PublicProfileProjection = {
   profile: {
@@ -100,8 +105,9 @@ export function PublicProfilePage() {
   }
 
   const { profile, works } = projection
+  const profileCardTone = profileCardBackgroundTone(profile.backgroundKey ?? undefined)
   return (
-    <main className="min-h-screen bg-[radial-gradient(circle_at_top,#e3f6ff,transparent_38%),linear-gradient(#f7f5ff,#fff)] px-4 py-8">
+    <main className="min-h-screen px-4 py-8" style={profilePageThemeStyle(profile.themeKey ?? undefined)}>
       <div className="mx-auto max-w-4xl space-y-6">
         <nav className="flex flex-wrap items-center justify-between gap-2" aria-label="Điều hướng trang cá nhân">
           <Link to="/profile" className="rounded-full bg-white px-4 py-2 text-sm font-extrabold text-brand-700 shadow-soft">
@@ -109,16 +115,19 @@ export function PublicProfilePage() {
           </Link>
           <Link to="/home" className="text-sm font-extrabold text-brand-600">Về sảnh AIKid</Link>
         </nav>
-        <header className="ui-card flex flex-col items-center gap-4 overflow-hidden p-7 text-center sm:flex-row sm:text-left">
+        <header
+          className="ui-card flex flex-col items-center gap-4 overflow-hidden p-7 text-center sm:flex-row sm:text-left"
+          style={profileCardBackgroundStyle(profile.backgroundKey ?? undefined)}
+        >
           <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border-8 border-white bg-brand-100 text-5xl shadow-clay">
             {profile.avatarUrl
               ? <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" />
               : '🎨'}
           </div>
           <div className="flex-1">
-            <p className="text-xs font-black uppercase tracking-[.2em] text-brand-600">Nhà sáng tạo AIKid</p>
-            <h1 className="font-display text-4xl">{profile.name}</h1>
-            <p className="text-muted">Cấp {profile.level} · {profile.xp} XP toàn hệ sinh thái</p>
+            <p className={`text-xs font-black uppercase tracking-[.2em] ${profileCardTone === 'dark' ? 'text-white/75' : 'text-brand-600'}`}>Nhà sáng tạo AIKid</p>
+            <h1 className={`font-display text-4xl ${profileCardTone === 'dark' ? 'text-white' : 'text-text'}`}>{profile.name}</h1>
+            <p className={profileCardTone === 'dark' ? 'text-white/80' : 'text-muted'}>Cấp {profile.level} · {profile.xp} XP toàn hệ sinh thái</p>
           </div>
           {profile.frameKey && (
             <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">✨ {profile.frameKey}</span>
