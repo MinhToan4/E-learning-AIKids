@@ -101,14 +101,23 @@ export function ExplorerLevelPage() {
     setLoading(true)
     setError(null)
     try {
-      const [profileData, catalogData, rewards] = await Promise.all([
-        api<GamificationProfile>('/api/gamification/profile'),
+      // WHY: profile là bắt buộc — nếu fail thì throw thật.
+      // catalog và storybook là optional (Hub có thể chưa route) — fail gracefully với fallback.
+      const profileData = await api<GamificationProfile>('/api/gamification/profile')
+      setProfile(profileData)
+
+      const [catalogResult, storybookResult] = await Promise.allSettled([
         api<{ items: LevelReward[] }>('/api/gamification/catalog?type=reward'),
         api<RewardState>('/api/gamification/storybook'),
       ])
-      setProfile(profileData)
-      setCatalog(catalogData.items)
-      setOwnedIds(new Set(rewards.inventory.map((item) => item.rewardId)))
+
+      if (catalogResult.status === 'fulfilled') {
+        setCatalog(catalogResult.value.items ?? [])
+      }
+      if (storybookResult.status === 'fulfilled') {
+        const inv = storybookResult.value.inventory
+        setOwnedIds(new Set(Array.isArray(inv) ? inv.map((item) => item.rewardId) : []))
+      }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : 'Chưa tải được hành trình phần thưởng')
     } finally {

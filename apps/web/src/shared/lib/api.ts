@@ -1531,6 +1531,28 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       }
     }
   }
+  // WHY: normalizer đảm bảo mọi số trong XpProfile đều là Number hợp lệ.
+  // Nếu Hub không wrap response (payload = body) hoặc trả về partial data,
+  // các field có thể là undefined → toLocaleString() crash.
+  if (path === '/api/gamification/profile') {
+    const src = payload
+    const nextLevelRewards = Array.isArray(src.nextLevelRewards)
+      ? (src.nextLevelRewards as Array<Record<string, unknown>>).map((reward) => ({
+          id: String(reward.id ?? ''),
+          name: String(reward.name ?? ''),
+          icon: String(reward.icon ?? '🎁'),
+          kind: String(reward.kind ?? ''),
+        }))
+      : []
+    return {
+      totalXp: Number(src.totalXp ?? 0),
+      level: Number(src.level ?? 1),
+      xpIntoLevel: Number(src.xpIntoLevel ?? 0),
+      xpToNextLevel: Number(src.xpToNextLevel ?? 100),
+      nextLevelXp: Number(src.nextLevelXp ?? 100),
+      nextLevelRewards,
+    }
+  }
   if (path === '/api/gamification/streak' || path === '/api/gamification/check-in') {
     return {
       current: Number(payload.currentStreak ?? 0),
