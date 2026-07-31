@@ -1,245 +1,466 @@
-import { useMemo, useState } from 'react'
-import { ArrowUp, Delete, Lightbulb, Sparkles } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { Sparkles, Trophy } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
-import {
-  createMathProblem,
-  feedbackFor,
-  getGameTuning,
-  missionProgress,
-  type MathOperator,
-  type MathProblem,
-} from '@/features/lesson/lib/curriculum-game'
-import { cn } from '@/shared/lib/cn'
+import { getGameTuning, missionProgress } from '@/features/lesson/lib/curriculum-game'
+import { FeedbackOverlay } from './FeedbackOverlay'
 import { EngineGameShell } from './EngineGameShell'
 import type { EngineGameProps } from './types'
 
-const OPERATORS: Array<{ id: MathOperator; label: string }> = [
-  { id: '+', label: 'Gộp dữ liệu' },
-  { id: '-', label: 'Bỏ dữ liệu lỗi' },
-  { id: '×', label: 'Các nhóm bằng nhau' },
-  { id: '÷', label: 'Chia nhóm kiểm thử' },
+// ── Fallback 10 câu AI literacy cho trẻ 6–11 ─────────────────────────────
+// WHY: Self-contained fallback đảm bảo game luôn chạy được mà không cần
+// teacher cấu hình quizQuestions trong DB trước.
+const FALLBACK_QUESTIONS: QuizQuestion[] = [
+  {
+    id: 'q1',
+    prompt: 'AI học từ đâu để nhận ra ảnh con mèo?',
+    options: ['Xem rất nhiều ảnh mèo', 'Đọc sách về mèo', 'Nhờ người chỉ từng con', 'Tự đoán ngẫu nhiên'],
+    answer: 0,
+    why: 'AI học bằng cách xem rất nhiều ảnh — gọi là "học từ dữ liệu"!',
+  },
+  {
+    id: 'q2',
+    prompt: 'Khi AI nói sai, con nên làm gì để AI tốt hơn?',
+    options: ['Tắt AI đi', 'Cho AI biết nó sai và giải thích', 'Bỏ qua luôn', 'Hỏi bạn bè'],
+    answer: 1,
+    why: 'Phản hồi đúng giúp AI học — con chính là thầy của AI đó!',
+  },
+  {
+    id: 'q3',
+    prompt: 'Cái nào KHÔNG phải AI?',
+    options: ['Trợ lý giọng nói điện thoại', 'Máy lạnh thông thường', 'Chatbot trả lời câu hỏi', 'Xe tự lái'],
+    answer: 1,
+    why: 'Máy lạnh thường chỉ làm 1 việc cố định, không học được — không phải AI!',
+  },
+  {
+    id: 'q4',
+    prompt: 'Thông tin nào KHÔNG nên chia sẻ với AI chatbot?',
+    options: ['Màu sắc yêu thích', 'Tên thú cưng tưởng tượng', 'Mật khẩu và địa chỉ nhà', 'Sách con thích'],
+    answer: 2,
+    why: 'Mật khẩu và địa chỉ là bí mật — không bao giờ chia sẻ nhé!',
+  },
+  {
+    id: 'q5',
+    prompt: 'Prompt là gì?',
+    options: ['Tên một loại robot', 'Câu hỏi hoặc lệnh mình đưa cho AI', 'Màn hình máy tính', 'Loại pin đặc biệt'],
+    answer: 1,
+    why: 'Prompt là lệnh mình đưa cho AI — viết rõ thì AI hiểu và trả lời tốt hơn!',
+  },
+  {
+    id: 'q6',
+    prompt: 'Tại sao cần kiểm tra thông tin AI cung cấp?',
+    options: ['AI nói quá nhanh', 'AI không bao giờ sai', 'AI đôi khi nhầm hoặc bịa ra', 'AI nói tiếng nước ngoài'],
+    answer: 2,
+    why: 'AI có thể tự tin nói sai — luôn đối chiếu với nguồn đáng tin nhé!',
+  },
+  {
+    id: 'q7',
+    prompt: 'AI có thể tạo ra ảnh chưa từng có thật không?',
+    options: ['Không, chỉ copy ảnh có sẵn', 'Có, bằng cách học rồi tạo mới', 'Chỉ vẽ lại ảnh cũ', 'Cần người vẽ trước'],
+    answer: 1,
+    why: 'AI sinh ảnh học các mẫu hình và tạo ra ảnh hoàn toàn mới — kỳ diệu lắm!',
+  },
+  {
+    id: 'q8',
+    prompt: 'Điều gì giúp con trở thành người dùng AI thông minh?',
+    options: [
+      'Tin 100% vào AI',
+      'Không dùng AI luôn cho lành',
+      'Đặt câu hỏi rõ và kiểm tra lại',
+      'Dùng AI càng nhiều càng tốt',
+    ],
+    answer: 2,
+    why: 'Người dùng AI thông minh biết cách hỏi và không ngừng kiểm chứng!',
+  },
+  {
+    id: 'q9',
+    prompt: 'Dữ liệu thiên vị (lệch) ảnh hưởng tới AI thế nào?',
+    options: ['AI thông minh hơn', 'Không ảnh hưởng gì', 'AI có thể đưa kết quả không công bằng', 'AI nhanh hơn'],
+    answer: 2,
+    why: 'Dữ liệu xấu → AI xấu. Dữ liệu tốt và đa dạng làm AI công bằng hơn!',
+  },
+  {
+    id: 'q10',
+    prompt: 'Ai chịu trách nhiệm về kết quả AI tạo ra?',
+    options: ['Chỉ máy tính', 'Không ai cả', 'Chỉ internet', 'Người dùng và người tạo AI'],
+    answer: 3,
+    why: 'Con người tạo và dùng AI nên phải chịu trách nhiệm — AI chỉ là công cụ!',
+  },
 ]
 
-function missionFor(problem: MathProblem): string {
-  if (problem.operator === '+') {
-    return `AI đã xem ${problem.left} ảnh con mèo, rồi được xem thêm ${problem.right} ảnh. AI có tất cả bao nhiêu ví dụ?`
-  }
-  if (problem.operator === '-') {
-    return `Có ${problem.left} ảnh huấn luyện nhưng ${problem.right} ảnh bị mờ cần bỏ đi. Còn lại bao nhiêu ảnh tốt?`
-  }
-  if (problem.operator === '×') {
-    return `${problem.left} nhóm dữ liệu, mỗi nhóm có ${problem.right} thẻ. Có tất cả bao nhiêu thẻ?`
-  }
-  return `${problem.left} thẻ dữ liệu được chia đều vào ${problem.right} giỏ kiểm thử. Mỗi giỏ có bao nhiêu thẻ?`
+type QuizQuestion = {
+  id: string
+  prompt: string
+  options: string[]
+  answer: number
+  why: string
 }
 
-function hintFor(problem: MathProblem): string {
-  if (problem.operator === '+') return `Bắt đầu từ ${problem.left}, rồi đếm thêm ${problem.right} bước.`
-  if (problem.operator === '-') return `Dùng ${problem.left} ngón tưởng tượng rồi bớt đi ${problem.right}.`
-  if (problem.operator === '×') return `Cộng số ${problem.right} lặp lại ${problem.left} lần nhé.`
-  return `Tìm số mà ${problem.right} nhân với nó sẽ bằng ${problem.left}.`
+// Đọc câu hỏi từ config DB, fallback built-in nếu không đủ 3 câu
+function resolveQuestions(raw: unknown): QuizQuestion[] {
+  if (!Array.isArray(raw) || raw.length < 3) return FALLBACK_QUESTIONS
+  const parsed = raw
+    .map((item: unknown): QuizQuestion | null => {
+      if (!item || typeof item !== 'object') return null
+      const r = item as Record<string, unknown>
+      const id = typeof r.id === 'string' ? r.id : ''
+      const prompt = typeof r.prompt === 'string' ? r.prompt : ''
+      const options = Array.isArray(r.options)
+        ? r.options.filter((o): o is string => typeof o === 'string')
+        : []
+      const answer = typeof r.answer === 'number' ? r.answer : 0
+      const why = typeof r.why === 'string' ? r.why : 'Đáp án đúng đó!'
+      if (!id || !prompt || options.length < 2 || answer >= options.length) return null
+      return { id, prompt, options, answer, why }
+    })
+    .filter((q): q is QuizQuestion => q !== null)
+  return parsed.length >= 3 ? parsed : FALLBACK_QUESTIONS
 }
+
+// Trạng thái animation bóng
+type ShotState = 'idle' | 'shooting-goal' | 'shooting-miss' | 'done'
+
+// OPTIONS_POSITIONS: 4 đáp án ở 4 góc sân (Violympic style)
+const OPTION_LABELS = ['A', 'B', 'C', 'D']
 
 export function MathKidsGame({
+  config,
   difficulty,
   instruction,
   outcome,
   onComplete,
   onBack,
 }: EngineGameProps) {
-  const target = getGameTuning(difficulty).roundLimit
-  const [operator, setOperator] = useState<MathOperator>('+')
-  const [problem, setProblem] = useState(() => createMathProblem(difficulty, '+'))
-  const [answer, setAnswer] = useState('')
-  const [solved, setSolved] = useState(0)
-  const [attempts, setAttempts] = useState(0)
+  const tuning = getGameTuning(difficulty)
+  const allQuestions = useMemo(() => resolveQuestions(config?.quizQuestions), [config?.quizQuestions])
+  // Lấy số câu theo độ khó (gentle=5, steady=7, challenge=10)
+  const questions = useMemo(
+    () => allQuestions.slice(0, Math.min(tuning.roundLimit, allQuestions.length)),
+    [allQuestions, tuning.roundLimit],
+  )
+
+  const [qIndex, setQIndex] = useState(0)
+  const [shot, setShot] = useState<ShotState>('idle')
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null)
+  const [showWhy, setShowWhy] = useState(false)
   const [score, setScore] = useState(0)
+  const [goals, setGoals] = useState(0)
   const [streak, setStreak] = useState(0)
   const [maxStreak, setMaxStreak] = useState(0)
-  const [history, setHistory] = useState<string[]>([])
-  const [showHint, setShowHint] = useState(false)
-  const [status, setStatus] = useState(
-    'Mỗi câu đúng giúp Khỉ Mơ mang một giỏ dữ liệu lên cao hơn. Không đúng thì Khỉ Mơ vẫn đứng yên chờ con nhé!',
-  )
-  const complete = solved >= target
-  const keypad = useMemo(
-    () => ['7', '8', '9', '4', '5', '6', '1', '2', '3', '0'],
-    [],
-  )
+  const [attempts, setAttempts] = useState(0)
+  const [choices, setChoices] = useState<string[]>([])
+  const [feedback, setFeedback] = useState<{ type: 'correct' | 'wrong'; attempt: number } | null>(null)
+  // Timer đếm ngược (gentle: không có, steady: 30s/câu, challenge: 20s)
+  const timerSeconds = difficulty === 'gentle' ? null : difficulty === 'steady' ? 30 : 20
+  const [secondsLeft, setSecondsLeft] = useState(timerSeconds)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
-  function chooseOperator(next: MathOperator) {
-    if (complete) return
-    setOperator(next)
-    setProblem(createMathProblem(difficulty, next))
-    setAnswer('')
-    setShowHint(false)
-    setStatus(`Đổi nhiệm vụ: ${OPERATORS.find((item) => item.id === next)?.label}. Khỉ Mơ sẵn sàng rồi!`)
-  }
+  const question = questions[Math.min(qIndex, questions.length - 1)]
+  const complete = qIndex >= questions.length
 
-  function submit() {
-    if (answer.trim() === '' || complete) return
-    setAttempts((value) => value + 1)
-    if (Number(answer) !== problem.answer) {
+  // Reset timer khi câu mới
+  useEffect(() => {
+    if (!timerSeconds || complete || shot !== 'idle') return
+    setSecondsLeft(timerSeconds)
+    timerRef.current = setInterval(() => {
+      setSecondsLeft((s) => {
+        if (s === null || s <= 1) {
+          // Hết giờ → tự động chọn sai
+          handleAnswer(-1)
+          return timerSeconds
+        }
+        return s - 1
+      })
+    }, 1000)
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [qIndex, shot, complete])
+
+  function handleAnswer(optionIdx: number) {
+    if (shot !== 'idle' || complete || !question) return
+    if (timerRef.current) clearInterval(timerRef.current)
+
+    const newAttempt = attempts + 1
+    setAttempts(newAttempt)
+    setSelectedIdx(optionIdx)
+    setChoices((c) => [...c, question.options[optionIdx] ?? '(hết giờ)'])
+
+    const correct = optionIdx === question.answer
+
+    if (correct) {
+      const newStreak = streak + 1
+      setStreak(newStreak)
+      setMaxStreak((m) => Math.max(m, newStreak))
+      setScore((s) => s + 15 + Math.min(10, newStreak * 2))
+      setGoals((g) => g + 1)
+      setShot('shooting-goal')
+      setFeedback({ type: 'correct', attempt: newAttempt })
+    } else {
       setStreak(0)
-      setShowHint(true)
-      setStatus(`${feedbackFor('retry', attempts)} ${hintFor(problem)}`)
-      return
+      setShot('shooting-miss')
+      setShowWhy(true)
+      setFeedback({ type: 'wrong', attempt: newAttempt })
     }
 
-    const nextSolved = solved + 1
-    const nextStreak = streak + 1
-    const earned = 12 + Math.min(8, nextStreak * 2)
-    setSolved(nextSolved)
-    setStreak(nextStreak)
-    setMaxStreak((current) => Math.max(current, nextStreak))
-    setScore((current) => current + earned)
-    setHistory((current) => [
-      ...current,
-      `${problem.left} ${problem.operator} ${problem.right} = ${problem.answer}`,
-    ])
-    setAnswer('')
-    setShowHint(false)
-    if (nextSolved >= target) {
-      setStatus('Tới ngọn cây rồi! Con vừa giúp AI có đủ dữ liệu tốt để học.')
-      return
-    }
-    setProblem(createMathProblem(difficulty, operator))
-    setStatus(`${feedbackFor('correct', nextSolved)} Khỉ Mơ leo thêm một tầng!`)
+    // WHY: delay đủ để animation hoàn thành (0.8s) + người chơi đọc kết quả (~0.6s)
+    const delay = correct ? 1500 : 2500
+    setTimeout(() => {
+      setShot('idle')
+      setSelectedIdx(null)
+      setShowWhy(false)
+      setQIndex((i) => i + 1)
+    }, delay)
   }
+
+  if (!question && !complete) {
+    return (
+      <div className="rounded-[2rem] border-2 border-coral-200 bg-coral-50 p-8 text-center">
+        <p className="font-display text-xl text-danger">Không có câu hỏi nào!</p>
+        {onBack && <Button className="mt-4" variant="secondary" onClick={onBack}>Quay lại</Button>}
+      </div>
+    )
+  }
+  const stars = goals >= questions.length * 0.8 ? 3 : goals >= questions.length * 0.5 ? 2 : 1
+
+  // Tính góc bóng: goal → thẳng vào lưới, miss → lệch sang trái/phải
+  const ballGoalStyle = shot === 'shooting-goal'
+    ? '[animation:goal-ball-fly_0.8s_ease-in_forwards]'
+    : shot === 'shooting-miss'
+      ? '[animation:miss-ball-fly_0.8s_ease-in_forwards]'
+      : ''
 
   return (
-    <EngineGameShell
-      title="Math for Kids · Khỉ Leo Cây Dữ Liệu"
-      subtitle={instruction || 'Giải các bài toán ngắn về dữ liệu để giúp Khỉ Mơ leo tới phòng học AI.'}
-      scene="/assets/game-engines/ai-worlds.jpg"
-      scenePosition="top-right"
-      score={score}
-      progress={missionProgress(solved, target)}
-      status={status}
-      onBack={onBack}
-    >
-      <div className="grid gap-5 lg:grid-cols-[0.72fr_1.28fr]">
-        <aside className="relative min-h-[22rem] overflow-hidden rounded-[2rem] border-4 border-[#f4dfaa] bg-[#fff8df]">
-          <div
-            className="absolute inset-0 bg-cover"
-            style={{
-              backgroundImage: 'url("/assets/game-engines/ai-worlds.jpg")',
-              backgroundSize: '200% 200%',
-              backgroundPosition: '100% 0%',
-            }}
-            aria-hidden="true"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-brand-950/75 via-transparent to-transparent" />
-          <div className="absolute inset-x-4 bottom-4 grid gap-2">
-            <div className="flex items-end justify-between gap-1" aria-label={`${solved} trên ${target} tầng đã leo`}>
-              {Array.from({ length: target }, (_, index) => (
-                <span
-                  key={index}
-                  className={cn(
-                    'grid h-9 flex-1 place-items-center rounded-t-xl border-2 border-white/70 text-xs font-black shadow-sm',
-                    index < solved ? 'bg-sun-300 text-brand-950' : 'bg-white/70 text-brand-700',
-                  )}
-                >
-                  {index < solved ? '✓' : index + 1}
-                </span>
+    <>
+      {feedback && (
+        <FeedbackOverlay
+          type={feedback.type}
+          streak={streak}
+          attempt={feedback.attempt}
+          onDismiss={() => setFeedback(null)}
+        />
+      )}
+
+      <EngineGameShell
+        title="AI Quiz · Khỉ Đá Bóng"
+        subtitle={instruction || 'Trả lời đúng các câu hỏi trắc nghiệm để giúp Kiki sút bóng vào lưới.'}
+        scene="/assets/game-engines/monkey-soccer.png"
+        sceneAlt="Sân bóng với trái bóng và khung thành"
+        score={score}
+        progress={missionProgress(goals, questions.length)}
+        onBack={onBack}
+      >
+        {complete ? (
+          <div className="bg-white pb-6" aria-label="Kết quả Khỉ Đá Bóng">
+            {/* Header kết quả */}
+            <div className="bg-brand-950 p-8 text-center text-white">
+              <p className="text-6xl">{stars === 3 ? '🏆' : stars === 2 ? '🥈' : '⭐'}</p>
+              <h2 className="mt-3 font-display text-3xl font-black text-white">
+                {goals >= questions.length * 0.8 ? 'Kiki vô địch!' : `Kiki ghi ${goals} bàn!`}
+              </h2>
+              <p className="mt-2 text-white/70">
+                {stars === 3 ? '⭐⭐⭐' : stars === 2 ? '⭐⭐☆' : '⭐☆☆'}
+              </p>
+            </div>
+
+            {/* Stats */}
+            <div className="grid grid-cols-3 divide-x divide-brand-100 text-center">
+              {[
+                { label: 'Bàn thắng', value: `${goals}/${questions.length}`, icon: '⚽' },
+                { label: 'Điểm số', value: score, icon: '🌟' },
+                { label: 'Chuỗi đỉnh', value: maxStreak, icon: '🔥' },
+              ].map(({ label, value, icon }) => (
+                <div key={label} className="px-4 py-5">
+                  <p className="text-2xl">{icon}</p>
+                  <p className="font-display text-2xl font-black text-brand-900">{value}</p>
+                  <p className="text-xs font-bold text-muted">{label}</p>
+                </div>
               ))}
             </div>
-            <p className="flex items-center justify-center gap-2 rounded-2xl bg-brand-950/80 px-3 py-2 text-center text-sm font-extrabold text-white backdrop-blur-sm">
-              <ArrowUp size={17} aria-hidden="true" />
-              Khỉ Mơ: tầng {Math.min(solved + 1, target)} / {target}
-            </p>
-          </div>
-        </aside>
 
-        <div className="grid content-start gap-4">
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4" aria-label="Chọn loại nhiệm vụ">
-            {OPERATORS.map((item) => (
-              <button
-                key={item.id}
-                type="button"
-                onClick={() => chooseOperator(item.id)}
-                className={cn(
-                  'min-h-14 rounded-2xl border-2 px-2 font-extrabold transition',
-                  operator === item.id
-                    ? 'border-brand-600 bg-brand-600 text-white shadow-clay'
-                    : 'border-brand-100 bg-white text-brand-800 hover:border-brand-300',
-                )}
+            <div className="p-6 text-center">
+              {outcome && <p className="mb-4 text-sm font-bold text-slate-700">{outcome}</p>}
+              <Button
+                onClick={() => onComplete({ choices, attempts, score, maxStreak })}
               >
-                <span className="block font-display text-xl" aria-hidden="true">{item.id}</span>
-                <span className="text-[0.68rem]">{item.label}</span>
-              </button>
-            ))}
-          </div>
-
-          <section className="rounded-[2rem] border-2 border-[#ead7a5] bg-[#fffaf0] p-5 text-center sm:p-7">
-            <p className="mx-auto max-w-xl text-base font-extrabold leading-relaxed text-brand-950">
-              {missionFor(problem)}
-            </p>
-            <div className="my-4 font-display text-5xl text-brand-900 sm:text-6xl" aria-live="polite">
-              {problem.left} {problem.operator} {problem.right} = ?
+                <Sparkles size={19} aria-hidden="true" />
+                Nhận huy hiệu &amp; tiếp tục
+              </Button>
             </div>
-            {showHint && (
-              <p className="mb-4 flex items-center justify-center gap-2 rounded-2xl bg-sun-50 p-3 text-sm font-bold text-amber-900">
-                <Lightbulb size={18} aria-hidden="true" /> {hintFor(problem)}
-              </p>
-            )}
-            <label className="sr-only" htmlFor="math-kids-answer">Đáp án</label>
-            <input
-              id="math-kids-answer"
-              value={answer}
-              inputMode="numeric"
-              onChange={(event) => setAnswer(event.target.value.replace(/[^0-9-]/g, '').slice(0, 6))}
-              onKeyDown={(event) => { if (event.key === 'Enter') submit() }}
-              disabled={complete}
-              className="mx-auto h-20 w-full max-w-xs rounded-3xl border-4 border-white bg-white text-center font-display text-4xl text-brand-800 shadow-soft outline-none focus:border-brand-300"
-              placeholder="?"
-            />
-          </section>
-
-          {!complete ? (
-            <>
-              <div className="mx-auto grid w-full max-w-sm grid-cols-5 gap-2">
-                {keypad.map((key) => (
-                  <button
-                    key={key}
-                    type="button"
-                    onClick={() => setAnswer((current) => `${current}${key}`.slice(0, 6))}
-                    className="min-h-14 rounded-2xl border-2 border-brand-100 bg-white font-display text-2xl text-text shadow-sm transition hover:-translate-y-0.5 hover:border-brand-300"
-                  >
-                    {key}
-                  </button>
-                ))}
-                <button
-                  type="button"
-                  onClick={() => setAnswer((current) => current.slice(0, -1))}
-                  className="col-span-2 grid min-h-12 place-items-center rounded-2xl border-2 border-coral-100 bg-coral-50 text-danger"
-                  aria-label="Xóa một số"
-                >
-                  <Delete aria-hidden="true" />
-                </button>
-                <Button className="col-span-3" onClick={submit} disabled={!answer}>
-                  Kiểm tra & leo cây
-                </Button>
-              </div>
-            </>
-          ) : (
-            <Button
-              onClick={() =>
-                onComplete({
-                  choices: history,
-                  attempts: Math.max(1, attempts),
-                  score,
-                  maxStreak,
-                })
-              }
+          </div>
+        ) : (
+          <div className="flex flex-col bg-white" aria-labelledby="monkey-goal-title">
+            {/* ── Sân bóng (Violympic style) ────────────────────────────────── */}
+            <div
+              className="relative flex min-h-[22rem] flex-col"
+              style={{
+                background: 'linear-gradient(180deg, #87ceeb 0%, #87ceeb 40%, #4ade80 40%, #16a34a 100%)',
+              }}
+              role="img"
+              aria-label="Sân bóng đá của Kiki"
             >
-              <Sparkles size={19} aria-hidden="true" /> Nhận huy hiệu Người Giữ Dữ Liệu
-            </Button>
-          )}
+              {/* HUD: Score + Timer */}
+              <div className="absolute left-3 top-3 z-10 flex flex-col gap-2">
+                {/* Score */}
+                <div className="flex items-center gap-2 rounded-2xl bg-white/90 px-3 py-1.5 text-sm font-black text-brand-900 shadow">
+                  🌟 <span>{score}</span>
+                </div>
+                {/* Goals tracker */}
+                <div className="flex gap-1 rounded-2xl bg-white/90 px-3 py-1.5 shadow">
+                  {questions.map((_, i) => (
+                    <span key={i} className="text-sm">{i < goals ? '⚽' : '○'}</span>
+                  ))}
+                </div>
+              </div>
 
-          {outcome && <p className="text-center text-xs font-bold text-muted">{outcome}</p>}
-        </div>
-      </div>
-    </EngineGameShell>
+              {/* Timer */}
+              {timerSeconds !== null && secondsLeft !== null && (
+                <div
+                  className={`absolute right-3 top-3 z-10 flex size-12 items-center justify-center rounded-full font-display text-xl font-black shadow ${
+                    secondsLeft <= 5 ? 'bg-red-500 text-white animate-pulse' : 'bg-white/90 text-brand-900'
+                  }`}
+                  aria-label={`${secondsLeft} giây còn lại`}
+                >
+                  {secondsLeft}
+                </div>
+              )}
+
+              {/* Câu hỏi — khung gỗ phong cách Violympic */}
+              <div className="mx-4 mt-4">
+                <div
+                  className="rounded-xl border-4 border-amber-800 bg-amber-50 px-5 py-3 shadow-md"
+                  style={{ boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.3)' }}
+                >
+                  <p id="monkey-goal-title" className="text-center text-base font-extrabold text-amber-900 sm:text-lg">
+                    {question!.prompt}
+                  </p>
+                  {/* Số câu */}
+                  <p className="mt-1 text-center text-xs font-bold text-amber-700">
+                    Câu {qIndex + 1} / {questions.length}
+                  </p>
+                </div>
+              </div>
+
+              {/* Sân: khung thành + thủ môn + bóng ở giữa */}
+              <div className="relative flex flex-1 items-center justify-center py-4">
+                {/* Vạch sân */}
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-white/40" />
+
+                {/* Khung thành */}
+                <div className="relative" aria-hidden="true">
+                  {/* Cột trái */}
+                  <div className="absolute -left-[60px] bottom-0 h-[90px] w-3 rounded-t-lg bg-white shadow-md" />
+                  {/* Xà ngang */}
+                  <div className="absolute -left-[60px] h-3 w-[120px] rounded-lg bg-white shadow-md" style={{ top: '-90px' }} />
+                  {/* Cột phải */}
+                  <div className="absolute -right-[60px] bottom-0 h-[90px] w-3 rounded-t-lg bg-white shadow-md" />
+                  {/* Lưới */}
+                  <div
+                    className="absolute -left-[57px] h-[76px] w-[114px] bg-white/20"
+                    style={{ top: '-77px', backgroundImage: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 1px, transparent 1px, transparent 12px), repeating-linear-gradient(90deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 1px, transparent 1px, transparent 12px)' }}
+                  />
+
+                  {/* Thủ môn Kiki */}
+                  <div
+                    className={`relative z-10 select-none text-6xl text-center transition-all duration-300 ${
+                      shot === 'shooting-goal' ? '[animation:monkey-celebrate_0.4s_ease-in-out_3]' : ''
+                    } ${shot === 'shooting-miss' ? 'scale-90 opacity-80' : ''}`}
+                    style={{ marginTop: '-70px' }}
+                  >
+                    {shot === 'shooting-goal' ? '🙈' : shot === 'shooting-miss' ? '🐒' : '🐒'}
+                  </div>
+                </div>
+
+                {/* Bóng + điểm dừng (penalty spot) */}
+                <div className="absolute bottom-6 left-1/2 -translate-x-1/2" aria-hidden="true">
+                  {/* Điểm penalty */}
+                  <div className="mx-auto mb-1 h-1.5 w-1.5 rounded-full bg-white/70" />
+                  <div className={`select-none text-4xl ${ballGoalStyle}`}>⚽</div>
+                </div>
+
+                {/* Flash kết quả */}
+                {shot === 'shooting-goal' && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="animate-[feedback-pop_0.25s_ease-out_forwards] rounded-2xl bg-emerald-500/90 px-6 py-3 text-2xl font-black text-white shadow-xl">
+                      GOAL! 🎉
+                    </div>
+                  </div>
+                )}
+                {shot === 'shooting-miss' && (
+                  <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="animate-[feedback-shake_0.4s_ease-out] rounded-2xl bg-red-500/90 px-6 py-3 text-2xl font-black text-white shadow-xl">
+                      Hụt rồi! 😅
+                    </div>
+                  </div>
+                )}
+              </div>
+
+              {/* Hint sau khi sai */}
+              {showWhy && question && (
+                <div className="mx-4 mb-3 rounded-xl border-2 border-amber-300 bg-amber-50 px-4 py-2 text-center text-sm font-bold text-amber-900 shadow">
+                  💡 {question.why}
+                </div>
+              )}
+            </div>
+
+            {/* ── 4 đáp án 2×2 — Violympic style ──────────────────────────────── */}
+            <div
+              className="grid grid-cols-2 gap-0 border-t-4 border-amber-800"
+              role="group"
+              aria-label="Chọn đáp án"
+            >
+              {question!.options.slice(0, 4).map((option, i) => {
+                const isSelected = selectedIdx === i
+                const isCorrectAnswer = i === question!.answer
+                const showCorrect = showWhy && isCorrectAnswer
+                const showWrong = showWhy && isSelected && !isCorrectAnswer
+
+                return (
+                  <button
+                    key={i}
+                    id={`monkey-opt-${i}`}
+                    type="button"
+                    disabled={shot !== 'idle'}
+                    onClick={() => handleAnswer(i)}
+                    className={[
+                      'relative flex min-h-[4rem] items-center gap-3 border-b-2 border-r-2 border-amber-700 px-4 py-3 text-left font-extrabold transition',
+                      // Violympic golden frame style
+                      'bg-amber-50 text-amber-900',
+                      // Border alternation for 2×2 grid (no right border on col 2)
+                      i % 2 === 1 ? 'border-r-0' : '',
+                      // Hover
+                      shot === 'idle' ? 'hover:bg-amber-100 active:scale-95 cursor-pointer' : 'cursor-default',
+                      // States
+                      showCorrect ? 'bg-emerald-100 text-emerald-900' : '',
+                      showWrong ? 'bg-red-100 text-red-900' : '',
+                      isSelected && shot !== 'idle' && !showWhy ? 'bg-brand-100' : '',
+                    ].filter(Boolean).join(' ')}
+                    aria-pressed={isSelected}
+                  >
+                    {/* Label badge */}
+                    <span
+                      className={`inline-grid size-8 shrink-0 place-items-center rounded-full text-sm font-black ${
+                        showCorrect
+                          ? 'bg-emerald-500 text-white'
+                          : showWrong
+                            ? 'bg-red-500 text-white'
+                            : 'bg-amber-800 text-amber-50'
+                      }`}
+                    >
+                      {OPTION_LABELS[i]}
+                    </span>
+                    <span className="text-sm leading-snug sm:text-base">{option}</span>
+
+                    {/* Icon kết quả */}
+                    {showCorrect && <span className="ml-auto text-xl">✅</span>}
+                    {showWrong && <span className="ml-auto text-xl">❌</span>}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+      </EngineGameShell>
+    </>
   )
 }
+
