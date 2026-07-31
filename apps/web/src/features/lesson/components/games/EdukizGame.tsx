@@ -18,6 +18,7 @@ import {
 } from '@/features/lesson/lib/curriculum-game'
 import { cn } from '@/shared/lib/cn'
 import { EngineGameShell } from './EngineGameShell'
+import { FeedbackOverlay } from './FeedbackOverlay'
 import type { EngineGameProps } from './types'
 
 const FALLBACK_PAIRS = [
@@ -102,7 +103,7 @@ export function EdukizGame({
   const [status, setStatus] = useState(
     'Xưởng có bốn phòng. Hoàn thành từng phòng để tự tay huấn luyện và kiểm thử AI nhé!',
   )
-
+  const [feedback, setFeedback] = useState<{ type: 'correct' | 'wrong'; attempt: number } | null>(null)
   const memoryDone = matched.length >= pairs.length
   const privacyDone = privacyIndex >= PRIVACY_CARDS.length
   const promptDone = promptIds.length >= PROMPT_CHUNKS.length
@@ -123,11 +124,13 @@ export function EdukizGame({
     setMaxStreak((value) => Math.max(value, nextStreak))
     setScore((value) => value + amount + Math.min(5, nextStreak))
     setChoices((value) => [...value, evidence])
+    setFeedback({ type: 'correct', attempt: choices.length })
     setStatus(`${feedbackFor('correct', choices.length)} ${message}`)
   }
 
   function retry(message: string) {
     setStreak(0)
+    setFeedback({ type: 'wrong', attempt: attempts })
     setStatus(`${feedbackFor('retry', attempts)} ${message}`)
   }
 
@@ -222,11 +225,20 @@ export function EdukizGame({
   }
 
   return (
+    <>
+      {feedback && (
+        <FeedbackOverlay
+          type={feedback.type}
+          streak={streak}
+          attempt={feedback.attempt}
+          onDismiss={() => setFeedback(null)}
+        />
+      )}
     <EngineGameShell
       title="Edukiz · Xưởng Huấn Luyện AI"
       subtitle={instruction || 'Đi qua bốn phòng: gắn nhãn, bảo vệ dữ liệu, lắp prompt và kiểm thử kết quả AI.'}
-      scene="/assets/game-engines/ai-worlds.jpg"
-      scenePosition="bottom-right"
+      scene="/assets/game-engines/edukiz-garden.svg"
+      sceneAlt="Khu vườn trí nhớ ma thuật với hoa phát sáng và bướm dữ liệu"
       score={score}
       progress={progress}
       status={status}
@@ -414,5 +426,6 @@ export function EdukizGame({
         {outcome && <p className="text-center text-xs font-bold text-muted">{outcome}</p>}
       </div>
     </EngineGameShell>
+    </>
   )
 }

@@ -2,8 +2,9 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Database, Mountain, Navigation, Play, RotateCcw, Trash2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
-import { feedbackFor } from '@/features/lesson/lib/curriculum-game'
+import { feedbackFor, missionProgress } from '@/features/lesson/lib/curriculum-game'
 import { EngineGameShell } from './EngineGameShell'
+import { FeedbackOverlay } from './FeedbackOverlay'
 import type { EngineGameProps } from './types'
 
 type Command = 'forward' | 'left' | 'right' | 'repeat2' | 'ifClear'
@@ -112,6 +113,7 @@ export function BlocklyMazeGame({
   const [status, setStatus] = useState(
     'Xếp khối lệnh rồi bấm Chạy. Nếu chưa tới kho dữ liệu, con quan sát và sửa lại nhé!',
   )
+  const [feedback, setFeedback] = useState<{ type: 'correct' | 'wrong'; attempt: number } | null>(null)
   const timers = useRef<number[]>([])
   const allComplete = won && levelIndex === LEVELS.length - 1
   const levelScore = won
@@ -197,6 +199,7 @@ export function BlocklyMazeGame({
           timers.current.forEach((pending) => window.clearTimeout(pending))
           timers.current = []
           setRunning(false)
+          setFeedback({ type: 'wrong', attempt: attempts })
           setStatus('Mii gặp đá rồi! Tìm ô lệnh đang sáng, đổi lệnh trước chỗ đó và chạy lại nhé.')
           return
         }
@@ -208,6 +211,7 @@ export function BlocklyMazeGame({
           timers.current = []
           setWon(true)
           setRunning(false)
+          setFeedback({ type: 'correct', attempt: attempts })
           setStatus(`${feedbackFor('correct', levelIndex)} ${level.lesson}`)
           return
         }
@@ -234,11 +238,20 @@ export function BlocklyMazeGame({
   }
 
   return (
+    <>
+      {feedback && (
+        <FeedbackOverlay
+          type={feedback.type}
+          streak={0}
+          attempt={feedback.attempt}
+          onDismiss={() => setFeedback(null)}
+        />
+      )}
     <EngineGameShell
       title="Blockly · Đội Cứu Hộ Dữ Liệu"
       subtitle={instruction || 'Lập chương trình qua bốn màn để đưa dữ liệu tốt về phòng học của AI.'}
-      scene="/assets/game-engines/ai-worlds.jpg"
-      scenePosition="top-left"
+      scene="/assets/game-engines/blockly-island.svg"
+      sceneAlt="Hòn đảo lập trình nổi giữa bầu trời xanh mát"
       score={score}
       progress={progress}
       status={status}
@@ -384,5 +397,6 @@ export function BlocklyMazeGame({
         </div>
       </div>
     </EngineGameShell>
+    </>
   )
 }

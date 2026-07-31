@@ -11,6 +11,7 @@ import {
   sanitizeVisualRounds,
 } from '@/features/lesson/lib/curriculum-game'
 import { EngineGameShell } from './EngineGameShell'
+import { FeedbackOverlay } from './FeedbackOverlay'
 import type { EngineGameProps } from './types'
 
 const IMAGE_POSITIONS = {
@@ -49,6 +50,7 @@ export function BattleMathGame({
   const [status, setStatus] = useState(
     'Đọc prompt như một thám tử: kiểm tra từng chi tiết rồi mới chọn ảnh.',
   )
+  const [feedback, setFeedback] = useState<{ type: 'correct' | 'wrong'; attempt: number } | null>(null)
   const startedAt = useRef(Date.now())
   const round = rounds[Math.min(roundIndex, rounds.length - 1)]!
   const displayedOptions = useMemo(
@@ -79,6 +81,7 @@ export function BattleMathGame({
       const nextHint = Math.min(2, hintLevel + 1)
       setHintLevel(nextHint)
       setStreak(0)
+      setFeedback({ type: 'wrong', attempt: attempts })
       setStatus(
         `${feedbackFor('retry', attempts)} ${
           nextHint >= 2 ? round.clue : 'So lại đúng một chi tiết trong prompt trước nhé.'
@@ -97,6 +100,7 @@ export function BattleMathGame({
     setMaxStreak((value) => Math.max(value, nextStreak))
     setAnswers((value) => [...value, `${round.id}:${optionId}`])
     setStatus(`${feedbackFor('correct', roundIndex)} ${round.feedback}`)
+    setFeedback({ type: 'correct', attempt: attempts })
   }
 
   function nextRound() {
@@ -113,11 +117,20 @@ export function BattleMathGame({
   }
 
   return (
+    <>
+      {feedback && (
+        <FeedbackOverlay
+          type={feedback.type}
+          streak={streak}
+          attempt={feedback.attempt}
+          onDismiss={() => setFeedback(null)}
+        />
+      )}
     <EngineGameShell
       title="BattleMath · Pháo Đài Kiểm Chứng"
       subtitle={instruction || 'Đánh bại Sương Mù bằng cách phát hiện kết quả AI đúng, sai và giải thích vì sao.'}
-      scene="/assets/game-engines/ai-worlds.jpg"
-      scenePosition="bottom-left"
+      scene="/assets/game-engines/battle-valley.svg"
+      sceneAlt="Pháo đài kiểm chứng AI trong màn đêm huyền bí"
       score={score}
       progress={missionProgress(Math.min(roundIndex + (roundSolved ? 1 : 0), rounds.length), rounds.length)}
       status={status}
@@ -223,5 +236,6 @@ export function BattleMathGame({
         </div>
       )}
     </EngineGameShell>
+    </>
   )
 }
