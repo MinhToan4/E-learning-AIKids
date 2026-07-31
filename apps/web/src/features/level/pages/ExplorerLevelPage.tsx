@@ -129,6 +129,8 @@ export function ExplorerLevelPage() {
 
   const level = profile?.level ?? 1
   const progress = Math.min(100, Math.max(0, profile?.xpIntoLevel ?? 0))
+  const maxRewardLevel = levelRewards.at(-1) ? rewardLevel(levelRewards.at(-1)!) : 100
+  const completedSeason = level >= maxRewardLevel
   const upcoming = levelRewards.filter((reward) => rewardLevel(reward) >= level).slice(0, 6)
   const nextReward = profile?.nextLevelRewards[0] ?? upcoming.find((reward) => rewardLevel(reward) > level)
   const completedRewards = levelRewards.filter((reward) => ownedIds.has(reward.code)).length
@@ -177,20 +179,24 @@ export function ExplorerLevelPage() {
                 <div
                   className="mt-5 h-4 overflow-hidden rounded-full bg-white shadow-inner"
                   role="progressbar"
-                  aria-label={`Tiến độ lên Cấp ${level + 1}`}
-                  aria-valuenow={progress}
+                  aria-label={completedSeason ? 'Đã hoàn thành hành trình 100 cấp' : `Tiến độ lên Cấp ${level + 1}`}
+                  aria-valuenow={completedSeason ? 100 : progress}
                   aria-valuemin={0}
                   aria-valuemax={100}
                 >
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-mint-400 to-brand-500 transition-[width] duration-500 motion-reduce:transition-none"
-                    style={{ width: `${progress}%` }}
+                    style={{ width: `${completedSeason ? 100 : progress}%` }}
                   />
                 </div>
                 <div className="mt-2 flex flex-wrap justify-between gap-2 text-sm font-bold">
-                  <span className="text-muted">{progress}/100 XP trong cấp này</span>
+                  <span className="text-muted">
+                    {completedSeason ? `Đã hoàn thành ${maxRewardLevel} cấp` : `${progress}/100 XP trong cấp này`}
+                  </span>
                   <span className="text-sun-700">
-                    Còn {profile.xpToNextLevel} XP để lên Cấp {level + 1}
+                    {completedSeason
+                      ? 'Con đã nhận trọn bộ quà mùa này'
+                      : `Còn ${profile.xpToNextLevel} XP để lên Cấp ${level + 1}`}
                   </span>
                 </div>
               </div>
@@ -205,10 +211,12 @@ export function ExplorerLevelPage() {
                   </span>
                   <div>
                     <p className="text-sm font-bold text-brand-100">
-                      Cấp {level + 1}
+                      {completedSeason ? 'HOÀN THÀNH MÙA' : `Cấp ${level + 1}`}
                     </p>
                     <h3 className="font-display text-2xl">
-                      {nextReward?.name ?? 'Một món quà bất ngờ'}
+                      {completedSeason
+                        ? 'Nhà thám hiểm trọn bộ'
+                        : nextReward?.name ?? 'Một món quà bất ngờ'}
                     </h3>
                   </div>
                 </div>
