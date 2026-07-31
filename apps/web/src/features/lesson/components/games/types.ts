@@ -1,5 +1,6 @@
 import type {
   CurriculumGameConfig,
+  CurriculumGameDefinition,
   CurriculumGameDifficulty,
 } from '@/features/lesson/lib/curriculum-game'
 
@@ -12,6 +13,9 @@ export type EngineResult = {
 
 export type EngineGameProps = {
   config?: CurriculumGameConfig
+  // WHY: definition optional — 4 game cũ dùng scene URL hardcoded, không cần
+  // definition object. 2 game mới (DataRunner, TruthPatrol) dùng definition.sceneUrl.
+  definition?: CurriculumGameDefinition
   difficulty: CurriculumGameDifficulty
   instruction: string
   outcome?: string

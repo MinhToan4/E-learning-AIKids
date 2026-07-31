@@ -1747,11 +1747,10 @@ export type QuestDetail = {
       practiceKind?: string
       gameType?: string
       gameConfig?: {
-        cards?: string[]
-        groups?: unknown
-        rounds?: unknown
-        pairs?: unknown
-        placements?: unknown
+        lobby?: unknown
+        catalog?: unknown
+        runnerLevels?: unknown
+        patrolWaves?: unknown
         selectionMode?: 'required' | 'student_choice'
         allowedTypes?: string[]
         difficulty?: 'gentle' | 'steady' | 'challenge'

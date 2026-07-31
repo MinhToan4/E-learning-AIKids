@@ -1,83 +1,112 @@
 import { describe, expect, it } from 'vitest'
 import {
-  CURRICULUM_GAME_DEFINITIONS,
-  buildMemoryDeck,
-  calculateBattleScore,
-  calculateGameReward,
-  createMathProblem,
-  getGameTuning,
   missionProgress,
   normalizeGameType,
   resolveGamePolicy,
+  safeGameAssetPath,
   sanitizeAllowedGameTypes,
-  sanitizeAssociationPairs,
-  sanitizeGameCards,
-  sanitizeVisualRounds,
-  feedbackFor,
-  DEFAULT_AI_VISUAL_ROUNDS,
+  sanitizeGameCatalog,
+  sanitizeGameLobby,
+  sanitizePatrolWaves,
+  sanitizeRunnerLevels,
 } from './curriculum-game'
 
-describe('four source-inspired curriculum engines', () => {
-  it('exposes exactly four engines and maps legacy ids without showing them', () => {
-    expect(CURRICULUM_GAME_DEFINITIONS.map((game) => game.type)).toEqual([
-      'blockly', 'math-kids', 'battle-math', 'edukiz',
-    ])
-    expect(normalizeGameType('drag')).toBe('blockly')
-    expect(normalizeGameType('pick')).toBe('math-kids')
-    expect(normalizeGameType('compare')).toBe('battle-math')
-    expect(normalizeGameType('match')).toBe('edukiz')
-    expect(normalizeGameType('unknown')).toBe('blockly')
+const runnerLevel = {
+  id: 'level-1',
+  title: 'Dữ liệu đa dạng',
+  mission: 'Thu thập dữ liệu tốt và tránh dữ liệu sai.',
+  backgroundUrl: '/assets/game-engines/data-trail-world.webp',
+  backgroundAlt: 'Đường chạy dữ liệu',
+  playerSpriteUrl: '/assets/game-engines/data-courier.webp',
+  items: [
+    { id: 'good-1', label: 'Mẫu đa dạng', at: 25, lane: 'ground', decision: 'collect', feedback: 'Tốt' },
+    { id: 'bad-1', label: 'Nhãn sai', at: 45, lane: 'ground', decision: 'avoid', feedback: 'Cần tránh' },
+    { id: 'good-2', label: 'Có đồng ý', at: 65, lane: 'air', decision: 'collect', feedback: 'An toàn' },
+  ],
+  completionFeedback: 'Đã hoàn thành.',
+}
+
+const patrolWave = {
+  id: 'wave-1',
+  title: 'Kiểm tra nguồn',
+  mission: 'Quét nội dung không có nguồn.',
+  backgroundUrl: '/assets/game-engines/truth-patrol-world.webp',
+  backgroundAlt: 'Bầu trời kiểm chứng',
+  playerSpriteUrl: '/assets/game-engines/source-scout.webp',
+  targets: [
+    { id: 'claim-1', label: 'Không có nguồn', spawnAtMs: 0, column: 20, speed: 6, decision: 'scan', feedback: 'Cần kiểm chứng' },
+    { id: 'claim-2', label: 'Có tài liệu', spawnAtMs: 1000, column: 50, speed: 6, decision: 'protect', feedback: 'Có nguồn' },
+    { id: 'claim-3', label: 'Không rõ tác giả', spawnAtMs: 2000, column: 80, speed: 6, decision: 'scan', feedback: 'Cần tìm tác giả' },
+  ],
+  completionFeedback: 'Đã kiểm tra xong.',
+}
+
+describe('DB-authored AI game configuration', () => {
+  it('normalizes legacy ids into the two current engines', () => {
+    expect(normalizeGameType('blockly')).toBe('data-runner')
+    expect(normalizeGameType('math-kids')).toBe('data-runner')
+    expect(normalizeGameType('battle-math')).toBe('truth-patrol')
+    expect(normalizeGameType('edukiz')).toBe('truth-patrol')
+    expect(sanitizeAllowedGameTypes([
+      'blockly',
+      'data-runner',
+      'battle-math',
+      'truth-patrol',
+    ])).toEqual(['data-runner', 'truth-patrol'])
   })
 
-  it('sanitizes teacher content and builds a stable pair deck', () => {
-    expect(sanitizeGameCards(['  Bầu trời ', 'Bầu trời', '', 'x', 'Mặt đất'], 4))
-      .toEqual(['Bầu trời', 'Mặt đất'])
-    const pairs = sanitizeAssociationPairs([
-      { left: 'Vàng cam', right: 'Vui' },
-      { left: 'Tím đậm', right: 'Bí ẩn' },
-    ])
-    expect(buildMemoryDeck(pairs, 'lesson')).toEqual(buildMemoryDeck(pairs, 'lesson'))
-    expect(buildMemoryDeck(pairs, 'lesson')).toHaveLength(4)
+  it('accepts only complete catalog and lobby data with local assets', () => {
+    const lobby = {
+      eyebrow: 'Xưởng AI',
+      title: 'Chọn nhiệm vụ',
+      description: 'Học AI bằng hành động.',
+      imageUrl: '/assets/game-engines/game-lab-world.webp',
+      imageAlt: 'Bản đồ xưởng AI',
+    }
+    const catalog = [{
+      type: 'data-runner',
+      label: 'Đường Đua Dữ Liệu',
+      shortLabel: 'Chạy dữ liệu',
+      description: 'Chọn dữ liệu phù hợp.',
+      gameplay: 'Chạy và nhảy',
+      sceneUrl: '/assets/game-engines/data-trail-world.webp',
+      sceneAlt: 'Thung lũng dữ liệu',
+    }]
+
+    expect(sanitizeGameLobby(lobby)).toEqual(lobby)
+    expect(sanitizeGameCatalog(catalog)).toHaveLength(1)
+    expect(safeGameAssetPath('https://example.test/child.png')).toBe('')
+    expect(safeGameAssetPath('/assets/../secret.png')).toBe('')
   })
 
-  it('keeps selection policy bounded to the four engines', () => {
-    expect(resolveGamePolicy({
-      selectionMode: 'student_choice',
-      allowedTypes: ['blockly', 'math-kids', 'battle-math', 'edukiz', 'pick'],
-      difficulty: 'challenge',
-    }, 'blockly')).toEqual({
-      selectionMode: 'student_choice',
-      allowedTypes: ['blockly', 'math-kids', 'battle-math', 'edukiz'],
-      difficulty: 'challenge',
-    })
-    expect(sanitizeAllowedGameTypes('blockly')).toEqual([])
-  })
-
-  it('preserves BattleMath 30-second scoring bands', () => {
-    expect([4, 9, 14, 19, 24, 30].map(calculateBattleScore)).toEqual([10, 8, 6, 4, 2, 1])
-  })
-
-  it('accepts only bounded internal visual rounds and varies child feedback', () => {
-    expect(sanitizeVisualRounds(DEFAULT_AI_VISUAL_ROUNDS)).toHaveLength(4)
-    expect(sanitizeVisualRounds([{
-      ...DEFAULT_AI_VISUAL_ROUNDS[0],
-      options: DEFAULT_AI_VISUAL_ROUNDS[0]!.options.map((option) => ({
-        ...option,
-        imageUrl: 'https://untrusted.example/child.png',
+  it('returns no rounds when DB content is absent or unsafe', () => {
+    expect(sanitizeRunnerLevels(undefined)).toEqual([])
+    expect(sanitizePatrolWaves(undefined)).toEqual([])
+    expect(sanitizeRunnerLevels([{
+      ...runnerLevel,
+      backgroundUrl: 'https://untrusted.test/track.png',
+    }])).toEqual([])
+    expect(sanitizePatrolWaves([{
+      ...patrolWave,
+      targets: patrolWave.targets.map((target) => ({
+        ...target,
+        imageUrl: '/assets/../../private.png',
       })),
     }])).toEqual([])
-    expect(new Set(Array.from({ length: 5 }, (_, index) => feedbackFor('correct', index))).size)
-      .toBe(5)
-    expect(feedbackFor('retry', 0)).not.toBe(feedbackFor('retry', 1))
   })
 
-  it('generates exact integer arithmetic and bounded rewards/progress', () => {
-    expect(createMathProblem('gentle', '÷', () => 0.5).answer).toBe(5)
-    expect(calculateGameReward(false, 9, 'challenge')).toBe(0)
-    expect(calculateGameReward(true, 20, 'challenge')).toBe(24)
-    expect(missionProgress(2, 3)).toBe(67)
-    expect(getGameTuning('challenge')).toEqual({
-      cardLimit: 8, memoryPairLimit: 4, roundLimit: 10, targetWins: 7,
+  it('sanitizes DB levels and keeps policy bounded', () => {
+    expect(sanitizeRunnerLevels([runnerLevel])).toHaveLength(1)
+    expect(sanitizePatrolWaves([patrolWave])).toHaveLength(1)
+    expect(resolveGamePolicy({
+      selectionMode: 'student_choice',
+      allowedTypes: ['blockly', 'battle-math', 'unsafe-game'],
+      difficulty: 'challenge',
+    }, 'data-runner')).toEqual({
+      selectionMode: 'student_choice',
+      allowedTypes: ['data-runner', 'truth-patrol'],
+      difficulty: 'challenge',
     })
+    expect(missionProgress(2, 3)).toBe(67)
   })
 })
