@@ -73,7 +73,7 @@ describe('AI learning game engines', () => {
     )
     expect(html).toContain('Đường Đua Dữ Liệu')
     expect(html).toContain('/assets/game-engines/data-courier.webp')
-    expect(html).not.toContain('ai-worlds.jpg')
+    expect(html).not.toContain('ai-worlds.webp')
     expect(html).not.toContain('background-position')
   })
 
@@ -103,6 +103,6 @@ describe('AI learning game engines', () => {
     expect(html).toContain('/assets/game-engines/source-scout.webp')
     expect(html).toContain('/assets/game-engines/prompt-match.webp')
     expect(html).toContain('object-contain')
-    expect(html).not.toContain('ai-picture-check.jpg')
+    expect(html).not.toContain('ai-picture-check.webp')
   })
 })

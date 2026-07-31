@@ -80,8 +80,8 @@ const LEGACY_BUILTIN: Record<string, Pick<CurriculumGameDefinition, 'label' | 's
     label: 'AI Quiz · Khỉ Đá Bóng',
     shortLabel: 'Khỉ Đá Bóng',
     description: 'Trả lời đúng các câu hỏi trắc nghiệm để giúp Kiki sút bóng vào lưới.',
-    gameplay: 'TRẮC NGHIỆM · SÚT BÓNG · DOPAMINE',
-    sceneUrl: '/assets/game-engines/monkey-soccer.png',
+    gameplay: 'TRẮC NGHIỆM · SÚT BÓNG',
+    sceneUrl: '/assets/game-engines/monkey-soccer.webp',
     sceneAlt: 'Sân bóng với trái bóng và khung thành',
   },
 }

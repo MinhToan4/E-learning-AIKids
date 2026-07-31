@@ -56,7 +56,7 @@ describe('practice result review', () => {
       resolvePracticeReview({
         project: {
           title: 'Truyện của con',
-          thumbnail: '/assets/designer/lobby/art-comic.jpeg',
+          thumbnail: '/assets/designer/lobby/art-comic.webp',
         },
       }).preview?.title,
     ).toBe('Truyện của con')

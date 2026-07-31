@@ -243,7 +243,7 @@ export function MathKidsGame({
       <EngineGameShell
         title="AI Quiz · Khỉ Đá Bóng"
         subtitle={instruction || 'Trả lời đúng các câu hỏi trắc nghiệm để giúp Kiki sút bóng vào lưới.'}
-        scene="/assets/game-engines/monkey-soccer.png"
+        scene="/assets/game-engines/monkey-soccer.webp"
         sceneAlt="Sân bóng với trái bóng và khung thành"
         score={score}
         progress={missionProgress(goals, questions.length)}

@@ -76,7 +76,7 @@ describe('DB-authored AI game configuration', () => {
     expect(sanitizeGameLobby(lobby)).toEqual(lobby)
     expect(sanitizeGameCatalog(catalog)).toHaveLength(1)
     expect(safeGameAssetPath('https://example.test/child.png')).toBe('')
-    expect(safeGameAssetPath('/assets/../secret.png')).toBe('')
+    expect(safeGameAssetPath('/assets/../secret.webp')).toBe('')
   })
 
   it('returns no rounds when DB content is absent or unsafe', () => {
@@ -90,7 +90,7 @@ describe('DB-authored AI game configuration', () => {
       ...patrolWave,
       targets: patrolWave.targets.map((target) => ({
         ...target,
-        imageUrl: '/assets/../../private.png',
+        imageUrl: '/assets/../../private.webp',
       })),
     }])).toEqual([])
   })
