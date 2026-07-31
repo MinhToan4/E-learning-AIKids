@@ -14,12 +14,14 @@ import {
 export function EquippedProfile({
   user,
   xp,
+  level: backendLevel,
   compact = false,
   onAvatarClick,
   tone = 'light',
 }: {
   user: User
   xp: number
+  level: number
   compact?: boolean
   onAvatarClick?: () => void
   tone?: 'light' | 'dark'
@@ -49,7 +51,10 @@ export function EquippedProfile({
   const companionAsset = companion ? getRewardAssetUrl(companion.id) : undefined
   const effect = REWARD_CATALOG.find((item) => item.id === equipment.effect)
   const effectAsset = effect ? getRewardAssetUrl(effect.id) : undefined
-  const level = useMemo(() => explorerLevelForXp(xp), [xp])
+  const level = useMemo(
+    () => explorerLevelForXp(xp, backendLevel),
+    [xp, backendLevel],
+  )
 
   return (
     <div className={`flex items-center gap-5 ${compact ? 'flex-row text-left' : 'flex-col text-center'}`}>

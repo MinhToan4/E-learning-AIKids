@@ -1097,18 +1097,18 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       ? payload.items as Array<Record<string, unknown>>
       : []
     const assets = rows.flatMap((row) => {
-      const metadata = recordValue(row.metadata)
-      if (metadata.purpose === 'creative_workshop' || metadata.creativeKind) return []
-      const url = browserMediaUrl(row.imageUrl ?? row.url)
+      const item = normalizeGalleryItem(row)
+      if (item.isProject) return []
       return [{
-        id: String(row.id ?? ''),
-        type: String(metadata.assetType ?? 'image'),
-        name: String(metadata.originalName ?? 'Sản phẩm sáng tạo'),
-        thumbnail: url,
-        url,
+        id: item.id,
+        type: item.kind,
+        name: item.title,
+        thumbnail: item.url,
+        url: item.url,
         private: true,
-        questId: metadata.questId ? String(metadata.questId) : null,
-        createdAt: String(row.createdAt ?? ''),
+        questId: item.questId,
+        jobId: item.jobId,
+        createdAt: item.createdAt,
       }]
     })
     return path === '/api/media/refs' ? { assets } : { assets }
@@ -1119,15 +1119,16 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       : []
     return {
       projects: rows.flatMap((row) => {
-        const metadata = recordValue(row.metadata)
-        if (metadata.purpose !== 'creative_workshop' && !metadata.creativeKind) return []
+        const item = normalizeGalleryItem(row)
+        if (!item.isProject) return []
         return [{
-          id: String(row.id ?? ''),
-          title: String(metadata.originalName ?? 'Sản phẩm sáng tạo'),
-          kind: String(metadata.creativeKind ?? metadata.assetType ?? 'image'),
-          thumbnail: browserMediaUrl(row.imageUrl),
-          content: String(metadata.content ?? ''),
-          shareStatus: String(metadata.shareStatus ?? 'private'),
+          id: item.id,
+          title: item.title,
+          kind: item.kind,
+          thumbnail: item.url,
+          content: item.content,
+          shareStatus: item.shareStatus,
+          jobId: item.jobId,
         }]
       }),
     }
@@ -1556,12 +1557,42 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
             ? row.unlock
             : row
         ) as Record<string, unknown>
+        const milestones = Array.isArray(definition.milestones)
+          ? definition.milestones.map((item) => {
+              const milestone = item as Record<string, unknown>
+              return {
+                threshold: Number(milestone.threshold ?? 1),
+                label: milestone.label ? String(milestone.label) : undefined,
+                points: milestone.points == null ? undefined : Number(milestone.points),
+                rewardLabel: milestone.rewardLabel
+                  ? String(milestone.rewardLabel)
+                  : undefined,
+                unlocked: milestone.unlocked === true,
+                unlockedAt: milestone.unlockedAt
+                  ? String(milestone.unlockedAt)
+                  : null,
+              }
+            })
+          : undefined
         return {
           type: String(definition.key ?? row.achievementKey ?? ''),
           title: String(definition.title ?? ''),
           description: String(definition.description ?? ''),
           icon: String(definition.icon ?? '🏅'),
+          category: definition.category ? String(definition.category) : undefined,
           requiredValue: Number(definition.threshold ?? 1),
+          currentValue: (row.currentValue ?? unlock.currentValue ?? unlock.progress) == null
+            ? undefined
+            : Number(row.currentValue ?? unlock.currentValue ?? unlock.progress),
+          points: definition.points == null ? undefined : Number(definition.points),
+          rewardLabel: definition.rewardLabel
+            ? String(definition.rewardLabel)
+            : undefined,
+          seriesKey: definition.seriesKey
+            ? String(definition.seriesKey)
+            : undefined,
+          milestones,
+          hidden: definition.hidden === true,
           unlocked: row.unlocked === true || Boolean(row.unlockedAt),
           unlockedAt: unlock.unlockedAt ? String(unlock.unlockedAt) : null,
         }
@@ -1618,6 +1649,114 @@ function recordValue(value: unknown): Record<string, unknown> {
   return value && typeof value === 'object' && !Array.isArray(value)
     ? value as Record<string, unknown>
     : {}
+}
+
+function galleryMetadata(value: unknown): Record<string, unknown> {
+  if (typeof value !== 'string') return recordValue(value)
+  try {
+    return recordValue(JSON.parse(value))
+  } catch {
+    return {}
+  }
+}
+
+function firstText(...values: unknown[]): string {
+  for (const value of values) {
+    if (typeof value === 'string' && value.trim()) return value.trim()
+    if (typeof value === 'number') return String(value)
+  }
+  return ''
+}
+
+function normalizeCreativeKind(value: unknown, generated: boolean): string {
+  const raw = String(value ?? '').trim().toLowerCase().replace(/_/g, '-')
+  if (/comic|panel|story-page/.test(raw)) return 'comic'
+  if (/story|text/.test(raw)) return 'story'
+  if (/character|avatar/.test(raw)) return 'character'
+  if (/art|drawing|sketch/.test(raw)) return 'art'
+  if (/video/.test(raw)) return 'video'
+  if (/image|photo|picture/.test(raw)) return generated ? 'generated-image' : 'image'
+  return generated ? 'generated-image' : 'image'
+}
+
+function normalizeShareStatus(value: unknown): string {
+  const status = String(value ?? '').trim().toLowerCase().replace(/_/g, '-')
+  if (['approved', 'public', 'shared', 'published'].includes(status)) return 'approved'
+  if (['pending', 'requested', 'pending-approval', 'awaiting-approval'].includes(status)) {
+    return 'pending'
+  }
+  return 'private'
+}
+
+function normalizeGalleryItem(row: Record<string, unknown>) {
+  const metadata = galleryMetadata(row.metadata)
+  const tags = [
+    ...(Array.isArray(row.tags) ? row.tags : []),
+    ...(Array.isArray(metadata.tags) ? metadata.tags : []),
+  ].map((tag) => String(tag).toLowerCase())
+  const jobId = firstText(
+    row.jobId,
+    row.generationJobId,
+    metadata.jobId,
+    metadata.generationJobId,
+  )
+  const rawKind = firstText(
+    metadata.creativeKind,
+    row.creativeKind,
+    metadata.contentType,
+    row.contentType,
+    metadata.assetType,
+    row.assetType,
+    row.type,
+  )
+  const purpose = firstText(metadata.purpose, row.purpose).toLowerCase()
+  const generated = Boolean(jobId) || tags.some((tag) => tag.includes('generated'))
+  const kind = normalizeCreativeKind(rawKind || tags.join(' '), generated)
+  const comicPage = kind === 'comic' || tags.some((tag) =>
+    /comic[-_: ]?(page|panel)|story[-_: ]?page/.test(tag),
+  )
+  const isProject =
+    purpose === 'creative_workshop' ||
+    Boolean(firstText(metadata.creativeKind, row.creativeKind)) ||
+    comicPage ||
+    kind === 'story'
+  const outputUrls = Array.isArray(row.outputUrls)
+    ? row.outputUrls
+    : Array.isArray(metadata.outputUrls)
+      ? metadata.outputUrls
+      : []
+  const url = browserMediaUrl(firstText(
+    row.thumbnail,
+    row.thumbnailUrl,
+    row.imageUrl,
+    row.url,
+    row.outputUrl,
+    outputUrls[0],
+    metadata.thumbnail,
+    metadata.imageUrl,
+    metadata.url,
+  ))
+  return {
+    id: firstText(row.id, row.libraryItemId, row.mediaId),
+    title: firstText(
+      metadata.title,
+      row.title,
+      metadata.originalName,
+      row.originalName,
+      metadata.name,
+      row.name,
+    ) || 'Sản phẩm sáng tạo',
+    kind,
+    url,
+    content: firstText(metadata.content, row.content, metadata.text, row.text),
+    shareStatus: normalizeShareStatus(
+      row.shareStatus ?? row.status ?? metadata.shareStatus ?? metadata.status,
+    ),
+    questId: firstText(metadata.questId, row.questId) || null,
+    jobId: jobId || null,
+    createdAt: firstText(row.createdAt, metadata.createdAt),
+    isProject,
+  }
 }
 
 function browserMediaUrl(value: unknown): string {
@@ -1768,7 +1907,21 @@ export type AchievementRow = {
   title: string
   description: string
   icon: string
+  category?: string
   requiredValue: number
+  currentValue?: number
+  points?: number
+  rewardLabel?: string
+  seriesKey?: string
+  milestones?: Array<{
+    threshold: number
+    label?: string
+    points?: number
+    rewardLabel?: string
+    unlocked?: boolean
+    unlockedAt?: string | null
+  }>
+  hidden?: boolean
   unlocked: boolean
   unlockedAt: string | null
 }

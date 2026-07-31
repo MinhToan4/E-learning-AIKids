@@ -116,7 +116,7 @@ const studentPinnedNav = [
   { to: '/leaderboard', label: 'Tiến bộ', icon: NavLeaderboardIcon },
 ]
 const studentDrawerNav = [
-  { to: '/level',        label: 'Cấp độ', icon: NavLevelIcon },
+  { to: '/level',        label: 'Phần thưởng', icon: NavLevelIcon },
   { to: '/events',       label: 'Sự kiện', icon: NavEventIcon },
   { to: '/storybook',    label: 'Huyền thoại', icon: NavStorybookIcon   },
   { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon   },
@@ -129,7 +129,7 @@ const studentNav = [
   { to: '/world',        label: 'Học',      icon: NavWorldIcon       },
   { to: '/creative',     label: 'Xưởng',    icon: NavCreativeIcon    },
   { to: '/leaderboard',  label: 'Tiến bộ',  icon: NavLeaderboardIcon },
-  { to: '/level',        label: 'Cấp độ',    icon: NavLevelIcon },
+  { to: '/level',        label: 'Phần thưởng', icon: NavLevelIcon },
   { to: '/events',       label: 'Sự kiện',   icon: NavEventIcon       },
   { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon       },
   { to: '/storybook',    label: 'Huyền thoại', icon: NavStorybookIcon     },

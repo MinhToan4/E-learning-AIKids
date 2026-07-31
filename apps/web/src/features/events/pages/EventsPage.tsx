@@ -1,6 +1,5 @@
 import { REWARD_CATALOG, isRewardUnlocked } from '@/shared/lib/creation/rewards'
 import { REWARD_EVENTS, rewardEventStatus } from '@/shared/lib/creation/events'
-import { explorerLevelForXp } from '@/shared/lib/creation/xp-levels'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
@@ -13,13 +12,12 @@ const statusLabel = {
 } as const
 
 export function EventsPage() {
-  const [xp, setXp] = useState(0)
+  const [level, setLevel] = useState(1)
   useEffect(() => {
-    void api<{ totalXp: number }>('/api/gamification/profile')
-      .then((data) => setXp(data.totalXp))
+    void api<{ level: number }>('/api/gamification/profile')
+      .then((data) => setLevel(data.level))
       .catch(() => undefined)
   }, [])
-  const level = explorerLevelForXp(xp).level
 
   return (
     <PageMotion className="flex flex-col gap-6">

@@ -140,7 +140,15 @@ describe('StoryMee Gateway adapter', () => {
       icon: '🌱',
       category: 'lessons_completed',
       threshold: 1,
+      points: 25,
+      rewardLabel: 'Huy hiệu Mầm xanh',
+      seriesKey: 'quest-completion',
+      milestones: [
+        { threshold: 1, label: 'Bước đầu', points: 5 },
+        { threshold: 5, label: 'Chăm chỉ', points: 20, rewardLabel: 'Khung Mầm xanh' },
+      ],
       unlocked: false,
+      currentValue: 0,
       unlock: null,
     }]))
     vi.stubGlobal('fetch', fetchMock)
@@ -155,6 +163,15 @@ describe('StoryMee Gateway adapter', () => {
         title: 'Bước đầu tiên',
         description: 'Hoàn thành bài học đầu tiên',
         icon: '🌱',
+        category: 'lessons_completed',
+        currentValue: 0,
+        points: 25,
+        rewardLabel: 'Huy hiệu Mầm xanh',
+        seriesKey: 'quest-completion',
+        milestones: [
+          expect.objectContaining({ threshold: 1, label: 'Bước đầu', points: 5 }),
+          expect.objectContaining({ threshold: 5, rewardLabel: 'Khung Mầm xanh' }),
+        ],
         unlocked: false,
       }),
     ])
@@ -630,6 +647,76 @@ describe('StoryMee Gateway adapter', () => {
       'https://dev-hub.storymee.com/api/v1/jobs/providers/policy',
     ])
     expect(localStorage.getItem('storymee.access_token')).toBe('parent-session-token')
+  })
+
+  it('normalizes generated gallery items for backpack filters and sharing', async () => {
+    const gallery = {
+      data: {
+        items: [
+          {
+            id: 'generated-art',
+            jobId: 'job-art',
+            url: 'https://cdn.example/art.webp',
+            metadata: JSON.stringify({ title: 'Mèo phi hành gia', assetType: 'image' }),
+          },
+          {
+            id: 'comic-page',
+            generationJobId: 'job-comic',
+            thumbnailUrl: 'https://cdn.example/comic.webp',
+            shareStatus: 'pending_approval',
+            metadata: {
+              title: 'Chuyến đi Sao Hỏa',
+              contentType: 'comic-page',
+              content: 'Bốn khung truyện',
+            },
+          },
+          {
+            id: 'old-story',
+            imageUrl: 'sb://stories/cover.webp',
+            status: 'published',
+            metadata: {
+              purpose: 'creative_workshop',
+              creativeKind: 'story',
+              originalName: 'Cây đèn dũng cảm',
+            },
+          },
+        ],
+      },
+    }
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response(gallery))
+      .mockResolvedValueOnce(response(gallery))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const backpack = await api<{
+      assets: Array<{ id: string; type: string; thumbnail: string; jobId: string | null }>
+    }>('/api/backpack')
+    const projects = await api<{
+      projects: Array<{ id: string; title: string; kind: string; shareStatus: string }>
+    }>('/api/projects')
+
+    expect(backpack.assets).toEqual([
+      expect.objectContaining({
+        id: 'generated-art',
+        type: 'generated-image',
+        thumbnail: 'https://cdn.example/art.webp',
+        jobId: 'job-art',
+      }),
+    ])
+    expect(projects.projects).toEqual([
+      expect.objectContaining({
+        id: 'comic-page',
+        title: 'Chuyến đi Sao Hỏa',
+        kind: 'comic',
+        shareStatus: 'pending',
+      }),
+      expect.objectContaining({
+        id: 'old-story',
+        title: 'Cây đèn dũng cảm',
+        kind: 'story',
+        shareStatus: 'approved',
+      }),
+    ])
   })
 
   it('adapts admin user edits to the core account contract', async () => {

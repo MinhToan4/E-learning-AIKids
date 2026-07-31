@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router'
-import { explorerLevelForXp } from '@/shared/lib/creation/xp-levels'
 import { Button } from '@/shared/components/ui/Button'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
@@ -9,8 +8,9 @@ import { useAuth } from '@/shared/store/auth'
 import { EquippedProfile } from '@/features/rewards/EquippedProfile'
 import { RewardCollection } from '@/features/rewards/RewardCollection'
 import {
-  profileCardTone,
-  profileCardStyle,
+  profileCardBackgroundTone,
+  profileCardBackgroundStyle,
+  profilePageThemeStyle,
   readRewardEquipment,
   syncRewardEquipment,
 } from '@/features/rewards/reward-equipment'
@@ -72,6 +72,7 @@ export function ProfilePage() {
     () => user ? readProfileAvatar(user.id) : null,
   )
   const [explorerXp, setExplorerXp] = useState(0)
+  const [explorerLevel, setExplorerLevel] = useState(1)
   const [chapterStickers, setChapterStickers] = useState(() =>
     user ? readClaimedChapterStickers(user.id) : [],
   )
@@ -89,7 +90,7 @@ export function ProfilePage() {
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
         api<{ projects: ShowcaseProject[] }>('/api/projects'),
         api<{ assets: MediaAsset[] }>('/api/backpack'),
-        api<{ totalXp: number }>('/api/gamification/profile'),
+        api<{ totalXp: number; level: number }>('/api/gamification/profile'),
         api<PublicProfileSettings>('/api/profile/settings'),
         api<{ workspaces: AccountWorkspace[] }>('/api/account/workspaces'),
         api<{ equipment: Array<{ kind: keyof ReturnType<typeof readRewardEquipment>; rewardId: string }> }>('/api/gamification/storybook'),
@@ -105,7 +106,10 @@ export function ProfilePage() {
           source: asset.type.includes('generated') ? 'generated' : 'library',
         })))
       }
-      if (g.status === 'fulfilled') setExplorerXp(g.value.totalXp)
+      if (g.status === 'fulfilled') {
+        setExplorerXp(g.value.totalXp)
+        setExplorerLevel(g.value.level)
+      }
       if (profileSettings.status === 'fulfilled') {
         setProfileSlug(profileSettings.value.slug)
         setProfileAppearance({
@@ -147,6 +151,19 @@ export function ProfilePage() {
       setLoading(false)
     })()
   }, [])
+
+  // Avatar trước đây chỉ được giữ trong localStorage của LMS, nên AI Studio
+  // không thể thấy. Migrate lựa chọn hiện tại sang child profile chung.
+  useEffect(() => {
+    if (!user || user.role !== 'student' || !selectedAvatar?.url) return
+    if (user.avatarId === selectedAvatar.url) return
+    void api('/api/v1/account/family/me/avatar', {
+      method: 'PATCH',
+      body: JSON.stringify({ avatarUrl: selectedAvatar.url }),
+    }).then(() => {
+      useAuth.getState().setUser({ ...user, avatarId: selectedAvatar.url })
+    }).catch(() => undefined)
+  }, [selectedAvatar?.url, user?.id])
 
   useEffect(() => {
     const sync = () => {
@@ -228,14 +245,18 @@ export function ProfilePage() {
 
   if (loading) return <PageSkeleton rows={3} className="mx-auto max-w-5xl" />
 
-  const cardTheme = equipment.background ?? equipment.theme
-  const cardTone = profileCardTone(cardTheme)
+  const profilePageTheme = equipment.theme
+  const profileCardBackground = equipment.background
+  const cardTone = profileCardBackgroundTone(profileCardBackground)
 
   return (
-    <PageMotion className="mx-auto flex max-w-5xl flex-col gap-5">
+    <PageMotion
+      className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-5xl flex-col gap-5 rounded-[2rem] p-3 sm:p-5"
+      style={profilePageThemeStyle(profilePageTheme)}
+    >
       <section
         className="ui-card overflow-hidden p-5 sm:p-6"
-        style={profileCardStyle(cardTheme)}
+        style={profileCardBackgroundStyle(profileCardBackground)}
         data-profile-tone={cardTone}
       >
         <div className="grid items-center gap-5 md:grid-cols-[1fr_auto]">
@@ -243,6 +264,7 @@ export function ProfilePage() {
             <EquippedProfile
               user={user}
               xp={explorerXp}
+              level={explorerLevel}
               compact
               tone={cardTone}
               onAvatarClick={() => setAvatarPickerOpen(true)}
@@ -265,7 +287,7 @@ export function ProfilePage() {
         <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-white/60 pt-4">
           <div className="flex rounded-full bg-white/75 p-1 text-sm font-extrabold text-brand-700">
             <button type="button" onClick={() => setSection('overview')} className={`rounded-full px-4 py-2 ${section === 'overview' ? 'bg-brand-600 text-white' : ''}`}>Tổng quan</button>
-            <button type="button" onClick={() => setSection('customize')} className={`rounded-full px-4 py-2 ${section === 'customize' ? 'bg-brand-600 text-white' : ''}`}>✨ Tùy biến card</button>
+            <button type="button" onClick={() => setSection('customize')} className={`rounded-full px-4 py-2 ${section === 'customize' ? 'bg-brand-600 text-white' : ''}`}>Tùy biến hồ sơ</button>
           </div>
           {profileSlug && <Link to={`/u/${profileSlug}`} className="rounded-full bg-white px-4 py-2 text-sm font-extrabold text-brand-700 shadow-soft">Xem trang cá nhân ↗</Link>}
         </div>
@@ -275,9 +297,9 @@ export function ProfilePage() {
         <>
           <div className="ui-card p-5">
             <p className="mb-4 rounded-2xl bg-brand-50 p-3 text-sm font-bold text-brand-700">
-              📷 Đổi ảnh bằng nút camera trên avatar. Phòng thay đồ chỉ dùng cho khung, Paco, hiệu ứng và theme.
+              Đổi ảnh bằng nút camera trên avatar. “Nền trang” phủ toàn bộ trang cá nhân; “Nền thẻ hồ sơ” chỉ nằm trong thẻ có avatar.
             </p>
-            <RewardCollection userId={user.id} xpLevel={explorerLevelForXp(explorerXp).level} stickerIds={chapterStickers} />
+            <RewardCollection userId={user.id} xpLevel={explorerLevel} stickerIds={chapterStickers} />
           </div>
         </>
       )}
@@ -376,6 +398,14 @@ export function ProfilePage() {
             saveProfileAvatar(user.id, choice)
             setSelectedAvatar(choice)
             setAvatarPickerOpen(false)
+            if (user.role === 'student') {
+              void api('/api/v1/account/family/me/avatar', {
+                method: 'PATCH',
+                body: JSON.stringify({ avatarUrl: choice.url }),
+              }).then(() => {
+                useAuth.getState().setUser({ ...user, avatarId: choice.url })
+              })
+            }
           }}
         />
       )}
