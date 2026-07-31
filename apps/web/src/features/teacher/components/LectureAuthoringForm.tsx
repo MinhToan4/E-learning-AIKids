@@ -254,13 +254,7 @@ export function LectureAuthoringForm({
                         className="size-5 accent-brand-500"
                       />
                       <span aria-hidden="true">
-                        {option.id === 'blockly'
-                          ? '🧩'
-                          : option.id === 'math-kids'
-                            ? '🐒'
-                            : option.id === 'battle-math'
-                              ? '🔎'
-                              : '🧠'}
+                        {option.id === 'data-runner' ? '🏃' : '🔎'}
                       </span>
                       {option.label}
                     </label>
@@ -277,26 +271,25 @@ export function LectureAuthoringForm({
               <input className={inputClass} value={value.gameOutcome} onChange={(event) => setField('gameOutcome', event.target.value)} placeholder="Ví dụ: Phân biệt prompt rõ và prompt mơ hồ" />
             </label>
             <label className={labelClass}>
-              Nội dung các thẻ chơi
+              Ghi chú nội dung bổ sung (không bắt buộc)
               <textarea className={`${textareaClass} min-h-36`} value={value.gameCardsText} onChange={(event) => setField('gameCardsText', event.target.value)} placeholder={'Vẽ một con mèo\nVẽ một con mèo cam đang ngủ trên mái nhà'} />
               <span className="text-xs font-normal text-muted">
-                Mỗi dòng một ví dụ hoặc khái niệm của bài. Xưởng Edukiz dùng các thẻ này để gắn nhãn; các game khác giữ vòng chơi AI riêng.
+                Mỗi dòng một ghi chú cho giáo viên. Gameplay không đọc dữ liệu mẫu từ frontend.
               </span>
             </label>
-            {value.gameType === 'edukiz' && (
-              <label className={labelClass}>
-                Các cặp ví dụ ↔ nhãn cho Xưởng Edukiz (không bắt buộc)
-                <textarea
-                  className={`${textareaClass} min-h-40 font-mono text-xs`}
-                  value={value.gameStructuredText}
-                  onChange={(event) => setField('gameStructuredText', event.target.value)}
-                  placeholder={'Ảnh chú mèo | Nhãn: mèo\nẢnh chú chó | Nhãn: chó'}
-                />
-                <span className="text-xs font-normal leading-relaxed text-muted">
-                  Mỗi dòng gồm ví dụ | nhãn đúng. Để trống, game dùng bộ ví dụ AI an toàn mặc định.
-                </span>
-              </label>
-            )}
+            <label className={labelClass}>
+              Dữ liệu game trong DB (JSON)
+              <textarea
+                className={`${textareaClass} min-h-72 font-mono text-xs`}
+                value={value.gameStructuredText}
+                onChange={(event) => setField('gameStructuredText', event.target.value)}
+                spellCheck={false}
+                placeholder={'{\n  "lobby": { ... },\n  "catalog": [ ... ],\n  "runnerLevels": [ ... ],\n  "patrolWaves": [ ... ]\n}'}
+              />
+              <span className="text-xs font-normal leading-relaxed text-muted">
+                Tên game, ảnh, nhiệm vụ, level, wave và phản hồi đều được lưu tại trạm game trong LMS. Backend sẽ từ chối URL ngoài thư mục asset và cấu hình sai schema.
+              </span>
+            </label>
           </div>
         )}
 

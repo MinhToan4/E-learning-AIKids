@@ -80,10 +80,8 @@ export const PRACTICE_OPTIONS = [
 ] as const
 
 export const GAME_OPTIONS = [
-  { id: 'blockly', label: 'Đội Cứu Hộ Dữ Liệu', description: 'Bốn màn lập trình, lệnh lặp và điều kiện.', choiceReady: true },
-  { id: 'math-kids', label: 'Khỉ Leo Cây Dữ Liệu', description: 'Toán ngắn trong tình huống AI học từ dữ liệu.', choiceReady: true },
-  { id: 'battle-math', label: 'Pháo Đài Kiểm Chứng', description: 'So prompt với 3–5 ảnh và bắt lỗi AI.', choiceReady: true },
-  { id: 'edukiz', label: 'Xưởng Huấn Luyện AI', description: 'Gắn nhãn, riêng tư, prompt và kiểm thử.', choiceReady: true },
+  { id: 'data-runner', label: 'Đường Đua Dữ Liệu', description: 'Chạy, nhảy và chọn dữ liệu phù hợp để huấn luyện AI.', choiceReady: true },
+  { id: 'truth-patrol', label: 'Biệt Đội Kiểm Chứng', description: 'Điều khiển phi thuyền quét nội dung AI cần kiểm tra.', choiceReady: true },
 ] as const
 
 export const GAME_DIFFICULTIES = [
@@ -100,23 +98,37 @@ function hasLength(value: string, minimum: number): boolean {
   return value.trim().length >= minimum
 }
 
-function structuredRows(value: string): string[][] {
-  return lines(value)
-    .map((row) => row.split('|').map((cell) => cell.trim()).filter(Boolean))
-    .filter((row) => row.length > 0)
+function parseGameContent(value: string): Record<string, unknown> | null {
+  if (!value.trim()) return null
+  try {
+    const parsed: unknown = JSON.parse(value)
+    return parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      ? parsed as Record<string, unknown>
+      : null
+  } catch {
+    return null
+  }
 }
 
 function advancedGameConfigIsReady(draft: LectureDraft): boolean {
-  const rows = structuredRows(draft.gameStructuredText)
-  return draft.gameType !== 'edukiz' || rows.length === 0 ||
-    (rows.length >= 2 && rows.every((row) => row.length === 2))
+  const content = parseGameContent(draft.gameStructuredText)
+  if (!content || !content.lobby || !Array.isArray(content.catalog)) return false
+  const enabledTypes = draft.gameMode === 'student_choice'
+    ? draft.gameAllowedTypes
+    : [draft.gameType]
+  return enabledTypes.every((type) => (
+    type === 'data-runner'
+      ? Array.isArray(content.runnerLevels) && content.runnerLevels.length > 0
+      : type === 'truth-patrol' &&
+        Array.isArray(content.patrolWaves) &&
+        content.patrolWaves.length > 0
+  ))
 }
 
 export function buildLectureGameConfig(draft: LectureDraft) {
-  const cards = lines(draft.gameCardsText)
-  const rows = structuredRows(draft.gameStructuredText)
+  const content = parseGameContent(draft.gameStructuredText) ?? {}
   const config: Record<string, unknown> = {
-    cards,
+    ...content,
     selectionMode: draft.gameMode,
     allowedTypes:
       draft.gameMode === 'student_choice'
@@ -124,31 +136,22 @@ export function buildLectureGameConfig(draft: LectureDraft) {
         : [draft.gameType],
     difficulty: draft.gameDifficulty,
   }
-
-  if (draft.gameType === 'edukiz' && rows.length > 0) {
-    config.pairs = rows.map(([left, right]) => ({ left, right }))
-  }
-
   return config
 }
 
 export function serializeLectureGameConfig(
-  gameType: string,
+  _gameType: string,
   value: unknown,
 ): string {
   if (!value || typeof value !== 'object' || Array.isArray(value)) return ''
   const config = value as Record<string, unknown>
-  if (gameType === 'edukiz' && Array.isArray(config.pairs)) {
-    return config.pairs
-      .map((entry) => {
-        if (!entry || typeof entry !== 'object') return ''
-        const pair = entry as Record<string, unknown>
-        return [String(pair.left ?? ''), String(pair.right ?? '')].join(' | ')
-      })
-      .filter(Boolean)
-      .join('\n')
-  }
-  return ''
+  const {
+    selectionMode: _selectionMode,
+    allowedTypes: _allowedTypes,
+    difficulty: _difficulty,
+    ...content
+  } = config
+  return Object.keys(content).length > 0 ? JSON.stringify(content, null, 2) : ''
 }
 
 function step(id: AuthoringStepId, label: string, checks: Array<[boolean, string]>): AuthoringStep {
@@ -201,10 +204,6 @@ export function courseDraftReadiness(draft: CourseDraft): AuthoringReadiness {
 export function lectureDraftReadiness(draft: LectureDraft): AuthoringReadiness {
   const videoIsValid = !draft.videoUrl.trim() || /^https:\/\//i.test(draft.videoUrl.trim())
   const options = [draft.checkOption1, draft.checkOption2, draft.checkOption3]
-  const gameCardsAreReady =
-    lines(draft.gameCardsText).length >= 2 &&
-    lines(draft.gameCardsText).every((item) => hasLength(item, 2))
-
   return readiness([
     step('learn', 'Khám phá', [
       [/^[a-z0-9-]{3,64}$/.test(draft.id), 'Đường dẫn bài học'],
@@ -225,12 +224,8 @@ export function lectureDraftReadiness(draft: LectureDraft): AuthoringReadiness {
       [hasLength(draft.gameInstruction, 10), 'Hướng dẫn trò chơi'],
       [hasLength(draft.gameOutcome, 5), 'Mục tiêu trò chơi'],
       [
-        gameCardsAreReady && advancedGameConfigIsReady(draft),
-        'Ít nhất 2 thẻ và cấu hình Edukiz đúng định dạng',
-      ],
-      [
-        draft.gameMode !== 'student_choice' || gameCardsAreReady,
-        'Ít nhất 2 thẻ dùng chung cho các game học sinh được chọn',
+        advancedGameConfigIsReady(draft),
+        'Dữ liệu lobby, catalog và màn chơi JSON hợp lệ',
       ],
     ]),
     step('practice', 'Sáng tạo', [

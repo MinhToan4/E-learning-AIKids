@@ -30,6 +30,7 @@ import {
   type CourseDraft,
   type LectureDraft,
 } from '../lib/authoring'
+import { normalizeGameType } from '@/features/lesson/lib/curriculum-game'
 import {
   CmsAnalyticsIcon,
   CmsCoursesIcon,
@@ -63,13 +64,13 @@ type Lecture = LectureRow & {
   gameOutcome?: string
   gameCards?: string[]
   gameConfig?: {
-    cards?: string[]
     selectionMode?: 'required' | 'student_choice'
     allowedTypes?: string[]
     difficulty?: 'gentle' | 'steady' | 'challenge'
-    groups?: unknown
-    rounds?: unknown
-    placements?: unknown
+    lobby?: unknown
+    catalog?: unknown
+    runnerLevels?: unknown
+    patrolWaves?: unknown
   }
   practiceInstruction?: string
   product?: string
@@ -148,9 +149,9 @@ const initialLectureForm = (): LectureDraft => ({
   reward: '',
   duration: '25–35 phút',
   goalsText: '',
-  gameType: 'blockly',
+  gameType: 'data-runner',
   gameMode: 'required',
-  gameAllowedTypes: ['blockly'],
+  gameAllowedTypes: ['data-runner'],
   gameDifficulty: 'steady',
   gameInstruction: '',
   gameOutcome: '',
@@ -312,9 +313,14 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   // ── Handlers ─────────────────────────────────────────────
   function pickLecture(l: Lecture) {
     const gameConfig = l.gameConfig ?? {}
+    const gameType = normalizeGameType(l.gameType)
     const allowedTypes = Array.isArray(gameConfig.allowedTypes)
-      ? gameConfig.allowedTypes.filter((item): item is string => typeof item === 'string')
-      : [l.gameType ?? 'blockly']
+      ? [...new Set(
+          gameConfig.allowedTypes
+            .filter((item): item is string => typeof item === 'string')
+            .map((item) => normalizeGameType(item)),
+        )]
+      : [gameType]
     setSelected(l)
     setEditForm({
       ...initialLectureForm(),
@@ -329,13 +335,13 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
       goalsText: (l.goals ?? []).join('\n'),
       concept: l.concept ?? '',
       example: l.example ?? '',
-      gameType: l.gameType ?? 'blockly',
+      gameType,
       gameMode:
         gameConfig.selectionMode === 'student_choice'
           ? 'student_choice'
           : 'required',
       gameAllowedTypes:
-        allowedTypes.length > 0 ? allowedTypes : [l.gameType ?? 'blockly'],
+        allowedTypes.length > 0 ? allowedTypes : [gameType],
       gameDifficulty:
         gameConfig.difficulty === 'gentle' ||
         gameConfig.difficulty === 'challenge'
@@ -343,9 +349,9 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           : 'steady',
       gameInstruction: l.gameInstruction ?? '',
       gameOutcome: l.gameOutcome ?? '',
-      gameCardsText: (gameConfig.cards ?? l.gameCards ?? []).join('\n'),
+      gameCardsText: (l.gameCards ?? []).join('\n'),
       gameStructuredText: serializeLectureGameConfig(
-        l.gameType ?? 'blockly',
+        gameType,
         gameConfig,
       ),
       practiceInstruction: l.practiceInstruction ?? '',

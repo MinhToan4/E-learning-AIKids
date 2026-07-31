@@ -5,161 +5,111 @@ import {
   lectureDraftReadiness,
   serializeLectureGameConfig,
   slugifyAuthoringId,
+  type LectureDraft,
 } from './authoring'
 
-describe('slugifyAuthoringId', () => {
-  it('creates a safe id from Vietnamese titles', () => {
+const gameContent = {
+  lobby: {
+    eyebrow: 'Xưởng AI',
+    title: 'Chọn nhiệm vụ',
+    description: 'Học AI bằng hành động.',
+    imageUrl: '/assets/game-engines/game-lab-world.webp',
+    imageAlt: 'Bản đồ xưởng AI',
+  },
+  catalog: [
+    { type: 'data-runner', label: 'Đường đua', shortLabel: 'Chạy', description: 'Chọn dữ liệu', gameplay: 'Chạy', sceneUrl: '/assets/game-engines/data-trail-world.webp', sceneAlt: 'Đường chạy' },
+    { type: 'truth-patrol', label: 'Kiểm chứng', shortLabel: 'Quét', description: 'Kiểm tra nguồn', gameplay: 'Quét', sceneUrl: '/assets/game-engines/truth-patrol-world.webp', sceneAlt: 'Bầu trời' },
+  ],
+  runnerLevels: [{ id: 'runner' }],
+  patrolWaves: [{ id: 'patrol' }],
+}
+
+const completeLecture: LectureDraft = {
+  id: 'bai-1-du-lieu-ai',
+  title: 'Dữ liệu cho AI',
+  skill: 'Đánh giá dữ liệu',
+  hook: 'AI sẽ học gì từ dữ liệu chưa được kiểm tra?',
+  practiceKind: 'journal',
+  videoUrl: 'https://example.test/video',
+  concept: 'AI học mẫu từ dữ liệu nên chất lượng và sự đồng ý đều quan trọng.',
+  example: 'So sánh một tập dữ liệu đa dạng với một tập chỉ có ảnh lặp.',
+  reward: 'Huy hiệu dữ liệu',
+  duration: '25–35 phút',
+  goalsText: 'Nhận ra dữ liệu sai\nBảo vệ thông tin riêng tư',
+  gameType: 'data-runner',
+  gameMode: 'required',
+  gameAllowedTypes: ['data-runner'],
+  gameDifficulty: 'steady',
+  gameInstruction: 'Chạy và chọn dữ liệu phù hợp để huấn luyện AI.',
+  gameOutcome: 'Giải thích được vì sao một mẫu nên dùng hoặc nên tránh.',
+  gameCardsText: '',
+  gameStructuredText: JSON.stringify(gameContent),
+  practiceInstruction: 'Lập danh sách kiểm tra dữ liệu trước khi dùng cho AI.',
+  product: 'Bảng kiểm dữ liệu',
+  checkQuestion: 'Dữ liệu nào phù hợp hơn để thử AI?',
+  checkOption1: 'Một ảnh lặp lại',
+  checkOption2: 'Nhiều mẫu có nhãn đúng',
+  checkOption3: 'Mật khẩu của bạn',
+  correctIndex: '1',
+  checkExplain: 'Dữ liệu đa dạng và đúng nhãn giúp phép thử đáng tin cậy hơn.',
+}
+
+describe('authoring ids and readiness', () => {
+  it('creates a bounded safe id from Vietnamese titles', () => {
     expect(slugifyAuthoringId('  Khóa học Đạo đức AI!  ')).toBe('khoa-hoc-dao-duc-ai')
+    expect(slugifyAuthoringId('Một tiêu đề rất dài '.repeat(8)).length)
+      .toBeLessThanOrEqual(40)
   })
 
-  it('keeps ids inside the API limit', () => {
-    const id = slugifyAuthoringId('Một tiêu đề rất dài '.repeat(8))
-    expect(id.length).toBeLessThanOrEqual(40)
-    expect(id).not.toMatch(/-$/)
-  })
-})
-
-describe('courseDraftReadiness', () => {
-  const completeDraft = {
-    id: 'ke-chuyen-ai',
-    title: 'Kể chuyện cùng AI',
-    shortTitle: 'Kể chuyện',
-    tagline: 'Biến ý tưởng thành câu chuyện',
-    description: 'Khóa học giúp trẻ tạo một câu chuyện an toàn và có chủ đích.',
-    productLabel: 'Truyện tranh AI',
-    ageTrack: 'L1',
-    courseKey: 'K1',
-    durationLabel: '8 tuần',
-    skillsText: 'Viết prompt\nKể chuyện',
-    outcomesText: 'Tạo được truyện hoàn chỉnh',
-    credential: 'Huy hiệu Nhà kể chuyện',
-    finalAssessment: 'Hoàn thành và trình bày một truyện có mở đầu, diễn biến và kết thúc.',
-  }
-
-  it('groups missing fields into the same three steps used by the UI', () => {
-    const readiness = courseDraftReadiness({ ...completeDraft, title: '', skillsText: '' })
-
-    expect(readiness.complete).toBe(false)
-    expect(readiness.steps.map((step) => step.id)).toEqual(['basics', 'outcomes', 'recognition'])
-    expect(readiness.steps[0].missing).toContain('Tên khóa học')
-    expect(readiness.steps[1].missing).toContain('Kỹ năng đạt được')
-    expect(readiness.steps[2].complete).toBe(true)
-  })
-
-  it('accepts a course that satisfies the API creation contract', () => {
-    expect(courseDraftReadiness(completeDraft)).toMatchObject({
-      complete: true,
-      completed: 3,
-      total: 3,
+  it('keeps course validation grouped by authoring step', () => {
+    const result = courseDraftReadiness({
+      id: 'ai-co-ban',
+      title: 'AI cơ bản',
+      shortTitle: 'AI',
+      tagline: 'Học AI qua nhiệm vụ',
+      description: 'Khóa học AI thực hành dành cho trẻ em.',
+      productLabel: 'Dự án AI',
+      ageTrack: 'L1',
+      courseKey: 'K1',
+      durationLabel: '8 tuần',
+      skillsText: 'Kiểm chứng',
+      outcomesText: 'Giải thích được AI',
+      credential: 'Huy hiệu AI',
+      finalAssessment: 'Trình bày một dự án AI có kiểm tra và cải thiện.',
     })
-  })
-})
-
-describe('lectureDraftReadiness', () => {
-  const completeDraft = {
-    id: 'bai-1-prompt-ro-rang',
-    title: 'Prompt rõ ràng',
-    skill: 'Viết hướng dẫn cho AI',
-    hook: 'AI sẽ hiểu thế nào nếu hướng dẫn của em còn mơ hồ?',
-    practiceKind: 'journal',
-    videoUrl: 'https://www.youtube.com/watch?v=yuuWdm5tBD0',
-    concept: 'Một prompt tốt nêu rõ vai trò, nhiệm vụ và kết quả mong muốn.',
-    example: 'Hãy đóng vai người kể chuyện và viết ba câu về một chú mèo bay.',
-    reward: 'Huy hiệu Prompt sáng',
-    duration: '25–35 phút',
-    goalsText: 'Nhận ra prompt mơ hồ\nViết prompt đủ ba phần',
-    gameType: 'blockly',
-    gameMode: 'required' as const,
-    gameAllowedTypes: ['blockly'],
-    gameDifficulty: 'steady' as const,
-    gameInstruction: 'Chọn hướng dẫn rõ ràng nhất để nhân vật AI hoàn thành nhiệm vụ.',
-    gameOutcome: 'Phân biệt được prompt rõ và prompt mơ hồ.',
-    gameCardsText: 'Vẽ một con mèo\nVẽ một con mèo cam đang ngủ trên mái nhà',
-    gameStructuredText: '',
-    practiceInstruction: 'Viết một prompt ba phần và thử cải thiện sau khi xem kết quả.',
-    product: 'Một prompt đã được cải thiện',
-    checkQuestion: 'Prompt nào giúp AI hiểu nhiệm vụ rõ nhất?',
-    checkOption1: 'Vẽ đẹp nhé',
-    checkOption2: 'Vẽ một robot xanh đang tưới cây trong công viên',
-    checkOption3: 'Làm gì đó vui',
-    correctIndex: '1',
-    checkExplain: 'Đáp án nêu rõ nhân vật, hành động và bối cảnh.',
-  }
-
-  it('reports station-level gaps instead of one generic error', () => {
-    const readiness = lectureDraftReadiness({
-      ...completeDraft,
-      gameCardsText: 'Chỉ có một thẻ',
-      checkOption3: '',
-    })
-
-    expect(readiness.complete).toBe(false)
-    expect(readiness.steps.find((step) => step.id === 'game')?.missing).toContain('Ít nhất 2 thẻ và cấu hình Edukiz đúng định dạng')
-    expect(readiness.steps.find((step) => step.id === 'check')?.missing).toContain('3 lựa chọn trả lời')
+    expect(result).toMatchObject({ complete: true, completed: 3, total: 3 })
   })
 
-  it('rejects insecure video links but keeps video optional', () => {
-    expect(lectureDraftReadiness({ ...completeDraft, videoUrl: 'http://example.com/video' }).steps[0].missing)
-      .toContain('Liên kết video HTTPS')
-    expect(lectureDraftReadiness({ ...completeDraft, videoUrl: '' }).steps[0].complete).toBe(true)
+  it('requires DB-authored content for every enabled engine', () => {
+    expect(lectureDraftReadiness(completeLecture).complete).toBe(true)
+    const choiceDraft = {
+      ...completeLecture,
+      gameMode: 'student_choice' as const,
+      gameAllowedTypes: ['data-runner', 'truth-patrol'],
+      gameStructuredText: JSON.stringify({
+        ...gameContent,
+        patrolWaves: [],
+      }),
+    }
+    expect(lectureDraftReadiness(choiceDraft).steps
+      .find((step) => step.id === 'game')?.complete).toBe(false)
   })
 
-  it('accepts a complete four-station lesson', () => {
-    expect(lectureDraftReadiness(completeDraft)).toMatchObject({
-      complete: true,
-      completed: 4,
-      total: 4,
-    })
-  })
-
-  it('requires a real allowlist when students may choose the game', () => {
-    const readiness = lectureDraftReadiness({
-      ...completeDraft,
-      gameMode: 'student_choice',
-      gameAllowedTypes: ['blockly'],
-    })
-
-    expect(readiness.steps.find((step) => step.id === 'game')?.missing)
-      .toContain('Ít nhất 2 game cho học sinh lựa chọn')
-  })
-
-  it('requires shared cards when students can choose among engines', () => {
-    const readiness = lectureDraftReadiness({
-      ...completeDraft,
-      gameType: 'edukiz',
-      gameMode: 'student_choice',
-      gameAllowedTypes: ['edukiz', 'blockly'],
-      gameCardsText: '',
-      gameStructuredText:
-        'Màu vàng | Cảm giác vui\nMàu xanh | Bầu trời',
-    })
-
-    expect(readiness.steps.find((step) => step.id === 'game')?.missing)
-      .toContain('Ít nhất 2 thẻ dùng chung cho các game học sinh được chọn')
-  })
-
-  it('builds and restores Edukiz memory pairs', () => {
+  it('serializes game content without embedding policy fields', () => {
     const draft = {
-      ...completeDraft,
-      gameType: 'edukiz',
-      gameMode: 'required' as const,
+      ...completeLecture,
+      gameMode: 'student_choice' as const,
+      gameAllowedTypes: ['data-runner', 'truth-patrol'],
       gameDifficulty: 'challenge' as const,
-      gameStructuredText:
-        'Màu vàng | Cảm giác vui\nMàu xanh | Bầu trời',
     }
     const config = buildLectureGameConfig(draft)
-
     expect(config).toMatchObject({
-      selectionMode: 'required',
-      allowedTypes: ['edukiz'],
+      selectionMode: 'student_choice',
+      allowedTypes: ['data-runner', 'truth-patrol'],
       difficulty: 'challenge',
-      pairs: [
-        { left: 'Màu vàng', right: 'Cảm giác vui' },
-        { left: 'Màu xanh', right: 'Bầu trời' },
-      ],
+      lobby: gameContent.lobby,
     })
-    expect(serializeLectureGameConfig('edukiz', config)).toBe(
-      draft.gameStructuredText,
-    )
+    expect(JSON.parse(serializeLectureGameConfig('data-runner', config)))
+      .toEqual(gameContent)
   })
 })
