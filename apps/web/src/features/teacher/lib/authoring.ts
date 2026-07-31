@@ -80,9 +80,17 @@ export const PRACTICE_OPTIONS = [
 ] as const
 
 export const GAME_OPTIONS = [
-  { id: 'data-runner', label: 'Đường Đua Dữ Liệu', description: 'Chạy, nhảy và chọn dữ liệu phù hợp để huấn luyện AI.', choiceReady: true },
-  { id: 'truth-patrol', label: 'Biệt Đội Kiểm Chứng', description: 'Điều khiển phi thuyền quét nội dung AI cần kiểm tra.', choiceReady: true },
+  { id: 'data-runner', label: 'Đường Đua Dữ Liệu', description: 'Chạy, nhảy và chọn dữ liệu phù hợp để huấn luyện AI.', choiceReady: true, selfContained: false },
+  { id: 'truth-patrol', label: 'Biệt Đội Kiểm Chứng', description: 'Điều khiển phi thuyền quét nội dung AI cần kiểm tra.', choiceReady: true, selfContained: false },
+  { id: 'battle-math', label: 'BattleMath · Kiểm Chứng AI', description: 'So sánh ảnh AI và phát hiện ảnh đúng nhất.', choiceReady: false, selfContained: true },
+  { id: 'math-kids', label: 'AI Quiz · Khỉ Đá Bóng', description: 'Trắc nghiệm kiến thức AI – sút bóng vào lưới.', choiceReady: false, selfContained: true },
+  { id: 'edukiz', label: 'Edukiz · Xưởng Huấn Luyện AI', description: 'Gắn nhãn, bảo vệ bí mật, lắp prompt, kiểm thử AI.', choiceReady: false, selfContained: true },
+  { id: 'blockly', label: 'Blockly · Mê Cung Lập Trình', description: 'Xếp khối lệnh dẫn robot qua mê cung dữ liệu.', choiceReady: false, selfContained: true },
 ] as const
+
+// WHY: 4 game tự-chứa không cần DB config (lobby/catalog/levels) — engine tự quản lý nội dung.
+// Chỉ catalog games (data-runner, truth-patrol) mới bắt buộc JSON config từ DB.
+const SELF_CONTAINED_GAMES = new Set(['battle-math', 'blockly', 'edukiz', 'math-kids'])
 
 export const GAME_DIFFICULTIES = [
   { id: 'gentle', label: 'Nhẹ nhàng', description: 'Ít áp lực, ưu tiên gợi ý.' },
@@ -111,17 +119,27 @@ function parseGameContent(value: string): Record<string, unknown> | null {
 }
 
 function advancedGameConfigIsReady(draft: LectureDraft): boolean {
-  const content = parseGameContent(draft.gameStructuredText)
-  if (!content || !content.lobby || !Array.isArray(content.catalog)) return false
   const enabledTypes = draft.gameMode === 'student_choice'
     ? draft.gameAllowedTypes
     : [draft.gameType]
+
+  // WHY: Self-contained games không cần JSON config — engine tự chứa nội dung.
+  // Nếu tất cả game types đều self-contained thì bỏ qua validation JSON.
+  const hasCatalogGame = enabledTypes.some((type) => !SELF_CONTAINED_GAMES.has(type))
+  if (!hasCatalogGame) return true
+
+  // Catalog games (data-runner, truth-patrol) bắt buộc cần lobby + catalog + levels/waves.
+  const content = parseGameContent(draft.gameStructuredText)
+  if (!content || !content.lobby || !Array.isArray(content.catalog)) return false
   return enabledTypes.every((type) => (
-    type === 'data-runner'
-      ? Array.isArray(content.runnerLevels) && content.runnerLevels.length > 0
-      : type === 'truth-patrol' &&
-        Array.isArray(content.patrolWaves) &&
-        content.patrolWaves.length > 0
+    SELF_CONTAINED_GAMES.has(type) ||
+    (
+      type === 'data-runner'
+        ? Array.isArray(content.runnerLevels) && content.runnerLevels.length > 0
+        : type === 'truth-patrol' &&
+          Array.isArray(content.patrolWaves) &&
+          content.patrolWaves.length > 0
+    )
   ))
 }
 
@@ -225,7 +243,9 @@ export function lectureDraftReadiness(draft: LectureDraft): AuthoringReadiness {
       [hasLength(draft.gameOutcome, 5), 'Mục tiêu trò chơi'],
       [
         advancedGameConfigIsReady(draft),
-        'Dữ liệu lobby, catalog và màn chơi JSON hợp lệ',
+        SELF_CONTAINED_GAMES.has(draft.gameType)
+          ? 'Hướng dẫn và mục tiêu trò chơi'
+          : 'Dữ liệu lobby, catalog và màn chơi JSON hợp lệ',
       ],
     ]),
     step('practice', 'Sáng tạo', [

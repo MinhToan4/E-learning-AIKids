@@ -1,13 +1,16 @@
 /**
- * TeacherPage — Full redesign with:
- * - Route-controlled tabs (prop `tab` from App.tsx)
- * - Toast popup notifications
- * - ConfirmDialog
- * - Complete course creation flow: course → lectures → edit → publish
- * - Full-width layout (CmsShell handles sidebar)
+ * TeacherPage — Route-controlled tabs with inline tab navigation bar.
+ *
+ * WHY tab nav bar inside component (not just sidebar):
+ * - Sidebar is hidden on mobile behind a hamburger menu → tabs look broken
+ * - User sees page content but has no visible way to switch sections
+ * - Adding a sticky tab bar inside fixes mobile UX and mirrors admin pattern
+ *
+ * Tabs: class | courses | lectures | stats
+ * RBAC: teacher (full write) + admin (read-only on class operations)
  */
 import { useEffect, useState, useCallback, useMemo, type ReactNode } from 'react'
-import { Search } from 'lucide-react'
+import { Search, AlertCircle, RefreshCw } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
@@ -87,6 +90,7 @@ type CourseLectures = {
   status: string
   ageTrack?: string
   courseKey?: string
+  readOnly?: boolean
   lectures: Lecture[]
 }
 
@@ -167,7 +171,7 @@ const initialLectureForm = (): LectureDraft => ({
   checkExplain: '',
 })
 
-// ── Stat card ────────────────────────────────────────────────
+// ── Sub-components ────────────────────────────────────────────
 function StatCard({ label, value, icon }: { label: string; value: number | string; icon: ReactNode }) {
   return (
     <div className="rounded-2xl bg-sky-50 p-4">
@@ -180,7 +184,6 @@ function StatCard({ label, value, icon }: { label: string; value: number | strin
   )
 }
 
-// ── Status badge ─────────────────────────────────────────────
 function StatusBadge({ status }: { status: string }) {
   return (
     <span className={cn('rounded-full px-2 py-0.5 text-xs font-extrabold',
@@ -191,8 +194,30 @@ function StatusBadge({ status }: { status: string }) {
   )
 }
 
+// WHY: ErrorPanel dùng thay toast cho lỗi API nghiêm trọng —
+// toast tự biến mất trong 3s, user không kịp đọc khi tab trống.
+function ErrorPanel({ message, onRetry }: { message: string; onRetry: () => void }) {
+  return (
+    <div className="ui-card flex flex-col items-center gap-4 p-8 text-center" role="alert">
+      <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-danger/10">
+        <AlertCircle size={28} className="text-danger" aria-hidden="true" />
+      </div>
+      <div>
+        <p className="font-display text-lg text-text">Không tải được dữ liệu</p>
+        <p className="mt-1 text-sm leading-relaxed text-muted">{message}</p>
+      </div>
+      <Button variant="secondary" onClick={onRetry} className="gap-2">
+        <RefreshCw size={15} aria-hidden="true" />
+        Thử lại
+      </Button>
+    </div>
+  )
+}
+
+
+// ── Main component ────────────────────────────────────────────
 export function TeacherPage({ tab }: { tab: TeacherTab }) {
-  // Class state
+  // ── Class state ───────────────────────────────────────────
   const [classInfo, setClassInfo] = useState<{ id?: string; name: string; code: string } | null>(null)
   const [students, setStudents] = useState<StudentRow[]>([])
   const [progressDetail, setProgressDetail] = useState<ProgressDetail | null>(null)
@@ -200,15 +225,22 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const [newStudent, setNewStudent] = useState('')
   const [removeTarget, setRemoveTarget] = useState<StudentRow | null>(null)
 
-  // Courses state
+  // ── Courses state ─────────────────────────────────────────
   const [courses, setCourses] = useState<CourseLectures[]>([])
   const [newCourse, setNewCourse] = useState<CourseDraft>({
     id: '', title: '', shortTitle: '', tagline: '', description: '',
     productLabel: '', ageTrack: 'L1', courseKey: 'K1', durationLabel: '8 tuần',
     skillsText: '', outcomesText: '', credential: '', finalAssessment: '',
   })
+  // WHY: editingCourse lưu id course đang sửa — null = hiện wizard tạo mới.
+  const [editingCourse, setEditingCourse] = useState<string | null>(null)
+  const [editCourseForm, setEditCourseForm] = useState<CourseDraft>({
+    id: '', title: '', shortTitle: '', tagline: '', description: '',
+    productLabel: '', ageTrack: 'L1', courseKey: 'K1', durationLabel: '8 tuần',
+    skillsText: '', outcomesText: '', credential: '', finalAssessment: '',
+  })
 
-  // Lectures state
+  // ── Lectures state ────────────────────────────────────────
   const [selectedCourseId, setSelectedCourseId] = useState<string>('')
   const [selected, setSelected] = useState<Lecture | null>(null)
   const [editForm, setEditForm] = useState(initialLectureForm)
@@ -216,13 +248,14 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const [creatingLecture, setCreatingLecture] = useState(false)
   const [archiveTarget, setArchiveTarget] = useState<Lecture | null>(null)
 
-  // Stats state
+  // ── Stats state ───────────────────────────────────────────
   const [stats, setStats] = useState<ClassStats | null>(null)
 
-  // Loading
+  // ── UI state ──────────────────────────────────────────────
   const [loading, setLoading] = useState(false)
+  const [loadError, setLoadError] = useState<string | null>(null)
 
-  // ── Search / filter state ─────────────────────────────
+  // ── Search / filter state ──────────────────────────────────
   const [studentSearch, setStudentSearch] = useState('')
   const [lectureSearch, setLectureSearch] = useState('')
   const [lectureArchiveFilter, setLectureArchiveFilter] = useState<'' | 'active' | 'archived'>('')
@@ -293,22 +326,28 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     setStats(data.stats)
   }, [])
 
-  useEffect(() => {
+  const runLoad = useCallback(async () => {
     setLoading(true)
-    const run = async () => {
-      try {
-        if (tab === 'class') await loadClass()
-        else if (tab === 'stats') await loadStats()
-        else await loadLectures()
-      } catch (e) {
-        showToast(e instanceof Error ? e.message : 'Lỗi tải dữ liệu', 'error')
-      } finally {
-        setLoading(false)
-      }
+    setLoadError(null)
+    try {
+      if (tab === 'class') await loadClass()
+      else if (tab === 'stats') await loadStats()
+      else await loadLectures()
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : 'Lỗi tải dữ liệu'
+      // WHY: Đặt loadError THAY VÌ chỉ toast — toast biến mất sau 3s,
+      // user không thấy và nghĩ tab trống là do không có data.
+      setLoadError(msg)
+      showToast(msg, 'error')
+    } finally {
+      setLoading(false)
     }
-    void run()
-    // loadClass / loadStats / loadLectures are stable useCallback refs — safe to include
   }, [tab, loadClass, loadStats, loadLectures, showToast])
+
+  useEffect(() => {
+    void runLoad()
+    // runLoad thay đổi khi tab thay đổi — an toàn.
+  }, [runLoad])
 
   // ── Handlers ─────────────────────────────────────────────
   function pickLecture(l: Lecture) {
@@ -390,9 +429,9 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           example: editForm.example,
           gameType: editForm.gameType,
           gameInstruction: editForm.gameInstruction,
-           gameOutcome: editForm.gameOutcome,
-           gameCards: splitLines(editForm.gameCardsText),
-           gameConfig: buildLectureGameConfig(editForm),
+          gameOutcome: editForm.gameOutcome,
+          gameCards: splitLines(editForm.gameCardsText),
+          gameConfig: buildLectureGameConfig(editForm),
           practiceInstruction: editForm.practiceInstruction,
           product: editForm.product,
           checkQuestion: editForm.checkQuestion,
@@ -459,7 +498,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
       return
     }
     try {
-      // Capture the course id from the draft BEFORE resetting the form
+      // Capture id before reset so Lectures tab can pre-select the new course
       const createdId = newCourse.id.trim()
       await api('/api/teacher/courses', {
         method: 'POST',
@@ -478,10 +517,40 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
         skillsText: '', outcomesText: '', credential: '', finalAssessment: '',
       })
       await loadLectures()
-      // Use the id captured before reset so the Lectures tab pre-selects the new course
       if (createdId) setSelectedCourseId(createdId)
       navigate('/teacher/lectures')
     } catch (e) { showToast(e instanceof Error ? e.message : 'Không tạo khóa', 'error') }
+  }
+
+  async function updateCourse(e: React.FormEvent) {
+    e.preventDefault()
+    if (!editingCourse) return
+    // WHY: Không kiểm tra readiness đầy đủ cho edit — giáo viên có thể lưu từng phần.
+    if (!editCourseForm.title.trim() || editCourseForm.title.trim().length < 2) {
+      showToast('Tên khóa học cần ít nhất 2 ký tự', 'error')
+      return
+    }
+    try {
+      await api(`/api/teacher/courses/${editingCourse}`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          title: editCourseForm.title,
+          shortTitle: editCourseForm.shortTitle || undefined,
+          tagline: editCourseForm.tagline || undefined,
+          description: editCourseForm.description || undefined,
+          productLabel: editCourseForm.productLabel || undefined,
+          ageTrack: editCourseForm.ageTrack,
+          durationLabel: editCourseForm.durationLabel || undefined,
+          skills: splitLines(editCourseForm.skillsText),
+          outcomes: splitLines(editCourseForm.outcomesText),
+          credential: editCourseForm.credential || undefined,
+          finalAssessment: editCourseForm.finalAssessment || undefined,
+        }),
+      })
+      showToast('Đã cập nhật thông tin khóa học', 'success')
+      setEditingCourse(null)
+      await loadLectures()
+    } catch (e) { showToast(e instanceof Error ? e.message : 'Không cập nhật được', 'error') }
   }
 
   async function patchCourseStatus(courseId: string, status: 'open' | 'soon') {
@@ -519,9 +588,9 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           goals: splitLines(newLecture.goalsText),
           gameType: newLecture.gameType,
           gameInstruction: newLecture.gameInstruction,
-           gameOutcome: newLecture.gameOutcome,
-           gameCards: splitLines(newLecture.gameCardsText),
-           gameConfig: buildLectureGameConfig(newLecture),
+          gameOutcome: newLecture.gameOutcome,
+          gameCards: splitLines(newLecture.gameCardsText),
+          gameConfig: buildLectureGameConfig(newLecture),
           practiceInstruction: newLecture.practiceInstruction,
           product: newLecture.product,
           checkQuestion: newLecture.checkQuestion,
@@ -576,14 +645,15 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     } catch (e) { showToast(e instanceof Error ? e.message : 'Không sắp xếp được', 'error') }
   }
 
-  // ── Tab content ──────────────────────────────────────────
+  // ── Loading skeleton ──────────────────────────────────────
   const loadingEl = (
-    <div className="flex h-40 items-center justify-center">
-      <div className="ui-skeleton h-10 w-48 rounded-2xl" />
+    <div className="flex flex-col gap-4" aria-busy="true" aria-label="Đang tải dữ liệu">
+      <div className="ui-skeleton h-32 rounded-2xl" />
+      <div className="ui-skeleton h-48 rounded-2xl" />
     </div>
   )
 
-  // Class tab
+  // ── Tab: Lớp học ──────────────────────────────────────────
   const classTab = (
     <div className="grid gap-4 lg:grid-cols-[1fr_300px]">
       {!classInfo ? (
@@ -730,7 +800,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               </section>
             )}
 
-            {/* Progress detail popup */}
+            {/* Progress detail panel */}
             {progressDetail && (
               <div className="ui-card p-4">
                 <div className="mb-2 flex items-center justify-between">
@@ -755,17 +825,20 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     </div>
   )
 
-
+  // ── Tab: Khóa học ─────────────────────────────────────────
   const coursesTab = (
     <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(460px,0.9fr)]">
       <section className="ui-card h-fit overflow-hidden" aria-labelledby="course-list-title">
         <div className="border-b border-border/60 bg-white px-5 py-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 id="course-list-title" className="font-display text-xl text-text">Khóa học của bạn</h2>
-              <p className="mt-1 text-sm text-muted">Chọn đúng việc cần làm tiếp theo cho từng khóa.</p>
+              <h2 id="course-list-title" className="font-display text-xl text-text">Khóa học</h2>
+              <p className="mt-1 text-sm text-muted">Khóa của bạn có thể sửa. Khóa hệ thống chỉ xem và dùng trong lớp.</p>
             </div>
-            <p className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700">{courses.length} khóa học</p>
+            <div className="flex flex-wrap gap-2">
+              <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700">{courses.filter((c) => !c.readOnly).length} khóa của bạn</span>
+              <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-bold text-purple-700">{courses.filter((c) => c.readOnly).length} khóa hệ thống</span>
+            </div>
           </div>
         </div>
 
@@ -786,6 +859,9 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                       <div className="flex flex-wrap items-center gap-2">
                         <h3 className="font-display text-lg text-text">{course.shortTitle || course.title}</h3>
                         <StatusBadge status={course.status} />
+                        {course.readOnly && (
+                          <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-extrabold text-purple-700">Hệ thống</span>
+                        )}
                       </div>
                       <p className="mt-1 text-sm text-muted">{course.ageTrack === 'L2' ? '9–11 tuổi' : '6–8 tuổi'} · {activeLectures.length} bài đang dùng</p>
                     </div>
@@ -806,19 +882,49 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                       onClick={() => {
                         setSelectedCourseId(course.id)
                         setSelected(null)
-                        setCreatingLecture(!canPublish)
+                        setCreatingLecture(false)
                         navigate('/teacher/lectures')
                       }}
                     >
-                      {canPublish ? 'Quản lý bài học' : 'Thêm bài học đầu tiên'}
+                      Xem bài học
                     </Button>
-                    <Button
-                      variant="ghost"
-                      disabled={!canPublish && course.status !== 'open'}
-                      onClick={() => void patchCourseStatus(course.id, course.status === 'open' ? 'soon' : 'open')}
-                    >
-                      {course.status === 'open' ? 'Ẩn khỏi học sinh' : 'Mở cho học sinh'}
-                    </Button>
+                    {!course.readOnly && (
+                      <>
+                        <Button
+                          variant="ghost"
+                          onClick={() => {
+                            // WHY: Pre-fill form từ dữ liệu hiện tại — giáo viên thấy giá trị cũ rõ ràng.
+                            const meta = courses.find((c) => c.id === course.id)
+                            setEditCourseForm({
+                              id: course.id,
+                              title: course.title,
+                              shortTitle: course.shortTitle ?? '',
+                              tagline: '',
+                              description: '',
+                              productLabel: '',
+                              ageTrack: course.ageTrack ?? 'L1',
+                              courseKey: course.courseKey ?? 'K1',
+                              durationLabel: '',
+                              skillsText: '',
+                              outcomesText: '',
+                              credential: '',
+                              finalAssessment: '',
+                              ...meta,
+                            } as CourseDraft)
+                            setEditingCourse(course.id)
+                          }}
+                        >
+                          Sửa thông tin
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          disabled={!canPublish && course.status !== 'open'}
+                          onClick={() => void patchCourseStatus(course.id, course.status === 'open' ? 'soon' : 'open')}
+                        >
+                          {course.status === 'open' ? 'Ẩn khỏi học sinh' : 'Mở cho học sinh'}
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </li>
               )
@@ -827,14 +933,35 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
         )}
       </section>
 
-      <CourseAuthoringWizard value={newCourse} onChange={setNewCourse} onSubmit={(event) => void createCourse(event)} />
+      {editingCourse ? (
+        <div className="ui-card overflow-hidden">
+          <div className="border-b border-border/60 bg-sky-50/60 p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-extrabold uppercase tracking-wide text-sky-600">Sửa thông tin</p>
+                <h2 className="mt-1 font-display text-2xl text-text">{editCourseForm.title || 'Khóa học'}</h2>
+                <p className="mt-1 text-sm text-muted">Slug/đường dẫn không thay đổi được để giữ liên kết ổn định.</p>
+              </div>
+              <Button type="button" variant="ghost" onClick={() => setEditingCourse(null)}>Đóng</Button>
+            </div>
+          </div>
+          <CourseAuthoringWizard
+            value={editCourseForm}
+            onChange={setEditCourseForm}
+            onSubmit={(event) => void updateCourse(event)}
+            mode="edit"
+          />
+        </div>
+      ) : (
+        <CourseAuthoringWizard value={newCourse} onChange={setNewCourse} onSubmit={(event) => void createCourse(event)} />
+      )}
     </div>
   )
 
-
+  // ── Tab: Bài giảng ────────────────────────────────────────
   const lecturesTab = (
-    <div className="grid items-start gap-5 md:grid-cols-[280px_minmax(0,1fr)]">{/* md: 768px tablet — was lg:1024px */}
-      <aside className="ui-card overflow-hidden lg:sticky lg:top-5" aria-label="Chọn khóa học và bài học">
+    <div className="grid items-start gap-5 md:grid-cols-[280px_minmax(0,1fr)]">
+      <aside className="ui-card overflow-hidden lg:sticky lg:top-[4.5rem]" aria-label="Chọn khóa học và bài học">
         <div className="border-b border-border bg-sky-50/60 p-4">
           <label className="flex flex-col gap-1.5 text-sm font-bold text-text">
             Khóa học đang soạn
@@ -925,7 +1052,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             ) : (
               <ol className="divide-y divide-border/60" aria-label="Danh sách bài học">
                 {lecturesPag.slice.map((lecture) => {
-                  // Global index for move-up/down and display number
                   const index = lectures.indexOf(lecture)
                   return (
                     <li key={lecture.id} className={cn('p-3', lecture.archived && 'opacity-60')}>
@@ -1011,12 +1137,15 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     </div>
   )
 
-  // Stats tab
+  // ── Tab: Thống kê ─────────────────────────────────────────
   const statsTab = (
-    <div className="ui-card min-w-0 p-3 sm:p-5">{/* min-w-0 ensures inner overflow-x-auto works */}
+    <div className="ui-card min-w-0 p-3 sm:p-5">
       <h2 className="font-display mb-4 text-xl">Thống kê lớp học</h2>
       {!stats ? (
-        <p className="text-muted">Chưa có lớp hoặc dữ liệu thống kê.</p>
+        <EmptyState
+          title="Chưa có dữ liệu thống kê"
+          description="Hãy tạo lớp học và thêm học sinh để xem thống kê tiến trình tại đây."
+        />
       ) : (
         <>
           <p className="mb-4 font-bold">{stats.className} · <span className="font-mono text-sky-600">{stats.code}</span></p>
@@ -1063,41 +1192,41 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             Gợi ý dựa trên tiến độ gần đây, không dùng để xếp hạng hay đánh giá trẻ.
           </div>
           <div className="hidden overflow-x-auto rounded-2xl border border-border sm:block">
-          <table className="min-w-[860px] w-full text-left text-sm">
-            <thead className="border-b border-border bg-sky-50/60">
-              <tr>
-                <th className="px-3 py-2 font-extrabold">Học sinh</th>
-                <th className="px-3 py-2 font-extrabold">Trạm hoàn thành</th>
-                <th className="px-3 py-2 font-extrabold">Đang học</th>
-                <th className="px-3 py-2 font-extrabold">Hoạt động gần nhất</th>
-                <th className="px-3 py-2 font-extrabold">Gợi ý hỗ trợ</th>
-              </tr>
-            </thead>
-            <tbody>
-              {statsPag.slice.map((s) => (
-                <tr key={s.id} className={cn('border-b border-border/40', s.needsSupport && 'bg-sun-50')}>
-                  <td className="px-3 py-2 font-bold">{s.nickname}</td>
-                  <td className="px-3 py-2">{s.completedQuests}</td>
-                  <td className="px-3 py-2">
-                    <span className="block max-w-52 truncate font-semibold">{s.currentQuest ?? 'Chưa bắt đầu'}</span>
-                    {s.currentPhase && <span className="text-xs text-muted">{PHASE_LABELS[s.currentPhase] ?? 'Đang thực hiện'}</span>}
-                  </td>
-                  <td className="px-3 py-2 text-xs text-muted">{formatActivity(s.lastActiveAt)}</td>
-                  <td className="px-3 py-2">
-                    {s.needsSupport
-                      ? <button type="button" className="rounded-full bg-sun-100 px-3 py-1 text-xs font-bold text-warning" onClick={() => void viewProgress(s.id)}>Xem để hỗ trợ</button>
-                      : <span className="text-xs font-semibold text-success">Đang tiến triển tốt</span>}
-                    {s.supportReason && <span className="mt-1 block max-w-48 text-xs text-muted">{s.supportReason}</span>}
-                  </td>
+            <table className="min-w-[860px] w-full text-left text-sm">
+              <thead className="border-b border-border bg-sky-50/60">
+                <tr>
+                  <th className="px-3 py-2 font-extrabold">Học sinh</th>
+                  <th className="px-3 py-2 font-extrabold">Trạm hoàn thành</th>
+                  <th className="px-3 py-2 font-extrabold">Đang học</th>
+                  <th className="px-3 py-2 font-extrabold">Hoạt động gần nhất</th>
+                  <th className="px-3 py-2 font-extrabold">Gợi ý hỗ trợ</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <Paginator
-            page={statsPag.page} totalPages={statsPag.totalPages}
-            totalItems={filteredStatStudents.length} pageSize={15}
-            onPrev={statsPag.prev} onNext={statsPag.next} onGoTo={statsPag.goTo}
-          />
+              </thead>
+              <tbody>
+                {statsPag.slice.map((s) => (
+                  <tr key={s.id} className={cn('border-b border-border/40', s.needsSupport && 'bg-sun-50')}>
+                    <td className="px-3 py-2 font-bold">{s.nickname}</td>
+                    <td className="px-3 py-2">{s.completedQuests}</td>
+                    <td className="px-3 py-2">
+                      <span className="block max-w-52 truncate font-semibold">{s.currentQuest ?? 'Chưa bắt đầu'}</span>
+                      {s.currentPhase && <span className="text-xs text-muted">{PHASE_LABELS[s.currentPhase] ?? 'Đang thực hiện'}</span>}
+                    </td>
+                    <td className="px-3 py-2 text-xs text-muted">{formatActivity(s.lastActiveAt)}</td>
+                    <td className="px-3 py-2">
+                      {s.needsSupport
+                        ? <button type="button" className="rounded-full bg-sun-100 px-3 py-1 text-xs font-bold text-warning" onClick={() => void viewProgress(s.id)}>Xem để hỗ trợ</button>
+                        : <span className="text-xs font-semibold text-success">Đang tiến triển tốt</span>}
+                      {s.supportReason && <span className="mt-1 block max-w-48 text-xs text-muted">{s.supportReason}</span>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <Paginator
+              page={statsPag.page} totalPages={statsPag.totalPages}
+              totalItems={filteredStatStudents.length} pageSize={15}
+              onPrev={statsPag.prev} onNext={statsPag.next} onGoTo={statsPag.goTo}
+            />
           </div>
           <div className="divide-y divide-border/60 overflow-hidden rounded-2xl border border-border sm:hidden">
             {statsPag.slice.length === 0 ? (
@@ -1131,8 +1260,16 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     </div>
   )
 
-  const tabContent = () => {
+  const tabTitles: Record<TeacherTab, string> = {
+    class: 'Lớp & Học sinh',
+    courses: 'Khóa học',
+    lectures: 'Bài giảng',
+    stats: 'Thống kê',
+  }
+
+  function tabContent() {
     if (loading) return loadingEl
+    if (loadError) return <ErrorPanel message={loadError} onRetry={() => void runLoad()} />
     switch (tab) {
       case 'class': return classTab
       case 'courses': return coursesTab
@@ -1140,13 +1277,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
       case 'stats': return statsTab
       default: return null
     }
-  }
-
-  const tabTitles: Record<TeacherTab, string> = {
-    class: 'Lớp & Học sinh',
-    courses: 'Khóa học',
-    lectures: 'Bài giảng',
-    stats: 'Thống kê',
   }
 
   return (

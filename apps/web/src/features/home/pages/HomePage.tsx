@@ -536,9 +536,7 @@ export function HomePage() {
           </h2>
         </div>
 
-        <p className="mb-4 text-sm text-muted">
-          Mỗi hành trình có trò chơi nhỏ, video và sản phẩm do con tạo ra. Bắt đầu từ điều con thích!
-        </p>
+
 
         {/* Only real enrollments belong to the child's learning list. */}
         {enrolled.length > 0 && (

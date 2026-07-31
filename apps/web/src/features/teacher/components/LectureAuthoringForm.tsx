@@ -10,6 +10,10 @@ import {
   type LectureDraft,
 } from '../lib/authoring'
 
+// WHY: Import cùng set với authoring.ts để ẩn JSON config textarea khi game tự-chứa.
+// Duplicate nhỏ — tránh circular dependency nếu export từ authoring.
+const SELF_CONTAINED_GAME_IDS = new Set(['battle-math', 'blockly', 'edukiz', 'math-kids'])
+
 type Props = {
   value: LectureDraft
   onChange: (value: LectureDraft) => void
@@ -36,6 +40,7 @@ export function LectureAuthoringForm({
   const [stepIndex, setStepIndex] = useState(0)
   const readiness = useMemo(() => lectureDraftReadiness(value), [value])
   const activeStep = readiness.steps[stepIndex]!
+  const isSelfContained = SELF_CONTAINED_GAME_IDS.has(value.gameType)
 
   function setField<Key extends keyof LectureDraft>(key: Key, nextValue: LectureDraft[Key]) {
     onChange({ ...value, [key]: nextValue })
@@ -254,7 +259,7 @@ export function LectureAuthoringForm({
                         className="size-5 accent-brand-500"
                       />
                       <span aria-hidden="true">
-                        {option.id === 'data-runner' ? '🏃' : '🔎'}
+                        {option.id === 'data-runner' ? '🏃' : option.id === 'truth-patrol' ? '🔎' : '🎮'}
                       </span>
                       {option.label}
                     </label>
@@ -277,19 +282,29 @@ export function LectureAuthoringForm({
                 Mỗi dòng một ghi chú cho giáo viên. Gameplay không đọc dữ liệu mẫu từ frontend.
               </span>
             </label>
-            <label className={labelClass}>
-              Dữ liệu game trong DB (JSON)
-              <textarea
-                className={`${textareaClass} min-h-72 font-mono text-xs`}
-                value={value.gameStructuredText}
-                onChange={(event) => setField('gameStructuredText', event.target.value)}
-                spellCheck={false}
-                placeholder={'{\n  "lobby": { ... },\n  "catalog": [ ... ],\n  "runnerLevels": [ ... ],\n  "patrolWaves": [ ... ]\n}'}
-              />
-              <span className="text-xs font-normal leading-relaxed text-muted">
-                Tên game, ảnh, nhiệm vụ, level, wave và phản hồi đều được lưu tại trạm game trong LMS. Backend sẽ từ chối URL ngoài thư mục asset và cấu hình sai schema.
-              </span>
-            </label>
+            {!isSelfContained && (
+              <label className={labelClass}>
+                Dữ liệu game trong DB (JSON)
+                <textarea
+                  className={`${textareaClass} min-h-72 font-mono text-xs`}
+                  value={value.gameStructuredText}
+                  onChange={(event) => setField('gameStructuredText', event.target.value)}
+                  spellCheck={false}
+                  placeholder={'{\n  "lobby": { ... },\n  "catalog": [ ... ],\n  "runnerLevels": [ ... ],\n  "patrolWaves": [ ... ]\n}'}
+                />
+                <span className="text-xs font-normal leading-relaxed text-muted">
+                  Tên game, ảnh, nhiệm vụ, level, wave và phản hồi đều được lưu tại trạm game trong LMS. Backend sẽ từ chối URL ngoài thư mục asset và cấu hình sai schema.
+                </span>
+              </label>
+            )}
+            {isSelfContained && (
+              <div className="rounded-xl border border-sky-100 bg-sky-50 p-3 text-sm leading-relaxed text-muted">
+                <strong className="text-text">Game tự-chứa.</strong>{' '}
+                {value.gameType === 'math-kids'
+                  ? 'Bạn có thể thêm câu hỏi trắc nghiệm tùy chỉnh trong phần Dữ liệu game nâng cao (tùy chọn).'
+                  : 'Engine game tự quản lý nội dung — không cần cấu hình JSON thêm.'}
+              </div>
+            )}
           </div>
         )}
 

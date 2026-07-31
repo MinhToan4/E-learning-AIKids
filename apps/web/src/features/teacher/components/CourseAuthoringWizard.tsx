@@ -11,13 +11,15 @@ type Props = {
   value: CourseDraft
   onChange: (value: CourseDraft) => void
   onSubmit: (event: FormEvent) => void
+  // WHY: mode='edit' ẩn field slug và đổi label submit — slug không được đổi sau khi tạo.
+  mode?: 'create' | 'edit'
 }
 
 const inputClass = 'min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm text-text outline-none transition focus:border-sky-400 focus:ring-4 focus:ring-sky-100'
 const textareaClass = `${inputClass} py-2 leading-relaxed`
 const labelClass = 'flex flex-col gap-1.5 text-sm font-bold text-text'
 
-export function CourseAuthoringWizard({ value, onChange, onSubmit }: Props) {
+export function CourseAuthoringWizard({ value, onChange, onSubmit, mode = 'create' }: Props) {
   const [stepIndex, setStepIndex] = useState(0)
   const readiness = useMemo(() => courseDraftReadiness(value), [value])
   const activeStep = readiness.steps[stepIndex]!
@@ -113,14 +115,22 @@ export function CourseAuthoringWizard({ value, onChange, onSubmit }: Props) {
                 {['K1', 'K2', 'K3', 'K4', 'K5', 'K6'].map((key) => <option key={key}>{key}</option>)}
               </select>
             </label>
-            <details className="rounded-xl border border-border bg-surface-soft p-3 sm:col-span-2">
-              <summary className="min-h-8 cursor-pointer text-sm font-bold text-muted">Tùy chọn nâng cao: đường dẫn khóa học</summary>
-              <label className={`${labelClass} mt-3`}>
-                Đường dẫn duy nhất
-                <input className={`${inputClass} font-mono`} value={value.id} onChange={(event) => setField('id', slugifyAuthoringId(event.target.value))} placeholder="ke-chuyen-cung-ai" maxLength={40} />
-                <span className="text-xs font-normal text-muted">Được tạo tự động từ tên khóa học; chỉ cần sửa khi có tên trùng.</span>
-              </label>
-            </details>
+            {mode === 'create' && (
+              <details className="rounded-xl border border-border bg-surface-soft p-3 sm:col-span-2">
+                <summary className="min-h-8 cursor-pointer text-sm font-bold text-muted">Tùy chọn nâng cao: đường dẫn khóa học</summary>
+                <label className={`${labelClass} mt-3`}>
+                  Đường dẫn duy nhất
+                  <input className={`${inputClass} font-mono`} value={value.id} onChange={(event) => setField('id', slugifyAuthoringId(event.target.value))} placeholder="ke-chuyen-cung-ai" maxLength={40} />
+                  <span className="text-xs font-normal text-muted">Được tạo tự động từ tên khóa học; chỉ cần sửa khi có tên trùng.</span>
+                </label>
+              </details>
+            )}
+            {mode === 'edit' && (
+              <div className="rounded-xl border border-border bg-surface-soft p-3 sm:col-span-2">
+                <p className="text-xs font-bold text-muted">Slug khóa học: <code className="font-mono text-text">{value.id || '—'}</code></p>
+                <p className="mt-1 text-xs text-muted">Slug không được đổi sau khi tạo — đảm bảo liên kết ghi danh luôn ổn định.</p>
+              </div>
+            )}
           </div>
         )}
 
@@ -171,7 +181,9 @@ export function CourseAuthoringWizard({ value, onChange, onSubmit }: Props) {
           {stepIndex < readiness.total - 1 ? (
             <Button type="button" disabled={!activeStep.complete} onClick={() => setStepIndex((current) => Math.min(readiness.total - 1, current + 1))}>Tiếp tục</Button>
           ) : (
-            <Button type="submit" disabled={!readiness.complete}>Tạo bản nháp khóa học</Button>
+            <Button type="submit" disabled={mode === 'create' ? !readiness.complete : !activeStep.complete}>
+              {mode === 'edit' ? 'Lưu thay đổi' : 'Tạo bản nháp khóa học'}
+            </Button>
           )}
         </div>
       </div>
