@@ -550,15 +550,20 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       path === '/api/teacher/lectures' ||
       path === '/api/teacher/lectures/reorder' ||
       path === '/api/teacher/courses' ||
+      path === '/api/teacher/question-banks' ||
+      path === '/api/teacher/question-bank/items' ||
       /^\/api\/teacher\/class\/students\/[^/?]+$/.test(path) ||
       /^\/api\/teacher\/students\/[^/?]+\/progress$/.test(path) ||
       /^\/api\/teacher\/lectures\/[^/?]+(?:\/restore)?$/.test(path) ||
-      /^\/api\/teacher\/courses\/[^/?]+$/.test(path)) {
+      /^\/api\/teacher\/courses\/[^/?]+$/.test(path) ||
+      /^\/api\/teacher\/question-banks\/[^/?]+\/items(?:\?.*)?$/.test(path) ||
+      /^\/api\/teacher\/question-bank\/items\/[^/?]+$/.test(path)) {
     return {
       path: path.replace('/api/teacher', '/api/v1/lms/aikids/teacher'),
       options,
     }
   }
+
   const legacyUrl = new URL(path, 'https://storymee.local')
   const studentId = legacyUrl.searchParams.get('studentId')
   if (legacyUrl.pathname === '/api/learning/pathway') {

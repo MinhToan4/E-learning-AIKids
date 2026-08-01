@@ -30,6 +30,16 @@ export type CourseDraft = {
   finalAssessment: string
 }
 
+// WHY: CheckQuestion — 1 câu hỏi trong phần "Thử tài" (có thể có nhiều câu, mỗi câu 2-6 đáp án).
+// Thay thế checkQuestion/checkOption1-3/correctIndex/checkExplain (chỉ hỗ trợ 1 câu cố định 3 đáp án).
+export type CheckQuestion = {
+  id: string
+  prompt: string
+  options: string[] // 2–6 đáp án
+  answer: number    // index 0-based của đáp án đúng
+  explain: string
+}
+
 export type LectureDraft = {
   id: string
   title: string
@@ -50,8 +60,15 @@ export type LectureDraft = {
   gameOutcome: string
   gameCardsText: string
   gameStructuredText: string
+  // WHY: số câu hỏi quiz per-bài học — mỗi bài có thể khác nhau.
+  // Lưu vào gameConfig.questionCount trong DB (JSONB metadata).
+  questionCount: number
   practiceInstruction: string
   product: string
+  // WHY: checkQuestions thay thế các field cũ (checkQuestion/checkOption1-3/correctIndex/checkExplain).
+  // Hỗ trợ nhiều câu hỏi, mỗi câu 2–6 đáp án.
+  checkQuestions: CheckQuestion[]
+  // @deprecated — giữ lại chỉ để serialize backward-compat với các bài đã lưu cũ
   checkQuestion: string
   checkOption1: string
   checkOption2: string
@@ -143,7 +160,10 @@ function advancedGameConfigIsReady(draft: LectureDraft): boolean {
   ))
 }
 
-export function buildLectureGameConfig(draft: LectureDraft) {
+export function buildLectureGameConfig(
+  draft: LectureDraft,
+  quizQuestions?: Array<{ id: string; prompt: string; options: string[]; answer: number; why?: string }>,
+) {
   const content = parseGameContent(draft.gameStructuredText) ?? {}
   const config: Record<string, unknown> = {
     ...content,
@@ -153,6 +173,10 @@ export function buildLectureGameConfig(draft: LectureDraft) {
         ? draft.gameAllowedTypes
         : [draft.gameType],
     difficulty: draft.gameDifficulty,
+    // WHY: questionCount và quizQuestions lưu per-bài trong JSONB metadata.
+    // FE game engine dùng để slice đúng số câu hỏi cho học sinh.
+    questionCount: draft.questionCount,
+    ...(quizQuestions !== undefined && { quizQuestions }),
   }
   return config
 }
@@ -254,10 +278,171 @@ export function lectureDraftReadiness(draft: LectureDraft): AuthoringReadiness {
       [hasLength(draft.product, 3), 'Sản phẩm học sinh cần tạo'],
     ]),
     step('check', 'Thử tài', [
-      [hasLength(draft.checkQuestion, 5), 'Câu hỏi kiểm tra'],
-      [options.every((item) => hasLength(item, 1)), '3 lựa chọn trả lời'],
-      [/^[0-2]$/.test(draft.correctIndex), 'Đáp án đúng'],
-      [hasLength(draft.checkExplain, 5), 'Giải thích đáp án'],
+      // WHY: ưu tiên kiểm tra checkQuestions (mới), fallback sang field cũ nếu dữ liệu cũ.
+      draft.checkQuestions.length > 0
+        ? [
+            draft.checkQuestions.length > 0,
+            'Câu hỏi kiểm tra',
+          ] as [boolean, string]
+        : [
+            hasLength(draft.checkQuestion, 5),
+            'Câu hỏi kiểm tra',
+          ] as [boolean, string],
+      draft.checkQuestions.length > 0
+        ? [
+            draft.checkQuestions.every((q) => q.options.length >= 2 && q.options.every((o) => o.trim().length > 0)),
+            'Đáp án hợp lệ cho tất cả câu hỏi',
+          ] as [boolean, string]
+        : [
+            [draft.checkOption1, draft.checkOption2, draft.checkOption3].every((item) => hasLength(item, 1)),
+            '3 lựa chọn trả lời',
+          ] as [boolean, string],
     ]),
   ])
+}
+
+// ─── Question Bank Types ───────────────────────────────────────────────────────
+// WHY: Dùng chung giữa QuestionBankPicker và QuizQuestionBuilder.
+
+export type QuestionBankItem = {
+  id: string
+  prompt: string
+  options: string[]
+  answer: number
+  explanation: string
+  imageUrl?: string | null
+  tags: string[]
+  ageMin: number
+  ageMax: number
+  difficulty: 'gentle' | 'steady' | 'challenge'
+  sortOrder: number
+}
+
+export type QuestionBankBank = {
+  id: string
+  title: string
+  description?: string | null
+  isSystem: boolean
+  itemCount: number
+  isOwner: boolean
+}
+
+export const QUESTION_BANK_TAGS: { id: string; label: string; emoji: string }[] = [
+  { id: 'ai-basics', label: 'AI Là Gì?', emoji: '🤖' },
+  { id: 'data', label: 'Dữ Liệu', emoji: '📊' },
+  { id: 'machine-learning', label: 'Học Máy', emoji: '🧠' },
+  { id: 'ai-ethics', label: 'Đạo Đức AI', emoji: '⚖️' },
+  { id: 'privacy', label: 'Quyền Riêng Tư', emoji: '🔒' },
+  { id: 'ai-creativity', label: 'AI Sáng Tạo', emoji: '🎨' },
+  { id: 'real-world', label: 'AI Quanh Ta', emoji: '🌟' },
+  { id: 'nlp', label: 'Ngôn Ngữ AI', emoji: '💬' },
+  { id: 'robots', label: 'Robot', emoji: '🦾' },
+  { id: 'ai-future', label: 'Tương Lai AI', emoji: '🚀' },
+  { id: 'ai-skills', label: 'Kỹ Năng AI', emoji: '⭐' },
+  { id: 'bias', label: 'Thiên Vị', emoji: '⚠️' },
+]
+
+// ─── Visual game config types ──────────────────────────────────────────────────
+// WHY: Dùng trong RunnerLevelBuilder / PatrolWaveBuilder thay vì JSON textarea thô.
+
+export type RunnerItem = {
+  id: string
+  label: string
+  imageUrl: string
+  type: 'collect' | 'avoid'
+  lane?: number
+}
+
+export type RunnerLevel = {
+  id: string
+  title: string
+  mission: string
+  backgroundUrl: string
+  speed?: number
+  items: RunnerItem[]
+}
+
+export type PatrolTarget = {
+  id: string
+  text: string
+  label: string    // 'fact' | 'opinion' | 'fake' | 'ai-generated'
+  imageUrl?: string
+}
+
+export type PatrolWave = {
+  id: string
+  title: string
+  backgroundUrl: string
+  targets: PatrolTarget[]
+}
+
+export type RunnerGameConfig = {
+  lobby: { title: string; description: string; imageUrl: string }
+  catalog: Array<{ id: string; title: string; description: string; thumbnail: string }>
+  runnerLevels: RunnerLevel[]
+}
+
+export type PatrolGameConfig = {
+  lobby: { title: string; description: string; imageUrl: string }
+  catalog: Array<{ id: string; title: string; description: string; thumbnail: string }>
+  patrolWaves: PatrolWave[]
+}
+
+/**
+ * Convert visual RunnerGameConfig to JSON string (gameStructuredText).
+ */
+export function serializeRunnerConfig(config: RunnerGameConfig): string {
+  return JSON.stringify(config, null, 2)
+}
+
+/**
+ * Parse JSON string to RunnerGameConfig, return null if invalid.
+ */
+export function parseRunnerConfig(raw: string): RunnerGameConfig | null {
+  try {
+    const parsed = JSON.parse(raw) as unknown
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null
+    const c = parsed as Record<string, unknown>
+    if (!c.lobby || !Array.isArray(c.catalog) || !Array.isArray(c.runnerLevels)) return null
+    return c as unknown as RunnerGameConfig
+  } catch {
+    return null
+  }
+}
+
+/**
+ * Parse JSON string to PatrolGameConfig, return null if invalid.
+ */
+export function parsePatrolConfig(raw: string): PatrolGameConfig | null {
+  try {
+    const parsed = JSON.parse(raw) as unknown
+    if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) return null
+    const c = parsed as Record<string, unknown>
+    if (!c.lobby || !Array.isArray(c.catalog) || !Array.isArray(c.patrolWaves)) return null
+    return c as unknown as PatrolGameConfig
+  } catch {
+    return null
+  }
+}
+
+/** Tạo RunnerLevel mới rỗng */
+export function newRunnerLevel(index: number): RunnerLevel {
+  return {
+    id: `level-${Date.now()}-${index}`,
+    title: `Màn ${index + 1}`,
+    mission: '',
+    backgroundUrl: '/assets/game/idea-island-map.webp',
+    speed: 5,
+    items: [],
+  }
+}
+
+/** Tạo PatrolWave mới rỗng */
+export function newPatrolWave(index: number): PatrolWave {
+  return {
+    id: `wave-${Date.now()}-${index}`,
+    title: `Đợt ${index + 1}`,
+    backgroundUrl: '/assets/game/idea-island-map.webp',
+    targets: [],
+  }
 }

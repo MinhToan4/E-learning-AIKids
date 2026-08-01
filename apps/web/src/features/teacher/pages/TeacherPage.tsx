@@ -23,17 +23,14 @@ import { api, type LectureRow } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
 import { CourseAuthoringWizard } from '../components/CourseAuthoringWizard'
-import { LectureAuthoringForm } from '../components/LectureAuthoringForm'
+import { LectureDrawer } from '../components/LectureDrawer'
+import { CourseFormModal } from '../components/CourseFormModal'
 import {
   PRACTICE_OPTIONS,
-  buildLectureGameConfig,
   courseDraftReadiness,
-  lectureDraftReadiness,
   serializeLectureGameConfig,
   type CourseDraft,
-  type LectureDraft,
 } from '../lib/authoring'
-import { normalizeGameType } from '@/features/lesson/lib/curriculum-game'
 import {
   CmsAnalyticsIcon,
   CmsCoursesIcon,
@@ -81,6 +78,7 @@ type Lecture = LectureRow & {
   checkOptions?: string[]
   correctIndex?: number
   checkExplain?: string
+  checkQuestions?: Array<{ id?: string; prompt: string; options: string[]; answer: number; explain: string }> | null
 }
 
 type CourseLectures = {
@@ -140,36 +138,6 @@ function formatActivity(value: string | null): string {
   if (!value) return 'Chưa bắt đầu'
   return new Intl.DateTimeFormat('vi-VN', { dateStyle: 'short', timeStyle: 'short' }).format(new Date(value))
 }
-
-const initialLectureForm = (): LectureDraft => ({
-  id: '',
-  title: '',
-  skill: '',
-  hook: '',
-  practiceKind: 'journal',
-  videoUrl: '',
-  concept: '',
-  example: '',
-  reward: '',
-  duration: '25–35 phút',
-  goalsText: '',
-  gameType: 'data-runner',
-  gameMode: 'required',
-  gameAllowedTypes: ['data-runner'],
-  gameDifficulty: 'steady',
-  gameInstruction: '',
-  gameOutcome: '',
-  gameCardsText: '',
-  gameStructuredText: '',
-  practiceInstruction: '',
-  product: '',
-  checkQuestion: '',
-  checkOption1: '',
-  checkOption2: '',
-  checkOption3: '',
-  correctIndex: '0',
-  checkExplain: '',
-})
 
 // ── Sub-components ────────────────────────────────────────────
 function StatCard({ label, value, icon }: { label: string; value: number | string; icon: ReactNode }) {
@@ -242,14 +210,17 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
   // ── Lectures state ────────────────────────────────────────
   const [selectedCourseId, setSelectedCourseId] = useState<string>('')
-  const [selected, setSelected] = useState<Lecture | null>(null)
-  const [editForm, setEditForm] = useState(initialLectureForm)
-  const [newLecture, setNewLecture] = useState(initialLectureForm)
-  const [creatingLecture, setCreatingLecture] = useState(false)
   const [archiveTarget, setArchiveTarget] = useState<Lecture | null>(null)
 
   // ── Stats state ───────────────────────────────────────────
   const [stats, setStats] = useState<ClassStats | null>(null)
+
+  // ── Drawer / Modal state ──────────────────────────────────
+  // WHY: Dùng drawer thay vì form inline để giáo viên thấy danh sách trong khi edit
+  const [drawerMode, setDrawerMode] = useState<'none' | 'create' | 'edit'>('none')
+  const [drawerLecture, setDrawerLecture] = useState<Lecture | null>(null)
+  const [courseModalMode, setCourseModalMode] = useState<'none' | 'create' | 'edit'>('none')
+  const [courseModalCourse, setCourseModalCourse] = useState<CourseLectures | null>(null)
 
   // ── UI state ──────────────────────────────────────────────
   const [loading, setLoading] = useState(false)
@@ -350,102 +321,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   }, [runLoad])
 
   // ── Handlers ─────────────────────────────────────────────
-  function pickLecture(l: Lecture) {
-    const gameConfig = l.gameConfig ?? {}
-    const gameType = normalizeGameType(l.gameType)
-    const allowedTypes = Array.isArray(gameConfig.allowedTypes)
-      ? [...new Set(
-          gameConfig.allowedTypes
-            .filter((item): item is string => typeof item === 'string')
-            .map((item) => normalizeGameType(item)),
-        )]
-      : [gameType]
-    setSelected(l)
-    setEditForm({
-      ...initialLectureForm(),
-      id: l.id,
-      title: l.title,
-      hook: l.hook,
-      skill: l.skill ?? '',
-      reward: l.reward ?? '',
-      duration: l.duration ?? '',
-      practiceKind: l.practiceKind,
-      videoUrl: l.videoUrl ?? '',
-      goalsText: (l.goals ?? []).join('\n'),
-      concept: l.concept ?? '',
-      example: l.example ?? '',
-      gameType,
-      gameMode:
-        gameConfig.selectionMode === 'student_choice'
-          ? 'student_choice'
-          : 'required',
-      gameAllowedTypes:
-        allowedTypes.length > 0 ? allowedTypes : [gameType],
-      gameDifficulty:
-        gameConfig.difficulty === 'gentle' ||
-        gameConfig.difficulty === 'challenge'
-          ? gameConfig.difficulty
-          : 'steady',
-      gameInstruction: l.gameInstruction ?? '',
-      gameOutcome: l.gameOutcome ?? '',
-      gameCardsText: (l.gameCards ?? []).join('\n'),
-      gameStructuredText: serializeLectureGameConfig(
-        gameType,
-        gameConfig,
-      ),
-      practiceInstruction: l.practiceInstruction ?? '',
-      product: l.product ?? '',
-      checkQuestion: l.checkQuestion ?? '',
-      checkOption1: l.checkOptions?.[0] ?? '',
-      checkOption2: l.checkOptions?.[1] ?? '',
-      checkOption3: l.checkOptions?.[2] ?? '',
-      correctIndex: String(l.correctIndex ?? 0),
-      checkExplain: l.checkExplain ?? '',
-    })
-  }
-
-  async function saveLecture(e: React.FormEvent) {
-    e.preventDefault()
-    if (!selected) return
-    const readiness = lectureDraftReadiness(editForm)
-    if (!readiness.complete) {
-      const missing = readiness.steps.flatMap((item) => item.missing)
-      showToast(`Bài học còn thiếu: ${missing.slice(0, 3).join(', ')}`, 'error')
-      return
-    }
-    try {
-      const data = await api<{ lecture: Lecture }>(`/api/teacher/lectures/${selected.id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({
-          title: editForm.title,
-          hook: editForm.hook,
-          skill: editForm.skill || undefined,
-          practiceKind: editForm.practiceKind,
-          videoUrl: editForm.videoUrl.trim() === '' ? null : editForm.videoUrl.trim(),
-          reward: editForm.reward,
-          duration: editForm.duration,
-          goals: splitLines(editForm.goalsText),
-          concept: editForm.concept,
-          example: editForm.example,
-          gameType: editForm.gameType,
-          gameInstruction: editForm.gameInstruction,
-          gameOutcome: editForm.gameOutcome,
-          gameCards: splitLines(editForm.gameCardsText),
-          gameConfig: buildLectureGameConfig(editForm),
-          practiceInstruction: editForm.practiceInstruction,
-          product: editForm.product,
-          checkQuestion: editForm.checkQuestion,
-          checkOptions: [editForm.checkOption1, editForm.checkOption2, editForm.checkOption3],
-          correctIndex: Number(editForm.correctIndex),
-          checkExplain: editForm.checkExplain,
-        }),
-      })
-      setSelected({ ...selected, ...data.lecture })
-      showToast('Đã lưu bài giảng', 'success')
-      await loadLectures()
-    } catch (e) { showToast(e instanceof Error ? e.message : 'Không lưu được', 'error') }
-  }
-
   async function saveClass(e: React.FormEvent) {
     e.preventDefault()
     const name = (classForm.name || classInfo?.name || '').trim()
@@ -561,62 +436,17 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi cập nhật khóa', 'error') }
   }
 
-  async function createLecture(e: React.FormEvent) {
-    e.preventDefault()
-    if (!selectedCourseId) { showToast('Chọn khóa học trước', 'error'); return }
-    const readiness = lectureDraftReadiness(newLecture)
-    if (!readiness.complete) {
-      const missing = readiness.steps.flatMap((item) => item.missing)
-      showToast(`Bài học còn thiếu: ${missing.slice(0, 3).join(', ')}`, 'error')
-      return
-    }
-    try {
-      await api('/api/teacher/lectures', {
-        method: 'POST',
-        body: JSON.stringify({
-          courseId: selectedCourseId,
-          id: newLecture.id.trim(),
-          title: newLecture.title.trim(),
-          skill: newLecture.skill,
-          hook: newLecture.hook,
-          practiceKind: newLecture.practiceKind,
-          videoUrl: newLecture.videoUrl.trim() || undefined,
-          concept: newLecture.concept,
-          example: newLecture.example,
-          reward: newLecture.reward.trim() || undefined,
-          duration: newLecture.duration,
-          goals: splitLines(newLecture.goalsText),
-          gameType: newLecture.gameType,
-          gameInstruction: newLecture.gameInstruction,
-          gameOutcome: newLecture.gameOutcome,
-          gameCards: splitLines(newLecture.gameCardsText),
-          gameConfig: buildLectureGameConfig(newLecture),
-          practiceInstruction: newLecture.practiceInstruction,
-          product: newLecture.product,
-          checkQuestion: newLecture.checkQuestion,
-          checkOptions: [
-            newLecture.checkOption1,
-            newLecture.checkOption2,
-            newLecture.checkOption3,
-          ],
-          correctIndex: Number(newLecture.correctIndex),
-          checkExplain: newLecture.checkExplain,
-        }),
-      })
-      showToast('Đã tạo bài giảng', 'success')
-      setNewLecture(initialLectureForm())
-      setCreatingLecture(false)
-      await loadLectures()
-    } catch (e) { showToast(e instanceof Error ? e.message : 'Không tạo bài', 'error') }
-  }
-
   async function archiveLecture() {
     if (!archiveTarget) return
     try {
       await api(`/api/teacher/lectures/${archiveTarget.id}`, { method: 'DELETE' })
       showToast('Đã ẩn bài giảng (soft-archive)', 'success')
+      // WHY: nếu bài đang ẩn là bài đang mở trong editor, đóng drawer để tránh bị kẹt.
+      if (drawerLecture?.id === archiveTarget.id) {
+        setDrawerMode('none')
+        setDrawerLecture(null)
+      }
       setArchiveTarget(null)
-      setSelected(null)
       await loadLectures()
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Không ẩn được', 'error')
@@ -835,9 +665,21 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               <h2 id="course-list-title" className="font-display text-xl text-text">Khóa học</h2>
               <p className="mt-1 text-sm text-muted">Khóa của bạn có thể sửa. Khóa hệ thống chỉ xem và dùng trong lớp.</p>
             </div>
-            <div className="flex flex-wrap gap-2">
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
               <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700">{courses.filter((c) => !c.readOnly).length} khóa của bạn</span>
               <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-bold text-purple-700">{courses.filter((c) => c.readOnly).length} khóa hệ thống</span>
+              <button
+                type="button"
+                id="open-course-modal-btn"
+                onClick={() => { setCourseModalMode('create'); setCourseModalCourse(null) }}
+                style={{
+                  padding: '0.375rem 0.875rem', borderRadius: '0.5rem', border: 'none',
+                  background: 'linear-gradient(135deg, #6366f1, #a78bfa)',
+                  color: '#fff', fontSize: '0.8125rem', fontWeight: 700, cursor: 'pointer',
+                }}
+              >
+                ✨ Tạo khóa học mới
+              </button>
             </div>
           </div>
         </div>
@@ -881,8 +723,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                       variant="secondary"
                       onClick={() => {
                         setSelectedCourseId(course.id)
-                        setSelected(null)
-                        setCreatingLecture(false)
                         navigate('/teacher/lectures')
                       }}
                     >
@@ -893,28 +733,11 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                         <Button
                           variant="ghost"
                           onClick={() => {
-                            // WHY: Pre-fill form từ dữ liệu hiện tại — giáo viên thấy giá trị cũ rõ ràng.
-                            const meta = courses.find((c) => c.id === course.id)
-                            setEditCourseForm({
-                              id: course.id,
-                              title: course.title,
-                              shortTitle: course.shortTitle ?? '',
-                              tagline: '',
-                              description: '',
-                              productLabel: '',
-                              ageTrack: course.ageTrack ?? 'L1',
-                              courseKey: course.courseKey ?? 'K1',
-                              durationLabel: '',
-                              skillsText: '',
-                              outcomesText: '',
-                              credential: '',
-                              finalAssessment: '',
-                              ...meta,
-                            } as CourseDraft)
-                            setEditingCourse(course.id)
+                            setCourseModalMode('edit')
+                            setCourseModalCourse(course)
                           }}
                         >
-                          Sửa thông tin
+                          ✨ Sửa thông tin
                         </Button>
                         <Button
                           variant="ghost"
@@ -970,12 +793,11 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               value={selectedCourseId}
               onChange={(event) => {
                 setSelectedCourseId(event.target.value)
-                setSelected(null)
-                setCreatingLecture(false)
+                setDrawerMode('none')
               }}
             >
               <option value="">Chọn một khóa học</option>
-              {courses.map((course) => <option key={course.id} value={course.id}>{course.shortTitle || course.title}</option>)}
+              {courses.map((course) => <option key={course.id} value={course.id}>{course.shortTitle || course.title}{course.ageTrack ? ` · ${course.ageTrack}` : ''}{course.readOnly ? ' (Hệ thống)' : ''}</option>)}
             </select>
           </label>
         </div>
@@ -994,17 +816,16 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               </div>
               <Button
                 className="mt-3 w-full"
+                id="open-lecture-drawer-btn"
                 onClick={() => {
-                  setSelected(null)
-                  setNewLecture(initialLectureForm())
-                  setCreatingLecture(true)
+                  setDrawerMode('create')
+                  setDrawerLecture(null)
                 }}
               >
-                Thêm bài học
+                + Thêm bài học
               </Button>
             </div>
 
-            {/* Lecture search + archive filter */}
             <div className="flex flex-col gap-2 border-b border-border/60 px-3 py-3">
               <div className="relative">
                 <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
@@ -1054,25 +875,71 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                 {lecturesPag.slice.map((lecture) => {
                   const index = lectures.indexOf(lecture)
                   return (
-                    <li key={lecture.id} className={cn('p-3', lecture.archived && 'opacity-60')}>
+                    <li
+                      key={lecture.id}
+                      className={cn(
+                        'rounded-xl p-2 transition',
+                        lecture.archived ? 'bg-orange-50 ring-1 ring-orange-200' : '',
+                      )}
+                    >
                       <button
                         type="button"
                         className={cn(
                           'min-h-11 w-full rounded-xl px-3 py-2 text-left transition',
-                          selected?.id === lecture.id && !creatingLecture ? 'bg-brand-50 text-brand-700 ring-2 ring-brand-200' : 'hover:bg-sky-50',
+                          drawerLecture?.id === lecture.id && drawerMode !== 'none'
+                            ? 'bg-brand-50 text-brand-700 ring-2 ring-brand-200'
+                            : lecture.archived ? 'hover:bg-orange-100' : 'hover:bg-sky-50',
                         )}
                         onClick={() => {
-                          setCreatingLecture(false)
-                          pickLecture(lecture)
+                          setDrawerMode('edit')
+                          setDrawerLecture(lecture)
                         }}
+                        aria-label={`Chỉnh sửa ${lecture.title}`}
                       >
-                        <span className="block text-xs font-bold text-muted">Bài {index + 1}{lecture.archived ? ' · Đang ẩn' : ''}</span>
-                        <span className="mt-0.5 block font-bold text-text">{lecture.title}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="block text-xs font-bold text-muted">Bài {index + 1}</span>
+                          {lecture.archived && (
+                            <span className="rounded-full bg-orange-200 px-2 py-0.5 text-xs font-extrabold text-orange-700">
+                              🔴 Đang ẩn
+                            </span>
+                          )}
+                        </div>
+                        <span className="mt-0.5 block font-bold text-text truncate">{lecture.title}</span>
                         <span className="mt-1 block text-xs text-muted">{PRACTICE_OPTIONS.find((option) => option.id === lecture.practiceKind)?.label ?? 'Hoạt động sáng tạo'}{lecture.videoUrl ? ' · Có video' : ''}</span>
                       </button>
-                      <div className="mt-1 flex justify-end gap-1">
-                        <button type="button" className="min-h-11 rounded-lg px-3 text-xs font-bold text-muted hover:bg-sky-50 disabled:opacity-30" disabled={index === 0} onClick={() => void moveLecture(lecture.id, -1)} aria-label={`Đưa ${lecture.title} lên trước`}>Lên</button>
-                        <button type="button" className="min-h-11 rounded-lg px-3 text-xs font-bold text-muted hover:bg-sky-50 disabled:opacity-30" disabled={index === lectures.length - 1} onClick={() => void moveLecture(lecture.id, 1)} aria-label={`Đưa ${lecture.title} xuống sau`}>Xuống</button>
+                      {/* WHY: readOnly → chỉ hiện nút Xem (không sửa/ẩn) để tránh 403.
+                           Editable courses → hiện đủ Lên/Xuống/Sửa/Ẩn như bình thường. */}
+                      <div className="mt-1 flex items-center justify-between gap-1">
+                        {activeCourse?.readOnly ? (
+                          // System course: teacher chỉ được xem nội dung
+                          <button
+                            type="button"
+                            className={cn('min-h-9 rounded-lg px-3 text-xs font-bold hover:bg-sky-50', drawerLecture?.id === lecture.id && drawerMode !== 'none' ? 'text-sky-600 bg-sky-50' : 'text-sky-600')}
+                            onClick={() => { setDrawerMode('edit'); setDrawerLecture(lecture) }}
+                            aria-label={`Xem ${lecture.title}`}
+                          >👁 Xem</button>
+                        ) : (
+                          // Editable course: đủ action buttons
+                          <>
+                            <div className="flex gap-1">
+                              <button type="button" className="min-h-9 rounded-lg px-2 text-xs font-bold text-muted hover:bg-sky-50 disabled:opacity-30" disabled={index === 0} onClick={() => void moveLecture(lecture.id, -1)} aria-label={`Đưa ${lecture.title} lên trước`}>↑ Lên</button>
+                              <button type="button" className="min-h-9 rounded-lg px-2 text-xs font-bold text-muted hover:bg-sky-50 disabled:opacity-30" disabled={index === lectures.length - 1} onClick={() => void moveLecture(lecture.id, 1)} aria-label={`Đưa ${lecture.title} xuống sau`}>↓ Xuống</button>
+                            </div>
+                            <div className="flex gap-1">
+                              <button
+                                type="button"
+                                className={cn('min-h-9 rounded-lg px-2 text-xs font-bold hover:bg-brand-50', drawerLecture?.id === lecture.id && drawerMode !== 'none' ? 'text-brand-600 bg-brand-50' : 'text-brand-600')}
+                                onClick={() => { setDrawerMode('edit'); setDrawerLecture(lecture) }}
+                                aria-label={`Sửa ${lecture.title}`}
+                              >✏️ Sửa</button>
+                              {lecture.archived ? (
+                                <button type="button" className="min-h-9 rounded-lg px-2 text-xs font-extrabold text-white bg-green-500 hover:bg-green-600 transition" onClick={() => void restoreLecture(lecture.id)} aria-label={`Bật lại ${lecture.title}`}>🟢 Bật lại</button>
+                              ) : (
+                                <button type="button" className="min-h-9 rounded-lg px-2 text-xs font-bold text-danger hover:bg-red-50" onClick={() => setArchiveTarget(lecture)} aria-label={`Ẩn ${lecture.title}`}>🔴 Ẩn</button>
+                              )}
+                            </div>
+                          </>
+                        )}
                       </div>
                     </li>
                   )
@@ -1088,49 +955,110 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
         )}
       </aside>
 
-      <main className="min-w-0">
-        {creatingLecture && selectedCourseId ? (
-          <LectureAuthoringForm
-            value={newLecture}
-            onChange={setNewLecture}
-            onSubmit={(event) => void createLecture(event)}
-            submitLabel="Tạo bài học"
-            idEditable
-            onCancel={() => setCreatingLecture(false)}
-          />
-        ) : selected ? (
-          <LectureAuthoringForm
-            value={editForm}
-            onChange={setEditForm}
-            onSubmit={(event) => void saveLecture(event)}
-            submitLabel="Lưu thay đổi"
-            onCancel={() => setSelected(null)}
-            secondaryActions={selected.archived ? (
-              <Button type="button" variant="secondary" onClick={() => void restoreLecture(selected.id)}>Khôi phục bài học</Button>
-            ) : (
-              <Button type="button" variant="ghost" className="text-danger" onClick={() => setArchiveTarget(selected)}>Ẩn bài học</Button>
-            )}
+      <main className="min-w-0" style={{ display: 'flex', flexDirection: 'column' }}>
+        {drawerMode !== 'none' && selectedCourseId ? (
+          // WHY: key = lecture id (edit) hoặc '__new__' (create) — buộc React unmount+remount LectureDrawer
+          // khi giáo viên chuyển sang bài khác hoặc vào create mode.
+          // Nếu không có key, draft state bên trong bị giữ lại từ lần mount trước (React useState chỉ init 1 lần).
+          <LectureDrawer
+            key={drawerMode === 'edit' ? (drawerLecture?.id ?? '__edit__') : '__new__'}
+            inline
+            courseId={selectedCourseId}
+            readOnly={!!activeCourse?.readOnly}
+            archived={drawerMode === 'edit' && !!drawerLecture?.archived}
+            onArchive={() => drawerLecture && setArchiveTarget(drawerLecture)}
+            onRestore={() => drawerLecture && void restoreLecture(drawerLecture.id)}
+            lecture={drawerMode === 'edit' && drawerLecture
+              ? {
+                  id: drawerLecture.id,
+                  title: drawerLecture.title,
+                  skill: drawerLecture.skill ?? '',
+                  hook: drawerLecture.hook ?? '',
+                  practiceKind: (drawerLecture.practiceKind as import('../lib/authoring').LectureDraft['practiceKind']) ?? 'journal',
+                  videoUrl: drawerLecture.videoUrl ?? '',
+                  concept: drawerLecture.concept ?? '',
+                  example: drawerLecture.example ?? '',
+                  reward: drawerLecture.reward ?? '',
+                  duration: drawerLecture.duration ?? '',
+                  goalsText: (drawerLecture.goals ?? []).join('\n'),
+                  gameType: drawerLecture.gameType ?? 'math-kids',
+                  gameMode: (drawerLecture.gameConfig?.selectionMode as 'required' | 'student_choice') ?? 'required',
+                  gameAllowedTypes: drawerLecture.gameConfig?.allowedTypes ?? [drawerLecture.gameType ?? 'math-kids'],
+                  gameDifficulty: (drawerLecture.gameConfig?.difficulty as 'gentle' | 'steady' | 'challenge') ?? 'steady',
+                  gameInstruction: drawerLecture.gameInstruction ?? '',
+                  gameOutcome: drawerLecture.gameOutcome ?? '',
+                  gameCardsText: (drawerLecture.gameCards ?? []).join('\n'),
+                  gameStructuredText: serializeLectureGameConfig(drawerLecture.gameType ?? '', drawerLecture.gameConfig),
+                  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                  questionCount: typeof (drawerLecture.gameConfig as any)?.questionCount === 'number'
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                    ? (drawerLecture.gameConfig as any).questionCount as number
+                    : 6,
+                  practiceInstruction: drawerLecture.practiceInstruction ?? '',
+                  product: drawerLecture.product ?? '',
+                  checkQuestions: Array.isArray((drawerLecture.gameConfig as Record<string, unknown>)?.checkQuestions)
+                    ? (drawerLecture.gameConfig as Record<string, unknown>).checkQuestions as import('../lib/authoring').CheckQuestion[]
+                    : (drawerLecture.checkQuestion ? [{
+                        id: 'legacy-0',
+                        prompt: drawerLecture.checkQuestion ?? '',
+                        options: [
+                          drawerLecture.checkOptions?.[0] ?? '',
+                          drawerLecture.checkOptions?.[1] ?? '',
+                          drawerLecture.checkOptions?.[2] ?? '',
+                        ].filter((o) => o.length > 0),
+                        answer: drawerLecture.correctIndex ?? 0,
+                        explain: drawerLecture.checkExplain ?? '',
+                      }] : []),
+                  checkQuestion: drawerLecture.checkQuestion ?? '',
+                  checkOption1: drawerLecture.checkOptions?.[0] ?? '',
+                  checkOption2: drawerLecture.checkOptions?.[1] ?? '',
+                  checkOption3: drawerLecture.checkOptions?.[2] ?? '',
+                  correctIndex: String(drawerLecture.correctIndex ?? 0),
+                  checkExplain: drawerLecture.checkExplain ?? '',
+                }
+              : null
+            }
+            onSaved={() => void loadLectures()}
+            onClose={() => { setDrawerMode('none'); setDrawerLecture(null) }}
           />
         ) : activeCourse ? (
           <section className="ui-card p-8 text-center">
+            <div style={{ fontSize: '3rem', marginBottom: '0.75rem' }}>📚</div>
             <p className="font-display text-2xl text-text">{activeCourse.shortTitle || activeCourse.title}</p>
-            <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted">
-              Chọn một bài bên trái để chỉnh sửa, hoặc thêm bài mới. Mỗi bài cần đủ bốn trạm: Khám phá, Trò chơi, Sáng tạo và Thử tài.
-            </p>
-            <div className="mt-5 flex flex-wrap justify-center gap-2">
-              <Button onClick={() => setCreatingLecture(true)}>Thêm bài học</Button>
-              <Button
-                variant="secondary"
-                disabled={lectures.filter((lecture) => !lecture.archived).length === 0}
-                onClick={() => void patchCourseStatus(activeCourse.id, activeCourse.status === 'open' ? 'soon' : 'open')}
-              >
-                {activeCourse.status === 'open' ? 'Ẩn khỏi học sinh' : 'Mở cho học sinh'}
-              </Button>
-            </div>
+            {activeCourse.readOnly ? (
+              // WHY: Global courses chỉ giảng viên admin mới chỉnh được — hiển thị rõ để tránh nhầm lẫn
+              <p className="mx-auto mt-3 max-w-sm rounded-xl bg-amber-50 px-4 py-3 text-sm font-bold text-amber-700 ring-1 ring-amber-200">
+                👀 Khóa học hệ thống — chỉ xem, không thể chỉnh sửa
+              </p>
+            ) : (
+              <>
+                <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted">
+                  Click vào bài học bên trái để chỉnh sửa, hoặc nhấn <strong>+ Thêm bài học</strong> để tạo mới.
+                  Mỗi bài cần đủ bốn trạm: Khám phá, Trò chơi, Sáng tạo và Thử tài.
+                </p>
+                <div className="mt-5 flex flex-wrap justify-center gap-2">
+                  <Button
+                    onClick={() => {
+                      setDrawerMode('create')
+                      setDrawerLecture(null)
+                    }}
+                  >
+                    + Thêm bài học
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    disabled={lectures.filter((lecture) => !lecture.archived).length === 0}
+                    onClick={() => void patchCourseStatus(activeCourse.id, activeCourse.status === 'open' ? 'soon' : 'open')}
+                  >
+                    {activeCourse.status === 'open' ? 'Ẩn khỏi học sinh' : 'Mở cho học sinh'}
+                  </Button>
+                </div>
+              </>
+            )}
           </section>
         ) : (
           <section className="ui-card p-8 text-center">
-            <p className="font-display text-xl text-text">Chọn một khóa học để bắt đầu</p>
+            <p className="text-sm text-muted">Chọn khóa học từ cột bên để xem bài giảng.</p>
           </section>
         )}
       </main>
@@ -1314,6 +1242,37 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
         onConfirm={() => void archiveLecture()}
         onCancel={() => setArchiveTarget(null)}
       />
+
+
+      {/* ── CourseFormModal ──────────────────────────────────────── */}
+      {courseModalMode !== 'none' && (
+        <CourseFormModal
+          course={courseModalMode === 'edit' && courseModalCourse
+            ? {
+                id: courseModalCourse.id,
+                title: courseModalCourse.title,
+                shortTitle: courseModalCourse.shortTitle ?? '',
+                tagline: '',
+                description: '',
+                productLabel: '',
+                ageTrack: courseModalCourse.ageTrack ?? '',
+                courseKey: courseModalCourse.courseKey ?? '',
+                durationLabel: '',
+                skillsText: '',
+                outcomesText: '',
+                credential: '',
+                finalAssessment: '',
+              }
+            : null
+          }
+          onSaved={(newCourseId) => {
+            void loadLectures()
+            if (newCourseId) setSelectedCourseId(newCourseId)
+          }}
+          onClose={() => { setCourseModalMode('none'); setCourseModalCourse(null) }}
+        />
+      )}
     </div>
   )
 }
+
