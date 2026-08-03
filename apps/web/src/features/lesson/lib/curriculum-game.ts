@@ -194,20 +194,16 @@ const GAME_TYPES = new Set<string>(CURRICULUM_GAME_TYPES)
 
 // WHY: Giữ alias cho backward compat với DB configs cũ đã lưu
 const LEGACY_GAME_ALIASES: Record<string, CurriculumGameType> = {
-  pick: 'data-runner',
-  spin: 'data-runner',
-  sort: 'data-runner',
-  combine: 'data-runner',
-  order: 'data-runner',
-  drag: 'data-runner',
-  place: 'data-runner',
-  blockly: 'data-runner',
-  'math-kids': 'data-runner',
-  compare: 'truth-patrol',
-  match: 'truth-patrol',
-  detective: 'truth-patrol',
-  'battle-math': 'truth-patrol',
-  edukiz: 'truth-patrol',
+  pick: 'math-kids',
+  spin: 'math-kids',
+  sort: 'blockly',
+  combine: 'blockly',
+  order: 'blockly',
+  drag: 'blockly',
+  place: 'blockly',
+  compare: 'battle-math',
+  match: 'edukiz',
+  detective: 'edukiz',
 }
 
 function record(value: unknown): Record<string, unknown> {
@@ -237,9 +233,8 @@ export function safeGameAssetPath(value: unknown): string {
 
 export function normalizeGameType(value?: string): CurriculumGameType {
   if (!value) return 'data-runner'
-  return LEGACY_GAME_ALIASES[value] ?? (
-    GAME_TYPES.has(value) ? value as CurriculumGameType : 'data-runner'
-  )
+  if (GAME_TYPES.has(value)) return value as CurriculumGameType
+  return LEGACY_GAME_ALIASES[value] ?? 'data-runner'
 }
 
 export function sanitizeAllowedGameTypes(value: unknown): CurriculumGameType[] {

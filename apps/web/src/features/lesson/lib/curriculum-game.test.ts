@@ -42,17 +42,18 @@ const patrolWave = {
 }
 
 describe('DB-authored AI game configuration', () => {
-  it('normalizes legacy ids into the two current engines', () => {
-    expect(normalizeGameType('blockly')).toBe('data-runner')
-    expect(normalizeGameType('math-kids')).toBe('data-runner')
-    expect(normalizeGameType('battle-math')).toBe('truth-patrol')
-    expect(normalizeGameType('edukiz')).toBe('truth-patrol')
+  it('keeps supported engines stable and maps legacy interactions compatibly', () => {
+    expect(normalizeGameType('blockly')).toBe('blockly')
+    expect(normalizeGameType('math-kids')).toBe('math-kids')
+    expect(normalizeGameType('battle-math')).toBe('battle-math')
+    expect(normalizeGameType('edukiz')).toBe('edukiz')
+    expect(normalizeGameType('detective')).toBe('edukiz')
     expect(sanitizeAllowedGameTypes([
       'blockly',
       'data-runner',
       'battle-math',
       'truth-patrol',
-    ])).toEqual(['data-runner', 'truth-patrol'])
+    ])).toEqual(['blockly', 'data-runner', 'battle-math', 'truth-patrol'])
   })
 
   it('accepts only complete catalog and lobby data with local assets', () => {
@@ -104,7 +105,7 @@ describe('DB-authored AI game configuration', () => {
       difficulty: 'challenge',
     }, 'data-runner')).toEqual({
       selectionMode: 'student_choice',
-      allowedTypes: ['data-runner', 'truth-patrol'],
+      allowedTypes: ['data-runner', 'blockly', 'battle-math'],
       difficulty: 'challenge',
     })
     expect(missionProgress(2, 3)).toBe(67)
