@@ -37,6 +37,61 @@ export function strongPrompt(value: PromptLabValue): string {
     .join('. ')
 }
 
+type StrongPromptKey = 'role' | 'task' | 'context' | 'format'
+
+const PROMPT_PARTS: Array<{
+  key: StrongPromptKey
+  label: string
+  hint: string
+  tone: string
+  choices: string[]
+}> = [
+  {
+    key: 'role',
+    label: 'Vai trò',
+    hint: 'AI sẽ hóa thân thành ai?',
+    tone: 'border-brand-200 bg-brand-50 text-brand-700',
+    choices: [
+      'Hãy đóng vai một họa sĩ minh họa cho trẻ em',
+      'Hãy đóng vai một người kể chuyện sáng tạo',
+      'Hãy đóng vai một trợ lý học tập thân thiện',
+    ],
+  },
+  {
+    key: 'task',
+    label: 'Nhiệm vụ',
+    hint: 'AI cần làm điều gì?',
+    tone: 'border-sky-200 bg-sky-50 text-sky-700',
+    choices: [
+      'Vẽ một chú mèo cam đang chơi bóng',
+      'Viết một câu chuyện ngắn về tình bạn',
+      'Giải thích ý tưởng bằng từ ngữ dễ hiểu',
+    ],
+  },
+  {
+    key: 'context',
+    label: 'Ngữ cảnh',
+    hint: 'Sản phẩm dành cho ai, ở đâu?',
+    tone: 'border-mint-200 bg-mint-50 text-mint-700',
+    choices: [
+      'Dành cho học sinh 8–11 tuổi',
+      'Trong một khu vườn đầy hoa và ánh nắng',
+      'Dùng ngôn ngữ tích cực, an toàn và dễ hiểu',
+    ],
+  },
+  {
+    key: 'format',
+    label: 'Định dạng',
+    hint: 'Kết quả cần trông như thế nào?',
+    tone: 'border-sun-200 bg-sun-50 text-sun-700',
+    choices: [
+      'Trình bày thành 3 ý ngắn gọn',
+      'Tranh màu nước, khung vuông, màu ấm',
+      'Một đoạn văn dưới 80 từ và có tiêu đề',
+    ],
+  },
+]
+
 export function PromptLab({
   value,
   onChange,
@@ -74,30 +129,70 @@ export function PromptLab({
         </label>
       </div>
 
-      <fieldset className="rounded-2xl border-2 border-brand-100 bg-brand-50/40 p-4">
-        <legend className="px-2 font-display text-lg">3. Prompt tốt · cấu trúc 4 phần</legend>
-        <div className="grid gap-3 sm:grid-cols-2">
-          {([
-            ['role', 'Vai trò', 'Hãy đóng vai họa sĩ minh họa cho trẻ em'],
-            ['task', 'Nhiệm vụ', 'Vẽ một chú mèo cam đang chơi bóng'],
-            ['context', 'Ngữ cảnh', 'Trong khu vườn đầy hoa, không dùng chữ'],
-            ['format', 'Định dạng', 'Tranh màu nước, khung vuông, màu ấm'],
-          ] as const).map(([key, label, placeholder]) => (
-            <label key={key} className="flex flex-col gap-1 text-sm font-bold">
-              {label}
-              <textarea
-                className="min-h-20 rounded-xl border-2 border-border bg-white p-3 font-normal"
-                value={value[key]}
-                maxLength={240}
-                placeholder={placeholder}
-                onChange={(event) => field(key, event.target.value)}
-              />
-            </label>
-          ))}
+      <fieldset className="rounded-3xl border-2 border-brand-100 bg-brand-50/40 p-4 sm:p-5">
+        <legend className="px-2 font-display text-lg">3. Lắp prompt tốt · đủ 4 mảnh</legend>
+        <p className="mb-4 text-sm text-muted">
+          Chọn một mảnh ở mỗi trạm. Con có thể đổi mảnh cho đến khi prompt đúng ý.
+        </p>
+
+        <div className="grid gap-4 lg:grid-cols-2">
+          {PROMPT_PARTS.map(({ key, label, hint, tone, choices }, index) => {
+            const mediumChoice = key === 'task' && value.medium.trim().length >= 8
+              ? value.medium.trim()
+              : null
+            const availableChoices = mediumChoice
+              ? [mediumChoice, ...choices.filter((choice) => choice !== mediumChoice)]
+              : choices
+
+            return (
+              <fieldset key={key} className="rounded-2xl border border-border bg-white p-3 sm:p-4">
+                <legend className="px-1 font-bold text-text">
+                  <span className={`mr-2 inline-grid h-7 w-7 place-items-center rounded-lg border ${tone}`}>
+                    {index + 1}
+                  </span>
+                  {label}
+                </legend>
+                <p className="mb-3 mt-1 text-sm text-muted">{hint}</p>
+
+                <div
+                  className={`mb-3 flex min-h-14 items-center rounded-xl border-2 border-dashed p-3 text-sm font-bold ${value[key] ? tone : 'border-border bg-surface text-muted'}`}
+                  aria-live="polite"
+                >
+                  {value[key] || `Chưa có mảnh ${label.toLocaleLowerCase('vi-VN')}`}
+                </div>
+
+                <div className="flex flex-wrap gap-2">
+                  {availableChoices.map((choice) => (
+                    <button
+                      key={choice}
+                      type="button"
+                      aria-pressed={value[key] === choice}
+                      onClick={() => field(key, choice)}
+                      className={`min-h-11 rounded-xl border px-3 py-2 text-left text-sm font-bold transition active:translate-y-px ${
+                        value[key] === choice
+                          ? tone
+                          : 'border-border bg-white text-text hover:border-brand-200 hover:bg-brand-50'
+                      }`}
+                    >
+                      {choice}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+            )
+          })}
         </div>
-        <div className="mt-3 rounded-xl bg-white p-3 text-sm">
-          <strong>Prompt hoàn chỉnh:</strong>{' '}
-          {strongPrompt(value) || 'Điền 4 phần để xem prompt được ghép lại.'}
+
+        <div className="mt-4 rounded-2xl border border-brand-100 bg-white p-4">
+          <div className="mb-2 flex items-center justify-between gap-3">
+            <strong className="font-display text-lg">Prompt đã lắp</strong>
+            <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-extrabold text-brand-700">
+              {[value.role, value.task, value.context, value.format].filter((part) => part.trim()).length}/4 mảnh
+            </span>
+          </div>
+          <p className="text-sm leading-relaxed text-text">
+            {strongPrompt(value) || 'Chọn các mảnh phía trên để lắp prompt của con.'}
+          </p>
         </div>
       </fieldset>
 
