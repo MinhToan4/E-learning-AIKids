@@ -25,6 +25,7 @@ import {
 } from './reward-assets'
 import { RewardEffectArtwork } from './RewardEffectArtwork'
 import { profilePageThemeStyle } from './student-theme'
+import { profileCardEdgeBackgroundStyle } from './profile-backgrounds'
 import { displayableWardrobeRewards } from './reward-inventory'
 
 const kindLabels: Record<RewardKind, string> = {
@@ -98,26 +99,15 @@ function RewardArtwork({
     return <RewardEffectArtwork rewardId={reward.id} large={large} />
   }
 
-  if (reward.kind === 'background') {
+  if (reward.kind === 'background' || reward.kind === 'theme') {
+    const backgroundStyle = reward.kind === 'background'
+      ? profileCardEdgeBackgroundStyle(reward.id)
+      : profilePageThemeStyle(reward.id)
     return (
       <span
-        className={`inline-flex aspect-[3/1] overflow-hidden rounded-2xl border-2 border-white shadow-soft ${large ? 'w-40' : 'w-24'}`}
+        className={`inline-flex aspect-[3/1] overflow-hidden rounded-xl border-2 border-white shadow-soft ${large ? 'w-full max-w-72' : 'w-full max-w-40'}`}
         data-profile-composition="v1"
-      >
-        <RewardAssetImage
-          src={assetUrl}
-          className="h-full w-full object-cover"
-          fallback={<span className="flex h-full w-full items-center justify-center bg-brand-50 text-3xl" aria-hidden>{reward.icon}</span>}
-        />
-      </span>
-    )
-  }
-
-  if (reward.kind === 'theme') {
-    return (
-      <span
-        className={`inline-flex overflow-hidden rounded-2xl border-2 border-white shadow-soft ${large ? 'h-36 w-24' : 'h-20 w-14'}`}
-        style={{ ...profilePageThemeStyle(reward.id), backgroundSize: 'auto 100%' }}
+        style={{ ...backgroundStyle, backgroundSize: 'cover', backgroundPosition: 'center' }}
         aria-hidden="true"
       />
     )
@@ -419,8 +409,12 @@ export function RewardCollection({
                     : 'border-border bg-white hover:bg-brand-50/60'
                 }`}
               >
-                <span className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-2xl" aria-hidden="true">
-                  {kind === 'effect' && reward
+                <span className={`mx-auto flex h-11 items-center justify-center rounded-xl bg-brand-50 text-2xl ${
+                  kind === 'background' || kind === 'theme' ? 'w-full px-1' : 'w-11'
+                }`} aria-hidden="true">
+                  {(kind === 'background' || kind === 'theme') && reward
+                    ? <RewardArtwork reward={reward} />
+                    : kind === 'effect' && reward
                     ? <RewardEffectArtwork rewardId={reward.id} />
                     : <RewardAssetImage
                         src={assetUrl}
@@ -515,7 +509,11 @@ export function RewardCollection({
         const equipped = isEquippedReward(previewReward, equipment)
         const assetUrl = resolveCatalogRewardAsset(previewReward, 'preview')
         return (
-          <aside className="mt-4 grid gap-5 rounded-3xl border border-brand-100 bg-brand-50 p-5 sm:grid-cols-[10rem_1fr] sm:items-center" aria-label={`Xem trước ${previewReward.name}`}>
+          <aside className={`mt-4 grid gap-5 rounded-3xl border border-brand-100 bg-brand-50 p-5 sm:items-center ${
+            previewReward.kind === 'background' || previewReward.kind === 'theme'
+              ? 'sm:grid-cols-[18rem_1fr]'
+              : 'sm:grid-cols-[10rem_1fr]'
+          }`} aria-label={`Xem trước ${previewReward.name}`}>
             <div className="flex min-h-40 items-center justify-center rounded-2xl bg-white shadow-soft">
               <RewardArtwork reward={previewReward} assetUrl={assetUrl} large />
             </div>

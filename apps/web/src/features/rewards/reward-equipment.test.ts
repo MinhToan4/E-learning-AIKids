@@ -22,8 +22,7 @@ describe('server reward equipment', () => {
 
 describe('profile card contrast', () => {
   it('uses light text for dark reward backgrounds', () => {
-    expect(profileCardBackgroundTone('background-ai-gate')).toBe('dark')
-    expect(profileCardBackgroundTone('background-forest-guardian')).toBe('dark')
+    expect(profileCardBackgroundTone('background-level-21')).toBe('dark')
   })
 
   it('uses dark text for light and default backgrounds', () => {
@@ -40,26 +39,26 @@ describe('profile card contrast', () => {
     )
   })
 
-  it('renders the Paco workshop as a blueprint-inspired page theme', () => {
+  it('renders the Paco workshop with edge artwork and a quiet center', () => {
     const style = profilePageThemeStyle('theme-paco-workshop')
 
-    expect(style.backgroundColor).toBe('#eefaff')
-    expect(style.backgroundSize).toContain('48px')
-    expect(style.backgroundImage).toContain('#fff9df')
+    expect(style.backgroundColor).toBe('#fff8e8')
+    expect(style.backgroundSize).toContain('76rem')
+    expect(style.backgroundImage).toContain('profile-edge-playground')
   })
 
-  it('uses responsive CSS artwork for dynamic page themes', () => {
+  it('uses responsive edge artwork for dynamic page themes', () => {
     const style = profilePageThemeStyle('theme-level-20')
 
-    expect(String(style.backgroundImage ?? '')).not.toContain('url(')
-    expect(style.backgroundColor).toBe('#f1faff')
+    expect(String(style.backgroundImage ?? '')).toContain('url(')
+    expect(style.backgroundColor).toBe('#f7e8e5')
   })
 
-  it('rejects square illustration tiers as profile-card backgrounds', () => {
+  it('uses the wide local artwork instead of square reward illustrations', () => {
     const style = profileCardBackgroundStyle('background-level-21')
 
-    expect(String(style.backgroundImage ?? '')).not.toContain('url(')
-    expect(style).toEqual(profileCardBackgroundStyle())
+    expect(String(style.backgroundImage ?? '')).toContain('profile-edge-stars')
+    expect(style.backgroundSize).toBe('cover')
   })
 })
 

@@ -1,10 +1,10 @@
 import type { CSSProperties } from 'react'
 import type { RewardKind } from '@/shared/lib/creation/rewards'
+import { getGeneratedRewardAssetUrl, getResolvedRewardAssetUrl } from './reward-assets'
 import {
-  getGeneratedRewardAssetUrl,
-  getResolvedRewardAssetUrl,
-  getSharedLevelRewardAssetId,
-} from './reward-assets'
+  profileCardEdgeBackgroundStyle,
+  profileEdgeBackgroundTone,
+} from './profile-backgrounds'
 export { profilePageThemeStyle } from './student-theme'
 export { getGeneratedRewardAssetUrl } from './reward-assets'
 
@@ -143,53 +143,13 @@ export function rewardLevelBadgeStyle(frameId?: string): CSSProperties {
 }
 
 export function profileCardBackgroundStyle(backgroundId?: string): CSSProperties {
-  const sharedAsset = getSharedLevelRewardAssetId(backgroundId)
-  const isResponsiveLandscape = !sharedAsset || new Set([
-    'background-community-legend',
-    'background-paco-cosmic',
-    'background-paco-workshop',
-  ]).has(sharedAsset)
-  const generatedAsset = isResponsiveLandscape
-    ? getResolvedRewardAssetUrl(backgroundId)
-    : undefined
-  if (generatedAsset) {
-    return {
-      backgroundColor: '#433070',
-      backgroundImage: `linear-gradient(90deg,rgba(30,27,75,.18),rgba(30,27,75,.04)),url("${generatedAsset}")`,
-      backgroundPosition: 'center',
-      backgroundRepeat: 'no-repeat',
-      backgroundSize: 'cover',
-    }
-  }
-  if (backgroundId === 'background-ai-gate') {
-    return {
-      backgroundColor: '#40247c',
-      backgroundImage: [
-        'radial-gradient(circle at 82% 78%,rgba(255,245,157,.95) 0 3%,rgba(251,191,36,.64) 8%,transparent 27%)',
-        'radial-gradient(circle at 76% 18%,rgba(56,189,248,.24),transparent 30%)',
-        'linear-gradient(180deg,rgba(47,31,103,.24) 0%,transparent 48%,rgba(245,158,11,.28) 100%)',
-        'linear-gradient(125deg,#38206f 0%,#7650a1 48%,#efad55 100%)',
-      ].join(','),
-      boxShadow: 'inset 0 0 52px rgba(30,27,75,.28)',
-    }
-  }
-  if (backgroundId === 'background-ocean-artist') return { background: 'radial-gradient(circle at 80% 20%,#fb7185,transparent 28%),linear-gradient(135deg,#e0f2fe,#38bdf8)' }
-  if (backgroundId === 'background-forest-guardian') return { background: 'radial-gradient(circle at 85% 20%,#a3e635,transparent 25%),linear-gradient(135deg,#dcfce7,#166534)', color: 'white' }
-  return {
-    background:
-      'radial-gradient(circle at 85% 15%,rgba(61,191,255,.18),transparent 28%),linear-gradient(135deg,#f5f3ff,#f1faff,#fffbec)',
-  }
+  return profileCardEdgeBackgroundStyle(backgroundId)
 }
 
 export type ProfileCardBackgroundTone = 'light' | 'dark'
 
 export function profileCardBackgroundTone(backgroundId?: string): ProfileCardBackgroundTone {
-  return new Set([
-    'background-ai-gate',
-    'background-forest-guardian',
-  ]).has(backgroundId ?? '')
-    ? 'dark'
-    : 'light'
+  return profileEdgeBackgroundTone(backgroundId)
 }
 
 export function getRewardAssetUrl(rewardId: string): string | undefined {
