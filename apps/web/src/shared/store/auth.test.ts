@@ -74,6 +74,31 @@ describe('auth store', () => {
     )
   })
 
+  it('fails closed and clears learner state when the JWT expires', () => {
+    useAuth.setState({
+      user: {
+        id: 'child-1',
+        role: 'student',
+        email: null,
+        nickname: 'Mây',
+        avatarId: null,
+        level: 2,
+        xp: 20,
+        onboarded: true,
+        goal: null,
+        parentId: 'parent-1',
+        classId: null,
+      },
+    })
+
+    useAuth.getState().expireSession()
+
+    expect(useAuth.getState().user).toBeNull()
+    expect(useAuth.getState().error).toContain('hết hạn')
+    expect(mocks.clearAccessToken).toHaveBeenCalled()
+    expect(mocks.clearOfflineLearningData).toHaveBeenCalled()
+  })
+
   it('selects the platform context for an admin that also has a parent persona', async () => {
     mocks.api
       .mockResolvedValueOnce({

@@ -5,7 +5,7 @@ import { AppShell } from '@/shared/components/layout/AppShell'
 import { AgeExperienceProvider } from '@/shared/age-experience/AgeExperienceProvider'
 import { WelcomePage } from '@/features/auth/pages/WelcomePage'
 import { LoginPage } from '@/features/auth/pages/LoginPage'
-import type { User } from '@/shared/lib/api'
+import { AUTH_UNAUTHORIZED_EVENT, type User } from '@/shared/lib/api'
 
 // Lazy auth pages
 const RegisterPage = lazy(() =>
@@ -223,9 +223,14 @@ function Guard({
 
 export function App() {
   const bootstrap = useAuth((s) => s.bootstrap)
+  const expireSession = useAuth((s) => s.expireSession)
   useEffect(() => {
     void bootstrap()
   }, [bootstrap])
+  useEffect(() => {
+    window.addEventListener(AUTH_UNAUTHORIZED_EVENT, expireSession)
+    return () => window.removeEventListener(AUTH_UNAUTHORIZED_EVENT, expireSession)
+  }, [expireSession])
 
   return (
     // AgeExperienceProvider fetches age-band policy for students and exposes

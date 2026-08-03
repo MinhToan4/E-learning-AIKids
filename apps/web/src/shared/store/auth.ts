@@ -56,6 +56,7 @@ type AuthState = {
   patchMe: (data: Partial<Pick<User, 'onboarded' | 'goal' | 'nickname' | 'avatarId'>>) => Promise<User>
   setUser: (u: User | null) => void
   selectContext: (contextId: string) => Promise<AccessContext>
+  expireSession: () => void
 }
 
 function roleForContext(context: AccessContext): User['role'] {
@@ -132,6 +133,19 @@ export const useAuth = create<AuthState>((set, get) => ({
   enteredFromParent: false,
 
   setUser: (u) => set({ user: u }),
+
+  expireSession: () => {
+    clearAccessToken()
+    void clearPreviousLearnerData()
+    set({
+      user: null,
+      access: null,
+      activeContext: null,
+      loading: false,
+      error: 'Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.',
+      enteredFromParent: false,
+    })
+  },
 
   bootstrap: async () => {
     set({ loading: true, error: null })

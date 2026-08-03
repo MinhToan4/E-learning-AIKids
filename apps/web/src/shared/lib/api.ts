@@ -3,6 +3,7 @@ import { createUuid } from './uuid'
 
 const API_BASE = environment.apiBaseUrl
 const TOKEN_KEY = 'storymee.access_token'
+export const AUTH_UNAUTHORIZED_EVENT = 'storymee:auth-unauthorized'
 
 export function gatewayUrl(path: string): string {
   return `${API_BASE}${path}`
@@ -161,6 +162,15 @@ async function executeApi<T>(
   }
 
   if (!res.ok) {
+    // A JWT can expire while a route is already mounted. Fail closed and let
+    // the auth store return the shared device to login instead of leaving a
+    // child-facing screen populated with a gateway implementation error.
+    if (res.status === 401 && token) {
+      clearAccessToken()
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT))
+      }
+    }
     // 401 on /me during bootstrap is normal when logged out — still throw for callers
     const msg =
       typeof data === 'object' && data && 'error' in data

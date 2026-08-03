@@ -1,5 +1,12 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
-import { api, clearAccessToken, type AchievementRow } from './api'
+import {
+  api,
+  AUTH_UNAUTHORIZED_EVENT,
+  clearAccessToken,
+  getAccessToken,
+  setAccessToken,
+  type AchievementRow,
+} from './api'
 
 function response(body: unknown, status = 200) {
   return new Response(JSON.stringify(body), {
@@ -86,6 +93,20 @@ describe('StoryMee Gateway adapter', () => {
     const secondRequest = fetchMock.mock.calls[1]
     expect((secondRequest[1].headers as Headers).get('Authorization'))
       .toBe('Bearer storymee-jwt')
+  })
+
+  it('clears an expired consumer session and announces the auth failure', async () => {
+    setAccessToken('expired-storymee-jwt')
+    const unauthorized = vi.fn()
+    window.addEventListener(AUTH_UNAUTHORIZED_EVENT, unauthorized, { once: true })
+    vi.stubGlobal('fetch', vi.fn().mockResolvedValue(
+      response({ error: 'Consumer JWT required' }, 401),
+    ))
+
+    await expect(api('/api/backpack')).rejects.toMatchObject({ status: 401 })
+
+    expect(getAccessToken()).toBeNull()
+    expect(unauthorized).toHaveBeenCalledOnce()
   })
 
   it('sends an adult username through the unified account login field', async () => {
