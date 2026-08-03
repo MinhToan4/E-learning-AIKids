@@ -26,6 +26,49 @@ export async function fetchRemoteBlob(url: string): Promise<Blob> {
   return response.blob()
 }
 
+/**
+ * The only browser-to-storage write boundary. The upload URL must be issued by
+ * StoryMee Hub and remain on the configured StoryMee storage origin. Auth
+ * tokens and cookies are intentionally never forwarded.
+ */
+export async function uploadToStoryMeeStorage(
+  uploadUrl: string,
+  body: Blob,
+  uploadHeaders: Record<string, string> = {},
+): Promise<void> {
+  let target: URL
+  try {
+    target = new URL(uploadUrl)
+  } catch {
+    throw new Error('StoryMee trả về địa chỉ upload không hợp lệ.')
+  }
+
+  if (target.origin !== environment.storagePublicUrl) {
+    throw new Error('Địa chỉ upload không thuộc StoryMee Storage.')
+  }
+
+  const headers = new Headers(uploadHeaders)
+  headers.delete('authorization')
+  headers.delete('cookie')
+  if (!headers.has('Content-Type') && body.type) {
+    headers.set('Content-Type', body.type)
+  }
+
+  const response = await fetch(target, {
+    method: 'PUT',
+    body,
+    headers,
+    credentials: 'omit',
+    redirect: 'error',
+  })
+  if (!response.ok) {
+    throw new ApiError(
+      response.status,
+      `Không tải được tệp lên StoryMee Storage (HTTP ${response.status}).`,
+    )
+  }
+}
+
 export class ApiError extends Error {
   status: number
   body: unknown
@@ -1594,6 +1637,9 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
                 rewardLabel: milestone.rewardLabel
                   ? String(milestone.rewardLabel)
                   : undefined,
+                rewardAssetId: milestone.rewardAssetId
+                  ? String(milestone.rewardAssetId)
+                  : undefined,
                 unlocked: milestone.unlocked === true,
                 unlockedAt: milestone.unlockedAt
                   ? String(milestone.unlockedAt)
@@ -1614,6 +1660,9 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
           points: definition.points == null ? undefined : Number(definition.points),
           rewardLabel: definition.rewardLabel
             ? String(definition.rewardLabel)
+            : undefined,
+          rewardAssetId: definition.rewardAssetId
+            ? String(definition.rewardAssetId)
             : undefined,
           seriesKey: definition.seriesKey
             ? String(definition.seriesKey)
@@ -1939,12 +1988,14 @@ export type AchievementRow = {
   currentValue?: number
   points?: number
   rewardLabel?: string
+  rewardAssetId?: string
   seriesKey?: string
   milestones?: Array<{
     threshold: number
     label?: string
     points?: number
     rewardLabel?: string
+    rewardAssetId?: string
     unlocked?: boolean
     unlockedAt?: string | null
   }>

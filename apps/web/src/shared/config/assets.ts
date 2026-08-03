@@ -15,6 +15,12 @@ export const designerAssets = {
     playLearn: '/assets/designer/brand/lets_play_and_learn.svg',
     cosmic: '/assets/designer/brand/cosmic_bg.svg',
   },
+  companions: {
+    cloud: '/assets/designer/companions/paco-cloud-companion.png',
+    leaf: '/assets/designer/companions/paco-leaf-companion.png',
+    sea: '/assets/designer/companions/paco-sea-companion.png',
+    fire: '/assets/designer/companions/paco-fire-companion.png',
+  },
   lobby: {
     bgHome: '/assets/designer/lobby/bg-home.webp',
     bgLogin: '/assets/optimized/lobby-bg-login.webp',

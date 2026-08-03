@@ -10,7 +10,6 @@ export interface ExplorerLevel {
   title: string
   xpRequired: number
   reward: string
-  storybookSticker?: string
 }
 
 export const EXPLORER_LEVELS: readonly ExplorerLevel[] = [
@@ -18,12 +17,12 @@ export const EXPLORER_LEVELS: readonly ExplorerLevel[] = [
   { level: 2, title: 'Người Tìm Tòi', xpRequired: 100, reward: 'Avatar Paco Xanh' },
   { level: 3, title: 'Nhà Khám Phá', xpRequired: 200, reward: 'Khung Cầu Vồng' },
   { level: 4, title: 'Người Săn Ý Tưởng', xpRequired: 300, reward: 'Nền trang Xưởng Sáng Tạo' },
-  { level: 5, title: 'Nhà Thám Hiểm Ánh Sao', xpRequired: 400, reward: 'Sticker P04-S1', storybookSticker: 'P04-S1' },
+  { level: 5, title: 'Nhà Thám Hiểm Ánh Sao', xpRequired: 400, reward: 'Sticker Nhà Thám Hiểm' },
   { level: 6, title: 'Người Dẫn Đường', xpRequired: 500, reward: 'Hiệu ứng sticker Lấp Lánh' },
   { level: 7, title: 'Kiến Trúc Sư Thế Giới', xpRequired: 600, reward: 'Khung Dải Ngân Hà' },
   { level: 8, title: 'Người Truyền Lửa', xpRequired: 700, reward: '1 vé thử thách đặc biệt' },
   { level: 9, title: 'Người Giữ Ánh Sao', xpRequired: 800, reward: 'Mở hint Boss sớm' },
-  { level: 10, title: 'Huyền Thoại Trẻ', xpRequired: 900, reward: 'Nền trang Storybook Huyền Thoại', storybookSticker: 'P04-S9' },
+  { level: 10, title: 'Huyền Thoại Trẻ', xpRequired: 900, reward: 'Nền trang Storybook Huyền Thoại' },
 ] as const
 
 export function xpRequiredForLevel(level: number): number {

@@ -5,13 +5,17 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc -b && vite build",
+    "assets:validate": "node scripts/validate-reward-assets.mjs",
+    "rewards:pack": "node scripts/reward-pack-cli.mjs",
+    "rewards:pack:test": "node --test scripts/reward-pack-lib.test.mjs",
+    "build": "npm run assets:validate && tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc -b --pretty false"
   },
   "dependencies": {
     "clsx": "^2.1.1",
+    "fflate": "^0.8.3",
     "firebase": "^12.16.0",
     "lucide-react": "^0.515.0",
     "react": "^19.2.7",

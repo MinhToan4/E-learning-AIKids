@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { Link } from 'react-router'
 import { Check, ChevronDown, Lock, Search } from 'lucide-react'
 import { api, type AchievementRow } from '@/shared/lib/api'
@@ -10,15 +10,8 @@ import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { designerAssets } from '@/shared/config/assets'
 import { Button } from '@/shared/components/ui/Button'
 import { NavBadgeIcon } from '@/shared/components/icons/KidNavIcons'
-
-type XpProfile = {
-  totalXp: number
-  level: number
-  xpIntoLevel: number
-  xpToNextLevel: number
-  nextLevelXp: number
-  nextLevelRewards: Array<{ id: string; name: string; icon: string }>
-}
+import { getGeneratedRewardAssetUrl } from '@/features/rewards/reward-assets'
+import { displayableAchievements } from '../achievement-inventory'
 
 type StatusFilter = 'all' | 'unlocked' | 'locked'
 
@@ -32,10 +25,57 @@ const categoryLabels: Record<string, string> = {
   habit: 'Thói quen',
   streak: 'Thói quen',
   stars: 'Ngôi sao',
-  xp: 'XP',
+  xp: 'Cấp độ',
+  level: 'Cấp độ',
   collaboration: 'Cộng tác',
   starter: 'Khởi hành',
   general: 'Khác',
+}
+
+function SafeAchievementImage({ src, className, fallback = null }: {
+  src?: string
+  className: string
+  fallback?: ReactNode
+}) {
+  const [failed, setFailed] = useState(false)
+  if (!src || failed) return <>{fallback}</>
+  return <img src={src} alt="" loading="lazy" decoding="async" className={className} onError={() => setFailed(true)} />
+}
+
+function AchievementRewardPreview({
+  item,
+  compact = false,
+}: {
+  item: AchievementRow
+  compact?: boolean
+}) {
+  if (!item.rewardLabel) return null
+  const rewardAssetUrl = getGeneratedRewardAssetUrl(item.rewardAssetId)
+  return (
+    <span
+      className={cn(
+        'inline-flex items-center gap-2 rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-100 font-black text-amber-900',
+        compact ? 'max-w-full px-2 py-1 text-[11px]' : 'p-2 pr-3 text-xs',
+      )}
+      title={item.rewardLabel}
+    >
+      {rewardAssetUrl && (
+        <span className={cn(
+          'flex shrink-0 items-center justify-center rounded-xl bg-white shadow-soft',
+          compact ? 'h-8 w-8' : 'h-12 w-12',
+        )}>
+          <SafeAchievementImage
+            src={rewardAssetUrl}
+            className={compact ? 'h-7 w-7 object-contain' : 'h-11 w-11 object-contain'}
+            fallback={<span aria-hidden>🎁</span>}
+          />
+        </span>
+      )}
+      <span className={cn(compact ? 'truncate' : 'line-clamp-2')}>
+        {item.rewardLabel}
+      </span>
+    </span>
+  )
 }
 
 function categoryLabel(value: string) {
@@ -56,6 +96,8 @@ function AchievementArtwork({
   size?: 'md' | 'lg'
 }) {
   const imageIcon = item.icon.startsWith('/') || item.icon.startsWith('http')
+    ? item.icon
+    : undefined
   return (
     <div
       className={cn(
@@ -65,9 +107,11 @@ function AchievementArtwork({
       )}
       aria-hidden="true"
     >
-      {imageIcon
-        ? <img src={item.icon} alt="" className="h-4/5 w-4/5 object-contain" />
-        : item.icon}
+      <SafeAchievementImage
+        src={imageIcon}
+        className="h-4/5 w-4/5 object-contain"
+        fallback={item.icon.startsWith('/') || item.icon.startsWith('http') ? '🏅' : item.icon}
+      />
     </div>
   )
 }
@@ -166,18 +210,22 @@ function AchievementMilestones({ item }: { item: AchievementRow }) {
   )
 }
 
-function CumulativeJourneyCard({
+function AchievementJourneyCard({
   items,
+  onOpen,
 }: {
   items: AchievementRow[]
+  onOpen: () => void
 }) {
-  const [expanded, setExpanded] = useState(false)
   const sorted = [...items].sort((a, b) => a.requiredValue - b.requiredValue)
   const reached = sorted.filter((item) => item.unlocked)
   const nextMilestone = sorted.find((item) => !item.unlocked)
-  const currentFloor = reached.at(-1)?.requiredValue ?? 0
+  const currentValue = Math.max(
+    reached.at(-1)?.requiredValue ?? 0,
+    ...sorted.map((item) => item.currentValue ?? 0),
+  )
   const finalTarget = sorted.at(-1)?.requiredValue ?? 1
-  const percent = Math.min(100, Math.round((currentFloor / finalTarget) * 100))
+  const percent = Math.min(100, Math.round((currentValue / finalTarget) * 100))
   const label = categoryLabel(sorted[0]?.category ?? 'general')
 
   return (
@@ -185,12 +233,11 @@ function CumulativeJourneyCard({
       <button
         type="button"
         className="flex min-h-14 w-full items-start justify-between gap-3 text-left"
-        aria-expanded={expanded}
-        onClick={() => setExpanded((open) => !open)}
+        onClick={onOpen}
       >
         <div>
           <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
-            Chặng tích lũy
+            Hành trình huy hiệu
           </p>
           <h3 className="font-display text-2xl">{label}</h3>
           <p className="mt-1 text-sm font-bold text-muted">
@@ -203,7 +250,7 @@ function CumulativeJourneyCard({
           </span>
           <ChevronDown
             size={20}
-            className={cn('mt-3 transition-transform', expanded && 'rotate-180')}
+            className="-rotate-90"
             aria-hidden="true"
           />
         </span>
@@ -214,50 +261,12 @@ function CumulativeJourneyCard({
           style={{ width: `${percent}%` }}
         />
       </div>
-      {!expanded && nextMilestone && (
+      {nextMilestone && (
         <p className="mt-3 text-sm font-bold text-muted">
           Tiếp theo: <span className="text-text">{nextMilestone.title}</span>
           {' · '}{nextMilestone.requiredValue}
         </p>
       )}
-      {expanded && <ol className="mt-4 space-y-2">
-        {sorted.map((item) => (
-          <li
-            key={item.type}
-            className={cn(
-              'flex items-center gap-3 rounded-2xl border p-3',
-              item.unlocked
-                ? 'border-mint-200 bg-mint-50'
-                : 'border-border bg-white',
-            )}
-          >
-            <span
-              className={cn(
-                'flex h-9 w-9 shrink-0 items-center justify-center rounded-full font-black',
-                item.unlocked
-                  ? 'bg-mint-400 text-white'
-                  : 'bg-brand-50 text-brand-700',
-              )}
-              aria-hidden="true"
-            >
-              {item.unlocked ? <Check size={17} /> : item.requiredValue}
-            </span>
-            <div className="min-w-0 flex-1">
-              <p className="font-extrabold leading-tight">{item.title}</p>
-              <p className="text-xs font-bold text-muted">
-                Mốc {item.requiredValue}
-                {item.rewardLabel ? ` · ${item.rewardLabel}` : ''}
-              </p>
-            </div>
-            <span className={cn(
-              'text-xs font-extrabold',
-              item.unlocked ? 'text-success' : 'text-muted',
-            )}>
-              {item.unlocked ? 'Đã đạt' : 'Tiếp theo'}
-            </span>
-          </li>
-        ))}
-      </ol>}
     </article>
   )
 }
@@ -274,19 +283,26 @@ function AchievementCard({ item }: { item: AchievementRow }) {
     >
       <div className="flex items-start justify-between gap-3">
         <AchievementArtwork item={item} />
-        <span
-          className={cn(
-            'inline-flex min-h-8 items-center gap-1 rounded-full px-3 text-xs font-extrabold',
-            item.unlocked
-              ? 'bg-mint-100 text-success'
-              : 'bg-brand-50 text-brand-700',
+        <div className="flex flex-wrap justify-end gap-1.5">
+          <span
+            className={cn(
+              'inline-flex min-h-8 items-center gap-1 rounded-full px-3 text-xs font-extrabold',
+              item.unlocked
+                ? 'bg-mint-100 text-success'
+                : 'bg-brand-50 text-brand-700',
+            )}
+          >
+            {item.unlocked
+              ? <Check size={15} aria-hidden="true" />
+              : <Lock size={14} aria-hidden="true" />}
+            {item.unlocked ? 'Đã mở' : 'Đang khám phá'}
+          </span>
+          {item.points != null && item.points > 0 && (
+            <span className="inline-flex min-h-8 items-center rounded-full bg-amber-100 px-3 text-xs font-black text-amber-800">
+              {item.points} điểm
+            </span>
           )}
-        >
-          {item.unlocked
-            ? <Check size={15} aria-hidden="true" />
-            : <Lock size={14} aria-hidden="true" />}
-          {item.unlocked ? 'Đã mở' : 'Đang khám phá'}
-        </span>
+        </div>
       </div>
       <div className="flex-1">
         {item.category && (
@@ -300,19 +316,60 @@ function AchievementCard({ item }: { item: AchievementRow }) {
         <AchievementMilestones item={item} />
       </div>
       <div className="border-t border-border pt-3 text-sm font-bold">
-        {item.unlocked ? (
+        {item.rewardLabel ? (
+          <div>
+            <p className="mb-2 text-xs font-black uppercase tracking-wide text-warning">Phần thưởng</p>
+            <AchievementRewardPreview item={item} />
+          </div>
+        ) : item.unlocked ? (
           <p className="text-success">
             Hoàn thành
             {item.unlockedAt
               ? ` · ${new Date(item.unlockedAt).toLocaleDateString('vi-VN')}`
               : ''}
           </p>
-        ) : item.rewardLabel ? (
-          <p className="text-warning">Phần thưởng: {item.rewardLabel}</p>
         ) : (
-          <p className="text-muted">Hoàn thành điều kiện để nhận huy hiệu</p>
+          <p className="text-muted">Hoàn thành điều kiện để mở huy hiệu</p>
         )}
       </div>
+    </article>
+  )
+}
+
+function CompactAchievementRow({ item }: { item: AchievementRow }) {
+  const percent = progressPercent(item)
+  return (
+    <article className={cn(
+      'ui-card flex items-center gap-3 p-3',
+      item.unlocked && 'border-mint-200 bg-gradient-to-r from-white to-mint-50',
+    )}>
+      <AchievementArtwork item={item} />
+      <div className="min-w-0 flex-1">
+        <h3 className="truncate font-display text-lg">{item.title}</h3>
+        <p className="line-clamp-1 text-xs font-bold text-muted">{item.description}</p>
+        <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+          <span className={cn(
+            'rounded-full px-2 py-1 text-[11px] font-black',
+            item.unlocked ? 'bg-mint-100 text-success' : 'bg-brand-50 text-brand-700',
+          )}>
+            {item.unlocked ? '✓ Đã đạt' : `${item.currentValue ?? 0}/${item.requiredValue}`}
+          </span>
+          {item.rewardLabel && (
+            <AchievementRewardPreview item={item} compact />
+          )}
+        </div>
+        {percent != null && !item.unlocked && (
+          <div className="mt-2 h-2 overflow-hidden rounded-full bg-brand-50">
+            <div className="h-full rounded-full bg-gradient-to-r from-mint-400 to-brand-500" style={{ width: `${percent}%` }} />
+          </div>
+        )}
+      </div>
+      {item.points != null && item.points > 0 && (
+        <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-full border-2 border-amber-300 bg-gradient-to-br from-amber-50 to-amber-200 text-amber-900 shadow-soft" aria-label={`${item.points} điểm thành tựu`}>
+          <span className="text-sm font-black leading-none">{item.points}</span>
+          <span className="text-[9px] font-black uppercase leading-none">điểm</span>
+        </div>
+      )}
     </article>
   )
 }
@@ -322,27 +379,16 @@ export function AchievementsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [category, setCategory] = useState('all')
+  const [view, setView] = useState<'overview' | 'catalog'>('overview')
   const [status, setStatus] = useState<StatusFilter>('all')
   const [query, setQuery] = useState('')
-  const [xpProfile, setXpProfile] = useState<XpProfile>({
-    totalXp: 0,
-    level: 1,
-    xpIntoLevel: 0,
-    xpToNextLevel: 100,
-    nextLevelXp: 100,
-    nextLevelRewards: [],
-  })
-
+  const [displayLimit, setDisplayLimit] = useState(8)
   const load = useCallback(async () => {
     setLoading(true)
     setError(null)
     try {
-      const [data, profile] = await Promise.all([
-        api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
-        api<XpProfile>('/api/gamification/profile'),
-      ])
-      setItems(data.achievements.filter((item) => !item.hidden || item.unlocked))
-      setXpProfile(profile)
+      const data = await api<{ achievements: AchievementRow[] }>('/api/gamification/achievements')
+      setItems(displayableAchievements(data.achievements))
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Không tải được thành tựu')
     } finally {
@@ -354,46 +400,51 @@ export function AchievementsPage() {
     void load()
   }, [load])
 
-  const unlocked = items.filter((item) => item.unlocked)
-  const overallPercent = items.length
-    ? Math.round((unlocked.length / items.length) * 100)
+  useEffect(() => {
+    setDisplayLimit(8)
+  }, [category, query, status, view])
+
+  const allItems = items
+  const unlocked = allItems.filter((item) => item.unlocked)
+  const overallPercent = allItems.length
+    ? Math.round((unlocked.length / allItems.length) * 100)
     : 0
   const achievementPoints = unlocked.reduce(
     (total, item) => total + (item.points ?? 0),
     0,
   )
-  const levelProgress = Math.min(100, Math.max(0, xpProfile.xpIntoLevel))
   const categories = useMemo(
-    () => [...new Set(items.map((item) => categoryLabel(item.category ?? 'general')))],
-    [items],
+    () => [...new Set(allItems.map((item) => categoryLabel(item.category ?? 'general')))],
+    [allItems],
   )
-  const cumulativeJourneys = useMemo(() => {
+  const achievementJourneys = useMemo(() => {
     const grouped = new Map<string, AchievementRow[]>()
-    for (const item of items) {
+    for (const item of allItems) {
       if (!item.category) continue
-      grouped.set(item.category, [...(grouped.get(item.category) ?? []), item])
+      const journeyLabel = categoryLabel(item.category)
+      grouped.set(journeyLabel, [...(grouped.get(journeyLabel) ?? []), item])
     }
-    return [...grouped.values()].filter((group) => group.length >= 2)
-  }, [items])
+    return [...grouped.values()]
+  }, [allItems])
   const nearCompletion = useMemo(
-    () => items
+    () => allItems
       .filter((item) => {
         const percent = progressPercent(item)
         return !item.unlocked && percent != null && percent > 0
       })
       .sort((a, b) => (progressPercent(b) ?? 0) - (progressPercent(a) ?? 0))
       .slice(0, 3),
-    [items],
+    [allItems],
   )
   const recent = useMemo(
     () => [...unlocked]
       .sort((a, b) => Date.parse(b.unlockedAt ?? '') - Date.parse(a.unlockedAt ?? ''))
       .slice(0, 3),
-    [items],
+    [allItems],
   )
   const filtered = useMemo(() => {
     const normalizedQuery = query.trim().toLocaleLowerCase('vi')
-    return items.filter((item) => {
+    return allItems.filter((item) => {
       if (
         category !== 'all' &&
         categoryLabel(item.category ?? 'general') !== category
@@ -405,7 +456,7 @@ export function AchievementsPage() {
         .toLocaleLowerCase('vi')
         .includes(normalizedQuery)
     })
-  }, [category, items, query, status])
+  }, [allItems, category, query, status])
 
   return (
     <PageMotion className="flex flex-col gap-5">
@@ -431,14 +482,14 @@ export function AchievementsPage() {
               ← Về sảnh
             </Link>
           </div>
-          {!loading && items.length > 0 && (
+          {!loading && allItems.length > 0 && (
             <div className="rounded-3xl border border-brand-100 bg-white/90 p-4 shadow-soft">
               <div className="flex items-center gap-3">
                 <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-sun-100" aria-hidden="true">
                   <NavBadgeIcon size={29} />
                 </span>
                 <div>
-                  <p className="font-display text-2xl">{unlocked.length}/{items.length}</p>
+                  <p className="font-display text-2xl">{unlocked.length}/{allItems.length}</p>
                   <p className="text-sm font-bold text-muted">thành tựu đã mở</p>
                 </div>
               </div>
@@ -462,7 +513,7 @@ export function AchievementsPage() {
       {error && <ErrorState message={error} onRetry={() => void load()} inline />}
       {loading && <CardGridSkeleton count={6} />}
 
-      {!loading && !error && items.length === 0 && (
+      {!loading && !error && allItems.length === 0 && (
         <EmptyState
           title="Chưa có thành tựu"
           description="Hoàn thành bài học đầu tiên để bắt đầu bộ sưu tập nhé!"
@@ -470,103 +521,104 @@ export function AchievementsPage() {
         />
       )}
 
-      {!loading && items.length > 0 && (
+      {!loading && allItems.length > 0 && (
         <>
           <section className="ui-card grid gap-4 p-5 lg:grid-cols-[1.15fr_1fr] lg:items-center" aria-labelledby="reward-guidance-title">
             <div>
               <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
-                Đường đến phần thưởng
+                Hai hành trình liên kết
               </p>
               <h2 id="reward-guidance-title" className="font-display text-2xl">
-                Cấp {xpProfile.level} · {xpProfile.totalXp.toLocaleString('vi-VN')} XP
+                Huy hiệu ghi nhận điều con đã làm
               </h2>
-              <div className="mt-3 h-3 overflow-hidden rounded-full bg-brand-50 shadow-inner">
-                <div
-                  className="h-full rounded-full bg-gradient-to-r from-mint-400 to-brand-500"
-                  style={{ width: `${levelProgress}%` }}
-                />
-              </div>
               <p className="mt-2 text-sm font-bold text-muted">
-                Còn {xpProfile.xpToNextLevel.toLocaleString('vi-VN')} XP để lên Cấp {xpProfile.level + 1}
+                XP và quà theo cấp được quản lý tại Hành trình phần thưởng; huy hiệu theo dõi các cột mốc học tập riêng.
               </p>
-              {xpProfile.nextLevelRewards.length > 0 && (
-                <p className="mt-1 text-sm font-extrabold text-warning">
-                  Quà sắp nhận: {xpProfile.nextLevelRewards.map((reward) => `${reward.icon} ${reward.name}`).join(' · ')}
-                </p>
-              )}
+              <Link to="/level" className="mt-3 inline-flex min-h-11 items-center font-extrabold text-brand-700 hover:underline">
+                Xem hành trình XP →
+              </Link>
             </div>
-            <div className="grid grid-cols-3 gap-2">
-              <Link to="/home" className="rounded-2xl border border-border bg-white p-3 text-center text-sm font-extrabold">
+            <div className="grid gap-2 sm:grid-cols-3">
+              <Link to="/home" className="flex min-h-11 items-center justify-center rounded-2xl border border-border bg-white p-3 text-center text-sm font-extrabold">
                 Học bài
               </Link>
-              <Link to="/creative" className="rounded-2xl border border-border bg-white p-3 text-center text-sm font-extrabold">
+              <Link to="/creative" className="flex min-h-11 items-center justify-center rounded-2xl border border-border bg-white p-3 text-center text-sm font-extrabold">
                 Sáng tạo
               </Link>
-              <Link to="/storybook" className="rounded-2xl border border-border bg-white p-3 text-center text-sm font-extrabold">
+              <Link to="/storybook" className="flex min-h-11 items-center justify-center rounded-2xl border border-border bg-white p-3 text-center text-sm font-extrabold">
                 Lấy sticker
               </Link>
             </div>
           </section>
 
-          {categories.length > 0 && (
-            <section aria-labelledby="achievement-categories-title">
-              <h2 id="achievement-categories-title" className="mb-3 font-display text-2xl">
-                Các hành trình
-              </h2>
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-                {categories.map((itemCategory) => {
-                  const categoryItems = items.filter(
-                    (item) => categoryLabel(item.category ?? 'general') === itemCategory,
-                  )
-                  const categoryUnlocked = categoryItems.filter((item) => item.unlocked).length
-                  const percent = Math.round((categoryUnlocked / categoryItems.length) * 100)
-                  return (
-                    <button
-                      key={itemCategory}
-                      type="button"
-                      onClick={() => setCategory(category === itemCategory ? 'all' : itemCategory)}
-                      aria-pressed={category === itemCategory}
-                      className={cn(
-                        'ui-card min-h-32 p-4 text-left transition hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus',
-                        category === itemCategory && 'border-brand-300 bg-brand-50 shadow-press',
-                      )}
-                    >
-                      <NavBadgeIcon size={32} aria-hidden="true" />
-                      <p className="mt-2 font-display text-lg leading-tight capitalize">
-                        {itemCategory}
-                      </p>
-                      <p className="text-sm font-bold text-muted">
-                        {categoryUnlocked}/{categoryItems.length} · {percent}%
-                      </p>
-                    </button>
-                  )
-                })}
-              </div>
-            </section>
-          )}
+          <nav className="ui-card flex gap-2 overflow-x-auto p-2" aria-label="Khu vực thành tựu">
+            <button
+              type="button"
+              onClick={() => { setView('overview'); setCategory('all') }}
+              aria-pressed={view === 'overview'}
+              className={cn(
+                'min-h-11 shrink-0 rounded-2xl px-4 text-sm font-extrabold',
+                view === 'overview' ? 'bg-brand-600 text-white shadow-press' : 'text-brand-700',
+              )}
+            >
+              Tổng quan
+            </button>
+            <button
+              type="button"
+              onClick={() => { setView('catalog'); setCategory('all') }}
+              aria-pressed={view === 'catalog' && category === 'all'}
+              className={cn(
+                'min-h-11 shrink-0 rounded-2xl px-4 text-sm font-extrabold',
+                view === 'catalog' && category === 'all' ? 'bg-brand-600 text-white shadow-press' : 'text-brand-700',
+              )}
+            >
+              Tất cả
+            </button>
+            {categories.map((itemCategory) => (
+              <button
+                key={itemCategory}
+                type="button"
+                onClick={() => { setView('catalog'); setCategory(itemCategory) }}
+                aria-pressed={view === 'catalog' && category === itemCategory}
+                className={cn(
+                  'min-h-11 shrink-0 rounded-2xl px-4 text-sm font-extrabold',
+                  view === 'catalog' && category === itemCategory ? 'bg-brand-600 text-white shadow-press' : 'text-brand-700',
+                )}
+              >
+                {itemCategory}
+              </button>
+            ))}
+          </nav>
 
-          {cumulativeJourneys.length > 0 && (
-            <section aria-labelledby="cumulative-journeys-title">
+          {view === 'overview' && achievementJourneys.length > 0 && (
+            <section aria-labelledby="achievement-journeys-title">
               <div className="mb-3">
                 <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
-                  Tiến bộ theo số lần
+                  Mỗi hành trình · nhiều cột mốc
                 </p>
-                <h2 id="cumulative-journeys-title" className="font-display text-2xl">
-                  Chặng tích lũy
+                <h2 id="achievement-journeys-title" className="font-display text-2xl">
+                  Hành trình huy hiệu
                 </h2>
+                <p className="mt-1 text-sm font-bold text-muted">
+                  Chọn một hành trình để xem các huy hiệu đã đạt và mục tiêu tiếp theo.
+                </p>
               </div>
               <div className="grid gap-4 lg:grid-cols-2">
-                {cumulativeJourneys.map((journey) => (
-                  <CumulativeJourneyCard
-                    key={journey[0]?.category}
+                {achievementJourneys.map((journey) => (
+                  <AchievementJourneyCard
+                    key={categoryLabel(journey[0]?.category ?? 'general')}
                     items={journey}
+                    onOpen={() => {
+                      setCategory(categoryLabel(journey[0]?.category ?? 'general'))
+                      setView('catalog')
+                    }}
                   />
                 ))}
               </div>
             </section>
           )}
 
-          {nearCompletion.length > 0 && (
+          {view === 'overview' && nearCompletion.length > 0 && (
             <section aria-labelledby="near-completion-title">
               <div className="mb-3">
                 <p className="text-xs font-extrabold uppercase tracking-wide text-mint-700">
@@ -584,7 +636,7 @@ export function AchievementsPage() {
             </section>
           )}
 
-          {recent.length > 0 && (
+          {view === 'overview' && recent.length > 0 && (
             <section aria-labelledby="recent-achievements-title">
               <div className="mb-3">
                 <p className="text-xs font-extrabold uppercase tracking-wide text-warning">
@@ -602,14 +654,14 @@ export function AchievementsPage() {
             </section>
           )}
 
-          <section aria-labelledby="all-achievements-title">
+          {view === 'catalog' && <section aria-labelledby="all-achievements-title">
             <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
               <div>
                 <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
-                  Bộ sưu tập đầy đủ
+                  {category === 'all' ? 'Bộ sưu tập đầy đủ' : 'Danh mục huy hiệu'}
                 </p>
                 <h2 id="all-achievements-title" className="font-display text-2xl">
-                  Tất cả thành tựu
+                  {category === 'all' ? 'Tất cả thành tựu' : category}
                 </h2>
               </div>
               <div className="flex flex-col gap-2 sm:flex-row">
@@ -643,29 +695,32 @@ export function AchievementsPage() {
               </div>
             </div>
 
-            {category !== 'all' && (
-              <button
-                type="button"
-                onClick={() => setCategory('all')}
-                className="mb-3 min-h-11 rounded-full bg-brand-50 px-4 text-sm font-extrabold text-brand-700"
-              >
-                {category} ×
-              </button>
-            )}
-
             {filtered.length > 0 ? (
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {filtered.map((item) => (
-                  <AchievementCard key={item.type} item={item} />
-                ))}
-              </div>
+              <>
+                <div className="grid gap-3 lg:grid-cols-2">
+                  {filtered.slice(0, displayLimit).map((item) => (
+                    <CompactAchievementRow key={item.type} item={item} />
+                  ))}
+                </div>
+                {filtered.length > displayLimit && (
+                  <div className="mt-4 flex justify-center">
+                    <button
+                      type="button"
+                      onClick={() => setDisplayLimit((limit) => limit + 8)}
+                      className="min-h-11 rounded-2xl bg-brand-50 px-5 text-sm font-extrabold text-brand-700"
+                    >
+                      Xem thêm {Math.min(8, filtered.length - displayLimit)} huy hiệu
+                    </button>
+                  </div>
+                )}
+              </>
             ) : (
               <div className="ui-card p-6 text-center">
                 <p className="font-display text-xl">Không tìm thấy thành tựu</p>
                 <p className="mt-1 text-sm text-muted">Thử đổi từ khóa hoặc bộ lọc nhé.</p>
               </div>
             )}
-          </section>
+          </section>}
         </>
       )}
     </PageMotion>

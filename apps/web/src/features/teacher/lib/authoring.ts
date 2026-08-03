@@ -191,6 +191,8 @@ export function serializeLectureGameConfig(
     selectionMode: _selectionMode,
     allowedTypes: _allowedTypes,
     difficulty: _difficulty,
+    questionCount: _questionCount,
+    quizQuestions: _quizQuestions,
     ...content
   } = config
   return Object.keys(content).length > 0 ? JSON.stringify(content, null, 2) : ''

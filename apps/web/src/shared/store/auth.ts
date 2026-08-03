@@ -26,9 +26,9 @@ type AuthState = {
   loading: boolean
   error: string | null
   /**
-   * WHY: true chỉ khi phụ huynh dùng luồng "Ba/Mẹ → Chuyển sang con" (enterAsChild).
+   * WHY: true chỉ khi phụ huynh dùng luồng "Ba / Mẹ → Chuyển sang con" (enterAsChild).
    * Con tự đăng nhập bằng nickname sẽ luôn là false.
-   * Đây là SSOT duy nhất để quyết định có hiển thị icon Ba/Mẹ trên Sidebar hay không.
+   * Đây là SSOT duy nhất để quyết định có hiển thị icon Ba / Mẹ trên Sidebar hay không.
    */
   enteredFromParent: boolean
   bootstrap: () => Promise<void>
@@ -128,7 +128,7 @@ export const useAuth = create<AuthState>((set, get) => ({
   activeContext: null,
   loading: true,
   error: null,
-  // WHY: false theo mặc định — icon Ba/Mẹ sẽ ẩn cho mọi luồng login thông thường
+  // WHY: false theo mặc định — icon Ba / Mẹ sẽ ẩn cho mọi luồng login thông thường
   enteredFromParent: false,
 
   setUser: (u) => set({ user: u }),

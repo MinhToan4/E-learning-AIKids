@@ -7,6 +7,12 @@ import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { designerAssets } from '@/shared/config/assets'
+import type { RewardKind } from '@/shared/lib/creation/rewards'
+import {
+  resolveCatalogRewardAsset,
+  type RewardCatalogAssets,
+} from '@/features/rewards/reward-catalog-assets'
+import { displayableRewardInventory } from '@/features/rewards/reward-inventory'
 
 type Asset = {
   id: string
@@ -25,6 +31,40 @@ type Project = {
   thumbnail: string
   content?: string
   shareStatus: string
+}
+
+type GamificationReward = {
+  code: string
+  name: string
+  description: string
+  kind: RewardKind
+  displayConfig?: { icon?: string }
+  assets?: RewardCatalogAssets
+}
+
+function RewardThumbnail({ src, onInvalid }: { src: string; onInvalid: () => void }) {
+  return (
+    <img
+      src={src}
+      alt=""
+      loading="lazy"
+      decoding="async"
+      className="h-full w-full object-contain"
+      onError={onInvalid}
+    />
+  )
+}
+
+const rewardKindLabels: Partial<Record<RewardKind, string>> = {
+  avatar: 'Avatar',
+  frame: 'Khung hồ sơ',
+  theme: 'Nền trang',
+  event_ticket: 'Vé sự kiện',
+  perk: 'Quyền đặc biệt',
+  title: 'Danh hiệu',
+  companion: 'Bạn đồng hành',
+  effect: 'Hiệu ứng',
+  background: 'Nền thẻ',
 }
 
 type GalleryFilter = 'all' | 'image' | 'comic' | 'story'
@@ -56,7 +96,7 @@ function kindLabel(kind: string) {
 
 function shareStatusLabel(status: string) {
   if (status === 'approved') return 'Đã được duyệt'
-  if (status === 'pending') return 'Đang chờ ba/mẹ duyệt'
+  if (status === 'pending') return 'Đang chờ Ba / Mẹ duyệt'
   return 'Chỉ mình con'
 }
 
@@ -92,6 +132,7 @@ function MediaThumbnail({
 export function BackpackPage() {
   const [assets, setAssets] = useState<Asset[]>([])
   const [projects, setProjects] = useState<Project[]>([])
+  const [rewards, setRewards] = useState<GamificationReward[]>([])
   const [msg, setMsg] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -101,13 +142,24 @@ export function BackpackPage() {
     setLoading(true)
     setError(null)
     try {
-      const [a, p] = await Promise.allSettled([
+      const [a, p, inventoryResult, catalogResult] = await Promise.allSettled([
         api<{ assets: Asset[] }>('/api/backpack'),
         api<{ projects: Project[] }>('/api/projects'),
+        api<{ inventory: Array<{ rewardId: string }> }>('/api/gamification/storybook'),
+        api<{ items: GamificationReward[] }>('/api/gamification/catalog?type=reward'),
       ])
       setAssets(a.status === 'fulfilled' ? a.value.assets : [])
       setProjects(p.status === 'fulfilled' ? p.value.projects : [])
-      const rejected = [a, p].find((result) => result.status === 'rejected')
+      if (inventoryResult.status === 'fulfilled' && catalogResult.status === 'fulfilled') {
+        const owned = new Set(inventoryResult.value.inventory.map((item) => item.rewardId))
+        setRewards(displayableRewardInventory(
+          catalogResult.value.items.filter((item) => owned.has(item.code)),
+        ))
+      } else {
+        setRewards([])
+      }
+      const rejected = [a, p, inventoryResult, catalogResult]
+        .find((result) => result.status === 'rejected')
       if (rejected?.status === 'rejected') {
         setError(
           rejected.reason instanceof Error
@@ -135,11 +187,11 @@ export function BackpackPage() {
     [filter, projects],
   )
   const counts = useMemo(() => ({
-    all: assets.length + projects.length,
+    all: assets.length + projects.length + rewards.length,
     image: assets.length + projects.filter((project) => filterKind(project.kind) === 'image').length,
     comic: projects.filter((project) => filterKind(project.kind) === 'comic').length,
     story: projects.filter((project) => filterKind(project.kind) === 'story').length,
-  }), [assets, projects])
+  }), [assets, projects, rewards])
 
   async function requestShare(projectId: string) {
     try {
@@ -189,6 +241,48 @@ export function BackpackPage() {
           </button>
         ))}
       </nav>
+
+      {filter === 'all' && (
+        <section aria-labelledby="reward-inventory-title">
+          <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
+            <div>
+              <p className="text-xs font-black uppercase tracking-wide text-brand-600">Kho phần thưởng</p>
+              <h2 id="reward-inventory-title" className="font-display text-2xl">Quà con đã nhận</h2>
+            </div>
+            <Link to="/profile" className="min-h-11 rounded-xl px-3 py-2 text-sm font-extrabold text-brand-700">
+              Dùng trên hồ sơ
+            </Link>
+          </div>
+          {rewards.length === 0 ? (
+            <p className="rounded-2xl bg-brand-50 p-4 text-sm font-bold text-muted">
+              Chưa có reward trong kho. Học và hoàn thành Storybook để mở quà nhé!
+            </p>
+          ) : (
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+              {rewards.map((reward) => {
+                const assetUrl = resolveCatalogRewardAsset({ id: reward.code, assets: reward.assets }, 'thumbnail')
+                return (
+                  <article key={reward.code} className="ui-card overflow-hidden p-3">
+                    <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-brand-50">
+                      {assetUrl && (
+                        <RewardThumbnail
+                          src={assetUrl}
+                          onInvalid={() => setRewards((current) =>
+                            current.filter((item) => item.code !== reward.code))}
+                        />
+                      )}
+                    </div>
+                    <p className="mt-2 text-xs font-black uppercase text-brand-600">
+                      {rewardKindLabels[reward.kind] ?? 'Phần thưởng'}
+                    </p>
+                    <h3 className="text-base font-extrabold leading-tight">{reward.name}</h3>
+                  </article>
+                )
+              })}
+            </div>
+          )}
+        </section>
+      )}
 
       {(filter === 'all' || filter === 'image') && <section>
         <h2 className="font-display mb-3 text-2xl">Vật phẩm từ bài học</h2>

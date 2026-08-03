@@ -22,7 +22,8 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(src).toContain('/api/gamification/achievements')
     expect(src).toContain("achievement.type === 'first_quest'")
     expect(src).not.toContain('/api/gamification/leaderboard')
-    expect(src).toContain('aikids.daily-mission-seen.')
+    expect(src).toContain('claimedAt')
+    expect(src).not.toContain('aikids.daily-mission-seen.')
     expect(src).toContain('Khám phá & đăng ký khóa mới')
     expect(src).toContain('/api/courses')
     expect(src).toContain('ageTrack')
@@ -110,6 +111,8 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(shell).toContain('<SidebarLogoutButton />')
     expect(shell).toContain('<MobileLogoutButton />')
     expect(shell).toContain('className="role-nav-link role-sidebar-logout"')
+    expect(shell).toContain('className="student-nav-link student-rail-logout w-[4.5rem]"')
+    expect(shell).toContain('className="student-drawer-item student-drawer-logout"')
     expect(cmsIcons).toContain('CmsLogoutIcon')
     expect(cmsIcons).toContain('stroke="currentColor"')
     expect(shell).not.toContain('UnifiedSwitcher')
@@ -121,7 +124,7 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
       expect(read(page)).not.toContain('Đăng xuất')
     }
     expect(shell).toContain('<ParentHomeIcon size={24} />')
-    expect(shell).toContain('<ParentHomeIcon size={20} />')
+    expect(shell).toContain('<ParentHomeIcon size={28} />')
     expect(parentGate).toContain('<ParentHomeIcon size={42} />')
     expect(parentGate).not.toContain('<House')
     expect(parentHomeIcon).toContain('🏠')
@@ -146,9 +149,26 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
   })
 
   it('ProfilePage surfaces streak + achievements APIs', () => {
-    const src = read('features/profile/pages/ProfilePage.tsx')
-    expect(src).toContain('/api/gamification/streak')
-    expect(src).toContain('/api/gamification/achievements')
+    const page = read('features/profile/pages/ProfilePage.tsx')
+    const overview = read('features/profile/profile-overview-api.ts')
+    expect(page).toContain('loadProfileOverview')
+    expect(overview).toContain('/api/gamification/streak')
+    expect(overview).toContain('/api/gamification/achievements')
+  })
+
+  it('reward ownership and XP projection stay backend-authoritative', () => {
+    const events = read('features/events/pages/EventsPage.tsx')
+    const storybook = read('features/storybook/pages/StorybookPage.tsx')
+    const backpack = read('features/backpack/pages/BackpackPage.tsx')
+    const home = read('features/home/pages/HomePage.tsx')
+    expect(events).toContain('ownedRewardIds.has(ticket.id)')
+    expect(events).not.toContain('isRewardUnlocked(ticket')
+    expect(storybook).toContain('publishedStickerIds.size')
+    expect(storybook).not.toContain('/72 sticker')
+    expect(backpack).toContain('/api/gamification/storybook')
+    expect(backpack).toContain('Quà con đã nhận')
+    expect(home).toContain('xpIntoLevel')
+    expect(home).toContain('xpToNextLevel')
   })
 
   it('AdminPage wires Vidtory settings + model load-balancing UI', () => {

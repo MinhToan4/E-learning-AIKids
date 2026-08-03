@@ -7,6 +7,7 @@ import { GalleryWall } from '../components/GalleryWall'
 import { InteractionBoard } from '../components/InteractionBoard'
 import { SocialLeaderboard } from '../components/SocialLeaderboard'
 import { STORYBOOK_PAGES, type StorybookPage } from '../storybook-data'
+import { safeChapterColors, uniqueRewardIds, uniqueStorybookIds } from '../storybook-contract'
 
 type View = 'book' | 'gallery' | 'leaderboard' | 'interaction'
 const views: Array<{ id: View; label: string }> = [
@@ -19,6 +20,7 @@ const views: Array<{ id: View; label: string }> = [
 export function StorybookPage() {
   const [searchParams] = useSearchParams()
   const [earnedStickerIds, setEarnedStickerIds] = useState<string[]>([])
+  const [ownedRewardIds, setOwnedRewardIds] = useState<string[]>([])
   const [studioChapters, setStudioChapters] = useState<Array<{
     code: string
     name: string
@@ -37,6 +39,9 @@ export function StorybookPage() {
       leftBackgroundUrl?: string
       stickerPageUrl?: string
       stickerSheetUrl?: string
+    }
+    assets?: {
+      completionMedia?: StorybookPage['completionMedia']
     }
   }>>([])
   const [loading, setLoading] = useState(true)
@@ -57,12 +62,18 @@ export function StorybookPage() {
     try {
       const data = await api<{
         earnedStickerIds: string[]
+        inventory?: Array<{ rewardId: string }>
         studio?: { chapters?: typeof studioChapters }
       }>(
         '/api/gamification/storybook',
       )
-      setEarnedStickerIds(data.earnedStickerIds)
-      setStudioChapters(data.studio?.chapters ?? [])
+      setEarnedStickerIds(uniqueStorybookIds(
+        Array.isArray(data.earnedStickerIds) ? data.earnedStickerIds : [],
+      ))
+      setOwnedRewardIds(uniqueRewardIds(
+        Array.isArray(data.inventory) ? data.inventory.map((item) => item?.rewardId) : [],
+      ))
+      setStudioChapters(Array.isArray(data.studio?.chapters) ? data.studio.chapters : [])
       setNotice('')
     } catch {
       setNotice('Chưa đồng bộ được tiến trình. Cuốn sách vẫn mở để con khám phá.')
@@ -74,6 +85,7 @@ export function StorybookPage() {
   useEffect(() => { void load() }, [load])
 
   const earned = useMemo(() => new Set(earnedStickerIds), [earnedStickerIds])
+  const ownedRewards = useMemo(() => new Set(ownedRewardIds), [ownedRewardIds])
   const pages = useMemo(() => {
     const basePages = STORYBOOK_PAGES.map((page): StorybookPage => {
       const override = studioChapters.find((item) =>
@@ -86,12 +98,13 @@ export function StorybookPage() {
         group: override.content?.group || page.group,
         stickers: override.content?.stickers?.length === 9 ? override.content.stickers : page.stickers,
         emoji: override.displayConfig?.emoji || page.emoji,
-        colors: override.displayConfig?.colors || page.colors,
+        colors: safeChapterColors(override.displayConfig?.colors, page.colors),
         coverUrl: override.displayConfig?.coverUrl || page.coverUrl,
         leftBackgroundUrl: override.displayConfig?.leftBackgroundUrl || page.leftBackgroundUrl,
         stickerPageUrl: override.displayConfig?.stickerPageUrl || page.stickerPageUrl,
         stickerSheetUrl: override.displayConfig?.stickerSheetUrl || page.stickerSheetUrl,
         rewardId: override.content?.rewardId || page.rewardId,
+        completionMedia: override.assets?.completionMedia || page.completionMedia,
       }
     })
     const existingSlugs = new Set(basePages.map((page) => page.slug))
@@ -105,17 +118,26 @@ export function StorybookPage() {
         group: item.content.group || 'learning',
         stickers: item.content.stickers,
         emoji: item.displayConfig?.emoji || '📖',
-        colors: item.displayConfig?.colors || ['#4338CA', '#F59E0B'],
+        colors: safeChapterColors(item.displayConfig?.colors, ['#4338CA', '#F59E0B']),
         coverUrl: item.displayConfig?.coverUrl,
         leftBackgroundUrl: item.displayConfig?.leftBackgroundUrl,
         stickerPageUrl: item.displayConfig?.stickerPageUrl,
         stickerSheetUrl: item.displayConfig?.stickerSheetUrl,
         rewardId: item.content?.rewardId,
+        completionMedia: item.assets?.completionMedia,
       }]
     })
     return [...basePages, ...addedPages]
   }, [studioChapters])
   const currentPage = pages[pageIndex]
+  const publishedStickerIds = useMemo(
+    () => new Set(pages.flatMap((page) => page.stickers.map((sticker) => sticker.id))),
+    [pages],
+  )
+  const publishedEarnedCount = useMemo(
+    () => earnedStickerIds.filter((id) => publishedStickerIds.has(id)).length,
+    [earnedStickerIds, publishedStickerIds],
+  )
 
   return (
     <PageMotion className="flex flex-col gap-6">
@@ -155,7 +177,9 @@ export function StorybookPage() {
         </div>
         {view === 'book' && (
           <p className="rounded-full bg-amber-100 px-4 py-2 text-sm font-extrabold text-amber-900">
-            {loading ? 'Đang ghép sticker…' : `${earned.size}/72 sticker đã mở`}
+            {loading
+              ? 'Đang ghép sticker…'
+              : `${publishedEarnedCount}/${publishedStickerIds.size} sticker đã mở`}
           </p>
         )}
       </div>
@@ -172,54 +196,15 @@ export function StorybookPage() {
         <InteractionBoard />
       ) : (
         <>
-          <div className="flex items-center justify-between gap-3">
-            <button
-              type="button"
-              onClick={() => setPageIndex((index) => Math.max(0, index - 1))}
-              disabled={pageIndex === 0}
-              className="rounded-full border-2 border-amber-700 bg-[#fff9df] px-4 py-2 text-sm font-black text-amber-900 disabled:opacity-30"
-            >
-              ← Trang trước
-            </button>
-            <div className="flex items-center gap-1.5" aria-label="Chọn trang sách">
-              {pages.map((page, index) => (
-                <button
-                  key={page.slug}
-                  type="button"
-                  title={page.title}
-                  aria-label={`Mở ${page.title}`}
-                  aria-pressed={index === pageIndex}
-                  onClick={() => setPageIndex(index)}
-                  className={`h-2.5 rounded-full transition-all ${
-                    index === pageIndex ? 'w-8 bg-amber-700' : 'w-2.5 bg-amber-200'
-                  }`}
-                />
-              ))}
-            </div>
-            <button
-              type="button"
-              onClick={() => setPageIndex((index) => Math.min(pages.length - 1, index + 1))}
-              disabled={pageIndex === pages.length - 1}
-              className="rounded-full border-2 border-amber-700 bg-[#fff9df] px-4 py-2 text-sm font-black text-amber-900 disabled:opacity-30"
-            >
-              Trang sau →
-            </button>
-          </div>
-          <BookSpread page={currentPage} earned={earned} onClaimed={() => void load()} />
-          <div className="flex justify-center gap-2">
-            {pages.map((page, index) => (
-              <button
-                key={page.slug}
-                type="button"
-                onClick={() => setPageIndex(index)}
-                className={`rounded-xl px-2 py-1 text-xs font-bold ${
-                  index === pageIndex ? 'bg-amber-100 text-amber-900' : 'text-muted'
-                }`}
-              >
-                {page.emoji} {page.slug}
-              </button>
-            ))}
-          </div>
+          <BookSpread
+            page={currentPage}
+            pages={pages}
+            pageIndex={pageIndex}
+            onPageChange={setPageIndex}
+            earned={earned}
+            ownedRewards={ownedRewards}
+            onClaimed={load}
+          />
         </>
       )}
     </PageMotion>

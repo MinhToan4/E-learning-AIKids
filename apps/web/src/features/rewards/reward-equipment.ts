@@ -1,7 +1,29 @@
 import type { CSSProperties } from 'react'
 import type { RewardKind } from '@/shared/lib/creation/rewards'
+import {
+  getGeneratedRewardAssetUrl,
+  getResolvedRewardAssetUrl,
+  getSharedLevelRewardAssetId,
+} from './reward-assets'
+export { profilePageThemeStyle } from './student-theme'
+export { getGeneratedRewardAssetUrl } from './reward-assets'
 
 export type RewardEquipment = Partial<Record<RewardKind, string>>
+
+const equipmentKinds = new Set<RewardKind>([
+  'avatar', 'frame', 'theme', 'event_ticket', 'perk', 'title', 'companion', 'effect', 'background',
+])
+
+export function rewardEquipmentFromRows(
+  rows: ReadonlyArray<{ kind: RewardKind; rewardId: string }>,
+): RewardEquipment {
+  const equipment: RewardEquipment = {}
+  for (const row of rows) {
+    if (!equipmentKinds.has(row.kind) || !row.rewardId.trim()) continue
+    equipment[row.kind] = row.rewardId
+  }
+  return equipment
+}
 
 const key = (userId: string) => `aikids.reward-equipment.${userId}`
 
@@ -25,12 +47,22 @@ export function equipReward(
   return next
 }
 
+export function unequipReward(userId: string, kind: RewardKind): RewardEquipment {
+  const next = { ...readRewardEquipment(userId) }
+  delete next[kind]
+  localStorage.setItem(key(userId), JSON.stringify(next))
+  applyRewardEquipment(next)
+  window.dispatchEvent(new CustomEvent('aikids:reward-equipped', { detail: next }))
+  return next
+}
+
 export function syncRewardEquipment(
   userId: string,
   equipment: RewardEquipment,
 ): RewardEquipment {
   localStorage.setItem(key(userId), JSON.stringify(equipment))
   applyRewardEquipment(equipment)
+  window.dispatchEvent(new CustomEvent('aikids:reward-equipped', { detail: equipment }))
   return equipment
 }
 
@@ -73,39 +105,74 @@ export function rewardFrameStyle(frameId?: string): CSSProperties {
   return {}
 }
 
-export function profilePageThemeStyle(themeId?: string): CSSProperties {
-  if (themeId === 'theme-paco-workshop') {
+export function rewardLevelBadgeStyle(frameId?: string): CSSProperties {
+  if (frameId === 'frame-rainbow') {
     return {
-      background:
-        'radial-gradient(circle at 82% 18%,rgba(252,211,77,.32),transparent 24rem),linear-gradient(135deg,#fff7ed,#fed7aa)',
+      background: 'linear-gradient(90deg,#fb7185,#fbbf24,#38bdf8,#8b5cf6)',
+      boxShadow: '0 6px 18px rgba(56,189,248,.28)',
     }
   }
-  if (themeId === 'theme-community-legend') {
+  if (frameId === 'frame-galaxy') {
     return {
-      background:
-        'radial-gradient(circle at 82% 18%,rgba(249,168,212,.35),transparent 26rem),linear-gradient(135deg,#fdf2f8,#fce7f3)',
+      background: 'linear-gradient(90deg,#312e81,#7c3aed,#312e81)',
+      boxShadow: '0 0 0 3px #ede9fe, 0 7px 20px rgba(76,29,149,.38)',
     }
   }
-  if (themeId === 'theme-workshop') {
+  if (frameId === 'frame-language-kingdom') {
     return {
-      background:
-        'radial-gradient(circle at 15% 20%,rgba(251,191,36,.24),transparent 24rem),radial-gradient(circle at 85% 75%,rgba(249,115,22,.18),transparent 26rem),linear-gradient(135deg,#fff7ed,#ffedd5)',
+      background: 'linear-gradient(90deg,#166534,#22c55e,#ca8a04)',
+      boxShadow: '0 6px 18px rgba(22,101,52,.3)',
     }
   }
-  if (themeId === 'theme-legend') {
+  if (frameId === 'frame-summit-gold') {
     return {
-      background:
-        'radial-gradient(circle at 20% 15%,rgba(124,58,237,.28),transparent 26rem),radial-gradient(circle at 80% 80%,rgba(250,204,21,.2),transparent 24rem),linear-gradient(135deg,#ede9fe,#fff7d6)',
+      background: 'linear-gradient(90deg,#78350f,#d97706,#fbbf24)',
+      boxShadow: '0 6px 18px rgba(120,53,15,.32)',
+    }
+  }
+  if (frameId === 'frame-galaxy-storyteller') {
+    return {
+      background: 'linear-gradient(90deg,#312e81,#8b5cf6,#db2777)',
+      boxShadow: '0 6px 20px rgba(139,92,246,.4)',
     }
   }
   return {
-    background:
-      'radial-gradient(circle at 85% 15%,rgba(61,191,255,.16),transparent 28rem),linear-gradient(135deg,#f5f3ff,#f1faff,#fffbec)',
+    background: 'var(--color-brand-600)',
+    boxShadow: 'var(--shadow-soft)',
   }
 }
 
 export function profileCardBackgroundStyle(backgroundId?: string): CSSProperties {
-  if (backgroundId === 'background-ai-gate') return { background: 'linear-gradient(135deg,#6b46c1,#f6e05e)' }
+  const sharedAsset = getSharedLevelRewardAssetId(backgroundId)
+  const isResponsiveLandscape = !sharedAsset || new Set([
+    'background-community-legend',
+    'background-paco-cosmic',
+    'background-paco-workshop',
+  ]).has(sharedAsset)
+  const generatedAsset = isResponsiveLandscape
+    ? getResolvedRewardAssetUrl(backgroundId)
+    : undefined
+  if (generatedAsset) {
+    return {
+      backgroundColor: '#433070',
+      backgroundImage: `linear-gradient(90deg,rgba(30,27,75,.18),rgba(30,27,75,.04)),url("${generatedAsset}")`,
+      backgroundPosition: 'center',
+      backgroundRepeat: 'no-repeat',
+      backgroundSize: 'cover',
+    }
+  }
+  if (backgroundId === 'background-ai-gate') {
+    return {
+      backgroundColor: '#40247c',
+      backgroundImage: [
+        'radial-gradient(circle at 82% 78%,rgba(255,245,157,.95) 0 3%,rgba(251,191,36,.64) 8%,transparent 27%)',
+        'radial-gradient(circle at 76% 18%,rgba(56,189,248,.24),transparent 30%)',
+        'linear-gradient(180deg,rgba(47,31,103,.24) 0%,transparent 48%,rgba(245,158,11,.28) 100%)',
+        'linear-gradient(125deg,#38206f 0%,#7650a1 48%,#efad55 100%)',
+      ].join(','),
+      boxShadow: 'inset 0 0 52px rgba(30,27,75,.28)',
+    }
+  }
   if (backgroundId === 'background-ocean-artist') return { background: 'radial-gradient(circle at 80% 20%,#fb7185,transparent 28%),linear-gradient(135deg,#e0f2fe,#38bdf8)' }
   if (backgroundId === 'background-forest-guardian') return { background: 'radial-gradient(circle at 85% 20%,#a3e635,transparent 25%),linear-gradient(135deg,#dcfce7,#166534)', color: 'white' }
   return {
@@ -126,19 +193,5 @@ export function profileCardBackgroundTone(backgroundId?: string): ProfileCardBac
 }
 
 export function getRewardAssetUrl(rewardId: string): string | undefined {
-  const map: Record<string, string> = {
-    'frame-rainbow': '/assets/rewards/frame-rainbow.svg',
-    'frame-galaxy': '/assets/rewards/frame-galaxy.svg',
-    'frame-cloud-summer': '/assets/rewards/frame-cloud-summer.svg',
-    'frame-language-kingdom': '/assets/rewards/frame-language-kingdom.svg',
-    'frame-summit-gold': '/assets/rewards/frame-summit-gold.svg',
-    'frame-galaxy-storyteller': '/assets/rewards/frame-galaxy-storyteller.svg',
-    'avatar-paco-blue': '/assets/rewards/paco-blue-companion.svg',
-    'perk-sticker-sparkle': '/assets/rewards/effect-sparkle.svg',
-    'background-ai-gate': '/assets/rewards/bg-ai-gate.svg',
-    'theme-workshop': '/assets/rewards/theme-workshop.svg',
-    'theme-legend': '/assets/rewards/theme-legend.svg',
-    'title-first-light': '/assets/rewards/title-first-light.svg',
-  }
-  return map[rewardId]
+  return getResolvedRewardAssetUrl(rewardId)
 }

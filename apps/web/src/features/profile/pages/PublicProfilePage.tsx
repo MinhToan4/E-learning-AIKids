@@ -117,7 +117,11 @@ export function PublicProfilePage() {
         </nav>
         <header
           className="ui-card flex flex-col items-center gap-4 overflow-hidden p-7 text-center sm:flex-row sm:text-left"
-          style={profileCardBackgroundStyle(profile.backgroundKey ?? undefined)}
+          style={{
+            ...profileCardBackgroundStyle(profile.backgroundKey ?? undefined),
+            backgroundPosition: 'center top',
+          }}
+          data-profile-composition="v1"
         >
           <div className="flex h-28 w-28 shrink-0 items-center justify-center overflow-hidden rounded-full border-8 border-white bg-brand-100 text-5xl shadow-clay">
             {profile.avatarUrl
@@ -127,7 +131,6 @@ export function PublicProfilePage() {
           <div className="flex-1">
             <p className={`text-xs font-black uppercase tracking-[.2em] ${profileCardTone === 'dark' ? 'text-white/75' : 'text-brand-600'}`}>Nhà sáng tạo AIKid</p>
             <h1 className={`font-display text-4xl ${profileCardTone === 'dark' ? 'text-white' : 'text-text'}`}>{profile.name}</h1>
-            <p className={profileCardTone === 'dark' ? 'text-white/80' : 'text-muted'}>Cấp {profile.level} · {profile.xp} XP toàn hệ sinh thái</p>
           </div>
           {profile.frameKey && (
             <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">✨ {profile.frameKey}</span>

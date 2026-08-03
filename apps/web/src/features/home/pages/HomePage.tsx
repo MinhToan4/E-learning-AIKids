@@ -10,17 +10,14 @@ import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { CourseBookIcon, NavLeaderboardIcon } from '@/shared/components/icons/KidNavIcons'
+import type { RewardKind } from '@/shared/lib/creation/rewards'
+import { EquippedProfile } from '@/features/rewards/EquippedProfile'
 import {
-  explorerLevelForXp,
-  explorerLevelProgress,
-  nextExplorerLevel,
-} from '@/shared/lib/creation/xp-levels'
-import { REWARD_CATALOG } from '@/shared/lib/creation/rewards'
-import { avatarEmoji, avatarImage } from '@/shared/config/avatars'
-import { readProfileAvatar } from '@/features/profile/profile-showcase'
-import {
+  profileCardBackgroundStyle,
+  profileCardBackgroundTone,
   readRewardEquipment,
-  rewardFrameStyle,
+  rewardEquipmentFromRows,
+  syncRewardEquipment,
 } from '@/features/rewards/reward-equipment'
 
 type TrackFilter = 'all' | 'L1' | 'L2'
@@ -58,54 +55,6 @@ export function coursesWithEnrollments(
 
 function courseBadge(course: CourseSummary) {
   return /^l[12]-k7-/.test(course.id) ? 'AI' : (course.courseKey ?? 'Mới')
-}
-
-function HeaderAvatar({
-  userId,
-  avatarId,
-  nickname,
-}: {
-  userId?: string
-  avatarId?: string | null
-  nickname?: string | null
-}) {
-  const [failed, setFailed] = useState(false)
-  const [revision, setRevision] = useState(0)
-  useEffect(() => {
-    const sync = () => setRevision((value) => value + 1)
-    window.addEventListener('aikids:profile-avatar', sync)
-    window.addEventListener('aikids:reward-equipped', sync)
-    return () => {
-      window.removeEventListener('aikids:profile-avatar', sync)
-      window.removeEventListener('aikids:reward-equipped', sync)
-    }
-  }, [])
-  const equipment = userId ? readRewardEquipment(userId) : {}
-  const profileAvatar = userId ? readProfileAvatar(userId) : null
-  const avatarReward = REWARD_CATALOG.find((item) => item.id === equipment.avatar)
-  const equippedAvatarId = avatarReward?.equipValue ?? avatarId
-  const image = profileAvatar?.url ?? avatarImage(equippedAvatarId)
-  void revision
-
-  return (
-    <div className={`relative h-16 w-16 flex-shrink-0 sm:h-20 sm:w-20 ${equipment.effect ? 'drop-shadow-[0_0_12px_rgba(250,204,21,.8)]' : ''}`}>
-      <div
-        className="relative h-full w-full rounded-full bg-white p-1.5 shadow-clay"
-        style={rewardFrameStyle(equipment.frame)}
-      >
-        <div className="flex h-full w-full items-center justify-center overflow-hidden rounded-full border-2 border-white bg-brand-100 text-3xl font-black text-brand-700">
-          {image && !failed
-            ? <img src={image} alt="" onError={() => setFailed(true)} className="h-full w-full object-cover" />
-            : avatarEmoji(equippedAvatarId) || nickname?.charAt(0).toUpperCase() || '✨'}
-        </div>
-      </div>
-      {equipment.companion && (
-        <span className="absolute -bottom-1 -right-2 z-20 flex h-8 w-8 items-center justify-center rounded-full border-2 border-white bg-sky-100 shadow-soft">
-          <img src={designerAssets.brand.mascot} alt="" className="h-7 w-7 object-contain" />
-        </span>
-      )}
-    </div>
-  )
 }
 
 function localDay(value: Date): string {
@@ -149,19 +98,30 @@ function StreakWidget({ current, longest, lastActivityDate }: { current: number;
   )
 }
 
-function XpWidget({ xp, level }: { xp: number; level: number }) {
-  const current = explorerLevelForXp(xp, level)
-  const next = nextExplorerLevel(xp, level)
-  const pct = explorerLevelProgress(xp, level)
+function XpWidget({
+  xp,
+  level,
+  xpIntoLevel,
+  xpToNextLevel,
+}: {
+  xp: number
+  level: number
+  xpIntoLevel: number
+  xpToNextLevel: number
+}) {
+  const levelSpan = Math.max(1, xpIntoLevel + xpToNextLevel)
+  const pct = Math.min(100, Math.max(0, Math.round((xpIntoLevel / levelSpan) * 100)))
   return (
-    <div className="flex flex-col gap-1 rounded-2xl bg-brand-50 border border-brand-100 p-3">
+    <div className="flex flex-col gap-1 rounded-2xl border border-white/70 bg-white/90 p-3 shadow-soft backdrop-blur-sm">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <Zap size={14} className="text-brand-500" aria-hidden />
-          <span className="text-xs font-extrabold text-brand-700">Cấp {current.level}</span>
+          <span className="text-xs font-extrabold text-brand-700">
+            Còn {Math.max(0, xpToNextLevel).toLocaleString('vi-VN')} XP
+          </span>
         </div>
         <span className="text-[10px] font-bold text-muted">
-          {xp.toLocaleString('vi-VN')}{next ? `/${next.xpRequired.toLocaleString('vi-VN')}` : ''} XP
+          {xp.toLocaleString('vi-VN')} XP
         </span>
       </div>
       <div className="xp-bar-track">
@@ -172,9 +132,12 @@ function XpWidget({ xp, level }: { xp: number; level: number }) {
           aria-valuenow={pct}
           aria-valuemin={0}
           aria-valuemax={100}
-          aria-label={next ? `${pct}% tiến trình lên cấp ${next.level}` : 'Đã đạt cấp cao nhất'}
+          aria-label={`${pct}% tiến trình lên cấp ${level + 1}`}
         />
       </div>
+        <p className="mt-0.5 text-[10px] font-bold text-muted">
+          Tiến độ đến Cấp {level + 1}
+        </p>
     </div>
   )
 }
@@ -274,6 +237,11 @@ export function HomePage() {
   const [loading, setLoading] = useState(true)
   const [explorerXp, setExplorerXp] = useState(0)
   const [explorerLevel, setExplorerLevel] = useState(1)
+  const [xpIntoLevel, setXpIntoLevel] = useState(0)
+  const [xpToNextLevel, setXpToNextLevel] = useState(100)
+  const [profileEquipment, setProfileEquipment] = useState(
+    () => user ? readRewardEquipment(user.id) : {},
+  )
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -282,23 +250,22 @@ export function HomePage() {
       // WHY: Run all independent API calls in parallel to cut perceived load time
       // from serial round-trips down to one batched round-trip.
       const fetchMissionAndStreak = async () => {
-        let streak = null
-        try {
-          streak = await api<{ current: number; longest: number; lastActivityDate: string | null }>('/api/gamification/check-in', { method: 'POST' })
-        } catch {
-          streak = await api<{ current: number; longest: number; lastActivityDate: string | null }>('/api/gamification/streak').catch(() => null)
-        }
-        const mission = await api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission').catch(() => null)
+        const streakPromise = api<{ current: number; longest: number; lastActivityDate: string | null }>('/api/gamification/streak')
+          .catch(() => null)
+        const missionPromise = api<{ mission: typeof dailyMission }>('/api/gamification/daily-mission').catch(() => null)
+        const [streak, mission] = await Promise.all([streakPromise, missionPromise])
         return { streak, mission }
       }
 
-      const [c, enrollmentData, a, profile, gamification] =
+      const [c, enrollmentData, a, profile, gamification, rewardState] =
         await Promise.all([
         api<{ courses: CourseSummary[] }>('/api/courses'),
         api<{ enrollments: EnrollmentSummary[] }>('/api/enrollments'),
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
-        api<{ totalXp: number; level: number }>('/api/gamification/profile'),
-        fetchMissionAndStreak()
+        api<{ totalXp: number; level: number; xpIntoLevel: number; xpToNextLevel: number }>('/api/gamification/profile'),
+        fetchMissionAndStreak(),
+        api<{ equipment: Array<{ kind: RewardKind; rewardId: string }> }>('/api/gamification/storybook')
+          .catch(() => null),
       ])
       setCourses(coursesWithEnrollments(c.courses, enrollmentData.enrollments))
       if (gamification.streak) {
@@ -328,6 +295,12 @@ export function HomePage() {
       }
       setExplorerXp(profile.totalXp)
       setExplorerLevel(profile.level)
+      setXpIntoLevel(profile.xpIntoLevel)
+      setXpToNextLevel(profile.xpToNextLevel)
+      if (user && rewardState) {
+        const synced = rewardEquipmentFromRows(rewardState.equipment)
+        setProfileEquipment(syncRewardEquipment(user.id, synced))
+      }
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Lỗi tải khóa học')
     } finally {
@@ -340,6 +313,18 @@ export function HomePage() {
     void load()
   }, [load])
 
+  useEffect(() => {
+    const syncEquipment = () => {
+      if (user) setProfileEquipment(readRewardEquipment(user.id))
+    }
+    window.addEventListener('aikids:reward-equipped', syncEquipment)
+    window.addEventListener('aikids:profile-avatar', syncEquipment)
+    return () => {
+      window.removeEventListener('aikids:reward-equipped', syncEquipment)
+      window.removeEventListener('aikids:profile-avatar', syncEquipment)
+    }
+  }, [user])
+
   const open = courses.filter((c) => c.status === 'open')
   // A child only sees courses explicitly selected by their parent. Adult
   // contexts keep the full catalog for discovery and administration.
@@ -347,6 +332,7 @@ export function HomePage() {
     user?.role === 'student' ? open.filter((c) => c.enrolled) : open
   const enrolled = accessibleCourses.filter((c) => c.enrolled)
   const explore = accessibleCourses.filter((c) => !c.enrolled)
+  const profileCardTone = profileCardBackgroundTone(profileEquipment.background)
 
 
   const goalToKey: Record<string, string> = {
@@ -379,42 +365,42 @@ export function HomePage() {
   return (
     <PageMotion className="flex flex-col gap-6">
       {/* ── Hero banner ─────────────────────────────────────────── */}
-      <header className="ui-card relative overflow-hidden p-0">
-        <div className="absolute inset-0">
-          <img
-            src={designerAssets.lobby.homeExplore}
-            alt=""
-            className="h-full w-full object-cover opacity-25"
-          />
-          <div className="absolute inset-0 bg-gradient-to-br from-white via-white/90 to-brand-50/60" />
-        </div>
-        <div className="relative flex flex-wrap items-center justify-between gap-4 p-4 sm:p-5">
-          {/* Left: kids character avatar + greeting */}
-          <div className="flex items-center gap-3.5">
-            <HeaderAvatar userId={user?.id} avatarId={user?.avatarId} nickname={user?.nickname} />
-            <div className="min-w-0">
-              <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
-                Xin chào!
-              </p>
-              <h1 className="font-display text-2xl sm:text-3xl leading-tight">
-                {user?.nickname ?? 'Bạn nhỏ'} ✨
-              </h1>
-              <p className="text-xs font-semibold text-muted mt-0.5">
-                Cấp {explorerLevel} · {explorerXp.toLocaleString('vi-VN')} XP toàn hệ sinh thái
-              </p>
-            </div>
-          </div>
+      <header
+        className="ui-card relative overflow-hidden p-0"
+        style={{
+          ...profileCardBackgroundStyle(profileEquipment.background),
+          backgroundPosition: 'center top',
+        }}
+        data-profile-tone={profileCardTone}
+        data-profile-composition="v1"
+      >
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-white/10" />
+        <div className="relative grid gap-4 p-4 sm:p-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+          {user && (
+            <EquippedProfile
+              user={user}
+              xp={explorerXp}
+              level={explorerLevel}
+              compact
+              tone={profileCardTone}
+            />
+          )}
 
-          {/* Right: streak widget — shrink-0 prevents it from being squished on 375px */}
-          <div className="flex shrink-0 items-center gap-2 ml-auto">
+          <div className="min-w-0 md:w-[19rem]">
             <StreakWidget current={streak.current} longest={streak.longest} lastActivityDate={streak.lastActivityDate} />
           </div>
         </div>
 
-        {/* XP bar */}
-        <div className="relative px-4 pb-4 sm:px-5 sm:pb-5">
-          <XpWidget xp={explorerXp} level={explorerLevel} />
-        </div>
+        {explorerLevel < 100 && (
+          <div className="relative px-4 pb-4 sm:px-5 sm:pb-5">
+            <XpWidget
+              xp={explorerXp}
+              level={explorerLevel}
+              xpIntoLevel={xpIntoLevel}
+              xpToNextLevel={xpToNextLevel}
+            />
+          </div>
+        )}
       </header>
 
       {error && (

@@ -19,5 +19,7 @@ check-sb.*
 secrets/
 artifacts/
 *.tmp*
+*.reward-pack.zip
+tmp/
 .vercel/
 courses/

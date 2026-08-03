@@ -16,7 +16,7 @@ export interface RewardDefinition {
   description: string
   icon: string
   unlock: {
-    type: 'xp_level' | 'storybook_sticker'
+    type: 'xp_level' | 'storybook_sticker' | 'event'
     value: number | string
   }
   equipValue?: string
@@ -36,7 +36,7 @@ export const REWARD_CATALOG: readonly RewardDefinition[] = [
   {
     id: 'avatar-paco-blue',
     kind: 'companion',
-    name: 'Paco Xanh Đồng Hành',
+    name: 'Paco Mây',
     description: 'Paco xuất hiện cạnh avatar trong mọi ứng dụng StoryMee.',
     icon: '🤖',
     unlock: { type: 'xp_level', value: 2 },
@@ -293,6 +293,7 @@ export function isRewardUnlocked(
   if (reward.unlock.type === 'xp_level') {
     return input.xpLevel >= Number(reward.unlock.value)
   }
+  if (reward.unlock.type === 'event') return false
   const stickers = input.stickerIds ?? []
   return Array.isArray(stickers)
     ? stickers.includes(String(reward.unlock.value))

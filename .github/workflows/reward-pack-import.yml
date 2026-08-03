@@ -1,0 +1,67 @@
+name: Import reward pack draft
+
+on:
+  workflow_dispatch:
+    inputs:
+      artifact_run_id:
+        description: Workflow run ID that produced the reward pack artifact
+        required: true
+        type: string
+      artifact_name:
+        description: Artifact name containing exactly one *.reward-pack.zip
+        required: true
+        default: reward-pack
+        type: string
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: reward-pack-import-${{ inputs.artifact_run_id }}-${{ inputs.artifact_name }}
+  cancel-in-progress: false
+
+jobs:
+  validate-and-upload-draft:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment: reward-pack-draft
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install locked dependencies
+        run: npm ci
+
+      - name: Download designer artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ inputs.artifact_name }}
+          run-id: ${{ inputs.artifact_run_id }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          path: .reward-pack-input
+
+      - name: Resolve exactly one reward pack
+        id: pack
+        shell: bash
+        run: |
+          mapfile -d '' packs < <(find .reward-pack-input -type f -name '*.reward-pack.zip' -print0)
+          if [ "${#packs[@]}" -ne 1 ]; then
+            echo "Expected exactly one *.reward-pack.zip, found ${#packs[@]}." >&2
+            exit 1
+          fi
+          echo "path=${packs[0]}" >> "$GITHUB_OUTPUT"
+
+      - name: Validate reward pack
+        run: npm run rewards:pack -w @aikids/web -- validate "${{ steps.pack.outputs.path }}"
+
+      - name: Upload as backend draft
+        env:
+          STORYMEE_API_ORIGIN: ${{ vars.STORYMEE_API_ORIGIN }}
+          STORYMEE_STORAGE_ORIGIN: ${{ vars.STORYMEE_STORAGE_ORIGIN }}
+          STORYMEE_ADMIN_TOKEN: ${{ secrets.STORYMEE_REWARD_PACK_DRAFT_TOKEN }}
+        run: npm run rewards:pack -w @aikids/web -- upload "${{ steps.pack.outputs.path }}"

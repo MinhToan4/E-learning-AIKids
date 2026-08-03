@@ -1,4 +1,4 @@
-import { REWARD_CATALOG, isRewardUnlocked } from '@/shared/lib/creation/rewards'
+import { REWARD_CATALOG } from '@/shared/lib/creation/rewards'
 import { REWARD_EVENTS, rewardEventStatus } from '@/shared/lib/creation/events'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
@@ -12,10 +12,10 @@ const statusLabel = {
 } as const
 
 export function EventsPage() {
-  const [level, setLevel] = useState(1)
+  const [ownedRewardIds, setOwnedRewardIds] = useState<Set<string>>(new Set())
   useEffect(() => {
-    void api<{ level: number }>('/api/gamification/profile')
-      .then((data) => setLevel(data.level))
+    void api<{ inventory: Array<{ rewardId: string }> }>('/api/gamification/storybook')
+      .then((data) => setOwnedRewardIds(new Set(data.inventory.map((item) => item.rewardId))))
       .catch(() => undefined)
   }, [])
 
@@ -39,7 +39,7 @@ export function EventsPage() {
           const ticket = event.ticketRewardId
             ? REWARD_CATALOG.find((reward) => reward.id === event.ticketRewardId)
             : undefined
-          const hasTicket = !ticket || isRewardUnlocked(ticket, { xpLevel: level })
+          const hasTicket = !ticket || ownedRewardIds.has(ticket.id)
           return (
             <article key={event.key} className="ui-card overflow-hidden">
               <div className="relative bg-gradient-to-br from-indigo-800 to-fuchsia-600 p-6 text-white">
@@ -66,7 +66,7 @@ export function EventsPage() {
                   <p className={`rounded-xl px-3 py-2 text-sm font-extrabold ${
                     hasTicket ? 'bg-mint-100 text-success' : 'bg-slate-100 text-muted'
                   }`}>
-                    {hasTicket ? `🎟️ Con đã có ${ticket.name}` : `🔒 Cần ${ticket.name} · mở ở Cấp ${ticket.unlock.value}`}
+                    {hasTicket ? `🎟️ Con đã có ${ticket.name}` : `🔒 Cần ${ticket.name} trong kho phần thưởng`}
                   </p>
                 )}
                 {status === 'active' && hasTicket ? (

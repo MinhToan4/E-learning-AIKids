@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "pack": {
+    "id": "summer-cloud-event",
+    "name": "Sự kiện Mây Mùa Hè",
+    "release": "2026.08.0",
+    "channel": "event",
+    "description": "Reward pack cho sự kiện hè."
+  },
+  "rewards": [
+    {
+      "id": "frame-cloud-summer",
+      "kind": "frame",
+      "name": "Khung Mây Mùa Hè",
+      "rarity": "rare",
+      "assets": {
+        "primary": "assets/frame-cloud-summer.webp",
+        "plaque": "assets/frame-cloud-summer--plaque.webp",
+        "preview": "assets/frame-cloud-summer--preview.webp",
+        "thumbnail": "assets/frame-cloud-summer--thumbnail.webp"
+      },
+      "unlock": {
+        "type": "achievement",
+        "achievementId": "summer-first-flight"
+      }
+    }
+  ],
+  "achievements": [
+    {
+      "id": "summer-first-flight",
+      "name": "Chuyến Bay Đầu Tiên",
+      "description": "Hoàn thành hành trình đầu tiên của sự kiện hè.",
+      "points": 10,
+      "requirements": {
+        "metric": "event_quests_completed",
+        "operator": "gte",
+        "target": 1
+      },
+      "rewardIds": [
+        "frame-cloud-summer"
+      ]
+    }
+  ],
+  "bundles": [
+    {
+      "id": "summer-cloud-profile",
+      "name": "Bộ Mây Mùa Hè",
+      "rewardIds": [
+        "frame-cloud-summer"
+      ]
+    }
+  ]
+}

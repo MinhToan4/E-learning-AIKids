@@ -26,6 +26,11 @@ function resolveEnvironment(): AppEnvironment {
 }
 
 const configuredApiUrl = import.meta.env.VITE_API_URL?.trim()
+const runtimeConfig = typeof window === 'undefined'
+  ? undefined
+  : window.__AIKIDS_RUNTIME_CONFIG__
+const configuredStorageUrl = runtimeConfig?.storagePublicUrl?.trim()
+  || import.meta.env.VITE_STORAGE_PUBLIC_URL?.trim()
 
 export const environment = Object.freeze({
   name: resolveEnvironment(),
@@ -33,8 +38,7 @@ export const environment = Object.freeze({
   apiBaseUrl: configuredApiUrl
     ? normalizeOrigin(configuredApiUrl, 'VITE_API_URL')
     : '',
-  storagePublicUrl: normalizeOrigin(
-    import.meta.env.VITE_STORAGE_PUBLIC_URL?.trim() || 'https://storage.storymee.com',
-    'VITE_STORAGE_PUBLIC_URL',
-  ),
+  storagePublicUrl: configuredStorageUrl
+    ? normalizeOrigin(configuredStorageUrl, 'storagePublicUrl')
+    : '',
 })

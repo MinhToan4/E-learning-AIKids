@@ -1,9 +1,10 @@
 import { REWARD_CATALOG } from '@/shared/lib/creation/rewards'
 import { Link } from 'react-router'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
+import type { ReactNode } from 'react'
 import { api } from '@/shared/lib/api'
 import type { StorybookPage } from '../storybook-data'
-import { getRewardAssetUrl } from '@/features/rewards/reward-equipment'
+import { getVerifiedStaticRewardAssetUrl } from '@/features/rewards/reward-assets'
 import type { RewardKind } from '@/shared/lib/creation/rewards'
 
 const profileRewardKinds = new Set<RewardKind>([
@@ -26,15 +27,27 @@ const rewardKindLabels: Partial<Record<RewardKind, string>> = {
   title: 'Danh hiệu',
 }
 
+function RewardImage({ src, className, fallback }: {
+  src?: string
+  className: string
+  fallback: ReactNode
+}) {
+  const [failed, setFailed] = useState(false)
+  if (!src || failed) return <>{fallback}</>
+  return <img src={src} alt="" className={className} onError={() => setFailed(true)} />
+}
+
 export function ChapterRewardCard({
   page,
   earned,
+  ownedRewards,
   onClaimed,
   embedded = false,
 }: {
   page: StorybookPage
   earned: ReadonlySet<string>
-  onClaimed?: () => void
+  ownedRewards: ReadonlySet<string>
+  onClaimed?: () => void | Promise<void>
   embedded?: boolean
 }) {
   const bossId = `${page.slug}-S9`
@@ -50,12 +63,16 @@ export function ChapterRewardCard({
   const [claimed, setClaimed] = useState(earned.has(bossId))
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
+  useEffect(() => {
+    setClaimed(earned.has(bossId))
+  }, [bossId, earned])
   if (!reward) return null
   const ready = progress === 8
-  const rewardAsset = getRewardAssetUrl(reward.id)
+  const rewardAsset = getVerifiedStaticRewardAssetUrl(reward.id)
   const profileRewards = REWARD_CATALOG.filter((item) =>
     profileRewardKinds.has(item.kind),
   )
+  const ownedProfileRewardCount = profileRewards.filter((item) => ownedRewards.has(item.id)).length
 
   return (
     <aside className={embedded
@@ -64,9 +81,11 @@ export function ChapterRewardCard({
       <div className={embedded ? 'flex flex-col gap-3' : 'flex flex-wrap items-center justify-between gap-4'}>
         <div className="flex items-center gap-3">
           <span className={`flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-white text-3xl shadow-soft ${ready ? '' : 'grayscale opacity-50'}`}>
-            {rewardAsset
-              ? <img src={rewardAsset} alt="" className="h-12 w-12 object-contain" />
-              : reward.icon}
+            <RewardImage
+              src={rewardAsset}
+              className="h-12 w-12 object-contain"
+              fallback={reward.icon}
+            />
           </span>
           <div>
             <p className="text-xs font-black uppercase tracking-wider text-amber-700">Phần thưởng chương</p>
@@ -85,10 +104,10 @@ export function ChapterRewardCard({
             onClick={() => {
               setBusy(true)
               setMessage('')
-              void api(`/api/gamification/storybook/chapters/${page.slug}/claim`, { method: 'POST' })
-                .then(() => {
-                  setClaimed(true)
-                  onClaimed?.()
+              void api(`/api/gamification/storybook/chapters/${encodeURIComponent(page.slug)}/claim`, { method: 'POST' })
+                .then(async () => {
+                  await onClaimed?.()
+                  setMessage('Đã nhận S9 và đồng bộ phần thưởng.')
                 })
                 .catch((error) => setMessage(error instanceof Error ? error.message : 'Chưa nhận được phần thưởng.'))
                 .finally(() => setBusy(false))
@@ -104,26 +123,31 @@ export function ChapterRewardCard({
           <div className="mb-2 flex items-center justify-between gap-2">
             <h4 className="font-display text-lg">Tủ phần thưởng</h4>
             <span className="text-xs font-bold text-muted">
-              {profileRewards.length} vật phẩm
+              {ownedProfileRewardCount}/{profileRewards.length} đã sở hữu
             </span>
           </div>
           <div className="grid max-h-40 grid-cols-2 gap-2 overflow-y-auto pr-1">
             {profileRewards.map((item) => {
-              const asset = getRewardAssetUrl(item.id)
+              const asset = getVerifiedStaticRewardAssetUrl(item.id)
               const isCurrent = item.id === reward.id
+              const isOwned = ownedRewards.has(item.id)
               return (
                 <div
                   key={item.id}
                   className={`flex min-h-14 items-center gap-2 rounded-2xl border p-2 ${
                     isCurrent
                       ? 'border-amber-300 bg-amber-50'
-                      : 'border-border bg-white'
+                      : isOwned
+                        ? 'border-mint-200 bg-mint-50'
+                        : 'border-border bg-slate-50 opacity-65'
                   }`}
                 >
                   <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-brand-50 text-xl">
-                    {asset
-                      ? <img src={asset} alt="" className="h-9 w-9 object-contain" />
-                      : item.icon}
+                    <RewardImage
+                      src={asset}
+                      className="h-9 w-9 object-contain"
+                      fallback={item.icon}
+                    />
                   </span>
                   <span className="min-w-0">
                     <span className="block text-[10px] font-black uppercase text-brand-600">
@@ -131,6 +155,9 @@ export function ChapterRewardCard({
                     </span>
                     <span className="block truncate text-xs font-extrabold">
                       {item.name}
+                    </span>
+                    <span className="block text-[10px] font-bold text-muted">
+                      {isOwned ? 'Đã sở hữu' : 'Chưa mở'}
                     </span>
                   </span>
                 </div>

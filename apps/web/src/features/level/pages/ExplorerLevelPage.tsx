@@ -13,6 +13,7 @@ import {
   NavWorldIcon,
 } from '@/shared/components/icons/KidNavIcons'
 import { api } from '@/shared/lib/api'
+import { displayableLevelRewards, levelForReward } from '../level-reward-inventory'
 
 type LevelReward = {
   code: string
@@ -82,7 +83,7 @@ const kindLabels: Record<string, string> = {
 }
 
 function rewardLevel(reward: LevelReward) {
-  return Number(reward.content?.level ?? reward.displayConfig?.level ?? reward.unlockRule?.value ?? 0)
+  return levelForReward(reward)
 }
 
 function rewardIcon(reward: LevelReward | GamificationProfile['nextLevelRewards'][number] | undefined) {
@@ -128,18 +129,19 @@ export function ExplorerLevelPage() {
   useEffect(() => { void load() }, [load])
 
   const levelRewards = useMemo(
-    () => catalog
-      .filter((reward) => reward.unlockRule?.type === 'xp_level' && rewardLevel(reward) > 0)
-      .sort((left, right) => rewardLevel(left) - rewardLevel(right)),
+    () => displayableLevelRewards(catalog),
     [catalog],
   )
 
   if (loading) return <PageSkeleton rows={5} />
 
   const level = profile?.level ?? 1
-  const progress = Math.min(100, Math.max(0, profile?.xpIntoLevel ?? 0))
+  const xpIntoLevel = Math.max(0, profile?.xpIntoLevel ?? 0)
+  const xpToNextLevel = Math.max(0, profile?.xpToNextLevel ?? 0)
+  const levelSpan = Math.max(1, xpIntoLevel + xpToNextLevel)
+  const progress = Math.min(100, Math.max(0, Math.round((xpIntoLevel / levelSpan) * 100)))
   const maxRewardLevel = levelRewards.at(-1) ? rewardLevel(levelRewards.at(-1)!) : 100
-  const completedSeason = level >= maxRewardLevel
+  const completedSeason = levelRewards.length > 0 && level >= maxRewardLevel
   const upcoming = levelRewards.filter((reward) => rewardLevel(reward) >= level).slice(0, 6)
   const nextReward = profile?.nextLevelRewards[0] ?? upcoming.find((reward) => rewardLevel(reward) > level)
   const completedRewards = levelRewards.filter((reward) => ownedIds.has(reward.code)).length
@@ -200,12 +202,14 @@ export function ExplorerLevelPage() {
                 </div>
                 <div className="mt-2 flex flex-wrap justify-between gap-2 text-sm font-bold">
                   <span className="text-muted">
-                    {completedSeason ? `Đã hoàn thành ${maxRewardLevel} cấp` : `${progress}/100 XP trong cấp này`}
+                    {completedSeason
+                      ? `Đã hoàn thành ${maxRewardLevel} cấp`
+                      : `${xpIntoLevel}/${levelSpan} XP trong cấp này`}
                   </span>
                   <span className="text-sun-700">
                     {completedSeason
                       ? 'Con đã nhận trọn bộ quà mùa này'
-                      : `Còn ${profile.xpToNextLevel} XP để lên Cấp ${level + 1}`}
+                      : `Còn ${xpToNextLevel} XP để lên Cấp ${level + 1}`}
                   </span>
                 </div>
               </div>
@@ -243,7 +247,9 @@ export function ExplorerLevelPage() {
                 <p className="text-sm text-muted">Mỗi nơi đều nối vào cùng hành trình phần thưởng.</p>
               </div>
               <p className="text-sm font-extrabold text-brand-700">
-                {completedRewards}/{levelRewards.length || 100} quà đã mở
+                {levelRewards.length > 0
+                  ? `${completedRewards}/${levelRewards.length} quà đã mở`
+                  : 'Chưa có danh sách quà'}
               </p>
             </div>
             <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
@@ -296,13 +302,22 @@ export function ExplorerLevelPage() {
                       <h3 className="truncate font-extrabold">{reward.name}</h3>
                       <p className="mt-1 flex items-center gap-1 text-sm font-bold text-muted">
                         {owned ? <Check size={16} aria-hidden /> : <Lock size={15} aria-hidden />}
-                        {owned ? 'Đã có trong Ba lô' : `${Math.max(0, (rewardAt - level) * 100 - progress)} XP nữa`}
+                        {owned
+                          ? 'Đã có trong Ba lô'
+                          : rewardAt === level
+                            ? `${xpToNextLevel} XP nữa`
+                            : `Còn ${rewardAt - level} cấp`}
                       </p>
                     </div>
                   </article>
                 )
               })}
             </div>
+            {upcoming.length === 0 && (
+              <p className="mt-5 rounded-2xl border border-dashed border-brand-200 bg-brand-50 p-5 text-center font-bold text-muted">
+                Chưa có mốc phần thưởng mới được công bố.
+              </p>
+            )}
           </section>
         </>
       )}

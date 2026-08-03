@@ -26,6 +26,15 @@ export interface StorybookPage {
   stickerPageUrl?: string
   stickerSheetUrl?: string
   rewardId?: string
+  completionMedia?: {
+    videoUrl: string
+    webmUrl?: string
+    posterUrl?: string
+    captionsUrl?: string
+    durationSeconds?: number
+    nextChapterSlug?: string
+    bridgeObject?: string
+  }
 }
 
 const sticker = (

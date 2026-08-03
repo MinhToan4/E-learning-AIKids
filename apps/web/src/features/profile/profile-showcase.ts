@@ -1,6 +1,8 @@
 export type ProfileAvatar = {
   id: string
   url: string
+  mediaId?: string
+  thumbnailUrl?: string
   label: string
   source: 'upload' | 'generated' | 'library'
 }

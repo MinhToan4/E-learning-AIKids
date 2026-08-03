@@ -2,11 +2,14 @@ import { useCallback, useEffect, useState } from 'react'
 import { Bell } from 'lucide-react'
 import { api, type NotificationRow } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
+import { displayableNotifications, normalizedUnreadCount } from '../notification-inventory'
 
 export function NotificationBell() {
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState<NotificationRow[]>([])
   const [unread, setUnread] = useState(0)
+  const [message, setMessage] = useState('')
+  const [updating, setUpdating] = useState(false)
 
   const load = useCallback(async () => {
     try {
@@ -14,10 +17,12 @@ export function NotificationBell() {
         notifications: NotificationRow[]
         unreadCount: number
       }>('/api/notifications?limit=15')
-      setItems(data.notifications)
-      setUnread(data.unreadCount)
+      const notifications = displayableNotifications(data.notifications)
+      setItems(notifications)
+      setUnread(normalizedUnreadCount(data.unreadCount, notifications))
+      setMessage('')
     } catch {
-      // silent — bell is non-critical
+      setMessage('Chưa tải được thông báo.')
     }
   }, [])
 
@@ -35,25 +40,45 @@ export function NotificationBell() {
     }
   }, [load])
 
+  useEffect(() => {
+    if (!open) return
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setOpen(false)
+    }
+    window.addEventListener('keydown', closeOnEscape)
+    return () => window.removeEventListener('keydown', closeOnEscape)
+  }, [open])
+
   async function markAll() {
+    if (updating || unread === 0) return
+    setUpdating(true)
     try {
       await api('/api/notifications/read-all', { method: 'POST' })
       setUnread(0)
       setItems((prev) => prev.map((n) => ({ ...n, read: true })))
+      setMessage('')
     } catch {
-      /* ignore */
+      setMessage('Chưa đánh dấu đọc hết được.')
+    } finally {
+      setUpdating(false)
     }
   }
 
   async function markOne(id: string) {
+    const current = items.find((item) => item.id === id)
+    if (!current || current.read || updating) return
+    setUpdating(true)
     try {
       await api(`/api/notifications/${id}/read`, { method: 'PATCH' })
       setItems((prev) =>
         prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
       )
       setUnread((u) => Math.max(0, u - 1))
+      setMessage('')
     } catch {
-      /* ignore */
+      setMessage('Chưa đánh dấu thông báo này được.')
+    } finally {
+      setUpdating(false)
     }
   }
 
@@ -61,8 +86,10 @@ export function NotificationBell() {
     <div className="relative">
       <button
         type="button"
-        className="relative flex h-10 w-10 items-center justify-center rounded-2xl border border-border/80 bg-white text-muted shadow-xs transition hover:bg-brand-50 hover:text-brand-600"
+        className="relative flex h-11 w-11 items-center justify-center rounded-2xl border border-border/80 bg-white text-muted shadow-xs transition hover:bg-brand-50 hover:text-brand-600"
         aria-label="Thông báo"
+        aria-expanded={open}
+        aria-haspopup="dialog"
         onClick={() => {
           setOpen((o) => !o)
           if (!open) void load()
@@ -84,13 +111,14 @@ export function NotificationBell() {
             aria-label="Đóng"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute right-0 z-50 mt-2 w-[min(100vw-2rem,22rem)] overflow-hidden rounded-2xl border border-border bg-white shadow-clay">
+          <div role="dialog" aria-label="Danh sách thông báo" className="absolute right-0 z-50 mt-2 w-[min(100vw-2rem,22rem)] overflow-hidden rounded-2xl border border-border bg-white shadow-clay">
             <div className="flex items-center justify-between border-b border-border px-3 py-2">
               <p className="text-sm font-extrabold">Thông báo</p>
               {unread > 0 && (
                 <button
                   type="button"
-                  className="text-xs font-bold text-brand-500 hover:underline"
+                  disabled={updating}
+                  className="min-h-11 px-2 text-xs font-bold text-brand-500 hover:underline disabled:opacity-50"
                   onClick={() => void markAll()}
                 >
                   Đọc hết
@@ -98,6 +126,9 @@ export function NotificationBell() {
               )}
             </div>
             <ul className="max-h-80 overflow-y-auto">
+              {message && (
+                <li className="bg-coral-50 px-3 py-2 text-sm font-bold text-coral-700" role="status">{message}</li>
+              )}
               {items.length === 0 && (
                 <li className="px-3 py-6 text-center text-sm text-muted">
                   Chưa có thông báo nào
@@ -107,8 +138,9 @@ export function NotificationBell() {
                 <li key={n.id}>
                   <button
                     type="button"
+                    disabled={updating || n.read}
                     className={cn(
-                      'w-full px-3 py-2.5 text-left transition hover:bg-brand-50/80',
+                      'min-h-14 w-full px-3 py-2.5 text-left transition hover:bg-brand-50/80 disabled:cursor-default',
                       !n.read && 'bg-sun-100/40',
                     )}
                     onClick={() => void markOne(n.id)}

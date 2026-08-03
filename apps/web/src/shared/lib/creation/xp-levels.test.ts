@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import {
+  EXPLORER_LEVELS,
   explorerLevelForXp,
   explorerLevelProgress,
   nextExplorerLevel,
@@ -19,5 +20,9 @@ describe('explorer XP levels', () => {
     expect(explorerLevelProgress(50)).toBe(50)
     expect(explorerLevelProgress(9_999)).toBe(99)
     expect(explorerLevelProgress(9_900, 100)).toBe(0)
+  })
+
+  it('does not grant Storybook boss stickers from client-side level metadata', () => {
+    expect(EXPLORER_LEVELS.some((item) => 'storybookSticker' in item)).toBe(false)
   })
 })

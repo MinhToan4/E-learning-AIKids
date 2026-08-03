@@ -38,6 +38,10 @@ import { ParentHomeIcon } from '@/shared/components/icons/ParentHomeIcon'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { cn } from '@/shared/lib/cn'
 import { useAuth } from '@/shared/store/auth'
+import {
+  profilePageThemeStyle,
+  readStudentTheme,
+} from '@/features/rewards/student-theme'
 
 type NavIcon = React.ComponentType<{ size?: number; className?: string }>
 
@@ -187,6 +191,7 @@ function AdultBottomLink({
 // ── Student bottom drawer (Huy hiệu / Ba lô / Hồ sơ) ───────────
 function StudentDrawer() {
   const [open, setOpen] = useState(false)
+  const { handleLogout, loggingOut } = useLogoutAction()
 
   // Close drawer on navigate
   const handleNav = () => setOpen(false)
@@ -234,6 +239,17 @@ function StudentDrawer() {
               <span>{label}</span>
             </NavLink>
           ))}
+          <button
+            type="button"
+            onClick={() => void handleLogout()}
+            disabled={loggingOut}
+            className="student-drawer-item student-drawer-logout"
+          >
+            <span className="student-drawer-icon" aria-hidden="true">
+              <CmsLogoutIcon size={23} />
+            </span>
+            <span>{loggingOut ? 'Đang thoát…' : 'Đăng xuất'}</span>
+          </button>
         </nav>
       </div>
 
@@ -527,8 +543,22 @@ export function AppShell() {
   const user = useAuth((s) => s.user)
   const activeContext = useAuth((s) => s.activeContext)
   const enteredFromParent = useAuth((s) => s.enteredFromParent)
+  const location = useLocation()
+  const { handleLogout, loggingOut } = useLogoutAction()
 
   const [gateOpen, setGateOpen] = useState(false)
+  const [studentTheme, setStudentTheme] = useState(
+    () => user ? readStudentTheme(user.id) : undefined,
+  )
+
+  useEffect(() => {
+    const syncTheme = () => {
+      setStudentTheme(user ? readStudentTheme(user.id) : undefined)
+    }
+    syncTheme()
+    window.addEventListener('aikids:reward-equipped', syncTheme)
+    return () => window.removeEventListener('aikids:reward-equipped', syncTheme)
+  }, [user?.id])
 
   if (user?.role === 'parent') {
     return (
@@ -607,13 +637,15 @@ export function AppShell() {
   }
 
   // WHY: Dùng enteredFromParent thay vì user?.parentId vì học sinh tự login cũng có parentId.
-  // Icon Ba/Mẹ chỉ xuất hiện khi phụ huynh chủ động dùng luồng "Chuyển sang con".
+  // Icon Ba / Mẹ chỉ xuất hiện khi phụ huynh chủ động dùng luồng "Chuyển sang con".
   const showParentButton = enteredFromParent
-  const location = useLocation()
   const isCreative = location.pathname.startsWith('/creative')
 
   return (
-    <div className="min-h-dvh pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-8 md:pl-[6rem]">
+    <div
+      className="min-h-dvh bg-fixed pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-8 md:pl-[6rem]"
+      style={profilePageThemeStyle(studentTheme)}
+    >
       <aside className="student-rail fixed left-0 top-0 z-30 hidden h-dvh w-24 flex-col items-center gap-1.5 border-r border-border/70 py-4 md:flex">
         <NavLink
           to="/home"
@@ -622,36 +654,51 @@ export function AppShell() {
         >
           <BrandLogo size="md" className="max-w-[4.75rem]" />
         </NavLink>
-        {studentNav.map(({ to, label, icon: Icon }) => (
-          <NavLink
-            key={to}
-            to={to}
-            className={({ isActive }) =>
-              cn(
-                'student-nav-link w-[4.5rem]',
-                isActive && 'student-nav-link-active',
-              )
-            }
-          >
-            <span className="student-nav-icon" aria-hidden="true">
-              <Icon size={23} />
-            </span>
-            {label}
-          </NavLink>
-        ))}
+        <nav className="student-rail-nav" aria-label="Điều hướng học sinh">
+          {studentNav.map(({ to, label, icon: Icon }) => (
+            <NavLink
+              key={to}
+              to={to}
+              className={({ isActive }) =>
+                cn(
+                  'student-nav-link w-[4.5rem]',
+                  isActive && 'student-nav-link-active',
+                )
+              }
+            >
+              <span className="student-nav-icon" aria-hidden="true">
+                <Icon size={23} />
+              </span>
+              {label}
+            </NavLink>
+          ))}
+        </nav>
 
-        {showParentButton && (
+        <div className="student-rail-footer">
+          {showParentButton && (
+            <button
+              type="button"
+              onClick={() => setGateOpen(true)}
+              aria-label="Gọi ba mẹ"
+              title="Ba / Mẹ ơi!"
+              className="flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-extrabold text-amber-500 transition-all hover:scale-105 hover:bg-amber-50"
+            >
+              <ParentHomeIcon size={28} />
+              <span>Ba / Mẹ</span>
+            </button>
+          )}
           <button
             type="button"
-            onClick={() => setGateOpen(true)}
-            aria-label="Gọi ba mẹ"
-            title="Ba / Mẹ ơi!"
-            className="mt-auto flex w-16 flex-col items-center gap-1 rounded-2xl px-1 py-2 text-[11px] font-extrabold text-amber-500 transition-all hover:scale-105 hover:bg-amber-50"
+            onClick={() => void handleLogout()}
+            disabled={loggingOut}
+            className="student-nav-link student-rail-logout w-[4.5rem]"
           >
-            <ParentHomeIcon size={28} />
-            <span>Ba / Mẹ</span>
+            <span className="student-nav-icon" aria-hidden="true">
+              <CmsLogoutIcon size={22} />
+            </span>
+            <span>{loggingOut ? 'Đang thoát…' : 'Đăng xuất'}</span>
           </button>
-        )}
+        </div>
         
       </aside>
 

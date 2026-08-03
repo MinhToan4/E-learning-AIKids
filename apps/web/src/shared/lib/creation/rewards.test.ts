@@ -17,4 +17,12 @@ describe('reward catalog', () => {
     expect(isRewardUnlocked(frame, { xpLevel: 2 })).toBe(false)
     expect(isRewardUnlocked(frame, { xpLevel: 3 })).toBe(true)
   })
+
+  it('fails closed for event rewards without backend inventory context', () => {
+    const eventReward = {
+      ...REWARD_CATALOG[0],
+      unlock: { type: 'event' as const, value: 'summer-2026' },
+    }
+    expect(isRewardUnlocked(eventReward, { xpLevel: 100 })).toBe(false)
+  })
 })

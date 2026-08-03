@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { api } from '@/shared/lib/api'
 import { Button } from '@/shared/components/ui/Button'
+import { RewardPackAdmin } from './RewardPackAdmin'
 
 type ContentType = 'reward' | 'chapter' | 'event'
 type StudioItem = {
@@ -116,7 +117,7 @@ export function LegendRewardStudio() {
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const [uploading, setUploading] = useState(false)
-  const [view, setView] = useState<'library' | 'create'>('library')
+  const [view, setView] = useState<'library' | 'create' | 'packs'>('library')
   const [previewUrl, setPreviewUrl] = useState('')
   const [assetInfo, setAssetInfo] = useState('')
   const [chapterUploading, setChapterUploading] = useState('')
@@ -395,7 +396,12 @@ export function LegendRewardStudio() {
         <button type="button" onClick={() => setView('create')} className={`flex-1 rounded-2xl px-5 py-3 text-sm font-black ${view === 'create' ? 'bg-brand-600 text-white shadow-md' : 'text-muted hover:bg-brand-50'}`}>
           ＋ Tạo thiết kế mới
         </button>
+        <button type="button" onClick={() => setView('packs')} className={`flex-1 rounded-2xl px-5 py-3 text-sm font-black ${view === 'packs' ? 'bg-brand-600 text-white shadow-md' : 'text-muted hover:bg-brand-50'}`}>
+          Import ZIP
+        </button>
       </nav>
+
+      {view === 'packs' && <RewardPackAdmin />}
 
       {view === 'library' && (
         <section className="ui-card overflow-hidden">
