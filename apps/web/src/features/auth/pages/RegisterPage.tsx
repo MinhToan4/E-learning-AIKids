@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { Link, useNavigate } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
 import { useAuth } from '@/shared/store/auth'
-import { ApiError } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
 import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
 import type { User } from '@/shared/lib/api'
+import { authFeedback } from '@/features/auth/lib/auth-feedback'
 
 export function RegisterPage() {
   const [email, setEmail] = useState('')
@@ -47,9 +47,7 @@ export function RegisterPage() {
       )
       goAfter(user)
     } catch (err) {
-      setError(
-        err instanceof ApiError ? err.message : 'Đăng ký thất bại. Vui lòng thử lại.',
-      )
+      setError(authFeedback(err, 'register'))
     } finally {
       setBusy(false)
     }
@@ -78,15 +76,17 @@ export function RegisterPage() {
               className="h-14 w-14 rounded-full object-cover"
             />
           </div>
-          <h1 className="font-display text-3xl text-text">Tạo tài khoản</h1>
+          <h1 className="font-display text-3xl text-text">Tạo tài khoản phụ huynh</h1>
           <p className="mt-1 text-sm text-muted">
-            Phụ huynh đăng ký để quản lý hành trình sáng tạo AI của gia đình.
+            Đồng hành cùng việc học và sáng tạo của con.
           </p>
 
           <form className="mt-5 flex flex-col gap-4" onSubmit={onSubmit}>
             <label className="flex flex-col gap-1 text-sm font-bold">
               Tên hiển thị
               <input
+                autoComplete="name"
+                placeholder="Tên bạn muốn hiển thị"
                 className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500 transition-colors"
                 value={nickname}
                 maxLength={40}
@@ -98,6 +98,8 @@ export function RegisterPage() {
               Email *
               <input
                 type="email"
+                autoComplete="email"
+                placeholder="Nhập email của bạn"
                 className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500 transition-colors"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
@@ -109,6 +111,7 @@ export function RegisterPage() {
               Mật khẩu *
               <input
                 type="password"
+                autoComplete="new-password"
                 className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500 transition-colors"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -147,6 +150,7 @@ export function RegisterPage() {
               Xác nhận mật khẩu *
               <input
                 type="password"
+                autoComplete="new-password"
                 className={cn(
                   'min-h-12 rounded-2xl border-2 px-4 text-base font-semibold outline-none transition-colors',
                   !passwordsMatch ? 'border-red-400 focus:border-red-500' : 'border-border focus:border-brand-500',

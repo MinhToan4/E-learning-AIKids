@@ -11,13 +11,15 @@ import { ToastContainer } from '@/shared/components/ui/Toast'
 import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
 import { PinPadModal } from '@/shared/components/ui/PinPadModal'
 import type { User } from '@/shared/lib/api'
+import { authFeedback } from '@/features/auth/lib/auth-feedback'
 
 export function LoginPage() {
   const [params] = useSearchParams()
   const initial =
     params.get('mode') === 'adult' ||
     params.get('role') === 'parent' ||
-    params.get('role') === 'teacher'
+    params.get('role') === 'teacher' ||
+    params.get('role') === 'admin'
       ? 'adult'
       : 'student'
   const [mode, setMode] = useState<'student' | 'adult'>(initial as 'student' | 'adult')
@@ -42,8 +44,8 @@ export function LoginPage() {
   const hint = useMemo(
     () =>
       mode === 'student'
-        ? 'Con dùng biệt danh Ba / Mẹ đã tạo. Không cần mật khẩu của Ba / Mẹ.'
-        : 'Ba / Mẹ, giáo viên và quản trị viên dùng chung cổng này. Hệ thống sẽ tự mở đúng không gian sau khi đăng nhập.',
+        ? 'Nhập biệt danh để tiếp tục học và sáng tạo.'
+        : 'Đăng nhập để tiếp tục với tài khoản của bạn.',
     [mode],
   )
 
@@ -60,12 +62,12 @@ export function LoginPage() {
         goAfterAdult(user)
       }
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Không vào được. Thử lại nhé!'
+      const rawMessage = err instanceof ApiError ? err.message : ''
       // Nếu server yêu cầu PIN → mở PinPadModal thay vì hiện lỗi
-      if (mode === 'student' && msg.includes('PIN')) {
+      if (mode === 'student' && rawMessage.toUpperCase().includes('PIN')) {
         setShowPinModal(true)
       } else {
-        showToast(msg, 'error')
+        showToast(authFeedback(err, 'login'), 'error')
       }
     } finally {
       setBusy(false)
@@ -81,8 +83,7 @@ export function LoginPage() {
       })
       navigate(user.onboarded ? '/home' : '/onboarding')
     } catch (err) {
-      const msg = err instanceof ApiError ? err.message : 'Không vào được. Thử lại nhé!'
-      showToast(msg, 'error')
+      showToast(authFeedback(err, 'login'), 'error')
       setPin('')
     } finally {
       setBusy(false)
@@ -107,10 +108,10 @@ export function LoginPage() {
           <div className="mb-4">
             <BrandLogo size="lg" className="max-w-[200px]" />
           </div>
-          <h1 className="font-display text-3xl uppercase tracking-wide text-brand-600">
+          <h1 className="font-display text-3xl text-text">
             {mode === 'student'
-              ? 'Vào cổng sáng tạo'
-              : 'Cổng người lớn'}
+              ? 'Chào con trở lại!'
+              : 'Đăng nhập AIKid'}
           </h1>
           <p className="mt-1 text-sm text-muted">{hint}</p>
 
@@ -118,11 +119,12 @@ export function LoginPage() {
             <button
               type="button"
               className={cn(
-                'flex-1 rounded-xl py-2 text-sm font-extrabold',
+                'min-h-11 flex-1 rounded-xl px-2 py-2 text-sm font-extrabold',
                 mode === 'student'
                   ? 'bg-white text-brand-600 shadow-soft'
                   : 'text-muted',
               )}
+              aria-pressed={mode === 'student'}
               onClick={() => {
                 setMode('student')
                 // Clear fields khi đổi tab — tránh dữ liệu cũ hiện lại
@@ -135,18 +137,19 @@ export function LoginPage() {
             <button
               type="button"
               className={cn(
-                'flex-1 rounded-xl py-2 text-sm font-extrabold',
+                'min-h-11 flex-1 rounded-xl px-2 py-2 text-sm font-extrabold',
                 mode === 'adult'
                   ? 'bg-white text-brand-600 shadow-soft'
                   : 'text-muted',
               )}
+              aria-pressed={mode === 'adult'}
               onClick={() => {
                 setMode('adult')
                 // Clear fields khi đổi tab
                 setNickname('')
               }}
             >
-              Người lớn
+              Phụ huynh & giáo viên
             </button>
           </div>
 
@@ -156,6 +159,8 @@ export function LoginPage() {
                 <label className="flex flex-col gap-1 text-sm font-bold">
                   Biệt danh
                   <input
+                    autoComplete="username"
+                    placeholder="Nhập biệt danh"
                     className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500"
                     value={nickname}
                     maxLength={16}

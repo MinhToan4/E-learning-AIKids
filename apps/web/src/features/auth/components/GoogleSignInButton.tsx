@@ -1,8 +1,9 @@
 import { useState, useRef } from 'react'
-import { api, ApiError } from '@/shared/lib/api'
+import { api } from '@/shared/lib/api'
 import type { User } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { firebaseApp } from '@/shared/lib/firebase-client'
+import { authFeedback } from '@/features/auth/lib/auth-feedback'
 
 type Props = {
   /** parent | teacher — only for brand-new Google accounts */
@@ -59,11 +60,7 @@ export function GoogleSignInButton({
       }
       
       handlers.current.onError(
-        e instanceof ApiError
-          ? e.message
-          : e instanceof Error
-            ? e.message
-            : 'Không đăng nhập được bằng Google.',
+        authFeedback(e, 'login'),
       )
     } finally {
       setBusy(false)

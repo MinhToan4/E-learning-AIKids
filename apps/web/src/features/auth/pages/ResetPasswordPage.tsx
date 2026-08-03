@@ -1,10 +1,12 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { Link, useSearchParams, useNavigate } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
-import { api, ApiError } from '@/shared/lib/api'
+import { api } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
+import { authFeedback } from '@/features/auth/lib/auth-feedback'
+import { CircleCheck } from 'lucide-react'
 
 export function ResetPasswordPage() {
   const [params] = useSearchParams()
@@ -18,6 +20,12 @@ export function ResetPasswordPage() {
   const [busy, setBusy] = useState(false)
 
   const passwordsMatch = confirmPassword === '' || password === confirmPassword
+
+  useEffect(() => {
+    if (!success) return undefined
+    const redirectTimer = window.setTimeout(() => navigate('/login'), 3000)
+    return () => window.clearTimeout(redirectTimer)
+  }, [navigate, success])
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -33,12 +41,8 @@ export function ResetPasswordPage() {
         body: JSON.stringify({ token, password }),
       })
       setSuccess(true)
-      // Redirect to login after 3 seconds
-      setTimeout(() => navigate('/login'), 3000)
     } catch (err) {
-      setError(
-        err instanceof ApiError ? err.message : 'Link đã hết hạn hoặc không hợp lệ.',
-      )
+      setError(authFeedback(err, 'reset-password'))
     } finally {
       setBusy(false)
     }
@@ -48,9 +52,9 @@ export function ResetPasswordPage() {
     return (
       <div className="flex min-h-dvh items-center justify-center px-4">
         <div className="ui-card p-6 text-center">
-          <p className="text-lg font-bold text-danger">Link không hợp lệ.</p>
+          <p className="text-lg font-bold text-danger">Liên kết không hợp lệ.</p>
           <Link to="/forgot-password" className="mt-4 block text-brand-500 font-bold hover:underline">
-            Yêu cầu link mới
+            Gửi lại hướng dẫn
           </Link>
         </div>
       </div>
@@ -75,12 +79,14 @@ export function ResetPasswordPage() {
 
           {success ? (
             <div className="flex flex-col items-center gap-4 py-4">
-              <div className="text-5xl">✅</div>
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-mint-50 text-mint-700" aria-hidden="true">
+                <CircleCheck size={30} strokeWidth={2} />
+              </span>
               <h1 className="font-display text-2xl text-text text-center">
-                Mật khẩu đã được đặt lại!
+                Đã đổi mật khẩu
               </h1>
               <p className="text-center text-sm text-muted">
-                Đang chuyển hướng đến trang đăng nhập...
+                Bạn có thể đăng nhập bằng mật khẩu mới.
               </p>
               <Link
                 to="/login"
@@ -101,6 +107,7 @@ export function ResetPasswordPage() {
                   Mật khẩu mới
                   <input
                     type="password"
+                    autoComplete="new-password"
                     className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500 transition-colors"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -114,6 +121,7 @@ export function ResetPasswordPage() {
                   Xác nhận mật khẩu
                   <input
                     type="password"
+                    autoComplete="new-password"
                     className={cn(
                       'min-h-12 rounded-2xl border-2 px-4 text-base font-semibold outline-none transition-colors',
                       !passwordsMatch ? 'border-red-400' : 'border-border focus:border-brand-500',

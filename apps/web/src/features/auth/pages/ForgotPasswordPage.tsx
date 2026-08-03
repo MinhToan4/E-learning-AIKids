@@ -1,9 +1,14 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
-import { api, ApiError } from '@/shared/lib/api'
+import { api } from '@/shared/lib/api'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
+import {
+  authFeedback,
+  shouldConfirmPasswordResetEmail,
+} from '@/features/auth/lib/auth-feedback'
+import { MailCheck } from 'lucide-react'
 
 export function ForgotPasswordPage() {
   const [email, setEmail] = useState('')
@@ -22,9 +27,11 @@ export function ForgotPasswordPage() {
       })
       setSent(true)
     } catch (err) {
-      setError(
-        err instanceof ApiError ? err.message : 'Có lỗi xảy ra. Vui lòng thử lại.',
-      )
+      if (shouldConfirmPasswordResetEmail(err)) {
+        setSent(true)
+      } else {
+        setError(authFeedback(err, 'forgot-password'))
+      }
     } finally {
       setBusy(false)
     }
@@ -51,13 +58,15 @@ export function ForgotPasswordPage() {
 
           {sent ? (
             <div className="flex flex-col items-center gap-4 py-4">
-              <div className="text-5xl">📧</div>
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-50 text-brand-600" aria-hidden="true">
+                <MailCheck size={30} strokeWidth={2} />
+              </span>
               <h1 className="font-display text-2xl text-text text-center">
-                Kiểm tra email của bạn!
+                Kiểm tra email của bạn
               </h1>
               <p className="text-center text-sm text-muted">
-                Nếu email <strong>{email}</strong> đã đăng ký tài khoản, bạn sẽ nhận được
-                link đặt lại mật khẩu. Vui lòng kiểm tra cả thư rác.
+                Nếu <strong>{email}</strong> đã được đăng ký, chúng tôi sẽ gửi hướng dẫn
+                đặt lại mật khẩu. Bạn nhớ kiểm tra cả thư rác nhé.
               </p>
               <Link
                 to="/login"
@@ -70,7 +79,7 @@ export function ForgotPasswordPage() {
             <>
               <h1 className="font-display text-2xl text-text">Quên mật khẩu?</h1>
               <p className="mt-1 text-sm text-muted">
-                Nhập email đã đăng ký, chúng tôi sẽ gửi link đặt lại mật khẩu.
+                Nhập email để nhận hướng dẫn đặt lại mật khẩu.
               </p>
 
               <form className="mt-5 flex flex-col gap-4" onSubmit={onSubmit}>
@@ -80,6 +89,7 @@ export function ForgotPasswordPage() {
                     type="email"
                     className="min-h-12 rounded-2xl border-2 border-border px-4 text-base font-semibold outline-none focus:border-brand-500 transition-colors"
                     value={email}
+                    autoComplete="email"
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="email@example.com"
                     required
@@ -96,7 +106,7 @@ export function ForgotPasswordPage() {
                 )}
 
                 <Button type="submit" disabled={busy}>
-                  {busy ? 'Đang gửi…' : 'Gửi link đặt lại mật khẩu'}
+                  {busy ? 'Đang gửi…' : 'Gửi hướng dẫn'}
                 </Button>
               </form>
             </>
