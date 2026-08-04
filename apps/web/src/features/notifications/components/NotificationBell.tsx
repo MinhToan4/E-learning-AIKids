@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useState } from 'react'
 import { Bell } from 'lucide-react'
+import { useNavigate } from 'react-router'
 import { api, type NotificationRow } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
-import { displayableNotifications, normalizedUnreadCount } from '../notification-inventory'
+import { useAuth } from '@/shared/store/auth'
+import { displayableNotifications, normalizedUnreadCount, notificationRoute } from '../notification-inventory'
 
 export function NotificationBell() {
+  const navigate = useNavigate()
+  const role = useAuth((state) => state.user?.role ?? 'student')
   const [open, setOpen] = useState(false)
   const [items, setItems] = useState<NotificationRow[]>([])
   const [unread, setUnread] = useState(0)
@@ -32,10 +36,14 @@ export function NotificationBell() {
       if (document.visibilityState === 'visible') void load()
     }
     document.addEventListener('visibilitychange', refreshVisible)
-    const t = window.setInterval(refreshVisible, 5 * 60_000)
+    window.addEventListener('focus', refreshVisible)
+    window.addEventListener('online', refreshVisible)
+    const t = window.setInterval(refreshVisible, 60_000)
 
     return () => {
       document.removeEventListener('visibilitychange', refreshVisible)
+      window.removeEventListener('focus', refreshVisible)
+      window.removeEventListener('online', refreshVisible)
       window.clearInterval(t)
     }
   }, [load])
@@ -64,17 +72,28 @@ export function NotificationBell() {
     }
   }
 
-  async function markOne(id: string) {
-    const current = items.find((item) => item.id === id)
-    if (!current || current.read || updating) return
+  async function openNotification(notification: NotificationRow) {
+    if (updating) return
+    const route = notificationRoute(notification, role)
+    if (notification.read) {
+      if (route) {
+        setOpen(false)
+        navigate(route)
+      }
+      return
+    }
     setUpdating(true)
     try {
-      await api(`/api/notifications/${id}/read`, { method: 'PATCH' })
+      await api(`/api/notifications/${notification.id}/read`, { method: 'PATCH' })
       setItems((prev) =>
-        prev.map((n) => (n.id === id ? { ...n, read: true } : n)),
+        prev.map((n) => (n.id === notification.id ? { ...n, read: true } : n)),
       )
       setUnread((u) => Math.max(0, u - 1))
       setMessage('')
+      if (route) {
+        setOpen(false)
+        navigate(route)
+      }
     } catch {
       setMessage('Chưa đánh dấu thông báo này được.')
     } finally {
@@ -138,15 +157,18 @@ export function NotificationBell() {
                 <li key={n.id}>
                   <button
                     type="button"
-                    disabled={updating || n.read}
+                    disabled={updating}
                     className={cn(
                       'min-h-14 w-full px-3 py-2.5 text-left transition hover:bg-brand-50/80 disabled:cursor-default',
                       !n.read && 'bg-sun-100/40',
                     )}
-                    onClick={() => void markOne(n.id)}
+                    onClick={() => void openNotification(n)}
                   >
                     <p className="text-sm font-bold leading-snug">{n.title}</p>
                     <p className="text-xs text-muted">{n.body}</p>
+                    {notificationRoute(n, role) && (
+                      <p className="mt-1 text-xs font-bold text-brand-600">Xem chi tiết →</p>
+                    )}
                   </button>
                 </li>
               ))}

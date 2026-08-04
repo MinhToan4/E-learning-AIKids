@@ -1583,9 +1583,20 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       return {
         notifications: payload.items.map((item) => {
           const row = item as Record<string, unknown>
-          return { ...row, read: Boolean(row.readAt) }
+          const rawData = row.data ?? row.metadata ?? null
+          return {
+            id: String(row.id ?? ''),
+            type: String(row.type ?? row.eventType ?? 'general'),
+            title: String(row.title ?? ''),
+            body: String(row.body ?? row.message ?? ''),
+            read: typeof row.read === 'boolean' ? row.read : Boolean(row.readAt ?? row.read_at),
+            data: rawData && typeof rawData === 'object' && !Array.isArray(rawData)
+              ? rawData as Record<string, unknown>
+              : null,
+            createdAt: String(row.createdAt ?? row.created_at ?? ''),
+          }
         }),
-        unreadCount: Number(payload.unreadCount ?? 0),
+        unreadCount: Number(payload.unreadCount ?? payload.unread_count),
       }
     }
   }
@@ -2020,7 +2031,7 @@ export type NotificationRow = {
   title: string
   body: string
   read: boolean
-  data: string | null
+  data: Record<string, unknown> | null
   createdAt: string
 }
 
