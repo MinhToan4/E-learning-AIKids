@@ -1642,7 +1642,7 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
   .progress-hero {
     position: relative;
     display: grid;
-    min-height: 19rem;
+    min-height: 0;
     overflow: hidden;
     isolation: isolate;
     background:
@@ -1670,7 +1670,8 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 
   .progress-hero-art {
     position: relative;
-    min-height: 13rem;
+    min-height: 10rem;
+    max-height: 12rem;
     overflow: hidden;
     background: linear-gradient(180deg, transparent, rgba(109, 94, 252, 0.08));
   }
@@ -1821,6 +1822,7 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
   @media (min-width: 768px) {
     .progress-hero {
       grid-template-columns: minmax(0, 1.25fr) minmax(17rem, 0.75fr);
+      min-height: 19rem;
     }
 
     .progress-hero-copy {
@@ -1830,6 +1832,7 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 
     .progress-hero-art {
       min-height: 21rem;
+      max-height: none;
       clip-path: ellipse(78% 86% at 76% 50%);
     }
 
