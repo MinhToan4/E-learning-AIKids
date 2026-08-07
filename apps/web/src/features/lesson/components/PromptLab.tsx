@@ -151,8 +151,38 @@ export function PromptLab({
           </p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_280px] xl:grid-cols-[1fr_360px]">
-          {/* Left side: Tab UI */}
+        <div className="flex flex-col gap-6">
+          {/* Top side: Live Preview */}
+          <div className="flex flex-col gap-3 min-w-0">
+            <div className="flex items-center justify-between gap-3 px-1">
+              <strong className="font-bold text-sm text-text">Xem trước</strong>
+              <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-extrabold text-brand-700">
+                {filledPartsCount}/4 mảnh
+              </span>
+            </div>
+            
+            <div className="relative aspect-[21/9] sm:aspect-video overflow-hidden rounded-2xl bg-surface border-4 border-white shadow-clay">
+              <img
+                src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                alt="Live preview"
+                className={`h-full w-full object-cover transition-all duration-700 ease-in-out ${
+                  filledPartsCount === 0 ? 'blur-2xl grayscale' :
+                  filledPartsCount === 1 ? 'blur-lg grayscale-50' :
+                  filledPartsCount === 2 ? 'blur-md grayscale-[25%]' :
+                  filledPartsCount === 3 ? 'blur-sm grayscale-[10%]' :
+                  'blur-none grayscale-0 scale-105 animate-in zoom-in-95 duration-500'
+                }`}
+              />
+              {/* Overlay Prompt Text */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-12">
+                <p className="text-sm font-medium leading-snug text-white line-clamp-3">
+                  {strongPrompt(value) || 'Chọn các mảnh để xem kết quả...'}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Bottom side: Tab UI */}
           <div className="flex flex-col gap-3 min-w-0">
             {/* Tabs */}
             <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
@@ -182,7 +212,7 @@ export function PromptLab({
             </div>
 
             {/* Active Tab Content */}
-            <div className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-4 shadow-sm min-h-[220px]">
+            <div className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-4 shadow-sm min-h-[180px]">
               <div>
                 <strong className="text-base text-text">{activePart.label}</strong>
                 <p className="text-sm text-muted">{activePart.hint}</p>
@@ -195,7 +225,7 @@ export function PromptLab({
                 {value[activeTab] || `Chưa có mảnh ${activePart.label.toLocaleLowerCase('vi-VN')}`}
               </div>
 
-              <div className="flex flex-col gap-2 mt-auto">
+              <div className="grid gap-2 sm:grid-cols-2 mt-auto">
                 {availableChoices.map((choice) => (
                   <button
                     key={choice}
@@ -218,36 +248,6 @@ export function PromptLab({
                     {choice}
                   </button>
                 ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Right side: Live Preview */}
-          <div className="flex flex-col gap-3 min-w-0">
-            <div className="flex items-center justify-between gap-3 px-1">
-              <strong className="font-bold text-sm text-text">Xem trước</strong>
-              <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-extrabold text-brand-700">
-                {filledPartsCount}/4 mảnh
-              </span>
-            </div>
-            
-            <div className="relative aspect-video lg:aspect-[4/3] overflow-hidden rounded-2xl bg-surface border-4 border-white shadow-clay">
-              <img
-                src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
-                alt="Live preview"
-                className={`h-full w-full object-cover transition-all duration-700 ease-in-out ${
-                  filledPartsCount === 0 ? 'blur-2xl grayscale' :
-                  filledPartsCount === 1 ? 'blur-lg grayscale-50' :
-                  filledPartsCount === 2 ? 'blur-md grayscale-[25%]' :
-                  filledPartsCount === 3 ? 'blur-sm grayscale-[10%]' :
-                  'blur-none grayscale-0 scale-105 animate-in zoom-in-95 duration-500'
-                }`}
-              />
-              {/* Overlay Prompt Text */}
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-12">
-                <p className="text-sm font-medium leading-snug text-white line-clamp-3">
-                  {strongPrompt(value) || 'Chọn các mảnh để xem kết quả...'}
-                </p>
               </div>
             </div>
           </div>
