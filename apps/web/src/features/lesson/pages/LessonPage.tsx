@@ -55,7 +55,6 @@ import {
   queueOfflineProgress,
   type OfflineManifest,
 } from '@/features/lesson/lib/offline-learning'
-import { InteractiveCoachPanel } from '@/features/lesson/components/InteractiveCoachPanel'
 import { LeftPhaseSidebar } from '@/features/lesson/components/LeftPhaseSidebar'
 
 type Phase = 'learn' | 'game' | 'practice' | 'check' | 'done'
@@ -834,6 +833,9 @@ export function LessonPage() {
         maxUnlockedPhase={maxUnlockedPhase} 
         onPhaseSelect={setPhase}
         className="shrink-0 flex-row justify-center sm:flex-col sm:justify-start" 
+        guideCopy={dynamicGuideCopy}
+        videoUrl={phase === 'learn' ? quest?.videoUrl : null}
+        videoTitle={quest?.title}
       />
       
       <div className="flex-1 flex flex-col gap-4 min-w-0 overflow-hidden">
@@ -876,8 +878,7 @@ export function LessonPage() {
         </div>
       </div>
 
-      <div className="lesson-stage-grid min-h-0 flex-1">
-        <main className="lesson-stage-main">
+      <main className="lesson-stage-main min-h-0 flex-1">
       <LearningToolsPanel questId={questId} phase={phase} />
 
 
@@ -1687,12 +1688,6 @@ export function LessonPage() {
         </div>
       )}
         </main>
-        <InteractiveCoachPanel
-          guideCopy={dynamicGuideCopy}
-          videoUrl={phase === 'learn' ? quest?.videoUrl : null}
-          videoTitle={quest?.title}
-        />
-      </div>
       </div>
     </div>
   )

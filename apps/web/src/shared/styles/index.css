@@ -3126,13 +3126,6 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     flex-shrink: 0;
   }
 
-  .lesson-stage-grid {
-    display: grid;
-    min-width: 0;
-    flex: 1;
-    min-height: 0;
-    gap: 1rem;
-  }
 
   .lesson-stage-main {
     min-width: 0;
@@ -3168,11 +3161,6 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
   }
 
   @media (min-width: 1024px) {
-    .lesson-stage-grid {
-      grid-template-columns: minmax(0, 1fr) 22rem;
-      align-items: stretch;
-      height: 100%;
-    }
 
     .lesson-guide-panel {
       position: relative;
