@@ -18,6 +18,7 @@ export function LoginCatFrame({ variant, portalSlot, mouthSlot, pawsSlot }: Logi
         fill="none"
         xmlns="http://www.w3.org/2000/svg"
         aria-hidden="true"
+        overflow="visible"
       >
         <defs>
           <filter id={shadowId} x="-10%" y="-10%" width="120%" height="125%">
