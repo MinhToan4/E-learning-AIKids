@@ -76,15 +76,20 @@ const MOCK_TEST_QUEST: QuestDetail = {
   courseId: 'mock-course',
   title: 'Thử nghiệm trạm kiểm tra hình ảnh',
   hook: 'Chào mừng con đến với bài thử nghiệm',
-  goals: ['Kiểm tra hình ảnh trong Check Phase'],
+  goals: ['Trải nghiệm Live Blur Preview & Visual Quiz'],
   learnCards: [],
-  practiceKind: 'none',
+  practiceKind: 'prompt_lab',
   reward: 'Huy hiệu Tester',
-  skill: 'none',
+  skill: 'prompt_lab',
   duration: '15',
   accent: 'blue',
   chips: {},
-  stations: { stage: 'lesson', stations: [] },
+  stations: {
+    stage: 'lesson',
+    stations: [
+      { id: 'practice', kind: 'practice', practiceKind: 'prompt_lab', instruction: 'Hãy lắp ghép Prompt để trải nghiệm hiệu ứng Live Blur Preview!' }
+    ]
+  },
   check: [
     {
       id: 'q1',
@@ -216,7 +221,7 @@ export function LessonPage() {
     if (questId === 'test') {
       setQuest(MOCK_TEST_QUEST)
       setLiveStars(0)
-      setPhase('check')
+      setPhase('practice')
       setLoading(false)
       return
     }
@@ -1460,10 +1465,11 @@ export function LessonPage() {
                       type="button"
                       className={cn(
                         isImage
-                          ? 'relative rounded-2xl overflow-hidden shadow-clay border-4 border-transparent p-0 transition-all focus:outline-none'
+                          ? 'group relative overflow-hidden rounded-2xl border-4 p-0 text-left transition-all hover:-translate-y-1 hover:shadow-clay'
                           : 'game-card text-left text-sm font-semibold',
                         !isImage && answers[q.id] === idx && 'game-card-selected',
-                        isImage && answers[q.id] === idx && 'border-brand-500 scale-[1.02]',
+                        isImage && answers[q.id] !== idx && 'border-transparent',
+                        isImage && answers[q.id] === idx && 'border-brand-500 scale-[1.02] shadow-clay',
                         answers[q.id] === idx &&
                           answerFeedback[q.id]?.correct &&
                           'lesson-answer-correct',
@@ -1480,15 +1486,31 @@ export function LessonPage() {
                     >
                       {isImage ? (
                         <>
-                          <img src={opt} alt={`Option ${String.fromCharCode(65 + idx)}`} className="w-full h-40 object-cover" />
-                          <div className="absolute top-2 left-2">
+                          <img 
+                            src={opt} 
+                            alt={`Option ${String.fromCharCode(65 + idx)}`} 
+                            className="aspect-video w-full object-cover transition-transform duration-500 group-hover:scale-110" 
+                          />
+                          {/* Dark gradient overlay for better text contrast */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/20" />
+                          
+                          <div className="absolute top-3 left-3">
                             <span className={cn(
-                              'inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-extrabold shadow-sm',
-                              answers[q.id] === idx ? 'bg-brand-500 text-white' : 'bg-white text-brand-600'
+                              'inline-flex h-8 w-8 items-center justify-center rounded-xl text-sm font-extrabold shadow-sm',
+                              answers[q.id] === idx ? 'bg-brand-500 text-white' : 'bg-white/90 text-brand-700 backdrop-blur-sm'
                             )}>
                               {String.fromCharCode(65 + idx)}
                             </span>
                           </div>
+                          
+                          {/* Selection indicator overlay */}
+                          {answers[q.id] === idx && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-brand-500/20 backdrop-blur-[2px] animate-in fade-in duration-300">
+                              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-brand-500 text-white shadow-lg animate-in zoom-in-50 spin-in-12 duration-500">
+                                <span className="text-2xl" aria-hidden>✨</span>
+                              </div>
+                            </div>
+                          )}
                         </>
                       ) : (
                         <>
