@@ -56,6 +56,7 @@ import {
   type OfflineManifest,
 } from '@/features/lesson/lib/offline-learning'
 import { InteractiveCoachPanel } from '@/features/lesson/components/InteractiveCoachPanel'
+import { LeftPhaseSidebar } from '@/features/lesson/components/LeftPhaseSidebar'
 
 type Phase = 'learn' | 'game' | 'practice' | 'check' | 'done'
 
@@ -74,6 +75,7 @@ export function LessonPage() {
   const navigate = useNavigate()
   const [quest, setQuest] = useState<QuestDetail | null>(null)
   const [phase, setPhase] = useState<Phase>('learn')
+  const [maxUnlockedPhase, setMaxUnlockedPhase] = useState<Phase>('learn')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [parts, setParts] = useState<PromptParts>({})
@@ -123,6 +125,7 @@ export function LessonPage() {
 
   const resetLocal = useCallback(() => {
     setPhase('learn')
+    setMaxUnlockedPhase('learn')
     setError(null)
     setParts({})
     setGenerated(null)
@@ -232,6 +235,15 @@ export function LessonPage() {
       cancelled = true
     }
   }, [questId, resetLocal])
+
+  useEffect(() => {
+    setMaxUnlockedPhase((prev) => {
+      const phaseOrder = ['learn', 'game', 'practice', 'check', 'done']
+      const prevIdx = phaseOrder.indexOf(prev)
+      const currentIdx = phaseOrder.indexOf(phase)
+      return currentIdx > prevIdx ? phase : prev
+    })
+  }, [phase])
 
   useEffect(() => {
     if (!quest || !navigator.onLine) return
@@ -744,24 +756,23 @@ export function LessonPage() {
     return <p className="text-muted">Không tìm thấy trạm.</p>
   }
 
-  const PHASE_STEPS = [
-    { id: 'learn', label: 'Khám phá', icon: '📖' },
-    { id: 'game', label: 'Thử cùng Mee', icon: '🎮' },
-    { id: 'practice', label: 'Tự tay làm', icon: '✏️' },
-    { id: 'check', label: 'Thử thách', icon: '⭐' },
-  ] as const
-
-  const phaseOrder: Phase[] = ['learn', 'game', 'practice', 'check']
-  const currentPhaseIdx = phaseOrder.indexOf(phase === 'done' ? 'check' : phase)
   const allCheckAnswersCorrect =
     quest.check.length > 0 &&
     quest.check.every((question) => answerFeedback[question.id]?.correct)
 
   return (
-    <div className="page-enter flex flex-col gap-4 h-dvh overflow-hidden p-2 sm:p-4">
-      {/* ── Header ──────────────────────────────────────────────── */}
-      <div className="ui-card p-4">
-        <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+    <div className="page-enter flex flex-col sm:flex-row gap-4 h-dvh overflow-hidden p-2 sm:p-4">
+      <LeftPhaseSidebar 
+        currentPhase={phase} 
+        maxUnlockedPhase={maxUnlockedPhase} 
+        onPhaseSelect={setPhase}
+        className="shrink-0 flex-row justify-center sm:flex-col sm:justify-start" 
+      />
+      
+      <div className="flex-1 flex flex-col gap-4 min-w-0 overflow-hidden">
+        {/* ── Header ──────────────────────────────────────────────── */}
+        <div className="ui-card p-4 shrink-0">
+          <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
           <div className="min-w-0">
             <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">Trạm {quest.order}</p>
             <h1 className="font-display text-2xl sm:text-3xl leading-tight">{quest.title}</h1>
@@ -796,29 +807,9 @@ export function LessonPage() {
             </div>
           )}
         </div>
-        {/* Phase stepper */}
-        <div className="phase-stepper mt-2" role="progressbar" aria-label="Tiến trình bài học" aria-valuenow={currentPhaseIdx + 1} aria-valuemax={4}>
-          {PHASE_STEPS.map((step, idx) => (
-            <span key={step.id} className="flex items-center">
-              {idx > 0 && (
-                <span className="phase-step-connector" />
-              )}
-              <span
-                className={cn(
-                  'phase-step',
-                  currentPhaseIdx === idx && 'phase-step-active',
-                  currentPhaseIdx > idx && 'phase-step-done',
-                )}
-              >
-                <span aria-hidden>{currentPhaseIdx > idx ? '✓' : step.icon}</span>
-                <span className="hidden sm:inline font-bold">{step.label}</span>
-              </span>
-            </span>
-          ))}
-        </div>
       </div>
 
-      <div className="lesson-stage-grid">
+      <div className="lesson-stage-grid min-h-0 flex-1">
         <main className="lesson-stage-main">
       <LearningToolsPanel questId={questId} phase={phase} />
 
@@ -1595,6 +1586,7 @@ export function LessonPage() {
           videoUrl={phase === 'learn' ? quest?.videoUrl : null}
           videoTitle={quest?.title}
         />
+      </div>
       </div>
     </div>
   )
