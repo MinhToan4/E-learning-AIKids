@@ -55,6 +55,7 @@ import {
   queueOfflineProgress,
   type OfflineManifest,
 } from '@/features/lesson/lib/offline-learning'
+import { InteractiveCoachPanel } from '@/features/lesson/components/InteractiveCoachPanel'
 
 type Phase = 'learn' | 'game' | 'practice' | 'check' | 'done'
 
@@ -828,11 +829,6 @@ export function LessonPage() {
           {/* Hook highlight */}
           <div className="hook-highlight">{quest.hook}</div>
 
-          {/* Video if available */}
-          {quest.videoUrl && (
-            <LectureVideo title={quest.title} url={quest.videoUrl} />
-          )}
-
           {/* Goals */}
           {quest.goals.length > 0 && (
             <div className="flex flex-col gap-1.5 rounded-2xl bg-brand-50 border border-brand-100 p-3">
@@ -1594,20 +1590,11 @@ export function LessonPage() {
         </div>
       )}
         </main>
-        <aside className="lesson-guide-panel items-center justify-start text-center" aria-labelledby="lesson-guide-title">
-          <AikidCatCharacter
-            pose={dynamicGuideCopy.pose}
-            className="lesson-guide-cat w-28 h-28 object-contain drop-shadow-md z-10 mx-auto"
-          />
-          <div className="relative w-full mt-2 rounded-[1.5rem] border-2 border-brand-100 bg-brand-50 p-4 shadow-sm text-center">
-            {/* Speech bubble triangle */}
-            <div className="absolute -top-3 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-l-2 border-t-2 border-brand-100 bg-brand-50"></div>
-            
-            <p className="text-xs font-extrabold text-coral-600 mb-1">{dynamicGuideCopy.eyebrow}</p>
-            <h2 id="lesson-guide-title" className="font-display text-lg text-text leading-tight">{dynamicGuideCopy.title}</h2>
-            <p className="mt-2 text-sm font-semibold leading-relaxed text-muted">{dynamicGuideCopy.body}</p>
-          </div>
-        </aside>
+        <InteractiveCoachPanel
+          guideCopy={dynamicGuideCopy}
+          videoUrl={phase === 'learn' ? quest?.videoUrl : null}
+          videoTitle={quest?.title}
+        />
       </div>
     </div>
   )
