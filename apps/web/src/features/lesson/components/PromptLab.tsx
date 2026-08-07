@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 export type PromptLabValue = {
   weak: string
   medium: string
@@ -99,10 +101,20 @@ export function PromptLab({
   value: PromptLabValue
   onChange: (value: PromptLabValue) => void
 }) {
+  const [activeTab, setActiveTab] = useState<StrongPromptKey>('role')
+
   const field = (key: keyof PromptLabValue, next: string) =>
     onChange({ ...value, [key]: next })
 
   const filledPartsCount = [value.role, value.task, value.context, value.format].filter((part) => part.trim()).length
+
+  const activePart = PROMPT_PARTS.find((p) => p.key === activeTab)!
+  const mediumChoice = activeTab === 'task' && value.medium.trim().length >= 8
+    ? value.medium.trim()
+    : null
+  const availableChoices = mediumChoice
+    ? [mediumChoice, ...activePart.choices.filter((choice) => choice !== mediumChoice)]
+    : activePart.choices
 
   return (
     <div className="flex flex-col gap-4" data-testid="prompt-lab">
@@ -131,72 +143,95 @@ export function PromptLab({
         </label>
       </div>
 
-      <fieldset className="rounded-3xl border-2 border-brand-100 bg-brand-50/40 p-4 sm:p-5">
-        <legend className="px-2 font-display text-lg">3. Lắp prompt tốt · đủ 4 mảnh</legend>
-        <p className="mb-4 text-sm text-muted">
-          Chọn một mảnh ở mỗi trạm. Con có thể đổi mảnh cho đến khi prompt đúng ý.
-        </p>
-
-        <div className="grid gap-4 lg:grid-cols-2">
-          {PROMPT_PARTS.map(({ key, label, hint, tone, choices }, index) => {
-            const mediumChoice = key === 'task' && value.medium.trim().length >= 8
-              ? value.medium.trim()
-              : null
-            const availableChoices = mediumChoice
-              ? [mediumChoice, ...choices.filter((choice) => choice !== mediumChoice)]
-              : choices
-
-            return (
-              <fieldset key={key} className="rounded-2xl border border-border bg-white p-3 sm:p-4">
-                <legend className="px-1 font-bold text-text">
-                  <span className={`mr-2 inline-grid h-7 w-7 place-items-center rounded-lg border ${tone}`}>
-                    {index + 1}
-                  </span>
-                  {label}
-                </legend>
-                <p className="mb-3 mt-1 text-sm text-muted">{hint}</p>
-
-                <div
-                  className={`mb-3 flex min-h-14 items-center rounded-xl border-2 border-dashed p-3 text-sm font-bold ${value[key] ? tone : 'border-border bg-surface text-muted'}`}
-                  aria-live="polite"
-                >
-                  {value[key] || `Chưa có mảnh ${label.toLocaleLowerCase('vi-VN')}`}
-                </div>
-
-                <div className="flex flex-wrap gap-2">
-                  {availableChoices.map((choice) => (
-                    <button
-                      key={choice}
-                      type="button"
-                      aria-pressed={value[key] === choice}
-                      onClick={() => field(key, choice)}
-                      className={`min-h-11 rounded-xl border px-3 py-2 text-left text-sm font-bold transition active:translate-y-px ${
-                        value[key] === choice
-                          ? tone
-                          : 'border-border bg-white text-text hover:border-brand-200 hover:bg-brand-50'
-                      }`}
-                    >
-                      {choice}
-                    </button>
-                  ))}
-                </div>
-              </fieldset>
-            )
-          })}
+      <fieldset className="rounded-3xl border-2 border-brand-100 bg-brand-50/40 p-4 sm:p-5 flex flex-col gap-4">
+        <div>
+          <legend className="px-2 font-display text-lg">3. Lắp prompt tốt · đủ 4 mảnh</legend>
+          <p className="mt-1 text-sm text-muted px-2">
+            Chọn một mảnh ở mỗi trạm. Con có thể đổi mảnh cho đến khi prompt đúng ý.
+          </p>
         </div>
 
-        <div className="mt-4 rounded-2xl border border-brand-100 bg-white p-4">
-          <div className="mb-2 flex items-center justify-between gap-3">
-            <strong className="font-display text-lg">Prompt đã lắp & Xem trước</strong>
-            <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-extrabold text-brand-700">
-              {filledPartsCount}/4 mảnh
-            </span>
+        <div className="grid gap-6 lg:grid-cols-[1fr_280px] xl:grid-cols-[1fr_360px]">
+          {/* Left side: Tab UI */}
+          <div className="flex flex-col gap-3 min-w-0">
+            {/* Tabs */}
+            <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
+              {PROMPT_PARTS.map(({ key, label, tone }, index) => {
+                const isActive = activeTab === key
+                const hasValue = !!value[key]
+                return (
+                  <button
+                    key={key}
+                    type="button"
+                    onClick={() => setActiveTab(key)}
+                    className={`flex-shrink-0 flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all ${
+                      isActive 
+                        ? 'bg-white shadow-sm ring-2 ring-brand-300 text-brand-700'
+                        : hasValue
+                          ? 'bg-white text-text border border-border hover:bg-brand-50'
+                          : 'bg-surface text-muted border border-transparent hover:bg-border/50 hover:text-text'
+                    }`}
+                  >
+                    <span className={`flex h-6 w-6 items-center justify-center rounded-md border text-xs ${hasValue ? tone : 'bg-surface border-border text-muted'}`}>
+                      {index + 1}
+                    </span>
+                    {label}
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Active Tab Content */}
+            <div className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-4 shadow-sm min-h-[220px]">
+              <div>
+                <strong className="text-base text-text">{activePart.label}</strong>
+                <p className="text-sm text-muted">{activePart.hint}</p>
+              </div>
+
+              <div
+                className={`flex min-h-12 items-center rounded-xl border-2 border-dashed p-3 text-sm font-bold ${value[activeTab] ? activePart.tone : 'border-border bg-surface text-muted'}`}
+                aria-live="polite"
+              >
+                {value[activeTab] || `Chưa có mảnh ${activePart.label.toLocaleLowerCase('vi-VN')}`}
+              </div>
+
+              <div className="flex flex-col gap-2 mt-auto">
+                {availableChoices.map((choice) => (
+                  <button
+                    key={choice}
+                    type="button"
+                    aria-pressed={value[activeTab] === choice}
+                    onClick={() => {
+                      field(activeTab, choice)
+                      // Auto advance to next tab if not the last one
+                      const currentIndex = PROMPT_PARTS.findIndex(p => p.key === activeTab)
+                      if (currentIndex < PROMPT_PARTS.length - 1) {
+                        setActiveTab(PROMPT_PARTS[currentIndex + 1].key)
+                      }
+                    }}
+                    className={`min-h-11 rounded-xl border px-4 py-2 text-left text-sm font-bold transition-all active:scale-[0.98] ${
+                      value[activeTab] === choice
+                        ? activePart.tone + ' scale-[1.02] shadow-sm'
+                        : 'border-border bg-white text-text hover:border-brand-200 hover:bg-brand-50'
+                    }`}
+                  >
+                    {choice}
+                  </button>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="grid gap-6 sm:grid-cols-2">
-            <p className="text-sm leading-relaxed text-text">
-              {strongPrompt(value) || 'Chọn các mảnh phía trên để lắp prompt của con.'}
-            </p>
-            <div className="relative aspect-video overflow-hidden rounded-xl bg-surface sm:aspect-[4/3]">
+
+          {/* Right side: Live Preview */}
+          <div className="flex flex-col gap-3 min-w-0">
+            <div className="flex items-center justify-between gap-3 px-1">
+              <strong className="font-bold text-sm text-text">Xem trước</strong>
+              <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-extrabold text-brand-700">
+                {filledPartsCount}/4 mảnh
+              </span>
+            </div>
+            
+            <div className="relative aspect-video lg:aspect-[4/3] overflow-hidden rounded-2xl bg-surface border-4 border-white shadow-clay">
               <img
                 src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                 alt="Live preview"
@@ -204,10 +239,16 @@ export function PromptLab({
                   filledPartsCount === 0 ? 'blur-2xl grayscale' :
                   filledPartsCount === 1 ? 'blur-lg grayscale-50' :
                   filledPartsCount === 2 ? 'blur-md grayscale-[25%]' :
-                  filledPartsCount === 3 ? 'blur-sm' :
-                  'blur-none grayscale-0 animate-in zoom-in-95 duration-500'
+                  filledPartsCount === 3 ? 'blur-sm grayscale-[10%]' :
+                  'blur-none grayscale-0 scale-105 animate-in zoom-in-95 duration-500'
                 }`}
               />
+              {/* Overlay Prompt Text */}
+              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 pt-12">
+                <p className="text-sm font-medium leading-snug text-white line-clamp-3">
+                  {strongPrompt(value) || 'Chọn các mảnh để xem kết quả...'}
+                </p>
+              </div>
             </div>
           </div>
         </div>
