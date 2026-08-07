@@ -70,6 +70,38 @@ const emptyStory = {
   title: 'Truyện của con',
 }
 
+const MOCK_TEST_QUEST: QuestDetail = {
+  id: 'test',
+  order: 99,
+  courseId: 'mock-course',
+  title: 'Thử nghiệm trạm kiểm tra hình ảnh',
+  hook: 'Chào mừng con đến với bài thử nghiệm',
+  goals: ['Kiểm tra hình ảnh trong Check Phase'],
+  learnCards: [],
+  practiceKind: 'none',
+  reward: 'Huy hiệu Tester',
+  skill: 'none',
+  duration: '15',
+  accent: 'blue',
+  chips: {},
+  stations: { stage: 'lesson', stations: [] },
+  check: [
+    {
+      id: 'q1',
+      question: 'Câu hỏi chữ: Quả nào sau đây màu đỏ?',
+      options: ['Quả táo', 'Quả chuối', 'Quả cam', 'Quả lê']
+    },
+    {
+      id: 'q2',
+      question: 'Câu hỏi hình: Đâu là hình ảnh con mèo?',
+      options: [
+        'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
+        'https://images.unsplash.com/photo-1543466835-00a7907e9de1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
+      ]
+    }
+  ]
+}
+
 export function LessonPage() {
   const { questId = '' } = useParams()
   const navigate = useNavigate()
@@ -180,6 +212,15 @@ export function LessonPage() {
     let cancelled = false
     resetLocal()
     setLoading(true)
+
+    if (questId === 'test') {
+      setQuest(MOCK_TEST_QUEST)
+      setLiveStars(0)
+      setPhase('check')
+      setLoading(false)
+      return
+    }
+
     void (async () => {
       try {
         const start = await api<{
@@ -561,6 +602,15 @@ export function LessonPage() {
     setBusy(true)
     setError(null)
     try {
+      if (questId === 'test') {
+        await new Promise((resolve) => setTimeout(resolve, 500))
+        setLiveStars(3)
+        setStarBurst({ id: Date.now(), count: 1 })
+        setCheckResult({ stars: 3, message: 'Hoàn thành thử nghiệm', nextQuestId: null })
+        setPhase('done')
+        return
+      }
+
       const res = await api<{
         passed?: boolean
         stars: number
@@ -601,6 +651,18 @@ export function LessonPage() {
     setLastActiveQuestionId(questionId)
     setError(null)
     try {
+      if (questId === 'test') {
+        await new Promise((resolve) => setTimeout(resolve, 500))
+        setAnswerFeedback((current) => ({
+          ...current,
+          [questionId]: {
+            correct: optionIndex === 0,
+            explanation: optionIndex === 0 ? 'Tuyệt vời!' : 'Sai rồi nhé.',
+          },
+        }))
+        return
+      }
+
       const feedback = await api<{
         questionId: string
         correct: boolean
@@ -1390,36 +1452,58 @@ export function LessonPage() {
                 {q.question}
               </p>
               <div className="grid gap-2 sm:grid-cols-2">
-                {q.options.map((opt, idx) => (
-                  <button
-                    key={opt}
-                    type="button"
-                    className={cn(
-                      'game-card text-left text-sm font-semibold',
-                      answers[q.id] === idx && 'game-card-selected',
-                      answers[q.id] === idx &&
-                        answerFeedback[q.id]?.correct &&
-                        'lesson-answer-correct',
-                      answers[q.id] === idx &&
-                        answerFeedback[q.id] &&
-                        !answerFeedback[q.id].correct &&
-                        'lesson-answer-wrong',
-                    )}
-                    disabled={
-                      answerFeedback[q.id]?.correct === true ||
-                      checkingQuestionId === q.id
-                    }
-                    onClick={() => void chooseCheckAnswer(q.id, idx)}
-                  >
-                    <span className={cn(
-                      'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-extrabold mr-2 flex-shrink-0',
-                      answers[q.id] === idx ? 'bg-brand-500 text-white' : 'bg-brand-50 text-brand-600'
-                    )}>
-                      {String.fromCharCode(65 + idx)}
-                    </span>
-                    {opt}
-                  </button>
-                ))}
+                {q.options.map((opt, idx) => {
+                  const isImage = opt.startsWith('http')
+                  return (
+                    <button
+                      key={opt}
+                      type="button"
+                      className={cn(
+                        isImage
+                          ? 'relative rounded-2xl overflow-hidden shadow-clay border-4 border-transparent p-0 transition-all focus:outline-none'
+                          : 'game-card text-left text-sm font-semibold',
+                        !isImage && answers[q.id] === idx && 'game-card-selected',
+                        isImage && answers[q.id] === idx && 'border-brand-500 scale-[1.02]',
+                        answers[q.id] === idx &&
+                          answerFeedback[q.id]?.correct &&
+                          'lesson-answer-correct',
+                        answers[q.id] === idx &&
+                          answerFeedback[q.id] &&
+                          !answerFeedback[q.id].correct &&
+                          'lesson-answer-wrong',
+                      )}
+                      disabled={
+                        answerFeedback[q.id]?.correct === true ||
+                        checkingQuestionId === q.id
+                      }
+                      onClick={() => void chooseCheckAnswer(q.id, idx)}
+                    >
+                      {isImage ? (
+                        <>
+                          <img src={opt} alt={`Option ${String.fromCharCode(65 + idx)}`} className="w-full h-40 object-cover" />
+                          <div className="absolute top-2 left-2">
+                            <span className={cn(
+                              'inline-flex h-8 w-8 items-center justify-center rounded-full text-sm font-extrabold shadow-sm',
+                              answers[q.id] === idx ? 'bg-brand-500 text-white' : 'bg-white text-brand-600'
+                            )}>
+                              {String.fromCharCode(65 + idx)}
+                            </span>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <span className={cn(
+                            'inline-flex h-6 w-6 items-center justify-center rounded-full text-xs font-extrabold mr-2 flex-shrink-0',
+                            answers[q.id] === idx ? 'bg-brand-500 text-white' : 'bg-brand-50 text-brand-600'
+                          )}>
+                            {String.fromCharCode(65 + idx)}
+                          </span>
+                          {opt}
+                        </>
+                      )}
+                    </button>
+                  )
+                })}
               </div>
               {checkingQuestionId === q.id && (
                 <p className="text-sm font-bold text-brand-500" role="status">
