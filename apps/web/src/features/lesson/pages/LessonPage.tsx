@@ -668,7 +668,7 @@ export function LessonPage() {
           : { eyebrow: 'Hoàn thành', title: 'Tuyệt vời!', body: checkResult?.message ?? 'Mee rất tự hào về hành trình của con.' }
 
   return (
-    <div className="page-enter flex flex-col gap-4">
+    <div className="page-enter flex flex-col gap-4 h-dvh overflow-hidden p-2 sm:p-4">
       {/* ── Header ──────────────────────────────────────────────── */}
       <div className="ui-card p-4">
         <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
@@ -705,27 +705,6 @@ export function LessonPage() {
               ))}
             </div>
           )}
-        </div>
-
-        {/* Phase stepper */}
-        <div className="phase-stepper" role="progressbar" aria-label="Tiến trình bài học" aria-valuenow={currentPhaseIdx + 1} aria-valuemax={4}>
-          {PHASE_STEPS.map((step, idx) => (
-            <span key={step.id} className="flex items-center">
-              {idx > 0 && (
-                <span className="phase-step-connector" />
-              )}
-              <span
-                className={cn(
-                  'phase-step',
-                  currentPhaseIdx === idx && 'phase-step-active',
-                  currentPhaseIdx > idx && 'phase-step-done',
-                )}
-              >
-                <span aria-hidden>{currentPhaseIdx > idx ? '✓' : step.icon}</span>
-                <span className="hidden sm:inline">{step.label}</span>
-              </span>
-            </span>
-          ))}
         </div>
       </div>
 
@@ -1518,11 +1497,58 @@ export function LessonPage() {
             pose={phase === 'learn' ? 'guide' : phase === 'practice' ? 'thinking' : phase === 'done' ? 'celebrate' : phase === 'check' ? 'support' : 'welcome'}
             className="lesson-guide-cat"
           />
-          <p className="text-xs font-extrabold text-coral-700">{guideCopy.eyebrow}</p>
-          <h2 id="lesson-guide-title" className="mt-1 font-display text-xl text-text">{guideCopy.title}</h2>
-          <p className="mt-2 text-sm font-semibold leading-relaxed text-muted">{guideCopy.body}</p>
-          <div className="mt-4 rounded-2xl bg-sun-50 p-3 text-xs font-bold text-text">
-            Bước {currentPhaseIdx + 1}/4 · {PHASE_STEPS[Math.max(0, currentPhaseIdx)]?.label}
+          <div className="lesson-guide-text">
+            <p className="text-xs font-extrabold text-coral-700">{guideCopy.eyebrow}</p>
+            <h2 id="lesson-guide-title" className="mt-1 font-display text-xl text-text">{guideCopy.title}</h2>
+            <p className="mt-2 text-sm font-semibold leading-relaxed text-muted">{guideCopy.body}</p>
+          </div>
+
+          <div className="mt-6 flex flex-col gap-3">
+            <div className="text-xs font-bold text-text mb-1">
+              Bước {currentPhaseIdx + 1}/4 · {PHASE_STEPS[Math.max(0, currentPhaseIdx)]?.label}
+            </div>
+            {/* Phase stepper in sidebar */}
+            <div className="phase-stepper flex-col items-start gap-2 hidden lg:flex" role="progressbar" aria-label="Tiến trình bài học" aria-valuenow={currentPhaseIdx + 1} aria-valuemax={4}>
+              {PHASE_STEPS.map((step, idx) => (
+                <span key={step.id} className="flex items-center gap-2">
+                  <span
+                    className={cn(
+                      'phase-step shrink-0',
+                      currentPhaseIdx === idx && 'phase-step-active',
+                      currentPhaseIdx > idx && 'phase-step-done',
+                    )}
+                  >
+                    <span aria-hidden>{currentPhaseIdx > idx ? '✓' : step.icon}</span>
+                  </span>
+                  <span className={cn(
+                    "font-bold text-sm",
+                    currentPhaseIdx === idx ? "text-brand-700" : currentPhaseIdx > idx ? "text-brand-500" : "text-muted"
+                  )}>
+                    {step.label}
+                  </span>
+                </span>
+              ))}
+            </div>
+            
+            {/* Mobile horizontal stepper */}
+            <div className="phase-stepper lg:hidden" role="progressbar" aria-label="Tiến trình bài học" aria-valuenow={currentPhaseIdx + 1} aria-valuemax={4}>
+              {PHASE_STEPS.map((step, idx) => (
+                <span key={step.id} className="flex items-center">
+                  {idx > 0 && (
+                    <span className="phase-step-connector" />
+                  )}
+                  <span
+                    className={cn(
+                      'phase-step',
+                      currentPhaseIdx === idx && 'phase-step-active',
+                      currentPhaseIdx > idx && 'phase-step-done',
+                    )}
+                  >
+                    <span aria-hidden>{currentPhaseIdx > idx ? '✓' : step.icon}</span>
+                  </span>
+                </span>
+              ))}
+            </div>
           </div>
         </aside>
       </div>
