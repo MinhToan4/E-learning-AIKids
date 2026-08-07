@@ -39,10 +39,10 @@ export function LeftPhaseSidebar({ currentPhase, maxUnlockedPhase, onPhaseSelect
 
   return (
     <aside className={cn(
-      'w-[320px] flex flex-col gap-6 items-center justify-start text-center shrink-0 h-full overflow-y-auto hidden-scrollbar',
+      'lesson-guide-panel w-[320px] shrink-0 h-full overflow-y-auto hidden-scrollbar flex flex-col justify-between',
       className
-    )}>
-      <div className="lesson-guide-panel flex flex-col items-center justify-start text-center w-full" aria-labelledby="lesson-guide-title">
+    )} aria-labelledby="lesson-guide-title">
+      <div className="flex flex-col items-center justify-start text-center w-full">
         <AikidCatCharacter
           pose={guideCopy.pose}
           className="lesson-guide-cat w-28 h-28 object-contain drop-shadow-md z-10 mx-auto"
@@ -84,7 +84,7 @@ export function LeftPhaseSidebar({ currentPhase, maxUnlockedPhase, onPhaseSelect
         </div>
       </div>
 
-      <nav className="flex sm:flex-col gap-2 sm:gap-4 mt-auto w-full items-center pb-4">
+      <nav className="flex flex-col gap-3 mt-8 w-full pb-2">
         {PHASES.map((phase, idx) => {
           const Icon = phase.icon
           const isUnlocked = idx <= maxIdx
@@ -97,17 +97,30 @@ export function LeftPhaseSidebar({ currentPhase, maxUnlockedPhase, onPhaseSelect
                 if (isUnlocked) onPhaseSelect(phase.id)
               }}
               disabled={!isUnlocked}
-              title={phase.label}
               className={cn(
-                'relative flex h-12 w-12 sm:h-14 sm:w-14 items-center justify-center rounded-2xl transition-all duration-200',
+                'group relative flex items-center gap-4 w-full p-3 pl-4 rounded-2xl transition-all duration-300 border-2 text-left overflow-hidden',
                 isActive
-                  ? 'bg-brand-500 text-white shadow-clay scale-110 z-10'
+                  ? 'bg-brand-500 text-white border-brand-500 shadow-clay scale-[1.02] z-10'
                   : isUnlocked
-                    ? 'bg-white text-brand-600 hover:bg-brand-50 shadow-sm'
-                    : 'bg-gray-100 text-gray-400 cursor-not-allowed opacity-60'
+                    ? 'bg-white text-text border-border hover:border-brand-200 hover:bg-brand-50 hover:shadow-sm'
+                    : 'bg-surface text-muted border-transparent cursor-not-allowed opacity-60'
               )}
             >
-              <Icon size={isActive ? 24 : 20} className={cn(isActive && 'animate-pop')} />
+              {isActive && (
+                <div className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent opacity-50" />
+              )}
+              
+              <div className={cn(
+                "relative flex items-center justify-center h-10 w-10 rounded-xl transition-colors duration-300",
+                isActive ? "bg-white/20 text-white" : isUnlocked ? "bg-brand-100 text-brand-600 group-hover:bg-white" : "bg-border text-muted"
+              )}>
+                <Icon size={20} className={cn(isActive && 'animate-pop')} />
+              </div>
+              
+              <div className="relative flex flex-col">
+                <span className={cn("text-[10px] font-extrabold uppercase tracking-widest", isActive ? "text-brand-100" : "text-muted")}>Trạm {idx + 1}</span>
+                <span className={cn("text-sm font-bold", isActive ? "text-white" : "text-text")}>{phase.label}</span>
+              </div>
             </button>
           )
         })}
