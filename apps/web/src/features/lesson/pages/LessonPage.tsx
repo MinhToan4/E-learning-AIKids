@@ -104,6 +104,7 @@ export function LessonPage() {
     Record<string, { correct: boolean; explanation: string }>
   >({})
   const [checkingQuestionId, setCheckingQuestionId] = useState<string | null>(null)
+  const [lastActiveQuestionId, setLastActiveQuestionId] = useState<string | null>(null)
   const [liveStars, setLiveStars] = useState(0)
   const [starBurst, setStarBurst] = useState<{ id: number; count: number } | null>(null)
   const [checkResult, setCheckResult] = useState<{
@@ -142,6 +143,7 @@ export function LessonPage() {
     setAnswers({})
     setAnswerFeedback({})
     setCheckingQuestionId(null)
+    setLastActiveQuestionId(null)
     setLiveStars(0)
     setStarBurst(null)
     setCheckResult(null)
@@ -583,6 +585,7 @@ export function LessonPage() {
     if (answerFeedback[questionId]?.correct || checkingQuestionId) return
     setAnswers((current) => ({ ...current, [questionId]: optionIndex }))
     setCheckingQuestionId(questionId)
+    setLastActiveQuestionId(questionId)
     setError(null)
     try {
       const feedback = await api<{
@@ -657,15 +660,100 @@ export function LessonPage() {
   const allCheckAnswersCorrect =
     quest.check.length > 0 &&
     quest.check.every((question) => answerFeedback[question.id]?.correct)
-  const guideCopy = phase === 'learn'
-    ? { eyebrow: 'Mee kể con nghe', title: 'Khám phá điều mới', body: quest.hook }
-    : phase === 'game'
-      ? { eyebrow: 'Thử cùng Mee', title: 'Chơi để ghi nhớ', body: gameStation?.instruction ?? 'Cứ thử từng bước nhé. Sai cũng là một cách để học!' }
-      : phase === 'practice'
-        ? { eyebrow: 'Đến lượt con', title: 'Tự tay sáng tạo', body: practiceStation?.instruction ?? 'Con hãy dùng điều vừa học để tạo sản phẩm của riêng mình.' }
-        : phase === 'check'
-          ? { eyebrow: 'Thử thách cuối', title: 'Con làm được!', body: 'Đọc kỹ từng câu. Nếu chưa đúng, Mee sẽ giúp con thử lại ngay.' }
-          : { eyebrow: 'Hoàn thành', title: 'Tuyệt vời!', body: checkResult?.message ?? 'Mee rất tự hào về hành trình của con.' }
+  const dynamicGuideCopy = useMemo(() => {
+    if (error) {
+      return {
+        eyebrow: 'Mee báo lỗi',
+        title: 'Oops!',
+        body: error,
+        pose: 'support' as const,
+      }
+    }
+
+    if (phase === 'learn') {
+      return {
+        eyebrow: 'Mee kể con nghe',
+        title: 'Khám phá điều mới',
+        body: quest.hook || 'Cùng học nhé!',
+        pose: 'guide' as const,
+      }
+    }
+    if (phase === 'game') {
+      return {
+        eyebrow: 'Thử cùng Mee',
+        title: 'Chơi để ghi nhớ',
+        body: gameStation?.instruction ?? 'Cứ thử từng bước nhé. Sai cũng là một cách để học!',
+        pose: 'welcome' as const,
+      }
+    }
+    if (phase === 'practice') {
+      return {
+        eyebrow: 'Đến lượt con',
+        title: 'Tự tay sáng tạo',
+        body: practiceStation?.instruction ?? 'Con hãy dùng điều vừa học để tạo sản phẩm của riêng mình.',
+        pose: 'thinking' as const,
+      }
+    }
+    if (phase === 'check') {
+      if (checkingQuestionId) {
+        return {
+          eyebrow: 'Đang kiểm tra',
+          title: 'Hồi hộp quá...',
+          body: 'Chờ Mee xem lại một chút nhé!',
+          pose: 'thinking' as const,
+        }
+      }
+      if (lastActiveQuestionId && answerFeedback[lastActiveQuestionId]) {
+        const fb = answerFeedback[lastActiveQuestionId]
+        if (fb.correct) {
+          return {
+            eyebrow: 'Chính xác!',
+            title: 'Giỏi quá!',
+            body: fb.explanation || 'Con chọn đúng rồi!',
+            pose: 'celebrate' as const,
+          }
+        } else {
+          return {
+            eyebrow: 'Chưa đúng',
+            title: 'Cùng thử lại!',
+            body: fb.explanation || 'Hãy đọc kỹ lại và chọn đáp án khác nhé.',
+            pose: 'support' as const,
+          }
+        }
+      }
+      return {
+        eyebrow: 'Thử thách cuối',
+        title: 'Con làm được!',
+        body: 'Đọc kỹ từng câu. Nếu chưa đúng, Mee sẽ giúp con thử lại ngay.',
+        pose: 'support' as const,
+      }
+    }
+    if (phase === 'done') {
+      return {
+        eyebrow: 'Hoàn thành',
+        title: 'Tuyệt vời!',
+        body: checkResult?.message ?? 'Mee rất tự hào về hành trình của con.',
+        pose: 'celebrate' as const,
+      }
+    }
+
+    return {
+      eyebrow: '',
+      title: '',
+      body: '',
+      pose: 'welcome' as const,
+    }
+  }, [
+    error,
+    phase,
+    quest?.hook,
+    gameStation?.instruction,
+    practiceStation?.instruction,
+    checkingQuestionId,
+    lastActiveQuestionId,
+    answerFeedback,
+    checkResult?.message,
+  ])
 
   return (
     <div className="page-enter flex flex-col gap-4 h-dvh overflow-hidden p-2 sm:p-4">
@@ -706,20 +794,33 @@ export function LessonPage() {
             </div>
           )}
         </div>
+        {/* Phase stepper */}
+        <div className="phase-stepper mt-2" role="progressbar" aria-label="Tiến trình bài học" aria-valuenow={currentPhaseIdx + 1} aria-valuemax={4}>
+          {PHASE_STEPS.map((step, idx) => (
+            <span key={step.id} className="flex items-center">
+              {idx > 0 && (
+                <span className="phase-step-connector" />
+              )}
+              <span
+                className={cn(
+                  'phase-step',
+                  currentPhaseIdx === idx && 'phase-step-active',
+                  currentPhaseIdx > idx && 'phase-step-done',
+                )}
+              >
+                <span aria-hidden>{currentPhaseIdx > idx ? '✓' : step.icon}</span>
+                <span className="hidden sm:inline font-bold">{step.label}</span>
+              </span>
+            </span>
+          ))}
+        </div>
       </div>
 
       <div className="lesson-stage-grid">
         <main className="lesson-stage-main">
       <LearningToolsPanel questId={questId} phase={phase} />
 
-      {error && (
-        <p
-          className="rounded-xl bg-coral-100 px-3 py-2 text-sm text-danger"
-          role="alert"
-        >
-          {error}
-        </p>
-      )}
+
 
       {phase === 'learn' && (
         <div className="ui-card flex flex-col gap-5 p-5 animate-fade-up">
@@ -1492,63 +1593,18 @@ export function LessonPage() {
         </div>
       )}
         </main>
-        <aside className="lesson-guide-panel" aria-labelledby="lesson-guide-title">
+        <aside className="lesson-guide-panel items-center justify-start text-center" aria-labelledby="lesson-guide-title">
           <AikidCatCharacter
-            pose={phase === 'learn' ? 'guide' : phase === 'practice' ? 'thinking' : phase === 'done' ? 'celebrate' : phase === 'check' ? 'support' : 'welcome'}
-            className="lesson-guide-cat"
+            pose={dynamicGuideCopy.pose}
+            className="lesson-guide-cat w-28 h-28 object-contain drop-shadow-md z-10 mx-auto"
           />
-          <div className="lesson-guide-text">
-            <p className="text-xs font-extrabold text-coral-700">{guideCopy.eyebrow}</p>
-            <h2 id="lesson-guide-title" className="mt-1 font-display text-xl text-text">{guideCopy.title}</h2>
-            <p className="mt-2 text-sm font-semibold leading-relaxed text-muted">{guideCopy.body}</p>
-          </div>
-
-          <div className="mt-6 flex flex-col gap-3">
-            <div className="text-xs font-bold text-text mb-1">
-              Bước {currentPhaseIdx + 1}/4 · {PHASE_STEPS[Math.max(0, currentPhaseIdx)]?.label}
-            </div>
-            {/* Phase stepper in sidebar */}
-            <div className="phase-stepper flex-col items-start gap-2 hidden lg:flex" role="progressbar" aria-label="Tiến trình bài học" aria-valuenow={currentPhaseIdx + 1} aria-valuemax={4}>
-              {PHASE_STEPS.map((step, idx) => (
-                <span key={step.id} className="flex items-center gap-2">
-                  <span
-                    className={cn(
-                      'phase-step shrink-0',
-                      currentPhaseIdx === idx && 'phase-step-active',
-                      currentPhaseIdx > idx && 'phase-step-done',
-                    )}
-                  >
-                    <span aria-hidden>{currentPhaseIdx > idx ? '✓' : step.icon}</span>
-                  </span>
-                  <span className={cn(
-                    "font-bold text-sm",
-                    currentPhaseIdx === idx ? "text-brand-700" : currentPhaseIdx > idx ? "text-brand-500" : "text-muted"
-                  )}>
-                    {step.label}
-                  </span>
-                </span>
-              ))}
-            </div>
+          <div className="relative w-full mt-2 rounded-[1.5rem] border-2 border-brand-100 bg-brand-50 p-4 shadow-sm text-center">
+            {/* Speech bubble triangle */}
+            <div className="absolute -top-3 left-1/2 h-4 w-4 -translate-x-1/2 rotate-45 border-l-2 border-t-2 border-brand-100 bg-brand-50"></div>
             
-            {/* Mobile horizontal stepper */}
-            <div className="phase-stepper lg:hidden" role="progressbar" aria-label="Tiến trình bài học" aria-valuenow={currentPhaseIdx + 1} aria-valuemax={4}>
-              {PHASE_STEPS.map((step, idx) => (
-                <span key={step.id} className="flex items-center">
-                  {idx > 0 && (
-                    <span className="phase-step-connector" />
-                  )}
-                  <span
-                    className={cn(
-                      'phase-step',
-                      currentPhaseIdx === idx && 'phase-step-active',
-                      currentPhaseIdx > idx && 'phase-step-done',
-                    )}
-                  >
-                    <span aria-hidden>{currentPhaseIdx > idx ? '✓' : step.icon}</span>
-                  </span>
-                </span>
-              ))}
-            </div>
+            <p className="text-xs font-extrabold text-coral-600 mb-1">{dynamicGuideCopy.eyebrow}</p>
+            <h2 id="lesson-guide-title" className="font-display text-lg text-text leading-tight">{dynamicGuideCopy.title}</h2>
+            <p className="mt-2 text-sm font-semibold leading-relaxed text-muted">{dynamicGuideCopy.body}</p>
           </div>
         </aside>
       </div>
