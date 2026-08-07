@@ -615,51 +615,6 @@ export function LessonPage() {
     }
   }
 
-  if (loading) {
-    return (
-      <p className="animate-pulse text-muted" aria-live="polite">
-        Đang mở trạm…
-      </p>
-    )
-  }
-
-  if (error && !quest) {
-    return (
-      <div className="ui-card page-enter p-6">
-        <p className="text-danger">{error}</p>
-        <p className="mt-2 text-sm text-muted">
-          Nếu trạm bị khóa, hãy hoàn thành trạm trước trên bản đồ.
-        </p>
-        <Link to="/world" className="mt-4 inline-block">
-          <Button variant="secondary">
-            <NavWorldIcon size={18} aria-hidden="true" />
-            Về bản đồ
-          </Button>
-        </Link>
-      </div>
-    )
-  }
-
-  if (!quest && offlineManifest) {
-    return <OfflineLessonView manifest={offlineManifest} />
-  }
-
-  if (!quest) {
-    return <p className="text-muted">Không tìm thấy trạm.</p>
-  }
-
-  const PHASE_STEPS = [
-    { id: 'learn', label: 'Khám phá', icon: '📖' },
-    { id: 'game', label: 'Thử cùng Mee', icon: '🎮' },
-    { id: 'practice', label: 'Tự tay làm', icon: '✏️' },
-    { id: 'check', label: 'Thử thách', icon: '⭐' },
-  ] as const
-
-  const phaseOrder: Phase[] = ['learn', 'game', 'practice', 'check']
-  const currentPhaseIdx = phaseOrder.indexOf(phase === 'done' ? 'check' : phase)
-  const allCheckAnswersCorrect =
-    quest.check.length > 0 &&
-    quest.check.every((question) => answerFeedback[question.id]?.correct)
   const dynamicGuideCopy = useMemo(() => {
     if (error) {
       return {
@@ -674,7 +629,7 @@ export function LessonPage() {
       return {
         eyebrow: 'Mee kể con nghe',
         title: 'Khám phá điều mới',
-        body: quest.hook || 'Cùng học nhé!',
+        body: quest?.hook || 'Cùng học nhé!',
         pose: 'guide' as const,
       }
     }
@@ -754,6 +709,52 @@ export function LessonPage() {
     answerFeedback,
     checkResult?.message,
   ])
+
+  if (loading) {
+    return (
+      <p className="animate-pulse text-muted" aria-live="polite">
+        Đang mở trạm…
+      </p>
+    )
+  }
+
+  if (error && !quest) {
+    return (
+      <div className="ui-card page-enter p-6">
+        <p className="text-danger">{error}</p>
+        <p className="mt-2 text-sm text-muted">
+          Nếu trạm bị khóa, hãy hoàn thành trạm trước trên bản đồ.
+        </p>
+        <Link to="/world" className="mt-4 inline-block">
+          <Button variant="secondary">
+            <NavWorldIcon size={18} aria-hidden="true" />
+            Về bản đồ
+          </Button>
+        </Link>
+      </div>
+    )
+  }
+
+  if (!quest && offlineManifest) {
+    return <OfflineLessonView manifest={offlineManifest} />
+  }
+
+  if (!quest) {
+    return <p className="text-muted">Không tìm thấy trạm.</p>
+  }
+
+  const PHASE_STEPS = [
+    { id: 'learn', label: 'Khám phá', icon: '📖' },
+    { id: 'game', label: 'Thử cùng Mee', icon: '🎮' },
+    { id: 'practice', label: 'Tự tay làm', icon: '✏️' },
+    { id: 'check', label: 'Thử thách', icon: '⭐' },
+  ] as const
+
+  const phaseOrder: Phase[] = ['learn', 'game', 'practice', 'check']
+  const currentPhaseIdx = phaseOrder.indexOf(phase === 'done' ? 'check' : phase)
+  const allCheckAnswersCorrect =
+    quest.check.length > 0 &&
+    quest.check.every((question) => answerFeedback[question.id]?.correct)
 
   return (
     <div className="page-enter flex flex-col gap-4 h-dvh overflow-hidden p-2 sm:p-4">
