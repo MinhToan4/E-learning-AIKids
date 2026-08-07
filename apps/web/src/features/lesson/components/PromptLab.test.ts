@@ -32,4 +32,44 @@ describe('PromptLab', () => {
     expect(markup).toContain('aria-pressed="false"')
     expect((markup.match(/<textarea/g) ?? [])).toHaveLength(1)
   })
+
+  it('renders live blur preview image with dynamic blur levels based on completed parts', () => {
+    const emptyMarkup = renderToStaticMarkup(
+      createElement(PromptLab, {
+        value: EMPTY_PROMPT_LAB,
+        onChange: () => undefined,
+      }),
+    )
+    expect(emptyMarkup).toContain('alt="Live preview"')
+    expect(emptyMarkup).toContain('blur-2xl grayscale')
+
+    const partialMarkup = renderToStaticMarkup(
+      createElement(PromptLab, {
+        value: {
+          ...EMPTY_PROMPT_LAB,
+          role: 'Hãy đóng vai họa sĩ',
+          task: 'Vẽ mèo cam',
+        },
+        onChange: () => undefined,
+      }),
+    )
+    expect(partialMarkup).toContain('2/4 mảnh')
+    expect(partialMarkup).toContain('blur-md grayscale-[25%]')
+
+    const fullMarkup = renderToStaticMarkup(
+      createElement(PromptLab, {
+        value: {
+          ...EMPTY_PROMPT_LAB,
+          role: 'Hãy đóng vai họa sĩ',
+          task: 'Vẽ mèo cam',
+          context: 'Trong vườn',
+          format: 'Tranh màu nước',
+        },
+        onChange: () => undefined,
+      }),
+    )
+    expect(fullMarkup).toContain('4/4 mảnh')
+    expect(fullMarkup).toContain('blur-none grayscale-0 animate-in zoom-in-95')
+  })
 })
+

@@ -102,6 +102,8 @@ export function PromptLab({
   const field = (key: keyof PromptLabValue, next: string) =>
     onChange({ ...value, [key]: next })
 
+  const filledPartsCount = [value.role, value.task, value.context, value.format].filter((part) => part.trim()).length
+
   return (
     <div className="flex flex-col gap-4" data-testid="prompt-lab">
       <div className="grid gap-3 sm:grid-cols-2">
@@ -185,14 +187,29 @@ export function PromptLab({
 
         <div className="mt-4 rounded-2xl border border-brand-100 bg-white p-4">
           <div className="mb-2 flex items-center justify-between gap-3">
-            <strong className="font-display text-lg">Prompt đã lắp</strong>
+            <strong className="font-display text-lg">Prompt đã lắp & Xem trước</strong>
             <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-extrabold text-brand-700">
-              {[value.role, value.task, value.context, value.format].filter((part) => part.trim()).length}/4 mảnh
+              {filledPartsCount}/4 mảnh
             </span>
           </div>
-          <p className="text-sm leading-relaxed text-text">
-            {strongPrompt(value) || 'Chọn các mảnh phía trên để lắp prompt của con.'}
-          </p>
+          <div className="grid gap-6 sm:grid-cols-2">
+            <p className="text-sm leading-relaxed text-text">
+              {strongPrompt(value) || 'Chọn các mảnh phía trên để lắp prompt của con.'}
+            </p>
+            <div className="relative aspect-video overflow-hidden rounded-xl bg-surface sm:aspect-[4/3]">
+              <img
+                src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
+                alt="Live preview"
+                className={`h-full w-full object-cover transition-all duration-700 ease-in-out ${
+                  filledPartsCount === 0 ? 'blur-2xl grayscale' :
+                  filledPartsCount === 1 ? 'blur-lg grayscale-50' :
+                  filledPartsCount === 2 ? 'blur-md grayscale-[25%]' :
+                  filledPartsCount === 3 ? 'blur-sm' :
+                  'blur-none grayscale-0 animate-in zoom-in-95 duration-500'
+                }`}
+              />
+            </div>
+          </div>
         </div>
       </fieldset>
 
