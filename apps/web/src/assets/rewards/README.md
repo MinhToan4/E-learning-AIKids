@@ -23,6 +23,7 @@ src/assets/rewards/
 Quy tắc:
 
 - Primary asset: `<reward-id>.webp` (ưu tiên), `.png`, `.svg` hoặc `.avif`.
+- Frame raster có alpha dùng WebP quality 92; không commit thêm bản PNG trùng ID.
 - Level plaque tùy chọn: `<frame-id>--plaque.webp`.
 - Không dùng dấu cách hoặc tên hiển thị tiếng Việt.
 - Filename phải khớp `id` trong `REWARD_CATALOG` hoặc `code` trả về từ Reward Studio.

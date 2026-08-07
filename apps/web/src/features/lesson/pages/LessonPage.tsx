@@ -44,6 +44,7 @@ import {
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 import { LearningToolsPanel } from '@/features/lesson/components/LearningToolsPanel'
 import { NavWorldIcon } from '@/shared/components/icons/KidNavIcons'
+import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import {
   resolvePracticeReview,
   type PracticePreview,
@@ -646,9 +647,9 @@ export function LessonPage() {
 
   const PHASE_STEPS = [
     { id: 'learn', label: 'Khám phá', icon: '📖' },
-    { id: 'game', label: 'Chơi', icon: '🎮' },
-    { id: 'practice', label: 'Tạo', icon: '✏️' },
-    { id: 'check', label: 'Thử tài', icon: '⭐' },
+    { id: 'game', label: 'Thử cùng Mee', icon: '🎮' },
+    { id: 'practice', label: 'Tự tay làm', icon: '✏️' },
+    { id: 'check', label: 'Thử thách', icon: '⭐' },
   ] as const
 
   const phaseOrder: Phase[] = ['learn', 'game', 'practice', 'check']
@@ -656,6 +657,15 @@ export function LessonPage() {
   const allCheckAnswersCorrect =
     quest.check.length > 0 &&
     quest.check.every((question) => answerFeedback[question.id]?.correct)
+  const guideCopy = phase === 'learn'
+    ? { eyebrow: 'Mee kể con nghe', title: 'Khám phá điều mới', body: quest.hook }
+    : phase === 'game'
+      ? { eyebrow: 'Thử cùng Mee', title: 'Chơi để ghi nhớ', body: gameStation?.instruction ?? 'Cứ thử từng bước nhé. Sai cũng là một cách để học!' }
+      : phase === 'practice'
+        ? { eyebrow: 'Đến lượt con', title: 'Tự tay sáng tạo', body: practiceStation?.instruction ?? 'Con hãy dùng điều vừa học để tạo sản phẩm của riêng mình.' }
+        : phase === 'check'
+          ? { eyebrow: 'Thử thách cuối', title: 'Con làm được!', body: 'Đọc kỹ từng câu. Nếu chưa đúng, Mee sẽ giúp con thử lại ngay.' }
+          : { eyebrow: 'Hoàn thành', title: 'Tuyệt vời!', body: checkResult?.message ?? 'Mee rất tự hào về hành trình của con.' }
 
   return (
     <div className="page-enter flex flex-col gap-4">
@@ -719,6 +729,8 @@ export function LessonPage() {
         </div>
       </div>
 
+      <div className="lesson-stage-grid">
+        <main className="lesson-stage-main">
       <LearningToolsPanel questId={questId} phase={phase} />
 
       {error && (
@@ -1500,6 +1512,20 @@ export function LessonPage() {
           </div>
         </div>
       )}
+        </main>
+        <aside className="lesson-guide-panel" aria-labelledby="lesson-guide-title">
+          <AikidCatCharacter
+            pose={phase === 'learn' ? 'guide' : phase === 'practice' ? 'thinking' : phase === 'done' ? 'celebrate' : phase === 'check' ? 'support' : 'welcome'}
+            className="lesson-guide-cat"
+          />
+          <p className="text-xs font-extrabold text-coral-700">{guideCopy.eyebrow}</p>
+          <h2 id="lesson-guide-title" className="mt-1 font-display text-xl text-text">{guideCopy.title}</h2>
+          <p className="mt-2 text-sm font-semibold leading-relaxed text-muted">{guideCopy.body}</p>
+          <div className="mt-4 rounded-2xl bg-sun-50 p-3 text-xs font-bold text-text">
+            Bước {currentPhaseIdx + 1}/4 · {PHASE_STEPS[Math.max(0, currentPhaseIdx)]?.label}
+          </div>
+        </aside>
+      </div>
     </div>
   )
 }

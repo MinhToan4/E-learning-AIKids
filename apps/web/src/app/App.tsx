@@ -70,9 +70,19 @@ const ProfilePage = lazy(() =>
     default: m.ProfilePage,
   })),
 )
+const MeeRiveStudioPage = lazy(() =>
+  import('@/features/mee-rig/pages/MeeRiveStudioPage').then((m) => ({
+    default: m.MeeRiveStudioPage,
+  })),
+)
 const PublicProfilePage = lazy(() =>
   import('@/features/profile/pages/PublicProfilePage').then((m) => ({
     default: m.PublicProfilePage,
+  })),
+)
+const PublicProfileSharePage = lazy(() =>
+  import('@/features/profile/pages/PublicProfileSharePage').then((m) => ({
+    default: m.PublicProfileSharePage,
   })),
 )
 const AchievementsPage = lazy(() =>
@@ -249,6 +259,7 @@ export function App() {
           <Route path="/account/delete" element={<LegalPage kind="delete" />} />
           <Route path="/support" element={<LegalPage kind="support" />} />
           <Route path="/u/:childId" element={<PublicProfilePage />} />
+          <Route path="/share/:token" element={<PublicProfileSharePage />} />
           <Route path="/data-safety" element={<LegalPage kind="data-safety" />} />
           {/* Public credential verification — no auth required */}
           <Route path="/credentials/:code" element={<CredentialVerifyPage />} />
@@ -337,6 +348,14 @@ export function App() {
               element={
                 <Guard roles={['student']} requireOnboarded>
                   <ProfilePage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/profile/avatar-studio"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <MeeRiveStudioPage />
                 </Guard>
               }
             />

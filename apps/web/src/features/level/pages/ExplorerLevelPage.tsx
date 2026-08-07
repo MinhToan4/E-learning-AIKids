@@ -5,11 +5,7 @@ import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import {
-  NavBackpackIcon,
   NavBadgeIcon,
-  NavEventIcon,
-  NavLeaderboardIcon,
-  NavStorybookIcon,
   NavWorldIcon,
 } from '@/shared/components/icons/KidNavIcons'
 import { api } from '@/shared/lib/api'
@@ -37,39 +33,6 @@ type GamificationProfile = {
 type RewardState = {
   inventory: Array<{ rewardId: string }>
 }
-
-const journeyLinks = [
-  {
-    to: '/leaderboard',
-    label: 'Tiến bộ',
-    description: 'Xem con đang học đến đâu',
-    icon: NavLeaderboardIcon,
-  },
-  {
-    to: '/events',
-    label: 'Sự kiện',
-    description: 'Nhận thử thách và XP thưởng',
-    icon: NavEventIcon,
-  },
-  {
-    to: '/achievements',
-    label: 'Huy hiệu',
-    description: 'Theo dõi các mốc tích lũy',
-    icon: NavBadgeIcon,
-  },
-  {
-    to: '/storybook',
-    label: 'Huyền thoại',
-    description: 'Gắn sticker vào sách của con',
-    icon: NavStorybookIcon,
-  },
-  {
-    to: '/backpack',
-    label: 'Ba lô',
-    description: 'Dùng quà con đã mở khóa',
-    icon: NavBackpackIcon,
-  },
-] as const
 
 const kindLabels: Record<string, string> = {
   title: 'Danh hiệu',
@@ -120,7 +83,7 @@ export function ExplorerLevelPage() {
         setOwnedIds(new Set(Array.isArray(inv) ? inv.map((item) => item.rewardId) : []))
       }
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : 'Chưa tải được hành trình phần thưởng')
+      setError(caught instanceof Error ? caught.message : 'Chưa tải được hành trình cấp độ')
     } finally {
       setLoading(false)
     }
@@ -144,19 +107,17 @@ export function ExplorerLevelPage() {
   const completedSeason = levelRewards.length > 0 && level >= maxRewardLevel
   const upcoming = levelRewards.filter((reward) => rewardLevel(reward) >= level).slice(0, 6)
   const nextReward = profile?.nextLevelRewards[0] ?? upcoming.find((reward) => rewardLevel(reward) > level)
-  const completedRewards = levelRewards.filter((reward) => ownedIds.has(reward.code)).length
-
   return (
     <PageMotion className="flex flex-col gap-5">
       <header className="ui-card overflow-hidden p-5 sm:p-6">
         <div className="grid gap-5 lg:grid-cols-[1fr_auto] lg:items-center">
           <div>
-            <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">
-              Một hành trình · Một cấp độ
-            </p>
-            <h1 className="mt-1 font-display text-3xl sm:text-4xl">Hành trình phần thưởng</h1>
-            <p className="mt-1 max-w-2xl text-muted">
-              Học, sáng tạo và tham gia thử thách đều cộng vào cùng một thanh XP.
+            <Link to="/profile" className="inline-flex min-h-11 items-center font-extrabold text-brand-700 hover:underline">
+              Về Hồ sơ
+            </Link>
+            <h1 className="font-display text-3xl sm:text-4xl">Hành trình cấp độ</h1>
+            <p className="mt-1 max-w-2xl text-base text-muted">
+              Mỗi hoạt động giúp con tiến gần cấp mới và một món quà mới.
             </p>
           </div>
           <Link
@@ -237,29 +198,6 @@ export function ExplorerLevelPage() {
                   Xem quà đã nhận <ChevronRight size={18} aria-hidden />
                 </Link>
               </div>
-            </div>
-          </section>
-
-          <section aria-labelledby="journey-map-title">
-            <div className="flex flex-wrap items-end justify-between gap-2">
-              <div>
-                <h2 id="journey-map-title" className="font-display text-2xl">Con muốn làm gì?</h2>
-                <p className="text-sm text-muted">Mỗi nơi đều nối vào cùng hành trình phần thưởng.</p>
-              </div>
-              <p className="text-sm font-extrabold text-brand-700">
-                {levelRewards.length > 0
-                  ? `${completedRewards}/${levelRewards.length} quà đã mở`
-                  : 'Chưa có danh sách quà'}
-              </p>
-            </div>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2 xl:grid-cols-5">
-              {journeyLinks.map(({ to, label, description, icon: Icon }) => (
-                <Link key={to} to={to} className="ui-card group min-h-32 p-4 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
-                  <span className="student-nav-icon" aria-hidden><Icon size={28} /></span>
-                  <h3 className="mt-2 font-display text-xl group-hover:text-brand-700">{label}</h3>
-                  <p className="mt-1 text-sm leading-snug text-muted">{description}</p>
-                </Link>
-              ))}
             </div>
           </section>
 

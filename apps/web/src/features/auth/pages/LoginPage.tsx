@@ -12,9 +12,6 @@ import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButto
 import { PinPadModal } from '@/shared/components/ui/PinPadModal'
 import type { User } from '@/shared/lib/api'
 import { authFeedback } from '@/features/auth/lib/auth-feedback'
-import { NavProfileIcon } from '@/shared/components/icons/KidNavIcons'
-import { ParentProfileIcon } from '@/shared/components/icons/ParentIcons'
-import { CmsClassesIcon } from '@/shared/components/icons/CmsIcons'
 import { LoginCatFrame } from '@/features/auth/components/LoginCatFrame'
 
 export function LoginPage() {
@@ -125,10 +122,10 @@ export function LoginPage() {
               <button
                 type="button"
                 className={cn(
-                  'flex min-h-12 items-center justify-center gap-1 rounded-xl border-2 px-1 text-[10px] font-extrabold sm:text-sm',
+                  'group flex min-h-12 items-center justify-center gap-1.5 rounded-xl border-2 px-1 text-[10px] font-extrabold sm:text-sm',
                   mode === 'student'
                     ? 'border-brand-500 bg-brand-50 text-brand-700'
-                    : 'border-transparent text-muted',
+                    : 'border-transparent text-muted hover:bg-black/5',
                 )}
                 aria-pressed={mode === 'student'}
                 onClick={() => {
@@ -137,16 +134,16 @@ export function LoginPage() {
                   setPassword('')
                 }}
               >
-                <NavProfileIcon size={19} aria-hidden="true" />
+                <img src="/assets/aikid-ui/figma-icons/login-student.svg" alt="" className="h-[22px] w-auto drop-shadow-sm transition-transform group-hover:scale-110" aria-hidden="true" />
                 Học sinh
               </button>
               <button
                 type="button"
                 className={cn(
-                  'flex min-h-12 items-center justify-center gap-1 rounded-xl border-2 px-1 text-[10px] font-extrabold sm:text-sm',
+                  'group flex min-h-12 items-center justify-center gap-1.5 rounded-xl border-2 px-1 text-[10px] font-extrabold sm:text-sm',
                   mode === 'adult' && adultRole === 'parent'
                     ? 'border-coral-400 bg-coral-50 text-coral-700'
-                    : 'border-transparent text-muted',
+                    : 'border-transparent text-muted hover:bg-black/5',
                 )}
                 aria-pressed={mode === 'adult' && adultRole === 'parent'}
                 onClick={() => {
@@ -155,16 +152,16 @@ export function LoginPage() {
                   setNickname('')
                 }}
               >
-                <ParentProfileIcon size={19} aria-hidden="true" />
+                <img src="/assets/aikid-ui/figma-icons/login-parent.svg" alt="" className="h-[22px] w-auto drop-shadow-sm transition-transform group-hover:scale-110" aria-hidden="true" />
                 Phụ huynh
               </button>
               <button
                 type="button"
                 className={cn(
-                  'flex min-h-12 items-center justify-center gap-1 rounded-xl border-2 px-1 text-[10px] font-extrabold sm:text-sm',
+                  'group flex min-h-12 items-center justify-center gap-1.5 rounded-xl border-2 px-1 text-[10px] font-extrabold sm:text-sm',
                   mode === 'adult' && adultRole === 'teacher'
                     ? 'border-sky-400 bg-sky-50 text-sky-700'
-                    : 'border-transparent text-muted',
+                    : 'border-transparent text-muted hover:bg-black/5',
                 )}
                 aria-pressed={mode === 'adult' && adultRole === 'teacher'}
                 onClick={() => {
@@ -173,7 +170,7 @@ export function LoginPage() {
                   setNickname('')
                 }}
               >
-                <CmsClassesIcon size={19} aria-hidden="true" />
+                <img src="/assets/aikid-ui/figma-icons/login-teacher.svg" alt="" className="h-[22px] w-auto drop-shadow-sm transition-transform group-hover:scale-110" aria-hidden="true" />
                 Giáo viên
               </button>
             </div>
@@ -186,14 +183,14 @@ export function LoginPage() {
                 </h1>
                 <span className="sr-only">{'Đăng nhập AIKid · Phụ huynh & giáo viên'}</span>
                 <p className="sr-only">{hint}</p>
-                <form className="flex flex-col gap-2" onSubmit={onSubmit}>
+                <form id="login-form" className="flex h-full flex-col justify-center gap-4 sm:gap-6" onSubmit={onSubmit}>
                   {mode === 'student' ? (
-                    <label>
+                    <label className="flex flex-col gap-3">
                       <span className="sr-only">Biệt danh</span>
                       <input
                         autoComplete="username"
                         placeholder="Nhập biệt danh"
-                        className="min-h-12 w-full rounded-xl border-2 border-white bg-white px-3 text-center text-sm font-bold text-text outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-50 sm:min-h-14 sm:text-base"
+                        className="min-h-16 w-full rounded-2xl border-[3px] border-white/80 bg-white/95 px-4 text-center text-lg font-extrabold text-text shadow-sm outline-none transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-50 sm:min-h-20 sm:text-xl sm:rounded-3xl"
                         value={nickname}
                         maxLength={16}
                         onChange={(e) => setNickname(e.target.value)}
@@ -208,7 +205,7 @@ export function LoginPage() {
                           type="text"
                           autoComplete="username"
                           placeholder="Nhập email hoặc tên đăng nhập"
-                          className="min-h-11 w-full rounded-xl border-2 border-white bg-white px-3 text-center text-sm font-semibold outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-50"
+                          className="min-h-12 w-full rounded-2xl border-[3px] border-white/80 bg-white/95 px-4 text-center text-sm font-bold shadow-sm outline-none transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-50 sm:min-h-14 sm:text-base"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           required
@@ -220,7 +217,7 @@ export function LoginPage() {
                           type="password"
                           autoComplete="current-password"
                           placeholder="Nhập mật khẩu"
-                          className="min-h-11 w-full rounded-xl border-2 border-white bg-white px-3 text-center text-sm font-semibold outline-none focus:border-brand-600 focus:ring-4 focus:ring-brand-50"
+                          className="min-h-12 w-full rounded-2xl border-[3px] border-white/80 bg-white/95 px-4 text-center text-sm font-bold shadow-sm outline-none transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-50 sm:min-h-14 sm:text-base"
                           value={password}
                           onChange={(e) => setPassword(e.target.value)}
                           required
@@ -228,18 +225,26 @@ export function LoginPage() {
                       </label>
                     </>
                   )}
-                  <Button
-                    type="submit"
-                    disabled={busy}
-                    className={cn(mode === 'student' && '!min-h-12 !rounded-full !bg-coral-400 !text-white !shadow-[0_10px_20px_rgba(255,123,147,0.3)]')}
-                  >
-                    {busy ? 'Đang vào…' : mode === 'adult' ? 'Đăng nhập' : 'Vào học!'}
-                  </Button>
                 </form>
               </main>
             )}
-            pawsSlot={mode === 'adult' ? (
-              <aside className="flex w-full flex-col gap-2 rounded-[1.35rem] border border-border bg-white/98 p-3 shadow-clay sm:p-4" aria-label="Tùy chọn đăng nhập khác">
+            pawsSlot={(
+              <div className="flex w-full justify-center">
+                <Button
+                  form="login-form"
+                  type="submit"
+                  disabled={busy}
+                  className={cn(
+                    'w-[75%] max-w-[16rem] !min-h-16 !rounded-[2rem] !text-xl !font-black shadow-clay transition-transform hover:-translate-y-1 active:translate-y-1 active:shadow-none',
+                    mode === 'student' ? '!bg-coral-400 !text-white !border-4 !border-white shadow-[0_8px_0_rgba(255,123,147,0.3)]' : '!bg-brand-500 !text-white !border-4 !border-white shadow-[0_8px_0_rgba(109,94,252,0.3)]'
+                  )}
+                >
+                  {busy ? 'Đang vào…' : mode === 'adult' ? 'Đăng nhập' : 'Vào học!'}
+                </Button>
+              </div>
+            )}
+            footerSlot={mode === 'adult' ? (
+              <aside className="flex w-full flex-col gap-2 rounded-[1.35rem] border-2 border-border bg-white p-3 shadow-clay sm:p-4" aria-label="Tùy chọn đăng nhập khác">
                 <Link to="/forgot-password" className="inline-flex min-h-8 items-center justify-center text-sm font-bold text-brand-600 hover:underline">
                   Quên mật khẩu?
                 </Link>
@@ -267,7 +272,7 @@ export function LoginPage() {
                   </p>
                 )}
               </aside>
-            ) : undefined}
+            ) : null}
           />
         </div>
       </div>

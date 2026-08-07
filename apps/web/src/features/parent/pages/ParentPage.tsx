@@ -130,6 +130,7 @@ import {
   NavBadgeIcon,
   NavLeaderboardIcon,
 } from '@/shared/components/icons/KidNavIcons'
+import { ProfileSharingPanel } from '@/features/parent/components/ProfileSharingPanel'
 
 type TabKey = 'dashboard' | 'kids' | 'approvals' | 'plan' | 'profile'
 
@@ -1403,6 +1404,8 @@ function ApprovalsTab() {
       <p className="text-sm text-muted">
         Sáng tạo của trẻ mặc định riêng tư — chỉ hiện khi Ba / Mẹ đồng ý.
       </p>
+
+      <ProfileSharingPanel />
 
       {approvals.length === 0 && friendInvites.length === 0 && (
         <div className="ui-card p-8 text-center">

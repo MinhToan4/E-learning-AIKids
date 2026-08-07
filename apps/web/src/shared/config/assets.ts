@@ -82,6 +82,11 @@ export const designerAssets = {
     map: '/assets/game/idea-island-map.webp',
     mapSmall: '/assets/game/idea-island-map-960.webp',
   },
+  worldScenes: {
+    aiValley: '/assets/aikid-ui/world-scenes/scene-ai-valley-generated.png',
+    storyIsland: '/assets/aikid-ui/world-scenes/scene-story-island-generated.png',
+    creativeMountain: '/assets/aikid-ui/world-scenes/scene-creative-mountain-generated.png',
+  },
   /** Decorative chrome (badges, maps) — designer Soft Clay */
   chrome: {
     badges: '/assets/ui-badges.webp',

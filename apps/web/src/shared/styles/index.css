@@ -689,10 +689,10 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 
   .ui-card {
     min-width: 0;
-    border-radius: var(--radius-card);
-    border: 1px solid rgba(109, 94, 252, 0.11);
+    border-radius: 1.5rem;
+    border: 4px solid var(--color-border);
     background: rgba(255, 255, 255, 0.96);
-    box-shadow: var(--shadow-soft);
+    box-shadow: var(--shadow-clay);
   }
 
   .ui-btn {
@@ -1126,6 +1126,23 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     transition:
       background-color 0.16s ease,
       transform 0.16s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .aikid-clay-icon {
+    display: block;
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    user-select: none;
+    filter: saturate(0.98) drop-shadow(0 2px 1px rgb(42 35 79 / 10%));
+  }
+
+  .aikid-cat-character {
+    display: block;
+    height: auto;
+    object-fit: contain;
+    user-select: none;
+    filter: drop-shadow(0 10px 12px rgb(61 48 96 / 14%));
   }
 
   .student-nav-link-active {
@@ -1703,11 +1720,11 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     min-height: 7rem;
     align-items: center;
     gap: 0.85rem;
-    border: 1px solid rgba(109, 94, 252, 0.1);
-    border-radius: 1.25rem;
-    padding: 1rem;
+    border: 4px solid var(--color-border);
+    border-radius: 1.5rem;
+    padding: 1.25rem;
     background: rgba(255, 255, 255, 0.96);
-    box-shadow: 0 8px 24px rgba(30, 39, 64, 0.07);
+    box-shadow: var(--shadow-clay);
   }
 
   .progress-stat-icon {
@@ -1850,58 +1867,1179 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 }
 
 @layer components {
+  /* ─── HOME · same visual grammar as World / course map ───────── */
+
+  .home-profile-banner {
+    position: relative;
+    overflow: hidden;
+    border: 4px solid white;
+    border-radius: 1.5rem;
+    background-color: var(--color-sky-50);
+    box-shadow: var(--shadow-clay);
+  }
+
+  .home-profile-banner-wash {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(circle at 7% 115%, rgb(62 217 160 / 24%) 0 8rem, transparent 8.1rem),
+      linear-gradient(90deg, rgb(255 255 255 / 74%), rgb(255 255 255 / 46%) 58%, rgb(245 243 255 / 70%));
+    pointer-events: none;
+  }
+
+  .home-profile-banner-grid {
+    position: relative;
+    display: grid;
+    align-items: center;
+    gap: 1.5rem;
+    padding: 1.5rem 2rem 1rem;
+  }
+
+  .home-profile-progress {
+    position: relative;
+    width: min(100%, 46rem);
+    padding: 0 2rem 1.5rem;
+  }
+
+  .home-streak-ticket {
+    position: relative;
+    display: flex;
+    min-height: 5rem;
+    align-items: center;
+    gap: 0.8rem;
+    border: 4px dashed var(--color-sun-200);
+    border-radius: 1.5rem;
+    padding: 0.8rem 1rem;
+    background: rgb(255 255 255 / 92%);
+    box-shadow: var(--shadow-clay);
+  }
+
+  .home-streak-icon {
+    display: grid;
+    width: 3.25rem;
+    height: 3.25rem;
+    flex: 0 0 3.25rem;
+    place-items: center;
+    border-radius: 1.2rem;
+    background: var(--color-sun-100);
+  }
+
+  .home-xp-ticket {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    border: 4px solid rgb(255 255 255 / 72%);
+    border-radius: 1.5rem;
+    padding: 0.8rem 1rem;
+    background: rgb(255 255 255 / 90%);
+    box-shadow: var(--shadow-clay);
+  }
+
+  .home-next-course {
+    position: relative;
+    min-height: 17rem;
+    overflow: hidden;
+    border: 4px solid var(--color-brand-100);
+    border-radius: 2rem;
+    background: var(--color-sky-100);
+    box-shadow: 0 8px 0 rgba(109, 94, 252, 0.15);
+  }
+
+  .home-next-course > img:first-child {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .home-next-course-wash {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(90deg, rgb(245 243 255 / 97%) 0 49%, rgb(245 243 255 / 72%) 67%, transparent 100%);
+  }
+
+  .home-next-course-cat {
+    position: absolute;
+    right: 2%;
+    bottom: -1.5rem;
+    z-index: 1;
+    width: clamp(10rem, 20vw, 15rem);
+    filter: drop-shadow(0 7px 0 rgb(47 38 91 / 10%));
+  }
+
+  .home-next-course-copy {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    min-height: 17rem;
+    max-width: 42rem;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 1.75rem 2rem;
+  }
+
+  .home-course-card {
+    --home-course-accent: var(--color-brand-600);
+    display: grid;
+    width: 100%;
+    overflow: hidden;
+    border: 4px solid rgba(255, 255, 255, 0.4);
+    border-radius: 2rem;
+    color: white;
+    transition: transform 180ms ease, box-shadow 180ms ease;
+    scroll-snap-align: start;
+    box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
+  }
+
+  .home-course-island-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 1.25rem;
+  }
+
+  .home-course-card-scene {
+    position: relative;
+    min-height: 14rem;
+    overflow: hidden;
+    border-radius: 2.75rem 2.75rem 0 0;
+  }
+
+  .home-course-island-art {
+    position: absolute;
+    left: 50%;
+    bottom: -0.25rem;
+    width: 136%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    object-position: center bottom;
+    transform: translateX(-50%);
+    filter: drop-shadow(0 8px 0 rgb(47 38 91 / 9%));
+    transition: transform 180ms ease;
+  }
+
+  .home-course-island-cat {
+    position: absolute;
+    left: 19%;
+    bottom: 0.35rem;
+    z-index: 2;
+    width: clamp(7.5rem, 11vw, 10rem);
+    filter: drop-shadow(0 7px 0 rgb(47 38 91 / 10%));
+  }
+
+  .home-course-island-tags {
+    position: absolute;
+    top: 0.45rem;
+    left: 0.35rem;
+    z-index: 3;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+  }
+
+  .home-course-card-ribbon {
+    position: relative;
+    z-index: 4;
+    display: grid;
+    width: 100%;
+    margin: -1.1rem auto 0;
+    align-items: center;
+    gap: 1.5rem;
+    border: 4px solid rgb(255 255 255 / 55%);
+    border-radius: 1.5rem;
+    padding: 1.25rem 1.35rem 1.5rem;
+    background: var(--home-course-accent);
+    box-shadow: var(--shadow-clay);
+  }
+
+  .home-course-card-ribbon::before {
+    position: absolute;
+    top: -0.85rem;
+    left: 3.5rem;
+    width: 1.8rem;
+    height: 1.8rem;
+    content: '';
+    border: 4px solid rgb(255 255 255 / 48%);
+    border-radius: 999px;
+    background: inherit;
+  }
+
+  .home-course-card-copy {
+    min-width: 0;
+  }
+
+  .home-course-card-progress {
+    min-width: 0;
+  }
+
+  .home-course-card-ribbon .cute-progress-header,
+  .home-course-card-ribbon .cute-progress-header strong {
+    color: white;
+  }
+
+  .home-course-card-ribbon .cute-progress-track {
+    height: 1.2rem;
+    background: rgb(255 255 255 / 36%);
+    box-shadow: inset 0 2px 3px rgb(35 31 65 / 14%), 0 0 0 1px rgb(255 255 255 / 40%);
+  }
+
+  .home-course-stations {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    margin-top: 0.8rem;
+  }
+
+  .home-course-station-dot {
+    width: 0.62rem;
+    height: 0.62rem;
+    border: 2px solid rgb(255 255 255 / 68%);
+    border-radius: 999px;
+    background: rgb(39 35 70 / 20%);
+  }
+
+  .home-course-station-dot-done {
+    background: var(--color-mint-400);
+  }
+
+  .home-course-station-dot-current {
+    background: var(--color-sun-400);
+    transform: scale(1.25);
+  }
+
+  @media (min-width: 768px) {
+    .home-profile-banner-grid {
+      grid-template-columns: minmax(0, 1fr) 20rem;
+    }
+
+  }
+
+  @media (hover: hover) {
+    .home-course-card:hover {
+      transform: translateY(-4px);
+    }
+
+    .home-course-card:hover .home-course-island-art {
+      transform: translateX(-50%) translateY(-4px) scale(1.01);
+    }
+  }
+
+  @media (max-width: 639px) {
+    .home-profile-banner,
+    .home-next-course {
+      border-radius: 1.5rem;
+    }
+
+    .home-profile-banner-grid,
+    .home-next-course-copy {
+      padding: 1.25rem;
+    }
+
+    .home-profile-progress {
+      padding: 0 1.25rem 1.25rem;
+    }
+
+    .home-next-course-wash {
+      background: linear-gradient(90deg, rgb(245 243 255 / 97%) 0 70%, rgb(245 243 255 / 60%) 100%);
+    }
+
+    .home-next-course-cat {
+      right: -2.5rem;
+      width: 10rem;
+      opacity: 0.82;
+    }
+
+    .home-next-course-copy {
+      padding-right: 5rem;
+    }
+
+    .home-course-island-grid {
+      display: flex;
+      gap: 0.9rem;
+      margin-inline: -0.75rem;
+      overflow-x: auto;
+      padding: 0.25rem 0.75rem 1.25rem;
+      scroll-padding-inline: 0.75rem;
+      scroll-snap-type: x mandatory;
+      scrollbar-width: thin;
+    }
+
+    .home-course-card {
+      width: min(86vw, 21rem);
+      flex: 0 0 min(86vw, 21rem);
+      min-height: 0;
+    }
+
+    .home-course-card-scene {
+      min-height: 14rem;
+    }
+
+    .home-course-island-art {
+      width: 150%;
+    }
+
+    .home-course-island-cat {
+      left: 18%;
+      width: 8rem;
+    }
+
+    .home-course-island-tags {
+      top: 0.5rem;
+      left: 0.25rem;
+    }
+
+    .home-course-card-ribbon {
+      width: 100%;
+      border-radius: 1.5rem;
+      padding: 1.3rem 1.25rem 1.5rem;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .home-course-card,
+    .home-next-course > img:first-child {
+      transition: none;
+    }
+  }
+
   /* ─── QUEST NODE MAP (Little AI Master zigzag path) ──────────── */
+
+  .course-map-hero {
+    position: relative;
+    overflow: visible;
+    padding-top: 1rem;
+  }
+
+  .course-map-heading {
+    position: relative;
+    z-index: 3;
+    padding-inline: 1rem;
+    text-align: center;
+  }
+
+  .course-map-scene {
+    position: relative;
+    z-index: 1;
+    min-height: 24rem;
+    margin-top: -1.5rem;
+    overflow: hidden;
+  }
+
+  .course-map-scene-art {
+    position: absolute;
+    left: 50%;
+    bottom: -0.25rem;
+    width: min(112%, 76rem);
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    object-position: center bottom;
+    transform: translateX(-50%);
+    filter: drop-shadow(0 8px 0 rgb(47 38 91 / 9%));
+  }
+
+  .course-map-scene-cat {
+    position: absolute;
+    left: 28%;
+    bottom: 0;
+    z-index: 2;
+    width: clamp(12rem, 22vw, 17rem);
+    filter: drop-shadow(0 7px 0 rgb(47 38 91 / 10%));
+  }
+
+  .course-map-ribbon {
+    position: relative;
+    z-index: 4;
+    width: min(96%, 75rem);
+    margin: -1.25rem auto 0;
+    border-top: 4px solid rgb(255 255 255 / 58%);
+    border-radius: 3rem 1.7rem 3rem 1.7rem;
+    padding: 1.4rem 2rem 1.7rem;
+    color: white;
+    box-shadow: inset 0 -9px 0 rgb(37 31 71 / 10%), 0 10px 0 rgb(67 57 118 / 12%), 0 20px 30px rgb(41 35 76 / 9%);
+  }
+
+  .course-map-ribbon::before {
+    position: absolute;
+    top: -0.85rem;
+    left: 3.5rem;
+    width: 1.8rem;
+    height: 1.8rem;
+    content: '';
+    border: 4px solid rgb(255 255 255 / 48%);
+    border-radius: 999px;
+    background: inherit;
+    opacity: 0.96;
+  }
+
+  .course-map-ribbon-main {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+  }
+
+  .course-map-next-ticket {
+    position: relative;
+    display: flex;
+    width: min(100%, 25rem);
+    flex: 0 1 25rem;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 1rem;
+    border: 2px dashed var(--color-mint-200);
+    border-radius: 1.6rem 1rem 1.6rem 1rem;
+    padding: 0.9rem 1rem;
+    background: rgb(255 255 255 / 94%);
+    box-shadow: 0 6px 0 rgb(23 138 92 / 16%);
+  }
+
+  .course-map-next-ticket::before,
+  .course-map-next-ticket::after {
+    position: absolute;
+    left: -0.55rem;
+    width: 1rem;
+    height: 1rem;
+    content: '';
+    border-radius: 999px;
+    background: inherit;
+  }
+
+  .course-map-next-ticket::before {
+    top: 24%;
+  }
+
+  .course-map-next-ticket::after {
+    bottom: 18%;
+  }
+
+  .course-map-primary-action {
+    display: inline-flex;
+    min-height: 3.25rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 3px solid rgb(255 255 255 / 76%);
+    border-radius: 1.15rem;
+    padding: 0.65rem 1.3rem;
+    background: var(--color-brand-500);
+    color: white;
+    font-weight: 900;
+    box-shadow: 0 6px 0 rgb(68 54 189 / 24%);
+    transition: transform 150ms ease, box-shadow 150ms ease, background 150ms ease;
+  }
+
+  .course-map-primary-action:hover {
+    transform: translateY(-2px);
+    background: var(--color-brand-600);
+    box-shadow: 0 8px 0 rgb(68 54 189 / 24%);
+  }
+
+  .course-map-primary-action:focus-visible {
+    outline: 4px solid white;
+    outline-offset: 3px;
+  }
+
+  .course-map-next-ticket .course-map-primary-action {
+    min-height: 2.9rem;
+    flex: 0 0 auto;
+    align-self: center;
+    border-width: 0;
+    padding-inline: 1.1rem;
+    white-space: nowrap;
+  }
+
+  .course-map-progress {
+    margin-top: 1.1rem;
+  }
+
+  .course-map-ribbon .cute-progress-header,
+  .course-map-ribbon .cute-progress-header strong {
+    color: white;
+  }
+
+  .course-map-ribbon .cute-progress-track {
+    height: 1.8rem;
+    margin-inline: 1.35rem;
+    background: rgb(255 255 255 / 35%);
+    box-shadow: inset 0 2px 3px rgb(35 31 65 / 16%), 0 0 0 2px rgb(255 255 255 / 42%);
+  }
+
+  .course-map-ribbon .cute-progress-star-current {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
+
+  .course-map-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.7rem;
+    margin-top: 1.2rem;
+  }
+
+  .course-map-stats > span,
+  .course-map-stats > a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.4rem;
+    border: 2px solid rgb(255 255 255 / 40%);
+    border-radius: 999px;
+    padding: 0.45rem 0.85rem;
+    background: rgb(255 255 255 / 20%);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 900;
+  }
+
+  .course-map-stats > a:hover {
+    background: rgb(255 255 255 / 30%);
+  }
+
+  .course-station-map {
+    position: relative;
+    width: min(96%, 75rem);
+    min-height: 40rem;
+    margin: 2rem auto 0;
+    overflow: hidden;
+    border: 3px solid white;
+    border-radius: 4rem 2rem 4rem 2rem;
+    padding: 1.5rem 2.5rem 3rem;
+    background-position: center;
+    background-size: cover;
+    box-shadow: 0 10px 0 rgb(67 57 118 / 10%), 0 22px 40px rgb(41 35 76 / 9%);
+  }
+
+  .course-station-map::before,
+  .course-station-map::after {
+    content: none;
+  }
+
+  .course-station-canvas {
+    position: relative;
+    z-index: 2;
+    width: min(100%, 56rem);
+    margin-inline: auto;
+    overflow: visible;
+  }
+
+  .course-station-canvas::before,
+  .course-station-canvas::after {
+    content: none;
+  }
+
+  .course-game-path,
+  .course-game-stations {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .course-game-path {
+    z-index: 1;
+    overflow: visible;
+  }
+
+  .course-game-path path {
+    fill: none;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    vector-effect: non-scaling-stroke;
+  }
+
+  .course-game-path-shadow {
+    stroke: rgb(30 39 64 / 14%);
+    stroke-width: 62px;
+  }
+
+  .course-game-path-road {
+    stroke: rgb(255 226 145 / 96%);
+    stroke-width: 52px;
+  }
+
+  .course-game-path-dashes {
+    stroke: rgb(255 255 255 / 82%);
+    stroke-width: 5px;
+    stroke-dasharray: 5 13;
+  }
+
+  .course-game-stations {
+    z-index: 3;
+    list-style: none;
+  }
+
+  .quest-map-point {
+    position: absolute;
+    z-index: 3;
+    transform: translate(-50%, -50%);
+  }
+
+  .quest-node-compact-wrap {
+    display: flex;
+    min-width: 7rem;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.55rem;
+  }
+
+  .quest-node-caption {
+    display: flex;
+    min-height: 2.6rem;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 0.1rem;
+    border: 2px solid rgb(255 255 255 / 48%);
+    border-radius: 1rem;
+    padding: 0.28rem 0.65rem;
+    background: rgb(255 255 255 / 88%);
+    color: var(--color-text);
+    font-size: 0.7rem;
+    font-weight: 900;
+    box-shadow: 0 4px 0 rgb(30 39 64 / 10%);
+  }
+
+  .quest-node-caption .lucide-star {
+    width: 0.9rem;
+    height: 0.9rem;
+  }
+
+  .quest-node-caption-current {
+    border-color: var(--color-sun-200);
+    background: var(--color-sun-100);
+  }
+
+  .course-station-map .quest-label-card {
+    max-width: 15rem;
+    padding: 0.8rem 1rem;
+    border-width: 3px;
+    border-color: white;
+    border-radius: 1.75rem 1rem 1.75rem 1rem;
+    box-shadow: 0 7px 0 rgb(61 52 109 / 10%);
+  }
+
+  @media (max-width: 639px) {
+    .course-map-heading {
+      padding-inline: 0.5rem;
+    }
+
+    .course-map-scene {
+      min-height: 18rem;
+      margin-top: -0.25rem;
+    }
+
+    .course-map-scene-art {
+      width: 172%;
+    }
+
+    .course-map-scene-cat {
+      left: 13%;
+      width: 10.5rem;
+    }
+
+    .course-map-ribbon {
+      width: 100%;
+      border-radius: 2.25rem 1.15rem 2.25rem 1.15rem;
+      padding: 1.2rem 1rem 1.45rem;
+    }
+
+    .course-map-ribbon-main {
+      align-items: stretch;
+      flex-direction: column;
+    }
+
+    .course-map-next-ticket {
+      width: 100%;
+      flex-basis: auto;
+      flex-direction: column;
+    }
+
+    .course-map-primary-action {
+      width: 100%;
+    }
+
+    .course-map-stats > span,
+    .course-map-stats > a {
+      flex: 1 1 auto;
+      justify-content: center;
+    }
+
+    .course-station-map {
+      width: 100%;
+      min-height: 40rem;
+      border-radius: 2.5rem 1.25rem 2.5rem 1.25rem;
+      padding: 1.1rem 0.45rem 2.25rem;
+    }
+
+    .course-station-map > ol {
+      width: min(100%, 21rem);
+      gap: 1.35rem;
+    }
+
+    .course-station-map > ol > li:nth-child(odd) {
+      padding-left: 1.25rem;
+    }
+
+    .course-station-map > ol > li:nth-child(even) {
+      padding-right: 1.25rem;
+    }
+
+    .course-station-canvas {
+      width: 100%;
+    }
+
+    .course-game-path-shadow {
+      stroke-width: 49px;
+    }
+
+    .course-game-path-road {
+      stroke-width: 41px;
+    }
+
+    .course-station-map .quest-node {
+      width: 76px;
+      height: 76px;
+      border-width: 5px;
+    }
+
+    .course-station-map .quest-label-card {
+      width: 9.25rem;
+      max-width: 9.25rem;
+      padding: 0.75rem 0.8rem;
+    }
+  }
 
   .quest-path-line {
     position: absolute;
     left: 50%;
     top: 0;
     bottom: 0;
-    width: 4px;
+    width: 6px;
     transform: translateX(-50%);
-    background: linear-gradient(180deg,
-        var(--color-brand-200, #c4b8ff) 0%,
-        var(--color-sky-200) 40%,
-        var(--color-mint-200) 70%,
-        var(--color-sun-200) 100%);
+    background: repeating-linear-gradient(180deg,
+        var(--color-brand-200, #c4b8ff) 0 18px,
+        rgba(255,255,255,.9) 18px 28px);
     border-radius: 999px;
   }
 
   .quest-node {
     position: relative;
-    width: 80px;
-    height: 80px;
+    width: 96px;
+    height: 96px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
     font-size: 1.6rem;
     font-weight: 900;
-    border: 4px solid white;
-    box-shadow: 0 8px 0 0 rgba(109, 94, 252, 0.2), 0 16px 32px rgba(30, 39, 64, 0.12);
+    border: 6px solid white;
+    box-shadow: 0 8px 0 rgba(109, 94, 252, 0.16), 0 14px 24px rgba(30, 39, 64, 0.1);
     transition: transform 0.2s cubic-bezier(0.22, 1.3, 0.36, 1), box-shadow 0.2s;
     flex-shrink: 0;
     z-index: 10;
   }
 
+  .aikid-journey-map {
+    background-position: center;
+    background-size: cover;
+  }
+
+  .world-region-card {
+    margin-block: 1.25rem 4rem;
+  }
+
+  .world-region-card:nth-child(even) {
+    margin-block-end: 4.5rem;
+  }
+
+  .world-region-ribbon {
+    position: relative;
+    width: min(94%, 72rem);
+    margin: -1rem auto 0;
+    border-top: 4px solid rgb(255 255 255 / 55%);
+    border-radius: 2.75rem 1.75rem 2.75rem 1.75rem;
+    box-shadow: inset 0 -9px 0 rgb(37 31 71 / 10%), 0 10px 0 rgb(67 57 118 / 12%), 0 20px 30px rgb(41 35 76 / 9%);
+  }
+
+  .world-region-ribbon::before {
+    position: absolute;
+    top: -1rem;
+    left: 3.25rem;
+    width: 2rem;
+    height: 2rem;
+    content: '';
+    border: 4px solid rgb(255 255 255 / 48%);
+    border-radius: 999px;
+    background: inherit;
+    box-shadow: 2.4rem 0.45rem 0 -0.35rem currentColor;
+    opacity: 0.96;
+    pointer-events: none;
+  }
+
+  .world-region-card:nth-child(even) .world-region-ribbon {
+    border-radius: 1.25rem 2rem 1.25rem 2rem;
+  }
+
+  .world-region-scene {
+    min-height: 22rem;
+  }
+
+  .world-region-art {
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    z-index: 1;
+    width: min(112%, 72rem);
+    height: 100%;
+    object-fit: contain;
+    object-position: center bottom;
+    transform: translateX(-50%);
+    filter: drop-shadow(0 8px 0 rgb(47 38 91 / 9%));
+  }
+
+  .world-region-scene-cat {
+    position: absolute;
+    bottom: 0.45rem;
+    left: 29%;
+    z-index: 2;
+    width: clamp(12rem, 21vw, 16rem);
+    filter: drop-shadow(0 7px 0 rgb(47 38 91 / 10%));
+  }
+
+  .world-region-card:nth-child(even) .world-region-scene-cat {
+    left: 33%;
+  }
+
+  @media (hover: hover) {
+    .world-region-card:hover .world-region-art {
+      transform: translateX(-50%) translateY(-4px) scale(1.01);
+    }
+  }
+
+  .world-region-art {
+    transition: transform 180ms ease;
+  }
+
+  @media (max-width: 639px) {
+    .world-region-card,
+    .world-region-card:nth-child(even) {
+      margin-block: 0.75rem 3rem;
+    }
+
+    .world-region-scene {
+      min-height: 17rem;
+    }
+
+    .world-region-art {
+      width: 178%;
+      height: 100%;
+      max-width: none;
+    }
+
+    .world-region-scene-cat,
+    .world-region-card:nth-child(even) .world-region-scene-cat {
+      left: 17%;
+      bottom: 0.35rem;
+      width: 11rem;
+    }
+
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .world-region-art {
+      transition: none;
+    }
+  }
+
+  .world-region-ribbon .cute-progress-header,
+  .world-region-ribbon .cute-progress-header strong {
+    color: white;
+  }
+
+  .world-region-ribbon .cute-progress-track {
+    height: 1.7rem;
+    margin-inline: 1.25rem;
+    background: rgb(255 255 255 / 34%);
+    box-shadow: inset 0 2px 3px rgb(35 31 65 / 16%), 0 0 0 1px rgb(255 255 255 / 40%);
+  }
+
+  .world-region-ribbon .cute-progress-star {
+    width: 2.55rem;
+    height: 2.55rem;
+  }
+
+  .world-station-preview {
+    border-radius: 1.5rem;
+    padding: 0.85rem 1rem 1rem;
+    background: rgb(255 255 255 / 17%);
+    box-shadow: inset 0 0 0 2px rgb(255 255 255 / 24%);
+  }
+
+  .world-station-preview-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    font-size: 0.8rem;
+    font-weight: 900;
+  }
+
+  .world-station-path {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    overflow-x: auto;
+    padding: 0.25rem 0.2rem 0.5rem;
+    scrollbar-width: thin;
+  }
+
+  .world-station-path > li {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .world-station-path > li:not(:last-child)::after {
+    width: 0.75rem;
+    height: 0.3rem;
+    margin-left: 0.1rem;
+    content: '';
+    border-radius: 999px;
+    background: rgb(255 255 255 / 45%);
+  }
+
+  .world-station-dot {
+    position: relative;
+    display: grid;
+    width: 2.7rem;
+    height: 2.7rem;
+    flex: 0 0 2.7rem;
+    place-items: center;
+    border: 3px solid rgb(255 255 255 / 62%);
+    border-radius: 999px;
+    background: rgb(39 35 70 / 20%);
+    color: rgb(255 255 255 / 72%);
+    font-size: 0.85rem;
+    font-weight: 1000;
+    box-shadow: 0 4px 0 rgb(39 35 70 / 13%);
+  }
+
+  a.world-station-dot {
+    cursor: pointer;
+    transition: transform 150ms ease, box-shadow 150ms ease;
+  }
+
+  a.world-station-dot:hover {
+    transform: translateY(-3px) scale(1.06);
+  }
+
+  a.world-station-dot:focus-visible {
+    outline: 4px solid white;
+    outline-offset: 3px;
+  }
+
+  span.world-station-dot {
+    cursor: not-allowed;
+  }
+
+  .world-station-dot-done {
+    border-color: white;
+    background: var(--color-mint-400);
+    color: var(--color-text);
+  }
+
+  .world-station-dot-current {
+    border-color: white;
+    background: var(--color-sun-400);
+    color: var(--color-text);
+    transform: translateY(-3px) scale(1.08);
+    box-shadow: 0 7px 0 rgb(139 87 7 / 22%);
+  }
+
+  .world-guide-panel {
+    position: relative;
+    display: grid;
+    grid-template-columns: 9rem minmax(0, 1fr) minmax(18rem, 0.8fr);
+    gap: 1.5rem;
+    align-items: center;
+    min-height: 16rem;
+    overflow: hidden;
+    border: 3px solid white;
+    border-radius: 4.5rem 2rem 4.5rem 2rem;
+    padding: 1.5rem 2rem 1.25rem;
+    background:
+      radial-gradient(circle at 12% 115%, rgb(62 217 160 / 25%) 0 7rem, transparent 7.1rem),
+      radial-gradient(circle at 30% 118%, rgb(61 191 255 / 18%) 0 6rem, transparent 6.1rem),
+      linear-gradient(135deg, #f1fcf7 0%, #eef9ff 55%, #f5f3ff 100%);
+    box-shadow: 0 9px 0 rgb(67 57 118 / 9%), 0 22px 36px rgb(41 35 76 / 9%);
+  }
+
+  .world-guide-panel::after {
+    position: absolute;
+    right: -3rem;
+    top: -4rem;
+    width: 12rem;
+    height: 12rem;
+    content: '';
+    border: 2rem solid rgb(255 201 74 / 16%);
+    border-radius: 999px;
+    pointer-events: none;
+  }
+
+  .world-guide-mascot {
+    position: relative;
+    z-index: 1;
+    align-self: end;
+    width: 11rem;
+    margin: 0 -1rem -1.25rem -1rem;
+    filter: drop-shadow(0 7px 0 rgb(47 38 91 / 10%));
+  }
+
+  .world-guide-copy {
+    position: relative;
+    z-index: 1;
+    min-width: 0;
+  }
+
+  .world-guide-copy .cute-progress-track {
+    height: 1.8rem;
+    margin-inline: 1.35rem;
+  }
+
+  .world-guide-copy .cute-progress-header {
+    margin-bottom: 0.7rem;
+    color: var(--color-text);
+    font-size: 0.95rem;
+    font-weight: 900;
+  }
+
+  .world-guide-copy .cute-progress-header strong {
+    border-radius: 999px;
+    padding: 0.25rem 0.65rem;
+    background: white;
+    color: var(--color-brand-700);
+    font-size: 1.25rem;
+    line-height: 1;
+    box-shadow: 0 4px 0 rgb(67 57 118 / 10%);
+  }
+
+  .world-guide-copy .cute-progress-star-current {
+    width: 2.7rem;
+    height: 2.7rem;
+    filter: drop-shadow(0 4px 0 rgb(139 87 7 / 18%));
+  }
+
+  .world-next-ticket {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    min-width: 0;
+    flex-direction: column;
+    gap: 1rem;
+    border: 2px dashed var(--color-mint-200);
+    border-radius: 2rem 1.2rem 2rem 1.2rem;
+    padding: 1.2rem;
+    background: rgb(255 255 255 / 88%);
+    box-shadow: 0 7px 0 rgb(23 138 92 / 12%);
+  }
+
+  .world-next-ticket::before,
+  .world-next-ticket::after {
+    position: absolute;
+    left: -0.65rem;
+    width: 1.2rem;
+    height: 1.2rem;
+    content: '';
+    border-radius: 999px;
+    background: #effbf7;
+  }
+
+  .world-next-ticket::before {
+    top: 30%;
+  }
+
+  .world-next-ticket::after {
+    bottom: 20%;
+  }
+
+  @media (max-width: 900px) {
+    .world-guide-panel {
+      grid-template-columns: 7rem minmax(0, 1fr);
+      border-radius: 3.5rem 1.75rem 3.5rem 1.75rem;
+    }
+
+    .world-guide-mascot {
+      width: 9rem;
+    }
+
+    .world-next-ticket {
+      grid-column: 1 / -1;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+    }
+  }
+
+  @media (max-width: 639px) {
+    .world-guide-panel {
+      display: block;
+      min-height: 0;
+      border-radius: 2.5rem 1.25rem 2.5rem 1.25rem;
+      padding: 1.4rem 1.2rem 1.2rem;
+    }
+
+    .world-guide-mascot {
+      position: absolute;
+      right: -1rem;
+      top: 1rem;
+      width: 7.5rem;
+      margin: 0;
+      opacity: 0.92;
+    }
+
+    .world-guide-copy {
+      padding-right: 4.5rem;
+    }
+
+    .world-next-ticket {
+      margin-top: 1.25rem;
+      flex-direction: column;
+      align-items: stretch;
+    }
+  }
+
+  .world-region-card::after {
+    content: none;
+  }
+
+  .world-region-card > div {
+    z-index: 1;
+  }
+
   .quest-node:hover:not(.quest-node-locked) {
-    transform: scale(1.1) translateY(-2px);
-    box-shadow: 0 12px 0 0 rgba(109, 94, 252, 0.22), 0 20px 40px rgba(30, 39, 64, 0.16);
+    transform: scale(1.06) translateY(-2px);
+    box-shadow: 0 10px 0 rgba(109, 94, 252, 0.18), 0 18px 30px rgba(30, 39, 64, 0.14);
   }
 
   .quest-node-locked {
-    background: var(--color-border, #e4dff2) !important;
+    background: var(--color-brand-50) !important;
     color: var(--color-muted);
     box-shadow: 0 4px 0 0 rgba(30, 39, 64, 0.1), 0 8px 20px rgba(30, 39, 64, 0.07);
-    filter: grayscale(0.35);
+    filter: grayscale(0.18);
   }
 
   .quest-node-available {
+    background: var(--color-sun-400) !important;
     animation: quest-pulse 2.4s ease-in-out infinite;
+    outline: 4px solid rgb(255 201 74 / 28%);
+    outline-offset: 5px;
   }
 
   .quest-node-completed {
-    background: linear-gradient(135deg, var(--color-mint-400), var(--color-sky-400)) !important;
+    background: var(--color-mint-400) !important;
   }
 
   @keyframes quest-pulse {
@@ -1917,18 +3055,24 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
   }
 
   .quest-label-card {
-    background: rgba(255, 255, 255, 0.96);
-    border: 1.5px solid rgba(109, 94, 252, 0.12);
+    background: #fff;
+    border: 2px solid rgba(109, 94, 252, 0.12);
     border-radius: 1.25rem;
-    box-shadow: 0 4px 0 0 rgba(30, 39, 64, 0.06), 0 8px 20px rgba(30, 39, 64, 0.07);
-    padding: 0.75rem 1rem;
-    max-width: 180px;
+    box-shadow: 0 5px 0 rgba(61, 52, 109, 0.08);
+    padding: 0.9rem 1rem;
+    max-width: 210px;
     transition: transform 0.18s ease, box-shadow 0.18s;
   }
 
   .quest-label-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 0 0 rgba(30, 39, 64, 0.07), 0 12px 28px rgba(30, 39, 64, 0.1);
+    box-shadow: 0 7px 0 rgba(61, 52, 109, 0.09);
+  }
+
+  .quest-label-card-locked {
+    border-color: #ddd7ec;
+    background: rgba(255,255,255,.9);
+    color: var(--color-muted);
   }
 
   /* ─── PHASE STEPPER (4-step lesson progress) ─────────────────── */
@@ -1980,6 +3124,48 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     height: 2px;
     background: var(--color-border);
     flex-shrink: 0;
+  }
+
+  .lesson-stage-grid {
+    display: grid;
+    min-width: 0;
+    gap: 1rem;
+  }
+
+  .lesson-stage-main {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .lesson-guide-panel {
+    align-self: start;
+    min-width: 0;
+    overflow: hidden;
+    border: 1.5px solid var(--color-border);
+    border-radius: 1.75rem;
+    background: white;
+    padding: 1rem;
+  }
+
+  .lesson-guide-cat {
+    display: block;
+    width: min(11rem, 64%);
+    height: auto;
+    margin: -1rem auto -0.25rem;
+  }
+
+  @media (min-width: 1024px) {
+    .lesson-stage-grid {
+      grid-template-columns: minmax(0, 1fr) 18rem;
+      align-items: start;
+    }
+
+    .lesson-guide-panel {
+      position: sticky;
+      top: 1rem;
+    }
   }
 
   /* ─── GAME CARDS (visual per game type) ─────────────────────── */
@@ -2756,6 +3942,53 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     transition: width 0.7s cubic-bezier(0.22, 1, 0.36, 1);
   }
 
+  /* AIKid student visual language: warm landscape, coral action, soft white cards. */
+  .aikid-student-shell {
+    --student-action: var(--color-coral-400);
+  }
+
+  .aikid-student-shell .ui-btn-primary {
+    background: var(--student-action);
+    box-shadow: 0 5px 0 rgba(192, 57, 85, 0.2), var(--shadow-soft);
+  }
+
+  .aikid-student-shell .ui-btn-primary:hover:not(:disabled) {
+    background: var(--color-coral-600);
+  }
+
+  .aikid-student-shell .course-card {
+    border-color: rgba(255, 255, 255, 0.9);
+  }
+
+  .aikid-student-shell .course-card-progress-fill {
+    background: linear-gradient(90deg, var(--color-mint-400), var(--color-coral-400));
+  }
+
+  .aikid-flat-panel,
+  .aikid-flat-modal {
+    min-width: 0;
+    border: 1.5px solid rgba(255, 255, 255, 0.95);
+    border-radius: var(--radius-card);
+    background: #fff;
+    box-shadow: none;
+  }
+
+  .aikid-flat-modal {
+    border-color: var(--color-border);
+  }
+
+  .aikid-flat-stat {
+    border: 1px solid var(--color-border);
+    border-radius: 1.25rem;
+    background: var(--color-sun-50);
+    transition: background-color 150ms ease, border-color 150ms ease;
+  }
+
+  .aikid-flat-stat:hover {
+    border-color: var(--color-coral-200);
+    background: var(--color-coral-50);
+  }
+
   /* ─── XP BAR ─────────────────────────────────────────────────── */
 
   .xp-bar-track {
@@ -2782,6 +4015,95 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.35) 50%, transparent 100%);
     background-size: 200% 100%;
     animation: xp-shimmer 2s linear infinite;
+  }
+
+  .cute-progress {
+    min-width: 0;
+  }
+
+  .cute-progress-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.45rem;
+    color: var(--color-muted);
+    font-size: 0.75rem;
+    font-weight: 800;
+  }
+
+  .cute-progress-header strong {
+    color: var(--color-brand-700);
+    font-size: 0.875rem;
+    font-weight: 900;
+  }
+
+  .cute-progress-track {
+    position: relative;
+    height: 1.3rem;
+    margin-inline: 1rem;
+    border: 2px solid white;
+    border-radius: 999px;
+    background: #e9e5f7;
+    box-shadow: inset 0 2px 3px rgb(44 38 82 / 14%), 0 0 0 1px rgb(109 94 252 / 12%);
+  }
+
+  .cute-progress-fill {
+    display: block;
+    height: 100%;
+    min-width: 0.35rem;
+    border-radius: inherit;
+    transition: width 600ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .cute-progress-fill-violet {
+    background: linear-gradient(90deg, var(--color-brand-500), var(--color-brand-700));
+  }
+
+  .cute-progress-fill-mint {
+    background: linear-gradient(90deg, var(--color-mint-400), var(--color-sky-400));
+  }
+
+  .cute-progress-fill-coral {
+    background: linear-gradient(90deg, var(--color-sun-400), var(--color-coral-400));
+  }
+
+  .cute-progress-star {
+    position: absolute;
+    top: 50%;
+    width: 2rem;
+    height: 2rem;
+    transform: translate(-50%, -50%) scale(0.78);
+    object-fit: contain;
+    opacity: 0.38;
+    filter: grayscale(1);
+    transition: opacity 180ms ease, filter 180ms ease, transform 180ms ease;
+  }
+
+  .cute-progress-star-earned {
+    z-index: 1;
+    opacity: 1;
+    filter: none;
+    transform: translate(-50%, -50%) scale(1);
+  }
+
+  .cute-progress-compact .cute-progress-header {
+    margin-bottom: 0.3rem;
+    font-size: 0.625rem;
+  }
+
+  .cute-progress-compact .cute-progress-header strong {
+    font-size: 0.7rem;
+  }
+
+  .cute-progress-compact .cute-progress-track {
+    height: 1rem;
+    margin-inline: 0.7rem;
+  }
+
+  .cute-progress-compact .cute-progress-star {
+    width: 1.45rem;
+    height: 1.45rem;
   }
 
   @keyframes xp-shimmer {

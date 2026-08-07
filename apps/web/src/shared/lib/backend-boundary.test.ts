@@ -12,13 +12,9 @@ const sourceFiles = globSync('**/*.{ts,tsx}', {
 //   shared/lib/api.ts          — the API client itself
 //   features/lesson/lib/offline-learning.ts — caches media URLs into Cache API
 //                                             (Service Worker pattern; not an API call)
-//   features/parent/pages/ParentLearningPage.tsx — PDF/binary blob download
-//                                             (api() only handles JSON; binary
-//                                              downloads need raw fetch + Blob)
 const FETCH_ALLOWLIST = new Set([
   'shared/lib/api.ts',
   'features/lesson/lib/offline-learning.ts',
-  'features/parent/pages/ParentLearningPage.tsx',
 ])
 
 describe('frontend backend boundary', () => {

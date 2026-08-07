@@ -1,0 +1,22 @@
+{
+  "version": 1,
+  "artboard": { "name": "Mee", "width": 360, "height": 720, "baseline": 598 },
+  "stateMachine": "Mee Controller",
+  "inputs": {
+    "motion": { "type": "number", "values": { "idle": 0, "inspect": 1, "celebrate": 2 } },
+    "equip": { "type": "trigger" },
+    "category": { "type": "number", "values": { "body": 0, "eyes": 1, "hair": 2, "shirt": 3, "pants": 4, "accessory": 5 } }
+  },
+  "pivots": {
+    "root": [180, 598], "hips": [180, 390], "head": [180, 180],
+    "leftShoulder": [143, 283], "rightShoulder": [217, 283],
+    "leftElbow": [113, 365], "rightElbow": [247, 365],
+    "leftHip": [158, 400], "rightHip": [202, 400],
+    "leftKnee": [158, 465], "rightKnee": [202, 465]
+  },
+  "sources": {
+    "girl": "mee-girl-rig-v1-source.svg",
+    "boy": "mee-boy-rig-v1-source.svg"
+  },
+  "output": "mee-rig-v1.riv"
+}

@@ -1,0 +1,61 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="360" height="720" viewBox="0 0 360 720" fill="none">
+  <title>Mee Girl Rig v2 — playful storybook child</title>
+  <g id="back-accessory"/>
+  <g id="back-hair" transform="rotate(0 180 186)">
+    <path d="M120 166C120 105 143 74 180 74C218 74 240 107 240 166V222H120V166Z" fill="#9C3F22"/>
+    <g id="left-pigtail" transform="rotate(0 113 128)">
+      <circle cx="103" cy="119" r="24" fill="#A94724"/><circle cx="86" cy="130" r="17" fill="#A94724"/><circle cx="105" cy="142" r="20" fill="#A94724"/>
+      <path d="M118 127L132 143" stroke="#E85D45" stroke-width="8" stroke-linecap="round"/>
+    </g>
+    <g id="right-pigtail" transform="rotate(0 247 128)">
+      <circle cx="257" cy="119" r="24" fill="#A94724"/><circle cx="274" cy="130" r="17" fill="#A94724"/><circle cx="255" cy="142" r="20" fill="#A94724"/>
+      <path d="M242 127L228 143" stroke="#E85D45" stroke-width="8" stroke-linecap="round"/>
+    </g>
+  </g>
+  <g id="body" transform="rotate(0 180 430)">
+    <g id="left-leg" transform="rotate(0 158 400)">
+      <rect id="left-upper-leg" x="146" y="380" width="25" height="88" rx="12.5" fill="#F0B18B"/>
+      <g id="left-lower-leg" transform="rotate(0 158 465)">
+        <rect x="146" y="451" width="25" height="105" rx="12.5" fill="#E8E9E7"/>
+        <g id="left-foot" transform="rotate(0 158 550)"><path d="M144 536H173V579C173 590 164 598 153 598H126C116 598 113 585 121 580L144 564V536Z" fill="#6E2830"/><path d="M124 582C138 586 157 585 170 580" stroke="#8E3C43" stroke-width="5" stroke-linecap="round"/></g>
+      </g>
+    </g>
+    <g id="right-leg" transform="rotate(0 202 400)">
+      <rect id="right-upper-leg" x="189" y="380" width="25" height="88" rx="12.5" fill="#F0B18B"/>
+      <g id="right-lower-leg" transform="rotate(0 202 465)">
+        <rect x="189" y="451" width="25" height="105" rx="12.5" fill="#E8E9E7"/>
+        <g id="right-foot" transform="rotate(0 202 550)"><path d="M187 536H216V564L239 580C247 585 244 598 234 598H207C196 598 187 590 187 579V536Z" fill="#6E2830"/><path d="M190 580C203 585 222 586 236 582" stroke="#8E3C43" stroke-width="5" stroke-linecap="round"/></g>
+      </g>
+    </g>
+    <path id="torso" d="M139 272C139 250 157 232 179 232H181C203 232 221 250 221 272V373C221 389 208 402 192 402H168C152 402 139 389 139 373V272Z" fill="#F0B18B"/>
+    <g id="left-arm" transform="rotate(0 143 283)">
+      <rect id="left-upper-arm" x="119" y="275" width="26" height="96" rx="13" transform="rotate(16 119 275)" fill="#F0B18B"/>
+      <g id="left-forearm" transform="rotate(0 113 365)"><rect x="91" y="357" width="24" height="92" rx="12" transform="rotate(8 91 357)" fill="#F5BB96"/><circle id="left-hand" cx="101" cy="447" r="15" fill="#F5BB96"/><path d="M88 444L76 438M92 451L80 454" stroke="#F5BB96" stroke-width="7" stroke-linecap="round"/></g>
+    </g>
+    <g id="right-arm" transform="rotate(0 217 283)">
+      <rect id="right-upper-arm" x="215" y="275" width="26" height="96" rx="13" transform="rotate(-16 215 275)" fill="#F0B18B"/>
+      <g id="right-forearm" transform="rotate(0 247 365)"><rect x="245" y="357" width="24" height="92" rx="12" transform="rotate(-8 245 357)" fill="#F5BB96"/><circle id="right-hand" cx="259" cy="447" r="15" fill="#F5BB96"/><path d="M272 444L284 438M268 451L280 454" stroke="#F5BB96" stroke-width="7" stroke-linecap="round"/></g>
+    </g>
+  </g>
+  <g id="pants" transform="rotate(0 180 390)"><path id="leggings" d="M147 376H213V454C204 459 195 459 187 455L180 415L173 455C165 459 156 459 147 454V376Z" fill="#E7E9E8"/></g>
+  <g id="shirt" transform="rotate(0 180 315)">
+    <path id="red-dress" d="M138 265C150 250 163 241 174 239L180 251L186 239C198 241 211 250 222 265L211 305L223 394C197 406 163 406 137 394L149 305L138 265Z" fill="#EF3E45"/>
+    <path d="M167 241C170 258 190 258 193 241" stroke="#FFF8E9" stroke-width="5" stroke-linecap="round"/>
+    <path d="M141 378C164 388 196 388 219 378" stroke="#FFF8E9" stroke-width="5"/>
+    <circle cx="180" cy="338" r="6" fill="#FFCE55"/><circle cx="161" cy="353" r="4" fill="#FF8895" opacity=".75"/><circle cx="202" cy="360" r="4" fill="#FF8895" opacity=".75"/>
+  </g>
+  <g id="head" transform="rotate(0 180 180)">
+    <rect id="neck" x="164" y="230" width="32" height="39" rx="15" fill="#F0B18B"/>
+    <ellipse id="face" cx="180" cy="172" rx="70" ry="88" fill="#F5BB96"/>
+    <g id="ears"><circle cx="111" cy="177" r="13" fill="#F5BB96"/><circle cx="249" cy="177" r="13" fill="#F5BB96"/><path d="M106 177C111 171 117 174 118 181M254 177C249 171 243 174 242 181" stroke="#E59A78" stroke-width="3" stroke-linecap="round"/></g>
+    <g id="eyes"><circle id="left-eye" cx="153" cy="175" r="4.5" fill="#44302D"/><circle id="right-eye" cx="207" cy="175" r="4.5" fill="#44302D"/><circle cx="154" cy="174" r="1.4" fill="white"/><circle cx="208" cy="174" r="1.4" fill="white"/></g>
+    <g id="eyebrows"><path d="M142 158C150 154 157 154 164 158" stroke="#9C3F22" stroke-width="4" stroke-linecap="round"/><path d="M196 158C203 154 210 154 218 158" stroke="#9C3F22" stroke-width="4" stroke-linecap="round"/></g>
+    <path id="nose" d="M179 177L176 193L183 193" stroke="#DB8C6E" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <g id="mouth"><path d="M162 207C173 219 188 219 199 207" stroke="#9A3D43" stroke-width="5" stroke-linecap="round"/><path d="M171 212C177 217 184 217 190 212" stroke="#E96A70" stroke-width="4" stroke-linecap="round"/></g>
+    <g id="cheeks" fill="#F58E8A" opacity=".62"><ellipse cx="132" cy="199" rx="13" ry="8"/><ellipse cx="228" cy="199" rx="13" ry="8"/></g>
+    <g id="freckles" fill="#D87E63"><circle cx="132" cy="189" r="1.5"/><circle cx="138" cy="191" r="1.5"/><circle cx="228" cy="189" r="1.5"/><circle cx="222" cy="191" r="1.5"/></g>
+  </g>
+  <g id="front-hair" transform="rotate(0 180 180)"><path d="M112 147C115 100 141 73 181 73C221 73 245 102 248 149C226 144 213 130 205 111C187 131 157 143 112 147Z" fill="#9C3F22"/><path d="M144 101C151 117 164 127 181 131M184 84C193 104 210 116 232 119" stroke="#B84D28" stroke-width="5" stroke-linecap="round" opacity=".72"/></g>
+  <g id="front-accessory"><g id="hair-bows" fill="#FFCE55"><path d="M114 122L97 111L96 132Z"/><path d="M114 122L130 110L131 132Z"/><circle cx="114" cy="122" r="6"/><path d="M246 122L229 110L230 132Z"/><path d="M246 122L263 111L264 132Z"/><circle cx="246" cy="122" r="6"/></g></g>
+  <g id="rig-guides" display="none" fill="#FF2D75"><circle id="pivot-root" cx="180" cy="598" r="4"/><circle id="pivot-hips" cx="180" cy="390" r="4"/><circle id="pivot-head" cx="180" cy="180" r="4"/><circle id="pivot-left-shoulder" cx="143" cy="283" r="4"/><circle id="pivot-right-shoulder" cx="217" cy="283" r="4"/><circle id="pivot-left-elbow" cx="113" cy="365" r="4"/><circle id="pivot-right-elbow" cx="247" cy="365" r="4"/><circle id="pivot-left-hip" cx="158" cy="400" r="4"/><circle id="pivot-right-hip" cx="202" cy="400" r="4"/><circle id="pivot-left-knee" cx="158" cy="465" r="4"/><circle id="pivot-right-knee" cx="202" cy="465" r="4"/></g>
+</svg>

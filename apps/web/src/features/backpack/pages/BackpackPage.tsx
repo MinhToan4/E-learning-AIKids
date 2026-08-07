@@ -7,6 +7,11 @@ import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { designerAssets } from '@/shared/config/assets'
+import {
+  NavBadgeIcon,
+  NavCreativeIcon,
+  NavWorldIcon,
+} from '@/shared/components/icons/KidNavIcons'
 import type { RewardKind } from '@/shared/lib/creation/rewards'
 import {
   resolveCatalogRewardAsset,
@@ -67,20 +72,38 @@ const rewardKindLabels: Partial<Record<RewardKind, string>> = {
   background: 'Nền thẻ',
 }
 
-type GalleryFilter = 'all' | 'image' | 'comic' | 'story'
+type BackpackSection = 'rewards' | 'projects' | 'learning'
+type ProjectFilter = 'all' | 'image' | 'comic' | 'story'
+type RewardGroup = 'profile' | 'page' | 'special'
 
-const FILTERS: Array<{ id: GalleryFilter; label: string }> = [
+const REWARD_GROUPS: Array<{
+  id: RewardGroup
+  label: string
+  description: string
+}> = [
+  { id: 'profile', label: 'Đồ cho Hồ sơ', description: 'Khung, nền thẻ, danh hiệu và bạn đồng hành' },
+  { id: 'page', label: 'Giao diện trang', description: 'Những theme làm đổi không gian của con' },
+  { id: 'special', label: 'Vé và quyền đặc biệt', description: 'Quà dùng cho sự kiện hoặc tính năng riêng' },
+]
+
+const PROJECT_FILTERS: Array<{ id: ProjectFilter; label: string }> = [
   { id: 'all', label: 'Tất cả' },
-  { id: 'image', label: 'Ảnh AI & tranh vẽ' },
+  { id: 'image', label: 'Tranh & ảnh' },
   { id: 'comic', label: 'Truyện tranh' },
   { id: 'story', label: 'Truyện chữ' },
 ]
 
-function filterKind(kind: string): Exclude<GalleryFilter, 'all'> {
+function filterKind(kind: string): Exclude<ProjectFilter, 'all'> {
   const normalized = kind.toLowerCase()
   if (normalized.includes('comic') || normalized.includes('panel')) return 'comic'
   if (normalized.includes('story') || normalized.includes('text')) return 'story'
   return 'image'
+}
+
+function rewardGroup(kind: RewardKind): RewardGroup {
+  if (kind === 'theme') return 'page'
+  if (kind === 'event_ticket' || kind === 'perk') return 'special'
+  return 'profile'
 }
 
 function kindLabel(kind: string) {
@@ -120,9 +143,10 @@ function MediaThumbnail({
 }) {
   const [failed, setFailed] = useState(false)
   if (!isImgUrl(src) || failed) {
+    const PlaceholderIcon = filterKind(kind) === 'story' ? NavWorldIcon : NavCreativeIcon
     return (
-      <div className={`${className} flex items-center justify-center bg-brand-50 text-3xl`}>
-        {kind === 'comic' ? '🖼️' : kind === 'story' ? '📖' : '🎨'}
+      <div className={`${className} flex items-center justify-center bg-brand-50 text-brand-700`}>
+        <PlaceholderIcon size={36} aria-hidden="true" />
       </div>
     )
   }
@@ -136,7 +160,8 @@ export function BackpackPage() {
   const [msg, setMsg] = useState<string | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
-  const [filter, setFilter] = useState<GalleryFilter>('all')
+  const [section, setSection] = useState<BackpackSection>('rewards')
+  const [projectFilter, setProjectFilter] = useState<ProjectFilter>('all')
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -161,11 +186,7 @@ export function BackpackPage() {
       const rejected = [a, p, inventoryResult, catalogResult]
         .find((result) => result.status === 'rejected')
       if (rejected?.status === 'rejected') {
-        setError(
-          rejected.reason instanceof Error
-            ? rejected.reason.message
-            : 'Không tải được dữ liệu trong Ba lô.',
-        )
+        setError('Một vài ngăn chưa tải được. Con thử lại nhé.')
       }
     } finally {
       setLoading(false)
@@ -176,22 +197,25 @@ export function BackpackPage() {
     void load()
   }, [load])
 
-  const visibleAssets = useMemo(
-    () => filter === 'all' || filter === 'image' ? assets : [],
-    [assets, filter],
-  )
   const visibleProjects = useMemo(
     () => projects.filter((project) =>
-      filter === 'all' || filterKind(project.kind) === filter,
+      projectFilter === 'all' || filterKind(project.kind) === projectFilter,
     ),
-    [filter, projects],
+    [projectFilter, projects],
   )
-  const counts = useMemo(() => ({
-    all: assets.length + projects.length + rewards.length,
-    image: assets.length + projects.filter((project) => filterKind(project.kind) === 'image').length,
+  const projectCounts = useMemo(() => ({
+    all: projects.length,
+    image: projects.filter((project) => filterKind(project.kind) === 'image').length,
     comic: projects.filter((project) => filterKind(project.kind) === 'comic').length,
     story: projects.filter((project) => filterKind(project.kind) === 'story').length,
-  }), [assets, projects, rewards])
+  }), [projects])
+  const groupedRewards = useMemo(
+    () => REWARD_GROUPS.map((group) => ({
+      ...group,
+      items: rewards.filter((reward) => rewardGroup(reward.kind) === group.id),
+    })).filter((group) => group.items.length > 0),
+    [rewards],
+  )
 
   async function requestShare(projectId: string) {
     try {
@@ -201,8 +225,8 @@ export function BackpackPage() {
       })
       setMsg('Đã gửi Ba / Mẹ duyệt chia sẻ!')
       await load()
-    } catch (e) {
-      setMsg(e instanceof Error ? e.message : 'Lỗi')
+    } catch {
+      setMsg('Chưa gửi được. Con thử lại sau nhé.')
     }
   }
 
@@ -212,42 +236,74 @@ export function BackpackPage() {
 
   return (
     <PageMotion className="flex flex-col gap-6">
-      <div>
-        <h1 className="font-display text-3xl">Ba lô sáng tạo</h1>
-        <p className="text-muted">
-          Ba lô lưu những sản phẩm con đã tạo trong bài học — mặc định chỉ con xem.
-          Ảnh cá nhân từ thiết bị không được tải lên để giữ an toàn riêng tư.
+      <header>
+        <h1 className="font-display text-3xl sm:text-4xl">Ba lô của con</h1>
+        <p className="mt-1 max-w-2xl text-base text-muted">
+          Chọn một ngăn để xem quà, tác phẩm hoặc đồ con nhận trong bài học.
         </p>
-      </div>
+      </header>
       {msg && (
         <p className="rounded-xl bg-mint-100 px-3 py-2 text-sm text-success">{msg}</p>
       )}
       {error && <ErrorState message={error} onRetry={() => void load()} inline />}
 
-      <nav aria-label="Lọc sản phẩm trong Ba lô" className="flex flex-wrap gap-2">
-        {FILTERS.map((item) => (
+      <nav aria-label="Các ngăn trong Ba lô" className="grid gap-3 sm:grid-cols-3">
+        {([
+          {
+            id: 'rewards' as const,
+            label: 'Quà của con',
+            description: 'Khung, nền và bạn đồng hành',
+            count: rewards.length,
+            icon: NavBadgeIcon,
+          },
+          {
+            id: 'projects' as const,
+            label: 'Tác phẩm',
+            description: 'Tranh và truyện con đã làm',
+            count: projects.length,
+            icon: NavCreativeIcon,
+          },
+          {
+            id: 'learning' as const,
+            label: 'Đồ từ bài học',
+            description: 'Vật phẩm con nhận ở các trạm',
+            count: assets.length,
+            icon: NavWorldIcon,
+          },
+        ]).map((item) => {
+          const Icon = item.icon
+          const selected = section === item.id
+          return (
           <button
             key={item.id}
             type="button"
-            aria-pressed={filter === item.id}
-            onClick={() => setFilter(item.id)}
-            className={
-              filter === item.id
-                ? 'rounded-full bg-brand-600 px-3 py-2 text-sm font-extrabold text-white'
-                : 'rounded-full border border-border bg-white px-3 py-2 text-sm font-extrabold text-muted hover:border-brand-300'
-            }
+            aria-current={selected ? 'page' : undefined}
+            onClick={() => setSection(item.id)}
+            className={`ui-card grid min-h-28 grid-cols-[auto_1fr_auto] items-center gap-3 p-4 text-left transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus active:translate-y-0.5 ${
+              selected ? 'border-2 border-brand-500 bg-brand-50 shadow-press' : 'hover:border-brand-200'
+            }`}
           >
-            {item.label} · {counts[item.id]}
+            <span className="student-nav-icon !h-12 !w-12 !rounded-2xl" aria-hidden="true">
+              <Icon size={28} />
+            </span>
+            <span className="min-w-0">
+              <span className="block font-display text-xl text-text">{item.label}</span>
+              <span className="block text-sm font-semibold leading-snug text-muted">{item.description}</span>
+            </span>
+            <span className="flex h-9 min-w-9 items-center justify-center rounded-full bg-white px-2 text-sm font-black text-brand-700 shadow-soft">
+              {item.count}
+            </span>
           </button>
-        ))}
+          )
+        })}
       </nav>
 
-      {filter === 'all' && (
-        <section aria-labelledby="reward-inventory-title">
+      {section === 'rewards' && (
+        <section className="ui-card p-5 sm:p-6" aria-labelledby="reward-inventory-title">
           <div className="mb-3 flex flex-wrap items-end justify-between gap-2">
             <div>
-              <p className="text-xs font-black uppercase tracking-wide text-brand-600">Kho phần thưởng</p>
               <h2 id="reward-inventory-title" className="font-display text-2xl">Quà con đã nhận</h2>
+              <p className="text-sm text-muted">Chọn “Dùng trên hồ sơ” để thay đổi đồ đang trang bị.</p>
             </div>
             <Link to="/profile" className="min-h-11 rounded-xl px-3 py-2 text-sm font-extrabold text-brand-700">
               Dùng trên hồ sơ
@@ -255,41 +311,59 @@ export function BackpackPage() {
           </div>
           {rewards.length === 0 ? (
             <p className="rounded-2xl bg-brand-50 p-4 text-sm font-bold text-muted">
-              Chưa có reward trong kho. Học và hoàn thành Storybook để mở quà nhé!
+              Chưa có quà trong ngăn này. Học và hoàn thành Huyền thoại để mở quà nhé!
             </p>
           ) : (
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
-              {rewards.map((reward) => {
-                const assetUrl = resolveCatalogRewardAsset({ id: reward.code, assets: reward.assets }, 'thumbnail')
-                return (
-                  <article key={reward.code} className="ui-card overflow-hidden p-3">
-                    <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-brand-50">
-                      {assetUrl && (
-                        <RewardThumbnail
-                          src={assetUrl}
-                          onInvalid={() => setRewards((current) =>
-                            current.filter((item) => item.code !== reward.code))}
-                        />
-                      )}
+            <div className="flex flex-col gap-7">
+              {groupedRewards.map((group) => (
+                <section key={group.id} aria-labelledby={`reward-group-${group.id}`}>
+                  <div className="mb-3 flex items-end justify-between gap-3 border-b border-border pb-3">
+                    <div>
+                      <h3 id={`reward-group-${group.id}`} className="font-display text-xl">{group.label}</h3>
+                      <p className="text-sm text-muted">{group.description}</p>
                     </div>
-                    <p className="mt-2 text-xs font-black uppercase text-brand-600">
-                      {rewardKindLabels[reward.kind] ?? 'Phần thưởng'}
-                    </p>
-                    <h3 className="text-base font-extrabold leading-tight">{reward.name}</h3>
-                  </article>
-                )
-              })}
+                    <span className="shrink-0 rounded-full bg-brand-50 px-3 py-1 text-sm font-black text-brand-700">
+                      {group.items.length} món
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
+                    {group.items.map((reward) => {
+                      const assetUrl = resolveCatalogRewardAsset({ id: reward.code, assets: reward.assets }, 'thumbnail')
+                      return (
+                        <article key={reward.code} className="ui-card overflow-hidden p-3">
+                          <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-brand-50">
+                            {assetUrl && (
+                              <RewardThumbnail
+                                src={assetUrl}
+                                onInvalid={() => setRewards((current) =>
+                                  current.filter((item) => item.code !== reward.code))}
+                              />
+                            )}
+                          </div>
+                          <p className="mt-2 text-xs font-black uppercase text-brand-600">
+                            {rewardKindLabels[reward.kind] ?? 'Phần thưởng'}
+                          </p>
+                          <h4 className="text-base font-extrabold leading-tight">{reward.name}</h4>
+                        </article>
+                      )
+                    })}
+                  </div>
+                </section>
+              ))}
             </div>
           )}
         </section>
       )}
 
-      {(filter === 'all' || filter === 'image') && <section>
-        <h2 className="font-display mb-3 text-2xl">Vật phẩm từ bài học</h2>
-        {visibleAssets.length === 0 ? (
+      {section === 'learning' && <section className="ui-card p-5 sm:p-6" aria-labelledby="learning-items-title">
+        <div className="mb-3">
+          <h2 id="learning-items-title" className="font-display text-2xl">Đồ từ bài học</h2>
+          <p className="text-sm text-muted">Những vật phẩm con nhận được khi hoàn thành các trạm.</p>
+        </div>
+        {assets.length === 0 ? (
           <EmptyState
             compact
-            title={filter === 'all' ? 'Ba lô còn trống' : 'Không có ảnh ở bộ lọc này'}
+            title="Ngăn này còn trống"
             description="Hoàn thành trạm vẽ hoặc tạo ảnh AI để nhận vật phẩm nhé!"
             imageSrc={designerAssets.lobby.cardArt}
             action={
@@ -300,7 +374,7 @@ export function BackpackPage() {
           />
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            {visibleAssets.map((a) => (
+            {assets.map((a) => (
               <div key={a.id} className="ui-card overflow-hidden p-2">
                 <div className="flex h-28 items-center justify-center overflow-hidden rounded-xl bg-brand-50">
                   <MediaThumbnail
@@ -320,12 +394,31 @@ export function BackpackPage() {
         )}
       </section>}
 
-      <section>
-        <h2 className="font-display mb-3 text-2xl">Tác phẩm</h2>
+      {section === 'projects' && <section className="ui-card p-5 sm:p-6" aria-labelledby="projects-title">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 id="projects-title" className="font-display text-2xl">Tác phẩm của con</h2>
+            <p className="text-sm text-muted">Tranh và truyện con đã lưu từ Xưởng sáng tạo.</p>
+          </div>
+          <label className="flex min-h-11 items-center gap-2 font-bold text-text">
+            <span className="shrink-0">Xem loại</span>
+            <select
+              value={projectFilter}
+              onChange={(event) => setProjectFilter(event.target.value as ProjectFilter)}
+              className="min-h-11 rounded-2xl border border-border bg-white px-3 font-extrabold text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+            >
+              {PROJECT_FILTERS.map((item) => (
+                <option key={item.id} value={item.id}>
+                  {item.label} ({projectCounts[item.id]})
+                </option>
+              ))}
+            </select>
+          </label>
+        </div>
         {visibleProjects.length === 0 ? (
           <EmptyState
             compact
-            title={filter === 'all' ? 'Chưa có tác phẩm' : 'Không có tác phẩm ở bộ lọc này'}
+            title={projectFilter === 'all' ? 'Chưa có tác phẩm' : 'Chưa có tác phẩm loại này'}
             description="Làm truyện hoặc tạo ảnh ở Xưởng sáng tạo để có tác phẩm trong Ba lô!"
             imageSrc={designerAssets.workshop.comic}
             action={
@@ -365,7 +458,7 @@ export function BackpackPage() {
             ))}
           </div>
         )}
-      </section>
+      </section>}
     </PageMotion>
   )
 }

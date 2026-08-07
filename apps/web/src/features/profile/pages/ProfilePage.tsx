@@ -2,12 +2,21 @@ import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
+import { CuteProgress } from '@/shared/components/ui/CuteProgress'
+import {
+  NavCreativeIcon,
+  NavLevelIcon,
+} from '@/shared/components/icons/KidNavIcons'
+import {
+  KidProfileBadgeImageIcon,
+  KidProfileStreakImageIcon,
+  KidProfileWorkImageIcon,
+} from '@/shared/components/icons/KidImageIcons'
 import { api, type AchievementRow } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { EquippedProfile } from '@/features/rewards/EquippedProfile'
 import { RewardCollection } from '@/features/rewards/RewardCollection'
 import {
-  profileCardBackgroundTone,
   profileCardBackgroundStyle,
   readRewardEquipment,
   rewardEquipmentFromRows,
@@ -30,9 +39,39 @@ import {
 } from '../profile-showcase'
 import { updateMyProfileAvatar } from '@/shared/lib/media-api'
 import {
+  explorerLevelProgress,
+  nextExplorerLevel,
+} from '@/shared/lib/creation/xp-levels'
+import {
   loadProfileOverview,
   type PublicProfileSettings,
 } from '../profile-overview-api'
+
+function friendlyProjectTitle(title: string): string {
+  const clean = title
+    .replace(/\.(json|png|jpe?g|webp|gif|mp4)$/i, '')
+    .replace(/[-_]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+  return clean || 'Tác phẩm của con'
+}
+
+function ProjectThumbnail({ project }: { project: ShowcaseProject }) {
+  const [failed, setFailed] = useState(false)
+  if (!project.thumbnail || failed) {
+    return <NavCreativeIcon size={44} aria-hidden="true" />
+  }
+  return (
+    <img
+      src={project.thumbnail}
+      alt=""
+      loading="lazy"
+      decoding="async"
+      onError={() => setFailed(true)}
+      className="h-full w-full object-cover transition-transform duration-300 motion-reduce:transition-none group-hover:scale-[1.03]"
+    />
+  )
+}
 
 export function ProfilePage() {
   const user = useAuth((state) => state.user)
@@ -140,12 +179,12 @@ export function ProfilePage() {
     const sync = () => {
       if (!user) return
       const nextEquipment = readRewardEquipment(user.id)
+      setEquipment(nextEquipment)
       const appearance = {
         themeKey: nextEquipment.theme ?? null,
         frameKey: nextEquipment.frame ?? null,
         backgroundKey: nextEquipment.background ?? null,
       }
-      setEquipment(nextEquipment)
       setProfileAppearance(appearance)
       void persistProfileSettings(sharing, appearance).catch(() => undefined)
     }
@@ -190,68 +229,82 @@ export function ProfilePage() {
 
   if (loading) return <PageSkeleton rows={3} className="mx-auto max-w-5xl" />
 
-  const profileCardBackground = equipment.background
-  const cardTone = profileCardBackgroundTone(profileCardBackground)
+  const nextLevel = nextExplorerLevel(explorerXp, explorerLevel)
+  const levelProgress = explorerLevelProgress(explorerXp, explorerLevel)
+  const xpToNextLevel = Math.max(0, nextLevel.xpRequired - explorerXp)
   return (
     <PageMotion
       className="mx-auto flex min-h-[calc(100vh-2.5rem)] max-w-6xl flex-col gap-5"
     >
       <section
-        className="ui-card relative min-h-[20rem] overflow-hidden p-5 sm:p-6 lg:p-8"
+        className="aikid-flat-panel overflow-hidden"
+        data-profile-composition="simple"
         style={{
-          ...profileCardBackgroundStyle(profileCardBackground),
-          backgroundPosition: 'center top',
+          ...profileCardBackgroundStyle(equipment.background),
+          backgroundPosition: 'center',
         }}
-        data-profile-tone={cardTone}
-        data-profile-composition="v1"
       >
-        {profileCardBackground === 'background-ai-gate' && (
-          <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden="true">
-            <div className="absolute inset-x-0 bottom-[31%] h-px bg-gradient-to-r from-transparent via-amber-100/55 to-transparent" />
-            <div className="absolute bottom-[18%] right-[27%] h-44 w-32 rounded-t-[5rem] border-[7px] border-cyan-200/35 bg-indigo-950/10 shadow-[0_0_28px_rgba(103,232,249,.45),inset_0_0_24px_rgba(251,191,36,.25)] sm:h-52 sm:w-40 lg:right-[31%]">
-              <div className="absolute inset-4 rounded-t-[4rem] border-2 border-amber-200/40 bg-gradient-to-b from-cyan-300/10 to-amber-200/20" />
-              <div className="absolute left-1/2 top-[38%] h-12 w-12 -translate-x-1/2 rounded-full bg-amber-100/25 shadow-[0_0_30px_rgba(253,224,71,.55)]" />
-            </div>
-            <span className="absolute left-[44%] top-[18%] text-lg text-cyan-100/60">✦</span>
-            <span className="absolute bottom-[22%] right-[12%] text-sm text-amber-100/70">✦</span>
-          </div>
-        )}
-        <div className="relative z-10 grid items-center gap-7 lg:grid-cols-[minmax(0,1fr)_19rem]">
+        <div className="grid items-center gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:p-7">
           {user && (
             <EquippedProfile
               user={user}
               xp={explorerXp}
               level={explorerLevel}
               compact
-              tone={cardTone}
+              simple
               onAvatarClick={() => setAvatarPickerOpen(true)}
             />
           )}
-          <div className="grid grid-cols-3 overflow-hidden rounded-3xl border border-white/70 bg-white/85 shadow-soft">
+          <div className="grid grid-cols-3 gap-2" aria-label="Thành quả học tập">
             {[
-              [streak, 'Ngày học'],
-              [achievements.length, 'Huy hiệu'],
-              [projects.length, 'Tác phẩm'],
-            ].map(([value, label], index) => (
-              <div key={String(label)} className={`min-w-0 px-2 py-4 text-center text-text ${index > 0 ? 'border-l border-border' : ''}`}>
-                <p className="font-display text-2xl text-brand-700">{value}</p>
-                <p className="mt-0.5 text-xs font-extrabold text-muted">{label}</p>
-              </div>
+              { value: streak, label: 'Ngày học', to: '/level', icon: KidProfileStreakImageIcon },
+              { value: achievements.length, label: 'Huy hiệu', to: '/achievements', icon: KidProfileBadgeImageIcon },
+              { value: projects.length, label: 'Tác phẩm', to: '/backpack', icon: KidProfileWorkImageIcon },
+            ].map(({ value, label, to, icon: Icon }) => (
+              <Link key={label} to={to} className="aikid-flat-stat flex min-h-28 min-w-0 flex-col items-center justify-center px-2 py-3 text-center text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
+                <Icon size={28} aria-hidden="true" />
+                <span className="mt-1 font-display text-2xl text-brand-700">{value}</span>
+                <span className="text-sm font-extrabold text-muted">{label}</span>
+              </Link>
             ))}
           </div>
         </div>
-        <div className="relative z-10 mt-7 flex flex-col gap-3 border-t border-white/60 pt-4 sm:flex-row sm:items-center sm:justify-between">
-          <div className="grid grid-cols-2 rounded-2xl bg-white/75 p-1 text-sm font-extrabold text-brand-700" role="tablist" aria-label="Nội dung hồ sơ">
-            <button type="button" role="tab" aria-selected={section === 'overview'} onClick={() => setSection('overview')} className={`min-h-11 rounded-xl px-4 py-2 ${section === 'overview' ? 'bg-brand-600 text-white shadow-press' : ''}`}>Hồ sơ</button>
-            <button type="button" role="tab" aria-selected={section === 'customize'} onClick={() => setSection('customize')} className={`min-h-11 rounded-xl px-4 py-2 ${section === 'customize' ? 'bg-brand-600 text-white shadow-press' : ''}`}>Chỉnh sửa</button>
+        <div className="flex flex-col gap-3 border-t border-border bg-sun-50 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+          <div className="grid grid-cols-2 rounded-2xl border border-border bg-white p-1 text-sm font-extrabold text-text" role="tablist" aria-label="Nội dung hồ sơ">
+            <button type="button" role="tab" aria-selected={section === 'overview'} onClick={() => setSection('overview')} className={`min-h-11 rounded-xl px-4 py-2 ${section === 'overview' ? 'bg-coral-400 text-white' : ''}`}>Hồ sơ</button>
+            <button type="button" role="tab" aria-selected={section === 'customize'} onClick={() => setSection('customize')} className={`min-h-11 rounded-xl px-4 py-2 ${section === 'customize' ? 'bg-coral-400 text-white' : ''}`}>Trang trí</button>
           </div>
-          {profileSlug && <Link to={`/u/${profileSlug}`} className="flex min-h-11 items-center justify-center rounded-2xl bg-white px-4 py-2 text-sm font-extrabold text-brand-700 shadow-soft">Xem bản chia sẻ</Link>}
+          {profileSlug && <Link to={`/u/${profileSlug}`} className="flex min-h-11 items-center justify-center rounded-2xl border border-border bg-white px-4 py-2 text-sm font-extrabold text-brand-700">Xem bản chia sẻ</Link>}
         </div>
       </section>
 
+      <Link
+        to="/level"
+        className="aikid-flat-panel group grid min-h-32 gap-4 p-5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus sm:grid-cols-[auto_1fr_auto] sm:items-center sm:p-6"
+        aria-label={`Xem hành trình Cấp ${explorerLevel}`}
+      >
+        <span className="student-nav-icon !h-14 !w-14 !rounded-2xl" aria-hidden="true">
+          <NavLevelIcon size={32} />
+        </span>
+        <span>
+          <span className="block text-sm font-extrabold text-brand-600">Hành trình cấp độ</span>
+          <span className="mt-1 block font-display text-2xl text-text">
+            Cấp {explorerLevel} · {explorerXp.toLocaleString('vi-VN')} XP
+          </span>
+          <CuteProgress className="mt-3" value={levelProgress} label={`Tiến độ lên Cấp ${nextLevel.level}`} tone="violet" />
+          <span className="mt-2 block text-sm font-bold text-muted">
+            {xpToNextLevel > 0 ? `Còn ${xpToNextLevel} XP để lên Cấp ${nextLevel.level}` : 'Con đã sẵn sàng cho cấp tiếp theo'}
+          </span>
+          <span className="sr-only">Xem quà sắp mở và các mốc cấp tiếp theo.</span>
+        </span>
+        <span className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-coral-400 px-4 font-extrabold text-white group-hover:bg-coral-600">
+          Xem hành trình
+        </span>
+      </Link>
+
       {section === 'customize' && user && (
         <>
-          <div className="ui-card border-white/70 bg-white/90 p-5 backdrop-blur-sm sm:p-6">
+          <div className="aikid-flat-panel p-5 sm:p-6">
             <div className="mb-5 flex flex-col gap-2 rounded-2xl bg-brand-50 p-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <p className="font-display text-lg text-text">Chỉnh phong cách hồ sơ</p>
@@ -263,16 +316,29 @@ export function ProfilePage() {
                 Xem hồ sơ
               </button>
             </div>
+            <Link
+              to="/profile/avatar-studio"
+              className="mb-5 grid gap-4 rounded-3xl bg-gradient-to-br from-sky-500 to-brand-700 p-5 text-white shadow-soft transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus motion-reduce:transform-none sm:grid-cols-[1fr_auto] sm:items-center"
+            >
+              <span>
+                <span className="block font-display text-2xl">Tạo Mee chuyển động</span>
+                <span className="mt-1 block text-sm font-bold text-white/85">
+                  Mở Avatar Studio mới để thử nhân vật Rive và animation thay đồ.
+                </span>
+              </span>
+              <span className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-white px-5 font-extrabold text-brand-700 shadow-press">
+                Mở Studio
+              </span>
+            </Link>
             <RewardCollection userId={user.id} xpLevel={explorerLevel} />
           </div>
         </>
       )}
 
       {section === 'overview' && (
-        <section className="ui-card border-white/70 bg-white/90 p-5 backdrop-blur-sm sm:p-7" aria-labelledby="recent-works-title">
+        <section className="aikid-flat-panel p-5 sm:p-7" aria-labelledby="recent-works-title">
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-xs font-black uppercase tracking-wider text-brand-600">Góc sáng tạo</p>
               <h2 id="recent-works-title" className="font-display text-2xl sm:text-3xl">Tác phẩm gần đây</h2>
               <p className="mt-1 text-sm font-bold text-muted">Những tác phẩm đã sẵn sàng để giới thiệu.</p>
             </div>
@@ -280,20 +346,18 @@ export function ProfilePage() {
           </div>
           {projects.length === 0 ? (
             <div className="mt-5 flex min-h-48 flex-col items-center justify-center rounded-3xl bg-brand-50 px-5 text-center">
-              <span className="text-4xl" aria-hidden="true">🎨</span>
+              <span className="student-nav-icon !h-16 !w-16" aria-hidden="true"><NavCreativeIcon size={36} /></span>
               <p className="mt-3 font-display text-xl text-text">Chưa có tác phẩm</p>
               <p className="mt-1 text-sm font-bold text-muted">Vào Xưởng để tạo tác phẩm đầu tiên nhé!</p>
             </div>
           ) : (
             <div className="mt-5 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {projects.slice(0, 6).map((project) => (
-                <article key={project.id} className="group overflow-hidden rounded-3xl border border-border bg-white shadow-soft">
-                  <div className="flex aspect-[4/3] items-center justify-center overflow-hidden bg-brand-50 text-4xl">
-                    {project.thumbnail
-                      ? <img src={project.thumbnail} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.03]" />
-                      : '🎨'}
+                <article key={project.id} className="group overflow-hidden rounded-3xl border border-border bg-white">
+                  <div className="flex aspect-[4/3] items-center justify-center overflow-hidden bg-brand-50 text-brand-600">
+                    <ProjectThumbnail project={project} />
                   </div>
-                  <p className="truncate px-4 py-3 text-sm font-extrabold text-text">{project.title}</p>
+                  <p className="truncate px-4 py-3 text-sm font-extrabold text-text">{friendlyProjectTitle(project.title)}</p>
                 </article>
               ))}
             </div>

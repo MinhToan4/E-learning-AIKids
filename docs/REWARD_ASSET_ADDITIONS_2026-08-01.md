@@ -35,8 +35,8 @@ catalog.
 
 Each row is delivered as:
 
-- `frame-level-<level>.png` — 1024 × 1024 RGBA frame.
-- `frame-level-<level>--plaque.png` — 1600 × 400 RGBA plaque.
+- `frame-level-<level>.webp` — 1024 × 1024 frame, WebP quality 92 with alpha.
+- `frame-level-<level>--plaque.webp` — 1600 × 400 plaque, WebP quality 92 with alpha.
 
 All files are RGBA PNGs with transparent corners and no embedded text. Their
 filenames follow the stable reward asset ID contract.

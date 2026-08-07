@@ -30,6 +30,9 @@ async function walk(directory) {
       errors.push(`${label}: chỉ nhận AVIF, PNG, SVG hoặc WebP`)
       continue
     }
+    if (relative(root, directory) === 'frames' && extension === '.png') {
+      errors.push(`${label}: frame raster phải dùng WebP để giảm tải bundle`)
+    }
     if (!allowedId.test(id)) {
       errors.push(`${label}: filename không phải reward ID hợp lệ`)
     }

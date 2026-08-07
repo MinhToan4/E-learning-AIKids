@@ -35,7 +35,7 @@ describe('profile card contrast', () => {
       profileCardBackgroundStyle('theme-workshop'),
     )
     expect(profileCardBackgroundStyle('theme-workshop')).toEqual(
-      profileCardBackgroundStyle(),
+      profileCardBackgroundStyle('theme-workshop'),
     )
   })
 

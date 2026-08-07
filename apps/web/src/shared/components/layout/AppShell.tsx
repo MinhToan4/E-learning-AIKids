@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
@@ -15,18 +16,18 @@ import {
   CmsOverviewIcon,
   CmsUsersIcon,
 } from '@/shared/components/icons/CmsIcons'
+import { NavHomeIcon, NavProfileIcon, NavWorldIcon } from '@/shared/components/icons/KidNavIcons'
 import {
-  NavBackpackIcon,
-  NavBadgeIcon,
-  NavCreativeIcon,
-  NavHomeIcon,
-  NavLeaderboardIcon,
-  NavProfileIcon,
-  NavWorldIcon,
-  NavLevelIcon,
-  NavEventIcon,
-  NavStorybookIcon
-} from '@/shared/components/icons/KidNavIcons'
+  KidBackpackImageIcon,
+  KidBadgeImageIcon,
+  KidCreativeImageIcon,
+  KidEventImageIcon,
+  KidHomeImageIcon,
+  KidProfileImageIcon,
+  KidProgressImageIcon,
+  KidStorybookImageIcon,
+  KidWorldImageIcon,
+} from '@/shared/components/icons/KidImageIcons'
 import {
   ParentApprovalIcon,
   ParentDashboardIcon,
@@ -37,11 +38,8 @@ import {
 import { ParentHomeIcon } from '@/shared/components/icons/ParentHomeIcon'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { cn } from '@/shared/lib/cn'
+import { designerAssets } from '@/shared/config/assets'
 import { useAuth } from '@/shared/store/auth'
-import {
-  profilePageThemeStyle,
-  readStudentTheme,
-} from '@/features/rewards/student-theme'
 
 type NavIcon = React.ComponentType<{ size?: number; className?: string }>
 
@@ -50,6 +48,22 @@ type RoleNavItem = {
   label: string
   icon: NavIcon
   end?: boolean
+}
+
+function aikidStudentBackground(pathname: string): CSSProperties {
+  const image = pathname.startsWith('/creative')
+    ? designerAssets.lobby.bgArt
+    : pathname.startsWith('/profile') || pathname.startsWith('/backpack')
+      ? designerAssets.lobby.bgCharacter
+      : designerAssets.lobby.bgHome
+
+  return {
+    backgroundColor: '#f8f4dc',
+    backgroundImage: `linear-gradient(180deg, rgba(255,255,255,0.08), rgba(248,246,255,0.9) 72%), url("${image}")`,
+    backgroundPosition: 'top center, top center',
+    backgroundRepeat: 'no-repeat, no-repeat',
+    backgroundSize: 'cover, max(100%, 76rem) auto',
+  }
 }
 
 function useLogoutAction() {
@@ -114,31 +128,29 @@ function MobileLogoutButton() {
 
 // ── Student nav split: pinned bar + drawer ───────────────────
 const studentPinnedNav = [
-  { to: '/home',        label: 'Nhà',     icon: NavHomeIcon        },
-  { to: '/world',       label: 'Học',     icon: NavWorldIcon       },
-  { to: '/creative',    label: 'Xưởng',   icon: NavCreativeIcon    },
-  { to: '/leaderboard', label: 'Tiến bộ', icon: NavLeaderboardIcon },
+  { to: '/home',        label: 'Nhà',     icon: KidHomeImageIcon     },
+  { to: '/world',       label: 'Học',     icon: KidWorldImageIcon    },
+  { to: '/creative',    label: 'Xưởng',   icon: KidCreativeImageIcon },
+  { to: '/leaderboard', label: 'Tiến bộ', icon: KidProgressImageIcon },
 ]
 const studentDrawerNav = [
-  { to: '/level',        label: 'Phần thưởng', icon: NavLevelIcon },
-  { to: '/events',       label: 'Sự kiện', icon: NavEventIcon },
-  { to: '/storybook',    label: 'Huyền thoại', icon: NavStorybookIcon   },
-  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon   },
-  { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon },
-  { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon },
+  { to: '/events',       label: 'Sự kiện', icon: KidEventImageIcon },
+  { to: '/storybook',    label: 'Huyền thoại', icon: KidStorybookImageIcon },
+  { to: '/achievements', label: 'Huy hiệu', icon: KidBadgeImageIcon },
+  { to: '/backpack',     label: 'Ba lô',    icon: KidBackpackImageIcon },
+  { to: '/profile',      label: 'Hồ sơ',    icon: KidProfileImageIcon },
 ]
-// Full list for desktop sidebar (all 7 unchanged)
+// Cấp độ là trang chi tiết mở theo ngữ cảnh từ Hồ sơ, không phải đích điều hướng chính.
 const studentNav = [
-  { to: '/home',         label: 'Nhà',      icon: NavHomeIcon        },
-  { to: '/world',        label: 'Học',      icon: NavWorldIcon       },
-  { to: '/creative',     label: 'Xưởng',    icon: NavCreativeIcon    },
-  { to: '/leaderboard',  label: 'Tiến bộ',  icon: NavLeaderboardIcon },
-  { to: '/level',        label: 'Phần thưởng', icon: NavLevelIcon },
-  { to: '/events',       label: 'Sự kiện',   icon: NavEventIcon       },
-  { to: '/achievements', label: 'Huy hiệu', icon: NavBadgeIcon       },
-  { to: '/storybook',    label: 'Huyền thoại', icon: NavStorybookIcon     },
-  { to: '/backpack',     label: 'Ba lô',    icon: NavBackpackIcon    },
-  { to: '/profile',      label: 'Hồ sơ',    icon: NavProfileIcon     },
+  { to: '/home',         label: 'Nhà',      icon: KidHomeImageIcon },
+  { to: '/world',        label: 'Học',      icon: KidWorldImageIcon },
+  { to: '/creative',     label: 'Xưởng',    icon: KidCreativeImageIcon },
+  { to: '/leaderboard',  label: 'Tiến bộ',  icon: KidProgressImageIcon },
+  { to: '/events',       label: 'Sự kiện',   icon: KidEventImageIcon },
+  { to: '/achievements', label: 'Huy hiệu', icon: KidBadgeImageIcon },
+  { to: '/storybook',    label: 'Huyền thoại', icon: KidStorybookImageIcon },
+  { to: '/backpack',     label: 'Ba lô',    icon: KidBackpackImageIcon },
+  { to: '/profile',      label: 'Hồ sơ',    icon: KidProfileImageIcon },
 ]
 
 // ── Desktop sidebar nav (vertical) ───────────────────────────
@@ -222,7 +234,7 @@ function StudentDrawer() {
         aria-label="Bộ sưu tập của con"
       >
         <div className="student-drawer-handle" aria-hidden="true" />
-        <p className="student-drawer-title">✨ Bộ sưu tập của con</p>
+        <p className="student-drawer-title">Bộ sưu tập của con</p>
         <nav className="student-drawer-grid" aria-label="Bộ sưu tập">
           {studentDrawerNav.map(({ to, label, icon: Icon }) => (
             <NavLink
@@ -234,7 +246,7 @@ function StudentDrawer() {
               }
             >
               <span className="student-drawer-icon" aria-hidden="true">
-                <Icon size={23} />
+                <Icon size={38} />
               </span>
               <span>{label}</span>
             </NavLink>
@@ -270,7 +282,7 @@ function StudentDrawer() {
             }
           >
             <span className="student-nav-icon !h-8 !w-9 !rounded-xl" aria-hidden="true">
-              <Icon size={21} />
+              <Icon size={30} />
             </span>
             {label}
           </NavLink>
@@ -547,18 +559,6 @@ export function AppShell() {
   const { handleLogout, loggingOut } = useLogoutAction()
 
   const [gateOpen, setGateOpen] = useState(false)
-  const [studentTheme, setStudentTheme] = useState(
-    () => user ? readStudentTheme(user.id) : undefined,
-  )
-
-  useEffect(() => {
-    const syncTheme = () => {
-      setStudentTheme(user ? readStudentTheme(user.id) : undefined)
-    }
-    syncTheme()
-    window.addEventListener('aikids:reward-equipped', syncTheme)
-    return () => window.removeEventListener('aikids:reward-equipped', syncTheme)
-  }, [user?.id])
 
   if (user?.role === 'parent') {
     return (
@@ -643,8 +643,8 @@ export function AppShell() {
 
   return (
     <div
-      className="min-h-dvh bg-fixed pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-8 md:pl-[6rem]"
-      style={profilePageThemeStyle(studentTheme)}
+      className="aikid-student-shell min-h-dvh bg-fixed pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-8 md:pl-[6rem]"
+      style={aikidStudentBackground(location.pathname)}
     >
       <aside className="student-rail fixed left-0 top-0 z-30 hidden h-dvh w-24 flex-col items-center gap-1.5 border-r border-border/70 py-4 md:flex">
         <NavLink
@@ -667,7 +667,7 @@ export function AppShell() {
               }
             >
               <span className="student-nav-icon" aria-hidden="true">
-                <Icon size={23} />
+                <Icon size={36} />
               </span>
               {label}
             </NavLink>

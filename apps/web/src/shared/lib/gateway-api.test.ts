@@ -3,6 +3,7 @@ import {
   api,
   AUTH_UNAUTHORIZED_EVENT,
   clearAccessToken,
+  downloadAuthorizedBlob,
   getAccessToken,
   setAccessToken,
   type AchievementRow,
@@ -107,6 +108,25 @@ describe('StoryMee Gateway adapter', () => {
 
     expect(getAccessToken()).toBeNull()
     expect(unauthorized).toHaveBeenCalledOnce()
+  })
+
+  it('downloads binary files with bearer auth and without browser credentials', async () => {
+    setAccessToken('storymee-jwt')
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(new Uint8Array([1, 2, 3]), { status: 200 }),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    const blob = await downloadAuthorizedBlob('/api/reports/report-1/pdf')
+
+    expect(blob.size).toBe(3)
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://dev-hub.storymee.com/api/reports/report-1/pdf',
+      expect.objectContaining({ credentials: 'omit' }),
+    )
+    const options = fetchMock.mock.calls[0]?.[1] as RequestInit
+    expect((options.headers as Headers).get('Authorization'))
+      .toBe('Bearer storymee-jwt')
   })
 
   it('sends an adult username through the unified account login field', async () => {
@@ -668,6 +688,35 @@ describe('StoryMee Gateway adapter', () => {
       'https://dev-hub.storymee.com/api/v1/jobs/providers/policy',
     ])
     expect(localStorage.getItem('storymee.access_token')).toBe('parent-session-token')
+  })
+
+  it('routes revocable child profile shares through the Account boundary', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({ data: { shares: [] } }))
+      .mockResolvedValueOnce(response({ data: { share: { id: 'share-1' } } }))
+      .mockResolvedValueOnce(response({ data: { revoked: true } }))
+      .mockResolvedValueOnce(response({ data: {
+        share: { expiresAt: null },
+        profile: { nickname: 'Bo' },
+        achievements: [],
+        works: [],
+      } }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await api('/api/parent/profile-shares')
+    await api('/api/parent/profile-shares', {
+      method: 'POST',
+      body: JSON.stringify({ childId: 'child-1', expiresInDays: 30 }),
+    })
+    await api('/api/parent/profile-shares/share-1', { method: 'DELETE' })
+    await api('/api/public/profile-shares/safe-token')
+
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      'https://dev-hub.storymee.com/api/v1/account/family/profile-shares',
+      'https://dev-hub.storymee.com/api/v1/account/family/profile-shares',
+      'https://dev-hub.storymee.com/api/v1/account/family/profile-shares/share-1',
+      'https://dev-hub.storymee.com/api/v1/account/public/profile-shares/safe-token',
+    ])
   })
 
   it('normalizes generated gallery items for backpack filters and sharing', async () => {

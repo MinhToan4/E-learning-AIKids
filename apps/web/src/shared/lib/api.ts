@@ -27,6 +27,49 @@ export async function fetchRemoteBlob(url: string): Promise<Blob> {
   return response.blob()
 }
 
+/** Download an authenticated binary through the same StoryMee Hub boundary. */
+export async function downloadAuthorizedBlob(
+  path: string,
+  signal?: AbortSignal,
+): Promise<Blob> {
+  const request = {
+    path: path.replace(/\/(?=\?|$)/, ''),
+    options: {
+      headers: { Accept: 'application/octet-stream' },
+      signal,
+    } satisfies RequestInit,
+  }
+  const headers = new Headers(request.options.headers)
+  const token = getAccessToken()
+  if (token) headers.set('Authorization', `Bearer ${token}`)
+
+  let response: Response
+  try {
+    response = await fetch(`${API_BASE}${request.path}`, {
+      ...request.options,
+      headers,
+      credentials: 'omit',
+    })
+  } catch (cause) {
+    if (signal?.aborted) throw cause
+    throw new ApiError(0, 'Không tải được tệp. Vui lòng kiểm tra kết nối mạng.')
+  }
+
+  if (!response.ok) {
+    if (response.status === 401 && token) {
+      clearAccessToken()
+      if (typeof window !== 'undefined') {
+        window.dispatchEvent(new Event(AUTH_UNAUTHORIZED_EVENT))
+      }
+    }
+    throw new ApiError(
+      response.status,
+      `Không tải được tệp (HTTP ${response.status}).`,
+    )
+  }
+  return response.blob()
+}
+
 /**
  * The only browser-to-storage write boundary. The upload URL must be issued by
  * StoryMee Hub and remain on the configured StoryMee storage origin. Auth
@@ -276,6 +319,13 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
   if (publicProfile) {
     return {
       path: `/api/v1/account/profiles/${encodeURIComponent(publicProfile[1])}`,
+      options,
+    }
+  }
+  const publicProfileShare = path.match(/^\/api\/public\/profile-shares\/([^/?]+)$/)
+  if (publicProfileShare) {
+    return {
+      path: `/api/v1/account/public/profile-shares/${encodeURIComponent(publicProfileShare[1])}`,
       options,
     }
   }
@@ -543,6 +593,16 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
   if (/^\/api\/parent\/approvals(?:\?.*)?$/.test(path)) {
     return {
       path: path.replace('/api/parent/approvals', '/api/v1/media/gallery/share-requests'),
+      options,
+    }
+  }
+  if (path === '/api/parent/profile-shares') {
+    return { path: '/api/v1/account/family/profile-shares', options }
+  }
+  const parentProfileShare = path.match(/^\/api\/parent\/profile-shares\/([^/?]+)$/)
+  if (parentProfileShare) {
+    return {
+      path: `/api/v1/account/family/profile-shares/${encodeURIComponent(parentProfileShare[1])}`,
       options,
     }
   }
@@ -1260,6 +1320,9 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
             ? 'in_progress'
             : 'requirements_met',
         completionPercent: progressPct,
+        questCount: Number(raw.questCount ?? mapped.questCount ?? 0),
+        completedCount: Number(raw.completedCount ?? 0),
+        totalStars: Number(raw.totalStars ?? 0),
         missingPrerequisites: [],
         coverImage: mapped.coverImage,
         // Every row has already passed the canonical enrollment filter above.

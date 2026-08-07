@@ -16,7 +16,7 @@ import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
-import { api, gatewayUrl, getAccessToken } from '@/shared/lib/api'
+import { api, downloadAuthorizedBlob } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import type { AgeExperiencePolicy } from '@/shared/age-experience/AgeExperienceProvider'
 
@@ -270,15 +270,8 @@ export function ParentLearningPage() {
   async function downloadReport(report: Report) {
     setBusy(true)
     try {
-      const headers = new Headers()
-      const token = getAccessToken()
-      if (token) headers.set('Authorization', `Bearer ${token}`)
-      const response = await fetch(gatewayUrl(`/api/reports/${report.id}/pdf`), {
-        headers,
-        credentials: 'include',
-      })
-      if (!response.ok) throw new Error('Không tải được PDF báo cáo.')
-      const blobUrl = URL.createObjectURL(await response.blob())
+      const blob = await downloadAuthorizedBlob(`/api/reports/${report.id}/pdf`)
+      const blobUrl = URL.createObjectURL(blob)
       const anchor = document.createElement('a')
       anchor.href = blobUrl
       anchor.download = `bao-cao-hoc-tap-${report.id}.pdf`
@@ -294,15 +287,10 @@ export function ParentLearningPage() {
   async function downloadCredential(credential: Credential) {
     setBusy(true)
     try {
-      const headers = new Headers()
-      const token = getAccessToken()
-      if (token) headers.set('Authorization', `Bearer ${token}`)
-      const response = await fetch(
-        gatewayUrl(`/api/credentials/${credential.id}/pdf`),
-        { headers, credentials: 'include' },
+      const blob = await downloadAuthorizedBlob(
+        `/api/credentials/${credential.id}/pdf`,
       )
-      if (!response.ok) throw new Error('Không tải được PDF chứng nhận.')
-      const blobUrl = URL.createObjectURL(await response.blob())
+      const blobUrl = URL.createObjectURL(blob)
       const anchor = document.createElement('a')
       anchor.href = blobUrl
       anchor.download = `chung-nhan-${credential.id}.pdf`

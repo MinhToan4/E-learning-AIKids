@@ -30,9 +30,9 @@ const verifiedStaticRewardAssetIds = new Set([
 // a remote reward release is missing or stale. Level text lives outside artwork.
 const localLevelFrameModules = import.meta.glob<string>(
   [
-    '../../assets/rewards/frames/frame-level-*.png',
-    '!../../assets/rewards/frames/frame-level-*--preview.png',
-    '!../../assets/rewards/frames/frame-level-*--plaque.png',
+    '../../assets/rewards/frames/frame-level-*.webp',
+    '!../../assets/rewards/frames/frame-level-*--preview.webp',
+    '!../../assets/rewards/frames/frame-level-*--plaque.webp',
   ],
   { eager: true, import: 'default', query: '?url' },
 )
@@ -43,7 +43,7 @@ function localLevelFrameAssetUrl(
 ): string | undefined {
   if (!/^frame-level-(?:15|25|35|45|55|65|75|85|95)$/.test(assetId)) return undefined
   if (variant !== 'primary') return undefined
-  return localLevelFrameModules[`../../assets/rewards/frames/${assetId}.png`]
+  return localLevelFrameModules[`../../assets/rewards/frames/${assetId}.webp`]
 }
 
 const localTransparentCompanionAssets: Record<string, string> = {

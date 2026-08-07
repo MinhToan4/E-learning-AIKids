@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
+import type { CSSProperties } from 'react'
 import { Link } from 'react-router'
-import { Play, Star, Zap, Trophy } from 'lucide-react'
+import { Play, Zap } from 'lucide-react'
 import { api, type AchievementRow, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { courseCoverHint, designerAssets } from '@/shared/config/assets'
@@ -10,11 +11,13 @@ import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { CourseBookIcon, NavLeaderboardIcon } from '@/shared/components/icons/KidNavIcons'
+import { KidProfileStreakImageIcon } from '@/shared/components/icons/KidImageIcons'
 import type { RewardKind } from '@/shared/lib/creation/rewards'
 import { EquippedProfile } from '@/features/rewards/EquippedProfile'
+import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
+import { CuteProgress } from '@/shared/components/ui/CuteProgress'
 import {
   profileCardBackgroundStyle,
-  profileCardBackgroundTone,
   readRewardEquipment,
   rewardEquipmentFromRows,
   syncRewardEquipment,
@@ -68,27 +71,27 @@ function localDay(value: Date): string {
 
 function streakState(current: number, lastActivityDate: string | null) {
   if (!lastActivityDate || current <= 0) {
-    return { icon: '🕯️', label: 'Chưa tạo chuỗi', hint: 'Hoàn thành 1 bài để bắt đầu', tone: 'border-slate-200 bg-slate-50' }
+    return { label: 'Chưa tạo chuỗi', hint: 'Hoàn thành 1 bài để bắt đầu' }
   }
   const today = localDay(new Date())
   const last = localDay(new Date(lastActivityDate))
   if (last === today) {
-    return { icon: '🔥', label: `${current} ngày liên tục`, hint: 'Hôm nay đã giữ chuỗi', tone: 'border-sun-200/80 bg-gradient-to-br from-sun-100/90 via-sun-50 to-coral-50/80' }
+    return { label: `${current} ngày liên tục`, hint: 'Hôm nay đã giữ chuỗi' }
   }
   const yesterdayDate = new Date()
   yesterdayDate.setDate(yesterdayDate.getDate() - 1)
   if (last === localDay(yesterdayDate)) {
-    return { icon: '⏳', label: `${current} ngày đang chờ`, hint: 'Học hôm nay để giữ chuỗi', tone: 'border-sun-300 bg-sun-50' }
+    return { label: `${current} ngày đang chờ`, hint: 'Học hôm nay để giữ chuỗi' }
   }
-  return { icon: '🌱', label: 'Chuỗi đã gián đoạn', hint: 'Hoàn thành 1 bài để bắt đầu lại', tone: 'border-slate-200 bg-slate-50' }
+  return { label: 'Chuỗi đã gián đoạn', hint: 'Hoàn thành 1 bài để bắt đầu lại' }
 }
 
 function StreakWidget({ current, longest, lastActivityDate }: { current: number; longest: number; lastActivityDate: string | null }) {
   const state = streakState(current, lastActivityDate)
   return (
-    <div className={cn('flex items-center gap-3 rounded-2xl border-2 px-4 py-2.5 shadow-soft', state.tone)}>
-      <span className="text-3xl flex-shrink-0 leading-none filter drop-shadow-sm" aria-hidden>
-        {state.icon}
+    <div className="home-streak-ticket">
+      <span className="home-streak-icon" aria-hidden="true">
+        <KidProfileStreakImageIcon size={34} />
       </span>
       <div className="flex flex-col min-w-0">
         <p className="font-display text-base text-text leading-none">{state.label}</p>
@@ -112,7 +115,7 @@ function XpWidget({
   const levelSpan = Math.max(1, xpIntoLevel + xpToNextLevel)
   const pct = Math.min(100, Math.max(0, Math.round((xpIntoLevel / levelSpan) * 100)))
   return (
-    <div className="flex flex-col gap-1 rounded-2xl border border-white/70 bg-white/90 p-3 shadow-soft backdrop-blur-sm">
+    <div className="home-xp-ticket">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <Zap size={14} className="text-brand-500" aria-hidden />
@@ -124,31 +127,12 @@ function XpWidget({
           {xp.toLocaleString('vi-VN')} XP
         </span>
       </div>
-      <div className="xp-bar-track">
-        <div
-          className="xp-bar-fill"
-          style={{ width: `${pct}%` }}
-          role="progressbar"
-          aria-valuenow={pct}
-          aria-valuemin={0}
-          aria-valuemax={100}
-          aria-label={`${pct}% tiến trình lên cấp ${level + 1}`}
-        />
-      </div>
-        <p className="mt-0.5 text-[10px] font-bold text-muted">
-          Tiến độ đến Cấp {level + 1}
-        </p>
+      <CuteProgress value={pct} label={`Tiến độ đến Cấp ${level + 1}`} tone="violet" compact />
     </div>
   )
 }
 
-function CourseCard({ course }: { course: CourseSummary }) {
-  const cover = courseCoverHint({
-    courseKey: course.courseKey,
-    ageTrack: course.ageTrack,
-    coverImage: course.coverImage,
-  })
-
+function CourseCard({ course, index }: { course: CourseSummary; index: number }) {
   // Use the server-side progress data (from the enhanced /api/courses endpoint)
   const questCount = course.questCount ?? 0
   const completedCount = course.completedCount ?? 0
@@ -157,22 +141,35 @@ function CourseCard({ course }: { course: CourseSummary }) {
       ? Math.round((completedCount / questCount) * 100)
       : 0
   )
+  const courseTones = ['var(--color-mint-600)', 'var(--color-sun-600)', 'var(--color-sky-600)']
+  const courseScenes = [
+    designerAssets.worldScenes.aiValley,
+    designerAssets.worldScenes.storyIsland,
+    designerAssets.worldScenes.creativeMountain,
+  ]
+  const coursePoses = ['guide', 'thinking', 'celebrate'] as const
+  const courseStyle = { '--home-course-accent': courseTones[index % courseTones.length] } as CSSProperties
 
   return (
-    <Link to={course.enrolled ? `/world/${course.id}` : `/course/${course.id}`} className="course-card group">
+    <Link
+      to={course.enrolled ? `/world/${course.id}` : `/course/${course.id}`}
+      className="home-course-card group transition-transform hover:-translate-y-1 active:translate-y-1 active:shadow-none"
+      style={courseStyle}
+    >
       {/* Cover image */}
-      <div className="course-card-cover overflow-hidden bg-brand-50">
+      <div className="home-course-card-scene" aria-label={`Đảo hành trình ${course.shortTitle}`}>
         <img
-          src={cover}
+          src={courseScenes[index % courseScenes.length]}
           alt=""
-          onError={(e) => {
-            e.currentTarget.style.display = 'none'
-          }}
-          className="h-full w-full object-cover group-hover:scale-105 transition-transform duration-300"
+          className="home-course-island-art"
           aria-hidden
         />
+        <AikidCatCharacter
+          pose={coursePoses[index % coursePoses.length]}
+          className="home-course-island-cat"
+        />
         {/* Tags */}
-        <div className="absolute top-2 left-2 flex flex-wrap gap-1">
+        <div className="home-course-island-tags">
           <span className="rounded-full bg-white/95 backdrop-blur-sm px-2 py-0.5 text-[10px] font-extrabold text-brand-600 shadow-sm">
             {courseBadge(course)}
           </span>
@@ -187,31 +184,87 @@ function CourseCard({ course }: { course: CourseSummary }) {
         </div>
       </div>
 
-      {/* Progress bar (only if enrolled) */}
-      {course.enrolled && questCount > 0 && (
-        <div className="course-card-progress-bar">
-          <div className="course-card-progress-fill" style={{ width: `${progressPct}%` }} />
+      <div className="home-course-card-ribbon">
+        <div className="home-course-card-copy">
+          <p className="text-xs font-extrabold uppercase tracking-wider text-white/75">Hành trình của con</p>
+          <h3 className="font-display text-2xl font-bold leading-snug text-white sm:text-3xl">
+            {course.shortTitle}
+          </h3>
+          <p className="mt-0.5 line-clamp-2 text-sm font-semibold text-white/85 sm:text-base">{course.tagline}</p>
         </div>
-      )}
-
-      {/* Content */}
-      <div className="p-3">
-        <h3 className="font-display text-lg font-bold leading-snug group-hover:text-brand-600 transition-colors">
-          {course.shortTitle}
-        </h3>
-        <p className="mt-0.5 text-xs text-muted line-clamp-2">{course.tagline}</p>
         {course.enrolled && (
-          <div className="mt-2 flex items-center justify-between">
-            <span className="text-[10px] font-bold text-muted">
-              {completedCount}/{questCount} trạm
-            </span>
-            <span className="text-[10px] font-extrabold text-brand-500">
-              {progressPct}%
-            </span>
+          <div className="home-course-card-progress">
+            <CuteProgress value={progressPct} label={`${completedCount}/${questCount} trạm`} tone="violet" compact />
+            <div className="home-course-stations" aria-hidden="true">
+              {Array.from({ length: questCount }, (_, stationIndex) => (
+                <span
+                  key={stationIndex}
+                  className={cn(
+                    'home-course-station-dot',
+                    stationIndex < completedCount && 'home-course-station-dot-done',
+                    stationIndex === completedCount && 'home-course-station-dot-current',
+                  )}
+                />
+              ))}
+            </div>
           </div>
         )}
       </div>
     </Link>
+  )
+}
+
+function ContinueLearningCard({ course }: { course: CourseSummary }) {
+  const cover = courseCoverHint({
+    courseKey: course.courseKey,
+    ageTrack: course.ageTrack,
+    coverImage: course.coverImage,
+  })
+  const questCount = course.questCount ?? 0
+  const completedCount = course.completedCount ?? 0
+  const progressPct = course.progressPct ?? 0
+
+  return (
+    <article className="home-next-course group transition-transform hover:-translate-y-1 active:translate-y-1 active:shadow-none">
+      <img
+        src={cover}
+        alt=""
+        aria-hidden="true"
+        onError={(event) => {
+          event.currentTarget.onerror = null
+          event.currentTarget.src = designerAssets.lobby.bgHome
+        }}
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-300 group-hover:scale-[1.025]"
+      />
+      <div className="home-next-course-wash" />
+      <AikidCatCharacter pose="welcome" className="home-next-course-cat" />
+      <div className="home-next-course-copy">
+        <div>
+          <p className="text-sm font-extrabold text-brand-700">BÀI HỌC TIẾP THEO</p>
+          <h2 className="mt-1 font-display text-3xl leading-tight text-text sm:text-4xl">
+            {course.shortTitle}
+          </h2>
+          <p className="mt-2 line-clamp-2 max-w-md text-sm font-semibold text-muted sm:text-base">
+            {course.tagline}
+          </p>
+        </div>
+
+        <div className="mt-5 flex flex-wrap items-end gap-4">
+          <Link
+            to={course.enrolled ? `/world/${course.id}` : `/course/${course.id}`}
+             className="course-map-primary-action"
+          >
+            <Play size={18} fill="currentColor" aria-hidden="true" />
+            {course.enrolled ? 'Học tiếp' : 'Xem khóa học'}
+          </Link>
+          {course.enrolled && questCount > 0 && (
+            <div className="min-w-[12rem] flex-1 pb-1">
+              <CuteProgress value={progressPct} label={`${completedCount}/${questCount} trạm`} tone="violet" compact />
+            </div>
+          )}
+        </div>
+      </div>
+    </article>
   )
 }
 
@@ -332,9 +385,6 @@ export function HomePage() {
     user?.role === 'student' ? open.filter((c) => c.enrolled) : open
   const enrolled = accessibleCourses.filter((c) => c.enrolled)
   const explore = accessibleCourses.filter((c) => !c.enrolled)
-  const profileCardTone = profileCardBackgroundTone(profileEquipment.background)
-
-
   const goalToKey: Record<string, string> = {
     world: 'K1',
     character: 'K2',
@@ -366,33 +416,31 @@ export function HomePage() {
     <PageMotion className="flex flex-col gap-6">
       {/* ── Hero banner ─────────────────────────────────────────── */}
       <header
-        className="ui-card relative overflow-hidden p-0"
+        className="home-profile-banner"
         style={{
           ...profileCardBackgroundStyle(profileEquipment.background),
-          backgroundPosition: 'center top',
+          backgroundPosition: 'center',
         }}
-        data-profile-tone={profileCardTone}
-        data-profile-composition="v1"
       >
-        <div className="pointer-events-none absolute inset-0 bg-gradient-to-r from-black/10 via-transparent to-white/10" />
-        <div className="relative grid gap-4 p-4 sm:p-5 md:grid-cols-[minmax(0,1fr)_auto] md:items-center">
+        <div className="home-profile-banner-wash" />
+        <div className="home-profile-banner-grid">
           {user && (
             <EquippedProfile
               user={user}
               xp={explorerXp}
               level={explorerLevel}
               compact
-              tone={profileCardTone}
+              simple
             />
           )}
 
-          <div className="min-w-0 md:w-[19rem]">
+          <div className="min-w-0 md:w-[20rem]">
             <StreakWidget current={streak.current} longest={streak.longest} lastActivityDate={streak.lastActivityDate} />
           </div>
         </div>
 
         {explorerLevel < 100 && (
-          <div className="relative px-4 pb-4 sm:px-5 sm:pb-5">
+          <div className="home-profile-progress">
             <XpWidget
               xp={explorerXp}
               level={explorerLevel}
@@ -407,42 +455,41 @@ export function HomePage() {
         <ErrorState message={error} onRetry={() => void load()} inline />
       )}
 
-      {/* ── Daily Mission & Achievements Side-by-Side Row ────────── */}
-      {(dailyMission || badges.length > 0) && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 items-stretch">
-          {/* Daily Mission Widget (4/12 width = 1 part) */}
+      {/* The primary learning action comes before secondary rewards. */}
+      {(continueCourse || dailyMission) && (
+        <section className="grid items-stretch gap-4 lg:grid-cols-12" aria-label="Tiếp tục hành trình học">
+          {continueCourse && (
+            <div className={dailyMission ? 'lg:col-span-8' : 'lg:col-span-12'}>
+              <ContinueLearningCard course={continueCourse} />
+            </div>
+          )}
+
           {dailyMission && (
-            <div
-              className={cn(
-                'ui-card p-4 flex flex-col justify-between relative overflow-hidden bg-gradient-to-br from-sun-50/80 via-white to-sun-100/40 border-2 border-sun-200/80',
-                badges.length > 0 ? 'lg:col-span-4' : 'lg:col-span-12',
-              )}
-            >
+            <article className={cn(
+              'relative flex flex-col justify-between overflow-hidden border-4 border-white bg-sun-50 p-6 rounded-[2rem] shadow-[0_8px_0_rgba(255,201,74,0.35)] transition-transform hover:-translate-y-1 active:translate-y-1 active:shadow-[0_0px_0_rgba(255,201,74,0.35)]',
+              continueCourse ? 'lg:col-span-4' : 'lg:col-span-12',
+            )}>
               <div className="flex items-center justify-between gap-2">
-                <h2 className="font-display text-lg flex items-center gap-2">
-                  <span className="text-xl" aria-hidden>
-                    🎯
-                  </span>
-                  Nhiệm vụ hôm nay
-                </h2>
+                <h2 className="font-display text-xl">Nhiệm vụ hôm nay</h2>
                 <span className="flex items-center gap-1 text-xs font-extrabold text-sun-700 bg-sun-100/90 rounded-full px-2.5 py-1 border border-sun-200/60">
                   <Zap size={12} className="text-sun-600" aria-hidden />
                   +{dailyMission.xpReward} XP
                 </span>
               </div>
 
-              <div className="my-2">
-                <p className="text-xs font-semibold text-text/90 leading-relaxed line-clamp-2">
-                  <strong>{dailyMission.title}</strong> · {dailyMission.description}
+              <div className="my-4">
+                <p className="font-bold text-text">{dailyMission.title}</p>
+                <p className="mt-1 text-sm font-semibold leading-relaxed text-muted">
+                  {dailyMission.description}
                 </p>
-                <div className="mt-2">
-                  <div className="flex items-center justify-between text-[11px] font-bold">
+                <div className="mt-4">
+                  <div className="flex items-center justify-between text-xs font-bold">
                     <span>{dailyMission.completedAt ? 'Đã hoàn thành' : `${Math.min(dailyMission.progress, dailyMission.target)}/${dailyMission.target} bài`}</span>
                     <span>{Math.round(Math.min(1, dailyMission.progress / dailyMission.target) * 100)}%</span>
                   </div>
-                  <div className="mt-1 h-2 overflow-hidden rounded-full bg-sun-100">
+                  <div className="mt-2 h-3 overflow-hidden rounded-full bg-sun-100">
                     <div
-                      className="h-full rounded-full bg-gradient-to-r from-sun-400 to-coral-400 transition-all"
+                      className="h-full rounded-full bg-sun-400 transition-all"
                       style={{ width: `${Math.min(100, (dailyMission.progress / dailyMission.target) * 100)}%` }}
                     />
                   </div>
@@ -452,28 +499,22 @@ export function HomePage() {
                 </div>
               </div>
 
-              <div className="pt-1">
-                <Link
-                  to={dailyMission.action.route}
-                  className="ui-btn ui-btn-primary inline-flex items-center gap-1.5 text-xs font-extrabold !py-2 !px-4 !min-h-9"
-                >
+              <Link
+                to={dailyMission.action.route}
+                className="ui-btn ui-btn-primary inline-flex min-h-11 w-full items-center justify-center gap-2 font-extrabold"
+              >
                   <Play size={14} aria-hidden="true" />
                   {dailyMission.action.label}
-                </Link>
-              </div>
-            </div>
+              </Link>
+            </article>
           )}
+        </section>
+      )}
 
-          {/* Achievements / Badges Widget (8/12 width = 2 parts = TWICE AS WIDE) */}
-          {badges.length > 0 && (
-            <div
-              className={cn(
-                'ui-card p-4 flex flex-col justify-between',
-                dailyMission ? 'lg:col-span-8' : 'lg:col-span-12',
-              )}
-            >
-              <div className="flex items-center justify-between gap-2 mb-2">
-                <h2 className="font-display text-lg flex items-center gap-2">
+      {badges.length > 0 && (
+        <section className="p-5 sm:p-6 rounded-[2rem] border-4 border-white bg-brand-50/50 shadow-[0_8px_0_rgba(109,94,252,0.15)] transition-transform hover:-translate-y-1 active:translate-y-1 active:shadow-[0_0px_0_rgba(109,94,252,0.15)]" aria-labelledby="recent-achievements-title">
+              <div className="flex items-center justify-between gap-2 mb-4">
+                <h2 id="recent-achievements-title" className="font-display text-xl flex items-center gap-2">
                   <NavLeaderboardIcon size={24} aria-hidden />
                   Huy hiệu mới nhất
                 </h2>
@@ -489,7 +530,7 @@ export function HomePage() {
                 {badges.map((b) => (
                   <div
                     key={b.type}
-                    className="flex items-center gap-2.5 rounded-2xl bg-brand-50/80 border border-brand-100/90 p-2.5 min-w-0 transition-colors hover:bg-brand-50 hover:border-brand-200 shadow-sm"
+                    className="flex items-center gap-3 rounded-[1.5rem] bg-white border-2 border-brand-100 p-3 min-w-0 transition-transform hover:-translate-y-0.5 active:translate-y-0.5 shadow-[0_4px_0_rgba(109,94,252,0.1)] active:shadow-none"
                   >
                     <span
                       className="ui-badge-clay !h-10 !w-10 !text-xl flex-shrink-0"
@@ -508,9 +549,7 @@ export function HomePage() {
                   </div>
                 ))}
               </div>
-            </div>
-          )}
-        </div>
+        </section>
       )}
 
       {/* ── Course catalog ──────────────────────────────────────── */}
@@ -527,19 +566,19 @@ export function HomePage() {
         {/* Only real enrollments belong to the child's learning list. */}
         {enrolled.length > 0 && (
           <div className="mb-4">
-            <p className="mb-2 text-xs font-extrabold uppercase tracking-wider text-brand-500">
-              ⭐ Enrollment đang hoạt động
+            <p className="mb-2 text-sm font-extrabold text-brand-600">
+              Các hành trình của con
             </p>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {enrolled.map((c) => (
-                <CourseCard key={c.id} course={c} />
+            <div className="home-course-island-grid">
+              {enrolled.map((c, index) => (
+                <CourseCard key={c.id} course={c} index={index} />
               ))}
             </div>
           </div>
         )}
 
         {enrolled.length === 0 && (
-          <div className="mb-5 rounded-3xl border-2 border-dashed border-brand-200 bg-brand-50/60 p-5 text-center">
+          <div className="mb-5 rounded-3xl border-4 border-dashed border-brand-200 bg-brand-50/60 p-5 text-center shadow-sm">
             <p className="font-display text-lg">Con chưa đăng ký khóa học nào</p>
             <p className="mt-1 text-sm text-muted">Chọn một khóa bên dưới để xem nội dung và đăng ký. Các khóa đã đăng ký mới xuất hiện trong phần Học.</p>
           </div>
@@ -549,12 +588,12 @@ export function HomePage() {
             treating access to a public course description as an enrollment. */}
         {explore.length > 0 && (
           <div>
-            <p className="mb-2 text-xs font-extrabold uppercase tracking-wider text-muted">
-              🔍 Khám phá & đăng ký khóa mới
+            <p className="mb-2 text-sm font-extrabold text-muted">
+              Khám phá & đăng ký khóa mới
             </p>
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              {explore.map((c) => (
-                <CourseCard key={c.id} course={c} />
+            <div className="home-course-island-grid">
+              {explore.map((c, index) => (
+                <CourseCard key={c.id} course={c} index={index} />
               ))}
             </div>
           </div>

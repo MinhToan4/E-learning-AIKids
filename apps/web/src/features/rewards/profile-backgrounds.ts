@@ -14,6 +14,7 @@ type EdgeBackground = {
 }
 
 const edgeBackgrounds = {
+  aikid: { image: '/assets/designer/lobby/bg-home.webp', color: '#f8f4dc', tone: 'light' },
   sunrise: { image: aiGate, color: '#f7e8e5', tone: 'light' },
   forest: { image: forest, color: '#f5f3dc', tone: 'light' },
   island: { image: island, color: '#f8ddbd', tone: 'light' },
@@ -25,6 +26,8 @@ const edgeBackgrounds = {
 function edgeBackgroundFor(rewardId?: string): EdgeBackground {
   const sharedAsset = getSharedLevelRewardAssetId(rewardId)
   const logicalId = sharedAsset ?? rewardId ?? ''
+
+  if (!logicalId) return edgeBackgrounds.aikid
 
   if (logicalId === 'background-ai-gate') return edgeBackgrounds.sunrise
   if (logicalId === 'background-ocean-artist' || logicalId === 'background-ocean-ideas') {
@@ -40,7 +43,8 @@ function edgeBackgroundFor(rewardId?: string): EdgeBackground {
     return edgeBackgrounds.island
   }
   if (logicalId === 'background-cloud-garden') return edgeBackgrounds.sunrise
-  return edgeBackgrounds.playground
+  if (logicalId.includes('workshop')) return edgeBackgrounds.playground
+  return edgeBackgrounds.aikid
 }
 
 export function profileCardEdgeBackgroundStyle(rewardId?: string): CSSProperties {

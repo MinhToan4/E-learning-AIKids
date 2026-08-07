@@ -39,6 +39,7 @@ export function EquippedProfile({
   xp,
   level: backendLevel,
   compact = false,
+  simple = false,
   onAvatarClick,
   tone = 'light',
 }: {
@@ -46,6 +47,7 @@ export function EquippedProfile({
   xp: number
   level: number
   compact?: boolean
+  simple?: boolean
   onAvatarClick?: () => void
   tone?: 'light' | 'dark'
 }) {
@@ -124,13 +126,13 @@ export function EquippedProfile({
               : 'relative rounded-full bg-white p-2 shadow-clay'}
             style={rewardFrameStyle(frameReward)}
           >
-            {levelEffectStyle && (
+            {!simple && levelEffectStyle && (
               <span
                 className={`pointer-events-none absolute inset-[12%] z-0 rounded-full ${levelEffectStyle}`}
                 aria-hidden="true"
               />
             )}
-            {effect && (
+            {!simple && effect && (
               <span
                 className="pointer-events-none absolute -inset-[5%] z-30 flex items-center justify-center"
                 data-profile-effect={effect.id}
@@ -158,7 +160,7 @@ export function EquippedProfile({
             )}
           </div>
         </button>
-        {companion && (
+        {!simple && companion && (
           <div className={`pointer-events-none absolute z-30 items-center justify-center ${
             compact ? '-right-2 top-1 flex h-12 w-12' : '-right-3 top-3 flex h-16 w-16'
           }`}>
@@ -196,7 +198,10 @@ export function EquippedProfile({
           </span>
         </div>
         <div className="mt-2">
-          <span className="relative inline-flex min-h-9 max-w-full items-center gap-2 overflow-hidden rounded-full border-2 border-amber-300/90 bg-gradient-to-r from-amber-50 via-yellow-100 to-orange-100 px-3.5 py-1.5 text-sm font-black text-amber-900 shadow-[0_5px_14px_rgba(245,158,11,.28)] sm:px-4">
+          <span className={simple
+            ? 'inline-flex min-h-9 max-w-full items-center gap-2 rounded-xl bg-sun-50 px-3 py-1.5 text-sm font-extrabold text-sun-700'
+            : 'relative inline-flex min-h-9 max-w-full items-center gap-2 overflow-hidden rounded-full border-2 border-amber-300/90 bg-gradient-to-r from-amber-50 via-yellow-100 to-orange-100 px-3.5 py-1.5 text-sm font-black text-amber-900 shadow-[0_5px_14px_rgba(245,158,11,.28)] sm:px-4'}>
+            {!simple && (
             <span
               className="absolute inset-0 opacity-60"
               aria-hidden="true"
@@ -204,6 +209,7 @@ export function EquippedProfile({
                 backgroundImage: 'linear-gradient(110deg, transparent 20%, rgba(255,255,255,.85) 42%, transparent 62%)',
               }}
             />
+            )}
             <span className="relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/80 bg-gradient-to-br from-yellow-300 to-amber-500 text-sm shadow-inner" aria-hidden="true">
               {titleCrestAsset
                 ? <img
@@ -215,7 +221,7 @@ export function EquippedProfile({
                 : titleReward?.icon ?? '✦'}
             </span>
             <span className="relative truncate">{title ?? level.title}</span>
-            <span className="relative text-amber-500" aria-hidden="true">✦</span>
+            {!simple && <span className="relative text-amber-500" aria-hidden="true">✦</span>}
           </span>
         </div>
       </div>
