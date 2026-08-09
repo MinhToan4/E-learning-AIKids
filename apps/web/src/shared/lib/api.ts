@@ -415,6 +415,13 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       options,
     }
   }
+  // Admin Billing / Subscription Management (manual grant -- pre-PSP)
+  if (/^\/api\/admin\/billing(?:\/.*)?$/.test(path)) {
+    return {
+      path: path.replace('/api/admin/billing', '/api/v1/billing/admin'),
+      options,
+    }
+  }
   if (path === '/api/admin/settings/vidtory') {
     const method = (options.method ?? 'GET').toUpperCase()
     if (method === 'GET') {
@@ -1171,6 +1178,22 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       imagePercents: imageModels,
       videoPercents: videoModels,
     }
+  }
+  // ── Admin Billing response normalization ────────────────────────────────
+  // WHY: BE trả { status, data: {...} } — normalizeGatewayResponse đã unwrap "data"
+  // thành payload. Các handler dưới đây chuẩn hóa từng endpoint để FE nhận
+  // đúng shape, không cần type-cast thừa.
+  if (path === '/api/v1/billing/admin/subscriptions/stats') {
+    return {
+      stats: recordValue(payload.stats),
+      plans: Array.isArray(payload.plans) ? payload.plans : [],
+    }
+  }
+  if (/^\/api\/v1\/billing\/admin\/subscriptions(?:\?.*)?$/.test(path)) {
+    return Array.isArray(body.data) ? body.data : (Array.isArray(payload) ? payload : [])
+  }
+  if (path === '/api/v1/billing/admin/subscriptions/pending-intents') {
+    return Array.isArray(body.data) ? body.data : (Array.isArray(payload) ? payload : [])
   }
   if (path === '/api/parent/plans') {
     const rows = Array.isArray(body.data) ? body.data as Array<Record<string, unknown>> : []
@@ -2021,6 +2044,11 @@ export type QuestDetail = {
   accent: string
   practiceKind: string
   stage?: string
+  /** Cover image for the learn phase hero banner */
+  coverImage?: string | null
+  coverImageAlt?: string | null
+  /** Rich media attachments on the quest */
+  media?: Array<{ id?: string; type: string; url: string; alt?: string; caption?: string }> | null
   /** Lecture video URL from API/SQL — not hardcoded in FE */
   videoUrl?: string | null
   goals: string[]
@@ -2030,6 +2058,9 @@ export type QuestDetail = {
     body: string
     tip: string
     kind: string
+    /** Optional card illustration */
+    imageUrl?: string | null
+    imageAlt?: string | null
   }>
   check: Array<{ id: string; question: string; options: string[] }>
   chips: Record<

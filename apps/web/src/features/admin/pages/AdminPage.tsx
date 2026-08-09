@@ -67,6 +67,11 @@ type CourseOverview = {
   courseKey?: string
   enrollmentCount?: number
   questCount: number
+  accessPolicy?: string
+  priceAmountMinor?: string
+  priceCurrency?: string
+  teacherGrantPolicy?: string
+  visibility?: string
   quests: Array<{ id: string; order: number; title: string; videoUrl: string | null; archived?: boolean }>
 }
 
@@ -91,6 +96,26 @@ type RoutingState = {
   video: { aspectRatio: string; duration: number; mode?: string; models: ModelRow[] }
 }
 
+// ── Billing types ─────────────────────────────────────────────
+type PlanDef = {
+  id: string; name: string; amountMinor: number; currency: string;
+  monthlyCreateCredits: number; maxChildren: number; maxOpenCoursesPerChild?: number;
+  features: string[]; requiresPayment: boolean;
+}
+type BillingStats = { totalPaid: number; totalFree: number; totalPending: number; totalExpired: number }
+type SubscriptionRow = {
+  userId: string; email: string | null; name: string | null;
+  role: string; active: boolean; plan: string; status: string;
+  expiresAt: string | null; monthlyCreateCredits: number;
+  remainingCreateCredits: number; createdAt: string;
+}
+type PendingIntent = {
+  id: string; publicId: string; provider: string; purpose: string;
+  amountMinor: string; currency: string; status: string;
+  userId: string | null; userEmail: string | null; userName: string | null;
+  paymentCode: string | null; courseTitle: string | null; createdAt: string;
+}
+
 type LoginLogItem = {
   id: string
   userId: string | null
@@ -108,7 +133,7 @@ type LoginLogSummary = {
   purgedAt: string
 }
 
-export type AdminTab = 'system' | 'analytics' | 'logs' | 'ai' | 'users' | 'sessions' | 'courses' | 'legends'
+export type AdminTab = 'system' | 'analytics' | 'logs' | 'ai' | 'users' | 'sessions' | 'courses' | 'legends' | 'billing'
 
 const ROLE_LABELS: Record<string, string> = {
   student: 'Học sinh',
@@ -286,6 +311,29 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // Inline edit state — tracks which user row is open for editing
   const [editTarget, setEditTarget] = useState<AdminUser | null>(null)
   const [editForm, setEditForm] = useState({ nickname: '', role: 'student' as AdminUser['role'], email: '', newPassword: '' })
+  const [offerTarget, setOfferTarget] = useState<string | null>(null)
+  const [offerForm, setOfferForm] = useState({
+    accessPolicy: 'free',
+    priceAmountMinor: '0',
+    priceCurrency: 'vnd',
+    visibility: 'public',
+    teacherGrantPolicy: 'allowed',
+  })
+
+  // ── Billing state ─────────────────────────────────────────────
+  const [billingStats, setBillingStats] = useState<BillingStats | null>(null)
+  const [billingPlans, setBillingPlans] = useState<PlanDef[]>([])
+  const [billingSubSearch, setBillingSubSearch] = useState('')
+  const [billingSubs, setBillingSubs] = useState<SubscriptionRow[]>([])
+  const [pendingIntents, setPendingIntents] = useState<PendingIntent[]>([])
+  // Grant form — targetUser tìm bằng email, không phải UUID thủ công
+  const [grantForm, setGrantForm] = useState({ userEmail: '', planId: 'starter', durationMonths: 1, reason: '' })
+  const [grantLoading, setGrantLoading] = useState(false)
+  const [grantUserResults, setGrantUserResults] = useState<AdminUser[]>([])
+  const [grantUserSearching, setGrantUserSearching] = useState(false)
+  const [grantSelectedUser, setGrantSelectedUser] = useState<AdminUser | null>(null)
+  const [billingConfirmIntent, setBillingConfirmIntent] = useState<PendingIntent | null>(null)
+  const [billingPlanView, setBillingPlanView] = useState<'subscribers' | 'plans'>('subscribers')
 
   // ── Search / filter state ──────────────────────────────
   const [userSearch, setUserSearch] = useState('')
@@ -374,6 +422,22 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       } else if (tab === 'courses') {
         const data = await api<{ courses: CourseOverview[] }>('/api/admin/courses')
         setCourses(data.courses)
+      } else if (tab === 'billing') {
+        // WHY: normalizeGatewayResponse đã unwrap body.data → FE nhận trực tiếp payload
+        // /api/admin/billing/* → /api/v1/billing/admin/* (xem normalizeGatewayRequest)
+        // Responses:
+        //   stats endpoint → { stats: {...}, plans: [...] }
+        //   subscriptions  → SubscriptionRow[]
+        //   pending-intents → PendingIntent[]
+        const [statsData, subsData, intentsData] = await Promise.all([
+          api<{ stats: BillingStats; plans: PlanDef[] }>('/api/admin/billing/subscriptions/stats'),
+          api<SubscriptionRow[]>('/api/admin/billing/subscriptions'),
+          api<PendingIntent[]>('/api/admin/billing/subscriptions/pending-intents'),
+        ])
+        setBillingStats(statsData.stats)
+        setBillingPlans(statsData.plans ?? [])
+        setBillingSubs(Array.isArray(subsData) ? subsData : [])
+        setPendingIntents(Array.isArray(intentsData) ? intentsData : [])
       }
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Không tải được dữ liệu', 'error')
@@ -472,6 +536,32 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi cập nhật khóa', 'error') }
   }
 
+  function openCourseOffer(course: CourseOverview) {
+    setOfferTarget(course.id)
+    setOfferForm({
+      accessPolicy: course.accessPolicy ?? 'free',
+      priceAmountMinor: course.priceAmountMinor ?? '0',
+      priceCurrency: course.priceCurrency ?? 'vnd',
+      visibility: course.visibility ?? 'public',
+      teacherGrantPolicy: course.teacherGrantPolicy ?? 'allowed',
+    })
+  }
+
+  async function saveCourseOffer() {
+    if (!offerTarget) return
+    try {
+      await api(`/api/admin/courses/${offerTarget}`, {
+        method: 'PATCH',
+        body: JSON.stringify(offerForm),
+      })
+      showToast('Đã cập nhật giá, hiển thị và quyền cấp khóa học', 'success')
+      setOfferTarget(null)
+      await load()
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Không cập nhật được cấu hình khóa học', 'error')
+    }
+  }
+
   async function patchUser(e: React.FormEvent) {
     e.preventDefault()
     if (!editTarget) return
@@ -501,6 +591,69 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       showToast(data.message, 'success')
       await load()
     } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi purge', 'error') }
+  }
+
+  // ── Billing handlers ────────────────────────────────────────
+
+  /** Tìm user theo email để admin chọn khi grant gói thủ công */
+  async function searchGrantUser(email: string) {
+    const q = email.trim()
+    if (q.length < 3) { setGrantUserResults([]); return }
+    setGrantUserSearching(true)
+    try {
+      const data = await api<{ users: AdminUser[] }>(`/api/admin/users?email=${encodeURIComponent(q)}`)
+      // Lọc chỉ hiện parent/teacher — không grant cho student/child
+      setGrantUserResults((data.users ?? []).filter((u) => u.role === 'parent' || u.role === 'teacher'))
+    } catch { setGrantUserResults([]) }
+    finally { setGrantUserSearching(false) }
+  }
+
+  async function grantPlan(e: React.FormEvent) {
+    e.preventDefault()
+    if (!grantSelectedUser || !grantForm.planId) return
+    setGrantLoading(true)
+    try {
+      const payload = {
+        targetUserId: grantSelectedUser.id,
+        planId: grantForm.planId,
+        durationMonths: Number(grantForm.durationMonths) || 1,
+        reason: grantForm.reason.trim() || `Admin cấp thủ công cho ${grantSelectedUser.email}`,
+      }
+      const res = await api<{ message: string }>(
+        '/api/admin/billing/subscriptions/grant',
+        { method: 'POST', body: JSON.stringify(payload) },
+      )
+      showToast(res.message ?? `Đã cấp gói ${grantForm.planId} cho ${grantSelectedUser.email}`, 'success')
+      // Reset form
+      setGrantForm({ userEmail: '', planId: 'starter', durationMonths: 1, reason: '' })
+      setGrantSelectedUser(null)
+      setGrantUserResults([])
+      await load()
+    } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi cấp gói', 'error') }
+    finally { setGrantLoading(false) }
+  }
+
+  /** Quick-grant từ subscriber row — prefill user vào form */
+  function quickGrant(sub: SubscriptionRow) {
+    setGrantSelectedUser({
+      id: sub.userId, email: sub.email, nickname: sub.name,
+      role: sub.role, active: sub.active, level: 1, xp: 0, createdAt: sub.createdAt,
+    })
+    setGrantForm((f) => ({ ...f, userEmail: sub.email ?? '' }))
+    // Scroll to grant form
+    document.getElementById('billing-grant-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  }
+
+  async function confirmIntent(intent: PendingIntent) {
+    setBillingConfirmIntent(null)
+    try {
+      const res = await api<{ message: string }>(
+        `/api/admin/billing/subscriptions/intents/${encodeURIComponent(intent.publicId)}/complete`,
+        { method: 'POST' },
+      )
+      showToast(res.message ?? 'Thanh toán đã được xác nhận', 'success')
+      await load()
+    } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi xác nhận', 'error') }
   }
 
   // ── Tab content renderers ────────────────────────────────
@@ -872,7 +1025,19 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                 <Button variant="secondary" onClick={() => void setCourseStatus(c.id, c.status === 'open' ? 'soon' : 'open')}>
                   {c.status === 'open' ? 'Ẩn khỏi học sinh' : 'Mở cho học sinh'}
                 </Button>
+                <Button variant="secondary" onClick={() => openCourseOffer(c)}>
+                  Cấu hình bán
+                </Button>
               </div>
+            </div>
+            <div className="mb-3 flex flex-wrap gap-2 text-xs font-bold text-muted">
+              <span className="rounded-full bg-brand-50 px-2 py-1">
+                {c.accessPolicy === 'paid'
+                  ? `${Number(c.priceAmountMinor ?? 0).toLocaleString('vi-VN')} ${(c.priceCurrency ?? 'vnd').toUpperCase()}`
+                  : 'Miễn phí'}
+              </span>
+              <span className="rounded-full bg-sky-50 px-2 py-1">Hiển thị: {c.visibility ?? 'public'}</span>
+              <span className="rounded-full bg-mint-50 px-2 py-1">Giáo viên: {c.teacherGrantPolicy ?? 'allowed'}</span>
             </div>
             <ul className="space-y-1 text-sm">
               {c.quests.map((q) => (
@@ -891,6 +1056,45 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           className="rounded-2xl border border-border bg-white"
         />
       </div>
+      {offerTarget && (
+        <div className="ui-card h-fit p-5 xl:sticky xl:top-5">
+          <h2 className="font-display text-xl">Cấu hình bán và cấp quyền</h2>
+          <p className="mt-2 text-sm text-muted">Giá tính theo đơn vị nhỏ nhất của tiền tệ. Với VND, nhập số nguyên đồng.</p>
+          <div className="mt-4 space-y-3">
+            <label className="block text-sm font-bold">Mô hình truy cập
+              <select className="mt-1 min-h-11 w-full rounded-xl border-2 border-border px-3" value={offerForm.accessPolicy} onChange={(e) => setOfferForm((v) => ({ ...v, accessPolicy: e.target.value, priceAmountMinor: e.target.value === 'free' ? '0' : v.priceAmountMinor }))}>
+                <option value="free">Miễn phí</option>
+                <option value="paid">Trả phí</option>
+                <option value="invite_only">Chỉ được mời</option>
+                <option value="organization_only">Theo trường/lớp</option>
+              </select>
+            </label>
+            <label className="block text-sm font-bold">Giá (minor unit)
+              <input className="mt-1 min-h-11 w-full rounded-xl border-2 border-border px-3" inputMode="numeric" value={offerForm.priceAmountMinor} onChange={(e) => setOfferForm((v) => ({ ...v, priceAmountMinor: e.target.value.replace(/\D/g, '') }))} disabled={offerForm.accessPolicy !== 'paid'} />
+            </label>
+            <label className="block text-sm font-bold">Hiển thị
+              <select className="mt-1 min-h-11 w-full rounded-xl border-2 border-border px-3" value={offerForm.visibility} onChange={(e) => setOfferForm((v) => ({ ...v, visibility: e.target.value }))}>
+                <option value="public">Công khai</option>
+                <option value="unlisted">Có liên kết</option>
+                <option value="invite_only">Chỉ lời mời</option>
+                <option value="private">Riêng tư</option>
+                <option value="organization">Theo tổ chức</option>
+              </select>
+            </label>
+            <label className="block text-sm font-bold">Quyền giáo viên cấp khóa
+              <select className="mt-1 min-h-11 w-full rounded-xl border-2 border-border px-3" value={offerForm.teacherGrantPolicy} onChange={(e) => setOfferForm((v) => ({ ...v, teacherGrantPolicy: e.target.value }))}>
+                <option value="allowed">Cho phép</option>
+                <option value="admin_only">Chỉ quản trị viên tổ chức</option>
+                <option value="disabled">Tắt</option>
+              </select>
+            </label>
+          </div>
+          <div className="mt-4 flex gap-2">
+            <Button className="flex-1" onClick={() => void saveCourseOffer()}>Lưu</Button>
+            <Button variant="secondary" onClick={() => setOfferTarget(null)}>Hủy</Button>
+          </div>
+        </div>
+      )}
       <aside className="ui-card h-fit p-5 xl:sticky xl:top-5">
         <div className="flex items-center gap-3">
           <CmsCoursesIcon size={28} />
@@ -995,6 +1199,508 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     </div>
   )
 
+  // ── Billing tab UI ──────────────────────────────────────────
+  const filteredBillingSubs = useMemo(() => {
+    if (!billingSubSearch.trim()) return billingSubs
+    const q = billingSubSearch.toLowerCase()
+    return billingSubs.filter(
+      (s) => (s.email ?? '').toLowerCase().includes(q) || (s.name ?? '').toLowerCase().includes(q),
+    )
+  }, [billingSubs, billingSubSearch])
+
+  // Plan metadata — bổ sung từ billingPlans nếu có, fallback sang labels cứng
+  const PLAN_LABELS: Record<string, string> = useMemo(() => {
+    const base: Record<string, string> = { free: 'Miễn phí', starter: 'Starter', premium_family: 'Premium Gia Đình', pro: 'Pro' }
+    billingPlans.forEach((p) => { base[p.id] = p.name })
+    return base
+  }, [billingPlans])
+
+  const PLAN_COLORS: Record<string, string> = {
+    free: 'bg-slate-100 text-slate-600',
+    starter: 'bg-sky-50 text-sky-700',
+    premium_family: 'bg-violet-50 text-violet-700',
+    pro: 'bg-amber-50 text-amber-700',
+  }
+  const PLAN_BADGE_COLORS: Record<string, string> = {
+    free: 'bg-slate-100 text-slate-600',
+    starter: 'bg-sky-100 text-sky-700',
+    premium_family: 'bg-violet-100 text-violet-700',
+    pro: 'bg-amber-100 text-amber-700',
+  }
+  const PURPOSE_LABELS: Record<string, string> = {
+    user_sub: 'Gói cá nhân', credit_pack: 'Gói lượt', course_purchase: 'Mua khóa học',
+  }
+
+  // ── Plan price display helpers ────────────────────────────────
+  function formatVnd(minor: number) {
+    return minor === 0 ? 'Miễn phí' : `${minor.toLocaleString('vi-VN')}₫/tháng`
+  }
+
+  // ── Billing tab JSX ──────────────────────────────────────────
+  const billingTab = (
+    <div className="flex flex-col gap-6">
+
+      {/* ── Header: Stat cards ─────────────────────────────── */}
+      {billingStats && (
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {[
+            { label: 'Đang trả phí', value: billingStats.totalPaid, color: 'text-success', bg: 'bg-mint-50', icon: '✓' },
+            { label: 'Gói miễn phí', value: billingStats.totalFree, color: 'text-brand-600', bg: 'bg-brand-50', icon: '○' },
+            { label: 'Chờ xác nhận', value: billingStats.totalPending, color: 'text-warning', bg: 'bg-sun-50', icon: '⏳' },
+            { label: 'Hết hạn', value: billingStats.totalExpired, color: 'text-danger', bg: 'bg-coral-50', icon: '✕' },
+          ].map((s) => (
+            <div key={s.label} className={cn('ui-card flex items-center gap-4 p-4', s.bg)}>
+              <span className={cn('flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-lg font-black', s.color)} style={{ background: 'rgba(255,255,255,0.7)' }}>{s.icon}</span>
+              <div>
+                <p className="text-xs font-extrabold uppercase tracking-wide text-muted">{s.label}</p>
+                <p className={cn('font-display text-3xl font-black', s.color)}>{s.value}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {/* ── Sub-nav: Subscribers | Plans ──────────────────── */}
+      <div className="flex gap-1 rounded-2xl bg-brand-50 p-1 w-fit">
+        {(['subscribers', 'plans'] as const).map((v) => (
+          <button
+            key={v}
+            type="button"
+            onClick={() => setBillingPlanView(v)}
+            className={cn(
+              'rounded-xl px-5 py-2 text-sm font-bold transition',
+              billingPlanView === v ? 'bg-white text-brand-700 shadow-sm' : 'text-muted hover:text-text',
+            )}
+          >
+            {v === 'subscribers' ? 'Danh sách thuê bao' : 'Catalog gói học'}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Main layout: Left content | Right grant panel ─── */}
+      <div className="grid gap-5 xl:grid-cols-[1fr_380px]">
+
+        {/* ─── LEFT ─── */}
+        <div className="flex flex-col gap-5">
+
+          {/* Pending payment intents — chỉ hiện khi có data */}
+          {billingPlanView === 'subscribers' && pendingIntents.length > 0 && (
+            <div className="ui-card overflow-hidden border-l-4 border-warning">
+              <div className="flex items-center gap-3 border-b border-border/60 bg-sun-50/60 px-4 py-3">
+                <span className="text-warning text-lg">⏳</span>
+                <div>
+                  <p className="font-display text-base font-bold text-warning">Chờ xác nhận thanh toán ({pendingIntents.length})</p>
+                  <p className="text-xs text-muted">Xem xét sau khi xác nhận đã nhận tiền chuyển khoản từ phụ huynh.</p>
+                </div>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[540px] text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-border/40 bg-page text-xs">
+                      <th className="px-4 py-2.5 font-extrabold">Phụ huynh</th>
+                      <th className="px-4 py-2.5 font-extrabold">Mục đích</th>
+                      <th className="px-4 py-2.5 font-extrabold">Số tiền</th>
+                      <th className="px-4 py-2.5 font-extrabold">Mã CK</th>
+                      <th className="px-4 py-2.5 font-extrabold">Ngày tạo</th>
+                      <th className="px-4 py-2.5" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {pendingIntents.map((pi) => (
+                      <tr key={pi.id} className="border-b border-border/20 hover:bg-sun-50/30 transition">
+                        <td className="px-4 py-3">
+                          <p className="font-bold">{pi.userName ?? '—'}</p>
+                          <p className="text-xs text-muted font-mono">{pi.userEmail ?? pi.userId?.slice(0, 12)}</p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="rounded-full bg-sky-100 px-2 py-0.5 text-xs font-bold text-sky-700">
+                            {PURPOSE_LABELS[pi.purpose] ?? pi.purpose}
+                          </span>
+                          {pi.courseTitle && <p className="text-xs text-muted mt-1">{pi.courseTitle}</p>}
+                        </td>
+                        <td className="px-4 py-3 font-mono font-bold text-warning">
+                          {Number(pi.amountMinor).toLocaleString('vi-VN')}₫
+                        </td>
+                        <td className="px-4 py-3">
+                          {pi.paymentCode
+                            ? <code className="rounded bg-sun-100 px-2 py-1 text-xs font-mono text-warning">{pi.paymentCode}</code>
+                            : <span className="text-muted">—</span>}
+                        </td>
+                        <td className="px-4 py-3 text-xs text-muted">
+                          {new Date(pi.createdAt).toLocaleString('vi-VN')}
+                        </td>
+                        <td className="px-4 py-3">
+                          <Button
+                            id={`confirm-payment-${pi.id}`}
+                            onClick={() => setBillingConfirmIntent(pi)}
+                          >
+                            Xác nhận
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ── Subscriber list ──────────────────────────── */}
+          {billingPlanView === 'subscribers' && (
+            <div className="ui-card overflow-hidden">
+              <div className="flex flex-wrap items-center gap-2 border-b border-border/60 px-4 py-3">
+                <div className="relative flex-1 min-w-[200px]">
+                  <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
+                    <Search size={16} aria-hidden="true" />
+                  </span>
+                  <input
+                    type="search"
+                    aria-label="Tìm tài khoản trong danh sách thuê bao"
+                    placeholder="Tìm tên hoặc email..."
+                    value={billingSubSearch}
+                    onChange={(e) => setBillingSubSearch(e.target.value)}
+                    className="w-full min-h-10 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
+                  />
+                </div>
+                {billingSubSearch && (
+                  <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">
+                    {filteredBillingSubs.length}/{billingSubs.length}
+                  </span>
+                )}
+                <Button variant="secondary" onClick={() => void load()}>Làm mới</Button>
+              </div>
+              <div className="overflow-x-auto">
+                <table className="w-full min-w-[600px] text-left text-sm">
+                  <thead>
+                    <tr className="border-b border-border/40 bg-brand-50/60 text-xs">
+                      <th className="px-4 py-2.5 font-extrabold">Tài khoản</th>
+                      <th className="px-4 py-2.5 font-extrabold">Vai trò</th>
+                      <th className="px-4 py-2.5 font-extrabold">Gói hiện tại</th>
+                      <th className="px-4 py-2.5 font-extrabold">Lượt AI còn</th>
+                      <th className="px-4 py-2.5 font-extrabold">Hết hạn</th>
+                      <th className="px-4 py-2.5 font-extrabold" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredBillingSubs.length === 0 ? (
+                      <tr>
+                        <td colSpan={6} className="px-4 py-12 text-center">
+                          <p className="text-muted">Chưa có dữ liệu thuê bao</p>
+                          <p className="mt-1 text-xs text-muted">Dữ liệu sẽ xuất hiện sau khi có người dùng đăng ký gói.</p>
+                        </td>
+                      </tr>
+                    ) : filteredBillingSubs.map((s) => (
+                      <tr key={s.userId} className="group border-b border-border/30 hover:bg-brand-50/30 transition">
+                        <td className="px-4 py-3">
+                          <p className="font-bold">{s.name ?? '—'}</p>
+                          <p className="text-xs text-muted font-mono">{s.email ?? s.userId.slice(0, 14)}</p>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-600">
+                            {ROLE_LABELS[s.role] ?? s.role}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={cn('rounded-full px-2.5 py-0.5 text-xs font-extrabold', PLAN_BADGE_COLORS[s.plan] ?? 'bg-brand-50 text-brand-600')}>
+                            {PLAN_LABELS[s.plan] ?? s.plan}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={cn('font-mono text-sm font-bold', s.remainingCreateCredits === 0 ? 'text-danger' : 'text-text')}>
+                            {s.remainingCreateCredits}
+                          </span>
+                          <span className="text-xs text-muted">/{s.monthlyCreateCredits}</span>
+                        </td>
+                        <td className="px-4 py-3 text-xs">
+                          {s.expiresAt ? (
+                            <span className={cn(new Date(s.expiresAt) < new Date() ? 'text-danger font-bold' : 'text-muted')}>
+                              {new Date(s.expiresAt).toLocaleDateString('vi-VN')}
+                            </span>
+                          ) : (
+                            <span className="text-success font-bold">Không hết hạn</span>
+                          )}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <Button
+                            variant="secondary"
+                            className="opacity-0 group-hover:opacity-100 transition text-xs py-1 px-3"
+                            onClick={() => quickGrant(s)}
+                          >
+                            Cấp gói mới
+                          </Button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          )}
+
+          {/* ── Plan Catalog View ─────────────────────────── */}
+          {billingPlanView === 'plans' && (
+            <div className="grid gap-4 sm:grid-cols-2">
+              {billingPlans.length === 0 ? (
+                <div className="ui-card col-span-2 py-12 text-center text-muted">Đang tải catalog gói...</div>
+              ) : billingPlans.map((plan) => {
+                const userCount = billingSubs.filter((s) => s.plan === plan.id).length
+                return (
+                  <div
+                    key={plan.id}
+                    className={cn(
+                      'ui-card flex flex-col gap-3 p-5 transition hover:shadow-md',
+                      plan.id !== 'free' ? 'border-2' : 'border border-dashed border-border',
+                    )}
+                  >
+                    <div className="flex items-start justify-between gap-3">
+                      <div>
+                        <span className={cn('inline-block rounded-full px-2.5 py-0.5 text-xs font-extrabold mb-2', PLAN_BADGE_COLORS[plan.id] ?? 'bg-brand-50 text-brand-600')}>
+                          {plan.id.toUpperCase()}
+                        </span>
+                        <h3 className="font-display text-lg text-text">{plan.name}</h3>
+                        <p className="text-2xl font-black text-brand-600 mt-1">{formatVnd(plan.amountMinor)}</p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="font-display text-2xl text-text">{userCount}</p>
+                        <p className="text-xs text-muted">thuê bao</p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2 rounded-xl bg-page p-3 text-center text-xs">
+                      <div>
+                        <p className="font-extrabold text-brand-600">{plan.monthlyCreateCredits}</p>
+                        <p className="text-muted">lượt AI/tháng</p>
+                      </div>
+                      <div>
+                        <p className="font-extrabold text-brand-600">{plan.maxChildren}</p>
+                        <p className="text-muted">hồ sơ trẻ</p>
+                      </div>
+                      <div>
+                        <p className="font-extrabold text-brand-600">
+                          {plan.maxOpenCoursesPerChild === 999 ? '∞' : (plan.maxOpenCoursesPerChild ?? '?')}
+                        </p>
+                        <p className="text-muted">khóa/trẻ</p>
+                      </div>
+                    </div>
+
+                    <ul className="flex flex-col gap-1.5">
+                      {plan.features.map((f, i) => (
+                        <li key={i} className="flex items-start gap-2 text-xs text-muted">
+                          <span className="mt-0.5 text-success shrink-0">✓</span>
+                          {f}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-auto pt-3 border-t border-border/60">
+                      <p className="text-xs text-muted">
+                        {plan.requiresPayment ? '💳 Yêu cầu thanh toán' : '🎁 Miễn phí, tự động kích hoạt'}
+                      </p>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* ─── RIGHT: Grant panel ─── */}
+        <div id="billing-grant-form" className="flex flex-col gap-4">
+          <form
+            className="ui-card p-5"
+            onSubmit={(e) => void grantPlan(e)}
+          >
+            <div className="mb-4">
+              <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">Cấp gói thủ công</p>
+              <h2 className="font-display text-xl text-text mt-0.5">Kích hoạt không qua thanh toán</h2>
+              <p className="mt-1.5 text-xs text-muted leading-relaxed">
+                Dành cho phụ huynh đã chuyển khoản qua tổng đài hoặc cần ưu đãi đặc biệt.
+                Hệ thống kích hoạt ngay và đồng bộ toàn bộ dịch vụ qua NATS.
+              </p>
+            </div>
+
+            {/* User search */}
+            <div className="flex flex-col gap-1">
+              <label className="text-sm font-bold" htmlFor="grant-user-search">Tìm phụ huynh / giảng viên</label>
+              <div className="relative">
+                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
+                  <Search size={15} />
+                </span>
+                <input
+                  id="grant-user-search"
+                  type="search"
+                  placeholder="Nhập email..."
+                  className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
+                  value={grantForm.userEmail}
+                  onChange={(e) => {
+                    setGrantForm((f) => ({ ...f, userEmail: e.target.value }))
+                    void searchGrantUser(e.target.value)
+                  }}
+                  autoComplete="off"
+                />
+              </div>
+              {/* Search results dropdown */}
+              {grantUserSearching && (
+                <p className="text-xs text-muted animate-pulse">Đang tìm...</p>
+              )}
+              {!grantUserSearching && grantUserResults.length > 0 && !grantSelectedUser && (
+                <div className="rounded-xl border-2 border-brand-200 bg-white shadow-sm overflow-hidden">
+                  {grantUserResults.map((u) => (
+                    <button
+                      key={u.id}
+                      type="button"
+                      className="flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm hover:bg-brand-50 transition"
+                      onClick={() => {
+                        setGrantSelectedUser(u)
+                        setGrantForm((f) => ({ ...f, userEmail: u.email ?? f.userEmail }))
+                        setGrantUserResults([])
+                      }}
+                    >
+                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-600">
+                        {(u.nickname ?? u.email ?? '?')[0]?.toUpperCase()}
+                      </span>
+                      <div className="min-w-0">
+                        <p className="font-bold truncate">{u.nickname ?? '—'}</p>
+                        <p className="text-xs text-muted truncate font-mono">{u.email}</p>
+                      </div>
+                      <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-600 shrink-0">
+                        {ROLE_LABELS[u.role] ?? u.role}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              )}
+              {!grantUserSearching && grantForm.userEmail.length >= 3 && grantUserResults.length === 0 && !grantSelectedUser && (
+                <p className="text-xs text-muted">Không tìm thấy phụ huynh/giảng viên với email này.</p>
+              )}
+              {/* Selected user chip */}
+              {grantSelectedUser && (
+                <div className="flex items-center gap-2 rounded-xl bg-brand-50 px-3 py-2">
+                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-200 text-xs font-black text-brand-700">
+                    {(grantSelectedUser.nickname ?? grantSelectedUser.email ?? '?')[0]?.toUpperCase()}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-bold text-sm truncate">{grantSelectedUser.nickname ?? '—'}</p>
+                    <p className="text-xs text-muted font-mono truncate">{grantSelectedUser.email}</p>
+                  </div>
+                  <button
+                    type="button"
+                    className="shrink-0 text-muted hover:text-danger transition text-lg leading-none"
+                    onClick={() => { setGrantSelectedUser(null); setGrantForm((f) => ({ ...f, userEmail: '' })); setGrantUserResults([]) }}
+                    aria-label="Xóa người dùng đã chọn"
+                  >
+                    ✕
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* Plan select */}
+            <label className="mt-3 flex flex-col gap-1 text-sm font-bold">
+              Gói học
+              <select
+                className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm outline-none transition focus:border-brand-400"
+                value={grantForm.planId}
+                onChange={(e) => setGrantForm((f) => ({ ...f, planId: e.target.value }))}
+              >
+                {billingPlans.filter((p) => p.id !== 'free').map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name} — {p.amountMinor === 0 ? 'Miễn phí' : `${Number(p.amountMinor).toLocaleString('vi-VN')}₫/tháng`}
+                  </option>
+                ))}
+              </select>
+              {/* Selected plan info */}
+              {(() => {
+                const sel = billingPlans.find((p) => p.id === grantForm.planId)
+                if (!sel) return null
+                return (
+                  <span className="text-xs text-muted font-normal">
+                    {sel.monthlyCreateCredits} lượt AI · tối đa {sel.maxChildren} hồ sơ trẻ · {sel.maxOpenCoursesPerChild === 999 ? 'không giới hạn' : sel.maxOpenCoursesPerChild ?? '?'} khóa/trẻ
+                  </span>
+                )
+              })()}
+            </label>
+
+            {/* Duration */}
+            <label className="mt-3 flex flex-col gap-1 text-sm font-bold">
+              Thời hạn (tháng)
+              <div className="flex gap-2">
+                {[1, 3, 6, 12].map((m) => (
+                  <button
+                    key={m}
+                    type="button"
+                    className={cn(
+                      'flex-1 rounded-xl border-2 py-2 text-sm font-bold transition',
+                      grantForm.durationMonths === m
+                        ? 'border-brand-400 bg-brand-50 text-brand-700'
+                        : 'border-border bg-white text-muted hover:border-brand-300',
+                    )}
+                    onClick={() => setGrantForm((f) => ({ ...f, durationMonths: m }))}
+                  >
+                    {m}th
+                  </button>
+                ))}
+              </div>
+            </label>
+
+            {/* Reason */}
+            <label className="mt-3 flex flex-col gap-1 text-sm font-bold">
+              Lý do cấp
+              <input
+                required
+                placeholder="VD: CK qua tổng đài ngày 09/08, mã GD 123456..."
+                className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm outline-none transition focus:border-brand-400"
+                value={grantForm.reason}
+                onChange={(e) => setGrantForm((f) => ({ ...f, reason: e.target.value }))}
+              />
+            </label>
+
+            {/* Summary before submit */}
+            {grantSelectedUser && (
+              <div className="mt-3 rounded-xl bg-brand-50 p-3 text-xs">
+                <p className="font-extrabold text-brand-700 mb-1">Xác nhận kích hoạt:</p>
+                <p><span className="text-muted">Tài khoản:</span> <span className="font-bold">{grantSelectedUser.email}</span></p>
+                <p><span className="text-muted">Gói:</span> <span className="font-bold">{PLAN_LABELS[grantForm.planId] ?? grantForm.planId}</span></p>
+                <p><span className="text-muted">Thời hạn:</span> <span className="font-bold">{grantForm.durationMonths} tháng</span></p>
+                <p className="mt-1 text-muted italic">Gói sẽ được kích hoạt ngay, không thể hoàn tác.</p>
+              </div>
+            )}
+
+            <Button
+              type="submit"
+              disabled={grantLoading || !grantSelectedUser}
+              className="mt-4 w-full"
+            >
+              {grantLoading ? 'Đang kích hoạt...' : '⚡ Kích hoạt gói ngay'}
+            </Button>
+          </form>
+
+          {/* Note box */}
+          <div className="rounded-2xl border border-brand-200 bg-brand-50/50 p-4 text-xs text-muted">
+            <p className="font-extrabold text-brand-700 mb-1">📋 Quy trình tổng đài</p>
+            <ol className="list-decimal list-inside space-y-1 leading-relaxed">
+              <li>Phụ huynh gọi tổng đài, chọn gói và nhận số tài khoản NH.</li>
+              <li>Phụ huynh chuyển khoản, ghi nội dung email đăng ký.</li>
+              <li>Nhân viên xác nhận đã nhận tiền trên sao kê.</li>
+              <li>Tìm email → chọn gói → nhập lý do → Kích hoạt.</li>
+              <li>Hệ thống gửi NATS event, phụ huynh nhận quyền ngay.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      {/* Confirm payment intent dialog */}
+      <ConfirmDialog
+        open={!!billingConfirmIntent}
+        title={`Xác nhận đã nhận tiền từ ${billingConfirmIntent?.userName ?? billingConfirmIntent?.userEmail ?? 'user'}?`}
+        description={`Mục đích: ${PURPOSE_LABELS[billingConfirmIntent?.purpose ?? ''] ?? billingConfirmIntent?.purpose} · Số tiền: ${Number(billingConfirmIntent?.amountMinor ?? 0).toLocaleString('vi-VN')}₫. Hành động này không thể hoàn tác.`}
+        confirmLabel="Xác nhận đã nhận tiền"
+        onConfirm={() => billingConfirmIntent && void confirmIntent(billingConfirmIntent)}
+        onCancel={() => setBillingConfirmIntent(null)}
+      />
+    </div>
+  )
+
   /**
    * Determine if we have any loaded data for the current tab.
    * On the very first load (no data yet), show the skeleton.
@@ -1010,6 +1716,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       case 'logs': return loginLogs.length > 0 || logSummary !== null || !loading
       case 'courses': return courses.length > 0 || !loading
       case 'ai': return vidtoryStatus !== null
+      case 'billing': return billingStats !== null || !loading
       case 'legends': return true
       default: return true
     }
@@ -1026,6 +1733,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       case 'users': return usersTab
       case 'courses': return coursesTab
       case 'ai': return aiTab
+      case 'billing': return billingTab
       case 'legends': return <LegendRewardStudio />
       default: return null
     }
@@ -1043,6 +1751,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                 : tab === 'logs' ? 'Nhật ký đăng nhập'
                   : tab === 'ai' ? 'AI Vidtory'
                     : tab === 'legends' ? 'Legend & Reward Studio'
+                    : tab === 'billing' ? 'Gói & Thanh toán'
                     : tab === 'users' ? 'Tài khoản'
                       : 'Khóa học'}
           </h1>
