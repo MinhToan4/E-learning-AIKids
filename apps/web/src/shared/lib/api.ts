@@ -639,6 +639,24 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       options,
     }
   }
+  // WHY: Parental consent (child safety permissions) calls PATCH /consent to update
+  // allowAiCreate/allowPhoto/allowExport, and GET /consent/events for audit trail.
+  // core-account-api implements both routes at /api/v1/account/family/children/:id/*.
+  // Hub proxies /api/v1/account/* → account service (401-protected, needs user JWT).
+  const childConsentEvents = path.match(/^\/api\/parent\/children\/([^/?]+)\/consent\/events$/)
+  if (childConsentEvents) {
+    return {
+      path: `/api/v1/account/family/children/${encodeURIComponent(childConsentEvents[1])}/consent/events`,
+      options,
+    }
+  }
+  const childConsent = path.match(/^\/api\/parent\/children\/([^/?]+)\/consent$/)
+  if (childConsent) {
+    return {
+      path: `/api/v1/account/family/children/${encodeURIComponent(childConsent[1])}/consent`,
+      options,
+    }
+  }
   const childProgress = path.match(
     /^\/api\/parent\/children\/([^/?]+)\/progress(?:\?.*)?$/,
   )
@@ -1382,6 +1400,11 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     return {
       children: payload.children.map((item) => {
         const row = item as Record<string, unknown>
+        // WHY: BE nests consent fields under row.consent.* — flatten to top-level
+        // so ParentPage can read k.allowAiCreate directly (as defined in Child type).
+        const consent = (row.consent && typeof row.consent === 'object'
+          ? row.consent
+          : {}) as Record<string, unknown>
         return {
           ...row,
           nickname: row.name ? String(row.name) : null,
@@ -1390,17 +1413,27 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
           level: Number(row.level ?? 1),
           xp: Number(row.xp ?? 0),
           hasPin: row.hasPin === true,
+          allowAiCreate: consent.allowAiCreate === true,
+          allowPhoto: consent.allowPhoto === true,
+          allowExport: consent.allowExport === true,
         }
       }),
     }
   }
   if (/^\/api\/parent\/children\/[^/?]+$/.test(path) && payload.child) {
     const row = payload.child as Record<string, unknown>
+    // WHY: Same flatten as children list — consent.* → top level.
+    const consent = (row.consent && typeof row.consent === 'object'
+      ? row.consent
+      : {}) as Record<string, unknown>
     return {
       child: {
         ...row,
         nickname: row.name ? String(row.name) : null,
         avatarId: row.avatarUrl ? String(row.avatarUrl) : null,
+        allowAiCreate: consent.allowAiCreate === true,
+        allowPhoto: consent.allowPhoto === true,
+        allowExport: consent.allowExport === true,
       },
     }
   }
