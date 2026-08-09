@@ -24,6 +24,7 @@ import {
   buildArtGenerationPrompt,
   isArtStyleId,
 } from '@/shared/lib/creation/creative'
+import { ConsentGate } from '@/shared/components/ConsentGate'
 import { ART_STYLES } from '../lib/workshop-types'
 import type { WorkshopStep } from '../lib/workshop-types'
 
@@ -398,10 +399,15 @@ export function WorkshopCanvas({ selectedStyle, onBack, onSaved }: Props) {
                 className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white text-danger transition hover:border-danger">
                 <Trash2 size={14} />
               </button>
-              <button type="button" onClick={() => fileRef.current?.click()} aria-label="Tải ảnh lên"
-                className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white text-muted transition hover:border-brand-300">
-                <Upload size={14} />
-              </button>
+              {/* WHY: ConsentGate inline — when allowPhoto=false, show a lock badge
+                  instead of the upload button. The hidden file input stays in DOM
+                  but is never triggered. */}
+              <ConsentGate cap="allowPhoto" mode="inline">
+                <button type="button" onClick={() => fileRef.current?.click()} aria-label="Tải ảnh lên"
+                  className="flex h-8 w-8 items-center justify-center rounded-lg border border-border bg-white text-muted transition hover:border-brand-300">
+                  <Upload size={14} />
+                </button>
+              </ConsentGate>
             </div>
 
             {/* Color palette + brush size */}

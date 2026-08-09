@@ -1050,21 +1050,53 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     const token = String(payload.token ?? payload.accessToken ?? '')
     if (token) setAccessToken(token)
     const child = recordValue(payload.child)
+    const consent = (child.parentalConsent && typeof child.parentalConsent === 'object'
+      ? child.parentalConsent
+      : child.consent && typeof child.consent === 'object'
+        ? child.consent
+        : child) as Record<string, unknown>
     return {
-      user: mapUser({
-        ...child,
-        actor: 'child',
-        name: child.name,
-        parentId: recordValue(payload.parent).id,
-        onboarded: true,
-      }),
+      user: {
+        ...mapUser({
+          ...child,
+          actor: 'child',
+          name: child.name,
+          parentId: recordValue(payload.parent).id,
+          onboarded: true,
+        }),
+        // WHY: Consent capabilities read from the child object returned by BE.
+        // These gate AI studio, photo uploads, and share buttons on the student side.
+        // allowExport: DB true = sharing ENABLED; false = sharing HIDDEN.
+        allowAiCreate: consent.allowAiCreate === true,
+        allowPhoto: consent.allowPhoto === true,
+        allowExport: consent.allowExport === true,
+      },
     }
   }
   if (path.startsWith('/api/auth/login/') || path === '/api/auth/register/adult') {
     const token = String(payload.token ?? payload.accessToken ?? body.token ?? body.accessToken ?? '')
     if (token) setAccessToken(token)
     const rawUser = (payload.user ?? body.user ?? payload) as Record<string, unknown>
-    return { user: mapUser(rawUser) }
+    const baseUser = mapUser(rawUser)
+    // WHY: For student (child) logins the BE returns payload.child with parentalConsent.
+    // Extract and surface consent flags on the User so student-facing pages can gate features.
+    const childPayload = (payload.child && typeof payload.child === 'object' ? payload.child : null) as Record<string, unknown> | null
+    if (childPayload) {
+      const consent = (childPayload.parentalConsent && typeof childPayload.parentalConsent === 'object'
+        ? childPayload.parentalConsent
+        : childPayload.consent && typeof childPayload.consent === 'object'
+          ? childPayload.consent
+          : childPayload) as Record<string, unknown>
+      return {
+        user: {
+          ...baseUser,
+          allowAiCreate: consent.allowAiCreate === true,
+          allowPhoto: consent.allowPhoto === true,
+          allowExport: consent.allowExport === true,
+        },
+      }
+    }
+    return { user: baseUser }
   }
   if (path === '/api/auth/me' && (payload.user || payload.id)) {
     return { user: mapUser((payload.user ?? payload) as Record<string, unknown>) }
@@ -2014,6 +2046,13 @@ export type User = {
   goal: string | null
   parentId: string | null
   classId: string | null
+  /** Consent capabilities — populated from JWT for child sessions only.
+   * For non-child sessions these are always undefined (treat as unrestricted). */
+  allowAiCreate?: boolean
+  allowPhoto?: boolean
+  /** When true (DB allowExport=true = sharing ENABLED), student can see share button.
+   * When false (DB allowExport=false = sharing HIDDEN), share button is hidden. */
+  allowExport?: boolean
 }
 
 export type AccessContext = {

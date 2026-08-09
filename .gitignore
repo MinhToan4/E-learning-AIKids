@@ -23,3 +23,5 @@ artifacts/
 tmp/
 .vercel/
 courses/
+# Dev-only documentation — session reports, test screenshots, etc.
+docs/
