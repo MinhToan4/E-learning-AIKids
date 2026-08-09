@@ -4675,3 +4675,14 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     }
   }
 }
+
+/* ── Consent tooltip — hover/focus reveal ───────────────────── */
+.consent-tip-wrap:hover .consent-tip-bubble,
+.consent-tip-wrap:focus-within .consent-tip-bubble {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+.consent-tip-wrap:hover .consent-tip-icon,
+.consent-tip-wrap:focus-within .consent-tip-icon {
+  opacity: 1 !important;
+}

@@ -8,6 +8,7 @@ import {
   ChartNoAxesColumnIncreasing,
   Check,
   Gamepad2,
+  Info,
   KeyRound,
   Languages,
   LogIn,
@@ -157,6 +158,71 @@ const AVATARS = STUDENT_AVATARS.map((a) => ({
 
 function avatarEmoji(id: string | null) {
   return avatarEmojiFromCatalog(id)
+}
+
+
+// ── ConsentTooltip — icon ℹ️ với popup giải thích khi hover ──────
+// WHY: Dùng CSS :hover thuần để tooltip mở ngay lập tức không cần click,
+// thân thiện hơn với phụ huynh trên desktop và mobile tap.
+function ConsentTooltip({ text }: { text: string }) {
+  return (
+    <span className="consent-tip-wrap" style={{ position: 'relative', display: 'inline-flex', verticalAlign: 'middle' }}>
+      <span
+        role="img"
+        aria-label="Giải thích tính năng"
+        className="consent-tip-icon"
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          cursor: 'help',
+          color: '#6d5efc',
+          opacity: 0.55,
+          transition: 'opacity 0.15s',
+        }}
+      >
+        <Info size={13} aria-hidden="true" />
+      </span>
+      <span
+        role="tooltip"
+        className="consent-tip-bubble"
+        style={{
+          position: 'absolute',
+          bottom: 'calc(100% + 8px)',
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: '260px',
+          background: '#fff',
+          border: '1px solid #ebe8ff',
+          borderRadius: '12px',
+          padding: '10px 12px',
+          fontSize: '11.5px',
+          lineHeight: '1.55',
+          color: '#2d2558',
+          boxShadow: '0 6px 24px rgba(109,94,252,0.12)',
+          pointerEvents: 'none',
+          zIndex: 50,
+          opacity: 0,
+          visibility: 'hidden' as const,
+          transition: 'opacity 0.18s, visibility 0.18s',
+          whiteSpace: 'normal',
+        }}
+      >
+        {/* Arrow */}
+        <span style={{
+          position: 'absolute',
+          bottom: -6,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          width: 0,
+          height: 0,
+          borderLeft: '6px solid transparent',
+          borderRight: '6px solid transparent',
+          borderTop: '6px solid #fff',
+        }} aria-hidden="true" />
+        {text}
+      </span>
+    </span>
+  )
 }
 
 // ── Main Component ────────────────────────────────────────────
@@ -991,29 +1057,50 @@ function KidsTab() {
                   Quyền an toàn của con
                 </summary>
                 <div className="mt-3 grid gap-2 text-sm">
-                  <label className="flex min-h-11 items-center gap-3 rounded-xl bg-white px-3">
+                  <label className="flex min-h-11 items-start gap-3 rounded-xl bg-white px-3 py-2">
                     <input
                       type="checkbox"
+                      className="mt-1"
                       checked={Boolean(k.allowAiCreate)}
                       onChange={(event) => void updateConsent(k, 'allowAiCreate', event.target.checked)}
                     />
-                    <span><strong>Phòng sáng tạo AI</strong><br /><span className="text-xs text-muted">Con được tạo nội dung trong khu vực đã lọc an toàn.</span></span>
+                    <span className="flex-1">
+                      <span className="flex items-center gap-1">
+                        <strong>Phòng sáng tạo AI</strong>
+                        <ConsentTooltip text="Khi BẬT: con có thể vào Studio AI để tạo câu chuyện, nhân vật và kịch bản. Tất cả nội dung AI sinh ra đều được lọc tự động theo tiêu chuẩn an toàn cho trẻ em — không có nội dung bạo lực, người lớn hay ngôn ngữ không phù hợp. Khi TẮT: con không thấy nút 'Tạo với AI' ở bất kỳ đâu." />
+                      </span>
+                      <span className="text-xs text-muted">Con được vào Studio AI để tạo nội dung — đã lọc an toàn.</span>
+                    </span>
                   </label>
-                  <label className="flex min-h-11 items-center gap-3 rounded-xl bg-white px-3">
+                  <label className="flex min-h-11 items-start gap-3 rounded-xl bg-white px-3 py-2">
                     <input
                       type="checkbox"
+                      className="mt-1"
                       checked={Boolean(k.allowPhoto)}
                       onChange={(event) => void updateConsent(k, 'allowPhoto', event.target.checked)}
                     />
-                    <span><strong>Cho phép dùng ảnh</strong><br /><span className="text-xs text-muted">Tắt mặc định; chỉ bật khi phụ huynh đã cân nhắc.</span></span>
+                    <span className="flex-1">
+                      <span className="flex items-center gap-1">
+                        <strong>Cho phép dùng ảnh</strong>
+                        <ConsentTooltip text="Khi BẬT: con có thể chụp ảnh hoặc tải ảnh từ thiết bị để đưa vào tác phẩm sáng tạo của mình (ví dụ: ảnh đại diện nhân vật, bìa sách). Ảnh chỉ được dùng trong nội bộ ứng dụng. Khi TẮT: con chỉ dùng được ảnh có sẵn trong thư viện hệ thống — không truy cập camera hay thư mục ảnh thiết bị." />
+                      </span>
+                      <span className="text-xs text-muted">Con dùng camera/thư viện ảnh thiết bị trong tác phẩm — tắt mặc định.</span>
+                    </span>
                   </label>
-                  <label className="flex min-h-11 items-center gap-3 rounded-xl bg-white px-3">
+                  <label className="flex min-h-11 items-start gap-3 rounded-xl bg-white px-3 py-2">
                     <input
                       type="checkbox"
+                      className="mt-1"
                       checked={Boolean(k.allowExport)}
                       onChange={(event) => void updateConsent(k, 'allowExport', event.target.checked)}
                     />
-                    <span><strong>Cho phép xuất/chia sẻ</strong><br /><span className="text-xs text-muted">Vẫn cần bước duyệt của phụ huynh khi chia sẻ ra ngoài.</span></span>
+                    <span className="flex-1">
+                      <span className="flex items-center gap-1">
+                        <strong>Cho phép xuất/chia sẻ</strong>
+                        <ConsentTooltip text="Khi BẬT: con có thể nhấn 'Chia sẻ tác phẩm' để gửi link hoặc xuất file. Tuy nhiên hệ thống vẫn gửi thông báo cho phụ huynh để xét duyệt — con không thể tự ý chia sẻ ra ngoài mà không có bạn đồng ý. Khi TẮT: nút chia sẻ bị ẩn hoàn toàn với con." />
+                      </span>
+                      <span className="text-xs text-muted">Con xem được nút chia sẻ — nhưng vẫn cần phụ huynh duyệt trước khi ra ngoài.</span>
+                    </span>
                   </label>
                 </div>
               </details>
