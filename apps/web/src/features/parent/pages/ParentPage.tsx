@@ -55,14 +55,28 @@ type Approval = {
 type Child = {
   id: string
   nickname: string | null
+  ageBand?: string | null
   avatarId: string | null
   level: number
   xp: number
   active: boolean
   hasPin?: boolean
+  allowAiCreate?: boolean
+  allowPhoto?: boolean
+  allowExport?: boolean
   completedQuests?: number
   totalStars?: number
   projectCount?: number
+}
+
+type ConsentEvent = {
+  id: string
+  policyVersion: string
+  locale: string
+  method: string
+  beforeState: Record<string, boolean>
+  afterState: Record<string, boolean>
+  createdAt: string
 }
 
 type HouseholdSub = {
@@ -404,6 +418,7 @@ function EditChildModal({
   onError: (msg: string) => void
 }) {
   const [nickname, setNickname] = useState('')
+  const [ageBand, setAgeBand] = useState('8-11')
   const [avatarId, setAvatarId] = useState('avatar-robot')
   const [goal, setGoal] = useState('comic')
   const [pin, setPin] = useState('')
@@ -413,6 +428,7 @@ function EditChildModal({
   useEffect(() => {
     if (isOpen) {
       setNickname(child?.nickname ?? '')
+      setAgeBand(child?.ageBand ?? '8-11')
       setAvatarId(child?.avatarId ?? 'avatar-robot')
       setGoal('comic')
       setPin('')
@@ -441,34 +457,34 @@ function EditChildModal({
     setSaving(true)
     try {
       if (child) {
-        // Cập nhật hồ sơ con — PIN được gộp vào PATCH để giảm số request
+        // Cập nhật hồ sơ con; PIN có contract riêng để không bị bỏ qua ở
+        // gateway adapter và để backend áp dụng rate-limit/step-up policy.
         await api(`/api/parent/children/${child.id}`, {
           method: 'PATCH',
           body: JSON.stringify({
             nickname: nickname.trim(),
             avatarId,
-            // Chỉ gửi pin nếu Ba / Mẹ điền; chuỗi rỗng = xóa PIN
-            ...(pin ? { pin } : {}),
+            ageBand,
           }),
         })
+        if (pin) {
+          await api(`/api/parent/children/${child.id}/pin`, {
+            method: 'POST',
+            body: JSON.stringify({ pin }),
+          })
+        }
       } else {
-        const created = await api<{ child: { id: string } }>('/api/parent/children', {
+        await api<{ child: { id: string } }>('/api/parent/children', {
           method: 'POST',
           body: JSON.stringify({
             nickname: nickname.trim(),
             avatarId,
+            ageBand,
             goal,
             // Gửi PIN kèm lúc tạo nếu Ba / Mẹ đặt ngay
             ...(pin ? { pin } : {}),
           }),
         })
-        // Nếu backend không nhận pin trong body tạo con, gọi route /pin riêng
-        if (pin && created.child?.id) {
-          await api(`/api/parent/children/${created.child.id}/pin`, {
-            method: 'POST',
-            body: JSON.stringify({ pin }),
-          })
-        }
       }
       onSuccess()
     } catch (err) {
@@ -534,6 +550,16 @@ function EditChildModal({
             <p className="mt-1 text-xs text-muted">
               Gợi ý: Đặt biệt danh gần gũi nên có số hoặc ký tự đặc biệt (Ví dụ: Tom123, Bống_nhỏ).
             </p>
+          </div>
+
+          <div>
+            <label className='mb-1 block text-sm font-bold' htmlFor='edit-age-band'>Nhom tuoi hoc tap</label>
+            <select id='edit-age-band' value={ageBand} onChange={(e) => setAgeBand(e.target.value)} className='w-full rounded-xl border border-brand-200 bg-white px-3 py-2.5 text-sm'>
+              <option value='8-11'>8-11 tuoi - Pilot tieng Viet</option>
+              <option value='9-12'>9-12 tuoi</option>
+              <option value='13-15'>13-15 tuoi</option>
+            </select>
+            <p className='mt-1 text-xs text-muted'>Nhom tuoi giup he thong chon noi dung phu hop hon.</p>
           </div>
 
           {/* Avatar */}
@@ -669,6 +695,14 @@ type CourseItem = {
   coverImage: string | null
   enrolled: boolean
   parentAllowed: boolean | null
+  accessPolicy: string
+  priceAmountMinor: string
+  priceCurrency: string
+}
+
+type CoursePaymentState = {
+  publicId: string
+  status: 'pending' | 'succeeded' | 'failed' | 'unknown'
 }
 
 function KidsTab() {
@@ -678,6 +712,9 @@ function KidsTab() {
   const [progress, setProgress] = useState<ChildProgress | null>(null)
   const [loading, setLoading] = useState(true)
   const [deleteTarget, setDeleteTarget] = useState<Child | null>(null)
+  const [consentHistoryChild, setConsentHistoryChild] = useState<string | null>(null)
+  const [consentHistory, setConsentHistory] = useState<Record<string, ConsentEvent[]>>({})
+  const [consentHistoryLoading, setConsentHistoryLoading] = useState(false)
   // editTarget: null = tạo mới; Child object = đang sửa; undefined = đóng
   const [editTarget, setEditTarget] = useState<Child | null | undefined>(undefined)
   const [playPinTarget, setPlayPinTarget] = useState<Child | null>(null)
@@ -759,6 +796,54 @@ function KidsTab() {
       navigate('/home')
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Không vào được hồ sơ con', 'error')
+    }
+  }
+
+  async function updateConsent(
+    child: Child,
+    capability: 'allowAiCreate' | 'allowPhoto' | 'allowExport',
+    enabled: boolean,
+  ) {
+    try {
+      await api(`/api/parent/children/${child.id}/consent`, {
+        method: 'PATCH',
+        body: JSON.stringify({
+          [capability]: enabled,
+          policyVersion: 'aikids-child-safety-v1',
+          locale: 'vi-VN',
+        }),
+      })
+      setKids((prev) => prev.map((item) => item.id === child.id
+        ? { ...item, [capability]: enabled }
+        : item))
+      setConsentHistory((prev) => {
+        const next = { ...prev }
+        delete next[child.id]
+        return next
+      })
+      showToast('Đã cập nhật quyền an toàn cho con.', 'success')
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Không cập nhật được quyền', 'error')
+    }
+  }
+
+  async function toggleConsentHistory(childId: string) {
+    if (consentHistoryChild === childId) {
+      setConsentHistoryChild(null)
+      return
+    }
+    setConsentHistoryChild(childId)
+    if (consentHistory[childId]) return
+    setConsentHistoryLoading(true)
+    try {
+      const result = await api<{ events: ConsentEvent[] }>(
+        `/api/parent/children/${childId}/consent/events`,
+      )
+      setConsentHistory((prev) => ({ ...prev, [childId]: result.events }))
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Không tải được lịch sử quyền', 'error')
+    } finally {
+      setConsentHistoryLoading(false)
     }
   }
 
@@ -900,6 +985,64 @@ function KidsTab() {
                   <Trash2 size={17} aria-hidden="true" />
                 </button>
               </div>
+
+              <details className="mt-3 rounded-2xl border border-border bg-page p-3">
+                <summary className="cursor-pointer text-sm font-extrabold text-brand-600">
+                  Quyền an toàn của con
+                </summary>
+                <div className="mt-3 grid gap-2 text-sm">
+                  <label className="flex min-h-11 items-center gap-3 rounded-xl bg-white px-3">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(k.allowAiCreate)}
+                      onChange={(event) => void updateConsent(k, 'allowAiCreate', event.target.checked)}
+                    />
+                    <span><strong>Phòng sáng tạo AI</strong><br /><span className="text-xs text-muted">Con được tạo nội dung trong khu vực đã lọc an toàn.</span></span>
+                  </label>
+                  <label className="flex min-h-11 items-center gap-3 rounded-xl bg-white px-3">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(k.allowPhoto)}
+                      onChange={(event) => void updateConsent(k, 'allowPhoto', event.target.checked)}
+                    />
+                    <span><strong>Cho phép dùng ảnh</strong><br /><span className="text-xs text-muted">Tắt mặc định; chỉ bật khi phụ huynh đã cân nhắc.</span></span>
+                  </label>
+                  <label className="flex min-h-11 items-center gap-3 rounded-xl bg-white px-3">
+                    <input
+                      type="checkbox"
+                      checked={Boolean(k.allowExport)}
+                      onChange={(event) => void updateConsent(k, 'allowExport', event.target.checked)}
+                    />
+                    <span><strong>Cho phép xuất/chia sẻ</strong><br /><span className="text-xs text-muted">Vẫn cần bước duyệt của phụ huynh khi chia sẻ ra ngoài.</span></span>
+                  </label>
+                </div>
+              </details>
+              <button
+                type="button"
+                className="mt-2 text-left text-xs font-bold text-brand-600 hover:underline"
+                onClick={() => void toggleConsentHistory(k.id)}
+                aria-expanded={consentHistoryChild === k.id}
+              >
+                {consentHistoryChild === k.id ? 'Ẩn lịch sử thay đổi quyền' : 'Xem lịch sử thay đổi quyền'}
+              </button>
+              {consentHistoryChild === k.id && (
+                <div className="mt-2 rounded-2xl border border-border bg-page p-3 text-xs" role="region" aria-label="Lịch sử quyền an toàn">
+                  {consentHistoryLoading && !consentHistory[k.id] ? (
+                    <p className="text-muted">Đang tải lịch sử...</p>
+                  ) : consentHistory[k.id]?.length ? (
+                    <ol className="flex flex-col gap-2">
+                      {consentHistory[k.id].map((event) => (
+                        <li key={event.id} className="rounded-xl bg-white px-3 py-2">
+                          <p className="font-bold">{new Date(event.createdAt).toLocaleString('vi-VN')}</p>
+                          <p className="text-muted">Chính sách {event.policyVersion} · {event.method}</p>
+                        </li>
+                      ))}
+                    </ol>
+                  ) : (
+                    <p className="text-muted">Chưa có bản ghi thay đổi.</p>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -1120,19 +1263,23 @@ function CourseSelectModal({
   const [courses, setCourses] = useState<CourseItem[]>([])
   const [loading, setLoading] = useState(true)
   const [toggling, setToggling] = useState<string | null>(null)
+  const [paymentHint, setPaymentHint] = useState<string | null>(null)
+  const [paymentByCourse, setPaymentByCourse] = useState<Record<string, CoursePaymentState>>({})
   const [activeAgeGroup, setActiveAgeGroup] = useState<string | null>(null)
+
+  const loadCourses = useCallback(async (signal?: AbortSignal) => {
+    const data = await api<{
+      child: { id: string; nickname: string | null; ageBand: string | null }
+      courses: CourseItem[]
+    }>(`/api/parent/children/${child.id}/courses`, { signal })
+    setCourses(data.courses)
+  }, [child.id])
 
   useEffect(() => {
     const controller = new AbortController()
     void (async () => {
       try {
-        const data = await api<{
-          child: { id: string; nickname: string | null; ageBand: string | null }
-          courses: CourseItem[]
-        }>(`/api/parent/children/${child.id}/courses`, {
-          signal: controller.signal,
-        })
-        setCourses(data.courses)
+        await loadCourses(controller.signal)
       } catch (e) {
         if (controller.signal.aborted) return
         onError(e instanceof Error ? e.message : 'Không tải được danh sách khóa học')
@@ -1141,7 +1288,7 @@ function CourseSelectModal({
       }
     })()
     return () => controller.abort()
-  }, [child.id, onError])
+  }, [loadCourses, onError])
 
   async function toggleCourse(courseId: string, currentlyEnrolled: boolean) {
     setToggling(courseId)
@@ -1165,6 +1312,76 @@ function CourseSelectModal({
       )
     } catch (e) {
       onError(e instanceof Error ? e.message : 'Lỗi cập nhật')
+    } finally {
+      setToggling(null)
+    }
+  }
+
+  async function purchaseCourse(course: CourseItem) {
+    setToggling(course.id)
+    setPaymentHint(null)
+    try {
+      const result = await api<{
+        quote: { amountMinor: string; currency: string }
+        paymentIntent?: { publicId?: string; status?: string }
+        checkout?: {
+          transferHint?: string | null
+          payUrl?: string | null
+          paymentReady?: boolean
+        }
+      }>('/api/parent/course-checkout', {
+        method: 'POST',
+        body: JSON.stringify({ courseId: course.id, childProfileId: child.id }),
+      })
+      const paymentIntentId = result.paymentIntent?.publicId
+      if (paymentIntentId) {
+        setPaymentByCourse((prev) => ({
+          ...prev,
+          [course.id]: { publicId: paymentIntentId, status: 'pending' },
+        }))
+      }
+      const checkout = result.checkout
+      const hint = checkout?.payUrl
+        ? `Đã tạo trang thanh toán: ${checkout.payUrl}`
+        : checkout?.transferHint
+          ? `Đã tạo mã thanh toán. Nội dung chuyển khoản: ${checkout.transferHint}`
+          : 'Đã tạo yêu cầu thanh toán. Hoàn tất thanh toán để mở khóa cho con.'
+      setPaymentHint(hint)
+      onSuccess(hint)
+    } catch (e) {
+      onError(e instanceof Error ? e.message : 'Không tạo được thanh toán')
+    } finally {
+      setToggling(null)
+    }
+  }
+
+  async function refreshPaymentStatus(course: CourseItem, payment: CoursePaymentState) {
+    setToggling(course.id)
+    try {
+      const result = await api<{
+        paymentIntent: { status: CoursePaymentState['status'] }
+      }>(`/api/parent/course-checkout/${encodeURIComponent(payment.publicId)}`)
+      const rawStatus = String(result.paymentIntent.status)
+      const status: CoursePaymentState['status'] = ['pending', 'succeeded', 'failed'].includes(rawStatus)
+        ? rawStatus as CoursePaymentState['status']
+        : 'unknown'
+      setPaymentByCourse((prev) => ({
+        ...prev,
+        [course.id]: { ...payment, status },
+      }))
+
+      // WHY: payment success is not the LMS entitlement. Refresh the canonical
+      // course list and only show learning access if LMS confirms the grant.
+      await loadCourses()
+      if (status === 'succeeded') {
+        setPaymentHint('Đã nhận thanh toán. Hệ thống đang đồng bộ quyền học cho con; hãy kiểm tra lại sau ít giây.')
+      } else if (status === 'failed') {
+        setPaymentHint('Thanh toán chưa thành công. Bạn có thể thử lại.')
+      } else {
+        setPaymentHint('Thanh toán đang chờ xác nhận. Khóa học sẽ tự mở sau khi hệ thống nhận được xác nhận.')
+      }
+    } catch (e) {
+      onError(e instanceof Error ? e.message : 'Không kiểm tra được trạng thái thanh toán')
     } finally {
       setToggling(null)
     }
@@ -1218,6 +1435,11 @@ function CourseSelectModal({
 
         {/* Body */}
         <div className="overflow-y-auto flex-1 px-4 py-3">
+          {paymentHint && (
+            <div className="mb-3 rounded-2xl bg-sun-50 px-4 py-3 text-sm font-bold text-warning" role="status">
+              {paymentHint}
+            </div>
+          )}
           {loading ? (
             <div className="flex justify-center py-10">
               <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500" />
@@ -1261,6 +1483,9 @@ function CourseSelectModal({
                 </p>
               ) : visibleCourses.map((course) => {
                 const isToggling = toggling === course.id
+                const isPaid = course.accessPolicy === 'paid' && !course.enrolled
+                const payment = paymentByCourse[course.id]
+                const isPaymentPending = payment?.status === 'pending'
                 return (
                   <div
                     key={course.id}
@@ -1280,6 +1505,22 @@ function CourseSelectModal({
                         </span>
                         {course.shortTitle}
                       </p>
+                      <p className="mt-1 text-xs font-extrabold text-brand-600">
+                        {isPaid
+                          ? `${Number(course.priceAmountMinor).toLocaleString('vi-VN')} ${course.priceCurrency.toUpperCase()}`
+                          : 'Miễn phí / đã được cấp quyền'}
+                      </p>
+                      {payment && !course.enrolled && (
+                        <p className="text-xs font-semibold text-warning" role="status">
+                          {payment.status === 'pending'
+                            ? 'Đang chờ xác nhận thanh toán'
+                            : payment.status === 'succeeded'
+                              ? 'Đã nhận tiền, đang đồng bộ quyền học'
+                              : payment.status === 'failed'
+                                ? 'Thanh toán chưa thành công'
+                                : 'Chưa xác định được trạng thái thanh toán'}
+                        </p>
+                      )}
                     </div>
 
                     {/* Toggle button */}
@@ -1287,16 +1528,22 @@ function CourseSelectModal({
                       type="button"
                       id={`course-toggle-${course.id}`}
                       disabled={isToggling}
-                      onClick={() => void toggleCourse(course.id, course.enrolled)}
+                      onClick={() => void (isPaid
+                        ? payment && payment.status !== 'failed'
+                          ? refreshPaymentStatus(course, payment)
+                          : purchaseCourse(course)
+                        : toggleCourse(course.id, course.enrolled))}
                       className={cn(
                         'flex-shrink-0 rounded-xl px-4 py-2 text-xs font-extrabold transition',
                         course.enrolled
                           ? 'bg-brand-500 text-white hover:bg-brand-600'
-                          : 'bg-page text-muted hover:bg-brand-50 border border-border',
+                          : isPaid
+                            ? 'bg-sun-400 text-white hover:bg-sun-500'
+                            : 'bg-page text-muted hover:bg-brand-50 border border-border',
                         isToggling && 'opacity-50 cursor-wait',
                       )}
                       aria-pressed={course.enrolled}
-                      aria-label={`${course.enrolled ? 'Bỏ' : 'Thêm'} khóa ${course.title}`}
+                      aria-label={`${course.enrolled ? 'Bỏ' : isPaid ? isPaymentPending ? 'Kiểm tra thanh toán' : 'Mua và mở khóa' : 'Thêm'} khóa ${course.title}`}
                     >
                       {isToggling ? (
                         '...'
@@ -1304,6 +1551,10 @@ function CourseSelectModal({
                         <span className="flex items-center gap-1.5">
                           <Check size={15} aria-hidden="true" />
                           Đang học
+                        </span>
+                      ) : isPaid ? (
+                        <span className="flex items-center gap-1.5">
+                          {isPaymentPending ? 'Kiểm tra' : payment?.status === 'succeeded' ? 'Làm mới' : 'Mua & mở khóa'}
                         </span>
                       ) : (
                         <span className="flex items-center gap-1.5">

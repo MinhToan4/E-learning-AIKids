@@ -639,22 +639,28 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       options,
     }
   }
-  // WHY: Parental consent (child safety permissions) calls PATCH /consent to update
-  // allowAiCreate/allowPhoto/allowExport, and GET /consent/events for audit trail.
-  // core-account-api implements both routes at /api/v1/account/family/children/:id/*.
-  // Hub proxies /api/v1/account/* → account service (401-protected, needs user JWT).
+  // WHY: Parental consent — PATCH /consent remapped to PATCH /children/:id
+  // (Hub-known route) with consentMethod in body. The dedicated /consent path
+  // causes Hub 500 because Hub Go binary has no routing config for that sub-path.
+  // GET /consent/events similarly unsupported — callers receive empty events list.
   const childConsentEvents = path.match(/^\/api\/parent\/children\/([^/?]+)\/consent\/events$/)
   if (childConsentEvents) {
+    // WHY: Hub 500s on /consent/events. Return gracefully via child record
+    // which already includes consent.* fields. Events history unavailable
+    // until Hub routing is updated.
     return {
-      path: `/api/v1/account/family/children/${encodeURIComponent(childConsentEvents[1])}/consent/events`,
-      options,
+      path: `/api/v1/account/family/children/${encodeURIComponent(childConsentEvents[1])}`,
+      options: { ...options, method: 'GET', body: undefined },
     }
   }
   const childConsent = path.match(/^\/api\/parent\/children\/([^/?]+)\/consent$/)
   if (childConsent) {
+    // WHY: Remap PATCH /consent → PATCH /children/:id (Hub-known route)
+    // and inject consentMethod so BE calls updateConsent() audit trail.
+    const consentBody = { ...(body as Record<string, unknown>), consentMethod: 'parent_ui' }
     return {
-      path: `/api/v1/account/family/children/${encodeURIComponent(childConsent[1])}/consent`,
-      options,
+      path: `/api/v1/account/family/children/${encodeURIComponent(childConsent[1])}`,
+      options: withJson(options, consentBody),
     }
   }
   const childProgress = path.match(
@@ -1400,11 +1406,14 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     return {
       children: payload.children.map((item) => {
         const row = item as Record<string, unknown>
-        // WHY: BE nests consent fields under row.consent.* — flatten to top-level
-        // so ParentPage can read k.allowAiCreate directly (as defined in Child type).
-        const consent = (row.consent && typeof row.consent === 'object'
-          ? row.consent
-          : {}) as Record<string, unknown>
+        // WHY: BE nests consent fields under row.parentalConsent.* (Prisma relation name).
+        // Flatten to top-level so ParentPage can read k.allowAiCreate directly.
+        // Also accept row.consent as fallback for older response shapes.
+        const consent = (row.parentalConsent && typeof row.parentalConsent === 'object'
+          ? row.parentalConsent
+          : row.consent && typeof row.consent === 'object'
+            ? row.consent
+            : {}) as Record<string, unknown>
         return {
           ...row,
           nickname: row.name ? String(row.name) : null,
@@ -1420,12 +1429,22 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       }),
     }
   }
+  // WHY: /consent/events is remapped to GET /children/:id (Hub limitation).
+  // The response is { child: {...} } not { events: [...] }.
+  // Normalizer intercepts this before the /children/:id catch below and returns
+  // empty events — the UI shows "Chưa có lịch sử thay đổi" gracefully.
+  if (/^\/api\/parent\/children\/[^/?]+\/consent\/events$/.test(path)) {
+    return { events: [] }
+  }
   if (/^\/api\/parent\/children\/[^/?]+$/.test(path) && payload.child) {
     const row = payload.child as Record<string, unknown>
-    // WHY: Same flatten as children list — consent.* → top level.
-    const consent = (row.consent && typeof row.consent === 'object'
-      ? row.consent
-      : {}) as Record<string, unknown>
+    // WHY: BE nests consent fields under row.parentalConsent.* (Prisma relation name).
+    // Flatten to top-level for Child type. Also accept row.consent as fallback.
+    const consent = (row.parentalConsent && typeof row.parentalConsent === 'object'
+      ? row.parentalConsent
+      : row.consent && typeof row.consent === 'object'
+        ? row.consent
+        : {}) as Record<string, unknown>
     return {
       child: {
         ...row,
