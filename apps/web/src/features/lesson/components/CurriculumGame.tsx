@@ -16,7 +16,7 @@ import { DataRunnerGame } from './games/DataRunnerGame'
 import { EdukizGame } from './games/EdukizGame'
 import { MathKidsGame } from './games/MathKidsGame'
 import { TruthPatrolGame } from './games/TruthPatrolGame'
-import type { EngineResult } from './games/types'
+import type { EngineResult, GameHint } from './games/types'
 
 export type GameEvidence = {
   gameType: CurriculumGameType
@@ -35,6 +35,7 @@ type Props = {
   instruction: string
   outcome?: string
   onComplete: (evidence: GameEvidence) => void
+  onGameHint?: (hint: GameHint | null) => void
 }
 
 // WHY: Tất cả 6 engine phải được khai báo ở đây để TypeScript satisfy
@@ -252,6 +253,7 @@ export function CurriculumGame(props: Props) {
         instruction={props.instruction}
         outcome={props.outcome}
         onBack={mustChoose ? () => setSelectedType(null) : undefined}
+        onHint={props.onGameHint}
         onComplete={(result: EngineResult) =>
           props.onComplete({
             ...result,

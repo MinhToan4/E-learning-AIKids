@@ -7,11 +7,12 @@ import {
   calculateBattleScore,
   deterministicShuffle,
   feedbackFor,
+  getGameTuning,
   missionProgress,
   sanitizeVisualRounds,
 } from '@/features/lesson/lib/curriculum-game'
 import { EngineGameShell } from './EngineGameShell'
-import { FeedbackOverlay } from './FeedbackOverlay'
+import { PRAISE_MESSAGES, WRONG_MESSAGES, pickRandom } from './FeedbackOverlay'
 import type { EngineGameProps } from './types'
 
 const IMAGE_POSITIONS = {
@@ -28,6 +29,7 @@ export function BattleMathGame({
   outcome,
   onComplete,
   onBack,
+  onHint,
 }: EngineGameProps) {
   const configuredRounds = useMemo(
     () => sanitizeVisualRounds(config?.visualRounds),
@@ -50,7 +52,6 @@ export function BattleMathGame({
   const [status, setStatus] = useState(
     'Đọc prompt như một thám tử: kiểm tra từng chi tiết rồi mới chọn ảnh.',
   )
-  const [feedback, setFeedback] = useState<{ type: 'correct' | 'wrong'; attempt: number } | null>(null)
   const startedAt = useRef(Date.now())
   const round = rounds[Math.min(roundIndex, rounds.length - 1)]!
   const displayedOptions = useMemo(
@@ -76,17 +77,18 @@ export function BattleMathGame({
   function choose(optionId: string) {
     if (roundSolved || complete) return
     setSelectedId(optionId)
-    setAttempts((value) => value + 1)
+    const newAttempt = attempts + 1
+    setAttempts(newAttempt)
+    
     if (optionId !== correctId) {
       const nextHint = Math.min(2, hintLevel + 1)
       setHintLevel(nextHint)
       setStreak(0)
-      setFeedback({ type: 'wrong', attempt: attempts })
-      setStatus(
-        `${feedbackFor('retry', attempts)} ${
-          nextHint >= 2 ? round.clue : 'So lại đúng một chi tiết trong prompt trước nhé.'
-        }`,
-      )
+      const wrong = pickRandom(WRONG_MESSAGES, newAttempt)
+      setStatus(`${wrong.main} ${wrong.sub}`)
+      if (onHint) {
+        onHint({ text: `${wrong.main} ${wrong.sub}\n💡 ${nextHint >= 2 ? round.clue : 'So lại đúng một chi tiết trong prompt trước nhé.'}`, type: 'wrong' })
+      }
       return
     }
 
@@ -100,7 +102,9 @@ export function BattleMathGame({
     setMaxStreak((value) => Math.max(value, nextStreak))
     setAnswers((value) => [...value, `${round.id}:${optionId}`])
     setStatus(`${feedbackFor('correct', roundIndex)} ${round.feedback}`)
-    setFeedback({ type: 'correct', attempt: attempts })
+    
+    const praise = pickRandom(PRAISE_MESSAGES, newAttempt)
+    if (onHint) onHint({ text: praise.text, type: 'correct' })
   }
 
   function nextRound() {
@@ -118,14 +122,6 @@ export function BattleMathGame({
 
   return (
     <>
-      {feedback && (
-        <FeedbackOverlay
-          type={feedback.type}
-          streak={streak}
-          attempt={feedback.attempt}
-          onDismiss={() => setFeedback(null)}
-        />
-      )}
     <EngineGameShell
       title="BattleMath · Pháo Đài Kiểm Chứng"
       subtitle={instruction || 'Đánh bại Sương Mù bằng cách phát hiện kết quả AI đúng, sai và giải thích vì sao.'}
@@ -155,7 +151,7 @@ export function BattleMathGame({
             )}
           </div>
 
-          <div className="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Bốn ảnh AI để kiểm chứng">
+          <div className="grid grid-cols-2 gap-4 lg:grid-cols-4 p-2" aria-label="Bốn ảnh AI để kiểm chứng">
             {displayedOptions.map((option, index) => {
               const selected = selectedId === option.id
               const correct = roundSolved && option.id === correctId
@@ -167,15 +163,16 @@ export function BattleMathGame({
                   disabled={roundSolved}
                   aria-label={`Ảnh ${index + 1}: ${option.label}`}
                   className={cn(
-                    'group overflow-hidden rounded-[1.5rem] border-4 bg-white text-left shadow-sm transition hover:-translate-y-1 hover:shadow-clay focus-visible:outline focus-visible:outline-4 focus-visible:outline-brand-300',
+                    'group overflow-hidden rounded-[2rem] border-b-[8px] border-x-4 border-t-4 bg-white text-left transition-all duration-150',
+                    'hover:-translate-y-1 hover:brightness-105 active:translate-y-2 active:border-b-[4px]',
                     selected && !roundSolved && option.id !== correctId
-                      ? 'border-coral-400'
-                      : 'border-white',
-                    correct && 'border-mint-500',
+                      ? 'border-coral-500 translate-y-2 border-b-[4px]'
+                      : 'border-slate-300',
+                    correct ? 'border-mint-500 bg-mint-50 ring-4 ring-mint-300 ring-offset-2 translate-y-2 border-b-[4px]' : 'hover:border-slate-400',
                   )}
                 >
                   <span
-                    className="block aspect-square bg-cover"
+                    className="block aspect-square bg-cover rounded-t-[1.5rem]"
                     style={{
                       backgroundImage: `url("${option.imageUrl}")`,
                       backgroundSize: '200% 200%',
@@ -183,7 +180,7 @@ export function BattleMathGame({
                     }}
                     aria-hidden="true"
                   />
-                  <span className="block min-h-14 p-3 text-center text-sm font-extrabold text-brand-900">
+                  <span className="block min-h-14 p-3 text-center text-base font-black text-brand-900">
                     Ảnh {index + 1}
                   </span>
                 </button>
@@ -191,23 +188,27 @@ export function BattleMathGame({
             })}
           </div>
 
-          <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
+          <div className="grid gap-4 sm:grid-cols-[1fr_auto] sm:items-center mt-2">
             <button
               type="button"
               onClick={() => {
                 setHintLevel((level) => Math.min(2, level + 1))
                 setStatus(hintLevel >= 1 ? round.clue : 'Tách prompt thành bốn phần nhỏ rồi kiểm tra từng phần nhé.')
               }}
-              className="flex min-h-12 items-center justify-center gap-2 rounded-2xl border-2 border-sun-200 bg-sun-50 px-4 font-extrabold text-amber-900"
+              className="group flex min-h-14 items-center justify-center gap-2 rounded-full border-b-[6px] border-amber-600 bg-amber-400 px-6 font-black text-amber-950 shadow-md transition-all duration-150 hover:-translate-y-1 hover:brightness-110 active:translate-y-1 active:border-b-[2px]"
             >
-              <Lightbulb size={19} aria-hidden="true" />
-              {hintLevel >= 1 ? 'Manh mối rõ hơn' : 'Xin một manh mối'}
+              <Lightbulb size={22} className="animate-pulse" aria-hidden="true" />
+              <span className="drop-shadow-sm">{hintLevel >= 1 ? 'Manh mối rõ hơn' : 'Xin manh mối'}</span>
             </button>
             {roundSolved && (
-              <Button onClick={nextRound}>
-                <Swords size={19} aria-hidden="true" />
-                {roundIndex + 1 === rounds.length ? 'Mở cổng pháo đài' : 'Sang cửa ải tiếp'}
-              </Button>
+              <button 
+                type="button"
+                onClick={nextRound}
+                className="group flex min-h-14 items-center justify-center gap-2 rounded-full border-b-[6px] border-mint-700 bg-mint-500 px-8 font-black text-white shadow-md transition-all duration-150 hover:-translate-y-1 hover:brightness-110 active:translate-y-1 active:border-b-[2px]"
+              >
+                <Swords size={22} className="animate-bounce" aria-hidden="true" />
+                <span className="drop-shadow-sm">{roundIndex + 1 === rounds.length ? 'Mở cổng pháo đài' : 'Sang cửa tiếp'}</span>
+              </button>
             )}
           </div>
         </div>

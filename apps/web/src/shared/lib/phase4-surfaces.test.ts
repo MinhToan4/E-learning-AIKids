@@ -62,12 +62,21 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
 
   it('lesson always tells the child the goal, product and four-step rhythm', () => {
     const lesson = read('features/lesson/pages/LessonPage.tsx')
+    const sidebar = read('features/lesson/components/LeftPhaseSidebar.tsx')
     expect(lesson).toContain('Hôm nay con sẽ')
     expect(lesson).toContain('Sản phẩm của trạm')
-    expect(lesson).toContain("label: 'Khám phá'")
-    expect(lesson).toContain("label: 'Thử cùng Mee'")
-    expect(lesson).toContain("label: 'Tự tay làm'")
-    expect(lesson).toContain("label: 'Thử thách'")
+    expect(sidebar).toContain("label: 'Khám phá'")
+    expect(sidebar).toContain("label: 'Thử cùng Mee'")
+    expect(sidebar).toContain("label: 'Tự tay làm'")
+    expect(sidebar).toContain("label: 'Thử thách'")
+  })
+
+  it('supports MOCK_TEST_QUEST and visual quiz image options in Check phase', () => {
+    const lesson = read('features/lesson/pages/LessonPage.tsx')
+    expect(lesson).toContain('MOCK_TEST_QUEST')
+    expect(lesson).toContain("questId.startsWith('test")
+    expect(lesson).toContain("opt.startsWith('http')")
+    expect(lesson).toContain('alt={`Option ${String.fromCharCode(65 + idx)}`}')
   })
 
   it('AchievementsPage and NotificationBell exist with real endpoints', () => {

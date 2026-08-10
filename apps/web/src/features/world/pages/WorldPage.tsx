@@ -173,28 +173,77 @@ export function WorldPage() {
           setPathway({ ...journey, courses: coursesWithStations })
           return
         }
-        const [course, journey] = await Promise.all([
-          api<{ course: { title: string } }>(`/api/courses/${courseId}`),
-          api<Pathway>('/api/learning/pathway'),
-        ])
-        const pathRow = journey.courses.find((row) => row.id === courseId)
-        setRegionIndex(Math.max(0, journey.courses.findIndex((row) => row.id === courseId)))
+        const mockTestCourse: PathwayCourse = {
+          id: 'test-course',
+          title: 'Hành trình Sáng tạo AI (Bản thử nghiệm)',
+          shortTitle: 'TEST REGION',
+          status: 'active',
+          reasonCode: 'test',
+          completionPercent: 0,
+          missingPrerequisites: [],
+          coverImage: null,
+          enrolled: true,
+          questCount: 10,
+          completedCount: 0,
+          totalStars: 0,
+        }
+        
+        let courseTitle = ''
+        let pathRow: PathwayCourse | undefined
+
+        let journey = await api<Pathway>('/api/learning/pathway')
+
+        if (courseId === 'test-course') {
+          pathRow = mockTestCourse
+          courseTitle = mockTestCourse.title
+          setRegionIndex(3) // 3 is explicitly Phòng Lab Thử Nghiệm in WORLD_REGIONS
+          journey = { ...journey, courses: [...journey.courses, mockTestCourse] }
+        } else {
+          const [courseResp] = await Promise.all([
+            api<{ course: { title: string } }>(`/api/courses/${courseId}`)
+          ])
+          courseTitle = courseResp.course.title
+          pathRow = journey.courses.find((row) => row.id === courseId)
+          setRegionIndex(Math.max(0, journey.courses.findIndex((row) => row.id === courseId)))
+        }
+
         if (!pathRow || pathRow.status === 'locked') {
           throw new Error('Khóa học này chưa được mở trong lộ trình của con.')
         }
         setPathway(journey)
-        setCourseTitle(course.course.title)
+        setCourseTitle(courseTitle)
         if (pathRow.status === 'available') {
           setEnrollmentRequired(true)
           return
         }
-        const data = await api<{
-          quests: QuestProgress[]
-          totalStars: number
-          completedCount: number
-        }>(`/api/progress/${courseId}`)
-        setQuests(data.quests)
-        setMeta({ totalStars: data.totalStars, completedCount: data.completedCount })
+        if (courseId === 'test-course') {
+          const mockKinds = ['video', 'detective', 'match', 'sketch', 'prompt_lab', 'palette', 'ai_pick', 'drag', 'character', 'prompt_lab']
+          const mockQuests: QuestProgress[] = Array.from({ length: 10 }, (_, i) => ({
+            id: `test-${i + 1}`,
+            order: i + 1,
+            title: `Bài ${i + 1}`,
+            skill: 'test',
+            reward: 'none',
+            duration: '5 phút',
+            hook: 'Trải nghiệm thử nghiệm',
+            accent: '#8b5cf6',
+            practiceKind: mockKinds[i],
+            status: i === 0 ? 'available' : 'locked',
+            phase: 'learn',
+            stars: 0,
+            xpEarned: 0,
+          }))
+          setQuests(mockQuests)
+          setMeta({ totalStars: 0, completedCount: 0 })
+        } else {
+          const data = await api<{
+            quests: QuestProgress[]
+            totalStars: number
+            completedCount: number
+          }>(`/api/progress/${courseId}`)
+          setQuests(data.quests)
+          setMeta({ totalStars: data.totalStars, completedCount: data.completedCount })
+        }
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Không tải được bản đồ')
       } finally {
@@ -413,6 +462,15 @@ const WORLD_REGIONS = [
     pose: 'celebrate',
     sceneLabel: 'Mee đang nhảy mừng sau thử thách',
   },
+  {
+    name: 'Phòng Lab Thử Nghiệm',
+    description: 'Nơi thử nghiệm 10 loại trạm thực hành khác nhau.',
+    background: designerAssets.lobby.bgCharacter,
+    scene: designerAssets.worldScenes.aiValley,
+    ribbon: 'var(--color-violet-600)',
+    pose: 'support',
+    sceneLabel: 'Mee đang hỗ trợ bạn trong phòng lab',
+  },
 ] as const
 
 function RoadmapCourseNode({
@@ -426,7 +484,8 @@ function RoadmapCourseNode({
   isRecommended: boolean
   courseHref: string
 }) {
-  const region = WORLD_REGIONS[index % WORLD_REGIONS.length]
+  const region = WORLD_REGIONS[index % WORLD_REGIONS.length];
+
   const isCompleted = course.status === 'completed'
   const isActive = course.status === 'active'
   const isLocked = course.status === 'locked'

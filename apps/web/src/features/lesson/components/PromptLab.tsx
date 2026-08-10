@@ -118,35 +118,35 @@ export function PromptLab({
 
   return (
     <div className="flex flex-col gap-4" data-testid="prompt-lab">
-      <div className="grid gap-3 sm:grid-cols-2">
-        <label className="flex flex-col gap-1 text-sm font-bold">
+      <div className="grid gap-4 sm:grid-cols-2">
+        <label className="flex flex-col gap-2 text-base font-black text-slate-700">
           1. Prompt yếu
           <input
-            className="min-h-11 rounded-xl border-2 border-border px-3 font-normal"
+            className="min-h-12 rounded-2xl border-4 border-slate-200 px-4 font-bold text-slate-700 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 focus:outline-none transition-all"
             value={value.weak}
             maxLength={30}
             placeholder="Ví dụ: Vẽ mèo"
             onChange={(event) => field('weak', event.target.value)}
           />
-          <span className="text-xs font-normal text-muted">Chỉ 1–2 từ, còn thiếu thông tin.</span>
+          <span className="text-sm font-bold text-slate-500">Chỉ 1–2 từ, còn thiếu thông tin.</span>
         </label>
-        <label className="flex flex-col gap-1 text-sm font-bold">
+        <label className="flex flex-col gap-2 text-base font-black text-slate-700">
           2. Prompt trung bình
           <input
-            className="min-h-11 rounded-xl border-2 border-border px-3 font-normal"
+            className="min-h-12 rounded-2xl border-4 border-slate-200 px-4 font-bold text-slate-700 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 focus:outline-none transition-all"
             value={value.medium}
             maxLength={180}
             placeholder="Ví dụ: Vẽ một chú mèo cam đang chơi."
             onChange={(event) => field('medium', event.target.value)}
           />
-          <span className="text-xs font-normal text-muted">Một câu có đối tượng và hành động.</span>
+          <span className="text-sm font-bold text-slate-500">Một câu có đối tượng và hành động.</span>
         </label>
       </div>
 
-      <fieldset className="rounded-3xl border-2 border-brand-100 bg-brand-50/40 p-4 sm:p-5 flex flex-col gap-4">
+      <fieldset className="rounded-[2rem] border-[6px] border-sky-200 bg-sky-50 shadow-clay p-4 sm:p-6 flex flex-col gap-4">
         <div>
-          <legend className="px-2 font-display text-lg">3. Lắp prompt tốt · đủ 4 mảnh</legend>
-          <p className="mt-1 text-sm text-muted px-2">
+          <legend className="px-2 font-display text-2xl font-black text-sky-800">3. Lắp prompt tốt · đủ 4 mảnh</legend>
+          <p className="mt-1 text-base font-bold text-sky-600/80 px-2">
             Chọn một mảnh ở mỗi trạm. Con có thể đổi mảnh cho đến khi prompt đúng ý.
           </p>
         </div>
@@ -155,13 +155,13 @@ export function PromptLab({
           {/* Top side: Live Preview */}
           <div className="flex flex-col gap-3 min-w-0">
             <div className="flex items-center justify-between gap-3 px-1">
-              <strong className="font-bold text-sm text-text">Xem trước</strong>
-              <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-extrabold text-brand-700">
+              <strong className="text-base font-black text-sky-900">Xem trước</strong>
+              <span className="rounded-full bg-white border-2 border-sky-200 px-3 py-1 text-sm font-black text-sky-700 shadow-sm">
                 {filledPartsCount}/4 mảnh
               </span>
             </div>
             
-            <div className="relative aspect-[21/9] sm:aspect-video overflow-hidden rounded-2xl bg-surface border-4 border-white shadow-clay">
+            <div className="relative aspect-[21/9] sm:aspect-video overflow-hidden rounded-[2rem] bg-slate-800 border-[8px] sm:border-[12px] border-slate-700 shadow-xl">
               <img
                 src="https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80"
                 alt="Live preview"
@@ -185,7 +185,7 @@ export function PromptLab({
           {/* Bottom side: Tab UI */}
           <div className="flex flex-col gap-3 min-w-0">
             {/* Tabs */}
-            <div className="flex gap-2 overflow-x-auto pb-2 hide-scrollbar">
+            <div className="flex gap-3 overflow-x-auto pb-4 pt-1 px-1 -mx-1 hide-scrollbar">
               {PROMPT_PARTS.map(({ key, label, tone }, index) => {
                 const isActive = activeTab === key
                 const hasValue = !!value[key]
@@ -194,15 +194,21 @@ export function PromptLab({
                     key={key}
                     type="button"
                     onClick={() => setActiveTab(key)}
-                    className={`flex-shrink-0 flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-bold transition-all ${
+                    className={`flex-shrink-0 flex items-center gap-2.5 rounded-2xl px-5 py-3 text-[15px] font-black transition-all border-2 active:border-b-2 active:translate-y-1 ${
                       isActive 
-                        ? 'bg-white shadow-sm ring-2 ring-brand-300 text-brand-700'
+                        ? 'bg-brand-500 border-brand-700 border-b-2 translate-y-1 text-white shadow-inner'
                         : hasValue
-                          ? 'bg-white text-text border border-border hover:bg-brand-50'
-                          : 'bg-surface text-muted border border-transparent hover:bg-border/50 hover:text-text'
+                          ? 'bg-brand-50 border-brand-300 border-b-[6px] text-brand-700 hover:bg-brand-100 hover:-translate-y-1'
+                          : 'bg-white border-slate-200 border-b-[6px] text-slate-500 hover:bg-slate-50 hover:-translate-y-1'
                     }`}
                   >
-                    <span className={`flex h-6 w-6 items-center justify-center rounded-md border text-xs ${hasValue ? tone : 'bg-surface border-border text-muted'}`}>
+                    <span className={`flex h-8 w-8 items-center justify-center rounded-full border-2 text-sm shadow-sm ${
+                      isActive 
+                        ? 'bg-white border-transparent text-brand-600' 
+                        : hasValue 
+                          ? 'bg-white border-brand-300 text-brand-600' 
+                          : 'bg-slate-100 border-slate-200 text-slate-400'
+                    }`}>
                       {index + 1}
                     </span>
                     {label}
@@ -212,52 +218,54 @@ export function PromptLab({
             </div>
 
             {/* Active Tab Content */}
-            <div className="flex flex-col gap-4 rounded-2xl border border-border bg-white p-4 shadow-sm min-h-[180px]">
+            <div className="flex flex-col gap-4 rounded-3xl border-4 border-slate-200 bg-white p-5 shadow-sm min-h-[200px]">
               <div>
-                <strong className="text-base text-text">{activePart.label}</strong>
-                <p className="text-sm text-muted">{activePart.hint}</p>
+                <strong className="text-xl font-black text-slate-800">{activePart.label}</strong>
+                <p className="text-base font-bold text-slate-500">{activePart.hint}</p>
               </div>
 
               <div
-                className={`flex min-h-12 items-center rounded-xl border-2 border-dashed p-3 text-sm font-bold ${value[activeTab] ? activePart.tone : 'border-border bg-surface text-muted'}`}
+                className={`flex min-h-14 items-center rounded-2xl border-4 border-dashed p-4 text-base font-black ${value[activeTab] ? activePart.tone : 'border-slate-200 bg-slate-50 text-slate-400'}`}
                 aria-live="polite"
               >
                 {value[activeTab] || `Chưa có mảnh ${activePart.label.toLocaleLowerCase('vi-VN')}`}
               </div>
 
-              <div className="grid gap-2 sm:grid-cols-2 mt-auto">
-                {availableChoices.map((choice) => (
-                  <button
-                    key={choice}
-                    type="button"
-                    aria-pressed={value[activeTab] === choice}
-                    onClick={() => {
-                      field(activeTab, choice)
-                      // Auto advance to next tab if not the last one
-                      const currentIndex = PROMPT_PARTS.findIndex(p => p.key === activeTab)
-                      if (currentIndex < PROMPT_PARTS.length - 1) {
-                        setActiveTab(PROMPT_PARTS[currentIndex + 1].key)
-                      }
-                    }}
-                    className={`min-h-11 rounded-xl border px-4 py-2 text-left text-sm font-bold transition-all active:scale-[0.98] ${
-                      value[activeTab] === choice
-                        ? activePart.tone + ' scale-[1.02] shadow-sm'
-                        : 'border-border bg-white text-text hover:border-brand-200 hover:bg-brand-50'
-                    }`}
-                  >
-                    {choice}
-                  </button>
-                ))}
+              <div className="grid gap-3 sm:grid-cols-2 mt-auto">
+                {availableChoices.map((choice) => {
+                  const isSelected = value[activeTab] === choice;
+                  return (
+                    <button
+                      key={choice}
+                      type="button"
+                      aria-pressed={isSelected}
+                      onClick={() => {
+                        field(activeTab, choice)
+                        const currentIndex = PROMPT_PARTS.findIndex(p => p.key === activeTab)
+                        if (currentIndex < PROMPT_PARTS.length - 1) {
+                          setActiveTab(PROMPT_PARTS[currentIndex + 1].key)
+                        }
+                      }}
+                      className={`min-h-14 rounded-2xl px-4 py-3 text-left text-sm font-black transition-all ${
+                        isSelected
+                          ? activePart.tone + ' border-2 border-b-2 translate-y-1'
+                          : 'bg-white border-2 border-b-[6px] border-slate-200 text-slate-700 hover:-translate-y-1 hover:border-brand-300 hover:shadow-md'
+                      }`}
+                    >
+                      {choice}
+                    </button>
+                  )
+                })}
               </div>
             </div>
           </div>
         </div>
       </fieldset>
 
-      <label className="flex flex-col gap-1 text-sm font-bold">
+      <label className="flex flex-col gap-2 text-base font-black text-slate-700">
         Vì sao prompt 3 tốt hơn?
         <textarea
-          className="min-h-24 rounded-xl border-2 border-border p-3 font-normal"
+          className="min-h-24 rounded-2xl border-4 border-slate-200 p-4 font-bold text-slate-700 focus:border-brand-400 focus:ring-4 focus:ring-brand-100 focus:outline-none transition-all"
           value={value.explanation}
           maxLength={500}
           placeholder="Prompt 3 giúp AI hiểu rõ…"

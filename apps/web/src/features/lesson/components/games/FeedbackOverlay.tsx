@@ -7,7 +7,7 @@ import { useEffect, useRef, useState } from 'react'
 // 3. Pool khen/phạt được review bởi content team 1 lần
 
 // ── Praise pool (6–11 tuổi, vui + phụ huynh xem được) ─────────────────────
-const PRAISE_MESSAGES = [
+export const PRAISE_MESSAGES = [
   { icon: '🎉', text: 'Tuyệt vời quá! Con giỏi thật sự!' },
   { icon: '⭐', text: 'Wow, con thông minh thật đó!' },
   { icon: '🚀', text: 'Xuất sắc! Con đã làm được rồi!' },
@@ -31,7 +31,7 @@ const PRAISE_MESSAGES = [
 ]
 
 // ── Encouragement pool (hài hước nhẹ, khích lệ) ───────────────────────────
-const WRONG_MESSAGES = [
+export const WRONG_MESSAGES = [
   { icon: '😅', main: 'Ôi suýt rồi!', sub: 'Thử lại nào bạn ơi!' },
   { icon: '🤔', main: 'Hmm, chưa đúng rồi!', sub: 'Nhưng con dũng cảm thử rồi!' },
   { icon: '💪', main: 'Không sao!', sub: 'Siêu anh hùng cũng cần thử nhiều lần!' },
@@ -47,7 +47,7 @@ const WRONG_MESSAGES = [
 ]
 
 // ── Streak messages ────────────────────────────────────────────────────────
-const STREAK_LABELS: Record<number, { icon: string, text: string }> = {
+export const STREAK_LABELS: Record<number, { icon: string, text: string }> = {
   3: { icon: '🔥', text: 'Ba lần liên tiếp! Con đang bốc lắm!' },
   5: { icon: '⚡', text: 'Năm lần liên tiếp! Không thể tin nổi!' },
   7: { icon: '🌠', text: 'Bảy lần đúng liên tiếp — siêu anh hùng!' },
@@ -55,7 +55,7 @@ const STREAK_LABELS: Record<number, { icon: string, text: string }> = {
 }
 
 // Lấy random từ mảng, seed bằng attempt count để tránh lặp
-function pickRandom<T>(arr: T[], seed: number): T {
+export function pickRandom<T>(arr: T[], seed: number): T {
   return arr[Math.abs(seed * 2654435761) % arr.length]!
 }
 

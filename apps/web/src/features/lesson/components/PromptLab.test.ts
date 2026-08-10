@@ -68,8 +68,8 @@ describe('PromptLab', () => {
         onChange: () => undefined,
       }),
     )
-    expect(fullMarkup).toContain('4/4 mảnh')
-    expect(fullMarkup).toContain('blur-none grayscale-0 animate-in zoom-in-95')
+    expect(fullMarkup).toContain('blur-none grayscale-0')
+    expect(fullMarkup).toContain('animate-in zoom-in-95')
   })
 })
 

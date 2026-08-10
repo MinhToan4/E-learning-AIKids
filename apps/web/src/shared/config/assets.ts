@@ -87,6 +87,28 @@ export const designerAssets = {
     storyIsland: '/assets/aikid-ui/world-scenes/scene-story-island-generated.png',
     creativeMountain: '/assets/aikid-ui/world-scenes/scene-creative-mountain-generated.png',
   },
+  storybook: {
+    chapterBackgrounds: [
+      '/assets/designer/storybook/chapter-01.webp',
+      '/assets/designer/storybook/chapter-02.webp',
+      '/assets/designer/storybook/chapter-03.webp',
+      '/assets/designer/storybook/chapter-04.webp',
+      '/assets/designer/storybook/chapter-05.webp',
+      '/assets/designer/storybook/chapter-06.webp',
+      '/assets/designer/storybook/chapter-07.webp',
+      '/assets/designer/storybook/chapter-08.webp',
+    ],
+    chapterTabs: [
+      '/assets/designer/storybook/tabs/chapter-01.webp',
+      '/assets/designer/storybook/tabs/chapter-02.webp',
+      '/assets/designer/storybook/tabs/chapter-03.webp',
+      '/assets/designer/storybook/tabs/chapter-04.webp',
+      '/assets/designer/storybook/tabs/chapter-05.webp',
+      '/assets/designer/storybook/tabs/chapter-06.webp',
+      '/assets/designer/storybook/tabs/chapter-07.webp',
+      '/assets/designer/storybook/tabs/chapter-08.webp',
+    ],
+  },
   /** Decorative chrome (badges, maps) — designer Soft Clay */
   chrome: {
     badges: '/assets/ui-badges.webp',

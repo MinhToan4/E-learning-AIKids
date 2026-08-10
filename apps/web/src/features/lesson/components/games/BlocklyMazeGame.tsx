@@ -4,7 +4,7 @@ import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 import { feedbackFor, missionProgress } from '@/features/lesson/lib/curriculum-game'
 import { EngineGameShell } from './EngineGameShell'
-import { FeedbackOverlay } from './FeedbackOverlay'
+import { PRAISE_MESSAGES, WRONG_MESSAGES, pickRandom } from './FeedbackOverlay'
 import type { EngineGameProps } from './types'
 
 type Command = 'forward' | 'left' | 'right' | 'repeat2' | 'ifClear'
@@ -98,6 +98,7 @@ export function BlocklyMazeGame({
   outcome,
   onComplete,
   onBack,
+  onHint,
 }: EngineGameProps) {
   const [levelIndex, setLevelIndex] = useState(0)
   const level = LEVELS[levelIndex]!
@@ -113,7 +114,6 @@ export function BlocklyMazeGame({
   const [status, setStatus] = useState(
     'Xếp khối lệnh rồi bấm Chạy. Nếu chưa tới kho dữ liệu, con quan sát và sửa lại nhé!',
   )
-  const [feedback, setFeedback] = useState<{ type: 'correct' | 'wrong'; attempt: number } | null>(null)
   const timers = useRef<number[]>([])
   const allComplete = won && levelIndex === LEVELS.length - 1
   const levelScore = won
@@ -199,8 +199,10 @@ export function BlocklyMazeGame({
           timers.current.forEach((pending) => window.clearTimeout(pending))
           timers.current = []
           setRunning(false)
-          setFeedback({ type: 'wrong', attempt: attempts })
+          
+          const wrong = pickRandom(WRONG_MESSAGES, attempts)
           setStatus('Mii gặp đá rồi! Tìm ô lệnh đang sáng, đổi lệnh trước chỗ đó và chạy lại nhé.')
+          if (onHint) onHint({ text: `${wrong.main} ${wrong.sub}\n💡 Mii gặp đá rồi! Tìm ô lệnh đang sáng, đổi lệnh trước chỗ đó và chạy lại nhé.`, type: 'wrong' })
           return
         }
         cursor = next
@@ -211,8 +213,10 @@ export function BlocklyMazeGame({
           timers.current = []
           setWon(true)
           setRunning(false)
-          setFeedback({ type: 'correct', attempt: attempts })
+          
+          const praise = pickRandom(PRAISE_MESSAGES, attempts)
           setStatus(`${feedbackFor('correct', levelIndex)} ${level.lesson}`)
+          if (onHint) onHint({ text: praise.text, type: 'correct' })
           return
         }
         if (executionIndex === executions.length - 1) {
@@ -239,14 +243,6 @@ export function BlocklyMazeGame({
 
   return (
     <>
-      {feedback && (
-        <FeedbackOverlay
-          type={feedback.type}
-          streak={0}
-          attempt={feedback.attempt}
-          onDismiss={() => setFeedback(null)}
-        />
-      )}
     <EngineGameShell
       title="Blockly · Đội Cứu Hộ Dữ Liệu"
       subtitle={instruction || 'Lập chương trình qua bốn màn để đưa dữ liệu tốt về phòng học của AI.'}
@@ -267,7 +263,7 @@ export function BlocklyMazeGame({
             <p className="text-sm font-bold text-muted">{level.lesson}</p>
           </div>
           <div
-            className="mx-auto grid aspect-square w-full max-w-[30rem] grid-cols-5 overflow-hidden rounded-[1.75rem] border-4 border-white bg-sky-100 shadow-inner"
+            className="mx-auto grid aspect-square w-full max-w-[30rem] grid-cols-5 overflow-hidden rounded-[2.5rem] border-[12px] border-brand-400 border-b-[24px] bg-sky-100 shadow-clay relative"
             aria-label="Bản đồ lập trình 5 hàng 5 cột"
           >
             {cells.map((cell) => {
@@ -302,9 +298,9 @@ export function BlocklyMazeGame({
         </div>
 
         <div className="grid content-start gap-4">
-          <div className="rounded-3xl border-2 border-brand-100 bg-brand-50 p-4">
-            <p className="mb-3 text-sm font-extrabold text-brand-800">
-              Kho khối lệnh · tối đa {maxBlocks}
+          <div className="rounded-[2rem] border-[4px] border-dashed border-brand-300 bg-brand-50 p-5 shadow-sm">
+            <p className="mb-3 text-sm font-black text-brand-800">
+              Khay đồ chơi · tối đa {maxBlocks} khối
             </p>
             <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
               {COMMANDS.filter((command) => level.allowed.includes(command.id)).map((command) => (
@@ -315,7 +311,7 @@ export function BlocklyMazeGame({
                   disabled={running || won || program.length >= maxBlocks}
                   onDragStart={(event) => event.dataTransfer.setData('command', command.id)}
                   onClick={() => addCommand(command.id)}
-                  className="min-h-20 rounded-2xl border-2 border-brand-200 bg-white p-2 font-extrabold text-brand-800 shadow-sm transition hover:-translate-y-0.5 hover:border-brand-400 disabled:opacity-45"
+                  className="min-h-20 rounded-[2rem] border-2 border-b-[6px] border-brand-300 bg-white p-2 font-black text-brand-800 shadow-clay transition-all hover:-translate-y-1 hover:border-brand-400 active:translate-y-1 active:border-b-2 disabled:opacity-45"
                 >
                   <span className="block font-display text-2xl" aria-hidden="true">{command.symbol}</span>
                   <span className="text-xs">{command.label}</span>
@@ -325,7 +321,7 @@ export function BlocklyMazeGame({
           </div>
 
           <div
-            className="min-h-48 rounded-3xl border-2 border-dashed border-brand-300 bg-white p-4"
+            className="min-h-48 rounded-[2rem] border-[4px] border-dashed border-brand-300 bg-white p-5 shadow-sm"
             onDragOver={(event) => event.preventDefault()}
             onDrop={(event) => {
               const command = event.dataTransfer.getData('command') as Command
@@ -339,7 +335,7 @@ export function BlocklyMazeGame({
               </button>
             </div>
             {program.length === 0 ? (
-              <p className="grid min-h-24 place-items-center rounded-2xl bg-brand-50 px-4 text-center text-sm font-bold text-muted">Thả hoặc chạm khối lệnh</p>
+              <p className="grid min-h-24 place-items-center rounded-[2rem] bg-brand-50 px-4 text-center text-sm font-black text-brand-400 border-2 border-dashed border-brand-200">Thả hoặc chạm khối lệnh</p>
             ) : (
               <ol className="grid gap-2">
                 {program.map((command, index) => {
@@ -355,8 +351,8 @@ export function BlocklyMazeGame({
                         if (Number.isInteger(from)) moveCommand(from, index)
                       }}
                       className={cn(
-                        'flex min-h-12 items-center gap-3 rounded-xl border-2 border-brand-100 bg-white px-3 font-bold',
-                        activeIndex === index && 'border-sun-400 bg-sun-50',
+                        'flex min-h-12 items-center gap-3 rounded-[2rem] border-2 border-b-[4px] border-brand-200 bg-white px-3 font-black shadow-sm transition-all active:translate-y-1 active:border-b-2',
+                        activeIndex === index && 'border-sun-400 border-b-sun-500 bg-sun-50',
                       )}
                     >
                       <span className="grid size-8 place-items-center rounded-lg bg-brand-100 font-display text-lg text-brand-800">{definition.symbol}</span>
@@ -370,12 +366,12 @@ export function BlocklyMazeGame({
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <Button variant="secondary" onClick={() => reset(false)} disabled={running}>
-              <RotateCcw size={18} aria-hidden="true" /> Đặt lại
-            </Button>
-            <Button onClick={runProgram} disabled={running || program.length === 0 || won}>
-              <Play size={18} fill="currentColor" aria-hidden="true" /> Chạy
-            </Button>
+            <button type="button" onClick={() => reset(false)} disabled={running} className="flex items-center justify-center gap-2 rounded-[2rem] border-2 border-b-[6px] border-brand-300 bg-brand-100 p-4 font-black text-brand-900 shadow-clay transition-all hover:-translate-y-1 hover:bg-brand-200 active:translate-y-1 active:border-b-2 disabled:opacity-45">
+              <RotateCcw size={20} aria-hidden="true" /> Đặt lại
+            </button>
+            <button type="button" onClick={runProgram} disabled={running || program.length === 0 || won} className="flex items-center justify-center gap-2 rounded-[2rem] border-2 border-b-[6px] border-green-600 bg-green-500 p-4 font-black text-white shadow-clay transition-all hover:-translate-y-1 hover:bg-green-400 active:translate-y-1 active:border-b-2 disabled:opacity-45 text-lg">
+              <Play size={24} fill="currentColor" aria-hidden="true" /> CHẠY CODE
+            </button>
           </div>
 
           {won && !allComplete && <Button onClick={nextLevel}>Mở màn tiếp theo</Button>}

@@ -16,9 +16,9 @@ import {
   sanitizeAssociationPairs,
   sanitizeGameCards,
 } from '@/features/lesson/lib/curriculum-game'
+import { PRAISE_MESSAGES, WRONG_MESSAGES, pickRandom } from './FeedbackOverlay'
 import { cn } from '@/shared/lib/cn'
 import { EngineGameShell } from './EngineGameShell'
-import { FeedbackOverlay } from './FeedbackOverlay'
 import type { EngineGameProps } from './types'
 
 const FALLBACK_PAIRS = [
@@ -76,6 +76,7 @@ export function EdukizGame({
   outcome,
   onComplete,
   onBack,
+  onHint,
 }: EngineGameProps) {
   const cards = useMemo(() => sanitizeGameCards(config?.cards), [config?.cards])
   const pairs = useMemo(() => {
@@ -103,7 +104,6 @@ export function EdukizGame({
   const [status, setStatus] = useState(
     'Xưởng có bốn phòng. Hoàn thành từng phòng để tự tay huấn luyện và kiểm thử AI nhé!',
   )
-  const [feedback, setFeedback] = useState<{ type: 'correct' | 'wrong'; attempt: number } | null>(null)
   const memoryDone = matched.length >= pairs.length
   const privacyDone = privacyIndex >= PRIVACY_CARDS.length
   const promptDone = promptIds.length >= PROMPT_CHUNKS.length
@@ -124,14 +124,18 @@ export function EdukizGame({
     setMaxStreak((value) => Math.max(value, nextStreak))
     setScore((value) => value + amount + Math.min(5, nextStreak))
     setChoices((value) => [...value, evidence])
-    setFeedback({ type: 'correct', attempt: choices.length })
+    
+    const praise = pickRandom(PRAISE_MESSAGES, choices.length)
     setStatus(`${feedbackFor('correct', choices.length)} ${message}`)
+    if (onHint) onHint({ text: praise.text, type: 'correct' })
   }
 
   function retry(message: string) {
     setStreak(0)
-    setFeedback({ type: 'wrong', attempt: attempts })
+    
+    const wrong = pickRandom(WRONG_MESSAGES, attempts)
     setStatus(`${feedbackFor('retry', attempts)} ${message}`)
+    if (onHint) onHint({ text: `${wrong.main} ${wrong.sub}\n💡 ${message}`, type: 'wrong' })
   }
 
   function flip(id: string, pairId: string) {
@@ -226,14 +230,6 @@ export function EdukizGame({
 
   return (
     <>
-      {feedback && (
-        <FeedbackOverlay
-          type={feedback.type}
-          streak={streak}
-          attempt={feedback.attempt}
-          onDismiss={() => setFeedback(null)}
-        />
-      )}
     <EngineGameShell
       title="Edukiz · Xưởng Huấn Luyện AI"
       subtitle={instruction || 'Đi qua bốn phòng: gắn nhãn, bảo vệ dữ liệu, lắp prompt và kiểm thử kết quả AI.'}
@@ -253,15 +249,15 @@ export function EdukizGame({
               disabled={index > unlocked}
               onClick={() => setPhase(index)}
               className={cn(
-                'min-h-16 rounded-2xl border-2 px-2 text-xs font-extrabold transition sm:text-sm',
+                'min-h-16 rounded-[2rem] border-2 border-b-[6px] px-2 text-xs font-black transition-all sm:text-sm active:translate-y-1 active:border-b-2',
                 phase === index
-                  ? 'border-mint-600 bg-mint-100 text-mint-900 shadow-sm'
+                  ? 'border-mint-600 bg-mint-100 text-mint-900 shadow-xl'
                   : index <= unlocked
-                    ? 'border-brand-100 bg-white text-brand-800'
-                    : 'border-stone-100 bg-stone-50 text-stone-400',
+                    ? 'border-brand-300 bg-white text-brand-800 hover:-translate-y-1 hover:shadow-lg'
+                    : 'border-stone-200 bg-stone-50 text-stone-400',
               )}
             >
-              <Icon className="mx-auto mb-1" size={20} aria-hidden="true" />
+              <Icon className="mx-auto mb-1" size={24} aria-hidden="true" />
               {index + 1}. {title}
             </button>
           ))}
@@ -290,10 +286,10 @@ export function EdukizGame({
                     type="button"
                     onClick={() => flip(card.id, card.pairId)}
                     className={cn(
-                      'min-h-28 rounded-3xl border-2 p-3 font-extrabold transition',
+                      'min-h-28 rounded-[2rem] border-2 border-b-[6px] p-3 font-black transition-all active:translate-y-1 active:border-b-2 shadow-sm hover:shadow-xl hover:-translate-y-2',
                       revealed
-                        ? 'border-mint-300 bg-[#f5fff8] text-mint-900'
-                        : 'border-brand-700 bg-brand-950 text-sun-200 hover:-translate-y-1',
+                        ? 'border-mint-400 bg-mint-50 text-mint-900'
+                        : 'border-brand-700 bg-brand-800 text-sun-200',
                     )}
                     aria-label={revealed ? card.label : 'Thẻ đang úp'}
                   >
@@ -317,10 +313,10 @@ export function EdukizGame({
                   {PRIVACY_CARDS[privacyIndex]!.label}
                 </div>
                 <div className="grid grid-cols-2 gap-3">
-                  <button type="button" onClick={() => sortPrivacy('share')} className="min-h-20 rounded-3xl border-2 border-mint-300 bg-mint-50 p-3 font-extrabold text-mint-900">
+                  <button type="button" onClick={() => sortPrivacy('share')} className="min-h-20 rounded-[2rem] border-2 border-b-[6px] border-mint-500 bg-mint-100 p-3 font-black text-mint-900 transition-all active:translate-y-1 active:border-b-2 hover:-translate-y-1 hover:shadow-lg">
                     Dùng được cho bài này
                   </button>
-                  <button type="button" onClick={() => sortPrivacy('private')} className="min-h-20 rounded-3xl border-2 border-coral-200 bg-coral-50 p-3 font-extrabold text-danger">
+                  <button type="button" onClick={() => sortPrivacy('private')} className="min-h-20 rounded-[2rem] border-2 border-b-[6px] border-coral-400 bg-coral-100 p-3 font-black text-danger transition-all active:translate-y-1 active:border-b-2 hover:-translate-y-1 hover:shadow-lg">
                     Giữ riêng tư
                   </button>
                 </div>
@@ -357,7 +353,7 @@ export function EdukizGame({
                   type="button"
                   onClick={() => choosePromptChunk(chunk.id)}
                   disabled={promptIds.includes(chunk.id)}
-                  className="min-h-16 rounded-2xl border-2 border-sun-200 bg-[#fffaf0] p-3 font-extrabold text-amber-950 transition hover:-translate-y-0.5 disabled:opacity-30"
+                  className="min-h-16 rounded-[2rem] border-2 border-b-[6px] border-sun-400 bg-sun-50 p-3 font-black text-amber-950 transition-all active:translate-y-1 active:border-b-2 hover:-translate-y-1 hover:shadow-lg disabled:opacity-30 disabled:translate-y-0 disabled:border-b-[6px]"
                 >
                   {chunk.label}
                 </button>
@@ -390,7 +386,7 @@ export function EdukizGame({
                       key={option}
                       type="button"
                       onClick={() => answerTest(index)}
-                      className="min-h-14 rounded-2xl border-2 border-brand-100 bg-white px-4 text-left font-extrabold text-brand-900 transition hover:border-brand-400"
+                      className="min-h-14 rounded-[2rem] border-2 border-b-[6px] border-brand-200 bg-white px-4 text-left font-black text-brand-900 transition-all active:translate-y-1 active:border-b-2 hover:-translate-y-1 hover:shadow-md hover:border-brand-400"
                     >
                       {String.fromCharCode(65 + index)}. {option}
                     </button>

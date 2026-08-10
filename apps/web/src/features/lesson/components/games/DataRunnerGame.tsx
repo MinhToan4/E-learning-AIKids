@@ -9,7 +9,7 @@ import {
 } from '@/features/lesson/lib/curriculum-game'
 import { cn } from '@/shared/lib/cn'
 import { EngineGameShell } from './EngineGameShell'
-import { FeedbackOverlay } from './FeedbackOverlay'
+import { PRAISE_MESSAGES, WRONG_MESSAGES, pickRandom } from './FeedbackOverlay'
 import type { EngineGameProps } from './types'
 
 type ItemResult = {
@@ -26,6 +26,7 @@ export function DataRunnerGame({
   outcome,
   onComplete,
   onBack,
+  onHint,
 }: EngineGameProps) {
   const levels = useMemo(
     () => sanitizeRunnerLevels(config?.runnerLevels),
@@ -40,7 +41,6 @@ export function DataRunnerGame({
   const [streak, setStreak] = useState(0)
   const [maxStreak, setMaxStreak] = useState(0)
   const [status, setStatus] = useState('')
-  const [feedback, setFeedback] = useState<{ type: 'correct' | 'wrong'; attempt: number } | null>(null)
   const [totalAttempts, setTotalAttempts] = useState(0)
   const processed = useRef(new Set<string>())
   const jumpTimer = useRef<number | null>(null)
@@ -97,20 +97,26 @@ export function DataRunnerGame({
       const correct = item.decision === 'collect' ? collides : !collides
       const evidence = `${level.id}:${item.id}:${collides ? 'collected' : 'avoided'}`
       setResults((current) => [...current, { id: item.id, correct, evidence }])
-      setTotalAttempts((c) => {
-        const next = c + 1
-        setFeedback({ type: correct ? 'correct' : 'wrong', attempt: next })
-        return next
-      })
+      const newAttempt = totalAttempts + 1
+      setTotalAttempts(newAttempt)
+      
       if (correct) {
         const nextStreak = streak + 1
         setStreak(nextStreak)
         setMaxStreak((current) => Math.max(current, nextStreak))
         setScore((current) => current + 20 + Math.min(10, nextStreak * 2))
         setStatus(item.feedback)
+        
+        const praise = pickRandom(PRAISE_MESSAGES, newAttempt)
+        if (onHint) onHint({ text: praise.text, type: 'correct' })
       } else {
         setStreak(0)
         setStatus(item.feedback)
+        
+        const wrong = pickRandom(WRONG_MESSAGES, newAttempt)
+        if (onHint) {
+          onHint({ text: `${wrong.main} ${wrong.sub}\n💡 ${item.feedback}`, type: 'wrong' })
+        }
       }
     })
   }, [jumping, level, running, streak, trackProgress])
@@ -176,14 +182,6 @@ export function DataRunnerGame({
 
   return (
     <>
-      {feedback && (
-        <FeedbackOverlay
-          type={feedback.type}
-          streak={streak}
-          attempt={feedback.attempt}
-          onDismiss={() => setFeedback(null)}
-        />
-      )}
     <EngineGameShell
       // WHY: definition guaranteed non-null for data-runner engine (CurriculumGame checks this)
       title={definition!.label}
@@ -196,20 +194,20 @@ export function DataRunnerGame({
       onBack={onBack}
     >
       <div className="grid gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-brand-100 bg-brand-50 px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[2rem] border-[6px] border-brand-200 bg-brand-50/80 px-6 py-4 shadow-sm backdrop-blur-md">
           <div>
-            <p className="text-xs font-black uppercase tracking-[0.14em] text-brand-600">
+            <p className="text-sm font-black uppercase tracking-widest text-brand-600">
               Chặng {levelIndex + 1} / {levels.length}
             </p>
-            <h3 className="font-display text-xl text-brand-950">{level.title}</h3>
+            <h3 className="font-display text-2xl text-brand-950">{level.title}</h3>
           </div>
-          <p className="rounded-full bg-white px-4 py-2 text-sm font-extrabold text-brand-800">
+          <p className="rounded-[2rem] border-2 border-b-[4px] border-brand-200 bg-white px-5 py-3 text-lg font-black text-brand-800 shadow-sm">
             {correctItems} quyết định đúng
           </p>
         </div>
 
         <div
-          className="relative aspect-video min-h-[18rem] overflow-hidden rounded-[2rem] border-4 border-white bg-sky-100 shadow-soft"
+          className="relative aspect-video min-h-[18rem] overflow-hidden rounded-[2.5rem] border-[8px] border-brand-300 border-b-[16px] bg-sky-100 shadow-clay"
           aria-label={`Đường chạy: ${level.backgroundAlt}`}
         >
           <img
@@ -228,9 +226,9 @@ export function DataRunnerGame({
               <article
                 key={item.id}
                 className={cn(
-                  'absolute z-20 grid w-28 -translate-x-1/2 place-items-center rounded-2xl border-2 border-white bg-white/95 p-2 text-center shadow-clay transition-opacity sm:w-36',
+                  'absolute z-20 grid w-28 -translate-x-1/2 place-items-center rounded-[2rem] border-[4px] border-b-[6px] border-white bg-white/95 p-3 text-center shadow-clay transition-all',
                   item.lane === 'ground' ? 'bottom-[13%]' : 'bottom-[48%]',
-                  handled && 'pointer-events-none opacity-0',
+                  handled && 'pointer-events-none opacity-0 scale-90 translate-y-4',
                 )}
                 style={{ left: `${left}%` }}
                 aria-hidden={handled || left < -10 || left > 110}
@@ -271,16 +269,16 @@ export function DataRunnerGame({
           <div className="absolute inset-x-0 bottom-0 h-[13%] bg-brand-950/20" aria-hidden="true" />
         </div>
 
-        <div className="grid gap-3 sm:grid-cols-[1fr_auto_auto] sm:items-center">
-          <p className="rounded-2xl bg-sun-50 px-4 py-3 text-sm font-bold text-amber-950">
+        <div className="grid gap-4 sm:grid-cols-[1fr_auto_auto] sm:items-center">
+          <p className="rounded-[2rem] border-4 border-dashed border-sun-300 bg-sun-50 px-5 py-4 text-base font-black text-amber-950 shadow-sm">
             Giữ dữ liệu tốt, nhảy qua dữ liệu nhiễu hoặc không được phép.
           </p>
-          <Button variant="secondary" onClick={restartLevel}>
-            <RotateCcw size={18} aria-hidden="true" /> Chơi lại chặng
-          </Button>
-          <Button onClick={jump} disabled={!running || jumping || levelComplete}>
-            <Space size={19} aria-hidden="true" /> Nhảy
-          </Button>
+          <button type="button" onClick={restartLevel} className="flex items-center justify-center gap-2 rounded-[2rem] border-2 border-b-[6px] border-brand-300 bg-brand-100 px-6 py-4 font-black text-brand-900 shadow-clay transition-all hover:-translate-y-1 hover:bg-brand-200 active:translate-y-1 active:border-b-2">
+            <RotateCcw size={20} aria-hidden="true" /> Chơi lại
+          </button>
+          <button type="button" onClick={jump} disabled={!running || jumping || levelComplete} className="flex items-center justify-center gap-2 rounded-[2rem] border-2 border-b-[6px] border-sky-500 bg-sky-400 px-8 py-4 font-black text-white shadow-clay transition-all hover:-translate-y-1 hover:bg-sky-300 active:translate-y-1 active:border-b-2 disabled:opacity-50 text-xl">
+            <Space size={24} aria-hidden="true" /> Nhảy
+          </button>
         </div>
 
         {levelComplete && !allComplete && (

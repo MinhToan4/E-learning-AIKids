@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { Sparkles, Trophy } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { getGameTuning, missionProgress } from '@/features/lesson/lib/curriculum-game'
-import { FeedbackOverlay } from './FeedbackOverlay'
+import { PRAISE_MESSAGES, WRONG_MESSAGES, pickRandom } from './FeedbackOverlay'
 import { EngineGameShell } from './EngineGameShell'
 import type { EngineGameProps } from './types'
 
@@ -129,6 +129,7 @@ export function MathKidsGame({
   outcome,
   onComplete,
   onBack,
+  onHint,
 }: EngineGameProps) {
   const tuning = getGameTuning(difficulty)
   const allQuestions = useMemo(() => resolveQuestions(config?.quizQuestions), [config?.quizQuestions])
@@ -148,7 +149,6 @@ export function MathKidsGame({
   const [maxStreak, setMaxStreak] = useState(0)
   const [attempts, setAttempts] = useState(0)
   const [choices, setChoices] = useState<string[]>([])
-  const [feedback, setFeedback] = useState<{ type: 'correct' | 'wrong'; attempt: number } | null>(null)
   // Timer đếm ngược (gentle: không có, steady: 30s/câu, challenge: 20s)
   const timerSeconds = difficulty === 'gentle' ? null : difficulty === 'steady' ? 30 : 20
   const [secondsLeft, setSecondsLeft] = useState(timerSeconds)
@@ -194,12 +194,20 @@ export function MathKidsGame({
       setScore((s) => s + 15 + Math.min(10, newStreak * 2))
       setGoals((g) => g + 1)
       setShot('shooting-goal')
-      setFeedback({ type: 'correct', attempt: newAttempt })
+      
+      const praise = pickRandom(PRAISE_MESSAGES, newAttempt)
+      if (onHint) onHint({ text: praise.text, type: 'correct' })
     } else {
       setStreak(0)
       setShot('shooting-miss')
       setShowWhy(true)
-      setFeedback({ type: 'wrong', attempt: newAttempt })
+
+      const wrong = pickRandom(WRONG_MESSAGES, newAttempt)
+      if (onHint && question.why) {
+        onHint({ text: `${wrong.main} ${wrong.sub}\n💡 ${question.why}`, type: 'wrong' })
+      } else if (onHint) {
+        onHint({ text: `${wrong.main} ${wrong.sub}`, type: 'wrong' })
+      }
     }
 
     // WHY: delay đủ để animation hoàn thành (0.8s) + người chơi đọc kết quả (~0.6s)
@@ -231,15 +239,6 @@ export function MathKidsGame({
 
   return (
     <>
-      {feedback && (
-        <FeedbackOverlay
-          type={feedback.type}
-          streak={streak}
-          attempt={feedback.attempt}
-          onDismiss={() => setFeedback(null)}
-        />
-      )}
-
       <EngineGameShell
         title="AI Quiz · Khỉ Đá Bóng"
         subtitle={instruction || 'Trả lời đúng các câu hỏi trắc nghiệm để giúp Kiki sút bóng vào lưới.'}
@@ -288,7 +287,7 @@ export function MathKidsGame({
             </div>
           </div>
         ) : (
-          <div className="flex flex-col bg-white" aria-labelledby="monkey-goal-title">
+          <div className="flex flex-col overflow-hidden rounded-b-2xl bg-white" aria-labelledby="monkey-goal-title">
             {/* ── Sân bóng (Violympic style) ────────────────────────────────── */}
             <div
               className="relative flex min-h-[22rem] flex-col"
@@ -301,13 +300,13 @@ export function MathKidsGame({
               {/* HUD: Score + Timer */}
               <div className="absolute left-3 top-3 z-10 flex flex-col gap-2">
                 {/* Score */}
-                <div className="flex items-center gap-2 rounded-2xl bg-white/90 px-3 py-1.5 text-sm font-black text-brand-900 shadow">
-                  🌟 <span>{score}</span>
+                <div className="flex items-center gap-2 rounded-full border-b-[4px] border-brand-200 bg-white/95 px-4 py-2 text-base font-black text-brand-900 shadow-lg">
+                  <span className="animate-bounce">🌟</span> <span className="text-xl">{score}</span>
                 </div>
                 {/* Goals tracker */}
-                <div className="flex gap-1 rounded-2xl bg-white/90 px-3 py-1.5 shadow">
+                <div className="flex gap-1 rounded-full border-b-[4px] border-sky-200 bg-white/95 px-4 py-2 shadow-lg">
                   {questions.map((_, i) => (
-                    <span key={i} className="text-sm">{i < goals ? '⚽' : '○'}</span>
+                    <span key={i} className="text-base drop-shadow-sm">{i < goals ? '⚽' : '⚪'}</span>
                   ))}
                 </div>
               </div>
@@ -315,8 +314,8 @@ export function MathKidsGame({
               {/* Timer */}
               {timerSeconds !== null && secondsLeft !== null && (
                 <div
-                  className={`absolute right-3 top-3 z-10 flex size-12 items-center justify-center rounded-full font-display text-xl font-black shadow ${
-                    secondsLeft <= 5 ? 'bg-red-500 text-white animate-pulse' : 'bg-white/90 text-brand-900'
+                  className={`absolute right-3 top-3 z-10 flex size-14 items-center justify-center rounded-full border-b-[4px] font-display text-2xl font-black shadow-lg transition-colors ${
+                    secondsLeft <= 5 ? 'border-red-700 bg-red-500 text-white animate-pulse' : 'border-slate-200 bg-white/95 text-brand-900'
                   }`}
                   aria-label={`${secondsLeft} giây còn lại`}
                 >
@@ -324,19 +323,16 @@ export function MathKidsGame({
                 </div>
               )}
 
-              {/* Câu hỏi — khung gỗ phong cách Violympic */}
-              <div className="mx-4 mt-4">
-                <div
-                  className="rounded-xl border-4 border-amber-800 bg-amber-50 px-5 py-3 shadow-md"
-                  style={{ boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.2), 0 4px 8px rgba(0,0,0,0.3)' }}
-                >
-                  <p id="monkey-goal-title" className="text-center text-base font-extrabold text-amber-900 sm:text-lg">
+              {/* Câu hỏi — khung kẹo dẻo mập mạp */}
+              <div className="mx-4 mt-16 relative z-10">
+                <div className="rounded-[2rem] border-b-8 border-amber-600 bg-amber-200 px-6 py-4 shadow-xl ring-4 ring-white/50">
+                  <p id="monkey-goal-title" className="text-center text-lg font-black text-amber-950 sm:text-xl drop-shadow-sm">
                     {question!.prompt}
                   </p>
                   {/* Số câu */}
-                  <p className="mt-1 text-center text-xs font-bold text-amber-700">
+                  <div className="mx-auto mt-2 w-max rounded-full bg-amber-900/10 px-3 py-1 text-center text-sm font-black text-amber-800">
                     Câu {qIndex + 1} / {questions.length}
-                  </p>
+                  </div>
                 </div>
               </div>
 
@@ -346,34 +342,33 @@ export function MathKidsGame({
                 <div className="absolute bottom-0 left-0 right-0 h-px bg-white/40" />
 
                 {/* Khung thành */}
-                <div className="relative" aria-hidden="true">
+                <div className="relative mb-12 h-[130px] w-[200px]" aria-hidden="true">
                   {/* Cột trái */}
-                  <div className="absolute -left-[60px] bottom-0 h-[90px] w-3 rounded-t-lg bg-white shadow-md" />
+                  <div className="absolute bottom-0 left-0 h-full w-4 rounded-t-lg bg-white shadow-md" />
                   {/* Xà ngang */}
-                  <div className="absolute -left-[60px] h-3 w-[120px] rounded-lg bg-white shadow-md" style={{ top: '-90px' }} />
+                  <div className="absolute left-0 top-0 z-20 h-4 w-full rounded-lg bg-white shadow-md" />
                   {/* Cột phải */}
-                  <div className="absolute -right-[60px] bottom-0 h-[90px] w-3 rounded-t-lg bg-white shadow-md" />
+                  <div className="absolute bottom-0 right-0 h-full w-4 rounded-t-lg bg-white shadow-md" />
                   {/* Lưới */}
                   <div
-                    className="absolute -left-[57px] h-[76px] w-[114px] bg-white/20"
-                    style={{ top: '-77px', backgroundImage: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 1px, transparent 1px, transparent 12px), repeating-linear-gradient(90deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 1px, transparent 1px, transparent 12px)' }}
+                    className="absolute bottom-0 left-4 right-4 top-4 bg-white/20"
+                    style={{ backgroundImage: 'repeating-linear-gradient(0deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 1px, transparent 1px, transparent 12px), repeating-linear-gradient(90deg, rgba(255,255,255,0.4) 0px, rgba(255,255,255,0.4) 1px, transparent 1px, transparent 12px)' }}
                   />
 
                   {/* Thủ môn Kiki */}
                   <div
-                    className={`relative z-10 select-none text-6xl text-center transition-all duration-300 ${
+                    className={`absolute bottom-[-10px] left-1/2 z-10 -translate-x-1/2 select-none text-6xl transition-all duration-300 ${
                       shot === 'shooting-goal' ? '[animation:monkey-celebrate_0.4s_ease-in-out_3]' : ''
                     } ${shot === 'shooting-miss' ? 'scale-90 opacity-80' : ''}`}
-                    style={{ marginTop: '-70px' }}
                   >
                     {shot === 'shooting-goal' ? '🙈' : shot === 'shooting-miss' ? '🐒' : '🐒'}
                   </div>
                 </div>
 
                 {/* Bóng + điểm dừng (penalty spot) */}
-                <div className="absolute bottom-6 left-1/2 -translate-x-1/2" aria-hidden="true">
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2" aria-hidden="true">
                   {/* Điểm penalty */}
-                  <div className="mx-auto mb-1 h-1.5 w-1.5 rounded-full bg-white/70" />
+                  <div className="mx-auto mb-1 h-1.5 w-2 rounded-full bg-white/60 shadow-sm" />
                   <div className={`select-none text-4xl ${ballGoalStyle}`}>⚽</div>
                 </div>
 
@@ -393,18 +388,11 @@ export function MathKidsGame({
                   </div>
                 )}
               </div>
-
-              {/* Hint sau khi sai */}
-              {showWhy && question && (
-                <div className="mx-4 mb-3 rounded-xl border-2 border-amber-300 bg-amber-50 px-4 py-2 text-center text-sm font-bold text-amber-900 shadow">
-                  💡 {question.why}
-                </div>
-              )}
             </div>
 
-            {/* ── 4 đáp án 2×2 — Violympic style ──────────────────────────────── */}
+            {/* ── 4 đáp án 2×2 — Jelly Candy Buttons ──────────────────────────────── */}
             <div
-              className="grid grid-cols-2 gap-0 border-t-4 border-amber-800"
+              className="grid grid-cols-1 gap-4 bg-sky-100 p-4 sm:grid-cols-2 rounded-b-2xl shadow-inner"
               role="group"
               aria-label="Chọn đáp án"
             >
@@ -413,6 +401,9 @@ export function MathKidsGame({
                 const isCorrectAnswer = i === question!.answer
                 const showCorrect = showWhy && isCorrectAnswer
                 const showWrong = showWhy && isSelected && !isCorrectAnswer
+                
+                const bgColors = ['bg-rose-400', 'bg-blue-400', 'bg-emerald-400', 'bg-amber-400']
+                const borderColors = ['border-rose-600', 'border-blue-600', 'border-emerald-600', 'border-amber-600']
 
                 return (
                   <button
@@ -422,37 +413,32 @@ export function MathKidsGame({
                     disabled={shot !== 'idle'}
                     onClick={() => handleAnswer(i)}
                     className={[
-                      'relative flex min-h-[4rem] items-center gap-3 border-b-2 border-r-2 border-amber-700 px-4 py-3 text-left font-extrabold transition',
-                      // Violympic golden frame style
-                      'bg-amber-50 text-amber-900',
-                      // Border alternation for 2×2 grid (no right border on col 2)
-                      i % 2 === 1 ? 'border-r-0' : '',
-                      // Hover
-                      shot === 'idle' ? 'hover:bg-amber-100 active:scale-95 cursor-pointer' : 'cursor-default',
-                      // States
-                      showCorrect ? 'bg-emerald-100 text-emerald-900' : '',
-                      showWrong ? 'bg-red-100 text-red-900' : '',
-                      isSelected && shot !== 'idle' && !showWhy ? 'bg-brand-100' : '',
+                      'relative flex min-h-[5rem] items-center gap-3 rounded-[1.5rem] border-b-[6px] px-5 py-4 text-left font-black text-white transition-all duration-150',
+                      bgColors[i], borderColors[i],
+                      shot === 'idle' ? 'hover:-translate-y-1 hover:brightness-110 active:translate-y-1 active:border-b-[2px] cursor-pointer' : 'cursor-default',
+                      showCorrect ? 'ring-4 ring-emerald-300 ring-offset-2' : '',
+                      showWrong ? 'ring-4 ring-red-300 ring-offset-2 opacity-60' : '',
+                      isSelected && shot !== 'idle' && !showWhy ? 'translate-y-1 border-b-[2px] brightness-90' : '',
                     ].filter(Boolean).join(' ')}
                     aria-pressed={isSelected}
                   >
                     {/* Label badge */}
                     <span
-                      className={`inline-grid size-8 shrink-0 place-items-center rounded-full text-sm font-black ${
+                      className={`inline-grid size-10 shrink-0 place-items-center rounded-full text-lg font-black shadow-inner border-2 border-white/30 ${
                         showCorrect
                           ? 'bg-emerald-500 text-white'
                           : showWrong
                             ? 'bg-red-500 text-white'
-                            : 'bg-amber-800 text-amber-50'
+                            : 'bg-white/20 text-white'
                       }`}
                     >
                       {OPTION_LABELS[i]}
                     </span>
-                    <span className="text-sm leading-snug sm:text-base">{option}</span>
+                    <span className="text-base leading-snug sm:text-lg drop-shadow-md">{option}</span>
 
                     {/* Icon kết quả */}
-                    {showCorrect && <span className="ml-auto text-xl">✅</span>}
-                    {showWrong && <span className="ml-auto text-xl">❌</span>}
+                    {showCorrect && <span className="ml-auto text-2xl drop-shadow-md animate-bounce">✅</span>}
+                    {showWrong && <span className="ml-auto text-2xl drop-shadow-md">❌</span>}
                   </button>
                 )
               })}

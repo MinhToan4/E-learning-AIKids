@@ -11,6 +11,11 @@ export type EngineResult = {
   maxStreak: number
 }
 
+export type GameHint = {
+  text: string
+  type: 'correct' | 'wrong' | 'hint'
+}
+
 export type EngineGameProps = {
   config?: CurriculumGameConfig
   // WHY: definition optional — 4 game cũ dùng scene URL hardcoded, không cần
@@ -21,4 +26,5 @@ export type EngineGameProps = {
   outcome?: string
   onComplete: (result: EngineResult) => void
   onBack?: () => void
+  onHint?: (hint: GameHint | null) => void
 }

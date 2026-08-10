@@ -1,4 +1,5 @@
 import type { ReactionType } from '@/shared/lib/creation/social-rules'
+import { designerAssets } from '@/shared/config/assets'
 
 export type StorybookGroup = 'learning' | 'creative' | 'milestone' | 'social'
 
@@ -53,6 +54,8 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P01', title: 'Cánh Cổng Thế Giới AI', group: 'learning',
     emoji: '🚪', colors: ['#6b46c1', '#f6e05e'],
+    leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[0],
+    coverUrl: designerAssets.storybook.chapterTabs[0],
     stickerSheetUrl: '/assets/storybook/generated/p01-stickers-alpha.webp',
     story: 'Mỗi bài học thắp lên một ngôi sao trên con đường của Paco.',
     stickers: [
@@ -70,6 +73,8 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P02', title: 'Vương Quốc Ngôn Ngữ', group: 'learning',
     emoji: '📚', colors: ['#276749', '#d4a017'],
+    leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[1],
+    coverUrl: designerAssets.storybook.chapterTabs[1],
     stickerSheetUrl: '/assets/storybook/generated/p02-stickers-alpha.webp',
     story: 'Từng từ mới mở thêm một căn phòng trong thư viện cổ.',
     stickers: [
@@ -87,6 +92,8 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P03', title: 'Đại Dương Hình Ảnh', group: 'creative',
     emoji: '🌊', colors: ['#0369a1', '#fb7185'],
+    leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[2],
+    coverUrl: designerAssets.storybook.chapterTabs[2],
     stickerSheetUrl: '/assets/storybook/generated/p03-stickers-alpha.webp',
     story: 'Ý tưởng của con nổi lên như những hòn đảo chưa ai khám phá.',
     stickers: [
@@ -104,6 +111,8 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P04', title: 'Đỉnh Núi Tri Thức', group: 'milestone',
     emoji: '⛰️', colors: ['#78350f', '#fbbf24'],
+    leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[3],
+    coverUrl: designerAssets.storybook.chapterTabs[3],
     stickerSheetUrl: '/assets/storybook/generated/p04-stickers-alpha.webp',
     story: 'Nhìn lại quãng đường con đã bền bỉ leo lên.',
     stickers: [
@@ -121,6 +130,8 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P05', title: 'Xưởng Của Paco', group: 'creative',
     emoji: '🛠️', colors: ['#c2410c', '#fcd34d'],
+    leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[4],
+    coverUrl: designerAssets.storybook.chapterTabs[4],
     stickerSheetUrl: '/assets/storybook/generated/p05-stickers-alpha.webp',
     story: 'Nơi những bản nháp vụng về biến thành phát minh tuyệt vời.',
     stickers: [
@@ -138,6 +149,8 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P06', title: 'Rừng Nhân Vật', group: 'creative',
     emoji: '🌳', colors: ['#166534', '#a3e635'],
+    leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[5],
+    coverUrl: designerAssets.storybook.chapterTabs[5],
     stickerSheetUrl: '/assets/storybook/generated/p06-stickers-alpha.webp',
     story: 'Mỗi nhân vật có một tiếng nói và câu chuyện riêng.',
     stickers: [
@@ -155,6 +168,8 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P07', title: 'Thiên Hà Câu Chuyện', group: 'creative',
     emoji: '🌌', colors: ['#312e81', '#c084fc'],
+    leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[6],
+    coverUrl: designerAssets.storybook.chapterTabs[6],
     stickerSheetUrl: '/assets/storybook/generated/p07-stickers-alpha.webp',
     story: 'Mỗi câu chuyện là một hành tinh đang chờ được gọi tên.',
     stickers: [
@@ -172,6 +187,8 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
     slug: 'P08', title: 'Trái Tim Kết Nối', group: 'social',
     emoji: '💞', colors: ['#be185d', '#f9a8d4'],
+    leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[7],
+    coverUrl: designerAssets.storybook.chapterTabs[7],
     stickerSheetUrl: '/assets/storybook/generated/p08-stickers-alpha.webp',
     story: 'Huyền thoại lớn lên khi con nâng đỡ sự sáng tạo của người khác.',
     stickers: [

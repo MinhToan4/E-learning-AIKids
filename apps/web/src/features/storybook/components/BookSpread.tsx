@@ -92,7 +92,7 @@ export function BookSpread({
           className={`storybook-page storybook-page-left ${mobilePage === 'chapter' ? '' : 'storybook-mobile-hidden'}`}
           style={{
             backgroundImage: safeStorybookAssetUrl(page.leftBackgroundUrl)
-              ? `linear-gradient(0deg, rgba(15,23,42,.84), rgba(15,23,42,.08)), url("${safeStorybookAssetUrl(page.leftBackgroundUrl)}")`
+              ? `linear-gradient(180deg, rgba(30,39,64,.3) 0%, rgba(30,39,64,.04) 44%, rgba(30,39,64,.82) 100%), url("${safeStorybookAssetUrl(page.leftBackgroundUrl)}")`
               : `linear-gradient(145deg, ${page.colors[0]}, ${page.colors[1]})`,
           }}
         >
@@ -304,7 +304,9 @@ export function BookSpread({
               >
                 <span className="storybook-rail-cover" aria-hidden style={safeStorybookAssetUrl(bookPage.coverUrl) ? { backgroundImage: `url("${safeStorybookAssetUrl(bookPage.coverUrl)}")` } : undefined}>
                   <span className="storybook-rail-shine" />
-                  <span className="storybook-rail-emoji">{bookPage.emoji}</span>
+                  {!safeStorybookAssetUrl(bookPage.coverUrl) && (
+                    <span className="storybook-rail-emoji">{bookPage.emoji}</span>
+                  )}
                 </span>
                 <span className="storybook-rail-progress" aria-hidden>
                   <span>{complete ? '✓' : ready ? '★' : ''}</span>

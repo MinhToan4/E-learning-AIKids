@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
-import { Gamepad2, PencilLine, Play, Star } from 'lucide-react'
+import { BookOpen, Gamepad2, PencilLine, Play, Star, Target, ShieldCheck, Check } from 'lucide-react'
 import {
   ART_STYLES,
   CHARACTER_SHAPES,
@@ -12,6 +12,7 @@ import {
 import {
   assemblePrompt,
   isPromptComplete,
+  SLOT_LABELS,
 } from '@/shared/lib/creation/prompt'
 import {
   STORY_ENDINGS,
@@ -41,8 +42,9 @@ import {
   CurriculumGame,
   type GameEvidence,
 } from '@/features/lesson/components/CurriculumGame'
+import type { GameHint } from '@/features/lesson/components/games/types'
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
-import { LearningToolsPanel } from '@/features/lesson/components/LearningToolsPanel'
+
 import { NavWorldIcon } from '@/shared/components/icons/KidNavIcons'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import {
@@ -55,9 +57,9 @@ import {
   queueOfflineProgress,
   type OfflineManifest,
 } from '@/features/lesson/lib/offline-learning'
-import { LeftPhaseSidebar } from '@/features/lesson/components/LeftPhaseSidebar'
+import { LeftPhaseSidebar, type Phase, type PoseType } from '@/features/lesson/components/LeftPhaseSidebar'
 
-type Phase = 'learn' | 'game' | 'practice' | 'check' | 'done'
+type PlayState = 'idle' | 'playing' | 'ended'
 
 // These workshops can continue from course-created work only; the API verifies ownership.
 const GEN_KINDS = new Set(['ai_pick', 'video', 'chips', 'character'])
@@ -69,48 +71,23 @@ const emptyStory = {
   title: 'Truyện của con',
 }
 
-const MOCK_TEST_QUEST: QuestDetail = {
-  id: 'test',
-  order: 99,
-  courseId: 'mock-course',
-  title: 'Thử nghiệm trạm kiểm tra hình ảnh',
-  hook: 'Chào mừng con đến với bài thử nghiệm',
-  goals: ['Trải nghiệm Live Blur Preview & Visual Quiz'],
-  learnCards: [],
-  practiceKind: 'prompt_lab',
-  reward: 'Huy hiệu Tester',
-  skill: 'prompt_lab',
-  duration: '15',
-  accent: 'blue',
-  chips: {},
-  stations: {
-    stage: 'lesson',
-    stations: [
-      { id: 'practice', kind: 'practice', practiceKind: 'prompt_lab', instruction: 'Hãy lắp ghép Prompt để trải nghiệm hiệu ứng Live Blur Preview!' }
-    ]
-  },
-  check: [
-    {
-      id: 'q1',
-      question: 'Câu hỏi chữ: Quả nào sau đây màu đỏ?',
-      options: ['Quả táo', 'Quả chuối', 'Quả cam', 'Quả lê']
-    },
-    {
-      id: 'q2',
-      question: 'Câu hỏi hình: Đâu là hình ảnh con mèo?',
-      options: [
-        'https://images.unsplash.com/photo-1514888286974-6c03e2ca1dba?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80',
-        'https://images.unsplash.com/photo-1543466835-00a7907e9de1?ixlib=rb-4.0.3&auto=format&fit=crop&w=400&q=80'
-      ]
-    }
-  ]
-}
+
+
+const PHASES = [
+  { id: 'learn' as const, label: 'Khám phá', icon: BookOpen },
+  { id: 'game' as const, label: 'Thử cùng Mee', icon: Gamepad2 },
+  { id: 'practice' as const, label: 'Tự tay làm', icon: PencilLine },
+  { id: 'check' as const, label: 'Thử thách', icon: ShieldCheck },
+]
+
+const PHASE_ORDER = ['learn', 'game', 'practice', 'check', 'done']
 
 export function LessonPage() {
   const { questId = '' } = useParams()
   const navigate = useNavigate()
   const [quest, setQuest] = useState<QuestDetail | null>(null)
   const [phase, setPhase] = useState<Phase>('learn')
+  const [gameHint, setGameHint] = useState<GameHint | null>(null)
   const [maxUnlockedPhase, setMaxUnlockedPhase] = useState<Phase>('learn')
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
@@ -217,13 +194,7 @@ export function LessonPage() {
     resetLocal()
     setLoading(true)
 
-    if (questId === 'test') {
-      setQuest(MOCK_TEST_QUEST)
-      setLiveStars(0)
-      setPhase('practice')
-      setLoading(false)
-      return
-    }
+
 
     void (async () => {
       try {
@@ -411,6 +382,7 @@ export function LessonPage() {
     setBusy(true)
     setError(null)
     try {
+
       const response = await api<{ progress: { phase: Phase } }>(
         `/api/progress/${questId}/advance`,
         {
@@ -434,6 +406,7 @@ export function LessonPage() {
     setBusy(true)
     setError(null)
     try {
+
       const result = await api<{ progress: { stars: number } }>(
         `/api/progress/${questId}/advance`,
         {
@@ -532,6 +505,8 @@ export function LessonPage() {
         payload = { ...payload, assetIds: refAssetIds }
       }
 
+
+
       const res = await api<{ result: PracticeResult }>(
         `/api/progress/${questId}/practice`,
         {
@@ -576,6 +551,7 @@ export function LessonPage() {
     setBusy(true)
     setError(null)
     try {
+
       const result = await api<{ progress: { stars: number } }>(
         `/api/progress/${questId}/advance`,
         {
@@ -587,6 +563,7 @@ export function LessonPage() {
       setStarBurst({ id: Date.now(), count: 1 })
       setPracticeAdvanced(true)
       setPhase('check')
+      setGameHint(null)
     } catch (e) {
       if (!recoverCurrentPhase(e)) {
         setError(e instanceof Error ? e.message : 'Chưa lưu được')
@@ -606,14 +583,7 @@ export function LessonPage() {
     setBusy(true)
     setError(null)
     try {
-      if (questId === 'test') {
-        await new Promise((resolve) => setTimeout(resolve, 500))
-        setLiveStars(3)
-        setStarBurst({ id: Date.now(), count: 1 })
-        setCheckResult({ stars: 3, message: 'Hoàn thành thử nghiệm', nextQuestId: null })
-        setPhase('done')
-        return
-      }
+
 
       const res = await api<{
         passed?: boolean
@@ -639,6 +609,7 @@ export function LessonPage() {
       setStarBurst({ id: Date.now(), count: 1 })
       setCheckResult(res)
       setPhase('done')
+      setGameHint(null)
     } catch (e) {
       if (!recoverCurrentPhase(e)) {
         setError(e instanceof Error ? e.message : 'Chưa gửi được')
@@ -655,17 +626,7 @@ export function LessonPage() {
     setLastActiveQuestionId(questionId)
     setError(null)
     try {
-      if (questId === 'test') {
-        await new Promise((resolve) => setTimeout(resolve, 500))
-        setAnswerFeedback((current) => ({
-          ...current,
-          [questionId]: {
-            correct: optionIndex === 0,
-            explanation: optionIndex === 0 ? 'Tuyệt vời!' : 'Sai rồi nhé.',
-          },
-        }))
-        return
-      }
+
 
       const feedback = await api<{
         questionId: string
@@ -713,6 +674,14 @@ export function LessonPage() {
       }
     }
     if (phase === 'game') {
+      if (gameHint) {
+        return {
+          eyebrow: gameHint.type === 'correct' ? 'Chính xác!' : 'Mee gợi ý',
+          title: gameHint.type === 'correct' ? 'Giỏi quá!' : 'Cùng thử lại!',
+          body: gameHint.text,
+          pose: (gameHint.type === 'correct' ? 'celebrate' : 'support') as PoseType,
+        }
+      }
       return {
         eyebrow: 'Thử cùng Mee',
         title: 'Chơi để ghi nhớ',
@@ -787,6 +756,7 @@ export function LessonPage() {
     lastActiveQuestionId,
     answerFeedback,
     checkResult?.message,
+    gameHint,
   ])
 
   if (loading) {
@@ -829,9 +799,6 @@ export function LessonPage() {
   return (
     <div className="page-enter flex flex-col sm:flex-row gap-4 h-dvh overflow-hidden p-2 sm:p-4">
       <LeftPhaseSidebar 
-        currentPhase={phase} 
-        maxUnlockedPhase={maxUnlockedPhase} 
-        onPhaseSelect={setPhase}
         className="shrink-0 flex-row justify-center sm:flex-col sm:justify-start" 
         guideCopy={dynamicGuideCopy}
         videoUrl={phase === 'learn' ? quest?.videoUrl : null}
@@ -841,7 +808,7 @@ export function LessonPage() {
       <div className="flex-1 flex flex-col gap-4 min-w-0 overflow-hidden">
         {/* ── Header ──────────────────────────────────────────────── */}
         <div className="ui-card p-4 shrink-0">
-          <div className="flex flex-wrap items-start justify-between gap-3 mb-3">
+          <div className="flex flex-wrap items-start justify-between gap-3">
           <div className="min-w-0">
             <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">Trạm {quest.order}</p>
             <h1 className="font-display text-2xl sm:text-3xl leading-tight">{quest.title}</h1>
@@ -875,27 +842,63 @@ export function LessonPage() {
               ))}
             </div>
           )}
+          </div>
+          
+          {/* ── Horizontal Phase Nav ──────────────────────────────── */}
+          <nav className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t-2 border-border/50 w-full">
+            {PHASES.map((p, idx) => {
+              const maxIdx = PHASE_ORDER.indexOf(maxUnlockedPhase === 'done' ? 'check' : maxUnlockedPhase)
+              const currentIdx = PHASE_ORDER.indexOf(phase === 'done' ? 'check' : phase)
+              const isUnlocked = idx <= maxIdx
+              const isActive = idx === currentIdx
+              
+              return (
+                <button
+                  key={p.id}
+                  onClick={() => {
+                    if (isUnlocked) {
+                      setPhase(p.id)
+                      if (p.id !== 'game') setGameHint(null)
+                    }
+                  }}
+                  disabled={!isUnlocked}
+                  className={cn(
+                    "flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm font-bold transition-all",
+                    isActive ? "bg-brand-50 border-brand-500 text-brand-700 shadow-sm"
+                             : isUnlocked ? "bg-white border-border text-text hover:border-brand-200"
+                                          : "bg-surface border-transparent text-muted opacity-60 cursor-not-allowed"
+                  )}
+                >
+                  <p.icon size={16} />
+                  <span>{p.label}</span>
+                </button>
+              )
+            })}
+          </nav>
         </div>
-      </div>
 
-      <main className="lesson-stage-main min-h-0 flex-1">
-      <LearningToolsPanel questId={questId} phase={phase} />
-
-
-
-      {phase === 'learn' && (
-        <div className="ui-card flex flex-col gap-5 p-5 animate-fade-up">
+      <main className="lesson-stage-main min-h-0 flex-1 relative overflow-y-auto hidden-scrollbar pb-10 pr-2">
+        {phase === 'learn' && (
+        <div className="flex flex-col gap-6 animate-fade-up">
           {/* Hook highlight */}
-          <div className="hook-highlight">{quest.hook}</div>
+          <div className="relative overflow-hidden rounded-[2rem] border-[4px] border-brand-200 bg-brand-50 p-6 sm:p-8 shadow-clay text-center">
+             <h2 className="font-display text-2xl sm:text-3xl font-black text-brand-800 leading-tight">
+               {quest.hook}
+             </h2>
+             <div className="absolute top-0 right-0 -translate-y-4 translate-x-4 opacity-20" aria-hidden="true">
+               <Star size={120} className="fill-brand-500 text-brand-500" />
+             </div>
+          </div>
 
           {/* Goals */}
           {quest.goals.length > 0 && (
-            <div className="flex flex-col gap-1.5 rounded-2xl bg-brand-50 border border-brand-100 p-3">
-              <p className="text-xs font-extrabold uppercase tracking-wider text-brand-500">Hôm nay con sẽ:</p>
-              <ul className="flex flex-col gap-1">
+            <div className="flex flex-col gap-4 rounded-[1.5rem] bg-white border-2 border-border p-5 shadow-sm">
+              <p className="text-sm font-extrabold uppercase tracking-wider text-coral-500 flex items-center gap-2">
+                <Target size={18} /> Hôm nay con sẽ:
+              </p>
+              <ul className="flex flex-wrap gap-2">
                 {quest.goals.map((g) => (
-                  <li key={g} className="flex items-start gap-2 text-sm font-semibold">
-                    <span className="text-brand-500 mt-0.5" aria-hidden>›</span>
+                  <li key={g} className="px-4 py-2 bg-coral-50 text-coral-800 border-2 border-coral-200 rounded-full text-sm font-bold shadow-sm">
                     {g}
                   </li>
                 ))}
@@ -904,20 +907,34 @@ export function LessonPage() {
           )}
 
           {/* Learn cards */}
-          <div className="grid gap-3 sm:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {quest.learnCards.map((card, idx) => {
               const CARD_ICONS = ['💡', '🔍', '🎯', '✨', '🧩', '🚀']
+              const TONES = [
+                { bg: 'bg-sun-50', border: 'border-sun-200', text: 'text-sun-700', iconBg: 'bg-sun-200' },
+                { bg: 'bg-mint-50', border: 'border-mint-200', text: 'text-mint-700', iconBg: 'bg-mint-200' },
+                { bg: 'bg-brand-50', border: 'border-brand-200', text: 'text-brand-700', iconBg: 'bg-brand-200' },
+              ]
+              const tone = TONES[idx % TONES.length]
+              
               return (
-                <div key={card.id} className="learn-card">
-                  <div className="learn-card-icon" style={{ background: idx % 3 === 0 ? '#ebe8ff' : idx % 3 === 1 ? '#e3f6ff' : '#e2faf0' }}>
+                <div key={card.id} className={cn(
+                  "relative flex flex-col gap-3 rounded-[1.5rem] border-[3px] p-5 shadow-sm transition-transform hover:-translate-y-1",
+                  tone.bg, tone.border
+                )}>
+                  <div className={cn("grid size-12 place-items-center rounded-2xl text-2xl border-2 shadow-sm", tone.iconBg, tone.border)}>
                     {CARD_ICONS[idx % CARD_ICONS.length]}
                   </div>
-                  <p className="text-xs font-extrabold uppercase tracking-wider text-brand-500 mb-1">
+                  <p className={cn("text-lg font-black leading-tight mt-1", tone.text)}>
                     {card.title}
                   </p>
-                  <p className="text-sm leading-relaxed">{card.body}</p>
+                  <p className="text-sm font-semibold text-text/80 leading-relaxed">{card.body}</p>
                   {card.tip && (
-                    <p className="mt-2 text-xs text-muted border-t border-border/40 pt-2">💡 {card.tip}</p>
+                    <div className="mt-auto pt-3">
+                      <p className={cn("text-xs font-bold px-3 py-2 rounded-xl border-2 shadow-sm", tone.border, tone.text, "bg-white/60")}>
+                        💡 {card.tip}
+                      </p>
+                    </div>
                   )}
                 </div>
               )
@@ -925,6 +942,8 @@ export function LessonPage() {
           </div>
 
           <Button
+            variant="primary"
+            className="w-full text-lg sm:text-xl font-black h-16 rounded-2xl shadow-clay border-b-[4px] border-brand-700 active:border-b-0 active:translate-y-1 mt-2"
             onClick={() => {
               if (reviewMode) {
                 setReviewMode(false)
@@ -935,7 +954,7 @@ export function LessonPage() {
             }}
             disabled={busy}
           >
-            {!reviewMode && <Gamepad2 size={18} aria-hidden="true" />}
+            {!reviewMode && <Gamepad2 size={24} aria-hidden="true" />}
             {reviewMode
               ? 'Quay lại kết quả'
               : gameStation
@@ -958,12 +977,10 @@ export function LessonPage() {
           <CurriculumGame
             gameType={gameStation.gameType}
             gameConfig={gameStation.gameConfig}
-            instruction={
-              gameStation.instruction ??
-              'Chơi một lượt để ghi nhớ ý chính của bài.'
-            }
+            instruction={gameStation.instruction ?? ''}
             outcome={gameStation.outcome}
             onComplete={(evidence) => void advanceFromGame(evidence)}
+            onGameHint={setGameHint}
           />
         </div>
       )}
@@ -1004,34 +1021,68 @@ export function LessonPage() {
           {!practiceSaved && (
             <>
               {quest.practiceKind === 'chips' && quest.chips && (
-                <>
-                  <p className="font-extrabold">Ghép thẻ để mô tả cho AI</p>
-                  {(Object.keys(quest.chips) as PromptSlotKey[]).map((slot) => (
-                    <div key={slot}>
-                      <p className="mb-2 text-sm font-bold capitalize text-muted">
-                        {slot}
-                      </p>
-                      <div className="flex flex-wrap gap-2">
-                        {(quest.chips![slot] ?? []).map((chip) => (
-                          <button
-                            key={chip.id}
-                            type="button"
-                            className={cn(
-                              'chip',
-                              parts[slot]?.id === chip.id && 'chip-active',
-                            )}
-                            onClick={() => selectChip(chip as PromptChip)}
-                          >
-                            <span>{chip.emoji}</span> {chip.label}
-                          </button>
-                        ))}
-                      </div>
-                    </div>
-                  ))}
-                  <div className="rounded-2xl bg-sky-100 p-3 text-sm">
-                    <strong>Câu mô tả:</strong> {promptText}
+                <div className="flex flex-col gap-6 bg-brand-50/50 p-4 sm:p-6 rounded-[2rem] border-[4px] border-brand-100 shadow-sm relative overflow-hidden">
+                  
+                  {/* Result Builder Header */}
+                  <div className="bg-white rounded-[1.5rem] p-5 border-[3px] border-brand-200 shadow-sm relative">
+                    <p className="text-xs font-black uppercase tracking-wider text-brand-400 mb-2">Thần chú của con</p>
+                    <p className="text-lg font-bold text-text leading-relaxed">
+                      {isPromptComplete(parts) ? promptText : (
+                        <span className="text-muted">Hãy chọn thẻ bài để ghép thành câu lệnh nhé...</span>
+                      )}
+                    </p>
                   </div>
-                </>
+
+                  {/* Chips Selection */}
+                  <div className="flex flex-col gap-5">
+                    {(Object.keys(quest.chips) as PromptSlotKey[]).map((slot, idx) => {
+                      const TONES = [
+                        { bg: 'bg-sun-50', border: 'border-sun-300', text: 'text-sun-600', active: 'bg-sun-100 border-sun-500 shadow-clay' },
+                        { bg: 'bg-mint-50', border: 'border-mint-300', text: 'text-mint-600', active: 'bg-mint-100 border-mint-500 shadow-clay' },
+                        { bg: 'bg-sky-50', border: 'border-sky-300', text: 'text-sky-600', active: 'bg-sky-100 border-sky-500 shadow-clay' },
+                        { bg: 'bg-coral-50', border: 'border-coral-300', text: 'text-coral-600', active: 'bg-coral-100 border-coral-500 shadow-clay' },
+                        { bg: 'bg-brand-50', border: 'border-brand-300', text: 'text-brand-600', active: 'bg-brand-100 border-brand-500 shadow-clay' },
+                      ]
+                      const tone = TONES[idx % TONES.length]
+
+                      return (
+                      <div key={slot} className="flex flex-col gap-2">
+                        <div className="flex items-center gap-2">
+                          <span className="flex items-center justify-center size-6 rounded-full text-xs font-black text-white bg-text">{idx + 1}</span>
+                          <p className="text-sm font-black uppercase tracking-wide text-text/80">
+                            {SLOT_LABELS[slot] || slot}
+                          </p>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {(quest.chips![slot] ?? []).map((chip) => {
+                            const isActive = parts[slot]?.id === chip.id
+                            return (
+                              <button
+                                key={chip.id}
+                                type="button"
+                                className={cn(
+                                  'relative flex items-center gap-2 px-4 py-2.5 rounded-2xl border-[3px] font-bold text-sm transition-all',
+                                  isActive 
+                                    ? cn(tone.active, 'translate-y-1 border-b-[3px]') 
+                                    : cn('bg-white hover:-translate-y-1 hover:shadow-sm border-b-[5px]', tone.border, tone.text)
+                                )}
+                                onClick={() => selectChip(chip as PromptChip)}
+                              >
+                                <span className="text-xl">{chip.emoji}</span> 
+                                <span className={isActive ? 'text-text' : ''}>{chip.label}</span>
+                                {isActive && (
+                                  <div className="absolute -top-2 -right-2 bg-green-500 text-white rounded-full p-0.5 border-2 border-white shadow-sm">
+                                    <Check size={12} strokeWidth={4} />
+                                  </div>
+                                )}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )})}
+                  </div>
+                </div>
               )}
 
               {quest.practiceKind === 'character' && (

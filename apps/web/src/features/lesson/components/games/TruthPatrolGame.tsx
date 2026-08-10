@@ -9,7 +9,7 @@ import {
 } from '@/features/lesson/lib/curriculum-game'
 import { cn } from '@/shared/lib/cn'
 import { EngineGameShell } from './EngineGameShell'
-import { FeedbackOverlay } from './FeedbackOverlay'
+import { PRAISE_MESSAGES, WRONG_MESSAGES, pickRandom } from './FeedbackOverlay'
 import type { EngineGameProps } from './types'
 
 type TargetResult = {
@@ -26,6 +26,7 @@ export function TruthPatrolGame({
   outcome,
   onComplete,
   onBack,
+  onHint,
 }: EngineGameProps) {
   const waves = useMemo(
     () => sanitizePatrolWaves(config?.patrolWaves),
@@ -41,7 +42,6 @@ export function TruthPatrolGame({
   const [maxStreak, setMaxStreak] = useState(0)
   const [status, setStatus] = useState('')
   const [beam, setBeam] = useState<{ x: number; y: number } | null>(null)
-  const [feedback, setFeedback] = useState<{ type: 'correct' | 'wrong'; attempt: number } | null>(null)
   const [totalAttempts, setTotalAttempts] = useState(0)
   const handled = useRef(new Set<string>())
   const beamTimer = useRef<number | null>(null)
@@ -124,20 +124,27 @@ export function TruthPatrolGame({
     const correct = target.decision === 'scan' ? scanned : !scanned
     const evidence = `${wave?.id}:${target.id}:${scanned ? 'scanned' : 'protected'}`
     setResults((current) => [...current, { id: target.id, correct, evidence }])
-    setTotalAttempts((c) => {
-      const next = c + 1
-      setFeedback({ type: correct ? 'correct' : 'wrong', attempt: next })
-      return next
-    })
+    const newAttempt = totalAttempts + 1
+    setTotalAttempts(newAttempt)
+    
     if (correct) {
       const nextStreak = streak + 1
       setStreak(nextStreak)
       setMaxStreak((current) => Math.max(current, nextStreak))
       setScore((current) => current + 25 + Math.min(10, nextStreak * 2))
+      setStatus(target.feedback)
+      
+      const praise = pickRandom(PRAISE_MESSAGES, newAttempt)
+      if (onHint) onHint({ text: praise.text, type: 'correct' })
     } else {
       setStreak(0)
+      setStatus(target.feedback)
+      
+      const wrong = pickRandom(WRONG_MESSAGES, newAttempt)
+      if (onHint) {
+        onHint({ text: `${wrong.main} ${wrong.sub}\n💡 ${target.feedback}`, type: 'wrong' })
+      }
     }
-    setStatus(target.feedback)
   }
 
   function fire(targetId?: string) {
@@ -201,14 +208,6 @@ export function TruthPatrolGame({
 
   return (
     <>
-      {feedback && (
-        <FeedbackOverlay
-          type={feedback.type}
-          streak={streak}
-          attempt={feedback.attempt}
-          onDismiss={() => setFeedback(null)}
-        />
-      )}
     <EngineGameShell
       // WHY: definition guaranteed non-null for truth-patrol engine (CurriculumGame checks this)
       title={definition!.label}
@@ -221,14 +220,14 @@ export function TruthPatrolGame({
       onBack={onBack}
     >
       <div className="grid gap-4">
-        <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-2 border-brand-100 bg-brand-50 px-4 py-3">
+        <div className="flex flex-wrap items-center justify-between gap-3 rounded-[2rem] border-4 border-brand-200 bg-brand-50 px-5 py-4 shadow-sm">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.14em] text-brand-600">
               Đợt tín hiệu {waveIndex + 1} / {waves.length}
             </p>
-            <h3 className="font-display text-xl text-brand-950">{wave.title}</h3>
+            <h3 className="font-display text-2xl text-brand-950">{wave.title}</h3>
           </div>
-          <p className="rounded-full bg-white px-4 py-2 text-sm font-extrabold text-brand-800">
+          <p className="rounded-full bg-white px-5 py-3 text-sm font-black text-brand-800 shadow-sm border-2 border-brand-100">
             {correctTargets} quyết định đúng
           </p>
         </div>
@@ -257,7 +256,7 @@ export function TruthPatrolGame({
                   fire(target.id)
                 }}
                 className={cn(
-                  'absolute z-20 grid w-28 -translate-x-1/2 place-items-center rounded-2xl border-2 border-white/80 bg-white/95 p-2 text-center shadow-clay transition hover:scale-105 focus-visible:outline focus-visible:outline-4 focus-visible:outline-sun-300 sm:w-36',
+                  'absolute z-20 grid w-28 -translate-x-1/2 place-items-center rounded-[2rem] border-4 border-white bg-white p-3 text-center shadow-xl transition-all hover:scale-110 focus-visible:outline focus-visible:outline-4 focus-visible:outline-sun-400 sm:w-36',
                 )}
                 style={{
                   left: `${target.column}%`,
@@ -307,18 +306,21 @@ export function TruthPatrolGame({
         </div>
 
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-[auto_auto_1fr_auto] sm:items-center">
-          <Button variant="secondary" onClick={() => move(-8)} disabled={!running}>
-            <ArrowLeft size={19} aria-hidden="true" /> <span className="sr-only sm:not-sr-only">Trái</span>
-          </Button>
-          <Button variant="secondary" onClick={() => move(8)} disabled={!running}>
-            <span className="sr-only sm:not-sr-only">Phải</span> <ArrowRight size={19} aria-hidden="true" />
-          </Button>
-          <p className="col-span-3 row-start-1 rounded-2xl bg-sun-50 px-4 py-3 text-sm font-bold text-amber-950 sm:col-span-1 sm:col-start-3 sm:row-auto">
+          <button type="button" onClick={() => move(-8)} disabled={!running} className="h-16 w-16 sm:h-20 sm:w-20 rounded-full border-4 border-b-[6px] border-brand-300 bg-white flex items-center justify-center text-brand-700 shadow-md transition-all active:translate-y-1 active:border-b-4 hover:-translate-y-1 hover:shadow-lg disabled:opacity-50 disabled:translate-y-0 disabled:border-b-[6px]">
+            <ArrowLeft size={32} aria-hidden="true" />
+            <span className="sr-only">Trái</span>
+          </button>
+          <button type="button" onClick={() => move(8)} disabled={!running} className="h-16 w-16 sm:h-20 sm:w-20 rounded-full border-4 border-b-[6px] border-brand-300 bg-white flex items-center justify-center text-brand-700 shadow-md transition-all active:translate-y-1 active:border-b-4 hover:-translate-y-1 hover:shadow-lg disabled:opacity-50 disabled:translate-y-0 disabled:border-b-[6px]">
+            <span className="sr-only">Phải</span>
+            <ArrowRight size={32} aria-hidden="true" />
+          </button>
+          <p className="col-span-3 row-start-1 rounded-[2rem] bg-sun-50 px-4 py-3 text-sm font-bold text-amber-950 sm:col-span-1 sm:col-start-3 sm:row-auto text-center border-2 border-sun-100">
             Quét nội dung cần kiểm chứng; để dữ liệu có nguồn đáng tin bay qua an toàn.
           </p>
-          <Button onClick={() => fire()} disabled={!running || visibleTargets.length === 0}>
-            <Crosshair size={19} aria-hidden="true" /> Quét
-          </Button>
+          <button type="button" onClick={() => fire()} disabled={!running || visibleTargets.length === 0} className="h-16 w-16 sm:h-20 sm:w-20 rounded-full border-4 border-b-[6px] border-coral-400 bg-coral-50 flex items-center justify-center text-danger shadow-md transition-all active:translate-y-1 active:border-b-4 hover:-translate-y-1 hover:shadow-lg disabled:opacity-50 disabled:translate-y-0 disabled:border-b-[6px]">
+            <Crosshair size={32} aria-hidden="true" />
+            <span className="sr-only">Quét</span>
+          </button>
         </div>
 
         <Button variant="ghost" onClick={restartWave}>

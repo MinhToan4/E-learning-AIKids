@@ -56,6 +56,18 @@ describe('designer AIKid assets on disk', () => {
     expect(getAvatar('unknown-id').id).toBe('avatar-robot')
   })
 
+  it('includes every designer Storybook chapter background', () => {
+    expect(designerAssets.storybook.chapterBackgrounds).toHaveLength(8)
+    expect(designerAssets.storybook.chapterTabs).toHaveLength(8)
+    for (const asset of [
+      ...designerAssets.storybook.chapterBackgrounds,
+      ...designerAssets.storybook.chapterTabs,
+    ]) {
+      expect(existsSync(publicPath(asset)), asset).toBe(true)
+      expect(statSync(publicPath(asset)).size).toBeLessThan(128 * 1024)
+    }
+  })
+
   it('courseCoverHint prefers API coverImage then key heuristic', () => {
     expect(courseCoverHint({ coverImage: '/x.jpg' })).toBe('/x.jpg')
     expect(courseCoverHint({ courseKey: 'K4' })).toBe(designerAssets.course.comic)
