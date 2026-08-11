@@ -9,7 +9,8 @@ import {
   CourseBookIcon,
   NavWorldIcon,
 } from '@/shared/components/icons/KidNavIcons'
-import { api, type QuestProgress } from '@/shared/lib/api'
+import { type QuestProgress } from '@/shared/lib/api'
+import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets } from '@/shared/config/assets'
 
@@ -147,17 +148,13 @@ export function WorldPage() {
       setMeta({ totalStars: 0, completedCount: 0 })
       try {
         if (!courseId) {
-          const journey = await api<Pathway>('/api/learning/pathway')
+          const journey = await learningApi.getPathway()
           setPathway(journey)
           setLoading(false)
           const coursesWithStations = await Promise.all(
             journey.courses.map(async (course) => {
               try {
-                const progress = await api<{
-                  quests: QuestProgress[]
-                  totalStars: number
-                  completedCount: number
-                }>(`/api/progress/${course.id}`)
+                const progress = await learningApi.getCourseProgress(course.id)
                 return {
                   ...course,
                   questCount: progress.quests.length,
@@ -173,39 +170,14 @@ export function WorldPage() {
           setPathway({ ...journey, courses: coursesWithStations })
           return
         }
-        const mockTestCourse: PathwayCourse = {
-          id: 'test-course',
-          title: 'Hành trình Sáng tạo AI (Bản thử nghiệm)',
-          shortTitle: 'TEST REGION',
-          status: 'active',
-          reasonCode: 'test',
-          completionPercent: 0,
-          missingPrerequisites: [],
-          coverImage: null,
-          enrolled: true,
-          questCount: 10,
-          completedCount: 0,
-          totalStars: 0,
-        }
-        
         let courseTitle = ''
         let pathRow: PathwayCourse | undefined
 
-        let journey = await api<Pathway>('/api/learning/pathway')
-
-        if (courseId === 'test-course') {
-          pathRow = mockTestCourse
-          courseTitle = mockTestCourse.title
-          setRegionIndex(3) // 3 is explicitly Phòng Lab Thử Nghiệm in WORLD_REGIONS
-          journey = { ...journey, courses: [...journey.courses, mockTestCourse] }
-        } else {
-          const [courseResp] = await Promise.all([
-            api<{ course: { title: string } }>(`/api/courses/${courseId}`)
-          ])
-          courseTitle = courseResp.course.title
-          pathRow = journey.courses.find((row) => row.id === courseId)
-          setRegionIndex(Math.max(0, journey.courses.findIndex((row) => row.id === courseId)))
-        }
+        const journey = await learningApi.getPathway()
+        const courseResp = await learningApi.getCourse<{ course: { title: string } }>(courseId)
+        courseTitle = courseResp.course.title
+        pathRow = journey.courses.find((row) => row.id === courseId)
+        setRegionIndex(Math.max(0, journey.courses.findIndex((row) => row.id === courseId)))
 
         if (!pathRow || pathRow.status === 'locked') {
           throw new Error('Khóa học này chưa được mở trong lộ trình của con.')
@@ -216,34 +188,9 @@ export function WorldPage() {
           setEnrollmentRequired(true)
           return
         }
-        if (courseId === 'test-course') {
-          const mockKinds = ['video', 'detective', 'match', 'sketch', 'prompt_lab', 'palette', 'ai_pick', 'drag', 'character', 'prompt_lab']
-          const mockQuests: QuestProgress[] = Array.from({ length: 10 }, (_, i) => ({
-            id: `test-${i + 1}`,
-            order: i + 1,
-            title: `Bài ${i + 1}`,
-            skill: 'test',
-            reward: 'none',
-            duration: '5 phút',
-            hook: 'Trải nghiệm thử nghiệm',
-            accent: '#8b5cf6',
-            practiceKind: mockKinds[i],
-            status: i === 0 ? 'available' : 'locked',
-            phase: 'learn',
-            stars: 0,
-            xpEarned: 0,
-          }))
-          setQuests(mockQuests)
-          setMeta({ totalStars: 0, completedCount: 0 })
-        } else {
-          const data = await api<{
-            quests: QuestProgress[]
-            totalStars: number
-            completedCount: number
-          }>(`/api/progress/${courseId}`)
-          setQuests(data.quests)
-          setMeta({ totalStars: data.totalStars, completedCount: data.completedCount })
-        }
+        const data = await learningApi.getCourseProgress(courseId)
+        setQuests(data.quests)
+        setMeta({ totalStars: data.totalStars, completedCount: data.completedCount })
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Không tải được bản đồ')
       } finally {

@@ -1,4 +1,4 @@
-import { api, ApiError, type AchievementRow } from '@/shared/lib/api'
+import { api, type AchievementRow } from '@/shared/lib/api'
 import type { RewardKind } from '@/shared/lib/creation/rewards'
 import type {
   Audience,
@@ -40,52 +40,10 @@ export type ProfileOverviewData = {
   equipment: ProfileEquipmentRow[]
 }
 
-type ProfileOverviewPayload = {
-  profile: {
-    settings: PublicProfileSettings | null
-  }
-  gamification: {
-    streak: number
-    totalXp: number
-    level: number
-    achievements: AchievementRow[]
-  }
-  recentProjects: ShowcaseProject[]
-  media: {
-    avatarChoices: ProfileMediaAsset[]
-  }
-  rewards: {
-    equipment: ProfileEquipmentRow[]
-  }
-}
-
 type ProfileRequest = <T>(
   path: string,
   options?: RequestInit,
 ) => Promise<T>
-
-function fromOverviewPayload(
-  payload: ProfileOverviewPayload,
-): ProfileOverviewData {
-  return {
-    streak: Number(payload.gamification?.streak ?? 0),
-    achievements: Array.isArray(payload.gamification?.achievements)
-      ? payload.gamification.achievements
-      : [],
-    projects: Array.isArray(payload.recentProjects)
-      ? payload.recentProjects
-      : [],
-    avatarChoices: Array.isArray(payload.media?.avatarChoices)
-      ? payload.media.avatarChoices
-      : [],
-    totalXp: Number(payload.gamification?.totalXp ?? 0),
-    level: Math.max(1, Number(payload.gamification?.level ?? 1)),
-    profileSettings: payload.profile?.settings ?? null,
-    equipment: Array.isArray(payload.rewards?.equipment)
-      ? payload.rewards.equipment
-      : [],
-  }
-}
 
 async function loadLegacyProfileOverview(
   request: ProfileRequest,
@@ -126,23 +84,14 @@ async function loadLegacyProfileOverview(
 }
 
 /**
- * New Ubuntu backend: one authenticated aggregate request.
- * Old Ubuntu backend: seven legacy requests only when the route is absent.
- * Auth/ownership/server failures never downgrade to the broad legacy fan-out.
+ * Load the profile from the service-owned endpoints available through the
+ * local gateway. The aggregate route is not part of the local Hub contract;
+ * probing it first only creates a guaranteed 404 on every profile visit.
+ * Promise.allSettled keeps optional sections independent so one unavailable
+ * section cannot prevent the rest of the profile from rendering.
  */
 export async function loadProfileOverview(
   request: ProfileRequest = api,
 ): Promise<ProfileOverviewData> {
-  try {
-    const payload = await request<ProfileOverviewPayload>(
-      '/api/v1/profile/overview',
-    )
-    return fromOverviewPayload(payload)
-  } catch (error) {
-    const legacyBackend =
-      error instanceof ApiError &&
-      (error.status === 404 || error.status === 405 || error.status === 501)
-    if (!legacyBackend) throw error
-    return loadLegacyProfileOverview(request)
-  }
+  return loadLegacyProfileOverview(request)
 }

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router'
 
 import { api, type AchievementRow } from '@/shared/lib/api'
+import { learningApi } from '@/shared/lib/learning-api'
 import { designerAssets } from '@/shared/config/assets'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
@@ -158,7 +159,7 @@ export function LeaderboardPage() {
       const [competencyResult, credentialResult, pathwayResult, achievementResult] = await Promise.allSettled([
         api<CompetencyMap>('/api/competency-map'),
         api<{ credentials: Credential[] }>('/api/credentials'),
-        api<Pathway>('/api/learning/pathway'),
+        learningApi.getPathway(),
         api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
       ])
       setCelebration(data.celebration)

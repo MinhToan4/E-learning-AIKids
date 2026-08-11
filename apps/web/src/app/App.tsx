@@ -605,6 +605,14 @@ export function App() {
                 </Guard>
               }
             />
+            <Route
+              path="/admin/billing"
+              element={
+                <Guard roles={['admin']}>
+                  <AdminPage tab="billing" />
+                </Guard>
+              }
+            />
             {/* Age-experience policy + learning feature flags */}
             <Route
               path="/admin/learning-config"

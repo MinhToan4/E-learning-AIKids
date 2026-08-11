@@ -615,6 +615,7 @@ export function AppShell() {
       { to: '/admin/logs', label: 'Nhật ký', icon: CmsLogsIcon },
       { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
       { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
+      { to: '/admin/billing', label: 'Gói & Thanh toán', icon: CmsAnalyticsIcon },
       { to: '/admin/legends', label: 'Huyền thoại & Reward', icon: CmsAiIcon },
       { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
       { to: '/teacher', label: 'Giáo viên', icon: CmsClassesIcon },

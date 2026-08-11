@@ -17,6 +17,7 @@ import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
 import { api, downloadAuthorizedBlob } from '@/shared/lib/api'
+import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import type { AgeExperiencePolicy } from '@/shared/age-experience/AgeExperienceProvider'
 
@@ -218,7 +219,7 @@ export function ParentLearningPage() {
         api<{ requests: PlacementRequest[] }>(
           `/api/schedule/placement-requests?status=rejected&${query}`,
         ),
-        api<Pathway>(`/api/learning/pathway?${query}`),
+        learningApi.getPathway(studentId),
         api<{
           status: 'ready' | 'configuration_required'
           policy: AgeExperiencePolicy | null

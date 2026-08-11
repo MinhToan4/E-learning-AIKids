@@ -1130,13 +1130,11 @@ function KidsTab() {
                           off="Chỉ dùng ảnh có sẵn trong thư viện hệ thống."
                         />
                       </span>
-                      <span className="text-xs text-muted">Con dùng camera/ảnh thiết bị trong tác phẩm — tắt mặc định.</span>
+                      <span className="text-xs text-muted">Con dùng camera/ảnh thiết bị trong tác phẩm — bật mặc định.</span>
                     </span>
                   </label>
-                  {/* WHY: allowExport semantics are INVERTED vs the other two.
-                      allowExport=false (default) = sharing is ENABLED (parent approves each share).
-                      allowExport=true = sharing button is HIDDEN from child entirely.
-                      Checkbox "Tắt xuất/chia sẻ": checked = sharing disabled, unchecked = sharing allowed. */}
+                  {/* WHY: this checkbox is phrased as a safety action. A checked box
+                      maps to allowExport=false, which keeps child sharing disabled. */}
                   <label className="flex min-h-11 items-start gap-3 rounded-xl bg-white px-3 py-2">
                     <input
                       type="checkbox"
@@ -1155,7 +1153,7 @@ function KidsTab() {
                           offLabel="ĐANG BẬT"
                         />
                       </span>
-                      <span className="text-xs text-muted">Tích để ẩn nút chia sẻ với con — chia sẻ bật mặc định.</span>
+                      <span className="text-xs text-muted">Tích để ẩn nút chia sẻ với con — tắt mặc định.</span>
                     </span>
                   </label>
                 </div>

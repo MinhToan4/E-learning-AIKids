@@ -94,6 +94,10 @@ describe('StoryMee Gateway adapter', () => {
     const secondRequest = fetchMock.mock.calls[1]
     expect((secondRequest[1].headers as Headers).get('Authorization'))
       .toBe('Bearer storymee-jwt')
+    // The deployed Hub currently does not whitelist X-Request-ID in its
+    // cross-origin preflight response, so the browser must not send it here.
+    expect((secondRequest[1].headers as Headers).get('X-Request-ID'))
+      .toBeNull()
   })
 
   it('clears an expired consumer session and announces the auth failure', async () => {
@@ -275,6 +279,7 @@ describe('StoryMee Gateway adapter', () => {
         status: string
         completionPercent: number
         enrolled: boolean
+        enrollmentId?: string | null
       }>
     }>('/api/learning/pathway')
 
@@ -325,6 +330,7 @@ describe('StoryMee Gateway adapter', () => {
         status: string
         completionPercent: number
         enrolled: boolean
+        enrollmentId?: string | null
       }>
     }>('/api/learning/pathway')
 
@@ -335,6 +341,7 @@ describe('StoryMee Gateway adapter', () => {
         { id: 'course-2', status: 'completed', completionPercent: 100, enrolled: true },
       ],
     })
+    expect(result.courses[0].enrollmentId).toBe('enrollment-1')
   })
 
   it('routes the daily learning mission into the LMS world', async () => {
@@ -463,33 +470,90 @@ describe('StoryMee Gateway adapter', () => {
     )
 
     expect(result.child.id).toBe('child-new')
-    expect(fetchMock).toHaveBeenCalledWith(
-      'https://dev-hub.storymee.com/api/v1/account/family/children',
-      expect.objectContaining({
-        method: 'POST',
-        body: JSON.stringify({
-          name: 'Bé Bo',
-          ageBand: '9-12',
-          avatarUrl: 'avatar-robot',
-          language: 'vi',
-          allowAiCreate: true,
-          password: '424242',
-        }),
+    const [, request] = fetchMock.mock.calls[0]
+    expect(request.method).toBe('POST')
+    const payload = JSON.parse(String(request.body))
+    expect(payload).toMatchObject({
+      name: 'Bé Bo',
+      ageBand: '8-11',
+      avatarUrl: 'avatar-robot',
+      language: 'vi',
+      allowAiCreate: true,
+      allowPhoto: true,
+      allowExport: false,
+      pin: '424242',
+    })
+    expect(payload.password).not.toBe('424242')
+  })
+
+  it('keeps child profile age-band updates separate from the parent-owned PIN endpoint', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({
+      status: 'success',
+      data: { child: { id: 'child-1', name: 'Bé Mây', ageBand: '8-11' } },
+      }))
+      .mockResolvedValueOnce(response({
+        status: 'success',
+        data: { child: { id: 'child-1', name: 'Bé Mây', ageBand: '8-11' } },
+      }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await api('/api/parent/children/child-1', {
+      method: 'PATCH',
+      body: JSON.stringify({
+        nickname: 'Bé Mây',
+        avatarId: 'avatar-robot',
+        ageBand: '8-11',
+        pin: '424242',
       }),
+    })
+    await api('/api/parent/children/child-1/pin', {
+      method: 'POST',
+      body: JSON.stringify({ pin: '424242' }),
+    })
+
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      'https://dev-hub.storymee.com/api/v1/account/family/children/child-1',
     )
+    expect(fetchMock.mock.calls[0][1]).toEqual(expect.objectContaining({
+      method: 'PATCH',
+      body: JSON.stringify({
+        name: 'Bé Mây',
+        avatarUrl: 'avatar-robot',
+        ageBand: '8-11',
+      }),
+    }))
+    expect(fetchMock.mock.calls[1][0]).toBe(
+      'https://dev-hub.storymee.com/api/v1/account/family/children/child-1/pin',
+    )
+    expect(fetchMock.mock.calls[1][1]).toEqual(expect.objectContaining({
+      method: 'POST',
+      body: JSON.stringify({ pin: '424242' }),
+    }))
   })
 
   it('routes teacher classroom and authoring calls to core LMS', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(response({ class: null, students: [] }))
+      .mockResolvedValueOnce(response({ assignment: { id: 'assignment-1' } }))
+      .mockResolvedValueOnce(response({ assignment: { id: 'assignment-1' } }))
       .mockResolvedValueOnce(response({ courses: [] }))
     vi.stubGlobal('fetch', fetchMock)
 
     await api('/api/teacher/class')
+    await api('/api/teacher/class/course', {
+      method: 'POST',
+      body: JSON.stringify({ courseId: '22222222-2222-4222-8222-222222222222' }),
+    })
+    await api('/api/teacher/class/course/22222222-2222-4222-8222-222222222222', {
+      method: 'DELETE',
+    })
     await api('/api/teacher/lectures')
 
     expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
       'https://dev-hub.storymee.com/api/v1/lms/aikids/teacher/class',
+      'https://dev-hub.storymee.com/api/v1/lms/aikids/teacher/class/course',
+      'https://dev-hub.storymee.com/api/v1/lms/aikids/teacher/class/course/22222222-2222-4222-8222-222222222222',
       'https://dev-hub.storymee.com/api/v1/lms/aikids/teacher/lectures',
     ])
   })
@@ -529,6 +593,90 @@ describe('StoryMee Gateway adapter', () => {
       `https://dev-hub.storymee.com/api/v1/lms/family/children/${childId}/courses`,
       expect.any(Object),
     )
+  })
+
+  it('routes parent consent changes to Account and preserves the child scope', async () => {
+    const childId = '55555555-5555-4555-8555-555555555555'
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      status: 'success',
+      data: { child: { id: childId, consent: { allowAiCreate: true } } },
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await api(`/api/parent/children/${childId}/consent`, {
+      method: 'PATCH',
+      body: JSON.stringify({ allowAiCreate: true, policyVersion: 'aikids-child-safety-v1' }),
+    })
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      `https://dev-hub.storymee.com/api/v1/account/family/children/${childId}/consent`,
+      expect.objectContaining({ method: 'PATCH' }),
+    )
+  })
+
+  it('loads the auditable parent consent history from Account', async () => {
+    const childId = '55555555-5555-4555-8555-555555555555'
+    const events = [{ id: 'event-1', method: 'parent_ui' }]
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      status: 'success',
+      data: { events },
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{ events: typeof events }>(
+      `/api/parent/children/${childId}/consent/events`,
+    )
+
+    expect(result.events).toEqual(events)
+    expect(fetchMock).toHaveBeenCalledWith(
+      `https://dev-hub.storymee.com/api/v1/account/family/children/${childId}/consent/events`,
+      expect.any(Object),
+    )
+  })
+
+  it('creates course checkout through Billing with a replay-safe idempotency key', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      status: 'success',
+      data: { paymentIntent: { publicId: 'pi_course_1' } },
+      checkout: { paymentReady: false, transferHint: 'CK AIKIDS' },
+    }, 201))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{ checkout: { transferHint: string } }>('/api/parent/course-checkout', {
+      method: 'POST',
+      body: JSON.stringify({
+        courseId: 'course-1',
+        childProfileId: '55555555-5555-4555-8555-555555555555',
+      }),
+    })
+
+    const [url, options] = fetchMock.mock.calls[0]
+    expect(url).toBe('https://dev-hub.storymee.com/api/v1/billing/me/course-checkout')
+    const headers = options.headers as Headers
+    expect(headers.get('Idempotency-Key')).toMatch(/^[0-9a-f-]{36}$/)
+    expect(JSON.parse(String(options.body))).toMatchObject({
+      courseId: 'course-1',
+      childProfileId: '55555555-5555-4555-8555-555555555555',
+    })
+    expect(result.checkout.transferHint).toBe('CK AIKIDS')
+  })
+
+  it('routes parent checkout status without exposing a service URL', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      status: 'success',
+      data: { paymentIntent: { publicId: 'pi_course_1', status: 'pending' } },
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{ paymentIntent: { status: string } }>(
+      '/api/parent/course-checkout/pi_course_1',
+    )
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://dev-hub.storymee.com/api/v1/billing/me/course-checkout/pi_course_1',
+      expect.any(Object),
+    )
+    expect(result.paymentIntent.status).toBe('pending')
   })
 
   it('deduplicates concurrent identical GET requests', async () => {
