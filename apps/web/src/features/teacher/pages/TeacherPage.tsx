@@ -25,6 +25,7 @@ import { cn } from '@/shared/lib/cn'
 import { CourseAuthoringWizard } from '../components/CourseAuthoringWizard'
 import { LectureDrawer } from '../components/LectureDrawer'
 import { CourseFormModal } from '../components/CourseFormModal'
+import { TeacherFeedbackPanel } from '../components/TeacherFeedbackPanel'
 import {
   PRACTICE_OPTIONS,
   courseDraftReadiness,
@@ -651,6 +652,14 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             )}
           </div>
         </>
+      )}
+      {classInfo && (
+        <div className="lg:col-span-2">
+          <TeacherFeedbackPanel
+            classes={[{ id: classInfo.id ?? '', name: classInfo.name, learners: students }]}
+            showToast={showToast}
+          />
+        </div>
       )}
     </div>
   )

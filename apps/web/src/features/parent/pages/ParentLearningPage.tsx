@@ -5,6 +5,7 @@ import {
   CalendarDays,
   Download,
   FileText,
+  MessageSquareText,
   RefreshCcw,
   ShieldCheck,
   Sparkles,
@@ -20,6 +21,7 @@ import { api, downloadAuthorizedBlob } from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import type { AgeExperiencePolicy } from '@/shared/age-experience/AgeExperienceProvider'
+import { ParentTeacherFeedbackSection } from '../components/ParentTeacherFeedbackSection'
 
 type Child = {
   id: string
@@ -134,7 +136,7 @@ type LearningData = {
     policy: AgeExperiencePolicy | null
   }
 }
-type Section = 'journey' | 'schedule' | 'placement' | 'reports'
+type Section = 'feedback' | 'journey' | 'schedule' | 'placement' | 'reports'
 
 function dateTime(value: string) {
   return new Intl.DateTimeFormat('vi-VN', {
@@ -153,7 +155,7 @@ const levelLabels = {
 export function ParentLearningPage() {
   const [children, setChildren] = useState<Child[]>([])
   const [studentId, setStudentId] = useState('')
-  const [section, setSection] = useState<Section>('journey')
+  const [section, setSection] = useState<Section>('feedback')
   const [data, setData] = useState<LearningData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -411,7 +413,8 @@ export function ParentLearningPage() {
 
       <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Nội dung hành trình">
         {(
-          [
+            [
+            ['feedback', 'Nhận xét giáo viên', MessageSquareText],
             ['journey', 'Năng lực & chứng nhận', Sparkles],
             ['schedule', 'Lịch học', CalendarDays],
             ['placement', 'Đăng ký xếp lớp', UserRoundPlus],
@@ -446,7 +449,9 @@ export function ParentLearningPage() {
         <PageSkeleton rows={4} />
       ) : error ? (
         <ErrorState message={error} onRetry={() => void load()} />
-      ) : data && section === 'journey' ? (
+        ) : section === 'feedback' && studentId ? (
+          <ParentTeacherFeedbackSection childId={studentId} />
+        ) : data && section === 'journey' ? (
         <JourneySection
           competency={data.competency}
           credentials={data.credentials}
