@@ -311,10 +311,19 @@ function studioEditLabel(item: StudioItem): string {
   return 'Sửa bản nháp'
 }
 
+export function studioAssetPreviewKind(url: string): 'image' | 'video' | 'config' {
+  let pathname = url.toLowerCase()
+  try { pathname = new URL(url, 'https://cms.local').pathname.toLowerCase() } catch { /* use raw value */ }
+  if (pathname.endsWith('.webm')) return 'video'
+  if (pathname.endsWith('.json')) return 'config'
+  return 'image'
+}
+
 function StudioArtwork({ item, meaningful = false }: { item: StudioItem; meaningful?: boolean }) {
   const [failed, setFailed] = useState(false)
   const src = item.kind === 'title' ? rewardBadgeThumbnail(item.code) ?? studioArtwork(item) : studioArtwork(item)
   if (!src || failed) return <Gift className="h-7 w-7 text-brand-500" aria-hidden="true" />
+  if (studioAssetPreviewKind(src) === 'config') return <Settings2 className="h-7 w-7 text-brand-500" aria-label={meaningful ? item.name : undefined} />
   return <img src={src} alt={meaningful ? item.name : ''} loading="lazy" onError={() => setFailed(true)} className="h-full w-full object-contain" />
 }
 
@@ -1737,9 +1746,11 @@ export function LegendRewardStudio() {
               <div className="overflow-hidden rounded-3xl border border-brand-100 bg-gradient-to-br from-violet-100 via-sky-50 to-amber-50 p-5 text-center shadow-inner">
               <div className="mx-auto flex aspect-square max-w-56 items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-white/70 shadow-lg">
                 {previewUrl
-                  ? previewUrl.toLowerCase().includes('.webm')
+                  ? studioAssetPreviewKind(previewUrl) === 'video'
                     ? <video src={previewUrl} autoPlay loop muted className="h-full w-full object-contain" />
-                    : <img src={previewUrl} alt="Preview asset vừa tải" className="h-full w-full object-contain" />
+                    : studioAssetPreviewKind(previewUrl) === 'config'
+                      ? <div className="px-5 text-brand-700"><Settings2 className="mx-auto h-14 w-14" aria-hidden="true" /><span className="mt-3 block text-sm font-black">Theme JSON đã tải lên</span><span className="mt-1 block text-xs text-muted">Màu và token được áp dụng khi preview hồ sơ.</span></div>
+                      : <img src={previewUrl} alt="Preview asset vừa tải" className="h-full w-full object-contain" />
                   : <div className="px-4 text-muted"><span className="block text-5xl">🖼️</span><span className="mt-3 block text-sm font-bold">Chọn asset để xem ngay tại đây</span></div>}
               </div>
               <span className="mt-4 inline-block rounded-full bg-white/90 px-3 py-1 text-xs font-black uppercase text-brand-700 shadow">{form.rarity}</span>
