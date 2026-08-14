@@ -1,14 +1,15 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
 import { AlertTriangle, Archive, ArrowDown, ArrowUp, BookOpen, CalendarDays, CheckCircle2, Gift, LayoutTemplate, List, Map as MapIcon, Network, PackageOpen, Pencil, Plus, Search, Settings2, Trash2, UploadCloud } from 'lucide-react'
 import { api } from '@/shared/lib/api'
+import { gamificationApi, legendStudioApi } from '@/shared/lib/gamification-api'
 import { Button } from '@/shared/components/ui/Button'
 import { RewardPackAdmin } from './RewardPackAdmin'
 import { buildRewardConfigMap, type ConfigChannel } from '../lib/reward-config-map'
 import { getResolvedRewardAssetUrl } from '@/features/rewards/reward-assets'
 import { REWARD_CATALOG } from '@/shared/lib/creation/rewards'
 import { rewardTitleAsset } from '@/features/rewards/title-assets'
-import { achievementBadgeAsset } from '@/features/achievements/achievement-badge-assets'
-import { ACHIEVEMENT_METRICS, achievementEvolutionTier, resolveAchievementMetric } from '@/features/achievements/achievement-config'
+import { achievementBadgeAsset, rewardBadgeThumbnail } from '@/features/achievements/achievement-badge-assets'
+import { ACHIEVEMENT_METRIC_REGISTRY, achievementEvolutionTier, resolveAchievementMetric } from '@/features/achievements/achievement-config'
 import type { AchievementRow } from '@/shared/lib/api'
 import { PROFILE_CARD_LAYOUT_CODE } from '@/features/profile/profile-card-layout'
 import { ProfileCardLayoutEditor } from './ProfileCardLayoutEditor'
@@ -166,9 +167,19 @@ function studioEditLabel(item: StudioItem): string {
 
 function StudioArtwork({ item, meaningful = false }: { item: StudioItem; meaningful?: boolean }) {
   const [failed, setFailed] = useState(false)
-  const src = studioArtwork(item)
+  const src = item.kind === 'title' ? rewardBadgeThumbnail(item.code) ?? studioArtwork(item) : studioArtwork(item)
   if (!src || failed) return <Gift className="h-7 w-7 text-brand-500" aria-hidden="true" />
   return <img src={src} alt={meaningful ? item.name : ''} loading="lazy" onError={() => setFailed(true)} className="h-full w-full object-contain" />
+}
+
+function DeferredDetails({ defaultOpen = false, summary, children }: { defaultOpen?: boolean; summary: ReactNode; children: ReactNode }) {
+  const [open, setOpen] = useState(defaultOpen)
+  return (
+    <details className="ui-card overflow-hidden" open={open} onToggle={(event) => setOpen(event.currentTarget.open)}>
+      <summary className="flex cursor-pointer list-none items-center gap-3 border-b border-border bg-slate-50 px-5 py-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus">{summary}</summary>
+      {open ? children : null}
+    </details>
+  )
 }
 
 const stickerMetrics = [
@@ -265,8 +276,8 @@ export function LegendRewardStudio() {
   const load = useCallback(async () => {
     try {
       const [result, achievementsResult] = await Promise.all([
-        api<{ items: StudioItem[] }>('/api/admin/legend-studio'),
-        api<{ achievements: AchievementRow[] }>('/api/gamification/achievements').catch(() => ({ achievements: [] })),
+        legendStudioApi.list<{ items: StudioItem[] }>(),
+        gamificationApi.achievements().catch(() => ({ achievements: [] })),
       ])
       const allStudioItems = result.items.map((item) => ({ ...item, source: 'studio' as const }))
       const layoutItems = allStudioItems.filter((item) => item.code === PROFILE_CARD_LAYOUT_CODE).sort((left, right) => right.version - left.version)
@@ -634,9 +645,7 @@ export function LegendRewardStudio() {
               }
           : JSON.parse(form.contentJson) as Record<string, unknown>
       const updatesExistingVersion = editingItem && (editingItem.status === 'draft' || editingItem.status === 'review')
-      await api(updatesExistingVersion ? `/api/admin/legend-studio/${editingItem.id}` : '/api/admin/legend-studio', {
-        method: updatesExistingVersion ? 'PUT' : 'POST',
-        body: JSON.stringify({
+      const payload = {
           contentType: form.contentType,
           code: form.code,
           name: form.name,
@@ -658,8 +667,9 @@ export function LegendRewardStudio() {
             ? { type: 'action', metric: form.achievementMetric, value: form.achievementMetric }
             : { type: form.unlockType, value: form.unlockValue },
           content,
-        }),
-      })
+        }
+      if (updatesExistingVersion) await legendStudioApi.update(editingItem.id, payload)
+      else await legendStudioApi.create(payload)
       setForm(emptyForm())
       setEditingItem(null)
       setPreviewUrl('')
@@ -681,12 +691,9 @@ export function LegendRewardStudio() {
     setBusy(true)
     try {
       if (action === 'review') {
-        await api(`/api/admin/legend-studio/${item.id}`, {
-          method: 'PUT',
-          body: JSON.stringify({ status: 'review' }),
-        })
+        await legendStudioApi.update(item.id, { status: 'review' })
       } else {
-        await api(`/api/admin/legend-studio/${item.id}/${action}`, { method: 'POST' })
+        await legendStudioApi.transition(item.id, action)
       }
       setMessage(action === 'publish' ? 'Đã phát hành lên production.' : action === 'retire' ? 'Đã ngừng phát hành.' : 'Đã gửi duyệt.')
       await load()
@@ -709,17 +716,14 @@ export function LegendRewardStudio() {
       try {
         const kind = kindOptions.includes(item.kind as RewardKind) ? item.kind as RewardKind : 'perk'
         const assetUrl = studioArtwork(item)
-        await api('/api/admin/legend-studio', {
-          method: 'POST',
-          body: JSON.stringify({
+        await legendStudioApi.create({
             contentType: 'reward', code: item.code, name: item.name, description: item.description,
             kind, rarity: item.rarity,
             assets: assetUrl ? { thumbnailUrl: assetUrl, imageUrl: assetUrl } : {},
             displayConfig: { ...JSON.parse(displayTemplate(kind)) as Record<string, unknown>, ...item.displayConfig },
             unlockRule: item.unlockRule,
             content: { ...item.content, migratedFrom: 'legacy_reward_catalog' },
-          }),
-        })
+          })
         migrated += 1
       } catch { failed.push(item.code) }
     }
@@ -847,13 +851,12 @@ export function LegendRewardStudio() {
           {mapDisplay === 'tree' && (
             <div className="space-y-4">
               {(mapChannel === 'all' || mapChannel === 'level') && levelTreeGroups.map(([band, rows]) => (
-                <details key={band} className="ui-card overflow-hidden" open={band === levelTreeGroups[0]?.[0]}>
-                  <summary className="flex cursor-pointer list-none items-center gap-3 border-b border-border bg-slate-50 px-5 py-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus">
+                <DeferredDetails key={band} summary={<>
                     <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 font-display text-white">{band}</span>
                     <div><h3 className="font-extrabold">Level {band}–{Math.min(100, band + 9)}</h3><p className="text-xs text-muted">{rows.length} phần thưởng trong chặng</p></div>
                     <div className="ml-2 h-px flex-1 bg-border" aria-hidden="true" />
                     <span className="text-xs font-extrabold text-brand-700">Mở chặng</span>
-                  </summary>
+                  </>}>
                   <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">
                     {rows.map((row) => (
                       <article key={row.item.id} className="grid grid-cols-[64px_1fr] gap-3 rounded-2xl border border-border bg-white p-3">
@@ -876,19 +879,18 @@ export function LegendRewardStudio() {
                       </article>
                     ))}
                   </div>
-                </details>
+                </DeferredDetails>
               ))}
               {(mapChannel === 'all' || mapChannel === 'level') && levelTreeGroups.length === 0 && <div className="ui-card p-10 text-center text-muted">Không có reward theo level phù hợp tìm kiếm.</div>}
               {otherTreeGroups.map((group) => (
-                <details key={`${group.channel}:${group.title}`} className="ui-card overflow-hidden" open={mapChannel !== 'all'}>
-                  <summary className="flex cursor-pointer list-none items-center gap-3 border-b border-border bg-slate-50 px-5 py-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus">
+                <DeferredDetails key={`${group.channel}:${group.title}`} defaultOpen={mapChannel !== 'all'} summary={<>
                     <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
                       {group.channel === 'storybook' ? <BookOpen className="h-5 w-5" aria-hidden="true" /> : group.channel === 'event' ? <CalendarDays className="h-5 w-5" aria-hidden="true" /> : <Network className="h-5 w-5" aria-hidden="true" />}
                     </span>
                     <div><h3 className="font-extrabold">{group.title}</h3><p className="text-xs text-muted">{group.rows.length} cấu hình liên quan</p></div>
                     <div className="ml-2 h-px flex-1 bg-border" aria-hidden="true" />
                     <span className="text-xs font-extrabold text-brand-700">Mở nhánh</span>
-                  </summary>
+                  </>}>
                   <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">
                     {group.rows.map((row) => (
                       <article key={row.item.id} className="grid grid-cols-[64px_1fr] gap-3 rounded-2xl border border-border bg-white p-3">
@@ -910,7 +912,7 @@ export function LegendRewardStudio() {
                       </article>
                     ))}
                   </div>
-                </details>
+                </DeferredDetails>
               ))}
               {mapChannel !== 'all' && mapChannel !== 'level' && otherTreeGroups.length === 0 && <div className="ui-card p-10 text-center text-muted">Chưa có cấu hình trong nhánh này.</div>}
             </div>
@@ -1269,7 +1271,7 @@ export function LegendRewardStudio() {
                           achievementMilestonesJson: JSON.stringify(achievementMilestones.map((milestone) => ({ ...milestone, metric })), null, 2),
                         }))
                       }}>
-                        {ACHIEVEMENT_METRICS.map((metric) => <option key={metric.value} value={metric.value}>{metric.label} · {metric.unit} · {metric.source}</option>)}
+                        {ACHIEVEMENT_METRIC_REGISTRY.map((metric) => <option key={metric.value} value={metric.value}>{metric.label} · {metric.unit} · {metric.source}</option>)}
                       </select>
                       <span className="mt-1 block text-xs text-muted">Chọn dữ liệu hệ thống cần đếm. Metric này dùng chung cho toàn bộ các mốc của danh hiệu.</span>
                     </label>
@@ -1302,7 +1304,7 @@ export function LegendRewardStudio() {
                           </div>
                           <textarea required className={`${fieldClass} min-h-20 py-3`} aria-label={`Mô tả mốc ${index + 1}`} value={milestone.description ?? ''} onChange={(event) => updateAchievementMilestone(index, { description: event.target.value })} placeholder="Mô tả hình thái và lời chúc khi trẻ đạt mốc…" />
                           <div className="grid gap-3 sm:grid-cols-[1fr_150px_110px]">
-                            <div className="rounded-xl bg-slate-50 p-3 text-xs"><strong>{ACHIEVEMENT_METRICS.find((metric) => metric.value === form.achievementMetric)?.label}</strong><span className="mt-1 block text-muted">Metric dùng chung: <code>{form.achievementMetric}</code></span></div>
+                            <div className="rounded-xl bg-slate-50 p-3 text-xs"><strong>{ACHIEVEMENT_METRIC_REGISTRY.find((metric) => metric.value === form.achievementMetric)?.label}</strong><span className="mt-1 block text-muted">Metric: <code>{form.achievementMetric}</code> · Event: <code>{ACHIEVEMENT_METRIC_REGISTRY.find((metric) => metric.value === form.achievementMetric)?.event}</code></span></div>
                             <label className="text-xs font-bold">Điều kiện<select className={`${fieldClass} min-h-10 text-sm`} value={milestone.operator ?? 'gte'} onChange={(event) => updateAchievementMilestone(index, { operator: event.target.value })}><option value="gte">≥ đạt ít nhất</option><option value="eq">= đúng bằng</option></select></label>
                             <label className="text-xs font-bold">Ngưỡng<input required type="number" min={1} className={`${fieldClass} min-h-10 text-sm`} value={milestone.threshold} onChange={(event) => updateAchievementMilestone(index, { threshold: Math.max(1, Number(event.target.value)) })} /></label>
                           </div>

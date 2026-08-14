@@ -1,6 +1,7 @@
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
+import { prefetchRoute } from '@/app/route-prefetch'
 
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
 import { api } from '@/shared/lib/api'
@@ -57,6 +58,14 @@ type StudentFeatureTone = 'brand' | 'sky' | 'mint' | 'sun' | 'coral'
 
 type StudentNavItem = RoleNavItem & {
   tone: StudentFeatureTone
+}
+
+function RouteContentFallback() {
+  return <div className="mx-auto w-full max-w-7xl p-4" role="status" aria-live="polite"><div className="ui-skeleton h-8 w-56 rounded-xl" /><div className="ui-skeleton mt-5 h-48 rounded-3xl" /><span className="sr-only">Đang tải nội dung trang</span></div>
+}
+
+function RouteOutlet() {
+  return <Suspense fallback={<RouteContentFallback />}><Outlet /></Suspense>
 }
 
 function studentFeatureTone(pathname: string): StudentFeatureTone {
@@ -174,6 +183,8 @@ function DesktopSideNav({ nav }: { nav: RoleNavItem[] }) {
           key={to}
           to={to}
           end={end}
+          onPointerEnter={() => prefetchRoute(to)}
+          onFocus={() => prefetchRoute(to)}
           className={({ isActive }) =>
             cn('role-nav-link', isActive && 'role-nav-link-active')
           }
@@ -200,6 +211,8 @@ function AdultBottomLink({
     <NavLink
       to={to}
       end={end}
+      onPointerEnter={() => prefetchRoute(to)}
+      onFocus={() => prefetchRoute(to)}
       className={({ isActive }) =>
         cn('adult-bottom-link', `adult-bottom-link-${tone}`, isActive && 'adult-bottom-link-active')
       }
@@ -253,6 +266,8 @@ function StudentDrawer() {
               key={to}
               to={to}
               data-feature-tone={tone}
+              onPointerEnter={() => prefetchRoute(to)}
+              onFocus={() => prefetchRoute(to)}
               onClick={handleNav}
               className={({ isActive }) =>
                 cn('student-drawer-item', isActive && 'student-drawer-item-active')
@@ -288,6 +303,8 @@ function StudentDrawer() {
             key={to}
             to={to}
             data-feature-tone={tone}
+            onPointerEnter={() => prefetchRoute(to)}
+            onFocus={() => prefetchRoute(to)}
             className={({ isActive }) =>
               cn(
                 'student-nav-link min-h-[3.75rem] flex-1 gap-0 rounded-xl px-0.5 py-1 text-[10px]',
@@ -385,6 +402,8 @@ function AdminDrawer({
               key={to}
               to={to}
               end={end}
+              onPointerEnter={() => prefetchRoute(to)}
+              onFocus={() => prefetchRoute(to)}
               onClick={() => setOpen(false)}
               className={({ isActive }) =>
                 cn('admin-drawer-item', isActive && 'admin-drawer-item-active')
@@ -510,7 +529,7 @@ function CmsShell({
 
       {/* Main content — extra bottom padding so bottom nav doesn't cover content */}
       <main className="page-enter mx-auto min-w-0 max-w-[1440px] px-3 py-5 pb-[max(5.5rem,calc(5rem+env(safe-area-inset-bottom,0px)))] sm:px-5 md:pb-6">
-        <Outlet />
+        <RouteOutlet />
       </main>
 
       {/* Mobile bottom nav */}
@@ -557,7 +576,7 @@ function AdultChrome({
 
       {/* Main */}
       <main className="page-enter mx-auto max-w-6xl px-3 py-5 pb-[max(5.5rem,calc(5rem+env(safe-area-inset-bottom,0px)))] sm:px-5 sm:py-6 lg:pb-6">
-        <Outlet />
+        <RouteOutlet />
       </main>
 
       {/* Mobile bottom nav */}
@@ -702,6 +721,8 @@ export function AppShell() {
               key={to}
               to={to}
               data-feature-tone={tone}
+              onPointerEnter={() => prefetchRoute(to)}
+              onFocus={() => prefetchRoute(to)}
               className={({ isActive }) =>
                 cn(
                   'student-nav-link w-[4.5rem]',
@@ -761,11 +782,11 @@ export function AppShell() {
 
       {isCreative ? (
         <main className="mx-auto max-w-[1440px] px-2 py-2 sm:px-4">
-          <Outlet />
+          <RouteOutlet />
         </main>
       ) : (
         <main className="mx-auto max-w-6xl px-3 py-4 sm:px-5 sm:py-6">
-          <Outlet />
+          <RouteOutlet />
         </main>
       )}
 

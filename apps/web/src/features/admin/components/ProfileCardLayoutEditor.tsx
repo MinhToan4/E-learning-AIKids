@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { CheckCircle2, Layers3, LockKeyhole, RotateCcw, Save, Unlock } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
-import { api } from '@/shared/lib/api'
+import { legendStudioApi } from '@/shared/lib/gamification-api'
 import { DEFAULT_PROFILE_CARD_LAYOUT, PROFILE_CARD_LAYOUT_CODE, normalizeProfileCardLayout, type ProfileCardLayout } from '@/features/profile/profile-card-layout'
 import type { StudioItem } from './LegendRewardStudio'
 import { EquippedProfile } from '@/features/rewards/EquippedProfile'
@@ -84,15 +84,14 @@ export function ProfileCardLayoutEditor({ item, onChanged }: { item?: StudioItem
     setBusy(true); setMessage('')
     try {
       const updatesDraft = item && (item.status === 'draft' || item.status === 'review')
-      await api(updatesDraft ? `/api/admin/legend-studio/${item.id}` : '/api/admin/legend-studio', {
-        method: updatesDraft ? 'PUT' : 'POST',
-        body: JSON.stringify({
+      const payload = {
           contentType: 'reward', code: PROFILE_CARD_LAYOUT_CODE, name: 'Profile Card Layout',
           description: 'Cấu hình bố cục dùng chung cho mọi Profile Card.', kind: 'theme', rarity: 'common', assets: {},
           displayConfig: { systemConfig: true, profileCardLayout: layout },
           unlockRule: { type: 'system_config', value: 'profile_card_layout' }, content: { systemConfig: 'profile_card_layout' },
-        }),
-      })
+        }
+      if (updatesDraft) await legendStudioApi.update(item.id, payload)
+      else await legendStudioApi.create(payload)
       setMessage(updatesDraft ? 'Đã cập nhật bản nháp layout.' : 'Đã tạo bản nháp layout mới; bản đang phát hành vẫn được giữ nguyên.')
       await onChanged()
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Không lưu được Profile Card layout.') }
@@ -102,8 +101,8 @@ export function ProfileCardLayoutEditor({ item, onChanged }: { item?: StudioItem
     if (!item) return
     setBusy(true)
     try {
-      if (action === 'review') await api(`/api/admin/legend-studio/${item.id}`, { method: 'PUT', body: JSON.stringify({ status: 'review' }) })
-      else await api(`/api/admin/legend-studio/${item.id}/publish`, { method: 'POST' })
+      if (action === 'review') await legendStudioApi.update(item.id, { status: 'review' })
+      else await legendStudioApi.transition(item.id, 'publish')
       await onChanged(); setMessage(action === 'review' ? 'Đã gửi reviewer kiểm tra layout.' : 'Đã phát hành Profile Card layout.')
     } catch (error) { setMessage(error instanceof Error ? error.message : 'Không đổi được trạng thái layout.') }
     finally { setBusy(false) }

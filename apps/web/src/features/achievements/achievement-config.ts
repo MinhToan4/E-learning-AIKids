@@ -26,6 +26,35 @@ export const ACHIEVEMENT_METRICS = [
   { value: 'collaborations_completed', label: 'Lượt hợp tác hoàn thành', unit: 'lượt', source: 'Social' },
 ] as const
 
+export const ACHIEVEMENT_OPERATORS = [
+  { value: 'gte', label: 'Ít nhất (≥)' },
+  { value: 'eq', label: 'Bằng (=)' },
+] as const
+
+export const ACHIEVEMENT_EVENT_DICTIONARY = {
+  lessons_completed: { event: 'lesson.completed', scope: 'learner' },
+  perfect_lessons: { event: 'assessment.perfect_score', scope: 'learner' },
+  courses_completed: { event: 'course.completed', scope: 'learner' },
+  stars: { event: 'gamification.stars_changed', scope: 'learner' },
+  xp: { event: 'gamification.xp_changed', scope: 'learner' },
+  level: { event: 'gamification.level_changed', scope: 'learner' },
+  streak: { event: 'learning.streak_changed', scope: 'learner' },
+  quests_completed: { event: 'quest.completed', scope: 'learner' },
+  challenges_completed: { event: 'challenge.completed', scope: 'learner' },
+  events_joined: { event: 'event.joined', scope: 'learner' },
+  creations_published: { event: 'creation.published', scope: 'learner' },
+  images_created: { event: 'creation.image_created', scope: 'learner' },
+  stories_created: { event: 'creation.story_created', scope: 'learner' },
+  code_projects_created: { event: 'creation.code_project_created', scope: 'learner' },
+  collaborations_completed: { event: 'social.collaboration_completed', scope: 'learner' },
+} as const satisfies Record<(typeof ACHIEVEMENT_METRICS)[number]['value'], { event: string; scope: 'learner' | 'course' | 'class' }>
+
+export const ACHIEVEMENT_METRIC_REGISTRY = ACHIEVEMENT_METRICS.map((metric) => ({
+  ...metric,
+  ...ACHIEVEMENT_EVENT_DICTIONARY[metric.value],
+  operators: ACHIEVEMENT_OPERATORS.map(({ value }) => value),
+}))
+
 export function achievementEvolutionTier(index: number) {
   return ACHIEVEMENT_EVOLUTION_TIERS[index] ?? { key: `tier-${index + 1}`, label: `Mốc ${index + 1}` }
 }

@@ -7,7 +7,7 @@
  * - Login audit log with auto-purge indicator
  * - Full-width layout (CmsShell handles sidebar)
  */
-import { useEffect, useRef, useState, useCallback, useMemo, type ReactNode } from 'react'
+import { lazy, Suspense, useEffect, useRef, useState, useCallback, useMemo, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
 import { Search } from 'lucide-react'
 import { useNavigate } from 'react-router'
@@ -31,7 +31,7 @@ import {
   CmsSessionsIcon,
   CmsUsersIcon,
 } from '@/shared/components/icons/CmsIcons'
-import { LegendRewardStudio } from '../components/LegendRewardStudio'
+const LegendRewardStudio = lazy(() => import('../components/LegendRewardStudio').then((module) => ({ default: module.LegendRewardStudio })))
 
 // ── Types ───────────────────────────────────────────────────
 type SystemInfo = {
@@ -1761,7 +1761,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       case 'courses': return coursesTab
       case 'ai': return aiTab
       case 'billing': return billingTab
-      case 'legends': return <LegendRewardStudio />
+      case 'legends': return <Suspense fallback={<div className="ui-card p-8" role="status"><div className="ui-skeleton h-8 w-72 rounded-xl" /><div className="ui-skeleton mt-5 h-48 rounded-2xl" /><p className="mt-4 text-sm text-muted">Đang mở Legend Studio…</p></div>}><LegendRewardStudio /></Suspense>
       default: return null
     }
   }

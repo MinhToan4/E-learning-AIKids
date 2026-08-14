@@ -13,6 +13,12 @@ const badgesById = new Map(
   ]),
 )
 
+/** Lightweight raster thumbnail for CMS lists; full SVG remains for profile rendering. */
+export function rewardBadgeThumbnail(rewardId?: string): string | undefined {
+  if (!rewardId) return undefined
+  return badgesById.get(`badge-${rewardId.replace(/\.(?:svg|png|webp)$/, '')}`)
+}
+
 function semanticBadgeId(item: AchievementRow): string | undefined {
   const key = `${item.type} ${item.category ?? ''} ${item.seriesKey ?? ''}`.toLowerCase()
   const threshold = item.requiredValue

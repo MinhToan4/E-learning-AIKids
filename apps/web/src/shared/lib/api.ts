@@ -14,10 +14,12 @@ export function getAccessToken(): string | null {
 }
 
 export function setAccessToken(token: string): void {
+  clearResponseCache()
   if (typeof localStorage !== 'undefined') localStorage.setItem(TOKEN_KEY, token)
 }
 
 export function clearAccessToken(): void {
+  clearResponseCache()
   if (typeof localStorage !== 'undefined') localStorage.removeItem(TOKEN_KEY)
 }
 
@@ -116,14 +118,40 @@ export async function uploadToStoryMeeStorage(
 export class ApiError extends Error {
   status: number
   body: unknown
+  code: string | null
+  field: string | null
+  requestId: string | null
   constructor(status: number, message: string, body?: unknown) {
     super(message)
     this.status = status
     this.body = body
+    const details = body && typeof body === 'object' ? body as Record<string, unknown> : {}
+    this.code = typeof details.code === 'string' ? details.code : null
+    this.field = typeof details.field === 'string' ? details.field : null
+    this.requestId = typeof details.requestId === 'string'
+      ? details.requestId
+      : typeof details.request_id === 'string' ? details.request_id : null
   }
 }
 
 const inFlightGetRequests = new Map<string, Promise<unknown>>()
+const getResponseCache = new Map<string, { expiresAt: number; value: unknown }>()
+
+function responseCacheTtl(path: string): number {
+  if (path.startsWith('/api/admin/legend-studio')) return 30_000
+  if (path.startsWith('/api/gamification/catalog')) return 60_000
+  if (path === '/api/gamification/achievements') return 15_000
+  if (path === '/api/courses' || path === '/api/enrollments') return 15_000
+  if (path.startsWith('/api/gamification/profile') || path.startsWith('/api/gamification/storybook') || path.startsWith('/api/gamification/streak')) return 10_000
+  if (path.startsWith('/api/parent/children') || path.startsWith('/api/teacher/class')) return 10_000
+  if (path.startsWith('/api/schedule') || path.startsWith('/api/reports') || path.startsWith('/api/competency-map') || path.startsWith('/api/credentials')) return 10_000
+  if (path === '/api/admin/system' || path === '/api/admin/analytics') return 10_000
+  return 0
+}
+
+function clearResponseCache() {
+  getResponseCache.clear()
+}
 
 export function api<T = unknown>(
   path: string,
@@ -138,9 +166,18 @@ export function api<T = unknown>(
     options.body === undefined &&
     options.headers === undefined &&
     options.signal === undefined
-  if (!canDedupe) return executeApi<T>(legacyPath, options)
+  if (!canDedupe) {
+    // A mutation can change several projections (catalog, achievements and
+    // profile) at once. Clear the small in-memory GET cache rather than risk
+    // showing data from before the mutation.
+    if (method !== 'GET') clearResponseCache()
+    return executeApi<T>(legacyPath, options)
+  }
 
   const key = `${getAccessToken() ?? 'anonymous'}:${legacyPath}`
+  const cached = getResponseCache.get(key)
+  if (cached && cached.expiresAt > Date.now()) return Promise.resolve(cached.value as T)
+  if (cached) getResponseCache.delete(key)
   const pending = inFlightGetRequests.get(key)
   if (pending) return pending as Promise<T>
 
@@ -151,6 +188,12 @@ export function api<T = unknown>(
       inFlightGetRequests.delete(key)
     }
   }).catch(() => undefined)
+  const ttl = responseCacheTtl(legacyPath)
+  if (ttl > 0) {
+    void request.then((value) => {
+      getResponseCache.set(key, { expiresAt: Date.now() + ttl, value })
+    }).catch(() => undefined)
+  }
   return request
 }
 
@@ -256,7 +299,8 @@ function withJson(options: RequestInit, body: Record<string, unknown>): RequestI
   return { ...options, body: JSON.stringify(body) }
 }
 
-function normalizeGatewayRequest(path: string, options: RequestInit): GatewayRequest {
+/** Exposed for route-map diagnostics and contract tests; network calls still use api(). */
+export function normalizeGatewayRequest(path: string, options: RequestInit = {}): GatewayRequest {
   const body = jsonBody(options)
   if (path.startsWith('/api/v1/')) return { path, options }
 
@@ -271,7 +315,6 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     '/api/auth/tenant': '/api/v1/account/tenant/resolve',
     '/api/courses': '/api/v1/lms/courses',
     '/api/enrollments': '/api/v1/lms/enrollments',
-    '/api/learning/pathway': '/api/v1/lms/compat/pathway',
     '/api/notifications': '/api/v1/notifications',
     '/api/notifications/read-all': '/api/v1/notifications/read-all',
     '/api/notifications/preferences': '/api/v1/notifications/preferences',
