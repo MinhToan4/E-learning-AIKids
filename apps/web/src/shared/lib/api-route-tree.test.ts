@@ -42,4 +42,15 @@ describe('API route tree', () => {
   ])('resolves %s to canonical route %s', (legacyPath, canonicalPath) => {
     expect(normalizeGatewayRequest(legacyPath).path).toBe(canonicalPath)
   })
+
+  it.each([
+    ['legend_reward_design', 'aikids-legend-reward'],
+    ['storybook_chapter_design', 'aikids-storybook'],
+    ['achievement_milestone_design', 'aikids-achievement'],
+  ])('tags CMS upload purpose %s as %s', (purpose, assetType) => {
+    const body = new FormData()
+    body.append('purpose', purpose)
+    expect(normalizeGatewayRequest('/api/media/upload', { method: 'POST', body }).path)
+      .toBe(`/api/v1/media/upload?permanent=1&assetType=${assetType}`)
+  })
 })

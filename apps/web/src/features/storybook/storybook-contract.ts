@@ -1,3 +1,5 @@
+import { environment } from '@/shared/config/environment'
+
 const STORYBOOK_ID = /^[A-Z0-9]+(?:-[A-Z0-9]+)*-S[1-9]$/i
 
 export function uniqueStorybookIds(values: readonly unknown[]): string[] {
@@ -31,7 +33,7 @@ export function safeStorybookAssetUrl(value: unknown): string | undefined {
   }
   try {
     const url = new URL(candidate)
-    return url.protocol === 'https:' ? url.toString() : undefined
+    return url.origin === environment.storagePublicUrl ? url.toString() : undefined
   } catch {
     return undefined
   }

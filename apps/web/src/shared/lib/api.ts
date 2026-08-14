@@ -443,7 +443,19 @@ export function normalizeGatewayRequest(path: string, options: RequestInit = {})
     }
   }
   if (path === '/api/media/upload') {
-    return { path: '/api/v1/media/upload?permanent=1&assetType=aikids', options }
+    const purpose = options.body instanceof FormData
+      ? String(options.body.get('purpose') ?? '')
+      : ''
+    const assetTypeByPurpose: Record<string, string> = {
+      legend_reward_design: 'aikids-legend-reward',
+      storybook_chapter_design: 'aikids-storybook',
+      achievement_milestone_design: 'aikids-achievement',
+    }
+    const assetType = assetTypeByPurpose[purpose] ?? 'aikids'
+    return {
+      path: `/api/v1/media/upload?permanent=1&assetType=${encodeURIComponent(assetType)}`,
+      options,
+    }
   }
   if (path === '/api/media/promote') {
     return { path: '/api/v1/media/gallery/promote', options }
@@ -1413,7 +1425,15 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
   }
   if (path === '/api/media/upload') {
     const item = recordValue(payload.libraryItem)
-    const url = String(payload.url ?? payload.imageUrl ?? '')
+    const rawUrl = String(payload.url ?? payload.imageUrl ?? '').trim()
+    let url = ''
+    try {
+      const parsed = new URL(rawUrl)
+      if (parsed.origin === environment.storagePublicUrl) url = parsed.toString()
+    } catch {
+      // Media uploads must resolve to the configured StoryMee Storage origin.
+    }
+    if (!url) throw new Error('StoryMee Media không trả về URL Storage hợp lệ.')
     return {
       asset: {
         id: String(item.id ?? ''),

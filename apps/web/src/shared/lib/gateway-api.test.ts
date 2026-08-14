@@ -28,6 +28,26 @@ describe('StoryMee Gateway adapter', () => {
     vi.restoreAllMocks()
   })
 
+  it('accepts only StoryMee Storage URLs returned by legacy media upload', async () => {
+    const body = new FormData()
+    body.append('file', new File(['asset'], 'asset.webp', { type: 'image/webp' }))
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({
+        url: 'https://storage.storymee.com/content-media/media/cms.webp',
+        libraryItem: { id: 'media-1' },
+      }))
+      .mockResolvedValueOnce(response({
+        url: 'https://tracker.example/cms.webp',
+        libraryItem: { id: 'media-2' },
+      }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(api<{ asset: { url: string } }>('/api/media/upload', { method: 'POST', body }))
+      .resolves.toMatchObject({ asset: { url: 'https://storage.storymee.com/content-media/media/cms.webp' } })
+    await expect(api('/api/media/upload', { method: 'POST', body }))
+      .rejects.toThrow('StoryMee Media không trả về URL Storage hợp lệ.')
+  })
+
   it('translates nickname + PIN child login without a family code and persists the StoryMee JWT', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response({
       token: 'storymee-jwt',
