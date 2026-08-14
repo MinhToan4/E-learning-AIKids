@@ -73,10 +73,10 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(sidebar).toContain('Mee đang hỗ trợ')
   })
 
-  it('supports MOCK_TEST_QUEST and visual quiz image options in Check phase', () => {
+  it('loads lessons through the learning boundary and supports visual quiz image options', () => {
     const lesson = read('features/lesson/pages/LessonPage.tsx')
-    expect(lesson).toContain('MOCK_TEST_QUEST')
-    expect(lesson).toContain("questId.startsWith('test")
+    expect(lesson).toContain('learningApi.getLesson(questId)')
+    expect(lesson).toContain('learningApi.startLesson(questId)')
     expect(lesson).toContain("opt.startsWith('http')")
     expect(lesson).toContain('alt={`Option ${String.fromCharCode(65 + idx)}`}')
   })
@@ -136,7 +136,8 @@ describe('Phase 4 FE surfaces call shipped APIs', () => {
     expect(shell).toContain('adult-bottom-nav')
     expect(shell).toContain('student-bottom-nav')
     expect(shell).toContain('admin-drawer-sheet')
-    expect(shell).toContain('KidCreativeImageIcon')
+    expect(shell).toContain('KidWorldImageIcon')
+    expect(shell).toContain('KidStorybookImageIcon')
     expect(shell).toContain('<SidebarLogoutButton />')
     expect(shell).toContain('<MobileLogoutButton />')
     expect(shell).toContain('className="role-nav-link role-sidebar-logout"')

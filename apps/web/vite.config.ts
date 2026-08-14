@@ -7,7 +7,7 @@ import { resolve } from 'node:path'
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '')
   const apiProxyTarget =
-    env.VITE_API_PROXY_TARGET?.trim() || 'https://dev-hub.storymee.com'
+    env.VITE_API_PROXY_TARGET?.trim() || 'http://127.0.0.1:5100'
 
   return {
     plugins: [react(), tailwindcss()],
@@ -20,12 +20,10 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       proxy: {
         '/api': {
-          // The browser only talks to the StoryMee gateway.
-          // Default to the deployed dev Hub because a stale local Hub binary may
-          // not expose the consumer-facing /api/v1 alias yet.
+          // The browser only talks to the local StoryMee gateway.
           target: apiProxyTarget,
           changeOrigin: true,
-          secure: true,
+          secure: apiProxyTarget.startsWith('https:'),
         },
       },
     },
@@ -63,6 +61,7 @@ export default defineConfig(({ mode }) => {
       environment: 'jsdom',
       include: ['src/**/*.test.ts', 'src/**/*.test.tsx'],
       env: {
+        // Unit tests mock fetch; keep an absolute origin to verify URL joining.
         VITE_API_URL: 'https://dev-hub.storymee.com',
       },
     },

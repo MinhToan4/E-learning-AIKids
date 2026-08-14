@@ -9,6 +9,7 @@ import {
 import { ShieldLockIcon } from '@/shared/components/icons/ParentIcons'
 import { Button } from '@/shared/components/ui/Button'
 import { api, type CourseSummary } from '@/shared/lib/api'
+import { learningApi } from '@/shared/lib/learning-api'
 import { courseCoverHint } from '@/shared/config/assets'
 
 type CourseDetail = CourseSummary & {
@@ -42,7 +43,7 @@ export function CourseIntroPage() {
       setError(null)
       try {
         const [data, enrollmentData] = await Promise.all([
-          api<{ course: CourseDetail }>(`/api/courses/${courseId}`),
+          learningApi.getCourse<{ course: CourseDetail }>(courseId),
           api<{ enrollments: Array<{ courseId: string; status: string }> }>('/api/enrollments'),
         ])
         setCourse(data.course)
@@ -66,10 +67,7 @@ export function CourseIntroPage() {
         method: 'POST',
         body: JSON.stringify({ courseId: course.id }),
       })
-      const p = await api<{
-        completedCount: number
-        quests: Array<{ id: string; order: number; status: string }>
-      }>(`/api/progress/${course.id}`)
+      const p = await learningApi.getCourseProgress(course.id)
       const next =
         p.quests.find(
           (q) => q.status === 'available' || q.status === 'in_progress',

@@ -170,6 +170,9 @@ export function BackpackPage() {
     setLoading(true)
     setError(null)
     try {
+      // Account owns workspace provisioning. This silent preflight also covers
+      // sessions created before automatic provisioning was introduced.
+      await api('/api/v1/account/workspaces').catch(() => undefined)
       const [a, p, inventoryResult, catalogResult] = await Promise.allSettled([
         api<{ assets: Asset[] }>('/api/backpack'),
         api<{ projects: Project[] }>('/api/projects'),

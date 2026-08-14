@@ -25,17 +25,25 @@ function resolveEnvironment(): AppEnvironment {
   return import.meta.env.PROD ? 'production' : 'development'
 }
 
+function isLocalBrowser(): boolean {
+  if (typeof window === 'undefined') return false
+  return ['localhost', '127.0.0.1', '[::1]'].includes(window.location.hostname)
+}
+
 const configuredApiUrl = import.meta.env.VITE_API_URL?.trim()
 const runtimeConfig = typeof window === 'undefined'
   ? undefined
   : window.__AIKIDS_RUNTIME_CONFIG__
 const configuredStorageUrl = runtimeConfig?.storagePublicUrl?.trim()
   || import.meta.env.VITE_STORAGE_PUBLIC_URL?.trim()
+// A production bundle served locally must stay inside the local gateway even if
+// a developer machine still has an old VITE_API_URL in an ignored .env file.
+const useSameOriginApi = import.meta.env.PROD && isLocalBrowser()
 
 export const environment = Object.freeze({
   name: resolveEnvironment(),
   // Empty means same-origin. Vite/nginx proxy /api/* to StoryMee Hub.
-  apiBaseUrl: configuredApiUrl
+  apiBaseUrl: configuredApiUrl && !useSameOriginApi
     ? normalizeOrigin(configuredApiUrl, 'VITE_API_URL')
     : '',
   storagePublicUrl: configuredStorageUrl

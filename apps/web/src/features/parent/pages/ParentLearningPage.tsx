@@ -4,6 +4,7 @@ import {
   Award,
   Download,
   FileText,
+  MessageSquareText,
   RefreshCcw,
   ShieldCheck,
   Sparkles,
@@ -19,9 +20,11 @@ import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
 import { api, downloadAuthorizedBlob } from '@/shared/lib/api'
+import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import type { AgeExperiencePolicy } from '@/shared/age-experience/AgeExperienceProvider'
 import { programArtworkHint } from '@/shared/config/assets'
+import { ParentTeacherFeedbackSection } from '../components/ParentTeacherFeedbackSection'
 
 type Child = {
   id: string
@@ -156,7 +159,7 @@ type LearningData = {
     policy: AgeExperiencePolicy | null
   }
 }
-type Section = 'journey' | 'courses' | 'reports'
+type Section = 'feedback' | 'journey' | 'courses' | 'reports'
 
 function dateTime(value: string) {
   return new Intl.DateTimeFormat('vi-VN', {
@@ -175,7 +178,7 @@ const levelLabels = {
 export function ParentLearningPage() {
   const [children, setChildren] = useState<Child[]>([])
   const [studentId, setStudentId] = useState('')
-  const [section, setSection] = useState<Section>('journey')
+  const [section, setSection] = useState<Section>('feedback')
   const [data, setData] = useState<LearningData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -251,7 +254,7 @@ export function ParentLearningPage() {
         optional(api<{ requests: PlacementRequest[] }>(
           `/api/schedule/placement-requests?status=rejected&${query}`,
         ), { requests: [] }),
-        optional(api<Pathway>(`/api/learning/pathway?${query}`), { recommendedCourseId: null, courses: [] }),
+        optional(learningApi.getPathway(studentId), { student: { nickname: null, ageBand: '8-11' }, policy: null, recommendedCourseId: null, courses: [] }),
         optional(api<{
           status: 'ready' | 'configuration_required'
           policy: AgeExperiencePolicy | null
@@ -468,7 +471,8 @@ export function ParentLearningPage() {
 
       <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Nội dung hành trình">
         {(
-          [
+            [
+            ['feedback', 'Nhận xét giáo viên', MessageSquareText],
             ['journey', 'Năng lực & chứng nhận', Sparkles],
             ['courses', 'Chọn khóa học', BookOpen],
             ['reports', 'Báo cáo PDF', FileText],
@@ -502,7 +506,9 @@ export function ParentLearningPage() {
         <PageSkeleton rows={4} />
       ) : error ? (
         <ErrorState message={error} onRetry={() => void load()} />
-      ) : data && section === 'journey' ? (
+        ) : section === 'feedback' && studentId ? (
+          <ParentTeacherFeedbackSection childId={studentId} />
+        ) : data && section === 'journey' ? (
         <JourneySection
           competency={data.competency}
           credentials={data.credentials}

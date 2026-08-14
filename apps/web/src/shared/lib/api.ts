@@ -365,6 +365,23 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     }
     return { path: '/api/v1/billing/me/subscription', options }
   }
+  if (path === '/api/parent/course-checkout') {
+    const headers = new Headers(options.headers)
+    if (!headers.has('Idempotency-Key')) {
+      headers.set('Idempotency-Key', createUuid())
+    }
+    return {
+      path: '/api/v1/billing/me/course-checkout',
+      options: { ...options, headers },
+    }
+  }
+  const courseCheckout = path.match(/^\/api\/parent\/course-checkout\/([^/?]+)$/)
+  if (courseCheckout) {
+    return {
+      path: `/api/v1/billing/me/course-checkout/${encodeURIComponent(courseCheckout[1])}`,
+      options,
+    }
+  }
   if (path === '/api/media/refs' || path === '/api/backpack') {
     const activeIpId = typeof window !== 'undefined' ? localStorage.getItem('storymee_active_ip_id') : null
     const ipSuffix = activeIpId ? `?ipId=${encodeURIComponent(activeIpId)}` : ''
@@ -576,14 +593,17 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       options: options.method === 'POST'
         ? withJson(options, {
           name: body.nickname,
-          ageBand: '9-12',
+          ageBand: body.ageBand ?? '8-11',
           avatarUrl: body.avatarId,
           language: 'vi',
+          // New profiles start with the parent-approved product defaults.
           allowAiCreate: true,
-          // core-account creates a users row together with the child profile.
-          // PIN is the only credential exposed by AiKid; use an opaque internal
-          // password until the dedicated PIN endpoint enables child login.
-          password: childPin || createUuid(),
+          allowPhoto: true,
+          allowExport: false,
+          // The account password is never used as the child's PIN. The Account
+          // service persists `pin` in child_profiles.pin_hash for child login.
+          password: createUuid(),
+          ...(childPin ? { pin: childPin } : {}),
         })
         : options,
     }
@@ -628,6 +648,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
         ? withJson(options, {
           name: body.nickname,
           avatarUrl: body.avatarId,
+          ageBand: body.ageBand,
         })
         : options,
     }
@@ -639,28 +660,18 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       options,
     }
   }
-  // WHY: Parental consent — PATCH /consent remapped to PATCH /children/:id
-  // (Hub-known route) with consentMethod in body. The dedicated /consent path
-  // causes Hub 500 because Hub Go binary has no routing config for that sub-path.
-  // GET /consent/events similarly unsupported — callers receive empty events list.
   const childConsentEvents = path.match(/^\/api\/parent\/children\/([^/?]+)\/consent\/events$/)
   if (childConsentEvents) {
-    // WHY: Hub 500s on /consent/events. Return gracefully via child record
-    // which already includes consent.* fields. Events history unavailable
-    // until Hub routing is updated.
     return {
-      path: `/api/v1/account/family/children/${encodeURIComponent(childConsentEvents[1])}`,
-      options: { ...options, method: 'GET', body: undefined },
+      path: `/api/v1/account/family/children/${encodeURIComponent(childConsentEvents[1])}/consent/events`,
+      options,
     }
   }
   const childConsent = path.match(/^\/api\/parent\/children\/([^/?]+)\/consent$/)
   if (childConsent) {
-    // WHY: Remap PATCH /consent → PATCH /children/:id (Hub-known route)
-    // and inject consentMethod so BE calls updateConsent() audit trail.
-    const consentBody = { ...(body as Record<string, unknown>), consentMethod: 'parent_ui' }
     return {
-      path: `/api/v1/account/family/children/${encodeURIComponent(childConsent[1])}`,
-      options: withJson(options, consentBody),
+      path: `/api/v1/account/family/children/${encodeURIComponent(childConsent[1])}/consent`,
+      options,
     }
   }
   const childProgress = path.match(
@@ -694,9 +705,11 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       path === '/api/teacher/lectures' ||
       path === '/api/teacher/lectures/reorder' ||
       path === '/api/teacher/courses' ||
+      path === '/api/teacher/class/course' ||
       path === '/api/teacher/question-banks' ||
       path === '/api/teacher/question-bank/items' ||
       /^\/api\/teacher\/class\/students\/[^/?]+$/.test(path) ||
+      /^\/api\/teacher\/class\/course\/[^/?]+$/.test(path) ||
       /^\/api\/teacher\/students\/[^/?]+\/progress$/.test(path) ||
       /^\/api\/teacher\/lectures\/[^/?]+(?:\/restore)?$/.test(path) ||
       /^\/api\/teacher\/courses\/[^/?]+$/.test(path) ||
@@ -1063,6 +1076,14 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     ? body.data
     : body) as Record<string, unknown>
 
+  if (path === '/api/parent/course-checkout') {
+    return {
+      ...payload,
+      checkout: recordValue(body.checkout),
+      ...(body.message ? { message: String(body.message) } : {}),
+    }
+  }
+
   if (path === '/api/auth/login/child-profile') {
     const token = String(payload.token ?? payload.accessToken ?? '')
     if (token) setAccessToken(token)
@@ -1424,6 +1445,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         questCount: Number(raw.questCount ?? mapped.questCount ?? 0),
         completedCount: Number(raw.completedCount ?? 0),
         totalStars: Number(raw.totalStars ?? 0),
+        enrollmentId: raw.enrollmentId ? String(raw.enrollmentId) : null,
         programSource:
           raw.programSource === 'workspace' || raw.programSource === 'creator_marketplace'
             ? raw.programSource
@@ -1496,13 +1518,6 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         }
       }),
     }
-  }
-  // WHY: /consent/events is remapped to GET /children/:id (Hub limitation).
-  // The response is { child: {...} } not { events: [...] }.
-  // Normalizer intercepts this before the /children/:id catch below and returns
-  // empty events — the UI shows "Chưa có lịch sử thay đổi" gracefully.
-  if (/^\/api\/parent\/children\/[^/?]+\/consent\/events$/.test(path)) {
-    return { events: [] }
   }
   if (/^\/api\/parent\/children\/[^/?]+$/.test(path) && payload.child) {
     const row = payload.child as Record<string, unknown>

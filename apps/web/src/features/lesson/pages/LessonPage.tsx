@@ -27,6 +27,7 @@ import {
 } from '@/shared/lib/creation/types'
 import { Button } from '@/shared/components/ui/Button'
 import { ApiError, api, type QuestDetail } from '@/shared/lib/api'
+import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets, styleImage } from '@/shared/config/assets'
 import { RefMediaPicker } from '@/features/lesson/components/RefMediaPicker'
@@ -197,14 +198,8 @@ export function LessonPage() {
 
     void (async () => {
       try {
-        const start = await api<{
-          progress: {
-            status: string
-            phase: Phase
-            stars: number
-          }
-        }>(`/api/progress/${questId}/start`, { method: 'POST' })
-        const data = await api<{ quest: QuestDetail }>(`/api/quests/${questId}`)
+        const start = await learningApi.startLesson(questId)
+        const data = await learningApi.getLesson(questId)
         if (cancelled) return
         setQuest(data.quest)
         setLiveStars(start.progress.stars)
@@ -292,9 +287,7 @@ export function LessonPage() {
     if (!quest || phase !== 'done' || checkResult?.nextQuestId) return
     void (async () => {
       try {
-        const p = await api<{
-          quests: Array<{ id: string; order: number; status: string }>
-        }>(`/api/progress/${quest.courseId}`)
+        const p = await learningApi.getCourseProgress(quest.courseId)
         const next = p.quests.find(
           (q) =>
             q.order === quest.order + 1 &&
@@ -411,14 +404,9 @@ export function LessonPage() {
     setBusy(true)
     setError(null)
     try {
-
-      const response = await api<{ progress: { phase: Phase } }>(
-        `/api/progress/${questId}/advance`,
-        {
-          method: 'POST',
-          body: JSON.stringify({ fromPhase: 'learn' }),
-        },
-      )
+      const response = await learningApi.advanceLesson(questId, {
+        fromPhase: 'learn',
+      })
       setPhase(response.progress.phase)
     } catch (e) {
       if (!recoverCurrentPhase(e)) {
@@ -435,14 +423,10 @@ export function LessonPage() {
     setBusy(true)
     setError(null)
     try {
-
-      const result = await api<{ progress: { stars: number } }>(
-        `/api/progress/${questId}/advance`,
-        {
-        method: 'POST',
-        body: JSON.stringify({ fromPhase: 'game', gameEvidence }),
-        },
-      )
+      const result = await learningApi.advanceLesson(questId, {
+        fromPhase: 'game',
+        gameEvidence,
+      })
       setLiveStars(result.progress.stars)
       setStarBurst({ id: Date.now(), count: 1 })
       setPhase('practice')
@@ -536,17 +520,12 @@ export function LessonPage() {
         payload = { ...payload, assetIds: refAssetIds }
       }
 
-
-
-      const res = await api<{ result: PracticeResult }>(
-        `/api/progress/${questId}/practice`,
+      const res = await learningApi.savePractice<{ result: PracticeResult }>(
+        questId,
         {
-          method: 'POST',
-          body: JSON.stringify({
-            kind:
-              quest.practiceKind === 'chips' ? 'prompt' : quest.practiceKind,
-            payload,
-          }),
+          kind:
+            quest.practiceKind === 'chips' ? 'prompt' : quest.practiceKind,
+          payload,
         },
       )
       const review = resolvePracticeReview(res.result)
@@ -554,13 +533,9 @@ export function LessonPage() {
       setPracticeFeedback(review.feedback)
       setPracticeSaved(true)
       try {
-        const advance = await api<{ progress: { stars: number } }>(
-          `/api/progress/${questId}/advance`,
-          {
-          method: 'POST',
-          body: JSON.stringify({ fromPhase: 'practice' }),
-          },
-        )
+        const advance = await learningApi.advanceLesson(questId, {
+          fromPhase: 'practice',
+        })
         setLiveStars(advance.progress.stars)
         setStarBurst({ id: Date.now(), count: 1 })
         setPracticeAdvanced(true)
@@ -582,14 +557,9 @@ export function LessonPage() {
     setBusy(true)
     setError(null)
     try {
-
-      const result = await api<{ progress: { stars: number } }>(
-        `/api/progress/${questId}/advance`,
-        {
-        method: 'POST',
-        body: JSON.stringify({ fromPhase: 'practice' }),
-        },
-      )
+      const result = await learningApi.advanceLesson(questId, {
+        fromPhase: 'practice',
+      })
       setLiveStars(result.progress.stars)
       setStarBurst({ id: Date.now(), count: 1 })
       setPracticeAdvanced(true)
@@ -616,21 +586,11 @@ export function LessonPage() {
     try {
 
 
-      const res = await api<{
-        passed?: boolean
-        stars: number
-        message: string
-        nextQuestId: string | null
-        newAchievements?: string[]
-        courseCredential?: string | null
-      }>(`/api/progress/${questId}/check`, {
-        method: 'POST',
-        body: JSON.stringify({
-          answers: quest.check.map((q) => ({
-            questionId: q.id,
-            optionIndex: answers[q.id] as number,
-          })),
-        }),
+      const res = await learningApi.submitCheck(questId, {
+        answers: quest.check.map((q) => ({
+          questionId: q.id,
+          optionIndex: answers[q.id] as number,
+        })),
       })
       if (res.passed === false) {
         setError(res.message)
@@ -659,13 +619,9 @@ export function LessonPage() {
     try {
 
 
-      const feedback = await api<{
-        questionId: string
-        correct: boolean
-        explanation: string
-      }>(`/api/progress/${questId}/check-answer`, {
-        method: 'POST',
-        body: JSON.stringify({ questionId, optionIndex }),
+      const feedback = await learningApi.checkAnswer(questId, {
+        questionId,
+        optionIndex,
       })
       setAnswerFeedback((current) => ({
         ...current,
@@ -910,6 +866,25 @@ export function LessonPage() {
       <main className="lesson-stage-main min-h-0 flex-1 relative overflow-y-auto hidden-scrollbar pb-10 pr-2">
         {phase === 'learn' && (
         <div className="flex flex-col gap-6 animate-fade-up">
+          <div className="rounded-3xl border border-brand-100 bg-gradient-to-r from-brand-50 via-white to-sky-50 p-4 sm:p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+              {quest.coverImage && (
+                <img
+                  src={quest.coverImage}
+                  alt={quest.coverImageAlt || `Minh họa cho ${quest.title}`}
+                  className="h-32 w-full rounded-2xl object-cover sm:h-28 sm:w-48"
+                  onError={(event) => { event.currentTarget.style.display = 'none' }}
+                />
+              )}
+              <div className="min-w-0">
+                <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">Nhiệm vụ hôm nay</p>
+                <p className="mt-1 font-display text-2xl leading-tight">Con sắp mở khóa một bí mật AI ✨</p>
+                <p className="mt-1 text-sm font-semibold leading-relaxed text-muted">
+                  Đọc nhanh, thử một dự đoán và đừng ngại sửa câu trả lời. Mỗi lần kiểm chứng đều giúp con tiến bộ.
+                </p>
+              </div>
+            </div>
+          </div>
           {/* Hook highlight */}
           <div className="relative overflow-hidden rounded-[2rem] border-[4px] border-brand-200 bg-brand-50 p-6 sm:p-8 shadow-clay text-center">
              <h2 className="font-display text-2xl sm:text-3xl font-black text-brand-800 leading-tight">
@@ -960,6 +935,14 @@ export function LessonPage() {
                   tone.bg, tone.border
                 )}>
                   <div className={cn('flex flex-col justify-center', isStoryboardCard && 'max-w-4xl')}>
+                    {card.imageUrl && (
+                      <img
+                        src={card.imageUrl}
+                        alt={card.imageAlt || card.title}
+                        className="mb-3 h-32 w-full rounded-xl object-cover"
+                        onError={(event) => { event.currentTarget.style.display = 'none' }}
+                      />
+                    )}
                     <div className={cn("grid size-12 place-items-center rounded-2xl border-2 shadow-sm", tone.iconBg, tone.border)}>
                       <CardIcon size={26} className={tone.text} aria-hidden="true" />
                     </div>
@@ -1048,6 +1031,20 @@ export function LessonPage() {
               )
             })}
           </section>
+
+          {quest.media && quest.media.length > 0 && (
+            <div className="rounded-2xl border border-sky-100 bg-sky-50/60 p-3">
+              <p className="mb-2 text-xs font-extrabold uppercase tracking-wider text-sky-600">Góc quan sát</p>
+              <div className="grid gap-3 sm:grid-cols-2">
+                {quest.media.map((media) => (
+                  <figure key={media.id} className="overflow-hidden rounded-xl bg-white">
+                    <img src={media.url} alt={media.alt} className="h-36 w-full object-cover" onError={(event) => { event.currentTarget.style.display = 'none' }} />
+                    {media.caption && <figcaption className="p-2 text-xs font-semibold text-muted">{media.caption}</figcaption>}
+                  </figure>
+                ))}
+              </div>
+            </div>
+          )}
 
           <Button
             variant="primary"
