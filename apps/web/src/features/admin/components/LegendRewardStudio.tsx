@@ -321,7 +321,7 @@ export function studioAssetPreviewKind(url: string): 'image' | 'video' | 'config
 
 function StudioArtwork({ item, meaningful = false }: { item: StudioItem; meaningful?: boolean }) {
   const [failed, setFailed] = useState(false)
-  const src = item.kind === 'title' ? rewardBadgeThumbnail(item.code) ?? studioArtwork(item) : studioArtwork(item)
+  const src = studioArtwork(item) ?? (item.kind === 'title' ? rewardBadgeThumbnail(item.code) : undefined)
   if (!src || failed) return <Gift className="h-7 w-7 text-brand-500" aria-hidden="true" />
   if (studioAssetPreviewKind(src) === 'config') return <Settings2 className="h-7 w-7 text-brand-500" aria-label={meaningful ? item.name : undefined} />
   return <img src={src} alt={meaningful ? item.name : ''} loading="lazy" onError={() => setFailed(true)} className="h-full w-full object-contain" />
@@ -685,6 +685,7 @@ export function LegendRewardStudio() {
       : itemStickers
     const rewardKind = item.kind && kindOptions.includes(item.kind as RewardKind) ? item.kind as RewardKind : 'frame'
     setEditingItem(item)
+    setMessage('')
     setForm({
       ...emptyForm(),
       contentType: item.contentType,
@@ -805,7 +806,8 @@ export function LegendRewardStudio() {
     } catch (error) {
       setAssetInfo('')
       setPreviewUrl('')
-      setMessage(error instanceof Error ? error.message : 'Không tải được asset.')
+      const reason = error instanceof Error ? error.message : 'Không tải được asset.'
+      setMessage(`${reason} File chưa được upload; version vẫn đang dùng asset cũ.`)
     } finally {
       setUploading(false)
     }
@@ -1682,11 +1684,15 @@ export function LegendRewardStudio() {
                 <input type="file" accept=".png,.webp,.jpg,.jpeg,.svg,.json,.webm" className="sr-only" disabled={uploading} onChange={(event) => {
                   const file = event.target.files?.[0]
                   if (file) {
-                    setPreviewUrl(URL.createObjectURL(file))
                     void uploadAsset(file)
                   }
                 }} />
               </label>}
+              {form.contentType !== 'chapter' && form.contentType !== 'achievement' && message && (
+                <p className={`rounded-xl p-3 text-sm font-bold ${message.includes('đã tải lên') ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'}`} role="status" aria-live="polite">
+                  {message}
+                </p>
+              )}
               {form.contentType !== 'chapter' && form.contentType !== 'achievement' && assetInfo && <p className="rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">✓ {assetInfo}</p>}
               {form.contentType !== 'chapter' && form.contentType !== 'achievement' && <p className="break-all rounded-xl bg-white p-3 text-xs text-muted">{form.assetUrl || 'Chưa có URL asset — preview tạm sẽ xuất hiện ngay khi chọn file.'}</p>}
             </section>

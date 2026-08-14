@@ -34,6 +34,23 @@ describe('reward catalog asset contract', () => {
     })).toBeUndefined()
   })
 
+  it('prefers a published CMS Storage URL over bundled asset references', () => {
+    expect(resolveCatalogRewardAsset({
+      id: 'title-first-light',
+      assets: {
+        imageUrl: 'https://storage.storymee.com/content-media/title-first-light.png',
+        assetId: 'title-common',
+      },
+    })).toBe('https://storage.storymee.com/content-media/title-first-light.png')
+  })
+
+  it('rejects direct catalog URLs outside StoryMee Storage', () => {
+    expect(resolveCatalogRewardAsset({
+      id: 'title-first-light',
+      assets: { imageUrl: 'https://tracker.example/title-first-light.png' },
+    })).toBeUndefined()
+  })
+
   it('preserves immutable release and format overrides per catalog asset', () => {
     expect(selectRewardAssetReference({
       preview: {

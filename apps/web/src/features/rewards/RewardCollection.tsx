@@ -67,6 +67,9 @@ function RewardAssetImage({
 }
 
 function catalogAssetsFor(item: { code: string; assets?: RewardCatalogAssets }) {
+  if (item.assets?.imageUrl || item.assets?.thumbnailUrl || item.assets?.previewUrl) {
+    return item.assets
+  }
   if (/^frame-level-(?:15|25|35|45|55|65|75|85|95|100)$/.test(item.code)) {
     return {
       assetId: item.code,
@@ -113,6 +116,7 @@ function RewardArtwork({
   const rewardAvatar = reward.kind === 'avatar' ? avatarImage(reward.equipValue) : undefined
 
   if (reward.kind === 'effect') {
+    if (assetUrl) return <RewardAssetImage src={assetUrl} className={`${size} object-contain`} fallback={<RewardEffectArtwork rewardId={reward.id} large={large} />} />
     return <RewardEffectArtwork rewardId={reward.id} large={large} />
   }
 
@@ -131,7 +135,7 @@ function RewardArtwork({
   }
 
   if (reward.kind === 'title') {
-    const titleAsset = rewardTitleAsset(reward.id)
+    const titleAsset = assetUrl ?? rewardTitleAsset(reward.id)
     if (titleAsset) return (
       <span className={`inline-flex w-full max-w-full items-center justify-center ${large ? 'max-w-[30rem]' : 'max-w-[18rem]'}`}>
         <span className="reward-title-artwork">
@@ -446,9 +450,9 @@ export function RewardCollection({
             const assetUrl = kind === 'avatar' && currentProfileAvatar?.url
               ? currentProfileAvatar.url
               : kind === 'title' && reward
-              ? rewardTitleAsset(reward.id)
+              ? resolveCatalogRewardAsset(reward, 'thumbnail') ?? rewardTitleAsset(reward.id)
               : kind === 'frame' && reward
-              ? getResolvedRewardAssetUrl(reward.id)
+              ? resolveCatalogRewardAsset(reward, 'thumbnail') ?? getResolvedRewardAssetUrl(reward.id)
               : reward
               ? resolveCatalogRewardAsset(reward, 'thumbnail')
               : undefined
@@ -611,7 +615,7 @@ export function RewardCollection({
           const unlocked = isRewardUnlocked(reward, owned, xpLevel)
           const equipped = isEquippedReward(reward, equipment)
           const assetUrl = reward.kind === 'frame'
-            ? getResolvedRewardAssetUrl(reward.id)
+            ? resolveCatalogRewardAsset(reward, 'thumbnail') ?? getResolvedRewardAssetUrl(reward.id)
             : resolveCatalogRewardAsset(reward, 'thumbnail')
           return (
             <article

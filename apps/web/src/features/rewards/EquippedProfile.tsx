@@ -22,6 +22,7 @@ import {
   getSharedLevelRewardAssetId,
 } from './reward-assets'
 import { rewardTitleAsset } from './title-assets'
+import { resolveCatalogRewardAsset, type RewardCatalogAssets } from './reward-catalog-assets'
 import { DEFAULT_PROFILE_CARD_LAYOUT, PROFILE_CARD_LAYOUT_CODE, normalizeProfileCardLayout, profileCardSlotStyle, type ProfileCardLayout } from '@/features/profile/profile-card-layout'
 
 const companionAssetNames: Record<string, string> = {
@@ -64,6 +65,7 @@ export function EquippedProfile({
   const equipment = controlledEquipment ?? cachedEquipment
   const [profileAvatar, setProfileAvatar] = useState(() => readProfileAvatar(user.id))
   const [profileCardLayout, setProfileCardLayout] = useState<ProfileCardLayout>(DEFAULT_PROFILE_CARD_LAYOUT)
+  const [catalogAssetUrls, setCatalogAssetUrls] = useState<Record<string, string>>({})
   const activeLayout = layoutOverride ?? profileCardLayout
   const editorOutline = (slot: keyof ProfileCardLayout['slots']) => editorSelectedSlot === slot ? ' outline outline-4 outline-sky-400 outline-offset-2' : ''
   useEffect(() => {
@@ -83,10 +85,14 @@ export function EquippedProfile({
     }
   }, [user.id])
   useEffect(() => {
-    void api<{ items: Array<{ code: string; displayConfig?: Record<string, unknown> }> }>('/api/gamification/catalog?type=reward&v=2026.08.01.6')
+    void api<{ items: Array<{ code: string; assets?: RewardCatalogAssets; displayConfig?: Record<string, unknown> }> }>('/api/gamification/catalog?type=reward&v=2026.08.01.6')
       .then(({ items }) => {
         const config = items.find((item) => item.code === PROFILE_CARD_LAYOUT_CODE)?.displayConfig?.profileCardLayout as ProfileCardLayout | undefined
         if (config) setProfileCardLayout(normalizeProfileCardLayout(config))
+        setCatalogAssetUrls(Object.fromEntries(items.flatMap((item) => {
+          const url = resolveCatalogRewardAsset({ id: item.code, assets: item.assets })
+          return url ? [[item.code, url]] : []
+        })))
       })
       .catch(() => undefined)
   }, [])
@@ -97,7 +103,9 @@ export function EquippedProfile({
   const frameReward = equipment.frame
   const frame = REWARD_CATALOG.find((item) => item.id === frameReward)
   const generatedLevelFrame = frameReward?.match(/^frame-level-(\d+)$/)
-  const frameAsset = generatedLevelFrame
+  const frameAsset = frameReward && catalogAssetUrls[frameReward]
+    ? catalogAssetUrls[frameReward]
+    : generatedLevelFrame
     ? getGeneratedRewardAssetUrl(frameReward, 'primary', { release: '2026.08.01.5', format: 'png' })
     : frameReward ? getRewardAssetUrl(frameReward) : undefined
   const usesArtworkFrame = Boolean(frameAsset)
@@ -111,7 +119,7 @@ export function EquippedProfile({
     : titleReward
       ? getGeneratedRewardAssetUrl('title-epic', 'primary', { release: '2026.08.01.6', format: 'webp' })
       : undefined
-  const titlePlaqueAsset = rewardTitleAsset(equipment.title)
+  const titlePlaqueAsset = (equipment.title && catalogAssetUrls[equipment.title]) || rewardTitleAsset(equipment.title)
   const img = profileAvatar?.url ?? avatarImage(avatarId)
   const companionReward = REWARD_CATALOG.find((item) => item.id === equipment.companion)
   const companionLevel = getLevelRewardNumber(equipment.companion, 'companion')
