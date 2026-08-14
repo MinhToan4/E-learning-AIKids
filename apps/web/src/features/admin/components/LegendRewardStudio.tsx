@@ -18,6 +18,7 @@ import { BookSpread } from '@/features/storybook/components/BookSpread'
 import { storybookChapter } from '@/shared/lib/creation/storybook'
 
 type ContentType = 'reward' | 'chapter' | 'event' | 'achievement'
+type ChapterEditorFocus = 'cover' | 'left' | 'stickerPage' | 'stickers'
 export type StudioItem = {
   id: string
   contentType: ContentType
@@ -94,6 +95,62 @@ const displayTemplate = (kind: RewardKind) => {
 function studioArtwork(item: StudioItem): string | undefined {
   return item.assets.thumbnailUrl ?? item.assets.imageUrl
     ?? (item.contentType === 'reward' ? rewardTitleAsset(item.code) ?? getResolvedRewardAssetUrl(item.code) : item.assets.coverUrl)
+}
+
+function ChapterBookMapPreview({ item, onEdit }: { item: StudioItem; onEdit: (focus: ChapterEditorFocus) => void }) {
+  const colors = Array.isArray(item.displayConfig.colors) ? item.displayConfig.colors.map(String) : ['#4338CA', '#F59E0B']
+  const stickers = Array.isArray(item.content.stickers)
+    ? item.content.stickers.filter((sticker): sticker is Record<string, unknown> => Boolean(sticker && typeof sticker === 'object')).slice(0, 9)
+    : []
+  const editButtonClass = 'absolute inset-0 flex min-h-11 items-end justify-center rounded-xl bg-slate-950/0 p-2 text-xs font-extrabold text-transparent transition-colors hover:bg-slate-950/35 hover:text-white focus-visible:bg-slate-950/35 focus-visible:text-white focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-brand-600'
+
+  return (
+    <article className="rounded-3xl border border-border bg-gradient-to-br from-amber-50 via-white to-sky-50 p-4 shadow-sm sm:col-span-2 xl:col-span-3">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="text-xs font-black uppercase tracking-wider text-brand-600">Chapter canvas · {item.code}</p>
+          <h4 className="font-display text-xl font-extrabold">{item.name}</h4>
+          <p className="text-xs text-muted">Chạm đúng vùng cần thay ảnh; CMS sẽ mở đúng phần cấu hình.</p>
+        </div>
+        <span className={`rounded-full px-3 py-1 text-xs font-black ${item.source === 'legacy' ? 'bg-amber-100 text-amber-900' : 'bg-mint-50 text-success'}`}>{item.source === 'legacy' ? 'Chưa đưa vào Studio' : studioStatusLabel(item)}</span>
+      </div>
+      <div className="grid gap-3 lg:grid-cols-[140px_minmax(0,1fr)]">
+        <div className="relative overflow-hidden rounded-2xl border-2 border-white bg-brand-50 shadow-clay">
+          <div className="aspect-[4/3] bg-cover bg-center" style={item.assets.coverUrl ? { backgroundImage: `url("${item.assets.coverUrl}")` } : { background: `linear-gradient(145deg, ${colors[0]}, ${colors[1]})` }}>
+            {!item.assets.coverUrl && <span className="flex h-full items-center justify-center text-4xl" aria-hidden="true">{String(item.displayConfig.emoji ?? '📖')}</span>}
+          </div>
+          <button type="button" className={editButtonClass} onClick={() => onEdit('cover')} aria-label={`Sửa bìa ${item.name}`}>Sửa bìa</button>
+        </div>
+        <div className="relative grid min-h-48 grid-cols-2 overflow-hidden rounded-3xl border-4 border-white bg-white shadow-clay before:absolute before:inset-y-0 before:left-1/2 before:z-10 before:w-px before:bg-slate-300" aria-label={`Xem trước cuốn sách ${item.name}`}>
+          <div className="relative min-w-0 bg-cover bg-center p-4" style={item.assets.leftBackgroundUrl ? { backgroundImage: `url("${item.assets.leftBackgroundUrl}")` } : { background: `linear-gradient(145deg, ${colors[0]}, ${colors[1]})` }}>
+            <div className="max-w-[75%] rounded-xl bg-white/85 p-2 shadow-sm backdrop-blur-sm">
+              <p className="line-clamp-1 text-xs font-black text-brand-700">{item.name}</p>
+              <p className="mt-1 line-clamp-3 text-[10px] leading-relaxed text-slate-700">{String(item.content.story ?? item.description)}</p>
+            </div>
+            <button type="button" className={editButtonClass} onClick={() => onEdit('left')} aria-label={`Sửa background trang trái ${item.name}`}>Sửa background</button>
+          </div>
+          <div className="relative min-w-0 bg-amber-50 bg-cover bg-center p-3" style={item.assets.stickerPageUrl ? { backgroundImage: `url("${item.assets.stickerPageUrl}")` } : undefined}>
+            {item.assets.stickerSheetUrl ? (
+              <img src={item.assets.stickerSheetUrl} alt="" className="h-full w-full object-contain" />
+            ) : (
+              <div className="grid h-full grid-cols-3 content-center gap-1.5" aria-hidden="true">
+                {Array.from({ length: 9 }, (_, index) => {
+                  const sticker = stickers[index]
+                  const imageUrl = sticker ? String(sticker.imageUrl ?? '') : ''
+                  return <span key={String(sticker?.id ?? index)} className="flex aspect-square items-center justify-center overflow-hidden rounded-lg border border-amber-200 bg-white/85 text-lg shadow-sm">{imageUrl ? <img src={imageUrl} alt="" className="h-full w-full object-contain" /> : String(sticker?.icon ?? '✦')}</span>
+                })}
+              </div>
+            )}
+            <button type="button" className={editButtonClass} onClick={() => onEdit('stickerPage')} aria-label={`Sửa nền trang sticker ${item.name}`}>Sửa nền trang sticker</button>
+          </div>
+        </div>
+      </div>
+      <div className="mt-3 flex flex-wrap gap-2">
+        <button type="button" onClick={() => onEdit('stickers')} className="flex min-h-11 items-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-extrabold text-white shadow-sm hover:bg-brand-700"><Pencil className="h-4 w-4" aria-hidden="true" /> Sửa 9 sticker</button>
+        <button type="button" onClick={() => onEdit('left')} className="min-h-11 rounded-xl border border-border bg-white px-4 text-sm font-extrabold text-brand-700 hover:bg-brand-50">Sửa nội dung chương</button>
+      </div>
+    </article>
+  )
 }
 
 function legacyRewardStudioItems(studioItems: readonly StudioItem[]): StudioItem[] {
@@ -338,6 +395,7 @@ export function LegendRewardStudio() {
   const [previewUrl, setPreviewUrl] = useState('')
   const [assetInfo, setAssetInfo] = useState('')
   const [chapterUploading, setChapterUploading] = useState('')
+  const [chapterEditorFocus, setChapterEditorFocus] = useState<ChapterEditorFocus | null>(null)
   const [storybookPreviewMode, setStorybookPreviewMode] = useState<'locked' | 'complete'>('locked')
   const [milestoneUploading, setMilestoneUploading] = useState<number | null>(null)
   const [showCreateMenu, setShowCreateMenu] = useState(false)
@@ -349,6 +407,21 @@ export function LegendRewardStudio() {
     setDesignerMode(mode)
     setView('designer')
   }
+
+  useEffect(() => {
+    if (view !== 'designer' || form.contentType !== 'chapter' || !chapterEditorFocus) return
+    let secondFrame = 0
+    const firstFrame = window.requestAnimationFrame(() => {
+      secondFrame = window.requestAnimationFrame(() => {
+        document.getElementById(`chapter-editor-${chapterEditorFocus}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' })
+        setChapterEditorFocus(null)
+      })
+    })
+    return () => {
+      window.cancelAnimationFrame(firstFrame)
+      window.cancelAnimationFrame(secondFrame)
+    }
+  }, [chapterEditorFocus, form.contentType, view])
 
   const createNew = (contentType: ContentType) => {
     setEditingItem(null)
@@ -469,7 +542,9 @@ export function LegendRewardStudio() {
       current.rows.push(row)
       groups.set(key, current)
     }
-    return [...groups.values()].sort((left, right) => left.title.localeCompare(right.title, 'vi'))
+    return [...groups.values()]
+      .map((group) => ({ ...group, rows: [...group.rows].sort((left, right) => Number(right.item.contentType === 'chapter') - Number(left.item.contentType === 'chapter')) }))
+      .sort((left, right) => left.title.localeCompare(right.title, 'vi'))
   }, [filteredConfigMap])
   const chapterStickers = useMemo(() => {
     try {
@@ -555,7 +630,7 @@ export function LegendRewardStudio() {
     setForm((current) => ({ ...current, chapterStickersJson: JSON.stringify(stickers, null, 2) }))
   }
 
-  const startEditing = (item: StudioItem) => {
+  const startEditing = (item: StudioItem, chapterFocus?: ChapterEditorFocus) => {
     const isChapter = item.contentType === 'chapter'
     const isEvent = item.contentType === 'event'
     const rewardKind = item.kind && kindOptions.includes(item.kind as RewardKind) ? item.kind as RewardKind : 'frame'
@@ -602,8 +677,9 @@ export function LegendRewardStudio() {
     })
     setPreviewUrl(studioArtwork(item) ?? '')
     setAssetInfo('')
+    setChapterEditorFocus(chapterFocus ?? null)
     openDesigner('single')
-    window.scrollTo({ top: 0, behavior: 'smooth' })
+    if (!chapterFocus) window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const inspectAsset = async (file: File) => {
@@ -1038,7 +1114,9 @@ export function LegendRewardStudio() {
                     <span className="text-xs font-extrabold text-brand-700">Mở nhánh</span>
                   </>}>
                   <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">
-                    {group.rows.map((row) => (
+                    {group.rows.map((row) => row.item.contentType === 'chapter' ? (
+                      <ChapterBookMapPreview key={row.item.id} item={row.item} onEdit={(focus) => startEditing(row.item, focus)} />
+                    ) : (
                       <article key={row.item.id} className="grid grid-cols-[64px_1fr] gap-3 rounded-2xl border border-border bg-white p-3">
                         <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-brand-50"><StudioArtwork item={row.item} meaningful /></div>
                         <div className="min-w-0">
@@ -1287,7 +1365,7 @@ export function LegendRewardStudio() {
                       ['stickerPage', 'Nền trang sticker', 'Texture sáng, không làm chìm sticker', form.chapterStickerPageUrl],
                       ['stickerSheet', 'Sheet 9 sticker', 'Lưới 3×3 dùng giống frontend', form.chapterStickerSheetUrl],
                     ] as const).map(([target, label, hint, url]) => (
-                      <label key={target} className="cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed border-amber-300 bg-white p-3 text-center hover:border-amber-500">
+                      <label id={`chapter-editor-${target}`} key={target} className="scroll-mt-6 cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed border-amber-300 bg-white p-3 text-center hover:border-amber-500">
                         <span className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-amber-50">
                           {url ? <img src={url} alt="" className="h-full w-full object-cover" /> : <span className="text-4xl">🖼️</span>}
                         </span>
@@ -1334,7 +1412,7 @@ export function LegendRewardStudio() {
                     </select>
                     <span className="mt-1 block text-[10px] text-muted">Boss sticker sẽ cấp reward này sau khi đủ 8 sticker thường.</span>
                   </label>
-                  <div>
+                  <div id="chapter-editor-stickers" className="scroll-mt-6">
                     <div className="flex flex-wrap items-end justify-between gap-2">
                       <div>
                         <h4 className="font-extrabold">9 sticker và khuôn placeholder</h4>
