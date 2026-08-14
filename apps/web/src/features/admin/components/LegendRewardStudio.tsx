@@ -13,7 +13,8 @@ import { ACHIEVEMENT_METRIC_REGISTRY, achievementEvolutionTier, resolveAchieveme
 import type { AchievementRow } from '@/shared/lib/api'
 import { PROFILE_CARD_LAYOUT_CODE } from '@/features/profile/profile-card-layout'
 import { ProfileCardLayoutEditor } from './ProfileCardLayoutEditor'
-import { STORYBOOK_PAGES } from '@/features/storybook/storybook-data'
+import { STORYBOOK_PAGES, type StorybookPage } from '@/features/storybook/storybook-data'
+import { BookSpread } from '@/features/storybook/components/BookSpread'
 import { storybookChapter } from '@/shared/lib/creation/storybook'
 
 type ContentType = 'reward' | 'chapter' | 'event' | 'achievement'
@@ -27,7 +28,7 @@ export type StudioItem = {
   description: string
   kind?: string | null
   rarity: string
-  assets: { thumbnailUrl?: string; imageUrl?: string; overlayUrl?: string; animationUrl?: string; coverUrl?: string; leftBackgroundUrl?: string; stickerPageUrl?: string }
+  assets: { thumbnailUrl?: string; imageUrl?: string; overlayUrl?: string; animationUrl?: string; coverUrl?: string; leftBackgroundUrl?: string; stickerPageUrl?: string; stickerSheetUrl?: string }
   displayConfig: Record<string, unknown>
   unlockRule: Record<string, unknown>
   content: Record<string, unknown>
@@ -65,6 +66,17 @@ const assetSpecs: Record<RewardKind, AssetSpec> = {
   event_ticket: { label: 'Vé / banner sự kiện', width: 1200, height: 675, formats: ['image/webp', 'image/jpeg', 'image/png'], maxMb: 2, transparent: false, layer: 0, slot: 'event_card', safeArea: 'Chừa 20% bên trái cho tên và thời gian', combinesWith: 'Dùng độc lập trong card sự kiện' },
   perk: { label: 'Biểu tượng đặc quyền', width: 512, height: 512, formats: ['image/png', 'image/webp'], maxMb: 1, transparent: true, layer: 60, slot: 'perk_badge', safeArea: 'Icon trong 80% vùng giữa', combinesWith: 'Hiển thị độc lập ở ba lô và badge' },
 }
+
+const storybookThemePresets = STORYBOOK_PAGES.map((page) => ({
+  key: page.slug.toLowerCase(),
+  label: page.title,
+  emoji: page.emoji,
+  colors: page.colors,
+  coverUrl: page.coverUrl ?? '',
+  leftBackgroundUrl: page.leftBackgroundUrl ?? '',
+  stickerPageUrl: page.stickerPageUrl ?? '',
+  stickerSheetUrl: page.stickerSheetUrl ?? '',
+}))
 
 const displayTemplate = (kind: RewardKind) => {
   const spec = assetSpecs[kind]
@@ -129,7 +141,8 @@ function legacyStorybookStudioItems(studioItems: readonly StudioItem[]): StudioI
         assets: {
           coverUrl: page.coverUrl,
           leftBackgroundUrl: page.leftBackgroundUrl,
-          stickerPageUrl: page.stickerPageUrl ?? page.stickerSheetUrl,
+          stickerPageUrl: page.stickerPageUrl,
+          stickerSheetUrl: page.stickerSheetUrl,
         },
         displayConfig: {
           group: page.group,
@@ -271,10 +284,18 @@ const emptyForm = () => ({
   chapterEmoji: '📖',
   chapterColorStart: '#4338CA',
   chapterColorEnd: '#F59E0B',
+  chapterTheme: 'custom',
   chapterStory: '',
   chapterCoverUrl: '',
   chapterLeftBackgroundUrl: '',
   chapterStickerPageUrl: '',
+  chapterStickerSheetUrl: '',
+  chapterButtonUrl: '',
+  stickerButtonUrl: '',
+  helpButtonUrl: '',
+  claimButtonUrl: '',
+  previousButtonUrl: '',
+  nextButtonUrl: '',
   chapterRewardId: '',
   chapterStickersJson: JSON.stringify(Array.from({ length: 9 }, (_, index) => ({
     id: `P09-S${index + 1}`,
@@ -317,6 +338,7 @@ export function LegendRewardStudio() {
   const [previewUrl, setPreviewUrl] = useState('')
   const [assetInfo, setAssetInfo] = useState('')
   const [chapterUploading, setChapterUploading] = useState('')
+  const [storybookPreviewMode, setStorybookPreviewMode] = useState<'locked' | 'complete'>('locked')
   const [milestoneUploading, setMilestoneUploading] = useState<number | null>(null)
   const [showCreateMenu, setShowCreateMenu] = useState(false)
   const [migrationProgress, setMigrationProgress] = useState('')
@@ -465,6 +487,33 @@ export function LegendRewardStudio() {
       return []
     }
   }, [form.chapterStickersJson])
+  const chapterPreviewPage = useMemo<StorybookPage>(() => ({
+    slug: form.chapterSlug || 'P00',
+    title: form.name || 'Tên chapter',
+    group: form.chapterGroup as StorybookPage['group'],
+    emoji: form.chapterEmoji || '📖',
+    colors: [form.chapterColorStart, form.chapterColorEnd],
+    story: form.chapterStory || 'Lời kể của chapter sẽ hiển thị trên trang trái.',
+    coverUrl: form.chapterCoverUrl || undefined,
+    leftBackgroundUrl: form.chapterLeftBackgroundUrl || undefined,
+    stickerPageUrl: form.chapterStickerPageUrl || undefined,
+    stickerSheetUrl: form.chapterStickerSheetUrl || undefined,
+    rewardId: form.chapterRewardId || undefined,
+    themeKey: form.chapterTheme,
+    buttonAssets: {
+      chapterTabUrl: form.chapterButtonUrl || undefined,
+      stickerTabUrl: form.stickerButtonUrl || undefined,
+      helpUrl: form.helpButtonUrl || undefined,
+      claimUrl: form.claimButtonUrl || undefined,
+      previousUrl: form.previousButtonUrl || undefined,
+      nextUrl: form.nextButtonUrl || undefined,
+    },
+    stickers: chapterStickers,
+  }), [chapterStickers, form])
+  const chapterPreviewEarned = useMemo(
+    () => new Set(storybookPreviewMode === 'complete' ? chapterStickers.map((sticker) => sticker.id) : []),
+    [chapterStickers, storybookPreviewMode],
+  )
   const achievementMilestones = useMemo(() => {
     try {
       return JSON.parse(form.achievementMilestonesJson) as Array<{
@@ -527,10 +576,18 @@ export function LegendRewardStudio() {
       chapterEmoji: String(item.displayConfig.emoji ?? '📖'),
       chapterColorStart: Array.isArray(item.displayConfig.colors) ? String(item.displayConfig.colors[0] ?? '#4338CA') : '#4338CA',
       chapterColorEnd: Array.isArray(item.displayConfig.colors) ? String(item.displayConfig.colors[1] ?? '#F59E0B') : '#F59E0B',
+      chapterTheme: String(item.displayConfig.themeKey ?? 'custom'),
       chapterStory: String(item.content.story ?? ''),
       chapterCoverUrl: item.assets.coverUrl ?? String(item.displayConfig.coverUrl ?? ''),
       chapterLeftBackgroundUrl: item.assets.leftBackgroundUrl ?? String(item.displayConfig.leftBackgroundUrl ?? ''),
       chapterStickerPageUrl: item.assets.stickerPageUrl ?? String(item.displayConfig.stickerPageUrl ?? ''),
+      chapterStickerSheetUrl: item.assets.stickerSheetUrl ?? String(item.displayConfig.stickerSheetUrl ?? ''),
+      chapterButtonUrl: String((item.content.buttonAssets as Record<string, unknown> | undefined)?.chapterTabUrl ?? ''),
+      stickerButtonUrl: String((item.content.buttonAssets as Record<string, unknown> | undefined)?.stickerTabUrl ?? ''),
+      helpButtonUrl: String((item.content.buttonAssets as Record<string, unknown> | undefined)?.helpUrl ?? ''),
+      claimButtonUrl: String((item.content.buttonAssets as Record<string, unknown> | undefined)?.claimUrl ?? ''),
+      previousButtonUrl: String((item.content.buttonAssets as Record<string, unknown> | undefined)?.previousUrl ?? ''),
+      nextButtonUrl: String((item.content.buttonAssets as Record<string, unknown> | undefined)?.nextUrl ?? ''),
       chapterRewardId: String(item.content.rewardId ?? ''),
       chapterStickersJson: isChapter ? JSON.stringify(item.content.stickers ?? [], null, 2) : emptyForm().chapterStickersJson,
       eventStartsAt: isEvent ? String(item.content.startsAt ?? '') : '',
@@ -628,7 +685,7 @@ export function LegendRewardStudio() {
     }
   }
 
-  const uploadChapterMedia = async (file: File, target: 'cover' | 'left' | 'stickerPage' | number, placeholder = false) => {
+  const uploadChapterMedia = async (file: File, target: 'cover' | 'left' | 'stickerPage' | 'stickerSheet' | 'chapterButton' | 'stickerButton' | 'helpButton' | 'claimButton' | 'previousButton' | 'nextButton' | number, placeholder = false) => {
     const allowed = ['image/png', 'image/webp', 'image/jpeg', 'image/svg+xml']
     if (!allowed.includes(file.type)) {
       setMessage('Ảnh Storybook chỉ nhận PNG, WebP, JPG hoặc SVG.')
@@ -649,6 +706,13 @@ export function LegendRewardStudio() {
       if (target === 'cover') setForm((current) => ({ ...current, chapterCoverUrl: result.asset.url }))
       else if (target === 'left') setForm((current) => ({ ...current, chapterLeftBackgroundUrl: result.asset.url }))
       else if (target === 'stickerPage') setForm((current) => ({ ...current, chapterStickerPageUrl: result.asset.url }))
+      else if (target === 'stickerSheet') setForm((current) => ({ ...current, chapterStickerSheetUrl: result.asset.url }))
+      else if (target === 'chapterButton') setForm((current) => ({ ...current, chapterButtonUrl: result.asset.url }))
+      else if (target === 'stickerButton') setForm((current) => ({ ...current, stickerButtonUrl: result.asset.url }))
+      else if (target === 'helpButton') setForm((current) => ({ ...current, helpButtonUrl: result.asset.url }))
+      else if (target === 'claimButton') setForm((current) => ({ ...current, claimButtonUrl: result.asset.url }))
+      else if (target === 'previousButton') setForm((current) => ({ ...current, previousButtonUrl: result.asset.url }))
+      else if (target === 'nextButton') setForm((current) => ({ ...current, nextButtonUrl: result.asset.url }))
       else {
         setForm((current) => {
           const stickers = JSON.parse(current.chapterStickersJson) as Array<Record<string, unknown>>
@@ -684,10 +748,12 @@ export function LegendRewardStudio() {
         ? {
             emoji: form.chapterEmoji,
             colors: [form.chapterColorStart, form.chapterColorEnd],
+            themeKey: form.chapterTheme,
             layout: 'book_spread',
             coverUrl: form.chapterCoverUrl,
             leftBackgroundUrl: form.chapterLeftBackgroundUrl,
             stickerPageUrl: form.chapterStickerPageUrl,
+            stickerSheetUrl: form.chapterStickerSheetUrl,
           }
         : JSON.parse(form.displayJson) as Record<string, unknown>
       const content = form.contentType === 'chapter'
@@ -697,6 +763,14 @@ export function LegendRewardStudio() {
             story: form.chapterStory,
             rewardId: form.chapterRewardId,
             stickers: JSON.parse(form.chapterStickersJson) as unknown[],
+            buttonAssets: {
+              chapterTabUrl: form.chapterButtonUrl,
+              stickerTabUrl: form.stickerButtonUrl,
+              helpUrl: form.helpButtonUrl,
+              claimUrl: form.claimButtonUrl,
+              previousUrl: form.previousButtonUrl,
+              nextUrl: form.nextButtonUrl,
+            },
           }
           : form.contentType === 'event'
           ? {
@@ -729,6 +803,7 @@ export function LegendRewardStudio() {
                 coverUrl: form.chapterCoverUrl,
                 leftBackgroundUrl: form.chapterLeftBackgroundUrl,
                 stickerPageUrl: form.chapterStickerPageUrl,
+                stickerSheetUrl: form.chapterStickerSheetUrl,
               }
             : form.assetUrl
               ? { thumbnailUrl: form.assetUrl, imageUrl: form.assetUrl }
@@ -1116,7 +1191,7 @@ export function LegendRewardStudio() {
       )}
 
       {view === 'designer' && designerMode === 'single' && (
-        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
+        <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(520px,640px)]">
           <form onSubmit={(event) => void create(event)} className="ui-card order-2 space-y-5 p-5 xl:order-1">
             <div>
               <p className="text-xs font-black uppercase tracking-wider text-brand-600">{editingItem ? `Đang sửa ${editingItem.code}` : 'Tạo cấu hình mới'}</p>
@@ -1160,6 +1235,30 @@ export function LegendRewardStudio() {
                     <p className="text-xs font-black uppercase tracking-wider text-amber-800">Storybook Chapter Template</p>
                     <p className="mt-1 text-sm text-amber-950">Một chapter gồm bìa / trang trái, nội dung truyện, bảng 9 sticker ở trang phải và quà hoàn thành. Không dùng layer / slot của reward.</p>
                   </div>
+                  <div>
+                    <div className="flex items-end justify-between gap-3">
+                      <div><h4 className="font-extrabold">Chọn theme giống frontend</h4><p className="text-xs text-muted">Chọn mẫu có sẵn rồi thay từng ảnh hoặc màu nếu cần.</p></div>
+                      <button type="button" onClick={() => setForm((current) => ({ ...current, chapterTheme: 'custom' }))} className={`min-h-10 rounded-xl px-3 text-xs font-extrabold ${form.chapterTheme === 'custom' ? 'bg-brand-600 text-white' : 'bg-white text-brand-700'}`}>Tự thiết kế</button>
+                    </div>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-4">
+                      {storybookThemePresets.map((theme) => (
+                        <button key={theme.key} type="button" onClick={() => setForm((current) => ({
+                          ...current,
+                          chapterTheme: theme.key,
+                          chapterEmoji: theme.emoji,
+                          chapterColorStart: theme.colors[0],
+                          chapterColorEnd: theme.colors[1],
+                          chapterCoverUrl: theme.coverUrl,
+                          chapterLeftBackgroundUrl: theme.leftBackgroundUrl,
+                          chapterStickerPageUrl: theme.stickerPageUrl,
+                          chapterStickerSheetUrl: theme.stickerSheetUrl,
+                        }))} className={`overflow-hidden rounded-2xl border-2 text-left ${form.chapterTheme === theme.key ? 'border-brand-500 bg-brand-50' : 'border-border bg-white'}`}>
+                          <span className="flex aspect-[4/3] items-center justify-center bg-cover bg-center text-3xl" style={theme.coverUrl ? { backgroundImage: `url("${theme.coverUrl}")` } : { background: `linear-gradient(145deg, ${theme.colors[0]}, ${theme.colors[1]})` }}>{theme.coverUrl ? '' : theme.emoji}</span>
+                          <span className="block truncate px-2 py-2 text-[11px] font-extrabold">{theme.label}</span>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
                   <div className="grid gap-3 sm:grid-cols-3">
                     <label className="text-sm font-bold">Mã trang
                       <input required pattern="P[0-9]{2}" className={fieldClass} value={form.chapterSlug} onChange={(event) => setForm({ ...form, chapterSlug: event.target.value.toUpperCase() })} />
@@ -1181,11 +1280,12 @@ export function LegendRewardStudio() {
                       <input type="color" className={`${fieldClass} p-2`} value={form.chapterColorEnd} onChange={(event) => setForm({ ...form, chapterColorEnd: event.target.value })} />
                     </label>
                   </div>
-                  <div className="grid gap-3 sm:grid-cols-3">
+                  <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {([
                       ['cover', 'Ảnh bìa chapter', 'Tỉ lệ 4:3 · 1600×1200', form.chapterCoverUrl],
                       ['left', 'Background trang trái', 'Tỉ lệ 4:3 · ưu tiên vùng chữ', form.chapterLeftBackgroundUrl],
                       ['stickerPage', 'Nền trang sticker', 'Texture sáng, không làm chìm sticker', form.chapterStickerPageUrl],
+                      ['stickerSheet', 'Sheet 9 sticker', 'Lưới 3×3 dùng giống frontend', form.chapterStickerSheetUrl],
                     ] as const).map(([target, label, hint, url]) => (
                       <label key={target} className="cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed border-amber-300 bg-white p-3 text-center hover:border-amber-500">
                         <span className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-amber-50">
@@ -1199,6 +1299,28 @@ export function LegendRewardStudio() {
                         }} />
                       </label>
                     ))}
+                  </div>
+                  <div>
+                    <h4 className="font-extrabold">Ảnh button và điều hướng</h4>
+                    <p className="text-xs text-muted">Không bắt buộc. Nếu để trống, frontend dùng button chuẩn của hệ thống.</p>
+                    <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                      {([
+                        ['chapterButton', 'Tab Nội dung', form.chapterButtonUrl],
+                        ['stickerButton', 'Tab Sticker', form.stickerButtonUrl],
+                        ['helpButton', 'Nút trợ giúp', form.helpButtonUrl],
+                        ['claimButton', 'Nút nhận quà', form.claimButtonUrl],
+                        ['previousButton', 'Nút chương trước', form.previousButtonUrl],
+                        ['nextButton', 'Nút chương sau', form.nextButtonUrl],
+                      ] as const).map(([target, label, url]) => (
+                        <label key={target} className="cursor-pointer rounded-2xl border-2 border-dashed border-sky-200 bg-white p-3">
+                          <span className="flex h-16 items-center justify-center overflow-hidden rounded-xl bg-sky-50">
+                            {url ? <img src={url} alt="" className="h-full w-full object-contain" /> : <span className="rounded-xl bg-white px-4 py-2 text-xs font-extrabold shadow-sm">{label}</span>}
+                          </span>
+                          <span className="mt-2 block text-center text-xs font-extrabold">{chapterUploading === target ? 'Đang tải…' : `Thay ${label.toLowerCase()}`}</span>
+                          <input type="file" accept=".png,.webp,.jpg,.jpeg,.svg" className="sr-only" disabled={Boolean(chapterUploading)} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadChapterMedia(file, target) }} />
+                        </label>
+                      ))}
+                    </div>
                   </div>
                   <label className="block text-sm font-bold">Lời kể của chapter
                     <textarea required className={`${fieldClass} min-h-36 py-3`} placeholder="Đoạn dẫn truyện hiển thị trên trang trái…" value={form.chapterStory} onChange={(event) => setForm({ ...form, chapterStory: event.target.value })} />
@@ -1476,32 +1598,20 @@ export function LegendRewardStudio() {
               <h2 className="font-display text-xl">Trẻ sẽ nhìn thấy</h2>
             </div>
             {form.contentType === 'chapter' ? (
-              <div className="overflow-hidden rounded-3xl border-[6px] border-amber-900 bg-[#fff9df] shadow-inner">
-                <div className="grid min-h-80 grid-cols-2">
-                  <div className="relative flex flex-col justify-end overflow-hidden bg-cover bg-center p-5 text-left text-white" style={{
-                    backgroundImage: form.chapterLeftBackgroundUrl
-                      ? `linear-gradient(0deg, rgba(15,23,42,.78), rgba(15,23,42,.08)), url("${form.chapterLeftBackgroundUrl}")`
-                      : `linear-gradient(145deg, ${form.chapterColorStart}, ${form.chapterColorEnd})`,
-                  }}>
-                    <span className="absolute right-2 top-2 text-6xl opacity-25">{form.chapterEmoji}</span>
-                    <p className="relative text-[10px] font-black uppercase">{form.chapterSlug} · {form.chapterGroup}</p>
-                    <h3 className="relative mt-1 font-display text-xl">{form.name || 'Tên chapter'}</h3>
-                    <p className="relative mt-2 line-clamp-5 text-xs font-semibold text-white/90">{form.chapterStory || 'Lời kể của chapter sẽ hiển thị trên trang trái.'}</p>
-                  </div>
-                  <div className="grid grid-cols-3 gap-1.5 bg-cover bg-center p-3" style={{
-                    backgroundImage: form.chapterStickerPageUrl
-                      ? `linear-gradient(rgba(255,253,243,.82), rgba(247,237,201,.82)), url("${form.chapterStickerPageUrl}")`
-                      : 'radial-gradient(circle at center, #fffdf3, #f7edc9)',
-                  }}>
-                    {chapterStickers.map((sticker, index) => (
-                      <div key={index} className={`flex min-h-16 flex-col items-center justify-center rounded-xl border p-1 ${index === 8 ? 'border-violet-200 bg-violet-50' : 'border-dashed border-amber-200 bg-white/80'}`}>
-                        {sticker.placeholderUrl
-                          ? <img src={sticker.placeholderUrl} alt="" className="h-9 w-9 object-contain opacity-45 grayscale" />
-                          : <span className="text-xl opacity-35">{index === 8 ? '🏆' : '⭐'}</span>}
-                        <span className="text-[8px] font-bold">{index === 8 ? 'Boss' : `Sticker ${index + 1}`}</span>
-                      </div>
-                    ))}
-                  </div>
+              <div className="space-y-3">
+                <div className="flex rounded-xl border border-border bg-slate-50 p-1" role="group" aria-label="Trạng thái preview Storybook">
+                  <button type="button" onClick={() => setStorybookPreviewMode('locked')} className={`min-h-10 flex-1 rounded-lg px-3 text-xs font-extrabold ${storybookPreviewMode === 'locked' ? 'bg-white text-brand-700 shadow-sm' : 'text-muted'}`}>Chưa mở sticker</button>
+                  <button type="button" onClick={() => setStorybookPreviewMode('complete')} className={`min-h-10 flex-1 rounded-lg px-3 text-xs font-extrabold ${storybookPreviewMode === 'complete' ? 'bg-white text-brand-700 shadow-sm' : 'text-muted'}`}>Đã hoàn thành</button>
+                </div>
+                <div className="overflow-hidden rounded-3xl bg-slate-100 p-2">
+                  <BookSpread
+                    page={chapterPreviewPage}
+                    pages={[chapterPreviewPage]}
+                    pageIndex={0}
+                    onPageChange={() => undefined}
+                    earned={chapterPreviewEarned}
+                    ownedRewards={new Set<string>()}
+                  />
                 </div>
               </div>
             ) : (

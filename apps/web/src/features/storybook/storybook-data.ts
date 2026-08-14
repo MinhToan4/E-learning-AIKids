@@ -34,6 +34,15 @@ export interface StorybookPage {
   stickerPageUrl?: string
   stickerSheetUrl?: string
   rewardId?: string
+  themeKey?: string
+  buttonAssets?: {
+    chapterTabUrl?: string
+    stickerTabUrl?: string
+    helpUrl?: string
+    claimUrl?: string
+    previousUrl?: string
+    nextUrl?: string
+  }
   completionMedia?: {
     videoUrl: string
     webmUrl?: string

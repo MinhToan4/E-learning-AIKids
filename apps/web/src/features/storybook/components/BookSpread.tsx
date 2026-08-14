@@ -70,6 +70,7 @@ export function BookSpread({
           aria-selected={mobilePage === 'chapter'}
           aria-controls={`chapter-${page.slug}`}
           onClick={() => setMobilePage('chapter')}
+          style={safeStorybookAssetUrl(page.buttonAssets?.chapterTabUrl) ? { backgroundImage: `url("${safeStorybookAssetUrl(page.buttonAssets?.chapterTabUrl)}")`, backgroundSize: 'cover' } : undefined}
         >
           Nội dung chương
         </button>
@@ -79,6 +80,7 @@ export function BookSpread({
           aria-selected={mobilePage === 'stickers'}
           aria-controls={`stickers-${page.slug}`}
           onClick={() => setMobilePage('stickers')}
+          style={safeStorybookAssetUrl(page.buttonAssets?.stickerTabUrl) ? { backgroundImage: `url("${safeStorybookAssetUrl(page.buttonAssets?.stickerTabUrl)}")`, backgroundSize: 'cover' } : undefined}
         >
           Sticker · {earnedCount}/9
         </button>
@@ -178,6 +180,7 @@ export function BookSpread({
                 setSelectedStickerIndex(null)
                 setShowStickerGuide((open) => !open)
               }}
+              style={safeStorybookAssetUrl(page.buttonAssets?.helpUrl) ? { backgroundImage: `url("${safeStorybookAssetUrl(page.buttonAssets?.helpUrl)}")`, backgroundSize: 'cover' } : undefined}
             >
               ?
             </button>
@@ -286,6 +289,7 @@ export function BookSpread({
             aria-label="Chương trước"
             disabled={pageIndex === 0}
             onClick={() => onPageChange(Math.max(0, pageIndex - 1))}
+            style={safeStorybookAssetUrl(page.buttonAssets?.previousUrl) ? { backgroundImage: `url("${safeStorybookAssetUrl(page.buttonAssets?.previousUrl)}")`, backgroundSize: 'cover' } : undefined}
           >
             <span className="storybook-rail-arrow-glyph" data-direction="previous" aria-hidden="true" />
           </button>
@@ -327,6 +331,7 @@ export function BookSpread({
             aria-label="Chương sau"
             disabled={pageIndex === pages.length - 1}
             onClick={() => onPageChange(Math.min(pages.length - 1, pageIndex + 1))}
+            style={safeStorybookAssetUrl(page.buttonAssets?.nextUrl) ? { backgroundImage: `url("${safeStorybookAssetUrl(page.buttonAssets?.nextUrl)}")`, backgroundSize: 'cover' } : undefined}
           >
             <span className="storybook-rail-arrow-glyph" data-direction="next" aria-hidden="true" />
           </button>

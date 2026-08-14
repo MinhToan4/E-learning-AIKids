@@ -43,6 +43,7 @@ export function StorybookPage() {
       group?: StorybookPage['group']
       stickers?: StorybookPage['stickers']
       rewardId?: string
+      buttonAssets?: StorybookPage['buttonAssets']
     }
     displayConfig?: {
       colors?: [string, string]
@@ -51,6 +52,7 @@ export function StorybookPage() {
       leftBackgroundUrl?: string
       stickerPageUrl?: string
       stickerSheetUrl?: string
+      themeKey?: string
     }
     assets?: {
       completionMedia?: StorybookPage['completionMedia']
@@ -116,6 +118,8 @@ export function StorybookPage() {
         stickerPageUrl: override.displayConfig?.stickerPageUrl || page.stickerPageUrl,
         stickerSheetUrl: override.displayConfig?.stickerSheetUrl || page.stickerSheetUrl,
         rewardId: override.content?.rewardId || page.rewardId,
+        themeKey: override.displayConfig?.themeKey || page.themeKey,
+        buttonAssets: override.content?.buttonAssets || page.buttonAssets,
         completionMedia: override.assets?.completionMedia || page.completionMedia,
       }
     })
@@ -136,6 +140,8 @@ export function StorybookPage() {
         stickerPageUrl: item.displayConfig?.stickerPageUrl,
         stickerSheetUrl: item.displayConfig?.stickerSheetUrl,
         rewardId: item.content?.rewardId,
+        themeKey: item.displayConfig?.themeKey,
+        buttonAssets: item.content?.buttonAssets,
         completionMedia: item.assets?.completionMedia,
       }]
     })

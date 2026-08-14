@@ -9,6 +9,7 @@ import { getVerifiedStaticRewardAssetUrl } from '@/features/rewards/reward-asset
 import type { RewardKind } from '@/shared/lib/creation/rewards'
 import { rewardTitleAsset } from '@/features/rewards/title-assets'
 import { storybookChapter } from '@/shared/lib/creation/storybook'
+import { safeStorybookAssetUrl } from '../storybook-contract'
 
 const rewardKindLabels: Partial<Record<RewardKind, string>> = {
   avatar: 'Avatar',
@@ -129,6 +130,7 @@ export function ChapterRewardCard({
                   .finally(() => setBusy(false))
               }}
               className="min-h-11 rounded-xl bg-amber-400 px-4 py-2.5 text-sm font-black text-amber-950 disabled:bg-slate-200 disabled:text-muted"
+              style={safeStorybookAssetUrl(page.buttonAssets?.claimUrl) ? { backgroundImage: `url("${safeStorybookAssetUrl(page.buttonAssets?.claimUrl)}")`, backgroundSize: 'cover' } : undefined}
             >
               {busy ? 'Đang nhận…' : ready ? 'Nhận phần thưởng' : 'Chưa thể nhận'}
             </button>
