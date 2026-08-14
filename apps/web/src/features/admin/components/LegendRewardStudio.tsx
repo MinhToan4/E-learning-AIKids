@@ -153,6 +153,35 @@ function ChapterBookMapPreview({ item, onEdit }: { item: StudioItem; onEdit: (fo
   )
 }
 
+function ChapterStickerArtwork({
+  sticker,
+  index,
+  sheetUrl,
+  locked = false,
+}: {
+  sticker: { imageUrl?: string; placeholderUrl?: string; icon?: string; sheetIndex?: number }
+  index: number
+  sheetUrl: string
+  locked?: boolean
+}) {
+  const directUrl = String(locked ? sticker.placeholderUrl ?? '' : sticker.imageUrl ?? '')
+  if (directUrl) return <img src={directUrl} alt="" className={`h-full w-full object-contain ${locked ? 'opacity-70' : ''}`} />
+  if (sheetUrl) {
+    const sheetIndex = Number.isFinite(Number(sticker.sheetIndex)) ? Number(sticker.sheetIndex) : index
+    return (
+      <span
+        className={`block h-full w-full bg-[length:300%_300%] bg-no-repeat ${locked ? 'opacity-60 [filter:brightness(0)_saturate(100%)_opacity(.24)]' : ''}`}
+        style={{
+          backgroundImage: `url("${sheetUrl}")`,
+          backgroundPosition: `${(sheetIndex % 3) * 50}% ${Math.floor(sheetIndex / 3) * 50}%`,
+        }}
+        aria-hidden="true"
+      />
+    )
+  }
+  return <span className={locked ? 'text-3xl opacity-30' : 'text-3xl'} aria-hidden="true">{locked ? '❔' : String(sticker.icon ?? '⭐')}</span>
+}
+
 function legacyRewardStudioItems(studioItems: readonly StudioItem[]): StudioItem[] {
   const studioCodes = new Set(studioItems.map((item) => item.code))
   return REWARD_CATALOG
@@ -556,6 +585,7 @@ export function LegendRewardStudio() {
         boss?: boolean
         imageUrl?: string
         placeholderUrl?: string
+        sheetIndex?: number
         unlockRule?: { metric?: string; operator?: string; target?: number }
       }>
     } catch {
@@ -633,6 +663,14 @@ export function LegendRewardStudio() {
   const startEditing = (item: StudioItem, chapterFocus?: ChapterEditorFocus) => {
     const isChapter = item.contentType === 'chapter'
     const isEvent = item.contentType === 'event'
+    const catalogChapter = isChapter ? STORYBOOK_PAGES.find((page) => page.slug === String(item.content.slug ?? item.code).toUpperCase()) : undefined
+    const itemStickers = Array.isArray(item.content.stickers) ? item.content.stickers : []
+    const resolvedChapterStickers = catalogChapter
+      ? catalogChapter.stickers.map((catalogSticker, index) => ({
+          ...catalogSticker,
+          ...(itemStickers[index] && typeof itemStickers[index] === 'object' ? itemStickers[index] : {}),
+        }))
+      : itemStickers
     const rewardKind = item.kind && kindOptions.includes(item.kind as RewardKind) ? item.kind as RewardKind : 'frame'
     setEditingItem(item)
     setForm({
@@ -653,10 +691,10 @@ export function LegendRewardStudio() {
       chapterColorEnd: Array.isArray(item.displayConfig.colors) ? String(item.displayConfig.colors[1] ?? '#F59E0B') : '#F59E0B',
       chapterTheme: String(item.displayConfig.themeKey ?? 'custom'),
       chapterStory: String(item.content.story ?? ''),
-      chapterCoverUrl: item.assets.coverUrl ?? String(item.displayConfig.coverUrl ?? ''),
-      chapterLeftBackgroundUrl: item.assets.leftBackgroundUrl ?? String(item.displayConfig.leftBackgroundUrl ?? ''),
-      chapterStickerPageUrl: item.assets.stickerPageUrl ?? String(item.displayConfig.stickerPageUrl ?? ''),
-      chapterStickerSheetUrl: item.assets.stickerSheetUrl ?? String(item.displayConfig.stickerSheetUrl ?? ''),
+      chapterCoverUrl: item.assets.coverUrl ?? String(item.displayConfig.coverUrl ?? catalogChapter?.coverUrl ?? ''),
+      chapterLeftBackgroundUrl: item.assets.leftBackgroundUrl ?? String(item.displayConfig.leftBackgroundUrl ?? catalogChapter?.leftBackgroundUrl ?? ''),
+      chapterStickerPageUrl: item.assets.stickerPageUrl ?? String(item.displayConfig.stickerPageUrl ?? catalogChapter?.stickerPageUrl ?? ''),
+      chapterStickerSheetUrl: item.assets.stickerSheetUrl ?? String(item.displayConfig.stickerSheetUrl ?? catalogChapter?.stickerSheetUrl ?? ''),
       chapterButtonUrl: String((item.content.buttonAssets as Record<string, unknown> | undefined)?.chapterTabUrl ?? ''),
       stickerButtonUrl: String((item.content.buttonAssets as Record<string, unknown> | undefined)?.stickerTabUrl ?? ''),
       helpButtonUrl: String((item.content.buttonAssets as Record<string, unknown> | undefined)?.helpUrl ?? ''),
@@ -664,7 +702,7 @@ export function LegendRewardStudio() {
       previousButtonUrl: String((item.content.buttonAssets as Record<string, unknown> | undefined)?.previousUrl ?? ''),
       nextButtonUrl: String((item.content.buttonAssets as Record<string, unknown> | undefined)?.nextUrl ?? ''),
       chapterRewardId: String(item.content.rewardId ?? ''),
-      chapterStickersJson: isChapter ? JSON.stringify(item.content.stickers ?? [], null, 2) : emptyForm().chapterStickersJson,
+      chapterStickersJson: isChapter ? JSON.stringify(resolvedChapterStickers, null, 2) : emptyForm().chapterStickersJson,
       eventStartsAt: isEvent ? String(item.content.startsAt ?? '') : '',
       eventEndsAt: isEvent ? String(item.content.endsAt ?? '') : '',
       achievementCategory: String(item.content.category ?? 'learning'),
@@ -1416,9 +1454,9 @@ export function LegendRewardStudio() {
                     <div className="flex flex-wrap items-end justify-between gap-2">
                       <div>
                         <h4 className="font-extrabold">9 sticker và khuôn placeholder</h4>
-                        <p className="text-xs text-muted">PNG / SVG nền trong suốt. Placeholder nên là silhouette / outline cùng đúng kích thước sticker thật.</p>
+                        <p className="text-xs text-muted">CMS tự lấy ảnh thật từ sheet 3×3 của chapter. Upload PNG / SVG chỉ khi muốn ghi đè riêng một sticker hoặc khuôn.</p>
                       </div>
-                      <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-black text-amber-900">{chapterStickers.filter((sticker) => sticker.imageUrl && sticker.placeholderUrl).length}/9 đủ bộ ảnh</span>
+                      <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-900">{form.chapterStickerSheetUrl ? '9/9 có ảnh từ sheet' : `${chapterStickers.filter((sticker) => sticker.imageUrl).length}/9 có ảnh`}</span>
                     </div>
                     <div className="mt-3 grid gap-3 md:grid-cols-2">
                       {chapterStickers.map((sticker, index) => (
@@ -1430,9 +1468,9 @@ export function LegendRewardStudio() {
                           <div className="mt-3 grid grid-cols-2 gap-2">
                             <label className="cursor-pointer rounded-xl border-2 border-dashed border-slate-300 p-2 text-center">
                               <span className="flex aspect-square items-center justify-center overflow-hidden rounded-lg bg-slate-100">
-                                {sticker.placeholderUrl ? <img src={sticker.placeholderUrl} alt="" className="h-full w-full object-contain" /> : <span className="text-3xl opacity-30">❔</span>}
+                                <ChapterStickerArtwork sticker={sticker} index={index} sheetUrl={form.chapterStickerSheetUrl} locked />
                               </span>
-                              <span className="mt-1 block text-[10px] font-bold">{chapterUploading === `sticker-${index}-placeholder` ? 'Đang tải…' : 'Khuôn chưa mở'}</span>
+                              <span className="mt-1 block text-[10px] font-bold">{chapterUploading === `sticker-${index}-placeholder` ? 'Đang tải…' : sticker.placeholderUrl ? 'Khuôn riêng · bấm để thay' : 'Khuôn từ sheet · bấm để thay'}</span>
                               <input type="file" accept=".png,.webp,.svg" className="sr-only" disabled={Boolean(chapterUploading)} onChange={(event) => {
                                 const file = event.target.files?.[0]
                                 if (file) void uploadChapterMedia(file, index, true)
@@ -1440,9 +1478,9 @@ export function LegendRewardStudio() {
                             </label>
                             <label className="cursor-pointer rounded-xl border-2 border-dashed border-emerald-300 p-2 text-center">
                               <span className="flex aspect-square items-center justify-center overflow-hidden rounded-lg bg-emerald-50">
-                                {sticker.imageUrl ? <img src={sticker.imageUrl} alt="" className="h-full w-full object-contain" /> : <span className="text-3xl">{sticker.icon || '⭐'}</span>}
+                                <ChapterStickerArtwork sticker={sticker} index={index} sheetUrl={form.chapterStickerSheetUrl} />
                               </span>
-                              <span className="mt-1 block text-[10px] font-bold">{chapterUploading === `sticker-${index}-art` ? 'Đang tải…' : 'Ảnh khi đạt'}</span>
+                              <span className="mt-1 block text-[10px] font-bold">{chapterUploading === `sticker-${index}-art` ? 'Đang tải…' : sticker.imageUrl ? 'Ảnh riêng · bấm để thay' : 'Ảnh từ sheet · bấm để thay'}</span>
                               <input type="file" accept=".png,.webp,.svg" className="sr-only" disabled={Boolean(chapterUploading)} onChange={(event) => {
                                 const file = event.target.files?.[0]
                                 if (file) void uploadChapterMedia(file, index)
