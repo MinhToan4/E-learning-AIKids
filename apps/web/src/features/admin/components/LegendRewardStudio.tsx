@@ -13,6 +13,8 @@ import { ACHIEVEMENT_METRIC_REGISTRY, achievementEvolutionTier, resolveAchieveme
 import type { AchievementRow } from '@/shared/lib/api'
 import { PROFILE_CARD_LAYOUT_CODE } from '@/features/profile/profile-card-layout'
 import { ProfileCardLayoutEditor } from './ProfileCardLayoutEditor'
+import { STORYBOOK_PAGES } from '@/features/storybook/storybook-data'
+import { storybookChapter } from '@/shared/lib/creation/storybook'
 
 type ContentType = 'reward' | 'chapter' | 'event' | 'achievement'
 export type StudioItem = {
@@ -104,6 +106,48 @@ function legacyRewardStudioItems(studioItems: readonly StudioItem[]): StudioItem
     }))
 }
 
+function legacyStorybookStudioItems(studioItems: readonly StudioItem[]): StudioItem[] {
+  const studioChapterCodes = new Set(
+    studioItems
+      .filter((item) => item.contentType === 'chapter')
+      .map((item) => item.code.toUpperCase()),
+  )
+  return STORYBOOK_PAGES
+    .filter((page) => !studioChapterCodes.has(page.slug.toUpperCase()))
+    .map((page): StudioItem => {
+      const definition = storybookChapter(page.slug)
+      return {
+        id: `legacy:storybook:${page.slug}`,
+        contentType: 'chapter',
+        code: page.slug,
+        version: 0,
+        status: 'published',
+        source: 'legacy',
+        name: page.title,
+        description: page.story,
+        rarity: 'common',
+        assets: {
+          coverUrl: page.coverUrl,
+          leftBackgroundUrl: page.leftBackgroundUrl,
+          stickerPageUrl: page.stickerPageUrl ?? page.stickerSheetUrl,
+        },
+        displayConfig: {
+          group: page.group,
+          emoji: page.emoji,
+          colors: page.colors,
+        },
+        unlockRule: { type: 'storybook_sticker', value: `${page.slug}-S9` },
+        content: {
+          slug: page.slug,
+          story: page.story,
+          rewardId: page.rewardId ?? definition?.rewardId,
+          stickers: page.stickers,
+          migratedFrom: 'storybook_catalog',
+        },
+      }
+    })
+}
+
 function runtimeAchievementItems(rows: readonly AchievementRow[]): StudioItem[] {
   return rows.map((achievement): StudioItem => ({
     id: `runtime:${achievement.type}`,
@@ -170,6 +214,27 @@ function StudioArtwork({ item, meaningful = false }: { item: StudioItem; meaning
   const src = item.kind === 'title' ? rewardBadgeThumbnail(item.code) ?? studioArtwork(item) : studioArtwork(item)
   if (!src || failed) return <Gift className="h-7 w-7 text-brand-500" aria-hidden="true" />
   return <img src={src} alt={meaningful ? item.name : ''} loading="lazy" onError={() => setFailed(true)} className="h-full w-full object-contain" />
+}
+
+function ChapterStickerPreview({ item }: { item: StudioItem }) {
+  if (item.contentType !== 'chapter') return null
+  const stickers = Array.isArray(item.content.stickers)
+    ? item.content.stickers as Array<Record<string, unknown>>
+    : []
+  const sheet = item.assets.stickerPageUrl
+  return (
+    <div className="mt-2 flex items-center gap-2 rounded-xl bg-amber-50/80 p-2">
+      {sheet
+        ? <img src={sheet} alt={`Bảng sticker ${item.name}`} loading="lazy" className="h-14 w-14 rounded-lg object-cover" />
+        : <div className="grid h-14 w-14 grid-cols-3 gap-0.5 rounded-lg bg-white p-1" aria-hidden="true">
+            {stickers.slice(0, 9).map((sticker, index) => <span key={String(sticker.id ?? index)} className="flex items-center justify-center text-xs">{String(sticker.icon ?? '⭐')}</span>)}
+          </div>}
+      <div className="min-w-0">
+        <p className="text-xs font-extrabold text-amber-950">{stickers.length}/9 sticker</p>
+        <p className="line-clamp-2 text-[11px] text-amber-900">{stickers.map((sticker) => String(sticker.name ?? '')).filter(Boolean).join(' · ')}</p>
+      </div>
+    </div>
+  )
 }
 
 function DeferredDetails({ defaultOpen = false, summary, children }: { defaultOpen?: boolean; summary: ReactNode; children: ReactNode }) {
@@ -283,7 +348,12 @@ export function LegendRewardStudio() {
       const layoutItems = allStudioItems.filter((item) => item.code === PROFILE_CARD_LAYOUT_CODE).sort((left, right) => right.version - left.version)
       setProfileLayoutItem(layoutItems[0])
       const studioItems = allStudioItems.filter((item) => item.code !== PROFILE_CARD_LAYOUT_CODE)
-      setItems([...studioItems, ...legacyRewardStudioItems(studioItems), ...runtimeAchievementItems(achievementsResult.achievements)])
+      setItems([
+        ...studioItems,
+        ...legacyRewardStudioItems(studioItems),
+        ...legacyStorybookStudioItems(studioItems),
+        ...runtimeAchievementItems(achievementsResult.achievements),
+      ])
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Không tải được Legend Studio.')
     }
@@ -299,10 +369,11 @@ export function LegendRewardStudio() {
   const sourceCounts = useMemo(() => ({
     studio: items.filter((item) => item.source === 'studio').length,
     legacy: items.filter((item) => item.source === 'legacy').length,
+    legacyRewards: items.filter((item) => item.source === 'legacy' && item.contentType === 'reward').length,
     runtime: items.filter((item) => item.source === 'runtime').length,
   }), [items])
   const legacyMigrationIssues = useMemo(() => items
-    .filter((item) => item.source === 'legacy')
+    .filter((item) => item.source === 'legacy' && item.contentType === 'reward')
     .flatMap((item) => {
       const issues: string[] = []
       if (!kindOptions.includes(item.kind as RewardKind)) issues.push(`${item.code}: loại asset không hỗ trợ`)
@@ -705,7 +776,7 @@ export function LegendRewardStudio() {
   }
 
   const migrateLegacyRewards = async () => {
-    const legacyItems = items.filter((item) => item.source === 'legacy')
+    const legacyItems = items.filter((item) => item.source === 'legacy' && item.contentType === 'reward')
     if (!legacyItems.length) return
     setBusy(true)
     setMessage('')
@@ -819,10 +890,10 @@ export function LegendRewardStudio() {
               <p className="rounded-xl bg-mint-50 px-3 py-2 text-emerald-900"><strong>Đang phát hành → Tạo bản chỉnh sửa:</strong> bản hiện tại vẫn chạy cho tới khi bản mới được duyệt và publish.</p>
               <p className="rounded-xl bg-brand-50 px-3 py-2 text-brand-900"><strong>Bản nháp → Sửa bản nháp:</strong> cập nhật trực tiếp vì nội dung này chưa đến tay người dùng.</p>
             </div>
-            {sourceCounts.legacy > 0 && <div className="mt-4 flex flex-wrap items-center gap-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4">
+            {sourceCounts.legacyRewards > 0 && <div className="mt-4 flex flex-wrap items-center gap-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4">
               <AlertTriangle className="h-6 w-6 shrink-0 text-amber-700" aria-hidden="true" />
-              <div className="min-w-48 flex-1"><strong>{sourceCounts.legacy} reward legacy chưa thuộc Studio</strong><p className="text-xs text-amber-900">Migrate sẽ giữ nguyên code, rule, ảnh fallback và tạo draft có template slot/layer chuẩn. Không tự publish.</p>{legacyMigrationIssues.length === 0 ? <p className="mt-1 text-xs font-extrabold text-emerald-800">✓ Đủ loại asset và ảnh để tạo draft</p> : <p className="mt-1 text-xs font-extrabold text-danger">{legacyMigrationIssues.length} lỗi cần xử lý trước khi migrate</p>}</div>
-              <Button variant="secondary" disabled={busy || legacyMigrationIssues.length > 0} onClick={() => { if (window.confirm(`Tạo ${sourceCounts.legacy} bản nháp Studio từ legacy catalog? Thao tác này không publish.`)) void migrateLegacyRewards() }}><UploadCloud className="h-4 w-4" aria-hidden="true" /> {migrationProgress || `Migrate ${sourceCounts.legacy} mục`}</Button>
+              <div className="min-w-48 flex-1"><strong>{sourceCounts.legacyRewards} reward legacy chưa thuộc Studio</strong><p className="text-xs text-amber-900">Migrate sẽ giữ nguyên code, rule, ảnh fallback và tạo draft có template slot/layer chuẩn. Không tự publish.</p>{legacyMigrationIssues.length === 0 ? <p className="mt-1 text-xs font-extrabold text-emerald-800">✓ Đủ loại asset và ảnh để tạo draft</p> : <p className="mt-1 text-xs font-extrabold text-danger">{legacyMigrationIssues.length} lỗi cần xử lý trước khi migrate</p>}</div>
+              <Button variant="secondary" disabled={busy || legacyMigrationIssues.length > 0} onClick={() => { if (window.confirm(`Tạo ${sourceCounts.legacyRewards} bản nháp Studio từ legacy catalog? Thao tác này không publish.`)) void migrateLegacyRewards() }}><UploadCloud className="h-4 w-4" aria-hidden="true" /> {migrationProgress || `Migrate ${sourceCounts.legacyRewards} mục`}</Button>
             </div>}
           </header>
 
@@ -903,6 +974,7 @@ export function LegendRewardStudio() {
                           <p className="line-clamp-2 text-xs text-muted">{row.item.contentType === 'achievement'
                             ? `${Array.isArray(row.item.content.milestones) && row.item.content.milestones.length ? `${row.item.content.milestones.length} mốc · ` : ''}${row.item.description}`
                             : row.trigger}</p>
+                          <ChapterStickerPreview item={row.item} />
                           {row.item.contentType === 'achievement' ? (
                             <button type="button" onClick={() => startEditing(row.item)} className="mt-2 flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-extrabold text-brand-700 hover:bg-brand-50"><Pencil className="h-4 w-4" aria-hidden="true" /> Cấu hình các mốc</button>
                           ) : (

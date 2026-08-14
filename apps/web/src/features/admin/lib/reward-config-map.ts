@@ -72,7 +72,9 @@ function triggerFor(item: RewardConfigItem, channel: ConfigChannel): string {
 
 function validateItem(item: RewardConfigItem, rewardCodes: Set<string>): ConfigIssue[] {
   const issues: ConfigIssue[] = []
-  if (item.source === 'legacy') issues.push({ severity: 'warning', message: 'Đang chạy từ catalog tương thích; chưa được Admin Studio quản lý.' })
+  if (item.source === 'legacy') issues.push({ severity: 'warning', message: item.contentType === 'chapter'
+    ? 'Chapter và sticker vẫn đang chạy từ catalog Storybook; cần đưa vào Studio trước khi chỉnh rule.'
+    : 'Đang chạy từ catalog tương thích; chưa được Admin Studio quản lý.' })
   if (item.source === 'runtime') issues.push({ severity: 'info', message: 'Achievement runtime đang hoạt động; có thể đưa vào Studio khi cần chỉnh sửa.' })
   const type = item.unlockRule.type
   if (typeof type !== 'string' || !type.trim()) issues.push({ severity: 'error', message: 'Thiếu loại điều kiện mở khóa.' })
@@ -101,6 +103,7 @@ function validateItem(item: RewardConfigItem, rewardCodes: Set<string>): ConfigI
     const boss = stickers.filter((sticker) => sticker.boss === true)
     if (boss.length !== 1) issues.push({ severity: 'error', message: 'Chapter phải có đúng 1 boss sticker.' })
     for (const [index, sticker] of stickers.entries()) {
+      if (item.source === 'legacy') continue
       const rule = sticker.unlockRule as Record<string, unknown> | undefined
       const metric = rule?.metric
       if (typeof metric !== 'string' || !supportedMetrics.has(metric)) {
