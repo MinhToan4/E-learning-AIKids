@@ -222,6 +222,34 @@ describe('StoryMee Gateway adapter', () => {
     ])
   })
 
+  it('maps achievement milestone media from core metadata', async () => {
+    const imageUrl = 'https://storage.storymee.com/reward-assets/achievements/2026.08.14/v2/lessons/level-1.png'
+    const fetchMock = vi.fn().mockResolvedValue(response([{
+      key: 'achievement.lessons',
+      title: 'Nhà khám phá',
+      description: 'Tiến hoá qua từng bài học.',
+      icon: '🏅',
+      category: 'learning',
+      threshold: 1,
+      xpReward: 10,
+      metadata: {
+        seriesKey: 'lessons',
+        milestones: [{ threshold: 1, label: 'Mầm xanh', imageUrl }],
+      },
+      unlocked: false,
+      unlock: null,
+    }]))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{ achievements: AchievementRow[] }>('/api/gamification/achievements')
+
+    expect(result.achievements[0]).toMatchObject({
+      points: 10,
+      seriesKey: 'lessons',
+      milestones: [{ threshold: 1, label: 'Mầm xanh', imageUrl }],
+    })
+  })
+
   it('accepts a trailing slash on achievements and maps the Hub response', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response([{
       achievement: {

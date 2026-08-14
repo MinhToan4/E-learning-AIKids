@@ -1937,8 +1937,18 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
             ? row.unlock
             : row
         ) as Record<string, unknown>
-        const milestones = Array.isArray(definition.milestones)
-          ? definition.milestones.map((item) => {
+        const metadata = (
+          definition.metadata && typeof definition.metadata === 'object'
+            ? definition.metadata
+            : {}
+        ) as Record<string, unknown>
+        const milestoneDefinitions = Array.isArray(definition.milestones)
+          ? definition.milestones
+          : Array.isArray(metadata.milestones)
+            ? metadata.milestones
+            : []
+        const milestones = milestoneDefinitions.length > 0
+          ? milestoneDefinitions.map((item) => {
               const milestone = item as Record<string, unknown>
               return {
                 threshold: Number(milestone.threshold ?? 1),
@@ -1971,15 +1981,17 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
           currentValue: (row.currentValue ?? unlock.currentValue ?? unlock.progress) == null
             ? undefined
             : Number(row.currentValue ?? unlock.currentValue ?? unlock.progress),
-          points: definition.points == null ? undefined : Number(definition.points),
+          points: (definition.points ?? definition.xpReward) == null
+            ? undefined
+            : Number(definition.points ?? definition.xpReward),
           rewardLabel: definition.rewardLabel
             ? String(definition.rewardLabel)
             : undefined,
           rewardAssetId: definition.rewardAssetId
             ? String(definition.rewardAssetId)
             : undefined,
-          seriesKey: definition.seriesKey
-            ? String(definition.seriesKey)
+          seriesKey: (definition.seriesKey ?? metadata.seriesKey)
+            ? String(definition.seriesKey ?? metadata.seriesKey)
             : undefined,
           milestones,
           hidden: definition.hidden === true,
@@ -2336,6 +2348,7 @@ export type AchievementRow = {
   points?: number
   rewardLabel?: string
   rewardAssetId?: string
+  imageUrl?: string
   seriesKey?: string
   milestones?: Array<{
     threshold: number

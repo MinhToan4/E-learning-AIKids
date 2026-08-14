@@ -248,7 +248,9 @@ function legacyStorybookStudioItems(studioItems: readonly StudioItem[]): StudioI
 }
 
 function runtimeAchievementItems(rows: readonly AchievementRow[]): StudioItem[] {
-  return rows.map((achievement): StudioItem => ({
+  return rows.map((achievement): StudioItem => {
+    const artwork = achievement.imageUrl ?? achievement.milestones?.[0]?.imageUrl ?? achievementBadgeAsset(achievement)
+    return {
     id: `runtime:${achievement.type}`,
     contentType: 'achievement',
     code: achievement.type,
@@ -259,7 +261,7 @@ function runtimeAchievementItems(rows: readonly AchievementRow[]): StudioItem[] 
     description: achievement.description,
     kind: 'perk',
     rarity: 'common',
-    assets: achievementBadgeAsset(achievement) ? { imageUrl: achievementBadgeAsset(achievement) } : {},
+    assets: artwork ? { imageUrl: artwork } : {},
     displayConfig: {},
     unlockRule: { type: 'action', metric: achievement.type, target: achievement.requiredValue },
     content: {
@@ -281,7 +283,8 @@ function runtimeAchievementItems(rows: readonly AchievementRow[]): StudioItem[] 
       rewardLabel: achievement.rewardLabel,
       rewardAssetId: achievement.rewardAssetId,
     },
-  }))
+    }
+  })
 }
 
 const achievementFamilyLabels: Record<string, string> = {

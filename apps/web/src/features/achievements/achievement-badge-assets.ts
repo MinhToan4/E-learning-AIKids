@@ -1,4 +1,5 @@
 import type { AchievementRow } from '@/shared/lib/api'
+import { environment } from '@/shared/config/environment'
 import { achievementV2AssetPath } from './achievement-v2-assets.generated'
 
 const badgeModules = import.meta.glob<string>(
@@ -61,6 +62,12 @@ function legacyV2BadgeId(item: AchievementRow): string | undefined {
 
 /** Resolve only approved bundled badges; unknown Hub IDs fail closed. */
 export function achievementBadgeAsset(item: AchievementRow): string | undefined {
+  if (
+    item.imageUrl?.startsWith('/assets/')
+    || (environment.storagePublicUrl && item.imageUrl?.startsWith(`${environment.storagePublicUrl}/`))
+  ) {
+    return item.imageUrl
+  }
   const v2Candidates = [item.rewardAssetId, legacyV2BadgeId(item)]
   for (const candidate of v2Candidates) {
     const asset = achievementV2AssetPath(candidate)

@@ -14,6 +14,12 @@ const achievement = (overrides: Partial<AchievementRow>): AchievementRow => ({
 })
 
 describe('achievement badge assets', () => {
+  it('prefers approved backend media and rejects arbitrary remote hosts', () => {
+    const imageUrl = 'https://storage.storymee.com/reward-assets/achievements/2026.08.14/v2/lessons/level-1.png'
+    expect(achievementBadgeAsset(achievement({ imageUrl }))).toBe(imageUrl)
+    expect(achievementBadgeAsset(achievement({ imageUrl: 'https://example.com/untrusted.png' }))).toBeUndefined()
+  })
+
   it('resolves a bundled reward asset id and fails closed for unknown ids', () => {
     expect(achievementBadgeAsset(achievement({ rewardAssetId: 'badge-title-first-light' })))
       .toMatch(/badge-title-first-light\.png/)

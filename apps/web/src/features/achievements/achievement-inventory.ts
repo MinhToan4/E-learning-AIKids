@@ -18,6 +18,7 @@ function milestoneAchievement(
     points: milestone.points ?? achievement.points,
     rewardLabel: milestone.rewardLabel ?? achievement.rewardLabel,
     rewardAssetId: milestone.rewardAssetId ?? achievement.rewardAssetId,
+    imageUrl: milestone.imageUrl ?? achievement.imageUrl,
     milestones: undefined,
     unlocked,
     unlockedAt: milestone.unlockedAt ?? (unlocked ? achievement.unlockedAt : null),

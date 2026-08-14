@@ -48,7 +48,18 @@ describe('displayable achievements', () => {
       title: 'Nhà thám hiểm · Đồng hành',
       requiredValue: 10,
       rewardLabel: 'Khung Mầm xanh',
+      imageUrl: undefined,
     })
+  })
+
+  it('carries backend milestone artwork into each collectible card', () => {
+    const imageUrl = 'https://storage.storymee.com/reward-assets/achievements/2026.08.14/v2/lessons/level-1.png'
+    const [row] = displayableAchievements([achievement({
+      seriesKey: 'lessons',
+      milestones: [{ threshold: 1, imageUrl }],
+    })])
+
+    expect(row?.imageUrl).toBe(imageUrl)
   })
 
   it('keeps record-backed milestones in the collectible achievement grid', () => {
