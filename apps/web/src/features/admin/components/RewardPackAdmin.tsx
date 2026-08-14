@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { AlertCircle, CheckCircle2, FileArchive, Image, RefreshCw, Rocket, ShieldCheck, Upload } from 'lucide-react'
+import { AlertCircle, CheckCircle2, Download, FileArchive, Image, RefreshCw, Rocket, ShieldCheck, Upload } from 'lucide-react'
 import { unzip } from 'fflate'
 import { Button } from '@/shared/components/ui/Button'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
@@ -50,6 +50,21 @@ type LocalPreview = {
 }
 
 const MAX_BYTES = 250 * 1024 * 1024
+const exampleManifest = {
+  schemaVersion: 1,
+  pack: { id: 'ten-bo-reward', name: 'Tên bộ reward', release: '2026.08.0', channel: 'patch' },
+  rewards: [{
+    id: 'frame-example', kind: 'frame', name: 'Khung mẫu', rarity: 'rare',
+    assets: { primary: 'assets/frame-example.webp', preview: 'assets/frame-example--preview.webp', thumbnail: 'assets/frame-example--thumbnail.webp' },
+    unlock: { type: 'achievement', achievementId: 'achievement-example' },
+  }],
+  achievements: [{
+    id: 'achievement-example', title: 'Thành tích mẫu', points: 10,
+    requirements: { metric: 'lessons_completed', operator: 'gte', target: 1 },
+    rewardIds: ['frame-example'],
+  }],
+  bundles: [],
+}
 const imageType = (path: string) =>
   path.endsWith('.svg') ? 'image/svg+xml'
     : path.endsWith('.png') ? 'image/png'
@@ -128,6 +143,15 @@ export function RewardPackAdmin() {
   }, [])
 
   useEffect(() => releaseUrls, [releaseUrls])
+
+  const downloadManifestTemplate = () => {
+    const url = URL.createObjectURL(new Blob([JSON.stringify(exampleManifest, null, 2)], { type: 'application/json' }))
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'manifest.json'
+    link.click()
+    URL.revokeObjectURL(url)
+  }
 
   const load = useCallback(async () => {
     try {
@@ -236,16 +260,23 @@ export function RewardPackAdmin() {
       <section className="ui-card p-5">
         <div className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Admin only</p>
+            <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Designer draft workflow</p>
             <h2 className="font-display text-2xl">Import reward pack</h2>
             <p className="mt-1 max-w-2xl text-sm text-muted">
-              Xem trước ảnh và liên kết ngay trên máy; backend Ubuntu sẽ kiểm tra lại trước khi tạo draft.
+              Chọn ZIP ngay trên CMS. Hệ thống preview và kiểm tra trước khi upload thành draft; không cần truy cập server hoặc storage.
             </p>
           </div>
-          <div className="flex gap-2 text-sm">
-            <span className="rounded-xl bg-mint-100 px-3 py-2 font-bold text-success">{counts.ready} chờ xem</span>
-            <span className="rounded-xl bg-coral-50 px-3 py-2 font-bold text-danger">{counts.failed} lỗi</span>
+          <div className="flex flex-wrap gap-2 text-sm">
+            <Button variant="secondary" onClick={downloadManifestTemplate}><Download className="h-5 w-5" aria-hidden="true" /> Tải manifest mẫu</Button>
+            <span className="flex min-h-11 items-center rounded-xl bg-mint-100 px-3 py-2 font-bold text-success">{counts.ready} chờ xem</span>
+            <span className="flex min-h-11 items-center rounded-xl bg-coral-50 px-3 py-2 font-bold text-danger">{counts.failed} lỗi</span>
           </div>
+        </div>
+
+        <div className="mt-4 grid gap-2 text-sm sm:grid-cols-3">
+          <p className="rounded-xl bg-slate-50 p-3"><strong>Designer:</strong> tạo và upload draft.</p>
+          <p className="rounded-xl bg-slate-50 p-3"><strong>Reviewer:</strong> kiểm tra asset và liên kết.</p>
+          <p className="rounded-xl bg-slate-50 p-3"><strong>Publisher:</strong> phát hành release bất biến.</p>
         </div>
 
         <label className="mt-5 flex min-h-32 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-brand-300 bg-brand-50/40 p-5 text-center focus-within:ring-2 focus-within:ring-focus">

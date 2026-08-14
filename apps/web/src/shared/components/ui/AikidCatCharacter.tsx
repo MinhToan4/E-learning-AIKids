@@ -8,6 +8,15 @@ export type AikidCatPose =
   | 'celebrate'
   | 'support'
 
+const ORIGINAL_CAT_POSES: Record<AikidCatPose, string> = {
+  welcome: '/assets/aikid-ui/mascot-original/course-wave.webp',
+  guide: '/assets/aikid-ui/mascot-original/course-wave.webp',
+  walking: '/assets/aikid-ui/mascot-original/world-walking.webp',
+  thinking: '/assets/designer/brand/modal-cat-original.webp',
+  celebrate: '/assets/aikid-ui/mascot-original/world-celebrate.webp',
+  support: '/assets/aikid-ui/mascot-original/course-wave.webp',
+}
+
 export function AikidCatCharacter({
   pose = 'welcome',
   className,
@@ -17,7 +26,7 @@ export function AikidCatCharacter({
 }) {
   return (
     <img
-      src={`/assets/aikid-ui/mascot-flat/${pose}.png`}
+      src={ORIGINAL_CAT_POSES[pose]}
       alt=""
       aria-hidden="true"
       decoding="async"

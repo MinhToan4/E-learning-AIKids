@@ -105,6 +105,25 @@ export function CmsAiIcon({ size = 20, className = '', ...props }: IconProps) {
   )
 }
 
+export function CmsBillingIcon({ size = 20, className = '', ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} {...props}>
+      <rect x="3" y="5" width="18" height="14" rx="3" fill="#55E6C1" stroke="#00A884" strokeWidth="1.2" />
+      <path d="M3 9H21" stroke="#0878B5" strokeWidth="2" />
+      <rect x="6" y="13" width="5" height="2" rx="1" fill="#FFFFFF" />
+    </svg>
+  )
+}
+
+export function CmsSettingsIcon({ size = 20, className = '', ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} {...props}>
+      <path d="M12 3L14 5.2L17 4.8L18 7.6L20.7 9L19.8 12L20.7 15L18 16.4L17 19.2L14 18.8L12 21L10 18.8L7 19.2L6 16.4L3.3 15L4.2 12L3.3 9L6 7.6L7 4.8L10 5.2L12 3Z" fill="#A29BFE" stroke="#6C5CE7" strokeWidth="1.2" />
+      <circle cx="12" cy="12" r="3.2" fill="#FFFFFF" stroke="#6C5CE7" strokeWidth="1.2" />
+    </svg>
+  )
+}
+
 export function CmsLogoutIcon({ size = 20, className = '', ...props }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} {...props}>

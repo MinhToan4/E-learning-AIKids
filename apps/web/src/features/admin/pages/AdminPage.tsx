@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
+import { AdventureModal } from '@/shared/components/ui/AdventureModal'
 import { Paginator } from '@/shared/components/ui/Paginator'
 import { useToast } from '@/shared/hooks/useToast'
 import { usePagination } from '@/shared/hooks/usePagination'
@@ -75,6 +76,12 @@ type CourseOverview = {
   quests: Array<{ id: string; order: number; title: string; videoUrl: string | null; archived?: boolean }>
 }
 
+type CourseReadiness = {
+  ready: boolean
+  issues: string[]
+  stations: Array<{ id: string; title: string; ready: boolean; missing: string[] }>
+}
+
 type Analytics = {
   time: string
   users: { active: number; byRole: Record<string, number> }
@@ -133,7 +140,7 @@ type LoginLogSummary = {
   purgedAt: string
 }
 
-export type AdminTab = 'system' | 'analytics' | 'logs' | 'ai' | 'users' | 'sessions' | 'courses' | 'legends' | 'billing'
+export type AdminTab = 'system' | 'analytics' | 'logs' | 'ai' | 'users' | 'courses' | 'legends' | 'billing'
 
 const ROLE_LABELS: Record<string, string> = {
   student: 'Học sinh',
@@ -297,6 +304,8 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const [system, setSystem] = useState<SystemInfo | null>(null)
   const [users, setUsers] = useState<AdminUser[]>([])
   const [courses, setCourses] = useState<CourseOverview[]>([])
+  const [courseReadiness, setCourseReadiness] = useState<CourseReadiness | null>(null)
+  const [checkingCourseId, setCheckingCourseId] = useState<string | null>(null)
   const [analytics, setAnalytics] = useState<Analytics | null>(null)
   const [loginLogs, setLoginLogs] = useState<LoginLogItem[]>([])
   const [logSummary, setLogSummary] = useState<LoginLogSummary | null>(null)
@@ -529,6 +538,21 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   }
 
   async function setCourseStatus(id: string, status: 'open' | 'soon') {
+    if (status === 'open') {
+      setCheckingCourseId(id)
+      try {
+        const readiness = await api<CourseReadiness>(`/api/admin/courses/${id}/readiness`)
+        if (!readiness.ready) {
+          setCourseReadiness(readiness)
+          return
+        }
+      } catch (e) {
+        showToast(e instanceof Error ? e.message : 'Không kiểm tra được mức độ hoàn thiện', 'error')
+        return
+      } finally {
+        setCheckingCourseId(null)
+      }
+    }
     try {
       await api(`/api/admin/courses/${id}`, { method: 'PATCH', body: JSON.stringify({ status }) })
       showToast(`Khóa học → ${status === 'open' ? 'Mở' : 'Ẩn'}`, 'success')
@@ -1022,11 +1046,14 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                 <span className={cn('rounded-full px-3 py-0.5 text-xs font-extrabold', c.status === 'open' ? 'bg-mint-100 text-success' : 'bg-sun-100 text-warning')}>
                   {c.status === 'open' ? 'Đang mở' : 'Đang ẩn'} · {c.questCount} bài
                 </span>
-                <Button variant="secondary" onClick={() => void setCourseStatus(c.id, c.status === 'open' ? 'soon' : 'open')}>
-                  {c.status === 'open' ? 'Ẩn khỏi học sinh' : 'Mở cho học sinh'}
+                <Button variant="secondary" disabled={checkingCourseId === c.id} onClick={() => void setCourseStatus(c.id, c.status === 'open' ? 'soon' : 'open')}>
+                  {checkingCourseId === c.id ? 'Đang kiểm tra...' : c.status === 'open' ? 'Ẩn khỏi học sinh' : 'Mở cho học sinh'}
+                </Button>
+                <Button variant="secondary" onClick={() => navigate(`/teacher/courses?courseId=${encodeURIComponent(c.id)}`)}>
+                  Biên soạn & lộ trình
                 </Button>
                 <Button variant="secondary" onClick={() => openCourseOffer(c)}>
-                  Cấu hình bán
+                  Phân phối & bán
                 </Button>
               </div>
             </div>
@@ -1098,13 +1125,13 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       <aside className="ui-card h-fit p-5 xl:sticky xl:top-5">
         <div className="flex items-center gap-3">
           <CmsCoursesIcon size={28} />
-          <h2 className="font-display text-xl text-text">Biên soạn khóa học</h2>
+          <h2 className="font-display text-xl text-text">Quản lý khóa học thống nhất</h2>
         </div>
-        <p className="mt-3 text-sm leading-relaxed text-muted">Admin và giảng viên dùng chung một quy trình hoàn chỉnh để tránh hai biểu mẫu khác nhau và thiếu dữ liệu.</p>
+        <p className="mt-3 text-sm leading-relaxed text-muted">Admin và giáo viên dùng cùng một quy trình; quyền sửa và xuất bản vẫn được kiểm soát theo vai trò và phạm vi sở hữu.</p>
         <ol className="mt-4 space-y-2 text-sm font-bold text-text">
-          <li className="rounded-xl bg-sky-50 px-3 py-2">1. Nhập thông tin khóa học</li>
-          <li className="rounded-xl bg-sky-50 px-3 py-2">2. Soạn đủ bốn trạm cho từng bài</li>
-          <li className="rounded-xl bg-sky-50 px-3 py-2">3. Kiểm tra rồi mở cho học sinh</li>
+          <li className="rounded-xl bg-sky-50 px-3 py-2">1. Nội dung · Thông tin và các trạm học</li>
+          <li className="rounded-xl bg-sky-50 px-3 py-2">2. Lộ trình · Thứ tự, mở khóa và điều kiện</li>
+          <li className="rounded-xl bg-sky-50 px-3 py-2">3. Phân phối · Học sinh, tổ chức và bán</li>
         </ol>
         <Button className="mt-5 w-full" onClick={() => navigate('/teacher/courses')}>Mở không gian biên soạn</Button>
       </aside>
@@ -1774,6 +1801,27 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         onConfirm={() => void softDeleteUser()}
         onCancel={() => setDeleteTarget(null)}
       />
+      <AdventureModal
+        open={!!courseReadiness}
+        tone="guidance"
+        eyebrow="Kiểm tra nội dung"
+        title="Chưa thể mở giáo trình"
+        description="Admin và giáo viên đang dùng cùng một tiêu chuẩn backend. Hãy chuyển sang khu vực biên soạn để hoàn thiện các mục còn thiếu."
+        showMascot={false}
+        onClose={() => setCourseReadiness(null)}
+        actions={<Button variant="secondary" onClick={() => setCourseReadiness(null)}>Đóng checklist</Button>}
+      >
+        <div className="max-h-[56vh] space-y-3 overflow-y-auto pr-1 text-left">
+          {courseReadiness?.stations.filter((station) => !station.ready).map((station) => (
+            <article key={station.id} className="rounded-2xl border-2 border-sun-200 bg-sun-50 p-4">
+              <h3 className="font-display text-lg text-text">{station.title}</h3>
+              <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                {station.missing.map((item) => <li key={item} className="rounded-xl bg-white px-3 py-2 text-sm font-bold text-text">Còn thiếu: {item}</li>)}
+              </ul>
+            </article>
+          ))}
+        </div>
+      </AdventureModal>
       {/* ── Edit user modal — fixed overlay so it always appears in viewport center
            regardless of scroll position. Replaces the old inline panel that was
            hidden below the table when the list was long. ── */}

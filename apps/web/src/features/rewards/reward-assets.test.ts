@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest'
 import {
   getGeneratedRewardAssetUrl,
+  getResolvedRewardAssetUrl,
   getVerifiedStaticRewardAssetUrl,
   getLevelRewardNumber,
   getSharedLevelRewardAssetId,
@@ -28,6 +29,16 @@ describe('dynamic level reward assets', () => {
     expect(getGeneratedRewardAssetUrl('companion-paco-leaf')).toBe('/assets/designer/companions/paco-leaf-companion.png')
     expect(getGeneratedRewardAssetUrl('companion-paco-sea')).toBe('/assets/designer/companions/paco-sea-companion.png')
     expect(getGeneratedRewardAssetUrl('companion-paco-fire')).toBe('/assets/designer/companions/paco-fire-companion.png')
+  })
+
+  it('resolves the legendary level 100 frame from bundled artwork', () => {
+    expect(getResolvedRewardAssetUrl('frame-level-100')).toMatch(/frame-level-100\.webp/)
+  })
+
+  it('prefers the newly exported local SVG frame artwork', () => {
+    expect(getResolvedRewardAssetUrl('frame-level-15')).toMatch(/frame-level-15\.svg/)
+    expect(getResolvedRewardAssetUrl('frame-language-kingdom')).toMatch(/frame-language-kingdom\.svg/)
+    expect(getResolvedRewardAssetUrl('frame-creative-arena')).toMatch(/frame-creative-arena\.svg/)
   })
 
   it('does not invent broken URLs for icon-only static rewards', () => {

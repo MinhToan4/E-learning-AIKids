@@ -72,8 +72,8 @@ describe('StoryMee Gateway adapter', () => {
           slug: 'ai-co-ban',
           title: 'AI cơ bản',
           ageBand: '8-11',
-          metadata: { skills: ['prompt'] },
-          versions: [{ _count: { modules: 3 } }],
+          metadata: { skills: ['prompt'], lessonCount: 3 },
+          versions: [{ _count: { modules: 1 } }],
         }],
       }))
     vi.stubGlobal('fetch', fetchMock)
@@ -508,6 +508,11 @@ describe('StoryMee Gateway adapter', () => {
         shortTitle: 'AI cơ bản',
         ageBand: '9-12',
         metadata: { tagline: 'Khám phá AI' },
+        stationCount: 8,
+        lectures: [
+          { id: 'station-1', order: 1, title: 'Máy học được không?' },
+          { id: 'station-2', order: 2, title: 'Dữ liệu là gì?' },
+        ],
         enrolled: true,
         parentAllowed: true,
       }],
@@ -517,13 +522,18 @@ describe('StoryMee Gateway adapter', () => {
     const childId = '11111111-1111-4111-8111-111111111111'
     const result = await api<{
       child: { nickname: string | null }
-      courses: Array<{ enrolled: boolean; ageTrack: string }>
+      courses: Array<{ enrolled: boolean; ageTrack: string; questCount: number; stations: Array<{ title: string }> }>
     }>(`/api/parent/children/${childId}/courses`)
 
     expect(result.child.nickname).toBe('Bé Mây')
     expect(result.courses[0]).toMatchObject({
       enrolled: true,
       ageTrack: '9-12',
+      questCount: 8,
+      stations: [
+        { title: 'Máy học được không?' },
+        { title: 'Dữ liệu là gì?' },
+      ],
     })
     expect(fetchMock).toHaveBeenCalledWith(
       `https://dev-hub.storymee.com/api/v1/lms/family/children/${childId}/courses`,

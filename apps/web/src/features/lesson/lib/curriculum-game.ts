@@ -566,6 +566,8 @@ export function sanitizeCompareRounds(value: unknown): CompareRound[] {
 
 export function sanitizeAssociationPairs(value: unknown): AssociationPair[] {
   if (!Array.isArray(value)) return []
+  const seenLeft = new Set<string>()
+  const seenRight = new Set<string>()
   return value
     .map((entry) => {
       const row = record(entry)
@@ -573,7 +575,17 @@ export function sanitizeAssociationPairs(value: unknown): AssociationPair[] {
       const right = boundedText(row.right, 120)
       return left.length >= 1 && right.length >= 1 ? { left, right } : null
     })
-    .filter((pair): pair is AssociationPair => pair !== null)
+    .filter((pair): pair is AssociationPair => {
+      if (!pair) return false
+      const leftKey = pair.left.toLocaleLowerCase('vi')
+      const rightKey = pair.right.toLocaleLowerCase('vi')
+      // A memory match must be identifiable after cards flip. Repeated labels
+      // make several answers look equally correct, so reject that authored set.
+      if (seenLeft.has(leftKey) || seenRight.has(rightKey)) return false
+      seenLeft.add(leftKey)
+      seenRight.add(rightKey)
+      return true
+    })
     .slice(0, 12)
 }
 

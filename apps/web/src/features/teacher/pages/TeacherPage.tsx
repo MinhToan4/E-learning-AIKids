@@ -11,25 +11,24 @@
  */
 import { useEffect, useState, useCallback, useMemo, type ReactNode } from 'react'
 import { Search, AlertCircle, RefreshCw } from 'lucide-react'
-import { useNavigate } from 'react-router'
+import { useNavigate, useSearchParams } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
+import { AdventureModal } from '@/shared/components/ui/AdventureModal'
 import { Paginator } from '@/shared/components/ui/Paginator'
 import { useToast } from '@/shared/hooks/useToast'
 import { usePagination } from '@/shared/hooks/usePagination'
 import { api, type LectureRow } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { cn } from '@/shared/lib/cn'
-import { CourseAuthoringWizard } from '../components/CourseAuthoringWizard'
+import { designerAssets, programArtworkHint } from '@/shared/config/assets'
 import { LectureDrawer } from '../components/LectureDrawer'
 import { CourseFormModal } from '../components/CourseFormModal'
 import {
   PRACTICE_OPTIONS,
-  courseDraftReadiness,
   serializeLectureGameConfig,
-  type CourseDraft,
 } from '../lib/authoring'
 import {
   CmsAnalyticsIcon,
@@ -59,6 +58,7 @@ type Lecture = LectureRow & {
   goals?: string[]
   concept?: string
   example?: string
+  learnCards?: import('../lib/authoring').LearnCardDraft[]
   gameType?: string
   gameInstruction?: string
   gameOutcome?: string
@@ -74,6 +74,10 @@ type Lecture = LectureRow & {
   }
   practiceInstruction?: string
   product?: string
+  practiceSteps?: string[]
+  successCriteria?: string[]
+  reflectionPrompt?: string
+  practiceConfig?: { activityType?: string; prompt?: string; cards?: Array<{ id: string; title: string; description: string }> }
   checkQuestion?: string
   checkOptions?: string[]
   correctIndex?: number
@@ -88,8 +92,40 @@ type CourseLectures = {
   status: string
   ageTrack?: string
   courseKey?: string
+  scopeType?: 'global' | 'organization' | 'personal'
+  programSource?: 'aikid_official' | 'workspace' | 'creator_marketplace'
+  tagline?: string
+  description?: string
+  productLabel?: string
+  durationLabel?: string
+  skills?: string[]
+  outcomes?: string[]
+  credential?: string
+  finalAssessment?: string
+  regionUnlockMode?: 'sequential' | 'parallel'
   readOnly?: boolean
   lectures: Lecture[]
+}
+
+type LearningProgram = {
+  id: string
+  title: string
+  description: string
+  source: 'aikid_official' | 'workspace' | 'creator_marketplace'
+  unlockMode: 'sequential' | 'parallel'
+  readOnly: boolean
+  imageUrl?: string
+  regions: CourseLectures[]
+}
+
+type CourseReadiness = {
+  ready: boolean
+  issues: string[]
+  stations: Array<{ id: string; title: string; ready: boolean; missing: string[] }>
+}
+
+function programArtwork(program: LearningProgram) {
+  return programArtworkHint({ id: program.id, title: program.title, imageUrl: program.imageUrl })
 }
 
 type ClassStats = {
@@ -119,13 +155,6 @@ type ProgressDetail = {
 }
 
 export type TeacherTab = 'class' | 'courses' | 'lectures' | 'stats'
-
-function splitLines(value: string): string[] {
-  return value
-    .split(/\r?\n/)
-    .map((item) => item.trim())
-    .filter(Boolean)
-}
 
 const PHASE_LABELS: Record<string, string> = {
   learn: 'Khám phá',
@@ -195,19 +224,8 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
   // ── Courses state ─────────────────────────────────────────
   const [courses, setCourses] = useState<CourseLectures[]>([])
-  const [newCourse, setNewCourse] = useState<CourseDraft>({
-    id: '', title: '', shortTitle: '', tagline: '', description: '',
-    productLabel: '', ageTrack: 'L1', courseKey: 'K1', durationLabel: '8 tuần',
-    skillsText: '', outcomesText: '', credential: '', finalAssessment: '',
-  })
-  // WHY: editingCourse lưu id course đang sửa — null = hiện wizard tạo mới.
-  const [editingCourse, setEditingCourse] = useState<string | null>(null)
-  const [editCourseForm, setEditCourseForm] = useState<CourseDraft>({
-    id: '', title: '', shortTitle: '', tagline: '', description: '',
-    productLabel: '', ageTrack: 'L1', courseKey: 'K1', durationLabel: '8 tuần',
-    skillsText: '', outcomesText: '', credential: '', finalAssessment: '',
-  })
-
+  const [programs, setPrograms] = useState<LearningProgram[]>([])
+  const [selectedProgramId, setSelectedProgramId] = useState('')
   // ── Lectures state ────────────────────────────────────────
   const [selectedCourseId, setSelectedCourseId] = useState<string>('')
   const [archiveTarget, setArchiveTarget] = useState<Lecture | null>(null)
@@ -219,8 +237,12 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   // WHY: Dùng drawer thay vì form inline để giáo viên thấy danh sách trong khi edit
   const [drawerMode, setDrawerMode] = useState<'none' | 'create' | 'edit'>('none')
   const [drawerLecture, setDrawerLecture] = useState<Lecture | null>(null)
+  const [lectureDraftDirty, setLectureDraftDirty] = useState(false)
+  const [pendingLectureAction, setPendingLectureAction] = useState<(() => void) | null>(null)
   const [courseModalMode, setCourseModalMode] = useState<'none' | 'create' | 'edit'>('none')
   const [courseModalCourse, setCourseModalCourse] = useState<CourseLectures | null>(null)
+  const [courseReadiness, setCourseReadiness] = useState<CourseReadiness | null>(null)
+  const [checkingCourse, setCheckingCourse] = useState(false)
 
   // ── UI state ──────────────────────────────────────────────
   const [loading, setLoading] = useState(false)
@@ -228,6 +250,8 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
   // ── Search / filter state ──────────────────────────────────
   const [studentSearch, setStudentSearch] = useState('')
+  const [courseSearch, setCourseSearch] = useState('')
+  const [learningSpaceFilter, setLearningSpaceFilter] = useState<LearningProgram['source']>('aikid_official')
   const [lectureSearch, setLectureSearch] = useState('')
   const [lectureArchiveFilter, setLectureArchiveFilter] = useState<'' | 'active' | 'archived'>('')
   const [statsSearch, setStatsSearch] = useState('')
@@ -237,9 +261,23 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const role = useAuth((s) => s.user?.role)
   const canManageClass = role === 'teacher'
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
+
+  const runLectureAction = useCallback((action: () => void) => {
+    if (lectureDraftDirty) setPendingLectureAction(() => action)
+    else action()
+  }, [lectureDraftDirty])
+
+  const closeLectureEditor = useCallback(() => {
+    setDrawerMode('none')
+    setDrawerLecture(null)
+    setLectureDraftDirty(false)
+  }, [])
 
   // Derive lectures BEFORE pagination hooks to avoid TDZ with `const`
   const activeCourse = courses.find((c) => c.id === selectedCourseId)
+  const editableCourses = courses.filter((course) => !course.readOnly)
+  const referenceCourses = courses.filter((course) => course.readOnly)
   const lectures = activeCourse?.lectures ?? []
 
   // ── Filtered arrays (client-side search) ────────────────────
@@ -285,12 +323,31 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   }, [])
 
   const loadLectures = useCallback(async () => {
-    const data = await api<{ courses: CourseLectures[] }>('/api/teacher/lectures')
+    const data = await api<{ courses: CourseLectures[]; programs: LearningProgram[] }>('/api/teacher/lectures')
     setCourses(data.courses)
-    if (!selectedCourseId && data.courses[0]) {
-      setSelectedCourseId(data.courses[0].id)
+    setPrograms(data.programs ?? [])
+    const requestedProgramId = searchParams.get('programId')
+    const requestedCourseId = searchParams.get('courseId')
+    const requestedCourseProgram = data.programs?.find((program) =>
+      program.regions.some((region) => region.id === requestedCourseId),
+    )
+    const requestedProgram = data.programs?.find((program) => program.id === requestedProgramId)
+      ?? requestedCourseProgram
+      ?? data.programs?.[0]
+    if (requestedProgram) setLearningSpaceFilter(requestedProgram.source)
+    const nextProgramId = requestedProgram?.id ?? ''
+    const requestedCourse = data.courses.find((course) => course.id === requestedCourseId)
+    const nextCourse = requestedCourse ?? requestedProgram?.regions[0] ?? data.courses[0]
+    const nextCourseId = nextCourse?.id ?? ''
+    setSelectedProgramId(nextProgramId)
+    setSelectedCourseId(nextCourseId)
+
+    // Direct menu entry must establish the same context as the "Biên soạn"
+    // button. This also makes refresh/deep links deterministic.
+    if ((!requestedProgramId || !requestedCourseId) && nextProgramId && nextCourseId) {
+      setSearchParams({ programId: nextProgramId, courseId: nextCourseId }, { replace: true })
     }
-  }, [selectedCourseId])
+  }, [searchParams, setSearchParams])
 
   const loadStats = useCallback(async () => {
     const data = await api<{ stats: ClassStats | null }>('/api/teacher/class/stats')
@@ -364,71 +421,22 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     } catch (e) { showToast(e instanceof Error ? e.message : 'Không tải tiến trình', 'error') }
   }
 
-  async function createCourse(e: React.FormEvent) {
-    e.preventDefault()
-    const readiness = courseDraftReadiness(newCourse)
-    if (!readiness.complete) {
-      const missing = readiness.steps.flatMap((item) => item.missing)
-      showToast(`Khóa học còn thiếu: ${missing.slice(0, 3).join(', ')}`, 'error')
-      return
-    }
-    try {
-      // Capture id before reset so Lectures tab can pre-select the new course
-      const createdId = newCourse.id.trim()
-      await api('/api/teacher/courses', {
-        method: 'POST',
-        body: JSON.stringify({
-          ...newCourse,
-          ageLabel: newCourse.ageTrack === 'L2' ? '9–11 tuổi' : '6–8 tuổi',
-          skills: splitLines(newCourse.skillsText),
-          outcomes: splitLines(newCourse.outcomesText),
-          coverFrom: '#6d5efc', coverTo: '#3dbfff', accent: '#6d5efc', skillsJson: '[]',
-        }),
-      })
-      showToast('Đã tạo khóa học. Thêm bài giảng rồi mở "open" để học sinh thấy.', 'success')
-      setNewCourse({
-        id: '', title: '', shortTitle: '', tagline: '', description: '',
-        productLabel: '', ageTrack: 'L1', courseKey: 'K1', durationLabel: '8 tuần',
-        skillsText: '', outcomesText: '', credential: '', finalAssessment: '',
-      })
-      await loadLectures()
-      if (createdId) setSelectedCourseId(createdId)
-      navigate('/teacher/lectures')
-    } catch (e) { showToast(e instanceof Error ? e.message : 'Không tạo khóa', 'error') }
-  }
-
-  async function updateCourse(e: React.FormEvent) {
-    e.preventDefault()
-    if (!editingCourse) return
-    // WHY: Không kiểm tra readiness đầy đủ cho edit — giáo viên có thể lưu từng phần.
-    if (!editCourseForm.title.trim() || editCourseForm.title.trim().length < 2) {
-      showToast('Tên khóa học cần ít nhất 2 ký tự', 'error')
-      return
-    }
-    try {
-      await api(`/api/teacher/courses/${editingCourse}`, {
-        method: 'PATCH',
-        body: JSON.stringify({
-          title: editCourseForm.title,
-          shortTitle: editCourseForm.shortTitle || undefined,
-          tagline: editCourseForm.tagline || undefined,
-          description: editCourseForm.description || undefined,
-          productLabel: editCourseForm.productLabel || undefined,
-          ageTrack: editCourseForm.ageTrack,
-          durationLabel: editCourseForm.durationLabel || undefined,
-          skills: splitLines(editCourseForm.skillsText),
-          outcomes: splitLines(editCourseForm.outcomesText),
-          credential: editCourseForm.credential || undefined,
-          finalAssessment: editCourseForm.finalAssessment || undefined,
-        }),
-      })
-      showToast('Đã cập nhật thông tin khóa học', 'success')
-      setEditingCourse(null)
-      await loadLectures()
-    } catch (e) { showToast(e instanceof Error ? e.message : 'Không cập nhật được', 'error') }
-  }
-
   async function patchCourseStatus(courseId: string, status: 'open' | 'soon') {
+    if (status === 'open') {
+      setCheckingCourse(true)
+      try {
+        const readiness = await api<CourseReadiness>(`/api/teacher/courses/${courseId}/readiness`)
+        if (!readiness.ready) {
+          setCourseReadiness(readiness)
+          return
+        }
+      } catch (e) {
+        showToast(e instanceof Error ? e.message : 'Không kiểm tra được mức độ hoàn thiện', 'error')
+        return
+      } finally {
+        setCheckingCourse(false)
+      }
+    }
     try {
       await api(`/api/teacher/courses/${courseId}`, { method: 'PATCH', body: JSON.stringify({ status }) })
       showToast(status === 'open' ? 'Đã mở khóa cho học sinh' : 'Đã ẩn khóa', 'success')
@@ -656,98 +664,117 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   )
 
   // ── Tab: Khóa học ─────────────────────────────────────────
+  const visiblePrograms = programs.filter((program) => {
+    const query = courseSearch.trim().toLocaleLowerCase('vi')
+    const searchable = `${program.title} ${program.description} ${program.regions.map((region) => region.title).join(' ')}`.toLocaleLowerCase('vi')
+    return program.source === learningSpaceFilter && (!query || searchable.includes(query))
+  })
+  const focusedProgram = visiblePrograms.find((program) => program.id === selectedProgramId) ?? visiblePrograms[0]
+
   const coursesTab = (
-    <div className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(460px,0.9fr)]">
+    <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1.25fr)_380px]">
       <section className="ui-card h-fit overflow-hidden" aria-labelledby="course-list-title">
         <div className="border-b border-border/60 bg-white px-5 py-4">
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
-              <h2 id="course-list-title" className="font-display text-xl text-text">Khóa học</h2>
-              <p className="mt-1 text-sm text-muted">Khóa của bạn có thể sửa. Khóa hệ thống chỉ xem và dùng trong lớp.</p>
+              <h2 id="course-list-title" className="font-display text-xl text-text">Chương trình học</h2>
+              <p className="mt-1 text-sm text-muted">Mỗi chương trình gồm một hoặc nhiều vùng; mỗi vùng chứa các trạm học.</p>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
-              <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-bold text-sky-700">{courses.filter((c) => !c.readOnly).length} khóa của bạn</span>
-              <span className="rounded-full bg-purple-50 px-3 py-1 text-xs font-bold text-purple-700">{courses.filter((c) => c.readOnly).length} khóa hệ thống</span>
-              <button
+              <Button
                 type="button"
                 id="open-course-modal-btn"
                 onClick={() => { setCourseModalMode('create'); setCourseModalCourse(null) }}
-                style={{
-                  padding: '0.375rem 0.875rem', borderRadius: '0.5rem', border: 'none',
-                  background: 'linear-gradient(135deg, #6366f1, #a78bfa)',
-                  color: '#fff', fontSize: '0.8125rem', fontWeight: 700, cursor: 'pointer',
+              >
+                Tạo giáo trình
+              </Button>
+            </div>
+          </div>
+          <div className="mt-4 grid gap-2 sm:grid-cols-[minmax(0,1fr)_220px]">
+            <label className="relative">
+              <span className="sr-only">Tìm giáo trình</span>
+              <Search size={18} aria-hidden="true" className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-muted" />
+              <input className="min-h-11 w-full rounded-xl border-2 border-border bg-white pl-10 pr-3 text-sm outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100" value={courseSearch} onChange={(event) => setCourseSearch(event.target.value)} placeholder="Tìm chương trình hoặc vùng…" />
+            </label>
+            <div className="flex min-h-11 items-center rounded-xl border-2 border-border bg-sky-50 px-3 text-sm font-bold text-sky-800">
+              {learningSpaceFilter === 'aikid_official' ? 'Nền tảng AiKid' : learningSpaceFilter === 'workspace' ? 'Trường học' : 'Học tập tự do'}
+            </div>
+          </div>
+          <div className="mt-3 grid gap-2 sm:grid-cols-3" role="tablist" aria-label="Không gian học tập">
+            {([
+              ['aikid_official', 'Nền tảng AiKid', 'Giáo trình chính thức'],
+              ['workspace', 'Trường học', 'Theo workspace'],
+              ['creator_marketplace', 'Học tập tự do', 'Giáo viên & gia đình'],
+            ] as const).map(([source, label, caption]) => {
+              const count = programs.filter((program) => program.source === source).length
+              const selected = learningSpaceFilter === source
+              return <button
+                key={source}
+                type="button"
+                role="tab"
+                aria-selected={selected}
+                className={cn('min-h-16 rounded-xl border-2 px-3 py-2 text-left transition focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus', selected ? 'border-sky-400 bg-sky-50 text-sky-800 shadow-soft' : 'border-border bg-white text-text hover:border-sky-200')}
+                onClick={() => {
+                  setLearningSpaceFilter(source)
+                  const firstProgram = programs.find((program) => program.source === source)
+                  const firstCourse = firstProgram?.regions[0]
+                  setSelectedProgramId(firstProgram?.id ?? '')
+                  setSelectedCourseId(firstCourse?.id ?? '')
+                  setSearchParams(firstProgram
+                    ? { programId: firstProgram.id, ...(firstCourse ? { courseId: firstCourse.id } : {}) }
+                    : {})
                 }}
               >
-                ✨ Tạo khóa học mới
+                <span className="flex items-center justify-between gap-2 font-extrabold"><span>{label}</span><span className="rounded-full bg-white px-2 py-0.5 text-xs text-muted">{count}</span></span>
+                <span className="mt-0.5 block text-xs font-bold text-muted">{caption}</span>
               </button>
-            </div>
+            })}
           </div>
         </div>
 
-        {courses.length === 0 ? (
+        {programs.length === 0 ? (
           <div className="p-8 text-center">
             <p className="font-display text-lg text-text">Bắt đầu khóa học đầu tiên</p>
             <p className="mt-1 text-sm text-muted">Biểu mẫu bên cạnh chia nội dung thành ba bước ngắn.</p>
           </div>
+        ) : visiblePrograms.length === 0 ? (
+          <div className="p-8 text-center">
+            <p className="font-display text-lg text-text">Chưa có chương trình trong không gian này</p>
+            <p className="mt-1 text-sm text-muted">Chương trình của trường hoặc giáo viên sẽ xuất hiện tại đây sau khi được phân phối.</p>
+          </div>
         ) : (
-          <ul className="divide-y divide-border/60">
-            {courses.map((course) => {
-              const activeLectures = course.lectures.filter((lecture) => !lecture.archived)
-              const canPublish = activeLectures.length > 0
+          <ul className="grid gap-3 p-4 md:grid-cols-2">
+            {visiblePrograms.map((program) => {
+              const stationCount = program.regions.reduce((sum, region) => sum + region.lectures.filter((lecture) => !lecture.archived).length, 0)
+              const isFocused = focusedProgram?.id === program.id
               return (
-                <li key={course.id} className="p-5">
+                <li key={program.id} className={cn('overflow-hidden rounded-2xl border-2 transition', isFocused ? 'border-sky-400 bg-sky-50/70 shadow-soft' : 'border-border bg-white hover:border-sky-200')}>
+                  <img src={programArtwork(program)} alt="" loading="lazy" className="aspect-[3/2] w-full border-b border-border object-cover" aria-hidden="true" />
+                  <div className="p-4">
                   <div className="flex flex-wrap items-start justify-between gap-3">
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-display text-lg text-text">{course.shortTitle || course.title}</h3>
-                        <StatusBadge status={course.status} />
-                        {course.readOnly && (
-                          <span className="rounded-full bg-purple-100 px-2 py-0.5 text-xs font-extrabold text-purple-700">Hệ thống</span>
-                        )}
+                        <h3 className="font-display text-lg text-text">{program.title}</h3>
+                        <span className="rounded-full bg-sky-50 px-2 py-0.5 text-xs font-bold text-sky-700">{program.regions.length} vùng</span>
+                        <span className="rounded-full bg-mint-50 px-2 py-0.5 text-xs font-bold text-success">{program.source === 'aikid_official' ? 'AiKid chính thức' : program.source === 'workspace' ? 'Trường học' : 'Học tự do'}</span>
                       </div>
-                      <p className="mt-1 text-sm text-muted">{course.ageTrack === 'L2' ? '9–11 tuổi' : '6–8 tuổi'} · {activeLectures.length} bài đang dùng</p>
+                      <p className="mt-1 line-clamp-2 text-sm text-muted">{program.description || 'Chương trình học gồm các vùng và trạm được sắp xếp.'}</p>
                     </div>
-                    <p className={cn('rounded-full px-3 py-1 text-xs font-bold', canPublish ? 'bg-mint-100 text-success' : 'bg-sun-100 text-warning')}>
-                      {canPublish ? 'Sẵn sàng kiểm tra' : 'Cần thêm bài học'}
-                    </p>
                   </div>
-
-                  <ol className="mt-4 grid gap-2 sm:grid-cols-3" aria-label={`Tiến trình của ${course.title}`}>
-                    <li className="rounded-xl bg-mint-100/60 px-3 py-2 text-sm font-bold text-success">1. Thông tin đã có</li>
-                    <li className={cn('rounded-xl px-3 py-2 text-sm font-bold', canPublish ? 'bg-mint-100/60 text-success' : 'bg-sun-50 text-warning')}>2. {canPublish ? 'Đã có bài học' : 'Thêm bài học'}</li>
-                    <li className={cn('rounded-xl px-3 py-2 text-sm font-bold', course.status === 'open' ? 'bg-mint-100/60 text-success' : 'bg-sky-50 text-sky-700')}>3. {course.status === 'open' ? 'Đang mở cho học sinh' : 'Kiểm tra và mở khóa'}</li>
-                  </ol>
-
-                  <div className="mt-4 flex flex-wrap gap-2">
+                  <div className="mt-4 flex items-center justify-between gap-3 border-t border-border/70 pt-3">
+                    <span className="text-sm font-bold text-success">{stationCount} trạm · {program.unlockMode === 'sequential' ? 'Lần lượt' : 'Song song'}</span>
                     <Button
                       variant="secondary"
                       onClick={() => {
-                        setSelectedCourseId(course.id)
-                        navigate('/teacher/lectures')
+                        const firstCourse = program.regions[0]
+                        setSelectedProgramId(program.id)
+                        setSelectedCourseId(firstCourse?.id ?? '')
+                        setSearchParams({ programId: program.id, ...(firstCourse ? { courseId: firstCourse.id } : {}) })
                       }}
                     >
-                      Xem bài học
+                      {isFocused ? 'Đang xem' : 'Xem chi tiết'}
                     </Button>
-                    {!course.readOnly && (
-                      <>
-                        <Button
-                          variant="ghost"
-                          onClick={() => {
-                            setCourseModalMode('edit')
-                            setCourseModalCourse(course)
-                          }}
-                        >
-                          ✨ Sửa thông tin
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          disabled={!canPublish && course.status !== 'open'}
-                          onClick={() => void patchCourseStatus(course.id, course.status === 'open' ? 'soon' : 'open')}
-                        >
-                          {course.status === 'open' ? 'Ẩn khỏi học sinh' : 'Mở cho học sinh'}
-                        </Button>
-                      </>
-                    )}
+                  </div>
                   </div>
                 </li>
               )
@@ -756,35 +783,57 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
         )}
       </section>
 
-      {editingCourse ? (
-        <div className="ui-card overflow-hidden">
-          <div className="border-b border-border/60 bg-sky-50/60 p-5">
-            <div className="flex items-center justify-between gap-3">
-              <div>
-                <p className="text-xs font-extrabold uppercase tracking-wide text-sky-600">Sửa thông tin</p>
-                <h2 className="mt-1 font-display text-2xl text-text">{editCourseForm.title || 'Khóa học'}</h2>
-                <p className="mt-1 text-sm text-muted">Slug/đường dẫn không thay đổi được để giữ liên kết ổn định.</p>
-              </div>
-              <Button type="button" variant="ghost" onClick={() => setEditingCourse(null)}>Đóng</Button>
+      <aside className="ui-card h-fit overflow-hidden xl:sticky xl:top-5" aria-labelledby="curriculum-workflow-title">
+        {focusedProgram ? <>
+          <div className="border-b border-border bg-sky-50/60 p-5">
+            <p className="text-xs font-extrabold uppercase tracking-wide text-sky-700">Chương trình đang chọn</p>
+            <h2 id="curriculum-workflow-title" className="mt-1 font-display text-2xl text-text">{focusedProgram.title}</h2>
+            <p className="mt-1 text-sm text-muted">{focusedProgram.regions.length} vùng trong cùng một hành trình học</p>
+          </div>
+          <div className="space-y-4 p-5">
+            <div className="rounded-xl border border-sky-200 bg-sky-50 p-3">
+              <label className="grid gap-1.5 text-sm font-bold text-text">
+                Cách mở các vùng trong lộ trình
+                <select
+                  className="min-h-11 rounded-xl border-2 border-border bg-white px-3 outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
+                  value={focusedProgram.unlockMode}
+                  disabled={focusedProgram.readOnly}
+                  onChange={(event) => void api(`/api/teacher/programs/${encodeURIComponent(focusedProgram.id)}/unlock-mode`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ regionUnlockMode: event.target.value }),
+                  }).then(() => loadLectures()).then(() => showToast('Đã cập nhật cách mở lộ trình', 'success')).catch((error) => showToast(error instanceof Error ? error.message : 'Không thể cập nhật lộ trình', 'error'))}
+                >
+                  <option value="parallel">Mở song song các vùng</option>
+                  <option value="sequential">Mở lần lượt từng vùng</option>
+                </select>
+              </label>
+              <p className="mt-2 text-xs leading-relaxed text-muted">{focusedProgram.readOnly ? 'Chương trình tham khảo chỉ được xem.' : (focusedProgram.unlockMode === 'sequential' ? 'Học sinh hoàn thành vùng trước để mở vùng tiếp theo.' : 'Học sinh có thể chọn các vùng trong chương trình song song.')}</p>
+            </div>
+            <div>
+              <p className="mb-2 text-xs font-extrabold uppercase tracking-wide text-muted">Các vùng trong chương trình</p>
+              <ol className="space-y-2">
+                {focusedProgram.regions.map((region, index) => {
+                  const stationCount = region.lectures.filter((lecture) => !lecture.archived).length
+                  return <li key={region.id} className="rounded-xl border border-border bg-white p-3">
+                    <div className="flex items-start gap-3"><span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-brand-50 text-sm font-extrabold text-brand-700">{index + 1}</span><div className="min-w-0"><p className="font-bold text-text">{region.shortTitle || region.title}</p><p className="text-xs text-muted">{stationCount} trạm · {region.status === 'open' ? 'Đang mở' : 'Đang ẩn'}</p></div></div>
+                    <div className="mt-3 grid grid-cols-2 gap-2">
+                      <Button variant="secondary" className="!min-h-9 !text-xs" onClick={() => navigate(`/teacher/lectures?courseId=${encodeURIComponent(region.id)}&programId=${encodeURIComponent(focusedProgram.id)}`)}>Trạm học</Button>
+                      {!region.readOnly && <Button variant="ghost" className="!min-h-9 !text-xs" onClick={() => { setCourseModalMode('edit'); setCourseModalCourse(region) }}>Sửa vùng</Button>}
+                    </div>
+                  </li>
+                })}
+              </ol>
             </div>
           </div>
-          <CourseAuthoringWizard
-            value={editCourseForm}
-            onChange={setEditCourseForm}
-            onSubmit={(event) => void updateCourse(event)}
-            mode="edit"
-          />
-        </div>
-      ) : (
-        <CourseAuthoringWizard value={newCourse} onChange={setNewCourse} onSubmit={(event) => void createCourse(event)} />
-      )}
+        </> : <div className="p-6 text-center text-muted">Không tìm thấy giáo trình phù hợp.</div>}
+      </aside>
     </div>
   )
 
-  // ── Tab: Bài giảng ────────────────────────────────────────
+  // ── Tab: Trạm học ─────────────────────────────────────────
   const lecturesTab = (
     <div className="grid items-start gap-5 md:grid-cols-[280px_minmax(0,1fr)]">
-      <aside className="ui-card overflow-hidden lg:sticky lg:top-[4.5rem]" aria-label="Chọn khóa học và bài học">
+      <aside className="ui-card overflow-hidden lg:sticky lg:top-[4.5rem]" aria-label="Chọn giáo trình và trạm học">
         <div className="border-b border-border bg-sky-50/60 p-4">
           <label className="flex flex-col gap-1.5 text-sm font-bold text-text">
             Khóa học đang soạn
@@ -792,12 +841,37 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm outline-none focus:border-sky-400 focus:ring-4 focus:ring-sky-100"
               value={selectedCourseId}
               onChange={(event) => {
-                setSelectedCourseId(event.target.value)
-                setDrawerMode('none')
+                const courseId = event.target.value
+                const program = programs.find((item) => item.regions.some((region) => region.id === courseId))
+                runLectureAction(() => {
+                  setSelectedCourseId(courseId)
+                  if (program) setSelectedProgramId(program.id)
+                  setSearchParams(courseId
+                    ? { courseId, ...(program ? { programId: program.id } : {}) }
+                    : {})
+                  closeLectureEditor()
+                })
               }}
             >
-              <option value="">Chọn một khóa học</option>
-              {courses.map((course) => <option key={course.id} value={course.id}>{course.shortTitle || course.title}{course.ageTrack ? ` · ${course.ageTrack}` : ''}{course.readOnly ? ' (Hệ thống)' : ''}</option>)}
+              <option value="">Chọn một giáo trình</option>
+              {editableCourses.length > 0 && (
+                <optgroup label="Giáo trình được phép biên soạn">
+                  {editableCourses.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.shortTitle || course.title}{course.ageTrack ? ` · ${course.ageTrack}` : ''}{course.programSource === 'aikid_official' ? ' · AiKid chính thức' : ''}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              {referenceCourses.length > 0 && (
+                <optgroup label="Thư viện AiKid — chỉ xem">
+                  {referenceCourses.map((course) => (
+                    <option key={course.id} value={course.id}>
+                      {course.shortTitle || course.title}{course.ageTrack ? ` · ${course.ageTrack}` : ''}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
             </select>
           </label>
         </div>
@@ -812,18 +886,24 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             <div className="border-b border-border p-4">
               <div className="flex items-center justify-between gap-2">
                 <StatusBadge status={activeCourse.status} />
-                <span className="text-xs font-bold text-muted">{lectures.filter((lecture) => !lecture.archived).length} bài đang dùng</span>
+                <span className="text-xs font-bold text-muted">{lectures.filter((lecture) => !lecture.archived).length} trạm đang dùng</span>
               </div>
-              <Button
-                className="mt-3 w-full"
-                id="open-lecture-drawer-btn"
-                onClick={() => {
-                  setDrawerMode('create')
-                  setDrawerLecture(null)
-                }}
-              >
-                + Thêm bài học
-              </Button>
+              {activeCourse.readOnly ? (
+                <p className="mt-3 rounded-xl bg-sun-50 px-3 py-2 text-xs font-bold text-warning">Giáo trình AiKid tham khảo · Không thể thêm hoặc sửa trạm.</p>
+              ) : (
+                <Button
+                  className="mt-3 w-full"
+                  id="open-lecture-drawer-btn"
+                  onClick={() => {
+                    runLectureAction(() => {
+                      setDrawerMode('create')
+                      setDrawerLecture(null)
+                    })
+                  }}
+                >
+                  + Thêm trạm học
+                </Button>
+              )}
             </div>
 
             <div className="flex flex-col gap-2 border-b border-border/60 px-3 py-3">
@@ -833,8 +913,8 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                 </span>
                 <input
                   type="search"
-                  aria-label="Tìm bài học"
-                  placeholder="Tìm bài học..."
+                  aria-label="Tìm trạm học"
+                  placeholder="Tìm trạm học..."
                   value={lectureSearch}
                   onChange={(e) => setLectureSearch(e.target.value)}
                   className="w-full min-h-10 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
@@ -842,7 +922,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               </div>
               <div className="flex items-center gap-2">
                 <select
-                  aria-label="Lọc bài học theo trạng thái"
+                  aria-label="Lọc trạm học theo trạng thái"
                   className="flex-1 min-h-9 rounded-xl border-2 border-border bg-white px-2 text-xs font-bold"
                   value={lectureArchiveFilter}
                   onChange={(e) => setLectureArchiveFilter(e.target.value as '' | 'active' | 'archived')}
@@ -852,7 +932,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                   <option value="archived">Đang ẩn</option>
                 </select>
                 {(lectureSearch || lectureArchiveFilter) && (
-                  <span className="shrink-0 rounded-full bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600">{filteredLectures.length} bài</span>
+                  <span className="shrink-0 rounded-full bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600">{filteredLectures.length} trạm</span>
                 )}
                 {(lectureSearch || lectureArchiveFilter) && (
                   <button type="button" className="text-xs font-bold text-muted underline shrink-0" onClick={() => { setLectureSearch(''); setLectureArchiveFilter('') }}>Xóa</button>
@@ -862,8 +942,13 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
             {lectures.length === 0 ? (
               <div className="p-5 text-center">
-                <p className="font-bold text-text">Chưa có bài học</p>
-                <p className="mt-1 text-sm text-muted">Tạo bài đầu tiên theo bốn trạm ở khu vực bên cạnh.</p>
+                <p className="font-display text-xl text-text">Chưa có trạm học</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">Tạo trạm đầu tiên với đủ bốn pha: Khám phá → Thử cùng Mee → Tự tay làm → Thử thách.</p>
+                {!activeCourse?.readOnly && (
+                  <Button className="mt-4" onClick={() => { setDrawerMode('create'); setDrawerLecture(null) }}>
+                    Tạo trạm đầu tiên
+                  </Button>
+                )}
               </div>
             ) : filteredLectures.length === 0 ? (
               <div className="p-5 text-center">
@@ -871,7 +956,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                 <button type="button" className="mt-2 text-sm font-bold text-brand-500 underline" onClick={() => { setLectureSearch(''); setLectureArchiveFilter('') }}>Xóa bộ lọc</button>
               </div>
             ) : (
-              <ol className="divide-y divide-border/60" aria-label="Danh sách bài học">
+              <ol className="divide-y divide-border/60" aria-label="Danh sách trạm học">
                 {lecturesPag.slice.map((lecture) => {
                   const index = lectures.indexOf(lecture)
                   return (
@@ -891,13 +976,15 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                             : lecture.archived ? 'hover:bg-orange-100' : 'hover:bg-sky-50',
                         )}
                         onClick={() => {
-                          setDrawerMode('edit')
-                          setDrawerLecture(lecture)
+                          runLectureAction(() => {
+                            setDrawerMode('edit')
+                            setDrawerLecture(lecture)
+                          })
                         }}
                         aria-label={`Chỉnh sửa ${lecture.title}`}
                       >
                         <div className="flex items-center gap-2">
-                          <span className="block text-xs font-bold text-muted">Bài {index + 1}</span>
+                          <span className="block text-xs font-bold text-muted">Trạm {index + 1}</span>
                           {lecture.archived && (
                             <span className="rounded-full bg-orange-200 px-2 py-0.5 text-xs font-extrabold text-orange-700">
                               🔴 Đang ẩn
@@ -915,7 +1002,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                           <button
                             type="button"
                             className={cn('min-h-9 rounded-lg px-3 text-xs font-bold hover:bg-sky-50', drawerLecture?.id === lecture.id && drawerMode !== 'none' ? 'text-sky-600 bg-sky-50' : 'text-sky-600')}
-                            onClick={() => { setDrawerMode('edit'); setDrawerLecture(lecture) }}
+                            onClick={() => runLectureAction(() => { setDrawerMode('edit'); setDrawerLecture(lecture) })}
                             aria-label={`Xem ${lecture.title}`}
                           >👁 Xem</button>
                         ) : (
@@ -929,7 +1016,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                               <button
                                 type="button"
                                 className={cn('min-h-9 rounded-lg px-2 text-xs font-bold hover:bg-brand-50', drawerLecture?.id === lecture.id && drawerMode !== 'none' ? 'text-brand-600 bg-brand-50' : 'text-brand-600')}
-                                onClick={() => { setDrawerMode('edit'); setDrawerLecture(lecture) }}
+                                onClick={() => runLectureAction(() => { setDrawerMode('edit'); setDrawerLecture(lecture) })}
                                 aria-label={`Sửa ${lecture.title}`}
                               >✏️ Sửa</button>
                               {lecture.archived ? (
@@ -968,6 +1055,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             archived={drawerMode === 'edit' && !!drawerLecture?.archived}
             onArchive={() => drawerLecture && setArchiveTarget(drawerLecture)}
             onRestore={() => drawerLecture && void restoreLecture(drawerLecture.id)}
+            onDirtyChange={setLectureDraftDirty}
             lecture={drawerMode === 'edit' && drawerLecture
               ? {
                   id: drawerLecture.id,
@@ -978,6 +1066,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                   videoUrl: drawerLecture.videoUrl ?? '',
                   concept: drawerLecture.concept ?? '',
                   example: drawerLecture.example ?? '',
+                  learnCards: drawerLecture.learnCards ?? [],
                   reward: drawerLecture.reward ?? '',
                   duration: drawerLecture.duration ?? '',
                   goalsText: (drawerLecture.goals ?? []).join('\n'),
@@ -996,6 +1085,10 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                     : 6,
                   practiceInstruction: drawerLecture.practiceInstruction ?? '',
                   product: drawerLecture.product ?? '',
+                  practiceStepsText: (drawerLecture.practiceSteps ?? []).join('\n'),
+                  successCriteriaText: (drawerLecture.successCriteria ?? []).join('\n'),
+                  reflectionPrompt: drawerLecture.reflectionPrompt ?? '',
+                  practiceConfigText: (drawerLecture.practiceConfig?.cards ?? []).map((card) => `${card.title} | ${card.description}`).join('\n'),
                   checkQuestions: Array.isArray((drawerLecture.gameConfig as Record<string, unknown>)?.checkQuestions)
                     ? (drawerLecture.gameConfig as Record<string, unknown>).checkQuestions as import('../lib/authoring').CheckQuestion[]
                     : (drawerLecture.checkQuestion ? [{
@@ -1019,7 +1112,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               : null
             }
             onSaved={() => void loadLectures()}
-            onClose={() => { setDrawerMode('none'); setDrawerLecture(null) }}
+            onClose={closeLectureEditor}
           />
         ) : activeCourse ? (
           <section className="ui-card p-8 text-center">
@@ -1033,8 +1126,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             ) : (
               <>
                 <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted">
-                  Click vào bài học bên trái để chỉnh sửa, hoặc nhấn <strong>+ Thêm bài học</strong> để tạo mới.
-                  Mỗi bài cần đủ bốn trạm: Khám phá, Trò chơi, Sáng tạo và Thử tài.
+                  Chọn một trạm bên trái để chỉnh sửa, hoặc tạo trạm mới. Mỗi trạm cần đủ bốn pha đúng như học sinh nhìn thấy trên frontend.
                 </p>
                 <div className="mt-5 flex flex-wrap justify-center gap-2">
                   <Button
@@ -1043,14 +1135,14 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                       setDrawerLecture(null)
                     }}
                   >
-                    + Thêm bài học
+                    + Thêm trạm học
                   </Button>
                   <Button
                     variant="secondary"
-                    disabled={lectures.filter((lecture) => !lecture.archived).length === 0}
+                    disabled={checkingCourse || lectures.filter((lecture) => !lecture.archived).length === 0}
                     onClick={() => void patchCourseStatus(activeCourse.id, activeCourse.status === 'open' ? 'soon' : 'open')}
                   >
-                    {activeCourse.status === 'open' ? 'Ẩn khỏi học sinh' : 'Mở cho học sinh'}
+                    {checkingCourse ? 'Đang kiểm tra...' : activeCourse.status === 'open' ? 'Ẩn khỏi học sinh' : 'Mở cho học sinh'}
                   </Button>
                 </div>
               </>
@@ -1058,7 +1150,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           </section>
         ) : (
           <section className="ui-card p-8 text-center">
-            <p className="text-sm text-muted">Chọn khóa học từ cột bên để xem bài giảng.</p>
+            <p className="text-sm text-muted">Chọn giáo trình từ cột bên để xem các trạm học.</p>
           </section>
         )}
       </main>
@@ -1191,7 +1283,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const tabTitles: Record<TeacherTab, string> = {
     class: 'Lớp & Học sinh',
     courses: 'Khóa học',
-    lectures: 'Bài giảng',
+    lectures: 'Trạm học',
     stats: 'Thống kê',
   }
 
@@ -1242,6 +1334,66 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
         onConfirm={() => void archiveLecture()}
         onCancel={() => setArchiveTarget(null)}
       />
+      <ConfirmDialog
+        open={!!pendingLectureAction}
+        title="Bỏ thay đổi và chuyển sang nội dung khác?"
+        description="Trạm hiện tại có nội dung chưa lưu. Nếu tiếp tục, các thay đổi này sẽ bị mất."
+        confirmLabel="Bỏ thay đổi"
+        cancelLabel="Tiếp tục soạn"
+        danger
+        onConfirm={() => {
+          const action = pendingLectureAction
+          setPendingLectureAction(null)
+          setLectureDraftDirty(false)
+          action?.()
+        }}
+        onCancel={() => setPendingLectureAction(null)}
+      />
+
+      <AdventureModal
+        open={!!courseReadiness}
+        tone="guidance"
+        eyebrow="Kiểm tra trước khi mở"
+        title="Giáo trình còn nội dung cần hoàn thiện"
+        description="Hoàn thành các mục dưới đây rồi mở lại cho học sinh. Dữ liệu được kiểm tra trực tiếp từ backend."
+        showMascot={false}
+        onClose={() => setCourseReadiness(null)}
+        actions={<Button variant="secondary" onClick={() => setCourseReadiness(null)}>Đóng checklist</Button>}
+      >
+        <div className="max-h-[58vh] space-y-3 overflow-y-auto pr-1 text-left">
+          {courseReadiness?.stations.map((station, index) => (
+            <article key={station.id} className={cn('rounded-2xl border-2 p-4', station.ready ? 'border-mint-200 bg-mint-50' : 'border-sun-200 bg-sun-50')}>
+              <div className="flex flex-wrap items-start justify-between gap-3">
+                <div>
+                  <p className="text-xs font-extrabold uppercase tracking-wide text-muted">Trạm {index + 1}</p>
+                  <h3 className="mt-1 font-display text-lg text-text">{station.title}</h3>
+                </div>
+                {station.ready ? (
+                  <span className="rounded-full bg-white px-3 py-2 text-xs font-extrabold text-success">Đã đủ nội dung</span>
+                ) : (
+                  <button
+                    type="button"
+                    className="min-h-11 rounded-xl border border-brand-200 bg-white px-4 text-sm font-extrabold text-brand-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus"
+                    onClick={() => {
+                      const lecture = lectures.find((item) => item.id === station.id)
+                      if (!lecture) return
+                      setCourseReadiness(null)
+                      runLectureAction(() => { setDrawerLecture(lecture); setDrawerMode('edit') })
+                    }}
+                  >
+                    Sửa trạm này
+                  </button>
+                )}
+              </div>
+              {!station.ready && (
+                <ul className="mt-3 grid gap-2 sm:grid-cols-2">
+                  {station.missing.map((item) => <li key={item} className="rounded-xl bg-white px-3 py-2 text-sm font-bold text-text">Còn thiếu: {item}</li>)}
+                </ul>
+              )}
+            </article>
+          ))}
+        </div>
+      </AdventureModal>
 
 
       {/* ── CourseFormModal ──────────────────────────────────────── */}
@@ -1252,16 +1404,16 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                 id: courseModalCourse.id,
                 title: courseModalCourse.title,
                 shortTitle: courseModalCourse.shortTitle ?? '',
-                tagline: '',
-                description: '',
-                productLabel: '',
+                tagline: courseModalCourse.tagline ?? '',
+                description: courseModalCourse.description ?? '',
+                productLabel: courseModalCourse.productLabel ?? '',
                 ageTrack: courseModalCourse.ageTrack ?? '',
                 courseKey: courseModalCourse.courseKey ?? '',
-                durationLabel: '',
-                skillsText: '',
-                outcomesText: '',
-                credential: '',
-                finalAssessment: '',
+                durationLabel: courseModalCourse.durationLabel ?? '',
+                skillsText: (courseModalCourse.skills ?? []).join('\n'),
+                outcomesText: (courseModalCourse.outcomes ?? []).join('\n'),
+                credential: courseModalCourse.credential ?? '',
+                finalAssessment: courseModalCourse.finalAssessment ?? '',
               }
             : null
           }
@@ -1275,4 +1427,3 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     </div>
   )
 }
-

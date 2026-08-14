@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { Link } from 'react-router'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
@@ -13,6 +13,7 @@ import {
   KidProfileWorkImageIcon,
 } from '@/shared/components/icons/KidImageIcons'
 import { api, type AchievementRow } from '@/shared/lib/api'
+import type { RewardKind } from '@/shared/lib/creation/rewards'
 import { useAuth } from '@/shared/store/auth'
 import { EquippedProfile } from '@/features/rewards/EquippedProfile'
 import { RewardCollection } from '@/features/rewards/RewardCollection'
@@ -30,6 +31,7 @@ import {
   type ProfileModule,
 } from '@/features/community/community-store'
 import { AvatarPickerModal } from '../components/AvatarPickerModal'
+import { ImportantCardMascot } from '@/shared/components/ui/ImportantCardMascot'
 import {
   readProfileAvatar,
   saveProfileAvatar,
@@ -96,14 +98,19 @@ export function ProfilePage() {
   const [equipment, setEquipment] = useState(() =>
     user ? readRewardEquipment(user.id) : {},
   )
+  const equipmentMutationVersion = useRef(0)
   const [sharing, setSharing] = useState(() =>
     user ? readCommunitySettings(user.id) : DEFAULT_COMMUNITY_SETTINGS,
   )
 
   useEffect(() => {
     let active = true
-    void loadProfileOverview()
-      .then((overview) => {
+    const loadVersion = equipmentMutationVersion.current
+    void Promise.all([
+      loadProfileOverview(),
+      api<{ equipment: Array<{ kind: RewardKind; rewardId: string }> }>('/api/gamification/storybook'),
+    ])
+      .then(([overview, rewardState]) => {
         if (!active) return
         setStreak(overview.streak)
         setAchievements(overview.achievements.filter((row) => row.unlocked))
@@ -151,9 +158,13 @@ export function ProfilePage() {
           })
         }
 
-        if (user) {
-          const synced = rewardEquipmentFromRows(overview.equipment)
-          setEquipment(syncRewardEquipment(user.id, synced))
+        if (user && equipmentMutationVersion.current === loadVersion) {
+          // The equipment mutation and this read share one projection. The
+          // aggregate profile overview may be cached and must not overwrite a
+          // wardrobe change that was just confirmed by the rewards endpoint.
+          const synced = rewardEquipmentFromRows(rewardState.equipment)
+          const serverEquipment = syncRewardEquipment(user.id, synced)
+          setEquipment(serverEquipment)
         }
       })
       .catch(() => undefined)
@@ -178,6 +189,7 @@ export function ProfilePage() {
   useEffect(() => {
     const sync = () => {
       if (!user) return
+      equipmentMutationVersion.current += 1
       const nextEquipment = readRewardEquipment(user.id)
       setEquipment(nextEquipment)
       const appearance = {
@@ -242,37 +254,38 @@ export function ProfilePage() {
         style={{
           ...profileCardBackgroundStyle(equipment.background),
           backgroundPosition: 'center',
+          border: 'none',
         }}
       >
-        <div className="grid items-center gap-6 p-5 sm:p-6 lg:grid-cols-[minmax(0,1fr)_22rem] lg:p-7">
+        <div className="grid items-center gap-5 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_21rem] lg:px-6 lg:py-5">
           {user && (
             <EquippedProfile
               user={user}
               xp={explorerXp}
               level={explorerLevel}
               compact
-              simple
+              equipment={equipment}
               onAvatarClick={() => setAvatarPickerOpen(true)}
             />
           )}
-          <div className="grid grid-cols-3 gap-2" aria-label="Thành quả học tập">
+          <div className="profile-summary-strip grid grid-cols-3" aria-label="Thành quả học tập">
             {[
               { value: streak, label: 'Ngày học', to: '/level', icon: KidProfileStreakImageIcon },
               { value: achievements.length, label: 'Huy hiệu', to: '/achievements', icon: KidProfileBadgeImageIcon },
               { value: projects.length, label: 'Tác phẩm', to: '/backpack', icon: KidProfileWorkImageIcon },
             ].map(({ value, label, to, icon: Icon }) => (
-              <Link key={label} to={to} className="aikid-flat-stat flex min-h-28 min-w-0 flex-col items-center justify-center px-2 py-3 text-center text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus">
-                <Icon size={28} aria-hidden="true" />
-                <span className="mt-1 font-display text-2xl text-brand-700">{value}</span>
-                <span className="text-sm font-extrabold text-muted">{label}</span>
+              <Link key={label} to={to} className="profile-summary-item flex min-h-20 min-w-0 flex-col items-center justify-center px-2 py-2 text-center text-text focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus sm:min-h-24">
+                <Icon size={24} aria-hidden="true" />
+                <span className="font-display text-xl text-brand-700">{value}</span>
+                <span className="text-xs font-extrabold text-muted sm:text-sm">{label}</span>
               </Link>
             ))}
           </div>
         </div>
-        <div className="flex flex-col gap-3 border-t border-border bg-sun-50 p-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
-          <div className="grid grid-cols-2 rounded-2xl border border-border bg-white p-1 text-sm font-extrabold text-text" role="tablist" aria-label="Nội dung hồ sơ">
-            <button type="button" role="tab" aria-selected={section === 'overview'} onClick={() => setSection('overview')} className={`min-h-11 rounded-xl px-4 py-2 ${section === 'overview' ? 'bg-coral-400 text-white' : ''}`}>Hồ sơ</button>
-            <button type="button" role="tab" aria-selected={section === 'customize'} onClick={() => setSection('customize')} className={`min-h-11 rounded-xl px-4 py-2 ${section === 'customize' ? 'bg-coral-400 text-white' : ''}`}>Trang trí</button>
+        <div className="profile-section-bar flex flex-col gap-2 border-t border-white/70 p-2.5 sm:flex-row sm:items-center sm:justify-between sm:px-4">
+          <div className="profile-section-tabs grid grid-cols-2" role="tablist" aria-label="Nội dung hồ sơ">
+            <button type="button" role="tab" aria-selected={section === 'overview'} onClick={() => setSection('overview')}>Hồ sơ</button>
+            <button type="button" role="tab" aria-selected={section === 'customize'} onClick={() => setSection('customize')}>Trang trí</button>
           </div>
           {profileSlug && <Link to={`/u/${profileSlug}`} className="flex min-h-11 items-center justify-center rounded-2xl border border-border bg-white px-4 py-2 text-sm font-extrabold text-brand-700">Xem bản chia sẻ</Link>}
         </div>
@@ -318,12 +331,13 @@ export function ProfilePage() {
             </div>
             <Link
               to="/profile/avatar-studio"
-              className="mb-5 grid gap-4 rounded-3xl bg-gradient-to-br from-sky-500 to-brand-700 p-5 text-white shadow-soft transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus motion-reduce:transform-none sm:grid-cols-[1fr_auto] sm:items-center"
+              className="profile-studio-invite mb-5 grid gap-4 p-5 transition-transform hover:-translate-y-0.5 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus motion-reduce:transform-none sm:grid-cols-[1fr_auto] sm:items-center"
             >
+              <ImportantCardMascot pose="welcome" className="important-card-mascot--compact" />
               <span>
-                <span className="block font-display text-2xl">Tạo Mee chuyển động</span>
-                <span className="mt-1 block text-sm font-bold text-white/85">
-                  Mở Avatar Studio mới để thử nhân vật Rive và animation thay đồ.
+                <span className="block font-display text-2xl text-text">Tạo avatar của con</span>
+                <span className="mt-1 block text-sm font-bold text-muted">
+                  Chọn tóc, mắt, trang phục, phụ kiện và phối một Mee thật riêng.
                 </span>
               </span>
               <span className="inline-flex min-h-11 items-center justify-center rounded-2xl bg-white px-5 font-extrabold text-brand-700 shadow-press">

@@ -1,13 +1,14 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { Database, Mountain, Navigation, Play, RotateCcw, Trash2 } from 'lucide-react'
+import { Database, Play, RotateCcw, Trash2 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
+import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { cn } from '@/shared/lib/cn'
 import { feedbackFor, missionProgress } from '@/features/lesson/lib/curriculum-game'
 import { EngineGameShell } from './EngineGameShell'
 import { PRAISE_MESSAGES, WRONG_MESSAGES, pickRandom } from './FeedbackOverlay'
 import type { EngineGameProps } from './types'
 
-type Command = 'forward' | 'left' | 'right' | 'repeat2' | 'ifClear'
+type Command = 'up' | 'down' | 'left' | 'right'
 type Facing = 0 | 1 | 2 | 3
 type Position = { x: number; y: number; facing: Facing }
 type Level = {
@@ -20,12 +21,11 @@ type Level = {
   allowed: Command[]
 }
 
-const COMMANDS: Array<{ id: Command; label: string; symbol: string }> = [
-  { id: 'forward', label: 'Đi thẳng', symbol: '↑' },
-  { id: 'left', label: 'Quay trái', symbol: '↶' },
-  { id: 'right', label: 'Quay phải', symbol: '↷' },
-  { id: 'repeat2', label: 'Lặp 2 lần', symbol: '×2' },
-  { id: 'ifClear', label: 'Nếu trống → đi', symbol: '◇' },
+export const BLOCKLY_DIRECTION_COMMANDS: Array<{ id: Command; label: string; symbol: string }> = [
+  { id: 'up', label: 'Đi lên', symbol: '↑' },
+  { id: 'left', label: 'Sang trái', symbol: '←' },
+  { id: 'right', label: 'Sang phải', symbol: '→' },
+  { id: 'down', label: 'Lùi xuống', symbol: '↓' },
 ]
 
 const LEVELS: Level[] = [
@@ -36,7 +36,7 @@ const LEVELS: Level[] = [
     goal: { x: 0, y: 1 },
     rocks: [],
     maxBlocks: 3,
-    allowed: ['forward'],
+    allowed: ['up'],
   },
   {
     title: 'Đường vòng dữ liệu',
@@ -45,43 +45,59 @@ const LEVELS: Level[] = [
     goal: { x: 3, y: 2 },
     rocks: ['0:2', '2:2', '4:3'],
     maxBlocks: 8,
-    allowed: ['forward', 'left', 'right'],
+    allowed: ['up', 'left', 'right', 'down'],
   },
   {
-    title: 'Lệnh lặp tiết kiệm',
-    lesson: 'Một khối lặp có thể thay hai khối giống nhau — chương trình ngắn mà vẫn rõ.',
+    title: 'Bốn hướng trên bản đồ',
+    lesson: 'Mỗi khối đưa Mii sang đúng một ô theo hướng mũi tên.',
     start: { x: 0, y: 4, facing: 0 },
     goal: { x: 4, y: 0 },
     rocks: ['1:3', '2:3', '2:1', '3:1'],
-    maxBlocks: 7,
-    allowed: ['forward', 'left', 'right', 'repeat2'],
+    maxBlocks: 9,
+    allowed: ['up', 'left', 'right', 'down'],
   },
   {
-    title: 'Cảm biến kiểm tra đường',
-    lesson: 'Điều kiện “nếu… thì…” giúp chương trình kiểm tra trước khi hành động.',
+    title: 'Chọn đường không có đá',
+    lesson: 'Chọn hướng trực tiếp giúp con tập trung vào đường đi và sửa đúng bước bị sai.',
     start: { x: 0, y: 4, facing: 0 },
     goal: { x: 4, y: 1 },
     rocks: ['0:2', '2:2', '3:3', '4:2'],
     maxBlocks: 9,
-    allowed: ['forward', 'left', 'right', 'repeat2', 'ifClear'],
+    allowed: ['up', 'left', 'right', 'down'],
+  },
+  {
+    title: 'Bậc thang từng bước',
+    lesson: 'Một bài toán lớn dễ hơn khi con chia đường đi thành từng bước ngắn.',
+    start: { x: 0, y: 4, facing: 0 },
+    goal: { x: 4, y: 0 },
+    rocks: ['1:4', '1:2', '3:2', '3:0'],
+    maxBlocks: 10,
+    allowed: ['up', 'left', 'right', 'down'],
+  },
+  {
+    title: 'Thám tử tìm đường',
+    lesson: 'Con đọc bản đồ, dự đoán đường đi rồi kiểm tra từng lệnh theo thứ tự.',
+    start: { x: 0, y: 4, facing: 0 },
+    goal: { x: 4, y: 1 },
+    rocks: ['0:1', '1:3', '2:1', '3:3', '4:2'],
+    maxBlocks: 12,
+    allowed: ['up', 'left', 'right', 'down'],
   },
 ]
 
-function step(position: Position, command: 'forward' | 'left' | 'right'): Position {
-  if (command === 'left') {
-    return { ...position, facing: ((position.facing + 3) % 4) as Facing }
+function step(position: Position, command: Command): Position {
+  const movement: Record<Command, { x: number; y: number; facing: Facing }> = {
+    up: { x: 0, y: -1, facing: 0 },
+    right: { x: 1, y: 0, facing: 1 },
+    down: { x: 0, y: 1, facing: 2 },
+    left: { x: -1, y: 0, facing: 3 },
   }
-  if (command === 'right') {
-    return { ...position, facing: ((position.facing + 1) % 4) as Facing }
+  const next = movement[command]
+  return {
+    x: position.x + next.x,
+    y: position.y + next.y,
+    facing: next.facing,
   }
-  const offsets = [
-    { x: 0, y: -1 },
-    { x: 1, y: 0 },
-    { x: 0, y: 1 },
-    { x: -1, y: 0 },
-  ] as const
-  const offset = offsets[position.facing]
-  return { ...position, x: position.x + offset.x, y: position.y + offset.y }
 }
 
 function valid(position: Position, rocks: Set<string>): boolean {
@@ -174,28 +190,13 @@ export function BlocklyMazeGame({
     setRunning(true)
     setStatus('Đang chạy từng lệnh… nhìn ô sáng để biết chương trình đang làm gì nhé!')
 
-    const executions = program.flatMap((command, sourceIndex) =>
-      command === 'repeat2'
-        ? [
-            { command: 'forward' as const, sourceIndex },
-            { command: 'forward' as const, sourceIndex },
-          ]
-        : [{ command, sourceIndex }],
-    )
+    const executions = program.map((command, sourceIndex) => ({ command, sourceIndex }))
     let cursor = level.start
     executions.forEach(({ command, sourceIndex }, executionIndex) => {
       const timer = window.setTimeout(() => {
         setActiveIndex(sourceIndex)
-        const primitive = command === 'ifClear' ? 'forward' : command
-        const next = step(cursor, primitive)
+        const next = step(cursor, command)
         if (!valid(next, rocks)) {
-          if (command === 'ifClear') {
-            if (executionIndex === executions.length - 1) {
-              setRunning(false)
-              setStatus('Cảm biến thấy đường bị chặn nên Mii đã đứng yên an toàn. Thêm lệnh quay rồi chạy lại nhé!')
-            }
-            return
-          }
           timers.current.forEach((pending) => window.clearTimeout(pending))
           timers.current = []
           setRunning(false)
@@ -245,7 +246,7 @@ export function BlocklyMazeGame({
     <>
     <EngineGameShell
       title="Blockly · Đội Cứu Hộ Dữ Liệu"
-      subtitle={instruction || 'Lập chương trình qua bốn màn để đưa dữ liệu tốt về phòng học của AI.'}
+      subtitle={instruction || 'Xếp các mũi tên qua sáu màn để đưa dữ liệu tốt về phòng học của AI.'}
       scene="/assets/game-engines/blockly-island.svg"
       sceneAlt="Hòn đảo lập trình nổi giữa bầu trời xanh mát"
       score={score}
@@ -268,7 +269,6 @@ export function BlocklyMazeGame({
           >
             {cells.map((cell) => {
               const key = `${cell.x}:${cell.y}`
-              const isMii = position.x === cell.x && position.y === cell.y
               const isGoal = level.goal.x === cell.x && level.goal.y === cell.y
               const isRock = rocks.has(key)
               return (
@@ -280,20 +280,28 @@ export function BlocklyMazeGame({
                     isRock && 'bg-[#d8c7aa]',
                   )}
                 >
-                  {isRock && <Mountain className="text-stone-600" size={26} aria-label="Tảng đá" />}
-                  {isGoal && <Database className="absolute text-coral-600" size={30} aria-label="Kho dữ liệu" />}
-                  {isMii && (
-                    <span
-                      className="relative z-10 grid size-11 place-items-center rounded-2xl border-2 border-white bg-brand-700 text-white shadow-clay transition-transform duration-200"
-                      style={{ transform: `rotate(${position.facing * 90}deg)` }}
-                      aria-label="Mii"
-                    >
-                      <Navigation size={23} fill="currentColor" aria-hidden="true" />
+                  {isRock && (
+                    <span className="blockly-rock" role="img" aria-label="Khối đá chặn đường">
+                      <span className="blockly-rock-top" aria-hidden="true" />
+                      <span className="blockly-rock-face" aria-hidden="true">
+                        <span className="blockly-rock-mark" />
+                      </span>
                     </span>
                   )}
+                  {isGoal && <Database className="absolute text-coral-600" size={30} aria-label="Kho dữ liệu" />}
                 </div>
               )
             })}
+            <span
+              className="blockly-cat-position"
+              style={{ transform: `translate3d(${position.x * 100}%, ${position.y * 100}%, 0)` }}
+              data-running={running ? 'true' : 'false'}
+              data-facing={position.facing}
+              aria-label={`Mee đang ở hàng ${position.y + 1}, cột ${position.x + 1}`}
+            >
+              <span className="blockly-cat-shadow" aria-hidden="true" />
+              <AikidCatCharacter pose="walking" className="blockly-cat-sprite" />
+            </span>
           </div>
         </div>
 
@@ -302,8 +310,8 @@ export function BlocklyMazeGame({
             <p className="mb-3 text-sm font-black text-brand-800">
               Khay đồ chơi · tối đa {maxBlocks} khối
             </p>
-            <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-              {COMMANDS.filter((command) => level.allowed.includes(command.id)).map((command) => (
+            <div className="grid grid-cols-2 gap-2">
+              {BLOCKLY_DIRECTION_COMMANDS.filter((command) => level.allowed.includes(command.id)).map((command) => (
                 <button
                   key={command.id}
                   type="button"
@@ -339,7 +347,7 @@ export function BlocklyMazeGame({
             ) : (
               <ol className="grid gap-2">
                 {program.map((command, index) => {
-                  const definition = COMMANDS.find((item) => item.id === command)!
+                  const definition = BLOCKLY_DIRECTION_COMMANDS.find((item) => item.id === command)!
                   return (
                     <li
                       key={`${command}-${index}`}

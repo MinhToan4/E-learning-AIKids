@@ -13,6 +13,7 @@ describe('designer AIKid assets on disk', () => {
   it('brand logo and mascot exist', () => {
     expect(existsSync(publicPath(designerAssets.brand.logo))).toBe(true)
     expect(existsSync(publicPath(designerAssets.brand.mascot))).toBe(true)
+    expect(existsSync(publicPath(designerAssets.brand.modalMascot))).toBe(true)
   })
 
   it('lobby chrome assets exist', () => {
@@ -56,6 +57,14 @@ describe('designer AIKid assets on disk', () => {
     expect(getAvatar('unknown-id').id).toBe('avatar-robot')
   })
 
+  it('includes generated poses that preserve the original Figma cat', () => {
+    for (const pose of ['course-wave', 'world-walking', 'world-celebrate']) {
+      const path = `/assets/aikid-ui/mascot-original/${pose}.webp`
+      expect(existsSync(publicPath(path)), path).toBe(true)
+      expect(statSync(publicPath(path)).size).toBeLessThan(96 * 1024)
+    }
+  })
+
   it('includes every designer Storybook chapter background', () => {
     expect(designerAssets.storybook.chapterBackgrounds).toHaveLength(8)
     expect(designerAssets.storybook.chapterTabs).toHaveLength(8)
@@ -82,6 +91,9 @@ describe('designer AIKid assets on disk', () => {
     expect(styleBytes).toBeLessThan(3 * 1024 * 1024)
     expect(statSync(publicPath(designerAssets.brand.mascot)).size).toBeLessThan(
       1024 * 1024,
+    )
+    expect(statSync(publicPath(designerAssets.brand.modalMascot)).size).toBeLessThan(
+      128 * 1024,
     )
     expect(statSync(publicPath(designerAssets.game.coach)).size).toBeLessThan(
       128 * 1024,

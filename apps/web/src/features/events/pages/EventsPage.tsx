@@ -3,7 +3,14 @@ import { REWARD_EVENTS, rewardEventStatus } from '@/shared/lib/creation/events'
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
+import { ImportantCardMascot } from '@/shared/components/ui/ImportantCardMascot'
 import { api } from '@/shared/lib/api'
+import { designerAssets } from '@/shared/config/assets'
+import {
+  KidBadgeImageIcon,
+  KidEventImageIcon,
+  KidTimeImageIcon,
+} from '@/shared/components/icons/KidImageIcons'
 
 const statusLabel = {
   active: 'Đang diễn ra',
@@ -21,16 +28,23 @@ export function EventsPage() {
 
   return (
     <PageMotion className="flex flex-col gap-6">
-      <header className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-sky-500 via-cyan-500 to-violet-600 p-7 text-white shadow-xl">
-        <span className="absolute right-5 top-0 text-[9rem] opacity-20" aria-hidden>🎪</span>
-        <p className="text-xs font-black uppercase tracking-[0.22em] text-yellow-200">
-          StoryMee Events
-        </p>
-        <h1 className="mt-1 font-display text-4xl">Sự kiện sáng tạo</h1>
-        <p className="mt-2 max-w-2xl text-sm font-semibold text-white/85">
-          Sự kiện có thời hạn, nhiệm vụ rõ ràng và phần thưởng độc quyền.
-          Vé chỉ được dùng cho đúng sự kiện, không làm mất XP.
-        </p>
+      <header className="student-feature-hero important-card-with-hero-mascot ui-card p-5 sm:p-7" data-tone="sky">
+        <ImportantCardMascot pose="celebrate" className="important-card-mascot--hero" />
+        <div className="student-feature-hero-row">
+          <div className="max-w-2xl">
+            <div className="eyebrow-chip">
+              <KidEventImageIcon size={22} />
+              Sự kiện
+            </div>
+            <h1 className="mt-3 font-display text-3xl font-extrabold leading-tight text-text sm:text-4xl">Sự kiện sáng tạo</h1>
+            <p className="mt-2 text-base font-semibold leading-relaxed text-muted">
+              Thử thách có thời hạn, nhiệm vụ rõ ràng và phần thưởng riêng cho từng sự kiện.
+            </p>
+          </div>
+        </div>
+        <div className="student-feature-scene" aria-hidden="true">
+          <img src={designerAssets.worldScenes.storyIsland} alt="" />
+        </div>
       </header>
 
       <div className="grid gap-5 md:grid-cols-2">
@@ -41,32 +55,39 @@ export function EventsPage() {
             : undefined
           const hasTicket = !ticket || ownedRewardIds.has(ticket.id)
           return (
-            <article key={event.key} className="ui-card overflow-hidden">
-              <div className="relative bg-gradient-to-br from-indigo-800 to-fuchsia-600 p-6 text-white">
-                <span className="text-6xl" aria-hidden>{event.icon}</span>
-                <span className="absolute right-4 top-4 rounded-full bg-white/20 px-3 py-1 text-xs font-black">
+            <article key={event.key} className="ui-card overflow-hidden border-2 border-border bg-white">
+              <div className="relative overflow-hidden border-b border-border bg-sky-50 p-5 sm:p-6">
+                <div className="student-feature-hero-icon" aria-hidden="true">
+                  <KidEventImageIcon size={36} />
+                </div>
+                <span className="absolute right-4 top-4 rounded-full border border-sky-200 bg-white px-3 py-1 text-xs font-black text-sky-700 shadow-soft">
                   {statusLabel[status]}
                 </span>
-                <h2 className="mt-4 font-display text-3xl">{event.title}</h2>
-                <p className="mt-1 text-sm font-semibold text-white/80">{event.description}</p>
+                <h2 className="mt-4 font-display text-2xl text-text sm:text-3xl">{event.title}</h2>
+                <p className="mt-1 text-base font-semibold text-muted">{event.description}</p>
               </div>
               <div className="space-y-3 p-5">
-                <p className="text-xs font-bold text-muted">
-                  {new Date(event.startsAt).toLocaleDateString('vi-VN')} –{' '}
-                  {new Date(event.endsAt).toLocaleDateString('vi-VN')}
+                <p className="flex items-center gap-2 text-sm font-bold text-muted">
+                  <KidTimeImageIcon size={22} aria-hidden="true" />
+                  <time dateTime={event.startsAt}>{new Date(event.startsAt).toLocaleDateString('vi-VN')}</time>
+                  <span aria-hidden="true">–</span>
+                  <time dateTime={event.endsAt}>{new Date(event.endsAt).toLocaleDateString('vi-VN')}</time>
                 </p>
-                <div className="rounded-2xl bg-amber-50 p-3">
-                  <p className="text-xs font-black uppercase text-amber-700">Phần thưởng hoàn thành</p>
-                  <p className="font-extrabold">
-                    {REWARD_CATALOG.find((reward) => reward.id === event.completionRewardId)?.icon}{' '}
-                    {REWARD_CATALOG.find((reward) => reward.id === event.completionRewardId)?.name}
-                  </p>
+                <div className="flex items-center gap-3 rounded-2xl border border-sun-200 bg-sun-50 p-3">
+                  <span className="student-nav-icon !h-11 !w-11" aria-hidden="true"><KidBadgeImageIcon size={28} /></span>
+                  <div>
+                    <p className="text-xs font-black uppercase text-sun-700">Phần thưởng hoàn thành</p>
+                    <p className="font-extrabold text-text">
+                      {REWARD_CATALOG.find((reward) => reward.id === event.completionRewardId)?.name}
+                    </p>
+                  </div>
                 </div>
                 {ticket && (
-                  <p className={`rounded-xl px-3 py-2 text-sm font-extrabold ${
+                  <p className={`flex items-center gap-2 rounded-xl px-3 py-2 text-sm font-extrabold ${
                     hasTicket ? 'bg-mint-100 text-success' : 'bg-slate-100 text-muted'
                   }`}>
-                    {hasTicket ? `🎟️ Con đã có ${ticket.name}` : `🔒 Cần ${ticket.name} trong kho phần thưởng`}
+                    <KidEventImageIcon size={22} aria-hidden="true" />
+                    {hasTicket ? `Con đã có ${ticket.name}` : `Cần ${ticket.name} trong kho phần thưởng`}
                   </p>
                 )}
                 {status === 'active' && hasTicket ? (

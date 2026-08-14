@@ -87,6 +87,79 @@ const FALLBACK_QUESTIONS: QuizQuestion[] = [
   },
 ]
 
+const PATTERN_QUESTIONS: QuizQuestion[] = [
+  {
+    id: 'pattern-1',
+    prompt: 'Chuỗi 🔴 🔵 🔴 🔵 ... tiếp theo là gì?',
+    options: ['🔴', '🔵', '🟢', '🟡'],
+    answer: 0,
+    why: 'Hai màu đỏ và xanh luân phiên, nên sau xanh sẽ trở lại đỏ.',
+  },
+  {
+    id: 'pattern-2',
+    prompt: 'Chuỗi 2, 4, 6, 8, ... còn thiếu số nào?',
+    options: ['9', '10', '11', '12'],
+    answer: 1,
+    why: 'Mỗi bước tăng thêm 2, vì vậy 8 + 2 = 10.',
+  },
+  {
+    id: 'pattern-3',
+    prompt: 'Chuỗi ⭐ ⭐ 🌙 ⭐ ⭐ 🌙 ... tiếp theo là gì?',
+    options: ['🌙', '⭐', '☀️', '☁️'],
+    answer: 1,
+    why: 'Mẫu lặp gồm hai ngôi sao rồi một mặt trăng.',
+  },
+  {
+    id: 'pattern-4',
+    prompt: 'Robot đi: tiến, tiến, quay phải; tiến, tiến, ... Lệnh tiếp theo là gì?',
+    options: ['Quay trái', 'Quay phải', 'Tiến', 'Dừng'],
+    answer: 1,
+    why: 'Nhóm ba lệnh “tiến, tiến, quay phải” đang được lặp lại.',
+  },
+  {
+    id: 'pattern-5',
+    prompt: 'Hình nào phá vỡ mẫu: tròn, vuông, tròn, vuông, tam giác?',
+    options: ['Hình tròn đầu', 'Hình vuông đầu', 'Hình vuông thứ hai', 'Hình tam giác'],
+    answer: 3,
+    why: 'Mẫu đúng đang luân phiên tròn và vuông; tam giác không thuộc mẫu.',
+  },
+  {
+    id: 'pattern-6',
+    prompt: 'Chuỗi 1, 2, 4, 8, ... tiếp theo là số nào?',
+    options: ['10', '12', '16', '18'],
+    answer: 2,
+    why: 'Mỗi số gấp đôi số đứng trước: 8 × 2 = 16.',
+  },
+  {
+    id: 'pattern-7',
+    prompt: 'Thứ Hai tưới cây, Thứ Ba đọc sách, rồi lặp lại. Thứ Năm làm gì?',
+    options: ['Tưới cây', 'Đọc sách', 'Vẽ tranh', 'Nghỉ'],
+    answer: 1,
+    why: 'Lịch luân phiên: Hai tưới, Ba đọc, Tư tưới, nên Năm đọc sách.',
+  },
+  {
+    id: 'pattern-8',
+    prompt: 'Chuỗi A, C, E, G, ... tiếp theo là chữ nào?',
+    options: ['H', 'I', 'J', 'K'],
+    answer: 1,
+    why: 'Chuỗi bỏ qua một chữ cái sau mỗi bước: A, C, E, G, I.',
+  },
+  {
+    id: 'pattern-9',
+    prompt: 'AI thấy nhiều ví dụ 🐱 → “mèo”. AI đang học điều gì?',
+    options: ['Một mẫu để nhận diện mèo', 'Cách vẽ ngẫu nhiên', 'Cách giấu dữ liệu', 'Một mật khẩu'],
+    answer: 0,
+    why: 'AI tìm các đặc điểm lặp lại trong ví dụ để nhận ra mẫu “mèo”.',
+  },
+  {
+    id: 'pattern-10',
+    prompt: 'Khi đoán phần tiếp theo của một chuỗi, bước nào tốt nhất?',
+    options: ['Chọn ngẫu nhiên', 'Tìm phần đang lặp hoặc quy luật thay đổi', 'Chỉ nhìn phần tử cuối', 'Luôn chọn số lớn nhất'],
+    answer: 1,
+    why: 'Quan sát phần lặp và cách mỗi bước thay đổi giúp mình tìm đúng quy luật.',
+  },
+]
+
 type QuizQuestion = {
   id: string
   prompt: string
@@ -96,8 +169,14 @@ type QuizQuestion = {
 }
 
 // Đọc câu hỏi từ config DB, fallback built-in nếu không đủ 3 câu
-function resolveQuestions(raw: unknown): QuizQuestion[] {
-  if (!Array.isArray(raw) || raw.length < 3) return FALLBACK_QUESTIONS
+export function resolveQuestions(
+  raw: unknown,
+  lessonContext = '',
+): QuizQuestion[] {
+  const contextualFallback = /mẫu|chuỗi|quy luật|pattern/i.test(lessonContext)
+    ? PATTERN_QUESTIONS
+    : FALLBACK_QUESTIONS
+  if (!Array.isArray(raw) || raw.length < 3) return contextualFallback
   const parsed = raw
     .map((item: unknown): QuizQuestion | null => {
       if (!item || typeof item !== 'object') return null
@@ -113,7 +192,7 @@ function resolveQuestions(raw: unknown): QuizQuestion[] {
       return { id, prompt, options, answer, why }
     })
     .filter((q): q is QuizQuestion => q !== null)
-  return parsed.length >= 3 ? parsed : FALLBACK_QUESTIONS
+  return parsed.length >= 3 ? parsed : contextualFallback
 }
 
 // Trạng thái animation bóng
@@ -132,7 +211,10 @@ export function MathKidsGame({
   onHint,
 }: EngineGameProps) {
   const tuning = getGameTuning(difficulty)
-  const allQuestions = useMemo(() => resolveQuestions(config?.quizQuestions), [config?.quizQuestions])
+  const allQuestions = useMemo(
+    () => resolveQuestions(config?.quizQuestions, `${instruction} ${outcome}`),
+    [config?.quizQuestions, instruction, outcome],
+  )
   // Lấy số câu theo độ khó (gentle=5, steady=7, challenge=10)
   const questions = useMemo(
     () => allQuestions.slice(0, Math.min(tuning.roundLimit, allQuestions.length)),
@@ -449,4 +531,3 @@ export function MathKidsGame({
     </>
   )
 }
-

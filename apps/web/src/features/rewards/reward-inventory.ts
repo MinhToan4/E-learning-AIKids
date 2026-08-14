@@ -18,7 +18,7 @@ const approvedTransparentEffects = new Set([
 
 const curatedProfileCompanions = new Set(['avatar-paco-blue', 'companion-level-23', 'companion-level-31', 'companion-level-41'])
 const curatedProfileEffects = new Set(['effect-level-12', 'effect-level-24', 'effect-level-32', 'effect-level-44'])
-const cssProfileFrames = new Set(['frame-rainbow', 'frame-galaxy', 'frame-cloud-summer', 'frame-language-kingdom', 'frame-summit-gold', 'frame-galaxy-storyteller'])
+const cssProfileFrames = new Set(['frame-rainbow', 'frame-galaxy', 'frame-cloud-summer', 'frame-creative-arena', 'frame-language-kingdom', 'frame-summit-gold', 'frame-galaxy-storyteller'])
 const horizontalProfileBackgroundAssets = new Set(['background-community-legend', 'background-paco-cosmic', 'background-paco-workshop'])
 const responsivePageThemeAssets = new Set(['background-cloud-garden', 'background-star-library', 'background-magical-forest', 'background-colorful-city'])
 

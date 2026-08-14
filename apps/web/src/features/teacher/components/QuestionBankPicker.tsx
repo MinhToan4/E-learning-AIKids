@@ -7,6 +7,7 @@
  * Giao diện: Modal/drawer với filter theo bank, tag, difficulty + grid preview.
  */
 import { useState, useEffect, useCallback } from 'react'
+import { createPortal } from 'react-dom'
 import { Search, X, Check, BookOpen, RefreshCw } from 'lucide-react'
 import { api } from '@/shared/lib/api'
 import { QUESTION_BANK_TAGS } from '../lib/authoring'
@@ -41,8 +42,22 @@ export function QuestionBankPicker({ selectedIds, onSelect, onClose }: Props) {
     void loadBanks()
   }, [])
 
+  useEffect(() => {
+    const previousOverflow = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') onClose()
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [onClose])
+
   async function loadBanks() {
     setLoading(true)
+    setError(null)
     try {
       const data = await api<{ banks: QuestionBankBank[] }>('/api/teacher/question-banks')
       setBanks(data.banks ?? [])
@@ -56,14 +71,9 @@ export function QuestionBankPicker({ selectedIds, onSelect, onClose }: Props) {
     }
   }
 
-  // Load items when bank changes
-  useEffect(() => {
-    if (!activeBankId) return
-    void loadItems(activeBankId)
-  }, [activeBankId])
-
   const loadItems = useCallback(async (bankId: string) => {
     setLoading(true)
+    setError(null)
     try {
       const params = new URLSearchParams()
       if (activeTag) params.set('tags', activeTag)
@@ -122,19 +132,30 @@ export function QuestionBankPicker({ selectedIds, onSelect, onClose }: Props) {
   const activeBank = banks.find((b) => b.id === activeBankId)
   const checkedCount = checkedIds.size
 
-  return (
-    <div style={{
+  return createPortal(
+    <div
+      role="presentation"
+      onMouseDown={(event) => {
+        if (event.target === event.currentTarget) onClose()
+      }}
+      style={{
       position: 'fixed', inset: 0, zIndex: 9999,
-      display: 'flex', alignItems: 'flex-end',
+      display: 'flex', alignItems: 'center', justifyContent: 'center',
+      padding: 'clamp(0.75rem, 3vw, 2rem)', boxSizing: 'border-box',
       background: 'rgba(15,23,42,0.5)', backdropFilter: 'blur(6px)',
     }}>
-      <div style={{
-        width: '100%', maxWidth: '840px', margin: '0 auto',
-        maxHeight: '90vh', borderRadius: '1.25rem 1.25rem 0 0',
+      <div
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="question-bank-title"
+        style={{
+        width: 'min(920px, 100%)', margin: '0 auto',
+        height: 'min(760px, calc(100dvh - clamp(1.5rem, 6vw, 4rem)))',
+        minHeight: 0, borderRadius: '1.25rem',
         background: '#fff',
         border: '1px solid #e2e8f0',
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
-        boxShadow: '0 -12px 40px rgba(15,23,42,0.15)',
+        boxShadow: '0 24px 64px rgba(15,23,42,0.24)',
       }}>
         {/* Header */}
         <div style={{
@@ -151,7 +172,7 @@ export function QuestionBankPicker({ selectedIds, onSelect, onClose }: Props) {
               <BookOpen size={14} color="#fff" />
             </div>
             <div>
-              <div style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>Ngân hàng câu hỏi</div>
+              <div id="question-bank-title" style={{ fontSize: '1rem', fontWeight: 700, color: '#0f172a' }}>Ngân hàng câu hỏi</div>
               <div style={{ fontSize: '0.8125rem', color: '#64748b' }}>
                 {checkedCount > 0 ? `Đã chọn ${checkedCount} câu` : 'Chọn câu hỏi để thêm vào bài học'}
               </div>
@@ -174,6 +195,7 @@ export function QuestionBankPicker({ selectedIds, onSelect, onClose }: Props) {
             <button
               type="button"
               onClick={onClose}
+              aria-label="Đóng ngân hàng câu hỏi"
               style={{ padding: '0.5rem', border: '1px solid #e2e8f0', background: '#fff', borderRadius: '0.5rem', color: '#64748b', cursor: 'pointer' }}
             >
               <X size={16} />
@@ -269,7 +291,7 @@ export function QuestionBankPicker({ selectedIds, onSelect, onClose }: Props) {
         </div>
 
         {/* Content */}
-        <div style={{ flex: 1, overflowY: 'auto', padding: '1rem 1.5rem' }}>
+        <div style={{ flex: '1 1 0', minHeight: 0, overflowY: 'auto', padding: '1rem 1.5rem', overscrollBehavior: 'contain' }}>
           {loading ? (
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.75rem', padding: '3rem', color: '#64748b' }}>
               <RefreshCw size={18} style={{ animation: 'spin 1s linear infinite' }} />
@@ -436,6 +458,7 @@ export function QuestionBankPicker({ selectedIds, onSelect, onClose }: Props) {
 
       {/* CSS animation for spinner */}
       <style>{`@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }`}</style>
-    </div>
+    </div>,
+    document.body,
   )
 }

@@ -12,6 +12,13 @@ export interface StorybookSticker {
   boss?: boolean
   imageUrl?: string
   placeholderUrl?: string
+  sheetIndex?: number
+  placement?: {
+    left: number
+    top: number
+    width: number
+    height: number
+  }
 }
 
 export interface StorybookPage {
@@ -46,9 +53,29 @@ const sticker = (
   hint: string,
   legacyType?: string,
   boss = false,
+  visual?: Pick<StorybookSticker, 'sheetIndex' | 'placement'>,
 ): StorybookSticker => ({
-  id: `${page}-S${slot}`, name, icon, hint, legacyType, boss,
+  id: `${page}-S${slot}`,
+  name,
+  icon,
+  hint,
+  legacyType,
+  boss,
+  ...CHAPTER_STICKER_LAYOUT[slot - 1],
+  ...visual,
 })
+
+// WHY: Figma authors every chapter as the same roomy 3x3 sticker page. Keeping the
+// placement here makes all eight local sheets render consistently, including locked art.
+const CHAPTER_STICKER_LAYOUT = Array.from({ length: 9 }, (_, index) => ({
+  sheetIndex: index,
+  placement: {
+    left: 3 + (index % 3) * 29,
+    top: 8 + Math.floor(index / 3) * 29,
+    width: 26,
+    height: 26,
+  },
+}))
 
 export const STORYBOOK_PAGES: readonly StorybookPage[] = [
   {
@@ -56,7 +83,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
     emoji: '🚪', colors: ['#6b46c1', '#f6e05e'],
     leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[0],
     coverUrl: designerAssets.storybook.chapterTabs[0],
-    stickerSheetUrl: '/assets/storybook/generated/p01-stickers-alpha.webp',
+    stickerSheetUrl: '/assets/designer/storybook/stickers-v3/chapter-01.webp',
     story: 'Mỗi bài học thắp lên một ngôi sao trên con đường của Paco.',
     stickers: [
       sticker('P01', 1, 'Bước Chân Đầu Tiên', '👟', 'Hoàn thành quest đầu tiên', 'first_quest'),
@@ -75,7 +102,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
     emoji: '📚', colors: ['#276749', '#d4a017'],
     leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[1],
     coverUrl: designerAssets.storybook.chapterTabs[1],
-    stickerSheetUrl: '/assets/storybook/generated/p02-stickers-alpha.webp',
+    stickerSheetUrl: '/assets/designer/storybook/stickers-v3/chapter-02.webp',
     story: 'Từng từ mới mở thêm một căn phòng trong thư viện cổ.',
     stickers: [
       sticker('P02', 1, 'Từ Mới Đầu Tiên', '📝', 'Học một từ mới'),
@@ -94,7 +121,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
     emoji: '🌊', colors: ['#0369a1', '#fb7185'],
     leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[2],
     coverUrl: designerAssets.storybook.chapterTabs[2],
-    stickerSheetUrl: '/assets/storybook/generated/p03-stickers-alpha.webp',
+    stickerSheetUrl: '/assets/designer/storybook/stickers-v3/chapter-03.webp',
     story: 'Ý tưởng của con nổi lên như những hòn đảo chưa ai khám phá.',
     stickers: [
       sticker('P03', 1, 'Họa Sĩ Nhỏ', '🎨', 'Tạo ảnh AI đầu tiên'),
@@ -113,7 +140,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
     emoji: '⛰️', colors: ['#78350f', '#fbbf24'],
     leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[3],
     coverUrl: designerAssets.storybook.chapterTabs[3],
-    stickerSheetUrl: '/assets/storybook/generated/p04-stickers-alpha.webp',
+    stickerSheetUrl: '/assets/designer/storybook/stickers-v3/chapter-04.webp',
     story: 'Nhìn lại quãng đường con đã bền bỉ leo lên.',
     stickers: [
       sticker('P04', 1, 'Học Sinh Kiên Trì', '💎', 'Streak 14 ngày'),
@@ -132,7 +159,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
     emoji: '🛠️', colors: ['#c2410c', '#fcd34d'],
     leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[4],
     coverUrl: designerAssets.storybook.chapterTabs[4],
-    stickerSheetUrl: '/assets/storybook/generated/p05-stickers-alpha.webp',
+    stickerSheetUrl: '/assets/designer/storybook/stickers-v3/chapter-05.webp',
     story: 'Nơi những bản nháp vụng về biến thành phát minh tuyệt vời.',
     stickers: [
       sticker('P05', 1, 'Mở Cửa Xưởng', '🔑', 'Tạo dự án đầu tiên', 'project_first'),
@@ -151,7 +178,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
     emoji: '🌳', colors: ['#166534', '#a3e635'],
     leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[5],
     coverUrl: designerAssets.storybook.chapterTabs[5],
-    stickerSheetUrl: '/assets/storybook/generated/p06-stickers-alpha.webp',
+    stickerSheetUrl: '/assets/designer/storybook/stickers-v3/chapter-06.webp',
     story: 'Mỗi nhân vật có một tiếng nói và câu chuyện riêng.',
     stickers: [
       sticker('P06', 1, 'Người Bạn Đầu Tiên', '🧑', 'Tạo một nhân vật'),
@@ -170,7 +197,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
     emoji: '🌌', colors: ['#312e81', '#c084fc'],
     leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[6],
     coverUrl: designerAssets.storybook.chapterTabs[6],
-    stickerSheetUrl: '/assets/storybook/generated/p07-stickers-alpha.webp',
+    stickerSheetUrl: '/assets/designer/storybook/stickers-v3/chapter-07.webp',
     story: 'Mỗi câu chuyện là một hành tinh đang chờ được gọi tên.',
     stickers: [
       sticker('P07', 1, 'Trang Đầu Tiên', '📄', 'Viết trang truyện đầu tiên'),
@@ -189,7 +216,7 @@ export const STORYBOOK_PAGES: readonly StorybookPage[] = [
     emoji: '💞', colors: ['#be185d', '#f9a8d4'],
     leftBackgroundUrl: designerAssets.storybook.chapterBackgrounds[7],
     coverUrl: designerAssets.storybook.chapterTabs[7],
-    stickerSheetUrl: '/assets/storybook/generated/p08-stickers-alpha.webp',
+    stickerSheetUrl: '/assets/designer/storybook/stickers-v3/chapter-08.webp',
     story: 'Huyền thoại lớn lên khi con nâng đỡ sự sáng tạo của người khác.',
     stickers: [
       sticker('P08', 1, 'Người Đặt Tim Đầu Tiên', '💝', 'React cho bạn lần đầu'),

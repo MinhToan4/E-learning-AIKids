@@ -1,10 +1,20 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { AlertTriangle, Archive, ArrowDown, ArrowUp, BookOpen, CalendarDays, CheckCircle2, Gift, LayoutTemplate, List, Map as MapIcon, Network, PackageOpen, Pencil, Plus, Search, Settings2, Trash2, UploadCloud } from 'lucide-react'
 import { api } from '@/shared/lib/api'
 import { Button } from '@/shared/components/ui/Button'
 import { RewardPackAdmin } from './RewardPackAdmin'
+import { buildRewardConfigMap, type ConfigChannel } from '../lib/reward-config-map'
+import { getResolvedRewardAssetUrl } from '@/features/rewards/reward-assets'
+import { REWARD_CATALOG } from '@/shared/lib/creation/rewards'
+import { rewardTitleAsset } from '@/features/rewards/title-assets'
+import { achievementBadgeAsset } from '@/features/achievements/achievement-badge-assets'
+import { ACHIEVEMENT_METRICS, achievementEvolutionTier, resolveAchievementMetric } from '@/features/achievements/achievement-config'
+import type { AchievementRow } from '@/shared/lib/api'
+import { PROFILE_CARD_LAYOUT_CODE } from '@/features/profile/profile-card-layout'
+import { ProfileCardLayoutEditor } from './ProfileCardLayoutEditor'
 
-type ContentType = 'reward' | 'chapter' | 'event'
-type StudioItem = {
+type ContentType = 'reward' | 'chapter' | 'event' | 'achievement'
+export type StudioItem = {
   id: string
   contentType: ContentType
   code: string
@@ -14,11 +24,12 @@ type StudioItem = {
   description: string
   kind?: string | null
   rarity: string
-  assets: { thumbnailUrl?: string; imageUrl?: string; overlayUrl?: string; animationUrl?: string }
+  assets: { thumbnailUrl?: string; imageUrl?: string; overlayUrl?: string; animationUrl?: string; coverUrl?: string; leftBackgroundUrl?: string; stickerPageUrl?: string }
   displayConfig: Record<string, unknown>
   unlockRule: Record<string, unknown>
   content: Record<string, unknown>
   updatedAt?: string
+  source?: 'studio' | 'legacy' | 'runtime'
 }
 
 const kindOptions = [
@@ -65,6 +76,101 @@ const displayTemplate = (kind: RewardKind) => {
   }, null, 2)
 }
 
+function studioArtwork(item: StudioItem): string | undefined {
+  return item.assets.thumbnailUrl ?? item.assets.imageUrl
+    ?? (item.contentType === 'reward' ? rewardTitleAsset(item.code) ?? getResolvedRewardAssetUrl(item.code) : item.assets.coverUrl)
+}
+
+function legacyRewardStudioItems(studioItems: readonly StudioItem[]): StudioItem[] {
+  const studioCodes = new Set(studioItems.map((item) => item.code))
+  return REWARD_CATALOG
+    .filter((reward) => !studioCodes.has(reward.id))
+    .map((reward): StudioItem => ({
+      id: `legacy:${reward.id}`,
+      contentType: 'reward',
+      code: reward.id,
+      version: 0,
+      status: 'published',
+      source: 'legacy',
+      name: reward.name,
+      description: reward.description,
+      kind: reward.kind,
+      rarity: 'common',
+      assets: {},
+      displayConfig: reward.equipValue ? { equipValue: reward.equipValue } : {},
+      unlockRule: { type: reward.unlock.type, value: reward.unlock.value },
+      content: reward.eventKey ? { eventKey: reward.eventKey } : {},
+    }))
+}
+
+function runtimeAchievementItems(rows: readonly AchievementRow[]): StudioItem[] {
+  return rows.map((achievement): StudioItem => ({
+    id: `runtime:${achievement.type}`,
+    contentType: 'achievement',
+    code: achievement.type,
+    version: 0,
+    status: 'published',
+    source: 'runtime',
+    name: achievement.title,
+    description: achievement.description,
+    kind: 'perk',
+    rarity: 'common',
+    assets: achievementBadgeAsset(achievement) ? { imageUrl: achievementBadgeAsset(achievement) } : {},
+    displayConfig: {},
+    unlockRule: { type: 'action', metric: achievement.type, target: achievement.requiredValue },
+    content: {
+      requirements: { metric: achievement.type, operator: 'gte', target: achievement.requiredValue },
+      points: achievement.points,
+      category: achievement.category ?? 'other',
+      milestones: (achievement.milestones ?? []).map((milestone, index) => ({
+        ...milestone,
+        label: achievementEvolutionTier(index).label,
+        metric: resolveAchievementMetric(milestone.metric ?? achievement.type),
+        operator: milestone.operator ?? 'gte',
+        imageUrl: milestone.imageUrl ?? achievementBadgeAsset({
+          ...achievement,
+          requiredValue: milestone.threshold,
+          rewardAssetId: milestone.rewardAssetId,
+          milestones: undefined,
+        }),
+      })),
+      rewardLabel: achievement.rewardLabel,
+      rewardAssetId: achievement.rewardAssetId,
+    },
+  }))
+}
+
+const achievementFamilyLabels: Record<string, string> = {
+  learning: 'Học tập', habit: 'Thói quen', creativity: 'Sáng tạo', creative: 'Sáng tạo', social: 'Hợp tác',
+  safety: 'An toàn', exploration: 'Khám phá', mastery: 'Chinh phục', stars: 'Ngôi sao',
+  discovery: 'Khám phá', challenge: 'Thử thách', records: 'Kỷ lục', progress: 'Tiến bộ', other: 'Khác',
+}
+
+function achievementFamilyLabel(category: unknown): string {
+  const key = typeof category === 'string' && category.trim() ? category : 'other'
+  return achievementFamilyLabels[key] ?? key.replaceAll('_', ' ')
+}
+
+function studioStatusLabel(item: StudioItem): string {
+  if (item.source === 'legacy') return 'Legacy'
+  if (item.source === 'runtime') return 'Runtime'
+  return { draft: 'Bản nháp', review: 'Chờ duyệt', scheduled: 'Đã lên lịch', published: 'Đang phát hành', retired: 'Đã ngừng' }[item.status]
+}
+
+function studioEditLabel(item: StudioItem): string {
+  if (item.source === 'legacy' || item.source === 'runtime') return 'Đưa vào Studio'
+  if (item.status === 'published' || item.status === 'retired') return 'Chỉnh sửa'
+  if (item.status === 'review' || item.status === 'scheduled') return 'Cập nhật bản duyệt'
+  return 'Sửa bản nháp'
+}
+
+function StudioArtwork({ item, meaningful = false }: { item: StudioItem; meaningful?: boolean }) {
+  const [failed, setFailed] = useState(false)
+  const src = studioArtwork(item)
+  if (!src || failed) return <Gift className="h-7 w-7 text-brand-500" aria-hidden="true" />
+  return <img src={src} alt={meaningful ? item.name : ''} loading="lazy" onError={() => setFailed(true)} className="h-full w-full object-contain" />
+}
+
 const stickerMetrics = [
   { value: 'lessons_completed', label: 'Bài học đã hoàn thành', unit: 'bài', source: 'LMS' },
   { value: 'courses_completed', label: 'Khóa học đã hoàn thành', unit: 'khóa', source: 'LMS' },
@@ -106,6 +212,11 @@ const emptyForm = () => ({
   })), null, 2),
   eventStartsAt: '',
   eventEndsAt: '',
+  achievementCategory: 'learning',
+  achievementMetric: 'lessons_completed',
+  achievementMilestonesJson: JSON.stringify([
+    { label: 'Mầm non', description: 'Bắt đầu hành trình', metric: 'lessons_completed', operator: 'gte', threshold: 1, imageUrl: '', points: 10, rewardLabel: '', rewardAssetId: '' },
+  ], null, 2),
   displayJson: displayTemplate('frame'),
   contentJson: '{}',
 })
@@ -113,21 +224,55 @@ const emptyForm = () => ({
 export function LegendRewardStudio() {
   const [items, setItems] = useState<StudioItem[]>([])
   const [filter, setFilter] = useState<ContentType | 'all'>('all')
+  const [libraryQuery, setLibraryQuery] = useState('')
+  const [libraryStatus, setLibraryStatus] = useState<StudioItem['status'] | 'all'>('published')
+  const [libraryPage, setLibraryPage] = useState(1)
   const [form, setForm] = useState(emptyForm)
   const [message, setMessage] = useState('')
   const [busy, setBusy] = useState(false)
   const [uploading, setUploading] = useState(false)
-  const [view, setView] = useState<'library' | 'create' | 'packs'>('library')
+  const [view, setView] = useState<'library' | 'map' | 'designer' | 'profile-card'>('map')
+  const [designerMode, setDesignerMode] = useState<'single' | 'pack'>('single')
+  const [mapChannel, setMapChannel] = useState<ConfigChannel | 'all'>('all')
+  const [mapQuery, setMapQuery] = useState('')
+  const [mapPage, setMapPage] = useState(1)
+  const [mapDisplay, setMapDisplay] = useState<'tree' | 'table'>('tree')
+  const [editingItem, setEditingItem] = useState<StudioItem | null>(null)
   const [previewUrl, setPreviewUrl] = useState('')
   const [assetInfo, setAssetInfo] = useState('')
   const [chapterUploading, setChapterUploading] = useState('')
+  const [milestoneUploading, setMilestoneUploading] = useState<number | null>(null)
+  const [showCreateMenu, setShowCreateMenu] = useState(false)
+  const [migrationProgress, setMigrationProgress] = useState('')
+  const [profileLayoutItem, setProfileLayoutItem] = useState<StudioItem>()
   const selectedSpec = assetSpecs[form.kind as RewardKind] ?? assetSpecs.frame
   const fieldClass = 'field-input mt-2 min-h-12 w-full border-2 border-slate-200 bg-white px-4 text-base shadow-sm focus:border-brand-500'
+  const openDesigner = (mode: 'single' | 'pack') => {
+    setDesignerMode(mode)
+    setView('designer')
+  }
+
+  const createNew = (contentType: ContentType) => {
+    setEditingItem(null)
+    setForm({ ...emptyForm(), contentType })
+    setPreviewUrl('')
+    setAssetInfo('')
+    setShowCreateMenu(false)
+    openDesigner('single')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
 
   const load = useCallback(async () => {
     try {
-      const result = await api<{ items: StudioItem[] }>('/api/admin/legend-studio')
-      setItems(result.items)
+      const [result, achievementsResult] = await Promise.all([
+        api<{ items: StudioItem[] }>('/api/admin/legend-studio'),
+        api<{ achievements: AchievementRow[] }>('/api/gamification/achievements').catch(() => ({ achievements: [] })),
+      ])
+      const allStudioItems = result.items.map((item) => ({ ...item, source: 'studio' as const }))
+      const layoutItems = allStudioItems.filter((item) => item.code === PROFILE_CARD_LAYOUT_CODE).sort((left, right) => right.version - left.version)
+      setProfileLayoutItem(layoutItems[0])
+      const studioItems = allStudioItems.filter((item) => item.code !== PROFILE_CARD_LAYOUT_CODE)
+      setItems([...studioItems, ...legacyRewardStudioItems(studioItems), ...runtimeAchievementItems(achievementsResult.achievements)])
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Không tải được Legend Studio.')
     }
@@ -136,14 +281,92 @@ export function LegendRewardStudio() {
   useEffect(() => { void load() }, [load])
 
   const counts = useMemo(() => ({
-    draft: items.filter((item) => item.status === 'draft').length,
-    review: items.filter((item) => item.status === 'review').length,
-    published: items.filter((item) => item.status === 'published').length,
+    draft: items.filter((item) => item.source === 'studio' && item.status === 'draft').length,
+    review: items.filter((item) => item.source === 'studio' && item.status === 'review').length,
+    published: items.filter((item) => item.source === 'studio' && item.status === 'published').length,
   }), [items])
+  const sourceCounts = useMemo(() => ({
+    studio: items.filter((item) => item.source === 'studio').length,
+    legacy: items.filter((item) => item.source === 'legacy').length,
+    runtime: items.filter((item) => item.source === 'runtime').length,
+  }), [items])
+  const legacyMigrationIssues = useMemo(() => items
+    .filter((item) => item.source === 'legacy')
+    .flatMap((item) => {
+      const issues: string[] = []
+      if (!kindOptions.includes(item.kind as RewardKind)) issues.push(`${item.code}: loại asset không hỗ trợ`)
+      if (!studioArtwork(item)) issues.push(`${item.code}: thiếu ảnh fallback`)
+      return issues
+    }), [items])
+  const filteredItems = useMemo(() => {
+    const query = libraryQuery.trim().toLocaleLowerCase('vi')
+    return items.filter((item) => {
+      if (filter !== 'all' && item.contentType !== filter) return false
+      if (libraryStatus !== 'all' && item.status !== libraryStatus) return false
+      if (!query) return true
+      return [item.code, item.name, item.kind ?? '', item.description]
+        .some((value) => value.toLocaleLowerCase('vi').includes(query))
+    })
+  }, [filter, items, libraryQuery, libraryStatus])
+  const libraryPageSize = 20
+  const libraryPageCount = Math.max(1, Math.ceil(filteredItems.length / libraryPageSize))
   const visibleItems = useMemo(
-    () => filter === 'all' ? items : items.filter((item) => item.contentType === filter),
-    [filter, items],
+    () => filteredItems.slice((libraryPage - 1) * libraryPageSize, libraryPage * libraryPageSize),
+    [filteredItems, libraryPage],
   )
+  useEffect(() => { setLibraryPage(1) }, [filter, libraryQuery, libraryStatus])
+  const configMap = useMemo(() => buildRewardConfigMap(items), [items])
+  const filteredConfigMap = useMemo(() => {
+    const query = mapQuery.trim().toLocaleLowerCase('vi')
+    return configMap.filter((row) => {
+      if (mapChannel !== 'all' && row.channel !== mapChannel) return false
+      if (!query) return true
+      return [row.item.code, row.item.name, row.trigger, ...row.rewardIds]
+        .some((value) => value.toLocaleLowerCase('vi').includes(query))
+    }).sort((left, right) => {
+      if (left.channel === 'level' && right.channel === 'level') {
+        return Number(left.item.unlockRule.value) - Number(right.item.unlockRule.value)
+      }
+      return left.item.name.localeCompare(right.item.name, 'vi')
+    })
+  }, [configMap, mapChannel, mapQuery])
+  const mapPageSize = 25
+  const mapPageCount = Math.max(1, Math.ceil(filteredConfigMap.length / mapPageSize))
+  const visibleConfigMap = useMemo(
+    () => filteredConfigMap.slice((mapPage - 1) * mapPageSize, mapPage * mapPageSize),
+    [filteredConfigMap, mapPage],
+  )
+  useEffect(() => { setMapPage(1) }, [mapChannel, mapQuery])
+  const configErrors = configMap.reduce((total, row) => total + row.issues.filter((issue) => issue.severity === 'error').length, 0)
+  const configWarnings = configMap.reduce((total, row) => total + row.issues.filter((issue) => issue.severity === 'warning').length, 0)
+  const configNotes = configMap.reduce((total, row) => total + row.issues.filter((issue) => issue.severity === 'info').length, 0)
+  const levelTreeGroups = useMemo(() => {
+    const groups = new Map<number, typeof filteredConfigMap>()
+    for (const row of filteredConfigMap) {
+      if (row.channel !== 'level') continue
+      const level = Number(row.item.unlockRule.value)
+      const band = Math.floor((level - 1) / 10) * 10 + 1
+      groups.set(band, [...(groups.get(band) ?? []), row])
+    }
+    return [...groups.entries()].sort(([left], [right]) => left - right)
+  }, [filteredConfigMap])
+  const otherTreeGroups = useMemo(() => {
+    const groups = new Map<string, { channel: ConfigChannel; title: string; rows: typeof filteredConfigMap }>()
+    for (const row of filteredConfigMap) {
+      if (row.channel === 'level' || row.channel === 'unconfigured') continue
+      const reference = String(row.item.unlockRule.value ?? row.item.unlockRule.metric ?? row.item.code)
+      const chapter = reference.match(/^(P\d{2})-/)?.[1]
+      const actionCategory = row.channel === 'action' ? String(row.item.content.category ?? 'other') : ''
+      const key = row.channel === 'storybook' ? `storybook:${chapter ?? 'other'}` : row.channel === 'action' ? `action:${actionCategory}` : `${row.channel}:${reference}`
+      const title = row.channel === 'storybook'
+        ? chapter ? `Storybook ${chapter}` : 'Storybook khác'
+        : row.channel === 'event' ? `Sự kiện · ${reference}` : `Achievement · ${achievementFamilyLabel(actionCategory)}`
+      const current = groups.get(key) ?? { channel: row.channel, title, rows: [] }
+      current.rows.push(row)
+      groups.set(key, current)
+    }
+    return [...groups.values()].sort((left, right) => left.title.localeCompare(right.title, 'vi'))
+  }, [filteredConfigMap])
   const chapterStickers = useMemo(() => {
     try {
       return JSON.parse(form.chapterStickersJson) as Array<{
@@ -160,11 +383,88 @@ export function LegendRewardStudio() {
       return []
     }
   }, [form.chapterStickersJson])
+  const achievementMilestones = useMemo(() => {
+    try {
+      return JSON.parse(form.achievementMilestonesJson) as Array<{
+        label: string; description?: string; metric?: string; operator?: string; threshold: number
+        imageUrl?: string; points?: number; rewardLabel?: string; rewardAssetId?: string
+      }>
+    } catch { return [] }
+  }, [form.achievementMilestonesJson])
+
+  const setAchievementMilestones = (milestones: typeof achievementMilestones) => {
+    setForm((current) => ({ ...current, achievementMilestonesJson: JSON.stringify(milestones, null, 2) }))
+  }
+
+  const updateAchievementMilestone = (index: number, patch: Partial<(typeof achievementMilestones)[number]>) => {
+    setAchievementMilestones(achievementMilestones.map((milestone, position) => position === index ? { ...milestone, ...patch } : milestone))
+  }
+
+  const uploadMilestoneImage = async (file: File, index: number) => {
+    if (!['image/png', 'image/webp', 'image/jpeg', 'image/svg+xml'].includes(file.type) || file.size > 2 * 1024 * 1024) {
+      setMessage('Ảnh mốc tiến hoá chỉ nhận PNG, WebP, JPG hoặc SVG và tối đa 2 MB.')
+      return
+    }
+    setMilestoneUploading(index)
+    try {
+      const body = new FormData()
+      body.append('file', file)
+      body.append('purpose', 'achievement_milestone_design')
+      const result = await api<{ asset: { url: string } }>('/api/media/upload', { method: 'POST', body })
+      updateAchievementMilestone(index, { imageUrl: result.asset.url })
+      setMessage(`Đã cập nhật ảnh cho mốc ${index + 1}.`)
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Không tải được ảnh mốc tiến hoá.')
+    } finally { setMilestoneUploading(null) }
+  }
 
   const updateChapterSticker = (index: number, patch: Record<string, unknown>) => {
     const stickers = [...chapterStickers]
     stickers[index] = { ...stickers[index], ...patch }
     setForm((current) => ({ ...current, chapterStickersJson: JSON.stringify(stickers, null, 2) }))
+  }
+
+  const startEditing = (item: StudioItem) => {
+    const isChapter = item.contentType === 'chapter'
+    const isEvent = item.contentType === 'event'
+    const rewardKind = item.kind && kindOptions.includes(item.kind as RewardKind) ? item.kind as RewardKind : 'frame'
+    setEditingItem(item)
+    setForm({
+      ...emptyForm(),
+      contentType: item.contentType,
+      code: item.code,
+      name: item.name,
+      description: item.description,
+      kind: rewardKind,
+      rarity: item.rarity,
+      assetUrl: item.assets.imageUrl ?? item.assets.thumbnailUrl ?? studioArtwork(item) ?? '',
+      unlockType: typeof item.unlockRule.type === 'string' ? item.unlockRule.type : 'xp_level',
+      unlockValue: String(item.unlockRule.value ?? '1'),
+      chapterSlug: String(item.content.slug ?? item.code).toUpperCase(),
+      chapterGroup: String(item.content.group ?? 'learning'),
+      chapterEmoji: String(item.displayConfig.emoji ?? '📖'),
+      chapterColorStart: Array.isArray(item.displayConfig.colors) ? String(item.displayConfig.colors[0] ?? '#4338CA') : '#4338CA',
+      chapterColorEnd: Array.isArray(item.displayConfig.colors) ? String(item.displayConfig.colors[1] ?? '#F59E0B') : '#F59E0B',
+      chapterStory: String(item.content.story ?? ''),
+      chapterCoverUrl: item.assets.coverUrl ?? String(item.displayConfig.coverUrl ?? ''),
+      chapterLeftBackgroundUrl: item.assets.leftBackgroundUrl ?? String(item.displayConfig.leftBackgroundUrl ?? ''),
+      chapterStickerPageUrl: item.assets.stickerPageUrl ?? String(item.displayConfig.stickerPageUrl ?? ''),
+      chapterRewardId: String(item.content.rewardId ?? ''),
+      chapterStickersJson: isChapter ? JSON.stringify(item.content.stickers ?? [], null, 2) : emptyForm().chapterStickersJson,
+      eventStartsAt: isEvent ? String(item.content.startsAt ?? '') : '',
+      eventEndsAt: isEvent ? String(item.content.endsAt ?? '') : '',
+      achievementCategory: String(item.content.category ?? 'learning'),
+      achievementMetric: resolveAchievementMetric(String((item.content.requirements as Record<string, unknown> | undefined)?.metric ?? item.unlockRule.metric ?? item.code)),
+      achievementMilestonesJson: item.contentType === 'achievement' ? JSON.stringify(item.content.milestones ?? [], null, 2) : emptyForm().achievementMilestonesJson,
+      displayJson: JSON.stringify(item.contentType === 'reward'
+        ? { ...JSON.parse(displayTemplate(rewardKind)) as Record<string, unknown>, ...item.displayConfig }
+        : item.displayConfig ?? {}, null, 2),
+      contentJson: isChapter ? '{}' : JSON.stringify(item.content ?? {}, null, 2),
+    })
+    setPreviewUrl(studioArtwork(item) ?? '')
+    setAssetInfo('')
+    openDesigner('single')
+    window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
   const inspectAsset = async (file: File) => {
@@ -287,6 +587,16 @@ export function LegendRewardStudio() {
     setBusy(true)
     setMessage('')
     try {
+      if (form.contentType === 'achievement') {
+        if (achievementMilestones.length === 0) throw new Error('Achievement cần ít nhất một mốc tiến hoá.')
+        const thresholds = achievementMilestones.map((milestone) => Number(milestone.threshold))
+        if (thresholds.some((threshold, index) => !Number.isFinite(threshold) || threshold < 1 || (index > 0 && threshold <= thresholds[index - 1]))) {
+          throw new Error('Ngưỡng các mốc phải là số dương, không trùng và tăng dần theo thứ tự tiến hoá.')
+        }
+        if (achievementMilestones.some((milestone) => !milestone.label.trim() || !milestone.description?.trim())) {
+          throw new Error('Mỗi mốc cần có tên và mô tả hiển thị cho trẻ.')
+        }
+      }
       const createdType = form.contentType
       const displayConfig = form.contentType === 'chapter'
         ? {
@@ -306,15 +616,26 @@ export function LegendRewardStudio() {
             rewardId: form.chapterRewardId,
             stickers: JSON.parse(form.chapterStickersJson) as unknown[],
           }
-        : form.contentType === 'event'
+          : form.contentType === 'event'
           ? {
               ...JSON.parse(form.contentJson) as Record<string, unknown>,
               startsAt: form.eventStartsAt,
               endsAt: form.eventEndsAt,
             }
+          : form.contentType === 'achievement'
+            ? {
+                category: form.achievementCategory,
+                requirements: { metric: form.achievementMetric, operator: 'gte' },
+                milestones: (JSON.parse(form.achievementMilestonesJson) as Array<Record<string, unknown>>).map((milestone, index) => ({
+                  ...milestone,
+                  label: achievementEvolutionTier(index).label,
+                  metric: form.achievementMetric,
+                })),
+              }
           : JSON.parse(form.contentJson) as Record<string, unknown>
-      await api('/api/admin/legend-studio', {
-        method: 'POST',
+      const updatesExistingVersion = editingItem && (editingItem.status === 'draft' || editingItem.status === 'review')
+      await api(updatesExistingVersion ? `/api/admin/legend-studio/${editingItem.id}` : '/api/admin/legend-studio', {
+        method: updatesExistingVersion ? 'PUT' : 'POST',
         body: JSON.stringify({
           contentType: form.contentType,
           code: form.code,
@@ -333,16 +654,19 @@ export function LegendRewardStudio() {
               ? { thumbnailUrl: form.assetUrl, imageUrl: form.assetUrl }
               : {},
           displayConfig,
-          unlockRule: { type: form.unlockType, value: form.unlockValue },
+          unlockRule: form.contentType === 'achievement'
+            ? { type: 'action', metric: form.achievementMetric, value: form.achievementMetric }
+            : { type: form.unlockType, value: form.unlockValue },
           content,
         }),
       })
       setForm(emptyForm())
+      setEditingItem(null)
       setPreviewUrl('')
       setAssetInfo('')
       setFilter(createdType)
       setView('library')
-      setMessage('Đã tạo bản nháp. Hãy preview trước khi phát hành.')
+      setMessage(updatesExistingVersion ? 'Đã cập nhật bản nháp hiện tại.' : editingItem ? 'Đã tạo bản chỉnh sửa dưới dạng nháp. Bản đang phát hành chưa bị thay đổi.' : 'Đã tạo bản nháp. Hãy preview trước khi phát hành.')
       await load()
     } catch (error) {
       setMessage(error instanceof SyntaxError
@@ -373,35 +697,266 @@ export function LegendRewardStudio() {
     }
   }
 
+  const migrateLegacyRewards = async () => {
+    const legacyItems = items.filter((item) => item.source === 'legacy')
+    if (!legacyItems.length) return
+    setBusy(true)
+    setMessage('')
+    let migrated = 0
+    const failed: string[] = []
+    for (const item of legacyItems) {
+      setMigrationProgress(`${migrated + failed.length + 1}/${legacyItems.length} · ${item.name}`)
+      try {
+        const kind = kindOptions.includes(item.kind as RewardKind) ? item.kind as RewardKind : 'perk'
+        const assetUrl = studioArtwork(item)
+        await api('/api/admin/legend-studio', {
+          method: 'POST',
+          body: JSON.stringify({
+            contentType: 'reward', code: item.code, name: item.name, description: item.description,
+            kind, rarity: item.rarity,
+            assets: assetUrl ? { thumbnailUrl: assetUrl, imageUrl: assetUrl } : {},
+            displayConfig: { ...JSON.parse(displayTemplate(kind)) as Record<string, unknown>, ...item.displayConfig },
+            unlockRule: item.unlockRule,
+            content: { ...item.content, migratedFrom: 'legacy_reward_catalog' },
+          }),
+        })
+        migrated += 1
+      } catch { failed.push(item.code) }
+    }
+    setMigrationProgress('')
+    setBusy(false)
+    setMessage(failed.length
+      ? `Đã tạo ${migrated} draft; ${failed.length} mục chưa migrate: ${failed.join(', ')}.`
+      : `Đã đưa đủ ${migrated} reward legacy vào Studio dưới dạng draft. Hãy review trước khi publish.`)
+    await load()
+  }
+
   return (
     <div className="space-y-5">
-      <section className="grid gap-3 sm:grid-cols-3">
-        {[
-          ['Bản nháp', counts.draft, '📝'],
-          ['Chờ duyệt', counts.review, '👀'],
-          ['Đang phát hành', counts.published, '🚀'],
-        ].map(([label, value, icon]) => (
-          <div key={String(label)} className="ui-card p-4">
-            <p className="text-2xl">{icon}</p>
-            <p className="font-display text-3xl text-brand-600">{value}</p>
-            <p className="text-xs font-bold text-muted">{label}</p>
-          </div>
-        ))}
+      <section className="ui-card flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4" aria-label="Tổng quan trạng thái catalog">
+        <div className="mr-auto">
+          <p className="text-xs font-black uppercase tracking-wider text-brand-600">Catalog reward</p>
+          <p className="font-display text-xl">{items.length} cấu hình</p>
+        </div>
+        <div className="flex items-center gap-2 text-sm"><span className="h-2.5 w-2.5 rounded-full bg-mint-500" /><strong>{sourceCounts.studio}</strong><span className="text-muted">Studio</span></div>
+        <div className="flex items-center gap-2 text-sm"><span className="h-2.5 w-2.5 rounded-full bg-amber-400" /><strong>{sourceCounts.legacy}</strong><span className="text-muted">Legacy cần migrate</span></div>
+        <div className="flex items-center gap-2 text-sm"><span className="h-2.5 w-2.5 rounded-full bg-brand-500" /><strong>{sourceCounts.runtime}</strong><span className="text-muted">Achievement runtime</span></div>
+        {(counts.draft > 0 || counts.review > 0) && <div className="text-sm text-muted"><strong>{counts.draft}</strong> nháp · <strong>{counts.review}</strong> chờ duyệt</div>}
       </section>
 
-      <nav className="ui-card flex flex-wrap gap-2 p-2" aria-label="Chế độ Legend Studio">
-        <button type="button" onClick={() => setView('library')} className={`flex-1 rounded-2xl px-5 py-3 text-sm font-black ${view === 'library' ? 'bg-brand-600 text-white shadow-md' : 'text-muted hover:bg-brand-50'}`}>
-          📚 Kho nội dung
+      <nav className="ui-card grid grid-cols-1 gap-1 p-2 sm:grid-cols-4" aria-label="Chế độ Legend Studio">
+        <button type="button" onClick={() => setView('map')} className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-black ${view === 'map' ? 'bg-brand-600 text-white shadow-md' : 'text-muted hover:bg-brand-50'}`}>
+          <MapIcon className="h-5 w-5" aria-hidden="true" /> Bản đồ cấu hình
         </button>
-        <button type="button" onClick={() => setView('create')} className={`flex-1 rounded-2xl px-5 py-3 text-sm font-black ${view === 'create' ? 'bg-brand-600 text-white shadow-md' : 'text-muted hover:bg-brand-50'}`}>
-          ＋ Tạo thiết kế mới
+        <button type="button" onClick={() => setView('library')} className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-black ${view === 'library' ? 'bg-brand-600 text-white shadow-md' : 'text-muted hover:bg-brand-50'}`}>
+          <Archive className="h-5 w-5" aria-hidden="true" /> Kho nội dung
         </button>
-        <button type="button" onClick={() => setView('packs')} className={`flex-1 rounded-2xl px-5 py-3 text-sm font-black ${view === 'packs' ? 'bg-brand-600 text-white shadow-md' : 'text-muted hover:bg-brand-50'}`}>
-          Import ZIP
+        <button type="button" onClick={() => openDesigner('single')} className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-black ${view === 'designer' ? 'bg-brand-600 text-white shadow-md' : 'text-muted hover:bg-brand-50'}`}>
+          <UploadCloud className="h-5 w-5" aria-hidden="true" /> Designer Workspace
+        </button>
+        <button type="button" onClick={() => setView('profile-card')} className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-black ${view === 'profile-card' ? 'bg-sky-600 text-white shadow-md' : 'text-muted hover:bg-sky-50'}`}>
+          <LayoutTemplate className="h-5 w-5" aria-hidden="true" /> Profile Card Editor
         </button>
       </nav>
 
-      {view === 'packs' && <RewardPackAdmin />}
+      <section className="ui-card p-4" aria-label="Thêm nội dung mới">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div><p className="text-xs font-black uppercase tracking-wider text-brand-600">Catalog thống nhất</p><h2 className="font-display text-xl">Thêm mới asset hoặc cấu hình</h2></div>
+          <Button onClick={() => setShowCreateMenu((open) => !open)} aria-expanded={showCreateMenu}><Plus className="h-5 w-5" aria-hidden="true" /> Thêm mới</Button>
+        </div>
+        {showCreateMenu && <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+          {([
+            ['reward', Gift, 'Reward / vật phẩm', 'Frame, nền, title, companion, effect…'],
+            ['achievement', Network, 'Achievement tiến hoá', 'Action, metric và các mốc dùng chung'],
+            ['chapter', BookOpen, 'Storybook chapter', 'Bìa, nội dung, sticker và quà boss'],
+            ['event', CalendarDays, 'Sự kiện', 'Banner, lịch, rule tham gia và reward pool'],
+          ] as const).map(([type, Icon, title, description]) => <button key={type} type="button" onClick={() => createNew(type)} className="min-h-28 rounded-2xl border-2 border-border bg-white p-4 text-left transition hover:border-brand-400 hover:bg-brand-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus"><Icon className="h-6 w-6 text-brand-600" aria-hidden="true" /><strong className="mt-3 block">{title}</strong><span className="mt-1 block text-xs text-muted">{description}</span></button>)}
+        </div>}
+      </section>
+
+      {view === 'designer' && (
+        <section className="ui-card p-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div><p className="text-xs font-black uppercase tracking-wider text-brand-600">Không cần SSH</p><h2 className="font-display text-2xl">Designer Workspace</h2><p className="text-sm text-muted">Tạo hoặc thay một asset; import ZIP khi cần phát hành cả bộ reward và achievement.</p></div>
+            <div className="flex rounded-xl border border-border bg-slate-50 p-1" role="group" aria-label="Cách đưa asset vào CMS">
+              <button type="button" onClick={() => setDesignerMode('single')} className={`flex min-h-11 items-center gap-2 rounded-lg px-4 text-sm font-extrabold ${designerMode === 'single' ? 'bg-brand-600 text-white' : 'text-muted'}`}><Pencil className="h-4 w-4" aria-hidden="true" /> Một asset</button>
+              <button type="button" onClick={() => setDesignerMode('pack')} className={`flex min-h-11 items-center gap-2 rounded-lg px-4 text-sm font-extrabold ${designerMode === 'pack' ? 'bg-brand-600 text-white' : 'text-muted'}`}><PackageOpen className="h-4 w-4" aria-hidden="true" /> Import ZIP</button>
+            </div>
+          </div>
+          <ol className="mt-4 grid gap-2 text-sm sm:grid-cols-4" aria-label="Quy trình designer">
+            {['1. Chọn template', '2. Upload & kiểm tra', '3. Lưu draft', '4. Reviewer publish'].map((step) => <li key={step} className="rounded-xl bg-brand-50 px-3 py-2 font-bold text-brand-700">{step}</li>)}
+          </ol>
+        </section>
+      )}
+
+      {view === 'designer' && designerMode === 'pack' && <RewardPackAdmin />}
+
+      {view === 'profile-card' && <ProfileCardLayoutEditor item={profileLayoutItem} onChanged={load} />}
+
+      {view === 'map' && (
+        <section className="space-y-4">
+          <header className="ui-card p-5">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <p className="text-xs font-black uppercase tracking-wider text-brand-600">Kiểm tra cấu hình</p>
+                <h2 className="font-display text-2xl">Bản đồ điều kiện & phần thưởng</h2>
+                <p className="mt-1 max-w-3xl text-sm text-muted">Đối chiếu một nơi: nội dung nào được mở bởi level, sự kiện, Storybook hay action; quà đầu ra là gì và cấu hình nào cần sửa trước khi phát hành.</p>
+              </div>
+              <Button variant="secondary" onClick={() => void load()} disabled={busy}>↻ Kiểm tra lại</Button>
+            </div>
+            <div className="mt-4 grid gap-3 sm:grid-cols-5">
+              <div className="rounded-2xl bg-slate-50 p-4"><strong className="text-2xl">{configMap.length}</strong><span className="block text-xs text-muted">cấu hình</span></div>
+              <div className="rounded-2xl bg-mint-100 p-4 text-success"><strong className="text-2xl">{configMap.filter((row) => row.issues.every((issue) => issue.severity === 'info')).length}</strong><span className="block text-xs">đạt kiểm tra</span></div>
+              <div className="rounded-2xl bg-coral-50 p-4 text-danger"><strong className="text-2xl">{configErrors}</strong><span className="block text-xs">lỗi chặn publish</span></div>
+              <div className="rounded-2xl bg-amber-50 p-4 text-amber-800"><strong className="text-2xl">{configWarnings}</strong><span className="block text-xs">cảnh báo</span></div>
+              <div className="rounded-2xl bg-sky-50 p-4 text-sky-800"><strong className="text-2xl">{configNotes}</strong><span className="block text-xs">ghi chú hệ thống</span></div>
+            </div>
+            <div className="mt-4 grid gap-2 text-xs sm:grid-cols-2">
+              <p className="rounded-xl bg-mint-50 px-3 py-2 text-emerald-900"><strong>Đang phát hành → Tạo bản chỉnh sửa:</strong> bản hiện tại vẫn chạy cho tới khi bản mới được duyệt và publish.</p>
+              <p className="rounded-xl bg-brand-50 px-3 py-2 text-brand-900"><strong>Bản nháp → Sửa bản nháp:</strong> cập nhật trực tiếp vì nội dung này chưa đến tay người dùng.</p>
+            </div>
+            {sourceCounts.legacy > 0 && <div className="mt-4 flex flex-wrap items-center gap-4 rounded-2xl border-2 border-amber-300 bg-amber-50 p-4">
+              <AlertTriangle className="h-6 w-6 shrink-0 text-amber-700" aria-hidden="true" />
+              <div className="min-w-48 flex-1"><strong>{sourceCounts.legacy} reward legacy chưa thuộc Studio</strong><p className="text-xs text-amber-900">Migrate sẽ giữ nguyên code, rule, ảnh fallback và tạo draft có template slot/layer chuẩn. Không tự publish.</p>{legacyMigrationIssues.length === 0 ? <p className="mt-1 text-xs font-extrabold text-emerald-800">✓ Đủ loại asset và ảnh để tạo draft</p> : <p className="mt-1 text-xs font-extrabold text-danger">{legacyMigrationIssues.length} lỗi cần xử lý trước khi migrate</p>}</div>
+              <Button variant="secondary" disabled={busy || legacyMigrationIssues.length > 0} onClick={() => { if (window.confirm(`Tạo ${sourceCounts.legacy} bản nháp Studio từ legacy catalog? Thao tác này không publish.`)) void migrateLegacyRewards() }}><UploadCloud className="h-4 w-4" aria-hidden="true" /> {migrationProgress || `Migrate ${sourceCounts.legacy} mục`}</Button>
+            </div>}
+          </header>
+
+          <div className="ui-card grid gap-3 p-4 lg:grid-cols-[minmax(220px,1fr)_2fr]">
+            <input className="field-input min-h-12" value={mapQuery} onChange={(event) => setMapQuery(event.target.value)} placeholder="Tìm mã, tên, action hoặc reward…" aria-label="Tìm trong bản đồ cấu hình" />
+            <div className="flex flex-wrap gap-2" role="group" aria-label="Lọc theo kênh mở khóa">
+              {([
+                ['all', 'Tất cả'], ['level', 'Theo level'], ['event', 'Theo sự kiện'],
+                ['storybook', 'Storybook'], ['action', 'Action / Achievement'], ['unconfigured', 'Chưa cấu hình'],
+              ] as const).map(([value, label]) => (
+                <button key={value} type="button" onClick={() => setMapChannel(value)} className={`min-h-11 rounded-xl px-3 py-2 text-xs font-extrabold ${mapChannel === value ? 'bg-brand-600 text-white' : 'bg-slate-100 text-muted hover:bg-brand-50'}`}>
+                  {label} · {value === 'all' ? configMap.length : configMap.filter((row) => row.channel === value).length}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-3 px-1">
+            <p className="text-sm font-bold text-muted">Chọn cách xem phù hợp với công việc đang làm.</p>
+            <div className="flex rounded-xl border border-border bg-white p-1" role="group" aria-label="Kiểu hiển thị bản đồ">
+              <button type="button" onClick={() => setMapDisplay('tree')} className={`flex min-h-11 items-center gap-2 rounded-lg px-4 text-sm font-extrabold ${mapDisplay === 'tree' ? 'bg-brand-600 text-white' : 'text-muted'}`}><Network className="h-4 w-4" aria-hidden="true" /> Cây phần thưởng</button>
+              <button type="button" onClick={() => setMapDisplay('table')} className={`flex min-h-11 items-center gap-2 rounded-lg px-4 text-sm font-extrabold ${mapDisplay === 'table' ? 'bg-brand-600 text-white' : 'text-muted'}`}><List className="h-4 w-4" aria-hidden="true" /> Bảng kiểm tra</button>
+            </div>
+          </div>
+
+          {mapDisplay === 'tree' && (
+            <div className="space-y-4">
+              {(mapChannel === 'all' || mapChannel === 'level') && levelTreeGroups.map(([band, rows]) => (
+                <details key={band} className="ui-card overflow-hidden" open={band === levelTreeGroups[0]?.[0]}>
+                  <summary className="flex cursor-pointer list-none items-center gap-3 border-b border-border bg-slate-50 px-5 py-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 font-display text-white">{band}</span>
+                    <div><h3 className="font-extrabold">Level {band}–{Math.min(100, band + 9)}</h3><p className="text-xs text-muted">{rows.length} phần thưởng trong chặng</p></div>
+                    <div className="ml-2 h-px flex-1 bg-border" aria-hidden="true" />
+                    <span className="text-xs font-extrabold text-brand-700">Mở chặng</span>
+                  </summary>
+                  <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {rows.map((row) => (
+                      <article key={row.item.id} className="grid grid-cols-[64px_1fr] gap-3 rounded-2xl border border-border bg-white p-3">
+                        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-brand-50">
+                          <StudioArtwork item={row.item} meaningful />
+                        </div>
+                        <div className="min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <div><div className="flex flex-wrap items-center gap-2"><p className="text-xs font-black text-brand-600">LEVEL {String(row.item.unlockRule.value)}</p><span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${row.item.status === 'published' ? 'bg-mint-50 text-success' : 'bg-brand-50 text-brand-700'}`}>{studioStatusLabel(row.item)}</span></div><h4 className="line-clamp-1 font-extrabold">{row.item.name}</h4></div>
+                            {row.issues.some((issue) => issue.severity !== 'info')
+                              ? <AlertTriangle className="h-5 w-5 text-danger" aria-label={`${row.issues.filter((issue) => issue.severity !== 'info').length} vấn đề`} />
+                              : <CheckCircle2 className="h-5 w-5 text-success" aria-label="Hợp lệ" />}
+                          </div>
+                          <p className="line-clamp-1 text-xs text-muted">{row.item.kind ?? row.item.contentType} · {row.item.code}</p>
+                          <button type="button" onClick={() => startEditing(row.item)} className="mt-2 flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-extrabold text-brand-700 hover:bg-brand-50">
+                            {row.item.status === 'published' ? <UploadCloud className="h-4 w-4" aria-hidden="true" /> : <Pencil className="h-4 w-4" aria-hidden="true" />}
+                            {studioEditLabel(row.item)}
+                          </button>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </details>
+              ))}
+              {(mapChannel === 'all' || mapChannel === 'level') && levelTreeGroups.length === 0 && <div className="ui-card p-10 text-center text-muted">Không có reward theo level phù hợp tìm kiếm.</div>}
+              {otherTreeGroups.map((group) => (
+                <details key={`${group.channel}:${group.title}`} className="ui-card overflow-hidden" open={mapChannel !== 'all'}>
+                  <summary className="flex cursor-pointer list-none items-center gap-3 border-b border-border bg-slate-50 px-5 py-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus">
+                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
+                      {group.channel === 'storybook' ? <BookOpen className="h-5 w-5" aria-hidden="true" /> : group.channel === 'event' ? <CalendarDays className="h-5 w-5" aria-hidden="true" /> : <Network className="h-5 w-5" aria-hidden="true" />}
+                    </span>
+                    <div><h3 className="font-extrabold">{group.title}</h3><p className="text-xs text-muted">{group.rows.length} cấu hình liên quan</p></div>
+                    <div className="ml-2 h-px flex-1 bg-border" aria-hidden="true" />
+                    <span className="text-xs font-extrabold text-brand-700">Mở nhánh</span>
+                  </summary>
+                  <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">
+                    {group.rows.map((row) => (
+                      <article key={row.item.id} className="grid grid-cols-[64px_1fr] gap-3 rounded-2xl border border-border bg-white p-3">
+                        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-brand-50"><StudioArtwork item={row.item} meaningful /></div>
+                        <div className="min-w-0">
+                          <div className="flex items-start justify-between gap-2">
+                            <div><p className="text-xs font-black uppercase text-brand-600">{row.item.source === 'legacy' ? 'Legacy catalog' : row.item.source === 'runtime' ? 'Runtime achievement' : group.channel}</p><h4 className="line-clamp-1 font-extrabold">{row.item.name}</h4></div>
+                            {row.issues.some((issue) => issue.severity !== 'info') ? <AlertTriangle className="h-5 w-5 shrink-0 text-amber-700" aria-label={`${row.issues.filter((issue) => issue.severity !== 'info').length} cảnh báo`} /> : <CheckCircle2 className="h-5 w-5 shrink-0 text-success" aria-label="Hợp lệ" />}
+                          </div>
+                          <p className="line-clamp-2 text-xs text-muted">{row.item.contentType === 'achievement'
+                            ? `${Array.isArray(row.item.content.milestones) && row.item.content.milestones.length ? `${row.item.content.milestones.length} mốc · ` : ''}${row.item.description}`
+                            : row.trigger}</p>
+                          {row.item.contentType === 'achievement' ? (
+                            <button type="button" onClick={() => startEditing(row.item)} className="mt-2 flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-extrabold text-brand-700 hover:bg-brand-50"><Pencil className="h-4 w-4" aria-hidden="true" /> Cấu hình các mốc</button>
+                          ) : (
+                            <button type="button" onClick={() => startEditing(row.item)} className="mt-2 flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-extrabold text-brand-700 hover:bg-brand-50"><UploadCloud className="h-4 w-4" aria-hidden="true" /> {studioEditLabel(row.item)}</button>
+                          )}
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </details>
+              ))}
+              {mapChannel !== 'all' && mapChannel !== 'level' && otherTreeGroups.length === 0 && <div className="ui-card p-10 text-center text-muted">Chưa có cấu hình trong nhánh này.</div>}
+            </div>
+          )}
+
+          {mapDisplay === 'table' && <div className="ui-card overflow-hidden">
+            <div className="flex items-center justify-between border-b border-border px-5 py-3 text-sm text-muted">
+              <span>Hiển thị <strong>{visibleConfigMap.length}</strong> / {filteredConfigMap.length} cấu hình</span>
+              <span>Trang {mapPage}/{mapPageCount}</span>
+            </div>
+            <div className="overflow-x-auto">
+              <table className="w-full min-w-[900px] text-left text-sm">
+                <thead className="bg-slate-100 text-xs uppercase tracking-wide text-muted">
+                  <tr><th className="p-4">Nội dung</th><th className="p-4">Kênh</th><th className="p-4">Trigger / action</th><th className="p-4">Quà đầu ra</th><th className="p-4">Trạng thái kiểm tra</th><th className="p-4">Thao tác</th></tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {visibleConfigMap.map((row) => (
+                    <tr key={row.item.id} className="align-top">
+                      <td className="p-4"><strong>{row.item.name}</strong><code className="mt-1 block text-xs text-muted">{row.item.code} · v{row.item.version} · {row.item.status}</code></td>
+                      <td className="p-4"><span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-black text-brand-700">{row.channel}</span></td>
+                      <td className="p-4 font-bold">{row.trigger}</td>
+                      <td className="p-4">{row.item.contentType === 'reward' ? <span className="text-muted">Chính reward này</span> : row.rewardIds.length ? row.rewardIds.map((id) => <code key={id} className="mb-1 block break-all">{id}</code>) : <span className="font-bold text-amber-700">Chưa gắn quà</span>}</td>
+                      <td className="p-4">
+                        {row.issues.every((issue) => issue.severity === 'info') ? <><span className="font-extrabold text-success">✓ Hợp lệ</span>{row.issues.map((issue, index) => <p key={`${issue.message}-${index}`} className="mt-1 text-xs text-sky-700">ℹ {issue.message}</p>)}</> : (
+                          <ul className="space-y-1">
+                            {row.issues.map((issue, index) => <li key={`${issue.message}-${index}`} className={issue.severity === 'error' ? 'font-bold text-danger' : issue.severity === 'warning' ? 'text-amber-800' : 'text-sky-700'}>{issue.severity === 'error' ? '✕' : issue.severity === 'warning' ? '⚠' : 'ℹ'} {issue.message}</li>)}
+                          </ul>
+                        )}
+                      </td>
+                      <td className="p-4"><Button variant="secondary" onClick={() => startEditing(row.item)}><Pencil className="h-4 w-4" aria-hidden="true" /> {row.item.contentType === 'achievement' ? 'Cấu hình mốc' : studioEditLabel(row.item)}</Button></td>
+                    </tr>
+                  ))}
+                  {visibleConfigMap.length === 0 && <tr><td colSpan={6} className="p-10 text-center text-muted">Không có cấu hình phù hợp bộ lọc.</td></tr>}
+                </tbody>
+              </table>
+            </div>
+            {filteredConfigMap.length > mapPageSize && (
+              <footer className="flex items-center justify-end gap-2 border-t border-border p-4">
+                <Button variant="secondary" disabled={mapPage === 1} onClick={() => setMapPage((page) => Math.max(1, page - 1))}>Trang trước</Button>
+                <Button variant="secondary" disabled={mapPage === mapPageCount} onClick={() => setMapPage((page) => Math.min(mapPageCount, page + 1))}>Trang sau</Button>
+              </footer>
+            )}
+          </div>}
+          <p className="px-2 text-xs text-muted">Bản đồ dùng catalog admin từ StoryMee Hub để kiểm tra chéo. Việc cấp quà và xác thực action vẫn do core-gamification-api quyết định.</p>
+        </section>
+      )}
 
       {view === 'library' && (
         <section className="ui-card overflow-hidden">
@@ -410,30 +965,47 @@ export function LegendRewardStudio() {
               <p className="text-xs font-black uppercase tracking-wider text-brand-600">Quản lý catalog & version</p>
               <h2 className="font-display text-2xl">Kho nội dung phát hành</h2>
             </div>
-            <Button onClick={() => setView('create')}>＋ Tạo nội dung</Button>
+            <Button onClick={() => setShowCreateMenu(true)}><Plus className="h-5 w-5" aria-hidden="true" /> Thêm mới mọi loại</Button>
           </header>
-          <div className="grid gap-3 border-b border-border bg-slate-50/70 p-4 sm:grid-cols-4">
+          <div className="grid gap-3 border-b border-border bg-slate-50/70 p-4 lg:grid-cols-[minmax(240px,1fr)_220px]">
+            <label className="relative block">
+              <span className="sr-only">Tìm trong kho nội dung</span>
+              <Search className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted" aria-hidden="true" />
+              <input className="field-input min-h-12 w-full pl-12" value={libraryQuery} onChange={(event) => setLibraryQuery(event.target.value)} placeholder="Tìm tên, mã hoặc loại reward…" />
+            </label>
+            <label className="relative block">
+              <span className="sr-only">Lọc trạng thái</span>
+              <Settings2 className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted" aria-hidden="true" />
+              <select className="field-input min-h-12 w-full pl-12" value={libraryStatus} onChange={(event) => setLibraryStatus(event.target.value as StudioItem['status'] | 'all')}>
+                <option value="all">Mọi trạng thái</option><option value="published">Đang phát hành</option><option value="draft">Bản nháp</option><option value="review">Chờ duyệt</option><option value="scheduled">Đã lên lịch</option><option value="retired">Đã ngừng</option>
+              </select>
+            </label>
+          </div>
+          <div className="flex flex-wrap gap-2 border-b border-border px-4 py-3">
             {([
-              ['all', 'Tất cả', '🗂️'],
-              ['reward', 'Rewards', '🎁'],
-              ['chapter', 'Storybook', '📖'],
-              ['event', 'Sự kiện', '🎪'],
-            ] as const).map(([value, label, icon]) => (
-              <button key={value} type="button" onClick={() => setFilter(value)} className={`rounded-2xl border p-4 text-left transition ${filter === value ? 'border-brand-500 bg-white shadow-md ring-2 ring-brand-100' : 'border-border bg-white/70 hover:border-brand-300'}`}>
-                <span className="text-2xl">{icon}</span>
-                <span className="mt-2 block font-extrabold">{label}</span>
-                <span className="text-xs text-muted">{value === 'all' ? items.length : items.filter((item) => item.contentType === value).length} nội dung</span>
+              ['all', 'Tất cả', Archive],
+              ['reward', 'Reward', Gift],
+              ['chapter', 'Storybook', BookOpen],
+              ['event', 'Sự kiện', CalendarDays],
+              ['achievement', 'Achievement', Network],
+            ] as const).map(([value, label, Icon]) => (
+              <button key={value} type="button" onClick={() => setFilter(value)} className={`flex min-h-11 items-center gap-2 rounded-xl border px-4 py-2 text-sm font-extrabold transition ${filter === value ? 'border-brand-500 bg-brand-50 text-brand-700' : 'border-border bg-white text-muted hover:border-brand-300'}`}>
+                <Icon className="h-4 w-4" aria-hidden="true" />
+                <span>{label}</span>
+                <span className="rounded-lg bg-white px-2 py-0.5 text-xs">{value === 'all' ? items.length : items.filter((item) => item.contentType === value).length}</span>
               </button>
             ))}
+          </div>
+          <div className="flex items-center justify-between border-b border-border px-5 py-3 text-sm text-muted">
+            <span>Hiển thị <strong className="text-text">{visibleItems.length}</strong> / {filteredItems.length} kết quả</span>
+            <span>Trang {libraryPage}/{libraryPageCount}</span>
           </div>
           <div className="divide-y divide-border">
             {visibleItems.length === 0 && <p className="p-10 text-center text-muted">Chưa có nội dung trong mục này. Hãy tạo version đầu tiên.</p>}
             {visibleItems.map((item) => (
-              <article key={item.id} className="grid gap-4 p-4 sm:grid-cols-[72px_1fr_auto] sm:items-center">
-                <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-brand-50 text-3xl">
-                  {item.assets?.thumbnailUrl
-                    ? <img src={item.assets.thumbnailUrl} alt="" className="h-full w-full object-contain" />
-                    : item.contentType === 'reward' ? '🎁' : item.contentType === 'chapter' ? '📖' : '🎪'}
+              <article key={item.id} className="grid gap-3 px-5 py-3 sm:grid-cols-[52px_1fr_auto] sm:items-center">
+                <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-xl bg-brand-50">
+                  {item.contentType === 'reward' ? <StudioArtwork item={item} /> : item.contentType === 'chapter' ? <BookOpen className="h-5 w-5 text-brand-600" aria-hidden="true" /> : <CalendarDays className="h-5 w-5 text-brand-600" aria-hidden="true" />}
                 </div>
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
@@ -442,7 +1014,7 @@ export function LegendRewardStudio() {
                     <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[10px] font-black text-amber-700">{item.rarity}</span>
                   </div>
                   <p className="font-mono text-xs text-muted">{item.code} · v{item.version}</p>
-                  <p className="line-clamp-2 text-xs text-muted">{item.description}</p>
+                  <p className="line-clamp-1 text-sm text-muted">{item.description}</p>
                   <details className="mt-2 text-xs text-muted">
                     <summary className="cursor-pointer font-bold text-brand-600">Xem cấu hình & điều kiện</summary>
                     <pre className="mt-2 max-h-40 overflow-auto rounded-xl bg-slate-100 p-3">{JSON.stringify({ unlockRule: item.unlockRule, displayConfig: item.displayConfig, content: item.content }, null, 2)}</pre>
@@ -452,6 +1024,7 @@ export function LegendRewardStudio() {
                   <span className={`w-full text-right text-xs font-black ${
                     item.status === 'published' ? 'text-success' : item.status === 'retired' ? 'text-muted' : 'text-brand-600'
                   }`}>{item.status}</span>
+                  <Button variant="secondary" onClick={() => startEditing(item)}><Pencil className="h-4 w-4" aria-hidden="true" /> {studioEditLabel(item)}</Button>
                   {item.status === 'draft' && <Button variant="secondary" onClick={() => void transition(item, 'review')}>Gửi duyệt</Button>}
                   {(item.status === 'review' || item.status === 'scheduled') && <Button onClick={() => void transition(item, 'publish')}>Phát hành</Button>}
                   {item.status === 'published' && <Button variant="secondary" onClick={() => void transition(item, 'retire')}>Ngừng</Button>}
@@ -459,28 +1032,35 @@ export function LegendRewardStudio() {
               </article>
             ))}
           </div>
+          {filteredItems.length > libraryPageSize && (
+            <footer className="flex items-center justify-end gap-2 border-t border-border p-4">
+              <Button variant="secondary" disabled={libraryPage === 1} onClick={() => setLibraryPage((page) => Math.max(1, page - 1))}>Trang trước</Button>
+              <Button variant="secondary" disabled={libraryPage === libraryPageCount} onClick={() => setLibraryPage((page) => Math.min(libraryPageCount, page + 1))}>Trang sau</Button>
+            </footer>
+          )}
         </section>
       )}
 
-      {view === 'create' && (
+      {view === 'designer' && designerMode === 'single' && (
         <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_360px]">
           <form onSubmit={(event) => void create(event)} className="ui-card order-2 space-y-5 p-5 xl:order-1">
             <div>
-              <p className="text-xs font-black uppercase tracking-wider text-brand-600">Tạo version mới</p>
-              <h2 className="font-display text-2xl">Thiết kế nội dung</h2>
-              <p className="text-sm text-muted">Mỗi nhóm thông tin được tách riêng để dễ kiểm tra trước khi lưu.</p>
+              <p className="text-xs font-black uppercase tracking-wider text-brand-600">{editingItem ? `Đang sửa ${editingItem.code}` : 'Tạo cấu hình mới'}</p>
+              <h2 className="font-display text-2xl">{editingItem ? editingItem.name : 'Thiết kế nội dung'}</h2>
+              <p className="text-sm text-muted">{editingItem?.status === 'published' || editingItem?.status === 'retired' ? 'Bản đã phát hành là bất biến. Khi lưu, hệ thống tạo một version nháp mới cùng mã.' : editingItem ? 'Các thay đổi sẽ cập nhật version chưa phát hành hiện tại.' : 'Mỗi nhóm thông tin được tách riêng để dễ kiểm tra trước khi lưu.'}</p>
             </div>
 
             <section className="space-y-4 rounded-3xl border border-border bg-slate-50/70 p-4">
               <h3 className="font-extrabold">1. Thông tin cơ bản</h3>
               <label className="block text-sm font-bold">Loại nội dung
-                <select className={fieldClass} value={form.contentType} onChange={(event) => setForm({ ...form, contentType: event.target.value as ContentType })}>
-                  <option value="reward">Reward / vật phẩm</option><option value="chapter">Chapter Storybook</option><option value="event">Sự kiện</option>
+                <select disabled={Boolean(editingItem)} className={fieldClass} value={form.contentType} onChange={(event) => setForm({ ...form, contentType: event.target.value as ContentType })}>
+                  <option value="reward">Reward / vật phẩm</option><option value="achievement">Achievement tiến hoá</option><option value="chapter">Chapter Storybook</option><option value="event">Sự kiện</option>
                 </select>
               </label>
               <div className={`grid gap-3 ${form.contentType === 'reward' ? 'sm:grid-cols-2' : ''}`}>
                 <label className="text-sm font-bold">Mã định danh
-                  <input required minLength={3} className={fieldClass} placeholder={form.contentType === 'reward' ? 'frame-galaxy' : form.contentType === 'chapter' ? 'P09' : 'summer-creative-2026'} value={form.code} onChange={(event) => setForm({ ...form, code: event.target.value })} />
+                  <input required minLength={3} disabled={Boolean(editingItem)} className={fieldClass} placeholder={form.contentType === 'reward' ? 'frame-galaxy' : form.contentType === 'chapter' ? 'P09' : 'summer-creative-2026'} value={form.code} onChange={(event) => setForm({ ...form, code: event.target.value })} />
+                  {editingItem && <span className="mt-1 block text-xs text-muted">Mã được giữ cố định để bảo toàn liên kết inventory.</span>}
                 </label>
                 {form.contentType === 'reward' && <label className="text-sm font-bold">Độ hiếm
                   <select className={fieldClass} value={form.rarity} onChange={(event) => setForm({ ...form, rarity: event.target.value })}>
@@ -498,7 +1078,7 @@ export function LegendRewardStudio() {
 
             <section className="space-y-4 rounded-3xl border border-border bg-slate-50/70 p-4">
               <h3 className="font-extrabold">
-                {form.contentType === 'reward' ? '2. Asset reward' : form.contentType === 'chapter' ? '2. Nội dung cuốn sách' : '2. Nội dung sự kiện'}
+                {form.contentType === 'reward' ? '2. Asset reward' : form.contentType === 'achievement' ? '2. Các mốc tiến hoá' : form.contentType === 'chapter' ? '2. Nội dung cuốn sách' : '2. Nội dung sự kiện'}
               </h3>
               {form.contentType === 'chapter' && (
                 <>
@@ -668,6 +1248,76 @@ export function LegendRewardStudio() {
                   </div>
                 </>
               )}
+              {form.contentType === 'achievement' && (
+                <div className="space-y-4">
+                  <div className="rounded-2xl border-2 border-brand-200 bg-brand-50 p-4">
+                    <p className="text-xs font-black uppercase tracking-wider text-brand-700">Một danh hiệu · nhiều hình thái</p>
+                    <p className="mt-1 text-sm text-brand-950">Mỗi mốc bên dưới là một cấp tiến hoá của cùng danh hiệu. Trẻ giữ tiến độ liên tục; khi đạt ngưỡng mới, ảnh, mô tả và quà của mốc đó được mở.</p>
+                  </div>
+                  <div className="grid gap-3 sm:grid-cols-2">
+                    <label className="text-sm font-bold">Nhóm danh hiệu
+                      <select className={fieldClass} value={form.achievementCategory} onChange={(event) => setForm({ ...form, achievementCategory: event.target.value })}>
+                        {Object.entries(achievementFamilyLabels).filter(([key]) => key !== 'other').map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+                      </select>
+                    </label>
+                    <label className="text-sm font-bold">Action / metric theo dõi
+                      <select required className={fieldClass} value={form.achievementMetric} onChange={(event) => {
+                        const metric = event.target.value
+                        setForm((current) => ({
+                          ...current,
+                          achievementMetric: metric,
+                          achievementMilestonesJson: JSON.stringify(achievementMilestones.map((milestone) => ({ ...milestone, metric })), null, 2),
+                        }))
+                      }}>
+                        {ACHIEVEMENT_METRICS.map((metric) => <option key={metric.value} value={metric.value}>{metric.label} · {metric.unit} · {metric.source}</option>)}
+                      </select>
+                      <span className="mt-1 block text-xs text-muted">Chọn dữ liệu hệ thống cần đếm. Metric này dùng chung cho toàn bộ các mốc của danh hiệu.</span>
+                    </label>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div><h4 className="font-extrabold">Lộ trình tiến hoá</h4><p className="text-xs text-muted">Sắp xếp từ ngưỡng thấp đến cao. Mỗi mốc cần ảnh và requirement riêng.</p></div>
+                    <Button type="button" variant="secondary" onClick={() => setAchievementMilestones([...achievementMilestones, { label: achievementEvolutionTier(achievementMilestones.length).label, description: '', metric: form.achievementMetric, operator: 'gte', threshold: (achievementMilestones.at(-1)?.threshold ?? 0) + 1, imageUrl: '', points: 10, rewardLabel: '', rewardAssetId: '' }])}><Plus className="h-4 w-4" aria-hidden="true" /> Thêm mốc</Button>
+                  </div>
+                  <div className="space-y-3">
+                    {achievementMilestones.map((milestone, index) => (
+                      <article key={`${index}-${milestone.label}`} className="grid gap-4 rounded-2xl border-2 border-slate-200 bg-white p-4 md:grid-cols-[140px_1fr]">
+                        <label className="cursor-pointer text-center">
+                          <span className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-brand-300 bg-brand-50">
+                            {milestone.imageUrl ? <img src={milestone.imageUrl} alt={`Mốc ${index + 1}: ${milestone.label}`} className="h-full w-full object-contain" /> : <Gift className="h-10 w-10 text-brand-400" aria-hidden="true" />}
+                          </span>
+                          <span className="mt-2 block text-xs font-extrabold text-brand-700">{milestoneUploading === index ? 'Đang tải…' : milestone.imageUrl ? 'Thay ảnh mốc' : 'Tải ảnh mốc'}</span>
+                          <span className="block text-[10px] text-muted">PNG/WebP/SVG · ≤ 2 MB</span>
+                          <input type="file" accept=".png,.webp,.jpg,.jpeg,.svg" className="sr-only" disabled={milestoneUploading !== null} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadMilestoneImage(file, index) }} />
+                        </label>
+                        <div className="min-w-0 space-y-3">
+                          <div className="flex items-center gap-2">
+                            <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-600 text-sm font-black text-white">{index + 1}</span>
+                            <div className="min-h-12 flex-1 rounded-xl border-2 border-brand-200 bg-brand-50 px-4 py-3">
+                              <strong className="text-brand-900">{achievementEvolutionTier(index).label}</strong>
+                              <span className="ml-2 text-xs font-bold text-brand-600">Cấp tiến hoá dùng chung</span>
+                            </div>
+                            <button type="button" className="rounded-lg p-2 text-muted hover:bg-slate-100 disabled:opacity-30" disabled={index === 0} onClick={() => { const next = [...achievementMilestones]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; setAchievementMilestones(next) }} aria-label="Đưa mốc lên"><ArrowUp className="h-4 w-4" /></button>
+                            <button type="button" className="rounded-lg p-2 text-muted hover:bg-slate-100 disabled:opacity-30" disabled={index === achievementMilestones.length - 1} onClick={() => { const next = [...achievementMilestones]; [next[index + 1], next[index]] = [next[index], next[index + 1]]; setAchievementMilestones(next) }} aria-label="Đưa mốc xuống"><ArrowDown className="h-4 w-4" /></button>
+                            <button type="button" className="rounded-lg p-2 text-danger hover:bg-coral-50 disabled:opacity-30" disabled={achievementMilestones.length === 1} onClick={() => setAchievementMilestones(achievementMilestones.filter((_, position) => position !== index))} aria-label="Xoá mốc"><Trash2 className="h-4 w-4" /></button>
+                          </div>
+                          <textarea required className={`${fieldClass} min-h-20 py-3`} aria-label={`Mô tả mốc ${index + 1}`} value={milestone.description ?? ''} onChange={(event) => updateAchievementMilestone(index, { description: event.target.value })} placeholder="Mô tả hình thái và lời chúc khi trẻ đạt mốc…" />
+                          <div className="grid gap-3 sm:grid-cols-[1fr_150px_110px]">
+                            <div className="rounded-xl bg-slate-50 p-3 text-xs"><strong>{ACHIEVEMENT_METRICS.find((metric) => metric.value === form.achievementMetric)?.label}</strong><span className="mt-1 block text-muted">Metric dùng chung: <code>{form.achievementMetric}</code></span></div>
+                            <label className="text-xs font-bold">Điều kiện<select className={`${fieldClass} min-h-10 text-sm`} value={milestone.operator ?? 'gte'} onChange={(event) => updateAchievementMilestone(index, { operator: event.target.value })}><option value="gte">≥ đạt ít nhất</option><option value="eq">= đúng bằng</option></select></label>
+                            <label className="text-xs font-bold">Ngưỡng<input required type="number" min={1} className={`${fieldClass} min-h-10 text-sm`} value={milestone.threshold} onChange={(event) => updateAchievementMilestone(index, { threshold: Math.max(1, Number(event.target.value)) })} /></label>
+                          </div>
+                          <div className="grid gap-3 sm:grid-cols-3">
+                            <label className="text-xs font-bold">Điểm thưởng<input type="number" min={0} className={`${fieldClass} min-h-10 text-sm`} value={milestone.points ?? 0} onChange={(event) => updateAchievementMilestone(index, { points: Math.max(0, Number(event.target.value)) })} /></label>
+                            <label className="text-xs font-bold">Tên quà (tuỳ chọn)<input className={`${fieldClass} min-h-10 text-sm`} value={milestone.rewardLabel ?? ''} onChange={(event) => updateAchievementMilestone(index, { rewardLabel: event.target.value })} /></label>
+                            <label className="text-xs font-bold">Reward asset ID<input className={`${fieldClass} min-h-10 text-sm`} value={milestone.rewardAssetId ?? ''} onChange={(event) => updateAchievementMilestone(index, { rewardAssetId: event.target.value })} /></label>
+                          </div>
+                          <p className="rounded-xl bg-mint-50 px-3 py-2 text-xs font-bold text-emerald-900">Khi {form.achievementMetric} {milestone.operator === 'eq' ? '=' : '≥'} {milestone.threshold} → mở “{achievementEvolutionTier(index).label}”{milestone.points ? ` +${milestone.points} điểm` : ''}</p>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </div>
+              )}
               {form.contentType === 'reward' && (
                 <label className="block text-sm font-bold">Loại vật phẩm
                   <select className={fieldClass} value={form.kind} onChange={(event) => {
@@ -701,9 +1351,9 @@ export function LegendRewardStudio() {
                   </div>
                 </div>
               )}
-              {form.contentType !== 'chapter' && <label className="block min-h-40 cursor-pointer rounded-2xl border-2 border-dashed border-brand-400 bg-white p-8 text-center shadow-sm hover:border-brand-600 hover:bg-brand-50/30">
-                <span className="block text-4xl">☁️</span>
-                <span className="mt-3 block text-base font-extrabold">{uploading ? 'Đang kiểm tra và tải lên…' : 'Chọn file đúng template để preview'}</span>
+              {form.contentType !== 'chapter' && form.contentType !== 'achievement' && <label className="block min-h-40 cursor-pointer rounded-2xl border-2 border-dashed border-brand-400 bg-white p-8 text-center shadow-sm hover:border-brand-600 hover:bg-brand-50/30">
+                <UploadCloud className="mx-auto h-9 w-9 text-brand-600" aria-hidden="true" />
+                <span className="mt-3 block text-base font-extrabold">{uploading ? 'Đang kiểm tra và tải lên…' : editingItem ? 'Tải asset mới cho version này' : 'Chọn file đúng template để preview'}</span>
                 <span className="mt-1 block text-sm text-muted">{form.contentType === 'reward' ? `${selectedSpec.width}×${selectedSpec.height}px · tối đa ${selectedSpec.maxMb} MB` : 'PNG, WebP, JPG, JSON hoặc WebM'}</span>
                 <input type="file" accept=".png,.webp,.jpg,.jpeg,.svg,.json,.webm" className="sr-only" disabled={uploading} onChange={(event) => {
                   const file = event.target.files?.[0]
@@ -713,11 +1363,11 @@ export function LegendRewardStudio() {
                   }
                 }} />
               </label>}
-              {form.contentType !== 'chapter' && assetInfo && <p className="rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">✓ {assetInfo}</p>}
-              {form.contentType !== 'chapter' && <p className="break-all rounded-xl bg-white p-3 text-xs text-muted">{form.assetUrl || 'Chưa có URL asset — preview tạm sẽ xuất hiện ngay khi chọn file.'}</p>}
+              {form.contentType !== 'chapter' && form.contentType !== 'achievement' && assetInfo && <p className="rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">✓ {assetInfo}</p>}
+              {form.contentType !== 'chapter' && form.contentType !== 'achievement' && <p className="break-all rounded-xl bg-white p-3 text-xs text-muted">{form.assetUrl || 'Chưa có URL asset — preview tạm sẽ xuất hiện ngay khi chọn file.'}</p>}
             </section>
 
-            <section className="space-y-4 rounded-3xl border border-border bg-slate-50/70 p-4">
+            {form.contentType !== 'achievement' && <section className="space-y-4 rounded-3xl border border-border bg-slate-50/70 p-4">
               <h3 className="font-extrabold">3. Điều kiện mở khóa</h3>
               <div className="grid gap-3 sm:grid-cols-2">
                 <label className="text-sm font-bold">Điều kiện
@@ -729,9 +1379,9 @@ export function LegendRewardStudio() {
                   <input className={fieldClass} value={form.unlockValue} onChange={(event) => setForm({ ...form, unlockValue: event.target.value })} />
                 </label>
               </div>
-            </section>
+            </section>}
 
-            {form.contentType !== 'chapter' && <details className="rounded-3xl border border-border bg-slate-50/70 p-4">
+            {form.contentType !== 'chapter' && form.contentType !== 'achievement' && <details className="rounded-3xl border border-border bg-slate-50/70 p-4">
               <summary className="cursor-pointer font-extrabold">4. Cấu hình nâng cao (JSON)</summary>
               <label className="mt-4 block text-xs font-bold">Display JSON
                 <textarea className={`${fieldClass} min-h-40 py-3 font-mono text-xs`} value={form.displayJson} onChange={(event) => setForm({ ...form, displayJson: event.target.value })} />
@@ -741,8 +1391,8 @@ export function LegendRewardStudio() {
               </label>
             </details>}
             <div className="flex gap-3">
-              <Button type="button" variant="secondary" onClick={() => setView('library')} className="flex-1">Hủy</Button>
-              <Button type="submit" disabled={busy || uploading} className="flex-[2]">Lưu bản nháp</Button>
+              <Button type="button" variant="secondary" onClick={() => { setEditingItem(null); setForm(emptyForm()); setPreviewUrl(''); setView('map') }} className="flex-1">Hủy</Button>
+              <Button type="submit" disabled={busy || uploading} className="flex-[2]">{editingItem?.status === 'published' || editingItem?.status === 'retired' ? 'Lưu thành bản nháp mới' : editingItem ? 'Lưu thay đổi bản nháp' : 'Lưu bản nháp'}</Button>
             </div>
           </form>
 
@@ -795,7 +1445,7 @@ export function LegendRewardStudio() {
               </div>
             )}
             <div className="rounded-2xl border border-border p-4 text-sm">
-              <p><strong>Nhóm:</strong> {form.contentType === 'reward' ? `Reward · ${form.kind}` : form.contentType === 'chapter' ? 'Storybook chapter' : 'Sự kiện'}</p>
+              <p><strong>Nhóm:</strong> {form.contentType === 'reward' ? `Reward · ${form.kind}` : form.contentType === 'achievement' ? `Achievement · ${achievementFamilyLabel(form.achievementCategory)}` : form.contentType === 'chapter' ? 'Storybook chapter' : 'Sự kiện'}</p>
               <p className="mt-1"><strong>Mở khóa:</strong> {form.unlockType} = {form.unlockValue}</p>
               <p className="mt-1 break-all"><strong>Mã:</strong> {form.code || 'chưa nhập'}</p>
             </div>

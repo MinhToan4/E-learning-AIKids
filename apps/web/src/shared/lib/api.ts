@@ -409,7 +409,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
           : options,
     }
   }
-  if (/^\/api\/admin\/courses(?:\/[^/?]+)?$/.test(path)) {
+  if (/^\/api\/admin\/courses(?:\/[^/?]+)?(?:\/readiness)?$/.test(path)) {
     return {
       path: path.replace('/api/admin', '/api/v1/lms/aikids/admin'),
       options,
@@ -700,6 +700,9 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       /^\/api\/teacher\/students\/[^/?]+\/progress$/.test(path) ||
       /^\/api\/teacher\/lectures\/[^/?]+(?:\/restore)?$/.test(path) ||
       /^\/api\/teacher\/courses\/[^/?]+$/.test(path) ||
+      /^\/api\/teacher\/courses\/[^/?]+\/readiness$/.test(path) ||
+      /^\/api\/teacher\/courses\/[^/?]+\/unlock-mode$/.test(path) ||
+      /^\/api\/teacher\/programs\/[^/?]+\/unlock-mode$/.test(path) ||
       /^\/api\/teacher\/question-banks\/[^/?]+\/items(?:\?.*)?$/.test(path) ||
       /^\/api\/teacher\/question-bank\/items\/[^/?]+$/.test(path)) {
     return {
@@ -975,11 +978,26 @@ function mapCourse(raw: Record<string, unknown>): CourseSummary {
     Array.isArray((versions[0] as Record<string, unknown>).modules)
     ? (versions[0] as { modules: Array<Record<string, unknown>> }).modules
     : []
-  const lessons = modules.flatMap((module) =>
+  const nestedLessons = modules.flatMap((module) =>
     Array.isArray(module.lessons)
       ? module.lessons as Array<Record<string, unknown>>
       : [],
   )
+  // Different LMS read models expose stations under different collection
+  // names. Normalize all canonical shapes here so parent/CMS screens never
+  // have to infer or hardcode curriculum counts.
+  const directLessons = (['lectures', 'lessons', 'quests', 'stations'] as const)
+    .map((key) => raw[key])
+    .find(Array.isArray) as Array<Record<string, unknown>> | undefined
+  const lessons = nestedLessons.length > 0 ? nestedLessons : (directLessons ?? [])
+  const count = recordValue(raw._count)
+  const declaredQuestCount = Math.max(0, ...[
+    raw.questCount, raw.stationCount, raw.lessonCount, raw.lectureCount,
+    raw.questsCount, raw.stationsCount, raw.lessonsCount, raw.lecturesCount,
+    raw.totalStations, raw.totalLessons,
+    metadata.questCount, metadata.stationCount, metadata.lessonCount,
+    count.lessons, count.lectures, count.quests, count.stations,
+  ].map(Number).filter(Number.isFinite))
   return {
     id: String(raw.id ?? ''),
     title: String(raw.title ?? ''),
@@ -1005,12 +1023,11 @@ function mapCourse(raw: Record<string, unknown>): CourseSummary {
     recommended: metadata.recommended === true,
     skills: Array.isArray(metadata.skills) ? metadata.skills.map(String) : [],
     outcomes: Array.isArray(metadata.outcomes) ? metadata.outcomes.map(String) : [],
-    questCount: lessons.length ||
-      Number((versions[0] as { _count?: { modules?: number } } | undefined)?._count?.modules ?? 0),
+    questCount: Math.max(lessons.length, declaredQuestCount),
     enrolled: false,
     quests: lessons.map((lesson, index) => ({
       id: String(lesson.id ?? ''),
-      order: index + 1,
+      order: Number(lesson.order ?? lesson.position ?? index + 1),
       title: String(lesson.title ?? ''),
       accent: String(metadata.accent ?? '#7c3aed'),
       practiceKind: String(lesson.lessonType ?? 'lesson'),
@@ -1362,10 +1379,15 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       Array.isArray(payload.courses)) {
     // A pathway is the child's enrolled learning list. Keep this defensive
     // filter while older LMS deployments may still return the public catalog.
+    const isCanonicalPathway = Boolean(payload.student || payload.policy) ||
+      payload.courses.some((course) => {
+        const raw = course as Record<string, unknown>
+        return typeof raw.reasonCode === 'string' || Array.isArray(raw.missingPrerequisites)
+      })
     const courses = payload.courses
       .filter((course) => {
         const raw = course as Record<string, unknown>
-        return raw.enrolled === true ||
+        return isCanonicalPathway || raw.enrolled === true ||
           raw.status === 'active' ||
           raw.status === 'completed'
       })
@@ -1402,7 +1424,18 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         questCount: Number(raw.questCount ?? mapped.questCount ?? 0),
         completedCount: Number(raw.completedCount ?? 0),
         totalStars: Number(raw.totalStars ?? 0),
-        missingPrerequisites: [],
+        programSource:
+          raw.programSource === 'workspace' || raw.programSource === 'creator_marketplace'
+            ? raw.programSource
+            : 'aikid_official',
+        workspaceId: raw.workspaceId ? String(raw.workspaceId) : null,
+        programUnlockMode:
+          raw.programUnlockMode === 'sequential' || raw.programUnlockMode === 'graph'
+            ? raw.programUnlockMode
+            : 'parallel',
+        missingPrerequisites: Array.isArray(raw.missingPrerequisites)
+          ? raw.missingPrerequisites.map(String)
+          : [],
         coverImage: mapped.coverImage,
         // Every row has already passed the canonical enrollment filter above.
         // Keep this explicit because pathway consumers must not infer access
@@ -1419,6 +1452,9 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         ageBand: String(firstRaw?.ageBand ?? '8-11'),
       },
       policy: { label: 'Lộ trình học AI theo tiến độ của con' },
+      regionUnlockMode:
+        payload.regionUnlockMode === 'sequential' ? 'sequential' : 'parallel',
+      regionUnlockModeSource: payload.regionUnlockModeSource ?? 'course',
       recommendedCourseId: recommended?.id ?? null,
       courses,
     }
@@ -1551,6 +1587,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       },
       courses: courses.map((row) => {
         const mapped = mapCourse(row)
+        const metadata = recordValue(row.metadata)
         return {
           id: mapped.id,
           title: mapped.title,
@@ -1559,6 +1596,30 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
           ageTrack: mapped.ageTrack ?? '',
           tagline: mapped.tagline,
           coverImage: mapped.coverImage,
+          description: mapped.description,
+          questCount: mapped.questCount,
+          stations: mapped.quests.map((quest) => ({
+            id: quest.id,
+            order: quest.order,
+            title: quest.title,
+          })),
+          programId: String(
+            row.programId ?? row.programKey ?? metadata.programId ?? metadata.programKey ?? row.id ?? '',
+          ),
+          programTitle: String(
+            row.programTitle ?? metadata.programTitle ?? row.title ?? '',
+          ),
+          programDescription: String(
+            row.programDescription ?? metadata.programDescription ?? row.description ?? '',
+          ),
+          programImage: row.programImage ?? metadata.programImage ?? metadata.coverImage ?? null,
+          programSource:
+            row.programSource === 'workspace' || row.programSource === 'creator_marketplace'
+              ? row.programSource
+              : metadata.programSource === 'workspace' || metadata.programSource === 'creator_marketplace'
+                ? metadata.programSource
+                : 'aikid_official',
+          regionOrder: Number(row.regionOrder ?? metadata.regionOrder ?? 0),
           enrolled: row.enrolled === true,
           parentAllowed:
             typeof row.parentAllowed === 'boolean'
@@ -1824,6 +1885,10 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
               return {
                 threshold: Number(milestone.threshold ?? 1),
                 label: milestone.label ? String(milestone.label) : undefined,
+                description: milestone.description ? String(milestone.description) : undefined,
+                imageUrl: milestone.imageUrl ? String(milestone.imageUrl) : undefined,
+                metric: milestone.metric ? String(milestone.metric) : undefined,
+                operator: milestone.operator ? String(milestone.operator) : undefined,
                 points: milestone.points == null ? undefined : Number(milestone.points),
                 rewardLabel: milestone.rewardLabel
                   ? String(milestone.rewardLabel)
@@ -2149,6 +2214,16 @@ export type QuestDetail = {
     body: string
     tip: string
     kind: string
+    layout?: 'text' | 'split' | 'visual-grid' | 'storyboard' | string
+    visualItems?: Array<{
+      label: string
+      text: string
+      tone?: 'brand' | 'sky' | 'mint' | 'sun' | 'coral' | string
+      shot?: string
+      duration?: string
+      sound?: string
+      direction?: string
+    }>
     /** Optional card illustration */
     imageUrl?: string | null
     imageAlt?: string | null
@@ -2180,6 +2255,14 @@ export type QuestDetail = {
       instruction?: string
       outcome?: string
       product?: string
+      steps?: string[]
+      successCriteria?: string[]
+      reflectionPrompt?: string
+      practiceConfig?: {
+        activityType?: string
+        prompt?: string
+        cards?: Array<{ id: string; title: string; description: string }>
+      }
     }>
   }
 }
@@ -2199,6 +2282,10 @@ export type AchievementRow = {
   milestones?: Array<{
     threshold: number
     label?: string
+    description?: string
+    imageUrl?: string
+    metric?: string
+    operator?: string
     points?: number
     rewardLabel?: string
     rewardAssetId?: string
@@ -2235,6 +2322,23 @@ export type LectureRow = {
   videoUrl: string | null
   archived?: boolean
   stage?: string
+  learnCards?: Array<{
+    id: string
+    title: string
+    body: string
+    tip: string
+    kind: string
+    layout: 'text' | 'split' | 'visual-grid' | 'storyboard'
+    visualItems: Array<{
+      label: string
+      text: string
+      tone?: 'brand' | 'sky' | 'mint' | 'sun' | 'coral'
+      shot?: string
+      duration?: string
+      sound?: string
+      direction?: string
+    }>
+  }>
 }
 
 export type QuestProgress = {

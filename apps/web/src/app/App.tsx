@@ -70,9 +70,9 @@ const ProfilePage = lazy(() =>
     default: m.ProfilePage,
   })),
 )
-const MeeRiveStudioPage = lazy(() =>
-  import('@/features/mee-rig/pages/MeeRiveStudioPage').then((m) => ({
-    default: m.MeeRiveStudioPage,
+const AvatarStudioPage = lazy(() =>
+  import('@/features/avatar-studio/AvatarStudioPage').then((m) => ({
+    default: m.AvatarStudioPage,
   })),
 )
 const PublicProfilePage = lazy(() =>
@@ -95,9 +95,9 @@ const StorybookPage = lazy(() =>
     default: m.StorybookPage,
   })),
 )
-const LeaderboardPage = lazy(() =>
+const ProgressPage = lazy(() =>
   import('@/features/leaderboard/pages/LeaderboardPage').then((m) => ({
-    default: m.LeaderboardPage,
+    default: m.ProgressPage,
   })),
 )
 const ExplorerLevelPage = lazy(() =>
@@ -180,13 +180,6 @@ const TeacherOperationsPage = lazy(() =>
     default: m.TeacherOperationsPage,
   })),
 )
-// Admin: age-experience policy configuration
-const LearningConfigPage = lazy(() =>
-  import('@/features/admin/pages/Phase2ConfigPage').then((m) => ({
-    default: m.Phase2ConfigPage,
-  })),
-)
-
 function Fallback() {
   return (
     <div
@@ -355,7 +348,7 @@ export function App() {
               path="/profile/avatar-studio"
               element={
                 <Guard roles={['student']} requireOnboarded>
-                  <MeeRiveStudioPage />
+                  <AvatarStudioPage />
                 </Guard>
               }
             />
@@ -380,13 +373,14 @@ export function App() {
             }
           />
           <Route
-            path="/leaderboard"
+            path="/progress"
               element={
                 <Guard roles={['student']} requireOnboarded>
-                  <LeaderboardPage />
+                  <ProgressPage />
                 </Guard>
               }
           />
+          <Route path="/leaderboard" element={<Navigate to="/progress" replace />} />
           <Route
             path="/level"
             element={
@@ -605,12 +599,20 @@ export function App() {
                 </Guard>
               }
             />
-            {/* Age-experience policy + learning feature flags */}
+            <Route
+              path="/admin/billing"
+              element={
+                <Guard roles={['admin']}>
+                  <AdminPage tab="billing" />
+                </Guard>
+              }
+            />
+            {/* Legacy bookmark: learning settings now live inside each course. */}
             <Route
               path="/admin/learning-config"
               element={
                 <Guard roles={['admin']}>
-                  <LearningConfigPage />
+                  <Navigate to="/admin/courses" replace />
                 </Guard>
               }
             />

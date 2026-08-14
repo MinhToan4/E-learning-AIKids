@@ -16,7 +16,7 @@ export interface RewardDefinition {
   description: string
   icon: string
   unlock: {
-    type: 'xp_level' | 'storybook_sticker' | 'event'
+    type: 'xp_level' | 'storybook_sticker' | 'achievement' | 'event'
     value: number | string
   }
   equipValue?: string
@@ -195,6 +195,78 @@ export const REWARD_CATALOG: readonly RewardDefinition[] = [
     equipValue: 'Huyền Thoại Trẻ',
   },
   {
+    id: 'storybook-title-p01',
+    kind: 'title',
+    name: 'Người Giữ Cổng',
+    description: 'Danh hiệu hoàn thành Cánh Cổng Thế Giới AI.',
+    icon: '🚪',
+    unlock: { type: 'storybook_sticker', value: 'P01-S9' },
+    equipValue: 'Người Giữ Cổng',
+  },
+  {
+    id: 'storybook-title-p02',
+    kind: 'title',
+    name: 'Lời Dệt Thành Hoa',
+    description: 'Danh hiệu hoàn thành Vương Quốc Ngôn Ngữ.',
+    icon: '📖',
+    unlock: { type: 'storybook_sticker', value: 'P02-S9' },
+    equipValue: 'Lời Dệt Thành Hoa',
+  },
+  {
+    id: 'storybook-title-p03',
+    kind: 'title',
+    name: 'Vệt Sáng Biển Khơi',
+    description: 'Danh hiệu hoàn thành Đại Dương Hình Ảnh.',
+    icon: '🌊',
+    unlock: { type: 'storybook_sticker', value: 'P03-S9' },
+    equipValue: 'Vệt Sáng Biển Khơi',
+  },
+  {
+    id: 'storybook-title-p04',
+    kind: 'title',
+    name: 'Đỉnh Olympus',
+    description: 'Danh hiệu hoàn thành Đỉnh Núi Tri Thức.',
+    icon: '🏔️',
+    unlock: { type: 'storybook_sticker', value: 'P04-S9' },
+    equipValue: 'Đỉnh Olympus',
+  },
+  {
+    id: 'storybook-title-p05',
+    kind: 'title',
+    name: 'Họa Sĩ Kỳ Tài',
+    description: 'Danh hiệu hoàn thành Xưởng Của Paco.',
+    icon: '🎨',
+    unlock: { type: 'storybook_sticker', value: 'P05-S9' },
+    equipValue: 'Họa Sĩ Kỳ Tài',
+  },
+  {
+    id: 'storybook-title-p06',
+    kind: 'title',
+    name: 'Phù Thủy Rừng Xanh',
+    description: 'Danh hiệu hoàn thành Rừng Nhân Vật.',
+    icon: '🌳',
+    unlock: { type: 'storybook_sticker', value: 'P06-S9' },
+    equipValue: 'Phù Thủy Rừng Xanh',
+  },
+  {
+    id: 'storybook-title-p07',
+    kind: 'title',
+    name: 'Once Upon A Star',
+    description: 'Danh hiệu hoàn thành Thiên Hà Câu Chuyện.',
+    icon: '🌌',
+    unlock: { type: 'storybook_sticker', value: 'P07-S9' },
+    equipValue: 'Once Upon A Star',
+  },
+  {
+    id: 'storybook-title-p08',
+    kind: 'title',
+    name: 'Máy Bay Giấy',
+    description: 'Danh hiệu hoàn thành Trái Tim Kết Nối.',
+    icon: '💌',
+    unlock: { type: 'storybook_sticker', value: 'P08-S9' },
+    equipValue: 'Máy Bay Giấy',
+  },
+  {
     id: 'frame-cloud-summer',
     kind: 'frame',
     name: 'Khung Mây Mùa Hè',
@@ -211,6 +283,15 @@ export const REWARD_CATALOG: readonly RewardDefinition[] = [
     icon: '⚔️',
     unlock: { type: 'storybook_sticker', value: 'event-creative-challenge-S9' },
     equipValue: 'Chiến Binh Sáng Tạo',
+  },
+  {
+    id: 'frame-creative-arena',
+    kind: 'frame',
+    name: 'Khung Đấu Trường Ý Tưởng',
+    description: 'Khung tàu vũ trụ nhận khi hoàn thành Đấu Trường Ý Tưởng.',
+    icon: '🚂',
+    unlock: { type: 'storybook_sticker', value: 'event-creative-challenge-S9' },
+    equipValue: 'creative-arena',
   },
   {
     id: 'background-ai-gate',

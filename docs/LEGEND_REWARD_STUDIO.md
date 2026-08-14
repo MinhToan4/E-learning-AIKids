@@ -119,6 +119,76 @@ inventory khi trẻ đọc Storybook/Reward projection.
 Các endpoint admin yêu cầu JWT actor `admin`; catalog published dành cho client
 đã đăng nhập.
 
+## Designer Workspace — không dùng SSH
+
+Designer thao tác tại `/admin/legends` qua StoryMee Hub; không nhận SSH, MinIO
+key, storage credential hoặc token publish. Hai luồng cùng tạo draft:
+
+1. **Một asset:** chọn template, upload Media, preview, lưu Studio version.
+2. **Reward Pack ZIP:** tải manifest mẫu, chọn ZIP, validate cục bộ, upload qua
+   presigned URL ngắn hạn, finalize thành draft.
+
+Nút **Thêm mới** là entry point chung cho Reward/vật phẩm, Achievement tiến
+hoá, Storybook chapter và Sự kiện. Reward tiếp tục chọn subtype từ registry
+`frame`, `background`, `companion`, `effect`, `theme`, `title`, `event_ticket`,
+`perk` hoặc `avatar`; mỗi subtype tự áp template kích thước, slot và layer.
+
+Legacy catalog được audit loại asset và ảnh fallback trước khi bật migrate.
+Migrate hàng loạt giữ nguyên code/unlock rule, bổ sung display template chuẩn và
+chỉ tạo draft Studio có dấu `migratedFrom`; không tự gửi duyệt hoặc publish.
+
+### Profile Card Editor
+
+Profile Card dùng một system configuration riêng có code
+`system-profile-card-layout`; không lưu layout lặp lại trong từng reward. Editor
+quản lý kích thước canvas và scale/offset của bảy slot: Frame, Avatar, Effect,
+Companion, Name, Level và Title. Designer chọn rồi kéo trực tiếp từng thành phần
+trên canvas, resize bằng slider và đổi `layer` (số lớn nằm trên); không cần sửa
+kích thước file PNG nguồn. System configuration bị loại khỏi wardrobe/inventory và dùng
+unlock type `system_config`, nên không thể được cấp nhầm như một reward.
+
+Client đọc layout published từ catalog và áp dụng cho mọi asset đang trang bị.
+Sửa layout published vẫn tạo draft thay thế; layout production hiện tại tiếp tục
+hoạt động cho đến khi reviewer phát hành bản mới.
+
+Preview CMS render trực tiếp component production `EquippedProfile` với
+`layoutOverride`, không duy trì một mock Profile Card riêng. Transform Frame chỉ
+áp lên artwork Frame, không áp vào container chứa Avatar/Effect; vì vậy kéo hoặc
+resize Frame không làm lệch tâm Avatar.
+
+Avatar và Effect mặc định bind vào tâm Frame; Companion có thể bật bind khi cần.
+Khi bind, offset bị khóa và di chuyển Frame sẽ di chuyển cả nhóm. Free-drag bị
+giới hạn trong safe area ±30%, snap theo bước 2% và tự hút về tâm trong phạm vi
+3%. Pointer updates được batch bằng `requestAnimationFrame` để tránh delay khi
+kéo asset PNG lớn.
+
+Backend phải phân tách capability, không chỉ dựa vào việc frontend ẩn nút:
+
+| Capability | Designer | Reviewer | Publisher/Admin |
+| --- | --- | --- | --- |
+| `legend_studio:draft:create` | Có | Có | Có |
+| `legend_studio:draft:update` | Có | Có | Có |
+| `reward_pack:draft:create` | Có | Có | Có |
+| `reward_pack:upload` | Có | Có | Có |
+| `reward_pack:approve` | Không | Có | Có |
+| `reward_pack:publish` | Không | Không | Có |
+| `legend_studio:publish` | Không | Có theo policy | Có |
+
+Mọi upload vẫn đi qua `/api/media/upload` hoặc upload session do Hub cấp. CMS
+không gọi trực tiếp microservice/storage và không chứa secret trong `VITE_*`.
+Nếu core-account chưa có actor/capability designer, cần bổ sung ở IAM/backend
+trước khi cấp route này cho tài khoản designer; route guard frontend không thay
+thế authorization backend.
+
+### Achievement tiến hoá
+
+- Một achievement là một series ổn định (`code`, category và action/metric theo dõi).
+- Tên cấp tiến hoá dùng chung toàn catalog: **Mầm xanh → Đồng hành → Bạc sáng → Vàng rực → Pha lê → Kim cương → Huyền thoại**. Achievement không được tự đặt lại tên các cấp này.
+- Metric được chọn từ registry có nhãn, đơn vị và nguồn dữ liệu; không nhập chuỗi tự do. Một metric áp dụng cho toàn bộ milestone của series.
+- Mỗi phần tử trong `milestones[]` là một hình thái tiến hoá, gồm `label`, `description`, `imageUrl`, `metric`, `operator`, `threshold`, `points` và reward tuỳ chọn.
+- Các `threshold` phải là số dương, duy nhất và tăng dần theo thứ tự hiển thị.
+- Designer có thể thêm, xoá, đổi thứ tự và upload lại ảnh từng mốc trên CMS. Achievement runtime cũ được mở bằng **Cấu hình các mốc** rồi lưu thành draft Studio; không sửa trực tiếp dữ liệu production.
+
 ## Preview assets trong frontend
 
 Các SVG tại `apps/web/public/assets/rewards/` là asset preview/fallback được

@@ -2,13 +2,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import {
   Award,
-  CalendarDays,
   Download,
   FileText,
   RefreshCcw,
   ShieldCheck,
   Sparkles,
   UserRoundPlus,
+  BookOpen,
+  Check,
+  Plus,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
@@ -19,6 +21,7 @@ import { useToast } from '@/shared/hooks/useToast'
 import { api, downloadAuthorizedBlob } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import type { AgeExperiencePolicy } from '@/shared/age-experience/AgeExperienceProvider'
+import { programArtworkHint } from '@/shared/config/assets'
 
 type Child = {
   id: string
@@ -97,7 +100,27 @@ type Credential = {
     }
   }
 }
-type Course = { id: string; title: string; shortTitle: string; status: string }
+type Course = {
+  id: string
+  title: string
+  shortTitle: string
+  status: string
+  description?: string
+  coverImage?: string | null
+  ageLabel?: string
+  enrolled?: boolean
+  accessPolicy?: string
+  priceAmountMinor?: number
+  priceCurrency?: string
+  questCount?: number
+  programId?: string
+  programTitle?: string
+  programDescription?: string
+  programImage?: string | null
+  programSource?: 'aikid_official' | 'workspace' | 'creator_marketplace'
+  regionOrder?: number
+  stations?: Array<{ id: string; order: number; title: string }>
+}
 type PlacementRequest = {
   id: string
   courseId: string
@@ -133,7 +156,7 @@ type LearningData = {
     policy: AgeExperiencePolicy | null
   }
 }
-type Section = 'journey' | 'schedule' | 'placement' | 'reports'
+type Section = 'journey' | 'courses' | 'reports'
 
 function dateTime(value: string) {
   return new Intl.DateTimeFormat('vi-VN', {
@@ -192,6 +215,16 @@ export function ParentLearningPage() {
     setError(null)
     try {
       const query = `studentId=${encodeURIComponent(studentId)}`
+      // Parent learning is a dashboard over several independently deployed LMS
+      // capabilities. An optional report/credential route must not hide course
+      // registration when that service is temporarily unavailable.
+      const optional = async <T,>(request: Promise<T>, fallback: T): Promise<T> => {
+        try {
+          return await request
+        } catch {
+          return fallback
+        }
+      }
       const [
         schedule,
         reports,
@@ -204,25 +237,25 @@ export function ParentLearningPage() {
         pathway,
         ageExperience,
       ] = await Promise.all([
-        api<{ classes: ScheduleClass[] }>(`/api/schedule?${query}`),
-        api<{ reports: Report[] }>(`/api/reports?${query}`),
-        api<CompetencyMap>(`/api/competency-map?${query}`),
-        api<{ credentials: Credential[] }>(`/api/credentials?${query}`),
-        api<{ courses: Course[] }>('/api/courses'),
-        api<{ requests: PlacementRequest[] }>(
+        optional(api<{ classes: ScheduleClass[] }>(`/api/schedule?${query}`), { classes: [] }),
+        optional(api<{ reports: Report[] }>(`/api/reports?${query}`), { reports: [] }),
+        optional(api<CompetencyMap>(`/api/competency-map?${query}`), { status: 'configuration_required', frameworks: [] }),
+        optional(api<{ credentials: Credential[] }>(`/api/credentials?${query}`), { credentials: [] }),
+        api<{ courses: Course[] }>(`/api/parent/children/${encodeURIComponent(studentId)}/courses`),
+        optional(api<{ requests: PlacementRequest[] }>(
           `/api/schedule/placement-requests?status=pending&${query}`,
-        ),
-        api<{ requests: PlacementRequest[] }>(
+        ), { requests: [] }),
+        optional(api<{ requests: PlacementRequest[] }>(
           `/api/schedule/placement-requests?status=placed&${query}`,
-        ),
-        api<{ requests: PlacementRequest[] }>(
+        ), { requests: [] }),
+        optional(api<{ requests: PlacementRequest[] }>(
           `/api/schedule/placement-requests?status=rejected&${query}`,
-        ),
-        api<Pathway>(`/api/learning/pathway?${query}`),
-        api<{
+        ), { requests: [] }),
+        optional(api<Pathway>(`/api/learning/pathway?${query}`), { recommendedCourseId: null, courses: [] }),
+        optional(api<{
           status: 'ready' | 'configuration_required'
           policy: AgeExperiencePolicy | null
-        }>(`/api/learning/age-policy?${query}`),
+        }>(`/api/learning/age-policy?${query}`), { status: 'configuration_required', policy: null }),
       ])
       const placements = [
         ...pendingPlacements.requests,
@@ -376,6 +409,31 @@ export function ParentLearningPage() {
     }
   }
 
+  async function toggleProgram(courses: Course[], enroll: boolean) {
+    if (!studentId || courses.length === 0) return
+    setBusy(true)
+    try {
+      const targets = courses.filter((course) => Boolean(course.enrolled) !== enroll)
+      for (const course of targets) {
+        await api(`/api/parent/children/${encodeURIComponent(studentId)}/courses`, {
+          method: 'POST',
+          body: JSON.stringify({ courseId: course.id, enroll }),
+        })
+      }
+      const targetIds = new Set(targets.map((course) => course.id))
+      setData((current) => current ? {
+        ...current,
+        courses: current.courses.map((course) => targetIds.has(course.id) ? { ...course, enrolled: enroll } : course),
+      } : current)
+      showToast(enroll ? 'Đã thêm chương trình và các vùng vào lộ trình của con.' : 'Đã bỏ chương trình khỏi lộ trình.', 'success')
+    } catch (cause) {
+      await load()
+      showToast(cause instanceof Error ? cause.message : 'Không cập nhật được chương trình.', 'error')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   return (
     <div className="flex flex-col gap-5">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
@@ -412,8 +470,7 @@ export function ParentLearningPage() {
         {(
           [
             ['journey', 'Năng lực & chứng nhận', Sparkles],
-            ['schedule', 'Lịch học', CalendarDays],
-            ['placement', 'Đăng ký xếp lớp', UserRoundPlus],
+            ['courses', 'Chọn khóa học', BookOpen],
             ['reports', 'Báo cáo PDF', FileText],
           ] as const
         ).map(([key, label, Icon]) => (
@@ -454,23 +511,11 @@ export function ParentLearningPage() {
           busy={busy}
           onDownload={downloadCredential}
         />
-      ) : data && section === 'schedule' ? (
-        <ScheduleSection
-          sessions={sessions}
-          canRequestReschedule={
-            data.ageExperience.policy?.permissionPolicy
-              .canRequestReschedule === true
-          }
-          onReschedule={openReschedule}
-        />
-      ) : data && section === 'placement' ? (
-        <PlacementSection
+      ) : data && section === 'courses' ? (
+        <CourseSelectionSection
           courses={data.courses}
-          placements={data.placements}
-          form={placementForm}
           busy={busy}
-          onChange={setPlacementForm}
-          onSubmit={submitPlacement}
+          onToggleProgram={toggleProgram}
         />
       ) : data ? (
         <ReportsSection reports={data.reports} busy={busy} onDownload={downloadReport} />
@@ -535,6 +580,120 @@ export function ParentLearningPage() {
         </form>
       )}
     </div>
+  )
+}
+
+function CourseSelectionSection({
+  courses,
+  busy,
+  onToggleProgram,
+}: {
+  courses: Course[]
+  busy: boolean
+  onToggleProgram: (courses: Course[], enroll: boolean) => Promise<void>
+}) {
+  type Space = NonNullable<Course['programSource']>
+  const [space, setSpace] = useState<Space>('aikid_official')
+  const programs = useMemo(() => {
+    const grouped = new Map<string, { id: string; title: string; description: string; image: string | null; source: Space; regions: Course[] }>()
+    for (const course of courses) {
+      const source = course.programSource ?? 'aikid_official'
+      const id = course.programId || course.id
+      const current = grouped.get(id) ?? {
+        id,
+        title: course.programTitle || course.title,
+        description: course.programDescription || course.description || '',
+        image: programArtworkHint({
+          id,
+          title: course.programTitle || course.title,
+          imageUrl: course.programImage ?? course.coverImage ?? null,
+        }),
+        source,
+        regions: [],
+      }
+      current.regions.push(course)
+      grouped.set(id, current)
+    }
+    return [...grouped.values()].map((program) => ({
+      ...program,
+      regions: program.regions.sort((a, b) => (a.regionOrder ?? 0) - (b.regionOrder ?? 0)),
+    }))
+  }, [courses])
+  const visiblePrograms = programs.filter((program) => program.source === space)
+  const spaces: Array<{ id: Space; label: string; caption: string }> = [
+    { id: 'aikid_official', label: 'AiKid', caption: 'Chương trình chính thức' },
+    { id: 'workspace', label: 'Trường học', caption: 'Do trường phân phối' },
+    { id: 'creator_marketplace', label: 'Học tập tự do', caption: 'Giáo viên & gia đình' },
+  ]
+  return (
+    <section className="ui-card overflow-hidden" aria-labelledby="parent-course-title">
+      <div className="border-b border-border bg-brand-50/60 p-5">
+        <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Học theo tiến độ riêng</p>
+        <h2 id="parent-course-title" className="mt-1 font-display text-2xl">Chọn chương trình cho con</h2>
+        <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted">
+          Chọn không gian và đăng ký một chương trình. Ba / Mẹ có thể xem trước các vùng, trạm; con học bất cứ lúc nào và tiếp tục từ trạm đang dở.
+        </p>
+      </div>
+      <div className="grid gap-2 border-b border-border bg-white p-4 sm:grid-cols-3" role="tablist" aria-label="Không gian học tập">
+        {spaces.map((item) => {
+          const count = programs.filter((program) => program.source === item.id).length
+          return <button
+            key={item.id}
+            type="button"
+            role="tab"
+            aria-selected={space === item.id}
+            className={cn('min-h-16 rounded-2xl border-2 px-4 py-2 text-left transition', space === item.id ? 'border-brand-500 bg-brand-50 text-brand-700 shadow-soft' : 'border-border bg-white hover:border-brand-200')}
+            onClick={() => setSpace(item.id)}
+          >
+            <span className="flex items-center justify-between gap-2 font-extrabold"><span>{item.label}</span><span className="rounded-full bg-white px-2 py-0.5 text-xs text-muted">{count}</span></span>
+            <span className="mt-0.5 block text-xs font-bold text-muted">{item.caption}</span>
+          </button>
+        })}
+      </div>
+      {visiblePrograms.length === 0 ? (
+        <div className="p-8 text-center">
+          <p className="font-display text-lg">Chưa có chương trình trong không gian này</p>
+          <p className="mt-1 text-sm text-muted">Chương trình do AiKid, trường hoặc giáo viên cấp sẽ xuất hiện đúng không gian.</p>
+        </div>
+      ) : (
+        <div className="grid gap-4 p-4">
+          {visiblePrograms.map((program) => {
+            const enrolledCount = program.regions.filter((region) => region.enrolled).length
+            const enrolled = enrolledCount === program.regions.length
+            const stationCount = program.regions.reduce((sum, region) => sum + (region.questCount ?? region.stations?.length ?? 0), 0)
+            return <article key={program.id} className={cn('overflow-hidden rounded-3xl border-2', enrolledCount > 0 ? 'border-mint-300 bg-mint-50/30' : 'border-border bg-white')}>
+              <div className="grid gap-4 p-4 sm:grid-cols-[180px_minmax(0,1fr)_210px] sm:items-center">
+                {program.image ? <img src={program.image} alt="" loading="lazy" className="aspect-[3/2] w-full rounded-2xl border border-border object-cover shadow-soft" /> : <div className="flex aspect-[3/2] w-full items-center justify-center rounded-2xl bg-brand-50 text-brand-500"><BookOpen size={34} aria-hidden="true" /></div>}
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-display text-xl text-text">{program.title}</h3>
+                    {enrolledCount > 0 && <span className="rounded-full bg-mint-100 px-2 py-1 text-xs font-extrabold text-success">{enrolled ? 'Đang học' : `${enrolledCount}/${program.regions.length} vùng`}</span>}
+                  </div>
+                  {program.description && <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-muted">{program.description}</p>}
+                  <p className="mt-2 text-xs font-extrabold text-muted">{program.regions.length} vùng · {stationCount} trạm · Tự học theo tiến độ riêng</p>
+                </div>
+                <Button className="w-full" variant={enrolled ? 'secondary' : 'primary'} disabled={busy} onClick={() => void onToggleProgram(program.regions, !enrolled)}>
+                  {enrolled ? <><Check size={17} aria-hidden="true" /> Bỏ chương trình</> : <><Plus size={17} aria-hidden="true" /> Đăng ký chương trình</>}
+                </Button>
+              </div>
+              <details className="border-t border-border bg-white/80">
+                <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-extrabold text-brand-700">Xem vùng và trạm trong chương trình</summary>
+                <div className="grid gap-3 px-4 pb-4 md:grid-cols-2">
+                  {program.regions.map((region, index) => <div key={region.id} className="rounded-2xl border border-border bg-white p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div><p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">Vùng {index + 1}</p><h4 className="mt-0.5 font-display text-base">{region.title}</h4></div>
+                      <span className="shrink-0 rounded-full bg-sky-50 px-2 py-1 text-xs font-bold text-muted">{region.questCount ?? region.stations?.length ?? 0} trạm</span>
+                    </div>
+                    {region.stations && region.stations.length > 0 && <ol className="mt-2 grid gap-1 text-xs text-muted">{region.stations.slice(0, 3).map((station) => <li key={station.id}><strong className="text-text">Trạm {station.order}:</strong> {station.title}</li>)}</ol>}
+                    {(region.stations?.length ?? 0) > 3 && <p className="mt-1 text-xs font-bold text-brand-600">+ {(region.stations?.length ?? 0) - 3} trạm khác</p>}
+                  </div>)}
+                </div>
+              </details>
+            </article>
+          })}
+        </div>
+      )}
+    </section>
   )
 }
 

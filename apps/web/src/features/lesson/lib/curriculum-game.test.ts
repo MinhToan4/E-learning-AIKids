@@ -7,6 +7,7 @@ import {
   sanitizeAllowedGameTypes,
   sanitizeGameCatalog,
   sanitizeGameLobby,
+  sanitizeAssociationPairs,
   sanitizePatrolWaves,
   sanitizeRunnerLevels,
 } from './curriculum-game'
@@ -94,6 +95,14 @@ describe('DB-authored AI game configuration', () => {
         imageUrl: '/assets/../../private.webp',
       })),
     }])).toEqual([])
+  })
+
+  it('rejects repeated memory labels that would make matching ambiguous', () => {
+    expect(sanitizeAssociationPairs([
+      { left: 'Học từ ví dụ', right: 'Bộ lọc ảnh AI' },
+      { left: 'Học từ ví dụ', right: 'Nhận diện khuôn mặt' },
+      { left: 'Học từ ví dụ', right: 'Gợi ý bài hát' },
+    ])).toEqual([{ left: 'Học từ ví dụ', right: 'Bộ lọc ảnh AI' }])
   })
 
   it('sanitizes DB levels and keeps policy bounded', () => {

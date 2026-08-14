@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { Button } from '@/shared/components/ui/Button'
+import { AdventureModal } from '@/shared/components/ui/AdventureModal'
 
 type Props = {
   open: boolean
@@ -48,28 +49,16 @@ export function ConfirmDialog({
   if (!open) return null
 
   return (
-    <div
-      className="fixed inset-0 z-[9998] flex items-center justify-center"
-      style={{ background: 'rgba(30,39,64,0.45)', backdropFilter: 'blur(4px)' }}
-      onClick={onCancel}
-    >
-      <div
-        role="alertdialog"
-        aria-modal="true"
-        aria-labelledby="confirm-title"
-        aria-describedby={description ? 'confirm-desc' : undefined}
-        className="animate-pop ui-card w-full max-w-sm p-6"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h2 id="confirm-title" className="font-display text-xl text-text">
-          {title}
-        </h2>
-        {description && (
-          <p id="confirm-desc" className="mt-2 text-sm text-muted">
-            {description}
-          </p>
-        )}
-        <div className="mt-5 flex justify-end gap-3">
+    <AdventureModal
+      open={open}
+      tone={danger ? 'guidance' : 'discovery'}
+      eyebrow={danger ? 'Kiểm tra lại' : 'Xác nhận'}
+      title={title}
+      description={description}
+      onClose={onCancel}
+      className="!max-w-md"
+      actions={
+        <>
           <Button ref={cancelRef} variant="secondary" onClick={onCancel}>
             {cancelLabel}
           </Button>
@@ -80,8 +69,8 @@ export function ConfirmDialog({
           >
             {confirmLabel}
           </Button>
-        </div>
-      </div>
-    </div>
+        </>
+      }
+    />
   )
 }

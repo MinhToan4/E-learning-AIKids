@@ -8,6 +8,7 @@ import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
 import {
   CmsAiIcon,
   CmsAnalyticsIcon,
+  CmsBillingIcon,
   CmsClassesIcon,
   CmsCoursesIcon,
   CmsLecturesIcon,
@@ -20,7 +21,6 @@ import { NavHomeIcon, NavProfileIcon, NavWorldIcon } from '@/shared/components/i
 import {
   KidBackpackImageIcon,
   KidBadgeImageIcon,
-  KidCreativeImageIcon,
   KidEventImageIcon,
   KidHomeImageIcon,
   KidProfileImageIcon,
@@ -32,6 +32,7 @@ import {
   ParentApprovalIcon,
   ParentDashboardIcon,
   ParentKidsIcon,
+  ParentLearningIcon,
   ParentPlanIcon,
   ParentProfileIcon,
 } from '@/shared/components/icons/ParentIcons'
@@ -40,6 +41,8 @@ import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets } from '@/shared/config/assets'
 import { useAuth } from '@/shared/store/auth'
+import { readRewardEquipment } from '@/features/rewards/reward-equipment'
+import { profilePageThemeStyle } from '@/features/rewards/student-theme'
 
 type NavIcon = React.ComponentType<{ size?: number; className?: string }>
 
@@ -50,6 +53,20 @@ type RoleNavItem = {
   end?: boolean
 }
 
+type StudentFeatureTone = 'brand' | 'sky' | 'mint' | 'sun' | 'coral'
+
+type StudentNavItem = RoleNavItem & {
+  tone: StudentFeatureTone
+}
+
+function studentFeatureTone(pathname: string): StudentFeatureTone {
+  if (pathname.startsWith('/world') || pathname.startsWith('/course') || pathname.startsWith('/lesson')) return 'sky'
+  if (pathname.startsWith('/progress') || pathname.startsWith('/leaderboard')) return 'mint'
+  if (pathname.startsWith('/achievements') || pathname.startsWith('/backpack')) return 'sun'
+  if (pathname.startsWith('/events') || pathname.startsWith('/storybook')) return 'coral'
+  return 'brand'
+}
+
 function aikidStudentBackground(pathname: string): CSSProperties {
   const image = pathname.startsWith('/creative')
     ? designerAssets.lobby.bgArt
@@ -58,8 +75,8 @@ function aikidStudentBackground(pathname: string): CSSProperties {
       : designerAssets.lobby.bgHome
 
   return {
-    backgroundColor: '#f8f4dc',
-    backgroundImage: `linear-gradient(180deg, rgba(255,255,255,0.08), rgba(248,246,255,0.9) 72%), url("${image}")`,
+    backgroundColor: 'var(--student-page-bg)',
+    backgroundImage: `linear-gradient(180deg, rgb(255 255 255 / 10%), var(--student-page-wash) 72%), url("${image}")`,
     backgroundPosition: 'top center, top center',
     backgroundRepeat: 'no-repeat, no-repeat',
     backgroundSize: 'cover, max(100%, 76rem) auto',
@@ -127,30 +144,25 @@ function MobileLogoutButton() {
 
 
 // ── Student nav split: pinned bar + drawer ───────────────────
-const studentPinnedNav = [
-  { to: '/home',        label: 'Nhà',     icon: KidHomeImageIcon     },
-  { to: '/world',       label: 'Học',     icon: KidWorldImageIcon    },
-  { to: '/creative',    label: 'Xưởng',   icon: KidCreativeImageIcon },
-  { to: '/leaderboard', label: 'Tiến bộ', icon: KidProgressImageIcon },
+const studentPinnedNav: StudentNavItem[] = [
+  { to: '/home',        label: 'Nhà',     icon: KidHomeImageIcon, tone: 'brand' },
+  { to: '/world',       label: 'Học',     icon: KidWorldImageIcon, tone: 'sky' },
+  { to: '/progress', label: 'Tiến bộ', icon: KidProgressImageIcon, tone: 'mint' },
 ]
-const studentDrawerNav = [
-  { to: '/events',       label: 'Sự kiện', icon: KidEventImageIcon },
-  { to: '/storybook',    label: 'Huyền thoại', icon: KidStorybookImageIcon },
-  { to: '/achievements', label: 'Huy hiệu', icon: KidBadgeImageIcon },
-  { to: '/backpack',     label: 'Ba lô',    icon: KidBackpackImageIcon },
-  { to: '/profile',      label: 'Hồ sơ',    icon: KidProfileImageIcon },
+const studentDrawerNav: StudentNavItem[] = [
+  { to: '/events',       label: 'Sự kiện', icon: KidEventImageIcon, tone: 'coral' },
+  { to: '/storybook',    label: 'Huyền thoại', icon: KidStorybookImageIcon, tone: 'coral' },
+  { to: '/achievements', label: 'Huy hiệu', icon: KidBadgeImageIcon, tone: 'sun' },
+  { to: '/backpack',     label: 'Ba lô',    icon: KidBackpackImageIcon, tone: 'sun' },
+  { to: '/profile',      label: 'Hồ sơ',    icon: KidProfileImageIcon, tone: 'brand' },
 ]
 // Cấp độ là trang chi tiết mở theo ngữ cảnh từ Hồ sơ, không phải đích điều hướng chính.
-const studentNav = [
-  { to: '/home',         label: 'Nhà',      icon: KidHomeImageIcon },
-  { to: '/world',        label: 'Học',      icon: KidWorldImageIcon },
-  { to: '/creative',     label: 'Xưởng',    icon: KidCreativeImageIcon },
-  { to: '/leaderboard',  label: 'Tiến bộ',  icon: KidProgressImageIcon },
-  { to: '/events',       label: 'Sự kiện',   icon: KidEventImageIcon },
-  { to: '/achievements', label: 'Huy hiệu', icon: KidBadgeImageIcon },
-  { to: '/storybook',    label: 'Huyền thoại', icon: KidStorybookImageIcon },
-  { to: '/backpack',     label: 'Ba lô',    icon: KidBackpackImageIcon },
-  { to: '/profile',      label: 'Hồ sơ',    icon: KidProfileImageIcon },
+const studentNav: StudentNavItem[] = [
+  ...studentPinnedNav,
+  ...studentDrawerNav.slice(0, 1),
+  ...studentDrawerNav.slice(2, 3),
+  ...studentDrawerNav.slice(1, 2),
+  ...studentDrawerNav.slice(3),
 ]
 
 // ── Desktop sidebar nav (vertical) ───────────────────────────
@@ -236,10 +248,11 @@ function StudentDrawer() {
         <div className="student-drawer-handle" aria-hidden="true" />
         <p className="student-drawer-title">Bộ sưu tập của con</p>
         <nav className="student-drawer-grid" aria-label="Bộ sưu tập">
-          {studentDrawerNav.map(({ to, label, icon: Icon }) => (
+          {studentDrawerNav.map(({ to, label, icon: Icon, tone }) => (
             <NavLink
               key={to}
               to={to}
+              data-feature-tone={tone}
               onClick={handleNav}
               className={({ isActive }) =>
                 cn('student-drawer-item', isActive && 'student-drawer-item-active')
@@ -270,10 +283,11 @@ function StudentDrawer() {
         className="student-bottom-nav"
         aria-label="Điều hướng chính"
       >
-        {studentPinnedNav.map(({ to, label, icon: Icon }) => (
+        {studentPinnedNav.map(({ to, label, icon: Icon, tone }) => (
           <NavLink
             key={to}
             to={to}
+            data-feature-tone={tone}
             className={({ isActive }) =>
               cn(
                 'student-nav-link min-h-[3.75rem] flex-1 gap-0 rounded-xl px-0.5 py-1 text-[10px]',
@@ -284,7 +298,7 @@ function StudentDrawer() {
             <span className="student-nav-icon !h-8 !w-9 !rounded-xl" aria-hidden="true">
               <Icon size={30} />
             </span>
-            {label}
+            <span className="student-nav-label">{label}</span>
           </NavLink>
         ))}
 
@@ -327,10 +341,14 @@ function AdminDrawer({
   nav,
   pinnedNav,
   tone,
+  menuTitle = 'Tiện ích quản trị',
+  menuAriaLabel = 'Tất cả tiện ích quản trị',
 }: {
   nav: RoleNavItem[]
   pinnedNav: RoleNavItem[]
   tone: string
+  menuTitle?: string
+  menuAriaLabel?: string
 }) {
   const [open, setOpen] = useState(false)
   const { handleLogout, loggingOut } = useLogoutAction()
@@ -354,14 +372,14 @@ function AdminDrawer({
         )}
         role="dialog"
         aria-modal="true"
-        aria-label="Tất cả tiện ích quản trị"
+        aria-label={menuAriaLabel}
       >
         {/* Handle bar */}
         <div className="admin-drawer-handle" aria-hidden="true" />
 
-        <p className="admin-drawer-title">Tiện ích quản trị</p>
+        <p className="admin-drawer-title">{menuTitle}</p>
 
-        <nav className="admin-drawer-grid" aria-label="Điều hướng quản trị">
+        <nav className="admin-drawer-grid" aria-label={menuAriaLabel}>
           {nav.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
@@ -544,7 +562,13 @@ function AdultChrome({
 
       {/* Mobile bottom nav */}
       <div className="lg:hidden">
-        <AdultBottomNav nav={nav} tone="parent" />
+        <AdminDrawer
+          nav={nav}
+          pinnedNav={nav.filter((item) => ['/kids', '/parent', '/parent/kids'].includes(item.to))}
+          tone="parent"
+          menuTitle="Tiện ích phụ huynh"
+          menuAriaLabel="Tất cả tiện ích phụ huynh"
+        />
       </div>
     </div>
   )
@@ -559,6 +583,18 @@ export function AppShell() {
   const { handleLogout, loggingOut } = useLogoutAction()
 
   const [gateOpen, setGateOpen] = useState(false)
+  const [profileTheme, setProfileTheme] = useState(() =>
+    user ? readRewardEquipment(user.id).theme : undefined,
+  )
+
+  useEffect(() => {
+    const syncTheme = () => {
+      setProfileTheme(user ? readRewardEquipment(user.id).theme : undefined)
+    }
+    syncTheme()
+    window.addEventListener('aikids:reward-equipped', syncTheme)
+    return () => window.removeEventListener('aikids:reward-equipped', syncTheme)
+  }, [user?.id])
 
   if (user?.role === 'parent') {
     return (
@@ -566,11 +602,12 @@ export function AppShell() {
         brandTo="/parent"
         nav={[
           { to: '/kids', label: 'Cho con học', icon: NavWorldIcon },
-          { to: '/parent', label: 'Tổng quan', icon: NavHomeIcon, end: true },
+          { to: '/parent', label: 'Tổng quan', icon: ParentDashboardIcon, end: true },
           { to: '/parent/kids', label: 'Con của tôi', icon: ParentKidsIcon },
+          { to: '/parent/learning', label: 'Học tập', icon: ParentLearningIcon },
           { to: '/parent/plan', label: 'Gói học', icon: ParentPlanIcon },
           { to: '/parent/approvals', label: 'Chờ duyệt', icon: ParentApprovalIcon },
-          { to: '/parent/profile', label: 'Hồ sơ', icon: NavProfileIcon },
+          { to: '/parent/profile', label: 'Hồ sơ', icon: ParentProfileIcon },
         ]}
       />
     )
@@ -586,7 +623,7 @@ export function AppShell() {
           { to: '/organization', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
           { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon },
           { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
-          { to: '/teacher/lectures', label: 'Bài giảng', icon: CmsLecturesIcon },
+          { to: '/teacher/lectures', label: 'Trạm học', icon: CmsLecturesIcon },
           { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
         ]}
       />
@@ -602,7 +639,7 @@ export function AppShell() {
         nav={[
           { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon, end: true },
           { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
-          { to: '/teacher/lectures', label: 'Bài giảng', icon: CmsLecturesIcon },
+          { to: '/teacher/lectures', label: 'Trạm học', icon: CmsLecturesIcon },
           { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
         ]}
       />
@@ -616,8 +653,9 @@ export function AppShell() {
       { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
       { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
       { to: '/admin/legends', label: 'Huyền thoại & Reward', icon: CmsAiIcon },
+      { to: '/admin/billing', label: 'Gói & Thanh toán', icon: CmsBillingIcon },
       { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
-      { to: '/teacher', label: 'Giáo viên', icon: CmsClassesIcon },
+      { to: '/teacher/courses', label: 'Biên soạn', icon: CmsCoursesIcon },
     ]
     // Show only the most-used items in the pinned bar; the rest live in the drawer
     const pinnedNav: RoleNavItem[] = [
@@ -640,11 +678,15 @@ export function AppShell() {
   // Icon Ba / Mẹ chỉ xuất hiện khi phụ huynh chủ động dùng luồng "Chuyển sang con".
   const showParentButton = enteredFromParent
   const isCreative = location.pathname.startsWith('/creative')
+  const featureTone = studentFeatureTone(location.pathname)
 
   return (
     <div
       className="aikid-student-shell min-h-dvh bg-fixed pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-8 md:pl-[6rem]"
-      style={aikidStudentBackground(location.pathname)}
+      data-feature-tone={featureTone}
+      style={location.pathname.startsWith('/profile') && profileTheme
+        ? profilePageThemeStyle(profileTheme)
+        : aikidStudentBackground(location.pathname)}
     >
       <aside className="student-rail fixed left-0 top-0 z-30 hidden h-dvh w-24 flex-col items-center gap-1.5 border-r border-border/70 py-4 md:flex">
         <NavLink
@@ -655,10 +697,11 @@ export function AppShell() {
           <BrandLogo size="md" className="max-w-[4.75rem]" />
         </NavLink>
         <nav className="student-rail-nav" aria-label="Điều hướng học sinh">
-          {studentNav.map(({ to, label, icon: Icon }) => (
+          {studentNav.map(({ to, label, icon: Icon, tone }) => (
             <NavLink
               key={to}
               to={to}
+              data-feature-tone={tone}
               className={({ isActive }) =>
                 cn(
                   'student-nav-link w-[4.5rem]',
@@ -667,9 +710,9 @@ export function AppShell() {
               }
             >
               <span className="student-nav-icon" aria-hidden="true">
-                <Icon size={36} />
+                <Icon size={28} />
               </span>
-              {label}
+              <span className="student-nav-label">{label}</span>
             </NavLink>
           ))}
         </nav>

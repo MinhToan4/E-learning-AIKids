@@ -1,7 +1,15 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
+import { ImportantCardMascot } from '@/shared/components/ui/ImportantCardMascot'
 import { api } from '@/shared/lib/api'
+import { designerAssets } from '@/shared/config/assets'
+import {
+  KidCreativeImageIcon,
+  KidProgressImageIcon,
+  KidProfileImageIcon,
+  KidStorybookImageIcon,
+} from '@/shared/components/icons/KidImageIcons'
 import { BookSpread } from '../components/BookSpread'
 import { GalleryWall } from '../components/GalleryWall'
 import { InteractionBoard } from '../components/InteractionBoard'
@@ -10,11 +18,15 @@ import { STORYBOOK_PAGES, type StorybookPage } from '../storybook-data'
 import { safeChapterColors, uniqueRewardIds, uniqueStorybookIds } from '../storybook-contract'
 
 type View = 'book' | 'gallery' | 'leaderboard' | 'interaction'
-const views: Array<{ id: View; label: string }> = [
-  { id: 'book', label: '📖 Cuốn sách' },
-  { id: 'gallery', label: '🖼️ Triển lãm' },
-  { id: 'leaderboard', label: '🏆 Vinh danh' },
-  { id: 'interaction', label: '🤝 Tương tác' },
+const views: Array<{
+  id: View
+  label: string
+  icon: React.ComponentType<{ size?: number; className?: string }>
+}> = [
+  { id: 'book', label: 'Cuốn sách', icon: KidStorybookImageIcon },
+  { id: 'gallery', label: 'Triển lãm', icon: KidCreativeImageIcon },
+  { id: 'leaderboard', label: 'Vinh danh', icon: KidProgressImageIcon },
+  { id: 'interaction', label: 'Tương tác', icon: KidProfileImageIcon },
 ]
 
 export function StorybookPage() {
@@ -140,52 +152,58 @@ export function StorybookPage() {
   )
 
   return (
-    <PageMotion className="flex flex-col gap-6">
-      <header className="relative overflow-hidden rounded-[2rem] bg-gradient-to-br from-indigo-950 via-violet-800 to-fuchsia-600 p-6 text-white shadow-xl sm:p-8">
-        <span className="absolute -right-6 -top-10 text-[12rem] opacity-15" aria-hidden>📖</span>
-        <div className="relative max-w-2xl">
-          <p className="text-xs font-black uppercase tracking-[0.24em] text-amber-300">
-            Storybook of Legends
-          </p>
-          <h1 className="mt-1 font-display text-4xl">Cuốn sách huyền thoại của con</h1>
-          <p className="mt-2 text-sm font-semibold text-white/85">
-            Mọi trang đều mở sẵn. Con tự chọn hành trình, sưu tầm sticker và lan tỏa
-            những lời động viên tích cực.
-          </p>
-          <Link to="/home" className="mt-4 inline-block text-sm font-bold text-amber-200 hover:underline">
-            ← Về sảnh
-          </Link>
+    <PageMotion className="flex flex-col gap-5 sm:gap-6">
+      <header className="student-feature-hero storybook-hero ui-card" data-tone="coral">
+        <div className="student-feature-hero-row">
+          <div className="max-w-2xl">
+            <div className="eyebrow-chip">
+              <KidStorybookImageIcon size={22} />
+              Huyền thoại
+            </div>
+            <h1 className="mt-3 font-display text-3xl font-extrabold leading-[1.08] text-text sm:text-4xl">Cuốn sách của con</h1>
+            <p className="mt-3 text-base font-semibold leading-relaxed text-muted sm:text-lg">
+              Mọi trang đều mở sẵn. Con tự chọn hành trình, sưu tầm sticker và lan tỏa
+              những lời động viên tích cực.
+            </p>
+            <Link to="/home" className="mt-3 inline-flex min-h-11 items-center font-extrabold text-brand-700 hover:underline">
+              ← Về sảnh
+            </Link>
+          </div>
+          <div className="storybook-hero-count" aria-label={`${publishedEarnedCount} trên ${publishedStickerIds.size} sticker đã mở`}>
+            <span className="student-feature-hero-icon" aria-hidden="true"><KidStorybookImageIcon size={42} /></span>
+            <p>
+              <strong className="block font-display text-2xl text-text">{loading ? '…' : `${publishedEarnedCount}/${publishedStickerIds.size}`}</strong>
+              <span className="text-sm font-bold text-muted">sticker đã mở</span>
+            </p>
+          </div>
+        </div>
+        <div className="student-feature-scene" aria-hidden="true">
+          <img src={designerAssets.worldScenes.storyIsland} alt="" />
+          <ImportantCardMascot pose="thinking" className="important-card-mascot--scene" />
         </div>
       </header>
 
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex max-w-full gap-1 overflow-x-auto rounded-2xl bg-slate-100 p-1" role="tablist">
-          {views.map((item) => (
+      <div className="storybook-view-tabs" role="tablist" aria-label="Chọn khu vực Huyền thoại">
+        {views.map((item) => {
+          const Icon = item.icon
+          return (
             <button
               key={item.id}
               type="button"
               role="tab"
               aria-selected={view === item.id}
               onClick={() => setView(item.id)}
-              className={`whitespace-nowrap rounded-xl px-3 py-2 text-sm font-extrabold ${
-                view === item.id ? 'bg-white shadow-sm' : 'text-muted'
-              }`}
+              className="storybook-view-tab"
             >
+              <Icon size={24} />
               {item.label}
             </button>
-          ))}
-        </div>
-        {view === 'book' && (
-          <p className="rounded-full bg-amber-100 px-4 py-2 text-sm font-extrabold text-amber-900">
-            {loading
-              ? 'Đang ghép sticker…'
-              : `${publishedEarnedCount}/${publishedStickerIds.size} sticker đã mở`}
-          </p>
-        )}
+          )
+        })}
       </div>
 
       {notice && (
-        <p className="rounded-2xl border border-amber-200 bg-amber-50 p-3 text-sm font-semibold text-amber-900">
+        <p className="rounded-2xl border border-sun-200 bg-sun-50 p-4 text-base font-semibold text-warning">
           {notice}
         </p>
       )}
