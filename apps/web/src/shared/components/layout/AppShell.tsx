@@ -568,6 +568,7 @@ export function AppShell() {
           { to: '/kids', label: 'Cho con học', icon: NavWorldIcon },
           { to: '/parent', label: 'Tổng quan', icon: NavHomeIcon, end: true },
           { to: '/parent/kids', label: 'Con của tôi', icon: ParentKidsIcon },
+          { to: '/parent/learning', label: 'Tình trạng học', icon: ParentDashboardIcon },
           { to: '/parent/plan', label: 'Gói học', icon: ParentPlanIcon },
           { to: '/parent/approvals', label: 'Chờ duyệt', icon: ParentApprovalIcon },
           { to: '/parent/profile', label: 'Hồ sơ', icon: NavProfileIcon },
