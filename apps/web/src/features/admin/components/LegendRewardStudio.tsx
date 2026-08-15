@@ -435,6 +435,7 @@ export function LegendRewardStudio() {
   const [editingItem, setEditingItem] = useState<StudioItem | null>(null)
   const [previewUrl, setPreviewUrl] = useState('')
   const [assetInfo, setAssetInfo] = useState('')
+  const [assetUploadError, setAssetUploadError] = useState('')
   const [chapterUploading, setChapterUploading] = useState('')
   const [chapterEditorFocus, setChapterEditorFocus] = useState<ChapterEditorFocus | null>(null)
   const [storybookPreviewMode, setStorybookPreviewMode] = useState<'locked' | 'complete'>('locked')
@@ -469,6 +470,8 @@ export function LegendRewardStudio() {
     setForm({ ...emptyForm(), contentType })
     setPreviewUrl('')
     setAssetInfo('')
+    setAssetUploadError('')
+    setMessage('')
     setShowCreateMenu(false)
     openDesigner('single')
     window.scrollTo({ top: 0, behavior: 'smooth' })
@@ -686,6 +689,7 @@ export function LegendRewardStudio() {
     const rewardKind = item.kind && kindOptions.includes(item.kind as RewardKind) ? item.kind as RewardKind : 'frame'
     setEditingItem(item)
     setMessage('')
+    setAssetUploadError('')
     setForm({
       ...emptyForm(),
       contentType: item.contentType,
@@ -741,11 +745,13 @@ export function LegendRewardStudio() {
       return `${file.name} · ${(file.size / 1024).toFixed(0)} KB · định dạng hợp lệ`
     }
     const spec = selectedSpec
+    const acceptedFormats = spec.formats.map((format) => format.split('/')[1].toUpperCase()).join(', ')
+    const actualFormat = file.type || file.name.split('.').pop()?.toUpperCase() || 'không xác định'
     if (!spec.formats.includes(file.type)) {
-      throw new Error(`Sai định dạng. ${spec.label} chỉ nhận: ${spec.formats.map((format) => format.split('/')[1].toUpperCase()).join(', ')}.`)
+      throw new Error(`Sai định dạng: file đang là ${actualFormat}. ${spec.label} chỉ nhận ${acceptedFormats}.`)
     }
     if (file.size > spec.maxMb * 1024 * 1024) {
-      throw new Error(`File vượt quá ${spec.maxMb} MB theo template ${spec.label}.`)
+      throw new Error(`File quá lớn: ${(file.size / 1024 / 1024).toFixed(2)} MB. ${spec.label} cho phép tối đa ${spec.maxMb} MB.`)
     }
     if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') {
       return `${file.name} · ${(file.size / 1024).toFixed(0)} KB · định dạng hợp lệ`
@@ -774,7 +780,7 @@ export function LegendRewardStudio() {
       }
       image.onerror = () => {
         URL.revokeObjectURL(objectUrl)
-        reject(new Error('Không đọc được kích thước ảnh.'))
+        reject(new Error(`Không đọc được ảnh hoặc file đã hỏng. Hãy xuất lại ${acceptedFormats} đúng ${spec.width}×${spec.height}px.`))
       }
       image.src = objectUrl
     })
@@ -782,7 +788,7 @@ export function LegendRewardStudio() {
       throw new Error(`Sai kích thước ${dimensions.width}×${dimensions.height}px. Template ${spec.label} yêu cầu đúng ${spec.width}×${spec.height}px.`)
     }
     if (spec.transparent && !dimensions.hasTransparency) {
-      throw new Error(`${spec.label} bắt buộc có nền trong suốt để ghép với các reward khác.`)
+      throw new Error(`Ảnh ${dimensions.width}×${dimensions.height}px đúng size nhưng không có nền trong suốt. ${spec.label} bắt buộc transparency để ghép layer.`)
     }
     return `${file.name} · ${dimensions.width}×${dimensions.height}px · ${(file.size / 1024).toFixed(0)} KB · đạt chuẩn`
   }
@@ -790,6 +796,7 @@ export function LegendRewardStudio() {
   const uploadAsset = async (file: File) => {
     setUploading(true)
     setMessage('')
+    setAssetUploadError('')
     try {
       const inspection = await inspectAsset(file)
       setAssetInfo(inspection)
@@ -807,6 +814,7 @@ export function LegendRewardStudio() {
       setAssetInfo('')
       setPreviewUrl('')
       const reason = error instanceof Error ? error.message : 'Không tải được asset.'
+      setAssetUploadError(reason)
       setMessage(`${reason} File chưa được upload; version vẫn đang dùng asset cũ.`)
     } finally {
       setUploading(false)
@@ -1651,6 +1659,7 @@ export function LegendRewardStudio() {
                     setForm({ ...form, kind, displayJson: displayTemplate(kind), assetUrl: '' })
                     setPreviewUrl('')
                     setAssetInfo('')
+                    setAssetUploadError('')
                   }}>
                     {kindOptions.map((kind) => <option key={kind} value={kind}>{assetSpecs[kind].label}</option>)}
                   </select>
@@ -1681,17 +1690,23 @@ export function LegendRewardStudio() {
                 <UploadCloud className="mx-auto h-9 w-9 text-brand-600" aria-hidden="true" />
                 <span className="mt-3 block text-base font-extrabold">{uploading ? 'Đang kiểm tra và tải lên…' : editingItem ? 'Tải asset mới cho version này' : 'Chọn file đúng template để preview'}</span>
                 <span className="mt-1 block text-sm text-muted">{form.contentType === 'reward' ? `${selectedSpec.width}×${selectedSpec.height}px · tối đa ${selectedSpec.maxMb} MB` : 'PNG, WebP, JPG, JSON hoặc WebM'}</span>
-                <input type="file" accept=".png,.webp,.jpg,.jpeg,.svg,.json,.webm" className="sr-only" disabled={uploading} onChange={(event) => {
+                <input type="file" accept={form.contentType === 'reward' ? selectedSpec.formats.join(',') : '.png,.webp,.jpg,.jpeg,.svg,.json,.webm'} className="sr-only" disabled={uploading} onChange={(event) => {
                   const file = event.target.files?.[0]
+                  event.currentTarget.value = ''
                   if (file) {
                     void uploadAsset(file)
                   }
                 }} />
               </label>}
-              {form.contentType !== 'chapter' && form.contentType !== 'achievement' && message && (
-                <p className={`rounded-xl p-3 text-sm font-bold ${message.includes('đã tải lên') ? 'bg-emerald-50 text-emerald-800' : 'bg-rose-50 text-rose-800'}`} role="status" aria-live="polite">
-                  {message}
-                </p>
+              {form.contentType !== 'chapter' && form.contentType !== 'achievement' && assetUploadError && (
+                <div className="rounded-2xl border-2 border-rose-200 bg-rose-50 p-4 text-rose-900" role="alert" aria-live="assertive">
+                  <div className="flex items-start gap-3"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" /><div><p className="font-extrabold">Upload chưa thành công</p><p className="mt-1 text-sm font-bold">{assetUploadError}</p></div></div>
+                  {form.contentType === 'reward' && <p className="mt-3 rounded-xl bg-white/80 px-3 py-2 text-xs font-bold">Yêu cầu: {selectedSpec.formats.map((format) => format.split('/')[1].toUpperCase()).join(' / ')} · {selectedSpec.width}×{selectedSpec.height}px · tối đa {selectedSpec.maxMb} MB · {selectedSpec.transparent ? 'nền trong suốt' : 'không bắt buộc nền trong suốt'}.</p>}
+                  <p className="mt-2 text-xs font-semibold">File chưa được đưa lên Storage. Chọn lại file sau khi sửa; bạn có thể chọn lại chính file vừa chọn.</p>
+                </div>
+              )}
+              {form.contentType !== 'chapter' && form.contentType !== 'achievement' && !assetUploadError && message.includes('đã tải lên') && (
+                <p className="rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800" role="status" aria-live="polite">✓ {message}</p>
               )}
               {form.contentType !== 'chapter' && form.contentType !== 'achievement' && assetInfo && <p className="rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">✓ {assetInfo}</p>}
               {form.contentType !== 'chapter' && form.contentType !== 'achievement' && <p className="break-all rounded-xl bg-white p-3 text-xs text-muted">{form.assetUrl || 'Chưa có URL asset — preview tạm sẽ xuất hiện ngay khi chọn file.'}</p>}
@@ -1721,8 +1736,8 @@ export function LegendRewardStudio() {
               </label>
             </details>}
             <div className="flex gap-3">
-              <Button type="button" variant="secondary" onClick={() => { setEditingItem(null); setForm(emptyForm()); setPreviewUrl(''); setView('map') }} className="flex-1">Hủy</Button>
-              <Button type="submit" disabled={busy || uploading} className="flex-[2]">{editingItem?.status === 'published' || editingItem?.status === 'retired' ? 'Lưu thành bản nháp mới' : editingItem ? 'Lưu thay đổi bản nháp' : 'Lưu bản nháp'}</Button>
+              <Button type="button" variant="secondary" onClick={() => { setEditingItem(null); setForm(emptyForm()); setPreviewUrl(''); setAssetInfo(''); setAssetUploadError(''); setMessage(''); setView('map') }} className="flex-1">Hủy</Button>
+              <Button type="submit" disabled={busy || uploading || Boolean(assetUploadError)} className="flex-[2]">{assetUploadError ? 'Sửa lỗi upload trước khi lưu' : editingItem?.status === 'published' || editingItem?.status === 'retired' ? 'Lưu thành bản nháp mới' : editingItem ? 'Lưu thay đổi bản nháp' : 'Lưu bản nháp'}</Button>
             </div>
           </form>
 
