@@ -156,28 +156,10 @@ const ParentLearningPage = lazy(() =>
     default: m.ParentLearningPage,
   })),
 )
-// Teacher dashboards and scheduling
-const TeacherDashboardPage = lazy(() =>
-  import('@/features/teacher/pages/TeacherDashboardPage').then((m) => ({
-    default: m.TeacherDashboardPage,
-  })),
-)
-// Scheduling: class sessions + reschedule requests (teacher-only)
-const SchedulingPage = lazy(() =>
-  import('@/features/teacher/pages/SchedulingPage').then((m) => ({
-    default: m.SchedulingPage,
-  })),
-)
 // Assessment authoring: question bank + publish (teacher-only)
 const AssessmentAuthoringPage = lazy(() =>
   import('@/features/teacher/pages/AssessmentAuthoringPage').then((m) => ({
     default: m.AssessmentAuthoringPage,
-  })),
-)
-// Teacher operations: attendance, observations, grading queue
-const TeacherOperationsPage = lazy(() =>
-  import('@/features/teacher/pages/TeacherOperationsPage').then((m) => ({
-    default: m.TeacherOperationsPage,
   })),
 )
 // Admin: age-experience policy configuration
@@ -476,8 +458,7 @@ export function App() {
 
             {/* ═══════════════════════════════ Teacher routes ═══════════════════════════════
                 /teacher/*        → teacher + admin (read-only ops)
-                /teacher/dashboard, /teacher/scheduling, /teacher/assessments,
-                /teacher/operations → teacher ONLY (write actions on learner data)
+                /teacher/assessments → teacher ONLY (write actions on learner data)
             ══════════════════════════════════════════════════════════════════════════════ */}
             <Route
               path="/teacher"
@@ -508,33 +489,6 @@ export function App() {
               element={
                 <Guard roles={['teacher', 'admin']}>
                   <TeacherPage tab="stats" />
-                </Guard>
-              }
-            />
-            {/* Dashboard: weekly schedule overview + quick-action links */}
-            <Route
-              path="/teacher/dashboard"
-              element={
-                <Guard roles={['teacher']}>
-                  <TeacherDashboardPage />
-                </Guard>
-              }
-            />
-            {/* Operations: attendance, observations, manual grading queue */}
-            <Route
-              path="/teacher/operations"
-              element={
-                <Guard roles={['teacher', 'admin']}>
-                  <TeacherOperationsPage />
-                </Guard>
-              }
-            />
-            {/* Strict teacher-only: scheduling touches learner sessions */}
-            <Route
-              path="/teacher/scheduling"
-              element={
-                <Guard roles={['teacher']}>
-                  <SchedulingPage />
                 </Guard>
               }
             />
