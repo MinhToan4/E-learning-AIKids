@@ -105,6 +105,22 @@ export function CmsAiIcon({ size = 20, className = '', ...props }: IconProps) {
   )
 }
 
+export function CmsFeedbackIcon({ size = 20, className = '', ...props }: IconProps) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} {...props}>
+      <path
+        d="M20 11.5C20 6.80558 16.4183 3 12 3C7.58172 3 4 6.80558 4 11.5C4 13.5133 4.68652 15.3619 5.84074 16.8288L4.5 21L8.85764 19.8272C9.8214 20.2588 10.8809 20.5 12 20.5C16.4183 20.5 20 16.6944 20 11.5Z"
+        fill="#55E6C1"
+        stroke="#00CEC9"
+        strokeWidth="1.2"
+      />
+      <path d="M8 9.5H16" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
+      <path d="M8 13.5H13.5" stroke="#FFFFFF" strokeWidth="1.8" strokeLinecap="round" />
+      <circle cx="16" cy="13.5" r="1.5" fill="#FFEAA7" />
+    </svg>
+  )
+}
+
 export function CmsLogoutIcon({ size = 20, className = '', ...props }: IconProps) {
   return (
     <svg width={size} height={size} viewBox="0 0 24 24" fill="none" className={className} {...props}>
@@ -113,3 +129,4 @@ export function CmsLogoutIcon({ size = 20, className = '', ...props }: IconProps
     </svg>
   )
 }
+

@@ -55,7 +55,7 @@ export function ParentTeacherFeedbackSection({ childId }: Props) {
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Cập nhật từ giáo viên</p>
             <h2 className="font-display text-2xl">Nhận xét giáo viên</h2>
-            <p className="mt-1 text-sm text-muted">{child?.name ?? 'Học sinh'} · Mỗi nhận xét đều gắn đúng hồ sơ của con.</p>
+            <p className="mt-1 text-sm text-muted">{child?.name ?? 'Học sinh'}</p>
           </div>
         </div>
         {child && <div className="rounded-2xl bg-brand-50 px-4 py-3 text-right text-sm text-brand-800"><p className="font-bold">Cấp {child.level ?? 1}</p><p>{child.ageBand ?? 'Đang cập nhật độ tuổi'}</p></div>}

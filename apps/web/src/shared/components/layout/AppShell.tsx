@@ -5,17 +5,20 @@ import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 import { NotificationBell } from '@/features/notifications/components/NotificationBell'
 import { api } from '@/shared/lib/api'
 import { ParentGateModal } from '@/features/parent/components/ParentGateModal'
+import { useParentFeedbackBadge } from '@/features/parent/hooks/useParentFeedbackBadge'
 import {
   CmsAiIcon,
   CmsAnalyticsIcon,
   CmsClassesIcon,
   CmsCoursesIcon,
+  CmsFeedbackIcon,
   CmsLecturesIcon,
   CmsLogsIcon,
   CmsLogoutIcon,
   CmsOverviewIcon,
   CmsUsersIcon,
 } from '@/shared/components/icons/CmsIcons'
+
 import { NavHomeIcon, NavProfileIcon, NavWorldIcon } from '@/shared/components/icons/KidNavIcons'
 import {
   KidBackpackImageIcon,
@@ -48,6 +51,7 @@ type RoleNavItem = {
   label: string
   icon: NavIcon
   end?: boolean
+  badge?: boolean
 }
 
 function aikidStudentBackground(pathname: string): CSSProperties {
@@ -157,7 +161,7 @@ const studentNav = [
 function DesktopSideNav({ nav }: { nav: RoleNavItem[] }) {
   return (
     <nav className="role-nav" aria-label="Điều hướng khu vực">
-      {nav.map(({ to, label, icon: Icon, end }) => (
+      {nav.map(({ to, label, icon: Icon, end, badge }) => (
         <NavLink
           key={to}
           to={to}
@@ -166,8 +170,14 @@ function DesktopSideNav({ nav }: { nav: RoleNavItem[] }) {
             cn('role-nav-link', isActive && 'role-nav-link-active')
           }
         >
-          <span className="role-nav-icon" aria-hidden="true">
+          <span className="role-nav-icon relative" aria-hidden="true">
             <Icon size={23} />
+            {badge && (
+              <span
+                aria-label="Có nhận xét mới"
+                className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-danger ring-2 ring-white"
+              />
+            )}
           </span>
           <span>{label}</span>
         </NavLink>
@@ -182,6 +192,7 @@ function AdultBottomLink({
   label,
   icon: Icon,
   end,
+  badge,
   tone,
 }: RoleNavItem & { tone: string }) {
   return (
@@ -192,8 +203,14 @@ function AdultBottomLink({
         cn('adult-bottom-link', `adult-bottom-link-${tone}`, isActive && 'adult-bottom-link-active')
       }
     >
-      <span className="adult-bottom-icon" aria-hidden="true">
+      <span className="adult-bottom-icon relative" aria-hidden="true">
         <Icon size={22} />
+        {badge && (
+          <span
+            aria-label="Có nhận xét mới"
+            className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-danger ring-2 ring-white"
+          />
+        )}
       </span>
       <span>{label}</span>
     </NavLink>
@@ -560,6 +577,9 @@ export function AppShell() {
 
   const [gateOpen, setGateOpen] = useState(false)
 
+  // eslint-disable-next-line react-hooks/rules-of-hooks
+  const feedbackBadge = useParentFeedbackBadge(user?.role)
+
   if (user?.role === 'parent') {
     return (
       <AdultChrome
@@ -568,7 +588,7 @@ export function AppShell() {
           { to: '/kids', label: 'Cho con học', icon: NavWorldIcon },
           { to: '/parent', label: 'Tổng quan', icon: NavHomeIcon, end: true },
           { to: '/parent/kids', label: 'Con của tôi', icon: ParentKidsIcon },
-          { to: '/parent/learning', label: 'Tình trạng học', icon: ParentDashboardIcon },
+          { to: '/parent/learning', label: 'Tình trạng học', icon: ParentDashboardIcon, badge: feedbackBadge.hasAny },
           { to: '/parent/plan', label: 'Gói học', icon: ParentPlanIcon },
           { to: '/parent/approvals', label: 'Chờ duyệt', icon: ParentApprovalIcon },
           { to: '/parent/profile', label: 'Hồ sơ', icon: NavProfileIcon },
@@ -601,7 +621,9 @@ export function AppShell() {
         roleLabel="Giáo viên"
         tone="teacher"
         nav={[
-          { to: '/teacher', label: 'Lớp học', icon: CmsClassesIcon, end: true },
+          { to: '/teacher', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },
+          { to: '/teacher/class', label: 'Lớp học', icon: CmsClassesIcon },
+          { to: '/teacher/feedback', label: 'Nhận xét', icon: CmsFeedbackIcon },
           { to: '/teacher/courses', label: 'Khóa học', icon: CmsCoursesIcon },
           { to: '/teacher/lectures', label: 'Bài giảng', icon: CmsLecturesIcon },
           { to: '/teacher/stats', label: 'Thống kê', icon: CmsAnalyticsIcon },
@@ -609,6 +631,7 @@ export function AppShell() {
       />
     )
   }
+
   if (user?.role === 'admin') {
     const allNav: RoleNavItem[] = [
       { to: '/admin', label: 'Tổng quan', icon: CmsOverviewIcon, end: true },

@@ -120,6 +120,11 @@ const TeacherPage = lazy(() =>
     default: m.TeacherPage,
   })),
 )
+const TeacherOverviewPage = lazy(() =>
+  import('@/features/teacher/pages/TeacherOverviewPage').then((m) => ({
+    default: m.TeacherOverviewPage,
+  })),
+)
 const AdminPage = lazy(() =>
   import('@/features/admin/pages/AdminPage').then((m) => ({
     default: m.AdminPage,
@@ -464,6 +469,14 @@ export function App() {
               path="/teacher"
               element={
                 <Guard roles={['teacher', 'admin']}>
+                  <TeacherOverviewPage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/teacher/class"
+              element={
+                <Guard roles={['teacher', 'admin']}>
                   <TeacherPage tab="class" />
                 </Guard>
               }
@@ -489,6 +502,14 @@ export function App() {
               element={
                 <Guard roles={['teacher', 'admin']}>
                   <TeacherPage tab="stats" />
+                </Guard>
+              }
+            />
+            <Route
+              path="/teacher/feedback"
+              element={
+                <Guard roles={['teacher', 'admin']}>
+                  <TeacherPage tab="feedback" />
                 </Guard>
               }
             />

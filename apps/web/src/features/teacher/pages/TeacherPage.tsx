@@ -119,7 +119,7 @@ type ProgressDetail = {
   quests: Array<{ title: string; status: string; stars: number }>
 }
 
-export type TeacherTab = 'class' | 'courses' | 'lectures' | 'stats'
+export type TeacherTab = 'class' | 'courses' | 'lectures' | 'stats' | 'feedback'
 
 function splitLines(value: string): string[] {
   return value
@@ -166,6 +166,11 @@ function StatusBadge({ status }: { status: string }) {
 // WHY: ErrorPanel dùng thay toast cho lỗi API nghiêm trọng —
 // toast tự biến mất trong 3s, user không kịp đọc khi tab trống.
 function ErrorPanel({ message, onRetry }: { message: string; onRetry: () => void }) {
+  const displayMsg = message.includes('ZodError') || message.includes('validation') || message.includes('Expected')
+    ? 'Dữ liệu phản hồi không đúng định dạng. Vui lòng thử lại.'
+    : message.includes('fetch') || message.includes('network') || message.includes('Failed to fetch')
+      ? 'Không thể kết nối máy chủ. Vui lòng kiểm tra mạng rồi thử lại.'
+      : message
   return (
     <div className="ui-card flex flex-col items-center gap-4 p-8 text-center" role="alert">
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-danger/10">
@@ -173,7 +178,7 @@ function ErrorPanel({ message, onRetry }: { message: string; onRetry: () => void
       </div>
       <div>
         <p className="font-display text-lg text-text">Không tải được dữ liệu</p>
-        <p className="mt-1 text-sm leading-relaxed text-muted">{message}</p>
+        <p className="mt-1 text-sm leading-relaxed text-muted">{displayMsg}</p>
       </div>
       <Button variant="secondary" onClick={onRetry} className="gap-2">
         <RefreshCw size={15} aria-hidden="true" />
@@ -302,7 +307,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     setLoading(true)
     setLoadError(null)
     try {
-      if (tab === 'class') await loadClass()
+      if (tab === 'class' || tab === 'feedback') await loadClass()
       else if (tab === 'stats') await loadStats()
       else await loadLectures()
     } catch (e) {
@@ -652,14 +657,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             )}
           </div>
         </>
-      )}
-      {classInfo && (
-        <div className="lg:col-span-2">
-          <TeacherFeedbackPanel
-            classes={[{ id: classInfo.id ?? '', name: classInfo.name, learners: students }]}
-            showToast={showToast}
-          />
-        </div>
       )}
     </div>
   )
@@ -1141,59 +1138,64 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               </thead>
               <tbody>
                 {statsPag.slice.map((s) => (
-                  <tr key={s.id} className={cn('border-b border-border/40', s.needsSupport && 'bg-sun-50')}>
-                    <td className="px-3 py-2 font-bold">{s.nickname}</td>
-                    <td className="px-3 py-2">{s.completedQuests}</td>
-                    <td className="px-3 py-2">
-                      <span className="block max-w-52 truncate font-semibold">{s.currentQuest ?? 'Chưa bắt đầu'}</span>
+                  <tr key={s.id} className={cn('border-b border-border/40 transition hover:bg-gray-50/40', s.needsSupport && 'bg-sun-50/30')}>
+                    <td className="px-4 py-3 font-bold">{s.nickname}</td>
+                    <td className="px-4 py-3 text-center text-muted">{s.completedQuests}</td>
+                    <td className="px-4 py-3">
+                      <span className="block font-medium">{s.currentQuest ?? '—'}</span>
                       {s.currentPhase && <span className="text-xs text-muted">{PHASE_LABELS[s.currentPhase] ?? 'Đang thực hiện'}</span>}
                     </td>
-                    <td className="px-3 py-2 text-xs text-muted">{formatActivity(s.lastActiveAt)}</td>
-                    <td className="px-3 py-2">
+                    <td className="px-4 py-3 text-xs text-muted">{formatActivity(s.lastActiveAt)}</td>
+                    <td className="px-4 py-3">
                       {s.needsSupport
-                        ? <button type="button" className="rounded-full bg-sun-100 px-3 py-1 text-xs font-bold text-warning" onClick={() => void viewProgress(s.id)}>Xem để hỗ trợ</button>
-                        : <span className="text-xs font-semibold text-success">Đang tiến triển tốt</span>}
+                        ? <button type="button" className="rounded-lg border border-warning/20 bg-white px-3 py-1 text-xs font-bold text-warning shadow-sm hover:bg-warning/10" onClick={() => void viewProgress(s.id)}>Cần xem</button>
+                        : <span className="px-2 text-xs font-semibold text-success">Ổn</span>}
                       {s.supportReason && <span className="mt-1 block max-w-48 text-xs text-muted">{s.supportReason}</span>}
                     </td>
                   </tr>
                 ))}
               </tbody>
             </table>
+            <div className="border-t border-border p-2">
             <Paginator
               page={statsPag.page} totalPages={statsPag.totalPages}
               totalItems={filteredStatStudents.length} pageSize={15}
               onPrev={statsPag.prev} onNext={statsPag.next} onGoTo={statsPag.goTo}
             />
-          </div>
-          <div className="divide-y divide-border/60 overflow-hidden rounded-2xl border border-border sm:hidden">
-            {statsPag.slice.length === 0 ? (
-              <p className="px-4 py-8 text-center text-sm text-muted">Không có học sinh khớp bộ lọc</p>
-            ) : statsPag.slice.map((s) => (
-              <article key={s.id} className={cn('space-y-3 px-4 py-4', s.needsSupport && 'bg-sun-50')}>
-                <div className="flex items-start justify-between gap-3">
-                  <p className="font-bold">{s.nickname}</p>
-                  <span className="shrink-0 text-xs font-bold text-muted">{s.completedQuests} trạm</span>
-                </div>
-                <div className="rounded-xl bg-white/70 px-3 py-2">
-                  <p className="text-sm font-semibold">{s.currentQuest ?? 'Chưa bắt đầu'}</p>
-                  <p className="mt-1 text-xs text-muted">{s.currentPhase ? PHASE_LABELS[s.currentPhase] ?? 'Đang thực hiện' : 'Chưa có hoạt động'} · {formatActivity(s.lastActiveAt)}</p>
-                </div>
-                {s.needsSupport ? (
-                  <Button variant="secondary" className="w-full" onClick={() => void viewProgress(s.id)}>Xem để hỗ trợ</Button>
-                ) : (
-                  <p className="text-xs font-semibold text-success">Đang tiến triển tốt</p>
-                )}
-                {s.supportReason && <p className="text-xs text-muted">{s.supportReason}</p>}
-              </article>
-            ))}
-            <Paginator
-              page={statsPag.page} totalPages={statsPag.totalPages}
-              totalItems={filteredStatStudents.length} pageSize={15}
-              onPrev={statsPag.prev} onNext={statsPag.next} onGoTo={statsPag.goTo}
-            />
+            </div>
           </div>
         </>
       )}
+    </div>
+  )
+
+  // ── Tab: Nhận xét cho phụ huynh ─────────────────────────────
+  const feedbackTab = (
+    <div className="flex flex-col gap-4">
+      <div className="ui-card border-l-4 border-l-brand-400 p-4">
+        <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">Hướng dẫn</p>
+        <p className="mt-1 text-sm text-muted">
+          Viết nhận xét cho từng học sinh — phụ huynh sẽ thấy sau khi bạn “Gửi nhận xét”.
+          Nhận xét ở trạng thái <strong>Nháp</strong> chưa hiển thị với phụ huynh.
+        </p>
+      </div>
+      {classInfo ? (
+        <TeacherFeedbackPanel
+          classes={[{ id: classInfo.id ?? '', name: classInfo.name, learners: students }]}
+          showToast={showToast}
+        />
+      ) : (
+        <div className="ui-card flex flex-col items-center gap-3 p-8 text-center">
+          <p className="font-display text-lg text-text">Chưa có lớp học</p>
+          <p className="max-w-md text-sm text-muted">
+            Tạo lớp học trước, sau đó viết nhận xét cho từng học sinh tại đây.
+          </p>
+          <Button variant="primary" onClick={() => navigate('/teacher/class')} className="mt-2">
+            Tạo lớp học ngay
+          </Button>
+        </div>
+      )}
+
     </div>
   )
 
@@ -1202,6 +1204,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
     courses: 'Khóa học',
     lectures: 'Bài giảng',
     stats: 'Thống kê',
+    feedback: 'Nhận xét cho phụ huynh',
   }
 
   function tabContent() {
@@ -1212,6 +1215,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
       case 'courses': return coursesTab
       case 'lectures': return lecturesTab
       case 'stats': return statsTab
+      case 'feedback': return feedbackTab
       default: return null
     }
   }
