@@ -47,6 +47,7 @@ type AssetSpec = {
   label: string
   width: number
   height: number
+  flexibleHeight?: boolean
   formats: string[]
   maxMb: number
   transparent: boolean
@@ -62,11 +63,17 @@ const assetSpecs: Record<RewardKind, AssetSpec> = {
   frame: { label: 'Khung avatar', width: 1024, height: 1024, formats: ['image/png', 'image/webp'], maxMb: 2, transparent: true, layer: 30, slot: 'avatar_frame', safeArea: 'Giữa ảnh phải trong suốt tối thiểu 58%', combinesWith: 'Background + Avatar + 1 Companion + 1 Effect' },
   companion: { label: 'Bạn đồng hành', width: 512, height: 512, formats: ['image/png', 'image/webp'], maxMb: 1.5, transparent: true, layer: 40, slot: 'avatar_companion', safeArea: 'Nhân vật trong 90%, chừa 5% mỗi cạnh', combinesWith: 'Background + Avatar + Frame + Effect' },
   effect: { label: 'Hiệu ứng', width: 1024, height: 1024, formats: ['video/webm', 'image/webp', 'image/png'], maxMb: 4, transparent: true, layer: 50, slot: 'avatar_effect', safeArea: 'Không che vùng mặt ở giữa 50%', combinesWith: 'Background + Avatar + Frame + Companion' },
-  title: { label: 'Khung danh hiệu', width: 1200, height: 320, formats: ['image/png', 'image/webp'], maxMb: 1.5, transparent: true, layer: 60, slot: 'profile_title', safeArea: 'Chừa vùng chữ giữa 70% × 55%', combinesWith: 'Nền trang + nền thẻ; nằm dưới thẻ hồ sơ' },
+  title: { label: 'Khung danh hiệu', width: 1200, height: 320, flexibleHeight: true, formats: ['image/png', 'image/webp', 'image/svg+xml'], maxMb: 1.5, transparent: true, layer: 60, slot: 'profile_title', safeArea: 'Chiều rộng cố định 1200px; chiều cao theo artwork, chừa vùng chữ giữa', combinesWith: 'Nền trang + nền thẻ; nằm dưới thẻ hồ sơ' },
   theme: { label: 'Nền toàn trang cá nhân', width: 1600, height: 1200, formats: ['application/json'], maxMb: 0.5, transparent: false, layer: 10, slot: 'profile_theme', safeArea: 'JSON token màu; không nhúng ảnh base64', combinesWith: 'Nền thẻ + Frame + Title; chỉ áp dụng trong trang cá nhân' },
   event_ticket: { label: 'Vé / banner sự kiện', width: 1200, height: 675, formats: ['image/webp', 'image/jpeg', 'image/png'], maxMb: 2, transparent: false, layer: 0, slot: 'event_card', safeArea: 'Chừa 20% bên trái cho tên và thời gian', combinesWith: 'Dùng độc lập trong card sự kiện' },
   perk: { label: 'Biểu tượng đặc quyền', width: 512, height: 512, formats: ['image/png', 'image/webp'], maxMb: 1, transparent: true, layer: 60, slot: 'perk_badge', safeArea: 'Icon trong 80% vùng giữa', combinesWith: 'Hiển thị độc lập ở ba lô và badge' },
 }
+
+export const assetDimensionLabel = (spec: Pick<AssetSpec, 'width' | 'height' | 'flexibleHeight'>) =>
+  spec.flexibleHeight ? `${spec.width}px ngang × cao tự do` : `${spec.width}×${spec.height}px`
+
+export const isAssetDimensionValid = (spec: Pick<AssetSpec, 'width' | 'height' | 'flexibleHeight'>, width: number, height: number) =>
+  width === spec.width && (spec.flexibleHeight ? height > 0 : height === spec.height)
 
 const storybookThemePresets = STORYBOOK_PAGES.map((page) => ({
   key: page.slug.toLowerCase(),
@@ -753,7 +760,7 @@ export function LegendRewardStudio() {
     if (file.size > spec.maxMb * 1024 * 1024) {
       throw new Error(`File quá lớn: ${(file.size / 1024 / 1024).toFixed(2)} MB. ${spec.label} cho phép tối đa ${spec.maxMb} MB.`)
     }
-    if (!file.type.startsWith('image/') || file.type === 'image/svg+xml') {
+    if (!file.type.startsWith('image/')) {
       return `${file.name} · ${(file.size / 1024).toFixed(0)} KB · định dạng hợp lệ`
     }
     const dimensions = await new Promise<{ width: number; height: number; hasTransparency: boolean }>((resolve, reject) => {
@@ -780,12 +787,12 @@ export function LegendRewardStudio() {
       }
       image.onerror = () => {
         URL.revokeObjectURL(objectUrl)
-        reject(new Error(`Không đọc được ảnh hoặc file đã hỏng. Hãy xuất lại ${acceptedFormats} đúng ${spec.width}×${spec.height}px.`))
+        reject(new Error(`Không đọc được ảnh hoặc file đã hỏng. Hãy xuất lại ${acceptedFormats} với ${assetDimensionLabel(spec)}.`))
       }
       image.src = objectUrl
     })
-    if (dimensions.width !== spec.width || dimensions.height !== spec.height) {
-      throw new Error(`Sai kích thước ${dimensions.width}×${dimensions.height}px. Template ${spec.label} yêu cầu đúng ${spec.width}×${spec.height}px.`)
+    if (!isAssetDimensionValid(spec, dimensions.width, dimensions.height)) {
+      throw new Error(`Sai kích thước ${dimensions.width}×${dimensions.height}px. Template ${spec.label} yêu cầu ${assetDimensionLabel(spec)}.`)
     }
     if (spec.transparent && !dimensions.hasTransparency) {
       throw new Error(`Ảnh ${dimensions.width}×${dimensions.height}px đúng size nhưng không có nền trong suốt. ${spec.label} bắt buộc transparency để ghép layer.`)
@@ -1672,7 +1679,7 @@ export function LegendRewardStudio() {
                       <p className="text-xs font-black uppercase tracking-wider text-brand-600">Template bắt buộc</p>
                       <h4 className="mt-1 text-lg font-extrabold">{selectedSpec.label}</h4>
                     </div>
-                    <span className="rounded-full bg-white px-3 py-1 text-sm font-black text-brand-700">{selectedSpec.width} × {selectedSpec.height}px</span>
+                    <span className="rounded-full bg-white px-3 py-1 text-sm font-black text-brand-700">{assetDimensionLabel(selectedSpec)}</span>
                   </div>
                   <div className="mt-4 grid gap-3 sm:grid-cols-2">
                     <p className="rounded-xl bg-white p-3 text-sm"><strong>Định dạng:</strong><br />{selectedSpec.formats.map((format) => format.split('/')[1].toUpperCase()).join(' · ')}</p>
@@ -1689,7 +1696,7 @@ export function LegendRewardStudio() {
               {form.contentType !== 'chapter' && form.contentType !== 'achievement' && <label className="block min-h-40 cursor-pointer rounded-2xl border-2 border-dashed border-brand-400 bg-white p-8 text-center shadow-sm hover:border-brand-600 hover:bg-brand-50/30">
                 <UploadCloud className="mx-auto h-9 w-9 text-brand-600" aria-hidden="true" />
                 <span className="mt-3 block text-base font-extrabold">{uploading ? 'Đang kiểm tra và tải lên…' : editingItem ? 'Tải asset mới cho version này' : 'Chọn file đúng template để preview'}</span>
-                <span className="mt-1 block text-sm text-muted">{form.contentType === 'reward' ? `${selectedSpec.width}×${selectedSpec.height}px · tối đa ${selectedSpec.maxMb} MB` : 'PNG, WebP, JPG, JSON hoặc WebM'}</span>
+                <span className="mt-1 block text-sm text-muted">{form.contentType === 'reward' ? `${assetDimensionLabel(selectedSpec)} · tối đa ${selectedSpec.maxMb} MB` : 'PNG, WebP, JPG, JSON hoặc WebM'}</span>
                 <input type="file" accept={form.contentType === 'reward' ? selectedSpec.formats.join(',') : '.png,.webp,.jpg,.jpeg,.svg,.json,.webm'} className="sr-only" disabled={uploading} onChange={(event) => {
                   const file = event.target.files?.[0]
                   event.currentTarget.value = ''
@@ -1701,7 +1708,7 @@ export function LegendRewardStudio() {
               {form.contentType !== 'chapter' && form.contentType !== 'achievement' && assetUploadError && (
                 <div className="rounded-2xl border-2 border-rose-200 bg-rose-50 p-4 text-rose-900" role="alert" aria-live="assertive">
                   <div className="flex items-start gap-3"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" /><div><p className="font-extrabold">Upload chưa thành công</p><p className="mt-1 text-sm font-bold">{assetUploadError}</p></div></div>
-                  {form.contentType === 'reward' && <p className="mt-3 rounded-xl bg-white/80 px-3 py-2 text-xs font-bold">Yêu cầu: {selectedSpec.formats.map((format) => format.split('/')[1].toUpperCase()).join(' / ')} · {selectedSpec.width}×{selectedSpec.height}px · tối đa {selectedSpec.maxMb} MB · {selectedSpec.transparent ? 'nền trong suốt' : 'không bắt buộc nền trong suốt'}.</p>}
+                  {form.contentType === 'reward' && <p className="mt-3 rounded-xl bg-white/80 px-3 py-2 text-xs font-bold">Yêu cầu: {selectedSpec.formats.map((format) => format.split('/')[1].toUpperCase()).join(' / ')} · {assetDimensionLabel(selectedSpec)} · tối đa {selectedSpec.maxMb} MB · {selectedSpec.transparent ? 'nền trong suốt' : 'không bắt buộc nền trong suốt'}.</p>}
                   <p className="mt-2 text-xs font-semibold">File chưa được đưa lên Storage. Chọn lại file sau khi sửa; bạn có thể chọn lại chính file vừa chọn.</p>
                 </div>
               )}
