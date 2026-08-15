@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react'
 import { Camera, Upload } from 'lucide-react'
 import { NavBackpackIcon } from '@/shared/components/icons/KidNavIcons'
-import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
+import { AikidModalCatCharacter } from '@/shared/components/ui/AikidModalCatCharacter'
 import { uploadProfileAvatar } from '@/shared/lib/media-api'
 import type { ProfileAvatar } from '../profile-showcase'
 
@@ -77,7 +77,7 @@ export function AvatarPickerModal({
             <h2 id="avatar-picker-title" className="font-display text-3xl">Chọn ảnh của con</h2>
             <p className="text-sm text-muted">Ảnh chỉ dùng cho hồ sơ; chia sẻ công khai vẫn theo quyền phụ huynh.</p>
           </div>
-          <AikidCatCharacter pose="thinking" className="pointer-events-none absolute right-12 -top-3 hidden w-24 sm:block" />
+          <AikidModalCatCharacter className="pointer-events-none absolute right-12 -top-3 h-20 w-20 sm:h-24 sm:w-24" />
           <button type="button" onClick={onClose} className="relative z-10 grid h-11 w-11 shrink-0 place-items-center rounded-full bg-coral-400 text-xl font-black text-white" aria-label="Đóng">×</button>
         </div>
 

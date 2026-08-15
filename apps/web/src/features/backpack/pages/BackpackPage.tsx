@@ -6,7 +6,9 @@ import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
+import { ImportantCardMascot } from '@/shared/components/ui/ImportantCardMascot'
 import { designerAssets } from '@/shared/config/assets'
+import { KidBackpackImageIcon } from '@/shared/components/icons/KidImageIcons'
 import {
   NavBadgeIcon,
   NavCreativeIcon,
@@ -18,6 +20,7 @@ import {
   type RewardCatalogAssets,
 } from '@/features/rewards/reward-catalog-assets'
 import { displayableRewardInventory } from '@/features/rewards/reward-inventory'
+import { rewardTitleAsset } from '@/features/rewards/title-assets'
 
 type Asset = {
   id: string
@@ -239,11 +242,20 @@ export function BackpackPage() {
 
   return (
     <PageMotion className="flex flex-col gap-6">
-      <header>
-        <h1 className="font-display text-3xl sm:text-4xl">Ba lô của con</h1>
-        <p className="mt-1 max-w-2xl text-base text-muted">
-          Chọn một ngăn để xem quà, tác phẩm hoặc đồ con nhận trong bài học.
-        </p>
+      <header className="student-feature-hero important-card-with-hero-mascot ui-card p-5 sm:p-7" data-tone="sun">
+        <ImportantCardMascot pose="welcome" className="important-card-mascot--hero" />
+        <div className="student-feature-hero-row">
+          <div className="max-w-2xl">
+            <div className="eyebrow-chip">
+              <KidBackpackImageIcon size={22} />
+              Bộ sưu tập
+            </div>
+            <h1 className="mt-3 font-display text-3xl font-extrabold leading-tight text-text sm:text-4xl">Ba lô của con</h1>
+            <p className="mt-2 text-base font-semibold leading-relaxed text-muted">
+              Quà, tác phẩm và vật phẩm học tập của con đều được cất ở đây.
+            </p>
+          </div>
+        </div>
       </header>
       {msg && (
         <p className="rounded-xl bg-mint-100 px-3 py-2 text-sm text-success">{msg}</p>
@@ -282,8 +294,10 @@ export function BackpackPage() {
             type="button"
             aria-current={selected ? 'page' : undefined}
             onClick={() => setSection(item.id)}
-            className={`ui-card grid min-h-28 grid-cols-[auto_1fr_auto] items-center gap-3 p-4 text-left transition-transform focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus active:translate-y-0.5 ${
-              selected ? 'border-2 border-brand-500 bg-brand-50 shadow-press' : 'hover:border-brand-200'
+            className={`ui-card grid min-h-28 grid-cols-[auto_1fr_auto] items-center gap-3 border-2 p-4 text-left transition-[transform,box-shadow,border-color] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus active:translate-y-0.5 ${
+              selected
+                ? 'border-brand-500 bg-brand-50 shadow-press'
+                : 'border-border bg-white shadow-soft hover:-translate-y-0.5 hover:border-brand-200 hover:shadow-clay'
             }`}
           >
             <span className="student-nav-icon !h-12 !w-12 !rounded-2xl" aria-hidden="true">
@@ -331,7 +345,9 @@ export function BackpackPage() {
                   </div>
                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 xl:grid-cols-4">
                     {group.items.map((reward) => {
-                      const assetUrl = resolveCatalogRewardAsset({ id: reward.code, assets: reward.assets }, 'thumbnail')
+                      const assetUrl = reward.kind === 'title'
+                        ? rewardTitleAsset(reward.code)
+                        : resolveCatalogRewardAsset({ id: reward.code, assets: reward.assets }, 'thumbnail')
                       return (
                         <article key={reward.code} className="ui-card overflow-hidden p-3">
                           <div className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-2xl bg-brand-50">

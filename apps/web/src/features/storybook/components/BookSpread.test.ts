@@ -12,4 +12,19 @@ describe('storybook chapter state', () => {
     regular.add(`${page.slug}-S9`)
     expect(storybookChapterState(page, regular)).toEqual({ earnedCount: 9, ready: false, complete: true })
   })
+
+  it('provides the complete Figma sticker layout for every chapter', () => {
+    expect(STORYBOOK_PAGES).toHaveLength(8)
+
+    for (const chapter of STORYBOOK_PAGES) {
+      expect(chapter.stickers).toHaveLength(9)
+      expect(chapter.stickers.every((sticker) => sticker.placement)).toBe(true)
+      expect(chapter.stickerSheetUrl).toMatch(
+        /^\/assets\/designer\/storybook\/stickers-v3\/chapter-0[1-8]\.webp$/,
+      )
+      expect(chapter.stickers.map((sticker) => sticker.sheetIndex).sort()).toEqual([
+        0, 1, 2, 3, 4, 5, 6, 7, 8,
+      ])
+    }
+  })
 })

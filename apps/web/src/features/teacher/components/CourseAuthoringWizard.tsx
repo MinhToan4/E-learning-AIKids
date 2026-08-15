@@ -40,9 +40,9 @@ export function CourseAuthoringWizard({ value, onChange, onSubmit, mode = 'creat
   return (
     <form className="ui-card overflow-hidden" onSubmit={onSubmit} noValidate>
       <div className="border-b border-border/60 bg-sky-50/60 p-5">
-        <p className="text-xs font-extrabold uppercase tracking-wide text-sky-600">Tạo khóa học mới</p>
-        <h2 className="mt-1 font-display text-2xl text-text">Đi từng bước, không bỏ sót</h2>
-        <p className="mt-1 text-sm leading-relaxed text-muted">Khóa được lưu ở trạng thái bản nháp. Bạn sẽ thêm bài học và kiểm tra lần cuối trước khi mở cho học sinh.</p>
+        <p className="text-xs font-extrabold uppercase tracking-wide text-sky-600">{mode === 'edit' ? 'Thông tin trên frontend học sinh' : 'Tạo giáo trình mới'}</p>
+        <h2 className="mt-1 font-display text-2xl text-text">{mode === 'edit' ? 'Sửa đúng nội dung học sinh sẽ thấy' : 'Tạo khung giáo trình trước, thêm trạm sau'}</h2>
+        <p className="mt-1 text-sm leading-relaxed text-muted">Tên, mô tả, mục tiêu và sản phẩm sẽ xuất hiện trên trang học. Các trạm được soạn và sắp xếp riêng trong mục Nội dung & lộ trình.</p>
 
         <ol className="mt-4 grid gap-2 sm:grid-cols-3" aria-label="Tiến trình tạo khóa học">
           {readiness.steps.map((item, index) => (
@@ -82,12 +82,12 @@ export function CourseAuthoringWizard({ value, onChange, onSubmit, mode = 'creat
         {stepIndex === 0 && (
           <div className="grid gap-4 sm:grid-cols-2">
             <label className={`${labelClass} sm:col-span-2`}>
-              Tên khóa học
+              Tên vùng/khóa học trên trang học
               <input className={inputClass} value={value.title} onChange={(event) => changeTitle(event.target.value)} placeholder="Ví dụ: Kể chuyện cùng AI" autoFocus />
-              <span className="text-xs font-normal text-muted">Dùng tên rõ ràng để giáo viên và phụ huynh hiểu ngay nội dung.</span>
+              <span className="text-xs font-normal text-muted">Đây là tiêu đề lớn học sinh thấy trên bản đồ hành trình.</span>
             </label>
             <label className={labelClass}>
-              Tên ngắn trên thẻ khóa học
+              Tên ngắn trên thẻ hành trình
               <input className={inputClass} value={value.shortTitle} onChange={(event) => setField('shortTitle', event.target.value)} placeholder="Kể chuyện AI" />
             </label>
             <label className={labelClass}>
@@ -95,11 +95,11 @@ export function CourseAuthoringWizard({ value, onChange, onSubmit, mode = 'creat
               <input className={inputClass} value={value.durationLabel} onChange={(event) => setField('durationLabel', event.target.value)} placeholder="8 tuần" />
             </label>
             <label className={`${labelClass} sm:col-span-2`}>
-              Câu giới thiệu ngắn
+              Câu mô tả dưới tiêu đề
               <input className={inputClass} value={value.tagline} onChange={(event) => setField('tagline', event.target.value)} placeholder="Biến ý tưởng thành câu chuyện đáng nhớ" />
             </label>
             <label className={`${labelClass} sm:col-span-2`}>
-              Mô tả khóa học
+              Giới thiệu giáo trình
               <textarea className={`${textareaClass} min-h-28`} value={value.description} onChange={(event) => setField('description', event.target.value)} placeholder="Học sinh sẽ trải nghiệm gì và vì sao khóa học này hữu ích?" />
             </label>
             <label className={labelClass}>
@@ -137,16 +137,16 @@ export function CourseAuthoringWizard({ value, onChange, onSubmit, mode = 'creat
         {stepIndex === 1 && (
           <div className="grid gap-4 sm:grid-cols-2">
             <label className={`${labelClass} sm:col-span-2`}>
-              Sản phẩm cuối khóa
+              Sản phẩm học sinh hoàn thành
               <textarea className={`${textareaClass} min-h-24`} value={value.productLabel} onChange={(event) => setField('productLabel', event.target.value)} placeholder="Ví dụ: Một truyện tranh bốn khung có bản nháp và bản đã sửa" autoFocus />
             </label>
             <label className={labelClass}>
-              Kỹ năng đạt được
+              Kỹ năng trọng tâm
               <textarea className={`${textareaClass} min-h-36`} value={value.skillsText} onChange={(event) => setField('skillsText', event.target.value)} placeholder={'Viết hướng dẫn rõ ràng cho AI\nKiểm tra và cải thiện kết quả'} />
               <span className="text-xs font-normal text-muted">Mỗi dòng một kỹ năng có thể quan sát.</span>
             </label>
             <label className={labelClass}>
-              Kết quả đầu ra
+              “Con sẽ làm được gì?”
               <textarea className={`${textareaClass} min-h-36`} value={value.outcomesText} onChange={(event) => setField('outcomesText', event.target.value)} placeholder={'Hoàn thành một sản phẩm cuối khóa\nGiải thích được lựa chọn của mình'} />
               <span className="text-xs font-normal text-muted">Mỗi dòng một điều học sinh làm được.</span>
             </label>
@@ -156,15 +156,15 @@ export function CourseAuthoringWizard({ value, onChange, onSubmit, mode = 'creat
         {stepIndex === 2 && (
           <div className="grid gap-4">
             <label className={labelClass}>
-              Chứng nhận hoặc huy hiệu
+              Phần thưởng/huy hiệu hoàn thành
               <input className={inputClass} value={value.credential} onChange={(event) => setField('credential', event.target.value)} placeholder="Huy hiệu Nhà kể chuyện có trách nhiệm" autoFocus />
             </label>
             <label className={labelClass}>
-              Yêu cầu hoàn thành cuối khóa
+              Điều kiện hoàn thành giáo trình
               <textarea className={`${textareaClass} min-h-32`} value={value.finalAssessment} onChange={(event) => setField('finalAssessment', event.target.value)} placeholder="Học sinh trình bày sản phẩm, giải thích lựa chọn và cải thiện theo phản hồi." />
             </label>
             <div className="rounded-2xl bg-sky-50 p-4 text-sm leading-relaxed text-muted">
-              <strong className="text-text">Đơn vị ghi nhận: AI Kids Creator Academy.</strong> Sau khi tạo bản nháp, bạn sẽ thêm ít nhất một bài học đủ bốn trạm trước khi mở khóa.
+              <strong className="text-text">Một trạm đạt chuẩn có bốn pha:</strong> Khám phá → Thử cùng Mee → Tự tay làm → Thử thách. Sau khi lưu khung giáo trình, hãy mở Nội dung & lộ trình để soạn từng trạm.
             </div>
           </div>
         )}

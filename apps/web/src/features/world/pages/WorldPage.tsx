@@ -28,11 +28,16 @@ type PathwayCourse = {
   completedCount?: number
   totalStars?: number
   stations?: QuestProgress[]
+  programSource?: 'aikid_official' | 'workspace' | 'creator_marketplace'
+  workspaceId?: string | null
+  programUnlockMode?: 'sequential' | 'parallel' | 'graph'
 }
 
 type Pathway = {
   student: { nickname: string | null; ageBand: string }
   policy: { label: string } | null
+  regionUnlockMode?: 'sequential' | 'parallel'
+  regionUnlockModeSource?: 'course' | 'classroom' | 'learner_override'
   recommendedCourseId: string | null
   courses: PathwayCourse[]
 }
@@ -278,7 +283,6 @@ export function WorldPage() {
               value={progressPct}
               label="Tiến độ khóa học"
               tone="mint"
-              markerMode="current"
               className="course-map-progress"
             />
           )}
@@ -374,11 +378,9 @@ export function WorldPage() {
 
 
 export function isPathwayCourseVisible(course: PathwayCourse): boolean {
-  return (
-    course.enrolled ||
-    course.status === 'active' ||
-    course.status === 'completed'
-  )
+  // A locked region is part of the learner's pathway: hiding it removes the
+  // goal and the server-authored condition needed to unlock it.
+  return ['completed', 'active', 'available', 'locked'].includes(course.status)
 }
 
 const WORLD_REGIONS = [
@@ -388,6 +390,7 @@ const WORLD_REGIONS = [
     background: designerAssets.lobby.bgHome,
     scene: designerAssets.worldScenes.aiValley,
     ribbon: 'var(--color-mint-600)',
+    trailLabel: 'Đường mòn thung lũng',
     pose: 'guide',
     sceneLabel: 'Mee đang chỉ con cách AI học hỏi',
   },
@@ -397,6 +400,7 @@ const WORLD_REGIONS = [
     background: designerAssets.lobby.bgArt,
     scene: designerAssets.worldScenes.storyIsland,
     ribbon: 'var(--color-sun-600)',
+    trailLabel: 'Đường qua đảo',
     pose: 'thinking',
     sceneLabel: 'Mee đang nghĩ ra một câu chuyện mới',
   },
@@ -406,6 +410,7 @@ const WORLD_REGIONS = [
     background: designerAssets.lobby.bgCharacter,
     scene: designerAssets.worldScenes.creativeMountain,
     ribbon: 'var(--color-sky-600)',
+    trailLabel: 'Đường vượt núi',
     pose: 'celebrate',
     sceneLabel: 'Mee đang nhảy mừng sau thử thách',
   },
@@ -415,6 +420,7 @@ const WORLD_REGIONS = [
     background: designerAssets.lobby.bgCharacter,
     scene: designerAssets.worldScenes.aiValley,
     ribbon: 'var(--color-violet-600)',
+    trailLabel: 'Đường khám phá Lab',
     pose: 'support',
     sceneLabel: 'Mee đang hỗ trợ bạn trong phòng lab',
   },
@@ -441,11 +447,15 @@ function RoadmapCourseNode({
     stationCount,
     Math.max(0, course.completedCount ?? Math.floor(stationCount * course.completionPercent / 100)),
   )
+  const nextStation = course.stations?.find(
+    (station) => station.status === 'available' || station.status === 'in_progress',
+  )
+  const previousRegion = index > 0 ? WORLD_REGIONS[(index - 1) % WORLD_REGIONS.length] : null
 
   const cardInner = (
     <div
       className={cn(
-        'world-region-ribbon flex w-full flex-col gap-4 px-6 py-6 text-white transition-transform duration-200 sm:px-10 sm:py-7',
+        'world-region-ribbon flex w-full flex-col gap-3 px-5 py-4 text-white transition-transform duration-200 sm:px-8 sm:py-5',
         isLocked && 'opacity-60',
         !isLocked && 'hover:-translate-y-0.5',
       )}
@@ -484,7 +494,7 @@ function RoadmapCourseNode({
       {stationCount > 0 && (
         <div className="world-station-preview" aria-label={`${completedStations}/${stationCount} trạm hoàn thành`}>
           <div className="world-station-preview-head">
-            <span>Bản đồ trạm</span>
+            <span>{region.trailLabel}</span>
             <strong>{completedStations}/{stationCount} trạm</strong>
           </div>
           <ol className="world-station-path">
@@ -522,17 +532,32 @@ function RoadmapCourseNode({
         </div>
       )}
 
-      {isLocked && course.missingPrerequisites.length > 0 && (
-        <p className="text-xs font-semibold text-white/85">
-          📌 Cần học trước: {course.missingPrerequisites.slice(0, 2).join(', ')}
-        </p>
+      {isLocked && (
+        <div className="flex items-center gap-3 rounded-2xl border border-white/40 bg-black/10 p-3 text-left">
+          <KidLockImageIcon size={42} className="shrink-0" aria-hidden="true" />
+          <div>
+            <p className="text-sm font-extrabold text-white">Vùng sẽ mở khi con sẵn sàng</p>
+            <p className="mt-0.5 text-xs font-semibold leading-relaxed text-white/90">
+              {course.reasonCode === 'prerequisite_incomplete' && previousRegion
+                ? `Hoàn thành ${previousRegion.name} để mở vùng này.`
+                : 'Hoàn thành điều kiện trong hành trình để mở vùng này.'}
+            </p>
+          </div>
+        </div>
       )}
 
       {!isLocked && (
-        <Link to={courseHref} className="inline-flex min-h-11 w-fit items-center gap-1 rounded-xl px-2 text-sm font-extrabold text-white focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-white">
-          {isCompleted ? 'Mở lại bản đồ khóa' : isActive ? 'Mở bản đồ khóa' : 'Xem khóa học'}
-          <ChevronRight size={16} aria-hidden />
-        </Link>
+        <div className="flex flex-wrap items-center gap-2">
+          {nextStation && (
+            <Link to={`/lesson/${nextStation.id}`} className="world-course-primary-action">
+              Học tiếp
+            </Link>
+          )}
+          <Link to={courseHref} className="inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm font-extrabold text-white focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-white">
+            {isCompleted ? 'Học lại' : 'Xem toàn bộ trạm'}
+            <ChevronRight size={16} aria-hidden />
+          </Link>
+        </div>
       )}
     </div>
   )
@@ -541,13 +566,22 @@ function RoadmapCourseNode({
 
   return (
     <li
-      className={cn('world-region-card relative overflow-visible', isLocked && 'grayscale-[.35]')}
+      className={cn(
+        'world-region-card relative overflow-visible',
+        isCompleted && 'world-region-card-completed',
+        (isActive || isRecommended) && !isCompleted && 'world-region-card-current',
+        isLocked && 'world-region-card-locked grayscale-[.35]',
+      )}
     >
-      <div className="relative flex min-h-[36rem] flex-col justify-between pt-8 sm:min-h-[40rem] sm:pt-10">
+      <div className="relative flex min-h-[29rem] flex-col justify-between pt-6 sm:min-h-[32rem] sm:pt-7">
         <div className="relative z-10 px-5 text-center sm:px-8">
           <p className="text-xs font-extrabold uppercase tracking-widest text-brand-700">Vùng {index + 1}</p>
-          <h2 className="mt-1 font-display text-4xl text-text">{region.name}</h2>
-          <p className="mx-auto mt-2 max-w-lg text-sm font-bold leading-relaxed text-muted">{region.description}</p>
+          <h2 className="mt-1 font-display text-4xl text-text">{course.title}</h2>
+          <p className="mx-auto mt-2 max-w-lg text-sm font-bold leading-relaxed text-muted">
+            {course.shortTitle && course.shortTitle !== course.title
+              ? course.shortTitle
+              : region.description}
+          </p>
         </div>
         <div className="world-region-scene relative z-10 flex flex-1 items-end justify-center overflow-hidden px-4 pt-2" aria-label={region.sceneLabel}>
           <img
@@ -560,94 +594,249 @@ function RoadmapCourseNode({
         </div>
         <div className="relative z-20">{card}</div>
       </div>
+      <svg
+        className="world-region-road"
+        viewBox="0 0 100 160"
+        preserveAspectRatio="none"
+        aria-hidden="true"
+      >
+        <path className="world-region-road-edge" d="M50 0 C18 42 82 102 50 160" />
+        <path className="world-region-road-surface" d="M50 0 C18 42 82 102 50 160" />
+        <path className="world-region-road-centre" d="M50 0 C18 42 82 102 50 160" />
+      </svg>
     </li>
   )
 }
 
+type LearningWorldKind = 'aikid_official' | 'workspace' | 'creator_marketplace'
+
+const LEARNING_WORLD_SCENES: Record<LearningWorldKind, string> = {
+  aikid_official: designerAssets.worldLibrary.aikidOfficial,
+  workspace: designerAssets.worldLibrary.school,
+  creator_marketplace: designerAssets.worldLibrary.creator,
+}
+
+function LearningWorldScene({ kind }: { kind: LearningWorldKind }) {
+  const pose = kind === 'aikid_official' ? 'guide' : kind === 'workspace' ? 'walking' : 'thinking'
+  return (
+    <div className="learning-world-scene" aria-hidden="true">
+      <img src={LEARNING_WORLD_SCENES[kind]} alt="" className="learning-world-scene-art" draggable={false} />
+      <AikidCatCharacter pose={pose} className="learning-world-scene-cat" />
+    </div>
+  )
+}
+
 function PathwayOverview({ pathway }: { pathway: Pathway }) {
+  const [selectedSource, setSelectedSource] = useState<PathwayCourse['programSource'] | null>(null)
   // Canonical pathway responses include `enrolled`; status is retained as a
   // defensive fallback for older cached/deployed gateway responses.
   const visibleCourses = pathway.courses.filter(isPathwayCourseVisible)
-  const recommended = visibleCourses.find(
+  const sourceOf = (course: PathwayCourse) => course.programSource ?? 'aikid_official'
+  const categories = [
+    {
+      id: 'aikid_official' as const,
+      title: 'AiKid của em',
+      description: 'Giáo trình chính thức và hành trình được AiKid đề xuất.',
+      eyebrow: 'Giáo trình chính thức',
+      tone: 'bg-mint-50 border-mint-200 text-success',
+    },
+    {
+      id: 'workspace' as const,
+      title: 'Trường học',
+      description: 'Chương trình từ trường, lớp và workspace con đang tham gia.',
+      eyebrow: 'Theo workspace',
+      tone: 'bg-sky-50 border-sky-200 text-sky-700',
+    },
+    {
+      id: 'creator_marketplace' as const,
+      title: 'Khóa học tự do',
+      description: 'Khóa của giáo viên và chương trình gia đình đã đăng ký.',
+      eyebrow: 'Thư viện của con',
+      tone: 'bg-sun-50 border-sun-200 text-warning',
+    },
+  ]
+  const selectedCategory = categories.find((category) => category.id === selectedSource)
+  const selectedCourses = selectedSource
+    ? visibleCourses.filter((course) => sourceOf(course) === selectedSource)
+    : []
+  const sourceRecommended = selectedCourses.find(
     (course) => course.id === pathway.recommendedCourseId,
+  ) ?? selectedCourses.find((course) => course.status === 'active')
+    ?? selectedCourses.find((course) => course.status === 'available')
+  const nextStation = sourceRecommended?.stations?.find(
+    (station) => station.status === 'in_progress' || station.status === 'available',
   )
   const courseHref = (course: PathwayCourse) =>
     course.status === 'active' || course.status === 'completed'
       ? `/world/${course.id}`
       : `/course/${course.id}`
 
-  const completedCount = visibleCourses.filter((c) => c.status === 'completed').length
-  const totalProgress =
-    visibleCourses.length > 0
-      ? Math.round(
-          visibleCourses.reduce((sum, c) => sum + c.completionPercent, 0) / visibleCourses.length,
-        )
-      : 0
+  const completedCount = selectedCourses.filter((c) => c.status === 'completed').length
+  const totalStations = selectedCourses.reduce((sum, course) => sum + Math.max(0, course.questCount ?? 0), 0)
+  const completedStations = selectedCourses.reduce(
+    (sum, course) => sum + Math.max(0, course.completedCount ?? 0),
+    0,
+  )
+  const totalProgress = totalStations > 0
+    ? Math.round((completedStations / totalStations) * 100)
+    : 0
 
   return (
     <div className="page-enter flex flex-col gap-5">
       <header className="world-guide-panel">
+        {selectedSource && (
+          <img
+            src={LEARNING_WORLD_SCENES[selectedSource]}
+            alt=""
+            className="world-guide-scene"
+            aria-hidden="true"
+          />
+        )}
         <AikidCatCharacter pose="walking" className="world-guide-mascot" />
         <div className="world-guide-copy">
           <div className="min-w-0">
             <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
-              World · Các vùng học tập
+              {selectedCategory ? `Học · ${selectedCategory.title}` : 'Học · Thư viện hành trình'}
             </p>
             <h1 className="font-display text-3xl sm:text-4xl leading-tight">
-              Hành trình của {pathway.student.nickname ?? 'con'}
+              {selectedCategory
+                ? selectedCategory.title
+                : `Hành trình của ${pathway.student.nickname ?? 'con'}`}
             </h1>
             <p className="mt-1 text-base text-muted">
-              Đi cùng Mee, mở từng vùng và chinh phục các trạm học.
+              {selectedCategory
+                ? selectedCategory.description
+                : 'Chọn nơi con muốn tiếp tục học hôm nay.'}
             </p>
 
-            {/* Overall progress summary */}
-            {visibleCourses.length > 0 && (
+            {selectedCategory && (
+              <button
+                type="button"
+                className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-2xl border border-brand-100 bg-white/90 px-3 py-2 text-sm font-extrabold text-brand-800 shadow-soft focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                onClick={() => setSelectedSource(null)}
+              >
+                <NavWorldIcon size={22} aria-hidden="true" />
+                Xem tất cả nguồn học
+              </button>
+            )}
+
+            {/* Progress is scoped to the selected learning space. */}
+            {selectedCategory && selectedCourses.length > 0 && (
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold shadow-soft border border-border">
                   <CheckCircle2 size={13} className="text-mint-600" aria-hidden />
-                  {completedCount}/{visibleCourses.length} khóa hoàn thành
+                  {completedStations}/{totalStations} trạm đã hoàn thành
                 </div>
                 <div className="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold shadow-soft border border-border">
                   <Trophy size={13} className="text-sun-600" aria-hidden />
-                  {totalProgress}% toàn lộ trình
+                  {totalProgress}% không gian này
                 </div>
               </div>
             )}
-            {visibleCourses.length > 0 && (
+            {selectedCategory && selectedCourses.length > 0 && (
               <CuteProgress
                 value={totalProgress}
-                label="Toàn bộ hành trình"
+                label={`Lộ trình ${selectedCategory.title}`}
                 tone="mint"
-                markerMode="current"
                 className="mt-4"
               />
             )}
           </div>
         </div>
 
-        {recommended && (
+        {selectedCategory && sourceRecommended && (
           <div className="world-next-ticket">
             <div>
               <p className="flex items-center gap-1 text-xs font-extrabold uppercase text-mint-700">
                 <Star size={11} className="fill-mint-500 text-mint-500" aria-hidden />
                 Trạm tiếp theo
               </p>
-              <p className="mt-1 font-display text-xl">{recommended.title}</p>
+              <p className="mt-1 font-display text-xl">{nextStation?.title ?? sourceRecommended.title}</p>
               <p className="mt-1 text-sm font-bold text-muted">
-                {recommended.completedCount ?? 0}/{recommended.questCount ?? 0} trạm đã hoàn thành
+                {nextStation
+                  ? `${sourceRecommended.shortTitle} · Trạm ${nextStation.order}`
+                  : `${sourceRecommended.completedCount ?? 0}/${sourceRecommended.questCount ?? 0} trạm đã hoàn thành`}
               </p>
             </div>
-            <Link to={courseHref(recommended)}>
+            <Link to={nextStation ? `/lesson/${nextStation.id}` : courseHref(sourceRecommended)}>
               <Button>
-                {recommended.status === 'available' ? 'Xem & bắt đầu' : 'Tiếp tục hành trình'}
+                {sourceRecommended.status === 'available' && !nextStation ? 'Xem & bắt đầu' : 'Học tiếp'}
               </Button>
             </Link>
           </div>
         )}
+        {!selectedCategory && (
+          <div className="world-next-ticket">
+            <div>
+              <p className="flex items-center gap-1 text-xs font-extrabold uppercase text-brand-700">
+                <NavWorldIcon size={16} aria-hidden="true" />
+                Chọn không gian học
+              </p>
+              <p className="mt-1 font-display text-xl">Mỗi nơi, một hành trình riêng</p>
+              <p className="mt-1 text-sm font-bold leading-relaxed text-muted">
+                Tiến độ và trạm tiếp theo sẽ đổi theo nơi con chọn.
+              </p>
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* ── Roadmap body ─────────────────────────────────────────── */}
-      {visibleCourses.length === 0 ? (
+      {!selectedSource ? (
+        <section aria-labelledby="learning-library-title" className="space-y-4">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">Ba không gian học tập</p>
+            <h2 id="learning-library-title" className="mt-1 font-display text-2xl text-text sm:text-3xl">Con muốn học ở đâu?</h2>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-3">
+            {categories.map((category) => {
+              const courses = visibleCourses.filter((course) => sourceOf(course) === category.id)
+              const active = courses.filter((course) => course.status === 'active').length
+              const stations = courses.reduce((sum, course) => sum + Math.max(0, course.questCount ?? 0), 0)
+              const doneStations = courses.reduce((sum, course) => sum + Math.max(0, course.completedCount ?? 0), 0)
+              const progress = stations > 0 ? Math.round(doneStations / stations * 100) : 0
+              return (
+                <button
+                  key={category.id}
+                  type="button"
+                  className={cn(
+                    'learning-world-card ui-card border-2 text-left transition-transform hover:-translate-y-1 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-focus',
+                    category.tone,
+                  )}
+                  onClick={() => setSelectedSource(category.id)}
+                >
+                  <LearningWorldScene kind={category.id} />
+                  <span className="learning-world-copy">
+                    <span className="block text-xs font-extrabold uppercase tracking-wide opacity-80">{category.eyebrow}</span>
+                    <span className="mt-1 block font-display text-2xl text-text">{category.title}</span>
+                    <span className="mt-1 block text-sm font-bold leading-relaxed text-muted">{category.description}</span>
+                    <span className="mt-3 flex min-h-9 flex-wrap items-center gap-x-2 gap-y-1 rounded-xl bg-white/85 px-3 py-2 text-sm font-extrabold text-text shadow-soft">
+                      {courses.length > 0
+                        ? <>
+                            <span>{doneStations}/{stations} trạm</span>
+                            <span aria-hidden="true" className="text-border">·</span>
+                            <span>{progress}% hoàn thành</span>
+                            {active > 0 && <span className="text-brand-700">{active} đang học</span>}
+                          </>
+                        : 'Chưa có chương trình'}
+                    </span>
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </section>
+      ) : selectedCourses.length === 0 ? (
+        <div className="ui-card p-6 text-center">
+          <CourseBookIcon size={44} className="mx-auto text-brand-500" aria-hidden="true" />
+          <p className="mt-3 font-display text-xl">Chưa có chương trình trong mục này</p>
+          <p className="mt-2 text-sm text-muted">
+            Chương trình được trường giao hoặc gia đình đăng ký sẽ xuất hiện tại đây.
+          </p>
+          <Button className="mt-4" variant="secondary" onClick={() => setSelectedSource(null)}>
+            Quay lại thư viện
+          </Button>
+        </div>
+      ) : visibleCourses.length === 0 ? (
         <div className="ui-card p-6 text-center">
           <p className="font-display text-xl">Cha mẹ chưa chọn khóa học</p>
           <p className="mt-2 text-sm text-muted">
@@ -665,19 +854,19 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
 
           <div className="relative">
             <ol className="relative z-10 flex flex-col gap-6" aria-label="Danh sách vùng và bản đồ khóa học">
-              {visibleCourses.map((course, index) => (
+              {selectedCourses.map((course, index) => (
                 <RoadmapCourseNode
                   key={course.id}
                   course={course}
                   index={index}
-                  isRecommended={course.id === pathway.recommendedCourseId}
+                  isRecommended={course.id === sourceRecommended?.id}
                   courseHref={courseHref(course)}
                 />
               ))}
             </ol>
 
             {/* ── Finish line at bottom ── */}
-            {completedCount === visibleCourses.length && visibleCourses.length > 0 && (
+            {completedCount === selectedCourses.length && selectedCourses.length > 0 && (
               <div className="relative z-10 flex flex-col items-center mt-8 animate-pop">
                 <div className="flex h-20 w-20 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-sun-400 to-coral-400 shadow-clay">
                   <Trophy size={40} className="text-white" aria-hidden="true" />
@@ -688,12 +877,13 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
             )}
 
             {/* Finish flag at bottom (always shown) */}
-            {visibleCourses.length > 0 && completedCount < visibleCourses.length && (
+            {selectedCourses.length > 0 && completedCount < selectedCourses.length && (
               <div
-                className="relative z-10 mx-auto mt-6 flex w-fit items-center gap-2 rounded-full bg-white/80 px-4 py-2 text-xs font-bold text-muted shadow-soft border border-border"
+                className="world-pathway-destination relative z-10 mx-auto flex w-fit items-center gap-2 text-xs font-extrabold text-muted"
                 aria-hidden
               >
-                🏁 Đích đến
+                <span className="world-pathway-destination-flag">🏁</span>
+                Đích đến
               </div>
             )}
           </div>

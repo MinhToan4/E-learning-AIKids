@@ -28,6 +28,7 @@ import {
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
+import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PinPadModal } from '@/shared/components/ui/PinPadModal'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
@@ -285,7 +286,7 @@ export function ParentPage({
             Phụ huynh
           </p>
           <h1 className="font-display text-2xl md:text-3xl">
-            Xin chào, {(user?.nickname || user?.name) ?? 'Ba / Mẹ'} 👋
+            Xin chào, {(user?.nickname || user?.name) ?? 'Ba / Mẹ'}
           </h1>
         </div>
       </div>
@@ -410,32 +411,34 @@ function DashboardTab() {
   const [kids, setKids] = useState<Child[]>([])
   const [pendingCount, setPendingCount] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+
+  const load = useCallback(async () => {
+    setLoading(true)
+    setError('')
+    const [childrenData, approvalsData] = await Promise.allSettled([
+      api<{ children: Child[] }>('/api/parent/children'),
+      api<{ approvals: Approval[] }>('/api/parent/approvals?status=pending'),
+    ])
+    if (childrenData.status === 'rejected') {
+      setError('Chưa tải được dữ liệu của các con. Ba / Mẹ thử lại nhé.')
+      setLoading(false)
+      return
+    }
+    setKids(childrenData.value.children)
+    setPendingCount(approvalsData.status === 'fulfilled' ? approvalsData.value.approvals.length : 0)
+    setLoading(false)
+  }, [])
 
   useEffect(() => {
-    async function load() {
-      try {
-        const [childrenData, approvalsData] = await Promise.allSettled([
-          api<{ children: Child[] }>('/api/parent/children'),
-          api<{ approvals: Approval[] }>('/api/parent/approvals?status=pending'),
-        ])
-        if (childrenData.status === 'fulfilled') {
-          setKids(childrenData.value.children)
-        }
-        if (approvalsData.status === 'fulfilled') {
-          setPendingCount(approvalsData.value.approvals.length)
-        }
-      } catch {
-        /* silent */
-      } finally {
-        setLoading(false)
-      }
-    }
     void load()
-  }, [])
+  }, [load])
 
   if (loading) {
     return <LoadingSkeleton count={3} />
   }
+
+  if (error) return <ErrorState message={error} onRetry={() => void load()} inline />
 
   const totalXp = kids.reduce((s, k) => s + k.xp, 0)
   const totalStars = kids.reduce((s, k) => s + (k.totalStars ?? 0), 0)

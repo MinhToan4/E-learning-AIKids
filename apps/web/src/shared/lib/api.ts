@@ -14,10 +14,12 @@ export function getAccessToken(): string | null {
 }
 
 export function setAccessToken(token: string): void {
+  clearResponseCache()
   if (typeof localStorage !== 'undefined') localStorage.setItem(TOKEN_KEY, token)
 }
 
 export function clearAccessToken(): void {
+  clearResponseCache()
   if (typeof localStorage !== 'undefined') localStorage.removeItem(TOKEN_KEY)
 }
 
@@ -116,14 +118,40 @@ export async function uploadToStoryMeeStorage(
 export class ApiError extends Error {
   status: number
   body: unknown
+  code: string | null
+  field: string | null
+  requestId: string | null
   constructor(status: number, message: string, body?: unknown) {
     super(message)
     this.status = status
     this.body = body
+    const details = body && typeof body === 'object' ? body as Record<string, unknown> : {}
+    this.code = typeof details.code === 'string' ? details.code : null
+    this.field = typeof details.field === 'string' ? details.field : null
+    this.requestId = typeof details.requestId === 'string'
+      ? details.requestId
+      : typeof details.request_id === 'string' ? details.request_id : null
   }
 }
 
 const inFlightGetRequests = new Map<string, Promise<unknown>>()
+const getResponseCache = new Map<string, { expiresAt: number; value: unknown }>()
+
+function responseCacheTtl(path: string): number {
+  if (path.startsWith('/api/admin/legend-studio')) return 30_000
+  if (path.startsWith('/api/gamification/catalog')) return 60_000
+  if (path === '/api/gamification/achievements') return 15_000
+  if (path === '/api/courses' || path === '/api/enrollments') return 15_000
+  if (path.startsWith('/api/gamification/profile') || path.startsWith('/api/gamification/storybook') || path.startsWith('/api/gamification/streak')) return 10_000
+  if (path.startsWith('/api/parent/children') || path.startsWith('/api/teacher/class')) return 10_000
+  if (path.startsWith('/api/schedule') || path.startsWith('/api/reports') || path.startsWith('/api/competency-map') || path.startsWith('/api/credentials')) return 10_000
+  if (path === '/api/admin/system' || path === '/api/admin/analytics') return 10_000
+  return 0
+}
+
+function clearResponseCache() {
+  getResponseCache.clear()
+}
 
 export function api<T = unknown>(
   path: string,
@@ -138,9 +166,18 @@ export function api<T = unknown>(
     options.body === undefined &&
     options.headers === undefined &&
     options.signal === undefined
-  if (!canDedupe) return executeApi<T>(legacyPath, options)
+  if (!canDedupe) {
+    // A mutation can change several projections (catalog, achievements and
+    // profile) at once. Clear the small in-memory GET cache rather than risk
+    // showing data from before the mutation.
+    if (method !== 'GET') clearResponseCache()
+    return executeApi<T>(legacyPath, options)
+  }
 
   const key = `${getAccessToken() ?? 'anonymous'}:${legacyPath}`
+  const cached = getResponseCache.get(key)
+  if (cached && cached.expiresAt > Date.now()) return Promise.resolve(cached.value as T)
+  if (cached) getResponseCache.delete(key)
   const pending = inFlightGetRequests.get(key)
   if (pending) return pending as Promise<T>
 
@@ -151,6 +188,12 @@ export function api<T = unknown>(
       inFlightGetRequests.delete(key)
     }
   }).catch(() => undefined)
+  const ttl = responseCacheTtl(legacyPath)
+  if (ttl > 0) {
+    void request.then((value) => {
+      getResponseCache.set(key, { expiresAt: Date.now() + ttl, value })
+    }).catch(() => undefined)
+  }
   return request
 }
 
@@ -256,7 +299,8 @@ function withJson(options: RequestInit, body: Record<string, unknown>): RequestI
   return { ...options, body: JSON.stringify(body) }
 }
 
-function normalizeGatewayRequest(path: string, options: RequestInit): GatewayRequest {
+/** Exposed for route-map diagnostics and contract tests; network calls still use api(). */
+export function normalizeGatewayRequest(path: string, options: RequestInit = {}): GatewayRequest {
   const body = jsonBody(options)
   if (path.startsWith('/api/v1/')) return { path, options }
 
@@ -271,7 +315,6 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     '/api/auth/tenant': '/api/v1/account/tenant/resolve',
     '/api/courses': '/api/v1/lms/courses',
     '/api/enrollments': '/api/v1/lms/enrollments',
-    '/api/learning/pathway': '/api/v1/lms/compat/pathway',
     '/api/notifications': '/api/v1/notifications',
     '/api/notifications/read-all': '/api/v1/notifications/read-all',
     '/api/notifications/preferences': '/api/v1/notifications/preferences',
@@ -400,7 +443,19 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
     }
   }
   if (path === '/api/media/upload') {
-    return { path: '/api/v1/media/upload?permanent=1&assetType=aikids', options }
+    const purpose = options.body instanceof FormData
+      ? String(options.body.get('purpose') ?? '')
+      : ''
+    const assetTypeByPurpose: Record<string, string> = {
+      legend_reward_design: 'aikids-legend-reward',
+      storybook_chapter_design: 'aikids-storybook',
+      achievement_milestone_design: 'aikids-achievement',
+    }
+    const assetType = assetTypeByPurpose[purpose] ?? 'aikids'
+    return {
+      path: `/api/v1/media/upload?permanent=1&assetType=${encodeURIComponent(assetType)}`,
+      options,
+    }
   }
   if (path === '/api/media/promote') {
     return { path: '/api/v1/media/gallery/promote', options }
@@ -426,7 +481,7 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
           : options,
     }
   }
-  if (/^\/api\/admin\/courses(?:\/[^/?]+)?$/.test(path)) {
+  if (/^\/api\/admin\/courses(?:\/[^/?]+)?(?:\/readiness)?$/.test(path)) {
     return {
       path: path.replace('/api/admin', '/api/v1/lms/aikids/admin'),
       options,
@@ -713,6 +768,9 @@ function normalizeGatewayRequest(path: string, options: RequestInit): GatewayReq
       /^\/api\/teacher\/students\/[^/?]+\/progress$/.test(path) ||
       /^\/api\/teacher\/lectures\/[^/?]+(?:\/restore)?$/.test(path) ||
       /^\/api\/teacher\/courses\/[^/?]+$/.test(path) ||
+      /^\/api\/teacher\/courses\/[^/?]+\/readiness$/.test(path) ||
+      /^\/api\/teacher\/courses\/[^/?]+\/unlock-mode$/.test(path) ||
+      /^\/api\/teacher\/programs\/[^/?]+\/unlock-mode$/.test(path) ||
       /^\/api\/teacher\/question-banks\/[^/?]+\/items(?:\?.*)?$/.test(path) ||
       /^\/api\/teacher\/question-bank\/items\/[^/?]+$/.test(path)) {
     return {
@@ -988,11 +1046,26 @@ function mapCourse(raw: Record<string, unknown>): CourseSummary {
     Array.isArray((versions[0] as Record<string, unknown>).modules)
     ? (versions[0] as { modules: Array<Record<string, unknown>> }).modules
     : []
-  const lessons = modules.flatMap((module) =>
+  const nestedLessons = modules.flatMap((module) =>
     Array.isArray(module.lessons)
       ? module.lessons as Array<Record<string, unknown>>
       : [],
   )
+  // Different LMS read models expose stations under different collection
+  // names. Normalize all canonical shapes here so parent/CMS screens never
+  // have to infer or hardcode curriculum counts.
+  const directLessons = (['lectures', 'lessons', 'quests', 'stations'] as const)
+    .map((key) => raw[key])
+    .find(Array.isArray) as Array<Record<string, unknown>> | undefined
+  const lessons = nestedLessons.length > 0 ? nestedLessons : (directLessons ?? [])
+  const count = recordValue(raw._count)
+  const declaredQuestCount = Math.max(0, ...[
+    raw.questCount, raw.stationCount, raw.lessonCount, raw.lectureCount,
+    raw.questsCount, raw.stationsCount, raw.lessonsCount, raw.lecturesCount,
+    raw.totalStations, raw.totalLessons,
+    metadata.questCount, metadata.stationCount, metadata.lessonCount,
+    count.lessons, count.lectures, count.quests, count.stations,
+  ].map(Number).filter(Number.isFinite))
   return {
     id: String(raw.id ?? ''),
     title: String(raw.title ?? ''),
@@ -1018,12 +1091,11 @@ function mapCourse(raw: Record<string, unknown>): CourseSummary {
     recommended: metadata.recommended === true,
     skills: Array.isArray(metadata.skills) ? metadata.skills.map(String) : [],
     outcomes: Array.isArray(metadata.outcomes) ? metadata.outcomes.map(String) : [],
-    questCount: lessons.length ||
-      Number((versions[0] as { _count?: { modules?: number } } | undefined)?._count?.modules ?? 0),
+    questCount: Math.max(lessons.length, declaredQuestCount),
     enrolled: false,
     quests: lessons.map((lesson, index) => ({
       id: String(lesson.id ?? ''),
-      order: index + 1,
+      order: Number(lesson.order ?? lesson.position ?? index + 1),
       title: String(lesson.title ?? ''),
       accent: String(metadata.accent ?? '#7c3aed'),
       practiceKind: String(lesson.lessonType ?? 'lesson'),
@@ -1353,7 +1425,15 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
   }
   if (path === '/api/media/upload') {
     const item = recordValue(payload.libraryItem)
-    const url = String(payload.url ?? payload.imageUrl ?? '')
+    const rawUrl = String(payload.url ?? payload.imageUrl ?? '').trim()
+    let url = ''
+    try {
+      const parsed = new URL(rawUrl)
+      if (parsed.origin === environment.storagePublicUrl) url = parsed.toString()
+    } catch {
+      // Media uploads must resolve to the configured StoryMee Storage origin.
+    }
+    if (!url) throw new Error('StoryMee Media không trả về URL Storage hợp lệ.')
     return {
       asset: {
         id: String(item.id ?? ''),
@@ -1383,10 +1463,15 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       Array.isArray(payload.courses)) {
     // A pathway is the child's enrolled learning list. Keep this defensive
     // filter while older LMS deployments may still return the public catalog.
+    const isCanonicalPathway = Boolean(payload.student || payload.policy) ||
+      payload.courses.some((course) => {
+        const raw = course as Record<string, unknown>
+        return typeof raw.reasonCode === 'string' || Array.isArray(raw.missingPrerequisites)
+      })
     const courses = payload.courses
       .filter((course) => {
         const raw = course as Record<string, unknown>
-        return raw.enrolled === true ||
+        return isCanonicalPathway || raw.enrolled === true ||
           raw.status === 'active' ||
           raw.status === 'completed'
       })
@@ -1424,7 +1509,18 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         completedCount: Number(raw.completedCount ?? 0),
         totalStars: Number(raw.totalStars ?? 0),
         enrollmentId: raw.enrollmentId ? String(raw.enrollmentId) : null,
-        missingPrerequisites: [],
+        programSource:
+          raw.programSource === 'workspace' || raw.programSource === 'creator_marketplace'
+            ? raw.programSource
+            : 'aikid_official',
+        workspaceId: raw.workspaceId ? String(raw.workspaceId) : null,
+        programUnlockMode:
+          raw.programUnlockMode === 'sequential' || raw.programUnlockMode === 'graph'
+            ? raw.programUnlockMode
+            : 'parallel',
+        missingPrerequisites: Array.isArray(raw.missingPrerequisites)
+          ? raw.missingPrerequisites.map(String)
+          : [],
         coverImage: mapped.coverImage,
         // Every row has already passed the canonical enrollment filter above.
         // Keep this explicit because pathway consumers must not infer access
@@ -1441,6 +1537,9 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         ageBand: String(firstRaw?.ageBand ?? '8-11'),
       },
       policy: { label: 'Lộ trình học AI theo tiến độ của con' },
+      regionUnlockMode:
+        payload.regionUnlockMode === 'sequential' ? 'sequential' : 'parallel',
+      regionUnlockModeSource: payload.regionUnlockModeSource ?? 'course',
       recommendedCourseId: recommended?.id ?? null,
       courses,
     }
@@ -1566,6 +1665,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       },
       courses: courses.map((row) => {
         const mapped = mapCourse(row)
+        const metadata = recordValue(row.metadata)
         return {
           id: mapped.id,
           title: mapped.title,
@@ -1574,6 +1674,30 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
           ageTrack: mapped.ageTrack ?? '',
           tagline: mapped.tagline,
           coverImage: mapped.coverImage,
+          description: mapped.description,
+          questCount: mapped.questCount,
+          stations: mapped.quests.map((quest) => ({
+            id: quest.id,
+            order: quest.order,
+            title: quest.title,
+          })),
+          programId: String(
+            row.programId ?? row.programKey ?? metadata.programId ?? metadata.programKey ?? row.id ?? '',
+          ),
+          programTitle: String(
+            row.programTitle ?? metadata.programTitle ?? row.title ?? '',
+          ),
+          programDescription: String(
+            row.programDescription ?? metadata.programDescription ?? row.description ?? '',
+          ),
+          programImage: row.programImage ?? metadata.programImage ?? metadata.coverImage ?? null,
+          programSource:
+            row.programSource === 'workspace' || row.programSource === 'creator_marketplace'
+              ? row.programSource
+              : metadata.programSource === 'workspace' || metadata.programSource === 'creator_marketplace'
+                ? metadata.programSource
+                : 'aikid_official',
+          regionOrder: Number(row.regionOrder ?? metadata.regionOrder ?? 0),
           enrolled: row.enrolled === true,
           parentAllowed:
             typeof row.parentAllowed === 'boolean'
@@ -1833,12 +1957,26 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
             ? row.unlock
             : row
         ) as Record<string, unknown>
-        const milestones = Array.isArray(definition.milestones)
-          ? definition.milestones.map((item) => {
+        const metadata = (
+          definition.metadata && typeof definition.metadata === 'object'
+            ? definition.metadata
+            : {}
+        ) as Record<string, unknown>
+        const milestoneDefinitions = Array.isArray(definition.milestones)
+          ? definition.milestones
+          : Array.isArray(metadata.milestones)
+            ? metadata.milestones
+            : []
+        const milestones = milestoneDefinitions.length > 0
+          ? milestoneDefinitions.map((item) => {
               const milestone = item as Record<string, unknown>
               return {
                 threshold: Number(milestone.threshold ?? 1),
                 label: milestone.label ? String(milestone.label) : undefined,
+                description: milestone.description ? String(milestone.description) : undefined,
+                imageUrl: milestone.imageUrl ? String(milestone.imageUrl) : undefined,
+                metric: milestone.metric ? String(milestone.metric) : undefined,
+                operator: milestone.operator ? String(milestone.operator) : undefined,
                 points: milestone.points == null ? undefined : Number(milestone.points),
                 rewardLabel: milestone.rewardLabel
                   ? String(milestone.rewardLabel)
@@ -1863,15 +2001,17 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
           currentValue: (row.currentValue ?? unlock.currentValue ?? unlock.progress) == null
             ? undefined
             : Number(row.currentValue ?? unlock.currentValue ?? unlock.progress),
-          points: definition.points == null ? undefined : Number(definition.points),
+          points: (definition.points ?? definition.xpReward) == null
+            ? undefined
+            : Number(definition.points ?? definition.xpReward),
           rewardLabel: definition.rewardLabel
             ? String(definition.rewardLabel)
             : undefined,
           rewardAssetId: definition.rewardAssetId
             ? String(definition.rewardAssetId)
             : undefined,
-          seriesKey: definition.seriesKey
-            ? String(definition.seriesKey)
+          seriesKey: (definition.seriesKey ?? metadata.seriesKey)
+            ? String(definition.seriesKey ?? metadata.seriesKey)
             : undefined,
           milestones,
           hidden: definition.hidden === true,
@@ -2164,6 +2304,16 @@ export type QuestDetail = {
     body: string
     tip: string
     kind: string
+    layout?: 'text' | 'split' | 'visual-grid' | 'storyboard' | string
+    visualItems?: Array<{
+      label: string
+      text: string
+      tone?: 'brand' | 'sky' | 'mint' | 'sun' | 'coral' | string
+      shot?: string
+      duration?: string
+      sound?: string
+      direction?: string
+    }>
     /** Optional card illustration */
     imageUrl?: string | null
     imageAlt?: string | null
@@ -2195,6 +2345,14 @@ export type QuestDetail = {
       instruction?: string
       outcome?: string
       product?: string
+      steps?: string[]
+      successCriteria?: string[]
+      reflectionPrompt?: string
+      practiceConfig?: {
+        activityType?: string
+        prompt?: string
+        cards?: Array<{ id: string; title: string; description: string }>
+      }
     }>
   }
 }
@@ -2210,10 +2368,15 @@ export type AchievementRow = {
   points?: number
   rewardLabel?: string
   rewardAssetId?: string
+  imageUrl?: string
   seriesKey?: string
   milestones?: Array<{
     threshold: number
     label?: string
+    description?: string
+    imageUrl?: string
+    metric?: string
+    operator?: string
     points?: number
     rewardLabel?: string
     rewardAssetId?: string
@@ -2250,6 +2413,23 @@ export type LectureRow = {
   videoUrl: string | null
   archived?: boolean
   stage?: string
+  learnCards?: Array<{
+    id: string
+    title: string
+    body: string
+    tip: string
+    kind: string
+    layout: 'text' | 'split' | 'visual-grid' | 'storyboard'
+    visualItems: Array<{
+      label: string
+      text: string
+      tone?: 'brand' | 'sky' | 'mint' | 'sun' | 'coral'
+      shot?: string
+      duration?: string
+      sound?: string
+      direction?: string
+    }>
+  }>
 }
 
 export type QuestProgress = {

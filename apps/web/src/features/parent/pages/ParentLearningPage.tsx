@@ -1,12 +1,17 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
 import {
   Award,
+  BookOpen,
+  Check,
   Download,
   MessageSquareText,
+  Plus,
   ShieldCheck,
   Sparkles,
+  UserRoundPlus,
 } from 'lucide-react'
+
 import { Button } from '@/shared/components/ui/Button'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
@@ -18,8 +23,10 @@ import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import { useAuth } from '@/shared/store/auth'
 import type { AgeExperiencePolicy } from '@/shared/age-experience/AgeExperienceProvider'
+import { programArtworkHint } from '@/shared/config/assets'
 import { ParentTeacherFeedbackSection } from '../components/ParentTeacherFeedbackSection'
 import { useParentFeedbackBadge } from '../hooks/useParentFeedbackBadge'
+
 
 type Child = {
   id: string
@@ -65,6 +72,37 @@ type Credential = {
     }
   }
 }
+type Course = {
+  id: string
+  title: string
+  shortTitle: string
+  status: string
+  description?: string
+  coverImage?: string | null
+  ageLabel?: string
+  enrolled?: boolean
+  accessPolicy?: string
+  priceAmountMinor?: number
+  priceCurrency?: string
+  questCount?: number
+  programId?: string
+  programTitle?: string
+  programDescription?: string
+  programImage?: string | null
+  programSource?: 'aikid_official' | 'workspace' | 'creator_marketplace'
+  regionOrder?: number
+  stations?: Array<{ id: string; order: number; title: string }>
+}
+type PlacementRequest = {
+  id: string
+  courseId: string
+  requestedLevel: number
+  status: 'pending' | 'placed' | 'rejected' | 'cancelled'
+  resolutionNote: string | null
+  createdAt: string
+  course: { id: string; title: string }
+  targetClass: { id: string; name: string; code: string } | null
+}
 type Pathway = {
   recommendedCourseId: string | null
   courses: Array<{
@@ -87,6 +125,7 @@ type LearningData = {
   }
 }
 type Section = 'feedback' | 'journey'
+
 
 const levelLabels = {
   no_data: 'Chưa có dữ liệu',
@@ -199,6 +238,7 @@ export function ParentLearningPage() {
     }
   }
 
+
   return (
     <div className="flex flex-col gap-5">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
@@ -255,6 +295,7 @@ export function ParentLearningPage() {
           [
             ['feedback', 'Nhận xét giáo viên', MessageSquareText],
             ['journey', 'Năng lực & chứng nhận', Sparkles],
+
           ] as const
         ).map(([key, label, Icon]) => (
           <button
@@ -298,6 +339,334 @@ export function ParentLearningPage() {
         />
       ) : null}
     </div>
+  )
+}
+
+function CourseSelectionSection({
+  courses,
+  busy,
+  onToggleProgram,
+}: {
+  courses: Course[]
+  busy: boolean
+  onToggleProgram: (courses: Course[], enroll: boolean) => Promise<void>
+}) {
+  type Space = NonNullable<Course['programSource']>
+  const [space, setSpace] = useState<Space>('aikid_official')
+  const programs = useMemo(() => {
+    const grouped = new Map<string, { id: string; title: string; description: string; image: string | null; source: Space; regions: Course[] }>()
+    for (const course of courses) {
+      const source = course.programSource ?? 'aikid_official'
+      const id = course.programId || course.id
+      const current = grouped.get(id) ?? {
+        id,
+        title: course.programTitle || course.title,
+        description: course.programDescription || course.description || '',
+        image: programArtworkHint({
+          id,
+          title: course.programTitle || course.title,
+          imageUrl: course.programImage ?? course.coverImage ?? null,
+        }),
+        source,
+        regions: [],
+      }
+      current.regions.push(course)
+      grouped.set(id, current)
+    }
+    return [...grouped.values()].map((program) => ({
+      ...program,
+      regions: program.regions.sort((a, b) => (a.regionOrder ?? 0) - (b.regionOrder ?? 0)),
+    }))
+  }, [courses])
+  const visiblePrograms = programs.filter((program) => program.source === space)
+  const spaces: Array<{ id: Space; label: string; caption: string }> = [
+    { id: 'aikid_official', label: 'AiKid', caption: 'Chương trình chính thức' },
+    { id: 'workspace', label: 'Trường học', caption: 'Do trường phân phối' },
+    { id: 'creator_marketplace', label: 'Học tập tự do', caption: 'Giáo viên & gia đình' },
+  ]
+  return (
+    <section className="ui-card overflow-hidden" aria-labelledby="parent-course-title">
+      <div className="border-b border-border bg-brand-50/60 p-5">
+        <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Học theo tiến độ riêng</p>
+        <h2 id="parent-course-title" className="mt-1 font-display text-2xl">Chọn chương trình cho con</h2>
+        <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted">
+          Chọn không gian và đăng ký một chương trình. Ba / Mẹ có thể xem trước các vùng, trạm; con học bất cứ lúc nào và tiếp tục từ trạm đang dở.
+        </p>
+      </div>
+      <div className="grid gap-2 border-b border-border bg-white p-4 sm:grid-cols-3" role="tablist" aria-label="Không gian học tập">
+        {spaces.map((item) => {
+          const count = programs.filter((program) => program.source === item.id).length
+          return <button
+            key={item.id}
+            type="button"
+            role="tab"
+            aria-selected={space === item.id}
+            className={cn('min-h-16 rounded-2xl border-2 px-4 py-2 text-left transition', space === item.id ? 'border-brand-500 bg-brand-50 text-brand-700 shadow-soft' : 'border-border bg-white hover:border-brand-200')}
+            onClick={() => setSpace(item.id)}
+          >
+            <span className="flex items-center justify-between gap-2 font-extrabold"><span>{item.label}</span><span className="rounded-full bg-white px-2 py-0.5 text-xs text-muted">{count}</span></span>
+            <span className="mt-0.5 block text-xs font-bold text-muted">{item.caption}</span>
+          </button>
+        })}
+      </div>
+      {visiblePrograms.length === 0 ? (
+        <div className="p-8 text-center">
+          <p className="font-display text-lg">Chưa có chương trình trong không gian này</p>
+          <p className="mt-1 text-sm text-muted">Chương trình do AiKid, trường hoặc giáo viên cấp sẽ xuất hiện đúng không gian.</p>
+        </div>
+      ) : (
+        <div className="grid gap-4 p-4">
+          {visiblePrograms.map((program) => {
+            const enrolledCount = program.regions.filter((region) => region.enrolled).length
+            const enrolled = enrolledCount === program.regions.length
+            const stationCount = program.regions.reduce((sum, region) => sum + (region.questCount ?? region.stations?.length ?? 0), 0)
+            return <article key={program.id} className={cn('overflow-hidden rounded-3xl border-2', enrolledCount > 0 ? 'border-mint-300 bg-mint-50/30' : 'border-border bg-white')}>
+              <div className="grid gap-4 p-4 sm:grid-cols-[180px_minmax(0,1fr)_210px] sm:items-center">
+                {program.image ? <img src={program.image} alt="" loading="lazy" className="aspect-[3/2] w-full rounded-2xl border border-border object-cover shadow-soft" /> : <div className="flex aspect-[3/2] w-full items-center justify-center rounded-2xl bg-brand-50 text-brand-500"><BookOpen size={34} aria-hidden="true" /></div>}
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h3 className="font-display text-xl text-text">{program.title}</h3>
+                    {enrolledCount > 0 && <span className="rounded-full bg-mint-100 px-2 py-1 text-xs font-extrabold text-success">{enrolled ? 'Đang học' : `${enrolledCount}/${program.regions.length} vùng`}</span>}
+                  </div>
+                  {program.description && <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-muted">{program.description}</p>}
+                  <p className="mt-2 text-xs font-extrabold text-muted">{program.regions.length} vùng · {stationCount} trạm · Tự học theo tiến độ riêng</p>
+                </div>
+                <Button className="w-full" variant={enrolled ? 'secondary' : 'primary'} disabled={busy} onClick={() => void onToggleProgram(program.regions, !enrolled)}>
+                  {enrolled ? <><Check size={17} aria-hidden="true" /> Bỏ chương trình</> : <><Plus size={17} aria-hidden="true" /> Đăng ký chương trình</>}
+                </Button>
+              </div>
+              <details className="border-t border-border bg-white/80">
+                <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-extrabold text-brand-700">Xem vùng và trạm trong chương trình</summary>
+                <div className="grid gap-3 px-4 pb-4 md:grid-cols-2">
+                  {program.regions.map((region, index) => <div key={region.id} className="rounded-2xl border border-border bg-white p-3">
+                    <div className="flex items-start justify-between gap-3">
+                      <div><p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">Vùng {index + 1}</p><h4 className="mt-0.5 font-display text-base">{region.title}</h4></div>
+                      <span className="shrink-0 rounded-full bg-sky-50 px-2 py-1 text-xs font-bold text-muted">{region.questCount ?? region.stations?.length ?? 0} trạm</span>
+                    </div>
+                    {region.stations && region.stations.length > 0 && <ol className="mt-2 grid gap-1 text-xs text-muted">{region.stations.slice(0, 3).map((station) => <li key={station.id}><strong className="text-text">Trạm {station.order}:</strong> {station.title}</li>)}</ol>}
+                    {(region.stations?.length ?? 0) > 3 && <p className="mt-1 text-xs font-bold text-brand-600">+ {(region.stations?.length ?? 0) - 3} trạm khác</p>}
+                  </div>)}
+                </div>
+              </details>
+            </article>
+          })}
+        </div>
+      )}
+    </section>
+  )
+}
+
+const weekdayLabels = [
+  'Chủ nhật',
+  'Thứ hai',
+  'Thứ ba',
+  'Thứ tư',
+  'Thứ năm',
+  'Thứ sáu',
+  'Thứ bảy',
+]
+
+function PlacementSection({
+  courses,
+  placements,
+  form,
+  busy,
+  onChange,
+  onSubmit,
+}: {
+  courses: Course[]
+  placements: PlacementRequest[]
+  form: {
+    courseId: string
+    requestedLevel: number
+    availability: Array<{ weekday: number; start: string; end: string }>
+  }
+  busy: boolean
+  onChange: (value: {
+    courseId: string
+    requestedLevel: number
+    availability: Array<{ weekday: number; start: string; end: string }>
+  }) => void
+  onSubmit: (event: React.FormEvent) => Promise<void>
+}) {
+  return (
+    <div className="grid gap-5 lg:grid-cols-[0.8fr_1.2fr]">
+      <form className="ui-card grid h-fit gap-4 p-5" onSubmit={(event) => void onSubmit(event)}>
+        <div>
+          <h2 className="font-display text-xl">Yêu cầu xếp lớp</h2>
+          <p className="text-sm text-muted">
+            Giáo viên chỉ xếp vào lớp phù hợp tuổi, cấp độ, sức chứa và không trùng lịch.
+          </p>
+        </div>
+        <label className="grid gap-1 text-sm font-bold">
+          Khóa học
+          <select
+            required
+            className="field-input"
+            value={form.courseId}
+            onChange={(event) => onChange({ ...form, courseId: event.target.value })}
+          >
+            {courses.map((course) => (
+              <option key={course.id} value={course.id}>
+                {course.title}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="grid gap-1 text-sm font-bold">
+          Cấp độ mong muốn
+          <input
+            type="number"
+            min={1}
+            max={100}
+            required
+            className="field-input"
+            value={form.requestedLevel}
+            onChange={(event) =>
+              onChange({ ...form, requestedLevel: Number(event.target.value) })
+            }
+          />
+        </label>
+        <fieldset className="rounded-2xl border-2 border-border p-3">
+          <legend className="px-2 text-sm font-bold">Khung giờ có thể học</legend>
+          <div className="space-y-3">
+            {form.availability.map((slot, index) => (
+              <div key={index} className="grid gap-2 rounded-xl bg-page p-3 sm:grid-cols-3">
+                <select
+                  aria-label={`Ngày ${index + 1}`}
+                  className="field-input"
+                  value={slot.weekday}
+                  onChange={(event) =>
+                    onChange({
+                      ...form,
+                      availability: form.availability.map((row, rowIndex) =>
+                        rowIndex === index
+                          ? { ...row, weekday: Number(event.target.value) }
+                          : row,
+                      ),
+                    })
+                  }
+                >
+                  {weekdayLabels.map((label, weekday) => (
+                    <option key={label} value={weekday}>{label}</option>
+                  ))}
+                </select>
+                <input
+                  type="time"
+                  required
+                  aria-label={`Bắt đầu khung ${index + 1}`}
+                  className="field-input"
+                  value={slot.start}
+                  onChange={(event) =>
+                    onChange({
+                      ...form,
+                      availability: form.availability.map((row, rowIndex) =>
+                        rowIndex === index ? { ...row, start: event.target.value } : row,
+                      ),
+                    })
+                  }
+                />
+                <input
+                  type="time"
+                  required
+                  aria-label={`Kết thúc khung ${index + 1}`}
+                  className="field-input"
+                  value={slot.end}
+                  onChange={(event) =>
+                    onChange({
+                      ...form,
+                      availability: form.availability.map((row, rowIndex) =>
+                        rowIndex === index ? { ...row, end: event.target.value } : row,
+                      ),
+                    })
+                  }
+                />
+                {form.availability.length > 1 && (
+                  <button
+                    type="button"
+                    className="text-left text-xs font-bold text-danger"
+                    onClick={() =>
+                      onChange({
+                        ...form,
+                        availability: form.availability.filter((_, rowIndex) => rowIndex !== index),
+                      })
+                    }
+                  >
+                    Xóa khung giờ
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+          <Button
+            type="button"
+            variant="ghost"
+            className="mt-2"
+            disabled={form.availability.length >= 30}
+            onClick={() =>
+              onChange({
+                ...form,
+                availability: [
+                  ...form.availability,
+                  { weekday: 1, start: '18:00', end: '19:00' },
+                ],
+              })
+            }
+          >
+            Thêm khung giờ
+          </Button>
+        </fieldset>
+        <Button type="submit" disabled={busy || !form.courseId}>
+          <UserRoundPlus size={17} />
+          {busy ? 'Đang gửi…' : 'Gửi yêu cầu'}
+        </Button>
+      </form>
+
+      <section className="ui-card p-5">
+        <h2 className="font-display text-xl">Trạng thái yêu cầu</h2>
+        {placements.length === 0 ? (
+          <p className="mt-3 text-sm text-muted">Chưa có yêu cầu xếp lớp.</p>
+        ) : (
+          <div className="mt-4 space-y-3">
+            {placements.map((request) => (
+              <article key={request.id} className="rounded-2xl border border-border p-4">
+                <div className="flex flex-wrap items-start justify-between gap-2">
+                  <div>
+                    <p className="font-bold">{request.course.title}</p>
+                    <p className="text-sm text-muted">
+                      Gửi {new Intl.DateTimeFormat('vi-VN', { dateStyle: 'medium' }).format(
+                        new Date(request.createdAt),
+                      )}
+                      {request.targetClass ? ` · ${request.targetClass.name}` : ''}
+                    </p>
+                  </div>
+                  <span
+                    className={cn(
+                      'rounded-full px-2 py-1 text-xs font-bold',
+                      request.status === 'placed'
+                        ? 'bg-mint-100 text-success'
+                        : request.status === 'rejected'
+                          ? 'bg-coral-100 text-danger'
+                          : 'bg-sun-100 text-warning',
+                    )}
+                  >
+                    {request.status === 'placed'
+                      ? 'Đã xếp lớp'
+                      : request.status === 'rejected'
+                        ? 'Không phù hợp'
+                        : 'Đang xử lý'}
+                  </span>
+                </div>
+                {request.resolutionNote && (
+                  <p className="mt-2 text-sm text-muted">{request.resolutionNote}</p>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
+      </section>
+    </div>
+
   )
 }
 

@@ -37,13 +37,26 @@ const localLevelFrameModules = import.meta.glob<string>(
   { eager: true, import: 'default', query: '?url' },
 )
 
+const localSvgFrameModules = import.meta.glob<string>(
+  '../../assets/rewards/frames/frame-*.svg',
+  { eager: true, import: 'default', query: '?url' },
+)
+
 function localLevelFrameAssetUrl(
   assetId: string,
   variant: RewardAssetVariant,
 ): string | undefined {
-  if (!/^frame-level-(?:15|25|35|45|55|65|75|85|95)$/.test(assetId)) return undefined
+  if (!/^frame-level-(?:15|25|35|45|55|65|75|85|95|100)$/.test(assetId)) return undefined
   if (variant !== 'primary') return undefined
   return localLevelFrameModules[`../../assets/rewards/frames/${assetId}.webp`]
+}
+
+function localSvgFrameAssetUrl(
+  assetId: string,
+  variant: RewardAssetVariant,
+): string | undefined {
+  if (variant !== 'primary') return undefined
+  return localSvgFrameModules[`../../assets/rewards/frames/${assetId}.svg`]
 }
 
 const localTransparentCompanionAssets: Record<string, string> = {
@@ -144,6 +157,8 @@ export function getGeneratedRewardAssetUrl(
   location?: { release?: string; format?: 'avif' | 'png' | 'svg' | 'webp' },
 ): string | undefined {
   if (!assetId) return undefined
+  const localSvgFrame = localSvgFrameAssetUrl(assetId, variant)
+  if (localSvgFrame) return localSvgFrame
   const localLevelFrame = localLevelFrameAssetUrl(assetId, variant)
   if (localLevelFrame) return localLevelFrame
   const localCompanion = localTransparentCompanionAssets[assetId]

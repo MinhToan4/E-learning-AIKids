@@ -5,7 +5,9 @@ import type {
   CurriculumGameDefinition,
 } from '@/features/lesson/lib/curriculum-game'
 import { DataRunnerGame } from './DataRunnerGame'
+import { resolveQuestions } from './MathKidsGame'
 import { TruthPatrolGame } from './TruthPatrolGame'
+import { BLOCKLY_DIRECTION_COMMANDS, BlocklyMazeGame } from './BlocklyMazeGame'
 
 const definitions: Record<string, CurriculumGameDefinition> = {
   runner: {
@@ -60,6 +62,44 @@ const config: CurriculumGameConfig = {
 }
 
 describe('AI learning game engines', () => {
+  it('uses direct grid directions instead of relative turn commands', () => {
+    expect(BLOCKLY_DIRECTION_COMMANDS.map((command) => command.label)).toEqual([
+      'Đi lên', 'Sang trái', 'Sang phải', 'Lùi xuống',
+    ])
+    const html = renderToStaticMarkup(
+      <BlocklyMazeGame
+        config={{}}
+        difficulty="gentle"
+        instruction=""
+        outcome=""
+        onComplete={vi.fn()}
+      />,
+    )
+    expect(html).toContain('Đi lên')
+    expect(html).not.toContain('Quay trái')
+    expect(html).not.toContain('Quay phải')
+    expect(html).toContain('/assets/aikid-ui/mascot-original/world-walking.webp')
+    expect(html).toContain('blockly-cat-position')
+  })
+
+  it('uses pattern questions when a station teaches sequences', () => {
+    const questions = resolveQuestions(undefined, 'Nhìn vào chuỗi và tìm mẫu tiếp theo')
+    expect(questions).toHaveLength(10)
+    expect(questions[0]?.id).toBe('pattern-1')
+    expect(questions.some((question) => question.prompt.includes('Robot đi'))).toBe(true)
+  })
+
+  it('keeps configured questions as the curriculum source of truth', () => {
+    const configured = Array.from({ length: 3 }, (_, index) => ({
+      id: `teacher-${index}`,
+      prompt: `Câu hỏi của giáo viên ${index}`,
+      options: ['Đúng', 'Sai'],
+      answer: 0,
+      why: 'Nội dung đã được cấu hình.',
+    }))
+    expect(resolveQuestions(configured, 'tìm mẫu')[0]?.id).toBe('teacher-0')
+  })
+
   it('server-renders the original runner scene without an image atlas', () => {
     const html = renderToStaticMarkup(
       <DataRunnerGame

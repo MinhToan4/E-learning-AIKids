@@ -1,5 +1,6 @@
 import { getGeneratedRewardAssetUrl } from './reward-assets'
 import type { RewardAssetVariant } from './reward-asset-address'
+import { environment } from '@/shared/config/environment'
 
 export type RewardAssetReference = {
   assetId: string
@@ -9,6 +10,9 @@ export type RewardAssetReference = {
 }
 
 export type RewardCatalogAssets = {
+  imageUrl?: string
+  thumbnailUrl?: string
+  previewUrl?: string
   /** Transitional shorthand for the primary logical asset. */
   assetId?: string
   primary?: RewardAssetReference
@@ -37,6 +41,19 @@ export function resolveCatalogRewardAsset(
   reward: { id: string; assets?: RewardCatalogAssets },
   usage: RewardAssetUsage = 'primary',
 ): string | undefined {
+  const directUrl = usage === 'thumbnail'
+    ? reward.assets?.thumbnailUrl ?? reward.assets?.imageUrl
+    : usage === 'preview'
+      ? reward.assets?.previewUrl ?? reward.assets?.imageUrl ?? reward.assets?.thumbnailUrl
+      : reward.assets?.imageUrl ?? reward.assets?.thumbnailUrl
+  if (directUrl) {
+    try {
+      const parsed = new URL(directUrl)
+      if (parsed.origin === environment.storagePublicUrl) return parsed.toString()
+    } catch {
+      if (directUrl.startsWith('/assets/')) return directUrl
+    }
+  }
   const reference = selectRewardAssetReference(reward.assets, usage)
   return reference
     ? getGeneratedRewardAssetUrl(

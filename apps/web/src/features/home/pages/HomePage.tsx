@@ -10,12 +10,14 @@ import { CardGridSkeleton, PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
-import { CourseBookIcon, NavLeaderboardIcon } from '@/shared/components/icons/KidNavIcons'
+import { CourseBookIcon, NavBadgeIcon } from '@/shared/components/icons/KidNavIcons'
 import { KidProfileStreakImageIcon } from '@/shared/components/icons/KidImageIcons'
 import type { RewardKind } from '@/shared/lib/creation/rewards'
 import { EquippedProfile } from '@/features/rewards/EquippedProfile'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { CuteProgress } from '@/shared/components/ui/CuteProgress'
+import { recentUnlockedAchievements } from '@/features/achievements/achievement-inventory'
+import { achievementBadgeAsset } from '@/features/achievements/achievement-badge-assets'
 import {
   profileCardBackgroundStyle,
   readRewardEquipment,
@@ -56,8 +58,9 @@ export function coursesWithEnrollments(
 }
 
 
-function courseBadge(course: CourseSummary) {
-  return /^l[12]-k7-/.test(course.id) ? 'AI' : (course.courseKey ?? 'Mới')
+export function courseBadge(course: CourseSummary) {
+  const level = `${course.courseKey ?? ''} ${course.id}`.match(/(?:^|[^a-z0-9])l([12])(?:[^a-z0-9]|$)/i)
+  return level ? `L${level[1]}` : 'AI'
 }
 
 function localDay(value: Date): string {
@@ -328,19 +331,7 @@ export function HomePage() {
           lastActivityDate: gamification.streak.lastActivityDate,
         })
       }
-      const unlockedBadges = a.achievements.filter((achievement) => achievement.unlocked)
-      const firstMilestone = a.achievements.find(
-        (achievement) => achievement.type === 'first_quest',
-      )
-      // WHY: Keep the first milestone visible as a goal without granting it;
-      // the gamification service remains the source of truth for unlock state.
-      setBadges(
-        unlockedBadges.length > 0
-          ? unlockedBadges.slice(0, 3)
-          : firstMilestone
-            ? [firstMilestone]
-            : a.achievements.slice(0, 1),
-      )
+      setBadges(recentUnlockedAchievements(a.achievements, 3))
       if (gamification.mission?.mission) {
         setDailyMission(gamification.mission.mission)
       } else {
@@ -367,14 +358,23 @@ export function HomePage() {
   }, [load])
 
   useEffect(() => {
-    const syncEquipment = () => {
-      if (user) setProfileEquipment(readRewardEquipment(user.id))
+    const syncEquipment = (event: Event) => {
+      if (!user) return
+      const detail = (event as CustomEvent<typeof profileEquipment>).detail
+      setProfileEquipment(detail && typeof detail === 'object'
+        ? detail
+        : readRewardEquipment(user.id))
+    }
+    const syncStoredEquipment = (event: StorageEvent) => {
+      if (user && event.key === `aikids.reward-equipment.${user.id}`) {
+        setProfileEquipment(readRewardEquipment(user.id))
+      }
     }
     window.addEventListener('aikids:reward-equipped', syncEquipment)
-    window.addEventListener('aikids:profile-avatar', syncEquipment)
+    window.addEventListener('storage', syncStoredEquipment)
     return () => {
       window.removeEventListener('aikids:reward-equipped', syncEquipment)
-      window.removeEventListener('aikids:profile-avatar', syncEquipment)
+      window.removeEventListener('storage', syncStoredEquipment)
     }
   }, [user])
 
@@ -430,7 +430,7 @@ export function HomePage() {
               xp={explorerXp}
               level={explorerLevel}
               compact
-              simple
+              equipment={profileEquipment}
             />
           )}
 
@@ -512,10 +512,10 @@ export function HomePage() {
       )}
 
       {badges.length > 0 && (
-        <section className="p-5 sm:p-6 rounded-[2rem] border-4 border-white bg-brand-50/50 shadow-[0_8px_0_rgba(109,94,252,0.15)] transition-transform hover:-translate-y-1 active:translate-y-1 active:shadow-[0_0px_0_rgba(109,94,252,0.15)]" aria-labelledby="recent-achievements-title">
+        <section className="rounded-[2rem] border-2 border-sun-100 bg-white/70 p-5 sm:p-6" aria-labelledby="recent-achievements-title">
               <div className="flex items-center justify-between gap-2 mb-4">
                 <h2 id="recent-achievements-title" className="font-display text-xl flex items-center gap-2">
-                  <NavLeaderboardIcon size={24} aria-hidden />
+                  <NavBadgeIcon size={24} aria-hidden />
                   Huy hiệu mới nhất
                 </h2>
                 <Link
@@ -527,27 +527,32 @@ export function HomePage() {
               </div>
 
               <div className="grid gap-2.5 sm:grid-cols-3">
-                {badges.map((b) => (
-                  <div
+                {badges.map((b) => {
+                  const badgeAsset = achievementBadgeAsset(b)
+                  return (
+                  <Link
                     key={b.type}
-                    className="flex items-center gap-3 rounded-[1.5rem] bg-white border-2 border-brand-100 p-3 min-w-0 transition-transform hover:-translate-y-0.5 active:translate-y-0.5 shadow-[0_4px_0_rgba(109,94,252,0.1)] active:shadow-none"
+                    to="/achievements"
+                    className="flex min-w-0 items-center gap-3 rounded-[1.5rem] border-2 border-sun-100 bg-sun-50/55 p-3 transition-colors hover:bg-sun-50 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-brand-700"
                   >
-                    <span
-                      className="ui-badge-clay !h-10 !w-10 !text-xl flex-shrink-0"
-                      aria-hidden
-                    >
-                      {b.icon}
+                    <span className="grid h-14 w-14 flex-shrink-0 place-items-center" aria-hidden="true">
+                      {badgeAsset ? (
+                        <img src={badgeAsset} alt="" className="h-14 w-14 object-contain" />
+                      ) : (
+                        <NavBadgeIcon size={38} />
+                      )}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <p className="text-xs font-bold leading-snug text-text truncate">
+                      <p className="truncate text-sm font-extrabold leading-snug text-text">
                         {b.title}
                       </p>
-                      <p className="text-[11px] font-semibold text-muted truncate mt-0.5">
-                        {b.description}
+                      <p className="mt-0.5 truncate text-xs font-bold text-mint-700">
+                        Đã mở · +{(b.points ?? 0).toLocaleString('vi-VN')} điểm
                       </p>
                     </div>
-                  </div>
-                ))}
+                  </Link>
+                  )
+                })}
               </div>
         </section>
       )}

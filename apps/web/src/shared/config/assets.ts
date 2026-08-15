@@ -12,6 +12,8 @@ export const designerAssets = {
     logo: '/assets/designer/brand/logo.svg',
     /** Optimized mascot (333 KB) — raw 6.9 MB files removed */
     mascot: '/assets/optimized/brand-mascot.webp',
+    /** Original orange Mee from Figma node 272:44, reserved for modal guidance. */
+    modalMascot: '/assets/designer/brand/modal-cat-original.webp',
     playLearn: '/assets/designer/brand/lets_play_and_learn.svg',
     cosmic: '/assets/designer/brand/cosmic_bg.svg',
   },
@@ -87,6 +89,18 @@ export const designerAssets = {
     storyIsland: '/assets/aikid-ui/world-scenes/scene-story-island-generated.png',
     creativeMountain: '/assets/aikid-ui/world-scenes/scene-creative-mountain-generated.png',
   },
+  worldLibrary: {
+    aikidOfficial: '/assets/optimized/world-library/aikid-official-world.png',
+    school: '/assets/optimized/world-library/school-world.png',
+    creator: '/assets/optimized/world-library/creator-world.png',
+  },
+  programs: {
+    aiFoundation: '/assets/optimized/programs/aikid-ai-foundation.png',
+    creativeFoundationsL1: '/assets/optimized/programs/aikids-creative-foundations-l1.jpg',
+    creativeStudioL2: '/assets/optimized/programs/aikids-creative-studio-l2.jpg',
+    roboticsFirstLab: '/assets/optimized/programs/robotics-first-lab.png',
+    tinyFilmStudio: '/assets/optimized/programs/tiny-film-studio.png',
+  },
   storybook: {
     chapterBackgrounds: [
       '/assets/designer/storybook/chapter-01.webp',
@@ -94,7 +108,7 @@ export const designerAssets = {
       '/assets/designer/storybook/chapter-03.webp',
       '/assets/designer/storybook/chapter-04.webp',
       '/assets/designer/storybook/chapter-05.webp',
-      '/assets/designer/storybook/chapter-06.webp',
+      '/assets/designer/storybook/chapter-06-forest-v2.webp',
       '/assets/designer/storybook/chapter-07.webp',
       '/assets/designer/storybook/chapter-08.webp',
     ],
@@ -109,6 +123,10 @@ export const designerAssets = {
       '/assets/designer/storybook/tabs/chapter-08.webp',
     ],
   },
+  achievementExperience: {
+    progressValley: '/assets/designer/achievements/progress-valley-v2.webp',
+    badgeCabinet: '/assets/designer/achievements/badge-cabinet-v2.webp',
+  },
   /** Decorative chrome (badges, maps) — designer Soft Clay */
   chrome: {
     badges: '/assets/ui-badges.webp',
@@ -120,6 +138,32 @@ export const designerAssets = {
     podium: '/assets/optimized/lobby-home-explore.webp',
   },
 } as const
+
+/**
+ * Shared artwork resolver for program cards across learner, parent and CMS.
+ * Backend-owned artwork remains authoritative for custom programs; official
+ * program IDs receive stable local fallbacks so every role sees the same art.
+ */
+export function programArtworkHint(input: {
+  id?: string | null
+  title?: string | null
+  imageUrl?: string | null
+}): string {
+  const value = `${input.id ?? ''} ${input.title ?? ''}`.toLocaleLowerCase('vi')
+  if (value.includes('creative-foundations-l1') || value.includes('sáng tạo cùng ai')) {
+    return designerAssets.programs.creativeFoundationsL1
+  }
+  if (value.includes('creative-studio-l2') || value.includes('xưởng sáng tạo ai')) {
+    return designerAssets.programs.creativeStudioL2
+  }
+  if (value.includes('robot')) return designerAssets.programs.roboticsFirstLab
+  if (value.includes('tiny-film') || value.includes('phim tí hon')) return designerAssets.programs.tinyFilmStudio
+  if (value.includes('ai-foundation') || value.includes('ai bạn') || value.includes('thung lũng ai')) {
+    return designerAssets.programs.aiFoundation
+  }
+  if (input.imageUrl?.startsWith('/')) return input.imageUrl
+  return designerAssets.programs.aiFoundation
+}
 
 export function styleImage(id: ArtStyleId): string {
   return designerAssets.styles[id]

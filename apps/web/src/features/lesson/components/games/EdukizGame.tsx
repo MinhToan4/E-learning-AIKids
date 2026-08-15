@@ -5,6 +5,7 @@ import {
   BrainCircuit,
   LockKeyhole,
   MemoryStick,
+  HelpCircle,
   RotateCcw,
   Volume2,
 } from 'lucide-react'
@@ -293,7 +294,7 @@ export function EdukizGame({
                     )}
                     aria-label={revealed ? card.label : 'Thẻ đang úp'}
                   >
-                    {revealed ? card.label : '✦'}
+                    {revealed ? card.label : <HelpCircle className="mx-auto" size={30} aria-hidden="true" />}
                   </button>
                 )
               })}

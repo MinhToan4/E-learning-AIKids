@@ -1,5 +1,4 @@
 import { useEffect, useState, type CSSProperties } from 'react'
-import { ChevronDown, ChevronLeft, ChevronRight, ChevronUp } from 'lucide-react'
 import type { StorybookPage } from '../storybook-data'
 import { ChapterRewardCard } from './ChapterRewardCard'
 import { safeStorybookAssetUrl } from '../storybook-contract'
@@ -60,6 +59,7 @@ export function BookSpread({
   const completionWebm = safeMediaUrl(page.completionMedia?.webmUrl)
   const completionPoster = safeMediaUrl(page.completionMedia?.posterUrl)
   const completionCaptions = safeMediaUrl(page.completionMedia?.captionsUrl)
+  const stickerPageBackground = safeStorybookAssetUrl(page.stickerPageUrl)
 
   return (
     <section className="storybook-book" aria-labelledby={`page-${page.slug}`}>
@@ -70,6 +70,7 @@ export function BookSpread({
           aria-selected={mobilePage === 'chapter'}
           aria-controls={`chapter-${page.slug}`}
           onClick={() => setMobilePage('chapter')}
+          style={safeStorybookAssetUrl(page.buttonAssets?.chapterTabUrl) ? { backgroundImage: `url("${safeStorybookAssetUrl(page.buttonAssets?.chapterTabUrl)}")`, backgroundSize: 'cover' } : undefined}
         >
           Nội dung chương
         </button>
@@ -79,13 +80,14 @@ export function BookSpread({
           aria-selected={mobilePage === 'stickers'}
           aria-controls={`stickers-${page.slug}`}
           onClick={() => setMobilePage('stickers')}
+          style={safeStorybookAssetUrl(page.buttonAssets?.stickerTabUrl) ? { backgroundImage: `url("${safeStorybookAssetUrl(page.buttonAssets?.stickerTabUrl)}")`, backgroundSize: 'cover' } : undefined}
         >
           Sticker · {earnedCount}/9
         </button>
       </div>
 
       <div className="storybook-book-layout">
-        <div className="storybook-pages">
+        <div className="storybook-pages" key={page.slug}>
           <div
           id={`chapter-${page.slug}`}
           role="tabpanel"
@@ -161,13 +163,14 @@ export function BookSpread({
           id={`stickers-${page.slug}`}
           role="tabpanel"
           className={`storybook-page storybook-page-right ${mobilePage === 'stickers' ? '' : 'storybook-mobile-hidden'}`}
-          style={{
-            backgroundImage: safeStorybookAssetUrl(page.stickerPageUrl)
-              ? `linear-gradient(rgba(255,253,243,.88), rgba(247,237,201,.88)), url("${safeStorybookAssetUrl(page.stickerPageUrl)}")`
-              : 'radial-gradient(circle at center, #fffdf3, #f7edc9)',
-          }}
+          style={stickerPageBackground
+            ? { backgroundImage: `url("${stickerPageBackground}")` }
+            : undefined}
         >
-          <div className="storybook-sticker-canvas" data-detail-open={selectedSticker || showStickerGuide ? 'true' : undefined}>
+          <div
+            className="storybook-sticker-canvas"
+            data-layout={page.stickers.every((sticker) => sticker.placement) ? 'figma-scatter' : undefined}
+          >
             <button
               type="button"
               className="storybook-sticker-help"
@@ -177,6 +180,7 @@ export function BookSpread({
                 setSelectedStickerIndex(null)
                 setShowStickerGuide((open) => !open)
               }}
+              style={safeStorybookAssetUrl(page.buttonAssets?.helpUrl) ? { backgroundImage: `url("${safeStorybookAssetUrl(page.buttonAssets?.helpUrl)}")`, backgroundSize: 'cover' } : undefined}
             >
               ?
             </button>
@@ -198,6 +202,12 @@ export function BookSpread({
                       ? 'storybook-loose-sticker-unlocked'
                       : 'storybook-loose-sticker-locked'
                   } ${item.boss ? 'storybook-loose-sticker-boss' : ''}`}
+                  style={item.placement ? {
+                    '--sticker-left': `${item.placement.left}%`,
+                    '--sticker-top': `${item.placement.top}%`,
+                    '--sticker-width': `${item.placement.width}%`,
+                    '--sticker-height': `${item.placement.height}%`,
+                  } as CSSProperties : undefined}
                 >
                   <span className="storybook-loose-sticker-art">
                     {unlocked && safeStorybookAssetUrl(item.imageUrl) ? (
@@ -207,7 +217,7 @@ export function BookSpread({
                         className="storybook-sticker-art"
                         style={{
                           backgroundImage: `url("${safeStorybookAssetUrl(page.stickerSheetUrl)}")`,
-                          backgroundPosition: `${(index % 3) * 50}% ${Math.floor(index / 3) * 50}%`,
+                          backgroundPosition: `${((item.sheetIndex ?? index) % 3) * 50}% ${Math.floor((item.sheetIndex ?? index) / 3) * 50}%`,
                         }}
                         aria-hidden="true"
                       />
@@ -279,9 +289,9 @@ export function BookSpread({
             aria-label="Chương trước"
             disabled={pageIndex === 0}
             onClick={() => onPageChange(Math.max(0, pageIndex - 1))}
+            style={safeStorybookAssetUrl(page.buttonAssets?.previousUrl) ? { backgroundImage: `url("${safeStorybookAssetUrl(page.buttonAssets?.previousUrl)}")`, backgroundSize: 'cover' } : undefined}
           >
-            <ChevronLeft className="storybook-rail-arrow-horizontal" size={24} aria-hidden />
-            <ChevronUp className="storybook-rail-arrow-vertical" size={24} aria-hidden />
+            <span className="storybook-rail-arrow-glyph" data-direction="previous" aria-hidden="true" />
           </button>
           <div className="storybook-rail-tabs">
             {pages.map((bookPage, index) => {
@@ -321,9 +331,9 @@ export function BookSpread({
             aria-label="Chương sau"
             disabled={pageIndex === pages.length - 1}
             onClick={() => onPageChange(Math.min(pages.length - 1, pageIndex + 1))}
+            style={safeStorybookAssetUrl(page.buttonAssets?.nextUrl) ? { backgroundImage: `url("${safeStorybookAssetUrl(page.buttonAssets?.nextUrl)}")`, backgroundSize: 'cover' } : undefined}
           >
-            <ChevronRight className="storybook-rail-arrow-horizontal" size={24} aria-hidden />
-            <ChevronDown className="storybook-rail-arrow-vertical" size={24} aria-hidden />
+            <span className="storybook-rail-arrow-glyph" data-direction="next" aria-hidden="true" />
           </button>
         </nav>
       </div>

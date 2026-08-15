@@ -12,6 +12,7 @@ describe('storybook Hub and storage contract', () => {
     expect(safeStorybookAssetUrl('https://storage.storymee.com/p01.webp')).toBe('https://storage.storymee.com/p01.webp')
     expect(safeStorybookAssetUrl('javascript:alert(1)')).toBeUndefined()
     expect(safeStorybookAssetUrl('http://tracker.example/p01.webp')).toBeUndefined()
+    expect(safeStorybookAssetUrl('https://tracker.example/p01.webp')).toBeUndefined()
   })
 
   it('fails closed for unsafe chapter colors', () => {

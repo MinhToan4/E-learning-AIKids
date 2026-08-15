@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { CourseSummary } from '@/shared/lib/api'
-import { coursesWithEnrollments } from './HomePage'
+import { courseBadge, coursesWithEnrollments } from './HomePage'
 
 const course = (id: string): CourseSummary => ({
   id,
@@ -46,5 +46,12 @@ describe('coursesWithEnrollments', () => {
       expect.objectContaining({ id: 'film', enrolled: true, completedCount: 1, progressPct: 100 }),
       expect.objectContaining({ id: 'new', enrolled: false, progressPct: 0 }),
     ]))
+  })
+})
+
+describe('courseBadge', () => {
+  it('turns internal course keys into a short child-facing level label', () => {
+    expect(courseBadge({ ...course('course-123'), courseKey: 'l2-k7-hieu-va-dung-ai' })).toBe('L2')
+    expect(courseBadge(course('l1-k7-ai-ban-cua-em'))).toBe('L1')
   })
 })

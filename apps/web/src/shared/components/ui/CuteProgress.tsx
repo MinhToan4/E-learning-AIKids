@@ -6,7 +6,6 @@ type CuteProgressProps = {
   tone?: 'violet' | 'mint' | 'coral'
   compact?: boolean
   className?: string
-  markerMode?: 'milestones' | 'current'
 }
 
 export function CuteProgress({
@@ -15,7 +14,6 @@ export function CuteProgress({
   tone = 'violet',
   compact = false,
   className,
-  markerMode = 'milestones',
 }: CuteProgressProps) {
   const safeValue = Math.max(0, Math.min(100, Math.round(value)))
 
@@ -34,26 +32,13 @@ export function CuteProgress({
         aria-valuemax={100}
       >
         <span className={`cute-progress-fill cute-progress-fill-${tone}`} style={{ width: `${safeValue}%` }} />
-        {markerMode === 'current' ? (
-          <img
-            src="/assets/aikid-ui/generated/star.webp"
-            alt=""
-            aria-hidden="true"
-            className="cute-progress-star cute-progress-star-earned cute-progress-star-current"
-            style={{ left: `${safeValue}%` }}
-          />
-        ) : (
-          [33, 66, 100].map((milestone) => (
-            <img
-              key={milestone}
-              src="/assets/aikid-ui/generated/star.webp"
-              alt=""
-              aria-hidden="true"
-              className={cn('cute-progress-star', safeValue >= milestone && 'cute-progress-star-earned')}
-              style={{ left: `${milestone}%` }}
-            />
-          ))
-        )}
+        <img
+          src="/assets/aikid-ui/generated/star.webp"
+          alt=""
+          aria-hidden="true"
+          className="cute-progress-star cute-progress-star-earned cute-progress-star-current"
+          style={{ left: `${safeValue}%` }}
+        />
       </div>
     </div>
   )

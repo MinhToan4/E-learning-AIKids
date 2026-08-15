@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
-import { BookOpen, Gamepad2, PencilLine, Play, Star, Target, ShieldCheck, Check } from 'lucide-react'
+import { BookOpen, BrainCircuit, Check, Clock3, Gamepad2, Lightbulb, MoveRight, PencilLine, Play, ScanSearch, ShieldCheck, Star, Target, Timer, Trophy, Volume2 } from 'lucide-react'
 import {
   ART_STYLES,
   CHARACTER_SHAPES,
@@ -32,6 +32,7 @@ import { cn } from '@/shared/lib/cn'
 import { designerAssets, styleImage } from '@/shared/config/assets'
 import { RefMediaPicker } from '@/features/lesson/components/RefMediaPicker'
 import { SketchCanvas } from '@/features/lesson/components/SketchCanvas'
+import { OrderingPractice } from '@/features/lesson/components/OrderingPractice'
 import {
   EMPTY_PROMPT_LAB,
   PromptLab,
@@ -48,6 +49,7 @@ import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 
 import { NavWorldIcon } from '@/shared/components/icons/KidNavIcons'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
+import { AdventureModal } from '@/shared/components/ui/AdventureModal'
 import {
   resolvePracticeReview,
   type PracticePreview,
@@ -75,10 +77,10 @@ const emptyStory = {
 
 
 const PHASES = [
-  { id: 'learn' as const, label: 'Khám phá', icon: BookOpen },
-  { id: 'game' as const, label: 'Thử cùng Mee', icon: Gamepad2 },
-  { id: 'practice' as const, label: 'Tự tay làm', icon: PencilLine },
-  { id: 'check' as const, label: 'Thử thách', icon: ShieldCheck },
+  { id: 'learn' as const, label: 'Khám phá', description: 'Xem và hiểu', icon: BookOpen },
+  { id: 'game' as const, label: 'Thử cùng Mee', description: 'Luyện có hướng dẫn', icon: Gamepad2 },
+  { id: 'practice' as const, label: 'Tự tay làm', description: 'Tự thực hành', icon: PencilLine },
+  { id: 'check' as const, label: 'Thử thách', description: 'Kiểm tra cuối trạm', icon: ShieldCheck },
 ]
 
 const PHASE_ORDER = ['learn', 'game', 'practice', 'check', 'done']
@@ -97,17 +99,12 @@ export function LessonPage() {
   const [practiceFeedback, setPracticeFeedback] = useState<string | null>(null)
   const [practiceSaved, setPracticeSaved] = useState(false)
   const [practiceAdvanced, setPracticeAdvanced] = useState(false)
-  const [charName, setCharName] = useState('Mèo Sao')
+  const [charName, setCharName] = useState('')
   const [charShape, setCharShape] = useState<CharacterShapeId>('animal')
   const [charVibe, setCharVibe] = useState<CharacterVibeId>('curious')
   const [styleId, setStyleId] = useState<ArtStyleId | null>(null)
   const [story, setStory] = useState(emptyStory)
-  const [comicBubbles, setComicBubbles] = useState([
-    'Xin chào!',
-    'Ôi không!',
-    'Mình sửa nhé!',
-    'Xong rồi!',
-  ])
+  const [comicBubbles, setComicBubbles] = useState(['', '', '', ''])
   const [detectivePick, setDetectivePick] = useState<0 | 1 | null>(null)
   const [journalText, setJournalText] = useState('')
   const [promptLab, setPromptLab] = useState<PromptLabValue>(EMPTY_PROMPT_LAB)
@@ -116,6 +113,7 @@ export function LessonPage() {
     '#3dbfff',
     '#ffc94a',
   ])
+  const [practiceOrder, setPracticeOrder] = useState<string[]>([])
   const [answers, setAnswers] = useState<Record<string, number>>({})
   const [answerFeedback, setAnswerFeedback] = useState<
     Record<string, { correct: boolean; explanation: string }>
@@ -146,16 +144,17 @@ export function LessonPage() {
     setPracticeFeedback(null)
     setPracticeSaved(false)
     setPracticeAdvanced(false)
-    setCharName('Mèo Sao')
+    setCharName('')
     setCharShape('animal')
     setCharVibe('curious')
     setStyleId(null)
     setStory(emptyStory)
-    setComicBubbles(['Xin chào!', 'Ôi không!', 'Mình sửa nhé!', 'Xong rồi!'])
+    setComicBubbles(['', '', '', ''])
     setDetectivePick(null)
     setJournalText('')
     setPromptLab(EMPTY_PROMPT_LAB)
     setPaletteColors(['#6d5efc', '#3dbfff', '#ffc94a'])
+    setPracticeOrder([])
     setRefAssetIds([])
     setSketchDataUrl(null)
     setAnswers({})
@@ -321,6 +320,22 @@ export function LessonPage() {
   const practiceStation = quest?.stations?.stations.find(
     (station) => station.kind === 'practice',
   )
+  const practiceSteps = practiceStation?.steps?.length
+    ? practiceStation.steps
+    : [
+        practiceStation?.instruction ?? 'Đọc kỹ nhiệm vụ và chọn ý con muốn thực hiện.',
+        practiceStation?.product
+          ? `Hoàn thành sản phẩm: ${practiceStation.product}`
+          : 'Hoàn thành câu trả lời hoặc sản phẩm của con.',
+        'Đọc lại, đối chiếu mục tiêu và sửa ít nhất một điểm trước khi lưu.',
+      ]
+  const practiceCriteria = practiceStation?.successCriteria?.length
+    ? practiceStation.successCriteria
+    : quest?.goals.slice(0, 4) ?? []
+  const orderingCards = practiceStation?.practiceConfig?.cards ?? []
+  const effectivePracticeOrder = practiceOrder.length > 0
+    ? practiceOrder
+    : [...orderingCards].reverse().map((card) => card.id)
 
   function selectChip(chip: PromptChip) {
     setParts((p) => ({ ...p, [chip.slot]: chip }))
@@ -350,14 +365,19 @@ export function LessonPage() {
         quest.practiceKind === 'reflect' ||
         quest.practiceKind === 'spin' ||
         quest.practiceKind === 'match' ||
-        quest.practiceKind === 'drag' ||
         quest.practiceKind === 'ai_pick') &&
-      !journalText.trim()
+      journalText.trim().length < 20
     ) {
-      return 'Viết ý tưởng của con vào sổ tay nhé!'
+      return 'Con hãy viết ít nhất 20 ký tự để giải thích trọn ý nhé!'
     }
     if (quest.practiceKind === 'palette' && paletteColors.length < 3) {
       return 'Chọn đủ 3 màu nhé!'
+    }
+    if (quest.practiceKind === 'palette' && journalText.trim().length < 20) {
+      return 'Con hãy giải thích lựa chọn màu của mình ít nhất 20 ký tự nhé!'
+    }
+    if (quest.practiceKind === 'comic' && comicBubbles.some((bubble) => bubble.trim().length < 2)) {
+      return 'Con hãy thêm lời thoại cho đủ bốn khung truyện nhé!'
     }
     if (quest.practiceKind === 'sketch' && !sketchDataUrl) {
       return 'Hãy vẽ vài nét trên canvas trong bài nhé!'
@@ -367,6 +387,15 @@ export function LessonPage() {
     }
     if (quest.practiceKind === 'prompt_lab') {
       return promptLabError(promptLab)
+    }
+    if (quest.practiceKind === 'ordering') {
+      const correct = orderingCards.map((card) => card.id)
+      if (effectivePracticeOrder.some((id, index) => id !== correct[index])) {
+        return 'Con hãy sắp xếp các thẻ đúng thứ tự trước khi lưu nhé!'
+      }
+      if (journalText.trim().length < 20) {
+        return 'Con hãy giải thích lựa chọn của mình ít nhất 20 ký tự nhé!'
+      }
     }
     return null
   }
@@ -481,6 +510,8 @@ export function LessonPage() {
           explanation: promptLab.explanation.trim(),
           freeText: strongPrompt(promptLab),
         }
+      } else if (quest.practiceKind === 'ordering') {
+        payload = { order: effectivePracticeOrder, plan: journalText.trim(), completed: true }
       } else {
         payload = { ready: true }
       }
@@ -753,14 +784,7 @@ export function LessonPage() {
     quest.check.every((question) => answerFeedback[question.id]?.correct)
 
   return (
-    <div className="page-enter flex flex-col sm:flex-row gap-4 h-dvh overflow-hidden p-2 sm:p-4">
-      <LeftPhaseSidebar 
-        className="shrink-0 flex-row justify-center sm:flex-col sm:justify-start" 
-        guideCopy={dynamicGuideCopy}
-        videoUrl={phase === 'learn' ? quest?.videoUrl : null}
-        videoTitle={quest?.title}
-      />
-      
+    <div className="page-enter flex h-dvh flex-col gap-4 overflow-hidden p-2 sm:p-4 lg:flex-row">
       <div className="flex-1 flex flex-col gap-4 min-w-0 overflow-hidden">
         {/* ── Header ──────────────────────────────────────────────── */}
         <div className="ui-card p-4 shrink-0">
@@ -774,8 +798,9 @@ export function LessonPage() {
               </p>
             )}
           </div>
-          {phase !== 'done' && (
-            <div className="lesson-star-rack" aria-label={`${liveStars} sao đã nhận`}>
+          {phase !== 'done' && liveStars > 0 && (
+            <div className="lesson-star-rack" aria-label={`Sao của trạm: ${liveStars} sao đã nhận`}>
+              <span className="lesson-star-rack-label">Sao của trạm</span>
               {[1, 2, 3].map((star) => (
                 <Star
                   key={star}
@@ -811,6 +836,8 @@ export function LessonPage() {
               return (
                 <button
                   key={p.id}
+                  aria-label={`${p.label}: ${p.description}`}
+                  title={`${p.label} · ${p.description}`}
                   onClick={() => {
                     if (isUnlocked) {
                       setPhase(p.id)
@@ -819,14 +846,17 @@ export function LessonPage() {
                   }}
                   disabled={!isUnlocked}
                   className={cn(
-                    "flex items-center gap-2 px-4 py-2 rounded-full border-2 text-sm font-bold transition-all",
+                    "flex min-h-11 items-center gap-2 px-3 py-1.5 rounded-2xl border-2 text-sm font-bold transition-all",
                     isActive ? "bg-brand-50 border-brand-500 text-brand-700 shadow-sm"
                              : isUnlocked ? "bg-white border-border text-text hover:border-brand-200"
                                           : "bg-surface border-transparent text-muted opacity-60 cursor-not-allowed"
                   )}
                 >
                   <p.icon size={16} />
-                  <span>{p.label}</span>
+                  <span className="text-left leading-tight">
+                    <span className="block">{p.label}</span>
+                    <span className="hidden text-[10px] font-bold text-current opacity-70 lg:block">{p.description}</span>
+                  </span>
                 </button>
               )
             })}
@@ -872,57 +902,135 @@ export function LessonPage() {
                 <Target size={18} /> Hôm nay con sẽ:
               </p>
               <ul className="flex flex-wrap gap-2">
-                {quest.goals.map((g) => (
-                  <li key={g} className="px-4 py-2 bg-coral-50 text-coral-800 border-2 border-coral-200 rounded-full text-sm font-bold shadow-sm">
-                    {g}
+                {quest.goals.map((g, goalIndex) => (
+                  <li key={g} title={g} className="inline-flex min-h-11 max-w-full items-center gap-2 rounded-2xl border-2 border-coral-200 bg-coral-50 px-3 py-2 text-sm font-bold text-coral-800 shadow-sm">
+                    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-white text-xs text-coral-700">{goalIndex + 1}</span>
+                    <span className="line-clamp-2">{g}</span>
                   </li>
                 ))}
               </ul>
             </div>
           )}
 
-          {/* Learn cards */}
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {/* Short visual explanations are authored by LMS; the UI only controls presentation. */}
+          <section className="grid gap-4" aria-label="Nội dung xem và hiểu">
             {quest.learnCards.map((card, idx) => {
-              const CARD_ICONS = ['💡', '🔍', '🎯', '✨', '🧩', '🚀']
+              const CARD_ICONS = [BrainCircuit, ScanSearch, Lightbulb]
+              const CardIcon = CARD_ICONS[idx % CARD_ICONS.length]!
               const TONES = [
                 { bg: 'bg-sun-50', border: 'border-sun-200', text: 'text-sun-700', iconBg: 'bg-sun-200' },
                 { bg: 'bg-mint-50', border: 'border-mint-200', text: 'text-mint-700', iconBg: 'bg-mint-200' },
                 { bg: 'bg-brand-50', border: 'border-brand-200', text: 'text-brand-700', iconBg: 'bg-brand-200' },
               ]
               const tone = TONES[idx % TONES.length]
+              const isStoryboardCard = card.visualItems?.some((item) =>
+                Boolean(item.shot || item.duration || item.sound || item.direction),
+              ) ?? card.layout === 'storyboard'
+              const usesSplitLayout = card.layout === 'split' || (!card.layout && card.visualItems?.length && !isStoryboardCard)
               
               return (
-                <div key={card.id} className={cn(
-                  "relative flex flex-col gap-3 rounded-[1.5rem] border-[3px] p-5 shadow-sm transition-transform hover:-translate-y-1",
+                <article key={card.id} className={cn(
+                  "relative grid gap-4 rounded-[1.5rem] border-2 p-4 shadow-sm sm:p-5",
+                  usesSplitLayout && card.visualItems?.length && !isStoryboardCard && "lg:grid-cols-[minmax(16rem,.78fr)_minmax(0,1.22fr)]",
                   tone.bg, tone.border
                 )}>
-                  {card.imageUrl && (
-                    <img
-                      src={card.imageUrl}
-                      alt={card.imageAlt || card.title}
-                      className="mb-3 h-32 w-full rounded-xl object-cover"
-                      onError={(event) => { event.currentTarget.style.display = 'none' }}
-                    />
-                  )}
-                  <div className={cn("grid size-12 place-items-center rounded-2xl text-2xl border-2 shadow-sm", tone.iconBg, tone.border)}>
-                    {CARD_ICONS[idx % CARD_ICONS.length]}
-                  </div>
-                  <p className={cn("text-lg font-black leading-tight mt-1", tone.text)}>
-                    {card.title}
-                  </p>
-                  <p className="text-sm font-semibold text-text/80 leading-relaxed">{card.body}</p>
-                  {card.tip && (
-                    <div className="mt-auto pt-3">
-                      <p className={cn("text-xs font-bold px-3 py-2 rounded-xl border-2 shadow-sm", tone.border, tone.text, "bg-white/60")}>
-                        💡 {card.tip}
-                      </p>
+                  <div className={cn('flex flex-col justify-center', isStoryboardCard && 'max-w-4xl')}>
+                    {card.imageUrl && (
+                      <img
+                        src={card.imageUrl}
+                        alt={card.imageAlt || card.title}
+                        className="mb-3 h-32 w-full rounded-xl object-cover"
+                        onError={(event) => { event.currentTarget.style.display = 'none' }}
+                      />
+                    )}
+                    <div className={cn("grid size-12 place-items-center rounded-2xl border-2 shadow-sm", tone.iconBg, tone.border)}>
+                      <CardIcon size={26} className={tone.text} aria-hidden="true" />
                     </div>
-                  )}
-                </div>
+                    <h3 className={cn("mt-3 font-display text-xl leading-tight", tone.text)}>
+                      {card.title}
+                    </h3>
+                    <p className="mt-2 text-base font-semibold leading-relaxed text-text">{card.body}</p>
+                    {card.tip && (
+                      <p className={cn("mt-3 rounded-xl border bg-white/80 px-3 py-2 text-sm font-bold leading-snug", tone.border, tone.text)}>
+                        Ghi nhớ: {card.tip}
+                      </p>
+                    )}
+                  </div>
+
+                  {card.visualItems?.length ? (
+                    <div className={cn(
+                      'grid content-center gap-3',
+                      isStoryboardCard
+                        ? 'sm:grid-cols-2 sm:gap-4'
+                        : card.layout === 'split'
+                          ? 'grid-cols-1'
+                          : card.layout === 'visual-grid' && card.visualItems.length >= 3
+                          ? 'sm:grid-cols-3'
+                          : card.layout === 'visual-grid'
+                            ? 'sm:grid-cols-2'
+                            : 'grid-cols-1',
+                    )}>
+                      {card.visualItems.map((item, itemIndex) => {
+                        const isStoryboardFrame = Boolean(item.shot || item.duration || item.sound || item.direction)
+                        const visualTone = {
+                          brand: 'border-brand-200 bg-brand-50 text-brand-800',
+                          sky: 'border-sky-200 bg-sky-50 text-sky-800',
+                          mint: 'border-mint-200 bg-mint-50 text-mint-800',
+                          sun: 'border-sun-200 bg-sun-50 text-sun-800',
+                          coral: 'border-coral-200 bg-coral-50 text-coral-800',
+                        }[item.tone ?? 'brand'] ?? 'border-brand-200 bg-brand-50 text-brand-800'
+                        const VisualIcon = item.label.toLocaleLowerCase('vi').includes('đồng hồ')
+                          ? Timer
+                          : itemIndex === card.visualItems!.length - 1
+                            ? Target
+                            : BrainCircuit
+                        return (
+                          <div key={`${item.label}-${itemIndex}`} className={cn(
+                            'min-h-32 overflow-hidden rounded-2xl border-2 bg-white p-4 shadow-sm',
+                            isStoryboardFrame && 'grid content-start sm:grid-cols-[minmax(9rem,.85fr)_minmax(0,1.15fr)] sm:gap-x-4',
+                            visualTone,
+                          )}>
+                            {isStoryboardFrame ? (
+                              <div className="relative mb-3 aspect-[4/3] overflow-hidden rounded-xl border-2 border-text/20 bg-sky-50 sm:row-span-3 sm:mb-0" aria-hidden="true">
+                                <div className="absolute inset-x-0 bottom-0 h-1/3 bg-mint-100" />
+                                <div className="absolute bottom-[24%] right-[9%] h-[58%] w-[31%] rounded-t-xl border-2 border-text/30 bg-sun-100">
+                                  <div className="absolute bottom-[42%] left-[14%] h-2 w-2 rounded-full bg-text/50" />
+                                </div>
+                                <AikidCatCharacter
+                                  pose="walking"
+                                  className={cn(
+                                    'absolute bottom-[12%] h-[58%] w-[48%] object-contain drop-shadow-sm',
+                                    itemIndex === 0 ? 'left-[5%]' : itemIndex === 1 ? 'left-[22%]' : itemIndex === 2 ? 'left-[28%] scale-125' : 'left-[38%]',
+                                  )}
+                                />
+                                {itemIndex > 0 && (
+                                  <MoveRight className="absolute bottom-[10%] left-[8%] text-brand-700" size={28} />
+                                )}
+                                <span className="absolute left-2 top-2 rounded-lg bg-white/90 px-2 py-1 text-[11px] font-extrabold text-text">
+                                  {item.shot}
+                                </span>
+                              </div>
+                            ) : (
+                              <VisualIcon size={24} aria-hidden="true" />
+                            )}
+                            <p className={cn('mt-2 text-base font-extrabold leading-tight', isStoryboardFrame && 'sm:mt-0')}>{item.label}</p>
+                            <p className="mt-1 text-sm font-semibold leading-relaxed text-text">{item.text}</p>
+                            {isStoryboardFrame && (
+                              <dl className="mt-3 grid gap-2 border-t border-current/15 pt-3 text-sm font-bold text-text">
+                                {item.duration && <div className="flex items-start gap-2"><Clock3 size={17} className="mt-0.5 shrink-0" /><dt className="sr-only">Thời lượng</dt><dd>{item.duration}</dd></div>}
+                                {item.sound && <div className="flex items-start gap-2"><Volume2 size={17} className="mt-0.5 shrink-0" /><dt className="sr-only">Âm thanh</dt><dd>{item.sound}</dd></div>}
+                                {item.direction && <div className="flex items-start gap-2"><MoveRight size={17} className="mt-0.5 shrink-0" /><dt className="sr-only">Chỉ dẫn</dt><dd className="leading-snug">{item.direction}</dd></div>}
+                              </dl>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  ) : null}
+                </article>
               )
             })}
-          </div>
+          </section>
 
           {quest.media && quest.media.length > 0 && (
             <div className="rounded-2xl border border-sky-100 bg-sky-50/60 p-3">
@@ -998,23 +1106,30 @@ export function LessonPage() {
       )}
 
       {phase === 'practice' && (
-        <div className="ui-card flex flex-col gap-4 p-5 animate-fade-up">
-          {practiceStation?.instruction && (
-            <div className="rounded-2xl border-2 border-mint-100 bg-mint-100/40 p-4">
-              <p className="font-display flex items-center gap-2 text-xl">
-                <PencilLine size={22} aria-hidden="true" />
+        <div className="ui-card flex flex-col gap-5 p-4 sm:p-5 animate-fade-up">
+          <section aria-labelledby="practice-brief-title">
+            <div className="rounded-2xl border-2 border-mint-200 bg-mint-50 p-4 sm:p-5">
+              <p id="practice-brief-title" className="font-display flex items-center gap-2 text-xl text-text">
+                <PencilLine size={22} className="text-mint-700" aria-hidden="true" />
                 Nhiệm vụ thực hành
               </p>
-              <p className="mt-1 text-sm font-semibold leading-relaxed">
-                {practiceStation.instruction}
-              </p>
-              {practiceStation.product && (
-                <p className="mt-2 text-xs text-muted">
-                  Sản phẩm cần lưu: {practiceStation.product}
+              {practiceStation?.instruction && (
+                <p className="mt-2 font-semibold leading-relaxed text-text">
+                  {practiceStation.instruction}
                 </p>
               )}
+              <ol className="mt-4 grid gap-2">
+                {practiceSteps.map((step, index) => (
+                  <li key={`${index}-${step}`} className="flex items-start gap-3 rounded-xl bg-white/80 px-3 py-2.5 text-sm font-bold leading-snug text-text">
+                    <span className="grid size-6 shrink-0 place-items-center rounded-full bg-mint-100 text-xs text-mint-700" aria-hidden="true">
+                      {index + 1}
+                    </span>
+                    <span>{step}</span>
+                  </li>
+                ))}
+              </ol>
             </div>
-          )}
+          </section>
           {!practiceSaved && (
             <>
               {quest.practiceKind === 'chips' && quest.chips && (
@@ -1366,28 +1481,59 @@ export function LessonPage() {
                 <PromptLab value={promptLab} onChange={setPromptLab} />
               )}
 
+              {quest.practiceKind === 'ordering' && orderingCards.length > 0 && (
+                <div className="grid gap-4">
+                  <OrderingPractice
+                    prompt={practiceStation?.practiceConfig?.prompt ?? practiceStation?.instruction ?? 'Sắp xếp các bước theo thứ tự hợp lý.'}
+                    cards={orderingCards}
+                    order={effectivePracticeOrder}
+                    onChange={setPracticeOrder}
+                  />
+                  <label className="rounded-3xl border-2 border-mint-200 bg-mint-50 p-4 font-bold text-text sm:p-5">
+                    Lý do sắp xếp của con
+                    <span className="mt-1 block text-sm font-semibold text-muted">Giải thích ngắn vì sao các bước cần đi theo thứ tự này.</span>
+                    <textarea
+                      className="mt-3 min-h-36 w-full rounded-2xl border-2 border-mint-200 bg-white p-4 font-semibold leading-relaxed focus:border-brand-400 focus:outline-none focus:ring-4 focus:ring-brand-100"
+                      value={journalText}
+                      maxLength={600}
+                      placeholder="Con xếp như vậy vì bước đầu tiên cần… Sau đó…"
+                      onChange={(event) => setJournalText(event.target.value)}
+                    />
+                    <span className="mt-2 block text-right text-xs text-muted">{journalText.trim().length}/600 ký tự</span>
+                  </label>
+                </div>
+              )}
+
               {(quest.practiceKind === 'journal' ||
                 quest.practiceKind === 'reflect' ||
                 quest.practiceKind === 'spin' ||
                 quest.practiceKind === 'match' ||
-                quest.practiceKind === 'drag' ||
                 quest.practiceKind === 'ai_pick') && (
-                  <div className="flex flex-col gap-2">
-                    <p className="font-extrabold">
+                  <div className="flex flex-col gap-3 rounded-2xl border-2 border-brand-100 bg-white p-4 sm:p-5">
+                    <label htmlFor="practice-journal" className="font-display text-xl text-text">
                       {quest.practiceKind === 'ai_pick'
                         ? 'Mô tả để máy vẽ giúp — con chọn ý trước nhé!'
                         : quest.practiceKind === 'spin'
                           ? 'Vòng quay ý tưởng — ghi 3 từ khoá của con'
-                          : 'Sổ tay thế giới — viết ý của con'}
+                          : 'Sổ tay thực hành — giải thích ý của con'}
+                    </label>
+                    <p className="text-sm font-semibold leading-relaxed text-muted">
+                      {practiceStation?.reflectionPrompt ??
+                        'Viết điều con quan sát được, câu trả lời của con và lý do con nghĩ như vậy.'}
                     </p>
                     <textarea
+                      id="practice-journal"
                       aria-label="Ý tưởng của con"
-                      className="min-h-28 rounded-2xl border-2 border-border p-3 text-sm font-semibold"
-                      placeholder="Viết ý tưởng của con (không dùng tên thật)…"
+                      className="min-h-40 rounded-2xl border-2 border-border bg-page p-4 font-semibold leading-relaxed text-text focus:border-brand-400 focus:outline-none focus:ring-4 focus:ring-brand-100"
+                      placeholder="Ví dụ: Con quan sát thấy… Con nghĩ AI học từ… vì… (không dùng tên thật)"
                       value={journalText}
                       maxLength={500}
                       onChange={(e) => setJournalText(e.target.value)}
                     />
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs font-bold text-muted">
+                      <span>Viết ít nhất 20 ký tự và trả lời đủ các ý trong nhiệm vụ.</span>
+                      <span aria-live="polite">{journalText.trim().length}/500 ký tự</span>
+                    </div>
                   </div>
                 )}
 
@@ -1621,57 +1767,58 @@ export function LessonPage() {
       )}
 
       {phase === 'done' && checkResult && (
-        <div className="ui-card flex flex-col items-center gap-4 p-8 text-center animate-pop">
-          {/* Confetti overlay */}
-          <div className="star-burst-overlay" aria-hidden>
-            {['🌟', '⭐', '✨', '🎉', '🎊', '💫', '🌈', '🏆'].map((emoji, i) => (
-              <span
-                key={i}
-                className="confetti-piece"
-                style={{
-                  left: `${10 + i * 11}%`,
-                  fontSize: '1.5rem',
-                  background: 'transparent',
-                  width: 'auto',
-                  height: 'auto',
-                  '--fall-duration': `${2 + (i % 3) * 0.5}s`,
-                  '--fall-delay': `${i * 0.15}s`,
-                  '--spin-amount': `${360 * (i % 2 === 0 ? 1 : -1)}deg`,
-                } as React.CSSProperties}
-              >
-                {emoji}
-              </span>
-            ))}
-          </div>
-
-          {/* Stars */}
-          <div className="stars-row" aria-label={`${checkResult.stars} sao`}>
-            {[1, 2, 3].map((i) => (
-              <Star
-                key={i}
-                size={44}
-                className={cn(
-                  'result-star-slot',
-                  i <= checkResult.stars && 'result-star-earned',
-                )}
-                aria-hidden="true"
-              />
-            ))}
-          </div>
-
-          <div>
-            <h2 className="font-display text-3xl">
-              {checkResult.stars > 0 ? 'Hoàn thành trạm! 🎉' : 'Thử lại để nhận sao ⭐'}
-            </h2>
-            <p className="mt-1 text-muted">{checkResult.message}</p>
-          </div>
-
-          {/* Reward */}
-          {checkResult.stars > 0 && (
-            <div className="rounded-2xl bg-brand-50 border border-brand-100 px-4 py-3 w-full max-w-sm">
-              <p className="text-xs font-extrabold uppercase tracking-wider text-brand-500 mb-1">Phần thưởng</p>
-              <p className="text-sm font-bold">{quest.reward}</p>
+        <AdventureModal
+          open
+          tone={checkResult.stars > 0 ? 'celebration' : 'guidance'}
+          eyebrow={checkResult.stars > 0 ? 'Trạm đã hoàn thành' : 'Mee vẫn ở đây cùng con'}
+          title={checkResult.stars > 0 ? 'Con đã chinh phục trạm!' : 'Mình thử thêm một lần nhé'}
+          description={checkResult.message}
+          className="lesson-completion-modal"
+          artwork={
+            <div className="lesson-result-visual">
+              <div className="stars-row flex items-center justify-center gap-2" aria-label={`${checkResult.stars} sao`}>
+                {[1, 2, 3].map((i) => (
+                  <Star
+                    key={i}
+                    size={48}
+                    className={cn('result-star-slot', i <= checkResult.stars && 'result-star-earned')}
+                    aria-hidden="true"
+                  />
+                ))}
+              </div>
+              {checkResult.stars > 0 && quest.reward && (
+                <div className="lesson-result-reward">
+                  <span className="lesson-result-reward-icon" aria-hidden="true">
+                    <Trophy size={27} strokeWidth={2.5} />
+                  </span>
+                  <span className="min-w-0 text-left">
+                    <span className="block text-xs font-extrabold uppercase tracking-wide text-sun-700">Phần thưởng mới</span>
+                    <strong className="mt-0.5 block text-sm leading-snug text-text">{quest.reward}</strong>
+                  </span>
+                </div>
+              )}
             </div>
+          }
+        >
+
+          {/* Reflect the authored learning outcomes back to the child. This is
+              API content, so the celebration stays accurate for every lesson. */}
+          {checkResult.stars > 0 && quest.goals.length > 0 && (
+            <section className="w-full max-w-lg rounded-2xl border-2 border-mint-200 bg-mint-50 px-4 py-3 text-left" aria-labelledby="completed-goals-title">
+              <p id="completed-goals-title" className="text-xs font-extrabold uppercase tracking-wider text-mint-700">
+                Hôm nay con đã học được
+              </p>
+              <ul className="mt-2 grid gap-2 sm:grid-cols-2">
+                {quest.goals.slice(0, 4).map((goal) => (
+                  <li key={goal} className="flex items-start gap-2 text-sm font-bold leading-snug text-text">
+                    <span className="mt-0.5 grid size-5 shrink-0 place-items-center rounded-full bg-white text-mint-700" aria-hidden="true">
+                      <Check size={14} strokeWidth={3} />
+                    </span>
+                    <span>{goal}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
           )}
 
           {/* New achievements */}
@@ -1695,7 +1842,7 @@ export function LessonPage() {
           )}
 
           {/* Action buttons */}
-          <div className="mt-2 flex flex-wrap justify-center gap-3">
+          <div className="flex flex-wrap justify-center gap-3">
             {checkResult.nextQuestId && (
               <Button onClick={() => navigate(`/lesson/${checkResult.nextQuestId}`)}>
                 <Play size={18} aria-hidden="true" />
@@ -1733,10 +1880,21 @@ export function LessonPage() {
               Xem lại bài
             </Button>
           </div>
-        </div>
+        </AdventureModal>
       )}
-        </main>
+      </main>
       </div>
+
+      <LeftPhaseSidebar
+        guideCopy={dynamicGuideCopy}
+        videoUrl={phase === 'learn' ? quest?.videoUrl : null}
+        videoTitle={quest?.title}
+        phase={phase}
+        maxUnlockedPhase={maxUnlockedPhase}
+        goals={quest.goals}
+        product={practiceStation?.product}
+        successCriteria={practiceCriteria}
+      />
     </div>
   )
 }

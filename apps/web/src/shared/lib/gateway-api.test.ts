@@ -28,6 +28,26 @@ describe('StoryMee Gateway adapter', () => {
     vi.restoreAllMocks()
   })
 
+  it('accepts only StoryMee Storage URLs returned by legacy media upload', async () => {
+    const body = new FormData()
+    body.append('file', new File(['asset'], 'asset.webp', { type: 'image/webp' }))
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({
+        url: 'https://storage.storymee.com/content-media/media/cms.webp',
+        libraryItem: { id: 'media-1' },
+      }))
+      .mockResolvedValueOnce(response({
+        url: 'https://tracker.example/cms.webp',
+        libraryItem: { id: 'media-2' },
+      }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await expect(api<{ asset: { url: string } }>('/api/media/upload', { method: 'POST', body }))
+      .resolves.toMatchObject({ asset: { url: 'https://storage.storymee.com/content-media/media/cms.webp' } })
+    await expect(api('/api/media/upload', { method: 'POST', body }))
+      .rejects.toThrow('StoryMee Media không trả về URL Storage hợp lệ.')
+  })
+
   it('translates nickname + PIN child login without a family code and persists the StoryMee JWT', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response({
       token: 'storymee-jwt',
@@ -72,8 +92,8 @@ describe('StoryMee Gateway adapter', () => {
           slug: 'ai-co-ban',
           title: 'AI cơ bản',
           ageBand: '8-11',
-          metadata: { skills: ['prompt'] },
-          versions: [{ _count: { modules: 3 } }],
+          metadata: { skills: ['prompt'], lessonCount: 3 },
+          versions: [{ _count: { modules: 1 } }],
         }],
       }))
     vi.stubGlobal('fetch', fetchMock)
@@ -220,6 +240,34 @@ describe('StoryMee Gateway adapter', () => {
         unlocked: false,
       }),
     ])
+  })
+
+  it('maps achievement milestone media from core metadata', async () => {
+    const imageUrl = 'https://storage.storymee.com/reward-assets/achievements/2026.08.14/v2/lessons/level-1.png'
+    const fetchMock = vi.fn().mockResolvedValue(response([{
+      key: 'achievement.lessons',
+      title: 'Nhà khám phá',
+      description: 'Tiến hoá qua từng bài học.',
+      icon: '🏅',
+      category: 'learning',
+      threshold: 1,
+      xpReward: 10,
+      metadata: {
+        seriesKey: 'lessons',
+        milestones: [{ threshold: 1, label: 'Mầm xanh', imageUrl }],
+      },
+      unlocked: false,
+      unlock: null,
+    }]))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{ achievements: AchievementRow[] }>('/api/gamification/achievements')
+
+    expect(result.achievements[0]).toMatchObject({
+      points: 10,
+      seriesKey: 'lessons',
+      milestones: [{ threshold: 1, label: 'Mầm xanh', imageUrl }],
+    })
   })
 
   it('accepts a trailing slash on achievements and maps the Hub response', async () => {
@@ -572,6 +620,11 @@ describe('StoryMee Gateway adapter', () => {
         shortTitle: 'AI cơ bản',
         ageBand: '9-12',
         metadata: { tagline: 'Khám phá AI' },
+        stationCount: 8,
+        lectures: [
+          { id: 'station-1', order: 1, title: 'Máy học được không?' },
+          { id: 'station-2', order: 2, title: 'Dữ liệu là gì?' },
+        ],
         enrolled: true,
         parentAllowed: true,
       }],
@@ -581,13 +634,18 @@ describe('StoryMee Gateway adapter', () => {
     const childId = '11111111-1111-4111-8111-111111111111'
     const result = await api<{
       child: { nickname: string | null }
-      courses: Array<{ enrolled: boolean; ageTrack: string }>
+      courses: Array<{ enrolled: boolean; ageTrack: string; questCount: number; stations: Array<{ title: string }> }>
     }>(`/api/parent/children/${childId}/courses`)
 
     expect(result.child.nickname).toBe('Bé Mây')
     expect(result.courses[0]).toMatchObject({
       enrolled: true,
       ageTrack: '9-12',
+      questCount: 8,
+      stations: [
+        { title: 'Máy học được không?' },
+        { title: 'Dữ liệu là gì?' },
+      ],
     })
     expect(fetchMock).toHaveBeenCalledWith(
       `https://dev-hub.storymee.com/api/v1/lms/family/children/${childId}/courses`,

@@ -4,12 +4,13 @@ type KidImageIconProps = {
 }
 
 const ROOT = '/assets/aikid-ui/figma-icons'
+const FIGMA_ICON_VERSION = '20260810-1'
 
 function createKidImageIcon(fileName: string) {
   return function KidImageIcon({ size = 32, className = '' }: KidImageIconProps) {
     return (
       <img
-        src={`${ROOT}/${fileName}.svg`}
+        src={`${ROOT}/${fileName}.svg?v=${FIGMA_ICON_VERSION}`}
         alt=""
         width={size}
         height={size}

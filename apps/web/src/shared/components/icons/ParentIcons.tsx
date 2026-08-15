@@ -143,6 +143,27 @@ export function ParentPlanIcon({ size = 24, className = '', ...props }: IconProp
   )
 }
 
+export function ParentLearningIcon({ size = 24, className = '', ...props }: IconProps) {
+  const id = React.useId()
+  const bookId = `pLearningBook-${id}`
+
+  return (
+    <svg width={size} height={size} viewBox="0 0 32 32" fill="none" className={className} {...props}>
+      <defs>
+        <linearGradient id={bookId} x1="5" y1="6" x2="27" y2="27" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#3DBFFF" />
+          <stop offset="1" stopColor="#6D5EFC" />
+        </linearGradient>
+      </defs>
+      <path d="M5 7.5C9 6 12.5 7 16 10V27C12.5 24.5 9 23.8 5 25V7.5Z" fill={`url(#${bookId})`} />
+      <path d="M27 7.5C23 6 19.5 7 16 10V27C19.5 24.5 23 23.8 27 25V7.5Z" fill="#3ED9A0" />
+      <path d="M16 10V27" stroke="white" strokeWidth="1.5" strokeLinecap="round" />
+      <path d="M9 12H13M19 12H23M9 16H13M19 16H23" stroke="white" strokeWidth="1.5" strokeLinecap="round" opacity="0.9" />
+      <circle cx="16" cy="6" r="3" fill="#FFC94A" />
+    </svg>
+  )
+}
+
 export function ParentApprovalIcon({ size = 24, className = '', ...props }: IconProps) {
   const id = React.useId()
   const bellId = `pApprBell-${id}`

@@ -1,0 +1,93 @@
+{
+  "schemaVersion": 1,
+  "pack": {
+    "id": "storybook-titles-2026-08",
+    "name": "Danh hiệu Sticker Book",
+    "release": "2026.08.12.2",
+    "channel": "patch",
+    "description": "Tám danh hiệu xuất từ frame Title 39:735 trong Figma."
+  },
+  "rewards": [
+    {
+      "id": "storybook-title-p01",
+      "kind": "title",
+      "name": "Người Giữ Cổng",
+      "rarity": "rare",
+      "assets": { "primary": "assets/storybook-title-p01.svg" },
+      "unlock": { "type": "storybook_sticker", "value": "P01-S9" }
+    },
+    {
+      "id": "storybook-title-p02",
+      "kind": "title",
+      "name": "Lời Dệt Thành Hoa",
+      "rarity": "rare",
+      "assets": { "primary": "assets/storybook-title-p02.svg" },
+      "unlock": { "type": "storybook_sticker", "value": "P02-S9" }
+    },
+    {
+      "id": "storybook-title-p03",
+      "kind": "title",
+      "name": "Vệt Sáng Biển Khơi",
+      "rarity": "rare",
+      "assets": { "primary": "assets/storybook-title-p03.svg" },
+      "unlock": { "type": "storybook_sticker", "value": "P03-S9" }
+    },
+    {
+      "id": "storybook-title-p04",
+      "kind": "title",
+      "name": "Đỉnh Olympus",
+      "rarity": "epic",
+      "assets": { "primary": "assets/storybook-title-p04.svg" },
+      "unlock": { "type": "storybook_sticker", "value": "P04-S9" }
+    },
+    {
+      "id": "storybook-title-p05",
+      "kind": "title",
+      "name": "Họa Sĩ Kỳ Tài",
+      "rarity": "epic",
+      "assets": { "primary": "assets/storybook-title-p05.svg" },
+      "unlock": { "type": "storybook_sticker", "value": "P05-S9" }
+    },
+    {
+      "id": "storybook-title-p06",
+      "kind": "title",
+      "name": "Phù Thủy Rừng Xanh",
+      "rarity": "epic",
+      "assets": { "primary": "assets/storybook-title-p06.svg" },
+      "unlock": { "type": "storybook_sticker", "value": "P06-S9" }
+    },
+    {
+      "id": "storybook-title-p07",
+      "kind": "title",
+      "name": "Once Upon A Star",
+      "rarity": "legendary",
+      "assets": { "primary": "assets/storybook-title-p07.svg" },
+      "unlock": { "type": "storybook_sticker", "value": "P07-S9" }
+    },
+    {
+      "id": "storybook-title-p08",
+      "kind": "title",
+      "name": "Máy Bay Giấy",
+      "rarity": "legendary",
+      "assets": { "primary": "assets/storybook-title-p08.svg" },
+      "unlock": { "type": "storybook_sticker", "value": "P08-S9" }
+    }
+  ],
+  "achievements": [],
+  "bundles": [
+    {
+      "id": "storybook-title-journey",
+      "name": "Danh hiệu Sticker Book",
+      "rewardIds": [
+        "storybook-title-p01",
+        "storybook-title-p02",
+        "storybook-title-p03",
+        "storybook-title-p04",
+        "storybook-title-p05",
+        "storybook-title-p06",
+        "storybook-title-p07",
+        "storybook-title-p08"
+      ]
+    }
+  ]
+}

@@ -1,4 +1,4 @@
-export type AuthoringStepId = 'basics' | 'outcomes' | 'recognition' | 'learn' | 'game' | 'practice' | 'check'
+export type AuthoringStepId = 'basics' | 'content' | 'outcomes' | 'recognition' | 'learn' | 'game' | 'practice' | 'check'
 
 export type AuthoringStep = {
   id: AuthoringStepId
@@ -40,6 +40,26 @@ export type CheckQuestion = {
   explain: string
 }
 
+export type LearnVisualItemDraft = {
+  label: string
+  text: string
+  tone?: 'brand' | 'sky' | 'mint' | 'sun' | 'coral'
+  shot?: string
+  duration?: string
+  sound?: string
+  direction?: string
+}
+
+export type LearnCardDraft = {
+  id: string
+  title: string
+  body: string
+  tip: string
+  kind: 'concept' | 'example' | 'compare' | 'steps' | 'storyboard' | 'remember'
+  layout: 'text' | 'split' | 'visual-grid' | 'storyboard'
+  visualItems: LearnVisualItemDraft[]
+}
+
 export type LectureDraft = {
   id: string
   title: string
@@ -49,6 +69,7 @@ export type LectureDraft = {
   videoUrl: string
   concept: string
   example: string
+  learnCards: LearnCardDraft[]
   reward: string
   duration: string
   goalsText: string
@@ -65,6 +86,10 @@ export type LectureDraft = {
   questionCount: number
   practiceInstruction: string
   product: string
+  practiceStepsText: string
+  successCriteriaText: string
+  reflectionPrompt: string
+  practiceConfigText: string
   // WHY: checkQuestions thay thế các field cũ (checkQuestion/checkOption1-3/correctIndex/checkExplain).
   // Hỗ trợ nhiều câu hỏi, mỗi câu 2–6 đáp án.
   checkQuestions: CheckQuestion[]
@@ -83,17 +108,12 @@ export const PRACTICE_OPTIONS = [
   { id: 'sketch', label: 'Phác thảo', description: 'Vẽ nhanh ý tưởng trước khi hoàn thiện.' },
   { id: 'character', label: 'Tạo nhân vật', description: 'Xây dựng ngoại hình và tính cách nhân vật.' },
   { id: 'style', label: 'Thử phong cách', description: 'So sánh và chọn phong cách thể hiện.' },
-  { id: 'chips', label: 'Ghép thành phần', description: 'Kết hợp các mảnh thông tin thành sản phẩm.' },
-  { id: 'ai_pick', label: 'Chọn với AI', description: 'Đánh giá nhiều kết quả và giải thích lựa chọn.' },
+  { id: 'ai_pick', label: 'Mô tả & chọn tham chiếu', description: 'Viết ý tưởng và chọn tư liệu an toàn làm tham chiếu.' },
   { id: 'story', label: 'Kể chuyện', description: 'Tạo câu chuyện có mở đầu, diễn biến và kết thúc.' },
-  { id: 'comic', label: 'Truyện tranh', description: 'Sắp xếp nội dung thành các khung truyện.' },
-  { id: 'video', label: 'Video', description: 'Lập kế hoạch hoặc tạo một video ngắn.' },
-  { id: 'detective', label: 'Thám tử AI', description: 'Quan sát dấu hiệu và kiểm chứng thông tin.' },
+  { id: 'video', label: 'Kế hoạch video', description: 'Lập kế hoạch chuyển động và các cảnh video ngắn.' },
   { id: 'palette', label: 'Bảng màu', description: 'Chọn màu phù hợp với thông điệp.' },
   { id: 'reflect', label: 'Tự đánh giá', description: 'Nhìn lại quá trình và nêu điều sẽ cải thiện.' },
-  { id: 'match', label: 'Ghép cặp', description: 'Ghép khái niệm với ví dụ phù hợp.' },
-  { id: 'drag', label: 'Sắp xếp', description: 'Kéo thả các bước theo đúng trình tự.' },
-  { id: 'spin', label: 'Vòng quay ý tưởng', description: 'Nhận một gợi ý ngẫu nhiên để bắt đầu.' },
+  { id: 'ordering', label: 'Sắp xếp', description: 'Kéo thả các bước theo đúng trình tự.' },
 ] as const
 
 export const GAME_OPTIONS = [
@@ -223,7 +243,7 @@ export function slugifyAuthoringId(value: string): string {
 
 export function courseDraftReadiness(draft: CourseDraft): AuthoringReadiness {
   return readiness([
-    step('basics', 'Thông tin khóa học', [
+    step('basics', 'Hiển thị trên trang học', [
       [/^[a-z0-9-]{3,40}$/.test(draft.id), 'Đường dẫn khóa học'],
       [hasLength(draft.title, 3), 'Tên khóa học'],
       [hasLength(draft.shortTitle, 2), 'Tên ngắn'],
@@ -233,12 +253,12 @@ export function courseDraftReadiness(draft: CourseDraft): AuthoringReadiness {
       [hasLength(draft.ageTrack, 2), 'Nhóm tuổi'],
       [hasLength(draft.courseKey, 2), 'Mã lộ trình'],
     ]),
-    step('outcomes', 'Kết quả học tập', [
+    step('outcomes', 'Mục tiêu & sản phẩm', [
       [hasLength(draft.productLabel, 3), 'Sản phẩm cuối khóa'],
       [lines(draft.skillsText).some((item) => hasLength(item, 2)), 'Kỹ năng đạt được'],
       [lines(draft.outcomesText).some((item) => hasLength(item, 2)), 'Kết quả đầu ra'],
     ]),
-    step('recognition', 'Công nhận hoàn thành', [
+    step('recognition', 'Hoàn thành & phần thưởng', [
       [hasLength(draft.credential, 3), 'Tên chứng nhận hoặc huy hiệu'],
       [hasLength(draft.finalAssessment, 10), 'Yêu cầu hoàn thành cuối khóa'],
     ]),
@@ -249,15 +269,19 @@ export function lectureDraftReadiness(draft: LectureDraft): AuthoringReadiness {
   const videoIsValid = !draft.videoUrl.trim() || /^https:\/\//i.test(draft.videoUrl.trim())
   const options = [draft.checkOption1, draft.checkOption2, draft.checkOption3]
   return readiness([
-    step('learn', 'Khám phá', [
+    step('basics', 'Thông tin trạm', [
       [/^[a-z0-9-]{3,64}$/.test(draft.id), 'Đường dẫn bài học'],
       [hasLength(draft.title, 3), 'Tên bài học'],
       [hasLength(draft.skill, 3), 'Kỹ năng trọng tâm'],
       [hasLength(draft.hook, 5), 'Câu hỏi khởi động'],
-      [lines(draft.goalsText).length > 0 && lines(draft.goalsText).every((item) => hasLength(item, 2)), 'Mục tiêu bài học'],
-      [hasLength(draft.concept, 10), 'Kiến thức cốt lõi'],
-      [hasLength(draft.example, 5), 'Ví dụ minh họa'],
+      [lines(draft.goalsText).length >= 3 && lines(draft.goalsText).every((item) => hasLength(item, 10)), 'Ít nhất 3 mục tiêu rõ ràng'],
       [videoIsValid, 'Liên kết video HTTPS'],
+    ]),
+    step('content', 'Khám phá', [
+      [draft.learnCards.length >= 2, 'Ít nhất 2 khối nội dung Khám phá'],
+      [draft.learnCards.every((card) => hasLength(card.title, 3) && hasLength(card.body, 30)), 'Mỗi khối Khám phá cần tiêu đề và nội dung đầy đủ'],
+      [draft.learnCards.some((card) => card.kind === 'concept'), 'Cần ít nhất một khối Khái niệm'],
+      [draft.learnCards.some((card) => card.kind === 'example' || card.kind === 'compare' || card.visualItems.length > 0), 'Cần ít nhất một ví dụ hoặc nội dung so sánh'],
     ]),
     step('game', 'Trò chơi', [
       [hasLength(draft.gameType, 2), 'Kiểu trò chơi'],
@@ -275,9 +299,13 @@ export function lectureDraftReadiness(draft: LectureDraft): AuthoringReadiness {
       ],
     ]),
     step('practice', 'Sáng tạo', [
-      [hasLength(draft.practiceKind, 2), 'Kiểu thực hành'],
+      [PRACTICE_OPTIONS.some((option) => option.id === draft.practiceKind), 'Kiểu thực hành được CMS hỗ trợ'],
       [hasLength(draft.practiceInstruction, 10), 'Hướng dẫn thực hành'],
       [hasLength(draft.product, 3), 'Sản phẩm học sinh cần tạo'],
+      [lines(draft.practiceStepsText).length >= 3, 'Ít nhất 3 bước học sinh thực hiện'],
+      [lines(draft.successCriteriaText).length >= 3, 'Ít nhất 3 tiêu chí tự kiểm tra'],
+      [hasLength(draft.reflectionPrompt, 10), 'Câu hỏi giúp học sinh nhìn lại sản phẩm'],
+      [draft.practiceKind !== 'ordering' || lines(draft.practiceConfigText).length >= 3, 'Ít nhất 3 thẻ sắp xếp (Tiêu đề | Mô tả)'],
     ]),
     step('check', 'Thử tài', [
       // WHY: ưu tiên kiểm tra checkQuestions (mới), fallback sang field cũ nếu dữ liệu cũ.

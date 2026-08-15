@@ -8,7 +8,8 @@
     "assets:validate": "node scripts/validate-reward-assets.mjs",
     "rewards:pack": "node scripts/reward-pack-cli.mjs",
     "rewards:pack:test": "node --test scripts/reward-pack-lib.test.mjs",
-    "build": "npm run assets:validate && tsc -b && vite build",
+    "build": "npm run assets:validate && tsc -b && vite build && npm run perf:budget",
+    "perf:budget": "node scripts/check-performance-budget.mjs",
     "preview": "vite preview",
     "test": "vitest run",
     "typecheck": "tsc -b --pretty false"

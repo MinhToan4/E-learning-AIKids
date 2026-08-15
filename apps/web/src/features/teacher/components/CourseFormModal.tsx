@@ -54,7 +54,13 @@ export function CourseFormModal({ course, onSaved, onClose }: Props) {
   const uid = useId()
 
   const isEdit = !!course
-  const readiness = courseDraftReadiness(draft)
+  const automaticCredential = `Chứng nhận hoàn thành ${draft.shortTitle.trim() || draft.title.trim() || 'giáo trình'}`
+  const automaticCompletion = 'Hoàn thành tất cả các trạm bắt buộc và nộp sản phẩm cuối giáo trình.'
+  const readiness = courseDraftReadiness({
+    ...draft,
+    credential: automaticCredential,
+    finalAssessment: automaticCompletion,
+  })
 
   function set<K extends keyof CourseDraft>(key: K, value: CourseDraft[K]) {
     setDraft((prev) => {
@@ -80,8 +86,8 @@ export function CourseFormModal({ course, onSaved, onClose }: Props) {
         durationLabel: draft.durationLabel || undefined,
         skills: draft.skillsText.split('\n').map((s) => s.trim()).filter(Boolean),
         outcomes: draft.outcomesText.split('\n').map((s) => s.trim()).filter(Boolean),
-        credential: draft.credential || undefined,
-        finalAssessment: draft.finalAssessment || undefined,
+        credential: automaticCredential,
+        finalAssessment: automaticCompletion,
       }
 
       if (isEdit) {
@@ -108,9 +114,9 @@ export function CourseFormModal({ course, onSaved, onClose }: Props) {
   }
 
   const TABS = [
-    { id: 'basics' as const, label: '📚 Thông tin', step: readiness.steps[0] },
-    { id: 'outcomes' as const, label: '🎯 Kết quả học', step: readiness.steps[1] },
-    { id: 'recognition' as const, label: '🏆 Công nhận', step: readiness.steps[2] },
+    { id: 'basics' as const, label: 'Trang giới thiệu', step: readiness.steps[0] },
+    { id: 'outcomes' as const, label: 'Mục tiêu & sản phẩm', step: readiness.steps[1] },
+    { id: 'recognition' as const, label: 'Hoàn thành', step: readiness.steps[2] },
   ]
 
   return (
@@ -135,7 +141,7 @@ export function CourseFormModal({ course, onSaved, onClose }: Props) {
         }}>
           <div>
             <div style={{ fontSize: '1.0625rem', fontWeight: 700, color: '#0f172a' }}>
-              {isEdit ? '✏️ Chỉnh sửa khóa học' : '✨ Tạo khóa học mới'}
+              {isEdit ? 'Sửa thông tin trên trang học' : 'Tạo khung giáo trình'}
             </div>
             <div style={{ fontSize: '0.8125rem', color: '#64748b', marginTop: '0.125rem' }}>
               {readiness.completed}/{readiness.total} bước hoàn thành
@@ -199,7 +205,7 @@ export function CourseFormModal({ course, onSaved, onClose }: Props) {
           {/* ── BASICS ── */}
           {activeTab === 'basics' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-              <FormField label="Tên khóa học *">
+              <FormField label="Tên vùng/khóa học *">
                 <input type="text" value={draft.title} onChange={(e) => set('title', e.target.value)} placeholder="VD: AI Nhí — Tập 1: Khám Phá Thế Giới AI" style={inputStyle} />
               </FormField>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
@@ -210,10 +216,10 @@ export function CourseFormModal({ course, onSaved, onClose }: Props) {
                   <input type="text" value={draft.id} onChange={(e) => set('id', e.target.value)} placeholder="ai-nhi-tap-1" style={inputStyle} />
                 </FormField>
               </div>
-              <FormField label="Câu giới thiệu *">
+              <FormField label="Mô tả ngắn dưới tiêu đề *">
                 <input type="text" value={draft.tagline} onChange={(e) => set('tagline', e.target.value)} placeholder="Khám phá AI cùng Mii và các bạn!" style={inputStyle} />
               </FormField>
-              <FormField label="Mô tả khóa học *">
+              <FormField label="Giới thiệu giáo trình *">
                 <textarea value={draft.description} onChange={(e) => set('description', e.target.value)} placeholder="Mô tả chi tiết nội dung khóa học..." rows={4} style={textareaStyle} />
               </FormField>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem' }}>
@@ -236,7 +242,7 @@ export function CourseFormModal({ course, onSaved, onClose }: Props) {
           {/* ── OUTCOMES ── */}
           {activeTab === 'outcomes' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-              <FormField label="Sản phẩm cuối khóa *">
+              <FormField label="Sản phẩm học sinh hoàn thành *">
                 <input type="text" value={draft.productLabel} onChange={(e) => set('productLabel', e.target.value)} placeholder="VD: Bộ sưu tập 6 tác phẩm AI do học sinh tạo ra" style={inputStyle} />
               </FormField>
               <FormField label="Kỹ năng đạt được *" hint="Mỗi kỹ năng 1 dòng">
@@ -247,7 +253,7 @@ export function CourseFormModal({ course, onSaved, onClose }: Props) {
                   rows={5} style={textareaStyle}
                 />
               </FormField>
-              <FormField label="Kết quả đầu ra *" hint="Mỗi kết quả 1 dòng">
+              <FormField label="Con sẽ làm được gì? *" hint="Mỗi kết quả 1 dòng">
                 <textarea
                   value={draft.outcomesText}
                   onChange={(e) => set('outcomesText', e.target.value)}
@@ -261,12 +267,16 @@ export function CourseFormModal({ course, onSaved, onClose }: Props) {
           {/* ── RECOGNITION ── */}
           {activeTab === 'recognition' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
-              <FormField label="Tên chứng nhận / Huy hiệu *">
-                <input type="text" value={draft.credential} onChange={(e) => set('credential', e.target.value)} placeholder="VD: Nhà Thám Hiểm AI cấp độ 1" style={inputStyle} />
-              </FormField>
-              <FormField label="Yêu cầu hoàn thành cuối khóa *">
-                <textarea value={draft.finalAssessment} onChange={(e) => set('finalAssessment', e.target.value)} placeholder="Hoàn thành tất cả 8 bài học và tạo ra ít nhất 5 sản phẩm..." rows={4} style={textareaStyle} />
-              </FormField>
+              <div className="rounded-2xl border border-mint-200 bg-mint-50 p-4">
+                <p className="text-xs font-extrabold uppercase tracking-wide text-success">Chứng nhận tự động</p>
+                <p className="mt-2 font-display text-xl text-text">{automaticCredential}</p>
+                <p className="mt-2 text-sm leading-relaxed text-muted">Hệ thống tự điền tên học sinh, giáo trình và ngày hoàn thành khi học sinh đạt đủ điều kiện.</p>
+              </div>
+              <div className="rounded-2xl border border-sky-200 bg-sky-50 p-4">
+                <p className="text-sm font-extrabold text-sky-700">Điều kiện hệ thống</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted">{automaticCompletion}</p>
+              </div>
+              <p className="text-xs leading-relaxed text-muted">Giáo viên không cần cấu hình thủ công. Số trạm thực tế và trạng thái hoàn thành được backend kiểm tra khi cấp chứng nhận.</p>
             </div>
           )}
         </div>
@@ -302,7 +312,7 @@ export function CourseFormModal({ course, onSaved, onClose }: Props) {
                 disabled={saving}
                 style={{ ...primaryBtnStyle, opacity: saving ? 0.7 : 1 }}
               >
-                {saving ? '⏳ Đang lưu...' : isEdit ? '💾 Cập nhật' : '✨ Tạo khóa học'}
+                {saving ? 'Đang lưu...' : isEdit ? 'Lưu thay đổi' : 'Tạo giáo trình'}
               </button>
             )}
           </div>

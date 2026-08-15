@@ -3,7 +3,7 @@ import {
   type RewardDefinition,
   type RewardKind,
 } from '@/shared/lib/creation/rewards'
-import { useEffect, useMemo, useState, type ReactNode } from 'react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 import { avatarImage } from '@/shared/config/avatars'
 import { api } from '@/shared/lib/api'
 import {
@@ -15,11 +15,13 @@ import {
   unequipReward,
 } from './reward-equipment'
 import { readProfileAvatar } from '@/features/profile/profile-showcase'
+import { PROFILE_CARD_LAYOUT_CODE } from '@/features/profile/profile-card-layout'
 import {
   resolveCatalogRewardAsset,
   type RewardCatalogAssets,
 } from './reward-catalog-assets'
 import {
+  getResolvedRewardAssetUrl,
   getSharedLevelRewardAssetId,
   isLocalRewardAssetTestMode,
 } from './reward-assets'
@@ -27,6 +29,10 @@ import { RewardEffectArtwork } from './RewardEffectArtwork'
 import { profilePageThemeStyle } from './student-theme'
 import { profileCardEdgeBackgroundStyle } from './profile-backgrounds'
 import { displayableWardrobeRewards } from './reward-inventory'
+import { AdventureModal } from '@/shared/components/ui/AdventureModal'
+import { isRewardUnlocked, rewardSource, rewardTitleAsset } from './title-assets'
+import { normalizeRewardRequirement } from './reward-requirement'
+import { Lock } from 'lucide-react'
 
 const kindLabels: Record<RewardKind, string> = {
   avatar: 'Avatar',
@@ -61,7 +67,10 @@ function RewardAssetImage({
 }
 
 function catalogAssetsFor(item: { code: string; assets?: RewardCatalogAssets }) {
-  if (/^frame-level-(?:15|25|35|45|55|65|75|85|95)$/.test(item.code)) {
+  if (item.assets?.imageUrl || item.assets?.thumbnailUrl || item.assets?.previewUrl) {
+    return item.assets
+  }
+  if (/^frame-level-(?:15|25|35|45|55|65|75|85|95|100)$/.test(item.code)) {
     return {
       assetId: item.code,
       primary: { assetId: item.code, variant: 'primary' as const, release: '2026.08.01.5', format: 'png' as const },
@@ -78,10 +87,21 @@ function catalogAssetsFor(item: { code: string; assets?: RewardCatalogAssets }) 
 }
 
 function unlockLabel(reward: RewardDefinition) {
-  return reward.unlock.type === 'xp_level'
-    ? `Mở ở Cấp ${reward.unlock.value}`
-    : 'Nhận từ hành trình hoặc sự kiện'
+  if (reward.unlock.type === 'xp_level') return `Mở ở Cấp ${reward.unlock.value}`
+  if (reward.unlock.type === 'storybook_sticker') {
+    const chapter = String(reward.unlock.value).match(/^P0?(\d+)-S9$/)?.[1]
+    return chapter ? `Mở khi hoàn thành Sticker Book Chương ${chapter}` : 'Mở từ Sticker Book'
+  }
+  if (reward.unlock.type === 'event') return 'Nhận từ sự kiện'
+  return 'Mở từ thành tích cá nhân'
 }
+
+const rewardSourceLabels = {
+  level: 'Theo cấp',
+  storybook: 'Sticker Book',
+  achievement: 'Thành tích',
+  event: 'Sự kiện',
+} as const
 
 function RewardArtwork({
   reward,
@@ -96,6 +116,7 @@ function RewardArtwork({
   const rewardAvatar = reward.kind === 'avatar' ? avatarImage(reward.equipValue) : undefined
 
   if (reward.kind === 'effect') {
+    if (assetUrl) return <RewardAssetImage src={assetUrl} className={`${size} object-contain`} fallback={<RewardEffectArtwork rewardId={reward.id} large={large} />} />
     return <RewardEffectArtwork rewardId={reward.id} large={large} />
   }
 
@@ -114,14 +135,23 @@ function RewardArtwork({
   }
 
   if (reward.kind === 'title') {
+    const titleAsset = assetUrl ?? rewardTitleAsset(reward.id)
+    if (titleAsset) return (
+      <span className={`inline-flex w-full max-w-full items-center justify-center ${large ? 'max-w-[30rem]' : 'max-w-[18rem]'}`}>
+        <span className="reward-title-artwork">
+          <RewardAssetImage
+            src={titleAsset}
+            className="reward-title-artwork-image"
+            fallback={<span className="rounded-full border-2 border-sun-300 bg-sun-50 px-4 py-2 font-black text-sun-800">{reward.equipValue ?? reward.name}</span>}
+          />
+        </span>
+      </span>
+    )
     return (
-      <span className={`inline-flex max-w-full items-center rounded-full border-2 border-sun-300 bg-gradient-to-r from-sun-50 via-white to-brand-50 font-black text-sun-800 shadow-soft ${large ? 'gap-3 px-5 py-3 text-base' : 'gap-2 px-3 py-2 text-[11px]'}`}>
-        <RewardAssetImage
-          src={assetUrl}
-          className={large ? 'h-10 w-10 rounded-full object-contain' : 'h-7 w-7 rounded-full object-contain'}
-          fallback={<span aria-hidden>{reward.icon}</span>}
-        />
-        <span className="line-clamp-2">{reward.equipValue ?? reward.name}</span>
+      <span className={`inline-flex max-w-full items-center justify-center rounded-full border-2 border-sun-300 bg-sun-50 text-center font-black leading-tight text-sun-800 ${
+        large ? 'min-h-14 px-5 py-2 text-lg' : 'min-h-9 px-3 py-1 text-xs'
+      }`}>
+        {reward.equipValue ?? reward.name}
       </span>
     )
   }
@@ -199,6 +229,8 @@ export function RewardCollection({
   const [message, setMessage] = useState('')
   const [activeKind, setActiveKind] = useState<RewardKind>('frame')
   const [previewReward, setPreviewReward] = useState<CatalogReward | null>(null)
+  const [pendingRewardId, setPendingRewardId] = useState<string | null>(null)
+  const equipmentMutationVersion = useRef(0)
   const currentProfileAvatar = readProfileAvatar(userId)
   const bundles = useMemo(() => {
     const grouped = new Map<string, { name: string; rewards: CatalogReward[] }>()
@@ -226,6 +258,7 @@ export function RewardCollection({
     applyRewardEquipment(equipment)
   }, [equipment])
   useEffect(() => {
+    const loadVersion = equipmentMutationVersion.current
     void Promise.all([
       api<{
         inventory: Array<{ rewardId: string }>
@@ -243,28 +276,22 @@ export function RewardCollection({
     ])
       .then(([result, studio]) => {
         setOwned(new Set(result.inventory.map((item) => item.rewardId)))
-        const serverEquipment = Object.fromEntries(
-          result.equipment.map((item) => [item.kind, item.rewardId]),
-        )
-        setEquipment(serverEquipment)
-        applyRewardEquipment(serverEquipment)
+        if (equipmentMutationVersion.current === loadVersion) {
+          const serverEquipment = Object.fromEntries(
+            result.equipment.map((item) => [item.kind, item.rewardId]),
+          )
+          setEquipment(syncRewardEquipment(userId, serverEquipment))
+        }
         if (studio.items.length) {
           const dynamic = studio.items
-            .filter((item) => wardrobeKinds.includes(item.kind))
+            .filter((item) => item.code !== PROFILE_CARD_LAYOUT_CODE && wardrobeKinds.includes(item.kind))
             .map((item): CatalogReward => ({
               id: item.code,
               kind: item.kind,
               name: item.code === 'avatar-paco-blue' ? 'Paco Mây' : item.name,
               description: item.description,
               icon: String(item.displayConfig?.icon ?? '✨'),
-              unlock: {
-                type: item.unlockRule?.type === 'xp_level'
-                  ? 'xp_level'
-                  : item.unlockRule?.type === 'event'
-                    ? 'event'
-                    : 'storybook_sticker',
-                value: item.unlockRule?.value ?? '',
-              },
+              unlock: normalizeRewardRequirement(item.unlockRule),
               equipValue: String(item.displayConfig?.equipValue ?? item.code),
               assets: catalogAssetsFor(item),
               displayConfig: item.displayConfig,
@@ -277,24 +304,48 @@ export function RewardCollection({
   }, [userId])
 
   const equip = async (reward: RewardDefinition) => {
+    if (pendingRewardId) return
+    equipmentMutationVersion.current += 1
+    setPendingRewardId(reward.id)
+    setEquipment(equipReward(userId, reward.kind, reward.id))
+    setMessage(`Đang dùng ${reward.name}…`)
     try {
-      if (isLocalRewardAssetTestMode()) {
-        setEquipment(equipReward(userId, reward.kind, reward.id))
-        setMessage(`Đang test local: ${reward.name}`)
+      const isStorybookTitleTest = reward.id === 'storybook-title-p01' &&
+        typeof window !== 'undefined' &&
+        ['127.0.0.1', 'localhost'].includes(window.location.hostname) &&
+        new URLSearchParams(window.location.search).get('reward-test') === 'storybook-p01'
+      if (isLocalRewardAssetTestMode() || isStorybookTitleTest) {
+        setMessage(`Đang thử cục bộ: ${reward.name}`)
         return
       }
       await api(`/api/gamification/rewards/equipment/${reward.kind}`, {
         method: 'PUT',
         body: JSON.stringify({ rewardId: reward.id }),
       })
+      // Re-commit after the authoritative response. A profile/catalog refresh
+      // may finish while the mutation is in flight and write an older snapshot.
       setEquipment(equipReward(userId, reward.kind, reward.id))
       setMessage(`Đã trang bị ${reward.name}`)
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Chưa trang bị được phần thưởng.')
+      // Keep the explicit local selection usable when the legacy equipment
+      // endpoint does not yet know a newly published reward ID.
+      setEquipment(equipReward(userId, reward.kind, reward.id))
+      const reason = error instanceof Error && error.message !== 'Error'
+        ? ` (${error.message})`
+        : ''
+      setMessage(`Đã áp dụng trên thiết bị, chưa đồng bộ máy chủ${reason}.`)
+    } finally {
+      setPendingRewardId(null)
     }
   }
 
   const unequip = async (kind: RewardKind) => {
+    if (pendingRewardId) return
+    equipmentMutationVersion.current += 1
+    const rewardId = equipment[kind]
+    setPendingRewardId(rewardId ?? kind)
+    setEquipment(unequipReward(userId, kind))
+    setMessage(`Đang bỏ ${kindLabels[kind].toLowerCase()}…`)
     try {
       if (!isLocalRewardAssetTestMode()) {
         await api(`/api/gamification/rewards/equipment/${kind}`, {
@@ -306,12 +357,18 @@ export function RewardCollection({
       setPreviewReward(null)
       setMessage(`Đã bỏ ${kindLabels[kind].toLowerCase()}.`)
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Chưa bỏ được vật phẩm.')
+      setEquipment(unequipReward(userId, kind))
+      const reason = error instanceof Error && error.message !== 'Error'
+        ? ` (${error.message})`
+        : ''
+      setMessage(`Đã bỏ trên thiết bị, chưa đồng bộ máy chủ${reason}.`)
+    } finally {
+      setPendingRewardId(null)
     }
   }
 
   const equipBundle = async (rewards: CatalogReward[]) => {
-    const equipable = rewards.filter((reward) => owned.has(reward.id) && canEquip(reward))
+    const equipable = rewards.filter((reward) => isRewardUnlocked(reward, owned, xpLevel) && canEquip(reward))
     if (equipable.length !== rewards.length) {
       setMessage('Con cần nhận đủ vật phẩm trước khi dùng cả bộ.')
       return
@@ -356,25 +413,25 @@ export function RewardCollection({
     <section aria-labelledby="reward-collection-title">
       <div className="flex flex-wrap items-end justify-between gap-2">
         <div>
-          <p className="text-xs font-black uppercase tracking-wider text-brand-600">
+          <p className="text-sm font-extrabold text-brand-600">
             Phòng thay đồ
           </p>
           <h2 id="reward-collection-title" className="font-display text-2xl">
             Chọn phong cách của con
           </h2>
         </div>
-        <p className="text-xs font-bold text-muted" aria-live="polite">
+        <p className="text-sm font-bold text-muted" aria-live="polite">
           {message || `Mở theo Cấp độ khám phá · Cấp ${xpLevel}`}
         </p>
       </div>
       <div className="mt-5 rounded-3xl border border-brand-100 bg-white p-4 shadow-soft" aria-labelledby="currently-equipped-title">
         <div className="flex flex-wrap items-end justify-between gap-2">
           <div>
-            <p className="text-xs font-black uppercase tracking-wider text-brand-600">Hồ sơ hiện tại</p>
+            <p className="text-sm font-extrabold text-brand-600">Hồ sơ hiện tại</p>
             <h3 id="currently-equipped-title" className="font-display text-xl">Đang trang bị</h3>
           </div>
           <div className="flex flex-wrap items-center justify-end gap-2">
-            <p className="text-xs font-bold text-muted">Mỗi vật phẩm thuộc một slot độc lập</p>
+            <p className="text-sm font-bold text-muted">Mỗi vật phẩm thuộc một slot độc lập</p>
             {equipment[activeKind] && activeKind !== 'avatar' && (
               <button
                 type="button"
@@ -392,6 +449,10 @@ export function RewardCollection({
             const reward = catalog.find((item) => item.id === rewardId)
             const assetUrl = kind === 'avatar' && currentProfileAvatar?.url
               ? currentProfileAvatar.url
+              : kind === 'title' && reward
+              ? resolveCatalogRewardAsset(reward, 'thumbnail') ?? rewardTitleAsset(reward.id)
+              : kind === 'frame' && reward
+              ? resolveCatalogRewardAsset(reward, 'thumbnail') ?? getResolvedRewardAssetUrl(reward.id)
               : reward
               ? resolveCatalogRewardAsset(reward, 'thumbnail')
               : undefined
@@ -399,10 +460,7 @@ export function RewardCollection({
               <button
                 key={kind}
                 type="button"
-                onClick={() => {
-                  setActiveKind(kind)
-                  setPreviewReward(reward ?? null)
-                }}
+                onClick={() => setActiveKind(kind)}
                 className={`min-h-24 rounded-2xl border p-2 text-center transition ${
                   activeKind === kind
                     ? 'border-brand-300 bg-brand-50 shadow-press'
@@ -410,9 +468,9 @@ export function RewardCollection({
                 }`}
               >
                 <span className={`mx-auto flex h-11 items-center justify-center rounded-xl bg-brand-50 text-2xl ${
-                  kind === 'background' || kind === 'theme' ? 'w-full px-1' : 'w-11'
+                  kind === 'background' || kind === 'theme' || kind === 'title' ? 'w-full px-1' : 'w-11'
                 }`} aria-hidden="true">
-                  {(kind === 'background' || kind === 'theme') && reward
+                  {(kind === 'background' || kind === 'theme' || kind === 'title') && reward
                     ? <RewardArtwork reward={reward} />
                     : kind === 'effect' && reward
                     ? <RewardEffectArtwork rewardId={reward.id} />
@@ -422,10 +480,10 @@ export function RewardCollection({
                         fallback={reward?.icon ?? '＋'}
                       />}
                 </span>
-                <span className="mt-1 block text-[10px] font-black uppercase tracking-wide text-brand-600">
+                <span className="mt-1 block text-xs font-extrabold text-brand-600">
                   {kindLabels[kind]}
                 </span>
-                <span className="block truncate text-xs font-extrabold text-text">
+                <span className="block truncate text-sm font-extrabold text-text">
                   {kind === 'avatar' && currentProfileAvatar
                     ? currentProfileAvatar.label
                     : reward?.name ?? 'Chưa chọn'}
@@ -446,7 +504,7 @@ export function RewardCollection({
           </div>
           <div className="mt-3 grid gap-3 sm:grid-cols-2">
             {bundles.map((bundle) => {
-              const ownedCount = bundle.rewards.filter((reward) => owned.has(reward.id)).length
+              const ownedCount = bundle.rewards.filter((reward) => isRewardUnlocked(reward, owned, xpLevel)).length
               const complete = ownedCount === bundle.rewards.length
               return (
                 <article key={bundle.id} className="rounded-3xl border border-brand-100 bg-white p-4 shadow-soft">
@@ -504,55 +562,61 @@ export function RewardCollection({
           </button>
         ))}
       </div>
+      {message && (
+        <p
+          className={`mt-3 rounded-xl border px-3 py-2 text-sm font-extrabold ${
+            message.startsWith('Đã ') || message.startsWith('Đang ')
+              ? 'border-mint-200 bg-mint-50 text-mint-800'
+              : 'border-coral-200 bg-coral-50 text-coral-700'
+          }`}
+          role="status"
+        >
+          {message}
+        </p>
+      )}
       {previewReward && (() => {
-        const unlocked = owned.has(previewReward.id)
+        const unlocked = isRewardUnlocked(previewReward, owned, xpLevel)
         const equipped = isEquippedReward(previewReward, equipment)
         const assetUrl = resolveCatalogRewardAsset(previewReward, 'preview')
         return (
-          <aside className={`mt-4 grid gap-5 rounded-3xl border border-brand-100 bg-brand-50 p-5 sm:items-center ${
-            previewReward.kind === 'background' || previewReward.kind === 'theme'
-              ? 'sm:grid-cols-[18rem_1fr]'
-              : 'sm:grid-cols-[10rem_1fr]'
-          }`} aria-label={`Xem trước ${previewReward.name}`}>
-            <div className="flex min-h-40 items-center justify-center rounded-2xl bg-white shadow-soft">
+          <AdventureModal
+            open
+            tone={unlocked ? 'reward' : 'discovery'}
+            eyebrow={`Xem trước · ${kindLabels[previewReward.kind]}`}
+            title={previewReward.name}
+            description={previewReward.description}
+            onClose={() => setPreviewReward(null)}
+            artwork={
+              <div className="flex min-h-48 items-center justify-center">
               <RewardArtwork reward={previewReward} assetUrl={assetUrl} large />
-            </div>
-            <div>
-              <div className="flex items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-wider text-brand-600">
-                    Xem trước · {kindLabels[previewReward.kind]}
-                  </p>
-                  <h3 className="font-display text-2xl">{previewReward.name}</h3>
-                </div>
-                <button type="button" onClick={() => setPreviewReward(null)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-white font-black text-muted shadow-soft" aria-label="Đóng xem trước">×</button>
               </div>
-              <p className="mt-2 text-sm text-muted">{previewReward.description}</p>
-              <p className={`mt-3 text-sm font-extrabold ${unlocked ? 'text-success' : 'text-brand-700'}`}>
+            }
+            actions={unlocked && canEquip(previewReward) ? (
+              <button
+                type="button"
+                disabled={pendingRewardId !== null}
+                onClick={() => void (equipped ? unequip(previewReward.kind) : equip(previewReward))}
+                className={equipped ? 'ui-btn ui-btn-secondary' : 'ui-btn ui-btn-primary'}
+              >
+                {pendingRewardId === previewReward.id
+                  ? 'Đang áp dụng…'
+                  : equipped ? 'Không dùng nữa' : 'Dùng vật phẩm này'}
+              </button>
+            ) : undefined}
+          >
+              <p className={`text-center text-sm font-extrabold ${unlocked ? 'text-success' : 'text-brand-700'}`}>
                 {unlocked ? 'Đã có trong Bộ sưu tập' : unlockLabel(previewReward)}
               </p>
-              {unlocked && canEquip(previewReward) && (
-                <button
-                  type="button"
-                  onClick={() => void (equipped ? unequip(previewReward.kind) : equip(previewReward))}
-                  className={`mt-4 min-h-11 rounded-xl px-5 text-sm font-extrabold ${
-                    equipped
-                      ? 'border border-brand-200 bg-white text-brand-700'
-                      : 'bg-brand-600 text-white'
-                  }`}
-                >
-                  {equipped ? 'Không dùng nữa' : 'Dùng vật phẩm này'}
-                </button>
-              )}
-            </div>
-          </aside>
+          </AdventureModal>
         )
       })()}
       <div className={`mt-4 grid gap-3 ${compact ? 'grid-cols-2' : 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-5'}`}>
         {visibleRewards.map((reward) => {
-          const unlocked = owned.has(reward.id)
+          const unlocked = isRewardUnlocked(reward, owned, xpLevel)
           const equipped = isEquippedReward(reward, equipment)
-          const assetUrl = resolveCatalogRewardAsset(reward, 'thumbnail')
+          const assetUrl = reward.kind === 'frame'
+            ? resolveCatalogRewardAsset(reward, 'thumbnail') ?? getResolvedRewardAssetUrl(reward.id)
+            : resolveCatalogRewardAsset(reward, 'thumbnail')
           return (
             <article
               key={reward.id}
@@ -565,17 +629,22 @@ export function RewardCollection({
               }`}
             >
               {!unlocked && (
-                <span className="absolute right-2 top-2 text-sm" aria-label="Chưa mở">🔒</span>
+                <span className="absolute right-2 top-2 grid h-8 w-8 place-items-center rounded-xl bg-white text-muted shadow-press" aria-label="Chưa mở"><Lock size={16} aria-hidden="true" /></span>
               )}
               <div className={`flex h-24 items-center justify-center ${unlocked ? '' : 'opacity-70'}`}>
                 <RewardArtwork reward={reward} assetUrl={assetUrl} />
               </div>
-              <p className="mt-2 text-xs font-black uppercase tracking-wide text-brand-600">
+              <p className="mt-2 text-sm font-extrabold text-brand-600">
                 {kindLabels[reward.kind]}
               </p>
+              {reward.kind === 'title' && (
+                <p className="mt-1 w-fit rounded-full bg-brand-50 px-2 py-1 text-xs font-extrabold text-brand-700">
+                  {rewardSourceLabels[rewardSource(reward.unlock.type)]}
+                </p>
+              )}
               <h3 className="text-base font-extrabold leading-tight">{reward.name}</h3>
-              {!compact && <p className="mt-1 text-xs leading-snug text-muted">{reward.description}</p>}
-              <p className="mt-2 text-[11px] font-bold text-muted">
+              {!compact && <p className="mt-1 text-sm font-semibold leading-snug text-muted">{reward.description}</p>}
+              <p className="mt-2 text-sm font-bold text-muted">
                 {unlocked
                   ? 'Đã sở hữu'
                   : unlockLabel(reward)}
@@ -583,21 +652,25 @@ export function RewardCollection({
               <button
                 type="button"
                 onClick={() => setPreviewReward(reward)}
-                className="mt-2 min-h-11 w-full rounded-xl border border-brand-100 bg-white px-2 text-xs font-extrabold text-brand-700"
+                className="mt-2 min-h-11 w-full rounded-xl border border-brand-100 bg-white px-2 text-sm font-extrabold text-brand-700"
               >
                 Xem trước
               </button>
               {unlocked && canEquip(reward) && (
                 <button
                   type="button"
+                  disabled={pendingRewardId !== null}
+                  aria-busy={pendingRewardId === reward.id}
                   onClick={() => void (equipped ? unequip(reward.kind) : equip(reward))}
-                  className={`mt-2 min-h-11 w-full rounded-xl px-2 py-1.5 text-xs font-extrabold ${
+                  className={`reward-equip-button mt-2 min-h-12 w-full rounded-xl px-3 py-2 text-sm font-extrabold ${
                     equipped
                       ? 'border border-brand-200 bg-white text-brand-700'
-                      : 'bg-brand-50 text-brand-700'
+                      : 'bg-brand-600 text-white'
                   }`}
                 >
-                  {equipped ? 'Không dùng nữa' : `Dùng ${kindLabels[reward.kind].toLowerCase()} này`}
+                  {pendingRewardId === reward.id
+                    ? 'Đang áp dụng…'
+                    : equipped ? 'Không dùng nữa' : `Dùng ${kindLabels[reward.kind].toLowerCase()} này`}
                 </button>
               )}
               {unlocked && reward.kind === 'event_ticket' && (
