@@ -653,9 +653,10 @@ export function normalizeGatewayRequest(path: string, options: RequestInit = {})
           avatarUrl: body.avatarId,
           language: 'vi',
           // New profiles start with the parent-approved product defaults.
+          // allowExport=true: chia sẻ bật mặc định; phụ huynh vẫn phải duyệt từng lần.
           allowAiCreate: true,
           allowPhoto: true,
-          allowExport: false,
+          allowExport: true,
           // The account password is never used as the child's PIN. The Account
           // service persists `pin` in child_profiles.pin_hash for child login.
           password: createUuid(),

@@ -585,11 +585,7 @@ function DashboardTab() {
               )
             })}
           </div>
-          {totalQuests === 0 && (
-            <p className="mt-4 text-center text-xs text-muted">
-              Các con chưa hoàn thành trạm nào. Hãy cùng con bắt đầu nhé! 🚀
-            </p>
-          )}
+
         </div>
       )}
 
@@ -975,9 +971,6 @@ function EditChildModal({
               required
               autoFocus
             />
-            <p className="mt-1 text-xs text-muted">
-              Gợi ý: Đặt biệt danh gần gũi nên có số hoặc ký tự đặc biệt (Ví dụ: Tom123, Bống_nhỏ).
-            </p>
           </div>
 
           <div>
@@ -987,7 +980,6 @@ function EditChildModal({
               <option value='9-12'>9-12 tuoi</option>
               <option value='13-15'>13-15 tuoi</option>
             </select>
-            <p className='mt-1 text-xs text-muted'>Nhom tuoi giup he thong chon noi dung phu hop hon.</p>
           </div>
 
           {/* Avatar */}
@@ -1327,9 +1319,6 @@ function KidsTab() {
           + Thêm con
         </Button>
       </div>
-      <p className="text-sm text-muted">
-        Ba / Mẹ tạo hồ sơ cho con. Trên máy ở nhà, bấm “Vào học” để đưa máy cho con — không cần mật khẩu Ba / Mẹ.
-      </p>
 
       <div className="grid gap-4 lg:grid-cols-2">
         {/* Child list */}
@@ -1457,8 +1446,9 @@ function KidsTab() {
                       <span className="text-xs text-muted">Con dùng camera/ảnh thiết bị trong tác phẩm — bật mặc định.</span>
                     </span>
                   </label>
-                  {/* WHY: this checkbox is phrased as a safety action. A checked box
-                      maps to allowExport=false, which keeps child sharing disabled. */}
+                  {/* WHY: this checkbox is phrased as a safety opt-out. A checked box
+                      maps to allowExport=false (sharing HIDDEN). Default is unchecked
+                      because new child profiles start with allowExport=true (sharing ENABLED). */}
                   <label className="flex min-h-11 items-start gap-3 rounded-xl bg-white px-3 py-2">
                     <input
                       type="checkbox"
@@ -1477,7 +1467,7 @@ function KidsTab() {
                           offLabel="ĐANG BẬT"
                         />
                       </span>
-                      <span className="text-xs text-muted">Tích để ẩn nút chia sẻ với con — tắt mặc định.</span>
+                      <span className="text-xs text-muted">Tích để ẩn nút chia sẻ với con — bật mặc định.</span>
                     </span>
                   </label>
                 </div>
@@ -1595,7 +1585,7 @@ function KidsTab() {
                           </li>
                         ))}
                       </ul>
-                    ) : <p className="mt-2 text-sm text-muted">Con đang bắt đầu hành trình; hãy ghi nhận lần thử đầu tiên.</p>}
+                    ) : null}
                   </div>
                   <div>
                     <p className="text-xs font-extrabold uppercase tracking-wide text-sky-700">Ba / Mẹ có thể hỏi con</p>
@@ -2117,17 +2107,14 @@ function ApprovalsTab() {
         <Bell size={20} aria-hidden="true" />
         Yêu cầu chia sẻ
       </h2>
-      <p className="text-sm text-muted">
-        Sáng tạo của trẻ mặc định riêng tư — chỉ hiện khi Ba / Mẹ đồng ý.
-      </p>
+
 
       <ProfileSharingPanel />
 
       {approvals.length === 0 && friendInvites.length === 0 && (
         <div className="ui-card p-8 text-center">
           <PartyPopper className="mx-auto text-brand-500" size={40} aria-hidden="true" />
-          <p className="mt-2 font-bold">Không có yêu cầu nào!</p>
-          <p className="text-sm text-muted">Tất cả đã được xử lý.</p>
+          <p className="mt-2 font-bold">Không có yêu cầu nào</p>
         </div>
       )}
 
