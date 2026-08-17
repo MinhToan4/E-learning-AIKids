@@ -974,11 +974,11 @@ function EditChildModal({
           </div>
 
           <div>
-            <label className='mb-1 block text-sm font-bold' htmlFor='edit-age-band'>Nhom tuoi hoc tap</label>
+            <label className='mb-1 block text-sm font-bold' htmlFor='edit-age-band'>Nhóm tuổi học tập</label>
             <select id='edit-age-band' value={ageBand} onChange={(e) => setAgeBand(e.target.value)} className='w-full rounded-xl border border-brand-200 bg-white px-3 py-2.5 text-sm'>
-              <option value='8-11'>8-11 tuoi - Pilot tieng Viet</option>
-              <option value='9-12'>9-12 tuoi</option>
-              <option value='13-15'>13-15 tuoi</option>
+              <option value='8-11'>8–11 tuổi — Pilot tiếng Việt</option>
+              <option value='9-12'>9–12 tuổi</option>
+              <option value='13-15'>13–15 tuổi</option>
             </select>
           </div>
 
