@@ -1086,7 +1086,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       {offerTarget && (
         <div className="ui-card h-fit p-5 xl:sticky xl:top-5">
           <h2 className="font-display text-xl">Cấu hình bán và cấp quyền</h2>
-          <p className="mt-2 text-sm text-muted">Giá tính theo đơn vị nhỏ nhất của tiền tệ. Với VND, nhập số nguyên đồng.</p>
           <div className="mt-4 space-y-3">
             <label className="block text-sm font-bold">Mô hình truy cập
               <select className="mt-1 min-h-11 w-full rounded-xl border-2 border-border px-3" value={offerForm.accessPolicy} onChange={(e) => setOfferForm((v) => ({ ...v, accessPolicy: e.target.value, priceAmountMinor: e.target.value === 'free' ? '0' : v.priceAmountMinor }))}>
@@ -1122,19 +1121,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           </div>
         </div>
       )}
-      <aside className="ui-card h-fit p-5 xl:sticky xl:top-5">
-        <div className="flex items-center gap-3">
-          <CmsCoursesIcon size={28} />
-          <h2 className="font-display text-xl text-text">Quản lý khóa học thống nhất</h2>
-        </div>
-        <p className="mt-3 text-sm leading-relaxed text-muted">Admin và giáo viên dùng cùng một quy trình; quyền sửa và xuất bản vẫn được kiểm soát theo vai trò và phạm vi sở hữu.</p>
-        <ol className="mt-4 space-y-2 text-sm font-bold text-text">
-          <li className="rounded-xl bg-sky-50 px-3 py-2">1. Nội dung · Thông tin và các trạm học</li>
-          <li className="rounded-xl bg-sky-50 px-3 py-2">2. Lộ trình · Thứ tự, mở khóa và điều kiện</li>
-          <li className="rounded-xl bg-sky-50 px-3 py-2">3. Phân phối · Học sinh, tổ chức và bán</li>
-        </ol>
-        <Button className="mt-5 w-full" onClick={() => navigate('/teacher/courses')}>Mở không gian biên soạn</Button>
-      </aside>
+
     </div>
   )
 
@@ -1317,7 +1304,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                 <span className="text-warning text-lg">⏳</span>
                 <div>
                   <p className="font-display text-base font-bold text-warning">Chờ xác nhận thanh toán ({pendingIntents.length})</p>
-                  <p className="text-xs text-muted">Xem xét sau khi xác nhận đã nhận tiền chuyển khoản từ phụ huynh.</p>
                 </div>
               </div>
               <div className="overflow-x-auto">
@@ -1411,10 +1397,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                   <tbody>
                     {filteredBillingSubs.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-4 py-12 text-center">
-                          <p className="text-muted">Chưa có dữ liệu thuê bao</p>
-                          <p className="mt-1 text-xs text-muted">Dữ liệu sẽ xuất hiện sau khi có người dùng đăng ký gói.</p>
-                        </td>
+                        <td colSpan={6} className="px-4 py-12 text-center text-muted">Chưa có dữ liệu thuê bao</td>
                       </tr>
                     ) : filteredBillingSubs.map((s) => (
                       <tr key={s.userId} className="group border-b border-border/30 hover:bg-brand-50/30 transition">
@@ -1540,10 +1523,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <div className="mb-4">
               <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">Cấp gói thủ công</p>
               <h2 className="font-display text-xl text-text mt-0.5">Kích hoạt không qua thanh toán</h2>
-              <p className="mt-1.5 text-xs text-muted leading-relaxed">
-                Dành cho phụ huynh đã chuyển khoản qua tổng đài hoặc cần ưu đãi đặc biệt.
-                Hệ thống kích hoạt ngay và đồng bộ toàn bộ dịch vụ qua NATS.
-              </p>
             </div>
 
             {/* User search */}
@@ -1702,17 +1681,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </Button>
           </form>
 
-          {/* Note box */}
-          <div className="rounded-2xl border border-brand-200 bg-brand-50/50 p-4 text-xs text-muted">
-            <p className="font-extrabold text-brand-700 mb-1">📋 Quy trình tổng đài</p>
-            <ol className="list-decimal list-inside space-y-1 leading-relaxed">
-              <li>Phụ huynh gọi tổng đài, chọn gói và nhận số tài khoản NH.</li>
-              <li>Phụ huynh chuyển khoản, ghi nội dung email đăng ký.</li>
-              <li>Nhân viên xác nhận đã nhận tiền trên sao kê.</li>
-              <li>Tìm email → chọn gói → nhập lý do → Kích hoạt.</li>
-              <li>Hệ thống gửi NATS event, phụ huynh nhận quyền ngay.</li>
-            </ol>
-          </div>
+
         </div>
       </div>
 
