@@ -826,17 +826,26 @@ function DashboardTab() {
 }
 
 
+// ── Fallback age bands — dùng khi chưa có con nào hoặc API chưa trả về kịp
+const FALLBACK_AGE_BANDS = [
+  { value: '8-11', label: '8–11 tuổi' },
+  { value: '9-12', label: '9–12 tuổi' },
+  { value: '13-15', label: '13–15 tuổi' },
+]
+
 // ── Edit Child Modal — Full-screen — tên, avatar, mục tiêu, PIN ────
 // Ba / Mẹ bấm ✏️ → modal này mở toàn màn hình, bao gồm cả đổi PIN
 function EditChildModal({
   child,
   isOpen,
+  referenceChildId, // id của con đầu tiên để fetch danh sách nhóm tuổi từ courses thực tế
   onClose,
   onSuccess,
   onError,
 }: {
   child: Child | null     // null = tạo mới
   isOpen: boolean
+  referenceChildId?: string
   onClose: () => void
   onSuccess: () => void
   onError: (msg: string) => void
@@ -847,6 +856,8 @@ function EditChildModal({
   const [goal, setGoal] = useState('comic')
   const [pin, setPin] = useState('')
   const [saving, setSaving] = useState(false)
+  // Danh sách nhóm tuổi lấy động từ API courses; fallback về hằng số nếu không có data
+  const [ageBandOptions, setAgeBandOptions] = useState(FALLBACK_AGE_BANDS)
 
   // Khi mở modal, điền sẵn giá trị hiện tại (nếu đang sửa)
   useEffect(() => {
@@ -858,6 +869,42 @@ function EditChildModal({
       setPin('')
     }
   }, [isOpen, child])
+
+  // WHY: Load nhóm tuổi động từ danh sách courses thực tế thay vì hardcode.
+  // Dùng referenceChildId (thường là con đầu tiên) để gọi endpoint có sẵn.
+  // Nếu không có child nào hoặc API lỗi → giữ nguyên FALLBACK_AGE_BANDS, không crash.
+  useEffect(() => {
+    if (!isOpen || !referenceChildId) return
+    const controller = new AbortController()
+    void (async () => {
+      try {
+        const data = await api<{
+          courses: Array<{ ageLabel: string; ageTrack: string }>
+        }>(`/api/parent/children/${referenceChildId}/courses`, { signal: controller.signal })
+        const seen = new Map<string, string>()
+        for (const course of data.courses) {
+          // Dùng cùng logic courseAgeGroupId: ưu tiên ageTrack, fallback ageLabel
+          const id = (course.ageTrack?.trim() || course.ageLabel?.trim()) || ''
+          const label = course.ageLabel?.trim() || id
+          if (id && label && !seen.has(id)) seen.set(id, label)
+        }
+        if (seen.size > 0) {
+          // Sắp xếp theo số tuổi nhỏ nhất trong label (giống buildCourseAgeGroups)
+          const sorted = [...seen.entries()]
+            .map(([value, label]) => ({ value, label }))
+            .sort((a, b) => {
+              const na = Number(a.label.match(/\d+/)?.[0] ?? 999)
+              const nb = Number(b.label.match(/\d+/)?.[0] ?? 999)
+              return na - nb || a.label.localeCompare(b.label, 'vi')
+            })
+          setAgeBandOptions(sorted)
+        }
+      } catch {
+        // Fetch thất bại hoặc bị abort → giữ nguyên fallback, không hiện lỗi
+      }
+    })()
+    return () => controller.abort()
+  }, [isOpen, referenceChildId])
 
   // Khóa scroll nền khi modal mở
   useEffect(() => {
@@ -975,11 +1022,17 @@ function EditChildModal({
 
           <div>
             <label className='mb-1 block text-sm font-bold' htmlFor='edit-age-band'>Nhóm tuổi học tập</label>
-            <select id='edit-age-band' value={ageBand} onChange={(e) => setAgeBand(e.target.value)} className='w-full rounded-xl border border-brand-200 bg-white px-3 py-2.5 text-sm'>
-              <option value='8-11'>8–11 tuổi — Pilot tiếng Việt</option>
-              <option value='9-12'>9–12 tuổi</option>
-              <option value='13-15'>13–15 tuổi</option>
+            <select
+              id='edit-age-band'
+              value={ageBandOptions.some((o) => o.value === ageBand) ? ageBand : ageBandOptions[0]?.value ?? ageBand}
+              onChange={(e) => setAgeBand(e.target.value)}
+              className='w-full rounded-xl border border-brand-200 bg-white px-3 py-2.5 text-sm'
+            >
+              {ageBandOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
             </select>
+            <p className='mt-1 text-xs text-muted'>Hệ thống gợi ý nội dung phù hợp theo nhóm tuổi này.</p>
           </div>
 
           {/* Avatar */}
@@ -1663,6 +1716,10 @@ function KidsTab() {
       <EditChildModal
         child={editTarget ?? null}
         isOpen={editTarget !== undefined}
+        // WHY: truyền id của con đầu tiên làm referenceChildId để EditChildModal
+        // fetch được danh sách nhóm tuổi thực tế từ courses. Nếu chưa có con nào
+        // (tạo con đầu tiên) → referenceChildId = undefined → fallback hiện đủ.
+        referenceChildId={kids[0]?.id}
         onClose={() => setEditTarget(undefined)}
         onSuccess={async () => {
           setEditTarget(undefined)
