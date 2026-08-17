@@ -37,6 +37,7 @@ describe('application API route coverage', () => {
       'features/admin/components/RewardPackAdmin.tsx',
       'features/teacher/components/TeacherFeedbackPanel.tsx',
       'features/parent/components/ParentTeacherFeedbackSection.tsx',
+      'features/parent/hooks/useParentFeedbackBadge.ts',
       'features/backpack/pages/BackpackPage.tsx',
     ])
     const violations = applicationFiles.flatMap((file) => {

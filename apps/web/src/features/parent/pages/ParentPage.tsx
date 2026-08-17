@@ -7,6 +7,8 @@ import {
   BookOpen,
   ChartNoAxesColumnIncreasing,
   Check,
+  CheckCircle2,
+  ChevronRight,
   Gamepad2,
   Info,
   KeyRound,
@@ -18,6 +20,8 @@ import {
   Pencil,
   Plus,
   Settings,
+  ShieldCheck,
+  Sparkles,
   Sprout,
   Trash2,
   TrendingUp,
@@ -25,6 +29,8 @@ import {
   UsersRound,
   Video,
   X,
+  ArrowRight,
+  RefreshCw,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
@@ -141,11 +147,15 @@ type ParentProfileData = {
 import {
   ParentApprovalIcon,
   ParentKidsIcon,
+  ParentPlanIcon,
+  ParentLearningIcon,
+  ParentStarsIcon,
+  ParentQuestIcon,
+  ParentTipIcon,
+  ParentProfileIcon,
+  ShieldLockIcon,
 } from '@/shared/components/icons/ParentIcons'
-import {
-  NavBadgeIcon,
-  NavLeaderboardIcon,
-} from '@/shared/components/icons/KidNavIcons'
+import { StatMetricCard } from '@/shared/components/charts/StatMetricCard'
 import { ProfileSharingPanel } from '@/features/parent/components/ProfileSharingPanel'
 
 type TabKey = 'dashboard' | 'kids' | 'approvals' | 'plan' | 'profile'
@@ -409,16 +419,20 @@ function PlanTab() {
 // ── Dashboard Tab ─────────────────────────────────────────────
 function DashboardTab() {
   const [kids, setKids] = useState<Child[]>([])
-  const [pendingCount, setPendingCount] = useState(0)
+  const [approvals, setApprovals] = useState<Approval[]>([])
+  const [sub, setSub] = useState<HouseholdSub | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const navigate = useNavigate()
+  const user = useAuth((s) => s.user)
 
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
-    const [childrenData, approvalsData] = await Promise.allSettled([
+    const [childrenData, approvalsData, subData] = await Promise.allSettled([
       api<{ children: Child[] }>('/api/parent/children'),
       api<{ approvals: Approval[] }>('/api/parent/approvals?status=pending'),
+      api<{ subscription: HouseholdSub }>('/api/parent/subscription'),
     ])
     if (childrenData.status === 'rejected') {
       setError('Chưa tải được dữ liệu của các con. Ba / Mẹ thử lại nhé.')
@@ -426,7 +440,10 @@ function DashboardTab() {
       return
     }
     setKids(childrenData.value.children)
-    setPendingCount(approvalsData.status === 'fulfilled' ? approvalsData.value.approvals.length : 0)
+    setApprovals(approvalsData.status === 'fulfilled' ? approvalsData.value.approvals : [])
+    if (subData.status === 'fulfilled') {
+      setSub(subData.value.subscription)
+    }
     setLoading(false)
   }, [])
 
@@ -443,67 +460,371 @@ function DashboardTab() {
   const totalXp = kids.reduce((s, k) => s + k.xp, 0)
   const totalStars = kids.reduce((s, k) => s + (k.totalStars ?? 0), 0)
   const totalQuests = kids.reduce((s, k) => s + (k.completedQuests ?? 0), 0)
+  const pendingCount = approvals.length
+
+  // Dữ liệu thực: số trạm hoàn thành của từng con theo API
+  // Không dùng synthetic distribution vì API không trả daily breakdown
 
   return (
-    <div className="flex flex-col gap-5">
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatCard icon={ParentKidsIcon} label="Số con" value={kids.length} color="brand" />
-        <StatCard icon={NavBadgeIcon} label="Tổng sao" value={totalStars} color="sun" />
-        <StatCard icon={NavLeaderboardIcon} label="Quests xong" value={totalQuests} color="mint" />
-        <StatCard icon={ParentApprovalIcon} label="Chờ duyệt" value={pendingCount} color="coral" />
-      </div>
-
-      {/* XP summary */}
-      <div className="ui-card p-4">
-        <h3 className="mb-3 flex items-center gap-2 font-display text-lg">
-          <Gamepad2 size={20} aria-hidden="true" />
-          Tổng XP gia đình: {totalXp}
-        </h3>
-        <div className="flex flex-col gap-2">
-          {kids.map((k) => (
-            <div key={k.id} className="flex items-center gap-3">
-              <span className="text-2xl">{avatarEmoji(k.avatarId)}</span>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold">{k.nickname}</p>
-                <div className="mt-0.5 h-2 overflow-hidden rounded-full bg-brand-100">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-500 transition-all duration-500"
-                    style={{ width: `${Math.min((k.xp / Math.max(totalXp, 1)) * 100, 100)}%` }}
-                  />
-                </div>
-              </div>
-              <span className="text-xs font-bold text-muted">
-                Lv.{k.level} · {k.xp} XP
-              </span>
+    <div className="flex flex-col gap-6">
+      {/* ── 1. Household Status Banner ───────────────────────── */}
+      <div className="ui-card relative overflow-hidden p-6 shadow-soft">
+        <div className="absolute right-0 top-0 -mr-12 -mt-12 h-44 w-44 rounded-full bg-brand-500/5 blur-xl" />
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              {/* Đã bỏ badge 'Cổng Phụ huynh' và thông tin gói theo yêu cầu UX */}
             </div>
-          ))}
+            <h2 className="font-display mt-1 text-2xl font-black text-text md:text-3xl">
+              Chào Ba / Mẹ {(user?.nickname || user?.name) ?? ''}! ✨
+            </h2>
+            <p className="mt-1 text-sm text-muted">
+              Cùng theo dõi sự tiến bộ, khích lệ sáng tạo và đồng hành trên từng trạm học của con.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              className="gap-2 !text-xs font-bold"
+              onClick={() => navigate('/parent/kids')}
+            >
+              <ParentKidsIcon size={18} /> Quản lý con
+            </Button>
+            <Button
+              variant="ghost"
+              className="gap-2 !text-xs font-bold"
+              onClick={() => void load()}
+            >
+              <RefreshCw size={13} /> Làm mới
+            </Button>
+          </div>
         </div>
       </div>
 
-      {/* Quick actions */}
-      <div className="grid gap-3 sm:grid-cols-2">
-        <Link
-          to="/parent/kids"
-          className="ui-card flex items-center gap-3 p-4 transition hover:ring-2 hover:ring-brand-300"
-        >
-          <ParentKidsIcon size={32} aria-hidden="true" />
-          <div>
-            <p className="font-bold">Quản lý con</p>
-            <p className="text-xs text-muted">Thêm, sửa, xem tiến trình</p>
-          </div>
-        </Link>
-        <Link
-          to="/parent/approvals"
-          className="ui-card flex items-center gap-3 p-4 transition hover:ring-2 hover:ring-coral-300"
-        >
-          <Bell size={30} className="text-coral-500" aria-hidden="true" />
-          <div>
-            <p className="font-bold">Duyệt chia sẻ</p>
-            <p className="text-xs text-muted">{pendingCount} yêu cầu đang chờ</p>
-          </div>
-        </Link>
+      {/* ── 2. Metric KPI Cards ──────────────────────────────── */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatMetricCard
+          label="Số con theo học"
+          value={kids.length}
+          icon={<ParentKidsIcon size={32} />}
+          color="sky"
+          trend={kids.length > 0 ? { value: `${kids.length} hồ sơ`, isPositive: true } : undefined}
+          sparklineData={[kids.length]}
+          subtext="Học an toàn bằng biệt danh & PIN"
+          onClick={() => navigate('/parent/kids')}
+        />
+        <StatMetricCard
+          label="Tổng sao tích lũy"
+          value={totalStars}
+          icon={<ParentStarsIcon size={32} />}
+          color="sun"
+          trend={totalStars > 0 ? { value: `${totalStars} sao`, isPositive: true } : undefined}
+          sparklineData={[totalStars]}
+          subtext={`${totalStars} sao đạt từ các bài quiz`}
+        />
+        <StatMetricCard
+          label="Nhiệm vụ hoàn thành"
+          value={totalQuests}
+          icon={<ParentQuestIcon size={32} />}
+          color="mint"
+          trend={totalQuests > 0 ? { value: `${totalQuests} trạm`, isPositive: true } : undefined}
+          sparklineData={[totalQuests]}
+          subtext={`${totalQuests} trạm học đã chinh phục`}
+          onClick={() => navigate('/parent/learning')}
+        />
+        <StatMetricCard
+          label="Chờ duyệt sáng tạo"
+          value={pendingCount}
+          icon={<ParentApprovalIcon size={32} />}
+          color={pendingCount > 0 ? 'coral' : 'brand'}
+          badge={pendingCount > 0 ? 'Cần duyệt ngay' : 'Đã duyệt hết'}
+          sparklineData={[pendingCount]}
+          subtext={
+            pendingCount > 0
+              ? `${pendingCount} tác phẩm con muốn chia sẻ`
+              : 'Tất cả tác phẩm đã sẵn sàng'
+          }
+          onClick={() => navigate('/parent/approvals')}
+        />
       </div>
+
+      {/* ── 3. Per-Child Progress — dữ liệu thực từ API ─────────── */}
+      {kids.length > 0 && (
+        <div className="ui-card p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h3 className="font-display text-base font-bold text-text">Tiến độ từng con</h3>
+              <p className="text-xs text-muted">Số trạm học đã chinh phục — dữ liệu thực từ hệ thống</p>
+            </div>
+            <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-extrabold text-brand-700">
+              Tổng: {totalQuests} trạm
+            </span>
+          </div>
+          <div className="flex items-end gap-4">
+            {kids.map((kid) => {
+              const quests = kid.completedQuests ?? 0
+              const maxQuests = Math.max(...kids.map((k) => k.completedQuests ?? 0), 1)
+              const pct = Math.round((quests / maxQuests) * 100)
+              return (
+                <div key={kid.id} className="flex flex-1 flex-col items-center gap-2">
+                  <span className="text-xs font-extrabold text-text">{quests}</span>
+                  <div className="relative w-full overflow-hidden rounded-xl bg-slate-100" style={{ height: 80 }}>
+                    <div
+                      className="absolute bottom-0 w-full rounded-xl bg-gradient-to-t from-brand-500 to-brand-300 transition-all duration-700"
+                      style={{ height: `${Math.max(pct, 8)}%` }}
+                    />
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className="max-w-[72px] truncate text-center text-[11px] font-bold text-text">
+                      {kid.nickname}
+                    </span>
+                    <span className="text-[10px] text-muted">Cấp {kid.level ?? 1}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+          {totalQuests === 0 && (
+            <p className="mt-4 text-center text-xs text-muted">
+              Các con chưa hoàn thành trạm nào. Hãy cùng con bắt đầu nhé! 🚀
+            </p>
+          )}
+        </div>
+      )}
+
+
+      {/* ── 4. Children Deep-Dive Journey Cards ──────────────── */}
+      <section aria-label="Tiến trình chi tiết từng con">
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            <h3 className="font-display text-lg font-bold text-text">Hành trình học tập của các con</h3>
+            <p className="text-xs text-muted">Chi tiết cấp độ, kinh nghiệm và cài đặt an toàn</p>
+          </div>
+          <Button
+            variant="ghost"
+            className="!text-xs font-bold text-brand-600"
+            onClick={() => navigate('/parent/kids')}
+          >
+            Quản lý hồ sơ
+          </Button>
+        </div>
+
+        {kids.length === 0 ? (
+          <div className="ui-card flex flex-col items-center justify-center gap-3 p-8 text-center">
+            <span className="text-4xl">👶</span>
+            <p className="font-display text-base font-bold">Chưa có hồ sơ con nào</p>
+            <p className="max-w-md text-xs text-muted">
+              Ba / Mẹ hãy tạo hồ sơ cho con để bé có thể bắt đầu đăng nhập bằng biệt danh và học tập.
+            </p>
+            <Button onClick={() => navigate('/parent/kids')} className="gap-2">
+              <Plus size={16} /> Thêm hồ sơ con
+            </Button>
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {kids.map((k) => {
+              const nextLevelXp = Math.max(k.level * 200, 100)
+              const currentLvlXp = k.xp % nextLevelXp
+              const progressPct = Math.min(Math.round((currentLvlXp / nextLevelXp) * 100), 100)
+
+              return (
+                <div
+                  key={k.id}
+                  className="ui-card flex flex-col justify-between p-5 transition hover:shadow-md"
+                >
+                  {/* Top: Child Avatar + Level + Name */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <span
+                          className="grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-3xl shadow-sm"
+                          role="img"
+                          aria-label="Avatar"
+                        >
+                          {avatarEmoji(k.avatarId)}
+                        </span>
+                        <span className="absolute -bottom-1.5 -right-1.5 rounded-full bg-brand-600 px-2 py-0.5 text-[10px] font-black text-white shadow-sm">
+                          Lv.{k.level}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-display text-base font-bold text-text">
+                            {k.nickname || 'Bé yêu'}
+                          </h4>
+                          <span
+                            className={cn(
+                              'h-2 w-2 rounded-full',
+                              k.active ? 'bg-emerald-500' : 'bg-slate-300',
+                            )}
+                            title={k.active ? 'Đang hoạt động' : 'Tạm dừng'}
+                          />
+                        </div>
+                        <p className="text-xs text-muted">
+                          {k.ageBand ? `Nhóm tuổi: ${k.ageBand}` : 'Nhóm tuổi: 8-11'} · {k.xp} XP
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-sun-50 px-2.5 py-1 text-xs font-black text-amber-700">
+                        ⭐ {k.totalStars ?? 0}
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-mint-50 px-2.5 py-1 text-xs font-black text-emerald-700">
+                        🚀 {k.completedQuests ?? 0} trạm
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Level Progress Bar */}
+                  <div className="mt-4">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-bold text-muted">Tiến độ lên Cấp {k.level + 1}</span>
+                      <span className="font-black text-brand-600">
+                        {currentLvlXp} / {nextLevelXp} XP ({progressPct}%)
+                      </span>
+                    </div>
+                    <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-brand-400 via-brand-500 to-sky-400 transition-all duration-700"
+                        style={{ width: `${progressPct}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Safety & Permissions Badges */}
+                  <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border/40 pt-3">
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-bold',
+                        k.allowAiCreate
+                          ? 'bg-purple-50 text-purple-700 border border-purple-200/60'
+                          : 'bg-slate-100 text-slate-500',
+                      )}
+                    >
+                      <Sparkles size={11} /> AI Sáng tạo: {k.allowAiCreate ? 'Bật' : 'Tắt'}
+                    </span>
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-bold',
+                        k.hasPin
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+                          : 'bg-amber-50 text-amber-700 border border-amber-200/60',
+                      )}
+                    >
+                      <Lock size={11} /> {k.hasPin ? 'Có PIN bảo vệ' : 'Chưa đặt PIN'}
+                    </span>
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-bold',
+                        k.allowExport
+                          ? 'bg-sky-50 text-sky-700 border border-sky-200/60'
+                          : 'bg-slate-100 text-slate-500',
+                      )}
+                    >
+                      Xuất tác phẩm: {k.allowExport ? 'Cho phép' : 'Khóa'}
+                    </span>
+                  </div>
+
+                  {/* Action Link */}
+                  <div className="mt-3 flex justify-end">
+                    <Button
+                      variant="ghost"
+                      className="gap-1 !text-xs font-bold text-brand-600"
+                      onClick={() => navigate('/parent/kids')}
+                    >
+                      <span>Xem chi tiết học tập</span>
+                      <ArrowRight size={13} />
+                    </Button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* ── 5. Creative Approvals Showcase Widget ────────────── */}
+      <section aria-label="Trung tâm phê duyệt tác phẩm">
+        <div className="ui-card overflow-hidden shadow-soft">
+          <div className="flex items-center justify-between border-b border-border/60 bg-coral-50/40 px-5 py-4">
+            <div className="flex items-center gap-2.5">
+              <ParentApprovalIcon size={22} />
+              <div>
+                <h3 className="font-display text-base font-bold text-text">
+                  Duyệt chia sẻ tác phẩm của con
+                </h3>
+                <p className="text-xs text-muted">
+                  Bảo vệ an toàn và quyền riêng tư cho các tác phẩm AI do con sáng tạo
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              className="!text-xs font-bold text-rose-600"
+              onClick={() => navigate('/parent/approvals')}
+            >
+              Xem tất cả ({pendingCount})
+            </Button>
+          </div>
+
+          {approvals.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-2 p-8 text-center">
+              <div className="grid h-11 w-11 place-items-center rounded-full bg-mint-50 text-2xl">
+                🎨
+              </div>
+              <p className="font-display text-sm font-bold text-emerald-800">
+                Tất cả tác phẩm đều đã được xử lý an toàn
+              </p>
+              <p className="max-w-sm text-xs text-muted">
+                Khi con hoàn thành truyện tranh hoặc tranh vẽ AI mới và muốn chia sẻ, yêu cầu sẽ xuất hiện tại đây để Ba / Mẹ phê duyệt.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border/40">
+              {approvals.slice(0, 3).map((appr) => (
+                <div
+                  key={appr.id}
+                  className="flex flex-wrap items-center justify-between gap-3 p-4 transition hover:bg-rose-50/20"
+                >
+                  <div className="flex items-center gap-3">
+                    {appr.project.thumbnail ? (
+                      <img
+                        src={appr.project.thumbnail}
+                        alt=""
+                        className="h-12 w-12 rounded-xl object-cover shadow-sm"
+                      />
+                    ) : (
+                      <div className="grid h-12 w-12 place-items-center rounded-xl bg-purple-100 text-xl">
+                        🎨
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-display text-sm font-bold text-text">
+                        {appr.project.title || 'Tác phẩm sáng tạo AI'}
+                      </p>
+                      <p className="text-xs text-muted">
+                        Tác giả: <strong>{appr.child.nickname || 'Bé'}</strong> · Loại: {appr.project.kind || 'Truyện tranh'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="secondary"
+                    className="gap-1.5 !px-3 !py-1 !text-xs font-bold text-rose-700"
+                    onClick={() => navigate('/parent/approvals')}
+                  >
+                    <CheckCircle2 size={13} /> Duyệt tác phẩm
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+
     </div>
   )
 }
