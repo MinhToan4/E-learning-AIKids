@@ -47,6 +47,7 @@ describe('API route tree', () => {
     ['legend_reward_design', 'aikids-legend-reward'],
     ['storybook_chapter_design', 'aikids-storybook'],
     ['achievement_milestone_design', 'aikids-achievement'],
+    ['course_content_design', 'lms-course'],
   ])('tags CMS upload purpose %s as %s', (purpose, assetType) => {
     const body = new FormData()
     body.append('purpose', purpose)

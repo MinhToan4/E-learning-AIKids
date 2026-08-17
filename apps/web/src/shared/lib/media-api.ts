@@ -280,7 +280,7 @@ export async function promoteCourseAsset(assetId: string): Promise<{
   return res.asset
 }
 
-/** CMS-only free upload (teacher/admin). Students get 403. */
+/** Course-authoring upload for teacher/admin CMS. Family actors get 403. */
 export async function uploadCmsImage(params: {
   file: File | Blob
   fileName?: string
@@ -299,7 +299,8 @@ export async function uploadCmsImage(params: {
   const form = new FormData()
   form.append('file', params.file, fileName)
   form.append('permanent', '1')
-  form.append('assetType', 'aikids')
+  form.append('assetType', 'lms-course')
+  form.append('purpose', 'course_content_design')
   form.append('tags', JSON.stringify([
     params.purpose ?? 'cms_media',
     ...(params.questId ? [`quest:${params.questId}`] : []),

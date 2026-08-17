@@ -450,6 +450,7 @@ export function normalizeGatewayRequest(path: string, options: RequestInit = {})
       legend_reward_design: 'aikids-legend-reward',
       storybook_chapter_design: 'aikids-storybook',
       achievement_milestone_design: 'aikids-achievement',
+      course_content_design: 'lms-course',
     }
     const assetType = assetTypeByPurpose[purpose] ?? 'aikids'
     return {
