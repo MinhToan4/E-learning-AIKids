@@ -30,6 +30,7 @@ describe('application API route coverage', () => {
   it('keeps canonical service paths behind shared domain adapters', () => {
     const allowedCanonicalCallers = new Set([
       'shared/lib/creative-api.ts',
+      'shared/lib/learning-api.ts',
       'shared/lib/media-api.ts',
       // These are already canonical contracts; move them into the matching
       // domain adapter when those feature modules are next changed.

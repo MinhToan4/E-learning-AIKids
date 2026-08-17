@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { MessageSquareText } from 'lucide-react'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
-import { api } from '@/shared/lib/api'
+import { learningApi } from '@/shared/lib/learning-api'
 
 type Feedback = {
   id: string
@@ -30,7 +30,7 @@ export function ParentTeacherFeedbackSection({ childId }: Props) {
     let cancelled = false
     setLoading(true)
     setError(null)
-    void api<{ child: typeof child; feedback: Feedback[] }>(`/api/v1/lms/family/children/${encodeURIComponent(childId)}/teacher-feedback`)
+    void learningApi.getChildTeacherFeedback<{ child: typeof child; feedback: Feedback[] }>(childId)
       .then((result) => {
         if (cancelled) return
         setChild(result.child)

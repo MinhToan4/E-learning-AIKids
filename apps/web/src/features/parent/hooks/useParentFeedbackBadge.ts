@@ -5,6 +5,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { api } from '@/shared/lib/api'
+import { learningApi } from '@/shared/lib/learning-api'
 
 const LS_PREFIX = 'fbd_seen_'
 const POLL_INTERVAL_MS = 5 * 60 * 1000 // re-check every 5 min
@@ -42,9 +43,8 @@ export function useParentFeedbackBadge(userRole: string | undefined): ParentFeed
       if (!children.length) return
       const results = await Promise.allSettled(
         children.map((child) =>
-          api<{ child: unknown; feedback: FeedbackItem[] }>(
-            `/api/v1/lms/family/children/${encodeURIComponent(child.id)}/teacher-feedback`,
-          ).then((res) => ({ childId: child.id, feedback: res.feedback })),
+          learningApi.getChildTeacherFeedback<{ child: unknown; feedback: FeedbackItem[] }>(child.id)
+            .then((res) => ({ childId: child.id, feedback: res.feedback })),
         ),
       )
       if (unmounted.current) return

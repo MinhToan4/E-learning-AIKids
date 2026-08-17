@@ -59,4 +59,18 @@ describe('learning API facade', () => {
       /^[0-9a-f-]{36}$/,
     )
   })
+
+  it('keeps parent feedback reads behind the learning facade', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      status: 'success',
+      data: { child: {}, feedback: [] },
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await learningApi.getChildTeacherFeedback('child-1')
+
+    expect(fetchMock.mock.calls[0][0]).toBe(
+      'https://dev-hub.storymee.com/api/v1/lms/family/children/child-1/teacher-feedback',
+    )
+  })
 })

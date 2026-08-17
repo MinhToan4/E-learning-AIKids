@@ -72,6 +72,12 @@ export const learningApi = {
     return api<CourseProgress>(`/api/progress/${encodeURIComponent(courseId)}`)
   },
 
+  getChildTeacherFeedback<T>(childId: string) {
+    return api<T>(
+      `/api/v1/lms/family/children/${encodeURIComponent(childId)}/teacher-feedback`,
+    )
+  },
+
   getLesson(lessonId: string) {
     return api<{ quest: QuestDetail }>(`/api/quests/${encodeURIComponent(lessonId)}`)
   },
