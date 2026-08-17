@@ -305,6 +305,7 @@ export function RewardCollection({
 
   const equip = async (reward: RewardDefinition) => {
     if (pendingRewardId) return
+    const previous = { ...equipment }
     equipmentMutationVersion.current += 1
     setPendingRewardId(reward.id)
     setEquipment(equipReward(userId, reward.kind, reward.id))
@@ -327,13 +328,13 @@ export function RewardCollection({
       setEquipment(equipReward(userId, reward.kind, reward.id))
       setMessage(`Đã trang bị ${reward.name}`)
     } catch (error) {
-      // Keep the explicit local selection usable when the legacy equipment
-      // endpoint does not yet know a newly published reward ID.
-      setEquipment(equipReward(userId, reward.kind, reward.id))
+      // Backend inventory is authoritative. Roll back the optimistic local
+      // preview so the current screen and the next refresh cannot disagree.
+      setEquipment(syncRewardEquipment(userId, previous))
       const reason = error instanceof Error && error.message !== 'Error'
         ? ` (${error.message})`
         : ''
-      setMessage(`Đã áp dụng trên thiết bị, chưa đồng bộ máy chủ${reason}.`)
+      setMessage(`Chưa thể trang bị ${reward.name}${reason}.`)
     } finally {
       setPendingRewardId(null)
     }
@@ -341,6 +342,7 @@ export function RewardCollection({
 
   const unequip = async (kind: RewardKind) => {
     if (pendingRewardId) return
+    const previous = { ...equipment }
     equipmentMutationVersion.current += 1
     const rewardId = equipment[kind]
     setPendingRewardId(rewardId ?? kind)
@@ -357,11 +359,11 @@ export function RewardCollection({
       setPreviewReward(null)
       setMessage(`Đã bỏ ${kindLabels[kind].toLowerCase()}.`)
     } catch (error) {
-      setEquipment(unequipReward(userId, kind))
+      setEquipment(syncRewardEquipment(userId, previous))
       const reason = error instanceof Error && error.message !== 'Error'
         ? ` (${error.message})`
         : ''
-      setMessage(`Đã bỏ trên thiết bị, chưa đồng bộ máy chủ${reason}.`)
+      setMessage(`Chưa thể bỏ ${kindLabels[kind].toLowerCase()}${reason}.`)
     } finally {
       setPendingRewardId(null)
     }

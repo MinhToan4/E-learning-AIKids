@@ -16,9 +16,10 @@ describe('rewardTitleAsset', () => {
     expect(rewardTitleAsset('title-not-published')).toBeUndefined()
   })
 
-  it('unlocks an xp reward when the current level reaches its rule', () => {
+  it('uses server inventory rather than inferring xp reward ownership', () => {
     const reward = { id: 'title-guide', unlock: { type: 'xp_level', value: 6 } }
-    expect(isRewardUnlocked(reward, new Set(), 102)).toBe(true)
+    expect(isRewardUnlocked(reward, new Set(), 102)).toBe(false)
+    expect(isRewardUnlocked(reward, new Set(['title-guide']), 5)).toBe(true)
     expect(isRewardUnlocked(reward, new Set(), 5)).toBe(false)
   })
 
@@ -28,12 +29,13 @@ describe('rewardTitleAsset', () => {
     expect(isRewardUnlocked(reward, new Set(['event-title']), 1)).toBe(true)
   })
 
-  it('unlocks a Sticker Book title from its chapter S9 inventory entry', () => {
+  it('requires the claimed Sticker Book reward instead of its prerequisite sticker', () => {
     const reward = {
       id: 'storybook-title-p03',
       unlock: { type: 'storybook_sticker', value: 'P03-S9' },
     }
-    expect(isRewardUnlocked(reward, new Set(['P03-S9']), 102)).toBe(true)
+    expect(isRewardUnlocked(reward, new Set(['P03-S9']), 102)).toBe(false)
+    expect(isRewardUnlocked(reward, new Set(['storybook-title-p03']), 1)).toBe(true)
     expect(isRewardUnlocked(reward, new Set(), 102)).toBe(false)
   })
 

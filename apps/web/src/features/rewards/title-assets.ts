@@ -31,7 +31,7 @@ export function rewardSource(unlockType: string): RewardSource {
 export function isRewardUnlocked(
   reward: { id: string; unlock: { type: string; value: string | number } },
   owned: ReadonlySet<string>,
-  xpLevel: number,
+  _xpLevel: number,
 ): boolean {
   if (
     reward.id === 'storybook-title-p01' &&
@@ -39,11 +39,10 @@ export function isRewardUnlocked(
     ['127.0.0.1', 'localhost'].includes(window.location.hostname) &&
     new URLSearchParams(window.location.search).get('reward-test') === 'storybook-p01'
   ) return true
-  if (owned.has(reward.id)) return true
-  if (reward.unlock.type === 'storybook_sticker') {
-    return owned.has(String(reward.unlock.value))
-  }
-  if (reward.unlock.type !== 'xp_level') return false
-  const requiredLevel = Number(reward.unlock.value)
-  return Number.isFinite(requiredLevel) && requiredLevel > 0 && xpLevel >= requiredLevel
+  // The backend inventory is authoritative for every reward source. Level and
+  // Storybook rules are projected into that inventory before this screen is
+  // returned. Inferring ownership again in the browser can expose an Equip
+  // action that the backend correctly rejects, making the choice disappear on
+  // refresh.
+  return owned.has(reward.id)
 }
