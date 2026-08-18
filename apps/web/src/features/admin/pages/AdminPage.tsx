@@ -424,10 +424,16 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           })
         }
       } else if (tab === 'logs') {
+        // WHY: Load users song song để cross-reference trạng thái active ngay trên tab Nhật ký,
+        // tránh phải quay về tab Tài khoản chỉ để tắt/bật một account đáng ngờ.
         const q = logFilter ? `?outcome=${encodeURIComponent(logFilter)}` : ''
-        const data = await api<{ logs: LoginLogItem[]; summary: LoginLogSummary }>(`/api/admin/login-logs${q}`)
-        setLoginLogs(data.logs)
-        setLogSummary(data.summary)
+        const [logsData, usersData] = await Promise.all([
+          api<{ logs: LoginLogItem[]; summary: LoginLogSummary }>(`/api/admin/login-logs${q}`),
+          api<{ users: AdminUser[] }>('/api/admin/users'),
+        ])
+        setLoginLogs(logsData.logs)
+        setLogSummary(logsData.summary)
+        setUsers(usersData.users)
       } else if (tab === 'courses') {
         const data = await api<{ courses: CourseOverview[] }>('/api/admin/courses')
         setCourses(data.courses)
@@ -794,6 +800,26 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     </>
   )
 
+  // WHY: Tắt = đỏ (nguy hiểm, vô hiệu hóa tài khoản), Bật = xanh lá (an toàn, khôi phục).
+  // Dùng style prop + CSS variables đã định nghĩa thay vì Tailwind class —
+  // tầng design-system có coral-600 và mint-600 nhưng không có coral-500/mint-500.
+  const toggleBtnStyle = (active: boolean): React.CSSProperties =>
+    active
+      ? { background: 'var(--color-coral-600)', color: 'white', borderColor: 'var(--color-coral-600)' }
+      : { background: 'var(--color-mint-600)', color: 'white', borderColor: 'var(--color-mint-600)' }
+
+  // WHY: Tab Nhật ký dùng compact size để hài hòa với chiều cao row table (~40px).
+  // ui-btn mặc định min-height 48px + padding 12px 20px — quá lớn trong context bảng log.
+  // Tab Tài khoản giữ nguyên size chuẩn vì có nhiều không gian hơn.
+  const toggleBtnStyleCompact = (active: boolean): React.CSSProperties => ({
+    ...toggleBtnStyle(active),
+    minHeight: 0,
+    padding: '4px 12px',
+    fontSize: '0.75rem',
+    fontWeight: 700,
+    lineHeight: '1.25rem',
+  })
+
   // Login logs tab
   const logsTab = (
     <>
@@ -834,8 +860,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           <Button variant="secondary" onClick={() => void load()}>Làm mới</Button>
           <Button variant="ghost" className="text-muted" onClick={() => void purgeLogs()}>Xóa nhật ký cũ</Button>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[600px] text-left text-sm">
+        {/* ── Desktop table (md+) ─────────────────────────────────────── */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-left text-sm">
             <thead className="border-b border-border bg-brand-50/80">
               <tr>
                 <th className="px-4 py-3 font-extrabold">Thời gian</th>
@@ -843,22 +870,72 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                 <th className="px-4 py-3 font-extrabold">Kết quả</th>
                 <th className="px-4 py-3 font-extrabold">IP</th>
                 <th className="px-4 py-3 font-extrabold">Lý do</th>
+                <th className="px-4 py-3 font-extrabold" />
               </tr>
             </thead>
             <tbody>
               {logsPag.slice.length === 0 ? (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">{loginLogs.length === 0 ? 'Chưa có log nào trong 24 giờ qua' : 'Không có log khớp bộ lọc'}</td></tr>
-              ) : logsPag.slice.map((log) => (
-                <tr key={log.id} className="border-b border-border/40 hover:bg-brand-50/30">
-                  <td className="px-4 py-2 text-xs text-muted">{new Date(log.createdAt).toLocaleString('vi-VN')}</td>
-                  <td className="px-4 py-2 font-mono text-xs">{log.email ?? '—'}</td>
-                  <td className="px-4 py-2"><OutcomeBadge outcome={log.outcome} /></td>
-                  <td className="px-4 py-2 font-mono text-xs text-muted">{log.ipAddress ?? '—'}</td>
-                  <td className="px-4 py-2 text-xs text-muted">{log.reason ?? '—'}</td>
-                </tr>
-              ))}
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-muted">{loginLogs.length === 0 ? 'Chưa có log nào trong 24 giờ qua' : 'Không có log khớp bộ lọc'}</td></tr>
+              ) : logsPag.slice.map((log) => {
+                // Cross-reference với danh sách users để lấy trạng thái active.
+                // Chỉ hiện button khi log có userId hợp lệ và user tồn tại trong hệ thống.
+                const logUser = log.userId ? users.find((u) => u.id === log.userId) : undefined
+                return (
+                  <tr key={log.id} className="border-b border-border/40 hover:bg-brand-50/30">
+                    <td className="px-4 py-2 text-xs text-muted">{new Date(log.createdAt).toLocaleString('vi-VN')}</td>
+                    <td className="px-4 py-2 font-mono text-xs">{log.email ?? '—'}</td>
+                    <td className="px-4 py-2"><OutcomeBadge outcome={log.outcome} /></td>
+                    <td className="px-4 py-2 font-mono text-xs text-muted">{log.ipAddress ?? '—'}</td>
+                    <td className="px-4 py-2 text-xs text-muted">{log.reason ?? '—'}</td>
+                    <td className="px-4 py-2 text-right">
+                      {logUser && (
+                        <Button
+                          variant="secondary"
+                          style={toggleBtnStyleCompact(logUser.active)}
+                          onClick={() => void toggleActive(logUser)}
+                          aria-label={logUser.active ? `Vô hiệu hóa tài khoản ${log.email ?? logUser.id}` : `Kích hoạt tài khoản ${log.email ?? logUser.id}`}
+                        >
+                          {logUser.active ? 'Tắt' : 'Bật'}
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
+        </div>
+        {/* ── Mobile card list (<md) ──────────────────────────────────── */}
+        <div className="md:hidden divide-y divide-border/40">
+          {logsPag.slice.length === 0 ? (
+            <p className="px-4 py-8 text-center text-sm text-muted">
+              {loginLogs.length === 0 ? 'Chưa có log nào trong 24 giờ qua' : 'Không có log khớp bộ lọc'}
+            </p>
+          ) : logsPag.slice.map((log) => {
+            const logUser = log.userId ? users.find((u) => u.id === log.userId) : undefined
+            return (
+              <div key={log.id} className="flex items-start justify-between gap-3 px-4 py-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <OutcomeBadge outcome={log.outcome} />
+                    <span className="truncate font-mono text-xs text-text font-semibold">{log.email ?? '—'}</span>
+                  </div>
+                  <p className="mt-1 text-xs text-muted">{new Date(log.createdAt).toLocaleString('vi-VN')}</p>
+                  <p className="mt-0.5 font-mono text-xs text-muted">{log.ipAddress ?? '—'}{log.reason ? ` · ${log.reason}` : ''}</p>
+                </div>
+                {logUser && (
+                  <Button
+                    variant="secondary"
+                    style={toggleBtnStyleCompact(logUser.active)}
+                    onClick={() => void toggleActive(logUser)}
+                    aria-label={logUser.active ? `Vô hiệu hóa ${log.email ?? logUser.id}` : `Kích hoạt ${log.email ?? logUser.id}`}
+                  >
+                    {logUser.active ? 'Tắt' : 'Bật'}
+                  </Button>
+                )}
+              </div>
+            )
+          })}
         </div>
         <Paginator
           page={logsPag.page} totalPages={logsPag.totalPages}
@@ -919,8 +996,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <span className="ml-auto text-xs font-bold text-brand-400 animate-pulse">Đang cập nhật…</span>
           )}
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[560px] text-left text-sm">
+        {/* ── Desktop table (md+) ─────────────────────────────────────── */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-left text-sm">
             <thead className="border-b border-border bg-brand-50/80">
               <tr>
                 <th className="px-4 py-3 font-extrabold">Người dùng</th>
@@ -955,7 +1033,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                       >
                         Sửa
                       </Button>
-                      <Button variant="secondary" onClick={() => void toggleActive(u)}>
+                      <Button variant="secondary" style={toggleBtnStyle(u.active)} onClick={() => void toggleActive(u)}>
                         {u.active ? 'Tắt' : 'Bật'}
                       </Button>
                       {u.active && (
@@ -969,6 +1047,50 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               ))}
             </tbody>
           </table>
+        </div>
+        {/* ── Mobile card list (<md) ──────────────────────────────────── */}
+        <div className="md:hidden divide-y divide-border/40">
+          {usersPag.slice.length === 0 ? (
+            <p className="px-4 py-8 text-center text-sm text-muted">
+              {users.length === 0 ? 'Không có tài khoản nào' : 'Không có tài khoản khớp bộ lọc'}
+            </p>
+          ) : usersPag.slice.map((u) => (
+            <div key={u.id} className="px-4 py-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-bold text-sm">{u.nickname ?? '—'}</p>
+                  <p className="truncate text-xs text-muted">{u.email ?? u.id.slice(0, 10)}</p>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600">
+                      {ROLE_LABELS[u.role] ?? u.role}
+                    </span>
+                    <span className={cn('rounded-full px-2 py-0.5 text-xs font-extrabold', u.active ? 'bg-mint-100 text-success' : 'bg-coral-100 text-danger')}>
+                      {u.active ? 'Đang hoạt động' : 'Đã vô hiệu hóa'}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex shrink-0 flex-col gap-1.5">
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setEditTarget(u)
+                      setEditForm({ nickname: u.nickname ?? '', role: u.role as AdminUser['role'], email: u.email ?? '', newPassword: '' })
+                    }}
+                  >
+                    Sửa
+                  </Button>
+                  <Button variant="secondary" style={toggleBtnStyle(u.active)} onClick={() => void toggleActive(u)}>
+                    {u.active ? 'Tắt' : 'Bật'}
+                  </Button>
+                  {u.active && (
+                    <Button variant="ghost" className="text-danger" onClick={() => setDeleteTarget(u)}>
+                      Xóa
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
         <Paginator
           page={usersPag.page} totalPages={usersPag.totalPages}
