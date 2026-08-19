@@ -29,6 +29,7 @@ describe('application API route coverage', () => {
 
   it('keeps canonical service paths behind shared domain adapters', () => {
     const allowedCanonicalCallers = new Set([
+      'shared/lib/asmo-api.ts',
       'shared/lib/creative-api.ts',
       'shared/lib/learning-api.ts',
       'shared/lib/media-api.ts',

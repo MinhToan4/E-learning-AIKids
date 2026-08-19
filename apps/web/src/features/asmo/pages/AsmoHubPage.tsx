@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link, useNavigate } from 'react-router'
 import {
   Trophy,
@@ -11,38 +11,61 @@ import {
   BookOpen,
   Award,
   Layers,
+  Calendar,
+  Loader2,
 } from 'lucide-react'
 import { ASMO_SUBJECTS, ASMO_GRADES, ASMO_CURRICULUM_WEEKS } from '../data/asmo-curriculum'
 import { ASMO_3D_TEMPLATES } from '../data/asmo-3d-templates'
-import { ASMO_SAMPLE_EXAMS } from '../data/asmo-sample-exams'
-import type { AsmoGrade, AsmoSubject } from '../types'
+import { listAsmoExams } from '@/shared/lib/asmo-api'
+import type { AsmoExam, AsmoGrade, AsmoSubject } from '../types'
 import { AsmoMeeTutor } from '../components/AsmoMeeTutor'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
+
+const AVAILABLE_YEARS: Array<number | 'all'> = ['all', 2023, 2022, 2021, 2020, 2018, 2016, 2015, 2014]
 
 export function AsmoHubPage() {
   const navigate = useNavigate()
   const [selectedSubject, setSelectedSubject] = useState<AsmoSubject>('math')
   const [selectedGrade, setSelectedGrade] = useState<AsmoGrade>(1)
+  const [selectedYear, setSelectedYear] = useState<number | 'all'>('all')
+
+  const [exams, setExams] = useState<AsmoExam[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const currentSubjectMeta = ASMO_SUBJECTS[selectedSubject]
 
-  // Filter exams for subject & grade
-  const filteredExams = ASMO_SAMPLE_EXAMS.filter((e) => {
-    if (e.subject !== selectedSubject) return false
-    if (selectedSubject === 'math') {
-      return e.grade === selectedGrade
+  // Fetch dynamic exams from backend gateway or safe fallback
+  useEffect(() => {
+    let isMounted = true
+    setIsLoading(true)
+
+    listAsmoExams({
+      subject: selectedSubject,
+      grade: selectedGrade,
+      year: selectedYear !== 'all' ? selectedYear : undefined,
+    })
+      .then((data) => {
+        if (isMounted) {
+          setExams(data)
+          setIsLoading(false)
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      isMounted = false
     }
-    // Science / English: Level 1 (Grade 1-2), Level 2 (Grade 3-4), Level 3 (Grade 5)
-    if (selectedGrade <= 2) return e.grade <= 2
-    if (selectedGrade <= 4) return e.grade >= 3 && e.grade <= 4
-    return e.grade === 5
-  })
+  }, [selectedSubject, selectedGrade, selectedYear])
 
   // Filter curriculum weeks
-  const filteredWeeks = ASMO_CURRICULUM_WEEKS.filter(
-    (w) => w.subject === selectedSubject,
-  )
+  const filteredWeeks = useMemo(() => {
+    return ASMO_CURRICULUM_WEEKS.filter((w) => w.subject === selectedSubject)
+  }, [selectedSubject])
 
   const templateList = Object.values(ASMO_3D_TEMPLATES)
 
@@ -75,11 +98,11 @@ export function AsmoHubPage() {
               <span>Phòng Thí Nghiệm 3D</span>
             </Button>
 
-            {filteredExams.length > 0 && (
+            {exams.length > 0 && (
               <Button
                 type="button"
                 variant="secondary"
-                onClick={() => navigate(`/asmo/exam/${filteredExams[0].id}`)}
+                onClick={() => navigate(`/asmo/exam/${exams[0].id}`)}
                 className="gap-2 rounded-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 font-bold backdrop-blur-md"
               >
                 <Play className="size-4 fill-current" />
@@ -98,13 +121,13 @@ export function AsmoHubPage() {
       {/* ── MÈO MEE INTRO ── */}
       <AsmoMeeTutor
         pose="welcome"
-        speech={`Chào bạn nhỏ! Mee đã chuẩn bị sẵn các mô hình 3D xoay 360 độ và bộ đề thi Olympic ASMO môn ${currentSubjectMeta.name}. Con hãy chọn lớp và bắt đầu thử sức nhé!`}
+        speech={`Chào bạn nhỏ! Mee đã chuẩn bị sẵn các mô hình 3D xoay 360 độ và bộ đề thi Olympic ASMO môn ${currentSubjectMeta.name}. Con hãy chọn lớp và năm thi để bắt đầu thử sức nhé!`}
         hint="Bí kíp của Mee: Khi làm bài toán hình học, con hãy bấm nút 'Phòng Thí Nghiệm 3D' để xem khối xoay thực tế trước khi chọn đáp án nhé!"
       />
 
-      {/* ── SUBJECT & GRADE SELECTOR TABS ── */}
+      {/* ── SUBJECT, GRADE & YEAR SELECTOR TABS ── */}
       <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-5 shadow-clay backdrop-blur-md">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between border-b border-slate-100 pb-5">
+        <div className="flex flex-col gap-5 border-b border-slate-100 pb-5">
           {/* Subject Pills */}
           <div>
             <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 block">
@@ -134,30 +157,60 @@ export function AsmoHubPage() {
             </div>
           </div>
 
-          {/* Grade Pills */}
-          <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 block">
-              2. Khối Lớp
-            </label>
-            <div className="flex flex-wrap gap-1.5">
-              {ASMO_GRADES.map((g) => {
-                const isSelected = selectedGrade === g.grade
-                return (
-                  <button
-                    key={g.grade}
-                    type="button"
-                    onClick={() => setSelectedGrade(g.grade)}
-                    className={cn(
-                      'rounded-xl px-3 py-2 text-xs font-extrabold transition-all active:scale-95 cursor-pointer',
-                      isSelected
-                        ? 'bg-slate-900 text-white shadow-sm ring-2 ring-slate-700'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700',
-                    )}
-                  >
-                    Lớp {g.grade}
-                  </button>
-                )
-              })}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            {/* Grade Pills */}
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 block">
+                2. Khối Lớp
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {ASMO_GRADES.map((g) => {
+                  const isSelected = selectedGrade === g.grade
+                  return (
+                    <button
+                      key={g.grade}
+                      type="button"
+                      onClick={() => setSelectedGrade(g.grade)}
+                      className={cn(
+                        'rounded-xl px-3 py-2 text-xs font-extrabold transition-all active:scale-95 cursor-pointer',
+                        isSelected
+                          ? 'bg-slate-900 text-white shadow-sm ring-2 ring-slate-700'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-700',
+                      )}
+                    >
+                      Lớp {g.grade}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+
+            {/* Year Selector */}
+            <div>
+              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1">
+                <Calendar className="size-3.5 text-brand-600" />
+                <span>3. Năm Thi</span>
+              </label>
+              <div className="flex flex-wrap gap-1.5">
+                {AVAILABLE_YEARS.map((yr) => {
+                  const isSelected = selectedYear === yr
+                  return (
+                    <button
+                      key={yr}
+                      type="button"
+                      onClick={() => setSelectedYear(yr)}
+                      className={cn(
+                        'rounded-xl px-2.5 py-1.5 text-xs font-bold transition-all active:scale-95 cursor-pointer',
+                        isSelected
+                          ? 'bg-brand-600 text-white shadow-sm ring-2 ring-brand-400'
+                          : 'bg-slate-100 hover:bg-slate-200 text-slate-700',
+                      )}
+                    >
+                      {yr === 'all' ? 'Tất cả' : yr}
+                    </button>
+                  )
+                })}
+              </div>
             </div>
           </div>
         </div>
@@ -170,7 +223,7 @@ export function AsmoHubPage() {
             <span>{currentSubjectMeta.description}</span>
           </div>
           <span className="shrink-0 font-semibold text-slate-500">
-            {filteredExams.length} Bộ đề thi sẵn sàng
+            {isLoading ? 'Đang tải đề thi...' : `${exams.length} Bộ đề thi sẵn sàng`}
           </span>
         </div>
       </div>
@@ -267,8 +320,14 @@ export function AsmoHubPage() {
 
           {/* Exam Papers List */}
           <div className="flex flex-col gap-3 mt-1">
-            {filteredExams.length > 0 ? (
-              filteredExams.map((exam) => (
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-brand-200 bg-brand-50/30 p-8 text-center text-brand-700">
+                <Loader2 className="size-8 animate-spin text-brand-600 mb-2" />
+                <p className="text-sm font-bold">Đang tải ngân hàng đề thi ASMO...</p>
+                <p className="text-xs text-brand-500 mt-1">Hệ thống đang kết nối Gateway LMS</p>
+              </div>
+            ) : exams.length > 0 ? (
+              exams.map((exam) => (
                 <div
                   key={exam.id}
                   className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50/70 p-4 transition-all hover:bg-brand-50/40 hover:border-brand-300"
@@ -312,8 +371,8 @@ export function AsmoHubPage() {
             ) : (
               <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
                 <BookOpen className="size-8 mx-auto text-slate-400 mb-2" />
-                <p className="text-sm font-semibold">Đang cập nhật thêm đề thi cho khối lớp này</p>
-                <p className="text-xs text-slate-400 mt-1">Vui lòng chọn Lớp 1, 2 hoặc 3 để thi thử ngay</p>
+                <p className="text-sm font-semibold">Đang cập nhật thêm đề thi cho bộ lọc này</p>
+                <p className="text-xs text-slate-400 mt-1">Vui lòng thử chọn khối lớp hoặc năm thi khác nhé</p>
               </div>
             )}
           </div>

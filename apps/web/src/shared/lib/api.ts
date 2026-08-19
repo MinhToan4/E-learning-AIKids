@@ -197,6 +197,32 @@ export function api<T = unknown>(
   return request
 }
 
+api.get = function <T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
+  return api<T>(path, { ...options, method: 'GET' })
+}
+
+api.post = function <T = unknown>(path: string, body?: unknown, options: RequestInit = {}): Promise<T> {
+  const isJson = body !== undefined && !(body instanceof FormData) && typeof body !== 'string'
+  return api<T>(path, {
+    ...options,
+    method: 'POST',
+    body: isJson ? JSON.stringify(body) : (body as BodyInit | undefined),
+  })
+}
+
+api.put = function <T = unknown>(path: string, body?: unknown, options: RequestInit = {}): Promise<T> {
+  const isJson = body !== undefined && !(body instanceof FormData) && typeof body !== 'string'
+  return api<T>(path, {
+    ...options,
+    method: 'PUT',
+    body: isJson ? JSON.stringify(body) : (body as BodyInit | undefined),
+  })
+}
+
+api.delete = function <T = unknown>(path: string, options: RequestInit = {}): Promise<T> {
+  return api<T>(path, { ...options, method: 'DELETE' })
+}
+
 async function executeApi<T>(
   path: string,
   options: RequestInit,

@@ -12,9 +12,10 @@ import {
   Sparkles,
   HelpCircle,
   Layers,
+  Loader2,
 } from 'lucide-react'
-import { ASMO_SAMPLE_EXAMS } from '../data/asmo-sample-exams'
-import type { AsmoVisualSpec } from '../types'
+import { getAsmoExam, submitAsmoExam, type AsmoExamSubmissionResult } from '@/shared/lib/asmo-api'
+import type { AsmoExam, AsmoVisualSpec } from '../types'
 import { AsmoThreeViewer } from '../components/AsmoThreeViewer'
 import { AsmoQuestionCard } from '../components/AsmoQuestionCard'
 import { AsmoExamTimer } from '../components/AsmoExamTimer'
@@ -26,23 +27,47 @@ export function AsmoExamArenaPage() {
   const { examId } = useParams<{ examId: string }>()
   const navigate = useNavigate()
 
-  const exam = useMemo(() => {
-    return ASMO_SAMPLE_EXAMS.find((e) => e.id === examId) || ASMO_SAMPLE_EXAMS[0]
-  }, [examId])
+  const [exam, setExam] = useState<AsmoExam | null>(null)
+  const [isLoading, setIsLoading] = useState(true)
+  const [isSubmitting, setIsSubmitting] = useState(false)
+  const [submissionResult, setSubmissionResult] = useState<AsmoExamSubmissionResult | null>(null)
 
   const [currentIndex, setCurrentIndex] = useState(0)
   const [activeStepIndex, setActiveStepIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [isSubmitted, setIsSubmitted] = useState(false)
 
-  const currentQuestion = exam.questions[currentIndex]
+  // Load dynamic exam data from Gateway LMS ASMO API with safe fallback
+  useEffect(() => {
+    let isMounted = true
+    setIsLoading(true)
+
+    getAsmoExam(examId || 'asmo-math-g1-2020-r1')
+      .then((data) => {
+        if (isMounted) {
+          setExam(data)
+          setIsLoading(false)
+        }
+      })
+      .catch(() => {
+        if (isMounted) {
+          setIsLoading(false)
+        }
+      })
+
+    return () => {
+      isMounted = false
+    }
+  }, [examId])
 
   useEffect(() => {
     setActiveStepIndex(0)
   }, [currentIndex])
 
-  const currentStepData = currentQuestion.explanationSteps?.[activeStepIndex]
-  const dynamicSpec: AsmoVisualSpec | undefined = currentQuestion.renderSpec ? {
+  const currentQuestion = exam?.questions[currentIndex]
+
+  const currentStepData = currentQuestion?.explanationSteps?.[activeStepIndex]
+  const dynamicSpec: AsmoVisualSpec | undefined = currentQuestion?.renderSpec ? {
     ...currentQuestion.renderSpec,
     activePathIndex: activeStepIndex,
     explanationStep: currentStepData?.layerIndex !== undefined ? currentStepData.layerIndex : activeStepIndex,
@@ -53,7 +78,7 @@ export function AsmoExamArenaPage() {
   } : undefined
 
   const handleAnswer = (optionId: string) => {
-    if (isSubmitted) return
+    if (isSubmitted || !currentQuestion) return
     setAnswers((prev) => ({
       ...prev,
       [currentQuestion.id]: optionId,
@@ -61,10 +86,24 @@ export function AsmoExamArenaPage() {
   }
 
   const answeredCount = Object.keys(answers).length
-  const totalCount = exam.questions.length
+  const totalCount = exam?.questions.length ?? 0
 
-  // Calculate score upon submission
+  // Calculate score upon submission (prefer backend submissionResult if available, fallback to local compute)
   const results = useMemo(() => {
+    if (submissionResult) {
+      return {
+        score: submissionResult.score,
+        correctCount: submissionResult.correctCount,
+        scorePct: submissionResult.scorePct,
+        isPassed: submissionResult.isPassed,
+        feedback: submissionResult.feedback,
+      }
+    }
+
+    if (!exam) {
+      return { score: 0, correctCount: 0, scorePct: 0, isPassed: false, feedback: '' }
+    }
+
     let score = 0
     let correctCount = 0
 
@@ -76,20 +115,59 @@ export function AsmoExamArenaPage() {
       }
     })
 
-    const scorePct = Math.round((score / exam.totalPoints) * 100)
+    const scorePct = Math.round((score / (exam.totalPoints || 1)) * 100)
     const isPassed = scorePct >= exam.passScore
 
-    return { score, correctCount, scorePct, isPassed }
-  }, [exam, answers])
+    return {
+      score,
+      correctCount,
+      scorePct,
+      isPassed,
+      feedback: isPassed
+        ? 'Chúc mừng con đã xuất sắc vượt qua bài thi Olympic ASMO!'
+        : 'Con đã nỗ lực rất tốt! Hãy xem lại các câu chưa chính xác để rút kinh nghiệm nhé!',
+    }
+  }, [exam, answers, submissionResult])
 
-  const handleSubmit = () => {
-    setIsSubmitted(true)
+  const handleSubmit = async () => {
+    if (!exam || isSubmitting) return
+    setIsSubmitting(true)
+
+    try {
+      const result = await submitAsmoExam(exam.id, {
+        answers,
+      })
+      setSubmissionResult(result)
+      setIsSubmitted(true)
+    } catch {
+      setIsSubmitted(true)
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   const handleRetake = () => {
     setAnswers({})
+    setSubmissionResult(null)
     setIsSubmitted(false)
     setCurrentIndex(0)
+    setActiveStepIndex(0)
+  }
+
+  if (isLoading || !exam || !currentQuestion) {
+    return (
+      <div className="mx-auto w-full max-w-7xl min-h-[60vh] flex flex-col items-center justify-center p-8">
+        <div className="flex flex-col items-center gap-4 rounded-3xl border border-brand-200 bg-white/90 p-8 shadow-clay text-center max-w-md">
+          <Loader2 className="size-10 animate-spin text-brand-600" />
+          <h2 className="font-display text-lg font-bold text-slate-900">
+            Đang tải đề thi Olympic ASMO...
+          </h2>
+          <p className="text-xs text-slate-500">
+            Hệ thống đang chuẩn bị các câu hỏi và mô hình không gian 3D tương tác
+          </p>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -132,11 +210,20 @@ export function AsmoExamArenaPage() {
               type="button"
               variant="primary"
               onClick={handleSubmit}
-              disabled={answeredCount === 0}
+              disabled={answeredCount === 0 || isSubmitting}
               className="gap-2 rounded-2xl px-5 font-bold shadow-md"
             >
-              <Send className="size-4" />
-              <span>Nộp bài ({answeredCount}/{totalCount})</span>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="size-4 animate-spin" />
+                  <span>Đang chấm điểm...</span>
+                </>
+              ) : (
+                <>
+                  <Send className="size-4" />
+                  <span>Nộp bài ({answeredCount}/{totalCount})</span>
+                </>
+              )}
             </Button>
           ) : (
             <Button

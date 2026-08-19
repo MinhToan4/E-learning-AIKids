@@ -12,7 +12,7 @@ export type ApiRouteBranch = {
   legacyPrefixes: readonly string[]
   gatewayPrefix: string
   audiences: readonly ApiAudience[]
-  adapter: 'api' | 'learningApi' | 'mediaApi' | 'creativeApi' | 'profileOverviewApi'
+  adapter: 'api' | 'learningApi' | 'asmoApi' | 'mediaApi' | 'creativeApi' | 'profileOverviewApi'
   owner: 'core-account' | 'core-lms' | 'core-gamification' | 'core-media' | 'core-jobs' | 'core-billing' | 'hub-system'
   status: 'canonical' | 'compatibility'
   children?: readonly ApiRouteBranch[]
@@ -46,6 +46,7 @@ export const API_ROUTE_TREE: readonly ApiRouteBranch[] = [
       { id: 'learning-operations', label: 'Lịch, báo cáo & đánh giá', legacyPrefixes: ['/api/schedule', '/api/reports', '/api/report-policies', '/api/assessments', '/api/assessment-attempts'], gatewayPrefix: '/api/v1/lms', audiences: ['student', 'parent', 'teacher'], adapter: 'learningApi', owner: 'core-lms', status: 'compatibility' },
       { id: 'learning-teacher', label: 'Giáo viên', legacyPrefixes: ['/api/teacher'], gatewayPrefix: '/api/v1/lms/aikids/teacher', audiences: ['teacher'], adapter: 'learningApi', owner: 'core-lms', status: 'compatibility' },
       { id: 'learning-admin', label: 'Quản trị chương trình học', legacyPrefixes: ['/api/admin/courses', '/api/admin/learning', '/api/admin/competency', '/api/admin/credential-config', '/api/admin/credentials', '/api/admin/credential-templates', '/api/admin/credential-rules', '/api/admin/schedule-config', '/api/admin/schedule-policies', '/api/admin/schedule', '/api/admin/report-config', '/api/admin/report-templates', '/api/admin/report-policies', '/api/admin/reports'], gatewayPrefix: '/api/v1/lms/aikids/admin', audiences: ['admin'], adapter: 'learningApi', owner: 'core-lms', status: 'compatibility' },
+      { id: 'learning-asmo', label: 'Olympic ASMO Đấu trường & Đề thi', legacyPrefixes: ['/api/asmo'], gatewayPrefix: '/api/v1/lms/asmo', audiences: ['student', 'parent', 'teacher', 'admin'], adapter: 'asmoApi', owner: 'core-lms', status: 'canonical' },
     ],
   },
   {
