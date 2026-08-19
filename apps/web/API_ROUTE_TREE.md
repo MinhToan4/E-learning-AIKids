@@ -73,6 +73,14 @@ Published versions remain immutable for eligibility/grant history. Editing a
 published item creates a draft version; presentation-only corrections still
 pass review and publish so rollback and audit history remain deterministic.
 
+Deleting a Studio reward is a soft-delete lifecycle operation: the frontend
+transitions the version to `retired` and never issues a permanent `DELETE`.
+The owning gamification service must record `archivedAt`, append an audit entry,
+exclude the version from production reads, and schedule irreversible purge for
+`archivedAt + 72 hours`. The purge worker, permissions, and retention guarantee
+are backend responsibilities; existing learner grants and inventory are never
+removed by this lifecycle.
+
 ## Error contract
 
 Hub errors should return `code`, `message`, optional `field`, and `requestId`.

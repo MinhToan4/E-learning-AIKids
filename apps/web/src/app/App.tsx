@@ -95,6 +95,11 @@ const StorybookPage = lazy(() =>
     default: m.StorybookPage,
   })),
 )
+const CommunityPage = lazy(() =>
+  import('@/features/storybook/pages/CommunityPage').then((m) => ({
+    default: m.CommunityPage,
+  })),
+)
 const ProgressPage = lazy(() =>
   import('@/features/leaderboard/pages/LeaderboardPage').then((m) => ({
     default: m.ProgressPage,
@@ -108,6 +113,21 @@ const ExplorerLevelPage = lazy(() =>
 const EventsPage = lazy(() =>
   import('@/features/events/pages/EventsPage').then((m) => ({
     default: m.EventsPage,
+  })),
+)
+const AsmoHubPage = lazy(() =>
+  import('@/features/asmo/pages/AsmoHubPage').then((m) => ({
+    default: m.AsmoHubPage,
+  })),
+)
+const Asmo3DLabPage = lazy(() =>
+  import('@/features/asmo/pages/Asmo3DLabPage').then((m) => ({
+    default: m.Asmo3DLabPage,
+  })),
+)
+const AsmoExamArenaPage = lazy(() =>
+  import('@/features/asmo/pages/AsmoExamArenaPage').then((m) => ({
+    default: m.AsmoExamArenaPage,
   })),
 )
 const ParentPage = lazy(() =>
@@ -354,7 +374,11 @@ export function App() {
             />
             <Route
               path="/community"
-              element={<Navigate to="/profile" replace />}
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <CommunityPage />
+                </Guard>
+              }
             />
           <Route
             path="/achievements"
@@ -403,6 +427,32 @@ export function App() {
               element={
                 <Guard roles={['student']} requireOnboarded>
                   <AssessmentPage />
+                </Guard>
+              }
+            />
+
+            {/* ASMO Olympiad 3D & Exam Simulator */}
+            <Route
+              path="/asmo"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <AsmoHubPage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/asmo/lab"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <Asmo3DLabPage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/asmo/exam/:examId"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <AsmoExamArenaPage />
                 </Guard>
               }
             />

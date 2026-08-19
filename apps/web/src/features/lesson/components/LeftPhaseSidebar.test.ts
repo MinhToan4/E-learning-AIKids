@@ -20,5 +20,7 @@ describe('LeftPhaseSidebar', () => {
     expect(markup).toContain('Hành trình trạm')
     expect(markup).toContain('Mục tiêu của con')
     expect(markup).toContain('Một sản phẩm nhỏ')
+    expect(markup).toContain('data-pose="welcome"')
+    expect(markup).toContain('Mee đang chào con')
   })
 })

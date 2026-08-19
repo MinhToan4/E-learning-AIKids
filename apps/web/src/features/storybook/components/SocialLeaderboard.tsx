@@ -19,19 +19,23 @@ export function SocialLeaderboard() {
   ]
   return (
     <section className="space-y-5" aria-labelledby="social-board-title">
-      <div className="text-center">
-        <p className="text-xs font-black uppercase tracking-[0.2em] text-amber-600">Bảng vinh danh tuần</p>
-        <h2 id="social-board-title" className="font-display text-3xl">Thành tích làm cộng đồng tốt đẹp hơn</h2>
-        <p className="mx-auto mt-1 max-w-2xl text-sm text-muted">Không có điểm trừ hay dislike. Thành tích nhận và cho đi được tôn vinh ngang nhau.</p>
-      </div>
+      <header className="storybook-section-intro" data-tone="leaderboard">
+        <span className="storybook-section-symbol" aria-hidden="true">🏅</span>
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--section-accent)]">Nỗ lực đáng tự hào</p>
+          <h2 id="social-board-title" className="mt-1 font-display text-3xl text-text">Mỗi điều tốt đều được ghi nhận</h2>
+          <p className="mt-2 max-w-2xl text-base font-semibold leading-relaxed text-muted">Vinh danh không chỉ dành cho người nhận nhiều yêu thích. Người chăm động viên và giúp bạn tự tin hơn cũng tỏa sáng.</p>
+          <p className="mt-3 inline-flex rounded-full bg-white/80 px-3 py-1.5 text-xs font-extrabold text-[var(--section-accent)]">✨ Nhận yêu thương và trao yêu thương đều quan trọng</p>
+        </div>
+      </header>
       {message && <p className="rounded-2xl bg-amber-50 p-3 text-sm text-amber-900">{message}</p>}
       <div className="grid gap-5 md:grid-cols-2">
         {definitions.map((board) => (
           <article key={board.key} className="ui-card overflow-hidden">
-            <header className="bg-gradient-to-r from-violet-700 to-fuchsia-600 p-5 text-white">
+            <header className="storybook-honor-card-header" data-tone={board.key}>
               <span className="text-4xl" aria-hidden>{board.icon}</span>
               <h3 className="mt-2 font-display text-2xl">{board.title}</h3>
-              <p className="text-xs font-semibold text-white/75">{board.subtitle}</p>
+              <p className="text-xs font-semibold opacity-80">{board.subtitle}</p>
             </header>
             <ol className="divide-y divide-slate-100 p-3">
               {boards[board.key].length === 0 && <li className="p-5 text-center text-sm text-muted">Chưa có dữ liệu tuần này.</li>}

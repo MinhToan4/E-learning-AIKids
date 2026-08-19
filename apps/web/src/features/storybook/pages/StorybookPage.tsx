@@ -1,33 +1,13 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router'
+import { Link, Navigate, useSearchParams } from 'react-router'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
 import { ImportantCardMascot } from '@/shared/components/ui/ImportantCardMascot'
 import { api } from '@/shared/lib/api'
 import { designerAssets } from '@/shared/config/assets'
-import {
-  KidCreativeImageIcon,
-  KidProgressImageIcon,
-  KidProfileImageIcon,
-  KidStorybookImageIcon,
-} from '@/shared/components/icons/KidImageIcons'
+import { KidStorybookImageIcon } from '@/shared/components/icons/KidImageIcons'
 import { BookSpread } from '../components/BookSpread'
-import { GalleryWall } from '../components/GalleryWall'
-import { InteractionBoard } from '../components/InteractionBoard'
-import { SocialLeaderboard } from '../components/SocialLeaderboard'
 import { STORYBOOK_PAGES, type StorybookPage } from '../storybook-data'
 import { safeChapterColors, uniqueRewardIds, uniqueStorybookIds } from '../storybook-contract'
-
-type View = 'book' | 'gallery' | 'leaderboard' | 'interaction'
-const views: Array<{
-  id: View
-  label: string
-  icon: React.ComponentType<{ size?: number; className?: string }>
-}> = [
-  { id: 'book', label: 'Cuốn sách', icon: KidStorybookImageIcon },
-  { id: 'gallery', label: 'Triển lãm', icon: KidCreativeImageIcon },
-  { id: 'leaderboard', label: 'Vinh danh', icon: KidProgressImageIcon },
-  { id: 'interaction', label: 'Tương tác', icon: KidProfileImageIcon },
-]
 
 export function StorybookPage() {
   const [searchParams] = useSearchParams()
@@ -61,12 +41,6 @@ export function StorybookPage() {
   const [loading, setLoading] = useState(true)
   const [notice, setNotice] = useState('')
   const requestedView = searchParams.get('view')
-  const initialView: View = requestedView === 'gallery' ||
-    requestedView === 'leaderboard' ||
-    requestedView === 'interaction'
-    ? requestedView
-    : 'book'
-  const [view, setView] = useState<View>(initialView)
   const requestedPage = searchParams.get('page')
   const initialPageIndex = STORYBOOK_PAGES.findIndex((page) => page.slug === requestedPage)
   const [pageIndex, setPageIndex] = useState(initialPageIndex >= 0 ? initialPageIndex : 0)
@@ -157,6 +131,10 @@ export function StorybookPage() {
     [earnedStickerIds, publishedStickerIds],
   )
 
+  if (requestedView === 'gallery' || requestedView === 'leaderboard' || requestedView === 'interaction') {
+    return <Navigate to={`/community?view=${requestedView}`} replace />
+  }
+
   return (
     <PageMotion className="flex flex-col gap-5 sm:gap-6">
       <header className="student-feature-hero storybook-hero ui-card" data-tone="coral">
@@ -171,9 +149,10 @@ export function StorybookPage() {
               Mọi trang đều mở sẵn. Con tự chọn hành trình, sưu tầm sticker và lan tỏa
               những lời động viên tích cực.
             </p>
-            <Link to="/home" className="mt-3 inline-flex min-h-11 items-center font-extrabold text-brand-700 hover:underline">
-              ← Về sảnh
-            </Link>
+            <div className="mt-3 flex flex-wrap items-center gap-3">
+              <Link to="/home" className="inline-flex min-h-11 items-center font-extrabold text-brand-700 hover:underline">← Về sảnh</Link>
+              <Link to="/community" className="storybook-community-gate">🏝️ Ghé Đảo cộng đồng</Link>
+            </div>
           </div>
           <div className="storybook-hero-count" aria-label={`${publishedEarnedCount} trên ${publishedStickerIds.size} sticker đã mở`}>
             <span className="student-feature-hero-icon" aria-hidden="true"><KidStorybookImageIcon size={42} /></span>
@@ -189,48 +168,21 @@ export function StorybookPage() {
         </div>
       </header>
 
-      <div className="storybook-view-tabs" role="tablist" aria-label="Chọn khu vực Huyền thoại">
-        {views.map((item) => {
-          const Icon = item.icon
-          return (
-            <button
-              key={item.id}
-              type="button"
-              role="tab"
-              aria-selected={view === item.id}
-              onClick={() => setView(item.id)}
-              className="storybook-view-tab"
-            >
-              <Icon size={24} />
-              {item.label}
-            </button>
-          )
-        })}
-      </div>
-
       {notice && (
         <p className="rounded-2xl border border-sun-200 bg-sun-50 p-4 text-base font-semibold text-warning">
           {notice}
         </p>
       )}
 
-      {view === 'gallery' ? <GalleryWall /> : view === 'leaderboard' ? (
-        <SocialLeaderboard />
-      ) : view === 'interaction' ? (
-        <InteractionBoard />
-      ) : (
-        <>
-          <BookSpread
-            page={currentPage}
-            pages={pages}
-            pageIndex={pageIndex}
-            onPageChange={setPageIndex}
-            earned={earned}
-            ownedRewards={ownedRewards}
-            onClaimed={load}
-          />
-        </>
-      )}
+      <BookSpread
+        page={currentPage}
+        pages={pages}
+        pageIndex={pageIndex}
+        onPageChange={setPageIndex}
+        earned={earned}
+        ownedRewards={ownedRewards}
+        onClaimed={load}
+      />
     </PageMotion>
   )
 }

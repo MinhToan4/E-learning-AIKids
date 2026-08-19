@@ -54,6 +54,7 @@ export const API_ROUTE_TREE: readonly ApiRouteBranch[] = [
     audiences: ['student', 'parent', 'teacher'], adapter: 'api', owner: 'core-gamification', status: 'compatibility',
     children: [
       { id: 'gamification-studio', label: 'Legend & Reward Studio', legacyPrefixes: ['/api/admin/legend-studio'], gatewayPrefix: '/api/v1/gamification/admin/studio', audiences: ['admin'], adapter: 'api', owner: 'core-gamification', status: 'compatibility' },
+      { id: 'gamification-reward-mappings', label: 'Reward requirement mappings', legacyPrefixes: ['/api/admin/reward-mappings'], gatewayPrefix: '/api/v1/gamification/admin/reward-mappings', audiences: ['admin'], adapter: 'api', owner: 'core-gamification', status: 'compatibility' },
       { id: 'gamification-reward-packs', label: 'Import reward ZIP', legacyPrefixes: ['/api/v1/admin/reward-packs'], gatewayPrefix: '/api/v1/admin/reward-packs', audiences: ['admin'], adapter: 'api', owner: 'core-gamification', status: 'canonical' },
     ],
   },

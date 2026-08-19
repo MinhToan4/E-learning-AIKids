@@ -29,7 +29,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       target: 'es2022',
-      chunkSizeWarningLimit: 700,
+      chunkSizeWarningLimit: 2500,
       assetsInlineLimit: 4096, // inline SVGs < 4 KB, don't inline images
       cssCodeSplit: true,
       rollupOptions: {
@@ -47,6 +47,12 @@ export default defineConfig(({ mode }) => {
             }
             if (id.includes('node_modules/lucide-react/')) {
               return 'vendor-icons'
+            }
+            if (id.includes('node_modules/three/')) {
+              return 'vendor-three'
+            }
+            if (id.includes('node_modules/katex/')) {
+              return 'vendor-katex'
             }
             if (id.includes('node_modules/zustand/')) {
               return 'vendor-state'

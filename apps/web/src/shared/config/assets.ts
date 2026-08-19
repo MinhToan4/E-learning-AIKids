@@ -123,6 +123,13 @@ export const designerAssets = {
       '/assets/designer/storybook/tabs/chapter-08.webp',
     ],
   },
+  community: {
+    islands: {
+      gallery: '/assets/designer/community/community-island-gallery-v1.png',
+      honor: '/assets/designer/community/community-island-honor-v1.png',
+      interaction: '/assets/designer/community/community-island-interaction-v1.png',
+    },
+  },
   achievementExperience: {
     progressValley: '/assets/designer/achievements/progress-valley-v2.webp',
     badgeCabinet: '/assets/designer/achievements/badge-cabinet-v2.webp',

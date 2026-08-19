@@ -56,6 +56,7 @@ type RoleNavItem = {
   icon: NavIcon
   end?: boolean
   badge?: boolean
+  action?: boolean
 }
 
 type StudentFeatureTone = 'brand' | 'sky' | 'mint' | 'sun' | 'coral'
@@ -73,9 +74,11 @@ function RouteOutlet() {
 }
 
 function studentFeatureTone(pathname: string): StudentFeatureTone {
+  if (pathname.startsWith('/asmo')) return 'sky'
   if (pathname.startsWith('/world') || pathname.startsWith('/course') || pathname.startsWith('/lesson')) return 'sky'
   if (pathname.startsWith('/progress') || pathname.startsWith('/leaderboard')) return 'mint'
   if (pathname.startsWith('/achievements') || pathname.startsWith('/backpack')) return 'sun'
+  if (pathname.startsWith('/community')) return 'mint'
   if (pathname.startsWith('/events') || pathname.startsWith('/storybook')) return 'coral'
   return 'brand'
 }
@@ -163,8 +166,10 @@ const studentPinnedNav: StudentNavItem[] = [
   { to: '/progress', label: 'Tiến bộ', icon: KidProgressImageIcon, tone: 'mint' },
 ]
 const studentDrawerNav: StudentNavItem[] = [
+  { to: '/asmo',         label: 'Olympic 3D', icon: KidBadgeImageIcon, tone: 'sky' },
   { to: '/events',       label: 'Sự kiện', icon: KidEventImageIcon, tone: 'coral' },
   { to: '/storybook',    label: 'Huyền thoại', icon: KidStorybookImageIcon, tone: 'coral' },
+  { to: '/community',    label: 'Cộng đồng', icon: KidProfileImageIcon, tone: 'mint' },
   { to: '/achievements', label: 'Huy hiệu', icon: KidBadgeImageIcon, tone: 'sun' },
   { to: '/backpack',     label: 'Ba lô',    icon: KidBackpackImageIcon, tone: 'sun' },
   { to: '/profile',      label: 'Hồ sơ',    icon: KidProfileImageIcon, tone: 'brand' },
@@ -180,31 +185,30 @@ const studentNav: StudentNavItem[] = [
 
 // ── Desktop sidebar nav (vertical) ───────────────────────────
 function DesktopSideNav({ nav }: { nav: RoleNavItem[] }) {
+  const managementItems = nav.filter((item) => !item.action)
+  const actionItems = nav.filter((item) => item.action)
+  const renderItem = ({ to, label, icon: Icon, end, badge, action }: RoleNavItem) => (
+    <NavLink
+      key={to}
+      to={to}
+      end={end}
+      onPointerEnter={() => prefetchRoute(to)}
+      onFocus={() => prefetchRoute(to)}
+      className={({ isActive }) =>
+        cn('role-nav-link', action && 'border border-brand-200 bg-brand-50/70 text-brand-700', isActive && 'role-nav-link-active')
+      }
+    >
+      <span className="role-nav-icon relative" aria-hidden="true">
+        <Icon size={23} />
+        {badge && <span aria-label="Có nhận xét mới" className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-danger ring-2 ring-white" />}
+      </span>
+      <span>{label}</span>
+    </NavLink>
+  )
   return (
     <nav className="role-nav" aria-label="Điều hướng khu vực">
-      {nav.map(({ to, label, icon: Icon, end, badge }) => (
-        <NavLink
-          key={to}
-          to={to}
-          end={end}
-          onPointerEnter={() => prefetchRoute(to)}
-          onFocus={() => prefetchRoute(to)}
-          className={({ isActive }) =>
-            cn('role-nav-link', isActive && 'role-nav-link-active')
-          }
-        >
-          <span className="role-nav-icon relative" aria-hidden="true">
-            <Icon size={23} />
-            {badge && (
-              <span
-                aria-label="Có nhận xét mới"
-                className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full bg-danger ring-2 ring-white"
-              />
-            )}
-          </span>
-          <span>{label}</span>
-        </NavLink>
-      ))}
+      {managementItems.map(renderItem)}
+      {actionItems.length > 0 && <div className="mx-3 mt-2 border-t border-border pt-3"><p className="mb-2 px-2 text-[11px] font-extrabold uppercase tracking-wider text-muted">Chế độ của con</p>{actionItems.map(renderItem)}</div>}
     </nav>
   )
 }
@@ -600,7 +604,7 @@ function AdultChrome({
       <div className="lg:hidden">
         <AdminDrawer
           nav={nav}
-          pinnedNav={nav.filter((item) => ['/kids', '/parent', '/parent/kids'].includes(item.to))}
+          pinnedNav={nav.filter((item) => ['/kids', '/parent', '/parent/learning'].includes(item.to))}
           tone="parent"
           menuTitle="Tiện ích phụ huynh"
           menuAriaLabel="Tất cả tiện ích phụ huynh"
@@ -640,13 +644,13 @@ export function AppShell() {
       <AdultChrome
         brandTo="/parent"
         nav={[
-          { to: '/kids', label: 'Cho con học', icon: NavWorldIcon },
           { to: '/parent', label: 'Tổng quan', icon: ParentDashboardIcon, end: true },
-          { to: '/parent/kids', label: 'Con của tôi', icon: ParentKidsIcon },
-          { to: '/parent/learning', label: 'Tình trạng học', icon: ParentLearningIcon, badge: feedbackBadge.hasAny },
+          { to: '/parent/kids', label: 'Quản lý con', icon: ParentKidsIcon },
+          { to: '/parent/learning', label: 'Học tập', icon: ParentLearningIcon, badge: feedbackBadge.hasAny },
           { to: '/parent/plan', label: 'Gói học', icon: ParentPlanIcon },
           { to: '/parent/approvals', label: 'Chờ duyệt', icon: ParentApprovalIcon },
           { to: '/parent/profile', label: 'Hồ sơ', icon: ParentProfileIcon },
+          { to: '/kids', label: 'Chuyển sang con', icon: NavWorldIcon, action: true },
         ]}
       />
     )

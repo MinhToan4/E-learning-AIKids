@@ -14,14 +14,22 @@ export function GalleryWall() {
   }, [])
 
   return (
-    <section className="space-y-4" aria-labelledby="gallery-title">
-      <div>
-        <p className="text-xs font-extrabold uppercase tracking-wider text-pink-600">Triển lãm tuần này</p>
-        <h2 id="gallery-title" className="font-display text-2xl">Những thế giới khiến Paco mỉm cười</h2>
-        <p className="text-sm text-muted">Chỉ tác phẩm đã được phụ huynh duyệt — không cuộn vô tận, không dislike.</p>
-      </div>
+    <section className="space-y-5" aria-labelledby="gallery-title">
+      <header className="storybook-section-intro" data-tone="gallery">
+        <span className="storybook-section-symbol" aria-hidden="true">🎨</span>
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-[var(--section-accent)]">Ngắm · Học hỏi · Lấy cảm hứng</p>
+          <h2 id="gallery-title" className="mt-1 font-display text-3xl text-text">Phòng triển lãm tuần này</h2>
+          <p className="mt-2 max-w-2xl text-base font-semibold leading-relaxed text-muted">Mỗi tác phẩm là một cách nghĩ khác nhau. Con hãy khám phá, tìm điều mình thích và gửi một lời động viên.</p>
+          <p className="mt-3 inline-flex rounded-full bg-white/80 px-3 py-1.5 text-xs font-extrabold text-[var(--section-accent)]">🛡️ Chỉ hiển thị tác phẩm đã được phụ huynh duyệt</p>
+        </div>
+      </header>
       {works.length === 0 && (
-        <p className="ui-card p-8 text-center text-muted">{message || 'Tuần này chưa có tác phẩm nào được duyệt chia sẻ.'}</p>
+        <div className="storybook-empty-state ui-card" role="status">
+          <span aria-hidden="true">🖼️</span>
+          <h3 className="font-display text-xl text-text">Phòng tranh đang chờ tác phẩm mới</h3>
+          <p>{message || 'Tuần này chưa có tác phẩm nào được phụ huynh duyệt để chia sẻ. Con có thể quay lại sau nhé!'}</p>
+        </div>
       )}
       <div className="grid gap-4 md:grid-cols-3">
         {works.map((work) => (

@@ -1,17 +1,18 @@
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { Link, useNavigate } from 'react-router'
+import { Link } from 'react-router'
 import {
   Baby,
   Bell,
   BookOpen,
   ChartNoAxesColumnIncreasing,
   Check,
+  CreditCard,
+  ExternalLink,
   Gamepad2,
   Info,
   KeyRound,
   Languages,
-  LogIn,
   Lock,
   Palette,
   PartyPopper,
@@ -29,7 +30,6 @@ import {
 import { Button } from '@/shared/components/ui/Button'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
-import { PinPadModal } from '@/shared/components/ui/PinPadModal'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
 import { api } from '@/shared/lib/api'
@@ -102,6 +102,12 @@ type PlanRow = {
   priceMonthly: number
   currency: string
   features: string[]
+}
+
+type ChildPlanUsage = {
+  id: string
+  nickname: string | null
+  openCourses: number
 }
 
 type QuestProg = {
@@ -307,16 +313,24 @@ function PlanTab() {
   const [sub, setSub] = useState<HouseholdSub | null>(null)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
+  const [usage, setUsage] = useState<ChildPlanUsage[]>([])
+  const [checkout, setCheckout] = useState<{ payUrl: string | null; transferHint: string | null } | null>(null)
   const { toasts, showToast, dismissToast } = useToast()
 
   const load = useCallback(async () => {
     try {
-      const [p, s] = await Promise.all([
+      const [p, s, family] = await Promise.all([
         api<{ plans: PlanRow[] }>('/api/parent/plans'),
         api<{ subscription: HouseholdSub }>('/api/parent/subscription'),
+        api<{ children: Child[] }>('/api/parent/children'),
       ])
       setPlans(p.plans)
-      setSub(s.subscription)
+      setSub({ ...s.subscription, childCount: family.children.length, seatsRemaining: Math.max(0, s.subscription.maxChildren - family.children.length) })
+      const childUsage = await Promise.all(family.children.map(async (child) => {
+        const result = await api<{ courses: Array<{ enrolled?: boolean }> }>(`/api/parent/children/${child.id}/courses`)
+        return { id: child.id, nickname: child.nickname, openCourses: result.courses.filter((course) => course.enrolled).length }
+      }))
+      setUsage(childUsage)
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Không tải được gói', 'error')
     } finally {
@@ -334,12 +348,24 @@ function PlanTab() {
       const data = await api<{
         subscription?: HouseholdSub
         message: string
+        checkout?: { payUrl?: string | null; transferHint?: string | null; paymentReady?: boolean }
       }>('/api/parent/subscription', {
         method: 'POST',
         body: JSON.stringify({ planCode: code }),
       })
       if (data.subscription) setSub(data.subscription)
-      showToast(data.message, 'success')
+      const rawPayUrl = data.checkout?.payUrl ?? null
+      let payUrl: string | null = null
+      if (rawPayUrl) {
+        try {
+          const parsed = new URL(rawPayUrl)
+          if (parsed.protocol === 'https:') payUrl = parsed.toString()
+        } catch {
+          payUrl = null
+        }
+      }
+      setCheckout(data.checkout ? { payUrl, transferHint: data.checkout.transferHint ?? null } : null)
+      showToast(data.message || (data.checkout ? 'Đã tạo yêu cầu nâng gói.' : 'Đã cập nhật gói học.'), 'success')
       await load()
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Không đổi được gói', 'error')
@@ -358,17 +384,16 @@ function PlanTab() {
           Gói học gia đình
         </p>
         <h2 className="font-display text-2xl">Chọn gói phù hợp</h2>
-        <p className="mt-1 text-sm text-muted">
-          Ba / Mẹ chọn gói, tạo hồ sơ cho từng con. Con vào học bằng biệt danh (và PIN nếu có)
-          — không dùng mật khẩu của Ba / Mẹ.
-        </p>
+        <p className="mt-1 max-w-3xl text-sm leading-relaxed text-muted">Gói học quyết định số hồ sơ con và số vùng học mỗi con được mở cùng lúc. Chương trình là nội dung; chỉ vùng đã đăng ký mới xuất hiện trong lộ trình của con.</p>
         {sub && (
-          <p className="mt-3 rounded-xl bg-mint-100 px-3 py-2 text-sm font-bold text-success">
-            Đang dùng: {sub.planName} · {sub.childCount}/{sub.maxChildren} con · tối đa{' '}
-            {sub.maxOpenCoursesPerChild} khóa / con
-          </p>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl bg-mint-50 p-4"><p className="text-xs font-extrabold uppercase tracking-wide text-success">Gói hiện tại</p><p className="mt-1 font-display text-xl">{sub.planName}</p><p className="mt-1 text-sm text-muted">{sub.childCount}/{sub.maxChildren} hồ sơ con</p></div>
+            <div className="rounded-2xl bg-brand-50 p-4"><p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Quyền học</p><p className="mt-1 font-display text-xl">{sub.maxOpenCoursesPerChild} vùng / con</p><p className="mt-1 text-sm text-muted">Vùng đã hoàn thành vẫn được giữ tiến độ khi đổi gói.</p></div>
+          </div>
         )}
       </header>
+      {sub && usage.length > 0 && <section className="ui-card p-5"><h3 className="font-display text-xl">Mức sử dụng của gia đình</h3><div className="mt-4 grid gap-3 sm:grid-cols-2">{usage.map((child) => { const percent = sub.maxOpenCoursesPerChild > 0 ? Math.min(100, Math.round((child.openCourses / sub.maxOpenCoursesPerChild) * 100)) : 100; return <article key={child.id} className="rounded-2xl border border-border p-4"><div className="flex items-center justify-between gap-3"><p className="font-bold">{child.nickname ?? 'Học viên'}</p><span className="text-sm font-extrabold text-brand-700">{child.openCourses}/{sub.maxOpenCoursesPerChild} vùng</span></div><div className="mt-3 h-2 overflow-hidden rounded-full bg-brand-50" role="progressbar" aria-label={`${child.nickname ?? 'Học viên'} đã mở ${child.openCourses}/${sub.maxOpenCoursesPerChild} vùng`} aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}><div className={cn('h-full rounded-full', percent >= 100 ? 'bg-coral-400' : 'bg-brand-500')} style={{ width: `${percent}%` }} /></div><p className="mt-2 text-xs text-muted">{child.openCourses >= sub.maxOpenCoursesPerChild ? 'Đã dùng hết hạn mức. Nâng gói để mở thêm vùng.' : `Còn ${sub.maxOpenCoursesPerChild - child.openCourses} vùng có thể mở.`}</p></article>})}</div></section>}
+      {checkout && <section className="ui-card border-2 border-sun-200 bg-sun-50 p-5"><div className="flex items-start gap-3"><CreditCard className="mt-0.5 text-warning" aria-hidden="true" /><div><h3 className="font-display text-xl">Hoàn tất nâng gói</h3>{checkout.transferHint && <p className="mt-1 text-sm text-muted">Nội dung thanh toán: <strong className="text-text">{checkout.transferHint}</strong></p>}{checkout.payUrl ? <a className="ui-btn ui-btn-primary mt-3" href={checkout.payUrl} target="_blank" rel="noreferrer">Mở trang thanh toán <ExternalLink size={16} /></a> : <p className="mt-2 text-sm text-muted">Yêu cầu đang chờ hệ thống thanh toán xác nhận.</p>}</div></div></section>}
       <div className="grid gap-3 md:grid-cols-3">
         {plans.map((p) => {
           const current = sub?.planCode === p.code
@@ -387,6 +412,7 @@ function PlanTab() {
                   ? 'Miễn phí'
                   : `${p.priceMonthly.toLocaleString('vi-VN')} ${p.currency}/tháng`}
               </p>
+              <div className="grid gap-1 rounded-2xl bg-page p-3 text-sm"><p><strong>{p.maxChildren}</strong> hồ sơ con</p><p><strong>{p.maxOpenCoursesPerChild}</strong> vùng học mở cùng lúc / con</p></div>
               <ul className="mt-1 flex-1 space-y-1 text-sm text-muted">
                 {p.features.map((f) => (
                   <li key={f}>• {f}</li>
@@ -396,7 +422,7 @@ function PlanTab() {
                 disabled={current || busy === p.code}
                 onClick={() => void activate(p.code)}
               >
-                {current ? 'Đang dùng' : busy === p.code ? 'Đang…' : 'Chọn gói'}
+                {current ? 'Gói hiện tại' : busy === p.code ? 'Đang tạo yêu cầu…' : sub && p.maxOpenCoursesPerChild > sub.maxOpenCoursesPerChild ? 'Nâng lên gói này' : 'Chọn gói'}
               </Button>
             </article>
           )
@@ -482,15 +508,25 @@ function DashboardTab() {
       </div>
 
       {/* Quick actions */}
-      <div className="grid gap-3 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-3">
         <Link
           to="/parent/kids"
           className="ui-card flex items-center gap-3 p-4 transition hover:ring-2 hover:ring-brand-300"
         >
           <ParentKidsIcon size={32} aria-hidden="true" />
           <div>
-            <p className="font-bold">Quản lý con</p>
-            <p className="text-xs text-muted">Thêm, sửa, xem tiến trình</p>
+            <p className="font-bold">Quản lý hồ sơ con</p>
+            <p className="text-xs text-muted">Danh tính, PIN và quyền an toàn</p>
+          </div>
+        </Link>
+        <Link
+          to="/parent/learning"
+          className="ui-card flex items-center gap-3 p-4 transition hover:ring-2 hover:ring-brand-300"
+        >
+          <BookOpen size={30} className="text-brand-500" aria-hidden="true" />
+          <div>
+            <p className="font-bold">Theo dõi học tập</p>
+            <p className="text-xs text-muted">Lộ trình, hoạt động và năng lực</p>
           </div>
         </Link>
         <Link
@@ -759,38 +795,6 @@ function EditChildModal({
   )
 }
 
-// ── Play Pin Modal — nhập PIN trước khi vào hồ sơ con ─────────
-function PlayPinModal({
-  child,
-  isOpen,
-  onClose,
-  onEntered,
-}: {
-  child: Child
-  isOpen: boolean
-  onClose: () => void
-  onEntered: (pin: string) => void
-}) {
-  const [pin, setPin] = useState('')
-
-  useEffect(() => {
-    if (isOpen) setPin('')
-  }, [isOpen])
-
-  return (
-    <PinPadModal
-      isOpen={isOpen}
-      onClose={onClose}
-      onSubmit={(value) => onEntered(value)}
-      title={`Xin chào ${child.nickname ?? 'bạn nhỏ'}!`}
-      subtitle="Nhập mã PIN 6 số để vào học"
-      avatarContent={<span className="text-5xl">{avatarEmoji(child.avatarId)}</span>}
-      pin={pin}
-      setPin={setPin}
-    />
-  )
-}
-
 // ── Kids Tab ──────────────────────────────────────────────────
 type CourseItem = {
   id: string
@@ -815,8 +819,6 @@ type CoursePaymentState = {
 function KidsTab() {
   const [kids, setKids] = useState<Child[]>([])
   const [sub, setSub] = useState<HouseholdSub | null>(null)
-  const [selectedChild, setSelectedChild] = useState<string | null>(null)
-  const [progress, setProgress] = useState<ChildProgress | null>(null)
   const [loading, setLoading] = useState(true)
   const [deleteTarget, setDeleteTarget] = useState<Child | null>(null)
   const [consentHistoryChild, setConsentHistoryChild] = useState<string | null>(null)
@@ -824,20 +826,7 @@ function KidsTab() {
   const [consentHistoryLoading, setConsentHistoryLoading] = useState(false)
   // editTarget: null = tạo mới; Child object = đang sửa; undefined = đóng
   const [editTarget, setEditTarget] = useState<Child | null | undefined>(undefined)
-  const [playPinTarget, setPlayPinTarget] = useState<Child | null>(null)
-  // courseSelectTarget: child đang chọn khóa học; null = đóng modal
-  const [courseSelectTarget, setCourseSelectTarget] = useState<Child | null>(null)
   const { toasts, showToast, dismissToast } = useToast()
-  const enterAsChild = useAuth((s) => s.enterAsChild)
-  const navigate = useNavigate()
-  const showCourseSuccess = useCallback(
-    (message: string) => showToast(message, 'success'),
-    [showToast],
-  )
-  const showCourseError = useCallback(
-    (message: string) => showToast(message, 'error'),
-    [showToast],
-  )
 
   const loadKids = useCallback(async () => {
     try {
@@ -858,51 +847,15 @@ function KidsTab() {
     void loadKids()
   }, [loadKids])
 
-  async function viewProgress(childId: string, courseId?: string) {
-    setSelectedChild(childId)
-    setProgress(null)
-    try {
-      const data = await api<ChildProgress>(
-        `/api/parent/children/${childId}/progress${courseId ? `?courseId=${encodeURIComponent(courseId)}` : ''}`,
-      )
-      const child = kids.find((item) => item.id === childId)
-      setProgress(child ? {
-        ...data,
-        child: {
-          ...data.child,
-          nickname: child.nickname,
-          level: child.level,
-          xp: child.xp,
-        },
-      } : data)
-    } catch {
-      setProgress(null)
-    }
-  }
-
   async function deleteChild(childId: string) {
     try {
       await api(`/api/parent/children/${childId}`, { method: 'DELETE' })
       showToast('Tài khoản con đã được tạm khóa.', 'success')
       await loadKids()
       setDeleteTarget(null)
-      if (selectedChild === childId) {
-        setSelectedChild(null)
-        setProgress(null)
-      }
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Lỗi', 'error')
       setDeleteTarget(null)
-    }
-  }
-
-  // Vào hồ sơ con — nếu có PIN thì mở modal xác nhận trước
-  async function playAsChild(child: Child, pin?: string) {
-    try {
-      await enterAsChild(child.id, pin || undefined)
-      navigate('/home')
-    } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Không vào được hồ sơ con', 'error')
     }
   }
 
@@ -954,14 +907,6 @@ function KidsTab() {
     }
   }
 
-  function handlePlayPress(child: Child) {
-    if (child.hasPin) {
-      setPlayPinTarget(child)
-    } else {
-      void playAsChild(child)
-    }
-  }
-
   if (loading) return <LoadingSkeleton count={3} />
 
   const maxKids = sub?.maxChildren ?? 5
@@ -981,9 +926,6 @@ function KidsTab() {
             </p>
           </div>
           <div className="flex flex-wrap gap-2">
-            <Link to="/kids">
-              <Button className="!min-h-10 !text-sm">Cho con học</Button>
-            </Link>
             <Link
               to="/parent/plan"
               className="text-sm font-bold text-brand-500 hover:underline self-center"
@@ -994,11 +936,16 @@ function KidsTab() {
         </div>
       )}
 
-      <div className="flex flex-wrap items-center justify-between gap-2">
-        <h2 className="flex items-center gap-2 font-display text-xl">
-          <UsersRound size={22} aria-hidden="true" />
-          Con của tôi ({kids.filter((k) => k.active !== false).length}/{maxKids})
-        </h2>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h2 className="flex items-center gap-2 font-display text-xl">
+            <UsersRound size={22} aria-hidden="true" />
+            Hồ sơ các con ({kids.filter((k) => k.active !== false).length}/{maxKids})
+          </h2>
+          <p className="mt-1 max-w-2xl text-sm text-muted">
+            Quản lý danh tính, mã PIN, quyền an toàn và cách con đăng nhập. Tiến trình và chương trình học được quản lý riêng tại Học tập.
+          </p>
+        </div>
         <Button
           onClick={() => setEditTarget(null)}
           disabled={seatsLeft <= 0}
@@ -1006,13 +953,7 @@ function KidsTab() {
           + Thêm con
         </Button>
       </div>
-      <p className="text-sm text-muted">
-        Ba / Mẹ tạo hồ sơ cho con. Trên máy ở nhà, bấm “Vào học” để đưa máy cho con — không cần mật khẩu Ba / Mẹ.
-      </p>
-
-      <div className="grid gap-4 lg:grid-cols-2">
-        {/* Child list */}
-        <div className="flex flex-col gap-3">
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
           {kids.length === 0 && (
             <div className="ui-card p-6 text-center">
               <Baby className="mx-auto text-brand-500" size={36} aria-hidden="true" />
@@ -1025,7 +966,6 @@ function KidsTab() {
               key={k.id}
               className={cn(
                 'ui-card p-4 transition',
-                selectedChild === k.id && 'ring-2 ring-brand-500',
                 !k.active && 'opacity-50',
               )}
             >
@@ -1034,41 +974,19 @@ function KidsTab() {
                 <span className="flex-shrink-0 text-3xl">{avatarEmoji(k.avatarId)}</span>
                 <div className="min-w-0 flex-1">
                   <p className="font-extrabold text-lg leading-tight">{k.nickname}</p>
-                  <p className="text-sm text-muted">
-                    Cấp {k.level} · {k.xp} XP · {k.completedQuests ?? 0} trạm · {k.totalStars ?? 0} ⭐
-                  </p>
+                  <p className="text-sm text-muted">{k.ageBand || 'Chưa đặt nhóm tuổi'} · {k.hasPin ? 'Đã có PIN' : 'Chưa có PIN'}</p>
                 </div>
               </div>
 
               {/* Hàng nút */}
               <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Button
-                  variant="secondary"
-                  className="!min-h-9 !px-3 !text-xs"
-                  onClick={() => void viewProgress(k.id)}
-                >
-                  <TrendingUp size={16} aria-hidden="true" />
-                  Xem tiến trình
-                </Button>
-
-                {/* Chọn khóa học cho con */}
-                <Button
-                  variant="secondary"
-                  className="!min-h-9 !px-3 !text-xs"
-                  onClick={() => setCourseSelectTarget(k)}
+                <Link
+                  to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
+                  className="ui-btn ui-btn-secondary !min-h-9 !px-3 !text-xs"
                 >
                   <BookOpen size={16} aria-hidden="true" />
-                  Chọn khóa học
-                </Button>
-
-                <Button
-                  variant="secondary"
-                  className="!min-h-9 !px-3 !text-xs"
-                  onClick={() => handlePlayPress(k)}
-                >
-                  <LogIn size={16} aria-hidden="true" />
-                  Vào học
-                </Button>
+                  Xem học tập
+                </Link>
 
                 {/* Bút chì — mở EditChildModal (tên + avatar + PIN) */}
                 <button
@@ -1189,152 +1107,6 @@ function KidsTab() {
               )}
             </div>
           ))}
-        </div>
-
-        {/* Panel tiến trình — luôn hiện hướng dẫn rõ khi chưa chọn */}
-        <div className="ui-card p-4">
-          <h3 className="mb-3 flex items-center gap-2 font-display text-lg">
-            <TrendingUp size={19} aria-hidden="true" />
-            Tiến trình học
-          </h3>
-          {!selectedChild && (
-            <div className="flex flex-col items-center gap-3 py-8 text-center">
-              <ChartNoAxesColumnIncreasing
-                className="text-brand-500"
-                size={40}
-                aria-hidden="true"
-              />
-              <p className="font-bold text-text">Chọn con để xem tiến trình</p>
-              <p className="text-sm text-muted">
-                Bấm nút <strong>“Xem tiến trình”</strong> trên thẻ của từng con
-              </p>
-            </div>
-          )}
-          {selectedChild && !progress && (
-            <div className="flex items-center justify-center py-8">
-              <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-200 border-t-brand-500" />
-            </div>
-          )}
-          {progress && (
-            <div className="flex flex-col gap-2">
-              <div className="mb-2 rounded-xl bg-brand-50 px-3 py-2 text-sm">
-                <div className="flex flex-wrap items-center justify-between gap-2">
-                  <span className="font-bold">{progress.child.nickname}</span>
-                  {progress.courses.length > 0 && (
-                    <select
-                      className="min-h-10 rounded-xl border-2 border-brand-100 bg-white px-2 text-xs font-bold"
-                      value={progress.courseId ?? ''}
-                      onChange={(event) => void viewProgress(progress.child.id, event.target.value)}
-                      aria-label="Chọn khóa học để xem tiến trình"
-                    >
-                      {progress.courses.map((course) => (
-                        <option key={course.id} value={course.id}>
-                          {course.shortTitle || course.title}
-                        </option>
-                      ))}
-                    </select>
-                  )}
-                </div>
-                <span className="ml-2 text-xs text-muted">
-                  Lv.{progress.child.level} · {progress.child.xp} XP
-                </span>
-              </div>
-              <div className="mb-2 grid grid-cols-3 gap-2">
-                <div className="rounded-2xl bg-mint-100/60 p-3 text-center">
-                  <p className="font-display text-2xl text-success">{progress.summary.completed}/{progress.summary.total}</p>
-                  <p className="text-[11px] font-bold text-muted">Bài hoàn thành</p>
-                </div>
-                <div className="rounded-2xl bg-sun-100/60 p-3 text-center">
-                  <p className="font-display text-2xl text-warning">{progress.summary.totalStars}</p>
-                  <p className="text-[11px] font-bold text-muted">Sao nỗ lực</p>
-                </div>
-                <div className="rounded-2xl bg-sky-100/60 p-3 text-center">
-                  <p className="font-display text-lg text-sky-700">
-                    {progress.summary.currentPhase === 'game'
-                      ? 'Đang chơi'
-                      : progress.summary.currentPhase === 'practice'
-                        ? 'Đang làm'
-                        : progress.summary.currentPhase === 'check'
-                          ? 'Đang thử tài'
-                          : 'Sẵn sàng'}
-                  </p>
-                  <p className="text-[11px] font-bold text-muted">Nhịp hiện tại</p>
-                </div>
-              </div>
-              {(progress.insights.strengths.length > 0 || progress.insights.nextFocus) && (
-                <div className="mb-2 grid gap-3 rounded-2xl bg-gradient-to-br from-sky-50 to-mint-100/40 p-4 sm:grid-cols-2">
-                  <div>
-                    <p className="text-xs font-extrabold uppercase tracking-wide text-success">Điều con đang làm tốt</p>
-                    {progress.insights.strengths.length > 0 ? (
-                      <ul className="mt-2 space-y-1 text-sm">
-                        {progress.insights.strengths.map((skill) => (
-                          <li key={skill} className="flex items-start gap-2">
-                            <Sprout className="mt-0.5 shrink-0 text-success" size={16} aria-hidden="true" />
-                            <span>{skill}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : <p className="mt-2 text-sm text-muted">Con đang bắt đầu hành trình; hãy ghi nhận lần thử đầu tiên.</p>}
-                  </div>
-                  <div>
-                    <p className="text-xs font-extrabold uppercase tracking-wide text-sky-700">Ba / Mẹ có thể hỏi con</p>
-                    <p className="mt-2 text-sm leading-relaxed text-text">
-                      {progress.insights.nextFocus
-                        ? `“Con muốn kể cho Ba / Mẹ nghe về ${progress.insights.nextFocus.toLowerCase()} không?”`
-                        : '“Sản phẩm nào trong khóa học làm con tự hào nhất?”'}
-                    </p>
-                  </div>
-                </div>
-              )}
-              {progress.insights.outcomes.length > 0 && (
-                <details className="mb-2 rounded-2xl border border-border bg-white p-3">
-                  <summary className="cursor-pointer text-sm font-extrabold text-brand-600">Khóa học hướng tới những năng lực nào?</summary>
-                  <ul className="mt-2 space-y-1 text-sm text-muted">
-                    {progress.insights.outcomes.map((outcome) => <li key={outcome}>• {outcome}</li>)}
-                  </ul>
-                </details>
-              )}
-              {progress.courses.length === 0 && (
-                <p className="rounded-2xl bg-page p-4 text-sm text-muted">
-                  Con chưa tham gia khóa học nào. Ba / Mẹ có thể vào hồ sơ của con để chọn khóa phù hợp.
-                </p>
-              )}
-              {progress.quests.map((q) => (
-                <div
-                  key={q.id}
-                  className="flex items-center justify-between rounded-xl bg-white px-3 py-2 shadow-sm"
-                >
-                  <div className="flex items-center gap-2">
-                    <span className={cn(
-                      'flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold',
-                      q.status === 'completed'
-                        ? 'bg-mint-100 text-mint-700'
-                        : q.status === 'in_progress'
-                          ? 'bg-sun-100 text-sun-700'
-                          : 'bg-gray-100 text-gray-400',
-                    )}>
-                      {q.order}
-                    </span>
-                    <span className="text-sm font-bold">{q.title}</span>
-                  </div>
-                  <div className="flex items-center gap-2 text-xs text-muted">
-                    {q.status === 'completed' && <span>{'⭐'.repeat(q.stars)}</span>}
-                    {q.videoUrl && <Video size={15} aria-label="Có video" />}
-                    <span className={cn(
-                      'rounded-md px-1.5 py-0.5 font-bold',
-                      q.status === 'completed' && 'bg-mint-100 text-mint-700',
-                      q.status === 'in_progress' && 'bg-sun-100 text-sun-700',
-                      q.status === 'available' && 'bg-sky-100 text-sky-700',
-                      q.status === 'locked' && 'bg-gray-100 text-gray-500',
-                    )}>
-                      {q.status === 'completed' ? 'Hoàn thành' : q.status === 'in_progress' ? 'Đang học' : q.status === 'available' ? 'Sẵn sàng' : 'Khóa'}
-                    </span>
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
       </div>
       <ConfirmDialog
         open={Boolean(deleteTarget)}
@@ -1361,28 +1133,6 @@ function KidsTab() {
         onError={(e) => showToast(e, 'error')}
       />
 
-      {/* Modal: nhập PIN để vào hồ sơ con */}
-      {playPinTarget && (
-        <PlayPinModal
-          child={playPinTarget}
-          isOpen={Boolean(playPinTarget)}
-          onClose={() => setPlayPinTarget(null)}
-          onEntered={(pin) => {
-            void playAsChild(playPinTarget, pin)
-            setPlayPinTarget(null)
-          }}
-        />
-      )}
-
-      {/* Modal: Ba / Mẹ chọn khóa học cho con */}
-      {courseSelectTarget && (
-        <CourseSelectModal
-          child={courseSelectTarget}
-          onClose={() => setCourseSelectTarget(null)}
-          onSuccess={showCourseSuccess}
-          onError={showCourseError}
-        />
-      )}
     </div>
   )
 }

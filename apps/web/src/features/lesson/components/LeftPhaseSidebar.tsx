@@ -1,12 +1,12 @@
 import React, { useState } from 'react'
 import { Check, ChevronLeft, ChevronRight, Circle, Lightbulb, MessageCircle, RotateCcw, Target } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
-import { AikidModalCatCharacter } from '@/shared/components/ui/AikidModalCatCharacter'
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 import { Button } from '@/shared/components/ui/Button'
+import { MeeTutorAvatar, type MeeTutorPose } from './MeeTutorAvatar'
 
 export type Phase = 'learn' | 'game' | 'practice' | 'check' | 'done'
-export type PoseType = 'support' | 'guide' | 'welcome' | 'thinking' | 'celebrate'
+export type PoseType = MeeTutorPose
 
 interface Props {
   className?: string
@@ -48,7 +48,7 @@ export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, p
     )} aria-labelledby="lesson-guide-title">
       {collapsed ? (
         <div className="flex flex-col items-center gap-2">
-          <AikidModalCatCharacter className="size-12 object-contain drop-shadow-sm" />
+          <MeeTutorAvatar pose={guideCopy.pose} className="size-12" />
           <span className="font-display text-sm text-brand-800">Mee</span>
           <span className="rounded-xl bg-brand-50 px-2 py-1 text-center text-[11px] font-extrabold leading-tight text-brand-700">{currentPhaseLabel}</span>
           <div className="my-1 grid gap-2" aria-label={`Tiến trình trạm: bước ${Math.min(currentPhaseIndex + 1, 4)} trên 4`}>
@@ -91,7 +91,7 @@ export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, p
       ) : (
         <div className="flex flex-col">
           <div className="flex items-center gap-3 border-b-2 border-border pb-3">
-            <AikidModalCatCharacter className="size-16 shrink-0 object-contain drop-shadow-sm" />
+            <MeeTutorAvatar pose={guideCopy.pose} className="size-16 shrink-0" />
             <div className="min-w-0 flex-1 text-left">
               <p className="flex items-center gap-1 text-xs font-extrabold text-coral-600"><MessageCircle size={15} aria-hidden="true" /> Mee đang hỗ trợ</p>
               <h2 id="lesson-guide-title" className="font-display text-lg leading-tight text-text">{guideCopy.title}</h2>

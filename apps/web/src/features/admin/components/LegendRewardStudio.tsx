@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
-import { AlertTriangle, Archive, ArrowDown, ArrowUp, BookOpen, CalendarDays, CheckCircle2, Gift, LayoutTemplate, List, Map as MapIcon, Network, PackageOpen, Pencil, Plus, Search, Settings2, Trash2, UploadCloud } from 'lucide-react'
-import { api } from '@/shared/lib/api'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState, type ReactNode } from 'react'
+import { AlertTriangle, Archive, ArrowDown, ArrowUp, BookOpen, CalendarDays, CheckCircle2, Gift, History, LayoutTemplate, Link2, List, Map as MapIcon, Network, PackageOpen, Pencil, Plus, RotateCcw, Search, Settings2, Trash2, UploadCloud, X } from 'lucide-react'
 import { gamificationApi, legendStudioApi } from '@/shared/lib/gamification-api'
+import { ApiError } from '@/shared/lib/api'
+import { uploadCmsImage } from '@/shared/lib/media-api'
 import { Button } from '@/shared/components/ui/Button'
+import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
 import { RewardPackAdmin } from './RewardPackAdmin'
 import { buildRewardConfigMap, type ConfigChannel } from '../lib/reward-config-map'
 import { getResolvedRewardAssetUrl } from '@/features/rewards/reward-assets'
@@ -17,8 +19,13 @@ import { STORYBOOK_PAGES, type StorybookPage } from '@/features/storybook/storyb
 import { BookSpread } from '@/features/storybook/components/BookSpread'
 import { storybookChapter } from '@/shared/lib/creation/storybook'
 
+const RewardMappingWorkspace = lazy(() => import('./RewardMappingWorkspace').then((module) => ({ default: module.RewardMappingWorkspace })))
+
 type ContentType = 'reward' | 'chapter' | 'event' | 'achievement'
 type ChapterEditorFocus = 'cover' | 'left' | 'stickerPage' | 'stickers'
+type LifecycleAction = 'review' | 'publish' | 'revert' | 'archive'
+type DependencyReport = { canDelete: boolean; references: Array<{ type: string; label: string }> }
+type AuditEntry = { id: string; action: string; actorName?: string; createdAt: string; summary?: string }
 export type StudioItem = {
   id: string
   contentType: ContentType
@@ -57,14 +64,14 @@ type AssetSpec = {
   combinesWith: string
 }
 
-const assetSpecs: Record<RewardKind, AssetSpec> = {
+export const assetSpecs: Record<RewardKind, AssetSpec> = {
   background: { label: 'Nền thẻ hồ sơ', width: 1600, height: 1200, formats: ['image/webp', 'image/jpeg', 'image/png'], maxMb: 3, transparent: false, layer: 0, slot: 'profile_background', safeArea: 'Giữ chủ thể ngoài vùng giữa 60%', combinesWith: 'Avatar + Frame + Companion + Effect + Title' },
-  avatar: { label: 'Avatar', width: 1024, height: 1024, formats: ['image/webp', 'image/png', 'image/jpeg'], maxMb: 2, transparent: false, layer: 20, slot: 'profile_avatar', safeArea: 'Mặt nằm trong vòng tròn giữa 72%', combinesWith: 'Background + Frame + Companion + Effect' },
+  avatar: { label: 'Avatar', width: 1200, height: 1200, formats: ['image/webp', 'image/png', 'image/jpeg'], maxMb: 2, transparent: false, layer: 20, slot: 'profile_avatar', safeArea: 'Mặt nằm trong vòng tròn giữa 72%', combinesWith: 'Background + Frame + Companion + Effect' },
   frame: { label: 'Khung avatar', width: 1024, height: 1024, formats: ['image/png', 'image/webp'], maxMb: 2, transparent: true, layer: 30, slot: 'avatar_frame', safeArea: 'Giữa ảnh phải trong suốt tối thiểu 58%', combinesWith: 'Background + Avatar + 1 Companion + 1 Effect' },
   companion: { label: 'Bạn đồng hành', width: 512, height: 512, formats: ['image/png', 'image/webp'], maxMb: 1.5, transparent: true, layer: 40, slot: 'avatar_companion', safeArea: 'Nhân vật trong 90%, chừa 5% mỗi cạnh', combinesWith: 'Background + Avatar + Frame + Effect' },
-  effect: { label: 'Hiệu ứng', width: 1024, height: 1024, formats: ['video/webm', 'image/webp', 'image/png'], maxMb: 4, transparent: true, layer: 50, slot: 'avatar_effect', safeArea: 'Không che vùng mặt ở giữa 50%', combinesWith: 'Background + Avatar + Frame + Companion' },
+  effect: { label: 'Hiệu ứng', width: 1200, height: 1200, formats: ['video/webm', 'image/webp', 'image/png'], maxMb: 4, transparent: true, layer: 50, slot: 'avatar_effect', safeArea: 'Không che vùng mặt ở giữa 50%', combinesWith: 'Background + Avatar + Frame + Companion' },
   title: { label: 'Khung danh hiệu', width: 1200, height: 320, flexibleHeight: true, formats: ['image/png', 'image/webp', 'image/svg+xml'], maxMb: 1.5, transparent: true, layer: 60, slot: 'profile_title', safeArea: 'Chiều rộng cố định 1200px; chiều cao theo artwork, chừa vùng chữ giữa', combinesWith: 'Nền trang + nền thẻ; nằm dưới thẻ hồ sơ' },
-  theme: { label: 'Nền toàn trang cá nhân', width: 1600, height: 1200, formats: ['application/json'], maxMb: 0.5, transparent: false, layer: 10, slot: 'profile_theme', safeArea: 'JSON token màu; không nhúng ảnh base64', combinesWith: 'Nền thẻ + Frame + Title; chỉ áp dụng trong trang cá nhân' },
+  theme: { label: 'Nền toàn trang cá nhân', width: 2540, height: 1300, formats: ['image/png', 'image/svg+xml'], maxMb: 3, transparent: false, layer: 10, slot: 'profile_theme', safeArea: 'Giữ nội dung chính trong vùng giữa; chừa khoảng trống cho thẻ hồ sơ', combinesWith: 'Nền thẻ + Frame + Title; chỉ áp dụng trong trang cá nhân' },
   event_ticket: { label: 'Vé / banner sự kiện', width: 1200, height: 675, formats: ['image/webp', 'image/jpeg', 'image/png'], maxMb: 2, transparent: false, layer: 0, slot: 'event_card', safeArea: 'Chừa 20% bên trái cho tên và thời gian', combinesWith: 'Dùng độc lập trong card sự kiện' },
   perk: { label: 'Biểu tượng đặc quyền', width: 512, height: 512, formats: ['image/png', 'image/webp'], maxMb: 1, transparent: true, layer: 60, slot: 'perk_badge', safeArea: 'Icon trong 80% vùng giữa', combinesWith: 'Hiển thị độc lập ở ba lô và badge' },
 }
@@ -74,6 +81,17 @@ export const assetDimensionLabel = (spec: Pick<AssetSpec, 'width' | 'height' | '
 
 export const isAssetDimensionValid = (spec: Pick<AssetSpec, 'width' | 'height' | 'flexibleHeight'>, width: number, height: number) =>
   width === spec.width && (spec.flexibleHeight ? height > 0 : height === spec.height)
+
+export const compareLevelUnlockRules = (
+  left: Pick<StudioItem, 'unlockRule' | 'name'>,
+  right: Pick<StudioItem, 'unlockRule' | 'name'>,
+) => {
+  const levelDifference = Number(left.unlockRule.value) - Number(right.unlockRule.value)
+  return levelDifference || left.name.localeCompare(right.name, 'vi')
+}
+
+export const isVisibleOnPublishedMap = (item: Pick<StudioItem, 'source' | 'status'>) =>
+  item.source !== 'studio' || item.status === 'published'
 
 const storybookThemePresets = STORYBOOK_PAGES.map((page) => ({
   key: page.slug.toLowerCase(),
@@ -104,7 +122,7 @@ function studioArtwork(item: StudioItem): string | undefined {
     ?? (item.contentType === 'reward' ? rewardTitleAsset(item.code) ?? getResolvedRewardAssetUrl(item.code) : item.assets.coverUrl)
 }
 
-function ChapterBookMapPreview({ item, onEdit }: { item: StudioItem; onEdit: (focus: ChapterEditorFocus) => void }) {
+function ChapterBookMapPreview({ item, onEdit, lifecycleActions }: { item: StudioItem; onEdit: (focus: ChapterEditorFocus) => void; lifecycleActions?: ReactNode }) {
   const colors = Array.isArray(item.displayConfig.colors) ? item.displayConfig.colors.map(String) : ['#4338CA', '#F59E0B']
   const stickers = Array.isArray(item.content.stickers)
     ? item.content.stickers.filter((sticker): sticker is Record<string, unknown> => Boolean(sticker && typeof sticker === 'object')).slice(0, 9)
@@ -155,6 +173,7 @@ function ChapterBookMapPreview({ item, onEdit }: { item: StudioItem; onEdit: (fo
       <div className="mt-3 flex flex-wrap gap-2">
         <button type="button" onClick={() => onEdit('stickers')} className="flex min-h-11 items-center gap-2 rounded-xl bg-brand-600 px-4 text-sm font-extrabold text-white shadow-sm hover:bg-brand-700"><Pencil className="h-4 w-4" aria-hidden="true" /> Sửa 9 sticker</button>
         <button type="button" onClick={() => onEdit('left')} className="min-h-11 rounded-xl border border-border bg-white px-4 text-sm font-extrabold text-brand-700 hover:bg-brand-50">Sửa nội dung chương</button>
+        {lifecycleActions}
       </div>
     </article>
   )
@@ -294,6 +313,8 @@ function runtimeAchievementItems(rows: readonly AchievementRow[]): StudioItem[] 
   })
 }
 
+export const studioAchievementCode = (runtimeCode: string) => runtimeCode.replace(/^achievement\./, '')
+
 const achievementFamilyLabels: Record<string, string> = {
   learning: 'Học tập', habit: 'Thói quen', creativity: 'Sáng tạo', creative: 'Sáng tạo', social: 'Hợp tác',
   safety: 'An toàn', exploration: 'Khám phá', mastery: 'Chinh phục', stars: 'Ngôi sao',
@@ -308,7 +329,7 @@ function achievementFamilyLabel(category: unknown): string {
 function studioStatusLabel(item: StudioItem): string {
   if (item.source === 'legacy') return 'Legacy'
   if (item.source === 'runtime') return 'Runtime'
-  return { draft: 'Bản nháp', review: 'Chờ duyệt', scheduled: 'Đã lên lịch', published: 'Đang phát hành', retired: 'Đã ngừng' }[item.status]
+  return { draft: 'Bản nháp', review: 'Chờ duyệt', scheduled: 'Đã lên lịch', published: 'Đang phát hành', retired: 'Đã archive · chờ xóa' }[item.status]
 }
 
 function studioEditLabel(item: StudioItem): string {
@@ -352,16 +373,6 @@ function ChapterStickerPreview({ item }: { item: StudioItem }) {
         <p className="line-clamp-2 text-[11px] text-amber-900">{stickers.map((sticker) => String(sticker.name ?? '')).filter(Boolean).join(' · ')}</p>
       </div>
     </div>
-  )
-}
-
-function DeferredDetails({ defaultOpen = false, summary, children }: { defaultOpen?: boolean; summary: ReactNode; children: ReactNode }) {
-  const [open, setOpen] = useState(defaultOpen)
-  return (
-    <details className="ui-card overflow-hidden" open={open} onToggle={(event) => setOpen(event.currentTarget.open)}>
-      <summary className="flex cursor-pointer list-none items-center gap-3 border-b border-border bg-slate-50 px-5 py-3 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus">{summary}</summary>
-      {open ? children : null}
-    </details>
   )
 }
 
@@ -435,10 +446,15 @@ export function LegendRewardStudio() {
   const [uploading, setUploading] = useState(false)
   const [view, setView] = useState<'library' | 'map' | 'designer' | 'profile-card'>('map')
   const [designerMode, setDesignerMode] = useState<'single' | 'pack'>('single')
-  const [mapChannel, setMapChannel] = useState<ConfigChannel | 'all'>('all')
+  const [mapChannel, setMapChannel] = useState<ConfigChannel | 'all'>('level')
+  const [mapRewardKind, setMapRewardKind] = useState<string>('all')
   const [mapQuery, setMapQuery] = useState('')
   const [mapPage, setMapPage] = useState(1)
   const [mapDisplay, setMapDisplay] = useState<'tree' | 'table'>('tree')
+  const [selectedTreeKey, setSelectedTreeKey] = useState('level:1')
+  const [mappingBuilderOpen, setMappingBuilderOpen] = useState(false)
+  const [mappingBuilderLevel, setMappingBuilderLevel] = useState<number>()
+  const [selectedReward, setSelectedReward] = useState<StudioItem | null>(null)
   const [editingItem, setEditingItem] = useState<StudioItem | null>(null)
   const [previewUrl, setPreviewUrl] = useState('')
   const [assetInfo, setAssetInfo] = useState('')
@@ -450,11 +466,18 @@ export function LegendRewardStudio() {
   const [showCreateMenu, setShowCreateMenu] = useState(false)
   const [migrationProgress, setMigrationProgress] = useState('')
   const [profileLayoutItem, setProfileLayoutItem] = useState<StudioItem>()
+  const [pendingLifecycle, setPendingLifecycle] = useState<{ item: StudioItem; action: LifecycleAction; dependencies?: DependencyReport } | null>(null)
+  const [auditPanel, setAuditPanel] = useState<{ itemId: string; entries: AuditEntry[] } | null>(null)
   const selectedSpec = assetSpecs[form.kind as RewardKind] ?? assetSpecs.frame
   const fieldClass = 'field-input mt-2 min-h-12 w-full border-2 border-slate-200 bg-white px-4 text-base shadow-sm focus:border-brand-500'
   const openDesigner = (mode: 'single' | 'pack') => {
     setDesignerMode(mode)
     setView('designer')
+  }
+  const openLevelMapping = (level: number) => {
+    setMappingBuilderLevel(level)
+    setMappingBuilderOpen(true)
+    window.requestAnimationFrame(() => window.requestAnimationFrame(() => document.getElementById('reward-mapping-builder')?.scrollIntoView({ behavior: 'smooth', block: 'start' })))
   }
 
   useEffect(() => {
@@ -494,11 +517,12 @@ export function LegendRewardStudio() {
       const layoutItems = allStudioItems.filter((item) => item.code === PROFILE_CARD_LAYOUT_CODE).sort((left, right) => right.version - left.version)
       setProfileLayoutItem(layoutItems[0])
       const studioItems = allStudioItems.filter((item) => item.code !== PROFILE_CARD_LAYOUT_CODE)
+      const studioAchievementCodes = new Set(studioItems.filter((item) => item.contentType === 'achievement').map((item) => item.code))
       setItems([
         ...studioItems,
         ...legacyRewardStudioItems(studioItems),
         ...legacyStorybookStudioItems(studioItems),
-        ...runtimeAchievementItems(achievementsResult.achievements),
+        ...runtimeAchievementItems(achievementsResult.achievements).filter((item) => !studioAchievementCodes.has(studioAchievementCode(item.code))),
       ])
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Không tải được Legend Studio.')
@@ -544,30 +568,50 @@ export function LegendRewardStudio() {
   )
   useEffect(() => { setLibraryPage(1) }, [filter, libraryQuery, libraryStatus])
   const configMap = useMemo(() => buildRewardConfigMap(items), [items])
+  const adminConfigMap = useMemo(() => {
+    const byCode = new Map<string, (typeof configMap)[number]>()
+    for (const row of configMap) {
+      const key = `${row.item.contentType}:${row.item.code}`
+      const current = byCode.get(key)
+      if (!current || row.item.version > current.item.version) byCode.set(key, row)
+    }
+    return [...byCode.values()]
+  }, [configMap])
+  const mapRewardKinds = useMemo(() => {
+    const counts = new Map<string, number>()
+    for (const row of adminConfigMap) {
+      const kind = row.item.kind ?? row.item.contentType
+      counts.set(kind, (counts.get(kind) ?? 0) + 1)
+    }
+    return [...counts.entries()].sort(([left], [right]) => left.localeCompare(right, 'vi'))
+  }, [adminConfigMap])
   const filteredConfigMap = useMemo(() => {
     const query = mapQuery.trim().toLocaleLowerCase('vi')
-    return configMap.filter((row) => {
+    return adminConfigMap.filter((row) => {
       if (mapChannel !== 'all' && row.channel !== mapChannel) return false
+      if (mapRewardKind !== 'all' && (row.item.kind ?? row.item.contentType) !== mapRewardKind) return false
       if (!query) return true
       return [row.item.code, row.item.name, row.trigger, ...row.rewardIds]
         .some((value) => value.toLocaleLowerCase('vi').includes(query))
     }).sort((left, right) => {
-      if (left.channel === 'level' && right.channel === 'level') {
-        return Number(left.item.unlockRule.value) - Number(right.item.unlockRule.value)
-      }
+      if (left.channel === 'level' && right.channel === 'level') return compareLevelUnlockRules(left.item, right.item)
       return left.item.name.localeCompare(right.item.name, 'vi')
     })
-  }, [configMap, mapChannel, mapQuery])
+  }, [adminConfigMap, mapChannel, mapQuery, mapRewardKind])
   const mapPageSize = 25
   const mapPageCount = Math.max(1, Math.ceil(filteredConfigMap.length / mapPageSize))
   const visibleConfigMap = useMemo(
     () => filteredConfigMap.slice((mapPage - 1) * mapPageSize, mapPage * mapPageSize),
     [filteredConfigMap, mapPage],
   )
-  useEffect(() => { setMapPage(1) }, [mapChannel, mapQuery])
+  useEffect(() => { setMapPage(1) }, [mapChannel, mapQuery, mapRewardKind])
   const configErrors = configMap.reduce((total, row) => total + row.issues.filter((issue) => issue.severity === 'error').length, 0)
   const configWarnings = configMap.reduce((total, row) => total + row.issues.filter((issue) => issue.severity === 'warning').length, 0)
   const configNotes = configMap.reduce((total, row) => total + row.issues.filter((issue) => issue.severity === 'info').length, 0)
+  const selectedRewardRows = useMemo(() => selectedReward
+    ? configMap.filter((row) => row.item.contentType === 'reward' && row.item.code === selectedReward.code)
+      .sort((left, right) => right.item.version - left.item.version)
+    : [], [configMap, selectedReward])
   const levelTreeGroups = useMemo(() => {
     const groups = new Map<number, typeof filteredConfigMap>()
     for (const row of filteredConfigMap) {
@@ -576,7 +620,9 @@ export function LegendRewardStudio() {
       const band = Math.floor((level - 1) / 10) * 10 + 1
       groups.set(band, [...(groups.get(band) ?? []), row])
     }
-    return [...groups.entries()].sort(([left], [right]) => left - right)
+    return [...groups.entries()]
+      .map(([band, rows]) => [band, [...rows].sort((left, right) => compareLevelUnlockRules(left.item, right.item))] as const)
+      .sort(([left], [right]) => left - right)
   }, [filteredConfigMap])
   const otherTreeGroups = useMemo(() => {
     const groups = new Map<string, { channel: ConfigChannel; title: string; rows: typeof filteredConfigMap }>()
@@ -595,8 +641,43 @@ export function LegendRewardStudio() {
     }
     return [...groups.values()]
       .map((group) => ({ ...group, rows: [...group.rows].sort((left, right) => Number(right.item.contentType === 'chapter') - Number(left.item.contentType === 'chapter')) }))
-      .sort((left, right) => left.title.localeCompare(right.title, 'vi'))
+      .sort((left, right) => Number(left.title.includes('khác')) - Number(right.title.includes('khác')) || left.title.localeCompare(right.title, 'vi'))
   }, [filteredConfigMap])
+  const treeNavigationGroups = useMemo(() => [
+    ...levelTreeGroups.map(([band, rows]) => ({
+      key: `level:${band}`,
+      title: `Level ${band}–${Math.min(100, band + 9)}`,
+      subtitle: `${rows.length} phần thưởng`,
+      channel: 'level' as ConfigChannel,
+      rows,
+    })),
+    ...otherTreeGroups.map((group, index) => ({
+      key: `${group.channel}:${group.title}:${index}`,
+      title: group.title,
+      subtitle: `${group.rows.length} cấu hình`,
+      channel: group.channel,
+      rows: group.rows,
+    })),
+  ], [levelTreeGroups, otherTreeGroups])
+  const levelNavigationGroups = treeNavigationGroups.filter((group) => group.channel === 'level')
+  const requirementNavigationGroups = treeNavigationGroups.filter((group) => group.channel !== 'level')
+  const selectedTreeGroup = treeNavigationGroups.find((group) => group.key === selectedTreeKey) ?? treeNavigationGroups[0]
+  const selectedTreeMilestones = useMemo(() => {
+    if (!selectedTreeGroup) return []
+    const groups = new Map<string, typeof selectedTreeGroup.rows>()
+    for (const row of selectedTreeGroup.rows) {
+      const key = selectedTreeGroup.channel === 'level'
+        ? `Level ${String(row.item.unlockRule.value)}`
+        : row.trigger
+      groups.set(key, [...(groups.get(key) ?? []), row])
+    }
+    return [...groups.entries()]
+  }, [selectedTreeGroup])
+  useEffect(() => {
+    if (treeNavigationGroups.length && !treeNavigationGroups.some((group) => group.key === selectedTreeKey)) {
+      setSelectedTreeKey(treeNavigationGroups[0].key)
+    }
+  }, [selectedTreeKey, treeNavigationGroups])
   const chapterStickers = useMemo(() => {
     try {
       return JSON.parse(form.chapterStickersJson) as Array<{
@@ -665,11 +746,8 @@ export function LegendRewardStudio() {
     }
     setMilestoneUploading(index)
     try {
-      const body = new FormData()
-      body.append('file', file)
-      body.append('purpose', 'achievement_milestone_design')
-      const result = await api<{ asset: { url: string } }>('/api/media/upload', { method: 'POST', body })
-      updateAchievementMilestone(index, { imageUrl: result.asset.url })
+      const asset = await uploadCmsImage({ file, purpose: 'achievement_milestone_design' })
+      updateAchievementMilestone(index, { imageUrl: asset.url })
       setMessage(`Đã cập nhật ảnh cho mốc ${index + 1}.`)
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Không tải được ảnh mốc tiến hoá.')
@@ -700,7 +778,7 @@ export function LegendRewardStudio() {
     setForm({
       ...emptyForm(),
       contentType: item.contentType,
-      code: item.code,
+      code: item.source === 'runtime' && item.contentType === 'achievement' ? studioAchievementCode(item.code) : item.code,
       name: item.name,
       description: item.description,
       kind: rewardKind,
@@ -807,15 +885,9 @@ export function LegendRewardStudio() {
     try {
       const inspection = await inspectAsset(file)
       setAssetInfo(inspection)
-      const body = new FormData()
-      body.append('file', file)
-      body.append('purpose', 'legend_reward_design')
-      const result = await api<{ asset: { url: string } }>('/api/media/upload', {
-        method: 'POST',
-        body,
-      })
-      setForm((current) => ({ ...current, assetUrl: result.asset.url }))
-      setPreviewUrl(result.asset.url)
+      const asset = await uploadCmsImage({ file, purpose: 'legend_reward_design' })
+      setForm((current) => ({ ...current, assetUrl: asset.url }))
+      setPreviewUrl(asset.url)
       setMessage('Asset đạt chuẩn và đã tải lên StoryMee Media. Preview đã được cập nhật.')
     } catch (error) {
       setAssetInfo('')
@@ -842,24 +914,21 @@ export function LegendRewardStudio() {
     setChapterUploading(key)
     setMessage('')
     try {
-      const body = new FormData()
-      body.append('file', file)
-      body.append('purpose', 'storybook_chapter_design')
-      const result = await api<{ asset: { url: string } }>('/api/media/upload', { method: 'POST', body })
-      if (target === 'cover') setForm((current) => ({ ...current, chapterCoverUrl: result.asset.url }))
-      else if (target === 'left') setForm((current) => ({ ...current, chapterLeftBackgroundUrl: result.asset.url }))
-      else if (target === 'stickerPage') setForm((current) => ({ ...current, chapterStickerPageUrl: result.asset.url }))
-      else if (target === 'stickerSheet') setForm((current) => ({ ...current, chapterStickerSheetUrl: result.asset.url }))
-      else if (target === 'chapterButton') setForm((current) => ({ ...current, chapterButtonUrl: result.asset.url }))
-      else if (target === 'stickerButton') setForm((current) => ({ ...current, stickerButtonUrl: result.asset.url }))
-      else if (target === 'helpButton') setForm((current) => ({ ...current, helpButtonUrl: result.asset.url }))
-      else if (target === 'claimButton') setForm((current) => ({ ...current, claimButtonUrl: result.asset.url }))
-      else if (target === 'previousButton') setForm((current) => ({ ...current, previousButtonUrl: result.asset.url }))
-      else if (target === 'nextButton') setForm((current) => ({ ...current, nextButtonUrl: result.asset.url }))
+      const asset = await uploadCmsImage({ file, purpose: 'storybook_chapter_design' })
+      if (target === 'cover') setForm((current) => ({ ...current, chapterCoverUrl: asset.url }))
+      else if (target === 'left') setForm((current) => ({ ...current, chapterLeftBackgroundUrl: asset.url }))
+      else if (target === 'stickerPage') setForm((current) => ({ ...current, chapterStickerPageUrl: asset.url }))
+      else if (target === 'stickerSheet') setForm((current) => ({ ...current, chapterStickerSheetUrl: asset.url }))
+      else if (target === 'chapterButton') setForm((current) => ({ ...current, chapterButtonUrl: asset.url }))
+      else if (target === 'stickerButton') setForm((current) => ({ ...current, stickerButtonUrl: asset.url }))
+      else if (target === 'helpButton') setForm((current) => ({ ...current, helpButtonUrl: asset.url }))
+      else if (target === 'claimButton') setForm((current) => ({ ...current, claimButtonUrl: asset.url }))
+      else if (target === 'previousButton') setForm((current) => ({ ...current, previousButtonUrl: asset.url }))
+      else if (target === 'nextButton') setForm((current) => ({ ...current, nextButtonUrl: asset.url }))
       else {
         setForm((current) => {
           const stickers = JSON.parse(current.chapterStickersJson) as Array<Record<string, unknown>>
-          stickers[target] = { ...stickers[target], [placeholder ? 'placeholderUrl' : 'imageUrl']: result.asset.url }
+          stickers[target] = { ...stickers[target], [placeholder ? 'placeholderUrl' : 'imageUrl']: asset.url }
           return { ...current, chapterStickersJson: JSON.stringify(stickers, null, 2) }
         })
       }
@@ -976,21 +1045,50 @@ export function LegendRewardStudio() {
     }
   }
 
-  const transition = async (item: StudioItem, action: 'review' | 'publish' | 'retire') => {
+  const requestLifecycle = async (item: StudioItem, action: LifecycleAction) => {
+    if (action !== 'archive') {
+      setPendingLifecycle({ item, action })
+      return
+    }
     setBusy(true)
     try {
-      if (action === 'review') {
-        await legendStudioApi.update(item.id, { status: 'review' })
-      } else {
-        await legendStudioApi.transition(item.id, action)
-      }
-      setMessage(action === 'publish' ? 'Đã phát hành lên production.' : action === 'retire' ? 'Đã ngừng phát hành.' : 'Đã gửi duyệt.')
+      const dependencies = await legendStudioApi.dependencies<DependencyReport>(item.id)
+      setPendingLifecycle({ item, action, dependencies })
+    } catch (error) {
+      const dependencyRouteUnavailable = error instanceof ApiError && [404, 405, 501].includes(error.status)
+      if (dependencyRouteUnavailable) setPendingLifecycle({ item, action })
+      else setMessage(error instanceof Error ? error.message : 'Không kiểm tra được dependency. Hệ thống không archive nội dung.')
+    } finally { setBusy(false) }
+  }
+
+  const executeLifecycle = async () => {
+    if (!pendingLifecycle) return
+    const { item, action } = pendingLifecycle
+    setBusy(true)
+    try {
+      if (action === 'archive') await legendStudioApi.archive(item.id)
+      else if (action === 'revert') await legendStudioApi.revertToDraft(item.id)
+      else if (action === 'review') await legendStudioApi.update(item.id, { status: 'review' })
+      else await legendStudioApi.transition(item.id, action)
+      if (action === 'review') setMessage('Đã gửi reviewer duyệt.')
+      if (action === 'publish') setMessage('Đã phát hành version lên production.')
+      if (action === 'archive') setMessage('Đã archive version. Nội dung được giữ trong lịch sử và chờ hệ thống xóa hoàn toàn sau 3 ngày; inventory đã cấp không bị ảnh hưởng.')
+      if (action === 'revert') setMessage('Đã trả version về bản nháp để chỉnh sửa tiếp.')
+      setPendingLifecycle(null)
       await load()
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Không cập nhật được trạng thái.')
-    } finally {
-      setBusy(false)
-    }
+      setMessage(error instanceof Error ? error.message : 'Không thực hiện được thao tác.')
+    } finally { setBusy(false) }
+  }
+
+  const showItemAudit = async (item: StudioItem) => {
+    setBusy(true)
+    try {
+      const result = await legendStudioApi.audit<{ entries: AuditEntry[] }>(item.id)
+      setAuditPanel({ itemId: item.id, entries: result.entries ?? [] })
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Không tải được lịch sử thay đổi.')
+    } finally { setBusy(false) }
   }
 
   const migrateLegacyRewards = async () => {
@@ -1024,6 +1122,79 @@ export function LegendRewardStudio() {
     await load()
   }
 
+  const migrateRuntimeAchievements = async () => {
+    const runtimeItems = items.filter((item) => item.source === 'runtime' && item.contentType === 'achievement')
+    if (!runtimeItems.length) return
+    setBusy(true)
+    setMessage('')
+    setMigrationProgress(`Đang nhập ${runtimeItems.length} mục…`)
+    try {
+      const payload = runtimeItems.map((item) => {
+        const assetUrl = studioArtwork(item)
+        const metric = resolveAchievementMetric(String(item.unlockRule.metric ?? item.code))
+        return {
+          runtimeKey: item.code,
+          code: studioAchievementCode(item.code), name: item.name, description: item.description,
+          assets: assetUrl ? { thumbnailUrl: assetUrl, imageUrl: assetUrl } : {},
+          displayConfig: item.displayConfig,
+          unlockRule: { type: 'action', metric, value: metric },
+          content: item.content,
+        }
+      })
+      const result = await legendStudioApi.importRuntimeAchievements(payload)
+      setMessage(`Đã tạo ${result.created} draft achievement${result.skipped ? `; bỏ qua ${result.skipped} mã đã có trong Studio` : ''}. Runtime production không bị thay đổi.`)
+      await load()
+    } catch (error) {
+      setMessage(error instanceof Error ? `Không import được Runtime Achievement: ${error.message}` : 'Không import được Runtime Achievement.')
+    } finally {
+      setMigrationProgress('')
+      setBusy(false)
+    }
+  }
+
+  const lifecycleDialog = pendingLifecycle ? (() => {
+    const { item, action, dependencies } = pendingLifecycle
+    if (action === 'archive') return {
+      title: `Archive ${item.name} v${item.version}?`,
+      description: `Version sẽ ngừng hiển thị và được lưu trong lịch sử 3 ngày trước khi hệ thống xóa hoàn toàn. Người học đã sở hữu vẫn giữ phần quà. ${dependencies?.references.length ? `${dependencies.references.length} liên kết đang dùng sẽ được giữ trong audit để kiểm tra.` : 'Không phát hiện dependency đang dùng.'}`,
+      label: 'Archive trong 3 ngày', danger: true,
+    }
+    if (action === 'publish') return {
+      title: `Phát hành ${item.code} v${item.version} ngay?`,
+      description: 'Version này sẽ trở thành bản production và thay thế version đang chạy cùng mã. Requirement và reward liên kết sẽ có hiệu lực ngay.',
+      label: 'Phát hành ngay', danger: false,
+    }
+    if (action === 'review') return { title: 'Gửi reviewer duyệt?', description: 'Bản nháp sẽ khóa ở trạng thái chờ duyệt. Reviewer có thể phát hành hoặc trả lại bản nháp.', label: 'Gửi duyệt', danger: false }
+    return { title: 'Trả version về bản nháp?', description: 'Version sẽ rời hàng chờ duyệt để tiếp tục chỉnh sửa. Production hiện tại không bị ảnh hưởng.', label: 'Trả về nháp', danger: false }
+  })() : null
+
+  const mapLifecycleActions = (item: StudioItem, hasBlockingError = false) => (
+    <div className="mt-2 flex flex-wrap gap-1.5">
+      <button type="button" onClick={() => startEditing(item)} className="flex min-h-10 items-center gap-1.5 rounded-lg px-2 text-xs font-extrabold text-brand-700 hover:bg-brand-50">
+        {item.status === 'published' ? <UploadCloud className="h-3.5 w-3.5" aria-hidden="true" /> : <Pencil className="h-3.5 w-3.5" aria-hidden="true" />}
+        {studioEditLabel(item)}
+      </button>
+      {item.source === 'studio' && item.status === 'draft' && <>
+        <button type="button" disabled={hasBlockingError || busy} title={hasBlockingError ? 'Sửa lỗi cấu hình trước khi phát hành' : 'Phát hành version nháp này ngay'} onClick={() => void requestLifecycle(item, 'publish')} className="flex min-h-10 items-center gap-1.5 rounded-lg bg-brand-600 px-2 text-xs font-extrabold text-white disabled:cursor-not-allowed disabled:opacity-40"><CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> Phát hành nháp</button>
+        <button type="button" disabled={busy} onClick={() => void requestLifecycle(item, 'archive')} className="flex min-h-10 items-center gap-1.5 rounded-lg px-2 text-xs font-extrabold text-danger hover:bg-coral-50"><Archive className="h-3.5 w-3.5" aria-hidden="true" /> Archive</button>
+      </>}
+      {item.source === 'studio' && (item.status === 'review' || item.status === 'scheduled') && <button type="button" disabled={hasBlockingError || busy} onClick={() => void requestLifecycle(item, 'publish')} className="flex min-h-10 items-center gap-1.5 rounded-lg bg-brand-600 px-2 text-xs font-extrabold text-white disabled:opacity-40"><CheckCircle2 className="h-3.5 w-3.5" aria-hidden="true" /> Phát hành</button>}
+      {item.source === 'studio' && item.status === 'published' && <button type="button" disabled={busy} onClick={() => void requestLifecycle(item, 'archive')} className="flex min-h-10 items-center gap-1.5 rounded-lg px-2 text-xs font-extrabold text-danger hover:bg-coral-50"><Archive className="h-3.5 w-3.5" aria-hidden="true" /> Archive bản chính thức</button>}
+    </div>
+  )
+  const renderTreeNavigationButton = (group: (typeof treeNavigationGroups)[number]) => {
+    const active = selectedTreeGroup?.key === group.key
+    const hasError = group.rows.some((row) => row.issues.some((issue) => issue.severity === 'error'))
+    const draftCount = group.rows.filter((row) => row.item.status === 'draft').length
+    return <button key={group.key} type="button" onClick={() => setSelectedTreeKey(group.key)} aria-current={active ? 'true' : undefined} className={`flex min-h-14 w-full items-center gap-3 rounded-xl px-3 py-2 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus ${active ? 'bg-brand-600 text-white shadow-md' : 'hover:bg-brand-50'}`}>
+      <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl text-xs font-black ${active ? 'bg-white/20 text-white' : group.channel === 'level' ? 'bg-brand-50 text-brand-700' : 'bg-sky-50 text-sky-700'}`}>
+        {group.channel === 'level' ? group.title.match(/\d+/)?.[0] : group.channel === 'storybook' ? <BookOpen className="h-4 w-4" /> : group.channel === 'event' ? <CalendarDays className="h-4 w-4" /> : <Network className="h-4 w-4" />}
+      </span>
+      <span className="min-w-0 flex-1"><strong className="block truncate text-sm">{group.title}</strong><span className={`block text-[11px] ${active ? 'text-white/80' : 'text-muted'}`}>{group.subtitle}{draftCount ? ` · ${draftCount} nháp` : ''}</span></span>
+      <span className={`h-2.5 w-2.5 shrink-0 rounded-full ${hasError ? 'bg-coral-500' : draftCount ? 'bg-amber-400' : 'bg-mint-500'}`} aria-label={hasError ? 'Có lỗi' : draftCount ? 'Có bản nháp' : 'Hợp lệ'} />
+    </button>
+  }
+
   return (
     <div className="space-y-5">
       <section className="ui-card flex flex-wrap items-center gap-x-6 gap-y-3 px-5 py-4" aria-label="Tổng quan trạng thái catalog">
@@ -1037,7 +1208,7 @@ export function LegendRewardStudio() {
         {(counts.draft > 0 || counts.review > 0) && <div className="text-sm text-muted"><strong>{counts.draft}</strong> nháp · <strong>{counts.review}</strong> chờ duyệt</div>}
       </section>
 
-      <nav className="ui-card grid grid-cols-1 gap-1 p-2 sm:grid-cols-4" aria-label="Chế độ Legend Studio">
+      <nav className="ui-card grid grid-cols-1 gap-1 p-2 sm:grid-cols-2 xl:grid-cols-4" aria-label="Chế độ Legend Studio">
         <button type="button" onClick={() => setView('map')} className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-black ${view === 'map' ? 'bg-brand-600 text-white shadow-md' : 'text-muted hover:bg-brand-50'}`}>
           <MapIcon className="h-5 w-5" aria-hidden="true" /> Bản đồ cấu hình
         </button>
@@ -1095,7 +1266,7 @@ export function LegendRewardStudio() {
                 <h2 className="font-display text-2xl">Bản đồ điều kiện & phần thưởng</h2>
                 <p className="mt-1 max-w-3xl text-sm text-muted">Đối chiếu một nơi: nội dung nào được mở bởi level, sự kiện, Storybook hay action; quà đầu ra là gì và cấu hình nào cần sửa trước khi phát hành.</p>
               </div>
-              <Button variant="secondary" onClick={() => void load()} disabled={busy}>↻ Kiểm tra lại</Button>
+              <div className="flex flex-wrap gap-2"><Button onClick={() => { setMappingBuilderLevel(undefined); setMappingBuilderOpen((open) => !open) }}><Link2 className="h-4 w-4" /> Gắn phần quà</Button><Button variant="secondary" onClick={() => void load()} disabled={busy}>↻ Kiểm tra lại</Button></div>
             </div>
             <div className="mt-4 grid gap-3 sm:grid-cols-5">
               <div className="rounded-2xl bg-slate-50 p-4"><strong className="text-2xl">{configMap.length}</strong><span className="block text-xs text-muted">cấu hình</span></div>
@@ -1113,100 +1284,98 @@ export function LegendRewardStudio() {
               <div className="min-w-48 flex-1"><strong>{sourceCounts.legacyRewards} reward legacy chưa thuộc Studio</strong><p className="text-xs text-amber-900">Migrate sẽ giữ nguyên code, rule, ảnh fallback và tạo draft có template slot/layer chuẩn. Không tự publish.</p>{legacyMigrationIssues.length === 0 ? <p className="mt-1 text-xs font-extrabold text-emerald-800">✓ Đủ loại asset và ảnh để tạo draft</p> : <p className="mt-1 text-xs font-extrabold text-danger">{legacyMigrationIssues.length} lỗi cần xử lý trước khi migrate</p>}</div>
               <Button variant="secondary" disabled={busy || legacyMigrationIssues.length > 0} onClick={() => { if (window.confirm(`Tạo ${sourceCounts.legacyRewards} bản nháp Studio từ legacy catalog? Thao tác này không publish.`)) void migrateLegacyRewards() }}><UploadCloud className="h-4 w-4" aria-hidden="true" /> {migrationProgress || `Migrate ${sourceCounts.legacyRewards} mục`}</Button>
             </div>}
+            {sourceCounts.runtime > 0 && <div className="mt-4 flex flex-wrap items-center gap-4 rounded-2xl border-2 border-sky-200 bg-sky-50 p-4"><Network className="h-6 w-6 shrink-0 text-sky-700" aria-hidden="true" /><div className="min-w-48 flex-1"><strong>{sourceCounts.runtime} Runtime Achievement chưa có bản Studio</strong><p className="text-xs text-sky-900">Tạo toàn bộ thành draft để quản lý ảnh, milestone và version. Không tự publish.</p></div><Button variant="secondary" disabled={busy} onClick={() => { if (window.confirm(`Tạo ${sourceCounts.runtime} bản nháp Studio từ Runtime Achievement? Production hiện tại không bị thay đổi.`)) void migrateRuntimeAchievements() }}><UploadCloud className="h-4 w-4" /> {migrationProgress || `Đưa cả ${sourceCounts.runtime} mục vào Studio`}</Button></div>}
           </header>
 
-          <div className="ui-card grid gap-3 p-4 lg:grid-cols-[minmax(220px,1fr)_2fr]">
+          {mappingBuilderOpen && <div id="reward-mapping-builder" className="relative scroll-mt-4"><button type="button" onClick={() => { setMappingBuilderOpen(false); setMappingBuilderLevel(undefined) }} className="absolute right-4 top-4 z-30 flex min-h-11 items-center gap-2 rounded-xl bg-white px-3 text-sm font-extrabold text-muted shadow-sm"><X className="h-4 w-4" /> Đóng</button><Suspense fallback={<section className="ui-card p-8 text-center text-sm font-bold text-muted">Đang mở trình gắn quà…</section>}><RewardMappingWorkspace items={items} onChanged={load} getArtwork={studioArtwork} builderOnly initialLevel={mappingBuilderLevel} /></Suspense></div>}
+
+          <div className={`ui-card grid gap-3 p-4 ${mapDisplay === 'table' ? 'lg:grid-cols-[minmax(220px,1fr)_2fr]' : ''}`}>
             <input className="field-input min-h-12" value={mapQuery} onChange={(event) => setMapQuery(event.target.value)} placeholder="Tìm mã, tên, action hoặc reward…" aria-label="Tìm trong bản đồ cấu hình" />
-            <div className="flex flex-wrap gap-2" role="group" aria-label="Lọc theo kênh mở khóa">
+            {mapDisplay === 'table' && <div className="flex flex-wrap gap-2" role="group" aria-label="Lọc theo kênh mở khóa">
               {([
                 ['all', 'Tất cả'], ['level', 'Theo level'], ['event', 'Theo sự kiện'],
                 ['storybook', 'Storybook'], ['action', 'Action / Achievement'], ['unconfigured', 'Chưa cấu hình'],
               ] as const).map(([value, label]) => (
                 <button key={value} type="button" onClick={() => setMapChannel(value)} className={`min-h-11 rounded-xl px-3 py-2 text-xs font-extrabold ${mapChannel === value ? 'bg-brand-600 text-white' : 'bg-slate-100 text-muted hover:bg-brand-50'}`}>
-                  {label} · {value === 'all' ? configMap.length : configMap.filter((row) => row.channel === value).length}
+                  {label} · {value === 'all' ? adminConfigMap.length : adminConfigMap.filter((row) => row.channel === value).length}
                 </button>
               ))}
-            </div>
+            </div>}
           </div>
 
           <div className="flex flex-wrap items-center justify-between gap-3 px-1">
             <p className="text-sm font-bold text-muted">Chọn cách xem phù hợp với công việc đang làm.</p>
             <div className="flex rounded-xl border border-border bg-white p-1" role="group" aria-label="Kiểu hiển thị bản đồ">
-              <button type="button" onClick={() => setMapDisplay('tree')} className={`flex min-h-11 items-center gap-2 rounded-lg px-4 text-sm font-extrabold ${mapDisplay === 'tree' ? 'bg-brand-600 text-white' : 'text-muted'}`}><Network className="h-4 w-4" aria-hidden="true" /> Cây phần thưởng</button>
+              <button type="button" onClick={() => { setMapDisplay('tree'); if (!['level', 'action', 'storybook', 'event'].includes(mapChannel)) setMapChannel('level') }} className={`flex min-h-11 items-center gap-2 rounded-lg px-4 text-sm font-extrabold ${mapDisplay === 'tree' ? 'bg-brand-600 text-white' : 'text-muted'}`}><Network className="h-4 w-4" aria-hidden="true" /> Cây phần thưởng</button>
               <button type="button" onClick={() => setMapDisplay('table')} className={`flex min-h-11 items-center gap-2 rounded-lg px-4 text-sm font-extrabold ${mapDisplay === 'table' ? 'bg-brand-600 text-white' : 'text-muted'}`}><List className="h-4 w-4" aria-hidden="true" /> Bảng kiểm tra</button>
             </div>
           </div>
 
           {mapDisplay === 'tree' && (
-            <div className="space-y-4">
-              {(mapChannel === 'all' || mapChannel === 'level') && levelTreeGroups.map(([band, rows]) => (
-                <DeferredDetails key={band} summary={<>
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-600 font-display text-white">{band}</span>
-                    <div><h3 className="font-extrabold">Level {band}–{Math.min(100, band + 9)}</h3><p className="text-xs text-muted">{rows.length} phần thưởng trong chặng</p></div>
-                    <div className="ml-2 h-px flex-1 bg-border" aria-hidden="true" />
-                    <span className="text-xs font-extrabold text-brand-700">Mở chặng</span>
-                  </>}>
-                  <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">
-                    {rows.map((row) => (
-                      <article key={row.item.id} className="grid grid-cols-[64px_1fr] gap-3 rounded-2xl border border-border bg-white p-3">
-                        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-brand-50">
-                          <StudioArtwork item={row.item} meaningful />
-                        </div>
+            <div className="grid items-start gap-4 lg:grid-cols-[280px_minmax(0,1fr)]">
+              <aside className="ui-card overflow-hidden lg:sticky lg:top-4" aria-label="Điều hướng cây phần thưởng">
+                <div className="border-b border-border bg-gradient-to-br from-brand-50 to-sky-50 p-4">
+                  <p className="text-xs font-black uppercase tracking-wider text-brand-600">Xem theo requirement</p>
+                  <h3 className="mt-1 font-display text-xl">Danh mục cây</h3>
+                  <div className="mt-3 grid grid-cols-2 gap-2" role="group" aria-label="Menu loại requirement">
+                    {([
+                      ['level', 'Level', MapIcon],
+                      ['action', 'Achievement', Network],
+                      ['storybook', 'Storybook', BookOpen],
+                      ['event', 'Event', CalendarDays],
+                    ] as const).map(([channel, label, Icon]) => {
+                      const count = adminConfigMap.filter((row) => row.channel === channel).length
+                      return <button key={channel} type="button" onClick={() => setMapChannel(channel)} className={`flex min-h-16 flex-col items-start justify-center rounded-xl px-3 py-2 text-left transition focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus ${mapChannel === channel ? 'bg-brand-600 text-white shadow-md' : 'bg-white text-brand-900 hover:bg-brand-50'}`}><Icon className="mb-1 h-4 w-4" aria-hidden="true" /><strong className="text-xs">{label}</strong><span className={`text-[10px] ${mapChannel === channel ? 'text-white/75' : 'text-muted'}`}>{count} cấu hình</span></button>
+                    })}
+                  </div>
+                </div>
+                <nav className="max-h-[70vh] space-y-1 overflow-y-auto p-2" aria-label="Các chặng và nhóm điều kiện">
+                  {levelNavigationGroups.length > 0 && <p className="px-3 pb-1 pt-2 text-[10px] font-black uppercase tracking-widest text-muted">Các chặng Level</p>}
+                  {levelNavigationGroups.map(renderTreeNavigationButton)}
+                  {requirementNavigationGroups.length > 0 && <p className="px-3 pb-1 pt-2 text-[10px] font-black uppercase tracking-widest text-muted">Các nhóm {mapChannel === 'action' ? 'Achievement' : mapChannel === 'storybook' ? 'Storybook' : 'Event'}</p>}
+                  {requirementNavigationGroups.map(renderTreeNavigationButton)}
+                  {treeNavigationGroups.length === 0 && <p className="p-5 text-center text-sm text-muted">Không có nhánh phù hợp bộ lọc.</p>}
+                </nav>
+              </aside>
+
+              <section className="ui-card min-w-0 overflow-hidden" aria-live="polite">
+                {selectedTreeGroup ? <>
+                  <header className="flex flex-wrap items-center gap-3 border-b border-border bg-white p-5">
+                    <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-brand-600 font-display text-white shadow-sm">{selectedTreeGroup.channel === 'level' ? selectedTreeGroup.title.match(/\d+/)?.[0] : <Network className="h-5 w-5" />}</span>
+                    <div className="min-w-0 flex-1"><p className="text-xs font-black uppercase tracking-wider text-brand-600">Cây phần thưởng</p><h3 className="font-display text-2xl">{selectedTreeGroup.title}</h3><p className="text-xs text-muted">{selectedTreeGroup.subtitle} · xếp theo thứ tự requirement</p></div>
+                    <span className="rounded-full bg-mint-50 px-3 py-1 text-xs font-black text-success">{selectedTreeGroup.rows.filter((row) => row.issues.every((issue) => issue.severity !== 'error')).length}/{selectedTreeGroup.rows.length} hợp lệ</span>
+                    <div className="basis-full border-t border-border pt-3"><p className="mb-2 text-[10px] font-black uppercase tracking-widest text-muted">Lọc theo loại reward</p><div className="flex flex-wrap gap-1.5" role="group" aria-label="Lọc theo loại phần quà"><button type="button" onClick={() => setMapRewardKind('all')} className={`min-h-9 rounded-lg px-2.5 text-[11px] font-black ${mapRewardKind === 'all' ? 'bg-brand-600 text-white' : 'bg-slate-100 text-brand-700'}`}>Tất cả · {adminConfigMap.length}</button>{mapRewardKinds.map(([kind, count]) => <button key={kind} type="button" onClick={() => setMapRewardKind(kind)} className={`min-h-9 rounded-lg px-2.5 text-[11px] font-black ${mapRewardKind === kind ? 'bg-brand-600 text-white' : 'bg-slate-100 text-muted hover:bg-brand-50'}`}>{kind} · {count}</button>)}</div></div>
+                  </header>
+                  <div className="p-4 sm:p-6">
+                    {selectedTreeMilestones.map(([milestone, rows], milestoneIndex) => (
+                      <div key={milestone} className="relative grid grid-cols-[48px_minmax(0,1fr)] gap-3 pb-6 last:pb-0">
+                        {milestoneIndex < selectedTreeMilestones.length - 1 && <span className="absolute bottom-0 left-[23px] top-10 w-0.5 bg-brand-100" aria-hidden="true" />}
+                        <span className="relative z-10 flex h-12 w-12 items-center justify-center rounded-2xl border-4 border-white bg-brand-600 text-xs font-black text-white shadow-clay">{selectedTreeGroup.channel === 'level' ? milestone.replace('Level ', '') : milestoneIndex + 1}</span>
                         <div className="min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <div><div className="flex flex-wrap items-center gap-2"><p className="text-xs font-black text-brand-600">LEVEL {String(row.item.unlockRule.value)}</p><span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${row.item.status === 'published' ? 'bg-mint-50 text-success' : 'bg-brand-50 text-brand-700'}`}>{studioStatusLabel(row.item)}</span></div><h4 className="line-clamp-1 font-extrabold">{row.item.name}</h4></div>
-                            {row.issues.some((issue) => issue.severity !== 'info')
-                              ? <AlertTriangle className="h-5 w-5 text-danger" aria-label={`${row.issues.filter((issue) => issue.severity !== 'info').length} vấn đề`} />
-                              : <CheckCircle2 className="h-5 w-5 text-success" aria-label="Hợp lệ" />}
+                          <div className="mb-2 flex flex-wrap items-center gap-2"><h4 className="font-extrabold text-brand-900">{milestone}</h4><span className="rounded-full bg-brand-50 px-2 py-1 text-[10px] font-black text-brand-700">{rows.length} phần quà</span>{selectedTreeGroup.channel === 'level' && <button type="button" onClick={() => openLevelMapping(Number(milestone.replace('Level ', '')))} className="ml-auto flex min-h-10 items-center gap-1.5 rounded-xl border border-brand-200 bg-white px-3 text-xs font-extrabold text-brand-700 shadow-sm hover:bg-brand-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-focus"><Plus className="h-4 w-4" aria-hidden="true" /> Chỉnh mốc</button>}</div>
+                          <div className="grid gap-2 xl:grid-cols-2">
+                            {rows.map((row) => row.item.contentType === 'chapter' ? (
+                              <ChapterBookMapPreview key={row.item.id} item={row.item} onEdit={(focus) => startEditing(row.item, focus)} lifecycleActions={mapLifecycleActions(row.item, row.issues.some((issue) => issue.severity === 'error'))} />
+                            ) : (
+                              <article key={row.item.id} className="rounded-2xl border border-border bg-white p-3 shadow-sm transition hover:border-brand-300 hover:shadow-clay">
+                                <div className="grid grid-cols-[56px_minmax(0,1fr)_auto] gap-3">
+                                  <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-xl bg-brand-50"><StudioArtwork item={row.item} meaningful /></div>
+                                  <div className="min-w-0"><div className="flex flex-wrap items-center gap-2"><span className={`rounded-full px-2 py-0.5 text-[10px] font-black ${row.item.status === 'published' ? 'bg-mint-50 text-success' : 'bg-brand-50 text-brand-700'}`}>{studioStatusLabel(row.item)}</span><span className="text-[10px] font-black uppercase text-muted">{row.item.kind ?? row.item.contentType}</span></div><h5 className="mt-1 truncate font-extrabold">{row.item.name}</h5><code className="block truncate text-[11px] text-muted">{row.item.code}</code></div>
+                                  {row.issues.some((issue) => issue.severity !== 'info') ? <AlertTriangle className="h-5 w-5 text-amber-700" aria-label="Có vấn đề cấu hình" /> : <CheckCircle2 className="h-5 w-5 text-success" aria-label="Hợp lệ" />}
+                                </div>
+                                <div className="mt-3 flex flex-wrap items-center justify-between gap-2 border-t border-border pt-2">
+                                  {row.item.contentType === 'reward' ? <button type="button" onClick={() => setSelectedReward(row.item)} className="min-h-10 rounded-lg px-2 text-xs font-extrabold text-sky-700 hover:bg-sky-50">Xem chi tiết & lịch sử</button> : <span className="text-xs text-muted">{row.item.description}</span>}
+                                  {mapLifecycleActions(row.item, row.issues.some((issue) => issue.severity === 'error'))}
+                                </div>
+                              </article>
+                            ))}
                           </div>
-                          <p className="line-clamp-1 text-xs text-muted">{row.item.kind ?? row.item.contentType} · {row.item.code}</p>
-                          <button type="button" onClick={() => startEditing(row.item)} className="mt-2 flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-extrabold text-brand-700 hover:bg-brand-50">
-                            {row.item.status === 'published' ? <UploadCloud className="h-4 w-4" aria-hidden="true" /> : <Pencil className="h-4 w-4" aria-hidden="true" />}
-                            {studioEditLabel(row.item)}
-                          </button>
                         </div>
-                      </article>
+                      </div>
                     ))}
                   </div>
-                </DeferredDetails>
-              ))}
-              {(mapChannel === 'all' || mapChannel === 'level') && levelTreeGroups.length === 0 && <div className="ui-card p-10 text-center text-muted">Không có reward theo level phù hợp tìm kiếm.</div>}
-              {otherTreeGroups.map((group) => (
-                <DeferredDetails key={`${group.channel}:${group.title}`} defaultOpen={mapChannel !== 'all'} summary={<>
-                    <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
-                      {group.channel === 'storybook' ? <BookOpen className="h-5 w-5" aria-hidden="true" /> : group.channel === 'event' ? <CalendarDays className="h-5 w-5" aria-hidden="true" /> : <Network className="h-5 w-5" aria-hidden="true" />}
-                    </span>
-                    <div><h3 className="font-extrabold">{group.title}</h3><p className="text-xs text-muted">{group.rows.length} cấu hình liên quan</p></div>
-                    <div className="ml-2 h-px flex-1 bg-border" aria-hidden="true" />
-                    <span className="text-xs font-extrabold text-brand-700">Mở nhánh</span>
-                  </>}>
-                  <div className="grid gap-3 p-4 sm:grid-cols-2 xl:grid-cols-3">
-                    {group.rows.map((row) => row.item.contentType === 'chapter' ? (
-                      <ChapterBookMapPreview key={row.item.id} item={row.item} onEdit={(focus) => startEditing(row.item, focus)} />
-                    ) : (
-                      <article key={row.item.id} className="grid grid-cols-[64px_1fr] gap-3 rounded-2xl border border-border bg-white p-3">
-                        <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-xl bg-brand-50"><StudioArtwork item={row.item} meaningful /></div>
-                        <div className="min-w-0">
-                          <div className="flex items-start justify-between gap-2">
-                            <div><p className="text-xs font-black uppercase text-brand-600">{row.item.source === 'legacy' ? 'Legacy catalog' : row.item.source === 'runtime' ? 'Runtime achievement' : group.channel}</p><h4 className="line-clamp-1 font-extrabold">{row.item.name}</h4></div>
-                            {row.issues.some((issue) => issue.severity !== 'info') ? <AlertTriangle className="h-5 w-5 shrink-0 text-amber-700" aria-label={`${row.issues.filter((issue) => issue.severity !== 'info').length} cảnh báo`} /> : <CheckCircle2 className="h-5 w-5 shrink-0 text-success" aria-label="Hợp lệ" />}
-                          </div>
-                          <p className="line-clamp-2 text-xs text-muted">{row.item.contentType === 'achievement'
-                            ? `${Array.isArray(row.item.content.milestones) && row.item.content.milestones.length ? `${row.item.content.milestones.length} mốc · ` : ''}${row.item.description}`
-                            : row.trigger}</p>
-                          <ChapterStickerPreview item={row.item} />
-                          {row.item.contentType === 'achievement' ? (
-                            <button type="button" onClick={() => startEditing(row.item)} className="mt-2 flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-extrabold text-brand-700 hover:bg-brand-50"><Pencil className="h-4 w-4" aria-hidden="true" /> Cấu hình các mốc</button>
-                          ) : (
-                            <button type="button" onClick={() => startEditing(row.item)} className="mt-2 flex min-h-11 items-center gap-2 rounded-xl px-2 text-sm font-extrabold text-brand-700 hover:bg-brand-50"><UploadCloud className="h-4 w-4" aria-hidden="true" /> {studioEditLabel(row.item)}</button>
-                          )}
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </DeferredDetails>
-              ))}
-              {mapChannel !== 'all' && mapChannel !== 'level' && otherTreeGroups.length === 0 && <div className="ui-card p-10 text-center text-muted">Chưa có cấu hình trong nhánh này.</div>}
+                </> : <div className="p-12 text-center text-muted">Không có cấu hình phù hợp bộ lọc.</div>}
+              </section>
             </div>
           )}
 
@@ -1234,7 +1403,7 @@ export function LegendRewardStudio() {
                           </ul>
                         )}
                       </td>
-                      <td className="p-4"><Button variant="secondary" onClick={() => startEditing(row.item)}><Pencil className="h-4 w-4" aria-hidden="true" /> {row.item.contentType === 'achievement' ? 'Cấu hình mốc' : studioEditLabel(row.item)}</Button></td>
+                      <td className="p-4">{mapLifecycleActions(row.item, row.issues.some((issue) => issue.severity === 'error'))}</td>
                     </tr>
                   ))}
                   {visibleConfigMap.length === 0 && <tr><td colSpan={6} className="p-10 text-center text-muted">Không có cấu hình phù hợp bộ lọc.</td></tr>}
@@ -1248,6 +1417,7 @@ export function LegendRewardStudio() {
               </footer>
             )}
           </div>}
+          {selectedReward && <aside className="fixed inset-y-0 right-0 z-50 w-full max-w-md overflow-y-auto border-l border-border bg-white p-5 shadow-2xl" aria-label={`Chi tiết điều kiện của ${selectedReward.name}`}><div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><div className="flex h-16 w-16 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-brand-50"><StudioArtwork item={selectedReward} meaningful /></div><div className="min-w-0"><p className="text-xs font-black uppercase text-brand-600">Phần quà → Điều kiện</p><h3 className="truncate font-display text-xl">{selectedReward.name}</h3><code className="text-xs text-muted">{selectedReward.code}</code></div></div><button type="button" onClick={() => setSelectedReward(null)} className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl hover:bg-slate-100" aria-label="Đóng chi tiết"><X className="h-5 w-5" /></button></div><div className="mt-6"><h4 className="font-extrabold">Lịch sử upload & phiên bản</h4><p className="mt-1 text-xs text-muted">Cây chính chỉ hiển thị bản đang phát hành. Nháp, chờ duyệt và bản đã ngừng được quản lý tại đây.</p><div className="mt-3 space-y-3">{selectedRewardRows.map((row) => <article key={row.item.id} className="rounded-2xl border border-border p-4"><div className="flex items-center justify-between gap-2"><span className="rounded-full bg-brand-50 px-2 py-1 text-[10px] font-black uppercase text-brand-700">{row.channel}</span><span className={`text-xs font-black ${row.item.status === 'published' ? 'text-success' : 'text-brand-600'}`}>{studioStatusLabel(row.item)} · v{row.item.version}</span></div><p className="mt-3 font-extrabold">{row.trigger}</p><p className="mt-1 text-xs text-muted">{row.item.unlockRule.metric ? `Metric: ${String(row.item.unlockRule.metric)} · ` : ''}Giá trị: {String(row.item.unlockRule.value ?? '—')}</p>{mapLifecycleActions(row.item, row.issues.some((issue) => issue.severity === 'error'))}</article>)}</div></div><Button className="mt-5 w-full" onClick={() => { setSelectedReward(null); setMappingBuilderOpen(true); window.scrollTo({ top: 0, behavior: 'smooth' }) }}><Link2 className="h-4 w-4" /> Chỉnh sửa liên kết</Button></aside>}
           <p className="px-2 text-xs text-muted">Bản đồ dùng catalog admin từ StoryMee Hub để kiểm tra chéo. Việc cấp quà và xác thực action vẫn do core-gamification-api quyết định.</p>
         </section>
       )}
@@ -1271,7 +1441,7 @@ export function LegendRewardStudio() {
               <span className="sr-only">Lọc trạng thái</span>
               <Settings2 className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-muted" aria-hidden="true" />
               <select className="field-input min-h-12 w-full pl-12" value={libraryStatus} onChange={(event) => setLibraryStatus(event.target.value as StudioItem['status'] | 'all')}>
-                <option value="all">Mọi trạng thái</option><option value="published">Đang phát hành</option><option value="draft">Bản nháp</option><option value="review">Chờ duyệt</option><option value="scheduled">Đã lên lịch</option><option value="retired">Đã ngừng</option>
+                <option value="all">Mọi trạng thái</option><option value="published">Đang phát hành</option><option value="draft">Bản nháp</option><option value="review">Chờ duyệt</option><option value="scheduled">Đã lên lịch</option><option value="retired">Đã archive · chờ xóa</option>
               </select>
             </label>
           </div>
@@ -1317,12 +1487,14 @@ export function LegendRewardStudio() {
                 <div className="flex flex-wrap gap-2 sm:max-w-40 sm:justify-end">
                   <span className={`w-full text-right text-xs font-black ${
                     item.status === 'published' ? 'text-success' : item.status === 'retired' ? 'text-muted' : 'text-brand-600'
-                  }`}>{item.status}</span>
+                  }`}>{studioStatusLabel(item)} · v{item.version}</span>
                   <Button variant="secondary" onClick={() => startEditing(item)}><Pencil className="h-4 w-4" aria-hidden="true" /> {studioEditLabel(item)}</Button>
-                  {item.status === 'draft' && <Button variant="secondary" onClick={() => void transition(item, 'review')}>Gửi duyệt</Button>}
-                  {(item.status === 'review' || item.status === 'scheduled') && <Button onClick={() => void transition(item, 'publish')}>Phát hành</Button>}
-                  {item.status === 'published' && <Button variant="secondary" onClick={() => void transition(item, 'retire')}>Ngừng</Button>}
+                  {item.source === 'studio' && item.status === 'draft' && <><Button variant="secondary" onClick={() => void requestLifecycle(item, 'review')}>Gửi reviewer duyệt</Button><Button variant="ghost" className="text-danger" onClick={() => void requestLifecycle(item, 'archive')}><Archive className="h-4 w-4" aria-hidden="true" /> Archive bản nháp</Button></>}
+                  {item.source === 'studio' && (item.status === 'review' || item.status === 'scheduled') && <><Button onClick={() => void requestLifecycle(item, 'publish')}><CheckCircle2 className="h-4 w-4" aria-hidden="true" /> Phát hành ngay</Button><Button variant="secondary" onClick={() => void requestLifecycle(item, 'revert')}><RotateCcw className="h-4 w-4" aria-hidden="true" /> Trả về nháp</Button></>}
+                  {item.source === 'studio' && item.status === 'published' && <Button variant="secondary" className="text-danger" onClick={() => void requestLifecycle(item, 'archive')}><Archive className="h-4 w-4" aria-hidden="true" /> Archive bản chính thức</Button>}
+                  {item.source === 'studio' && <Button variant="ghost" onClick={() => void showItemAudit(item)}><History className="h-4 w-4" aria-hidden="true" /> Lịch sử</Button>}
                 </div>
+                {auditPanel?.itemId === item.id && <div className="rounded-xl bg-slate-50 p-3 text-xs sm:col-start-2 sm:col-end-4"><strong>Lịch sử thay đổi</strong>{auditPanel.entries.length ? auditPanel.entries.map((entry) => <p key={entry.id} className="mt-2">{entry.createdAt} · {entry.actorName ?? 'Hệ thống'} · {entry.action}{entry.summary ? ` — ${entry.summary}` : ''}</p>) : <p className="mt-2 text-muted">Chưa có sự kiện audit.</p>}</div>}
               </article>
             ))}
           </div>
@@ -1817,6 +1989,15 @@ export function LegendRewardStudio() {
         </div>
       )}
       {message && <p className="rounded-2xl bg-brand-50 p-3 text-sm font-bold text-brand-700" aria-live="polite">{message}</p>}
+      <ConfirmDialog
+        open={Boolean(pendingLifecycle)}
+        danger={lifecycleDialog?.danger}
+        title={lifecycleDialog?.title ?? 'Xác nhận thao tác'}
+        description={lifecycleDialog?.description}
+        confirmLabel={lifecycleDialog?.label}
+        onConfirm={() => void executeLifecycle()}
+        onCancel={() => setPendingLifecycle(null)}
+      />
     </div>
   )
 }

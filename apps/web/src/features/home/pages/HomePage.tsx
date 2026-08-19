@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react'
 import type { CSSProperties } from 'react'
 import { Link } from 'react-router'
-import { Play, Zap } from 'lucide-react'
+import { Play, Zap, Trophy, ArrowRight, Box } from 'lucide-react'
 import { api, type AchievementRow, type CourseSummary } from '@/shared/lib/api'
 import { useAuth } from '@/shared/store/auth'
 import { courseCoverHint, designerAssets } from '@/shared/config/assets'
@@ -556,6 +556,41 @@ export function HomePage() {
               </div>
         </section>
       )}
+
+      {/* ── ASMO Olympiad 3D Arena Featured Banner ──────────────── */}
+      <section className="relative overflow-hidden rounded-[2rem] border-2 border-indigo-200 bg-gradient-to-r from-brand-600 via-indigo-600 to-sky-600 p-5 sm:p-6 text-white shadow-clay">
+        <div className="relative z-10 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div className="max-w-xl">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3 py-0.5 text-xs font-bold backdrop-blur-md mb-2">
+              <Trophy className="size-3.5 text-sun-300" />
+              <span>Olympic Quốc Tế ASMO</span>
+            </div>
+            <h2 className="font-display text-xl sm:text-2xl font-black text-white">
+              Đấu Trường Toán, Khoa Học & Tiếng Anh 3D 🏆
+            </h2>
+            <p className="mt-1 text-xs sm:text-sm text-indigo-100 leading-relaxed">
+              Khám phá 7 dạng toán hình học không gian 3D tương tác cùng trợ giảng AI Mèo Mee!
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2 shrink-0">
+            <Link
+              to="/asmo/lab"
+              className="inline-flex items-center gap-1.5 rounded-2xl bg-white/20 hover:bg-white/30 border border-white/30 px-3.5 py-2.5 text-xs font-bold text-white shadow-xs backdrop-blur-md transition-all active:scale-95"
+            >
+              <Box className="size-4" />
+              <span>Phòng Lab 3D</span>
+            </Link>
+            <Link
+              to="/asmo"
+              className="inline-flex items-center gap-1.5 rounded-2xl bg-sun-400 hover:bg-sun-300 px-4 py-2.5 text-xs font-extrabold text-slate-950 shadow-md transition-all active:scale-95"
+            >
+              <span>Vào Đấu Trường</span>
+              <ArrowRight className="size-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
 
       {/* ── Course catalog ──────────────────────────────────────── */}
       <section>

@@ -653,6 +653,42 @@ describe('StoryMee Gateway adapter', () => {
     )
   })
 
+  it('collapses duplicate catalog rows and preserves the real enrollment signal', async () => {
+    const childId = '11111111-1111-4111-8111-111111111111'
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      child: { id: childId, name: 'Bé Mây' },
+      courses: [
+        { id: 'course-1', title: 'Vùng 1', enrolled: false, metadata: { programId: 'program-1' } },
+        { id: 'course-1', title: 'Vùng 1', enrolled: true, parentAllowed: true, metadata: { programId: 'program-1' } },
+      ],
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{ courses: Array<{ id: string; enrolled: boolean }> }>(
+      `/api/parent/children/${childId}/courses`,
+    )
+
+    expect(result.courses).toEqual([expect.objectContaining({ id: 'course-1', enrolled: true })])
+  })
+
+  it('collapses duplicate pathway rows by course and keeps the strongest state', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(response({
+      pathway: {
+        student: { nickname: 'Mây', ageBand: '8-11' },
+        courses: [
+          { id: 'course-1', title: 'AI cơ bản', status: 'available', completionPercent: 0 },
+          { id: 'course-1', title: 'AI cơ bản', status: 'active', completionPercent: 45 },
+        ],
+      },
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await api<{ recommendedCourseId: string; courses: Array<{ id: string; status: string; completionPercent: number }> }>('/api/learning/pathway')
+
+    expect(result.recommendedCourseId).toBe('course-1')
+    expect(result.courses).toEqual([expect.objectContaining({ id: 'course-1', status: 'active', completionPercent: 45 })])
+  })
+
   it('routes parent consent changes to Account and preserves the child scope', async () => {
     const childId = '55555555-5555-4555-8555-555555555555'
     const fetchMock = vi.fn().mockResolvedValue(response({

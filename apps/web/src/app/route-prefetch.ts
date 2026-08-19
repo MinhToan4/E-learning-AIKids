@@ -16,10 +16,12 @@ export function prefetchRoute(path: string) {
             : key === 'progress' ? import('@/features/leaderboard/pages/LeaderboardPage')
               : key === 'events' ? import('@/features/events/pages/EventsPage')
                 : key === 'storybook' ? import('@/features/storybook/pages/StorybookPage')
+                  : key === 'community' ? import('@/features/storybook/pages/CommunityPage')
                   : key === 'achievements' ? import('@/features/achievements/pages/AchievementsPage')
                     : key === 'backpack' ? import('@/features/backpack/pages/BackpackPage')
                       : key === 'profile' ? import('@/features/profile/pages/ProfilePage')
                         : key === 'creative' ? import('@/features/creative/pages/CreativePage')
-                          : null
+                          : key === 'asmo' ? import('@/features/asmo/pages/AsmoHubPage')
+                            : null
   void load?.catch(() => prefetched.delete(key))
 }

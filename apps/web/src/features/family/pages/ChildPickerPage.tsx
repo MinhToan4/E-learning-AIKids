@@ -134,11 +134,12 @@ export function ChildPickerPage() {
         <header className="mb-6 flex items-start justify-between gap-3">
           <div className="min-w-0">
             <BrandLogo size="md" className="max-w-[140px]" />
-            <h1 className="font-display mt-3 text-3xl leading-tight text-text sm:text-4xl">
-              Con là ai hôm nay?
+            <p className="mt-3 text-xs font-extrabold uppercase tracking-widest text-brand-600">Chuyển chế độ thiết bị</p>
+            <h1 className="font-display mt-1 text-3xl leading-tight text-text sm:text-4xl">
+              Chọn hồ sơ để vào học
             </h1>
             <p className="mt-1 text-base text-muted sm:text-lg">
-              Chạm vào ảnh của con để bắt đầu học
+              Sau khi chọn, thiết bị sẽ chuyển sang không gian riêng của con. Phần quản lý của Ba / Mẹ sẽ được ẩn.
             </p>
           </div>
           <Link
@@ -146,7 +147,7 @@ export function ChildPickerPage() {
             className="ui-btn ui-btn-primary shrink-0 !min-h-11 !px-5 text-sm shadow-soft"
             title="Quay lại khu vực Ba / Mẹ"
           >
-            Khu vực Ba / Mẹ
+            Quay lại quản lý
           </Link>
         </header>
 
@@ -168,7 +169,7 @@ export function ChildPickerPage() {
         ) : (
           <ul
             className="grid grid-cols-2 gap-3 sm:grid-cols-3 sm:gap-4"
-            aria-label="Danh sách con"
+            aria-label="Chọn hồ sơ con để chuyển sang chế độ học"
           >
             {kids.map((k) => {
               const av = getAvatar(k.avatarId)

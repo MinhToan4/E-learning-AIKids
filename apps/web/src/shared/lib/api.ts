@@ -346,6 +346,12 @@ export function normalizeGatewayRequest(path: string, options: RequestInit = {})
       options,
     }
   }
+  if (path.startsWith('/api/admin/reward-mappings')) {
+    return {
+      path: path.replace('/api/admin/reward-mappings', '/api/v1/gamification/admin/reward-mappings'),
+      options,
+    }
+  }
   const gamificationMeAction = path.match(
     /^\/api\/gamification\/(storybook\/chapters\/[^/?]+\/claim|rewards\/equipment\/[^/?]+|social\/invites(?:\/accept)?|social\/invites\/[^/?]+\/review|social\/connections\/[^/?]+(?:\/favorite)?|social\/activities\/[^/?]+\/reaction)$/,
   )
@@ -1658,54 +1664,50 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     const courses = Array.isArray(payload.courses)
       ? payload.courses as Array<Record<string, unknown>>
       : []
+    const normalizedCourses = courses.map((row) => {
+      const mapped = mapCourse(row)
+      const metadata = recordValue(row.metadata)
+      return {
+        id: mapped.id,
+        title: mapped.title,
+        shortTitle: mapped.shortTitle,
+        ageLabel: mapped.ageLabel,
+        ageTrack: mapped.ageTrack ?? '',
+        tagline: mapped.tagline,
+        coverImage: mapped.coverImage,
+        description: mapped.description,
+        questCount: mapped.questCount,
+        stations: mapped.quests.map((quest) => ({ id: quest.id, order: quest.order, title: quest.title })),
+        programId: String(row.programId ?? row.programKey ?? metadata.programId ?? metadata.programKey ?? row.id ?? ''),
+        programTitle: String(row.programTitle ?? metadata.programTitle ?? row.title ?? ''),
+        programDescription: String(row.programDescription ?? metadata.programDescription ?? row.description ?? ''),
+        programImage: row.programImage ?? metadata.programImage ?? metadata.coverImage ?? null,
+        programSource: row.programSource === 'workspace' || row.programSource === 'creator_marketplace'
+          ? row.programSource
+          : metadata.programSource === 'workspace' || metadata.programSource === 'creator_marketplace'
+            ? metadata.programSource
+            : 'aikid_official',
+        regionOrder: Number(row.regionOrder ?? metadata.regionOrder ?? 0),
+        enrolled: row.enrolled === true,
+        parentAllowed: typeof row.parentAllowed === 'boolean' ? row.parentAllowed : null,
+      }
+    })
+    const coursesById = new Map<string, (typeof normalizedCourses)[number]>()
+    for (const course of normalizedCourses) {
+      const current = coursesById.get(course.id)
+      // LMS enrollment is canonical. Duplicate catalog rows must collapse to a
+      // single course while preserving any positive enrollment signal.
+      coursesById.set(course.id, current
+        ? { ...current, enrolled: current.enrolled || course.enrolled, parentAllowed: current.parentAllowed ?? course.parentAllowed }
+        : course)
+    }
     return {
       child: {
         id: String(child.id ?? ''),
         nickname: child.name ? String(child.name) : null,
         ageBand: child.ageBand ? String(child.ageBand) : null,
       },
-      courses: courses.map((row) => {
-        const mapped = mapCourse(row)
-        const metadata = recordValue(row.metadata)
-        return {
-          id: mapped.id,
-          title: mapped.title,
-          shortTitle: mapped.shortTitle,
-          ageLabel: mapped.ageLabel,
-          ageTrack: mapped.ageTrack ?? '',
-          tagline: mapped.tagline,
-          coverImage: mapped.coverImage,
-          description: mapped.description,
-          questCount: mapped.questCount,
-          stations: mapped.quests.map((quest) => ({
-            id: quest.id,
-            order: quest.order,
-            title: quest.title,
-          })),
-          programId: String(
-            row.programId ?? row.programKey ?? metadata.programId ?? metadata.programKey ?? row.id ?? '',
-          ),
-          programTitle: String(
-            row.programTitle ?? metadata.programTitle ?? row.title ?? '',
-          ),
-          programDescription: String(
-            row.programDescription ?? metadata.programDescription ?? row.description ?? '',
-          ),
-          programImage: row.programImage ?? metadata.programImage ?? metadata.coverImage ?? null,
-          programSource:
-            row.programSource === 'workspace' || row.programSource === 'creator_marketplace'
-              ? row.programSource
-              : metadata.programSource === 'workspace' || metadata.programSource === 'creator_marketplace'
-                ? metadata.programSource
-                : 'aikid_official',
-          regionOrder: Number(row.regionOrder ?? metadata.regionOrder ?? 0),
-          enrolled: row.enrolled === true,
-          parentAllowed:
-            typeof row.parentAllowed === 'boolean'
-              ? row.parentAllowed
-              : null,
-        }
-      }),
+      courses: [...coursesById.values()],
       enrolled: payload.enrolled,
       enrollment: payload.enrollment,
     }
@@ -1715,9 +1717,18 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     const courses = Array.isArray(source.courses)
       ? source.courses as Array<Record<string, unknown>>
       : []
-    const recommended =
-      courses.find((course) => course.status === 'active') ??
-      courses.find((course) => course.status === 'available')
+    const statusPriority: Record<string, number> = { completed: 4, active: 3, available: 2, locked: 1 }
+    const pathwayByCourseId = new Map<string, Record<string, unknown>>()
+    for (const course of courses) {
+      const id = String(course.id ?? '')
+      if (!id) continue
+      const current = pathwayByCourseId.get(id)
+      pathwayByCourseId.set(id, !current || (statusPriority[String(course.status)] ?? 0) > (statusPriority[String(current.status)] ?? 0)
+        ? course
+        : { ...current, completionPercent: Math.max(Number(current.completionPercent ?? 0), Number(course.completionPercent ?? 0)) })
+    }
+    const uniqueCourses = [...pathwayByCourseId.values()]
+    const recommended = uniqueCourses.find((course) => course.status === 'active') ?? uniqueCourses.find((course) => course.status === 'available')
     return {
       ...source,
       student: {
@@ -1729,7 +1740,7 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
       policy: source.policy ?? null,
       recommendedCourseId:
         source.recommendedCourseId ?? recommended?.id ?? null,
-      courses: courses.map((course) => ({
+      courses: uniqueCourses.map((course) => ({
         ...course,
         shortTitle: String(course.shortTitle ?? course.title ?? ''),
         coverImage: course.coverImage ? String(course.coverImage) : null,

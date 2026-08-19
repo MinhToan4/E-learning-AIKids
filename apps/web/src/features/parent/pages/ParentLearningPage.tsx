@@ -1,14 +1,21 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { Link } from 'react-router'
+import { Link, useSearchParams } from 'react-router'
 import {
   Award,
+  Activity,
+  ArrowRight,
   BookOpen,
   Check,
+  CircleCheckBig,
+  Clock3,
   Download,
+  Map as MapIcon,
   MessageSquareText,
   Plus,
   ShieldCheck,
   Sparkles,
+  TrendingUp,
+  TimerReset,
   UserRoundPlus,
 } from 'lucide-react'
 
@@ -18,7 +25,7 @@ import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageSkeleton } from '@/shared/components/ui/Skeleton'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
-import { api, downloadAuthorizedBlob } from '@/shared/lib/api'
+import { ApiError, api, downloadAuthorizedBlob } from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import { useAuth } from '@/shared/store/auth'
@@ -115,16 +122,33 @@ type Pathway = {
     missingPrerequisites: string[]
   }>
 }
+type ChildProgress = {
+  courseId: string | null
+  courses: Array<{ id: string; title: string; shortTitle: string; ageLabel: string }>
+  summary: { completed: number; total: number; totalStars: number; currentPhase: string | null }
+  quests: Array<{
+    id: string
+    order: number
+    title: string
+    status: string
+    phase: string
+    stars: number
+    xpEarned: number
+  }>
+}
 type LearningData = {
   competency: CompetencyMap
   credentials: Credential[]
   pathway: Pathway
+  courses: Course[]
+  progress: ChildProgress
+  subscription: { status: string; maxOpenCoursesPerChild: number }
   ageExperience: {
     status: 'ready' | 'configuration_required'
     policy: AgeExperiencePolicy | null
   }
 }
-type Section = 'feedback' | 'journey'
+type Section = 'overview' | 'pathway' | 'activity' | 'feedback' | 'growth'
 
 
 const levelLabels = {
@@ -157,12 +181,26 @@ function friendlyError(cause: unknown): string {
   return 'Đã xảy ra sự cố. Vui lòng thử lại.'
 }
 
+function friendlyEnrollmentError(cause: unknown): string {
+  if (cause instanceof ApiError) {
+    if (cause.status === 402 || cause.status === 403 || cause.code === 'ENTITLEMENT_REQUIRED') {
+      return 'Gói học hiện tại chưa có quyền mở vùng này. Ba / Mẹ hãy kiểm tra Gói học.'
+    }
+    if (cause.status === 409 || cause.code === 'COURSE_LIMIT_REACHED') {
+      return 'Con đã dùng hết số khóa được mở trong gói hiện tại.'
+    }
+  }
+  const message = friendlyError(cause)
+  return message === 'Error' ? 'Chưa thể cập nhật khóa học. Vui lòng kiểm tra gói học và thử lại.' : message
+}
+
 export function ParentLearningPage() {
+  const [searchParams, setSearchParams] = useSearchParams()
   const role = useAuth((s) => s.user?.role)
   const feedbackBadge = useParentFeedbackBadge(role)
   const [children, setChildren] = useState<Child[]>([])
   const [studentId, setStudentId] = useState('')
-  const [section, setSection] = useState<Section>('feedback')
+  const [section, setSection] = useState<Section>('overview')
   const [data, setData] = useState<LearningData | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
@@ -181,10 +219,23 @@ export function ParentLearningPage() {
     void api<{ children: Child[] }>('/api/parent/children')
       .then((response) => {
         setChildren(response.children)
-        setStudentId((current) => current || response.children[0]?.id || '')
+        const requestedChildId = searchParams.get('childId')
+        const initialChildId = response.children.some((child) => child.id === requestedChildId)
+          ? requestedChildId ?? ''
+          : response.children[0]?.id ?? ''
+        setStudentId(initialChildId)
       })
       .catch((cause) => setError(friendlyError(cause)))
-  }, [])
+  }, [searchParams])
+
+  const selectChild = useCallback((childId: string) => {
+    setStudentId(childId)
+    setSearchParams((current) => {
+      const next = new URLSearchParams(current)
+      next.set('childId', childId)
+      return next
+    }, { replace: true })
+  }, [setSearchParams])
 
   const load = useCallback(async () => {
     if (!studentId) {
@@ -195,7 +246,7 @@ export function ParentLearningPage() {
     setError(null)
     try {
       const query = `studentId=${encodeURIComponent(studentId)}`
-      const [competency, credentials, pathway, ageExperience] = await Promise.all([
+      const [competency, credentials, pathway, ageExperience, courseResponse, progress, subscriptionResponse] = await Promise.all([
         api<CompetencyMap>(`/api/competency-map?${query}`),
         api<{ credentials: Credential[] }>(`/api/credentials?${query}`),
         learningApi.getPathway(studentId),
@@ -203,11 +254,17 @@ export function ParentLearningPage() {
           status: 'ready' | 'configuration_required'
           policy: AgeExperiencePolicy | null
         }>(`/api/learning/age-policy?${query}`),
+        api<{ courses: Course[] }>(`/api/parent/children/${studentId}/courses`),
+        api<ChildProgress>(`/api/parent/children/${studentId}/progress`),
+        api<{ subscription: LearningData['subscription'] }>('/api/parent/subscription'),
       ])
       setData({
         competency,
         credentials: credentials.credentials,
         pathway,
+        courses: courseResponse.courses,
+        progress,
+        subscription: subscriptionResponse.subscription,
         ageExperience,
       })
     } catch (cause) {
@@ -216,6 +273,26 @@ export function ParentLearningPage() {
       setLoading(false)
     }
   }, [studentId])
+
+  const toggleProgram = useCallback(async (courses: Course[], enroll: boolean) => {
+    if (!studentId) return
+    setBusy(true)
+    try {
+      for (const course of courses) {
+        await api(`/api/parent/children/${studentId}/courses`, {
+          method: 'POST',
+          body: JSON.stringify({ courseId: course.id, enroll }),
+        })
+      }
+      showToast(enroll ? 'Đã thêm vùng học vào lộ trình của con.' : 'Đã dừng vùng học.', 'success')
+      await load()
+    } catch (cause) {
+      await load()
+      showToast(friendlyEnrollmentError(cause), 'error')
+    } finally {
+      setBusy(false)
+    }
+  }, [load, showToast, studentId])
 
   useEffect(() => {
     void load()
@@ -247,14 +324,17 @@ export function ParentLearningPage() {
           <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
             Đồng hành cùng con
           </p>
-          <h1 className="font-display text-2xl sm:text-3xl">Tình trạng học tập</h1>
+          <h1 className="font-display text-2xl sm:text-3xl">Trung tâm học tập</h1>
           <p className="mt-1 max-w-2xl text-sm text-muted">
-            Nhận xét từ giáo viên, năng lực và chứng nhận được cập nhật theo tiến trình học của con.
+            Chọn từng con để theo dõi lộ trình, hoạt động, nhận xét và năng lực trên cùng một nơi.
           </p>
         </div>
         {children.length > 0 && (
           <div className="grid min-w-52 gap-2">
-            <p className="text-sm font-bold">Đang xem</p>
+            <div className="flex items-center justify-between gap-3">
+              <p className="text-sm font-bold">Đang xem hồ sơ học tập</p>
+              <Link to="/parent/kids" className="text-xs font-extrabold text-brand-600 hover:underline">Quản lý hồ sơ</Link>
+            </div>
             {/* Show child buttons instead of select — easier to see badge per child */}
             <div className="flex flex-wrap gap-2">
               {children.map((child) => {
@@ -264,7 +344,7 @@ export function ParentLearningPage() {
                   <button
                     key={child.id}
                     type="button"
-                    onClick={() => setStudentId(child.id)}
+                    onClick={() => selectChild(child.id)}
                     className={cn(
                       'relative flex min-h-10 items-center gap-2 rounded-2xl border-2 px-4 text-sm font-bold transition',
                       isActive
@@ -274,6 +354,7 @@ export function ParentLearningPage() {
                     aria-pressed={isActive}
                     aria-label={`${child.nickname ?? 'Học viên'}${hasNew ? ' — có nhận xét mới' : ''}`}
                   >
+                    <span className="grid h-7 w-7 place-items-center rounded-full bg-white text-xs text-brand-700">{(child.nickname ?? 'H').trim().slice(0, 1).toUpperCase()}</span>
                     {child.nickname ?? 'Học viên'}
                     {hasNew && (
                       <span
@@ -289,13 +370,14 @@ export function ParentLearningPage() {
         )}
       </header>
 
-      {/* Tab bar — chỉ 2 tab */}
-      <div className="flex gap-2 overflow-x-auto pb-1" role="tablist" aria-label="Nội dung tình trạng học">
+      <div className="flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist" aria-label="Nội dung học tập của con">
         {(
           [
-            ['feedback', 'Nhận xét giáo viên', MessageSquareText],
-            ['journey', 'Năng lực & chứng nhận', Sparkles],
-
+            ['overview', 'Tổng quan', TrendingUp],
+            ['pathway', 'Lộ trình', MapIcon],
+            ['activity', 'Hoạt động', Activity],
+            ['feedback', 'Nhận xét', MessageSquareText],
+            ['growth', 'Năng lực & thành tích', Sparkles],
           ] as const
         ).map(([key, label, Icon]) => (
           <button
@@ -328,11 +410,26 @@ export function ParentLearningPage() {
         <ErrorState message={error} onRetry={() => void load()} />
       ) : section === 'feedback' && studentId ? (
         <ParentTeacherFeedbackSection childId={studentId} />
+      ) : data && section === 'overview' ? (
+        <LearningOverview
+          child={children.find((child) => child.id === studentId) ?? null}
+          pathway={data.pathway}
+          credentials={data.credentials}
+          hasNewFeedback={feedbackBadge.byChild[studentId] ?? false}
+          onOpenPathway={() => setSection('pathway')}
+          onOpenFeedback={() => setSection('feedback')}
+        />
+      ) : data && section === 'pathway' ? (
+        <div className="grid gap-5">
+          <PathwaySection pathway={data.pathway} />
+          <CourseSelectionSection courses={data.courses} subscription={data.subscription} busy={busy} onToggleProgram={toggleProgram} />
+        </div>
+      ) : data && section === 'activity' ? (
+        <LearningActivitySection studentId={studentId} initialProgress={data.progress} />
       ) : data ? (
-        <JourneySection
+        <GrowthSection
           competency={data.competency}
           credentials={data.credentials}
-          pathway={data.pathway}
           ageExperience={data.ageExperience}
           busy={busy}
           onDownload={downloadCredential}
@@ -342,12 +439,192 @@ export function ParentLearningPage() {
   )
 }
 
+function LearningOverview({
+  child,
+  pathway,
+  credentials,
+  hasNewFeedback,
+  onOpenPathway,
+  onOpenFeedback,
+}: {
+  child: Child | null
+  pathway: Pathway
+  credentials: Credential[]
+  hasNewFeedback: boolean
+  onOpenPathway: () => void
+  onOpenFeedback: () => void
+}) {
+  const active = pathway.courses.find((course) => course.id === pathway.recommendedCourseId)
+    ?? pathway.courses.find((course) => course.status === 'active')
+  const completed = pathway.courses.filter((course) => course.status === 'completed').length
+  const childName = child?.nickname ?? 'Con'
+
+  return (
+    <div className="grid gap-5">
+      <section className="ui-card overflow-hidden">
+        <div className="grid gap-5 bg-gradient-to-br from-brand-50 via-white to-sky-50 p-5 sm:p-6 lg:grid-cols-[1fr_auto] lg:items-center">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Bước tiếp theo</p>
+            <h2 className="mt-1 font-display text-2xl">
+              {active ? `${childName} nên tiếp tục “${active.title}”` : `Chọn chương trình đầu tiên cho ${childName}`}
+            </h2>
+            <p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted">
+              {active
+                ? `Lộ trình đã hoàn thành ${active.completionPercent}%. Tiến độ và điều kiện mở khóa do hệ thống học tập cập nhật.`
+                : 'Chương trình phù hợp độ tuổi và quyền học hiện có sẽ xuất hiện trong mục Lộ trình.'}
+            </p>
+          </div>
+          <Button onClick={onOpenPathway}>
+            {active ? 'Xem lộ trình' : 'Chọn chương trình'} <ArrowRight size={17} aria-hidden="true" />
+          </Button>
+        </div>
+      </section>
+
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <OverviewStat icon={BookOpen} label="Đang học" value={pathway.courses.filter((course) => course.status === 'active').length} tone="brand" />
+        <OverviewStat icon={CircleCheckBig} label="Đã hoàn thành" value={completed} tone="mint" />
+        <OverviewStat icon={Award} label="Chứng nhận" value={credentials.length} tone="sun" />
+        <button type="button" onClick={onOpenFeedback} className="ui-card min-h-28 p-4 text-left transition hover:-translate-y-0.5 hover:border-brand-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brand-500">
+          <div className="flex items-center justify-between gap-3">
+            <span className="grid h-10 w-10 place-items-center rounded-2xl bg-coral-50 text-coral-600"><MessageSquareText size={20} aria-hidden="true" /></span>
+            {hasNewFeedback && <span className="rounded-full bg-coral-100 px-2 py-1 text-xs font-extrabold text-danger">Mới</span>}
+          </div>
+          <p className="mt-3 text-sm font-bold text-muted">Nhận xét giáo viên</p>
+          <p className="mt-1 text-sm font-extrabold text-text">{hasNewFeedback ? 'Có cập nhật mới' : 'Xem nhận xét'}</p>
+        </button>
+      </div>
+
+      <PathwaySection pathway={pathway} compact />
+    </div>
+  )
+}
+
+function OverviewStat({ icon: Icon, label, value, tone }: { icon: typeof BookOpen; label: string; value: number; tone: 'brand' | 'mint' | 'sun' }) {
+  const tones = {
+    brand: 'bg-brand-50 text-brand-600',
+    mint: 'bg-mint-50 text-success',
+    sun: 'bg-sun-50 text-warning',
+  }
+  return <article className="ui-card min-h-28 p-4"><span className={cn('grid h-10 w-10 place-items-center rounded-2xl', tones[tone])}><Icon size={20} aria-hidden="true" /></span><p className="mt-3 text-sm font-bold text-muted">{label}</p><p className="font-display text-2xl text-text">{value}</p></article>
+}
+
+function LearningActivitySection({ studentId, initialProgress }: { studentId: string; initialProgress: ChildProgress }) {
+  const [progress, setProgress] = useState(initialProgress)
+  const [courseId, setCourseId] = useState(initialProgress.courseId ?? '')
+  const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [showAll, setShowAll] = useState(false)
+
+  useEffect(() => {
+    setProgress(initialProgress)
+    setCourseId(initialProgress.courseId ?? '')
+    setShowAll(false)
+  }, [initialProgress])
+
+  const selectCourse = useCallback(async (nextCourseId: string) => {
+    setCourseId(nextCourseId)
+    setLoading(true)
+    setError(null)
+    try {
+      const next = await api<ChildProgress>(`/api/parent/children/${studentId}/progress?courseId=${encodeURIComponent(nextCourseId)}`)
+      setProgress(next)
+    } catch (cause) {
+      setError(friendlyError(cause))
+    } finally {
+      setLoading(false)
+    }
+  }, [studentId])
+
+  const visibleQuests = progress.quests
+    .filter((quest) => quest.status === 'completed' || quest.status === 'in_progress')
+    .sort((a, b) => b.order - a.order)
+  const completionPercent = progress.summary.total > 0
+    ? Math.round((progress.summary.completed / progress.summary.total) * 100)
+    : 0
+  const phaseLabel = progress.summary.completed === progress.summary.total && progress.summary.total > 0
+    ? 'Đã hoàn thành'
+    : progress.summary.currentPhase === 'game'
+    ? 'Trò chơi'
+    : progress.summary.currentPhase === 'practice'
+      ? 'Thực hành'
+      : progress.summary.currentPhase === 'check'
+        ? 'Kiểm tra'
+        : progress.summary.currentPhase === 'learn'
+          ? 'Khám phá'
+          : 'Chưa bắt đầu'
+  const currentQuest = progress.quests.find((quest) => quest.status === 'in_progress')
+  const recentQuests = showAll ? visibleQuests : visibleQuests.slice(0, 3)
+
+  return (
+    <div className="grid gap-5">
+      <section className="ui-card p-5 sm:p-6">
+        <div className="flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Tiến độ từ LMS</p>
+            <h2 className="font-display text-2xl">Hoạt động học</h2>
+            <p className="mt-1 text-sm text-muted">Theo dõi các trạm con đã hoàn thành hoặc đang học.</p>
+          </div>
+          {progress.courses.length > 0 && (
+            <label className="grid min-w-56 gap-1 text-sm font-bold">
+              Chương trình
+              <select className="field-input" value={courseId} disabled={loading} onChange={(event) => void selectCourse(event.target.value)}>
+                {progress.courses.map((course) => <option key={course.id} value={course.id}>{course.title}</option>)}
+              </select>
+            </label>
+          )}
+        </div>
+      </section>
+
+      {error ? <ErrorState message={error} onRetry={() => void selectCourse(courseId)} /> : loading ? <PageSkeleton rows={3} /> : progress.summary.total === 0 ? (
+        <EmptyState title="Chưa có hoạt động học" description="Hoạt động sẽ xuất hiện sau khi con bắt đầu trạm đầu tiên." />
+      ) : (
+        <>
+          <section className="ui-card overflow-hidden">
+            <div className="grid gap-5 bg-gradient-to-br from-brand-50 via-white to-mint-50 p-5 sm:p-6 lg:grid-cols-[1fr_auto] lg:items-center">
+              <div>
+                <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">{currentQuest ? 'Đang học' : phaseLabel}</p>
+                <h3 className="mt-1 font-display text-2xl">{currentQuest?.title ?? (completionPercent === 100 ? 'Đã hoàn thành chương trình' : 'Sẵn sàng cho trạm tiếp theo')}</h3>
+                <p className="mt-2 text-sm text-muted">{progress.summary.completed}/{progress.summary.total} trạm · {progress.summary.totalStars} sao · {completionPercent}% lộ trình</p>
+              </div>
+              <div className="grid h-24 w-24 place-items-center rounded-full bg-white shadow-soft" style={{ background: `conic-gradient(var(--color-brand-500) ${completionPercent}%, white 0)` }}>
+                <div className="grid h-20 w-20 place-items-center rounded-full bg-white font-display text-xl text-brand-700">{completionPercent}%</div>
+              </div>
+            </div>
+          </section>
+
+          <div className="grid gap-5 lg:grid-cols-[1.25fr_0.75fr]">
+            <section className="ui-card p-5 sm:p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div><p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Lịch sử gần đây</p><h3 className="font-display text-xl">Các trạm vừa học</h3></div>
+                <span className="rounded-full bg-mint-50 px-3 py-1 text-sm font-extrabold text-success">{progress.summary.completed} hoàn thành</span>
+              </div>
+              {recentQuests.length === 0 ? <p className="mt-5 text-sm text-muted">Con chưa bắt đầu trạm nào trong chương trình này.</p> : <ol className="mt-5 grid gap-2">{recentQuests.map((quest) => <li key={quest.id} className="flex items-center gap-3 border-b border-border py-3 last:border-0"><span className={cn('grid h-9 w-9 shrink-0 place-items-center rounded-xl text-sm font-extrabold', quest.status === 'completed' ? 'bg-mint-100 text-success' : 'bg-brand-100 text-brand-700')}>{quest.status === 'completed' ? <Check size={18} aria-hidden="true" /> : quest.order}</span><div className="min-w-0 flex-1"><p className="font-bold text-text">{quest.title}</p><p className="mt-0.5 text-xs text-muted">{quest.status === 'completed' ? 'Đã hoàn thành' : `Đang học · ${phaseLabel}`}</p></div><span className="shrink-0 text-xs font-extrabold text-muted">{quest.stars} sao · {quest.xpEarned} XP</span></li>)}</ol>}
+              {visibleQuests.length > 3 && <Button variant="ghost" className="mt-3 w-full" onClick={() => setShowAll((current) => !current)}>{showAll ? 'Thu gọn lịch sử' : `Xem tất cả ${visibleQuests.length} hoạt động`}</Button>}
+            </section>
+
+            <aside className="ui-card grid content-start gap-4 p-5 sm:p-6">
+              <div className="flex items-start gap-3"><span className="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-sky-50 text-sky-600"><Clock3 size={20} aria-hidden="true" /></span><div><h3 className="font-display text-xl">Nhịp học & thời lượng</h3><p className="mt-1 text-sm leading-relaxed text-muted">LMS chưa gửi phiên học, số phút và mốc thời gian nên hệ thống chưa thể vẽ biểu đồ tuần chính xác.</p></div></div>
+              <div className="rounded-2xl border border-dashed border-brand-200 bg-brand-50/50 p-4">
+                <p className="text-sm font-extrabold text-brand-800">Sẵn sàng khi LMS kết nối</p>
+                <ul className="mt-2 grid gap-2 text-sm text-muted"><li className="flex gap-2"><TrendingUp size={16} className="mt-0.5 shrink-0" /> Phút học và số phiên theo ngày</li><li className="flex gap-2"><TimerReset size={16} className="mt-0.5 shrink-0" /> Mục tiêu tuần, nhắc nghỉ và giới hạn giờ học</li><li className="flex gap-2"><Activity size={16} className="mt-0.5 shrink-0" /> So sánh xu hướng 7/30/90 ngày</li></ul>
+              </div>
+              <p className="text-xs leading-relaxed text-muted">Không dùng sao hoặc XP để suy đoán thời gian học.</p>
+            </aside>
+          </div>
+        </>
+      )}
+    </div>
+  )
+}
+
 function CourseSelectionSection({
   courses,
+  subscription,
   busy,
   onToggleProgram,
 }: {
   courses: Course[]
+  subscription: LearningData['subscription']
   busy: boolean
   onToggleProgram: (courses: Course[], enroll: boolean) => Promise<void>
 }) {
@@ -370,7 +647,7 @@ function CourseSelectionSection({
         source,
         regions: [],
       }
-      current.regions.push(course)
+      if (!current.regions.some((region) => region.id === course.id)) current.regions.push(course)
       grouped.set(id, current)
     }
     return [...grouped.values()].map((program) => ({
@@ -379,6 +656,15 @@ function CourseSelectionSection({
     }))
   }, [courses])
   const visiblePrograms = programs.filter((program) => program.source === space)
+  const enrolledCourseCount = courses.filter((course) => course.enrolled).length
+  const availableSlots = Math.max(0, subscription.maxOpenCoursesPerChild - enrolledCourseCount)
+  function openProgramDetails(programId: string) {
+    const details = document.getElementById(`program-${programId}-regions`)
+    if (details instanceof HTMLDetailsElement) {
+      details.open = true
+      details.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+    }
+  }
   const spaces: Array<{ id: Space; label: string; caption: string }> = [
     { id: 'aikid_official', label: 'AiKid', caption: 'Chương trình chính thức' },
     { id: 'workspace', label: 'Trường học', caption: 'Do trường phân phối' },
@@ -431,20 +717,25 @@ function CourseSelectionSection({
                   {program.description && <p className="mt-1 line-clamp-2 text-sm leading-relaxed text-muted">{program.description}</p>}
                   <p className="mt-2 text-xs font-extrabold text-muted">{program.regions.length} vùng · {stationCount} trạm · Tự học theo tiến độ riêng</p>
                 </div>
-                <Button className="w-full" variant={enrolled ? 'secondary' : 'primary'} disabled={busy} onClick={() => void onToggleProgram(program.regions, !enrolled)}>
-                  {enrolled ? <><Check size={17} aria-hidden="true" /> Bỏ chương trình</> : <><Plus size={17} aria-hidden="true" /> Đăng ký chương trình</>}
+                <Button className="w-full" variant={enrolled ? 'secondary' : 'primary'} disabled={busy} onClick={() => openProgramDetails(program.id)}>
+                  {enrolled
+                    ? <><Check size={17} aria-hidden="true" /> Đã đăng ký đủ</>
+                    : <><Plus size={17} aria-hidden="true" /> {enrolledCount > 0 ? `Chọn thêm ${program.regions.length - enrolledCount} vùng` : 'Chọn vùng học'}</>}
                 </Button>
               </div>
-              <details className="border-t border-border bg-white/80">
+              <details id={`program-${program.id}-regions`} className="border-t border-border bg-white/80">
                 <summary className="min-h-11 cursor-pointer px-4 py-3 text-sm font-extrabold text-brand-700">Xem vùng và trạm trong chương trình</summary>
                 <div className="grid gap-3 px-4 pb-4 md:grid-cols-2">
                   {program.regions.map((region, index) => <div key={region.id} className="rounded-2xl border border-border bg-white p-3">
                     <div className="flex items-start justify-between gap-3">
                       <div><p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">Vùng {index + 1}</p><h4 className="mt-0.5 font-display text-base">{region.title}</h4></div>
-                      <span className="shrink-0 rounded-full bg-sky-50 px-2 py-1 text-xs font-bold text-muted">{region.questCount ?? region.stations?.length ?? 0} trạm</span>
+                      <div className="flex shrink-0 flex-wrap justify-end gap-1"><span className="rounded-full bg-sky-50 px-2 py-1 text-xs font-bold text-muted">{region.questCount ?? region.stations?.length ?? 0} trạm</span>{region.enrolled && <span className="rounded-full bg-mint-100 px-2 py-1 text-xs font-extrabold text-success">Đã đăng ký</span>}</div>
                     </div>
                     {region.stations && region.stations.length > 0 && <ol className="mt-2 grid gap-1 text-xs text-muted">{region.stations.slice(0, 3).map((station) => <li key={station.id}><strong className="text-text">Trạm {station.order}:</strong> {station.title}</li>)}</ol>}
                     {(region.stations?.length ?? 0) > 3 && <p className="mt-1 text-xs font-bold text-brand-600">+ {(region.stations?.length ?? 0) - 3} trạm khác</p>}
+                    {!region.enrolled && (availableSlots > 0
+                      ? <Button className="mt-3 w-full" disabled={busy} onClick={() => void onToggleProgram([region], true)}><Plus size={16} aria-hidden="true" /> Đăng ký vùng này</Button>
+                      : <Link to="/parent/plan" className="ui-btn ui-btn-secondary mt-3 w-full">Đã mở {enrolledCourseCount}/{subscription.maxOpenCoursesPerChild} vùng · Nâng gói</Link>)}
                   </div>)}
                 </div>
               </details>
@@ -670,69 +961,55 @@ function PlacementSection({
   )
 }
 
-function JourneySection({
+function PathwaySection({ pathway, compact = false }: { pathway: Pathway; compact?: boolean }) {
+  return (
+    <section className="ui-card p-5">
+      <div>
+        <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">Lộ trình cá nhân</p>
+        <h2 className="font-display text-xl">Khóa đang học và bước tiếp theo</h2>
+      </div>
+      {pathway.courses.length === 0 ? (
+        <div className="mt-4 rounded-2xl bg-brand-50 p-4">
+          <p className="font-bold text-brand-800">Chưa có chương trình đang học</p>
+          <p className="mt-1 text-sm text-muted">Ba / Mẹ có thể chọn chương trình phù hợp ngay trong mục Lộ trình.</p>
+        </div>
+      ) : (
+        <div className={cn('mt-4 grid gap-3 sm:grid-cols-2', compact ? 'xl:grid-cols-3' : 'xl:grid-cols-3')}>
+          {pathway.courses.map((course) => (
+            <article key={course.id} className={cn('rounded-2xl border p-4', course.id === pathway.recommendedCourseId ? 'border-brand-300 bg-brand-50' : 'border-border bg-page')}>
+              <div className="flex items-start justify-between gap-2">
+                <h3 className="font-bold">{course.title}</h3>
+                {course.id === pathway.recommendedCourseId && <span className="rounded-full bg-brand-500 px-2 py-0.5 text-xs font-bold text-white">Nên học tiếp</span>}
+              </div>
+              <p className="mt-2 text-sm text-muted">{course.status === 'completed' ? 'Đã hoàn thành' : course.status === 'active' ? 'Đang học' : course.status === 'available' ? 'Đã mở' : 'Đang khóa'} · {course.completionPercent}%</p>
+              <div className="mt-3 h-2 overflow-hidden rounded-full bg-white" aria-label={`Hoàn thành ${course.completionPercent}%`} role="progressbar" aria-valuenow={course.completionPercent} aria-valuemin={0} aria-valuemax={100}>
+                <div className="h-full rounded-full bg-brand-500" style={{ width: `${Math.min(100, Math.max(0, course.completionPercent))}%` }} />
+              </div>
+              {course.status === 'locked' && course.missingPrerequisites.length > 0 && <p className="mt-2 text-xs text-warning">Cần hoàn thành: {course.missingPrerequisites.join(', ')}</p>}
+            </article>
+          ))}
+        </div>
+      )}
+    </section>
+  )
+}
+
+function GrowthSection({
   competency,
   credentials,
-  pathway,
   ageExperience,
   busy,
   onDownload,
 }: {
   competency: CompetencyMap
   credentials: Credential[]
-  pathway: Pathway
   ageExperience: LearningData['ageExperience']
   busy: boolean
   onDownload: (credential: Credential) => void
 }) {
+  const levelWidth = { no_data: 0, not_met: 25, developing: 62, achieved: 100 } as const
   return (
     <div className="grid gap-5 lg:grid-cols-[1.35fr_0.65fr]">
-      <section className="ui-card p-5 lg:col-span-2">
-        <div>
-          <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">
-            Lộ trình cá nhân
-          </p>
-          <h2 className="font-display text-xl">Khóa đang học và bước tiếp theo</h2>
-        </div>
-        <div className="mt-4 grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
-          {pathway.courses.map((course) => (
-            <article
-              key={course.id}
-              className={cn(
-                'rounded-2xl border p-4',
-                course.id === pathway.recommendedCourseId
-                  ? 'border-brand-300 bg-brand-50'
-                  : 'border-border bg-page',
-              )}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <h3 className="font-bold">{course.title}</h3>
-                {course.id === pathway.recommendedCourseId && (
-                  <span className="rounded-full bg-brand-500 px-2 py-0.5 text-xs font-bold text-white">
-                    Nên học tiếp
-                  </span>
-                )}
-              </div>
-              <p className="mt-2 text-sm text-muted">
-                {course.status === 'completed'
-                  ? 'Đã hoàn thành'
-                  : course.status === 'active'
-                    ? 'Đang học'
-                    : course.status === 'available'
-                      ? 'Đã mở'
-                      : 'Đang khóa'}
-                {' · '}
-                {course.completionPercent}%
-              </p>
-              {course.status === 'locked' && course.missingPrerequisites.length > 0 && (
-                <p className="mt-1 text-xs text-warning">
-                  Cần hoàn thành: {course.missingPrerequisites.join(', ')}
-                </p>
-              )}
-            </article>
-          ))}
-        </div>
-      </section>
       <section className="ui-card p-5">
         <div className="mb-4 flex items-start gap-3">
           <ShieldCheck className="text-brand-500" aria-hidden="true" />
@@ -754,13 +1031,13 @@ function JourneySection({
                 <h3 className="font-bold">{framework.name}</h3>
                 <div className="mt-3 space-y-3">
                   {framework.domains.map((domain) => (
-                    <div key={domain.id} className="rounded-2xl bg-brand-50/60 p-3">
-                      <p className="font-bold text-brand-700">{domain.name}</p>
-                      <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                    <div key={domain.id} className="rounded-3xl border border-border bg-page p-4">
+                      <div className="flex items-center justify-between gap-3"><p className="font-display text-lg text-brand-800">{domain.name}</p><span className="text-xs font-bold text-muted">{domain.skills.reduce((sum, skill) => sum + skill.result.evidenceCount, 0)} bằng chứng</span></div>
+                      <div className="mt-3 grid gap-3">
                         {domain.skills.map((skill) => (
-                          <div key={skill.id} className="rounded-xl bg-white p-3">
+                          <div key={skill.id} className="rounded-2xl bg-white p-4 shadow-soft">
                             <div className="flex items-start justify-between gap-2">
-                              <p className="text-sm font-semibold">
+                              <p className="font-bold">
                                 {skill.learnerLabel || skill.name}
                               </p>
                               <span
@@ -778,12 +1055,8 @@ function JourneySection({
                                 ] ?? levelLabels[skill.result.level]}
                               </span>
                             </div>
-                            <p className="mt-1 text-xs text-muted">
-                              {skill.result.evidenceCount} bằng chứng
-                              {skill.result.scorePercent === null
-                                ? ''
-                                : ` · ${skill.result.scorePercent}%`}
-                            </p>
+                            <div className="mt-3 h-2 overflow-hidden rounded-full bg-brand-50" role="progressbar" aria-label={`${skill.learnerLabel || skill.name}: ${levelLabels[skill.result.level]}`} aria-valuenow={levelWidth[skill.result.level]} aria-valuemin={0} aria-valuemax={100}><div className={cn('h-full rounded-full', skill.result.level === 'achieved' ? 'bg-mint-500' : skill.result.level === 'developing' ? 'bg-sun-400' : 'bg-sky-300')} style={{ width: `${levelWidth[skill.result.level]}%` }} /></div>
+                            <div className="mt-2 flex items-center justify-between gap-2 text-xs text-muted"><span>{skill.result.evidenceCount === 0 ? 'Cần thêm trải nghiệm để đánh giá' : `${skill.result.evidenceCount} bằng chứng học tập`}</span>{skill.result.scorePercent !== null && <span className="font-bold">Kết quả gần nhất {skill.result.scorePercent}%</span>}</div>
                           </div>
                         ))}
                       </div>
