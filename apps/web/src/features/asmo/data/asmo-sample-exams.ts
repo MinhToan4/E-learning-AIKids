@@ -346,22 +346,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Student A (15s)"
+            "text": "Student A"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Student B (13s)"
+            "text": "Student B"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Student C (14s)"
+            "text": "Student C"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Student D (17s)"
+            "text": "Student D"
           }
         ],
         "correctAnswer": "B",
@@ -589,7 +589,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 2: Kết luận",
             "description": "Chọn đáp án C. 4."
           }
-        ]
+        ],
+        "svgDiagramKey": "q11_vertical_sub"
       },
       {
         "id": "asmo-math-g1-2020-r1-q12",
@@ -2691,27 +2692,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Clock A (8:30)"
+            "text": "Đồng hồ A",
+            "svgDiagramKey": "clock_8_30"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Clock B (6:00)"
+            "text": "Đồng hồ B",
+            "svgDiagramKey": "clock_6_00"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Clock C (11:30)"
+            "text": "Đồng hồ C",
+            "svgDiagramKey": "clock_11_30"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Clock D (1:30)"
+            "text": "Đồng hồ D",
+            "svgDiagramKey": "clock_1_30"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "Clock E (3:30)"
+            "text": "Đồng hồ E",
+            "svgDiagramKey": "clock_3_30"
           }
         ],
         "correctAnswer": "D",
@@ -2735,7 +2741,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "3:30 minus 2 hours is 1:30. Clock D shows 1:30. Option D.\n\n➔ Do đó đáp án chính xác là: **D**."
           }
         ],
-        "diagramDescription": "A main analog clock displaying 3:30. Five option clocks: A (8:30), B (6:00), C (11:30), D (1:30), E (3:30)."
+        "diagramDescription": "A main analog clock displaying 3:30. Five option clocks: A (8:30), B (6:00), C (11:30), D (1:30), E (3:30).",
+        "svgDiagramKey": "clock_3_30"
       },
       {
         "id": "asmo-math-g1-2015-r3-q05",
@@ -3210,27 +3217,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Fraction A (6/10)"
+            "text": "Phân số A",
+            "svgDiagramKey": "fraction_6_10"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Fraction B (2/4)"
+            "text": "Phân số B",
+            "svgDiagramKey": "fraction_2_4"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Fraction C (1/3)"
+            "text": "Phân số C",
+            "svgDiagramKey": "fraction_1_3"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Fraction D (2/4)"
+            "text": "Phân số D",
+            "svgDiagramKey": "fraction_2_4"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "Fraction E (4/8)"
+            "text": "Phân số E",
+            "svgDiagramKey": "fraction_4_8"
           }
         ],
         "correctAnswer": "A",
@@ -3851,27 +3863,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Clock A (8:30)"
+            "text": "Đồng hồ A",
+            "svgDiagramKey": "clock_8_30"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Clock B (6:00)"
+            "text": "Đồng hồ B",
+            "svgDiagramKey": "clock_6_00"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Clock C (11:30)"
+            "text": "Đồng hồ C",
+            "svgDiagramKey": "clock_11_30"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Clock D (1:30)"
+            "text": "Đồng hồ D",
+            "svgDiagramKey": "clock_1_30"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "Clock E (3:30)"
+            "text": "Đồng hồ E",
+            "svgDiagramKey": "clock_3_30"
           }
         ],
         "correctAnswer": "B",
@@ -3895,7 +3912,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "10:00 minus 4 hours is 6:00. Clock B displays 6:00. Option B.\n\n➔ Do đó đáp án chính xác là: **B**."
           }
         ],
-        "diagramDescription": "A main analog clock displaying 10:00. Five option clocks: A (8:30), B (6:00), C (11:30), D (1:30), E (3:30)."
+        "diagramDescription": "A main analog clock displaying 10:00. Five option clocks: A (8:30), B (6:00), C (11:30), D (1:30), E (3:30).",
+        "svgDiagramKey": "clock_10_00"
       },
       {
         "id": "asmo-math-g1-2016-r4-q05",
@@ -4399,27 +4417,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Fraction A (6/10)"
+            "text": "Phân số A",
+            "svgDiagramKey": "fraction_6_10"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Fraction B (2/4)"
+            "text": "Phân số B",
+            "svgDiagramKey": "fraction_2_4"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Fraction C (1/3)"
+            "text": "Phân số C",
+            "svgDiagramKey": "fraction_1_3"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Fraction D (2/4)"
+            "text": "Phân số D",
+            "svgDiagramKey": "fraction_2_4"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "Fraction E (4/8)"
+            "text": "Phân số E",
+            "svgDiagramKey": "fraction_4_8"
           }
         ],
         "correctAnswer": "D",
@@ -5634,7 +5657,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "Figure with 2 columns of 2 square divisions (4 triangles)"
+            "text": "Figure with 2 columns of 2 square divisions"
           },
           {
             "id": "C",
@@ -9135,7 +9158,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           "camera": {
             "x": 0,
             "y": 0.2,
-            "z": 7.0
+            "z": 7
           },
           "leftWeightCount": 2,
           "rightWeightCount": 6,
@@ -10324,7 +10347,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "2 black squares at bottom (0 circles)"
+            "text": "2 black squares at bottom"
           },
           {
             "id": "C",
@@ -47843,7 +47866,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "4R/5      (4 Marks)"
+            "text": "4R/5"
           }
         ],
         "correctAnswer": "B",
@@ -50375,7 +50398,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "A,B,AB orO (3 Marks)"
+            "text": "A,B,AB orO"
           }
         ],
         "correctAnswer": "A",
@@ -50645,7 +50668,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "CFCscan cause damage to ozonelayers. (3 Marks)"
+            "text": "CFCscan cause damage to ozonelayers."
           }
         ],
         "correctAnswer": "A",
@@ -50754,7 +50777,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Leaded petrol willcause knocking sounds incar engines. (4 Marks)"
+            "text": "Leaded petrol willcause knocking sounds incar engines."
           }
         ],
         "correctAnswer": "A",
@@ -50858,7 +50881,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "4R/5 (4 Marks)"
+            "text": "4R/5"
           }
         ],
         "correctAnswer": "B",
@@ -50895,7 +50918,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "studentis asked tomeasure 12mlofa liquidas precisely as possible.Which piece of equipment shouldshe select for thistask? 18.What valueshould be reported fortheburet reading shown? (4 Marks) 19.The initialactivity ofa radioactive isotopeis120Bq and thehalf-life is20minutes. For asample ofthesame isotopewithtwice themass, thevalues would be: Initial Activitiy/ Bq Half Life / minutes A 120 20"
+            "text": "12 ml buret measurement"
           },
           {
             "id": "B",
@@ -50910,7 +50933,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "120 40 (4 Marks)"
+            "text": "120 40"
           }
         ],
         "correctAnswer": "B",
@@ -51289,7 +51312,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "A,B,AB orO (3 Marks)"
+            "text": "A,B,AB orO"
           }
         ],
         "correctAnswer": "A",
@@ -51559,7 +51582,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "CFCscan cause damage to ozonelayers. (3 Marks)"
+            "text": "CFCscan cause damage to ozonelayers."
           }
         ],
         "correctAnswer": "A",
@@ -51668,7 +51691,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Leaded petrol willcause knocking sounds incar engines. (4 Marks)"
+            "text": "Leaded petrol willcause knocking sounds incar engines."
           }
         ],
         "correctAnswer": "A",
@@ -51772,7 +51795,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "4R/5 (4 Marks)"
+            "text": "4R/5"
           }
         ],
         "correctAnswer": "A",
@@ -51809,7 +51832,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "studentis asked tomeasure 12mlofa liquidas precisely as possible.Which piece of equipment shouldshe select for thistask? 18.What valueshould be reported fortheburet reading shown? (4 Marks) 19.The initialactivity ofa radioactive isotopeis120Bq and thehalf-life is20minutes. For asample ofthesame isotopewithtwice themass, thevalues would be: Initial Activitiy/ Bq Half Life / minutes A 120 20"
+            "text": "12 ml buret measurement"
           },
           {
             "id": "B",
@@ -51824,7 +51847,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "120 40 (4 Marks)"
+            "text": "120 40"
           }
         ],
         "correctAnswer": "A",
@@ -69196,7 +69219,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "is DIVISION ASIAN ENGLISH OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4"
+            "text": "is"
           },
           {
             "id": "B",
@@ -69352,7 +69375,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "tell 44.A. is 45.A. and DIVISION ASIAN ENGLISH OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4"
+            "text": "tell 44.A. is 45.A. and"
           },
           {
             "id": "B",
