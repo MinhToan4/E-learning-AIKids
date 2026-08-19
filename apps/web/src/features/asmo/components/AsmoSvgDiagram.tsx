@@ -8,159 +8,6 @@ type Props = {
 export function AsmoSvgDiagram({ diagramKey, className }: Props) {
   switch (diagramKey) {
     // ==========================================
-    // CÂU 8: Phép toán lồng hình học (Chuẩn Vector 100% tọa độ cục bộ)
-    // ==========================================
-    case 'q08_shapes_equation':
-      return (
-        <div className="flex flex-col items-center justify-center p-4 sm:p-6 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-md mx-auto w-full">
-          <svg viewBox="0 0 300 200" className="w-full max-h-56 select-none font-bold">
-            {/* ROW 1: Square + Triangle = Triangle in Square */}
-            <g transform="translate(15, 10)">
-              <rect x="0" y="0" width="50" height="50" rx="4" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
-            </g>
-            <text x="85" y="37" fill="#0f172a" fontSize="24" textAnchor="middle" dominantBaseline="middle">+</text>
-            <g transform="translate(105, 10)">
-              <polygon points="25,4 48,46 2,46" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
-            </g>
-            <text x="175" y="37" fill="#0f172a" fontSize="24" textAnchor="middle" dominantBaseline="middle">=</text>
-            <g transform="translate(195, 10)">
-              <rect x="0" y="0" width="50" height="50" rx="4" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
-              <polygon points="25,12 40,40 10,40" fill="#e2e8f0" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
-            </g>
-
-            {/* ROW 2: Pentagon + Circle = Circle in Pentagon */}
-            <g transform="translate(15, 75)">
-              <polygon points="25,2 49,19 40,48 10,48 1,19" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
-            </g>
-            <text x="85" y="102" fill="#0f172a" fontSize="24" textAnchor="middle" dominantBaseline="middle">+</text>
-            <g transform="translate(105, 75)">
-              <circle cx="25" cy="25" r="23" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
-            </g>
-            <text x="175" y="102" fill="#0f172a" fontSize="24" textAnchor="middle" dominantBaseline="middle">=</text>
-            <g transform="translate(195, 75)">
-              <polygon points="25,2 49,19 40,48 10,48 1,19" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
-              <circle cx="25" cy="28" r="14" fill="#e2e8f0" stroke="#1e293b" strokeWidth="2" />
-            </g>
-
-            {/* ROW 3: Triangle + Circle = ? */}
-            <g transform="translate(15, 140)">
-              <polygon points="25,4 48,46 2,46" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
-            </g>
-            <text x="85" y="167" fill="#0f172a" fontSize="24" textAnchor="middle" dominantBaseline="middle">+</text>
-            <g transform="translate(105, 140)">
-              <circle cx="25" cy="25" r="23" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
-            </g>
-            <text x="175" y="167" fill="#0f172a" fontSize="24" textAnchor="middle" dominantBaseline="middle">=</text>
-            <g transform="translate(195, 140)">
-              <rect x="0" y="0" width="50" height="50" rx="10" fill="#fff1f2" stroke="#fb7185" strokeWidth="2" strokeDasharray="4 3" />
-              <text x="25" y="27" fill="#e11d48" fontSize="26" fontWeight="900" textAnchor="middle" dominantBaseline="middle">?</text>
-            </g>
-          </svg>
-        </div>
-      )
-
-    // Câu 8 Options (A, B, C, D) - Kích thước lớn, viền đậm
-    case 'q08_opt_A': // Square inside Triangle
-      return (
-        <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
-          <polygon points="35,6 65,64 5,64" fill="#f8fafc" stroke="#1e293b" strokeWidth="3" strokeLinejoin="round" />
-          <rect x="22.5" y="33" width="25" height="25" rx="3" fill="#e2e8f0" stroke="#1e293b" strokeWidth="2.5" />
-        </svg>
-      )
-    case 'q08_opt_B': // Pentagon inside Circle
-      return (
-        <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
-          <circle cx="35" cy="35" r="31" fill="#f8fafc" stroke="#1e293b" strokeWidth="3" />
-          <polygon points="35,16 51,28 45,49 25,49 19,28" fill="#e2e8f0" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
-        </svg>
-      )
-    case 'q08_opt_C': // Circle inside Triangle (Correct!)
-      return (
-        <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
-          <polygon points="35,6 65,64 5,64" fill="#f8fafc" stroke="#1e293b" strokeWidth="3" strokeLinejoin="round" />
-          <circle cx="35" cy="44" r="16" fill="#e2e8f0" stroke="#1e293b" strokeWidth="2.5" />
-        </svg>
-      )
-    case 'q08_opt_D': // Triangle inside Pentagon
-      return (
-        <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
-          <polygon points="35,6 65,28 53,64 17,64 5,28" fill="#f8fafc" stroke="#1e293b" strokeWidth="3" strokeLinejoin="round" />
-          <polygon points="35,25 50,54 20,54" fill="#e2e8f0" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
-        </svg>
-      )
-
-    // ==========================================
-    // CÂU 9: Que diêm to rõ, có đầu đỏ cho bé đếm chính xác
-    // ==========================================
-    case 'q09_opt_A': // Hình A (Square + tail = 6 matches)
-      return (
-        <svg viewBox="0 0 90 90" className="size-20 sm:size-24 shrink-0 select-none">
-          <line x1="20" y1="20" x2="65" y2="20" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="20" cy="20" r="4.5" fill="#ef4444" />
-          <line x1="20" y1="20" x2="20" y2="65" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="20" cy="65" r="4.5" fill="#ef4444" />
-          <line x1="20" y1="65" x2="65" y2="65" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="65" cy="65" r="4.5" fill="#ef4444" />
-          <line x1="65" y1="20" x2="65" y2="65" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="65" cy="20" r="4.5" fill="#ef4444" />
-          <line x1="65" y1="65" x2="82" y2="65" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="82" cy="65" r="4.5" fill="#ef4444" />
-          <line x1="65" y1="65" x2="65" y2="82" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="65" cy="82" r="4.5" fill="#ef4444" />
-        </svg>
-      )
-
-    case 'q09_opt_B': // Hình B (House = 5 matches)
-      return (
-        <svg viewBox="0 0 90 90" className="size-20 sm:size-24 shrink-0 select-none">
-          <line x1="45" y1="15" x2="18" y2="42" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="45" cy="15" r="4.5" fill="#ef4444" />
-          <line x1="45" y1="15" x2="72" y2="42" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="72" cy="42" r="4.5" fill="#ef4444" />
-          <line x1="22" y1="42" x2="22" y2="75" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="22" cy="42" r="4.5" fill="#ef4444" />
-          <line x1="68" y1="42" x2="68" y2="75" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="68" cy="42" r="4.5" fill="#ef4444" />
-          <line x1="22" y1="75" x2="68" y2="75" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="22" cy="75" r="4.5" fill="#ef4444" />
-        </svg>
-      )
-
-    case 'q09_opt_C': // Hình C (Scissors / Diamond Cross = 6 matches)
-      return (
-        <svg viewBox="0 0 90 90" className="size-20 sm:size-24 shrink-0 select-none">
-          <line x1="45" y1="15" x2="22" y2="40" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="45" cy="15" r="4.5" fill="#ef4444" />
-          <line x1="45" y1="15" x2="68" y2="40" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="68" cy="40" r="4.5" fill="#ef4444" />
-          <line x1="22" y1="40" x2="45" y2="62" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="22" cy="40" r="4.5" fill="#ef4444" />
-          <line x1="68" y1="40" x2="45" y2="62" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="45" cy="62" r="4.5" fill="#ef4444" />
-          <line x1="45" y1="62" x2="25" y2="80" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="25" cy="80" r="4.5" fill="#ef4444" />
-          <line x1="45" y1="62" x2="65" y2="80" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="65" cy="80" r="4.5" fill="#ef4444" />
-        </svg>
-      )
-
-    case 'q09_opt_D': // Hình D (Window double square = 7 matches - Correct!)
-      return (
-        <svg viewBox="0 0 90 90" className="size-20 sm:size-24 shrink-0 select-none">
-          <line x1="12" y1="28" x2="78" y2="28" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="12" cy="28" r="4.5" fill="#ef4444" />
-          <line x1="12" y1="64" x2="78" y2="64" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="78" cy="64" r="4.5" fill="#ef4444" />
-          <line x1="12" y1="28" x2="12" y2="64" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="12" cy="64" r="4.5" fill="#ef4444" />
-          <line x1="45" y1="28" x2="45" y2="64" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="45" cy="28" r="4.5" fill="#ef4444" />
-          <line x1="78" y1="28" x2="78" y2="64" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
-          <circle cx="78" cy="28" r="4.5" fill="#ef4444" />
-        </svg>
-      )
-
-    // ==========================================
     // CÂU 1: Đếm bóng đen và trắng (To rõ)
     // ==========================================
     case 'q01_balls':
@@ -308,9 +155,218 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
       )
 
     // ==========================================
+    // CÂU 8: Phép toán lồng hình học
+    // ==========================================
+    case 'q08_shapes_equation':
+      return (
+        <div className="flex flex-col items-center justify-center p-4 sm:p-6 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-md mx-auto w-full">
+          <svg viewBox="0 0 300 200" className="w-full max-h-56 select-none font-bold">
+            {/* ROW 1: Square + Triangle = Triangle in Square */}
+            <g transform="translate(15, 10)">
+              <rect x="0" y="0" width="50" height="50" rx="4" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
+            </g>
+            <text x="85" y="37" fill="#0f172a" fontSize="24" textAnchor="middle" dominantBaseline="middle">+</text>
+            <g transform="translate(105, 10)">
+              <polygon points="25,4 48,46 2,46" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
+            </g>
+            <text x="175" y="37" fill="#0f172a" fontSize="24" textAnchor="middle" dominantBaseline="middle">=</text>
+            <g transform="translate(195, 10)">
+              <rect x="0" y="0" width="50" height="50" rx="4" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
+              <polygon points="25,12 40,40 10,40" fill="#e2e8f0" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
+            </g>
+
+            {/* ROW 2: Pentagon + Circle = Circle in Pentagon */}
+            <g transform="translate(15, 75)">
+              <polygon points="25,2 49,19 40,48 10,48 1,19" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
+            </g>
+            <text x="85" y="102" fill="#0f172a" fontSize="24" textAnchor="middle" dominantBaseline="middle">+</text>
+            <g transform="translate(105, 75)">
+              <circle cx="25" cy="25" r="23" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
+            </g>
+            <text x="175" y="102" fill="#0f172a" fontSize="24" textAnchor="middle" dominantBaseline="middle">=</text>
+            <g transform="translate(195, 75)">
+              <polygon points="25,2 49,19 40,48 10,48 1,19" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
+              <circle cx="25" cy="28" r="14" fill="#e2e8f0" stroke="#1e293b" strokeWidth="2" />
+            </g>
+
+            {/* ROW 3: Triangle + Circle = ? */}
+            <g transform="translate(15, 140)">
+              <polygon points="25,4 48,46 2,46" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
+            </g>
+            <text x="85" y="167" fill="#0f172a" fontSize="24" textAnchor="middle" dominantBaseline="middle">+</text>
+            <g transform="translate(105, 140)">
+              <circle cx="25" cy="25" r="23" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
+            </g>
+            <text x="175" y="167" fill="#0f172a" fontSize="24" textAnchor="middle" dominantBaseline="middle">=</text>
+            <g transform="translate(195, 140)">
+              <rect x="0" y="0" width="50" height="50" rx="10" fill="#fff1f2" stroke="#fb7185" strokeWidth="2" strokeDasharray="4 3" />
+              <text x="25" y="27" fill="#e11d48" fontSize="26" fontWeight="900" textAnchor="middle" dominantBaseline="middle">?</text>
+            </g>
+          </svg>
+        </div>
+      )
+
+    // Câu 8 Options
+    case 'q08_opt_A':
+      return (
+        <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
+          <polygon points="35,6 65,64 5,64" fill="#f8fafc" stroke="#1e293b" strokeWidth="3" strokeLinejoin="round" />
+          <rect x="22.5" y="33" width="25" height="25" rx="3" fill="#e2e8f0" stroke="#1e293b" strokeWidth="2.5" />
+        </svg>
+      )
+    case 'q08_opt_B':
+      return (
+        <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
+          <circle cx="35" cy="35" r="31" fill="#f8fafc" stroke="#1e293b" strokeWidth="3" />
+          <polygon points="35,16 51,28 45,49 25,49 19,28" fill="#e2e8f0" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'q08_opt_C':
+      return (
+        <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
+          <polygon points="35,6 65,64 5,64" fill="#f8fafc" stroke="#1e293b" strokeWidth="3" strokeLinejoin="round" />
+          <circle cx="35" cy="44" r="16" fill="#e2e8f0" stroke="#1e293b" strokeWidth="2.5" />
+        </svg>
+      )
+    case 'q08_opt_D':
+      return (
+        <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
+          <polygon points="35,6 65,28 53,64 17,64 5,28" fill="#f8fafc" stroke="#1e293b" strokeWidth="3" strokeLinejoin="round" />
+          <polygon points="35,25 50,54 20,54" fill="#e2e8f0" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
+        </svg>
+      )
+
+    // ==========================================
+    // CÂU 9: Que diêm
+    // ==========================================
+    case 'q09_opt_A':
+      return (
+        <svg viewBox="0 0 90 90" className="size-20 sm:size-24 shrink-0 select-none">
+          <line x1="20" y1="20" x2="65" y2="20" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="20" cy="20" r="4.5" fill="#ef4444" />
+          <line x1="20" y1="20" x2="20" y2="65" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="20" cy="65" r="4.5" fill="#ef4444" />
+          <line x1="20" y1="65" x2="65" y2="65" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="65" cy="65" r="4.5" fill="#ef4444" />
+          <line x1="65" y1="20" x2="65" y2="65" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="65" cy="20" r="4.5" fill="#ef4444" />
+          <line x1="65" y1="65" x2="82" y2="65" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="82" cy="65" r="4.5" fill="#ef4444" />
+          <line x1="65" y1="65" x2="65" y2="82" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="65" cy="82" r="4.5" fill="#ef4444" />
+        </svg>
+      )
+    case 'q09_opt_B':
+      return (
+        <svg viewBox="0 0 90 90" className="size-20 sm:size-24 shrink-0 select-none">
+          <line x1="45" y1="15" x2="18" y2="42" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="45" cy="15" r="4.5" fill="#ef4444" />
+          <line x1="45" y1="15" x2="72" y2="42" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="72" cy="42" r="4.5" fill="#ef4444" />
+          <line x1="22" y1="42" x2="22" y2="75" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="22" cy="42" r="4.5" fill="#ef4444" />
+          <line x1="68" y1="42" x2="68" y2="75" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="68" cy="42" r="4.5" fill="#ef4444" />
+          <line x1="22" y1="75" x2="68" y2="75" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="22" cy="75" r="4.5" fill="#ef4444" />
+        </svg>
+      )
+    case 'q09_opt_C':
+      return (
+        <svg viewBox="0 0 90 90" className="size-20 sm:size-24 shrink-0 select-none">
+          <line x1="45" y1="15" x2="22" y2="40" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="45" cy="15" r="4.5" fill="#ef4444" />
+          <line x1="45" y1="15" x2="68" y2="40" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="68" cy="40" r="4.5" fill="#ef4444" />
+          <line x1="22" y1="40" x2="45" y2="62" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="22" cy="40" r="4.5" fill="#ef4444" />
+          <line x1="68" y1="40" x2="45" y2="62" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="45" cy="62" r="4.5" fill="#ef4444" />
+          <line x1="45" y1="62" x2="25" y2="80" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="25" cy="80" r="4.5" fill="#ef4444" />
+          <line x1="45" y1="62" x2="65" y2="80" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="65" cy="80" r="4.5" fill="#ef4444" />
+        </svg>
+      )
+    case 'q09_opt_D':
+      return (
+        <svg viewBox="0 0 90 90" className="size-20 sm:size-24 shrink-0 select-none">
+          <line x1="12" y1="28" x2="78" y2="28" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="12" cy="28" r="4.5" fill="#ef4444" />
+          <line x1="12" y1="64" x2="78" y2="64" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="78" cy="64" r="4.5" fill="#ef4444" />
+          <line x1="12" y1="28" x2="12" y2="64" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="12" cy="64" r="4.5" fill="#ef4444" />
+          <line x1="45" y1="28" x2="45" y2="64" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="45" cy="28" r="4.5" fill="#ef4444" />
+          <line x1="78" y1="28" x2="78" y2="64" stroke="#d97706" strokeWidth="5.5" strokeLinecap="round" />
+          <circle cx="78" cy="28" r="4.5" fill="#ef4444" />
+        </svg>
+      )
+
+    // ==========================================
+    // CÂU 17: Mặt đồng hồ chỉ đúng 5:10
+    // ==========================================
+    case 'q17_clock':
+      return (
+        <div className="flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-xs mx-auto w-full">
+          <svg viewBox="0 0 200 200" className="w-full max-h-56 select-none font-bold">
+            {/* Clock Rim */}
+            <circle cx="100" cy="100" r="90" fill="#f8fafc" stroke="#1e293b" strokeWidth="6" />
+            <circle cx="100" cy="100" r="82" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1.5" />
+
+            {/* Numbers 1..12 */}
+            {[
+              { n: '12', x: 100, y: 36 },
+              { n: '1', x: 140, y: 47 },
+              { n: '2', x: 165, y: 72 },
+              { n: '3', x: 174, y: 106 },
+              { n: '4', x: 165, y: 140 },
+              { n: '5', x: 140, y: 165 },
+              { n: '6', x: 100, y: 174 },
+              { n: '7', x: 60, y: 165 },
+              { n: '8', x: 35, y: 140 },
+              { n: '9', x: 26, y: 106 },
+              { n: '10', x: 35, y: 72 },
+              { n: '11', x: 60, y: 47 },
+            ].map(({ n, x, y }) => (
+              <text key={n} x={x} y={y} fill="#1e293b" fontSize="16" textAnchor="middle" dominantBaseline="middle">
+                {n}
+              </text>
+            ))}
+
+            {/* Hour hand pointing at 5:10 (angle = 5*30 + 10*0.5 = 155 deg) */}
+            <line
+              x1="100"
+              y1="100"
+              x2={100 + 48 * Math.sin((155 * Math.PI) / 180)}
+              y2={100 - 48 * Math.cos((155 * Math.PI) / 180)}
+              stroke="#0f172a"
+              strokeWidth="5"
+              strokeLinecap="round"
+            />
+
+            {/* Minute hand pointing at 2 (10 min => angle = 60 deg) */}
+            <line
+              x1="100"
+              y1="100"
+              x2={100 + 68 * Math.sin((60 * Math.PI) / 180)}
+              y2={100 - 68 * Math.cos((60 * Math.PI) / 180)}
+              stroke="#3b82f6"
+              strokeWidth="3.5"
+              strokeLinecap="round"
+            />
+
+            {/* Center Pin */}
+            <circle cx="100" cy="100" r="5" fill="#ef4444" />
+          </svg>
+        </div>
+      )
+
+    // ==========================================
     // CÂU 20: Cắt bánh vuông A, B, C, D
     // ==========================================
-    case 'q20_opt_A': // Cross
+    case 'q20_opt_A':
       return (
         <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
           <rect x="6" y="6" width="58" height="58" fill="#fffbeb" stroke="#d97706" strokeWidth="3" rx="4" />
@@ -318,7 +374,7 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
           <line x1="6" y1="35" x2="64" y2="35" stroke="#92400e" strokeWidth="2.5" strokeDasharray="4 3" />
         </svg>
       )
-    case 'q20_opt_B': // 2 Diagonals
+    case 'q20_opt_B':
       return (
         <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
           <rect x="6" y="6" width="58" height="58" fill="#fffbeb" stroke="#d97706" strokeWidth="3" rx="4" />
@@ -326,7 +382,7 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
           <line x1="64" y1="6" x2="6" y2="64" stroke="#92400e" strokeWidth="2.5" strokeDasharray="4 3" />
         </svg>
       )
-    case 'q20_opt_C': // Wrong Cut (Central big triangle)
+    case 'q20_opt_C':
       return (
         <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
           <rect x="6" y="6" width="58" height="58" fill="#fef2f2" stroke="#ef4444" strokeWidth="3" rx="4" />
@@ -335,7 +391,7 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
           <line x1="35" y1="6" x2="35" y2="64" stroke="#b91c1c" strokeWidth="2.5" strokeDasharray="4 3" />
         </svg>
       )
-    case 'q20_opt_D': // 3 Diagonal stripes
+    case 'q20_opt_D':
       return (
         <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
           <rect x="6" y="6" width="58" height="58" fill="#fffbeb" stroke="#d97706" strokeWidth="3" rx="4" />
@@ -356,6 +412,38 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
             <polygon points="100,160 55,85 145,85" fill="#dcfce7" stroke="#15803d" strokeWidth="3" strokeLinejoin="round" />
           </svg>
         </div>
+      )
+
+    // ==========================================
+    // CÂU 25: 4 đường gấp khúc trên lưới 6x2
+    // ==========================================
+    case 'q25_opt_A':
+      return (
+        <svg viewBox="0 0 160 50" className="w-36 sm:w-44 h-12 shrink-0 select-none">
+          <rect x="2" y="2" width="156" height="46" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1" />
+          <polyline points="5,45 42.5,5 80,45 117.5,5 155,45" fill="none" stroke="#2563eb" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'q25_opt_B':
+      return (
+        <svg viewBox="0 0 160 50" className="w-36 sm:w-44 h-12 shrink-0 select-none">
+          <rect x="2" y="2" width="156" height="46" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1" />
+          <polyline points="5,45 55,5 105,45 155,5" fill="none" stroke="#059669" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'q25_opt_C':
+      return (
+        <svg viewBox="0 0 160 50" className="w-36 sm:w-44 h-12 shrink-0 select-none">
+          <rect x="2" y="2" width="156" height="46" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1" />
+          <polyline points="5,5 42.5,45 80,5 117.5,45 155,5" fill="none" stroke="#d97706" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'q25_opt_D':
+      return (
+        <svg viewBox="0 0 160 50" className="w-36 sm:w-44 h-12 shrink-0 select-none">
+          <rect x="2" y="2" width="156" height="46" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1" />
+          <polyline points="5,45 30,5 55,45 80,5 105,45 130,5 155,45" fill="none" stroke="#7c3aed" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
       )
 
     default:

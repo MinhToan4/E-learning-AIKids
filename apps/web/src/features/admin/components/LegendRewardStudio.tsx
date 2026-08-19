@@ -352,7 +352,8 @@ function StudioArtwork({ item, meaningful = false }: { item: StudioItem; meaning
   const src = studioArtwork(item) ?? (item.kind === 'title' ? rewardBadgeThumbnail(item.code) : undefined)
   if (!src || failed) return <Gift className="h-7 w-7 text-brand-500" aria-hidden="true" />
   if (studioAssetPreviewKind(src) === 'config') return <Settings2 className="h-7 w-7 text-brand-500" aria-label={meaningful ? item.name : undefined} />
-  return <img src={src} alt={meaningful ? item.name : ''} loading="lazy" onError={() => setFailed(true)} className="h-full w-full object-contain" />
+  const isCover = item.kind === 'background' || item.kind === 'theme' || item.kind === 'avatar' || item.kind === 'event_ticket'
+  return <img src={src} alt={meaningful ? item.name : ''} loading="lazy" onError={() => setFailed(true)} className={`h-full w-full ${isCover ? 'object-cover' : 'object-contain'}`} />
 }
 
 function ChapterStickerPreview({ item }: { item: StudioItem }) {
@@ -393,6 +394,7 @@ const emptyForm = () => ({
   kind: 'frame',
   rarity: 'common',
   assetUrl: '',
+  thumbnailUrl: '',
   unlockType: 'xp_level',
   unlockValue: '1',
   chapterSlug: 'P09',
@@ -459,6 +461,8 @@ export function LegendRewardStudio() {
   const [previewUrl, setPreviewUrl] = useState('')
   const [assetInfo, setAssetInfo] = useState('')
   const [assetUploadError, setAssetUploadError] = useState('')
+  const [thumbnailUploading, setThumbnailUploading] = useState(false)
+  const [thumbnailUploadError, setThumbnailUploadError] = useState('')
   const [chapterUploading, setChapterUploading] = useState('')
   const [chapterEditorFocus, setChapterEditorFocus] = useState<ChapterEditorFocus | null>(null)
   const [storybookPreviewMode, setStorybookPreviewMode] = useState<'locked' | 'complete'>('locked')
@@ -784,6 +788,7 @@ export function LegendRewardStudio() {
       kind: rewardKind,
       rarity: item.rarity,
       assetUrl: item.assets.imageUrl ?? item.assets.thumbnailUrl ?? studioArtwork(item) ?? '',
+      thumbnailUrl: item.assets.thumbnailUrl && item.assets.thumbnailUrl !== item.assets.imageUrl ? item.assets.thumbnailUrl : (item.assets.thumbnailUrl ?? ''),
       unlockType: typeof item.unlockRule.type === 'string' ? item.unlockRule.type : 'xp_level',
       unlockValue: String(item.unlockRule.value ?? '1'),
       chapterSlug: String(item.content.slug ?? item.code).toUpperCase(),
@@ -897,6 +902,29 @@ export function LegendRewardStudio() {
       setMessage(`${reason} File chưa được upload; version vẫn đang dùng asset cũ.`)
     } finally {
       setUploading(false)
+    }
+  }
+
+  const uploadThumbnail = async (file: File) => {
+    setThumbnailUploading(true)
+    setThumbnailUploadError('')
+    try {
+      const allowed = ['image/png', 'image/webp', 'image/jpeg', 'image/svg+xml']
+      if (!allowed.includes(file.type)) {
+        throw new Error('Ảnh icon / preview chỉ nhận file PNG, WebP, JPG hoặc SVG.')
+      }
+      if (file.size > 3 * 1024 * 1024) {
+        throw new Error('Ảnh icon / preview cho phép tối đa 3 MB.')
+      }
+      const asset = await uploadCmsImage({ file, purpose: 'legend_reward_thumbnail' })
+      setForm((current) => ({ ...current, thumbnailUrl: asset.url }))
+      setMessage('Đã tải ảnh icon / preview đại diện thành công.')
+    } catch (error) {
+      const reason = error instanceof Error ? error.message : 'Không tải được ảnh icon / preview.'
+      setThumbnailUploadError(reason)
+      setMessage(reason)
+    } finally {
+      setThumbnailUploading(false)
     }
   }
 

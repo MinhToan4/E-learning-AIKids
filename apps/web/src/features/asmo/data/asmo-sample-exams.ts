@@ -860,7 +860,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicName": "Đọc giờ trên mặt đồng hồ",
         "title": "Câu 17: Jack observes the clock in the afternoon, what is the time shown?",
         "text": "Jack observes the clock shown below in the afternoon, what is the time shown?\n(Jack quan sát mặt đồng hồ dưới đây vào buổi chiều, đồng hồ đang chỉ mấy giờ?)",
-        "imageUrl": "/asmo/assets/g1_2020/q17_clock.png",
+        "imageUrl": null,
         "options": [
           {
             "id": "A",
@@ -903,7 +903,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 3: Kết luận",
             "description": "5:10 p.m. Chọn đáp án B."
           }
-        ]
+        ],
+        "svgDiagramKey": "q17_clock"
       },
       {
         "id": "asmo-math-g1-2020-r1-q18",
@@ -1276,25 +1277,25 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "id": "A",
             "label": "A",
             "text": "Đường A",
-            "imageUrl": "/asmo/assets/g1_2020/q25_opt_A.png"
+            "svgDiagramKey": "q25_opt_A"
           },
           {
             "id": "B",
             "label": "B",
             "text": "Đường B",
-            "imageUrl": "/asmo/assets/g1_2020/q25_opt_B.png"
+            "svgDiagramKey": "q25_opt_B"
           },
           {
             "id": "C",
             "label": "C",
             "text": "Đường C",
-            "imageUrl": "/asmo/assets/g1_2020/q25_opt_C.png"
+            "svgDiagramKey": "q25_opt_C"
           },
           {
             "id": "D",
             "label": "D",
             "text": "Đường D",
-            "imageUrl": "/asmo/assets/g1_2020/q25_opt_D.png"
+            "svgDiagramKey": "q25_opt_D"
           }
         ],
         "correctAnswer": "B",
@@ -1317,7 +1318,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 3: Kết luận",
             "description": "Chọn đáp án B."
           }
-        ]
+        ],
+        "svgDiagramKey": null
       }
     ]
   },
