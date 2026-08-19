@@ -8,87 +8,97 @@ type Props = {
 export function AsmoSvgDiagram({ diagramKey, className }: Props) {
   switch (diagramKey) {
     // ==========================================
-    // CÂU 1: Đếm bóng đen và trắng (To rõ)
+    // CÂU 1: Đếm bóng đen (9 bóng đen, 4 bóng trắng) - Chuẩn PDF Trang 1
     // ==========================================
     case 'q01_balls':
       return (
-        <div className="flex items-center justify-center p-5 rounded-3xl bg-slate-50 border border-slate-200 shadow-sm max-w-lg mx-auto w-full">
-          <svg viewBox="0 0 380 180" className="w-full max-h-56 select-none">
-            <circle cx="50" cy="45" r="18" fill="#1e293b" />
-            <circle cx="75" cy="95" r="18" fill="#1e293b" />
-            <circle cx="135" cy="100" r="18" fill="#1e293b" />
-            <circle cx="30" cy="145" r="18" fill="#1e293b" />
-            <circle cx="120" cy="150" r="18" fill="#1e293b" />
-            <circle cx="235" cy="65" r="18" fill="#1e293b" />
-            <circle cx="265" cy="120" r="18" fill="#1e293b" />
-            <circle cx="350" cy="105" r="18" fill="#1e293b" />
-            <circle cx="325" cy="150" r="18" fill="#1e293b" />
+        <div className="flex items-center justify-center p-6 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-lg mx-auto w-full">
+          <svg viewBox="0 0 400 200" className="w-full max-h-60 select-none">
+            {/* 9 Black Balls */}
+            <circle cx="95" cy="55" r="17" fill="#0f172a" />
+            <circle cx="108" cy="108" r="17" fill="#0f172a" />
+            <circle cx="165" cy="118" r="17" fill="#0f172a" />
+            <circle cx="68" cy="170" r="17" fill="#0f172a" />
+            <circle cx="148" cy="165" r="17" fill="#0f172a" />
+            <circle cx="265" cy="85" r="17" fill="#0f172a" />
+            <circle cx="300" cy="138" r="17" fill="#0f172a" />
+            <circle cx="390" cy="120" r="17" fill="#0f172a" />
+            <circle cx="365" cy="170" r="17" fill="#0f172a" />
 
-            <circle cx="165" cy="50" r="18" fill="#ffffff" stroke="#334155" strokeWidth="3.5" />
-            <circle cx="185" cy="125" r="18" fill="#ffffff" stroke="#334155" strokeWidth="3.5" />
-            <circle cx="300" cy="70" r="18" fill="#ffffff" stroke="#334155" strokeWidth="3.5" />
-            <circle cx="260" cy="155" r="18" fill="#ffffff" stroke="#334155" strokeWidth="3.5" />
+            {/* 4 White Balls */}
+            <circle cx="198" cy="62" r="17" fill="#ffffff" stroke="#1e293b" strokeWidth="3.5" />
+            <circle cx="102" cy="155" r="17" fill="#ffffff" stroke="#1e293b" strokeWidth="3.5" />
+            <circle cx="218" cy="135" r="17" fill="#ffffff" stroke="#1e293b" strokeWidth="3.5" />
+            <circle cx="340" cy="90" r="17" fill="#ffffff" stroke="#1e293b" strokeWidth="3.5" />
+            <circle cx="282" cy="180" r="17" fill="#ffffff" stroke="#1e293b" strokeWidth="3.5" />
           </svg>
         </div>
       )
 
     // ==========================================
-    // CÂU 2: Chữ số xoay tìm số còn thiếu (4)
+    // CÂU 2: Chữ số xoay tìm chữ số thiếu (4) - Chuẩn PDF Trang 1
     // ==========================================
     case 'q02_digits':
       return (
-        <div className="flex items-center justify-center p-5 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-lg mx-auto w-full">
-          <svg viewBox="0 0 360 200" className="w-full max-h-60 select-none font-mono font-extrabold">
-            <rect x="10" y="10" width="340" height="180" rx="10" fill="#f8fafc" stroke="#1e293b" strokeWidth="3" />
-            <text x="45" y="70" transform="rotate(-30, 45, 70)" fill="#0f172a" fontSize="36">1</text>
-            <text x="130" y="65" fill="#0f172a" fontSize="36">5</text>
-            <text x="195" y="70" fill="#0f172a" fontSize="38">9</text>
-            <text x="300" y="65" fill="#0f172a" fontSize="36">8</text>
+        <div className="flex items-center justify-center p-6 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-xl mx-auto w-full">
+          <svg viewBox="0 0 460 220" className="w-full max-h-64 select-none">
+            {/* Box Border */}
+            <rect x="15" y="15" width="430" height="190" rx="10" fill="#ffffff" stroke="#1e293b" strokeWidth="3.5" />
 
-            <text x="55" y="140" transform="rotate(90, 55, 140)" fill="#0f172a" fontSize="36">3</text>
-            <text x="120" y="135" transform="rotate(90, 120, 135)" fill="#0f172a" fontSize="34">8</text>
-            <text x="170" y="140" fill="#0f172a" fontSize="36">2</text>
-            <text x="220" y="140" transform="rotate(25, 220, 140)" fill="#0f172a" fontSize="36">1</text>
-            <text x="270" y="135" fill="#0f172a" fontSize="36">2</text>
-            <text x="170" y="175" fill="#0f172a" fontSize="30">6</text>
-            <text x="275" y="175" transform="rotate(180, 275, 175)" fill="#0f172a" fontSize="32">7</text>
+            {/* Top Row: 1, 5, 9, 8 */}
+            <text x="65" y="70" transform="rotate(-30, 65, 70)" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="36" fontWeight="900" fill="#0f172a" textAnchor="middle" dominantBaseline="middle">1</text>
+            <text x="160" y="65" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="38" fontWeight="900" fill="#0f172a" textAnchor="middle" dominantBaseline="middle">5</text>
+            <text x="250" y="65" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="38" fontWeight="900" fill="#0f172a" textAnchor="middle" dominantBaseline="middle">9</text>
+            <text x="365" y="65" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="38" fontWeight="900" fill="#0f172a" textAnchor="middle" dominantBaseline="middle">8</text>
+
+            {/* Bottom Row / Floating: 3(rotated), 8(rotated), 2, 6, 1(italic), 2, 7(rotated) */}
+            <text x="75" y="145" transform="rotate(90, 75, 145)" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="36" fontWeight="900" fill="#0f172a" textAnchor="middle" dominantBaseline="middle">3</text>
+            <text x="140" y="145" transform="rotate(90, 140, 145)" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="36" fontWeight="900" fill="#0f172a" textAnchor="middle" dominantBaseline="middle">8</text>
+            <text x="205" y="130" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="36" fontWeight="900" fill="#0f172a" textAnchor="middle" dominantBaseline="middle">2</text>
+            <text x="205" y="172" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="28" fontWeight="900" fill="#0f172a" textAnchor="middle" dominantBaseline="middle">6</text>
+            <text x="260" y="138" transform="rotate(20, 260, 138)" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="36" fontWeight="900" fill="#0f172a" textAnchor="middle" dominantBaseline="middle">1</text>
+            <text x="325" y="125" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="36" fontWeight="900" fill="#0f172a" textAnchor="middle" dominantBaseline="middle">2</text>
+            <text x="325" y="172" transform="rotate(180, 325, 172)" fontFamily="ui-sans-serif, system-ui, sans-serif" fontSize="32" fontWeight="900" fill="#0f172a" textAnchor="middle" dominantBaseline="middle">7</text>
           </svg>
         </div>
       )
 
     // ==========================================
-    // CÂU 4: 3 Bập bênh cân đĩa
+    // CÂU 4: 3 Bập bênh cân đĩa - Chuẩn PDF Trang 2
     // ==========================================
     case 'q04_balance':
       return (
-        <div className="flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-xl mx-auto w-full">
-          <svg viewBox="0 0 450 180" className="w-full max-h-56 select-none text-3xl">
-            <g transform="translate(15, 25)">
-              <polygon points="70,110 58,135 82,135" fill="#0f172a" />
-              <line x1="15" y1="120" x2="125" y2="85" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" />
-              <text x="20" y="110" fontSize="28">🍌</text>
-              <text x="100" y="75" fontSize="26">🍓</text>
+        <div className="flex items-center justify-center p-5 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-2xl mx-auto w-full">
+          <svg viewBox="0 0 540 180" className="w-full max-h-56 select-none font-bold">
+            {/* Balance 1: Banana (heavy) vs Strawberry (light) */}
+            <g transform="translate(20, 30)">
+              <polygon points="75,100 63,125 87,125" fill="#1e293b" />
+              <line x1="15" y1="110" x2="135" y2="80" stroke="#1e293b" strokeWidth="5" strokeLinecap="round" />
+              <text x="20" y="98" fontSize="28">🍌</text>
+              <text x="110" y="70" fontSize="24">🍓</text>
             </g>
 
-            <g transform="translate(160, 25)">
-              <polygon points="70,110 58,135 82,135" fill="#0f172a" />
-              <line x1="15" y1="85" x2="125" y2="120" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" />
-              <text x="20" y="75" fontSize="26">🍎</text>
-              <text x="100" y="110" fontSize="28">🍌</text>
+            {/* Balance 2: Apple (heavy) vs Banana (light) */}
+            <g transform="translate(195, 30)">
+              <polygon points="75,100 63,125 87,125" fill="#1e293b" />
+              <line x1="15" y1="80" x2="135" y2="110" stroke="#1e293b" strokeWidth="5" strokeLinecap="round" />
+              <text x="20" y="70" fontSize="26">🍎</text>
+              <text x="110" y="100" fontSize="28">🍌</text>
             </g>
 
-            <g transform="translate(305, 25)">
-              <polygon points="70,110 58,135 82,135" fill="#0f172a" />
-              <line x1="15" y1="120" x2="125" y2="85" stroke="#0f172a" strokeWidth="5" strokeLinecap="round" />
-              <text x="18" y="110" fontSize="28">🍇</text>
-              <text x="100" y="75" fontSize="28">🍌</text>
+            {/* Balance 3: Grapes (heavy) vs Banana (light) */}
+            <g transform="translate(370, 30)">
+              <polygon points="75,100 63,125 87,125" fill="#1e293b" />
+              <line x1="15" y1="110" x2="135" y2="80" stroke="#1e293b" strokeWidth="5" strokeLinecap="round" />
+              <text x="18" y="100" fontSize="28">🍇</text>
+              <text x="110" y="70" fontSize="28">🍌</text>
             </g>
           </svg>
         </div>
       )
 
     // ==========================================
-    // CÂU 5: Lưới ô vuông 5x7 so sánh phần xám
+    // CÂU 5: Lưới ô vuông 5x7 so sánh phần xám - Chuẩn PDF Trang 2
     // ==========================================
     case 'q05_grey_grid':
       return (
@@ -96,6 +106,7 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
           <svg viewBox="0 0 190 260" className="w-full max-h-72 select-none font-bold">
             <rect x="5" y="5" width="180" height="252" fill="#ffffff" stroke="#1e293b" strokeWidth="3" />
 
+            {/* Area A: 7 grey cells */}
             <rect x="5" y="5" width="36" height="36" fill="#94a3b8" />
             <rect x="41" y="5" width="36" height="36" fill="#94a3b8" />
             <rect x="77" y="5" width="36" height="36" fill="#94a3b8" />
@@ -104,6 +115,7 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
             <rect x="5" y="77" width="36" height="36" fill="#94a3b8" />
             <rect x="77" y="77" width="36" height="36" fill="#94a3b8" />
 
+            {/* Area B: 9 grey cells */}
             <rect x="113" y="5" width="36" height="36" fill="#64748b" />
             <rect x="149" y="5" width="36" height="36" fill="#64748b" />
             <rect x="113" y="41" width="36" height="36" fill="#64748b" />
@@ -114,12 +126,14 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
             <rect x="149" y="113" width="36" height="36" fill="#64748b" />
             <rect x="41" y="77" width="36" height="36" fill="#94a3b8" />
 
+            {/* Area C: 5 grey cells */}
             <rect x="5" y="149" width="36" height="36" fill="#94a3b8" />
             <rect x="41" y="149" width="36" height="36" fill="#94a3b8" />
             <rect x="5" y="185" width="36" height="36" fill="#94a3b8" />
             <rect x="41" y="185" width="36" height="36" fill="#94a3b8" />
             <rect x="5" y="221" width="36" height="36" fill="#94a3b8" />
 
+            {/* Area D: 6 grey cells */}
             <rect x="113" y="149" width="36" height="36" fill="#94a3b8" />
             <rect x="149" y="149" width="36" height="36" fill="#94a3b8" />
             <rect x="113" y="185" width="36" height="36" fill="#94a3b8" />
@@ -127,6 +141,7 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
             <rect x="113" y="221" width="36" height="36" fill="#94a3b8" />
             <rect x="149" y="221" width="36" height="36" fill="#94a3b8" />
 
+            {/* Grid lines */}
             <line x1="41" y1="5" x2="41" y2="257" stroke="#1e293b" strokeWidth="2" />
             <line x1="77" y1="5" x2="77" y2="257" stroke="#1e293b" strokeWidth="2" />
             <line x1="113" y1="5" x2="113" y2="257" stroke="#1e293b" strokeWidth="2" />
@@ -139,6 +154,7 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
             <line x1="5" y1="185" x2="185" y2="185" stroke="#1e293b" strokeWidth="2" />
             <line x1="5" y1="221" x2="185" y2="221" stroke="#1e293b" strokeWidth="2" />
 
+            {/* Labels */}
             <rect x="41" y="41" width="36" height="36" fill="#ffffff" />
             <text x="59" y="64" fill="#0f172a" fontSize="18" textAnchor="middle" dominantBaseline="middle">A</text>
 
@@ -155,13 +171,13 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
       )
 
     // ==========================================
-    // CÂU 8: Phép toán lồng hình học
+    // CÂU 8: Phép toán lồng hình học - Chuẩn PDF Trang 3
     // ==========================================
     case 'q08_shapes_equation':
       return (
         <div className="flex flex-col items-center justify-center p-4 sm:p-6 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-md mx-auto w-full">
           <svg viewBox="0 0 300 200" className="w-full max-h-56 select-none font-bold">
-            {/* ROW 1: Square + Triangle = Triangle in Square */}
+            {/* ROW 1 */}
             <g transform="translate(15, 10)">
               <rect x="0" y="0" width="50" height="50" rx="4" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
             </g>
@@ -175,7 +191,7 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
               <polygon points="25,12 40,40 10,40" fill="#e2e8f0" stroke="#1e293b" strokeWidth="2" strokeLinejoin="round" />
             </g>
 
-            {/* ROW 2: Pentagon + Circle = Circle in Pentagon */}
+            {/* ROW 2 */}
             <g transform="translate(15, 75)">
               <polygon points="25,2 49,19 40,48 10,48 1,19" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
             </g>
@@ -189,7 +205,7 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
               <circle cx="25" cy="28" r="14" fill="#e2e8f0" stroke="#1e293b" strokeWidth="2" />
             </g>
 
-            {/* ROW 3: Triangle + Circle = ? */}
+            {/* ROW 3 */}
             <g transform="translate(15, 140)">
               <polygon points="25,4 48,46 2,46" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
             </g>
@@ -237,7 +253,7 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
       )
 
     // ==========================================
-    // CÂU 9: Que diêm
+    // CÂU 9: Que diêm - Chuẩn PDF Trang 4
     // ==========================================
     case 'q09_opt_A':
       return (
@@ -305,136 +321,175 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
       )
 
     // ==========================================
-    // CÂU 14: Bàn cờ khuyết 5x5
+    // CÂU 14: Bàn cờ khuyết 5x5 - Chuẩn PDF Trang 5
     // ==========================================
     case 'q14_puzzle':
       return (
-        <div className="flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-xs mx-auto w-full">
-          <svg viewBox="0 0 200 200" className="w-full max-h-56 select-none font-bold">
-            <rect x="10" y="10" width="180" height="180" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="4 3" />
-            {/* 5x5 Grid (36x36 per cell), cells with black/white checkerboard */}
-            {[
-              [1, 0, 1, 0, 1],
-              [0, 1, 0, 1, 0],
-              [1, 0, 1, 0, -1],
-              [0, 1, 0, -1, -1],
-              [1, 0, -1, -1, -1],
-            ].map((row, r) =>
-              row.map((cell, c) => {
-                if (cell === -1) return null
-                return (
+        <div className="flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-md mx-auto w-full">
+          <svg viewBox="0 0 320 150" className="w-full max-h-56 select-none font-bold">
+            {/* Full 5x5 Chessboard on Left */}
+            <g transform="translate(15, 15)">
+              <rect x="0" y="0" width="120" height="120" fill="#ffffff" stroke="#1e293b" strokeWidth="2" />
+              {[
+                [1, 0, 1, 0, 1],
+                [0, 1, 0, 1, 0],
+                [1, 0, 1, 0, 1],
+                [0, 1, 0, 1, 0],
+                [1, 0, 1, 0, 1],
+              ].map((row, r) =>
+                row.map((cell, c) => (
                   <rect
-                    key={`${r}-${c}`}
-                    x={10 + c * 36}
-                    y={10 + r * 36}
-                    width={36}
-                    height={36}
-                    fill={cell === 1 ? '#1e293b' : '#ffffff'}
-                    stroke="#475569"
-                    strokeWidth="1.5"
+                    key={`full-${r}-${c}`}
+                    x={c * 24}
+                    y={r * 24}
+                    width={24}
+                    height={24}
+                    fill={cell === 1 ? '#0f172a' : '#ffffff'}
+                    stroke="#1e293b"
+                    strokeWidth="1"
                   />
-                )
-              }),
-            )}
-            {/* Dashed outline of missing piece */}
-            <path
-              d="M 154 82 L 190 82 L 190 190 L 82 190 L 82 154 L 118 154 L 118 118 L 154 118 Z"
-              fill="#fee2e2"
-              fillOpacity="0.4"
-              stroke="#ef4444"
-              strokeWidth="2.5"
-              strokeDasharray="4 3"
-            />
+                )),
+              )}
+            </g>
+
+            {/* Transition Arrow in Center */}
+            <g transform="translate(145, 65)">
+              <polygon points="0,5 18,5 18,0 30,10 18,20 18,15 0,15" fill="#0f172a" />
+            </g>
+
+            {/* Cut 5x5 Chessboard on Right */}
+            <g transform="translate(185, 15)">
+              <rect x="0" y="0" width="120" height="120" fill="none" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="3 3" />
+              {[
+                [1, 0, 1, 0, 1],
+                [0, 1, 0, 1, -1],
+                [1, 0, 1, -1, -1],
+                [0, 1, -1, -1, -1],
+                [1, 0, 1, -1, -1],
+              ].map((row, r) =>
+                row.map((cell, c) => {
+                  if (cell === -1) return null
+                  return (
+                    <rect
+                      key={`cut-${r}-${c}`}
+                      x={c * 24}
+                      y={r * 24}
+                      width={24}
+                      height={24}
+                      fill={cell === 1 ? '#0f172a' : '#ffffff'}
+                      stroke="#1e293b"
+                      strokeWidth="1"
+                    />
+                  )
+                }),
+              )}
+            </g>
           </svg>
         </div>
       )
 
     case 'q14_opt_A':
       return (
-        <svg viewBox="0 0 90 90" className="size-16 sm:size-20 shrink-0 select-none">
-          <rect x="46" y="10" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
-          <rect x="64" y="10" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
-          <rect x="28" y="28" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
-          <rect x="46" y="28" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
-          <rect x="64" y="28" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
-          <rect x="10" y="46" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
-          <rect x="28" y="46" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
-          <rect x="46" y="46" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
-          <rect x="64" y="46" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+        <svg viewBox="0 0 80 110" className="w-16 h-22 shrink-0 select-none">
+          <g transform="translate(5, 5)">
+            <rect x="40" y="0" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="20" y="20" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="40" y="20" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="20" y="40" width="20" height="20" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+            <rect x="40" y="40" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="0" y="60" width="20" height="20" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+            <rect x="20" y="60" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="40" y="60" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="0" y="80" width="20" height="20" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+            <rect x="20" y="80" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+          </g>
         </svg>
       )
     case 'q14_opt_B':
       return (
-        <svg viewBox="0 0 90 90" className="size-16 sm:size-20 shrink-0 select-none">
-          <rect x="46" y="10" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
-          <rect x="64" y="10" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
-          <rect x="28" y="28" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
-          <rect x="46" y="28" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
-          <rect x="64" y="28" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
-          <rect x="10" y="46" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
-          <rect x="28" y="46" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
-          <rect x="46" y="46" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
-          <rect x="64" y="46" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+        <svg viewBox="0 0 80 110" className="w-16 h-22 shrink-0 select-none">
+          <g transform="translate(5, 5)">
+            <rect x="40" y="0" width="20" height="20" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+            <rect x="20" y="20" width="20" height="20" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+            <rect x="40" y="20" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="0" y="40" width="20" height="20" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+            <rect x="20" y="40" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="40" y="40" width="20" height="20" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+            <rect x="20" y="60" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="40" y="60" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+          </g>
         </svg>
       )
     case 'q14_opt_C':
       return (
-        <svg viewBox="0 0 90 90" className="size-16 sm:size-20 shrink-0 select-none">
-          <rect x="10" y="10" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
-          <rect x="28" y="10" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
-          <rect x="46" y="10" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
-          <rect x="64" y="10" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+        <svg viewBox="0 0 80 110" className="w-16 h-22 shrink-0 select-none">
+          <g transform="translate(5, 5)">
+            <rect x="0" y="0" width="20" height="20" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+            <rect x="20" y="0" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="0" y="20" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="20" y="20" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="40" y="20" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="0" y="40" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="20" y="40" width="20" height="20" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+            <rect x="0" y="60" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+          </g>
         </svg>
       )
     case 'q14_opt_D':
       return (
-        <svg viewBox="0 0 90 90" className="size-16 sm:size-20 shrink-0 select-none">
-          <rect x="10" y="10" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
-          <rect x="28" y="10" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
-          <rect x="46" y="10" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
-          <rect x="64" y="10" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+        <svg viewBox="0 0 80 110" className="w-16 h-22 shrink-0 select-none">
+          <g transform="translate(5, 5)">
+            <rect x="0" y="0" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="20" y="0" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="0" y="20" width="20" height="20" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+            <rect x="20" y="20" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="40" y="20" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="0" y="40" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="20" y="40" width="20" height="20" fill="#0f172a" stroke="#1e293b" strokeWidth="1" />
+            <rect x="0" y="60" width="20" height="20" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+          </g>
         </svg>
       )
 
     // ==========================================
-    // CÂU 15: Mê cung Pure Vector SVG Siêu Nét
+    // CÂU 15: Mê cung Pure Vector SVG - Chuẩn PDF Trang 6
     // ==========================================
     case 'q15_maze':
       return (
-        <div className="flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-md mx-auto w-full">
+        <div className="flex items-center justify-center p-5 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-md mx-auto w-full">
           <svg viewBox="0 0 340 320" className="w-full max-h-72 select-none font-bold">
             {/* Entrance Arrow (Left) */}
             <g transform="translate(10, 60)">
-              <line x1="0" y1="10" x2="35" y2="10" stroke="#2563eb" strokeWidth="4" strokeLinecap="round" />
-              <polygon points="35,4 45,10 35,16" fill="#2563eb" />
+              <line x1="0" y1="10" x2="35" y2="10" stroke="#0f172a" strokeWidth="3.5" strokeLinecap="round" />
+              <polygon points="35,4 45,10 35,16" fill="#0f172a" />
             </g>
 
             {/* Exit A (Top) */}
             <g transform="translate(200, 5)">
-              <text x="0" y="16" fill="#0f172a" fontSize="20" textAnchor="middle">A</text>
-              <line x1="0" y1="40" x2="0" y2="24" stroke="#0f172a" strokeWidth="3" strokeLinecap="round" />
+              <text x="0" y="16" fill="#0f172a" fontSize="22" fontWeight="900" textAnchor="middle">A</text>
+              <line x1="0" y1="40" x2="0" y2="24" stroke="#0f172a" strokeWidth="3.5" strokeLinecap="round" />
               <polygon points="-5,24 0,18 5,24" fill="#0f172a" />
             </g>
 
             {/* Exit B (Right) */}
             <g transform="translate(295, 125)">
-              <text x="25" y="6" fill="#0f172a" fontSize="20" textAnchor="middle">B</text>
-              <line x1="0" y1="0" x2="16" y2="0" stroke="#0f172a" strokeWidth="3" strokeLinecap="round" />
+              <text x="25" y="7" fill="#0f172a" fontSize="22" fontWeight="900" textAnchor="middle">B</text>
+              <line x1="0" y1="0" x2="16" y2="0" stroke="#0f172a" strokeWidth="3.5" strokeLinecap="round" />
               <polygon points="16,-5 22,0 16,5" fill="#0f172a" />
             </g>
 
             {/* Exit C (Bottom-Right) */}
             <g transform="translate(230, 275)">
-              <line x1="0" y1="0" x2="0" y2="16" stroke="#0f172a" strokeWidth="3" strokeLinecap="round" />
+              <line x1="0" y1="0" x2="0" y2="16" stroke="#0f172a" strokeWidth="3.5" strokeLinecap="round" />
               <polygon points="-5,16 0,22 5,16" fill="#0f172a" />
-              <text x="0" y="38" fill="#0f172a" fontSize="20" textAnchor="middle">C</text>
+              <text x="0" y="40" fill="#0f172a" fontSize="22" fontWeight="900" textAnchor="middle">C</text>
             </g>
 
             {/* Exit D (Bottom-Left) */}
             <g transform="translate(90, 275)">
-              <line x1="0" y1="0" x2="0" y2="16" stroke="#059669" strokeWidth="3.5" strokeLinecap="round" />
-              <polygon points="-5,16 0,22 5,16" fill="#059669" />
-              <text x="0" y="38" fill="#059669" fontSize="22" fontWeight="900" textAnchor="middle">D</text>
+              <line x1="0" y1="0" x2="0" y2="16" stroke="#0f172a" strokeWidth="3.5" strokeLinecap="round" />
+              <polygon points="-5,16 0,22 5,16" fill="#0f172a" />
+              <text x="0" y="40" fill="#0f172a" fontSize="22" fontWeight="900" textAnchor="middle">D</text>
             </g>
 
             {/* Maze Walls (3px solid #1e293b) */}
@@ -479,7 +534,7 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
       )
 
     // ==========================================
-    // CÂU 17: Mặt đồng hồ chỉ đúng 5:10
+    // CÂU 17: Mặt đồng hồ chỉ đúng 5:10 - Chuẩn PDF Trang 7
     // ==========================================
     case 'q17_clock':
       return (
@@ -507,6 +562,7 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
               </text>
             ))}
 
+            {/* Hour hand pointing at 5:10 */}
             <line
               x1="100"
               y1="100"
@@ -517,101 +573,123 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
               strokeLinecap="round"
             />
 
+            {/* Minute hand pointing at 2 */}
             <line
               x1="100"
               y1="100"
               x2={100 + 68 * Math.sin((60 * Math.PI) / 180)}
               y2={100 - 68 * Math.cos((60 * Math.PI) / 180)}
-              stroke="#3b82f6"
+              stroke="#0f172a"
               strokeWidth="3.5"
               strokeLinecap="round"
             />
 
-            <circle cx="100" cy="100" r="5" fill="#ef4444" />
+            <circle cx="100" cy="100" r="5" fill="#0f172a" />
           </svg>
         </div>
       )
 
     // ==========================================
-    // CÂU 20: Cắt bánh vuông A, B, C, D
+    // CÂU 20: Cắt bánh vuông A, B, C, D - Chuẩn PDF Trang 8
     // ==========================================
     case 'q20_opt_A':
       return (
         <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
-          <rect x="6" y="6" width="58" height="58" fill="#fffbeb" stroke="#d97706" strokeWidth="3" rx="4" />
-          <line x1="35" y1="6" x2="35" y2="64" stroke="#92400e" strokeWidth="2.5" strokeDasharray="4 3" />
-          <line x1="6" y1="35" x2="64" y2="35" stroke="#92400e" strokeWidth="2.5" strokeDasharray="4 3" />
+          <rect x="6" y="6" width="58" height="58" fill="#ffffff" stroke="#1e293b" strokeWidth="2.5" />
+          <line x1="35" y1="6" x2="35" y2="64" stroke="#1e293b" strokeWidth="2" strokeDasharray="3 3" />
+          <line x1="6" y1="35" x2="64" y2="35" stroke="#1e293b" strokeWidth="2" strokeDasharray="3 3" />
         </svg>
       )
     case 'q20_opt_B':
       return (
         <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
-          <rect x="6" y="6" width="58" height="58" fill="#fffbeb" stroke="#d97706" strokeWidth="3" rx="4" />
-          <line x1="6" y1="6" x2="64" y2="64" stroke="#92400e" strokeWidth="2.5" strokeDasharray="4 3" />
-          <line x1="64" y1="6" x2="6" y2="64" stroke="#92400e" strokeWidth="2.5" strokeDasharray="4 3" />
+          <rect x="6" y="6" width="58" height="58" fill="#ffffff" stroke="#1e293b" strokeWidth="2.5" />
+          <line x1="6" y1="6" x2="64" y2="64" stroke="#1e293b" strokeWidth="2" strokeDasharray="3 3" />
+          <line x1="64" y1="6" x2="6" y2="64" stroke="#1e293b" strokeWidth="2" strokeDasharray="3 3" />
         </svg>
       )
     case 'q20_opt_C':
       return (
         <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
-          <rect x="6" y="6" width="58" height="58" fill="#fef2f2" stroke="#ef4444" strokeWidth="3" rx="4" />
-          <line x1="35" y1="6" x2="6" y2="64" stroke="#b91c1c" strokeWidth="2.5" strokeDasharray="4 3" />
-          <line x1="35" y1="6" x2="64" y2="64" stroke="#b91c1c" strokeWidth="2.5" strokeDasharray="4 3" />
-          <line x1="35" y1="6" x2="35" y2="64" stroke="#b91c1c" strokeWidth="2.5" strokeDasharray="4 3" />
+          <rect x="6" y="6" width="58" height="58" fill="#ffffff" stroke="#1e293b" strokeWidth="2.5" />
+          <line x1="35" y1="6" x2="6" y2="64" stroke="#1e293b" strokeWidth="2" strokeDasharray="3 3" />
+          <line x1="35" y1="6" x2="64" y2="64" stroke="#1e293b" strokeWidth="2" strokeDasharray="3 3" />
+          <line x1="35" y1="6" x2="35" y2="64" stroke="#1e293b" strokeWidth="2" strokeDasharray="3 3" />
         </svg>
       )
     case 'q20_opt_D':
       return (
         <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
-          <rect x="6" y="6" width="58" height="58" fill="#fffbeb" stroke="#d97706" strokeWidth="3" rx="4" />
-          <line x1="6" y1="35" x2="35" y2="6" stroke="#92400e" strokeWidth="2.5" strokeDasharray="4 3" />
-          <line x1="6" y1="64" x2="64" y2="64" stroke="#92400e" strokeWidth="2.5" strokeDasharray="4 3" />
-          <line x1="35" y1="64" x2="64" y2="35" stroke="#92400e" strokeWidth="2.5" strokeDasharray="4 3" />
+          <rect x="6" y="6" width="58" height="58" fill="#ffffff" stroke="#1e293b" strokeWidth="2.5" />
+          <line x1="6" y1="35" x2="35" y2="6" stroke="#1e293b" strokeWidth="2" strokeDasharray="3 3" />
+          <line x1="6" y1="64" x2="64" y2="6" stroke="#1e293b" strokeWidth="2" strokeDasharray="3 3" />
+          <line x1="35" y1="64" x2="64" y2="35" stroke="#1e293b" strokeWidth="2" strokeDasharray="3 3" />
         </svg>
       )
 
     // ==========================================
-    // CÂU 23: Tam giác chia 4 tam giác nhỏ
+    // CÂU 23: Tam giác chia 4 tam giác nhỏ - Chuẩn PDF Trang 9
     // ==========================================
     case 'q23_triangles':
       return (
         <div className="flex items-center justify-center p-5 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-sm mx-auto w-full">
           <svg viewBox="0 0 200 170" className="w-full max-h-56 select-none">
-            <polygon points="100,10 190,160 10,160" fill="#f0fdf4" stroke="#15803d" strokeWidth="3.5" strokeLinejoin="round" />
-            <polygon points="100,160 55,85 145,85" fill="#dcfce7" stroke="#15803d" strokeWidth="3" strokeLinejoin="round" />
+            <polygon points="100,10 190,160 10,160" fill="#ffffff" stroke="#1e293b" strokeWidth="3" strokeLinejoin="round" />
+            <polygon points="100,160 55,85 145,85" fill="#ffffff" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
           </svg>
         </div>
       )
 
     // ==========================================
-    // CÂU 25: 4 đường gấp khúc trên lưới 6x2
+    // CÂU 25: 4 đường gấp khúc trên lưới 6x2 - Chuẩn PDF Trang 10
     // ==========================================
     case 'q25_opt_A':
       return (
         <svg viewBox="0 0 160 50" className="w-36 sm:w-44 h-12 shrink-0 select-none">
-          <rect x="2" y="2" width="156" height="46" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1" />
-          <polyline points="5,45 42.5,5 80,45 117.5,5 155,45" fill="none" stroke="#2563eb" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+          {/* 6x2 Grid */}
+          <rect x="2" y="2" width="156" height="46" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+          {[28, 54, 80, 106, 132].map(x => (
+            <line key={x} x1={x} y1="2" x2={x} y2="48" stroke="#1e293b" strokeWidth="1" />
+          ))}
+          <line x1="2" y1="25" x2="158" y2="25" stroke="#1e293b" strokeWidth="1" />
+          {/* Path A: (0,0) -> (2,2) -> (4,0) -> (5,2) -> (6,0) */}
+          <polyline points="2,2 54,48 106,2 132,48 158,2" fill="none" stroke="#0f172a" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       )
     case 'q25_opt_B':
       return (
         <svg viewBox="0 0 160 50" className="w-36 sm:w-44 h-12 shrink-0 select-none">
-          <rect x="2" y="2" width="156" height="46" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1" />
-          <polyline points="5,45 55,5 105,45 155,5" fill="none" stroke="#059669" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+          <rect x="2" y="2" width="156" height="46" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+          {[28, 54, 80, 106, 132].map(x => (
+            <line key={x} x1={x} y1="2" x2={x} y2="48" stroke="#1e293b" strokeWidth="1" />
+          ))}
+          <line x1="2" y1="25" x2="158" y2="25" stroke="#1e293b" strokeWidth="1" />
+          {/* Path B: (0,0) -> (3,2) -> (5,0) -> (6,1) */}
+          <polyline points="2,2 80,48 132,2 158,25" fill="none" stroke="#0f172a" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       )
     case 'q25_opt_C':
       return (
         <svg viewBox="0 0 160 50" className="w-36 sm:w-44 h-12 shrink-0 select-none">
-          <rect x="2" y="2" width="156" height="46" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1" />
-          <polyline points="5,5 42.5,45 80,5 117.5,45 155,5" fill="none" stroke="#d97706" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+          <rect x="2" y="2" width="156" height="46" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+          {[28, 54, 80, 106, 132].map(x => (
+            <line key={x} x1={x} y1="2" x2={x} y2="48" stroke="#1e293b" strokeWidth="1" />
+          ))}
+          <line x1="2" y1="25" x2="158" y2="25" stroke="#1e293b" strokeWidth="1" />
+          {/* Path C: (0,0) -> (1,2) -> (2,0) -> (3,2) -> (5,0) -> (6,2) */}
+          <polyline points="2,2 28,48 54,2 80,48 132,2 158,48" fill="none" stroke="#0f172a" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       )
     case 'q25_opt_D':
       return (
         <svg viewBox="0 0 160 50" className="w-36 sm:w-44 h-12 shrink-0 select-none">
-          <rect x="2" y="2" width="156" height="46" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1" />
-          <polyline points="5,45 30,5 55,45 80,5 105,45 130,5 155,45" fill="none" stroke="#7c3aed" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
+          <rect x="2" y="2" width="156" height="46" fill="#ffffff" stroke="#1e293b" strokeWidth="1" />
+          {[28, 54, 80, 106, 132].map(x => (
+            <line key={x} x1={x} y1="2" x2={x} y2="48" stroke="#1e293b" strokeWidth="1" />
+          ))}
+          <line x1="2" y1="25" x2="158" y2="25" stroke="#1e293b" strokeWidth="1" />
+          {/* Path D: (0,0) -> (1,2) -> (2,0) -> (3,2) -> (4,0) -> (5,2) -> (6,0) */}
+          <polyline points="2,2 28,48 54,2 80,48 106,2 132,48 158,2" fill="none" stroke="#0f172a" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
       )
 
