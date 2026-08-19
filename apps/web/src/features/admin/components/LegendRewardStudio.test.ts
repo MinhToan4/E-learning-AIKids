@@ -16,6 +16,12 @@ describe('Legend Reward Studio asset preview', () => {
 describe('Legend Reward Studio dimension rules', () => {
   it('uses the approved avatar and full-page profile background templates', () => {
     expect(assetSpecs.avatar).toMatchObject({ width: 1200, height: 1200 })
+    expect(assetSpecs.background).toMatchObject({
+      width: 1500,
+      height: 400,
+      formats: ['image/webp', 'image/jpeg', 'image/png'],
+      maxMb: 3,
+    })
     expect(assetSpecs.effect).toMatchObject({ width: 1200, height: 1200 })
     expect(assetSpecs.theme).toMatchObject({
       width: 2540,

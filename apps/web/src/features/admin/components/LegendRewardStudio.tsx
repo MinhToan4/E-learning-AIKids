@@ -65,7 +65,7 @@ type AssetSpec = {
 }
 
 export const assetSpecs: Record<RewardKind, AssetSpec> = {
-  background: { label: 'Nền thẻ hồ sơ', width: 1600, height: 1200, formats: ['image/webp', 'image/jpeg', 'image/png'], maxMb: 3, transparent: false, layer: 0, slot: 'profile_background', safeArea: 'Giữ chủ thể ngoài vùng giữa 60%', combinesWith: 'Avatar + Frame + Companion + Effect + Title' },
+  background: { label: 'Nền thẻ hồ sơ', width: 1500, height: 400, formats: ['image/webp', 'image/jpeg', 'image/png'], maxMb: 3, transparent: false, layer: 0, slot: 'profile_background', safeArea: 'Giữ chủ thể ngoài vùng giữa 60%', combinesWith: 'Avatar + Frame + Companion + Effect + Title' },
   avatar: { label: 'Avatar', width: 1200, height: 1200, formats: ['image/webp', 'image/png', 'image/jpeg'], maxMb: 2, transparent: false, layer: 20, slot: 'profile_avatar', safeArea: 'Mặt nằm trong vòng tròn giữa 72%', combinesWith: 'Background + Frame + Companion + Effect' },
   frame: { label: 'Khung avatar', width: 1024, height: 1024, formats: ['image/png', 'image/webp'], maxMb: 2, transparent: true, layer: 30, slot: 'avatar_frame', safeArea: 'Giữa ảnh phải trong suốt tối thiểu 58%', combinesWith: 'Background + Avatar + 1 Companion + 1 Effect' },
   companion: { label: 'Bạn đồng hành', width: 512, height: 512, formats: ['image/png', 'image/webp'], maxMb: 1.5, transparent: true, layer: 40, slot: 'avatar_companion', safeArea: 'Nhân vật trong 90%, chừa 5% mỗi cạnh', combinesWith: 'Background + Avatar + Frame + Effect' },
@@ -1055,9 +1055,9 @@ export function LegendRewardStudio() {
       const dependencies = await legendStudioApi.dependencies<DependencyReport>(item.id)
       setPendingLifecycle({ item, action, dependencies })
     } catch (error) {
-      const dependencyRouteUnavailable = error instanceof ApiError && [404, 405, 501].includes(error.status)
-      if (dependencyRouteUnavailable) setPendingLifecycle({ item, action })
-      else setMessage(error instanceof Error ? error.message : 'Không kiểm tra được dependency. Hệ thống không archive nội dung.')
+      const isAuthError = error instanceof ApiError && [401, 403].includes(error.status)
+      if (isAuthError) setMessage(error.message || 'Bạn không có quyền thực hiện thao tác này.')
+      else setPendingLifecycle({ item, action })
     } finally { setBusy(false) }
   }
 

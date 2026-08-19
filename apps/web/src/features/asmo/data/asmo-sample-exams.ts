@@ -11,17 +11,69 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
     "round": "School Level",
     "durationMinutes": 60,
     "passScore": 60,
-    "totalPoints": 95,
-    "description": "Đề thi chính thức Olympic Toán Quốc Tế ASMO Lớp 1 năm 2020 (School Level) gồm các câu hỏi chuẩn hóa.",
+    "totalPoints": 100,
+    "description": "Đề thi chính thức Olympic Toán Quốc Tế ASMO Lớp 1 năm 2020 (School Round) gồm 25 câu hỏi chuẩn hóa 1-to-1 theo đề thi gốc PDF.",
     "questions": [
       {
         "id": "asmo-math-g1-2020-r1-q01",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_T1",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 1: Find the missing number in the sequence ...",
-        "text": "Find the missing number in the sequence below:\n1, 2, 3, [ ? ], 5, 6",
+        "topicCode": "MATH_G1_COUNT",
+        "topicName": "Đếm & Nhận biết số lượng",
+        "title": "Câu 1: How many black balls are there?",
+        "text": "How many black balls are there in the group?\n(Có tất cả bao nhiêu quả bóng màu đen?)",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "6"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "7"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "8"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "9"
+          }
+        ],
+        "correctAnswer": "C",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Con hãy đếm từng quả bóng màu đen từ trái sang phải, từ trên xuống dưới để không bị sót nhé!",
+        "explanation": "Đếm lần lượt từng quả bóng màu đen trong hình ta được tất cả **8 quả bóng**.\n➔ Đáp án đúng là: **C. 8**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Quan sát hình vẽ",
+            "description": "Xác định các quả bóng màu đen và phân biệt với bóng màu trắng."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Đếm số lượng",
+            "description": "Hàng trên có 4 quả bóng đen, hàng dưới có 4 quả bóng đen: 4 + 4 = 8 quả."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Kết luận",
+            "description": "Có tất cả 8 quả bóng màu đen. Chọn đáp án C."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q02",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_LOGIC_NUMBER",
+        "topicName": "Điền chữ số còn thiếu",
+        "title": "Câu 2: What digit is missing in the diagram?",
+        "text": "What digit is missing in the diagram?\n(Chữ số nào còn thiếu trong sơ đồ số dưới đây?)",
         "options": [
           {
             "id": "A",
@@ -31,101 +83,38 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "3"
-          },
-          {
-            "id": "C",
-            "label": "C",
             "text": "4"
           },
           {
-            "id": "D",
-            "label": "D",
-            "text": "5"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "6"
-          }
-        ],
-        "correctAnswer": "D",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Looking at the options provided in the 2020 Year 1 question paper, question 1 asks for the missing value and the official answer key specifies D.",
-        "points": 3,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Looking at the options provided in the 2020 Year 1 question paper, question 1 asks for the missing value and the official answer key specifies D.\n\n➔ Do đó đáp án chính xác là: **D**."
-          }
-        ],
-        "diagramDescription": "A line of six circled numbers from left to right: 1, 2, 3, blank circle (?), 5, 6."
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q02",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T2",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 2: What number is 4 more than 24?...",
-        "text": "What number is 4 more than 24?",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "20"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "28"
-          },
-          {
             "id": "C",
             "label": "C",
-            "text": "26"
+            "text": "6"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "30"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "24"
+            "text": "7"
           }
         ],
         "correctAnswer": "B",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "24 + 4 = 28. Option B.",
-        "points": 3,
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Con hãy quan sát quy luật tổng của hai số ở dưới bằng số ở trên đỉnh nhé!",
+        "explanation": "Theo quy luật sơ đồ tam giác số:\nSố trên đỉnh bằng tổng hai số ở đáy:\n$$2 + [\\;?\\;] = 6 \\implies [\\;?\\;] = 6 - 2 = 4$$\n➔ Đáp án đúng là: **B. 4**",
         "explanationSteps": [
           {
+            "stepIndex": 0,
+            "title": "Bước 1: Phân tích quy luật",
+            "description": "Số ở vòng tròn đỉnh bằng tổng của hai số ở vòng tròn đáy."
+          },
+          {
             "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
+            "title": "Bước 2: Tính toán chữ số còn thiếu",
+            "description": "Ta có: 2 + ? = 6 => ? = 6 - 2 = 4."
           },
           {
             "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "24 + 4 = 28. Option B.\n\n➔ Do đó đáp án chính xác là: **B**."
+            "title": "Bước 3: Kết luận",
+            "description": "Chữ số còn thiếu là 4. Chọn đáp án B."
           }
         ]
       },
@@ -133,114 +122,115 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q03",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_T3",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 3: Which shape has fewer sides than a quadr...",
-        "text": "Which shape has fewer sides than a quadrilateral?",
+        "topicCode": "MATH_G1_ADDITION",
+        "topicName": "So sánh giá trị phép cộng",
+        "title": "Câu 3: Which addition gives the largest value?",
+        "text": "Which addition gives the largest value?\n(Phép cộng nào dưới đây cho kết quả lớn nhất?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Shape B (Triangle)"
+            "text": "$13 + 17$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Shape A (Hexagon)"
+            "text": "$11 + 11$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Shape C (Pentagon)"
+            "text": "$9 + 11$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Shape D (Heptagon)"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "Shape E (Octagon)"
+            "text": "$19 + 9$"
           }
         ],
         "correctAnswer": "A",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "A quadrilateral has 4 sides. Shape B is a triangle which has 3 sides, fewer than 4. Option A.",
-        "points": 3,
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Con hãy tính kết quả của từng phép tính A, B, C, D rồi so sánh xem số nào lớn nhất nhé!",
+        "explanation": "Ta tính giá trị của từng phương án:\n• **A.** $13 + 17 = 30$\n• **B.** $11 + 11 = 22$\n• **C.** $9 + 11 = 20$\n• **D.** $19 + 9 = 28$\nVì $30 > 28 > 22 > 20$ nên phép tính **13 + 17** cho kết quả lớn nhất.\n➔ Đáp án đúng là: **A. 13 + 17**",
         "explanationSteps": [
           {
+            "stepIndex": 0,
+            "title": "Bước 1: Tính toán từng phương án",
+            "description": "A: 13 + 17 = 30 | B: 11 + 11 = 22 | C: 9 + 11 = 20 | D: 19 + 9 = 28."
+          },
+          {
             "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
+            "title": "Bước 2: So sánh kết quả",
+            "description": "So sánh 4 giá trị: 30 là số lớn nhất."
           },
           {
             "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "A quadrilateral has 4 sides. Shape B is a triangle which has 3 sides, fewer than 4. Option A.\n\n➔ Do đó đáp án chính xác là: **A**."
+            "title": "Bước 3: Kết luận",
+            "description": "Phép cộng 13 + 17 cho giá trị lớn nhất (30). Chọn đáp án A."
           }
-        ],
-        "diagramDescription": "Images of geometric shapes: A (Hexagon), B (Triangle), C (Pentagon), D (Heptagon), E (Octagon)."
+        ]
       },
       {
         "id": "asmo-math-g1-2020-r1-q04",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_T4",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 4: Calculate: 15 + 16 = ?...",
-        "text": "Calculate: 15 + 16 = ?",
+        "topicCode": "MATH_G1_BALANCE",
+        "topicName": "Cân thăng bằng & So sánh khối lượng",
+        "title": "Câu 4: Which fruit is the heaviest?",
+        "text": "Based on the balance scales, which fruit is the heaviest?\n(Dựa vào các đĩa cân thăng bằng, loại quả nào nặng nhất?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "29"
+            "text": "Watermelon (Dưa hấu)"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "30"
+            "text": "Pineapple (Quả dứa)"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "32"
+            "text": "Apple (Quả táo)"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "31"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "28"
+            "text": "Orange (Quả cam)"
           }
         ],
-        "correctAnswer": "D",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "15 + 16 = 31. Option D.",
-        "points": 3,
+        "correctAnswer": "A",
+        "points": 4,
+        "renderSpec": {
+          "template": "3D_BALANCE_SCALE",
+          "camera": {
+            "x": 0,
+            "y": 2.5,
+            "z": 7.5
+          },
+          "leftWeightCount": 1,
+          "rightWeightCount": 3,
+          "leftItemLabel": "Dưa hấu",
+          "rightItemLabel": "Dứa & Táo"
+        },
+        "meeHint": "Mèo Mee gợi ý: Đĩa cân nào chìm xuống dưới thì vật đó nặng hơn. Con hãy so sánh từng cặp quả nhé!",
+        "explanation": "Từ các đĩa cân thăng bằng:\n• $1\\text{ quả dưa hấu} = 2\\text{ quả dứa}$\n• $1\\text{ quả dứa} = 3\\text{ quả táo}$\nDo đó, dưa hấu nặng hơn dứa, dứa nặng hơn táo ➔ **Quả dưa hấu là quả nặng nhất**.\n➔ Đáp án đúng là: **A. Watermelon**",
         "explanationSteps": [
           {
+            "stepIndex": 0,
+            "title": "Bước 1: So sánh Dưa hấu và Dứa",
+            "description": "1 quả dưa hấu thăng bằng với 2 quả dứa ➔ Dưa hấu nặng hơn dứa."
+          },
+          {
             "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
+            "title": "Bước 2: So sánh Dứa và Táo",
+            "description": "1 quả dứa thăng bằng với 3 quả táo ➔ Dứa nặng hơn táo."
           },
           {
             "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "15 + 16 = 31. Option D.\n\n➔ Do đó đáp án chính xác là: **D**."
+            "title": "Bước 3: Kết luận",
+            "description": "Dưa hấu > Dứa > Táo > Cam. Quả dưa hấu nặng nhất. Chọn đáp án A."
           }
         ]
       },
@@ -248,114 +238,108 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q05",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_T5",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 5: Count the number of circles in the given...",
-        "text": "Count the number of circles in the given figure.",
+        "topicCode": "MATH_G1_AREA",
+        "topicName": "So sánh diện tích ô vuông",
+        "title": "Câu 5: Which grey area is the largest?",
+        "text": "Which grey shaded area is the largest in the grid figures?\n(Hình nào có diện tích phần màu xám lớn nhất?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "5"
+            "text": "Hình A (8 ô vuông)"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "6"
+            "text": "Hình B (6 ô vuông)"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "7"
+            "text": "Hình C (7 ô vuông)"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "8"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "9"
+            "text": "Hình D (5 ô vuông)"
           }
         ],
         "correctAnswer": "A",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Counting the circles in the figure gives exactly 5 circles. Option A.",
-        "points": 3,
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Con hãy đếm số ô vuông đơn vị màu xám trong mỗi hình A, B, C, D nhé!",
+        "explanation": "Đếm số ô vuông màu xám của từng hình:\n• **Hình A**: 8 ô vuông\n• **Hình B**: 6 ô vuông\n• **Hình C**: 7 ô vuông\n• **Hình D**: 5 ô vuông\nVì $8 > 7 > 6 > 5$ nên Hình A có diện tích phần màu xám lớn nhất.\n➔ Đáp án đúng là: **A. Hình A**",
         "explanationSteps": [
           {
+            "stepIndex": 0,
+            "title": "Bước 1: Đếm ô vuông màu xám",
+            "description": "Đếm số ô đơn vị của từng hình: A có 8 ô, B có 6 ô, C có 7 ô, D có 5 ô."
+          },
+          {
             "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
+            "title": "Bước 2: So sánh diện tích",
+            "description": "8 ô vuông là diện tích lớn nhất."
           },
           {
             "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Counting the circles in the figure gives exactly 5 circles. Option A.\n\n➔ Do đó đáp án chính xác là: **A**."
+            "title": "Bước 3: Kết luận",
+            "description": "Hình A có phần diện tích màu xám lớn nhất. Chọn đáp án A."
           }
-        ],
-        "diagramDescription": "A composite geometric drawing composed of multiple circles, triangles, and rectangles."
+        ]
       },
       {
         "id": "asmo-math-g1-2020-r1-q06",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_T6",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 6: What is the value of 20 - 6?...",
-        "text": "What is the value of 20 - 6?",
+        "topicCode": "MATH_G1_SEQUENCE",
+        "topicName": "Quy luật dãy hình học",
+        "title": "Câu 6: What are the missing shapes in the sequence below?",
+        "text": "What are the missing shapes in the sequence below?\n[Rectangle], [Triangle], [Circle], [Circle], [Triangle], [ ? ], [Triangle], [Circle], [ ? ], [Triangle]",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "12"
+            "text": "Circle, Triangle"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "13"
+            "text": "Rectangle, Triangle"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "15"
+            "text": "Rectangle, Circle"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "14"
+            "text": "Rectangle, Rectangle"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "16"
+            "text": "Triangle, Circle"
           }
         ],
-        "correctAnswer": "D",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "20 - 6 = 14. Option D.",
-        "points": 3,
+        "correctAnswer": "C",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Quy luật lặp lại của chuỗi là cụm 4 hình: [Chữ nhật] - [Tam giác] - [Tròn] - [Tròn]. Con hãy đối chiếu nhé!",
+        "explanation": "Quy luật dãy hình tuần hoàn lặp lại theo chu kỳ 4 hình:\n$$\\text{[Hình chữ nhật]} \\to \\text{[Hình tam giác]} \\to \\text{[Hình tròn]} \\to \\text{[Hình tròn]}$$\n• Vị trí thứ 6 là bắt đầu chu kỳ mới ➔ **[Hình chữ nhật]**\n• Vị trí thứ 9 là vị trí thứ ba của chu kỳ ➔ **[Hình tròn]**\n➔ Hai hình còn thiếu là: **Rectangle, Circle** (Hình chữ nhật, Hình tròn).\n➔ Đáp án đúng là: **C. Rectangle, Circle**",
         "explanationSteps": [
           {
+            "stepIndex": 0,
+            "title": "Bước 1: Tìm cụm quy luật chu kỳ",
+            "description": "Quan sát chu kỳ 4 hình: [Chữ nhật] ➔ [Tam giác] ➔ [Tròn] ➔ [Tròn]."
+          },
+          {
             "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
+            "title": "Bước 2: Xác định 2 vị trí dấu hỏi [ ? ]",
+            "description": "Vị trí số 6 là [Chữ nhật], vị trí số 9 là [Tròn]."
           },
           {
             "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "20 - 6 = 14. Option D.\n\n➔ Do đó đáp án chính xác là: **D**."
+            "title": "Bước 3: Kết luận",
+            "description": "Hai hình cần điền lần lượt là Rectangle và Circle. Chọn đáp án C."
           }
         ]
       },
@@ -363,114 +347,103 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q07",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_T1",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 7: How many apples are there in total if th...",
-        "text": "How many apples are there in total if there are 2 baskets with 5 apples each and 3 loose apples?",
+        "topicCode": "MATH_G1_WORD_SPEED",
+        "topicName": "Toán thực tế thời gian & tốc độ",
+        "title": "Câu 7: Which student is the fastest runner?",
+        "text": "Four students competed in a 100-meter race:\n• Student A finished in $15\\text{ seconds}$\n• Student B finished in $13\\text{ seconds}$\n• Student C finished in $14\\text{ seconds}$\n• Student D finished in $17\\text{ seconds}$\nWhich student is the fastest runner among them?\n(Bạn nào chạy nhanh nhất trong cuộc đua 100m?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "12"
+            "text": "Student A (15s)"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "13"
+            "text": "Student B (13s)"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "14"
+            "text": "Student C (14s)"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "15"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "10"
+            "text": "Student D (17s)"
           }
         ],
         "correctAnswer": "B",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "5 + 5 + 3 = 13 apples. Option B.",
-        "points": 3,
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Trong môn chạy đua, bạn nào mất ít thời gian (số giây nhỏ nhất) về đích nhất chính là bạn chạy nhanh nhất!",
+        "explanation": "Trong cuộc thi chạy trên cùng một quãng đường $100\\text{m}$:\nNgười chạy nhanh nhất là người hoàn thành với **thời gian ít nhất**.\nSo sánh thời gian: $13\\text{s} < 14\\text{s} < 15\\text{s} < 17\\text{s}$.\nDo đó **Student B** (13 giây) là người chạy nhanh nhất.\n➔ Đáp án đúng là: **B. Student B**",
         "explanationSteps": [
           {
+            "stepIndex": 0,
+            "title": "Bước 1: Phân tích quy luật chạy đua",
+            "description": "Cùng quãng đường 100m, thời gian càng nhỏ thì vận tốc càng nhanh."
+          },
+          {
             "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
+            "title": "Bước 2: So sánh số giây",
+            "description": "13s (B) < 14s (C) < 15s (A) < 17s (D)."
           },
           {
             "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "5 + 5 + 3 = 13 apples. Option B.\n\n➔ Do đó đáp án chính xác là: **B**."
+            "title": "Bước 3: Kết luận",
+            "description": "Student B là người chạy nhanh nhất. Chọn đáp án B."
           }
-        ],
-        "diagramDescription": "Two baskets containing 5 apples each and 3 single apples next to them."
+        ]
       },
       {
         "id": "asmo-math-g1-2020-r1-q08",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_T2",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 8: Look at the pattern: 2, 5, 8, 11, [ ? ]....",
-        "text": "Look at the pattern: 2, 5, 8, 11, [ ? ]. What is the next number in the pattern?",
+        "topicCode": "MATH_G1_PATTERN_MATRIX",
+        "topicName": "Quy luật ma trận hình",
+        "title": "Câu 8: Which diagram should “?” be?",
+        "text": "Which diagram should replace the “?” in the pattern below?\n(Hình nào thay thế dấu “?” theo quy luật?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "12"
+            "text": "Hình tam giác tô đậm (Filled Triangle)"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "13"
+            "text": "Hình vuông rỗng (Hollow Square)"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "14"
+            "text": "Hình tròn tô đậm (Filled Circle)"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "15"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "16"
+            "text": "Hình thoi rỗng (Hollow Diamond)"
           }
         ],
-        "correctAnswer": "C",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "The pattern adds 3 each time: 2 (+3) -> 5 (+3) -> 8 (+3) -> 11 (+3) -> 14. Option C.",
-        "points": 3,
+        "correctAnswer": "A",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Con hãy quan sát hình dạng và màu sắc xen kẽ giữa các hàng và các cột nhé!",
+        "explanation": "Xét quy luật theo hàng ngang: Mỗi hàng gồm 1 hình vuông, 1 hình tròn và 1 hình tam giác có cùng kiểu tô màu.\nTại hàng cuối cùng, hình còn thiếu là hình tam giác được tô màu đậm.\n➔ Đáp án đúng là: **A. Filled Triangle**",
         "explanationSteps": [
           {
+            "stepIndex": 0,
+            "title": "Bước 1: Quan sát cấu trúc ma trận",
+            "description": "Mỗi hàng và mỗi cột đều có đủ 3 loại hình: Vuông, Tròn, Tam giác."
+          },
+          {
             "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
+            "title": "Bước 2: Tìm hình còn thiếu",
+            "description": "Hàng cuối đã có Hình vuông và Hình tròn ➔ Hình còn thiếu là Tam giác tô đậm."
           },
           {
             "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "The pattern adds 3 each time: 2 (+3) -> 5 (+3) -> 8 (+3) -> 11 (+3) -> 14. Option C.\n\n➔ Do đó đáp án chính xác là: **C**."
+            "title": "Bước 3: Kết luận",
+            "description": "Chọn đáp án A."
           }
         ]
       },
@@ -478,1255 +451,216 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q09",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_T3",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 9: Which of the following clocks shows half...",
-        "text": "Which of the following clocks shows half past 4?",
+        "topicCode": "MATH_G1_MATCHES",
+        "topicName": "Đếm que diêm",
+        "title": "Câu 9: Which diagram uses the greatest number of matches?",
+        "text": "Which diagram uses the greatest number of matches?\n(Hình nào dưới đây sử dụng nhiều que diêm nhất?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Clock B"
+            "text": "Hình A (Hình cối xay gió - 12 que)"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Clock C"
+            "text": "Hình B (Hình 2 ngôi nhà - 10 que)"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Clock D"
+            "text": "Hình C (Hình 3 tam giác - 9 que)"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Clock A"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "Clock E"
-          }
-        ],
-        "correctAnswer": "D",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Clock A shows 4:30 (half past 4). Option D selects Clock A.",
-        "points": 3,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Clock A shows 4:30 (half past 4). Option D selects Clock A.\n\n➔ Do đó đáp án chính xác là: **D**."
-          }
-        ],
-        "diagramDescription": "Five analog clock faces showing different times: Clock A shows 4:30, Clock B shows 5:30, Clock C shows 4:00, Clock D shows 3:30, Clock E shows 5:00."
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q10",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T4",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 10: There are 8 boys and 7 girls in a classr...",
-        "text": "There are 8 boys and 7 girls in a classroom. How many students are there altogether?",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "13"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "14"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "15"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "16"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "17"
-          }
-        ],
-        "correctAnswer": "C",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "8 + 7 = 15 students. Option C.",
-        "points": 3,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "8 + 7 = 15 students. Option C.\n\n➔ Do đó đáp án chính xác là: **C**."
-          }
-        ]
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q11",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T5",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 11: Find the sum of the largest 1-digit numb...",
-        "text": "Find the sum of the largest 1-digit number and the smallest 1-digit counting number.",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "10"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "12"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "14"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "9"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "11"
-          }
-        ],
-        "correctAnswer": "C",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key for Q11 is C.",
-        "points": 4,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Official key for Q11 is C.\n\n➔ Do đó đáp án chính xác là: **C**."
-          }
-        ]
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q12",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T6",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 12: David has 18 marbles. He gives 6 marbles...",
-        "text": "David has 18 marbles. He gives 6 marbles to his brother. How many marbles does David have left?",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "10"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "12"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "14"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "11"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "13"
-          }
-        ],
-        "correctAnswer": "B",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "18 - 6 = 12 marbles. Option B.",
-        "points": 4,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "18 - 6 = 12 marbles. Option B.\n\n➔ Do đó đáp án chính xác là: **B**."
-          }
-        ]
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q13",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T1",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 13: How many cubes are used to build the blo...",
-        "text": "How many cubes are used to build the block structure shown?",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "9"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "10"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "11"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "12"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "8"
-          }
-        ],
-        "correctAnswer": "C",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Counting the unit cubes in the structure yields 11 cubes. Option C.",
-        "points": 4,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Counting the unit cubes in the structure yields 11 cubes. Option C.\n\n➔ Do đó đáp án chính xác là: **C**."
-          }
-        ],
-        "diagramDescription": "A 3D stack of unit cubes with 2 layers."
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q14",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T2",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 14: If today is Tuesday, what day was it 3 d...",
-        "text": "If today is Tuesday, what day was it 3 days ago?",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "Wednesday"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "Thursday"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "Friday"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "Saturday"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "Sunday"
-          }
-        ],
-        "correctAnswer": "D",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key indicates D (Saturday).",
-        "points": 4,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Official key indicates D (Saturday).\n\n➔ Do đó đáp án chính xác là: **D**."
-          }
-        ]
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q15",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T3",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 15: Compare the weights of objects A, B, and...",
-        "text": "Compare the weights of objects A, B, and C on balance scales. Arrange them from lightest to heaviest.",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "A, B, C"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "B, A, C"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "C, A, B"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "B, C, A"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "C, B, A"
-          }
-        ],
-        "correctAnswer": "D",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "From the balance scales, B < C < A. Option D.",
-        "points": 4,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "From the balance scales, B < C < A. Option D.\n\n➔ Do đó đáp án chính xác là: **D**."
-          }
-        ],
-        "diagramDescription": "Two balance scales showing object A balancing with heavier/lighter objects B and C."
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q16",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T4",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 16: How many triangles are there in the give...",
-        "text": "How many triangles are there in the given geometric star/figure?",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "4"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "5"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "6"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "7"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "8"
-          }
-        ],
-        "correctAnswer": "C",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Counting all individual and composite triangles gives 6 triangles. Option C.",
-        "points": 4,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Counting all individual and composite triangles gives 6 triangles. Option C.\n\n➔ Do đó đáp án chính xác là: **C**."
-          }
-        ],
-        "diagramDescription": "A geometric shape composed of interconnected triangles."
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q17",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T5",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 17: Which number sentence is correct?...",
-        "text": "Which number sentence is correct?",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "12 + 5 = 18"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "19 - 8 = 10"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "7 + 8 = 16"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "14 - 9 = 5"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "11 + 6 = 16"
-          }
-        ],
-        "correctAnswer": "D",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "14 - 9 = 5 is correct. Option D.",
-        "points": 4,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "14 - 9 = 5 is correct. Option D.\n\n➔ Do đó đáp án chính xác là: **D**."
-          }
-        ]
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q18",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T6",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 18: Tom has 5 pencils. Jerry has 3 more penc...",
-        "text": "Tom has 5 pencils. Jerry has 3 more pencils than Tom. How many pencils do they have altogether?",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "11"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "12"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "13"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "14"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "15"
-          }
-        ],
-        "correctAnswer": "C",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Tom = 5 pencils. Jerry = 5 + 3 = 8 pencils. Total = 5 + 8 = 13 pencils (or Jerry has 8, official key: C).",
-        "points": 4,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Tom = 5 pencils. Jerry = 5 + 3 = 8 pencils. Total = 5 + 8 = 13 pencils (or Jerry has 8, official key: C).\n\n➔ Do đó đáp án chính xác là: **C**."
-          }
-        ]
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q19",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T1",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 19: Find the missing number in the magic num...",
-        "text": "Find the missing number in the magic number wheel / triangle.",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "7"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "8"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "9"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "6"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "5"
+            "text": "Hình D (Hình con thuyền - 8 que)"
           }
         ],
         "correctAnswer": "A",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key indicates A (7).",
         "points": 4,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Official key indicates A (7).\n\n➔ Do đó đáp án chính xác là: **A**."
-          }
-        ],
-        "diagramDescription": "A number wheel with numbers arranged around the circumference and a center value."
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q20",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T2",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 20: A rope is cut into 4 equal pieces. If ea...",
-        "text": "A rope is cut into 4 equal pieces. If each piece is 5 meters long, how long was the rope originally?",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "15 m"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "18 m"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "25 m"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "20 m"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "16 m"
-          }
-        ],
-        "correctAnswer": "D",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key specifies D (20 m).",
-        "points": 4,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Official key specifies D (20 m).\n\n➔ Do đó đáp án chính xác là: **D**."
-          }
-        ]
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q21",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T3",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 21: Solve the cryptarithm / shape equation: ...",
-        "text": "Solve the cryptarithm / shape equation: Circle + Triangle = 18, Circle - Triangle = 6. What is the value of Circle × Triangle?",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "24"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "30"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "36"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "48"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "72"
-          }
-        ],
-        "correctAnswer": "B",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key specifies B (30).",
-        "points": 5,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Official key specifies B (30).\n\n➔ Do đó đáp án chính xác là: **B**."
-          }
-        ],
-        "diagramDescription": "Mathematical equations with shapes replacing numbers."
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q22",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T4",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 22: How many paths can the ant take from poi...",
-        "text": "How many paths can the ant take from point A to point B moving only right and down?",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "10"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "12"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "14"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "15"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "16"
-          }
-        ],
-        "correctAnswer": "D",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key specifies D (15).",
-        "points": 5,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Đường 1: → → → ↑ ↑",
-            "description": "Đi hết 3 bước sang phải rồi đi 2 bước lên trên.",
-            "code": "→ → → ↑ ↑",
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                0
-              ],
-              [
-                2,
-                0
-              ],
-              [
-                3,
-                0
-              ],
-              [
-                3,
-                1
-              ],
-              [
-                3,
-                2
-              ]
-            ]
-          },
-          {
-            "stepIndex": 2,
-            "title": "Đường 2: → → ↑ → ↑",
-            "description": "Sang phải 2 bước, lên 1 bước, sang phải 1 bước, lên 1 bước.",
-            "code": "→ → ↑ → ↑",
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                0
-              ],
-              [
-                2,
-                0
-              ],
-              [
-                2,
-                1
-              ],
-              [
-                3,
-                1
-              ],
-              [
-                3,
-                2
-              ]
-            ]
-          },
-          {
-            "stepIndex": 3,
-            "title": "Đường 3: → → ↑ ↑ →",
-            "description": "Sang phải 2 bước, lên 2 bước, sang phải 1 bước.",
-            "code": "→ → ↑ ↑ →",
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                0
-              ],
-              [
-                2,
-                0
-              ],
-              [
-                2,
-                1
-              ],
-              [
-                2,
-                2
-              ],
-              [
-                3,
-                2
-              ]
-            ]
-          },
-          {
-            "stepIndex": 4,
-            "title": "Đường 4: → ↑ → → ↑",
-            "description": "Sang phải 1 bước, lên 1 bước, sang phải 2 bước, lên 1 bước.",
-            "code": "→ ↑ → → ↑",
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                0
-              ],
-              [
-                1,
-                1
-              ],
-              [
-                2,
-                1
-              ],
-              [
-                3,
-                1
-              ],
-              [
-                3,
-                2
-              ]
-            ]
-          },
-          {
-            "stepIndex": 5,
-            "title": "Đường 5: → ↑ → ↑ →",
-            "description": "Đi zíc-zắc: sang phải, lên, sang phải, lên, sang phải.",
-            "code": "→ ↑ → ↑ →",
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                0
-              ],
-              [
-                1,
-                1
-              ],
-              [
-                2,
-                1
-              ],
-              [
-                2,
-                2
-              ],
-              [
-                3,
-                2
-              ]
-            ]
-          },
-          {
-            "stepIndex": 6,
-            "title": "Đường 6: → ↑ ↑ → →",
-            "description": "Sang phải 1 bước, lên hết 2 bước, sang phải 2 bước.",
-            "code": "→ ↑ ↑ → →",
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                1,
-                0
-              ],
-              [
-                1,
-                1
-              ],
-              [
-                1,
-                2
-              ],
-              [
-                2,
-                2
-              ],
-              [
-                3,
-                2
-              ]
-            ]
-          },
-          {
-            "stepIndex": 7,
-            "title": "Đường 7: ↑ → → → ↑",
-            "description": "Lên 1 bước, sang phải 3 bước, lên 1 bước.",
-            "code": "↑ → → → ↑",
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                1
-              ],
-              [
-                1,
-                1
-              ],
-              [
-                2,
-                1
-              ],
-              [
-                3,
-                1
-              ],
-              [
-                3,
-                2
-              ]
-            ]
-          },
-          {
-            "stepIndex": 8,
-            "title": "Đường 8: ↑ → → ↑ →",
-            "description": "Lên 1 bước, sang phải 2 bước, lên 1 bước, sang phải 1 bước.",
-            "code": "↑ → → ↑ →",
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                1
-              ],
-              [
-                1,
-                1
-              ],
-              [
-                2,
-                1
-              ],
-              [
-                2,
-                2
-              ],
-              [
-                3,
-                2
-              ]
-            ]
-          },
-          {
-            "stepIndex": 9,
-            "title": "Đường 9: ↑ → ↑ → →",
-            "description": "Lên 1 bước, sang phải 1 bước, lên 1 bước, sang phải 2 bước.",
-            "code": "↑ → ↑ → →",
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                1
-              ],
-              [
-                1,
-                1
-              ],
-              [
-                1,
-                2
-              ],
-              [
-                2,
-                2
-              ],
-              [
-                3,
-                2
-              ]
-            ]
-          },
-          {
-            "stepIndex": 10,
-            "title": "Đường 10: ↑ ↑ → → →",
-            "description": "Đi hết 2 bước lên trên rồi đi 3 bước sang phải.",
-            "code": "↑ ↑ → → →",
-            "points": [
-              [
-                0,
-                0
-              ],
-              [
-                0,
-                1
-              ],
-              [
-                0,
-                2
-              ],
-              [
-                1,
-                2
-              ],
-              [
-                2,
-                2
-              ],
-              [
-                3,
-                2
-              ]
-            ]
-          }
-        ],
         "renderSpec": {
-          "template": "GRID_PATH_MAZE",
+          "template": "MATCHSTICK_FIGURE",
           "camera": {
             "x": 0,
             "y": 0,
             "z": 5.5
           },
-          "gridSize": [
-            3,
-            2
-          ],
-          "start": [
-            0,
-            0
-          ],
-          "target": [
-            3,
-            2
-          ],
-          "autoRotate": false
+          "matches": [
+            {
+              "from": [
+                0,
+                0,
+                0
+              ],
+              "to": [
+                1.5,
+                0,
+                0
+              ]
+            },
+            {
+              "from": [
+                1.5,
+                0,
+                0
+              ],
+              "to": [
+                1.5,
+                1.5,
+                0
+              ]
+            },
+            {
+              "from": [
+                1.5,
+                1.5,
+                0
+              ],
+              "to": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "from": [
+                0,
+                0,
+                0
+              ],
+              "to": [
+                0,
+                1.5,
+                0
+              ]
+            },
+            {
+              "from": [
+                0,
+                1.5,
+                0
+              ],
+              "to": [
+                -1.5,
+                1.5,
+                0
+              ]
+            },
+            {
+              "from": [
+                -1.5,
+                1.5,
+                0
+              ],
+              "to": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "from": [
+                0,
+                0,
+                0
+              ],
+              "to": [
+                -1.5,
+                0,
+                0
+              ]
+            },
+            {
+              "from": [
+                -1.5,
+                0,
+                0
+              ],
+              "to": [
+                -1.5,
+                -1.5,
+                0
+              ]
+            },
+            {
+              "from": [
+                -1.5,
+                -1.5,
+                0
+              ],
+              "to": [
+                0,
+                0,
+                0
+              ]
+            },
+            {
+              "from": [
+                0,
+                0,
+                0
+              ],
+              "to": [
+                0,
+                -1.5,
+                0
+              ]
+            },
+            {
+              "from": [
+                0,
+                -1.5,
+                0
+              ],
+              "to": [
+                1.5,
+                -1.5,
+                0
+              ]
+            },
+            {
+              "from": [
+                1.5,
+                -1.5,
+                0
+              ],
+              "to": [
+                0,
+                0,
+                0
+              ]
+            }
+          ]
         },
-        "diagramDescription": "A grid maze with start marked at A and destination marked at B."
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q23",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T5",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 23: Five children are standing in a line. Lu...",
-        "text": "Five children are standing in a line. Lucas is 2nd from the front. Emma is 4th from the back. How many children are between Lucas and Emma?",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "0"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "6"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "1"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "2"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "3"
-          }
-        ],
-        "correctAnswer": "B",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key specifies B.",
-        "points": 5,
+        "meeHint": "Mèo Mee gợi ý: Hình cối xay gió gồm 4 cánh tam giác riêng biệt, mỗi cánh có 3 que diêm: 4 x 3 = 12 que diêm!",
+        "explanation": "Đếm số que diêm của từng hình:\n• **Hình A**: Gồm 4 cánh tam giác $\\implies 4 \\times 3 = 12\\text{ que diêm}$\n• **Hình B**: 10 que diêm\n• **Hình C**: 9 que diêm\n• **Hình D**: 8 que diêm\nVì $12 > 10 > 9 > 8$ nên Hình A sử dụng nhiều que diêm nhất.\n➔ Đáp án đúng là: **A. Hình A (12 que)**",
         "explanationSteps": [
           {
+            "stepIndex": 0,
+            "title": "Bước 1: Đếm số que diêm Hình A",
+            "description": "Hình cối xay gồm 4 cánh tam giác: 4 x 3 = 12 que."
+          },
+          {
             "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
+            "title": "Bước 2: So sánh với các hình B, C, D",
+            "description": "Hình B có 10 que, C có 9 que, D có 8 que."
           },
           {
             "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Official key specifies B.\n\n➔ Do đó đáp án chính xác là: **B**."
+            "title": "Bước 3: Kết luận",
+            "description": "Hình A sử dụng nhiều que diêm nhất (12 que). Chọn đáp án A."
           }
         ]
       },
       {
-        "id": "asmo-math-g1-2020-r1-q24",
+        "id": "asmo-math-g1-2020-r1-q10",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_T6",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 24: Find the sum of the digits of the smalle...",
-        "text": "Find the sum of the digits of the smallest two-digit number whose tens digit is greater than its units digit by 3.",
-        "options": [
-          {
-            "id": "A",
-            "label": "A",
-            "text": "3"
-          },
-          {
-            "id": "B",
-            "label": "B",
-            "text": "5"
-          },
-          {
-            "id": "C",
-            "label": "C",
-            "text": "7"
-          },
-          {
-            "id": "D",
-            "label": "D",
-            "text": "9"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "11"
-          }
-        ],
-        "correctAnswer": "A",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Smallest such number is 30. Sum of digits = 3 + 0 = 3. Option A.",
-        "points": 5,
-        "explanationSteps": [
-          {
-            "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
-          },
-          {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Smallest such number is 30. Sum of digits = 3 + 0 = 3. Option A.\n\n➔ Do đó đáp án chính xác là: **A**."
-          }
-        ]
-      },
-      {
-        "id": "asmo-math-g1-2020-r1-q25",
-        "subject": "math",
-        "grade": 1,
-        "topicCode": "MATH_G1_T1",
-        "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 25: Look at the pattern of shaded and unshad...",
-        "text": "Look at the pattern of shaded and unshaded tiles. What is the total number of shaded tiles in Figure 5?",
+        "topicCode": "MATH_G1_PARITY",
+        "topicName": "Số chẵn & Số lẻ",
+        "title": "Câu 10: Which number is not an odd number?",
+        "text": "Which number is not an odd number (tức là số chẵn)?",
         "options": [
           {
             "id": "A",
@@ -1736,17 +670,225 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "30"
+            "text": "21"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "35"
+            "text": "74"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "28"
+            "text": "39"
+          }
+        ],
+        "correctAnswer": "C",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Số chẵn là số có chữ số tận cùng là 0, 2, 4, 6, 8. Số không phải số lẻ chính là số chẵn!",
+        "explanation": "Xét chữ số tận cùng của từng số:\n• $25$: Tận cùng là $5$ ➔ Số lẻ\n• $21$: Tận cùng là $1$ ➔ Số lẻ\n• $74$: Tận cùng là $4$ ➔ **Số chẵn (không phải số lẻ)**\n• $39$: Tận cùng là $9$ ➔ Số lẻ\n➔ Đáp án đúng là: **C. 74**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Định nghĩa số chẵn, số lẻ",
+            "description": "Số lẻ có chữ số tận cùng là 1, 3, 5, 7, 9. Số chẵn có chữ số tận cùng là 0, 2, 4, 6, 8."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Kiểm tra các phương án",
+            "description": "74 có tận cùng là 4 nên là số chẵn (không phải số lẻ)."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Kết luận",
+            "description": "Chọn đáp án C. 74."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q11",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_MISSING_NUM",
+        "topicName": "Điền số vào ô trống",
+        "title": "Câu 11: What number should be filled in the blank?",
+        "text": "What number should be filled in the blank?\n$$15 - [\\;?\\;] = 11$$",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "2"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "3"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "4"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "5"
+          }
+        ],
+        "correctAnswer": "C",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Muốn tìm số trừ, ta lấy số bị trừ trừ đi hiệu: 15 - 11 = ?",
+        "explanation": "Ta có phép tính:\n$$15 - [\\;?\\;] = 11 \\implies [\\;?\\;] = 15 - 11 = 4$$\n➔ Đáp án đúng là: **C. 4**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Thiết lập phương trình",
+            "description": "15 - ? = 11."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Thực hiện phép trừ",
+            "description": "? = 15 - 11 = 4."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Kết luận",
+            "description": "Số cần điền vào ô trống là 4. Chọn đáp án C."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q12",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_WORD_FRUITS",
+        "topicName": "Bài toán lời văn nhiều đại lượng",
+        "title": "Câu 12: How many pineapples are on the table?",
+        "text": "There are apples, oranges and pineapples on the table, the total number of them is $21$. We know that there are $7\\text{ apples}$ and $11\\text{ oranges}$, how many pineapples are on the table?\n(Trên bàn có tất cả 21 quả gồm táo, cam và dứa. Biết có 7 quả táo và 11 quả cam, hỏi có bao nhiêu quả dứa?)",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "2"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "3"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "4"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "5"
+          }
+        ],
+        "correctAnswer": "B",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Con hãy lấy tổng số 21 quả trừ đi số quả táo (7) rồi trừ tiếp đi số quả cam (11) nhé!",
+        "explanation": "Tổng số quả táo và cam là:\n$$7 + 11 = 18\\text{ (quả)}$$\nSố quả dứa trên bàn là:\n$$21 - 18 = 3\\text{ (quả)}$$\n➔ Đáp án đúng là: **B. 3**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Tính tổng táo và cam",
+            "description": "7 + 11 = 18 quả."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Tính số quả dứa",
+            "description": "Lấy tổng 21 trừ đi 18: 21 - 18 = 3 quả dứa."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Kết luận",
+            "description": "Có 3 quả dứa trên bàn. Chọn đáp án B."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q13",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_QUEUE",
+        "topicName": "Toán xếp hàng",
+        "title": "Câu 13: How many people are queuing up in total?",
+        "text": "Xiao Ming is queuing up. There are $4\\text{ people}$ in front of him and $9\\text{ people}$ behind him. What is the total number of people queuing up?\n(Tiểu Minh đang xếp hàng. Có 4 người đứng trước bạn ấy và 9 người đứng sau bạn ấy. Hỏi có tất cả bao nhiêu người đang xếp hàng?)",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "12"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "13"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "14"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "15"
+          }
+        ],
+        "correctAnswer": "C",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Con nhớ cộng cả chính bạn Tiểu Minh nữa nhé! Tổng cộng = (Số người phía trước) + (Tiểu Minh) + (Số người phía sau).",
+        "explanation": "Tổng số người đang xếp hàng trong hàng là:\n$$4\\text{ (phía trước)} + 1\\text{ (Tiểu Minh)} + 9\\text{ (phía sau)} = 14\\text{ (người)}$$\n➔ Đáp án đúng là: **C. 14**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Xác định các thành phần trong hàng",
+            "description": "Có 4 người đứng trước, chính bạn Tiểu Minh (1 người), và 9 người đứng sau."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Thực hiện phép cộng",
+            "description": "4 + 1 + 9 = 14 người."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Kết luận",
+            "description": "Có tất cả 14 người trong hàng. Chọn đáp án C."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q14",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_BAR_CHART",
+        "topicName": "Đọc biểu đồ cột",
+        "title": "Câu 14: Alice bought red and black balloons. How many balloons did she buy in total?",
+        "text": "Alice bought red and black balloons. How many balloons did she buy in total?\nBar Chart (Colours of Balloons in a shop):\nRed: 18\nYellow: 9\nBlack: 15\nBlue: 12\nWhite: 15",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "18"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "33"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "27"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "30"
           },
           {
             "id": "E",
@@ -1755,27 +897,619 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "B",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key specifies B (30).",
-        "points": 5,
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Nhìn vào biểu đồ cột, Alice mua bóng màu Đỏ (Red = 18) và bóng màu Đen (Black = 15). Hãy cộng 18 + 15 con nhé!",
+        "explanation": "Từ biểu đồ cột số lượng bóng trong cửa hàng:\n• Số bóng đỏ (Red): $18$\n• Số bóng đen (Black): $15$\nTổng số bóng Alice đã mua là:\n$$18 + 15 = 33\\text{ (quả bóng)}$$\n➔ Đáp án đúng là: **B. 33**",
         "explanationSteps": [
           {
+            "stepIndex": 0,
+            "title": "Bước 1: Đọc số liệu từ Biểu đồ cột",
+            "description": "Cột Red = 18 quả bóng, cột Black = 15 quả bóng."
+          },
+          {
             "stepIndex": 1,
-            "title": "Bước 1: Phân tích dữ kiện",
-            "description": "Đọc kỹ đề bài, xác định các đại lượng đã cho và yêu cầu cần tìm."
+            "title": "Bước 2: Tính tổng số bóng đã mua",
+            "description": "18 + 15 = 33 quả bóng."
           },
           {
             "stepIndex": 2,
-            "title": "Bước 2: Thiết lập phương pháp giải",
-            "description": "Áp dụng quy luật số học, đại số, hình học hoặc tư duy logic phù hợp."
+            "title": "Bước 3: Kết luận",
+            "description": "Alice đã mua tất cả 33 quả bóng. Chọn đáp án B."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q15",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_CRYPTARITHM",
+        "topicName": "Điền chữ số phép cộng cột dọc",
+        "title": "Câu 15: In the addition below, what do “C” and “D” represent?",
+        "text": "In the addition below, what do “C” and “D” represent?\n1 7\n+ C D\n------\n8 2",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "7, 5"
           },
           {
-            "stepIndex": 3,
-            "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Official key specifies B (30).\n\n➔ Do đó đáp án chính xác là: **B**."
+            "id": "B",
+            "label": "B",
+            "text": "6, 5"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "5, 6"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "7, 4"
+          },
+          {
+            "id": "E",
+            "label": "E",
+            "text": "6, 6"
           }
         ],
-        "diagramDescription": "A sequence of grid figures showing growing patterns of shaded square tiles."
+        "correctAnswer": "B",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Ở hàng đơn vị, 7 + D tận cùng là 2 ➔ 7 + D = 12 ➔ D = 5 (nhớ 1). Ở hàng chục: 1 + C + 1 (nhớ) = 8 ➔ C = 6!",
+        "explanation": "Xét phép cộng đặt tính theo cột dọc:\n1. **Hàng đơn vị**:\n   $$7 + \\text{D} = 12 \\implies \\text{D} = 12 - 7 = 5\\quad (\\text{nhớ } 1)$$\n2. **Hàng chục**:\n   $$1 + \\text{C} + 1\\;(\\text{nhớ}) = 8 \\implies \\text{C} + 2 = 8 \\implies \\text{C} = 6$$\nVậy $\\text{C} = 6$ và $\\text{D} = 5$.\n➔ Đáp án đúng là: **B. 6, 5**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Tìm chữ số hàng đơn vị D",
+            "description": "7 + D tận cùng là 2 nên 7 + D = 12 => D = 5 (nhớ 1 sang hàng chục)."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Tìm chữ số hàng chục C",
+            "description": "1 + C + 1 (nhớ) = 8 => C + 2 = 8 => C = 6."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Kết luận",
+            "description": "C = 6, D = 5. Chọn đáp án B."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q16",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_CANDIES",
+        "topicName": "Toán trừ liên tiếp thực tế",
+        "title": "Câu 16: How many candies were left?",
+        "text": "Mother has bought $17\\text{ candies}$ from the market. The elder brother has eaten $3\\text{ of them}$, father has eaten $5\\text{ of them}$ and the younger brother has eaten $2\\text{ of them}$. How many candies were left?\n(Mẹ mua 17 viên kẹo. Anh trai ăn 3 viên, bố ăn 5 viên và em trai ăn 2 viên. Hỏi còn lại bao nhiêu viên kẹo?)",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "5"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "6"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "7"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "8"
+          }
+        ],
+        "correctAnswer": "C",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Tổng số kẹo mọi người đã ăn là 3 + 5 + 2 = 10 viên. Con lấy 17 - 10 là ra số kẹo còn lại!",
+        "explanation": "Tổng số kẹo mà cả nhà đã ăn là:\n$$3 + 5 + 2 = 10\\text{ (viên kẹo)}$$\nSố viên kẹo còn lại là:\n$$17 - 10 = 7\\text{ (viên kẹo)}$$\n➔ Đáp án đúng là: **C. 7**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Tính tổng số kẹo đã ăn",
+            "description": "3 (anh) + 5 (bố) + 2 (em) = 10 viên kẹo."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Tính số kẹo còn lại",
+            "description": "17 - 10 = 7 viên kẹo."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Kết luận",
+            "description": "Còn lại 7 viên kẹo. Chọn đáp án C."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q17",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_CLOCK",
+        "topicName": "Đọc giờ trên mặt đồng hồ 3D",
+        "title": "Câu 17: Jack observes the clock in the afternoon, what is the time shown?",
+        "text": "Jack observes the clock shown below in the afternoon, what is the time shown?\n(Jack quan sát mặt đồng hồ 3D vào buổi chiều, đồng hồ đang chỉ mấy giờ?)",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "4:10 p.m."
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "5:10 p.m."
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "4:11 p.m."
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "5:11 p.m."
+          }
+        ],
+        "correctAnswer": "A",
+        "points": 4,
+        "renderSpec": {
+          "template": "INTERACTIVE_CLOCK",
+          "camera": {
+            "x": 0,
+            "y": 0,
+            "z": 5.5
+          },
+          "hour": 4,
+          "minute": 10
+        },
+        "meeHint": "Mèo Mee gợi ý: Kim ngắn màu đỏ chỉ qua số 4 (4 giờ). Kim dài màu xanh chỉ vào số 2 tương ứng 2 x 5 = 10 phút!",
+        "explanation": "Quan sát mặt đồng hồ:\n• Kim giờ ngắn (màu đỏ) chỉ qua vạch số $4$ ➔ **4 giờ**.\n• Kim phút dài (màu xanh cyan) chỉ đúng số $2$ ➔ $2 \\times 5 = 10\\text{ phút}$.\n• Buổi chiều ➔ Ký hiệu là **p.m.**\nDo đó thời gian hiển thị là **4:10 p.m.**\n➔ Đáp án đúng là: **A. 4:10 p.m.**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Đọc kim giờ",
+            "description": "Kim ngắn màu đỏ nằm qua vạch số 4 => 4 giờ.",
+            "hour": 4,
+            "minute": 0
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Đọc kim phút",
+            "description": "Kim dài màu xanh chỉ vào số 2 => 2 x 5 = 10 phút.",
+            "hour": 4,
+            "minute": 10
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Kết luận",
+            "description": "Thời gian chính xác là 4:10 p.m. Chọn đáp án A.",
+            "hour": 4,
+            "minute": 10
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q18",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_COINS",
+        "topicName": "Cân bằng số lượng đồng xu",
+        "title": "Câu 18: How many more coins to give the younger brother?",
+        "text": "The elder brother has $5\\text{ coins}$, and the younger brother has $3\\text{ coins}$. Their daddy gives $5\\text{ more coins}$ to the elder brother. How many more coins should he give to the younger brother to make both brothers have the same amount of coins?\n(Anh trai có 5 đồng xu, em trai có 3 đồng xu. Bố cho anh trai thêm 5 đồng xu. Hỏi bố cần cho em trai thêm bao nhiêu đồng xu để hai anh em có số đồng xu bằng nhau?)",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "5"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "6"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "7"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "8"
+          }
+        ],
+        "correctAnswer": "C",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Anh trai sau khi được cho thêm có 5 + 5 = 10 đồng xu. Em trai đang có 3 đồng xu, cần thêm 10 - 3 = 7 đồng xu!",
+        "explanation": "Số đồng xu anh trai có sau khi bố cho thêm là:\n$$5 + 5 = 10\\text{ (đồng xu)}$$\nĐể hai anh em có số đồng xu bằng nhau, em trai cũng phải có $10$ đồng xu.\nSố đồng xu bố cần cho em trai thêm là:\n$$10 - 3 = 7\\text{ (đồng xu)}$$\n➔ Đáp án đúng là: **C. 7**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Tính số xu của anh trai",
+            "description": "5 + 5 = 10 đồng xu."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Tính số xu cần cho em trai",
+            "description": "10 - 3 = 7 đồng xu."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Kết luận",
+            "description": "Bố cần cho em trai thêm 7 đồng xu. Chọn đáp án C."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q19",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_RATE",
+        "topicName": "Toán năng suất theo thời gian",
+        "title": "Câu 19: How many words can 1 person write in 2 minutes?",
+        "text": "A person can write $10\\text{ words}$ in a minute, how many words can $1\\text{ person}$ write in $2\\text{ minutes}$?\n(Một người viết được 10 từ trong 1 phút. Hỏi trong 2 phút người đó viết được bao nhiêu từ?)",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "20"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "30"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "60"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "80"
+          }
+        ],
+        "correctAnswer": "A",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: 1 phút viết được 10 từ, vậy 2 phút sẽ viết được gấp đôi: 10 + 10 = 20 từ con nhé!",
+        "explanation": "Trong $2\\text{ phút}$, số từ viết được là:\n$$10 \\times 2 = 20\\text{ (từ)}$$\n➔ Đáp án đúng là: **A. 20**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Xác định năng suất",
+            "description": "1 phút viết được 10 từ."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Tính trong 2 phút",
+            "description": "10 x 2 = 20 từ (hoặc 10 + 10 = 20)."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Kết luận",
+            "description": "Viết được 20 từ. Chọn đáp án A."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q20",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_CAKE_CUT",
+        "topicName": "Chia hình học bằng nhau",
+        "title": "Câu 20: Which way of cutting a square cake into 4 equal pieces is WRONG?",
+        "text": "To cut a square shaped cake and give out to $4\\text{ children}$ equally, which way of cutting is WRONG?\n(Để chia một chiếc bánh hình vuông thành 4 phần bằng nhau cho 4 bạn nhỏ, cách cắt nào dưới đây là SAI?)",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "Cắt 2 đường chéo (4 tam giác bằng nhau)"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "Cắt 2 đường chữ thập (4 hình vuông nhỏ bằng nhau)"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "Cắt 3 đường ngang chia không đều (4 phần lệch nhau)"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "Cắt 3 đường thẳng song song cách đều (4 hình chữ nhật bằng nhau)"
+          }
+        ],
+        "correctAnswer": "C",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Cách cắt đúng phải chia chiếc bánh thành 4 phần có diện tích hoàn toàn bằng nhau!",
+        "explanation": "Phân tích các cách cắt bánh hình vuông:\n• **A**: 2 đường chéo chia thành 4 tam giác có diện tích bằng nhau ➔ Đúng.\n• **B**: 2 đường vuông góc qua tâm chia thành 4 hình vuông nhỏ bằng nhau ➔ Đúng.\n• **C**: Cắt các đường không cách đều tạo ra các phần to nhỏ khác nhau ➔ **SAI**.\n• **D**: 3 đường thẳng song song cách đều chia thành 4 hình chữ nhật bằng nhau ➔ Đúng.\n➔ Đáp án sai cần chọn là: **C**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Phân tích yêu cầu",
+            "description": "Chia bánh cho 4 bạn bằng nhau thì 4 phần phải có diện tích bằng nhau."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Kiểm tra các cách cắt",
+            "description": "Cách C cắt lệch không đều nên các phần không bằng nhau."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Kết luận",
+            "description": "Cách cắt C là SAI. Chọn đáp án C."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q21",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_LOGIC_BALLS",
+        "topicName": "Logic phân chia màu sắc",
+        "title": "Câu 21: How many red balls does student Z have?",
+        "text": "A teacher has $5\\text{ red balls}$, $5\\text{ blue balls}$ and $5\\text{ green balls}$ ($15\\text{ balls total}$). He divided all the balls equally to student X, student Y and student Z ($5\\text{ balls each}$).\n• Student X has $3\\text{ red balls}$ and $2\\text{ blue balls}$.\n• Student Y has $4\\text{ green balls}$ and $1\\text{ red ball}$.\nHow many red balls does student Z have?\n(Thầy giáo có 5 bóng đỏ, 5 bóng lam và 5 bóng lục. Thầy chia đều 15 quả bóng cho 3 học sinh X, Y, Z, mỗi bạn 5 quả. Biết X có 3 đỏ và 2 lam; Y có 4 lục và 1 đỏ. Hỏi bạn Z có bao nhiêu quả bóng đỏ?)",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "0"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "1"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "2"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "3"
+          }
+        ],
+        "correctAnswer": "B",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Tổng cộng có 5 bóng đỏ. Bạn X lấy 3 quả, bạn Y lấy 1 quả. Lấy 5 - 3 - 1 là ra số bóng đỏ của bạn Z!",
+        "explanation": "Tổng số bóng đỏ là $5\\text{ quả}$.\nSố bóng đỏ mà bạn X và bạn Y đã nhận là:\n$$3\\text{ (X)} + 1\\text{ (Y)} = 4\\text{ (quả bóng đỏ)}$$\nSố bóng đỏ mà bạn Z nhận được là:\n$$5 - 4 = 1\\text{ (quả bóng đỏ)}$$\n➔ Đáp án đúng là: **B. 1**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Xác định tổng số bóng đỏ",
+            "description": "Có tất cả 5 bóng đỏ ban đầu."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Tính số bóng đỏ X và Y đang giữ",
+            "description": "X có 3 đỏ + Y có 1 đỏ = 4 bóng đỏ."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Tính số bóng đỏ của Z",
+            "description": "Z có: 5 - 4 = 1 bóng đỏ. Chọn đáp án B."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q22",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_QUICK_ADD",
+        "topicName": "Tính nhanh dãy số cộng",
+        "title": "Câu 22: Calculate the sum of numbers",
+        "text": "Calculate the sum:\n$$1 + 2 + 3 + 4 + 6 + 7 + 8 + 9 + 10 = [\\;?\\;]$$\n(Lưu ý: Dãy số khuyết số 5)",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "47"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "48"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "49"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "50"
+          }
+        ],
+        "correctAnswer": "D",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Con hãy ghép cặp tạo thành số tròn chục nhé: (1+9) + (2+8) + (3+7) + (4+6) + 10 = 10 x 4 + 10 = 50!",
+        "explanation": "Áp dụng phương pháp ghép cặp tạo số tròn chục $10$:\n$$\\begin{aligned}\nS &= (1 + 9) + (2 + 8) + (3 + 7) + (4 + 6) + 10 \\\\\n&= 10 + 10 + 10 + 10 + 10 \\\\\n&= 50\n\\end{aligned}$$\n➔ Đáp án đúng là: **D. 50**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Ghép cặp số tròn chục",
+            "description": "(1+9=10), (2+8=10), (3+7=10), (4+6=10)."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Cộng các cặp",
+            "description": "10 + 10 + 10 + 10 + 10 = 50."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Kết luận",
+            "description": "Tổng là 50. Chọn đáp án D."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q23",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_TRIANGLE_COUNT",
+        "topicName": "Đếm hình tam giác",
+        "title": "Câu 23: How many triangles are in the diagram below?",
+        "text": "How many triangles are in the diagram below?\n(Có tất cả bao nhiêu hình tam giác trong hình vẽ?)",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "4"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "5"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "6"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "7"
+          }
+        ],
+        "correctAnswer": "C",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Hình gồm 3 tam giác đơn nhỏ và các tam giác ghép đôi, ghép ba. Con hãy đếm từ nhỏ đến lớn nhé!",
+        "explanation": "Đếm hình tam giác theo từng loại:\n• **Tam giác đơn lẻ**: $3\\text{ hình}$\n• **Tam giác ghép từ 2 hình đơn**: $2\\text{ hình}$\n• **Tam giác lớn nhất ghép từ cả 3 hình**: $1\\text{ hình}$\nTổng số hình tam giác là:\n$$3 + 2 + 1 = 6\\text{ (hình tam giác)}$$\n➔ Đáp án đúng là: **C. 6**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Đếm tam giác đơn",
+            "description": "Có 3 tam giác đơn lẻ (1, 2, 3)."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Đếm tam giác ghép",
+            "description": "Ghép đôi (1+2, 2+3) được 2 hình. Ghép cả ba (1+2+3) được 1 hình lớn."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Tổng kết",
+            "description": "3 + 2 + 1 = 6 hình tam giác. Chọn đáp án C."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q24",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_LOGIC_BOX",
+        "topicName": "Điền số quy luật ô vuông",
+        "title": "Câu 24: Which number should be filled in the box?",
+        "text": "Which number should be filled in the box with the pattern?\n$$2 \\to 4 \\to 6 \\to [\\;?\\;] \\to 10 \\to 12$$",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "7"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "8"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "9"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "10"
+          }
+        ],
+        "correctAnswer": "B",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Đây là dãy số chẵn đếm thêm 2 đơn vị: 2, 4, 6, 6 + 2 = 8, 10, 12!",
+        "explanation": "Quy luật dãy số tăng đều $2$ đơn vị (+2):\n$$2 \\xrightarrow{+2} 4 \\xrightarrow{+2} 6 \\xrightarrow{+2} 8 \\xrightarrow{+2} 10 \\xrightarrow{+2} 12$$\nSố cần điền vào ô trống là:\n$$6 + 2 = 8$$\n➔ Đáp án đúng là: **B. 8**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Tìm quy luật bước nhảy",
+            "description": "Dãy số cộng thêm 2 đơn vị sau mỗi bước: 2, 4, 6..."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: Tính số tiếp theo",
+            "description": "6 + 2 = 8."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Kết luận",
+            "description": "Số cần điền là 8. Chọn đáp án B."
+          }
+        ]
+      },
+      {
+        "id": "asmo-math-g1-2020-r1-q25",
+        "subject": "math",
+        "grade": 1,
+        "topicCode": "MATH_G1_LINE_LENGTH",
+        "topicName": "So sánh độ dài đoạn thẳng",
+        "title": "Câu 25: Which line has the shortest length?",
+        "text": "Which line has the shortest length among the folded and straight lines?\n(Đường nào dưới đây có chiều dài ngắn nhất khi kéo thẳng?)",
+        "options": [
+          {
+            "id": "A",
+            "label": "A",
+            "text": "Đường A (Đoạn thẳng trực tiếp - 5 ô)"
+          },
+          {
+            "id": "B",
+            "label": "B",
+            "text": "Đường B (Gấp khúc 2 lần - 7 ô)"
+          },
+          {
+            "id": "C",
+            "label": "C",
+            "text": "Đường C (Gấp khúc ziczac - 9 ô)"
+          },
+          {
+            "id": "D",
+            "label": "D",
+            "text": "Đường D (Gấp khúc uốn lượn - 8 ô)"
+          }
+        ],
+        "correctAnswer": "A",
+        "points": 4,
+        "meeHint": "Mèo Mee gợi ý: Đoạn thẳng nối trực tiếp 2 điểm luôn luôn là con đường ngắn nhất so với các đường gấp khúc uốn lượn!",
+        "explanation": "Trong hình học phẳng, đường thẳng nối trực tiếp giữa hai điểm luôn có độ dài ngắn nhất so với bất kỳ đường gấp khúc hay đường cong nào nối hai điểm đó.\n• **Đường A**: Là đoạn thẳng trực tiếp ($5\\text{ đơn vị}$).\n• Các đường B, C, D: Đều là đường gấp khúc ($> 5\\text{ đơn vị}$).\n➔ Đáp án đúng là: **A. Đường A**",
+        "explanationSteps": [
+          {
+            "stepIndex": 0,
+            "title": "Bước 1: Phân tích tính chất hình học",
+            "description": "Đoạn thẳng trực tiếp luôn ngắn hơn các đường gấp khúc cùng điểm đầu và điểm cuối."
+          },
+          {
+            "stepIndex": 1,
+            "title": "Bước 2: So sánh độ dài các đường",
+            "description": "Đường A có độ dài 5 ô, ngắn nhất."
+          },
+          {
+            "stepIndex": 2,
+            "title": "Bước 3: Kết luận",
+            "description": "Đường A có chiều dài ngắn nhất. Chọn đáp án A."
+          }
+        ]
       }
     ]
   },
