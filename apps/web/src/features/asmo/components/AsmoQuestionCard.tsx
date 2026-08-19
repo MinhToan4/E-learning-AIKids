@@ -113,6 +113,18 @@ export function AsmoQuestionCard({
         />
       </div>
 
+      {/* Visual Diagram Image (từ bản in PDF chuẩn) */}
+      {question.imageUrl && (
+        <div className="my-1 flex items-center justify-center p-3 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs max-w-lg mx-auto w-full">
+          <img
+            src={question.imageUrl}
+            alt={question.title}
+            className="max-h-56 sm:max-h-72 object-contain rounded-xl select-none"
+            loading="lazy"
+          />
+        </div>
+      )}
+
       {/* Options List */}
       <div className="flex flex-col gap-2.5">
         {question.options.map((opt) => {

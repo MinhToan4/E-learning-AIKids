@@ -85,6 +85,7 @@ export type AsmoQuestion = {
   explanation: string
   meeHint: string
   points: number
+  imageUrl?: string
   renderSpec?: AsmoVisualSpec
   diagramDescription?: string
   explanationSteps?: AsmoExplanationStep[]

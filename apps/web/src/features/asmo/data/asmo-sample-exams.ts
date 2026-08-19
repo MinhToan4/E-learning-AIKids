@@ -12,7 +12,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
     "durationMinutes": 60,
     "passScore": 60,
     "totalPoints": 100,
-    "description": "Đề thi chính thức Olympic Toán Quốc Tế ASMO Lớp 1 năm 2020 (School Round) gồm 25 câu hỏi chuẩn hóa 1-to-1 theo đề thi gốc PDF.",
+    "description": "Đề thi chính thức Olympic Toán Quốc Tế ASMO Lớp 1 năm 2020 (School Round) kèm hình ảnh sơ đồ gốc 1-to-1 từ đề thi PDF.",
     "questions": [
       {
         "id": "asmo-math-g1-2020-r1-q01",
@@ -21,7 +21,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_COUNT",
         "topicName": "Đếm & Nhận biết số lượng",
         "title": "Câu 1: How many black balls are there?",
-        "text": "How many black balls are there in the group?\n(Có tất cả bao nhiêu quả bóng màu đen?)",
+        "text": "How many black balls are there in the diagram below?\n(Có tất cả bao nhiêu quả bóng màu đen trong hình?)",
+        "imageUrl": "/asmo/assets/g1_2020/q01_balls.png",
         "options": [
           {
             "id": "A",
@@ -44,25 +45,25 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "text": "9"
           }
         ],
-        "correctAnswer": "C",
+        "correctAnswer": "D",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Con hãy đếm từng quả bóng màu đen từ trái sang phải, từ trên xuống dưới để không bị sót nhé!",
-        "explanation": "Đếm lần lượt từng quả bóng màu đen trong hình ta được tất cả **8 quả bóng**.\n➔ Đáp án đúng là: **C. 8**",
+        "meeHint": "Mèo Mee gợi ý: Con hãy đếm từng quả bóng màu đen từ trái sang phải, không bỏ sót quả nào ở góc dưới cùng nhé!",
+        "explanation": "Đếm lần lượt từng quả bóng màu đen trong sơ đồ:\n• Nhóm bên trái và phía dưới: có 5 quả bóng màu đen.\n• Nhóm bên phải và phía dưới: có 4 quả bóng màu đen.\nTổng số quả bóng đen là:\n$$5 + 4 = 9\\text{ (quả)}$$\n➔ Đáp án đúng là: **D. 9**",
         "explanationSteps": [
           {
             "stepIndex": 0,
             "title": "Bước 1: Quan sát hình vẽ",
-            "description": "Xác định các quả bóng màu đen và phân biệt với bóng màu trắng."
+            "description": "Xác định các quả bóng màu đen (hình tròn đen đặc)."
           },
           {
             "stepIndex": 1,
             "title": "Bước 2: Đếm số lượng",
-            "description": "Hàng trên có 4 quả bóng đen, hàng dưới có 4 quả bóng đen: 4 + 4 = 8 quả."
+            "description": "Đếm từ trái qua phải ta được đúng 9 quả bóng màu đen."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "Có tất cả 8 quả bóng màu đen. Chọn đáp án C."
+            "description": "Có tất cả 9 quả bóng màu đen. Chọn đáp án D."
           }
         ]
       },
@@ -70,10 +71,11 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q02",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_LOGIC_NUMBER",
-        "topicName": "Điền chữ số còn thiếu",
+        "topicCode": "MATH_G1_DIGITS",
+        "topicName": "Tìm chữ số còn thiếu",
         "title": "Câu 2: What digit is missing in the diagram?",
-        "text": "What digit is missing in the diagram?\n(Chữ số nào còn thiếu trong sơ đồ số dưới đây?)",
+        "text": "What digit is missing in the diagram below?\n(Chữ số nào từ 1 đến 9 còn thiếu trong sơ đồ hình hộp dưới đây?)",
+        "imageUrl": "/asmo/assets/g1_2020/q02_digits.png",
         "options": [
           {
             "id": "A",
@@ -98,18 +100,18 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "B",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Con hãy quan sát quy luật tổng của hai số ở dưới bằng số ở trên đỉnh nhé!",
-        "explanation": "Theo quy luật sơ đồ tam giác số:\nSố trên đỉnh bằng tổng hai số ở đáy:\n$$2 + [\\;?\\;] = 6 \\implies [\\;?\\;] = 6 - 2 = 4$$\n➔ Đáp án đúng là: **B. 4**",
+        "meeHint": "Mèo Mee gợi ý: Các chữ số từ 1 đến 9 đang được viết ở nhiều góc xoay khác nhau. Con hãy kiểm tra xem số nào chưa xuất hiện!",
+        "explanation": "Liệt kê các chữ số xuất hiện trong hình (dù bị xoay ngược hay nằm ngang):\n• Có số: $1, 2, 3, 5, 6, 7, 8, 9$.\n• Chữ số duy nhất từ $1$ đến $9$ **chưa xuất hiện** là số **4**.\n➔ Đáp án đúng là: **B. 4**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Phân tích quy luật",
-            "description": "Số ở vòng tròn đỉnh bằng tổng của hai số ở vòng tròn đáy."
+            "title": "Bước 1: Liệt kê các chữ số",
+            "description": "Kiểm tra từng số: 1, 2, 3 (xoay), 5, 6, 7, 8, 9."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Tính toán chữ số còn thiếu",
-            "description": "Ta có: 2 + ? = 6 => ? = 6 - 2 = 4."
+            "title": "Bước 2: Tìm số còn thiếu",
+            "description": "Số 4 hoàn toàn không có trong ô."
           },
           {
             "stepIndex": 2,
@@ -130,43 +132,43 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "$13 + 17$"
+            "text": "13 + 17"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "$11 + 11$"
+            "text": "11 + 11"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "$9 + 11$"
+            "text": "9 + 11"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "$19 + 9$"
+            "text": "19 + 9"
           }
         ],
         "correctAnswer": "A",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Con hãy tính kết quả của từng phép tính A, B, C, D rồi so sánh xem số nào lớn nhất nhé!",
-        "explanation": "Ta tính giá trị của từng phương án:\n• **A.** $13 + 17 = 30$\n• **B.** $11 + 11 = 22$\n• **C.** $9 + 11 = 20$\n• **D.** $19 + 9 = 28$\nVì $30 > 28 > 22 > 20$ nên phép tính **13 + 17** cho kết quả lớn nhất.\n➔ Đáp án đúng là: **A. 13 + 17**",
+        "meeHint": "Mèo Mee gợi ý: Hãy tính kết quả từng phép tính: 13+17=30, 11+11=22, 9+11=20, 19+9=28!",
+        "explanation": "Tính giá trị 4 phương án:\n• **A**: $13 + 17 = 30$\n• **B**: $11 + 11 = 22$\n• **C**: $9 + 11 = 20$\n• **D**: $19 + 9 = 28$\nVì $30$ là số lớn nhất nên phép cộng **13 + 17** cho giá trị lớn nhất.\n➔ Đáp án đúng là: **A. 13 + 17**",
         "explanationSteps": [
           {
             "stepIndex": 0,
             "title": "Bước 1: Tính toán từng phương án",
-            "description": "A: 13 + 17 = 30 | B: 11 + 11 = 22 | C: 9 + 11 = 20 | D: 19 + 9 = 28."
+            "description": "A: 30 | B: 22 | C: 20 | D: 28."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: So sánh kết quả",
-            "description": "So sánh 4 giá trị: 30 là số lớn nhất."
+            "title": "Bước 2: So sánh",
+            "description": "30 > 28 > 22 > 20."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "Phép cộng 13 + 17 cho giá trị lớn nhất (30). Chọn đáp án A."
+            "description": "Chọn đáp án A."
           }
         ]
       },
@@ -175,62 +177,51 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "subject": "math",
         "grade": 1,
         "topicCode": "MATH_G1_BALANCE",
-        "topicName": "Cân thăng bằng & So sánh khối lượng",
+        "topicName": "So sánh khối lượng trên bập bênh",
         "title": "Câu 4: Which fruit is the heaviest?",
-        "text": "Based on the balance scales, which fruit is the heaviest?\n(Dựa vào các đĩa cân thăng bằng, loại quả nào nặng nhất?)",
+        "text": "Based on the 3 seesaw balance scales, which fruit is the heaviest?\n(Dựa vào 3 bập bênh dưới đây, loại quả nào nặng nhất?)",
+        "imageUrl": "/asmo/assets/g1_2020/q04_balance.png",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Watermelon (Dưa hấu)"
+            "text": "Banana (Quả chuối)"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Pineapple (Quả dứa)"
+            "text": "Apple (Quả táo)"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Apple (Quả táo)"
+            "text": "Strawberry (Quả dâu tây)"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Orange (Quả cam)"
+            "text": "Grapes (Chùm nho)"
           }
         ],
-        "correctAnswer": "A",
+        "correctAnswer": "D",
         "points": 4,
-        "renderSpec": {
-          "template": "3D_BALANCE_SCALE",
-          "camera": {
-            "x": 0,
-            "y": 2.5,
-            "z": 7.5
-          },
-          "leftWeightCount": 1,
-          "rightWeightCount": 3,
-          "leftItemLabel": "Dưa hấu",
-          "rightItemLabel": "Dứa & Táo"
-        },
-        "meeHint": "Mèo Mee gợi ý: Đĩa cân nào chìm xuống dưới thì vật đó nặng hơn. Con hãy so sánh từng cặp quả nhé!",
-        "explanation": "Từ các đĩa cân thăng bằng:\n• $1\\text{ quả dưa hấu} = 2\\text{ quả dứa}$\n• $1\\text{ quả dứa} = 3\\text{ quả táo}$\nDo đó, dưa hấu nặng hơn dứa, dứa nặng hơn táo ➔ **Quả dưa hấu là quả nặng nhất**.\n➔ Đáp án đúng là: **A. Watermelon**",
+        "meeHint": "Mèo Mee gợi ý: Phía bập bênh nào chìm xuống dưới là nặng hơn. Nhìn chiếc bập bênh thứ 3: Chùm nho chìm xuống nặng hơn Quả chuối!",
+        "explanation": "Phân tích 3 bập bênh (bên nào chìm xuống là nặng hơn):\n1. Bập bênh 1: Chuối chìm xuống ➔ $\\text{Chuối} > \\text{Dâu tây}$\n2. Bập bênh 2: Chuối chìm xuống ➔ $\\text{Chuối} > \\text{Táo}$\n3. Bập bênh 3: Chùm nho chìm xuống ➔ $\\text{Chùm nho} > \\text{Chuối}$\nDo đó: $\\text{Chùm nho} > \\text{Chuối} > \\text{Táo / Dâu tây}$.\n➔ **Chùm nho (Grapes) là quả nặng nhất**.\n➔ Đáp án đúng là: **D. Grapes**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: So sánh Dưa hấu và Dứa",
-            "description": "1 quả dưa hấu thăng bằng với 2 quả dứa ➔ Dưa hấu nặng hơn dứa."
+            "title": "Bước 1: Bập bênh 1 & 2",
+            "description": "Chuối nặng hơn Dâu tây và Chuối nặng hơn Táo."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: So sánh Dứa và Táo",
-            "description": "1 quả dứa thăng bằng với 3 quả táo ➔ Dứa nặng hơn táo."
+            "title": "Bước 2: Bập bênh 3",
+            "description": "Chùm nho nặng hơn Chuối."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "Dưa hấu > Dứa > Táo > Cam. Quả dưa hấu nặng nhất. Chọn đáp án A."
+            "description": "Chùm nho nặng nhất. Chọn đáp án D."
           }
         ]
       },
@@ -239,50 +230,51 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "subject": "math",
         "grade": 1,
         "topicCode": "MATH_G1_AREA",
-        "topicName": "So sánh diện tích ô vuông",
+        "topicName": "So sánh diện tích phần màu xám",
         "title": "Câu 5: Which grey area is the largest?",
-        "text": "Which grey shaded area is the largest in the grid figures?\n(Hình nào có diện tích phần màu xám lớn nhất?)",
+        "text": "Which grey area (A, B, C, or D) is the largest in the grid below?\n(Vùng màu xám nào: A, B, C hay D có diện tích lớn nhất trong lưới ô vuông?)",
+        "imageUrl": "/asmo/assets/g1_2020/q05_grey_grid.png",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Hình A (8 ô vuông)"
+            "text": "Khu vực A (7 ô xám)"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Hình B (6 ô vuông)"
+            "text": "Khu vực B (9 ô xám)"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Hình C (7 ô vuông)"
+            "text": "Khu vực C (5 ô xám)"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Hình D (5 ô vuông)"
+            "text": "Khu vực D (6 ô xám)"
           }
         ],
-        "correctAnswer": "A",
+        "correctAnswer": "B",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Con hãy đếm số ô vuông đơn vị màu xám trong mỗi hình A, B, C, D nhé!",
-        "explanation": "Đếm số ô vuông màu xám của từng hình:\n• **Hình A**: 8 ô vuông\n• **Hình B**: 6 ô vuông\n• **Hình C**: 7 ô vuông\n• **Hình D**: 5 ô vuông\nVì $8 > 7 > 6 > 5$ nên Hình A có diện tích phần màu xám lớn nhất.\n➔ Đáp án đúng là: **A. Hình A**",
+        "meeHint": "Mèo Mee gợi ý: Con hãy đếm từng ô vuông nhỏ màu xám xung quanh chữ cái A, B, C, D nhé!",
+        "explanation": "Đếm số ô vuông màu xám của từng khu vực:\n• **Khu vực A**: gồm $7\\text{ ô xám}$\n• **Khu vực B**: gồm $9\\text{ ô xám}$ (3 hàng trên và 1 hàng dưới)\n• **Khu vực C**: gồm $5\\text{ ô xám}$\n• **Khu vực D**: gồm $6\\text{ ô xám}$\nVì $9$ là số lớn nhất nên **Khu vực B** có diện tích lớn nhất.\n➔ Đáp án đúng là: **B. Khu vực B**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Đếm ô vuông màu xám",
-            "description": "Đếm số ô đơn vị của từng hình: A có 8 ô, B có 6 ô, C có 7 ô, D có 5 ô."
+            "title": "Bước 1: Đếm số ô xám từng vùng",
+            "description": "A = 7 ô, B = 9 ô, C = 5 ô, D = 6 ô."
           },
           {
             "stepIndex": 1,
             "title": "Bước 2: So sánh diện tích",
-            "description": "8 ô vuông là diện tích lớn nhất."
+            "description": "9 ô vuông là diện tích lớn nhất."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "Hình A có phần diện tích màu xám lớn nhất. Chọn đáp án A."
+            "description": "Khu vực B lớn nhất. Chọn đáp án B."
           }
         ]
       },
@@ -290,56 +282,51 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q06",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_SEQUENCE",
-        "topicName": "Quy luật dãy hình học",
-        "title": "Câu 6: What are the missing shapes in the sequence below?",
-        "text": "What are the missing shapes in the sequence below?\n[Rectangle], [Triangle], [Circle], [Circle], [Triangle], [ ? ], [Triangle], [Circle], [ ? ], [Triangle]",
+        "topicCode": "MATH_G1_INEQUALITY",
+        "topicName": "Tìm số thích hợp cho bất đẳng thức",
+        "title": "Câu 6: What number should be filled in the blank?",
+        "text": "What number should be filled in the blank to make the inequality true?\n$$11 > 5 + \\square$$\n(Số nào dưới đây khi điền vào ô trống làm cho phép so sánh $11 > 5 + \\square$ là đúng?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Circle, Triangle"
+            "text": "10"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Rectangle, Triangle"
+            "text": "8"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Rectangle, Circle"
+            "text": "6"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Rectangle, Rectangle"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "Triangle, Circle"
+            "text": "5"
           }
         ],
-        "correctAnswer": "C",
+        "correctAnswer": "D",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Quy luật lặp lại của chuỗi là cụm 4 hình: [Chữ nhật] - [Tam giác] - [Tròn] - [Tròn]. Con hãy đối chiếu nhé!",
-        "explanation": "Quy luật dãy hình tuần hoàn lặp lại theo chu kỳ 4 hình:\n$$\\text{[Hình chữ nhật]} \\to \\text{[Hình tam giác]} \\to \\text{[Hình tròn]} \\to \\text{[Hình tròn]}$$\n• Vị trí thứ 6 là bắt đầu chu kỳ mới ➔ **[Hình chữ nhật]**\n• Vị trí thứ 9 là vị trí thứ ba của chu kỳ ➔ **[Hình tròn]**\n➔ Hai hình còn thiếu là: **Rectangle, Circle** (Hình chữ nhật, Hình tròn).\n➔ Đáp án đúng là: **C. Rectangle, Circle**",
+        "meeHint": "Mèo Mee gợi ý: Thử từng số vào: 5 + 10 = 15 (>11 sai), 5 + 8 = 13 (>11 sai), 5 + 6 = 11 (=11 sai), 5 + 5 = 10 (<11 đúng)!",
+        "explanation": "Ta kiểm tra từng phương án:\n• **A. 10**: $5 + 10 = 15 \\implies 11 > 15$ (Sai)\n• **B. 8**: $5 + 8 = 13 \\implies 11 > 13$ (Sai)\n• **C. 6**: $5 + 6 = 11 \\implies 11 > 11$ (Sai)\n• **D. 5**: $5 + 5 = 10 \\implies 11 > 10$ (Đúng!)\n➔ Đáp án đúng là: **D. 5**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Tìm cụm quy luật chu kỳ",
-            "description": "Quan sát chu kỳ 4 hình: [Chữ nhật] ➔ [Tam giác] ➔ [Tròn] ➔ [Tròn]."
+            "title": "Bước 1: Phân tích điều kiện",
+            "description": "11 > 5 + ô vuông => 5 + ô vuông < 11 => ô vuông < 6."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Xác định 2 vị trí dấu hỏi [ ? ]",
-            "description": "Vị trí số 6 là [Chữ nhật], vị trí số 9 là [Tròn]."
+            "title": "Bước 2: Kiểm tra các phương án",
+            "description": "Trong các số 10, 8, 6, 5 chỉ có 5 < 6."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "Hai hình cần điền lần lượt là Rectangle và Circle. Chọn đáp án C."
+            "description": "Số cần điền là 5. Chọn đáp án D."
           }
         ]
       },
@@ -347,10 +334,10 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q07",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_WORD_SPEED",
-        "topicName": "Toán thực tế thời gian & tốc độ",
+        "topicCode": "MATH_G1_RACE_TIME",
+        "topicName": "So sánh thời gian chạy đua",
         "title": "Câu 7: Which student is the fastest runner?",
-        "text": "Four students competed in a 100-meter race:\n• Student A finished in $15\\text{ seconds}$\n• Student B finished in $13\\text{ seconds}$\n• Student C finished in $14\\text{ seconds}$\n• Student D finished in $17\\text{ seconds}$\nWhich student is the fastest runner among them?\n(Bạn nào chạy nhanh nhất trong cuộc đua 100m?)",
+        "text": "Four students competed in a 100-meter race:\n• Student A finished it in $15\\text{ seconds}$\n• Student B finished it in $13\\text{ seconds}$\n• Student C finished it in $14\\text{ seconds}$\n• Student D finished it in $17\\text{ seconds}$\nWhich student is the fastest runner among them?\n(Bạn nào là người chạy nhanh nhất trong cuộc đua 100 mét?)",
         "options": [
           {
             "id": "A",
@@ -375,22 +362,17 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "B",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Trong môn chạy đua, bạn nào mất ít thời gian (số giây nhỏ nhất) về đích nhất chính là bạn chạy nhanh nhất!",
-        "explanation": "Trong cuộc thi chạy trên cùng một quãng đường $100\\text{m}$:\nNgười chạy nhanh nhất là người hoàn thành với **thời gian ít nhất**.\nSo sánh thời gian: $13\\text{s} < 14\\text{s} < 15\\text{s} < 17\\text{s}$.\nDo đó **Student B** (13 giây) là người chạy nhanh nhất.\n➔ Đáp án đúng là: **B. Student B**",
+        "meeHint": "Mèo Mee gợi ý: Trong môn chạy đua, bạn nào mất ít thời gian nhất (số giây nhỏ nhất) là bạn chạy nhanh nhất!",
+        "explanation": "Trong cuộc đua chạy $100\\text{m}$, bạn nào về đích với **số giây ít nhất** là bạn chạy nhanh nhất.\nSo sánh thời gian: $13\\text{s} < 14\\text{s} < 15\\text{s} < 17\\text{s}$.\nDo đó **Student B** (13 giây) chạy nhanh nhất.\n➔ Đáp án đúng là: **B. Student B**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Phân tích quy luật chạy đua",
-            "description": "Cùng quãng đường 100m, thời gian càng nhỏ thì vận tốc càng nhanh."
-          },
-          {
-            "stepIndex": 1,
-            "title": "Bước 2: So sánh số giây",
+            "title": "Bước 1: So sánh thời gian",
             "description": "13s (B) < 14s (C) < 15s (A) < 17s (D)."
           },
           {
-            "stepIndex": 2,
-            "title": "Bước 3: Kết luận",
+            "stepIndex": 1,
+            "title": "Bước 2: Kết luận",
             "description": "Student B là người chạy nhanh nhất. Chọn đáp án B."
           }
         ]
@@ -399,51 +381,52 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q08",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_PATTERN_MATRIX",
-        "topicName": "Quy luật ma trận hình",
+        "topicCode": "MATH_G1_SHAPES_ADD",
+        "topicName": "Quy luật lồng ghép hình học",
         "title": "Câu 8: Which diagram should “?” be?",
-        "text": "Which diagram should replace the “?” in the pattern below?\n(Hình nào thay thế dấu “?” theo quy luật?)",
+        "text": "Which diagram should replace the “?” in the geometric equation below?\n(Hình nào sẽ thay thế dấu “?” trong phép toán hình học dưới đây?)",
+        "imageUrl": "/asmo/assets/g1_2020/q08_shapes_add.png",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Hình tam giác tô đậm (Filled Triangle)"
+            "text": "Hình vuông lồng trong hình tam giác"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Hình vuông rỗng (Hollow Square)"
+            "text": "Hình ngũ giác lồng trong hình tròn"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Hình tròn tô đậm (Filled Circle)"
+            "text": "Hình tròn lồng trong hình tam giác (Circle inside Triangle)"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Hình thoi rỗng (Hollow Diamond)"
+            "text": "Hình tam giác lồng trong hình ngũ giác"
           }
         ],
-        "correctAnswer": "A",
+        "correctAnswer": "C",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Con hãy quan sát hình dạng và màu sắc xen kẽ giữa các hàng và các cột nhé!",
-        "explanation": "Xét quy luật theo hàng ngang: Mỗi hàng gồm 1 hình vuông, 1 hình tròn và 1 hình tam giác có cùng kiểu tô màu.\nTại hàng cuối cùng, hình còn thiếu là hình tam giác được tô màu đậm.\n➔ Đáp án đúng là: **A. Filled Triangle**",
+        "meeHint": "Mèo Mee gợi ý: Quy luật của phép cộng là hình thứ hai sẽ được lồng vào bên trong hình thứ nhất!",
+        "explanation": "Quan sát quy luật:\n• Hàng 1: $\\text{Hình vuông} + \\text{Hình tam giác} = \\text{Hình tam giác nằm trong hình vuông}$\n• Hàng 2: $\\text{Hình ngũ giác} + \\text{Hình tròn} = \\text{Hình tròn nằm trong hình ngũ giác}$\n• Hàng 3: $\\text{Hình tam giác} + \\text{Hình tròn} = \\text{Hình tròn nằm trong hình tam giác}$ (Hình C)\n➔ Đáp án đúng là: **C**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Quan sát cấu trúc ma trận",
-            "description": "Mỗi hàng và mỗi cột đều có đủ 3 loại hình: Vuông, Tròn, Tam giác."
+            "title": "Bước 1: Tìm quy luật phép cộng hình",
+            "description": "Hình thứ hai được đặt vào giữa hình thứ nhất."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Tìm hình còn thiếu",
-            "description": "Hàng cuối đã có Hình vuông và Hình tròn ➔ Hình còn thiếu là Tam giác tô đậm."
+            "title": "Bước 2: Áp dụng cho hàng 3",
+            "description": "Tam giác + Tròn = Tròn nằm trong Tam giác."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "Chọn đáp án A."
+            "description": "Chọn đáp án C."
           }
         ]
       },
@@ -452,204 +435,51 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "subject": "math",
         "grade": 1,
         "topicCode": "MATH_G1_MATCHES",
-        "topicName": "Đếm que diêm",
+        "topicName": "Đếm số que diêm",
         "title": "Câu 9: Which diagram uses the greatest number of matches?",
-        "text": "Which diagram uses the greatest number of matches?\n(Hình nào dưới đây sử dụng nhiều que diêm nhất?)",
+        "text": "Which diagram uses the greatest number of matches?\n(Hình nào dưới đây sử dụng số lượng que diêm nhiều nhất?)",
+        "imageUrl": "/asmo/assets/g1_2020/q09_matches.png",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Hình A (Hình cối xay gió - 12 que)"
+            "text": "Hình A (6 que diêm)"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Hình B (Hình 2 ngôi nhà - 10 que)"
+            "text": "Hình B (5 que diêm)"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Hình C (Hình 3 tam giác - 9 que)"
+            "text": "Hình C (6 que diêm)"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Hình D (Hình con thuyền - 8 que)"
+            "text": "Hình D (7 que diêm)"
           }
         ],
-        "correctAnswer": "A",
+        "correctAnswer": "D",
         "points": 4,
-        "renderSpec": {
-          "template": "MATCHSTICK_FIGURE",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "matches": [
-            {
-              "from": [
-                0,
-                0,
-                0
-              ],
-              "to": [
-                1.5,
-                0,
-                0
-              ]
-            },
-            {
-              "from": [
-                1.5,
-                0,
-                0
-              ],
-              "to": [
-                1.5,
-                1.5,
-                0
-              ]
-            },
-            {
-              "from": [
-                1.5,
-                1.5,
-                0
-              ],
-              "to": [
-                0,
-                0,
-                0
-              ]
-            },
-            {
-              "from": [
-                0,
-                0,
-                0
-              ],
-              "to": [
-                0,
-                1.5,
-                0
-              ]
-            },
-            {
-              "from": [
-                0,
-                1.5,
-                0
-              ],
-              "to": [
-                -1.5,
-                1.5,
-                0
-              ]
-            },
-            {
-              "from": [
-                -1.5,
-                1.5,
-                0
-              ],
-              "to": [
-                0,
-                0,
-                0
-              ]
-            },
-            {
-              "from": [
-                0,
-                0,
-                0
-              ],
-              "to": [
-                -1.5,
-                0,
-                0
-              ]
-            },
-            {
-              "from": [
-                -1.5,
-                0,
-                0
-              ],
-              "to": [
-                -1.5,
-                -1.5,
-                0
-              ]
-            },
-            {
-              "from": [
-                -1.5,
-                -1.5,
-                0
-              ],
-              "to": [
-                0,
-                0,
-                0
-              ]
-            },
-            {
-              "from": [
-                0,
-                0,
-                0
-              ],
-              "to": [
-                0,
-                -1.5,
-                0
-              ]
-            },
-            {
-              "from": [
-                0,
-                -1.5,
-                0
-              ],
-              "to": [
-                1.5,
-                -1.5,
-                0
-              ]
-            },
-            {
-              "from": [
-                1.5,
-                -1.5,
-                0
-              ],
-              "to": [
-                0,
-                0,
-                0
-              ]
-            }
-          ]
-        },
-        "meeHint": "Mèo Mee gợi ý: Hình cối xay gió gồm 4 cánh tam giác riêng biệt, mỗi cánh có 3 que diêm: 4 x 3 = 12 que diêm!",
-        "explanation": "Đếm số que diêm của từng hình:\n• **Hình A**: Gồm 4 cánh tam giác $\\implies 4 \\times 3 = 12\\text{ que diêm}$\n• **Hình B**: 10 que diêm\n• **Hình C**: 9 que diêm\n• **Hình D**: 8 que diêm\nVì $12 > 10 > 9 > 8$ nên Hình A sử dụng nhiều que diêm nhất.\n➔ Đáp án đúng là: **A. Hình A (12 que)**",
+        "meeHint": "Mèo Mee gợi ý: Con hãy đếm từng que diêm của mỗi hình A, B, C, D nhé! Chú ý Hình D có 2 ô vuông liền nhau!",
+        "explanation": "Đếm số que diêm trong từng hình:\n• **Hình A**: $4\\text{ que (ô vuông)} + 2\\text{ que (cán)} = 6\\text{ que}$\n• **Hình B**: $2\\text{ que (mái)} + 3\\text{ que (tường/đáy)} = 5\\text{ que}$\n• **Hình C**: $4\\text{ que (hình thoi)} + 2\\text{ que (chân chéo)} = 6\\text{ que}$\n• **Hình D**: $3\\text{ que dọc} + 4\\text{ que ngang} = 7\\text{ que}$\nVì $7 > 6 > 5$ nên **Hình D** sử dụng nhiều que diêm nhất.\n➔ Đáp án đúng là: **D. Hình D (7 que)**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Đếm số que diêm Hình A",
-            "description": "Hình cối xay gồm 4 cánh tam giác: 4 x 3 = 12 que."
+            "title": "Bước 1: Đếm que diêm từng hình",
+            "description": "A = 6 que, B = 5 que, C = 6 que, D = 7 que."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: So sánh với các hình B, C, D",
-            "description": "Hình B có 10 que, C có 9 que, D có 8 que."
+            "title": "Bước 2: So sánh",
+            "description": "7 que là nhiều nhất."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "Hình A sử dụng nhiều que diêm nhất (12 que). Chọn đáp án A."
+            "description": "Hình D dùng nhiều que diêm nhất. Chọn đáp án D."
           }
         ]
       },
@@ -657,10 +487,10 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q10",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_PARITY",
-        "topicName": "Số chẵn & Số lẻ",
+        "topicCode": "MATH_G1_EVEN_ODD",
+        "topicName": "Nhận biết số chẵn số lẻ",
         "title": "Câu 10: Which number is not an odd number?",
-        "text": "Which number is not an odd number (tức là số chẵn)?",
+        "text": "Which number is not an odd number (tức là số chẵn)?\n(Số nào dưới đây KHÔNG phải là số lẻ?)",
         "options": [
           {
             "id": "A",
@@ -685,22 +515,17 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "C",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Số chẵn là số có chữ số tận cùng là 0, 2, 4, 6, 8. Số không phải số lẻ chính là số chẵn!",
-        "explanation": "Xét chữ số tận cùng của từng số:\n• $25$: Tận cùng là $5$ ➔ Số lẻ\n• $21$: Tận cùng là $1$ ➔ Số lẻ\n• $74$: Tận cùng là $4$ ➔ **Số chẵn (không phải số lẻ)**\n• $39$: Tận cùng là $9$ ➔ Số lẻ\n➔ Đáp án đúng là: **C. 74**",
+        "meeHint": "Mèo Mee gợi ý: Số không phải số lẻ là số chẵn (có chữ số tận cùng là 0, 2, 4, 6, 8)!",
+        "explanation": "Xét chữ số tận cùng:\n• $25$: tận cùng là $5$ ➔ số lẻ\n• $21$: tận cùng là $1$ ➔ số lẻ\n• $74$: tận cùng là $4$ ➔ **số chẵn (không phải số lẻ)**\n• $39$: tận cùng là $9$ ➔ số lẻ\n➔ Đáp án đúng là: **C. 74**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Định nghĩa số chẵn, số lẻ",
-            "description": "Số lẻ có chữ số tận cùng là 1, 3, 5, 7, 9. Số chẵn có chữ số tận cùng là 0, 2, 4, 6, 8."
+            "title": "Bước 1: Kiểm tra chữ số tận cùng",
+            "description": "74 có tận cùng là 4 nên là số chẵn."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Kiểm tra các phương án",
-            "description": "74 có tận cùng là 4 nên là số chẵn (không phải số lẻ)."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 3: Kết luận",
+            "title": "Bước 2: Kết luận",
             "description": "Chọn đáp án C. 74."
           }
         ]
@@ -709,10 +534,10 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q11",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_MISSING_NUM",
-        "topicName": "Điền số vào ô trống",
+        "topicCode": "MATH_G1_VERTICAL_SUB",
+        "topicName": "Phép trừ cột dọc",
         "title": "Câu 11: What number should be filled in the blank?",
-        "text": "What number should be filled in the blank?\n$$15 - [\\;?\\;] = 11$$",
+        "text": "What number should be filled in the box for the subtraction below?\n2 1\n- 1 7\n------\n  [ ? ]",
         "options": [
           {
             "id": "A",
@@ -737,23 +562,18 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "C",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Muốn tìm số trừ, ta lấy số bị trừ trừ đi hiệu: 15 - 11 = ?",
-        "explanation": "Ta có phép tính:\n$$15 - [\\;?\\;] = 11 \\implies [\\;?\\;] = 15 - 11 = 4$$\n➔ Đáp án đúng là: **C. 4**",
+        "meeHint": "Mèo Mee gợi ý: Ở hàng đơn vị 1 không trừ được 7, ta mượn 1 chục thành 11 - 7 = 4!",
+        "explanation": "Thực hiện phép tính trừ cột dọc:\n$$21 - 17 = 4$$\n➔ Số cần điền vào ô trống là **4**.\n➔ Đáp án đúng là: **C. 4**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Thiết lập phương trình",
-            "description": "15 - ? = 11."
+            "title": "Bước 1: Tính toán phép trừ",
+            "description": "21 - 17 = 4."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Thực hiện phép trừ",
-            "description": "? = 15 - 11 = 4."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 3: Kết luận",
-            "description": "Số cần điền vào ô trống là 4. Chọn đáp án C."
+            "title": "Bước 2: Kết luận",
+            "description": "Chọn đáp án C. 4."
           }
         ]
       },
@@ -761,8 +581,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q12",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_WORD_FRUITS",
-        "topicName": "Bài toán lời văn nhiều đại lượng",
+        "topicCode": "MATH_G1_PINEAPPLES",
+        "topicName": "Bài toán tổng hiệu hoa quả",
         "title": "Câu 12: How many pineapples are on the table?",
         "text": "There are apples, oranges and pineapples on the table, the total number of them is $21$. We know that there are $7\\text{ apples}$ and $11\\text{ oranges}$, how many pineapples are on the table?\n(Trên bàn có tất cả 21 quả gồm táo, cam và dứa. Biết có 7 quả táo và 11 quả cam, hỏi có bao nhiêu quả dứa?)",
         "options": [
@@ -789,8 +609,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "B",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Con hãy lấy tổng số 21 quả trừ đi số quả táo (7) rồi trừ tiếp đi số quả cam (11) nhé!",
-        "explanation": "Tổng số quả táo và cam là:\n$$7 + 11 = 18\\text{ (quả)}$$\nSố quả dứa trên bàn là:\n$$21 - 18 = 3\\text{ (quả)}$$\n➔ Đáp án đúng là: **B. 3**",
+        "meeHint": "Mèo Mee gợi ý: Lấy tổng 21 trừ đi táo (7) rồi trừ tiếp cam (11): 21 - 7 - 11 = ?",
+        "explanation": "Tổng số táo và cam là:\n$$7 + 11 = 18\\text{ (quả)}$$\nSố quả dứa trên bàn là:\n$$21 - 18 = 3\\text{ (quả dứa)}$$\n➔ Đáp án đúng là: **B. 3**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -799,13 +619,13 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Tính số quả dứa",
-            "description": "Lấy tổng 21 trừ đi 18: 21 - 18 = 3 quả dứa."
+            "title": "Bước 2: Tính số dứa",
+            "description": "21 - 18 = 3 quả dứa."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "Có 3 quả dứa trên bàn. Chọn đáp án B."
+            "description": "Chọn đáp án B."
           }
         ]
       },
@@ -816,7 +636,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_QUEUE",
         "topicName": "Toán xếp hàng",
         "title": "Câu 13: How many people are queuing up in total?",
-        "text": "Xiao Ming is queuing up. There are $4\\text{ people}$ in front of him and $9\\text{ people}$ behind him. What is the total number of people queuing up?\n(Tiểu Minh đang xếp hàng. Có 4 người đứng trước bạn ấy và 9 người đứng sau bạn ấy. Hỏi có tất cả bao nhiêu người đang xếp hàng?)",
+        "text": "Xiao Ming is queuing up and there are $4\\text{ people}$ in front of him and $9\\text{ people}$ behind him, what is the total number of people queuing up?\n(Tiểu Minh đang xếp hàng. Có 4 người đứng trước bạn ấy và 9 người đứng sau bạn ấy. Hỏi có tất cả bao nhiêu người đang xếp hàng?)",
         "options": [
           {
             "id": "A",
@@ -841,23 +661,18 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "C",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Con nhớ cộng cả chính bạn Tiểu Minh nữa nhé! Tổng cộng = (Số người phía trước) + (Tiểu Minh) + (Số người phía sau).",
-        "explanation": "Tổng số người đang xếp hàng trong hàng là:\n$$4\\text{ (phía trước)} + 1\\text{ (Tiểu Minh)} + 9\\text{ (phía sau)} = 14\\text{ (người)}$$\n➔ Đáp án đúng là: **C. 14**",
+        "meeHint": "Mèo Mee gợi ý: Con nhớ tính cả chính bạn Tiểu Minh nữa nhé: 4 + 1 + 9 = 14!",
+        "explanation": "Tổng số người xếp hàng là:\n$$4\\text{ (trước)} + 1\\text{ (Tiểu Minh)} + 9\\text{ (sau)} = 14\\text{ (người)}$$\n➔ Đáp án đúng là: **C. 14**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Xác định các thành phần trong hàng",
-            "description": "Có 4 người đứng trước, chính bạn Tiểu Minh (1 người), và 9 người đứng sau."
-          },
-          {
-            "stepIndex": 1,
-            "title": "Bước 2: Thực hiện phép cộng",
+            "title": "Bước 1: Tính tổng số người",
             "description": "4 + 1 + 9 = 14 người."
           },
           {
-            "stepIndex": 2,
-            "title": "Bước 3: Kết luận",
-            "description": "Có tất cả 14 người trong hàng. Chọn đáp án C."
+            "stepIndex": 1,
+            "title": "Bước 2: Kết luận",
+            "description": "Chọn đáp án C. 14."
           }
         ]
       },
@@ -865,56 +680,52 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q14",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_BAR_CHART",
-        "topicName": "Đọc biểu đồ cột",
-        "title": "Câu 14: Alice bought red and black balloons. How many balloons did she buy in total?",
-        "text": "Alice bought red and black balloons. How many balloons did she buy in total?\nBar Chart (Colours of Balloons in a shop):\nRed: 18\nYellow: 9\nBlack: 15\nBlue: 12\nWhite: 15",
+        "topicCode": "MATH_G1_PUZZLE",
+        "topicName": "Mảnh ghép hình vuông còn thiếu",
+        "title": "Câu 14: Find out the missing part of the square puzzle",
+        "text": "The puzzle below was a complete square ($5 \\times 5$) before, find out the missing part.\n(Hình ghép ô cờ $5 \\times 5$ dưới đây bị cắt đi một góc, hãy tìm mảnh ghép còn thiếu khớp với phần bị cắt.)",
+        "imageUrl": "/asmo/assets/g1_2020/q14_puzzle.png",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "18"
+            "text": "Mảnh A"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "33"
+            "text": "Mảnh B"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "27"
+            "text": "Mảnh C"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "30"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "32"
+            "text": "Mảnh D"
           }
         ],
-        "correctAnswer": "B",
+        "correctAnswer": "A",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Nhìn vào biểu đồ cột, Alice mua bóng màu Đỏ (Red = 18) và bóng màu Đen (Black = 15). Hãy cộng 18 + 15 con nhé!",
-        "explanation": "Từ biểu đồ cột số lượng bóng trong cửa hàng:\n• Số bóng đỏ (Red): $18$\n• Số bóng đen (Black): $15$\nTổng số bóng Alice đã mua là:\n$$18 + 15 = 33\\text{ (quả bóng)}$$\n➔ Đáp án đúng là: **B. 33**",
+        "meeHint": "Mèo Mee gợi ý: Quan sát phần khuyết ở góc dưới bên phải: ô nhô ra ở hàng 4 có màu trắng hay đen, và ghép lại thành hình vuông hoàn chỉnh 5x5!",
+        "explanation": "So sánh phần khuyết trên bàn cờ $5 \\times 5$ với các phương án:\n• Phần bị cắt gồm các bậc thang từ góc dưới bên phải với màu sắc đan xen đen trắng xen kẽ.\n• Chỉ có **Mảnh A** có đúng số ô và thứ tự màu đen/trắng tương ứng để ghép kín thành hình vuông $5 \\times 5$.\n➔ Đáp án đúng là: **A. Mảnh A**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Đọc số liệu từ Biểu đồ cột",
-            "description": "Cột Red = 18 quả bóng, cột Black = 15 quả bóng."
+            "title": "Bước 1: Đếm số ô bị khuyết",
+            "description": "Góc dưới phải bị khuyết bậc thang 8 ô."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Tính tổng số bóng đã mua",
-            "description": "18 + 15 = 33 quả bóng."
+            "title": "Bước 2: Đối chiếu màu sắc xen kẽ",
+            "description": "Mảnh A khớp hoàn toàn hình dạng và màu sắc."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "Alice đã mua tất cả 33 quả bóng. Chọn đáp án B."
+            "description": "Chọn đáp án A."
           }
         ]
       },
@@ -922,56 +733,52 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q15",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_CRYPTARITHM",
-        "topicName": "Điền chữ số phép cộng cột dọc",
-        "title": "Câu 15: In the addition below, what do “C” and “D” represent?",
-        "text": "In the addition below, what do “C” and “D” represent?\n1 7\n+ C D\n------\n8 2",
+        "topicCode": "MATH_G1_MAZE",
+        "topicName": "Đường đi trong mê cung",
+        "title": "Câu 15: Which is the right exit for the maze?",
+        "text": "Follow the arrow at the entrance, which is the right exit for the maze?\n(Đi theo hướng mũi tên ở lối vào bên trái, lối ra đúng của mê cung là lối nào: A, B, C hay D?)",
+        "imageUrl": "/asmo/assets/g1_2020/q15_maze.png",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "7, 5"
+            "text": "Lối thoát A (Ở trên cùng)"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "6, 5"
+            "text": "Lối thoát B (Bên phải)"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "5, 6"
+            "text": "Lối thoát C (Góc dưới phải)"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "7, 4"
-          },
-          {
-            "id": "E",
-            "label": "E",
-            "text": "6, 6"
+            "text": "Lối thoát D (Góc dưới trái)"
           }
         ],
-        "correctAnswer": "B",
+        "correctAnswer": "D",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Ở hàng đơn vị, 7 + D tận cùng là 2 ➔ 7 + D = 12 ➔ D = 5 (nhớ 1). Ở hàng chục: 1 + C + 1 (nhớ) = 8 ➔ C = 6!",
-        "explanation": "Xét phép cộng đặt tính theo cột dọc:\n1. **Hàng đơn vị**:\n   $$7 + \\text{D} = 12 \\implies \\text{D} = 12 - 7 = 5\\quad (\\text{nhớ } 1)$$\n2. **Hàng chục**:\n   $$1 + \\text{C} + 1\\;(\\text{nhớ}) = 8 \\implies \\text{C} + 2 = 8 \\implies \\text{C} = 6$$\nVậy $\\text{C} = 6$ và $\\text{D} = 5$.\n➔ Đáp án đúng là: **B. 6, 5**",
+        "meeHint": "Mèo Mee gợi ý: Dùng ngón tay lần theo con đường từ mũi tên vào, rẽ xuống dưới, đi vòng qua các bức tường để tới lối thoát không bị chặn!",
+        "explanation": "Lần theo đường đi từ mũi tên vào ở góc trên bên trái:\n• Đi thẳng vào ➔ Rẽ xuống ➔ Đi sang phải ➔ Rẽ xuống qua khe hở ➔ Đi sang trái ➔ Đi thẳng xuống đáy.\n• Lối thoát duy nhất thông ra ngoài mà không bị tường chắn là **Lối thoát D**.\n➔ Đáp án đúng là: **D. Lối thoát D**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Tìm chữ số hàng đơn vị D",
-            "description": "7 + D tận cùng là 2 nên 7 + D = 12 => D = 5 (nhớ 1 sang hàng chục)."
+            "title": "Bước 1: Xuất phát từ lối vào",
+            "description": "Đi theo mũi tên bên trái vào mê cung."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Tìm chữ số hàng chục C",
-            "description": "1 + C + 1 (nhớ) = 8 => C + 2 = 8 => C = 6."
+            "title": "Bước 2: Tìm đường thông suốt",
+            "description": "Các đường lên A, B, C đều bị ngõ cụt. Đường dẫn xuống D thông suốt."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "C = 6, D = 5. Chọn đáp án B."
+            "description": "Lối thoát đúng là D. Chọn đáp án D."
           }
         ]
       },
@@ -980,9 +787,9 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "subject": "math",
         "grade": 1,
         "topicCode": "MATH_G1_CANDIES",
-        "topicName": "Toán trừ liên tiếp thực tế",
+        "topicName": "Toán trừ liên tiếp",
         "title": "Câu 16: How many candies were left?",
-        "text": "Mother has bought $17\\text{ candies}$ from the market. The elder brother has eaten $3\\text{ of them}$, father has eaten $5\\text{ of them}$ and the younger brother has eaten $2\\text{ of them}$. How many candies were left?\n(Mẹ mua 17 viên kẹo. Anh trai ăn 3 viên, bố ăn 5 viên và em trai ăn 2 viên. Hỏi còn lại bao nhiêu viên kẹo?)",
+        "text": "Mother has bought $17\\text{ candies}$ from the market. The elder brother has eaten $3\\text{ of them}$, father has eaten $5\\text{ of them}$ and the younger brother has eaten $2\\text{ of them}$. How many candies were left?\n(Mẹ mua 17 viên kẹo. Anh ăn 3 viên, bố ăn 5 viên và em ăn 2 viên. Hỏi còn lại bao nhiêu viên kẹo?)",
         "options": [
           {
             "id": "A",
@@ -1007,23 +814,23 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "C",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Tổng số kẹo mọi người đã ăn là 3 + 5 + 2 = 10 viên. Con lấy 17 - 10 là ra số kẹo còn lại!",
-        "explanation": "Tổng số kẹo mà cả nhà đã ăn là:\n$$3 + 5 + 2 = 10\\text{ (viên kẹo)}$$\nSố viên kẹo còn lại là:\n$$17 - 10 = 7\\text{ (viên kẹo)}$$\n➔ Đáp án đúng là: **C. 7**",
+        "meeHint": "Mèo Mee gợi ý: Tổng kẹo đã ăn là 3 + 5 + 2 = 10. Lấy 17 - 10 = 7 viên kẹo!",
+        "explanation": "Tổng số kẹo cả nhà đã ăn là:\n$$3 + 5 + 2 = 10\\text{ (viên)}$$\nSố viên kẹo còn lại là:\n$$17 - 10 = 7\\text{ (viên)}$$\n➔ Đáp án đúng là: **C. 7**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Tính tổng số kẹo đã ăn",
-            "description": "3 (anh) + 5 (bố) + 2 (em) = 10 viên kẹo."
+            "title": "Bước 1: Tính tổng kẹo đã ăn",
+            "description": "3 + 5 + 2 = 10 viên."
           },
           {
             "stepIndex": 1,
             "title": "Bước 2: Tính số kẹo còn lại",
-            "description": "17 - 10 = 7 viên kẹo."
+            "description": "17 - 10 = 7 viên."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "Còn lại 7 viên kẹo. Chọn đáp án C."
+            "description": "Chọn đáp án C. 7."
           }
         ]
       },
@@ -1032,9 +839,10 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "subject": "math",
         "grade": 1,
         "topicCode": "MATH_G1_CLOCK",
-        "topicName": "Đọc giờ trên mặt đồng hồ 3D",
+        "topicName": "Đọc giờ trên mặt đồng hồ",
         "title": "Câu 17: Jack observes the clock in the afternoon, what is the time shown?",
-        "text": "Jack observes the clock shown below in the afternoon, what is the time shown?\n(Jack quan sát mặt đồng hồ 3D vào buổi chiều, đồng hồ đang chỉ mấy giờ?)",
+        "text": "Jack observes the clock shown below in the afternoon, what is the time shown?\n(Jack quan sát mặt đồng hồ dưới đây vào buổi chiều, đồng hồ đang chỉ mấy giờ?)",
+        "imageUrl": "/asmo/assets/g1_2020/q17_clock.png",
         "options": [
           {
             "id": "A",
@@ -1057,41 +865,25 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "text": "5:11 p.m."
           }
         ],
-        "correctAnswer": "A",
+        "correctAnswer": "B",
         "points": 4,
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 4,
-          "minute": 10
-        },
-        "meeHint": "Mèo Mee gợi ý: Kim ngắn màu đỏ chỉ qua số 4 (4 giờ). Kim dài màu xanh chỉ vào số 2 tương ứng 2 x 5 = 10 phút!",
-        "explanation": "Quan sát mặt đồng hồ:\n• Kim giờ ngắn (màu đỏ) chỉ qua vạch số $4$ ➔ **4 giờ**.\n• Kim phút dài (màu xanh cyan) chỉ đúng số $2$ ➔ $2 \\times 5 = 10\\text{ phút}$.\n• Buổi chiều ➔ Ký hiệu là **p.m.**\nDo đó thời gian hiển thị là **4:10 p.m.**\n➔ Đáp án đúng là: **A. 4:10 p.m.**",
+        "meeHint": "Mèo Mee gợi ý: Kim ngắn (kim giờ) chỉ qua số 5 (5 giờ). Kim dài (kim phút) chỉ vào số 2 tương ứng 2 x 5 = 10 phút!",
+        "explanation": "Quan sát mặt đồng hồ:\n• Kim giờ ngắn chỉ qua số **5** ➔ 5 giờ.\n• Kim phút dài chỉ đúng số **2** ➔ $2 \\times 5 = 10\\text{ phút}$.\n• Buổi chiều ➔ Ký hiệu **p.m.**\nVậy đồng hồ chỉ **5:10 p.m.**\n➔ Đáp án đúng là: **B. 5:10 p.m.**",
         "explanationSteps": [
           {
             "stepIndex": 0,
             "title": "Bước 1: Đọc kim giờ",
-            "description": "Kim ngắn màu đỏ nằm qua vạch số 4 => 4 giờ.",
-            "hour": 4,
-            "minute": 0
+            "description": "Kim ngắn nằm qua số 5 => 5 giờ."
           },
           {
             "stepIndex": 1,
             "title": "Bước 2: Đọc kim phút",
-            "description": "Kim dài màu xanh chỉ vào số 2 => 2 x 5 = 10 phút.",
-            "hour": 4,
-            "minute": 10
+            "description": "Kim dài chỉ vào số 2 => 10 phút."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "Thời gian chính xác là 4:10 p.m. Chọn đáp án A.",
-            "hour": 4,
-            "minute": 10
+            "description": "5:10 p.m. Chọn đáp án B."
           }
         ]
       },
@@ -1102,7 +894,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_COINS",
         "topicName": "Cân bằng số lượng đồng xu",
         "title": "Câu 18: How many more coins to give the younger brother?",
-        "text": "The elder brother has $5\\text{ coins}$, and the younger brother has $3\\text{ coins}$. Their daddy gives $5\\text{ more coins}$ to the elder brother. How many more coins should he give to the younger brother to make both brothers have the same amount of coins?\n(Anh trai có 5 đồng xu, em trai có 3 đồng xu. Bố cho anh trai thêm 5 đồng xu. Hỏi bố cần cho em trai thêm bao nhiêu đồng xu để hai anh em có số đồng xu bằng nhau?)",
+        "text": "The elder brother has $5\\text{ coins}$, and the younger brother has $3\\text{ coins}$. Their daddy gives $5\\text{ more coins}$ to the elder brother. How many more coins should he give to the younger brother to make both brothers have the same amount of coins?\n(Anh có 5 đồng xu, em có 3 đồng xu. Bố cho anh thêm 5 đồng xu. Hỏi bố cần cho em thêm bao nhiêu đồng xu để hai anh em có số đồng xu bằng nhau?)",
         "options": [
           {
             "id": "A",
@@ -1127,23 +919,23 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "C",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Anh trai sau khi được cho thêm có 5 + 5 = 10 đồng xu. Em trai đang có 3 đồng xu, cần thêm 10 - 3 = 7 đồng xu!",
-        "explanation": "Số đồng xu anh trai có sau khi bố cho thêm là:\n$$5 + 5 = 10\\text{ (đồng xu)}$$\nĐể hai anh em có số đồng xu bằng nhau, em trai cũng phải có $10$ đồng xu.\nSố đồng xu bố cần cho em trai thêm là:\n$$10 - 3 = 7\\text{ (đồng xu)}$$\n➔ Đáp án đúng là: **C. 7**",
+        "meeHint": "Mèo Mee gợi ý: Anh có 5 + 5 = 10 đồng xu. Để bằng anh, em cũng cần có 10 đồng xu, vậy cần thêm 10 - 3 = 7 đồng!",
+        "explanation": "Số đồng xu anh trai có là:\n$$5 + 5 = 10\\text{ (đồng xu)}$$\nĐể bằng anh trai, em trai cần thêm số đồng xu là:\n$$10 - 3 = 7\\text{ (đồng xu)}$$\n➔ Đáp án đúng là: **C. 7**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Tính số xu của anh trai",
+            "title": "Bước 1: Tính số xu của anh",
             "description": "5 + 5 = 10 đồng xu."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Tính số xu cần cho em trai",
+            "title": "Bước 2: Tính số xu cần cho em",
             "description": "10 - 3 = 7 đồng xu."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "Bố cần cho em trai thêm 7 đồng xu. Chọn đáp án C."
+            "description": "Chọn đáp án C. 7."
           }
         ]
       },
@@ -1152,7 +944,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "subject": "math",
         "grade": 1,
         "topicCode": "MATH_G1_RATE",
-        "topicName": "Toán năng suất theo thời gian",
+        "topicName": "Toán năng suất",
         "title": "Câu 19: How many words can 1 person write in 2 minutes?",
         "text": "A person can write $10\\text{ words}$ in a minute, how many words can $1\\text{ person}$ write in $2\\text{ minutes}$?\n(Một người viết được 10 từ trong 1 phút. Hỏi trong 2 phút người đó viết được bao nhiêu từ?)",
         "options": [
@@ -1179,23 +971,18 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: 1 phút viết được 10 từ, vậy 2 phút sẽ viết được gấp đôi: 10 + 10 = 20 từ con nhé!",
+        "meeHint": "Mèo Mee gợi ý: 1 phút viết được 10 từ, vậy 2 phút viết được: 10 x 2 = 20 từ!",
         "explanation": "Trong $2\\text{ phút}$, số từ viết được là:\n$$10 \\times 2 = 20\\text{ (từ)}$$\n➔ Đáp án đúng là: **A. 20**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Xác định năng suất",
-            "description": "1 phút viết được 10 từ."
+            "title": "Bước 1: Nhân với thời gian",
+            "description": "10 x 2 = 20 từ."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Tính trong 2 phút",
-            "description": "10 x 2 = 20 từ (hoặc 10 + 10 = 20)."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 3: Kết luận",
-            "description": "Viết được 20 từ. Chọn đáp án A."
+            "title": "Bước 2: Kết luận",
+            "description": "Chọn đáp án A. 20."
           }
         ]
       },
@@ -1203,50 +990,46 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q20",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_CAKE_CUT",
-        "topicName": "Chia hình học bằng nhau",
-        "title": "Câu 20: Which way of cutting a square cake into 4 equal pieces is WRONG?",
-        "text": "To cut a square shaped cake and give out to $4\\text{ children}$ equally, which way of cutting is WRONG?\n(Để chia một chiếc bánh hình vuông thành 4 phần bằng nhau cho 4 bạn nhỏ, cách cắt nào dưới đây là SAI?)",
+        "topicCode": "MATH_G1_CAKE",
+        "topicName": "Chia hình bằng nhau",
+        "title": "Câu 20: Which way of cutting a square cake is WRONG?",
+        "text": "To cut a square shaped cake and give out to $4\\text{ children}$ equally, which way of cutting is WRONG?\n(Để chia một chiếc bánh hình vuông thành 4 phần bằng nhau cho 4 bạn, cách cắt nào dưới đây là SAI?)",
+        "imageUrl": "/asmo/assets/g1_2020/q20_cakes.png",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Cắt 2 đường chéo (4 tam giác bằng nhau)"
+            "text": "Cách A (Cắt chữ thập - 4 hình vuông bằng nhau)"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Cắt 2 đường chữ thập (4 hình vuông nhỏ bằng nhau)"
+            "text": "Cách B (Cắt 2 đường chéo - 4 tam giác bằng nhau)"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Cắt 3 đường ngang chia không đều (4 phần lệch nhau)"
+            "text": "Cách C (Cắt từ đỉnh trên xuống đáy - các phần không bằng nhau)"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Cắt 3 đường thẳng song song cách đều (4 hình chữ nhật bằng nhau)"
+            "text": "Cách D (Cắt 3 đường xiên song song cách đều)"
           }
         ],
         "correctAnswer": "C",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Cách cắt đúng phải chia chiếc bánh thành 4 phần có diện tích hoàn toàn bằng nhau!",
-        "explanation": "Phân tích các cách cắt bánh hình vuông:\n• **A**: 2 đường chéo chia thành 4 tam giác có diện tích bằng nhau ➔ Đúng.\n• **B**: 2 đường vuông góc qua tâm chia thành 4 hình vuông nhỏ bằng nhau ➔ Đúng.\n• **C**: Cắt các đường không cách đều tạo ra các phần to nhỏ khác nhau ➔ **SAI**.\n• **D**: 3 đường thẳng song song cách đều chia thành 4 hình chữ nhật bằng nhau ➔ Đúng.\n➔ Đáp án sai cần chọn là: **C**",
+        "meeHint": "Mèo Mee gợi ý: Nhìn hình C, tam giác to ở giữa có diện tích gấp đôi hai tam giác nhỏ ở hai bên, nên chia không đều!",
+        "explanation": "Phân tích các cách cắt bánh:\n• **A**: Chia thành 4 hình vuông con bằng nhau ➔ Đúng.\n• **B**: Chia thành 4 hình tam giác bằng nhau ➔ Đúng.\n• **C**: Tam giác ở giữa có diện tích $\\frac{1}{2}$ diện tích hình vuông, hai tam giác bên chỉ có diện tích $\\frac{1}{4}$ mỗi hình ➔ **KHÔNG BẰNG NHAU (SAI)**.\n➔ Cách cắt sai là: **C**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Phân tích yêu cầu",
-            "description": "Chia bánh cho 4 bạn bằng nhau thì 4 phần phải có diện tích bằng nhau."
+            "title": "Bước 1: So sánh diện tích 4 phần",
+            "description": "Cách C tạo ra 1 phần lớn và 2 phần nhỏ, không bằng nhau."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Kiểm tra các cách cắt",
-            "description": "Cách C cắt lệch không đều nên các phần không bằng nhau."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 3: Kết luận",
+            "title": "Bước 2: Kết luận",
             "description": "Cách cắt C là SAI. Chọn đáp án C."
           }
         ]
@@ -1255,10 +1038,10 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q21",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_LOGIC_BALLS",
-        "topicName": "Logic phân chia màu sắc",
+        "topicCode": "MATH_G1_BALLS_LOGIC",
+        "topicName": "Logic phân chia số lượng",
         "title": "Câu 21: How many red balls does student Z have?",
-        "text": "A teacher has $5\\text{ red balls}$, $5\\text{ blue balls}$ and $5\\text{ green balls}$ ($15\\text{ balls total}$). He divided all the balls equally to student X, student Y and student Z ($5\\text{ balls each}$).\n• Student X has $3\\text{ red balls}$ and $2\\text{ blue balls}$.\n• Student Y has $4\\text{ green balls}$ and $1\\text{ red ball}$.\nHow many red balls does student Z have?\n(Thầy giáo có 5 bóng đỏ, 5 bóng lam và 5 bóng lục. Thầy chia đều 15 quả bóng cho 3 học sinh X, Y, Z, mỗi bạn 5 quả. Biết X có 3 đỏ và 2 lam; Y có 4 lục và 1 đỏ. Hỏi bạn Z có bao nhiêu quả bóng đỏ?)",
+        "text": "A teacher has $5\\text{ red balls}$, $5\\text{ blue balls}$ and $5\\text{ green balls}$ ($15\\text{ balls total}$). He divided all the balls equally to student X, student Y and student Z ($5\\text{ balls each}$).\n• Student X has $3\\text{ red balls}$ and $2\\text{ blue balls}$.\n• Student Y has $4\\text{ green balls}$ and $1\\text{ red ball}$.\nHow many red balls does student Z have?\n(Thầy giáo có 5 bóng đỏ, 5 bóng lam, 5 bóng lục. Thầy chia đều cho 3 bạn X, Y, Z mỗi bạn 5 quả. Biết X có 3 đỏ và 2 lam; Y có 4 lục và 1 đỏ. Hỏi bạn Z có bao nhiêu quả bóng đỏ?)",
         "options": [
           {
             "id": "A",
@@ -1283,23 +1066,23 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "B",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Tổng cộng có 5 bóng đỏ. Bạn X lấy 3 quả, bạn Y lấy 1 quả. Lấy 5 - 3 - 1 là ra số bóng đỏ của bạn Z!",
-        "explanation": "Tổng số bóng đỏ là $5\\text{ quả}$.\nSố bóng đỏ mà bạn X và bạn Y đã nhận là:\n$$3\\text{ (X)} + 1\\text{ (Y)} = 4\\text{ (quả bóng đỏ)}$$\nSố bóng đỏ mà bạn Z nhận được là:\n$$5 - 4 = 1\\text{ (quả bóng đỏ)}$$\n➔ Đáp án đúng là: **B. 1**",
+        "meeHint": "Mèo Mee gợi ý: Tổng cộng có 5 bóng đỏ. Bạn X lấy 3 quả, bạn Y lấy 1 quả. Lấy 5 - 3 - 1 = 1 quả bóng đỏ cho bạn Z!",
+        "explanation": "Tổng số bóng màu đỏ là $5\\text{ quả}$.\nSố bóng đỏ bạn X và Y đã lấy là:\n$$3\\text{ (X)} + 1\\text{ (Y)} = 4\\text{ (quả)}$$\nSố bóng đỏ bạn Z có là:\n$$5 - 4 = 1\\text{ (quả)}$$\n➔ Đáp án đúng là: **B. 1**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Xác định tổng số bóng đỏ",
-            "description": "Có tất cả 5 bóng đỏ ban đầu."
+            "title": "Bước 1: Tính số bóng đỏ X và Y nhận",
+            "description": "3 + 1 = 4 quả bóng đỏ."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Tính số bóng đỏ X và Y đang giữ",
-            "description": "X có 3 đỏ + Y có 1 đỏ = 4 bóng đỏ."
+            "title": "Bước 2: Tính số bóng đỏ của Z",
+            "description": "5 - 4 = 1 quả bóng đỏ."
           },
           {
             "stepIndex": 2,
-            "title": "Bước 3: Tính số bóng đỏ của Z",
-            "description": "Z có: 5 - 4 = 1 bóng đỏ. Chọn đáp án B."
+            "title": "Bước 3: Kết luận",
+            "description": "Chọn đáp án B. 1."
           }
         ]
       },
@@ -1307,8 +1090,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q22",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_QUICK_ADD",
-        "topicName": "Tính nhanh dãy số cộng",
+        "topicCode": "MATH_G1_SUM_SERIES",
+        "topicName": "Tính nhanh tổng dãy số",
         "title": "Câu 22: Calculate the sum of numbers",
         "text": "Calculate the sum:\n$$1 + 2 + 3 + 4 + 6 + 7 + 8 + 9 + 10 = [\\;?\\;]$$\n(Lưu ý: Dãy số khuyết số 5)",
         "options": [
@@ -1335,23 +1118,18 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "D",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Con hãy ghép cặp tạo thành số tròn chục nhé: (1+9) + (2+8) + (3+7) + (4+6) + 10 = 10 x 4 + 10 = 50!",
-        "explanation": "Áp dụng phương pháp ghép cặp tạo số tròn chục $10$:\n$$\\begin{aligned}\nS &= (1 + 9) + (2 + 8) + (3 + 7) + (4 + 6) + 10 \\\\\n&= 10 + 10 + 10 + 10 + 10 \\\\\n&= 50\n\\end{aligned}$$\n➔ Đáp án đúng là: **D. 50**",
+        "meeHint": "Mèo Mee gợi ý: Ghép cặp tròn chục: (1+9) + (2+8) + (3+7) + (4+6) + 10 = 10 + 10 + 10 + 10 + 10 = 50!",
+        "explanation": "Ghép các cặp số có tổng bằng $10$:\n$$\\begin{aligned}\nS &= (1 + 9) + (2 + 8) + (3 + 7) + (4 + 6) + 10 \\\\\n&= 10 + 10 + 10 + 10 + 10 = 50\n\\end{aligned}$$\n➔ Đáp án đúng là: **D. 50**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Ghép cặp số tròn chục",
-            "description": "(1+9=10), (2+8=10), (3+7=10), (4+6=10)."
+            "title": "Bước 1: Ghép cặp tròn chục",
+            "description": "4 cặp 10 và 1 số 10: 10 x 5 = 50."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Cộng các cặp",
-            "description": "10 + 10 + 10 + 10 + 10 = 50."
-          },
-          {
-            "stepIndex": 2,
-            "title": "Bước 3: Kết luận",
-            "description": "Tổng là 50. Chọn đáp án D."
+            "title": "Bước 2: Kết luận",
+            "description": "Chọn đáp án D. 50."
           }
         ]
       },
@@ -1359,10 +1137,11 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q23",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_TRIANGLE_COUNT",
+        "topicCode": "MATH_G1_COUNT_TRIANGLES",
         "topicName": "Đếm hình tam giác",
-        "title": "Câu 23: How many triangles are in the diagram below?",
-        "text": "How many triangles are in the diagram below?\n(Có tất cả bao nhiêu hình tam giác trong hình vẽ?)",
+        "title": "Câu 23: How many triangles in the diagram below?",
+        "text": "How many triangles in the diagram below?\n(Có tất cả bao nhiêu hình tam giác trong hình vẽ dưới đây?)",
+        "imageUrl": "/asmo/assets/g1_2020/q23_triangles.png",
         "options": [
           {
             "id": "A",
@@ -1385,25 +1164,25 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "text": "7"
           }
         ],
-        "correctAnswer": "C",
+        "correctAnswer": "B",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Hình gồm 3 tam giác đơn nhỏ và các tam giác ghép đôi, ghép ba. Con hãy đếm từ nhỏ đến lớn nhé!",
-        "explanation": "Đếm hình tam giác theo từng loại:\n• **Tam giác đơn lẻ**: $3\\text{ hình}$\n• **Tam giác ghép từ 2 hình đơn**: $2\\text{ hình}$\n• **Tam giác lớn nhất ghép từ cả 3 hình**: $1\\text{ hình}$\nTổng số hình tam giác là:\n$$3 + 2 + 1 = 6\\text{ (hình tam giác)}$$\n➔ Đáp án đúng là: **C. 6**",
+        "meeHint": "Mèo Mee gợi ý: Có 4 hình tam giác nhỏ bên trong và 1 hình tam giác lớn bao bọc bên ngoài: 4 + 1 = 5 hình!",
+        "explanation": "Đếm số hình tam giác trong hình vẽ:\n• $4\\text{ hình tam giác nhỏ}$ (1 đỉnh trên, 2 đáy bên dưới, 1 ở giữa hướng xuống).\n• $1\\text{ hình tam giác lớn}$ bao quát toàn bộ bên ngoài.\nTổng cộng có:\n$$4 + 1 = 5\\text{ (hình tam giác)}$$\n➔ Đáp án đúng là: **B. 5**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Đếm tam giác đơn",
-            "description": "Có 3 tam giác đơn lẻ (1, 2, 3)."
+            "title": "Bước 1: Đếm tam giác nhỏ",
+            "description": "Có 4 tam giác nhỏ bên trong."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Đếm tam giác ghép",
-            "description": "Ghép đôi (1+2, 2+3) được 2 hình. Ghép cả ba (1+2+3) được 1 hình lớn."
+            "title": "Bước 2: Đếm tam giác lớn",
+            "description": "Có 1 tam giác lớn bao quanh."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Tổng kết",
-            "description": "3 + 2 + 1 = 6 hình tam giác. Chọn đáp án C."
+            "description": "4 + 1 = 5 hình tam giác. Chọn đáp án B."
           }
         ]
       },
@@ -1411,10 +1190,10 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q24",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_LOGIC_BOX",
-        "topicName": "Điền số quy luật ô vuông",
-        "title": "Câu 24: Which number should be filled in the box?",
-        "text": "Which number should be filled in the box with the pattern?\n$$2 \\to 4 \\to 6 \\to [\\;?\\;] \\to 10 \\to 12$$",
+        "topicCode": "MATH_G1_BOX_EQUATION",
+        "topicName": "Điền số vào ô vuông",
+        "title": "Câu 24: Which number should be filled in the boxes?",
+        "text": "Which number should be filled in the box below?\n$$\\square + 5 = 3 + 9$$",
         "options": [
           {
             "id": "A",
@@ -1437,25 +1216,25 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "text": "10"
           }
         ],
-        "correctAnswer": "B",
+        "correctAnswer": "A",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Đây là dãy số chẵn đếm thêm 2 đơn vị: 2, 4, 6, 6 + 2 = 8, 10, 12!",
-        "explanation": "Quy luật dãy số tăng đều $2$ đơn vị (+2):\n$$2 \\xrightarrow{+2} 4 \\xrightarrow{+2} 6 \\xrightarrow{+2} 8 \\xrightarrow{+2} 10 \\xrightarrow{+2} 12$$\nSố cần điền vào ô trống là:\n$$6 + 2 = 8$$\n➔ Đáp án đúng là: **B. 8**",
+        "meeHint": "Mèo Mee gợi ý: Tính vế phải trước: 3 + 9 = 12. Vậy ô vuông + 5 = 12 ➔ ô vuông = 12 - 5 = 7!",
+        "explanation": "Ta có:\n$$\\square + 5 = 3 + 9 \\implies \\square + 5 = 12 \\implies \\square = 12 - 5 = 7$$\n➔ Đáp án đúng là: **A. 7**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Tìm quy luật bước nhảy",
-            "description": "Dãy số cộng thêm 2 đơn vị sau mỗi bước: 2, 4, 6..."
+            "title": "Bước 1: Tính vế phải",
+            "description": "3 + 9 = 12."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: Tính số tiếp theo",
-            "description": "6 + 2 = 8."
+            "title": "Bước 2: Tìm ô vuông",
+            "description": "12 - 5 = 7."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "Số cần điền là 8. Chọn đáp án B."
+            "description": "Chọn đáp án A. 7."
           }
         ]
       },
@@ -1463,51 +1242,52 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "id": "asmo-math-g1-2020-r1-q25",
         "subject": "math",
         "grade": 1,
-        "topicCode": "MATH_G1_LINE_LENGTH",
-        "topicName": "So sánh độ dài đoạn thẳng",
+        "topicCode": "MATH_G1_LINE_GRID",
+        "topicName": "So sánh độ dài đường ziczac",
         "title": "Câu 25: Which line has the shortest length?",
-        "text": "Which line has the shortest length among the folded and straight lines?\n(Đường nào dưới đây có chiều dài ngắn nhất khi kéo thẳng?)",
+        "text": "Which line (A, B, C, or D) has the shortest length on the grid?\n(Đường ziczac nào: A, B, C hay D có tổng chiều dài ngắn nhất trên lưới ô vuông?)",
+        "imageUrl": "/asmo/assets/g1_2020/q25_lines.png",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Đường A (Đoạn thẳng trực tiếp - 5 ô)"
+            "text": "Đường A (4 đoạn xiên)"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Đường B (Gấp khúc 2 lần - 7 ô)"
+            "text": "Đường B (3 đoạn xiên dài trải rộng - ngắn nhất)"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Đường C (Gấp khúc ziczac - 9 ô)"
+            "text": "Đường C (4 đoạn xiên dốc)"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Đường D (Gấp khúc uốn lượn - 8 ô)"
+            "text": "Đường D (6 đoạn xiên ziczac dốc)"
           }
         ],
-        "correctAnswer": "A",
+        "correctAnswer": "B",
         "points": 4,
-        "meeHint": "Mèo Mee gợi ý: Đoạn thẳng nối trực tiếp 2 điểm luôn luôn là con đường ngắn nhất so với các đường gấp khúc uốn lượn!",
-        "explanation": "Trong hình học phẳng, đường thẳng nối trực tiếp giữa hai điểm luôn có độ dài ngắn nhất so với bất kỳ đường gấp khúc hay đường cong nào nối hai điểm đó.\n• **Đường A**: Là đoạn thẳng trực tiếp ($5\\text{ đơn vị}$).\n• Các đường B, C, D: Đều là đường gấp khúc ($> 5\\text{ đơn vị}$).\n➔ Đáp án đúng là: **A. Đường A**",
+        "meeHint": "Mèo Mee gợi ý: Đường B chỉ có 3 đoạn xiên thoải trải dài 6 ô nên có tổng độ dài ngắn nhất so với các đường ziczac gập khúc nhiều lần!",
+        "explanation": "Đánh giá độ dài các đường vẽ trên lưới $6 \\times 2$:\n• **Đường D**: gồm 6 đoạn xiên dốc $\\implies$ dài nhất.\n• **Đường A & C**: gồm 4 đoạn xiên gập khúc.\n• **Đường B**: chỉ gồm 3 đoạn xiên trải rộng $\\implies$ **chiều dài ngắn nhất**.\n➔ Đáp án đúng là: **B. Đường B**",
         "explanationSteps": [
           {
             "stepIndex": 0,
-            "title": "Bước 1: Phân tích tính chất hình học",
-            "description": "Đoạn thẳng trực tiếp luôn ngắn hơn các đường gấp khúc cùng điểm đầu và điểm cuối."
+            "title": "Bước 1: Đếm số đoạn gấp khúc",
+            "description": "Đường B chỉ có 3 đoạn, ít bị uốn lượn nhất."
           },
           {
             "stepIndex": 1,
-            "title": "Bước 2: So sánh độ dài các đường",
-            "description": "Đường A có độ dài 5 ô, ngắn nhất."
+            "title": "Bước 2: So sánh độ dài",
+            "description": "Đường B có chiều dài ngắn nhất."
           },
           {
             "stepIndex": 2,
             "title": "Bước 3: Kết luận",
-            "description": "Đường A có chiều dài ngắn nhất. Chọn đáp án A."
+            "description": "Chọn đáp án B."
           }
         ]
       }
