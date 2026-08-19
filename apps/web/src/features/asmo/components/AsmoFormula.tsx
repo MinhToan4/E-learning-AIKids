@@ -13,7 +13,7 @@ export function AsmoFormula({ text, className }: Props) {
 
     let input = text
 
-    // 1. Transform vertical arithmetic blocks (e.g. 1 7 \n + C D \n ------ \n 8 2) into KaTeX
+    // 1. Transform vertical arithmetic blocks (e.g. 1 7 \n + C D \n ------ \n 8 2) into clean Native HTML
     const lines = input.split('\n')
     let dashIdx = -1
     for (let i = 0; i < lines.length; i++) {
@@ -28,29 +28,69 @@ export function AsmoFormula({ text, className }: Props) {
       const opLine = lines[dashIdx - 1].trim()
       const resLine = lines[dashIdx + 1].trim()
 
-      const op = opLine.includes('+') ? '+' : opLine.includes('-') ? '-' : opLine.toLowerCase().includes('x') ? '\\times' : ''
+      const op = opLine.includes('+') ? '+' : opLine.includes('-') ? '-' : opLine.toLowerCase().includes('x') ? '×' : '+'
       const opClean = opLine.replace(/[+\-*x]/gi, '').trim()
 
-      const formatTokens = (str: string) => {
-        return str
-          .replace(/\s+/g, '')
-          .split('')
-          .map((c) => (/[a-zA-Z]/.test(c) ? `\\text{${c}}` : c))
-          .join('\\;')
-      }
-
-      const topFmt = formatTokens(topLine)
-      const opFmt = formatTokens(opClean)
-      const resFmt = formatTokens(resLine)
-
-      const latexBlock = `$$\\begin{array}{r@{\\quad}l} & ${topFmt} \\\\ ${op} & ${opFmt} \\\\ \\hline & ${resFmt} \\end{array}$$`
+      const htmlCard = `<div class="inline-flex flex-col items-end my-3 py-2.5 px-5 rounded-2xl bg-indigo-50/70 border border-indigo-200 shadow-xs font-mono font-bold text-lg text-slate-800 leading-relaxed">
+        <div class="tracking-widest pr-1">${topLine}</div>
+        <div class="flex items-center gap-3 border-b-2 border-slate-700 pb-1 tracking-widest">
+          <span class="text-indigo-600 font-extrabold text-xl">${op}</span>
+          <span>${opClean}</span>
+        </div>
+        <div class="pt-1 text-indigo-700 font-extrabold tracking-widest pr-1">${resLine}</div>
+      </div>`
 
       const before = lines.slice(0, dashIdx - 2)
       const after = lines.slice(dashIdx + 2)
-      input = [...before, latexBlock, ...after].join('\n\n')
+      input = [...before, htmlCard, ...after].join('\n\n')
     }
 
-    // 2. Render $$block math$$ first
+    // 2. Transform Bar Chart lists into colorful Visual Mini Bar Charts
+    if (input.includes('Bar Chart') || input.includes('Colours of Balloons')) {
+      input = input.replace(/(?:Bar Chart[^\n]*\n)([\s\S]*?)(?=\n\n|$)/i, (full, list) => {
+        const itemLines = list.split('\n').filter((l: string) => l.includes(':'))
+        if (itemLines.length === 0) return full
+
+        const colorMap: Record<string, string> = {
+          red: 'bg-rose-500 text-rose-50 border-rose-600',
+          yellow: 'bg-amber-400 text-amber-950 border-amber-500',
+          black: 'bg-slate-800 text-white border-slate-900',
+          blue: 'bg-sky-500 text-white border-sky-600',
+          white: 'bg-slate-100 text-slate-800 border-slate-300',
+          green: 'bg-emerald-500 text-white border-emerald-600',
+          purple: 'bg-purple-500 text-white border-purple-600',
+          orange: 'bg-orange-500 text-white border-orange-600',
+        }
+
+        const bars = itemLines
+          .map((item: string) => {
+            const [label, valStr] = item.split(':').map((s: string) => s.trim())
+            const val = parseInt(valStr, 10) || 10
+            const clrKey = label.toLowerCase()
+            const clrClass = colorMap[clrKey] || 'bg-indigo-500 text-white border-indigo-600'
+            const widthPct = Math.min(Math.max((val / 20) * 100, 15), 100)
+
+            return `<div class="flex items-center gap-2 text-xs font-bold">
+              <span class="w-16 shrink-0 text-slate-700 text-right capitalize">${label}:</span>
+              <div class="flex-1 bg-slate-100 rounded-full h-6 p-0.5 overflow-hidden border border-slate-200">
+                <div class="h-full rounded-full flex items-center justify-end px-2 text-[11px] font-extrabold ${clrClass} transition-all duration-500" style="width: ${widthPct}%;">
+                  ${val}
+                </div>
+              </div>
+            </div>`
+          })
+          .join('')
+
+        return `<div class="my-3 p-3.5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col gap-2 max-w-md">
+          <div class="text-xs font-bold uppercase tracking-wider text-slate-500 border-b border-slate-100 pb-1.5 flex items-center gap-1.5">
+            📊 Biểu Đồ Cột (Bar Chart)
+          </div>
+          ${bars}
+        </div>`
+      })
+    }
+
+    // 3. Render $$block math$$ first
     let processed = input.replace(/\$\$([\s\S]+?)\$\$/g, (_, math) => {
       try {
         return katex.renderToString(math.trim(), {
