@@ -102,13 +102,14 @@ export function AsmoQuestionCard({
       </div>
 
       {/* Question Text */}
-      <div>
-        <h3 className="text-base sm:text-lg font-bold text-slate-900 mb-2">
-          {question.title}
-        </h3>
+      <div className="space-y-2">
+        <AsmoFormula
+          text={question.title}
+          className="text-base sm:text-lg font-bold text-slate-900 leading-snug"
+        />
         <AsmoFormula
           text={question.text}
-          className="text-sm sm:text-base text-slate-700 leading-relaxed"
+          className="text-sm sm:text-base text-slate-700 leading-relaxed font-sans"
         />
       </div>
 
