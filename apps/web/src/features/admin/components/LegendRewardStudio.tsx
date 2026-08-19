@@ -1045,8 +1045,12 @@ export function LegendRewardStudio() {
                 stickerPageUrl: form.chapterStickerPageUrl,
                 stickerSheetUrl: form.chapterStickerSheetUrl,
               }
-            : form.assetUrl
-              ? { thumbnailUrl: form.assetUrl, imageUrl: form.assetUrl }
+            : (form.assetUrl || form.thumbnailUrl)
+              ? {
+                  thumbnailUrl: form.thumbnailUrl || form.assetUrl,
+                  imageUrl: form.assetUrl || form.thumbnailUrl,
+                  previewUrl: form.thumbnailUrl || form.assetUrl,
+                }
               : {},
           displayConfig,
           unlockRule: form.contentType === 'achievement'
@@ -1917,6 +1921,52 @@ export function LegendRewardStudio() {
               )}
               {form.contentType !== 'chapter' && form.contentType !== 'achievement' && assetInfo && <p className="rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">✓ {assetInfo}</p>}
               {form.contentType !== 'chapter' && form.contentType !== 'achievement' && <p className="break-all rounded-xl bg-white p-3 text-xs text-muted">{form.assetUrl || 'Chưa có URL asset — preview tạm sẽ xuất hiện ngay khi chọn file.'}</p>}
+              {form.contentType !== 'chapter' && form.contentType !== 'achievement' && (
+                <div className="rounded-2xl border border-brand-200 bg-white p-4 shadow-sm">
+                  <div className="flex flex-wrap items-center justify-between gap-2">
+                    <div>
+                      <h4 className="text-sm font-extrabold text-brand-900">Ảnh icon / preview đại diện (Thumbnail)</h4>
+                      <p className="text-xs text-muted">Hiển thị trong Ba lô, danh mục phần thưởng và cây mở khóa.</p>
+                    </div>
+                    {form.thumbnailUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setForm((curr) => ({ ...curr, thumbnailUrl: '' }))}
+                        className="text-xs font-bold text-danger hover:underline"
+                      >
+                        Xóa icon riêng (dùng ảnh chính)
+                      </button>
+                    )}
+                  </div>
+                  <div className="mt-3 flex items-center gap-3">
+                    <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-inner">
+                      {form.thumbnailUrl || form.assetUrl ? (
+                        <img src={form.thumbnailUrl || form.assetUrl} alt="Thumbnail preview" className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="text-2xl">🎁</span>
+                      )}
+                    </div>
+                    <label className="flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border border-brand-300 bg-white px-4 text-xs font-extrabold text-brand-700 shadow-sm transition hover:bg-brand-50">
+                      <UploadCloud className="h-4 w-4" aria-hidden="true" />
+                      <span>{thumbnailUploading ? 'Đang tải icon…' : form.thumbnailUrl ? 'Thay đổi ảnh icon / preview' : 'Tải ảnh icon / preview riêng (512×512)'}</span>
+                      <input
+                        type="file"
+                        accept=".png,.webp,.jpg,.jpeg,.svg"
+                        className="sr-only"
+                        disabled={thumbnailUploading}
+                        onChange={(event) => {
+                          const file = event.target.files?.[0]
+                          event.currentTarget.value = ''
+                          if (file) void uploadThumbnail(file)
+                        }}
+                      />
+                    </label>
+                  </div>
+                  {thumbnailUploadError && (
+                    <p className="mt-2 text-xs font-bold text-danger">{thumbnailUploadError}</p>
+                  )}
+                </div>
+              )}
             </section>
 
             {form.contentType !== 'achievement' && <section className="space-y-4 rounded-3xl border border-border bg-slate-50/70 p-4">
@@ -1943,8 +1993,8 @@ export function LegendRewardStudio() {
               </label>
             </details>}
             <div className="flex gap-3">
-              <Button type="button" variant="secondary" onClick={() => { setEditingItem(null); setForm(emptyForm()); setPreviewUrl(''); setAssetInfo(''); setAssetUploadError(''); setMessage(''); setView('map') }} className="flex-1">Hủy</Button>
-              <Button type="submit" disabled={busy || uploading || Boolean(assetUploadError)} className="flex-[2]">{assetUploadError ? 'Sửa lỗi upload trước khi lưu' : editingItem?.status === 'published' || editingItem?.status === 'retired' ? 'Lưu thành bản nháp mới' : editingItem ? 'Lưu thay đổi bản nháp' : 'Lưu bản nháp'}</Button>
+              <Button type="button" variant="secondary" onClick={() => { setEditingItem(null); setForm(emptyForm()); setPreviewUrl(''); setAssetInfo(''); setAssetUploadError(''); setThumbnailUploadError(''); setMessage(''); setView('map') }} className="flex-1">Hủy</Button>
+              <Button type="submit" disabled={busy || uploading || thumbnailUploading || Boolean(assetUploadError)} className="flex-[2]">{assetUploadError ? 'Sửa lỗi upload trước khi lưu' : editingItem?.status === 'published' || editingItem?.status === 'retired' ? 'Lưu thành bản nháp mới' : editingItem ? 'Lưu thay đổi bản nháp' : 'Lưu bản nháp'}</Button>
             </div>
           </form>
 
@@ -1972,18 +2022,84 @@ export function LegendRewardStudio() {
               </div>
             ) : (
               <div className="overflow-hidden rounded-3xl border border-brand-100 bg-gradient-to-br from-violet-100 via-sky-50 to-amber-50 p-5 text-center shadow-inner">
-              <div className="mx-auto flex aspect-square max-w-56 items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-white/70 shadow-lg">
-                {previewUrl
-                  ? studioAssetPreviewKind(previewUrl) === 'video'
-                    ? <video src={previewUrl} autoPlay loop muted className="h-full w-full object-contain" />
-                    : studioAssetPreviewKind(previewUrl) === 'config'
-                      ? <div className="px-5 text-brand-700"><Settings2 className="mx-auto h-14 w-14" aria-hidden="true" /><span className="mt-3 block text-sm font-black">Theme JSON đã tải lên</span><span className="mt-1 block text-xs text-muted">Màu và token được áp dụng khi preview hồ sơ.</span></div>
-                      : <img src={previewUrl} alt="Preview asset vừa tải" className="h-full w-full object-contain" />
-                  : <div className="px-4 text-muted"><span className="block text-5xl">🖼️</span><span className="mt-3 block text-sm font-bold">Chọn asset để xem ngay tại đây</span></div>}
-              </div>
-              <span className="mt-4 inline-block rounded-full bg-white/90 px-3 py-1 text-xs font-black uppercase text-brand-700 shadow">{form.rarity}</span>
-              <h3 className="mt-2 font-display text-xl">{form.name || 'Tên nội dung'}</h3>
-              <p className="mt-1 text-xs text-muted">{form.description || 'Mô tả sẽ hiển thị tại đây.'}</p>
+                {form.contentType === 'reward' && (form.kind === 'background' || form.kind === 'theme' || form.kind === 'title' || form.kind === 'event_ticket') ? (
+                  <div className="space-y-3">
+                    <div className="mx-auto w-full overflow-hidden rounded-2xl border-4 border-white bg-white/70 shadow-lg">
+                      <div className={`w-full ${form.kind === 'background' ? 'aspect-[15/4]' : form.kind === 'title' ? 'aspect-[1200/320]' : form.kind === 'event_ticket' ? 'aspect-[16/9]' : 'aspect-[2540/1300]'} flex items-center justify-center overflow-hidden bg-slate-100`}>
+                        {previewUrl ? (
+                          studioAssetPreviewKind(previewUrl) === 'config' ? (
+                            <div className="px-5 text-brand-700"><Settings2 className="mx-auto h-10 w-10" aria-hidden="true" /><span className="mt-2 block text-xs font-black">Theme JSON</span></div>
+                          ) : (
+                            <img src={previewUrl} alt="Preview asset vừa tải" className={`h-full w-full ${selectedSpec.transparent ? 'object-contain p-2' : 'object-cover'}`} />
+                          )
+                        ) : (
+                          <div className="p-4 text-muted"><span className="block text-3xl">🖼️</span><span className="mt-1 block text-xs font-bold">Chưa chọn asset</span></div>
+                        )}
+                      </div>
+                    </div>
+                    {/* Icon preview box */}
+                    <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/90 p-3 text-left shadow-sm">
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-brand-200 bg-white shadow-inner">
+                          {form.thumbnailUrl || previewUrl ? (
+                            <img src={form.thumbnailUrl || previewUrl} alt="Icon đại diện" className="h-full w-full object-cover" />
+                          ) : (
+                            <span className="text-xl">🎁</span>
+                          )}
+                        </div>
+                        <div className="min-w-0">
+                          <strong className="block truncate text-xs font-extrabold text-brand-950">Icon đại diện</strong>
+                          <span className="block text-[11px] text-muted">{form.thumbnailUrl ? 'Dùng icon riêng' : 'Tự lấy từ ảnh chính'}</span>
+                        </div>
+                      </div>
+                      <label className="flex min-h-9 shrink-0 cursor-pointer items-center justify-center gap-1 rounded-xl bg-brand-50 px-2.5 text-xs font-black text-brand-700 hover:bg-brand-100">
+                        <Pencil className="h-3 w-3" aria-hidden="true" />
+                        <span>Sửa icon</span>
+                        <input
+                          type="file"
+                          accept=".png,.webp,.jpg,.jpeg,.svg"
+                          className="sr-only"
+                          disabled={thumbnailUploading}
+                          onChange={(event) => {
+                            const file = event.target.files?.[0]
+                            event.currentTarget.value = ''
+                            if (file) void uploadThumbnail(file)
+                          }}
+                        />
+                      </label>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mx-auto flex aspect-square max-w-56 items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-white/70 shadow-lg">
+                    {previewUrl
+                      ? studioAssetPreviewKind(previewUrl) === 'video'
+                        ? <video src={previewUrl} autoPlay loop muted className="h-full w-full object-contain" />
+                        : studioAssetPreviewKind(previewUrl) === 'config'
+                          ? <div className="px-5 text-brand-700"><Settings2 className="mx-auto h-14 w-14" aria-hidden="true" /><span className="mt-3 block text-sm font-black">Theme JSON đã tải lên</span><span className="mt-1 block text-xs text-muted">Màu và token được áp dụng khi preview hồ sơ.</span></div>
+                          : <img src={previewUrl} alt="Preview asset vừa tải" className={`h-full w-full ${selectedSpec.transparent ? 'object-contain' : 'object-cover'}`} />
+                      : <div className="px-4 text-muted"><span className="block text-5xl">🖼️</span><span className="mt-3 block text-sm font-bold">Chọn asset để xem ngay tại đây</span></div>}
+                  </div>
+                )}
+                {form.contentType === 'reward' && !(form.kind === 'background' || form.kind === 'theme' || form.kind === 'title' || form.kind === 'event_ticket') && (
+                  <label className="mt-3 inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-brand-200 bg-white/90 px-3 text-xs font-extrabold text-brand-700 shadow-sm transition hover:bg-brand-50">
+                    <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
+                    <span>{form.thumbnailUrl ? 'Đổi ảnh icon / preview' : 'Sửa ảnh icon / preview'}</span>
+                    <input
+                      type="file"
+                      accept=".png,.webp,.jpg,.jpeg,.svg"
+                      className="sr-only"
+                      disabled={thumbnailUploading}
+                      onChange={(event) => {
+                        const file = event.target.files?.[0]
+                        event.currentTarget.value = ''
+                        if (file) void uploadThumbnail(file)
+                      }}
+                    />
+                  </label>
+                )}
+                <span className="mt-4 inline-block rounded-full bg-white/90 px-3 py-1 text-xs font-black uppercase text-brand-700 shadow">{form.rarity}</span>
+                <h3 className="mt-2 font-display text-xl">{form.name || 'Tên nội dung'}</h3>
+                <p className="mt-1 text-xs text-muted">{form.description || 'Mô tả sẽ hiển thị tại đây.'}</p>
               </div>
             )}
             <div className="rounded-2xl border border-border p-4 text-sm">
