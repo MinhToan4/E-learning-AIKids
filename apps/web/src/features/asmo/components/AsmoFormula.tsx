@@ -13,7 +13,7 @@ export function AsmoFormula({ text, className }: Props) {
 
     let input = text
 
-    // 1. Transform vertical arithmetic blocks (e.g. 1 7 \n + C D \n ------ \n 8 2) into clean Native HTML
+    // 1. Transform vertical arithmetic blocks (e.g. 1 7 \n + C D \n ------ \n 8 2) into pixel-perfect grid aligned HTML
     const lines = input.split('\n')
     let dashIdx = -1
     for (let i = 0; i < lines.length; i++) {
@@ -31,13 +31,47 @@ export function AsmoFormula({ text, className }: Props) {
       const op = opLine.includes('+') ? '+' : opLine.includes('-') ? '-' : opLine.toLowerCase().includes('x') ? '×' : '+'
       const opClean = opLine.replace(/[+\-*x]/gi, '').trim()
 
-      const htmlCard = `<div class="inline-flex flex-col items-end my-3 py-2.5 px-5 rounded-2xl bg-indigo-50/70 border border-indigo-200 shadow-xs font-mono font-bold text-lg text-slate-800 leading-relaxed">
-        <div class="tracking-widest pr-1">${topLine}</div>
-        <div class="flex items-center gap-3 border-b-2 border-slate-700 pb-1 tracking-widest">
-          <span class="text-indigo-600 font-extrabold text-xl">${op}</span>
-          <span>${opClean}</span>
+      // Split into individual tokens/digits
+      const topTokens = topLine.replace(/\s+/g, '').split('')
+      const opTokens = opClean.replace(/\s+/g, '').split('')
+      const resTokens = resLine.replace(/\s+/g, '').split('')
+
+      const maxCols = Math.max(topTokens.length, opTokens.length, resTokens.length)
+      
+      const padTokens = (tokens: string[]) => {
+        const padded = [...tokens]
+        while (padded.length < maxCols) {
+          padded.unshift('')
+        }
+        return padded
+      }
+
+      const paddedTop = padTokens(topTokens)
+      const paddedOp = padTokens(opTokens)
+      const paddedRes = padTokens(resTokens)
+
+      const gridColsClass = maxCols === 2 
+        ? 'grid-cols-[1.5rem_1.75rem_1.75rem]' 
+        : maxCols === 3 
+        ? 'grid-cols-[1.5rem_1.75rem_1.75rem_1.75rem]' 
+        : 'grid-cols-[1.5rem_repeat(4,1.75rem)]'
+
+      const topCells = paddedTop.map(t => `<div class="flex items-center justify-center">${t}</div>`).join('')
+      const opCells = paddedOp.map(t => `<div class="flex items-center justify-center">${t}</div>`).join('')
+      const resCells = paddedRes.map(t => `<div class="flex items-center justify-center text-indigo-700 font-extrabold">${t}</div>`).join('')
+
+      const htmlCard = `<div class="inline-flex flex-col items-center my-3 py-3 px-6 rounded-3xl bg-indigo-50/80 border border-indigo-200 shadow-xs font-mono font-bold text-xl text-slate-800 select-none">
+        <div class="grid ${gridColsClass} gap-x-1.5 text-center items-center">
+          <div></div>
+          ${topCells}
+          <div class="text-indigo-600 font-extrabold text-2xl leading-none flex items-center justify-center">${op}</div>
+          ${opCells}
         </div>
-        <div class="pt-1 text-indigo-700 font-extrabold tracking-widest pr-1">${resLine}</div>
+        <div class="w-full border-b-2 border-slate-700 my-1.5"></div>
+        <div class="grid ${gridColsClass} gap-x-1.5 text-center items-center">
+          <div></div>
+          ${resCells}
+        </div>
       </div>`
 
       const before = lines.slice(0, dashIdx - 2)
@@ -90,6 +124,42 @@ export function AsmoFormula({ text, className }: Props) {
       })
     }
 
+    // 2.5 Transform Visual Geometric Sequence (e.g. [Rectangle], [Triangle], [Circle], ...) into a pure visual Shape Ribbon without text
+    const shapeSequencePattern = /(\[\s*(?:Rectangle|Triangle|Circle|Square|\?)\s*\](?:[\s,]+\[\s*(?:Rectangle|Triangle|Circle|Square|\?)\s*\]){2,})/gi
+    input = input.replace(shapeSequencePattern, (rawSeq) => {
+      const tokens = rawSeq.match(/\[\s*(.*?)\s*\]/g) || []
+      const tiles = tokens
+        .map((tok, idx) => {
+          const s = tok.replace(/[\[\]\s]/g, '').toLowerCase()
+          let tileHtml = ''
+          if (s.includes('rect')) {
+            tileHtml = `<div class="size-11 sm:size-12 rounded-2xl bg-sky-50 border-2 border-sky-300 shadow-xs flex items-center justify-center shrink-0 hover:scale-105 transition-transform" title="Rectangle"><svg class="size-7 fill-sky-500 drop-shadow-xs" viewBox="0 0 24 16"><rect width="24" height="16" rx="3"/></svg></div>`
+          } else if (s.includes('tri')) {
+            tileHtml = `<div class="size-11 sm:size-12 rounded-2xl bg-emerald-50 border-2 border-emerald-300 shadow-xs flex items-center justify-center shrink-0 hover:scale-105 transition-transform" title="Triangle"><svg class="size-7 fill-emerald-500 drop-shadow-xs" viewBox="0 0 24 24"><polygon points="12,2 23,22 1,22"/></svg></div>`
+          } else if (s.includes('circ')) {
+            tileHtml = `<div class="size-11 sm:size-12 rounded-2xl bg-amber-50 border-2 border-amber-300 shadow-xs flex items-center justify-center shrink-0 hover:scale-105 transition-transform" title="Circle"><svg class="size-7 fill-amber-500 drop-shadow-xs" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg></div>`
+          } else if (s.includes('squ')) {
+            tileHtml = `<div class="size-11 sm:size-12 rounded-2xl bg-purple-50 border-2 border-purple-300 shadow-xs flex items-center justify-center shrink-0 hover:scale-105 transition-transform" title="Square"><svg class="size-7 fill-purple-500 drop-shadow-xs" viewBox="0 0 24 24"><rect width="20" height="20" rx="3" x="2" y="2"/></svg></div>`
+          } else if (s.includes('?')) {
+            tileHtml = `<div class="size-11 sm:size-12 rounded-2xl bg-rose-50 border-2 border-dashed border-rose-400 shadow-xs flex items-center justify-center shrink-0 text-rose-600 font-extrabold text-xl animate-pulse ring-2 ring-rose-200" title="Missing Shape">?</div>`
+          }
+
+          return tileHtml
+            ? `<div class="flex flex-col items-center gap-1"><div class="text-[10px] font-mono font-bold text-slate-400">#${idx + 1}</div>${tileHtml}</div>`
+            : ''
+        })
+        .join('')
+
+      return `<div class="my-3.5 p-3 sm:p-4 rounded-3xl bg-slate-50/90 border border-slate-200/80 shadow-xs flex flex-col gap-2">
+        <div class="text-xs font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+          🧩 Dãy quy luật hình học:
+        </div>
+        <div class="flex items-center gap-2 sm:gap-3 overflow-x-auto pb-1 scrollbar-none">
+          ${tiles}
+        </div>
+      </div>`
+    })
+
     // 3. Render $$block math$$ first
     let processed = input.replace(/\$\$([\s\S]+?)\$\$/g, (_, math) => {
       try {
@@ -102,7 +172,7 @@ export function AsmoFormula({ text, className }: Props) {
       }
     })
 
-    // 3. Render $inline math$
+    // 4. Render $inline math$
     processed = processed.replace(/\$([^\$\n]+?)\$/g, (_, math) => {
       try {
         return katex.renderToString(math.trim(), {
@@ -114,17 +184,20 @@ export function AsmoFormula({ text, className }: Props) {
       }
     })
 
-    // 4. Render Visual Geometric Shapes as colorful Clay Badges
+    // 5. Standalone Shape Tags & Option Shape Icons
     processed = processed
-      .replace(/\[\s*rectangle\s*\]/gi, '<span class="inline-flex items-center gap-1.5 rounded-xl bg-sky-100/90 border border-sky-300 px-2.5 py-0.5 text-xs font-bold text-sky-800 shadow-xs mx-0.5 align-middle"><svg class="size-3.5 fill-sky-600 shrink-0" viewBox="0 0 24 16"><rect width="24" height="16" rx="3"/></svg>Hình chữ nhật</span>')
-      .replace(/\[\s*triangle\s*\]/gi, '<span class="inline-flex items-center gap-1.5 rounded-xl bg-emerald-100/90 border border-emerald-300 px-2.5 py-0.5 text-xs font-bold text-emerald-800 shadow-xs mx-0.5 align-middle"><svg class="size-3.5 fill-emerald-600 shrink-0" viewBox="0 0 24 24"><polygon points="12,2 23,22 1,22"/></svg>Hình tam giác</span>')
-      .replace(/\[\s*circle\s*\]/gi, '<span class="inline-flex items-center gap-1.5 rounded-xl bg-amber-100/90 border border-amber-300 px-2.5 py-0.5 text-xs font-bold text-amber-800 shadow-xs mx-0.5 align-middle"><svg class="size-3.5 fill-amber-500 shrink-0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>Hình tròn</span>')
-      .replace(/\[\s*square\s*\]/gi, '<span class="inline-flex items-center gap-1.5 rounded-xl bg-purple-100/90 border border-purple-300 px-2.5 py-0.5 text-xs font-bold text-purple-800 shadow-xs mx-0.5 align-middle"><svg class="size-3.5 fill-purple-600 shrink-0" viewBox="0 0 24 24"><rect width="20" height="20" rx="3" x="2" y="2"/></svg>Hình vuông</span>')
-      .replace(/\[\s*star\s*\]/gi, '<span class="inline-flex items-center gap-1.5 rounded-xl bg-yellow-100/90 border border-yellow-300 px-2.5 py-0.5 text-xs font-bold text-yellow-800 shadow-xs mx-0.5 align-middle">⭐ Ngôi sao</span>')
-      .replace(/\[\s*heart\s*\]/gi, '<span class="inline-flex items-center gap-1.5 rounded-xl bg-rose-100/90 border border-rose-300 px-2.5 py-0.5 text-xs font-bold text-rose-800 shadow-xs mx-0.5 align-middle">💖 Trái tim</span>')
-      .replace(/\[\s*\?\s*\]/gi, '<span class="inline-flex items-center justify-center rounded-xl bg-rose-50 border-2 border-dashed border-rose-400 px-2.5 py-0.5 text-xs font-extrabold text-rose-700 shadow-xs mx-0.5 align-middle animate-pulse">❓ [ ? ]</span>')
+      .replace(/\[\s*rectangle\s*\]/gi, '<span class="inline-flex items-center justify-center size-7 rounded-lg bg-sky-100 border border-sky-300 mx-1 align-middle"><svg class="size-4 fill-sky-600" viewBox="0 0 24 16"><rect width="24" height="16" rx="2"/></svg></span>')
+      .replace(/\[\s*triangle\s*\]/gi, '<span class="inline-flex items-center justify-center size-7 rounded-lg bg-emerald-100 border border-emerald-300 mx-1 align-middle"><svg class="size-4 fill-emerald-600" viewBox="0 0 24 24"><polygon points="12,2 23,22 1,22"/></svg></span>')
+      .replace(/\[\s*circle\s*\]/gi, '<span class="inline-flex items-center justify-center size-7 rounded-lg bg-amber-100 border border-amber-300 mx-1 align-middle"><svg class="size-4 fill-amber-500" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg></span>')
+      .replace(/\[\s*square\s*\]/gi, '<span class="inline-flex items-center justify-center size-7 rounded-lg bg-purple-100 border border-purple-300 mx-1 align-middle"><svg class="size-4 fill-purple-600" viewBox="0 0 24 24"><rect width="20" height="20" rx="3" x="2" y="2"/></svg></span>')
+      .replace(/\[\s*\?\s*\]/gi, '<span class="inline-flex items-center justify-center size-7 rounded-lg bg-rose-50 border-2 border-dashed border-rose-400 font-extrabold text-xs text-rose-700 mx-1 align-middle animate-pulse">?</span>')
+      // Shape keywords in options
+      .replace(/\bRectangle\b/g, '<span class="inline-flex items-center gap-1 text-sky-700 font-bold"><svg class="size-3.5 fill-sky-500 shrink-0" viewBox="0 0 24 16"><rect width="24" height="16" rx="2"/></svg>Rectangle</span>')
+      .replace(/\bTriangle\b/g, '<span class="inline-flex items-center gap-1 text-emerald-700 font-bold"><svg class="size-3.5 fill-emerald-500 shrink-0" viewBox="0 0 24 24"><polygon points="12,2 23,22 1,22"/></svg>Triangle</span>')
+      .replace(/\bCircle\b/g, '<span class="inline-flex items-center gap-1 text-amber-700 font-bold"><svg class="size-3.5 fill-amber-500 shrink-0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>Circle</span>')
+      .replace(/\bSquare\b/g, '<span class="inline-flex items-center gap-1 text-purple-700 font-bold"><svg class="size-3.5 fill-purple-500 shrink-0" viewBox="0 0 24 24"><rect width="20" height="20" rx="3" x="2" y="2"/></svg>Square</span>')
 
-    // 5. Preserve line breaks
+    // 6. Preserve line breaks
     processed = processed.replace(/\n/g, '<br />')
 
     return processed
