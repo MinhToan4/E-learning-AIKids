@@ -587,6 +587,22 @@ function buildTemplate(
       )
       pin.position.z = 0.22
       group.add(pin)
+
+      // Highlighted Angle Sector (when demonstrating angle between hands, e.g. 5:05 -> 122.5°)
+      if (hour === 5 && minute === 5 && (activeStep === -1 || activeStep === 2)) {
+        const startRad = -hourAngle + Math.PI / 2
+        const deltaRad = hourAngle - minAngle
+        const sectorGeom = new THREE.RingGeometry(0.2, 1.2, 32, 1, startRad, deltaRad)
+        const sectorMat = new THREE.MeshBasicMaterial({
+          color: 0x10b981,
+          side: THREE.DoubleSide,
+          transparent: true,
+          opacity: 0.5,
+        })
+        const sectorMesh = new THREE.Mesh(sectorGeom, sectorMat)
+        sectorMesh.position.z = 0.12
+        group.add(sectorMesh)
+      }
       break
     }
 

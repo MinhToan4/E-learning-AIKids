@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useParams, Link, useNavigate } from 'react-router'
 import {
   ChevronLeft,
@@ -14,6 +14,7 @@ import {
   Layers,
 } from 'lucide-react'
 import { ASMO_SAMPLE_EXAMS } from '../data/asmo-sample-exams'
+import type { AsmoVisualSpec } from '../types'
 import { AsmoThreeViewer } from '../components/AsmoThreeViewer'
 import { AsmoQuestionCard } from '../components/AsmoQuestionCard'
 import { AsmoExamTimer } from '../components/AsmoExamTimer'
@@ -30,10 +31,26 @@ export function AsmoExamArenaPage() {
   }, [examId])
 
   const [currentIndex, setCurrentIndex] = useState(0)
+  const [activeStepIndex, setActiveStepIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [isSubmitted, setIsSubmitted] = useState(false)
 
   const currentQuestion = exam.questions[currentIndex]
+
+  useEffect(() => {
+    setActiveStepIndex(0)
+  }, [currentIndex])
+
+  const currentStepData = currentQuestion.explanationSteps?.[activeStepIndex]
+  const dynamicSpec: AsmoVisualSpec | undefined = currentQuestion.renderSpec ? {
+    ...currentQuestion.renderSpec,
+    activePathIndex: activeStepIndex,
+    explanationStep: currentStepData?.layerIndex !== undefined ? currentStepData.layerIndex : activeStepIndex,
+    customPathPoints: currentStepData?.points,
+    hour: currentStepData?.hour !== undefined ? currentStepData.hour : currentQuestion.renderSpec.hour,
+    minute: currentStepData?.minute !== undefined ? currentStepData.minute : currentQuestion.renderSpec.minute,
+    shadedSlices: currentStepData?.shadedCount !== undefined ? currentStepData.shadedCount : currentQuestion.renderSpec.shadedSlices,
+  } : undefined
 
   const handleAnswer = (optionId: string) => {
     if (isSubmitted) return
@@ -141,13 +158,14 @@ export function AsmoExamArenaPage() {
           {/* Main Question & 3D Area (8 cols) */}
           <div className="lg:col-span-8 flex flex-col gap-6">
             {/* Embedded 3D Viewer if Question has RenderSpec */}
-            {currentQuestion.renderSpec && (
+            {dynamicSpec && (
               <div className="rounded-3xl border border-slate-700 bg-slate-950 p-2 shadow-2xl">
                 <AsmoThreeViewer
                   key={currentQuestion.id}
-                  spec={currentQuestion.renderSpec}
+                  spec={dynamicSpec}
                   height={320}
                   interactive
+                  onPathChange={(newPath) => setActiveStepIndex(newPath)}
                 />
               </div>
             )}
@@ -161,6 +179,8 @@ export function AsmoExamArenaPage() {
               selectedAnswer={answers[currentQuestion.id] || null}
               onSelectAnswer={handleAnswer}
               showSolutionImmediately={false}
+              activeInteractiveStep={activeStepIndex}
+              onInteractiveStepChange={setActiveStepIndex}
               onNext={
                 currentIndex < totalCount - 1
                   ? () => setCurrentIndex((prev) => prev + 1)
@@ -385,6 +405,17 @@ export function AsmoExamArenaPage() {
                       )}
                     </span>
                   </div>
+
+                  {q.renderSpec && (
+                    <div className="mb-4 rounded-3xl border border-slate-700 bg-slate-950 p-2 shadow-xl">
+                      <AsmoThreeViewer
+                        key={q.id}
+                        spec={q.renderSpec}
+                        height={260}
+                        interactive
+                      />
+                    </div>
+                  )}
 
                   <AsmoQuestionCard
                     question={q}
