@@ -241,22 +241,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Khu vực A (7 ô xám)"
+            "text": "Khu vực A"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Khu vực B (9 ô xám)"
+            "text": "Khu vực B"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Khu vực C (5 ô xám)"
+            "text": "Khu vực C"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Khu vực D (6 ô xám)"
+            "text": "Khu vực D"
           }
         ],
         "correctAnswer": "B",
@@ -452,25 +452,25 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Hình A (6 que diêm)",
+            "text": "Hình A",
             "svgDiagramKey": "q09_opt_A"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Hình B (5 que diêm)",
+            "text": "Hình B",
             "svgDiagramKey": "q09_opt_B"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Hình C (6 que diêm)",
+            "text": "Hình C",
             "svgDiagramKey": "q09_opt_C"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Hình D (7 que diêm)",
+            "text": "Hình D",
             "svgDiagramKey": "q09_opt_D"
           }
         ],
@@ -1017,25 +1017,25 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Cách A (4 hình vuông)",
+            "text": "Cách A",
             "svgDiagramKey": "q20_opt_A"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Cách B (4 hình tam giác)",
+            "text": "Cách B",
             "svgDiagramKey": "q20_opt_B"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Cách C (Chia lệch - SAI)",
+            "text": "Cách C",
             "svgDiagramKey": "q20_opt_C"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Cách D (4 hình chữ nhật)",
+            "text": "Cách D",
             "svgDiagramKey": "q20_opt_D"
           }
         ],
@@ -1281,7 +1281,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "Đường B (Ngắn nhất)",
+            "text": "Đường B",
             "imageUrl": "/asmo/assets/g1_2020/q25_opt_B.png"
           },
           {

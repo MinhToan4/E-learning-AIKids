@@ -173,7 +173,7 @@ export function AsmoQuestionCard({
                 </span>
 
                 {opt.svgDiagramKey && (
-                  <div className="p-1 rounded-xl bg-white border border-slate-200/80 shadow-2xs shrink-0 flex items-center justify-center">
+                  <div className="p-2 sm:p-2.5 rounded-2xl bg-white border border-slate-200/90 shadow-xs shrink-0 flex items-center justify-center overflow-hidden">
                     <AsmoSvgDiagram diagramKey={opt.svgDiagramKey} />
                   </div>
                 )}
