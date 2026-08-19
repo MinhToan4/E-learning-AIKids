@@ -305,17 +305,189 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
       )
 
     // ==========================================
+    // CÂU 14: Bàn cờ khuyết 5x5
+    // ==========================================
+    case 'q14_puzzle':
+      return (
+        <div className="flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-xs mx-auto w-full">
+          <svg viewBox="0 0 200 200" className="w-full max-h-56 select-none font-bold">
+            <rect x="10" y="10" width="180" height="180" fill="#f8fafc" stroke="#cbd5e1" strokeWidth="1" strokeDasharray="4 3" />
+            {/* 5x5 Grid (36x36 per cell), cells with black/white checkerboard */}
+            {[
+              [1, 0, 1, 0, 1],
+              [0, 1, 0, 1, 0],
+              [1, 0, 1, 0, -1],
+              [0, 1, 0, -1, -1],
+              [1, 0, -1, -1, -1],
+            ].map((row, r) =>
+              row.map((cell, c) => {
+                if (cell === -1) return null
+                return (
+                  <rect
+                    key={`${r}-${c}`}
+                    x={10 + c * 36}
+                    y={10 + r * 36}
+                    width={36}
+                    height={36}
+                    fill={cell === 1 ? '#1e293b' : '#ffffff'}
+                    stroke="#475569"
+                    strokeWidth="1.5"
+                  />
+                )
+              }),
+            )}
+            {/* Dashed outline of missing piece */}
+            <path
+              d="M 154 82 L 190 82 L 190 190 L 82 190 L 82 154 L 118 154 L 118 118 L 154 118 Z"
+              fill="#fee2e2"
+              fillOpacity="0.4"
+              stroke="#ef4444"
+              strokeWidth="2.5"
+              strokeDasharray="4 3"
+            />
+          </svg>
+        </div>
+      )
+
+    case 'q14_opt_A':
+      return (
+        <svg viewBox="0 0 90 90" className="size-16 sm:size-20 shrink-0 select-none">
+          <rect x="46" y="10" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+          <rect x="64" y="10" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+          <rect x="28" y="28" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+          <rect x="46" y="28" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+          <rect x="64" y="28" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+          <rect x="10" y="46" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+          <rect x="28" y="46" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+          <rect x="46" y="46" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+          <rect x="64" y="46" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+        </svg>
+      )
+    case 'q14_opt_B':
+      return (
+        <svg viewBox="0 0 90 90" className="size-16 sm:size-20 shrink-0 select-none">
+          <rect x="46" y="10" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+          <rect x="64" y="10" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+          <rect x="28" y="28" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+          <rect x="46" y="28" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+          <rect x="64" y="28" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+          <rect x="10" y="46" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+          <rect x="28" y="46" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+          <rect x="46" y="46" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+          <rect x="64" y="46" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+        </svg>
+      )
+    case 'q14_opt_C':
+      return (
+        <svg viewBox="0 0 90 90" className="size-16 sm:size-20 shrink-0 select-none">
+          <rect x="10" y="10" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+          <rect x="28" y="10" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+          <rect x="46" y="10" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+          <rect x="64" y="10" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+        </svg>
+      )
+    case 'q14_opt_D':
+      return (
+        <svg viewBox="0 0 90 90" className="size-16 sm:size-20 shrink-0 select-none">
+          <rect x="10" y="10" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+          <rect x="28" y="10" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+          <rect x="46" y="10" width="18" height="18" fill="#1e293b" stroke="#334155" strokeWidth="1.5" />
+          <rect x="64" y="10" width="18" height="18" fill="#ffffff" stroke="#334155" strokeWidth="1.5" />
+        </svg>
+      )
+
+    // ==========================================
+    // CÂU 15: Mê cung Pure Vector SVG Siêu Nét
+    // ==========================================
+    case 'q15_maze':
+      return (
+        <div className="flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-md mx-auto w-full">
+          <svg viewBox="0 0 340 320" className="w-full max-h-72 select-none font-bold">
+            {/* Entrance Arrow (Left) */}
+            <g transform="translate(10, 60)">
+              <line x1="0" y1="10" x2="35" y2="10" stroke="#2563eb" strokeWidth="4" strokeLinecap="round" />
+              <polygon points="35,4 45,10 35,16" fill="#2563eb" />
+            </g>
+
+            {/* Exit A (Top) */}
+            <g transform="translate(200, 5)">
+              <text x="0" y="16" fill="#0f172a" fontSize="20" textAnchor="middle">A</text>
+              <line x1="0" y1="40" x2="0" y2="24" stroke="#0f172a" strokeWidth="3" strokeLinecap="round" />
+              <polygon points="-5,24 0,18 5,24" fill="#0f172a" />
+            </g>
+
+            {/* Exit B (Right) */}
+            <g transform="translate(295, 125)">
+              <text x="25" y="6" fill="#0f172a" fontSize="20" textAnchor="middle">B</text>
+              <line x1="0" y1="0" x2="16" y2="0" stroke="#0f172a" strokeWidth="3" strokeLinecap="round" />
+              <polygon points="16,-5 22,0 16,5" fill="#0f172a" />
+            </g>
+
+            {/* Exit C (Bottom-Right) */}
+            <g transform="translate(230, 275)">
+              <line x1="0" y1="0" x2="0" y2="16" stroke="#0f172a" strokeWidth="3" strokeLinecap="round" />
+              <polygon points="-5,16 0,22 5,16" fill="#0f172a" />
+              <text x="0" y="38" fill="#0f172a" fontSize="20" textAnchor="middle">C</text>
+            </g>
+
+            {/* Exit D (Bottom-Left) */}
+            <g transform="translate(90, 275)">
+              <line x1="0" y1="0" x2="0" y2="16" stroke="#059669" strokeWidth="3.5" strokeLinecap="round" />
+              <polygon points="-5,16 0,22 5,16" fill="#059669" />
+              <text x="0" y="38" fill="#059669" fontSize="22" fontWeight="900" textAnchor="middle">D</text>
+            </g>
+
+            {/* Maze Walls (3px solid #1e293b) */}
+            <g stroke="#1e293b" strokeWidth="3.5" strokeLinecap="round" strokeLinejoin="round" fill="none">
+              {/* Outer boundary with openings */}
+              <line x1="60" y1="50" x2="185" y2="50" />
+              <line x1="215" y1="50" x2="280" y2="50" />
+              <line x1="280" y1="50" x2="280" y2="110" />
+              <line x1="280" y1="140" x2="280" y2="270" />
+              <line x1="280" y1="270" x2="245" y2="270" />
+              <line x1="215" y1="270" x2="105" y2="270" />
+              <line x1="75" y1="270" x2="60" y2="270" />
+              <line x1="60" y1="270" x2="60" y2="90" />
+              <line x1="60" y1="50" x2="60" y2="50" />
+
+              {/* Internal Walls */}
+              <line x1="90" y1="80" x2="150" y2="80" />
+              <line x1="90" y1="80" x2="90" y2="130" />
+              <line x1="90" y1="130" x2="130" y2="130" />
+
+              <line x1="120" y1="100" x2="120" y2="170" />
+              <line x1="150" y1="100" x2="150" y2="150" />
+              <line x1="150" y1="150" x2="200" y2="150" />
+
+              <line x1="180" y1="80" x2="250" y2="80" />
+              <line x1="180" y1="80" x2="180" y2="120" />
+              <line x1="220" y1="100" x2="220" y2="170" />
+              <line x1="250" y1="100" x2="250" y2="210" />
+
+              <line x1="90" y1="170" x2="170" y2="170" />
+              <line x1="90" y1="200" x2="140" y2="200" />
+              <line x1="90" y1="230" x2="180" y2="230" />
+              <line x1="140" y1="200" x2="140" y2="270" />
+              <line x1="180" y1="170" x2="180" y2="230" />
+
+              <line x1="210" y1="200" x2="270" y2="200" />
+              <line x1="210" y1="230" x2="250" y2="230" />
+              <line x1="210" y1="200" x2="210" y2="270" />
+            </g>
+          </svg>
+        </div>
+      )
+
+    // ==========================================
     // CÂU 17: Mặt đồng hồ chỉ đúng 5:10
     // ==========================================
     case 'q17_clock':
       return (
         <div className="flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-xs mx-auto w-full">
           <svg viewBox="0 0 200 200" className="w-full max-h-56 select-none font-bold">
-            {/* Clock Rim */}
             <circle cx="100" cy="100" r="90" fill="#f8fafc" stroke="#1e293b" strokeWidth="6" />
             <circle cx="100" cy="100" r="82" fill="#ffffff" stroke="#cbd5e1" strokeWidth="1.5" />
 
-            {/* Numbers 1..12 */}
             {[
               { n: '12', x: 100, y: 36 },
               { n: '1', x: 140, y: 47 },
@@ -335,7 +507,6 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
               </text>
             ))}
 
-            {/* Hour hand pointing at 5:10 (angle = 5*30 + 10*0.5 = 155 deg) */}
             <line
               x1="100"
               y1="100"
@@ -346,7 +517,6 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
               strokeLinecap="round"
             />
 
-            {/* Minute hand pointing at 2 (10 min => angle = 60 deg) */}
             <line
               x1="100"
               y1="100"
@@ -357,7 +527,6 @@ export function AsmoSvgDiagram({ diagramKey, className }: Props) {
               strokeLinecap="round"
             />
 
-            {/* Center Pin */}
             <circle cx="100" cy="100" r="5" fill="#ef4444" />
           </svg>
         </div>

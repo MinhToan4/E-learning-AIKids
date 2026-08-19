@@ -698,31 +698,31 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicName": "Mảnh ghép hình vuông còn thiếu",
         "title": "Câu 14: Find out the missing part of the square puzzle",
         "text": "The puzzle below was a complete square ($5 \\times 5$) before, find out the missing part.\n(Hình ghép ô cờ $5 \\times 5$ dưới đây bị cắt đi một góc, hãy tìm mảnh ghép còn thiếu khớp với phần bị cắt.)",
-        "imageUrl": "/asmo/assets/g1_2020/q14_puzzle.png",
+        "imageUrl": null,
         "options": [
           {
             "id": "A",
             "label": "A",
             "text": "Mảnh A",
-            "imageUrl": "/asmo/assets/g1_2020/q14_opt_A.png"
+            "svgDiagramKey": "q14_opt_A"
           },
           {
             "id": "B",
             "label": "B",
             "text": "Mảnh B",
-            "imageUrl": "/asmo/assets/g1_2020/q14_opt_B.png"
+            "svgDiagramKey": "q14_opt_B"
           },
           {
             "id": "C",
             "label": "C",
             "text": "Mảnh C",
-            "imageUrl": "/asmo/assets/g1_2020/q14_opt_C.png"
+            "svgDiagramKey": "q14_opt_C"
           },
           {
             "id": "D",
             "label": "D",
             "text": "Mảnh D",
-            "imageUrl": "/asmo/assets/g1_2020/q14_opt_D.png"
+            "svgDiagramKey": "q14_opt_D"
           }
         ],
         "correctAnswer": "A",
@@ -745,7 +745,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 3: Kết luận",
             "description": "Chọn đáp án A."
           }
-        ]
+        ],
+        "svgDiagramKey": "q14_puzzle"
       },
       {
         "id": "asmo-math-g1-2020-r1-q15",
@@ -755,27 +756,27 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicName": "Đường đi trong mê cung",
         "title": "Câu 15: Which is the right exit for the maze?",
         "text": "Follow the arrow at the entrance, which is the right exit for the maze?\n(Đi theo hướng mũi tên ở lối vào bên trái, lối ra đúng của mê cung là lối nào: A, B, C hay D?)",
-        "imageUrl": "/asmo/assets/g1_2020/q15_maze.png",
+        "imageUrl": null,
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Lối thoát A (Ở trên cùng)"
+            "text": "Lối thoát A"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Lối thoát B (Bên phải)"
+            "text": "Lối thoát B"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Lối thoát C (Góc dưới phải)"
+            "text": "Lối thoát C"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Lối thoát D (Góc dưới trái)"
+            "text": "Lối thoát D"
           }
         ],
         "correctAnswer": "D",
@@ -798,7 +799,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 3: Kết luận",
             "description": "Lối thoát đúng là D. Chọn đáp án D."
           }
-        ]
+        ],
+        "svgDiagramKey": "q15_maze"
       },
       {
         "id": "asmo-math-g1-2020-r1-q16",
