@@ -71,6 +71,7 @@ export type AsmoQuestionOption = {
   label: string
   text: string
   imageUrl?: string | null
+  svgDiagramKey?: string | null
 }
 
 export type AsmoQuestion = {
@@ -87,6 +88,7 @@ export type AsmoQuestion = {
   meeHint: string
   points: number
   imageUrl?: string | null
+  svgDiagramKey?: string | null
   renderSpec?: AsmoVisualSpec
   diagramDescription?: string
   explanationSteps?: AsmoExplanationStep[]

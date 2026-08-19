@@ -16,6 +16,7 @@ import {
 import type { AsmoQuestion } from '../types'
 import { AsmoFormula } from './AsmoFormula'
 import { AsmoMeeTutor } from './AsmoMeeTutor'
+import { AsmoSvgDiagram } from './AsmoSvgDiagram'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
@@ -113,8 +114,15 @@ export function AsmoQuestionCard({
         />
       </div>
 
-      {/* Visual Diagram Image (từ bản in PDF chuẩn) */}
-      {question.imageUrl && (
+      {/* Vector SVG Diagram (Thuần Vector siêu nét) */}
+      {question.svgDiagramKey && (
+        <div className="my-1 w-full flex justify-center">
+          <AsmoSvgDiagram diagramKey={question.svgDiagramKey} />
+        </div>
+      )}
+
+      {/* Visual Diagram Image (từ bản in PDF chuẩn nếu không có SVG) */}
+      {!question.svgDiagramKey && question.imageUrl && (
         <div className="my-1 flex items-center justify-center p-3 sm:p-4 rounded-2xl bg-white border border-slate-200/90 shadow-xs max-w-lg mx-auto w-full">
           <img
             src={question.imageUrl}
@@ -164,7 +172,13 @@ export function AsmoQuestionCard({
                   {opt.label}
                 </span>
 
-                {opt.imageUrl && (
+                {opt.svgDiagramKey && (
+                  <div className="p-1 rounded-xl bg-white border border-slate-200/80 shadow-2xs shrink-0 flex items-center justify-center">
+                    <AsmoSvgDiagram diagramKey={opt.svgDiagramKey} />
+                  </div>
+                )}
+
+                {!opt.svgDiagramKey && opt.imageUrl && (
                   <img
                     src={opt.imageUrl}
                     alt={opt.label}

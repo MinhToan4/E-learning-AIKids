@@ -22,7 +22,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicName": "Đếm & Nhận biết số lượng",
         "title": "Câu 1: How many black balls are there?",
         "text": "How many black balls are there in the diagram below?\n(Có tất cả bao nhiêu quả bóng màu đen trong hình?)",
-        "imageUrl": "/asmo/assets/g1_2020/q01_balls.png",
+        "imageUrl": null,
         "options": [
           {
             "id": "A",
@@ -65,7 +65,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 3: Kết luận",
             "description": "Có tất cả 9 quả bóng màu đen. Chọn đáp án D."
           }
-        ]
+        ],
+        "svgDiagramKey": "q01_balls"
       },
       {
         "id": "asmo-math-g1-2020-r1-q02",
@@ -75,7 +76,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicName": "Tìm chữ số còn thiếu",
         "title": "Câu 2: What digit is missing in the diagram?",
         "text": "What digit is missing in the diagram below?\n(Chữ số nào từ 1 đến 9 còn thiếu trong sơ đồ hình hộp dưới đây?)",
-        "imageUrl": "/asmo/assets/g1_2020/q02_digits.png",
+        "imageUrl": null,
         "options": [
           {
             "id": "A",
@@ -118,7 +119,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 3: Kết luận",
             "description": "Chữ số còn thiếu là 4. Chọn đáp án B."
           }
-        ]
+        ],
+        "svgDiagramKey": "q02_digits"
       },
       {
         "id": "asmo-math-g1-2020-r1-q03",
@@ -180,7 +182,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicName": "So sánh khối lượng trên bập bênh",
         "title": "Câu 4: Which fruit is the heaviest?",
         "text": "Based on the 3 seesaw balance scales, which fruit is the heaviest?\n(Dựa vào 3 bập bênh dưới đây, loại quả nào nặng nhất?)",
-        "imageUrl": "/asmo/assets/g1_2020/q04_balance.png",
+        "imageUrl": null,
         "options": [
           {
             "id": "A",
@@ -223,7 +225,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 3: Kết luận",
             "description": "Chùm nho nặng nhất. Chọn đáp án D."
           }
-        ]
+        ],
+        "svgDiagramKey": "q04_balance"
       },
       {
         "id": "asmo-math-g1-2020-r1-q05",
@@ -233,7 +236,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicName": "So sánh diện tích phần màu xám",
         "title": "Câu 5: Which grey area is the largest?",
         "text": "Which grey area (A, B, C, or D) is the largest in the grid below?\n(Vùng màu xám nào: A, B, C hay D có diện tích lớn nhất trong lưới ô vuông?)",
-        "imageUrl": "/asmo/assets/g1_2020/q05_grey_grid.png",
+        "imageUrl": null,
         "options": [
           {
             "id": "A",
@@ -276,7 +279,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 3: Kết luận",
             "description": "Khu vực B lớn nhất. Chọn đáp án B."
           }
-        ]
+        ],
+        "svgDiagramKey": "q05_grey_grid"
       },
       {
         "id": "asmo-math-g1-2020-r1-q06",
@@ -385,31 +389,31 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicName": "Quy luật lồng ghép hình học",
         "title": "Câu 8: Which diagram should “?” be?",
         "text": "Which diagram should replace the “?” in the geometric equation below?\n(Hình nào sẽ thay thế dấu “?” trong phép toán hình học dưới đây?)",
-        "imageUrl": "/asmo/assets/g1_2020/q08_shapes_add.png",
+        "imageUrl": null,
         "options": [
           {
             "id": "A",
             "label": "A",
             "text": "Hình A",
-            "imageUrl": "/asmo/assets/g1_2020/q08_opt_A.png"
+            "svgDiagramKey": "q08_opt_A"
           },
           {
             "id": "B",
             "label": "B",
             "text": "Hình B",
-            "imageUrl": "/asmo/assets/g1_2020/q08_opt_B.png"
+            "svgDiagramKey": "q08_opt_B"
           },
           {
             "id": "C",
             "label": "C",
             "text": "Hình C",
-            "imageUrl": "/asmo/assets/g1_2020/q08_opt_C.png"
+            "svgDiagramKey": "q08_opt_C"
           },
           {
             "id": "D",
             "label": "D",
             "text": "Hình D",
-            "imageUrl": "/asmo/assets/g1_2020/q08_opt_D.png"
+            "svgDiagramKey": "q08_opt_D"
           }
         ],
         "correctAnswer": "C",
@@ -432,7 +436,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 3: Kết luận",
             "description": "Chọn đáp án C."
           }
-        ]
+        ],
+        "svgDiagramKey": "q08_shapes_equation"
       },
       {
         "id": "asmo-math-g1-2020-r1-q09",
@@ -448,25 +453,25 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "id": "A",
             "label": "A",
             "text": "Hình A (6 que diêm)",
-            "imageUrl": "/asmo/assets/g1_2020/q09_opt_A.png"
+            "svgDiagramKey": "q09_opt_A"
           },
           {
             "id": "B",
             "label": "B",
             "text": "Hình B (5 que diêm)",
-            "imageUrl": "/asmo/assets/g1_2020/q09_opt_B.png"
+            "svgDiagramKey": "q09_opt_B"
           },
           {
             "id": "C",
             "label": "C",
             "text": "Hình C (6 que diêm)",
-            "imageUrl": "/asmo/assets/g1_2020/q09_opt_C.png"
+            "svgDiagramKey": "q09_opt_C"
           },
           {
             "id": "D",
             "label": "D",
             "text": "Hình D (7 que diêm)",
-            "imageUrl": "/asmo/assets/g1_2020/q09_opt_D.png"
+            "svgDiagramKey": "q09_opt_D"
           }
         ],
         "correctAnswer": "D",
@@ -489,7 +494,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 3: Kết luận",
             "description": "Hình D dùng nhiều que diêm nhất. Chọn đáp án D."
           }
-        ]
+        ],
+        "svgDiagramKey": null
       },
       {
         "id": "asmo-math-g1-2020-r1-q10",
@@ -1012,25 +1018,25 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "id": "A",
             "label": "A",
             "text": "Cách A (4 hình vuông)",
-            "imageUrl": "/asmo/assets/g1_2020/q20_opt_A.png"
+            "svgDiagramKey": "q20_opt_A"
           },
           {
             "id": "B",
             "label": "B",
             "text": "Cách B (4 hình tam giác)",
-            "imageUrl": "/asmo/assets/g1_2020/q20_opt_B.png"
+            "svgDiagramKey": "q20_opt_B"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Cách C (Chia lệch không đều - SAI)",
-            "imageUrl": "/asmo/assets/g1_2020/q20_opt_C.png"
+            "text": "Cách C (Chia lệch - SAI)",
+            "svgDiagramKey": "q20_opt_C"
           },
           {
             "id": "D",
             "label": "D",
             "text": "Cách D (4 hình chữ nhật)",
-            "imageUrl": "/asmo/assets/g1_2020/q20_opt_D.png"
+            "svgDiagramKey": "q20_opt_D"
           }
         ],
         "correctAnswer": "C",
@@ -1048,7 +1054,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 2: Kết luận",
             "description": "Cách cắt C là SAI. Chọn đáp án C."
           }
-        ]
+        ],
+        "svgDiagramKey": null
       },
       {
         "id": "asmo-math-g1-2020-r1-q21",
@@ -1157,7 +1164,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicName": "Đếm hình tam giác",
         "title": "Câu 23: How many triangles in the diagram below?",
         "text": "How many triangles in the diagram below?\n(Có tất cả bao nhiêu hình tam giác trong hình vẽ dưới đây?)",
-        "imageUrl": "/asmo/assets/g1_2020/q23_triangles.png",
+        "imageUrl": null,
         "options": [
           {
             "id": "A",
@@ -1200,7 +1207,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 3: Tổng kết",
             "description": "4 + 1 = 5 hình tam giác. Chọn đáp án B."
           }
-        ]
+        ],
+        "svgDiagramKey": "q23_triangles"
       },
       {
         "id": "asmo-math-g1-2020-r1-q24",
