@@ -152,7 +152,7 @@ export function AsmoQuestionCard({
                 optionStyle,
               )}
             >
-              <div className="flex items-center gap-3 min-w-0">
+              <div className="flex items-center gap-3 min-w-0 flex-1">
                 <span
                   className={cn(
                     'flex size-7 shrink-0 items-center justify-center rounded-xl font-bold text-xs shadow-xs transition-colors',
@@ -163,7 +163,19 @@ export function AsmoQuestionCard({
                 >
                   {opt.label}
                 </span>
-                <AsmoFormula text={opt.text} className="text-sm sm:text-base leading-snug" />
+
+                {opt.imageUrl && (
+                  <img
+                    src={opt.imageUrl}
+                    alt={opt.label}
+                    className="max-h-12 sm:max-h-14 object-contain rounded-lg border border-slate-200/80 bg-white p-1 shadow-2xs shrink-0"
+                    loading="lazy"
+                  />
+                )}
+
+                {opt.text && (
+                  <AsmoFormula text={opt.text} className="text-sm sm:text-base leading-snug" />
+                )}
               </div>
 
               {showExplanation && isAnswered && (

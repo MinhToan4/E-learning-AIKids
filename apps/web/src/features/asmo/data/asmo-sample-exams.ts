@@ -390,28 +390,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Hình vuông lồng trong hình tam giác"
+            "text": "Hình A",
+            "imageUrl": "/asmo/assets/g1_2020/q08_opt_A.png"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Hình ngũ giác lồng trong hình tròn"
+            "text": "Hình B",
+            "imageUrl": "/asmo/assets/g1_2020/q08_opt_B.png"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Hình tròn lồng trong hình tam giác (Circle inside Triangle)"
+            "text": "Hình C",
+            "imageUrl": "/asmo/assets/g1_2020/q08_opt_C.png"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Hình tam giác lồng trong hình ngũ giác"
+            "text": "Hình D",
+            "imageUrl": "/asmo/assets/g1_2020/q08_opt_D.png"
           }
         ],
         "correctAnswer": "C",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Quy luật của phép cộng là hình thứ hai sẽ được lồng vào bên trong hình thứ nhất!",
-        "explanation": "Quan sát quy luật:\n• Hàng 1: $\\text{Hình vuông} + \\text{Hình tam giác} = \\text{Hình tam giác nằm trong hình vuông}$\n• Hàng 2: $\\text{Hình ngũ giác} + \\text{Hình tròn} = \\text{Hình tròn nằm trong hình ngũ giác}$\n• Hàng 3: $\\text{Hình tam giác} + \\text{Hình tròn} = \\text{Hình tròn nằm trong hình tam giác}$ (Hình C)\n➔ Đáp án đúng là: **C**",
+        "explanation": "Quan sát quy luật:\n• Hàng 1: $\\text{Hình vuông} + \\text{Hình tam giác} = \\text{Hình tam giác nằm trong hình vuông}$\n• Hàng 2: $\\text{Hình ngũ giác} + \\text{Hình tròn} = \\text{Hình tròn nằm trong hình ngũ giác}$\n• Hàng 3: $\\text{Hình tam giác} + \\text{Hình tròn} = \\text{Hình tròn nằm trong hình tam giác}$ (tương ứng với **Hình C**)\n➔ Đáp án đúng là: **C. Hình C**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -438,27 +442,31 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicName": "Đếm số que diêm",
         "title": "Câu 9: Which diagram uses the greatest number of matches?",
         "text": "Which diagram uses the greatest number of matches?\n(Hình nào dưới đây sử dụng số lượng que diêm nhiều nhất?)",
-        "imageUrl": "/asmo/assets/g1_2020/q09_matches.png",
+        "imageUrl": null,
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Hình A (6 que diêm)"
+            "text": "Hình A (6 que diêm)",
+            "imageUrl": "/asmo/assets/g1_2020/q09_opt_A.png"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Hình B (5 que diêm)"
+            "text": "Hình B (5 que diêm)",
+            "imageUrl": "/asmo/assets/g1_2020/q09_opt_B.png"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Hình C (6 que diêm)"
+            "text": "Hình C (6 que diêm)",
+            "imageUrl": "/asmo/assets/g1_2020/q09_opt_C.png"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Hình D (7 que diêm)"
+            "text": "Hình D (7 que diêm)",
+            "imageUrl": "/asmo/assets/g1_2020/q09_opt_D.png"
           }
         ],
         "correctAnswer": "D",
@@ -689,22 +697,26 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Mảnh A"
+            "text": "Mảnh A",
+            "imageUrl": "/asmo/assets/g1_2020/q14_opt_A.png"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Mảnh B"
+            "text": "Mảnh B",
+            "imageUrl": "/asmo/assets/g1_2020/q14_opt_B.png"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Mảnh C"
+            "text": "Mảnh C",
+            "imageUrl": "/asmo/assets/g1_2020/q14_opt_C.png"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Mảnh D"
+            "text": "Mảnh D",
+            "imageUrl": "/asmo/assets/g1_2020/q14_opt_D.png"
           }
         ],
         "correctAnswer": "A",
@@ -994,27 +1006,31 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicName": "Chia hình bằng nhau",
         "title": "Câu 20: Which way of cutting a square cake is WRONG?",
         "text": "To cut a square shaped cake and give out to $4\\text{ children}$ equally, which way of cutting is WRONG?\n(Để chia một chiếc bánh hình vuông thành 4 phần bằng nhau cho 4 bạn, cách cắt nào dưới đây là SAI?)",
-        "imageUrl": "/asmo/assets/g1_2020/q20_cakes.png",
+        "imageUrl": null,
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Cách A (Cắt chữ thập - 4 hình vuông bằng nhau)"
+            "text": "Cách A (4 hình vuông)",
+            "imageUrl": "/asmo/assets/g1_2020/q20_opt_A.png"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Cách B (Cắt 2 đường chéo - 4 tam giác bằng nhau)"
+            "text": "Cách B (4 hình tam giác)",
+            "imageUrl": "/asmo/assets/g1_2020/q20_opt_B.png"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Cách C (Cắt từ đỉnh trên xuống đáy - các phần không bằng nhau)"
+            "text": "Cách C (Chia lệch không đều - SAI)",
+            "imageUrl": "/asmo/assets/g1_2020/q20_opt_C.png"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Cách D (Cắt 3 đường xiên song song cách đều)"
+            "text": "Cách D (4 hình chữ nhật)",
+            "imageUrl": "/asmo/assets/g1_2020/q20_opt_D.png"
           }
         ],
         "correctAnswer": "C",
@@ -1246,27 +1262,31 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicName": "So sánh độ dài đường ziczac",
         "title": "Câu 25: Which line has the shortest length?",
         "text": "Which line (A, B, C, or D) has the shortest length on the grid?\n(Đường ziczac nào: A, B, C hay D có tổng chiều dài ngắn nhất trên lưới ô vuông?)",
-        "imageUrl": "/asmo/assets/g1_2020/q25_lines.png",
+        "imageUrl": null,
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Đường A (4 đoạn xiên)"
+            "text": "Đường A",
+            "imageUrl": "/asmo/assets/g1_2020/q25_opt_A.png"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Đường B (3 đoạn xiên dài trải rộng - ngắn nhất)"
+            "text": "Đường B (Ngắn nhất)",
+            "imageUrl": "/asmo/assets/g1_2020/q25_opt_B.png"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Đường C (4 đoạn xiên dốc)"
+            "text": "Đường C",
+            "imageUrl": "/asmo/assets/g1_2020/q25_opt_C.png"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Đường D (6 đoạn xiên ziczac dốc)"
+            "text": "Đường D",
+            "imageUrl": "/asmo/assets/g1_2020/q25_opt_D.png"
           }
         ],
         "correctAnswer": "B",

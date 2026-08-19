@@ -70,6 +70,7 @@ export type AsmoQuestionOption = {
   id: string
   label: string
   text: string
+  imageUrl?: string | null
 }
 
 export type AsmoQuestion = {
@@ -85,7 +86,7 @@ export type AsmoQuestion = {
   explanation: string
   meeHint: string
   points: number
-  imageUrl?: string
+  imageUrl?: string | null
   renderSpec?: AsmoVisualSpec
   diagramDescription?: string
   explanationSteps?: AsmoExplanationStep[]
