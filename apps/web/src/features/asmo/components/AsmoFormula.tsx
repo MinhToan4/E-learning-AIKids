@@ -28,48 +28,42 @@ export function AsmoFormula({ text, className }: Props) {
       const opLine = lines[dashIdx - 1].trim()
       const resLine = lines[dashIdx + 1].trim()
 
-      const op = opLine.includes('+') ? '+' : opLine.includes('-') ? '-' : opLine.toLowerCase().includes('x') ? '×' : '+'
-      const opClean = opLine.replace(/[+\-*x]/gi, '').trim()
+      const op = opLine.includes('-') ? '−' : opLine.includes('+') ? '+' : opLine.toLowerCase().includes('x') ? '×' : '−'
+      const opClean = opLine.replace(/[+\-*x−]/gi, '').trim()
 
-      // Split into individual tokens/digits
-      const topTokens = topLine.replace(/\s+/g, '').split('')
-      const opTokens = opClean.replace(/\s+/g, '').split('')
-      const resTokens = resLine.replace(/\s+/g, '').split('')
+      const topDigits = topLine.replace(/\s+/g, '').split('')
+      const opDigits = opClean.replace(/\s+/g, '').split('')
+      const numCols = Math.max(topDigits.length, opDigits.length, 2)
 
-      const maxCols = Math.max(topTokens.length, opTokens.length, resTokens.length)
-      
-      const padTokens = (tokens: string[]) => {
-        const padded = [...tokens]
-        while (padded.length < maxCols) {
-          padded.unshift('')
-        }
-        return padded
+      const pad = (arr: string[]) => {
+        const res = [...arr]
+        while (res.length < numCols) res.unshift('')
+        return res
       }
 
-      const paddedTop = padTokens(topTokens)
-      const paddedOp = padTokens(opTokens)
-      const paddedRes = padTokens(resTokens)
+      const pTop = pad(topDigits)
+      const pOp = pad(opDigits)
 
-      const gridColsClass = maxCols === 2 
-        ? 'grid-cols-[1.5rem_1.75rem_1.75rem]' 
-        : maxCols === 3 
-        ? 'grid-cols-[1.5rem_1.75rem_1.75rem_1.75rem]' 
-        : 'grid-cols-[1.5rem_repeat(4,1.75rem)]'
+      const topCells = pTop.map(d => `<span style="display:inline-flex;align-items:center;justify-content:center;width:2.25rem;height:2.5rem;font-size:1.5rem;font-weight:700;">${d}</span>`).join('')
+      const opCells = pOp.map(d => `<span style="display:inline-flex;align-items:center;justify-content:center;width:2.25rem;height:2.5rem;font-size:1.5rem;font-weight:700;">${d}</span>`).join('')
+      
+      const isMysteryResult = resLine.includes('[') || resLine.includes('?')
+      const resCells = isMysteryResult
+        ? `<div style="grid-column: 2 / -1; display:flex; align-items:center; justify-content:center; height:2.5rem; border-radius:0.75rem; background:#fee2e2; border:2px dashed #f43f5e; color:#e11d48; font-size:1.25rem; font-weight:800; padding:0 0.5rem;">[ ? ]</div>`
+        : pad(resLine.replace(/\s+/g, '').split('')).map(d => `<span style="display:inline-flex;align-items:center;justify-content:center;width:2.25rem;height:2.5rem;font-size:1.5rem;font-weight:800;color:#4338ca;">${d}</span>`).join('')
 
-      const topCells = paddedTop.map(t => `<div class="flex items-center justify-center">${t}</div>`).join('')
-      const opCells = paddedOp.map(t => `<div class="flex items-center justify-center">${t}</div>`).join('')
-      const resCells = paddedRes.map(t => `<div class="flex items-center justify-center text-indigo-700 font-extrabold">${t}</div>`).join('')
+      const colDefs = `2rem repeat(${numCols}, 2.25rem)`
 
-      const htmlCard = `<div class="inline-flex flex-col items-center my-3 py-3 px-6 rounded-3xl bg-indigo-50/80 border border-indigo-200 shadow-xs font-mono font-bold text-xl text-slate-800 select-none">
-        <div class="grid ${gridColsClass} gap-x-1.5 text-center items-center">
-          <div></div>
+      const htmlCard = `<div style="display:inline-flex; flex-direction:column; align-items:center; margin:1rem auto; padding:1.25rem 2rem; border-radius:1.5rem; background:#f8fafc; border:2px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.05); font-family:ui-monospace, monospace; user-select:none;">
+        <div style="display:grid; grid-template-columns:${colDefs}; align-items:center; text-align:center;">
+          <span></span>
           ${topCells}
-          <div class="text-indigo-600 font-extrabold text-2xl leading-none flex items-center justify-center">${op}</div>
+          <span style="display:inline-flex;align-items:center;justify-content:center;width:2rem;height:2.5rem;font-size:1.75rem;font-weight:800;color:#6366f1;">${op}</span>
           ${opCells}
         </div>
-        <div class="w-full border-b-2 border-slate-700 my-1.5"></div>
-        <div class="grid ${gridColsClass} gap-x-1.5 text-center items-center">
-          <div></div>
+        <div style="width:100%; border-bottom:3px solid #334155; margin:0.35rem 0;"></div>
+        <div style="display:grid; grid-template-columns:${colDefs}; align-items:center; text-align:center;">
+          <span></span>
           ${resCells}
         </div>
       </div>`
