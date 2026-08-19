@@ -44,29 +44,15 @@ export function AsmoFormula({ text, className }: Props) {
       const pTop = pad(topDigits)
       const pOp = pad(opDigits)
 
-      const topCells = pTop.map(d => `<span style="display:inline-flex;align-items:center;justify-content:center;width:2.25rem;height:2.5rem;font-size:1.5rem;font-weight:700;">${d}</span>`).join('')
-      const opCells = pOp.map(d => `<span style="display:inline-flex;align-items:center;justify-content:center;width:2.25rem;height:2.5rem;font-size:1.5rem;font-weight:700;">${d}</span>`).join('')
+      const topTds = pTop.map(d => `<td style="width:2.25rem;height:2.75rem;text-align:center;font-size:1.75rem;font-weight:700;color:#0f172a;">${d}</td>`).join('')
+      const opTds = pOp.map(d => `<td style="width:2.25rem;height:2.75rem;text-align:center;font-size:1.75rem;font-weight:700;color:#0f172a;">${d}</td>`).join('')
       
       const isMysteryResult = resLine.includes('[') || resLine.includes('?')
-      const resCells = isMysteryResult
-        ? `<div style="grid-column: 2 / -1; display:flex; align-items:center; justify-content:center; height:2.5rem; border-radius:0.75rem; background:#fee2e2; border:2px dashed #f43f5e; color:#e11d48; font-size:1.25rem; font-weight:800; padding:0 0.5rem;">[ ? ]</div>`
-        : pad(resLine.replace(/\s+/g, '').split('')).map(d => `<span style="display:inline-flex;align-items:center;justify-content:center;width:2.25rem;height:2.5rem;font-size:1.5rem;font-weight:800;color:#4338ca;">${d}</span>`).join('')
+      const resTd = isMysteryResult
+        ? `<td colspan="${numCols}" style="text-align:center;padding-top:0.35rem;"><span style="display:inline-flex;align-items:center;justify-content:center;padding:0.25rem 0.85rem;border-radius:0.75rem;background:#fff1f2;border:2px dashed #f43f5e;color:#e11d48;font-size:1.35rem;font-weight:900;">[ ? ]</span></td>`
+        : pad(resLine.replace(/\s+/g, '').split('')).map(d => `<td style="width:2.25rem;height:2.75rem;text-align:center;font-size:1.75rem;font-weight:800;color:#4338ca;">${d}</td>`).join('')
 
-      const colDefs = `2rem repeat(${numCols}, 2.25rem)`
-
-      const htmlCard = `<div style="display:inline-flex; flex-direction:column; align-items:center; margin:1rem auto; padding:1.25rem 2rem; border-radius:1.5rem; background:#f8fafc; border:2px solid #e2e8f0; box-shadow:0 4px 12px rgba(0,0,0,0.05); font-family:ui-monospace, monospace; user-select:none;">
-        <div style="display:grid; grid-template-columns:${colDefs}; align-items:center; text-align:center;">
-          <span></span>
-          ${topCells}
-          <span style="display:inline-flex;align-items:center;justify-content:center;width:2rem;height:2.5rem;font-size:1.75rem;font-weight:800;color:#6366f1;">${op}</span>
-          ${opCells}
-        </div>
-        <div style="width:100%; border-bottom:3px solid #334155; margin:0.35rem 0;"></div>
-        <div style="display:grid; grid-template-columns:${colDefs}; align-items:center; text-align:center;">
-          <span></span>
-          ${resCells}
-        </div>
-      </div>`
+      const htmlCard = `<div style="display:flex;justify-content:center;margin:1.25rem auto;"><div style="display:inline-flex;flex-direction:column;align-items:center;padding:1.25rem 2.25rem;border-radius:1.75rem;background:#ffffff;border:2px solid #e2e8f0;box-shadow:0 4px 14px rgba(0,0,0,0.06);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;user-select:none;"><table style="border-collapse:collapse;border-spacing:0;margin:0;padding:0;"><tbody><tr><td style="width:2rem;"></td>${topTds}</tr><tr><td style="width:2rem;height:2.75rem;text-align:center;font-size:2rem;font-weight:900;color:#6366f1;line-height:1;">${op}</td>${opTds}</tr><tr><td colspan="${numCols + 1}" style="border-top:3.5px solid #1e293b;height:0;padding:0;"></td></tr><tr><td></td>${resTd}</tr></tbody></table></div></div>`.replace(/\s*\n\s*/g, '')
 
       const before = lines.slice(0, dashIdx - 2)
       const after = lines.slice(dashIdx + 2)
