@@ -49,11 +49,46 @@ function filterSampleExams(filters?: AsmoExamFilter): AsmoExam[] {
     if (filters.grade !== undefined) {
       if (filters.subject === 'math') {
         if (exam.grade !== filters.grade) return false
-      } else {
-        // Science & English level groups
-        if (filters.grade <= 2 && exam.grade > 2) return false
-        if (filters.grade >= 3 && filters.grade <= 4 && (exam.grade < 3 || exam.grade > 4)) return false
-        if (filters.grade === 5 && exam.grade !== 5) return false
+      } else if (filters.subject === 'science') {
+        // Level 1: Grade 3 & 4 (primary grade: 3)
+        // Level 2: Grade 5 & 6 (primary grade: 5)
+        // Level 3: Grade 7, 8, 9 (primary grade: 7)
+        // Level 4: Grade 10
+        // Level 5: Grade 11
+        // Level 6: Grade 12
+        if (filters.grade === 3 || filters.grade === 4) {
+          if (exam.grade !== 3 && exam.grade !== 4) return false
+        } else if (filters.grade === 5 || filters.grade === 6) {
+          if (exam.grade !== 5 && exam.grade !== 6) return false
+        } else if (filters.grade >= 7 && filters.grade <= 9) {
+          if (exam.grade < 7 || exam.grade > 9) return false
+        } else if (exam.grade !== filters.grade) {
+          return false
+        }
+      } else if (filters.subject === 'english') {
+        // Level 1: Grade 1 & 2 (primary grade: 1)
+        // Level 2: Grade 3 & 4 (primary grade: 3)
+        // Level 3: Grade 5 & 6 (primary grade: 5)
+        // Level 4: Grade 7, 8, 9 (primary grade: 7)
+        // Level 5: Grade 10
+        // Level 6: Grade 11 & 12 (primary grade: 11)
+        if (filters.grade === 1 || filters.grade === 2) {
+          if (exam.grade !== 1 && exam.grade !== 2) return false
+        } else if (filters.grade === 3 || filters.grade === 4) {
+          if (exam.grade !== 3 && exam.grade !== 4) return false
+        } else if (filters.grade === 5 || filters.grade === 6) {
+          if (exam.grade !== 5 && exam.grade !== 6) return false
+        } else if (filters.grade >= 7 && filters.grade <= 9) {
+          if (exam.grade < 7 || exam.grade > 9) return false
+        } else if (filters.grade === 10) {
+          if (exam.grade !== 10) return false
+        } else if (filters.grade === 11 || filters.grade === 12) {
+          if (exam.grade !== 11 && exam.grade !== 12) return false
+        } else if (exam.grade !== filters.grade) {
+          return false
+        }
+      } else if (exam.grade !== filters.grade) {
+        return false
       }
     }
     if (filters.year !== undefined && exam.year !== filters.year) return false

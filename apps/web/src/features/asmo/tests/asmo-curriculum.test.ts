@@ -17,9 +17,12 @@ describe('ASMO Curriculum & Datasets', () => {
     expect(ASMO_SUBJECTS.english.name).toContain('Tiếng Anh')
   })
 
-  it('contains valid grades 1 to 5', () => {
-    expect(ASMO_GRADES).toHaveLength(5)
-    expect(ASMO_GRADES.map((g) => g.grade)).toEqual([1, 2, 3, 4, 5])
+  it('contains valid grades 1 to 12 across 3 educational tiers', () => {
+    expect(ASMO_GRADES).toHaveLength(12)
+    expect(ASMO_GRADES.map((g) => g.grade)).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12])
+    expect(ASMO_GRADES.filter((g) => g.tier === 'primary')).toHaveLength(5)
+    expect(ASMO_GRADES.filter((g) => g.tier === 'secondary')).toHaveLength(4)
+    expect(ASMO_GRADES.filter((g) => g.tier === 'high')).toHaveLength(3)
   })
 
   it('contains structured curriculum weeks with key competencies', () => {

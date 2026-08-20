@@ -118,7 +118,7 @@ const displayTemplate = (kind: RewardKind) => {
 }
 
 function studioArtwork(item: StudioItem): string | undefined {
-  return item.assets.thumbnailUrl ?? item.assets.imageUrl
+  return item.assets.imageUrl ?? item.assets.thumbnailUrl
     ?? (item.contentType === 'reward' ? rewardTitleAsset(item.code) ?? getResolvedRewardAssetUrl(item.code) : item.assets.coverUrl)
 }
 
@@ -820,7 +820,7 @@ export function LegendRewardStudio() {
         : item.displayConfig ?? {}, null, 2),
       contentJson: isChapter ? '{}' : JSON.stringify(item.content ?? {}, null, 2),
     })
-    setPreviewUrl(studioArtwork(item) ?? '')
+    setPreviewUrl(item.assets.imageUrl ?? studioArtwork(item) ?? '')
     setAssetInfo('')
     setChapterEditorFocus(chapterFocus ?? null)
     openDesigner('single')
@@ -2026,11 +2026,11 @@ export function LegendRewardStudio() {
                   <div className="space-y-3">
                     <div className="mx-auto w-full overflow-hidden rounded-2xl border-4 border-white bg-white/70 shadow-lg">
                       <div className={`w-full ${form.kind === 'background' ? 'aspect-[15/4]' : form.kind === 'title' ? 'aspect-[1200/320]' : form.kind === 'event_ticket' ? 'aspect-[16/9]' : 'aspect-[2540/1300]'} flex items-center justify-center overflow-hidden bg-slate-100`}>
-                        {previewUrl ? (
-                          studioAssetPreviewKind(previewUrl) === 'config' ? (
+                        {(form.assetUrl || previewUrl) ? (
+                          studioAssetPreviewKind(form.assetUrl || previewUrl) === 'config' ? (
                             <div className="px-5 text-brand-700"><Settings2 className="mx-auto h-10 w-10" aria-hidden="true" /><span className="mt-2 block text-xs font-black">Theme JSON</span></div>
                           ) : (
-                            <img src={previewUrl} alt="Preview asset vừa tải" className={`h-full w-full ${selectedSpec.transparent ? 'object-contain p-2' : 'object-cover'}`} />
+                            <img src={form.assetUrl || previewUrl} alt="Preview asset vừa tải" className={`h-full w-full ${selectedSpec.transparent ? 'object-contain p-2' : 'object-cover'}`} />
                           )
                         ) : (
                           <div className="p-4 text-muted"><span className="block text-3xl">🖼️</span><span className="mt-1 block text-xs font-bold">Chưa chọn asset</span></div>
@@ -2041,8 +2041,8 @@ export function LegendRewardStudio() {
                     <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/90 p-3 text-left shadow-sm">
                       <div className="flex items-center gap-3 min-w-0">
                         <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-brand-200 bg-white shadow-inner">
-                          {form.thumbnailUrl || previewUrl ? (
-                            <img src={form.thumbnailUrl || previewUrl} alt="Icon đại diện" className="h-full w-full object-cover" />
+                          {form.thumbnailUrl || form.assetUrl || previewUrl ? (
+                            <img src={form.thumbnailUrl || form.assetUrl || previewUrl} alt="Icon đại diện" className="h-full w-full object-cover" />
                           ) : (
                             <span className="text-xl">🎁</span>
                           )}

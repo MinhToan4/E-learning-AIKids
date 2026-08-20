@@ -13,8 +13,17 @@ import {
   Layers,
   Calendar,
   Loader2,
+  GraduationCap,
+  School,
+  Backpack,
 } from 'lucide-react'
-import { ASMO_SUBJECTS, ASMO_GRADES, ASMO_CURRICULUM_WEEKS } from '../data/asmo-curriculum'
+import {
+  ASMO_SUBJECTS,
+  ASMO_GRADES,
+  ASMO_GRADE_TIERS,
+  ASMO_CURRICULUM_WEEKS,
+  type AsmoGradeTier,
+} from '../data/asmo-curriculum'
 import { ASMO_3D_TEMPLATES } from '../data/asmo-3d-templates'
 import { listAsmoExams } from '@/shared/lib/asmo-api'
 import type { AsmoExam, AsmoGrade, AsmoSubject } from '../types'
@@ -22,18 +31,20 @@ import { AsmoMeeTutor } from '../components/AsmoMeeTutor'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
-const AVAILABLE_YEARS: Array<number | 'all'> = ['all', 2023, 2022, 2021, 2020, 2018, 2016, 2015, 2014]
+const AVAILABLE_YEARS: Array<number | 'all'> = ['all', 2023, 2022, 2021, 2020, 2018, 2016, 2015, 2014, 2013, 2012, 2011, 2008, 2007, 2006, 2005]
 
 export function AsmoHubPage() {
   const navigate = useNavigate()
   const [selectedSubject, setSelectedSubject] = useState<AsmoSubject>('math')
   const [selectedGrade, setSelectedGrade] = useState<AsmoGrade>(1)
   const [selectedYear, setSelectedYear] = useState<number | 'all'>('all')
+  const [selectedTier, setSelectedTier] = useState<AsmoGradeTier | 'all'>('all')
 
   const [exams, setExams] = useState<AsmoExam[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   const currentSubjectMeta = ASMO_SUBJECTS[selectedSubject]
+  const currentGradeMeta = ASMO_GRADES.find((g) => g.grade === selectedGrade)
 
   // Fetch dynamic exams from backend gateway or safe fallback
   useEffect(() => {
@@ -76,15 +87,15 @@ export function AsmoHubPage() {
         <div className="relative z-10 max-w-2xl">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3.5 py-1 text-xs font-bold backdrop-blur-md">
             <Trophy className="size-3.5 text-sun-300" />
-            <span>Đấu Trường Olympic Quốc Tế ASMO</span>
+            <span>Đấu Trường Olympic Quốc Tế ASMO (Lớp 1 – 12)</span>
           </div>
 
           <h1 className="mt-3 font-display text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-            Chinh Phục ASMO Với Không Gian 3D & Mèo Mee 🚀
+            Chinh Phục ASMO Toàn Diện Lớp 1 – 12 Cùng Mèo Mee 🚀
           </h1>
 
           <p className="mt-3 text-sm sm:text-base text-indigo-100 leading-relaxed">
-            Ngân hàng đề thi chuẩn hóa quốc tế 3 Môn (Toán · Khoa Học · Tiếng Anh) kết hợp công nghệ mô phỏng hình học Three.js 3D và trợ giảng AI đồng hành từng bước!
+            Ngân hàng đề thi chuẩn hóa quốc tế 3 Môn (Toán · Khoa Học · Tiếng Anh) trải rộng trọn vẹn 3 Cấp học (Tiểu học · THCS · THPT) kết hợp công nghệ mô phỏng hình học 3D Three.js và trợ giảng AI đồng hành!
           </p>
 
           <div className="mt-6 flex flex-wrap items-center gap-3">
@@ -121,103 +132,134 @@ export function AsmoHubPage() {
       {/* ── MÈO MEE INTRO ── */}
       <AsmoMeeTutor
         pose="welcome"
-        speech={`Chào bạn nhỏ! Mee đã chuẩn bị sẵn các mô hình 3D xoay 360 độ và bộ đề thi Olympic ASMO môn ${currentSubjectMeta.name}. Con hãy chọn lớp và năm thi để bắt đầu thử sức nhé!`}
-        hint="Bí kíp của Mee: Khi làm bài toán hình học, con hãy bấm nút 'Phòng Thí Nghiệm 3D' để xem khối xoay thực tế trước khi chọn đáp án nhé!"
+        speech={`Chào bạn nhỏ! Mee đã mở rộng hệ thống đề thi ASMO đầy đủ từ Lớp 1 đến Lớp 12 cho môn ${currentSubjectMeta.name}. Con đang theo học ${currentGradeMeta?.tierLabel} (${currentGradeMeta?.label}), hãy chọn năm thi để bắt đầu thử sức nhé!`}
+        hint="Bí kíp của Mee: Khi làm bài toán hình học hoặc tư duy không gian, con hãy bấm nút 'Phòng Thí Nghiệm 3D' để xoay mô hình 360 độ trước khi chọn đáp án nhé!"
       />
 
       {/* ── SUBJECT, GRADE & YEAR SELECTOR TABS ── */}
-      <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-5 shadow-clay backdrop-blur-md">
-        <div className="flex flex-col gap-5 border-b border-slate-100 pb-5">
-          {/* Subject Pills */}
-          <div>
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 block">
-              1. Chọn Môn Học Olympic
+      <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-5 shadow-clay backdrop-blur-md space-y-6">
+        {/* 1. Subject Pills */}
+        <div>
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 block">
+            1. Chọn Môn Học Olympic
+          </label>
+          <div className="flex flex-wrap gap-2">
+            {(Object.keys(ASMO_SUBJECTS) as AsmoSubject[]).map((subjKey) => {
+              const subj = ASMO_SUBJECTS[subjKey]
+              const isSelected = selectedSubject === subjKey
+              return (
+                <button
+                  key={subjKey}
+                  type="button"
+                  onClick={() => setSelectedSubject(subjKey)}
+                  className={cn(
+                    'flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-bold transition-all active:scale-95 cursor-pointer',
+                    isSelected
+                      ? 'bg-brand-600 text-white shadow-md shadow-brand-500/20 ring-2 ring-brand-400'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700',
+                  )}
+                >
+                  <span className="text-lg">{subj.icon}</span>
+                  <span>{subj.name}</span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* 2. Grade Tiers & Grade Pills (3 Cấp Học: Tiểu học, THCS, THPT) */}
+        <div>
+          <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
+            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
+              2. Khối Lớp (Toàn Diện Lớp 1 – 12 Theo 3 Cấp Học)
             </label>
-            <div className="flex flex-wrap gap-2">
-              {(Object.keys(ASMO_SUBJECTS) as AsmoSubject[]).map((subjKey) => {
-                const subj = ASMO_SUBJECTS[subjKey]
-                const isSelected = selectedSubject === subjKey
-                return (
-                  <button
-                    key={subjKey}
-                    type="button"
-                    onClick={() => setSelectedSubject(subjKey)}
-                    className={cn(
-                      'flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-bold transition-all active:scale-95 cursor-pointer',
-                      isSelected
-                        ? 'bg-brand-600 text-white shadow-md shadow-brand-500/20 ring-2 ring-brand-400'
-                        : 'bg-slate-100 hover:bg-slate-200 text-slate-700',
-                    )}
-                  >
-                    <span>{subj.icon}</span>
-                    <span>{subj.name}</span>
-                  </button>
-                )
-              })}
-            </div>
+            {currentGradeMeta && (
+              <span className="rounded-xl bg-brand-50 px-2.5 py-0.5 text-xs font-bold text-brand-700">
+                {currentGradeMeta.tierEmoji} {currentGradeMeta.tierLabel} · {currentGradeMeta.ageRange}
+              </span>
+            )}
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            {/* Grade Pills */}
-            <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 block">
-                2. Khối Lớp
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {ASMO_GRADES.map((g) => {
-                  const isSelected = selectedGrade === g.grade
-                  return (
-                    <button
-                      key={g.grade}
-                      type="button"
-                      onClick={() => setSelectedGrade(g.grade)}
-                      className={cn(
-                        'rounded-xl px-3 py-2 text-xs font-extrabold transition-all active:scale-95 cursor-pointer',
-                        isSelected
-                          ? 'bg-slate-900 text-white shadow-sm ring-2 ring-slate-700'
-                          : 'bg-slate-100 hover:bg-slate-200 text-slate-700',
-                      )}
-                    >
-                      Lớp {g.grade}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {ASMO_GRADE_TIERS.map((tier) => {
+              const isGradeInTier = tier.grades.includes(selectedGrade)
+              return (
+                <div
+                  key={tier.id}
+                  className={cn(
+                    'rounded-2xl border p-3 transition-all flex flex-col justify-between',
+                    isGradeInTier
+                      ? 'border-brand-300 bg-brand-50/40 shadow-xs ring-1 ring-brand-200'
+                      : 'border-slate-200/80 bg-slate-50/60',
+                  )}
+                >
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-1.5 font-extrabold text-xs text-slate-800">
+                      <span>{tier.emoji}</span>
+                      <span>{tier.label}</span>
+                    </div>
+                    <span className="text-[11px] font-semibold text-slate-500">
+                      {tier.description.split('(')[0].trim()}
+                    </span>
+                  </div>
 
-            {/* Year Selector */}
-            <div>
-              <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1">
-                <Calendar className="size-3.5 text-brand-600" />
-                <span>3. Năm Thi</span>
-              </label>
-              <div className="flex flex-wrap gap-1.5">
-                {AVAILABLE_YEARS.map((yr) => {
-                  const isSelected = selectedYear === yr
-                  return (
-                    <button
-                      key={yr}
-                      type="button"
-                      onClick={() => setSelectedYear(yr)}
-                      className={cn(
-                        'rounded-xl px-2.5 py-1.5 text-xs font-bold transition-all active:scale-95 cursor-pointer',
-                        isSelected
-                          ? 'bg-brand-600 text-white shadow-sm ring-2 ring-brand-400'
-                          : 'bg-slate-100 hover:bg-slate-200 text-slate-700',
-                      )}
-                    >
-                      {yr === 'all' ? 'Tất cả' : yr}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
+                  <div className="flex flex-wrap gap-1.5">
+                    {tier.grades.map((gNum) => {
+                      const isSelected = selectedGrade === gNum
+                      return (
+                        <button
+                          key={gNum}
+                          type="button"
+                          onClick={() => setSelectedGrade(gNum)}
+                          className={cn(
+                            'flex-1 min-w-[54px] rounded-xl py-2 px-2 text-center text-xs font-extrabold transition-all active:scale-95 cursor-pointer',
+                            isSelected
+                              ? 'bg-slate-900 text-white shadow-sm ring-2 ring-brand-400 scale-[1.02]'
+                              : 'bg-white border border-slate-200/90 hover:bg-slate-100 hover:border-slate-300 text-slate-700',
+                          )}
+                        >
+                          Lớp {gNum}
+                        </button>
+                      )
+                    })}
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* 3. Year Selector */}
+        <div className="pt-2 border-t border-slate-100">
+          <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1">
+            <Calendar className="size-3.5 text-brand-600" />
+            <span>3. Năm Thi Đề ASMO</span>
+          </label>
+          <div className="flex flex-wrap gap-1.5">
+            {AVAILABLE_YEARS.map((yr) => {
+              const isSelected = selectedYear === yr
+              return (
+                <button
+                  key={yr}
+                  type="button"
+                  onClick={() => setSelectedYear(yr)}
+                  className={cn(
+                    'rounded-xl px-2.5 py-1.5 text-xs font-bold transition-all active:scale-95 cursor-pointer',
+                    isSelected
+                      ? 'bg-brand-600 text-white shadow-sm ring-2 ring-brand-400'
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700',
+                  )}
+                >
+                  {yr === 'all' ? 'Tất cả năm' : yr}
+                </button>
+              )
+            })}
           </div>
         </div>
 
         {/* Selected Subject Banner Info */}
-        <div className="mt-4 flex items-center justify-between gap-4 text-xs sm:text-sm text-slate-600">
-          <div className="flex items-center gap-2">
+        <div className="flex items-center justify-between gap-4 text-xs sm:text-sm text-slate-600 pt-2 border-t border-slate-100">
+          <div className="flex items-center gap-2 flex-wrap">
             <span className="font-extrabold text-brand-700">{currentSubjectMeta.badgeText}</span>
             <span>·</span>
             <span>{currentSubjectMeta.description}</span>
@@ -312,7 +354,7 @@ export function AsmoHubPage() {
                   Đấu Trường Thi Thử
                 </h2>
                 <p className="text-xs text-slate-600">
-                  Đề thi chuẩn quốc tế {currentSubjectMeta.name}
+                  Đề thi Olympic {currentSubjectMeta.name} · {currentGradeMeta?.label}
                 </p>
               </div>
             </div>
@@ -381,18 +423,28 @@ export function AsmoHubPage() {
 
       {/* ── CURRICULUM ROADMAP MATRIX ── */}
       <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-clay backdrop-blur-md">
-        <div className="flex items-center gap-2 mb-4">
-          <Layers className="size-5 text-brand-600" />
-          <h2 className="font-display text-lg sm:text-xl font-bold text-slate-900">
-            Khung Chương Trình Học & Luyện Thi ASMO ({currentSubjectMeta.name})
-          </h2>
+        <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
+          <div className="flex items-center gap-2">
+            <Layers className="size-5 text-brand-600" />
+            <h2 className="font-display text-lg sm:text-xl font-bold text-slate-900">
+              Khung Chương Trình Học & Luyện Thi ASMO ({currentSubjectMeta.name})
+            </h2>
+          </div>
+          <span className="rounded-xl bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+            {filteredWeeks.length} Chủ đề chuyên sâu Lớp 1 – 12
+          </span>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {filteredWeeks.map((weekItem) => (
             <div
               key={weekItem.week}
-              className="flex flex-col justify-between rounded-2xl border border-slate-100 bg-slate-50/70 p-4 transition-all hover:bg-white hover:border-brand-200 hover:shadow-xs"
+              className={cn(
+                'flex flex-col justify-between rounded-2xl border p-4 transition-all hover:bg-white hover:border-brand-200 hover:shadow-xs',
+                weekItem.grade === selectedGrade
+                  ? 'border-brand-300 bg-brand-50/40 ring-1 ring-brand-200'
+                  : 'border-slate-100 bg-slate-50/70',
+              )}
             >
               <div>
                 <div className="flex items-center justify-between mb-2">
