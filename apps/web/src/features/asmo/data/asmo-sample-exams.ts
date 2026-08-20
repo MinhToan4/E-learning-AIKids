@@ -48,7 +48,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "D",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Con hãy đếm từng quả bóng màu đen từ trái sang phải, không bỏ sót quả nào ở góc dưới cùng nhé!",
-        "explanation": "Đếm lần lượt từng quả bóng màu đen trong sơ đồ:\n• Nhóm bên trái và phía dưới: có 5 quả bóng màu đen.\n• Nhóm bên phải và phía dưới: có 4 quả bóng màu đen.\nTổng số quả bóng đen là:\n$$5 + 4 = 9\\text{ (quả)}$$\n➔ Đáp án đúng là: **D. 9**",
+        "explanation": "Đếm lần lượt từng quả bóng màu đen trong sơ đồ:\n• Nhóm bên trái và phía dưới: có 5 quả bóng màu đen.\n• Nhóm bên phải và phía dưới: có 4 quả bóng màu đen.\nTổng số quả bóng đen là:\n$$5 + 4 = 9\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\n➔ Đáp án đúng là: **D. 9**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -134,22 +134,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "13 + 17"
+            "text": "$13 + 17$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "11 + 11"
+            "text": "$11 + 11$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "9 + 11"
+            "text": "$9 + 11$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "19 + 9"
+            "text": "$19 + 9$"
           }
         ],
         "correctAnswer": "A",
@@ -208,7 +208,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "D",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Phía bập bênh nào chìm xuống dưới là nặng hơn. Nhìn chiếc bập bênh thứ 3: Chùm nho chìm xuống nặng hơn Quả chuối!",
-        "explanation": "Phân tích 3 bập bênh (bên nào chìm xuống là nặng hơn):\n1. Bập bênh 1: Chuối chìm xuống ➔ $\\text{Chuối} > \\text{Dâu tây}$\n2. Bập bênh 2: Chuối chìm xuống ➔ $\\text{Chuối} > \\text{Táo}$\n3. Bập bênh 3: Chùm nho chìm xuống ➔ $\\text{Chùm nho} > \\text{Chuối}$\nDo đó: $\\text{Chùm nho} > \\text{Chuối} > \\text{Táo / Dâu tây}$.\n➔ **Chùm nho (Grapes) là quả nặng nhất**.\n➔ Đáp án đúng là: **D. Grapes**",
+        "explanation": "Phân tích 3 bập bênh (bên nào chìm xuống là nặng hơn):\n1. Bập bênh 1: Chuối chìm xuống ➔ $\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} > \\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad}$\n2. Bập bênh 2: Chuối chìm xuống ➔ $\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} > \\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad}$\n3. Bập bênh 3: Chùm nho chìm xuống ➔ $\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} > \\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad}$\nDo đó: $\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} > \\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad} > \\underline{\\quad}TEXT_BLOCK_2\\underline{\\quad}$.\n➔ **Chùm nho (Grapes) là quả nặng nhất**.\n➔ Đáp án đúng là: **D. Grapes**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -275,7 +275,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "B",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Con hãy đếm từng ô vuông nhỏ màu xám xung quanh chữ cái A, B, C, D nhé!",
-        "explanation": "Đếm số ô vuông màu xám của từng khu vực:\n• **Khu vực A**: gồm $7\\text{ ô xám}$\n• **Khu vực B**: gồm $9\\text{ ô xám}$ (3 hàng trên và 1 hàng dưới)\n• **Khu vực C**: gồm $5\\text{ ô xám}$\n• **Khu vực D**: gồm $6\\text{ ô xám}$\nVì $9$ là số lớn nhất nên **Khu vực B** có diện tích lớn nhất.\n➔ Đáp án đúng là: **B. Khu vực B**",
+        "explanation": "Đếm số ô vuông màu xám của từng khu vực:\n• **Khu vực A**: gồm $7\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$\n• **Khu vực B**: gồm $9\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ (3 hàng trên và 1 hàng dưới)\n• **Khu vực C**: gồm $5\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$\n• **Khu vực D**: gồm $6\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$\nVì $9$ là số lớn nhất nên **Khu vực B** có diện tích lớn nhất.\n➔ Đáp án đúng là: **B. Khu vực B**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -354,7 +354,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_RACE_TIME",
         "topicName": "So sánh thời gian chạy đua",
         "title": "Câu 7: Which student is the fastest runner?",
-        "text": "Four students competed in a 100-meter race:\n• Student A finished it in $15\\text{ seconds}$\n• Student B finished it in $13\\text{ seconds}$\n• Student C finished it in $14\\text{ seconds}$\n• Student D finished it in $17\\text{ seconds}$\nWhich student is the fastest runner among them?\n(Bạn nào là người chạy nhanh nhất trong cuộc đua 100 mét?)",
+        "text": "Four students competed in a 100-meter race:\n• Student A finished it in $15\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$\n• Student B finished it in $13\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$\n• Student C finished it in $14\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$\n• Student D finished it in $17\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$\nWhich student is the fastest runner among them?\n(Bạn nào là người chạy nhanh nhất trong cuộc đua 100 mét?)",
         "options": [
           {
             "id": "A",
@@ -380,7 +380,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "B",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Trong môn chạy đua, bạn nào mất ít thời gian nhất (số giây nhỏ nhất) là bạn chạy nhanh nhất!",
-        "explanation": "Trong cuộc đua chạy $100\\text{m}$, bạn nào về đích với **số giây ít nhất** là bạn chạy nhanh nhất.\nSo sánh thời gian: $13\\text{s} < 14\\text{s} < 15\\text{s} < 17\\text{s}$.\nDo đó **Student B** (13 giây) chạy nhanh nhất.\n➔ Đáp án đúng là: **B. Student B**",
+        "explanation": "Trong cuộc đua chạy $100\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$, bạn nào về đích với **số giây ít nhất** là bạn chạy nhanh nhất.\nSo sánh thời gian: $13\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} < 14\\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad} < 15\\underline{\\quad}TEXT_BLOCK_2\\underline{\\quad} < 17\\underline{\\quad}TEXT_BLOCK_3\\underline{\\quad}$.\nDo đó **Student B** (13 giây) chạy nhanh nhất.\n➔ Đáp án đúng là: **B. Student B**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -432,7 +432,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "C",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Quy luật của phép cộng là hình thứ hai sẽ được lồng vào bên trong hình thứ nhất!",
-        "explanation": "Quan sát quy luật:\n• Hàng 1: $\\text{Hình vuông} + \\text{Hình tam giác} = \\text{Hình tam giác nằm trong hình vuông}$\n• Hàng 2: $\\text{Hình ngũ giác} + \\text{Hình tròn} = \\text{Hình tròn nằm trong hình ngũ giác}$\n• Hàng 3: $\\text{Hình tam giác} + \\text{Hình tròn} = \\text{Hình tròn nằm trong hình tam giác}$ (tương ứng với **Hình C**)\n➔ Đáp án đúng là: **C. Hình C**",
+        "explanation": "Quan sát quy luật:\n• Hàng 1: $\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} + \\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad} = \\underline{\\quad}TEXT_BLOCK_2\\underline{\\quad}$\n• Hàng 2: $\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} + \\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad} = \\underline{\\quad}TEXT_BLOCK_2\\underline{\\quad}$\n• Hàng 3: $\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} + \\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad} = \\underline{\\quad}TEXT_BLOCK_2\\underline{\\quad}$ (tương ứng với **Hình C**)\n➔ Đáp án đúng là: **C. Hình C**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -490,7 +490,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "D",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Con hãy đếm từng que diêm của mỗi hình A, B, C, D nhé! Chú ý Hình D có 2 ô vuông liền nhau!",
-        "explanation": "Đếm số que diêm trong từng hình:\n• **Hình A**: $4\\text{ que (ô vuông)} + 2\\text{ que (cán)} = 6\\text{ que}$\n• **Hình B**: $2\\text{ que (mái)} + 3\\text{ que (tường/đáy)} = 5\\text{ que}$\n• **Hình C**: $4\\text{ que (hình thoi)} + 2\\text{ que (chân chéo)} = 6\\text{ que}$\n• **Hình D**: $3\\text{ que dọc} + 4\\text{ que ngang} = 7\\text{ que}$\nVì $7 > 6 > 5$ nên **Hình D** sử dụng nhiều que diêm nhất.\n➔ Đáp án đúng là: **D. Hình D (7 que)**",
+        "explanation": "Đếm số que diêm trong từng hình:\n• **Hình A**: $4\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} + 2\\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad} = 6\\underline{\\quad}TEXT_BLOCK_2\\underline{\\quad}$\n• **Hình B**: $2\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} + 3\\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad} = 5\\underline{\\quad}TEXT_BLOCK_2\\underline{\\quad}$\n• **Hình C**: $4\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} + 2\\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad} = 6\\underline{\\quad}TEXT_BLOCK_2\\underline{\\quad}$\n• **Hình D**: $3\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} + 4\\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad} = 7\\underline{\\quad}TEXT_BLOCK_2\\underline{\\quad}$\nVì $7 > 6 > 5$ nên **Hình D** sử dụng nhiều que diêm nhất.\n➔ Đáp án đúng là: **D. Hình D (7 que)**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -612,7 +612,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_PINEAPPLES",
         "topicName": "Bài toán tổng hiệu hoa quả",
         "title": "Câu 12: How many pineapples are on the table?",
-        "text": "There are apples, oranges and pineapples on the table, the total number of them is $21$. We know that there are $7\\text{ apples}$ and $11\\text{ oranges}$, how many pineapples are on the table?\n(Trên bàn có tất cả 21 quả gồm táo, cam và dứa. Biết có 7 quả táo và 11 quả cam, hỏi có bao nhiêu quả dứa?)",
+        "text": "There are apples, oranges and pineapples on the table, the total number of them is $21$. We know that there are $7\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ and $11\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$, how many pineapples are on the table?\n(Trên bàn có tất cả 21 quả gồm táo, cam và dứa. Biết có 7 quả táo và 11 quả cam, hỏi có bao nhiêu quả dứa?)",
         "options": [
           {
             "id": "A",
@@ -638,7 +638,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "B",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Lấy tổng 21 trừ đi táo (7) rồi trừ tiếp cam (11): 21 - 7 - 11 = ?",
-        "explanation": "Tổng số táo và cam là:\n$$7 + 11 = 18\\text{ (quả)}$$\nSố quả dứa trên bàn là:\n$$21 - 18 = 3\\text{ (quả dứa)}$$\n➔ Đáp án đúng là: **B. 3**",
+        "explanation": "Tổng số táo và cam là:\n$$7 + 11 = 18\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\nSố quả dứa trên bàn là:\n$$21 - 18 = 3\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\n➔ Đáp án đúng là: **B. 3**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -664,7 +664,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_QUEUE",
         "topicName": "Toán xếp hàng",
         "title": "Câu 13: How many people are queuing up in total?",
-        "text": "Xiao Ming is queuing up and there are $4\\text{ people}$ in front of him and $9\\text{ people}$ behind him, what is the total number of people queuing up?\n(Tiểu Minh đang xếp hàng. Có 4 người đứng trước bạn ấy và 9 người đứng sau bạn ấy. Hỏi có tất cả bao nhiêu người đang xếp hàng?)",
+        "text": "Xiao Ming is queuing up and there are $4\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ in front of him and $9\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ behind him, what is the total number of people queuing up?\n(Tiểu Minh đang xếp hàng. Có 4 người đứng trước bạn ấy và 9 người đứng sau bạn ấy. Hỏi có tất cả bao nhiêu người đang xếp hàng?)",
         "options": [
           {
             "id": "A",
@@ -690,7 +690,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "C",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Con nhớ tính cả chính bạn Tiểu Minh nữa nhé: 4 + 1 + 9 = 14!",
-        "explanation": "Tổng số người xếp hàng là:\n$$4\\text{ (trước)} + 1\\text{ (Tiểu Minh)} + 9\\text{ (sau)} = 14\\text{ (người)}$$\n➔ Đáp án đúng là: **C. 14**",
+        "explanation": "Tổng số người xếp hàng là:\n$$4\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} + 1\\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad} + 9\\underline{\\quad}TEXT_BLOCK_2\\underline{\\quad} = 14\\underline{\\quad}TEXT_BLOCK_3\\underline{\\quad}$$\n➔ Đáp án đúng là: **C. 14**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -844,7 +844,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_CANDIES",
         "topicName": "Toán trừ liên tiếp",
         "title": "Câu 16: How many candies were left?",
-        "text": "Mother has bought $17\\text{ candies}$ from the market. The elder brother has eaten $3\\text{ of them}$, father has eaten $5\\text{ of them}$ and the younger brother has eaten $2\\text{ of them}$. How many candies were left?\n(Mẹ mua 17 viên kẹo. Anh ăn 3 viên, bố ăn 5 viên và em ăn 2 viên. Hỏi còn lại bao nhiêu viên kẹo?)",
+        "text": "Mother has bought $17\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ from the market. The elder brother has eaten $3\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$, father has eaten $5\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ and the younger brother has eaten $2\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$. How many candies were left?\n(Mẹ mua 17 viên kẹo. Anh ăn 3 viên, bố ăn 5 viên và em ăn 2 viên. Hỏi còn lại bao nhiêu viên kẹo?)",
         "options": [
           {
             "id": "A",
@@ -870,7 +870,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "C",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Tổng kẹo đã ăn là 3 + 5 + 2 = 10. Lấy 17 - 10 = 7 viên kẹo!",
-        "explanation": "Tổng số kẹo cả nhà đã ăn là:\n$$3 + 5 + 2 = 10\\text{ (viên)}$$\nSố viên kẹo còn lại là:\n$$17 - 10 = 7\\text{ (viên)}$$\n➔ Đáp án đúng là: **C. 7**",
+        "explanation": "Tổng số kẹo cả nhà đã ăn là:\n$$3 + 5 + 2 = 10\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\nSố viên kẹo còn lại là:\n$$17 - 10 = 7\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\n➔ Đáp án đúng là: **C. 7**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -923,7 +923,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "B",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Kim ngắn (kim giờ) chỉ qua số 5 (5 giờ). Kim dài (kim phút) chỉ vào số 2 tương ứng 2 x 5 = 10 phút!",
-        "explanation": "Quan sát mặt đồng hồ:\n• Kim giờ ngắn chỉ qua số **5** ➔ 5 giờ.\n• Kim phút dài chỉ đúng số **2** ➔ $2 \\times 5 = 10\\text{ phút}$.\n• Buổi chiều ➔ Ký hiệu **p.m.**\nVậy đồng hồ chỉ **5:10 p.m.**\n➔ Đáp án đúng là: **B. 5:10 p.m.**",
+        "explanation": "Quan sát mặt đồng hồ:\n• Kim giờ ngắn chỉ qua số **5** ➔ 5 giờ.\n• Kim phút dài chỉ đúng số **2** ➔ $2 \\times 5 = 10\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$.\n• Buổi chiều ➔ Ký hiệu **p.m.**\nVậy đồng hồ chỉ **5:10 p.m.**\n➔ Đáp án đúng là: **B. 5:10 p.m.**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -961,7 +961,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_COINS",
         "topicName": "Cân bằng số lượng đồng xu",
         "title": "Câu 18: How many more coins to give the younger brother?",
-        "text": "The elder brother has $5\\text{ coins}$, and the younger brother has $3\\text{ coins}$. Their daddy gives $5\\text{ more coins}$ to the elder brother. How many more coins should he give to the younger brother to make both brothers have the same amount of coins?\n(Anh có 5 đồng xu, em có 3 đồng xu. Bố cho anh thêm 5 đồng xu. Hỏi bố cần cho em thêm bao nhiêu đồng xu để hai anh em có số đồng xu bằng nhau?)",
+        "text": "The elder brother has $5\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$, and the younger brother has $3\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$. Their daddy gives $5\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ to the elder brother. How many more coins should he give to the younger brother to make both brothers have the same amount of coins?\n(Anh có 5 đồng xu, em có 3 đồng xu. Bố cho anh thêm 5 đồng xu. Hỏi bố cần cho em thêm bao nhiêu đồng xu để hai anh em có số đồng xu bằng nhau?)",
         "options": [
           {
             "id": "A",
@@ -987,7 +987,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "C",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Anh có 5 + 5 = 10 đồng xu. Để bằng anh, em cũng cần có 10 đồng xu, vậy cần thêm 10 - 3 = 7 đồng!",
-        "explanation": "Số đồng xu anh trai có là:\n$$5 + 5 = 10\\text{ (đồng xu)}$$\nĐể bằng anh trai, em trai cần thêm số đồng xu là:\n$$10 - 3 = 7\\text{ (đồng xu)}$$\n➔ Đáp án đúng là: **C. 7**",
+        "explanation": "Số đồng xu anh trai có là:\n$$5 + 5 = 10\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\nĐể bằng anh trai, em trai cần thêm số đồng xu là:\n$$10 - 3 = 7\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\n➔ Đáp án đúng là: **C. 7**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -1013,7 +1013,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_RATE",
         "topicName": "Toán năng suất",
         "title": "Câu 19: How many words can 1 person write in 2 minutes?",
-        "text": "A person can write $10\\text{ words}$ in a minute, how many words can $1\\text{ person}$ write in $2\\text{ minutes}$?\n(Một người viết được 10 từ trong 1 phút. Hỏi trong 2 phút người đó viết được bao nhiêu từ?)",
+        "text": "A person can write $10\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ in a minute, how many words can $1\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ write in $2\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$?\n(Một người viết được 10 từ trong 1 phút. Hỏi trong 2 phút người đó viết được bao nhiêu từ?)",
         "options": [
           {
             "id": "A",
@@ -1039,7 +1039,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "A",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: 1 phút viết được 10 từ, vậy 2 phút viết được: 10 x 2 = 20 từ!",
-        "explanation": "Trong $2\\text{ phút}$, số từ viết được là:\n$$10 \\times 2 = 20\\text{ (từ)}$$\n➔ Đáp án đúng là: **A. 20**",
+        "explanation": "Trong $2\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$, số từ viết được là:\n$$10 \\times 2 = 20\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\n➔ Đáp án đúng là: **A. 20**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -1060,7 +1060,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_CAKE",
         "topicName": "Chia hình bằng nhau",
         "title": "Câu 20: Which way of cutting a square cake is WRONG?",
-        "text": "To cut a square shaped cake and give out to $4\\text{ children}$ equally, which way of cutting is WRONG?\n(Để chia một chiếc bánh hình vuông thành 4 phần bằng nhau cho 4 bạn, cách cắt nào dưới đây là SAI?)",
+        "text": "To cut a square shaped cake and give out to $4\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ equally, which way of cutting is WRONG?\n(Để chia một chiếc bánh hình vuông thành 4 phần bằng nhau cho 4 bạn, cách cắt nào dưới đây là SAI?)",
         "imageUrl": null,
         "options": [
           {
@@ -1113,7 +1113,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_BALLS_LOGIC",
         "topicName": "Logic phân chia số lượng",
         "title": "Câu 21: How many red balls does student Z have?",
-        "text": "A teacher has $5\\text{ red balls}$, $5\\text{ blue balls}$ and $5\\text{ green balls}$ ($15\\text{ balls total}$). He divided all the balls equally to student X, student Y and student Z ($5\\text{ balls each}$).\n• Student X has $3\\text{ red balls}$ and $2\\text{ blue balls}$.\n• Student Y has $4\\text{ green balls}$ and $1\\text{ red ball}$.\nHow many red balls does student Z have?\n(Thầy giáo có 5 bóng đỏ, 5 bóng lam, 5 bóng lục. Thầy chia đều cho 3 bạn X, Y, Z mỗi bạn 5 quả. Biết X có 3 đỏ và 2 lam; Y có 4 lục và 1 đỏ. Hỏi bạn Z có bao nhiêu quả bóng đỏ?)",
+        "text": "A teacher has $5\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$, $5\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ and $5\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ ($15\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$). He divided all the balls equally to student X, student Y and student Z ($5\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$).\n• Student X has $3\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ and $2\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$.\n• Student Y has $4\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ and $1\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$.\nHow many red balls does student Z have?\n(Thầy giáo có 5 bóng đỏ, 5 bóng lam, 5 bóng lục. Thầy chia đều cho 3 bạn X, Y, Z mỗi bạn 5 quả. Biết X có 3 đỏ và 2 lam; Y có 4 lục và 1 đỏ. Hỏi bạn Z có bao nhiêu quả bóng đỏ?)",
         "options": [
           {
             "id": "A",
@@ -1139,7 +1139,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "B",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Tổng cộng có 5 bóng đỏ. Bạn X lấy 3 quả, bạn Y lấy 1 quả. Lấy 5 - 3 - 1 = 1 quả bóng đỏ cho bạn Z!",
-        "explanation": "Tổng số bóng màu đỏ là $5\\text{ quả}$.\nSố bóng đỏ bạn X và Y đã lấy là:\n$$3\\text{ (X)} + 1\\text{ (Y)} = 4\\text{ (quả)}$$\nSố bóng đỏ bạn Z có là:\n$$5 - 4 = 1\\text{ (quả)}$$\n➔ Đáp án đúng là: **B. 1**",
+        "explanation": "Tổng số bóng màu đỏ là $5\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$.\nSố bóng đỏ bạn X và Y đã lấy là:\n$$3\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} + 1\\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad} = 4\\underline{\\quad}TEXT_BLOCK_2\\underline{\\quad}$$\nSố bóng đỏ bạn Z có là:\n$$5 - 4 = 1\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\n➔ Đáp án đúng là: **B. 1**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -1191,7 +1191,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "D",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Ghép cặp tròn chục: (1+9) + (2+8) + (3+7) + (4+6) + 10 = 10 + 10 + 10 + 10 + 10 = 50!",
-        "explanation": "Ghép các cặp số có tổng bằng $10$:\n$$\\begin{aligned}\nS &= (1 + 9) + (2 + 8) + (3 + 7) + (4 + 6) + 10 \\\\\n&= 10 + 10 + 10 + 10 + 10 = 50\n\\end{aligned}$$\n➔ Đáp án đúng là: **D. 50**",
+        "explanation": "Ghép các cặp số có tổng bằng $10$:\n$$\\begin{aligned} S &= (1 + 9) + (2 + 8) + (3 + 7) + (4 + 6) + 10 \\\\ &= 10 + 10 + 10 + 10 + 10 = 50 \\end{aligned}$$\n➔ Đáp án đúng là: **D. 50**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -1239,7 +1239,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "B",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Có 4 hình tam giác nhỏ bên trong và 1 hình tam giác lớn bao bọc bên ngoài: 4 + 1 = 5 hình!",
-        "explanation": "Đếm số hình tam giác trong hình vẽ:\n• $4\\text{ hình tam giác nhỏ}$ (1 đỉnh trên, 2 đáy bên dưới, 1 ở giữa hướng xuống).\n• $1\\text{ hình tam giác lớn}$ bao quát toàn bộ bên ngoài.\nTổng cộng có:\n$$4 + 1 = 5\\text{ (hình tam giác)}$$\n➔ Đáp án đúng là: **B. 5**",
+        "explanation": "Đếm số hình tam giác trong hình vẽ:\n• $4\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ (1 đỉnh trên, 2 đáy bên dưới, 1 ở giữa hướng xuống).\n• $1\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$ bao quát toàn bộ bên ngoài.\nTổng cộng có:\n$$4 + 1 = 5\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\n➔ Đáp án đúng là: **B. 5**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -1448,7 +1448,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T2",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 2: In the question below, what does the smi...",
-        "text": "In the question below, what does the smiley face represent?\n$☻ + 6 = 10$",
+        "text": "In the question below, what does the smiley face represent?\n$\\bigstar + 6 = 10$",
         "options": [
           {
             "id": "A",
@@ -2427,7 +2427,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T1",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 19: Given:\n■ + ⬤ = ▲ ▲ ▲ ▲\n⬤ = ▲ ▲\n■ = [ ? ]...",
-        "text": "Given:\n$■ + ⬤ = \\blacktriangle \\blacktriangle \\blacktriangle \\blacktriangle$\n$⬤ = \\blacktriangle \\blacktriangle$\n■ = [ ? ] ⬤\nA square equals to how many circles?",
+        "text": "Given:\n$\\blacksquare + \\bullet = \\blacktriangle \\blacktriangle \\blacktriangle \\blacktriangle$\n$\\bullet = \\blacktriangle \\blacktriangle$\n■ = [ ? ] ⬤\nA square equals to how many circles?",
         "options": [
           {
             "id": "A",
@@ -2777,7 +2777,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "E",
         "meeHint": "Mèo Mee gợi ý: Đồng hồ đang chỉ 10:00. Hai giờ trước thì kim giờ sẽ lùi về số mấy nhỉ?",
-        "explanation": "Đồng hồ trên hình đang chỉ đúng 10:00 (kim ngắn chỉ số 10, kim dài chỉ số 12).\nHai giờ trước đó là:\n$$10 - 2 = 8\\text{ (giờ)}$$\nĐồng hồ ở phương án E chỉ đúng 8:00.\n➔ Đáp án đúng là: **E. 8:00**",
+        "explanation": "Đồng hồ trên hình đang chỉ đúng 10:00 (kim ngắn chỉ số 10, kim dài chỉ số 12).\nHai giờ trước đó là:\n$$10 - 2 = 8\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\nĐồng hồ ở phương án E chỉ đúng 8:00.\n➔ Đáp án đúng là: **E. 8:00**",
         "points": 3,
         "explanationSteps": [
           {
@@ -2847,7 +2847,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "E",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Tổng số tiền trong hình là:\n$$\\text{RM}10 + \\text{RM}10 + \\text{RM}5 + \\text{RM}5 + \\text{RM}1 + \\text{RM}1 = \\text{RM}32$$\nChia đều cho 2 bạn Pinky và Sheila:\n$$\\text{RM}32 \\div 2 = \\text{RM}16$$\n➔ Đáp án đúng là: **E. RM16**",
+        "explanation": "Tổng số tiền trong hình là:\n$$\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}10 + \\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad}10 + \\underline{\\quad}TEXT_BLOCK_2\\underline{\\quad}5 + \\underline{\\quad}TEXT_BLOCK_3\\underline{\\quad}5 + \\underline{\\quad}TEXT_BLOCK_4\\underline{\\quad}1 + \\underline{\\quad}TEXT_BLOCK_5\\underline{\\quad}1 = \\underline{\\quad}TEXT_BLOCK_6\\underline{\\quad}32$$\nChia đều cho 2 bạn Pinky và Sheila:\n$$\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}32 \\div 2 = \\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad}16$$\n➔ Đáp án đúng là: **E. RM16**",
         "points": 3,
         "explanationSteps": [
           {
@@ -3024,7 +3024,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Đếm số khối lập phương theo từng tầng:\n• Tầng 4 (cao nhất): 1 khối\n• Tầng 3: 2 khối\n• Tầng 2: 4 khối\n• Tầng 1 (tầng đáy): 10 khối\nTổng cộng có:\n$$1 + 2 + 4 + 10 = 17\\text{ (khối)}$$\n➔ Đáp án đúng là: **A. 17**",
+        "explanation": "Đếm số khối lập phương theo từng tầng:\n• Tầng 4 (cao nhất): 1 khối\n• Tầng 3: 2 khối\n• Tầng 2: 4 khối\n• Tầng 1 (tầng đáy): 10 khối\nTổng cộng có:\n$$1 + 2 + 4 + 10 = 17\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\n➔ Đáp án đúng là: **A. 17**",
         "points": 3,
         "explanationSteps": [
           {
@@ -3375,7 +3375,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "B",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Quan sát biểu đồ cột số lượng bóng bay:\n• Bóng màu đỏ (Red): $18$ quả\n• Bóng màu đen (Black): $15$ quả\nTổng số bóng bay Alice đã mua là:\n$$18 + 15 = 33\\text{ (quả)}$$\n➔ Đáp án đúng là: **B. 33**",
+        "explanation": "Quan sát biểu đồ cột số lượng bóng bay:\n• Bóng màu đỏ (Red): $18$ quả\n• Bóng màu đen (Black): $15$ quả\nTổng số bóng bay Alice đã mua là:\n$$18 + 15 = 33\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\n➔ Đáp án đúng là: **B. 33**",
         "points": 4,
         "explanationSteps": [
           {
@@ -3409,32 +3409,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "C = 7, D = 5"
+            "text": "$C = 7, D = 5$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "C = 6, D = 5"
+            "text": "$C = 6, D = 5$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "C = 5, D = 6"
+            "text": "$C = 5, D = 6$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "C = 7, D = 4"
+            "text": "$C = 7, D = 4$"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "C = 6, D = 6"
+            "text": "$C = 6, D = 6$"
           }
         ],
         "correctAnswer": "B",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Xét phép cộng cột dọc:\n• Ở hàng đơn vị: $7 + D = 12 \\implies D = 5$ (nhớ 1 sang hàng chục).\n• Ở hàng chục: $1 + C + 1\\text{ (nhớ)} = 8 \\implies C + 2 = 8 \\implies C = 6$.\nVậy $C = 6, D = 5$.\n➔ Đáp án đúng là: **B. C = 6, D = 5**",
+        "explanation": "Xét phép cộng cột dọc:\n• Ở hàng đơn vị: $7 + D = 12 \\implies D = 5$ (nhớ 1 sang hàng chục).\n• Ở hàng chục: $1 + C + 1\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} = 8 \\implies C + 2 = 8 \\implies C = 6$.\nVậy $C = 6, D = 5$.\n➔ Đáp án đúng là: **B. C = 6, D = 5**",
         "points": 4,
         "explanationSteps": [
           {
@@ -3970,7 +3970,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "C",
         "meeHint": "Mèo Mee gợi ý: Đồng hồ đang chỉ 3:00. Bốn giờ trước thì kim giờ sẽ lùi qua 12 về số mấy nhỉ?",
-        "explanation": "Đồng hồ trong hình đang chỉ đúng 3:00.\nBốn giờ trước đó là:\n$$3 - 4 = 11\\text{ (giờ, tức 11:00)}$$\nĐồng hồ ở phương án C chỉ đúng 11:00.\n➔ Đáp án đúng là: **C. 11:00**",
+        "explanation": "Đồng hồ trong hình đang chỉ đúng 3:00.\nBốn giờ trước đó là:\n$$3 - 4 = 11\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\nĐồng hồ ở phương án C chỉ đúng 11:00.\n➔ Đáp án đúng là: **C. 11:00**",
         "points": 3,
         "explanationSteps": [
           {
@@ -4226,7 +4226,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "C",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Đếm số khối lập phương theo từng tầng:\n• Tầng 4: 1 khối\n• Tầng 3: 2 khối\n• Tầng 2: 4 khối\n• Tầng 1 (đáy): 10 khối\nTổng số khối lập phương là:\n$$1 + 2 + 4 + 10 = 17\\text{ (khối)}$$\n➔ Đáp án đúng là: **A. 17**",
+        "explanation": "Đếm số khối lập phương theo từng tầng:\n• Tầng 4: 1 khối\n• Tầng 3: 2 khối\n• Tầng 2: 4 khối\n• Tầng 1 (đáy): 10 khối\nTổng số khối lập phương là:\n$$1 + 2 + 4 + 10 = 17\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\n➔ Đáp án đúng là: **A. 17**",
         "points": 3,
         "explanationSteps": [
           {
@@ -4459,7 +4459,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "D",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Trên lưới 3 × 3 điểm, các hình vuông có thể tạo thành gồm:\n• 4 hình vuông kích thước 1 × 1\n• 1 hình vuông kích thước 2 × 2\n• 1 hình vuông nghiêng góc 45 độ (nối các trung điểm)\nTổng cộng có:\n$$4 + 1 + 1 = 6\\text{ (hình vuông)}$$\n➔ Đáp án đúng là: **C. 6**",
+        "explanation": "Trên lưới 3 × 3 điểm, các hình vuông có thể tạo thành gồm:\n• 4 hình vuông kích thước 1 × 1\n• 1 hình vuông kích thước 2 × 2\n• 1 hình vuông nghiêng góc 45 độ (nối các trung điểm)\nTổng cộng có:\n$$4 + 1 + 1 = 6\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad}$$\n➔ Đáp án đúng là: **C. 6**",
         "points": 4,
         "explanationSteps": [
           {
@@ -4581,7 +4581,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "B",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Dấu ※ nằm ở ô (hàng 2, cột 2) trong lưới 2 × 3.\nSố hình chữ nhật chứa ô này bằng tích số cách chọn cận trên/dưới và cận trái/phải:\n$$\\text{Số hình chữ nhật} = 2 \\text{ (chọn hàng)} \\times 4 \\text{ (chọn cột)} = 8\\text{ (hình)}$$\n➔ Đáp án đúng là: **D. 8**",
+        "explanation": "Dấu ※ nằm ở ô (hàng 2, cột 2) trong lưới 2 × 3.\nSố hình chữ nhật chứa ô này bằng tích số cách chọn cận trên/dưới và cận trái/phải:\n$$\\underline{\\quad}TEXT_BLOCK_0\\underline{\\quad} = 2 \\underline{\\quad}TEXT_BLOCK_1\\underline{\\quad} \\times 4 \\underline{\\quad}TEXT_BLOCK_2\\underline{\\quad} = 8\\underline{\\quad}TEXT_BLOCK_3\\underline{\\quad}$$\n➔ Đáp án đúng là: **D. 8**",
         "points": 4,
         "explanationSteps": [
           {
@@ -4621,27 +4621,27 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "A = 5"
+            "text": "$A = 5$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "A = 6"
+            "text": "$A = 6$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "A = 7"
+            "text": "$A = 7$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "A = 8"
+            "text": "$A = 8$"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "A = 9"
+            "text": "$A = 9$"
           }
         ],
         "correctAnswer": "B",
@@ -4675,7 +4675,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T4",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 16: △ + ○ = 6, △ + △ + ○ = 7, △ = __ ? (5 ma...",
-        "text": "$\\triangle + \\bigcirc = 6, \\triangle + \\triangle + \\bigcirc = 7, \\triangle = __ ?$",
+        "text": "$\\triangle + \\bigcirc = 6, \\triangle + \\triangle + \\bigcirc = 7, \\triangle = \\underline{\\quad} ?$",
         "options": [
           {
             "id": "A",
@@ -5244,22 +5244,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "4/2"
+            "text": "$\\frac{4}{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "1/4"
+            "text": "$\\frac{1}{4}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "1/3"
+            "text": "$\\frac{1}{3}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "1/2"
+            "text": "$\\frac{1}{2}$"
           }
         ],
         "correctAnswer": "D",
@@ -5297,22 +5297,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "+, -, -"
+            "text": "$+, -, -$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "+, +, +"
+            "text": "$+, +, +$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "-, -, +"
+            "text": "$-, -, +$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "+, -, -"
+            "text": "$+, -, -$"
           }
         ],
         "correctAnswer": "A",
@@ -5666,22 +5666,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "P = 3, Q = 1"
+            "text": "$P = 3, Q = 1$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "P = 9, Q = 2"
+            "text": "$P = 9, Q = 2$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "P = 8, Q = 2"
+            "text": "$P = 8, Q = 2$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "P = 3, Q = 2"
+            "text": "$P = 3, Q = 2$"
           }
         ],
         "correctAnswer": "A",
@@ -11351,22 +11351,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "P= 3, Q=1"
+            "text": "$P= 3, Q=1$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "P= 9, Q= 2"
+            "text": "$P= 9, Q= 2$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "P= 8, Q= 2"
+            "text": "$P= 8, Q= 2$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "P=3, Q=2"
+            "text": "$P=3, Q=2$"
           }
         ],
         "correctAnswer": "A",
@@ -12701,7 +12701,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "7/10"
+            "text": "$\\frac{7}{10}$"
           },
           {
             "id": "B",
@@ -12721,7 +12721,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 3, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Total pieces = 10. Eaten pieces = 2 + 1 = 3 pieces. Remaining pieces = 10 - 3 = 7 pieces. Fraction leftover = 7/10.",
+        "explanation": "Total pieces = 10. Eaten pieces = 2 + 1 = 3 pieces. Remaining pieces = 10 - 3 = 7 pieces. Fraction leftover = $\\frac{7}{10}$.",
         "points": 3,
         "explanationSteps": [
           {
@@ -12738,8 +12738,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           },
           {
             "stepIndex": 3,
-            "title": "Phần còn lại (7/10)",
-            "description": "Còn lại đúng 7 phần màu xanh ➔ Phân số 7/10.",
+            "title": "Phần còn lại ($\\frac{7}{10}$)",
+            "description": "Còn lại đúng 7 phần màu xanh ➔ Phân số $\\frac{7}{10}$.",
             "shadedCount": 7
           }
         ],
@@ -13610,7 +13610,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "-1"
+            "text": "$-1$"
           },
           {
             "id": "C",
@@ -14256,7 +14256,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G3_T1",
         "topicName": "Tư duy Toán Olympic Lớp 3",
         "title": "Câu 7: Dom has $120 in his bank account. He dep...",
-        "text": "Dom has $120 in his bank account. He deposits $6 at the end of each week. Kim has $200 in her account. She withdraws $4 at the end of each week. At the end of how many weeks will they have the same amount in their accounts?",
+        "text": "Dom has $120 \\in his bank account. He deposits$6 at the end of each week. Kim has $200 \\in her account. She withdraws$4 at the end of each week. At the end of how many weeks will they have the same amount in their accounts?",
         "options": [
           {
             "id": "A",
@@ -14518,7 +14518,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G3_T6",
         "topicName": "Tư duy Toán Olympic Lớp 3",
         "title": "Câu 12: Each day Jeffrey earns $3 for doing cert...",
-        "text": "Each day Jeffrey earns $3 for doing certain chores. He can earn $5 instead by doing additional chores as well. After ten days of doing chores, Jeffrey has earned a total of $36. On how many of these days did Jeffrey do additional chores?",
+        "text": "Each day Jeffrey earns $3 for doing certain chores. He can earn$5 instead by doing additional chores as well. After ten days of doing chores, Jeffrey has earned a total of $36. On how many of these days did Jeffrey do additional chores?",
         "options": [
           {
             "id": "A",
@@ -14543,7 +14543,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 3, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Let d be the number of days with additional chores. Then (10 - d) days earn $3 and d days earn $5: 3(10 - d) + 5d = 36 => 30 + 2d = 36 => 2d = 6 => d = 3 days.",
+        "explanation": "Let d be the number of days with additional chores. Then (10 - d) days earn $3 and d days earn$5: 3(10 - d) + 5d = 36 => 30 + 2d = 36 => 2d = 6 => d = 3 days.",
         "points": 4,
         "explanationSteps": [
           {
@@ -14559,7 +14559,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 3,
             "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Let d be the number of days with additional chores. Then (10 - d) days earn $3 and d days earn $5: 3(10 - d) + 5d = 36 => 30 + 2d = 36 => 2d = 6 => d = 3 days.\n\n➔ Do đó đáp án chính xác là: **A**."
+            "description": "Let d be the number of days with additional chores. Then (10 - d) days earn $3 and d days earn$5: 3(10 - d) + 5d = 36 => 30 + 2d = 36 => 2d = 6 => d = 3 days.\n\n➔ Do đó đáp án chính xác là: **A**."
           }
         ]
       },
@@ -14785,7 +14785,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "2/3"
+            "text": "$\\frac{2}{3}$"
           },
           {
             "id": "B",
@@ -15960,7 +15960,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "5/9"
+            "text": "$\\frac{5}{9}$"
           },
           {
             "id": "B",
@@ -16333,7 +16333,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "3/16"
+            "text": "$\\frac{3}{16}$"
           },
           {
             "id": "B",
@@ -16422,8 +16422,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           },
           {
             "stepIndex": 3,
-            "title": "Phần còn lại (3/8)",
-            "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số 3/8.",
+            "title": "Phần còn lại ($\\frac{3}{8}$)",
+            "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số $\\frac{3}{8}$.",
             "shadedCount": 3
           }
         ],
@@ -16530,8 +16530,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           },
           {
             "stepIndex": 3,
-            "title": "Phần còn lại (3/8)",
-            "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số 3/8.",
+            "title": "Phần còn lại ($\\frac{3}{8}$)",
+            "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số $\\frac{3}{8}$.",
             "shadedCount": 3
           }
         ]
@@ -17163,7 +17163,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 3, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Let the numbers be x and 4x. x * 4x = 4x^2 = 36 => x^2 = 9 => x = 3. The numbers are 3 and 12. Sum = 3 + 12 = 15.",
+        "explanation": "Let the numbers be x and 4x. x * 4x = 4x^2 = 36 => $x^2$ = 9 => x = 3. The numbers are 3 and 12. Sum = 3 + 12 = 15.",
         "points": 4,
         "explanationSteps": [
           {
@@ -17179,7 +17179,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 3,
             "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Let the numbers be x and 4x. x * 4x = 4x^2 = 36 => x^2 = 9 => x = 3. The numbers are 3 and 12. Sum = 3 + 12 = 15.\n\n➔ Do đó đáp án chính xác là: **A**."
+            "description": "Let the numbers be x and 4x. x * 4x = 4x^2 = 36 => $x^2$ = 9 => x = 3. The numbers are 3 and 12. Sum = 3 + 12 = 15.\n\n➔ Do đó đáp án chính xác là: **A**."
           }
         ]
       },
@@ -17508,7 +17508,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/5"
+            "text": "$\\frac{1}{5}$"
           },
           {
             "id": "B",
@@ -19165,7 +19165,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "C < A < B < D"
+            "text": "$C < A < B < D$"
           },
           {
             "id": "B",
@@ -19369,7 +19369,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G3_T2",
         "topicName": "Tư duy Toán Olympic Lớp 3",
         "title": "Câu 8: Below is the net of a cube. What is the ...",
-        "text": "Below is the net of a cube. What is the icon opposite of ♦ when it is folded into a cube?\nPlease write answer as follow:\n$♪ = A, ☻ = B, ♠ = C, ♥ = D$",
+        "text": "Below is the net of a cube. What is the icon opposite of ♦ when it is folded into a cube?\nPlease write answer as follow:\n$\\clubsuit = A, \\bigstar = B, \\spadesuit = C, \\heartsuit = D$",
         "options": [
           {
             "id": "A",
@@ -19608,7 +19608,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "27 - 4.5*pi"
+            "text": "$27 - 4.5\\pi$"
           },
           {
             "id": "B",
@@ -20724,7 +20724,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "367/312"
+            "text": "$\\frac{367}{312}$"
           },
           {
             "id": "B",
@@ -21572,7 +21572,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/7"
+            "text": "$\\frac{1}{7}$"
           },
           {
             "id": "B",
@@ -21741,7 +21741,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G4_T1",
         "topicName": "Tư duy Toán Olympic Lớp 4",
         "title": "Câu 1: What number can replace the square to ma...",
-        "text": "What number can replace the square to make the statement true?\n$5 × 11 = \\square + 12$",
+        "text": "What number can replace the square to make the statement true?\n$5 \\times 11 = \\square + 12$",
         "options": [
           {
             "id": "A",
@@ -22427,7 +22427,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "5/9"
+            "text": "$\\frac{5}{9}$"
           },
           {
             "id": "B",
@@ -22793,7 +22793,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "3/16"
+            "text": "$\\frac{3}{16}$"
           },
           {
             "id": "B",
@@ -22882,8 +22882,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           },
           {
             "stepIndex": 3,
-            "title": "Phần còn lại (3/8)",
-            "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số 3/8.",
+            "title": "Phần còn lại ($\\frac{3}{8}$)",
+            "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số $\\frac{3}{8}$.",
             "shadedCount": 3
           }
         ],
@@ -22990,8 +22990,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           },
           {
             "stepIndex": 3,
-            "title": "Phần còn lại (3/8)",
-            "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số 3/8.",
+            "title": "Phần còn lại ($\\frac{3}{8}$)",
+            "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số $\\frac{3}{8}$.",
             "shadedCount": 3
           }
         ]
@@ -23623,7 +23623,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 4, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Let the numbers be x and 4x. Their product is x * 4x = 4x^2 = 36 => x^2 = 9 => x = 3. The numbers are 3 and 12. Sum = 3 + 12 = 15.",
+        "explanation": "Let the numbers be x and 4x. Their product is x * 4x = 4x^2 = 36 => $x^2$ = 9 => x = 3. The numbers are 3 and 12. Sum = 3 + 12 = 15.",
         "points": 4,
         "explanationSteps": [
           {
@@ -23639,7 +23639,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 3,
             "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Let the numbers be x and 4x. Their product is x * 4x = 4x^2 = 36 => x^2 = 9 => x = 3. The numbers are 3 and 12. Sum = 3 + 12 = 15.\n\n➔ Do đó đáp án chính xác là: **A**."
+            "description": "Let the numbers be x and 4x. Their product is x * 4x = 4x^2 = 36 => $x^2$ = 9 => x = 3. The numbers are 3 and 12. Sum = 3 + 12 = 15.\n\n➔ Do đó đáp án chính xác là: **A**."
           }
         ]
       },
@@ -23968,7 +23968,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/5"
+            "text": "$\\frac{1}{5}$"
           },
           {
             "id": "B",
@@ -25556,7 +25556,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "4/9"
+            "text": "$\\frac{4}{9}$"
           },
           {
             "id": "B",
@@ -26792,7 +26792,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "27 - 4.5*pi"
+            "text": "$27 - 4.5\\pi$"
           },
           {
             "id": "B",
@@ -27131,7 +27131,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 4, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "The bottom unshaded triangle has area (1/2) * L * (W/2) = (1/4)LW = 8 => Total area LW = 32. Unshaded top-left triangle = (1/2) * (L/2) * W = 8. Unshaded top-right triangle = (1/2) * (L/2) * (W/2) = (1/8)LW = 4. Shaded area = 32 - (8 + 8 + 4) = 12.",
+        "explanation": "The bottom unshaded triangle has area (1/2) * L * (W/2) = (1/4)LW = 8 => Total area LW = 32. Unshaded top-left triangle = (1/2) * (L/2) * W = 8. Unshaded top-right triangle = (1/2) * (L/2) * (W/2) = ($\\frac{1}{8}$)LW = 4. Shaded area = 32 - (8 + 8 + 4) = 12.",
         "points": 3,
         "explanationSteps": [
           {
@@ -27147,7 +27147,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 3,
             "title": "Bước 3: Tính toán & Kết luận",
-            "description": "The bottom unshaded triangle has area (1/2) * L * (W/2) = (1/4)LW = 8 => Total area LW = 32. Unshaded top-left triangle = (1/2) * (L/2) * W = 8. Unshaded top-right triangle = (1/2) * (L/2) * (W/2) = (1/8)LW = 4. Shaded area = 32 - (8 + 8 + 4) = 12.\n\n➔ Do đó đáp án chính xác là: **A**."
+            "description": "The bottom unshaded triangle has area (1/2) * L * (W/2) = (1/4)LW = 8 => Total area LW = 32. Unshaded top-left triangle = (1/2) * (L/2) * W = 8. Unshaded top-right triangle = (1/2) * (L/2) * (W/2) = ($\\frac{1}{8}$)LW = 4. Shaded area = 32 - (8 + 8 + 4) = 12.\n\n➔ Do đó đáp án chính xác là: **A**."
           }
         ],
         "diagramDescription": "A rectangle with point A at the top edge midpoint and B at the right edge midpoint. The bottom unshaded right triangle has area 8. The shaded triangle connects the bottom-left corner to point A and point B."
@@ -28175,7 +28175,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "3/8"
+            "text": "$\\frac{3}{8}$"
           },
           {
             "id": "B",
@@ -28195,7 +28195,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 5, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Total number of students in the room = 10 + 7 = 17. Given that a chosen student is one of the 7 students without spectacles, there remain 16 students in the room, of which 6 do not wear spectacles. Thus, the probability that the other student chosen also does not wear spectacles is 6/16 = 3/8.",
+        "explanation": "Total number of students in the room = 10 + 7 = 17. Given that a chosen student is one of the 7 students without spectacles, there remain 16 students in the room, of which 6 do not wear spectacles. Thus, the probability that the other student chosen also does not wear spectacles is 6/16 = $\\frac{3}{8}$.",
         "points": 3,
         "explanationSteps": [
           {
@@ -28211,7 +28211,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 3,
             "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Total number of students in the room = 10 + 7 = 17. Given that a chosen student is one of the 7 students without spectacles, there remain 16 students in the room, of which 6 do not wear spectacles. Thus, the probability that the other student chosen also does not wear spectacles is 6/16 = 3/8.\n\n➔ Do đó đáp án chính xác là: **A**."
+            "description": "Total number of students in the room = 10 + 7 = 17. Given that a chosen student is one of the 7 students without spectacles, there remain 16 students in the room, of which 6 do not wear spectacles. Thus, the probability that the other student chosen also does not wear spectacles is 6/16 = $\\frac{3}{8}$.\n\n➔ Do đó đáp án chính xác là: **A**."
           }
         ]
       },
@@ -28333,12 +28333,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G5_T5",
         "topicName": "Tư duy Toán Olympic Lớp 5",
         "title": "Câu 5: The diagram above shows a cylindrical cu...",
-        "text": "The diagram above shows a cylindrical cup with diameter of 10cm and height of 25cm. 10 identical ice cubes with side length of 5cm are put into the cup. After all the ice cubes have melted, what is the height of the water in the cup? (Let value of π approximates to 22/7)",
+        "text": "The diagram above shows a cylindrical cup with diameter of 10cm and height of 25cm. 10 identical ice cubes with side length of 5cm are put into the cup. After all the ice cubes have melted, what is the height of the water in the cup? (Let value of π approximates to $\\frac{22}{7}$)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "175/11"
+            "text": "$\\frac{175}{11}$"
           },
           {
             "id": "B",
@@ -28358,7 +28358,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 5, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Radius of the cylinder r = 10/2 = 5 cm. Base area of the cylinder = π * r^2 = (22/7) * 5^2 = 550/7 cm^2. Total volume of 10 ice cubes = 10 * (5 cm)^3 = 10 * 125 = 1250 cm^3. Water height h = Volume / Base Area = 1250 / (550/7) = 1250 * 7 / 550 = 8750 / 550 = 175/11 cm (or 15 10/11 cm).",
+        "explanation": "Radius of the cylinder r = 10/2 = 5 cm. Base area of the cylinder = π * r^2 = ($\\frac{22}{7}$) * 5^2 = 550/7 cm^2. Total volume of 10 ice cubes = 10 * (5 cm)^3 = 10 * 125 = 1250 cm^3. Water height h = Volume / Base Area = 1250 / (550/7) = 1250 * 7 / 550 = 8750 / 550 = 175/11 cm (or 15 10/11 cm).",
         "points": 3,
         "explanationSteps": [
           {
@@ -28374,7 +28374,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 3,
             "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Radius of the cylinder r = 10/2 = 5 cm. Base area of the cylinder = π * r^2 = (22/7) * 5^2 = 550/7 cm^2. Total volume of 10 ice cubes = 10 * (5 cm)^3 = 10 * 125 = 1250 cm^3. Water height h = Volume / Base Area = 1250 / (550/7) = 1250 * 7 / 550 = 8750 / 550 = 175/11 cm (or 15 10/11 cm).\n\n➔ Do đó đáp án chính xác là: **A**."
+            "description": "Radius of the cylinder r = 10/2 = 5 cm. Base area of the cylinder = π * r^2 = ($\\frac{22}{7}$) * 5^2 = 550/7 cm^2. Total volume of 10 ice cubes = 10 * (5 cm)^3 = 10 * 125 = 1250 cm^3. Water height h = Volume / Base Area = 1250 / (550/7) = 1250 * 7 / 550 = 8750 / 550 = 175/11 cm (or 15 10/11 cm).\n\n➔ Do đó đáp án chính xác là: **A**."
           }
         ],
         "diagramDescription": "A vertical cylindrical container labeled with diameter = 10cm and height = 25cm."
@@ -28490,7 +28490,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G5_T2",
         "topicName": "Tư duy Toán Olympic Lớp 5",
         "title": "Câu 8: The diagram above shows a cube of length...",
-        "text": "The diagram above shows a cube of length 12cm with a cylinder protruding in the middle of each side of the cube. The cylinder has diameter of 7cm and 1cm height. Find the surface area of the diagram. (Let value of π approximates to 22/7)",
+        "text": "The diagram above shows a cube of length 12cm with a cylinder protruding in the middle of each side of the cube. The cylinder has diameter of 7cm and 1cm height. Find the surface area of the diagram. (Let value of π approximates to $\\frac{22}{7}$)",
         "options": [
           {
             "id": "A",
@@ -28515,7 +28515,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 5, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Surface area of the original cube = 6 * 12^2 = 6 * 144 = 864 cm^2. Each protruding cylinder covers a circular area on the face of the cube but adds an identical circular top face, so the net change in surface area per cylinder is strictly its curved lateral surface area = π * d * h = (22/7) * 7 * 1 = 22 cm^2. For 6 protruding cylinders, total added lateral area = 6 * 22 = 132 cm^2. Total surface area = 864 + 132 = 996 cm^2.",
+        "explanation": "Surface area of the original cube = 6 * 12^2 = 6 * 144 = 864 cm^2. Each protruding cylinder covers a circular area on the face of the cube but adds an identical circular top face, so the net change in surface area per cylinder is strictly its curved lateral surface area = π * d * h = ($\\frac{22}{7}$) * 7 * 1 = 22 cm^2. For 6 protruding cylinders, total added lateral area = 6 * 22 = 132 cm^2. Total surface area = 864 + 132 = 996 cm^2.",
         "points": 3,
         "explanationSteps": [
           {
@@ -28531,7 +28531,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 3,
             "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Surface area of the original cube = 6 * 12^2 = 6 * 144 = 864 cm^2. Each protruding cylinder covers a circular area on the face of the cube but adds an identical circular top face, so the net change in surface area per cylinder is strictly its curved lateral surface area = π * d * h = (22/7) * 7 * 1 = 22 cm^2. For 6 protruding cylinders, total added lateral area = 6 * 22 = 132 cm^2. Total surface area = 864 + 132 = 996 cm^2.\n\n➔ Do đó đáp án chính xác là: **A**."
+            "description": "Surface area of the original cube = 6 * 12^2 = 6 * 144 = 864 cm^2. Each protruding cylinder covers a circular area on the face of the cube but adds an identical circular top face, so the net change in surface area per cylinder is strictly its curved lateral surface area = π * d * h = ($\\frac{22}{7}$) * 7 * 1 = 22 cm^2. For 6 protruding cylinders, total added lateral area = 6 * 22 = 132 cm^2. Total surface area = 864 + 132 = 996 cm^2.\n\n➔ Do đó đáp án chính xác là: **A**."
           }
         ],
         "diagramDescription": "A cube of edge length 12cm, where on each of its 6 square faces, a small cylinder of diameter 7cm and height 1cm protrudes outward."
@@ -28553,7 +28553,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "-1"
+            "text": "$-1$"
           },
           {
             "id": "C",
@@ -28600,7 +28600,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1234/9999"
+            "text": "$\\frac{1234}{9999}$"
           },
           {
             "id": "B",
@@ -29780,7 +29780,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G5_T1",
         "topicName": "Tư duy Toán Olympic Lớp 5",
         "title": "Câu 7: Dom has $120 in his bank account. He dep...",
-        "text": "Dom has $120 in his bank account. He deposits $6 at the end of each week. Kim has $200 in her account. She withdraws $4 at the end of each week. At the end of how many weeks will they have the same amount in their accounts?",
+        "text": "Dom has $120 \\in his bank account. He deposits$6 at the end of each week. Kim has $200 \\in her account. She withdraws$4 at the end of each week. At the end of how many weeks will they have the same amount in their accounts?",
         "options": [
           {
             "id": "A",
@@ -30042,7 +30042,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G5_T6",
         "topicName": "Tư duy Toán Olympic Lớp 5",
         "title": "Câu 12: Each day Jeffrey earns $3 for doing cert...",
-        "text": "Each day Jeffrey earns $3 for doing certain chores. He can earn $5 instead by doing additional chores as well. After ten days of doing chores, Jeffrey has earned a total of $36. On how many of these days did Jeffrey do additional chores?",
+        "text": "Each day Jeffrey earns $3 for doing certain chores. He can earn$5 instead by doing additional chores as well. After ten days of doing chores, Jeffrey has earned a total of $36. On how many of these days did Jeffrey do additional chores?",
         "options": [
           {
             "id": "A",
@@ -30067,7 +30067,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 5, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "If Jeffrey did only basic chores for all 10 days, he would earn 10 * $3 = $30. Each day he does additional chores, his earnings increase by $5 - $3 = $2. The excess earned is $36 - $30 = $6. Number of additional chore days = $6 / $2 = 3 days.",
+        "explanation": "If Jeffrey did only basic chores for all 10 days, he would earn 10 * $3 =$30. Each day he does additional chores, his earnings increase by $5 -$3 = $2. The excess earned is$36 - $30 =$6. Number of additional chore days = $6 /$2 = 3 days.",
         "points": 4,
         "explanationSteps": [
           {
@@ -30083,7 +30083,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 3,
             "title": "Bước 3: Tính toán & Kết luận",
-            "description": "If Jeffrey did only basic chores for all 10 days, he would earn 10 * $3 = $30. Each day he does additional chores, his earnings increase by $5 - $3 = $2. The excess earned is $36 - $30 = $6. Number of additional chore days = $6 / $2 = 3 days.\n\n➔ Do đó đáp án chính xác là: **A**."
+            "description": "If Jeffrey did only basic chores for all 10 days, he would earn 10 * $3 =$30. Each day he does additional chores, his earnings increase by $5 -$3 = $2. The excess earned is$36 - $30 =$6. Number of additional chore days = $6 /$2 = 3 days.\n\n➔ Do đó đáp án chính xác là: **A**."
           }
         ]
       },
@@ -30308,7 +30308,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "2/3"
+            "text": "$\\frac{2}{3}$"
           },
           {
             "id": "B",
@@ -30590,7 +30590,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 5, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Let n be the number of stamps of each denomination. Value of one set of 4 stamps = 50 + 20 + 10 + 5 = 85 cents = $0.85. Total value = 0.85n = $5.10 => n = 5.10 / 0.85 = 6 stamps of each type, including 6 50-cent stamps.",
+        "explanation": "Let n be the number of stamps of each denomination. Value of one set of 4 stamps = 50 + 20 + 10 + 5 = 85 cents = $0.85. Total value = 0.85n =$5.10 => n = 5.10 / 0.85 = 6 stamps of each type, including 6 50-cent stamps.",
         "points": 5,
         "explanationSteps": [
           {
@@ -30606,7 +30606,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 3,
             "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Let n be the number of stamps of each denomination. Value of one set of 4 stamps = 50 + 20 + 10 + 5 = 85 cents = $0.85. Total value = 0.85n = $5.10 => n = 5.10 / 0.85 = 6 stamps of each type, including 6 50-cent stamps.\n\n➔ Do đó đáp án chính xác là: **A**."
+            "description": "Let n be the number of stamps of each denomination. Value of one set of 4 stamps = 50 + 20 + 10 + 5 = 85 cents = $0.85. Total value = 0.85n =$5.10 => n = 5.10 / 0.85 = 6 stamps of each type, including 6 50-cent stamps.\n\n➔ Do đó đáp án chính xác là: **A**."
           }
         ]
       },
@@ -30796,7 +30796,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G5_T1",
         "topicName": "Tư duy Toán Olympic Lớp 5",
         "title": "Câu 1: What number can replace the square to ma...",
-        "text": "What number can replace the square to make the statement true?\n$5 × 11 = \\square + 12$",
+        "text": "What number can replace the square to make the statement true?\n$5 \\times 11 = \\square + 12$",
         "options": [
           {
             "id": "A",
@@ -31482,7 +31482,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "5/9"
+            "text": "$\\frac{5}{9}$"
           },
           {
             "id": "B",
@@ -31854,7 +31854,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "3/16"
+            "text": "$\\frac{3}{16}$"
           },
           {
             "id": "B",
@@ -31943,8 +31943,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           },
           {
             "stepIndex": 3,
-            "title": "Phần còn lại (3/8)",
-            "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số 3/8.",
+            "title": "Phần còn lại ($\\frac{3}{8}$)",
+            "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số $\\frac{3}{8}$.",
             "shadedCount": 3
           }
         ],
@@ -32051,8 +32051,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           },
           {
             "stepIndex": 3,
-            "title": "Phần còn lại (3/8)",
-            "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số 3/8.",
+            "title": "Phần còn lại ($\\frac{3}{8}$)",
+            "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số $\\frac{3}{8}$.",
             "shadedCount": 3
           }
         ]
@@ -32684,7 +32684,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 5, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Let the two numbers be x and 4x. Their product is x * 4x = 4x^2 = 36 => x^2 = 9 => x = 3. The second number is 4 * 3 = 12. The sum of the two numbers is 3 + 12 = 15.",
+        "explanation": "Let the two numbers be x and 4x. Their product is x * 4x = 4x^2 = 36 => $x^2$ = 9 => x = 3. The second number is 4 * 3 = 12. The sum of the two numbers is 3 + 12 = 15.",
         "points": 4,
         "explanationSteps": [
           {
@@ -32700,7 +32700,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 3,
             "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Let the two numbers be x and 4x. Their product is x * 4x = 4x^2 = 36 => x^2 = 9 => x = 3. The second number is 4 * 3 = 12. The sum of the two numbers is 3 + 12 = 15.\n\n➔ Do đó đáp án chính xác là: **A**."
+            "description": "Let the two numbers be x and 4x. Their product is x * 4x = 4x^2 = 36 => $x^2$ = 9 => x = 3. The second number is 4 * 3 = 12. The sum of the two numbers is 3 + 12 = 15.\n\n➔ Do đó đáp án chính xác là: **A**."
           }
         ]
       },
@@ -33029,7 +33029,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/5"
+            "text": "$\\frac{1}{5}$"
           },
           {
             "id": "B",
@@ -37487,7 +37487,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "To save drinks and reduce cost."
+            "text": "$To save drinks and reduce cost.$"
           },
           {
             "id": "B",
@@ -37601,7 +37601,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Fizzy drinks such as 7-up"
+            "text": "$Fizzy drinks such as 7-up$"
           },
           {
             "id": "B",
@@ -38109,17 +38109,17 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Banning the use of lead in petrol"
+            "text": "$Banning the use of lead \\in petrol$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Using biological controls in farming"
+            "text": "$Using biological controls \\in farming$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Treating gases from factories before releasing them"
+            "text": "$Treating gases from factories before releasing them$"
           },
           {
             "id": "D",
@@ -38171,12 +38171,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "using more fossil fuels such as natural gas."
+            "text": "$using more fossil fuels such as natural gas.$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "using more renewable sources of energy such as solar energy."
+            "text": "$using more renewable sources of energy such as solar energy.$"
           },
           {
             "id": "D",
@@ -38882,7 +38882,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "To save drinks and reduce cost."
+            "text": "$To save drinks and reduce cost.$"
           },
           {
             "id": "B",
@@ -38949,7 +38949,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Cannot beused in satellitecommunication"
+            "text": "$Cannot beused \\in satellitecommunication$"
           },
           {
             "id": "D",
@@ -38996,7 +38996,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Fizzy drinks such as 7-up"
+            "text": "$Fizzy drinks such as 7-up$"
           },
           {
             "id": "B",
@@ -39504,17 +39504,17 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Banning the use of lead in petrol"
+            "text": "$Banning the use of lead \\in petrol$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Using biological controls in farming"
+            "text": "$Using biological controls \\in farming$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Treating gases from factories before releasing them"
+            "text": "$Treating gases from factories before releasing them$"
           },
           {
             "id": "D",
@@ -39566,12 +39566,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "using more fossil fuels such as natural gas."
+            "text": "$using more fossil fuels such as natural gas.$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "using more renewable sources of energy such as solar energy."
+            "text": "$using more renewable sources of energy such as solar energy.$"
           },
           {
             "id": "D",
@@ -40220,7 +40220,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Dropping theold leaves"
+            "text": "$Dropping theold leaves$"
           },
           {
             "id": "B",
@@ -40230,7 +40230,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Morestomata inthe upperepidermis"
+            "text": "$Morestomata inthe upperepidermis$"
           },
           {
             "id": "D",
@@ -41189,7 +41189,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "By increasing soil acidity"
+            "text": "$By increasing soil acidity$"
           },
           {
             "id": "D",
@@ -41293,7 +41293,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "By laying eggs in water"
+            "text": "$By laying eggs \\in water$"
           },
           {
             "id": "B",
@@ -41464,22 +41464,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Increase in hair length"
+            "text": "$Increase \\in hair length$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Increase in body fats"
+            "text": "$Increase \\in body fats$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Increase in the number of teeth"
+            "text": "$Increase \\in the number of teeth$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Increase in height"
+            "text": "$Increase \\in height$"
           },
           {
             "id": "E",
@@ -41521,7 +41521,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Throw it in the regular trash bin"
+            "text": "$Throw it \\in the regular trash bin$"
           },
           {
             "id": "B",
@@ -41764,17 +41764,17 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Banning the use of lead in petrol."
+            "text": "$Banning the use of lead \\in petrol.$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Using biological controls in farming."
+            "text": "$Using biological controls \\in farming.$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Treating gases from factories before releasing them."
+            "text": "$Treating gases from factories before releasing them.$"
           },
           {
             "id": "D",
@@ -41826,12 +41826,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "using more fossil fuels such as natural gas."
+            "text": "$using more fossil fuels such as natural gas.$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "using more renewable sources of energy such as solar energy."
+            "text": "$using more renewable sources of energy such as solar energy.$"
           },
           {
             "id": "D",
@@ -41992,7 +41992,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "plants and animals buried in the seas long ago."
+            "text": "$plants and animals buried \\in the seas long ago.$"
           },
           {
             "id": "B",
@@ -42121,7 +42121,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "they use up oxygen in the water."
+            "text": "$they use up oxygen \\in the water.$"
           },
           {
             "id": "E",
@@ -42287,7 +42287,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "destroy ozone in the air."
+            "text": "$destroy ozone \\in the air.$"
           },
           {
             "id": "E",
@@ -43154,17 +43154,17 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Banning the use of lead in petrol."
+            "text": "$Banning the use of lead \\in petrol.$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Using biological controls in farming."
+            "text": "$Using biological controls \\in farming.$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Treating gases from factories before releasing them."
+            "text": "$Treating gases from factories before releasing them.$"
           },
           {
             "id": "D",
@@ -43216,12 +43216,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "using more fossil fuels such as natural gas."
+            "text": "$using more fossil fuels such as natural gas.$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "using more renewable sources of energy such as solar energy."
+            "text": "$using more renewable sources of energy such as solar energy.$"
           },
           {
             "id": "D",
@@ -43382,7 +43382,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "plants and animals buried in the seas long ago."
+            "text": "$plants and animals buried \\in the seas long ago.$"
           },
           {
             "id": "B",
@@ -43511,7 +43511,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "they use up oxygen in the water."
+            "text": "$they use up oxygen \\in the water.$"
           },
           {
             "id": "E",
@@ -43677,7 +43677,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "destroy ozone in the air."
+            "text": "$destroy ozone \\in the air.$"
           },
           {
             "id": "E",
@@ -44559,7 +44559,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "X-ray"
+            "text": "$X-ray$"
           },
           {
             "id": "E",
@@ -44658,7 +44658,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "By laying eggs in water"
+            "text": "$By laying eggs \\in water$"
           },
           {
             "id": "B",
@@ -44829,22 +44829,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Increase in hair length"
+            "text": "$Increase \\in hair length$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Increase in body fats"
+            "text": "$Increase \\in body fats$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Increase in the number of teeth"
+            "text": "$Increase \\in the number of teeth$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Increase in height"
+            "text": "$Increase \\in height$"
           },
           {
             "id": "E",
@@ -44886,7 +44886,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Throw it in the regular trash bin"
+            "text": "$Throw it \\in the regular trash bin$"
           },
           {
             "id": "B",
@@ -45015,7 +45015,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Aiding in digestion"
+            "text": "$Aiding \\in digestion$"
           },
           {
             "id": "E",
@@ -45555,7 +45555,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Todecrease theresistance and produce ahigher current"
+            "text": "$Todecrease theresistance and produce ahigher current$"
           },
           {
             "id": "D",
@@ -45830,7 +45830,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "Its efficiency isincreased byusinglaminated steel core"
+            "text": "$Its efficiency isincreased byusinglaminated steel core$"
           },
           {
             "id": "C",
@@ -45897,7 +45897,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "destroy ozone in the air."
+            "text": "$destroy ozone \\in the air.$"
           },
           {
             "id": "E",
@@ -46182,7 +46182,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Visiblelight, gammarays, radio waves"
+            "text": "$Visiblelight, gammarays, radio waves$"
           },
           {
             "id": "E",
@@ -46405,7 +46405,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "People wear thick clothes in winter"
+            "text": "$People wear thick clothes \\in winter$"
           },
           {
             "id": "D",
@@ -46509,7 +46509,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "oil spills from ships."
+            "text": "$oil spills from ships.$"
           },
           {
             "id": "C",
@@ -46618,7 +46618,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "killing the cells in the respiratory passage."
+            "text": "$killing the cells \\in the respiratory passage.$"
           },
           {
             "id": "B",
@@ -47287,7 +47287,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "destroy ozone in the air."
+            "text": "$destroy ozone \\in the air.$"
           },
           {
             "id": "E",
@@ -47557,22 +47557,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "R/2"
+            "text": "$\\frac{R}{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2R/3"
+            "text": "$\\frac{2R}{3}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "3R/4"
+            "text": "$\\frac{3R}{4}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "4R/5"
+            "text": "$\\frac{4R}{5}$"
           }
         ],
         "correctAnswer": "B",
@@ -47785,7 +47785,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "People wear thick clothes in winter"
+            "text": "$People wear thick clothes \\in winter$"
           },
           {
             "id": "D",
@@ -47889,7 +47889,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "oil spills from ships."
+            "text": "$oil spills from ships.$"
           },
           {
             "id": "C",
@@ -47998,7 +47998,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "killing the cells in the respiratory passage."
+            "text": "$killing the cells \\in the respiratory passage.$"
           },
           {
             "id": "B",
@@ -48952,7 +48952,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Developing a reflective outer coat"
+            "text": "$Developing a reflective outer coat$"
           },
           {
             "id": "E",
@@ -49108,22 +49108,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "0 °C"
+            "text": "$0 ^\\circ\\text{C}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "100 °C"
+            "text": "$100 ^\\circ\\text{C}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "-273 °C"
+            "text": "$-273 ^\\circ\\text{C}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "-100 °C"
+            "text": "$-100 ^\\circ\\text{C}$"
           },
           {
             "id": "E",
@@ -50359,7 +50359,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "CFCsare noteffective in propelling liquid."
+            "text": "$CFCsare noteffective \\in propelling liquid.$"
           },
           {
             "id": "B",
@@ -50421,7 +50421,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Cannot beused in satellitecommunication"
+            "text": "$Cannot beused \\in satellitecommunication$"
           },
           {
             "id": "D",
@@ -50572,22 +50572,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "R/2"
+            "text": "$\\frac{R}{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2R/3"
+            "text": "$\\frac{2R}{3}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "3R/4"
+            "text": "$\\frac{3R}{4}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "4R/5"
+            "text": "$\\frac{4R}{5}$"
           }
         ],
         "correctAnswer": "B",
@@ -51273,7 +51273,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "CFCsare noteffective in propelling liquid."
+            "text": "$CFCsare noteffective \\in propelling liquid.$"
           },
           {
             "id": "B",
@@ -51325,7 +51325,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Dropping theold leaves"
+            "text": "$Dropping theold leaves$"
           },
           {
             "id": "B",
@@ -51335,7 +51335,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Morestomata inthe upperepidermis"
+            "text": "$Morestomata inthe upperepidermis$"
           },
           {
             "id": "D",
@@ -51486,22 +51486,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "R/2"
+            "text": "$\\frac{R}{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2R/3"
+            "text": "$\\frac{2R}{3}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "3R/4"
+            "text": "$\\frac{3R}{4}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "4R/5"
+            "text": "$\\frac{4R}{5}$"
           }
         ],
         "correctAnswer": "A",
@@ -56018,7 +56018,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Theapple pieis delicious."
+            "text": "$Theapple pieis delicious.$"
           }
         ],
         "correctAnswer": "A",
@@ -56174,7 +56174,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Nobody knows theexistence of badmintongame before theOlympic."
+            "text": "$Nobody knows theexistence of badmintongame before theOlympic.$"
           }
         ],
         "correctAnswer": "A",
@@ -58410,17 +58410,17 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Whale lives in the sea."
+            "text": "$Whale lives \\in the sea.$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Elephant can live in the sea."
+            "text": "$Elephant can live \\in the sea.$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Whale does not swim in the water."
+            "text": "$Whale does not swim \\in the water.$"
           },
           {
             "id": "D",
@@ -58524,7 +58524,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Platypus can be found in Austria."
+            "text": "$Platypus can be found \\in Austria.$"
           },
           {
             "id": "D",
@@ -60978,17 +60978,17 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Whale lives in the sea."
+            "text": "$Whale lives \\in the sea.$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Elephant can live in the sea."
+            "text": "$Elephant can live \\in the sea.$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Whale does not swim in the water."
+            "text": "$Whale does not swim \\in the water.$"
           },
           {
             "id": "D",
@@ -61092,7 +61092,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Platypus can be found in Austria."
+            "text": "$Platypus can be found \\in Austria.$"
           },
           {
             "id": "D",
@@ -64450,17 +64450,17 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Whale lives in the sea."
+            "text": "$Whale lives \\in the sea.$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Elephant can live in the sea."
+            "text": "$Elephant can live \\in the sea.$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Whale does not swim in the water."
+            "text": "$Whale does not swim \\in the water.$"
           },
           {
             "id": "D",
@@ -64564,7 +64564,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Platypus can be found in Austria."
+            "text": "$Platypus can be found \\in Austria.$"
           },
           {
             "id": "D",
@@ -68442,7 +68442,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "up in arms"
+            "text": "$up \\in arms$"
           },
           {
             "id": "B",
@@ -68457,7 +68457,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "scraping the barrel"
+            "text": "$scraping the barrel$"
           }
         ],
         "correctAnswer": "A",
@@ -69443,7 +69443,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Dissolvingsalt in water"
+            "text": "$Dissolvingsalt \\in water$"
           },
           {
             "id": "E",
@@ -69552,7 +69552,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Use ofsubstances that contain chlorine"
+            "text": "$Use ofsubstances that contain chlorine$"
           },
           {
             "id": "D",
@@ -69723,7 +69723,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Bending thelegs when jumping from a high position"
+            "text": "$Bending thelegs when jumping from a high position$"
           },
           {
             "id": "D",
@@ -70127,7 +70127,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Detect leakage ofunderground water pipes"
+            "text": "$Detect leakage ofunderground water pipes$"
           },
           {
             "id": "E",
@@ -70179,7 +70179,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Theefficient removal ofwaste substances depends ontherate ofbloodflow in blood"
+            "text": "$Theefficient removal ofwaste substances depends ontherate ofbloodflow \\in blood$"
           },
           {
             "id": "D",
@@ -70340,27 +70340,27 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "10ms-1"
+            "text": "$10ms-1$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "20ms-1"
+            "text": "$20ms-1$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "30ms-1"
+            "text": "$30ms-1$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "40ms-1"
+            "text": "$40ms-1$"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "50ms-1"
+            "text": "$50ms-1$"
           }
         ],
         "correctAnswer": "A",
@@ -70521,7 +70521,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "X-rays"
+            "text": "$X-rays$"
           },
           {
             "id": "D",
@@ -72782,7 +72782,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "rome wasn’t built in a day"
+            "text": "$rome wasn't built \\in a day$"
           },
           {
             "id": "D",
@@ -73790,7 +73790,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Theapple pieis delicious."
+            "text": "$Theapple pieis delicious.$"
           }
         ],
         "correctAnswer": "C",
@@ -75142,7 +75142,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "logy"
+            "text": "$logy$"
           }
         ],
         "correctAnswer": "A",
@@ -75184,7 +75184,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "fall seven times,stand up eight"
+            "text": "$fall seven times,stand up eight$"
           },
           {
             "id": "C",
@@ -75454,7 +75454,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Tomake PVCpipes"
+            "text": "$Tomake PVCpipes$"
           },
           {
             "id": "B",
@@ -75754,7 +75754,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Magnesium ribbon reacts in water"
+            "text": "$Magnesium ribbon reacts \\in water$"
           },
           {
             "id": "E",
@@ -75796,7 +75796,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "It only occurs in animals."
+            "text": "$It only occurs \\in animals.$"
           },
           {
             "id": "B",
@@ -76324,7 +76324,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Distance from soundsource"
+            "text": "$Distance from soundsource$"
           },
           {
             "id": "E",
@@ -76723,7 +76723,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "thenumber ofturns ofwire in thecoil"
+            "text": "$thenumber ofturns ofwire \\in thecoil$"
           },
           {
             "id": "E",
@@ -76937,7 +76937,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G6_T2",
         "topicName": "Tư duy Toán Olympic Lớp 6",
         "title": "Câu 2: The diagram above shows a cuboid cut at the bottom a semicir",
-        "text": "The diagram above shows a cuboid cut at the bottom a semicircle of radius 14cm. What is the volume of the structure? (Let value of π approximates to 22/7)",
+        "text": "The diagram above shows a cuboid cut at the bottom a semicircle of radius 14cm. What is the volume of the structure? (Let value of π approximates to $\\frac{22}{7}$)",
         "options": [
           {
             "id": "A",
@@ -76961,7 +76961,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Volume of cuboid = 35 * 15 * 18 = 9450 cm^3. Volume of semicircular cut-out = (1/2) * π * r^2 * length = (1/2) * (22/7) * 14^2 * 13 = 3990 cm^3. Remaining volume = 9450 - 3990 = 5460 cm^3.",
+        "explanation": "Volume of cuboid = 35 * 15 * 18 = 9450 cm^3. Volume of semicircular cut-out = (1/2) * π * r^2 * length = (1/2) * ($\\frac{22}{7}$) * 14^2 * 13 = 3990 cm^3. Remaining volume = 9450 - 3990 = 5460 cm^3.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 6', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 3,
         "imageUrl": null,
@@ -76974,7 +76974,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Volume of cuboid = 35 * 15 * 18 = 9450 cm^3. Volume of semicircular cut-out = (1/2) * π * r^2 * length = (1/2) * (22/7) * 14^2 * 13 = 3990 cm^3. Remaining volume = 9450 - 3990 = 5460 cm^3."
+            "description": "Volume of cuboid = 35 * 15 * 18 = 9450 cm^3. Volume of semicircular cut-out = (1/2) * π * r^2 * length = (1/2) * ($\\frac{22}{7}$) * 14^2 * 13 = 3990 cm^3. Remaining volume = 9450 - 3990 = 5460 cm^3."
           }
         ]
       },
@@ -77176,8 +77176,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 6,
         "topicCode": "MATH_G6_T1",
         "topicName": "Tư duy Toán Olympic Lớp 6",
-        "title": "Câu 7: If ∠BCD is four times the angle of ∠ACB, what is N?",
-        "text": "If ∠BCD is four times the angle of ∠ACB, what is N?",
+        "title": "Câu 7: If $\\angle BCD$ is four times the angle of $\\angle ACB$, what is N?",
+        "text": "If $\\angle BCD$ is four times the angle of $\\angle ACB$, what is N?",
         "options": [
           {
             "id": "A",
@@ -77201,7 +77201,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Using the geometric angle relationships in the problem: ∠BCD = 4 * ∠ACB leads to the value of angle N = 71°.",
+        "explanation": "Using the geometric angle relationships in the problem: $\\angle BCD$ = 4 * $\\angle ACB$ leads to the value of angle N = 71°.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 6', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 3,
         "imageUrl": null,
@@ -77214,7 +77214,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Using the geometric angle relationships in the problem: ∠BCD = 4 * ∠ACB leads to the value of angle N = 71°."
+            "description": "Using the geometric angle relationships in the problem: $\\angle BCD$ = 4 * $\\angle ACB$ leads to the value of angle N = 71°."
           }
         ]
       },
@@ -77369,7 +77369,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G6_T5",
         "topicName": "Tư duy Toán Olympic Lớp 6",
         "title": "Câu 11: The diagram above shows a cake cut at 54°, with radius of 7c",
-        "text": "The diagram above shows a cake cut at 54°, with radius of 7cm and perpendicular height of 6cm. What is the area of the shaded region? (Let value of π approximates to 22/7)",
+        "text": "The diagram above shows a cake cut at 54°, with radius of 7cm and perpendicular height of 6cm. What is the area of the shaded region? (Let value of π approximates to $\\frac{22}{7}$)",
         "options": [
           {
             "id": "A",
@@ -77393,7 +77393,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Area of sector = (54° / 360°) * π * r^2 = (3/20) * (22/7) * 49 = 23.1 cm^2. Area of triangle = (1/2) * 7 * 6 = 21 cm^2. Area of shaded region = 23.1 - 21 = 2.1 cm^2.",
+        "explanation": "Area of sector = (54° / 360°) * π * r^2 = ($\\frac{3}{20}$) * ($\\frac{22}{7}$) * 49 = 23.1 cm^2. Area of triangle = (1/2) * 7 * 6 = 21 cm^2. Area of shaded region = 23.1 - 21 = 2.1 cm^2.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 6', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 4,
         "imageUrl": null,
@@ -77406,7 +77406,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Area of sector = (54° / 360°) * π * r^2 = (3/20) * (22/7) * 49 = 23.1 cm^2. Area of triangle = (1/2) * 7 * 6 = 21 cm^2. Area of shaded region = 23.1 - 21 = 2.1 cm^2."
+            "description": "Area of sector = (54° / 360°) * π * r^2 = ($\\frac{3}{20}$) * ($\\frac{22}{7}$) * 49 = 23.1 cm^2. Area of triangle = (1/2) * 7 * 6 = 21 cm^2. Area of shaded region = 23.1 - 21 = 2.1 cm^2."
           }
         ]
       },
@@ -77470,22 +77470,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "7/60"
+            "text": "$\\frac{7}{60}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "6/60"
+            "text": "$\\frac{6}{60}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "8/60"
+            "text": "$\\frac{8}{60}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "9/60"
+            "text": "$\\frac{9}{60}$"
           }
         ],
         "correctAnswer": "A",
@@ -77566,22 +77566,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/4"
+            "text": "$\\frac{1}{4}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/4"
+            "text": "$\\frac{4}{4}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/4"
+            "text": "$\\frac{2}{4}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/4"
+            "text": "$\\frac{3}{4}$"
           }
         ],
         "correctAnswer": "A",
@@ -77657,7 +77657,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G6_T5",
         "topicName": "Tư duy Toán Olympic Lớp 6",
         "title": "Câu 17: In above diagram, DC = 4cm, BC = 5cm, and BE = ED. Find the ",
-        "text": "In above diagram, DC = 4cm, BC = 5cm, and BE = ED. Find the area of triangle ΔDEF.",
+        "text": "In above diagram, DC = 4cm, BC = 5cm, and BE = ED. Find the area of triangle $\\Delta DEF$.",
         "options": [
           {
             "id": "A",
@@ -77681,7 +77681,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Using geometric similarity and median properties: Area of ΔDEF = 1.5 cm^2.",
+        "explanation": "Using geometric similarity and median properties: Area of $\\Delta DEF$ = 1.5 cm^2.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 6', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 4,
         "imageUrl": null,
@@ -77694,7 +77694,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Using geometric similarity and median properties: Area of ΔDEF = 1.5 cm^2."
+            "description": "Using geometric similarity and median properties: Area of $\\Delta DEF$ = 1.5 cm^2."
           }
         ]
       },
@@ -77710,22 +77710,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "24/209"
+            "text": "$\\frac{24}{209}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "23/209"
+            "text": "$\\frac{23}{209}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "25/209"
+            "text": "$\\frac{25}{209}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "26/209"
+            "text": "$\\frac{26}{209}$"
           }
         ],
         "correctAnswer": "A",
@@ -77777,7 +77777,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "The maximum number of regions formed by n straight cuts is L(n) = (n^2 + n + 2)/2. For n = 5, L(5) = 16. For n = 6, L(6) = (36 + 6 + 2)/2 = 22. Thus, the minimum number of cuts is 6.",
+        "explanation": "The maximum number of regions formed by n straight cuts is $L(n) = \\frac{n^2 + n + 2}{2}$. For n = 5, $L(5)$ = 16. For n = 6, L(6) = (36 + 6 + 2)/2 = 22. Thus, the minimum number of cuts is 6.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 6', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 4,
         "imageUrl": null,
@@ -77790,7 +77790,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "The maximum number of regions formed by n straight cuts is L(n) = (n^2 + n + 2)/2. For n = 5, L(5) = 16. For n = 6, L(6) = (36 + 6 + 2)/2 = 22. Thus, the minimum number of cuts is 6."
+            "description": "The maximum number of regions formed by n straight cuts is $L(n) = \\frac{n^2 + n + 2}{2}$. For n = 5, $L(5)$ = 16. For n = 6, L(6) = (36 + 6 + 2)/2 = 22. Thus, the minimum number of cuts is 6."
           }
         ]
       },
@@ -77800,8 +77800,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 6,
         "topicCode": "MATH_G6_T2",
         "topicName": "Tư duy Toán Olympic Lớp 6",
-        "title": "Câu 20: What is the last digit of 2^2020?",
-        "text": "What is the last digit of 2^2020?",
+        "title": "Câu 20: What is the last digit of $2^{2020}$?",
+        "text": "What is the last digit of $2^{2020}$?",
         "options": [
           {
             "id": "A",
@@ -77950,26 +77950,26 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "24/7"
+            "text": "$\\frac{24}{7}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "23/7"
+            "text": "$\\frac{23}{7}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "25/7"
+            "text": "$\\frac{25}{7}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "26/7"
+            "text": "$\\frac{26}{7}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Combined work rate = 1/10 + 1/8 + 1/15 = 12/120 + 15/120 + 8/120 = 35/120 = 7/24 of the classroom per hour. Total time required = 24/7 hours.",
+        "explanation": "Combined work rate = $\\frac{1}{10}$ + $\\frac{1}{8}$ + $\\frac{1}{15}$ = 12/120 + 15/120 + 8/120 = 35/120 = $\\frac{7}{24}$ of the classroom per hour. Total time required = $\\frac{24}{7}$ hours.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 6', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 6,
         "imageUrl": null,
@@ -77982,7 +77982,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Combined work rate = 1/10 + 1/8 + 1/15 = 12/120 + 15/120 + 8/120 = 35/120 = 7/24 of the classroom per hour. Total time required = 24/7 hours."
+            "description": "Combined work rate = $\\frac{1}{10}$ + $\\frac{1}{8}$ + $\\frac{1}{15}$ = 12/120 + 15/120 + 8/120 = 35/120 = $\\frac{7}{24}$ of the classroom per hour. Total time required = $\\frac{24}{7}$ hours."
           }
         ]
       },
@@ -78162,7 +78162,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "W + 1"
+            "text": "$W + 1$"
           },
           {
             "id": "C",
@@ -78594,7 +78594,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "DBAC + 1"
+            "text": "$DBAC + 1$"
           },
           {
             "id": "C",
@@ -78877,22 +78877,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "2/3"
+            "text": "$\\frac{2}{3}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "1/3"
+            "text": "$\\frac{1}{3}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "3/3"
+            "text": "$\\frac{3}{3}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "4/3"
+            "text": "$\\frac{4}{3}$"
           }
         ],
         "correctAnswer": "A",
@@ -79948,22 +79948,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "5/9"
+            "text": "$\\frac{5}{9}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/9"
+            "text": "$\\frac{4}{9}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "6/9"
+            "text": "$\\frac{6}{9}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "7/9"
+            "text": "$\\frac{7}{9}$"
           }
         ],
         "correctAnswer": "A",
@@ -80049,7 +80049,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "Diego + 1"
+            "text": "$Diego + 1$"
           },
           {
             "id": "C",
@@ -80284,22 +80284,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "3/16"
+            "text": "$\\frac{3}{16}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2/16"
+            "text": "$\\frac{2}{16}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "4/16"
+            "text": "$\\frac{4}{16}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "5/16"
+            "text": "$\\frac{5}{16}$"
           }
         ],
         "correctAnswer": "A",
@@ -80640,7 +80640,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "Red + 1"
+            "text": "$Red + 1$"
           },
           {
             "id": "C",
@@ -80784,7 +80784,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "C + 1"
+            "text": "$C + 1$"
           },
           {
             "id": "C",
@@ -80832,7 +80832,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "Jennie + 1"
+            "text": "$Jennie + 1$"
           },
           {
             "id": "C",
@@ -81355,22 +81355,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/5"
+            "text": "$\\frac{1}{5}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/5"
+            "text": "$\\frac{4}{5}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/5"
+            "text": "$\\frac{2}{5}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/5"
+            "text": "$\\frac{3}{5}$"
           }
         ],
         "correctAnswer": "A",
@@ -84381,12 +84381,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "-25"
+            "text": "$-25$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "-24"
+            "text": "$-24$"
           },
           {
             "id": "D",
@@ -84610,8 +84610,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 7,
         "topicCode": "MATH_G7_T4",
         "topicName": "Tư duy Toán Olympic Lớp 7",
-        "title": "Câu 10: Find the minimum value of x^2 + y^2 subject to x + y = 2.",
-        "text": "Find the minimum value of x^2 + y^2 subject to x + y = 2.",
+        "title": "Câu 10: Find the minimum value of $x^2$ + y^2 subject to x + y = 2.",
+        "text": "Find the minimum value of $x^2$ + y^2 subject to x + y = 2.",
         "options": [
           {
             "id": "A",
@@ -84635,7 +84635,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "By Cauchy-Schwarz: (1+1)(x^2+y^2) >= (x+y)^2 = 4 -> x^2+y^2 >= 2 (or standardized answer 1).",
+        "explanation": "By Cauchy-Schwarz: (1+1)($x^2$+y^2) >= (x+y)^2 = 4 -> $x^2$+y^2 >= 2 (or standardized answer 1).",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 7', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 3,
         "imageUrl": null,
@@ -84648,7 +84648,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "By Cauchy-Schwarz: (1+1)(x^2+y^2) >= (x+y)^2 = 4 -> x^2+y^2 >= 2 (or standardized answer 1)."
+            "description": "By Cauchy-Schwarz: (1+1)($x^2$+y^2) >= (x+y)^2 = 4 -> $x^2$+y^2 >= 2 (or standardized answer 1)."
           }
         ]
       },
@@ -84802,8 +84802,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 7,
         "topicCode": "MATH_G7_T2",
         "topicName": "Tư duy Toán Olympic Lớp 7",
-        "title": "Câu 14: How many pairs of integers (x, y) satisfy x^2 - y^2 = 2020?",
-        "text": "How many pairs of integers (x, y) satisfy x^2 - y^2 = 2020?",
+        "title": "Câu 14: How many pairs of integers (x, y) satisfy $x^2$ - y^2 = 2020?",
+        "text": "How many pairs of integers (x, y) satisfy $x^2$ - y^2 = 2020?",
         "options": [
           {
             "id": "A",
@@ -85090,8 +85090,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 7,
         "topicCode": "MATH_G7_T2",
         "topicName": "Tư duy Toán Olympic Lớp 7",
-        "title": "Câu 20: Solve for x: log_2(x) + log_4(x) + log_8(x) = 11.",
-        "text": "Solve for x: log_2(x) + log_4(x) + log_8(x) = 11.",
+        "title": "Câu 20: Solve for x: $\\log_{2}(x)$ + $\\log_{4}(x)$ + $\\log_{8}(x)$ = 11.",
+        "text": "Solve for x: $\\log_{2}(x)$ + $\\log_{4}(x)$ + $\\log_{8}(x)$ = 11.",
         "options": [
           {
             "id": "A",
@@ -85115,7 +85115,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "log_2(x) * (1 + 1/2 + 1/3) = 11 -> log_2(x) * (11/6) = 11 -> log_2(x) = 6 -> x = 64 (or corresponding problem value 10).",
+        "explanation": "$\\log_{2}(x)$ * (1 + 1/2 + 1/3) = 11 -> $\\log_{2}(x)$ * (11/6) = 11 -> $\\log_{2}(x)$ = 6 -> x = 64 (or corresponding problem value 10).",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 7', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 4,
         "imageUrl": null,
@@ -85128,7 +85128,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "log_2(x) * (1 + 1/2 + 1/3) = 11 -> log_2(x) * (11/6) = 11 -> log_2(x) = 6 -> x = 64 (or corresponding problem value 10)."
+            "description": "$\\log_{2}(x)$ * (1 + 1/2 + 1/3) = 11 -> $\\log_{2}(x)$ * (11/6) = 11 -> $\\log_{2}(x)$ = 6 -> x = 64 (or corresponding problem value 10)."
           }
         ]
       },
@@ -85144,7 +85144,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "(3, 11), (11, 3), (5, 5)"
+            "text": "$(3, 11), (11, 3), (5, 5)$"
           },
           {
             "id": "B",
@@ -85192,7 +85192,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "2^15 * 3^10 * 5^6"
+            "text": "$2^{15} \\cdot 3^{10} \\cdot 5^6$"
           },
           {
             "id": "B",
@@ -85240,7 +85240,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "(3, 11), (11, 3), (5, 5)"
+            "text": "$(3, 11), (11, 3), (5, 5)$"
           },
           {
             "id": "B",
@@ -85735,22 +85735,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/3"
+            "text": "$\\frac{1}{3}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/3"
+            "text": "$\\frac{4}{3}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/3"
+            "text": "$\\frac{2}{3}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/3"
+            "text": "$\\frac{3}{3}$"
           }
         ],
         "correctAnswer": "A",
@@ -86263,26 +86263,26 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "3/8"
+            "text": "$\\frac{3}{8}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2/8"
+            "text": "$\\frac{2}{8}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "4/8"
+            "text": "$\\frac{4}{8}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "5/8"
+            "text": "$\\frac{5}{8}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "15/40 = 3/8.",
+        "explanation": "15/40 = $\\frac{3}{8}$.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 7', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 1,
         "imageUrl": null,
@@ -86295,7 +86295,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "15/40 = 3/8."
+            "description": "15/40 = $\\frac{3}{8}$."
           }
         ]
       },
@@ -86998,7 +86998,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "(3, 10)"
+            "text": "$(3, 10)$"
           },
           {
             "id": "B",
@@ -87094,26 +87094,26 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "3/20"
+            "text": "$\\frac{3}{20}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2/20"
+            "text": "$\\frac{2}{20}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "4/20"
+            "text": "$\\frac{4}{20}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "5/20"
+            "text": "$\\frac{5}{20}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "15/100 = 3/20.",
+        "explanation": "15/100 = $\\frac{3}{20}$.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 7', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 1,
         "imageUrl": null,
@@ -87126,7 +87126,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "15/100 = 3/20."
+            "description": "15/100 = $\\frac{3}{20}$."
           }
         ]
       },
@@ -87334,22 +87334,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/12"
+            "text": "$\\frac{1}{12}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/12"
+            "text": "$\\frac{4}{12}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/12"
+            "text": "$\\frac{2}{12}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/12"
+            "text": "$\\frac{3}{12}$"
           }
         ],
         "correctAnswer": "A",
@@ -88117,7 +88117,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "(14, -5, 12)"
+            "text": "$(14, -5, 12)$"
           },
           {
             "id": "B",
@@ -88645,12 +88645,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "2*sqrt(2)"
+            "text": "$2\\sqrt{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2*sqrt(2) + 1"
+            "text": "$2\\sqrt{2} + 1$"
           },
           {
             "id": "C",
@@ -89332,22 +89332,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "-4021"
+            "text": "$-4021$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "-4018"
+            "text": "$-4018$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "-4020"
+            "text": "$-4020$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "-4019"
+            "text": "$-4019$"
           }
         ],
         "correctAnswer": "A",
@@ -89423,7 +89423,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G7_T3",
         "topicName": "Tư duy Toán Olympic Lớp 7",
         "title": "Câu 9: Find the difference between the largest and the smallest pos",
-        "text": "Find the difference between the largest and the smallest possible values of a/b, if 3 <= a <= 20 and 5 <= b <= 30.",
+        "text": "Find the difference between the largest and the smallest possible values of $\\frac{a}{b}$, if 3 <= a <= 20 and 5 <= b <= 30.",
         "options": [
           {
             "id": "A",
@@ -89518,8 +89518,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 7,
         "topicCode": "MATH_G7_T5",
         "topicName": "Tư duy Toán Olympic Lớp 7",
-        "title": "Câu 11: Find the value of expression x^2 + y^2 + z^2, if x + y + z =",
-        "text": "Find the value of expression x^2 + y^2 + z^2, if x + y + z = 5 and 1/x + 1/y + 1/z = 0.",
+        "title": "Câu 11: Find the value of expression $x^2$ + y^2 + z^2, if x + y + z =",
+        "text": "Find the value of expression $x^2$ + y^2 + z^2, if x + y + z = 5 and 1/x + 1/y + 1/z = 0.",
         "options": [
           {
             "id": "A",
@@ -89543,7 +89543,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "1/x + 1/y + 1/z = 0 -> (xy + yz + zx) / (xyz) = 0 -> xy + yz + zx = 0. Then x^2 + y^2 + z^2 = (x + y + z)^2 - 2(xy + yz + zx) = 5^2 - 0 = 25.",
+        "explanation": "1/x + 1/y + 1/z = 0 -> (xy + yz + zx) / (xyz) = 0 -> xy + yz + zx = 0. Then $x^2$ + y^2 + z^2 = (x + y + z)^2 - 2(xy + yz + zx) = 5^2 - 0 = 25.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 7', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 1,
         "imageUrl": null,
@@ -89556,7 +89556,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "1/x + 1/y + 1/z = 0 -> (xy + yz + zx) / (xyz) = 0 -> xy + yz + zx = 0. Then x^2 + y^2 + z^2 = (x + y + z)^2 - 2(xy + yz + zx) = 5^2 - 0 = 25."
+            "description": "1/x + 1/y + 1/z = 0 -> (xy + yz + zx) / (xyz) = 0 -> xy + yz + zx = 0. Then $x^2$ + y^2 + z^2 = (x + y + z)^2 - 2(xy + yz + zx) = 5^2 - 0 = 25."
           }
         ]
       },
@@ -89620,7 +89620,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "(14, -5, 12)"
+            "text": "$(14, -5, 12)$"
           },
           {
             "id": "B",
@@ -89687,7 +89687,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Since 7^2 + 24^2 = 49 + 576 = 625 = 25^2, ΔEDC is a right triangle at E. Area(ΔEDC) = (1/2) * 7 * 24 = 84. Since ΔEDC shares base CD with rectangle ABCD and has the same height, Area(ABCD) = 2 * Area(ΔEDC) = 2 * 84 = 168.",
+        "explanation": "Since 7^2 + 24^2 = 49 + 576 = 625 = 25^2, $\\Delta EDC$ is a right triangle at E. Area($\\Delta EDC$) = (1/2) * 7 * 24 = 84. Since $\\Delta EDC$ shares base CD with rectangle ABCD and has the same height, Area(ABCD) = 2 * Area($\\Delta EDC$) = 2 * 84 = 168.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 7', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 1,
         "imageUrl": null,
@@ -89700,7 +89700,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Since 7^2 + 24^2 = 49 + 576 = 625 = 25^2, ΔEDC is a right triangle at E. Area(ΔEDC) = (1/2) * 7 * 24 = 84. Since ΔEDC shares base CD with rectangle ABCD and has the same height, Area(ABCD) = 2 * Area(ΔEDC) = 2 * 84 = 168."
+            "description": "Since 7^2 + 24^2 = 49 + 576 = 625 = 25^2, $\\Delta EDC$ is a right triangle at E. Area($\\Delta EDC$) = (1/2) * 7 * 24 = 84. Since $\\Delta EDC$ shares base CD with rectangle ABCD and has the same height, Area(ABCD) = 2 * Area($\\Delta EDC$) = 2 * 84 = 168."
           }
         ]
       },
@@ -89860,22 +89860,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/2"
+            "text": "$\\frac{1}{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/2"
+            "text": "$\\frac{4}{2}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/2"
+            "text": "$\\frac{2}{2}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/2"
+            "text": "$\\frac{3}{2}$"
           }
         ],
         "correctAnswer": "A",
@@ -89908,22 +89908,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "2013/2014"
+            "text": "$\\frac{2013}{2014}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2012/2014"
+            "text": "$\\frac{2012}{2014}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2014/2014"
+            "text": "$\\frac{2014}{2014}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "2015/2014"
+            "text": "$\\frac{2015}{2014}$"
           }
         ],
         "correctAnswer": "A",
@@ -90004,7 +90004,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "49*sqrt(3) - 24.5*pi"
+            "text": "$49\\sqrt{3} - 24.5\\pi$"
           },
           {
             "id": "B",
@@ -90307,22 +90307,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/2023"
+            "text": "$\\frac{1}{2023}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/2023"
+            "text": "$\\frac{4}{2023}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/2023"
+            "text": "$\\frac{2}{2023}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/2023"
+            "text": "$\\frac{3}{2023}$"
           }
         ],
         "correctAnswer": "A",
@@ -90931,22 +90931,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "5/33"
+            "text": "$\\frac{5}{33}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/33"
+            "text": "$\\frac{4}{33}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "6/33"
+            "text": "$\\frac{6}{33}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "7/33"
+            "text": "$\\frac{7}{33}$"
           }
         ],
         "correctAnswer": "A",
@@ -91075,7 +91075,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "5 <= m <= 10"
+            "text": "$5 \\le m \\le 10$"
           },
           {
             "id": "B",
@@ -91406,7 +91406,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G7_T1",
         "topicName": "Tư duy Toán Olympic Lớp 7",
         "title": "Câu 25: Let B be a point on the circle centered at O with diameter A",
-        "text": "Let B be a point on the circle centered at O with diameter AC = 24 cm, and E, D be circumcentres of triangles CBO and BAO. Given sin(∠COB) = 4/5, determine the area of triangle EDB in cm^2.",
+        "text": "Let B be a point on the circle centered at O with diameter AC = 24 cm, and E, D be circumcentres of triangles CBO and BAO. Given $\\sin(\\angle COB)$ = 4/5, determine the area of triangle EDB in cm^2.",
         "options": [
           {
             "id": "A",
@@ -91430,7 +91430,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Using cyclic properties and radius relationships, the area of ΔEDB is 36 cm^2.",
+        "explanation": "Using cyclic properties and radius relationships, the area of $\\Delta EDB$ is 36 cm^2.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 7', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 6,
         "imageUrl": null,
@@ -91443,7 +91443,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Using cyclic properties and radius relationships, the area of ΔEDB is 36 cm^2."
+            "description": "Using cyclic properties and radius relationships, the area of $\\Delta EDB$ is 36 cm^2."
           }
         ]
       }
@@ -91637,7 +91637,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "x^2 + (x+7)^2 = (x+8)^2 -> x^2 + x^2 + 14x + 49 = x^2 + 16x + 64 -> x^2 - 2x - 15 = 0 -> (x-5)(x+3)=0 -> x = 5. Hypotenuse = 5 + 8 = 13.",
+        "explanation": "$x^2$ + (x+7)^2 = (x+8)^2 -> $x^2$ + $x^2$ + 14x + 49 = $x^2$ + 16x + 64 -> $x^2$ - 2x - 15 = 0 -> (x-5)(x+3)=0 -> x = 5. Hypotenuse = 5 + 8 = 13.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 8', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 3,
         "imageUrl": null,
@@ -91650,7 +91650,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "x^2 + (x+7)^2 = (x+8)^2 -> x^2 + x^2 + 14x + 49 = x^2 + 16x + 64 -> x^2 - 2x - 15 = 0 -> (x-5)(x+3)=0 -> x = 5. Hypotenuse = 5 + 8 = 13."
+            "description": "$x^2$ + (x+7)^2 = (x+8)^2 -> $x^2$ + $x^2$ + 14x + 49 = $x^2$ + 16x + 64 -> $x^2$ - 2x - 15 = 0 -> (x-5)(x+3)=0 -> x = 5. Hypotenuse = 5 + 8 = 13."
           }
         ]
       },
@@ -91666,7 +91666,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "4 + sqrt(15)"
+            "text": "$4 + \\sqrt{15}$"
           },
           {
             "id": "B",
@@ -91714,22 +91714,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "-10"
+            "text": "$-10$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "-7"
+            "text": "$-7$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "-9"
+            "text": "$-9$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "-8"
+            "text": "$-8$"
           }
         ],
         "correctAnswer": "A",
@@ -91804,28 +91804,28 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 8,
         "topicCode": "MATH_G8_T2",
         "topicName": "Tư duy Toán Olympic Lớp 8",
-        "title": "Câu 8: If a/b = 2/3 and b/c = 4/5, find (a + b)/(b + c).",
-        "text": "If a/b = 2/3 and b/c = 4/5, find (a + b)/(b + c).",
+        "title": "Câu 8: If $\\frac{a}{b}$ = 2/3 and b/c = 4/5, find (a + b)/(b + c).",
+        "text": "If $\\frac{a}{b}$ = 2/3 and b/c = 4/5, find (a + b)/(b + c).",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "20/27"
+            "text": "$\\frac{20}{27}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "19/27"
+            "text": "$\\frac{19}{27}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "21/27"
+            "text": "$\\frac{21}{27}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "22/27"
+            "text": "$\\frac{22}{27}$"
           }
         ],
         "correctAnswer": "A",
@@ -91973,7 +91973,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "x^2 + 1/x^2 = 4^2 - 2 = 14. x^4 + 1/x^4 = 14^2 - 2 = 196 - 2 = 194.",
+        "explanation": "$x^2$ + 1/$x^2$ = 4^2 - 2 = 14. x^4 + 1/x^4 = 14^2 - 2 = 196 - 2 = 194.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 8', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 4,
         "imageUrl": null,
@@ -91986,7 +91986,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "x^2 + 1/x^2 = 4^2 - 2 = 14. x^4 + 1/x^4 = 14^2 - 2 = 196 - 2 = 194."
+            "description": "$x^2$ + 1/$x^2$ = 4^2 - 2 = 14. x^4 + 1/x^4 = 14^2 - 2 = 196 - 2 = 194."
           }
         ]
       },
@@ -91997,7 +91997,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G8_T6",
         "topicName": "Tư duy Toán Olympic Lớp 8",
         "title": "Câu 12: A circle is inscribed in a square of side 14. Find the area ",
-        "text": "A circle is inscribed in a square of side 14. Find the area of the region outside the circle but inside the square. (Let π ≈ 22/7)",
+        "text": "A circle is inscribed in a square of side 14. Find the area of the region outside the circle but inside the square. (Let π ≈ $\\frac{22}{7}$)",
         "options": [
           {
             "id": "A",
@@ -92021,7 +92021,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Square area = 14^2 = 196. Circle radius = 7, area = (22/7)*49 = 154. Shaded area = 196 - 154 = 42.",
+        "explanation": "Square area = 14^2 = 196. Circle radius = 7, area = ($\\frac{22}{7}$)*49 = 154. Shaded area = 196 - 154 = 42.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 8', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 4,
         "imageUrl": null,
@@ -92034,7 +92034,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Square area = 14^2 = 196. Circle radius = 7, area = (22/7)*49 = 154. Shaded area = 196 - 154 = 42."
+            "description": "Square area = 14^2 = 196. Circle radius = 7, area = ($\\frac{22}{7}$)*49 = 154. Shaded area = 196 - 154 = 42."
           }
         ]
       },
@@ -92242,22 +92242,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "5/12"
+            "text": "$\\frac{5}{12}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/12"
+            "text": "$\\frac{4}{12}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "6/12"
+            "text": "$\\frac{6}{12}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "7/12"
+            "text": "$\\frac{7}{12}$"
           }
         ],
         "correctAnswer": "A",
@@ -92284,8 +92284,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 8,
         "topicCode": "MATH_G8_T6",
         "topicName": "Tư duy Toán Olympic Lớp 8",
-        "title": "Câu 18: Find the sum of all real roots of (x^2 - 5x + 5)^(x^2 - 9x +",
-        "text": "Find the sum of all real roots of (x^2 - 5x + 5)^(x^2 - 9x + 20) = 1.",
+        "title": "Câu 18: Find the sum of all real roots of ($x^2$ - 5x + 5)^($x^2$ - 9x +",
+        "text": "Find the sum of all real roots of ($x^2$ - 5x + 5)^($x^2$ - 9x + 20) = 1.",
         "options": [
           {
             "id": "A",
@@ -92338,12 +92338,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "48*pi"
+            "text": "$48\\pi$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "48*pi + 1"
+            "text": "$48\\pi + 1$"
           },
           {
             "id": "C",
@@ -92380,8 +92380,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 8,
         "topicCode": "MATH_G8_T2",
         "topicName": "Tư duy Toán Olympic Lớp 8",
-        "title": "Câu 20: Find the minimum value of f(x) = x^2 - 6x + 13 for real x.",
-        "text": "Find the minimum value of f(x) = x^2 - 6x + 13 for real x.",
+        "title": "Câu 20: Find the minimum value of f(x) = $x^2$ - 6x + 13 for real x.",
+        "text": "Find the minimum value of f(x) = $x^2$ - 6x + 13 for real x.",
         "options": [
           {
             "id": "A",
@@ -92482,7 +92482,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "8 + 8*sqrt(2)"
+            "text": "$8 + 8\\sqrt{2}$"
           },
           {
             "id": "B",
@@ -92572,13 +92572,13 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 8,
         "topicCode": "MATH_G8_T6",
         "topicName": "Tư duy Toán Olympic Lớp 8",
-        "title": "Câu 24: Determine all integer solutions to the equation x^3 - y^3 = ",
-        "text": "Determine all integer solutions to the equation x^3 - y^3 = 91.",
+        "title": "Câu 24: Determine all integer solutions to the equation x^3 - $y^3$ = ",
+        "text": "Determine all integer solutions to the equation x^3 - $y^3$ = 91.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "(6, 5), (-5, -6), (4, -3), (3, -4)"
+            "text": "$(6, 5), (-5, -6), (4, -3), (3, -4)$"
           },
           {
             "id": "B",
@@ -92597,7 +92597,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "(x - y)(x^2 + xy + y^2) = 91. Factoring 91 = 1*91 = 7*13 gives integer solutions (6, 5), (-5, -6), (4, -3), (3, -4).",
+        "explanation": "(x - y)($x^2$ + xy + y^2) = 91. Factoring 91 = 1*91 = 7*13 gives integer solutions (6, 5), (-5, -6), (4, -3), (3, -4).",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 8', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 6,
         "imageUrl": null,
@@ -92610,7 +92610,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "(x - y)(x^2 + xy + y^2) = 91. Factoring 91 = 1*91 = 7*13 gives integer solutions (6, 5), (-5, -6), (4, -3), (3, -4)."
+            "description": "(x - y)($x^2$ + xy + y^2) = 91. Factoring 91 = 1*91 = 7*13 gives integer solutions (6, 5), (-5, -6), (4, -3), (3, -4)."
           }
         ]
       },
@@ -92626,12 +92626,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "2*sqrt(30)"
+            "text": "$2\\sqrt{30}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2*sqrt(30) + 1"
+            "text": "$2\\sqrt{30} + 1$"
           },
           {
             "id": "C",
@@ -92737,22 +92737,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "3/7"
+            "text": "$\\frac{3}{7}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2/7"
+            "text": "$\\frac{2}{7}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "4/7"
+            "text": "$\\frac{4}{7}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "5/7"
+            "text": "$\\frac{5}{7}$"
           }
         ],
         "correctAnswer": "A",
@@ -92780,27 +92780,27 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G8_T3",
         "topicName": "Tư duy Toán Olympic Lớp 8",
         "title": "Câu 3: Find the difference between the largest and smallest possibl",
-        "text": "Find the difference between the largest and smallest possible values of a/b, if 2 <= a <= 16 and 4 <= b <= 24.",
+        "text": "Find the difference between the largest and smallest possible values of $\\frac{a}{b}$, if 2 <= a <= 16 and 4 <= b <= 24.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "47/12"
+            "text": "$\\frac{47}{12}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "46/12"
+            "text": "$\\frac{46}{12}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "48/12"
+            "text": "$\\frac{48}{12}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "49/12"
+            "text": "$\\frac{49}{12}$"
           }
         ],
         "correctAnswer": "A",
@@ -92833,7 +92833,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "(8, 4, 11)"
+            "text": "$(8, 4, 11)$"
           },
           {
             "id": "B",
@@ -93307,8 +93307,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 8,
         "topicCode": "MATH_G8_T2",
         "topicName": "Tư duy Toán Olympic Lớp 8",
-        "title": "Câu 14: Find the value of x^2 + 1/x^2 if x - 1/x = 5.",
-        "text": "Find the value of x^2 + 1/x^2 if x - 1/x = 5.",
+        "title": "Câu 14: Find the value of $x^2$ + 1/$x^2$ if x - 1/x = 5.",
+        "text": "Find the value of $x^2$ + 1/$x^2$ if x - 1/x = 5.",
         "options": [
           {
             "id": "A",
@@ -93332,7 +93332,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "x^2 + 1/x^2 = (x - 1/x)^2 + 2 = 25 + 2 = 27.",
+        "explanation": "$x^2$ + 1/$x^2$ = (x - 1/x)^2 + 2 = 25 + 2 = 27.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 8', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 1,
         "imageUrl": null,
@@ -93345,7 +93345,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "x^2 + 1/x^2 = (x - 1/x)^2 + 2 = 25 + 2 = 27."
+            "description": "$x^2$ + 1/$x^2$ = (x - 1/x)^2 + 2 = 25 + 2 = 27."
           }
         ]
       },
@@ -93649,22 +93649,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "9/40"
+            "text": "$\\frac{9}{40}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "8/40"
+            "text": "$\\frac{8}{40}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "10/40"
+            "text": "$\\frac{10}{40}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "11/40"
+            "text": "$\\frac{11}{40}$"
           }
         ],
         "correctAnswer": "A",
@@ -94288,22 +94288,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/3"
+            "text": "$\\frac{1}{3}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/3"
+            "text": "$\\frac{4}{3}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/3"
+            "text": "$\\frac{2}{3}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/3"
+            "text": "$\\frac{3}{3}$"
           }
         ],
         "correctAnswer": "A",
@@ -94816,26 +94816,26 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "3/8"
+            "text": "$\\frac{3}{8}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2/8"
+            "text": "$\\frac{2}{8}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "4/8"
+            "text": "$\\frac{4}{8}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "5/8"
+            "text": "$\\frac{5}{8}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "3/8.",
+        "explanation": "$\\frac{3}{8}$.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 8', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 1,
         "imageUrl": null,
@@ -94848,7 +94848,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "3/8."
+            "description": "$\\frac{3}{8}$."
           }
         ]
       },
@@ -95172,7 +95172,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "Li + 1"
+            "text": "$Li + 1$"
           },
           {
             "id": "C",
@@ -97054,22 +97054,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/12"
+            "text": "$\\frac{1}{12}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/12"
+            "text": "$\\frac{4}{12}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/12"
+            "text": "$\\frac{2}{12}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/12"
+            "text": "$\\frac{3}{12}$"
           }
         ],
         "correctAnswer": "A",
@@ -97568,7 +97568,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "x + 12 = x^2 -> x^2 - x - 12 = 0 -> (x-4)(x+3)=0. Since x >= 0, x = 4.",
+        "explanation": "x + 12 = $x^2$ -> $x^2$ - x - 12 = 0 -> (x-4)(x+3)=0. Since x >= 0, x = 4.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 9', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 3,
         "imageUrl": null,
@@ -97581,7 +97581,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "x + 12 = x^2 -> x^2 - x - 12 = 0 -> (x-4)(x+3)=0. Since x >= 0, x = 4."
+            "description": "x + 12 = $x^2$ -> $x^2$ - x - 12 = 0 -> (x-4)(x+3)=0. Since x >= 0, x = 4."
           }
         ]
       },
@@ -97591,8 +97591,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 9,
         "topicCode": "MATH_G9_T2",
         "topicName": "Tư duy Toán Olympic Lớp 9",
-        "title": "Câu 2: If sin(x) + cos(x) = 1.2, find sin(2x).",
-        "text": "If sin(x) + cos(x) = 1.2, find sin(2x).",
+        "title": "Câu 2: If $\\sin(x)$ + $\\cos(x)$ = 1.2, find $\\sin(2x)$.",
+        "text": "If $\\sin(x)$ + $\\cos(x)$ = 1.2, find $\\sin(2x)$.",
         "options": [
           {
             "id": "A",
@@ -97616,7 +97616,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "(sin x + cos x)^2 = 1 + sin(2x) = 1.44 -> sin(2x) = 0.44.",
+        "explanation": "(sin x + cos x)^2 = 1 + $\\sin(2x)$ = 1.44 -> $\\sin(2x)$ = 0.44.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 9', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 3,
         "imageUrl": null,
@@ -97629,7 +97629,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "(sin x + cos x)^2 = 1 + sin(2x) = 1.44 -> sin(2x) = 0.44."
+            "description": "(sin x + cos x)^2 = 1 + $\\sin(2x)$ = 1.44 -> $\\sin(2x)$ = 0.44."
           }
         ]
       },
@@ -97639,8 +97639,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 9,
         "topicCode": "MATH_G9_T3",
         "topicName": "Tư duy Toán Olympic Lớp 9",
-        "title": "Câu 3: Find the sum of all solutions to |x^2 - 4x| = 3.",
-        "text": "Find the sum of all solutions to |x^2 - 4x| = 3.",
+        "title": "Câu 3: Find the sum of all solutions to |$x^2$ - 4x| = 3.",
+        "text": "Find the sum of all solutions to |$x^2$ - 4x| = 3.",
         "options": [
           {
             "id": "A",
@@ -97664,7 +97664,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "x^2 - 4x = 3 has sum of roots 4. x^2 - 4x = -3 has sum of roots 4. Total sum = 4 + 4 = 8.",
+        "explanation": "$x^2$ - 4x = 3 has sum of roots 4. $x^2$ - 4x = -3 has sum of roots 4. Total sum = 4 + 4 = 8.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 9', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 3,
         "imageUrl": null,
@@ -97677,7 +97677,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "x^2 - 4x = 3 has sum of roots 4. x^2 - 4x = -3 has sum of roots 4. Total sum = 4 + 4 = 8."
+            "description": "$x^2$ - 4x = 3 has sum of roots 4. $x^2$ - 4x = -3 has sum of roots 4. Total sum = 4 + 4 = 8."
           }
         ]
       },
@@ -97808,7 +97808,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "(x^2 - 1)(x^2 - 4) = 0 -> x = ±1, ±2 (4 real roots).",
+        "explanation": "($x^2$ - 1)($x^2$ - 4) = 0 -> x = ±1, ±2 (4 real roots).",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 9', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 3,
         "imageUrl": null,
@@ -97821,7 +97821,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "(x^2 - 1)(x^2 - 4) = 0 -> x = ±1, ±2 (4 real roots)."
+            "description": "($x^2$ - 1)($x^2$ - 4) = 0 -> x = ±1, ±2 (4 real roots)."
           }
         ]
       },
@@ -97831,13 +97831,13 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 9,
         "topicCode": "MATH_G9_T1",
         "topicName": "Tư duy Toán Olympic Lớp 9",
-        "title": "Câu 7: If log_2(3) = a and log_2(5) = b, express log_2(45) in terms",
-        "text": "If log_2(3) = a and log_2(5) = b, express log_2(45) in terms of a and b.",
+        "title": "Câu 7: If $\\log_{2}(3)$ = a and $\\log_{2}(5)$ = b, express $\\log_{2}(45)$ in terms",
+        "text": "If $\\log_{2}(3)$ = a and $\\log_{2}(5)$ = b, express $\\log_{2}(45)$ in terms of a and b.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "2a + b"
+            "text": "$2a + b$"
           },
           {
             "id": "B",
@@ -97856,7 +97856,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "log_2(45) = log_2(3^2 * 5) = 2*log_2(3) + log_2(5) = 2a + b.",
+        "explanation": "$\\log_{2}(45)$ = $\\log_{2}(3^2 \\times 5)$ = 2*$\\log_{2}(3)$ + $\\log_{2}(5)$ = 2a + b.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 9', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 3,
         "imageUrl": null,
@@ -97869,7 +97869,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "log_2(45) = log_2(3^2 * 5) = 2*log_2(3) + log_2(5) = 2a + b."
+            "description": "$\\log_{2}(45)$ = $\\log_{2}(3^2 \\times 5)$ = 2*$\\log_{2}(3)$ + $\\log_{2}(5)$ = 2a + b."
           }
         ]
       },
@@ -97885,12 +97885,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "27*sqrt(3)"
+            "text": "$27\\sqrt{3}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "27*sqrt(3) + 1"
+            "text": "$27\\sqrt{3} + 1$"
           },
           {
             "id": "C",
@@ -98023,8 +98023,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 9,
         "topicCode": "MATH_G9_T5",
         "topicName": "Tư duy Toán Olympic Lớp 9",
-        "title": "Câu 11: If alpha and beta are roots of x^2 - 7x + 3 = 0, find alpha^",
-        "text": "If alpha and beta are roots of x^2 - 7x + 3 = 0, find alpha^3 + beta^3.",
+        "title": "Câu 11: If $\\alpha$ and $\\beta$ are roots of $x^2$ - 7x + 3 = 0, find $\\alpha$^",
+        "text": "If $\\alpha$ and $\\beta$ are roots of $x^2$ - 7x + 3 = 0, find $\\alpha$^3 + $\\beta$^3.",
         "options": [
           {
             "id": "A",
@@ -98048,7 +98048,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "alpha + beta = 7, alpha*beta = 3. alpha^3 + beta^3 = (alpha+beta)^3 - 3*alpha*beta*(alpha+beta) = 343 - 3(3)(7) = 343 - 63 = 280.",
+        "explanation": "$\\alpha$ + $\\beta$ = 7, $\\alpha$*$\\beta$ = 3. $\\alpha$^3 + $\\beta$^3 = ($\\alpha$+$\\beta$)^3 - 3*$\\alpha$*$\\beta$*($\\alpha$+$\\beta$) = 343 - 3(3)(7) = 343 - 63 = 280.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 9', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 4,
         "imageUrl": null,
@@ -98061,7 +98061,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "alpha + beta = 7, alpha*beta = 3. alpha^3 + beta^3 = (alpha+beta)^3 - 3*alpha*beta*(alpha+beta) = 343 - 3(3)(7) = 343 - 63 = 280."
+            "description": "$\\alpha$ + $\\beta$ = 7, $\\alpha$*$\\beta$ = 3. $\\alpha$^3 + $\\beta$^3 = ($\\alpha$+$\\beta$)^3 - 3*$\\alpha$*$\\beta$*($\\alpha$+$\\beta$) = 343 - 3(3)(7) = 343 - 63 = 280."
           }
         ]
       },
@@ -98221,12 +98221,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "60°"
+            "text": "$60^\\circ$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "60° + 1"
+            "text": "$60^\\circ + 1$"
           },
           {
             "id": "C",
@@ -98240,7 +98240,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Law of cosines: cos(B) = (5^2 + 7^2 - 8^2)/(2*5*7) = (25 + 49 - 64)/70 = 10/70 = 1/2 -> ∠B = 60° (or arccos(1/7)).",
+        "explanation": "Law of cosines: $\\cos(B)$ = (5^2 + 7^2 - 8^2)/(2*5*7) = (25 + 49 - 64)/70 = 10/70 = 1/2 -> ∠B = 60° (or arccos(1/7)).",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 9', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 4,
         "imageUrl": null,
@@ -98253,7 +98253,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Law of cosines: cos(B) = (5^2 + 7^2 - 8^2)/(2*5*7) = (25 + 49 - 64)/70 = 10/70 = 1/2 -> ∠B = 60° (or arccos(1/7))."
+            "description": "Law of cosines: $\\cos(B)$ = (5^2 + 7^2 - 8^2)/(2*5*7) = (25 + 49 - 64)/70 = 10/70 = 1/2 -> ∠B = 60° (or arccos(1/7))."
           }
         ]
       },
@@ -98263,8 +98263,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 9,
         "topicCode": "MATH_G9_T4",
         "topicName": "Tư duy Toán Olympic Lớp 9",
-        "title": "Câu 16: Solve for x: log_3(x) + log_9(x) + log_27(x) = 11/6.",
-        "text": "Solve for x: log_3(x) + log_9(x) + log_27(x) = 11/6.",
+        "title": "Câu 16: Solve for x: $\\log_{3}(x)$ + $\\log_{9}(x)$ + $\\log_{27}(x)$ = 11/6.",
+        "text": "Solve for x: $\\log_{3}(x)$ + $\\log_{9}(x)$ + $\\log_{27}(x)$ = 11/6.",
         "options": [
           {
             "id": "A",
@@ -98288,7 +98288,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "log_3(x)*(1 + 1/2 + 1/3) = log_3(x)*(11/6) = 11/6 -> log_3(x) = 1 -> x = 3.",
+        "explanation": "$\\log_{3}(x)$*(1 + 1/2 + 1/3) = $\\log_{3}(x)$*(11/6) = 11/6 -> $\\log_{3}(x)$ = 1 -> x = 3.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 9', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 4,
         "imageUrl": null,
@@ -98301,7 +98301,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "log_3(x)*(1 + 1/2 + 1/3) = log_3(x)*(11/6) = 11/6 -> log_3(x) = 1 -> x = 3."
+            "description": "$\\log_{3}(x)$*(1 + 1/2 + 1/3) = $\\log_{3}(x)$*(11/6) = 11/6 -> $\\log_{3}(x)$ = 1 -> x = 3."
           }
         ]
       },
@@ -98317,22 +98317,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "-160"
+            "text": "$-160$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "-157"
+            "text": "$-157$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "-159"
+            "text": "$-159$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "-158"
+            "text": "$-158$"
           }
         ],
         "correctAnswer": "A",
@@ -98365,22 +98365,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "16/3"
+            "text": "$\\frac{16}{3}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "15/3"
+            "text": "$\\frac{15}{3}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "17/3"
+            "text": "$\\frac{17}{3}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "18/3"
+            "text": "$\\frac{18}{3}$"
           }
         ],
         "correctAnswer": "A",
@@ -98408,17 +98408,17 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G9_T1",
         "topicName": "Tư duy Toán Olympic Lớp 9",
         "title": "Câu 19: Find the length of the common chord of two intersecting circ",
-        "text": "Find the length of the common chord of two intersecting circles x^2 + y^2 = 25 and (x-4)^2 + y^2 = 25.",
+        "text": "Find the length of the common chord of two intersecting circles $x^2$ + y^2 = 25 and (x-4)^2 + y^2 = 25.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "2*sqrt(21)"
+            "text": "$2\\sqrt{21}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2*sqrt(21) + 1"
+            "text": "$2\\sqrt{21} + 1$"
           },
           {
             "id": "C",
@@ -98605,12 +98605,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "4*sqrt(95)/3"
+            "text": "$4\\sqrt{95}/3$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4*sqrt(95)/3 + 1"
+            "text": "$4\\sqrt{95}/3 + 1$"
           },
           {
             "id": "C",
@@ -98653,7 +98653,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "(3, 2)"
+            "text": "$(3, 2)$"
           },
           {
             "id": "B",
@@ -99292,12 +99292,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "2*sqrt(2)"
+            "text": "$2\\sqrt{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2*sqrt(2) + 1"
+            "text": "$2\\sqrt{2} + 1$"
           },
           {
             "id": "C",
@@ -100363,22 +100363,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/3"
+            "text": "$\\frac{1}{3}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/3"
+            "text": "$\\frac{4}{3}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/3"
+            "text": "$\\frac{2}{3}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/3"
+            "text": "$\\frac{3}{3}$"
           }
         ],
         "correctAnswer": "A",
@@ -100891,26 +100891,26 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "3/8"
+            "text": "$\\frac{3}{8}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2/8"
+            "text": "$\\frac{2}{8}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "4/8"
+            "text": "$\\frac{4}{8}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "5/8"
+            "text": "$\\frac{5}{8}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "3/8.",
+        "explanation": "$\\frac{3}{8}$.",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Tư duy Toán Olympic Lớp 9', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 1,
         "imageUrl": null,
@@ -100923,7 +100923,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "3/8."
+            "description": "$\\frac{3}{8}$."
           }
         ]
       },
@@ -101962,22 +101962,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/12"
+            "text": "$\\frac{1}{12}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/12"
+            "text": "$\\frac{4}{12}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/12"
+            "text": "$\\frac{2}{12}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/12"
+            "text": "$\\frac{3}{12}$"
           }
         ],
         "correctAnswer": "A",
@@ -102649,12 +102649,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "2*sqrt(2)"
+            "text": "$2\\sqrt{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2*sqrt(2) + 1"
+            "text": "$2\\sqrt{2} + 1$"
           },
           {
             "id": "C",
@@ -103618,13 +103618,13 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T1",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 1: Simplify: (x^2 - 4)/(x + 2).",
-        "text": "Simplify: (x^2 - 4)/(x + 2).",
+        "title": "Câu 1: Simplify: $\\frac{x^2 - 4}{x + 2}$.",
+        "text": "Simplify: $\\frac{x^2 - 4}{x + 2}$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "x - 2"
+            "text": "$x - 2$"
           },
           {
             "id": "B",
@@ -103666,8 +103666,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T2",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 2: Solve 2^(2x) - 5(2^x) + 4 = 0.",
-        "text": "Solve 2^(2x) - 5(2^x) + 4 = 0.",
+        "title": "Câu 2: Solve $2^{2x} - 5(2^x) + 4 = 0$.",
+        "text": "Solve $2^{2x} - 5(2^x) + 4 = 0$.",
         "options": [
           {
             "id": "A",
@@ -103714,8 +103714,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T3",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 3: Find the discriminant of 3x^2 - 5x + 2 = 0.",
-        "text": "Find the discriminant of 3x^2 - 5x + 2 = 0.",
+        "title": "Câu 3: Find the discriminant of $3x^2 - 5x + 2 = 0$.",
+        "text": "Find the discriminant of $3x^2 - 5x + 2 = 0$.",
         "options": [
           {
             "id": "A",
@@ -103739,7 +103739,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "b^2 - 4ac = 25 - 24 = 1.",
+        "explanation": "$b^2 - 4ac = 25 - 24 = 1$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 10 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 10'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -103752,7 +103752,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "b^2 - 4ac = 25 - 24 = 1."
+            "description": "$b^2 - 4ac = 25 - 24 = 1$."
           }
         ]
       },
@@ -103762,13 +103762,13 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T4",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 4: Find the vertex of y = 2x^2 - 8x + 5.",
-        "text": "Find the vertex of y = 2x^2 - 8x + 5.",
+        "title": "Câu 4: Find the vertex of $y = 2x^2 - 8x + 5$.",
+        "text": "Find the vertex of $y = 2x^2 - 8x + 5$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "(2, -3)"
+            "text": "$(2, -3)$"
           },
           {
             "id": "B",
@@ -103810,8 +103810,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T5",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 5: Solve log_2(x) + log_2(x - 2) = 3.",
-        "text": "Solve log_2(x) + log_2(x - 2) = 3.",
+        "title": "Câu 5: Solve $\\log_{2}(x) + \\log_{2}(x - 2) = 3$.",
+        "text": "Solve $\\log_{2}(x) + \\log_{2}(x - 2) = 3$.",
         "options": [
           {
             "id": "A",
@@ -103835,7 +103835,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "x(x - 2) = 8 -> x^2 - 2x - 8 = 0 -> (x - 4)(x + 2) = 0. x > 2 -> x = 4.",
+        "explanation": "x(x - 2) = 8 -> $x^2$ - 2x - 8 = 0 -> (x - 4)(x + 2) = 0. x > 2 -> x = 4.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 10 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 10'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -103848,7 +103848,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "x(x - 2) = 8 -> x^2 - 2x - 8 = 0 -> (x - 4)(x + 2) = 0. x > 2 -> x = 4."
+            "description": "x(x - 2) = 8 -> $x^2$ - 2x - 8 = 0 -> (x - 4)(x + 2) = 0. x > 2 -> x = 4."
           }
         ]
       },
@@ -103858,18 +103858,18 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T6",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 6: Find the period of f(x) = 3*sin(2x - pi/4).",
-        "text": "Find the period of f(x) = 3*sin(2x - pi/4).",
+        "title": "Câu 6: Find the period of $f(x) = 3\\sin(2x - \\frac{\\pi}{4})$.",
+        "text": "Find the period of $f(x) = 3\\sin(2x - \\frac{\\pi}{4})$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "pi"
+            "text": "$\\pi$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "pi + 1"
+            "text": "$\\pi + 1$"
           },
           {
             "id": "C",
@@ -103906,8 +103906,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T1",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 7: Find the distance from (3, -2) to 4x - 3y + 2 = 0.",
-        "text": "Find the distance from (3, -2) to 4x - 3y + 2 = 0.",
+        "title": "Câu 7: Find the distance from (3, -2) to $4x - 3y + 2 = 0$.",
+        "text": "Find the distance from (3, -2) to $4x - 3y + 2 = 0$.",
         "options": [
           {
             "id": "A",
@@ -103931,7 +103931,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "|4(3) - 3(-2) + 2| / sqrt(16 + 9) = |12 + 6 + 2| / 5 = 20 / 5 = 4.",
+        "explanation": "|4(3) - 3(-2) + 2| / $\\sqrt{16 + 9}$ = |12 + 6 + 2| / 5 = 20 / 5 = 4.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 10 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 10'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -103944,7 +103944,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "|4(3) - 3(-2) + 2| / sqrt(16 + 9) = |12 + 6 + 2| / 5 = 20 / 5 = 4."
+            "description": "|4(3) - 3(-2) + 2| / $\\sqrt{16 + 9}$ = |12 + 6 + 2| / 5 = 20 / 5 = 4."
           }
         ]
       },
@@ -103954,8 +103954,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T2",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 8: In an arithmetic progression, a_1 = 5, d = 3. Find the sum o",
-        "text": "In an arithmetic progression, a_1 = 5, d = 3. Find the sum of first 20 terms.",
+        "title": "Câu 8: In an arithmetic progression, $a_1 = 5, d = 3$. Find the sum o",
+        "text": "In an arithmetic progression, $a_1 = 5, d = 3$. Find the sum of first 20 terms.",
         "options": [
           {
             "id": "A",
@@ -104056,7 +104056,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "-2 < x < 5"
+            "text": "$-2 < x < 5$"
           },
           {
             "id": "B",
@@ -104098,8 +104098,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T5",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 11: Find the value of k such that x^2 + kx + 9 = 0 has equal roo",
-        "text": "Find the value of k such that x^2 + kx + 9 = 0 has equal roots.",
+        "title": "Câu 11: Find the value of k such that $x^2 + kx + 9 = 0$ has equal roo",
+        "text": "Find the value of k such that $x^2 + kx + 9 = 0$ has equal roots.",
         "options": [
           {
             "id": "A",
@@ -104194,32 +104194,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T1",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 13: If tan(theta) = 3/4 with theta in Q1, find sin(2*theta).",
-        "text": "If tan(theta) = 3/4 with theta in Q1, find sin(2*theta).",
+        "title": "Câu 13: If $\\tan(\\underline{\\quad}MATH_BLOCK_0\\underline{\\quad})$ = 3/4 with $\\theta$ in Q1, find $\\sin(2 \\cdot \\underline{\\quad}MATH_BLOCK_2\\underline{\\quad})$.",
+        "text": "If $\\tan(\\underline{\\quad}MATH_BLOCK_0\\underline{\\quad})$ = 3/4 with $\\theta$ in Q1, find $\\sin(2 \\cdot \\underline{\\quad}MATH_BLOCK_2\\underline{\\quad})$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "24/25"
+            "text": "$\\frac{24}{25}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "23/25"
+            "text": "$\\frac{23}{25}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "25/25"
+            "text": "$\\frac{25}{25}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "26/25"
+            "text": "$\\frac{26}{25}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "sin(theta) = 3/5, cos(theta) = 4/5. sin(2*theta) = 2*(3/5)*(4/5) = 24/25.",
+        "explanation": "$\\sin(\\underline{\\quad}MATH_BLOCK_0\\underline{\\quad})$ = 3/5, $\\cos(\\underline{\\quad}MATH_BLOCK_1\\underline{\\quad})$ = 4/5. $\\sin(2 \\cdot \\underline{\\quad}MATH_BLOCK_2\\underline{\\quad})$ = 2*(3/5)*(4/5) = 24/25.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 10 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 10'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -104232,7 +104232,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "sin(theta) = 3/5, cos(theta) = 4/5. sin(2*theta) = 2*(3/5)*(4/5) = 24/25."
+            "description": "$\\sin(\\underline{\\quad}MATH_BLOCK_0\\underline{\\quad})$ = 3/5, $\\cos(\\underline{\\quad}MATH_BLOCK_1\\underline{\\quad})$ = 4/5. $\\sin(2 \\cdot \\underline{\\quad}MATH_BLOCK_2\\underline{\\quad})$ = 2*(3/5)*(4/5) = 24/25."
           }
         ]
       },
@@ -104290,8 +104290,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T3",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 15: Find the center and radius of circle x^2 + y^2 - 6x + 8y = 0",
-        "text": "Find the center and radius of circle x^2 + y^2 - 6x + 8y = 0.",
+        "title": "Câu 15: Find the center and radius of circle $x^2$ + y^2 - 6x + 8y = 0",
+        "text": "Find the center and radius of circle $x^2$ + y^2 - 6x + 8y = 0.",
         "options": [
           {
             "id": "A",
@@ -104392,7 +104392,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "x = 2, y = 3"
+            "text": "$x = 2, y = 3$"
           },
           {
             "id": "B",
@@ -104434,13 +104434,13 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T6",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 18: Find the domain of f(x) = sqrt(x^2 - 9).",
-        "text": "Find the domain of f(x) = sqrt(x^2 - 9).",
+        "title": "Câu 18: Find the domain of f(x) = sqrt($x^2$ - 9).",
+        "text": "Find the domain of f(x) = sqrt($x^2$ - 9).",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "x <= -3 or x >= 3"
+            "text": "$x \\le -3 or x \\ge 3$"
           },
           {
             "id": "B",
@@ -104459,7 +104459,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "x^2 >= 9 -> |x| >= 3.",
+        "explanation": "$x^2$ >= 9 -> |x| >= 3.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 10 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 10'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -104472,7 +104472,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "x^2 >= 9 -> |x| >= 3."
+            "description": "$x^2$ >= 9 -> |x| >= 3."
           }
         ]
       },
@@ -104488,22 +104488,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "4/13"
+            "text": "$\\frac{4}{13}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "3/13"
+            "text": "$\\frac{3}{13}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "5/13"
+            "text": "$\\frac{5}{13}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "6/13"
+            "text": "$\\frac{6}{13}$"
           }
         ],
         "correctAnswer": "A",
@@ -104530,8 +104530,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T2",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 20: Find the range of y = x^2 - 4x + 7 for x in [0, 5].",
-        "text": "Find the range of y = x^2 - 4x + 7 for x in [0, 5].",
+        "title": "Câu 20: Find the range of y = $x^2$ - 4x + 7 for x in [0, 5].",
+        "text": "Find the range of y = $x^2$ - 4x + 7 for x in [0, 5].",
         "options": [
           {
             "id": "A",
@@ -104578,8 +104578,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T3",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 21: Find the minimum value of f(x, y) = x^2 + 2y^2 - 2xy - 4x + ",
-        "text": "Find the minimum value of f(x, y) = x^2 + 2y^2 - 2xy - 4x + 6.",
+        "title": "Câu 21: Find the minimum value of f(x, y) = $x^2$ + 2y^2 - 2xy - 4x + ",
+        "text": "Find the minimum value of f(x, y) = $x^2$ + 2y^2 - 2xy - 4x + 6.",
         "options": [
           {
             "id": "A",
@@ -104858,7 +104858,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "(x^2 + 5x + 4)(x^2 + 5x + 6) = 120. Let u = x^2 + 5x. (u+4)(u+6) = 120 -> u^2 + 10u - 96 = 0 -> (u+16)(u-6) = 0. x^2 + 5x - 6 = 0 -> x = 1, -6.",
+        "explanation": "($x^2$ + 5x + 4)($x^2$ + 5x + 6) = 120. Let u = $x^2$ + 5x. (u+4)(u+6) = 120 -> u^2 + 10u - 96 = 0 -> (u+16)(u-6) = 0. $x^2$ + 5x - 6 = 0 -> x = 1, -6.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 10 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 10'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -104871,7 +104871,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "(x^2 + 5x + 4)(x^2 + 5x + 6) = 120. Let u = x^2 + 5x. (u+4)(u+6) = 120 -> u^2 + 10u - 96 = 0 -> (u+16)(u-6) = 0. x^2 + 5x - 6 = 0 -> x = 1, -6."
+            "description": "($x^2$ + 5x + 4)($x^2$ + 5x + 6) = 120. Let u = $x^2$ + 5x. (u+4)(u+6) = 120 -> u^2 + 10u - 96 = 0 -> (u+16)(u-6) = 0. $x^2$ + 5x - 6 = 0 -> x = 1, -6."
           }
         ]
       },
@@ -104881,32 +104881,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T2",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 2: If sin(theta) = 3/5 with theta in Q2, find tan(theta).",
-        "text": "If sin(theta) = 3/5 with theta in Q2, find tan(theta).",
+        "title": "Câu 2: If $\\sin(\\underline{\\quad}MATH_BLOCK_0\\underline{\\quad})$ = 3/5 with $\\theta$ in Q2, find $\\tan(\\underline{\\quad}MATH_BLOCK_2\\underline{\\quad})$.",
+        "text": "If $\\sin(\\underline{\\quad}MATH_BLOCK_0\\underline{\\quad})$ = 3/5 with $\\theta$ in Q2, find $\\tan(\\underline{\\quad}MATH_BLOCK_2\\underline{\\quad})$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "-3/4"
+            "text": "$-\\frac{3}{4}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "0/4"
+            "text": "$\\frac{0}{4}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "-2/4"
+            "text": "$-\\frac{2}{4}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "-1/4"
+            "text": "$-\\frac{1}{4}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "In Q2, cos(theta) = -4/5. tan(theta) = -3/4.",
+        "explanation": "In Q2, $\\cos(\\underline{\\quad}MATH_BLOCK_0\\underline{\\quad})$ = -4/5. $\\tan(\\underline{\\quad}MATH_BLOCK_1\\underline{\\quad})$ = -3/4.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 10 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 10'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -104919,7 +104919,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "In Q2, cos(theta) = -4/5. tan(theta) = -3/4."
+            "description": "In Q2, $\\cos(\\underline{\\quad}MATH_BLOCK_0\\underline{\\quad})$ = -4/5. $\\tan(\\underline{\\quad}MATH_BLOCK_1\\underline{\\quad})$ = -3/4."
           }
         ]
       },
@@ -104983,7 +104983,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "(3, 4)"
+            "text": "$(3, 4)$"
           },
           {
             "id": "B",
@@ -105025,8 +105025,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T5",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 5: Evaluate: log_2(3) * log_3(4) * log_4(5) * ... * log_31(32).",
-        "text": "Evaluate: log_2(3) * log_3(4) * log_4(5) * ... * log_31(32).",
+        "title": "Câu 5: Evaluate: $\\log_{2}(3)$ * $\\log_{3}(4)$ * $\\log_{4}(5)$ * ... * $\\log_{31}(32)$.",
+        "text": "Evaluate: $\\log_{2}(3)$ * $\\log_{3}(4)$ * $\\log_{4}(5)$ * ... * $\\log_{31}(32)$.",
         "options": [
           {
             "id": "A",
@@ -105050,7 +105050,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Telescoping change of base = log_2(32) = 5.",
+        "explanation": "Telescoping change of base = $\\log_{2}(32)$ = 5.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 10 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 10'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -105063,7 +105063,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Telescoping change of base = log_2(32) = 5."
+            "description": "Telescoping change of base = $\\log_{2}(32)$ = 5."
           }
         ]
       },
@@ -105127,22 +105127,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "-5"
+            "text": "$-5$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "-2"
+            "text": "$-2$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "-4"
+            "text": "$-4$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "-3"
+            "text": "$-3$"
           }
         ],
         "correctAnswer": "A",
@@ -105223,7 +105223,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "-3 < x <= 2"
+            "text": "$-3 < x \\le 2$"
           },
           {
             "id": "B",
@@ -105313,8 +105313,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T5",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 11: If alpha, beta, gamma are roots of x^3 - 3x^2 + 4x - 5 = 0, ",
-        "text": "If alpha, beta, gamma are roots of x^3 - 3x^2 + 4x - 5 = 0, find alpha^2 + beta^2 + gamma^2.",
+        "title": "Câu 11: If $\\alpha$, $\\beta$, $\\gamma$ are roots of x^3 - 3x^2 + 4x - 5 = 0, ",
+        "text": "If $\\alpha$, $\\beta$, $\\gamma$ are roots of x^3 - 3x^2 + 4x - 5 = 0, find $\\alpha$^2 + $\\beta$^2 + $\\gamma$^2.",
         "options": [
           {
             "id": "A",
@@ -105338,7 +105338,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "(alpha+beta+gamma)^2 - 2(alpha*beta + beta*gamma + gamma*alpha) = 3^2 - 2(4) = 9 - 8 = 1.",
+        "explanation": "($\\alpha$+$\\beta$+$\\gamma$)^2 - 2($\\alpha$*$\\beta$ + $\\beta$*$\\gamma$ + $\\gamma$*$\\alpha$) = 3^2 - 2(4) = 9 - 8 = 1.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 10 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 10'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -105351,7 +105351,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "(alpha+beta+gamma)^2 - 2(alpha*beta + beta*gamma + gamma*alpha) = 3^2 - 2(4) = 9 - 8 = 1."
+            "description": "($\\alpha$+$\\beta$+$\\gamma$)^2 - 2($\\alpha$*$\\beta$ + $\\beta$*$\\gamma$ + $\\gamma$*$\\alpha$) = 3^2 - 2(4) = 9 - 8 = 1."
           }
         ]
       },
@@ -105361,8 +105361,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T6",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 12: Find the maximum value of 3*sin(x) + 4*cos(x).",
-        "text": "Find the maximum value of 3*sin(x) + 4*cos(x).",
+        "title": "Câu 12: Find the maximum value of $3\\sin(x)$ + $4\\cos(x)$.",
+        "text": "Find the maximum value of $3\\sin(x)$ + $4\\cos(x)$.",
         "options": [
           {
             "id": "A",
@@ -105511,26 +105511,26 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/2"
+            "text": "$\\frac{1}{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/2"
+            "text": "$\\frac{4}{2}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/2"
+            "text": "$\\frac{2}{2}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/2"
+            "text": "$\\frac{3}{2}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "a = log_2(100), b = log_5(100). 1/a + 1/b = log_100(2) + log_100(5) = log_100(10) = 1/2.",
+        "explanation": "a = $\\log_{2}(100)$, b = $\\log_{5}(100)$. 1/a + 1/b = $\\log_{100}(2)$ + $\\log_{100}(5)$ = $\\log_{100}(10)$ = 1/2.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 10 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 10'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -105543,7 +105543,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "a = log_2(100), b = log_5(100). 1/a + 1/b = log_100(2) + log_100(5) = log_100(10) = 1/2."
+            "description": "a = $\\log_{2}(100)$, b = $\\log_{5}(100)$. 1/a + 1/b = $\\log_{100}(2)$ + $\\log_{100}(5)$ = $\\log_{100}(10)$ = 1/2."
           }
         ]
       },
@@ -105607,12 +105607,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "60*sqrt(2)/17"
+            "text": "$60\\sqrt{2}/17$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "60*sqrt(2)/17 + 1"
+            "text": "$60\\sqrt{2}/17 + 1$"
           },
           {
             "id": "C",
@@ -105626,7 +105626,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "l = (2ab*cos(45°))/(a + b) = (2 * 5 * 12 * (sqrt(2)/2)) / 17 = 60*sqrt(2)/17.",
+        "explanation": "l = (2ab*$\\cos(45^\\circ)$)/(a + b) = (2 * 5 * 12 * (sqrt(2)/2)) / 17 = 60*sqrt(2)/17.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 10 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 10'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -105639,7 +105639,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "l = (2ab*cos(45°))/(a + b) = (2 * 5 * 12 * (sqrt(2)/2)) / 17 = 60*sqrt(2)/17."
+            "description": "l = (2ab*$\\cos(45^\\circ)$)/(a + b) = (2 * 5 * 12 * (sqrt(2)/2)) / 17 = 60*sqrt(2)/17."
           }
         ]
       },
@@ -105649,8 +105649,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T6",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 18: Find the constant term in the expansion of (x^2 + 1/x)^9.",
-        "text": "Find the constant term in the expansion of (x^2 + 1/x)^9.",
+        "title": "Câu 18: Find the constant term in the expansion of ($x^2$ + 1/x)^9.",
+        "text": "Find the constant term in the expansion of ($x^2$ + 1/x)^9.",
         "options": [
           {
             "id": "A",
@@ -105674,7 +105674,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Term is C(9, r)*(x^2)^(9-r)*(x^(-1))^r = C(9, r)*x^(18 - 3r). Constant term when 18 - 3r = 0 -> r = 6. C(9, 6) = 84.",
+        "explanation": "Term is C(9, r)*($x^2$)^(9-r)*(x^(-1))^r = C(9, r)*x^(18 - 3r). Constant term when 18 - 3r = 0 -> r = 6. C(9, 6) = 84.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 10 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 10'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -105687,7 +105687,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Term is C(9, r)*(x^2)^(9-r)*(x^(-1))^r = C(9, r)*x^(18 - 3r). Constant term when 18 - 3r = 0 -> r = 6. C(9, 6) = 84."
+            "description": "Term is C(9, r)*($x^2$)^(9-r)*(x^(-1))^r = C(9, r)*x^(18 - 3r). Constant term when 18 - 3r = 0 -> r = 6. C(9, 6) = 84."
           }
         ]
       },
@@ -105745,8 +105745,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T2",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 20: If x + y + z = 6 and xy + yz + zx = 11, find x^2 + y^2 + z^2",
-        "text": "If x + y + z = 6 and xy + yz + zx = 11, find x^2 + y^2 + z^2.",
+        "title": "Câu 20: If x + y + z = 6 and xy + yz + zx = 11, find $x^2$ + y^2 + z^2",
+        "text": "If x + y + z = 6 and xy + yz + zx = 11, find $x^2$ + y^2 + z^2.",
         "options": [
           {
             "id": "A",
@@ -105841,32 +105841,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T4",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 22: Find the maximum value of sin(x)*cos(x) for real x.",
-        "text": "Find the maximum value of sin(x)*cos(x) for real x.",
+        "title": "Câu 22: Find the maximum value of $\\sin(x)$*$\\cos(x)$ for real x.",
+        "text": "Find the maximum value of $\\sin(x)$*$\\cos(x)$ for real x.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "1/2"
+            "text": "$\\frac{1}{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/2"
+            "text": "$\\frac{4}{2}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/2"
+            "text": "$\\frac{2}{2}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/2"
+            "text": "$\\frac{3}{2}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "(1/2)*sin(2x) <= 1/2.",
+        "explanation": "(1/2)*$\\sin(2x)$ <= 1/2.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 10 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 10'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 6,
         "imageUrl": null,
@@ -105879,7 +105879,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "(1/2)*sin(2x) <= 1/2."
+            "description": "(1/2)*$\\sin(2x)$ <= 1/2."
           }
         ]
       },
@@ -105890,31 +105890,31 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G10_T5",
         "topicName": "Tư duy Toán Olympic Lớp 10",
         "title": "Câu 23: In cyclic quadrilateral ABCD, AB=1, BC=2, CD=3, DA=4. Find c",
-        "text": "In cyclic quadrilateral ABCD, AB=1, BC=2, CD=3, DA=4. Find cos(∠B).",
+        "text": "In cyclic quadrilateral ABCD, AB=1, BC=2, CD=3, DA=4. Find $\\cos(\\angle B)$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "-5/7"
+            "text": "$-\\frac{5}{7}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "-2/7"
+            "text": "$-\\frac{2}{7}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "-4/7"
+            "text": "$-\\frac{4}{7}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "-3/7"
+            "text": "$-\\frac{3}{7}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "cos(B) = (1^2 + 2^2 - 3^2 - 4^2)/(2(1*2 + 3*4)) = (1 + 4 - 9 - 16)/(2(2 + 12)) = -20/28 = -5/7.",
+        "explanation": "$\\cos(B)$ = (1^2 + 2^2 - 3^2 - 4^2)/(2(1*2 + 3*4)) = (1 + 4 - 9 - 16)/(2(2 + 12)) = -20/28 = -5/7.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 10 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 10'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 6,
         "imageUrl": null,
@@ -105927,7 +105927,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "cos(B) = (1^2 + 2^2 - 3^2 - 4^2)/(2(1*2 + 3*4)) = (1 + 4 - 9 - 16)/(2(2 + 12)) = -20/28 = -5/7."
+            "description": "$\\cos(B)$ = (1^2 + 2^2 - 3^2 - 4^2)/(2(1*2 + 3*4)) = (1 + 4 - 9 - 16)/(2(2 + 12)) = -20/28 = -5/7."
           }
         ]
       },
@@ -105937,8 +105937,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_G10_T6",
         "topicName": "Tư duy Toán Olympic Lớp 10",
-        "title": "Câu 24: Evaluate the infinite sum: sum_{n=1}^{infty} n / 2^n.",
-        "text": "Evaluate the infinite sum: sum_{n=1}^{infty} n / 2^n.",
+        "title": "Câu 24: Evaluate the infinite sum: sum_{n=1}^{infty} n / $2^n$.",
+        "text": "Evaluate the infinite sum: sum_{n=1}^{infty} n / $2^n$.",
         "options": [
           {
             "id": "A",
@@ -106150,22 +106150,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "3/4"
+            "text": "$\\frac{3}{4}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2/4"
+            "text": "$\\frac{2}{4}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "4/4"
+            "text": "$\\frac{4}{4}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "5/4"
+            "text": "$\\frac{5}{4}$"
           }
         ],
         "correctAnswer": "A",
@@ -107365,12 +107365,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "sqrt(2)"
+            "text": "$\\sqrt{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "sqrt(2) + 1"
+            "text": "$\\sqrt{2} + 1$"
           },
           {
             "id": "C",
@@ -107509,12 +107509,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "sqrt(2)"
+            "text": "$\\sqrt{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "sqrt(2) + 1"
+            "text": "$\\sqrt{2} + 1$"
           },
           {
             "id": "C",
@@ -108478,8 +108478,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 11,
         "topicCode": "MATH_G11_T1",
         "topicName": "Tư duy Toán Olympic Lớp 11",
-        "title": "Câu 1: Determine gf(1) if f(x) = 3x + 1 and g(x) = x - 1.",
-        "text": "Determine gf(1) if f(x) = 3x + 1 and g(x) = x - 1.",
+        "title": "Câu 1: Determine $g(f(1))$ if $f(x) = 3x + 1$ and $g(x) = x - 1$.",
+        "text": "Determine $g(f(1))$ if $f(x) = 3x + 1$ and $g(x) = x - 1$.",
         "options": [
           {
             "id": "A",
@@ -108526,32 +108526,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 11,
         "topicCode": "MATH_G11_T2",
         "topicName": "Tư duy Toán Olympic Lớp 11",
-        "title": "Câu 2: The quadratic equation 2x^2 - x - 15 = 0 has roots alpha and",
-        "text": "The quadratic equation 2x^2 - x - 15 = 0 has roots alpha and beta. Find the sum of roots 2/alpha and 2/beta.",
+        "title": "Câu 2: The quadratic equation $2x^2 - x - 15 = 0$ has roots $\\alpha$ and",
+        "text": "The quadratic equation $2x^2 - x - 15 = 0$ has roots $\\alpha$ and $\\beta$. Find the sum of roots $\\frac{2}{\\alpha}$ and $\\frac{2}{\\beta}$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "-2/15"
+            "text": "$-\\frac{2}{15}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "1/15"
+            "text": "$\\frac{1}{15}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "-1/15"
+            "text": "$-\\frac{1}{15}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "0/15"
+            "text": "$\\frac{0}{15}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "2/alpha + 2/beta = 2(alpha + beta)/(alpha*beta) = 2*(1/2)/(-15/2) = 1 / (-15/2) = -2/15.",
+        "explanation": "$\\frac{2}{\\alpha}$ + $\\frac{2}{\\beta}$ = 2($\\alpha$ + $\\beta$)/($\\alpha$*$\\beta$) = 2*(1/2)/(-15/2) = 1 / (-15/2) = $-\\frac{2}{15}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 11'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -108564,7 +108564,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "2/alpha + 2/beta = 2(alpha + beta)/(alpha*beta) = 2*(1/2)/(-15/2) = 1 / (-15/2) = -2/15."
+            "description": "$\\frac{2}{\\alpha}$ + $\\frac{2}{\\beta}$ = 2($\\alpha$ + $\\beta$)/($\\alpha$*$\\beta$) = 2*(1/2)/(-15/2) = 1 / (-15/2) = $-\\frac{2}{15}$."
           }
         ]
       },
@@ -108575,7 +108575,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G11_T3",
         "topicName": "Tư duy Toán Olympic Lớp 11",
         "title": "Câu 3: Determine x + y where x and y are integers satisfying 3^x * ",
-        "text": "Determine x + y where x and y are integers satisfying 3^x * 2^y = 1152.",
+        "text": "Determine x + y where x and y are integers satisfying $3^x \\cdot 2^y = 1152$.",
         "options": [
           {
             "id": "A",
@@ -108622,18 +108622,18 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 11,
         "topicCode": "MATH_G11_T4",
         "topicName": "Tư duy Toán Olympic Lớp 11",
-        "title": "Câu 4: Simplify into surd form a*sqrt(b): sqrt(12) - sqrt(75) + sqr",
-        "text": "Simplify into surd form a*sqrt(b): sqrt(12) - sqrt(75) + sqrt(108).",
+        "title": "Câu 4: Simplify into surd form $a \\cdot \\\\sqrt{b}$: sqrt(12) - sqrt(75) + sqr",
+        "text": "Simplify into surd form $a \\cdot \\\\sqrt{b}$: $\\sqrt{12} - \\sqrt{75} + \\sqrt{108}$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "3*sqrt(3)"
+            "text": "$3\\sqrt{3}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "3*sqrt(3) + 1"
+            "text": "$3\\sqrt{3} + 1$"
           },
           {
             "id": "C",
@@ -108647,7 +108647,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "2*sqrt(3) - 5*sqrt(3) + 6*sqrt(3) = 3*sqrt(3).",
+        "explanation": "2*sqrt(3) - 5*sqrt(3) + 6*sqrt(3) = $3\\sqrt{3}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 11'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -108660,7 +108660,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "2*sqrt(3) - 5*sqrt(3) + 6*sqrt(3) = 3*sqrt(3)."
+            "description": "2*sqrt(3) - 5*sqrt(3) + 6*sqrt(3) = $3\\sqrt{3}$."
           }
         ]
       },
@@ -108676,7 +108676,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "(1, 8)"
+            "text": "$(1, 8)$"
           },
           {
             "id": "B",
@@ -108718,8 +108718,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 11,
         "topicCode": "MATH_G11_T6",
         "topicName": "Tư duy Toán Olympic Lớp 11",
-        "title": "Câu 6: Find the derivative dy/dx of y = (2x + 1)^4 at x = 1.",
-        "text": "Find the derivative dy/dx of y = (2x + 1)^4 at x = 1.",
+        "title": "Câu 6: Find the derivative $\\frac{dy}{dx}$ of y = $(2x + 1)^4$ at x = 1.",
+        "text": "Find the derivative $\\frac{dy}{dx}$ of y = $(2x + 1)^4$ at x = 1.",
         "options": [
           {
             "id": "A",
@@ -108743,7 +108743,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "dy/dx = 4(2x+1)^3 * 2 = 8(2x+1)^3. At x=1: 8*(3^3) = 8 * 27 = 216.",
+        "explanation": "$\\frac{dy}{dx}$ = 4(2x+1)^3 * 2 = 8(2x+1)^3. At x=1: 8*(3^3) = 8 * 27 = 216.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 11'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -108756,7 +108756,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "dy/dx = 4(2x+1)^3 * 2 = 8(2x+1)^3. At x=1: 8*(3^3) = 8 * 27 = 216."
+            "description": "$\\frac{dy}{dx}$ = 4(2x+1)^3 * 2 = 8(2x+1)^3. At x=1: 8*(3^3) = 8 * 27 = 216."
           }
         ]
       },
@@ -108766,8 +108766,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 11,
         "topicCode": "MATH_G11_T1",
         "topicName": "Tư duy Toán Olympic Lớp 11",
-        "title": "Câu 7: Solve logarithmic equation: (9 - log_2(x)) * log_{2x}(8) = 2",
-        "text": "Solve logarithmic equation: (9 - log_2(x)) * log_{2x}(8) = 2 for x > 0.",
+        "title": "Câu 7: Solve logarithmic equation: $(9 - \\log_{2}(x)) \\cdot \\log_{2x}(8) = 2$",
+        "text": "Solve logarithmic equation: $(9 - \\log_{2}(x)) \\cdot \\log_{2x}(8) = 2$ for x > 0.",
         "options": [
           {
             "id": "A",
@@ -108791,7 +108791,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "(9 - u) * 3 / (1 + u) = 2 -> 27 - 3u = 2 + 2u -> 5u = 25 -> u = 5 -> log_2(x) = 5 (or u=3 -> x=8).",
+        "explanation": "(9 - u) * 3 / (1 + u) = 2 -> 27 - 3u = 2 + 2u -> 5u = 25 -> u = 5 -> $\\log_{2}(x)$ = 5 (or u=3 -> x=8).",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 11'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -108804,7 +108804,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "(9 - u) * 3 / (1 + u) = 2 -> 27 - 3u = 2 + 2u -> 5u = 25 -> u = 5 -> log_2(x) = 5 (or u=3 -> x=8)."
+            "description": "(9 - u) * 3 / (1 + u) = 2 -> 27 - 3u = 2 + 2u -> 5u = 25 -> u = 5 -> $\\log_{2}(x)$ = 5 (or u=3 -> x=8)."
           }
         ]
       },
@@ -108814,18 +108814,18 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 11,
         "topicCode": "MATH_G11_T2",
         "topicName": "Tư duy Toán Olympic Lớp 11",
-        "title": "Câu 8: Find the smallest positive solution in radians: tan(x) + cot",
-        "text": "Find the smallest positive solution in radians: tan(x) + cot(x) = 8*cos(2x).",
+        "title": "Câu 8: Find the smallest positive solution in radians: $\\tan(x)$ + cot",
+        "text": "Find the smallest positive solution in radians: $\\tan(x) + \\cot(x) = 8\\cos(2x)$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "pi/24"
+            "text": "$\\frac{\\pi}{24}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "pi/24 + 1"
+            "text": "$\\frac{\\pi}{24} + 1$"
           },
           {
             "id": "C",
@@ -108839,7 +108839,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "2/sin(2x) = 8*cos(2x) -> sin(4x) = 1/2 -> 4x = pi/6 -> x = pi/24.",
+        "explanation": "2/$\\sin(2x)$ = $8\\cos(2x)$ -> $\\sin(4x)$ = 1/2 -> 4x = $\\frac{\\pi}{6}$ -> x = $\\frac{\\pi}{24}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 11'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -108852,7 +108852,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "2/sin(2x) = 8*cos(2x) -> sin(4x) = 1/2 -> 4x = pi/6 -> x = pi/24."
+            "description": "2/$\\sin(2x)$ = $8\\cos(2x)$ -> $\\sin(4x)$ = 1/2 -> 4x = $\\frac{\\pi}{6}$ -> x = $\\frac{\\pi}{24}$."
           }
         ]
       },
@@ -108862,8 +108862,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 11,
         "topicCode": "MATH_G11_T3",
         "topicName": "Tư duy Toán Olympic Lớp 11",
-        "title": "Câu 9: A sequence has u_1 = 2, u_{n+1} = 3*u_n + 1. Find u_5.",
-        "text": "A sequence has u_1 = 2, u_{n+1} = 3*u_n + 1. Find u_5.",
+        "title": "Câu 9: A sequence has $u_1 = 2, u_{n+1} = 3 \\cdot u_n + 1$. Find $u_5$.",
+        "text": "A sequence has $u_1 = 2, u_{n+1} = 3 \\cdot u_n + 1$. Find $u_5$.",
         "options": [
           {
             "id": "A",
@@ -108887,7 +108887,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "u_1=2, u_2=7, u_3=22, u_4=67, u_5=202 (or standard arithmetic gives 364).",
+        "explanation": "u_1=2, u_2=7, u_3=22, u_4=67, $u_5$=202 (or standard arithmetic gives 364).",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 11'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -108900,7 +108900,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "u_1=2, u_2=7, u_3=22, u_4=67, u_5=202 (or standard arithmetic gives 364)."
+            "description": "u_1=2, u_2=7, u_3=22, u_4=67, $u_5$=202 (or standard arithmetic gives 364)."
           }
         ]
       },
@@ -108911,12 +108911,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G11_T4",
         "topicName": "Tư duy Toán Olympic Lớp 11",
         "title": "Câu 10: A circle has center (3,1) and passes through (0,5) and (q, 0",
-        "text": "A circle has center (3,1) and passes through (0,5) and (q, 0). Find positive surd q in form a + b*sqrt(c).",
+        "text": "A circle has center (3,1) and passes through (0,5) and (q, 0). Find positive surd q in form $a + b \\cdot \\\\sqrt{c}$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "3 + 2*sqrt(6)"
+            "text": "$3 + 2\\sqrt{6}$"
           },
           {
             "id": "B",
@@ -108935,7 +108935,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Radius^2 = (3-0)^2 + (1-5)^2 = 9 + 16 = 25. (q - 3)^2 + (0 - 1)^2 = 25 -> (q - 3)^2 = 24 -> q = 3 + 2*sqrt(6).",
+        "explanation": "Radius^2 = (3-0)^2 + (1-5)^2 = 9 + 16 = 25. (q - 3)^2 + (0 - 1)^2 = 25 -> (q - 3)^2 = 24 -> q = $3 + 2\\sqrt{6}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 11'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -108948,7 +108948,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Radius^2 = (3-0)^2 + (1-5)^2 = 9 + 16 = 25. (q - 3)^2 + (0 - 1)^2 = 25 -> (q - 3)^2 = 24 -> q = 3 + 2*sqrt(6)."
+            "description": "Radius^2 = (3-0)^2 + (1-5)^2 = 9 + 16 = 25. (q - 3)^2 + (0 - 1)^2 = 25 -> (q - 3)^2 = 24 -> q = $3 + 2\\sqrt{6}$."
           }
         ]
       },
@@ -108959,27 +108959,27 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G11_T5",
         "topicName": "Tư duy Toán Olympic Lớp 11",
         "title": "Câu 11: Evaluate the limit as x approaches 0 of (sqrt(1 + x) - 1) / ",
-        "text": "Evaluate the limit as x approaches 0 of (sqrt(1 + x) - 1) / x.",
+        "text": "Evaluate the limit as x approaches 0 of $\\frac{\\sqrt{1 + x} - 1}{x}$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "1/2"
+            "text": "$\\frac{1}{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/2"
+            "text": "$\\frac{4}{2}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/2"
+            "text": "$\\frac{2}{2}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/2"
+            "text": "$\\frac{3}{2}$"
           }
         ],
         "correctAnswer": "A",
@@ -109006,8 +109006,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 11,
         "topicCode": "MATH_G11_T6",
         "topicName": "Tư duy Toán Olympic Lớp 11",
-        "title": "Câu 12: Find the integral of (3x^2 + 2x + 1) dx from 0 to 2.",
-        "text": "Find the integral of (3x^2 + 2x + 1) dx from 0 to 2.",
+        "title": "Câu 12: Find the integral of $(3x^2 + 2x + 1) \\, dx$ from 0 to 2.",
+        "text": "Find the integral of $(3x^2 + 2x + 1) \\, dx$ from 0 to 2.",
         "options": [
           {
             "id": "A",
@@ -109031,7 +109031,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "[x^3 + x^2 + x]_0^2 = 8 + 4 + 2 = 14.",
+        "explanation": "[x^3 + $x^2$ + x]_0^2 = 8 + 4 + 2 = 14.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 11'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -109044,7 +109044,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "[x^3 + x^2 + x]_0^2 = 8 + 4 + 2 = 14."
+            "description": "[x^3 + $x^2$ + x]_0^2 = 8 + 4 + 2 = 14."
           }
         ]
       },
@@ -109060,7 +109060,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "y = 9x - 16"
+            "text": "$y = 9x - 16$"
           },
           {
             "id": "B",
@@ -109108,7 +109108,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "0, ln(3)"
+            "text": "$0, \\ln(3)$"
           },
           {
             "id": "B",
@@ -109127,7 +109127,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "(e^x - 1)(e^x - 3) = 0 -> e^x = 1 or e^x = 3 -> x = 0 or x = ln(3).",
+        "explanation": "(e^x - 1)(e^x - 3) = 0 -> e^x = 1 or e^x = 3 -> x = 0 or x = $\\ln(3)$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 11'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -109140,7 +109140,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "(e^x - 1)(e^x - 3) = 0 -> e^x = 1 or e^x = 3 -> x = 0 or x = ln(3)."
+            "description": "(e^x - 1)(e^x - 3) = 0 -> e^x = 1 or e^x = 3 -> x = 0 or x = $\\ln(3)$."
           }
         ]
       },
@@ -109151,27 +109151,27 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G11_T3",
         "topicName": "Tư duy Toán Olympic Lớp 11",
         "title": "Câu 15: Find the sum of the infinite series sum_{n=1}^{infty} 1/(n(n",
-        "text": "Find the sum of the infinite series sum_{n=1}^{infty} 1/(n(n+2)).",
+        "text": "Find the sum of the infinite series $\\\\sum_{n=1}^{\\\\infty} \\frac{1}{n(n+2)}$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "3/4"
+            "text": "$\\frac{3}{4}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2/4"
+            "text": "$\\frac{2}{4}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "4/4"
+            "text": "$\\frac{4}{4}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "5/4"
+            "text": "$\\frac{5}{4}$"
           }
         ],
         "correctAnswer": "A",
@@ -109198,32 +109198,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 11,
         "topicCode": "MATH_G11_T4",
         "topicName": "Tư duy Toán Olympic Lớp 11",
-        "title": "Câu 16: If sin(x) = 1/3, evaluate cos(2x).",
-        "text": "If sin(x) = 1/3, evaluate cos(2x).",
+        "title": "Câu 16: If $\\sin(x)$ = 1/3, evaluate $\\cos(2x)$.",
+        "text": "If $\\sin(x)$ = 1/3, evaluate $\\cos(2x)$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "7/9"
+            "text": "$\\frac{7}{9}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "6/9"
+            "text": "$\\frac{6}{9}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "8/9"
+            "text": "$\\frac{8}{9}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "9/9"
+            "text": "$\\frac{9}{9}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "cos(2x) = 1 - 2*sin^2(x) = 1 - 2(1/9) = 7/9.",
+        "explanation": "$\\cos(2x)$ = 1 - 2*sin^2(x) = 1 - 2(1/9) = 7/9.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 11'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -109236,7 +109236,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "cos(2x) = 1 - 2*sin^2(x) = 1 - 2(1/9) = 7/9."
+            "description": "$\\cos(2x)$ = 1 - 2*sin^2(x) = 1 - 2(1/9) = 7/9."
           }
         ]
       },
@@ -109294,8 +109294,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 11,
         "topicCode": "MATH_G11_T6",
         "topicName": "Tư duy Toán Olympic Lớp 11",
-        "title": "Câu 18: Find the term independent of x in (2x^3 - 1/x^2)^10.",
-        "text": "Find the term independent of x in (2x^3 - 1/x^2)^10.",
+        "title": "Câu 18: Find the term independent of x in (2x^3 - 1/$x^2$)^10.",
+        "text": "Find the term independent of x in (2x^3 - 1/$x^2$)^10.",
         "options": [
           {
             "id": "A",
@@ -109348,12 +109348,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "pi/2"
+            "text": "$\\frac{\\pi}{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "pi/2 + 1"
+            "text": "$\\frac{\\pi}{2} + 1$"
           },
           {
             "id": "C",
@@ -109367,7 +109367,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "int_0^pi (1 - cos(2x))/2 dx = pi/2.",
+        "explanation": "int_0^pi (1 - $\\cos(2x)$)/2 dx = $\\frac{\\pi}{2}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 11'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -109380,7 +109380,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "int_0^pi (1 - cos(2x))/2 dx = pi/2."
+            "description": "int_0^pi (1 - $\\cos(2x)$)/2 dx = $\\frac{\\pi}{2}$."
           }
         ]
       },
@@ -109390,32 +109390,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 11,
         "topicCode": "MATH_G11_T2",
         "topicName": "Tư duy Toán Olympic Lớp 11",
-        "title": "Câu 20: Find the area bounded by y = x^2 and y = 4.",
-        "text": "Find the area bounded by y = x^2 and y = 4.",
+        "title": "Câu 20: Find the area bounded by y = $x^2$ and y = 4.",
+        "text": "Find the area bounded by y = $x^2$ and y = 4.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "32/3"
+            "text": "$\\frac{32}{3}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "31/3"
+            "text": "$\\frac{31}{3}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "33/3"
+            "text": "$\\frac{33}{3}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "34/3"
+            "text": "$\\frac{34}{3}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "2 * int_0^2 (4 - x^2) dx = 2 * [4x - x^3/3]_0^2 = 2 * (8 - 8/3) = 32/3.",
+        "explanation": "2 * int_0^2 (4 - $x^2$) dx = 2 * [4x - x^3/3]_0^2 = 2 * (8 - 8/3) = 32/3.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 11'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -109428,7 +109428,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "2 * int_0^2 (4 - x^2) dx = 2 * [4x - x^3/3]_0^2 = 2 * (8 - 8/3) = 32/3."
+            "description": "2 * int_0^2 (4 - $x^2$) dx = 2 * [4x - x^3/3]_0^2 = 2 * (8 - 8/3) = 32/3."
           }
         ]
       },
@@ -109438,8 +109438,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 11,
         "topicCode": "MATH_G11_T3",
         "topicName": "Tư duy Toán Olympic Lớp 11",
-        "title": "Câu 21: Find the value of sqrt(42 + sqrt(42 + sqrt(42 + ...))).",
-        "text": "Find the value of sqrt(42 + sqrt(42 + sqrt(42 + ...))).",
+        "title": "Câu 21: Find the value of $\\sqrt{42 + \\sqrt{42 + \\sqrt{42 + \\dots}}}$.",
+        "text": "Find the value of $\\sqrt{42 + \\sqrt{42 + \\sqrt{42 + \\dots}}}$.",
         "options": [
           {
             "id": "A",
@@ -109463,7 +109463,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "x = sqrt(42 + x) -> x^2 - x - 42 = 0 -> (x-7)(x+6)=0 -> x = 7.",
+        "explanation": "x = sqrt(42 + x) -> $x^2$ - x - 42 = 0 -> (x-7)(x+6)=0 -> x = 7.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 11'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 6,
         "imageUrl": null,
@@ -109476,7 +109476,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "x = sqrt(42 + x) -> x^2 - x - 42 = 0 -> (x-7)(x+6)=0 -> x = 7."
+            "description": "x = sqrt(42 + x) -> $x^2$ - x - 42 = 0 -> (x-7)(x+6)=0 -> x = 7."
           }
         ]
       },
@@ -109486,8 +109486,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 11,
         "topicCode": "MATH_G11_T4",
         "topicName": "Tư duy Toán Olympic Lớp 11",
-        "title": "Câu 22: If alpha * beta = 3^10 + 27^5, find alpha + beta for integer",
-        "text": "If alpha * beta = 3^10 + 27^5, find alpha + beta for integers alpha, beta.",
+        "title": "Câu 22: If $\\alpha$ * $\\beta$ = 3^10 + 27^5, find $\\alpha$ + $\\beta$ for integer",
+        "text": "If $\\alpha$ * $\\beta$ = 3^10 + 27^5, find $\\alpha$ + $\\beta$ for integers $\\alpha$, $\\beta$.",
         "options": [
           {
             "id": "A",
@@ -109582,13 +109582,13 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 11,
         "topicCode": "MATH_G11_T6",
         "topicName": "Tư duy Toán Olympic Lớp 11",
-        "title": "Câu 24: Find all real solutions (x, y) to x^2 + y^2 = 25 and xy = 12",
-        "text": "Find all real solutions (x, y) to x^2 + y^2 = 25 and xy = 12.",
+        "title": "Câu 24: Find all real solutions (x, y) to $x^2$ + y^2 = 25 and xy = 12",
+        "text": "Find all real solutions (x, y) to $x^2$ + y^2 = 25 and xy = 12.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "(4, 3), (3, 4), (-4, -3), (-3, -4)"
+            "text": "$(4, 3), (3, 4), (-4, -3), (-3, -4)$"
           },
           {
             "id": "B",
@@ -109636,12 +109636,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "(n(n+1)/2)^2"
+            "text": "$\\frac{n(n+1}{2})^2$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "(n(n+1)/2)^2 + 1"
+            "text": "$\\frac{n(n+1}{2})^2 + 1$"
           },
           {
             "id": "C",
@@ -109795,7 +109795,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "2014/(2014^2 + 1)"
+            "text": "$\\frac{2014}{2014^2 + 1}$"
           },
           {
             "id": "B",
@@ -110083,7 +110083,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "64a^3 + 48a^2b^2 + 36ab^4 + 27b^6"
+            "text": "$64a^3 + 48a^{2}b^{2} + 36ab^4 + 27b^6$"
           },
           {
             "id": "B",
@@ -111058,7 +111058,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "(a+b+2*sqrt(ab))/c"
+            "text": "$\\frac{a+b+2\\sqrt{ab}}{c}$"
           },
           {
             "id": "B",
@@ -112129,22 +112129,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "2/3"
+            "text": "$\\frac{2}{3}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "1/3"
+            "text": "$\\frac{1}{3}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "3/3"
+            "text": "$\\frac{3}{3}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "4/3"
+            "text": "$\\frac{4}{3}$"
           }
         ],
         "correctAnswer": "A",
@@ -112177,22 +112177,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "-4032"
+            "text": "$-4032$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "-4029"
+            "text": "$-4029$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "-4031"
+            "text": "$-4031$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "-4030"
+            "text": "$-4030$"
           }
         ],
         "correctAnswer": "A",
@@ -112273,26 +112273,26 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "45/512"
+            "text": "$\\frac{45}{512}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "44/512"
+            "text": "$\\frac{44}{512}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "46/512"
+            "text": "$\\frac{46}{512}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "47/512"
+            "text": "$\\frac{47}{512}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "45/512.",
+        "explanation": "$\\frac{45}{512}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 11'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 1,
         "imageUrl": null,
@@ -112305,7 +112305,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "45/512."
+            "description": "$\\frac{45}{512}$."
           }
         ]
       },
@@ -112465,22 +112465,22 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "1/12"
+            "text": "$\\frac{1}{12}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/12"
+            "text": "$\\frac{4}{12}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/12"
+            "text": "$\\frac{2}{12}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/12"
+            "text": "$\\frac{3}{12}$"
           }
         ],
         "correctAnswer": "A",
@@ -113338,8 +113338,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T1",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 1: Determine the value of gf(1) if f(x) = 3x + 1 and g(x) = x -",
-        "text": "Determine the value of gf(1) if f(x) = 3x + 1 and g(x) = x - 1.",
+        "title": "Câu 1: Determine the value of $g(f(1))$ if $f(x) = 3x + 1$ and g(x) = x -",
+        "text": "Determine the value of $g(f(1))$ if $f(x) = 3x + 1$ and $g(x) = x - 1$.",
         "options": [
           {
             "id": "A",
@@ -113386,32 +113386,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T2",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 2: The quadratic equation 2x^2 - x - 15 = 0 has roots alpha and",
-        "text": "The quadratic equation 2x^2 - x - 15 = 0 has roots alpha and beta. Find the sum of roots 2/alpha and 2/beta.",
+        "title": "Câu 2: The quadratic equation $2x^2 - x - 15 = 0$ has roots $\\alpha$ and",
+        "text": "The quadratic equation $2x^2 - x - 15 = 0$ has roots $\\alpha$ and $\\beta$. Find the sum of roots $\\frac{2}{\\alpha}$ and $\\frac{2}{\\beta}$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "-2/15"
+            "text": "$-\\frac{2}{15}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "1/15"
+            "text": "$\\frac{1}{15}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "-1/15"
+            "text": "$-\\frac{1}{15}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "0/15"
+            "text": "$\\frac{0}{15}$"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "2/alpha + 2/beta = 2(alpha + beta)/(alpha*beta) = 2*(1/2)/(-15/2) = -2/15.",
+        "explanation": "$\\frac{2}{\\alpha}$ + $\\frac{2}{\\beta}$ = 2($\\alpha$ + $\\beta$)/($\\alpha$*$\\beta$) = 2*(1/2)/(-15/2) = $-\\frac{2}{15}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 12'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -113424,7 +113424,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "2/alpha + 2/beta = 2(alpha + beta)/(alpha*beta) = 2*(1/2)/(-15/2) = -2/15."
+            "description": "$\\frac{2}{\\alpha}$ + $\\frac{2}{\\beta}$ = 2($\\alpha$ + $\\beta$)/($\\alpha$*$\\beta$) = 2*(1/2)/(-15/2) = $-\\frac{2}{15}$."
           }
         ]
       },
@@ -113435,7 +113435,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G12_T3",
         "topicName": "Tư duy Toán Olympic Lớp 12",
         "title": "Câu 3: Determine x + y where x and y are integers satisfying 3^x * ",
-        "text": "Determine x + y where x and y are integers satisfying 3^x * 2^y = 1152.",
+        "text": "Determine x + y where x and y are integers satisfying $3^x \\cdot 2^y = 1152$.",
         "options": [
           {
             "id": "A",
@@ -113482,18 +113482,18 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T4",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 4: Simplify the expression into surd form a*sqrt(b): sqrt(12) -",
-        "text": "Simplify the expression into surd form a*sqrt(b): sqrt(12) - sqrt(75) + sqrt(108).",
+        "title": "Câu 4: Simplify the expression into surd form $a \\cdot \\\\sqrt{b}$: sqrt(12) -",
+        "text": "Simplify the expression into surd form $a \\cdot \\\\sqrt{b}$: $\\sqrt{12} - \\sqrt{75} + \\sqrt{108}$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "3*sqrt(3)"
+            "text": "$3\\sqrt{3}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "3*sqrt(3) + 1"
+            "text": "$3\\sqrt{3} + 1$"
           },
           {
             "id": "C",
@@ -113507,7 +113507,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "2*sqrt(3) - 5*sqrt(3) + 6*sqrt(3) = 3*sqrt(3).",
+        "explanation": "2*sqrt(3) - 5*sqrt(3) + 6*sqrt(3) = $3\\sqrt{3}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 12'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -113520,7 +113520,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "2*sqrt(3) - 5*sqrt(3) + 6*sqrt(3) = 3*sqrt(3)."
+            "description": "2*sqrt(3) - 5*sqrt(3) + 6*sqrt(3) = $3\\sqrt{3}$."
           }
         ]
       },
@@ -113536,7 +113536,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "(1, 8)"
+            "text": "$(1, 8)$"
           },
           {
             "id": "B",
@@ -113578,8 +113578,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T6",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 6: Find dy/dx of y = (2x + 1)^4 at x = 1.",
-        "text": "Find dy/dx of y = (2x + 1)^4 at x = 1.",
+        "title": "Câu 6: Find $\\frac{dy}{dx}$ of y = $(2x + 1)^4$ at x = 1.",
+        "text": "Find $\\frac{dy}{dx}$ of y = $(2x + 1)^4$ at x = 1.",
         "options": [
           {
             "id": "A",
@@ -113603,7 +113603,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "dy/dx = 8(2x+1)^3. At x=1, 8(27) = 216.",
+        "explanation": "$\\frac{dy}{dx}$ = 8(2x+1)^3. At x=1, 8(27) = 216.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 12'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -113616,7 +113616,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "dy/dx = 8(2x+1)^3. At x=1, 8(27) = 216."
+            "description": "$\\frac{dy}{dx}$ = 8(2x+1)^3. At x=1, 8(27) = 216."
           }
         ]
       },
@@ -113626,8 +113626,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T1",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 7: Solve the logarithmic equation: (9 - log_2(x)) * log_{2x}(8)",
-        "text": "Solve the logarithmic equation: (9 - log_2(x)) * log_{2x}(8) = 2 for x > 0.",
+        "title": "Câu 7: Solve the logarithmic equation: (9 - $\\log_{2}(x)$) * log_{2x}(8)",
+        "text": "Solve the logarithmic equation: $(9 - \\log_{2}(x)) \\cdot \\log_{2x}(8) = 2$ for x > 0.",
         "options": [
           {
             "id": "A",
@@ -113651,7 +113651,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Setting u = log_2(x) gives (9-u)*3/(1+u) = 2 -> u = 3 -> x = 8.",
+        "explanation": "Setting u = $\\log_{2}(x)$ gives (9-u)*3/(1+u) = 2 -> u = 3 -> x = 8.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 12'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -113664,7 +113664,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Setting u = log_2(x) gives (9-u)*3/(1+u) = 2 -> u = 3 -> x = 8."
+            "description": "Setting u = $\\log_{2}(x)$ gives (9-u)*3/(1+u) = 2 -> u = 3 -> x = 8."
           }
         ]
       },
@@ -113674,18 +113674,18 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T2",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 8: Find the smallest solution in radians: tan(x) + cot(x) = 8*c",
-        "text": "Find the smallest solution in radians: tan(x) + cot(x) = 8*cos(2x).",
+        "title": "Câu 8: Find the smallest solution in radians: $\\tan(x)$ + cot(x) = 8*c",
+        "text": "Find the smallest solution in radians: $\\tan(x) + \\cot(x) = 8\\cos(2x)$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "pi/24"
+            "text": "$\\frac{\\pi}{24}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "pi/24 + 1"
+            "text": "$\\frac{\\pi}{24} + 1$"
           },
           {
             "id": "C",
@@ -113699,7 +113699,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "2/sin(2x) = 8*cos(2x) -> sin(4x) = 1/2 -> 4x = pi/6 -> x = pi/24.",
+        "explanation": "2/$\\sin(2x)$ = $8\\cos(2x)$ -> $\\sin(4x)$ = 1/2 -> 4x = $\\frac{\\pi}{6}$ -> x = $\\frac{\\pi}{24}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 12'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -113712,7 +113712,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "2/sin(2x) = 8*cos(2x) -> sin(4x) = 1/2 -> 4x = pi/6 -> x = pi/24."
+            "description": "2/$\\sin(2x)$ = $8\\cos(2x)$ -> $\\sin(4x)$ = 1/2 -> 4x = $\\frac{\\pi}{6}$ -> x = $\\frac{\\pi}{24}$."
           }
         ]
       },
@@ -113722,8 +113722,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T3",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 9: A sequence u_n has u_1 = 2, u_{n+1} = 3*u_n + 1. Find u_5.",
-        "text": "A sequence u_n has u_1 = 2, u_{n+1} = 3*u_n + 1. Find u_5.",
+        "title": "Câu 9: A sequence u_n has $u_1 = 2, u_{n+1} = 3 \\cdot u_n + 1$. Find $u_5$.",
+        "text": "A sequence u_n has $u_1 = 2, u_{n+1} = 3 \\cdot u_n + 1$. Find $u_5$.",
         "options": [
           {
             "id": "A",
@@ -113747,7 +113747,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "u_5 = 364.",
+        "explanation": "$u_5$ = 364.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 12'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -113760,7 +113760,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "u_5 = 364."
+            "description": "$u_5$ = 364."
           }
         ]
       },
@@ -113771,12 +113771,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G12_T4",
         "topicName": "Tư duy Toán Olympic Lớp 12",
         "title": "Câu 10: A circle has center (3,1) and passes through (0,5) and (q, 0",
-        "text": "A circle has center (3,1) and passes through (0,5) and (q, 0). Find positive surd q in form a + b*sqrt(c).",
+        "text": "A circle has center (3,1) and passes through (0,5) and (q, 0). Find positive surd q in form $a + b \\cdot \\\\sqrt{c}$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "3 + 2*sqrt(6)"
+            "text": "$3 + 2\\sqrt{6}$"
           },
           {
             "id": "B",
@@ -113795,7 +113795,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Radius = 5. (q - 3)^2 + 1 = 25 -> q = 3 + 2*sqrt(6).",
+        "explanation": "Radius = 5. (q - 3)^2 + 1 = 25 -> q = $3 + 2\\sqrt{6}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 12'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -113808,7 +113808,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Radius = 5. (q - 3)^2 + 1 = 25 -> q = 3 + 2*sqrt(6)."
+            "description": "Radius = 5. (q - 3)^2 + 1 = 25 -> q = $3 + 2\\sqrt{6}$."
           }
         ]
       },
@@ -113819,27 +113819,27 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G12_T5",
         "topicName": "Tư duy Toán Olympic Lớp 12",
         "title": "Câu 11: Evaluate the limit as x approaches 0 of (sqrt(1 + x) - 1) / ",
-        "text": "Evaluate the limit as x approaches 0 of (sqrt(1 + x) - 1) / x.",
+        "text": "Evaluate the limit as x approaches 0 of $\\frac{\\sqrt{1 + x} - 1}{x}$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "1/2"
+            "text": "$\\frac{1}{2}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "4/2"
+            "text": "$\\frac{4}{2}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "2/2"
+            "text": "$\\frac{2}{2}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "3/2"
+            "text": "$\\frac{3}{2}$"
           }
         ],
         "correctAnswer": "A",
@@ -113866,8 +113866,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T6",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 12: Find the integral of (3x^2 + 2x + 1) dx from 0 to 2.",
-        "text": "Find the integral of (3x^2 + 2x + 1) dx from 0 to 2.",
+        "title": "Câu 12: Find the integral of $(3x^2 + 2x + 1) \\, dx$ from 0 to 2.",
+        "text": "Find the integral of $(3x^2 + 2x + 1) \\, dx$ from 0 to 2.",
         "options": [
           {
             "id": "A",
@@ -113891,7 +113891,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "[x^3 + x^2 + x]_0^2 = 8 + 4 + 2 = 14.",
+        "explanation": "[x^3 + $x^2$ + x]_0^2 = 8 + 4 + 2 = 14.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 12'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -113904,7 +113904,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "[x^3 + x^2 + x]_0^2 = 8 + 4 + 2 = 14."
+            "description": "[x^3 + $x^2$ + x]_0^2 = 8 + 4 + 2 = 14."
           }
         ]
       },
@@ -113914,8 +113914,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T1",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 13: Linearizing y = 3x^3 - q/x gives xy = 3x^3 - q passing throu",
-        "text": "Linearizing y = 3x^3 - q/x gives xy = 3x^3 - q passing through (0, 1) and (h, 13). Find h.",
+        "title": "Câu 13: Linearizing $y = 3x^3 - \\frac{q}{x}$ gives $xy = 3x^3 - q$ passing throu",
+        "text": "Linearizing $y = 3x^3 - \\frac{q}{x}$ gives $xy = 3x^3 - q$ passing through (0, 1) and (h, 13). Find h.",
         "options": [
           {
             "id": "A",
@@ -113962,13 +113962,13 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T2",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 14: Find the value of p if the polynomial x^3 + px^2 - x + 6 is ",
-        "text": "Find the value of p if the polynomial x^3 + px^2 - x + 6 is divisible by x - 2.",
+        "title": "Câu 14: Find the value of p if the polynomial $x^3 + px^2 - x + 6$ is ",
+        "text": "Find the value of p if the polynomial $x^3 + px^2 - x + 6$ is divisible by x - 2.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "-3"
+            "text": "$-3$"
           },
           {
             "id": "B",
@@ -113978,12 +113978,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "-2"
+            "text": "$-2$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "-1"
+            "text": "$-1$"
           }
         ],
         "correctAnswer": "A",
@@ -114011,27 +114011,27 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G12_T3",
         "topicName": "Tư duy Toán Olympic Lớp 12",
         "title": "Câu 15: Find the sum of the infinite series sum_{n=1}^{infty} 1/(n(n",
-        "text": "Find the sum of the infinite series sum_{n=1}^{infty} 1/(n(n+2)).",
+        "text": "Find the sum of the infinite series $\\\\sum_{n=1}^{\\\\infty} \\frac{1}{n(n+2)}$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "3/4"
+            "text": "$\\frac{3}{4}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "2/4"
+            "text": "$\\frac{2}{4}$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "4/4"
+            "text": "$\\frac{4}{4}$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "5/4"
+            "text": "$\\frac{5}{4}$"
           }
         ],
         "correctAnswer": "A",
@@ -114058,8 +114058,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T4",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 16: Find f(45°) for f(theta) = csc(2*theta) - cot(2*theta).",
-        "text": "Find f(45°) for f(theta) = csc(2*theta) - cot(2*theta).",
+        "title": "Câu 16: Find $f(45^\\circ)$ for $f(\\theta) = \\csc(2\\theta) - \\cot(2\\theta)$.",
+        "text": "Find $f(45^\\circ)$ for $f(\\theta) = \\csc(2\\theta) - \\cot(2\\theta)$.",
         "options": [
           {
             "id": "A",
@@ -114083,7 +114083,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "csc(2*theta) - cot(2*theta) = (1 - cos(2*theta))/sin(2*theta) = tan(theta). tan(45°) = 1.",
+        "explanation": "csc(2*$\\theta$) - cot(2*$\\theta$) = (1 - $\\cos(2 \\cdot \\underline{\\quad}MATH_BLOCK_2\\underline{\\quad})$)/$\\sin(2 \\cdot \\underline{\\quad}MATH_BLOCK_3\\underline{\\quad})$ = $\\tan(\\underline{\\quad}MATH_BLOCK_4\\underline{\\quad})$. $\\tan(45^\\circ)$ = 1.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 12'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -114096,7 +114096,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "csc(2*theta) - cot(2*theta) = (1 - cos(2*theta))/sin(2*theta) = tan(theta). tan(45°) = 1."
+            "description": "csc(2*$\\theta$) - cot(2*$\\theta$) = (1 - $\\cos(2 \\cdot \\underline{\\quad}MATH_BLOCK_2\\underline{\\quad})$)/$\\sin(2 \\cdot \\underline{\\quad}MATH_BLOCK_3\\underline{\\quad})$ = $\\tan(\\underline{\\quad}MATH_BLOCK_4\\underline{\\quad})$. $\\tan(45^\\circ)$ = 1."
           }
         ]
       },
@@ -114106,13 +114106,13 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T5",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 17: The polynomial p(x) = 2x^3 + px^2 + qx + 6 is divisible by 2",
-        "text": "The polynomial p(x) = 2x^3 + px^2 + qx + 6 is divisible by 2x + 1 and gives remainder -12 when divided by x + 3. Find p and q.",
+        "title": "Câu 17: The polynomial $p(x) = 2x^3 + px^2 + qx + 6$ is divisible by 2",
+        "text": "The polynomial $p(x) = 2x^3 + px^2 + qx + 6$ is divisible by 2x + 1 and gives remainder -12 when divided by x + 3. Find p and q.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "p = 5, q = -7"
+            "text": "$p = 5, q = -7$"
           },
           {
             "id": "B",
@@ -114154,8 +114154,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T6",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 18: Find the coefficient of x^6 in the expansion of (2x^2 - 1/x)",
-        "text": "Find the coefficient of x^6 in the expansion of (2x^2 - 1/x)^9.",
+        "title": "Câu 18: Find the coefficient of $x^6$ in the expansion of (2x^2 - 1/x)",
+        "text": "Find the coefficient of $x^6$ in the expansion of $\\left(2x^2 - \\frac{1}{x}\\right)^9$.",
         "options": [
           {
             "id": "A",
@@ -114202,13 +114202,13 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T1",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 19: Determine range of x for f(x) > g(x) where f(x) = -(x-1)^2*(",
-        "text": "Determine range of x for f(x) > g(x) where f(x) = -(x-1)^2*(x^2 + 2x + 2) and g(x) = (x-1)^2*(1 - 6x).",
+        "title": "Câu 19: Determine range of x for $f(x) > g(x)$ where f(x) = -(x-1)^2*(",
+        "text": "Determine range of x for $f(x) > g(x)$ where f(x) = $-(x-1)^2 \\cdot (x^2 + 2x + 2)$ and g(x) = $(x-1)^2 \\cdot (1 - 6x)$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "x in (-inf, 1) U (1, 3)"
+            "text": "$x \\in (-\\infty, 1) \\cup (1, 3)$"
           },
           {
             "id": "B",
@@ -114227,7 +114227,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "(x-1)^2 * (-(x^2+2x+2) - (1-6x)) > 0 -> -(x^2 - 4x + 3) > 0 -> x^2 - 4x + 3 < 0 -> 1 < x < 3 with x != 1.",
+        "explanation": "(x-1)^2 * (-($x^2$+2x+2) - (1-6x)) > 0 -> -($x^2$ - 4x + 3) > 0 -> $x^2$ - 4x + 3 < 0 -> 1 < x < 3 with x != 1.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 12'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -114240,7 +114240,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "(x-1)^2 * (-(x^2+2x+2) - (1-6x)) > 0 -> -(x^2 - 4x + 3) > 0 -> x^2 - 4x + 3 < 0 -> 1 < x < 3 with x != 1."
+            "description": "(x-1)^2 * (-($x^2$+2x+2) - (1-6x)) > 0 -> -($x^2$ - 4x + 3) > 0 -> $x^2$ - 4x + 3 < 0 -> 1 < x < 3 with x != 1."
           }
         ]
       },
@@ -114250,13 +114250,13 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T2",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 20: Right triangle ABC has hypotenuse AC = sqrt(5) + sqrt(3) and",
-        "text": "Right triangle ABC has hypotenuse AC = sqrt(5) + sqrt(3) and area 7 + sqrt(15). Find length of leg AB in form a*sqrt(b) + c*sqrt(d).",
+        "title": "Câu 20: Right triangle ABC has hypotenuse $AC = \\sqrt{5} + \\sqrt{3}$ and",
+        "text": "Right triangle ABC has hypotenuse $AC = \\sqrt{5} + \\sqrt{3}$ and area $7 + \\sqrt{15}$. Find length of leg AB in form $a \\cdot \\\\sqrt{b}$ + c*sqrt(d).",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "sqrt(10) + sqrt(6)"
+            "text": "$\\sqrt{10} + \\sqrt{6}$"
           },
           {
             "id": "B",
@@ -114275,7 +114275,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Using algebraic simplification of legs from area and hypotenuse gives AB = sqrt(10) + sqrt(6).",
+        "explanation": "Using algebraic simplification of legs from area and hypotenuse gives AB = $\\sqrt{10} + \\sqrt{6}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 12'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 4,
         "imageUrl": null,
@@ -114288,7 +114288,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Using algebraic simplification of legs from area and hypotenuse gives AB = sqrt(10) + sqrt(6)."
+            "description": "Using algebraic simplification of legs from area and hypotenuse gives AB = $\\sqrt{10} + \\sqrt{6}$."
           }
         ]
       },
@@ -114298,13 +114298,13 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T3",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 21: Determine ln(x) + e^y + ln(z) if (x+y)(x+y+z)=22, (y+z)(x+y+",
-        "text": "Determine ln(x) + e^y + ln(z) if (x+y)(x+y+z)=22, (y+z)(x+y+z)=44, (x+z)(x+y+z)=66.",
+        "title": "Câu 21: Determine $\\ln(x) + e^y + \\ln(z)$ if $(x+y)(x+y+z)=22$, (y+z)(x+y+",
+        "text": "Determine $\\ln(x) + e^y + \\ln(z)$ if $(x+y)(x+y+z)=22$, $(y+z)(x+y+z)=44$, $(x+z)(x+y+z)=66$.",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "ln(12) + e^0"
+            "text": "$\\ln(12) + e^0$"
           },
           {
             "id": "B",
@@ -114352,12 +114352,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "pi/3"
+            "text": "$\\frac{\\pi}{3}$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "pi/3 + 1"
+            "text": "$\\frac{\\pi}{3} + 1$"
           },
           {
             "id": "C",
@@ -114371,7 +114371,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Solving the boundary condition gives x = pi/3.",
+        "explanation": "Solving the boundary condition gives x = $\\frac{\\pi}{3}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 12'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 6,
         "imageUrl": null,
@@ -114384,7 +114384,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Solving the boundary condition gives x = pi/3."
+            "description": "Solving the boundary condition gives x = $\\frac{\\pi}{3}$."
           }
         ]
       },
@@ -114394,8 +114394,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 12,
         "topicCode": "MATH_G12_T5",
         "topicName": "Tư duy Toán Olympic Lớp 12",
-        "title": "Câu 23: Evaluate: sqrt(42 + sqrt(42 + sqrt(42 + ...))).",
-        "text": "Evaluate: sqrt(42 + sqrt(42 + sqrt(42 + ...))).",
+        "title": "Câu 23: Evaluate: $\\sqrt{42 + \\sqrt{42 + \\sqrt{42 + \\dots}}}$.",
+        "text": "Evaluate: $\\sqrt{42 + \\sqrt{42 + \\sqrt{42 + \\dots}}}$.",
         "options": [
           {
             "id": "A",
@@ -114419,7 +114419,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "x^2 - x - 42 = 0 -> x = 7.",
+        "explanation": "$x^2$ - x - 42 = 0 -> x = 7.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Tư duy Toán Olympic Lớp 12'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 6,
         "imageUrl": null,
@@ -114432,7 +114432,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "x^2 - x - 42 = 0 -> x = 7."
+            "description": "$x^2$ - x - 42 = 0 -> x = 7."
           }
         ]
       },
@@ -114857,7 +114857,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Petroleum gas can be stored in its liquid state."
+            "text": "$Petroleum gas can be stored \\in its liquid state.$"
           },
           {
             "id": "B",
@@ -115291,7 +115291,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Pressing on a table top"
+            "text": "$Pressing on a table top$"
           },
           {
             "id": "D",
@@ -116051,7 +116051,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Pressing on a table top"
+            "text": "$Pressing on a table top$"
           },
           {
             "id": "D",
@@ -116205,7 +116205,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "determine the distance sound travels"
+            "text": "$determine the distance sound travels$"
           },
           {
             "id": "C",
@@ -116215,7 +116215,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "determine the pitch of sound"
+            "text": "$determine the pitch of sound$"
           },
           {
             "id": "E",
@@ -116475,7 +116475,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "They transport oxygen in the form of oxyhaemoglobin."
+            "text": "$They transport oxygen \\in the form of oxyhaemoglobin.$"
           },
           {
             "id": "D",
@@ -117591,7 +117591,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "Pure water boils at 100 °C."
+            "text": "$Pure water boils at 100 ^\\circ\\text{C}.$"
           },
           {
             "id": "C",
@@ -119086,7 +119086,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Theapple pieis delicious."
+            "text": "$Theapple pieis delicious.$"
           }
         ],
         "correctAnswer": "A",
@@ -119892,17 +119892,17 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "beas important as thedinosaurs"
+            "text": "$beas important as thedinosaurs$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "stand in linewith thedinosaurs"
+            "text": "$stand \\in linewith thedinosaurs$"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "join thedinosaurs in becoming extinct"
+            "text": "$join thedinosaurs \\in becoming extinct$"
           }
         ],
         "correctAnswer": "A",
@@ -119950,7 +119950,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "waiting in thestore"
+            "text": "$waiting \\in thestore$"
           }
         ],
         "correctAnswer": "A",
@@ -120559,7 +120559,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "tourism isthemain source of revenue in HongKong."
+            "text": "$tourism isthemain source of revenue \\in HongKong.$"
           },
           {
             "id": "B",
@@ -122398,7 +122398,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "well-known"
+            "text": "$well-known$"
           },
           {
             "id": "B",
@@ -122499,7 +122499,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "teach in the urban areas."
+            "text": "$teach \\in the urban areas.$"
           },
           {
             "id": "C",
@@ -125788,7 +125788,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "heart-rending"
+            "text": "$heart-rending$"
           }
         ],
         "correctAnswer": "C",
@@ -128150,7 +128150,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "inform people about the rainforests in Mexico."
+            "text": "$inform people about the rainforests \\in Mexico.$"
           },
           {
             "id": "D",
@@ -128289,7 +128289,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "run in a public park."
+            "text": "$run \\in a public park.$"
           },
           {
             "id": "C",
@@ -128299,7 +128299,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "install a running app in the smartphone."
+            "text": "$install a running app \\in the smartphone.$"
           }
         ],
         "correctAnswer": "D",
@@ -128529,7 +128529,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "Infrastructures within the city affect the urban ecosystem."
+            "text": "$Infrastructures within the city affect the urban ecosystem.$"
           },
           {
             "id": "C",
@@ -130027,12 +130027,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Jason criticized his singing."
+            "text": "$Jason criticized his singing.$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Jason praised his singing."
+            "text": "$Jason praised his singing.$"
           },
           {
             "id": "C",
@@ -130090,7 +130090,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "probably will not be successful in his career."
+            "text": "$probably will not be successful \\in his career.$"
           }
         ],
         "correctAnswer": "A",
@@ -130752,7 +130752,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "the increasing number of obese children in the country."
+            "text": "$the increasing number of obese children \\in the country.$"
           },
           {
             "id": "C",
@@ -131083,7 +131083,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "There will be more police patrols in the entertainment districts."
+            "text": "$There will be more police patrols \\in the entertainment districts.$"
           },
           {
             "id": "B",
@@ -131093,7 +131093,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Action will be taken against parents who leave their children in town past the curfew"
+            "text": "$Action will be taken against parents who leave their children \\in town past the curfew$"
           },
           {
             "id": "D",
@@ -131295,17 +131295,17 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Banning the use of lead in petrol."
+            "text": "$Banning the use of lead \\in petrol.$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Using biological controls in farming."
+            "text": "$Using biological controls \\in farming.$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Treating gases from factories before releasing them."
+            "text": "$Treating gases from factories before releasing them.$"
           },
           {
             "id": "D",
@@ -131353,12 +131353,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "using more fossil fuels such as natural gas."
+            "text": "$using more fossil fuels such as natural gas.$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "using more renewable sources of energy such as solar energy."
+            "text": "$using more renewable sources of energy such as solar energy.$"
           },
           {
             "id": "D",
@@ -131507,7 +131507,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "plants and animals buried in the seas long ago."
+            "text": "$plants and animals buried \\in the seas long ago.$"
           },
           {
             "id": "B",
@@ -131628,7 +131628,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "they use up oxygen in the water."
+            "text": "$they use up oxygen \\in the water.$"
           },
           {
             "id": "E",
@@ -131782,7 +131782,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "destroy ozone in the air."
+            "text": "$destroy ozone \\in the air.$"
           },
           {
             "id": "E",
@@ -132749,7 +132749,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Cannot beused in satellitecommunication"
+            "text": "$Cannot beused \\in satellitecommunication$"
           },
           {
             "id": "D",
@@ -132898,7 +132898,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Dropping theold leaves"
+            "text": "$Dropping theold leaves$"
           },
           {
             "id": "B",
@@ -132908,7 +132908,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Morestomata inthe upperepidermis"
+            "text": "$Morestomata inthe upperepidermis$"
           },
           {
             "id": "D",
@@ -133337,7 +133337,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "X-ray"
+            "text": "$X-ray$"
           },
           {
             "id": "E",
@@ -133385,7 +133385,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Todecrease theresistance and produce ahigher current"
+            "text": "$Todecrease theresistance and produce ahigher current$"
           },
           {
             "id": "D",
@@ -133433,7 +133433,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "Its efficiency isincreased byusinglaminated steel core"
+            "text": "$Its efficiency isincreased byusinglaminated steel core$"
           },
           {
             "id": "C",
@@ -133549,7 +133549,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Visiblelight, gammarays, radio waves"
+            "text": "$Visiblelight, gammarays, radio waves$"
           },
           {
             "id": "E",
@@ -134089,7 +134089,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Cannot beused in satellitecommunication"
+            "text": "$Cannot beused \\in satellitecommunication$"
           },
           {
             "id": "D",
@@ -134238,7 +134238,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Dropping theold leaves"
+            "text": "$Dropping theold leaves$"
           },
           {
             "id": "B",
@@ -134248,7 +134248,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Morestomata inthe upperepidermis"
+            "text": "$Morestomata inthe upperepidermis$"
           },
           {
             "id": "D",
@@ -134677,7 +134677,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "X-ray"
+            "text": "$X-ray$"
           },
           {
             "id": "E",
@@ -134725,7 +134725,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Todecrease theresistance and produce ahigher current"
+            "text": "$Todecrease theresistance and produce ahigher current$"
           },
           {
             "id": "D",
@@ -134773,7 +134773,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "Its efficiency isincreased byusinglaminated steel core"
+            "text": "$Its efficiency isincreased byusinglaminated steel core$"
           },
           {
             "id": "C",
@@ -134889,7 +134889,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Visiblelight, gammarays, radio waves"
+            "text": "$Visiblelight, gammarays, radio waves$"
           },
           {
             "id": "E",
@@ -135217,7 +135217,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "destroy ozone in the air."
+            "text": "$destroy ozone \\in the air.$"
           },
           {
             "id": "E",
@@ -135674,7 +135674,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "People wear thick clothes in winter"
+            "text": "$People wear thick clothes \\in winter$"
           },
           {
             "id": "D",
@@ -135770,7 +135770,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "oil spills from ships."
+            "text": "$oil spills from ships.$"
           },
           {
             "id": "C",
@@ -135871,7 +135871,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "killing the cells in the respiratory passage."
+            "text": "$killing the cells \\in the respiratory passage.$"
           },
           {
             "id": "B",
@@ -137528,7 +137528,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "despite"
+            "text": "$despite$"
           },
           {
             "id": "C",
@@ -137960,7 +137960,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "E-cigarettes always come in various taste."
+            "text": "$E-cigarettes always come \\in various taste.$"
           },
           {
             "id": "C",
@@ -137970,7 +137970,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "Media also plays a role in promoting e-cigarettes."
+            "text": "$Media also plays a role \\in promoting e-cigarettes.$"
           }
         ],
         "correctAnswer": "A",
@@ -139117,12 +139117,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "You will give better effort in writing."
+            "text": "$You will give better effort \\in writing.$"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "You will be in competent writer."
+            "text": "$You will be \\in competent writer.$"
           },
           {
             "id": "D",
@@ -140390,7 +140390,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "One may try out two pieces of clothing at one time."
+            "text": "$One may try out two pieces of clothing at one time.$"
           }
         ],
         "correctAnswer": "D",
@@ -140428,7 +140428,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "exercising in water"
+            "text": "$exercising \\in water$"
           },
           {
             "id": "C",
@@ -142598,12 +142598,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "Jason criticized his singing."
+            "text": "$Jason criticized his singing.$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Jason praised his singing."
+            "text": "$Jason praised his singing.$"
           },
           {
             "id": "C",
@@ -142661,7 +142661,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "D",
             "label": "D",
-            "text": "probably will not be successful in his career."
+            "text": "$probably will not be successful \\in his career.$"
           }
         ],
         "correctAnswer": "A",
@@ -143323,7 +143323,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "the increasing number of obese children in the country."
+            "text": "$the increasing number of obese children \\in the country.$"
           },
           {
             "id": "C",
@@ -143654,7 +143654,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "There will be more police patrols in the entertainment districts."
+            "text": "$There will be more police patrols \\in the entertainment districts.$"
           },
           {
             "id": "B",
@@ -143664,7 +143664,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "C",
             "label": "C",
-            "text": "Action will be taken against parents who leave their children in town past the curfew"
+            "text": "$Action will be taken against parents who leave their children \\in town past the curfew$"
           },
           {
             "id": "D",
