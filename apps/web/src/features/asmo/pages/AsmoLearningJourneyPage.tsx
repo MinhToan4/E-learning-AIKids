@@ -177,7 +177,7 @@ export function AsmoLearningJourneyPage() {
   // 4. Lab interactive solver control state (Trigonometry & Math Visualizers)
   const [labAngle, setLabAngle] = useState<number | undefined>(undefined)
   const [labTab, setLabTab] = useState<'circle' | 'wave' | 'formula' | undefined>(undefined)
-  const [labHighlight, setLabHighlight] = useState<'sin' | 'cos' | 'tan' | 'cot' | 'pythagoras' | 'double' | null>(null)
+  const [labHighlight, setLabHighlight] = useState<string | null>(null)
   const [labDemoSin, setLabDemoSin] = useState<number | undefined>(undefined)
   const [activeLabAction, setActiveLabAction] = useState<string | null>(null)
 
@@ -212,6 +212,62 @@ export function AsmoLearningJourneyPage() {
         setLabDemoSin(undefined)
         setActiveLabAction('olympic-7.5')
       }
+    } else if (currentTopic.id === 'algebra-viete') {
+      setLabAngle(undefined)
+      setLabTab(undefined)
+      setLabHighlight('viete')
+      setLabDemoSin(undefined)
+      setActiveLabAction(
+        currentLevel === 1 ? 'viete-diff-square' : currentLevel === 2 ? 'viete-sp' : 'viete-frac',
+      )
+    } else if (currentTopic.id === 'pythagoras-geometry') {
+      setLabAngle(undefined)
+      setLabTab(undefined)
+      setLabHighlight('pythagoras')
+      setLabDemoSin(undefined)
+      setActiveLabAction(
+        currentLevel === 1 ? 'pyth-c10' : currentLevel === 2 ? 'pyth-oxy' : 'pyth-alt',
+      )
+    } else if (currentTopic.id === 'algebra-polynomials') {
+      setLabAngle(undefined)
+      setLabTab(undefined)
+      setLabHighlight('polynomials')
+      setLabDemoSin(undefined)
+      setActiveLabAction(
+        currentLevel === 1 ? 'poly-diff-sq' : currentLevel === 2 ? 'poly-factor' : 'poly-sq-complete',
+      )
+    } else if (currentTopic.id === 'spatial-polyhedron') {
+      setLabAngle(undefined)
+      setLabTab(undefined)
+      setLabHighlight('polyhedron')
+      setLabDemoSin(undefined)
+      setActiveLabAction(
+        currentLevel === 1 ? 'polyh-newton' : currentLevel === 2 ? 'polyh-pyr-vol' : 'polyh-euler',
+      )
+    } else if (currentTopic.id === 'exp-logarithm') {
+      setLabAngle(undefined)
+      setLabTab(undefined)
+      setLabHighlight('logarithm')
+      setLabDemoSin(undefined)
+      setActiveLabAction(
+        currentLevel === 1 ? 'log-calc' : currentLevel === 2 ? 'log-sub-t' : 'log-merge',
+      )
+    } else if (currentTopic.id === 'combinatorics-probability') {
+      setLabAngle(undefined)
+      setLabTab(undefined)
+      setLabHighlight('probability')
+      setLabDemoSin(undefined)
+      setActiveLabAction(
+        currentLevel === 1 ? 'comb-perm' : currentLevel === 2 ? 'comb-dice7' : 'comb-dirichlet',
+      )
+    } else if (currentTopic.id === 'number-theory-divisibility') {
+      setLabAngle(undefined)
+      setLabTab(undefined)
+      setLabHighlight('number-theory')
+      setLabDemoSin(undefined)
+      setActiveLabAction(
+        currentLevel === 1 ? 'num-cycle' : currentLevel === 2 ? 'num-group5' : 'num-factor-fermat',
+      )
     } else {
       setLabAngle(undefined)
       setLabTab(undefined)
@@ -623,6 +679,7 @@ export function AsmoLearningJourneyPage() {
               externalAngle={labAngle}
               externalTab={labTab}
               highlightTarget={labHighlight}
+              activeAction={activeLabAction}
               demoSinValue={labDemoSin}
               onAngleChange={(deg) => setLabAngle(deg)}
             />
@@ -777,6 +834,7 @@ export function AsmoLearningJourneyPage() {
             </div>
 
             {/* 🔍 Interactive Lab Solver Helper (Phòng Thí Nghiệm Trực Tuyến Hỗ Trợ Giải Nhanh) */}
+            {/* 1. LƯỢNG GIÁC */}
             {currentTopic.id === 'trigonometry' && (
               <div className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/90 via-sky-50/70 to-rose-50/60 p-3.5 sm:p-4 shadow-sm space-y-3">
                 <div className="flex items-center justify-between">
@@ -1010,6 +1068,1441 @@ export function AsmoLearningJourneyPage() {
                       </div>
                       <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
                         <AsmoFormula text="$\tan(x) + \cot(x) = \frac{2}{\sin(2x)} = 8\cos(2x) \Rightarrow \sin(4x) = \frac{1}{2} \Rightarrow x = \frac{\pi}{24} \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 2. ĐẠI SỐ VIÈTE */}
+            {currentTopic.id === 'algebra-viete' && (
+              <div className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/90 via-sky-50/70 to-emerald-50/60 p-3.5 sm:p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="flex size-7 items-center justify-center rounded-xl bg-indigo-600 text-white font-black text-xs shadow-xs">
+                      🔍
+                    </span>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+                        Dùng Mô Hình Trực Quan Giải Nhanh Bài Này
+                      </h4>
+                      <p className="text-[11px] text-indigo-700 font-semibold">
+                        Bấm nút bên dưới để mô hình đồ thị Parabol và hệ thức Viète bên trái tự động giải mã!
+                      </p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 border border-indigo-300 px-2 py-0.5 text-[10px] font-black text-indigo-800">
+                    <Sparkles className="size-3 text-amber-500" />
+                    Viète Helper
+                  </span>
+                </div>
+
+                {/* Level 1: Identities & Diff of Squares */}
+                {currentLevel === 1 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('viete-diff-square')
+                          setLabHighlight('viete')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'viete-diff-square'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🧮</span>
+                          <span>Soi Hằng Đẳng Thức (x+3)² - (x-3)²</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'viete-diff-square' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          a² - b² = (a-b)(a+b)
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('viete-expand')
+                          setLabHighlight('viete')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'viete-expand'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>⚡</span>
+                          <span>Khai Triển: 6x - (-6x) = 12x</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'viete-expand' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          = 6 × 2x = 12x
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$P = [(x+3) - (x-3)][(x+3) + (x-3)] = (6)(2x) = 12x \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 2: Viete S=5, P=3 */}
+                {currentLevel === 2 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('viete-sp')
+                          setLabHighlight('viete')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'viete-sp'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🔍</span>
+                          <span>Soi Định lý Viète S=5, P=3</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'viete-sp' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          S = -(-5)/1 = 5, P = 3/1 = 3
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('viete-sq-sum')
+                          setLabHighlight('viete')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'viete-sq-sum'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🎯</span>
+                          <span>Tính x₁² + x₂² = S² - 2P = 19</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'viete-sq-sum' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          = 5² - 2(3) = 25 - 6 = 19
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$A = x_1^2 + x_2^2 = (x_1 + x_2)^2 - 2x_1 x_2 = 5^2 - 2(3) = 19 \Rightarrow \text{Chọn A}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 3: Higher Order Symmetric (S^2 - 2P)/P */}
+                {currentLevel === 3 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('viete-frac')
+                          setLabHighlight('viete')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'viete-frac'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🏆</span>
+                          <span>Soi Phân Thức: (S² - 2P)/P</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'viete-frac' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          S = 3, P = 1/2
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('viete-frac-calc')
+                          setLabHighlight('viete')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'viete-frac-calc'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>⚡</span>
+                          <span>Tính M = (3² - 1)/0.5 = 16</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'viete-frac-calc' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          = 8 / 0.5 = 16
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$M = \frac{x_1^2 + x_2^2}{x_1 x_2} = \frac{3^2 - 2(0.5)}{0.5} = \frac{8}{0.5} = 16 \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 3. PYTHAGORAS & GEOMETRY */}
+            {currentTopic.id === 'pythagoras-geometry' && (
+              <div className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/90 via-sky-50/70 to-emerald-50/60 p-3.5 sm:p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="flex size-7 items-center justify-center rounded-xl bg-indigo-600 text-white font-black text-xs shadow-xs">
+                      🔍
+                    </span>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+                        Dùng Mô Hình Trực Quan Giải Nhanh Bài Này
+                      </h4>
+                      <p className="text-[11px] text-indigo-700 font-semibold">
+                        Bấm nút bên dưới để mô hình hình học và hệ thức lượng bên trái tự động sáng đèn!
+                      </p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 border border-indigo-300 px-2 py-0.5 text-[10px] font-black text-indigo-800">
+                    <Sparkles className="size-3 text-amber-500" />
+                    Pythagoras Helper
+                  </span>
+                </div>
+
+                {/* Level 1: Right Triangle c = 10 cm */}
+                {currentLevel === 1 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('pyth-c10')
+                          setLabHighlight('pythagoras')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'pyth-c10'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>📐</span>
+                          <span>Tính Cạnh Huyền c = 10 cm (a=6, b=8)</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'pyth-c10' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          c² = 6² + 8² = 36 + 64 = 100
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('pyth-triplet')
+                          setLabHighlight('pythagoras')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'pyth-triplet'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🔄</span>
+                          <span>Nhận Diện Bộ Ba (3,4,5) × 2</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'pyth-triplet' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          6 - 8 - 10 (cm)
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$c = \sqrt{a^2 + b^2} = \sqrt{6^2 + 8^2} = \sqrt{100} = 10\text{ cm} \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 2: Oxy Distance AB = 5 */}
+                {currentLevel === 2 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('pyth-oxy')
+                          setLabHighlight('pythagoras')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'pyth-oxy'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>📍</span>
+                          <span>Soi Khoảng Cách A(1,2) ➔ B(4,6)</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'pyth-oxy' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          Δx = 3, Δy = 4
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('pyth-dist')
+                          setLabHighlight('pythagoras')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'pyth-dist'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>📏</span>
+                          <span>Tính d = √(3² + 4²) = 5</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'pyth-dist' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          = √25 = 5 đơn vị
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$AB = \sqrt{(4-1)^2 + (6-2)^2} = \sqrt{3^2 + 4^2} = \sqrt{25} = 5 \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 3: Altitude h = 7.2 cm */}
+                {currentLevel === 3 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('pyth-c15')
+                          setLabHighlight('pythagoras')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'pyth-c15'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>📏</span>
+                          <span>Tính Cạnh Huyền c = 15 cm (a=9, b=12)</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'pyth-c15' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          c = √(9² + 12²) = 15
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('pyth-alt')
+                          setLabHighlight('pythagoras')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'pyth-alt'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>⚡</span>
+                          <span>Đường Cao h = ab/c = 7.2 cm</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'pyth-alt' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          = (9 × 12) / 15 = 7.2 cm
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$h = \frac{a \cdot b}{c} = \frac{9 \times 12}{15} = \frac{108}{15} = 7.2\text{ cm} \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 4. ALGEBRAIC IDENTITIES & POLYNOMIALS */}
+            {currentTopic.id === 'algebra-polynomials' && (
+              <div className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/90 via-sky-50/70 to-emerald-50/60 p-3.5 sm:p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="flex size-7 items-center justify-center rounded-xl bg-indigo-600 text-white font-black text-xs shadow-xs">
+                      🔍
+                    </span>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+                        Dùng Mô Hình Trực Quan Giải Nhanh Bài Này
+                      </h4>
+                      <p className="text-[11px] text-indigo-700 font-semibold">
+                        Bấm nút bên dưới để mô hình gạch diện tích và phân tích đa thức tự động sáng đèn!
+                      </p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 border border-indigo-300 px-2 py-0.5 text-[10px] font-black text-indigo-800">
+                    <Sparkles className="size-3 text-amber-500" />
+                    Polynomial Helper
+                  </span>
+                </div>
+
+                {/* Level 1: (2x+1)^2 - (2x-1)^2 = 8x */}
+                {currentLevel === 1 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('poly-diff-sq')
+                          setLabHighlight('polynomials')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'poly-diff-sq'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🧮</span>
+                          <span>Khai Triển Hiệu Hai Bình Phương P = 8x</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'poly-diff-sq' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          a² - b² = (a-b)(a+b)
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('poly-tile')
+                          setLabHighlight('polynomials')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'poly-tile'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🧱</span>
+                          <span>Soi Mô Hình Diện Tích (a+b)²</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'poly-tile' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          a² + 2ab + b²
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$P = [(2x+1) - (2x-1)][(2x+1) + (2x-1)] = 2 \times 4x = 8x \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 2: x^2 - 7x + 12 = (x-3)(x-4) */}
+                {currentLevel === 2 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('poly-factor')
+                          setLabHighlight('polynomials')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'poly-factor'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🔍</span>
+                          <span>Tách Hạng Tử: (x - 3)(x - 4) = 0</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'poly-factor' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          Tổng = -7, Tích = 12
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('poly-roots')
+                          setLabHighlight('polynomials')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'poly-roots'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>➕</span>
+                          <span>Tổng Hai Nghiệm = 3 + 4 = 7</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'poly-roots' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          x₁ = 3, x₂ = 4
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$P(x) = (x-3)(x-4) = 0 \Rightarrow x_1 = 3, x_2 = 4 \Rightarrow x_1 + x_2 = 7 \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 3: A = x^2 - 6x + 14 = (x-3)^2 + 5 >= 5 */}
+                {currentLevel === 3 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('poly-sq-complete')
+                          setLabHighlight('polynomials')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'poly-sq-complete'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🎯</span>
+                          <span>Hoàn Thành Bình Phương: (x - 3)² + 5</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'poly-sq-complete' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          x² - 6x + 9 + 5
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('poly-min')
+                          setLabHighlight('polynomials')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'poly-min'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🏆</span>
+                          <span>Đánh Giá GTNN: A_min = 5</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'poly-min' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          (x-3)² ≥ 0 ⇒ A ≥ 5
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$A = (x - 3)^2 + 5 \ge 5 \Rightarrow A_{\min} = 5 \quad (\text{tại } x = 3) \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 5. SPATIAL GEOMETRY & POLYHEDRON */}
+            {currentTopic.id === 'spatial-polyhedron' && (
+              <div className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/90 via-sky-50/70 to-emerald-50/60 p-3.5 sm:p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="flex size-7 items-center justify-center rounded-xl bg-indigo-600 text-white font-black text-xs shadow-xs">
+                      🔍
+                    </span>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+                        Dùng Mô Hình Trực Quan Giải Nhanh Bài Này
+                      </h4>
+                      <p className="text-[11px] text-indigo-700 font-semibold">
+                        Bấm nút bên dưới để mô hình hình học 3D và định lý Euler tự động sáng đèn!
+                      </p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 border border-indigo-300 px-2 py-0.5 text-[10px] font-black text-indigo-800">
+                    <Sparkles className="size-3 text-amber-500" />
+                    Spatial Helper
+                  </span>
+                </div>
+
+                {/* Level 1: (x+2)^5 -> C_5^2 * 2^2 = 40 */}
+                {currentLevel === 1 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('polyh-newton')
+                          setLabHighlight('polyhedron')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'polyh-newton'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>📐</span>
+                          <span>Soi Khai Triển (x + 2)⁵</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'polyh-newton' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          T = C₅ᵏ x⁵⁻ᵏ 2ᵏ
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('polyh-coeff')
+                          setLabHighlight('polyhedron')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'polyh-coeff'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🎯</span>
+                          <span>Hệ Số x³: C₅² × 2² = 40</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'polyh-coeff' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          = 10 × 4 = 40
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$a_3 = C_5^2 \cdot 2^2 = 10 \times 4 = 40 \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 2: Pyramid Volume V = 48 cm^3 */}
+                {currentLevel === 2 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('polyh-pyr-vol')
+                          setLabHighlight('polyhedron')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'polyh-pyr-vol'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🧊</span>
+                          <span>Tính Thể Tích Khối Chóp V = ⅓ B·h</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'polyh-pyr-vol' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          B = 6² = 36 cm², h = 4 cm
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('polyh-pyr-calc')
+                          setLabHighlight('polyhedron')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'polyh-pyr-calc'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>⚡</span>
+                          <span>V = ⅓ × 36 × 4 = 48 cm³</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'polyh-pyr-calc' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          = 12 × 4 = 48 cm³
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$V = \frac{1}{3} \cdot 6^2 \cdot 4 = \frac{1}{3} \times 36 \times 4 = 48\text{ cm}^3 \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 3: Euler Formula E = 30 */}
+                {currentLevel === 3 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('polyh-euler')
+                          setLabHighlight('polyhedron')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'polyh-euler'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🌐</span>
+                          <span>Soi Định Lý Euler: V - E + F = 2</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'polyh-euler' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          V = 12, F = 20
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('polyh-euler-calc')
+                          setLabHighlight('polyhedron')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'polyh-euler-calc'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🏆</span>
+                          <span>Tính Số Cạnh E = 12 + 20 - 2 = 30</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'polyh-euler-calc' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          = 32 - 2 = 30 cạnh
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$E = V + F - 2 = 12 + 20 - 2 = 30\text{ cạnh} \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 6. EXPONENT & LOGARITHM */}
+            {currentTopic.id === 'exp-logarithm' && (
+              <div className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/90 via-sky-50/70 to-emerald-50/60 p-3.5 sm:p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="flex size-7 items-center justify-center rounded-xl bg-indigo-600 text-white font-black text-xs shadow-xs">
+                      🔍
+                    </span>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+                        Dùng Mô Hình Trực Quan Giải Nhanh Bài Này
+                      </h4>
+                      <p className="text-[11px] text-indigo-700 font-semibold">
+                        Bấm nút bên dưới để đồ thị hàm số mũ và logarit đối xứng bên trái tự động giải mã!
+                      </p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 border border-indigo-300 px-2 py-0.5 text-[10px] font-black text-indigo-800">
+                    <Sparkles className="size-3 text-amber-500" />
+                    Log Helper
+                  </span>
+                </div>
+
+                {/* Level 1: log_2(32) + log_3(81) = 9 */}
+                {currentLevel === 1 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('log-graph')
+                          setLabHighlight('logarithm')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'log-graph'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>📈</span>
+                          <span>Soi Đồ Thị Đối Xứng y = 2ˣ &amp; y = log₂x</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'log-graph' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          Đối xứng qua trục y = x
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('log-calc')
+                          setLabHighlight('logarithm')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'log-calc'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>⚡</span>
+                          <span>Tính K = log₂(32) + log₃(81) = 9</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'log-calc' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          = 5 + 4 = 9
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$K = \log_2(2^5) + \log_3(3^4) = 5 + 4 = 9 \Rightarrow \text{Chọn C}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 2: 4^x - 6*2^x + 8 = 0 -> S = {1, 2} */}
+                {currentLevel === 2 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('log-sub-t')
+                          setLabHighlight('logarithm')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'log-sub-t'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🎯</span>
+                          <span>Đặt Ẩn Phụ t = 2ˣ &gt; 0: t² - 6t + 8 = 0</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'log-sub-t' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          (t - 2)(t - 4) = 0
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('log-roots')
+                          setLabHighlight('logarithm')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'log-roots'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🔑</span>
+                          <span>Nghiệm: 2ˣ = 2 ➔ x=1, 2ˣ = 4 ➔ x=2</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'log-roots' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          Tập nghiệm S = {'{1, 2}'}
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$t \in \{2, 4\} \Rightarrow 2^x = 2 \text{ hoặc } 2^x = 4 \Rightarrow x \in \{1, 2\} \Rightarrow \text{Chọn A}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 3: log_2[(x-1)(x+2)] = 2 -> x = 2 */}
+                {currentLevel === 3 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('log-merge')
+                          setLabHighlight('logarithm')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'log-merge'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🔍</span>
+                          <span>Gộp Logarit Tích: log₂[(x-1)(x+2)] = 2</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'log-merge' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          x² + x - 2 = 4 ⇔ x² + x - 6 = 0
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('log-domain')
+                          setLabHighlight('logarithm')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'log-domain'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>⚠️</span>
+                          <span>Đối Chiếu ĐKXĐ x &gt; 1 ➔ Nhận x = 2</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'log-domain' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          x = 2 (nhận), x = -3 (loại)
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$(x-1)(x+2) = 4 \Rightarrow x^2 + x - 6 = 0 \Rightarrow x = 2 \text{ (vì } x > 1) \Rightarrow \text{Chọn A}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 7. COMBINATORICS & PROBABILITY */}
+            {currentTopic.id === 'combinatorics-probability' && (
+              <div className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/90 via-sky-50/70 to-emerald-50/60 p-3.5 sm:p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="flex size-7 items-center justify-center rounded-xl bg-indigo-600 text-white font-black text-xs shadow-xs">
+                      🔍
+                    </span>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+                        Dùng Mô Hình Trực Quan Giải Nhanh Bài Này
+                      </h4>
+                      <p className="text-[11px] text-indigo-700 font-semibold">
+                        Bấm nút bên dưới để ma trận 36 ô xúc xắc và chỉnh hợp bên trái tự động sáng đèn!
+                      </p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 border border-indigo-300 px-2 py-0.5 text-[10px] font-black text-indigo-800">
+                    <Sparkles className="size-3 text-amber-500" />
+                    Prob Helper
+                  </span>
+                </div>
+
+                {/* Level 1: A_10^2 = 90 */}
+                {currentLevel === 1 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('comb-perm')
+                          setLabHighlight('probability')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'comb-perm'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>👥</span>
+                          <span>Chọn Ban Cán Sự: Chỉnh Hợp A₁₀² = 90</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'comb-perm' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          10 × 9 = 90 cách
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('comb-compare')
+                          setLabHighlight('probability')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'comb-compare'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>⚖️</span>
+                          <span>So Sánh Với Tổ Hợp C₁₀² = 45</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'comb-compare' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          Phân biệt chức vụ ➔ Dùng A
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$A_{10}^2 = \frac{10!}{(10-2)!} = 10 \times 9 = 90\text{ cách chọn} \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 2: Dice Sum = 7 -> P = 6/36 = 1/6 */}
+                {currentLevel === 2 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('comb-dice7')
+                          setLabHighlight('probability')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'comb-dice7'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🎲</span>
+                          <span>Soi Ma Trận 36 Ô Xúc Xắc Tổng = 7</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'comb-dice7' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          6 cặp: (1,6), (2,5), (3,4), (4,3), (5,2), (6,1)
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('comb-prob7')
+                          setLabHighlight('probability')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'comb-prob7'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🎯</span>
+                          <span>Xác Suất P = 6/36 = 1/6 ≈ 16.67%</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'comb-prob7' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          P = n(A) / n(Ω)
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$P(A) = \frac{n(A)}{n(\Omega)} = \frac{6}{36} = \frac{1}{6} \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 3: Dirichlet N = 3*(4-1) + 1 = 10 */}
+                {currentLevel === 3 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('comb-dirichlet')
+                          setLabHighlight('probability')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'comb-dirichlet'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🗃️</span>
+                          <span>Bốc Bi Dirichlet: Trường Hợp Xấu Nhất</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'comb-dirichlet' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          3 đỏ + 3 xanh + 3 vàng = 9 viên
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('comb-dirichlet-calc')
+                          setLabHighlight('probability')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'comb-dirichlet-calc'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🏆</span>
+                          <span>Công Thức: N = 3(4 - 1) + 1 = 10</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'comb-dirichlet-calc' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          = 9 + 1 = 10 viên
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$N_{\min} = 3 \times (4 - 1) + 1 = 9 + 1 = 10\text{ viên bi} \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* 8. NUMBER THEORY & DIVISIBILITY */}
+            {currentTopic.id === 'number-theory-divisibility' && (
+              <div className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/90 via-sky-50/70 to-emerald-50/60 p-3.5 sm:p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="flex size-7 items-center justify-center rounded-xl bg-indigo-600 text-white font-black text-xs shadow-xs">
+                      🔍
+                    </span>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+                        Dùng Mô Hình Trực Quan Giải Nhanh Bài Này
+                      </h4>
+                      <p className="text-[11px] text-indigo-700 font-semibold">
+                        Bấm nút bên dưới để vòng tròn chu kỳ luỹ thừa và đồng dư thức bên trái tự động giải mã!
+                      </p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 border border-indigo-300 px-2 py-0.5 text-[10px] font-black text-indigo-800">
+                    <Sparkles className="size-3 text-amber-500" />
+                    Number Helper
+                  </span>
+                </div>
+
+                {/* Level 1: 2^2024 mod 10 = 6 */}
+                {currentLevel === 1 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('num-cycle')
+                          setLabHighlight('number-theory')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'num-cycle'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🔄</span>
+                          <span>Soi Chu Kỳ 2ⁿ: (2 ➔ 4 ➔ 8 ➔ 6)</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'num-cycle' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          Độ dài chu kỳ T = 4
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('num-ending6')
+                          setLabHighlight('number-theory')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'num-ending6'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>⚡</span>
+                          <span>2024 ⋮ 4 ➔ Tận Cùng Là 6</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'num-ending6' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          2024 = 4 × 506 + 0
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$2^{2024} \equiv 2^4 \equiv 6 \pmod{10} \Rightarrow \text{Chọn C}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 2: S = 3^1 + ... + 3^2024 mod 5 = 0 */}
+                {currentLevel === 2 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('num-group5')
+                          setLabHighlight('number-theory')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'num-group5'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>📦</span>
+                          <span>Nhóm 4 Số Hạng: 3¹+3²+3³+3⁴ = 120 ⋮ 5</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'num-group5' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          3 + 9 + 27 + 81 = 120
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('num-rem0')
+                          setLabHighlight('number-theory')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'num-rem0'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🎯</span>
+                          <span>2024 Chia Hết Cho 4 ➔ Số Dư Bằng 0</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'num-rem0' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          506 nhóm tròn ⋮ 5
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$S = 120 \times (1 + 3^4 + \dots + 3^{2020}) \equiv 0 \pmod 5 \Rightarrow \text{Chọn A}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 3: n^5 - n mod 30 = 0 */}
+                {currentLevel === 3 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('num-factor-fermat')
+                          setLabHighlight('number-theory')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'num-factor-fermat'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🔬</span>
+                          <span>Phân Tích: (n-1)n(n+1)(n²+1)</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'num-factor-fermat' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          Tích 3 số nguyên liên tiếp ⋮ 6
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setActiveLabAction('num-fermat30')
+                          setLabHighlight('number-theory')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'num-fermat30'
+                            ? 'bg-emerald-600 text-white border-emerald-700 shadow-md ring-2 ring-emerald-300 scale-[1.02]'
+                            : 'bg-white hover:bg-emerald-50 text-emerald-900 border-emerald-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🏆</span>
+                          <span>Định Lý Fermat: n⁵ - n ⋮ 5 ➔ ⋮ 30</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'num-fermat30' ? 'text-emerald-100' : 'text-emerald-700')}>
+                          ƯCLN(6, 5) = 1 ➔ Chia hết cho 30
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì từ mô hình:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$n^5 - n \vdots 6 \text{ và } n^5 - n \vdots 5 \Rightarrow n^5 - n \vdots 30 \Rightarrow \text{Chọn C}$" />
                       </div>
                     </div>
                   </div>

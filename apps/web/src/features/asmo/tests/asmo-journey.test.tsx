@@ -376,5 +376,71 @@ describe('ASMO 3D Learning Journey & Topics', () => {
     expect(markup).toContain('Góc Phần Tư II')
     expect(markup).toContain('ring-rose-400')
   })
+
+  it('renders AsmoMathVisualizer for all 7 advanced topics in Light Soft Clay theme with 1-line Mee Cat Ribbon and 2-column KaTeX cards', () => {
+    const topicsToTest = [
+      'algebra-viete',
+      'pythagoras-geometry',
+      'algebra-polynomials',
+      'spatial-polyhedron',
+      'exp-logarithm',
+      'combinatorics-probability',
+      'number-theory-divisibility',
+    ]
+
+    topicsToTest.forEach((topicId) => {
+      const markup = renderToStaticMarkup(
+        createElement(AsmoMathVisualizer, {
+          topicId,
+          level: 1,
+        }),
+      )
+
+      // Soft Clay Card styling
+      expect(markup).toContain('border-brand-200')
+      expect(markup).toContain('shadow-clay')
+      expect(markup).toContain('rounded-3xl')
+      expect(markup).toContain('bg-white')
+      // 1-Line Mee Cat Ribbon (~32px)
+      expect(markup).toContain('Bí kíp Mèo Mee')
+      expect(markup).toContain('🐱')
+      // KaTeX formulas rendered
+      expect(markup).toContain('katex')
+    })
+  })
+
+  it('renders AsmoLearningJourneyPage with interactive question solver helpers for all 7 remaining ASMO topics', () => {
+    const testCases = [
+      { topic: 'algebra-viete', expected: 'Viète Helper' },
+      { topic: 'pythagoras-geometry', expected: 'Pythagoras Helper' },
+      { topic: 'algebra-polynomials', expected: 'Polynomial Helper' },
+      { topic: 'spatial-polyhedron', expected: 'Spatial Helper' },
+      { topic: 'exp-logarithm', expected: 'Log Helper' },
+      { topic: 'combinatorics-probability', expected: 'Prob Helper' },
+      { topic: 'number-theory-divisibility', expected: 'Number Helper' },
+    ]
+
+    testCases.forEach(({ topic, expected }) => {
+      const markup = renderToStaticMarkup(
+        createElement(
+          MemoryRouter,
+          { initialEntries: [`/asmo/journey/${topic}`] },
+          createElement(
+            Routes,
+            null,
+            createElement(Route, {
+              path: '/asmo/journey/:topicId',
+              element: createElement(AsmoLearningJourneyPage),
+            }),
+          ),
+        ),
+      )
+
+      expect(markup).toContain(expected)
+      expect(markup).toContain('Dùng Mô Hình Trực Quan Giải Nhanh Bài Này')
+      expect(markup).toContain('Kết quả giải tức thì')
+    })
+  })
 })
+
 
