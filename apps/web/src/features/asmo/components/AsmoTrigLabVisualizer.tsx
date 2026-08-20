@@ -93,20 +93,20 @@ export function AsmoTrigLabVisualizer({ className, initialAngle = 30 }: AsmoTrig
     }
   }, [isPlaying])
 
-  // Geometry for Unit Circle SVG (Center at (160, 160), Radius R = 100)
-  const CX = 160
-  const CY = 160
+  // Geometry for Unit Circle SVG (Center at (170, 170), Radius R = 100, viewBox 0 0 340 340)
+  const CX = 170
+  const CY = 170
   const R = 100
 
   const px = CX + R * cosVal
   const py = CY - R * sinVal
 
-  // Tangent line at x = 1 (X = CX + R = 260)
+  // Tangent line at x = 1 (X = CX + R = 270)
   const tanX = CX + R
   const clampedTan = tanVal !== null ? Math.max(-2.5, Math.min(2.5, tanVal)) : 0
   const tanY = CY - R * clampedTan
 
-  // Cotangent line at y = 1 (Y = CY - R = 60)
+  // Cotangent line at y = 1 (Y = CY - R = 70)
   const cotY = CY - R
   const clampedCot = cotVal !== null ? Math.max(-2.5, Math.min(2.5, cotVal)) : 0
   const cotX = CX + R * clampedCot
@@ -122,70 +122,72 @@ export function AsmoTrigLabVisualizer({ className, initialAngle = 30 }: AsmoTrig
       )}
     >
       {/* ── TOP HEADER & TAB SWITCHER BAR ── */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-200/80 pb-4">
-        {/* Title & Brand Badge */}
-        <div className="flex items-center gap-3">
-          <div className="flex size-11 items-center justify-center rounded-2xl bg-brand-100 text-brand-700 border-2 border-brand-300 shadow-xs shrink-0">
-            <Compass className="size-6 text-brand-600" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2 flex-wrap">
-              <span className="text-sm sm:text-base font-extrabold text-slate-900 tracking-tight">
-                Phòng Thí Nghiệm Lượng Giác ASMO
-              </span>
-              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-extrabold text-emerald-800 border border-emerald-300">
-                <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                Live Interactive Lab
-              </span>
+      <div className="flex flex-col gap-2 border-b border-slate-200/80 pb-4">
+        {/* Hàng 1: Tiêu đề và biểu tượng nằm trọn 1 dòng */}
+        <div className="flex items-center justify-between gap-3 flex-wrap">
+          <div className="flex items-center gap-3">
+            <div className="flex size-11 items-center justify-center rounded-2xl bg-brand-100 text-brand-700 border-2 border-brand-300 shadow-xs shrink-0">
+              <Compass className="size-6 text-brand-600" />
             </div>
-            <p className="text-xs text-slate-500 font-medium mt-0.5">
-              Đường tròn đơn vị · Máy vẽ sóng sin/cos · Công thức nhân đôi Lớp 11
-            </p>
+            <div>
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="text-base sm:text-lg font-extrabold text-slate-900 tracking-tight whitespace-nowrap">
+                  Phòng Thí Nghiệm Lượng Giác ASMO
+                </span>
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-[11px] font-extrabold text-emerald-800 border border-emerald-300 shrink-0">
+                  <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                  Live Interactive Lab
+                </span>
+              </div>
+              <p className="text-xs text-slate-500 font-medium mt-0.5">
+                Đường tròn đơn vị · Máy vẽ sóng sin/cos · Công thức nhân đôi Lớp 11
+              </p>
+            </div>
           </div>
         </div>
 
-        {/* 3 Clear Distinct Tab Switcher */}
-        <div className="inline-flex items-center p-1 bg-slate-100/90 rounded-2xl border border-slate-200/90 shrink-0 self-start md:self-auto shadow-inner">
+        {/* Hàng 2: Thanh 3 Tabs điều hướng */}
+        <div className="grid grid-cols-3 gap-2 w-full mt-2.5 p-1 bg-slate-100/90 rounded-2xl border border-slate-200 shadow-inner">
           <button
             type="button"
             onClick={() => setActiveTab('circle')}
             className={cn(
-              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer select-none',
+              'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs sm:text-sm font-bold text-center transition-all cursor-pointer select-none',
               activeTab === 'circle'
                 ? 'bg-brand-500 text-white shadow-sm ring-2 ring-brand-300'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60',
             )}
           >
-            <Compass className="size-3.5" />
-            <span>Đường Tròn Đơn Vị</span>
+            <span>🎯</span>
+            <span className="whitespace-nowrap">Đường Tròn Đơn Vị</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('wave')}
             className={cn(
-              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer select-none',
+              'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs sm:text-sm font-bold text-center transition-all cursor-pointer select-none',
               activeTab === 'wave'
                 ? 'bg-brand-500 text-white shadow-sm ring-2 ring-brand-300'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60',
             )}
           >
-            <Waves className="size-3.5" />
-            <span>Sóng Lượng Giác</span>
+            <span>🌊</span>
+            <span className="whitespace-nowrap">Sóng Lượng Giác</span>
           </button>
 
           <button
             type="button"
             onClick={() => setActiveTab('formula')}
             className={cn(
-              'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer select-none',
+              'flex items-center justify-center gap-1.5 px-2 py-2 rounded-xl text-xs sm:text-sm font-bold text-center transition-all cursor-pointer select-none',
               activeTab === 'formula'
                 ? 'bg-brand-500 text-white shadow-sm ring-2 ring-brand-300'
                 : 'text-slate-600 hover:text-slate-900 hover:bg-white/60',
             )}
           >
-            <Calculator className="size-3.5" />
-            <span>Công Thức Lớp 11</span>
+            <span>📐</span>
+            <span className="whitespace-nowrap">Công Thức Lớp 11</span>
           </button>
         </div>
       </div>
@@ -230,8 +232,8 @@ export function AsmoTrigLabVisualizer({ className, initialAngle = 30 }: AsmoTrig
             {/* ── LEFT: UNIT CIRCLE SVG CANVAS (7 cols) ── */}
             <div className="lg:col-span-7 flex flex-col gap-3 rounded-3xl bg-slate-50/70 p-4 border-2 border-slate-200/80 shadow-xs">
               {/* Header inside canvas */}
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2 flex-wrap">
                   <span className="text-xs font-black text-slate-800 uppercase tracking-wide">
                     🎯 Đường Tròn Lượng Giác (R = 1)
                   </span>
@@ -240,15 +242,15 @@ export function AsmoTrigLabVisualizer({ className, initialAngle = 30 }: AsmoTrig
                   </span>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-xs">
+                <div className="flex items-center gap-1.5 text-xs shrink-0">
                   <button
                     type="button"
                     onClick={() => setShowAxesDetails((prev) => !prev)}
                     className={cn(
-                      'px-2 py-1 rounded-xl text-[11px] font-bold border transition-all cursor-pointer select-none',
+                      'px-2.5 py-1 rounded-xl text-[11px] font-bold border transition-all cursor-pointer select-none',
                       showAxesDetails
                         ? 'bg-brand-50 text-brand-700 border-brand-300'
-                        : 'bg-white text-slate-500 border-slate-200',
+                        : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50',
                     )}
                   >
                     Chiếu sin/cos
@@ -257,10 +259,10 @@ export function AsmoTrigLabVisualizer({ className, initialAngle = 30 }: AsmoTrig
                     type="button"
                     onClick={() => setShowTanCot((prev) => !prev)}
                     className={cn(
-                      'px-2 py-1 rounded-xl text-[11px] font-bold border transition-all cursor-pointer select-none',
+                      'px-2.5 py-1 rounded-xl text-[11px] font-bold border transition-all cursor-pointer select-none',
                       showTanCot
                         ? 'bg-purple-50 text-purple-700 border-purple-300'
-                        : 'bg-white text-slate-500 border-slate-200',
+                        : 'bg-white text-slate-500 border-slate-200 hover:bg-slate-50',
                     )}
                   >
                     Trục tan/cot
@@ -270,7 +272,7 @@ export function AsmoTrigLabVisualizer({ className, initialAngle = 30 }: AsmoTrig
 
               {/* Unit Circle SVG */}
               <div className="relative w-full flex items-center justify-center py-2 bg-white rounded-2xl border border-slate-200/80 shadow-inner">
-                <svg viewBox="0 0 320 320" className="w-full max-w-[310px] aspect-square select-none font-sans">
+                <svg viewBox="0 0 340 340" className="w-full max-w-[330px] aspect-square select-none font-sans">
                   <defs>
                     {/* Glowing Filters */}
                     <filter id="glow-circle-cyan" x="-20%" y="-20%" width="140%" height="140%">
@@ -299,37 +301,37 @@ export function AsmoTrigLabVisualizer({ className, initialAngle = 30 }: AsmoTrig
                   <circle cx={CX} cy={CY} r={R} fill="none" stroke="#cbd5e1" strokeWidth="2.5" />
                   <circle cx={CX} cy={CY} r={R} fill="none" stroke="#6366f1" strokeWidth="1" strokeDasharray="4 4" opacity="0.7" />
 
-                  {/* Tangent Axis (Vertical at x = 1 -> X = CX + R = 260) */}
+                  {/* Tangent Axis (Vertical at x = 1 -> X = CX + R = 270) */}
                   {showTanCot && (
                     <g opacity="0.85">
-                      <line x1={tanX} y1={20} x2={tanX} y2={300} stroke="#9333ea" strokeWidth="2" strokeDasharray="3 3" />
-                      <text x={tanX + 5} y={35} fill="#7e22ce" fontSize="10" fontWeight="bold">Trục tan</text>
+                      <line x1={tanX} y1={15} x2={tanX} y2={325} stroke="#9333ea" strokeWidth="2" strokeDasharray="3 3" />
+                      <text x={tanX + 5} y={28} fill="#7e22ce" fontSize="10" fontWeight="bold">Trục tan</text>
                     </g>
                   )}
 
-                  {/* Cotangent Axis (Horizontal at y = 1 -> Y = CY - R = 60) */}
+                  {/* Cotangent Axis (Horizontal at y = 1 -> Y = CY - R = 70) */}
                   {showTanCot && (
                     <g opacity="0.85">
-                      <line x1={20} y1={cotY} x2={300} y2={cotY} stroke="#d97706" strokeWidth="2" strokeDasharray="3 3" />
-                      <text x={280} y={cotY - 6} fill="#b45309" fontSize="10" fontWeight="bold">Trục cot</text>
+                      <line x1={15} y1={cotY} x2={325} y2={cotY} stroke="#d97706" strokeWidth="2" strokeDasharray="3 3" />
+                      <text x={305} y={cotY - 6} fill="#b45309" fontSize="10" fontWeight="bold">Trục cot</text>
                     </g>
                   )}
 
                   {/* Cosine Axis (X-axis, Sky Blue) */}
-                  <line x1={15} y1={CY} x2={305} y2={CY} stroke="#0284c7" strokeWidth="2.5" />
-                  <polygon points="305,156 315,160 305,164" fill="#0284c7" />
-                  <text x={298} y={150} fill="#0369a1" fontSize="11" fontWeight="bold">cos (x)</text>
+                  <line x1={15} y1={CY} x2={325} y2={CY} stroke="#0284c7" strokeWidth="2.5" />
+                  <polygon points="325,166 335,170 325,174" fill="#0284c7" />
+                  <text x={305} y={158} fill="#0369a1" fontSize="11" fontWeight="bold">cos (x)</text>
 
                   {/* Sine Axis (Y-axis, Coral Red) */}
-                  <line x1={CX} y1={305} x2={CX} y2={15} stroke="#e11d48" strokeWidth="2.5" />
-                  <polygon points="156,15 160,5 164,15" fill="#e11d48" />
-                  <text x={168} y={20} fill="#be123c" fontSize="11" fontWeight="bold">sin (y)</text>
+                  <line x1={CX} y1={325} x2={CX} y2={15} stroke="#e11d48" strokeWidth="2.5" />
+                  <polygon points="166,15 170,5 174,15" fill="#e11d48" />
+                  <text x={178} y={20} fill="#be123c" fontSize="11" fontWeight="bold">sin (y)</text>
 
                   {/* Ticks on axes */}
                   <text x={CX + R} y={CY + 15} fill="#64748b" fontSize="9" fontWeight="bold" textAnchor="middle">+1</text>
                   <text x={CX - R} y={CY + 15} fill="#64748b" fontSize="9" fontWeight="bold" textAnchor="middle">-1</text>
-                  <text x={CX - 10} y={CY - R + 4} fill="#64748b" fontSize="9" fontWeight="bold" textAnchor="end">+1</text>
-                  <text x={CX - 10} y={CY + R + 4} fill="#64748b" fontSize="9" fontWeight="bold" textAnchor="end">-1</text>
+                  <text x={CX - 8} y={CY - R + 4} fill="#64748b" fontSize="9" fontWeight="bold" textAnchor="end">+1</text>
+                  <text x={CX - 8} y={CY + R + 4} fill="#64748b" fontSize="9" fontWeight="bold" textAnchor="end">-1</text>
 
                   {/* Angle Arc from 0 to theta */}
                   {angleDeg > 0 && (
@@ -506,7 +508,7 @@ export function AsmoTrigLabVisualizer({ className, initialAngle = 30 }: AsmoTrig
                   </span>
                 </div>
                 <div className="mt-1.5 flex items-baseline justify-between gap-2">
-                  <div className="text-lg font-black text-rose-700 font-mono">
+                  <div className="text-base sm:text-lg font-black text-rose-700 font-mono">
                     <AsmoFormula
                       text={`$\\sin(${Math.round(normalizedDeg)}^\\circ) = ${matchedSpecial ? matchedSpecial.sinExact : sinVal.toFixed(4)}$`}
                     />
@@ -532,7 +534,7 @@ export function AsmoTrigLabVisualizer({ className, initialAngle = 30 }: AsmoTrig
                   </span>
                 </div>
                 <div className="mt-1.5 flex items-baseline justify-between gap-2">
-                  <div className="text-lg font-black text-sky-700 font-mono">
+                  <div className="text-base sm:text-lg font-black text-sky-700 font-mono">
                     <AsmoFormula
                       text={`$\\cos(${Math.round(normalizedDeg)}^\\circ) = ${matchedSpecial ? matchedSpecial.cosExact : cosVal.toFixed(4)}$`}
                     />
@@ -547,16 +549,18 @@ export function AsmoTrigLabVisualizer({ className, initialAngle = 30 }: AsmoTrig
               </div>
 
               {/* 🟣 CARD 3: TANGENT & COTANGENT (GRID 2 COLS) */}
-              <div className="grid grid-cols-2 gap-2.5">
-                <div className="rounded-2xl bg-purple-50 border-2 border-purple-200/80 p-3 shadow-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div className="rounded-2xl bg-purple-50 border-2 border-purple-200/80 p-3 shadow-xs flex flex-col justify-between">
                   <div className="text-[11px] font-extrabold text-purple-800">
                     <AsmoFormula text="$\tan(\alpha) = \frac{\sin}{\cos}$:" />
                   </div>
-                  <div className="mt-1 font-mono font-black text-purple-900 text-sm truncate">
+                  <div className="mt-1 font-mono font-black text-purple-900 text-sm">
                     {tanVal !== null ? (
-                      <AsmoFormula text={`$${matchedSpecial ? matchedSpecial.tanExact : tanVal.toFixed(3)}$`} />
+                      <AsmoFormula
+                        text={`$\\tan(${Math.round(normalizedDeg)}^\\circ) = ${matchedSpecial ? matchedSpecial.tanExact : tanVal.toFixed(3)}$`}
+                      />
                     ) : (
-                      <span className="text-xs text-rose-600">Không XĐ</span>
+                      <span className="text-xs text-rose-600 font-bold">Không XĐ</span>
                     )}
                   </div>
                   <div className="text-[10px] text-purple-600/80 font-mono mt-0.5">
@@ -564,15 +568,17 @@ export function AsmoTrigLabVisualizer({ className, initialAngle = 30 }: AsmoTrig
                   </div>
                 </div>
 
-                <div className="rounded-2xl bg-amber-50 border-2 border-amber-200/80 p-3 shadow-xs">
+                <div className="rounded-2xl bg-amber-50 border-2 border-amber-200/80 p-3 shadow-xs flex flex-col justify-between">
                   <div className="text-[11px] font-extrabold text-amber-800">
                     <AsmoFormula text="$\cot(\alpha) = \frac{\cos}{\sin}$:" />
                   </div>
-                  <div className="mt-1 font-mono font-black text-amber-900 text-sm truncate">
+                  <div className="mt-1 font-mono font-black text-amber-900 text-sm">
                     {cotVal !== null ? (
-                      <AsmoFormula text={`$${matchedSpecial ? matchedSpecial.cotExact : cotVal.toFixed(3)}$`} />
+                      <AsmoFormula
+                        text={`$\\cot(${Math.round(normalizedDeg)}^\\circ) = ${matchedSpecial ? matchedSpecial.cotExact : cotVal.toFixed(3)}$`}
+                      />
                     ) : (
-                      <span className="text-xs text-rose-600">Không XĐ</span>
+                      <span className="text-xs text-rose-600 font-bold">Không XĐ</span>
                     )}
                   </div>
                   <div className="text-[10px] text-amber-600/80 font-mono mt-0.5">
@@ -604,7 +610,7 @@ export function AsmoTrigLabVisualizer({ className, initialAngle = 30 }: AsmoTrig
                   </span>
                 </div>
                 <div className="font-mono font-black text-emerald-800 text-xs sm:text-sm">
-                  <AsmoFormula text="$\sin^2 + \cos^2 = 1.000 \equiv 1$" />
+                  <AsmoFormula text="$\sin^2\alpha + \cos^2\alpha \equiv 1$" />
                 </div>
               </div>
             </div>

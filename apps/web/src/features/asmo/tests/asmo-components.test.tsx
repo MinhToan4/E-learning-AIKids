@@ -5,6 +5,8 @@ import { AsmoFormula } from '../components/AsmoFormula'
 import { AsmoMeeTutor } from '../components/AsmoMeeTutor'
 import { AsmoExamTimer } from '../components/AsmoExamTimer'
 
+import { AsmoTrigLabVisualizer, SPECIAL_ANGLES } from '../components/AsmoTrigLabVisualizer'
+
 describe('ASMO UI Components', () => {
   it('renders AsmoFormula with KaTeX output', () => {
     const markup = renderToStaticMarkup(
@@ -66,5 +68,30 @@ describe('ASMO UI Components', () => {
       createElement(AsmoExamTimer, { durationMinutes: 45 }),
     )
     expect(markup).toContain('45:00')
+  })
+
+  it('renders AsmoTrigLabVisualizer with 2-tier header, 3 tabs, and KaTeX square roots for 30 deg', () => {
+    const markup = renderToStaticMarkup(
+      createElement(AsmoTrigLabVisualizer, { initialAngle: 30 }),
+    )
+    // Header & Tabs
+    expect(markup).toContain('Phòng Thí Nghiệm Lượng Giác ASMO')
+    expect(markup).toContain('Live Interactive Lab')
+    expect(markup).toContain('Đường Tròn Đơn Vị')
+    expect(markup).toContain('Sóng Lượng Giác')
+    expect(markup).toContain('Công Thức Lớp 11')
+
+    // SVG ViewBox 0 0 340 340
+    expect(markup).toContain('viewBox="0 0 340 340"')
+
+    // KaTeX Formulas & Pythagoras
+    expect(markup).toContain('katex')
+    expect(markup).toContain('Hằng đẳng thức Pythagoras')
+
+    // Special angles array has accurate sqrt symbols
+    const angle30 = SPECIAL_ANGLES.find((a) => a.deg === 30)
+    expect(angle30?.cosExact).toBe('\\frac{\\sqrt{3}}{2}')
+    expect(angle30?.tanExact).toBe('\\frac{\\sqrt{3}}{3}')
+    expect(angle30?.cotExact).toBe('\\sqrt{3}')
   })
 })
