@@ -847,19 +847,6 @@ export function AsmoCurriculumLessonPage() {
                   ))}
                 </ul>
               </div>
-
-              {/* Bottom Step Forward Button */}
-              <div className="flex justify-end pt-2">
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={() => advanceToPhase('tips')}
-                  className="gap-2 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold px-6 py-3 shadow-clay cursor-pointer"
-                >
-                  <span>Tiếp tục: Mẹo Mèo Mee</span>
-                  <ArrowRight className="size-4" />
-                </Button>
-              </div>
             </div>
           )}
 
@@ -920,29 +907,6 @@ export function AsmoCurriculumLessonPage() {
                   </p>
                 </div>
               </div>
-
-              {/* Bottom Step Navigation */}
-              <div className="flex items-center justify-between pt-2">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => advanceToPhase('explore')}
-                  className="gap-2 rounded-2xl"
-                >
-                  <ChevronLeft className="size-4" />
-                  <span>Quay lại Khám phá</span>
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={() => advanceToPhase('practice')}
-                  className="gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-6 py-3 shadow-clay cursor-pointer"
-                >
-                  <span>Bắt đầu Thực hành</span>
-                  <ArrowRight className="size-4" />
-                </Button>
-              </div>
             </div>
           )}
 
@@ -960,29 +924,6 @@ export function AsmoCurriculumLessonPage() {
                 }}
                 onAdvanceToQuiz={() => advanceToPhase('quiz')}
               />
-
-              {/* Bottom Step Navigation */}
-              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => advanceToPhase('tips')}
-                  className="gap-2 rounded-2xl"
-                >
-                  <ChevronLeft className="size-4" />
-                  <span>Quay lại Bí kíp</span>
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={() => advanceToPhase('quiz')}
-                  className="gap-2 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold px-6 py-3 shadow-clay cursor-pointer"
-                >
-                  <span>Vào Thử tài Olympic ⭐⭐⭐</span>
-                  <ArrowRight className="size-4" />
-                </Button>
-              </div>
             </div>
           )}
 
@@ -1065,21 +1006,8 @@ export function AsmoCurriculumLessonPage() {
                 })}
               </div>
 
-              {/* Quiz Submit & Immediate Feedback Banner */}
-              {!quizSubmitted ? (
-                <div className="flex justify-end pt-2">
-                  <Button
-                    type="button"
-                    variant="primary"
-                    disabled={!selectedOptionId}
-                    onClick={handleSubmitQuiz}
-                    className="gap-2 rounded-2xl bg-gradient-to-r from-brand-600 to-purple-600 text-white font-extrabold shadow-clay px-8 py-3.5 text-base disabled:opacity-50 cursor-pointer"
-                  >
-                    <CheckCircle2 className="size-5" />
-                    <span>Nộp Bài Trắc Nghiệm</span>
-                  </Button>
-                </div>
-              ) : (
+              {/* Quiz Immediate Feedback Banner */}
+              {quizSubmitted && (
                 <div className="space-y-4 animate-in fade-in duration-300">
                   {isQuizCorrect ? (
                     <div className="rounded-3xl bg-gradient-to-r from-emerald-50 via-teal-50 to-mint-50 border-2 border-emerald-400 p-6 text-center space-y-3.5 shadow-sm">
@@ -1110,40 +1038,6 @@ export function AsmoCurriculumLessonPage() {
                           </div>
                         )}
                       </div>
-
-                      <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
-                        {nextLesson ? (
-                          <Button
-                            type="button"
-                            variant="primary"
-                            onClick={() => navigate(`/asmo/curriculum/lesson/${nextLesson.id}`)}
-                            className="gap-2 rounded-2xl bg-amber-400 hover:bg-amber-500 text-slate-950 font-black shadow-clay px-6 py-3 cursor-pointer"
-                          >
-                            <span>Trạm tiếp theo ({nextLesson.lessonNumber})</span>
-                            <ArrowRight className="size-4 text-slate-950" />
-                          </Button>
-                        ) : (
-                          <Button
-                            type="button"
-                            variant="primary"
-                            onClick={() => navigate(`/asmo/curriculum?stage=${stage.id}`)}
-                            className="gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black px-6 py-3"
-                          >
-                            <Trophy className="size-4" />
-                            <span>Hoàn Thành Lộ Trình Chặng!</span>
-                          </Button>
-                        )}
-
-                        <Button
-                          type="button"
-                          variant="secondary"
-                          onClick={() => navigate(`/asmo/curriculum?stage=${stage.id}`)}
-                          className="gap-2 rounded-2xl"
-                        >
-                          <Map className="size-4" />
-                          <span>Về Bản Đồ Vùng Đảo</span>
-                        </Button>
-                      </div>
                     </div>
                   ) : (
                     <div className="rounded-3xl bg-rose-50 border-2 border-rose-300 p-6 text-center space-y-3">
@@ -1158,19 +1052,10 @@ export function AsmoCurriculumLessonPage() {
                           type="button"
                           variant="secondary"
                           onClick={handleRetryQuiz}
-                          className="gap-2 rounded-2xl bg-white border-rose-200 text-rose-800 font-bold px-6 py-2.5 shadow-2xs"
+                          className="gap-2 rounded-2xl bg-white border-rose-200 text-rose-800 font-bold px-6 py-2.5 shadow-2xs cursor-pointer"
                         >
                           <RotateCcw className="size-4" />
                           <span>Thử Chọn Lại</span>
-                        </Button>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          onClick={() => advanceToPhase('tips')}
-                          className="gap-2 rounded-2xl text-brand-700 font-bold"
-                        >
-                          <Lightbulb className="size-4" />
-                          <span>Xem lại Bí kíp</span>
                         </Button>
                       </div>
                     </div>
@@ -1179,51 +1064,143 @@ export function AsmoCurriculumLessonPage() {
               )}
             </div>
           )}
+        </main>
 
-          {/* ── 4. FOOTER ACTION BUTTONS ── */}
-          <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-            <Button
-              variant="secondary"
-              onClick={() => navigate(`/asmo/curriculum?stage=${stage.id}`)}
-              className="gap-2 rounded-2xl"
-            >
-              <Map className="size-4" />
-              <span>🎓 Thoát về bản đồ</span>
-            </Button>
-
-            {isQuizCorrect ? (
+        {/* ── 4. THANH FOOTER DUY NHẤT CHUẨN AI KIDS ── */}
+        <footer className="shrink-0 flex flex-wrap items-center justify-between gap-3 pt-3 pb-1 border-t-2 border-slate-200/80 bg-white/95 backdrop-blur-md rounded-3xl px-4 sm:px-5 py-3 shadow-xs">
+          {/* Bên Trái: Nút 🎓 Về bản đồ (hoặc ❮ Quay lại khi ở các phase sau) */}
+          <div className="flex items-center gap-2">
+            {phase === 'explore' ? (
               <Button
-                variant="primary"
-                onClick={() => {
-                  if (nextLesson) {
-                    navigate(`/asmo/curriculum/lesson/${nextLesson.id}`)
-                  } else {
-                    navigate(`/asmo/curriculum?stage=${stage.id}`)
-                  }
-                }}
-                className="gap-2 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-extrabold shadow-clay px-6 py-2.5"
+                type="button"
+                variant="secondary"
+                onClick={() => navigate(`/asmo/curriculum?stage=${stage.id}`)}
+                className="gap-2 rounded-2xl cursor-pointer"
               >
-                <Star className="size-4" />
-                <span>🌸 Hoàn thành &amp; Tiếp tục</span>
+                <Map className="size-4" />
+                <span>🎓 Về bản đồ</span>
+              </Button>
+            ) : phase === 'tips' ? (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => advanceToPhase('explore')}
+                className="gap-2 rounded-2xl cursor-pointer"
+              >
+                <ChevronLeft className="size-4" />
+                <span>❮ Quay lại: Khám phá</span>
+              </Button>
+            ) : phase === 'practice' ? (
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => advanceToPhase('tips')}
+                className="gap-2 rounded-2xl cursor-pointer"
+              >
+                <ChevronLeft className="size-4" />
+                <span>❮ Quay lại: Mẹo Mee</span>
               </Button>
             ) : (
+              /* phase === 'quiz' or 'done' */
               <Button
-                variant="primary"
+                type="button"
+                variant="secondary"
                 onClick={() => {
-                  if (phase !== 'quiz') {
-                    advanceToPhase('quiz')
+                  if (isQuizCorrect) {
+                    navigate(`/asmo/curriculum?stage=${stage.id}`)
                   } else {
-                    handleSubmitQuiz()
+                    advanceToPhase('practice')
                   }
                 }}
-                className="gap-2 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-extrabold px-6 py-2.5"
+                className="gap-2 rounded-2xl cursor-pointer"
               >
-                <span>Vào Thử tài Olympic</span>
-                <ArrowRight className="size-4" />
+                {isQuizCorrect ? (
+                  <>
+                    <Map className="size-4" />
+                    <span>🎓 Về bản đồ</span>
+                  </>
+                ) : (
+                  <>
+                    <ChevronLeft className="size-4" />
+                    <span>❮ Quay lại: Thực hành</span>
+                  </>
+                )}
               </Button>
             )}
           </div>
-        </main>
+
+          {/* Bên Phải: Nút hành động tiếp theo rõ ràng */}
+          <div className="flex items-center gap-2">
+            {phase === 'explore' && (
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => advanceToPhase('tips')}
+                className="gap-2 rounded-2xl bg-brand-600 hover:bg-brand-700 text-white font-extrabold px-6 py-2.5 shadow-clay cursor-pointer"
+              >
+                <span>Tiếp tục: Mẹo Mèo Mee</span>
+                <ArrowRight className="size-4" />
+              </Button>
+            )}
+
+            {phase === 'tips' && (
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => advanceToPhase('practice')}
+                className="gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold px-6 py-2.5 shadow-clay cursor-pointer"
+              >
+                <span>Bắt đầu Thực hành</span>
+                <ArrowRight className="size-4" />
+              </Button>
+            )}
+
+            {phase === 'practice' && (
+              <Button
+                type="button"
+                variant="primary"
+                onClick={() => advanceToPhase('quiz')}
+                className="gap-2 rounded-2xl bg-rose-600 hover:bg-rose-700 text-white font-extrabold px-6 py-2.5 shadow-clay cursor-pointer"
+              >
+                <span>Vào Thử tài Olympic ⭐⭐⭐</span>
+                <ArrowRight className="size-4" />
+              </Button>
+            )}
+
+            {phase === 'quiz' && (
+              isQuizCorrect ? (
+                <Button
+                  type="button"
+                  variant="primary"
+                  onClick={() => {
+                    if (nextLesson) {
+                      navigate(`/asmo/curriculum/lesson/${nextLesson.id}`)
+                    } else {
+                      navigate(`/asmo/curriculum?stage=${stage.id}`)
+                    }
+                  }}
+                  className="gap-2 rounded-2xl bg-gradient-to-r from-amber-400 to-coral-500 hover:brightness-105 text-slate-950 font-black shadow-clay px-7 py-2.5 text-base cursor-pointer animate-pop"
+                >
+                  <Star className="size-5 fill-slate-950 text-slate-950" />
+                  <span>🌸 Hoàn thành &amp; Tiếp tục</span>
+                  <ArrowRight className="size-4" />
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="primary"
+                  disabled={!selectedOptionId}
+                  onClick={handleSubmitQuiz}
+                  className="gap-2 rounded-2xl bg-gradient-to-r from-brand-600 to-purple-600 hover:from-brand-700 hover:to-purple-700 text-white font-extrabold shadow-clay px-7 py-2.5 text-base disabled:opacity-50 cursor-pointer"
+                >
+                  <CheckCircle2 className="size-5" />
+                  <span>Nộp bài Thử tài</span>
+                  <ArrowRight className="size-4" />
+                </Button>
+              )
+            )}
+          </div>
+        </footer>
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════════

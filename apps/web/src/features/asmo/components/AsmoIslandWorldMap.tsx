@@ -279,7 +279,7 @@ const STATION_X_POSITIONS = [28, 68, 74, 43, 25, 52, 72, 42, 24, 61] as const
 function getStationPoint(index: number, total: number) {
   return {
     x: STATION_X_POSITIONS[index % STATION_X_POSITIONS.length],
-    y: total <= 1 ? 50 : 12 + (index * 76) / (total - 1),
+    y: total <= 1 ? 50 : 20 + (index * 68) / (total - 1),
   }
 }
 
@@ -674,9 +674,9 @@ export function AsmoIslandWorldMap({
             aria-label="Lộ trình bài học"
           >
             <div
-              className="course-station-canvas"
+              className="course-station-canvas pt-12 sm:pt-14 pb-6"
               style={{
-                minHeight: `${Math.max(42, activeStage.lessons.length * 8.5)}rem`,
+                minHeight: `${Math.max(46, activeStage.lessons.length * 9)}rem`,
               }}
             >
               <svg

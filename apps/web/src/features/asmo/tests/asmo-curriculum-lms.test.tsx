@@ -313,7 +313,8 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).toContain('🎯 Mục tiêu của con')
 
     // 5. Action Buttons
-    expect(markup).toContain('🎓 Thoát về bản đồ')
+    expect(markup).toContain('🎓 Về bản đồ')
+    expect(markup).toContain('Tiếp tục: Mẹo Mèo Mee')
   })
 
   it('renders fallback error message when lessonId does not exist', () => {

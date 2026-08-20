@@ -4349,15 +4349,16 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
   .course-map-scene {
     position: relative;
     z-index: 1;
-    min-height: 24rem;
-    margin-top: -1.5rem;
-    overflow: hidden;
+    min-height: 28rem;
+    margin-top: -1rem;
+    overflow: visible;
+    padding-bottom: 2rem;
   }
 
   .course-map-scene-art {
     position: absolute;
     left: 50%;
-    bottom: -0.25rem;
+    bottom: 0;
     width: min(112%, 76rem);
     height: 100%;
     max-width: none;
@@ -4370,9 +4371,9 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
   .course-map-scene-cat {
     position: absolute;
     left: 28%;
-    bottom: 0;
+    bottom: 2.5rem;
     z-index: 2;
-    width: clamp(12rem, 22vw, 17rem);
+    width: clamp(13rem, 24vw, 18rem);
     filter: drop-shadow(0 7px 0 rgb(47 38 91 / 10%));
   }
 
@@ -4380,7 +4381,7 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     position: relative;
     z-index: 4;
     width: min(96%, 75rem);
-    margin: -1.25rem auto 0;
+    margin: 0 auto 0;
     border-top: 4px solid rgb(255 255 255 / 58%);
     border-radius: 3rem 1.7rem 3rem 1.7rem;
     padding: 1.4rem 2rem 1.7rem;
@@ -4528,12 +4529,12 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
   .course-station-map {
     position: relative;
     width: min(96%, 75rem);
-    min-height: 40rem;
+    min-height: 42rem;
     margin: 2rem auto 0;
     overflow: hidden;
     border: 3px solid white;
     border-radius: 4rem 2rem 4rem 2rem;
-    padding: 1.5rem 2.5rem 3rem;
+    padding: 2.5rem 2.5rem 3rem;
     background-position: center;
     background-size: cover;
     box-shadow: 0 10px 0 rgb(67 57 118 / 10%), 0 22px 40px rgb(41 35 76 / 9%);
@@ -4550,6 +4551,8 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     width: min(100%, 56rem);
     margin-inline: auto;
     overflow: visible;
+    padding-top: 3.5rem;
+    padding-bottom: 2rem;
   }
 
   .course-station-canvas::before,
@@ -4654,8 +4657,10 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     }
 
     .course-map-scene {
-      min-height: 18rem;
-      margin-top: -0.25rem;
+      min-height: 20rem;
+      margin-top: 0;
+      overflow: visible;
+      padding-bottom: 1.5rem;
     }
 
     .course-map-scene-art {
@@ -4663,12 +4668,14 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     }
 
     .course-map-scene-cat {
-      left: 13%;
-      width: 10.5rem;
+      left: 14%;
+      bottom: 1.5rem;
+      width: 11.5rem;
     }
 
     .course-map-ribbon {
       width: 100%;
+      margin-top: 0;
       border-radius: 2.25rem 1.15rem 2.25rem 1.15rem;
       padding: 1.2rem 1rem 1.45rem;
     }
@@ -4696,9 +4703,9 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 
     .course-station-map {
       width: 100%;
-      min-height: 40rem;
+      min-height: 42rem;
       border-radius: 2.5rem 1.25rem 2.5rem 1.25rem;
-      padding: 1.1rem 0.45rem 2.25rem;
+      padding: 2rem 0.5rem 2.25rem;
     }
 
     .course-station-map > ol {
