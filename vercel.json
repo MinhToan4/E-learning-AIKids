@@ -43,6 +43,18 @@
   ],
   "rewrites": [
     {
+      "source": "/api/(.*)",
+      "destination": "https://dev-hub.storymee.com/api/$1"
+    },
+    {
+      "source": "/internal/v1/(.*)",
+      "destination": "https://dev-hub.storymee.com/internal/v1/$1"
+    },
+    {
+      "source": "/worker/v1/(.*)",
+      "destination": "https://dev-hub.storymee.com/worker/v1/$1"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
