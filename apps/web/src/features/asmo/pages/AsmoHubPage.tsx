@@ -105,8 +105,18 @@ export function AsmoHubPage() {
             <Button
               type="button"
               variant="primary"
-              onClick={() => navigate('/asmo/lab')}
+              onClick={() => navigate('/asmo/journey')}
               className="gap-2 rounded-2xl bg-sun-400 text-slate-950 hover:bg-sun-300 font-extrabold shadow-md border-0"
+            >
+              <Compass className="size-4 text-slate-950" />
+              <span>Chặng Học Olympic 3D</span>
+            </Button>
+
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => navigate('/asmo/lab')}
+              className="gap-2 rounded-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 font-bold backdrop-blur-md"
             >
               <Box className="size-4" />
               <span>Phòng Thí Nghiệm 3D</span>
@@ -345,7 +355,16 @@ export function AsmoHubPage() {
             ))}
           </div>
 
-          <div className="mt-2 flex justify-center">
+          <div className="mt-2 flex flex-wrap justify-center gap-2">
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => navigate('/asmo/journey')}
+              className="w-full sm:w-auto gap-2 rounded-2xl font-bold bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm"
+            >
+              <Sparkles className="size-4 text-sun-300" />
+              <span>Chặng Học 12 Chuyên Đề 3D</span>
+            </Button>
             <Button
               type="button"
               variant="secondary"
@@ -353,7 +372,7 @@ export function AsmoHubPage() {
               className="w-full sm:w-auto gap-2 rounded-2xl font-bold text-indigo-700 border-indigo-200 bg-white hover:bg-indigo-50"
             >
               <Compass className="size-4" />
-              <span>Xem tất cả 7 Dạng Mô Hình 3D</span>
+              <span>Phòng Thí Nghiệm 3D</span>
             </Button>
           </div>
         </div>

@@ -167,17 +167,17 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
     >
       <div className="relative flex max-h-[92vh] w-full max-w-5xl flex-col rounded-3xl border border-slate-200 bg-white shadow-2xl overflow-hidden">
         {/* ── MODAL HEADER ── */}
-        <div className="flex items-center justify-between border-b border-slate-100 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-6 py-5 text-white">
-          <div className="flex items-center gap-3">
-            <div className="flex size-10 items-center justify-center rounded-2xl bg-indigo-500/30 border border-indigo-400/40 text-indigo-300">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-100 bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 px-6 py-5 text-white">
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-2xl bg-indigo-500/30 border border-indigo-400/40 text-indigo-300">
               <FileCheck2 className="size-6" />
             </div>
-            <div>
-              <div className="flex items-center gap-2">
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
                 <h2 id="asmo-audit-modal-title" className="text-lg font-extrabold text-white">
                   Thẩm Định Đề Thi ASMO (Audit & Quality Gate)
                 </h2>
-                <span className="rounded-md bg-indigo-500/30 px-2 py-0.5 text-[11px] font-bold text-indigo-200 border border-indigo-400/30">
+                <span className="rounded-md bg-indigo-500/30 px-2 py-0.5 text-[11px] font-bold text-indigo-200 border border-indigo-400/30 shrink-0">
                   {currentExam.code}
                 </span>
               </div>
@@ -187,17 +187,24 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
-            {/* ⚡ 1-Click Auto Repair All Button */}
-            <Button
-              type="button"
-              variant="primary"
-              onClick={handleAutoRepairAll}
-              className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs px-3.5 py-2 shadow-lg flex items-center gap-1.5 border-0 transition-all active:scale-95 cursor-pointer"
-            >
-              <Zap className="size-3.5 fill-current" />
-              <span>⚡ Tự Động Sửa Toàn Bộ Đề (1-Click Auto-Repair All)</span>
-            </Button>
+          <div className="flex items-center gap-3 shrink-0">
+            {/* ⚡ 1-Click Auto Repair / 100-Score Badge */}
+            {auditResult.qualityScore === 100 && auditResult.errorCount === 0 && auditResult.warningCount === 0 ? (
+              <div className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-500/20 border border-emerald-400/40 text-emerald-200 px-3.5 py-2 text-xs font-black shadow-sm">
+                <CheckCircle2 className="size-3.5 text-emerald-300" />
+                <span>✅ Đã Đạt Chuẩn 100/100</span>
+              </div>
+            ) : (
+              <Button
+                type="button"
+                variant="primary"
+                onClick={handleAutoRepairAll}
+                className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs px-3.5 py-2 shadow-lg flex items-center gap-1.5 border-0 transition-all active:scale-95 cursor-pointer"
+              >
+                <Zap className="size-3.5 fill-current" />
+                <span>⚡ Sửa Tự Động</span>
+              </Button>
+            )}
 
             <button
               type="button"
@@ -275,7 +282,7 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
             </div>
 
             {/* Metrics Breakdown (8 cols) */}
-            <div className="md:col-span-8 grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="md:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-3.5">
               {/* Total Questions */}
               <div className="rounded-2xl border border-slate-200 bg-white p-4 flex flex-col justify-between shadow-sm">
                 <div className="flex items-center justify-between text-slate-500 text-xs font-semibold">
@@ -329,7 +336,7 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
               </div>
 
               {/* KaTeX Formulas Checked */}
-              <div className="col-span-2 sm:col-span-4 rounded-2xl border border-indigo-100 bg-indigo-50/60 px-4 py-3 flex items-center justify-between text-xs text-indigo-900">
+              <div className="col-span-2 md:col-span-4 rounded-2xl border border-indigo-100 bg-indigo-50/60 px-4 py-3 flex items-center justify-between text-xs text-indigo-900">
                 <div className="flex items-center gap-2 font-semibold">
                   <Sparkles className="size-4 text-indigo-600" />
                   <span>Đã thẩm định {auditResult.formulasChecked} công thức toán KaTeX độc lập qua KaTeX Parser</span>
@@ -510,8 +517,7 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
                           className="hidden sm:inline-flex items-center gap-1 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300/80 px-2.5 py-1 text-[11px] font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
                           title="Tự động sửa cú pháp KaTeX, lời giải 3 bước sư phạm và gợi ý Mèo Mee cho câu này"
                         >
-                          <Wrench className="size-3 text-amber-600" />
-                          <span>🛠️ Sửa Tự Động</span>
+                          <span>🛠️ Sửa Nhanh</span>
                         </button>
 
                         <div
@@ -543,10 +549,9 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
                               <button
                                 type="button"
                                 onClick={() => handleAutoRepairSingleQuestion(q.id)}
-                                className="inline-flex items-center gap-1 rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                                className="inline-flex items-center gap-1.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-3 py-1 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
                               >
-                                <Wrench className="size-3" />
-                                <span>🛠️ Sửa Tự Động Câu Này (1-Click Fix)</span>
+                                <span>🛠️ Sửa Nhanh</span>
                               </button>
                             </div>
                             <div className="space-y-2">

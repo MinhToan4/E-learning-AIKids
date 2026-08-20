@@ -130,6 +130,11 @@ const AsmoExamArenaPage = lazy(() =>
     default: m.AsmoExamArenaPage,
   })),
 )
+const AsmoLearningJourneyPage = lazy(() =>
+  import('@/features/asmo/pages/AsmoLearningJourneyPage').then((m) => ({
+    default: m.AsmoLearningJourneyPage,
+  })),
+)
 const ParentPage = lazy(() =>
   import('@/features/parent/pages/ParentPage').then((m) => ({
     default: m.ParentPage,
@@ -437,6 +442,22 @@ export function App() {
               element={
                 <Guard roles={['student']} requireOnboarded>
                   <AsmoHubPage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/asmo/journey"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <AsmoLearningJourneyPage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/asmo/journey/:topicId"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <AsmoLearningJourneyPage />
                 </Guard>
               }
             />
