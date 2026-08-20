@@ -132,8 +132,8 @@ describe('ASMO 3D Learning Journey & Topics', () => {
   it('renders AsmoKidsArithmeticVisualizer across all specialized elementary modes (Addition, Subtraction, Multiplication, Division, Make-10, Column, Gauss)', () => {
     // 1. Addition mode
     const addMarkup = renderToStaticMarkup(createElement(AsmoKidsArithmeticVisualizer, { mode: 'addition' }))
-    expect(addMarkup).toContain('Giỏ A:')
-    expect(addMarkup).toContain('Giỏ B:')
+    expect(addMarkup).toContain('Giỏ A')
+    expect(addMarkup).toContain('Giỏ B')
     expect(addMarkup).toContain('Tổng số táo trong cả 2 giỏ')
 
     // 2. Subtraction mode
@@ -143,13 +143,13 @@ describe('ASMO 3D Learning Journey & Topics', () => {
 
     // 3. Multiplication mode
     const mulMarkup = renderToStaticMarkup(createElement(AsmoKidsArithmeticVisualizer, { mode: 'multiplication' }))
-    expect(mulMarkup).toContain('Số hàng (Rows):')
-    expect(mulMarkup).toContain('Số cột (Cols):')
+    expect(mulMarkup).toContain('Số hàng')
+    expect(mulMarkup).toContain('Số cột')
     expect(mulMarkup).toContain('Bảng nhân trực quan')
 
     // 4. Division mode
     const divMarkup = renderToStaticMarkup(createElement(AsmoKidsArithmeticVisualizer, { mode: 'division' }))
-    expect(divMarkup).toContain('Tổng số kẹo')
+    expect(divMarkup).toContain('Số kẹo')
     expect(divMarkup).toContain('Số đĩa')
     expect(divMarkup).toContain('Kết quả phép chia chia đều')
 

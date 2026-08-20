@@ -7,6 +7,64 @@ type Props = {
   className?: string
 }
 
+const ALLOWED_MATH_FUNCS = new Set([
+  'sin',
+  'cos',
+  'tan',
+  'cot',
+  'sec',
+  'csc',
+  'log',
+  'ln',
+  'exp',
+  'lim',
+  'max',
+  'min',
+  'gcd',
+  'lcm',
+  'arcsin',
+  'arccos',
+  'arctan',
+  'sinh',
+  'cosh',
+  'tanh',
+  'det',
+  'deg',
+])
+
+export function isAutoWrapEligibleMath(expr: string): boolean {
+  if (!expr) return false
+
+  // If it contains non-ASCII characters (e.g. Vietnamese diacritics like á, à, ả, ã, ạ, ơ, ư, đ...), it is natural language text
+  if (/[^\x00-\x7F]/.test(expr)) {
+    return false
+  }
+
+  // Remove LaTeX command names (e.g., \frac, \sqrt, \alpha, \sum) so they don't count as non-math words
+  const stripped = expr.replace(/\\[a-zA-Z]+/g, '')
+
+  // Extract all remaining alphabetical words
+  const words = stripped.match(/[a-zA-Z]+/g) || []
+
+  // Check every word:
+  // If any word has length >= 2 and is NOT an allowed standard math function, reject!
+  for (const w of words) {
+    if (w.length >= 2 && !ALLOWED_MATH_FUNCS.has(w.toLowerCase())) {
+      return false
+    }
+  }
+
+  // Must contain at least one mathematical indicator:
+  // - LaTeX command (\)
+  // - Power (^)
+  // - Subscript (_)
+  // - Single-letter math variable or recognized standard math function
+  const hasLatexOrPowerOrSub = expr.includes('\\') || expr.includes('^') || expr.includes('_')
+  const hasMathWord = words.length > 0
+
+  return hasLatexOrPowerOrSub || hasMathWord
+}
+
 /**
  * Auto-Math Fallback Engine:
  * Intelligently scans raw strings for LaTeX commands (\ln(3), \frac{a}{b}, \sqrt{x}, \alpha, \pi...)
@@ -38,7 +96,7 @@ export function autoWrapMath(text: string): string {
   s = s.replace(
     /(?:(?<=\s|^|[([«"'])(?:[a-zA-Z0-9_{}^\\()]+(?:\s*[+\-*/·×÷]\s*[a-zA-Z0-9_{}^\\()]+|\s*\([^)]+\))*\s*=\s*[a-zA-Z0-9_{}^\\()]+(?:\s*[+\-*/·×÷]\s*[a-zA-Z0-9_{}^\\()]+)*)(?=\s|$|[)\]»"';,?!]))/g,
     (m) => {
-      if (m.includes('^') || m.includes('\\') || /[a-zA-Z]/.test(m)) {
+      if (isAutoWrapEligibleMath(m)) {
         return `$${m.trim()}$`
       }
       return m

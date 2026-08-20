@@ -29,6 +29,25 @@ describe('ASMO UI Components', () => {
     expect(markup).toContain('katex')
   })
 
+  it('preserves natural Vietnamese text and does NOT wrap words like xanh = 7 into KaTeX', () => {
+    const naturalSentence = 'Tuyệt vời bé ơi! 3 quả đỏ + 4 quả xanh = 7 quả táo thơm ngon!'
+    const markup = renderToStaticMarkup(
+      createElement(AsmoFormula, { text: naturalSentence }),
+    )
+    // Should NOT wrap xanh into katex
+    expect(markup).not.toContain('katex')
+    expect(markup).toContain('Tuyệt vời bé ơi! 3 quả đỏ + 4 quả xanh = 7 quả táo thơm ngon!')
+  })
+
+  it('correctly handles equations with single-letter variables while ignoring Vietnamese words', () => {
+    const mixed = 'Biết rằng x + 4 = 7, hãy tìm x. Kết quả = 3.'
+    const markup = renderToStaticMarkup(
+      createElement(AsmoFormula, { text: mixed }),
+    )
+    expect(markup).toContain('katex')
+    expect(markup).toContain('Kết quả = 3')
+  })
+
   it('renders AsmoMeeTutor with character, pose and speech', () => {
     const markup = renderToStaticMarkup(
       createElement(AsmoMeeTutor, {

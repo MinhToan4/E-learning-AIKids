@@ -302,8 +302,8 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
 
     // 3. Main Stage Visualizer (Apple drop)
     expect(markup).toContain('Trọng Tâm Kiến Thức Bài Học')
-    expect(markup).toContain('Giỏ Đỏ:')
-    expect(markup).toContain('Giỏ Xanh:')
+    expect(markup).toContain('Giỏ A (Táo Đỏ):')
+    expect(markup).toContain('Giỏ B (Táo Xanh):')
     expect(markup).toContain('quả táo tổng cộng')
     expect(markup).toContain('🌟 Ghi Nhớ Nhanh:')
 

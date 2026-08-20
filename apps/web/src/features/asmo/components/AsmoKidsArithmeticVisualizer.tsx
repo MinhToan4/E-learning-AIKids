@@ -60,9 +60,18 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
 
   const handleAddApple = (basket: 'A' | 'B') => {
     if (basket === 'A') {
-      setApplesBasketA((prev) => (prev < 10 ? prev + 1 : 1))
+      setApplesBasketA((prev) => (prev < 10 ? prev + 1 : 10))
     } else {
-      setApplesBasketB((prev) => (prev < 10 ? prev + 1 : 1))
+      setApplesBasketB((prev) => (prev < 10 ? prev + 1 : 10))
+    }
+    setAddAnimKey((prev) => prev + 1)
+  }
+
+  const handleSubApple = (basket: 'A' | 'B') => {
+    if (basket === 'A') {
+      setApplesBasketA((prev) => (prev > 0 ? prev - 1 : 0))
+    } else {
+      setApplesBasketB((prev) => (prev > 0 ? prev - 1 : 0))
     }
     setAddAnimKey((prev) => prev + 1)
   }
@@ -326,50 +335,88 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               {/* Basket A: Red Apples */}
               <div className="bg-rose-950/40 border-2 border-rose-500/50 rounded-2xl p-3 flex flex-col items-center space-y-2 shadow-lg">
                 <div className="flex items-center justify-between w-full">
-                  <span className="text-xs font-bold text-rose-300 flex items-center gap-1">
-                    <span>🧺 Giỏ A:</span>
-                    <span className="font-mono font-black text-rose-100">{applesBasketA} quả</span>
+                  <span className="text-xs font-bold text-rose-300">
+                    Giỏ A (Táo Đỏ):
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => handleAddApple('A')}
-                    className="px-2 py-0.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white text-xs font-black shadow-xs active:scale-95 cursor-pointer"
-                  >
-                    +🍎 Thêm
-                  </button>
+                  <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-rose-500/40 shadow-2xs">
+                    <button
+                      type="button"
+                      aria-label="Bớt táo đỏ giỏ A"
+                      disabled={applesBasketA <= 0}
+                      onClick={() => handleSubApple('A')}
+                      className="size-8 rounded-xl bg-rose-900/60 hover:bg-rose-800 text-rose-200 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                    >
+                      <Minus className="size-4 stroke-[3]" />
+                    </button>
+                    <span className="w-6 text-center font-display font-black text-sm text-rose-100 select-none">
+                      {applesBasketA}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label="Thêm táo đỏ giỏ A"
+                      disabled={applesBasketA >= 10}
+                      onClick={() => handleAddApple('A')}
+                      className="size-8 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                    >
+                      <Plus className="size-4 stroke-[3]" />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-center gap-1.5 flex-wrap min-h-16 p-2 bg-black/30 rounded-xl w-full border border-rose-500/20">
-                  {Array.from({ length: applesBasketA }).map((_, i) => (
-                    <span key={`apple-a-${i}`} className="text-2xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 transition-transform">
-                      🍎
-                    </span>
-                  ))}
+                  {applesBasketA === 0 ? (
+                    <span className="text-xs font-bold text-slate-400 italic">Giỏ đang trống</span>
+                  ) : (
+                    Array.from({ length: applesBasketA }).map((_, i) => (
+                      <span key={`apple-a-${i}`} className="text-2xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 transition-transform">
+                        🍎
+                      </span>
+                    ))
+                  )}
                 </div>
               </div>
 
               {/* Basket B: Green Apples */}
               <div className="bg-emerald-950/40 border-2 border-emerald-500/50 rounded-2xl p-3 flex flex-col items-center space-y-2 shadow-lg">
                 <div className="flex items-center justify-between w-full">
-                  <span className="text-xs font-bold text-emerald-300 flex items-center gap-1">
-                    <span>🧺 Giỏ B:</span>
-                    <span className="font-mono font-black text-emerald-100">{applesBasketB} quả</span>
+                  <span className="text-xs font-bold text-emerald-300">
+                    Giỏ B (Táo Xanh):
                   </span>
-                  <button
-                    type="button"
-                    onClick={() => handleAddApple('B')}
-                    className="px-2 py-0.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-black shadow-xs active:scale-95 cursor-pointer"
-                  >
-                    +🍏 Thêm
-                  </button>
+                  <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-emerald-500/40 shadow-2xs">
+                    <button
+                      type="button"
+                      aria-label="Bớt táo xanh giỏ B"
+                      disabled={applesBasketB <= 0}
+                      onClick={() => handleSubApple('B')}
+                      className="size-8 rounded-xl bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                    >
+                      <Minus className="size-4 stroke-[3]" />
+                    </button>
+                    <span className="w-6 text-center font-display font-black text-sm text-emerald-100 select-none">
+                      {applesBasketB}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label="Thêm táo xanh giỏ B"
+                      disabled={applesBasketB >= 10}
+                      onClick={() => handleAddApple('B')}
+                      className="size-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                    >
+                      <Plus className="size-4 stroke-[3]" />
+                    </button>
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-center gap-1.5 flex-wrap min-h-16 p-2 bg-black/30 rounded-xl w-full border border-emerald-500/20">
-                  {Array.from({ length: applesBasketB }).map((_, i) => (
-                    <span key={`apple-b-${i}`} className="text-2xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 transition-transform">
-                      🍏
-                    </span>
-                  ))}
+                  {applesBasketB === 0 ? (
+                    <span className="text-xs font-bold text-slate-400 italic">Giỏ đang trống</span>
+                  ) : (
+                    Array.from({ length: applesBasketB }).map((_, i) => (
+                      <span key={`apple-b-${i}`} className="text-2xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 transition-transform">
+                        🍏
+                      </span>
+                    ))
+                  )}
                 </div>
               </div>
             </div>
@@ -454,42 +501,54 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
 
             {/* Grid Controls */}
             <div className="flex items-center gap-4 bg-white/5 border border-white/10 px-4 py-2 rounded-2xl text-xs">
-              <div className="flex items-center gap-1.5">
-                <span className="text-slate-300 font-bold">Số hàng (Rows):</span>
-                <button
-                  type="button"
-                  onClick={() => setMultRows((r) => (r > 1 ? r - 1 : 5))}
-                  className="size-6 rounded-md bg-white/10 hover:bg-white/20 font-bold"
-                >
-                  -
-                </button>
-                <span className="font-mono font-black text-amber-300 text-sm">{multRows}</span>
-                <button
-                  type="button"
-                  onClick={() => setMultRows((r) => (r < 5 ? r + 1 : 1))}
-                  className="size-6 rounded-md bg-white/10 hover:bg-white/20 font-bold"
-                >
-                  +
-                </button>
+              <div className="flex items-center gap-2">
+                <span className="text-slate-300 font-bold">Số hàng:</span>
+                <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-amber-500/40 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Bớt hàng bánh"
+                    disabled={multRows <= 1}
+                    onClick={() => setMultRows((r) => (r > 1 ? r - 1 : 1))}
+                    className="size-8 rounded-xl bg-amber-900/60 hover:bg-amber-800 text-amber-200 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-6 text-center font-display font-black text-sm text-amber-300 select-none">{multRows}</span>
+                  <button
+                    type="button"
+                    aria-label="Thêm hàng bánh"
+                    disabled={multRows >= 6}
+                    onClick={() => setMultRows((r) => (r < 6 ? r + 1 : 6))}
+                    className="size-8 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center gap-1.5">
-                <span className="text-slate-300 font-bold">Số cột (Cols):</span>
-                <button
-                  type="button"
-                  onClick={() => setMultCols((c) => (c > 1 ? c - 1 : 6))}
-                  className="size-6 rounded-md bg-white/10 hover:bg-white/20 font-bold"
-                >
-                  -
-                </button>
-                <span className="font-mono font-black text-emerald-300 text-sm">{multCols}</span>
-                <button
-                  type="button"
-                  onClick={() => setMultCols((c) => (c < 6 ? c + 1 : 1))}
-                  className="size-6 rounded-md bg-white/10 hover:bg-white/20 font-bold"
-                >
-                  +
-                </button>
+              <div className="flex items-center gap-2">
+                <span className="text-slate-300 font-bold">Số cột:</span>
+                <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-emerald-500/40 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Bớt cột bánh"
+                    disabled={multCols <= 1}
+                    onClick={() => setMultCols((c) => (c > 1 ? c - 1 : 1))}
+                    className="size-8 rounded-xl bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-6 text-center font-display font-black text-sm text-emerald-300 select-none">{multCols}</span>
+                  <button
+                    type="button"
+                    aria-label="Thêm cột bánh"
+                    disabled={multCols >= 6}
+                    onClick={() => setMultCols((c) => (c < 6 ? c + 1 : 6))}
+                    className="size-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -551,42 +610,54 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
 
             {/* Controls */}
             <div className="flex items-center gap-4 bg-white/5 border border-white/10 px-4 py-2 rounded-2xl text-xs">
-              <div className="flex items-center gap-1.5">
-                <span className="text-slate-300 font-bold">Tổng số kẹo 🍬:</span>
-                <button
-                  type="button"
-                  onClick={() => setTotalCandies((c) => (c > 3 ? c - 1 : 18))}
-                  className="size-6 rounded-md bg-white/10 hover:bg-white/20 font-bold"
-                >
-                  -
-                </button>
-                <span className="font-mono font-black text-amber-300 text-sm">{totalCandies}</span>
-                <button
-                  type="button"
-                  onClick={() => setTotalCandies((c) => (c < 18 ? c + 1 : 3))}
-                  className="size-6 rounded-md bg-white/10 hover:bg-white/20 font-bold"
-                >
-                  +
-                </button>
+              <div className="flex items-center gap-2">
+                <span className="text-slate-300 font-bold">Số kẹo 🍬:</span>
+                <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-rose-500/40 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Bớt kẹo"
+                    disabled={totalCandies <= 3}
+                    onClick={() => setTotalCandies((c) => (c > 3 ? c - 1 : 3))}
+                    className="size-8 rounded-xl bg-rose-900/60 hover:bg-rose-800 text-rose-200 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-6 text-center font-display font-black text-sm text-amber-300 select-none">{totalCandies}</span>
+                  <button
+                    type="button"
+                    aria-label="Thêm kẹo"
+                    disabled={totalCandies >= 24}
+                    onClick={() => setTotalCandies((c) => (c < 24 ? c + 1 : 24))}
+                    className="size-8 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <span className="text-slate-300 font-bold">Số đĩa 🍽️:</span>
-                <button
-                  type="button"
-                  onClick={() => setPlatesCount((p) => (p > 2 ? p - 1 : 5))}
-                  className="size-6 rounded-md bg-white/10 hover:bg-white/20 font-bold"
-                >
-                  -
-                </button>
-                <span className="font-mono font-black text-sky-300 text-sm">{platesCount}</span>
-                <button
-                  type="button"
-                  onClick={() => setPlatesCount((p) => (p < 5 ? p + 1 : 2))}
-                  className="size-6 rounded-md bg-white/10 hover:bg-white/20 font-bold"
-                >
-                  +
-                </button>
+                <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-sky-500/40 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Bớt đĩa"
+                    disabled={platesCount <= 2}
+                    onClick={() => setPlatesCount((p) => (p > 2 ? p - 1 : 2))}
+                    className="size-8 rounded-xl bg-sky-900/60 hover:bg-sky-800 text-sky-200 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-6 text-center font-display font-black text-sm text-sky-300 select-none">{platesCount}</span>
+                  <button
+                    type="button"
+                    aria-label="Thêm đĩa"
+                    disabled={platesCount >= 6}
+                    onClick={() => setPlatesCount((p) => (p < 6 ? p + 1 : 6))}
+                    className="size-8 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -779,42 +850,46 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
             <div className="w-full grid grid-cols-2 gap-3 text-xs">
               <div className="bg-white/5 border border-white/10 rounded-2xl p-2.5 flex flex-col items-center space-y-1.5">
                 <span className="font-bold text-amber-300">Chữ số hàng đơn vị (4☐):</span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-amber-500/40 shadow-2xs">
                   <button
                     type="button"
+                    aria-label="Bớt đơn vị"
                     onClick={() => setBoxOnes((prev) => (prev > 0 ? prev - 1 : 9))}
-                    className="size-7 rounded-lg bg-white/10 hover:bg-white/20 font-bold text-base cursor-pointer"
+                    className="size-8 rounded-xl bg-amber-900/60 hover:bg-amber-800 text-amber-200 font-black flex items-center justify-center transition-all active:scale-90 cursor-pointer"
                   >
-                    -
+                    <Minus className="size-4 stroke-[3]" />
                   </button>
-                  <span className="font-mono font-black text-base text-amber-200">{boxOnes}</span>
+                  <span className="w-6 text-center font-display font-black text-sm text-amber-200 select-none">{boxOnes}</span>
                   <button
                     type="button"
+                    aria-label="Thêm đơn vị"
                     onClick={() => setBoxOnes((prev) => (prev < 9 ? prev + 1 : 0))}
-                    className="size-7 rounded-lg bg-white/10 hover:bg-white/20 font-bold text-base cursor-pointer"
+                    className="size-8 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 cursor-pointer"
                   >
-                    +
+                    <Plus className="size-4 stroke-[3]" />
                   </button>
                 </div>
               </div>
 
               <div className="bg-white/5 border border-white/10 rounded-2xl p-2.5 flex flex-col items-center space-y-1.5">
                 <span className="font-bold text-indigo-300">Chữ số hàng chục (☐7):</span>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-indigo-500/40 shadow-2xs">
                   <button
                     type="button"
+                    aria-label="Bớt hàng chục"
                     onClick={() => setBoxTens((prev) => (prev > 0 ? prev - 1 : 9))}
-                    className="size-7 rounded-lg bg-white/10 hover:bg-white/20 font-bold text-base cursor-pointer"
+                    className="size-8 rounded-xl bg-indigo-900/60 hover:bg-indigo-800 text-indigo-200 font-black flex items-center justify-center transition-all active:scale-90 cursor-pointer"
                   >
-                    -
+                    <Minus className="size-4 stroke-[3]" />
                   </button>
-                  <span className="font-mono font-black text-base text-indigo-200">{boxTens}</span>
+                  <span className="w-6 text-center font-display font-black text-sm text-indigo-200 select-none">{boxTens}</span>
                   <button
                     type="button"
+                    aria-label="Thêm hàng chục"
                     onClick={() => setBoxTens((prev) => (prev < 9 ? prev + 1 : 0))}
-                    className="size-7 rounded-lg bg-white/10 hover:bg-white/20 font-bold text-base cursor-pointer"
+                    className="size-8 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 cursor-pointer"
                   >
-                    +
+                    <Plus className="size-4 stroke-[3]" />
                   </button>
                 </div>
               </div>

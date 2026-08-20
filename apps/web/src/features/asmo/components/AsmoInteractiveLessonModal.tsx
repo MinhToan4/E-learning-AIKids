@@ -17,6 +17,8 @@ import {
   Zap,
   Play,
   Heart,
+  Plus,
+  Minus,
 } from 'lucide-react'
 import {
   type AsmoLmsLesson,
@@ -283,46 +285,84 @@ export function AsmoInteractiveLessonModal({
                 {lesson.visualType === 'apple_drop' && (
                   <div className="w-full max-w-md space-y-4">
                     <div className="grid grid-cols-2 gap-3">
+                      {/* Basket A: Red Apples */}
                       <div className="bg-rose-950/40 border-2 border-rose-500/50 rounded-2xl p-3 flex flex-col items-center space-y-2">
-                        <div className="flex items-center justify-between w-full text-xs font-bold text-rose-300">
-                          <span>Giỏ Đỏ: {applesA} quả</span>
-                          <button
-                            type="button"
-                            onClick={() => setApplesA((prev) => (prev < 10 ? prev + 1 : 1))}
-                            className="px-2 py-0.5 rounded-lg bg-rose-600 hover:bg-rose-500 text-white font-bold"
-                          >
-                            +🍎
-                          </button>
+                        <div className="flex items-center justify-between w-full">
+                          <span className="text-xs font-bold text-rose-300">
+                            Giỏ A (Táo Đỏ):
+                          </span>
+                          <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-rose-500/40 shadow-2xs">
+                            <button
+                              type="button"
+                              aria-label="Bớt táo đỏ giỏ A"
+                              disabled={applesA <= 0}
+                              onClick={() => setApplesA((prev) => (prev > 0 ? prev - 1 : 0))}
+                              className="size-8 rounded-xl bg-rose-900/60 hover:bg-rose-800 text-rose-200 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                            >
+                              <Minus className="size-4 stroke-[3]" />
+                            </button>
+                            <span className="w-6 text-center font-display font-black text-sm text-rose-100 select-none">
+                              {applesA}
+                            </span>
+                            <button
+                              type="button"
+                              aria-label="Thêm táo đỏ giỏ A"
+                              disabled={applesA >= 10}
+                              onClick={() => setApplesA((prev) => (prev < 10 ? prev + 1 : 10))}
+                              className="size-8 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                            >
+                              <Plus className="size-4 stroke-[3]" />
+                            </button>
+                          </div>
                         </div>
                         <div className="flex items-center justify-center gap-1.5 flex-wrap min-h-12">
                           {Array.from({ length: applesA }).map((_, i) => (
-                            <span key={`apple-a-${i}`} className="text-2xl animate-in zoom-in-50">🍎</span>
+                            <span key={`apple-a-${i}`} className="text-2xl animate-in zoom-in-50 select-none">🍎</span>
                           ))}
                         </div>
                       </div>
 
+                      {/* Basket B: Green Apples */}
                       <div className="bg-emerald-950/40 border-2 border-emerald-500/50 rounded-2xl p-3 flex flex-col items-center space-y-2">
-                        <div className="flex items-center justify-between w-full text-xs font-bold text-emerald-300">
-                          <span>Giỏ Xanh: {applesB} quả</span>
-                          <button
-                            type="button"
-                            onClick={() => setApplesB((prev) => (prev < 10 ? prev + 1 : 1))}
-                            className="px-2 py-0.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-bold"
-                          >
-                            +🍏
-                          </button>
+                        <div className="flex items-center justify-between w-full">
+                          <span className="text-xs font-bold text-emerald-300">
+                            Giỏ B (Táo Xanh):
+                          </span>
+                          <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-emerald-500/40 shadow-2xs">
+                            <button
+                              type="button"
+                              aria-label="Bớt táo xanh giỏ B"
+                              disabled={applesB <= 0}
+                              onClick={() => setApplesB((prev) => (prev > 0 ? prev - 1 : 0))}
+                              className="size-8 rounded-xl bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                            >
+                              <Minus className="size-4 stroke-[3]" />
+                            </button>
+                            <span className="w-6 text-center font-display font-black text-sm text-emerald-100 select-none">
+                              {applesB}
+                            </span>
+                            <button
+                              type="button"
+                              aria-label="Thêm táo xanh giỏ B"
+                              disabled={applesB >= 10}
+                              onClick={() => setApplesB((prev) => (prev < 10 ? prev + 1 : 10))}
+                              className="size-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                            >
+                              <Plus className="size-4 stroke-[3]" />
+                            </button>
+                          </div>
                         </div>
                         <div className="flex items-center justify-center gap-1.5 flex-wrap min-h-12">
                           {Array.from({ length: applesB }).map((_, i) => (
-                            <span key={`apple-b-${i}`} className="text-2xl animate-in zoom-in-50">🍏</span>
+                            <span key={`apple-b-${i}`} className="text-2xl animate-in zoom-in-50 select-none">🍏</span>
                           ))}
                         </div>
                       </div>
                     </div>
 
                     <div className="bg-indigo-900/60 border border-indigo-400/40 rounded-2xl p-3 text-center">
-                      <span className="font-mono font-extrabold text-amber-300 text-lg">
-                        {applesA} (đỏ) + {applesB} (xanh) = {applesA + applesB} quả táo
+                      <span className="font-display font-extrabold text-amber-300 text-lg">
+                        {applesA} quả đỏ + {applesB} quả xanh = {applesA + applesB} quả táo tổng cộng
                       </span>
                     </div>
                   </div>
@@ -369,17 +409,53 @@ export function AsmoInteractiveLessonModal({
                 {lesson.visualType === 'cake_tray' && (
                   <div className="w-full max-w-md space-y-3">
                     <div className="flex items-center justify-between text-xs bg-white/5 p-2 rounded-xl border border-white/10">
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-2">
                         <span>Hàng:</span>
-                        <button type="button" onClick={() => setCakeRows((r) => (r > 1 ? r - 1 : 5))} className="size-6 bg-white/10 rounded font-bold">-</button>
-                        <span className="font-bold text-amber-300">{cakeRows}</span>
-                        <button type="button" onClick={() => setCakeRows((r) => (r < 5 ? r + 1 : 1))} className="size-6 bg-white/10 rounded font-bold">+</button>
+                        <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-amber-500/40">
+                          <button
+                            type="button"
+                            aria-label="Bớt hàng bánh"
+                            disabled={cakeRows <= 1}
+                            onClick={() => setCakeRows((r) => (r > 1 ? r - 1 : 1))}
+                            className="size-8 rounded-xl bg-amber-900/60 hover:bg-amber-800 text-amber-200 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            <Minus className="size-4 stroke-[3]" />
+                          </button>
+                          <span className="w-6 text-center font-display font-black text-sm text-amber-300 select-none">{cakeRows}</span>
+                          <button
+                            type="button"
+                            aria-label="Thêm hàng bánh"
+                            disabled={cakeRows >= 6}
+                            onClick={() => setCakeRows((r) => (r < 6 ? r + 1 : 6))}
+                            className="size-8 rounded-xl bg-amber-600 hover:bg-amber-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            <Plus className="size-4 stroke-[3]" />
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5">
+                      <div className="flex items-center gap-2">
                         <span>Cột:</span>
-                        <button type="button" onClick={() => setCakeCols((c) => (c > 1 ? c - 1 : 6))} className="size-6 bg-white/10 rounded font-bold">-</button>
-                        <span className="font-bold text-emerald-300">{cakeCols}</span>
-                        <button type="button" onClick={() => setCakeCols((c) => (c < 6 ? c + 1 : 1))} className="size-6 bg-white/10 rounded font-bold">+</button>
+                        <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-emerald-500/40">
+                          <button
+                            type="button"
+                            aria-label="Bớt cột bánh"
+                            disabled={cakeCols <= 1}
+                            onClick={() => setCakeCols((c) => (c > 1 ? c - 1 : 1))}
+                            className="size-8 rounded-xl bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            <Minus className="size-4 stroke-[3]" />
+                          </button>
+                          <span className="w-6 text-center font-display font-black text-sm text-emerald-300 select-none">{cakeCols}</span>
+                          <button
+                            type="button"
+                            aria-label="Thêm cột bánh"
+                            disabled={cakeCols >= 6}
+                            onClick={() => setCakeCols((c) => (c < 6 ? c + 1 : 6))}
+                            className="size-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            <Plus className="size-4 stroke-[3]" />
+                          </button>
+                        </div>
                       </div>
                     </div>
 
@@ -399,7 +475,7 @@ export function AsmoInteractiveLessonModal({
                       )}
                     </div>
 
-                    <div className="bg-amber-950/60 border border-amber-400/40 rounded-2xl p-2.5 text-center font-mono font-bold text-amber-300 text-sm">
+                    <div className="bg-amber-950/60 border border-amber-400/40 rounded-2xl p-2.5 text-center font-display font-bold text-amber-300 text-sm">
                       {cakeRows} hàng × {cakeCols} cột = {cakeRows * cakeCols} chiếc bánh
                     </div>
                   </div>
@@ -408,14 +484,53 @@ export function AsmoInteractiveLessonModal({
                 {/* 4. Pizza Fractions */}
                 {(lesson.visualType === 'pizza_fraction' || lesson.visualType === 'compare_fractions' || lesson.visualType === 'fraction_add_sub') && (
                   <div className="w-full max-w-md space-y-3 flex flex-col items-center">
-                    <div className="flex items-center gap-4 text-xs bg-white/5 p-2 rounded-xl border border-white/10">
+                    <div className="flex items-center justify-between text-xs bg-white/5 p-2 rounded-xl border border-white/10 gap-3">
                       <div className="flex items-center gap-1.5">
-                        <span>Tổng số phần (Mẫu số):</span>
-                        <button type="button" onClick={() => setPizzaSlices((s) => (s === 4 ? 8 : s === 8 ? 6 : 4))} className="px-2 py-0.5 bg-white/10 rounded font-mono font-bold text-emerald-300">{pizzaSlices} lát ⟳</button>
+                        <span>Số phần:</span>
+                        <div className="flex items-center gap-1">
+                          {[4, 6, 8, 10].map((num) => (
+                            <button
+                              key={`modal-slice-${num}`}
+                              type="button"
+                              onClick={() => {
+                                setPizzaSlices(num)
+                                if (pizzaShaded > num) setPizzaShaded(num)
+                              }}
+                              className={cn(
+                                'px-2 py-1 rounded-lg font-mono font-bold text-xs cursor-pointer border transition-all',
+                                pizzaSlices === num
+                                  ? 'bg-indigo-600 text-white border-indigo-400'
+                                  : 'bg-white/10 text-slate-300 border-white/10 hover:bg-white/20',
+                              )}
+                            >
+                              {num}
+                            </button>
+                          ))}
+                        </div>
                       </div>
-                      <div className="flex items-center gap-1.5">
-                        <span>Lấy (Tử số):</span>
-                        <button type="button" onClick={() => setPizzaShaded((s) => (s < pizzaSlices ? s + 1 : 1))} className="px-2 py-0.5 bg-emerald-600 rounded font-mono font-bold text-white">+1 lát</button>
+                      <div className="flex items-center gap-2">
+                        <span>Lấy:</span>
+                        <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-emerald-500/40">
+                          <button
+                            type="button"
+                            aria-label="Bớt lát pizza"
+                            disabled={pizzaShaded <= 0}
+                            onClick={() => setPizzaShaded((s) => (s > 0 ? s - 1 : 0))}
+                            className="size-8 rounded-xl bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            <Minus className="size-4 stroke-[3]" />
+                          </button>
+                          <span className="w-6 text-center font-display font-black text-sm text-emerald-300 select-none">{pizzaShaded}</span>
+                          <button
+                            type="button"
+                            aria-label="Thêm lát pizza"
+                            disabled={pizzaShaded >= pizzaSlices}
+                            onClick={() => setPizzaShaded((s) => (s < pizzaSlices ? s + 1 : pizzaSlices))}
+                            className="size-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            <Plus className="size-4 stroke-[3]" />
+                          </button>
+                        </div>
                       </div>
                     </div>
 

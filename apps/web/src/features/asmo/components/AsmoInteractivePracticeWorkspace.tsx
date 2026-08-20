@@ -340,25 +340,27 @@ export function AsmoInteractivePracticeWorkspace({
               <div className="bg-rose-50 border-2 border-rose-300 rounded-3xl p-4 flex flex-col items-center space-y-3 shadow-xs">
                 <div className="flex items-center justify-between w-full">
                   <span className="text-xs font-black text-rose-900">
-                    Giỏ A (Táo Đỏ): <span className="text-sm text-rose-600 font-extrabold">{applesA}</span> quả
+                    Giỏ A (Táo Đỏ):
                   </span>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-rose-200 shadow-2xs">
                     <button
                       type="button"
                       aria-label="Bớt táo đỏ giỏ A"
+                      disabled={applesA <= 0}
                       onClick={() => setApplesA((prev) => (prev > 0 ? prev - 1 : 0))}
-                      className="size-8 rounded-xl bg-white hover:bg-rose-100 border border-rose-300 text-rose-800 font-black flex items-center justify-center transition-all cursor-pointer active:scale-95"
+                      className="size-8 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-700 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                     >
-                      <Minus className="size-4" />
+                      <Minus className="size-4 stroke-[3]" />
                     </button>
+                    <span className="w-6 text-center font-display font-black text-sm text-rose-950 select-none">{applesA}</span>
                     <button
                       type="button"
                       aria-label="Thêm táo đỏ giỏ A"
+                      disabled={applesA >= 10}
                       onClick={() => setApplesA((prev) => (prev < 10 ? prev + 1 : 10))}
-                      className="px-2.5 py-1.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black text-xs flex items-center gap-1 shadow-xs transition-all cursor-pointer active:scale-95"
+                      className="size-8 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                     >
-                      <Plus className="size-3.5" />
-                      <span>🍎 Thêm</span>
+                      <Plus className="size-4 stroke-[3]" />
                     </button>
                   </div>
                 </div>
@@ -380,25 +382,27 @@ export function AsmoInteractivePracticeWorkspace({
               <div className="bg-emerald-50 border-2 border-emerald-300 rounded-3xl p-4 flex flex-col items-center space-y-3 shadow-xs">
                 <div className="flex items-center justify-between w-full">
                   <span className="text-xs font-black text-emerald-900">
-                    Giỏ B (Táo Xanh): <span className="text-sm text-emerald-600 font-extrabold">{applesB}</span> quả
+                    Giỏ B (Táo Xanh):
                   </span>
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-emerald-200 shadow-2xs">
                     <button
                       type="button"
                       aria-label="Bớt táo xanh giỏ B"
+                      disabled={applesB <= 0}
                       onClick={() => setApplesB((prev) => (prev > 0 ? prev - 1 : 0))}
-                      className="size-8 rounded-xl bg-white hover:bg-emerald-100 border border-emerald-300 text-emerald-800 font-black flex items-center justify-center transition-all cursor-pointer active:scale-95"
+                      className="size-8 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                     >
-                      <Minus className="size-4" />
+                      <Minus className="size-4 stroke-[3]" />
                     </button>
+                    <span className="w-6 text-center font-display font-black text-sm text-emerald-950 select-none">{applesB}</span>
                     <button
                       type="button"
                       aria-label="Thêm táo xanh giỏ B"
+                      disabled={applesB >= 10}
                       onClick={() => setApplesB((prev) => (prev < 10 ? prev + 1 : 10))}
-                      className="px-2.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs flex items-center gap-1 shadow-xs transition-all cursor-pointer active:scale-95"
+                      className="size-8 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                     >
-                      <Plus className="size-3.5" />
-                      <span>🍏 Thêm</span>
+                      <Plus className="size-4 stroke-[3]" />
                     </button>
                   </div>
                 </div>
@@ -490,45 +494,53 @@ export function AsmoInteractivePracticeWorkspace({
               {/* Row Adjuster */}
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-slate-700">Số Hàng:</span>
-                <button
-                  type="button"
-                  aria-label="Bớt hàng bánh"
-                  onClick={() => setCakeRows((r) => (r > 1 ? r - 1 : 1))}
-                  className="size-8 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-xl font-black flex items-center justify-center cursor-pointer"
-                >
-                  -
-                </button>
-                <span className="font-black text-amber-800 text-base px-1.5">{cakeRows}</span>
-                <button
-                  type="button"
-                  aria-label="Thêm hàng bánh"
-                  onClick={() => setCakeRows((r) => (r < 6 ? r + 1 : 6))}
-                  className="size-8 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-xl font-black flex items-center justify-center cursor-pointer"
-                >
-                  +
-                </button>
+                <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-amber-200 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Bớt hàng bánh"
+                    disabled={cakeRows <= 1}
+                    onClick={() => setCakeRows((r) => (r > 1 ? r - 1 : 1))}
+                    className="size-8 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-700 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-6 text-center font-display font-black text-sm text-amber-950 select-none">{cakeRows}</span>
+                  <button
+                    type="button"
+                    aria-label="Thêm hàng bánh"
+                    disabled={cakeRows >= 6}
+                    onClick={() => setCakeRows((r) => (r < 6 ? r + 1 : 6))}
+                    className="size-8 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
               </div>
 
               {/* Col Adjuster */}
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-slate-700">Số Cột:</span>
-                <button
-                  type="button"
-                  aria-label="Bớt cột bánh"
-                  onClick={() => setCakeCols((c) => (c > 1 ? c - 1 : 1))}
-                  className="size-8 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 rounded-xl font-black flex items-center justify-center cursor-pointer"
-                >
-                  -
-                </button>
-                <span className="font-black text-emerald-800 text-base px-1.5">{cakeCols}</span>
-                <button
-                  type="button"
-                  aria-label="Thêm cột bánh"
-                  onClick={() => setCakeCols((c) => (c < 6 ? c + 1 : 6))}
-                  className="size-8 bg-emerald-100 hover:bg-emerald-200 text-emerald-900 rounded-xl font-black flex items-center justify-center cursor-pointer"
-                >
-                  +
-                </button>
+                <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-amber-200 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Bớt cột bánh"
+                    disabled={cakeCols <= 1}
+                    onClick={() => setCakeCols((c) => (c > 1 ? c - 1 : 1))}
+                    className="size-8 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-700 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-6 text-center font-display font-black text-sm text-amber-950 select-none">{cakeCols}</span>
+                  <button
+                    type="button"
+                    aria-label="Thêm cột bánh"
+                    disabled={cakeCols >= 6}
+                    onClick={() => setCakeCols((c) => (c < 6 ? c + 1 : 6))}
+                    className="size-8 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -563,41 +575,53 @@ export function AsmoInteractivePracticeWorkspace({
               {/* Candies Adjuster */}
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-slate-700">Số kẹo 🍬:</span>
-                <button
-                  type="button"
-                  onClick={() => setCandyTotal((t) => (t > 6 ? t - 1 : 6))}
-                  className="size-8 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-xl font-black flex items-center justify-center cursor-pointer"
-                >
-                  -
-                </button>
-                <span className="font-black text-rose-800 text-base px-1">{candyTotal}</span>
-                <button
-                  type="button"
-                  onClick={() => setCandyTotal((t) => (t < 24 ? t + 1 : 24))}
-                  className="size-8 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-xl font-black flex items-center justify-center cursor-pointer"
-                >
-                  +
-                </button>
+                <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-rose-200 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Bớt kẹo"
+                    disabled={candyTotal <= 6}
+                    onClick={() => setCandyTotal((t) => (t > 6 ? t - 1 : 6))}
+                    className="size-8 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-700 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-6 text-center font-display font-black text-sm text-rose-950 select-none">{candyTotal}</span>
+                  <button
+                    type="button"
+                    aria-label="Thêm kẹo"
+                    disabled={candyTotal >= 24}
+                    onClick={() => setCandyTotal((t) => (t < 24 ? t + 1 : 24))}
+                    className="size-8 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
               </div>
 
               {/* Plates Adjuster */}
               <div className="flex items-center gap-2">
                 <span className="font-extrabold text-slate-700">Số đĩa 🍽️:</span>
-                <button
-                  type="button"
-                  onClick={() => setCandyPlates((p) => (p > 2 ? p - 1 : 2))}
-                  className="size-8 bg-brand-100 hover:bg-brand-200 text-brand-900 rounded-xl font-black flex items-center justify-center cursor-pointer"
-                >
-                  -
-                </button>
-                <span className="font-black text-brand-800 text-base px-1">{candyPlates}</span>
-                <button
-                  type="button"
-                  onClick={() => setCandyPlates((p) => (p < 5 ? p + 1 : 5))}
-                  className="size-8 bg-brand-100 hover:bg-brand-200 text-brand-900 rounded-xl font-black flex items-center justify-center cursor-pointer"
-                >
-                  +
-                </button>
+                <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-brand-200 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Bớt đĩa"
+                    disabled={candyPlates <= 2}
+                    onClick={() => setCandyPlates((p) => (p > 2 ? p - 1 : 2))}
+                    className="size-8 rounded-xl bg-brand-100 hover:bg-brand-200 text-brand-700 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-6 text-center font-display font-black text-sm text-brand-950 select-none">{candyPlates}</span>
+                  <button
+                    type="button"
+                    aria-label="Thêm đĩa"
+                    disabled={candyPlates >= 5}
+                    onClick={() => setCandyPlates((p) => (p < 5 ? p + 1 : 5))}
+                    className="size-8 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -671,21 +695,27 @@ export function AsmoInteractivePracticeWorkspace({
 
               <div className="flex items-center gap-2 border-l border-slate-200 pl-3">
                 <span className="font-extrabold text-slate-700">Đã chọn:</span>
-                <button
-                  type="button"
-                  onClick={() => setPizzaShaded((s) => (s > 0 ? s - 1 : 0))}
-                  className="size-7 bg-slate-100 hover:bg-slate-200 rounded-lg font-black"
-                >
-                  -
-                </button>
-                <span className="font-black text-emerald-800 text-sm px-1">{pizzaShaded}</span>
-                <button
-                  type="button"
-                  onClick={() => setPizzaShaded((s) => (s < pizzaSlices ? s + 1 : pizzaSlices))}
-                  className="size-7 bg-slate-100 hover:bg-slate-200 rounded-lg font-black"
-                >
-                  +
-                </button>
+                <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-emerald-200 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Bớt lát pizza"
+                    disabled={pizzaShaded <= 0}
+                    onClick={() => setPizzaShaded((s) => (s > 0 ? s - 1 : 0))}
+                    className="size-8 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-6 text-center font-display font-black text-sm text-emerald-950 select-none">{pizzaShaded}</span>
+                  <button
+                    type="button"
+                    aria-label="Thêm lát pizza"
+                    disabled={pizzaShaded >= pizzaSlices}
+                    onClick={() => setPizzaShaded((s) => (s < pizzaSlices ? s + 1 : pizzaSlices))}
+                    className="size-8 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -757,23 +787,27 @@ export function AsmoInteractivePracticeWorkspace({
         {(lesson.visualType === 'analog_clock' || lesson.visualType === 'elapsed_time') && (
           <div className="w-full max-w-md space-y-4 flex flex-col items-center">
             <div className="flex flex-wrap items-center justify-center gap-3 text-xs bg-white p-3 rounded-2xl border-2 border-slate-200">
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <span className="font-extrabold text-slate-700">Chỉnh Giờ:</span>
-                <button
-                  type="button"
-                  onClick={() => setClockHour((h) => (h > 1 ? h - 1 : 12))}
-                  className="size-8 bg-sky-100 hover:bg-sky-200 text-sky-900 rounded-xl font-black flex items-center justify-center cursor-pointer"
-                >
-                  -
-                </button>
-                <span className="font-black text-sky-800 text-sm px-1.5">{clockHour}h</span>
-                <button
-                  type="button"
-                  onClick={() => setClockHour((h) => (h < 12 ? h + 1 : 1))}
-                  className="size-8 bg-sky-100 hover:bg-sky-200 text-sky-900 rounded-xl font-black flex items-center justify-center cursor-pointer"
-                >
-                  +
-                </button>
+                <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-sky-200 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Lùi 1 giờ"
+                    onClick={() => setClockHour((h) => (h > 1 ? h - 1 : 12))}
+                    className="size-8 rounded-xl bg-sky-100 hover:bg-sky-200 text-sky-700 font-black flex items-center justify-center transition-all active:scale-90 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-8 text-center font-display font-black text-sm text-sky-950 select-none">{clockHour}h</span>
+                  <button
+                    type="button"
+                    aria-label="Tiến 1 giờ"
+                    onClick={() => setClockHour((h) => (h < 12 ? h + 1 : 1))}
+                    className="size-8 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
               </div>
 
               <div className="flex items-center gap-1.5 border-l border-slate-200 pl-3">
@@ -869,23 +903,29 @@ export function AsmoInteractivePracticeWorkspace({
                 <span className="font-black text-emerald-800 text-sm">{scaleLeft} quả</span>
               </div>
 
-              <div className="flex items-center gap-1.5 border-l border-slate-200 pl-3">
+              <div className="flex items-center gap-2 border-l border-slate-200 pl-3">
                 <span className="font-extrabold text-slate-700">Đĩa Phải (Táo 🍎):</span>
-                <button
-                  type="button"
-                  onClick={() => setScaleRight((r) => (r > 1 ? r - 1 : 1))}
-                  className="size-7 bg-slate-100 hover:bg-slate-200 rounded-lg font-black"
-                >
-                  -
-                </button>
-                <span className="font-black text-rose-800 text-sm px-1">{scaleRight}</span>
-                <button
-                  type="button"
-                  onClick={() => setScaleRight((r) => (r < 12 ? r + 1 : 12))}
-                  className="size-7 bg-slate-100 hover:bg-slate-200 rounded-lg font-black"
-                >
-                  +
-                </button>
+                <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-rose-200 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Bớt táo đĩa phải"
+                    disabled={scaleRight <= 1}
+                    onClick={() => setScaleRight((r) => (r > 1 ? r - 1 : 1))}
+                    className="size-8 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-700 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-6 text-center font-display font-black text-sm text-rose-950 select-none">{scaleRight}</span>
+                  <button
+                    type="button"
+                    aria-label="Thêm táo đĩa phải"
+                    disabled={scaleRight >= 12}
+                    onClick={() => setScaleRight((r) => (r < 12 ? r + 1 : 12))}
+                    className="size-8 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
               </div>
             </div>
 
