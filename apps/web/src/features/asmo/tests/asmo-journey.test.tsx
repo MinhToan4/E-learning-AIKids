@@ -231,6 +231,33 @@ describe('ASMO 3D Learning Journey & Topics', () => {
       createElement(AsmoMathVisualizer, { topicId: 'number-theory-divisibility', level: 1 }),
     )
     expect(numMarkup).toContain('Chu kỳ tận cùng 2ⁿ')
+
+    // Trigonometry Lab via AsmoMathVisualizer
+    const trigMarkup = renderToStaticMarkup(
+      createElement(AsmoMathVisualizer, { topicId: 'trigonometry', level: 1 }),
+    )
+    expect(trigMarkup).toContain('Phòng Thí Nghiệm Lượng Giác ASMO')
+    expect(trigMarkup).toContain('Đường Tròn Đơn Vị')
+    expect(trigMarkup).toContain('Sóng Lượng Giác')
+    expect(trigMarkup).toContain('Công Thức Lớp 11')
+    expect(trigMarkup).toContain('Sin đứng, Cos nằm')
+  })
+
+  it('renders AsmoTrigLabVisualizer with Light Clay studio style and KaTeX special angles without raw text leaks', () => {
+    const trigMarkup = renderToStaticMarkup(
+      createElement(AsmoTrigLabVisualizer, { initialAngle: 30 }),
+    )
+    expect(trigMarkup).toContain('Phòng Thí Nghiệm Lượng Giác ASMO')
+    expect(trigMarkup).toContain('Đường Tròn Đơn Vị')
+    expect(trigMarkup).toContain('Góc Phần Tư I')
+    expect(trigMarkup).toContain('Trục đứng')
+    expect(trigMarkup).toContain('Trục ngang')
+    expect(trigMarkup).toContain('Hằng đẳng thức Pythagoras')
+    expect(trigMarkup).toContain('Bí kíp Mèo Mee')
+    expect(trigMarkup).toContain('katex')
+    // Ensure no raw unrendered (frac{pi}{6}) text leak without KaTeX wrapper
+    expect(trigMarkup).not.toContain('(frac{pi}{6})')
+    expect(trigMarkup).not.toContain('(frac{sqrt{3}}{2})')
   })
 
   it('renders AsmoLearningJourneyPage with elementary child-friendly 3-step solution tabs and category group tabs', () => {

@@ -2145,7 +2145,7 @@ export const ASMO_JOURNEY_TOPICS: AsmoJourneyTopic[] = [
     topicCode: 'MATH_TRIG_PROBABILITY',
     domainType: 'FORMULA',
     subtitle: 'Đường tròn đơn vị, công thức nhân đôi & phương trình lượng giác Olympic',
-    description: 'Hệ thống đường tròn đơn vị tương tác 360°, công thức nhân đôi $\\cos(2x) = 1 - 2\\sin^2 x$, $\\sin(2x) = 2\\sin x \\cos x$ và phương trình lượng giác Olympic ASMO.',
+    description: 'Hệ thống đường tròn đơn vị tương tác 360°, công thức nhân đôi $\\cos(2x) = 1 - 2\\sin^2(x)$, $\\sin(2x) = 2\\sin(x)\\cos(x)$ và phương trình lượng giác Olympic ASMO.',
     keyCompetencies: ['Đường tròn lượng giác & dấu 4 góc phần tư', 'Công thức nhân đôi và hạ bậc', 'Phương trình lượng giác biến đổi tích - tổng'],
     visualMode: 'math_interactive',
     levels: {
@@ -2162,7 +2162,7 @@ export const ASMO_JOURNEY_TOPICS: AsmoJourneyTopic[] = [
           topicName: 'Giá trị lượng giác góc đặc biệt & Dấu góc phần tư',
           domainType: 'FORMULA',
           title: 'Tính Giá Trị Lượng Giác Góc Đặc Biệt & Dấu Trong 4 Góc Phần Tư',
-          text: 'Cho góc $\\alpha = 150^\\circ$ (thuộc góc phần tư thứ II). Tính giá trị của biểu thức $P = \\sin(150^\\circ) + \\cos(120^\\circ) - \\tan(135^\\circ)$ và xác định dấu của $\\cos(150^\\circ)$.',
+          text: 'Cho góc $\\alpha = 150^\\circ$ (thuộc góc phần tư II). Tính giá trị của biểu thức $P = \\sin(150^\\circ) + \\cos(120^\\circ) - \\tan(135^\\circ)$ và xác định dấu của $\\cos(150^\\circ)$.',
           options: [
             { id: 'A', label: 'A', text: '$P = 0$, $\\cos(150^\\circ) > 0$' },
             { id: 'B', label: 'B', text: '$P = 1$, $\\cos(150^\\circ) < 0$' },
