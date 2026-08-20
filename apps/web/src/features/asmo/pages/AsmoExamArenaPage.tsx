@@ -15,7 +15,7 @@ import {
   Loader2,
 } from 'lucide-react'
 import { getAsmoExam, submitAsmoExam, type AsmoExamSubmissionResult } from '@/shared/lib/asmo-api'
-import type { AsmoExam, AsmoVisualSpec } from '../types'
+import type { AsmoExam } from '../types'
 import { AsmoThreeViewer } from '../components/AsmoThreeViewer'
 import { AsmoQuestionCard } from '../components/AsmoQuestionCard'
 import { AsmoExamTimer } from '../components/AsmoExamTimer'
@@ -65,17 +65,6 @@ export function AsmoExamArenaPage() {
   }, [currentIndex])
 
   const currentQuestion = exam?.questions[currentIndex]
-
-  const currentStepData = currentQuestion?.explanationSteps?.[activeStepIndex]
-  const dynamicSpec: AsmoVisualSpec | undefined = currentQuestion?.renderSpec ? {
-    ...currentQuestion.renderSpec,
-    activePathIndex: activeStepIndex,
-    explanationStep: currentStepData?.layerIndex !== undefined ? currentStepData.layerIndex : activeStepIndex,
-    customPathPoints: currentStepData?.points,
-    hour: currentStepData?.hour !== undefined ? currentStepData.hour : currentQuestion.renderSpec.hour,
-    minute: currentStepData?.minute !== undefined ? currentStepData.minute : currentQuestion.renderSpec.minute,
-    shadedSlices: currentStepData?.shadedCount !== undefined ? currentStepData.shadedCount : currentQuestion.renderSpec.shadedSlices,
-  } : undefined
 
   const handleAnswer = (optionId: string) => {
     if (isSubmitted || !currentQuestion) return
@@ -242,21 +231,8 @@ export function AsmoExamArenaPage() {
       {/* ── EXAM BODY / RESULTS ── */}
       {!isSubmitted ? (
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          {/* Main Question & 3D Area (8 cols) */}
+          {/* Main Question Area (8 cols) */}
           <div className="lg:col-span-8 flex flex-col gap-6">
-            {/* Embedded 3D Viewer if Question has RenderSpec */}
-            {dynamicSpec && (
-              <div className="rounded-3xl border border-slate-700 bg-slate-950 p-2 shadow-2xl">
-                <AsmoThreeViewer
-                  key={currentQuestion.id}
-                  spec={dynamicSpec}
-                  height={320}
-                  interactive
-                  onPathChange={(newPath) => setActiveStepIndex(newPath)}
-                />
-              </div>
-            )}
-
             {/* Question Card */}
             <AsmoQuestionCard
               key={currentQuestion.id}

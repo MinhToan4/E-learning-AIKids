@@ -2570,38 +2570,43 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T2",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 2: Which of the following shapes is not a h...",
-        "text": "Which of the following shapes is not a hexagon (6-edges shape)?",
+        "title": "Câu 2: Which of the following shapes is not a hexagon?",
+        "text": "Which of the following shapes is not a hexagon (6-edges shape)?\n(Hình nào dưới đây không phải là hình lục giác - hình có 6 cạnh?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Shape A"
+            "text": "Hình A",
+            "svgDiagramKey": "g1_2015_q2_opt_A"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Shape B"
+            "text": "Hình B",
+            "svgDiagramKey": "g1_2015_q2_opt_B"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Shape C"
+            "text": "Hình C",
+            "svgDiagramKey": "g1_2015_q2_opt_C"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Shape D"
+            "text": "Hình D",
+            "svgDiagramKey": "g1_2015_q2_opt_D"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "Shape E"
+            "text": "Hình E",
+            "svgDiagramKey": "g1_2015_q2_opt_E"
           }
         ],
         "correctAnswer": "C",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Shape C has only 5 edges (it is a pentagon), whereas all other shapes have 6 edges. Option C.",
+        "explanation": "Đếm số cạnh của từng hình:\n• Hình A: có 6 cạnh (lục giác đều)\n• Hình B: có 6 cạnh (lục giác lõm)\n• Hình C: có **5 cạnh** (ngũ giác)\n• Hình D: có 6 cạnh (lục giác lồi)\n• Hình E: có 6 cạnh (ngôi sao 6 cạnh)\n➔ Hình không phải lục giác là: **C. Hình C (5 cạnh)**",
         "points": 3,
         "explanationSteps": [
           {
@@ -2628,38 +2633,43 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T3",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 3: Which one has the least number of cubes?...",
-        "text": "Which one has the least number of cubes?",
+        "title": "Câu 3: Which one has the least number of cubes?",
+        "text": "Which one has the least number of cubes?\n(Khối nào dưới đây có ít hình lập phương nhất?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Structure A"
+            "text": "Khối A",
+            "svgDiagramKey": "g1_2015_q3_opt_A"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Structure B"
+            "text": "Khối B",
+            "svgDiagramKey": "g1_2015_q3_opt_B"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Structure C"
+            "text": "Khối C",
+            "svgDiagramKey": "g1_2015_q3_opt_C"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Structure D"
+            "text": "Khối D",
+            "svgDiagramKey": "g1_2015_q3_opt_D"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "Structure E"
+            "text": "Khối E",
+            "svgDiagramKey": "g1_2015_q3_opt_E"
           }
         ],
         "correctAnswer": "C",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Structure C contains 5 cubes (3 base + 1 middle + 1 top), which is the fewest. Option C.",
+        "explanation": "Đếm số khối lập phương ở từng hình:\n• Hình A: 4 khối (2 × 2)\n• Hình B: 4 khối\n• Hình C: 4 khối (cột 3 khối + 1 khối phía trước)\n• Hình D: 6 khối\n• Hình E: **3 khối** (cột 2 khối + 1 khối phía trước)\n➔ Khối có ít hình lập phương nhất là: **E. Khối E (3 khối)**",
         "points": 3,
         "explanationSteps": [
           {
@@ -2686,43 +2696,43 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T4",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 4: Look at this clock showing 3:30. What ti...",
-        "text": "Look at this clock showing 3:30. What time did the clock show two hours ago?",
+        "title": "Câu 4: Look at this clock",
+        "text": "Look at this clock. What time did the clock show two hours ago?\n(Nhìn vào mặt đồng hồ dưới đây. Hai giờ trước, đồng hồ chỉ mấy giờ?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Đồng hồ A",
-            "svgDiagramKey": "clock_8_30"
+            "text": "7:00",
+            "svgDiagramKey": "clock_7_00"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Đồng hồ B",
+            "text": "6:00",
             "svgDiagramKey": "clock_6_00"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Đồng hồ C",
-            "svgDiagramKey": "clock_11_30"
+            "text": "12:00",
+            "svgDiagramKey": "clock_12_00"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Đồng hồ D",
-            "svgDiagramKey": "clock_1_30"
+            "text": "1:00",
+            "svgDiagramKey": "clock_1_00"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "Đồng hồ E",
-            "svgDiagramKey": "clock_3_30"
+            "text": "8:00",
+            "svgDiagramKey": "clock_8_00"
           }
         ],
-        "correctAnswer": "D",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "3:30 minus 2 hours is 1:30. Clock D shows 1:30. Option D.",
+        "correctAnswer": "E",
+        "meeHint": "Mèo Mee gợi ý: Đồng hồ đang chỉ 10:00. Hai giờ trước thì kim giờ sẽ lùi về số mấy nhỉ?",
+        "explanation": "Đồng hồ trên hình đang chỉ đúng 10:00 (kim ngắn chỉ số 10, kim dài chỉ số 12).\nHai giờ trước đó là:\n$$10 - 2 = 8\\text{ (giờ)}$$\nĐồng hồ ở phương án E chỉ đúng 8:00.\n➔ Đáp án đúng là: **E. 8:00**",
         "points": 3,
         "explanationSteps": [
           {
@@ -2742,7 +2752,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "diagramDescription": "A main analog clock displaying 3:30. Five option clocks: A (8:30), B (6:00), C (11:30), D (1:30), E (3:30).",
-        "svgDiagramKey": "clock_3_30"
+        "svgDiagramKey": "g1_2015_q4_clock"
       },
       {
         "id": "asmo-math-g1-2015-r3-q05",
@@ -2750,8 +2760,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T5",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 5: Pinky and Sheila share this money equall...",
-        "text": "Pinky and Sheila share this money equally. How much do they each get?\nBanknotes: RM10, RM10, RM5, RM5, RM1, RM1",
+        "title": "Câu 5: Pinky and Sheila share this money equally",
+        "text": "Pinky and Sheila share this money equally. How much do they each get?\n(Pinky và Sheila chia đều số tiền dưới đây. Mỗi bạn nhận được bao nhiêu tiền?)",
         "options": [
           {
             "id": "A",
@@ -2781,7 +2791,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "E",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Total money = 10 + 10 + 5 + 5 + 1 + 1 = RM32. Shared equally between 2 people: 32 / 2 = RM16 each. Option E.",
+        "explanation": "Tổng số tiền trong hình là:\n$$\\text{RM}10 + \\text{RM}10 + \\text{RM}5 + \\text{RM}5 + \\text{RM}1 + \\text{RM}1 = \\text{RM}32$$\nChia đều cho 2 bạn Pinky và Sheila:\n$$\\text{RM}32 \\div 2 = \\text{RM}16$$\n➔ Đáp án đúng là: **E. RM16**",
         "points": 3,
         "explanationSteps": [
           {
@@ -2800,7 +2810,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "Total money = 10 + 10 + 5 + 5 + 1 + 1 = RM32. Shared equally between 2 people: 32 / 2 = RM16 each. Option E.\n\n➔ Do đó đáp án chính xác là: **E**."
           }
         ],
-        "diagramDescription": "Six money boxes displaying RM10, RM10, RM5, RM5, RM1, RM1."
+        "diagramDescription": "Six money boxes displaying RM10, RM10, RM5, RM5, RM1, RM1.",
+        "svgDiagramKey": "g1_2015_q5_money"
       },
       {
         "id": "asmo-math-g1-2015-r3-q06",
@@ -2808,8 +2819,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T6",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 6: What are the missing shapes in the seque...",
-        "text": "What are the missing shapes in the sequence below?\n[Rectangle], [Triangle], [Circle], [Circle], [Triangle], [ ? ], [Triangle], [Circle], [ ? ], [Triangle]",
+        "title": "Câu 6: What are the missing shapes in the sequence?",
+        "text": "What are the missing shapes in the sequence below?\n(Những hình còn thiếu trong dãy hình dưới đây là gì?)",
         "options": [
           {
             "id": "A",
@@ -2839,7 +2850,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "C",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "The repeating pattern is [Rectangle, Triangle, Circle, Circle, Triangle]. The 6th shape is Rectangle, and the 9th shape is Circle. Option C.",
+        "explanation": "Dãy hình có chu kỳ lặp lại 5 hình:\n[Hình chữ nhật, Tam giác, Tròn, Tròn, Tam giác]\n• Vị trí thứ 6 là dấu hỏi chấm thứ nhất: **Hình chữ nhật**\n• Vị trí thứ 9 là dấu hỏi chấm thứ hai: **Hình tròn**\n➔ Đáp án đúng là: **C. Rectangle, Circle**",
         "points": 3,
         "explanationSteps": [
           {
@@ -2858,7 +2869,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "The repeating pattern is [Rectangle, Triangle, Circle, Circle, Triangle]. The 6th shape is Rectangle, and the 9th shape is Circle. Option C.\n\n➔ Do đó đáp án chính xác là: **C**."
           }
         ],
-        "diagramDescription": "A repeating periodic pattern of geometric shapes: Rectangle, Triangle, Circle, Circle, Triangle."
+        "diagramDescription": "A repeating periodic pattern of geometric shapes: Rectangle, Triangle, Circle, Circle, Triangle.",
+        "svgDiagramKey": "g1_2015_q6_sequence"
       },
       {
         "id": "asmo-math-g1-2015-r3-q07",
@@ -2866,8 +2878,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T1",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 7: What is the pattern in the blank to comp...",
-        "text": "What is the pattern in the blank to complete the series? Draw in the blank box in the answer sheet.",
+        "title": "Câu 7: What is the pattern in the blank to complete the series?",
+        "text": "What is the pattern in the blank to complete the series?\n(Quy luật hình vẽ còn thiếu để hoàn thành chuỗi hình là gì?)",
         "options": [
           {
             "id": "A",
@@ -2897,7 +2909,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key indicates drawing a diagonal cross (X) as the outer borders are progressively removed. Option A.",
+        "explanation": "Quy luật giảm dần nét viền ngoài:\n• Ô 1: Có đầy đủ 4 cạnh viền và 2 đường chéo X.\n• Ô 2: Đã bớt cạnh viền trên.\n• Ô 3: Đã bớt tiếp cạnh viền dưới.\n• Ô 4 (?): Bớt tiếp 2 cạnh viền bên, chỉ còn lại **2 đường chéo hình dấu X**.\n➔ Đáp án đúng là: **A. Dấu gạch chéo X**",
         "points": 3,
         "explanationSteps": [
           {
@@ -2916,7 +2928,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "Official key indicates drawing a diagonal cross (X) as the outer borders are progressively removed. Option A.\n\n➔ Do đó đáp án chính xác là: **A**."
           }
         ],
-        "diagramDescription": "Four sequential square boxes: Box 1 shows a full square with diagonals (X); Box 2 has the top edge removed; Box 3 has top and bottom edges removed; Box 4 is blank."
+        "diagramDescription": "Four sequential square boxes: Box 1 shows a full square with diagonals (X); Box 2 has the top edge removed; Box 3 has top and bottom edges removed; Box 4 is blank.",
+        "svgDiagramKey": "g1_2015_q7_grid"
       },
       {
         "id": "asmo-math-g1-2015-r3-q08",
@@ -2924,8 +2937,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T2",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 8: How many cubes are there in the stepped ...",
-        "text": "How many cubes are there in the stepped structure?",
+        "title": "Câu 8: How many cubes are there in the stepped structure?",
+        "text": "How many cubes are there in the stepped structure?\n(Có tất cả bao nhiêu khối lập phương trong mô hình bậc thang dưới đây?)\n[Image: /pdf_pages_grade1/2015/page_4.png]",
         "options": [
           {
             "id": "A",
@@ -2955,7 +2968,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Summing cubes across layers: 1 + 2 + 4 + 10 = 17 cubes. Option A.",
+        "explanation": "Đếm số khối lập phương theo từng tầng:\n• Tầng 4 (cao nhất): 1 khối\n• Tầng 3: 2 khối\n• Tầng 2: 4 khối\n• Tầng 1 (tầng đáy): 10 khối\nTổng cộng có:\n$$1 + 2 + 4 + 10 = 17\\text{ (khối)}$$\n➔ Đáp án đúng là: **A. 17**",
         "points": 3,
         "explanationSteps": [
           {
@@ -2974,7 +2987,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "Summing cubes across layers: 1 + 2 + 4 + 10 = 17 cubes. Option A.\n\n➔ Do đó đáp án chính xác là: **A**."
           }
         ],
-        "diagramDescription": "A 3D stepped staircase structure made of unit cubes: Top layer = 1 cube, 2nd layer = 2 cubes, 3rd layer = 4 cubes, 4th (bottom) layer = 10 cubes."
+        "diagramDescription": "A 3D stepped staircase structure made of unit cubes: Top layer = 1 cube, 2nd layer = 2 cubes, 3rd layer = 4 cubes, 4th (bottom) layer = 10 cubes.",
+        "svgDiagramKey": "g1_2015_q8_cubes"
       },
       {
         "id": "asmo-math-g1-2015-r3-q09",
@@ -3211,43 +3225,43 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T1",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 13: Which fraction is the greatest?...",
-        "text": "Which fraction is the greatest?",
+        "title": "Câu 13: Which fraction is the greatest?",
+        "text": "Which fraction is the greatest?\n(Phân số nào dưới đây có giá trị lớn nhất?)",
         "options": [
           {
             "id": "A",
             "label": "A",
             "text": "Phân số A",
-            "svgDiagramKey": "fraction_6_10"
+            "svgDiagramKey": "g1_2015_q13_opt_A"
           },
           {
             "id": "B",
             "label": "B",
             "text": "Phân số B",
-            "svgDiagramKey": "fraction_2_4"
+            "svgDiagramKey": "g1_2015_q13_opt_B"
           },
           {
             "id": "C",
             "label": "C",
             "text": "Phân số C",
-            "svgDiagramKey": "fraction_1_3"
+            "svgDiagramKey": "g1_2015_q13_opt_C"
           },
           {
             "id": "D",
             "label": "D",
             "text": "Phân số D",
-            "svgDiagramKey": "fraction_2_4"
+            "svgDiagramKey": "g1_2015_q13_opt_D"
           },
           {
             "id": "E",
             "label": "E",
             "text": "Phân số E",
-            "svgDiagramKey": "fraction_4_8"
+            "svgDiagramKey": "g1_2015_q13_opt_E"
           }
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "6/10 = 0.6 is greater than 1/2 (0.5) and 1/3 (0.333). Fraction A is the greatest. Option A.",
+        "explanation": "So sánh giá trị phần tô màu của các hình tròn:\n• Hình A: $\\frac{4}{8} = 0.5$\n• Hình B: $\\frac{2}{4} = 0.5$\n• Hình C: $\\frac{1}{3} \\approx 0.333$\n• Hình D: $\\frac{1}{4} = 0.25$\n• Hình E: $\\frac{6}{10} = 0.6$\nVì $0.6 > 0.5 > 0.333 > 0.25$ nên phân số E là lớn nhất.\n➔ Đáp án đúng là: **E. Phân số E**",
         "points": 4,
         "explanationSteps": [
           {
@@ -3274,8 +3288,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T2",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 14: Alice bought red and black balloons. How...",
-        "text": "Alice bought red and black balloons. How many balloons did she buy in total?\nBar Chart (Colours of Balloons in a shop):\nRed: 18\nYellow: 9\nBlack: 15\nBlue: 12\nWhite: 15",
+        "title": "Câu 14: Alice bought red and black balloons",
+        "text": "Alice bought red and black balloons. How many balloons did she buy in total?\n(Alice đã mua bóng bay màu đỏ và màu đen. Hỏi bạn ấy đã mua tất cả bao nhiêu quả bóng bay?)",
         "options": [
           {
             "id": "A",
@@ -3305,7 +3319,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "B",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Red balloons (18) + Black balloons (15) = 18 + 15 = 33 balloons. Option B.",
+        "explanation": "Quan sát biểu đồ cột số lượng bóng bay:\n• Bóng màu đỏ (Red): $18$ quả\n• Bóng màu đen (Black): $15$ quả\nTổng số bóng bay Alice đã mua là:\n$$18 + 15 = 33\\text{ (quả)}$$\n➔ Đáp án đúng là: **B. 33**",
         "points": 4,
         "explanationSteps": [
           {
@@ -3324,7 +3338,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "Red balloons (18) + Black balloons (15) = 18 + 15 = 33 balloons. Option B.\n\n➔ Do đó đáp án chính xác là: **B**."
           }
         ],
-        "diagramDescription": "A vertical bar chart showing balloon quantities: Red (18), Yellow (9), Black (15), Blue (12), White (15)."
+        "diagramDescription": "A vertical bar chart showing balloon quantities: Red (18), Yellow (9), Black (15), Blue (12), White (15).",
+        "svgDiagramKey": "g1_2015_q14_chart"
       },
       {
         "id": "asmo-math-g1-2015-r3-q15",
@@ -3332,38 +3347,38 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T3",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 15: In the addition below, what do “C” and “...",
-        "text": "In the addition below, what do “C” and “D” represent?\n  1 7\n+ C D\n------\n  8 2",
+        "title": "Câu 15: In the addition below, what do “C” and “D” represent?",
+        "text": "In the addition below, what do “C” and “D” represent?\n(Trong phép cộng đặt tính dưới đây, các chữ cái “C” và “D” đại diện cho các chữ số nào?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "7, 5"
+            "text": "C = 7, D = 5"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "6, 5"
+            "text": "C = 6, D = 5"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "5, 6"
+            "text": "C = 5, D = 6"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "7, 4"
+            "text": "C = 7, D = 4"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "6, 6"
+            "text": "C = 6, D = 6"
           }
         ],
         "correctAnswer": "B",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "From units column: 7 + D = 12 => D = 5. From tens column with carry: 1 + 1 + C = 8 => C = 6. C=6, D=5. Option B.",
+        "explanation": "Xét phép cộng cột dọc:\n• Ở hàng đơn vị: $7 + D = 12 \\implies D = 5$ (nhớ 1 sang hàng chục).\n• Ở hàng chục: $1 + C + 1\\text{ (nhớ)} = 8 \\implies C + 2 = 8 \\implies C = 6$.\nVậy $C = 6, D = 5$.\n➔ Đáp án đúng là: **B. C = 6, D = 5**",
         "points": 4,
         "explanationSteps": [
           {
@@ -3382,7 +3397,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "From units column: 7 + D = 12 => D = 5. From tens column with carry: 1 + 1 + C = 8 => C = 6. C=6, D=5. Option B.\n\n➔ Do đó đáp án chính xác là: **B**."
           }
         ],
-        "diagramDescription": "Two-digit addition vertical format: 17 + CD = 82."
+        "diagramDescription": "Two-digit addition vertical format: 17 + CD = 82.",
+        "svgDiagramKey": "g1_2015_q15_addition"
       },
       {
         "id": "asmo-math-g1-2015-r3-q16",
@@ -3799,38 +3815,43 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T3",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 3: Which one has the most number of cubes? ...",
-        "text": "Which one has the most number of cubes? (5 marks)",
+        "title": "Câu 3: Which one has the most number of cubes?",
+        "text": "Which one has the most number of cubes?\n(Khối nào dưới đây có nhiều hình lập phương nhất?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Structure A"
+            "text": "Khối A",
+            "svgDiagramKey": "g1_2016_q3_opt_A"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Structure B"
+            "text": "Khối B",
+            "svgDiagramKey": "g1_2016_q3_opt_B"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Structure C"
+            "text": "Khối C",
+            "svgDiagramKey": "g1_2016_q3_opt_C"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Structure D"
+            "text": "Khối D",
+            "svgDiagramKey": "g1_2016_q3_opt_D"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "Structure E"
+            "text": "Khối E",
+            "svgDiagramKey": "g1_2016_q3_opt_E"
           }
         ],
         "correctAnswer": "D",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Structure D contains 8 cubes (4 base + 3 middle + 1 top), which is the most. Option D.",
+        "explanation": "Đếm số khối lập phương ở từng hình:\n• Hình A: 4 khối\n• Hình B: 4 khối\n• Hình C: 4 khối\n• Hình D: **6 khối**\n• Hình E: 3 khối\n➔ Khối có nhiều hình lập phương nhất là: **D. Khối D (6 khối)**",
         "points": 3,
         "explanationSteps": [
           {
@@ -3857,43 +3878,43 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T4",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 4: Look at this clock showing 10:00. What t...",
-        "text": "Look at this clock showing 10:00. What time did the clock show four hours ago? (5 marks)",
+        "title": "Câu 4: Look at this clock",
+        "text": "Look at this clock. What time was the clock shows four hours ago?\n(Nhìn vào đồng hồ dưới đây. Bốn giờ trước, đồng hồ chỉ mấy giờ?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Đồng hồ A",
-            "svgDiagramKey": "clock_8_30"
+            "text": "9:00",
+            "svgDiagramKey": "clock_9_00"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Đồng hồ B",
+            "text": "6:00",
             "svgDiagramKey": "clock_6_00"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Đồng hồ C",
-            "svgDiagramKey": "clock_11_30"
+            "text": "11:00",
+            "svgDiagramKey": "clock_11_00"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Đồng hồ D",
-            "svgDiagramKey": "clock_1_30"
+            "text": "2:00",
+            "svgDiagramKey": "clock_2_00"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "Đồng hồ E",
-            "svgDiagramKey": "clock_3_30"
+            "text": "4:00",
+            "svgDiagramKey": "clock_4_00"
           }
         ],
-        "correctAnswer": "B",
-        "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "10:00 minus 4 hours is 6:00. Clock B displays 6:00. Option B.",
+        "correctAnswer": "C",
+        "meeHint": "Mèo Mee gợi ý: Đồng hồ đang chỉ 3:00. Bốn giờ trước thì kim giờ sẽ lùi qua 12 về số mấy nhỉ?",
+        "explanation": "Đồng hồ trong hình đang chỉ đúng 3:00.\nBốn giờ trước đó là:\n$$3 - 4 = 11\\text{ (giờ, tức 11:00)}$$\nĐồng hồ ở phương án C chỉ đúng 11:00.\n➔ Đáp án đúng là: **C. 11:00**",
         "points": 3,
         "explanationSteps": [
           {
@@ -3913,7 +3934,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "diagramDescription": "A main analog clock displaying 10:00. Five option clocks: A (8:30), B (6:00), C (11:30), D (1:30), E (3:30).",
-        "svgDiagramKey": "clock_10_00"
+        "svgDiagramKey": "g1_2016_q4_clock"
       },
       {
         "id": "asmo-math-g1-2016-r4-q05",
@@ -3921,8 +3942,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T5",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 5: The “?” indicates number ____. (5 marks)...",
-        "text": "The “?” indicates number ____. (5 marks)",
+        "title": "Câu 5: The “?” indicates number ____.",
+        "text": "The “?” indicates number ____.\n(Dấu “?” biểu thị chữ số nào?)",
         "options": [
           {
             "id": "A",
@@ -3952,7 +3973,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "E",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Opposite face pairs on standard die are (1,5), (2,6), (3,4). For Die 2 with top 3 and right 5, the front face is 6. Option E.",
+        "explanation": "Quan sát các mặt xúc xắc từ các góc nhìn:\n• Mặt 1 đối diện mặt 5\n• Mặt 3 đối diện mặt 4\n• Mặt 2 đối diện mặt 6\nỞ góc nhìn thứ 2 (mặt 3 ở trên, mặt 5 ở bên phải), mặt phía trước là chữ số **2**.\n➔ Đáp án đúng là: **B. 2**",
         "points": 3,
         "explanationSteps": [
           {
@@ -3971,7 +3992,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "Opposite face pairs on standard die are (1,5), (2,6), (3,4). For Die 2 with top 3 and right 5, the front face is 6. Option E.\n\n➔ Do đó đáp án chính xác là: **E**."
           }
         ],
-        "diagramDescription": "Three views of a standard die: Die 1 shows top 1, front 3, right 2; Die 2 shows top 3, front ?, right 5; Die 3 shows top 1, front 4, right 6."
+        "diagramDescription": "Three views of a standard die: Die 1 shows top 1, front 3, right 2; Die 2 shows top 3, front ?, right 5; Die 3 shows top 1, front 4, right 6.",
+        "svgDiagramKey": "g1_2016_q5_dice"
       },
       {
         "id": "asmo-math-g1-2016-r4-q06",
@@ -3979,38 +4001,43 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T6",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 6: What are the missing shapes? (5 marks)\nM...",
-        "text": "What are the missing shapes? (5 marks)\nMatrix:\nRow 1: [Square]  [X]  [Square with X]\nRow 2: [Circle]  [+]  [Circle with +]\nRow 3: [Triangle] [人] [ ( ? ) ]",
+        "title": "Câu 6: What are the missing shapes in the matrix?",
+        "text": "What are the missing shapes in the matrix below?\n(Hình nào còn thiếu trong bảng dưới đây?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Square"
+            "text": "Hình A",
+            "svgDiagramKey": "g1_2016_q6_opt_A"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Triangle"
+            "text": "Hình B",
+            "svgDiagramKey": "g1_2016_q6_opt_B"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Triangle with inner line"
+            "text": "Hình C",
+            "svgDiagramKey": "g1_2016_q6_opt_C"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Circle with cross"
+            "text": "Hình D",
+            "svgDiagramKey": "g1_2016_q6_opt_D"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "Square with X"
+            "text": "Hình E",
+            "svgDiagramKey": "g1_2016_q6_opt_E"
           }
         ],
-        "correctAnswer": "D",
+        "correctAnswer": "C",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key indicates D.",
+        "explanation": "Quy luật của ma trận hình học theo từng hàng:\n• Hàng 1: Hình vuông + Nét gạch chéo X = Hình vuông có gạch chéo X\n• Hàng 2: Hình tròn + Nét chữ thập + = Hình tròn có chữ thập +\n• Hàng 3: Hình tam giác + Nét chữ Y ngược = **Hình tam giác lồng chữ Y ngược (Hình C)**\n➔ Đáp án đúng là: **C. Hình C**",
         "points": 3,
         "explanationSteps": [
           {
@@ -4046,7 +4073,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           "minute": 5,
           "autoRotate": false
         },
-        "diagramDescription": "A 3x3 geometric pattern matrix where column 3 is the superimposition of column 1 and column 2."
+        "diagramDescription": "A 3x3 geometric pattern matrix where column 3 is the superimposition of column 1 and column 2.",
+        "svgDiagramKey": "g1_2016_q6_matrix"
       },
       {
         "id": "asmo-math-g1-2016-r4-q07",
@@ -4111,8 +4139,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T2",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 8: How many cubes are there? (5 marks)...",
-        "text": "How many cubes are there? (5 marks)",
+        "title": "Câu 8: How many cubes are there?",
+        "text": "How many cubes are there in the stepped structure?\n(Có tất cả bao nhiêu khối lập phương trong hình dưới đây?)",
         "options": [
           {
             "id": "A",
@@ -4142,7 +4170,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "C",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key indicates C (16).",
+        "explanation": "Đếm số khối lập phương theo từng tầng:\n• Tầng 4: 1 khối\n• Tầng 3: 2 khối\n• Tầng 2: 4 khối\n• Tầng 1 (đáy): 10 khối\nTổng số khối lập phương là:\n$$1 + 2 + 4 + 10 = 17\\text{ (khối)}$$\n➔ Đáp án đúng là: **A. 17**",
         "points": 3,
         "explanationSteps": [
           {
@@ -4161,7 +4189,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "Official key indicates C (16).\n\n➔ Do đó đáp án chính xác là: **C**."
           }
         ],
-        "diagramDescription": "A 3D stepped staircase structure made of unit cubes: Top layer = 1, 2nd layer = 2, 3rd layer = 4, 4th layer = 10."
+        "diagramDescription": "A 3D stepped staircase structure made of unit cubes: Top layer = 1, 2nd layer = 2, 3rd layer = 4, 4th layer = 10.",
+        "svgDiagramKey": "g1_2016_q8_cubes"
       },
       {
         "id": "asmo-math-g1-2016-r4-q09",
@@ -4283,33 +4312,33 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T5",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 11: Rhombus consists of two identical ______...",
-        "text": "Rhombus consists of two identical ______________. (5 marks)",
+        "title": "Câu 11: Rhombus consists of two identical ______",
+        "text": "Rhombus consists of two identical ______________.\n(Hình thoi được ghép từ hai hình nào giống nhau dưới đây?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "Triangle"
+            "text": "Triangle (Hình tam giác)"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "Square"
+            "text": "Square (Hình vuông)"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "Rectangle"
+            "text": "Rectangle (Hình chữ nhật)"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "Pentagon"
+            "text": "Pentagon (Hình ngũ giác)"
           }
         ],
-        "correctAnswer": "D",
+        "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key indicates D.",
+        "explanation": "Cắt hình thoi theo một đường chéo ta được đúng **2 hình tam giác bằng nhau**.\n➔ Đáp án đúng là: **A. Triangle (Hình tam giác)**",
         "points": 4,
         "explanationSteps": [
           {
@@ -4345,7 +4374,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           "minute": 5,
           "autoRotate": false
         },
-        "diagramDescription": "A rhombus shape split diagonally into two congruent triangles."
+        "diagramDescription": "A rhombus shape split diagonally into two congruent triangles.",
+        "svgDiagramKey": "g1_2016_q11_rhombus"
       },
       {
         "id": "asmo-math-g1-2016-r4-q12",
@@ -4353,8 +4383,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T6",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 12: Calculate the number of square(s) formed...",
-        "text": "Calculate the number of square(s) formed after connecting all the dots? (5 marks)",
+        "title": "Câu 12: Calculate the number of square(s) formed after connecting all the dots",
+        "text": "Calculate the number of square(s) formed after connecting all the dots.\n(Tính tổng số hình vuông có thể tạo thành bằng cách nối các điểm dưới đây.)",
         "options": [
           {
             "id": "A",
@@ -4384,7 +4414,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "D",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key indicates D (7).",
+        "explanation": "Trên lưới 3 × 3 điểm, các hình vuông có thể tạo thành gồm:\n• 4 hình vuông kích thước 1 × 1\n• 1 hình vuông kích thước 2 × 2\n• 1 hình vuông nghiêng góc 45 độ (nối các trung điểm)\nTổng cộng có:\n$$4 + 1 + 1 = 6\\text{ (hình vuông)}$$\n➔ Đáp án đúng là: **C. 6**",
         "points": 4,
         "explanationSteps": [
           {
@@ -4403,7 +4433,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "Official key indicates D (7).\n\n➔ Do đó đáp án chính xác là: **D**."
           }
         ],
-        "diagramDescription": "A 3x3 grid of 9 equally spaced dots."
+        "diagramDescription": "A 3x3 grid of 9 equally spaced dots.",
+        "svgDiagramKey": "g1_2016_q12_dots"
       },
       {
         "id": "asmo-math-g1-2016-r4-q13",
@@ -4411,43 +4442,43 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T1",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 13: Which fraction is the greatest? (5 marks...",
-        "text": "Which fraction is the greatest? (5 marks)",
+        "title": "Câu 13: Which fraction is the greatest?",
+        "text": "Which fraction is the greatest?\n(Phân số nào dưới đây có giá trị lớn nhất?)",
         "options": [
           {
             "id": "A",
             "label": "A",
             "text": "Phân số A",
-            "svgDiagramKey": "fraction_6_10"
+            "svgDiagramKey": "g1_2016_q13_opt_A"
           },
           {
             "id": "B",
             "label": "B",
             "text": "Phân số B",
-            "svgDiagramKey": "fraction_2_4"
+            "svgDiagramKey": "g1_2016_q13_opt_B"
           },
           {
             "id": "C",
             "label": "C",
             "text": "Phân số C",
-            "svgDiagramKey": "fraction_1_3"
+            "svgDiagramKey": "g1_2016_q13_opt_C"
           },
           {
             "id": "D",
             "label": "D",
             "text": "Phân số D",
-            "svgDiagramKey": "fraction_2_4"
+            "svgDiagramKey": "g1_2016_q13_opt_D"
           },
           {
             "id": "E",
             "label": "E",
             "text": "Phân số E",
-            "svgDiagramKey": "fraction_4_8"
+            "svgDiagramKey": "g1_2016_q13_opt_E"
           }
         ],
         "correctAnswer": "D",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key indicates D.",
+        "explanation": "So sánh giá trị phần tô màu của các hình tròn:\n• Hình A: $\\frac{4}{8} = 0.5$\n• Hình B: $\\frac{2}{4} = 0.5$\n• Hình C: $\\frac{1}{3} \\approx 0.333$\n• Hình D: $\\frac{1}{4} = 0.25$\n• Hình E: $\\frac{6}{10} = 0.6$\nVì $0.6 > 0.5 > 0.333 > 0.25$ nên phân số E là lớn nhất.\n➔ Đáp án đúng là: **E. Phân số E**",
         "points": 4,
         "explanationSteps": [
           {
@@ -4474,8 +4505,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T2",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 14: Calculate the total number of rectangle(...",
-        "text": "Calculate the total number of rectangle(s) which cover the ※ sign? (5 marks)",
+        "title": "Câu 14: Calculate the total number of rectangle(s) which cover the ※ sign",
+        "text": "Calculate the total number of rectangle(s) which cover the ※ sign.\n(Tìm tổng số hình chữ nhật có chứa dấu ※.)",
         "options": [
           {
             "id": "A",
@@ -4505,7 +4536,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "B",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key indicates B (4).",
+        "explanation": "Dấu ※ nằm ở ô (hàng 2, cột 2) trong lưới 2 × 3.\nSố hình chữ nhật chứa ô này bằng tích số cách chọn cận trên/dưới và cận trái/phải:\n$$\\text{Số hình chữ nhật} = 2 \\text{ (chọn hàng)} \\times 4 \\text{ (chọn cột)} = 8\\text{ (hình)}$$\n➔ Đáp án đúng là: **D. 8**",
         "points": 4,
         "explanationSteps": [
           {
@@ -4541,7 +4572,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           "minute": 5,
           "autoRotate": false
         },
-        "diagramDescription": "A 2x3 grid of rectangular boxes with the ※ symbol placed in row 2, column 2."
+        "diagramDescription": "A 2x3 grid of rectangular boxes with the ※ symbol placed in row 2, column 2.",
+        "svgDiagramKey": "g1_2016_q14_rectangles"
       },
       {
         "id": "asmo-math-g1-2016-r4-q15",
@@ -4549,38 +4581,38 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T3",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 15: In the addition below, what does “A” rep...",
-        "text": "In the addition below, what does “A” represent? (5 marks)\n  1 7\n+ A A\n------\n  7 2",
+        "title": "Câu 15: In the addition below, what does “A” represent?",
+        "text": "In the addition below, what does “A” represent?\n(Trong phép cộng đặt tính dưới đây, chữ cái “A” biểu thị chữ số nào?)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "5"
+            "text": "A = 5"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "6"
+            "text": "A = 6"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "7"
+            "text": "A = 7"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "8"
+            "text": "A = 8"
           },
           {
             "id": "E",
             "label": "E",
-            "text": "9"
+            "text": "A = 9"
           }
         ],
         "correctAnswer": "B",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Tư duy Toán Olympic Lớp 1, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Official key indicates B (6).",
+        "explanation": "Xét phép cộng cột dọc:\n$$17 + AA = 72$$\n$$AA = 72 - 17 = 55 \\implies A = 5$$\n➔ Đáp án đúng là: **A. A = 5**",
         "points": 4,
         "explanationSteps": [
           {
@@ -4599,7 +4631,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "Official key indicates B (6).\n\n➔ Do đó đáp án chính xác là: **B**."
           }
         ],
-        "diagramDescription": "Two-digit addition vertical format: 17 + AA = 72."
+        "diagramDescription": "Two-digit addition vertical format: 17 + AA = 72.",
+        "svgDiagramKey": "g1_2016_q15_addition"
       },
       {
         "id": "asmo-math-g1-2016-r4-q16",
@@ -77163,4 +77196,4 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
       }
     ]
   }
-]
+];

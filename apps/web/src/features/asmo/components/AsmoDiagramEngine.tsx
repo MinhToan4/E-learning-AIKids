@@ -1288,6 +1288,620 @@ export function renderVerticalArithmeticTable(
 }
 
 // ============================================================================
+// 13. RENDER ISOMETRIC 3D CUBES (Mô hình khối lập phương 3D đẳng cự)
+// ============================================================================
+
+export type CubeCoord = { x: number; y: number; z: number }
+
+export function renderIsometricCubesSvg(
+  cubes: CubeCoord[],
+  options?: { size?: number; className?: string; unit?: number },
+): React.JSX.Element {
+  const u = options?.unit ?? 22
+  const cos30 = 0.8660254
+  const sin30 = 0.5
+
+  // Painter's algorithm sort: lower (x+y) in background, lower z first
+  const sorted = [...cubes].sort((a, b) => {
+    const sumA = a.x + a.y
+    const sumB = b.x + b.y
+    if (sumA !== sumB) return sumA - sumB
+    return a.z - b.z
+  })
+
+  const allPts: Array<[number, number]> = []
+  const renderedCubes = sorted.map((c) => {
+    const px = (c.x - c.y) * cos30 * u
+    const py = (c.x + c.y) * sin30 * u - c.z * u
+
+    const topPts: Array<[number, number]> = [
+      [px, py - u],
+      [px + u * cos30, py - u * sin30],
+      [px, py],
+      [px - u * cos30, py - u * sin30],
+    ]
+    const leftPts: Array<[number, number]> = [
+      [px - u * cos30, py - u * sin30],
+      [px, py],
+      [px, py + u],
+      [px - u * cos30, py + u * sin30],
+    ]
+    const rightPts: Array<[number, number]> = [
+      [px, py],
+      [px + u * cos30, py - u * sin30],
+      [px + u * cos30, py + u * sin30],
+      [px, py + u],
+    ]
+
+    allPts.push(...topPts, ...leftPts, ...rightPts)
+    return { topPts, leftPts, rightPts }
+  })
+
+  const xs = allPts.map((p) => p[0])
+  const ys = allPts.map((p) => p[1])
+  const minX = Math.min(...xs) - 8
+  const maxX = Math.max(...xs) + 8
+  const minY = Math.min(...ys) - 8
+  const maxY = Math.max(...ys) + 8
+  const w = maxX - minX
+  const h = maxY - minY
+
+  const ptsToStr = (pts: Array<[number, number]>) => pts.map((p) => `${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ')
+
+  return (
+    <div className={options?.className ?? 'flex items-center justify-center p-2 rounded-2xl bg-white border border-slate-200/90 shadow-xs max-w-xs mx-auto w-full'}>
+      <svg
+        viewBox={`${minX.toFixed(1)} ${minY.toFixed(1)} ${w.toFixed(1)} ${h.toFixed(1)}`}
+        className="w-full max-h-52 select-none"
+      >
+        {renderedCubes.map((c, idx) => (
+          <g key={`cube-${idx}`}>
+            {/* Top Face */}
+            <polygon
+              points={ptsToStr(c.topPts)}
+              fill="#ffffff"
+              stroke="#1e293b"
+              strokeWidth="1.8"
+              strokeLinejoin="round"
+            />
+            {/* Left Face */}
+            <polygon
+              points={ptsToStr(c.leftPts)}
+              fill="#f1f5f9"
+              stroke="#1e293b"
+              strokeWidth="1.8"
+              strokeLinejoin="round"
+            />
+            {/* Right Face */}
+            <polygon
+              points={ptsToStr(c.rightPts)}
+              fill="#cbd5e1"
+              stroke="#1e293b"
+              strokeWidth="1.8"
+              strokeLinejoin="round"
+            />
+          </g>
+        ))}
+      </svg>
+    </div>
+  )
+}
+
+// ============================================================================
+// 14. RENDER FRACTION CIRCLE (Hình tròn phân số tô màu)
+// ============================================================================
+
+export function renderFractionCircleSvg(
+  totalSlices: number,
+  shadedSlices: number,
+  options?: { size?: number; color?: string; className?: string },
+): React.JSX.Element {
+  const size = options?.size ?? 90
+  const cx = size / 2
+  const cy = size / 2
+  const r = size / 2 - 5
+  const color = options?.color ?? '#ef4444' // ASMO red highlight
+
+  const toRad = Math.PI / 180
+  const sliceAngle = 360 / totalSlices
+
+  const slices = Array.from({ length: totalSlices }).map((_, i) => {
+    const a1Deg = -90 + i * sliceAngle
+    const a2Deg = -90 + (i + 1) * sliceAngle
+    const x1 = cx + r * Math.cos(a1Deg * toRad)
+    const y1 = cy + r * Math.sin(a1Deg * toRad)
+    const x2 = cx + r * Math.cos(a2Deg * toRad)
+    const y2 = cy + r * Math.sin(a2Deg * toRad)
+    const largeArc = a2Deg - a1Deg > 180 ? 1 : 0
+    const d = `M ${cx} ${cy} L ${x1.toFixed(2)} ${y1.toFixed(2)} A ${r} ${r} 0 ${largeArc} 1 ${x2.toFixed(2)} ${y2.toFixed(2)} Z`
+    const isShaded = i < shadedSlices
+    return { d, isShaded }
+  })
+
+  return (
+    <svg
+      viewBox={`0 0 ${size} ${size}`}
+      className={options?.className ?? 'size-16 sm:size-20 shrink-0 select-none'}
+    >
+      {slices.map((s, idx) => (
+        <path
+          key={`slice-${idx}`}
+          d={s.d}
+          fill={s.isShaded ? color : '#ffffff'}
+          stroke="#1e293b"
+          strokeWidth="1.6"
+          strokeLinejoin="round"
+        />
+      ))}
+      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#1e293b" strokeWidth="2.2" />
+    </svg>
+  )
+}
+
+// ============================================================================
+// 15. RENDER MONEY BANKNOTES (Tiền giấy RM10, RM5, RM1)
+// ============================================================================
+
+export function renderMoneyBanknotesSvg(options?: { className?: string }): React.JSX.Element {
+  return (
+    <div className={options?.className ?? 'flex items-center justify-center p-4 sm:p-5 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-md mx-auto w-full'}>
+      <svg viewBox="0 0 420 170" className="w-full max-h-48 select-none font-bold">
+        {/* Row 1: RM10, RM10, RM5 */}
+        <g transform="translate(15, 15)">
+          <rect x="0" y="0" width="115" height="58" rx="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="2.5" />
+          <rect x="5" y="5" width="105" height="48" rx="5" fill="none" stroke="#fca5a5" strokeWidth="1" strokeDasharray="3 2" />
+          <text x="57" y="34" fontSize="22" fontWeight="900" fill="#991b1b" textAnchor="middle" dominantBaseline="central">
+            RM10
+          </text>
+        </g>
+
+        <g transform="translate(150, 15)">
+          <rect x="0" y="0" width="115" height="58" rx="8" fill="#fee2e2" stroke="#ef4444" strokeWidth="2.5" />
+          <rect x="5" y="5" width="105" height="48" rx="5" fill="none" stroke="#fca5a5" strokeWidth="1" strokeDasharray="3 2" />
+          <text x="57" y="34" fontSize="22" fontWeight="900" fill="#991b1b" textAnchor="middle" dominantBaseline="central">
+            RM10
+          </text>
+        </g>
+
+        <g transform="translate(285, 15)">
+          <rect x="0" y="0" width="115" height="58" rx="8" fill="#dcfce7" stroke="#22c55e" strokeWidth="2.5" />
+          <rect x="5" y="5" width="105" height="48" rx="5" fill="none" stroke="#86efac" strokeWidth="1" strokeDasharray="3 2" />
+          <text x="57" y="34" fontSize="22" fontWeight="900" fill="#166534" textAnchor="middle" dominantBaseline="central">
+            RM5
+          </text>
+        </g>
+
+        {/* Row 2: RM1, RM5, RM1 */}
+        <g transform="translate(25, 95)">
+          <rect x="0" y="0" width="105" height="54" rx="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2.5" />
+          <rect x="5" y="5" width="95" height="44" rx="5" fill="none" stroke="#93c5fd" strokeWidth="1" strokeDasharray="3 2" />
+          <text x="52" y="32" fontSize="20" fontWeight="900" fill="#1e40af" textAnchor="middle" dominantBaseline="central">
+            RM1
+          </text>
+        </g>
+
+        <g transform="translate(155, 95)">
+          <rect x="0" y="0" width="115" height="58" rx="8" fill="#dcfce7" stroke="#22c55e" strokeWidth="2.5" />
+          <rect x="5" y="5" width="105" height="48" rx="5" fill="none" stroke="#86efac" strokeWidth="1" strokeDasharray="3 2" />
+          <text x="57" y="34" fontSize="22" fontWeight="900" fill="#166534" textAnchor="middle" dominantBaseline="central">
+            RM5
+          </text>
+        </g>
+
+        <g transform="translate(290, 95)">
+          <rect x="0" y="0" width="105" height="54" rx="8" fill="#dbeafe" stroke="#3b82f6" strokeWidth="2.5" />
+          <rect x="5" y="5" width="95" height="44" rx="5" fill="none" stroke="#93c5fd" strokeWidth="1" strokeDasharray="3 2" />
+          <text x="52" y="32" fontSize="20" fontWeight="900" fill="#1e40af" textAnchor="middle" dominantBaseline="central">
+            RM1
+          </text>
+        </g>
+      </svg>
+    </div>
+  )
+}
+
+// ============================================================================
+// 16. RENDER SHAPE SEQUENCE (Dãy hình quy luật hình học)
+// ============================================================================
+
+export function renderShapeSequenceSvg(options?: { className?: string }): React.JSX.Element {
+  return (
+    <div className={options?.className ?? 'flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-2xl mx-auto w-full overflow-x-auto'}>
+      <svg viewBox="0 0 620 80" className="w-full min-w-[560px] max-h-24 select-none">
+        {/* 1. Rectangle */}
+        <rect x="15" y="18" width="48" height="44" rx="8" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
+        {/* 2. Triangle */}
+        <polygon points="78,62 126,62 126,18" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
+        {/* 3. Circle */}
+        <circle cx="158" cy="40" r="22" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
+        {/* 4. Circle */}
+        <circle cx="214" cy="40" r="22" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
+        {/* 5. Triangle */}
+        <polygon points="252,62 300,62 300,18" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
+        {/* 6. Question Box 1 */}
+        <rect x="316" y="18" width="46" height="44" rx="8" fill="#eff6ff" stroke="#3b82f6" strokeWidth="2" strokeDasharray="4 3" />
+        <text x="339" y="44" fontSize="24" fontWeight="bold" fill="#2563eb" textAnchor="middle" dominantBaseline="central">?</text>
+        {/* 7. Triangle */}
+        <polygon points="378,62 426,62 426,18" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
+        {/* 8. Circle */}
+        <circle cx="458" cy="40" r="22" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
+        {/* 9. Question Box 2 */}
+        <rect x="496" y="18" width="46" height="44" rx="8" fill="#eff6ff" stroke="#3b82f6" strokeWidth="2" strokeDasharray="4 3" />
+        <text x="519" y="44" fontSize="24" fontWeight="bold" fill="#2563eb" textAnchor="middle" dominantBaseline="central">?</text>
+        {/* 10. Triangle */}
+        <polygon points="558,62 606,62 606,18" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
+      </svg>
+    </div>
+  )
+}
+
+// ============================================================================
+// 17. RENDER PATTERN BOXES (Lưới chuỗi ô quy luật giảm nét)
+// ============================================================================
+
+export function renderPatternBoxesSvg(options?: { className?: string }): React.JSX.Element {
+  return (
+    <div className={options?.className ?? 'flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-lg mx-auto w-full'}>
+      <svg viewBox="0 0 440 110" className="w-full max-h-32 select-none">
+        {/* Box 1: Full Square + X */}
+        <rect x="15" y="15" width="80" height="80" rx="4" fill="#ffffff" stroke="#1e293b" strokeWidth="2.5" />
+        <line x1="15" y1="15" x2="95" y2="95" stroke="#1e293b" strokeWidth="2" />
+        <line x1="95" y1="15" x2="15" y2="95" stroke="#1e293b" strokeWidth="2" />
+
+        {/* Box 2: Top line missing */}
+        <line x1="125" y1="15" x2="125" y2="95" stroke="#1e293b" strokeWidth="2.5" />
+        <line x1="205" y1="15" x2="205" y2="95" stroke="#1e293b" strokeWidth="2.5" />
+        <line x1="125" y1="95" x2="205" y2="95" stroke="#1e293b" strokeWidth="2.5" />
+        <line x1="125" y1="15" x2="205" y2="95" stroke="#1e293b" strokeWidth="2" />
+        <line x1="205" y1="15" x2="125" y2="95" stroke="#1e293b" strokeWidth="2" />
+
+        {/* Box 3: Top and bottom missing */}
+        <line x1="235" y1="15" x2="235" y2="95" stroke="#1e293b" strokeWidth="2.5" />
+        <line x1="315" y1="15" x2="315" y2="95" stroke="#1e293b" strokeWidth="2.5" />
+        <line x1="235" y1="15" x2="315" y2="95" stroke="#1e293b" strokeWidth="2" />
+        <line x1="315" y1="15" x2="235" y2="95" stroke="#1e293b" strokeWidth="2" />
+
+        {/* Box 4: Target ? */}
+        <rect x="345" y="15" width="80" height="80" rx="4" fill="#f8fafc" stroke="#6366f1" strokeWidth="2" strokeDasharray="4 4" />
+        <text x="385" y="62" fontSize="32" fontWeight="bold" fill="#4f46e5" textAnchor="middle" dominantBaseline="central">?</text>
+      </svg>
+    </div>
+  )
+}
+
+// ============================================================================
+// 18. RENDER BALLOON BAR CHART (Biểu đồ cột bóng bay các màu)
+// ============================================================================
+
+export function renderBalloonBarChartSvg(options?: { className?: string }): React.JSX.Element {
+  const bars = [
+    { label: 'Red', count: 18, color: '#ef4444' },
+    { label: 'Yellow', count: 9, color: '#f59e0b' },
+    { label: 'Black', count: 15, color: '#334155' },
+    { label: 'Blue', count: 12, color: '#3b82f6' },
+    { label: 'White', count: 15, color: '#ffffff', stroke: '#1e293b' },
+  ]
+
+  const chartY0 = 180
+  const chartHeight = 140
+  const maxVal = 18
+
+  return (
+    <div className={options?.className ?? 'flex items-center justify-center p-4 sm:p-5 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-lg mx-auto w-full'}>
+      <svg viewBox="0 0 450 240" className="w-full max-h-60 select-none font-sans">
+        {/* Title */}
+        <text x="225" y="22" fontSize="14" fontWeight="800" fill="#0f172a" textAnchor="middle">
+          Colours of Balloons in a shop
+        </text>
+
+        {/* Y Axis Label */}
+        <text x="20" y="32" fontSize="11" fontWeight="700" fill="#475569" textAnchor="start">
+          Number of Balloons
+        </text>
+
+        {/* Horizontal Grid lines & Y-ticks (0, 3, 6, 9, 12, 15, 18) */}
+        {[0, 3, 6, 9, 12, 15, 18].map((v) => {
+          const y = chartY0 - (v / maxVal) * chartHeight
+          return (
+            <g key={`y-${v}`}>
+              <line x1="80" y1={y} x2="410" y2={y} stroke="#e2e8f0" strokeWidth="1" strokeDasharray="3 3" />
+              <text x="70" y={y + 4} fontSize="11" fontWeight="600" fill="#64748b" textAnchor="end">
+                {v}
+              </text>
+            </g>
+          )
+        })}
+
+        {/* Y-axis line & X-axis line */}
+        <line x1="80" y1="40" x2="80" y2={chartY0} stroke="#1e293b" strokeWidth="2" />
+        <line x1="80" y1={chartY0} x2="410" y2={chartY0} stroke="#1e293b" strokeWidth="2" />
+
+        {/* Bars */}
+        {bars.map((b, i) => {
+          const barW = 44
+          const x = 100 + i * 62
+          const barH = (b.count / maxVal) * chartHeight
+          const y = chartY0 - barH
+          const numBlocks = b.count / 3
+
+          return (
+            <g key={`bar-${b.label}`}>
+              {/* Outer Bar */}
+              <rect
+                x={x}
+                y={y}
+                width={barW}
+                height={barH}
+                fill={b.color}
+                stroke={b.stroke ?? '#1e293b'}
+                strokeWidth="1.8"
+              />
+              {/* Internal segment lines every 3 units */}
+              {Array.from({ length: numBlocks - 1 }).map((_, bi) => {
+                const segY = chartY0 - (((bi + 1) * 3) / maxVal) * chartHeight
+                return (
+                  <line
+                    key={`seg-${bi}`}
+                    x1={x}
+                    y1={segY}
+                    x2={x + barW}
+                    y2={segY}
+                    stroke="#1e293b"
+                    strokeWidth="1"
+                    strokeDasharray="2 2"
+                  />
+                )
+              })}
+              {/* Label */}
+              <text x={x + barW / 2} y={chartY0 + 18} fontSize="12" fontWeight="700" fill="#1e293b" textAnchor="middle">
+                {b.label}
+              </text>
+            </g>
+          )
+        })}
+      </svg>
+    </div>
+  )
+}
+
+// ============================================================================
+// 19. RENDER VERTICAL ADDITION WITH LETTERS (Đặt tính cộng chữ cái)
+// ============================================================================
+
+export function renderVerticalAdditionTable(
+  num1: string | number,
+  char1: string,
+  char2: string,
+  result: string | number,
+  options?: { className?: string },
+): React.JSX.Element {
+  return (
+    <div className={options?.className ?? 'flex items-center justify-center p-4 rounded-2xl bg-white border border-slate-200 shadow-sm max-w-[200px] mx-auto w-full'}>
+      <svg viewBox="0 0 130 140" className="w-full max-h-36 select-none font-mono font-bold">
+        {/* Top Number, e.g. 1 7 */}
+        <text x="75" y="32" fontSize="28" fill="#0f172a" textAnchor="middle" letterSpacing="4">
+          {num1}
+        </text>
+
+        {/* Plus Operator */}
+        <text x="25" y="65" fontSize="26" fill="#0f172a" textAnchor="middle">
+          +
+        </text>
+
+        {/* Bottom Unknowns, e.g. C D */}
+        <g transform="translate(50, 44)">
+          <rect x="0" y="0" width="22" height="26" rx="4" fill="#eff6ff" stroke="#3b82f6" strokeWidth="1.5" />
+          <text x="11" y="18" fontSize="20" fill="#1d4ed8" textAnchor="middle">{char1}</text>
+        </g>
+        <g transform="translate(76, 44)">
+          <rect x="0" y="0" width="22" height="26" rx="4" fill="#eff6ff" stroke="#3b82f6" strokeWidth="1.5" />
+          <text x="11" y="18" fontSize="20" fill="#1d4ed8" textAnchor="middle">{char2}</text>
+        </g>
+
+        {/* Divider Line */}
+        <line x1="15" y1="80" x2="115" y2="80" stroke="#1e293b" strokeWidth="3" strokeLinecap="round" />
+
+        {/* Result, e.g. 82 */}
+        <text x="75" y="112" fontSize="28" fill="#2563eb" fontWeight="900" textAnchor="middle" letterSpacing="4">
+          {result}
+        </text>
+      </svg>
+    </div>
+  )
+}
+
+// ============================================================================
+// 20. RENDER DICE VIEWS (Ba góc nhìn xúc xắc)
+// ============================================================================
+
+export function renderDiceViewsSvg(options?: { className?: string }): React.JSX.Element {
+  const dice = [
+    { top: '1', front: '3', right: '2', isHighlight: false },
+    { top: '3', front: '?', right: '5', isHighlight: true },
+    { top: '1', front: '4', right: '6', isHighlight: false },
+  ]
+  return (
+    <div className={options?.className ?? 'flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-md mx-auto w-full'}>
+      <svg viewBox="0 0 380 130" className="w-full max-h-36 select-none font-bold">
+        {dice.map((d, i) => {
+          const ox = 60 + i * 130
+          const oy = 48
+          const u = 32
+          const cos30 = 0.866
+          const sin30 = 0.5
+
+          return (
+            <g key={`die-${i}`} transform={`translate(${ox}, ${oy})`}>
+              {/* Top Face */}
+              <polygon
+                points={`0,-${u} ${u * cos30},-${u * sin30} 0,0 -${u * cos30},-${u * sin30}`}
+                fill="#ffffff"
+                stroke="#1e293b"
+                strokeWidth="2"
+                strokeLinejoin="round"
+              />
+              <text x="0" y={-u * sin30} fontSize="18" fontWeight="900" fill="#0f172a" textAnchor="middle" dominantBaseline="central">
+                {d.top}
+              </text>
+
+              {/* Front/Left Face */}
+              <polygon
+                points={`-${u * cos30},-${u * sin30} 0,0 0,${u} -${u * cos30},${u * sin30}`}
+                fill={d.isHighlight ? '#fff1f2' : '#f1f5f9'}
+                stroke={d.isHighlight ? '#e11d48' : '#1e293b'}
+                strokeWidth="2"
+                strokeLinejoin="round"
+              />
+              <text
+                x={-u * cos30 * 0.5}
+                y={u * sin30 * 0.5 + 4}
+                fontSize={d.front === '?' ? '22' : '18'}
+                fontWeight="900"
+                fill={d.isHighlight ? '#e11d48' : '#0f172a'}
+                textAnchor="middle"
+                dominantBaseline="central"
+              >
+                {d.front}
+              </text>
+
+              {/* Right Face */}
+              <polygon
+                points={`0,0 ${u * cos30},-${u * sin30} ${u * cos30},${u * sin30} 0,${u}`}
+                fill="#cbd5e1"
+                stroke="#1e293b"
+                strokeWidth="2"
+                strokeLinejoin="round"
+              />
+              <text x={u * cos30 * 0.5} y={u * sin30 * 0.5 + 4} fontSize="18" fontWeight="900" fill="#0f172a" textAnchor="middle" dominantBaseline="central">
+                {d.right}
+              </text>
+            </g>
+          )
+        })}
+      </svg>
+    </div>
+  )
+}
+
+// ============================================================================
+// 21. RENDER SHAPE MATRIX 2016 (Ma trận biến đổi hình học 2016)
+// ============================================================================
+
+export function renderShapeMatrix2016Svg(options?: { className?: string }): React.JSX.Element {
+  return (
+    <div className={options?.className ?? 'flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-sm mx-auto w-full'}>
+      <svg viewBox="0 0 250 250" className="w-full max-h-64 select-none">
+        {/* Row 1: Square, X, Square+X */}
+        <rect x="20" y="20" width="40" height="40" rx="4" fill="#ffffff" stroke="#1e293b" strokeWidth="2.5" />
+        <g transform="translate(100, 20)">
+          <line x1="5" y1="5" x2="35" y2="35" stroke="#1e293b" strokeWidth="3" />
+          <line x1="35" y1="5" x2="5" y2="35" stroke="#1e293b" strokeWidth="3" />
+        </g>
+        <g transform="translate(180, 20)">
+          <rect x="0" y="0" width="40" height="40" rx="4" fill="#ffffff" stroke="#1e293b" strokeWidth="2.5" />
+          <line x1="0" y1="0" x2="40" y2="40" stroke="#1e293b" strokeWidth="2" />
+          <line x1="40" y1="0" x2="0" y2="40" stroke="#1e293b" strokeWidth="2" />
+        </g>
+
+        {/* Row 2: Circle, +, Circle++ */}
+        <circle cx="40" cy="120" r="20" fill="#ffffff" stroke="#1e293b" strokeWidth="2.5" />
+        <g transform="translate(100, 100)">
+          <line x1="20" y1="5" x2="20" y2="35" stroke="#1e293b" strokeWidth="3" />
+          <line x1="5" y1="20" x2="35" y2="20" stroke="#1e293b" strokeWidth="3" />
+        </g>
+        <g transform="translate(180, 100)">
+          <circle cx="20" cy="20" r="20" fill="#ffffff" stroke="#1e293b" strokeWidth="2.5" />
+          <line x1="20" y1="0" x2="20" y2="40" stroke="#1e293b" strokeWidth="2" />
+          <line x1="0" y1="20" x2="40" y2="20" stroke="#1e293b" strokeWidth="2" />
+        </g>
+
+        {/* Row 3: Triangle, inverted Y, Question Box */}
+        <polygon points="40,180 60,220 20,220" fill="#ffffff" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
+        <g transform="translate(100, 180)">
+          <line x1="20" y1="5" x2="20" y2="22" stroke="#1e293b" strokeWidth="3" />
+          <line x1="20" y1="22" x2="8" y2="38" stroke="#1e293b" strokeWidth="3" />
+          <line x1="20" y1="22" x2="32" y2="38" stroke="#1e293b" strokeWidth="3" />
+        </g>
+        <g transform="translate(180, 180)">
+          <rect x="0" y="0" width="40" height="40" rx="6" fill="#eff6ff" stroke="#3b82f6" strokeWidth="2" strokeDasharray="3 3" />
+          <text x="20" y="24" fontSize="22" fontWeight="900" fill="#2563eb" textAnchor="middle" dominantBaseline="central">?</text>
+        </g>
+      </svg>
+    </div>
+  )
+}
+
+// ============================================================================
+// 22. RENDER DOT GRID 2016 (Lưới chấm 3x3)
+// ============================================================================
+
+export function renderDotGrid2016Svg(options?: { className?: string }): React.JSX.Element {
+  return (
+    <div className={options?.className ?? 'flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-[220px] mx-auto w-full'}>
+      <svg viewBox="0 0 160 160" className="size-36 select-none">
+        {[0, 1, 2].map((r) =>
+          [0, 1, 2].map((c) => (
+            <circle
+              key={`dot-${r}-${c}`}
+              cx={30 + c * 50}
+              cy={30 + r * 50}
+              r="9"
+              fill="#475569"
+              stroke="#0f172a"
+              strokeWidth="2.5"
+            />
+          )),
+        )}
+      </svg>
+    </div>
+  )
+}
+
+// ============================================================================
+// 23. RENDER RECTANGLE GRID 2016 (Lưới hình chữ nhật 2x3 kèm dấu ※)
+// ============================================================================
+
+export function renderRectangleGrid2016Svg(options?: { className?: string }): React.JSX.Element {
+  return (
+    <div className={options?.className ?? 'flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-xs mx-auto w-full'}>
+      <svg viewBox="0 0 200 130" className="w-full max-h-36 select-none">
+        {[0, 1].map((r) =>
+          [0, 1, 2].map((c) => {
+            const isTarget = r === 1 && c === 1
+            return (
+              <g key={`cell-${r}-${c}`}>
+                <rect
+                  x={20 + c * 53}
+                  y={20 + r * 45}
+                  width="53"
+                  height="45"
+                  fill={isTarget ? '#fff1f2' : '#ffffff'}
+                  stroke="#1e293b"
+                  strokeWidth="2.5"
+                />
+                {isTarget && (
+                  <text
+                    x={20 + c * 53 + 26.5}
+                    y={20 + r * 45 + 25}
+                    fontSize="24"
+                    fontWeight="bold"
+                    fill="#e11d48"
+                    textAnchor="middle"
+                    dominantBaseline="central"
+                  >
+                    ※
+                  </text>
+                )}
+              </g>
+            )
+          }),
+        )}
+      </svg>
+    </div>
+  )
+}
+
+// ============================================================================
 // MAIN ASMO DIAGRAM ENGINE WRAPPER COMPONENT
 // ============================================================================
 
@@ -1311,12 +1925,26 @@ export function AsmoDiagramEngine({
     return null
   }
 
-  // Handle generic clock keys, e.g. "clock_5_10", "clock_8_30", "q17_clock"
-  if (diagramKey.startsWith('clock_') || diagramKey === 'q17_clock') {
+  // Handle generic clock keys, e.g. "clock_5_10", "clock_8_30", "clock_10_00", "q17_clock"
+  if (diagramKey.startsWith('clock_') || diagramKey === 'q17_clock' || diagramKey === 'g1_2015_q4_clock' || diagramKey === 'g1_2016_q4_clock') {
     if (diagramKey === 'q17_clock' || diagramKey === 'clock_5_10') {
       return (
         <div className="flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-xs mx-auto w-full">
           {renderClockSvg(5, 10, { className })}
+        </div>
+      )
+    }
+    if (diagramKey === 'g1_2015_q4_clock') {
+      return (
+        <div className="flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-xs mx-auto w-full">
+          {renderClockSvg(10, 0, { className })}
+        </div>
+      )
+    }
+    if (diagramKey === 'g1_2016_q4_clock') {
+      return (
+        <div className="flex items-center justify-center p-4 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-xs mx-auto w-full">
+          {renderClockSvg(3, 0, { className })}
         </div>
       )
     }
@@ -1336,18 +1964,24 @@ export function AsmoDiagramEngine({
   if (diagramKey === 'q11_vertical_sub' || diagramKey === 'vertical_sub_21_17') {
     return renderVerticalArithmeticTable(21, '-', 17, '?', { className })
   }
+  if (diagramKey === 'g1_2015_q15_addition' || diagramKey === 'vertical_add_17_CD_82') {
+    return renderVerticalAdditionTable('1 7', 'C', 'D', 82, { className })
+  }
+  if (diagramKey === 'g1_2016_q15_addition' || diagramKey === 'vertical_add_17_AA_72') {
+    return renderVerticalAdditionTable('1 7', 'A', 'A', 72, { className })
+  }
 
   // Match other keys
   switch (diagramKey) {
-    // Q1 Balls
+    // Q1 Balls (2020)
     case 'q01_balls':
       return renderScatteredCountingSvg({ type: 'balls', className })
 
-    // Q2 Digits
+    // Q2 Digits (2020)
     case 'q02_digits':
       return renderScatteredCountingSvg({ type: 'digits', className })
 
-    // Q4 Balance Scales
+    // Q4 Balance Scales (2020)
     case 'q04_balance':
       return renderBalanceScaleSvg(
         [
@@ -1358,7 +1992,7 @@ export function AsmoDiagramEngine({
         { className },
       )
 
-    // Q5 Grey Grid
+    // Q5 Grey Grid (2020)
     case 'q05_grey_grid':
       return renderGridShadedRatioSvg({
         rows: 7,
@@ -1382,7 +2016,7 @@ export function AsmoDiagramEngine({
         className,
       })
 
-    // Q8 Shapes Equation
+    // Q8 Shapes Equation (2020)
     case 'q08_shapes_equation':
       return renderShapeEquationSvg(
         [
@@ -1421,7 +2055,7 @@ export function AsmoDiagramEngine({
         </svg>
       )
 
-    // Q9 Matchstick Options
+    // Q9 Matchstick Options (2020)
     case 'q09_opt_A':
       return renderMatchstickFigureSvg('square_flag', 6, { className })
     case 'q09_opt_B':
@@ -1431,7 +2065,7 @@ export function AsmoDiagramEngine({
     case 'q09_opt_D':
       return renderMatchstickFigureSvg('double_square', 7, { className })
 
-    // Q14 Puzzle & Options
+    // Q14 Puzzle & Options (2020)
     case 'q14_puzzle':
       return renderGridCheckerboardPuzzleSvg({ variant: 'puzzle_cut', className })
     case 'q14_opt_A':
@@ -1443,11 +2077,11 @@ export function AsmoDiagramEngine({
     case 'q14_opt_D':
       return renderGridCheckerboardPuzzleSvg({ variant: 'opt_D', className })
 
-    // Q15 Maze
+    // Q15 Maze (2020)
     case 'q15_maze':
       return renderGridMazeSvg({ className })
 
-    // Q20 Cake Partition Options
+    // Q20 Cake Partition Options (2020)
     case 'q20_opt_A':
       return renderCakePartitionSvg({ variant: 'cross', className })
     case 'q20_opt_B':
@@ -1457,11 +2091,11 @@ export function AsmoDiagramEngine({
     case 'q20_opt_D':
       return renderCakePartitionSvg({ variant: 'diagonal_offset', className })
 
-    // Q23 Triangles
+    // Q23 Triangles (2020)
     case 'q23_triangles':
       return renderSierpinskiTriangleSvg({ depth: 1, className })
 
-    // Q25 Polyline Options
+    // Q25 Polyline Options (2020)
     case 'q25_opt_A':
       return renderGridPolylineSvg({ cols: 6, rows: 2, points: [[0, 0], [2, 2], [4, 0], [5, 2], [6, 0]], className })
     case 'q25_opt_B':
@@ -1470,6 +2104,217 @@ export function AsmoDiagramEngine({
       return renderGridPolylineSvg({ cols: 6, rows: 2, points: [[0, 0], [1, 2], [2, 0], [3, 2], [5, 0], [6, 2]], className })
     case 'q25_opt_D':
       return renderGridPolylineSvg({ cols: 6, rows: 2, points: [[0, 0], [1, 2], [2, 0], [3, 2], [4, 0], [5, 2], [6, 0]], className })
+
+    // ========================================================================
+    // GRADE 1 - 2015 CONTEST DIAGRAMS
+    // ========================================================================
+
+    // 2015 Q02: 5 Polygon Options
+    case 'g1_2015_q2_opt_A':
+      return (
+        <svg viewBox="0 0 100 100" className="size-16 sm:size-20 shrink-0 select-none">
+          {/* Regular Hexagon (6 edges) */}
+          <polygon points="50,12 85,32 85,68 50,88 15,68 15,32" fill="#f8fafc" stroke="#1e293b" strokeWidth="3" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'g1_2015_q2_opt_B':
+      return (
+        <svg viewBox="0 0 100 100" className="size-16 sm:size-20 shrink-0 select-none">
+          {/* Concave Hexagon L-shape (6 edges) */}
+          <polygon points="15,20 75,20 85,50 45,80 45,45 15,45" fill="#f8fafc" stroke="#1e293b" strokeWidth="3" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'g1_2015_q2_opt_C':
+      return (
+        <svg viewBox="0 0 100 100" className="size-16 sm:size-20 shrink-0 select-none">
+          {/* Pentagon with chevron indent (5 edges - CORRECT ANSWER) */}
+          <polygon points="30,18 80,18 50,50 85,82 30,82" fill="#f8fafc" stroke="#1e293b" strokeWidth="3" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'g1_2015_q2_opt_D':
+      return (
+        <svg viewBox="0 0 100 100" className="size-16 sm:size-20 shrink-0 select-none">
+          {/* Convex Hexagon (6 edges) */}
+          <polygon points="45,15 80,32 80,72 50,85 20,72 20,32" fill="#f8fafc" stroke="#1e293b" strokeWidth="3" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'g1_2015_q2_opt_E':
+      return (
+        <svg viewBox="0 0 100 100" className="size-16 sm:size-20 shrink-0 select-none">
+          {/* Star-like Hexagon (6 edges) */}
+          <polygon points="20,18 42,38 65,18 92,30 35,82 15,50" fill="#f8fafc" stroke="#1e293b" strokeWidth="3" strokeLinejoin="round" />
+        </svg>
+      )
+
+    // 2015 Q03: Isometric Cubes Options
+    case 'g1_2015_q3_opt_A':
+    case 'g1_2016_q3_opt_A':
+      return renderIsometricCubesSvg([
+        { x: 0, y: 0, z: 0 },
+        { x: 1, y: 0, z: 0 },
+        { x: 0, y: 1, z: 0 },
+        { x: 1, y: 1, z: 0 },
+      ])
+    case 'g1_2015_q3_opt_B':
+    case 'g1_2016_q3_opt_B':
+      return renderIsometricCubesSvg([
+        { x: 0, y: 0, z: 0 },
+        { x: 1, y: 0, z: 0 },
+        { x: 0, y: 1, z: 0 },
+        { x: 0, y: 0, z: 1 },
+      ])
+    case 'g1_2015_q3_opt_C':
+    case 'g1_2016_q3_opt_C':
+      return renderIsometricCubesSvg([
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 0, z: 1 },
+        { x: 0, y: 0, z: 2 },
+        { x: 1, y: 0, z: 0 },
+      ])
+    case 'g1_2015_q3_opt_D':
+    case 'g1_2016_q3_opt_D':
+      return renderIsometricCubesSvg([
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 0, z: 1 },
+        { x: 0, y: 0, z: 2 },
+        { x: 1, y: 0, z: 0 },
+        { x: 1, y: 0, z: 1 },
+        { x: 2, y: 0, z: 0 },
+      ])
+    case 'g1_2015_q3_opt_E':
+    case 'g1_2016_q3_opt_E':
+      return renderIsometricCubesSvg([
+        { x: 0, y: 0, z: 0 },
+        { x: 0, y: 0, z: 1 },
+        { x: 1, y: 0, z: 0 },
+      ])
+
+    // 2015 Q05 Money
+    case 'g1_2015_q5_money':
+      return renderMoneyBanknotesSvg({ className })
+
+    // 2015 Q06 Shape Sequence
+    case 'g1_2015_q6_sequence':
+      return renderShapeSequenceSvg({ className })
+
+    // 2015 Q07 Pattern Grid Boxes
+    case 'g1_2015_q7_grid':
+      return renderPatternBoxesSvg({ className })
+
+    // 2015 Q08 / 2016 Q08 Stepped Cubes (17 cubes)
+    case 'g1_2015_q8_cubes':
+    case 'g1_2016_q8_cubes':
+      return renderIsometricCubesSvg([
+        // Layer 3 (top)
+        { x: 0, y: 0, z: 3 },
+        // Layer 2
+        { x: 0, y: 0, z: 2 },
+        { x: 1, y: 0, z: 2 },
+        // Layer 1
+        { x: 0, y: 0, z: 1 },
+        { x: 1, y: 0, z: 1 },
+        { x: 2, y: 0, z: 1 },
+        { x: 0, y: 1, z: 1 },
+        // Layer 0 (base)
+        { x: 0, y: 0, z: 0 },
+        { x: 1, y: 0, z: 0 },
+        { x: 2, y: 0, z: 0 },
+        { x: 3, y: 0, z: 0 },
+        { x: 0, y: 1, z: 0 },
+        { x: 1, y: 1, z: 0 },
+        { x: 2, y: 1, z: 0 },
+        { x: 0, y: 2, z: 0 },
+        { x: 1, y: 2, z: 0 },
+        { x: 0, y: 3, z: 0 },
+      ])
+
+    // 2015 Q13 / 2016 Q13 Fraction Circle Options
+    case 'g1_2015_q13_opt_A':
+    case 'g1_2016_q13_opt_A':
+      return renderFractionCircleSvg(8, 4, { className })
+    case 'g1_2015_q13_opt_B':
+    case 'g1_2016_q13_opt_B':
+      return renderFractionCircleSvg(4, 2, { className })
+    case 'g1_2015_q13_opt_C':
+    case 'g1_2016_q13_opt_C':
+      return renderFractionCircleSvg(3, 1, { className })
+    case 'g1_2015_q13_opt_D':
+    case 'g1_2016_q13_opt_D':
+      return renderFractionCircleSvg(4, 1, { className })
+    case 'g1_2015_q13_opt_E':
+    case 'g1_2016_q13_opt_E':
+      return renderFractionCircleSvg(10, 6, { className })
+
+    // 2015 Q14 Balloon Bar Chart
+    case 'g1_2015_q14_chart':
+      return renderBalloonBarChartSvg({ className })
+
+    // ========================================================================
+    // GRADE 1 - 2016 CONTEST DIAGRAMS
+    // ========================================================================
+
+    // 2016 Q05 Dice Views
+    case 'g1_2016_q5_dice':
+      return renderDiceViewsSvg({ className })
+
+    // 2016 Q06 Matrix & Options
+    case 'g1_2016_q6_matrix':
+      return renderShapeMatrix2016Svg({ className })
+    case 'g1_2016_q6_opt_A':
+      return (
+        <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
+          <rect x="15" y="15" width="40" height="40" rx="4" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
+        </svg>
+      )
+    case 'g1_2016_q6_opt_B':
+      return (
+        <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
+          <polygon points="35,12 60,58 10,58" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
+        </svg>
+      )
+    case 'g1_2016_q6_opt_C':
+      return (
+        <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
+          <polygon points="35,12 60,58 10,58" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" strokeLinejoin="round" />
+          <line x1="35" y1="26" x2="35" y2="42" stroke="#1e293b" strokeWidth="2.5" />
+          <line x1="35" y1="42" x2="22" y2="54" stroke="#1e293b" strokeWidth="2.5" />
+          <line x1="35" y1="42" x2="48" y2="54" stroke="#1e293b" strokeWidth="2.5" />
+        </svg>
+      )
+    case 'g1_2016_q6_opt_D':
+      return (
+        <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
+          <circle cx="35" cy="35" r="24" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
+          <line x1="35" y1="11" x2="35" y2="59" stroke="#1e293b" strokeWidth="2" />
+          <line x1="11" y1="35" x2="59" y2="35" stroke="#1e293b" strokeWidth="2" />
+        </svg>
+      )
+    case 'g1_2016_q6_opt_E':
+      return (
+        <svg viewBox="0 0 70 70" className="size-16 sm:size-20 shrink-0 select-none">
+          <rect x="15" y="15" width="40" height="40" rx="4" fill="#f8fafc" stroke="#1e293b" strokeWidth="2.5" />
+          <line x1="15" y1="15" x2="55" y2="55" stroke="#1e293b" strokeWidth="2" />
+          <line x1="55" y1="15" x2="15" y2="55" stroke="#1e293b" strokeWidth="2" />
+        </svg>
+      )
+
+    // 2016 Q11 Rhombus
+    case 'g1_2016_q11_rhombus':
+      return (
+        <div className="flex items-center justify-center p-3 rounded-2xl bg-white border border-slate-200 shadow-xs max-w-[200px] mx-auto w-full">
+          <svg viewBox="0 0 160 90" className="w-full max-h-24 select-none">
+            <polygon points="45,15 145,15 115,75 15,75" fill="#1e293b" />
+          </svg>
+        </div>
+      )
+
+    // 2016 Q12 Dot Grid 3x3
+    case 'g1_2016_q12_dots':
+      return renderDotGrid2016Svg({ className })
+
+    // 2016 Q14 Rectangle Grid with ※
+    case 'g1_2016_q14_rectangles':
+      return renderRectangleGrid2016Svg({ className })
 
     // Fraction Shaded Area Options
     case 'fraction_6_10':
