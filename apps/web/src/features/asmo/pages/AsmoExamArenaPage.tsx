@@ -20,6 +20,7 @@ import { AsmoThreeViewer } from '../components/AsmoThreeViewer'
 import { AsmoQuestionCard } from '../components/AsmoQuestionCard'
 import { AsmoExamTimer } from '../components/AsmoExamTimer'
 import { AsmoMeeTutor } from '../components/AsmoMeeTutor'
+import { AsmoExamAuditModal } from '../components/AsmoExamAuditModal'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
@@ -36,6 +37,8 @@ export function AsmoExamArenaPage() {
   const [activeStepIndex, setActiveStepIndex] = useState(0)
   const [answers, setAnswers] = useState<Record<string, string>>({})
   const [isSubmitted, setIsSubmitted] = useState(false)
+  const [isAuditModalOpen, setIsAuditModalOpen] = useState(false)
+
 
   // Load dynamic exam data from Gateway LMS ASMO API with safe fallback
   useEffect(() => {
@@ -186,7 +189,18 @@ export function AsmoExamArenaPage() {
         </div>
 
         {/* Timer & Action */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 sm:gap-3">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => setIsAuditModalOpen(true)}
+            className="gap-1.5 rounded-2xl border border-indigo-200 bg-indigo-50/90 text-indigo-700 hover:bg-indigo-100 font-bold text-xs sm:text-sm px-3 sm:px-4 shadow-sm"
+          >
+            <Sparkles className="size-4 text-indigo-600" />
+            <span className="hidden sm:inline">🔍 Thẩm Định Đề Thi</span>
+            <span className="sm:hidden">Thẩm Định</span>
+          </Button>
+
           {!isSubmitted && (
             <AsmoExamTimer
               durationMinutes={exam.durationMinutes}
@@ -227,6 +241,7 @@ export function AsmoExamArenaPage() {
           )}
         </div>
       </div>
+
 
       {/* ── EXAM BODY / RESULTS ── */}
       {!isSubmitted ? (
@@ -491,6 +506,16 @@ export function AsmoExamArenaPage() {
           </div>
         </div>
       )}
+
+      {/* ── AUDIT MODAL ── */}
+      {exam && (
+        <AsmoExamAuditModal
+          isOpen={isAuditModalOpen}
+          onClose={() => setIsAuditModalOpen(false)}
+          exam={exam}
+        />
+      )}
     </div>
   )
 }
+

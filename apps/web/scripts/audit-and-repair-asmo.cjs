@@ -59,40 +59,8 @@ function sanitizeKaTeX(str) {
   // Replace \in in English phrases
   s = s.replace(/\\in(\s+(?:his|her|their|a|the|town|petrol|farming|satellite|cash|curfew|entertainment|country|storage|this|that|which|all)\b)/g, 'in$1');
 
-  // Fix currency signs in word problems
-  s = s.replace(/\\in\s+his\s+bank/g, 'in his bank');
-  s = s.replace(/\\in\s+her\s+account/g, 'in her account');
-  s = s.replace(/earn\$(\d+)/g, 'earn \\$$$1');
-  s = s.replace(/deposits\$(\d+)/g, 'deposits \\$$$1');
-  s = s.replace(/withdraws\$(\d+)/g, 'withdraws \\$$$1');
-  s = s.replace(/(?<!\\)\$(\d+(?:\.\d+)?)\s*(for|in|worth|more|at|instead|each|of|per|or|\.|\?|,|;|\)|$)/g, '\\$$$1 $2');
-  s = s.replace(/(?<=\s)\$(\d+(?:\.\d+)?)(?=\s)/g, '\\$$$1');
-  s = s.replace(/=\s*\$(\d+(?:\.\d+)?)/g, '= \\$$$1');
-  s = s.replace(/\*\s*\$(\d+(?:\.\d+)?)/g, '* \\$$$1');
-  s = s.replace(/-\s*\$(\d+(?:\.\d+)?)/g, '- \\$$$1');
-  s = s.replace(/\/\s*\$(\d+(?:\.\d+)?)/g, '/ \\$$$1');
-
-  // Specific Grade 11 fixes
-  s = s.replace(/\$3\^10\s*\+\s*27\^5/g, '$3^{10} + 27^5');
-  s = s.replace(/\$3\$\^10\s*\+\s*27\^5/g, '$3^{10} + 27^5');
-  s = s.replace(/3\^10/g, '3^{10}');
-  s = s.replace(/27\^5/g, '27^5');
-
-  s = s.replace(/sum_\{k=1\}\^\{?n\}?\s*k\^3/g, '\\sum_{k=1}^n k^3');
-  s = s.replace(/\\sum_\{k=1\}\^\{n\}/g, '\\sum_{k=1}^n');
-  s = s.replace(/sum_\{n=1\}\^\{infty\}/g, '\\sum_{n=1}^{\\infty}');
-
-  s = s.replace(/y\s*=x\^2\$\$/g, '$y = x^2$');
-  s = s.replace(/y\s*=\s*\$x\^2\$/g, '$y = x^2$');
-  s = s.replace(/a\s*\cdot\s*\\sqrt\{b\}/g, 'a\\sqrt{b}');
-
-  // Multi-digit exponents without braces
-  s = s.replace(/(\^)(\d{2,})/g, '^{$2}');
-
-  // Trailing truncated titles
-  if (s.includes('$\\frac{3}{80} < \\')) {
-    s = s.replace('$\\frac{3}{80} < \\', '$\\frac{3}{80} < \\frac{1}{n} < \\frac{4}{101}$');
-  }
+  // Restore accidentally escaped opening math dollars \$...$ -> $...$
+  s = s.replace(/\\\$([^\$\n]+?)\$/g, '$$$1$$');
 
   // Fraction braces
   s = s.replace(/\\frac\{n\(n\+1\}\{2\}\)\^2/g, '\\left(\\frac{n(n+1)}{2}\\right)^2');
@@ -356,8 +324,70 @@ for (let eIdx = 0; eIdx < exams.length; eIdx++) {
       continue;
     }
 
+    // Specific fix for asmo-math-g6-2013-r5-q22
+    if (q.id === 'asmo-math-g6-2013-r5-q22') {
+      q.title = 'Câu 22: Find the whole number value of n such that $\\frac{3}{80} < \\frac{1}{n} < \\frac{4}{101}$';
+      q.text = 'Find the whole number value of n such that $\\frac{3}{80} < \\frac{1}{n} < \\frac{4}{101}$.\n(Tìm số nguyên dương n thoả mãn $\\frac{3}{80} < \\frac{1}{n} < \\frac{4}{101}$.)';
+      q.options = [
+        { id: 'A', label: 'A', text: '26' },
+        { id: 'B', label: 'B', text: '25' },
+        { id: 'C', label: 'C', text: '27' },
+        { id: 'D', label: 'D', text: '28' }
+      ];
+      q.correctAnswer = 'A';
+      q.explanation = 'Nghịch đảo các phân số (đổi chiều bất đẳng thức):\n$$\\frac{80}{3} > n > \\frac{101}{4} \\iff 26.67 > n > 25.25$$\nVì $n$ là số nguyên dương nên giá trị duy nhất thỏa mãn là $n = 26$.\n➔ Đáp án đúng là: **A. 26**';
+      continue;
+    }
+
+    // Specific fix for asmo-eng-l4-2022-r8-q32
+    if (q.id === 'asmo-eng-l4-2022-r8-q32') {
+      q.title = 'Câu 32: Choose the correct pair of verb tenses to complete the sentence';
+      q.text = 'Choose the correct pair of verb tenses: While I _______ to London last week, I _______ next to a famous actor.\n(Chọn cặp thì của động từ thích hợp để hoàn thành câu.)';
+      q.options = [
+        { id: 'A', label: 'A', text: 'was travelling / was sitting' },
+        { id: 'B', label: 'B', text: 'is travelling / am sitting' },
+        { id: 'C', label: 'C', text: 'am travelling / are sitting' },
+        { id: 'D', label: 'D', text: 'travelled / sits' }
+      ];
+      q.correctAnswer = 'A';
+      q.explanation = 'Mệnh đề bắt đầu bằng "While" kết hợp với hành động trong quá khứ ("last week") dùng thì Quá khứ tiếp diễn (Past Continuous) cho cả hai hành động xảy ra đồng thời.\n➔ Đáp án đúng là: **A. was travelling / was sitting**';
+      continue;
+    }
+
+    // Specific fix for asmo-eng-l4-2022-r8-q33
+    if (q.id === 'asmo-eng-l4-2022-r8-q33') {
+      q.title = 'Câu 33: Choose the correct word form to complete the sentence';
+      q.text = 'Choose the correct word: Three hours have already _______ since the teacher _______ us to begin the test.\n(Chọn dạng từ đúng để điền vào chỗ trống.)';
+      q.options = [
+        { id: 'A', label: 'A', text: 'passed / asked' },
+        { id: 'B', label: 'B', text: 'past / asks' },
+        { id: 'C', label: 'C', text: 'has passed / ask' },
+        { id: 'D', label: 'D', text: 'pass / will ask' }
+      ];
+      q.correctAnswer = 'A';
+      q.explanation = 'Vị trí 1: Sau "have already" cần quá khứ phân từ của động từ pass là "passed".\nVị trí 2: Sau liên từ "since" chỉ mốc thời gian trong quá khứ, động từ chia ở thì Quá khứ đơn (Past Simple) là "asked".\n➔ Đáp án đúng là: **A. passed / asked**';
+      continue;
+    }
+
+    // Specific fix for asmo-math-g5-2005-r2-q12
+    if (q.id === 'asmo-math-g5-2005-r2-q12') {
+      q.explanation = 'If Jeffrey did only basic chores for all 10 days, he would earn 10 * \\$3 = \\$30 . Each day he does additional chores, his earnings increase by \\$5 - \\$3 = \\$2 . The excess earned is \\$36 - \\$30 = \\$6 . Number of additional chore days = \\$6 / \\$2 = 3 days.';
+      if (q.explanationSteps && q.explanationSteps[2]) {
+        q.explanationSteps[2].description = 'Excess earned: \\$36 - \\$30 = \\$6. Number of additional days: \\$6 / \\$2 = 3 days.';
+      }
+    }
+
+    // Specific fix for asmo-math-g5-2005-r2-q22
+    if (q.id === 'asmo-math-g5-2005-r2-q22') {
+      q.explanation = 'Let n be the number of stamps of each denomination. Value of one set of 4 stamps = 50 + 20 + 10 + 5 = 85 cents = \\$0.85 . Total value = 0.85n = \\$5.10 => n = 5.10 / 0.85 = 6 stamps of each type, including 6 50-cent stamps.';
+      if (q.explanationSteps && q.explanationSteps[2]) {
+        q.explanationSteps[2].description = 'Total value: 0.85n = \\$5.10 => n = 6 stamps of each type.';
+      }
+    }
+
     // Embedded options check
     const embedded = extractEmbeddedOptions(q.text);
+
     if (embedded) {
       q.text = embedded.qText;
       q.options = embedded.options;

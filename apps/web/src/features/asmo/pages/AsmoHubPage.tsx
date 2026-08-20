@@ -28,6 +28,7 @@ import { ASMO_3D_TEMPLATES } from '../data/asmo-3d-templates'
 import { listAsmoExams } from '@/shared/lib/asmo-api'
 import type { AsmoExam, AsmoGrade, AsmoSubject } from '../types'
 import { AsmoMeeTutor } from '../components/AsmoMeeTutor'
+import { AsmoExamAuditModal } from '../components/AsmoExamAuditModal'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
@@ -42,6 +43,8 @@ export function AsmoHubPage() {
 
   const [exams, setExams] = useState<AsmoExam[]>([])
   const [isLoading, setIsLoading] = useState(true)
+  const [auditingExam, setAuditingExam] = useState<AsmoExam | null>(null)
+
 
   const currentSubjectMeta = ASMO_SUBJECTS[selectedSubject]
   const currentGradeMeta = ASMO_GRADES.find((g) => g.grade === selectedGrade)
@@ -110,18 +113,31 @@ export function AsmoHubPage() {
             </Button>
 
             {exams.length > 0 && (
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => navigate(`/asmo/exam/${exams[0].id}`)}
-                className="gap-2 rounded-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 font-bold backdrop-blur-md"
-              >
-                <Play className="size-4 fill-current" />
-                <span>Làm Đề Thi Thử Ngay</span>
-              </Button>
+              <>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => navigate(`/asmo/exam/${exams[0].id}`)}
+                  className="gap-2 rounded-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 font-bold backdrop-blur-md"
+                >
+                  <Play className="size-4 fill-current" />
+                  <span>Làm Đề Thi Thử Ngay</span>
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setAuditingExam(exams[0])}
+                  className="gap-2 rounded-2xl bg-white/10 text-white hover:bg-white/25 border-white/20 font-bold backdrop-blur-md"
+                >
+                  <Sparkles className="size-4 text-sun-300" />
+                  <span>🔍 Thẩm Định Đề Thi</span>
+                </Button>
+              </>
             )}
           </div>
         </div>
+
 
         {/* Decorative Background Elements */}
         <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 opacity-20 lg:opacity-30 pointer-events-none">
@@ -398,18 +414,30 @@ export function AsmoHubPage() {
                     <span className="text-xs font-medium text-slate-500">
                       Điểm đạt: {exam.passScore}/{exam.totalPoints}
                     </span>
-                    <Button
-                      type="button"
-                      variant="primary"
-                      onClick={() => navigate(`/asmo/exam/${exam.id}`)}
-                      className="gap-1.5 rounded-xl text-xs font-bold py-1.5 px-3"
-                    >
-                      <Play className="size-3 fill-current" />
-                      <span>Vào thi</span>
-                    </Button>
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setAuditingExam(exam)}
+                        className="gap-1 rounded-xl text-xs font-bold py-1.5 px-2.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200"
+                      >
+                        <Sparkles className="size-3 text-indigo-600" />
+                        <span>Thẩm định</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="primary"
+                        onClick={() => navigate(`/asmo/exam/${exam.id}`)}
+                        className="gap-1.5 rounded-xl text-xs font-bold py-1.5 px-3"
+                      >
+                        <Play className="size-3 fill-current" />
+                        <span>Vào thi</span>
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))
+
             ) : (
               <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
                 <BookOpen className="size-8 mx-auto text-slate-400 mb-2" />
@@ -480,6 +508,16 @@ export function AsmoHubPage() {
           ))}
         </div>
       </div>
+
+      {/* ── AUDIT MODAL ── */}
+      {auditingExam && (
+        <AsmoExamAuditModal
+          isOpen={Boolean(auditingExam)}
+          onClose={() => setAuditingExam(null)}
+          exam={auditingExam}
+        />
+      )}
     </div>
   )
 }
+

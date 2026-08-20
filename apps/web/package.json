@@ -8,6 +8,7 @@
     "assets:validate": "node scripts/validate-reward-assets.mjs",
     "rewards:pack": "node scripts/reward-pack-cli.mjs",
     "rewards:pack:test": "node --test scripts/reward-pack-lib.test.mjs",
+    "asmo:audit": "node scripts/audit-asmo-question-bank.mjs",
     "build": "npm run assets:validate && tsc -b && vite build && npm run perf:budget",
     "perf:budget": "node scripts/check-performance-budget.mjs",
     "preview": "vite preview",

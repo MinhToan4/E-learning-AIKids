@@ -103,7 +103,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "B",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Các chữ số từ 1 đến 9 đang được viết ở nhiều góc xoay khác nhau. Con hãy kiểm tra xem số nào chưa xuất hiện!",
-        "explanation": "Liệt kê các chữ số xuất hiện trong hình (dù bị xoay ngược hay nằm ngang):\n• Có số: \\$1 , 2, 3, 5, 6, 7, 8, 9$.\n• Chữ số duy nhất từ $1$ đến $9$ **chưa xuất hiện** là số **4**.\n➔ Đáp án đúng là: **B. 4**",
+        "explanation": "Liệt kê các chữ số xuất hiện trong hình (dù bị xoay ngược hay nằm ngang):\n• Có số: $1 , 2, 3, 5, 6, 7, 8, 9$.\n• Chữ số duy nhất từ $1$ đến $9$ **chưa xuất hiện** là số **4**.\n➔ Đáp án đúng là: **B. 4**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -157,7 +157,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "A",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Hãy tính kết quả từng phép tính: 13+17=30, 11+11=22, 9+11=20, 19+9=28!",
-        "explanation": "Tính giá trị 4 phương án:\n• **A**: \\$13 + 17 = 30$\n• **B**: \\$11 + 11 = 22$\n• **C**: \\$9 + 11 = 20$\n• **D**: \\$19 + 9 = 28$\nVì $30$ là số lớn nhất nên phép cộng **13 + 17** cho giá trị lớn nhất.\n➔ Đáp án đúng là: **A. 13 + 17**",
+        "explanation": "Tính giá trị 4 phương án:\n• **A**: $13 + 17 = 30$\n• **B**: $11 + 11 = 22$\n• **C**: $9 + 11 = 20$\n• **D**: $19 + 9 = 28$\nVì $30$ là số lớn nhất nên phép cộng **13 + 17** cho giá trị lớn nhất.\n➔ Đáp án đúng là: **A. 13 + 17**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -307,7 +307,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_GEOMETRY_2D",
         "topicName": "Hình Học Phẳng & Trực Quan",
         "title": "Câu 6: What number should be filled in the blank?",
-        "text": "What number should be filled in the blank to make the inequality true?\n11 > 5 + \\square\n(Số nào dưới đây khi điền vào ô trống làm cho phép so sánh \\$11 > 5 + \\square$ là đúng?)",
+        "text": "What number should be filled in the blank to make the inequality true?\n11 > 5 + \\square\n(Số nào dưới đây khi điền vào ô trống làm cho phép so sánh $11 > 5 + \\square$ là đúng?)",
         "options": [
           {
             "id": "A",
@@ -333,7 +333,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "D",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Thử từng số vào: 5 + 10 = 15 (>11 sai), 5 + 8 = 13 (>11 sai), 5 + 6 = 11 (=11 sai), 5 + 5 = 10 (<11 đúng)!",
-        "explanation": "Ta kiểm tra từng phương án:\n• **A. 10**: \\$5 + 10 = 15 \\implies 11 > 15$ (Sai)\n• **B. 8**: \\$5 + 8 = 13 \\implies 11 > 13$ (Sai)\n• **C. 6**: \\$5 + 6 = 11 \\implies 11 > 11$ (Sai)\n• **D. 5**: \\$5 + 5 = 10 \\implies 11 > 10$ (Đúng!)\n➔ Đáp án đúng là: **D. 5**",
+        "explanation": "Ta kiểm tra từng phương án:\n• **A. 10**: $5 + 10 = 15 \\implies 11 > 15$ (Sai)\n• **B. 8**: $5 + 8 = 13 \\implies 11 > 13$ (Sai)\n• **C. 6**: $5 + 6 = 11 \\implies 11 > 11$ (Sai)\n• **D. 5**: $5 + 5 = 10 \\implies 11 > 10$ (Đúng!)\n➔ Đáp án đúng là: **D. 5**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -386,7 +386,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "B",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Trong môn chạy đua, bạn nào mất ít thời gian nhất (số giây nhỏ nhất) là bạn chạy nhanh nhất!",
-        "explanation": "Trong cuộc đua chạy $100$, bạn nào về đích với **số giây ít nhất** là bạn chạy nhanh nhất.\nSo sánh thời gian: \\$13 < 14 < 15 < 17$.\nDo đó **Student B** (13 giây) chạy nhanh nhất.\n➔ Đáp án đúng là: **B. Student B**",
+        "explanation": "Trong cuộc đua chạy $100$, bạn nào về đích với **số giây ít nhất** là bạn chạy nhanh nhất.\nSo sánh thời gian: $13 < 14 < 15 < 17$.\nDo đó **Student B** (13 giây) chạy nhanh nhất.\n➔ Đáp án đúng là: **B. Student B**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -498,7 +498,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "D",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Con hãy đếm từng que diêm của mỗi hình A, B, C, D nhé! Chú ý Hình D có 2 ô vuông liền nhau!",
-        "explanation": "Đếm số que diêm trong từng hình:\n• **Hình A**: \\$4 + 2 = 6$\n• **Hình B**: \\$2 + 3 = 5$\n• **Hình C**: \\$4 + 2 = 6$\n• **Hình D**: \\$3 + 4 = 7$\nVì \\$7 > 6 > 5$ nên **Hình D** sử dụng nhiều que diêm nhất.\n➔ Đáp án đúng là: **D. Hình D (7 que)**",
+        "explanation": "Đếm số que diêm trong từng hình:\n• **Hình A**: $4 + 2 = 6$\n• **Hình B**: $2 + 3 = 5$\n• **Hình C**: $4 + 2 = 6$\n• **Hình D**: $3 + 4 = 7$\nVì $7 > 6 > 5$ nên **Hình D** sử dụng nhiều que diêm nhất.\n➔ Đáp án đúng là: **D. Hình D (7 que)**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -724,7 +724,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_TRIGONOMETRY",
         "topicName": "Lượng Giác & Biến Đổi",
         "title": "Câu 14: Find out the missing part of the square puzzle",
-        "text": "The puzzle below was a complete square ($5 \\times 5$) before, find out the missing part.\n(Hình ghép ô cờ \\$5 \\times 5$ dưới đây bị cắt đi một góc, hãy tìm mảnh ghép còn thiếu khớp với phần bị cắt.)",
+        "text": "The puzzle below was a complete square ($5 \\times 5$) before, find out the missing part.\n(Hình ghép ô cờ $5 \\times 5$ dưới đây bị cắt đi một góc, hãy tìm mảnh ghép còn thiếu khớp với phần bị cắt.)",
         "imageUrl": null,
         "options": [
           {
@@ -755,7 +755,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "A",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Quan sát phần khuyết ở góc dưới bên phải: ô nhô ra ở hàng 4 có màu trắng hay đen, và ghép lại thành hình vuông hoàn chỉnh 5x5!",
-        "explanation": "So sánh phần khuyết trên bàn cờ \\$5 \\times 5$ với các phương án:\n• Phần bị cắt gồm các bậc thang từ góc dưới bên phải với màu sắc đan xen đen trắng xen kẽ.\n• Chỉ có **Mảnh A** có đúng số ô và thứ tự màu đen/trắng tương ứng để ghép kín thành hình vuông \\$5 \\times 5$.\n➔ Đáp án đúng là: **A. Mảnh A**",
+        "explanation": "So sánh phần khuyết trên bàn cờ $5 \\times 5$ với các phương án:\n• Phần bị cắt gồm các bậc thang từ góc dưới bên phải với màu sắc đan xen đen trắng xen kẽ.\n• Chỉ có **Mảnh A** có đúng số ô và thứ tự màu đen/trắng tương ứng để ghép kín thành hình vuông $5 \\times 5$.\n➔ Đáp án đúng là: **A. Mảnh A**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -939,7 +939,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "B",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Kim ngắn (kim giờ) chỉ qua số 5 (5 giờ). Kim dài (kim phút) chỉ vào số 2 tương ứng 2 x 5 = 10 phút!",
-        "explanation": "Quan sát mặt đồng hồ:\n• Kim giờ ngắn chỉ qua số **5** ➔ 5 giờ.\n• Kim phút dài chỉ đúng số **2** ➔ \\$2 \\times 5 = 10$.\n• Buổi chiều ➔ Ký hiệu **p.m.**\nVậy đồng hồ chỉ **5:10 p.m.**\n➔ Đáp án đúng là: **B. 5:10 p.m.**",
+        "explanation": "Quan sát mặt đồng hồ:\n• Kim giờ ngắn chỉ qua số **5** ➔ 5 giờ.\n• Kim phút dài chỉ đúng số **2** ➔ $2 \\times 5 = 10$.\n• Buổi chiều ➔ Ký hiệu **p.m.**\nVậy đồng hồ chỉ **5:10 p.m.**\n➔ Đáp án đúng là: **B. 5:10 p.m.**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -1373,7 +1373,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "correctAnswer": "B",
         "points": 4,
         "meeHint": "Mèo Mee gợi ý: Đường B chỉ có 3 đoạn xiên thoải trải dài 6 ô nên có tổng độ dài ngắn nhất so với các đường ziczac gập khúc nhiều lần!",
-        "explanation": "Đánh giá độ dài các đường vẽ trên lưới \\$6 \\times 2$:\n• **Đường D**: gồm 6 đoạn xiên dốc $\\implies$ dài nhất.\n• **Đường A & C**: gồm 4 đoạn xiên gập khúc.\n• **Đường B**: chỉ gồm 3 đoạn xiên trải rộng $\\implies$ **chiều dài ngắn nhất**.\n➔ Đáp án đúng là: **B. Đường B**",
+        "explanation": "Đánh giá độ dài các đường vẽ trên lưới $6 \\times 2$:\n• **Đường D**: gồm 6 đoạn xiên dốc $\\implies$ dài nhất.\n• **Đường A & C**: gồm 4 đoạn xiên gập khúc.\n• **Đường B**: chỉ gồm 3 đoạn xiên trải rộng $\\implies$ **chiều dài ngắn nhất**.\n➔ Đáp án đúng là: **B. Đường B**",
         "explanationSteps": [
           {
             "stepIndex": 0,
@@ -3354,7 +3354,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Đếm & Nhận Biết Hình Học, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "So sánh giá trị phần tô màu của các hình tròn:\n• Hình A: $\\frac{4}{8} = 0.5$\n• Hình B: $\\frac{2}{4} = 0.5$\n• Hình C: $\\frac{1}{3} \\approx 0.333$\n• Hình D: $\\frac{1}{4} = 0.25$\n• Hình E: $\\frac{6}{10} = 0.6$\nVì \\$0 .6 > 0.5 > 0.333 > 0.25$ nên phân số E là lớn nhất.\n➔ Đáp án đúng là: **E. Phân số E**",
+        "explanation": "So sánh giá trị phần tô màu của các hình tròn:\n• Hình A: $\\frac{4}{8} = 0.5$\n• Hình B: $\\frac{2}{4} = 0.5$\n• Hình C: $\\frac{1}{3} \\approx 0.333$\n• Hình D: $\\frac{1}{4} = 0.25$\n• Hình E: $\\frac{6}{10} = 0.6$\nVì $0 .6 > 0.5 > 0.333 > 0.25$ nên phân số E là lớn nhất.\n➔ Đáp án đúng là: **E. Phân số E**",
         "points": 4,
         "explanationSteps": [
           {
@@ -3473,7 +3473,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "B",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Đo Lường & Thời Gian, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Xét phép cộng cột dọc:\n• Ở hàng đơn vị: \\$7 + D = 12 \\implies D = 5$ (nhớ 1 sang hàng chục).\n• Ở hàng chục: \\$1 + C + 1 = 8 \\implies C + 2 = 8 \\implies C = 6$.\nVậy $C = 6, D = 5$.\n➔ Đáp án đúng là: **B. C = 6, D = 5**",
+        "explanation": "Xét phép cộng cột dọc:\n• Ở hàng đơn vị: $7 + D = 12 \\implies D = 5$ (nhớ 1 sang hàng chục).\n• Ở hàng chục: $1 + C + 1 = 8 \\implies C + 2 = 8 \\implies C = 6$.\nVậy $C = 6, D = 5$.\n➔ Đáp án đúng là: **B. C = 6, D = 5**",
         "points": 4,
         "explanationSteps": [
           {
@@ -4545,7 +4545,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_LOGIC_REASONING",
         "topicName": "Tư Duy Logic & Quy Luật",
         "title": "Câu: Tìm số tiếp theo trong dãy quy luật #124",
-        "text": "Find the next number in the pattern: \\$2 , 5, 8, 11, 14, \\dots$\n(Tìm số tiếp theo trong dãy quy luật: \\$2 , 5, 8, 11, 14, \\dots$)",
+        "text": "Find the next number in the pattern: $2 , 5, 8, 11, 14, \\dots$\n(Tìm số tiếp theo trong dãy quy luật: $2 , 5, 8, 11, 14, \\dots$)",
         "options": [
           {
             "id": "A",
@@ -8214,7 +8214,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_LOGIC_REASONING",
         "topicName": "Tư Duy Logic & Quy Luật",
         "title": "Câu: Tìm số tiếp theo trong dãy quy luật #230",
-        "text": "Find the next number in the pattern: \\$2 , 5, 8, 11, 14, \\dots$\n(Tìm số tiếp theo trong dãy quy luật: \\$2 , 5, 8, 11, 14, \\dots$)",
+        "text": "Find the next number in the pattern: $2 , 5, 8, 11, 14, \\dots$\n(Tìm số tiếp theo trong dãy quy luật: $2 , 5, 8, 11, 14, \\dots$)",
         "options": [
           {
             "id": "A",
@@ -14739,7 +14739,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_ARITHMETIC_BASIC",
         "topicName": "Phép Tính & Số Học Cơ Bản",
         "title": "Câu 12: Each day Jeffrey earns \\$3 for doing cert...",
-        "text": "Each day Jeffrey earns \\$3 for doing certain chores. He can earn \\$5 instead by doing additional chores as well. After ten days of doing chores, Jeffrey has earned a total of \\$36 . On how many of these days did Jeffrey do additional chores?",
+        "text": "Each day Jeffrey earns $3 for doing certain chores. He can earn \\$5 instead by doing additional chores as well. After ten days of doing chores, Jeffrey has earned a total of \\$36 . On how many of these days did Jeffrey do additional chores?",
         "options": [
           {
             "id": "A",
@@ -14764,7 +14764,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Chu Vi & Diện Tích, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Let d be the number of days with additional chores. Then (10 - d) days earn \\$3 and d days earn \\$5: 3(10 - d) + 5d = 36 => 30 + 2d = 36 => 2d = 6 => d = 3 days.",
+        "explanation": "Let d be the number of days with additional chores. Then (10 - d) days earn $3 and d days earn \\$5: 3(10 - d) + 5d = 36 => 30 + 2d = 36 => 2d = 6 => d = 3 days.",
         "points": 4,
         "explanationSteps": [
           {
@@ -14780,7 +14780,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 3,
             "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Let d be the number of days with additional chores. Then (10 - d) days earn \\$3 and d days earn \\$5: 3(10 - d) + 5d = 36 => 30 + 2d = 36 => 2d = 6 => d = 3 days.\n\n➔ Do đó đáp án chính xác là: **A**."
+            "description": "Let d be the number of days with additional chores. Then (10 - d) days earn $3 and d days earn \\$5: 3(10 - d) + 5d = 36 => 30 + 2d = 36 => 2d = 6 => d = 3 days.\n\n➔ Do đó đáp án chính xác là: **A**."
           }
         ],
         "domainType": "ARITHMETIC"
@@ -22096,7 +22096,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_GEOMETRY_2D",
         "topicName": "Hình Học Phẳng & Trực Quan",
         "title": "Câu 1: What number can replace the square to ma...",
-        "text": "What number can replace the square to make the statement true?\n\\$5 \\times 11 = \\square + 12$",
+        "text": "What number can replace the square to make the statement true?\n$5 \\times 11 = \\square + 12$",
         "options": [
           {
             "id": "A",
@@ -30553,7 +30553,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_ARITHMETIC_BASIC",
         "topicName": "Phép Tính & Số Học Cơ Bản",
         "title": "Câu 12: Each day Jeffrey earns \\$3 for doing cert...",
-        "text": "Each day Jeffrey earns \\$3 for doing certain chores. He can earn \\$5 instead by doing additional chores as well. After ten days of doing chores, Jeffrey has earned a total of \\$36 . On how many of these days did Jeffrey do additional chores?",
+        "text": "Each day Jeffrey earns $3 for doing certain chores. He can earn \\$5 instead by doing additional chores as well. After ten days of doing chores, Jeffrey has earned a total of \\$36 . On how many of these days did Jeffrey do additional chores?",
         "options": [
           {
             "id": "A",
@@ -30578,7 +30578,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Chu Vi & Diện Tích, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "If Jeffrey did only basic chores for all 10 days, he would earn 10 * \\$3 =\\$30 . Each day he does additional chores, his earnings increase by \\$5 - \\$3 = \\$2 . The excess earned is$36 - \\$30 =\\$6 . Number of additional chore days = \\$6 / \\$2 = 3 days.",
+        "explanation": "If Jeffrey did only basic chores for all 10 days, he would earn 10 * $3 = \\$30 . Each day he does additional chores, his earnings increase by $5 - \\$3 = $2 . The excess earned is \\$36 - $30 = \\$6 . Number of additional chore days = $6 / \\$2 = 3 days.",
         "points": 4,
         "explanationSteps": [
           {
@@ -30594,7 +30594,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 3,
             "title": "Bước 3: Tính toán & Kết luận",
-            "description": "If Jeffrey did only basic chores for all 10 days, he would earn 10 * \\$3 =\\$30 . Each day he does additional chores, his earnings increase by \\$5 - \\$3 = \\$2 . The excess earned is$36 - \\$30 =\\$6 . Number of additional chore days = \\$6 / \\$2 = 3 days.\n\n➔ Do đó đáp án chính xác là: **A**."
+            "description": "Excess earned: $36 - \\$30 = $6. Number of additional days: \\$6 / \\$2 = 3 days."
           }
         ],
         "domainType": "ARITHMETIC"
@@ -31111,7 +31111,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         ],
         "correctAnswer": "A",
         "meeHint": "Mèo Mee gợi ý: Con hãy chú ý quy luật của chủ đề Phân Số & Tỉ Số Trực Quan, phân tích từng bước tính toán cẩn thận nhé!",
-        "explanation": "Let n be the number of stamps of each denomination. Value of one set of 4 stamps = 50 + 20 + 10 + 5 = 85 cents = \\$0.85 . Total value = 0.85n =\\$5 .10 => n = 5.10 / 0.85 = 6 stamps of each type, including 6 50-cent stamps.",
+        "explanation": "Let n be the number of stamps of each denomination. Value of one set of 4 stamps = 50 + 20 + 10 + 5 = 85 cents = $0.85 . Total value = 0.85n = \\$5.10 => n = 5.10 / 0.85 = 6 stamps of each type, including 6 50-cent stamps.",
         "points": 5,
         "explanationSteps": [
           {
@@ -31127,7 +31127,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 3,
             "title": "Bước 3: Tính toán & Kết luận",
-            "description": "Let n be the number of stamps of each denomination. Value of one set of 4 stamps = 50 + 20 + 10 + 5 = 85 cents = \\$0.85 . Total value = 0.85n =\\$5 .10 => n = 5.10 / 0.85 = 6 stamps of each type, including 6 50-cent stamps.\n\n➔ Do đó đáp án chính xác là: **A**."
+            "description": "Total value: 0.85n = \\$5.10 => n = 6 stamps of each type."
           }
         ],
         "domainType": "ARITHMETIC"
@@ -31321,7 +31321,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_GEOMETRY_2D",
         "topicName": "Hình Học Phẳng & Trực Quan",
         "title": "Câu 1: What number can replace the square to ma...",
-        "text": "What number can replace the square to make the statement true?\n\\$5 \\times 11 = \\square + 12$",
+        "text": "What number can replace the square to make the statement true?\n$5 \\times 11 = \\square + 12$",
         "options": [
           {
             "id": "A",
@@ -82634,7 +82634,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Vì $N$ chia cho 3, 4, 5 đều dư 2 nên $N - 2$ là bội chung của 3, 4, 5.\nBCNN(3, 4, 5) = \\$3 \\times 4 \\times 5 = 60$.\nDo đó số nguyên dương $N$ nhỏ nhất là \\$60 + 2 = 62$.\n➔ Đáp án đúng là: **A. 62**",
+        "explanation": "Vì $N$ chia cho 3, 4, 5 đều dư 2 nên $N - 2$ là bội chung của 3, 4, 5.\nBCNN(3, 4, 5) = $3 \\times 4 \\times 5 = 60$.\nDo đó số nguyên dương $N$ nhỏ nhất là $60 + 2 = 62$.\n➔ Đáp án đúng là: **A. 62**",
         "meeHint": "Mèo Mee gợi ý: Số $N - 2$ sẽ chia hết cho cả 3, 4 và 5. Hãy tìm BCNN của (3, 4, 5) nhé!",
         "points": 1,
         "imageUrl": null,
@@ -83854,8 +83854,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 6,
         "topicCode": "MATH_NUMBER_THEORY",
         "topicName": "Số Học & Dãy Số",
-        "title": "Câu 22: Find the whole number value of n such that $\\frac{3}{80} < \\frac{1}{n} < \\frac{4}{101}$frac{1}{n} < \\frac{4}{101}$frac{1}{n} < \\frac{4}{101}$",
-        "text": "Find the whole number value of n such that $\\frac{3}{80} < \\frac{1}{n} < \\frac{4}{101}$frac{1}{n} < \\frac{4}{101}$frac{1}{n} < \\frac{4}{101}$frac{1}{n} < \\frac{4}{101}$.",
+        "title": "Câu 22: Find the whole number value of n such that $\\frac{3}{80} < \\frac{1}{n} < \\frac{4}{101}$",
+        "text": "Find the whole number value of n such that $\\frac{3}{80} < \\frac{1}{n} < \\frac{4}{101}$.\n(Tìm số nguyên dương n thoả mãn $\\frac{3}{80} < \\frac{1}{n} < \\frac{4}{101}$.)",
         "options": [
           {
             "id": "A",
@@ -83879,7 +83879,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Taking reciprocals: 101/4 < n < 80/3 -> 25.25 < n < 26.67. The only integer n in this interval is n = 26.",
+        "explanation": "Nghịch đảo các phân số (đổi chiều bất đẳng thức):\n$$\\frac{80}{3} > n > \\frac{101}{4} \\iff 26.67 > n > 25.25$$\nVì $n$ là số nguyên dương nên giá trị duy nhất thỏa mãn là $n = 26$.\n➔ Đáp án đúng là: **A. 26**",
         "meeHint": "Mèo Mee gợi ý: Vận dụng tư duy logic chủ đề 'Hình Học Phẳng & Góc', lập phương trình hoặc đặt ẩn phụ để tìm kết quả chính xác nhé!",
         "points": 1,
         "imageUrl": null,
@@ -107627,8 +107627,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 10,
         "topicCode": "MATH_CALCULUS",
         "topicName": "Giải Tích, Giới Hạn & Tích Phân",
-        "title": "Câu 24: Evaluate the infinite sum: \\sum_{n=1}^{\\infty} n / \\$2^n$.",
-        "text": "Evaluate the infinite sum: \\sum_{n=1}^{\\infty} n / \\$2^n$.",
+        "title": "Câu 24: Evaluate the infinite sum: \\sum_{n=1}^{\\infty} n / $2^n$.",
+        "text": "Evaluate the infinite sum: \\sum_{n=1}^{\\infty} n / $2^n$.",
         "options": [
           {
             "id": "A",
@@ -110686,7 +110686,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Radius^2 = (3-0)^2 + (1-5)^2 = 9 + 16 = 25. (q - 3)^2 + (0 - 1)^2 = 25 -> (q - 3)^2 = 24 -> q = \\$3 + 2\\sqrt{6}$.",
+        "explanation": "Radius^2 = (3-0)^2 + (1-5)^2 = 9 + 16 = 25. (q - 3)^2 + (0 - 1)^2 = 25 -> (q - 3)^2 = 24 -> q = $3 + 2\\sqrt{6}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 11 yêu cầu biến đổi chuẩn xác trong chủ đề 'Hình Học Không Gian & Vectơ'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -110699,7 +110699,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Radius^2 = (3-0)^2 + (1-5)^2 = 9 + 16 = 25. (q - 3)^2 + (0 - 1)^2 = 25 -> (q - 3)^2 = 24 -> q = \\$3 + 2\\sqrt{6}$."
+            "description": "Radius^2 = (3-0)^2 + (1-5)^2 = 9 + 16 = 25. (q - 3)^2 + (0 - 1)^2 = 25 -> (q - 3)^2 = 24 -> q = $3 + 2\\sqrt{6}$."
           }
         ],
         "domainType": "GEOMETRY_VISUAL"
@@ -110863,12 +110863,12 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "A",
             "label": "A",
-            "text": "\\$0 , \\ln(3)$"
+            "text": "$0 , \\ln(3)$"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "\\$0 , \\ln(2)$"
+            "text": "$0 , \\ln(2)$"
           },
           {
             "id": "C",
@@ -112787,7 +112787,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Áp dụng định lý giới hạn",
-            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng \\$5 \\times 1 = 5$."
+            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng $5 \\times 1 = 5$."
           },
           {
             "stepIndex": 2,
@@ -113086,7 +113086,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Áp dụng định lý giới hạn",
-            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng \\$5 \\times 1 = 5$."
+            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng $5 \\times 1 = 5$."
           },
           {
             "stepIndex": 2,
@@ -113297,7 +113297,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Áp dụng định lý giới hạn",
-            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng \\$5 \\times 1 = 5$."
+            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng $5 \\times 1 = 5$."
           },
           {
             "stepIndex": 2,
@@ -113405,7 +113405,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Áp dụng định lý giới hạn",
-            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng \\$5 \\times 1 = 5$."
+            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng $5 \\times 1 = 5$."
           },
           {
             "stepIndex": 2,
@@ -113513,7 +113513,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Áp dụng định lý giới hạn",
-            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng \\$5 \\times 1 = 5$."
+            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng $5 \\times 1 = 5$."
           },
           {
             "stepIndex": 2,
@@ -113621,7 +113621,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Áp dụng định lý giới hạn",
-            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng \\$5 \\times 1 = 5$."
+            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng $5 \\times 1 = 5$."
           },
           {
             "stepIndex": 2,
@@ -113729,7 +113729,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Áp dụng định lý giới hạn",
-            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng \\$5 \\times 1 = 5$."
+            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng $5 \\times 1 = 5$."
           },
           {
             "stepIndex": 2,
@@ -113837,7 +113837,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Áp dụng định lý giới hạn",
-            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng \\$5 \\times 1 = 5$."
+            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng $5 \\times 1 = 5$."
           },
           {
             "stepIndex": 2,
@@ -113945,7 +113945,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Áp dụng định lý giới hạn",
-            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng \\$5 \\times 1 = 5$."
+            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng $5 \\times 1 = 5$."
           },
           {
             "stepIndex": 2,
@@ -114161,7 +114161,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Áp dụng định lý giới hạn",
-            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng \\$5 \\times 1 = 5$."
+            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng $5 \\times 1 = 5$."
           },
           {
             "stepIndex": 2,
@@ -114362,7 +114362,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Áp dụng định lý giới hạn",
-            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng \\$5 \\times 1 = 5$."
+            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng $5 \\times 1 = 5$."
           },
           {
             "stepIndex": 2,
@@ -114568,7 +114568,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Áp dụng định lý giới hạn",
-            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng \\$5 \\times 1 = 5$."
+            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng $5 \\times 1 = 5$."
           },
           {
             "stepIndex": 2,
@@ -114676,7 +114676,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Áp dụng định lý giới hạn",
-            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng \\$5 \\times 1 = 5$."
+            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng $5 \\times 1 = 5$."
           },
           {
             "stepIndex": 2,
@@ -115181,7 +115181,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Áp dụng định lý giới hạn",
-            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng \\$5 \\times 1 = 5$."
+            "description": "Vì $\\lim_{u \\to 0} \\frac{\\sin(u)}{u} = 1$, nên giới hạn bằng $5 \\times 1 = 5$."
           },
           {
             "stepIndex": 2,
@@ -115482,7 +115482,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "2*sqrt(3) - 5*sqrt(3) + 6*sqrt(3) = \\$3\\sqrt{3}$.",
+        "explanation": "2*sqrt(3) - 5*sqrt(3) + 6*sqrt(3) = $3\\sqrt{3}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Hình Học Không Gian & Vectơ'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -115495,7 +115495,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "2*sqrt(3) - 5*sqrt(3) + 6*sqrt(3) = \\$3\\sqrt{3}$."
+            "description": "2*sqrt(3) - 5*sqrt(3) + 6*sqrt(3) = $3\\sqrt{3}$."
           }
         ],
         "domainType": "FORMULA"
@@ -115776,7 +115776,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Radius = 5. (q - 3)^2 + 1 = 25 -> q = \\$3 + 2\\sqrt{6}$.",
+        "explanation": "Radius = 5. (q - 3)^2 + 1 = 25 -> q = $3 + 2\\sqrt{6}$.",
         "meeHint": "Mèo Mee phân tích: Đề thi Olympic Lớp 12 yêu cầu biến đổi chuẩn xác trong chủ đề 'Hình Học Không Gian & Vectơ'. Hãy xét kỹ điều kiện biên và bất đẳng thức!",
         "points": 3,
         "imageUrl": null,
@@ -115789,7 +115789,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "stepIndex": 1,
             "title": "Bước 2: Thực hiện phép tính",
-            "description": "Radius = 5. (q - 3)^2 + 1 = 25 -> q = \\$3 + 2\\sqrt{6}$."
+            "description": "Radius = 5. (q - 3)^2 + 1 = 25 -> q = $3 + 2\\sqrt{6}$."
           }
         ],
         "domainType": "GEOMETRY_VISUAL"
@@ -116242,7 +116242,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_GEOMETRY_2D",
         "topicName": "Hình Học Phẳng & Trực Quan",
         "title": "Câu 20: Right triangle ABC has hypotenuse $AC = \\sqrt{5} + \\sqrt{3}$ and",
-        "text": "Right triangle ABC has hypotenuse $AC = \\sqrt{5} + \\sqrt{3}$ and area \\$7 + \\sqrt{15}$. Find length of leg AB in form $a \\cdot \\\\sqrt{b}$ + c*sqrt(d).",
+        "text": "Right triangle ABC has hypotenuse $AC = \\sqrt{5} + \\sqrt{3}$ and area $7 + \\sqrt{15}$. Find length of leg AB in form $a \\cdot \\\\sqrt{b}$ + c*sqrt(d).",
         "options": [
           {
             "id": "A",
@@ -116301,7 +116301,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           {
             "id": "B",
             "label": "B",
-            "text": "\\$0 , \\ln(2)$"
+            "text": "$0 , \\ln(2)$"
           },
           {
             "id": "C",
@@ -143610,32 +143610,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 9,
         "topicCode": "ENG_GRAMMAR",
         "topicName": "Ngữ Pháp & Cấu Trúc Câu",
-        "title": "Câu 32: 37.",
-        "text": "37.",
+        "title": "Câu 32: Choose the correct pair of verb tenses to complete the sentence",
+        "text": "Choose the correct pair of verb tenses: While I _______ to London last week, I _______ next to a famous actor.\n(Chọn cặp thì của động từ thích hợp để hoàn thành câu.)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "travelled A. sit"
+            "text": "was travelling / was sitting"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "is travelling B. am sitting"
+            "text": "is travelling / am sitting"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "am travelling C. are sitting"
+            "text": "am travelling / are sitting"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "are travelling D. was sitting"
+            "text": "travelled / sits"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Correct answer is A ('travelled A. sit'). Under topic ENG_GRAMMAR_TENSE, this question evaluates standard English comprehension and grammar principles according to the ASMO English curriculum.",
+        "explanation": "Mệnh đề bắt đầu bằng \"While\" kết hợp với hành động trong quá khứ (\"last week\") dùng thì Quá khứ tiếp diễn (Past Continuous) cho cả hai hành động xảy ra đồng thời.\n➔ Đáp án đúng là: **A. was travelling / was sitting**",
         "meeHint": "Mèo Mee gợi ý: Chú ý ngữ cảnh câu, thì động từ và cấu trúc ngữ pháp học thuật ASMO trong chủ đề 'Tiếng Anh Học Thuật Lớp 9'!",
         "points": 4,
         "imageUrl": null,
@@ -143659,32 +143659,32 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 9,
         "topicCode": "ENG_GRAMMAR",
         "topicName": "Ngữ Pháp & Cấu Trúc Câu",
-        "title": "Câu 33: 45.",
-        "text": "45.",
+        "title": "Câu 33: Choose the correct word form to complete the sentence",
+        "text": "Choose the correct word: Three hours have already _______ since the teacher _______ us to begin the test.\n(Chọn dạng từ đúng để điền vào chỗ trống.)",
         "options": [
           {
             "id": "A",
             "label": "A",
-            "text": "past A. ask"
+            "text": "passed / asked"
           },
           {
             "id": "B",
             "label": "B",
-            "text": "passed B. asks"
+            "text": "past / asks"
           },
           {
             "id": "C",
             "label": "C",
-            "text": "has passed C. asked"
+            "text": "has passed / ask"
           },
           {
             "id": "D",
             "label": "D",
-            "text": "have passed D. will ask"
+            "text": "pass / will ask"
           }
         ],
         "correctAnswer": "A",
-        "explanation": "Correct answer is A ('past A. ask'). Under topic ENG_GRAMMAR_MODAL, this question evaluates standard English comprehension and grammar principles according to the ASMO English curriculum.",
+        "explanation": "Vị trí 1: Sau \"have already\" cần quá khứ phân từ của động từ pass là \"passed\".\nVị trí 2: Sau liên từ \"since\" chỉ mốc thời gian trong quá khứ, động từ chia ở thì Quá khứ đơn (Past Simple) là \"asked\".\n➔ Đáp án đúng là: **A. passed / asked**",
         "meeHint": "Mèo Mee gợi ý: Chú ý ngữ cảnh câu, thì động từ và cấu trúc ngữ pháp học thuật ASMO trong chủ đề 'Tiếng Anh Học Thuật Lớp 9'!",
         "points": 4,
         "imageUrl": null,
