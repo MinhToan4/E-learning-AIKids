@@ -500,6 +500,20 @@ export function AsmoTrigLabVisualizer({
             </div>
           </div>
 
+          {/* ── COMPACT 1-LINE MEE CAT SECRET TIP CAPSULE RIBBON ── */}
+          <div className="rounded-xl bg-amber-50/90 border border-amber-200 px-3 py-1.5 text-xs text-amber-900 flex items-center justify-between gap-2 shadow-2xs flex-wrap">
+            <div className="flex items-center gap-1.5 font-medium">
+              <span className="text-sm">🐱</span>
+              <span className="font-extrabold text-amber-950">Bí kíp Mèo Mee:</span>
+              <span><strong>"Sin đứng, Cos nằm"</strong> · "Nhất cả (+,+), Nhì sin (-,+), Tam tan (-,-), Tứ cos (+,-)"</span>
+            </div>
+            <div className="text-[11px] font-mono font-bold text-amber-900 bg-white/80 px-2 py-0.5 rounded-lg border border-amber-200 shrink-0">
+              <AsmoFormula
+                text={`$\\alpha = ${Math.round(normalizedDeg)}^\\circ$ (Góc ${quadrant}) \\Rightarrow \\cos ${cosVal >= 0 ? '> 0' : '< 0'}, \\sin ${sinVal >= 0 ? '> 0' : '< 0'}$`}
+              />
+            </div>
+          </div>
+
           {/* ── VALUE CARDS PLACED UNDERNEATH (SPACIOUS 2-COLUMN GRID) ── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {/* 🔴 CARD 1: SINE (ĐỘ CAO ĐỨNG) */}
@@ -578,85 +592,87 @@ export function AsmoTrigLabVisualizer({
               </div>
             </div>
 
-            {/* 🟣 CARD 3: TANGENT & COTANGENT */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-              <div
-                className={cn(
-                  'rounded-2xl bg-purple-50/90 border-2 border-purple-300 p-3.5 shadow-xs flex flex-col justify-between transition-all duration-300',
-                  highlightTarget === 'tan'
-                    ? 'ring-4 ring-purple-400 border-purple-500 shadow-md scale-[1.01] bg-purple-100/90'
-                    : 'hover:border-purple-400',
-                )}
-              >
-                <div className="flex items-center justify-between text-xs font-extrabold text-purple-800">
-                  <AsmoFormula text="$\tan(\alpha) = \frac{\sin}{\cos}$:" />
-                  <span className="px-1.5 py-0.2 rounded bg-purple-200/70 font-mono text-[10px]">
-                    {tanVal !== null && tanVal < 0 ? 'Âm (−)' : tanVal !== null && tanVal > 0 ? 'Dương (+)' : ''}
-                  </span>
-                </div>
-                <div className="my-1.5 font-mono font-black text-purple-900 text-base sm:text-lg">
+            {/* 🟣 CARD 3: TANGENT */}
+            <div
+              className={cn(
+                'rounded-2xl bg-gradient-to-br from-purple-50 to-purple-100/70 border-2 border-purple-300 p-4 sm:p-5 shadow-sm transition-all duration-300',
+                highlightTarget === 'tan'
+                  ? 'ring-4 ring-purple-400 border-purple-500 shadow-md scale-[1.01] bg-purple-100/90'
+                  : 'hover:border-purple-400',
+              )}
+            >
+              <div className="flex items-center justify-between text-xs sm:text-sm font-extrabold text-purple-800">
+                <span className="flex items-center gap-1.5">
+                  <span className="size-2.5 rounded-full bg-purple-500 animate-pulse" />
+                  <AsmoFormula text="🟣 Trục tiếp tuyến $\tan(\alpha) = \frac{\sin}{\cos}$:" />
+                </span>
+                <span className="px-2 py-0.5 rounded-lg bg-purple-200/80 font-mono text-xs font-black">
+                  Dấu: {tanVal !== null && tanVal < 0 ? 'Âm (−)' : tanVal !== null && tanVal > 0 ? 'Dương (+)' : '0'}
+                </span>
+              </div>
+              <div className="mt-2 flex flex-wrap items-baseline justify-between gap-2">
+                <div className="text-xl sm:text-2xl font-black text-purple-800 font-mono tracking-tight">
                   {tanVal !== null ? (
                     <AsmoFormula
-                      text={`$\\tan(${Math.round(normalizedDeg)}^\\circ) = ${matchedSpecial ? matchedSpecial.tanExact : tanVal.toFixed(3)}$`}
+                      text={`$\\tan(${Math.round(normalizedDeg)}^\\circ) = ${matchedSpecial ? matchedSpecial.tanExact : tanVal.toFixed(4)}$`}
                     />
                   ) : (
-                    <span className="text-sm text-rose-600 font-bold">Không XĐ</span>
+                    <span className="text-rose-600 font-bold text-lg">Không Xác Định</span>
                   )}
                 </div>
-                <div className="text-[11px] text-purple-700 font-mono flex items-center justify-between">
-                  <span>{tanVal !== null ? `≈ ${tanVal.toFixed(3)}` : 'Góc 90°, 270°'}</span>
-                  {normalizedDeg === 135 && <span className="font-extrabold text-purple-900">= -1</span>}
+                <div className="text-xs sm:text-sm font-black text-purple-600 font-mono bg-white/80 px-2 py-0.5 rounded-lg border border-purple-200 shadow-2xs">
+                  {tanVal !== null ? `≈ ${tanVal.toFixed(3)}` : 'Góc 90°, 270°'}
                 </div>
               </div>
-
-              <div
-                className={cn(
-                  'rounded-2xl bg-amber-50/90 border-2 border-amber-300 p-3.5 shadow-xs flex flex-col justify-between transition-all duration-300',
-                  highlightTarget === 'cot'
-                    ? 'ring-4 ring-amber-400 border-amber-500 shadow-md scale-[1.01] bg-amber-100/90'
-                    : 'hover:border-amber-400',
-                )}
-              >
-                <div className="flex items-center justify-between text-xs font-extrabold text-amber-800">
-                  <AsmoFormula text="$\cot(\alpha) = \frac{\cos}{\sin}$:" />
-                  <span className="px-1.5 py-0.2 rounded bg-amber-200/70 font-mono text-[10px]">
-                    {cotVal !== null && cotVal < 0 ? 'Âm (−)' : cotVal !== null && cotVal > 0 ? 'Dương (+)' : ''}
+              <div className="text-[11px] sm:text-xs text-purple-600/90 mt-1.5 font-medium flex items-center justify-between">
+                <AsmoFormula text="Tỉ số giữa cạnh đối (sin) và cạnh kề (cos)" />
+                {normalizedDeg === 135 && (
+                  <span className="text-[11px] font-bold text-purple-800 font-mono bg-purple-200/60 px-1.5 py-0.2 rounded">
+                    tan(135°) = -1
                   </span>
-                </div>
-                <div className="my-1.5 font-mono font-black text-amber-900 text-base sm:text-lg">
-                  {cotVal !== null ? (
-                    <AsmoFormula
-                      text={`$\\cot(${Math.round(normalizedDeg)}^\\circ) = ${matchedSpecial ? matchedSpecial.cotExact : cotVal.toFixed(3)}$`}
-                    />
-                  ) : (
-                    <span className="text-sm text-rose-600 font-bold">Không XĐ</span>
-                  )}
-                </div>
-                <div className="text-[11px] text-amber-700 font-mono flex items-center justify-between">
-                  <span>{cotVal !== null ? `≈ ${cotVal.toFixed(3)}` : 'Góc 0°, 180°'}</span>
-                  {normalizedDeg === 135 && <span className="font-extrabold text-amber-900">= -1</span>}
-                </div>
+                )}
               </div>
             </div>
 
-            {/* 💡 CARD 4: MEE CAT SECRET TIP */}
-            <div className="rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-200 p-4 shadow-sm flex items-start gap-3">
-              <div className="text-2xl shrink-0">🐱</div>
-              <div className="text-xs sm:text-sm text-slate-800 leading-relaxed">
-                <span className="font-extrabold text-amber-950 block mb-1">
-                  Bí kíp Mèo Mee ghi nhớ nhanh:
+            {/* 🟡 CARD 4: COTANGENT */}
+            <div
+              className={cn(
+                'rounded-2xl bg-gradient-to-br from-amber-50 to-amber-100/70 border-2 border-amber-300 p-4 sm:p-5 shadow-sm transition-all duration-300',
+                highlightTarget === 'cot'
+                  ? 'ring-4 ring-amber-400 border-amber-500 shadow-md scale-[1.01] bg-amber-100/90'
+                  : 'hover:border-amber-400',
+              )}
+            >
+              <div className="flex items-center justify-between text-xs sm:text-sm font-extrabold text-amber-800">
+                <span className="flex items-center gap-1.5">
+                  <span className="size-2.5 rounded-full bg-amber-500 animate-pulse" />
+                  <AsmoFormula text="🟡 Trục tiếp tuyến $\cot(\alpha) = \frac{\cos}{\sin}$:" />
                 </span>
-                <div className="space-y-1 text-slate-700">
-                  <div>
-                    <strong>"Sin đứng, Cos nằm"</strong> (Sin đo trên trục đứng, Cos đo trên trục nằm ngang)
-                  </div>
-                  <div>
-                    <strong>Nhất cả (+,+), Nhì sin (-,+), Tam tan (-,-), Tứ cos (+,-)</strong>
-                  </div>
-                  <div className="text-amber-900 font-bold text-[11px] pt-0.5">
-                    <AsmoFormula text="👉 Góc $150^\circ \in \text{Góc II} \implies \cos(150^\circ) < 0$ và $\sin(150^\circ) > 0$." />
-                  </div>
+                <span className="px-2 py-0.5 rounded-lg bg-amber-200/80 font-mono text-xs font-black">
+                  Dấu: {cotVal !== null && cotVal < 0 ? 'Âm (−)' : cotVal !== null && cotVal > 0 ? 'Dương (+)' : '0'}
+                </span>
+              </div>
+              <div className="mt-2 flex flex-wrap items-baseline justify-between gap-2">
+                <div className="text-xl sm:text-2xl font-black text-amber-900 font-mono tracking-tight">
+                  {cotVal !== null ? (
+                    <AsmoFormula
+                      text={`$\\cot(${Math.round(normalizedDeg)}^\\circ) = ${matchedSpecial ? matchedSpecial.cotExact : cotVal.toFixed(4)}$`}
+                    />
+                  ) : (
+                    <span className="text-rose-600 font-bold text-lg">Không Xác Định</span>
+                  )}
                 </div>
+                <div className="text-xs sm:text-sm font-black text-amber-700 font-mono bg-white/80 px-2 py-0.5 rounded-lg border border-amber-200 shadow-2xs">
+                  {cotVal !== null ? `≈ ${cotVal.toFixed(3)}` : 'Góc 0°, 180°'}
+                </div>
+              </div>
+              <div className="text-[11px] sm:text-xs text-amber-700/90 mt-1.5 font-medium flex items-center justify-between">
+                <AsmoFormula text="Tỉ số giữa cạnh kề (cos) và cạnh đối (sin)" />
+                {normalizedDeg === 135 && (
+                  <span className="text-[11px] font-bold text-amber-900 font-mono bg-amber-200/60 px-1.5 py-0.2 rounded">
+                    cot(135°) = -1
+                  </span>
+                )}
               </div>
             </div>
           </div>
@@ -872,6 +888,18 @@ export function AsmoTrigLabVisualizer({
             </div>
           </div>
 
+          {/* ── COMPACT 1-LINE MEE CAT SECRET TIP CAPSULE RIBBON ── */}
+          <div className="rounded-xl bg-amber-50/90 border border-amber-200 px-3 py-1.5 text-xs text-amber-900 flex items-center justify-between gap-2 shadow-2xs flex-wrap">
+            <div className="flex items-center gap-1.5 font-medium">
+              <span className="text-sm">🐱</span>
+              <span className="font-extrabold text-amber-950">Bí kíp Mèo Mee:</span>
+              <AsmoFormula text="Cho $\sin(x)$ ➔ dùng ngay $\cos(2x) = 1 - 2\sin^2(x)$ (5 giây ra đáp số!)" />
+            </div>
+            <div className="text-[11px] font-mono font-bold text-amber-900 bg-white/80 px-2 py-0.5 rounded-lg border border-amber-200 shrink-0">
+              <AsmoFormula text="$\cos(2x) = 1 - 2\cdot(1/3)^2 = 7/9$" />
+            </div>
+          </div>
+
           {/* ── VALUE & FORMULA CARDS (SPACIOUS 2-COLUMN GRID) ── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {/* Card 1: 3 Double Angle Formulas */}
@@ -923,19 +951,6 @@ export function AsmoTrigLabVisualizer({
                 </div>
                 <div className="p-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-950 font-bold">
                   <AsmoFormula text="**B3 (Kết luận):** $\cos(2x) = \frac{7}{9} \approx 0.778 \Rightarrow \text{Chọn B}$." />
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3: MEE CAT SECRET TIP (Span 2 cols) */}
-            <div className="md:col-span-2 rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-200 p-4 shadow-sm flex items-start gap-3">
-              <div className="text-2xl shrink-0">🐱</div>
-              <div className="text-xs sm:text-sm text-slate-800 leading-relaxed space-y-1">
-                <span className="font-extrabold text-amber-950 block">
-                  Bí kíp Mèo Mee làm nhanh bài trắc nghiệm nhân đôi:
-                </span>
-                <div className="text-slate-700">
-                  <AsmoFormula text="Không cần mất công tính $\cos(x) = \sqrt{1 - \sin^2 x} = \frac{2\sqrt{2}}{3}$ rồi mới nhân đôi! Hãy chọn ngay công thức **$1 - 2\sin^2(x)$** khi đề bài cho $\sin(x)$, hoặc **$2\cos^2(x) - 1$** khi đề bài cho $\cos(x)$ để ra đáp án chỉ trong 5 giây!" />
                 </div>
               </div>
             </div>
@@ -1079,6 +1094,18 @@ export function AsmoTrigLabVisualizer({
             </div>
           </div>
 
+          {/* ── COMPACT 1-LINE MEE CAT SECRET TIP CAPSULE RIBBON ── */}
+          <div className="rounded-xl bg-amber-50/90 border border-amber-200 px-3 py-1.5 text-xs text-amber-900 flex items-center justify-between gap-2 shadow-2xs flex-wrap">
+            <div className="flex items-center gap-1.5 font-medium">
+              <span className="text-sm">🐱</span>
+              <span className="font-extrabold text-amber-950">Bí kíp Mèo Mee:</span>
+              <AsmoFormula text="Cặp song sinh Olympic: $\tan(x) + \cot(x) = \frac{2}{\sin(2x)}$ và $\cot(x) - \tan(x) = 2\cot(2x)$" />
+            </div>
+            <div className="text-[11px] font-mono font-bold text-amber-900 bg-white/80 px-2 py-0.5 rounded-lg border border-amber-200 shrink-0">
+              <AsmoFormula text="$\sin(4x) = 1/2 \Rightarrow x = \pi/24$" />
+            </div>
+          </div>
+
           {/* ── VALUE & TRANSFORMATION CARDS (SPACIOUS 2-COLUMN GRID) ── */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
             {/* Card 1: LHS Transformation */}
@@ -1120,19 +1147,6 @@ export function AsmoTrigLabVisualizer({
                 </div>
                 <div className="p-1.5 rounded bg-emerald-50 text-emerald-950 font-bold border border-emerald-200">
                   <AsmoFormula text="• $\sin(4x) = \frac{2}{4} = \frac{1}{2} \Rightarrow 4x = \frac{\pi}{6} \Rightarrow x = \frac{\pi}{24} \Rightarrow \text{Chọn B}$" />
-                </div>
-              </div>
-            </div>
-
-            {/* Card 3: MEE CAT TIP (Span 2 cols) */}
-            <div className="md:col-span-2 rounded-2xl bg-gradient-to-r from-amber-50 via-orange-50 to-amber-50 border-2 border-amber-200 p-4 shadow-sm flex items-start gap-3">
-              <div className="text-2xl shrink-0">🐱</div>
-              <div className="text-xs sm:text-sm text-slate-800 leading-relaxed space-y-1">
-                <span className="font-extrabold text-amber-950 block">
-                  Bí kíp Mèo Mee Olympic:
-                </span>
-                <div className="text-slate-700">
-                  <AsmoFormula text="Cặp song sinh biến đổi vàng Olympic: **$\\tan(x) + \\cot(x) = \\frac{2}{\\sin(2x)}$** và **$\\cot(x) - \\tan(x) = 2\\cot(2x)$**! Khi gặp biểu thức chứa $\\tan$ và $\\cot$, hãy gom về $\\sin(2x)$ hoặc $\\cot(2x)$ để biến đổi nhân đôi liên tiếp nhé!" />
                 </div>
               </div>
             </div>

@@ -1074,7 +1074,7 @@ export function AsmoLearningJourneyPage() {
               })}
             </div>
 
-            {/* Mèo Mee Live Feedback Coach */}
+            {/* Mèo Mee Live Feedback Coach & Secret Tips */}
             <AsmoMeeTutor
               pose={!isAnswered ? 'guide' : isCorrect ? 'celebrate' : 'support'}
               speech={
@@ -1085,6 +1085,7 @@ export function AsmoLearningJourneyPage() {
                   : 'Chưa chính xác rồi! Con hãy xem lại bước 2 và bước 3 trong phần phân tích để nắm rõ nhé!'
               }
               hint={currentProblem.meeHint}
+              secretTip={currentLevelData.meeAdvice}
               compact
             />
 

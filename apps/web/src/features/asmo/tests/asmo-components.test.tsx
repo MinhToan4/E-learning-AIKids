@@ -50,17 +50,22 @@ describe('ASMO UI Components', () => {
     expect(markup).toContain('Kết quả = 3')
   })
 
-  it('renders AsmoMeeTutor with character, pose and speech', () => {
+  it('renders AsmoMeeTutor with character, pose, speech, KaTeX hint, and secretTip', () => {
     const markup = renderToStaticMarkup(
       createElement(AsmoMeeTutor, {
         pose: 'celebrate',
         speech: 'Chúc mừng con đã giải đúng!',
-        hint: 'Quan sát các khối tầng 1',
+        hint: 'Góc $150^\\circ$ ở góc phần tư II nên $\\sin(150^\\circ) = \\frac{1}{2}$',
+        secretTip: '"Sin đứng, Cos nằm" · "Nhất cả (+,+), Nhì sin (-,+)"',
       }),
     )
     expect(markup).toContain('Mèo Mee')
     expect(markup).toContain('Chúc mừng con đã giải đúng!')
     expect(markup).toContain('Lời Khuyên Từ Trợ Giảng AI')
+    expect(markup).toContain('Bí kíp Mèo Mee')
+    expect(markup).toContain('Sin đứng, Cos nằm')
+    // Hint button is rendered
+    expect(markup).toContain('Mee ơi, gợi ý cho con nhé!')
   })
 
   it('renders AsmoExamTimer with formatted time and progress bar', () => {
@@ -79,10 +84,17 @@ describe('ASMO UI Components', () => {
     expect(markup).toContain('Live Interactive Lab')
     expect(markup).toContain('Đường Tròn Đơn Vị')
 
+    // Compact 1-line ribbon
+    expect(markup).toContain('Bí kíp Mèo Mee')
+    expect(markup).toContain('Sin đứng, Cos nằm')
+
     // SVG ViewBox 0 0 380 340 for full column unit circle
     expect(markup).toContain('viewBox="0 0 380 340"')
 
-    // KaTeX Formulas & Pythagoras
+    // All 4 distinct math cards for sin, cos, tan, cot + Pythagoras
+    expect(markup).toContain('Trục đứng')
+    expect(markup).toContain('Trục ngang')
+    expect(markup).toContain('Trục tiếp tuyến')
     expect(markup).toContain('katex')
     expect(markup).toContain('Hằng đẳng thức Pythagoras')
 
@@ -92,18 +104,22 @@ describe('ASMO UI Components', () => {
     expect(angle30?.tanExact).toBe('\\frac{\\sqrt{3}}{3}')
     expect(angle30?.cotExact).toBe('\\sqrt{3}')
 
-    // Level 2 renders double angle formula model
+    // Level 2 renders double angle formula model with compact ribbon
     const markupL2 = renderToStaticMarkup(
       createElement(AsmoTrigLabVisualizer, { level: 2, demoSinValue: 1 / 3 }),
     )
     expect(markupL2).toContain('Công Thức Lớp 11')
     expect(markupL2).toContain('Mô Hình Góc Đôi')
+    expect(markupL2).toContain('Bí kíp Mèo Mee')
+    expect(markupL2).toContain('Cho')
 
-    // Level 3 renders Olympic equation model
+    // Level 3 renders Olympic equation model with compact ribbon
     const markupL3 = renderToStaticMarkup(
       createElement(AsmoTrigLabVisualizer, { level: 3 }),
     )
     expect(markupL3).toContain('Olympic Chuyên Sâu')
     expect(markupL3).toContain('Biến Đổi Vế Trái')
+    expect(markupL3).toContain('Bí kíp Mèo Mee')
+    expect(markupL3).toContain('Cặp song sinh Olympic')
   })
 })

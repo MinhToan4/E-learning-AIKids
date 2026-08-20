@@ -1,13 +1,15 @@
 import { useState } from 'react'
-import { Sparkles, Lightbulb, MessageCircle } from 'lucide-react'
+import { Sparkles, Lightbulb, MessageCircle, Zap } from 'lucide-react'
 import { AikidCatCharacter, type AikidCatPose } from '@/shared/components/ui/AikidCatCharacter'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
+import { AsmoFormula } from './AsmoFormula'
 
 type Props = {
   pose?: AikidCatPose
   speech: string
   hint?: string
+  secretTip?: string
   onAskHint?: () => void
   showHintButton?: boolean
   className?: string
@@ -18,6 +20,7 @@ export function AsmoMeeTutor({
   pose = 'guide',
   speech,
   hint,
+  secretTip,
   onAskHint,
   showHintButton = true,
   className,
@@ -52,7 +55,7 @@ export function AsmoMeeTutor({
       </div>
 
       {/* Speech Bubble */}
-      <div className="flex-1 min-w-0">
+      <div className="flex-1 min-w-0 space-y-2">
         <div className="flex items-center gap-2 mb-1">
           <MessageCircle className="size-3.5 text-brand-600" />
           <span className="text-xs font-bold uppercase tracking-wider text-brand-700">
@@ -60,20 +63,33 @@ export function AsmoMeeTutor({
           </span>
         </div>
 
-        <p className="text-sm sm:text-base font-medium text-slate-800 leading-relaxed">
-          {speech}
-        </p>
+        <div className="text-sm sm:text-base font-medium text-slate-800 leading-relaxed">
+          <AsmoFormula text={speech} />
+        </div>
+
+        {/* Optional Secret Tip */}
+        {secretTip && (
+          <div className="rounded-2xl border border-amber-200 bg-gradient-to-r from-amber-50/90 via-orange-50/80 to-amber-50/90 p-2.5 sm:p-3 text-xs text-amber-950 leading-relaxed shadow-2xs">
+            <div className="flex items-center gap-1.5 font-extrabold text-amber-900 mb-1">
+              <Zap className="size-3.5 text-amber-600 fill-amber-500" />
+              <span>Bí kíp Mèo Mee:</span>
+            </div>
+            <div className="text-slate-800 font-medium">
+              <AsmoFormula text={secretTip} />
+            </div>
+          </div>
+        )}
 
         {/* Revealed Hint or Hint Button */}
         {hint && (
-          <div className="mt-3">
+          <div className="mt-2">
             {hintRevealed ? (
               <div className="rounded-2xl border border-sun-300 bg-sun-50/90 p-3 text-xs sm:text-sm text-amber-900 leading-relaxed animate-in fade-in slide-in-from-top-1 duration-200 shadow-xs">
                 <div className="flex items-center gap-1.5 font-bold text-amber-800 mb-1">
                   <Lightbulb className="size-4 text-amber-600" />
                   <span>Manh mối tư duy:</span>
                 </div>
-                {hint}
+                <AsmoFormula text={hint} />
               </div>
             ) : showHintButton ? (
               <Button

@@ -2186,7 +2186,7 @@ export const ASMO_JOURNEY_TOPICS: AsmoJourneyTopic[] = [
           title: 'Bước 3: Tính toán & Kết luận',
           description: '$$P = \\frac{1}{2} + \\left(-\\frac{1}{2}\\right) - (-1) = 1$$\nChọn đáp án **B**.',
         },
-        meeAdvice: 'Thần chú ghi nhớ dấu lượng giác 4 góc phần tư: "Nhất cả, Nhì sin, Tam tan, Tứ cos"!',
+        meeAdvice: '"Sin đứng, Cos nằm" · Thần chú 4 góc phần tư: "Nhất cả (+,+), Nhì sin (-,+), Tam tan (-,-), Tứ cos (+,-)"!',
       },
       2: {
         level: 2,
