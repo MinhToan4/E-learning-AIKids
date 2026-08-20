@@ -107,47 +107,50 @@ describe('ASMO Curriculum LMS Dataset & Logic', () => {
   })
 })
 
-describe('ASMO 5 Floating Islands Thematic Specs & Flat Clay Assets', () => {
-  it('defines unique thematic metadata and Flat Clay images for all 5 islands', () => {
+describe('ASMO 5 Island Regions Thematic Specs & Authentic Assets', () => {
+  it('defines unique metadata, background and world scene for all 5 regions', () => {
     const islandKeys = ['stage-1', 'stage-2', 'stage-3', 'stage-4', 'stage-5']
     islandKeys.forEach((key) => {
       const theme = ASMO_ISLAND_THEMES[key]
       expect(theme).toBeDefined()
-      expect(theme.islandName).toBeTruthy()
+      expect(theme.name).toBeTruthy()
+      expect(theme.shortTitle).toBeTruthy()
       expect(theme.englishName).toBeTruthy()
       expect(theme.tagline).toBeTruthy()
       expect(theme.badgeName).toBeTruthy()
-      expect(theme.image).toContain('/assets/asmo-islands/')
+      expect(theme.background).toBeTruthy()
+      expect(theme.scene).toBeTruthy()
+      expect(theme.ribbon).toBeTruthy()
+      expect(theme.pose).toBeTruthy()
       expect(theme.chest.name).toBeTruthy()
       expect(theme.chest.bonusXp).toBeGreaterThan(0)
-      expect(theme.islandDecorIcons.length).toBeGreaterThanOrEqual(5)
       expect(theme.meeQuotes.length).toBeGreaterThanOrEqual(3)
     })
 
-    // Verify 5 distinct island names and flat clay images
-    expect(ASMO_ISLAND_THEMES['stage-1'].islandName).toContain('Đảo Táo Đỏ')
-    expect(ASMO_ISLAND_THEMES['stage-1'].image).toBe('/assets/asmo-islands/island_apple_forest.jpg')
+    // Verify 5 distinct region names and titles
+    expect(ASMO_ISLAND_THEMES['stage-1'].name).toContain('VÙNG 1: L1')
+    expect(ASMO_ISLAND_THEMES['stage-1'].shortTitle).toContain('Phép Cộng & Trừ')
 
-    expect(ASMO_ISLAND_THEMES['stage-2'].islandName).toContain('Vương Quốc Bánh Ngọt')
-    expect(ASMO_ISLAND_THEMES['stage-2'].image).toBe('/assets/asmo-islands/island_sweet_bakery.jpg')
+    expect(ASMO_ISLAND_THEMES['stage-2'].name).toContain('VÙNG 2: L2')
+    expect(ASMO_ISLAND_THEMES['stage-2'].shortTitle).toContain('Phép Nhân & Chia')
 
-    expect(ASMO_ISLAND_THEMES['stage-3'].islandName).toContain('Quần Đảo Phân Số Pizza')
-    expect(ASMO_ISLAND_THEMES['stage-3'].image).toBe('/assets/asmo-islands/island_pizza_fractions.jpg')
+    expect(ASMO_ISLAND_THEMES['stage-3'].name).toContain('VÙNG 3: L3')
+    expect(ASMO_ISLAND_THEMES['stage-3'].shortTitle).toContain('Phân Số Pizza')
 
-    expect(ASMO_ISLAND_THEMES['stage-4'].islandName).toContain('Cao Nguyên Đồng Hồ')
-    expect(ASMO_ISLAND_THEMES['stage-4'].image).toBe('/assets/asmo-islands/island_clock_sky.jpg')
+    expect(ASMO_ISLAND_THEMES['stage-4'].name).toContain('VÙNG 4: L4')
+    expect(ASMO_ISLAND_THEMES['stage-4'].shortTitle).toContain('Thời Gian Đồng Hồ')
 
-    expect(ASMO_ISLAND_THEMES['stage-5'].islandName).toContain('Thành Phố Pha Lê 3D')
-    expect(ASMO_ISLAND_THEMES['stage-5'].image).toBe('/assets/asmo-islands/island_crystal_olympic.jpg')
+    expect(ASMO_ISLAND_THEMES['stage-5'].name).toContain('VÙNG 5: L5')
+    expect(ASMO_ISLAND_THEMES['stage-5'].shortTitle).toContain('Không Gian 3D')
   })
 
-  it('exports valid Flat Clay Mee Mascot Guide asset', () => {
-    expect(MEE_FLAT_CLAY_MASCOT).toBe('/assets/asmo-islands/mee_flat_clay_guide.jpg')
+  it('exports valid official AI Kids mascot image reference', () => {
+    expect(MEE_FLAT_CLAY_MASCOT).toBe('/assets/aikid-ui/mascot-original/course-wave.webp')
   })
 })
 
-describe('ASMO Floating Islands & LMS UI Components', () => {
-  it('renders AsmoIslandWorldMap detailed trail view with Flat Clay Mèo Mee companion and S-path', () => {
+describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World Map)', () => {
+  it('renders AsmoIslandWorldMap detailed trail view with Scene Hero, Ribbon, Winding Trail, and Mèo Mee Companion', () => {
     const progress = getLmsProgress()
     const markup = renderToStaticMarkup(
       createElement(
@@ -162,27 +165,68 @@ describe('ASMO Floating Islands & LMS UI Components', () => {
       ),
     )
 
-    // Check Island 1 Header & Flat Clay Scenery Image
-    expect(markup).toContain('Đảo Táo Đỏ')
-    expect(markup).toContain('Rừng Phép Cộng Trừ')
-    expect(markup).toContain('Apple Forest Island')
-    expect(markup).toContain('/assets/asmo-islands/island_apple_forest.jpg')
+    // 1. Check Header Cảnh Quan (Scene Hero)
+    expect(markup).toContain('course-map-hero')
+    expect(markup).toContain('course-map-heading')
+    expect(markup).toContain('course-map-scene')
+    expect(markup).toContain('course-map-scene-art')
+    expect(markup).toContain('course-map-scene-cat')
+    expect(markup).toContain('aikid-cat-character')
+    expect(markup).toContain('VÙNG 1: L1 · Thế Giới Phép Cộng &amp; Phép Trừ')
 
-    // Check Winding Path elements
-    expect(markup).toContain('pathGradient')
-    expect(markup).toContain('🐾')
+    // 2. Check Thẻ Ruy Băng Tiến Độ (Course Map Ribbon)
+    expect(markup).toContain('course-map-ribbon')
+    expect(markup).toContain('course-map-ribbon-main')
+    expect(markup).toContain('course-map-next-ticket')
+    expect(markup).toContain('cute-progress')
+    expect(markup).toContain('course-map-stats')
+    expect(markup).toContain('world-station-path')
 
-    // Check Flat Clay Mèo Mee companion presence & avatar
-    expect(markup).toContain('Mèo Mee Cổ Vũ')
-    expect(markup).toContain('Cùng Mee chinh phục bài này nhé bé ơi!')
-    expect(markup).toContain('/assets/asmo-islands/mee_flat_clay_guide.jpg')
+    // 3. Check Cung Đường Mòn Uốn Lượn (Course Station Map)
+    expect(markup).toContain('course-station-map')
+    expect(markup).toContain('course-station-canvas')
+    expect(markup).toContain('course-game-path-road')
+    expect(markup).toContain('course-game-path-dashes')
+    expect(markup).toContain('course-game-stations')
+    expect(markup).toContain('quest-node')
+    expect(markup).toContain('quest-node-caption')
 
-    // Check lesson nodes
-    expect(markup).toContain('Gộp Táo')
-    expect(markup).toContain('Bắt Đầu')
+    // 4. Check Mèo Mee companion standing at current station
+    expect(markup).toContain('Cùng Mee chinh phục Trạm 1 nhé! 🐾')
 
-    // Check final treasure chest
+    // 5. Check Treasure Chest at end of journey
     expect(markup).toContain('Rương Táo Vàng Phép Thuật')
+  })
+
+  it('renders AsmoIslandWorldMap 5-region overview when viewMode is world', () => {
+    const progress = getLmsProgress()
+    const markup = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(AsmoIslandWorldMap, {
+          selectedStageId: 'stage-1',
+          onSelectStage: () => {},
+          progress,
+          onOpenLesson: () => {},
+          viewMode: 'world',
+        }),
+      ),
+    )
+
+    // Check World Overview structure
+    expect(markup).toContain('world-region-card')
+    expect(markup).toContain('world-region-scene')
+    expect(markup).toContain('world-region-art')
+    expect(markup).toContain('world-region-scene-cat')
+    expect(markup).toContain('world-region-ribbon')
+    expect(markup).toContain('world-region-road')
+    expect(markup).toContain('5 Vùng Đảo Toán Học Diệu Kỳ')
+    expect(markup).toContain('VÙNG 1: L1')
+    expect(markup).toContain('VÙNG 2: L2')
+    expect(markup).toContain('VÙNG 3: L3')
+    expect(markup).toContain('VÙNG 4: L4')
+    expect(markup).toContain('VÙNG 5: L5')
   })
 
   it('renders AsmoCurriculumRoadmapPage with 5 Floating Islands Map and Mee Guide avatar', () => {
@@ -196,9 +240,9 @@ describe('ASMO Floating Islands & LMS UI Components', () => {
 
     expect(markup).toContain('Chinh Phục 5 Chặng Toán Học Olympic Cùng Mèo Mee')
     expect(markup).toContain('5 Vùng Đảo Thế Giới')
-    expect(markup).toContain('Đảo Táo Đỏ')
-    expect(markup).toContain('Mèo Mee Cổ Vũ')
-    expect(markup).toContain('/assets/asmo-islands/mee_flat_clay_guide.jpg')
+    expect(markup).toContain('VÙNG 1: L1')
+    expect(markup).toContain('course-map-hero')
+    expect(markup).toContain('course-station-map')
   })
 
   it('renders AsmoInteractiveLessonModal with 4 pedagogical steps', () => {
