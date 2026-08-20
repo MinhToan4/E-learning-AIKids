@@ -5,13 +5,27 @@ import { AsmoKidsArithmeticVisualizer } from './AsmoKidsArithmeticVisualizer'
 import { Sparkles, Sliders, RefreshCw, Compass, Layers, Calculator, Box } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 
-type Props = {
+export type AsmoMathVisualizerProps = {
   topicId: string
   level: 1 | 2 | 3
   className?: string
+  externalAngle?: number
+  externalTab?: 'circle' | 'wave' | 'formula'
+  highlightTarget?: 'sin' | 'cos' | 'tan' | 'cot' | 'pythagoras' | 'double' | null
+  onAngleChange?: (deg: number) => void
+  demoSinValue?: number
 }
 
-export function AsmoMathVisualizer({ topicId, level, className }: Props) {
+export function AsmoMathVisualizer({
+  topicId,
+  level,
+  className,
+  externalAngle,
+  externalTab,
+  highlightTarget,
+  onAngleChange,
+  demoSinValue,
+}: AsmoMathVisualizerProps) {
   const [sliderVal, setSliderVal] = useState(level === 1 ? 30 : level === 2 ? 45 : 60)
   const [activeTab, setActiveTab] = useState<'diagram' | 'formula'>('diagram')
   const [pythSideA, setPythSideA] = useState<number>(level === 1 ? 6 : level === 2 ? 3 : 9)
@@ -28,9 +42,20 @@ export function AsmoMathVisualizer({ topicId, level, className }: Props) {
     return <AsmoKidsArithmeticVisualizer topicId={topicId} level={level} className={className} />
   }
 
-  // 2. Trigonometry -> Render AsmoTrigLabVisualizer
+  // 2. Trigonometry -> Render AsmoTrigLabVisualizer with interactive lab props
   if (topicId === 'trigonometry') {
-    return <AsmoTrigLabVisualizer initialAngle={level === 1 ? 30 : level === 2 ? 45 : 60} className={className} />
+    return (
+      <AsmoTrigLabVisualizer
+        level={level}
+        initialAngle={level === 1 ? 150 : level === 2 ? 30 : 7.5}
+        externalAngle={externalAngle}
+        externalTab={externalTab}
+        highlightTarget={highlightTarget}
+        onAngleChange={onAngleChange}
+        demoSinValue={demoSinValue}
+        className={className}
+      />
+    )
   }
 
   const pythC = Math.sqrt(pythSideA * pythSideA + pythSideB * pythSideB)

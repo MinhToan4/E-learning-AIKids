@@ -70,19 +70,17 @@ describe('ASMO UI Components', () => {
     expect(markup).toContain('45:00')
   })
 
-  it('renders AsmoTrigLabVisualizer with 2-tier header, 3 tabs, and KaTeX square roots for 30 deg', () => {
+  it('renders AsmoTrigLabVisualizer with single-column layout, level-dedicated models, and KaTeX special angles', () => {
     const markup = renderToStaticMarkup(
       createElement(AsmoTrigLabVisualizer, { initialAngle: 30 }),
     )
-    // Header & Tabs
+    // Header & Badges
     expect(markup).toContain('Phòng Thí Nghiệm Lượng Giác ASMO')
     expect(markup).toContain('Live Interactive Lab')
     expect(markup).toContain('Đường Tròn Đơn Vị')
-    expect(markup).toContain('Sóng Lượng Giác')
-    expect(markup).toContain('Công Thức Lớp 11')
 
-    // SVG ViewBox 0 0 340 340
-    expect(markup).toContain('viewBox="0 0 340 340"')
+    // SVG ViewBox 0 0 380 340 for full column unit circle
+    expect(markup).toContain('viewBox="0 0 380 340"')
 
     // KaTeX Formulas & Pythagoras
     expect(markup).toContain('katex')
@@ -93,5 +91,19 @@ describe('ASMO UI Components', () => {
     expect(angle30?.cosExact).toBe('\\frac{\\sqrt{3}}{2}')
     expect(angle30?.tanExact).toBe('\\frac{\\sqrt{3}}{3}')
     expect(angle30?.cotExact).toBe('\\sqrt{3}')
+
+    // Level 2 renders double angle formula model
+    const markupL2 = renderToStaticMarkup(
+      createElement(AsmoTrigLabVisualizer, { level: 2, demoSinValue: 1 / 3 }),
+    )
+    expect(markupL2).toContain('Công Thức Lớp 11')
+    expect(markupL2).toContain('Mô Hình Góc Đôi')
+
+    // Level 3 renders Olympic equation model
+    const markupL3 = renderToStaticMarkup(
+      createElement(AsmoTrigLabVisualizer, { level: 3 }),
+    )
+    expect(markupL3).toContain('Olympic Chuyên Sâu')
+    expect(markupL3).toContain('Biến Đổi Vế Trái')
   })
 })

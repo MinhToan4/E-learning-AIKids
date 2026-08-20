@@ -174,6 +174,13 @@ export function AsmoLearningJourneyPage() {
   const [userScore, setUserScore] = useState(0)
   const [completedLevels, setCompletedLevels] = useState<Record<string, boolean>>({})
 
+  // 4. Lab interactive solver control state (Trigonometry & Math Visualizers)
+  const [labAngle, setLabAngle] = useState<number | undefined>(undefined)
+  const [labTab, setLabTab] = useState<'circle' | 'wave' | 'formula' | undefined>(undefined)
+  const [labHighlight, setLabHighlight] = useState<'sin' | 'cos' | 'tan' | 'cot' | 'pythagoras' | 'double' | null>(null)
+  const [labDemoSin, setLabDemoSin] = useState<number | undefined>(undefined)
+  const [activeLabAction, setActiveLabAction] = useState<string | null>(null)
+
   // Find active topic
   const currentTopic = useMemo(() => {
     return ASMO_JOURNEY_TOPICS.find((t) => t.id === currentTopicId) || ASMO_JOURNEY_TOPICS[0]
@@ -182,6 +189,37 @@ export function AsmoLearningJourneyPage() {
   // Current level problem data
   const currentLevelData = currentTopic.levels[currentLevel]
   const currentProblem = currentLevelData.problem
+
+  // Synchronize interactive lab defaults when topic or level changes
+  useEffect(() => {
+    if (currentTopic.id === 'trigonometry') {
+      if (currentLevel === 1) {
+        setLabAngle(150)
+        setLabTab('circle')
+        setLabHighlight('sin')
+        setLabDemoSin(undefined)
+        setActiveLabAction('sin150')
+      } else if (currentLevel === 2) {
+        setLabAngle(30)
+        setLabTab('formula')
+        setLabHighlight('double')
+        setLabDemoSin(1 / 3)
+        setActiveLabAction('double-sin-third')
+      } else if (currentLevel === 3) {
+        setLabAngle(7.5)
+        setLabTab('circle')
+        setLabHighlight('tan')
+        setLabDemoSin(undefined)
+        setActiveLabAction('olympic-7.5')
+      }
+    } else {
+      setLabAngle(undefined)
+      setLabTab(undefined)
+      setLabHighlight(null)
+      setLabDemoSin(undefined)
+      setActiveLabAction(null)
+    }
+  }, [currentTopic.id, currentLevel])
 
   // Update current topic when route params change
   useEffect(() => {
@@ -582,6 +620,11 @@ export function AsmoLearningJourneyPage() {
               key={`${currentTopic.id}-${currentLevel}`}
               topicId={currentTopic.id}
               level={currentLevel}
+              externalAngle={labAngle}
+              externalTab={labTab}
+              highlightTarget={labHighlight}
+              demoSinValue={labDemoSin}
+              onAngleChange={(deg) => setLabAngle(deg)}
             />
           )}
 
@@ -732,6 +775,247 @@ export function AsmoLearningJourneyPage() {
                 <AsmoFormula text={currentProblem.text} />
               </div>
             </div>
+
+            {/* 🔍 Interactive Lab Solver Helper (Phòng Thí Nghiệm Trực Tuyến Hỗ Trợ Giải Nhanh) */}
+            {currentTopic.id === 'trigonometry' && (
+              <div className="rounded-2xl border-2 border-indigo-200 bg-gradient-to-br from-indigo-50/90 via-sky-50/70 to-rose-50/60 p-3.5 sm:p-4 shadow-sm space-y-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <span className="flex size-7 items-center justify-center rounded-xl bg-indigo-600 text-white font-black text-xs shadow-xs">
+                      🔍
+                    </span>
+                    <div>
+                      <h4 className="text-xs sm:text-sm font-black text-slate-900 tracking-tight">
+                        Dùng Phòng Thí Nghiệm Giải Nhanh Bài Này
+                      </h4>
+                      <p className="text-[11px] text-indigo-700 font-semibold">
+                        Bấm nút bên dưới để kim quay và bảng công thức bên trái tự động sáng đèn!
+                      </p>
+                    </div>
+                  </div>
+                  <span className="inline-flex items-center gap-1 rounded-full bg-indigo-100 border border-indigo-300 px-2 py-0.5 text-[10px] font-black text-indigo-800">
+                    <Sparkles className="size-3 text-amber-500" />
+                    Lab Helper
+                  </span>
+                </div>
+
+                {/* Level 1: Special Angles & Quadrant Signs */}
+                {currentLevel === 1 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLabAngle(150)
+                          setLabTab('circle')
+                          setLabHighlight('sin')
+                          setActiveLabAction('sin150')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'sin150'
+                            ? 'bg-rose-500 text-white border-rose-600 shadow-md ring-2 ring-rose-300 scale-[1.02]'
+                            : 'bg-white hover:bg-rose-50 text-rose-800 border-rose-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🔴</span>
+                          <span>Soi sin(150°)</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'sin150' ? 'text-rose-100' : 'text-rose-600')}>
+                          = 1/2 = +0.500
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLabAngle(120)
+                          setLabTab('circle')
+                          setLabHighlight('cos')
+                          setActiveLabAction('cos120')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'cos120'
+                            ? 'bg-sky-500 text-white border-sky-600 shadow-md ring-2 ring-sky-300 scale-[1.02]'
+                            : 'bg-white hover:bg-sky-50 text-sky-800 border-sky-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🔵</span>
+                          <span>Soi cos(120°)</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'cos120' ? 'text-sky-100' : 'text-sky-600')}>
+                          = -1/2 (Góc II &lt; 0)
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLabAngle(135)
+                          setLabTab('circle')
+                          setLabHighlight('tan')
+                          setActiveLabAction('tan135')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'tan135'
+                            ? 'bg-purple-600 text-white border-purple-700 shadow-md ring-2 ring-purple-300 scale-[1.02]'
+                            : 'bg-white hover:bg-purple-50 text-purple-800 border-purple-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🟣</span>
+                          <span>Soi tan(135°)</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'tan135' ? 'text-purple-100' : 'text-purple-600')}>
+                          = -1 (sin/cos)
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Ghép kết quả trực quan từ phòng thí nghiệm:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$P = \frac{1}{2} + \left(-\frac{1}{2}\right) - (-1) = 1 \quad \text{và} \quad \cos(150^\circ) < 0 \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 2: Double Angle Formula */}
+                {currentLevel === 2 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLabTab('formula')
+                          setLabHighlight('double')
+                          setLabDemoSin(1 / 3)
+                          setActiveLabAction('double-sin-third')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'double-sin-third'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>📐</span>
+                          <span>Bật Công Thức Nhân Đôi &amp; Thử sin(x) = 1/3</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'double-sin-third' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          cos(2x) = 1 - 2sin²(x) = 7/9 ≈ 0.778
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLabAngle(19.47)
+                          setLabTab('circle')
+                          setLabHighlight('sin')
+                          setActiveLabAction('circle-sin-third')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'circle-sin-third'
+                            ? 'bg-amber-500 text-slate-950 border-amber-600 shadow-md ring-2 ring-amber-300 scale-[1.02]'
+                            : 'bg-white hover:bg-amber-50 text-amber-900 border-amber-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🎯</span>
+                          <span>Soi Góc x ≈ 19.5° Trên Đường Tròn</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'circle-sin-third' ? 'text-slate-950' : 'text-amber-700')}>
+                          sin(19.47°) ≈ 0.333 = 1/3
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Kết quả giải tức thì:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$\cos(2x) = 1 - 2\cdot\left(\frac{1}{3}\right)^2 = 1 - \frac{2}{9} = \frac{7}{9} \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* Level 3: Olympic Equation */}
+                {currentLevel === 3 && (
+                  <div className="space-y-2.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLabAngle(7.5)
+                          setLabTab('circle')
+                          setLabHighlight('tan')
+                          setActiveLabAction('olympic-7.5')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'olympic-7.5'
+                            ? 'bg-indigo-600 text-white border-indigo-700 shadow-md ring-2 ring-indigo-300 scale-[1.02]'
+                            : 'bg-white hover:bg-indigo-50 text-indigo-900 border-indigo-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🌊</span>
+                          <span>Soi Nghiệm x = π/24 (7.5°)</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'olympic-7.5' ? 'text-indigo-100' : 'text-indigo-700')}>
+                          x = 7.5° ∈ (0, π/4)
+                        </span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setLabAngle(30)
+                          setLabTab('circle')
+                          setLabHighlight('sin')
+                          setActiveLabAction('olympic-30')
+                        }}
+                        className={cn(
+                          'flex flex-col items-center justify-center p-2.5 rounded-xl border text-center transition-all cursor-pointer select-none',
+                          activeLabAction === 'olympic-30'
+                            ? 'bg-rose-500 text-white border-rose-600 shadow-md ring-2 ring-rose-300 scale-[1.02]'
+                            : 'bg-white hover:bg-rose-50 text-rose-800 border-rose-200 shadow-2xs',
+                        )}
+                      >
+                        <div className="flex items-center gap-1 text-xs font-black">
+                          <span>🔴</span>
+                          <span>Soi Góc 4x = π/6 (30°)</span>
+                        </div>
+                        <span className={cn('text-[11px] font-mono font-bold mt-0.5', activeLabAction === 'olympic-30' ? 'text-rose-100' : 'text-rose-600')}>
+                          sin(4x) = sin(30°) = 1/2
+                        </span>
+                      </button>
+                    </div>
+
+                    <div className="rounded-xl bg-white/95 border border-slate-200 p-2.5 text-center shadow-2xs">
+                      <div className="text-[10px] font-extrabold text-slate-500 uppercase tracking-wider mb-1">
+                        Biến đổi Olympic then chốt:
+                      </div>
+                      <div className="font-mono font-black text-slate-900 text-xs sm:text-sm">
+                        <AsmoFormula text="$\tan(x) + \cot(x) = \frac{2}{\sin(2x)} = 8\cos(2x) \Rightarrow \sin(4x) = \frac{1}{2} \Rightarrow x = \frac{\pi}{24} \Rightarrow \text{Chọn B}$" />
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
 
             {/* Options List */}
             <div className="space-y-2.5 pt-2">

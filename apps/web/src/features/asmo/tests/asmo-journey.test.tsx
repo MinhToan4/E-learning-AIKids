@@ -238,8 +238,6 @@ describe('ASMO 3D Learning Journey & Topics', () => {
     )
     expect(trigMarkup).toContain('Phòng Thí Nghiệm Lượng Giác ASMO')
     expect(trigMarkup).toContain('Đường Tròn Đơn Vị')
-    expect(trigMarkup).toContain('Sóng Lượng Giác')
-    expect(trigMarkup).toContain('Công Thức Lớp 11')
     expect(trigMarkup).toContain('Sin đứng, Cos nằm')
   })
 
@@ -341,4 +339,42 @@ describe('ASMO 3D Learning Journey & Topics', () => {
     expect(markup).toContain('🛠️ Sửa Nhanh')
     expect(markup).not.toContain('🛠️ Sửa Tự Động Câu Này')
   })
+
+  it('renders AsmoLearningJourneyPage with interactive trigonometry lab solver helper for Level 1', () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        { initialEntries: ['/asmo/journey/trigonometry'] },
+        createElement(
+          Routes,
+          null,
+          createElement(Route, {
+            path: '/asmo/journey/:topicId',
+            element: createElement(AsmoLearningJourneyPage),
+          }),
+        ),
+      ),
+    )
+
+    expect(markup).toContain('Dùng Phòng Thí Nghiệm Giải Nhanh Bài Này')
+    expect(markup).toContain('Soi sin(150°)')
+    expect(markup).toContain('Soi cos(120°)')
+    expect(markup).toContain('Soi tan(135°)')
+    expect(markup).toContain('Ghép kết quả trực quan từ phòng thí nghiệm')
+  })
+
+  it('renders AsmoTrigLabVisualizer with externalAngle, externalTab and highlighted targets', () => {
+    const markup = renderToStaticMarkup(
+      createElement(AsmoTrigLabVisualizer, {
+        externalAngle: 150,
+        externalTab: 'circle',
+        highlightTarget: 'sin',
+      }),
+    )
+
+    expect(markup).toContain('Phòng Thí Nghiệm Lượng Giác ASMO')
+    expect(markup).toContain('Góc Phần Tư II')
+    expect(markup).toContain('ring-rose-400')
+  })
 })
+
