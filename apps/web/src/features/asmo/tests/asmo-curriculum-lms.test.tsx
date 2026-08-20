@@ -287,17 +287,18 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
       ),
     )
 
-    // 1. Header & Badges
-    expect(markup).toContain('TRẠM 1:')
+    // 1. Compact Hero Header & Badges
+    expect(markup).toContain('Trạm 1:')
     expect(markup).toContain('Gộp Táo')
     expect(markup).toContain('Sản phẩm của trạm:')
     expect(markup).toContain('Sao của trạm')
+    expect(markup).toContain('+50 XP')
 
-    // 2. 4 Phase Pill Tabs
-    expect(markup).toContain('Khám phá Khái niệm')
-    expect(markup).toContain('Mẹo Mèo Mee &amp; Bí kíp')
-    expect(markup).toContain('Thực hành Thao tác')
-    expect(markup).toContain('Thử tài Olympic')
+    // 2. Compact 1-Row Stepper Tabs
+    expect(markup).toContain('1. 📖 Khám phá')
+    expect(markup).toContain('2. 💡 Mẹo Mee')
+    expect(markup).toContain('3. 🎮 Thực hành')
+    expect(markup).toContain('4. 🏆 Thử tài')
 
     // 3. Main Stage Visualizer (Apple drop)
     expect(markup).toContain('Trọng Tâm Kiến Thức Bài Học')
@@ -306,11 +307,12 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).toContain('quả táo tổng cộng')
     expect(markup).toContain('🌟 Ghi Nhớ Nhanh:')
 
-    // 4. Sidebar Assistant Mèo Mee
+    // 4. Streamlined Sidebar Assistant Mèo Mee (Checklist removed)
     expect(markup).toContain('Mee đang hỗ trợ: Con làm được! 🐾')
     expect(markup).toContain('💡 Gợi ý cho con')
-    expect(markup).toContain('Hành trình trạm')
-    expect(markup).toContain('🎯 Mục tiêu của con')
+    expect(markup).toContain('🎯 Mục tiêu bài học')
+    expect(markup).toContain('Phần thưởng trạm')
+    expect(markup).not.toContain('Hành trình trạm')
 
     // 5. Action Buttons
     expect(markup).toContain('🎓 Về bản đồ')
