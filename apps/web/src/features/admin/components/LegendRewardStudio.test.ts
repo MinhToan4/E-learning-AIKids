@@ -27,7 +27,7 @@ describe('Legend Reward Studio dimension rules', () => {
       width: 2540,
       height: 1300,
       formats: ['image/png', 'image/svg+xml'],
-      maxMb: 3,
+      maxMb: 4,
     })
   })
 
