@@ -111,8 +111,11 @@ export function AsmoQuestionCard({
     }
   }
 
+  const qExtra = question as { gradeTier?: string; tier?: string }
+  const isElementary = (question.grade !== undefined && question.grade <= 5) || qExtra.gradeTier === 'primary' || qExtra.tier === 'elementary'
   const isAnswered = currentSelected !== null && currentSelected !== undefined
   const isCorrect = isAnswered && currentSelected === question.correctAnswer
+  const shouldShowExplanation = showExplanation || (showSolutionImmediately && isAnswered)
   const steps = question.explanationSteps ?? []
   const hasSteps = steps.length > 0
 
@@ -197,7 +200,7 @@ export function AsmoQuestionCard({
           const isThisCorrect = opt.id === question.correctAnswer
 
           let optionStyle = 'border-slate-200 bg-slate-50/60 hover:bg-brand-50/50 hover:border-brand-300 text-slate-800'
-          if (showExplanation && isAnswered) {
+          if (shouldShowExplanation && isAnswered) {
             if (isThisCorrect) {
               optionStyle = 'border-mint-400 bg-mint-50/90 text-mint-900 font-bold ring-2 ring-mint-300'
             } else if (isThisSelected && !isThisCorrect) {
@@ -249,7 +252,7 @@ export function AsmoQuestionCard({
                 )}
               </div>
 
-              {showExplanation && isAnswered && (
+              {shouldShowExplanation && isAnswered && (
                 <div className="shrink-0">
                   {isThisCorrect ? (
                     <CheckCircle2 className="size-5 text-mint-600 animate-in zoom-in-50 duration-200" />
@@ -275,10 +278,16 @@ export function AsmoQuestionCard({
           }
           speech={
             !isAnswered
-              ? 'Con hãy quan sát kỹ đề bài hoặc mô hình 3D để tìm quy luật nhé!'
+              ? (isElementary
+                  ? '🐱 Mèo Mee: Con hãy quan sát kỹ các hình và con số dễ thương trên đề bài nhé!'
+                  : 'Con hãy quan sát kỹ đề bài hoặc mô hình 3D để tìm quy luật nhé!')
               : isCorrect
-                ? 'Tuyệt vời lắm! Con đã tư duy rất chính xác!'
-                : 'Chưa đúng rồi nhưng không sao cả! Đọc lời giải chi tiết của Mee để hiểu bản chất nhé!'
+                ? (isElementary
+                    ? '🎉 Hoan hô! Con tư duy siêu đỉnh, chính xác 100% rồi!'
+                    : 'Tuyệt vời lắm! Con đã tư duy rất chính xác!')
+                : (isElementary
+                    ? '🐱 Chưa đúng rồi nè! Cùng xem Mèo Mee hướng dẫn từng bước siêu dễ hiểu bên dưới nhé!'
+                    : 'Chưa đúng rồi nhưng không sao cả! Đọc lời giải chi tiết của Mee để hiểu bản chất nhé!')
           }
           hint={question.meeHint}
           compact
@@ -286,17 +295,21 @@ export function AsmoQuestionCard({
       )}
 
       {/* Detailed Solution Box & Interactive 3D Step Player */}
-      {showExplanation && isAnswered && (
+      {shouldShowExplanation && isAnswered && (
         <div className="flex flex-col gap-3 rounded-2xl border border-mint-200 bg-mint-50/70 p-4 animate-in fade-in slide-in-from-top-2 duration-300">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-1.5 font-bold text-mint-900 text-xs uppercase tracking-wider">
               <CheckCircle2 className="size-4 text-mint-600" />
-              <span>Phân Tích & Lời Giải Chi Tiết</span>
+              <span>
+                {isElementary
+                  ? '🎈 3 BƯỚC KHÁM PHÁ CÙNG MÈO MEE'
+                  : 'Phân Tích & Lời Giải Chi Tiết'}
+              </span>
             </div>
             {hasSteps && (
               <span className="inline-flex items-center gap-1 rounded-full bg-mint-200/70 px-2 py-0.5 text-[11px] font-bold text-mint-800">
                 <Sparkles className="size-3 text-mint-700" />
-                Mô phỏng 3D
+                {isElementary ? 'Mô hình trực quan' : 'Mô phỏng 3D'}
               </span>
             )}
           </div>

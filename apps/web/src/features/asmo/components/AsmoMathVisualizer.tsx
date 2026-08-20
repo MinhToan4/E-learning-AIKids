@@ -18,8 +18,14 @@ export function AsmoMathVisualizer({ topicId, level, className }: Props) {
   const [pythSideB, setPythSideB] = useState<number>(level === 1 ? 8 : level === 2 ? 4 : 12)
 
   // 1. Elementary Arithmetic -> Render AsmoKidsArithmeticVisualizer
-  if (topicId === 'elementary-arithmetic') {
-    return <AsmoKidsArithmeticVisualizer level={level} className={className} />
+  if (
+    topicId === 'elementary-arithmetic' ||
+    topicId === 'elem-addition' ||
+    topicId === 'elem-subtraction' ||
+    topicId === 'elem-multiplication' ||
+    topicId === 'elem-division'
+  ) {
+    return <AsmoKidsArithmeticVisualizer topicId={topicId} level={level} className={className} />
   }
 
   // 2. Trigonometry -> Render AsmoTrigLabVisualizer

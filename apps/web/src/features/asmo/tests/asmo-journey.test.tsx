@@ -4,6 +4,7 @@ import { MemoryRouter, Routes, Route } from 'react-router'
 import { describe, it, expect } from 'vitest'
 import { ASMO_JOURNEY_TOPICS } from '../data/asmo-journey-topics'
 import { AsmoLearningJourneyPage, ASMO_TOPIC_GROUPS } from '../pages/AsmoLearningJourneyPage'
+import { AsmoQuestionCard } from '../components/AsmoQuestionCard'
 import { AsmoMathVisualizer } from '../components/AsmoMathVisualizer'
 import { AsmoKidsArithmeticVisualizer } from '../components/AsmoKidsArithmeticVisualizer'
 import { AsmoTrigLabVisualizer } from '../components/AsmoTrigLabVisualizer'
@@ -12,19 +13,23 @@ import { ASMO_SAMPLE_EXAMS } from '../data/asmo-sample-exams'
 import { autoRepairExam } from '../lib/asmo-audit-engine'
 
 describe('ASMO 3D Learning Journey & Topics', () => {
-  it('defines exactly 16 core Olympic topics across 3 school tiers (Primary: 8, THCS: 4, THPT: 4)', () => {
-    expect(ASMO_JOURNEY_TOPICS.length).toBe(16)
+  it('defines comprehensive Olympic topics across 3 school tiers (Primary: 12, THCS: 4, THPT: 4)', () => {
+    expect(ASMO_JOURNEY_TOPICS.length).toBe(20)
 
     const primaryTopics = ASMO_JOURNEY_TOPICS.filter((t) => t.gradeTier === 'primary')
     const secondaryTopics = ASMO_JOURNEY_TOPICS.filter((t) => t.gradeTier === 'secondary')
     const highTopics = ASMO_JOURNEY_TOPICS.filter((t) => t.gradeTier === 'high')
 
-    expect(primaryTopics.length).toBe(8)
+    expect(primaryTopics.length).toBe(12)
     expect(secondaryTopics.length).toBe(4)
     expect(highTopics.length).toBe(4)
 
     const topicIds = ASMO_JOURNEY_TOPICS.map((t) => t.id)
-    // 8 Primary topics
+    // 12 Primary topics
+    expect(topicIds).toContain('elem-addition')
+    expect(topicIds).toContain('elem-subtraction')
+    expect(topicIds).toContain('elem-multiplication')
+    expect(topicIds).toContain('elem-division')
     expect(topicIds).toContain('cube-cluster')
     expect(topicIds).toContain('interactive-clock')
     expect(topicIds).toContain('shaded-fractions')
@@ -78,6 +83,20 @@ describe('ASMO 3D Learning Journey & Topics', () => {
     })
   })
 
+  it('validates child-friendly 3-step explanation format for all elementary primary topics', () => {
+    const primaryTopics = ASMO_JOURNEY_TOPICS.filter((t) => t.gradeTier === 'primary')
+    expect(primaryTopics.length).toBe(12)
+
+    primaryTopics.forEach((topic) => {
+      ;([1, 2, 3] as const).forEach((lvl) => {
+        const lvlData = topic.levels[lvl]
+        expect(lvlData.analysisStep.title).toContain('Đề bài cho gì nhỉ?')
+        expect(lvlData.methodStep.title).toContain('Mẹo của Mèo Mee')
+        expect(lvlData.calcStep.title).toContain('Cùng tính nào!')
+      })
+    })
+  })
+
   it('validates Elementary Arithmetic topic with 3 pedagogical levels and child-friendly explanations', () => {
     const arithTopic = ASMO_JOURNEY_TOPICS.find((t) => t.id === 'elementary-arithmetic')
     expect(arithTopic).toBeDefined()
@@ -110,33 +129,62 @@ describe('ASMO 3D Learning Journey & Topics', () => {
     expect(l3.problem.explanation).toContain('210')
   })
 
-  it('renders AsmoKidsArithmeticVisualizer across all 3 levels (Make-10, Column Addition, Gauss)', () => {
-    // Level 1: Make-10 balloons
+  it('renders AsmoKidsArithmeticVisualizer across all specialized elementary modes (Addition, Subtraction, Multiplication, Division, Make-10, Column, Gauss)', () => {
+    // 1. Addition mode
+    const addMarkup = renderToStaticMarkup(createElement(AsmoKidsArithmeticVisualizer, { mode: 'addition' }))
+    expect(addMarkup).toContain('Giỏ A:')
+    expect(addMarkup).toContain('Giỏ B:')
+    expect(addMarkup).toContain('Tổng số táo trong cả 2 giỏ')
+
+    // 2. Subtraction mode
+    const subMarkup = renderToStaticMarkup(createElement(AsmoKidsArithmeticVisualizer, { mode: 'subtraction' }))
+    expect(subMarkup).toContain('Phép trừ trực quan thời gian thực')
+    expect(subMarkup).toContain('Bơm Lại Bóng')
+
+    // 3. Multiplication mode
+    const mulMarkup = renderToStaticMarkup(createElement(AsmoKidsArithmeticVisualizer, { mode: 'multiplication' }))
+    expect(mulMarkup).toContain('Số hàng (Rows):')
+    expect(mulMarkup).toContain('Số cột (Cols):')
+    expect(mulMarkup).toContain('Bảng nhân trực quan')
+
+    // 4. Division mode
+    const divMarkup = renderToStaticMarkup(createElement(AsmoKidsArithmeticVisualizer, { mode: 'division' }))
+    expect(divMarkup).toContain('Tổng số kẹo')
+    expect(divMarkup).toContain('Số đĩa')
+    expect(divMarkup).toContain('Kết quả phép chia chia đều')
+
+    // 5. Level 1: Make-10 balloons
     const l1Markup = renderToStaticMarkup(createElement(AsmoKidsArithmeticVisualizer, { level: 1 }))
     expect(l1Markup).toContain('Bí kíp ghép cặp 10 siêu tốc')
     expect(l1Markup).toContain('1 + 3 + 5 + 7 + 9 = ?')
     expect(l1Markup).toContain('Cặp số (1 + 9)')
     expect(l1Markup).toContain('Cặp số (3 + 7)')
 
-    // Level 2: Column addition
+    // 6. Level 2: Column addition
     const l2Markup = renderToStaticMarkup(createElement(AsmoKidsArithmeticVisualizer, { level: 2 }))
     expect(l2Markup).toContain('Hàng Chục')
     expect(l2Markup).toContain('Hàng Đơn Vị')
     expect(l2Markup).toContain('Có nhớ 1')
 
-    // Level 3: Gauss rainbow sequence
+    // 7. Level 3: Gauss rainbow sequence
     const l3Markup = renderToStaticMarkup(createElement(AsmoKidsArithmeticVisualizer, { level: 3 }))
     expect(l3Markup).toContain('Bí mật của thần đồng Gauss')
     expect(l3Markup).toContain('Công thức Gauss tổng quát')
     expect(l3Markup).toContain('210')
   })
 
-  it('renders AsmoMathVisualizer for all advanced topics (Pythagoras, Polynomials, Polyhedrons, etc.)', () => {
+  it('renders AsmoMathVisualizer for all advanced topics (Pythagoras, Polynomials, Polyhedrons, etc.) and primary arithmetic', () => {
     // Elementary Arithmetic
     const elemMarkup = renderToStaticMarkup(
       createElement(AsmoMathVisualizer, { topicId: 'elementary-arithmetic', level: 1 }),
     )
     expect(elemMarkup).toContain('Phép Tính Vui Nhộn &amp; Trực Quan Sư Phạm Tiểu Học')
+
+    // Addition
+    const addMarkup = renderToStaticMarkup(
+      createElement(AsmoMathVisualizer, { topicId: 'elem-addition', level: 1 }),
+    )
+    expect(addMarkup).toContain('Cộng Táo')
 
     // Pythagoras & Geometry
     const pythMarkup = renderToStaticMarkup(
@@ -185,7 +233,7 @@ describe('ASMO 3D Learning Journey & Topics', () => {
     expect(numMarkup).toContain('Chu kỳ tận cùng 2ⁿ')
   })
 
-  it('renders AsmoLearningJourneyPage with category group tabs and 16 topics', () => {
+  it('renders AsmoLearningJourneyPage with elementary child-friendly 3-step solution tabs and category group tabs', () => {
     const markup = renderToStaticMarkup(
       createElement(
         MemoryRouter,
@@ -202,7 +250,7 @@ describe('ASMO 3D Learning Journey & Topics', () => {
     )
 
     expect(markup).toContain('Chặng Học Olympic 3D')
-    expect(markup).toContain('Khám Phá 16 Chuyên Đề Trọng Điểm ASMO')
+    expect(markup).toContain('Khám Phá Các Chuyên Đề Trọng Điểm ASMO')
     expect(markup).toContain('Phân Nhóm Chuyên Đề Theo Khối Học')
     expect(markup).toContain('Tất Cả')
     expect(markup).toContain('🎒 Tiểu Học')
@@ -210,6 +258,24 @@ describe('ASMO 3D Learning Journey & Topics', () => {
     expect(markup).toContain('🎓 THPT')
     expect(markup).toContain('Lượng Giác &amp; Hình Học')
     expect(markup).toContain('Đại Số &amp; Số Học')
+    // Child-friendly 3-step section for elementary
+    expect(markup).toContain('🎈 3 BƯỚC KHÁM PHÁ CÙNG MÈO MEE')
+    expect(markup).toContain('🔍 1. Đề bài cho gì nhỉ?')
+    expect(markup).toContain('💡 2. Mẹo của Mèo Mee')
+    expect(markup).toContain('🎉 3. Cùng tính nào!')
+  })
+
+  it('renders AsmoQuestionCard with child-friendly 3-step explanation for elementary grades (grade <= 5)', () => {
+    const elemQuestion = ASMO_JOURNEY_TOPICS[0].levels[1].problem
+    const markup = renderToStaticMarkup(
+      createElement(AsmoQuestionCard, {
+        question: elemQuestion,
+        selectedAnswer: 'B',
+        showSolutionImmediately: true,
+      }),
+    )
+
+    expect(markup).toContain('🎈 3 BƯỚC KHÁM PHÁ CÙNG MÈO MEE')
   })
 
   it('renders AsmoLearningJourneyPage with specific topic route param', () => {
@@ -228,7 +294,7 @@ describe('ASMO 3D Learning Journey & Topics', () => {
       ),
     )
 
-    expect(markup).toContain('8. Phép Tính Vui Nhộn &amp; Tính Nhẩm Siêu Tốc')
+    expect(markup).toContain('Phép Tính Vui Nhộn')
     expect(markup).toContain('Phép Tính Vui Nhộn &amp; Trực Quan Sư Phạm Tiểu Học')
     expect(markup).toContain('Bí Kíp Ghép Cặp 10 Tính Nhẩm Thần Tốc')
   })

@@ -52,18 +52,22 @@ export const ASMO_TOPIC_GROUPS: {
 }[] = [
   {
     id: 'all',
-    label: 'Tất Cả (16 Chuyên Đề)',
+    label: 'Tất Cả Chuyên Đề Olympic',
     shortLabel: 'Tất Cả',
     icon: '🌟',
     grades: 'Khối 1–12',
   },
   {
     id: 'primary-visual',
-    label: '🎒 Khối Tiểu Học (8 Chuyên Đề)',
+    label: '🎒 Khối Tiểu Học (Toán Trực Quan & 3D)',
     shortLabel: '🎒 Tiểu Học',
     icon: '🎒',
     grades: 'Khối 1–5',
     topicIds: [
+      'elem-addition',
+      'elem-subtraction',
+      'elem-multiplication',
+      'elem-division',
       'elementary-arithmetic',
       'cube-cluster',
       'interactive-clock',
@@ -76,7 +80,7 @@ export const ASMO_TOPIC_GROUPS: {
   },
   {
     id: 'secondary-stem',
-    label: '🏫 Khối THCS (4 Chuyên Đề)',
+    label: '🏫 Khối THCS (4 Chuyên Đề Trọng Điểm)',
     shortLabel: '🏫 THCS',
     icon: '🏫',
     grades: 'Khối 6–9',
@@ -89,7 +93,7 @@ export const ASMO_TOPIC_GROUPS: {
   },
   {
     id: 'high-olympic',
-    label: '🎓 Khối THPT (4 Chuyên Đề)',
+    label: '🎓 Khối THPT (4 Chuyên Đề Chuyên Sâu)',
     shortLabel: '🎓 THPT',
     icon: '🎓',
     grades: 'Khối 10–12',
@@ -114,7 +118,18 @@ export const ASMO_TOPIC_GROUPS: {
     shortLabel: 'Đại Số & Số Học',
     icon: '🧮',
     grades: 'Khối 1–12',
-    topicIds: ['elementary-arithmetic', 'algebra-polynomials', 'algebra-viete', 'exp-logarithm', 'number-theory-divisibility', 'balance-scale'],
+    topicIds: [
+      'elem-addition',
+      'elem-subtraction',
+      'elem-multiplication',
+      'elem-division',
+      'elementary-arithmetic',
+      'algebra-polynomials',
+      'algebra-viete',
+      'exp-logarithm',
+      'number-theory-divisibility',
+      'balance-scale',
+    ],
   },
   {
     id: '3d-spatial',
@@ -269,6 +284,7 @@ export function AsmoLearningJourneyPage() {
 
   const isAnswered = selectedOption !== null
   const isCorrect = isAnswered && selectedOption === currentProblem.correctAnswer
+  const isElementary = currentTopic.gradeTier === 'primary' || (currentTopic.targetGrades && currentTopic.targetGrades.some((g) => g <= 5))
 
   // Dynamic visual spec for 3D Viewer if applicable
   const templateConfig = currentTopic.threeTemplateKey ? ASMO_3D_TEMPLATES[currentTopic.threeTemplateKey] : null
@@ -313,7 +329,7 @@ export function AsmoLearningJourneyPage() {
           </div>
 
           <h1 className="font-display text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-            Khám Phá 16 Chuyên Đề Trọng Điểm ASMO Lớp 1 – 12 🚀
+            Khám Phá Các Chuyên Đề Trọng Điểm ASMO Lớp 1 – 12 🚀
           </h1>
 
           <p className="text-xs sm:text-sm text-indigo-100 leading-relaxed max-w-2xl">
@@ -428,7 +444,7 @@ export function AsmoLearningJourneyPage() {
           </div>
         </div>
 
-        {/* 16 Topics Horizontal Scrollable Grid */}
+        {/* Topics Horizontal Scrollable Grid */}
         <div className="pt-2 border-t border-slate-100">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-900 flex items-center gap-1.5">
@@ -555,9 +571,15 @@ export function AsmoLearningJourneyPage() {
           <div className="rounded-3xl border border-indigo-100 bg-white/95 p-5 shadow-clay space-y-4">
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2">
-                <BookOpen className="size-4 text-indigo-600" />
+                {isElementary ? (
+                  <span className="text-base">🎈</span>
+                ) : (
+                  <BookOpen className="size-4 text-indigo-600" />
+                )}
                 <h3 className="font-display text-sm font-extrabold text-indigo-950 uppercase tracking-wider">
-                  Phân Tích Giải Bài 3 Bước Sư Phạm Chuẩn ASMO
+                  {isElementary
+                    ? '🎈 3 BƯỚC KHÁM PHÁ CÙNG MÈO MEE'
+                    : 'Phân Tích Giải Bài 3 Bước Sư Phạm Chuẩn ASMO'}
                 </h3>
               </div>
               <span className="text-xs font-bold text-indigo-700">
@@ -580,7 +602,9 @@ export function AsmoLearningJourneyPage() {
                 <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-white/20 text-[10px]">
                   1
                 </span>
-                <span className="truncate">1. Phân tích</span>
+                <span className="truncate">
+                  {isElementary ? '🔍 1. Đề bài cho gì nhỉ?' : '1. Phân tích'}
+                </span>
               </button>
 
               <button
@@ -596,7 +620,9 @@ export function AsmoLearningJourneyPage() {
                 <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-white/20 text-[10px]">
                   2
                 </span>
-                <span className="truncate">2. Phương pháp</span>
+                <span className="truncate">
+                  {isElementary ? '💡 2. Mẹo của Mèo Mee' : '2. Phương pháp'}
+                </span>
               </button>
 
               <button
@@ -612,7 +638,9 @@ export function AsmoLearningJourneyPage() {
                 <span className="flex size-5 shrink-0 items-center justify-center rounded-full bg-white/20 text-[10px]">
                   3
                 </span>
-                <span className="truncate">3. Tính toán</span>
+                <span className="truncate">
+                  {isElementary ? '🎉 3. Cùng tính nào!' : '3. Tính toán'}
+                </span>
               </button>
             </div>
 
