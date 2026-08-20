@@ -226,7 +226,20 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "Chùm nho nặng nhất. Chọn đáp án D."
           }
         ],
-        "svgDiagramKey": "q04_balance"
+        "svgDiagramKey": "q04_balance",
+        "renderSpec": {
+          "template": "3D_BALANCE_SCALE",
+          "camera": {
+            "x": 0,
+            "y": 0.2,
+            "z": 7
+          },
+          "leftWeightCount": 2,
+          "rightWeightCount": 6,
+          "leftItemLabel": "Dưa hấu",
+          "rightItemLabel": "Cam",
+          "autoRotate": false
+        }
       },
       {
         "id": "asmo-math-g1-2020-r1-q05",
@@ -551,7 +564,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_VERTICAL_SUB",
         "topicName": "Phép trừ cột dọc",
         "title": "Câu 11: What number should be filled in the blank?",
-        "text": "What number should be filled in the box for the subtraction below?\n2 1\n- 1 7\n------\n  [ ? ]",
+        "text": "What number should be filled in the box for the subtraction below?\n2 1\n- 1 7\n------\n [ ? ]",
         "options": [
           {
             "id": "A",
@@ -801,7 +814,28 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "Lối thoát đúng là D. Chọn đáp án D."
           }
         ],
-        "svgDiagramKey": "q15_maze"
+        "svgDiagramKey": "q15_maze",
+        "renderSpec": {
+          "template": "GRID_PATH_MAZE",
+          "camera": {
+            "x": 0,
+            "y": 0,
+            "z": 6
+          },
+          "gridSize": [
+            5,
+            5
+          ],
+          "start": [
+            0,
+            0
+          ],
+          "target": [
+            4,
+            4
+          ],
+          "autoRotate": false
+        }
       },
       {
         "id": "asmo-math-g1-2020-r1-q16",
@@ -907,7 +941,18 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "5:10 p.m. Chọn đáp án B."
           }
         ],
-        "svgDiagramKey": "q17_clock"
+        "svgDiagramKey": "q17_clock",
+        "renderSpec": {
+          "template": "INTERACTIVE_CLOCK",
+          "camera": {
+            "x": 0,
+            "y": 0,
+            "z": 5.5
+          },
+          "hour": 5,
+          "minute": 10,
+          "autoRotate": false
+        }
       },
       {
         "id": "asmo-math-g1-2020-r1-q18",
@@ -1403,7 +1448,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T2",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 2: In the question below, what does the smi...",
-        "text": "In the question below, what does the smiley face represent?\n☻ + 6 = 10",
+        "text": "In the question below, what does the smiley face represent?\n$☻ + 6 = 10$",
         "options": [
           {
             "id": "A",
@@ -1635,7 +1680,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T6",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 6: In the subtraction problem below, what d...",
-        "text": "In the subtraction problem below, what does \"A\" represent?\n  A 2\n- 2 B\n------\n  3 8",
+        "text": "In the subtraction problem below, what does \"A\" represent?\n A 2\n- 2 B\n------\n 3 8",
         "options": [
           {
             "id": "A",
@@ -2266,7 +2311,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T5",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 17: Another triangle should be added in whic...",
-        "text": "Another triangle should be added in which box so that the figure below can be divided into four equal parts and each part must contain a triangle?\nGrid:\nRow 1: [ A ] [ B ] [   ] [ E ]\nRow 2: [ ▲ ] [ ▲ ] [   ] [ ▲ ]\nRow 3: [ C ] [ D ] [   ] [   ]",
+        "text": "Another triangle should be added in which box so that the figure below can be divided into four equal parts and each part must contain a triangle?\nGrid:\nRow 1: [ A ] [ B ] [ ] [ E ]\nRow 2: [ ▲ ] [ ▲ ] [ ] [ ▲ ]\nRow 3: [ C ] [ D ] [ ] [ ]",
         "options": [
           {
             "id": "A",
@@ -2382,7 +2427,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T1",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 19: Given:\n■ + ⬤ = ▲ ▲ ▲ ▲\n⬤ = ▲ ▲\n■ = [ ? ]...",
-        "text": "Given:\n■ + ⬤ = ▲ ▲ ▲ ▲\n⬤ = ▲ ▲\n■ = [ ? ] ⬤\nA square equals to how many circles?",
+        "text": "Given:\n$■ + ⬤ = \\blacktriangle \\blacktriangle \\blacktriangle \\blacktriangle$\n$⬤ = \\blacktriangle \\blacktriangle$\n■ = [ ? ] ⬤\nA square equals to how many circles?",
         "options": [
           {
             "id": "A",
@@ -2440,7 +2485,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T2",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 20: In the square below, the sum of the 3 nu...",
-        "text": "In the square below, the sum of the 3 numbers in each row, in each column and in each diagonal is always the same. What is the value of Y?\n[ 6 | 1 | 8 ]\n[   | Y | 4 ]\n[   |   |   ]",
+        "text": "In the square below, the sum of the 3 numbers in each row, in each column and in each diagonal is always the same. What is the value of Y?\n[ 6 | 1 | 8 ]\n[ | Y | 4 ]\n[ | | ]",
         "options": [
           {
             "id": "A",
@@ -2752,7 +2797,18 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "diagramDescription": "A main analog clock displaying 3:30. Five option clocks: A (8:30), B (6:00), C (11:30), D (1:30), E (3:30).",
-        "svgDiagramKey": "g1_2015_q4_clock"
+        "svgDiagramKey": "g1_2015_q4_clock",
+        "renderSpec": {
+          "template": "INTERACTIVE_CLOCK",
+          "camera": {
+            "x": 0,
+            "y": 0,
+            "z": 5.5
+          },
+          "hour": 10,
+          "minute": 0,
+          "autoRotate": false
+        }
       },
       {
         "id": "asmo-math-g1-2015-r3-q05",
@@ -3707,7 +3763,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T1",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 1: 1, 2, 2, 3, 3, 3, 4, 4, 4, a, b, ..........",
-        "text": "1, 2, 2, 3, 3, 3, 4, 4, 4, a, b, ..........\na + b = ? (5 marks)",
+        "text": "1, 2, 2, 3, 3, 3, 4, 4, 4, a, b, ..........\na + b = ?",
         "options": [
           {
             "id": "A",
@@ -3763,8 +3819,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T2",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 2: What are the missing numbers? (5 marks)\n...",
-        "text": "What are the missing numbers? (5 marks)\n1, 3, 5, ( ), ( )",
+        "title": "Câu 2: What are the missing numbers? \n...",
+        "text": "What are the missing numbers? \n1, 3, 5, ( ), ( )",
         "options": [
           {
             "id": "A",
@@ -3934,7 +3990,18 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
           }
         ],
         "diagramDescription": "A main analog clock displaying 10:00. Five option clocks: A (8:30), B (6:00), C (11:30), D (1:30), E (3:30).",
-        "svgDiagramKey": "g1_2016_q4_clock"
+        "svgDiagramKey": "g1_2016_q4_clock",
+        "renderSpec": {
+          "template": "INTERACTIVE_CLOCK",
+          "camera": {
+            "x": 0,
+            "y": 0,
+            "z": 5.5
+          },
+          "hour": 3,
+          "minute": 0,
+          "autoRotate": false
+        }
       },
       {
         "id": "asmo-math-g1-2016-r4-q05",
@@ -4062,17 +4129,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A 3x3 geometric pattern matrix where column 3 is the superimposition of column 1 and column 2.",
         "svgDiagramKey": "g1_2016_q6_matrix"
       },
@@ -4082,8 +4138,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 1,
         "topicCode": "MATH_G1_T1",
         "topicName": "Tư duy Toán Olympic Lớp 1",
-        "title": "Câu 7: ( ) + 9 - 8 = 17 (5 marks)...",
-        "text": "( ) + 9 - 8 = 17 (5 marks)",
+        "title": "Câu 7: ( ) + 9 - 8 = 17 ...",
+        "text": "( ) + 9 - 8 = 17",
         "options": [
           {
             "id": "A",
@@ -4199,7 +4255,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T3",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 9: How many minutes are in one and a half h...",
-        "text": "How many minutes are in one and a half hours? (5 marks)",
+        "text": "How many minutes are in one and a half hours?",
         "options": [
           {
             "id": "A",
@@ -4256,7 +4312,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T4",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 10: 1 - 2 + 3 - 4 + 5 – 6 + 7 - 8 + 9 = ? (5...",
-        "text": "1 - 2 + 3 - 4 + 5 – 6 + 7 - 8 + 9 = ? (5 marks)",
+        "text": "1 - 2 + 3 - 4 + 5 – 6 + 7 - 8 + 9 = ?",
         "options": [
           {
             "id": "A",
@@ -4363,17 +4419,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A rhombus shape split diagonally into two congruent triangles.",
         "svgDiagramKey": "g1_2016_q11_rhombus"
       },
@@ -4561,17 +4606,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A 2x3 grid of rectangular boxes with the ※ symbol placed in row 2, column 2.",
         "svgDiagramKey": "g1_2016_q14_rectangles"
       },
@@ -4641,7 +4675,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T4",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 16: △ + ○ = 6, △ + △ + ○ = 7, △ = __ ? (5 ma...",
-        "text": "△ + ○ = 6, △ + △ + ○ = 7, △ = __ ? (5 marks)",
+        "text": "$\\triangle + \\bigcirc = 6, \\triangle + \\triangle + \\bigcirc = 7, \\triangle = __ ?$",
         "options": [
           {
             "id": "A",
@@ -4698,7 +4732,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T5",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 17: What is the greatest number you can fill...",
-        "text": "What is the greatest number you can fill in blank? (5 marks)\n8 + _______ < 64",
+        "text": "What is the greatest number you can fill in blank? \n8 + _______ < 64",
         "options": [
           {
             "id": "A",
@@ -4755,7 +4789,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T6",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 18: I am 40. What do you get after subtract ...",
-        "text": "I am 40. What do you get after subtract my both digits? (5 marks)",
+        "text": "I am 40. What do you get after subtract my both digits?",
         "options": [
           {
             "id": "A",
@@ -4812,7 +4846,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T1",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 19: 3 cats eat 3 rats in 3 days. How many ra...",
-        "text": "3 cats eat 3 rats in 3 days. How many rat(s) does a cat eat a day? (5 marks)",
+        "text": "3 cats eat 3 rats in 3 days. How many rat(s) does a cat eat a day?",
         "options": [
           {
             "id": "A",
@@ -4869,7 +4903,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T2",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 20: What are the two missing numbers? (5 mar...",
-        "text": "What are the two missing numbers? (5 marks)\n15, 10, 13, 10, 11, 10, ( ), ( )",
+        "text": "What are the two missing numbers? \n15, 10, 13, 10, 11, 10, ( ), ( )",
         "options": [
           {
             "id": "A",
@@ -5205,7 +5239,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T6",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 6: Ten over twenty is also equal to\n10 / 20...",
-        "text": "Ten over twenty is also equal to\n10 / 20 = ",
+        "text": "Ten over twenty is also equal to\n10 / 20 =",
         "options": [
           {
             "id": "A",
@@ -5627,7 +5661,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G1_T2",
         "topicName": "Tư duy Toán Olympic Lớp 1",
         "title": "Câu 14: Please find \"P\" and \"Q\" in the formula.\n...",
-        "text": "Please find \"P\" and \"Q\" in the formula.\n  3 P\n- Q 7\n------\n  1 6",
+        "text": "Please find \"P\" and \"Q\" in the formula.\n 3 P\n- Q 7\n------\n 1 6",
         "options": [
           {
             "id": "A",
@@ -6045,17 +6079,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A square geometric dissection puzzle composed of 7 colored pieces (5 triangles, 1 square, 1 parallelogram)."
       },
       {
@@ -7029,7 +7052,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G2_T2",
         "topicName": "Tư duy Toán Olympic Lớp 2",
         "title": "Câu 14: What is the value of A in the addition c...",
-        "text": "What is the value of A in the addition cryptarithm below?\n  2 A\n+ A 3\n-----\n  7 1",
+        "text": "What is the value of A in the addition cryptarithm below?\n 2 A\n+ A 3\n-----\n 7 1",
         "options": [
           {
             "id": "A",
@@ -7899,17 +7922,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "Three triangles with numbers at the vertices. Top vertex = Left vertex + Right vertex."
       },
       {
@@ -8425,7 +8437,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "2:45 + 30 minutes = 3:15.\n\n➔ Do đó đáp án chính xác là: **E**."
           }
         ],
-        "diagramDescription": "An analogue clock face showing 2:45."
+        "diagramDescription": "An analogue clock face showing 2:45.",
+        "svgDiagramKey": "clock_2_45"
       },
       {
         "id": "asmo-math-g2-2014-r2-q14",
@@ -8548,7 +8561,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G2_T4",
         "topicName": "Tư duy Toán Olympic Lớp 2",
         "title": "Câu 16: What is the missing digit in the subtrac...",
-        "text": "What is the missing digit in the subtraction?\n  8 [ ? ]\n- 3   7\n-------\n  4   9",
+        "text": "What is the missing digit in the subtraction?\n 8 [ ? ]\n- 3 7\n-------\n 4 9",
         "options": [
           {
             "id": "A",
@@ -9186,19 +9199,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "1 quả Dưa hấu nặng bằng đúng 3 quả Cam."
           }
         ],
-        "renderSpec": {
-          "template": "3D_BALANCE_SCALE",
-          "camera": {
-            "x": 0,
-            "y": 0.2,
-            "z": 7
-          },
-          "leftWeightCount": 2,
-          "rightWeightCount": 6,
-          "leftItemLabel": "Dưa hấu",
-          "rightItemLabel": "Cam",
-          "autoRotate": false
-        },
         "diagramDescription": "Balance scale representations of fruits: Apple + Pear = 3 Oranges; Apple = 1 Orange."
       },
       {
@@ -9830,7 +9830,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 3: Tính toán & Kết luận",
             "description": "10 o clock at night is 10:00 pm. 21 hours later is 24 hours minus 3 hours = 10:00 pm - 3 hours = 7:00 pm.\n\n➔ Do đó đáp án chính xác là: **C**."
           }
-        ]
+        ],
+        "svgDiagramKey": "clock_10_00"
       },
       {
         "id": "asmo-math-g2-2015-r3-q18",
@@ -10082,7 +10083,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G2_T2",
         "topicName": "Tư duy Toán Olympic Lớp 2",
         "title": "Câu 2: In the addition below, what do “A” and “...",
-        "text": "In the addition below, what do “A” and “A” represent?\n   1 7\n+  A A\n------\n   7 2",
+        "text": "In the addition below, what do “A” and “A” represent?\n 1 7\n+ A A\n------\n 7 2",
         "options": [
           {
             "id": "A",
@@ -10535,17 +10536,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A plus/cross shape formed by the overlap of one horizontal rectangle and one vertical rectangle, creating 5 elementary rectangular sections."
       },
       {
@@ -11059,17 +11049,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A repeating sequence of 6 shapes: (Circle, Star, Triangle, Triangle, Star, Star)."
       },
       {
@@ -11366,8 +11345,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 2,
         "topicCode": "MATH_G2_T4",
         "topicName": "Tư duy Toán Olympic Lớp 2",
-        "title": "Câu 4: Please find P and Q in the formula.\n   3...",
-        "text": "Please find P and Q in the formula.\n   3  P\n-  Q  7\n-------\n   1  6",
+        "title": "Câu 4: Please find P and Q in the formula.\n 3...",
+        "text": "Please find P and Q in the formula.\n 3 P\n- Q 7\n-------\n 1 6",
         "options": [
           {
             "id": "A",
@@ -12273,7 +12252,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 3: Tính toán & Kết luận",
             "description": "Real departure time = 7:15 a.m. - 20 minutes = 6:55 a.m. Since the house clock was 10 minutes faster, it showed 6:55 a.m. + 10 minutes = 7:05 a.m.\n\n➔ Do đó đáp án chính xác là: **C**."
           }
-        ]
+        ],
+        "svgDiagramKey": "clock_7_15"
       },
       {
         "id": "asmo-math-g2-2023-r5-q20",
@@ -13044,8 +13024,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 3,
         "topicCode": "MATH_G3_T3",
         "topicName": "Tư duy Toán Olympic Lớp 3",
-        "title": "Câu 9: Find the value of A.\n  17\nx  A\n----\n BC6...",
-        "text": "Find the value of A.\n  17\nx  A\n----\n BC6",
+        "title": "Câu 9: Find the value of A.\n 17\nx A\n----\n BC6...",
+        "text": "Find the value of A.\n 17\nx A\n----\n BC6",
         "options": [
           {
             "id": "A",
@@ -13725,7 +13705,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G3_T4",
         "topicName": "Tư duy Toán Olympic Lớp 3",
         "title": "Câu 22: Find the value of ★ from the following s...",
-        "text": "Find the value of ★ from the following system of geometric equations:\n▲ + ★ + ★ + ★ = 23\n▲ + ★ + ★ + ★ + ▲ = 25\n★ = ?",
+        "text": "Find the value of ★ from the following system of geometric equations:\n$\\blacktriangle + \\bigstar + \\bigstar + \\bigstar = 23$\n$\\blacktriangle + \\bigstar + \\bigstar + \\bigstar + \\blacktriangle = 25$\n$\\bigstar = ?$",
         "options": [
           {
             "id": "A",
@@ -13775,17 +13755,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "Two geometric equations:\n1. ▲ + ★ + ★ + ★ = 23 (one triangle plus three stars equals 23)\n2. ▲ + ★ + ★ + ★ + ▲ = 25 (two triangles plus three stars equals 25)\nTarget: ★ = ?"
       },
       {
@@ -14173,17 +14142,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A horizontal row of alternating attached triangles made of toothpicks. The first triangle requires 3 toothpicks, and each subsequent attached triangle shares a side and adds 2 toothpicks."
       },
       {
@@ -14874,7 +14832,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G3_T6",
         "topicName": "Tư duy Toán Olympic Lớp 3",
         "title": "Câu 18: In this subtraction the boxes contain th...",
-        "text": "In this subtraction the boxes contain the digits 3, 4, 5, and 8 in some order and the circles contain the digits 1, 3, 7, and 9 in some order. What four-digit number is represented by the boxes?\n  [ ][ ][ ][ ]\n- ( )( )( )( )\n---------------\n   3  6  9  9",
+        "text": "In this subtraction the boxes contain the digits 3, 4, 5, and 8 in some order and the circles contain the digits 1, 3, 7, and 9 in some order. What four-digit number is represented by the boxes?\n [ ][ ][ ][ ]\n- ( )( )( )( )\n---------------\n 3 6 9 9",
         "options": [
           {
             "id": "A",
@@ -15186,17 +15144,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A rectilinear polygon with dimensions labeled: top horizontal edge = 8 m, leftmost vertical edge = 6 m, top-right step down = 3 m, bottom notch horizontal = 5 m. All angles are right angles."
       },
       {
@@ -15431,7 +15378,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G3_T3",
         "topicName": "Tư duy Toán Olympic Lớp 3",
         "title": "Câu 3: The sum of the three-digit number AAA an...",
-        "text": "The sum of the three-digit number AAA and the two-digit number BB is the four-digit number CD6E. A, B, C, D, and E are different digits. What four-digit number does CD6E represent?\n   A A A\n+    B B\n--------\n C D 6 E",
+        "text": "The sum of the three-digit number AAA and the two-digit number BB is the four-digit number CD6E. A, B, C, D, and E are different digits. What four-digit number does CD6E represent?\n A A A\n+ B B\n--------\n C D 6 E",
         "options": [
           {
             "id": "A",
@@ -16110,17 +16057,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A rectangular frame of outer dimensions 30 cm wide by 20 cm high containing a gray uniform border of width 5 cm surrounding a centered inner rectangle."
       },
       {
@@ -16182,7 +16118,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G3_T5",
         "topicName": "Tư duy Toán Olympic Lớp 3",
         "title": "Câu 17: What whole number may be used in place o...",
-        "text": "What whole number may be used in place of [ ] to make this statement true?\n3/5 < [ ]/7 < 4/5",
+        "text": "What whole number may be used in place of [ ] to make this statement true?\n$\\frac{3}{5} < \\frac{\\square}{7} < \\frac{4}{5}$",
         "options": [
           {
             "id": "A",
@@ -16491,17 +16427,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "shadedCount": 3
           }
         ],
-        "renderSpec": {
-          "template": "SHADED_AREA_FRACTION",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "totalSlices": 8,
-          "shadedSlices": 3,
-          "autoRotate": false
-        },
         "diagramDescription": "A rectangular sheet measuring 60 cm wide by 20 cm high. Two rectangular notches of widths 12 cm and 8 cm with equal height '?' are removed from the bottom edge."
       },
       {
@@ -16609,18 +16534,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số 3/8.",
             "shadedCount": 3
           }
-        ],
-        "renderSpec": {
-          "template": "SHADED_AREA_FRACTION",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "totalSlices": 8,
-          "shadedSlices": 3,
-          "autoRotate": false
-        }
+        ]
       },
       {
         "id": "asmo-math-g3-2006-r3-q25",
@@ -17163,17 +17077,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "Rectangle ABCD partitioned into a 2x2 grid of smaller rectangles with areas:\n- Top-left: 21 cm²\n- Top-right: 48 cm²\n- Bottom-left: 35 cm²\n- Bottom-right: [empty]"
       },
       {
@@ -17547,7 +17450,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G3_T5",
         "topicName": "Tư duy Toán Olympic Lớp 3",
         "title": "Câu 17: In the addition at the right, different ...",
-        "text": "In the addition at the right, different letters represent different digits. What is the two-digit number HA?\n    A\n    A\n  + H\n ----\n   HA",
+        "text": "In the addition at the right, different letters represent different digits. What is the two-digit number HA?\n A\n A\n + H\n ----\n HA",
         "options": [
           {
             "id": "A",
@@ -18242,7 +18145,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G3_T5",
         "topicName": "Tư duy Toán Olympic Lớp 3",
         "title": "Câu 5: The star has a number value of?\n○ + △ = ...",
-        "text": "The star has a number value of?\n○ + △ = 26\n△ + △ = 34\n△ + □ = 35\n○ + □ = ☆",
+        "text": "The star has a number value of?\n$\\bigcirc + \\triangle = 26$\n$\\triangle + \\triangle = 34$\n$\\triangle + \\square = 35$\n$\\bigcirc + \\square = \\star$",
         "options": [
           {
             "id": "A",
@@ -18292,17 +18195,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "Four symbolic arithmetic equations:\n1. Circle + Triangle = 26\n2. Triangle + Triangle = 34\n3. Triangle + Square = 35\n4. Circle + Square = Star"
       },
       {
@@ -19477,7 +19369,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G3_T2",
         "topicName": "Tư duy Toán Olympic Lớp 3",
         "title": "Câu 8: Below is the net of a cube. What is the ...",
-        "text": "Below is the net of a cube. What is the icon opposite of ♦ when it is folded into a cube?\nPlease write answer as follow:\n♪ = A, ☻ = B, ♠ = C, ♥ = D",
+        "text": "Below is the net of a cube. What is the icon opposite of ♦ when it is folded into a cube?\nPlease write answer as follow:\n$♪ = A, ☻ = B, ♠ = C, ♥ = D$",
         "options": [
           {
             "id": "A",
@@ -19649,7 +19541,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "title": "Bước 3: Tính toán & Kết luận",
             "description": "Actual departure time = 7:15 a.m. - 20 minutes = 6:55 a.m. Since the house clock was 10 minutes faster, it showed 6:55 a.m. + 10 minutes = 7:05 a.m.\n\n➔ Do đó đáp án chính xác là: **A**."
           }
-        ]
+        ],
+        "svgDiagramKey": "clock_7_15"
       },
       {
         "id": "asmo-math-g3-2023-r6-q10",
@@ -19968,18 +19861,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "hour": 5,
             "minute": 5
           }
-        ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        }
+        ]
       },
       {
         "id": "asmo-math-g3-2023-r6-q16",
@@ -20837,7 +20719,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G4_T1",
         "topicName": "Tư duy Toán Olympic Lớp 4",
         "title": "Câu 7: What is 1/2 × 1/3 + 5/13 ÷ 8/21 ?...",
-        "text": "What is 1/2 × 1/3 + 5/13 ÷ 8/21 ?",
+        "text": "What is $\\frac{1}{2} \\times \\frac{1}{3} + \\frac{5}{13} \\div \\frac{8}{21}$ ?",
         "options": [
           {
             "id": "A",
@@ -21200,17 +21082,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A rectangle is folded twice diagonally: First fold along a 45-degree angle of a 25 cm section. Second fold over the remaining section leaving a right triangle of base 25 cm and height 20 cm. This indicates original width = 25 cm and total length = 25 cm + 20 cm = 45 cm."
       },
       {
@@ -21426,17 +21297,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "Three geometric shape equations: 1) 2 Squares + Circle + 4 Triangles = 38. 2) Square - Circle = 5. 3) 3 Circles - Triangle = 23."
       },
       {
@@ -21881,7 +21741,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G4_T1",
         "topicName": "Tư duy Toán Olympic Lớp 4",
         "title": "Câu 1: What number can replace the square to ma...",
-        "text": "What number can replace the square to make the statement true?\n5 × 11 = □ + 12",
+        "text": "What number can replace the square to make the statement true?\n$5 × 11 = \\square + 12$",
         "options": [
           {
             "id": "A",
@@ -21985,7 +21845,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G4_T3",
         "topicName": "Tư duy Toán Olympic Lớp 4",
         "title": "Câu 3: The sum of the three-digit number AAA an...",
-        "text": "The sum of the three-digit number AAA and the two-digit number BB is the four-digit number CD6E. A, B, C, D, and E are different digits. What four-digit number does CD6E represent?\n  AAA\n+  BB\n-----\n CD6E",
+        "text": "The sum of the three-digit number AAA and the two-digit number BB is the four-digit number CD6E. A, B, C, D, and E are different digits. What four-digit number does CD6E represent?\n AAA\n+ BB\n-----\n CD6E",
         "options": [
           {
             "id": "A",
@@ -22247,7 +22107,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G4_T2",
         "topicName": "Tư duy Toán Olympic Lớp 4",
         "title": "Câu 8: The odd numbers from 1 through 17 are pl...",
-        "text": "The odd numbers from 1 through 17 are placed in the magic square so that the sum of the numbers in each row, column and diagonal are equal. What number goes in the square marked \"x\"?\n[   ][ 1 ][   ]\n[ 5 ][   ][ 13]\n[ x ][   ][ 3 ]",
+        "text": "The odd numbers from 1 through 17 are placed in the magic square so that the sum of the numbers in each row, column and diagonal are equal. What number goes in the square marked \"x\"?\n[ ][ 1 ][ ]\n[ 5 ][ ][ 13]\n[ x ][ ][ 3 ]",
         "options": [
           {
             "id": "A",
@@ -22719,7 +22579,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G4_T5",
         "topicName": "Tư duy Toán Olympic Lớp 4",
         "title": "Câu 17: What whole number may be used in place o...",
-        "text": "What whole number may be used in place of □ to make this statement true?\n3/5 < □/7 < 4/5",
+        "text": "What whole number may be used in place of □ to make this statement true?\n$\\frac{3}{5} < \\frac{\\square}{7} < \\frac{4}{5}$",
         "options": [
           {
             "id": "A",
@@ -23027,17 +22887,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "shadedCount": 3
           }
         ],
-        "renderSpec": {
-          "template": "SHADED_AREA_FRACTION",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "totalSlices": 8,
-          "shadedSlices": 3,
-          "autoRotate": false
-        },
         "diagramDescription": "A rectangular sheet 60 cm wide by 20 cm high has two rectangular cutouts along the bottom: one 12 cm wide and height h, the other 8 cm wide and height h. Remaining area is 980 sq cm."
       },
       {
@@ -23145,18 +22994,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số 3/8.",
             "shadedCount": 3
           }
-        ],
-        "renderSpec": {
-          "template": "SHADED_AREA_FRACTION",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "totalSlices": 8,
-          "shadedSlices": 3,
-          "autoRotate": false
-        }
+        ]
       },
       {
         "id": "asmo-math-g4-2006-r2-q25",
@@ -23699,17 +23537,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "Rectangle ABCD divided into a 2x2 grid of four rectangles: Top-left has area 21 cm², top-right has area 48 cm², bottom-left has area 35 cm², bottom-right area is unknown."
       },
       {
@@ -24083,7 +23910,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G4_T5",
         "topicName": "Tư duy Toán Olympic Lớp 4",
         "title": "Câu 17: In the addition at the right, different ...",
-        "text": "In the addition at the right, different letters represent different digits. What is the two-digit number HA?\n  A\n  A\n+ H\n---\n HA",
+        "text": "In the addition at the right, different letters represent different digits. What is the two-digit number HA?\n A\n A\n+ H\n---\n HA",
         "options": [
           {
             "id": "A",
@@ -24500,7 +24327,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G4_T1",
         "topicName": "Tư duy Toán Olympic Lớp 4",
         "title": "Câu 25: The table shown is filled so that each r...",
-        "text": "The table shown is filled so that each row and each column contains each of the numbers 1, 2, 3, and 4 exactly once. Find the number in the square marked \"X\".\n[   ][   ][   ][ 1 ]\n[   ][ 2 ][   ][   ]\n[   ][   ][ X ][   ]\n[ 1 ][   ][   ][ 4 ]",
+        "text": "The table shown is filled so that each row and each column contains each of the numbers 1, 2, 3, and 4 exactly once. Find the number in the square marked \"X\".\n[ ][ ][ ][ 1 ]\n[ ][ 2 ][ ][ ]\n[ ][ ][ X ][ ]\n[ 1 ][ ][ ][ 4 ]",
         "options": [
           {
             "id": "A",
@@ -25454,17 +25281,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "An L-shaped figure made of rectangle MATH (area 30 cm²) and square ECHO attached along base TO where H is the midpoint of TO."
       },
       {
@@ -25787,7 +25603,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G4_T6",
         "topicName": "Tư duy Toán Olympic Lớp 4",
         "title": "Câu 24: Each letter represents a different digit...",
-        "text": "Each letter represents a different digit. What three-digit number does SAY represent?\n  SAY\n×   3\n-----\n BABY",
+        "text": "Each letter represents a different digit. What three-digit number does SAY represent?\n SAY\n× 3\n-----\n BABY",
         "options": [
           {
             "id": "A",
@@ -26271,7 +26087,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G4_T2",
         "topicName": "Tư duy Toán Olympic Lớp 4",
         "title": "Câu 8: Find missing number and complete the num...",
-        "text": "Find missing number and complete the number pattern?\n( 19 )  ( ? )  ( 70 )  ( ? )  ( 189 )",
+        "text": "Find missing number and complete the number pattern?\n( 19 ) ( ? ) ( 70 ) ( ? ) ( 189 )",
         "options": [
           {
             "id": "A",
@@ -26634,17 +26450,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A triangle of 6 circles (3 at vertices, 3 on edges). Side A (left) sums to 13, Side B (right) sums to 13, Side C (bottom) sums to 6."
       },
       {
@@ -27087,7 +26892,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G4_T3",
         "topicName": "Tư duy Toán Olympic Lớp 4",
         "title": "Câu 3: What number should be filled in the blan...",
-        "text": "What number should be filled in the blank space below?\n3, 5, 6, 9, 14, 20, (   ), 43",
+        "text": "What number should be filled in the blank space below?\n3, 5, 6, 9, 14, 20, ( ), 43",
         "options": [
           {
             "id": "A",
@@ -27240,18 +27045,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "hour": 5,
             "minute": 5
           }
-        ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        }
+        ]
       },
       {
         "id": "asmo-math-g4-2023-r6-q06",
@@ -27987,18 +27781,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "hour": 5,
             "minute": 5
           }
-        ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        }
+        ]
       },
       {
         "id": "asmo-math-g4-2023-r6-q20",
@@ -28489,17 +28272,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A square with both main diagonals drawn, inscribed in a 45-degree rotated outer square (diamond) sharing the 4 vertices."
       },
       {
@@ -28925,17 +28697,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A non-convex 5-pointed polygon (pentagon) with circular arcs indicating the reflex (exterior) angle at each of the 5 vertices labeled 1, 2, 3, 4, 5."
       },
       {
@@ -29905,17 +29666,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A horizontal row of 5 attached triangles formed with toothpicks, with alternating upward and downward pointing triangles."
       },
       {
@@ -30917,17 +30667,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A rectilinear stepped polygon with dimensions labeled: top horizontal edge = 8 m, leftmost vertical edge = 6 m, top-right step down = 3 m, bottom-left horizontal edge = 5 m."
       },
       {
@@ -31057,7 +30796,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G5_T1",
         "topicName": "Tư duy Toán Olympic Lớp 5",
         "title": "Câu 1: What number can replace the square to ma...",
-        "text": "What number can replace the square to make the statement true?\n5 × 11 = □ + 12",
+        "text": "What number can replace the square to make the statement true?\n$5 × 11 = \\square + 12$",
         "options": [
           {
             "id": "A",
@@ -31840,17 +31579,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "An outer rectangle measuring 30 cm wide by 20 cm high, with a concentric inner rectangle leaving a uniform gray border 5 cm wide."
       },
       {
@@ -31912,7 +31640,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G5_T5",
         "topicName": "Tư duy Toán Olympic Lớp 5",
         "title": "Câu 17: What whole number may be used in place o...",
-        "text": "What whole number may be used in place of □ to make this statement true?\n3/5 < □/7 < 4/5",
+        "text": "What whole number may be used in place of □ to make this statement true?\n$\\frac{3}{5} < \\frac{\\square}{7} < \\frac{4}{5}$",
         "options": [
           {
             "id": "A",
@@ -32220,17 +31948,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "shadedCount": 3
           }
         ],
-        "renderSpec": {
-          "template": "SHADED_AREA_FRACTION",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "totalSlices": 8,
-          "shadedSlices": 3,
-          "autoRotate": false
-        },
         "diagramDescription": "A 60 cm wide by 20 cm high rectangular sheet of paper with two rectangular bottom cutouts of widths 12 cm and 8 cm, both having equal height h."
       },
       {
@@ -32338,18 +32055,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "description": "Còn lại đúng 3 phần màu xanh ➔ Phân số 3/8.",
             "shadedCount": 3
           }
-        ],
-        "renderSpec": {
-          "template": "SHADED_AREA_FRACTION",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "totalSlices": 8,
-          "shadedSlices": 3,
-          "autoRotate": false
-        }
+        ]
       },
       {
         "id": "asmo-math-g5-2006-r3-q25",
@@ -32892,17 +32598,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "A 2x2 grid of smaller rectangles inside rectangle ABCD: top-left area = 21 cm^2, top-right area = 48 cm^2, bottom-left area = 35 cm^2, bottom-right area is unmarked."
       },
       {
@@ -33276,7 +32971,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G5_T5",
         "topicName": "Tư duy Toán Olympic Lớp 5",
         "title": "Câu 17: In the addition at the right, different ...",
-        "text": "In the addition at the right, different letters represent different digits. What is the two-digit number HA?\n  A\n  A\n+ H\n---\n HA",
+        "text": "In the addition at the right, different letters represent different digits. What is the two-digit number HA?\n A\n A\n+ H\n---\n HA",
         "options": [
           {
             "id": "A",
@@ -34700,17 +34395,6 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "minute": 5
           }
         ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        },
         "diagramDescription": "Two overlapping rectangles: a top-left rectangle of width 15 cm and height 8 cm, and a bottom-right rectangle of width 10 cm and height 10 cm. The overlapping dashed rectangle has width 4 cm and height 5 cm."
       },
       {
@@ -34720,7 +34404,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G5_T1",
         "topicName": "Tư duy Toán Olympic Lớp 5",
         "title": "Câu 19: Every digit from 1 through 9 appears in ...",
-        "text": "Every digit from 1 through 9 appears in the addition problem on the right. Each digit is used exactly once. The addition problem yields a correct answer. What three-digit number is the answer to the addition problem?\n  5 6 7\n+ □ □ □\n-------\n  □ □ □",
+        "text": "Every digit from 1 through 9 appears in the addition problem on the right. Each digit is used exactly once. The addition problem yields a correct answer. What three-digit number is the answer to the addition problem?\n 5 6 7\n$+ \\square \\square \\square$\n-------\n □ □ □",
         "options": [
           {
             "id": "A",
@@ -34981,7 +34665,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G5_T6",
         "topicName": "Tư duy Toán Olympic Lớp 5",
         "title": "Câu 24: Find the whole number value of n:\n5/96 <...",
-        "text": "Find the whole number value of n:\n5/96 < 1/n < 6/113",
+        "text": "Find the whole number value of n:\n$\\frac{5}{96} < \\frac{1}{n} < \\frac{6}{113}$",
         "options": [
           {
             "id": "A",
@@ -35566,18 +35250,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
             "hour": 5,
             "minute": 5
           }
-        ],
-        "renderSpec": {
-          "template": "INTERACTIVE_CLOCK",
-          "camera": {
-            "x": 0,
-            "y": 0,
-            "z": 5.5
-          },
-          "hour": 5,
-          "minute": 5,
-          "autoRotate": false
-        }
+        ]
       },
       {
         "id": "asmo-math-g5-2023-r6-q10",
@@ -36106,8 +35779,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 5,
         "topicCode": "MATH_G5_T2",
         "topicName": "Tư duy Toán Olympic Lớp 5",
-        "title": "Câu 20: Determine the 4-digit number ABCD if:\n  ...",
-        "text": "Determine the 4-digit number ABCD if:\n  ABCD\n×    9\n------\n  DCBA",
+        "title": "Câu 20: Determine the 4-digit number ABCD if:\n ...",
+        "text": "Determine the 4-digit number ABCD if:\n ABCD\n× 9\n------\n DCBA",
         "options": [
           {
             "id": "A",
@@ -36316,7 +35989,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "MATH_G5_T6",
         "topicName": "Tư duy Toán Olympic Lớp 5",
         "title": "Câu 24: Refer to the multiplication example pres...",
-        "text": "Refer to the multiplication example presented below, different letters represent different digits. Determine the sum of value A and B.\n   A8\n × 3B\n -----\n 2730",
+        "text": "Refer to the multiplication example presented below, different letters represent different digits. Determine the sum of value A and B.\n A8\n × 3B\n -----\n 2730",
         "options": [
           {
             "id": "A",
@@ -37866,7 +37539,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L1_T3",
         "topicName": "Khoa học Tự Nhiên Lớp 1",
         "title": "Câu 3: Whichof thefollowing statements is truea...",
-        "text": "Whichof thefollowing statements is trueabout both radio waves and gammarays? DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whichof thefollowing statements is trueabout both radio waves and gammarays?",
         "options": [
           {
             "id": "A",
@@ -38867,7 +38540,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L1_T1",
         "topicName": "Khoa học Tự Nhiên Lớp 1",
         "title": "Câu 21: Whichof thefollowing metals issuitable t...",
-        "text": "Whichof thefollowing metals issuitable tobe used to buildthebodyof an aircraft? DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whichof thefollowing metals issuitable tobe used to buildthebodyof an aircraft?",
         "options": [
           {
             "id": "A",
@@ -39261,7 +38934,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L1_T3",
         "topicName": "Khoa học Tự Nhiên Lớp 1",
         "title": "Câu 3: Whichof thefollowing statements is truea...",
-        "text": "Whichof thefollowing statements is trueabout microwave? DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whichof thefollowing statements is trueabout microwave?",
         "options": [
           {
             "id": "A",
@@ -40262,7 +39935,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L1_T1",
         "topicName": "Khoa học Tự Nhiên Lớp 1",
         "title": "Câu 21: Whichof thefollowing food processing met...",
-        "text": "Whichof thefollowing food processing methodsuses gammarays? DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whichof thefollowing food processing methodsuses gammarays?",
         "options": [
           {
             "id": "A",
@@ -40656,7 +40329,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L1_T3",
         "topicName": "Khoa học Tự Nhiên Lớp 1",
         "title": "Câu 3: Whichof thefollowing is trueabout ionicc...",
-        "text": "Whichof thefollowing is trueabout ioniccompounds? DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whichof thefollowing is trueabout ioniccompounds?",
         "options": [
           {
             "id": "A",
@@ -42029,7 +41702,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L2_T2",
         "topicName": "Khoa học Tự Nhiên Lớp 3",
         "title": "Câu 2: Whichof thefollowing metals reacts morev...",
-        "text": "Whichof thefollowing metals reacts morevigorously with oxygen than aluminium? DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whichof thefollowing metals reacts morevigorously with oxygen than aluminium?",
         "options": [
           {
             "id": "A",
@@ -43419,7 +43092,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L2_T2",
         "topicName": "Khoa học Tự Nhiên Lớp 3",
         "title": "Câu 2: Whichof thefollowing occurs when zinccar...",
-        "text": "Whichof thefollowing occurs when zinccarbonatepowder is strongly heated in atest tube? DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whichof thefollowing occurs when zinccarbonatepowder is strongly heated in atest tube?",
         "options": [
           {
             "id": "A",
@@ -44752,7 +44425,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L2_T1",
         "topicName": "Khoa học Tự Nhiên Lớp 3",
         "title": "Câu 1: Whichof thefollowing wave property chang...",
-        "text": "Whichof thefollowing wave property changes when interference ofwaves occur? DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whichof thefollowing wave property changes when interference ofwaves occur?",
         "options": [
           {
             "id": "A",
@@ -45867,7 +45540,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L2_T1",
         "topicName": "Khoa học Tự Nhiên Lớp 3",
         "title": "Câu 21: Whyis thefilament made inthe shapeof aco...",
-        "text": "Whyis thefilament made inthe shapeof acoil? DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whyis thefilament made inthe shapeof acoil?",
         "options": [
           {
             "id": "A",
@@ -46261,7 +45934,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L3_T3",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 3: Whichof thefollowing instruments uses ap...",
-        "text": "Whichof thefollowing instruments uses aplanemirror? DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whichof thefollowing instruments uses aplanemirror?",
         "options": [
           {
             "id": "A",
@@ -46603,7 +46276,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L3_T4",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 9: A sound wave of the frequency of 20000 H...",
-        "text": "A sound wave of the frequency of 20000 Hz and a wavelength of 75 cm is used to determine thedepth of awell. The wavetakes 8seconds toreturn. Find thedepth ofthewell. DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "A sound wave of the frequency of 20000 Hz and a wavelength of 75 cm is used to determine thedepth of awell. The wavetakes 8seconds toreturn. Find thedepth ofthewell.",
         "options": [
           {
             "id": "A",
@@ -47257,7 +46930,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L3_T1",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 21: Whichof thefollowing can befound in theu...",
-        "text": "Whichof thefollowing can befound in theurine ofanormal healthy person? I   Urea II  White blood cells III Amino acids IV  Redblood cells V   Sodiumchloride DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whichof thefollowing can befound in theurine ofanormal healthy person? I Urea II White blood cells III Amino acids IV Redblood cells V Sodiumchloride",
         "options": [
           {
             "id": "A",
@@ -47879,7 +47552,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L3_T2",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 7: High level ofmercury content was discove...",
-        "text": "High level ofmercury content was discovered in theriver ofMinimatacity, Japan in1956. The release ofwaste water containing mercury compounds byfactory was banned bythecity council andordered to clean upthecontaminants. What is themain reason to prevent mercury from being discharged intoriver? 15.Which characteristicismost useful for determining that a substanceis ametal? 16.A smallbead is placed onthe topof asemicircular glass block as shown. Thebeadisgivenaslightpushandstartslidingdownalongtheblock.Findtheheightatwhichthe beadleavestheblock. Division ASIAN    SCIENCES      OLYMPIAD M 2015  CONTEST LEVEL3 (Year7,8&9)",
+        "text": "High level ofmercury content was discovered in theriver ofMinimatacity, Japan in1956. The release ofwaste water containing mercury compounds byfactory was banned bythecity council andordered to clean upthecontaminants. What is themain reason to prevent mercury from being discharged intoriver? 15.Which characteristicismost useful for determining that a substanceis ametal? 16.A smallbead is placed onthe topof asemicircular glass block as shown. Thebeadisgivenaslightpushandstartslidingdownalongtheblock.Findtheheightatwhichthe beadleavestheblock.",
         "options": [
           {
             "id": "A",
@@ -47988,7 +47661,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L3_T4",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 9: A studentis asked tomeasure 12mlofa liqu...",
-        "text": "A studentis asked tomeasure 12mlofa liquidas precisely as possible.Which piece of equipment shouldshe select for thistask? 18.What valueshould be reported fortheburet reading shown? (4 Marks) 19.The initialactivity ofa radioactive isotopeis120Bq and thehalf-life is20minutes. For asample ofthesame isotopewithtwice themass, thevalues would be: Initial Activitiy/ Bq Half Life / minutes A           120               20 B           240               20 C           60                20 D           120               40                (4 Marks)",
+        "text": "A studentis asked tomeasure 12mlofa liquidas precisely as possible.Which piece of equipment shouldshe select for thistask? 18.What valueshould be reported fortheburet reading shown? 19.The initialactivity ofa radioactive isotopeis120Bq and thehalf-life is20minutes. For asample ofthesame isotopewithtwice themass, thevalues would be: Initial Activitiy/ Bq Half Life / minutes A 120 20 B 240 20 C 60 20 D 120 40",
         "options": [
           {
             "id": "A",
@@ -48917,7 +48590,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L3_T1",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 1: Whichof thefollowing statements is truea...",
-        "text": "Whichof thefollowing statements is trueabout both radio waves and gammarays? DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whichof thefollowing statements is trueabout both radio waves and gammarays?",
         "options": [
           {
             "id": "A",
@@ -50463,7 +50136,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L3_T4",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 4: Whichof thefollowing metals issuitable t...",
-        "text": "Whichof thefollowing metals issuitable tobe used to buildthebodyof an aircraft? DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whichof thefollowing metals issuitable tobe used to buildthebodyof an aircraft?",
         "options": [
           {
             "id": "A",
@@ -50681,7 +50354,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_BIO_HUMAN_BODY",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 8: Which ofthefollowing is NOT atype ofbody...",
-        "text": "Which ofthefollowing is NOT atype ofbodyprotein? Division ASIAN SCIENCES OLYMPIAD M 2015 CONTEST LEVEL3 (Year7,8&9) 9.Aerosol spray is used widely in theworld to release liquid inthe form ofmist whenpropelled out. Chlorofluorocarbons (CFCs) were once used as the propellants untilthe introductionof Montreal Protocol in1989.What is thereason ofbanning the useofCFCs as propellants?",
+        "text": "Which ofthefollowing is NOT atype ofbodyprotein?",
         "options": [
           {
             "id": "A",
@@ -50733,7 +50406,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L3_T4",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 9: Whichof thefollowing statements is truea...",
-        "text": "Whichof thefollowing statements is trueabout microwave? DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whichof thefollowing statements is trueabout microwave?",
         "options": [
           {
             "id": "A",
@@ -50790,7 +50463,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_BIO_HUMAN_BODY",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 10: An accelerometer is adevice to measure a...",
-        "text": "An accelerometer is adevice to measure acceleration. At theearth sea level, theacceleration due to gravity is g=9.8ms‐2.Mostof thesmartphones such as Android and AppleiPhone consist ofa builtinaccelerometer. If asmartphone is movingvertically upward at sea level with constant velocity 9.8ms‐1,theinstantaneous scalar readings ofthex,y, and zcomponents from theaccelerometer are: 11.A man ofweight Wis standing ontheground. Whichofthefollowings forms an action-and-reaction pairwith W? Division ASIAN SCIENCES OLYMPIAD M 2015 CONTEST LEVEL3 (Year7,8&9) 12.Which ofthefollowing observations isnot true about thefermentation process ofrice? 13.Leaded petrol was once used widely as fuel for vehicles. It was banned in 1970’s and slowly be phased out withthe replacement of unleaded petrol. Whatis themain reason behind it?",
+        "text": "An accelerometer is adevice to measure acceleration. At theearth sea level, theacceleration due to gravity is g=9.8ms‐2.Mostof thesmartphones such as Android and AppleiPhone consist ofa builtinaccelerometer. If asmartphone is movingvertically upward at sea level with constant velocity 9.8ms‐1,theinstantaneous scalar readings ofthex,y, and zcomponents from theaccelerometer are: 11.A man ofweight Wis standing ontheground. Whichofthefollowings forms an action-and-reaction pairwith W?",
         "options": [
           {
             "id": "A",
@@ -50894,7 +50567,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_BIO_PLANT_ANIMAL",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 12: High level ofmercury content was discove...",
-        "text": "High level ofmercury content was discovered in theriver ofMinimatacity, Japan in1956. The release ofwaste water containing mercury compounds byfactory was banned bythecity council andordered to clean upthecontaminants. What is themain reason to prevent mercury from being discharged intoriver? 15.Which characteristicismost useful for determining that a substanceis ametal? 16.A smallbead is placed onthe topof asemicircular glass block as shown. Thebeadisgivenaslightpushandstartslidingdownalongtheblock.Findtheheightatwhichthe beadleavestheblock. Division ASIAN SCIENCES OLYMPIAD M 2015 CONTEST LEVEL3 (Year7,8&9)",
+        "text": "High level ofmercury content was discovered in theriver ofMinimatacity, Japan in1956. The release ofwaste water containing mercury compounds byfactory was banned bythecity council andordered to clean upthecontaminants. What is themain reason to prevent mercury from being discharged intoriver? 15.Which characteristicismost useful for determining that a substanceis ametal? 16.A smallbead is placed onthe topof asemicircular glass block as shown. Thebeadisgivenaslightpushandstartslidingdownalongtheblock.Findtheheightatwhichthe beadleavestheblock.",
         "options": [
           {
             "id": "A",
@@ -50998,7 +50671,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_BIO_HUMAN_BODY",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 14: Which separation techniqueis based ondif...",
-        "text": "Which separation techniqueis based ondifferences in thevolatilityofthesubstances to be separated? Question 21-25 are ShortAnswer Questions. 21.Astronomical angles are measured in fractions ofadegree called minutes and seconds. 1degree =60minutes ofangle 1minute=60seconds ofangle The anglebetween the Sunand Venus is measured to be: 46degrees 12minutes 49seconds (46o 12'49'') Express theanglein decimal form. (3 decimal point) Ans :__________º (6Marks) Division ASIAN SCIENCES OLYMPIAD M 2015 CONTEST LEVEL3 (Year7,8&9)",
+        "text": "Which separation techniqueis based ondifferences in thevolatilityofthesubstances to be separated? Question 21-25 are ShortAnswer Questions. 21.Astronomical angles are measured in fractions ofadegree called minutes and seconds. 1degree =60minutes ofangle 1minute=60seconds ofangle The anglebetween the Sunand Venus is measured to be: 46degrees 12minutes 49seconds (46o 12'49'') Express theanglein decimal form. (3 decimal point) Ans :__________º",
         "options": [
           {
             "id": "A",
@@ -51050,7 +50723,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_PHY_FORCE_MOTION",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 15: A uniform ruleris 100cm long. A0.6 N wei...",
-        "text": "A uniform ruleris 100cm long. A0.6 N weight isplaced at the 80cm mark. The ruler isbalanced inequilibrium onapivot placed at the60cm mark. Calculatetheweight of theruler inN. ___________N. (6 Marks)",
+        "text": "A uniform ruleris 100cm long. A0.6 N weight isplaced at the 80cm mark. The ruler isbalanced inequilibrium onapivot placed at the60cm mark. Calculatetheweight of theruler inN. ___________N.",
         "options": [
           {
             "id": "A",
@@ -51102,7 +50775,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_PHY_FORCE_MOTION",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 16: The specific heat capacity (SHC) ofamate...",
-        "text": "The specific heat capacity (SHC) ofamaterial is defined as theamount ofenergy required to raise thetemperature of1kgofthe material by1°C.When1000J of thermal energy is transferred to 200gofmaterial Xthetemperature increases by4 °C.When 2000J ofthermal energy is transferred to 100gofmaterial Ythetemperature increases by8 °C. The ratio oftheirspecific heat capacities, SHC ofX: SHC ofYis: ______________ (6 Marks) 24.The mass ofa250 ml conical flask is 128.30grams. Avacuum pump isused to remove theair from theflask. The mass oftheevacuated flaskis nowmeasured to be128.00grams. (1 m3= 1000litres). The best estimateofthedensity of airis: ___________kg/m3 (6 Marks)",
+        "text": "The specific heat capacity (SHC) ofamaterial is defined as theamount ofenergy required to raise thetemperature of1kgofthe material by1°C.When1000J of thermal energy is transferred to 200gofmaterial Xthetemperature increases by4 °C.When 2000J ofthermal energy is transferred to 100gofmaterial Ythetemperature increases by8 °C. The ratio oftheirspecific heat capacities, SHC ofX: SHC ofYis: ______________ 24.The mass ofa250 ml conical flask is 128.30grams. Avacuum pump isused to remove theair from theflask. The mass oftheevacuated flaskis nowmeasured to be128.00grams. (1 m3= 1000litres). The best estimateofthedensity of airis: ___________kg/m3",
         "options": [
           {
             "id": "A",
@@ -51154,7 +50827,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_PHY_FORCE_MOTION",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 17: A swimmerdives intoa completely calm 25m...",
-        "text": "A swimmerdives intoa completely calm 25m long swimmingpool. Theripple from thedive travels across thesurface ofthepool at 2.5m/s, reflects offthefar end and travels back down the poolto meet the swimmer. After divingin at theend, theswimmerswims at asteady speed that would take him20seconds to swimthelength of thepool. Theswimmerand thereturning ripplemeet when theswimmerhas travelled approximately:__________m (6 Marks) THE END",
+        "text": "A swimmerdives intoa completely calm 25m long swimmingpool. Theripple from thedive travels across thesurface ofthepool at 2.5m/s, reflects offthefar end and travels back down the poolto meet the swimmer. After divingin at theend, theswimmerswims at asteady speed that would take him20seconds to swimthelength of thepool. Theswimmerand thereturning ripplemeet when theswimmerhas travelled approximately:__________m THE END",
         "options": [
           {
             "id": "A",
@@ -51486,7 +51159,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_L3_T1",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 6: Whichof thefollowing food processing met...",
-        "text": "Whichof thefollowing food processing methodsuses gammarays? DIVISION ASIAN    SCIENCE    OLYMPIAD S CONTEST     2020 SECONDARY            (SCHOOL    ROUND) YEAR7,8,9",
+        "text": "Whichof thefollowing food processing methodsuses gammarays?",
         "options": [
           {
             "id": "A",
@@ -51595,7 +51268,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_BIO_HUMAN_BODY",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 8: Which ofthefollowing is NOT atype ofbody...",
-        "text": "Which ofthefollowing is NOT atype ofbodyprotein? Division ASIAN SCIENCES OLYMPIAD M 2015 CONTEST LEVEL3 (Year7,8&9) 9.Aerosol spray is used widely in theworld to release liquid inthe form ofmist whenpropelled out. Chlorofluorocarbons (CFCs) were once used as the propellants untilthe introductionof Montreal Protocol in1989.What is thereason ofbanning the useofCFCs as propellants?",
+        "text": "Which ofthefollowing is NOT atype ofbodyprotein?",
         "options": [
           {
             "id": "A",
@@ -51704,7 +51377,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_BIO_HUMAN_BODY",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 10: An accelerometer is adevice to measure a...",
-        "text": "An accelerometer is adevice to measure acceleration. At theearth sea level, theacceleration due to gravity is g=9.8ms‐2.Mostof thesmartphones such as Android and AppleiPhone consist ofa builtinaccelerometer. If asmartphone is movingvertically upward at sea level with constant velocity 9.8ms‐1,theinstantaneous scalar readings ofthex,y, and zcomponents from theaccelerometer are: 11.A man ofweight Wis standing ontheground. Whichofthefollowings forms an action-and-reaction pairwith W? Division ASIAN SCIENCES OLYMPIAD M 2015 CONTEST LEVEL3 (Year7,8&9) 12.Which ofthefollowing observations isnot true about thefermentation process ofrice? 13.Leaded petrol was once used widely as fuel for vehicles. It was banned in 1970’s and slowly be phased out withthe replacement of unleaded petrol. Whatis themain reason behind it?",
+        "text": "An accelerometer is adevice to measure acceleration. At theearth sea level, theacceleration due to gravity is g=9.8ms‐2.Mostof thesmartphones such as Android and AppleiPhone consist ofa builtinaccelerometer. If asmartphone is movingvertically upward at sea level with constant velocity 9.8ms‐1,theinstantaneous scalar readings ofthex,y, and zcomponents from theaccelerometer are: 11.A man ofweight Wis standing ontheground. Whichofthefollowings forms an action-and-reaction pairwith W?",
         "options": [
           {
             "id": "A",
@@ -51808,7 +51481,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_BIO_PLANT_ANIMAL",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 12: High level ofmercury content was discove...",
-        "text": "High level ofmercury content was discovered in theriver ofMinimatacity, Japan in1956. The release ofwaste water containing mercury compounds byfactory was banned bythecity council andordered to clean upthecontaminants. What is themain reason to prevent mercury from being discharged intoriver? 15.Which characteristicismost useful for determining that a substanceis ametal? 16.A smallbead is placed onthe topof asemicircular glass block as shown. Thebeadisgivenaslightpushandstartslidingdownalongtheblock.Findtheheightatwhichthe beadleavestheblock. Division ASIAN SCIENCES OLYMPIAD M 2015 CONTEST LEVEL3 (Year7,8&9)",
+        "text": "High level ofmercury content was discovered in theriver ofMinimatacity, Japan in1956. The release ofwaste water containing mercury compounds byfactory was banned bythecity council andordered to clean upthecontaminants. What is themain reason to prevent mercury from being discharged intoriver? 15.Which characteristicismost useful for determining that a substanceis ametal? 16.A smallbead is placed onthe topof asemicircular glass block as shown. Thebeadisgivenaslightpushandstartslidingdownalongtheblock.Findtheheightatwhichthe beadleavestheblock.",
         "options": [
           {
             "id": "A",
@@ -51912,7 +51585,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_BIO_HUMAN_BODY",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 14: Which separation techniqueis based ondif...",
-        "text": "Which separation techniqueis based ondifferences in thevolatilityofthesubstances to be separated? Question 21-25 are ShortAnswer Questions. 21.Astronomical angles are measured in fractions ofadegree called minutes and seconds. 1degree =60minutes ofangle 1minute=60seconds ofangle The anglebetween the Sunand Venus is measured to be: 46degrees 12minutes 49seconds (46o 12'49'') Express theanglein decimal form. (3 decimal point) Ans :__________º (6Marks) Division ASIAN SCIENCES OLYMPIAD M 2015 CONTEST LEVEL3 (Year7,8&9)",
+        "text": "Which separation techniqueis based ondifferences in thevolatilityofthesubstances to be separated? Question 21-25 are ShortAnswer Questions. 21.Astronomical angles are measured in fractions ofadegree called minutes and seconds. 1degree =60minutes ofangle 1minute=60seconds ofangle The anglebetween the Sunand Venus is measured to be: 46degrees 12minutes 49seconds (46o 12'49'') Express theanglein decimal form. (3 decimal point) Ans :__________º",
         "options": [
           {
             "id": "A",
@@ -51964,7 +51637,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_PHY_FORCE_MOTION",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 15: A uniform ruleris 100cm long. A0.6 N wei...",
-        "text": "A uniform ruleris 100cm long. A0.6 N weight isplaced at the 80cm mark. The ruler isbalanced inequilibrium onapivot placed at the60cm mark. Calculatetheweight of theruler inN. ___________N. (6 Marks)",
+        "text": "A uniform ruleris 100cm long. A0.6 N weight isplaced at the 80cm mark. The ruler isbalanced inequilibrium onapivot placed at the60cm mark. Calculatetheweight of theruler inN. ___________N.",
         "options": [
           {
             "id": "A",
@@ -52016,7 +51689,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_PHY_FORCE_MOTION",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 16: The specific heat capacity (SHC) ofamate...",
-        "text": "The specific heat capacity (SHC) ofamaterial is defined as theamount ofenergy required to raise thetemperature of1kgofthe material by1°C.When1000J of thermal energy is transferred to 200gofmaterial Xthetemperature increases by4 °C.When 2000J ofthermal energy is transferred to 100gofmaterial Ythetemperature increases by8 °C. The ratio oftheirspecific heat capacities, SHC ofX: SHC ofYis: ______________ (6 Marks) 24.The mass ofa250 ml conical flask is 128.30grams. Avacuum pump isused to remove theair from theflask. The mass oftheevacuated flaskis nowmeasured to be128.00grams. (1 m3= 1000litres). The best estimateofthedensity of airis: ___________kg/m3 (6 Marks)",
+        "text": "The specific heat capacity (SHC) ofamaterial is defined as theamount ofenergy required to raise thetemperature of1kgofthe material by1°C.When1000J of thermal energy is transferred to 200gofmaterial Xthetemperature increases by4 °C.When 2000J ofthermal energy is transferred to 100gofmaterial Ythetemperature increases by8 °C. The ratio oftheirspecific heat capacities, SHC ofX: SHC ofYis: ______________ 24.The mass ofa250 ml conical flask is 128.30grams. Avacuum pump isused to remove theair from theflask. The mass oftheevacuated flaskis nowmeasured to be128.00grams. (1 m3= 1000litres). The best estimateofthedensity of airis: ___________kg/m3",
         "options": [
           {
             "id": "A",
@@ -52068,7 +51741,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "SCI_PHY_FORCE_MOTION",
         "topicName": "Khoa học Tự Nhiên Lớp 5",
         "title": "Câu 17: A swimmerdives intoa completely calm 25m...",
-        "text": "A swimmerdives intoa completely calm 25m long swimmingpool. Theripple from thedive travels across thesurface ofthepool at 2.5m/s, reflects offthefar end and travels back down the poolto meet the swimmer. After divingin at theend, theswimmerswims at asteady speed that would take him20seconds to swimthelength of thepool. Theswimmerand thereturning ripplemeet when theswimmerhas travelled approximately:__________m (6 Marks) THE END",
+        "text": "A swimmerdives intoa completely calm 25m long swimmingpool. Theripple from thedive travels across thesurface ofthepool at 2.5m/s, reflects offthefar end and travels back down the poolto meet the swimmer. After divingin at theend, theswimmerswims at asteady speed that would take him20seconds to swimthelength of thepool. Theswimmerand thereturning ripplemeet when theswimmerhas travelled approximately:__________m THE END",
         "options": [
           {
             "id": "A",
@@ -52395,7 +52068,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_L1_T1",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 6: __________ your dog bark at strangers wh...",
-        "text": "__________ your dog bark at strangers when you are not at home? DIVISION ASIAN   ENGLISH     OLYMPIAD P 20 23 CONTEST STATE   ROUND LEVEL 1 GRADE 1 & 2",
+        "text": "__________ your dog bark at strangers when you are not at home?",
         "options": [
           {
             "id": "A",
@@ -52499,7 +52172,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 8: The teacher __________ that I was not pa...",
-        "text": "The teacher __________ that I was not paying attention in class. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 1 GRADE 1 & 2",
+        "text": "The teacher __________ that I was not paying attention in class.",
         "options": [
           {
             "id": "A",
@@ -52967,7 +52640,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 17: __________ your dog bark at strangers wh...",
-        "text": "__________ your dog bark at strangers when you are not at home? DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 1 GRADE 1 & 2",
+        "text": "__________ your dog bark at strangers when you are not at home?",
         "options": [
           {
             "id": "A",
@@ -53175,7 +52848,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 21: The concert __________ at eight o’clock ...",
-        "text": "The concert __________ at eight o’clock tonight, but people started waiting in line in the morning. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 1 GRADE 1 & 2",
+        "text": "The concert __________ at eight o’clock tonight, but people started waiting in line in the morning.",
         "options": [
           {
             "id": "A",
@@ -53383,7 +53056,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 25: The salesperson __________ tried to pers...",
-        "text": "The salesperson __________ tried to persuade my parents to buy a new sofa, even though they were not interested. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 1 GRADE 1 & 2",
+        "text": "The salesperson __________ tried to persuade my parents to buy a new sofa, even though they were not interested.",
         "options": [
           {
             "id": "A",
@@ -53591,7 +53264,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_PRONOUN",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 29: Chris : _________ shoes are those? Paul ...",
-        "text": "Chris : _________ shoes are those? Paul : They look familiar. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 1 GRADE 1 & 2",
+        "text": "Chris : _________ shoes are those? Paul : They look familiar.",
         "options": [
           {
             "id": "A",
@@ -53747,7 +53420,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_READING_COMP",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 32: The adult brain, despite not performing ...",
-        "text": "The adult brain, despite not performing any physical work, uses up to 25% of the body’s oxygen supply to power its complex functions. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 1 GRADE 1 & 2",
+        "text": "The adult brain, despite not performing any physical work, uses up to 25% of the body’s oxygen supply to power its complex functions.",
         "options": [
           {
             "id": "A",
@@ -53903,7 +53576,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_SYN_ANT",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 35: The King banished his enemies to a remot...",
-        "text": "The King banished his enemies to a remote island where they would never be able to return. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 1 GRADE 1 & 2",
+        "text": "The King banished his enemies to a remote island where they would never be able to return.",
         "options": [
           {
             "id": "A",
@@ -54111,7 +53784,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_SYN_ANT",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 39: Amira did a marvelous job of painting he...",
-        "text": "Amira did a marvelous job of painting her own backyard on a canvas. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 1 GRADE 1 & 2",
+        "text": "Amira did a marvelous job of painting her own backyard on a canvas.",
         "options": [
           {
             "id": "A",
@@ -54267,7 +53940,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_SPELLING_PHONICS",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 42: My mother bought a new ________right fre...",
-        "text": "My mother bought a new ________right freezer to store her frozen food. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 1 GRADE 1 & 2",
+        "text": "My mother bought a new ________right freezer to store her frozen food.",
         "options": [
           {
             "id": "A",
@@ -54490,7 +54163,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_L1_T2",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 2: The concert __________ at eight o’clock ...",
-        "text": "The concert __________ at eight o’clock tonight, but people started waiting in line in the morning. DIVISION ASIAN   ENGLISH     OLYMPIAD P 20 23 CONTEST STATE   ROUND LEVEL 1 GRADE 1 & 2",
+        "text": "The concert __________ at eight o’clock tonight, but people started waiting in line in the morning.",
         "options": [
           {
             "id": "A",
@@ -54854,7 +54527,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_L1_T4",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 9: The salesperson __________ tried to pers...",
-        "text": "The salesperson __________ tried to persuade my parents to buy a new sofa, even though they were not interested. DIVISION ASIAN   ENGLISH     OLYMPIAD P 20 23 CONTEST STATE   ROUND LEVEL 1 GRADE 1 & 2",
+        "text": "The salesperson __________ tried to persuade my parents to buy a new sofa, even though they were not interested.",
         "options": [
           {
             "id": "A",
@@ -55129,7 +54802,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 3: Contestantsorateamwhoaredisqualifiedfrom...",
-        "text": "Contestantsorateamwhoaredisqualifiedfromthecontestwillbeforfeitedanyrighttore-sit thisyear. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR1& 2 FullName: Class: Date: Time: SchoolName： IC.No: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR1& 2",
+        "text": "Contestantsorateamwhoaredisqualifiedfromthecontestwillbeforfeitedanyrighttore-sit thisyear.",
         "options": [
           {
             "id": "A",
@@ -55389,7 +55062,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 8: Thefirst Monopoly game __________oncloth...",
-        "text": "Thefirst Monopoly game __________oncloth. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR1& 2",
+        "text": "Thefirst Monopoly game __________oncloth.",
         "options": [
           {
             "id": "A",
@@ -55545,7 +55218,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 11: __________isthename ofthenew student ino...",
-        "text": "__________isthename ofthenew student inour class? 12.Mika__________to eat dessert at theendof hismeal. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR1& 2",
+        "text": "__________isthename ofthenew student inour class? 12.Mika__________to eat dessert at theendof hismeal.",
         "options": [
           {
             "id": "A",
@@ -55701,7 +55374,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 14: Someone__________taken mypencil. DIVISIO...",
-        "text": "Someone__________taken mypencil. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR1& 2",
+        "text": "Someone__________taken mypencil.",
         "options": [
           {
             "id": "A",
@@ -55857,7 +55530,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_MODAL",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 17: Tina__________onacamping trip next week....",
-        "text": "Tina__________onacamping trip next week. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR1& 2 20.Mylittle babybrother __________walk before hewas oneyears old.",
+        "text": "Tina__________onacamping trip next week.",
         "options": [
           {
             "id": "A",
@@ -55909,7 +55582,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 18: Mymother talked ________about an hourwit...",
-        "text": "Mymother talked ________about an hourwithher best friend. 22.Henry and hisfriends __________thehall when wereached there. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR1& 2",
+        "text": "Mymother talked ________about an hourwithher best friend. 22.Henry and hisfriends __________thehall when wereached there.",
         "options": [
           {
             "id": "A",
@@ -56065,7 +55738,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 21: MissNadiah reminds us to __________turn ...",
-        "text": "MissNadiah reminds us to __________turn offthefan before leaving home. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR1& 2",
+        "text": "MissNadiah reminds us to __________turn offthefan before leaving home.",
         "options": [
           {
             "id": "A",
@@ -56221,7 +55894,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 24: Everyone thinksmy dad is __________becau...",
-        "text": "Everyone thinksmy dad is __________because helikesto crack jokes. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR1& 2",
+        "text": "Everyone thinksmy dad is __________because helikesto crack jokes.",
         "options": [
           {
             "id": "A",
@@ -56325,7 +55998,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 26: Jarjit: Wouldyou likeanother piece ofapp...",
-        "text": "Jarjit: Wouldyou likeanother piece ofapple pie? Paul: ____________________________. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR1& 2",
+        "text": "Jarjit: Wouldyou likeanother piece ofapple pie? Paul: ____________________________.",
         "options": [
           {
             "id": "A",
@@ -56429,7 +56102,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_MODAL",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 28: Sandwiches are regarded as a type ofpopu...",
-        "text": "Sandwiches are regarded as a type ofpopular comfort food that are readily available ina variety of flavors combinations. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR1& 2",
+        "text": "Sandwiches are regarded as a type ofpopular comfort food that are readily available ina variety of flavors combinations.",
         "options": [
           {
             "id": "A",
@@ -56533,7 +56206,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 30: Climatechange has become aprominent issu...",
-        "text": "Climatechange has become aprominent issuewith potential effects offrequent wildfires, drought and tropical storms. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR1& 2",
+        "text": "Climatechange has become aprominent issuewith potential effects offrequent wildfires, drought and tropical storms.",
         "options": [
           {
             "id": "A",
@@ -56741,7 +56414,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 34: Theriver was frozen solidduring winter. ...",
-        "text": "Theriver was frozen solidduring winter. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR1& 2",
+        "text": "Theriver was frozen solidduring winter.",
         "options": [
           {
             "id": "A",
@@ -56949,7 +56622,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 38: Youneed to turnthebottlecap clock_______...",
-        "text": "Youneed to turnthebottlecap clock__________ toopen it. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR1& 2",
+        "text": "Youneed to turnthebottlecap clock__________ toopen it.",
         "options": [
           {
             "id": "A",
@@ -57276,7 +56949,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_L1_T4",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 4: Chris : _________ shoes are those? Paul ...",
-        "text": "Chris : _________ shoes are those? Paul : They look familiar. DIVISION ASIAN   ENGLISH     OLYMPIAD P 20 23 CONTEST STATE   ROUND LEVEL 1 GRADE 1 & 2",
+        "text": "Chris : _________ shoes are those? Paul : They look familiar.",
         "options": [
           {
             "id": "A",
@@ -59688,7 +59361,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_L1_T1",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 1: The adult brain, despite not performing ...",
-        "text": "The adult brain, despite not performing any physical work, uses up to 25% of the body’s oxygen supply to power its complex functions. DIVISION ASIAN   ENGLISH     OLYMPIAD P 20 23 CONTEST STATE   ROUND LEVEL 1 GRADE 1 & 2",
+        "text": "The adult brain, despite not performing any physical work, uses up to 25% of the body’s oxygen supply to power its complex functions.",
         "options": [
           {
             "id": "A",
@@ -59948,7 +59621,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_L1_T1",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 6: Social media has ___________ the way peo...",
-        "text": "Social media has ___________ the way people communicate. DIVISION ASIAN   ENGLISH     OLYMPIAD P 20 23 CONTEST STATE   ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "Social media has ___________ the way people communicate.",
         "options": [
           {
             "id": "A",
@@ -63264,7 +62937,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_L1_T3",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 3: All my friends except John __________ co...",
-        "text": "All my friends except John __________ coming to the dinner tonight. DIVISION ASIAN   ENGLISH     OLYMPIAD P 20 23 CONTEST STATE   ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "All my friends except John __________ coming to the dinner tonight.",
         "options": [
           {
             "id": "A",
@@ -63576,7 +63249,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_L1_T4",
         "topicName": "Tiếng Anh Học Thuật Lớp 1",
         "title": "Câu 9: Raess is doing his revision for the test...",
-        "text": "Raess is doing his revision for the test. He __________ in the room since 7 o’clock this morning. DIVISION ASIAN   ENGLISH     OLYMPIAD P 20 23 CONTEST STATE   ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "Raess is doing his revision for the test. He __________ in the room since 7 o’clock this morning.",
         "options": [
           {
             "id": "A",
@@ -66736,7 +66409,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_L2_T3",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 3: In flight food preparation has many diff...",
-        "text": "In flight food preparation has many difficulties because the food has to be delicious, presentable and fresh. while the plane is moving. DIVISION ASIAN   ENGLISH     OLYMPIAD P 20 23 CONTEST STATE   ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "In flight food preparation has many difficulties because the food has to be delicious, presentable and fresh. while the plane is moving.",
         "options": [
           {
             "id": "A",
@@ -66840,7 +66513,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_ARTICLE",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 5: Celine saw _________ black cat on the ro...",
-        "text": "Celine saw _________ black cat on the roof. _________ black cat is scared of height. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "Celine saw _________ black cat on the roof. _________ black cat is scared of height.",
         "options": [
           {
             "id": "A",
@@ -67048,7 +66721,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_L2_T4",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 9: The toy car started to __________functio...",
-        "text": "The toy car started to __________function when the kid poured water on the battery DIVISION ASIAN   ENGLISH     OLYMPIAD P 20 23 CONTEST STATE   ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "The toy car started to __________function when the kid poured water on the battery",
         "options": [
           {
             "id": "A",
@@ -67100,7 +66773,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_PREP",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 10: The new bullet train in Japan is able to...",
-        "text": "The new bullet train in Japan is able to pass __________ the tunnel in split seconds. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "The new bullet train in Japan is able to pass __________ the tunnel in split seconds.",
         "options": [
           {
             "id": "A",
@@ -67308,7 +66981,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 14: Rania is going to __________ a movie wit...",
-        "text": "Rania is going to __________ a movie with her family tonight. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "Rania is going to __________ a movie with her family tonight.",
         "options": [
           {
             "id": "A",
@@ -67516,7 +67189,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 18: Social media has ___________ the way peo...",
-        "text": "Social media has ___________ the way people communicate. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "Social media has ___________ the way people communicate.",
         "options": [
           {
             "id": "A",
@@ -67724,7 +67397,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_MODAL",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 22: All my friends except John __________ co...",
-        "text": "All my friends except John __________ coming to the dinner tonight. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "All my friends except John __________ coming to the dinner tonight.",
         "options": [
           {
             "id": "A",
@@ -67880,7 +67553,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 25: Raess is doing his revision for the test...",
-        "text": "Raess is doing his revision for the test. He __________ in the room since 7 o’clock this morning. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "Raess is doing his revision for the test. He __________ in the room since 7 o’clock this morning.",
         "options": [
           {
             "id": "A",
@@ -68036,7 +67709,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_ARTICLE",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 28: In flight food preparation has many diff...",
-        "text": "In flight food preparation has many difficulties because the food has to be delicious, presentable and fresh. while the plane is moving. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "In flight food preparation has many difficulties because the food has to be delicious, presentable and fresh. while the plane is moving.",
         "options": [
           {
             "id": "A",
@@ -68244,7 +67917,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 32: The chair levitated in the air when the ...",
-        "text": "The chair levitated in the air when the magician moved his hand. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "The chair levitated in the air when the magician moved his hand.",
         "options": [
           {
             "id": "A",
@@ -68452,7 +68125,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 36: The toy car started to __________functio...",
-        "text": "The toy car started to __________function when the kid poured water on the battery DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "The toy car started to __________function when the kid poured water on the battery",
         "options": [
           {
             "id": "A",
@@ -68608,7 +68281,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 39: Identify the compound word from the sent...",
-        "text": "Identify the compound word from the sentence. My dog loves spending his time in the backyard chasing squirrels and sniffing for treasures. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "Identify the compound word from the sentence. My dog loves spending his time in the backyard chasing squirrels and sniffing for treasures.",
         "options": [
           {
             "id": "A",
@@ -68764,7 +68437,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_IDIOM_COLLOC",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 42: Choose the correct idiomatic expression ...",
-        "text": "Choose the correct idiomatic expression to complete the sentence. Janet is __________ when she decided to accept urgent bulk order of her personalized candle without hiring any assistant. DIVISION ASIAN ENGLISH OLYMPIAD P 20 23 CONTEST STATE ROUND LEVEL 2 GRADE 3 & 4",
+        "text": "Choose the correct idiomatic expression to complete the sentence. Janet is __________ when she decided to accept urgent bulk order of her personalized candle without hiring any assistant.",
         "options": [
           {
             "id": "A",
@@ -68935,7 +68608,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 1: Johan : __________happened to Jane? Wani...",
-        "text": "Johan : __________happened to Jane? Wani :A thief___________herpurse. DIVISION ASIAN ENGLISH OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "Johan : __________happened to Jane? Wani :A thief___________herpurse.",
         "options": [
           {
             "id": "A",
@@ -69091,7 +68764,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 4: Choosetheoppositemeaning oftheunderlined...",
-        "text": "Choosetheoppositemeaning oftheunderlined word. The well is sodeep and dark. DIVISION ASIAN ENGLISH OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "Choosetheoppositemeaning oftheunderlined word. The well is sodeep and dark.",
         "options": [
           {
             "id": "A",
@@ -69143,7 +68816,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 5: Choosethesimilar meaning of theunderline...",
-        "text": "Choosethesimilar meaning of theunderlined word. Jenny is eager tolearn a new language. DIVISION ASIAN ENGLISH OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "Choosethesimilar meaning of theunderlined word. Jenny is eager tolearn a new language.",
         "options": [
           {
             "id": "A",
@@ -69350,8 +69023,8 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "grade": 3,
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
-        "title": "Câu 9: A.enjoy 40. 41. DIVISION ASIAN ENGLISH O...",
-        "text": "A.enjoy 40. 41. DIVISION ASIAN ENGLISH OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "title": "Câu 9: A.enjoy 40. 41.",
+        "text": "A.enjoy 40. 41.",
         "options": [
           {
             "id": "A",
@@ -69579,7 +69252,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 2: Themomentum ofthebullet fired from a gun...",
-        "text": "Themomentum ofthebullet fired from a gun islarger because ofits DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "Themomentum ofthebullet fired from a gun islarger because ofits",
         "options": [
           {
             "id": "A",
@@ -69693,7 +69366,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 4: Whichprocess reduces theamount ofcarbon ...",
-        "text": "Whichprocess reduces theamount ofcarbon dioxidein theatmosphere? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "Whichprocess reduces theamount ofcarbon dioxidein theatmosphere?",
         "options": [
           {
             "id": "A",
@@ -69807,7 +69480,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 6: Two sisters have different fingerprint p...",
-        "text": "Two sisters have different fingerprint patterns. What is thecause ofthiscondition? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "Two sisters have different fingerprint patterns. What is thecause ofthiscondition?",
         "options": [
           {
             "id": "A",
@@ -69921,7 +69594,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 8: Whichof thefollowing is an exampleof dis...",
-        "text": "Whichof thefollowing is an exampleof discontinuousvariation? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "Whichof thefollowing is an exampleof discontinuousvariation?",
         "options": [
           {
             "id": "A",
@@ -70035,7 +69708,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_ARTICLE",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 10: Whichof thefollowing cannot reduce theim...",
-        "text": "Whichof thefollowing cannot reduce theimpulsiveforces? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "Whichof thefollowing cannot reduce theimpulsiveforces?",
         "options": [
           {
             "id": "A",
@@ -70149,7 +69822,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_ARTICLE",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 12: Aboyshares his towel with hisbrothers. W...",
-        "text": "Aboyshares his towel with hisbrothers. Which ofthefollowing disease caneasily spread between theboys? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "Aboyshares his towel with hisbrothers. Which ofthefollowing disease caneasily spread between theboys?",
         "options": [
           {
             "id": "A",
@@ -70263,7 +69936,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 14: When ayellowlight shines ona green objec...",
-        "text": "When ayellowlight shines ona green object, theobject appears to be DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "When ayellowlight shines ona green object, theobject appears to be",
         "options": [
           {
             "id": "A",
@@ -70377,7 +70050,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 16: Whichof thefollowing is rich insaturated...",
-        "text": "Whichof thefollowing is rich insaturated fats? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "Whichof thefollowing is rich insaturated fats?",
         "options": [
           {
             "id": "A",
@@ -70491,7 +70164,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 18: Whichof thefollowing statement istrue of...",
-        "text": "Whichof thefollowing statement istrue ofcirculatory system in large multicellular organisms? vessels. DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "Whichof thefollowing statement istrue ofcirculatory system in large multicellular organisms? vessels.",
         "options": [
           {
             "id": "A",
@@ -70605,7 +70278,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 20: Amarried couple has four children with b...",
-        "text": "Amarried couple has four children with blood groups A, B, AB and O. Whichblood groups belong to themarried couple? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "Amarried couple has four children with blood groups A, B, AB and O. Whichblood groups belong to themarried couple?",
         "options": [
           {
             "id": "A",
@@ -70662,7 +70335,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 21: A metal block with a mass of 50 kg is be...",
-        "text": "A metal block with a mass of 50 kg is being dropped onto a pile to build a tall building. The height of the metal block from the pile is 20 m. Calculate the velocity of the metal block just before it hitsthe pile. DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "A metal block with a mass of 50 kg is being dropped onto a pile to build a tall building. The height of the metal block from the pile is 20 m. Calculate the velocity of the metal block just before it hitsthe pile.",
         "options": [
           {
             "id": "A",
@@ -70719,7 +70392,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 22: Whichof thefollowing are common domestic...",
-        "text": "Whichof thefollowing are common domesticwastes? I Detergent II Garbage III Glass bottles IV Metal cans V Plasticwastes DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "Whichof thefollowing are common domesticwastes? I Detergent II Garbage III Glass bottles IV Metal cans V Plasticwastes",
         "options": [
           {
             "id": "A",
@@ -70833,7 +70506,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 3",
         "title": "Câu 24: Whichof thefollowing electromagneticwave...",
-        "text": "Whichof thefollowing electromagneticwaves has thehighest energy level? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR3,4",
+        "text": "Whichof thefollowing electromagneticwaves has thehighest energy level?",
         "options": [
           {
             "id": "A",
@@ -71066,7 +70739,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_L3_T3",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 3: Social media has ___________ the way peo...",
-        "text": "Social media has ___________ the way people communicate. DIVISION P           ASIAN    ENGLISH    OLYMPIAD 2023  CONTEST LEVEL 3               STATE   ROUND GRADE 5 & 6",
+        "text": "Social media has ___________ the way people communicate. DIVISION P",
         "options": [
           {
             "id": "A",
@@ -71222,7 +70895,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_L3_T1",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 6: The storm __________, so we should head ...",
-        "text": "The storm __________, so we should head home before the winds pick up and the rain starts to pour. DIVISION P           ASIAN    ENGLISH    OLYMPIAD 2023  CONTEST LEVEL 3               STATE   ROUND GRADE 5 & 6",
+        "text": "The storm __________, so we should head home before the winds pick up and the rain starts to pour. DIVISION P",
         "options": [
           {
             "id": "A",
@@ -73473,7 +73146,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 3: Contestantsorateamwhoaredisqualifiedfrom...",
-        "text": "Contestantsorateamwhoaredisqualifiedfromthecontestwillbeforfeitedanyrighttore-sit thisyear. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR5& 6 FullName: Class: Date: Time: SchoolName： IC.No: 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39 40 41 42 43 44 45 46 47 48 49 50 DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR5& 6",
+        "text": "Contestantsorateamwhoaredisqualifiedfromthecontestwillbeforfeitedanyrighttore-sit thisyear.",
         "options": [
           {
             "id": "A",
@@ -73733,7 +73406,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 8: MissPushpaalways __________early at scho...",
-        "text": "MissPushpaalways __________early at school. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR5& 6",
+        "text": "MissPushpaalways __________early at school.",
         "options": [
           {
             "id": "A",
@@ -74149,7 +73822,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 16: It is mesmerizingto watch theairplane fl...",
-        "text": "It is mesmerizingto watch theairplane flying __________theskyabove us. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR5& 6",
+        "text": "It is mesmerizingto watch theairplane flying __________theskyabove us.",
         "options": [
           {
             "id": "A",
@@ -74357,7 +74030,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 20: I__________for lunch when thephonerang. ...",
-        "text": "I__________for lunch when thephonerang. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR5& 6",
+        "text": "I__________for lunch when thephonerang.",
         "options": [
           {
             "id": "A",
@@ -74565,7 +74238,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 24: The team discussed theproblem __________...",
-        "text": "The team discussed theproblem __________acup of coffee. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR5& 6",
+        "text": "The team discussed theproblem __________acup of coffee.",
         "options": [
           {
             "id": "A",
@@ -74721,7 +74394,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_ARTICLE",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 27: The aurora borealiswas earliest seen in ...",
-        "text": "The aurora borealiswas earliest seen in a 30,000-year-old cave painting in France. Thephenomenon has attracted admiration from peopleall over theworld, whohave given itcountless myths. ancient time. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR5& 6",
+        "text": "The aurora borealiswas earliest seen in a 30,000-year-old cave painting in France. Thephenomenon has attracted admiration from peopleall over theworld, whohave given itcountless myths. ancient time.",
         "options": [
           {
             "id": "A",
@@ -74877,7 +74550,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_TENSE",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 30: Oysters are notjust delectablebut theyal...",
-        "text": "Oysters are notjust delectablebut theyalso contribute tothe health ofthe ocean ecosystem. Each oyster has the capacity to purify upto 50gallonsof water daily from toxinsintroduced intotheocean byhuman activity. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR5& 6",
+        "text": "Oysters are notjust delectablebut theyalso contribute tothe health ofthe ocean ecosystem. Each oyster has the capacity to purify upto 50gallonsof water daily from toxinsintroduced intotheocean byhuman activity.",
         "options": [
           {
             "id": "A",
@@ -75033,7 +74706,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 33: The showwas a completefiasco when thesin...",
-        "text": "The showwas a completefiasco when thesinger was caught miming to thesong. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR5& 6",
+        "text": "The showwas a completefiasco when thesinger was caught miming to thesong.",
         "options": [
           {
             "id": "A",
@@ -75241,7 +74914,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 37: Michelle willget upat day__________ ever...",
-        "text": "Michelle willget upat day__________ every day because itis quitealong journey to school. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR5& 6",
+        "text": "Michelle willget upat day__________ every day because itis quitealong journey to school.",
         "options": [
           {
             "id": "A",
@@ -75449,7 +75122,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 41: Although her first single catapulted her...",
-        "text": "Although her first single catapulted herto star__________, sheremains down to earth onherachievement. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR5& 6",
+        "text": "Although her first single catapulted herto star__________, sheremains down to earth onherachievement.",
         "options": [
           {
             "id": "A",
@@ -75605,7 +75278,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_IDIOM_COLLOC",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 44: Choosethecorrect idiomaticexpression to ...",
-        "text": "Choosethecorrect idiomaticexpression to completethe sentence. Heis trying to __________________what hadjust happened at thehospital. DIVISION ASIAN ENGLISH OLYMPIAD P 2022 CONTEST STATE LEVEL YEAR5& 6",
+        "text": "Choosethecorrect idiomaticexpression to completethe sentence. Heis trying to __________________what hadjust happened at thehospital.",
         "options": [
           {
             "id": "A",
@@ -75833,7 +75506,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 2: Whichof thefollowing is produced from fu...",
-        "text": "Whichof thefollowing is produced from fungi? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR5,6",
+        "text": "Whichof thefollowing is produced from fungi?",
         "options": [
           {
             "id": "A",
@@ -75947,7 +75620,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 4: Whichof thefollowing microorganisms is a...",
-        "text": "Whichof thefollowing microorganisms is abletoproduce foodthrough photosynthesis? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR5,6",
+        "text": "Whichof thefollowing microorganisms is abletoproduce foodthrough photosynthesis?",
         "options": [
           {
             "id": "A",
@@ -76061,7 +75734,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 6: Whichof thefollowing is aphysical change...",
-        "text": "Whichof thefollowing is aphysical change? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR5,6",
+        "text": "Whichof thefollowing is aphysical change?",
         "options": [
           {
             "id": "A",
@@ -76175,7 +75848,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 8: Sarah has apair ofdimpleswhile Diana has...",
-        "text": "Sarah has apair ofdimpleswhile Diana has nodimples. Which factorcauses thedifference in traits forthetwo girls? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR5,6",
+        "text": "Sarah has apair ofdimpleswhile Diana has nodimples. Which factorcauses thedifference in traits forthetwo girls?",
         "options": [
           {
             "id": "A",
@@ -76289,7 +75962,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 10: Whichof thefollowing structures isfound ...",
-        "text": "Whichof thefollowing structures isfound inboth animal and plant cells? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR5,6",
+        "text": "Whichof thefollowing structures isfound inboth animal and plant cells?",
         "options": [
           {
             "id": "A",
@@ -76403,7 +76076,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 12: Whichof thefollowing elements is amacron...",
-        "text": "Whichof thefollowing elements is amacronutrient required byplants to synthesise protein? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR5,6",
+        "text": "Whichof thefollowing elements is amacronutrient required byplants to synthesise protein?",
         "options": [
           {
             "id": "A",
@@ -76517,7 +76190,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_GRAMMAR_ARTICLE",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 14: Whyis common salt added intheprocess of ...",
-        "text": "Whyis common salt added intheprocess of making soap? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR5,6",
+        "text": "Whyis common salt added intheprocess of making soap?",
         "options": [
           {
             "id": "A",
@@ -76631,7 +76304,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 16: Whichof thefollowing features is linked ...",
-        "text": "Whichof thefollowing features is linked to thepitch ofthesound that we hear? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR5,6",
+        "text": "Whichof thefollowing features is linked to thepitch ofthesound that we hear?",
         "options": [
           {
             "id": "A",
@@ -76745,7 +76418,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 18: Whichelectromagnetic wave has theshortes...",
-        "text": "Whichelectromagnetic wave has theshortest wavelength? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR5,6",
+        "text": "Whichelectromagnetic wave has theshortest wavelength?",
         "options": [
           {
             "id": "A",
@@ -76859,7 +76532,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 20: Belowis alistof food. Yoghurt Cheese Soy...",
-        "text": "Belowis alistof food. Yoghurt Cheese Soya sauce Vinegar Whichof thefollowing microorganisms is used toproduce thesefood? DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR5,6",
+        "text": "Belowis alistof food. Yoghurt Cheese Soya sauce Vinegar Whichof thefollowing microorganisms is used toproduce thesefood?",
         "options": [
           {
             "id": "A",
@@ -76916,7 +76589,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 21: A hot-air balloon is fixed firmly to the...",
-        "text": "A hot-air balloon is fixed firmly to the ground. The balloon contains 1350 m3 of hot air with a density of 0.8 kg m-3. The mass of the balloon (not including the hot air) is 520 kg. The density of the surrounding air is 1.3 kg m-3. Calculate the total weight of the balloon and the hot air. DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR5,6",
+        "text": "A hot-air balloon is fixed firmly to the ground. The balloon contains 1350 m3 of hot air with a density of 0.8 kg m-3. The mass of the balloon (not including the hot air) is 520 kg. The density of the surrounding air is 1.3 kg m-3. Calculate the total weight of the balloon and the hot air.",
         "options": [
           {
             "id": "A",
@@ -76973,7 +76646,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 22: Whichof thefollowing are common agricult...",
-        "text": "Whichof thefollowing are common agricultural wastes? I Crude oil II Heavy metals III Inorganic fertilisers IV Manure V Pesticides DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR5,6",
+        "text": "Whichof thefollowing are common agricultural wastes? I Crude oil II Heavy metals III Inorganic fertilisers IV Manure V Pesticides",
         "options": [
           {
             "id": "A",
@@ -77087,7 +76760,7 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
         "topicCode": "ENG_VOCAB_CONTEXT",
         "topicName": "Tiếng Anh Học Thuật Lớp 5",
         "title": "Câu 24: Aballoon filled with airat atmospheric p...",
-        "text": "Aballoon filled with airat atmospheric pressure is brought down into thewater untilits volumebecomes ofits original volume. If theatmospheric pressure is 10m ofwater, calculatethedepth, from thesurface whentheballoon is brought to. DIVISION ASIAN SCIENCE OLYMPIAD P CONTEST 2020 PRIMARY (SCHOOL ROUND) YEAR5,6",
+        "text": "Aballoon filled with airat atmospheric pressure is brought down into thewater untilits volumebecomes ofits original volume. If theatmospheric pressure is 10m ofwater, calculatethedepth, from thesurface whentheballoon is brought to.",
         "options": [
           {
             "id": "A",
@@ -77196,4 +76869,4 @@ export const ASMO_SAMPLE_EXAMS: AsmoExam[] = [
       }
     ]
   }
-];
+]
