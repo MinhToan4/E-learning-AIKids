@@ -7,6 +7,65 @@ type Props = {
   className?: string
 }
 
+/**
+ * Auto-Math Fallback Engine:
+ * Intelligently scans raw strings for LaTeX commands (\ln(3), \frac{a}{b}, \sqrt{x}, \alpha, \pi...)
+ * or mathematical power/algebraic expressions (e^(2x) - 4e^x + 3 = 0, a^b, x^2 - 4 = 0)
+ * that lack standard '$ ... $' delimiters, and wraps them so KaTeX renders them seamlessly.
+ */
+export function autoWrapMath(text: string): string {
+  if (!text) return ''
+
+  // 1. Tokenize HTML tags and existing math blocks ($$...$$ and $...$)
+  const tokens: string[] = []
+  const placeholder = (idx: number) => `___ASMO_MATH_TOKEN_${idx}___`
+
+  let s = text.replace(/(\$\$[\s\S]+?\$\$|\$[^\$\n]+?\$|<[^>]+>)/g, (m) => {
+    const idx = tokens.length
+    tokens.push(m)
+    return placeholder(idx)
+  })
+
+  // 2. Normalize ^(expression) -> ^{expression}
+  s = s.replace(/\^\(([^)]+)\)/g, '^{$1}')
+
+  // 3. Detect algebraic equations with powers, functions, variables, or latex commands:
+  // e.g. e^{2x} - 4e^x + 3 = 0, x^2 - 4 = 0, 2^{2x} - 5(2^x) + 4 = 0, y = 2x^2 - 8x + 5
+  s = s.replace(
+    /(?:(?<=\s|^|[([«"'])(?:[a-zA-Z0-9_{}^\\()]+(?:\s*[+\-*/·×÷]\s*[a-zA-Z0-9_{}^\\()]+|\s*\([^)]+\))*\s*=\s*[a-zA-Z0-9_{}^\\()]+(?:\s*[+\-*/·×÷]\s*[a-zA-Z0-9_{}^\\()]+)*)(?=\s|$|[)\]»"';,?!]))/g,
+    (m) => {
+      if (m.includes('^') || m.includes('\\') || /[a-zA-Z]/.test(m)) {
+        return `$${m.trim()}$`
+      }
+      return m
+    }
+  )
+
+  // 4. Detect standalone LaTeX commands like \ln(3), \frac{a}{b}, \sqrt{x}, \alpha, \beta, \pi
+  // Also clauses like 0, \ln(3) or \frac{1}{2} + \frac{3}{4} or \alpha + \beta
+  s = s.replace(
+    /(?:(?<=\s|^|[([«"'])(?:-?[a-zA-Z0-9_{}^()]+\s*,\s*)?\\[a-zA-Z]+(?:\{[^}]*\}|\([^)]*\))*(?:\s*[+\-*/^_\\()]\s*\\?[a-zA-Z0-9_{}^\\()]+)*(?=\s|$|[)\]»"';,?!]))/g,
+    (m) => {
+      return `$${m.trim()}$`
+    }
+  )
+
+  // 5. Detect standalone power expressions like x^2, a^b, 2^{10}, (x+1)^2
+  s = s.replace(
+    /(?:(?<=\s|^|[([«"'])(?:[a-zA-Z0-9()]|\([^)]+\))\^\{?[a-zA-Z0-9+-]+(?:\}?)?(?=\s|$|[)\]»"';,?!]))/g,
+    (m) => {
+      return `$${m.trim()}$`
+    }
+  )
+
+  // Restore protected tokens
+  for (let i = 0; i < tokens.length; i++) {
+    s = s.replace(placeholder(i), tokens[i])
+  }
+
+  return s
+}
+
 export function AsmoFormula({ text, className }: Props) {
   const html = useMemo(() => {
     if (!text) return ''
@@ -139,6 +198,9 @@ export function AsmoFormula({ text, className }: Props) {
         </div>
       </div>`
     })
+
+    // 2.9 Auto-Math Fallback: Detect unwrapped LaTeX & exponents/equations
+    input = autoWrapMath(input)
 
     // 3. Render $$block math$$ first
     let processed = input.replace(/\$\$([\s\S]+?)\$\$/g, (_, math) => {

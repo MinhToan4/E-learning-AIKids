@@ -14,6 +14,21 @@ describe('ASMO UI Components', () => {
     expect(markup).toContain('Tìm giá trị của')
   })
 
+  it('renders unwrapped LaTeX commands using Auto-Math Fallback Engine', () => {
+    const markup = renderToStaticMarkup(
+      createElement(AsmoFormula, { text: 'Nghiệm là 0, \\ln(3) với \\frac{a}{b} và \\sqrt{x}' }),
+    )
+    expect(markup).toContain('katex')
+    expect(markup).toContain('ln')
+  })
+
+  it('renders unwrapped exponential equations and powers with Auto-Math Fallback Engine', () => {
+    const markup = renderToStaticMarkup(
+      createElement(AsmoFormula, { text: 'Giải phương trình e^(2x) - 4e^x + 3 = 0 và x^2 - 4 = 0 với a^b' }),
+    )
+    expect(markup).toContain('katex')
+  })
+
   it('renders AsmoMeeTutor with character, pose and speech', () => {
     const markup = renderToStaticMarkup(
       createElement(AsmoMeeTutor, {
