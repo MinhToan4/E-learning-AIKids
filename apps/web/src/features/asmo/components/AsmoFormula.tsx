@@ -16,11 +16,15 @@ type Props = {
 export function autoWrapMath(text: string): string {
   if (!text) return ''
 
+  // 0. Protect escaped dollar currency symbols
+  const ESC_DOLLAR = '___ASMO_ESC_DOLLAR___'
+  let inputStr = text.replace(/\\\$/g, ESC_DOLLAR)
+
   // 1. Tokenize HTML tags and existing math blocks ($$...$$ and $...$)
   const tokens: string[] = []
   const placeholder = (idx: number) => `___ASMO_MATH_TOKEN_${idx}___`
 
-  let s = text.replace(/(\$\$[\s\S]+?\$\$|\$[^\$\n]+?\$|<[^>]+>)/g, (m) => {
+  let s = inputStr.replace(/(\$\$[\s\S]+?\$\$|\$[^\$\n]+?\$|<[^>]+>)/g, (m) => {
     const idx = tokens.length
     tokens.push(m)
     return placeholder(idx)
@@ -62,6 +66,9 @@ export function autoWrapMath(text: string): string {
   for (let i = 0; i < tokens.length; i++) {
     s = s.replace(placeholder(i), tokens[i])
   }
+
+  // Restore escaped dollars
+  s = s.replace(new RegExp(ESC_DOLLAR, 'g'), '\\$')
 
   return s
 }
@@ -199,6 +206,10 @@ export function AsmoFormula({ text, className }: Props) {
       </div>`
     })
 
+    // 2.8 Protect escaped currency dollars
+    const ESC_DOLLAR = '___ASMO_ESC_DOLLAR___'
+    input = input.replace(/\\\$/g, ESC_DOLLAR)
+
     // 2.9 Auto-Math Fallback: Detect unwrapped LaTeX & exponents/equations
     input = autoWrapMath(input)
 
@@ -225,6 +236,9 @@ export function AsmoFormula({ text, className }: Props) {
         return `<span class="katex-inline-fallback">${math}</span>`
       }
     })
+
+    // Restore escaped dollars as plain $
+    processed = processed.replace(new RegExp(ESC_DOLLAR, 'g'), '$')
 
     // 5. Standalone Shape Tags & Option Shape Icons
     processed = processed
