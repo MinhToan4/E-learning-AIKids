@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react'
-import { Link, useSearchParams } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import {
   Compass,
   Trophy,
@@ -20,17 +20,15 @@ import {
   getStageStats,
   resetLmsProgress,
 } from '../data/asmo-curriculum-lms'
-import { AsmoInteractiveLessonModal } from '../components/AsmoInteractiveLessonModal'
 import { AsmoIslandWorldMap } from '../components/AsmoIslandWorldMap'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 
 export function AsmoCurriculumRoadmapPage() {
   const [searchParams, setSearchParams] = useSearchParams()
+  const navigate = useNavigate()
 
   const [progress, setProgress] = useState<AsmoLmsProgressState>(getLmsProgress())
   const [selectedStageId, setSelectedStageId] = useState<string>('stage-1')
-  const [activeLesson, setActiveLesson] = useState<AsmoLmsLesson | null>(null)
-  const [isModalOpen, setIsModalOpen] = useState<boolean>(false)
 
   // Sync stage from URL or default
   useEffect(() => {
@@ -40,27 +38,9 @@ export function AsmoCurriculumRoadmapPage() {
     }
   }, [searchParams])
 
-  // Refresh progress state from storage
-  const reloadProgress = () => {
-    setProgress(getLmsProgress())
-  }
-
   const handleOpenLesson = (lesson: AsmoLmsLesson) => {
     if (!isLessonUnlocked(lesson, progress)) return
-    setActiveLesson(lesson)
-    setIsModalOpen(true)
-  }
-
-  const handleLessonCompleted = () => {
-    reloadProgress()
-  }
-
-  const handleNextLesson = (nextLsn: AsmoLmsLesson) => {
-    setActiveLesson(nextLsn)
-    if (nextLsn.stageId !== selectedStageId) {
-      setSelectedStageId(nextLsn.stageId)
-      setSearchParams({ stage: nextLsn.stageId })
-    }
+    navigate(`/asmo/curriculum/lesson/${lesson.id}`)
   }
 
   const handleSelectStage = (stageId: string) => {
@@ -203,17 +183,6 @@ export function AsmoCurriculumRoadmapPage() {
         progress={progress}
         onOpenLesson={handleOpenLesson}
       />
-
-      {/* ── INTERACTIVE LESSON MODAL ── */}
-      {activeLesson && (
-        <AsmoInteractiveLessonModal
-          lesson={activeLesson}
-          isOpen={isModalOpen}
-          onClose={() => setIsModalOpen(false)}
-          onCompleteLesson={handleLessonCompleted}
-          onNextLesson={handleNextLesson}
-        />
-      )}
     </div>
   )
 }

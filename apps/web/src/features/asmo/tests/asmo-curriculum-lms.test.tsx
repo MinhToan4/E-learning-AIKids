@@ -1,6 +1,6 @@
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { MemoryRouter } from 'react-router'
+import { MemoryRouter, Routes, Route } from 'react-router'
 import { describe, it, expect, beforeEach } from 'vitest'
 import {
   ASMO_LMS_STAGES,
@@ -11,6 +11,7 @@ import {
   resetLmsProgress,
 } from '../data/asmo-curriculum-lms'
 import { AsmoCurriculumRoadmapPage } from '../pages/AsmoCurriculumRoadmapPage'
+import { AsmoCurriculumLessonPage } from '../pages/AsmoCurriculumLessonPage'
 import {
   AsmoIslandWorldMap,
   ASMO_ISLAND_THEMES,
@@ -265,5 +266,70 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).toContain('3. Thực Hành Tương Tác')
     expect(markup).toContain('4. Thử Thách Quiz')
     expect(markup).toContain('Gộp Táo')
+  })
+
+  it('renders AsmoCurriculumLessonPage fullscreen standard page with 4 Math & Olympic Phase Tabs, Visualizer, and Sidebar', () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        { initialEntries: ['/asmo/curriculum/lesson/s1-apples'] },
+        createElement(
+          Routes,
+          null,
+          createElement(Route, {
+            path: '/asmo/curriculum/lesson/:lessonId',
+            element: createElement(AsmoCurriculumLessonPage),
+          }),
+        ),
+      ),
+    )
+
+    // 1. Header & Badges
+    expect(markup).toContain('TRẠM 1:')
+    expect(markup).toContain('Gộp Táo')
+    expect(markup).toContain('Sản phẩm của trạm:')
+    expect(markup).toContain('Sao của trạm')
+
+    // 2. 4 Phase Pill Tabs
+    expect(markup).toContain('Khám phá Khái niệm')
+    expect(markup).toContain('Mẹo Mèo Mee &amp; Bí kíp')
+    expect(markup).toContain('Thực hành Thao tác')
+    expect(markup).toContain('Thử tài Olympic')
+
+    // 3. Main Stage Visualizer (Apple drop)
+    expect(markup).toContain('Trọng Tâm Kiến Thức Bài Học')
+    expect(markup).toContain('Giỏ Đỏ:')
+    expect(markup).toContain('Giỏ Xanh:')
+    expect(markup).toContain('quả táo tổng cộng')
+    expect(markup).toContain('🌟 Ghi Nhớ Nhanh:')
+
+    // 4. Sidebar Assistant Mèo Mee
+    expect(markup).toContain('Mee đang hỗ trợ: Con làm được! 🐾')
+    expect(markup).toContain('💡 Gợi ý cho con')
+    expect(markup).toContain('Hành trình trạm')
+    expect(markup).toContain('🎯 Mục tiêu của con')
+
+    // 5. Action Buttons
+    expect(markup).toContain('🎓 Thoát về bản đồ')
+  })
+
+  it('renders fallback error message when lessonId does not exist', () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        { initialEntries: ['/asmo/curriculum/lesson/non-existent-lesson-id'] },
+        createElement(
+          Routes,
+          null,
+          createElement(Route, {
+            path: '/asmo/curriculum/lesson/:lessonId',
+            element: createElement(AsmoCurriculumLessonPage),
+          }),
+        ),
+      ),
+    )
+
+    expect(markup).toContain('Không tìm thấy bài học ASMO')
+    expect(markup).toContain('Quay về Bản Đồ 5 Vùng Đảo')
   })
 })

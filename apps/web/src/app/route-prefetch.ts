@@ -14,7 +14,7 @@ export function prefetchRoute(path: string) {
   prefetched.add(key)
   const load = key === 'admin-legends'
     ? Promise.all([import('@/features/admin/pages/AdminPage'), import('@/features/admin/components/LegendRewardStudio')])
-    : key === 'asmo-curriculum' ? import('@/features/asmo/pages/AsmoCurriculumRoadmapPage')
+    : key === 'asmo-curriculum' ? Promise.all([import('@/features/asmo/pages/AsmoCurriculumRoadmapPage'), import('@/features/asmo/pages/AsmoCurriculumLessonPage')])
     : key === 'asmo-journey' ? import('@/features/asmo/pages/AsmoLearningJourneyPage')
     : key === 'admin' ? import('@/features/admin/pages/AdminPage')
     : key === 'teacher' ? import('@/features/teacher/pages/TeacherPage')
