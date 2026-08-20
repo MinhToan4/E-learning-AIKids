@@ -5,13 +5,16 @@ export function prefetchRoute(path: string) {
   const normalized = path.split('?')[0]
   const key = normalized === '/admin/legends'
     ? 'admin-legends'
-    : normalized.startsWith('/asmo/journey')
-      ? 'asmo-journey'
-      : normalized.split('/').filter(Boolean)[0] ?? 'home'
+    : normalized.startsWith('/asmo/curriculum')
+      ? 'asmo-curriculum'
+      : normalized.startsWith('/asmo/journey')
+        ? 'asmo-journey'
+        : normalized.split('/').filter(Boolean)[0] ?? 'home'
   if (prefetched.has(key)) return
   prefetched.add(key)
   const load = key === 'admin-legends'
     ? Promise.all([import('@/features/admin/pages/AdminPage'), import('@/features/admin/components/LegendRewardStudio')])
+    : key === 'asmo-curriculum' ? import('@/features/asmo/pages/AsmoCurriculumRoadmapPage')
     : key === 'asmo-journey' ? import('@/features/asmo/pages/AsmoLearningJourneyPage')
     : key === 'admin' ? import('@/features/admin/pages/AdminPage')
     : key === 'teacher' ? import('@/features/teacher/pages/TeacherPage')
@@ -26,7 +29,7 @@ export function prefetchRoute(path: string) {
                       : key === 'backpack' ? import('@/features/backpack/pages/BackpackPage')
                         : key === 'profile' ? import('@/features/profile/pages/ProfilePage')
                           : key === 'creative' ? import('@/features/creative/pages/CreativePage')
-                            : key === 'asmo' ? Promise.all([import('@/features/asmo/pages/AsmoHubPage'), import('@/features/asmo/pages/AsmoLearningJourneyPage')])
+                            : key === 'asmo' ? Promise.all([import('@/features/asmo/pages/AsmoHubPage'), import('@/features/asmo/pages/AsmoLearningJourneyPage'), import('@/features/asmo/pages/AsmoCurriculumRoadmapPage')])
                               : null
   void load?.catch(() => prefetched.delete(key))
 }

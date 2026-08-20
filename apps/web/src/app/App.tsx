@@ -135,6 +135,11 @@ const AsmoLearningJourneyPage = lazy(() =>
     default: m.AsmoLearningJourneyPage,
   })),
 )
+const AsmoCurriculumRoadmapPage = lazy(() =>
+  import('@/features/asmo/pages/AsmoCurriculumRoadmapPage').then((m) => ({
+    default: m.AsmoCurriculumRoadmapPage,
+  })),
+)
 const ParentPage = lazy(() =>
   import('@/features/parent/pages/ParentPage').then((m) => ({
     default: m.ParentPage,
@@ -442,6 +447,14 @@ export function App() {
               element={
                 <Guard roles={['student']} requireOnboarded>
                   <AsmoHubPage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/asmo/curriculum"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <AsmoCurriculumRoadmapPage />
                 </Guard>
               }
             />

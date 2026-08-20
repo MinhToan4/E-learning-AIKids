@@ -335,6 +335,24 @@ export function AsmoLearningJourneyPage() {
           <p className="text-xs sm:text-sm text-indigo-100 leading-relaxed max-w-2xl">
             Lộ trình học tập 3 bước chuẩn sư phạm kết hợp mô phỏng phép tính nhẩm tiểu học, mô hình không gian 3D Three.js 360°, đồ thị hàm số KaTeX và trợ giảng AI Mèo Mee đồng hành từng bước giải!
           </p>
+
+          <div className="flex items-center gap-2 pt-2 flex-wrap">
+            <Link
+              to="/asmo/curriculum"
+              className="inline-flex items-center gap-1.5 rounded-2xl bg-amber-400 text-slate-950 px-3.5 py-1.5 text-xs font-black shadow-md hover:bg-amber-300 transition-all"
+            >
+              <Compass className="size-3.5 text-slate-950" />
+              <span>🗺️ Lộ Trình Học Tuần Tự (LMS)</span>
+            </Link>
+
+            <Link
+              to="/asmo"
+              className="inline-flex items-center gap-1.5 rounded-2xl bg-white/20 text-white hover:bg-white/30 px-3.5 py-1.5 text-xs font-bold backdrop-blur-md transition-all border border-white/20"
+            >
+              <Trophy className="size-3.5 text-sun-300" />
+              <span>⚡ Đấu Trường Thi Đấu (Exam Arena)</span>
+            </Link>
+          </div>
         </div>
 
         <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 opacity-15 pointer-events-none">

@@ -105,11 +105,21 @@ export function AsmoHubPage() {
             <Button
               type="button"
               variant="primary"
-              onClick={() => navigate('/asmo/journey')}
-              className="gap-2 rounded-2xl bg-sun-400 text-slate-950 hover:bg-sun-300 font-extrabold shadow-md border-0"
+              onClick={() => navigate('/asmo/curriculum')}
+              className="gap-2 rounded-2xl bg-amber-400 text-slate-950 hover:bg-amber-300 font-black shadow-md border-0"
             >
               <Compass className="size-4 text-slate-950" />
-              <span>Chặng Học Olympic 3D</span>
+              <span>🗺️ Lộ Trình Học Tuần Tự (LMS)</span>
+            </Button>
+
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => navigate('/asmo/journey')}
+              className="gap-2 rounded-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 font-bold backdrop-blur-md"
+            >
+              <Sparkles className="size-4 text-sun-300" />
+              <span>Chặng Học 3D</span>
             </Button>
 
             <Button
@@ -119,7 +129,7 @@ export function AsmoHubPage() {
               className="gap-2 rounded-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 font-bold backdrop-blur-md"
             >
               <Box className="size-4" />
-              <span>Phòng Thí Nghiệm 3D</span>
+              <span>Phòng Lab 3D</span>
             </Button>
 
             {exams.length > 0 && (
@@ -294,6 +304,36 @@ export function AsmoHubPage() {
             {isLoading ? 'Đang tải đề thi...' : `${exams.length} Bộ đề thi sẵn sàng`}
           </span>
         </div>
+      </div>
+
+      {/* ── LMS CURRICULUM ROADMAP HIGHLIGHT BANNER ── */}
+      <div className="rounded-3xl border border-amber-300 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-100/60 p-5 sm:p-6 shadow-clay flex flex-col md:flex-row items-center justify-between gap-4">
+        <div className="flex items-center gap-4">
+          <div className="flex size-14 items-center justify-center rounded-2xl bg-amber-500 text-slate-950 shadow-md text-2xl shrink-0">
+            🧭
+          </div>
+          <div>
+            <div className="inline-flex items-center gap-1 rounded-full bg-amber-200/80 px-2.5 py-0.5 text-[11px] font-black text-amber-900 mb-1">
+              <span>⭐ DẠY HỌC TUẦN TỰ THEO CHUYÊN ĐỀ QUỐC TẾ</span>
+            </div>
+            <h2 className="text-base sm:text-lg font-black text-slate-900 leading-snug">
+              Bản Đồ 5 Chặng Học LMS ASMO (Cộng Trừ ➔ Nhân Chia ➔ Phân Số ➔ Đo Lường ➔ 3D)
+            </h2>
+            <p className="text-xs text-slate-600 mt-0.5">
+              Học theo lộ trình đảo học tập Duolingo Math / Beast Academy với mô phỏng trực quan &amp; bí kíp Mèo Mee!
+            </p>
+          </div>
+        </div>
+
+        <Button
+          type="button"
+          variant="primary"
+          onClick={() => navigate('/asmo/curriculum')}
+          className="shrink-0 gap-2 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black shadow-md px-5 py-2.5 cursor-pointer"
+        >
+          <span>Khám Phá Lộ Trình LMS</span>
+          <ArrowRight className="size-4 text-slate-950" />
+        </Button>
       </div>
 
       {/* ── TWO MAIN TRACKS ── */}
