@@ -1,7 +1,8 @@
 import { useState } from 'react'
 import { AsmoFormula } from './AsmoFormula'
 import { AsmoTrigLabVisualizer } from './AsmoTrigLabVisualizer'
-import { Sparkles, Sliders, RefreshCw, Compass, Layers, Calculator } from 'lucide-react'
+import { AsmoKidsArithmeticVisualizer } from './AsmoKidsArithmeticVisualizer'
+import { Sparkles, Sliders, RefreshCw, Compass, Layers, Calculator, Box } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 
 type Props = {
@@ -13,10 +14,21 @@ type Props = {
 export function AsmoMathVisualizer({ topicId, level, className }: Props) {
   const [sliderVal, setSliderVal] = useState(level === 1 ? 30 : level === 2 ? 45 : 60)
   const [activeTab, setActiveTab] = useState<'diagram' | 'formula'>('diagram')
+  const [pythSideA, setPythSideA] = useState<number>(level === 1 ? 6 : level === 2 ? 3 : 9)
+  const [pythSideB, setPythSideB] = useState<number>(level === 1 ? 8 : level === 2 ? 4 : 12)
 
+  // 1. Elementary Arithmetic -> Render AsmoKidsArithmeticVisualizer
+  if (topicId === 'elementary-arithmetic') {
+    return <AsmoKidsArithmeticVisualizer level={level} className={className} />
+  }
+
+  // 2. Trigonometry -> Render AsmoTrigLabVisualizer
   if (topicId === 'trigonometry') {
     return <AsmoTrigLabVisualizer initialAngle={level === 1 ? 30 : level === 2 ? 45 : 60} className={className} />
   }
+
+  const pythC = Math.sqrt(pythSideA * pythSideA + pythSideB * pythSideB)
+  const pythAltitude = (pythSideA * pythSideB) / pythC
 
   return (
     <div className={cn('relative w-full rounded-3xl overflow-hidden bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-950 border border-slate-700/60 shadow-xl p-4 sm:p-6 text-white flex flex-col justify-between min-h-[380px]', className)}>
@@ -41,17 +53,17 @@ export function AsmoMathVisualizer({ topicId, level, className }: Props) {
             type="button"
             onClick={() => setActiveTab('diagram')}
             className={cn(
-              'px-2.5 py-1 rounded-xl text-xs font-bold transition-all',
+              'px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer',
               activeTab === 'diagram' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white/10 text-slate-300 hover:bg-white/20'
             )}
           >
-            Đồ thị & Hình học
+            Đồ thị &amp; Hình học
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('formula')}
             className={cn(
-              'px-2.5 py-1 rounded-xl text-xs font-bold transition-all',
+              'px-2.5 py-1 rounded-xl text-xs font-bold transition-all cursor-pointer',
               activeTab === 'formula' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-white/10 text-slate-300 hover:bg-white/20'
             )}
           >
@@ -116,66 +128,129 @@ export function AsmoMathVisualizer({ topicId, level, className }: Props) {
               </div>
             )}
 
-            {/* 2. Trigonometry */}
-            {topicId === 'trigonometry' && (
-              <div className="w-full max-w-md flex flex-col items-center space-y-3">
-                <svg viewBox="0 0 240 200" className="w-full max-h-48 select-none font-bold">
-                  {/* Unit circle */}
-                  <circle cx="120" cy="100" r="70" fill="none" stroke="#475569" strokeWidth="1.5" strokeDasharray="3 3" />
-                  {/* Axes */}
-                  <line x1="20" y1="100" x2="220" y2="100" stroke="#64748b" strokeWidth="1.5" />
-                  <line x1="120" y1="10" x2="120" y2="190" stroke="#64748b" strokeWidth="1.5" />
-                  <text x="215" y="115" fill="#94a3b8" fontSize="11">cos</text>
-                  <text x="125" y="20" fill="#94a3b8" fontSize="11">sin</text>
+            {/* 2. Pythagoras & Geometry */}
+            {topicId === 'pythagoras-geometry' && (
+              <div className="w-full max-w-md space-y-3">
+                <svg viewBox="0 0 320 180" className="w-full max-h-48 select-none font-bold">
+                  {/* Right Triangle */}
+                  <polygon points="50,140 250,140 50,40" fill="rgba(99, 102, 241, 0.2)" stroke="#818cf8" strokeWidth="2.5" />
+                  {/* Right angle symbol */}
+                  <rect x="50" y="125" width="15" height="15" fill="none" stroke="#f59e0b" strokeWidth="1.5" />
 
-                  {/* Radius vector at angle alpha */}
-                  {(() => {
-                    const rad = (sliderVal * Math.PI) / 180
-                    const px = 120 + 70 * Math.cos(rad)
-                    const py = 100 - 70 * Math.sin(rad)
-                    return (
-                      <g>
-                        {/* Sector arc */}
-                        <path
-                          d={`M 150,100 A 30,30 0 0,0 ${120 + 30 * Math.cos(rad)},${100 - 30 * Math.sin(rad)}`}
-                          fill="none"
-                          stroke="#f59e0b"
-                          strokeWidth="2"
-                        />
-                        <text x="145" y="90" fill="#fcd34d" fontSize="11">{sliderVal}°</text>
+                  {/* Labels */}
+                  <text x="140" y="158" fill="#38bdf8" fontSize="12" textAnchor="middle">Cạnh góc vuông b = {pythSideB} cm</text>
+                  <text x="35" y="95" fill="#38bdf8" fontSize="12" textAnchor="end">a = {pythSideA} cm</text>
+                  <text x="160" y="80" fill="#facc15" fontSize="13" fontWeight="bold">c = {pythC.toFixed(1)} cm</text>
 
-                        {/* Projections */}
-                        <line x1={px} y1={py} x2={px} y2="100" stroke="#ef4444" strokeWidth="2" strokeDasharray="2 2" />
-                        <line x1={px} y1={py} x2="120" y2={py} stroke="#38bdf8" strokeWidth="2" strokeDasharray="2 2" />
-
-                        {/* Radius line */}
-                        <line x1="120" y1="100" x2={px} y2={py} stroke="#a855f7" strokeWidth="3" />
-                        <circle cx={px} cy={py} r="5" fill="#38bdf8" />
-                      </g>
-                    )
-                  })()}
+                  {/* Altitude from right angle */}
+                  <line x1="50" y1="140" x2="114" y2="108" stroke="#f43f5e" strokeWidth="1.5" strokeDasharray="3 3" />
+                  <text x="75" y="115" fill="#fda4af" fontSize="10">h = {pythAltitude.toFixed(1)}</text>
                 </svg>
 
-                {/* Angle Slider Control */}
-                <div className="w-full flex items-center justify-between gap-3 bg-white/10 px-3 py-2 rounded-2xl border border-white/10">
-                  <span className="text-xs font-bold text-slate-300">Góc quay: {sliderVal}°</span>
-                  <input
-                    type="range"
-                    min="0"
-                    max="90"
-                    step="15"
-                    value={sliderVal}
-                    onChange={(e) => setSliderVal(parseInt(e.target.value, 10))}
-                    className="flex-1 accent-indigo-500 cursor-pointer"
-                  />
-                  <span className="text-xs font-mono font-bold text-amber-300">
-                    sin={Math.sin((sliderVal * Math.PI) / 180).toFixed(2)}
-                  </span>
+                {/* Interactive Controls */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="bg-white/10 p-2 rounded-xl border border-white/10 flex items-center justify-between">
+                    <span className="text-slate-300">Cạnh a:</span>
+                    <button
+                      type="button"
+                      onClick={() => setPythSideA((prev) => (prev === 6 ? 9 : prev === 9 ? 5 : 6))}
+                      className="px-2 py-0.5 bg-indigo-500/50 hover:bg-indigo-500 rounded-md font-mono font-bold"
+                    >
+                      {pythSideA} cm ⟳
+                    </button>
+                  </div>
+                  <div className="bg-white/10 p-2 rounded-xl border border-white/10 flex items-center justify-between">
+                    <span className="text-slate-300">Cạnh b:</span>
+                    <button
+                      type="button"
+                      onClick={() => setPythSideB((prev) => (prev === 8 ? 12 : prev === 12 ? 12 : 8))}
+                      className="px-2 py-0.5 bg-indigo-500/50 hover:bg-indigo-500 rounded-md font-mono font-bold"
+                    >
+                      {pythSideB} cm ⟳
+                    </button>
+                  </div>
+                </div>
+
+                <div className="text-center text-xs text-emerald-300 font-mono bg-emerald-950/60 p-2 rounded-xl border border-emerald-500/30">
+                  {pythSideA}² + {pythSideB}² = {pythSideA * pythSideA} + {pythSideB * pythSideB} = {pythSideA * pythSideA + pythSideB * pythSideB} = {pythC.toFixed(0)}²
                 </div>
               </div>
             )}
 
-            {/* 3. Exponential & Logarithm */}
+            {/* 3. Algebraic Identities & Polynomials */}
+            {topicId === 'algebra-polynomials' && (
+              <div className="w-full max-w-md space-y-3">
+                <div className="grid grid-cols-2 gap-2.5">
+                  {/* Geometric Tile Model for (a+b)^2 */}
+                  <div className="rounded-2xl bg-indigo-900/40 p-3 border border-indigo-400/30 flex flex-col items-center">
+                    <span className="text-[11px] font-bold text-indigo-200 mb-2">Mô hình diện tích (a + b)²:</span>
+                    <div className="size-28 grid grid-cols-3 grid-rows-3 gap-0.5 p-1 bg-slate-900 rounded-xl border border-indigo-300/40">
+                      <div className="col-span-2 row-span-2 bg-indigo-500/80 rounded-sm flex items-center justify-center font-bold text-xs">
+                        a²
+                      </div>
+                      <div className="col-span-1 row-span-2 bg-amber-500/80 rounded-sm flex items-center justify-center font-bold text-[10px]">
+                        ab
+                      </div>
+                      <div className="col-span-2 row-span-1 bg-amber-500/80 rounded-sm flex items-center justify-center font-bold text-[10px]">
+                        ab
+                      </div>
+                      <div className="col-span-1 row-span-1 bg-emerald-500/80 rounded-sm flex items-center justify-center font-bold text-[10px]">
+                        b²
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Identities Quick List */}
+                  <div className="rounded-2xl bg-white/10 p-3 border border-white/10 flex flex-col justify-center space-y-1.5 text-[11px] font-mono">
+                    <span className="text-amber-300 font-bold block text-[10px] uppercase font-sans">Hằng đẳng thức vàng:</span>
+                    <div className="text-indigo-200">(a+b)² = a² + 2ab + b²</div>
+                    <div className="text-rose-200">(a-b)² = a² - 2ab + b²</div>
+                    <div className="text-emerald-300">a² - b² = (a-b)(a+b)</div>
+                  </div>
+                </div>
+
+                <div className="rounded-xl bg-slate-800/80 p-2.5 text-xs text-slate-300 leading-relaxed text-center">
+                  <span className="font-mono text-emerald-400 font-bold">P = (2x + 1)² - (2x - 1)² = 2 × 4x = 8x</span>
+                </div>
+              </div>
+            )}
+
+            {/* 4. Spatial Geometry & Polyhedron Volumes */}
+            {topicId === 'spatial-polyhedron' && (
+              <div className="w-full max-w-md space-y-3">
+                <svg viewBox="0 0 300 160" className="w-full max-h-44 select-none font-bold">
+                  {/* Isometric Pyramid S.ABCD */}
+                  <polygon points="150,20 80,110 220,110" fill="rgba(99, 102, 241, 0.2)" stroke="#818cf8" strokeWidth="2" />
+                  <polygon points="150,20 220,110 250,90" fill="rgba(168, 85, 247, 0.2)" stroke="#c084fc" strokeWidth="2" />
+                  <line x1="80" y1="110" x2="110" y2="90" stroke="#64748b" strokeWidth="1.5" strokeDasharray="3 3" />
+                  <line x1="110" y1="90" x2="250" y2="90" stroke="#64748b" strokeWidth="1.5" strokeDasharray="3 3" />
+                  <line x1="150" y1="20" x2="110" y2="90" stroke="#64748b" strokeWidth="1.5" strokeDasharray="3 3" />
+
+                  {/* Height line SO */}
+                  <line x1="150" y1="20" x2="165" y2="100" stroke="#f43f5e" strokeWidth="2" strokeDasharray="2 2" />
+                  <circle cx="165" cy="100" r="3" fill="#f43f5e" />
+
+                  {/* Labels */}
+                  <text x="150" y="15" fill="#fde047" fontSize="12" textAnchor="middle">S (Đỉnh)</text>
+                  <text x="175" y="60" fill="#fda4af" fontSize="11">h = 4</text>
+                  <text x="150" y="130" fill="#94a3b8" fontSize="11" textAnchor="middle">Đáy vuông a = 6</text>
+                </svg>
+
+                {/* Euler Formula & Volume Cards */}
+                <div className="grid grid-cols-2 gap-2 text-xs">
+                  <div className="rounded-xl bg-white/10 p-2.5 border border-white/10">
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Thể tích khối chóp:</span>
+                    <span className="font-mono font-bold text-emerald-300 text-sm">V = ⅓ B·h = 48 cm³</span>
+                  </div>
+                  <div className="rounded-xl bg-white/10 p-2.5 border border-white/10">
+                    <span className="text-slate-400 block text-[10px] uppercase font-bold">Định lý Euler đa diện:</span>
+                    <span className="font-mono font-bold text-amber-300 text-sm">V - E + F = 2</span>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 5. Exponential & Logarithm */}
             {topicId === 'exp-logarithm' && (
               <div className="w-full max-w-md space-y-2">
                 <svg viewBox="0 0 280 180" className="w-full max-h-48 select-none font-bold">
@@ -205,7 +280,7 @@ export function AsmoMathVisualizer({ topicId, level, className }: Props) {
               </div>
             )}
 
-            {/* 4. Combinatorics & Probability */}
+            {/* 6. Combinatorics & Probability */}
             {topicId === 'combinatorics-probability' && (
               <div className="w-full max-w-md space-y-2">
                 <div className="rounded-2xl bg-white/10 p-3 border border-white/10">
@@ -241,7 +316,7 @@ export function AsmoMathVisualizer({ topicId, level, className }: Props) {
               </div>
             )}
 
-            {/* 5. Number Theory & Divisibility */}
+            {/* 7. Number Theory & Divisibility */}
             {topicId === 'number-theory-divisibility' && (
               <div className="w-full max-w-md space-y-3">
                 <div className="rounded-2xl bg-white/10 p-3.5 border border-white/10 flex items-center justify-around">
@@ -270,7 +345,7 @@ export function AsmoMathVisualizer({ topicId, level, className }: Props) {
         ) : (
           <div className="w-full space-y-3 p-3 bg-white/10 rounded-2xl border border-white/10 text-xs">
             <h5 className="font-bold text-indigo-200 uppercase tracking-wider text-[11px]">
-              Định lý & Công thức trọng tâm ASMO:
+              Định lý &amp; Công thức trọng tâm ASMO:
             </h5>
             <div className="space-y-2 text-slate-200 leading-relaxed">
               {topicId === 'algebra-viete' && (
@@ -280,11 +355,25 @@ export function AsmoMathVisualizer({ topicId, level, className }: Props) {
                   <div><AsmoFormula text="• Tổng lập phương: $x_1^3 + x_2^3 = S^3 - 3SP$" /></div>
                 </div>
               )}
-              {topicId === 'trigonometry' && (
+              {topicId === 'pythagoras-geometry' && (
                 <div className="space-y-1.5">
-                  <div><AsmoFormula text="• $\sin^2(x) + \cos^2(x) = 1$" /></div>
-                  <div><AsmoFormula text="• $\sin(2x) = 2\sin(x)\cos(x)$" /></div>
-                  <div><AsmoFormula text="• $1 + \cos(2x) = 2\cos^2(x)$, $1 - \cos(2x) = 2\sin^2(x)$" /></div>
+                  <div><AsmoFormula text="• Định lý Pytago: $a^2 + b^2 = c^2 \Rightarrow c = \sqrt{a^2 + b^2}$" /></div>
+                  <div><AsmoFormula text="• Đường cao tam giác vuông: $h = \frac{a \cdot b}{c}$" /></div>
+                  <div><AsmoFormula text="• Khoảng cách toạ độ: $d = \sqrt{(x_2 - x_1)^2 + (y_2 - y_1)^2}$" /></div>
+                </div>
+              )}
+              {topicId === 'algebra-polynomials' && (
+                <div className="space-y-1.5">
+                  <div><AsmoFormula text="• $(a + b)^2 = a^2 + 2ab + b^2$" /></div>
+                  <div><AsmoFormula text="• $a^2 - b^2 = (a - b)(a + b)$" /></div>
+                  <div><AsmoFormula text="• $(a + b)^3 = a^3 + 3a^2b + 3ab^2 + b^3$" /></div>
+                </div>
+              )}
+              {topicId === 'spatial-polyhedron' && (
+                <div className="space-y-1.5">
+                  <div><AsmoFormula text="• Nhị thức Newton: $(a+b)^n = \sum_{k=0}^n C_n^k a^{n-k} b^k$" /></div>
+                  <div><AsmoFormula text="• Thể tích khối chóp: $V = \frac{1}{3} S_{\text{đáy}} \cdot h$" /></div>
+                  <div><AsmoFormula text="• Định lý Euler đa diện lồi: $V - E + F = 2$" /></div>
                 </div>
               )}
               {topicId === 'exp-logarithm' && (

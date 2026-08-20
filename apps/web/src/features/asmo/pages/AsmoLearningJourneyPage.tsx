@@ -34,6 +34,9 @@ import { cn } from '@/shared/lib/cn'
 
 export type AsmoTopicCategoryGroup =
   | 'all'
+  | 'primary-visual'
+  | 'secondary-stem'
+  | 'high-olympic'
   | 'trig-geometry'
   | 'algebra'
   | '3d-spatial'
@@ -49,26 +52,69 @@ export const ASMO_TOPIC_GROUPS: {
 }[] = [
   {
     id: 'all',
-    label: 'Tất Cả (12 Chuyên Đề)',
+    label: 'Tất Cả (16 Chuyên Đề)',
     shortLabel: 'Tất Cả',
     icon: '🌟',
     grades: 'Khối 1–12',
   },
   {
+    id: 'primary-visual',
+    label: '🎒 Khối Tiểu Học (8 Chuyên Đề)',
+    shortLabel: '🎒 Tiểu Học',
+    icon: '🎒',
+    grades: 'Khối 1–5',
+    topicIds: [
+      'elementary-arithmetic',
+      'cube-cluster',
+      'interactive-clock',
+      'shaded-fractions',
+      'balance-scale',
+      'matchstick-geometry',
+      'grid-maze',
+      'cube-nets',
+    ],
+  },
+  {
+    id: 'secondary-stem',
+    label: '🏫 Khối THCS (4 Chuyên Đề)',
+    shortLabel: '🏫 THCS',
+    icon: '🏫',
+    grades: 'Khối 6–9',
+    topicIds: [
+      'number-theory-divisibility',
+      'algebra-polynomials',
+      'pythagoras-geometry',
+      'combinatorics-probability',
+    ],
+  },
+  {
+    id: 'high-olympic',
+    label: '🎓 Khối THPT (4 Chuyên Đề)',
+    shortLabel: '🎓 THPT',
+    icon: '🎓',
+    grades: 'Khối 10–12',
+    topicIds: [
+      'trigonometry',
+      'exp-logarithm',
+      'algebra-viete',
+      'spatial-polyhedron',
+    ],
+  },
+  {
     id: 'trig-geometry',
-    label: 'Lượng Giác & Hình Học Phẳng (Khối 9–12)',
+    label: 'Lượng Giác & Hình Học Phẳng (Khối 7–12)',
     shortLabel: 'Lượng Giác & Hình Học',
     icon: '📐',
-    grades: 'Khối 9–12',
-    topicIds: ['trigonometry', 'algebra-viete', 'exp-logarithm', 'shaded-fractions'],
+    grades: 'Khối 7–12',
+    topicIds: ['trigonometry', 'pythagoras-geometry', 'spatial-polyhedron', 'shaded-fractions'],
   },
   {
     id: 'algebra',
-    label: 'Đại Số, Phương Trình Bậc Hai & Mũ-Log (Khối 6–12)',
-    shortLabel: 'Đại Số & Mũ-Log',
+    label: 'Đại Số, Phép Tính & Số Học (Khối 1–12)',
+    shortLabel: 'Đại Số & Số Học',
     icon: '🧮',
-    grades: 'Khối 6–12',
-    topicIds: ['algebra-viete', 'exp-logarithm', 'balance-scale', 'number-theory-divisibility'],
+    grades: 'Khối 1–12',
+    topicIds: ['elementary-arithmetic', 'algebra-polynomials', 'algebra-viete', 'exp-logarithm', 'number-theory-divisibility', 'balance-scale'],
   },
   {
     id: '3d-spatial',
@@ -76,11 +122,11 @@ export const ASMO_TOPIC_GROUPS: {
     shortLabel: 'Không Gian 3D',
     icon: '🧊',
     grades: 'Khối 1–5',
-    topicIds: ['cube-cluster', 'cube-nets', 'matchstick-geometry', 'shaded-fractions', 'interactive-clock'],
+    topicIds: ['cube-cluster', 'cube-nets', 'matchstick-geometry', 'shaded-fractions', 'interactive-clock', 'grid-maze'],
   },
   {
     id: 'combinatorics',
-    label: 'Tổ Hợp, Xác Suất & Số Học (Khối 1–12)',
+    label: 'Tổ Hợp, Xác Suất & Logic (Khối 1–12)',
     shortLabel: 'Tổ Hợp & Số Học',
     icon: '🎲',
     grades: 'Khối 1–12',
@@ -175,23 +221,30 @@ export function AsmoLearningJourneyPage() {
 
   const handleSelectTier = (tier: AsmoGradeTier | 'all') => {
     setSelectedTier(tier)
-    // Auto-activate Trigonometry when user switches to THPT tier (Grades 10-12)
-    if (tier === 'high') {
+    // Auto-activate representative topic for tier
+    if (tier === 'primary') {
+      const primaryTopic = ASMO_JOURNEY_TOPICS.find((t) => t.id === 'elementary-arithmetic') || ASMO_JOURNEY_TOPICS[0]
+      handleSelectTopic(primaryTopic)
+    } else if (tier === 'secondary') {
+      const secTopic = ASMO_JOURNEY_TOPICS.find((t) => t.id === 'number-theory-divisibility') || ASMO_JOURNEY_TOPICS[8]
+      if (secTopic) handleSelectTopic(secTopic)
+    } else if (tier === 'high') {
       const trigTopic = ASMO_JOURNEY_TOPICS.find((t) => t.id === 'trigonometry')
-      if (trigTopic) {
-        handleSelectTopic(trigTopic)
-      }
+      if (trigTopic) handleSelectTopic(trigTopic)
     }
   }
 
   const handleSelectGroup = (groupId: AsmoTopicCategoryGroup) => {
     setSelectedGroup(groupId)
-    // Auto-activate Trigonometry when user selects Trigonometry group
-    if (groupId === 'trig-geometry') {
+    if (groupId === 'primary-visual') {
+      const elemTopic = ASMO_JOURNEY_TOPICS.find((t) => t.id === 'elementary-arithmetic')
+      if (elemTopic) handleSelectTopic(elemTopic)
+    } else if (groupId === 'secondary-stem') {
+      const secTopic = ASMO_JOURNEY_TOPICS.find((t) => t.id === 'number-theory-divisibility')
+      if (secTopic) handleSelectTopic(secTopic)
+    } else if (groupId === 'high-olympic' || groupId === 'trig-geometry') {
       const trigTopic = ASMO_JOURNEY_TOPICS.find((t) => t.id === 'trigonometry')
-      if (trigTopic) {
-        handleSelectTopic(trigTopic)
-      }
+      if (trigTopic) handleSelectTopic(trigTopic)
     }
   }
 
@@ -260,11 +313,11 @@ export function AsmoLearningJourneyPage() {
           </div>
 
           <h1 className="font-display text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-            Khám Phá 12 Chuyên Đề Trọng Điểm ASMO Lớp 1 – 12 🚀
+            Khám Phá 16 Chuyên Đề Trọng Điểm ASMO Lớp 1 – 12 🚀
           </h1>
 
           <p className="text-xs sm:text-sm text-indigo-100 leading-relaxed max-w-2xl">
-            Lộ trình học tập 3 bước chuẩn sư phạm kết hợp mô hình không gian 3D Three.js tương tác 360°, đồ thị hàm số KaTeX và trợ giảng AI Mèo Mee đồng hành từng bước giải!
+            Lộ trình học tập 3 bước chuẩn sư phạm kết hợp mô phỏng phép tính nhẩm tiểu học, mô hình không gian 3D Three.js 360°, đồ thị hàm số KaTeX và trợ giảng AI Mèo Mee đồng hành từng bước giải!
           </p>
         </div>
 
@@ -304,7 +357,7 @@ export function AsmoLearningJourneyPage() {
             })}
           </div>
 
-          {/* Tier Pills (3 Cấp Học) */}
+          {/* Tier Pills (3 Cấp Học: Tiểu Học, THCS, THPT) */}
           <div className="flex items-center gap-1.5 flex-wrap">
             <span className="text-xs font-bold uppercase tracking-wider text-slate-500 mr-1">
               Cấp Lớp:
@@ -340,12 +393,12 @@ export function AsmoLearningJourneyPage() {
           </div>
         </div>
 
-        {/* Category Group Filter Tabs (5 Groups) */}
+        {/* Category Group Filter Tabs (School Tier Groups & STEM Topics) */}
         <div className="pt-2 border-t border-slate-100">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
               <Filter className="size-3.5 text-indigo-600" />
-              <span>Phân Nhóm Chuyên Đề Trọng Tâm:</span>
+              <span>Phân Nhóm Chuyên Đề Theo Khối Học &amp; Trọng Tâm:</span>
             </span>
           </div>
 
@@ -375,7 +428,7 @@ export function AsmoLearningJourneyPage() {
           </div>
         </div>
 
-        {/* 12 Topics Horizontal Scrollable Grid */}
+        {/* 16 Topics Horizontal Scrollable Grid */}
         <div className="pt-2 border-t border-slate-100">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-900 flex items-center gap-1.5">
@@ -388,13 +441,15 @@ export function AsmoLearningJourneyPage() {
             {filteredTopics.map((topic) => {
               const isCurrent = topic.id === currentTopic.id
               const doneCount = [1, 2, 3].filter((lvl) => completedLevels[`${topic.id}-lvl${lvl}`]).length
+              const tierBadge = topic.gradeTier === 'primary' ? '🎒 Cấp 1' : topic.gradeTier === 'secondary' ? '🏫 Cấp 2' : '🎓 Cấp 3'
+
               return (
                 <button
                   key={topic.id}
                   type="button"
                   onClick={() => handleSelectTopic(topic)}
                   className={cn(
-                    'flex shrink-0 items-center gap-2.5 rounded-2xl p-3 text-left transition-all active:scale-95 cursor-pointer border max-w-[260px]',
+                    'flex shrink-0 items-center gap-2.5 rounded-2xl p-3 text-left transition-all active:scale-95 cursor-pointer border max-w-[270px]',
                     isCurrent
                       ? 'bg-gradient-to-br from-indigo-600 to-purple-600 text-white border-indigo-400 shadow-md ring-2 ring-indigo-300'
                       : 'bg-white hover:bg-indigo-50/60 border-slate-200/80 text-slate-800 shadow-2xs',
@@ -406,8 +461,11 @@ export function AsmoLearningJourneyPage() {
                       <span className={cn('text-xs font-black truncate', isCurrent ? 'text-white' : 'text-slate-900')}>
                         {topic.shortTitle}
                       </span>
+                      <span className={cn('text-[9px] font-extrabold px-1 rounded-md shrink-0', isCurrent ? 'bg-white/20 text-indigo-100' : 'bg-slate-100 text-slate-600')}>
+                        {tierBadge}
+                      </span>
                       {doneCount > 0 && (
-                        <span className={cn('text-[10px] font-extrabold px-1.5 py-0.2 rounded-md', isCurrent ? 'bg-white/20 text-sun-300' : 'bg-emerald-100 text-emerald-800')}>
+                        <span className={cn('text-[10px] font-extrabold px-1 py-0.2 rounded-md shrink-0', isCurrent ? 'bg-white/20 text-sun-300' : 'bg-emerald-100 text-emerald-800')}>
                           {doneCount}/3 ★
                         </span>
                       )}
