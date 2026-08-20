@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { AsmoFormula } from './AsmoFormula'
+import { AsmoTrigLabVisualizer } from './AsmoTrigLabVisualizer'
 import { Sparkles, Sliders, RefreshCw, Compass, Layers, Calculator } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 
@@ -12,6 +13,10 @@ type Props = {
 export function AsmoMathVisualizer({ topicId, level, className }: Props) {
   const [sliderVal, setSliderVal] = useState(level === 1 ? 30 : level === 2 ? 45 : 60)
   const [activeTab, setActiveTab] = useState<'diagram' | 'formula'>('diagram')
+
+  if (topicId === 'trigonometry') {
+    return <AsmoTrigLabVisualizer initialAngle={level === 1 ? 30 : level === 2 ? 45 : 60} className={className} />
+  }
 
   return (
     <div className={cn('relative w-full rounded-3xl overflow-hidden bg-gradient-to-b from-slate-900 via-indigo-950 to-slate-950 border border-slate-700/60 shadow-xl p-4 sm:p-6 text-white flex flex-col justify-between min-h-[380px]', className)}>

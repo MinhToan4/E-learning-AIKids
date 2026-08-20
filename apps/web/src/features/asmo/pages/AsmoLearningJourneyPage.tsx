@@ -26,10 +26,67 @@ import { ASMO_3D_TEMPLATES } from '../data/asmo-3d-templates'
 import type { AsmoSubject, AsmoGrade, AsmoVisualSpec } from '../types'
 import { AsmoThreeViewer } from '../components/AsmoThreeViewer'
 import { AsmoMathVisualizer } from '../components/AsmoMathVisualizer'
+import { AsmoTrigLabVisualizer } from '../components/AsmoTrigLabVisualizer'
 import { AsmoFormula } from '../components/AsmoFormula'
 import { AsmoMeeTutor } from '../components/AsmoMeeTutor'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
+
+export type AsmoTopicCategoryGroup =
+  | 'all'
+  | 'trig-geometry'
+  | 'algebra'
+  | '3d-spatial'
+  | 'combinatorics'
+
+export const ASMO_TOPIC_GROUPS: {
+  id: AsmoTopicCategoryGroup
+  label: string
+  shortLabel: string
+  icon: string
+  grades: string
+  topicIds?: string[]
+}[] = [
+  {
+    id: 'all',
+    label: 'Tất Cả (12 Chuyên Đề)',
+    shortLabel: 'Tất Cả',
+    icon: '🌟',
+    grades: 'Khối 1–12',
+  },
+  {
+    id: 'trig-geometry',
+    label: 'Lượng Giác & Hình Học Phẳng (Khối 9–12)',
+    shortLabel: 'Lượng Giác & Hình Học',
+    icon: '📐',
+    grades: 'Khối 9–12',
+    topicIds: ['trigonometry', 'algebra-viete', 'exp-logarithm', 'shaded-fractions'],
+  },
+  {
+    id: 'algebra',
+    label: 'Đại Số, Phương Trình Bậc Hai & Mũ-Log (Khối 6–12)',
+    shortLabel: 'Đại Số & Mũ-Log',
+    icon: '🧮',
+    grades: 'Khối 6–12',
+    topicIds: ['algebra-viete', 'exp-logarithm', 'balance-scale', 'number-theory-divisibility'],
+  },
+  {
+    id: '3d-spatial',
+    label: 'Không Gian 3D & Trực Quan (Khối 1–5)',
+    shortLabel: 'Không Gian 3D',
+    icon: '🧊',
+    grades: 'Khối 1–5',
+    topicIds: ['cube-cluster', 'cube-nets', 'matchstick-geometry', 'shaded-fractions', 'interactive-clock'],
+  },
+  {
+    id: 'combinatorics',
+    label: 'Tổ Hợp, Xác Suất & Số Học (Khối 1–12)',
+    shortLabel: 'Tổ Hợp & Số Học',
+    icon: '🎲',
+    grades: 'Khối 1–12',
+    topicIds: ['combinatorics-probability', 'number-theory-divisibility', 'grid-maze'],
+  },
+]
 
 export function AsmoLearningJourneyPage() {
   const navigate = useNavigate()
@@ -45,6 +102,7 @@ export function AsmoLearningJourneyPage() {
   // 2. Filters state
   const [selectedSubject, setSelectedSubject] = useState<AsmoSubject>('math')
   const [selectedTier, setSelectedTier] = useState<AsmoGradeTier | 'all'>('all')
+  const [selectedGroup, setSelectedGroup] = useState<AsmoTopicCategoryGroup>('all')
   const [searchQuery, setSearchQuery] = useState('')
 
   // 3. Level & interactive step state
@@ -75,9 +133,9 @@ export function AsmoLearningJourneyPage() {
     }
   }, [params.topicId])
 
-  // Filter topics
+  // Filter topics with group categorization
   const filteredTopics = useMemo(() => {
-    return ASMO_JOURNEY_TOPICS.filter((t) => {
+    let list = ASMO_JOURNEY_TOPICS.filter((t) => {
       if (selectedSubject && t.subject !== selectedSubject) return false
       if (selectedTier !== 'all' && t.gradeTier !== selectedTier) return false
       if (searchQuery.trim()) {
@@ -87,9 +145,24 @@ export function AsmoLearningJourneyPage() {
         const matchCode = t.topicCode.toLowerCase().includes(q)
         if (!matchTitle && !matchDesc && !matchCode) return false
       }
+      if (selectedGroup !== 'all') {
+        const groupDef = ASMO_TOPIC_GROUPS.find((g) => g.id === selectedGroup)
+        if (groupDef?.topicIds && !groupDef.topicIds.includes(t.id)) return false
+      }
       return true
     })
-  }, [selectedSubject, selectedTier, searchQuery])
+
+    // If trig-geometry group selected, prioritize trigonometry at the top
+    if (selectedGroup === 'trig-geometry') {
+      list = [...list].sort((a, b) => {
+        if (a.id === 'trigonometry') return -1
+        if (b.id === 'trigonometry') return 1
+        return 0
+      })
+    }
+
+    return list
+  }, [selectedSubject, selectedTier, searchQuery, selectedGroup])
 
   const handleSelectTopic = (topic: AsmoJourneyTopic) => {
     setCurrentTopicId(topic.id)
@@ -98,6 +171,28 @@ export function AsmoLearningJourneyPage() {
     setShowSolution(false)
     setActivePedagogicalStep(1)
     setSearchParams({ topic: topic.id })
+  }
+
+  const handleSelectTier = (tier: AsmoGradeTier | 'all') => {
+    setSelectedTier(tier)
+    // Auto-activate Trigonometry when user switches to THPT tier (Grades 10-12)
+    if (tier === 'high') {
+      const trigTopic = ASMO_JOURNEY_TOPICS.find((t) => t.id === 'trigonometry')
+      if (trigTopic) {
+        handleSelectTopic(trigTopic)
+      }
+    }
+  }
+
+  const handleSelectGroup = (groupId: AsmoTopicCategoryGroup) => {
+    setSelectedGroup(groupId)
+    // Auto-activate Trigonometry when user selects Trigonometry group
+    if (groupId === 'trig-geometry') {
+      const trigTopic = ASMO_JOURNEY_TOPICS.find((t) => t.id === 'trigonometry')
+      if (trigTopic) {
+        handleSelectTopic(trigTopic)
+      }
+    }
   }
 
   const handleSelectLevel = (lvl: JourneyLevelId) => {
@@ -216,7 +311,7 @@ export function AsmoLearningJourneyPage() {
             </span>
             <button
               type="button"
-              onClick={() => setSelectedTier('all')}
+              onClick={() => handleSelectTier('all')}
               className={cn(
                 'rounded-xl px-2.5 py-1 text-xs font-bold transition-all cursor-pointer',
                 selectedTier === 'all'
@@ -230,7 +325,7 @@ export function AsmoLearningJourneyPage() {
               <button
                 key={tier.id}
                 type="button"
-                onClick={() => setSelectedTier(tier.id)}
+                onClick={() => handleSelectTier(tier.id)}
                 className={cn(
                   'rounded-xl px-2.5 py-1 text-xs font-bold transition-all cursor-pointer flex items-center gap-1',
                   selectedTier === tier.id
@@ -245,12 +340,47 @@ export function AsmoLearningJourneyPage() {
           </div>
         </div>
 
+        {/* Category Group Filter Tabs (5 Groups) */}
+        <div className="pt-2 border-t border-slate-100">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-xs font-extrabold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
+              <Filter className="size-3.5 text-indigo-600" />
+              <span>Phân Nhóm Chuyên Đề Trọng Tâm:</span>
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            {ASMO_TOPIC_GROUPS.map((group) => {
+              const isGroupActive = selectedGroup === group.id
+              return (
+                <button
+                  key={group.id}
+                  type="button"
+                  onClick={() => handleSelectGroup(group.id)}
+                  className={cn(
+                    'flex shrink-0 items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer border',
+                    isGroupActive
+                      ? 'bg-gradient-to-r from-indigo-600 to-purple-600 text-white border-indigo-400 shadow-sm ring-2 ring-indigo-300'
+                      : 'bg-slate-50 hover:bg-indigo-50/60 text-slate-700 border-slate-200/80',
+                  )}
+                >
+                  <span className="text-sm">{group.icon}</span>
+                  <span className="font-extrabold">{group.shortLabel}</span>
+                  <span className={cn('text-[10px] px-1.5 py-0.2 rounded-md font-mono', isGroupActive ? 'bg-white/20 text-indigo-100' : 'bg-slate-200/70 text-slate-600')}>
+                    {group.grades}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
         {/* 12 Topics Horizontal Scrollable Grid */}
         <div className="pt-2 border-t border-slate-100">
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-extrabold uppercase tracking-wider text-indigo-900 flex items-center gap-1.5">
               <Sparkles className="size-3.5 text-indigo-600" />
-              <span>12 Chuyên Đề Không Gian 3D & Dạng Bài Trọng Điểm ({filteredTopics.length} chuyên đề)</span>
+              <span>Danh Sách Chuyên Đề ({filteredTopics.length} chuyên đề)</span>
             </span>
           </div>
 
