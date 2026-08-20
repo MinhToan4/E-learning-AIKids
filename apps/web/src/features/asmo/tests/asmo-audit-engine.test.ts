@@ -7,6 +7,8 @@ import {
   auditAsmoQuestion,
   auditAsmoExam,
   auditAsmoQuestionBank,
+  autoRepairQuestion,
+  autoRepairExam,
 } from '../lib/asmo-audit-engine'
 import { ASMO_SAMPLE_EXAMS } from '../data/asmo-sample-exams'
 import type { AsmoExam, AsmoQuestion } from '../types'
@@ -324,8 +326,103 @@ describe('ASMO Core Audit Engine (Formula, Syntax, Consistency, Pedagogical, Tax
       expect(bankSummary.totalExams).toBe(100)
       expect(bankSummary.totalQuestions).toBe(2784)
       expect(bankSummary.totalErrors).toBe(0)
-      expect(bankSummary.averageQualityScore).toBeGreaterThanOrEqual(90)
+      expect(bankSummary.averageQualityScore).toBe(100)
       expect(bankSummary.totalFormulasChecked).toBeGreaterThan(2000)
     })
   })
+
+  // ── 6. AUTO REPAIR ENGINE (1-CLICK REPAIR) ──
+  describe('Auto Repair Engine (1-Click Auto-Repair)', () => {
+    it('should auto-repair a question with broken syntax, short steps and improper topic/meeHint', () => {
+      const flawedQuestion: AsmoQuestion = {
+        id: 'test-flawed-q',
+        subject: 'math',
+        grade: 11,
+        topicCode: 'MATH_ALGEBRA',
+        topicName: 'Phương Trình Mũ & Logarit', // Mismatched topic for quadratic equation
+        domainType: 'GEOMETRY_VISUAL', // Geometry visual without renderSpec
+        title: 'Câu 1: The quadratic equation $2x^2 - x - 15 = 0$ has roots $\\alpha$',
+        text: 'The quadratic equation $2x^2 - x - 15 = 0$ has roots $\\alpha$ and $\\beta$. Find the sum: $3^10 + 27^5$.',
+        options: [
+          { id: 'A', label: 'A', text: '$\\frac{32}{3}$' },
+          { id: 'B', label: 'B', text: '$\\frac{31}{3}$' },
+        ],
+        correctAnswer: 'A',
+        points: 4,
+        explanation: '$\\frac{2}{\\alpha} + \\frac{2}{\\beta} = 2*(\\alpha + \\beta)/(\\alpha * \\beta)$',
+        meeHint: 'chọn ngay A.',
+        explanationSteps: [
+          { stepIndex: 0, title: 'Bước 1', description: 'Đếm' },
+        ],
+      }
+
+      const repaired = autoRepairQuestion(flawedQuestion)
+
+      // Verify domainType normalized to FORMULA (no 3D spec)
+      expect(repaired.domainType).toBe('FORMULA')
+
+      // Verify topic synchronized to Viète
+      expect(repaired.topicCode).toBe('MATH_QUADRATIC')
+      expect(repaired.topicName).toBe('Phương Trình Bậc Hai & Viète')
+
+      // Verify MeeHint normalized without giveaway
+      expect(repaired.meeHint).toContain('Viète')
+      expect(repaired.meeHint).not.toContain('chọn ngay A')
+
+      // Verify 3 Pedagogical Steps generated
+      expect(repaired.explanationSteps).toHaveLength(3)
+      expect(repaired.explanationSteps?.[0].title).toBe('Bước 1: Phân tích đề bài & Dữ kiện')
+      expect(repaired.explanationSteps?.[1].title).toBe('Bước 2: Thiết lập phương pháp & Công thức')
+      expect(repaired.explanationSteps?.[2].title).toBe('Bước 3: Thực hiện tính toán & Kết luận')
+
+      // Verify repaired question passes audit with 100/100 score
+      const auditRes = auditAsmoQuestion(repaired, 1)
+      expect(auditRes.errorCount).toBe(0)
+      expect(auditRes.warningCount).toBe(0)
+      expect(auditRes.score).toBe(100)
+    })
+
+    it('should auto-repair an entire exam to 100/100 Quality Score', () => {
+      const flawedExam: AsmoExam = {
+        id: 'test-flawed-exam',
+        code: 'ASMO-MATH-TEST',
+        title: 'Đề Thi Thử Nghiệm',
+        subject: 'math',
+        grade: 11,
+        year: 2024,
+        round: 'School',
+        durationMinutes: 60,
+        passScore: 60,
+        totalPoints: 100,
+        description: 'Đề thi thử nghiệm chuẩn Olympic ASMO',
+        questions: [
+          {
+            id: 'q1',
+            subject: 'math',
+            grade: 11,
+            topicCode: 'MATH_CALCULUS',
+            topicName: 'Giải Tích & Tích Phân',
+            title: 'Câu 1: Tính diện tích $S = \\int_{-2}^2 (4 - x^2) \\, dx$',
+            text: 'Tính giá trị: $S = \\int_{-2}^2 (4 - x^2) \\, dx$.',
+            options: [
+              { id: 'A', label: 'A', text: '$\\frac{32}{3}$' },
+              { id: 'B', label: 'B', text: '$\\frac{31}{3}$' },
+            ],
+            correctAnswer: 'A',
+            points: 4,
+            explanation: 'Tính diện tích hình phẳng',
+            meeHint: 'Gợi ý giải bài',
+          },
+        ],
+      }
+
+      const repairedExam = autoRepairExam(flawedExam)
+      const auditRes = auditAsmoExam(repairedExam)
+      expect(auditRes.errorCount).toBe(0)
+      expect(auditRes.warningCount).toBe(0)
+      expect(auditRes.qualityScore).toBe(100)
+      expect(auditRes.status).toBe('pass')
+    })
+  })
 })
+

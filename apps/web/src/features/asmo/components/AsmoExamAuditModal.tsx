@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import {
   X,
   CheckCircle2,
@@ -15,9 +15,13 @@ import {
   HelpCircle,
   FileCheck2,
   Lightbulb,
+  Wrench,
+  Zap,
 } from 'lucide-react'
 import {
   auditAsmoExam,
+  autoRepairExam,
+  autoRepairQuestion,
   type AsmoExamAuditResult,
   type AsmoAuditSeverity,
   type AsmoAuditCategory,
@@ -31,6 +35,7 @@ type Props = {
   isOpen: boolean
   onClose: () => void
   exam: AsmoExam
+  onExamUpdated?: (updatedExam: AsmoExam) => void
 }
 
 type FilterStatus = 'all' | 'error' | 'warning' | 'passed'
@@ -52,21 +57,49 @@ const CATEGORY_LABELS: Record<AsmoAuditCategory, string> = {
   options_distractors: 'Phương án nhiễu (Distractors)',
 }
 
-export function AsmoExamAuditModal({ isOpen, onClose, exam }: Props) {
+export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Props) {
+  const [currentExam, setCurrentExam] = useState<AsmoExam>(exam)
+  const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [filterStatus, setFilterStatus] = useState<FilterStatus>('all')
   const [filterDomain, setFilterDomain] = useState<FilterDomain>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedQuestionId, setExpandedQuestionId] = useState<string | null>(null)
 
+  useEffect(() => {
+    setCurrentExam(exam)
+  }, [exam])
+
   // Run core audit on current exam
   const auditResult: AsmoExamAuditResult = useMemo(() => {
-    return auditAsmoExam(exam)
-  }, [exam])
+    return auditAsmoExam(currentExam)
+  }, [currentExam])
+
+  const handleAutoRepairAll = () => {
+    const repaired = autoRepairExam(currentExam)
+    setCurrentExam(repaired)
+    onExamUpdated?.(repaired)
+    setToastMessage('⚡ Đã tự động sửa thành công 100% câu hỏi trong đề thi!')
+    setTimeout(() => setToastMessage(null), 4000)
+  }
+
+  const handleAutoRepairSingleQuestion = (qId: string) => {
+    const targetQ = currentExam.questions.find((item) => item.id === qId)
+    if (!targetQ) return
+    const repairedQ = autoRepairQuestion(targetQ)
+    const updatedExam: AsmoExam = {
+      ...currentExam,
+      questions: currentExam.questions.map((q) => (q.id === qId ? repairedQ : q)),
+    }
+    setCurrentExam(updatedExam)
+    onExamUpdated?.(updatedExam)
+    setToastMessage(`🛠️ Đã tự động tối ưu hóa câu hỏi ${targetQ.title || qId}!`)
+    setTimeout(() => setToastMessage(null), 3000)
+  }
 
   // Filter questions list
   const filteredQuestions = useMemo(() => {
     return auditResult.questionResults.filter((qRes) => {
-      const q = exam.questions.find((item) => item.id === qRes.questionId)
+      const q = currentExam.questions.find((item) => item.id === qRes.questionId)
       if (!q) return false
 
       // Status filter
@@ -88,7 +121,7 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam }: Props) {
 
       return true
     })
-  }, [auditResult, exam, filterStatus, filterDomain, searchQuery])
+  }, [auditResult, currentExam, filterStatus, filterDomain, searchQuery])
 
   if (!isOpen) return null
 
@@ -145,24 +178,50 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam }: Props) {
                   Thẩm Định Đề Thi ASMO (Audit & Quality Gate)
                 </h2>
                 <span className="rounded-md bg-indigo-500/30 px-2 py-0.5 text-[11px] font-bold text-indigo-200 border border-indigo-400/30">
-                  {exam.code}
+                  {currentExam.code}
                 </span>
               </div>
               <p className="text-xs text-slate-300 mt-0.5 line-clamp-1">
-                {exam.title} · Khối Lớp {exam.grade} · Năm {exam.year}
+                {currentExam.title} · Khối Lớp {currentExam.grade} · Năm {currentExam.year}
               </p>
             </div>
           </div>
 
-          <button
-            type="button"
-            onClick={onClose}
-            aria-label="Đóng bảng thẩm định"
-            className="flex size-9 items-center justify-center rounded-full bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white transition-colors"
-          >
-            <X className="size-5" />
-          </button>
+          <div className="flex items-center gap-3">
+            {/* ⚡ 1-Click Auto Repair All Button */}
+            <Button
+              type="button"
+              variant="primary"
+              onClick={handleAutoRepairAll}
+              className="rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-black text-xs px-3.5 py-2 shadow-lg flex items-center gap-1.5 border-0 transition-all active:scale-95 cursor-pointer"
+            >
+              <Zap className="size-3.5 fill-current" />
+              <span>⚡ Tự Động Sửa Toàn Bộ Đề (1-Click Auto-Repair All)</span>
+            </Button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              aria-label="Đóng bảng thẩm định"
+              className="flex size-9 items-center justify-center rounded-full bg-white/10 text-slate-300 hover:bg-white/20 hover:text-white transition-colors cursor-pointer"
+            >
+              <X className="size-5" />
+            </button>
+          </div>
         </div>
+
+        {/* ── TOAST BANNER (IF ACTIVE) ── */}
+        {toastMessage && (
+          <div className="bg-emerald-600 px-6 py-2.5 text-white text-xs font-extrabold flex items-center justify-between shadow-inner animate-in slide-in-from-top duration-200">
+            <div className="flex items-center gap-2">
+              <CheckCircle2 className="size-4 text-emerald-200" />
+              <span>{toastMessage}</span>
+            </div>
+            <span className="rounded-md bg-emerald-700/80 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider">
+              100/100 Điểm Chuẩn ASMO
+            </span>
+          </div>
+        )}
 
         {/* ── MODAL BODY (SCROLLABLE) ── */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
@@ -441,7 +500,20 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam }: Props) {
                         </div>
                       </div>
 
-                      <div className="flex items-center gap-3 shrink-0">
+                      <div className="flex items-center gap-2.5 shrink-0">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            handleAutoRepairSingleQuestion(q.id)
+                          }}
+                          className="hidden sm:inline-flex items-center gap-1 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300/80 px-2.5 py-1 text-[11px] font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                          title="Tự động sửa cú pháp KaTeX, lời giải 3 bước sư phạm và gợi ý Mèo Mee cho câu này"
+                        >
+                          <Wrench className="size-3 text-amber-600" />
+                          <span>🛠️ Sửa Tự Động</span>
+                        </button>
+
                         <div
                           className={cn(
                             'rounded-xl px-2.5 py-1 text-xs font-extrabold border',
@@ -464,9 +536,19 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam }: Props) {
                         {/* Issues breakdown if any */}
                         {qRes.issues.length > 0 && (
                           <div className="space-y-2">
-                            <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                              Các vấn đề cần lưu ý ({qRes.issues.length})
-                            </h4>
+                            <div className="flex items-center justify-between">
+                              <h4 className="text-xs font-bold uppercase tracking-wider text-slate-500">
+                                Các vấn đề cần lưu ý ({qRes.issues.length})
+                              </h4>
+                              <button
+                                type="button"
+                                onClick={() => handleAutoRepairSingleQuestion(q.id)}
+                                className="inline-flex items-center gap-1 rounded-xl bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1 text-xs font-bold transition-all shadow-sm active:scale-95 cursor-pointer"
+                              >
+                                <Wrench className="size-3" />
+                                <span>🛠️ Sửa Tự Động Câu Này (1-Click Fix)</span>
+                              </button>
+                            </div>
                             <div className="space-y-2">
                               {qRes.issues.map((issue) => (
                                 <div
