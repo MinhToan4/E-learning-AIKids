@@ -75,12 +75,20 @@ export type AsmoQuestionOption = {
   svgDiagramKey?: string | null
 }
 
+export type AsmoDomainType =
+  | 'FORMULA'
+  | 'GEOMETRY_VISUAL'
+  | 'ARITHMETIC'
+  | 'REAL_WORLD'
+  | 'LOGIC_PUZZLE'
+
 export type AsmoQuestion = {
   id: string
   subject: AsmoSubject
   grade: AsmoGrade
   topicCode: string
   topicName: string
+  domainType?: AsmoDomainType
   title: string
   text: string
   options: AsmoQuestionOption[]

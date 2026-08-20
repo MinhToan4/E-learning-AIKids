@@ -12,8 +12,13 @@ import {
   ChevronRight,
   Layers,
   Sparkles,
+  Calculator,
+  Shapes,
+  Hash,
+  Globe,
+  GraduationCap,
 } from 'lucide-react'
-import type { AsmoQuestion } from '../types'
+import type { AsmoQuestion, AsmoDomainType } from '../types'
 import { AsmoFormula } from './AsmoFormula'
 import { AsmoMeeTutor } from './AsmoMeeTutor'
 import { AsmoSvgDiagram } from './AsmoSvgDiagram'
@@ -30,7 +35,40 @@ type Props = {
   onNext?: () => void
   activeInteractiveStep?: number
   onInteractiveStepChange?: (stepIndex: number) => void
+  examYear?: number
+  examRound?: string
   className?: string
+}
+
+const DOMAIN_BADGE_CONFIG: Record<
+  AsmoDomainType,
+  { label: string; icon: typeof Calculator; className: string }
+> = {
+  FORMULA: {
+    label: 'Công thức Toán',
+    icon: Calculator,
+    className: 'bg-sky-50 text-sky-700 border-sky-200/90',
+  },
+  GEOMETRY_VISUAL: {
+    label: 'Hình học Trực quan',
+    icon: Shapes,
+    className: 'bg-emerald-50 text-emerald-700 border-emerald-200/90',
+  },
+  ARITHMETIC: {
+    label: 'Số học',
+    icon: Hash,
+    className: 'bg-amber-50 text-amber-800 border-amber-200/90',
+  },
+  REAL_WORLD: {
+    label: 'Bài toán Thực tế',
+    icon: Globe,
+    className: 'bg-rose-50 text-rose-700 border-rose-200/90',
+  },
+  LOGIC_PUZZLE: {
+    label: 'Tư duy Logic',
+    icon: Sparkles,
+    className: 'bg-purple-50 text-purple-700 border-purple-200/90',
+  },
 }
 
 export function AsmoQuestionCard({
@@ -43,6 +81,8 @@ export function AsmoQuestionCard({
   onNext,
   activeInteractiveStep,
   onInteractiveStepChange,
+  examYear,
+  examRound: _examRound,
   className,
 }: Props) {
   const [internalSelected, setInternalSelected] = useState<string | null>(null)
@@ -76,16 +116,33 @@ export function AsmoQuestionCard({
   const steps = question.explanationSteps ?? []
   const hasSteps = steps.length > 0
 
+  const resolvedDomain = question.domainType || 'LOGIC_PUZZLE'
+  const domainCfg = DOMAIN_BADGE_CONFIG[resolvedDomain] || DOMAIN_BADGE_CONFIG.LOGIC_PUZZLE
+  const DomainIcon = domainCfg.icon
+
+  const yearMatch = question.id ? question.id.match(/-(19\d\d|20\d\d)-/) : null
+  const displayYear = examYear || (yearMatch ? parseInt(yearMatch[1], 10) : 2023)
+
   return (
     <div className={cn('rounded-3xl border border-slate-200/80 bg-white/95 p-5 sm:p-7 shadow-clay backdrop-blur-md flex flex-col gap-5', className)}>
       {/* Header / Meta */}
       <div className="flex items-center justify-between gap-3 border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2 flex-wrap">
-          <span className="inline-flex items-center gap-1 rounded-xl bg-brand-100 px-3 py-1 text-xs font-bold text-brand-700">
+          {/* Badge 1: Topic Name */}
+          <span className="inline-flex items-center gap-1 rounded-xl bg-brand-50 border border-brand-200 px-3 py-1 text-xs font-bold text-brand-700 shadow-2xs">
             {question.topicName}
           </span>
-          <span className="rounded-xl bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 font-mono">
-            {question.topicCode}
+
+          {/* Badge 2: Domain Type */}
+          <span className={cn('inline-flex items-center gap-1.5 rounded-xl border px-2.5 py-1 text-xs font-bold shadow-2xs', domainCfg.className)}>
+            <DomainIcon className="size-3 shrink-0" />
+            <span>{domainCfg.label}</span>
+          </span>
+
+          {/* Badge 3: Khối lớp & Năm thi */}
+          <span className="inline-flex items-center gap-1 rounded-xl bg-slate-100/90 border border-slate-200 px-2.5 py-1 text-xs font-bold text-slate-700 shadow-2xs">
+            <GraduationCap className="size-3 text-slate-500 shrink-0" />
+            <span>Khối Lớp {question.grade} • ASMO {displayYear}</span>
           </span>
         </div>
 
