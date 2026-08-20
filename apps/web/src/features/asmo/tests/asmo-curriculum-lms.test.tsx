@@ -11,6 +11,11 @@ import {
   resetLmsProgress,
 } from '../data/asmo-curriculum-lms'
 import { AsmoCurriculumRoadmapPage } from '../pages/AsmoCurriculumRoadmapPage'
+import {
+  AsmoIslandWorldMap,
+  ASMO_ISLAND_THEMES,
+  MEE_FLAT_CLAY_MASCOT,
+} from '../components/AsmoIslandWorldMap'
 import { AsmoInteractiveLessonModal } from '../components/AsmoInteractiveLessonModal'
 
 describe('ASMO Curriculum LMS Dataset & Logic', () => {
@@ -21,11 +26,11 @@ describe('ASMO Curriculum LMS Dataset & Logic', () => {
   it('contains exactly 5 sequential math stages', () => {
     expect(ASMO_LMS_STAGES).toHaveLength(5)
     expect(ASMO_LMS_STAGES.map((s) => s.stageNumber)).toEqual([1, 2, 3, 4, 5])
-    expect(ASMO_LMS_STAGES[0].title).toContain('Phép Cộng & Phép Trừ')
-    expect(ASMO_LMS_STAGES[1].title).toContain('Phép Nhân & Phép Chia')
-    expect(ASMO_LMS_STAGES[2].title).toContain('Phân Số & Tỉ Số')
-    expect(ASMO_LMS_STAGES[3].title).toContain('Thời Gian, Đồng Hồ & Đo Lường')
-    expect(ASMO_LMS_STAGES[4].title).toContain('Hình Học Không Gian 3D & Đấu Trường Olympic')
+    expect(ASMO_LMS_STAGES[0].title).toContain('Phép Cộng')
+    expect(ASMO_LMS_STAGES[1].title).toContain('Phép Nhân')
+    expect(ASMO_LMS_STAGES[2].title).toContain('Phân Số')
+    expect(ASMO_LMS_STAGES[3].title).toContain('Thời Gian')
+    expect(ASMO_LMS_STAGES[4].title).toContain('Không Gian 3D')
   })
 
   it('has 23 comprehensive interactive lessons with complete 4-stage pedagogy', () => {
@@ -102,8 +107,85 @@ describe('ASMO Curriculum LMS Dataset & Logic', () => {
   })
 })
 
-describe('ASMO LMS UI Components', () => {
-  it('renders AsmoCurriculumRoadmapPage without error', () => {
+describe('ASMO 5 Floating Islands Thematic Specs & Flat Clay Assets', () => {
+  it('defines unique thematic metadata and Flat Clay images for all 5 islands', () => {
+    const islandKeys = ['stage-1', 'stage-2', 'stage-3', 'stage-4', 'stage-5']
+    islandKeys.forEach((key) => {
+      const theme = ASMO_ISLAND_THEMES[key]
+      expect(theme).toBeDefined()
+      expect(theme.islandName).toBeTruthy()
+      expect(theme.englishName).toBeTruthy()
+      expect(theme.tagline).toBeTruthy()
+      expect(theme.badgeName).toBeTruthy()
+      expect(theme.image).toContain('/assets/asmo-islands/')
+      expect(theme.chest.name).toBeTruthy()
+      expect(theme.chest.bonusXp).toBeGreaterThan(0)
+      expect(theme.islandDecorIcons.length).toBeGreaterThanOrEqual(5)
+      expect(theme.meeQuotes.length).toBeGreaterThanOrEqual(3)
+    })
+
+    // Verify 5 distinct island names and flat clay images
+    expect(ASMO_ISLAND_THEMES['stage-1'].islandName).toContain('Đảo Táo Đỏ')
+    expect(ASMO_ISLAND_THEMES['stage-1'].image).toBe('/assets/asmo-islands/island_apple_forest.jpg')
+
+    expect(ASMO_ISLAND_THEMES['stage-2'].islandName).toContain('Vương Quốc Bánh Ngọt')
+    expect(ASMO_ISLAND_THEMES['stage-2'].image).toBe('/assets/asmo-islands/island_sweet_bakery.jpg')
+
+    expect(ASMO_ISLAND_THEMES['stage-3'].islandName).toContain('Quần Đảo Phân Số Pizza')
+    expect(ASMO_ISLAND_THEMES['stage-3'].image).toBe('/assets/asmo-islands/island_pizza_fractions.jpg')
+
+    expect(ASMO_ISLAND_THEMES['stage-4'].islandName).toContain('Cao Nguyên Đồng Hồ')
+    expect(ASMO_ISLAND_THEMES['stage-4'].image).toBe('/assets/asmo-islands/island_clock_sky.jpg')
+
+    expect(ASMO_ISLAND_THEMES['stage-5'].islandName).toContain('Thành Phố Pha Lê 3D')
+    expect(ASMO_ISLAND_THEMES['stage-5'].image).toBe('/assets/asmo-islands/island_crystal_olympic.jpg')
+  })
+
+  it('exports valid Flat Clay Mee Mascot Guide asset', () => {
+    expect(MEE_FLAT_CLAY_MASCOT).toBe('/assets/asmo-islands/mee_flat_clay_guide.jpg')
+  })
+})
+
+describe('ASMO Floating Islands & LMS UI Components', () => {
+  it('renders AsmoIslandWorldMap detailed trail view with Flat Clay Mèo Mee companion and S-path', () => {
+    const progress = getLmsProgress()
+    const markup = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(AsmoIslandWorldMap, {
+          selectedStageId: 'stage-1',
+          onSelectStage: () => {},
+          progress,
+          onOpenLesson: () => {},
+        }),
+      ),
+    )
+
+    // Check Island 1 Header & Flat Clay Scenery Image
+    expect(markup).toContain('Đảo Táo Đỏ')
+    expect(markup).toContain('Rừng Phép Cộng Trừ')
+    expect(markup).toContain('Apple Forest Island')
+    expect(markup).toContain('/assets/asmo-islands/island_apple_forest.jpg')
+
+    // Check Winding Path elements
+    expect(markup).toContain('pathGradient')
+    expect(markup).toContain('🐾')
+
+    // Check Flat Clay Mèo Mee companion presence & avatar
+    expect(markup).toContain('Mèo Mee Cổ Vũ')
+    expect(markup).toContain('Cùng Mee chinh phục bài này nhé bé ơi!')
+    expect(markup).toContain('/assets/asmo-islands/mee_flat_clay_guide.jpg')
+
+    // Check lesson nodes
+    expect(markup).toContain('Gộp Táo')
+    expect(markup).toContain('Bắt Đầu')
+
+    // Check final treasure chest
+    expect(markup).toContain('Rương Táo Vàng Phép Thuật')
+  })
+
+  it('renders AsmoCurriculumRoadmapPage with 5 Floating Islands Map and Mee Guide avatar', () => {
     const markup = renderToStaticMarkup(
       createElement(
         MemoryRouter,
@@ -113,8 +195,10 @@ describe('ASMO LMS UI Components', () => {
     )
 
     expect(markup).toContain('Chinh Phục 5 Chặng Toán Học Olympic Cùng Mèo Mee')
-    expect(markup).toContain('5 Đảo Học Tập Tuần Tự')
-    expect(markup).toContain('Thế Giới Phép Cộng')
+    expect(markup).toContain('5 Vùng Đảo Thế Giới')
+    expect(markup).toContain('Đảo Táo Đỏ')
+    expect(markup).toContain('Mèo Mee Cổ Vũ')
+    expect(markup).toContain('/assets/asmo-islands/mee_flat_clay_guide.jpg')
   })
 
   it('renders AsmoInteractiveLessonModal with 4 pedagogical steps', () => {
