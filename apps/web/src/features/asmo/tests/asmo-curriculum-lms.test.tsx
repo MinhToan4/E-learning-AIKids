@@ -9,6 +9,8 @@ import {
   isLessonUnlocked,
   getStageStats,
   resetLmsProgress,
+  getLessonPracticeChallenges,
+  verifyPracticeChallenge,
 } from '../data/asmo-curriculum-lms'
 import { AsmoCurriculumRoadmapPage } from '../pages/AsmoCurriculumRoadmapPage'
 import { AsmoCurriculumLessonPage } from '../pages/AsmoCurriculumLessonPage'
@@ -18,6 +20,7 @@ import {
   MEE_FLAT_CLAY_MASCOT,
 } from '../components/AsmoIslandWorldMap'
 import { AsmoInteractiveLessonModal } from '../components/AsmoInteractiveLessonModal'
+import { AsmoInteractivePracticeWorkspace } from '../components/AsmoInteractivePracticeWorkspace'
 
 describe('ASMO Curriculum LMS Dataset & Logic', () => {
   beforeEach(() => {
@@ -333,3 +336,165 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).toContain('Quay về Bản Đồ 5 Vùng Đảo')
   })
 })
+
+describe('ASMO Multi-Level Practice Lab & Diagnostic Verification Engine', () => {
+  it('generates exactly 3 sequential interactive challenges (Level 1, 2, 3) for all 23 lessons', () => {
+    const allLessons = ASMO_LMS_STAGES.flatMap((s) => s.lessons)
+    expect(allLessons).toHaveLength(23)
+
+    allLessons.forEach((lesson) => {
+      const challenges = getLessonPracticeChallenges(lesson)
+      expect(challenges).toHaveLength(3)
+      expect(challenges[0].level).toBe(1)
+      expect(challenges[0].levelLabel).toContain('Thử thách 1')
+      expect(challenges[0].instruction).toBeTruthy()
+      expect(challenges[0].successFeedback).toBeTruthy()
+
+      expect(challenges[1].level).toBe(2)
+      expect(challenges[1].levelLabel).toContain('Thử thách 2')
+      expect(challenges[1].instruction).toBeTruthy()
+
+      expect(challenges[2].level).toBe(3)
+      expect(challenges[2].levelLabel).toContain('Thử thách 3')
+      expect(challenges[2].instruction).toBeTruthy()
+    })
+  })
+
+  it('accurately verifies apple_drop multi-level practice challenges with diagnostic feedback', () => {
+    const appleLesson = ASMO_LMS_STAGES[0].lessons[0] // s1-apples
+
+    // Challenge 1: 3 apples A + 4 apples B = 7
+    const ch1Wrong = verifyPracticeChallenge(appleLesson, 0, { applesA: 2, applesB: 4 })
+    expect(ch1Wrong.isCorrect).toBe(false)
+    expect(ch1Wrong.feedback).toContain('Giỏ A đang có 2 quả đỏ')
+
+    const ch1Correct = verifyPracticeChallenge(appleLesson, 0, { applesA: 3, applesB: 4 })
+    expect(ch1Correct.isCorrect).toBe(true)
+    expect(ch1Correct.feedback).toContain('3 quả đỏ + 4 quả xanh = 7 quả táo')
+
+    // Challenge 2: Missing addend (5 + 3 = 8)
+    const ch2Wrong = verifyPracticeChallenge(appleLesson, 1, { applesA: 5, applesB: 1 })
+    expect(ch2Wrong.isCorrect).toBe(false)
+    expect(ch2Wrong.feedback).toContain('Tổng hiện tại đang là 6 quả')
+
+    const ch2Correct = verifyPracticeChallenge(appleLesson, 1, { applesA: 5, applesB: 3 })
+    expect(ch2Correct.isCorrect).toBe(true)
+    expect(ch2Correct.feedback).toContain('5 quả đỏ + 3 quả xanh = đúng 8 quả')
+
+    // Challenge 3: Free sum 10
+    const ch3Wrong = verifyPracticeChallenge(appleLesson, 2, { applesA: 4, applesB: 4 })
+    expect(ch3Wrong.isCorrect).toBe(false)
+    expect(ch3Wrong.feedback).toContain('tổng hai giỏ bằng đúng 10 quả táo')
+
+    const ch3Correct = verifyPracticeChallenge(appleLesson, 2, { applesA: 6, applesB: 4 })
+    expect(ch3Correct.isCorrect).toBe(true)
+    expect(ch3Correct.feedback).toContain('10 quả táo')
+  })
+
+  it('accurately verifies balloon_pop practice challenges', () => {
+    const balloonLesson = ASMO_LMS_STAGES[0].lessons[1] // s1-balloons
+
+    // Challenge 1: Pop 4 balloons
+    const ch1Wrong = verifyPracticeChallenge(balloonLesson, 0, { poppedBalloons: [1, 2] })
+    expect(ch1Wrong.isCorrect).toBe(false)
+    expect(ch1Wrong.feedback).toContain('Bé mới nổ 2 quả bóng')
+
+    const ch1Correct = verifyPracticeChallenge(balloonLesson, 0, { poppedBalloons: [1, 2, 3, 4] })
+    expect(ch1Correct.isCorrect).toBe(true)
+    expect(ch1Correct.feedback).toContain('10 - 4 = 6 quả bóng')
+
+    // Challenge 2: Pop to target 3 remaining (pop 7)
+    const ch2Correct = verifyPracticeChallenge(balloonLesson, 1, { poppedBalloons: [1, 2, 3, 4, 5, 6, 7] })
+    expect(ch2Correct.isCorrect).toBe(true)
+    expect(ch2Correct.feedback).toContain('10 - 7 = 3 quả bóng')
+  })
+
+  it('accurately verifies cake_tray practice challenges', () => {
+    const cakeLesson = ASMO_LMS_STAGES[1].lessons[0] // s2-cake-tray
+
+    // Challenge 1: 3 rows x 4 cols
+    const ch1Wrong = verifyPracticeChallenge(cakeLesson, 0, { cakeRows: 2, cakeCols: 2 })
+    expect(ch1Wrong.isCorrect).toBe(false)
+    expect(ch1Wrong.feedback).toContain('Khay bánh đang có 2 hàng và 2 cột')
+
+    const ch1Correct = verifyPracticeChallenge(cakeLesson, 0, { cakeRows: 3, cakeCols: 4 })
+    expect(ch1Correct.isCorrect).toBe(true)
+    expect(ch1Correct.feedback).toContain('3 hàng × 4 cột = 12 chiếc bánh')
+
+    // Challenge 2: 4 rows x 5 cols = 20
+    const ch2Correct = verifyPracticeChallenge(cakeLesson, 1, { cakeRows: 4, cakeCols: 5 })
+    expect(ch2Correct.isCorrect).toBe(true)
+    expect(ch2Correct.feedback).toContain('20 chiếc bánh')
+
+    // Challenge 3: Product = 24 (4x6 or 3x8)
+    const ch3Correct = verifyPracticeChallenge(cakeLesson, 2, { cakeRows: 4, cakeCols: 6 })
+    expect(ch3Correct.isCorrect).toBe(true)
+    expect(ch3Correct.feedback).toContain('24 chiếc bánh')
+  })
+
+  it('accurately verifies candy_division and div_remainder practice challenges', () => {
+    const candyLesson = ASMO_LMS_STAGES[1].lessons[3] // s2-candy-split
+
+    const ch1Correct = verifyPracticeChallenge(candyLesson, 0, { candyTotal: 12, candyPlates: 3 })
+    expect(ch1Correct.isCorrect).toBe(true)
+    expect(ch1Correct.feedback).toContain('12 : 3 = 4 cái kẹo')
+
+    const ch2Correct = verifyPracticeChallenge(candyLesson, 1, { candyTotal: 15, candyPlates: 3 })
+    expect(ch2Correct.isCorrect).toBe(true)
+    expect(ch2Correct.feedback).toContain('15 : 3 = 5 cái kẹo')
+  })
+
+  it('accurately verifies pizza_fraction practice challenges', () => {
+    const pizzaLesson = ASMO_LMS_STAGES[2].lessons[0] // s3-pizza-fractions
+
+    const ch1Correct = verifyPracticeChallenge(pizzaLesson, 0, { pizzaSlices: 8, pizzaShaded: 3 })
+    expect(ch1Correct.isCorrect).toBe(true)
+    expect(ch1Correct.feedback).toContain('3/8 chiếc bánh pizza')
+
+    const ch2Correct = verifyPracticeChallenge(pizzaLesson, 1, { pizzaSlices: 4, pizzaShaded: 2 })
+    expect(ch2Correct.isCorrect).toBe(true)
+    expect(ch2Correct.feedback).toContain('1/2 nửa chiếc bánh')
+  })
+
+  it('accurately verifies analog_clock practice challenges', () => {
+    const clockLesson = ASMO_LMS_STAGES[3].lessons[0] // s4-analog-clock
+
+    const ch1Correct = verifyPracticeChallenge(clockLesson, 0, { clockHour: 8, clockMinute: 15 })
+    expect(ch1Correct.isCorrect).toBe(true)
+    expect(ch1Correct.feedback).toContain('8:15')
+
+    const ch2Correct = verifyPracticeChallenge(clockLesson, 1, { clockHour: 3, clockMinute: 30 })
+    expect(ch2Correct.isCorrect).toBe(true)
+    expect(ch2Correct.feedback).toContain('3:30')
+  })
+
+  it('renders AsmoInteractivePracticeWorkspace with 3 challenge step indicators and without pre-baked results', () => {
+    const appleLesson = ASMO_LMS_STAGES[0].lessons[0]
+    const markup = renderToStaticMarkup(
+      createElement(AsmoInteractivePracticeWorkspace, {
+        lesson: appleLesson,
+        onCompleteAllChallenges: () => {},
+        onAdvanceToQuiz: () => {},
+      }),
+    )
+
+    // Check challenge progress header & 3 pills
+    expect(markup).toContain('Phòng Thực Hành Tương Tác Đa Cấp Độ')
+    expect(markup).toContain('Thử thách 1/3:')
+    expect(markup).toContain('Gộp Táo Khởi Động')
+    expect(markup).toContain('Thử thách 1')
+    expect(markup).toContain('Thử thách 2')
+    expect(markup).toContain('Thử thách 3')
+
+    // Check manipulative controls
+    expect(markup).toContain('Giỏ A (Táo Đỏ):')
+    expect(markup).toContain('Giỏ B (Táo Xanh):')
+    expect(markup).toContain('Thêm')
+    expect(markup).toContain('Kiểm Tra Kết Quả Thử Thách')
+    expect(markup).toContain('Đặt lại thao tác')
+
+    // Ensure NO pre-baked success celebration banner is shown initially
+    expect(markup).not.toContain('XUẤT SẮC BÉ ƠI! BẠN ĐÃ VƯỢT QUA THỬ THÁCH')
+  })
+})
+

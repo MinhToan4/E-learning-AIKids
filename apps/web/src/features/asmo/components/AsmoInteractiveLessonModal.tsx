@@ -25,6 +25,7 @@ import {
   ASMO_LMS_STAGES,
 } from '../data/asmo-curriculum-lms'
 import { AsmoFormula } from './AsmoFormula'
+import { AsmoInteractivePracticeWorkspace } from './AsmoInteractivePracticeWorkspace'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { renderClockSvg, renderBalanceScaleSvg, renderMatchstickFigureSvg } from './AsmoDiagramEngine'
 import { Button } from '@/shared/components/ui/Button'
@@ -585,46 +586,17 @@ export function AsmoInteractiveLessonModal({
           )}
 
           {/* ══════════════════════════════════════════════════════════════════
-              GIAI ĐOẠN 3: 🎮 THỰC HÀNH CẦM TAY CHỈ VIỆC
+              GIAI ĐOẠN 3: 🎮 THỰC HÀNH CẦM TAY CHỈ VIỆC (ĐA THỬ THÁCH)
           ══════════════════════════════════════════════════════════════════ */}
           {activeStep === 3 && (
-            <div className="space-y-6">
-              <div className="rounded-2xl bg-emerald-950/40 border border-emerald-500/40 p-4 space-y-2">
-                <div className="flex items-center gap-2 text-emerald-300 font-extrabold text-xs uppercase tracking-wider">
-                  <Gamepad2 className="size-4 text-emerald-400" />
-                  <span>Nhiệm Vụ Thực Hành Cầm Tay Chỉ Việc</span>
-                </div>
-                <p className="text-sm sm:text-base font-bold text-white">
-                  {lesson.interactivePractice.instruction}
-                </p>
-              </div>
-
-              {/* Hands-on Interactive Area */}
-              <div className="rounded-3xl bg-slate-950 border border-emerald-500/30 p-6 flex flex-col items-center justify-center space-y-4">
-                <span className="text-4xl animate-bounce">{lesson.icon}</span>
-                <p className="text-xs text-slate-300 text-center max-w-md">
-                  Hãy thao tác và bấm nút xác nhận bên dưới để Mèo Mee kiểm tra kết quả thực hành của con nhé!
-                </p>
-
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={handleVerifyPractice}
-                  className="gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold shadow-md px-6 py-2.5 cursor-pointer"
-                >
-                  <CheckCircle2 className="size-4" />
-                  <span>Kiểm Tra Kết Quả Thực Hành</span>
-                </Button>
-
-                {practiceCompleted && practiceFeedback && (
-                  <div className="w-full bg-emerald-900/60 border border-emerald-400/60 rounded-2xl p-3.5 text-center text-xs sm:text-sm font-bold text-emerald-200 animate-in zoom-in-50 space-y-1">
-                    <div className="flex items-center justify-center gap-1.5 text-emerald-300">
-                      <Sparkles className="size-4 text-amber-400" />
-                      <span>{practiceFeedback}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
+            <div className="space-y-6 text-slate-800">
+              <AsmoInteractivePracticeWorkspace
+                lesson={lesson}
+                onCompleteAllChallenges={() => {
+                  setPracticeCompleted(true)
+                }}
+                onAdvanceToQuiz={() => setActiveStep(4)}
+              />
             </div>
           )}
 

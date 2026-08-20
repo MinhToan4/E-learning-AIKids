@@ -54,11 +54,25 @@ export interface AsmoLmsMeeTip {
   storyAdvice: string
 }
 
+export interface AsmoLmsPracticeChallenge {
+  id: string
+  level: 1 | 2 | 3
+  levelLabel: string
+  title: string
+  instruction: string
+  hint?: string
+  taskType: string
+  taskConfig: Record<string, unknown>
+  successFeedback: string
+  initialState?: Record<string, unknown>
+}
+
 export interface AsmoLmsPractice {
   instruction: string
   taskType: string
   taskConfig: Record<string, unknown>
   successFeedback: string
+  challenges?: AsmoLmsPracticeChallenge[]
 }
 
 export interface AsmoLmsLesson {
@@ -1379,3 +1393,582 @@ export function getStageStats(stageId: string, progress: AsmoLmsProgressState) {
     isCompleted: completedLessons === totalLessons,
   }
 }
+
+// ════════════════════════════════════════════════════════════════════════════
+// 3-TIER MULTI-LEVEL PRACTICE CHALLENGES GENERATOR & DIAGNOSTIC VALIDATOR
+// ════════════════════════════════════════════════════════════════════════════
+
+export function getLessonPracticeChallenges(lesson: AsmoLmsLesson): AsmoLmsPracticeChallenge[] {
+  if (lesson.interactivePractice.challenges && lesson.interactivePractice.challenges.length === 3) {
+    return lesson.interactivePractice.challenges
+  }
+
+  const { visualType, id } = lesson
+
+  // 1. Apple Drop (Gộp Táo)
+  if (visualType === 'apple_drop') {
+    return [
+      {
+        id: `${id}-c1`,
+        level: 1,
+        levelLabel: '🥉 Thử thách 1: Khởi động',
+        title: 'Gộp Táo Khởi Động',
+        instruction: 'Bé hãy bấm thêm vào Giỏ A có 3 quả táo đỏ 🍎 và Giỏ B có 4 quả táo xanh 🍏 để tính tổng!',
+        hint: 'Bấm nút [+ 🍎 Thêm] để Giỏ A có 3 quả và Giỏ B có 4 quả nhé.',
+        taskType: 'target_sum',
+        taskConfig: { targetA: 3, targetB: 4, targetSum: 7 },
+        initialState: { applesA: 1, applesB: 1 },
+        successFeedback: 'Tuyệt vời bé ơi! 3 quả đỏ + 4 quả xanh = 7 quả táo thơm ngon!',
+      },
+      {
+        id: `${id}-c2`,
+        level: 2,
+        levelLabel: '🥈 Thử thách 2: Tìm ẩn số',
+        title: 'Tìm Ẩn Số Giỏ Xanh',
+        instruction: 'Mèo Mee cần 8 quả táo. Giỏ A đã có sẵn 5 quả đỏ 🍎. Bé hãy bấm thêm vào Giỏ B số táo xanh 🍏 cần thiết để đạt đúng 8 quả!',
+        hint: 'Ta có $5 + ? = 8$. Bé hãy bấm thêm táo xanh vào Giỏ B để tổng bằng 8 nhé!',
+        taskType: 'missing_addend',
+        taskConfig: { targetA: 5, targetB: 3, targetSum: 8 },
+        initialState: { applesA: 5, applesB: 1 },
+        successFeedback: 'Xuất sắc! 5 quả đỏ + 3 quả xanh = đúng 8 quả táo Mèo Mee cần!',
+      },
+      {
+        id: `${id}-c3`,
+        level: 3,
+        levelLabel: '🥇 Thử thách 3: Thử thách IQ',
+        title: 'Sáng Tạo Phép Cộng Tròn 10',
+        instruction: 'Thử thách IQ: Bé hãy tạo một phép cộng tự do giữa Giỏ A và Giỏ B sao cho tổng đúng bằng 10 quả táo!',
+        hint: 'Bé có thể chọn 1+9, 2+8, 3+7, 4+6 hoặc 5+5 quả táo nhé!',
+        taskType: 'free_sum_10',
+        taskConfig: { targetSum: 10, minEach: 1 },
+        initialState: { applesA: 2, applesB: 2 },
+        successFeedback: 'Đỉnh cao toán học! Bé đã tạo thành công phép cộng tròn 10 tuyệt đẹp!',
+      },
+    ]
+  }
+
+  // 2. Balloon Pop (Nổ Bóng Trừ)
+  if (visualType === 'balloon_pop') {
+    return [
+      {
+        id: `${id}-c1`,
+        level: 1,
+        levelLabel: '🥉 Thử thách 1: Khởi động',
+        title: 'Nổ Bóng Khởi Động',
+        instruction: 'Bé hãy bấm nổ 4 quả bóng bay 🎈 để còn lại đúng 6 quả bóng bay trên bầu trời ($10 - 4 = 6$)!',
+        hint: 'Bấm trực tiếp vào 4 quả bóng bất kỳ để làm chúng nổ 💥 nhé!',
+        taskType: 'pop_balloons',
+        taskConfig: { targetPop: 4, targetRemaining: 6 },
+        initialState: { poppedBalloons: [] },
+        successFeedback: 'Chuẩn xác! 10 - 4 = 6 quả bóng còn lại nguyên vẹn!',
+      },
+      {
+        id: `${id}-c2`,
+        level: 2,
+        levelLabel: '🥈 Thử thách 2: Tìm ẩn số',
+        title: 'Tìm Ẩn Số Bóng Bay',
+        instruction: 'Bầu trời đang có 10 quả bóng. Bé hãy bấm nổ số bóng cần thiết để chỉ còn lại đúng 3 quả bóng bay!',
+        hint: 'Muốn còn lại 3 quả bóng, ta lấy $10 - 3 = 7$ quả bóng cần nổ!',
+        taskType: 'pop_to_target',
+        taskConfig: { targetPop: 7, targetRemaining: 3 },
+        initialState: { poppedBalloons: [] },
+        successFeedback: 'Rất giỏi! Nổ 7 quả thì 10 - 7 = 3 quả bóng còn lại trên bầu trời!',
+      },
+      {
+        id: `${id}-c3`,
+        level: 3,
+        levelLabel: '🥇 Thử thách 3: Thử thách IQ',
+        title: 'Thử Thách IQ: Chia Đôi Chùm Bóng',
+        instruction: 'Thử thách IQ: Bé hãy làm nổ đúng 5 quả bóng để số bóng nổ bằng đúng số bóng còn lại ($10 - 5 = 5$)!',
+        hint: 'Bấm nổ đúng 5 quả bóng để chùm bóng chia làm 2 nửa bằng nhau nhé!',
+        taskType: 'pop_half',
+        taskConfig: { targetPop: 5, targetRemaining: 5 },
+        initialState: { poppedBalloons: [] },
+        successFeedback: 'Xuất sắc! 10 - 5 = 5, chùm bóng đã được chia đôi hoàn hảo!',
+      },
+    ]
+  }
+
+  // 3. Cake Tray (Khay Bánh Phép Nhân)
+  if (visualType === 'cake_tray') {
+    return [
+      {
+        id: `${id}-c1`,
+        level: 1,
+        levelLabel: '🥉 Thử thách 1: Khởi động',
+        title: 'Xếp Khay Bánh $3 \\times 4$',
+        instruction: 'Bé hãy chỉnh khay bánh có đúng 3 hàng và 4 cột để tạo ra 12 chiếc bánh 🍰 ($3 \\times 4 = 12$)!',
+        hint: 'Bấm nút [+] hoặc [-] ở mục Số Hàng thành 3 và Số Cột thành 4 nhé.',
+        taskType: 'grid_resize',
+        taskConfig: { targetRows: 3, targetCols: 4, targetTotal: 12 },
+        initialState: { cakeRows: 2, cakeCols: 2 },
+        successFeedback: 'Chính xác! 3 hàng × 4 cột = 12 chiếc bánh thơm ngon!',
+      },
+      {
+        id: `${id}-c2`,
+        level: 2,
+        levelLabel: '🥈 Thử thách 2: Tìm ẩn số',
+        title: 'Tìm Ẩn Số Cột Bánh',
+        instruction: 'Mèo Mee có 4 hàng bánh. Bé hãy điều chỉnh số cột để tạo đúng 20 chiếc bánh kem dâu thơm ngon!',
+        hint: 'Ta có $4 \\times ? = 20$. Bé hãy tìm số cột bánh phù hợp nhé!',
+        taskType: 'missing_factor',
+        taskConfig: { targetRows: 4, targetCols: 5, targetTotal: 20 },
+        initialState: { cakeRows: 4, cakeCols: 2 },
+        successFeedback: 'Tuyệt vời! 4 hàng × 5 cột = 20 chiếc bánh kem dâu!',
+      },
+      {
+        id: `${id}-c3`,
+        level: 3,
+        levelLabel: '🥇 Thử thách 3: Thử thách IQ',
+        title: 'Thử Thách IQ: Tạo 24 Chiếc Bánh',
+        instruction: 'Thử thách IQ: Bé hãy tạo một khay bánh có tổng đúng bằng 24 chiếc bánh (ví dụ 4×6 hoặc 3×8)!',
+        hint: 'Bé có thể chọn 4 hàng 6 cột ($4 \\times 6 = 24$) nhé!',
+        taskType: 'free_product_24',
+        taskConfig: { targetTotal: 24 },
+        initialState: { cakeRows: 3, cakeCols: 3 },
+        successFeedback: 'Quá đỉnh! Bé đã tạo thành công khay 24 chiếc bánh tuyệt ngon!',
+      },
+    ]
+  }
+
+  // 4. Candy Division & Remainder
+  if (visualType === 'candy_division' || visualType === 'div_remainder') {
+    return [
+      {
+        id: `${id}-c1`,
+        level: 1,
+        levelLabel: '🥉 Thử thách 1: Khởi động',
+        title: 'Chia Kẹo Đều Khởi Động',
+        instruction: 'Bé hãy chỉnh 12 chiếc kẹo chia đều vào 3 đĩa để mỗi đĩa nhận được 4 chiếc kẹo ($12 : 3 = 4$)!',
+        hint: 'Chỉnh tổng số kẹo thành 12 và số đĩa thành 3 nhé.',
+        taskType: 'equal_split',
+        taskConfig: { candyTotal: 12, candyPlates: 3, candiesPerPlate: 4 },
+        initialState: { candyTotal: 9, candyPlates: 3 },
+        successFeedback: 'Chính xác! 12 : 3 = 4 cái kẹo trên mỗi đĩa!',
+      },
+      {
+        id: `${id}-c2`,
+        level: 2,
+        levelLabel: '🥈 Thử thách 2: Tìm ẩn số',
+        title: 'Chia 15 Kẹo Cho 3 Bạn',
+        instruction: 'Có 15 chiếc kẹo 🍬. Bé hãy chia vào 3 đĩa để mỗi đĩa có đúng 5 chiếc kẹo ($15 : 3 = 5$)!',
+        hint: 'Chỉnh số kẹo thành 15 và số đĩa thành 3 nhé.',
+        taskType: 'split_15',
+        taskConfig: { candyTotal: 15, candyPlates: 3, candiesPerPlate: 5 },
+        initialState: { candyTotal: 12, candyPlates: 2 },
+        successFeedback: 'Rất tốt! 15 : 3 = 5 cái kẹo trên mỗi đĩa!',
+      },
+      {
+        id: `${id}-c3`,
+        level: 3,
+        levelLabel: '🥇 Thử thách 3: Thử thách IQ',
+        title: 'Phép Chia Có Dư Thần Tốc',
+        instruction: 'Thử thách IQ: Chỉnh 14 cái kẹo chia vào 3 đĩa để xem mỗi đĩa có 4 cái và còn dư 2 cái ($14 = 3 \\times 4 + 2$)!',
+        hint: 'Chỉnh tổng kẹo là 14 và số đĩa là 3.',
+        taskType: 'remainder_split',
+        taskConfig: { candyTotal: 14, candyPlates: 3, candiesPerPlate: 4, remainder: 2 },
+        initialState: { candyTotal: 12, candyPlates: 3 },
+        successFeedback: 'Tuyệt vời! 14 : 3 = 4 (dư 2 kẹo), đúng quy tắc chia có dư!',
+      },
+    ]
+  }
+
+  // 5. Pizza Fraction (Phân Số Pizza)
+  if (
+    visualType === 'pizza_fraction' ||
+    visualType === 'compare_fractions' ||
+    visualType === 'fraction_add_sub' ||
+    visualType === 'fraction_of_number'
+  ) {
+    return [
+      {
+        id: `${id}-c1`,
+        level: 1,
+        levelLabel: '🥉 Thử thách 1: Khởi động',
+        title: 'Tạo Phân Số $\\frac{3}{8}$ Pizza',
+        instruction: 'Bé hãy chọn 8 lát cắt và bấm chọn 3 lát pizza 🍕 để tạo phân số $\\frac{3}{8}$!',
+        hint: 'Chọn số lát cắt là 8, sau đó bấm vào 3 lát bánh pizza để tô màu đỏ nhé.',
+        taskType: 'slice_selector',
+        taskConfig: { pizzaSlices: 8, pizzaShaded: 3 },
+        initialState: { pizzaSlices: 8, pizzaShaded: 1 },
+        successFeedback: 'Xuất sắc! Bạn đã tạo thành công phân số 3/8 chiếc bánh pizza!',
+      },
+      {
+        id: `${id}-c2`,
+        level: 2,
+        levelLabel: '🥈 Thử thách 2: Tìm ẩn số',
+        title: 'Tạo Nửa Chiếc Bánh $\\frac{1}{2}$',
+        instruction: 'Bé hãy chọn 4 lát cắt và lấy 2 lát để tạo phân số $\\frac{2}{4}$ (tức $\\frac{1}{2}$ nửa chiếc bánh)!',
+        hint: 'Chọn 4 lát cắt và bấm chọn 2 lát bánh nhé.',
+        taskType: 'half_pizza',
+        taskConfig: { pizzaSlices: 4, pizzaShaded: 2 },
+        initialState: { pizzaSlices: 4, pizzaShaded: 1 },
+        successFeedback: 'Tuyệt vời! 2/4 chính là 1/2 nửa chiếc bánh pizza thơm ngon!',
+      },
+      {
+        id: `${id}-c3`,
+        level: 3,
+        levelLabel: '🥇 Thử thách 3: Thử thách IQ',
+        title: 'Thử Thách IQ: Tạo Phân Số $\\frac{5}{6}$',
+        instruction: 'Thử thách IQ: Bé hãy chọn 6 lát cắt và lấy 5 lát để biểu thị phân số $\\frac{5}{6}$ chiếc bánh pizza!',
+        hint: 'Chọn 6 lát cắt và chọn 5 lát bánh.',
+        taskType: 'fraction_5_6',
+        taskConfig: { pizzaSlices: 6, pizzaShaded: 5 },
+        initialState: { pizzaSlices: 6, pizzaShaded: 2 },
+        successFeedback: 'Đỉnh cao! Bạn đã tạo ra phân số 5/6 chiếc bánh pizza!',
+      },
+    ]
+  }
+
+  // 6. Analog Clock (Đồng Hồ Kim)
+  if (visualType === 'analog_clock' || visualType === 'elapsed_time') {
+    return [
+      {
+        id: `${id}-c1`,
+        level: 1,
+        levelLabel: '🥉 Thử thách 1: Khởi động',
+        title: 'Chỉnh Giờ 8:15',
+        instruction: 'Bé hãy chỉnh kim đồng hồ ⏰ về đúng 8 giờ 15 phút sáng!',
+        hint: 'Bấm nút Chỉnh Giờ thành 8 và nút Chỉnh Phút thành 15p nhé.',
+        taskType: 'clock_setter',
+        taskConfig: { clockHour: 8, clockMinute: 15 },
+        initialState: { clockHour: 12, clockMinute: 0 },
+        successFeedback: 'Chính xác! Đồng hồ đang chỉ đúng 8:15!',
+      },
+      {
+        id: `${id}-c2`,
+        level: 2,
+        levelLabel: '🥈 Thử thách 2: Tìm ẩn số',
+        title: 'Chỉnh Giờ Rưỡi 3:30',
+        instruction: 'Bé hãy chỉnh kim đồng hồ về đúng 3 giờ 30 phút chiều (3 giờ rưỡi)!',
+        hint: 'Kim ngắn ở giữa 3 và 4, kim dài chỉ số 6 (30 phút).',
+        taskType: 'clock_half',
+        taskConfig: { clockHour: 3, clockMinute: 30 },
+        initialState: { clockHour: 1, clockMinute: 0 },
+        successFeedback: 'Chuẩn xác! Đồng hồ đang chỉ đúng 3:30 (3 giờ rưỡi)!',
+      },
+      {
+        id: `${id}-c3`,
+        level: 3,
+        levelLabel: '🥇 Thử thách 3: Thử thách IQ',
+        title: 'Thử Thách IQ: Chỉnh Giờ 10:45',
+        instruction: 'Thử thách IQ: Bé hãy chỉnh đồng hồ về đúng 10 giờ 45 phút (11 giờ kém 15 phút)!',
+        hint: 'Chỉnh giờ thành 10 và phút thành 45p nhé.',
+        taskType: 'clock_45',
+        taskConfig: { clockHour: 10, clockMinute: 45 },
+        initialState: { clockHour: 12, clockMinute: 0 },
+        successFeedback: 'Xuất sắc! Bé đã làm chủ hoàn toàn mặt đồng hồ kim!',
+      },
+    ]
+  }
+
+  // 7. Balance Scale (Cân Thăng Bằng)
+  if (visualType === 'balance_scale') {
+    return [
+      {
+        id: `${id}-c1`,
+        level: 1,
+        levelLabel: '🥉 Thử thách 1: Khởi động',
+        title: 'Cân Thăng Bằng 2 Quả Dưa',
+        instruction: 'Biết 1 Dưa = 3 Táo. Đĩa trái có 2 quả Dưa, bé hãy chỉnh đĩa phải có 6 quả Táo để cân thăng bằng!',
+        hint: 'Ta có $2 \\times 3 = 6$ quả táo.',
+        taskType: 'scale_balance',
+        taskConfig: { scaleLeft: 2, scaleRight: 6 },
+        initialState: { scaleLeft: 2, scaleRight: 2 },
+        successFeedback: 'Chính xác! 2 quả Dưa thăng bằng với đúng 6 quả Táo!',
+      },
+      {
+        id: `${id}-c2`,
+        level: 2,
+        levelLabel: '🥈 Thử thách 2: Tìm ẩn số',
+        title: 'Cân Thăng Bằng 3 Quả Dưa',
+        instruction: 'Biết 1 Dưa = 3 Táo. Đĩa trái có 3 quả Dưa, bé hãy chỉnh đĩa phải có số Táo thích hợp để cân thăng bằng!',
+        hint: 'Ta có $3 \\times 3 = 9$ quả táo.',
+        taskType: 'scale_balance',
+        taskConfig: { scaleLeft: 3, scaleRight: 9 },
+        initialState: { scaleLeft: 3, scaleRight: 3 },
+        successFeedback: 'Tuyệt vời! 3 quả Dưa thăng bằng với 9 quả Táo!',
+      },
+      {
+        id: `${id}-c3`,
+        level: 3,
+        levelLabel: '🥇 Thử thách 3: Thử thách IQ',
+        title: 'Thử Thách IQ: Cân Đại Số ASMO',
+        instruction: 'Thử thách IQ: Biết 1 Dưa = 4 Táo. Đĩa trái có 2 quả Dưa, bé hãy chỉnh đĩa phải có 8 quả Táo!',
+        hint: 'Ta có $2 \\times 4 = 8$ quả táo.',
+        taskType: 'scale_balance',
+        taskConfig: { scaleLeft: 2, scaleRight: 8 },
+        initialState: { scaleLeft: 2, scaleRight: 4 },
+        successFeedback: 'Đỉnh cao! Tư duy cân thăng bằng đại số của bé thật xuất sắc!',
+      },
+    ]
+  }
+
+  // Generic fallback for any other visual types
+  return [
+    {
+      id: `${id}-c1`,
+      level: 1,
+      levelLabel: '🥉 Thử thách 1: Khởi động',
+      title: 'Khởi Động Thao Tác',
+      instruction: lesson.interactivePractice.instruction,
+      hint: lesson.theory.keyTakeaways[0] || 'Quan sát mô hình và thực hiện theo yêu cầu.',
+      taskType: lesson.interactivePractice.taskType,
+      taskConfig: lesson.interactivePractice.taskConfig,
+      initialState: {},
+      successFeedback: lesson.interactivePractice.successFeedback,
+    },
+    {
+      id: `${id}-c2`,
+      level: 2,
+      levelLabel: '🥈 Thử thách 2: Tìm ẩn số',
+      title: 'Tìm Ẩn Số Bài Toán',
+      instruction: `Áp dụng bí kíp Mèo Mee để giải quyết yêu cầu tìm ẩn số của bài ${lesson.title}.`,
+      hint: lesson.meeTip.storyAdvice,
+      taskType: 'advanced_step',
+      taskConfig: lesson.interactivePractice.taskConfig,
+      initialState: {},
+      successFeedback: 'Rất giỏi! Bé đã tìm ra đúng ẩn số của bài toán!',
+    },
+    {
+      id: `${id}-c3`,
+      level: 3,
+      levelLabel: '🥇 Thử thách 3: Thử thách IQ',
+      title: 'Chinh Phục Thử Thách IQ',
+      instruction: 'Vượt qua thử thách IQ đỉnh cao để sẵn sàng bước vào Đấu Trường Olympic ASMO!',
+      hint: 'Tự tin áp dụng các bước giải đã học.',
+      taskType: 'iq_mastery',
+      taskConfig: lesson.interactivePractice.taskConfig,
+      initialState: {},
+      successFeedback: 'Xuất sắc! Bé đã làm chủ hoàn toàn kỹ năng của bài học này!',
+    },
+  ]
+}
+
+export function verifyPracticeChallenge(
+  lesson: AsmoLmsLesson,
+  challengeIndex: number,
+  state: Record<string, unknown>,
+): { isCorrect: boolean; feedback: string; hint?: string } {
+  const challenges = getLessonPracticeChallenges(lesson)
+  const challenge = challenges[challengeIndex] || challenges[0]
+  const config = challenge.taskConfig || {}
+
+  // 1. Apple Drop
+  if (lesson.visualType === 'apple_drop') {
+    const applesA = typeof state.applesA === 'number' ? state.applesA : 0
+    const applesB = typeof state.applesB === 'number' ? state.applesB : 0
+    const total = applesA + applesB
+
+    if (challengeIndex === 0) {
+      if (applesA === 3 && applesB === 4) {
+        return { isCorrect: true, feedback: 'Tuyệt vời bé ơi! 3 quả đỏ + 4 quả xanh = 7 quả táo thơm ngon!' }
+      }
+      if (applesA !== 3) {
+        return { isCorrect: false, feedback: `Chưa đúng rồi bé ơi! Giỏ A đang có ${applesA} quả đỏ, bé bấm điều chỉnh thành 3 quả nhé!` }
+      }
+      return { isCorrect: false, feedback: `Chưa đúng rồi bé ơi! Giỏ B đang có ${applesB} quả xanh, bé bấm điều chỉnh thành 4 quả nhé!` }
+    }
+
+    if (challengeIndex === 1) {
+      if (applesA === 5 && applesB === 3) {
+        return { isCorrect: true, feedback: 'Xuất sắc! 5 quả đỏ + 3 quả xanh = đúng 8 quả táo Mèo Mee cần!' }
+      }
+      return {
+        isCorrect: false,
+        feedback: `Tổng hiện tại đang là ${total} quả. Giỏ A có 5 quả đỏ, bé cần chỉnh Giỏ B có 3 quả xanh để tổng bằng 8 nhé!`,
+      }
+    }
+
+    if (challengeIndex === 2) {
+      if (total === 10 && applesA > 0 && applesB > 0) {
+        return { isCorrect: true, feedback: `Đỉnh cao toán học! ${applesA} quả đỏ + ${applesB} quả xanh = 10 quả táo tròn trĩnh!` }
+      }
+      return {
+        isCorrect: false,
+        feedback: `Tổng hiện tại đang là ${total} quả táo. Bé hãy điều chỉnh sao cho tổng hai giỏ bằng đúng 10 quả táo nhé!`,
+      }
+    }
+  }
+
+  // 2. Balloon Pop
+  if (lesson.visualType === 'balloon_pop') {
+    const popped = Array.isArray(state.poppedBalloons) ? state.poppedBalloons.length : 0
+    const remaining = 10 - popped
+
+    if (challengeIndex === 0) {
+      if (popped === 4) {
+        return { isCorrect: true, feedback: 'Chuẩn xác! 10 - 4 = 6 quả bóng còn lại nguyên vẹn!' }
+      }
+      if (popped < 4) {
+        return { isCorrect: false, feedback: `Bé mới nổ ${popped} quả bóng. Hãy bấm nổ thêm ${4 - popped} quả nữa nhé!` }
+      }
+      return { isCorrect: false, feedback: `Bé đã nổ ${popped} quả bóng (quá 4 quả). Hãy bấm vào quả bóng nổ để khôi phục lại nhé!` }
+    }
+
+    if (challengeIndex === 1) {
+      if (remaining === 3 || popped === 7) {
+        return { isCorrect: true, feedback: 'Rất giỏi! Nổ 7 quả thì 10 - 7 = 3 quả bóng còn lại trên bầu trời!' }
+      }
+      return {
+        isCorrect: false,
+        feedback: `Hiện còn ${remaining} quả bóng trên trời. Bé hãy làm nổ đúng 7 quả để còn lại 3 quả nhé!`,
+      }
+    }
+
+    if (challengeIndex === 2) {
+      if (popped === 5) {
+        return { isCorrect: true, feedback: 'Xuất sắc! 10 - 5 = 5, chùm bóng đã được chia đôi hoàn hảo!' }
+      }
+      return { isCorrect: false, feedback: `Bé đang nổ ${popped} quả bóng. Hãy điều chỉnh để nổ đúng 5 quả bóng nhé!` }
+    }
+  }
+
+  // 3. Cake Tray
+  if (lesson.visualType === 'cake_tray') {
+    const rows = typeof state.cakeRows === 'number' ? state.cakeRows : 0
+    const cols = typeof state.cakeCols === 'number' ? state.cakeCols : 0
+    const total = rows * cols
+
+    if (challengeIndex === 0) {
+      if (rows === 3 && cols === 4) {
+        return { isCorrect: true, feedback: 'Chính xác! 3 hàng × 4 cột = 12 chiếc bánh thơm ngon!' }
+      }
+      return { isCorrect: false, feedback: `Khay bánh đang có ${rows} hàng và ${cols} cột. Bé hãy chỉnh thành 3 hàng và 4 cột nhé!` }
+    }
+
+    if (challengeIndex === 1) {
+      if (rows === 4 && cols === 5) {
+        return { isCorrect: true, feedback: 'Tuyệt vời! 4 hàng × 5 cột = 20 chiếc bánh kem dâu!' }
+      }
+      return { isCorrect: false, feedback: `Khay đang có ${total} chiếc bánh. Bé hãy chỉnh thành 4 hàng và 5 cột để có 20 chiếc bánh nhé!` }
+    }
+
+    if (challengeIndex === 2) {
+      if (total === 24) {
+        return { isCorrect: true, feedback: `Quá đỉnh! ${rows} hàng × ${cols} cột = 24 chiếc bánh thơm ngon!` }
+      }
+      return { isCorrect: false, feedback: `Khay đang có ${total} chiếc bánh (chưa bằng 24). Bé hãy thử 4 hàng 6 cột xem sao!` }
+    }
+  }
+
+  // 4. Candy Division & Remainder
+  if (lesson.visualType === 'candy_division' || lesson.visualType === 'div_remainder') {
+    const total = typeof state.candyTotal === 'number' ? state.candyTotal : 0
+    const plates = typeof state.candyPlates === 'number' ? state.candyPlates : 1
+
+    if (challengeIndex === 0) {
+      if (total === 12 && plates === 3) {
+        return { isCorrect: true, feedback: 'Chính xác! 12 : 3 = 4 cái kẹo trên mỗi đĩa!' }
+      }
+      return { isCorrect: false, feedback: `Bé hãy chỉnh tổng số kẹo là 12 và số đĩa là 3 nhé!` }
+    }
+
+    if (challengeIndex === 1) {
+      if (total === 15 && plates === 3) {
+        return { isCorrect: true, feedback: 'Rất tốt! 15 : 3 = 5 cái kẹo trên mỗi đĩa!' }
+      }
+      return { isCorrect: false, feedback: `Bé hãy chỉnh 15 cái kẹo chia vào 3 đĩa để mỗi đĩa có 5 cái nhé!` }
+    }
+
+    if (challengeIndex === 2) {
+      if (total === 14 && plates === 3) {
+        return { isCorrect: true, feedback: 'Tuyệt vời! 14 : 3 = 4 (dư 2 kẹo), đúng quy tắc chia có dư!' }
+      }
+      return { isCorrect: false, feedback: `Bé hãy chỉnh 14 cái kẹo chia vào 3 đĩa nhé!` }
+    }
+  }
+
+  // 5. Pizza Fraction
+  if (
+    lesson.visualType === 'pizza_fraction' ||
+    lesson.visualType === 'compare_fractions' ||
+    lesson.visualType === 'fraction_add_sub' ||
+    lesson.visualType === 'fraction_of_number'
+  ) {
+    const slices = typeof state.pizzaSlices === 'number' ? state.pizzaSlices : 8
+    const shaded = typeof state.pizzaShaded === 'number' ? state.pizzaShaded : 0
+
+    if (challengeIndex === 0) {
+      if (slices === 8 && shaded === 3) {
+        return { isCorrect: true, feedback: 'Xuất sắc! Bạn đã tạo phân số 3/8 chiếc bánh pizza!' }
+      }
+      return { isCorrect: false, feedback: `Hiện đang có ${shaded}/${slices} lát. Bé hãy chọn 8 lát cắt và tô màu 3 lát nhé!` }
+    }
+
+    if (challengeIndex === 1) {
+      if ((slices === 4 && shaded === 2) || (shaded > 0 && shaded / slices === 0.5)) {
+        return { isCorrect: true, feedback: 'Tuyệt vời! 2/4 chính là 1/2 nửa chiếc bánh pizza!' }
+      }
+      return { isCorrect: false, feedback: `Bé hãy chọn 4 lát cắt và tô màu 2 lát nhé!` }
+    }
+
+    if (challengeIndex === 2) {
+      if (slices === 6 && shaded === 5) {
+        return { isCorrect: true, feedback: 'Đỉnh cao! Bạn đã tạo ra phân số 5/6 chiếc bánh pizza!' }
+      }
+      return { isCorrect: false, feedback: `Bé hãy chọn 6 lát cắt và tô màu 5 lát nhé!` }
+    }
+  }
+
+  // 6. Analog Clock
+  if (lesson.visualType === 'analog_clock' || lesson.visualType === 'elapsed_time') {
+    const hour = typeof state.clockHour === 'number' ? state.clockHour : 12
+    const minute = typeof state.clockMinute === 'number' ? state.clockMinute : 0
+
+    if (challengeIndex === 0) {
+      if (hour === 8 && minute === 15) {
+        return { isCorrect: true, feedback: 'Chính xác! Đồng hồ đang chỉ đúng 8:15!' }
+      }
+      return { isCorrect: false, feedback: `Đồng hồ đang chỉ ${hour}:${minute < 10 ? '0' + minute : minute}. Bé hãy chỉnh về 8:15 nhé!` }
+    }
+
+    if (challengeIndex === 1) {
+      if (hour === 3 && minute === 30) {
+        return { isCorrect: true, feedback: 'Chuẩn xác! Đồng hồ đang chỉ đúng 3:30 (3 giờ rưỡi)!' }
+      }
+      return { isCorrect: false, feedback: `Đồng hồ đang chỉ ${hour}:${minute < 10 ? '0' + minute : minute}. Bé hãy chỉnh về 3:30 nhé!` }
+    }
+
+    if (challengeIndex === 2) {
+      if (hour === 10 && minute === 45) {
+        return { isCorrect: true, feedback: 'Xuất sắc! Đồng hồ đang chỉ đúng 10:45!' }
+      }
+      return { isCorrect: false, feedback: `Đồng hồ đang chỉ ${hour}:${minute < 10 ? '0' + minute : minute}. Bé hãy chỉnh về 10:45 nhé!` }
+    }
+  }
+
+  // 7. Balance Scale
+  if (lesson.visualType === 'balance_scale') {
+    const left = typeof state.scaleLeft === 'number' ? state.scaleLeft : 0
+    const right = typeof state.scaleRight === 'number' ? state.scaleRight : 0
+
+    if (challengeIndex === 0) {
+      if (left === 2 && right === 6) {
+        return { isCorrect: true, feedback: 'Chính xác! 2 quả Dưa thăng bằng với đúng 6 quả Táo!' }
+      }
+      return { isCorrect: false, feedback: `Đĩa phải đang có ${right} quả táo. Bé hãy chỉnh thành 6 quả táo để thăng bằng với 2 quả dưa nhé!` }
+    }
+
+    if (challengeIndex === 1) {
+      if (left === 3 && right === 9) {
+        return { isCorrect: true, feedback: 'Tuyệt vời! 3 quả Dưa thăng bằng với 9 quả Táo!' }
+      }
+      return { isCorrect: false, feedback: `Bé hãy chỉnh đĩa phải có 9 quả táo để thăng bằng với 3 quả dưa nhé!` }
+    }
+
+    if (challengeIndex === 2) {
+      if (left === 2 && right === 8) {
+        return { isCorrect: true, feedback: 'Đỉnh cao! 2 quả Dưa thăng bằng với 8 quả Táo!' }
+      }
+      return { isCorrect: false, feedback: `Bé hãy chỉnh đĩa phải có 8 quả táo nhé!` }
+    }
+  }
+
+  // Default fallback for any custom visual challenge
+  return {
+    isCorrect: true,
+    feedback: challenge.successFeedback || 'Rất giỏi! Bé đã vượt qua thử thách thực hành thành công!',
+  }
+}
+

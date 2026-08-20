@@ -31,6 +31,7 @@ import {
   isLessonUnlocked,
 } from '../data/asmo-curriculum-lms'
 import { AsmoFormula } from '../components/AsmoFormula'
+import { AsmoInteractivePracticeWorkspace } from '../components/AsmoInteractivePracticeWorkspace'
 import { renderClockSvg, renderBalanceScaleSvg, renderMatchstickFigureSvg } from '../components/AsmoDiagramEngine'
 import { AikidCatCharacter, type AikidCatPose } from '@/shared/components/ui/AikidCatCharacter'
 import { AdventureModal } from '@/shared/components/ui/AdventureModal'
@@ -946,50 +947,22 @@ export function AsmoCurriculumLessonPage() {
           )}
 
           {/* ══════════════════════════════════════════════════════════════════
-              PHASE 3: 🎮 THỰC HÀNH THAO TÁC (THAO TÁC TRỰC QUAN)
+              PHASE 3: 🎮 THỰC HÀNH THAO TÁC (THAO TÁC TRỰC QUAN ĐA THỬ THÁCH)
           ══════════════════════════════════════════════════════════════════ */}
           {phase === 'practice' && (
             <div className="rounded-3xl border border-slate-200 shadow-clay bg-white p-5 sm:p-7 space-y-6 animate-fade-up">
-              {/* Task Instructions Card */}
-              <div className="rounded-2xl bg-emerald-50 border-2 border-emerald-200 p-4 sm:p-5 space-y-2">
-                <div className="flex items-center gap-2 text-emerald-800 font-extrabold text-xs uppercase tracking-wider">
-                  <Gamepad2 className="size-4 text-emerald-600" />
-                  <span>Nhiệm Vụ Thực Hành Cầm Tay Chỉ Việc</span>
-                </div>
-                <p className="text-sm sm:text-base font-extrabold text-slate-800 leading-snug">
-                  <AsmoFormula text={lesson.interactivePractice.instruction} />
-                </p>
-              </div>
-
-              {/* Interactive Practice Workspace */}
-              <div className="rounded-3xl bg-slate-50 border-2 border-emerald-200 p-6 flex flex-col items-center justify-center space-y-5 text-center min-h-[220px]">
-                <span className="text-5xl animate-bounce select-none">{lesson.icon}</span>
-                <p className="text-xs sm:text-sm font-semibold text-slate-600 max-w-md">
-                  Hãy hoàn thành thao tác theo yêu cầu của đề bài, sau đó bấm nút kiểm tra bên dưới để Mèo Mee chấm điểm nhé!
-                </p>
-
-                <Button
-                  type="button"
-                  variant="primary"
-                  onClick={handleVerifyPractice}
-                  className="gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-clay px-7 py-3 text-sm cursor-pointer"
-                >
-                  <CheckCircle2 className="size-5" />
-                  <span>Kiểm Tra Kết Quả Thực Hành</span>
-                </Button>
-
-                {practiceCompleted && practiceFeedback && (
-                  <div className="w-full max-w-lg bg-emerald-100 border-2 border-emerald-400 rounded-2xl p-4 text-center text-xs sm:text-sm font-extrabold text-emerald-900 animate-in zoom-in-50 space-y-1">
-                    <div className="flex items-center justify-center gap-2 text-emerald-800">
-                      <Sparkles className="size-5 text-amber-500 fill-amber-400" />
-                      <span>{practiceFeedback}</span>
-                    </div>
-                  </div>
-                )}
-              </div>
+              {/* Interactive Practice Workspace with 3-tier challenges & dynamic diagnostics */}
+              <AsmoInteractivePracticeWorkspace
+                lesson={lesson}
+                onCompleteAllChallenges={() => {
+                  setPracticeCompleted(true)
+                  setMaxUnlockedPhase('quiz')
+                }}
+                onAdvanceToQuiz={() => advanceToPhase('quiz')}
+              />
 
               {/* Bottom Step Navigation */}
-              <div className="flex items-center justify-between pt-2">
+              <div className="flex items-center justify-between pt-2 border-t border-slate-100">
                 <Button
                   type="button"
                   variant="secondary"
