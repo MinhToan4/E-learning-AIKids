@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { Sparkles, RefreshCw, ShoppingBasket, Volume2, ArrowRight, Star } from 'lucide-react'
 import { AsmoFormula } from './AsmoFormula'
 import { cn } from '@/shared/lib/cn'
@@ -71,6 +71,11 @@ const GREEN_APPLE_POSITIONS = [
   { top: '58%', left: '48%', rot: '-5deg', delay: '250ms' },
 ]
 
+function createInitialAppleIds(count: number, max: number): number[] {
+  const clamped = Math.max(0, Math.min(count, max))
+  return Array.from({ length: clamped }, (_, i) => i)
+}
+
 export function AsmoInteractiveAppleTreeCanvas({
   applesA: controlledA,
   applesB: controlledB,
@@ -87,23 +92,73 @@ export function AsmoInteractiveAppleTreeCanvas({
   showResetButton = true,
   className,
 }: AsmoInteractiveAppleTreeCanvasProps) {
-  // Support both controlled & uncontrolled states
-  const [internalA, setInternalA] = useState<number>(4)
-  const [internalB, setInternalB] = useState<number>(3)
+  // Unique item identity tracking (ID 0..9 per basket type)
+  const initialCountA = controlledA !== undefined ? controlledA : 4
+  const initialCountB = controlledB !== undefined ? controlledB : 3
 
-  const applesA = controlledA !== undefined ? controlledA : internalA
-  const applesB = controlledB !== undefined ? controlledB : internalB
+  const [basketRedAppleIds, setBasketRedAppleIds] = useState<number[]>(() =>
+    createInitialAppleIds(initialCountA, maxApplesPerBasket),
+  )
+  const [basketGreenAppleIds, setBasketGreenAppleIds] = useState<number[]>(() =>
+    createInitialAppleIds(initialCountB, maxApplesPerBasket),
+  )
+
+  // Synchronize when controlled props change from parent
+  useEffect(() => {
+    if (controlledA !== undefined) {
+      setBasketRedAppleIds((prev) => {
+        const targetCount = Math.max(0, Math.min(controlledA, maxApplesPerBasket))
+        if (prev.length === targetCount) return prev
+        if (targetCount === 0) return []
+        if (targetCount < prev.length) {
+          return prev.slice(0, targetCount)
+        }
+        const available: number[] = []
+        for (let i = 0; i < maxApplesPerBasket; i++) {
+          if (!prev.includes(i)) available.push(i)
+        }
+        const needed = targetCount - prev.length
+        return [...prev, ...available.slice(0, needed)]
+      })
+    }
+  }, [controlledA, maxApplesPerBasket])
+
+  useEffect(() => {
+    if (controlledB !== undefined) {
+      setBasketGreenAppleIds((prev) => {
+        const targetCount = Math.max(0, Math.min(controlledB, maxApplesPerBasket))
+        if (prev.length === targetCount) return prev
+        if (targetCount === 0) return []
+        if (targetCount < prev.length) {
+          return prev.slice(0, targetCount)
+        }
+        const available: number[] = []
+        for (let i = 0; i < maxApplesPerBasket; i++) {
+          if (!prev.includes(i)) available.push(i)
+        }
+        const needed = targetCount - prev.length
+        return [...prev, ...available.slice(0, needed)]
+      })
+    }
+  }, [controlledB, maxApplesPerBasket])
+
+  const applesA = controlledA !== undefined ? controlledA : basketRedAppleIds.length
+  const applesB = controlledB !== undefined ? controlledB : basketGreenAppleIds.length
 
   // Interaction visual effects & Drag-and-Drop state
   const [isDragOverA, setIsDragOverA] = useState<boolean>(false)
   const [isDragOverB, setIsDragOverB] = useState<boolean>(false)
   const [isDragOverTree, setIsDragOverTree] = useState<boolean>(false)
-  const [draggingItem, setDraggingItem] = useState<{ source: 'tree' | 'basket'; type: AppleBasketType } | null>(null)
+  const [draggingItem, setDraggingItem] = useState<{
+    source: 'tree' | 'basket'
+    type: AppleBasketType
+    id?: number
+  } | null>(null)
   const [sparkleAnim, setSparkleAnim] = useState<{ x: number; y: number; id: number } | null>(null)
 
   const totalApples = applesA + applesB
-  const remainingTreeRed = Math.max(0, maxApplesPerBasket - applesA)
-  const remainingTreeGreen = Math.max(0, maxApplesPerBasket - applesB)
+  const remainingTreeRed = Math.max(0, maxApplesPerBasket - basketRedAppleIds.length)
+  const remainingTreeGreen = Math.max(0, maxApplesPerBasket - basketGreenAppleIds.length)
 
   // ── Feedback Effect Helper ──
   const triggerSparkleEffect = (x: number, y: number) => {
@@ -111,74 +166,113 @@ export function AsmoInteractiveAppleTreeCanvas({
     setTimeout(() => setSparkleAnim(null), 900)
   }
 
-  // ── State Mutation Handlers ──
-  const handleAddApple = (basket: AppleBasketType) => {
+  // ── Item-Based State Mutation Handlers ──
+  const handleAddAppleWithId = (basket: AppleBasketType, id: number) => {
     if (basket === 'A') {
-      if (applesA >= maxApplesPerBasket) return
+      if (basketRedAppleIds.includes(id) || basketRedAppleIds.length >= maxApplesPerBasket) return
+      const nextIds = [...basketRedAppleIds, id]
+      setBasketRedAppleIds(nextIds)
       if (onAddApple) {
         onAddApple('A')
       } else if (onSetApples) {
-        onSetApples('A', applesA + 1)
-      } else {
-        setInternalA((prev) => Math.min(prev + 1, maxApplesPerBasket))
+        onSetApples('A', nextIds.length)
       }
       triggerSparkleEffect(25, 75)
     } else {
-      if (applesB >= maxApplesPerBasket) return
+      if (basketGreenAppleIds.includes(id) || basketGreenAppleIds.length >= maxApplesPerBasket) return
+      const nextIds = [...basketGreenAppleIds, id]
+      setBasketGreenAppleIds(nextIds)
       if (onAddApple) {
         onAddApple('B')
       } else if (onSetApples) {
-        onSetApples('B', applesB + 1)
-      } else {
-        setInternalB((prev) => Math.min(prev + 1, maxApplesPerBasket))
+        onSetApples('B', nextIds.length)
       }
       triggerSparkleEffect(75, 75)
     }
   }
 
-  const handleSubApple = (basket: AppleBasketType) => {
+  const handleSubAppleWithId = (basket: AppleBasketType, id: number) => {
     if (basket === 'A') {
-      if (applesA <= 0) return
+      if (!basketRedAppleIds.includes(id)) return
+      const nextIds = basketRedAppleIds.filter((item) => item !== id)
+      setBasketRedAppleIds(nextIds)
       if (onSubApple) {
         onSubApple('A')
       } else if (onSetApples) {
-        onSetApples('A', applesA - 1)
-      } else {
-        setInternalA((prev) => Math.max(prev - 1, 0))
+        onSetApples('A', nextIds.length)
       }
       triggerSparkleEffect(30, 35)
     } else {
-      if (applesB <= 0) return
+      if (!basketGreenAppleIds.includes(id)) return
+      const nextIds = basketGreenAppleIds.filter((item) => item !== id)
+      setBasketGreenAppleIds(nextIds)
       if (onSubApple) {
         onSubApple('B')
       } else if (onSetApples) {
-        onSetApples('B', applesB - 1)
-      } else {
-        setInternalB((prev) => Math.max(prev - 1, 0))
+        onSetApples('B', nextIds.length)
       }
       triggerSparkleEffect(70, 35)
     }
   }
 
+  // Fallback triggers if called without specific ID
+  const handleAddApple = (basket: AppleBasketType) => {
+    if (basket === 'A') {
+      if (basketRedAppleIds.length >= maxApplesPerBasket) return
+      let nextId = -1
+      for (let i = 0; i < maxApplesPerBasket; i++) {
+        if (!basketRedAppleIds.includes(i)) {
+          nextId = i
+          break
+        }
+      }
+      if (nextId === -1) return
+      handleAddAppleWithId('A', nextId)
+    } else {
+      if (basketGreenAppleIds.length >= maxApplesPerBasket) return
+      let nextId = -1
+      for (let i = 0; i < maxApplesPerBasket; i++) {
+        if (!basketGreenAppleIds.includes(i)) {
+          nextId = i
+          break
+        }
+      }
+      if (nextId === -1) return
+      handleAddAppleWithId('B', nextId)
+    }
+  }
+
+  const handleSubApple = (basket: AppleBasketType) => {
+    if (basket === 'A') {
+      if (basketRedAppleIds.length === 0) return
+      const lastId = basketRedAppleIds[basketRedAppleIds.length - 1]
+      handleSubAppleWithId('A', lastId)
+    } else {
+      if (basketGreenAppleIds.length === 0) return
+      const lastId = basketGreenAppleIds[basketGreenAppleIds.length - 1]
+      handleSubAppleWithId('B', lastId)
+    }
+  }
+
   const handleResetAll = () => {
+    setBasketRedAppleIds([])
+    setBasketGreenAppleIds([])
     if (onReset) {
       onReset()
     } else if (onSetApples) {
       onSetApples('A', 0)
       onSetApples('B', 0)
-    } else {
-      setInternalA(0)
-      setInternalB(0)
     }
     triggerSparkleEffect(50, 40)
   }
 
   // ── Drag & Drop Handlers: Tree ➔ Basket (Chiều 1) ──
-  const handleTreeAppleDragStart = (e: React.DragEvent, basketType: AppleBasketType) => {
+  const handleTreeAppleDragStart = (e: React.DragEvent, basketType: AppleBasketType, id: number) => {
     e.dataTransfer.setData('source', 'tree')
     e.dataTransfer.setData('appleType', basketType)
+    e.dataTransfer.setData('appleId', String(id))
     e.dataTransfer.effectAllowed = 'copyMove'
-    setDraggingItem({ source: 'tree', type: basketType })
+    setDraggingItem({ source: 'tree', type: basketType, id })
   }
 
   const handleDragOverBasket = (e: React.DragEvent, basket: AppleBasketType) => {
@@ -204,24 +298,27 @@ export function AsmoInteractiveAppleTreeCanvas({
     setIsDragOverB(false)
     const source = e.dataTransfer.getData('source') || draggingItem?.source
     const appleType = (e.dataTransfer.getData('appleType') as AppleBasketType) || draggingItem?.type
+    const rawId = e.dataTransfer.getData('appleId')
+    const id = rawId !== '' ? Number(rawId) : draggingItem?.id
 
     if (source === 'tree') {
-      if (appleType === basket || !appleType) {
-        handleAddApple(basket)
+      const targetBasket = appleType || basket
+      if (typeof id === 'number' && !isNaN(id)) {
+        handleAddAppleWithId(targetBasket, id)
       } else {
-        // Red apples route to A, green to B
-        handleAddApple(appleType)
+        handleAddApple(targetBasket)
       }
     }
     setDraggingItem(null)
   }
 
   // ── Drag & Drop Handlers: Basket ➔ Tree (Chiều 2) ──
-  const handleBasketAppleDragStart = (e: React.DragEvent, basketType: AppleBasketType) => {
+  const handleBasketAppleDragStart = (e: React.DragEvent, basketType: AppleBasketType, id: number) => {
     e.dataTransfer.setData('source', 'basket')
     e.dataTransfer.setData('appleType', basketType)
+    e.dataTransfer.setData('appleId', String(id))
     e.dataTransfer.effectAllowed = 'move'
-    setDraggingItem({ source: 'basket', type: basketType })
+    setDraggingItem({ source: 'basket', type: basketType, id })
   }
 
   const handleDragOverTree = (e: React.DragEvent) => {
@@ -239,12 +336,15 @@ export function AsmoInteractiveAppleTreeCanvas({
     setIsDragOverTree(false)
     const source = e.dataTransfer.getData('source') || draggingItem?.source
     const appleType = (e.dataTransfer.getData('appleType') as AppleBasketType) || draggingItem?.type
+    const rawId = e.dataTransfer.getData('appleId')
+    const id = rawId !== '' ? Number(rawId) : draggingItem?.id
 
     if (source === 'basket') {
-      if (appleType === 'A') {
-        handleSubApple('A')
-      } else if (appleType === 'B') {
-        handleSubApple('B')
+      const targetBasket = appleType || 'A'
+      if (typeof id === 'number' && !isNaN(id)) {
+        handleSubAppleWithId(targetBasket, id)
+      } else {
+        handleSubApple(targetBasket)
       }
     }
     setDraggingItem(null)
@@ -456,60 +556,66 @@ export function AsmoInteractiveAppleTreeCanvas({
         {/* Tree Interactive Layer: Large Hanging Apples */}
         <div className="relative w-full h-full z-10">
           {/* 🍎 RED APPLES CLUSTER (LEFT CANOPY) */}
-          {RED_APPLE_POSITIONS.slice(0, remainingTreeRed).map((pos, idx) => (
-            <button
-              key={`tree-red-apple-${idx}`}
-              type="button"
-              draggable
-              onDragStart={(e) => handleTreeAppleDragStart(e, 'A')}
-              onDragEnd={handleDragEnd}
-              onClick={() => handleAddApple('A')}
-              style={{
-                top: pos.top,
-                left: pos.left,
-                transform: `rotate(${pos.rot})`,
-                animationDelay: pos.delay,
-              }}
-              title="Chạm hoặc kéo vào Giỏ A để hái táo đỏ 🍎"
-              className={cn(
-                'absolute select-none transition-all duration-200 cursor-grab active:cursor-grabbing',
-                'hover:scale-130 active:scale-95 drop-shadow-md hover:drop-shadow-xl',
-                'flex items-center justify-center text-3xl sm:text-4xl p-1 rounded-full',
-                'hover:ring-4 hover:ring-coral-400 hover:bg-white/50 active:scale-90',
-                draggingItem?.source === 'tree' && draggingItem?.type === 'A' && 'opacity-70 scale-110',
-              )}
-            >
-              🍎
-            </button>
-          ))}
+          {RED_APPLE_POSITIONS.slice(0, maxApplesPerBasket).map((pos, id) => {
+            if (basketRedAppleIds.includes(id)) return null
+            return (
+              <button
+                key={`tree-red-apple-${id}`}
+                type="button"
+                draggable
+                onDragStart={(e) => handleTreeAppleDragStart(e, 'A', id)}
+                onDragEnd={handleDragEnd}
+                onClick={() => handleAddAppleWithId('A', id)}
+                style={{
+                  top: pos.top,
+                  left: pos.left,
+                  transform: `rotate(${pos.rot})`,
+                  animationDelay: pos.delay,
+                }}
+                title="Chạm hoặc kéo vào Giỏ A để hái táo đỏ 🍎"
+                className={cn(
+                  'absolute select-none transition-all duration-200 cursor-grab active:cursor-grabbing',
+                  'hover:scale-130 active:scale-95 drop-shadow-md hover:drop-shadow-xl',
+                  'flex items-center justify-center text-3xl sm:text-4xl p-1 rounded-full',
+                  'hover:ring-4 hover:ring-coral-400 hover:bg-white/50 active:scale-90',
+                  draggingItem?.source === 'tree' && draggingItem?.type === 'A' && draggingItem?.id === id && 'opacity-70 scale-110',
+                )}
+              >
+                🍎
+              </button>
+            )
+          })}
 
           {/* 🍏 GREEN APPLES CLUSTER (RIGHT CANOPY) */}
-          {GREEN_APPLE_POSITIONS.slice(0, remainingTreeGreen).map((pos, idx) => (
-            <button
-              key={`tree-green-apple-${idx}`}
-              type="button"
-              draggable
-              onDragStart={(e) => handleTreeAppleDragStart(e, 'B')}
-              onDragEnd={handleDragEnd}
-              onClick={() => handleAddApple('B')}
-              style={{
-                top: pos.top,
-                left: pos.left,
-                transform: `rotate(${pos.rot})`,
-                animationDelay: pos.delay,
-              }}
-              title="Chạm hoặc kéo vào Giỏ B để hái táo xanh 🍏"
-              className={cn(
-                'absolute select-none transition-all duration-200 cursor-grab active:cursor-grabbing',
-                'hover:scale-130 active:scale-95 drop-shadow-md hover:drop-shadow-xl',
-                'flex items-center justify-center text-3xl sm:text-4xl p-1 rounded-full',
-                'hover:ring-4 hover:ring-mint-400 hover:bg-white/50 active:scale-90',
-                draggingItem?.source === 'tree' && draggingItem?.type === 'B' && 'opacity-70 scale-110',
-              )}
-            >
-              🍏
-            </button>
-          ))}
+          {GREEN_APPLE_POSITIONS.slice(0, maxApplesPerBasket).map((pos, id) => {
+            if (basketGreenAppleIds.includes(id)) return null
+            return (
+              <button
+                key={`tree-green-apple-${id}`}
+                type="button"
+                draggable
+                onDragStart={(e) => handleTreeAppleDragStart(e, 'B', id)}
+                onDragEnd={handleDragEnd}
+                onClick={() => handleAddAppleWithId('B', id)}
+                style={{
+                  top: pos.top,
+                  left: pos.left,
+                  transform: `rotate(${pos.rot})`,
+                  animationDelay: pos.delay,
+                }}
+                title="Chạm hoặc kéo vào Giỏ B để hái táo xanh 🍏"
+                className={cn(
+                  'absolute select-none transition-all duration-200 cursor-grab active:cursor-grabbing',
+                  'hover:scale-130 active:scale-95 drop-shadow-md hover:drop-shadow-xl',
+                  'flex items-center justify-center text-3xl sm:text-4xl p-1 rounded-full',
+                  'hover:ring-4 hover:ring-mint-400 hover:bg-white/50 active:scale-90',
+                  draggingItem?.source === 'tree' && draggingItem?.type === 'B' && draggingItem?.id === id && 'opacity-70 scale-110',
+                )}
+              >
+                🍏
+              </button>
+            )
+          })}
 
           {/* If all apples on tree are picked */}
           {remainingTreeRed === 0 && remainingTreeGreen === 0 && (
@@ -605,7 +711,7 @@ export function AsmoInteractiveAppleTreeCanvas({
                 isDragOverA && 'bg-coral-100/60',
               )}
             >
-              {applesA === 0 ? (
+              {basketRedAppleIds.length === 0 ? (
                 <div className="flex flex-col items-center justify-center text-center py-2 text-coral-400 space-y-1">
                   <span className="text-2xl sm:text-3xl opacity-80">🧺</span>
                   <span className="text-xs font-black text-coral-700 italic">
@@ -613,16 +719,19 @@ export function AsmoInteractiveAppleTreeCanvas({
                   </span>
                 </div>
               ) : (
-                Array.from({ length: applesA }).map((_, i) => (
+                basketRedAppleIds.map((id) => (
                   <button
-                    key={`basket-apple-a-${i}`}
+                    key={`basket-apple-a-${id}`}
                     type="button"
                     draggable
-                    onDragStart={(e) => handleBasketAppleDragStart(e, 'A')}
+                    onDragStart={(e) => handleBasketAppleDragStart(e, 'A', id)}
                     onDragEnd={handleDragEnd}
-                    onClick={() => handleSubApple('A')}
+                    onClick={() => handleSubAppleWithId('A', id)}
                     title="Chạm hoặc kéo về cây để trả táo đỏ 🍎"
-                    className="text-3xl sm:text-4xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 active:scale-95 transition-transform cursor-grab active:cursor-grabbing p-0.5 filter drop-shadow-sm"
+                    className={cn(
+                      'text-3xl sm:text-4xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 active:scale-95 transition-transform cursor-grab active:cursor-grabbing p-0.5 filter drop-shadow-sm',
+                      draggingItem?.source === 'basket' && draggingItem?.type === 'A' && draggingItem?.id === id && 'opacity-70 scale-110',
+                    )}
                   >
                     🍎
                   </button>
@@ -718,7 +827,7 @@ export function AsmoInteractiveAppleTreeCanvas({
                 isDragOverB && 'bg-mint-100/60',
               )}
             >
-              {applesB === 0 ? (
+              {basketGreenAppleIds.length === 0 ? (
                 <div className="flex flex-col items-center justify-center text-center py-2 text-mint-400 space-y-1">
                   <span className="text-2xl sm:text-3xl opacity-80">🧺</span>
                   <span className="text-xs font-black text-mint-700 italic">
@@ -726,16 +835,19 @@ export function AsmoInteractiveAppleTreeCanvas({
                   </span>
                 </div>
               ) : (
-                Array.from({ length: applesB }).map((_, i) => (
+                basketGreenAppleIds.map((id) => (
                   <button
-                    key={`basket-apple-b-${i}`}
+                    key={`basket-apple-b-${id}`}
                     type="button"
                     draggable
-                    onDragStart={(e) => handleBasketAppleDragStart(e, 'B')}
+                    onDragStart={(e) => handleBasketAppleDragStart(e, 'B', id)}
                     onDragEnd={handleDragEnd}
-                    onClick={() => handleSubApple('B')}
+                    onClick={() => handleSubAppleWithId('B', id)}
                     title="Chạm hoặc kéo về cây để trả táo xanh 🍏"
-                    className="text-3xl sm:text-4xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 active:scale-95 transition-transform cursor-grab active:cursor-grabbing p-0.5 filter drop-shadow-sm"
+                    className={cn(
+                      'text-3xl sm:text-4xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 active:scale-95 transition-transform cursor-grab active:cursor-grabbing p-0.5 filter drop-shadow-sm',
+                      draggingItem?.source === 'basket' && draggingItem?.type === 'B' && draggingItem?.id === id && 'opacity-70 scale-110',
+                    )}
                   >
                     🍏
                   </button>
