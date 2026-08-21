@@ -35,6 +35,7 @@ import { ASMO_JOURNEY_TOPICS, type AsmoJourneyTopic } from '../data/asmo-journey
 import { listAsmoExams } from '@/shared/lib/asmo-api'
 import type { AsmoExam, AsmoGrade, AsmoSubject } from '../types'
 import { AsmoMeeTutor } from '../components/AsmoMeeTutor'
+import { AsmoAdventureIslandCard } from '../components/AsmoAdventureIslandCard'
 import { AsmoFormula } from '../components/AsmoFormula'
 import { AsmoExamAuditModal } from '../components/AsmoExamAuditModal'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -187,18 +188,34 @@ export function AsmoHubPage() {
   const displayedStages = useMemo(() => {
     const effectiveTier = stageFilterTab === 'auto' ? currentTier : stageFilterTab
 
+    if (stageFilterTab === 'auto') {
+      if (selectedGrade <= 2) {
+        return ASMO_LMS_STAGES.filter((s) => s.stageNumber <= 2)
+      }
+      if (selectedGrade === 3) {
+        return ASMO_LMS_STAGES.filter((s) => s.stageNumber >= 2 && s.stageNumber <= 4)
+      }
+      if (selectedGrade <= 5) {
+        return ASMO_LMS_STAGES.filter((s) => s.stageNumber >= 3 && s.stageNumber <= 4)
+      }
+      if (selectedGrade <= 9) {
+        return ASMO_LMS_STAGES.filter((s) => s.stageNumber >= 3)
+      }
+      return []
+    }
+
     if (effectiveTier === 'primary') {
-      // Tiểu học (Lớp 1 – 5): Chặng 1, 2, 3
+      // Tiểu học: Đảo 1, 2, 3
       return ASMO_LMS_STAGES.filter((s) => s.stageNumber <= 3)
     }
 
     if (effectiveTier === 'secondary') {
-      // THCS (Lớp 6 – 9): Chặng 4, 5
-      return ASMO_LMS_STAGES.filter((s) => s.stageNumber >= 4)
+      // THCS: Đảo 3, 4, 5
+      return ASMO_LMS_STAGES.filter((s) => s.stageNumber >= 3)
     }
 
     if (effectiveTier === 'high') {
-      // THPT (Lớp 10 – 12): 12 Chuyên Đề Olympic
+      // THPT: 12 Chuyên Đề Olympic
       return []
     }
 
@@ -213,7 +230,7 @@ export function AsmoHubPage() {
     }
 
     return ASMO_LMS_STAGES
-  }, [currentTier, stageFilterTab])
+  }, [currentTier, stageFilterTab, selectedGrade])
 
   // Filter High School Topics (12 Chuyên Đề Olympic)
   const highSchoolTopics = useMemo(() => {
@@ -762,7 +779,7 @@ export function AsmoHubPage() {
         </div>
       </div>
 
-      {/* ── KHU VỰC 1: 🧭 LỘ TRÌNH HỌC TẬP TUẦN TỰ (LMS ACADEMY - FULL WIDTH) ── */}
+      {/* ── KHU VỰC 1: 🧭 LỘ TRÌNH HỌC TẬP TUẦN TỰ (LMS ACADEMY - 5 VÙNG ĐẢO TOÁN HỌC DIỆU KỲ) ── */}
       <div
         id="lms-curriculum-section"
         ref={lmsCurriculumRef}
@@ -784,10 +801,10 @@ export function AsmoHubPage() {
                 </span>
               </div>
               <h2 className="font-display text-xl sm:text-2xl font-black text-slate-900 mt-1">
-                Lộ Trình Học Tập Chuẩn LMS ASMO
+                Lộ Trình Học Tập Chuẩn LMS ASMO · 5 Vùng Đảo Diệu Kỳ 🗺️
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 mt-0.5">
-                Giáo trình 5 Chặng tuần tự chuẩn quốc tế · Tương tác trực quan cùng Trợ giảng AI Mèo Mee
+                Giáo trình 5 Vùng Đảo trực quan chuẩn quốc tế · Khám phá con đường mòn cùng Trợ giảng AI Mèo Mee
               </p>
             </div>
           </div>
@@ -846,7 +863,7 @@ export function AsmoHubPage() {
                 : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100',
             )}
           >
-            🎒 Tiểu học (Lớp 1 – 5: Chặng 1, 2, 3)
+            🎒 Tiểu Học (Đảo 1, 2, 3)
           </button>
 
           <button
@@ -859,7 +876,7 @@ export function AsmoHubPage() {
                 : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100',
             )}
           >
-            🏫 THCS (Lớp 6 – 9: Chặng 3, 4, 5)
+            🏫 THCS (Đảo 3, 4, 5)
           </button>
 
           <button
@@ -872,228 +889,36 @@ export function AsmoHubPage() {
                 : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100',
             )}
           >
-            🎓 THPT (Lớp 10 – 12: 12 Chuyên Đề Olympic)
+            🎓 THPT (12 Chuyên Đề 3D)
           </button>
 
           <button
             type="button"
             onClick={() => setStageFilterTab('all')}
             className={cn(
-              'rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer border ml-auto',
+              'rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer border sm:ml-auto',
               stageFilterTab === 'all'
                 ? 'bg-slate-800 text-white border-slate-800 shadow-xs'
                 : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100',
             )}
           >
-            🌟 Tất Cả 5 Chặng
+            🗺️ Toàn Cảnh 5 Vùng Đảo
           </button>
         </div>
 
-        {/* Danh Sách Các Chặng Học Chuẩn LMS */}
+        {/* BỘ 5 CARD VÙNG ĐẢO PHIÊU LƯU SỐNG ĐỘNG (5 ADVENTURE ISLAND VISUAL CARDS) */}
         <div className="space-y-6">
           {displayedStages.map((stage) => (
-            <div
+            <AsmoAdventureIslandCard
               key={stage.id}
-              className="rounded-3xl border-2 border-slate-200/90 bg-slate-50/50 p-5 sm:p-6 shadow-xs space-y-4"
-            >
-              {/* Stage Header */}
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-slate-200/60">
-                <div className="flex items-start sm:items-center gap-3">
-                  <div className="flex size-12 items-center justify-center rounded-2xl bg-white border-2 border-slate-200 shadow-2xs text-2xl shrink-0">
-                    {stage.icon}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <span className="rounded-md bg-brand-100 text-brand-800 font-black text-[10px] px-2 py-0.5">
-                        Chặng {stage.stageNumber}
-                      </span>
-                      <span className="text-xs font-bold text-slate-500">
-                        {stage.lessons.length} Bài học tương tác
-                      </span>
-                    </div>
-                    <h3 className="font-display text-base sm:text-lg font-black text-slate-900 mt-0.5">
-                      {stage.title}
-                    </h3>
-                  </div>
-                </div>
-
-                <div className="text-xs text-slate-500 font-medium sm:text-right max-w-sm">
-                  {stage.stageNumber <= 3 ? (
-                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/90 text-emerald-900 text-xs font-bold border border-emerald-300 shadow-2xs">
-                      <span>🎨</span>
-                      <span>Học qua tranh ảnh &amp; mô hình trực quan</span>
-                    </span>
-                  ) : (
-                    stage.description
-                  )}
-                </div>
-              </div>
-
-              {/* Grid Bài Học Trong Chặng */}
-              <div
-                className={cn(
-                  'grid gap-4',
-                  stage.stageNumber <= 3
-                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'
-                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
-                )}
-              >
-                {stage.lessons.map((lesson) => {
-                  const lessonProgress = lmsProgress.lessons[lesson.id]
-                  const isCompleted = Boolean(lessonProgress?.completed)
-                  const isElementaryStage = stage.stageNumber <= 3
-                  const elementaryInfo = ELEMENTARY_LESSON_SHORT_TITLES[lesson.id]
-
-                  if (isElementaryStage) {
-                    // ── THẺ TRANH HOẠT HÌNH SOFT CLAY DÀNH CHO TIỂU HỌC (CẤP 1) ──
-                    return (
-                      <div
-                        key={lesson.id}
-                        onClick={() => navigate(`/asmo/curriculum/lesson/${lesson.id}`)}
-                        className={cn(
-                          'group relative flex flex-col justify-between items-center text-center rounded-3xl border-2 p-4 sm:p-5 transition-all duration-200 shadow-clay hover:scale-[1.02] cursor-pointer',
-                          isCompleted
-                            ? 'border-emerald-300 bg-gradient-to-b from-emerald-50/90 via-white to-mint-50/50 ring-2 ring-emerald-200'
-                            : 'border-brand-200/80 bg-gradient-to-b from-brand-50/60 via-white to-sky-50/40 hover:border-brand-400',
-                        )}
-                      >
-                        {/* Top Badges: Lesson badge & XP & Status */}
-                        <div className="w-full flex items-center justify-between gap-1.5">
-                          <span className="rounded-xl bg-white/90 border border-slate-200 px-2 py-0.5 text-[10px] font-black uppercase text-slate-600 shadow-2xs">
-                            Trạm {stage.stageNumber}.{lesson.lessonNumber}
-                          </span>
-                          <div className="flex items-center gap-1">
-                            <span className="rounded-xl bg-amber-100 border border-amber-300 px-2 py-0.5 text-[10px] font-black text-amber-900 flex items-center gap-1 shadow-2xs">
-                              <Zap className="size-3 text-amber-500 fill-amber-500" />
-                              +{lesson.xpReward} XP
-                            </span>
-                            {isCompleted ? (
-                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 text-white px-2 py-0.5 text-[10px] font-black shadow-xs">
-                                <CheckCircle2 className="size-3" />
-                                <span>Xong</span>
-                              </span>
-                            ) : (
-                              <span className="rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 text-[10px] font-bold">
-                                Mở
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Big 3D Soft Clay Visual Icon */}
-                        <div className="my-3 sm:my-4 flex size-16 sm:size-20 items-center justify-center rounded-3xl bg-white border-2 border-brand-200 shadow-clay text-3xl sm:text-4xl group-hover:scale-110 transition-transform select-none">
-                          {elementaryInfo?.icon || lesson.icon}
-                        </div>
-
-                        {/* Concise 3-4 Word Title */}
-                        <div className="mb-4">
-                          <h4 className="font-display font-black text-sm sm:text-base text-slate-900 group-hover:text-brand-600 transition-colors leading-snug">
-                            {elementaryInfo?.shortTitle || lesson.title}
-                          </h4>
-                        </div>
-
-                        {/* Bottom Action Button */}
-                        <div className="w-full pt-1">
-                          <Button
-                            type="button"
-                            variant="primary"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              navigate(`/asmo/curriculum/lesson/${lesson.id}`)
-                            }}
-                            className={cn(
-                              'w-full gap-1.5 rounded-2xl font-black text-xs py-2.5 shadow-clay transition-transform active:scale-95 cursor-pointer justify-center',
-                              isCompleted
-                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                                : 'bg-brand-600 hover:bg-brand-700 text-white',
-                            )}
-                          >
-                            <span>{isCompleted ? 'Ôn Tập Lại ➔' : 'Vào Học Ngay ➔'}</span>
-                            <ArrowRight className="size-3.5" />
-                          </Button>
-                        </div>
-                      </div>
-                    )
-                  }
-
-                  // ── THẺ BÀI HỌC DÀNH CHO THCS / THPT (CẤP 2, 3) ──
-                  return (
-                    <div
-                      key={lesson.id}
-                      className={cn(
-                        'group relative flex flex-col justify-between rounded-2xl border-2 p-4 transition-all duration-200 shadow-xs hover:shadow-md hover:bg-white',
-                        isCompleted
-                          ? 'border-emerald-300 bg-emerald-50/30'
-                          : 'border-slate-200 bg-white/90 hover:border-brand-300',
-                      )}
-                    >
-                      <div>
-                        {/* Top Lesson Header */}
-                        <div className="flex items-start justify-between gap-2">
-                          <div className="flex items-center gap-2.5">
-                            <div className="flex size-10 items-center justify-center rounded-xl bg-slate-100 border border-slate-200 text-xl group-hover:scale-105 transition-transform">
-                              {lesson.icon}
-                            </div>
-                            <div>
-                              <span className="text-[10px] font-black uppercase text-slate-500">
-                                Bài {stage.stageNumber}.{lesson.lessonNumber}
-                              </span>
-                              <div className="flex items-center gap-1 text-[11px] font-bold text-amber-700">
-                                <Zap className="size-3 text-amber-500 fill-amber-500" />
-                                <span>+{lesson.xpReward} XP</span>
-                              </div>
-                            </div>
-                          </div>
-
-                          {isCompleted ? (
-                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 text-emerald-800 px-2 py-0.5 text-[10px] font-black">
-                              <CheckCircle2 className="size-3 text-emerald-600" />
-                              <span>Hoàn thành</span>
-                            </span>
-                          ) : (
-                            <span className="rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 text-[10px] font-bold">
-                              Mở khóa
-                            </span>
-                          )}
-                        </div>
-
-                        {/* Title KaTeX & Subtitle */}
-                        <div className="mt-3">
-                          <AsmoFormula
-                            text={lesson.title}
-                            className="font-display font-bold text-sm text-slate-900 group-hover:text-brand-600 transition-colors line-clamp-2"
-                          />
-                          <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                            {lesson.subtitle}
-                          </p>
-                        </div>
-                      </div>
-
-                      {/* Bottom Action Button */}
-                      <div className="mt-4 pt-3 border-t border-slate-100">
-                        <Button
-                          type="button"
-                          variant="primary"
-                          onClick={() => navigate(`/asmo/curriculum/lesson/${lesson.id}`)}
-                          className={cn(
-                            'w-full gap-1.5 rounded-xl font-black text-xs py-2 shadow-xs transition-transform active:scale-95 cursor-pointer justify-center',
-                            isCompleted
-                              ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
-                              : 'bg-brand-600 hover:bg-brand-700 text-white',
-                          )}
-                        >
-                          <span>{isCompleted ? 'Ôn Tập Lại ➔' : 'Vào Học Ngay ➔'}</span>
-                          <ArrowRight className="size-3.5" />
-                        </Button>
-                      </div>
-                    </div>
-                  )
-                })}
-              </div>
-            </div>
+              stage={stage}
+              progress={lmsProgress}
+              onSelectStage={(stageId) => navigate(`/asmo/curriculum?stage=${stageId}`)}
+              onOpenLesson={(lessonId) => navigate(`/asmo/curriculum/lesson/${lessonId}`)}
+            />
           ))}
 
-          {/* Nếu chọn THPT (Khối 10 – 12), hiển thị 12 Chuyên Đề Olympic */}
+          {/* Nếu chọn THPT (Khối 10 – 12) hoặc hiển thị toàn cảnh, hiển thị 12 Chuyên Đề Olympic */}
           {highSchoolTopics.length > 0 && (
             <div className="rounded-3xl border-2 border-purple-200 bg-purple-50/40 p-5 sm:p-6 shadow-xs space-y-4">
               <div className="flex items-center justify-between gap-3 pb-3 border-b border-purple-200/60 flex-wrap">
