@@ -46,29 +46,29 @@ export function speakVietnamese(text: string) {
 
 // Organic pre-defined positions for hanging apples on the tree canopy
 const RED_APPLE_POSITIONS = [
-  { top: '22%', left: '16%', rot: '-6deg', delay: '0ms' },
-  { top: '35%', left: '11%', rot: '8deg', delay: '120ms' },
-  { top: '28%', left: '26%', rot: '-4deg', delay: '240ms' },
-  { top: '48%', left: '18%', rot: '5deg', delay: '180ms' },
-  { top: '16%', left: '32%', rot: '-8deg', delay: '60ms' },
-  { top: '38%', left: '34%', rot: '7deg', delay: '300ms' },
-  { top: '56%', left: '29%', rot: '-3deg', delay: '150ms' },
-  { top: '26%', left: '42%', rot: '6deg', delay: '210ms' },
-  { top: '46%', left: '44%', rot: '-5deg', delay: '90ms' },
-  { top: '64%', left: '39%', rot: '4deg', delay: '270ms' },
+  { top: '24%', left: '20%', rot: '-6deg', delay: '0ms' },
+  { top: '34%', left: '19%', rot: '8deg', delay: '120ms' },
+  { top: '26%', left: '29%', rot: '-4deg', delay: '240ms' },
+  { top: '44%', left: '22%', rot: '5deg', delay: '180ms' },
+  { top: '23%', left: '38%', rot: '-8deg', delay: '60ms' },
+  { top: '36%', left: '31%', rot: '7deg', delay: '300ms' },
+  { top: '48%', left: '28%', rot: '-3deg', delay: '150ms' },
+  { top: '30%', left: '41%', rot: '6deg', delay: '210ms' },
+  { top: '44%', left: '39%', rot: '-5deg', delay: '90ms' },
+  { top: '50%', left: '34%', rot: '4deg', delay: '270ms' },
 ]
 
 const GREEN_APPLE_POSITIONS = [
-  { top: '20%', left: '54%', rot: '5deg', delay: '50ms' },
-  { top: '34%', left: '58%', rot: '-7deg', delay: '190ms' },
-  { top: '18%', left: '68%', rot: '6deg', delay: '110ms' },
-  { top: '42%', left: '69%', rot: '-4deg', delay: '260ms' },
-  { top: '28%', left: '80%', rot: '8deg', delay: '80ms' },
-  { top: '52%', left: '58%', rot: '-6deg', delay: '220ms' },
-  { top: '48%', left: '82%', rot: '5deg', delay: '140ms' },
-  { top: '62%', left: '72%', rot: '-8deg', delay: '310ms' },
-  { top: '38%', left: '49%', rot: '4deg', delay: '170ms' },
-  { top: '58%', left: '48%', rot: '-5deg', delay: '250ms' },
+  { top: '24%', left: '57%', rot: '5deg', delay: '50ms' },
+  { top: '35%', left: '58%', rot: '-7deg', delay: '190ms' },
+  { top: '23%', left: '67%', rot: '6deg', delay: '110ms' },
+  { top: '43%', left: '66%', rot: '-4deg', delay: '260ms' },
+  { top: '26%', left: '77%', rot: '8deg', delay: '80ms' },
+  { top: '48%', left: '59%', rot: '-6deg', delay: '220ms' },
+  { top: '44%', left: '78%', rot: '5deg', delay: '140ms' },
+  { top: '50%', left: '70%', rot: '-8deg', delay: '310ms' },
+  { top: '32%', left: '73%', rot: '4deg', delay: '170ms' },
+  { top: '32%', left: '60%', rot: '-5deg', delay: '250ms' },
 ]
 
 function createInitialAppleIds(count: number, max: number): number[] {
@@ -692,14 +692,14 @@ export function AsmoInteractiveAppleTreeCanvas({
             />
 
             {/* MIỆNG GIỎ MÂY TRE ĐAN HIỂN THỊ SỐ LƯỢNG TINH GỌN */}
-            <div className="relative z-10 w-full bg-coral-100/90 border-b-2 border-coral-200 px-3.5 sm:px-4 py-2 flex items-center justify-between shadow-2xs">
-              <div className="flex items-center gap-1.5">
+            <div className="relative z-10 w-full bg-coral-100/90 border-b-2 border-coral-200 px-3.5 sm:px-4 py-2 flex items-center justify-between gap-2 shadow-2xs">
+              <div className="flex items-center gap-1.5 min-w-0">
                 <ShoppingBasket className="size-4 text-coral-800 shrink-0" />
-                <span className="text-xs sm:text-sm font-black text-coral-900 tracking-tight">
+                <span className="text-xs sm:text-sm font-black text-coral-900 tracking-tight truncate">
                   Giỏ A (Táo Đỏ): 🍎
                 </span>
               </div>
-              <span className="text-xs font-black text-coral-900 bg-white/95 border border-coral-300 px-2.5 py-0.5 rounded-full shadow-2xs">
+              <span className="whitespace-nowrap px-3 py-1 rounded-full font-black text-xs min-w-max flex items-center gap-1.5 text-coral-900 bg-white/95 border border-coral-300 shadow-2xs shrink-0">
                 {applesA} / {maxApplesPerBasket} 🍎
               </span>
             </div>
@@ -808,14 +808,14 @@ export function AsmoInteractiveAppleTreeCanvas({
             />
 
             {/* MIỆNG GIỎ MÂY TRE ĐAN HIỂN THỊ SỐ LƯỢNG TINH GỌN */}
-            <div className="relative z-10 w-full bg-mint-100/90 border-b-2 border-mint-200 px-3.5 sm:px-4 py-2 flex items-center justify-between shadow-2xs">
-              <div className="flex items-center gap-1.5">
+            <div className="relative z-10 w-full bg-mint-100/90 border-b-2 border-mint-200 px-3.5 sm:px-4 py-2 flex items-center justify-between gap-2 shadow-2xs">
+              <div className="flex items-center gap-1.5 min-w-0">
                 <ShoppingBasket className="size-4 text-mint-800 shrink-0" />
-                <span className="text-xs sm:text-sm font-black text-mint-900 tracking-tight">
+                <span className="text-xs sm:text-sm font-black text-mint-900 tracking-tight truncate">
                   Giỏ B (Táo Xanh): 🍏
                 </span>
               </div>
-              <span className="text-xs font-black text-mint-900 bg-white/95 border border-mint-300 px-2.5 py-0.5 rounded-full shadow-2xs">
+              <span className="whitespace-nowrap px-3 py-1 rounded-full font-black text-xs min-w-max flex items-center gap-1.5 text-mint-900 bg-white/95 border border-mint-300 shadow-2xs shrink-0">
                 {applesB} / {maxApplesPerBasket} 🍏
               </span>
             </div>

@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react'
-import { Sparkles, RefreshCw, Star, Minus, Plus } from 'lucide-react'
-import { AsmoInteractiveAppleTreeCanvas } from './AsmoInteractiveAppleTreeCanvas'
+import { Sparkles, RefreshCw, Star, Minus, Plus, Volume2, Heart } from 'lucide-react'
+import { AsmoInteractiveAppleTreeCanvas, speakVietnamese } from './AsmoInteractiveAppleTreeCanvas'
 import { cn } from '@/shared/lib/cn'
 
 export type ArithmeticVisualizerMode =
@@ -50,12 +50,10 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
   }, [topicId, level, forcedMode])
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 1. MODE: ADDITION (THÊM QUẢ TÁO 🍎 RƠI VÀO GIỎ)
+  // 1. MODE: ADDITION (VƯỜN TÁO MẸ & 2 GIỎ MÂY 3D)
   // ══════════════════════════════════════════════════════════════════════════
   const [applesBasketA, setApplesBasketA] = useState<number>(4)
   const [applesBasketB, setApplesBasketB] = useState<number>(3)
-
-  const totalApples = applesBasketA + applesBasketB
 
   const handleAddApple = (basket: 'A' | 'B') => {
     if (basket === 'A') {
@@ -74,27 +72,31 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 2. MODE: SUBTRACTION (NỔ BÓNG BAY 🎈 & BỚT KẸO)
+  // 2. MODE: SUBTRACTION (NỔ BÓNG BAY 🎈 & BẢNG TÍNH TO KHỔNG LỒ)
   // ══════════════════════════════════════════════════════════════════════════
-  const initialBalloons = [
-    { id: 1, color: 'bg-rose-500', emoji: '🎈' },
-    { id: 2, color: 'bg-amber-500', emoji: '🎈' },
-    { id: 3, color: 'bg-emerald-500', emoji: '🎈' },
-    { id: 4, color: 'bg-sky-500', emoji: '🎈' },
-    { id: 5, color: 'bg-purple-500', emoji: '🎈' },
-    { id: 6, color: 'bg-pink-500', emoji: '🎈' },
-    { id: 7, color: 'bg-indigo-500', emoji: '🎈' },
-    { id: 8, color: 'bg-teal-500', emoji: '🎈' },
-    { id: 9, color: 'bg-orange-500', emoji: '🎈' },
-    { id: 10, color: 'bg-lime-500', emoji: '🎈' },
-  ]
+  const initialBalloons = useMemo(() => [
+    { id: 1, color: 'from-rose-400 to-rose-600 border-rose-300 text-white', shadow: 'shadow-rose-300/50', emoji: '🎈' },
+    { id: 2, color: 'from-amber-400 to-amber-600 border-amber-300 text-white', shadow: 'shadow-amber-300/50', emoji: '🎈' },
+    { id: 3, color: 'from-emerald-400 to-emerald-600 border-emerald-300 text-white', shadow: 'shadow-emerald-300/50', emoji: '🎈' },
+    { id: 4, color: 'from-sky-400 to-sky-600 border-sky-300 text-white', shadow: 'shadow-sky-300/50', emoji: '🎈' },
+    { id: 5, color: 'from-purple-400 to-purple-600 border-purple-300 text-white', shadow: 'shadow-purple-300/50', emoji: '🎈' },
+    { id: 6, color: 'from-pink-400 to-pink-600 border-pink-300 text-white', shadow: 'shadow-pink-300/50', emoji: '🎈' },
+    { id: 7, color: 'from-indigo-400 to-indigo-600 border-indigo-300 text-white', shadow: 'shadow-indigo-300/50', emoji: '🎈' },
+    { id: 8, color: 'from-teal-400 to-teal-600 border-teal-300 text-white', shadow: 'shadow-teal-300/50', emoji: '🎈' },
+    { id: 9, color: 'from-orange-400 to-orange-600 border-orange-300 text-white', shadow: 'shadow-orange-300/50', emoji: '🎈' },
+    { id: 10, color: 'from-lime-400 to-lime-600 border-lime-300 text-white', shadow: 'shadow-lime-300/50', emoji: '🎈' },
+  ], [])
+
   const [poppedBalloonIds, setPoppedBalloonIds] = useState<number[]>([1, 2, 3]) // Default 3 popped
+  const [popAnimId, setPopAnimId] = useState<number | null>(null)
   const remainingBalloonsCount = initialBalloons.length - poppedBalloonIds.length
 
   const handlePopBalloon = (id: number) => {
     if (poppedBalloonIds.includes(id)) {
       setPoppedBalloonIds(poppedBalloonIds.filter((bId) => bId !== id))
     } else {
+      setPopAnimId(id)
+      setTimeout(() => setPopAnimId(null), 800)
       setPoppedBalloonIds([...poppedBalloonIds, id])
     }
   }
@@ -104,7 +106,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 3. MODE: MULTIPLICATION (XẾP KHAY BÁNH HÀNG × CỘT)
+  // 3. MODE: MULTIPLICATION (KHAY BÁNH CUPCAKE 3D HÀNG × CỘT)
   // ══════════════════════════════════════════════════════════════════════════
   const [multRows, setMultRows] = useState<number>(3)
   const [multCols, setMultCols] = useState<number>(4)
@@ -112,7 +114,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
   const totalCakes = multRows * multCols
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 4. MODE: DIVISION (CHIA ĐỀU 12 KẸO VÀO 3 ĐĨA)
+  // 4. MODE: DIVISION (ĐĨA SỨ KẸO MÚT CHIA ĐỀU 🍬 🍽️)
   // ══════════════════════════════════════════════════════════════════════════
   const [totalCandies, setTotalCandies] = useState<number>(12)
   const [platesCount, setPlatesCount] = useState<number>(3)
@@ -121,17 +123,19 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
   const remainderCandies = totalCandies % platesCount
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 5. MODE: MAKE-10 (GHÉP CẶP 10 BẮN TIM CHÚC MỪNG)
+  // 5. MODE: MAKE-10 (CẦU VỒNG BẠN THÂN PHÁT SÁNG & BẮN TIM 💖)
   // ══════════════════════════════════════════════════════════════════════════
-  const initialBubbles = [
-    { id: 1, val: 1, gradient: 'bg-gradient-to-br from-rose-400 to-rose-600 text-white' },
-    { id: 2, val: 3, gradient: 'bg-gradient-to-br from-amber-300 to-amber-500 text-amber-950' },
-    { id: 3, val: 5, gradient: 'bg-gradient-to-br from-emerald-400 to-emerald-600 text-white' },
-    { id: 4, val: 7, gradient: 'bg-gradient-to-br from-sky-400 to-sky-600 text-white' },
-    { id: 5, val: 9, gradient: 'bg-gradient-to-br from-purple-400 to-purple-600 text-white' },
-  ]
+  const initialBubbles = useMemo(() => [
+    { id: 1, val: 1, fruit: '🍎', gradient: 'from-rose-500 to-pink-600 text-white', border: 'border-rose-300' },
+    { id: 2, val: 3, fruit: '🍋', gradient: 'from-amber-400 to-yellow-500 text-slate-950', border: 'border-amber-300' },
+    { id: 3, val: 5, fruit: '🍇', gradient: 'from-purple-500 to-indigo-600 text-white', border: 'border-purple-300' },
+    { id: 4, val: 7, fruit: '🍋', gradient: 'from-yellow-400 to-amber-500 text-slate-950', border: 'border-yellow-300' },
+    { id: 5, val: 9, fruit: '🍎', gradient: 'from-rose-500 to-pink-600 text-white', border: 'border-rose-300' },
+  ], [])
+
   const [selectedBubbleIds, setSelectedBubbleIds] = useState<number[]>([])
   const [pairedPairs, setPairedPairs] = useState<Array<[number, number]>>([])
+  const [heartAnim, setHeartAnim] = useState<boolean>(false)
 
   const handleBubbleClick = (id: number) => {
     if (pairedPairs.some(([a, b]) => a === id || b === id)) return
@@ -151,6 +155,8 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
       if (firstVal + secondVal === 10) {
         setPairedPairs([...pairedPairs, [firstId, id]])
         setSelectedBubbleIds([])
+        setHeartAnim(true)
+        setTimeout(() => setHeartAnim(false), 1200)
       } else {
         setSelectedBubbleIds([id])
       }
@@ -186,19 +192,19 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
   ]
 
   return (
-    <div className={cn('relative w-full rounded-3xl overflow-hidden bg-white border-2 border-brand-200 shadow-clay p-4 sm:p-6 text-slate-800 flex flex-col justify-between min-h-[380px]', className)}>
+    <div className={cn('relative w-full rounded-3xl overflow-hidden bg-white border-2 border-brand-100 shadow-clay p-3 sm:p-5 text-slate-800 flex flex-col justify-between min-h-[380px] select-none', className)}>
       {/* ── TOP NAV & INTERACTIVE MODE SELECTOR ── */}
-      <div className="border-b border-slate-200 pb-3.5 mb-3.5 space-y-3">
+      <div className="border-b border-slate-100 pb-3 mb-3 space-y-2.5 w-full">
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2.5">
-            <div className="flex size-9 items-center justify-center rounded-2xl bg-amber-100 text-amber-600 border border-amber-300/80 shadow-xs">
-              <Sparkles className="size-5" />
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="flex size-9 items-center justify-center rounded-2xl bg-brand-500 text-white shadow-clay shrink-0">
+              <Sparkles className="size-5 animate-spin" />
             </div>
-            <div>
-              <span className="text-sm sm:text-base font-black text-slate-900 tracking-tight block">
+            <div className="min-w-0">
+              <span className="text-xs sm:text-sm font-black text-slate-900 tracking-tight block truncate">
                 Phép Tính Vui Nhộn &amp; Trực Quan Sư Phạm Tiểu Học
               </span>
-              <span className="text-xs text-slate-600 font-medium">
+              <span className="text-[11px] text-slate-500 font-bold block truncate">
                 {activeMode === 'addition' && '🍎 Phép Cộng Thần Tốc: Thả táo vào giỏ & Nhảy số sinh động'}
                 {activeMode === 'subtraction' && '🎈 Phép Trừ Thông Minh: Bấm nổ bóng bay & Bớt kẹo'}
                 {activeMode === 'multiplication' && '🍰 Phép Nhân Sắc Màu: Xếp khay bánh theo hàng & cột'}
@@ -218,9 +224,9 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                 setApplesBasketA(0)
                 setApplesBasketB(0)
               }}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer border border-slate-200 shadow-2xs active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-black bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 shadow-2xs transition-all cursor-pointer active:scale-95 shrink-0"
             >
-              <RefreshCw className="size-3.5 text-slate-600" />
+              <RefreshCw className="size-3.5 text-brand-600" />
               <span>Trả Táo Về Cây</span>
             </button>
           )}
@@ -229,9 +235,9 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
             <button
               type="button"
               onClick={resetLevel1}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer border border-slate-200 shadow-2xs active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-black bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 shadow-2xs transition-all cursor-pointer active:scale-95 shrink-0"
             >
-              <RefreshCw className="size-3.5 text-slate-600" />
+              <RefreshCw className="size-3.5 text-purple-600" />
               <span>Ghép Lại</span>
             </button>
           )}
@@ -240,112 +246,45 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
             <button
               type="button"
               onClick={resetBalloons}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition-all cursor-pointer border border-slate-200 shadow-2xs active:scale-95"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-black bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 shadow-2xs transition-all cursor-pointer active:scale-95 shrink-0"
             >
-              <RefreshCw className="size-3.5 text-slate-600" />
+              <RefreshCw className="size-3.5 text-sky-600" />
               <span>Bơm Lại Bóng</span>
             </button>
           )}
         </div>
 
-        {/* Mode Switcher Tabs */}
+        {/* Mode Switcher Tabs Hallmark UI */}
         <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
-          <button
-            type="button"
-            onClick={() => setActiveMode('addition')}
-            className={cn(
-              'px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 border',
-              activeMode === 'addition'
-                ? 'bg-rose-500 text-white shadow-xs border-rose-600 ring-2 ring-rose-300'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 shadow-2xs',
-            )}
-          >
-            <span>🍎</span>
-            <span>Cộng Táo</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveMode('subtraction')}
-            className={cn(
-              'px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 border',
-              activeMode === 'subtraction'
-                ? 'bg-amber-500 text-white shadow-xs border-amber-600 ring-2 ring-amber-300'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 shadow-2xs',
-            )}
-          >
-            <span>🎈</span>
-            <span>Trừ Bóng Bay</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveMode('multiplication')}
-            className={cn(
-              'px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 border',
-              activeMode === 'multiplication'
-                ? 'bg-emerald-500 text-white shadow-xs border-emerald-600 ring-2 ring-emerald-300'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 shadow-2xs',
-            )}
-          >
-            <span>🍰</span>
-            <span>Nhân Khay Bánh</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveMode('division')}
-            className={cn(
-              'px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 border',
-              activeMode === 'division'
-                ? 'bg-sky-500 text-white shadow-xs border-sky-600 ring-2 ring-sky-300'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 shadow-2xs',
-            )}
-          >
-            <span>🍽️</span>
-            <span>Chia Kẹo Đều</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveMode('make10')}
-            className={cn(
-              'px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 border',
-              activeMode === 'make10'
-                ? 'bg-indigo-600 text-white shadow-xs border-indigo-700 ring-2 ring-indigo-300'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 shadow-2xs',
-            )}
-          >
-            <span>🔟</span>
-            <span>Kết Bạn 10</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveMode('column')}
-            className={cn(
-              'px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 border',
-              activeMode === 'column'
-                ? 'bg-purple-600 text-white shadow-xs border-purple-700 ring-2 ring-purple-300'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 shadow-2xs',
-            )}
-          >
-            <span>🧮</span>
-            <span>Cột Dọc Có Nhớ</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setActiveMode('gauss')}
-            className={cn(
-              'px-3 py-1.5 rounded-xl text-xs font-bold transition-all shrink-0 cursor-pointer flex items-center gap-1.5 border',
-              activeMode === 'gauss'
-                ? 'bg-pink-500 text-white shadow-xs border-pink-600 ring-2 ring-pink-300'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200 border-slate-200 shadow-2xs',
-            )}
-          >
-            <span>🌈</span>
-            <span>Cầu Vồng Gauss</span>
-          </button>
+          {[
+            { id: 'addition' as const, emoji: '🍎', label: 'Cộng Táo', color: 'bg-rose-500 text-white shadow-clay border-rose-600' },
+            { id: 'subtraction' as const, emoji: '🎈', label: 'Trừ Bóng Bay', color: 'bg-amber-500 text-white shadow-clay border-amber-600' },
+            { id: 'multiplication' as const, emoji: '🍰', label: 'Nhân Khay Bánh', color: 'bg-emerald-500 text-white shadow-clay border-emerald-600' },
+            { id: 'division' as const, emoji: '🍽️', label: 'Chia Kẹo Đều', color: 'bg-sky-500 text-white shadow-clay border-sky-600' },
+            { id: 'make10' as const, emoji: '🔟', label: 'Kết Bạn 10', color: 'bg-indigo-600 text-white shadow-clay border-indigo-700' },
+            { id: 'column' as const, emoji: '🧮', label: 'Cột Dọc Có Nhớ', color: 'bg-purple-600 text-white shadow-clay border-purple-700' },
+            { id: 'gauss' as const, emoji: '🌈', label: 'Cầu Vồng Gauss', color: 'bg-pink-500 text-white shadow-clay border-pink-600' },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              type="button"
+              onClick={() => setActiveMode(tab.id)}
+              className={cn(
+                'px-3 py-1.5 rounded-2xl text-xs font-black transition-all shrink-0 cursor-pointer flex items-center gap-1.5 border-2 select-none active:scale-95',
+                activeMode === tab.id
+                  ? tab.color
+                  : 'bg-white text-slate-700 hover:bg-slate-50 border-slate-200 shadow-2xs',
+              )}
+            >
+              <span>{tab.emoji}</span>
+              <span>{tab.label}</span>
+            </button>
+          ))}
         </div>
       </div>
 
       {/* ── MAIN INTERACTIVE WORKSPACE ── */}
-      <div className="flex-1 flex flex-col items-center justify-center my-2 w-full">
+      <div className="flex-1 flex flex-col items-center justify-center my-1 w-full">
         {/* ── 1. MODE: ADDITION (VƯỜN CÂY TÁO TƯƠNG TÁC KÉO THẢ TÁO VÀO GIỎ) ── */}
         {activeMode === 'addition' && (
           <div className="w-full max-w-xl">
@@ -364,73 +303,111 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
           </div>
         )}
 
-        {/* ── 2. MODE: SUBTRACTION (NỔ BÓNG BAY 🎈 & BỚT KẸO) ── */}
+        {/* ── 2. MODE: SUBTRACTION (NỔ BÓNG BAY 🎈 & BẢNG TÍNH MONTESSORI) ── */}
         {activeMode === 'subtraction' && (
-          <div className="w-full max-w-lg flex flex-col items-center space-y-3.5">
-            <div className="text-center w-full">
-              <span className="text-xs sm:text-sm font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-2xl inline-block shadow-2xs">
-                🐱 Mèo Mee: &quot;Bé hãy bấm vào từng quả bóng bay để làm nổ chúng 💥 và xem phép trừ nhé!&quot;
-              </span>
-            </div>
+          <div className="w-full max-w-lg flex flex-col items-center space-y-3">
+            {/* Balloon Sky Container */}
+            <div className="w-full bg-gradient-to-b from-sky-100/90 via-sky-50/70 to-mint-50/80 border-2 border-sky-200 rounded-3xl p-4 sm:p-5 shadow-clay flex flex-col items-center space-y-3 relative overflow-hidden">
+              {/* Sky Clouds */}
+              <div className="absolute top-2 left-4 text-xl opacity-75 animate-pulse select-none">☁️</div>
+              <div className="absolute top-3 right-6 text-lg opacity-70 animate-pulse select-none">☁️</div>
 
-            {/* Balloon Sky */}
-            <div className="w-full bg-sky-50/80 border-2 border-sky-200 rounded-3xl p-4 sm:p-5 shadow-xs flex flex-col items-center space-y-3 sm:space-y-4">
-              <div className="flex items-center justify-center gap-2.5 sm:gap-3 flex-wrap">
+              {/* 10 Giant Soft Clay Balloons */}
+              <div className="grid grid-cols-5 gap-2.5 sm:gap-3.5 z-10 w-full justify-items-center">
                 {initialBalloons.map((b) => {
                   const isPopped = poppedBalloonIds.includes(b.id)
+                  const isAnimating = popAnimId === b.id
                   return (
                     <button
                       key={b.id}
                       type="button"
                       onClick={() => handlePopBalloon(b.id)}
                       className={cn(
-                        'size-14 sm:size-16 rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer border-2 border-white shadow-md',
+                        'relative size-14 sm:size-16 rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer border-3 select-none active:scale-90',
                         isPopped
-                          ? 'bg-slate-200 border-slate-300 opacity-40 scale-90'
-                          : 'shadow-clay hover:scale-110 active:scale-95 ring-2 ring-white/60',
-                        !isPopped && b.color,
+                          ? 'bg-slate-200/80 border-slate-300 text-slate-400 opacity-40 scale-85 shadow-none'
+                          : cn('bg-gradient-to-br shadow-clay hover:scale-110 active:scale-95', b.color, b.shadow),
+                        isAnimating && 'animate-ping',
                       )}
                     >
-                      <span className="text-2xl sm:text-3xl select-none">{isPopped ? '💥' : b.emoji}</span>
-                      <span className={cn('text-xs font-black', isPopped ? 'text-slate-600' : 'text-white')}>{b.id}</span>
+                      <span className="text-2xl sm:text-3xl select-none leading-none">
+                        {isPopped ? '💥' : b.emoji}
+                      </span>
+                      <span className={cn('text-[11px] font-black leading-none mt-0.5', isPopped ? 'text-slate-500' : 'text-white drop-shadow-xs')}>
+                        {b.id}
+                      </span>
+
+                      {/* Balloon knot string */}
+                      {!isPopped && (
+                        <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-0.5 h-2.5 bg-slate-400/80 pointer-events-none" />
+                      )}
                     </button>
                   )
                 })}
               </div>
 
-              <div className="text-xs sm:text-sm text-slate-700 flex items-center justify-center gap-4 bg-white px-4 py-2 rounded-2xl border border-sky-200 shadow-2xs font-medium">
-                <span>Ban đầu: <strong className="text-slate-900 font-bold">10 quả</strong></span>
-                <span>Đã nổ: <strong className="text-rose-600 font-bold">{poppedBalloonIds.length} quả 💥</strong></span>
-                <span>Còn lại: <strong className="text-emerald-600 font-bold">{remainingBalloonsCount} quả 🎈</strong></span>
+              {/* Sub-counter badge */}
+              <div className="z-10 flex items-center justify-center gap-3 bg-white/95 px-4 py-1.5 rounded-full border border-sky-200 shadow-2xs text-xs font-black text-slate-800">
+                <span>🎈 Ban đầu: <strong>10 quả</strong></span>
+                <span>💥 Nổ: <strong className="text-rose-600">{poppedBalloonIds.length}</strong></span>
+                <span>✨ Còn: <strong className="text-emerald-600">{remainingBalloonsCount}</strong></span>
               </div>
             </div>
 
-            {/* Quick Result Card */}
-            <div className="w-full bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold p-3 rounded-2xl text-center shadow-xs">
-              <span className="text-xs text-emerald-800 font-extrabold block mb-1">
+            {/* Giant Montessori Toy Calculation Board */}
+            <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
+              <span className="text-xs font-black text-brand-800 uppercase tracking-wider block">
                 🎈 Phép trừ trực quan thời gian thực:
               </span>
-              <div className="font-mono font-black text-emerald-950 text-lg sm:text-xl">
+
+              <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
+                {/* Initial 10 block */}
+                <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-sky-50 border-2 border-sky-200 text-sky-800 shadow-clay">
+                  <span className="text-2xl sm:text-3xl">🎈</span>
+                  <span className="font-display font-black text-2xl sm:text-3xl text-sky-800">10</span>
+                </div>
+
+                {/* Minus Sign */}
+                <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                  −
+                </div>
+
+                {/* Popped count block */}
+                <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-700 shadow-clay">
+                  <span className="text-2xl sm:text-3xl">💥</span>
+                  <span className="font-display font-black text-2xl sm:text-3xl text-rose-700">{poppedBalloonIds.length}</span>
+                </div>
+
+                {/* Equal Sign */}
+                <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                  =
+                </div>
+
+                {/* Glowing Result block */}
+                <div className={cn(
+                  'flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl bg-brand-500 text-white font-black text-2xl sm:text-3xl shadow-clay border-2 border-brand-600 transition-all duration-300',
+                  remainingBalloonsCount > 0 && 'scale-105 ring-4 ring-brand-200 animate-pulse',
+                )}>
+                  <span className="font-display font-black text-2xl sm:text-3xl text-white">{remainingBalloonsCount}</span>
+                  <span className="text-xl sm:text-2xl animate-bounce">🎈</span>
+                </div>
+              </div>
+
+              <div className="font-mono font-bold text-xs text-slate-500">
                 10 - {poppedBalloonIds.length} = {remainingBalloonsCount} (quả bóng còn bay)
               </div>
             </div>
           </div>
         )}
 
-        {/* ── 3. MODE: MULTIPLICATION (XẾP KHAY BÁNH HÀNG × CỘT) ── */}
+        {/* ── 3. MODE: MULTIPLICATION (KHAY BÁNH CUPCAKE 3D HÀNG × CỘT) ── */}
         {activeMode === 'multiplication' && (
-          <div className="w-full max-w-lg flex flex-col items-center space-y-3.5">
-            <div className="text-center w-full">
-              <span className="text-xs sm:text-sm font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-2xl inline-block shadow-2xs">
-                🐱 Mèo Mee: &quot;Phép nhân là phép cộng các hàng bánh bằng nhau: 3 × 4 = 12 chiếc bánh!&quot;
-              </span>
-            </div>
-
-            {/* Grid Controls */}
-            <div className="flex items-center justify-center gap-4 sm:gap-6 bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-2xl text-xs sm:text-sm shadow-2xs">
+          <div className="w-full max-w-lg flex flex-col items-center space-y-3">
+            {/* Tactile Grid Stepper Controls */}
+            <div className="w-full flex items-center justify-center gap-3 sm:gap-6 bg-amber-50/90 border-2 border-amber-200 px-4 py-2 rounded-2xl text-xs shadow-2xs">
               <div className="flex items-center gap-2">
-                <span className="text-slate-700 font-bold">Số hàng:</span>
-                <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border border-amber-300 shadow-2xs">
+                <span className="text-slate-800 font-black">Số hàng:</span>
+                <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border-2 border-amber-300 shadow-2xs">
                   <button
                     type="button"
                     aria-label="Bớt hàng bánh"
@@ -440,13 +417,13 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                   >
                     <Minus className="size-3.5 sm:size-4 stroke-[3]" />
                   </button>
-                  <span className="w-6 text-center font-display font-black text-sm sm:text-base text-amber-900 select-none">{multRows}</span>
+                  <span className="w-6 text-center font-display font-black text-sm sm:text-base text-amber-950 select-none">{multRows}</span>
                   <button
                     type="button"
                     aria-label="Thêm hàng bánh"
-                    disabled={multRows >= 6}
-                    onClick={() => setMultRows((r) => (r < 6 ? r + 1 : 6))}
-                    className="size-7 sm:size-8 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                    disabled={multRows >= 5}
+                    onClick={() => setMultRows((r) => (r < 5 ? r + 1 : 5))}
+                    className="size-7 sm:size-8 rounded-xl bg-amber-500 hover:bg-amber-400 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                   >
                     <Plus className="size-3.5 sm:size-4 stroke-[3]" />
                   </button>
@@ -454,8 +431,8 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-slate-700 font-bold">Số cột:</span>
-                <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border border-emerald-300 shadow-2xs">
+                <span className="text-slate-800 font-black">Số cột:</span>
+                <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border-2 border-emerald-300 shadow-2xs">
                   <button
                     type="button"
                     aria-label="Bớt cột bánh"
@@ -465,13 +442,13 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                   >
                     <Minus className="size-3.5 sm:size-4 stroke-[3]" />
                   </button>
-                  <span className="w-6 text-center font-display font-black text-sm sm:text-base text-emerald-900 select-none">{multCols}</span>
+                  <span className="w-6 text-center font-display font-black text-sm sm:text-base text-emerald-950 select-none">{multCols}</span>
                   <button
                     type="button"
                     aria-label="Thêm cột bánh"
-                    disabled={multCols >= 6}
-                    onClick={() => setMultCols((c) => (c < 6 ? c + 1 : 6))}
-                    className="size-7 sm:size-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                    disabled={multCols >= 5}
+                    onClick={() => setMultCols((c) => (c < 5 ? c + 1 : 5))}
+                    className="size-7 sm:size-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                   >
                     <Plus className="size-3.5 sm:size-4 stroke-[3]" />
                   </button>
@@ -479,10 +456,10 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               </div>
             </div>
 
-            {/* Cake Tray Grid */}
-            <div className="bg-amber-50/80 border-2 border-amber-200 rounded-3xl p-4 sm:p-5 shadow-sm flex flex-col items-center space-y-2.5">
+            {/* Soft Clay Cupcake Tray */}
+            <div className="w-full bg-gradient-to-b from-amber-100/90 via-amber-50/70 to-orange-50/80 border-2 border-amber-300 rounded-3xl p-4 sm:p-5 shadow-clay flex flex-col items-center space-y-2">
               <div
-                className="grid gap-2 select-none"
+                className="grid gap-2 sm:gap-3 select-none"
                 style={{
                   gridTemplateColumns: `repeat(${multCols}, minmax(0, 1fr))`,
                 }}
@@ -497,65 +474,82 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                         onMouseEnter={() => setHighlightedRow(r)}
                         onMouseLeave={() => setHighlightedRow(null)}
                         className={cn(
-                          'size-12 sm:size-14 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl transition-all shadow-xs border cursor-pointer',
+                          'size-12 sm:size-14 rounded-2xl flex flex-col items-center justify-center text-2xl sm:text-3xl transition-all duration-200 shadow-clay border-2 cursor-pointer',
                           isRowLit
-                            ? 'bg-amber-300 border-amber-400 scale-105 ring-2 ring-amber-400 shadow-md'
-                            : 'bg-white border-amber-200 hover:bg-amber-100/60',
+                            ? 'bg-amber-300 border-amber-400 scale-110 ring-4 ring-amber-300 animate-bounce'
+                            : 'bg-white border-amber-200 hover:scale-105 hover:bg-amber-50',
                         )}
                       >
-                        {r % 2 === 0 ? '🍰' : '🍓'}
+                        <span>{r % 2 === 0 ? '🍰' : '🧁'}</span>
                       </button>
                     )
                   }),
                 )}
               </div>
-              <span className="text-xs font-bold text-amber-900 bg-amber-100/80 px-3 py-1 rounded-xl border border-amber-200">
-                {multRows} hàng × {multCols} cột bánh = {totalCakes} chiếc bánh
-              </span>
             </div>
 
-            {/* Quick Result Card */}
-            <div className="w-full bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold p-3 rounded-2xl text-center shadow-xs">
-              <span className="text-xs text-emerald-800 font-extrabold block mb-1">
+            {/* Giant Montessori Toy Calculation Board */}
+            <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
+              <span className="text-xs font-black text-brand-800 uppercase tracking-wider block">
                 🍰 Bảng nhân trực quan:
               </span>
-              <div className="font-mono font-black text-emerald-950 text-lg sm:text-xl">
+
+              <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
+                <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-50 border-2 border-amber-200 text-amber-800 shadow-clay">
+                  <span className="text-2xl sm:text-3xl">🥞</span>
+                  <span className="font-display font-black text-2xl sm:text-3xl text-amber-800">{multRows} hàng</span>
+                </div>
+
+                <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                  ×
+                </div>
+
+                <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-800 shadow-clay">
+                  <span className="text-2xl sm:text-3xl">🧁</span>
+                  <span className="font-display font-black text-2xl sm:text-3xl text-emerald-800">{multCols} cột</span>
+                </div>
+
+                <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                  =
+                </div>
+
+                <div className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl bg-brand-500 text-white font-black text-2xl sm:text-3xl shadow-clay border-2 border-brand-600 transition-all duration-300">
+                  <span className="font-display font-black text-2xl sm:text-3xl text-white">{totalCakes}</span>
+                  <span className="text-xl sm:text-2xl animate-bounce">🍰</span>
+                </div>
+              </div>
+
+              <div className="font-mono font-bold text-xs text-slate-500">
                 {multRows} × {multCols} = {totalCakes} chiếc bánh ({Array.from({ length: multRows }).map(() => multCols).join(' + ')})
               </div>
             </div>
           </div>
         )}
 
-        {/* ── 4. MODE: DIVISION (CHIA ĐỀU 12 KẸO VÀO 3 ĐĨA) ── */}
+        {/* ── 4. MODE: DIVISION (ĐĨA SỨ KẸO MÚT CHIA ĐỀU 🍬 🍽️) ── */}
         {activeMode === 'division' && (
-          <div className="w-full max-w-lg flex flex-col items-center space-y-3.5">
-            <div className="text-center w-full">
-              <span className="text-xs sm:text-sm font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-2xl inline-block shadow-2xs">
-                🐱 Mèo Mee: &quot;Chia đều 12 cái kẹo vào 3 chiếc đĩa, mỗi bạn nhận được đúng 4 cái kẹo!&quot;
-              </span>
-            </div>
-
-            {/* Controls */}
-            <div className="flex items-center justify-center gap-4 sm:gap-6 bg-slate-50 border border-slate-200 px-4 py-2.5 rounded-2xl text-xs sm:text-sm shadow-2xs">
+          <div className="w-full max-w-lg flex flex-col items-center space-y-3">
+            {/* Tactile Division Stepper Controls */}
+            <div className="w-full flex items-center justify-center gap-3 sm:gap-6 bg-sky-50/90 border-2 border-sky-200 px-4 py-2 rounded-2xl text-xs shadow-2xs">
               <div className="flex items-center gap-2">
-                <span className="text-slate-700 font-bold">Số kẹo 🍬:</span>
-                <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border border-rose-300 shadow-2xs">
+                <span className="text-slate-800 font-black">Số kẹo 🍬:</span>
+                <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border-2 border-rose-300 shadow-2xs">
                   <button
                     type="button"
                     aria-label="Bớt kẹo"
-                    disabled={totalCandies <= 3}
-                    onClick={() => setTotalCandies((c) => (c > 3 ? c - 1 : 3))}
+                    disabled={totalCandies <= 4}
+                    onClick={() => setTotalCandies((c) => (c > 4 ? c - 1 : 4))}
                     className="size-7 sm:size-8 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                   >
                     <Minus className="size-3.5 sm:size-4 stroke-[3]" />
                   </button>
-                  <span className="w-6 text-center font-display font-black text-sm sm:text-base text-rose-900 select-none">{totalCandies}</span>
+                  <span className="w-6 text-center font-display font-black text-sm sm:text-base text-rose-950 select-none">{totalCandies}</span>
                   <button
                     type="button"
                     aria-label="Thêm kẹo"
                     disabled={totalCandies >= 24}
                     onClick={() => setTotalCandies((c) => (c < 24 ? c + 1 : 24))}
-                    className="size-7 sm:size-8 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                    className="size-7 sm:size-8 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                   >
                     <Plus className="size-3.5 sm:size-4 stroke-[3]" />
                   </button>
@@ -563,8 +557,8 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="text-slate-700 font-bold">Số đĩa 🍽️:</span>
-                <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border border-sky-300 shadow-2xs">
+                <span className="text-slate-800 font-black">Số đĩa 🍽️:</span>
+                <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border-2 border-sky-300 shadow-2xs">
                   <button
                     type="button"
                     aria-label="Bớt đĩa"
@@ -574,13 +568,13 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                   >
                     <Minus className="size-3.5 sm:size-4 stroke-[3]" />
                   </button>
-                  <span className="w-6 text-center font-display font-black text-sm sm:text-base text-sky-900 select-none">{platesCount}</span>
+                  <span className="w-6 text-center font-display font-black text-sm sm:text-base text-sky-950 select-none">{platesCount}</span>
                   <button
                     type="button"
                     aria-label="Thêm đĩa"
                     disabled={platesCount >= 6}
                     onClick={() => setPlatesCount((p) => (p < 6 ? p + 1 : 6))}
-                    className="size-7 sm:size-8 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                    className="size-7 sm:size-8 rounded-xl bg-sky-500 hover:bg-sky-400 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                   >
                     <Plus className="size-3.5 sm:size-4 stroke-[3]" />
                   </button>
@@ -588,17 +582,17 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               </div>
             </div>
 
-            {/* Plates Display */}
-            <div className="w-full flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
+            {/* Porcelain Plates Stage */}
+            <div className="w-full bg-gradient-to-b from-sky-50/90 via-teal-50/70 to-emerald-50/80 border-2 border-sky-200 rounded-3xl p-4 sm:p-5 shadow-clay flex items-center justify-center gap-3 sm:gap-4 flex-wrap">
               {Array.from({ length: platesCount }).map((_, pIdx) => (
                 <div
                   key={`plate-${pIdx}`}
-                  className="size-24 sm:size-28 rounded-full bg-sky-50 border-2 border-sky-300 shadow-md flex flex-col items-center justify-center p-2 relative transition-all"
+                  className="size-24 sm:size-28 rounded-full bg-white border-3 border-sky-300 shadow-clay flex flex-col items-center justify-center p-2 relative transition-all hover:scale-105"
                 >
                   <span className="text-[10px] sm:text-xs font-black text-sky-800 -mt-1">Đĩa {pIdx + 1}</span>
                   <div className="flex items-center justify-center gap-1 flex-wrap mt-0.5 max-w-[80px]">
                     {Array.from({ length: candiesPerPlate }).map((_, cIdx) => (
-                      <span key={`candy-${pIdx}-${cIdx}`} className="text-sm sm:text-base select-none">
+                      <span key={`candy-${pIdx}-${cIdx}`} className="text-base sm:text-lg select-none animate-in zoom-in-50">
                         🍬
                       </span>
                     ))}
@@ -610,20 +604,46 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               ))}
             </div>
 
-            {/* Remainder Candies if any */}
+            {/* Remainder candies dish */}
             {remainderCandies > 0 && (
-              <div className="flex items-center gap-2 bg-amber-50 border border-amber-300 px-3.5 py-1.5 rounded-2xl text-xs font-bold text-amber-900 shadow-2xs">
+              <div className="flex items-center gap-2 bg-amber-100/80 border-2 border-amber-300 px-4 py-1.5 rounded-full text-xs font-black text-amber-900 shadow-2xs">
                 <span>🍬 Kẹo thừa chưa chia đủ (Số dư):</span>
-                <span className="font-mono font-black text-amber-700">{remainderCandies} cái</span>
+                <span className="font-mono font-black text-amber-800">{remainderCandies} cái</span>
               </div>
             )}
 
-            {/* Quick Result Card */}
-            <div className="w-full bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold p-3 rounded-2xl text-center shadow-xs">
-              <span className="text-xs text-emerald-800 font-extrabold block mb-1">
+            {/* Giant Montessori Toy Calculation Board */}
+            <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
+              <span className="text-xs font-black text-brand-800 uppercase tracking-wider block">
                 🍽️ Kết quả phép chia chia đều:
               </span>
-              <div className="font-mono font-black text-emerald-950 text-lg sm:text-xl">
+
+              <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
+                <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 shadow-clay">
+                  <span className="text-2xl sm:text-3xl">🍬</span>
+                  <span className="font-display font-black text-2xl sm:text-3xl text-rose-800">{totalCandies}</span>
+                </div>
+
+                <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                  ÷
+                </div>
+
+                <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-sky-50 border-2 border-sky-200 text-sky-800 shadow-clay">
+                  <span className="text-2xl sm:text-3xl">🍽️</span>
+                  <span className="font-display font-black text-2xl sm:text-3xl text-sky-800">{platesCount} đĩa</span>
+                </div>
+
+                <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                  =
+                </div>
+
+                <div className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl bg-brand-500 text-white font-black text-2xl sm:text-3xl shadow-clay border-2 border-brand-600 transition-all duration-300">
+                  <span className="font-display font-black text-2xl sm:text-3xl text-white">{candiesPerPlate}</span>
+                  <span className="text-xs font-black uppercase text-white/90">🍬 / đĩa</span>
+                </div>
+              </div>
+
+              <div className="font-mono font-bold text-xs text-slate-500">
                 {totalCandies} : {platesCount} = {candiesPerPlate} {remainderCandies > 0 ? `(dư ${remainderCandies})` : '(chia hết)'}
               </div>
             </div>
@@ -632,17 +652,25 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
 
         {/* ── 5. MODE: MAKE-10 PAIR MATCHING (LEVEL 1) ── */}
         {activeMode === 'make10' && (
-          <div className="w-full max-w-lg flex flex-col items-center space-y-4">
-            <div className="text-center w-full space-y-1.5">
-              <span className="text-xs sm:text-sm font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-2xl inline-block shadow-2xs">
-                🐱 Mèo Mee: &quot;Bấm chọn 2 quả bóng có tổng bằng 10 để ghép cặp nào!&quot;
+          <div className="w-full max-w-lg flex flex-col items-center space-y-3 relative">
+            {/* Heart celebration popup */}
+            {heartAnim && (
+              <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none animate-ping text-5xl">
+                💖 ✨ 🌈
+              </div>
+            )}
+
+            {/* Sequence formula banner */}
+            <div className="w-full bg-gradient-to-r from-purple-100 via-pink-100 to-amber-100 rounded-2xl border-2 border-purple-300 p-2.5 text-center shadow-2xs">
+              <span className="text-xs font-black text-purple-900 block mb-0.5">
+                🎈 Bí kíp ghép cặp 10 siêu tốc
               </span>
-              <div className="text-base sm:text-xl font-black font-mono tracking-wide text-slate-900 bg-slate-100 px-4 py-1.5 rounded-2xl border border-slate-200 shadow-inner inline-block">
+              <div className="text-base sm:text-lg font-black font-mono tracking-wide text-slate-900 bg-white/90 px-3 py-1 rounded-xl border border-purple-200 shadow-inner inline-block">
                 1 + 3 + 5 + 7 + 9 = ?
               </div>
             </div>
 
-            {/* Giant Colorful Balloons */}
+            {/* Giant Tactile Number Bubbles */}
             <div className="flex items-center justify-center gap-3 sm:gap-4 flex-wrap py-2">
               {initialBubbles.map((bubble) => {
                 const isSelected = selectedBubbleIds.includes(bubble.id)
@@ -653,15 +681,15 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                     type="button"
                     onClick={() => handleBubbleClick(bubble.id)}
                     className={cn(
-                      'relative size-16 sm:size-20 rounded-full flex flex-col items-center justify-center font-black text-2xl sm:text-3xl shadow-clay transition-all duration-300 cursor-pointer border-4 border-white active:scale-95',
+                      'relative size-16 sm:size-20 rounded-full flex flex-col items-center justify-center font-black text-2xl sm:text-3xl shadow-clay transition-all duration-300 cursor-pointer border-4 border-white select-none active:scale-95',
                       bubble.gradient,
                       isSelected && 'ring-4 ring-amber-400 scale-110 animate-bounce',
                       isPaired && 'ring-4 ring-emerald-500 scale-95 opacity-80',
                       !isPaired && !isSelected && 'hover:scale-105',
                     )}
                   >
-                    <span className="drop-shadow-sm">{bubble.val}</span>
-                    <span className="text-[10px] sm:text-xs opacity-90 font-bold -mt-1">🎈</span>
+                    <span className="drop-shadow-sm leading-none">{bubble.val}</span>
+                    <span className="text-xs opacity-90 leading-none mt-0.5">{bubble.fruit}</span>
                     {isPaired && (
                       <span className="absolute -top-1 -right-1 size-6 bg-emerald-500 rounded-full flex items-center justify-center text-xs text-white border-2 border-white shadow-xs font-black">
                         ✓
@@ -673,24 +701,24 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
             </div>
 
             {/* Paired Feedback Status */}
-            <div className="w-full grid grid-cols-2 gap-2.5 text-xs sm:text-sm">
+            <div className="w-full grid grid-cols-2 gap-2.5 text-xs">
               <div className={cn('p-3 rounded-2xl border-2 transition-all text-center shadow-2xs', pairedPairs.some(([a, b]) => (a === 1 && b === 5) || (a === 5 && b === 1)) ? 'bg-emerald-50 border-emerald-400 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-600')}>
-                <span className="font-extrabold block text-xs">Cặp số (1 + 9)</span>
-                <span className="font-mono font-black text-sm sm:text-base">
+                <span className="font-black block text-xs">Cặp số (1 + 9)</span>
+                <span className="font-mono font-black text-xs sm:text-sm">
                   {pairedPairs.some(([a, b]) => (a === 1 && b === 5) || (a === 5 && b === 1)) ? '🌟 = 10 (Đã ghép)' : 'Chưa ghép (1 và 9)'}
                 </span>
               </div>
               <div className={cn('p-3 rounded-2xl border-2 transition-all text-center shadow-2xs', pairedPairs.some(([a, b]) => (a === 2 && b === 4) || (a === 4 && b === 2)) ? 'bg-emerald-50 border-emerald-400 text-emerald-800' : 'bg-slate-50 border-slate-200 text-slate-600')}>
-                <span className="font-extrabold block text-xs">Cặp số (3 + 7)</span>
-                <span className="font-mono font-black text-sm sm:text-base">
+                <span className="font-black block text-xs">Cặp số (3 + 7)</span>
+                <span className="font-mono font-black text-xs sm:text-sm">
                   {pairedPairs.some(([a, b]) => (a === 2 && b === 4) || (a === 4 && b === 2)) ? '🌟 = 10 (Đã ghép)' : 'Chưa ghép (3 và 7)'}
                 </span>
               </div>
             </div>
 
-            {/* Quick Result Card */}
-            <div className="w-full bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold p-3 rounded-2xl text-center shadow-xs">
-              <span className="text-xs text-emerald-800 font-extrabold block mb-1">
+            {/* Montessori Toy Calculation Board */}
+            <div className="w-full bg-emerald-50 border-2 border-emerald-300 text-emerald-950 font-bold p-3 rounded-2xl text-center shadow-xs space-y-1">
+              <span className="text-xs text-emerald-800 font-black block">
                 🌈 Phép tính gộp thông minh:
               </span>
               <div className="font-mono font-black text-emerald-950 text-sm sm:text-base">
@@ -702,18 +730,12 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
 
         {/* ── 6. MODE: COLUMN ADDITION (LEVEL 2) ── */}
         {activeMode === 'column' && (
-          <div className="w-full max-w-md flex flex-col items-center space-y-3.5">
-            <div className="text-center w-full">
-              <span className="text-xs sm:text-sm font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-2xl inline-block shadow-2xs">
-                🐱 Mèo Mee: &quot;Chọn các chữ số để phép tính 4☐ + ☐7 = 85 chính xác nhé!&quot;
-              </span>
-            </div>
-
+          <div className="w-full max-w-md flex flex-col items-center space-y-3">
             {/* Interactive Column Board */}
-            <div className="w-full bg-slate-50 rounded-3xl border-2 border-indigo-200 p-4 sm:p-5 shadow-xs">
+            <div className="w-full bg-slate-50 rounded-3xl border-2 border-indigo-200 p-4 sm:p-5 shadow-clay">
               <div className="flex items-center justify-between text-xs font-black text-slate-600 border-b border-slate-200 pb-2 mb-3">
-                <span className="w-24 text-center uppercase tracking-wider text-indigo-700">Hàng Chục</span>
-                <span className="w-24 text-center uppercase tracking-wider text-amber-700">Hàng Đơn Vị</span>
+                <span className="w-24 text-center uppercase tracking-wider text-indigo-700 font-black">Hàng Chục</span>
+                <span className="w-24 text-center uppercase tracking-wider text-amber-700 font-black">Hàng Đơn Vị</span>
               </div>
 
               {/* Carry Indicator */}
@@ -765,7 +787,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
             </div>
 
             {/* Stepper Controls */}
-            <div className="w-full grid grid-cols-2 gap-3 text-xs sm:text-sm">
+            <div className="w-full grid grid-cols-2 gap-3 text-xs">
               <div className="bg-slate-50 border border-slate-200 rounded-2xl p-2.5 flex flex-col items-center space-y-1.5 shadow-2xs">
                 <span className="font-bold text-amber-800">Chữ số đơn vị (4☐):</span>
                 <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border border-amber-300 shadow-2xs">
@@ -813,7 +835,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               </div>
             </div>
 
-            {/* Quick Result Card */}
+            {/* Result Card */}
             <div className={cn('w-full rounded-2xl p-3 text-center text-xs sm:text-sm font-bold transition-all border-2 shadow-xs', isLvl2Correct ? 'bg-emerald-50 border-emerald-300 text-emerald-900' : 'bg-amber-50 border-amber-300 text-amber-900')}>
               {isLvl2Correct ? (
                 <span>🎉 CHÍNH XÁC: 48 + 37 = 85 (8 + 7 = 15 nhớ 1; 4 + 3 + 1 = 8)</span>
@@ -826,15 +848,11 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
 
         {/* ── 7. MODE: GAUSS RAINBOW SEQUENCE (LEVEL 3) ── */}
         {activeMode === 'gauss' && (
-          <div className="w-full max-w-lg flex flex-col items-center space-y-3.5">
-            <div className="text-center w-full">
-              <span className="text-xs sm:text-sm font-bold text-amber-800 bg-amber-50 border border-amber-200 px-3.5 py-1.5 rounded-2xl inline-block shadow-2xs">
-                🐱 Mèo Mee: &quot;Bí mật của thần đồng Gauss: Ghép số đầu với số cuối để tạo thành các cặp có tổng bằng 21!&quot;
+          <div className="w-full max-w-lg flex flex-col items-center space-y-3">
+            <div className="w-full bg-slate-50 rounded-3xl border-2 border-indigo-200 p-3 sm:p-4 shadow-clay">
+              <span className="text-[11px] font-black text-indigo-900 uppercase tracking-wider block mb-1 text-center">
+                Bí mật của thần đồng Gauss
               </span>
-            </div>
-
-            {/* Rainbow SVG Arcs & Number Cards */}
-            <div className="w-full bg-slate-50 rounded-3xl border-2 border-indigo-200 p-3 sm:p-4 shadow-xs">
               <svg viewBox="0 0 400 130" className="w-full select-none">
                 <defs>
                   {rainbowColors.map((color, idx) => (
@@ -864,7 +882,6 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                         strokeDasharray={i < gaussActivePairsCount ? 'none' : '3 3'}
                         className="transition-all duration-300"
                       />
-                      {/* Pair Sum Badge on top of the largest visible arc */}
                       {i === 0 && (
                         <g>
                           <rect x="180" y="10" width="40" height="18" rx="6" fill="#e0e7ff" stroke="#6366f1" strokeWidth="1.5" />
@@ -893,7 +910,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               </svg>
 
               {/* Slider to expand pairs */}
-              <div className="mt-2.5 flex items-center justify-between gap-3 bg-white px-3.5 py-2.5 rounded-2xl border border-slate-200 text-xs shadow-2xs">
+              <div className="mt-2 flex items-center justify-between gap-3 bg-white px-3.5 py-2 rounded-2xl border border-slate-200 text-xs shadow-2xs">
                 <span className="font-bold text-slate-700">Số cặp ghép nối: {gaussActivePairsCount}/10</span>
                 <input
                   type="range"
@@ -909,8 +926,8 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
 
             {/* Quick Result Card */}
             <div className="w-full bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold p-3 rounded-2xl text-center shadow-xs">
-              <span className="text-xs text-emerald-800 font-extrabold block mb-1">
-                🌟 Công thức Gauss tổng quát:
+              <span className="text-xs text-emerald-800 font-black block mb-0.5">
+                Công thức Gauss tổng quát:
               </span>
               <div className="font-mono font-black text-emerald-950 text-sm sm:text-base">
                 S = (20 × 21) : 2 = 10 × 21 = 210
@@ -921,7 +938,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
       </div>
 
       {/* ── FOOTER BAR ── */}
-      <div className="flex items-center justify-between text-[11px] text-slate-500 pt-3 border-t border-slate-200 mt-2">
+      <div className="flex items-center justify-between text-[11px] text-slate-500 pt-2.5 border-t border-slate-100 mt-2">
         <span className="flex items-center gap-1.5 text-amber-600 font-bold">
           <Star className="size-3.5 text-amber-500 fill-amber-500" />
           Mô hình Trực Quan Sư Phạm AI Mèo Mee

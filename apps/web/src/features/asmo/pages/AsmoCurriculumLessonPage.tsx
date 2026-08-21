@@ -932,57 +932,133 @@ export function AsmoCurriculumLessonPage() {
 
                 {/* 2. Balloon Pop Visualizer */}
                 {lesson.visualType === 'balloon_pop' && (
-                  <div className="w-full max-w-lg space-y-4">
-                    <p className="text-xs font-bold text-slate-500 text-center">
-                      Bấm vào từng quả bóng để nổ 💥 hoặc hồi sinh 🎈 quả bóng nhé!
-                    </p>
-                    <div className="flex items-center justify-center gap-2.5 flex-wrap">
-                      {Array.from({ length: 10 }).map((_, idx) => {
-                        const id = idx + 1
-                        const isPopped = poppedBalloons.includes(id)
-                        return (
-                          <button
-                            key={`balloon-${id}`}
-                            type="button"
-                            onClick={() => {
-                              if (isPopped) {
-                                setPoppedBalloons(poppedBalloons.filter((b) => b !== id))
-                              } else {
-                                setPoppedBalloons([...poppedBalloons, id])
-                              }
-                            }}
-                            className={cn(
-                              'size-12 rounded-2xl flex flex-col items-center justify-center transition-all cursor-pointer border-2 select-none',
-                              isPopped
-                                ? 'bg-slate-200 border-slate-300 opacity-40 scale-90'
-                                : 'bg-sky-500 hover:bg-sky-400 border-sky-300 text-white shadow-clay',
-                            )}
-                          >
-                            <span className="text-xl">{isPopped ? '💥' : '🎈'}</span>
-                            <span className="text-[10px] font-black">{id}</span>
-                          </button>
-                        )
-                      })}
+                  <div className="w-full max-w-lg space-y-3.5">
+                    <div className="w-full bg-gradient-to-b from-sky-100/90 via-sky-50/70 to-mint-50/80 border-2 border-sky-200 rounded-3xl p-4 sm:p-5 shadow-clay flex flex-col items-center space-y-3 relative overflow-hidden">
+                      <div className="flex items-center justify-between w-full z-10 px-1">
+                        <span className="text-xs font-black text-sky-900 flex items-center gap-1">
+                          <span>🎈</span>
+                          <span>Chạm vào bóng để nổ 💥 hoặc bơm lại</span>
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => setPoppedBalloons([])}
+                          className="px-2.5 py-1 rounded-xl bg-white hover:bg-slate-50 text-slate-700 font-black text-xs flex items-center gap-1 cursor-pointer border border-sky-200 shadow-2xs active:scale-95"
+                        >
+                          <RotateCcw className="size-3 text-sky-600" />
+                          <span>Bơm lại</span>
+                        </button>
+                      </div>
+
+                      {/* 10 Giant Soft Clay Balloons */}
+                      <div className="grid grid-cols-5 gap-2.5 sm:gap-3.5 z-10 w-full justify-items-center">
+                        {Array.from({ length: 10 }).map((_, idx) => {
+                          const id = idx + 1
+                          const isPopped = poppedBalloons.includes(id)
+                          const colors = [
+                            'from-rose-400 to-rose-600 border-rose-300',
+                            'from-amber-400 to-amber-600 border-amber-300',
+                            'from-emerald-400 to-emerald-600 border-emerald-300',
+                            'from-sky-400 to-sky-600 border-sky-300',
+                            'from-purple-400 to-purple-600 border-purple-300',
+                            'from-pink-400 to-pink-600 border-pink-300',
+                            'from-indigo-400 to-indigo-600 border-indigo-300',
+                            'from-teal-400 to-teal-600 border-teal-300',
+                            'from-orange-400 to-orange-600 border-orange-300',
+                            'from-lime-400 to-lime-600 border-lime-300',
+                          ]
+                          const colorClass = colors[idx % colors.length]
+
+                          return (
+                            <button
+                              key={`balloon-${id}`}
+                              type="button"
+                              onClick={() => {
+                                if (isPopped) {
+                                  setPoppedBalloons(poppedBalloons.filter((b) => b !== id))
+                                } else {
+                                  setPoppedBalloons([...poppedBalloons, id])
+                                }
+                              }}
+                              className={cn(
+                                'relative size-14 sm:size-16 rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer border-3 select-none active:scale-90',
+                                isPopped
+                                  ? 'bg-slate-200/80 border-slate-300 text-slate-400 opacity-40 scale-85 shadow-none'
+                                  : cn('bg-gradient-to-br shadow-clay hover:scale-110 active:scale-95 text-white', colorClass),
+                              )}
+                            >
+                              <span className="text-2xl sm:text-3xl select-none leading-none">
+                                {isPopped ? '💥' : '🎈'}
+                              </span>
+                              <span className={cn('text-[11px] font-black leading-none mt-0.5', isPopped ? 'text-slate-500' : 'text-white drop-shadow-xs')}>
+                                {id}
+                              </span>
+                              {!isPopped && (
+                                <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-0.5 h-2.5 bg-slate-400/80 pointer-events-none" />
+                              )}
+                            </button>
+                          )
+                        })}
+                      </div>
+
+                      {/* Sub-counter */}
+                      <div className="z-10 flex items-center justify-center gap-3 bg-white/95 px-4 py-1.5 rounded-full border border-sky-200 shadow-2xs text-xs font-black text-slate-800">
+                        <span>🎈 Ban đầu: <strong>10 quả</strong></span>
+                        <span>💥 Nổ: <strong className="text-rose-600">{poppedBalloons.length}</strong></span>
+                        <span>✨ Còn: <strong className="text-emerald-600">{10 - poppedBalloons.length}</strong></span>
+                      </div>
                     </div>
-                    <div className="bg-sky-50 border-2 border-sky-200 rounded-2xl p-3.5 text-center font-display font-extrabold text-sky-900 text-base">
-                      10 (ban đầu) − {poppedBalloons.length} (nổ mất) = {10 - poppedBalloons.length} quả bóng còn lại
+
+                    {/* Giant Montessori Toy Calculation Board */}
+                    <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
+                      <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
+                        <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-sky-50 border-2 border-sky-200 text-sky-800 shadow-clay">
+                          <span className="text-2xl sm:text-3xl">🎈</span>
+                          <span className="font-display font-black text-2xl sm:text-3xl text-sky-800">10</span>
+                        </div>
+
+                        <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                          −
+                        </div>
+
+                        <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-700 shadow-clay">
+                          <span className="text-2xl sm:text-3xl">💥</span>
+                          <span className="font-display font-black text-2xl sm:text-3xl text-rose-700">{poppedBalloons.length}</span>
+                        </div>
+
+                        <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                          =
+                        </div>
+
+                        <div className={cn(
+                          'flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl bg-brand-500 text-white font-black text-2xl sm:text-3xl shadow-clay border-2 border-brand-600 transition-all duration-300',
+                          10 - poppedBalloons.length > 0 && 'scale-105 ring-4 ring-brand-200 animate-pulse',
+                        )}>
+                          <span className="font-display font-black text-2xl sm:text-3xl text-white">{10 - poppedBalloons.length}</span>
+                          <span className="text-xl sm:text-2xl animate-bounce">🎈</span>
+                        </div>
+                      </div>
+
+                      <div className="font-mono font-bold text-xs text-slate-500">
+                        10 (ban đầu) − {poppedBalloons.length} (nổ mất) = <span className="text-sky-600 font-black underline">{10 - poppedBalloons.length} quả bóng</span> còn lại
+                      </div>
                     </div>
                   </div>
                 )}
 
                 {/* 3. Cake Tray Visualizer */}
                 {lesson.visualType === 'cake_tray' && (
-                  <div className="w-full max-w-lg space-y-4">
-                    <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-white p-3.5 rounded-2xl border-2 border-amber-200">
+                  <div className="w-full max-w-lg space-y-3.5">
+                    {/* Tactile Grid Controls */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-amber-50/90 p-3.5 rounded-2xl border-2 border-amber-200 shadow-2xs">
                       <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-slate-700">Số Hàng:</span>
-                        <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-amber-200 shadow-2xs">
+                        <span className="font-black text-slate-800">Số Hàng:</span>
+                        <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-amber-300 shadow-2xs">
                           <button
                             type="button"
                             aria-label="Bớt hàng bánh"
                             disabled={cakeRows <= 1}
                             onClick={() => setCakeRows((r) => (r > 1 ? r - 1 : 1))}
-                            className="size-8 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-700 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                            className="size-8 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-800 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                           >
                             <Minus className="size-4 stroke-[3]" />
                           </button>
@@ -992,9 +1068,9 @@ export function AsmoCurriculumLessonPage() {
                           <button
                             type="button"
                             aria-label="Thêm hàng bánh"
-                            disabled={cakeRows >= 6}
-                            onClick={() => setCakeRows((r) => (r < 6 ? r + 1 : 6))}
-                            className="size-8 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                            disabled={cakeRows >= 5}
+                            onClick={() => setCakeRows((r) => (r < 5 ? r + 1 : 5))}
+                            className="size-8 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                           >
                             <Plus className="size-4 stroke-[3]" />
                           </button>
@@ -1002,14 +1078,14 @@ export function AsmoCurriculumLessonPage() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-slate-700">Số Cột:</span>
-                        <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-amber-200 shadow-2xs">
+                        <span className="font-black text-slate-800">Số Cột:</span>
+                        <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-amber-300 shadow-2xs">
                           <button
                             type="button"
                             aria-label="Bớt cột bánh"
                             disabled={cakeCols <= 1}
                             onClick={() => setCakeCols((c) => (c > 1 ? c - 1 : 1))}
-                            className="size-8 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-700 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                            className="size-8 rounded-xl bg-amber-100 hover:bg-amber-200 text-amber-800 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                           >
                             <Minus className="size-4 stroke-[3]" />
                           </button>
@@ -1019,9 +1095,9 @@ export function AsmoCurriculumLessonPage() {
                           <button
                             type="button"
                             aria-label="Thêm cột bánh"
-                            disabled={cakeCols >= 6}
-                            onClick={() => setCakeCols((c) => (c < 6 ? c + 1 : 6))}
-                            className="size-8 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                            disabled={cakeCols >= 5}
+                            onClick={() => setCakeCols((c) => (c < 5 ? c + 1 : 5))}
+                            className="size-8 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                           >
                             <Plus className="size-4 stroke-[3]" />
                           </button>
@@ -1029,24 +1105,53 @@ export function AsmoCurriculumLessonPage() {
                       </div>
                     </div>
 
+                    {/* Soft Clay Cupcake Tray Grid */}
                     <div
-                      className="grid gap-2 justify-center p-3 bg-amber-50/60 rounded-2xl border border-amber-200"
+                      className="grid gap-2.5 justify-center p-4 sm:p-5 bg-gradient-to-b from-amber-100/90 via-amber-50/70 to-orange-50/80 rounded-3xl border-2 border-amber-300 shadow-clay"
                       style={{ gridTemplateColumns: `repeat(${cakeCols}, minmax(0, 1fr))` }}
                     >
                       {Array.from({ length: cakeRows }).map((_, r) =>
                         Array.from({ length: cakeCols }).map((_, c) => (
                           <div
                             key={`cake-${r}-${c}`}
-                            className="size-11 sm:size-12 rounded-xl bg-white border-2 border-amber-300 flex items-center justify-center text-2xl shadow-xs animate-in zoom-in-50"
+                            className="size-12 sm:size-14 rounded-2xl bg-white border-2 border-amber-300 flex items-center justify-center text-2xl sm:text-3xl shadow-clay animate-in zoom-in-50 select-none hover:scale-110 transition-transform cursor-pointer"
                           >
-                            🍰
+                            {r % 2 === 0 ? '🍰' : '🧁'}
                           </div>
                         )),
                       )}
                     </div>
 
-                    <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-3 text-center font-display font-extrabold text-amber-900 text-base">
-                      {cakeRows} hàng × {cakeCols} cột = {cakeRows * cakeCols} chiếc bánh thơm ngon
+                    {/* Giant Montessori Toy Calculation Board */}
+                    <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
+                      <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
+                        <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-50 border-2 border-amber-200 text-amber-800 shadow-clay">
+                          <span className="text-2xl sm:text-3xl">🥞</span>
+                          <span className="font-display font-black text-2xl sm:text-3xl text-amber-800">{cakeRows} hàng</span>
+                        </div>
+
+                        <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                          ×
+                        </div>
+
+                        <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-800 shadow-clay">
+                          <span className="text-2xl sm:text-3xl">🧁</span>
+                          <span className="font-display font-black text-2xl sm:text-3xl text-emerald-800">{cakeCols} cột</span>
+                        </div>
+
+                        <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                          =
+                        </div>
+
+                        <div className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl bg-brand-500 text-white font-black text-2xl sm:text-3xl shadow-clay border-2 border-brand-600 transition-all duration-300">
+                          <span className="font-display font-black text-2xl sm:text-3xl text-white">{cakeRows * cakeCols}</span>
+                          <span className="text-xl sm:text-2xl animate-bounce">🍰</span>
+                        </div>
+                      </div>
+
+                      <div className="font-mono font-bold text-xs text-slate-500">
+                        {cakeRows} hàng × {cakeCols} cột = <span className="text-amber-700 font-black underline">{cakeRows * cakeCols} chiếc bánh</span> thơm ngon
+                      </div>
                     </div>
                   </div>
                 )}
@@ -1056,10 +1161,10 @@ export function AsmoCurriculumLessonPage() {
                   lesson.visualType === 'compare_fractions' ||
                   lesson.visualType === 'fraction_add_sub' ||
                   lesson.visualType === 'fraction_of_number') && (
-                  <div className="w-full max-w-lg space-y-4 flex flex-col items-center">
-                    <div className="flex flex-wrap items-center justify-center gap-3 text-xs bg-white p-3 rounded-2xl border-2 border-slate-200">
+                  <div className="w-full max-w-md space-y-4 flex flex-col items-center">
+                    <div className="flex flex-wrap items-center justify-center gap-3 text-xs bg-white p-3 rounded-2xl border-2 border-brand-100 shadow-clay">
                       <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-slate-700">Số lát cắt:</span>
+                        <span className="font-black text-slate-700">Số lát cắt:</span>
                         {[4, 6, 8, 10].map((num) => (
                           <button
                             key={`slice-btn-${num}`}
@@ -1069,10 +1174,10 @@ export function AsmoCurriculumLessonPage() {
                               if (pizzaShaded > num) setPizzaShaded(num)
                             }}
                             className={cn(
-                              'px-2.5 py-1 rounded-xl font-black text-xs cursor-pointer border transition-all',
+                              'px-2.5 py-1 rounded-xl font-black text-xs cursor-pointer border-2 transition-all active:scale-95',
                               pizzaSlices === num
-                                ? 'bg-brand-500 text-white border-brand-500 shadow-xs'
-                                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200',
+                                ? 'bg-brand-500 text-white border-brand-600 shadow-clay'
+                                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 shadow-2xs',
                             )}
                           >
                             {num}
@@ -1081,14 +1186,14 @@ export function AsmoCurriculumLessonPage() {
                       </div>
 
                       <div className="flex items-center gap-2 border-l border-slate-200 pl-3">
-                        <span className="font-extrabold text-slate-700">Đã lấy:</span>
-                        <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-emerald-200 shadow-2xs">
+                        <span className="font-black text-slate-700">Đã lấy:</span>
+                        <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-emerald-300 shadow-2xs">
                           <button
                             type="button"
                             aria-label="Bớt lát pizza"
                             disabled={pizzaShaded <= 0}
                             onClick={() => setPizzaShaded((s) => (s > 0 ? s - 1 : 0))}
-                            className="size-8 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                            className="size-8 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                           >
                             <Minus className="size-4 stroke-[3]" />
                           </button>
@@ -1100,7 +1205,7 @@ export function AsmoCurriculumLessonPage() {
                             aria-label="Thêm lát pizza"
                             disabled={pizzaShaded >= pizzaSlices}
                             onClick={() => setPizzaShaded((s) => (s < pizzaSlices ? s + 1 : pizzaSlices))}
-                            className="size-8 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                            className="size-8 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                           >
                             <Plus className="size-4 stroke-[3]" />
                           </button>
@@ -1108,38 +1213,53 @@ export function AsmoCurriculumLessonPage() {
                       </div>
                     </div>
 
-                    {/* SVG Pizza Pie */}
-                    <svg viewBox="0 0 160 160" className="size-40 select-none drop-shadow-md">
-                      <circle cx="80" cy="80" r="70" fill="#f59e0b" stroke="#78350f" strokeWidth="4" />
-                      {Array.from({ length: pizzaSlices }).map((_, i) => {
-                        const startAngle = (i * 360) / pizzaSlices
-                        const endAngle = ((i + 1) * 360) / pizzaSlices
-                        const isShaded = i < pizzaShaded
+                    {/* SVG Pizza Pie Soft Clay */}
+                    <div className="relative p-3 bg-gradient-to-b from-amber-50 to-orange-50 rounded-full border-4 border-amber-200 shadow-clay">
+                      <svg viewBox="0 0 160 160" className="size-48 select-none drop-shadow-md cursor-pointer overflow-visible">
+                        <defs>
+                          <filter id="pizzaShadowExp" x="-10%" y="-10%" width="120%" height="120%">
+                            <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="#78350f" floodOpacity="0.25" />
+                          </filter>
+                        </defs>
+                        <circle cx="80" cy="80" r="72" fill="#d97706" stroke="#92400e" strokeWidth="4" filter="url(#pizzaShadowExp)" />
+                        <circle cx="80" cy="80" r="66" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
+                        {Array.from({ length: pizzaSlices }).map((_, i) => {
+                          const startAngle = (i * 360) / pizzaSlices
+                          const endAngle = ((i + 1) * 360) / pizzaSlices
+                          const isShaded = i < pizzaShaded
 
-                        const x1 = 80 + 66 * Math.cos(((startAngle - 90) * Math.PI) / 180)
-                        const y1 = 80 + 66 * Math.sin(((startAngle - 90) * Math.PI) / 180)
-                        const x2 = 80 + 66 * Math.cos(((endAngle - 90) * Math.PI) / 180)
-                        const y2 = 80 + 66 * Math.sin(((endAngle - 90) * Math.PI) / 180)
+                          const x1 = 80 + 64 * Math.cos(((startAngle - 90) * Math.PI) / 180)
+                          const y1 = 80 + 64 * Math.sin(((startAngle - 90) * Math.PI) / 180)
+                          const x2 = 80 + 64 * Math.cos(((endAngle - 90) * Math.PI) / 180)
+                          const y2 = 80 + 64 * Math.sin(((endAngle - 90) * Math.PI) / 180)
 
-                        const largeArc = endAngle - startAngle > 180 ? 1 : 0
-                        const d = `M 80,80 L ${x1},${y1} A 66,66 0 ${largeArc},1 ${x2},${y2} Z`
+                          const largeArc = endAngle - startAngle > 180 ? 1 : 0
+                          const d = `M 80,80 L ${x1},${y1} A 64,64 0 ${largeArc},1 ${x2},${y2} Z`
 
-                        return (
-                          <path
-                            key={`slice-${i}`}
-                            d={d}
-                            fill={isShaded ? '#ef4444' : '#fef3c7'}
-                            stroke="#78350f"
-                            strokeWidth="1.5"
-                            className="transition-colors duration-200"
-                          />
-                        )
-                      })}
-                      <circle cx="80" cy="80" r="4" fill="#78350f" />
-                    </svg>
+                          return (
+                            <path
+                              key={`slice-${i}`}
+                              d={d}
+                              fill={isShaded ? '#ef4444' : '#fef08a'}
+                              stroke="#92400e"
+                              strokeWidth="2"
+                              onClick={() => {
+                                if (isShaded) {
+                                  setPizzaShaded(i)
+                                } else {
+                                  setPizzaShaded(i + 1)
+                                }
+                              }}
+                              className="transition-all duration-200 hover:opacity-85 active:scale-98"
+                            />
+                          )
+                        })}
+                        <circle cx="80" cy="80" r="5" fill="#78350f" />
+                      </svg>
+                    </div>
 
-                    <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-3 text-center font-display font-extrabold text-emerald-900 text-base">
-                      <AsmoFormula text={`Phân số biểu thị: $\\frac{${pizzaShaded}}{${pizzaSlices}}$ chiếc bánh pizza`} />
+                    <div className="w-full bg-emerald-50 border-2 border-emerald-300 rounded-3xl p-3.5 text-center font-display font-extrabold text-emerald-950 text-base shadow-clay">
+                      <AsmoFormula text={`Phân số biểu thị: $\\frac{${pizzaShaded}}{${pizzaSlices}}$ chiếc bánh pizza 🍕`} />
                     </div>
                   </div>
                 )}
@@ -1147,10 +1267,10 @@ export function AsmoCurriculumLessonPage() {
                 {/* 5. Analog Clock Visualizer */}
                 {(lesson.visualType === 'analog_clock' || lesson.visualType === 'elapsed_time') && (
                   <div className="w-full max-w-md space-y-4 flex flex-col items-center">
-                    <div className="flex flex-wrap items-center justify-center gap-3 text-xs bg-white p-3 rounded-2xl border-2 border-slate-200">
+                    <div className="flex flex-wrap items-center justify-center gap-3 text-xs bg-white p-3 rounded-2xl border-2 border-slate-200 shadow-clay">
                       <div className="flex items-center gap-2">
-                        <span className="font-extrabold text-slate-700">Chỉnh Giờ:</span>
-                        <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-sky-200 shadow-2xs">
+                        <span className="font-black text-slate-700">Chỉnh Giờ:</span>
+                        <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-sky-200 shadow-2xs">
                           <button
                             type="button"
                             aria-label="Lùi 1 giờ"
@@ -1166,7 +1286,7 @@ export function AsmoCurriculumLessonPage() {
                             type="button"
                             aria-label="Tiến 1 giờ"
                             onClick={() => setClockHour((h) => (h < 12 ? h + 1 : 1))}
-                            className="size-8 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 cursor-pointer"
+                            className="size-8 rounded-xl bg-sky-500 hover:bg-sky-600 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 cursor-pointer"
                           >
                             <Plus className="size-4 stroke-[3]" />
                           </button>
@@ -1174,17 +1294,17 @@ export function AsmoCurriculumLessonPage() {
                       </div>
 
                       <div className="flex items-center gap-1.5 border-l border-slate-200 pl-3">
-                        <span className="font-extrabold text-slate-700">Chỉnh Phút:</span>
+                        <span className="font-black text-slate-700">Chỉnh Phút:</span>
                         {[0, 15, 30, 45].map((min) => (
                           <button
                             key={`min-btn-${min}`}
                             type="button"
                             onClick={() => setClockMinute(min)}
                             className={cn(
-                              'px-2 py-1 rounded-xl font-black text-xs cursor-pointer border transition-all',
+                              'px-2 py-1 rounded-xl font-black text-xs cursor-pointer border-2 transition-all active:scale-95',
                               clockMinute === min
-                                ? 'bg-indigo-500 text-white border-indigo-500 shadow-xs'
-                                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200',
+                                ? 'bg-indigo-600 text-white border-indigo-700 shadow-clay'
+                                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 shadow-2xs',
                             )}
                           >
                             {min}p
@@ -1193,11 +1313,11 @@ export function AsmoCurriculumLessonPage() {
                       </div>
                     </div>
 
-                    <div className="size-44 bg-white rounded-full p-2 shadow-md border-2 border-slate-200 flex items-center justify-center">
+                    <div className="size-44 bg-white rounded-full p-2 shadow-clay border-3 border-sky-200 flex items-center justify-center">
                       {renderClockSvg(clockHour, clockMinute, { size: 160 })}
                     </div>
 
-                    <div className="bg-sky-50 border-2 border-sky-200 rounded-2xl p-3 text-center font-display font-extrabold text-sky-900 text-base">
+                    <div className="bg-sky-50 border-2 border-sky-300 rounded-2xl p-3.5 text-center font-display font-extrabold text-sky-950 text-base shadow-2xs">
                       Thời gian hiển thị: {clockHour}:{clockMinute < 10 ? `0${clockMinute}` : clockMinute}
                     </div>
                   </div>
@@ -1217,49 +1337,123 @@ export function AsmoCurriculumLessonPage() {
 
                 {/* 7. Candy Division Visualizer */}
                 {(lesson.visualType === 'candy_division' || lesson.visualType === 'div_remainder') && (
-                  <div className="w-full max-w-lg space-y-4">
-                    <div className="flex items-center justify-between text-xs bg-white p-3 rounded-2xl border border-slate-200">
+                  <div className="w-full max-w-lg space-y-3.5">
+                    {/* Controls */}
+                    <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-white p-3.5 rounded-2xl border-2 border-brand-200 shadow-2xs">
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-600">Tổng số kẹo:</span>
-                        <span className="font-extrabold text-rose-700 text-sm">{candyTotal} 🍬</span>
+                        <span className="font-black text-slate-800">Số kẹo 🍬:</span>
+                        <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-rose-300 shadow-2xs">
+                          <button
+                            type="button"
+                            aria-label="Bớt kẹo"
+                            disabled={candyTotal <= 4}
+                            onClick={() => setCandyTotal((t) => (t > 4 ? t - 1 : 4))}
+                            className="size-8 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            <Minus className="size-4 stroke-[3]" />
+                          </button>
+                          <span className="w-6 text-center font-display font-black text-sm text-rose-950 select-none">{candyTotal}</span>
+                          <button
+                            type="button"
+                            aria-label="Thêm kẹo"
+                            disabled={candyTotal >= 24}
+                            onClick={() => setCandyTotal((t) => (t < 24 ? t + 1 : 24))}
+                            className="size-8 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            <Plus className="size-4 stroke-[3]" />
+                          </button>
+                        </div>
                       </div>
+
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-slate-600">Chia vào số đĩa:</span>
-                        <button
-                          type="button"
-                          onClick={() => setCandyPlates((p) => (p === 2 ? 3 : p === 3 ? 4 : 2))}
-                          className="px-2.5 py-1 bg-brand-50 border border-brand-200 text-brand-700 rounded-xl font-bold cursor-pointer"
-                        >
-                          {candyPlates} đĩa ⟳
-                        </button>
+                        <span className="font-black text-slate-800">Số đĩa 🍽️:</span>
+                        <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-brand-300 shadow-2xs">
+                          <button
+                            type="button"
+                            aria-label="Bớt đĩa"
+                            disabled={candyPlates <= 2}
+                            onClick={() => setCandyPlates((p) => (p > 2 ? p - 1 : 2))}
+                            className="size-8 rounded-xl bg-brand-100 hover:bg-brand-200 text-brand-800 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            <Minus className="size-4 stroke-[3]" />
+                          </button>
+                          <span className="w-6 text-center font-display font-black text-sm text-brand-950 select-none">{candyPlates}</span>
+                          <button
+                            type="button"
+                            aria-label="Thêm đĩa"
+                            disabled={candyPlates >= 6}
+                            onClick={() => setCandyPlates((p) => (p < 6 ? p + 1 : 6))}
+                            className="size-8 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            <Plus className="size-4 stroke-[3]" />
+                          </button>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 justify-center">
+                    {/* Porcelain Plates Stage */}
+                    <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 justify-center bg-gradient-to-b from-sky-50/80 to-emerald-50/80 p-4 rounded-3xl border-2 border-brand-200 shadow-clay">
                       {Array.from({ length: candyPlates }).map((_, plateIdx) => {
                         const candiesPerPlate = Math.floor(candyTotal / candyPlates)
                         return (
                           <div
                             key={`plate-${plateIdx}`}
-                            className="bg-white border-2 border-brand-200 rounded-2xl p-3 flex flex-col items-center space-y-2 shadow-xs"
+                            className="bg-white border-3 border-brand-200 rounded-3xl p-3 flex flex-col items-center space-y-1.5 shadow-clay hover:scale-105 transition-transform"
                           >
-                            <span className="text-xs font-black text-brand-700">Đĩa {plateIdx + 1}</span>
+                            <span className="text-xs font-black text-brand-800">Đĩa {plateIdx + 1}</span>
                             <div className="flex items-center justify-center gap-1 flex-wrap min-h-10">
                               {Array.from({ length: candiesPerPlate }).map((_, cIdx) => (
-                                <span key={`plate-candy-${cIdx}`} className="text-lg">
+                                <span key={`plate-candy-${cIdx}`} className="text-lg animate-in zoom-in-50">
                                   🍬
                                 </span>
                               ))}
                             </div>
-                            <span className="text-xs font-bold text-slate-500">{candiesPerPlate} cái</span>
+                            <span className="text-xs font-extrabold text-slate-600">{candiesPerPlate} cái</span>
                           </div>
                         )
                       })}
                     </div>
 
-                    <div className="bg-rose-50 border-2 border-rose-200 rounded-2xl p-3 text-center font-display font-extrabold text-rose-900 text-base">
-                      {candyTotal} kẹo ÷ {candyPlates} đĩa = {Math.floor(candyTotal / candyPlates)} kẹo mỗi đĩa
-                      {candyTotal % candyPlates !== 0 && ` (dư ${candyTotal % candyPlates} kẹo)`}
+                    {candyTotal % candyPlates !== 0 && (
+                      <div className="bg-amber-100/80 border-2 border-amber-300 rounded-2xl p-2 text-center text-xs font-black text-amber-900 shadow-2xs">
+                        🍬 Kẹo dư chưa chia: {candyTotal % candyPlates} cái
+                      </div>
+                    )}
+
+                    {/* Giant Montessori Toy Calculation Board */}
+                    <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
+                      <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
+                        <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 shadow-clay">
+                          <span className="text-2xl sm:text-3xl">🍬</span>
+                          <span className="font-display font-black text-2xl sm:text-3xl text-rose-800">{candyTotal}</span>
+                        </div>
+
+                        <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                          ÷
+                        </div>
+
+                        <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-sky-50 border-2 border-sky-200 text-sky-800 shadow-clay">
+                          <span className="text-2xl sm:text-3xl">🍽️</span>
+                          <span className="font-display font-black text-2xl sm:text-3xl text-sky-800">{candyPlates} đĩa</span>
+                        </div>
+
+                        <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                          =
+                        </div>
+
+                        <div className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl bg-brand-500 text-white font-black text-2xl sm:text-3xl shadow-clay border-2 border-brand-600 transition-all duration-300">
+                          <span className="font-display font-black text-2xl sm:text-3xl text-white">{Math.floor(candyTotal / candyPlates)}</span>
+                          <span className="text-xs font-black uppercase text-white/90">🍬 / đĩa</span>
+                        </div>
+                      </div>
+
+                      <div className="font-mono font-bold text-xs text-slate-500">
+                        {candyTotal} kẹo ÷ {candyPlates} đĩa ={' '}
+                        <span className="text-rose-700 font-black underline">
+                          {Math.floor(candyTotal / candyPlates)} kẹo mỗi đĩa
+                        </span>
+                        {candyTotal % candyPlates !== 0 && ` (dư ${candyTotal % candyPlates} kẹo)`}
+                      </div>
                     </div>
                   </div>
                 )}
