@@ -43,6 +43,24 @@ import { cn } from '@/shared/lib/cn'
 
 const AVAILABLE_YEARS: Array<number | 'all'> = ['all', 2023, 2022, 2021, 2020, 2018, 2016]
 
+export const ELEMENTARY_LESSON_SHORT_TITLES: Record<string, { shortTitle: string; icon: string }> = {
+  's1-apples': { shortTitle: '🍎 Thả Táo Gộp 10', icon: '🍎' },
+  's1-balloons': { shortTitle: '🎈 Bấm Nổ Bóng Trừ', icon: '🎈' },
+  's1-make10': { shortTitle: '🔟 Cầu Vồng Tròn 10', icon: '🔟' },
+  's1-column-add': { shortTitle: '➕ Đặt Tính Cộng Cột', icon: '➕' },
+  's1-column-sub': { shortTitle: '➖ Đặt Tính Trừ Mượn', icon: '➖' },
+  's2-cake-tray': { shortTitle: '🍰 Khay Bánh Nhân', icon: '🍰' },
+  's2-times-table-25': { shortTitle: '🐸 Bảng Nhân 2–5', icon: '🐸' },
+  's2-times-table-69': { shortTitle: '✨ Bảng Nhân 6–9', icon: '✨' },
+  's2-candy-split': { shortTitle: '🍬 Đĩa Chia Kẹo', icon: '🍬' },
+  's2-div-remainder': { shortTitle: '🍓 Phép Chia Có Dư', icon: '🍓' },
+  's3-pizza-fraction': { shortTitle: '🍕 Lát Cắt Pizza', icon: '🍕' },
+  's3-compare-fractions': { shortTitle: '🔍 So Sánh Phân Số', icon: '🔍' },
+  's3-fraction-ops': { shortTitle: '➕ Cộng Trừ Phân Số', icon: '➕' },
+  's3-fraction-of-num': { shortTitle: '🍫 Phân Số Một Số', icon: '🍫' },
+  's3-perimeter-area': { shortTitle: '📐 Chu Vi & Diện Tích', icon: '📐' },
+}
+
 type StageFilterTab = 'auto' | 'primary' | 'secondary' | 'high' | 'all' | string
 
 interface SubjectFilterState {
@@ -170,16 +188,18 @@ export function AsmoHubPage() {
     const effectiveTier = stageFilterTab === 'auto' ? currentTier : stageFilterTab
 
     if (effectiveTier === 'primary') {
-      // Tiểu học: Chặng 1, 2, 3 (và Chặng 4, 5 nếu lớp 4–5 hoặc xem toàn bộ)
-      if (selectedGrade <= 3 && stageFilterTab === 'auto') {
-        return ASMO_LMS_STAGES.filter((s) => s.stageNumber <= 3)
-      }
-      return ASMO_LMS_STAGES.filter((s) => s.stageNumber <= 5)
+      // Tiểu học (Lớp 1 – 5): Chặng 1, 2, 3
+      return ASMO_LMS_STAGES.filter((s) => s.stageNumber <= 3)
     }
 
     if (effectiveTier === 'secondary') {
-      // THCS: Chặng 3, 4, 5
-      return ASMO_LMS_STAGES.filter((s) => s.stageNumber >= 3)
+      // THCS (Lớp 6 – 9): Chặng 4, 5
+      return ASMO_LMS_STAGES.filter((s) => s.stageNumber >= 4)
+    }
+
+    if (effectiveTier === 'high') {
+      // THPT (Lớp 10 – 12): 12 Chuyên Đề Olympic
+      return []
     }
 
     if (effectiveTier === 'all') {
@@ -193,12 +213,12 @@ export function AsmoHubPage() {
     }
 
     return ASMO_LMS_STAGES
-  }, [currentTier, selectedGrade, stageFilterTab])
+  }, [currentTier, stageFilterTab])
 
   // Filter High School Topics (12 Chuyên Đề Olympic)
   const highSchoolTopics = useMemo(() => {
     const effectiveTier = stageFilterTab === 'auto' ? currentTier : stageFilterTab
-    if (effectiveTier === 'high' || stageFilterTab === 'high') {
+    if (effectiveTier === 'high' || stageFilterTab === 'high' || stageFilterTab === 'all') {
       return ASMO_JOURNEY_TOPICS.filter((t) => t.gradeTier === 'high' || t.gradeTier === 'secondary')
     }
     return []
@@ -898,16 +918,105 @@ export function AsmoHubPage() {
                 </div>
 
                 <div className="text-xs text-slate-500 font-medium sm:text-right max-w-sm">
-                  {stage.description}
+                  {stage.stageNumber <= 3 ? (
+                    <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-100/90 text-emerald-900 text-xs font-bold border border-emerald-300 shadow-2xs">
+                      <span>🎨</span>
+                      <span>Học qua tranh ảnh &amp; mô hình trực quan</span>
+                    </span>
+                  ) : (
+                    stage.description
+                  )}
                 </div>
               </div>
 
               {/* Grid Bài Học Trong Chặng */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div
+                className={cn(
+                  'grid gap-4',
+                  stage.stageNumber <= 3
+                    ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5'
+                    : 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3',
+                )}
+              >
                 {stage.lessons.map((lesson) => {
                   const lessonProgress = lmsProgress.lessons[lesson.id]
                   const isCompleted = Boolean(lessonProgress?.completed)
+                  const isElementaryStage = stage.stageNumber <= 3
+                  const elementaryInfo = ELEMENTARY_LESSON_SHORT_TITLES[lesson.id]
 
+                  if (isElementaryStage) {
+                    // ── THẺ TRANH HOẠT HÌNH SOFT CLAY DÀNH CHO TIỂU HỌC (CẤP 1) ──
+                    return (
+                      <div
+                        key={lesson.id}
+                        onClick={() => navigate(`/asmo/curriculum/lesson/${lesson.id}`)}
+                        className={cn(
+                          'group relative flex flex-col justify-between items-center text-center rounded-3xl border-2 p-4 sm:p-5 transition-all duration-200 shadow-clay hover:scale-[1.02] cursor-pointer',
+                          isCompleted
+                            ? 'border-emerald-300 bg-gradient-to-b from-emerald-50/90 via-white to-mint-50/50 ring-2 ring-emerald-200'
+                            : 'border-brand-200/80 bg-gradient-to-b from-brand-50/60 via-white to-sky-50/40 hover:border-brand-400',
+                        )}
+                      >
+                        {/* Top Badges: Lesson badge & XP & Status */}
+                        <div className="w-full flex items-center justify-between gap-1.5">
+                          <span className="rounded-xl bg-white/90 border border-slate-200 px-2 py-0.5 text-[10px] font-black uppercase text-slate-600 shadow-2xs">
+                            Trạm {stage.stageNumber}.{lesson.lessonNumber}
+                          </span>
+                          <div className="flex items-center gap-1">
+                            <span className="rounded-xl bg-amber-100 border border-amber-300 px-2 py-0.5 text-[10px] font-black text-amber-900 flex items-center gap-1 shadow-2xs">
+                              <Zap className="size-3 text-amber-500 fill-amber-500" />
+                              +{lesson.xpReward} XP
+                            </span>
+                            {isCompleted ? (
+                              <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 text-white px-2 py-0.5 text-[10px] font-black shadow-xs">
+                                <CheckCircle2 className="size-3" />
+                                <span>Xong</span>
+                              </span>
+                            ) : (
+                              <span className="rounded-full bg-slate-100 text-slate-600 px-2 py-0.5 text-[10px] font-bold">
+                                Mở
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Big 3D Soft Clay Visual Icon */}
+                        <div className="my-3 sm:my-4 flex size-16 sm:size-20 items-center justify-center rounded-3xl bg-white border-2 border-brand-200 shadow-clay text-3xl sm:text-4xl group-hover:scale-110 transition-transform select-none">
+                          {elementaryInfo?.icon || lesson.icon}
+                        </div>
+
+                        {/* Concise 3-4 Word Title */}
+                        <div className="mb-4">
+                          <h4 className="font-display font-black text-sm sm:text-base text-slate-900 group-hover:text-brand-600 transition-colors leading-snug">
+                            {elementaryInfo?.shortTitle || lesson.title}
+                          </h4>
+                        </div>
+
+                        {/* Bottom Action Button */}
+                        <div className="w-full pt-1">
+                          <Button
+                            type="button"
+                            variant="primary"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              navigate(`/asmo/curriculum/lesson/${lesson.id}`)
+                            }}
+                            className={cn(
+                              'w-full gap-1.5 rounded-2xl font-black text-xs py-2.5 shadow-clay transition-transform active:scale-95 cursor-pointer justify-center',
+                              isCompleted
+                                ? 'bg-emerald-600 hover:bg-emerald-700 text-white'
+                                : 'bg-brand-600 hover:bg-brand-700 text-white',
+                            )}
+                          >
+                            <span>{isCompleted ? 'Ôn Tập Lại ➔' : 'Vào Học Ngay ➔'}</span>
+                            <ArrowRight className="size-3.5" />
+                          </Button>
+                        </div>
+                      </div>
+                    )
+                  }
+
+                  // ── THẺ BÀI HỌC DÀNH CHO THCS / THPT (CẤP 2, 3) ──
                   return (
                     <div
                       key={lesson.id}

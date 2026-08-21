@@ -300,12 +300,14 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).toContain('3. 🎮 Thực hành')
     expect(markup).toContain('4. 🏆 Thử tài')
 
-    // 3. Main Stage Visualizer (Apple drop)
-    expect(markup).toContain('Trọng Tâm Kiến Thức Bài Học')
+    // 3. Main Stage Visualizer for Elementary (Visual-First Canvas)
+    expect(markup).toContain('🐱 Mèo Mee: Bé hãy chạm vào hình ảnh để xem điều kỳ diệu nhé!')
     expect(markup).toContain('Giỏ A (Táo Đỏ):')
     expect(markup).toContain('Giỏ B (Táo Xanh):')
     expect(markup).toContain('quả táo tổng cộng')
-    expect(markup).toContain('🌟 Ghi Nhớ Nhanh:')
+    expect(markup).toContain('Bí Kíp Nhìn Hình:')
+    expect(markup).not.toContain('Trọng Tâm Kiến Thức Bài Học')
+    expect(markup).not.toContain('🌟 Ghi Nhớ Nhanh:')
 
     // 4. Streamlined Sidebar Assistant Mèo Mee (Checklist removed)
     expect(markup).toContain('Mee đang hỗ trợ: Con làm được! 🐾')
@@ -317,6 +319,27 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     // 5. Action Buttons
     expect(markup).toContain('🎓 Về bản đồ')
     expect(markup).toContain('Tiếp tục: Mẹo Mèo Mee')
+  })
+
+  it('renders AsmoCurriculumLessonPage for Secondary stage with formula theory card and key takeaways', () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        { initialEntries: ['/asmo/curriculum/lesson/s4-analog-clock'] },
+        createElement(
+          Routes,
+          null,
+          createElement(Route, {
+            path: '/asmo/curriculum/lesson/:lessonId',
+            element: createElement(AsmoCurriculumLessonPage),
+          }),
+        ),
+      ),
+    )
+
+    expect(markup).toContain('Trọng Tâm Kiến Thức Bài Học')
+    expect(markup).toContain('🌟 Ghi Nhớ Nhanh:')
+    expect(markup).toContain('Chỉnh Giờ:')
   })
 
   it('renders fallback error message when lessonId does not exist', () => {

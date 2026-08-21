@@ -188,6 +188,7 @@ export function AsmoCurriculumLessonPage() {
   const lesson = lessonData?.lesson
   const stage = lessonData?.stage
   const nextLesson = lessonData?.nextLesson
+  const isElementary = (stage?.stageNumber ?? 1) <= 3
 
   // ── Global & Local State ──
   const [progress, setProgress] = useState<AsmoLmsProgressState>(getLmsProgress())
@@ -568,25 +569,32 @@ export function AsmoCurriculumLessonPage() {
               PHASE 1: 📖 KHÁM PHÁ KHÁI NIỆM (QUAN SÁT & NHẬN DIỆN)
           ══════════════════════════════════════════════════════════════════ */}
           {phase === 'explore' && (
-            <div className="rounded-3xl border border-slate-200 shadow-clay bg-white p-5 sm:p-7 space-y-6 animate-fade-up">
-              {/* Theory Summary Header Card */}
-              <div className="rounded-2xl bg-gradient-to-r from-brand-50 via-white to-sky-50 border border-brand-200 p-5 space-y-2.5">
-                <div className="flex items-center gap-2 text-brand-600 font-extrabold text-xs uppercase tracking-wider">
-                  <Sparkles className="size-4 text-amber-500" />
-                  <span>Trọng Tâm Kiến Thức Bài Học</span>
+            <div className="rounded-3xl border border-slate-200 shadow-clay bg-white p-5 sm:p-7 space-y-5 animate-fade-up">
+              {/* Capsule Mèo Mee Visual-First Banner (Elementary Cấp 1) or Theory Card (Secondary / High School) */}
+              {isElementary ? (
+                <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-gradient-to-r from-amber-100 via-brand-50 to-pink-100 border-2 border-amber-300/80 shadow-xs text-xs sm:text-sm font-extrabold text-amber-950 animate-pop">
+                  <AikidCatCharacter pose="welcome" className="size-7 shrink-0 drop-shadow-xs" />
+                  <span>🐱 Mèo Mee: Bé hãy chạm vào hình ảnh để xem điều kỳ diệu nhé!</span>
                 </div>
-                <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
-                  <AsmoFormula text={lesson.theory.title} />
-                </h2>
-                <p className="text-xs sm:text-sm font-semibold text-slate-600 leading-relaxed">
-                  <AsmoFormula text={lesson.theory.summary} />
-                </p>
-                {lesson.theory.formulaLatex && (
-                  <div className="p-3 rounded-2xl bg-white border border-brand-200 text-center font-mono text-brand-800 text-sm sm:text-base shadow-2xs font-bold">
-                    <AsmoFormula text={`$$${lesson.theory.formulaLatex}$$`} />
+              ) : (
+                <div className="rounded-2xl bg-gradient-to-r from-brand-50 via-white to-sky-50 border border-brand-200 p-5 space-y-2.5">
+                  <div className="flex items-center gap-2 text-brand-600 font-extrabold text-xs uppercase tracking-wider">
+                    <Sparkles className="size-4 text-amber-500" />
+                    <span>Trọng Tâm Kiến Thức Bài Học</span>
                   </div>
-                )}
-              </div>
+                  <h2 className="text-lg sm:text-xl font-extrabold text-slate-900 leading-snug">
+                    <AsmoFormula text={lesson.theory.title} />
+                  </h2>
+                  <p className="text-xs sm:text-sm font-semibold text-slate-600 leading-relaxed">
+                    <AsmoFormula text={lesson.theory.summary} />
+                  </p>
+                  {lesson.theory.formulaLatex && (
+                    <div className="p-3 rounded-2xl bg-white border border-brand-200 text-center font-mono text-brand-800 text-sm sm:text-base shadow-2xs font-bold">
+                      <AsmoFormula text={`$$${lesson.theory.formulaLatex}$$`} />
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Dynamic Interactive Pedagogical Visualizer for Lesson */}
               <div className="rounded-3xl bg-slate-50 border-2 border-slate-200 p-5 sm:p-6 flex flex-col items-center justify-center space-y-4 min-h-[280px]">
@@ -1585,25 +1593,135 @@ export function AsmoCurriculumLessonPage() {
                   )}
               </div>
 
-              {/* Key Takeaways */}
-              <div className="rounded-2xl bg-brand-50/60 border border-brand-200 p-4 sm:p-5 space-y-2.5">
-                <span className="text-xs font-black text-brand-800 uppercase tracking-wider flex items-center gap-1.5">
-                  <Star className="size-4 text-amber-500 fill-amber-500" />
-                  <span>🌟 Ghi Nhớ Nhanh:</span>
-                </span>
-                <ul className="space-y-2 text-xs sm:text-sm font-semibold text-slate-700">
-                  {lesson.theory.keyTakeaways.map((takeaway, idx) => (
-                    <li key={`takeaway-${idx}`} className="flex items-start gap-2.5">
-                      <span className="size-5 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">
-                        ✓
+              {/* Đáy bài: Thẻ Bí Kíp Nhìn Hình 1 dòng ngắn (Elementary Cấp 1) hoặc Key Takeaways (Secondary / High) */}
+              {isElementary ? (
+                <div className="rounded-2xl bg-gradient-to-r from-amber-50 via-emerald-50 to-sky-50 border-2 border-emerald-300/80 p-3.5 sm:p-4 text-center shadow-xs">
+                  <span className="font-display font-extrabold text-xs sm:text-sm text-slate-800 flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap">
+                    <span className="text-amber-800 font-black flex items-center gap-1">
+                      <Sparkles className="size-4 text-amber-500" />
+                      <span>Bí Kíp Nhìn Hình:</span>
+                    </span>
+                    {lesson.visualType === 'apple_drop' && (
+                      <span className="text-rose-700 font-black">
+                        🍎 {applesA} quả đỏ + {applesB} quả xanh = {applesA + applesB} quả táo thơm ngon!
                       </span>
-                      <span>
-                        <AsmoFormula text={takeaway} />
+                    )}
+                    {lesson.visualType === 'balloon_pop' && (
+                      <span className="text-sky-700 font-black">
+                        🎈 10 quả − {poppedBalloons.length} quả nổ = {10 - poppedBalloons.length} quả bóng bay xinh xắn!
                       </span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
+                    )}
+                    {lesson.visualType === 'cake_tray' && (
+                      <span className="text-amber-700 font-black">
+                        🍰 {cakeRows} hàng × {cakeCols} cột = {cakeRows * cakeCols} chiếc bánh thơm ngon!
+                      </span>
+                    )}
+                    {(lesson.visualType === 'pizza_fraction' ||
+                      lesson.visualType === 'compare_fractions' ||
+                      lesson.visualType === 'fraction_add_sub' ||
+                      lesson.visualType === 'fraction_of_number') && (
+                      <span className="text-emerald-700 font-black">
+                        🍕 Phân số trực quan: {pizzaShaded}/{pizzaSlices} chiếc bánh pizza!
+                      </span>
+                    )}
+                    {(lesson.visualType === 'candy_division' || lesson.visualType === 'div_remainder') && (
+                      <span className="text-purple-700 font-black">
+                        🍬 {candyTotal} kẹo ÷ {candyPlates} đĩa = {Math.floor(candyTotal / candyPlates)} kẹo mỗi đĩa{candyTotal % candyPlates !== 0 ? ` (dư ${candyTotal % candyPlates} kẹo)` : ''}!
+                      </span>
+                    )}
+                    {lesson.visualType === 'make10' && (
+                      <span className="text-pink-700 font-black">
+                        🌈 Bạn thân tròn 10: 1+9, 2+8, 3+7, 4+6, 5+5 luôn bằng 10!
+                      </span>
+                    )}
+                    {lesson.visualType === 'times_table_25' && (
+                      <span className="text-emerald-700 font-black">
+                        🐸 {tableBase} × {tableMultiplier} = {tableBase * tableMultiplier} (Ếch nhảy {tableMultiplier} bước {tableBase} đơn vị)!
+                      </span>
+                    )}
+                    {lesson.visualType === 'times_table_69' && (
+                      <span className="text-indigo-700 font-black">
+                        ✨ 9 × {table9Factor} = {9 * table9Factor} (chục {table9Factor - 1} + đv {9 - (table9Factor - 1)} = 9)!
+                      </span>
+                    )}
+                    {lesson.visualType === 'column_add' && (
+                      <span className="text-rose-700 font-black">
+                        ➕ Cộng hàng đơn vị (8+7=15 viết 5 nhớ 1), cộng hàng chục (4+3+1=8) ➔ 85!
+                      </span>
+                    )}
+                    {lesson.visualType === 'column_sub' && (
+                      <span className="text-amber-700 font-black">
+                        ➖ Mượn 1 chục: 13 − 8 = 5 (viết 5), 6 bớt 1 còn 5: 5 − 2 = 3 (viết 3) ➔ 35!
+                      </span>
+                    )}
+                    {lesson.visualType === 'perimeter_area' && (
+                      <span className="text-teal-700 font-black">
+                        📐 Chu vi P = (4 + 3) × 2 = 14m · Diện tích S = 4 × 3 = 12m²!
+                      </span>
+                    )}
+                    {lesson.visualType === 'analog_clock' && (
+                      <span className="text-sky-700 font-black">
+                        ⏰ Đồng hồ: {clockHour} giờ {clockMinute < 10 ? `0${clockMinute}` : clockMinute} phút!
+                      </span>
+                    )}
+                    {lesson.visualType === 'balance_scale' && (
+                      <span className="text-teal-700 font-black">
+                        ⚖️ Cân thăng bằng: 1 Quả Dưa = 4 Quả Táo!
+                      </span>
+                    )}
+                    {lesson.visualType === 'cube_3d' && (
+                      <span className="text-indigo-700 font-black">
+                        🧊 Đếm theo tầng: 4 + 2 + 1 = 7 khối lập phương!
+                      </span>
+                    )}
+                    {lesson.visualType === 'matchstick' && (
+                      <span className="text-amber-700 font-black">
+                        🥢 Ô đầu 4 que, ô sau thêm 3 que ➔ 4 + 3 + 3 = 10 que diêm!
+                      </span>
+                    )}
+                    {lesson.visualType !== 'apple_drop' &&
+                      lesson.visualType !== 'balloon_pop' &&
+                      lesson.visualType !== 'cake_tray' &&
+                      lesson.visualType !== 'pizza_fraction' &&
+                      lesson.visualType !== 'compare_fractions' &&
+                      lesson.visualType !== 'fraction_add_sub' &&
+                      lesson.visualType !== 'fraction_of_number' &&
+                      lesson.visualType !== 'candy_division' &&
+                      lesson.visualType !== 'div_remainder' &&
+                      lesson.visualType !== 'make10' &&
+                      lesson.visualType !== 'times_table_25' &&
+                      lesson.visualType !== 'times_table_69' &&
+                      lesson.visualType !== 'column_add' &&
+                      lesson.visualType !== 'column_sub' &&
+                      lesson.visualType !== 'perimeter_area' &&
+                      lesson.visualType !== 'analog_clock' &&
+                      lesson.visualType !== 'balance_scale' &&
+                      lesson.visualType !== 'cube_3d' &&
+                      lesson.visualType !== 'matchstick' && (
+                        <span className="text-brand-700 font-black">{lesson.theory.title}</span>
+                      )}
+                  </span>
+                </div>
+              ) : (
+                <div className="rounded-2xl bg-brand-50/60 border border-brand-200 p-4 sm:p-5 space-y-2.5">
+                  <span className="text-xs font-black text-brand-800 uppercase tracking-wider flex items-center gap-1.5">
+                    <Star className="size-4 text-amber-500 fill-amber-500" />
+                    <span>🌟 Ghi Nhớ Nhanh:</span>
+                  </span>
+                  <ul className="space-y-2 text-xs sm:text-sm font-semibold text-slate-700">
+                    {lesson.theory.keyTakeaways.map((takeaway, idx) => (
+                      <li key={`takeaway-${idx}`} className="flex items-start gap-2.5">
+                        <span className="size-5 rounded-full bg-brand-500 text-white flex items-center justify-center text-xs font-black shrink-0 mt-0.5">
+                          ✓
+                        </span>
+                        <span>
+                          <AsmoFormula text={takeaway} />
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           )}
 
@@ -1611,60 +1729,86 @@ export function AsmoCurriculumLessonPage() {
               PHASE 2: 💡 MẸO MÈO MEE & BÍ KÍP (BÍ KÍP TÍNH NHANH)
           ══════════════════════════════════════════════════════════════════ */}
           {phase === 'tips' && (
-            <div className="rounded-3xl border border-slate-200 shadow-clay bg-white p-5 sm:p-7 space-y-6 animate-fade-up">
-              {/* Mee's Story Card */}
-              <div className="flex flex-col sm:flex-row items-center gap-5 bg-gradient-to-r from-amber-50 via-brand-50 to-purple-50 rounded-3xl border-2 border-amber-300 p-6 shadow-sm">
-                <div className="shrink-0 flex flex-col items-center">
-                  <AikidCatCharacter pose={lesson.meeTip.pose} className="size-28 sm:size-36 drop-shadow-md" />
-                  <span className="text-xs font-black text-amber-900 mt-2 bg-amber-200/80 px-3 py-0.5 rounded-full border border-amber-300">
-                    Trợ Giảng AI Mèo Mee
-                  </span>
+            isElementary ? (
+              <div className="rounded-3xl border-2 border-amber-300 shadow-clay bg-gradient-to-br from-amber-50 via-white to-pink-50 p-6 sm:p-8 space-y-6 text-center animate-fade-up">
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-amber-200/80 border border-amber-300 text-xs font-black text-amber-900 shadow-2xs">
+                  <span>✨</span>
+                  <span>Tranh Bí Kíp Mèo Mee</span>
+                  <span>✨</span>
                 </div>
 
-                <div className="space-y-3.5 text-center sm:text-left flex-1">
-                  <div className="bg-white/90 border border-amber-200 rounded-2xl p-4 shadow-2xs">
-                    <span className="text-xs font-black text-amber-800 block mb-1">
-                      🐱 Mèo Mee Kể Chuyện:
+                <div className="flex flex-col items-center justify-center gap-5">
+                  <AikidCatCharacter pose={lesson.meeTip.pose} className="size-32 sm:size-40 drop-shadow-md animate-bounce" />
+
+                  <div className="max-w-xl w-full bg-white/95 rounded-3xl border-2 border-amber-300 p-5 sm:p-6 shadow-clay space-y-3 text-center">
+                    <span className="text-xs font-black text-amber-800 uppercase tracking-wide block">
+                      🐱 Câu Thần Chú Mèo Mee:
                     </span>
-                    <p className="text-sm sm:text-base font-extrabold text-amber-950 italic leading-snug">
+                    <p className="text-base sm:text-xl font-black text-amber-950 italic leading-snug">
                       &quot;{lesson.meeTip.quote}&quot;
                     </p>
+                    <div className="bg-amber-100/70 rounded-2xl p-3 border border-amber-200 text-xs sm:text-sm font-extrabold text-amber-900">
+                      <AsmoFormula text={lesson.meeTip.storyAdvice} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="rounded-3xl border border-slate-200 shadow-clay bg-white p-5 sm:p-7 space-y-6 animate-fade-up">
+                {/* Mee's Story Card */}
+                <div className="flex flex-col sm:flex-row items-center gap-5 bg-gradient-to-r from-amber-50 via-brand-50 to-purple-50 rounded-3xl border-2 border-amber-300 p-6 shadow-sm">
+                  <div className="shrink-0 flex flex-col items-center">
+                    <AikidCatCharacter pose={lesson.meeTip.pose} className="size-28 sm:size-36 drop-shadow-md" />
+                    <span className="text-xs font-black text-amber-900 mt-2 bg-amber-200/80 px-3 py-0.5 rounded-full border border-amber-300">
+                      Trợ Giảng AI Mèo Mee
+                    </span>
                   </div>
 
-                  <div className="bg-brand-50/90 border border-brand-200 rounded-2xl p-4 space-y-1">
-                    <span className="text-xs font-black text-brand-700 block">
-                      💡 Câu Thần Chú Giải Nhanh:
+                  <div className="space-y-3.5 text-center sm:text-left flex-1">
+                    <div className="bg-white/90 border border-amber-200 rounded-2xl p-4 shadow-2xs">
+                      <span className="text-xs font-black text-amber-800 block mb-1">
+                        🐱 Mèo Mee Kể Chuyện:
+                      </span>
+                      <p className="text-sm sm:text-base font-extrabold text-amber-950 italic leading-snug">
+                        &quot;{lesson.meeTip.quote}&quot;
+                      </p>
+                    </div>
+
+                    <div className="bg-brand-50/90 border border-brand-200 rounded-2xl p-4 space-y-1">
+                      <span className="text-xs font-black text-brand-700 block">
+                        💡 Câu Thần Chú Giải Nhanh:
+                      </span>
+                      <p className="text-xs sm:text-sm font-bold text-brand-950 leading-relaxed">
+                        <AsmoFormula text={lesson.meeTip.storyAdvice} />
+                      </p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Fast Tips & Common Pitfalls Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
+                  <div className="rounded-2xl bg-sky-50 border border-sky-200 p-4 space-y-1.5">
+                    <span className="font-black text-sky-800 flex items-center gap-1.5">
+                      <Zap className="size-4 text-sky-600 fill-sky-600" />
+                      <span>⚡ Mẹo Nhẩm Nhanh Thần Tốc:</span>
                     </span>
-                    <p className="text-xs sm:text-sm font-bold text-brand-950 leading-relaxed">
-                      <AsmoFormula text={lesson.meeTip.storyAdvice} />
+                    <p className="text-slate-700 font-semibold leading-relaxed">
+                      Luôn nhóm các số tạo thành cặp tròn 10 hoặc tròn 100 trước khi cộng dồn để tiết kiệm thời gian.
+                    </p>
+                  </div>
+
+                  <div className="rounded-2xl bg-rose-50 border border-rose-200 p-4 space-y-1.5">
+                    <span className="font-black text-rose-800 flex items-center gap-1.5">
+                      <XCircle className="size-4 text-rose-600" />
+                      <span>⚠️ Lỗi Thường Gặp Cần Tránh:</span>
+                    </span>
+                    <p className="text-slate-700 font-semibold leading-relaxed">
+                      Quên cộng số nhớ ở hàng chục, hoặc nhầm lẫn giữa số bị trừ và số trừ trong phép tính có lời văn.
                     </p>
                   </div>
                 </div>
               </div>
-
-              {/* Fast Tips & Common Pitfalls Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
-                <div className="rounded-2xl bg-sky-50 border border-sky-200 p-4 space-y-1.5">
-                  <span className="font-black text-sky-800 flex items-center gap-1.5">
-                    <Zap className="size-4 text-sky-600 fill-sky-600" />
-                    <span>⚡ Mẹo Nhẩm Nhanh Thần Tốc:</span>
-                  </span>
-                  <p className="text-slate-700 font-semibold leading-relaxed">
-                    Luôn nhóm các số tạo thành cặp tròn 10 hoặc tròn 100 trước khi cộng dồn để tiết kiệm thời gian.
-                  </p>
-                </div>
-
-                <div className="rounded-2xl bg-rose-50 border border-rose-200 p-4 space-y-1.5">
-                  <span className="font-black text-rose-800 flex items-center gap-1.5">
-                    <XCircle className="size-4 text-rose-600" />
-                    <span>⚠️ Lỗi Thường Gặp Cần Tránh:</span>
-                  </span>
-                  <p className="text-slate-700 font-semibold leading-relaxed">
-                    Quên cộng số nhớ ở hàng chục, hoặc nhầm lẫn giữa số bị trừ và số trừ trong phép tính có lời văn.
-                  </p>
-                </div>
-              </div>
-            </div>
+            )
           )}
 
           {/* ══════════════════════════════════════════════════════════════════
@@ -2016,23 +2160,32 @@ export function AsmoCurriculumLessonPage() {
           )}
         </div>
 
-        {/* 3. MỤC TIÊU BÀI HỌC (3 gạch đầu dòng gọn gàng) */}
+        {/* 3. MỤC TIÊU BÀI HỌC (Visual Milestone cho Cấp 1, Gạch đầu dòng cho Cấp 2-3) */}
         <section className="border-t border-slate-100 pt-3" aria-labelledby="asmo-goals-title">
           <h3 id="asmo-goals-title" className="font-display text-xs sm:text-sm font-extrabold text-slate-800">
             🎯 Mục tiêu bài học
           </h3>
-          <ul className="mt-2 space-y-1.5">
-            {lesson.theory.keyTakeaways.slice(0, 3).map((goal, idx) => (
-              <li key={`goal-${idx}`} className="flex items-start gap-2 text-xs font-semibold text-slate-600">
-                <span className="mt-0.5 size-4 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-[9px] font-black shrink-0">
-                  ★
-                </span>
-                <span className="leading-snug">
-                  <AsmoFormula text={goal} />
-                </span>
-              </li>
-            ))}
-          </ul>
+          {isElementary ? (
+            <div className="mt-2 rounded-2xl bg-amber-50/90 border-2 border-amber-200 p-2.5 flex items-center gap-2.5 shadow-2xs">
+              <span className="text-2xl shrink-0 select-none">🌟</span>
+              <span className="text-xs font-black text-amber-950 leading-snug">
+                Khám phá hình ảnh trực quan, rinh trọn 3 Sao &amp; +{lesson.xpReward} XP cùng Mèo Mee!
+              </span>
+            </div>
+          ) : (
+            <ul className="mt-2 space-y-1.5">
+              {lesson.theory.keyTakeaways.slice(0, 3).map((goal, idx) => (
+                <li key={`goal-${idx}`} className="flex items-start gap-2 text-xs font-semibold text-slate-600">
+                  <span className="mt-0.5 size-4 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-[9px] font-black shrink-0">
+                    ★
+                  </span>
+                  <span className="leading-snug">
+                    <AsmoFormula text={goal} />
+                  </span>
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
 
         {/* 4. PHẦN THƯỞNG TRẠM (+XP & Huy hiệu) */}
