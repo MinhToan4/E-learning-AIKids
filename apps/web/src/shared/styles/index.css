@@ -278,10 +278,9 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     flex-direction: column;
     padding: clamp(1.25rem, 3cqw, 2rem);
     color: white;
-    /* Several exported chapter artworks include a 20–60px white capture band at
-       the top. Overscan vertically and anchor the artwork to hide that band. */
-    background-position: center, center bottom;
-    background-size: 100% 100%, auto calc(100% + 4rem);
+    background-position: center;
+    background-size: cover;
+    background-repeat: no-repeat;
   }
 
   .storybook-page-right {

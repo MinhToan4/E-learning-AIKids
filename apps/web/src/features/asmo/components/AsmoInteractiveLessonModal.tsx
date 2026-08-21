@@ -27,6 +27,7 @@ import {
   ASMO_LMS_STAGES,
 } from '../data/asmo-curriculum-lms'
 import { AsmoFormula } from './AsmoFormula'
+import { AsmoInteractiveAppleTreeCanvas } from './AsmoInteractiveAppleTreeCanvas'
 import { AsmoInteractivePracticeWorkspace } from './AsmoInteractivePracticeWorkspace'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { renderClockSvg, renderBalanceScaleSvg, renderMatchstickFigureSvg } from './AsmoDiagramEngine'
@@ -283,88 +284,26 @@ export function AsmoInteractiveLessonModal({
               <div className="rounded-3xl bg-slate-950 border border-slate-700/80 p-5 flex flex-col items-center justify-center space-y-4 min-h-[260px] shadow-inner">
                 {/* 1. Apple Drop */}
                 {lesson.visualType === 'apple_drop' && (
-                  <div className="w-full max-w-md space-y-4">
-                    <div className="grid grid-cols-2 gap-3">
-                      {/* Basket A: Red Apples */}
-                      <div className="bg-rose-950/40 border-2 border-rose-500/50 rounded-2xl p-3 flex flex-col items-center space-y-2">
-                        <div className="flex items-center justify-between w-full">
-                          <span className="text-xs font-bold text-rose-300">
-                            Giỏ A (Táo Đỏ):
-                          </span>
-                          <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-rose-500/40 shadow-2xs">
-                            <button
-                              type="button"
-                              aria-label="Bớt táo đỏ giỏ A"
-                              disabled={applesA <= 0}
-                              onClick={() => setApplesA((prev) => (prev > 0 ? prev - 1 : 0))}
-                              className="size-8 rounded-xl bg-rose-900/60 hover:bg-rose-800 text-rose-200 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
-                            >
-                              <Minus className="size-4 stroke-[3]" />
-                            </button>
-                            <span className="w-6 text-center font-display font-black text-sm text-rose-100 select-none">
-                              {applesA}
-                            </span>
-                            <button
-                              type="button"
-                              aria-label="Thêm táo đỏ giỏ A"
-                              disabled={applesA >= 10}
-                              onClick={() => setApplesA((prev) => (prev < 10 ? prev + 1 : 10))}
-                              className="size-8 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
-                            >
-                              <Plus className="size-4 stroke-[3]" />
-                            </button>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-center gap-1.5 flex-wrap min-h-12">
-                          {Array.from({ length: applesA }).map((_, i) => (
-                            <span key={`apple-a-${i}`} className="text-2xl animate-in zoom-in-50 select-none">🍎</span>
-                          ))}
-                        </div>
-                      </div>
-
-                      {/* Basket B: Green Apples */}
-                      <div className="bg-emerald-950/40 border-2 border-emerald-500/50 rounded-2xl p-3 flex flex-col items-center space-y-2">
-                        <div className="flex items-center justify-between w-full">
-                          <span className="text-xs font-bold text-emerald-300">
-                            Giỏ B (Táo Xanh):
-                          </span>
-                          <div className="flex items-center gap-1.5 bg-white/10 p-1 rounded-2xl border border-emerald-500/40 shadow-2xs">
-                            <button
-                              type="button"
-                              aria-label="Bớt táo xanh giỏ B"
-                              disabled={applesB <= 0}
-                              onClick={() => setApplesB((prev) => (prev > 0 ? prev - 1 : 0))}
-                              className="size-8 rounded-xl bg-emerald-900/60 hover:bg-emerald-800 text-emerald-200 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
-                            >
-                              <Minus className="size-4 stroke-[3]" />
-                            </button>
-                            <span className="w-6 text-center font-display font-black text-sm text-emerald-100 select-none">
-                              {applesB}
-                            </span>
-                            <button
-                              type="button"
-                              aria-label="Thêm táo xanh giỏ B"
-                              disabled={applesB >= 10}
-                              onClick={() => setApplesB((prev) => (prev < 10 ? prev + 1 : 10))}
-                              className="size-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
-                            >
-                              <Plus className="size-4 stroke-[3]" />
-                            </button>
-                          </div>
-                        </div>
-                        <div className="flex items-center justify-center gap-1.5 flex-wrap min-h-12">
-                          {Array.from({ length: applesB }).map((_, i) => (
-                            <span key={`apple-b-${i}`} className="text-2xl animate-in zoom-in-50 select-none">🍏</span>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="bg-indigo-900/60 border border-indigo-400/40 rounded-2xl p-3 text-center">
-                      <span className="font-display font-extrabold text-amber-300 text-lg">
-                        {applesA} quả đỏ + {applesB} quả xanh = {applesA + applesB} quả táo tổng cộng
-                      </span>
-                    </div>
+                  <div className="w-full max-w-lg">
+                    <AsmoInteractiveAppleTreeCanvas
+                      applesA={applesA}
+                      applesB={applesB}
+                      onAddApple={(basket) => {
+                        if (basket === 'A') setApplesA((prev) => (prev < 10 ? prev + 1 : 10))
+                        else setApplesB((prev) => (prev < 10 ? prev + 1 : 10))
+                      }}
+                      onSubApple={(basket) => {
+                        if (basket === 'A') setApplesA((prev) => (prev > 0 ? prev - 1 : 0))
+                        else setApplesB((prev) => (prev > 0 ? prev - 1 : 0))
+                      }}
+                      onReset={() => {
+                        setApplesA(0)
+                        setApplesB(0)
+                      }}
+                      title="Vườn Cây Táo Mẹ: Thao Tác Kéo Thả &amp; Nhảy Số"
+                      instruction="Bé hãy chạm vào quả táo trên cây hoặc kéo thả vào giỏ tương ứng nhé!"
+                      meeQuote="🐱 Mèo Mee: Bé hãy chạm vào quả táo trên cây hoặc kéo thả vào giỏ nhé!"
+                    />
                   </div>
                 )}
 

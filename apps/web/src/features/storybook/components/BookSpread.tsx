@@ -94,7 +94,7 @@ export function BookSpread({
           className={`storybook-page storybook-page-left ${mobilePage === 'chapter' ? '' : 'storybook-mobile-hidden'}`}
           style={{
             backgroundImage: safeStorybookAssetUrl(page.leftBackgroundUrl)
-              ? `linear-gradient(180deg, rgba(30,39,64,.3) 0%, rgba(30,39,64,.04) 44%, rgba(30,39,64,.82) 100%), url("${safeStorybookAssetUrl(page.leftBackgroundUrl)}")`
+              ? `url("${safeStorybookAssetUrl(page.leftBackgroundUrl)}")`
               : `linear-gradient(145deg, ${page.colors[0]}, ${page.colors[1]})`,
           }}
         >

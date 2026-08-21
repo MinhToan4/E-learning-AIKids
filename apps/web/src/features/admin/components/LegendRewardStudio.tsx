@@ -1675,13 +1675,21 @@ export function LegendRewardStudio() {
                     <textarea required className={`${fieldClass} min-h-36 py-3`} placeholder="Đoạn dẫn truyện hiển thị trên trang trái…" value={form.chapterStory} onChange={(event) => setForm({ ...form, chapterStory: event.target.value })} />
                   </label>
                   <label className="block text-sm font-bold">Reward hoàn thành chapter
-                    <select required className={fieldClass} value={form.chapterRewardId} onChange={(event) => setForm({ ...form, chapterRewardId: event.target.value })}>
-                      <option value="">Chọn reward đã publish</option>
-                      {items.filter((item) => item.contentType === 'reward' && item.status === 'published').map((item) => (
-                        <option key={item.id} value={item.code}>{item.name} · {item.code}</option>
+                    <select className={fieldClass} value={form.chapterRewardId} onChange={(event) => setForm({ ...form, chapterRewardId: event.target.value })}>
+                      <option value="">Không gắn reward (Tùy chọn)</option>
+                      {form.chapterRewardId && !items.some((item) => item.contentType === 'reward' && item.code === form.chapterRewardId) && (
+                        <option value={form.chapterRewardId}>{form.chapterRewardId} (Hiện tại)</option>
+                      )}
+                      {(items.some((item) => item.contentType === 'reward')
+                        ? items.filter((item) => item.contentType === 'reward')
+                        : legacyRewardStudioItems([])
+                      ).map((item) => (
+                        <option key={item.id} value={item.code}>
+                          {item.name} · {item.code}{item.status !== 'published' ? ` (${item.status})` : ''}
+                        </option>
                       ))}
                     </select>
-                    <span className="mt-1 block text-[10px] text-muted">Boss sticker sẽ cấp reward này sau khi đủ 8 sticker thường.</span>
+                    <span className="mt-1 block text-[10px] text-muted">Boss sticker sẽ cấp reward này sau khi đủ 8 sticker thường. Không bắt buộc nếu chapter chỉ dùng sticker S9.</span>
                   </label>
                   <div id="chapter-editor-stickers" className="scroll-mt-6">
                     <div className="flex flex-wrap items-end justify-between gap-2">

@@ -5,7 +5,7 @@ const assetsDir = resolve(import.meta.dirname, '../dist/assets')
 const files = readdirSync(assetsDir)
 const budgets = [
   { pattern: /^AdminPage-.*\.js$/, maxKb: 90 },
-  { pattern: /^LegendRewardStudio-.*\.js$/, maxKb: 150 },
+  { pattern: /^LegendRewardStudio-.*\.js$/, maxKb: 160 },
   { pattern: /^index-.*\.js$/, maxKb: 260 },
 ]
 
