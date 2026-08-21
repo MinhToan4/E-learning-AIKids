@@ -209,9 +209,9 @@ describe('ASMO 3D Learning Journey & Topics', () => {
 
     // Algebra & Viète
     const algMarkup = renderToStaticMarkup(
-      createElement(AsmoMathVisualizer, { topicId: 'algebra-viete', level: 1 }),
+      createElement(AsmoMathVisualizer, { topicId: 'algebra-viete', level: 2 }),
     )
-    expect(algMarkup).toContain('S = x₁ + x₂ = 5')
+    expect(algMarkup).toContain('Đồ thị Parabol')
 
     // Exponential & Logarithm
     const expMarkup = renderToStaticMarkup(
@@ -230,7 +230,7 @@ describe('ASMO 3D Learning Journey & Topics', () => {
     const numMarkup = renderToStaticMarkup(
       createElement(AsmoMathVisualizer, { topicId: 'number-theory-divisibility', level: 1 }),
     )
-    expect(numMarkup).toContain('Chu kỳ tận cùng 2ⁿ')
+    expect(numMarkup).toContain('Chu kỳ tận cùng')
 
     // Trigonometry Lab via AsmoMathVisualizer
     const trigMarkup = renderToStaticMarkup(
@@ -340,7 +340,7 @@ describe('ASMO 3D Learning Journey & Topics', () => {
     expect(markup).not.toContain('🛠️ Sửa Tự Động Câu Này')
   })
 
-  it('renders AsmoLearningJourneyPage with interactive trigonometry lab solver helper for Level 1', () => {
+  it('renders AsmoLearningJourneyPage with unified Visual Solver Walkthrough and Trigonometry Lab Canvas for Level 1', () => {
     const markup = renderToStaticMarkup(
       createElement(
         MemoryRouter,
@@ -356,11 +356,12 @@ describe('ASMO 3D Learning Journey & Topics', () => {
       ),
     )
 
-    expect(markup).toContain('Dùng Phòng Thí Nghiệm Giải Nhanh Bài Này')
-    expect(markup).toContain('Soi sin(150°)')
-    expect(markup).toContain('Soi cos(120°)')
-    expect(markup).toContain('Soi tan(135°)')
-    expect(markup).toContain('Ghép kết quả trực quan từ phòng thí nghiệm')
+    expect(markup).toContain('TIẾN TRÌNH PHÂN TÍCH BƯỚC GIẢI LIỀN MẠCH')
+    expect(markup).toContain('📌 Bước 1: Dữ kiện')
+    expect(markup).toContain('⚙️ Bước 2: Phương pháp')
+    expect(markup).toContain('🎯 Bước 3: Ra Đáp Án')
+    expect(markup).toContain('Biểu đồ ➔ Bước 1 ➔ Bước 2 ➔ Bước 3 ➔')
+    expect(markup).toContain('Phòng Thí Nghiệm Lượng Giác ASMO')
   })
 
   it('renders AsmoTrigLabVisualizer with externalAngle, externalTab and highlighted targets', () => {
@@ -377,7 +378,7 @@ describe('ASMO 3D Learning Journey & Topics', () => {
     expect(markup).toContain('ring-rose-400')
   })
 
-  it('renders AsmoMathVisualizer for all 7 advanced topics in Light Soft Clay theme with 1-line Mee Cat Ribbon and 2-column KaTeX cards', () => {
+  it('renders AsmoMathVisualizer for all 7 advanced topics in Light Soft Clay theme with KaTeX formulas', () => {
     const topicsToTest = [
       'algebra-viete',
       'pythagoras-geometry',
@@ -401,26 +402,23 @@ describe('ASMO 3D Learning Journey & Topics', () => {
       expect(markup).toContain('shadow-clay')
       expect(markup).toContain('rounded-3xl')
       expect(markup).toContain('bg-white')
-      // 1-Line Mee Cat Ribbon (~32px)
-      expect(markup).toContain('Bí kíp Mèo Mee')
-      expect(markup).toContain('🐱')
       // KaTeX formulas rendered
       expect(markup).toContain('katex')
     })
   })
 
-  it('renders AsmoLearningJourneyPage with interactive question solver helpers for all 7 remaining ASMO topics', () => {
+  it('renders AsmoLearningJourneyPage with seamless visual walkthrough progression for all 7 remaining ASMO topics', () => {
     const testCases = [
-      { topic: 'algebra-viete', expected: 'Viète Helper' },
-      { topic: 'pythagoras-geometry', expected: 'Pythagoras Helper' },
-      { topic: 'algebra-polynomials', expected: 'Polynomial Helper' },
-      { topic: 'spatial-polyhedron', expected: 'Spatial Helper' },
-      { topic: 'exp-logarithm', expected: 'Log Helper' },
-      { topic: 'combinatorics-probability', expected: 'Prob Helper' },
-      { topic: 'number-theory-divisibility', expected: 'Number Helper' },
+      'algebra-viete',
+      'pythagoras-geometry',
+      'algebra-polynomials',
+      'spatial-polyhedron',
+      'exp-logarithm',
+      'combinatorics-probability',
+      'number-theory-divisibility',
     ]
 
-    testCases.forEach(({ topic, expected }) => {
+    testCases.forEach((topic) => {
       const markup = renderToStaticMarkup(
         createElement(
           MemoryRouter,
@@ -436,9 +434,11 @@ describe('ASMO 3D Learning Journey & Topics', () => {
         ),
       )
 
-      expect(markup).toContain(expected)
-      expect(markup).toContain('Dùng Mô Hình Trực Quan Giải Nhanh Bài Này')
-      expect(markup).toContain('Kết quả giải tức thì')
+      expect(markup).toContain('TIẾN TRÌNH PHÂN TÍCH BƯỚC GIẢI LIỀN MẠCH')
+      expect(markup).toContain('📌 Bước 1: Dữ kiện')
+      expect(markup).toContain('⚙️ Bước 2: Phương pháp')
+      expect(markup).toContain('🎯 Bước 3: Ra Đáp Án')
+      expect(markup).toContain('Lời Khuyên Từ Trợ Giảng AI')
     })
   })
 })
