@@ -112,7 +112,7 @@ describe('ASMO 5 Adventure Islands & Winding Trail Stations', () => {
     expect(markup5).toContain('Rương Cúp Vàng Olympic Tối Thượng')
   })
 
-  it('renders AsmoHubPage with all new adventure island filters and visual components', () => {
+  it('renders AsmoHubPage with unified Master Design System AsmoIslandWorldMap and 5 Island tabs', () => {
     const markup = renderToStaticMarkup(
       createElement(
         MemoryRouter,
@@ -121,18 +121,24 @@ describe('ASMO 5 Adventure Islands & Winding Trail Stations', () => {
       ),
     )
 
-    // Verify 5 Segmentation Filters
-    expect(markup).toContain('🎯 Theo Lớp Đang Chọn')
-    expect(markup).toContain('🎒 Tiểu Học (Đảo 1, 2, 3)')
-    expect(markup).toContain('🏫 THCS (Đảo 3, 4, 5)')
-    expect(markup).toContain('🎓 THPT (12 Chuyên Đề 3D)')
-    expect(markup).toContain('🗺️ Toàn Cảnh 5 Vùng Đảo')
+    // Verify 5 Island Tabs
+    expect(markup).toContain('Đảo 1: Táo Đỏ')
+    expect(markup).toContain('Đảo 2: Bánh Ngọt')
+    expect(markup).toContain('Đảo 3: Pizza')
+    expect(markup).toContain('Đảo 4: Đồng Hồ')
+    expect(markup).toContain('Đảo 5: 3D Không Gian')
+    expect(markup).toContain('Toàn Cảnh 5 Vùng Đảo')
 
-    // Verify Island elements on Hub Page
+    // Verify Master Design System Elements on Hub Page
     expect(markup).toContain('5 Vùng Đảo Diệu Kỳ')
-    expect(markup).toContain('Đảo Táo Đỏ &amp; Rừng Phép Cộng Trừ')
-    expect(markup).toContain('Đặt Chân Lên Đảo &amp; Khám Phá Trạm ➔')
-    expect(markup).toContain('Vào Học Ngay ➔')
+    expect(markup).toContain('course-map-hero')
+    expect(markup).toContain('course-map-ribbon')
+    expect(markup).toContain('course-station-map')
+    expect(markup).toContain('course-game-path')
+    expect(markup).toContain('quest-node')
+    expect(markup).toContain('Cùng Mee chinh phục Trạm 1 nhé! 🐾')
+    expect(markup).toContain('Rương Táo Vàng Phép Thuật')
+    expect(markup).toContain('Bắt đầu học')
   })
 
   it('validates all station metadata icons and labels across all 5 stages', () => {

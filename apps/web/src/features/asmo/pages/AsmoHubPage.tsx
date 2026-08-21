@@ -35,7 +35,7 @@ import { ASMO_JOURNEY_TOPICS, type AsmoJourneyTopic } from '../data/asmo-journey
 import { listAsmoExams } from '@/shared/lib/asmo-api'
 import type { AsmoExam, AsmoGrade, AsmoSubject } from '../types'
 import { AsmoMeeTutor } from '../components/AsmoMeeTutor'
-import { AsmoAdventureIslandCard } from '../components/AsmoAdventureIslandCard'
+import { AsmoIslandWorldMap } from '../components/AsmoIslandWorldMap'
 import { AsmoFormula } from '../components/AsmoFormula'
 import { AsmoExamAuditModal } from '../components/AsmoExamAuditModal'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -43,6 +43,14 @@ import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
 const AVAILABLE_YEARS: Array<number | 'all'> = ['all', 2023, 2022, 2021, 2020, 2018, 2016]
+
+export function getStageIdForGrade(grade: AsmoGrade): string {
+  if (grade <= 2) return 'stage-1'
+  if (grade === 3) return 'stage-2'
+  if (grade <= 5) return 'stage-3'
+  if (grade <= 8) return 'stage-4'
+  return 'stage-5'
+}
 
 export const ELEMENTARY_LESSON_SHORT_TITLES: Record<string, { shortTitle: string; icon: string }> = {
   's1-apples': { shortTitle: '🍎 Thả Táo Gộp 10', icon: '🍎' },
@@ -62,8 +70,6 @@ export const ELEMENTARY_LESSON_SHORT_TITLES: Record<string, { shortTitle: string
   's3-perimeter-area': { shortTitle: '📐 Chu Vi & Diện Tích', icon: '📐' },
 }
 
-type StageFilterTab = 'auto' | 'primary' | 'secondary' | 'high' | 'all' | string
-
 interface SubjectFilterState {
   grade: AsmoGrade
   year: number | 'all'
@@ -79,8 +85,8 @@ export function AsmoHubPage() {
   const [selectedGrade, setSelectedGrade] = useState<AsmoGrade>(1)
   const [selectedYear, setSelectedYear] = useState<number | 'all'>('all')
 
-  // Stage filter tab in LMS Academy section
-  const [stageFilterTab, setStageFilterTab] = useState<StageFilterTab>('auto')
+  // Selected LMS Stage ID (auto synced with selected grade: 1-2 -> stage-1, 3 -> stage-2, 4-5 -> stage-3, 6-8 -> stage-4, 9-12 -> stage-5)
+  const [selectedStageId, setSelectedStageId] = useState<string>(() => getStageIdForGrade(1))
 
   // Per-card dropdown filter state
   const [subjectFilters, setSubjectFilters] = useState<Record<AsmoSubject, SubjectFilterState>>({
@@ -144,6 +150,7 @@ export function AsmoHubPage() {
     }))
     if (selectedSubject === subject) {
       setSelectedGrade(grade)
+      setSelectedStageId(getStageIdForGrade(grade))
     }
   }
 
@@ -170,7 +177,7 @@ export function AsmoHubPage() {
     const targetGrade = subjectFilters[subject].grade
     setSelectedSubject(subject)
     setSelectedGrade(targetGrade)
-    setStageFilterTab('auto')
+    setSelectedStageId(getStageIdForGrade(targetGrade))
     scrollToSection(lmsCurriculumRef)
   }
 
@@ -184,62 +191,13 @@ export function AsmoHubPage() {
     scrollToSection(examArenaRef)
   }
 
-  // Filter LMS Stages according to selected tier & tab
-  const displayedStages = useMemo(() => {
-    const effectiveTier = stageFilterTab === 'auto' ? currentTier : stageFilterTab
-
-    if (stageFilterTab === 'auto') {
-      if (selectedGrade <= 2) {
-        return ASMO_LMS_STAGES.filter((s) => s.stageNumber <= 2)
-      }
-      if (selectedGrade === 3) {
-        return ASMO_LMS_STAGES.filter((s) => s.stageNumber >= 2 && s.stageNumber <= 4)
-      }
-      if (selectedGrade <= 5) {
-        return ASMO_LMS_STAGES.filter((s) => s.stageNumber >= 3 && s.stageNumber <= 4)
-      }
-      if (selectedGrade <= 9) {
-        return ASMO_LMS_STAGES.filter((s) => s.stageNumber >= 3)
-      }
-      return []
-    }
-
-    if (effectiveTier === 'primary') {
-      // Tiểu học: Đảo 1, 2, 3
-      return ASMO_LMS_STAGES.filter((s) => s.stageNumber <= 3)
-    }
-
-    if (effectiveTier === 'secondary') {
-      // THCS: Đảo 3, 4, 5
-      return ASMO_LMS_STAGES.filter((s) => s.stageNumber >= 3)
-    }
-
-    if (effectiveTier === 'high') {
-      // THPT: 12 Chuyên Đề Olympic
-      return []
-    }
-
-    if (effectiveTier === 'all') {
-      return ASMO_LMS_STAGES
-    }
-
-    // Specific stage selected by ID
-    const singleStage = ASMO_LMS_STAGES.find((s) => s.id === stageFilterTab)
-    if (singleStage) {
-      return [singleStage]
-    }
-
-    return ASMO_LMS_STAGES
-  }, [currentTier, stageFilterTab, selectedGrade])
-
-  // Filter High School Topics (12 Chuyên Đề Olympic)
+  // High School Topics for Grades 10-12
   const highSchoolTopics = useMemo(() => {
-    const effectiveTier = stageFilterTab === 'auto' ? currentTier : stageFilterTab
-    if (effectiveTier === 'high' || stageFilterTab === 'high' || stageFilterTab === 'all') {
+    if (selectedGrade >= 10) {
       return ASMO_JOURNEY_TOPICS.filter((t) => t.gradeTier === 'high' || t.gradeTier === 'secondary')
     }
     return []
-  }, [currentTier, stageFilterTab])
+  }, [selectedGrade])
 
   // LMS metrics
   const totalCompletedLessons = useMemo(() => {
@@ -833,151 +791,73 @@ export function AsmoHubPage() {
           </div>
         </div>
 
-        {/* Bộ lọc Chặng Học / Khối Lớp */}
-        <div className="flex items-center gap-2 flex-wrap bg-slate-50/80 p-2 rounded-2xl border border-slate-200">
-          <span className="text-xs font-extrabold text-slate-500 px-2 flex items-center gap-1">
-            <School className="size-3.5 text-slate-600" />
-            <span>Phân đoạn:</span>
-          </span>
+        {/* ── BẢN ĐỒ CÁC TRẠM CHUẨN SSOT MASTER DESIGN SYSTEM CỦA HÀNH TRÌNH ── */}
+        <AsmoIslandWorldMap
+          selectedStageId={selectedStageId}
+          onSelectStage={setSelectedStageId}
+          progress={lmsProgress}
+          onOpenLesson={(lesson) => navigate(`/asmo/curriculum/lesson/${lesson.id}`)}
+        />
 
-          <button
-            type="button"
-            onClick={() => setStageFilterTab('auto')}
-            className={cn(
-              'rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer border',
-              stageFilterTab === 'auto'
-                ? 'bg-brand-600 text-white border-brand-600 shadow-xs'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100',
-            )}
-          >
-            🎯 Theo Lớp Đang Chọn ({currentGradeMeta?.label || `Lớp ${selectedGrade}`})
-          </button>
+        {/* Nếu chọn THPT (Khối 10 – 12), hiển thị 12 Chuyên Đề Olympic */}
+        {highSchoolTopics.length > 0 && (
+          <div className="rounded-3xl border-2 border-purple-200 bg-purple-50/40 p-5 sm:p-6 shadow-xs space-y-4">
+            <div className="flex items-center justify-between gap-3 pb-3 border-b border-purple-200/60 flex-wrap">
+              <div className="flex items-center gap-3">
+                <div className="flex size-12 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-2xs text-2xl shrink-0">
+                  🎓
+                </div>
+                <div>
+                  <span className="rounded-md bg-purple-200 text-purple-900 font-black text-[10px] px-2 py-0.5 uppercase">
+                    Chuyên Đề Chuyên Sâu THPT
+                  </span>
+                  <h3 className="font-display text-base sm:text-lg font-black text-slate-900 mt-0.5">
+                    12 Chuyên Đề Olympic Toán Quốc Tế ASMO
+                  </h3>
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => navigate('/asmo/journey')}
+                className="rounded-xl text-xs font-bold py-1.5 px-3 bg-white text-purple-800 border border-purple-200 hover:bg-purple-100"
+              >
+                <span>Xem Chi Tiết 12 Chuyên Đề ➔</span>
+              </Button>
+            </div>
 
-          <button
-            type="button"
-            onClick={() => setStageFilterTab('primary')}
-            className={cn(
-              'rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer border',
-              stageFilterTab === 'primary'
-                ? 'bg-emerald-600 text-white border-emerald-600 shadow-xs'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100',
-            )}
-          >
-            🎒 Tiểu Học (Đảo 1, 2, 3)
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setStageFilterTab('secondary')}
-            className={cn(
-              'rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer border',
-              stageFilterTab === 'secondary'
-                ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100',
-            )}
-          >
-            🏫 THCS (Đảo 3, 4, 5)
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setStageFilterTab('high')}
-            className={cn(
-              'rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer border',
-              stageFilterTab === 'high'
-                ? 'bg-purple-600 text-white border-purple-600 shadow-xs'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100',
-            )}
-          >
-            🎓 THPT (12 Chuyên Đề 3D)
-          </button>
-
-          <button
-            type="button"
-            onClick={() => setStageFilterTab('all')}
-            className={cn(
-              'rounded-xl px-3 py-1.5 text-xs font-bold transition-all cursor-pointer border sm:ml-auto',
-              stageFilterTab === 'all'
-                ? 'bg-slate-800 text-white border-slate-800 shadow-xs'
-                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-100',
-            )}
-          >
-            🗺️ Toàn Cảnh 5 Vùng Đảo
-          </button>
-        </div>
-
-        {/* BỘ 5 CARD VÙNG ĐẢO PHIÊU LƯU SỐNG ĐỘNG (5 ADVENTURE ISLAND VISUAL CARDS) */}
-        <div className="space-y-6">
-          {displayedStages.map((stage) => (
-            <AsmoAdventureIslandCard
-              key={stage.id}
-              stage={stage}
-              progress={lmsProgress}
-              onSelectStage={(stageId) => navigate(`/asmo/curriculum?stage=${stageId}`)}
-              onOpenLesson={(lessonId) => navigate(`/asmo/curriculum/lesson/${lessonId}`)}
-            />
-          ))}
-
-          {/* Nếu chọn THPT (Khối 10 – 12) hoặc hiển thị toàn cảnh, hiển thị 12 Chuyên Đề Olympic */}
-          {highSchoolTopics.length > 0 && (
-            <div className="rounded-3xl border-2 border-purple-200 bg-purple-50/40 p-5 sm:p-6 shadow-xs space-y-4">
-              <div className="flex items-center justify-between gap-3 pb-3 border-b border-purple-200/60 flex-wrap">
-                <div className="flex items-center gap-3">
-                  <div className="flex size-12 items-center justify-center rounded-2xl bg-purple-600 text-white shadow-2xs text-2xl shrink-0">
-                    🎓
-                  </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {highSchoolTopics.map((topic) => (
+                <div
+                  key={topic.id}
+                  className="flex flex-col justify-between rounded-2xl border-2 border-purple-200/80 bg-white p-4 transition-all hover:border-purple-400 hover:shadow-md"
+                >
                   <div>
-                    <span className="rounded-md bg-purple-200 text-purple-900 font-black text-[10px] px-2 py-0.5 uppercase">
-                      Chuyên Đề Chuyên Sâu THPT
-                    </span>
-                    <h3 className="font-display text-base sm:text-lg font-black text-slate-900 mt-0.5">
-                      12 Chuyên Đề Olympic Toán Quốc Tế ASMO
-                    </h3>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-xl">{topic.icon}</span>
+                      <span className="rounded-md bg-purple-100 text-purple-800 text-[10px] font-black px-2 py-0.5">
+                        {topic.topicCode}
+                      </span>
+                    </div>
+                    <AsmoFormula text={topic.title} className="font-bold text-sm text-slate-900 line-clamp-2" />
+                    <p className="text-xs text-slate-600 mt-1 line-clamp-2">{topic.subtitle}</p>
+                  </div>
+
+                  <div className="mt-4 pt-3 border-t border-purple-100">
+                    <Button
+                      type="button"
+                      variant="primary"
+                      onClick={() => navigate(`/asmo/journey?topic=${topic.id}`)}
+                      className="w-full gap-1 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs py-2 shadow-xs cursor-pointer justify-center"
+                    >
+                      <span>Khám Phá Chuyên Đề ➔</span>
+                    </Button>
                   </div>
                 </div>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => navigate('/asmo/journey')}
-                  className="rounded-xl text-xs font-bold py-1.5 px-3 bg-white text-purple-800 border border-purple-200 hover:bg-purple-100"
-                >
-                  <span>Xem Chi Tiết 12 Chuyên Đề ➔</span>
-                </Button>
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {highSchoolTopics.map((topic) => (
-                  <div
-                    key={topic.id}
-                    className="flex flex-col justify-between rounded-2xl border-2 border-purple-200/80 bg-white p-4 transition-all hover:border-purple-400 hover:shadow-md"
-                  >
-                    <div>
-                      <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xl">{topic.icon}</span>
-                        <span className="rounded-md bg-purple-100 text-purple-800 text-[10px] font-black px-2 py-0.5">
-                          {topic.topicCode}
-                        </span>
-                      </div>
-                      <AsmoFormula text={topic.title} className="font-bold text-sm text-slate-900 line-clamp-2" />
-                      <p className="text-xs text-slate-600 mt-1 line-clamp-2">{topic.subtitle}</p>
-                    </div>
-
-                    <div className="mt-4 pt-3 border-t border-purple-100">
-                      <Button
-                        type="button"
-                        variant="primary"
-                        onClick={() => navigate(`/asmo/journey?topic=${topic.id}`)}
-                        className="w-full gap-1 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs py-2 shadow-xs cursor-pointer justify-center"
-                      >
-                        <span>Khám Phá Chuyên Đề ➔</span>
-                      </Button>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              ))}
             </div>
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* ── KHU VỰC 2: 🏆 ĐẤU TRƯỜNG THI THỬ OLYMPIC ASMO (EXAM ARENA - FULL WIDTH) ── */}

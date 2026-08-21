@@ -402,6 +402,14 @@ export interface AsmoIslandWorldMapProps {
   onToggleViewMode?: (mode: 'island' | 'world') => void
 }
 
+export const ASMO_ISLAND_SHORT_NAMES: Record<string, string> = {
+  'stage-1': 'Đảo 1: Táo Đỏ',
+  'stage-2': 'Đảo 2: Bánh Ngọt',
+  'stage-3': 'Đảo 3: Pizza',
+  'stage-4': 'Đảo 4: Đồng Hồ',
+  'stage-5': 'Đảo 5: 3D Không Gian',
+}
+
 export function AsmoIslandWorldMap({
   selectedStageId,
   onSelectStage,
@@ -486,7 +494,7 @@ export function AsmoIslandWorldMap({
                 )}
               >
                 <span className="text-base select-none">{theme.heroEmoji}</span>
-                <span>Vùng {stg.stageNumber}</span>
+                <span>{ASMO_ISLAND_SHORT_NAMES[stg.id] || `Đảo ${stg.stageNumber}`}</span>
 
                 {stats.isCompleted ? (
                   <span className="size-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black shadow-2xs">
