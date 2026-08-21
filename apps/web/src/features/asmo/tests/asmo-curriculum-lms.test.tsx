@@ -329,7 +329,7 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).toContain('Gộp Táo')
   })
 
-  it('renders AsmoCurriculumLessonPage fullscreen standard page with 4 Math & Olympic Phase Tabs, Visualizer, and Sidebar', () => {
+  it('renders AsmoCurriculumLessonPage fullscreen standard page with 4 Math & Olympic Phase Tabs, Visualizer, and Gamified Companion Sidebar for Elementary', () => {
     const markup = renderToStaticMarkup(
       createElement(
         MemoryRouter,
@@ -348,7 +348,7 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     // 1. Compact Hero Header & Badges
     expect(markup).toContain('Trạm 1:')
     expect(markup).toContain('Gộp Táo')
-    expect(markup).toContain('Sản phẩm của trạm:')
+    expect(markup).not.toContain('Sản phẩm của trạm:')
     expect(markup).toContain('Sao của trạm')
     expect(markup).toContain('+50 XP')
 
@@ -359,7 +359,6 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).toContain('4. 🏆 Thử tài')
 
     // 3. Main Stage Visualizer for Elementary (Visual-First Canvas)
-    expect(markup).toContain('🐱 Mèo Mee: Bé hãy chạm vào hình ảnh để xem điều kỳ diệu nhé!')
     expect(markup).toContain('Giỏ A (Táo Đỏ):')
     expect(markup).toContain('Giỏ B (Táo Xanh):')
     expect(markup).toContain('quả táo tổng cộng')
@@ -367,19 +366,24 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).not.toContain('Trọng Tâm Kiến Thức Bài Học')
     expect(markup).not.toContain('🌟 Ghi Nhớ Nhanh:')
 
-    // 4. Streamlined Sidebar Assistant Mèo Mee (Checklist removed)
+    // 4. Gamified Companion Sidebar for Elementary (Sidebar <aside> is ALWAYS present with 4 blocks)
+    expect(markup).toContain('<aside')
+    expect(markup).toContain('aikid-cat-character')
     expect(markup).toContain('Mee đang hỗ trợ: Con làm được! 🐾')
-    expect(markup).toContain('💡 Gợi ý cho con')
-    expect(markup).toContain('🎯 Mục tiêu bài học')
-    expect(markup).toContain('Phần thưởng trạm')
-    expect(markup).not.toContain('Hành trình trạm')
+    expect(markup).toContain('🔊 Nghe Mee Đọc')
+    expect(markup).toContain('Nhiệm Vụ Trực Quan')
+    expect(markup).toContain('Thả táo đỏ vào Giỏ A')
+    expect(markup).toContain('Thả táo xanh vào Giỏ B')
+    expect(markup).toContain('Mẹo Mee Thông Minh')
+    expect(markup).toContain('💡 Bật Mí Gợi Ý')
+    expect(markup).toContain('Huy Hiệu Vùng Đảo')
 
     // 5. Action Buttons
     expect(markup).toContain('🎓 Về bản đồ')
     expect(markup).toContain('Tiếp tục: Mẹo Mèo Mee')
   })
 
-  it('renders AsmoCurriculumLessonPage for Secondary stage with formula theory card and key takeaways', () => {
+  it('renders AsmoCurriculumLessonPage for Secondary stage with formula theory card, key takeaways, and sidebar', () => {
     const markup = renderToStaticMarkup(
       createElement(
         MemoryRouter,
@@ -398,6 +402,14 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).toContain('Trọng Tâm Kiến Thức Bài Học')
     expect(markup).toContain('🌟 Ghi Nhớ Nhanh:')
     expect(markup).toContain('Chỉnh Giờ:')
+    expect(markup).toContain('Sản phẩm của trạm:')
+    expect(markup).toContain('<aside')
+    expect(markup).toContain('Mee đang hỗ trợ: Con làm được! 🐾')
+    expect(markup).toContain('🔊 Nghe Mee Đọc')
+    expect(markup).toContain('🎯 Trọng Tâm Tư Duy Olympic')
+    expect(markup).toContain('Mẹo Mee Thông Minh')
+    expect(markup).toContain('💡 Bật Mí Gợi Ý')
+    expect(markup).toContain('Huy Hiệu Vùng Đảo')
   })
 
   it('renders fallback error message when lessonId does not exist', () => {

@@ -13,8 +13,8 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
       }),
     )
 
-    // Tree and canopy titles
-    expect(markup).toContain('Vườn Cây Táo Mẹ &amp; Kéo Thả Táo Vào Giỏ')
+    // Streamlined Mission Bar & Tree Canopy
+    expect(markup).toContain('🍎 Chạm hoặc kéo táo vào giỏ để gộp thành 10 nhé! 🧺')
     expect(markup).toContain('Cây Táo Mẹ')
     expect(markup).toContain('6 quả đỏ')
     expect(markup).toContain('7 quả xanh')

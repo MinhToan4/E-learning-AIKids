@@ -22,6 +22,7 @@ import {
   MessageCircle,
   Plus,
   Minus,
+  Volume2,
 } from 'lucide-react'
 import {
   ASMO_LMS_STAGES,
@@ -33,7 +34,7 @@ import {
   isLessonUnlocked,
 } from '../data/asmo-curriculum-lms'
 import { AsmoFormula } from '../components/AsmoFormula'
-import { AsmoInteractiveAppleTreeCanvas } from '../components/AsmoInteractiveAppleTreeCanvas'
+import { AsmoInteractiveAppleTreeCanvas, speakVietnamese } from '../components/AsmoInteractiveAppleTreeCanvas'
 import { AsmoInteractivePracticeWorkspace } from '../components/AsmoInteractivePracticeWorkspace'
 import { renderClockSvg, renderBalanceScaleSvg, renderMatchstickFigureSvg } from '../components/AsmoDiagramEngine'
 import { AikidCatCharacter, type AikidCatPose } from '@/shared/components/ui/AikidCatCharacter'
@@ -419,6 +420,315 @@ export function AsmoCurriculumLessonPage() {
     }
   }, [lesson, phase, quizSubmitted, isQuizCorrect])
 
+  // ── Mẹo / Khẩu quyết tính nhanh vui nhộn cho Khối 3 ──
+  const visualMnemonic = useMemo(() => {
+    if (!lesson) return 'Quan sát thật kỹ và cùng Mèo Mee giải toán nhé!'
+    if (lesson.id.includes('apples') || lesson.visualType === 'apple_drop' || lesson.visualType === 'make10') {
+      return '1 đi với 9, 2 sánh cùng 8, 3 kết đôi 7, 4 tìm bạn 6, 5 bắt tay 5!'
+    }
+    if (lesson.visualType === 'balloon_pop' || lesson.id.includes('subtraction')) {
+      return 'Bớt bao nhiêu bóng, đếm ngay bóng còn, phép trừ thật gọn!'
+    }
+    if (lesson.visualType === 'cake_tray' || lesson.id.includes('multiplication')) {
+      return 'Số hàng nhân số cột, đếm bánh ngon một lèo!'
+    }
+    if (lesson.visualType === 'pizza_fraction' || lesson.visualType === 'compare_fractions') {
+      return 'Mẫu số là tổng phần chia, tử số là phần bánh bé đang cầm!'
+    }
+    if (lesson.visualType === 'analog_clock' || lesson.visualType === 'elapsed_time') {
+      return 'Kim ngắn chỉ giờ êm ả, kim dài chỉ phút nhảy xa 5 bước!'
+    }
+    if (lesson.visualType === 'times_table_69') {
+      return 'Bảng 9 diệu kỳ: Chữ số hàng chục cộng hàng đơn vị luôn bằng 9!'
+    }
+    if (lesson.meeTip.quote) {
+      return lesson.meeTip.quote
+    }
+    return 'Quan sát thật kỹ, áp dụng bí kíp Mèo Mee để giải nhanh chuẩn xác!'
+  }, [lesson])
+
+  // ── Checklist 3 nhiệm vụ mini trực quan cho Khối 2 ──
+  const checklistItems = useMemo(() => {
+    if (!lesson) return []
+
+    if (isElementary) {
+      if (lesson.visualType === 'apple_drop') {
+        return [
+          {
+            id: 'task-1',
+            icon: '🍎',
+            label: 'Thả táo đỏ vào Giỏ A',
+            done: applesA > 0,
+          },
+          {
+            id: 'task-2',
+            icon: '🍏',
+            label: 'Thả táo xanh vào Giỏ B',
+            done: applesB > 0,
+          },
+          {
+            id: 'task-3',
+            icon: '✨',
+            label: 'Quan sát tổng số lượng nhảy múa!',
+            done: applesA + applesB > 0,
+          },
+        ]
+      }
+      if (lesson.visualType === 'balloon_pop') {
+        return [
+          {
+            id: 'task-1',
+            icon: '🎈',
+            label: 'Chọn quả bóng bay muốn nổ',
+            done: poppedBalloons.length > 0,
+          },
+          {
+            id: 'task-2',
+            icon: '💥',
+            label: 'Quan sát bóng nổ bớt đi',
+            done: poppedBalloons.length >= 2,
+          },
+          {
+            id: 'task-3',
+            icon: '✨',
+            label: 'Tính số bóng bay còn lại',
+            done: poppedBalloons.length > 0,
+          },
+        ]
+      }
+      if (lesson.visualType === 'cake_tray') {
+        return [
+          {
+            id: 'task-1',
+            icon: '🍰',
+            label: 'Chọn số hàng bánh',
+            done: cakeRows > 1,
+          },
+          {
+            id: 'task-2',
+            icon: '🎂',
+            label: 'Chọn số cột bánh',
+            done: cakeCols > 1,
+          },
+          {
+            id: 'task-3',
+            icon: '✨',
+            label: 'Đếm tổng số bánh trong khay',
+            done: cakeRows * cakeCols > 0,
+          },
+        ]
+      }
+      if (
+        lesson.visualType === 'pizza_fraction' ||
+        lesson.visualType === 'compare_fractions' ||
+        lesson.visualType === 'fraction_add_sub' ||
+        lesson.visualType === 'fraction_of_number'
+      ) {
+        return [
+          {
+            id: 'task-1',
+            icon: '🍕',
+            label: 'Chia bánh thành các phần bằng nhau',
+            done: pizzaSlices > 0,
+          },
+          {
+            id: 'task-2',
+            icon: '😋',
+            label: 'Chọn số lát bánh muốn lấy',
+            done: pizzaShaded > 0,
+          },
+          {
+            id: 'task-3',
+            icon: '✨',
+            label: 'Quan sát phân số trực quan',
+            done: true,
+          },
+        ]
+      }
+      if (lesson.visualType === 'make10') {
+        return [
+          {
+            id: 'task-1',
+            icon: '🔴',
+            label: 'Chọn cặp bạn thân cầu vồng',
+            done: activeRainbowPairId !== null,
+          },
+          {
+            id: 'task-2',
+            icon: '🌈',
+            label: 'Quan sát cầu vồng kết nối',
+            done: true,
+          },
+          {
+            id: 'task-3',
+            icon: '✨',
+            label: 'Ghi nhớ cặp số tròn 10',
+            done: true,
+          },
+        ]
+      }
+      if (lesson.visualType === 'times_table_25') {
+        return [
+          {
+            id: 'task-1',
+            icon: '🐸',
+            label: `Chọn bảng nhân ${tableBase}`,
+            done: true,
+          },
+          {
+            id: 'task-2',
+            icon: '🐾',
+            label: `Cho ếch nhảy ${tableMultiplier} bước`,
+            done: tableMultiplier > 1,
+          },
+          {
+            id: 'task-3',
+            icon: '✨',
+            label: 'Quan sát kết quả phép nhân',
+            done: true,
+          },
+        ]
+      }
+      if (lesson.visualType === 'times_table_69') {
+        return [
+          {
+            id: 'task-1',
+            icon: '9️⃣',
+            label: `Chọn thừa số nhân ${table9Factor}`,
+            done: true,
+          },
+          {
+            id: 'task-2',
+            icon: '🔢',
+            label: 'Quan sát hàng chục & hàng đơn vị',
+            done: true,
+          },
+          {
+            id: 'task-3',
+            icon: '✨',
+            label: 'Kiểm tra tổng chữ số bằng 9',
+            done: true,
+          },
+        ]
+      }
+      if (lesson.visualType === 'candy_division' || lesson.visualType === 'div_remainder') {
+        return [
+          {
+            id: 'task-1',
+            icon: '🍬',
+            label: `Quan sát ${candyTotal} viên kẹo`,
+            done: true,
+          },
+          {
+            id: 'task-2',
+            icon: '🍽️',
+            label: `Chia đều vào ${candyPlates} đĩa`,
+            done: true,
+          },
+          {
+            id: 'task-3',
+            icon: '✨',
+            label: 'Tính số kẹo mỗi đĩa & phần dư',
+            done: true,
+          },
+        ]
+      }
+      if (lesson.visualType === 'column_add') {
+        return [
+          {
+            id: 'task-1',
+            icon: '➕',
+            label: 'Cộng hàng đơn vị & nhớ 1',
+            done: true,
+          },
+          {
+            id: 'task-2',
+            icon: '🔟',
+            label: 'Cộng hàng chục thêm 1 nhớ',
+            done: true,
+          },
+          {
+            id: 'task-3',
+            icon: '✨',
+            label: 'Viết kết quả 85',
+            done: true,
+          },
+        ]
+      }
+      if (lesson.visualType === 'column_sub') {
+        return [
+          {
+            id: 'task-1',
+            icon: '➖',
+            label: 'Mượn 1 chục trừ hàng đơn vị',
+            done: true,
+          },
+          {
+            id: 'task-2',
+            icon: '🔟',
+            label: 'Bớt 1 hàng chục & trừ tiếp',
+            done: true,
+          },
+          {
+            id: 'task-3',
+            icon: '✨',
+            label: 'Viết kết quả 35',
+            done: true,
+          },
+        ]
+      }
+
+      // Generic elementary fallback
+      return [
+        {
+          id: 'task-1',
+          icon: '🍎',
+          label: 'Quan sát hình ảnh trực quan',
+          done: true,
+        },
+        {
+          id: 'task-2',
+          icon: '🍏',
+          label: 'Thao tác các nút bấm đồ chơi',
+          done: phase !== 'explore' || practiceCompleted,
+        },
+        {
+          id: 'task-3',
+          icon: '✨',
+          label: 'Chinh phục câu hỏi nhận 3 Sao!',
+          done: isQuizCorrect,
+        },
+      ]
+    }
+
+    // Secondary / High School (3 Olympic Thinking focus points)
+    return lesson.theory.keyTakeaways.slice(0, 3).map((takeaway, idx) => ({
+      id: `sec-goal-${idx}`,
+      icon: idx === 0 ? '🎯' : idx === 1 ? '💡' : '⚡',
+      label: takeaway,
+      done: phase === 'quiz' ? isQuizCorrect : phase !== 'explore',
+    }))
+  }, [
+    isElementary,
+    lesson,
+    applesA,
+    applesB,
+    poppedBalloons,
+    cakeRows,
+    cakeCols,
+    pizzaSlices,
+    pizzaShaded,
+    activeRainbowPairId,
+    tableBase,
+    tableMultiplier,
+    table9Factor,
+    candyTotal,
+    candyPlates,
+    phase,
+    practiceCompleted,
+    isQuizCorrect,
+  ])
+
   // ── Missing Lesson Fallback ──
   if (!lesson || !stage) {
     return (
@@ -453,7 +763,7 @@ export function AsmoCurriculumLessonPage() {
       ══════════════════════════════════════════════════════════════════════ */}
       <div className="flex-1 flex flex-col gap-3 sm:gap-4 min-w-0 overflow-hidden">
         {/* ── 1. HEADER CARD (COMPACT HERO HEADER) ── */}
-        <div className="ui-card p-3 sm:p-4 shrink-0 bg-white rounded-3xl border border-brand-100 shadow-sm space-y-2">
+        <div className="ui-card p-3 sm:p-4 shrink-0 bg-white rounded-3xl border border-brand-100 shadow-sm space-y-2.5">
           {/* Dòng 1: Breadcrumb nhẹ nhàng + Badge XP & Thẻ Sao trạm ⭐⭐⭐ */}
           <div className="flex flex-wrap items-center justify-between gap-2">
             <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 min-w-0">
@@ -510,17 +820,19 @@ export function AsmoCurriculumLessonPage() {
             </div>
           </div>
 
-          {/* Dòng 2: Tiêu đề bài học + mô tả ngắn gọn 1 dòng */}
+          {/* Dòng 2: Tiêu đề bài học */}
           <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
             <h1 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
               <AsmoFormula text={lesson.title} />
             </h1>
-            <p className="text-xs sm:text-sm font-semibold text-slate-500 truncate shrink-0">
-              <span className="text-slate-400">Sản phẩm của trạm:</span>{' '}
-              <strong className="text-slate-700 font-bold">
-                <AsmoFormula text={lesson.subtitle} />
-              </strong>
-            </p>
+            {!isElementary && (
+              <p className="text-xs sm:text-sm font-semibold text-slate-500 truncate shrink-0">
+                <span className="text-slate-400">Sản phẩm của trạm:</span>{' '}
+                <strong className="text-slate-700 font-bold">
+                  <AsmoFormula text={lesson.subtitle} />
+                </strong>
+              </p>
+            )}
           </div>
 
           {/* ── 2. THANH 4 TAB STEPPER SIÊU TINH TẾ (COMPACT 1-ROW STEPPER) ── */}
@@ -564,20 +876,15 @@ export function AsmoCurriculumLessonPage() {
           </nav>
         </div>
 
-        {/* ── 3. KHU VỰC NỘI DUNG CHÍNH (LEFT SCROLLABLE MAIN STAGE - 70%) ── */}
+        {/* ── 3. KHU VỰC NỘI DUNG CHÍNH (FULL-WIDTH FOR ELEMENTARY / 70% FOR SECONDARY) ── */}
         <main className="lesson-stage-main min-h-0 flex-1 relative overflow-y-auto hidden-scrollbar pb-6 pr-1 space-y-4">
           {/* ══════════════════════════════════════════════════════════════════
               PHASE 1: 📖 KHÁM PHÁ KHÁI NIỆM (QUAN SÁT & NHẬN DIỆN)
           ══════════════════════════════════════════════════════════════════ */}
           {phase === 'explore' && (
-            <div className="rounded-3xl border border-slate-200 shadow-clay bg-white p-5 sm:p-7 space-y-5 animate-fade-up">
-              {/* Capsule Mèo Mee Visual-First Banner (Elementary Cấp 1) or Theory Card (Secondary / High School) */}
-              {isElementary ? (
-                <div className="flex items-center gap-2.5 px-4 py-2.5 rounded-full bg-gradient-to-r from-amber-100 via-brand-50 to-pink-100 border-2 border-amber-300/80 shadow-xs text-xs sm:text-sm font-extrabold text-amber-950 animate-pop">
-                  <AikidCatCharacter pose="welcome" className="size-7 shrink-0 drop-shadow-xs" />
-                  <span>🐱 Mèo Mee: Bé hãy chạm vào hình ảnh để xem điều kỳ diệu nhé!</span>
-                </div>
-              ) : (
+            <div className="rounded-3xl border border-slate-200 shadow-clay bg-white p-4 sm:p-7 space-y-4 sm:space-y-5 animate-fade-up">
+              {/* Theory Card for Secondary / High School only */}
+              {!isElementary && (
                 <div className="rounded-2xl bg-gradient-to-r from-brand-50 via-white to-sky-50 border border-brand-200 p-5 space-y-2.5">
                   <div className="flex items-center gap-2 text-brand-600 font-extrabold text-xs uppercase tracking-wider">
                     <Sparkles className="size-4 text-amber-500" />
@@ -598,10 +905,10 @@ export function AsmoCurriculumLessonPage() {
               )}
 
               {/* Dynamic Interactive Pedagogical Visualizer for Lesson */}
-              <div className="rounded-3xl bg-slate-50 border-2 border-slate-200 p-5 sm:p-6 flex flex-col items-center justify-center space-y-4 min-h-[280px]">
+              <div className="rounded-3xl bg-slate-50 border-2 border-slate-200 p-4 sm:p-6 flex flex-col items-center justify-center space-y-4 min-h-[280px]">
                 {/* 1. Apple Drop Visualizer */}
                 {lesson.visualType === 'apple_drop' && (
-                  <div className="w-full max-w-xl">
+                  <div className="w-full max-w-4xl mx-auto">
                     <AsmoInteractiveAppleTreeCanvas
                       applesA={applesA}
                       applesB={applesB}
@@ -617,9 +924,8 @@ export function AsmoCurriculumLessonPage() {
                         setApplesA(0)
                         setApplesB(0)
                       }}
-                      title="Vườn Cây Táo Mẹ: Thao Tác Kéo Thả &amp; Nhảy Số"
-                      instruction="Bé hãy chạm vào quả táo trên cây hoặc kéo thả vào giỏ tương ứng nhé!"
-                      meeQuote="🐱 Mèo Mee: Bé hãy chạm vào quả táo trên cây hoặc kéo thả vào giỏ nhé!"
+                      onNextPhase={() => advanceToPhase('tips')}
+                      instruction="🍎 Chạm hoặc kéo táo vào giỏ để gộp thành 10 nhé! 🧺"
                     />
                   </div>
                 )}
@@ -1676,9 +1982,20 @@ export function AsmoCurriculumLessonPage() {
                   <AikidCatCharacter pose={lesson.meeTip.pose} className="size-32 sm:size-40 drop-shadow-md animate-bounce" />
 
                   <div className="max-w-xl w-full bg-white/95 rounded-3xl border-2 border-amber-300 p-5 sm:p-6 shadow-clay space-y-3 text-center">
-                    <span className="text-xs font-black text-amber-800 uppercase tracking-wide block">
-                      🐱 Câu Thần Chú Mèo Mee:
-                    </span>
+                    <div className="flex items-center justify-center gap-2">
+                      <span className="text-xs font-black text-amber-800 uppercase tracking-wide">
+                        🐱 Câu Thần Chú Mèo Mee:
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => speakVietnamese(lesson.meeTip.quote + '. ' + lesson.meeTip.storyAdvice)}
+                        title="Nghe Mèo Mee đọc thần chú"
+                        aria-label="Phát âm thanh thần chú"
+                        className="size-8 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 flex items-center justify-center shadow-xs cursor-pointer active:scale-90"
+                      >
+                        <Volume2 className="size-4 stroke-[2.5]" />
+                      </button>
+                    </div>
                     <p className="text-base sm:text-xl font-black text-amber-950 italic leading-snug">
                       &quot;{lesson.meeTip.quote}&quot;
                     </p>
@@ -2040,99 +2357,175 @@ export function AsmoCurriculumLessonPage() {
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          RIGHT COLUMN: 30% SIDEBAR TRỢ GIẢNG MÈO MEE & MỤC TIÊU BÀI HỌC
+          RIGHT COLUMN: 30% SIDEBAR TRỢ GIẢNG HỌC TẬP SỐNG ĐỘNG (GAMIFIED COMPANION PANEL)
       ══════════════════════════════════════════════════════════════════════ */}
       <aside
-        className="w-full lg:w-[320px] shrink-0 self-start overflow-y-auto rounded-3xl border-2 border-brand-200 bg-white p-3.5 sm:p-4 shadow-clay space-y-3"
+        className="w-full lg:w-[320px] xl:w-[350px] shrink-0 self-stretch overflow-y-auto hidden-scrollbar rounded-3xl border-2 border-brand-200 bg-white p-3.5 sm:p-4 shadow-clay flex flex-col gap-3.5"
         aria-labelledby="asmo-sidebar-assistant-title"
       >
-        {/* 1. MÈO MEE TRỢ GIẢNG: Linh vật + Bong bóng hướng dẫn */}
-        <div className="flex items-center gap-3 border-b border-slate-100 pb-3">
-          <AikidCatCharacter pose={dynamicGuideCopy.pose} className="size-14 sm:size-16 shrink-0 drop-shadow-sm" />
-          <div className="min-w-0 flex-1 text-left">
-            <p className="flex items-center gap-1 text-xs font-black text-coral-600">
-              <MessageCircle className="size-3.5" />
-              <span>Mee đang hỗ trợ: Con làm được! 🐾</span>
-            </p>
-            <h2 id="asmo-sidebar-assistant-title" className="font-display text-sm sm:text-base font-extrabold text-slate-800 leading-tight">
-              {dynamicGuideCopy.title}
-            </h2>
+        {/* ── KHỐI 1: MÈO MEE ĐỒNG HÀNH & GIỌNG ĐỌC 🔊 ── */}
+        <div className="rounded-2xl bg-gradient-to-br from-amber-50 via-brand-50 to-pink-50 border-2 border-amber-300 p-3.5 shadow-sm space-y-3">
+          <div className="flex items-center gap-3">
+            <AikidCatCharacter
+              pose={dynamicGuideCopy.pose}
+              className="size-14 sm:size-16 shrink-0 drop-shadow-sm animate-bounce"
+            />
+            <div className="min-w-0 flex-1 text-left">
+              <p className="flex items-center gap-1 text-[11px] font-black text-coral-600 uppercase tracking-wider">
+                <MessageCircle className="size-3.5 text-coral-500" />
+                <span>Mee đang hỗ trợ: Con làm được! 🐾</span>
+              </p>
+              <h2
+                id="asmo-sidebar-assistant-title"
+                className="font-display text-sm sm:text-base font-extrabold text-slate-900 leading-tight truncate"
+              >
+                {dynamicGuideCopy.title}
+              </h2>
+            </div>
           </div>
-        </div>
 
-        {/* Dynamic Mee speech balloon */}
-        <div className="rounded-2xl bg-brand-50 border border-brand-100 p-3 text-left animate-pop">
-          <p className="text-[11px] font-black text-brand-700 uppercase tracking-wider">
-            {dynamicGuideCopy.eyebrow}
-          </p>
-          <p className="mt-1 text-xs font-bold leading-relaxed text-slate-700">
-            <AsmoFormula text={dynamicGuideCopy.body} />
-          </p>
-        </div>
+          {/* Dynamic Mee speech balloon */}
+          <div className="relative rounded-2xl bg-white/95 border-2 border-amber-200 p-3 text-left shadow-2xs">
+            <p className="text-[10px] font-black text-brand-700 uppercase tracking-wider">
+              {dynamicGuideCopy.eyebrow}
+            </p>
+            <p className="mt-1 text-xs sm:text-sm font-extrabold leading-snug text-slate-800">
+              <AsmoFormula text={dynamicGuideCopy.body} />
+            </p>
+          </div>
 
-        {/* 2. HỘP GỢI Ý THÔNG MINH (Toggleable) */}
-        <div className="space-y-2">
-          <Button
-            className="w-full gap-2 rounded-2xl text-xs font-bold py-2"
-            variant="secondary"
-            onClick={() => setShowHint(!showHint)}
-            aria-expanded={showHint}
+          {/* Nút Lớn [ 🔊 Nghe Mee Đọc ] */}
+          <button
+            type="button"
+            onClick={() => speakVietnamese(dynamicGuideCopy.body)}
+            title="Nghe Mèo Mee đọc hướng dẫn bằng giọng tiếng Việt dễ thương"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl bg-gradient-to-r from-amber-400 via-amber-500 to-amber-400 hover:from-amber-500 hover:to-amber-600 text-slate-950 font-black text-xs sm:text-sm shadow-clay active:scale-95 transition-all cursor-pointer border-2 border-amber-300 select-none"
           >
-            <Lightbulb className="size-4 text-amber-500" />
-            <span>{showHint ? 'Ẩn gợi ý' : '💡 Gợi ý cho con'}</span>
-          </Button>
-
-          {showHint && (
-            <div className="rounded-2xl border-2 border-amber-200 bg-amber-50 p-3 text-left text-xs font-bold text-amber-950 animate-pop space-y-1">
-              <p className="flex items-center gap-1.5 font-black text-amber-900">
-                <Lightbulb className="size-3.5 text-amber-600" />
-                <span>Mee bật mí:</span>
-              </p>
-              <p className="font-medium text-slate-700">
-                Làm tuần tự từ Bước 1 đến Bước 4. Khi làm câu hỏi Olympic, nếu chưa chắc chắn thì hãy quay lại xem Mẹo Mèo Mee ở Bước 2 nhé!
-              </p>
-            </div>
-          )}
+            <Volume2 className="size-4 stroke-[2.5]" />
+            <span>🔊 Nghe Mee Đọc</span>
+          </button>
         </div>
 
-        {/* 3. MỤC TIÊU BÀI HỌC (Visual Milestone cho Cấp 1, Gạch đầu dòng cho Cấp 2-3) */}
-        <section className="border-t border-slate-100 pt-3" aria-labelledby="asmo-goals-title">
-          <h3 id="asmo-goals-title" className="font-display text-xs sm:text-sm font-extrabold text-slate-800">
-            🎯 Mục tiêu bài học
-          </h3>
-          {isElementary ? (
-            <div className="mt-2 rounded-2xl bg-amber-50/90 border-2 border-amber-200 p-2.5 flex items-center gap-2.5 shadow-2xs">
-              <span className="text-2xl shrink-0 select-none">🌟</span>
-              <span className="text-xs font-black text-amber-950 leading-snug">
-                Khám phá hình ảnh trực quan, rinh trọn 3 Sao &amp; +{lesson.xpReward} XP cùng Mèo Mee!
-              </span>
-            </div>
-          ) : (
-            <ul className="mt-2 space-y-1.5">
-              {lesson.theory.keyTakeaways.slice(0, 3).map((goal, idx) => (
-                <li key={`goal-${idx}`} className="flex items-start gap-2 text-xs font-semibold text-slate-600">
-                  <span className="mt-0.5 size-4 rounded-full bg-brand-100 text-brand-700 flex items-center justify-center text-[9px] font-black shrink-0">
-                    ★
-                  </span>
-                  <span className="leading-snug">
-                    <AsmoFormula text={goal} />
-                  </span>
-                </li>
-              ))}
-            </ul>
-          )}
+        {/* ── KHỐI 2: THẺ NHIỆM VỤ TRỰC QUAN (INTERACTIVE CHECKLIST CARDS) ── */}
+        <section className="space-y-2" aria-labelledby="asmo-checklist-title">
+          <div className="flex items-center justify-between px-1">
+            <h3
+              id="asmo-checklist-title"
+              className="font-display text-xs sm:text-sm font-extrabold text-slate-900 flex items-center gap-1.5"
+            >
+              <span>📋</span>
+              <span>{isElementary ? 'Nhiệm Vụ Trực Quan' : '🎯 Trọng Tâm Tư Duy Olympic'}</span>
+            </h3>
+            <span className="text-[10px] font-black text-brand-700 bg-brand-50 border border-brand-200 px-2 py-0.5 rounded-full">
+              {checklistItems.filter((t) => t.done).length}/{checklistItems.length} Xong
+            </span>
+          </div>
+
+          <div className="space-y-1.5">
+            {checklistItems.map((item) => (
+              <div
+                key={item.id}
+                className={cn(
+                  'flex items-center gap-2.5 p-2.5 rounded-2xl border-2 transition-all text-xs select-none',
+                  item.done
+                    ? 'bg-emerald-50/80 border-emerald-300 text-emerald-950 font-bold shadow-2xs'
+                    : 'bg-slate-50 border-slate-200 text-slate-700 font-semibold',
+                )}
+              >
+                <div
+                  className={cn(
+                    'size-6 rounded-xl flex items-center justify-center text-xs font-black shrink-0 transition-transform',
+                    item.done
+                      ? 'bg-emerald-500 text-white scale-110 shadow-xs'
+                      : 'bg-white border border-slate-300 text-slate-400',
+                  )}
+                >
+                  {item.done ? '✓' : item.icon}
+                </div>
+                <span className="flex-1 leading-snug">
+                  <AsmoFormula text={item.label} />
+                </span>
+              </div>
+            ))}
+          </div>
         </section>
 
-        {/* 4. PHẦN THƯỞNG TRẠM (+XP & Huy hiệu) */}
-        <div className="rounded-2xl bg-gradient-to-r from-amber-50 to-sun-50 border border-amber-200 p-2.5 sm:p-3 flex items-center gap-2.5">
-          <Award className="size-6 text-amber-600 shrink-0" />
-          <div className="min-w-0 flex-1">
-            <span className="text-[10px] font-black text-amber-800 uppercase tracking-wider block">
-              Phần thưởng trạm
+        {/* ── KHỐI 3: HỘP BÍ KÍP / MẸO MEE THÔNG MINH (VISUAL TIP CARD) ── */}
+        <div className="rounded-2xl bg-gradient-to-r from-purple-50 via-pink-50 to-amber-50 border-2 border-purple-200 p-3 space-y-2 shadow-2xs text-left">
+          <div className="flex items-center gap-2">
+            <span className="text-base">💡</span>
+            <span className="text-xs font-black text-purple-900 uppercase tracking-wider">
+              Mẹo Mee Thông Minh
             </span>
-            <span className="text-xs font-extrabold text-slate-800">
-              +{lesson.xpReward} XP &amp; Huy Hiệu Chặng {stage.stageNumber}
+          </div>
+
+          {/* Catchy Mnemonic Rhyme */}
+          <div className="bg-white/90 rounded-xl p-2.5 border border-purple-200 text-xs font-extrabold text-purple-950 italic leading-snug">
+            &quot;{visualMnemonic}&quot;
+          </div>
+
+          {/* Nút [ 💡 Bật Mí Gợi Ý ] */}
+          <button
+            type="button"
+            onClick={() => setShowHint(!showHint)}
+            className="w-full flex items-center justify-center gap-1.5 py-1.5 px-3 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-900 font-black text-xs transition-all cursor-pointer border border-purple-300 active:scale-95"
+          >
+            <Lightbulb className="size-3.5 text-purple-700" />
+            <span>{showHint ? 'Ẩn Gợi Ý' : '💡 Bật Mí Gợi Ý'}</span>
+          </button>
+
+          {showHint && (
+            <div className="rounded-xl border-2 border-amber-300 bg-amber-50 p-2.5 text-xs font-bold text-amber-950 animate-pop space-y-1">
+              <p className="flex items-center gap-1 font-black text-amber-900 text-[11px]">
+                <span>🐱 Mee mách nước:</span>
+              </p>
+              <p className="font-semibold text-slate-700 leading-relaxed text-[11px]">
+                <AsmoFormula
+                  text={
+                    lesson.meeTip.storyAdvice ||
+                    'Làm tuần tự từ Khám phá đến Thử tài. Khi gặp bài Olympic khó, hãy nhớ quy luật ghép cặp hoặc trực quan hoá nhé!'
+                  }
+                />
+              </p>
+            </div>
+          )}
+        </div>
+
+        {/* ── KHỐI 4: THẺ THƯỞNG TRẠM SOFT CLAY (CANDY CARD) ── */}
+        <div className="rounded-2xl bg-gradient-to-r from-amber-100 via-yellow-50 to-pink-100 border-2 border-amber-300 p-3 shadow-clay flex items-center justify-between gap-2 mt-auto">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="size-10 rounded-xl bg-amber-400 border border-amber-500 flex items-center justify-center shadow-xs text-lg shrink-0">
+              🍬
+            </div>
+            <div className="min-w-0">
+              <span className="text-[10px] font-black text-amber-800 uppercase tracking-wider block truncate">
+                Chặng {stage.stageNumber} · Trạm {lesson.lessonNumber}
+              </span>
+              <span className="text-xs font-extrabold text-slate-900 block truncate">
+                Huy Hiệu Vùng Đảo
+              </span>
+            </div>
+          </div>
+
+          <div className="flex flex-col items-end gap-1 shrink-0">
+            <span className="rounded-lg bg-amber-400/90 border border-amber-500 px-2 py-0.5 text-[11px] font-black text-amber-950 flex items-center gap-1 shadow-2xs">
+              <Zap className="size-3 text-amber-900 fill-amber-900" />
+              +{lesson.xpReward} XP
             </span>
+            <div className="flex items-center gap-0.5">
+              {[1, 2, 3].map((starIdx) => (
+                <Star
+                  key={`sidebar-star-${starIdx}`}
+                  size={13}
+                  className={cn(
+                    'transition-all',
+                    starIdx <= liveStars
+                      ? 'text-amber-500 fill-amber-500 drop-shadow-2xs'
+                      : 'text-slate-300 fill-slate-200',
+                  )}
+                />
+              ))}
+            </div>
           </div>
         </div>
       </aside>

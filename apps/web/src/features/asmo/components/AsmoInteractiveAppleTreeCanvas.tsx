@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Sparkles, Minus, Plus, RefreshCw, ShoppingBasket } from 'lucide-react'
+import { Sparkles, Minus, Plus, RefreshCw, ShoppingBasket, Volume2, ArrowRight, Star } from 'lucide-react'
 import { AsmoFormula } from './AsmoFormula'
 import { cn } from '@/shared/lib/cn'
 
@@ -13,12 +13,35 @@ export type AsmoInteractiveAppleTreeCanvasProps = {
   onSubApple?: (basket: AppleBasketType) => void
   onSetApples?: (basket: AppleBasketType, count: number) => void
   onReset?: () => void
+  onNextPhase?: () => void
   title?: string
   instruction?: string
   meeQuote?: string
   showFormulaBar?: boolean
   showResetButton?: boolean
   className?: string
+}
+
+export function speakVietnamese(text: string) {
+  if (typeof window === 'undefined' || !window.speechSynthesis) return
+  try {
+    window.speechSynthesis.cancel()
+    const cleanText = text
+      .replace(/[\$#\*`~_]/g, '')
+      .replace(/🍎/g, ' táo đỏ ')
+      .replace(/🍏/g, ' táo xanh ')
+      .replace(/🧺/g, ' giỏ ')
+      .replace(/✨/g, '')
+      .replace(/🎉/g, '')
+      .trim()
+    const utterance = new SpeechSynthesisUtterance(cleanText || text)
+    utterance.lang = 'vi-VN'
+    utterance.rate = 0.95
+    utterance.pitch = 1.15
+    window.speechSynthesis.speak(utterance)
+  } catch {
+    // Ignore speech errors gracefully
+  }
 }
 
 // Organic pre-defined positions for hanging apples on the tree canopy
@@ -56,9 +79,10 @@ export function AsmoInteractiveAppleTreeCanvas({
   onSubApple,
   onSetApples,
   onReset,
+  onNextPhase,
   title,
   instruction,
-  meeQuote = '🐱 Mèo Mee: Bé hãy chạm vào quả táo trên cây hoặc kéo thả vào giỏ nhé!',
+  meeQuote,
   showFormulaBar = true,
   showResetButton = true,
   className,
@@ -81,6 +105,14 @@ export function AsmoInteractiveAppleTreeCanvas({
   const totalApples = applesA + applesB
   const remainingTreeRed = Math.max(0, maxApplesPerBasket - applesA)
   const remainingTreeGreen = Math.max(0, maxApplesPerBasket - applesB)
+
+  // Streamlined single mission line
+  const missionText = useMemo(() => {
+    if (instruction) return instruction
+    if (title && !title.includes('Vườn Cây Táo Mẹ')) return title
+    if (meeQuote && !meeQuote.includes('Vườn Cây Táo Mẹ')) return meeQuote
+    return '🍎 Chạm hoặc kéo táo vào giỏ để gộp thành 10 nhé! 🧺'
+  }, [instruction, title, meeQuote])
 
   // ── Handlers ──
   const handleAddApple = (basket: AppleBasketType) => {
@@ -210,54 +242,65 @@ export function AsmoInteractiveAppleTreeCanvas({
   return (
     <div
       className={cn(
-        'relative w-full rounded-3xl overflow-hidden bg-gradient-to-b from-sky-100/90 via-emerald-50/70 to-amber-50/80 border-2 border-emerald-300 shadow-clay p-4 sm:p-6 text-slate-800 flex flex-col items-center space-y-4 select-none',
+        'relative w-full rounded-3xl overflow-hidden bg-gradient-to-b from-sky-100/90 via-emerald-50/70 to-amber-50/80 border-2 border-emerald-300 shadow-clay p-3 sm:p-5 text-slate-800 flex flex-col items-center space-y-3 sm:space-y-4 select-none',
         className,
       )}
     >
-      {/* ── HEADER / MEE INSTRUCTION BAR ── */}
-      <div className="w-full flex flex-col sm:flex-row items-center justify-between gap-2.5 pb-1 border-b border-emerald-200/60">
-        <div className="flex items-center gap-2">
-          <div className="flex size-9 items-center justify-center rounded-2xl bg-emerald-500 text-white shadow-xs border border-emerald-600">
-            <Sparkles className="size-5" />
-          </div>
-          <div>
-            <h3 className="text-sm sm:text-base font-black text-slate-900 tracking-tight leading-tight">
-              {title || 'Vườn Cây Táo Mẹ & Kéo Thả Táo Vào Giỏ'}
-            </h3>
-            {instruction ? (
-              <p className="text-xs text-slate-600 font-semibold">{instruction}</p>
-            ) : (
-              <span className="text-xs text-emerald-800 font-bold">
-                Mô hình trực quan chuẩn sư phạm ASMO Cấp 1
+      {/* ══════════════════════════════════════════════════════════════════════
+          1. THANH NHIỆM VỤ HOẠT HÌNH TINH GỌN DUY NHẤT (STREAMLINED MISSION BAR)
+      ══════════════════════════════════════════════════════════════════════ */}
+      <div className="w-full flex flex-wrap items-center justify-between gap-2.5 px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-100/95 via-white to-emerald-100/95 border-2 border-amber-300 shadow-xs">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <span className="text-xl sm:text-2xl shrink-0 animate-bounce">🍎</span>
+          <div className="min-w-0 flex-1 space-y-0.5">
+            {title && !title.includes('Vườn Cây Táo Mẹ: Thao Tác') && title !== instruction && (
+              <span className="text-xs font-black text-emerald-900 block truncate">
+                {title}
+              </span>
+            )}
+            <p className="text-xs sm:text-sm font-black text-slate-800 tracking-tight leading-snug">
+              {instruction || title || '🍎 Chạm hoặc kéo táo vào giỏ để gộp thành 10 nhé! 🧺'}
+            </p>
+            {meeQuote && meeQuote !== instruction && meeQuote !== title && (
+              <span className="text-[11px] font-bold text-amber-900 block">
+                {meeQuote}
               </span>
             )}
           </div>
         </div>
 
-        {showResetButton && (
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Nút Loa 🔊 Phát Giọng Nói Mèo Mee */}
           <button
             type="button"
-            onClick={handleResetAll}
-            title="Đặt lại thao tác (Đưa tất cả táo về lại cây)"
-            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-black bg-white hover:bg-slate-100 text-slate-700 transition-all cursor-pointer border border-emerald-300 shadow-2xs active:scale-95 shrink-0"
+            onClick={() => speakVietnamese(instruction || meeQuote || title || '🍎 Chạm hoặc kéo táo vào giỏ để gộp thành 10 nhé! 🧺')}
+            title="Nghe Mèo Mee đọc hướng dẫn"
+            aria-label="Phát âm thanh giọng nói"
+            className="flex items-center justify-center size-8 sm:size-9 rounded-xl bg-amber-500 hover:bg-amber-400 text-white shadow-xs border border-amber-600 transition-all active:scale-90 cursor-pointer"
           >
-            <RefreshCw className="size-3.5 text-emerald-600" />
-            <span>Đặt lại thao tác</span>
+            <Volume2 className="size-4 stroke-[2.5]" />
           </button>
-        )}
-      </div>
 
-      {/* MEE PROMPT BANNER */}
-      <div className="w-full text-center">
-        <span className="inline-flex items-center gap-1.5 text-xs sm:text-sm font-bold text-amber-900 bg-amber-100/90 border border-amber-300/80 px-4 py-1.5 rounded-2xl shadow-2xs">
-          <span>{meeQuote}</span>
-        </span>
+          {/* Nút Đặt Lại 🔄 */}
+          {showResetButton && (
+            <button
+              type="button"
+              onClick={handleResetAll}
+              title="Đặt lại thao tác (Đưa tất cả táo về lại cây)"
+              className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-black bg-white hover:bg-slate-100 text-slate-700 transition-all cursor-pointer border border-emerald-300 shadow-2xs active:scale-95 shrink-0"
+            >
+              <RefreshCw className="size-3.5 text-emerald-600" />
+              <span className="hidden xs:inline">Đặt lại thao tác</span>
+              <span className="xs:hidden">Đặt lại</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          1. TÁN CÂY TÁO MẸ 🌳 SOFT CLAY HOẠT HÌNH
+          2. TÁN CÂY TÁO MẸ 🌳 SOFT CLAY HOẠT HÌNH
       ══════════════════════════════════════════════════════════════════════ */}
-      <div className="relative w-full max-w-xl h-60 sm:h-72 rounded-3xl overflow-hidden bg-gradient-to-b from-sky-200/70 via-sky-100/60 to-emerald-100/80 border-2 border-emerald-200 shadow-inner flex items-center justify-center p-2">
+      <div className="relative w-full max-w-2xl h-64 sm:h-76 rounded-3xl overflow-hidden bg-gradient-to-b from-sky-200/80 via-sky-100/70 to-emerald-100/90 border-2 border-emerald-200 shadow-inner flex items-center justify-center p-2">
         {/* Floating Clouds & Sky Accents */}
         <div className="absolute top-2 left-6 text-2xl opacity-80 animate-pulse select-none">☁️</div>
         <div className="absolute top-4 right-8 text-xl opacity-75 animate-pulse select-none">☁️</div>
@@ -265,7 +308,7 @@ export function AsmoInteractiveAppleTreeCanvas({
         <div className="absolute top-8 right-1/4 text-sm opacity-60 select-none">✨</div>
 
         {/* Tree Header Counter Badge */}
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 text-xs sm:text-sm font-black text-emerald-900 bg-white/90 backdrop-blur-xs px-3.5 py-1 rounded-full border border-emerald-300 shadow-clay z-20 whitespace-nowrap">
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 text-xs sm:text-sm font-black text-emerald-950 bg-white/95 backdrop-blur-xs px-4 py-1.5 rounded-full border border-emerald-300 shadow-clay z-20 whitespace-nowrap">
           🌳 Cây Táo Mẹ: 🍎 {remainingTreeRed} quả đỏ • 🍏 {remainingTreeGreen} quả xanh
         </div>
 
@@ -356,7 +399,7 @@ export function AsmoInteractiveAppleTreeCanvas({
           <circle cx="390" cy="265" r="5" fill="#38bdf8" />
         </svg>
 
-        {/* Tree Interactive Layer: Hanging Apples */}
+        {/* Tree Interactive Layer: Large Hanging Apples */}
         <div className="relative w-full h-full z-10">
           {/* 🍎 RED APPLES CLUSTER (LEFT CANOPY) */}
           {RED_APPLE_POSITIONS.slice(0, remainingTreeRed).map((pos, idx) => (
@@ -417,7 +460,7 @@ export function AsmoInteractiveAppleTreeCanvas({
           {/* If all apples on tree are picked */}
           {remainingTreeRed === 0 && remainingTreeGreen === 0 && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="bg-white/95 text-emerald-900 font-black text-xs sm:text-sm px-5 py-2.5 rounded-2xl shadow-clay border-2 border-emerald-300 animate-bounce">
+              <span className="bg-white/95 text-emerald-950 font-black text-xs sm:text-sm px-5 py-2.5 rounded-2xl shadow-clay border-2 border-emerald-400 animate-bounce">
                 🎉 Bé đã hái hết táo trên cây vào 2 chiếc giỏ xinh xắn!
               </span>
             </div>
@@ -426,10 +469,9 @@ export function AsmoInteractiveAppleTreeCanvas({
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          2. HAI CHIẾC GIỎ MÂY ĐAN 3D (AUTHENTIC 3D WOVEN WICKER CLAY BASKETS)
-             KÈM BỆ BẢNG ĐẾM SỐ ĐỒ CHƠI GỖ MONTESSORI
+          3. HAI CHIẾC GIỎ MÂY ĐAN 3D TO BỰ KÈM BỆ BẢNG ĐẾM SỐ MONTESSORI
       ══════════════════════════════════════════════════════════════════════ */}
-      <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pt-2">
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pt-1">
         {/* 🧺 CHIẾC GIỎ MÂY A: TÁO ĐỎ 🍎 (NƠ ĐỎ 🎀) */}
         <div
           onDragOver={(e) => handleDragOverBasket(e, 'A')}
@@ -443,7 +485,6 @@ export function AsmoInteractiveAppleTreeCanvas({
         >
           {/* QUAI GIỎ MÂY UỐN VÒM (ARCHING BASKET HANDLE) VỚI NƠ ĐỎ 🎀 */}
           <div className="relative w-44 sm:w-52 h-14 sm:h-16 flex items-center justify-center -mb-3 z-10">
-            {/* SVG Wicker Curved Handle Arch */}
             <svg
               viewBox="0 0 200 80"
               className="w-full h-full drop-shadow-md overflow-visible"
@@ -456,7 +497,6 @@ export function AsmoInteractiveAppleTreeCanvas({
                   <stop offset="100%" stopColor="#92400e" />
                 </linearGradient>
               </defs>
-              {/* Thick braided handle arch */}
               <path
                 d="M 20,80 Q 100,-15 180,80"
                 fill="none"
@@ -494,7 +534,7 @@ export function AsmoInteractiveAppleTreeCanvas({
               style={wovenTextureStyle}
             />
 
-            {/* MIỆNG GIỎ MÂY TRE ĐAN DÀY DẶN (WOVEN BASKET RIM) */}
+            {/* MIỆNG GIỎ MÂY TRE ĐAN (WOVEN BASKET RIM) */}
             <div className="relative z-10 w-full bg-gradient-to-r from-amber-300 via-amber-200 to-amber-300 border-b-3 border-amber-400/80 px-4 py-2 flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-1.5">
                 <ShoppingBasket className="size-4 text-amber-900 shrink-0" />
@@ -555,7 +595,6 @@ export function AsmoInteractiveAppleTreeCanvas({
 
             {/* CỤM NÚT TĂNG GIẢM & Ô SỐ LƯỢNG TRUNG TÂM */}
             <div className="flex items-center gap-2">
-              {/* Nút Trừ ➖ */}
               <button
                 type="button"
                 aria-label="Bớt táo đỏ giỏ A"
@@ -566,12 +605,10 @@ export function AsmoInteractiveAppleTreeCanvas({
                 <Minus className="size-5 stroke-[3.5]" />
               </button>
 
-              {/* Ô Số Lượng Trung Tâm 3D */}
               <div className="size-12 sm:size-14 rounded-2xl bg-white border-3 border-rose-400 font-display font-black text-2xl sm:text-3xl text-rose-600 shadow-inner flex items-center justify-center select-none">
                 {applesA}
               </div>
 
-              {/* Nút Cộng ➕ */}
               <button
                 type="button"
                 aria-label="Thêm táo đỏ giỏ A"
@@ -598,7 +635,6 @@ export function AsmoInteractiveAppleTreeCanvas({
         >
           {/* QUAI GIỎ MÂY UỐN VÒM (ARCHING BASKET HANDLE) VỚI NƠ XANH LÁ 🎗️ */}
           <div className="relative w-44 sm:w-52 h-14 sm:h-16 flex items-center justify-center -mb-3 z-10">
-            {/* SVG Wicker Curved Handle Arch */}
             <svg
               viewBox="0 0 200 80"
               className="w-full h-full drop-shadow-md overflow-visible"
@@ -611,7 +647,6 @@ export function AsmoInteractiveAppleTreeCanvas({
                   <stop offset="100%" stopColor="#92400e" />
                 </linearGradient>
               </defs>
-              {/* Thick braided handle arch */}
               <path
                 d="M 20,80 Q 100,-15 180,80"
                 fill="none"
@@ -649,7 +684,7 @@ export function AsmoInteractiveAppleTreeCanvas({
               style={wovenTextureStyle}
             />
 
-            {/* MIỆNG GIỎ MÂY TRE ĐAN DÀY DẶN (WOVEN BASKET RIM) */}
+            {/* MIỆNG GIỎ MÂY TRE ĐAN (WOVEN BASKET RIM) */}
             <div className="relative z-10 w-full bg-gradient-to-r from-amber-300 via-amber-200 to-amber-300 border-b-3 border-amber-400/80 px-4 py-2 flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-1.5">
                 <ShoppingBasket className="size-4 text-amber-900 shrink-0" />
@@ -710,7 +745,6 @@ export function AsmoInteractiveAppleTreeCanvas({
 
             {/* CỤM NÚT TĂNG GIẢM & Ô SỐ LƯỢNG TRUNG TÂM */}
             <div className="flex items-center gap-2">
-              {/* Nút Trừ ➖ */}
               <button
                 type="button"
                 aria-label="Bớt táo xanh giỏ B"
@@ -721,12 +755,10 @@ export function AsmoInteractiveAppleTreeCanvas({
                 <Minus className="size-5 stroke-[3.5]" />
               </button>
 
-              {/* Ô Số Lượng Trung Tâm 3D */}
               <div className="size-12 sm:size-14 rounded-2xl bg-white border-3 border-emerald-400 font-display font-black text-2xl sm:text-3xl text-emerald-600 shadow-inner flex items-center justify-center select-none">
                 {applesB}
               </div>
 
-              {/* Nút Cộng ➕ */}
               <button
                 type="button"
                 aria-label="Thêm táo xanh giỏ B"
@@ -752,35 +784,90 @@ export function AsmoInteractiveAppleTreeCanvas({
       )}
 
       {/* ══════════════════════════════════════════════════════════════════════
-          3. THANH PHÉP TÍNH THỜI GIAN THỰC (KATEX & SUMMARY)
+          4. BẢNG TÍNH ĐỒ CHƠI MONTESSORI KHỔNG LỒ & HIỆU ỨNG CHÚC MỪNG
       ══════════════════════════════════════════════════════════════════════ */}
       {showFormulaBar && (
-        <div className="w-full bg-white/95 border-2 border-emerald-300 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
-          <div className="flex items-center justify-center gap-1 text-xs font-black uppercase text-emerald-800 tracking-wider">
-            <Sparkles className="size-3.5 text-amber-500" />
+        <div className="w-full bg-gradient-to-br from-white via-amber-50/50 to-emerald-50/50 border-3 border-amber-300/90 rounded-3xl p-4 sm:p-5 text-center shadow-clay space-y-3 relative overflow-hidden">
+          <div className="flex items-center justify-center gap-1.5 text-xs font-black uppercase text-emerald-800 tracking-wider">
+            <Sparkles className="size-4 text-amber-500 animate-spin" />
             <span>🌟 Tổng số táo trong cả 2 giỏ:</span>
           </div>
 
-          <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base font-bold text-slate-800">
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-2xl bg-rose-50 border border-rose-300 text-rose-800 font-extrabold shadow-2xs">
-              🍎 Giỏ A ({applesA} quả)
-            </span>
-            <span className="text-lg font-black text-slate-400">+</span>
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-2xl bg-emerald-50 border border-emerald-300 text-emerald-800 font-extrabold shadow-2xs">
-              🍏 Giỏ B ({applesB} quả)
-            </span>
-            <span className="text-lg font-black text-slate-400">=</span>
-            <span className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-2xl bg-amber-100 border-2 border-amber-400 text-amber-950 font-black text-base sm:text-lg shadow-clay">
-              <span>🌟</span>
-              <span>{totalApples} quả táo tổng cộng</span>
-              <span className="text-xs font-bold text-amber-800">({totalApples} quả táo thơm ngon)</span>
+          {/* KHỐI PHÉP TÍNH ĐỒ CHƠI GỖ KHỔNG LỒ (GIANT MONTESSORI WOODEN BLOCKS) */}
+          <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap select-none my-1">
+            {/* Khối Giỏ A */}
+            <div className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-2xl bg-gradient-to-b from-rose-50 to-rose-100 border-2 border-rose-400 shadow-clay">
+              <span className="text-2xl sm:text-3xl">🍎</span>
+              <span className="font-display font-black text-2xl sm:text-3xl text-rose-700">
+                {applesA}
+              </span>
+            </div>
+
+            {/* Dấu Cộng Khổng Lồ */}
+            <div className="size-10 sm:size-12 rounded-2xl bg-amber-400 text-slate-950 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-white">
+              +
+            </div>
+
+            {/* Khối Giỏ B */}
+            <div className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-2xl bg-gradient-to-b from-emerald-50 to-emerald-100 border-2 border-emerald-400 shadow-clay">
+              <span className="text-2xl sm:text-3xl">🍏</span>
+              <span className="font-display font-black text-2xl sm:text-3xl text-emerald-700">
+                {applesB}
+              </span>
+            </div>
+
+            {/* Dấu Bằng Khổng Lồ */}
+            <div className="size-10 sm:size-12 rounded-2xl bg-amber-400 text-slate-950 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-white">
+              =
+            </div>
+
+            {/* Khối Kết Quả Phát Sáng */}
+            <div
+              className={cn(
+                'flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl border-3 shadow-clay transition-all duration-300',
+                totalApples === 10
+                  ? 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 border-amber-500 text-slate-950 scale-110 ring-4 ring-amber-300 animate-pulse'
+                  : 'bg-white border-brand-400 text-brand-900',
+              )}
+            >
+              <span className="font-display font-black text-3xl sm:text-4xl text-amber-950">
+                {totalApples}
+              </span>
+              <span className="text-2xl animate-bounce">✨</span>
+            </div>
+          </div>
+
+          {/* Text mô tả cho test & phụ huynh */}
+          <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm font-bold text-slate-700">
+            <span className="text-amber-950 font-black">
+              {totalApples} quả táo tổng cộng ({totalApples} quả táo thơm ngon)
             </span>
           </div>
 
           {/* KaTeX Standard Display */}
-          <div className="pt-1 text-xs sm:text-sm text-emerald-900 font-semibold">
+          <div className="pt-0.5 text-xs text-emerald-900 font-semibold opacity-80">
             <AsmoFormula text={`$$${formulaLatex}$$`} />
           </div>
+
+          {/* Nút Chuyển Bước Tiếp Theo ➔ phát sáng hào quang */}
+          {onNextPhase && (
+            <div className="pt-2 flex justify-center">
+              <button
+                type="button"
+                onClick={onNextPhase}
+                className={cn(
+                  'group relative inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl font-black text-sm sm:text-base transition-all duration-300 cursor-pointer shadow-clay active:scale-95',
+                  totalApples > 0
+                    ? 'bg-gradient-to-r from-amber-400 via-brand-500 to-rose-500 text-white border-2 border-white ring-4 ring-amber-300/80 animate-pop hover:brightness-110'
+                    : 'bg-brand-600 hover:bg-brand-700 text-white',
+                )}
+              >
+                <Star className="size-4 text-yellow-200 fill-yellow-200 animate-spin" />
+                <span>Chuyển Bước Tiếp Theo</span>
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
