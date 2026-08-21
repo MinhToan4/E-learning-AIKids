@@ -242,19 +242,19 @@ export function AsmoInteractiveAppleTreeCanvas({
   return (
     <div
       className={cn(
-        'relative w-full rounded-3xl overflow-hidden bg-gradient-to-b from-sky-100/90 via-emerald-50/70 to-amber-50/80 border-2 border-emerald-300 shadow-clay p-3 sm:p-5 text-slate-800 flex flex-col items-center space-y-3 sm:space-y-4 select-none',
+        'relative w-full rounded-3xl overflow-hidden bg-white border-2 border-brand-100 shadow-clay p-3 sm:p-5 text-slate-800 flex flex-col items-center space-y-3 sm:space-y-4 select-none',
         className,
       )}
     >
       {/* ══════════════════════════════════════════════════════════════════════
           1. THANH NHIỆM VỤ HOẠT HÌNH TINH GỌN DUY NHẤT (STREAMLINED MISSION BAR)
       ══════════════════════════════════════════════════════════════════════ */}
-      <div className="w-full flex flex-wrap items-center justify-between gap-2.5 px-3.5 sm:px-4 py-2.5 rounded-2xl bg-gradient-to-r from-amber-100/95 via-white to-emerald-100/95 border-2 border-amber-300 shadow-xs">
+      <div className="w-full flex flex-wrap items-center justify-between gap-2.5 px-3.5 sm:px-4 py-2.5 rounded-2xl bg-brand-50/80 border-2 border-brand-100 shadow-2xs">
         <div className="flex items-center gap-2 min-w-0 flex-1">
           <span className="text-xl sm:text-2xl shrink-0 animate-bounce">🍎</span>
           <div className="min-w-0 flex-1 space-y-0.5">
             {title && !title.includes('Vườn Cây Táo Mẹ: Thao Tác') && title !== instruction && (
-              <span className="text-xs font-black text-emerald-900 block truncate">
+              <span className="text-xs font-black text-brand-900 block truncate">
                 {title}
               </span>
             )}
@@ -262,7 +262,7 @@ export function AsmoInteractiveAppleTreeCanvas({
               {instruction || title || '🍎 Chạm hoặc kéo táo vào giỏ để gộp thành 10 nhé! 🧺'}
             </p>
             {meeQuote && meeQuote !== instruction && meeQuote !== title && (
-              <span className="text-[11px] font-bold text-amber-900 block">
+              <span className="text-[11px] font-bold text-slate-600 block">
                 {meeQuote}
               </span>
             )}
@@ -276,7 +276,7 @@ export function AsmoInteractiveAppleTreeCanvas({
             onClick={() => speakVietnamese(instruction || meeQuote || title || '🍎 Chạm hoặc kéo táo vào giỏ để gộp thành 10 nhé! 🧺')}
             title="Nghe Mèo Mee đọc hướng dẫn"
             aria-label="Phát âm thanh giọng nói"
-            className="flex items-center justify-center size-8 sm:size-9 rounded-xl bg-amber-500 hover:bg-amber-400 text-white shadow-xs border border-amber-600 transition-all active:scale-90 cursor-pointer"
+            className="flex items-center justify-center size-8 sm:size-9 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white shadow-clay transition-all active:scale-90 cursor-pointer"
           >
             <Volume2 className="size-4 stroke-[2.5]" />
           </button>
@@ -287,9 +287,9 @@ export function AsmoInteractiveAppleTreeCanvas({
               type="button"
               onClick={handleResetAll}
               title="Đặt lại thao tác (Đưa tất cả táo về lại cây)"
-              className="flex items-center gap-1 px-2.5 sm:px-3 py-1.5 rounded-xl text-xs font-black bg-white hover:bg-slate-100 text-slate-700 transition-all cursor-pointer border border-emerald-300 shadow-2xs active:scale-95 shrink-0"
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-extrabold bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 shadow-2xs transition-all cursor-pointer active:scale-95 shrink-0"
             >
-              <RefreshCw className="size-3.5 text-emerald-600" />
+              <RefreshCw className="size-3.5 text-brand-600" />
               <span className="hidden xs:inline">Đặt lại thao tác</span>
               <span className="xs:hidden">Đặt lại</span>
             </button>
@@ -300,7 +300,7 @@ export function AsmoInteractiveAppleTreeCanvas({
       {/* ══════════════════════════════════════════════════════════════════════
           2. TÁN CÂY TÁO MẸ 🌳 SOFT CLAY HOẠT HÌNH
       ══════════════════════════════════════════════════════════════════════ */}
-      <div className="relative w-full max-w-2xl h-64 sm:h-76 rounded-3xl overflow-hidden bg-gradient-to-b from-sky-200/80 via-sky-100/70 to-emerald-100/90 border-2 border-emerald-200 shadow-inner flex items-center justify-center p-2">
+      <div className="relative w-full max-w-2xl h-64 sm:h-76 rounded-3xl overflow-hidden bg-gradient-to-b from-sky-100/90 via-sky-50/70 to-mint-50/80 border-2 border-brand-100 shadow-inner flex items-center justify-center p-2">
         {/* Floating Clouds & Sky Accents */}
         <div className="absolute top-2 left-6 text-2xl opacity-80 animate-pulse select-none">☁️</div>
         <div className="absolute top-4 right-8 text-xl opacity-75 animate-pulse select-none">☁️</div>
@@ -308,7 +308,7 @@ export function AsmoInteractiveAppleTreeCanvas({
         <div className="absolute top-8 right-1/4 text-sm opacity-60 select-none">✨</div>
 
         {/* Tree Header Counter Badge */}
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 text-xs sm:text-sm font-black text-emerald-950 bg-white/95 backdrop-blur-xs px-4 py-1.5 rounded-full border border-emerald-300 shadow-clay z-20 whitespace-nowrap">
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 text-xs sm:text-sm font-black text-slate-900 bg-white/95 backdrop-blur-xs px-4 py-1.5 rounded-full border-2 border-brand-100 shadow-clay z-20 whitespace-nowrap">
           🌳 Cây Táo Mẹ: 🍎 {remainingTreeRed} quả đỏ • 🍏 {remainingTreeGreen} quả xanh
         </div>
 
@@ -421,7 +421,7 @@ export function AsmoInteractiveAppleTreeCanvas({
                 'absolute select-none transition-all duration-200 cursor-grab active:cursor-grabbing',
                 'hover:scale-130 active:scale-95 drop-shadow-md hover:drop-shadow-xl',
                 'flex items-center justify-center text-3xl sm:text-4xl p-1 rounded-full',
-                'hover:ring-4 hover:ring-rose-400 hover:bg-white/50 active:scale-90',
+                'hover:ring-4 hover:ring-coral-400 hover:bg-white/50 active:scale-90',
                 draggingType === 'A' && 'opacity-70 scale-110',
               )}
             >
@@ -449,7 +449,7 @@ export function AsmoInteractiveAppleTreeCanvas({
                 'absolute select-none transition-all duration-200 cursor-grab active:cursor-grabbing',
                 'hover:scale-130 active:scale-95 drop-shadow-md hover:drop-shadow-xl',
                 'flex items-center justify-center text-3xl sm:text-4xl p-1 rounded-full',
-                'hover:ring-4 hover:ring-emerald-400 hover:bg-white/50 active:scale-90',
+                'hover:ring-4 hover:ring-mint-400 hover:bg-white/50 active:scale-90',
                 draggingType === 'B' && 'opacity-70 scale-110',
               )}
             >
@@ -460,7 +460,7 @@ export function AsmoInteractiveAppleTreeCanvas({
           {/* If all apples on tree are picked */}
           {remainingTreeRed === 0 && remainingTreeGreen === 0 && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="bg-white/95 text-emerald-950 font-black text-xs sm:text-sm px-5 py-2.5 rounded-2xl shadow-clay border-2 border-emerald-400 animate-bounce">
+              <span className="bg-white/95 text-slate-900 font-black text-xs sm:text-sm px-5 py-2.5 rounded-2xl shadow-clay border-2 border-brand-100 animate-bounce">
                 🎉 Bé đã hái hết táo trên cây vào 2 chiếc giỏ xinh xắn!
               </span>
             </div>
@@ -514,8 +514,8 @@ export function AsmoInteractiveAppleTreeCanvas({
               />
             </svg>
 
-            {/* Chiếc Nơ Ruy Băng Đỏ 🎀 ở Đỉnh Quai Giỏ A */}
-            <div className="absolute -top-1 sm:-top-2 flex items-center justify-center size-9 sm:size-10 rounded-full bg-gradient-to-br from-rose-500 to-rose-700 border-2 border-white shadow-md select-none animate-pulse">
+            {/* Chiếc Nơ Ruy Băng Đỏ 🎀 ở Đỉnh Quai Giỏ A (coral-500) */}
+            <div className="absolute -top-1 sm:-top-2 flex items-center justify-center size-9 sm:size-10 rounded-full bg-coral-500 border-2 border-white shadow-md select-none animate-pulse">
               <span className="text-xl sm:text-2xl -mt-0.5">🎀</span>
             </div>
           </div>
@@ -523,9 +523,9 @@ export function AsmoInteractiveAppleTreeCanvas({
           {/* THÀNH GIỎ MÂY ĐAN 3D (WOVEN CLAY BASKET BODY) */}
           <div
             className={cn(
-              'w-full flex flex-col items-center rounded-t-2xl rounded-b-[2.5rem] border-4 border-amber-400/90 shadow-clay bg-gradient-to-b from-amber-100 via-amber-50 to-orange-100 transition-all duration-300 relative overflow-hidden',
-              isDragOverA && 'ring-4 ring-amber-400 bg-rose-50/95 shadow-2xl border-rose-400',
-              justDroppedA && 'ring-4 ring-rose-400 bg-rose-100/90',
+              'w-full flex flex-col items-center rounded-t-2xl rounded-b-[2.5rem] border-4 border-coral-200/90 shadow-clay bg-gradient-to-b from-coral-50/70 via-amber-50/40 to-orange-50/60 transition-all duration-300 relative overflow-hidden',
+              isDragOverA && 'ring-4 ring-coral-400 bg-coral-100/90 shadow-2xl border-coral-400',
+              justDroppedA && 'ring-4 ring-coral-400 bg-coral-100/90',
             )}
           >
             {/* Wicker Weave Texture Layer */}
@@ -535,14 +535,14 @@ export function AsmoInteractiveAppleTreeCanvas({
             />
 
             {/* MIỆNG GIỎ MÂY TRE ĐAN (WOVEN BASKET RIM) */}
-            <div className="relative z-10 w-full bg-gradient-to-r from-amber-300 via-amber-200 to-amber-300 border-b-3 border-amber-400/80 px-4 py-2 flex items-center justify-between shadow-xs">
+            <div className="relative z-10 w-full bg-coral-100 border-b-2 border-coral-200 px-4 py-2 flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-1.5">
-                <ShoppingBasket className="size-4 text-amber-900 shrink-0" />
-                <span className="text-xs sm:text-sm font-black text-rose-900 tracking-tight">
+                <ShoppingBasket className="size-4 text-coral-800 shrink-0" />
+                <span className="text-xs sm:text-sm font-black text-coral-900 tracking-tight">
                   Giỏ A (Táo Đỏ): 🍎
                 </span>
               </div>
-              <span className="text-[11px] font-black text-amber-900 bg-white/80 border border-amber-300 px-2 py-0.5 rounded-full shadow-2xs">
+              <span className="text-[11px] font-black text-coral-900 bg-white/90 border border-coral-200 px-2 py-0.5 rounded-full shadow-2xs">
                 {applesA} / {maxApplesPerBasket}
               </span>
             </div>
@@ -551,13 +551,13 @@ export function AsmoInteractiveAppleTreeCanvas({
             <div
               className={cn(
                 'relative z-10 w-full min-h-28 sm:min-h-32 p-3 sm:p-4 flex items-center justify-center flex-wrap gap-1.5 sm:gap-2 transition-colors',
-                isDragOverA && 'bg-rose-100/60',
+                isDragOverA && 'bg-coral-100/60',
               )}
             >
               {applesA === 0 ? (
-                <div className="flex flex-col items-center justify-center text-center py-2 text-rose-400 space-y-1">
+                <div className="flex flex-col items-center justify-center text-center py-2 text-coral-400 space-y-1">
                   <span className="text-2xl sm:text-3xl animate-bounce">🧺</span>
-                  <span className="text-xs font-black text-rose-700 italic">
+                  <span className="text-xs font-black text-coral-700 italic">
                     Chạm hoặc kéo táo đỏ 🍎 vào giỏ A
                   </span>
                 </div>
@@ -578,17 +578,17 @@ export function AsmoInteractiveAppleTreeCanvas({
 
             {/* Dragging Feedback Indicator */}
             {isDragOverA && (
-              <div className="relative z-10 w-full text-center pb-2 text-xs font-black text-rose-800 animate-pulse">
+              <div className="relative z-10 w-full text-center pb-2 text-xs font-black text-coral-800 animate-pulse">
                 ✨ Thả tay để cho táo vào Giỏ A!
               </div>
             )}
           </div>
 
           {/* BỆ BẢNG ĐẾM SỐ ĐỒ CHƠI GỖ (TOY WOODEN NUMBER PEDESTAL) */}
-          <div className="w-full bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 border-2 border-amber-300 shadow-clay rounded-2xl p-2 sm:p-2.5 flex items-center justify-between gap-2 mt-2 z-10">
+          <div className="w-full bg-coral-50/70 border-2 border-coral-200 shadow-clay rounded-2xl p-2 sm:p-2.5 flex items-center justify-between gap-2 mt-2 z-10">
             <div className="flex items-center gap-1.5 pl-1">
               <span className="text-sm">🏷️</span>
-              <span className="text-xs sm:text-sm font-black text-rose-950">
+              <span className="text-xs sm:text-sm font-black text-coral-950">
                 Giỏ A (Táo Đỏ)
               </span>
             </div>
@@ -600,12 +600,12 @@ export function AsmoInteractiveAppleTreeCanvas({
                 aria-label="Bớt táo đỏ giỏ A"
                 disabled={applesA <= 0}
                 onClick={() => handleSubApple('A')}
-                className="size-10 sm:size-11 rounded-2xl bg-rose-100 hover:bg-rose-200 text-rose-800 font-black text-xl shadow-clay active:scale-90 transition-transform cursor-pointer border-2 border-rose-300 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
+                className="size-10 sm:size-11 rounded-2xl bg-coral-500 hover:bg-coral-600 text-white font-black text-xl shadow-clay active:scale-90 transition-all cursor-pointer border-2 border-coral-600 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
               >
                 <Minus className="size-5 stroke-[3.5]" />
               </button>
 
-              <div className="size-12 sm:size-14 rounded-2xl bg-white border-3 border-rose-400 font-display font-black text-2xl sm:text-3xl text-rose-600 shadow-inner flex items-center justify-center select-none">
+              <div className="size-12 sm:size-14 rounded-2xl bg-white border-2 border-slate-200 font-display font-black text-2xl sm:text-3xl text-slate-900 shadow-inner flex items-center justify-center select-none">
                 {applesA}
               </div>
 
@@ -614,7 +614,7 @@ export function AsmoInteractiveAppleTreeCanvas({
                 aria-label="Thêm táo đỏ giỏ A"
                 disabled={applesA >= maxApplesPerBasket}
                 onClick={() => handleAddApple('A')}
-                className="size-10 sm:size-11 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-black text-xl shadow-clay active:scale-90 transition-transform cursor-pointer border-2 border-rose-600 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
+                className="size-10 sm:size-11 rounded-2xl bg-coral-500 hover:bg-coral-600 text-white font-black text-xl shadow-clay active:scale-90 transition-all cursor-pointer border-2 border-coral-600 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
               >
                 <Plus className="size-5 stroke-[3.5]" />
               </button>
@@ -664,8 +664,8 @@ export function AsmoInteractiveAppleTreeCanvas({
               />
             </svg>
 
-            {/* Chiếc Nơ Ruy Băng Xanh Lá 🎗️ ở Đỉnh Quai Giỏ B */}
-            <div className="absolute -top-1 sm:-top-2 flex items-center justify-center size-9 sm:size-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 border-2 border-white shadow-md select-none animate-pulse">
+            {/* Chiếc Nơ Ruy Băng Xanh Lá 🎗️ ở Đỉnh Quai Giỏ B (mint-600) */}
+            <div className="absolute -top-1 sm:-top-2 flex items-center justify-center size-9 sm:size-10 rounded-full bg-mint-600 border-2 border-white shadow-md select-none animate-pulse">
               <span className="text-xl sm:text-2xl -mt-0.5">🎗️</span>
             </div>
           </div>
@@ -673,9 +673,9 @@ export function AsmoInteractiveAppleTreeCanvas({
           {/* THÀNH GIỎ MÂY ĐAN 3D (WOVEN CLAY BASKET BODY) */}
           <div
             className={cn(
-              'w-full flex flex-col items-center rounded-t-2xl rounded-b-[2.5rem] border-4 border-amber-400/90 shadow-clay bg-gradient-to-b from-amber-100 via-amber-50 to-orange-100 transition-all duration-300 relative overflow-hidden',
-              isDragOverB && 'ring-4 ring-amber-400 bg-emerald-50/95 shadow-2xl border-emerald-400',
-              justDroppedB && 'ring-4 ring-emerald-400 bg-emerald-100/90',
+              'w-full flex flex-col items-center rounded-t-2xl rounded-b-[2.5rem] border-4 border-mint-200/90 shadow-clay bg-gradient-to-b from-mint-50/70 via-emerald-50/40 to-teal-50/60 transition-all duration-300 relative overflow-hidden',
+              isDragOverB && 'ring-4 ring-mint-400 bg-mint-100/90 shadow-2xl border-mint-400',
+              justDroppedB && 'ring-4 ring-mint-400 bg-mint-100/90',
             )}
           >
             {/* Wicker Weave Texture Layer */}
@@ -685,14 +685,14 @@ export function AsmoInteractiveAppleTreeCanvas({
             />
 
             {/* MIỆNG GIỎ MÂY TRE ĐAN (WOVEN BASKET RIM) */}
-            <div className="relative z-10 w-full bg-gradient-to-r from-amber-300 via-amber-200 to-amber-300 border-b-3 border-amber-400/80 px-4 py-2 flex items-center justify-between shadow-xs">
+            <div className="relative z-10 w-full bg-mint-100 border-b-2 border-mint-200 px-4 py-2 flex items-center justify-between shadow-xs">
               <div className="flex items-center gap-1.5">
-                <ShoppingBasket className="size-4 text-amber-900 shrink-0" />
-                <span className="text-xs sm:text-sm font-black text-emerald-900 tracking-tight">
+                <ShoppingBasket className="size-4 text-mint-800 shrink-0" />
+                <span className="text-xs sm:text-sm font-black text-mint-900 tracking-tight">
                   Giỏ B (Táo Xanh): 🍏
                 </span>
               </div>
-              <span className="text-[11px] font-black text-amber-900 bg-white/80 border border-amber-300 px-2 py-0.5 rounded-full shadow-2xs">
+              <span className="text-[11px] font-black text-mint-900 bg-white/90 border border-mint-200 px-2 py-0.5 rounded-full shadow-2xs">
                 {applesB} / {maxApplesPerBasket}
               </span>
             </div>
@@ -701,13 +701,13 @@ export function AsmoInteractiveAppleTreeCanvas({
             <div
               className={cn(
                 'relative z-10 w-full min-h-28 sm:min-h-32 p-3 sm:p-4 flex items-center justify-center flex-wrap gap-1.5 sm:gap-2 transition-colors',
-                isDragOverB && 'bg-emerald-100/60',
+                isDragOverB && 'bg-mint-100/60',
               )}
             >
               {applesB === 0 ? (
-                <div className="flex flex-col items-center justify-center text-center py-2 text-emerald-500 space-y-1">
+                <div className="flex flex-col items-center justify-center text-center py-2 text-mint-400 space-y-1">
                   <span className="text-2xl sm:text-3xl animate-bounce">🧺</span>
-                  <span className="text-xs font-black text-emerald-700 italic">
+                  <span className="text-xs font-black text-mint-700 italic">
                     Chạm hoặc kéo táo xanh 🍏 vào giỏ B
                   </span>
                 </div>
@@ -728,17 +728,17 @@ export function AsmoInteractiveAppleTreeCanvas({
 
             {/* Dragging Feedback Indicator */}
             {isDragOverB && (
-              <div className="relative z-10 w-full text-center pb-2 text-xs font-black text-emerald-800 animate-pulse">
+              <div className="relative z-10 w-full text-center pb-2 text-xs font-black text-mint-800 animate-pulse">
                 ✨ Thả tay để cho táo vào Giỏ B!
               </div>
             )}
           </div>
 
           {/* BỆ BẢNG ĐẾM SỐ ĐỒ CHƠI GỖ (TOY WOODEN NUMBER PEDESTAL) */}
-          <div className="w-full bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 border-2 border-amber-300 shadow-clay rounded-2xl p-2 sm:p-2.5 flex items-center justify-between gap-2 mt-2 z-10">
+          <div className="w-full bg-mint-50/70 border-2 border-mint-200 shadow-clay rounded-2xl p-2 sm:p-2.5 flex items-center justify-between gap-2 mt-2 z-10">
             <div className="flex items-center gap-1.5 pl-1">
               <span className="text-sm">🏷️</span>
-              <span className="text-xs sm:text-sm font-black text-emerald-950">
+              <span className="text-xs sm:text-sm font-black text-mint-950">
                 Giỏ B (Táo Xanh)
               </span>
             </div>
@@ -750,12 +750,12 @@ export function AsmoInteractiveAppleTreeCanvas({
                 aria-label="Bớt táo xanh giỏ B"
                 disabled={applesB <= 0}
                 onClick={() => handleSubApple('B')}
-                className="size-10 sm:size-11 rounded-2xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-black text-xl shadow-clay active:scale-90 transition-transform cursor-pointer border-2 border-emerald-300 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
+                className="size-10 sm:size-11 rounded-2xl bg-mint-600 hover:bg-mint-700 text-white font-black text-xl shadow-clay active:scale-90 transition-all cursor-pointer border-2 border-mint-700 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
               >
                 <Minus className="size-5 stroke-[3.5]" />
               </button>
 
-              <div className="size-12 sm:size-14 rounded-2xl bg-white border-3 border-emerald-400 font-display font-black text-2xl sm:text-3xl text-emerald-600 shadow-inner flex items-center justify-center select-none">
+              <div className="size-12 sm:size-14 rounded-2xl bg-white border-2 border-slate-200 font-display font-black text-2xl sm:text-3xl text-slate-900 shadow-inner flex items-center justify-center select-none">
                 {applesB}
               </div>
 
@@ -764,7 +764,7 @@ export function AsmoInteractiveAppleTreeCanvas({
                 aria-label="Thêm táo xanh giỏ B"
                 disabled={applesB >= maxApplesPerBasket}
                 onClick={() => handleAddApple('B')}
-                className="size-10 sm:size-11 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xl shadow-clay active:scale-90 transition-transform cursor-pointer border-2 border-emerald-700 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
+                className="size-10 sm:size-11 rounded-2xl bg-mint-600 hover:bg-mint-700 text-white font-black text-xl shadow-clay active:scale-90 transition-all cursor-pointer border-2 border-mint-700 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
               >
                 <Plus className="size-5 stroke-[3.5]" />
               </button>
@@ -787,50 +787,48 @@ export function AsmoInteractiveAppleTreeCanvas({
           4. BẢNG TÍNH ĐỒ CHƠI MONTESSORI KHỔNG LỒ & HIỆU ỨNG CHÚC MỪNG
       ══════════════════════════════════════════════════════════════════════ */}
       {showFormulaBar && (
-        <div className="w-full bg-gradient-to-br from-white via-amber-50/50 to-emerald-50/50 border-3 border-amber-300/90 rounded-3xl p-4 sm:p-5 text-center shadow-clay space-y-3 relative overflow-hidden">
-          <div className="flex items-center justify-center gap-1.5 text-xs font-black uppercase text-emerald-800 tracking-wider">
-            <Sparkles className="size-4 text-amber-500 animate-spin" />
+        <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-4 sm:p-5 text-center shadow-clay space-y-3 relative overflow-hidden">
+          <div className="flex items-center justify-center gap-1.5 text-xs font-black uppercase text-brand-700 tracking-wider">
+            <Sparkles className="size-4 text-sun-500 animate-spin" />
             <span>🌟 Tổng số táo trong cả 2 giỏ:</span>
           </div>
 
           {/* KHỐI PHÉP TÍNH ĐỒ CHƠI GỖ KHỔNG LỒ (GIANT MONTESSORI WOODEN BLOCKS) */}
           <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap select-none my-1">
             {/* Khối Giỏ A */}
-            <div className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-2xl bg-gradient-to-b from-rose-50 to-rose-100 border-2 border-rose-400 shadow-clay">
+            <div className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-2xl bg-coral-50 border-2 border-coral-200 text-coral-700 shadow-clay">
               <span className="text-2xl sm:text-3xl">🍎</span>
-              <span className="font-display font-black text-2xl sm:text-3xl text-rose-700">
+              <span className="font-display font-black text-2xl sm:text-3xl text-coral-700">
                 {applesA}
               </span>
             </div>
 
             {/* Dấu Cộng Khổng Lồ */}
-            <div className="size-10 sm:size-12 rounded-2xl bg-amber-400 text-slate-950 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-white">
+            <div className="size-10 sm:size-12 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
               +
             </div>
 
             {/* Khối Giỏ B */}
-            <div className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-2xl bg-gradient-to-b from-emerald-50 to-emerald-100 border-2 border-emerald-400 shadow-clay">
+            <div className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-2xl bg-mint-50 border-2 border-mint-200 text-mint-700 shadow-clay">
               <span className="text-2xl sm:text-3xl">🍏</span>
-              <span className="font-display font-black text-2xl sm:text-3xl text-emerald-700">
+              <span className="font-display font-black text-2xl sm:text-3xl text-mint-700">
                 {applesB}
               </span>
             </div>
 
             {/* Dấu Bằng Khổng Lồ */}
-            <div className="size-10 sm:size-12 rounded-2xl bg-amber-400 text-slate-950 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-white">
+            <div className="size-10 sm:size-12 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
               =
             </div>
 
             {/* Khối Kết Quả Phát Sáng */}
             <div
               className={cn(
-                'flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl border-3 shadow-clay transition-all duration-300',
-                totalApples === 10
-                  ? 'bg-gradient-to-r from-amber-400 via-yellow-300 to-amber-400 border-amber-500 text-slate-950 scale-110 ring-4 ring-amber-300 animate-pulse'
-                  : 'bg-white border-brand-400 text-brand-900',
+                'flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl bg-brand-500 text-white font-black text-3xl shadow-clay border-2 border-brand-600 transition-all duration-300',
+                totalApples === 10 && 'scale-110 ring-4 ring-brand-300 animate-pulse',
               )}
             >
-              <span className="font-display font-black text-3xl sm:text-4xl text-amber-950">
+              <span className="font-display font-black text-3xl sm:text-4xl text-white">
                 {totalApples}
               </span>
               <span className="text-2xl animate-bounce">✨</span>
@@ -839,31 +837,29 @@ export function AsmoInteractiveAppleTreeCanvas({
 
           {/* Text mô tả cho test & phụ huynh */}
           <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm font-bold text-slate-700">
-            <span className="text-amber-950 font-black">
+            <span className="text-slate-900 font-black">
               {totalApples} quả táo tổng cộng ({totalApples} quả táo thơm ngon)
             </span>
           </div>
 
           {/* KaTeX Standard Display */}
-          <div className="pt-0.5 text-xs text-emerald-900 font-semibold opacity-80">
+          <div className="pt-0.5 text-xs text-brand-900 font-semibold opacity-80">
             <AsmoFormula text={`$$${formulaLatex}$$`} />
           </div>
 
-          {/* Nút Chuyển Bước Tiếp Theo ➔ phát sáng hào quang */}
+          {/* Nút Chuyển Bước Tiếp Theo ➔ */}
           {onNextPhase && (
             <div className="pt-2 flex justify-center">
               <button
                 type="button"
                 onClick={onNextPhase}
                 className={cn(
-                  'group relative inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl font-black text-sm sm:text-base transition-all duration-300 cursor-pointer shadow-clay active:scale-95',
-                  totalApples > 0
-                    ? 'bg-gradient-to-r from-amber-400 via-brand-500 to-rose-500 text-white border-2 border-white ring-4 ring-amber-300/80 animate-pop hover:brightness-110'
-                    : 'bg-brand-600 hover:bg-brand-700 text-white',
+                  'group relative inline-flex items-center gap-2 px-6 py-2.5 rounded-2xl font-extrabold text-sm sm:text-base transition-all duration-300 cursor-pointer shadow-clay active:scale-95 bg-brand-500 hover:bg-brand-600 text-white border-2 border-brand-600',
+                  totalApples > 0 && 'ring-4 ring-brand-200/80 animate-pop',
                 )}
               >
-                <Star className="size-4 text-yellow-200 fill-yellow-200 animate-spin" />
-                <span>Chuyển Bước Tiếp Theo</span>
+                <Star className="size-4 text-sun-300 fill-sun-300 animate-spin" />
+                <span>⭐ Chuyển Bước Tiếp Theo</span>
                 <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" />
               </button>
             </div>

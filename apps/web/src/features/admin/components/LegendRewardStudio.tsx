@@ -1631,10 +1631,10 @@ export function LegendRewardStudio() {
                   </div>
                   <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                     {([
-                      ['cover', 'Ảnh bìa chapter', 'Tỉ lệ 4:3 · 1600×1200', form.chapterCoverUrl],
-                      ['left', 'Background trang trái', 'Tỉ lệ 4:3 · ưu tiên vùng chữ', form.chapterLeftBackgroundUrl],
-                      ['stickerPage', 'Nền trang sticker', 'Texture sáng, không làm chìm sticker', form.chapterStickerPageUrl],
-                      ['stickerSheet', 'Sheet 9 sticker', 'Lưới 3×3 dùng giống frontend', form.chapterStickerSheetUrl],
+                      ['cover', 'Ảnh bìa chapter', 'Tỉ lệ 4:3 · Chuẩn 1600×1200 px (hoặc 960×716)', form.chapterCoverUrl],
+                      ['left', 'Background trang trái', 'Tỉ lệ 4:3 · Chuẩn 1600×1200 px (hoặc 960×716)', form.chapterLeftBackgroundUrl],
+                      ['stickerPage', 'Nền trang sticker', 'Tỉ lệ 4:3 · Chuẩn 1600×1200 px (texture sáng)', form.chapterStickerPageUrl],
+                      ['stickerSheet', 'Sheet 9 sticker', 'Tỉ lệ 1:1 vuông · Chuẩn 1200×1200 px (lưới 3×3)', form.chapterStickerSheetUrl],
                     ] as const).map(([target, label, hint, url]) => (
                       <label id={`chapter-editor-${target}`} key={target} className="scroll-mt-6 cursor-pointer overflow-hidden rounded-2xl border-2 border-dashed border-amber-300 bg-white p-3 text-center hover:border-amber-500">
                         <span className="flex aspect-[4/3] items-center justify-center overflow-hidden rounded-xl bg-amber-50">

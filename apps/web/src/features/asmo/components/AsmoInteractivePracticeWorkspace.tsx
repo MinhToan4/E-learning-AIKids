@@ -992,7 +992,7 @@ export function AsmoInteractivePracticeWorkspace({
             type="button"
             variant="secondary"
             onClick={handleResetChallenge}
-            className="gap-2 rounded-2xl bg-white border-slate-300 text-slate-700 font-bold px-5 py-3 shadow-2xs cursor-pointer"
+            className="gap-2 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 font-extrabold px-5 py-3 shadow-2xs cursor-pointer"
           >
             <RotateCcw className="size-4 text-slate-500" />
             <span>⟳ Đặt lại thao tác</span>
@@ -1002,7 +1002,7 @@ export function AsmoInteractivePracticeWorkspace({
             type="button"
             variant="primary"
             onClick={handleCheckChallenge}
-            className="gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-clay px-8 py-3.5 text-sm sm:text-base cursor-pointer active:scale-95"
+            className="gap-2 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold shadow-clay px-8 py-3.5 text-sm sm:text-base cursor-pointer active:scale-95 transition-all"
           >
             <CheckCircle2 className="size-5" />
             <span>Kiểm Tra Kết Quả Thử Thách</span>
@@ -1014,16 +1014,16 @@ export function AsmoInteractivePracticeWorkspace({
           <div className="animate-in zoom-in-95 duration-200">
             {practiceFeedback.isCorrect ? (
               /* Success Banner */
-              <div className="rounded-3xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-100 border-2 border-emerald-400 p-5 sm:p-6 text-center space-y-3.5 shadow-sm">
+              <div className="rounded-3xl bg-mint-50 border-2 border-mint-200 p-5 sm:p-6 text-center space-y-3.5 shadow-clay">
                 <div className="flex items-center justify-center gap-2">
                   <AikidCatCharacter pose="celebrate" className="size-16 drop-shadow-sm" />
                 </div>
 
                 <div>
-                  <h3 className="text-base sm:text-lg font-black text-emerald-950">
+                  <h3 className="text-base sm:text-lg font-black text-mint-950">
                     🎉 XUẤT SẮC BÉ ƠI! BẠN ĐÃ VƯỢT QUA THỬ THÁCH {currentChallengeIdx + 1}!
                   </h3>
-                  <p className="text-xs sm:text-sm font-bold text-emerald-800 mt-1">
+                  <p className="text-xs sm:text-sm font-bold text-mint-900 mt-1">
                     <AsmoFormula text={practiceFeedback.feedback} />
                   </p>
                 </div>
@@ -1034,7 +1034,7 @@ export function AsmoInteractivePracticeWorkspace({
                       type="button"
                       variant="primary"
                       onClick={handleNextChallenge}
-                      className="gap-2 rounded-2xl bg-emerald-600 hover:bg-emerald-700 text-white font-black shadow-clay px-6 py-3 cursor-pointer"
+                      className="gap-2 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold shadow-clay px-6 py-3 cursor-pointer"
                     >
                       <span>Tiếp Tục Thử Thách {currentChallengeIdx + 2}/3</span>
                       <ArrowRight className="size-4" />
@@ -1044,7 +1044,7 @@ export function AsmoInteractivePracticeWorkspace({
                       type="button"
                       variant="primary"
                       onClick={onAdvanceToQuiz}
-                      className="gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white font-black shadow-clay px-7 py-3 cursor-pointer"
+                      className="gap-2 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold shadow-clay px-7 py-3 cursor-pointer animate-pop"
                     >
                       <Trophy className="size-5 text-amber-200" />
                       <span>🎉 Hoàn Thành Thực Hành ➔ Vào Thử Tài Olympic</span>

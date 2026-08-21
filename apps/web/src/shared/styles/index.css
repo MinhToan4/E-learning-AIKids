@@ -14,6 +14,9 @@
   --color-brand-800: #33269b;
   --color-brand-900: #251b74;
   --color-brand-950: #1e1b4b;
+  --color-brand-400: #9e8eff;
+  --color-brand-300: #c2b7ff;
+  --color-brand-200: #dcd6ff;
   --color-brand-100: #ebe8ff;
   --color-brand-50: #f5f3ff;
 
@@ -23,21 +26,35 @@
   --color-sky-200: #bce9ff;
   --color-sky-100: #e3f6ff;
   --color-sky-50: #f1faff;
+
   --color-mint-400: #3ed9a0;
-  --color-mint-700: #116b4c;
+  --color-mint-500: #20c988;
   --color-mint-600: #178a5c;
+  --color-mint-700: #116b4c;
+  --color-mint-800: #0e543b;
+  --color-mint-900: #0a402d;
   --color-mint-200: #b9efd9;
   --color-mint-100: #e2faf0;
   --color-mint-50: #f1fcf7;
+
+  --color-sun-300: #ffd875;
   --color-sun-400: #ffc94a;
-  --color-sun-700: #8b5707;
+  --color-sun-500: #eeb028;
   --color-sun-600: #a66b12;
+  --color-sun-700: #8b5707;
+  --color-sun-800: #734505;
+  --color-sun-900: #5c3704;
+  --color-sun-950: #422502;
   --color-sun-200: #ffe19a;
   --color-sun-100: #fff4d6;
   --color-sun-50: #fffbec;
+
   --color-coral-400: #ff7b93;
-  --color-coral-700: #9f2642;
+  --color-coral-500: #ff5c7c;
   --color-coral-600: #c03955;
+  --color-coral-700: #9f2642;
+  --color-coral-800: #881e36;
+  --color-coral-900: #711a2f;
   --color-coral-200: #ffc6d1;
   --color-coral-100: #ffe6eb;
   --color-coral-50: #fff4f6;
