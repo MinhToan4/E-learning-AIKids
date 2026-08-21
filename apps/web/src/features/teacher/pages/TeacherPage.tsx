@@ -504,7 +504,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
         canManageClass ? (
           <form className="ui-card flex flex-col gap-4 p-5 lg:col-span-2" onSubmit={(e) => void saveClass(e)}>
             <h2 className="font-display text-xl">Tạo lớp học</h2>
-            <p className="text-sm text-muted">Mỗi giảng viên có một lớp. Học sinh tham gia bằng mã lớp.</p>
             <label className="grid gap-1 text-sm font-bold">
               Tên lớp
               <input className="min-h-11 rounded-xl border-2 border-border px-3" placeholder="Ví dụ: Lớp Sao Sáng" value={classForm.name} onChange={(e) => setClassForm((c) => ({ ...c, name: e.target.value }))} required minLength={2} />
@@ -615,7 +614,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               <>
                 <form className="ui-card flex flex-col gap-3 p-4" onSubmit={(e) => void addStudent(e)}>
                   <h2 className="font-display text-lg">Thêm học sinh</h2>
-                  <p className="text-xs text-muted">Nhập đúng biệt danh học sinh đã đăng ký</p>
                   <label className="grid gap-1 text-sm font-bold">
                     Biệt danh học sinh
                     <input className="min-h-11 rounded-xl border-2 border-border px-3" placeholder="Nhập đúng biệt danh" value={newStudent} onChange={(e) => setNewStudent(e.target.value)} required />
@@ -684,7 +682,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           <div className="flex flex-wrap items-start justify-between gap-3">
             <div>
               <h2 id="course-list-title" className="font-display text-xl text-text">Chương trình học</h2>
-              <p className="mt-1 text-sm text-muted">Mỗi chương trình gồm một hoặc nhiều vùng; mỗi vùng chứa các trạm học.</p>
             </div>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', alignItems: 'center' }}>
               <Button
@@ -794,7 +791,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
           <div className="border-b border-border bg-sky-50/60 p-5">
             <p className="text-xs font-extrabold uppercase tracking-wide text-sky-700">Chương trình đang chọn</p>
             <h2 id="curriculum-workflow-title" className="mt-1 font-display text-2xl text-text">{focusedProgram.title}</h2>
-            <p className="mt-1 text-sm text-muted">{focusedProgram.regions.length} vùng trong cùng một hành trình học</p>
           </div>
           <div className="space-y-4 p-5">
             <div className="rounded-xl border border-sky-200 bg-sky-50 p-3">
@@ -813,7 +809,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                   <option value="sequential">Mở lần lượt từng vùng</option>
                 </select>
               </label>
-              <p className="mt-2 text-xs leading-relaxed text-muted">{focusedProgram.readOnly ? 'Chương trình tham khảo chỉ được xem.' : (focusedProgram.unlockMode === 'sequential' ? 'Học sinh hoàn thành vùng trước để mở vùng tiếp theo.' : 'Học sinh có thể chọn các vùng trong chương trình song song.')}</p>
             </div>
             <div>
               <p className="mb-2 text-xs font-extrabold uppercase tracking-wide text-muted">Các vùng trong chương trình</p>
@@ -949,7 +944,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             {lectures.length === 0 ? (
               <div className="p-5 text-center">
                 <p className="font-display text-xl text-text">Chưa có trạm học</p>
-                <p className="mt-2 text-sm leading-relaxed text-muted">Tạo trạm đầu tiên với đủ bốn pha: Khám phá → Thử cùng Mee → Tự tay làm → Thử thách.</p>
                 {!activeCourse?.readOnly && (
                   <Button className="mt-4" onClick={() => { setDrawerMode('create'); setDrawerLecture(null) }}>
                     Tạo trạm đầu tiên
@@ -1131,9 +1125,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
               </p>
             ) : (
               <>
-                <p className="mx-auto mt-2 max-w-xl text-sm leading-relaxed text-muted">
-                  Chọn một trạm bên trái để chỉnh sửa, hoặc tạo trạm mới. Mỗi trạm cần đủ bốn pha đúng như học sinh nhìn thấy trên frontend.
-                </p>
                 <div className="mt-5 flex flex-wrap justify-center gap-2">
                   <Button
                     onClick={() => {
@@ -1212,10 +1203,6 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
             {(statsSearch || statsSupportFilter) && (
               <button type="button" className="text-xs font-bold text-muted underline" onClick={() => { setStatsSearch(''); setStatsSupportFilter('') }}>Xóa bộ lọc</button>
             )}
-          </div>
-          <div className="mb-4 rounded-2xl bg-sun-100/50 px-4 py-3 text-sm leading-relaxed text-text">
-            <strong>{statStudents.filter((student) => student.needsSupport).length} học sinh nên được hỏi thăm.</strong>{' '}
-            Gợi ý dựa trên tiến độ gần đây, không dùng để xếp hạng hay đánh giá trẻ.
           </div>
           <div className="hidden overflow-x-auto rounded-2xl border border-border sm:block">
             <table className="min-w-[860px] w-full text-left text-sm">

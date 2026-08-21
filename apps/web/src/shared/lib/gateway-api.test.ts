@@ -528,7 +528,7 @@ describe('StoryMee Gateway adapter', () => {
       language: 'vi',
       allowAiCreate: true,
       allowPhoto: true,
-      allowExport: false,
+      allowExport: true,
       pin: '424242',
     })
     expect(payload.password).not.toBe('424242')

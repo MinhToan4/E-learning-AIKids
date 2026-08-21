@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react'
-import { Sparkles, Minus, Plus, RefreshCw, ShoppingBasket, Volume2, ArrowRight, Star } from 'lucide-react'
+import { Sparkles, RefreshCw, ShoppingBasket, Volume2, ArrowRight, Star } from 'lucide-react'
 import { AsmoFormula } from './AsmoFormula'
 import { cn } from '@/shared/lib/cn'
 
@@ -94,27 +94,24 @@ export function AsmoInteractiveAppleTreeCanvas({
   const applesA = controlledA !== undefined ? controlledA : internalA
   const applesB = controlledB !== undefined ? controlledB : internalB
 
-  // Interaction visual effects
+  // Interaction visual effects & Drag-and-Drop state
   const [isDragOverA, setIsDragOverA] = useState<boolean>(false)
   const [isDragOverB, setIsDragOverB] = useState<boolean>(false)
-  const [justDroppedA, setJustDroppedA] = useState<boolean>(false)
-  const [justDroppedB, setJustDroppedB] = useState<boolean>(false)
-  const [draggingType, setDraggingType] = useState<AppleBasketType | null>(null)
+  const [isDragOverTree, setIsDragOverTree] = useState<boolean>(false)
+  const [draggingItem, setDraggingItem] = useState<{ source: 'tree' | 'basket'; type: AppleBasketType } | null>(null)
   const [sparkleAnim, setSparkleAnim] = useState<{ x: number; y: number; id: number } | null>(null)
 
   const totalApples = applesA + applesB
   const remainingTreeRed = Math.max(0, maxApplesPerBasket - applesA)
   const remainingTreeGreen = Math.max(0, maxApplesPerBasket - applesB)
 
-  // Streamlined single mission line
-  const missionText = useMemo(() => {
-    if (instruction) return instruction
-    if (title && !title.includes('Vườn Cây Táo Mẹ')) return title
-    if (meeQuote && !meeQuote.includes('Vườn Cây Táo Mẹ')) return meeQuote
-    return '🍎 Chạm hoặc kéo táo vào giỏ để gộp thành 10 nhé! 🧺'
-  }, [instruction, title, meeQuote])
+  // ── Feedback Effect Helper ──
+  const triggerSparkleEffect = (x: number, y: number) => {
+    setSparkleAnim({ x, y, id: Date.now() })
+    setTimeout(() => setSparkleAnim(null), 900)
+  }
 
-  // ── Handlers ──
+  // ── State Mutation Handlers ──
   const handleAddApple = (basket: AppleBasketType) => {
     if (basket === 'A') {
       if (applesA >= maxApplesPerBasket) return
@@ -125,7 +122,7 @@ export function AsmoInteractiveAppleTreeCanvas({
       } else {
         setInternalA((prev) => Math.min(prev + 1, maxApplesPerBasket))
       }
-      triggerDropEffect('A')
+      triggerSparkleEffect(25, 75)
     } else {
       if (applesB >= maxApplesPerBasket) return
       if (onAddApple) {
@@ -135,7 +132,7 @@ export function AsmoInteractiveAppleTreeCanvas({
       } else {
         setInternalB((prev) => Math.min(prev + 1, maxApplesPerBasket))
       }
-      triggerDropEffect('B')
+      triggerSparkleEffect(75, 75)
     }
   }
 
@@ -149,6 +146,7 @@ export function AsmoInteractiveAppleTreeCanvas({
       } else {
         setInternalA((prev) => Math.max(prev - 1, 0))
       }
+      triggerSparkleEffect(30, 35)
     } else {
       if (applesB <= 0) return
       if (onSubApple) {
@@ -158,6 +156,7 @@ export function AsmoInteractiveAppleTreeCanvas({
       } else {
         setInternalB((prev) => Math.max(prev - 1, 0))
       }
+      triggerSparkleEffect(70, 35)
     }
   }
 
@@ -171,31 +170,15 @@ export function AsmoInteractiveAppleTreeCanvas({
       setInternalA(0)
       setInternalB(0)
     }
+    triggerSparkleEffect(50, 40)
   }
 
-  const triggerDropEffect = (basket: AppleBasketType) => {
-    if (basket === 'A') {
-      setJustDroppedA(true)
-      setTimeout(() => setJustDroppedA(false), 700)
-    } else {
-      setJustDroppedB(true)
-      setTimeout(() => setJustDroppedB(false), 700)
-    }
-    setSparkleAnim({ x: basket === 'A' ? 25 : 75, y: 70, id: Date.now() })
-    setTimeout(() => setSparkleAnim(null), 900)
-  }
-
-  // ── Drag & Drop Handlers ──
-  const handleDragStart = (e: React.DragEvent, basketType: AppleBasketType) => {
-    e.dataTransfer.setData('text/plain', basketType)
+  // ── Drag & Drop Handlers: Tree ➔ Basket (Chiều 1) ──
+  const handleTreeAppleDragStart = (e: React.DragEvent, basketType: AppleBasketType) => {
+    e.dataTransfer.setData('source', 'tree')
+    e.dataTransfer.setData('appleType', basketType)
     e.dataTransfer.effectAllowed = 'copyMove'
-    setDraggingType(basketType)
-  }
-
-  const handleDragEnd = () => {
-    setDraggingType(null)
-    setIsDragOverA(false)
-    setIsDragOverB(false)
+    setDraggingItem({ source: 'tree', type: basketType })
   }
 
   const handleDragOverBasket = (e: React.DragEvent, basket: AppleBasketType) => {
@@ -219,19 +202,64 @@ export function AsmoInteractiveAppleTreeCanvas({
     e.preventDefault()
     setIsDragOverA(false)
     setIsDragOverB(false)
-    const draggedBasket = (e.dataTransfer.getData('text/plain') as AppleBasketType) || draggingType
-    if (draggedBasket === basket || !draggedBasket) {
-      handleAddApple(basket)
-    } else {
-      // If kid drops red into basket A or green into basket B
-      handleAddApple(draggedBasket)
+    const source = e.dataTransfer.getData('source') || draggingItem?.source
+    const appleType = (e.dataTransfer.getData('appleType') as AppleBasketType) || draggingItem?.type
+
+    if (source === 'tree') {
+      if (appleType === basket || !appleType) {
+        handleAddApple(basket)
+      } else {
+        // Red apples route to A, green to B
+        handleAddApple(appleType)
+      }
     }
-    setDraggingType(null)
+    setDraggingItem(null)
+  }
+
+  // ── Drag & Drop Handlers: Basket ➔ Tree (Chiều 2) ──
+  const handleBasketAppleDragStart = (e: React.DragEvent, basketType: AppleBasketType) => {
+    e.dataTransfer.setData('source', 'basket')
+    e.dataTransfer.setData('appleType', basketType)
+    e.dataTransfer.effectAllowed = 'move'
+    setDraggingItem({ source: 'basket', type: basketType })
+  }
+
+  const handleDragOverTree = (e: React.DragEvent) => {
+    e.preventDefault()
+    e.dataTransfer.dropEffect = 'move'
+    setIsDragOverTree(true)
+  }
+
+  const handleDragLeaveTree = () => {
+    setIsDragOverTree(false)
+  }
+
+  const handleDropOnTree = (e: React.DragEvent) => {
+    e.preventDefault()
+    setIsDragOverTree(false)
+    const source = e.dataTransfer.getData('source') || draggingItem?.source
+    const appleType = (e.dataTransfer.getData('appleType') as AppleBasketType) || draggingItem?.type
+
+    if (source === 'basket') {
+      if (appleType === 'A') {
+        handleSubApple('A')
+      } else if (appleType === 'B') {
+        handleSubApple('B')
+      }
+    }
+    setDraggingItem(null)
+  }
+
+  const handleDragEnd = () => {
+    setDraggingItem(null)
+    setIsDragOverA(false)
+    setIsDragOverB(false)
+    setIsDragOverTree(false)
   }
 
   // KaTeX formula string
   const formulaLatex = useMemo(() => {
-    return `\\text{Giỏ A } (\\mathbf{${applesA}}) + \\text{Giỏ B } (\\mathbf{${applesB}}) = \\mathbf{${totalApples}}`
+    return `\\mathbf{${applesA}} + \\mathbf{${applesB}} = \\mathbf{${totalApples}}`
   }, [applesA, applesB, totalApples])
 
   // Subtle woven wicker background styling
@@ -273,7 +301,14 @@ export function AsmoInteractiveAppleTreeCanvas({
           {/* Nút Loa 🔊 Phát Giọng Nói Mèo Mee */}
           <button
             type="button"
-            onClick={() => speakVietnamese(instruction || meeQuote || title || '🍎 Chạm hoặc kéo táo vào giỏ để gộp thành 10 nhé! 🧺')}
+            onClick={() =>
+              speakVietnamese(
+                instruction ||
+                  meeQuote ||
+                  title ||
+                  '🍎 Chạm hoặc kéo táo vào giỏ để gộp thành 10 nhé! 🧺',
+              )
+            }
             title="Nghe Mèo Mee đọc hướng dẫn"
             aria-label="Phát âm thanh giọng nói"
             className="flex items-center justify-center size-8 sm:size-9 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white shadow-clay transition-all active:scale-90 cursor-pointer"
@@ -298,9 +333,17 @@ export function AsmoInteractiveAppleTreeCanvas({
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          2. TÁN CÂY TÁO MẸ 🌳 SOFT CLAY HOẠT HÌNH
+          2. TÁN CÂY TÁO MẸ 🌳 SOFT CLAY (DROP ZONE 2 CHIỀU ĐÓN TÁO VỀ)
       ══════════════════════════════════════════════════════════════════════ */}
-      <div className="relative w-full max-w-2xl h-64 sm:h-76 rounded-3xl overflow-hidden bg-gradient-to-b from-sky-100/90 via-sky-50/70 to-mint-50/80 border-2 border-brand-100 shadow-inner flex items-center justify-center p-2">
+      <div
+        onDragOver={handleDragOverTree}
+        onDragLeave={handleDragLeaveTree}
+        onDrop={handleDropOnTree}
+        className={cn(
+          'relative w-full max-w-2xl h-64 sm:h-76 rounded-3xl overflow-hidden bg-gradient-to-b from-sky-100/90 via-sky-50/70 to-mint-50/80 border-2 border-brand-100 shadow-inner flex items-center justify-center p-2 transition-all duration-300',
+          isDragOverTree && 'ring-4 ring-emerald-400 bg-emerald-100/60 shadow-lg',
+        )}
+      >
         {/* Floating Clouds & Sky Accents */}
         <div className="absolute top-2 left-6 text-2xl opacity-80 animate-pulse select-none">☁️</div>
         <div className="absolute top-4 right-8 text-xl opacity-75 animate-pulse select-none">☁️</div>
@@ -311,6 +354,14 @@ export function AsmoInteractiveAppleTreeCanvas({
         <div className="absolute top-3 left-1/2 -translate-x-1/2 text-xs sm:text-sm font-black text-slate-900 bg-white/95 backdrop-blur-xs px-4 py-1.5 rounded-full border-2 border-brand-100 shadow-clay z-20 whitespace-nowrap">
           🌳 Cây Táo Mẹ: 🍎 {remainingTreeRed} quả đỏ • 🍏 {remainingTreeGreen} quả xanh
         </div>
+
+        {/* Tree Drop Zone Overlay Indicator when dragged from basket */}
+        {isDragOverTree && (
+          <div className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-white/95 text-emerald-800 text-xs sm:text-sm font-black px-4 py-1.5 rounded-full shadow-clay border-2 border-emerald-300 z-30 animate-pulse flex items-center gap-1.5">
+            <span>🌳</span>
+            <span>Thả tay để trả táo về tán cây mẹ!</span>
+          </div>
+        )}
 
         {/* Tree Trunk & Branches (Soft Clay SVG Canvas) */}
         <svg
@@ -348,42 +399,45 @@ export function AsmoInteractiveAppleTreeCanvas({
           <path
             d="M 0,230 Q 150,210 300,235 T 600,225 L 600,280 L 0,280 Z"
             fill="#a7f3d0"
-            opacity="0.9"
+            opacity="0.8"
           />
           <path
             d="M 0,245 Q 200,230 400,250 T 600,240 L 600,280 L 0,280 Z"
             fill="#6ee7b7"
-            opacity="0.95"
+            opacity="0.9"
           />
 
-          {/* Wooden Trunk */}
+          {/* Sturdy Tree Trunk with Root Outlines */}
           <path
-            d="M 282,140 C 282,180 255,210 235,280 L 365,280 C 345,210 318,180 318,140 Z"
+            d="M 270,140 Q 260,195 240,265 L 360,265 Q 340,195 330,140 Z"
             fill="url(#trunkGrad)"
-            filter="url(#softShadow)"
           />
           {/* Main Branches */}
           <path
-            d="M 285,150 Q 220,130 150,115 Q 140,120 150,130 Q 230,145 290,160 Z"
-            fill="url(#trunkGrad)"
+            d="M 275,150 Q 200,120 160,105 Q 195,130 270,165 Z"
+            fill="#92400e"
           />
           <path
-            d="M 315,150 Q 380,130 450,115 Q 460,120 450,130 Q 370,145 310,160 Z"
-            fill="url(#trunkGrad)"
-          />
-          <path
-            d="M 295,140 Q 295,100 290,80 Q 305,80 305,140 Z"
-            fill="url(#trunkGrad)"
+            d="M 325,150 Q 400,120 440,105 Q 405,130 330,165 Z"
+            fill="#92400e"
           />
 
-          {/* Soft Clay Fluffy Canopy Clusters */}
-          <circle cx="160" cy="115" r="80" fill="url(#canopyGrad1)" filter="url(#softShadow)" />
-          <circle cx="440" cy="115" r="80" fill="url(#canopyGrad2)" filter="url(#softShadow)" />
-          <circle cx="300" cy="85" r="90" fill="url(#canopyGrad1)" filter="url(#softShadow)" />
-          <circle cx="225" cy="100" r="75" fill="url(#canopyGrad2)" />
-          <circle cx="375" cy="100" r="75" fill="url(#canopyGrad1)" />
-          <circle cx="105" cy="130" r="60" fill="url(#canopyGrad2)" />
-          <circle cx="495" cy="130" r="60" fill="url(#canopyGrad1)" />
+          {/* Lush Green Canopy Layers */}
+          <g filter="url(#softShadow)">
+            {/* Background deeper green foliage */}
+            <circle cx="160" cy="110" r="68" fill="url(#canopyGrad1)" />
+            <circle cx="440" cy="110" r="68" fill="url(#canopyGrad1)" />
+            <circle cx="230" cy="75" r="75" fill="url(#canopyGrad1)" />
+            <circle cx="370" cy="75" r="75" fill="url(#canopyGrad1)" />
+            <circle cx="300" cy="65" r="85" fill="url(#canopyGrad1)" />
+
+            {/* Foreground vibrant lime/mint foliage clusters */}
+            <circle cx="190" cy="130" r="62" fill="url(#canopyGrad2)" />
+            <circle cx="410" cy="130" r="62" fill="url(#canopyGrad2)" />
+            <circle cx="250" cy="115" r="68" fill="url(#canopyGrad2)" />
+            <circle cx="350" cy="115" r="68" fill="url(#canopyGrad2)" />
+            <circle cx="300" cy="105" r="72" fill="url(#canopyGrad2)" />
+          </g>
 
           {/* Highlight Canopy Bubbles */}
           <circle cx="270" cy="65" r="35" fill="url(#canopyGradHighlight)" opacity="0.6" />
@@ -407,7 +461,7 @@ export function AsmoInteractiveAppleTreeCanvas({
               key={`tree-red-apple-${idx}`}
               type="button"
               draggable
-              onDragStart={(e) => handleDragStart(e, 'A')}
+              onDragStart={(e) => handleTreeAppleDragStart(e, 'A')}
               onDragEnd={handleDragEnd}
               onClick={() => handleAddApple('A')}
               style={{
@@ -422,7 +476,7 @@ export function AsmoInteractiveAppleTreeCanvas({
                 'hover:scale-130 active:scale-95 drop-shadow-md hover:drop-shadow-xl',
                 'flex items-center justify-center text-3xl sm:text-4xl p-1 rounded-full',
                 'hover:ring-4 hover:ring-coral-400 hover:bg-white/50 active:scale-90',
-                draggingType === 'A' && 'opacity-70 scale-110',
+                draggingItem?.source === 'tree' && draggingItem?.type === 'A' && 'opacity-70 scale-110',
               )}
             >
               🍎
@@ -435,7 +489,7 @@ export function AsmoInteractiveAppleTreeCanvas({
               key={`tree-green-apple-${idx}`}
               type="button"
               draggable
-              onDragStart={(e) => handleDragStart(e, 'B')}
+              onDragStart={(e) => handleTreeAppleDragStart(e, 'B')}
               onDragEnd={handleDragEnd}
               onClick={() => handleAddApple('B')}
               style={{
@@ -450,7 +504,7 @@ export function AsmoInteractiveAppleTreeCanvas({
                 'hover:scale-130 active:scale-95 drop-shadow-md hover:drop-shadow-xl',
                 'flex items-center justify-center text-3xl sm:text-4xl p-1 rounded-full',
                 'hover:ring-4 hover:ring-mint-400 hover:bg-white/50 active:scale-90',
-                draggingType === 'B' && 'opacity-70 scale-110',
+                draggingItem?.source === 'tree' && draggingItem?.type === 'B' && 'opacity-70 scale-110',
               )}
             >
               🍏
@@ -459,7 +513,7 @@ export function AsmoInteractiveAppleTreeCanvas({
 
           {/* If all apples on tree are picked */}
           {remainingTreeRed === 0 && remainingTreeGreen === 0 && (
-            <div className="absolute inset-0 flex items-center justify-center">
+            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <span className="bg-white/95 text-slate-900 font-black text-xs sm:text-sm px-5 py-2.5 rounded-2xl shadow-clay border-2 border-brand-100 animate-bounce">
                 🎉 Bé đã hái hết táo trên cây vào 2 chiếc giỏ xinh xắn!
               </span>
@@ -469,7 +523,7 @@ export function AsmoInteractiveAppleTreeCanvas({
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          3. HAI CHIẾC GIỎ MÂY ĐAN 3D TO BỰ KÈM BỆ BẢNG ĐẾM SỐ MONTESSORI
+          3. HAI CHIẾC GIỎ MÂY ĐAN 3D VỮNG CHÃI (STABLE BASKETS - NO BOUNCE / NO PEDESTAL)
       ══════════════════════════════════════════════════════════════════════ */}
       <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pt-1">
         {/* 🧺 CHIẾC GIỎ MÂY A: TÁO ĐỎ 🍎 (NƠ ĐỎ 🎀) */}
@@ -477,14 +531,10 @@ export function AsmoInteractiveAppleTreeCanvas({
           onDragOver={(e) => handleDragOverBasket(e, 'A')}
           onDragLeave={() => handleDragLeaveBasket('A')}
           onDrop={(e) => handleDropOnBasket(e, 'A')}
-          className={cn(
-            'relative flex flex-col items-center transition-all duration-300',
-            isDragOverA && 'scale-105',
-            justDroppedA && 'animate-bounce',
-          )}
+          className="relative flex flex-col items-center select-none"
         >
-          {/* QUAI GIỎ MÂY UỐN VÒM (ARCHING BASKET HANDLE) VỚI NƠ ĐỎ 🎀 */}
-          <div className="relative w-44 sm:w-52 h-14 sm:h-16 flex items-center justify-center -mb-3 z-10">
+          {/* QUAI GIỎ MÂY UỐN VÒM VỚI NƠ ĐỎ 🎀 */}
+          <div className="relative w-44 sm:w-52 h-14 sm:h-16 flex items-center justify-center -mb-3 z-10 pointer-events-none">
             <svg
               viewBox="0 0 200 80"
               className="w-full h-full drop-shadow-md overflow-visible"
@@ -514,18 +564,19 @@ export function AsmoInteractiveAppleTreeCanvas({
               />
             </svg>
 
-            {/* Chiếc Nơ Ruy Băng Đỏ 🎀 ở Đỉnh Quai Giỏ A (coral-500) */}
-            <div className="absolute -top-1 sm:-top-2 flex items-center justify-center size-9 sm:size-10 rounded-full bg-coral-500 border-2 border-white shadow-md select-none animate-pulse">
+            {/* Chiếc Nơ Ruy Băng Đỏ 🎀 ở Đỉnh Quai Giỏ A */}
+            <div className="absolute -top-1 sm:-top-2 flex items-center justify-center size-9 sm:size-10 rounded-full bg-coral-500 border-2 border-white shadow-md select-none">
               <span className="text-xl sm:text-2xl -mt-0.5">🎀</span>
             </div>
           </div>
 
-          {/* THÀNH GIỎ MÂY ĐAN 3D (WOVEN CLAY BASKET BODY) */}
+          {/* THÀNH GIỎ MÂY ĐAN 3D VỮNG CHÃI TRÊN MẶT ĐẤT */}
           <div
             className={cn(
-              'w-full flex flex-col items-center rounded-t-2xl rounded-b-[2.5rem] border-4 border-coral-200/90 shadow-clay bg-gradient-to-b from-coral-50/70 via-amber-50/40 to-orange-50/60 transition-all duration-300 relative overflow-hidden',
-              isDragOverA && 'ring-4 ring-coral-400 bg-coral-100/90 shadow-2xl border-coral-400',
-              justDroppedA && 'ring-4 ring-coral-400 bg-coral-100/90',
+              'w-full flex flex-col items-center rounded-t-2xl rounded-b-[2.5rem] border-4 shadow-clay transition-all duration-300 relative overflow-hidden',
+              isDragOverA
+                ? 'ring-2 ring-coral-300 border-coral-400 bg-coral-100/90 shadow-md'
+                : 'border-coral-200/90 bg-gradient-to-b from-coral-50/70 via-amber-50/40 to-orange-50/60',
             )}
           >
             {/* Wicker Weave Texture Layer */}
@@ -534,20 +585,20 @@ export function AsmoInteractiveAppleTreeCanvas({
               style={wovenTextureStyle}
             />
 
-            {/* MIỆNG GIỎ MÂY TRE ĐAN (WOVEN BASKET RIM) */}
-            <div className="relative z-10 w-full bg-coral-100 border-b-2 border-coral-200 px-4 py-2 flex items-center justify-between shadow-xs">
+            {/* MIỆNG GIỎ MÂY TRE ĐAN HIỂN THỊ SỐ LƯỢNG TINH GỌN */}
+            <div className="relative z-10 w-full bg-coral-100/90 border-b-2 border-coral-200 px-3.5 sm:px-4 py-2 flex items-center justify-between shadow-2xs">
               <div className="flex items-center gap-1.5">
                 <ShoppingBasket className="size-4 text-coral-800 shrink-0" />
                 <span className="text-xs sm:text-sm font-black text-coral-900 tracking-tight">
                   Giỏ A (Táo Đỏ): 🍎
                 </span>
               </div>
-              <span className="text-[11px] font-black text-coral-900 bg-white/90 border border-coral-200 px-2 py-0.5 rounded-full shadow-2xs">
-                {applesA} / {maxApplesPerBasket}
+              <span className="text-xs font-black text-coral-900 bg-white/95 border border-coral-300 px-2.5 py-0.5 rounded-full shadow-2xs">
+                {applesA} / {maxApplesPerBasket} 🍎
               </span>
             </div>
 
-            {/* LÒNG GIỎ CHỨA TÁO RỘNG RÃI (SPACIOUS APPLE HOLLOW) */}
+            {/* LÒNG GIỎ CHỨA TÁO KÉO THẢ & CHẠM 2 CHIỀU */}
             <div
               className={cn(
                 'relative z-10 w-full min-h-28 sm:min-h-32 p-3 sm:p-4 flex items-center justify-center flex-wrap gap-1.5 sm:gap-2 transition-colors',
@@ -556,7 +607,7 @@ export function AsmoInteractiveAppleTreeCanvas({
             >
               {applesA === 0 ? (
                 <div className="flex flex-col items-center justify-center text-center py-2 text-coral-400 space-y-1">
-                  <span className="text-2xl sm:text-3xl animate-bounce">🧺</span>
+                  <span className="text-2xl sm:text-3xl opacity-80">🧺</span>
                   <span className="text-xs font-black text-coral-700 italic">
                     Chạm hoặc kéo táo đỏ 🍎 vào giỏ A
                   </span>
@@ -566,9 +617,12 @@ export function AsmoInteractiveAppleTreeCanvas({
                   <button
                     key={`basket-apple-a-${i}`}
                     type="button"
+                    draggable
+                    onDragStart={(e) => handleBasketAppleDragStart(e, 'A')}
+                    onDragEnd={handleDragEnd}
                     onClick={() => handleSubApple('A')}
-                    title="Chạm để bớt táo đỏ về lại cây 🍎"
-                    className="text-3xl sm:text-4xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 active:scale-95 transition-transform cursor-pointer p-0.5 filter drop-shadow-sm"
+                    title="Chạm hoặc kéo về cây để trả táo đỏ 🍎"
+                    className="text-3xl sm:text-4xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 active:scale-95 transition-transform cursor-grab active:cursor-grabbing p-0.5 filter drop-shadow-sm"
                   >
                     🍎
                   </button>
@@ -579,46 +633,9 @@ export function AsmoInteractiveAppleTreeCanvas({
             {/* Dragging Feedback Indicator */}
             {isDragOverA && (
               <div className="relative z-10 w-full text-center pb-2 text-xs font-black text-coral-800 animate-pulse">
-                ✨ Thả tay để cho táo vào Giỏ A!
+                ✨ Thả tay để cho táo đỏ vào Giỏ A!
               </div>
             )}
-          </div>
-
-          {/* BỆ BẢNG ĐẾM SỐ ĐỒ CHƠI GỖ (TOY WOODEN NUMBER PEDESTAL) */}
-          <div className="w-full bg-coral-50/70 border-2 border-coral-200 shadow-clay rounded-2xl p-2 sm:p-2.5 flex items-center justify-between gap-2 mt-2 z-10">
-            <div className="flex items-center gap-1.5 pl-1">
-              <span className="text-sm">🏷️</span>
-              <span className="text-xs sm:text-sm font-black text-coral-950">
-                Giỏ A (Táo Đỏ)
-              </span>
-            </div>
-
-            {/* CỤM NÚT TĂNG GIẢM & Ô SỐ LƯỢNG TRUNG TÂM */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                aria-label="Bớt táo đỏ giỏ A"
-                disabled={applesA <= 0}
-                onClick={() => handleSubApple('A')}
-                className="size-10 sm:size-11 rounded-2xl bg-coral-500 hover:bg-coral-600 text-white font-black text-xl shadow-clay active:scale-90 transition-all cursor-pointer border-2 border-coral-600 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
-              >
-                <Minus className="size-5 stroke-[3.5]" />
-              </button>
-
-              <div className="size-12 sm:size-14 rounded-2xl bg-white border-2 border-slate-200 font-display font-black text-2xl sm:text-3xl text-slate-900 shadow-inner flex items-center justify-center select-none">
-                {applesA}
-              </div>
-
-              <button
-                type="button"
-                aria-label="Thêm táo đỏ giỏ A"
-                disabled={applesA >= maxApplesPerBasket}
-                onClick={() => handleAddApple('A')}
-                className="size-10 sm:size-11 rounded-2xl bg-coral-500 hover:bg-coral-600 text-white font-black text-xl shadow-clay active:scale-90 transition-all cursor-pointer border-2 border-coral-600 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
-              >
-                <Plus className="size-5 stroke-[3.5]" />
-              </button>
-            </div>
           </div>
         </div>
 
@@ -627,14 +644,10 @@ export function AsmoInteractiveAppleTreeCanvas({
           onDragOver={(e) => handleDragOverBasket(e, 'B')}
           onDragLeave={() => handleDragLeaveBasket('B')}
           onDrop={(e) => handleDropOnBasket(e, 'B')}
-          className={cn(
-            'relative flex flex-col items-center transition-all duration-300',
-            isDragOverB && 'scale-105',
-            justDroppedB && 'animate-bounce',
-          )}
+          className="relative flex flex-col items-center select-none"
         >
-          {/* QUAI GIỎ MÂY UỐN VÒM (ARCHING BASKET HANDLE) VỚI NƠ XANH LÁ 🎗️ */}
-          <div className="relative w-44 sm:w-52 h-14 sm:h-16 flex items-center justify-center -mb-3 z-10">
+          {/* QUAI GIỎ MÂY UỐN VÒM VỚI NƠ XANH LÁ 🎗️ */}
+          <div className="relative w-44 sm:w-52 h-14 sm:h-16 flex items-center justify-center -mb-3 z-10 pointer-events-none">
             <svg
               viewBox="0 0 200 80"
               className="w-full h-full drop-shadow-md overflow-visible"
@@ -664,18 +677,19 @@ export function AsmoInteractiveAppleTreeCanvas({
               />
             </svg>
 
-            {/* Chiếc Nơ Ruy Băng Xanh Lá 🎗️ ở Đỉnh Quai Giỏ B (mint-600) */}
-            <div className="absolute -top-1 sm:-top-2 flex items-center justify-center size-9 sm:size-10 rounded-full bg-mint-600 border-2 border-white shadow-md select-none animate-pulse">
+            {/* Chiếc Nơ Ruy Băng Xanh Lá 🎗️ ở Đỉnh Quai Giỏ B */}
+            <div className="absolute -top-1 sm:-top-2 flex items-center justify-center size-9 sm:size-10 rounded-full bg-mint-600 border-2 border-white shadow-md select-none">
               <span className="text-xl sm:text-2xl -mt-0.5">🎗️</span>
             </div>
           </div>
 
-          {/* THÀNH GIỎ MÂY ĐAN 3D (WOVEN CLAY BASKET BODY) */}
+          {/* THÀNH GIỎ MÂY ĐAN 3D VỮNG CHÃI TRÊN MẶT ĐẤT */}
           <div
             className={cn(
-              'w-full flex flex-col items-center rounded-t-2xl rounded-b-[2.5rem] border-4 border-mint-200/90 shadow-clay bg-gradient-to-b from-mint-50/70 via-emerald-50/40 to-teal-50/60 transition-all duration-300 relative overflow-hidden',
-              isDragOverB && 'ring-4 ring-mint-400 bg-mint-100/90 shadow-2xl border-mint-400',
-              justDroppedB && 'ring-4 ring-mint-400 bg-mint-100/90',
+              'w-full flex flex-col items-center rounded-t-2xl rounded-b-[2.5rem] border-4 shadow-clay transition-all duration-300 relative overflow-hidden',
+              isDragOverB
+                ? 'ring-2 ring-mint-300 border-mint-400 bg-mint-100/90 shadow-md'
+                : 'border-mint-200/90 bg-gradient-to-b from-mint-50/70 via-emerald-50/40 to-teal-50/60',
             )}
           >
             {/* Wicker Weave Texture Layer */}
@@ -684,20 +698,20 @@ export function AsmoInteractiveAppleTreeCanvas({
               style={wovenTextureStyle}
             />
 
-            {/* MIỆNG GIỎ MÂY TRE ĐAN (WOVEN BASKET RIM) */}
-            <div className="relative z-10 w-full bg-mint-100 border-b-2 border-mint-200 px-4 py-2 flex items-center justify-between shadow-xs">
+            {/* MIỆNG GIỎ MÂY TRE ĐAN HIỂN THỊ SỐ LƯỢNG TINH GỌN */}
+            <div className="relative z-10 w-full bg-mint-100/90 border-b-2 border-mint-200 px-3.5 sm:px-4 py-2 flex items-center justify-between shadow-2xs">
               <div className="flex items-center gap-1.5">
                 <ShoppingBasket className="size-4 text-mint-800 shrink-0" />
                 <span className="text-xs sm:text-sm font-black text-mint-900 tracking-tight">
                   Giỏ B (Táo Xanh): 🍏
                 </span>
               </div>
-              <span className="text-[11px] font-black text-mint-900 bg-white/90 border border-mint-200 px-2 py-0.5 rounded-full shadow-2xs">
-                {applesB} / {maxApplesPerBasket}
+              <span className="text-xs font-black text-mint-900 bg-white/95 border border-mint-300 px-2.5 py-0.5 rounded-full shadow-2xs">
+                {applesB} / {maxApplesPerBasket} 🍏
               </span>
             </div>
 
-            {/* LÒNG GIỎ CHỨA TÁO RỘNG RÃI (SPACIOUS APPLE HOLLOW) */}
+            {/* LÒNG GIỎ CHỨA TÁO KÉO THẢ & CHẠM 2 CHIỀU */}
             <div
               className={cn(
                 'relative z-10 w-full min-h-28 sm:min-h-32 p-3 sm:p-4 flex items-center justify-center flex-wrap gap-1.5 sm:gap-2 transition-colors',
@@ -706,7 +720,7 @@ export function AsmoInteractiveAppleTreeCanvas({
             >
               {applesB === 0 ? (
                 <div className="flex flex-col items-center justify-center text-center py-2 text-mint-400 space-y-1">
-                  <span className="text-2xl sm:text-3xl animate-bounce">🧺</span>
+                  <span className="text-2xl sm:text-3xl opacity-80">🧺</span>
                   <span className="text-xs font-black text-mint-700 italic">
                     Chạm hoặc kéo táo xanh 🍏 vào giỏ B
                   </span>
@@ -716,9 +730,12 @@ export function AsmoInteractiveAppleTreeCanvas({
                   <button
                     key={`basket-apple-b-${i}`}
                     type="button"
+                    draggable
+                    onDragStart={(e) => handleBasketAppleDragStart(e, 'B')}
+                    onDragEnd={handleDragEnd}
                     onClick={() => handleSubApple('B')}
-                    title="Chạm để bớt táo xanh về lại cây 🍏"
-                    className="text-3xl sm:text-4xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 active:scale-95 transition-transform cursor-pointer p-0.5 filter drop-shadow-sm"
+                    title="Chạm hoặc kéo về cây để trả táo xanh 🍏"
+                    className="text-3xl sm:text-4xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 active:scale-95 transition-transform cursor-grab active:cursor-grabbing p-0.5 filter drop-shadow-sm"
                   >
                     🍏
                   </button>
@@ -729,46 +746,9 @@ export function AsmoInteractiveAppleTreeCanvas({
             {/* Dragging Feedback Indicator */}
             {isDragOverB && (
               <div className="relative z-10 w-full text-center pb-2 text-xs font-black text-mint-800 animate-pulse">
-                ✨ Thả tay để cho táo vào Giỏ B!
+                ✨ Thả tay để cho táo xanh vào Giỏ B!
               </div>
             )}
-          </div>
-
-          {/* BỆ BẢNG ĐẾM SỐ ĐỒ CHƠI GỖ (TOY WOODEN NUMBER PEDESTAL) */}
-          <div className="w-full bg-mint-50/70 border-2 border-mint-200 shadow-clay rounded-2xl p-2 sm:p-2.5 flex items-center justify-between gap-2 mt-2 z-10">
-            <div className="flex items-center gap-1.5 pl-1">
-              <span className="text-sm">🏷️</span>
-              <span className="text-xs sm:text-sm font-black text-mint-950">
-                Giỏ B (Táo Xanh)
-              </span>
-            </div>
-
-            {/* CỤM NÚT TĂNG GIẢM & Ô SỐ LƯỢNG TRUNG TÂM */}
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                aria-label="Bớt táo xanh giỏ B"
-                disabled={applesB <= 0}
-                onClick={() => handleSubApple('B')}
-                className="size-10 sm:size-11 rounded-2xl bg-mint-600 hover:bg-mint-700 text-white font-black text-xl shadow-clay active:scale-90 transition-all cursor-pointer border-2 border-mint-700 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
-              >
-                <Minus className="size-5 stroke-[3.5]" />
-              </button>
-
-              <div className="size-12 sm:size-14 rounded-2xl bg-white border-2 border-slate-200 font-display font-black text-2xl sm:text-3xl text-slate-900 shadow-inner flex items-center justify-center select-none">
-                {applesB}
-              </div>
-
-              <button
-                type="button"
-                aria-label="Thêm táo xanh giỏ B"
-                disabled={applesB >= maxApplesPerBasket}
-                onClick={() => handleAddApple('B')}
-                className="size-10 sm:size-11 rounded-2xl bg-mint-600 hover:bg-mint-700 text-white font-black text-xl shadow-clay active:scale-90 transition-all cursor-pointer border-2 border-mint-700 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
-              >
-                <Plus className="size-5 stroke-[3.5]" />
-              </button>
-            </div>
           </div>
         </div>
       </div>

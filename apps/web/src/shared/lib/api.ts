@@ -541,6 +541,16 @@ export function normalizeGatewayRequest(path: string, options: RequestInit = {})
         }),
       }
     }
+    // WHY: Khi body chứa `apiKey`, đây là lưu Vidtory SDK key — route riêng
+    // để tránh bị nuốt bởi nhánh routing parse bên dưới (body.routing = undefined → []).
+    if (typeof body.apiKey === 'string') {
+      return {
+        path: '/api/v1/jobs/providers/policy',
+        options: withJson({ ...options, method: 'PUT' }, {
+          sdkApiKey: body.apiKey.trim(),
+        }),
+      }
+    }
     const routing = recordValue(body.routing)
     const image = recordValue(routing.image)
     const video = recordValue(routing.video)
@@ -685,9 +695,10 @@ export function normalizeGatewayRequest(path: string, options: RequestInit = {})
           avatarUrl: body.avatarId,
           language: 'vi',
           // New profiles start with the parent-approved product defaults.
+          // allowExport=true: chia sẻ bật mặc định; phụ huynh vẫn phải duyệt từng lần.
           allowAiCreate: true,
           allowPhoto: true,
-          allowExport: false,
+          allowExport: true,
           // The account password is never used as the child's PIN. The Account
           // service persists `pin` in child_profiles.pin_hash for child login.
           password: createUuid(),
@@ -1317,6 +1328,11 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
     }
   }
   if (path === '/api/admin/settings/vidtory') {
+    // WHY: sdkConfigured = key đã lưu trong BE SettingsService (Redis/file)
+    // providers.length = routing policy đã được cấu hình trong aikids plan
+    // configured = true khi CÓ MỘT TRONG HAI — key saved hoặc routing set
+    const sdkConfigured = payload.sdkConfigured === true
+    const bemaskedHint = typeof payload.maskedHint === 'string' ? payload.maskedHint : null
     const policy = recordValue(payload.planProviderPolicy)
     const aikids = recordValue(policy.aikids)
     const imageRoute = Array.isArray(aikids.defaultImageRoute)
@@ -1352,9 +1368,12 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
         models: videoModels,
       },
     }
+    const configured = sdkConfigured || providers.length > 0
+    const maskedHint = bemaskedHint
+      ?? (providers.length ? `${providers.length} provider route(s)` : null)
     return {
-      configured: providers.length > 0,
-      maskedHint: providers.length ? `${providers.length} provider route(s)` : null,
+      configured,
+      maskedHint,
       source: 'core-job-api',
       routing,
       imagePercents: imageModels,

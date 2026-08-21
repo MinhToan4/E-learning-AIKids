@@ -424,10 +424,16 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           })
         }
       } else if (tab === 'logs') {
+        // WHY: Load users song song để cross-reference trạng thái active ngay trên tab Nhật ký,
+        // tránh phải quay về tab Tài khoản chỉ để tắt/bật một account đáng ngờ.
         const q = logFilter ? `?outcome=${encodeURIComponent(logFilter)}` : ''
-        const data = await api<{ logs: LoginLogItem[]; summary: LoginLogSummary }>(`/api/admin/login-logs${q}`)
-        setLoginLogs(data.logs)
-        setLogSummary(data.summary)
+        const [logsData, usersData] = await Promise.all([
+          api<{ logs: LoginLogItem[]; summary: LoginLogSummary }>(`/api/admin/login-logs${q}`),
+          api<{ users: AdminUser[] }>('/api/admin/users'),
+        ])
+        setLoginLogs(logsData.logs)
+        setLogSummary(logsData.summary)
+        setUsers(usersData.users)
       } else if (tab === 'courses') {
         const data = await api<{ courses: CourseOverview[] }>('/api/admin/courses')
         setCourses(data.courses)
@@ -794,6 +800,26 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     </>
   )
 
+  // WHY: Tắt = đỏ (nguy hiểm, vô hiệu hóa tài khoản), Bật = xanh lá (an toàn, khôi phục).
+  // Dùng style prop + CSS variables đã định nghĩa thay vì Tailwind class —
+  // tầng design-system có coral-600 và mint-600 nhưng không có coral-500/mint-500.
+  const toggleBtnStyle = (active: boolean): React.CSSProperties =>
+    active
+      ? { background: 'var(--color-coral-600)', color: 'white', borderColor: 'var(--color-coral-600)' }
+      : { background: 'var(--color-mint-600)', color: 'white', borderColor: 'var(--color-mint-600)' }
+
+  // WHY: Tab Nhật ký dùng compact size để hài hòa với chiều cao row table (~40px).
+  // ui-btn mặc định min-height 48px + padding 12px 20px — quá lớn trong context bảng log.
+  // Tab Tài khoản giữ nguyên size chuẩn vì có nhiều không gian hơn.
+  const toggleBtnStyleCompact = (active: boolean): React.CSSProperties => ({
+    ...toggleBtnStyle(active),
+    minHeight: 0,
+    padding: '4px 12px',
+    fontSize: '0.75rem',
+    fontWeight: 700,
+    lineHeight: '1.25rem',
+  })
+
   // Login logs tab
   const logsTab = (
     <>
@@ -834,8 +860,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           <Button variant="secondary" onClick={() => void load()}>Làm mới</Button>
           <Button variant="ghost" className="text-muted" onClick={() => void purgeLogs()}>Xóa nhật ký cũ</Button>
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[600px] text-left text-sm">
+        {/* ── Desktop table (md+) ─────────────────────────────────────── */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-left text-sm">
             <thead className="border-b border-border bg-brand-50/80">
               <tr>
                 <th className="px-4 py-3 font-extrabold">Thời gian</th>
@@ -843,22 +870,72 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                 <th className="px-4 py-3 font-extrabold">Kết quả</th>
                 <th className="px-4 py-3 font-extrabold">IP</th>
                 <th className="px-4 py-3 font-extrabold">Lý do</th>
+                <th className="px-4 py-3 font-extrabold" />
               </tr>
             </thead>
             <tbody>
               {logsPag.slice.length === 0 ? (
-                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">{loginLogs.length === 0 ? 'Chưa có log nào trong 24 giờ qua' : 'Không có log khớp bộ lọc'}</td></tr>
-              ) : logsPag.slice.map((log) => (
-                <tr key={log.id} className="border-b border-border/40 hover:bg-brand-50/30">
-                  <td className="px-4 py-2 text-xs text-muted">{new Date(log.createdAt).toLocaleString('vi-VN')}</td>
-                  <td className="px-4 py-2 font-mono text-xs">{log.email ?? '—'}</td>
-                  <td className="px-4 py-2"><OutcomeBadge outcome={log.outcome} /></td>
-                  <td className="px-4 py-2 font-mono text-xs text-muted">{log.ipAddress ?? '—'}</td>
-                  <td className="px-4 py-2 text-xs text-muted">{log.reason ?? '—'}</td>
-                </tr>
-              ))}
+                <tr><td colSpan={6} className="px-4 py-8 text-center text-muted">{loginLogs.length === 0 ? 'Chưa có log nào trong 24 giờ qua' : 'Không có log khớp bộ lọc'}</td></tr>
+              ) : logsPag.slice.map((log) => {
+                // Cross-reference với danh sách users để lấy trạng thái active.
+                // Chỉ hiện button khi log có userId hợp lệ và user tồn tại trong hệ thống.
+                const logUser = log.userId ? users.find((u) => u.id === log.userId) : undefined
+                return (
+                  <tr key={log.id} className="border-b border-border/40 hover:bg-brand-50/30">
+                    <td className="px-4 py-2 text-xs text-muted">{new Date(log.createdAt).toLocaleString('vi-VN')}</td>
+                    <td className="px-4 py-2 font-mono text-xs">{log.email ?? '—'}</td>
+                    <td className="px-4 py-2"><OutcomeBadge outcome={log.outcome} /></td>
+                    <td className="px-4 py-2 font-mono text-xs text-muted">{log.ipAddress ?? '—'}</td>
+                    <td className="px-4 py-2 text-xs text-muted">{log.reason ?? '—'}</td>
+                    <td className="px-4 py-2 text-right">
+                      {logUser && (
+                        <Button
+                          variant="secondary"
+                          style={toggleBtnStyleCompact(logUser.active)}
+                          onClick={() => void toggleActive(logUser)}
+                          aria-label={logUser.active ? `Vô hiệu hóa tài khoản ${log.email ?? logUser.id}` : `Kích hoạt tài khoản ${log.email ?? logUser.id}`}
+                        >
+                          {logUser.active ? 'Tắt' : 'Bật'}
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
+        </div>
+        {/* ── Mobile card list (<md) ──────────────────────────────────── */}
+        <div className="md:hidden divide-y divide-border/40">
+          {logsPag.slice.length === 0 ? (
+            <p className="px-4 py-8 text-center text-sm text-muted">
+              {loginLogs.length === 0 ? 'Chưa có log nào trong 24 giờ qua' : 'Không có log khớp bộ lọc'}
+            </p>
+          ) : logsPag.slice.map((log) => {
+            const logUser = log.userId ? users.find((u) => u.id === log.userId) : undefined
+            return (
+              <div key={log.id} className="flex items-start justify-between gap-3 px-4 py-3">
+                <div className="min-w-0 flex-1">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <OutcomeBadge outcome={log.outcome} />
+                    <span className="truncate font-mono text-xs text-text font-semibold">{log.email ?? '—'}</span>
+                  </div>
+                  <p className="mt-1 text-xs text-muted">{new Date(log.createdAt).toLocaleString('vi-VN')}</p>
+                  <p className="mt-0.5 font-mono text-xs text-muted">{log.ipAddress ?? '—'}{log.reason ? ` · ${log.reason}` : ''}</p>
+                </div>
+                {logUser && (
+                  <Button
+                    variant="secondary"
+                    style={toggleBtnStyleCompact(logUser.active)}
+                    onClick={() => void toggleActive(logUser)}
+                    aria-label={logUser.active ? `Vô hiệu hóa ${log.email ?? logUser.id}` : `Kích hoạt ${log.email ?? logUser.id}`}
+                  >
+                    {logUser.active ? 'Tắt' : 'Bật'}
+                  </Button>
+                )}
+              </div>
+            )
+          })}
         </div>
         <Paginator
           page={logsPag.page} totalPages={logsPag.totalPages}
@@ -919,8 +996,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <span className="ml-auto text-xs font-bold text-brand-400 animate-pulse">Đang cập nhật…</span>
           )}
         </div>
-        <div className="overflow-x-auto">
-          <table className="w-full min-w-[560px] text-left text-sm">
+        {/* ── Desktop table (md+) ─────────────────────────────────────── */}
+        <div className="hidden md:block overflow-x-auto">
+          <table className="w-full text-left text-sm">
             <thead className="border-b border-border bg-brand-50/80">
               <tr>
                 <th className="px-4 py-3 font-extrabold">Người dùng</th>
@@ -955,7 +1033,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                       >
                         Sửa
                       </Button>
-                      <Button variant="secondary" onClick={() => void toggleActive(u)}>
+                      <Button variant="secondary" style={toggleBtnStyle(u.active)} onClick={() => void toggleActive(u)}>
                         {u.active ? 'Tắt' : 'Bật'}
                       </Button>
                       {u.active && (
@@ -969,6 +1047,50 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               ))}
             </tbody>
           </table>
+        </div>
+        {/* ── Mobile card list (<md) ──────────────────────────────────── */}
+        <div className="md:hidden divide-y divide-border/40">
+          {usersPag.slice.length === 0 ? (
+            <p className="px-4 py-8 text-center text-sm text-muted">
+              {users.length === 0 ? 'Không có tài khoản nào' : 'Không có tài khoản khớp bộ lọc'}
+            </p>
+          ) : usersPag.slice.map((u) => (
+            <div key={u.id} className="px-4 py-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="truncate font-bold text-sm">{u.nickname ?? '—'}</p>
+                  <p className="truncate text-xs text-muted">{u.email ?? u.id.slice(0, 10)}</p>
+                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                    <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600">
+                      {ROLE_LABELS[u.role] ?? u.role}
+                    </span>
+                    <span className={cn('rounded-full px-2 py-0.5 text-xs font-extrabold', u.active ? 'bg-mint-100 text-success' : 'bg-coral-100 text-danger')}>
+                      {u.active ? 'Đang hoạt động' : 'Đã vô hiệu hóa'}
+                    </span>
+                  </div>
+                </div>
+                <div className="flex shrink-0 flex-col gap-1.5">
+                  <Button
+                    variant="secondary"
+                    onClick={() => {
+                      setEditTarget(u)
+                      setEditForm({ nickname: u.nickname ?? '', role: u.role as AdminUser['role'], email: u.email ?? '', newPassword: '' })
+                    }}
+                  >
+                    Sửa
+                  </Button>
+                  <Button variant="secondary" style={toggleBtnStyle(u.active)} onClick={() => void toggleActive(u)}>
+                    {u.active ? 'Tắt' : 'Bật'}
+                  </Button>
+                  {u.active && (
+                    <Button variant="ghost" className="text-danger" onClick={() => setDeleteTarget(u)}>
+                      Xóa
+                    </Button>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
         </div>
         <Paginator
           page={usersPag.page} totalPages={usersPag.totalPages}
@@ -1086,7 +1208,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       {offerTarget && (
         <div className="ui-card h-fit p-5 xl:sticky xl:top-5">
           <h2 className="font-display text-xl">Cấu hình bán và cấp quyền</h2>
-          <p className="mt-2 text-sm text-muted">Giá tính theo đơn vị nhỏ nhất của tiền tệ. Với VND, nhập số nguyên đồng.</p>
           <div className="mt-4 space-y-3">
             <label className="block text-sm font-bold">Mô hình truy cập
               <select className="mt-1 min-h-11 w-full rounded-xl border-2 border-border px-3" value={offerForm.accessPolicy} onChange={(e) => setOfferForm((v) => ({ ...v, accessPolicy: e.target.value, priceAmountMinor: e.target.value === 'free' ? '0' : v.priceAmountMinor }))}>
@@ -1122,19 +1243,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           </div>
         </div>
       )}
-      <aside className="ui-card h-fit p-5 xl:sticky xl:top-5">
-        <div className="flex items-center gap-3">
-          <CmsCoursesIcon size={28} />
-          <h2 className="font-display text-xl text-text">Quản lý khóa học thống nhất</h2>
-        </div>
-        <p className="mt-3 text-sm leading-relaxed text-muted">Admin và giáo viên dùng cùng một quy trình; quyền sửa và xuất bản vẫn được kiểm soát theo vai trò và phạm vi sở hữu.</p>
-        <ol className="mt-4 space-y-2 text-sm font-bold text-text">
-          <li className="rounded-xl bg-sky-50 px-3 py-2">1. Nội dung · Thông tin và các trạm học</li>
-          <li className="rounded-xl bg-sky-50 px-3 py-2">2. Lộ trình · Thứ tự, mở khóa và điều kiện</li>
-          <li className="rounded-xl bg-sky-50 px-3 py-2">3. Phân phối · Học sinh, tổ chức và bán</li>
-        </ol>
-        <Button className="mt-5 w-full" onClick={() => navigate('/teacher/courses')}>Mở không gian biên soạn</Button>
-      </aside>
+
     </div>
   )
 
@@ -1317,7 +1426,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                 <span className="text-warning text-lg">⏳</span>
                 <div>
                   <p className="font-display text-base font-bold text-warning">Chờ xác nhận thanh toán ({pendingIntents.length})</p>
-                  <p className="text-xs text-muted">Xem xét sau khi xác nhận đã nhận tiền chuyển khoản từ phụ huynh.</p>
                 </div>
               </div>
               <div className="overflow-x-auto">
@@ -1411,10 +1519,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                   <tbody>
                     {filteredBillingSubs.length === 0 ? (
                       <tr>
-                        <td colSpan={6} className="px-4 py-12 text-center">
-                          <p className="text-muted">Chưa có dữ liệu thuê bao</p>
-                          <p className="mt-1 text-xs text-muted">Dữ liệu sẽ xuất hiện sau khi có người dùng đăng ký gói.</p>
-                        </td>
+                        <td colSpan={6} className="px-4 py-12 text-center text-muted">Chưa có dữ liệu thuê bao</td>
                       </tr>
                     ) : filteredBillingSubs.map((s) => (
                       <tr key={s.userId} className="group border-b border-border/30 hover:bg-brand-50/30 transition">
@@ -1540,10 +1645,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <div className="mb-4">
               <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">Cấp gói thủ công</p>
               <h2 className="font-display text-xl text-text mt-0.5">Kích hoạt không qua thanh toán</h2>
-              <p className="mt-1.5 text-xs text-muted leading-relaxed">
-                Dành cho phụ huynh đã chuyển khoản qua tổng đài hoặc cần ưu đãi đặc biệt.
-                Hệ thống kích hoạt ngay và đồng bộ toàn bộ dịch vụ qua NATS.
-              </p>
             </div>
 
             {/* User search */}
@@ -1702,17 +1803,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </Button>
           </form>
 
-          {/* Note box */}
-          <div className="rounded-2xl border border-brand-200 bg-brand-50/50 p-4 text-xs text-muted">
-            <p className="font-extrabold text-brand-700 mb-1">📋 Quy trình tổng đài</p>
-            <ol className="list-decimal list-inside space-y-1 leading-relaxed">
-              <li>Phụ huynh gọi tổng đài, chọn gói và nhận số tài khoản NH.</li>
-              <li>Phụ huynh chuyển khoản, ghi nội dung email đăng ký.</li>
-              <li>Nhân viên xác nhận đã nhận tiền trên sao kê.</li>
-              <li>Tìm email → chọn gói → nhập lý do → Kích hoạt.</li>
-              <li>Hệ thống gửi NATS event, phụ huynh nhận quyền ngay.</li>
-            </ol>
-          </div>
+
         </div>
       </div>
 

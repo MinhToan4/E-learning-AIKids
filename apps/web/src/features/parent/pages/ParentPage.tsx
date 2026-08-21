@@ -1,12 +1,14 @@
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { Link } from 'react-router'
+import { Link, useNavigate } from 'react-router'
 import {
   Baby,
   Bell,
   BookOpen,
   ChartNoAxesColumnIncreasing,
   Check,
+  CheckCircle2,
+  ChevronRight,
   CreditCard,
   ExternalLink,
   Gamepad2,
@@ -19,6 +21,8 @@ import {
   Pencil,
   Plus,
   Settings,
+  ShieldCheck,
+  Sparkles,
   Sprout,
   Trash2,
   TrendingUp,
@@ -26,6 +30,8 @@ import {
   UsersRound,
   Video,
   X,
+  ArrowRight,
+  RefreshCw,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
@@ -147,11 +153,15 @@ type ParentProfileData = {
 import {
   ParentApprovalIcon,
   ParentKidsIcon,
+  ParentPlanIcon,
+  ParentLearningIcon,
+  ParentStarsIcon,
+  ParentQuestIcon,
+  ParentTipIcon,
+  ParentProfileIcon,
+  ShieldLockIcon,
 } from '@/shared/components/icons/ParentIcons'
-import {
-  NavBadgeIcon,
-  NavLeaderboardIcon,
-} from '@/shared/components/icons/KidNavIcons'
+import { StatMetricCard } from '@/shared/components/charts/StatMetricCard'
 import { ProfileSharingPanel } from '@/features/parent/components/ProfileSharingPanel'
 
 type TabKey = 'dashboard' | 'kids' | 'approvals' | 'plan' | 'profile'
@@ -435,16 +445,20 @@ function PlanTab() {
 // ── Dashboard Tab ─────────────────────────────────────────────
 function DashboardTab() {
   const [kids, setKids] = useState<Child[]>([])
-  const [pendingCount, setPendingCount] = useState(0)
+  const [approvals, setApprovals] = useState<Approval[]>([])
+  const [sub, setSub] = useState<HouseholdSub | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const navigate = useNavigate()
+  const user = useAuth((s) => s.user)
 
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
-    const [childrenData, approvalsData] = await Promise.allSettled([
+    const [childrenData, approvalsData, subData] = await Promise.allSettled([
       api<{ children: Child[] }>('/api/parent/children'),
       api<{ approvals: Approval[] }>('/api/parent/approvals?status=pending'),
+      api<{ subscription: HouseholdSub }>('/api/parent/subscription'),
     ])
     if (childrenData.status === 'rejected') {
       setError('Chưa tải được dữ liệu của các con. Ba / Mẹ thử lại nhé.')
@@ -452,7 +466,10 @@ function DashboardTab() {
       return
     }
     setKids(childrenData.value.children)
-    setPendingCount(approvalsData.status === 'fulfilled' ? approvalsData.value.approvals.length : 0)
+    setApprovals(approvalsData.status === 'fulfilled' ? approvalsData.value.approvals : [])
+    if (subData.status === 'fulfilled') {
+      setSub(subData.value.subscription)
+    }
     setLoading(false)
   }, [])
 
@@ -469,42 +486,93 @@ function DashboardTab() {
   const totalXp = kids.reduce((s, k) => s + k.xp, 0)
   const totalStars = kids.reduce((s, k) => s + (k.totalStars ?? 0), 0)
   const totalQuests = kids.reduce((s, k) => s + (k.completedQuests ?? 0), 0)
+  const pendingCount = approvals.length
+
+  // Dữ liệu thực: số trạm hoàn thành của từng con theo API
+  // Không dùng synthetic distribution vì API không trả daily breakdown
 
   return (
-    <div className="flex flex-col gap-5">
-      {/* Stats */}
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
-        <StatCard icon={ParentKidsIcon} label="Số con" value={kids.length} color="brand" />
-        <StatCard icon={NavBadgeIcon} label="Tổng sao" value={totalStars} color="sun" />
-        <StatCard icon={NavLeaderboardIcon} label="Quests xong" value={totalQuests} color="mint" />
-        <StatCard icon={ParentApprovalIcon} label="Chờ duyệt" value={pendingCount} color="coral" />
+    <div className="flex flex-col gap-6">
+      {/* ── 1. Household Status Banner ───────────────────────── */}
+      <div className="ui-card relative overflow-hidden p-6 shadow-soft">
+        <div className="absolute right-0 top-0 -mr-12 -mt-12 h-44 w-44 rounded-full bg-brand-500/5 blur-xl" />
+        <div className="relative z-10 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2">
+              {/* Đã bỏ badge 'Cổng Phụ huynh' và thông tin gói theo yêu cầu UX */}
+            </div>
+            <h2 className="font-display mt-1 text-2xl font-black text-text md:text-3xl">
+              Chào Ba / Mẹ {(user?.nickname || user?.name) ?? ''}! ✨
+            </h2>
+            <p className="mt-1 text-sm text-muted">
+              Cùng theo dõi sự tiến bộ, khích lệ sáng tạo và đồng hành trên từng trạm học của con.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <Button
+              variant="secondary"
+              className="gap-2 !text-xs font-bold"
+              onClick={() => navigate('/parent/kids')}
+            >
+              <ParentKidsIcon size={18} /> Quản lý con
+            </Button>
+            <Button
+              variant="ghost"
+              className="gap-2 !text-xs font-bold"
+              onClick={() => void load()}
+            >
+              <RefreshCw size={13} /> Làm mới
+            </Button>
+          </div>
+        </div>
       </div>
 
-      {/* XP summary */}
-      <div className="ui-card p-4">
-        <h3 className="mb-3 flex items-center gap-2 font-display text-lg">
-          <Gamepad2 size={20} aria-hidden="true" />
-          Tổng XP gia đình: {totalXp}
-        </h3>
-        <div className="flex flex-col gap-2">
-          {kids.map((k) => (
-            <div key={k.id} className="flex items-center gap-3">
-              <span className="text-2xl">{avatarEmoji(k.avatarId)}</span>
-              <div className="min-w-0 flex-1">
-                <p className="text-sm font-bold">{k.nickname}</p>
-                <div className="mt-0.5 h-2 overflow-hidden rounded-full bg-brand-100">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-brand-400 to-brand-500 transition-all duration-500"
-                    style={{ width: `${Math.min((k.xp / Math.max(totalXp, 1)) * 100, 100)}%` }}
-                  />
-                </div>
-              </div>
-              <span className="text-xs font-bold text-muted">
-                Lv.{k.level} · {k.xp} XP
-              </span>
-            </div>
-          ))}
-        </div>
+      {/* ── 2. Metric KPI Cards ──────────────────────────────── */}
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        <StatMetricCard
+          label="Số con theo học"
+          value={kids.length}
+          icon={<ParentKidsIcon size={32} />}
+          color="sky"
+          trend={kids.length > 0 ? { value: `${kids.length} hồ sơ`, isPositive: true } : undefined}
+          sparklineData={[kids.length]}
+          subtext="Học an toàn bằng biệt danh & PIN"
+          onClick={() => navigate('/parent/kids')}
+        />
+        <StatMetricCard
+          label="Tổng sao tích lũy"
+          value={totalStars}
+          icon={<ParentStarsIcon size={32} />}
+          color="sun"
+          trend={totalStars > 0 ? { value: `${totalStars} sao`, isPositive: true } : undefined}
+          sparklineData={[totalStars]}
+          subtext={`${totalStars} sao đạt từ các bài quiz`}
+        />
+        <StatMetricCard
+          label="Nhiệm vụ hoàn thành"
+          value={totalQuests}
+          icon={<ParentQuestIcon size={32} />}
+          color="mint"
+          trend={totalQuests > 0 ? { value: `${totalQuests} trạm`, isPositive: true } : undefined}
+          sparklineData={[totalQuests]}
+          subtext={`${totalQuests} trạm học đã chinh phục`}
+          onClick={() => navigate('/parent/learning')}
+        />
+        <StatMetricCard
+          label="Chờ duyệt sáng tạo"
+          value={pendingCount}
+          icon={<ParentApprovalIcon size={32} />}
+          color={pendingCount > 0 ? 'coral' : 'brand'}
+          badge={pendingCount > 0 ? 'Cần duyệt ngay' : 'Đã duyệt hết'}
+          sparklineData={[pendingCount]}
+          subtext={
+            pendingCount > 0
+              ? `${pendingCount} tác phẩm con muốn chia sẻ`
+              : 'Tất cả tác phẩm đã sẵn sàng'
+          }
+          onClick={() => navigate('/parent/approvals')}
+        />
       </div>
 
       {/* Quick actions */}
@@ -540,22 +608,304 @@ function DashboardTab() {
           </div>
         </Link>
       </div>
+
+      {/* ── 3. Per-Child Progress — dữ liệu thực từ API ─────────── */}
+      {kids.length > 0 && (
+        <div className="ui-card p-5">
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <h3 className="font-display text-base font-bold text-text">Tiến độ từng con</h3>
+              <p className="text-xs text-muted">Số trạm học đã chinh phục — dữ liệu thực từ hệ thống</p>
+            </div>
+            <span className="rounded-full bg-brand-50 px-2.5 py-1 text-xs font-extrabold text-brand-700">
+              Tổng: {totalQuests} trạm
+            </span>
+          </div>
+          <div className="flex items-end gap-4">
+            {kids.map((kid) => {
+              const quests = kid.completedQuests ?? 0
+              const maxQuests = Math.max(...kids.map((k) => k.completedQuests ?? 0), 1)
+              const pct = Math.round((quests / maxQuests) * 100)
+              return (
+                <div key={kid.id} className="flex flex-1 flex-col items-center gap-2">
+                  <span className="text-xs font-extrabold text-text">{quests}</span>
+                  <div className="relative w-full overflow-hidden rounded-xl bg-slate-100" style={{ height: 80 }}>
+                    <div
+                      className="absolute bottom-0 w-full rounded-xl bg-gradient-to-t from-brand-500 to-brand-300 transition-all duration-700"
+                      style={{ height: `${Math.max(pct, 8)}%` }}
+                    />
+                  </div>
+                  <div className="flex flex-col items-center gap-0.5">
+                    <span className="max-w-[72px] truncate text-center text-[11px] font-bold text-text">
+                      {kid.nickname}
+                    </span>
+                    <span className="text-[10px] text-muted">Cấp {kid.level ?? 1}</span>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+
+        </div>
+      )}
+
+
+      {/* ── 4. Children Deep-Dive Journey Cards ──────────────── */}
+      <section aria-label="Tiến trình chi tiết từng con">
+        <div className="mb-3 flex items-center justify-between">
+          <div>
+            <h3 className="font-display text-lg font-bold text-text">Hành trình học tập của các con</h3>
+            <p className="text-xs text-muted">Chi tiết cấp độ, kinh nghiệm và cài đặt an toàn</p>
+          </div>
+          <Button
+            variant="ghost"
+            className="!text-xs font-bold text-brand-600"
+            onClick={() => navigate('/parent/kids')}
+          >
+            Quản lý hồ sơ
+          </Button>
+        </div>
+
+        {kids.length === 0 ? (
+          <div className="ui-card flex flex-col items-center justify-center gap-3 p-8 text-center">
+            <span className="text-4xl">👶</span>
+            <p className="font-display text-base font-bold">Chưa có hồ sơ con nào</p>
+            <p className="max-w-md text-xs text-muted">
+              Ba / Mẹ hãy tạo hồ sơ cho con để bé có thể bắt đầu đăng nhập bằng biệt danh và học tập.
+            </p>
+            <Button onClick={() => navigate('/parent/kids')} className="gap-2">
+              <Plus size={16} /> Thêm hồ sơ con
+            </Button>
+          </div>
+        ) : (
+          <div className="grid gap-4 md:grid-cols-2">
+            {kids.map((k) => {
+              const nextLevelXp = Math.max(k.level * 200, 100)
+              const currentLvlXp = k.xp % nextLevelXp
+              const progressPct = Math.min(Math.round((currentLvlXp / nextLevelXp) * 100), 100)
+
+              return (
+                <div
+                  key={k.id}
+                  className="ui-card flex flex-col justify-between p-5 transition hover:shadow-md"
+                >
+                  {/* Top: Child Avatar + Level + Name */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="relative">
+                        <span
+                          className="grid h-14 w-14 place-items-center rounded-2xl bg-brand-50 text-3xl shadow-sm"
+                          role="img"
+                          aria-label="Avatar"
+                        >
+                          {avatarEmoji(k.avatarId)}
+                        </span>
+                        <span className="absolute -bottom-1.5 -right-1.5 rounded-full bg-brand-600 px-2 py-0.5 text-[10px] font-black text-white shadow-sm">
+                          Lv.{k.level}
+                        </span>
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h4 className="font-display text-base font-bold text-text">
+                            {k.nickname || 'Bé yêu'}
+                          </h4>
+                          <span
+                            className={cn(
+                              'h-2 w-2 rounded-full',
+                              k.active ? 'bg-emerald-500' : 'bg-slate-300',
+                            )}
+                            title={k.active ? 'Đang hoạt động' : 'Tạm dừng'}
+                          />
+                        </div>
+                        <p className="text-xs text-muted">
+                          {k.ageBand ? `Nhóm tuổi: ${k.ageBand}` : 'Nhóm tuổi: 8-11'} · {k.xp} XP
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-sun-50 px-2.5 py-1 text-xs font-black text-amber-700">
+                        ⭐ {k.totalStars ?? 0}
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-mint-50 px-2.5 py-1 text-xs font-black text-emerald-700">
+                        🚀 {k.completedQuests ?? 0} trạm
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Level Progress Bar */}
+                  <div className="mt-4">
+                    <div className="flex justify-between text-xs">
+                      <span className="font-bold text-muted">Tiến độ lên Cấp {k.level + 1}</span>
+                      <span className="font-black text-brand-600">
+                        {currentLvlXp} / {nextLevelXp} XP ({progressPct}%)
+                      </span>
+                    </div>
+                    <div className="mt-1.5 h-2.5 overflow-hidden rounded-full bg-slate-100">
+                      <div
+                        className="h-full rounded-full bg-gradient-to-r from-brand-400 via-brand-500 to-sky-400 transition-all duration-700"
+                        style={{ width: `${progressPct}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Safety & Permissions Badges */}
+                  <div className="mt-4 flex flex-wrap items-center gap-2 border-t border-border/40 pt-3">
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-bold',
+                        k.allowAiCreate
+                          ? 'bg-purple-50 text-purple-700 border border-purple-200/60'
+                          : 'bg-slate-100 text-slate-500',
+                      )}
+                    >
+                      <Sparkles size={11} /> AI Sáng tạo: {k.allowAiCreate ? 'Bật' : 'Tắt'}
+                    </span>
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-bold',
+                        k.hasPin
+                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
+                          : 'bg-amber-50 text-amber-700 border border-amber-200/60',
+                      )}
+                    >
+                      <Lock size={11} /> {k.hasPin ? 'Có PIN bảo vệ' : 'Chưa đặt PIN'}
+                    </span>
+                    <span
+                      className={cn(
+                        'inline-flex items-center gap-1 rounded-lg px-2 py-0.5 text-[11px] font-bold',
+                        k.allowExport
+                          ? 'bg-sky-50 text-sky-700 border border-sky-200/60'
+                          : 'bg-slate-100 text-slate-500',
+                      )}
+                    >
+                      Xuất tác phẩm: {k.allowExport ? 'Cho phép' : 'Khóa'}
+                    </span>
+                  </div>
+
+                  {/* Action Link */}
+                  <div className="mt-3 flex justify-end">
+                    <Button
+                      variant="ghost"
+                      className="gap-1 !text-xs font-bold text-brand-600"
+                      onClick={() => navigate('/parent/kids')}
+                    >
+                      <span>Xem chi tiết học tập</span>
+                      <ArrowRight size={13} />
+                    </Button>
+                  </div>
+                </div>
+              )
+            })}
+          </div>
+        )}
+      </section>
+
+      {/* ── 5. Creative Approvals Showcase Widget ────────────── */}
+      <section aria-label="Trung tâm phê duyệt tác phẩm">
+        <div className="ui-card overflow-hidden shadow-soft">
+          <div className="flex items-center justify-between border-b border-border/60 bg-coral-50/40 px-5 py-4">
+            <div className="flex items-center gap-2.5">
+              <ParentApprovalIcon size={22} />
+              <div>
+                <h3 className="font-display text-base font-bold text-text">
+                  Duyệt chia sẻ tác phẩm của con
+                </h3>
+                <p className="text-xs text-muted">
+                  Bảo vệ an toàn và quyền riêng tư cho các tác phẩm AI do con sáng tạo
+                </p>
+              </div>
+            </div>
+            <Button
+              variant="ghost"
+              className="!text-xs font-bold text-rose-600"
+              onClick={() => navigate('/parent/approvals')}
+            >
+              Xem tất cả ({pendingCount})
+            </Button>
+          </div>
+
+          {approvals.length === 0 ? (
+            <div className="flex flex-col items-center justify-center gap-2 p-8 text-center">
+              <div className="grid h-11 w-11 place-items-center rounded-full bg-mint-50 text-2xl">
+                🎨
+              </div>
+              <p className="font-display text-sm font-bold text-emerald-800">
+                Tất cả tác phẩm đều đã được xử lý an toàn
+              </p>
+              <p className="max-w-sm text-xs text-muted">
+                Khi con hoàn thành truyện tranh hoặc tranh vẽ AI mới và muốn chia sẻ, yêu cầu sẽ xuất hiện tại đây để Ba / Mẹ phê duyệt.
+              </p>
+            </div>
+          ) : (
+            <div className="divide-y divide-border/40">
+              {approvals.slice(0, 3).map((appr) => (
+                <div
+                  key={appr.id}
+                  className="flex flex-wrap items-center justify-between gap-3 p-4 transition hover:bg-rose-50/20"
+                >
+                  <div className="flex items-center gap-3">
+                    {appr.project.thumbnail ? (
+                      <img
+                        src={appr.project.thumbnail}
+                        alt=""
+                        className="h-12 w-12 rounded-xl object-cover shadow-sm"
+                      />
+                    ) : (
+                      <div className="grid h-12 w-12 place-items-center rounded-xl bg-purple-100 text-xl">
+                        🎨
+                      </div>
+                    )}
+                    <div>
+                      <p className="font-display text-sm font-bold text-text">
+                        {appr.project.title || 'Tác phẩm sáng tạo AI'}
+                      </p>
+                      <p className="text-xs text-muted">
+                        Tác giả: <strong>{appr.child.nickname || 'Bé'}</strong> · Loại: {appr.project.kind || 'Truyện tranh'}
+                      </p>
+                    </div>
+                  </div>
+
+                  <Button
+                    variant="secondary"
+                    className="gap-1.5 !px-3 !py-1 !text-xs font-bold text-rose-700"
+                    onClick={() => navigate('/parent/approvals')}
+                  >
+                    <CheckCircle2 size={13} /> Duyệt tác phẩm
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+
     </div>
   )
 }
 
+
+// ── Fallback age bands — dùng khi chưa có con nào hoặc API chưa trả về kịp
+const FALLBACK_AGE_BANDS = [
+  { value: '8-11', label: '8–11 tuổi' },
+  { value: '9-12', label: '9–12 tuổi' },
+  { value: '13-15', label: '13–15 tuổi' },
+]
 
 // ── Edit Child Modal — Full-screen — tên, avatar, mục tiêu, PIN ────
 // Ba / Mẹ bấm ✏️ → modal này mở toàn màn hình, bao gồm cả đổi PIN
 function EditChildModal({
   child,
   isOpen,
+  referenceChildId, // id của con đầu tiên để fetch danh sách nhóm tuổi từ courses thực tế
   onClose,
   onSuccess,
   onError,
 }: {
   child: Child | null     // null = tạo mới
   isOpen: boolean
+  referenceChildId?: string
   onClose: () => void
   onSuccess: () => void
   onError: (msg: string) => void
@@ -566,6 +916,8 @@ function EditChildModal({
   const [goal, setGoal] = useState('comic')
   const [pin, setPin] = useState('')
   const [saving, setSaving] = useState(false)
+  // Danh sách nhóm tuổi lấy động từ API courses; fallback về hằng số nếu không có data
+  const [ageBandOptions, setAgeBandOptions] = useState(FALLBACK_AGE_BANDS)
 
   // Khi mở modal, điền sẵn giá trị hiện tại (nếu đang sửa)
   useEffect(() => {
@@ -577,6 +929,42 @@ function EditChildModal({
       setPin('')
     }
   }, [isOpen, child])
+
+  // WHY: Load nhóm tuổi động từ danh sách courses thực tế thay vì hardcode.
+  // Dùng referenceChildId (thường là con đầu tiên) để gọi endpoint có sẵn.
+  // Nếu không có child nào hoặc API lỗi → giữ nguyên FALLBACK_AGE_BANDS, không crash.
+  useEffect(() => {
+    if (!isOpen || !referenceChildId) return
+    const controller = new AbortController()
+    void (async () => {
+      try {
+        const data = await api<{
+          courses: Array<{ ageLabel: string; ageTrack: string }>
+        }>(`/api/parent/children/${referenceChildId}/courses`, { signal: controller.signal })
+        const seen = new Map<string, string>()
+        for (const course of data.courses) {
+          // Dùng cùng logic courseAgeGroupId: ưu tiên ageTrack, fallback ageLabel
+          const id = (course.ageTrack?.trim() || course.ageLabel?.trim()) || ''
+          const label = course.ageLabel?.trim() || id
+          if (id && label && !seen.has(id)) seen.set(id, label)
+        }
+        if (seen.size > 0) {
+          // Sắp xếp theo số tuổi nhỏ nhất trong label (giống buildCourseAgeGroups)
+          const sorted = [...seen.entries()]
+            .map(([value, label]) => ({ value, label }))
+            .sort((a, b) => {
+              const na = Number(a.label.match(/\d+/)?.[0] ?? 999)
+              const nb = Number(b.label.match(/\d+/)?.[0] ?? 999)
+              return na - nb || a.label.localeCompare(b.label, 'vi')
+            })
+          setAgeBandOptions(sorted)
+        }
+      } catch {
+        // Fetch thất bại hoặc bị abort → giữ nguyên fallback, không hiện lỗi
+      }
+    })()
+    return () => controller.abort()
+  }, [isOpen, referenceChildId])
 
   // Khóa scroll nền khi modal mở
   useEffect(() => {
@@ -690,19 +1078,21 @@ function EditChildModal({
               required
               autoFocus
             />
-            <p className="mt-1 text-xs text-muted">
-              Gợi ý: Đặt biệt danh gần gũi nên có số hoặc ký tự đặc biệt (Ví dụ: Tom123, Bống_nhỏ).
-            </p>
           </div>
 
           <div>
-            <label className='mb-1 block text-sm font-bold' htmlFor='edit-age-band'>Nhom tuoi hoc tap</label>
-            <select id='edit-age-band' value={ageBand} onChange={(e) => setAgeBand(e.target.value)} className='w-full rounded-xl border border-brand-200 bg-white px-3 py-2.5 text-sm'>
-              <option value='8-11'>8-11 tuoi - Pilot tieng Viet</option>
-              <option value='9-12'>9-12 tuoi</option>
-              <option value='13-15'>13-15 tuoi</option>
+            <label className='mb-1 block text-sm font-bold' htmlFor='edit-age-band'>Nhóm tuổi học tập</label>
+            <select
+              id='edit-age-band'
+              value={ageBandOptions.some((o) => o.value === ageBand) ? ageBand : ageBandOptions[0]?.value ?? ageBand}
+              onChange={(e) => setAgeBand(e.target.value)}
+              className='w-full rounded-xl border border-brand-200 bg-white px-3 py-2.5 text-sm'
+            >
+              {ageBandOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
             </select>
-            <p className='mt-1 text-xs text-muted'>Nhom tuoi giup he thong chon noi dung phu hop hon.</p>
+            <p className='mt-1 text-xs text-muted'>Hệ thống gợi ý nội dung phù hợp theo nhóm tuổi này.</p>
           </div>
 
           {/* Avatar */}
@@ -954,159 +1344,160 @@ function KidsTab() {
         </Button>
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-          {kids.length === 0 && (
-            <div className="ui-card p-6 text-center">
-              <Baby className="mx-auto text-brand-500" size={36} aria-hidden="true" />
-              <p className="mt-2 font-bold">Chưa có con nào</p>
-              <p className="text-sm text-muted">Nhấn "Thêm con" để bắt đầu</p>
+        {kids.length === 0 && (
+          <div className="ui-card p-6 text-center sm:col-span-2 xl:col-span-3">
+            <Baby className="mx-auto text-brand-500" size={36} aria-hidden="true" />
+            <p className="mt-2 font-bold">Chưa có con nào</p>
+            <p className="text-sm text-muted">Nhấn "Thêm con" để bắt đầu</p>
+          </div>
+        )}
+        {kids.map((k) => (
+          <div
+            key={k.id}
+            className={cn(
+              'ui-card p-4 transition',
+              !k.active && 'opacity-50',
+            )}
+          >
+            {/* Avatar + tên + stats */}
+            <div className="flex items-center gap-3">
+              <span className="flex-shrink-0 text-3xl">{avatarEmoji(k.avatarId)}</span>
+              <div className="min-w-0 flex-1">
+                <p className="font-extrabold text-lg leading-tight">{k.nickname}</p>
+                <p className="text-sm text-muted">{k.ageBand || 'Chưa đặt nhóm tuổi'} · {k.hasPin ? 'Đã có PIN' : 'Chưa có PIN'}</p>
+              </div>
             </div>
-          )}
-          {kids.map((k) => (
-            <div
-              key={k.id}
-              className={cn(
-                'ui-card p-4 transition',
-                !k.active && 'opacity-50',
-              )}
-            >
-              {/* Avatar + tên + stats */}
-              <div className="flex items-center gap-3">
-                <span className="flex-shrink-0 text-3xl">{avatarEmoji(k.avatarId)}</span>
-                <div className="min-w-0 flex-1">
-                  <p className="font-extrabold text-lg leading-tight">{k.nickname}</p>
-                  <p className="text-sm text-muted">{k.ageBand || 'Chưa đặt nhóm tuổi'} · {k.hasPin ? 'Đã có PIN' : 'Chưa có PIN'}</p>
-                </div>
-              </div>
 
-              {/* Hàng nút */}
-              <div className="mt-3 flex flex-wrap items-center gap-2">
-                <Link
-                  to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
-                  className="ui-btn ui-btn-secondary !min-h-9 !px-3 !text-xs"
-                >
-                  <BookOpen size={16} aria-hidden="true" />
-                  Xem học tập
-                </Link>
+            {/* Hàng nút */}
+            <div className="mt-3 flex flex-wrap items-center gap-2">
+              <Link
+                to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
+                className="ui-btn ui-btn-secondary !min-h-9 !px-3 !text-xs"
+              >
+                <BookOpen size={16} aria-hidden="true" />
+                Xem học tập
+              </Link>
 
-                {/* Bút chì — mở EditChildModal (tên + avatar + PIN) */}
-                <button
-                  type="button"
-                  onClick={() => setEditTarget(k)}
-                  className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-sm transition hover:bg-brand-50"
-                  title="Chỉnh sửa hồ sơ"
-                  aria-label="Chỉnh sửa hồ sơ con"
-                >
-                  <Pencil size={17} aria-hidden="true" />
-                </button>
-
-                {/* Tạm khóa */}
-                <button
-                  type="button"
-                  onClick={() => setDeleteTarget(k)}
-                  className="ml-auto flex min-h-11 min-w-11 items-center justify-center rounded-xl text-sm transition hover:bg-coral-50"
-                  title="Tạm khóa hồ sơ"
-                  aria-label="Tạm khóa hồ sơ con"
-                >
-                  <Trash2 size={17} aria-hidden="true" />
-                </button>
-              </div>
-
-              <details className="mt-3 rounded-2xl border border-border bg-page p-3">
-                <summary className="cursor-pointer text-sm font-extrabold text-brand-600">
-                  Quyền an toàn của con
-                </summary>
-                <div className="mt-3 grid gap-2 text-sm">
-                  <label className="flex min-h-11 items-start gap-3 rounded-xl bg-white px-3 py-2">
-                    <input
-                      type="checkbox"
-                      className="mt-1"
-                      checked={Boolean(k.allowAiCreate)}
-                      onChange={(event) => void updateConsent(k, 'allowAiCreate', event.target.checked)}
-                    />
-                    <span className="flex-1">
-                      <span className="flex items-center gap-1">
-                        <strong>Phòng sáng tạo AI</strong>
-                        <ConsentTooltip
-                          badge="🤖 Nội dung AI được kiểm duyệt tự động"
-                          on="Con vào được Studio AI, tạo câu chuyện & nhân vật."
-                          off="Nút 'Tạo với AI' bị ẩn hoàn toàn với con."
-                        />
-                      </span>
-                      <span className="text-xs text-muted">Con vào Studio AI tạo nội dung — đã lọc an toàn.</span>
-                    </span>
-                  </label>
-                  <label className="flex min-h-11 items-start gap-3 rounded-xl bg-white px-3 py-2">
-                    <input
-                      type="checkbox"
-                      className="mt-1"
-                      checked={Boolean(k.allowPhoto)}
-                      onChange={(event) => void updateConsent(k, 'allowPhoto', event.target.checked)}
-                    />
-                    <span className="flex-1">
-                      <span className="flex items-center gap-1">
-                        <strong>Cho phép dùng ảnh</strong>
-                        <ConsentTooltip
-                          badge="📷 Ảnh chỉ lưu trong ứng dụng, không chia sẻ ra ngoài"
-                          on="Con dùng được camera & thư viện ảnh thiết bị."
-                          off="Chỉ dùng ảnh có sẵn trong thư viện hệ thống."
-                        />
-                      </span>
-                      <span className="text-xs text-muted">Con dùng camera/ảnh thiết bị trong tác phẩm — bật mặc định.</span>
-                    </span>
-                  </label>
-                  {/* WHY: this checkbox is phrased as a safety action. A checked box
-                      maps to allowExport=false, which keeps child sharing disabled. */}
-                  <label className="flex min-h-11 items-start gap-3 rounded-xl bg-white px-3 py-2">
-                    <input
-                      type="checkbox"
-                      className="mt-1"
-                      checked={!Boolean(k.allowExport)}
-                      onChange={(event) => void updateConsent(k, 'allowExport', !event.target.checked)}
-                    />
-                    <span className="flex-1">
-                      <span className="flex items-center gap-1">
-                        <strong>Tắt xuất/chia sẻ</strong>
-                        <ConsentTooltip
-                          badge="📤 Mọi chia sẻ vẫn cần phụ huynh duyệt"
-                          on="Nút chia sẻ bị ẩn hoàn toàn — con không thể chia sẻ."
-                          off="Con thấy nút chia sẻ, phụ huynh duyệt từng lần."
-                          onLabel="ĐÃ TẮT"
-                          offLabel="ĐANG BẬT"
-                        />
-                      </span>
-                      <span className="text-xs text-muted">Tích để ẩn nút chia sẻ với con — tắt mặc định.</span>
-                    </span>
-                  </label>
-                </div>
-              </details>
+              {/* Bút chì — mở EditChildModal (tên + avatar + PIN) */}
               <button
                 type="button"
-                className="mt-2 text-left text-xs font-bold text-brand-600 hover:underline"
-                onClick={() => void toggleConsentHistory(k.id)}
-                aria-expanded={consentHistoryChild === k.id}
+                onClick={() => setEditTarget(k)}
+                className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-sm transition hover:bg-brand-50"
+                title="Chỉnh sửa hồ sơ"
+                aria-label="Chỉnh sửa hồ sơ con"
               >
-                {consentHistoryChild === k.id ? 'Ẩn lịch sử thay đổi quyền' : 'Xem lịch sử thay đổi quyền'}
+                <Pencil size={17} aria-hidden="true" />
               </button>
-              {consentHistoryChild === k.id && (
-                <div className="mt-2 rounded-2xl border border-border bg-page p-3 text-xs" role="region" aria-label="Lịch sử quyền an toàn">
-                  {consentHistoryLoading && !consentHistory[k.id] ? (
-                    <p className="text-muted">Đang tải lịch sử...</p>
-                  ) : consentHistory[k.id]?.length ? (
-                    <ol className="flex flex-col gap-2">
-                      {consentHistory[k.id].map((event) => (
-                        <li key={event.id} className="rounded-xl bg-white px-3 py-2">
-                          <p className="font-bold">{new Date(event.createdAt).toLocaleString('vi-VN')}</p>
-                          <p className="text-muted">Chính sách {event.policyVersion} · {event.method}</p>
-                        </li>
-                      ))}
-                    </ol>
-                  ) : (
-                    <p className="text-muted">Chưa có bản ghi thay đổi.</p>
-                  )}
-                </div>
-              )}
+
+              {/* Tạm khóa */}
+              <button
+                type="button"
+                onClick={() => setDeleteTarget(k)}
+                className="ml-auto flex min-h-11 min-w-11 items-center justify-center rounded-xl text-sm transition hover:bg-coral-50"
+                title="Tạm khóa hồ sơ"
+                aria-label="Tạm khóa hồ sơ con"
+              >
+                <Trash2 size={17} aria-hidden="true" />
+              </button>
             </div>
-          ))}
+
+            <details className="mt-3 rounded-2xl border border-border bg-page p-3">
+              <summary className="cursor-pointer text-sm font-extrabold text-brand-600">
+                Quyền an toàn của con
+              </summary>
+              <div className="mt-3 grid gap-2 text-sm">
+                <label className="flex min-h-11 items-start gap-3 rounded-xl bg-white px-3 py-2">
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    checked={Boolean(k.allowAiCreate)}
+                    onChange={(event) => void updateConsent(k, 'allowAiCreate', event.target.checked)}
+                  />
+                  <span className="flex-1">
+                    <span className="flex items-center gap-1">
+                      <strong>Phòng sáng tạo AI</strong>
+                      <ConsentTooltip
+                        badge="🤖 Nội dung AI được kiểm duyệt tự động"
+                        on="Con vào được Studio AI, tạo câu chuyện & nhân vật."
+                        off="Nút 'Tạo với AI' bị ẩn hoàn toàn với con."
+                      />
+                    </span>
+                    <span className="text-xs text-muted">Con vào Studio AI tạo nội dung — đã lọc an toàn.</span>
+                  </span>
+                </label>
+                <label className="flex min-h-11 items-start gap-3 rounded-xl bg-white px-3 py-2">
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    checked={Boolean(k.allowPhoto)}
+                    onChange={(event) => void updateConsent(k, 'allowPhoto', event.target.checked)}
+                  />
+                  <span className="flex-1">
+                    <span className="flex items-center gap-1">
+                      <strong>Cho phép dùng ảnh</strong>
+                      <ConsentTooltip
+                        badge="📷 Ảnh chỉ lưu trong ứng dụng, không chia sẻ ra ngoài"
+                        on="Con dùng được camera & thư viện ảnh thiết bị."
+                        off="Chỉ dùng ảnh có sẵn trong thư viện hệ thống."
+                      />
+                    </span>
+                    <span className="text-xs text-muted">Con dùng camera/ảnh thiết bị trong tác phẩm — bật mặc định.</span>
+                  </span>
+                </label>
+                {/* WHY: this checkbox is phrased as a safety opt-out. A checked box
+                    maps to allowExport=false (sharing HIDDEN). Default is unchecked
+                    because new child profiles start with allowExport=true (sharing ENABLED). */}
+                <label className="flex min-h-11 items-start gap-3 rounded-xl bg-white px-3 py-2">
+                  <input
+                    type="checkbox"
+                    className="mt-1"
+                    checked={!Boolean(k.allowExport)}
+                    onChange={(event) => void updateConsent(k, 'allowExport', !event.target.checked)}
+                  />
+                  <span className="flex-1">
+                    <span className="flex items-center gap-1">
+                      <strong>Tắt xuất/chia sẻ</strong>
+                      <ConsentTooltip
+                        badge="📤 Mọi chia sẻ vẫn cần phụ huynh duyệt"
+                        on="Nút chia sẻ bị ẩn hoàn toàn — con không thể chia sẻ."
+                        off="Con thấy nút chia sẻ, phụ huynh duyệt từng lần."
+                        onLabel="ĐÃ TẮT"
+                        offLabel="ĐANG BẬT"
+                      />
+                    </span>
+                    <span className="text-xs text-muted">Tích để ẩn nút chia sẻ với con — bật mặc định.</span>
+                  </span>
+                </label>
+              </div>
+            </details>
+            <button
+              type="button"
+              className="mt-2 text-left text-xs font-bold text-brand-600 hover:underline"
+              onClick={() => void toggleConsentHistory(k.id)}
+              aria-expanded={consentHistoryChild === k.id}
+            >
+              {consentHistoryChild === k.id ? 'Ẩn lịch sử thay đổi quyền' : 'Xem lịch sử thay đổi quyền'}
+            </button>
+            {consentHistoryChild === k.id && (
+              <div className="mt-2 rounded-2xl border border-border bg-page p-3 text-xs" role="region" aria-label="Lịch sử quyền an toàn">
+                {consentHistoryLoading && !consentHistory[k.id] ? (
+                  <p className="text-muted">Đang tải lịch sử...</p>
+                ) : consentHistory[k.id]?.length ? (
+                  <ol className="flex flex-col gap-2">
+                    {consentHistory[k.id].map((event) => (
+                      <li key={event.id} className="rounded-xl bg-white px-3 py-2">
+                        <p className="font-bold">{new Date(event.createdAt).toLocaleString('vi-VN')}</p>
+                        <p className="text-muted">Chính sách {event.policyVersion} · {event.method}</p>
+                      </li>
+                    ))}
+                  </ol>
+                ) : (
+                  <p className="text-muted">Chưa có bản ghi thay đổi.</p>
+                )}
+              </div>
+            )}
+          </div>
+        ))}
       </div>
       <ConfirmDialog
         open={Boolean(deleteTarget)}
@@ -1124,6 +1515,10 @@ function KidsTab() {
       <EditChildModal
         child={editTarget ?? null}
         isOpen={editTarget !== undefined}
+        // WHY: truyền id của con đầu tiên làm referenceChildId để EditChildModal
+        // fetch được danh sách nhóm tuổi thực tế từ courses. Nếu chưa có con nào
+        // (tạo con đầu tiên) → referenceChildId = undefined → fallback hiện đủ.
+        referenceChildId={kids[0]?.id}
         onClose={() => setEditTarget(undefined)}
         onSuccess={async () => {
           setEditTarget(undefined)
@@ -1546,17 +1941,14 @@ function ApprovalsTab() {
         <Bell size={20} aria-hidden="true" />
         Yêu cầu chia sẻ
       </h2>
-      <p className="text-sm text-muted">
-        Sáng tạo của trẻ mặc định riêng tư — chỉ hiện khi Ba / Mẹ đồng ý.
-      </p>
+
 
       <ProfileSharingPanel />
 
       {approvals.length === 0 && friendInvites.length === 0 && (
         <div className="ui-card p-8 text-center">
           <PartyPopper className="mx-auto text-brand-500" size={40} aria-hidden="true" />
-          <p className="mt-2 font-bold">Không có yêu cầu nào!</p>
-          <p className="text-sm text-muted">Tất cả đã được xử lý.</p>
+          <p className="mt-2 font-bold">Không có yêu cầu nào</p>
         </div>
       )}
 

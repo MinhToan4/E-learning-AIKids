@@ -24,14 +24,34 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
     expect(markup).toContain('Giỏ B (Táo Xanh):')
 
     // Apples in baskets
-    expect(markup).toContain('4')
-    expect(markup).toContain('3')
+    expect(markup).toContain('4 / 10 🍎')
+    expect(markup).toContain('3 / 10 🍏')
 
     // Realtime calculation bar
     expect(markup).toContain('Tổng số táo trong cả 2 giỏ')
     expect(markup).toContain('7 quả táo tổng cộng')
     expect(markup).toContain('7 quả táo thơm ngon')
     expect(markup).toContain('katex')
+  })
+
+  it('verifies baskets are stable (no bounce animation) and pedestal buttons are removed', () => {
+    const markup = renderToStaticMarkup(
+      createElement(AsmoInteractiveAppleTreeCanvas, {
+        applesA: 4,
+        applesB: 3,
+      }),
+    )
+
+    // Verify no pedestal minus/plus buttons exist
+    expect(markup).not.toContain('Bớt táo đỏ giỏ A')
+    expect(markup).not.toContain('Thêm táo đỏ giỏ A')
+    expect(markup).not.toContain('Bớt táo xanh giỏ B')
+    expect(markup).not.toContain('Thêm táo xanh giỏ B')
+
+    // Verify apples inside baskets are draggable for returning to tree (Two-way interaction)
+    expect(markup).toContain('title="Chạm hoặc kéo về cây để trả táo đỏ 🍎"')
+    expect(markup).toContain('title="Chạm hoặc kéo về cây để trả táo xanh 🍏"')
+    expect(markup).toContain('draggable="true"')
   })
 
   it('renders customized title, instructions, and mee quote', () => {
