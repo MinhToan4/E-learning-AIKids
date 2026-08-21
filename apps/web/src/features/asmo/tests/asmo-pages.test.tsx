@@ -1,7 +1,7 @@
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { MemoryRouter } from 'react-router'
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import { AsmoHubPage } from '../pages/AsmoHubPage'
 import { AsmoExamArenaPage } from '../pages/AsmoExamArenaPage'
 
@@ -15,7 +15,7 @@ describe('ASMO Pages', () => {
       ),
     )
 
-    expect(markup).toContain('Chinh Phục ASMO')
+    expect(markup).toContain('Đấu Trường Olympic ASMO')
     expect(markup).toContain('Phòng Thí Nghiệm 3D')
     expect(markup).toContain('Chọn Môn Học Olympic')
     expect(markup).toContain('Khối Lớp')

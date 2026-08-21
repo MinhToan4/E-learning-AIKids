@@ -5,24 +5,18 @@ import {
   Sparkles,
   Box,
   Compass,
-  CheckCircle,
   Play,
   ArrowRight,
   BookOpen,
-  Award,
   Layers,
   Calendar,
   Loader2,
-  GraduationCap,
-  School,
-  Backpack,
 } from 'lucide-react'
 import {
   ASMO_SUBJECTS,
   ASMO_GRADES,
   ASMO_GRADE_TIERS,
   ASMO_CURRICULUM_WEEKS,
-  type AsmoGradeTier,
 } from '../data/asmo-curriculum'
 import { ASMO_3D_TEMPLATES } from '../data/asmo-3d-templates'
 import { listAsmoExams } from '@/shared/lib/asmo-api'
@@ -32,19 +26,24 @@ import { AsmoExamAuditModal } from '../components/AsmoExamAuditModal'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
-const AVAILABLE_YEARS: Array<number | 'all'> = ['all', 2023, 2022, 2021, 2020, 2018, 2016, 2015, 2014, 2013, 2012, 2011, 2008, 2007, 2006, 2005]
+const AVAILABLE_YEARS: Array<number | 'all'> = ['all', 2023, 2022, 2021, 2020, 2018, 2016]
+
+const FEATURED_3D_KEYS = [
+  '3D_CUBE_CLUSTER',
+  'GRID_PATH_MAZE',
+  'NET_CUBE_FOLDING',
+  'SHADED_AREA_FRACTION',
+] as const
 
 export function AsmoHubPage() {
   const navigate = useNavigate()
   const [selectedSubject, setSelectedSubject] = useState<AsmoSubject>('math')
   const [selectedGrade, setSelectedGrade] = useState<AsmoGrade>(1)
   const [selectedYear, setSelectedYear] = useState<number | 'all'>('all')
-  const [selectedTier, setSelectedTier] = useState<AsmoGradeTier | 'all'>('all')
 
   const [exams, setExams] = useState<AsmoExam[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [auditingExam, setAuditingExam] = useState<AsmoExam | null>(null)
-
 
   const currentSubjectMeta = ASMO_SUBJECTS[selectedSubject]
   const currentGradeMeta = ASMO_GRADES.find((g) => g.grade === selectedGrade)
@@ -81,121 +80,91 @@ export function AsmoHubPage() {
     return ASMO_CURRICULUM_WEEKS.filter((w) => w.subject === selectedSubject)
   }, [selectedSubject])
 
-  const templateList = Object.values(ASMO_3D_TEMPLATES)
+  const featuredTemplates = useMemo(() => {
+    return FEATURED_3D_KEYS.map((key) => ASMO_3D_TEMPLATES[key]).filter(Boolean)
+  }, [])
 
   return (
-    <div className="mx-auto w-full max-w-7xl space-y-8 p-4 sm:p-6 lg:p-8">
-      {/* ── HERO BANNER ── */}
-      <div className="relative overflow-hidden rounded-3xl border border-brand-200/80 bg-gradient-to-r from-brand-600 via-indigo-600 to-sky-600 p-6 text-white shadow-clay sm:p-10">
-        <div className="relative z-10 max-w-2xl">
+    <div className="mx-auto w-full max-w-7xl space-y-6 sm:space-y-8 p-4 sm:p-6 lg:p-8">
+      {/* ── 1. HERO BANNER (TINH GỌN & SANG TRỌNG) ── */}
+      <div className="relative overflow-hidden rounded-3xl border border-brand-200/60 bg-gradient-to-r from-brand-600 via-indigo-600 to-sky-500 p-6 text-white shadow-clay sm:p-8">
+        <div className="relative z-10 max-w-3xl space-y-4">
           <div className="inline-flex items-center gap-1.5 rounded-full bg-white/20 px-3.5 py-1 text-xs font-bold backdrop-blur-md">
-            <Trophy className="size-3.5 text-sun-300" />
-            <span>Đấu Trường Olympic Quốc Tế ASMO (Lớp 1 – 12)</span>
+            <Trophy className="size-3.5 text-amber-300" />
+            <span>Cổng Thi Đấu Olympic Quốc Tế</span>
           </div>
 
-          <h1 className="mt-3 font-display text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
-            Chinh Phục ASMO Toàn Diện Lớp 1 – 12 Cùng Mèo Mee 🚀
+          <h1 className="font-display text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+            Đấu Trường Olympic ASMO Lớp 1 – 12 🏆
           </h1>
 
-          <p className="mt-3 text-sm sm:text-base text-indigo-100 leading-relaxed">
-            Ngân hàng đề thi chuẩn hóa quốc tế 3 Môn (Toán · Khoa Học · Tiếng Anh) trải rộng trọn vẹn 3 Cấp học (Tiểu học · THCS · THPT) kết hợp công nghệ mô phỏng hình học 3D Three.js và trợ giảng AI đồng hành!
+          <p className="text-sm sm:text-base text-indigo-100 leading-relaxed max-w-2xl">
+            Hệ thống đề thi Olympic Toán, Khoa Học &amp; Tiếng Anh với mô phỏng 3D Three.js và Trợ giảng AI Mèo Mee đồng hành.
           </p>
 
-          <div className="mt-6 flex flex-wrap items-center gap-3">
+          {/* Chỉ 2 Nút Hành Động Rõ Ràng */}
+          <div className="pt-2 flex flex-wrap items-center gap-3">
             <Button
               type="button"
               variant="primary"
               onClick={() => navigate('/asmo/curriculum')}
-              className="gap-2 rounded-2xl bg-amber-400 text-slate-950 hover:bg-amber-300 font-black shadow-md border-0"
+              className="gap-2 rounded-2xl bg-amber-400 text-slate-950 font-black hover:bg-amber-300 shadow-md border-0 px-5 py-2.5 transition-transform active:scale-95 cursor-pointer"
             >
               <Compass className="size-4 text-slate-950" />
-              <span>🗺️ Lộ Trình Học Tuần Tự (LMS)</span>
+              <span>🧭 Lộ Trình Học 5 Chặng (LMS)</span>
             </Button>
 
             <Button
               type="button"
               variant="secondary"
               onClick={() => navigate('/asmo/journey')}
-              className="gap-2 rounded-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 font-bold backdrop-blur-md"
+              className="gap-2 rounded-2xl bg-white/20 text-white hover:bg-white/30 border border-white/30 font-bold backdrop-blur-md px-5 py-2.5 transition-transform active:scale-95 cursor-pointer"
             >
-              <Sparkles className="size-4 text-sun-300" />
-              <span>Chặng Học 3D</span>
+              <Sparkles className="size-4 text-amber-300" />
+              <span>✨ Chặng Học 3D &amp; Phòng Lab</span>
             </Button>
-
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => navigate('/asmo/lab')}
-              className="gap-2 rounded-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 font-bold backdrop-blur-md"
-            >
-              <Box className="size-4" />
-              <span>Phòng Lab 3D</span>
-            </Button>
-
-            {exams.length > 0 && (
-              <>
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => navigate(`/asmo/exam/${exams[0].id}`)}
-                  className="gap-2 rounded-2xl bg-white/20 text-white hover:bg-white/30 border-white/30 font-bold backdrop-blur-md"
-                >
-                  <Play className="size-4 fill-current" />
-                  <span>Làm Đề Thi Thử Ngay</span>
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => setAuditingExam(exams[0])}
-                  className="gap-2 rounded-2xl bg-white/10 text-white hover:bg-white/25 border-white/20 font-bold backdrop-blur-md"
-                >
-                  <Sparkles className="size-4 text-sun-300" />
-                  <span>🔍 Thẩm Định Đề Thi</span>
-                </Button>
-              </>
-            )}
           </div>
         </div>
 
-
         {/* Decorative Background Elements */}
-        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 opacity-20 lg:opacity-30 pointer-events-none">
-          <Trophy className="size-96 text-white" />
+        <div className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-12 opacity-15 lg:opacity-25 pointer-events-none">
+          <Trophy className="size-80 text-white" />
         </div>
       </div>
 
-      {/* ── MÈO MEE INTRO ── */}
+      {/* ── 2. TRỢ GIẢNG MÈO MEE (TINH GỌN) ── */}
       <AsmoMeeTutor
         pose="welcome"
-        speech={`Chào bạn nhỏ! Mee đã mở rộng hệ thống đề thi ASMO đầy đủ từ Lớp 1 đến Lớp 12 cho môn ${currentSubjectMeta.name}. Con đang theo học ${currentGradeMeta?.tierLabel} (${currentGradeMeta?.label}), hãy chọn năm thi để bắt đầu thử sức nhé!`}
-        hint="Bí kíp của Mee: Khi làm bài toán hình học hoặc tư duy không gian, con hãy bấm nút 'Phòng Thí Nghiệm 3D' để xoay mô hình 360 độ trước khi chọn đáp án nhé!"
+        speech={`Chào bạn nhỏ! Mee đã chuẩn bị sẵn hệ thống đề thi Olympic ASMO môn ${currentSubjectMeta.name} cho ${currentGradeMeta?.tierLabel} (${currentGradeMeta?.shortLabel}). Hãy chọn năm thi con muốn thử sức cùng Mèo Mee nhé! 🚀`}
+        hint="Bí kíp Mèo Mee: Khi làm bài toán hình học hoặc tư duy không gian, con hãy xoay mô hình 3D 360 độ để quan sát mọi góc nhìn trước khi chọn đáp án nhé!"
       />
 
-      {/* ── SUBJECT, GRADE & YEAR SELECTOR TABS ── */}
-      <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-5 shadow-clay backdrop-blur-md space-y-6">
-        {/* 1. Subject Pills */}
+      {/* ── 3. BỘ LỌC 3 TẦNG TINH GỌN (SOFT CLAY) ── */}
+      <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-5 sm:p-6 shadow-clay backdrop-blur-md space-y-6">
+        {/* Tầng 1: 3 Môn Học Olympic */}
         <div>
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 block">
-            1. Chọn Môn Học Olympic
-          </label>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2.5">
+            <Sparkles className="size-3.5 text-brand-600" />
+            <span>1. Chọn Môn Học Olympic</span>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
             {(Object.keys(ASMO_SUBJECTS) as AsmoSubject[]).map((subjKey) => {
               const subj = ASMO_SUBJECTS[subjKey]
               const isSelected = selectedSubject === subjKey
+              const subjectEmoji = subjKey === 'math' ? '📐' : subjKey === 'science' ? '🔬' : '🇬🇧'
               return (
                 <button
                   key={subjKey}
                   type="button"
                   onClick={() => setSelectedSubject(subjKey)}
                   className={cn(
-                    'flex items-center gap-2 rounded-2xl px-4 py-2.5 text-sm font-bold transition-all active:scale-95 cursor-pointer',
+                    'flex items-center justify-center gap-2.5 rounded-2xl py-3 px-4 text-sm font-extrabold transition-all active:scale-95 cursor-pointer',
                     isSelected
-                      ? 'bg-brand-600 text-white shadow-md shadow-brand-500/20 ring-2 ring-brand-400'
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700',
+                      ? 'bg-brand-600 text-white shadow-md shadow-brand-500/25 ring-2 ring-brand-400'
+                      : 'bg-slate-100 hover:bg-slate-200/80 text-slate-700 border border-slate-200/60',
                   )}
                 >
-                  <span className="text-lg">{subj.icon}</span>
+                  <span className="text-xl">{subjectEmoji}</span>
                   <span>{subj.name}</span>
                 </button>
               )
@@ -203,12 +172,13 @@ export function AsmoHubPage() {
           </div>
         </div>
 
-        {/* 2. Grade Tiers & Grade Pills (3 Cấp Học: Tiểu học, THCS, THPT) */}
+        {/* Tầng 2: Cấp Học & Khối Lớp (Grid 3 Cột) */}
         <div>
-          <div className="flex items-center justify-between gap-2 mb-2 flex-wrap">
-            <label className="text-xs font-bold uppercase tracking-wider text-slate-500">
-              2. Khối Lớp (Toàn Diện Lớp 1 – 12 Theo 3 Cấp Học)
-            </label>
+          <div className="flex items-center justify-between gap-2 mb-2.5 flex-wrap">
+            <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-slate-500">
+              <Layers className="size-3.5 text-brand-600" />
+              <span>2. Khối Lớp (Toàn Diện Lớp 1 – 12 Theo 3 Cấp Học)</span>
+            </div>
             {currentGradeMeta && (
               <span className="rounded-xl bg-brand-50 px-2.5 py-0.5 text-xs font-bold text-brand-700">
                 {currentGradeMeta.tierEmoji} {currentGradeMeta.tierLabel} · {currentGradeMeta.ageRange}
@@ -216,20 +186,20 @@ export function AsmoHubPage() {
             )}
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
             {ASMO_GRADE_TIERS.map((tier) => {
               const isGradeInTier = tier.grades.includes(selectedGrade)
               return (
                 <div
                   key={tier.id}
                   className={cn(
-                    'rounded-2xl border p-3 transition-all flex flex-col justify-between',
+                    'rounded-2xl border p-3.5 transition-all flex flex-col justify-between',
                     isGradeInTier
-                      ? 'border-brand-300 bg-brand-50/40 shadow-xs ring-1 ring-brand-200'
+                      ? 'border-brand-300 bg-brand-50/50 shadow-xs ring-1 ring-brand-200'
                       : 'border-slate-200/80 bg-slate-50/60',
                   )}
                 >
-                  <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center justify-between mb-2.5">
                     <div className="flex items-center gap-1.5 font-extrabold text-xs text-slate-800">
                       <span>{tier.emoji}</span>
                       <span>{tier.label}</span>
@@ -248,7 +218,7 @@ export function AsmoHubPage() {
                           type="button"
                           onClick={() => setSelectedGrade(gNum)}
                           className={cn(
-                            'flex-1 min-w-[54px] rounded-xl py-2 px-2 text-center text-xs font-extrabold transition-all active:scale-95 cursor-pointer',
+                            'flex-1 min-w-[52px] rounded-xl py-2 px-2 text-center text-xs font-black transition-all active:scale-95 cursor-pointer',
                             isSelected
                               ? 'bg-slate-900 text-white shadow-sm ring-2 ring-brand-400 scale-[1.02]'
                               : 'bg-white border border-slate-200/90 hover:bg-slate-100 hover:border-slate-300 text-slate-700',
@@ -265,13 +235,13 @@ export function AsmoHubPage() {
           </div>
         </div>
 
-        {/* 3. Year Selector */}
-        <div className="pt-2 border-t border-slate-100">
-          <label className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1">
+        {/* Tầng 3: Năm Thi Tuyển Chọn */}
+        <div className="pt-3 border-t border-slate-100">
+          <div className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wider text-slate-500 mb-2.5">
             <Calendar className="size-3.5 text-brand-600" />
-            <span>3. Năm Thi Đề ASMO</span>
-          </label>
-          <div className="flex flex-wrap gap-1.5">
+            <span>3. Năm Thi Tuyển Chọn</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
             {AVAILABLE_YEARS.map((yr) => {
               const isSelected = selectedYear === yr
               return (
@@ -280,36 +250,237 @@ export function AsmoHubPage() {
                   type="button"
                   onClick={() => setSelectedYear(yr)}
                   className={cn(
-                    'rounded-xl px-2.5 py-1.5 text-xs font-bold transition-all active:scale-95 cursor-pointer',
+                    'rounded-xl px-3 py-1.5 text-xs font-bold transition-all active:scale-95 cursor-pointer',
                     isSelected
                       ? 'bg-brand-600 text-white shadow-sm ring-2 ring-brand-400'
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700',
+                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200/60',
                   )}
                 >
-                  {yr === 'all' ? 'Tất cả năm' : yr}
+                  {yr === 'all' ? 'Tất cả năm' : `Năm ${yr}`}
                 </button>
               )
             })}
           </div>
         </div>
 
-        {/* Selected Subject Banner Info */}
-        <div className="flex items-center justify-between gap-4 text-xs sm:text-sm text-slate-600 pt-2 border-t border-slate-100">
+        {/* Thanh Tóm Tắt Kết Quả */}
+        <div className="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-slate-100 text-xs sm:text-sm text-slate-600">
           <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-extrabold text-brand-700">{currentSubjectMeta.badgeText}</span>
-            <span>·</span>
-            <span>{currentSubjectMeta.description}</span>
+            <span className="font-extrabold text-brand-700 bg-brand-50 px-2.5 py-0.5 rounded-lg border border-brand-100">
+              {currentSubjectMeta.badgeText}
+            </span>
+            <span className="text-slate-400">·</span>
+            <span className="font-bold text-slate-700">
+              {currentSubjectMeta.name} ({currentGradeMeta?.shortLabel})
+            </span>
+            <span className="text-slate-400">·</span>
+            <span className="font-semibold text-slate-500">
+              {isLoading ? 'Đang tải đề thi...' : `${exams.length} bộ đề thi sẵn sàng`}
+            </span>
           </div>
-          <span className="shrink-0 font-semibold text-slate-500">
-            {isLoading ? 'Đang tải đề thi...' : `${exams.length} Bộ đề thi sẵn sàng`}
-          </span>
+
+          {exams.length > 0 && (
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => navigate(`/asmo/exam/${exams[0].id}`)}
+              className="gap-1.5 rounded-xl text-xs font-extrabold py-2 px-3.5 shadow-sm cursor-pointer"
+            >
+              <Play className="size-3.5 fill-current" />
+              <span>Bắt đầu làm bài ngay</span>
+            </Button>
+          )}
         </div>
       </div>
 
-      {/* ── LMS CURRICULUM ROADMAP HIGHLIGHT BANNER ── */}
-      <div className="rounded-3xl border border-amber-300 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-100/60 p-5 sm:p-6 shadow-clay flex flex-col md:flex-row items-center justify-between gap-4">
+      {/* ── 4. HAI CỘT NỘI DUNG CHÍNH (7/12 & 5/12) ── */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
+        {/* Cột Trái (Phòng Thí Nghiệm Không Gian 3D - 7/12) */}
+        <div className="lg:col-span-7 flex flex-col justify-between gap-4 rounded-3xl border border-indigo-100 bg-gradient-to-br from-indigo-50/60 via-white to-sky-50/60 p-5 sm:p-6 shadow-clay">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex size-11 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-sm shrink-0">
+                  <Box className="size-5" />
+                </div>
+                <div>
+                  <h2 className="font-display text-lg sm:text-xl font-bold text-slate-900">
+                    Phòng Thí Nghiệm Không Gian 3D
+                  </h2>
+                  <p className="text-xs text-slate-600">
+                    Mô phỏng hình học Three.js tương tác xoay 360° trực quan
+                  </p>
+                </div>
+              </div>
+
+              <Link
+                to="/asmo/lab"
+                className="inline-flex items-center gap-1 text-xs font-extrabold text-indigo-700 hover:text-indigo-900"
+              >
+                <span>Mở phòng Lab</span>
+                <ArrowRight className="size-3.5" />
+              </Link>
+            </div>
+
+            {/* 4 Card Mẫu Hình Học 3D */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              {featuredTemplates.map((tpl) => (
+                <Link
+                  key={tpl.key}
+                  to={`/asmo/lab?template=${tpl.key}`}
+                  className="group flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white/90 p-4 transition-all duration-200 hover:-translate-y-1 hover:border-indigo-400 hover:shadow-md"
+                >
+                  <div>
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="text-2xl">{tpl.icon}</span>
+                      <span
+                        className={cn(
+                          'rounded-lg px-2 py-0.5 text-[10px] font-bold',
+                          tpl.difficulty === 'Cơ bản'
+                            ? 'bg-emerald-50 text-emerald-700'
+                            : tpl.difficulty === 'Trung bình'
+                            ? 'bg-indigo-50 text-indigo-700'
+                            : 'bg-amber-50 text-amber-800',
+                        )}
+                      >
+                        {tpl.difficulty}
+                      </span>
+                    </div>
+                    <h3 className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
+                      {tpl.title}
+                    </h3>
+                    <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
+                      {tpl.subtitle}
+                    </p>
+                  </div>
+
+                  <div className="mt-3 flex items-center gap-1 text-[11px] font-bold text-indigo-600">
+                    <span>Trải nghiệm 3D</span>
+                    <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+
+          <div className="pt-2 flex flex-wrap items-center justify-center gap-3">
+            <Button
+              type="button"
+              variant="primary"
+              onClick={() => navigate('/asmo/journey')}
+              className="flex-1 sm:flex-initial gap-2 rounded-2xl font-bold bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm px-4 py-2.5 cursor-pointer"
+            >
+              <Sparkles className="size-4 text-amber-300" />
+              <span>Chặng Học 12 Chuyên Đề 3D</span>
+            </Button>
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={() => navigate('/asmo/lab')}
+              className="flex-1 sm:flex-initial gap-2 rounded-2xl font-bold text-indigo-700 border-indigo-200 bg-white hover:bg-indigo-50 px-4 py-2.5 cursor-pointer"
+            >
+              <Compass className="size-4" />
+              <span>Phòng Thí Nghiệm 3D</span>
+            </Button>
+          </div>
+        </div>
+
+        {/* Cột Phải (Đấu Trường Thi Thử ASMO - 5/12) */}
+        <div className="lg:col-span-5 flex flex-col justify-between gap-4 rounded-3xl border border-slate-200/80 bg-white/90 p-5 sm:p-6 shadow-clay">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="flex size-11 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-sm shrink-0">
+                  <Trophy className="size-5" />
+                </div>
+                <div>
+                  <h2 className="font-display text-lg sm:text-xl font-bold text-slate-900">
+                    Đấu Trường Thi Thử ASMO
+                  </h2>
+                  <p className="text-xs text-slate-600">
+                    Đề thi {currentSubjectMeta.name} · {currentGradeMeta?.label}
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Exam Papers List */}
+            <div className="flex flex-col gap-3">
+              {isLoading ? (
+                <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-brand-200 bg-brand-50/30 p-8 text-center text-brand-700">
+                  <Loader2 className="size-8 animate-spin text-brand-600 mb-2" />
+                  <p className="text-sm font-bold">Đang tải ngân hàng đề thi ASMO...</p>
+                  <p className="text-xs text-brand-500 mt-1">Hệ thống đang kết nối Gateway LMS</p>
+                </div>
+              ) : exams.length > 0 ? (
+                exams.map((exam) => (
+                  <div
+                    key={exam.id}
+                    className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50/70 p-4 transition-all hover:bg-brand-50/40 hover:border-brand-300"
+                  >
+                    <div>
+                      <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
+                        <div className="flex items-center gap-1.5">
+                          <span className="rounded-md bg-brand-100 px-2 py-0.5 text-[10px] font-bold text-brand-700">
+                            {exam.code}
+                          </span>
+                          <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-800">
+                            {exam.year} · {exam.round}
+                          </span>
+                        </div>
+                        <span className="text-xs font-bold text-slate-600">
+                          ⏱️ {exam.durationMinutes} phút · 📝 {exam.questions.length} câu
+                        </span>
+                      </div>
+
+                      <h3 className="text-sm font-bold text-slate-900 leading-snug">
+                        {exam.title}
+                      </h3>
+                    </div>
+
+                    <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-200/60">
+                      <span className="text-xs font-medium text-slate-500">
+                        Điểm đạt: {exam.passScore}/{exam.totalPoints}
+                      </span>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          onClick={() => setAuditingExam(exam)}
+                          className="gap-1 rounded-xl text-xs font-bold py-1.5 px-2.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 cursor-pointer"
+                        >
+                          <Sparkles className="size-3 text-indigo-600" />
+                          <span>Thẩm định</span>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="primary"
+                          onClick={() => navigate(`/asmo/exam/${exam.id}`)}
+                          className="gap-1.5 rounded-xl text-xs font-bold py-1.5 px-3 cursor-pointer"
+                        >
+                          <Play className="size-3 fill-current" />
+                          <span>Làm Đề Ngay ▶</span>
+                        </Button>
+                      </div>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
+                  <BookOpen className="size-8 mx-auto text-slate-400 mb-2" />
+                  <p className="text-sm font-semibold">Chưa có đề thi cho bộ lọc này</p>
+                  <p className="text-xs text-slate-400 mt-1">Vui lòng thử chọn khối lớp hoặc năm thi khác nhé</p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── 5. LMS CURRICULUM ROADMAP BANNER & MATRIX ── */}
+      <div className="rounded-3xl border border-amber-300/80 bg-gradient-to-r from-amber-50 via-orange-50 to-amber-100/60 p-5 sm:p-6 shadow-clay flex flex-col md:flex-row items-center justify-between gap-4">
         <div className="flex items-center gap-4">
-          <div className="flex size-14 items-center justify-center rounded-2xl bg-amber-500 text-slate-950 shadow-md text-2xl shrink-0">
+          <div className="flex size-13 items-center justify-center rounded-2xl bg-amber-500 text-slate-950 shadow-md text-2xl shrink-0">
             🧭
           </div>
           <div>
@@ -336,185 +507,13 @@ export function AsmoHubPage() {
         </Button>
       </div>
 
-      {/* ── TWO MAIN TRACKS ── */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-        {/* Left Column: 3D Visual Lab Highlight (7 cols) */}
-        <div className="lg:col-span-7 flex flex-col gap-4 rounded-3xl border border-indigo-100 bg-gradient-to-br from-indigo-50/80 via-white to-sky-50/80 p-6 shadow-clay">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex size-10 items-center justify-center rounded-2xl bg-indigo-600 text-white shadow-sm">
-                <Box className="size-5" />
-              </div>
-              <div>
-                <h2 className="font-display text-lg sm:text-xl font-bold text-slate-900">
-                  Phòng Thí Nghiệm Không Gian 3D
-                </h2>
-                <p className="text-xs text-slate-600">
-                  7 Dạng toán hình học ASMO mô phỏng Three.js xoay 360°
-                </p>
-              </div>
-            </div>
-
-            <Link
-              to="/asmo/lab"
-              className="inline-flex items-center gap-1 text-xs font-extrabold text-indigo-700 hover:text-indigo-900"
-            >
-              <span>Mở phòng Lab</span>
-              <ArrowRight className="size-3.5" />
-            </Link>
-          </div>
-
-          {/* 3D Template Cards Mini Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-2">
-            {templateList.slice(0, 4).map((tpl) => (
-              <Link
-                key={tpl.key}
-                to={`/asmo/lab?template=${tpl.key}`}
-                className="group flex flex-col justify-between rounded-2xl border border-slate-200/80 bg-white/90 p-4 transition-all duration-200 hover:-translate-y-1 hover:border-indigo-400 hover:shadow-md"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-2xl">{tpl.icon}</span>
-                    <span className="rounded-lg bg-indigo-50 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
-                      {tpl.difficulty}
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-bold text-slate-900 group-hover:text-indigo-600 transition-colors line-clamp-1">
-                    {tpl.title}
-                  </h3>
-                  <p className="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">
-                    {tpl.subtitle}
-                  </p>
-                </div>
-
-                <div className="mt-3 flex items-center gap-1 text-[11px] font-bold text-indigo-600">
-                  <span>Trải nghiệm 3D</span>
-                  <ArrowRight className="size-3 transition-transform group-hover:translate-x-0.5" />
-                </div>
-              </Link>
-            ))}
-          </div>
-
-          <div className="mt-2 flex flex-wrap justify-center gap-2">
-            <Button
-              type="button"
-              variant="primary"
-              onClick={() => navigate('/asmo/journey')}
-              className="w-full sm:w-auto gap-2 rounded-2xl font-bold bg-indigo-600 text-white hover:bg-indigo-700 shadow-sm"
-            >
-              <Sparkles className="size-4 text-sun-300" />
-              <span>Chặng Học 12 Chuyên Đề 3D</span>
-            </Button>
-            <Button
-              type="button"
-              variant="secondary"
-              onClick={() => navigate('/asmo/lab')}
-              className="w-full sm:w-auto gap-2 rounded-2xl font-bold text-indigo-700 border-indigo-200 bg-white hover:bg-indigo-50"
-            >
-              <Compass className="size-4" />
-              <span>Phòng Thí Nghiệm 3D</span>
-            </Button>
-          </div>
-        </div>
-
-        {/* Right Column: Real Exam Papers (5 cols) */}
-        <div className="lg:col-span-5 flex flex-col gap-4 rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-clay">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="flex size-10 items-center justify-center rounded-2xl bg-brand-600 text-white shadow-sm">
-                <Trophy className="size-5" />
-              </div>
-              <div>
-                <h2 className="font-display text-lg sm:text-xl font-bold text-slate-900">
-                  Đấu Trường Thi Thử
-                </h2>
-                <p className="text-xs text-slate-600">
-                  Đề thi Olympic {currentSubjectMeta.name} · {currentGradeMeta?.label}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          {/* Exam Papers List */}
-          <div className="flex flex-col gap-3 mt-1">
-            {isLoading ? (
-              <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-brand-200 bg-brand-50/30 p-8 text-center text-brand-700">
-                <Loader2 className="size-8 animate-spin text-brand-600 mb-2" />
-                <p className="text-sm font-bold">Đang tải ngân hàng đề thi ASMO...</p>
-                <p className="text-xs text-brand-500 mt-1">Hệ thống đang kết nối Gateway LMS</p>
-              </div>
-            ) : exams.length > 0 ? (
-              exams.map((exam) => (
-                <div
-                  key={exam.id}
-                  className="flex flex-col justify-between rounded-2xl border border-slate-200 bg-slate-50/70 p-4 transition-all hover:bg-brand-50/40 hover:border-brand-300"
-                >
-                  <div>
-                    <div className="flex items-center justify-between gap-2 mb-1.5 flex-wrap">
-                      <div className="flex items-center gap-1.5">
-                        <span className="rounded-md bg-brand-100 px-2 py-0.5 text-[10px] font-bold text-brand-700">
-                          {exam.code}
-                        </span>
-                        <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-extrabold text-amber-800">
-                          {exam.year} · {exam.round}
-                        </span>
-                      </div>
-                      <span className="text-xs font-bold text-slate-600">
-                        ⏱️ {exam.durationMinutes} phút · 📝 {exam.questions.length} câu
-                      </span>
-                    </div>
-
-                    <h3 className="text-sm font-bold text-slate-900 leading-snug">
-                      {exam.title}
-                    </h3>
-                  </div>
-
-                  <div className="mt-3 flex items-center justify-between pt-2 border-t border-slate-200/60">
-                    <span className="text-xs font-medium text-slate-500">
-                      Điểm đạt: {exam.passScore}/{exam.totalPoints}
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        type="button"
-                        variant="secondary"
-                        onClick={() => setAuditingExam(exam)}
-                        className="gap-1 rounded-xl text-xs font-bold py-1.5 px-2.5 bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200"
-                      >
-                        <Sparkles className="size-3 text-indigo-600" />
-                        <span>Thẩm định</span>
-                      </Button>
-                      <Button
-                        type="button"
-                        variant="primary"
-                        onClick={() => navigate(`/asmo/exam/${exam.id}`)}
-                        className="gap-1.5 rounded-xl text-xs font-bold py-1.5 px-3"
-                      >
-                        <Play className="size-3 fill-current" />
-                        <span>Vào thi</span>
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-              ))
-
-            ) : (
-              <div className="rounded-2xl border border-dashed border-slate-300 p-8 text-center text-slate-500">
-                <BookOpen className="size-8 mx-auto text-slate-400 mb-2" />
-                <p className="text-sm font-semibold">Đang cập nhật thêm đề thi cho bộ lọc này</p>
-                <p className="text-xs text-slate-400 mt-1">Vui lòng thử chọn khối lớp hoặc năm thi khác nhé</p>
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      {/* ── CURRICULUM ROADMAP MATRIX ── */}
-      <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-6 shadow-clay backdrop-blur-md">
+      {/* ── KHUNG CHƯƠNG TRÌNH HỌC & LUYỆN THI ASMO ── */}
+      <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-5 sm:p-6 shadow-clay backdrop-blur-md">
         <div className="flex items-center justify-between gap-2 mb-4 flex-wrap">
           <div className="flex items-center gap-2">
             <Layers className="size-5 text-brand-600" />
             <h2 className="font-display text-lg sm:text-xl font-bold text-slate-900">
-              Khung Chương Trình Học & Luyện Thi ASMO ({currentSubjectMeta.name})
+              Khung Chương Trình Học &amp; Luyện Thi ASMO ({currentSubjectMeta.name})
             </h2>
           </div>
           <span className="rounded-xl bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
@@ -522,7 +521,7 @@ export function AsmoHubPage() {
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
           {filteredWeeks.map((weekItem) => (
             <div
               key={weekItem.week}
@@ -579,4 +578,3 @@ export function AsmoHubPage() {
     </div>
   )
 }
-
