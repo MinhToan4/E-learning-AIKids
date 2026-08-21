@@ -105,4 +105,14 @@ describe('designer AIKid assets on disk', () => {
       180 * 1024,
     )
   })
+
+  it('includes all 5 ASMO Soft Clay transparent diorama scenes', () => {
+    const scenes = Object.values(designerAssets.asmoScenes)
+    expect(scenes).toHaveLength(5)
+    for (const scenePath of scenes) {
+      expect(scenePath.endsWith('.png')).toBe(true)
+      expect(existsSync(publicPath(scenePath)), `scene asset missing: ${scenePath}`).toBe(true)
+      expect(statSync(publicPath(scenePath)).size).toBeLessThan(2 * 1024 * 1024)
+    }
+  })
 })

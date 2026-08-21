@@ -124,6 +124,8 @@ describe('ASMO 5 Island Regions Thematic Specs & Authentic Assets', () => {
       expect(theme.badgeName).toBeTruthy()
       expect(theme.background).toBeTruthy()
       expect(theme.scene).toBeTruthy()
+      expect(theme.scene.endsWith('.png')).toBe(true)
+      expect(theme.image.endsWith('.png')).toBe(true)
       expect(theme.ribbon).toBeTruthy()
       expect(theme.pose).toBeTruthy()
       expect(theme.chest.name).toBeTruthy()
