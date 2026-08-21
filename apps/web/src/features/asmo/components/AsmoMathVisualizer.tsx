@@ -197,9 +197,11 @@ export function AsmoMathVisualizer({
                       ].map((t) => (
                         <g key={`log2-${t.exp}`}>
                           <line x1={t.x} y1="25" x2={t.x} y2="40" stroke="#3b82f6" strokeWidth={t.exp === 5 ? '3' : '1.5'} />
-                          <text x={t.x} y="54" fill="#1e3a8a" fontSize="10" fontWeight="bold" textAnchor="middle">
-                            2^{t.exp}={t.val}
-                          </text>
+                          <foreignObject x={t.x - 30} y="44" width="60" height="20" className="overflow-visible">
+                            <div className="flex items-center justify-center text-[10px] font-bold text-blue-900 leading-none">
+                              <AsmoFormula text={`$2^${t.exp}=${t.val}$`} />
+                            </div>
+                          </foreignObject>
                           <text x={t.x} y="20" fill="#2563eb" fontSize="11" fontWeight="900" textAnchor="middle">
                             {t.exp}
                           </text>
@@ -218,13 +220,15 @@ export function AsmoMathVisualizer({
                         { exp: 1, val: 3, x: 110 },
                         { exp: 2, val: 9, x: 200 },
                         { exp: 3, val: 27, x: 300 },
-                        { exp: 4, val: 8, x: 400 },
+                        { exp: 4, val: 81, x: 400 },
                       ].map((t) => (
                         <g key={`log3-${t.exp}`}>
                           <line x1={t.x} y1="90" x2={t.x} y2="105" stroke="#059669" strokeWidth={t.exp === 4 ? '3' : '1.5'} />
-                          <text x={t.x} y="119" fill="#064e3b" fontSize="10" fontWeight="bold" textAnchor="middle">
-                            3^{t.exp}={t.exp === 4 ? '81' : t.val}
-                          </text>
+                          <foreignObject x={t.x - 30} y="109" width="60" height="20" className="overflow-visible">
+                            <div className="flex items-center justify-center text-[10px] font-bold text-emerald-900 leading-none">
+                              <AsmoFormula text={`$3^${t.exp}=${t.val}$`} />
+                            </div>
+                          </foreignObject>
                           <text x={t.x} y="85" fill="#059669" fontSize="11" fontWeight="900" textAnchor="middle">
                             {t.exp}
                           </text>
@@ -235,10 +239,11 @@ export function AsmoMathVisualizer({
                       </text>
 
                       {/* Summation Connector Badge */}
-                      <rect x="110" y="150" width="260" height="38" rx="12" fill="#eef2ff" stroke="#6366f1" strokeWidth="2" />
-                      <text x="240" y="174" fill="#312e81" fontSize="13" fontWeight="900" textAnchor="middle">
-                        log₂(32) + log₃(81) = 5 + 4 = 9 (Chọn C)
-                      </text>
+                      <foreignObject x="70" y="148" width="340" height="42" className="overflow-visible">
+                        <div className="flex items-center justify-center h-full px-3 py-1.5 rounded-xl bg-indigo-50 border-2 border-indigo-300 text-indigo-950 font-bold text-xs shadow-xs">
+                          <AsmoFormula text="$K = \log_2(32) + \log_3(81) = 5 + 4 = 9 \implies \text{Chọn C}$" />
+                        </div>
+                      </foreignObject>
                     </svg>
                   </div>
                 ) : level === 2 ? (
@@ -427,6 +432,11 @@ export function AsmoMathVisualizer({
                         Đáy hình vuông a = 6 cm
                       </text>
                     </svg>
+
+                    {/* 🟢 KHUNG THẺ KẾT QUẢ NHANH */}
+                    <div className="w-full bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold p-3 rounded-2xl text-center shadow-xs mt-3">
+                      <AsmoFormula text="V = \frac{1}{3} S_{\text{đáy}} \cdot h = \frac{1}{3} \cdot 6^2 \cdot 4 = 48\text{ cm}^3 \implies \text{Chọn B}" />
+                    </div>
                   </div>
                 ) : level === 2 ? (
                   /* Level 2: 5-level Pascal Triangle & Binomial Expansion (x+2)^5 => a3 = C_5^2 * 4 = 40 */
@@ -494,6 +504,11 @@ export function AsmoMathVisualizer({
                         ★ C₅² = 10 (Hệ số nhị thức) ⇒ a₃ = 10 × 2² = 40 (Chọn B)
                       </text>
                     </svg>
+
+                    {/* 🟢 KHUNG THẺ KẾT QUẢ NHANH */}
+                    <div className="w-full bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold p-3 rounded-2xl text-center shadow-xs mt-3">
+                      <AsmoFormula text="(x+2)^5 \implies a_3 = C_5^2 \cdot 2^2 = 10 \times 4 = 40 \implies \text{Chọn B}" />
+                    </div>
                   </div>
                 ) : (
                   /* Level 3: Regular Icosahedron (20-face Platonic Solid) Euler Characteristic V - E + F = 2 => E = 30 */
@@ -581,6 +596,11 @@ export function AsmoMathVisualizer({
                         </text>
                       </g>
                     </svg>
+
+                    {/* 🟢 KHUNG THẺ KẾT QUẢ NHANH */}
+                    <div className="w-full bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold p-3 rounded-2xl text-center shadow-xs mt-3">
+                      <AsmoFormula text="E = V + F - 2 = 12 + 20 - 2 = 30\text{ cạnh} \implies \text{Chọn B}" />
+                    </div>
                   </div>
                 )}
               </div>
@@ -1293,10 +1313,10 @@ export function AsmoMathVisualizer({
                     <div className="w-full flex items-center justify-between text-xs font-bold text-slate-600 mb-2 flex-wrap gap-1">
                       <span className="flex items-center gap-1.5 text-indigo-900 font-extrabold">
                         <span className="size-2 rounded-full bg-indigo-600" />
-                        <AsmoFormula text="Sơ đồ ghép cặp nhóm luỹ thừa $(1+2) + 2^2(1+2) + \dots \vdots 3$" />
+                        <AsmoFormula text="Sơ đồ ghép cặp nhóm luỹ thừa $(1+2) + 2^2(1+2) + \dots \,\vdots\, 3$" />
                       </span>
                       <span className="text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
-                        <AsmoFormula text="$S = (1+2) \times Q = 3Q \vdots 3$" />
+                        <AsmoFormula text="$S = (1+2) \times Q = 3Q \,\vdots\, 3$" />
                       </span>
                     </div>
 
@@ -1318,10 +1338,11 @@ export function AsmoMathVisualizer({
                       <text x="325" y="70" fill="#64748b" fontSize="16" fontWeight="bold">+ ...</text>
 
                       {/* Factorization banner */}
-                      <rect x="30" y="125" width="420" height="45" rx="12" fill="#ecfdf5" stroke="#10b981" strokeWidth="2" />
-                      <text x="240" y="152" fill="#064e3b" fontSize="13" fontWeight="900" textAnchor="middle">
-                        S = 3 × (1 + 2² + 2⁴ + ...) chia hết cho 3 (Số dư = 0)
-                      </text>
+                      <foreignObject x="30" y="122" width="420" height="50" className="overflow-visible">
+                        <div className="flex items-center justify-center h-full px-3 py-1.5 rounded-xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold text-xs shadow-xs">
+                          <AsmoFormula text="$S = 3 \times (1 + 2^2 + 2^4 + \dots) \,\vdots\, 3 \text{ (Số dư = 0)} \implies \text{Chọn A}$" />
+                        </div>
+                      </foreignObject>
                     </svg>
                   </div>
                 ) : (
@@ -1330,10 +1351,10 @@ export function AsmoMathVisualizer({
                     <div className="w-full flex items-center justify-between text-xs font-bold text-slate-600 mb-2 flex-wrap gap-1">
                       <span className="flex items-center gap-1.5 text-indigo-900 font-extrabold">
                         <span className="size-2 rounded-full bg-indigo-600" />
-                        <AsmoFormula text="Trục số 5 số nguyên liên tiếp $(n-2)(n-1)n(n+1)(n+2) \vdots 30$" />
+                        <AsmoFormula text="Trục số 5 số nguyên liên tiếp $(n-2)(n-1)n(n+1)(n+2) \,\vdots\, 30$" />
                       </span>
                       <span className="text-[11px] font-mono text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded-lg border border-emerald-200">
-                        <AsmoFormula text="$n^5 - n \vdots 30 \text{ với mọi } n \in \mathbb{Z}$" />
+                        <AsmoFormula text="$n^5 - n \,\vdots\, 30 \text{ với mọi } n \in \mathbb{Z}$" />
                       </span>
                     </div>
 
@@ -1363,10 +1384,11 @@ export function AsmoMathVisualizer({
                       ))}
 
                       {/* Divisibility Summary Box */}
-                      <rect x="30" y="130" width="420" height="45" rx="12" fill="#ecfdf5" stroke="#10b981" strokeWidth="2" />
-                      <text x="240" y="157" fill="#064e3b" fontSize="13" fontWeight="900" textAnchor="middle">
-                        Tích chia hết cho 2, 3 và 5 ⇒ Luôn chia hết cho 2 × 3 × 5 = 30 (Chọn C)
-                      </text>
+                      <foreignObject x="30" y="125" width="420" height="50" className="overflow-visible">
+                        <div className="flex items-center justify-center h-full px-3 py-1.5 rounded-xl bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold text-xs shadow-xs">
+                          <AsmoFormula text="Tích 5 số nguyên liên tiếp chia hết cho 2, 3 và 5 $\implies n^5 - n \,\vdots\, 30 \implies \text{Chọn C}$" />
+                        </div>
+                      </foreignObject>
                     </svg>
                   </div>
                 )}
@@ -1474,10 +1496,10 @@ export function AsmoMathVisualizer({
                     <AsmoFormula text="• Chu kỳ luỹ thừa: $a^{k \cdot T + r} \equiv a^r \pmod{10}$" />
                   </div>
                   <div className="bg-white p-2.5 rounded-xl border border-slate-200">
-                    <AsmoFormula text="• Nhóm thừa số chung: $S = (1+a) + a^2(1+a) + \dots = (1+a) \cdot Q \vdots (1+a)$" />
+                    <AsmoFormula text="• Nhóm thừa số chung: $S = (1+a) + a^2(1+a) + \dots = (1+a) \cdot Q \,\vdots\, (1+a)$" />
                   </div>
                   <div className="bg-white p-2.5 rounded-xl border border-slate-200">
-                    <AsmoFormula text="• Tích 5 số nguyên liên tiếp chia hết cho $5! = 120 \vdots 30$" />
+                    <AsmoFormula text="• Tích 5 số nguyên liên tiếp chia hết cho $5! = 120 \,\vdots\, 30$" />
                   </div>
                 </div>
               )}

@@ -6,6 +6,7 @@ import { AsmoMeeTutor } from '../components/AsmoMeeTutor'
 import { AsmoExamTimer } from '../components/AsmoExamTimer'
 
 import { AsmoTrigLabVisualizer, SPECIAL_ANGLES } from '../components/AsmoTrigLabVisualizer'
+import { AsmoMathVisualizer } from '../components/AsmoMathVisualizer'
 
 describe('ASMO UI Components', () => {
   it('renders AsmoFormula with KaTeX output', () => {
@@ -14,6 +15,24 @@ describe('ASMO UI Components', () => {
     )
     expect(markup).toContain('katex')
     expect(markup).toContain('Tìm giá trị của')
+  })
+
+  it('parses markdown bold (**text**) and italic (*text*) into styled HTML elements without raw stars', () => {
+    const boldText = 'Số tự nhiên lớn nhất thoả mãn với mọi n là **30**. Chọn đáp án **C**.'
+    const markup = renderToStaticMarkup(
+      createElement(AsmoFormula, { text: boldText }),
+    )
+    expect(markup).toContain('<strong class="font-extrabold text-slate-900">30</strong>')
+    expect(markup).toContain('<strong class="font-extrabold text-slate-900">C</strong>')
+    expect(markup).not.toContain('**30**')
+    expect(markup).not.toContain('**C**')
+
+    const italicText = 'Lưu ý *quan trọng* khi tính toán!'
+    const markupItalic = renderToStaticMarkup(
+      createElement(AsmoFormula, { text: italicText }),
+    )
+    expect(markupItalic).toContain('<em class="italic">quan trọng</em>')
+    expect(markupItalic).not.toContain('*quan trọng*')
   })
 
   it('renders unwrapped LaTeX commands using Auto-Math Fallback Engine', () => {
@@ -75,7 +94,7 @@ describe('ASMO UI Components', () => {
     expect(markup).toContain('45:00')
   })
 
-  it('renders AsmoTrigLabVisualizer with single-column layout, level-dedicated models, and KaTeX special angles', () => {
+  it('renders AsmoTrigLabVisualizer with single-column layout, level-dedicated models, Quick Result cards, and KaTeX special angles', () => {
     const markup = renderToStaticMarkup(
       createElement(AsmoTrigLabVisualizer, { initialAngle: 30 }),
     )
@@ -98,13 +117,18 @@ describe('ASMO UI Components', () => {
     expect(markup).toContain('katex')
     expect(markup).toContain('Hằng đẳng thức Pythagoras')
 
+    // Quick Result Card Level 1
+    expect(markup).toContain('border-emerald-300')
+    expect(markup).toContain('P =')
+    expect(markup).toContain('Chọn B')
+
     // Special angles array has accurate sqrt symbols
     const angle30 = SPECIAL_ANGLES.find((a) => a.deg === 30)
     expect(angle30?.cosExact).toBe('\\frac{\\sqrt{3}}{2}')
     expect(angle30?.tanExact).toBe('\\frac{\\sqrt{3}}{3}')
     expect(angle30?.cotExact).toBe('\\sqrt{3}')
 
-    // Level 2 renders double angle formula model with compact ribbon
+    // Level 2 renders double angle formula model with Quick Result card
     const markupL2 = renderToStaticMarkup(
       createElement(AsmoTrigLabVisualizer, { level: 2, demoSinValue: 1 / 3 }),
     )
@@ -112,8 +136,10 @@ describe('ASMO UI Components', () => {
     expect(markupL2).toContain('Mô Hình Góc Đôi')
     expect(markupL2).toContain('Bí kíp Mèo Mee')
     expect(markupL2).toContain('Cho')
+    expect(markupL2).toContain('cos(2x)')
+    expect(markupL2).toContain('Chọn C')
 
-    // Level 3 renders Olympic equation model with compact ribbon
+    // Level 3 renders Olympic equation model with Quick Result card
     const markupL3 = renderToStaticMarkup(
       createElement(AsmoTrigLabVisualizer, { level: 3 }),
     )
@@ -121,5 +147,44 @@ describe('ASMO UI Components', () => {
     expect(markupL3).toContain('Biến Đổi Vế Trái')
     expect(markupL3).toContain('Bí kíp Mèo Mee')
     expect(markupL3).toContain('Cặp song sinh Olympic')
+    expect(markupL3).toContain('tan(x) + \\cot(x)')
+    expect(markupL3).toContain('Chọn B')
+  })
+
+  it('renders AsmoMathVisualizer with Quick Result cards for spatial-polyhedron across all 3 levels', () => {
+    const markupL1 = renderToStaticMarkup(
+      createElement(AsmoMathVisualizer, { topicId: 'spatial-polyhedron', level: 1 }),
+    )
+    expect(markupL1).toContain('V =')
+    expect(markupL1).toContain('48')
+    expect(markupL1).toContain('Chọn B')
+
+    const markupL2 = renderToStaticMarkup(
+      createElement(AsmoMathVisualizer, { topicId: 'spatial-polyhedron', level: 2 }),
+    )
+    expect(markupL2).toContain('(x+2)^5')
+    expect(markupL2).toContain('40')
+    expect(markupL2).toContain('Chọn B')
+
+    const markupL3 = renderToStaticMarkup(
+      createElement(AsmoMathVisualizer, { topicId: 'spatial-polyhedron', level: 3 }),
+    )
+    expect(markupL3).toContain('E = V + F - 2')
+    expect(markupL3).toContain('30')
+    expect(markupL3).toContain('Chọn B')
+  })
+
+  it('renders AsmoMathVisualizer with KaTeX log scale and divisibility symbols', () => {
+    const markupLog = renderToStaticMarkup(
+      createElement(AsmoMathVisualizer, { topicId: 'exp-logarithm', level: 1 }),
+    )
+    expect(markupLog).toContain('katex')
+    expect(markupLog).toContain('Thước đo Logarit')
+
+    const markupDiv = renderToStaticMarkup(
+      createElement(AsmoMathVisualizer, { topicId: 'number-theory-divisibility', level: 3 }),
+    )
+    expect(markupDiv).toContain('katex')
+    expect(markupDiv).toContain('Trục số 5 số nguyên liên tiếp')
   })
 })

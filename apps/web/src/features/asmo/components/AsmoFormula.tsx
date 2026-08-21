@@ -311,6 +311,11 @@ export function AsmoFormula({ text, className }: Props) {
       .replace(/\bCircle\b/g, '<span class="inline-flex items-center gap-1 text-amber-700 font-bold"><svg class="size-3.5 fill-amber-500 shrink-0" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/></svg>Circle</span>')
       .replace(/\bSquare\b/g, '<span class="inline-flex items-center gap-1 text-purple-700 font-bold"><svg class="size-3.5 fill-purple-500 shrink-0" viewBox="0 0 24 24"><rect width="20" height="20" rx="3" x="2" y="2"/></svg>Square</span>')
 
+    // 5.5 Markdown typography: Parse **bold** and *italic*
+    processed = processed
+      .replace(/\*\*([^*]+?)\*\*/g, '<strong class="font-extrabold text-slate-900">$1</strong>')
+      .replace(/(?<!\*)\*([^\s*](?:[^*]*?[^\s*])?)\*(?!\*)/g, '<em class="italic">$1</em>')
+
     // 6. Preserve line breaks
     processed = processed.replace(/\n/g, '<br />')
 

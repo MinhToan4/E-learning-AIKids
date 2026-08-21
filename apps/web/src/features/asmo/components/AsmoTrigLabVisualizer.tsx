@@ -139,22 +139,22 @@ export function AsmoTrigLabVisualizer({
     }
   }, [isPlaying])
 
-  // Geometry for Unit Circle SVG: Center at (190, 170), Radius R = 120, viewBox 0 0 380 340
+  // Geometry for Unit Circle SVG: Center at (190, 170), Radius R = 95, viewBox 0 0 380 340
   const CX = 190
   const CY = 170
-  const R = 120
+  const R = 95
 
   const px = CX + R * cosVal
   const py = CY - R * sinVal
 
-  // Tangent line at x = 1 (X = CX + R = 310)
+  // Tangent line at x = 1 (X = CX + R = 285)
   const tanX = CX + R
-  const clampedTan = tanVal !== null ? Math.max(-2.5, Math.min(2.5, tanVal)) : 0
+  const clampedTan = tanVal !== null ? Math.max(-1.7, Math.min(1.7, tanVal)) : 0
   const tanY = CY - R * clampedTan
 
-  // Cotangent line at y = 1 (Y = CY - R = 50)
+  // Cotangent line at y = 1 (Y = CY - R = 75)
   const cotY = CY - R
-  const clampedCot = cotVal !== null ? Math.max(-2.5, Math.min(2.5, cotVal)) : 0
+  const clampedCot = cotVal !== null ? Math.max(-1.8, Math.min(1.8, cotVal)) : 0
   const cotX = CX + R * clampedCot
 
   // Demo Grade 11 calculation for Level 2: cos(2x) = 1 - 2*sin^2(x)
@@ -342,15 +342,15 @@ export function AsmoTrigLabVisualizer({
                 {/* Angle Arc from 0 to theta */}
                 {angleDeg > 0 && (
                   <path
-                    d={`M ${CX + 32},${CY} A 32,32 0 ${angleDeg > 180 ? 1 : 0},0 ${CX + 32 * Math.cos(rad)},${CY - 32 * Math.sin(rad)}`}
+                    d={`M ${CX + 28},${CY} A 28,28 0 ${angleDeg > 180 ? 1 : 0},0 ${CX + 28 * Math.cos(rad)},${CY - 28 * Math.sin(rad)}`}
                     fill="none"
                     stroke="#f59e0b"
                     strokeWidth="3"
                   />
                 )}
                 <text
-                  x={CX + 44 * Math.cos(rad / 2)}
-                  y={CY - 44 * Math.sin(rad / 2) + 4}
+                  x={CX + 38 * Math.cos(rad / 2)}
+                  y={CY - 38 * Math.sin(rad / 2) + 4}
                   fill="#b45309"
                   fontSize="11"
                   fontWeight="extrabold"
@@ -371,7 +371,7 @@ export function AsmoTrigLabVisualizer({
                 )}
 
                 {/* Tangent Projection Line to tan axis */}
-                {showTanCot && tanVal !== null && Math.abs(tanVal) <= 2.5 && (
+                {showTanCot && tanVal !== null && Math.abs(tanVal) <= 1.7 && (
                   <g>
                     <line x1={CX} y1={CY} x2={tanX} y2={tanY} stroke="#9333ea" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.8" />
                     <circle cx={tanX} cy={tanY} r="5" fill="#7e22ce" />
@@ -382,7 +382,7 @@ export function AsmoTrigLabVisualizer({
                 )}
 
                 {/* Cotangent Projection Line to cot axis */}
-                {showTanCot && cotVal !== null && Math.abs(cotVal) <= 2.5 && (
+                {showTanCot && cotVal !== null && Math.abs(cotVal) <= 1.8 && (
                   <g>
                     <line x1={CX} y1={CY} x2={cotX} y2={cotY} stroke="#d97706" strokeWidth="1.5" strokeDasharray="3 3" opacity="0.8" />
                     <circle cx={cotX} cy={cotY} r="5" fill="#b45309" />
@@ -429,10 +429,10 @@ export function AsmoTrigLabVisualizer({
                 <circle cx={px} cy={py} r="8.5" fill="#0284c7" filter="url(#glow-circle-cyan-l1)" />
                 <circle cx={px} cy={py} r="4.5" fill="#ffffff" />
                 <text
-                  x={px + (cosVal >= 0 ? 12 : -12)}
-                  y={py + (sinVal >= 0 ? -12 : 18)}
+                  x={px + (cosVal >= 0 ? 10 : -10)}
+                  y={py + (sinVal >= 0 ? -10 : 16)}
                   fill="#0f172a"
-                  fontSize="12"
+                  fontSize="11"
                   fontWeight="900"
                   textAnchor={cosVal >= 0 ? 'start' : 'end'}
                   className="drop-shadow-xs"
@@ -704,6 +704,11 @@ export function AsmoTrigLabVisualizer({
               </span>
             </div>
           </div>
+
+          {/* 🟢 KHUNG THẺ KẾT QUẢ NHANH LEVEL 1 */}
+          <div className="bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold p-3 rounded-2xl text-center shadow-xs">
+            <AsmoFormula text="P = \sin(150^\circ) + \cos(120^\circ) - \tan(135^\circ) = \frac{1}{2} + \left(-\frac{1}{2}\right) - (-1) = 1 \quad \text{và} \quad \cos(150^\circ) < 0 \implies \text{Chọn B}" />
+          </div>
         </>
       )}
 
@@ -950,10 +955,15 @@ export function AsmoTrigLabVisualizer({
                   <AsmoFormula text="**B2 (Thay số):** $\cos(2x) = 1 - 2 \cdot \left(\frac{1}{3}\right)^2 = 1 - \frac{2}{9}$." />
                 </div>
                 <div className="p-1.5 rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-950 font-bold">
-                  <AsmoFormula text="**B3 (Kết luận):** $\cos(2x) = \frac{7}{9} \approx 0.778 \Rightarrow \text{Chọn B}$." />
+                  <AsmoFormula text="**B3 (Kết luận):** $\cos(2x) = \frac{7}{9} \approx 0.778 \Rightarrow \text{Chọn C}$." />
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* 🟢 KHUNG THẺ KẾT QUẢ NHANH LEVEL 2 */}
+          <div className="bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold p-3 rounded-2xl text-center shadow-xs">
+            <AsmoFormula text="\cos(2x) = 1 - 2\sin^2(x) = 1 - 2\left(\frac{1}{3}\right)^2 = \frac{7}{9} \implies \text{Chọn C}" />
           </div>
         </>
       )}
@@ -1150,6 +1160,11 @@ export function AsmoTrigLabVisualizer({
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* 🟢 KHUNG THẺ KẾT QUẢ NHANH LEVEL 3 */}
+          <div className="bg-emerald-50 border-2 border-emerald-300 text-emerald-900 font-bold p-3 rounded-2xl text-center shadow-xs">
+            <AsmoFormula text="\tan(x) + \cot(x) = \frac{2}{\sin(2x)} = 8\cos(2x) \implies \sin(4x) = \frac{1}{2} \implies x = \frac{\pi}{24} \implies \text{Chọn B}" />
           </div>
         </>
       )}
