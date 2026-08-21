@@ -90,7 +90,7 @@ export const RAINBOW_MAKE10_PAIRS = [
     fruitName: 'Quả Táo Đỏ',
     leftFruits: ['🍎'],
     rightFruits: ['🍎', '🍎', '🍎', '🍎', '🍎', '🍎', '🍎', '🍎', '🍎'],
-    gradient: 'from-rose-500 to-pink-600',
+    gradient: 'bg-gradient-to-br from-rose-500 to-pink-600 text-white',
     bridgeGradient: 'from-rose-500 via-pink-400 to-rose-500',
     borderGlow: 'border-rose-400 shadow-rose-200',
     cardBg: 'bg-rose-50/70 border-rose-200',
@@ -106,7 +106,7 @@ export const RAINBOW_MAKE10_PAIRS = [
     fruitName: 'Quả Cam Ngọt',
     leftFruits: ['🍊', '🍊'],
     rightFruits: ['🍊', '🍊', '🍊', '🍊', '🍊', '🍊', '🍊', '🍊'],
-    gradient: 'from-amber-500 to-orange-600',
+    gradient: 'bg-gradient-to-br from-amber-500 to-orange-600 text-white',
     bridgeGradient: 'from-amber-500 via-orange-400 to-amber-500',
     borderGlow: 'border-amber-400 shadow-amber-200',
     cardBg: 'bg-amber-50/70 border-amber-200',
@@ -122,7 +122,7 @@ export const RAINBOW_MAKE10_PAIRS = [
     fruitName: 'Quả Chanh Vàng',
     leftFruits: ['🍋', '🍋', '🍋'],
     rightFruits: ['🍋', '🍋', '🍋', '🍋', '🍋', '🍋', '🍋'],
-    gradient: 'from-yellow-400 to-amber-500 text-slate-950',
+    gradient: 'bg-gradient-to-br from-yellow-400 to-amber-500 text-slate-950',
     bridgeGradient: 'from-yellow-400 via-amber-300 to-yellow-400',
     borderGlow: 'border-yellow-400 shadow-yellow-200',
     cardBg: 'bg-yellow-50/70 border-yellow-200',
@@ -138,7 +138,7 @@ export const RAINBOW_MAKE10_PAIRS = [
     fruitName: 'Quả Táo Xanh',
     leftFruits: ['🍏', '🍏', '🍏', '🍏'],
     rightFruits: ['🍏', '🍏', '🍏', '🍏', '🍏', '🍏'],
-    gradient: 'from-emerald-500 to-teal-600',
+    gradient: 'bg-gradient-to-br from-emerald-500 to-teal-600 text-white',
     bridgeGradient: 'from-emerald-500 via-teal-400 to-emerald-500',
     borderGlow: 'border-emerald-400 shadow-emerald-200',
     cardBg: 'bg-emerald-50/70 border-emerald-200',
@@ -154,7 +154,7 @@ export const RAINBOW_MAKE10_PAIRS = [
     fruitName: 'Chùm Nho Tím',
     leftFruits: ['🍇', '🍇', '🍇', '🍇', '🍇'],
     rightFruits: ['🍇', '🍇', '🍇', '🍇', '🍇'],
-    gradient: 'from-purple-500 to-indigo-600',
+    gradient: 'bg-gradient-to-br from-purple-500 to-indigo-600 text-white',
     bridgeGradient: 'from-purple-500 via-indigo-400 to-purple-500',
     borderGlow: 'border-purple-400 shadow-purple-200',
     cardBg: 'bg-purple-50/70 border-purple-200',
@@ -890,7 +890,7 @@ export function AsmoCurriculumLessonPage() {
                     </svg>
 
                     <div className="bg-emerald-50 border-2 border-emerald-200 rounded-2xl p-3 text-center font-display font-extrabold text-emerald-900 text-base">
-                      Phân số biểu thị: $\frac{`{${pizzaShaded}}`}{`{${pizzaSlices}}`}$ chiếc bánh pizza
+                      <AsmoFormula text={`Phân số biểu thị: $\\frac{${pizzaShaded}}{${pizzaSlices}}$ chiếc bánh pizza`} />
                     </div>
                   </div>
                 )}
@@ -1075,58 +1075,115 @@ export function AsmoCurriculumLessonPage() {
                             <div className="flex items-center justify-between gap-2 sm:gap-4 relative">
                               {/* Left Ball */}
                               <div className="flex flex-col items-center gap-1.5 z-10">
-                                <div className={cn('size-16 sm:size-20 rounded-full font-black text-2xl sm:text-3xl text-white flex flex-col items-center justify-center shadow-clay border-3 border-white animate-bounce', cur.gradient)}>
+                                <div className={cn('size-20 sm:size-24 rounded-full font-black text-3xl sm:text-4xl drop-shadow-md flex flex-col items-center justify-center shadow-clay border-4 border-white animate-bounce', cur.gradient)}>
                                   <span>{cur.left}</span>
-                                  <span className="text-sm -mt-1">{cur.fruitEmoji}</span>
+                                  <span className="text-base sm:text-lg -mt-1">{cur.fruitEmoji}</span>
                                 </div>
-                                <span className="text-[11px] font-extrabold text-slate-700">
+                                <span className="text-xs font-extrabold text-slate-800">
                                   {cur.left} {cur.fruitName}
                                 </span>
                               </div>
 
-                              {/* Rainbow Arch Bridge */}
-                              <div className="flex-1 flex flex-col items-center justify-center relative px-2">
-                                <svg viewBox="0 0 200 70" className="w-full max-w-[220px] h-16 select-none drop-shadow-sm">
+                              {/* Big 7-Color Rainbow Arch with Clouds */}
+                              <div className="flex-1 flex flex-col items-center justify-center relative px-1 sm:px-2 min-w-0">
+                                <svg viewBox="0 0 300 110" className="w-full max-w-[280px] sm:max-w-[320px] h-24 sm:h-28 select-none drop-shadow-md overflow-visible">
                                   <defs>
-                                    <linearGradient id={`rainbow-grad-${cur.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
-                                      <stop offset="0%" stopColor="#ef4444" />
-                                      <stop offset="25%" stopColor="#f59e0b" />
-                                      <stop offset="50%" stopColor="#10b981" />
-                                      <stop offset="75%" stopColor="#06b6d4" />
-                                      <stop offset="100%" stopColor="#8b5cf6" />
+                                    <linearGradient id="rainbow-cloud-grad" x1="0%" y1="0%" x2="0%" y2="100%">
+                                      <stop offset="0%" stopColor="#ffffff" />
+                                      <stop offset="100%" stopColor="#f1f5f9" />
                                     </linearGradient>
+                                    <filter id="rainbow-cloud-shadow" x="-20%" y="-20%" width="140%" height="140%">
+                                      <feDropShadow dx="0" dy="2" stdDeviation="2" floodColor="#64748b" floodOpacity="0.15" />
+                                    </filter>
                                   </defs>
-                                  {/* Outer Glow Arc */}
+
+                                  {/* 5 Layered Bold Rainbow Arcs */}
+                                  {/* Red #ef4444 */}
                                   <path
-                                    d="M 20,60 Q 100,-10 180,60"
+                                    d="M 60,95 A 90,90 0 0,1 240,95"
                                     fill="none"
-                                    stroke={`url(#rainbow-grad-${cur.id})`}
-                                    strokeWidth="10"
+                                    stroke="#ef4444"
+                                    strokeWidth="7.5"
                                     strokeLinecap="round"
-                                    opacity="0.85"
                                   />
-                                  {/* Core Sparkle Arc */}
+                                  {/* Orange #f97316 */}
                                   <path
-                                    d="M 20,60 Q 100,-10 180,60"
+                                    d="M 68,95 A 82,82 0 0,1 232,95"
+                                    fill="none"
+                                    stroke="#f97316"
+                                    strokeWidth="7.5"
+                                    strokeLinecap="round"
+                                  />
+                                  {/* Yellow #facc15 */}
+                                  <path
+                                    d="M 76,95 A 74,74 0 0,1 224,95"
+                                    fill="none"
+                                    stroke="#facc15"
+                                    strokeWidth="7.5"
+                                    strokeLinecap="round"
+                                  />
+                                  {/* Green #10b981 */}
+                                  <path
+                                    d="M 84,95 A 66,66 0 0,1 216,95"
+                                    fill="none"
+                                    stroke="#10b981"
+                                    strokeWidth="7.5"
+                                    strokeLinecap="round"
+                                  />
+                                  {/* Purple #8b5cf6 */}
+                                  <path
+                                    d="M 92,95 A 58,58 0 0,1 208,95"
+                                    fill="none"
+                                    stroke="#8b5cf6"
+                                    strokeWidth="7.5"
+                                    strokeLinecap="round"
+                                  />
+
+                                  {/* Sparkle Dashed Highlight Overlay along outer arc */}
+                                  <path
+                                    d="M 60,95 A 90,90 0 0,1 240,95"
                                     fill="none"
                                     stroke="#ffffff"
-                                    strokeWidth="2.5"
+                                    strokeWidth="1.8"
                                     strokeLinecap="round"
-                                    strokeDasharray="4 6"
+                                    strokeDasharray="3 8"
+                                    opacity="0.85"
                                   />
+
+                                  {/* Fluffy 3D Cloud Left */}
+                                  <g filter="url(#rainbow-cloud-shadow)">
+                                    <ellipse cx="72" cy="94" rx="28" ry="13" fill="url(#rainbow-cloud-grad)" stroke="#ffffff" strokeWidth="1.5" />
+                                    <circle cx="58" cy="88" r="12" fill="url(#rainbow-cloud-grad)" stroke="#ffffff" strokeWidth="1.5" />
+                                    <circle cx="74" cy="80" r="15" fill="url(#rainbow-cloud-grad)" stroke="#ffffff" strokeWidth="1.5" />
+                                    <circle cx="90" cy="88" r="11" fill="url(#rainbow-cloud-grad)" stroke="#ffffff" strokeWidth="1.5" />
+                                  </g>
+
+                                  {/* Fluffy 3D Cloud Right */}
+                                  <g filter="url(#rainbow-cloud-shadow)">
+                                    <ellipse cx="228" cy="94" rx="28" ry="13" fill="url(#rainbow-cloud-grad)" stroke="#ffffff" strokeWidth="1.5" />
+                                    <circle cx="210" cy="88" r="11" fill="url(#rainbow-cloud-grad)" stroke="#ffffff" strokeWidth="1.5" />
+                                    <circle cx="226" cy="80" r="15" fill="url(#rainbow-cloud-grad)" stroke="#ffffff" strokeWidth="1.5" />
+                                    <circle cx="242" cy="88" r="12" fill="url(#rainbow-cloud-grad)" stroke="#ffffff" strokeWidth="1.5" />
+                                  </g>
+
+                                  {/* Cute Sparkle Stars */}
+                                  <path d="M 36,45 Q 36,50 31,50 Q 36,50 36,55 Q 36,50 41,50 Q 36,50 36,45" fill="#facc15" opacity="0.9" />
+                                  <path d="M 264,45 Q 264,50 259,50 Q 264,50 264,55 Q 264,50 269,50 Q 264,50 264,45" fill="#facc15" opacity="0.9" />
                                 </svg>
-                                <div className="absolute top-1 bg-white/95 border-2 border-brand-300 rounded-full px-3 py-0.5 text-xs font-black text-brand-900 shadow-clay animate-pulse">
+
+                                {/* Huy hiệu trung tâm */}
+                                <div className="absolute -top-1 bg-amber-400 text-slate-950 font-black text-sm px-4 py-1 rounded-full shadow-clay border-2 border-white animate-pulse select-none whitespace-nowrap">
                                   {cur.left} + {cur.right} = 10 ✨
                                 </div>
                               </div>
 
                               {/* Right Ball */}
                               <div className="flex flex-col items-center gap-1.5 z-10">
-                                <div className={cn('size-16 sm:size-20 rounded-full font-black text-2xl sm:text-3xl text-white flex flex-col items-center justify-center shadow-clay border-3 border-white animate-bounce', cur.gradient)}>
+                                <div className={cn('size-20 sm:size-24 rounded-full font-black text-3xl sm:text-4xl drop-shadow-md flex flex-col items-center justify-center shadow-clay border-4 border-white animate-bounce', cur.gradient)}>
                                   <span>{cur.right}</span>
-                                  <span className="text-sm -mt-1">{cur.fruitEmoji}</span>
+                                  <span className="text-base sm:text-lg -mt-1">{cur.fruitEmoji}</span>
                                 </div>
-                                <span className="text-[11px] font-extrabold text-slate-700">
+                                <span className="text-xs font-extrabold text-slate-800">
                                   {cur.right} {cur.fruitName}
                                 </span>
                               </div>
@@ -1181,7 +1238,7 @@ export function AsmoCurriculumLessonPage() {
                               p.borderGlow,
                             )}
                           >
-                            <div className={cn('size-10 rounded-full font-black text-sm text-white flex items-center justify-center shadow-xs shrink-0', p.gradient)}>
+                            <div className={cn('size-10 rounded-full font-black text-sm flex items-center justify-center shadow-xs shrink-0', p.gradient)}>
                               {p.left}
                             </div>
                             <div className="flex-1 text-center min-w-0">
@@ -1192,7 +1249,7 @@ export function AsmoCurriculumLessonPage() {
                                 {p.fruitEmoji} {p.fruitName}
                               </span>
                             </div>
-                            <div className={cn('size-10 rounded-full font-black text-sm text-white flex items-center justify-center shadow-xs shrink-0', p.gradient)}>
+                            <div className={cn('size-10 rounded-full font-black text-sm flex items-center justify-center shadow-xs shrink-0', p.gradient)}>
                               {p.right}
                             </div>
                           </div>
@@ -1206,9 +1263,9 @@ export function AsmoCurriculumLessonPage() {
                         <Sparkles className="size-3.5 text-amber-500" />
                         <span>Ứng Dụng Olympic ASMO Tính Nhanh:</span>
                       </span>
-                      <p className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
-                        $1 + 3 + 5 + 7 + 9 = (1 + 9) + (3 + 7) + 5 = 10 + 10 + 5 = 25$
-                      </p>
+                      <div className="text-sm sm:text-base font-black text-brand-900 leading-snug">
+                        <AsmoFormula text="$1 + 3 + 5 + 7 + 9 = (1 + 9) + (3 + 7) + 5 = 10 + 10 + 5 = 25$" />
+                      </div>
                       <p className="text-[11px] font-bold text-slate-600">
                         Nhóm cặp 🔴 (1, 9) và cặp 🟡 (3, 7) thành 10 trước giúp bé giải nhẩm ra kết quả trong 3 giây!
                       </p>
@@ -1221,7 +1278,7 @@ export function AsmoCurriculumLessonPage() {
                   <div className="w-full max-w-md space-y-4">
                     <div className="bg-white p-5 rounded-3xl border-2 border-rose-200 shadow-sm space-y-3">
                       <div className="text-center text-xs font-black text-rose-900 uppercase tracking-wide">
-                        Mô Hình Đặt Tính Cột Dọc: $48 + 37 = 85$
+                        <AsmoFormula text="Mô Hình Đặt Tính Cột Dọc: $48 + 37 = 85$" />
                       </div>
 
                       <div className="flex justify-center">
@@ -1247,8 +1304,8 @@ export function AsmoCurriculumLessonPage() {
                       </div>
 
                       <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs font-bold text-slate-700 space-y-1">
-                        <p>🔹 Bước 1 (Hàng đơn vị): $8 + 7 = 15 \rightarrow$ Viết 5, nhớ 1 sang hàng chục.</p>
-                        <p>🔹 Bước 2 (Hàng chục): $4 + 3 = 7$, thêm 1 nhớ thành $8 \rightarrow$ Viết 8. Kết quả là 85.</p>
+                        <AsmoFormula text="🔹 Bước 1 (Hàng đơn vị): $8 + 7 = 15 \rightarrow$ Viết 5, nhớ 1 sang hàng chục." />
+                        <AsmoFormula text="🔹 Bước 2 (Hàng chục): $4 + 3 = 7$, thêm 1 nhớ thành $8 \rightarrow$ Viết 8. Kết quả là 85." />
                       </div>
                     </div>
                   </div>
@@ -1259,7 +1316,7 @@ export function AsmoCurriculumLessonPage() {
                   <div className="w-full max-w-md space-y-4">
                     <div className="bg-white p-5 rounded-3xl border-2 border-amber-200 shadow-sm space-y-3">
                       <div className="text-center text-xs font-black text-amber-900 uppercase tracking-wide">
-                        Mô Hình Đặt Tính Phép Trừ Có Mượn: $63 - 28 = 35$
+                        <AsmoFormula text="Mô Hình Đặt Tính Phép Trừ Có Mượn: $63 - 28 = 35$" />
                       </div>
 
                       <div className="flex justify-center">
@@ -1284,8 +1341,8 @@ export function AsmoCurriculumLessonPage() {
                       </div>
 
                       <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs font-bold text-slate-700 space-y-1">
-                        <p>🔹 Bước 1: 3 không trừ được 8, mượn 1 chục thành 13: $13 - 8 = 5 \rightarrow$ Viết 5.</p>
-                        <p>🔹 Bước 2: 6 bớt 1 đã mượn còn 5: $5 - 2 = 3 \rightarrow$ Viết 3. Kết quả là 35.</p>
+                        <AsmoFormula text="🔹 Bước 1: 3 không trừ được 8, mượn 1 chục thành 13: $13 - 8 = 5 \rightarrow$ Viết 5." />
+                        <AsmoFormula text="🔹 Bước 2: 6 bớt 1 đã mượn còn 5: $5 - 2 = 3 \rightarrow$ Viết 3. Kết quả là 35." />
                       </div>
                     </div>
                   </div>
@@ -1379,7 +1436,7 @@ export function AsmoCurriculumLessonPage() {
                       {/* Math Breakdown Card */}
                       <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-2xl border border-indigo-200 p-4 space-y-2 text-xs sm:text-sm font-bold text-slate-800">
                         <div className="font-display font-black text-lg text-indigo-900">
-                          $9 \times {table9Factor} = {9 * table9Factor}$
+                          <AsmoFormula text={`$9 \\times ${table9Factor} = ${9 * table9Factor}$`} />
                         </div>
                         <div className="grid grid-cols-2 gap-2 text-left bg-white/90 p-2.5 rounded-xl border border-indigo-100">
                           <div>
@@ -1459,7 +1516,7 @@ export function AsmoCurriculumLessonPage() {
                         </div>
                       </div>
                       <div className="bg-indigo-50 border border-indigo-300 rounded-2xl p-3 font-display font-extrabold text-indigo-950 text-base">
-                        Tổng cộng: $4 + 2 + 1 = 7$ khối lập phương 🧊
+                        <AsmoFormula text="Tổng cộng: $4 + 2 + 1 = 7$ khối lập phương 🧊" />
                       </div>
                     </div>
                   </div>
@@ -1476,7 +1533,7 @@ export function AsmoCurriculumLessonPage() {
                         {renderMatchstickFigureSvg('square_flag', 6, { className: 'w-48 h-24' })}
                       </div>
                       <div className="bg-amber-50 border border-amber-300 rounded-2xl p-3 text-xs font-bold text-amber-950">
-                        Quy luật: Ô đầu tiên cần 4 que, mỗi ô tiếp theo cần thêm 3 que $\rightarrow 4 + 3 + 3 = 10$ que diêm!
+                        <AsmoFormula text="Quy luật: Ô đầu tiên cần 4 que, mỗi ô tiếp theo cần thêm 3 que $\rightarrow 4 + 3 + 3 = 10$ que diêm!" />
                       </div>
                     </div>
                   </div>
