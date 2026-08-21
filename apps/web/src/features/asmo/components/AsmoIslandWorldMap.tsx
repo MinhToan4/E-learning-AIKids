@@ -1,4 +1,5 @@
 import { useState, useMemo } from 'react'
+import { useNavigate } from 'react-router'
 import {
   Star,
   CheckCircle2,
@@ -20,6 +21,7 @@ import {
   isLessonUnlocked,
   getStageStats,
 } from '../data/asmo-curriculum-lms'
+import { AsmoFormula } from './AsmoFormula'
 import { AikidCatCharacter, type AikidCatPose } from '@/shared/components/ui/AikidCatCharacter'
 import { CuteProgress } from '@/shared/components/ui/CuteProgress'
 import { KidLockImageIcon } from '@/shared/components/icons/KidImageIcons'
@@ -400,6 +402,8 @@ export interface AsmoIslandWorldMapProps {
   onOpenLesson: (lesson: AsmoLmsLesson) => void
   viewMode?: 'island' | 'world'
   onToggleViewMode?: (mode: 'island' | 'world') => void
+  hideStationTrail?: boolean
+  onOpenMapDetail?: (stageId: string) => void
 }
 
 export const ASMO_ISLAND_SHORT_NAMES: Record<string, string> = {
@@ -417,7 +421,10 @@ export function AsmoIslandWorldMap({
   onOpenLesson,
   viewMode: controlledViewMode,
   onToggleViewMode,
+  hideStationTrail = false,
+  onOpenMapDetail,
 }: AsmoIslandWorldMapProps) {
+  const navigate = useNavigate()
   const [internalViewMode, setInternalViewMode] = useState<'island' | 'world'>('island')
   const viewMode = controlledViewMode ?? internalViewMode
   const setViewMode = (mode: 'island' | 'world') => {
@@ -557,12 +564,12 @@ export function AsmoIslandWorldMap({
                   <span>5 Vùng Đảo ASMO</span>
                 </button>
                 <span aria-hidden="true">›</span>
-                <span>{activeTheme.shortTitle}</span>
+                <AsmoFormula text={activeTheme.shortTitle} className="inline font-bold" />
                 <span aria-hidden="true">›</span>
                 <span>Bản đồ trạm</span>
               </p>
               <h1 className="font-display text-3xl leading-tight sm:text-4xl text-text">
-                {activeTheme.name}
+                <AsmoFormula text={activeTheme.name} />
               </h1>
               <p className="mt-1 text-base font-bold text-muted">
                 Đi cùng Mee và mở từng trạm trong {activeTheme.shortTitle}.
@@ -586,21 +593,43 @@ export function AsmoIslandWorldMap({
                 </div>
 
                 {currentActiveLesson && (
-                  <aside className="course-map-next-ticket">
-                    <div>
+                  <aside className={cn('course-map-next-ticket', hideStationTrail && 'sm:max-w-xl w-full')}>
+                    <div className="min-w-0 flex-1">
                       <p className="text-xs font-extrabold text-mint-700 uppercase">TRẠM TIẾP THEO</p>
-                      <h2 className="font-display text-xl text-text">{currentActiveLesson.title}</h2>
+                      <h2 className="font-display text-xl text-text">
+                        <AsmoFormula text={currentActiveLesson.title} />
+                      </h2>
                       <p className="text-sm font-bold text-muted">
                         Trạm {currentActiveLesson.lessonNumber} · +{currentActiveLesson.xpReward} XP
                       </p>
                     </div>
-                    <button
-                      type="button"
-                      onClick={() => onOpenLesson(currentActiveLesson)}
-                      className="course-map-primary-action animate-pop cursor-pointer"
-                    >
-                      {progress.lessons[currentActiveLesson.id]?.completed ? 'Học lại' : 'Bắt đầu học'}
-                    </button>
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0 self-center">
+                      <button
+                        type="button"
+                        onClick={() => onOpenLesson(currentActiveLesson)}
+                        className="course-map-primary-action animate-pop cursor-pointer whitespace-nowrap"
+                      >
+                        {progress.lessons[currentActiveLesson.id]?.completed
+                          ? `Học lại Trạm ${currentActiveLesson.lessonNumber}`
+                          : `▶ Bắt đầu học Trạm ${currentActiveLesson.lessonNumber}`}
+                      </button>
+                      {hideStationTrail && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (onOpenMapDetail) {
+                              onOpenMapDetail(activeStage.id)
+                            } else {
+                              navigate(`/asmo/curriculum?stage=${activeStage.id}`)
+                            }
+                          }}
+                          className="inline-flex min-h-[2.9rem] items-center justify-center gap-1.5 rounded-2xl bg-white text-brand-800 px-3.5 py-2 text-xs font-black shadow-clay hover:bg-slate-50 hover:scale-105 transition-all cursor-pointer border-2 border-brand-200 whitespace-nowrap"
+                        >
+                          <Map className="size-4 text-brand-600 shrink-0" />
+                          <span>🗺️ Mở Bản Đồ Trạm Chi Tiết ➔</span>
+                        </button>
+                      )}
+                    </div>
                   </aside>
                 )}
               </div>
@@ -673,129 +702,133 @@ export function AsmoIslandWorldMap({
           </header>
 
           {/* ── CUNG ĐƯỜNG MÒN UỐN LƯỢN (COURSE STATION MAP) ── */}
-          <section
-            className="course-station-map"
-            style={{
-              backgroundColor: activeTheme.ribbon,
-              backgroundImage: `linear-gradient(rgba(255,255,255,.2), rgba(255,255,255,.08)), url(${activeTheme.background})`,
-            }}
-            aria-label="Lộ trình bài học"
-          >
-            <div
-              className="course-station-canvas pt-12 sm:pt-14 pb-6"
-              style={{
-                minHeight: `${Math.max(46, activeStage.lessons.length * 9)}rem`,
-              }}
-            >
-              <svg
-                className="course-game-path"
-                viewBox="0 0 100 100"
-                preserveAspectRatio="none"
-                aria-hidden="true"
+          {!hideStationTrail && (
+            <>
+              <section
+                className="course-station-map"
+                style={{
+                  backgroundColor: activeTheme.ribbon,
+                  backgroundImage: `linear-gradient(rgba(255,255,255,.2), rgba(255,255,255,.08)), url(${activeTheme.background})`,
+                }}
+                aria-label="Lộ trình bài học"
               >
-                <path className="course-game-path-shadow" d={buildStationPath(activeStage.lessons.length)} />
-                <path className="course-game-path-road" d={buildStationPath(activeStage.lessons.length)} />
-                <path className="course-game-path-dashes" d={buildStationPath(activeStage.lessons.length)} />
-              </svg>
+                <div
+                  className="course-station-canvas pt-12 sm:pt-14 pb-6"
+                  style={{
+                    minHeight: `${Math.max(46, activeStage.lessons.length * 9)}rem`,
+                  }}
+                >
+                  <svg
+                    className="course-game-path"
+                    viewBox="0 0 100 100"
+                    preserveAspectRatio="none"
+                    aria-hidden="true"
+                  >
+                    <path className="course-game-path-shadow" d={buildStationPath(activeStage.lessons.length)} />
+                    <path className="course-game-path-road" d={buildStationPath(activeStage.lessons.length)} />
+                    <path className="course-game-path-dashes" d={buildStationPath(activeStage.lessons.length)} />
+                  </svg>
 
-              <ol className="course-game-stations">
-                {activeStage.lessons.map((lesson, index) => {
-                  const isUnlocked = isLessonUnlocked(lesson, progress)
-                  const isCompleted = progress.lessons[lesson.id]?.completed ?? false
-                  const stars = progress.lessons[lesson.id]?.stars || 0
-                  const isCurrent = lesson.id === currentActiveLesson?.id && (!isCompleted || isUnlocked)
+                  <ol className="course-game-stations">
+                    {activeStage.lessons.map((lesson, index) => {
+                      const isUnlocked = isLessonUnlocked(lesson, progress)
+                      const isCompleted = progress.lessons[lesson.id]?.completed ?? false
+                      const stars = progress.lessons[lesson.id]?.stars || 0
+                      const isCurrent = lesson.id === currentActiveLesson?.id && (!isCompleted || isUnlocked)
 
-                  return (
-                    <QuestStationNode
-                      key={lesson.id}
-                      lesson={lesson}
-                      index={index}
-                      total={activeStage.lessons.length}
-                      isUnlocked={isUnlocked}
-                      isCompleted={isCompleted}
-                      stars={stars}
-                      isCurrent={isCurrent}
-                      onOpenLesson={onOpenLesson}
-                    />
-                  )
-                })}
-              </ol>
-            </div>
-
-            {/* ── COMPLETION TROPHY AT END OF JOURNEY ── */}
-            {currentStageStats.isCompleted ? (
-              <div className="relative z-10 flex flex-col items-center mt-10 animate-pop">
-                <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-sun-400 to-coral-400 shadow-clay">
-                  <Trophy size={48} className="text-white" aria-hidden="true" />
+                      return (
+                        <QuestStationNode
+                          key={lesson.id}
+                          lesson={lesson}
+                          index={index}
+                          total={activeStage.lessons.length}
+                          isUnlocked={isUnlocked}
+                          isCompleted={isCompleted}
+                          stars={stars}
+                          isCurrent={isCurrent}
+                          onOpenLesson={onOpenLesson}
+                        />
+                      )
+                    })}
+                  </ol>
                 </div>
-                <p className="mt-3 font-display text-2xl text-text font-black">🏆 Xuất sắc!</p>
-                <p className="text-sm font-bold text-muted">
-                  Con đã hoàn thành toàn bộ hành trình {activeTheme.shortTitle}!
-                </p>
+
+                {/* ── COMPLETION TROPHY AT END OF JOURNEY ── */}
+                {currentStageStats.isCompleted ? (
+                  <div className="relative z-10 flex flex-col items-center mt-10 animate-pop">
+                    <div className="flex h-24 w-24 items-center justify-center rounded-full border-4 border-white bg-gradient-to-br from-sun-400 to-coral-400 shadow-clay">
+                      <Trophy size={48} className="text-white" aria-hidden="true" />
+                    </div>
+                    <p className="mt-3 font-display text-2xl text-text font-black">🏆 Xuất sắc!</p>
+                    <p className="text-sm font-bold text-muted">
+                      Con đã hoàn thành toàn bộ hành trình {activeTheme.shortTitle}!
+                    </p>
+                    <button
+                      type="button"
+                      onClick={() => handleChestClick(activeStage.id)}
+                      className="mt-3 inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-sun-400 to-coral-400 text-slate-950 font-black text-xs shadow-clay cursor-pointer hover:brightness-110"
+                    >
+                      <Gift className="size-4" />
+                      <span>Mở Rương Kho Báu Vàng (+{activeTheme.chest.bonusXp} XP)</span>
+                    </button>
+                  </div>
+                ) : (
+                  <div className="relative z-10 flex flex-col items-center mt-8">
+                    <button
+                      type="button"
+                      onClick={() => handleChestClick(activeStage.id)}
+                      className="flex flex-col items-center p-4 rounded-3xl bg-white/90 backdrop-blur-md border-2 border-sun-300 shadow-clay hover:scale-105 transition-all cursor-pointer group"
+                    >
+                      <div className="text-4xl group-hover:scale-110 transition-transform">🎁</div>
+                      <span className="font-display text-sm font-black text-text mt-1">
+                        {activeTheme.chest.name}
+                      </span>
+                      <span className="text-xs text-muted font-bold">
+                        Cần {currentStageStats.maxStars}/{currentStageStats.maxStars} ⭐ để mở
+                      </span>
+                    </button>
+                  </div>
+                )}
+              </section>
+
+              {/* ── BOTTOM ISLAND SWITCHER ── */}
+              <div className="flex items-center justify-between pt-4 border-t border-slate-200 mt-4">
                 <button
                   type="button"
-                  onClick={() => handleChestClick(activeStage.id)}
-                  className="mt-3 inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-sun-400 to-coral-400 text-slate-950 font-black text-xs shadow-clay cursor-pointer hover:brightness-110"
+                  disabled={activeStage.stageNumber === 1}
+                  onClick={() => {
+                    const prevStage = ASMO_LMS_STAGES.find(
+                      (s) => s.stageNumber === activeStage.stageNumber - 1,
+                    )
+                    if (prevStage) onSelectStage(prevStage.id)
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none text-xs font-bold text-slate-700 transition-all border border-slate-200 cursor-pointer shadow-xs"
                 >
-                  <Gift className="size-4" />
-                  <span>Mở Rương Kho Báu Vàng (+{activeTheme.chest.bonusXp} XP)</span>
+                  <ChevronLeft className="size-4" />
+                  <span>Vùng Trước</span>
                 </button>
-              </div>
-            ) : (
-              <div className="relative z-10 flex flex-col items-center mt-8">
+
+                <span className="text-xs font-extrabold text-slate-600">
+                  Vùng {activeStage.stageNumber} / 5: {activeTheme.shortTitle}
+                </span>
+
                 <button
                   type="button"
-                  onClick={() => handleChestClick(activeStage.id)}
-                  className="flex flex-col items-center p-4 rounded-3xl bg-white/90 backdrop-blur-md border-2 border-sun-300 shadow-clay hover:scale-105 transition-all cursor-pointer group"
+                  disabled={activeStage.stageNumber === 5}
+                  onClick={() => {
+                    const nextStage = ASMO_LMS_STAGES.find(
+                      (s) => s.stageNumber === activeStage.stageNumber + 1,
+                    )
+                    if (nextStage) onSelectStage(nextStage.id)
+                  }}
+                  className="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none text-xs font-bold text-slate-700 transition-all border border-slate-200 cursor-pointer shadow-xs"
                 >
-                  <div className="text-4xl group-hover:scale-110 transition-transform">🎁</div>
-                  <span className="font-display text-sm font-black text-text mt-1">
-                    {activeTheme.chest.name}
-                  </span>
-                  <span className="text-xs text-muted font-bold">
-                    Cần {currentStageStats.maxStars}/{currentStageStats.maxStars} ⭐ để mở
-                  </span>
+                  <span>Vùng Kế Tiếp</span>
+                  <ChevronRight className="size-4" />
                 </button>
               </div>
-            )}
-          </section>
-
-          {/* ── BOTTOM ISLAND SWITCHER ── */}
-          <div className="flex items-center justify-between pt-4 border-t border-slate-200 mt-4">
-            <button
-              type="button"
-              disabled={activeStage.stageNumber === 1}
-              onClick={() => {
-                const prevStage = ASMO_LMS_STAGES.find(
-                  (s) => s.stageNumber === activeStage.stageNumber - 1,
-                )
-                if (prevStage) onSelectStage(prevStage.id)
-              }}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none text-xs font-bold text-slate-700 transition-all border border-slate-200 cursor-pointer shadow-xs"
-            >
-              <ChevronLeft className="size-4" />
-              <span>Vùng Trước</span>
-            </button>
-
-            <span className="text-xs font-extrabold text-slate-600">
-              Vùng {activeStage.stageNumber} / 5: {activeTheme.shortTitle}
-            </span>
-
-            <button
-              type="button"
-              disabled={activeStage.stageNumber === 5}
-              onClick={() => {
-                const nextStage = ASMO_LMS_STAGES.find(
-                  (s) => s.stageNumber === activeStage.stageNumber + 1,
-                )
-                if (nextStage) onSelectStage(nextStage.id)
-              }}
-              className="flex items-center gap-1.5 px-4 py-2 rounded-2xl bg-white hover:bg-slate-50 disabled:opacity-40 disabled:pointer-events-none text-xs font-bold text-slate-700 transition-all border border-slate-200 cursor-pointer shadow-xs"
-            >
-              <span>Vùng Kế Tiếp</span>
-              <ChevronRight className="size-4" />
-            </button>
-          </div>
+            </>
+          )}
         </div>
       ) : (
         /* ══════════════════════════════════════════════════════════════════════ */
@@ -850,10 +883,13 @@ export function AsmoIslandWorldMap({
                       <p className="text-xs font-extrabold uppercase tracking-widest text-brand-700">
                         Vùng {stage.stageNumber}
                       </p>
-                      <h2 className="mt-1 font-display text-4xl text-text">{theme.name}</h2>
-                      <p className="mx-auto mt-2 max-w-lg text-sm font-bold leading-relaxed text-muted">
-                        {theme.tagline}
-                      </p>
+                      <h2 className="mt-1 font-display text-4xl text-text">
+                        <AsmoFormula text={theme.name} />
+                      </h2>
+                      <AsmoFormula
+                        text={theme.tagline}
+                        className="mx-auto mt-2 max-w-lg text-sm font-bold leading-relaxed text-muted"
+                      />
                     </div>
 
                     <div
@@ -894,7 +930,7 @@ export function AsmoIslandWorldMap({
                             {theme.englishName}
                           </p>
                           <h3 className="font-display text-xl leading-snug text-white line-clamp-2">
-                            {theme.shortTitle}
+                            <AsmoFormula text={theme.shortTitle} />
                           </h3>
                         </div>
 

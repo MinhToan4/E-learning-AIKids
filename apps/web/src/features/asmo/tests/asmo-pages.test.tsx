@@ -45,20 +45,20 @@ describe('ASMO Pages', () => {
     // Mascot AikidCatCharacter rendering
     expect(markup).toContain('aikid-cat-character')
 
-    // Khu Vực 1: Full-Width LMS Academy with Unified AsmoIslandWorldMap
+    // Khu Vực 1: Full-Width LMS Academy with Unified AsmoIslandWorldMap (Streamlined Hub View)
     expect(markup).toContain('Lộ Trình Học Tập Chuẩn LMS ASMO')
     expect(markup).toContain('Bản Đồ Đảo LMS')
     expect(markup).toContain('course-map-hero')
-    expect(markup).toContain('course-station-map')
-    expect(markup).toContain('VÙNG 1: L1 · Thế Giới Phép Cộng &amp; Phép Trừ')
+    expect(markup).toContain('course-map-ribbon')
+    expect(markup).not.toContain('course-station-map')
+    expect(markup).toContain('VÙNG 1: L1 · Thế Giới Phép Cộng & Phép Trừ')
     expect(markup).toContain('Bắt đầu học')
+    expect(markup).toContain('Mở Bản Đồ Trạm Chi Tiết')
     expect(markup).toContain('Đảo 1: Táo Đỏ')
     expect(markup).toContain('Đảo 2: Bánh Ngọt')
     expect(markup).toContain('Đảo 3: Pizza')
     expect(markup).toContain('Đảo 4: Đồng Hồ')
     expect(markup).toContain('Đảo 5: 3D Không Gian')
-    expect(markup).toContain('Rương Táo Vàng Phép Thuật')
-    expect(markup).toContain('Cùng Mee chinh phục Trạm 1 nhé! 🐾')
 
     // Khu Vực 2: Full-Width Exam Arena with 3 Subject Tabs
     expect(markup).toContain('Đấu Trường Thi Thử Olympic ASMO')

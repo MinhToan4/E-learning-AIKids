@@ -797,6 +797,8 @@ export function AsmoHubPage() {
           onSelectStage={setSelectedStageId}
           progress={lmsProgress}
           onOpenLesson={(lesson) => navigate(`/asmo/curriculum/lesson/${lesson.id}`)}
+          onOpenMapDetail={(stageId) => navigate(`/asmo/curriculum?stage=${stageId}`)}
+          hideStationTrail={true}
         />
 
         {/* Nếu chọn THPT (Khối 10 – 12), hiển thị 12 Chuyên Đề Olympic */}
@@ -840,7 +842,7 @@ export function AsmoHubPage() {
                       </span>
                     </div>
                     <AsmoFormula text={topic.title} className="font-bold text-sm text-slate-900 line-clamp-2" />
-                    <p className="text-xs text-slate-600 mt-1 line-clamp-2">{topic.subtitle}</p>
+                    <AsmoFormula text={topic.subtitle} className="text-xs text-slate-600 mt-1 line-clamp-2" />
                   </div>
 
                   <div className="mt-4 pt-3 border-t border-purple-100">
@@ -1039,7 +1041,7 @@ export function AsmoHubPage() {
                     </div>
 
                     <h3 className="text-sm font-bold text-slate-900 leading-snug">
-                      {exam.title}
+                      <AsmoFormula text={exam.title} />
                     </h3>
                   </div>
 

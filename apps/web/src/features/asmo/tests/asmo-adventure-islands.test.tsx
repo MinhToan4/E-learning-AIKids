@@ -129,16 +129,13 @@ describe('ASMO 5 Adventure Islands & Winding Trail Stations', () => {
     expect(markup).toContain('Đảo 5: 3D Không Gian')
     expect(markup).toContain('Toàn Cảnh 5 Vùng Đảo')
 
-    // Verify Master Design System Elements on Hub Page
+    // Verify Master Design System Elements on Hub Page (Streamlined Ribbon & Scene Hero)
     expect(markup).toContain('5 Vùng Đảo Diệu Kỳ')
     expect(markup).toContain('course-map-hero')
     expect(markup).toContain('course-map-ribbon')
-    expect(markup).toContain('course-station-map')
-    expect(markup).toContain('course-game-path')
-    expect(markup).toContain('quest-node')
-    expect(markup).toContain('Cùng Mee chinh phục Trạm 1 nhé! 🐾')
-    expect(markup).toContain('Rương Táo Vàng Phép Thuật')
+    expect(markup).not.toContain('course-station-map')
     expect(markup).toContain('Bắt đầu học')
+    expect(markup).toContain('Mở Bản Đồ Trạm Chi Tiết')
   })
 
   it('validates all station metadata icons and labels across all 5 stages', () => {

@@ -176,7 +176,7 @@ export function AsmoInteractiveLessonModal({
                 </span>
               </div>
               <h2 className="text-sm sm:text-base font-extrabold text-white leading-snug line-clamp-1">
-                {lesson.title}
+                <AsmoFormula text={lesson.title} />
               </h2>
             </div>
           </div>

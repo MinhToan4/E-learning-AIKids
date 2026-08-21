@@ -176,7 +176,7 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).toContain('course-map-scene-art')
     expect(markup).toContain('course-map-scene-cat')
     expect(markup).toContain('aikid-cat-character')
-    expect(markup).toContain('VÙNG 1: L1 · Thế Giới Phép Cộng &amp; Phép Trừ')
+    expect(markup).toContain('VÙNG 1: L1 · Thế Giới Phép Cộng & Phép Trừ')
 
     // 2. Check Thẻ Ruy Băng Tiến Độ (Course Map Ribbon)
     expect(markup).toContain('course-map-ribbon')
@@ -247,6 +247,62 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).toContain('VÙNG 1: L1')
     expect(markup).toContain('course-map-hero')
     expect(markup).toContain('course-station-map')
+  })
+
+  it('renders AsmoIslandWorldMap with hideStationTrail=true omitting the 1000px course-station-map and providing 2 action buttons', () => {
+    const progress = getLmsProgress()
+    const markup = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(AsmoIslandWorldMap, {
+          selectedStageId: 'stage-1',
+          onSelectStage: () => {},
+          progress,
+          onOpenLesson: () => {},
+          hideStationTrail: true,
+        }),
+      ),
+    )
+
+    // Scene Hero & Ribbon are present
+    expect(markup).toContain('course-map-hero')
+    expect(markup).toContain('course-map-ribbon')
+    expect(markup).toContain('course-map-next-ticket')
+    expect(markup).toContain('world-station-path')
+
+    // Both action buttons are present on next ticket
+    expect(markup).toContain('Bắt đầu học')
+    expect(markup).toContain('Mở Bản Đồ Trạm Chi Tiết')
+
+    // 1000px course-station-map is completely hidden
+    expect(markup).not.toContain('course-station-map')
+    expect(markup).not.toContain('course-station-canvas')
+  })
+
+  it('renders AsmoIslandWorldMap KaTeX formulas in Stage 3 for Pizza fraction $\\frac{1}{2}, \\frac{1}{4}, \\frac{3}{8}$ with 0 raw strings', () => {
+    const progress = getLmsProgress()
+    const markup = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        null,
+        createElement(AsmoIslandWorldMap, {
+          selectedStageId: 'stage-3',
+          onSelectStage: () => {},
+          progress,
+          onOpenLesson: () => {},
+          hideStationTrail: true,
+        }),
+      ),
+    )
+
+    // Verify KaTeX rendered markup is present in the NEXT TICKET header
+    expect(markup).toContain('course-map-next-ticket')
+    expect(markup).toContain('katex')
+    expect(markup).toContain('frac-line')
+
+    // Verify raw unparsed string is NOT rendered directly as text
+    expect(markup).not.toContain('$\\frac{1}{2}')
   })
 
   it('renders AsmoInteractiveLessonModal with 4 pedagogical steps', () => {

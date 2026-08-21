@@ -21,6 +21,7 @@ import { AsmoQuestionCard } from '../components/AsmoQuestionCard'
 import { AsmoExamTimer } from '../components/AsmoExamTimer'
 import { AsmoMeeTutor } from '../components/AsmoMeeTutor'
 import { AsmoExamAuditModal } from '../components/AsmoExamAuditModal'
+import { AsmoFormula } from '../components/AsmoFormula'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
@@ -183,7 +184,7 @@ export function AsmoExamArenaPage() {
               </span>
             </div>
             <h1 className="text-base sm:text-lg font-bold text-slate-900 line-clamp-1">
-              {exam.title}
+              <AsmoFormula text={exam.title} />
             </h1>
           </div>
         </div>
@@ -387,9 +388,7 @@ export function AsmoExamArenaPage() {
                 {results.isPassed ? 'Chúc Mừng Chiến Binh Olympic! 🎉' : 'Cố Lên Nhé! Con Đã Hoàn Thành Rất Tốt! 💪'}
               </h2>
 
-              <p className="mt-2 text-sm sm:text-base opacity-90">
-                {exam.title}
-              </p>
+              <AsmoFormula text={exam.title} className="mt-2 text-sm sm:text-base opacity-90" />
 
               {/* Score Badges */}
               <div className="mt-6 grid grid-cols-3 gap-3 w-full max-w-md">

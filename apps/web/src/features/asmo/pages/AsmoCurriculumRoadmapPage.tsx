@@ -182,6 +182,7 @@ export function AsmoCurriculumRoadmapPage() {
         onSelectStage={handleSelectStage}
         progress={progress}
         onOpenLesson={handleOpenLesson}
+        hideStationTrail={false}
       />
     </div>
   )
