@@ -89,6 +89,13 @@ export const designerAssets = {
     storyIsland: '/assets/aikid-ui/world-scenes/scene-story-island-generated.png',
     creativeMountain: '/assets/aikid-ui/world-scenes/scene-creative-mountain-generated.png',
   },
+  asmoScenes: {
+    appleForest: '/assets/asmo-scenes/scene_apple_forest.jpg',
+    sweetBakery: '/assets/asmo-scenes/scene_sweet_bakery.jpg',
+    pizzaOcean: '/assets/asmo-scenes/scene_pizza_ocean.jpg',
+    clockMountain: '/assets/asmo-scenes/scene_clock_mountain.jpg',
+    crystalOlympic: '/assets/asmo-scenes/scene_crystal_olympic.jpg',
+  },
   worldLibrary: {
     aikidOfficial: '/assets/optimized/world-library/aikid-official-world.png',
     school: '/assets/optimized/world-library/school-world.png',
