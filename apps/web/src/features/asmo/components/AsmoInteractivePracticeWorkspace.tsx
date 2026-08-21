@@ -86,6 +86,19 @@ export function AsmoInteractivePracticeWorkspace({
 
   const currentChallenge = challenges[currentChallengeIdx] || challenges[0]
 
+  const currentMake10Numbers: number[] = useMemo(() => {
+    if (lesson.visualType === 'make10') {
+      const conf = currentChallenge?.taskConfig as { numbers?: number[] } | undefined
+      if (conf?.numbers && Array.isArray(conf.numbers) && conf.numbers.length > 0) {
+        return conf.numbers
+      }
+      if (currentChallengeIdx === 0) return [1, 9, 3, 7]
+      if (currentChallengeIdx === 1) return [2, 8, 4, 6, 5, 5]
+      if (currentChallengeIdx === 2) return [1, 3, 5, 7, 9]
+    }
+    return [1, 9, 2, 8, 3, 7, 4, 6, 5, 5]
+  }, [lesson.visualType, currentChallenge, currentChallengeIdx])
+
   // Initialize or reset manipulative when challenge changes
   useEffect(() => {
     setPracticeFeedback(null)
@@ -842,19 +855,66 @@ export function AsmoInteractivePracticeWorkspace({
 
         {/* ── 7. MAKE 10 MANIPULATOR ── */}
         {lesson.visualType === 'make10' && (
-          <div className="w-full max-w-md space-y-4">
-            <div className="text-center text-xs font-bold text-slate-500">
-              Bấm chọn 2 số có tổng bằng 10 để ghép đôi chúng nhé!
+          <div className="w-full max-w-xl space-y-4">
+            {/* Header & Reset Button */}
+            <div className="flex items-center justify-between bg-white px-4 py-2.5 rounded-2xl border border-purple-200 text-xs shadow-2xs">
+              <div className="flex items-center gap-2">
+                <span className="font-extrabold text-purple-900">
+                  {currentChallengeIdx === 0 && '🥉 Thử thách 1: Ghép 2 cặp bạn thân từ 4 số'}
+                  {currentChallengeIdx === 1 && '🥈 Thử thách 2: Ghép đủ 3 cặp bạn thân từ 6 số'}
+                  {currentChallengeIdx === 2 && '🥇 Thử thách 3: Ghép 2 cặp tròn 10 để tính tổng dãy số 25'}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setPairedMake10([])
+                  setSelectedMake10([])
+                }}
+                className="px-2.5 py-1 rounded-xl bg-purple-100 hover:bg-purple-200 text-purple-800 font-bold flex items-center gap-1 cursor-pointer transition-all active:scale-95"
+              >
+                <RotateCcw className="size-3" />
+                <span>Ghép lại</span>
+              </button>
             </div>
 
-            <div className="flex items-center justify-center gap-3 flex-wrap p-4 bg-purple-50/60 rounded-3xl border-2 border-purple-200">
-              {[1, 9, 2, 8, 3, 7, 4, 6, 5, 5].map((num, idx) => {
+            {/* Instruction Tip */}
+            <div className="text-center text-xs font-bold text-slate-600">
+              🐾 Bé hãy bấm chọn 2 quả bóng có tổng bằng 10 để ghép thành 1 cặp bạn thân nhé!
+            </div>
+
+            {/* Dynamic Large Number Balls Grid */}
+            <div className="flex items-center justify-center gap-3.5 sm:gap-4 flex-wrap p-5 sm:p-6 bg-gradient-to-br from-purple-50 via-pink-50/50 to-amber-50/50 rounded-3xl border-2 border-purple-200 shadow-inner">
+              {currentMake10Numbers.map((num, idx) => {
                 const isPaired = pairedMake10.some((p) => p.includes(idx))
                 const isSelected = selectedMake10.includes(idx)
 
+                // Dynamic vibrant colors per number matching the 5 friend pairs
+                const colorClass =
+                  num === 1 || num === 9
+                    ? 'from-rose-500 to-pink-600 text-white border-rose-300'
+                    : num === 2 || num === 8
+                      ? 'from-amber-500 to-orange-600 text-white border-amber-300'
+                      : num === 3 || num === 7
+                        ? 'from-yellow-400 to-amber-500 text-slate-950 border-yellow-300'
+                        : num === 4 || num === 6
+                          ? 'from-emerald-500 to-teal-600 text-white border-emerald-300'
+                          : 'from-purple-500 to-indigo-600 text-white border-purple-300'
+
+                const fruitEmoji =
+                  num === 1 || num === 9
+                    ? '🍎'
+                    : num === 2 || num === 8
+                      ? '🍊'
+                      : num === 3 || num === 7
+                        ? '🍋'
+                        : num === 4 || num === 6
+                          ? '🍏'
+                          : '🍇'
+
                 return (
                   <button
-                    key={`make10-${idx}`}
+                    key={`make10-ball-${currentChallengeIdx}-${idx}`}
                     type="button"
                     onClick={() => {
                       if (isPaired) return
@@ -864,7 +924,7 @@ export function AsmoInteractivePracticeWorkspace({
                         setSelectedMake10([idx])
                       } else if (selectedMake10.length === 1) {
                         const firstIdx = selectedMake10[0]
-                        const firstVal = [1, 9, 2, 8, 3, 7, 4, 6, 5, 5][firstIdx]
+                        const firstVal = currentMake10Numbers[firstIdx]
                         if (firstVal + num === 10) {
                           setPairedMake10([...pairedMake10, [firstIdx, idx]])
                           setSelectedMake10([])
@@ -874,22 +934,55 @@ export function AsmoInteractivePracticeWorkspace({
                       }
                     }}
                     className={cn(
-                      'size-12 rounded-2xl font-black text-base flex items-center justify-center transition-all cursor-pointer border-2 select-none',
+                      'relative size-14 sm:size-16 rounded-full font-black text-xl flex flex-col items-center justify-center transition-all cursor-pointer border-3 select-none active:scale-90',
                       isPaired
-                        ? 'bg-emerald-500 text-white border-emerald-400 opacity-60 shadow-xs'
+                        ? 'bg-gradient-to-br from-emerald-400 to-teal-600 border-emerald-300 text-white opacity-70 shadow-xs scale-95'
                         : isSelected
-                          ? 'bg-purple-600 text-white border-purple-400 ring-2 ring-purple-300 scale-110 shadow-clay'
-                          : 'bg-white text-purple-900 border-purple-200 hover:bg-purple-100 shadow-xs',
+                          ? 'bg-gradient-to-br from-purple-600 to-pink-600 text-white border-white ring-4 ring-amber-400 scale-110 shadow-clay animate-pulse'
+                          : cn('bg-gradient-to-br shadow-clay hover:scale-105', colorClass),
                     )}
                   >
-                    {num}
+                    <span className="text-xl sm:text-2xl leading-none">{num}</span>
+                    <span className="text-[11px] leading-none opacity-90">{fruitEmoji}</span>
+                    {isPaired && (
+                      <span className="absolute -top-1 -right-1 bg-emerald-600 text-white rounded-full size-5 text-[10px] font-black flex items-center justify-center border border-white shadow-xs">
+                        ✓
+                      </span>
+                    )}
                   </button>
                 )
               })}
             </div>
 
-            <div className="bg-purple-50 border-2 border-purple-300 rounded-2xl p-3 text-center font-display font-extrabold text-purple-950 text-sm">
-              Đã ghép: {pairedMake10.length} cặp tròn 10
+            {/* Pairs Summary & Sequence Calculation */}
+            <div className="bg-purple-50/90 border-2 border-purple-300 rounded-2xl p-4 text-center space-y-2 shadow-xs">
+              <div className="flex items-center justify-center gap-2 flex-wrap text-xs sm:text-sm font-extrabold text-purple-950">
+                <span>Đã ghép:</span>
+                {pairedMake10.length === 0 ? (
+                  <span className="text-slate-400 italic">Chưa chọn cặp nào</span>
+                ) : (
+                  pairedMake10.map(([i1, i2], pIdx) => {
+                    const v1 = currentMake10Numbers[i1]
+                    const v2 = currentMake10Numbers[i2]
+                    return (
+                      <span
+                        key={`paired-badge-${pIdx}`}
+                        className="inline-flex items-center gap-1 bg-white border border-purple-300 rounded-xl px-2.5 py-1 text-purple-900 shadow-2xs font-black"
+                      >
+                        <span>({v1} + {v2} = 10)</span>
+                        <span className="text-emerald-600">✓</span>
+                      </span>
+                    )
+                  })
+                )}
+              </div>
+
+              {currentChallengeIdx === 2 && (
+                <div className="pt-2 border-t border-purple-200/80 text-xs sm:text-sm font-black text-slate-800">
+                  Biểu thức tính nhanh: (1 + 9) + (3 + 7) + 5 ={' '}
+                  <span className="text-emerald-700 font-black">10 + 10 + 5 = 25</span>
+                </div>
+              )}
             </div>
           </div>
         )}

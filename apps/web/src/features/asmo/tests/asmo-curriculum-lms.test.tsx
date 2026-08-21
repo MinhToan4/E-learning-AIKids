@@ -471,6 +471,99 @@ describe('ASMO Multi-Level Practice Lab & Diagnostic Verification Engine', () =>
     expect(ch2Correct.feedback).toContain('3:30')
   })
 
+  it('accurately verifies make10 multi-level practice challenges with 3 distinct levels', () => {
+    const make10Lesson = ASMO_LMS_STAGES[0].lessons[2] // s1-make10
+
+    const challenges = getLessonPracticeChallenges(make10Lesson)
+    expect(challenges).toHaveLength(3)
+    expect(challenges[0].title).toContain('Khởi Động')
+    expect(challenges[0].taskConfig.numbers).toEqual([1, 9, 3, 7])
+    expect(challenges[1].title).toContain('3 Cặp')
+    expect(challenges[1].taskConfig.numbers).toEqual([2, 8, 4, 6, 5, 5])
+    expect(challenges[2].title).toContain('Dãy Số')
+    expect(challenges[2].taskConfig.numbers).toEqual([1, 3, 5, 7, 9])
+
+    // Challenge 1: 4 numbers [1, 9, 3, 7] -> 2 pairs: (1, 9) and (3, 7)
+    // indices 0 & 1 -> values 1 & 9; indices 2 & 3 -> values 3 & 7
+    const ch1Wrong = verifyPracticeChallenge(make10Lesson, 0, { pairedMake10: [[0, 1]] })
+    expect(ch1Wrong.isCorrect).toBe(false)
+    expect(ch1Wrong.feedback).toContain('1/2 cặp bạn thân')
+
+    const ch1Correct = verifyPracticeChallenge(make10Lesson, 0, { pairedMake10: [[0, 1], [2, 3]] })
+    expect(ch1Correct.isCorrect).toBe(true)
+    expect(ch1Correct.feedback).toContain('1 + 9 = 10 và 3 + 7 = 10')
+
+    // Challenge 2: 6 numbers [2, 8, 4, 6, 5, 5] -> 3 pairs
+    // indices [0, 1] -> (2,8), [2, 3] -> (4,6), [4, 5] -> (5,5)
+    const ch2Wrong = verifyPracticeChallenge(make10Lesson, 1, { pairedMake10: [[0, 1], [2, 3]] })
+    expect(ch2Wrong.isCorrect).toBe(false)
+    expect(ch2Wrong.feedback).toContain('2/3 cặp')
+
+    const ch2Correct = verifyPracticeChallenge(make10Lesson, 1, { pairedMake10: [[0, 1], [2, 3], [4, 5]] })
+    expect(ch2Correct.isCorrect).toBe(true)
+    expect(ch2Correct.feedback).toContain('3 cặp bạn thân: (2, 8), (4, 6) và (5, 5)')
+
+    // Challenge 3: 5 numbers [1, 3, 5, 7, 9] -> pair (1,9) and (3,7), leftover 5, sum 25
+    // indices [0, 4] -> (1,9), [1, 3] -> (3,7)
+    const ch3Wrong = verifyPracticeChallenge(make10Lesson, 2, { pairedMake10: [[0, 4]] })
+    expect(ch3Wrong.isCorrect).toBe(false)
+    expect(ch3Wrong.feedback).toContain('1/2 cặp tròn 10')
+
+    const ch3Correct = verifyPracticeChallenge(make10Lesson, 2, { pairedMake10: [[0, 4], [1, 3]] })
+    expect(ch3Correct.isCorrect).toBe(true)
+    expect(ch3Correct.feedback).toContain('10 + 10 + 5 = 25')
+  })
+
+  it('renders AsmoInteractivePracticeWorkspace with make10 dynamic balls and challenge step indicators', () => {
+    const make10Lesson = ASMO_LMS_STAGES[0].lessons[2]
+    const markup = renderToStaticMarkup(
+      createElement(AsmoInteractivePracticeWorkspace, {
+        lesson: make10Lesson,
+        onCompleteAllChallenges: () => {},
+        onAdvanceToQuiz: () => {},
+      }),
+    )
+
+    // Check challenge progress header & 3 pills
+    expect(markup).toContain('Phòng Thực Hành Tương Tác Đa Cấp Độ')
+    expect(markup).toContain('Thử thách 1/3:')
+    expect(markup).toContain('Ghép Cặp Tròn 10 Khởi Động')
+    expect(markup).toContain('Thử thách 1')
+    expect(markup).toContain('Thử thách 2')
+    expect(markup).toContain('Thử thách 3')
+    expect(markup).toContain('Bé hãy bấm chọn 2 quả bóng có tổng bằng 10')
+    expect(markup).toContain('Ghép lại')
+    expect(markup).toContain('Kiểm Tra Kết Quả Thử Thách')
+  })
+
+  it('renders AsmoCurriculumLessonPage with 5 Rainbow Make10 friend pairs in Explore tab', () => {
+    const markup = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        { initialEntries: ['/asmo/curriculum/lesson/s1-make10'] },
+        createElement(
+          Routes,
+          null,
+          createElement(Route, {
+            path: '/asmo/curriculum/lesson/:lessonId',
+            element: createElement(AsmoCurriculumLessonPage),
+          }),
+        ),
+      ),
+    )
+
+    // Check 5 Rainbow Pair model
+    expect(markup).toContain('CẦU VỒNG 5 CẶP BẠN THÂN TRÒN 10')
+    expect(markup).toContain('1 + 9 = 10')
+    expect(markup).toContain('2 + 8 = 10')
+    expect(markup).toContain('3 + 7 = 10')
+    expect(markup).toContain('4 + 6 = 10')
+    expect(markup).toContain('5 + 5 = 10')
+    expect(markup).toContain('Xem Cả 5 Cặp')
+    expect(markup).toContain('Mèo Mee Cổ Vũ Bạn Thân:')
+    expect(markup).toContain('Ứng Dụng Olympic ASMO Tính Nhanh:')
+  })
+
   it('renders AsmoInteractivePracticeWorkspace with 3 challenge step indicators and without pre-baked results', () => {
     const appleLesson = ASMO_LMS_STAGES[0].lessons[0]
     const markup = renderToStaticMarkup(

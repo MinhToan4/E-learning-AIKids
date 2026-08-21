@@ -79,6 +79,89 @@ export const ASMO_LESSON_PHASES = [
 
 const PHASE_ORDER: AsmoLessonPhase[] = ['explore', 'tips', 'practice', 'quiz', 'done']
 
+export const RAINBOW_MAKE10_PAIRS = [
+  {
+    id: 1,
+    left: 1,
+    right: 9,
+    themeColor: 'rose',
+    colorName: '🔴 Đỏ',
+    fruitEmoji: '🍎',
+    fruitName: 'Quả Táo Đỏ',
+    leftFruits: ['🍎'],
+    rightFruits: ['🍎', '🍎', '🍎', '🍎', '🍎', '🍎', '🍎', '🍎', '🍎'],
+    gradient: 'from-rose-500 to-pink-600',
+    bridgeGradient: 'from-rose-500 via-pink-400 to-rose-500',
+    borderGlow: 'border-rose-400 shadow-rose-200',
+    cardBg: 'bg-rose-50/70 border-rose-200',
+    meeQuote: 'Mee vỗ tay: Bạn 1 kết đôi cùng Bạn 9 tạo thành 10 quả táo đỏ thơm ngọt! 🍎✨',
+  },
+  {
+    id: 2,
+    left: 2,
+    right: 8,
+    themeColor: 'amber',
+    colorName: '🟠 Cam',
+    fruitEmoji: '🍊',
+    fruitName: 'Quả Cam Ngọt',
+    leftFruits: ['🍊', '🍊'],
+    rightFruits: ['🍊', '🍊', '🍊', '🍊', '🍊', '🍊', '🍊', '🍊'],
+    gradient: 'from-amber-500 to-orange-600',
+    bridgeGradient: 'from-amber-500 via-orange-400 to-amber-500',
+    borderGlow: 'border-amber-400 shadow-amber-200',
+    cardBg: 'bg-amber-50/70 border-amber-200',
+    meeQuote: 'Mee vỗ tay: Bạn 2 sánh đôi cùng Bạn 8 tạo thành 10 quả cam mọng nước! 🍊✨',
+  },
+  {
+    id: 3,
+    left: 3,
+    right: 7,
+    themeColor: 'yellow',
+    colorName: '🟡 Vàng',
+    fruitEmoji: '🍋',
+    fruitName: 'Quả Chanh Vàng',
+    leftFruits: ['🍋', '🍋', '🍋'],
+    rightFruits: ['🍋', '🍋', '🍋', '🍋', '🍋', '🍋', '🍋'],
+    gradient: 'from-yellow-400 to-amber-500 text-slate-950',
+    bridgeGradient: 'from-yellow-400 via-amber-300 to-yellow-400',
+    borderGlow: 'border-yellow-400 shadow-yellow-200',
+    cardBg: 'bg-yellow-50/70 border-yellow-200',
+    meeQuote: 'Mee vỗ tay: Bạn 3 kết bạn cùng Bạn 7 tạo thành 10 quả chanh vàng tươi sáng! 🍋✨',
+  },
+  {
+    id: 4,
+    left: 4,
+    right: 6,
+    themeColor: 'emerald',
+    colorName: '🟢 Xanh Lá',
+    fruitEmoji: '🍏',
+    fruitName: 'Quả Táo Xanh',
+    leftFruits: ['🍏', '🍏', '🍏', '🍏'],
+    rightFruits: ['🍏', '🍏', '🍏', '🍏', '🍏', '🍏'],
+    gradient: 'from-emerald-500 to-teal-600',
+    bridgeGradient: 'from-emerald-500 via-teal-400 to-emerald-500',
+    borderGlow: 'border-emerald-400 shadow-emerald-200',
+    cardBg: 'bg-emerald-50/70 border-emerald-200',
+    meeQuote: 'Mee vỗ tay: Bạn 4 tìm bạn cùng Bạn 6 tạo thành 10 quả táo xanh giòn ngọt! 🍏✨',
+  },
+  {
+    id: 5,
+    left: 5,
+    right: 5,
+    themeColor: 'purple',
+    colorName: '🟣 Tím',
+    fruitEmoji: '🍇',
+    fruitName: 'Chùm Nho Tím',
+    leftFruits: ['🍇', '🍇', '🍇', '🍇', '🍇'],
+    rightFruits: ['🍇', '🍇', '🍇', '🍇', '🍇'],
+    gradient: 'from-purple-500 to-indigo-600',
+    bridgeGradient: 'from-purple-500 via-indigo-400 to-purple-500',
+    borderGlow: 'border-purple-400 shadow-purple-200',
+    cardBg: 'bg-purple-50/70 border-purple-200',
+    meeQuote: 'Mee vỗ tay: Cặp song sinh 5 và 5 bắt tay nhau tạo thành 10 chùm nho tím tuyệt đẹp! 🍇✨',
+  },
+]
+
 export function AsmoCurriculumLessonPage() {
   const { lessonId = '' } = useParams()
   const navigate = useNavigate()
@@ -130,6 +213,13 @@ export function AsmoCurriculumLessonPage() {
   const [scaleLeft, setScaleLeft] = useState(4)
   const [scaleRight, setScaleRight] = useState(4)
   const [activeMake10Pairs, setActiveMake10Pairs] = useState<number[]>([1, 9])
+  const [activeRainbowPairId, setActiveRainbowPairId] = useState<number | 'all'>(1)
+  const [columnAddStep, setColumnAddStep] = useState(0)
+  const [columnSubStep, setColumnSubStep] = useState(0)
+  const [table9Factor, setTable9Factor] = useState(7)
+  const [rectW, setRectW] = useState(4)
+  const [rectH, setRectH] = useState(3)
+  const [cubeLayers, setCubeLayers] = useState([4, 2, 1])
   const [cubeCount, setCubeCount] = useState(8)
 
   // ── Phase 3: Hands-on Practice State ──
@@ -925,7 +1015,486 @@ export function AsmoCurriculumLessonPage() {
                   </div>
                 )}
 
-                {/* 8. Fallback for other visual types */}
+                {/* ── 8. MAKE 10: CẦU VỒNG 5 CẶP BẠN THÂN TRÒN 10 ── */}
+                {lesson.visualType === 'make10' && (
+                  <div className="w-full max-w-2xl space-y-5">
+                    {/* Header Banner */}
+                    <div className="rounded-2xl bg-gradient-to-r from-rose-100 via-amber-100 via-emerald-100 to-purple-100 border-2 border-brand-300 p-4 text-center space-y-1 shadow-xs">
+                      <div className="flex items-center justify-center gap-2 text-sm sm:text-base font-black text-slate-900">
+                        <span>🌈</span>
+                        <span>CẦU VỒNG 5 CẶP BẠN THÂN TRÒN 10</span>
+                        <span>🌈</span>
+                      </div>
+                      <p className="text-xs font-bold text-slate-600">
+                        Bé hãy bấm vào từng cặp bạn thân để thắp sáng cầu vồng kết nối và nghe Mèo Mee cổ vũ nhé!
+                      </p>
+                    </div>
+
+                    {/* Pair Selector Buttons */}
+                    <div className="flex items-center justify-center gap-2 flex-wrap">
+                      {RAINBOW_MAKE10_PAIRS.map((p) => {
+                        const isSelected = activeRainbowPairId === p.id
+                        return (
+                          <button
+                            key={`rainbow-btn-${p.id}`}
+                            type="button"
+                            onClick={() => setActiveRainbowPairId(p.id)}
+                            className={cn(
+                              'px-3 py-1.5 rounded-2xl text-xs font-black transition-all cursor-pointer border-2 select-none active:scale-95 shadow-xs flex items-center gap-1.5',
+                              isSelected
+                                ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white border-purple-400 ring-2 ring-purple-300 scale-105 shadow-clay'
+                                : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50',
+                            )}
+                          >
+                            <span>{p.colorName}</span>
+                            <span>{p.left} + {p.right} = 10</span>
+                          </button>
+                        )
+                      })}
+                      <button
+                        type="button"
+                        onClick={() => setActiveRainbowPairId('all')}
+                        className={cn(
+                          'px-3 py-1.5 rounded-2xl text-xs font-black transition-all cursor-pointer border-2 select-none active:scale-95 shadow-xs flex items-center gap-1.5',
+                          activeRainbowPairId === 'all'
+                            ? 'bg-gradient-to-r from-amber-500 to-rose-500 text-white border-amber-400 ring-2 ring-amber-300 scale-105 shadow-clay'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50',
+                        )}
+                      >
+                        <span>🌈 Xem Cả 5 Cặp</span>
+                      </button>
+                    </div>
+
+                    {/* Single Pair Showcase or All Pairs View */}
+                    {activeRainbowPairId !== 'all' ? (
+                      (() => {
+                        const cur = RAINBOW_MAKE10_PAIRS.find((p) => p.id === activeRainbowPairId) || RAINBOW_MAKE10_PAIRS[0]
+                        return (
+                          <div className={cn('rounded-3xl border-2 p-5 sm:p-6 space-y-4 shadow-sm transition-all animate-in zoom-in-95 duration-200', cur.cardBg, cur.borderGlow)}>
+                            {/* Top Stage: Left Ball ➔ Animated Rainbow Bridge ➔ Right Ball */}
+                            <div className="flex items-center justify-between gap-2 sm:gap-4 relative">
+                              {/* Left Ball */}
+                              <div className="flex flex-col items-center gap-1.5 z-10">
+                                <div className={cn('size-16 sm:size-20 rounded-full font-black text-2xl sm:text-3xl text-white flex flex-col items-center justify-center shadow-clay border-3 border-white animate-bounce', cur.gradient)}>
+                                  <span>{cur.left}</span>
+                                  <span className="text-sm -mt-1">{cur.fruitEmoji}</span>
+                                </div>
+                                <span className="text-[11px] font-extrabold text-slate-700">
+                                  {cur.left} {cur.fruitName}
+                                </span>
+                              </div>
+
+                              {/* Rainbow Arch Bridge */}
+                              <div className="flex-1 flex flex-col items-center justify-center relative px-2">
+                                <svg viewBox="0 0 200 70" className="w-full max-w-[220px] h-16 select-none drop-shadow-sm">
+                                  <defs>
+                                    <linearGradient id={`rainbow-grad-${cur.id}`} x1="0%" y1="0%" x2="100%" y2="0%">
+                                      <stop offset="0%" stopColor="#ef4444" />
+                                      <stop offset="25%" stopColor="#f59e0b" />
+                                      <stop offset="50%" stopColor="#10b981" />
+                                      <stop offset="75%" stopColor="#06b6d4" />
+                                      <stop offset="100%" stopColor="#8b5cf6" />
+                                    </linearGradient>
+                                  </defs>
+                                  {/* Outer Glow Arc */}
+                                  <path
+                                    d="M 20,60 Q 100,-10 180,60"
+                                    fill="none"
+                                    stroke={`url(#rainbow-grad-${cur.id})`}
+                                    strokeWidth="10"
+                                    strokeLinecap="round"
+                                    opacity="0.85"
+                                  />
+                                  {/* Core Sparkle Arc */}
+                                  <path
+                                    d="M 20,60 Q 100,-10 180,60"
+                                    fill="none"
+                                    stroke="#ffffff"
+                                    strokeWidth="2.5"
+                                    strokeLinecap="round"
+                                    strokeDasharray="4 6"
+                                  />
+                                </svg>
+                                <div className="absolute top-1 bg-white/95 border-2 border-brand-300 rounded-full px-3 py-0.5 text-xs font-black text-brand-900 shadow-clay animate-pulse">
+                                  {cur.left} + {cur.right} = 10 ✨
+                                </div>
+                              </div>
+
+                              {/* Right Ball */}
+                              <div className="flex flex-col items-center gap-1.5 z-10">
+                                <div className={cn('size-16 sm:size-20 rounded-full font-black text-2xl sm:text-3xl text-white flex flex-col items-center justify-center shadow-clay border-3 border-white animate-bounce', cur.gradient)}>
+                                  <span>{cur.right}</span>
+                                  <span className="text-sm -mt-1">{cur.fruitEmoji}</span>
+                                </div>
+                                <span className="text-[11px] font-extrabold text-slate-700">
+                                  {cur.right} {cur.fruitName}
+                                </span>
+                              </div>
+                            </div>
+
+                            {/* Fruit Quantities Visual Breakdown */}
+                            <div className="bg-white/90 rounded-2xl border border-slate-200/80 p-3 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs shadow-2xs">
+                              <div className="flex items-center gap-1 flex-wrap justify-center min-h-8">
+                                <span className="font-bold text-slate-500 mr-1">Trái:</span>
+                                {cur.leftFruits.map((f, i) => (
+                                  <span key={`lf-${i}`} className="text-lg animate-in zoom-in-50">{f}</span>
+                                ))}
+                              </div>
+                              <span className="font-black text-brand-600 text-sm sm:text-base">+</span>
+                              <div className="flex items-center gap-1 flex-wrap justify-center min-h-8">
+                                <span className="font-bold text-slate-500 mr-1">Phải:</span>
+                                {cur.rightFruits.map((f, i) => (
+                                  <span key={`rf-${i}`} className="text-lg animate-in zoom-in-50">{f}</span>
+                                ))}
+                              </div>
+                              <span className="font-black text-brand-600 text-sm sm:text-base">=</span>
+                              <div className="bg-brand-50 border border-brand-200 rounded-xl px-2.5 py-1 font-black text-brand-900 shrink-0">
+                                10 {cur.fruitEmoji}
+                              </div>
+                            </div>
+
+                            {/* Mee Tutor Clapping Mascot Banner */}
+                            <div className="flex items-center gap-3 bg-gradient-to-r from-amber-100/90 via-white to-pink-100/90 rounded-2xl border border-amber-300 p-3 text-left">
+                              <AikidCatCharacter pose="celebrate" className="size-12 shrink-0 drop-shadow-xs" />
+                              <div className="min-w-0 flex-1">
+                                <span className="text-[10px] font-black uppercase text-amber-800 tracking-wide block">
+                                  Mèo Mee Cổ Vũ Bạn Thân:
+                                </span>
+                                <p className="text-xs sm:text-sm font-extrabold text-amber-950 leading-snug">
+                                  {cur.meeQuote}
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        )
+                      })()
+                    ) : (
+                      /* All 5 Pairs Grid Showcase */
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {RAINBOW_MAKE10_PAIRS.map((p) => (
+                          <div
+                            key={`all-p-${p.id}`}
+                            onClick={() => setActiveRainbowPairId(p.id)}
+                            className={cn(
+                              'p-3.5 rounded-2xl border-2 flex items-center justify-between gap-2 cursor-pointer transition-all hover:scale-102 active:scale-98 shadow-xs',
+                              p.cardBg,
+                              p.borderGlow,
+                            )}
+                          >
+                            <div className={cn('size-10 rounded-full font-black text-sm text-white flex items-center justify-center shadow-xs shrink-0', p.gradient)}>
+                              {p.left}
+                            </div>
+                            <div className="flex-1 text-center min-w-0">
+                              <span className="text-xs font-black text-slate-800 block">
+                                {p.left} + {p.right} = 10
+                              </span>
+                              <span className="text-[11px] font-bold text-slate-500 truncate block">
+                                {p.fruitEmoji} {p.fruitName}
+                              </span>
+                            </div>
+                            <div className={cn('size-10 rounded-full font-black text-sm text-white flex items-center justify-center shadow-xs shrink-0', p.gradient)}>
+                              {p.right}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Olympic Math Formula Application Box */}
+                    <div className="bg-gradient-to-r from-purple-50 via-pink-50 to-amber-50 border-2 border-purple-300 rounded-2xl p-4 text-center space-y-1.5 shadow-xs">
+                      <span className="text-[11px] font-black text-purple-900 uppercase tracking-wider flex items-center justify-center gap-1">
+                        <Sparkles className="size-3.5 text-amber-500" />
+                        <span>Ứng Dụng Olympic ASMO Tính Nhanh:</span>
+                      </span>
+                      <p className="text-xs sm:text-sm font-extrabold text-slate-900 leading-snug">
+                        $1 + 3 + 5 + 7 + 9 = (1 + 9) + (3 + 7) + 5 = 10 + 10 + 5 = 25$
+                      </p>
+                      <p className="text-[11px] font-bold text-slate-600">
+                        Nhóm cặp 🔴 (1, 9) và cặp 🟡 (3, 7) thành 10 trước giúp bé giải nhẩm ra kết quả trong 3 giây!
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── 9. COLUMN ADDITION VISUALIZER (CỘNG CỘT DỌC CÓ NHỚ) ── */}
+                {lesson.visualType === 'column_add' && (
+                  <div className="w-full max-w-md space-y-4">
+                    <div className="bg-white p-5 rounded-3xl border-2 border-rose-200 shadow-sm space-y-3">
+                      <div className="text-center text-xs font-black text-rose-900 uppercase tracking-wide">
+                        Mô Hình Đặt Tính Cột Dọc: $48 + 37 = 85$
+                      </div>
+
+                      <div className="flex justify-center">
+                        <div className="font-mono text-xl sm:text-2xl font-black text-slate-800 space-y-1 text-right inline-block bg-rose-50/50 p-4 rounded-2xl border border-rose-200">
+                          {/* Carry Indicator */}
+                          <div className="text-xs text-rose-600 font-bold tracking-widest text-right pr-6">
+                            <span className="bg-rose-500 text-white rounded-full px-1.5 py-0.5 text-[10px] shadow-xs">
+                              +1 nhớ
+                            </span>
+                          </div>
+                          <div className="tracking-widest">
+                            <span className="text-slate-500 text-sm font-sans mr-3">Hàng chục: 4 | Hàng đv:</span>
+                            <span>4 8</span>
+                          </div>
+                          <div className="tracking-widest border-b-2 border-slate-800 pb-1">
+                            <span className="text-rose-600 mr-4 font-bold">+</span>
+                            <span>3 7</span>
+                          </div>
+                          <div className="tracking-widest text-emerald-700 font-black pt-1">
+                            <span>8 5</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-rose-50 border border-rose-200 rounded-xl p-3 text-xs font-bold text-slate-700 space-y-1">
+                        <p>🔹 Bước 1 (Hàng đơn vị): $8 + 7 = 15 \rightarrow$ Viết 5, nhớ 1 sang hàng chục.</p>
+                        <p>🔹 Bước 2 (Hàng chục): $4 + 3 = 7$, thêm 1 nhớ thành $8 \rightarrow$ Viết 8. Kết quả là 85.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── 10. COLUMN SUBTRACTION VISUALIZER (TRỪ MƯỢN CỘT DỌC) ── */}
+                {lesson.visualType === 'column_sub' && (
+                  <div className="w-full max-w-md space-y-4">
+                    <div className="bg-white p-5 rounded-3xl border-2 border-amber-200 shadow-sm space-y-3">
+                      <div className="text-center text-xs font-black text-amber-900 uppercase tracking-wide">
+                        Mô Hình Đặt Tính Phép Trừ Có Mượn: $63 - 28 = 35$
+                      </div>
+
+                      <div className="flex justify-center">
+                        <div className="font-mono text-xl sm:text-2xl font-black text-slate-800 space-y-1 text-right inline-block bg-amber-50/50 p-4 rounded-2xl border border-amber-200">
+                          <div className="text-xs text-amber-600 font-bold tracking-widest text-right pr-6">
+                            <span className="bg-amber-500 text-white rounded-full px-1.5 py-0.5 text-[10px] shadow-xs">
+                              Mượn 1 chục (10)
+                            </span>
+                          </div>
+                          <div className="tracking-widest">
+                            <span className="text-slate-500 text-sm font-sans mr-3">Hàng chục: 6 | Hàng đv:</span>
+                            <span>6 3</span>
+                          </div>
+                          <div className="tracking-widest border-b-2 border-slate-800 pb-1">
+                            <span className="text-amber-600 mr-4 font-bold">−</span>
+                            <span>2 8</span>
+                          </div>
+                          <div className="tracking-widest text-emerald-700 font-black pt-1">
+                            <span>3 5</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs font-bold text-slate-700 space-y-1">
+                        <p>🔹 Bước 1: 3 không trừ được 8, mượn 1 chục thành 13: $13 - 8 = 5 \rightarrow$ Viết 5.</p>
+                        <p>🔹 Bước 2: 6 bớt 1 đã mượn còn 5: $5 - 2 = 3 \rightarrow$ Viết 3. Kết quả là 35.</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── 11. TIMES TABLE 2-5 VISUALIZER (BẢNG NHÂN 2-5 NHẢY ẾCH) ── */}
+                {lesson.visualType === 'times_table_25' && (
+                  <div className="w-full max-w-lg space-y-4">
+                    <div className="bg-white p-4 rounded-3xl border-2 border-emerald-200 shadow-sm space-y-3 text-center">
+                      <div className="flex items-center justify-between text-xs font-extrabold text-emerald-900 border-b border-emerald-100 pb-2">
+                        <span>Bảng Nhân {tableBase}: Nhịp Nhảy Số Học</span>
+                        <div className="flex gap-1.5">
+                          {[2, 3, 4, 5].map((b) => (
+                            <button
+                              key={`tbase-${b}`}
+                              type="button"
+                              onClick={() => setTableBase(b)}
+                              className={cn(
+                                'px-2 py-0.5 rounded-lg text-xs font-black cursor-pointer border',
+                                tableBase === b
+                                  ? 'bg-emerald-600 text-white border-emerald-600'
+                                  : 'bg-slate-100 text-slate-700 border-slate-200',
+                              )}
+                            >
+                              Bảng {b}
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+
+                      {/* Number Line Stepper */}
+                      <div className="flex items-center justify-center gap-1.5 flex-wrap p-2">
+                        {Array.from({ length: 6 }).map((_, idx) => {
+                          const step = idx + 1
+                          const val = tableBase * step
+                          const isCurrent = step === tableMultiplier
+                          return (
+                            <button
+                              key={`frog-step-${step}`}
+                              type="button"
+                              onClick={() => setTableMultiplier(step)}
+                              className={cn(
+                                'p-2 rounded-2xl flex flex-col items-center transition-all cursor-pointer border-2 min-w-14',
+                                isCurrent
+                                  ? 'bg-emerald-500 text-white border-emerald-400 shadow-clay scale-105'
+                                  : 'bg-emerald-50 text-emerald-950 border-emerald-200 hover:bg-emerald-100',
+                              )}
+                            >
+                              <span className="text-base">{isCurrent ? '🐸' : '🐾'}</span>
+                              <span className="text-xs font-black">{val}</span>
+                              <span className="text-[9px] opacity-80">{tableBase}×{step}</span>
+                            </button>
+                          )
+                        })}
+                      </div>
+
+                      <div className="bg-emerald-50 border border-emerald-300 rounded-2xl p-3 font-display font-extrabold text-emerald-950 text-base">
+                        {tableBase} × {tableMultiplier} = <span className="text-emerald-700 font-black underline">{tableBase * tableMultiplier}</span> (Ếch nhảy {tableMultiplier} bước {tableBase} đơn vị)
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── 12. TIMES TABLE 6-9 VISUALIZER (BÍ THUẬT SỐ 9) ── */}
+                {lesson.visualType === 'times_table_69' && (
+                  <div className="w-full max-w-lg space-y-4">
+                    <div className="bg-white p-4 sm:p-5 rounded-3xl border-2 border-indigo-200 shadow-sm space-y-3 text-center">
+                      <div className="text-xs font-black text-indigo-900 uppercase">
+                        Bí Mật Đối Xứng Bảng Nhân 9: Tổng Chữ Số Luôn Bằng 9!
+                      </div>
+
+                      {/* Factor Selector */}
+                      <div className="flex items-center justify-center gap-1.5 flex-wrap">
+                        {[1, 2, 3, 4, 5, 6, 7, 8, 9].map((f) => (
+                          <button
+                            key={`t9-f-${f}`}
+                            type="button"
+                            onClick={() => setTable9Factor(f)}
+                            className={cn(
+                              'size-8 rounded-xl font-black text-xs cursor-pointer border transition-all',
+                              table9Factor === f
+                                ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs scale-105'
+                                : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200',
+                            )}
+                          >
+                            {f}
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Math Breakdown Card */}
+                      <div className="bg-gradient-to-r from-indigo-50 via-purple-50 to-pink-50 rounded-2xl border border-indigo-200 p-4 space-y-2 text-xs sm:text-sm font-bold text-slate-800">
+                        <div className="font-display font-black text-lg text-indigo-900">
+                          $9 \times {table9Factor} = {9 * table9Factor}$
+                        </div>
+                        <div className="grid grid-cols-2 gap-2 text-left bg-white/90 p-2.5 rounded-xl border border-indigo-100">
+                          <div>
+                            <span className="text-slate-500 block">Hàng chục (n − 1):</span>
+                            <span className="font-black text-indigo-700">{table9Factor} − 1 = {table9Factor - 1}</span>
+                          </div>
+                          <div>
+                            <span className="text-slate-500 block">Hàng đơn vị (9 − chục):</span>
+                            <span className="font-black text-purple-700">9 − {table9Factor - 1} = {9 - (table9Factor - 1)}</span>
+                          </div>
+                        </div>
+                        <p className="text-[11px] text-slate-600">
+                          Kiểm tra: Chữ số hàng chục ({table9Factor - 1}) + đơn vị ({9 - (table9Factor - 1)}) = 9!
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── 13. PERIMETER & AREA VISUALIZER ── */}
+                {lesson.visualType === 'perimeter_area' && (
+                  <div className="w-full max-w-md space-y-4 text-center">
+                    <div className="bg-white p-4 rounded-3xl border-2 border-teal-200 shadow-sm space-y-3">
+                      <div className="text-xs font-black text-teal-900 uppercase">
+                        Hình Chữ Nhật: Chiều Dài 4m × Chiều Rộng 3m
+                      </div>
+
+                      {/* SVG Grid Rectangle */}
+                      <svg viewBox="0 0 160 120" className="w-48 mx-auto select-none drop-shadow-xs">
+                        <rect x="10" y="10" width="140" height="90" fill="#ccfbf1" stroke="#0f766e" strokeWidth="3" rx="4" />
+                        {/* Grid lines */}
+                        {Array.from({ length: 3 }).map((_, i) => (
+                          <line key={`gl-x-${i}`} x1={10 + (i + 1) * 35} y1="10" x2={10 + (i + 1) * 35} y2="100" stroke="#0d9488" strokeWidth="1" strokeDasharray="2 2" />
+                        ))}
+                        {Array.from({ length: 2 }).map((_, i) => (
+                          <line key={`gl-y-${i}`} x1="10" y1={10 + (i + 1) * 30} x2="150" y2={10 + (i + 1) * 30} stroke="#0d9488" strokeWidth="1" strokeDasharray="2 2" />
+                        ))}
+                        <text x="80" y="8" fill="#0f766e" fontSize="10" fontWeight="900" textAnchor="middle">4m (Dài)</text>
+                        <text x="5" y="58" fill="#0f766e" fontSize="10" fontWeight="900" textAnchor="middle" transform="rotate(-90 5 58)">3m (Rộng)</text>
+                      </svg>
+
+                      <div className="grid grid-cols-2 gap-2 text-xs font-bold">
+                        <div className="bg-teal-50 border border-teal-200 rounded-xl p-2 text-teal-950">
+                          <span className="block text-[10px] text-teal-700 uppercase">Chu vi (P):</span>
+                          <span>(4 + 3) × 2 = 14m</span>
+                        </div>
+                        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-2 text-emerald-950">
+                          <span className="block text-[10px] text-emerald-700 uppercase">Diện tích (S):</span>
+                          <span>4 × 3 = 12m²</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── 14. 3D CUBE VISUALIZER ── */}
+                {lesson.visualType === 'cube_3d' && (
+                  <div className="w-full max-w-md space-y-4 text-center">
+                    <div className="bg-white p-4 rounded-3xl border-2 border-indigo-200 shadow-sm space-y-3">
+                      <div className="text-xs font-black text-indigo-900 uppercase">
+                        Đếm Khối Lập Phương Theo Từng Tầng
+                      </div>
+                      <div className="flex items-center justify-center gap-3">
+                        <div className="p-3 bg-indigo-50 rounded-2xl border border-indigo-200 text-xs font-bold text-indigo-950">
+                          <span className="block text-[10px] text-indigo-600">Tầng 1 (Dưới):</span>
+                          <span className="text-lg font-black">4 khối</span>
+                        </div>
+                        <span className="text-lg font-black text-indigo-500">+</span>
+                        <div className="p-3 bg-indigo-50 rounded-2xl border border-indigo-200 text-xs font-bold text-indigo-950">
+                          <span className="block text-[10px] text-indigo-600">Tầng 2 (Giữa):</span>
+                          <span className="text-lg font-black">2 khối</span>
+                        </div>
+                        <span className="text-lg font-black text-indigo-500">+</span>
+                        <div className="p-3 bg-indigo-50 rounded-2xl border border-indigo-200 text-xs font-bold text-indigo-950">
+                          <span className="block text-[10px] text-indigo-600">Tầng 3 (Trên):</span>
+                          <span className="text-lg font-black">1 khối</span>
+                        </div>
+                      </div>
+                      <div className="bg-indigo-50 border border-indigo-300 rounded-2xl p-3 font-display font-extrabold text-indigo-950 text-base">
+                        Tổng cộng: $4 + 2 + 1 = 7$ khối lập phương 🧊
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {/* ── 15. MATCHSTICK & MAZE & OLYMPIC ARENA VISUALIZERS ── */}
+                {lesson.visualType === 'matchstick' && (
+                  <div className="w-full max-w-md space-y-3 text-center">
+                    <div className="bg-white p-4 rounded-3xl border-2 border-amber-200 shadow-sm space-y-3">
+                      <div className="text-xs font-black text-amber-900 uppercase">
+                        Xếp 3 Ô Vuông Nối Tiếp Cần 10 Que Diêm
+                      </div>
+                      <div className="flex justify-center">
+                        {renderMatchstickFigureSvg('square_flag', 6, { className: 'w-48 h-24' })}
+                      </div>
+                      <div className="bg-amber-50 border border-amber-300 rounded-2xl p-3 text-xs font-bold text-amber-950">
+                        Quy luật: Ô đầu tiên cần 4 que, mỗi ô tiếp theo cần thêm 3 que $\rightarrow 4 + 3 + 3 = 10$ que diêm!
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {lesson.visualType === 'olympic_arena' && (
+                  <div className="w-full max-w-md space-y-3 text-center">
+                    <div className="bg-gradient-to-r from-amber-100 via-yellow-50 to-sun-100 p-6 rounded-3xl border-2 border-amber-300 shadow-sm space-y-3">
+                      <span className="text-5xl animate-bounce inline-block">🏆</span>
+                      <h3 className="text-lg font-black text-amber-950">Đấu Trường Olympic ASMO Toàn Diện</h3>
+                      <p className="text-xs font-bold text-amber-800">
+                        Sẵn sàng thử thách bản thân với bộ câu hỏi Olympic chuẩn quốc tế cùng Mèo Mee!
+                      </p>
+                    </div>
+                  </div>
+                )}
+
+                {/* 16. Fallback for any other custom visual types */}
                 {lesson.visualType !== 'apple_drop' &&
                   lesson.visualType !== 'balloon_pop' &&
                   lesson.visualType !== 'cake_tray' &&
@@ -937,7 +1506,16 @@ export function AsmoCurriculumLessonPage() {
                   lesson.visualType !== 'elapsed_time' &&
                   lesson.visualType !== 'balance_scale' &&
                   lesson.visualType !== 'candy_division' &&
-                  lesson.visualType !== 'div_remainder' && (
+                  lesson.visualType !== 'div_remainder' &&
+                  lesson.visualType !== 'make10' &&
+                  lesson.visualType !== 'column_add' &&
+                  lesson.visualType !== 'column_sub' &&
+                  lesson.visualType !== 'times_table_25' &&
+                  lesson.visualType !== 'times_table_69' &&
+                  lesson.visualType !== 'perimeter_area' &&
+                  lesson.visualType !== 'cube_3d' &&
+                  lesson.visualType !== 'matchstick' &&
+                  lesson.visualType !== 'olympic_arena' && (
                     <div className="text-center space-y-3 p-4">
                       <span className="text-5xl select-none">{lesson.icon}</span>
                       <h3 className="text-base font-extrabold text-slate-800">

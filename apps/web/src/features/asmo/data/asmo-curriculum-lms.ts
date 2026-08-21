@@ -1489,7 +1489,63 @@ export function getLessonPracticeChallenges(lesson: AsmoLmsLesson): AsmoLmsPract
     ]
   }
 
-  // 3. Cake Tray (Khay Bánh Phép Nhân)
+  // 3. Make 10 Friends (Kết Bạn Tròn 10: Ghép Cặp Thần Tốc)
+  if (visualType === 'make10') {
+    return [
+      {
+        id: `${id}-c1`,
+        level: 1,
+        levelLabel: '🥉 Thử thách 1: Khởi động',
+        title: 'Ghép Cặp Tròn 10 Khởi Động',
+        instruction: 'Cho 4 số [1, 9, 3, 7]. Bé hãy bấm chọn ghép 2 cặp bạn thân có tổng bằng 10: (1, 9) và (3, 7)!',
+        hint: '1 đi với 9 ($1 + 9 = 10$) và 3 đi với 7 ($3 + 7 = 10$) nhé!',
+        taskType: 'make10_pairs',
+        taskConfig: {
+          numbers: [1, 9, 3, 7],
+          targetPairs: [[1, 9], [3, 7]],
+          expectedPairCount: 2,
+        },
+        initialState: { numbers: [1, 9, 3, 7], pairedMake10: [] },
+        successFeedback: 'Xuất sắc bé ơi! 1 + 9 = 10 và 3 + 7 = 10, đúng 2 cặp bạn thân tròn 10!',
+      },
+      {
+        id: `${id}-c2`,
+        level: 2,
+        levelLabel: '🥈 Thử thách 2: Tìm ẩn số',
+        title: 'Tìm Ẩn Số 3 Cặp Bạn Thân',
+        instruction: 'Cho 6 số [2, 8, 4, 6, 5, 5]. Bé hãy tìm và ghép đủ 3 cặp bạn thân tròn 10: (2, 8), (4, 6) và (5, 5)!',
+        hint: '2 đi với 8 ($2+8=10$), 4 đi với 6 ($4+6=10$) và 5 đi với 5 ($5+5=10$) nhé!',
+        taskType: 'make10_pairs',
+        taskConfig: {
+          numbers: [2, 8, 4, 6, 5, 5],
+          targetPairs: [[2, 8], [4, 6], [5, 5]],
+          expectedPairCount: 3,
+        },
+        initialState: { numbers: [2, 8, 4, 6, 5, 5], pairedMake10: [] },
+        successFeedback: 'Tuyệt vời! Bé đã tìm ra đủ 3 cặp bạn thân: (2, 8), (4, 6) và (5, 5)!',
+      },
+      {
+        id: `${id}-c3`,
+        level: 3,
+        levelLabel: '🥇 Thử thách 3: Thử thách IQ',
+        title: 'Chinh Phục IQ: Tính Nhanh Dãy Số ASMO',
+        instruction: 'Thử thách IQ: Cho dãy 5 số [1, 3, 5, 7, 9]. Bé hãy ghép 2 cặp tròn 10: (1, 9) và (3, 7), tính tổng $(1+9) + (3+7) + 5 = 25$!',
+        hint: 'Ghép 1 với 9 thành 10, 3 với 7 thành 10, rồi cộng thêm 5 còn lại: $10 + 10 + 5 = 25$!',
+        taskType: 'make10_sequence',
+        taskConfig: {
+          numbers: [1, 3, 5, 7, 9],
+          targetPairs: [[1, 9], [3, 7]],
+          leftover: 5,
+          expectedSum: 25,
+          expectedPairCount: 2,
+        },
+        initialState: { numbers: [1, 3, 5, 7, 9], pairedMake10: [] },
+        successFeedback: 'Đỉnh cao Olympic ASMO! (1+9) + (3+7) + 5 = 10 + 10 + 5 = 25 tuyệt đẹp!',
+      },
+    ]
+  }
+
+  // 4. Cake Tray (Khay Bánh Phép Nhân)
   if (visualType === 'cake_tray') {
     return [
       {
@@ -1824,7 +1880,68 @@ export function verifyPracticeChallenge(
     }
   }
 
-  // 3. Cake Tray
+  // 3. Make 10 Friends (Ghép Cặp Bạn Thân Tròn 10)
+  if (lesson.visualType === 'make10') {
+    const rawPairs = Array.isArray(state.pairedMake10) ? (state.pairedMake10 as number[][]) : []
+    const numbers: number[] =
+      Array.isArray(config.numbers) && config.numbers.length > 0
+        ? (config.numbers as number[])
+        : challengeIndex === 0
+          ? [1, 9, 3, 7]
+          : challengeIndex === 1
+            ? [2, 8, 4, 6, 5, 5]
+            : [1, 3, 5, 7, 9]
+
+    const validPairs = rawPairs.filter((p) => {
+      if (Array.isArray(p) && p.length === 2) {
+        const v1 = typeof p[0] === 'number' ? numbers[p[0]] : 0
+        const v2 = typeof p[1] === 'number' ? numbers[p[1]] : 0
+        return typeof v1 === 'number' && typeof v2 === 'number' && v1 + v2 === 10
+      }
+      return false
+    })
+
+    if (challengeIndex === 0) {
+      if (validPairs.length === 2) {
+        return {
+          isCorrect: true,
+          feedback: 'Xuất sắc bé ơi! 1 + 9 = 10 và 3 + 7 = 10, đúng 2 cặp bạn thân tròn 10!',
+        }
+      }
+      return {
+        isCorrect: false,
+        feedback: `Bé mới ghép được ${validPairs.length}/2 cặp bạn thân. Hãy bấm chọn 2 quả bóng có tổng bằng 10 để ghép đủ 2 cặp nhé!`,
+      }
+    }
+
+    if (challengeIndex === 1) {
+      if (validPairs.length === 3) {
+        return {
+          isCorrect: true,
+          feedback: 'Tuyệt vời! Bé đã tìm ra đủ 3 cặp bạn thân: (2, 8), (4, 6) và (5, 5)!',
+        }
+      }
+      return {
+        isCorrect: false,
+        feedback: `Bé mới ghép được ${validPairs.length}/3 cặp. Hãy tìm và ghép đủ cả 3 cặp bạn thân (2, 8), (4, 6) và (5, 5) nhé!`,
+      }
+    }
+
+    if (challengeIndex === 2) {
+      if (validPairs.length === 2) {
+        return {
+          isCorrect: true,
+          feedback: 'Đỉnh cao Olympic ASMO! (1+9) + (3+7) + 5 = 10 + 10 + 5 = 25 tuyệt đẹp!',
+        }
+      }
+      return {
+        isCorrect: false,
+        feedback: `Bé mới ghép được ${validPairs.length}/2 cặp tròn 10. Hãy ghép cặp (1, 9) và (3, 7) trong dãy số [1, 3, 5, 7, 9] nhé!`,
+      }
+    }
+  }
+
+  // 4. Cake Tray
   if (lesson.visualType === 'cake_tray') {
     const rows = typeof state.cakeRows === 'number' ? state.cakeRows : 0
     const cols = typeof state.cakeCols === 'number' ? state.cakeCols : 0
