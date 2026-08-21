@@ -202,6 +202,11 @@ export function AsmoInteractiveAppleTreeCanvas({
     return `\\text{Giỏ A } (\\mathbf{${applesA}}) + \\text{Giỏ B } (\\mathbf{${applesB}}) = \\mathbf{${totalApples}}`
   }, [applesA, applesB, totalApples])
 
+  // Subtle woven wicker background styling
+  const wovenTextureStyle = {
+    backgroundImage: `repeating-linear-gradient(45deg, rgba(217, 119, 6, 0.09) 0px, rgba(217, 119, 6, 0.09) 6px, transparent 6px, transparent 12px), repeating-linear-gradient(-45deg, rgba(217, 119, 6, 0.09) 0px, rgba(217, 119, 6, 0.09) 6px, transparent 6px, transparent 12px)`,
+  }
+
   return (
     <div
       className={cn(
@@ -252,84 +257,103 @@ export function AsmoInteractiveAppleTreeCanvas({
       {/* ══════════════════════════════════════════════════════════════════════
           1. TÁN CÂY TÁO MẸ 🌳 SOFT CLAY HOẠT HÌNH
       ══════════════════════════════════════════════════════════════════════ */}
-      <div className="relative w-full max-w-xl h-56 sm:h-64 rounded-3xl overflow-hidden bg-gradient-to-b from-sky-200/60 to-emerald-100/80 border-2 border-emerald-200 shadow-inner flex items-center justify-center p-2">
+      <div className="relative w-full max-w-xl h-60 sm:h-72 rounded-3xl overflow-hidden bg-gradient-to-b from-sky-200/70 via-sky-100/60 to-emerald-100/80 border-2 border-emerald-200 shadow-inner flex items-center justify-center p-2">
         {/* Floating Clouds & Sky Accents */}
-        <div className="absolute top-2 left-6 text-2xl opacity-75 animate-pulse select-none">☁️</div>
-        <div className="absolute top-4 right-8 text-xl opacity-70 animate-pulse select-none">☁️</div>
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 text-xs font-black text-emerald-800 bg-white/80 backdrop-blur-xs px-3 py-1 rounded-full border border-emerald-200 shadow-2xs z-20 whitespace-nowrap">
+        <div className="absolute top-2 left-6 text-2xl opacity-80 animate-pulse select-none">☁️</div>
+        <div className="absolute top-4 right-8 text-xl opacity-75 animate-pulse select-none">☁️</div>
+        <div className="absolute top-10 left-1/4 text-sm opacity-60 select-none">✨</div>
+        <div className="absolute top-8 right-1/4 text-sm opacity-60 select-none">✨</div>
+
+        {/* Tree Header Counter Badge */}
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 text-xs sm:text-sm font-black text-emerald-900 bg-white/90 backdrop-blur-xs px-3.5 py-1 rounded-full border border-emerald-300 shadow-clay z-20 whitespace-nowrap">
           🌳 Cây Táo Mẹ: 🍎 {remainingTreeRed} quả đỏ • 🍏 {remainingTreeGreen} quả xanh
         </div>
 
         {/* Tree Trunk & Branches (Soft Clay SVG Canvas) */}
         <svg
           className="absolute inset-0 w-full h-full pointer-events-none z-0"
-          viewBox="0 0 600 260"
+          viewBox="0 0 600 280"
           preserveAspectRatio="none"
         >
           <defs>
             <linearGradient id="trunkGrad" x1="0" y1="0" x2="1" y2="0">
               <stop offset="0%" stopColor="#78350f" />
-              <stop offset="40%" stopColor="#92400e" />
-              <stop offset="80%" stopColor="#b45309" />
+              <stop offset="35%" stopColor="#92400e" />
+              <stop offset="70%" stopColor="#b45309" />
               <stop offset="100%" stopColor="#78350f" />
             </linearGradient>
             <linearGradient id="canopyGrad1" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#34d399" />
-              <stop offset="60%" stopColor="#10b981" />
+              <stop offset="50%" stopColor="#10b981" />
               <stop offset="100%" stopColor="#059669" />
             </linearGradient>
             <linearGradient id="canopyGrad2" x1="0" y1="0" x2="0" y2="1">
               <stop offset="0%" stopColor="#4ade80" />
-              <stop offset="60%" stopColor="#22c55e" />
+              <stop offset="50%" stopColor="#22c55e" />
               <stop offset="100%" stopColor="#16a34a" />
             </linearGradient>
+            <linearGradient id="canopyGradHighlight" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#86efac" />
+              <stop offset="100%" stopColor="#22c55e" />
+            </linearGradient>
             <filter id="softShadow" x="-10%" y="-10%" width="120%" height="130%">
-              <feDropShadow dx="0" dy="4" stdDeviation="6" floodColor="#064e3b" floodOpacity="0.25" />
+              <feDropShadow dx="0" dy="5" stdDeviation="6" floodColor="#064e3b" floodOpacity="0.28" />
             </filter>
           </defs>
 
-          {/* Grass Meadow Base */}
+          {/* Meadow Hills Grass */}
           <path
-            d="M 0,220 Q 150,200 300,225 T 600,215 L 600,260 L 0,260 Z"
+            d="M 0,230 Q 150,210 300,235 T 600,225 L 600,280 L 0,280 Z"
             fill="#a7f3d0"
             opacity="0.9"
           />
           <path
-            d="M 0,235 Q 200,220 400,240 T 600,230 L 600,260 L 0,260 Z"
+            d="M 0,245 Q 200,230 400,250 T 600,240 L 600,280 L 0,280 Z"
             fill="#6ee7b7"
             opacity="0.95"
           />
 
           {/* Wooden Trunk */}
           <path
-            d="M 285,130 C 285,170 260,200 240,260 L 360,260 C 340,200 315,170 315,130 Z"
+            d="M 282,140 C 282,180 255,210 235,280 L 365,280 C 345,210 318,180 318,140 Z"
             fill="url(#trunkGrad)"
             filter="url(#softShadow)"
           />
           {/* Main Branches */}
           <path
-            d="M 290,140 Q 230,120 160,110 Q 150,115 160,125 Q 240,135 295,150 Z"
+            d="M 285,150 Q 220,130 150,115 Q 140,120 150,130 Q 230,145 290,160 Z"
             fill="url(#trunkGrad)"
           />
           <path
-            d="M 310,140 Q 370,120 440,110 Q 450,115 440,125 Q 360,135 305,150 Z"
+            d="M 315,150 Q 380,130 450,115 Q 460,120 450,130 Q 370,145 310,160 Z"
+            fill="url(#trunkGrad)"
+          />
+          <path
+            d="M 295,140 Q 295,100 290,80 Q 305,80 305,140 Z"
             fill="url(#trunkGrad)"
           />
 
-          {/* Soft Clay Fluffy Canopy Clouds (Behind) */}
-          <circle cx="160" cy="110" r="75" fill="url(#canopyGrad1)" filter="url(#softShadow)" />
-          <circle cx="440" cy="110" r="75" fill="url(#canopyGrad2)" filter="url(#softShadow)" />
-          <circle cx="300" cy="80" r="85" fill="url(#canopyGrad1)" filter="url(#softShadow)" />
-          <circle cx="230" cy="95" r="70" fill="url(#canopyGrad2)" />
-          <circle cx="370" cy="95" r="70" fill="url(#canopyGrad1)" />
-          <circle cx="110" cy="125" r="55" fill="url(#canopyGrad2)" />
-          <circle cx="490" cy="125" r="55" fill="url(#canopyGrad1)" />
+          {/* Soft Clay Fluffy Canopy Clusters */}
+          <circle cx="160" cy="115" r="80" fill="url(#canopyGrad1)" filter="url(#softShadow)" />
+          <circle cx="440" cy="115" r="80" fill="url(#canopyGrad2)" filter="url(#softShadow)" />
+          <circle cx="300" cy="85" r="90" fill="url(#canopyGrad1)" filter="url(#softShadow)" />
+          <circle cx="225" cy="100" r="75" fill="url(#canopyGrad2)" />
+          <circle cx="375" cy="100" r="75" fill="url(#canopyGrad1)" />
+          <circle cx="105" cy="130" r="60" fill="url(#canopyGrad2)" />
+          <circle cx="495" cy="130" r="60" fill="url(#canopyGrad1)" />
+
+          {/* Highlight Canopy Bubbles */}
+          <circle cx="270" cy="65" r="35" fill="url(#canopyGradHighlight)" opacity="0.6" />
+          <circle cx="150" cy="95" r="30" fill="url(#canopyGradHighlight)" opacity="0.6" />
+          <circle cx="430" cy="95" r="30" fill="url(#canopyGradHighlight)" opacity="0.6" />
 
           {/* Flowers on Meadow */}
-          <circle cx="80" cy="245" r="5" fill="#f43f5e" />
-          <circle cx="95" cy="250" r="4" fill="#fbbf24" />
-          <circle cx="520" cy="246" r="5" fill="#ec4899" />
-          <circle cx="505" cy="252" r="4" fill="#fbbf24" />
+          <circle cx="70" cy="260" r="6" fill="#f43f5e" />
+          <circle cx="90" cy="265" r="5" fill="#fbbf24" />
+          <circle cx="530" cy="262" r="6" fill="#ec4899" />
+          <circle cx="510" cy="268" r="5" fill="#fbbf24" />
+          <circle cx="210" cy="265" r="5" fill="#a855f7" />
+          <circle cx="390" cy="265" r="5" fill="#38bdf8" />
         </svg>
 
         {/* Tree Interactive Layer: Hanging Apples */}
@@ -352,10 +376,10 @@ export function AsmoInteractiveAppleTreeCanvas({
               title="Chạm hoặc kéo vào Giỏ A để hái táo đỏ 🍎"
               className={cn(
                 'absolute select-none transition-all duration-200 cursor-grab active:cursor-grabbing',
-                'hover:scale-130 active:scale-95 drop-shadow-md hover:drop-shadow-lg',
-                'flex items-center justify-center text-2xl sm:text-3xl p-1 rounded-full',
-                'hover:ring-2 hover:ring-rose-400 hover:bg-white/40',
-                draggingType === 'A' && 'opacity-70',
+                'hover:scale-130 active:scale-95 drop-shadow-md hover:drop-shadow-xl',
+                'flex items-center justify-center text-3xl sm:text-4xl p-1 rounded-full',
+                'hover:ring-4 hover:ring-rose-400 hover:bg-white/50 active:scale-90',
+                draggingType === 'A' && 'opacity-70 scale-110',
               )}
             >
               🍎
@@ -380,10 +404,10 @@ export function AsmoInteractiveAppleTreeCanvas({
               title="Chạm hoặc kéo vào Giỏ B để hái táo xanh 🍏"
               className={cn(
                 'absolute select-none transition-all duration-200 cursor-grab active:cursor-grabbing',
-                'hover:scale-130 active:scale-95 drop-shadow-md hover:drop-shadow-lg',
-                'flex items-center justify-center text-2xl sm:text-3xl p-1 rounded-full',
-                'hover:ring-2 hover:ring-emerald-400 hover:bg-white/40',
-                draggingType === 'B' && 'opacity-70',
+                'hover:scale-130 active:scale-95 drop-shadow-md hover:drop-shadow-xl',
+                'flex items-center justify-center text-3xl sm:text-4xl p-1 rounded-full',
+                'hover:ring-4 hover:ring-emerald-400 hover:bg-white/50 active:scale-90',
+                draggingType === 'B' && 'opacity-70 scale-110',
               )}
             >
               🍏
@@ -393,7 +417,7 @@ export function AsmoInteractiveAppleTreeCanvas({
           {/* If all apples on tree are picked */}
           {remainingTreeRed === 0 && remainingTreeGreen === 0 && (
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="bg-white/95 text-emerald-900 font-black text-xs sm:text-sm px-4 py-2 rounded-2xl shadow-clay border-2 border-emerald-300 animate-bounce">
+              <span className="bg-white/95 text-emerald-900 font-black text-xs sm:text-sm px-5 py-2.5 rounded-2xl shadow-clay border-2 border-emerald-300 animate-bounce">
                 🎉 Bé đã hái hết táo trên cây vào 2 chiếc giỏ xinh xắn!
               </span>
             </div>
@@ -402,176 +426,325 @@ export function AsmoInteractiveAppleTreeCanvas({
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          2. HAI CHIẾC GIỎ MÂY SOFT CLAY 3D (GIỎ ĐỎ A & GIỎ XANH B)
+          2. HAI CHIẾC GIỎ MÂY ĐAN 3D (AUTHENTIC 3D WOVEN WICKER CLAY BASKETS)
+             KÈM BỆ BẢNG ĐẾM SỐ ĐỒ CHƠI GỖ MONTESSORI
       ══════════════════════════════════════════════════════════════════════ */}
-      <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-3.5 sm:gap-4">
-        {/* 🧺 GIỎ A: TÁO ĐỎ 🍎 */}
+      <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pt-2">
+        {/* 🧺 CHIẾC GIỎ MÂY A: TÁO ĐỎ 🍎 (NƠ ĐỎ 🎀) */}
         <div
           onDragOver={(e) => handleDragOverBasket(e, 'A')}
           onDragLeave={() => handleDragLeaveBasket('A')}
           onDrop={(e) => handleDropOnBasket(e, 'A')}
           className={cn(
-            'border-2 border-rose-300 bg-rose-50/90 rounded-3xl p-4 shadow-clay flex flex-col items-center space-y-3 transition-all duration-300 relative',
-            isDragOverA && 'ring-4 ring-amber-400 scale-105 bg-rose-100/95 shadow-xl',
-            justDroppedA && 'animate-bounce ring-2 ring-rose-400',
+            'relative flex flex-col items-center transition-all duration-300',
+            isDragOverA && 'scale-105',
+            justDroppedA && 'animate-bounce',
           )}
         >
-          {/* Header & +/- Buttons */}
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-1.5">
-              <ShoppingBasket className="size-4 text-rose-600 shrink-0" />
-              <span className="text-xs sm:text-sm font-black text-rose-900">
-                Giỏ A (Táo Đỏ): 🍎
+          {/* QUAI GIỎ MÂY UỐN VÒM (ARCHING BASKET HANDLE) VỚI NƠ ĐỎ 🎀 */}
+          <div className="relative w-44 sm:w-52 h-14 sm:h-16 flex items-center justify-center -mb-3 z-10">
+            {/* SVG Wicker Curved Handle Arch */}
+            <svg
+              viewBox="0 0 200 80"
+              className="w-full h-full drop-shadow-md overflow-visible"
+            >
+              <defs>
+                <linearGradient id="handleGradA" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#b45309" />
+                  <stop offset="30%" stopColor="#fbbf24" />
+                  <stop offset="70%" stopColor="#f59e0b" />
+                  <stop offset="100%" stopColor="#92400e" />
+                </linearGradient>
+              </defs>
+              {/* Thick braided handle arch */}
+              <path
+                d="M 20,80 Q 100,-15 180,80"
+                fill="none"
+                stroke="url(#handleGradA)"
+                strokeWidth="14"
+                strokeLinecap="round"
+              />
+              <path
+                d="M 20,80 Q 100,-15 180,80"
+                fill="none"
+                stroke="#78350f"
+                strokeWidth="3"
+                strokeDasharray="6 6"
+                strokeLinecap="round"
+              />
+            </svg>
+
+            {/* Chiếc Nơ Ruy Băng Đỏ 🎀 ở Đỉnh Quai Giỏ A */}
+            <div className="absolute -top-1 sm:-top-2 flex items-center justify-center size-9 sm:size-10 rounded-full bg-gradient-to-br from-rose-500 to-rose-700 border-2 border-white shadow-md select-none animate-pulse">
+              <span className="text-xl sm:text-2xl -mt-0.5">🎀</span>
+            </div>
+          </div>
+
+          {/* THÀNH GIỎ MÂY ĐAN 3D (WOVEN CLAY BASKET BODY) */}
+          <div
+            className={cn(
+              'w-full flex flex-col items-center rounded-t-2xl rounded-b-[2.5rem] border-4 border-amber-400/90 shadow-clay bg-gradient-to-b from-amber-100 via-amber-50 to-orange-100 transition-all duration-300 relative overflow-hidden',
+              isDragOverA && 'ring-4 ring-amber-400 bg-rose-50/95 shadow-2xl border-rose-400',
+              justDroppedA && 'ring-4 ring-rose-400 bg-rose-100/90',
+            )}
+          >
+            {/* Wicker Weave Texture Layer */}
+            <div
+              className="absolute inset-0 pointer-events-none opacity-40 rounded-t-2xl rounded-b-[2.5rem]"
+              style={wovenTextureStyle}
+            />
+
+            {/* MIỆNG GIỎ MÂY TRE ĐAN DÀY DẶN (WOVEN BASKET RIM) */}
+            <div className="relative z-10 w-full bg-gradient-to-r from-amber-300 via-amber-200 to-amber-300 border-b-3 border-amber-400/80 px-4 py-2 flex items-center justify-between shadow-xs">
+              <div className="flex items-center gap-1.5">
+                <ShoppingBasket className="size-4 text-amber-900 shrink-0" />
+                <span className="text-xs sm:text-sm font-black text-rose-900 tracking-tight">
+                  Giỏ A (Táo Đỏ): 🍎
+                </span>
+              </div>
+              <span className="text-[11px] font-black text-amber-900 bg-white/80 border border-amber-300 px-2 py-0.5 rounded-full shadow-2xs">
+                {applesA} / {maxApplesPerBasket}
               </span>
             </div>
 
-            <div className="flex items-center gap-1 bg-white/95 p-1 rounded-2xl border-2 border-rose-200 shadow-2xs">
+            {/* LÒNG GIỎ CHỨA TÁO RỘNG RÃI (SPACIOUS APPLE HOLLOW) */}
+            <div
+              className={cn(
+                'relative z-10 w-full min-h-28 sm:min-h-32 p-3 sm:p-4 flex items-center justify-center flex-wrap gap-1.5 sm:gap-2 transition-colors',
+                isDragOverA && 'bg-rose-100/60',
+              )}
+            >
+              {applesA === 0 ? (
+                <div className="flex flex-col items-center justify-center text-center py-2 text-rose-400 space-y-1">
+                  <span className="text-2xl sm:text-3xl animate-bounce">🧺</span>
+                  <span className="text-xs font-black text-rose-700 italic">
+                    Chạm hoặc kéo táo đỏ 🍎 vào giỏ A
+                  </span>
+                </div>
+              ) : (
+                Array.from({ length: applesA }).map((_, i) => (
+                  <button
+                    key={`basket-apple-a-${i}`}
+                    type="button"
+                    onClick={() => handleSubApple('A')}
+                    title="Chạm để bớt táo đỏ về lại cây 🍎"
+                    className="text-3xl sm:text-4xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 active:scale-95 transition-transform cursor-pointer p-0.5 filter drop-shadow-sm"
+                  >
+                    🍎
+                  </button>
+                ))
+              )}
+            </div>
+
+            {/* Dragging Feedback Indicator */}
+            {isDragOverA && (
+              <div className="relative z-10 w-full text-center pb-2 text-xs font-black text-rose-800 animate-pulse">
+                ✨ Thả tay để cho táo vào Giỏ A!
+              </div>
+            )}
+          </div>
+
+          {/* BỆ BẢNG ĐẾM SỐ ĐỒ CHƠI GỖ (TOY WOODEN NUMBER PEDESTAL) */}
+          <div className="w-full bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 border-2 border-amber-300 shadow-clay rounded-2xl p-2 sm:p-2.5 flex items-center justify-between gap-2 mt-2 z-10">
+            <div className="flex items-center gap-1.5 pl-1">
+              <span className="text-sm">🏷️</span>
+              <span className="text-xs sm:text-sm font-black text-rose-950">
+                Giỏ A (Táo Đỏ)
+              </span>
+            </div>
+
+            {/* CỤM NÚT TĂNG GIẢM & Ô SỐ LƯỢNG TRUNG TÂM */}
+            <div className="flex items-center gap-2">
+              {/* Nút Trừ ➖ */}
               <button
                 type="button"
                 aria-label="Bớt táo đỏ giỏ A"
                 disabled={applesA <= 0}
                 onClick={() => handleSubApple('A')}
-                className="size-7 sm:size-8 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-700 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                className="size-10 sm:size-11 rounded-2xl bg-rose-100 hover:bg-rose-200 text-rose-800 font-black text-xl shadow-clay active:scale-90 transition-transform cursor-pointer border-2 border-rose-300 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
               >
-                <Minus className="size-3.5 sm:size-4 stroke-[3]" />
+                <Minus className="size-5 stroke-[3.5]" />
               </button>
-              <span className="w-7 text-center font-display font-black text-sm sm:text-base text-rose-950 select-none">
+
+              {/* Ô Số Lượng Trung Tâm 3D */}
+              <div className="size-12 sm:size-14 rounded-2xl bg-white border-3 border-rose-400 font-display font-black text-2xl sm:text-3xl text-rose-600 shadow-inner flex items-center justify-center select-none">
                 {applesA}
-              </span>
+              </div>
+
+              {/* Nút Cộng ➕ */}
               <button
                 type="button"
                 aria-label="Thêm táo đỏ giỏ A"
                 disabled={applesA >= maxApplesPerBasket}
                 onClick={() => handleAddApple('A')}
-                className="size-7 sm:size-8 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                className="size-10 sm:size-11 rounded-2xl bg-rose-500 hover:bg-rose-600 text-white font-black text-xl shadow-clay active:scale-90 transition-transform cursor-pointer border-2 border-rose-600 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
               >
-                <Plus className="size-3.5 sm:size-4 stroke-[3]" />
+                <Plus className="size-5 stroke-[3.5]" />
               </button>
             </div>
           </div>
-
-          {/* Apples Containment Area */}
-          <div
-            className={cn(
-              'flex items-center justify-center gap-1.5 flex-wrap min-h-20 p-2.5 bg-white/90 border border-rose-200 rounded-2xl w-full shadow-inner transition-colors',
-              isDragOverA && 'bg-rose-100/70 border-rose-400',
-            )}
-          >
-            {applesA === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center py-2 text-rose-400">
-                <span className="text-lg">🧺</span>
-                <span className="text-[11px] font-bold italic">
-                  Chạm hoặc kéo táo đỏ 🍎 vào giỏ A
-                </span>
-              </div>
-            ) : (
-              Array.from({ length: applesA }).map((_, i) => (
-                <button
-                  key={`basket-apple-a-${i}`}
-                  type="button"
-                  onClick={() => handleSubApple('A')}
-                  title="Chạm để bớt táo đỏ về lại cây 🍎"
-                  className="text-2xl sm:text-3xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 transition-transform cursor-pointer p-0.5"
-                >
-                  🍎
-                </button>
-              ))
-            )}
-          </div>
-
-          {isDragOverA && (
-            <div className="text-[11px] font-extrabold text-rose-700 animate-pulse">
-              ✨ Thả tay để cho táo vào Giỏ A!
-            </div>
-          )}
         </div>
 
-        {/* 🧺 GIỎ B: TÁO XANH 🍏 */}
+        {/* 🧺 CHIẾC GIỎ MÂY B: TÁO XANH 🍏 (NƠ XANH LÁ 🎗️) */}
         <div
           onDragOver={(e) => handleDragOverBasket(e, 'B')}
           onDragLeave={() => handleDragLeaveBasket('B')}
           onDrop={(e) => handleDropOnBasket(e, 'B')}
           className={cn(
-            'border-2 border-emerald-300 bg-emerald-50/90 rounded-3xl p-4 shadow-clay flex flex-col items-center space-y-3 transition-all duration-300 relative',
-            isDragOverB && 'ring-4 ring-amber-400 scale-105 bg-emerald-100/95 shadow-xl',
-            justDroppedB && 'animate-bounce ring-2 ring-emerald-400',
+            'relative flex flex-col items-center transition-all duration-300',
+            isDragOverB && 'scale-105',
+            justDroppedB && 'animate-bounce',
           )}
         >
-          {/* Header & +/- Buttons */}
-          <div className="flex items-center justify-between w-full">
-            <div className="flex items-center gap-1.5">
-              <ShoppingBasket className="size-4 text-emerald-600 shrink-0" />
-              <span className="text-xs sm:text-sm font-black text-emerald-900">
-                Giỏ B (Táo Xanh): 🍏
+          {/* QUAI GIỎ MÂY UỐN VÒM (ARCHING BASKET HANDLE) VỚI NƠ XANH LÁ 🎗️ */}
+          <div className="relative w-44 sm:w-52 h-14 sm:h-16 flex items-center justify-center -mb-3 z-10">
+            {/* SVG Wicker Curved Handle Arch */}
+            <svg
+              viewBox="0 0 200 80"
+              className="w-full h-full drop-shadow-md overflow-visible"
+            >
+              <defs>
+                <linearGradient id="handleGradB" x1="0" y1="0" x2="1" y2="0">
+                  <stop offset="0%" stopColor="#b45309" />
+                  <stop offset="30%" stopColor="#fbbf24" />
+                  <stop offset="70%" stopColor="#f59e0b" />
+                  <stop offset="100%" stopColor="#92400e" />
+                </linearGradient>
+              </defs>
+              {/* Thick braided handle arch */}
+              <path
+                d="M 20,80 Q 100,-15 180,80"
+                fill="none"
+                stroke="url(#handleGradB)"
+                strokeWidth="14"
+                strokeLinecap="round"
+              />
+              <path
+                d="M 20,80 Q 100,-15 180,80"
+                fill="none"
+                stroke="#78350f"
+                strokeWidth="3"
+                strokeDasharray="6 6"
+                strokeLinecap="round"
+              />
+            </svg>
+
+            {/* Chiếc Nơ Ruy Băng Xanh Lá 🎗️ ở Đỉnh Quai Giỏ B */}
+            <div className="absolute -top-1 sm:-top-2 flex items-center justify-center size-9 sm:size-10 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 border-2 border-white shadow-md select-none animate-pulse">
+              <span className="text-xl sm:text-2xl -mt-0.5">🎗️</span>
+            </div>
+          </div>
+
+          {/* THÀNH GIỎ MÂY ĐAN 3D (WOVEN CLAY BASKET BODY) */}
+          <div
+            className={cn(
+              'w-full flex flex-col items-center rounded-t-2xl rounded-b-[2.5rem] border-4 border-amber-400/90 shadow-clay bg-gradient-to-b from-amber-100 via-amber-50 to-orange-100 transition-all duration-300 relative overflow-hidden',
+              isDragOverB && 'ring-4 ring-amber-400 bg-emerald-50/95 shadow-2xl border-emerald-400',
+              justDroppedB && 'ring-4 ring-emerald-400 bg-emerald-100/90',
+            )}
+          >
+            {/* Wicker Weave Texture Layer */}
+            <div
+              className="absolute inset-0 pointer-events-none opacity-40 rounded-t-2xl rounded-b-[2.5rem]"
+              style={wovenTextureStyle}
+            />
+
+            {/* MIỆNG GIỎ MÂY TRE ĐAN DÀY DẶN (WOVEN BASKET RIM) */}
+            <div className="relative z-10 w-full bg-gradient-to-r from-amber-300 via-amber-200 to-amber-300 border-b-3 border-amber-400/80 px-4 py-2 flex items-center justify-between shadow-xs">
+              <div className="flex items-center gap-1.5">
+                <ShoppingBasket className="size-4 text-amber-900 shrink-0" />
+                <span className="text-xs sm:text-sm font-black text-emerald-900 tracking-tight">
+                  Giỏ B (Táo Xanh): 🍏
+                </span>
+              </div>
+              <span className="text-[11px] font-black text-amber-900 bg-white/80 border border-amber-300 px-2 py-0.5 rounded-full shadow-2xs">
+                {applesB} / {maxApplesPerBasket}
               </span>
             </div>
 
-            <div className="flex items-center gap-1 bg-white/95 p-1 rounded-2xl border-2 border-emerald-200 shadow-2xs">
+            {/* LÒNG GIỎ CHỨA TÁO RỘNG RÃI (SPACIOUS APPLE HOLLOW) */}
+            <div
+              className={cn(
+                'relative z-10 w-full min-h-28 sm:min-h-32 p-3 sm:p-4 flex items-center justify-center flex-wrap gap-1.5 sm:gap-2 transition-colors',
+                isDragOverB && 'bg-emerald-100/60',
+              )}
+            >
+              {applesB === 0 ? (
+                <div className="flex flex-col items-center justify-center text-center py-2 text-emerald-500 space-y-1">
+                  <span className="text-2xl sm:text-3xl animate-bounce">🧺</span>
+                  <span className="text-xs font-black text-emerald-700 italic">
+                    Chạm hoặc kéo táo xanh 🍏 vào giỏ B
+                  </span>
+                </div>
+              ) : (
+                Array.from({ length: applesB }).map((_, i) => (
+                  <button
+                    key={`basket-apple-b-${i}`}
+                    type="button"
+                    onClick={() => handleSubApple('B')}
+                    title="Chạm để bớt táo xanh về lại cây 🍏"
+                    className="text-3xl sm:text-4xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 active:scale-95 transition-transform cursor-pointer p-0.5 filter drop-shadow-sm"
+                  >
+                    🍏
+                  </button>
+                ))
+              )}
+            </div>
+
+            {/* Dragging Feedback Indicator */}
+            {isDragOverB && (
+              <div className="relative z-10 w-full text-center pb-2 text-xs font-black text-emerald-800 animate-pulse">
+                ✨ Thả tay để cho táo vào Giỏ B!
+              </div>
+            )}
+          </div>
+
+          {/* BỆ BẢNG ĐẾM SỐ ĐỒ CHƠI GỖ (TOY WOODEN NUMBER PEDESTAL) */}
+          <div className="w-full bg-gradient-to-r from-amber-200 via-amber-100 to-amber-200 border-2 border-amber-300 shadow-clay rounded-2xl p-2 sm:p-2.5 flex items-center justify-between gap-2 mt-2 z-10">
+            <div className="flex items-center gap-1.5 pl-1">
+              <span className="text-sm">🏷️</span>
+              <span className="text-xs sm:text-sm font-black text-emerald-950">
+                Giỏ B (Táo Xanh)
+              </span>
+            </div>
+
+            {/* CỤM NÚT TĂNG GIẢM & Ô SỐ LƯỢNG TRUNG TÂM */}
+            <div className="flex items-center gap-2">
+              {/* Nút Trừ ➖ */}
               <button
                 type="button"
                 aria-label="Bớt táo xanh giỏ B"
                 disabled={applesB <= 0}
                 onClick={() => handleSubApple('B')}
-                className="size-7 sm:size-8 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-700 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                className="size-10 sm:size-11 rounded-2xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-black text-xl shadow-clay active:scale-90 transition-transform cursor-pointer border-2 border-emerald-300 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
               >
-                <Minus className="size-3.5 sm:size-4 stroke-[3]" />
+                <Minus className="size-5 stroke-[3.5]" />
               </button>
-              <span className="w-7 text-center font-display font-black text-sm sm:text-base text-emerald-950 select-none">
+
+              {/* Ô Số Lượng Trung Tâm 3D */}
+              <div className="size-12 sm:size-14 rounded-2xl bg-white border-3 border-emerald-400 font-display font-black text-2xl sm:text-3xl text-emerald-600 shadow-inner flex items-center justify-center select-none">
                 {applesB}
-              </span>
+              </div>
+
+              {/* Nút Cộng ➕ */}
               <button
                 type="button"
                 aria-label="Thêm táo xanh giỏ B"
                 disabled={applesB >= maxApplesPerBasket}
                 onClick={() => handleAddApple('B')}
-                className="size-7 sm:size-8 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                className="size-10 sm:size-11 rounded-2xl bg-emerald-600 hover:bg-emerald-500 text-white font-black text-xl shadow-clay active:scale-90 transition-transform cursor-pointer border-2 border-emerald-700 flex items-center justify-center disabled:opacity-35 disabled:pointer-events-none"
               >
-                <Plus className="size-3.5 sm:size-4 stroke-[3]" />
+                <Plus className="size-5 stroke-[3.5]" />
               </button>
             </div>
           </div>
-
-          {/* Apples Containment Area */}
-          <div
-            className={cn(
-              'flex items-center justify-center gap-1.5 flex-wrap min-h-20 p-2.5 bg-white/90 border border-emerald-200 rounded-2xl w-full shadow-inner transition-colors',
-              isDragOverB && 'bg-emerald-100/70 border-emerald-400',
-            )}
-          >
-            {applesB === 0 ? (
-              <div className="flex flex-col items-center justify-center text-center py-2 text-emerald-500">
-                <span className="text-lg">🧺</span>
-                <span className="text-[11px] font-bold italic">
-                  Chạm hoặc kéo táo xanh 🍏 vào giỏ B
-                </span>
-              </div>
-            ) : (
-              Array.from({ length: applesB }).map((_, i) => (
-                <button
-                  key={`basket-apple-b-${i}`}
-                  type="button"
-                  onClick={() => handleSubApple('B')}
-                  title="Chạm để bớt táo xanh về lại cây 🍏"
-                  className="text-2xl sm:text-3xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 transition-transform cursor-pointer p-0.5"
-                >
-                  🍏
-                </button>
-              ))
-            )}
-          </div>
-
-          {isDragOverB && (
-            <div className="text-[11px] font-extrabold text-emerald-700 animate-pulse">
-              ✨ Thả tay để cho táo vào Giỏ B!
-            </div>
-          )}
         </div>
       </div>
 
       {/* Sparkle Popup Effect */}
       {sparkleAnim && (
         <div
-          className="absolute pointer-events-none text-2xl sm:text-3xl animate-ping z-30"
+          className="absolute pointer-events-none text-3xl sm:text-4xl animate-ping z-30"
           style={{ top: `${sparkleAnim.y}%`, left: `${sparkleAnim.x}%` }}
         >
           ✨
