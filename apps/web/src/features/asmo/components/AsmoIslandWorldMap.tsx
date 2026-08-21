@@ -83,7 +83,7 @@ export const ASMO_ISLAND_THEMES: Record<string, AsmoIslandTheme> = {
     themeColor: 'emerald',
     background: designerAssets.lobby.bgHome,
     scene: designerAssets.worldScenes.aiValley,
-    ribbon: 'var(--color-mint-600)',
+    ribbon: '#059669',
     trailLabel: 'Đường mòn Thung Lũng Táo',
     pose: 'guide',
     sceneLabel: 'Mee đang đứng trên đồi cỏ hướng dẫn phép cộng trừ',
@@ -115,11 +115,11 @@ export const ASMO_ISLAND_THEMES: Record<string, AsmoIslandTheme> = {
     badgeName: 'Huy Hiệu Bếp Trưởng Nhân Chia',
     badgeIcon: '🍰',
     icon: '🍰',
-    heroEmoji: '🧁',
+    heroEmoji: '🍰',
     themeColor: 'rose',
     background: designerAssets.lobby.bgArt,
     scene: designerAssets.worldScenes.storyIsland,
-    ribbon: 'var(--color-coral-500)',
+    ribbon: '#e11d48',
     trailLabel: 'Đường qua Đảo Bánh Ngọt',
     pose: 'welcome',
     sceneLabel: 'Mee đang chia bánh ngọt và khám phá bảng cửu chương',
@@ -152,11 +152,11 @@ export const ASMO_ISLAND_THEMES: Record<string, AsmoIslandTheme> = {
     badgeName: 'Huy Hiệu Thuyền Trưởng Phân Số',
     badgeIcon: '🍕',
     icon: '🍕',
-    heroEmoji: '🧀',
+    heroEmoji: '🍕',
     themeColor: 'amber',
     background: designerAssets.lobby.bgCharacter,
     scene: designerAssets.worldScenes.creativeMountain,
-    ribbon: 'var(--color-sun-600)',
+    ribbon: '#d97706',
     trailLabel: 'Đường mòn Pizza Biển Khơi',
     pose: 'thinking',
     sceneLabel: 'Mee đang suy nghĩ và tính toán phân số pizza',
@@ -189,11 +189,11 @@ export const ASMO_ISLAND_THEMES: Record<string, AsmoIslandTheme> = {
     badgeName: 'Huy Hiệu Pháp Sư Thời Gian',
     badgeIcon: '⏰',
     icon: '⏰',
-    heroEmoji: '⏳',
+    heroEmoji: '⏰',
     themeColor: 'indigo',
     background: designerAssets.lobby.bgHome,
     scene: designerAssets.worldScenes.aiValley,
-    ribbon: 'var(--color-sky-600)',
+    ribbon: '#0284c7',
     trailLabel: 'Đường mòn Đồng Hồ Trên Mây',
     pose: 'walking',
     sceneLabel: 'Mee đang đi dạo trên đồi đồng hồ thời gian',
@@ -226,11 +226,11 @@ export const ASMO_ISLAND_THEMES: Record<string, AsmoIslandTheme> = {
     badgeName: 'Đại Kiện Tướng Olympic ASMO',
     badgeIcon: '🏆',
     icon: '🧊',
-    heroEmoji: '🏆',
+    heroEmoji: '🧊',
     themeColor: 'purple',
     background: designerAssets.lobby.bgCharacter,
     scene: designerAssets.worldScenes.creativeMountain,
-    ribbon: 'var(--color-violet-600)',
+    ribbon: '#7c3aed',
     trailLabel: 'Đường lên Đỉnh Olympic',
     pose: 'celebrate',
     sceneLabel: 'Mee đang nhảy mừng chiến thắng trên đỉnh lâu đài pha lê',
@@ -475,8 +475,8 @@ export function AsmoIslandWorldMap({
   return (
     <div className="w-full space-y-6">
       {/* ── 5 ISLANDS NAVIGATION SELECTOR BAR ── */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white/95 backdrop-blur-md rounded-3xl p-3 sm:p-4 border border-slate-200 shadow-soft">
-        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 scrollbar-none">
+      <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4 bg-white/95 backdrop-blur-md rounded-3xl p-3 sm:p-4 border border-slate-200 shadow-soft">
+        <div className="flex flex-wrap items-center justify-center gap-2 sm:gap-2.5">
           {ASMO_LMS_STAGES.map((stg) => {
             const isSelected = selectedStageId === stg.id && viewMode === 'island'
             const stats = getStageStats(stg.id, progress)
@@ -492,7 +492,7 @@ export function AsmoIslandWorldMap({
                   setViewMode('island')
                 }}
                 className={cn(
-                  'flex items-center gap-2 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-2xl text-xs font-black transition-all cursor-pointer whitespace-nowrap shrink-0 border shadow-xs',
+                  'flex items-center justify-center gap-1.5 sm:gap-2 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-2xl text-xs font-black transition-all cursor-pointer whitespace-nowrap min-w-[130px] sm:min-w-[150px] border shadow-xs',
                   isSelected
                     ? 'bg-gradient-to-r from-mint-600 to-brand-600 text-white border-transparent shadow-clay scale-105 ring-2 ring-mint-300'
                     : isLocked
@@ -500,17 +500,17 @@ export function AsmoIslandWorldMap({
                     : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-mint-200',
                 )}
               >
-                <span className="text-base select-none">{theme.heroEmoji}</span>
-                <span>{ASMO_ISLAND_SHORT_NAMES[stg.id] || `Đảo ${stg.stageNumber}`}</span>
+                <span className="text-base select-none shrink-0">{theme.heroEmoji}</span>
+                <span className="whitespace-nowrap">{ASMO_ISLAND_SHORT_NAMES[stg.id] || `Đảo ${stg.stageNumber}`}</span>
 
                 {stats.isCompleted ? (
-                  <span className="size-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black shadow-2xs">
+                  <span className="size-4 rounded-full bg-emerald-500 text-white flex items-center justify-center text-[10px] font-black shadow-2xs shrink-0">
                     ✓
                   </span>
                 ) : isLocked ? (
-                  <KidLockImageIcon size={14} />
+                  <span className="shrink-0"><KidLockImageIcon size={14} /></span>
                 ) : (
-                  <span className="text-[10px] text-amber-500 font-black">
+                  <span className="text-[10px] text-amber-500 font-black shrink-0">
                     {stats.totalStars}⭐
                   </span>
                 )}
@@ -520,12 +520,12 @@ export function AsmoIslandWorldMap({
         </div>
 
         {/* View Mode Toggle Button */}
-        <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto">
+        <div className="flex items-center justify-center lg:justify-end gap-2 shrink-0">
           <button
             type="button"
             onClick={() => setViewMode(viewMode === 'island' ? 'world' : 'island')}
             className={cn(
-              'flex items-center gap-2 px-4 py-2 rounded-2xl text-xs font-black transition-all cursor-pointer border shadow-xs',
+              'flex items-center gap-2 px-4 py-2.5 rounded-2xl text-xs font-black transition-all cursor-pointer border shadow-xs',
               viewMode === 'world'
                 ? 'bg-gradient-to-r from-sun-500 to-coral-500 text-white border-sun-400 shadow-sun-500/20'
                 : 'bg-brand-50 text-brand-700 border-brand-200 hover:bg-brand-100',
@@ -583,120 +583,133 @@ export function AsmoIslandWorldMap({
             </div>
 
             {/* ── THẺ RUY BĂNG TIẾN ĐỘ (COURSE MAP RIBBON) ── */}
-            <div className="course-map-ribbon" style={{ backgroundColor: activeTheme.ribbon }}>
-              <div className="course-map-ribbon-main">
+            <div className="course-map-ribbon space-y-4" style={{ backgroundColor: activeTheme.ribbon }}>
+              {/* HÀNG 1: TIẾN ĐỘ VÙNG & DẢI CHẤM TRẠM TÓM TẮT */}
+              <div className="course-map-ribbon-main flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/20">
                 <div>
-                  <p className="text-sm font-extrabold text-white/85">Hành trình trong vùng</p>
-                  <p className="font-display text-2xl text-white">
+                  <p className="text-xs sm:text-sm font-extrabold text-white/90 drop-shadow-xs">Hành trình trong vùng</p>
+                  <p className="font-display text-xl sm:text-2xl font-black text-white drop-shadow-sm">
                     {currentStageStats.completedLessons}/{activeStage.lessons.length} trạm đã chinh phục
                   </p>
                 </div>
 
-                {currentActiveLesson && (
-                  <aside className={cn('course-map-next-ticket', hideStationTrail && 'sm:max-w-xl w-full')}>
-                    <div className="min-w-0 flex-1">
-                      <p className="text-xs font-extrabold text-mint-700 uppercase">TRẠM TIẾP THEO</p>
-                      <h2 className="font-display text-xl text-text">
-                        <AsmoFormula text={currentActiveLesson.title} />
-                      </h2>
-                      <p className="text-sm font-bold text-muted">
-                        Trạm {currentActiveLesson.lessonNumber} · +{currentActiveLesson.xpReward} XP
-                      </p>
-                    </div>
-                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shrink-0 self-center">
-                      <button
-                        type="button"
-                        onClick={() => onOpenLesson(currentActiveLesson)}
-                        className="course-map-primary-action animate-pop cursor-pointer whitespace-nowrap"
-                      >
-                        {progress.lessons[currentActiveLesson.id]?.completed
-                          ? `Học lại Trạm ${currentActiveLesson.lessonNumber}`
-                          : `▶ Bắt đầu học Trạm ${currentActiveLesson.lessonNumber}`}
-                      </button>
-                      {hideStationTrail && (
-                        <button
-                          type="button"
-                          onClick={() => {
-                            if (onOpenMapDetail) {
-                              onOpenMapDetail(activeStage.id)
-                            } else {
-                              navigate(`/asmo/curriculum?stage=${activeStage.id}`)
-                            }
-                          }}
-                          className="inline-flex min-h-[2.9rem] items-center justify-center gap-1.5 rounded-2xl bg-white text-brand-800 px-3.5 py-2 text-xs font-black shadow-clay hover:bg-slate-50 hover:scale-105 transition-all cursor-pointer border-2 border-brand-200 whitespace-nowrap"
-                        >
-                          <Map className="size-4 text-brand-600 shrink-0" />
-                          <span>🗺️ Mở Bản Đồ Trạm Chi Tiết ➔</span>
-                        </button>
-                      )}
-                    </div>
-                  </aside>
-                )}
+                {/* Dải chấm trạm tóm tắt ① ➔ ② ➔ ③ ➔ ④ ➔ ⑤ */}
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-xs font-extrabold text-white/90 drop-shadow-xs">{activeTheme.trailLabel}</span>
+                  <ol className="world-station-path flex items-center gap-1.5">
+                    {activeStage.lessons.map((lsn) => {
+                      const lsnDone = progress.lessons[lsn.id]?.completed ?? false
+                      const lsnUnlocked = isLessonUnlocked(lsn, progress)
+                      const lsnCurrent = lsn.id === currentActiveLesson?.id
+                      const dotClassName = cn(
+                        'world-station-dot',
+                        lsnDone && 'world-station-dot-done',
+                        lsnCurrent && 'world-station-dot-current',
+                      )
+                      return (
+                        <li key={lsn.id}>
+                          {lsnUnlocked ? (
+                            <button
+                              type="button"
+                              onClick={() => onOpenLesson(lsn)}
+                              className={dotClassName}
+                              title={lsn.title}
+                            >
+                              {lsn.lessonNumber}
+                            </button>
+                          ) : (
+                            <span className={dotClassName} aria-disabled="true">
+                              {lsn.lessonNumber}
+                            </span>
+                          )}
+                        </li>
+                      )
+                    })}
+                  </ol>
+                </div>
               </div>
 
-              {activeStage.lessons.length > 0 && (
-                <CuteProgress
-                  value={progressPct}
-                  label="Tiến độ vùng đảo"
-                  tone="mint"
-                  className="course-map-progress"
-                />
+              {/* HÀNG 2: VÉ TRẠM TIẾP THEO (RỘNG RÃI TOÀN NGANG) */}
+              {currentActiveLesson && (
+                <aside className="course-map-next-ticket bg-white/95 text-slate-900 rounded-2xl p-4 sm:p-5 border-2 border-white shadow-clay flex flex-col md:flex-row md:items-center justify-between gap-4 w-full !max-w-none">
+                  <div className="min-w-0 flex-1">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-mint-100 text-mint-800 text-[11px] font-black uppercase tracking-wider mb-1.5">
+                      <Sparkles className="size-3 text-mint-600 shrink-0" />
+                      <span>TRẠM TIẾP THEO</span>
+                    </div>
+                    <h2 className="font-display text-lg sm:text-2xl font-black text-slate-900 leading-snug">
+                      <AsmoFormula text={currentActiveLesson.title} />
+                    </h2>
+                    <p className="text-xs sm:text-sm font-bold text-slate-600 mt-1">
+                      Trạm {currentActiveLesson.lessonNumber} · +{currentActiveLesson.xpReward} XP ⚡
+                    </p>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+                    <button
+                      type="button"
+                      onClick={() => onOpenLesson(currentActiveLesson)}
+                      className="inline-flex min-h-[2.9rem] items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-sun-400 to-coral-500 hover:from-sun-300 hover:to-coral-400 text-slate-950 font-black text-xs sm:text-sm shadow-clay hover:scale-105 active:scale-95 transition-all cursor-pointer border-0 whitespace-nowrap"
+                    >
+                      <span>
+                        {progress.lessons[currentActiveLesson.id]?.completed
+                          ? `▶ Học lại Trạm ${currentActiveLesson.lessonNumber}`
+                          : `▶ Bắt đầu học Trạm ${currentActiveLesson.lessonNumber}`}
+                      </span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (onOpenMapDetail) {
+                          onOpenMapDetail(activeStage.id)
+                        } else if (hideStationTrail) {
+                          navigate(`/asmo/curriculum?stage=${activeStage.id}`)
+                        } else {
+                          const el = document.querySelector('.course-station-map')
+                          el?.scrollIntoView({ behavior: 'smooth' })
+                        }
+                      }}
+                      className="inline-flex min-h-[2.9rem] items-center justify-center gap-1.5 rounded-2xl bg-brand-50 hover:bg-brand-100 text-brand-900 border-2 border-brand-200 font-bold px-4 py-2.5 text-xs shadow-xs hover:scale-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                    >
+                      <Map className="size-4 text-brand-600 shrink-0" />
+                      <span>🗺️ Mở Bản Đồ Trạm Chi Tiết ➔</span>
+                    </button>
+                  </div>
+                </aside>
               )}
 
-              {/* Station Dots Preview */}
-              <div className="mt-3 flex items-center justify-between flex-wrap gap-2 pt-2 border-t border-white/20">
-                <span className="text-xs font-extrabold text-white/90">{activeTheme.trailLabel}</span>
-                <ol className="world-station-path flex items-center gap-1.5">
-                  {activeStage.lessons.map((lsn) => {
-                    const lsnDone = progress.lessons[lsn.id]?.completed ?? false
-                    const lsnUnlocked = isLessonUnlocked(lsn, progress)
-                    const lsnCurrent = lsn.id === currentActiveLesson?.id
-                    const dotClassName = cn(
-                      'world-station-dot',
-                      lsnDone && 'world-station-dot-done',
-                      lsnCurrent && 'world-station-dot-current',
-                    )
-                    return (
-                      <li key={lsn.id}>
-                        {lsnUnlocked ? (
-                          <button
-                            type="button"
-                            onClick={() => onOpenLesson(lsn)}
-                            className={dotClassName}
-                            title={lsn.title}
-                          >
-                            {lsn.lessonNumber}
-                          </button>
-                        ) : (
-                          <span className={dotClassName} aria-disabled="true">
-                            {lsn.lessonNumber}
-                          </span>
-                        )}
-                      </li>
-                    )
-                  })}
-                </ol>
-              </div>
+              {/* HÀNG 3: THANH TIẾN ĐỘ & STATS */}
+              <div className="space-y-3 pt-1">
+                {activeStage.lessons.length > 0 && (
+                  <CuteProgress
+                    value={progressPct}
+                    label="Tiến độ vùng đảo"
+                    tone="mint"
+                    className="course-map-progress !mt-0"
+                  />
+                )}
 
-              {/* Stats Bar */}
-              <div className="course-map-stats">
-                <span>
-                  <Trophy size={17} aria-hidden /> {currentStageStats.totalStars}/
-                  {currentStageStats.maxStars} sao
-                </span>
-                <span>
-                  <CheckCircle2 size={17} aria-hidden /> {currentStageStats.completedLessons} trạm xong
-                </span>
-                <span>
-                  <Zap size={17} aria-hidden /> +{activeStage.lessons.reduce((acc, l) => acc + l.xpReward, 0)} XP
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setViewMode('world')}
-                  className="cursor-pointer"
-                >
-                  <Compass size={19} aria-hidden="true" /> Xem tất cả 5 vùng
-                </button>
+                {/* Stats Bar */}
+                <div className="course-map-stats !mt-0">
+                  <span>
+                    <Trophy size={17} aria-hidden /> {currentStageStats.totalStars}/
+                    {currentStageStats.maxStars} sao
+                  </span>
+                  <span>
+                    <CheckCircle2 size={17} aria-hidden /> {currentStageStats.completedLessons} trạm xong
+                  </span>
+                  <span>
+                    <Zap size={17} aria-hidden /> +{activeStage.lessons.reduce((acc, l) => acc + l.xpReward, 0)} XP
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setViewMode('world')}
+                    className="cursor-pointer"
+                  >
+                    <Compass size={19} aria-hidden="true" /> Xem tất cả 5 vùng
+                  </button>
+                </div>
               </div>
             </div>
           </header>
@@ -835,18 +848,6 @@ export function AsmoIslandWorldMap({
         /* MODE 2: TOÀN CẢNH 5 VÙNG ĐẢO (MATCHING WORLD PAGE 100%)               */
         /* ══════════════════════════════════════════════════════════════════════ */
         <div className="space-y-6 page-enter">
-          <div className="text-center max-w-2xl mx-auto space-y-2">
-            <p className="text-xs font-extrabold uppercase tracking-widest text-brand-700">
-              Hành trình Olympic ASMO
-            </p>
-            <h2 className="font-display text-3xl sm:text-4xl text-text">
-              5 Vùng Đảo Toán Học Diệu Kỳ 🗺️
-            </h2>
-            <p className="text-sm font-bold text-muted">
-              Đồng hành cùng Mèo Mee vượt qua 5 vùng đảo để chinh phục cúp vàng Olympic ASMO danh giá!
-            </p>
-          </div>
-
           <ol className="flex flex-col gap-10">
             {ASMO_LMS_STAGES.map((stage, index) => {
               const theme = ASMO_ISLAND_THEMES[stage.id]

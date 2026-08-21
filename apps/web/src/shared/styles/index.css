@@ -4411,35 +4411,14 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
   .course-map-next-ticket {
     position: relative;
     display: flex;
-    width: min(100%, 25rem);
-    flex: 0 1 25rem;
-    align-items: flex-start;
+    width: 100%;
+    align-items: center;
     justify-content: space-between;
     gap: 1rem;
-    border: 2px dashed var(--color-mint-200);
-    border-radius: 1.6rem 1rem 1.6rem 1rem;
-    padding: 0.9rem 1rem;
-    background: rgb(255 255 255 / 94%);
-    box-shadow: 0 6px 0 rgb(23 138 92 / 16%);
-  }
-
-  .course-map-next-ticket::before,
-  .course-map-next-ticket::after {
-    position: absolute;
-    left: -0.55rem;
-    width: 1rem;
-    height: 1rem;
-    content: '';
-    border-radius: 999px;
-    background: inherit;
-  }
-
-  .course-map-next-ticket::before {
-    top: 24%;
-  }
-
-  .course-map-next-ticket::after {
-    bottom: 18%;
+    border-radius: 1.25rem;
+    padding: 1rem 1.25rem;
+    background: rgb(255 255 255 / 95%);
+    box-shadow: var(--shadow-clay);
   }
 
   .course-map-primary-action {
@@ -4507,7 +4486,8 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
   }
 
   .course-map-stats > span,
-  .course-map-stats > a {
+  .course-map-stats > a,
+  .course-map-stats > button {
     display: inline-flex;
     min-height: 2.75rem;
     align-items: center;
@@ -4521,7 +4501,8 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     font-weight: 900;
   }
 
-  .course-map-stats > a:hover {
+  .course-map-stats > a:hover,
+  .course-map-stats > button:hover {
     background: rgb(255 255 255 / 30%);
   }
 
@@ -4695,7 +4676,8 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     }
 
     .course-map-stats > span,
-    .course-map-stats > a {
+    .course-map-stats > a,
+    .course-map-stats > button {
       flex: 1 1 auto;
       justify-content: center;
     }

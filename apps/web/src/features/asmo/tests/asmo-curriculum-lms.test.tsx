@@ -225,7 +225,7 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).toContain('world-region-scene-cat')
     expect(markup).toContain('world-region-ribbon')
     expect(markup).toContain('world-region-road')
-    expect(markup).toContain('5 Vùng Đảo Toán Học Diệu Kỳ')
+    expect(markup).toContain('Vào Bản Đồ Trạm Vùng')
     expect(markup).toContain('VÙNG 1: L1')
     expect(markup).toContain('VÙNG 2: L2')
     expect(markup).toContain('VÙNG 3: L3')
