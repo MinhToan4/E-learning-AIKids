@@ -2,8 +2,36 @@ import { createElement, act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
-import { AsmoInteractiveAppleTreeCanvas } from '../components/AsmoInteractiveAppleTreeCanvas'
+import {
+  AsmoInteractiveAppleTreeCanvas,
+  FlatClayRedApple,
+  FlatClayGreenApple,
+} from '../components/AsmoInteractiveAppleTreeCanvas'
 import { AsmoKidsArithmeticVisualizer } from '../components/AsmoKidsArithmeticVisualizer'
+
+describe('FlatClay Apple Vector Components', () => {
+  it('renders FlatClayRedApple with soft clay gradient, wooden stem, leaf and highlight', () => {
+    const markup = renderToStaticMarkup(createElement(FlatClayRedApple, { className: 'size-12' }))
+    expect(markup).toContain('redAppleGrad')
+    expect(markup).toContain('#fb7185')
+    expect(markup).toContain('#f43f5e')
+    expect(markup).toContain('#be123c')
+    expect(markup).toContain('redStemGrad')
+    expect(markup).toContain('redLeafGrad')
+    expect(markup).toContain('svg')
+  })
+
+  it('renders FlatClayGreenApple with soft clay gradient, wooden stem, leaf and highlight', () => {
+    const markup = renderToStaticMarkup(createElement(FlatClayGreenApple, { className: 'size-12' }))
+    expect(markup).toContain('greenAppleGrad')
+    expect(markup).toContain('#bef264')
+    expect(markup).toContain('#84cc16')
+    expect(markup).toContain('#4d7c0f')
+    expect(markup).toContain('greenStemGrad')
+    expect(markup).toContain('greenLeafGrad')
+    expect(markup).toContain('svg')
+  })
+})
 
 describe('AsmoInteractiveAppleTreeCanvas Component', () => {
   let container: HTMLDivElement | null = null
@@ -22,7 +50,7 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
     }
   })
 
-  it('renders tree canopy, two soft clay baskets, and initial apple counts', () => {
+  it('renders expansive tree canopy, two soft clay baskets, and flat clay vector apple illustrations', () => {
     const markup = renderToStaticMarkup(
       createElement(AsmoInteractiveAppleTreeCanvas, {
         applesA: 4,
@@ -31,8 +59,8 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
     )
 
     // Streamlined Mission Bar & Tree Canopy
-    expect(markup).toContain('🍎 Chạm hoặc kéo táo vào giỏ để gộp thành 10 nhé! 🧺')
-    expect(markup).toContain('Cây Táo Mẹ')
+    expect(markup).toContain('Chạm hoặc kéo táo vào giỏ để gộp thành 10 nhé!')
+    expect(markup).toContain('Cây Táo Mẹ:')
     expect(markup).toContain('6 quả đỏ')
     expect(markup).toContain('7 quả xanh')
 
@@ -40,19 +68,28 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
     expect(markup).toContain('Giỏ A (Táo Đỏ):')
     expect(markup).toContain('Giỏ B (Táo Xanh):')
 
-    // Apples in baskets
-    expect(markup).toContain('4 / 10 🍎')
-    expect(markup).toContain('3 / 10 🍏')
+    // Apples in baskets (number count badges)
+    expect(markup).toContain('4 / 10')
+    expect(markup).toContain('3 / 10')
 
-    // Tree Mother Soft Clay 2.5D Diorama
+    // Flat Clay SVG Vector Apple Gradients
+    expect(markup).toContain('redAppleGrad')
+    expect(markup).toContain('greenAppleGrad')
+
+    // Tree Mother Soft Clay 2.5D Wide Diorama
     expect(markup).toContain('tree_mother_soft_clay.png')
     expect(markup).toContain('alt="Cây Táo Mẹ Soft Clay 2.5D"')
 
-    // Streamlined realtime calculation bar (no duplicated text/formula)
+    // Streamlined realtime calculation bar
     expect(markup).toContain('TỔNG SỐ TÁO TRONG CẢ 2 GIỎ')
     expect(markup).not.toContain('quả táo tổng cộng')
     expect(markup).not.toContain('quả táo thơm ngon')
     expect(markup).not.toContain('katex')
+
+    // Clutter removal verification: No dashed arch handle, no ribbon bows, no floating cloud emoji clutter
+    expect(markup).not.toContain('strokeDasharray="6 6"')
+    expect(markup).not.toContain('🎀')
+    expect(markup).not.toContain('🎗️')
   })
 
   it('verifies baskets are stable (no bounce animation) and pedestal buttons are removed', () => {
@@ -300,4 +337,3 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
     expect(onReset).toHaveBeenCalledTimes(1)
   })
 })
-

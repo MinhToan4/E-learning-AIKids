@@ -22,6 +22,174 @@ export type AsmoInteractiveAppleTreeCanvasProps = {
   className?: string
 }
 
+// ══════════════════════════════════════════════════════════════════════════════
+// 🍎 FLAT SOFT CLAY VECTOR APPLE ILLUSTRATIONS (AI KIDS ART STYLE)
+// ══════════════════════════════════════════════════════════════════════════════
+
+export function FlatClayRedApple({
+  className = 'size-10 sm:size-12',
+  ...props
+}: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      className={cn('shrink-0 select-none overflow-visible filter drop-shadow-sm', className)}
+      {...props}
+    >
+      <defs>
+        <radialGradient id="redAppleGrad" cx="36%" cy="32%" r="66%">
+          <stop offset="0%" stopColor="#fb7185" />
+          <stop offset="40%" stopColor="#f43f5e" />
+          <stop offset="80%" stopColor="#e11d48" />
+          <stop offset="100%" stopColor="#be123c" />
+        </radialGradient>
+        <linearGradient id="redStemGrad" x1="0" y1="1" x2="0.6" y2="0">
+          <stop offset="0%" stopColor="#502409" />
+          <stop offset="100%" stopColor="#78350f" />
+        </linearGradient>
+        <linearGradient id="redLeafGrad" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0%" stopColor="#4d7c0f" />
+          <stop offset="60%" stopColor="#84cc16" />
+          <stop offset="100%" stopColor="#bef264" />
+        </linearGradient>
+      </defs>
+      {/* Soft Clay Bottom Shadow */}
+      <ellipse cx="50" cy="92" rx="30" ry="6" fill="#000000" opacity="0.14" />
+      {/* Stem */}
+      <path
+        d="M 50 32 C 51 22, 57 14, 62 10 C 60 10, 54 18, 47 30 Z"
+        fill="url(#redStemGrad)"
+        stroke="#3f1a06"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+      {/* Leaf */}
+      <path
+        d="M 53 24 C 63 17, 76 21, 79 30 C 72 32, 60 30, 53 24 Z"
+        fill="url(#redLeafGrad)"
+        stroke="#365314"
+        strokeWidth="1.2"
+      />
+      <path
+        d="M 55 24 C 63 24, 71 27, 77 30"
+        stroke="#ecfccb"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        opacity="0.8"
+      />
+      {/* Apple Body - Plump soft clay shape */}
+      <path
+        d="M 50 34 C 36 24, 15 28, 14 54 C 13 74, 32 90, 48 90 C 49 90, 50 88, 50 88 C 50 88, 51 90, 52 90 C 68 90, 87 74, 86 54 C 85 28, 64 24, 50 34 Z"
+        fill="url(#redAppleGrad)"
+        stroke="#9f1239"
+        strokeWidth="2.2"
+        strokeLinejoin="round"
+      />
+      {/* Top clay dimple */}
+      <path
+        d="M 44 33 C 48 37, 52 37, 56 33"
+        stroke="#881337"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.6"
+      />
+      {/* Soft Clay Highlight (Curved glossy sheen) */}
+      <path
+        d="M 27 42 C 24 50, 24 64, 30 72"
+        stroke="#ffffff"
+        strokeWidth="4.5"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.45"
+      />
+      <circle cx="28" cy="38" r="3.2" fill="#ffffff" opacity="0.5" />
+    </svg>
+  )
+}
+
+export function FlatClayGreenApple({
+  className = 'size-10 sm:size-12',
+  ...props
+}: React.SVGProps<SVGSVGElement>) {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      className={cn('shrink-0 select-none overflow-visible filter drop-shadow-sm', className)}
+      {...props}
+    >
+      <defs>
+        <radialGradient id="greenAppleGrad" cx="36%" cy="32%" r="66%">
+          <stop offset="0%" stopColor="#bef264" />
+          <stop offset="40%" stopColor="#84cc16" />
+          <stop offset="80%" stopColor="#65a30d" />
+          <stop offset="100%" stopColor="#4d7c0f" />
+        </radialGradient>
+        <linearGradient id="greenStemGrad" x1="0" y1="1" x2="0.6" y2="0">
+          <stop offset="0%" stopColor="#502409" />
+          <stop offset="100%" stopColor="#78350f" />
+        </linearGradient>
+        <linearGradient id="greenLeafGrad" x1="0" y1="1" x2="1" y2="0">
+          <stop offset="0%" stopColor="#15803d" />
+          <stop offset="60%" stopColor="#22c55e" />
+          <stop offset="100%" stopColor="#86efac" />
+        </linearGradient>
+      </defs>
+      {/* Soft Clay Bottom Shadow */}
+      <ellipse cx="50" cy="92" rx="30" ry="6" fill="#000000" opacity="0.14" />
+      {/* Stem */}
+      <path
+        d="M 50 32 C 51 22, 57 14, 62 10 C 60 10, 54 18, 47 30 Z"
+        fill="url(#greenStemGrad)"
+        stroke="#3f1a06"
+        strokeWidth="1.2"
+        strokeLinejoin="round"
+      />
+      {/* Leaf */}
+      <path
+        d="M 53 24 C 63 17, 76 21, 79 30 C 72 32, 60 30, 53 24 Z"
+        fill="url(#greenLeafGrad)"
+        stroke="#14532d"
+        strokeWidth="1.2"
+      />
+      <path
+        d="M 55 24 C 63 24, 71 27, 77 30"
+        stroke="#dcfce7"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+        opacity="0.8"
+      />
+      {/* Apple Body - Plump soft clay shape */}
+      <path
+        d="M 50 34 C 36 24, 15 28, 14 54 C 13 74, 32 90, 48 90 C 49 90, 50 88, 50 88 C 50 88, 51 90, 52 90 C 68 90, 87 74, 86 54 C 85 28, 64 24, 50 34 Z"
+        fill="url(#greenAppleGrad)"
+        stroke="#3f6212"
+        strokeWidth="2.2"
+        strokeLinejoin="round"
+      />
+      {/* Top clay dimple */}
+      <path
+        d="M 44 33 C 48 37, 52 37, 56 33"
+        stroke="#365314"
+        strokeWidth="2.2"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.6"
+      />
+      {/* Soft Clay Highlight (Curved glossy sheen) */}
+      <path
+        d="M 27 42 C 24 50, 24 64, 30 72"
+        stroke="#ffffff"
+        strokeWidth="4.5"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.45"
+      />
+      <circle cx="28" cy="38" r="3.2" fill="#ffffff" opacity="0.5" />
+    </svg>
+  )
+}
+
 export function speakVietnamese(text: string) {
   if (typeof window === 'undefined' || !window.speechSynthesis) return
   try {
@@ -44,31 +212,33 @@ export function speakVietnamese(text: string) {
   }
 }
 
-// Organic pre-defined positions for hanging apples on the 2D flat soft clay mother tree canopy
+// ══════════════════════════════════════════════════════════════════════════════
+// 🌳 EXPANSIVE TREE CANOPY APPLE POSITIONS (20 ORGANIC LOCATIONS ON WIDE TREE)
+// ══════════════════════════════════════════════════════════════════════════════
 const RED_APPLE_POSITIONS = [
-  { top: '18%', left: '38%', rot: '-4deg', delay: '0ms' },
-  { top: '22%', left: '30%', rot: '6deg', delay: '120ms' },
-  { top: '30%', left: '25%', rot: '-8deg', delay: '240ms' },
-  { top: '38%', left: '28%', rot: '5deg', delay: '180ms' },
-  { top: '28%', left: '36%', rot: '-5deg', delay: '60ms' },
-  { top: '46%', left: '24%', rot: '7deg', delay: '300ms' },
-  { top: '48%', left: '32%', rot: '-3deg', delay: '150ms' },
-  { top: '40%', left: '38%', rot: '6deg', delay: '210ms' },
-  { top: '48%', left: '40%', rot: '-6deg', delay: '90ms' },
-  { top: '22%', left: '44%', rot: '4deg', delay: '270ms' },
+  { top: '18%', left: '16%', rot: '-6deg', delay: '0ms' },
+  { top: '28%', left: '14%', rot: '4deg', delay: '120ms' },
+  { top: '40%', left: '18%', rot: '-8deg', delay: '240ms' },
+  { top: '20%', left: '26%', rot: '5deg', delay: '180ms' },
+  { top: '34%', left: '25%', rot: '-4deg', delay: '60ms' },
+  { top: '46%', left: '27%', rot: '7deg', delay: '300ms' },
+  { top: '16%', left: '36%', rot: '-5deg', delay: '150ms' },
+  { top: '28%', left: '34%', rot: '6deg', delay: '210ms' },
+  { top: '42%', left: '36%', rot: '-3deg', delay: '90ms' },
+  { top: '24%', left: '44%', rot: '4deg', delay: '270ms' },
 ]
 
 const GREEN_APPLE_POSITIONS = [
-  { top: '18%', left: '58%', rot: '4deg', delay: '50ms' },
-  { top: '22%', left: '66%', rot: '-6deg', delay: '190ms' },
-  { top: '30%', left: '72%', rot: '8deg', delay: '110ms' },
-  { top: '38%', left: '68%', rot: '-5deg', delay: '260ms' },
-  { top: '28%', left: '60%', rot: '6deg', delay: '80ms' },
-  { top: '46%', left: '72%', rot: '-7deg', delay: '220ms' },
-  { top: '48%', left: '64%', rot: '5deg', delay: '140ms' },
-  { top: '40%', left: '58%', rot: '-4deg', delay: '310ms' },
-  { top: '48%', left: '56%', rot: '5deg', delay: '170ms' },
-  { top: '22%', left: '52%', rot: '-5deg', delay: '250ms' },
+  { top: '24%', left: '56%', rot: '-4deg', delay: '50ms' },
+  { top: '16%', left: '64%', rot: '5deg', delay: '190ms' },
+  { top: '28%', left: '66%', rot: '-6deg', delay: '110ms' },
+  { top: '42%', left: '64%', rot: '7deg', delay: '260ms' },
+  { top: '20%', left: '74%', rot: '-5deg', delay: '80ms' },
+  { top: '34%', left: '75%', rot: '6deg', delay: '220ms' },
+  { top: '46%', left: '73%', rot: '-7deg', delay: '140ms' },
+  { top: '18%', left: '84%', rot: '4deg', delay: '310ms' },
+  { top: '28%', left: '86%', rot: '-5deg', delay: '170ms' },
+  { top: '40%', left: '82%', rot: '6deg', delay: '250ms' },
 ]
 
 function createInitialAppleIds(count: number, max: number): number[] {
@@ -359,7 +529,7 @@ export function AsmoInteractiveAppleTreeCanvas({
 
   // Subtle woven wicker background styling
   const wovenTextureStyle = {
-    backgroundImage: `repeating-linear-gradient(45deg, rgba(217, 119, 6, 0.09) 0px, rgba(217, 119, 6, 0.09) 6px, transparent 6px, transparent 12px), repeating-linear-gradient(-45deg, rgba(217, 119, 6, 0.09) 0px, rgba(217, 119, 6, 0.09) 6px, transparent 6px, transparent 12px)`,
+    backgroundImage: `repeating-linear-gradient(45deg, rgba(217, 119, 6, 0.08) 0px, rgba(217, 119, 6, 0.08) 6px, transparent 6px, transparent 12px), repeating-linear-gradient(-45deg, rgba(217, 119, 6, 0.08) 0px, rgba(217, 119, 6, 0.08) 6px, transparent 6px, transparent 12px)`,
   }
 
   return (
@@ -373,8 +543,8 @@ export function AsmoInteractiveAppleTreeCanvas({
           1. THANH NHIỆM VỤ HOẠT HÌNH TINH GỌN DUY NHẤT (STREAMLINED MISSION BAR)
       ══════════════════════════════════════════════════════════════════════ */}
       <div className="w-full flex flex-wrap items-center justify-between gap-2.5 px-3.5 sm:px-4 py-2.5 rounded-2xl bg-brand-50/80 border-2 border-brand-100 shadow-2xs">
-        <div className="flex items-center gap-2 min-w-0 flex-1">
-          <span className="text-xl sm:text-2xl shrink-0 animate-bounce">🍎</span>
+        <div className="flex items-center gap-2.5 min-w-0 flex-1">
+          <FlatClayRedApple className="size-7 sm:size-8 shrink-0 animate-bounce" />
           <div className="min-w-0 flex-1 space-y-0.5">
             {title && !title.includes('Vườn Cây Táo Mẹ: Thao Tác') && title !== instruction && (
               <span className="text-xs font-black text-brand-900 block truncate">
@@ -428,26 +598,25 @@ export function AsmoInteractiveAppleTreeCanvas({
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          2. TÁN CÂY TÁO MẸ 🌳 SOFT CLAY (DROP ZONE 2 CHIỀU ĐÓN TÁO VỀ)
+          2. TÁN CÂY TÁO MẸ 🌳 SOFT CLAY (EXPANSIVE CANOPY DROP ZONE 2 CHIỀU)
       ══════════════════════════════════════════════════════════════════════ */}
       <div
         onDragOver={handleDragOverTree}
         onDragLeave={handleDragLeaveTree}
         onDrop={handleDropOnTree}
         className={cn(
-          'relative w-full max-w-2xl h-72 sm:h-80 md:h-96 rounded-3xl overflow-hidden bg-gradient-to-b from-sky-100/90 via-sky-50/70 to-mint-50/80 border-2 border-brand-100 shadow-inner flex items-center justify-center p-2 transition-all duration-300',
+          'relative w-full max-w-4xl h-84 sm:h-96 md:h-[420px] rounded-3xl overflow-hidden bg-gradient-to-b from-sky-100/90 via-sky-50/70 to-mint-50/80 border-2 border-brand-100 shadow-inner flex items-center justify-center p-2 transition-all duration-300',
           isDragOverTree && 'ring-4 ring-emerald-400 bg-emerald-100/60 shadow-lg',
         )}
       >
-        {/* Floating Clouds & Sky Accents */}
-        <div className="absolute top-2 left-6 text-2xl opacity-80 animate-pulse select-none">☁️</div>
-        <div className="absolute top-4 right-8 text-xl opacity-75 animate-pulse select-none">☁️</div>
-        <div className="absolute top-10 left-1/4 text-sm opacity-60 select-none">✨</div>
-        <div className="absolute top-8 right-1/4 text-sm opacity-60 select-none">✨</div>
-
         {/* Tree Header Counter Badge */}
-        <div className="absolute top-3 left-1/2 -translate-x-1/2 text-xs sm:text-sm font-black text-slate-900 bg-white/95 backdrop-blur-xs px-4 py-1.5 rounded-full border-2 border-brand-100 shadow-clay z-20 whitespace-nowrap">
-          🌳 Cây Táo Mẹ: 🍎 {remainingTreeRed} quả đỏ • 🍏 {remainingTreeGreen} quả xanh
+        <div className="absolute top-3 left-1/2 -translate-x-1/2 text-xs sm:text-sm font-black text-slate-900 bg-white/95 backdrop-blur-xs px-4 py-1.5 rounded-full border-2 border-brand-100 shadow-clay z-20 whitespace-nowrap flex items-center gap-1.5">
+          <span>🌳 Cây Táo Mẹ:</span>
+          <FlatClayRedApple className="size-4.5 inline-block" />
+          <span>{remainingTreeRed} quả đỏ</span>
+          <span className="text-slate-300">•</span>
+          <FlatClayGreenApple className="size-4.5 inline-block" />
+          <span>{remainingTreeGreen} quả xanh</span>
         </div>
 
         {/* Tree Drop Zone Overlay Indicator when dragged from basket */}
@@ -458,16 +627,16 @@ export function AsmoInteractiveAppleTreeCanvas({
           </div>
         )}
 
-        {/* Tree Mother Soft Clay 2.5D Diorama Image */}
+        {/* Tree Mother Soft Clay 2.5D Diorama Image (Wide Screen) */}
         <img
           src={designerAssets.asmoScenes.treeMother}
           alt="Cây Táo Mẹ Soft Clay 2.5D"
           className="absolute inset-0 w-full h-full object-contain object-bottom pointer-events-none drop-shadow-md select-none z-0"
         />
 
-        {/* Tree Interactive Layer: Large Hanging Apples */}
+        {/* Tree Interactive Layer: Large Hanging Apples Spread Widely */}
         <div className="relative w-full h-full z-10">
-          {/* 🍎 RED APPLES CLUSTER (LEFT CANOPY) */}
+          {/* 🍎 RED APPLES CLUSTER (EXPANSIVE LEFT CANOPY: 14%..44%) */}
           {RED_APPLE_POSITIONS.slice(0, maxApplesPerBasket).map((pos, id) => {
             if (basketRedAppleIds.includes(id)) return null
             return (
@@ -485,20 +654,21 @@ export function AsmoInteractiveAppleTreeCanvas({
                   animationDelay: pos.delay,
                 }}
                 title="Chạm hoặc kéo vào Giỏ A để hái táo đỏ 🍎"
+                aria-label={`Hái quả táo đỏ số ${id + 1}`}
                 className={cn(
                   'absolute select-none transition-all duration-200 cursor-grab active:cursor-grabbing',
-                  'hover:scale-130 active:scale-95 drop-shadow-md hover:drop-shadow-xl',
-                  'flex items-center justify-center text-3xl sm:text-4xl p-1 rounded-full',
-                  'hover:ring-4 hover:ring-coral-400 hover:bg-white/50 active:scale-90',
+                  'hover:scale-125 active:scale-95 drop-shadow-md hover:drop-shadow-xl',
+                  'flex items-center justify-center p-1 rounded-full',
+                  'hover:ring-4 hover:ring-coral-400 hover:bg-white/40 active:scale-90',
                   draggingItem?.source === 'tree' && draggingItem?.type === 'A' && draggingItem?.id === id && 'opacity-70 scale-110',
                 )}
               >
-                🍎
+                <FlatClayRedApple className="size-10 sm:size-12 pointer-events-none drop-shadow-sm" />
               </button>
             )
           })}
 
-          {/* 🍏 GREEN APPLES CLUSTER (RIGHT CANOPY) */}
+          {/* 🍏 GREEN APPLES CLUSTER (EXPANSIVE RIGHT CANOPY: 56%..86%) */}
           {GREEN_APPLE_POSITIONS.slice(0, maxApplesPerBasket).map((pos, id) => {
             if (basketGreenAppleIds.includes(id)) return null
             return (
@@ -516,15 +686,16 @@ export function AsmoInteractiveAppleTreeCanvas({
                   animationDelay: pos.delay,
                 }}
                 title="Chạm hoặc kéo vào Giỏ B để hái táo xanh 🍏"
+                aria-label={`Hái quả táo xanh số ${id + 1}`}
                 className={cn(
                   'absolute select-none transition-all duration-200 cursor-grab active:cursor-grabbing',
-                  'hover:scale-130 active:scale-95 drop-shadow-md hover:drop-shadow-xl',
-                  'flex items-center justify-center text-3xl sm:text-4xl p-1 rounded-full',
-                  'hover:ring-4 hover:ring-mint-400 hover:bg-white/50 active:scale-90',
+                  'hover:scale-125 active:scale-95 drop-shadow-md hover:drop-shadow-xl',
+                  'flex items-center justify-center p-1 rounded-full',
+                  'hover:ring-4 hover:ring-mint-400 hover:bg-white/40 active:scale-90',
                   draggingItem?.source === 'tree' && draggingItem?.type === 'B' && draggingItem?.id === id && 'opacity-70 scale-110',
                 )}
               >
-                🍏
+                <FlatClayGreenApple className="size-10 sm:size-12 pointer-events-none drop-shadow-sm" />
               </button>
             )
           })}
@@ -541,239 +712,159 @@ export function AsmoInteractiveAppleTreeCanvas({
       </div>
 
       {/* ══════════════════════════════════════════════════════════════════════
-          3. HAI CHIẾC GIỎ MÂY ĐAN 3D VỮNG CHÃI (STABLE BASKETS - NO BOUNCE / NO PEDESTAL)
+          3. HAI CHIẾC GIỎ SOFT CLAY TINH TẾ (MINIMALIST ELEGANT CARDS)
       ══════════════════════════════════════════════════════════════════════ */}
       <div className="w-full grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 pt-1">
-        {/* 🧺 CHIẾC GIỎ MÂY A: TÁO ĐỎ 🍎 (NƠ ĐỎ 🎀) */}
+        {/* 🧺 CHIẾC GIỎ A: TÁO ĐỎ */}
         <div
           onDragOver={(e) => handleDragOverBasket(e, 'A')}
           onDragLeave={() => handleDragLeaveBasket('A')}
           onDrop={(e) => handleDropOnBasket(e, 'A')}
-          className="relative flex flex-col items-center select-none"
+          className={cn(
+            'w-full flex flex-col rounded-3xl border-3 shadow-clay transition-all duration-300 relative overflow-hidden select-none',
+            isDragOverA
+              ? 'ring-4 ring-coral-300 border-coral-400 bg-coral-100/90 shadow-md'
+              : 'border-coral-200 bg-gradient-to-b from-coral-50/80 to-amber-50/40',
+          )}
         >
-          {/* QUAI GIỎ MÂY UỐN VÒM VỚI NƠ ĐỎ 🎀 */}
-          <div className="relative w-44 sm:w-52 h-14 sm:h-16 flex items-center justify-center -mb-3 z-10 pointer-events-none">
-            <svg
-              viewBox="0 0 200 80"
-              className="w-full h-full drop-shadow-md overflow-visible"
-            >
-              <defs>
-                <linearGradient id="handleGradA" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#b45309" />
-                  <stop offset="30%" stopColor="#fbbf24" />
-                  <stop offset="70%" stopColor="#f59e0b" />
-                  <stop offset="100%" stopColor="#92400e" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M 20,80 Q 100,-15 180,80"
-                fill="none"
-                stroke="url(#handleGradA)"
-                strokeWidth="14"
-                strokeLinecap="round"
-              />
-              <path
-                d="M 20,80 Q 100,-15 180,80"
-                fill="none"
-                stroke="#78350f"
-                strokeWidth="3"
-                strokeDasharray="6 6"
-                strokeLinecap="round"
-              />
-            </svg>
+          {/* Wicker Weave Texture Layer */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-40 rounded-3xl"
+            style={wovenTextureStyle}
+          />
 
-            {/* Chiếc Nơ Ruy Băng Đỏ 🎀 ở Đỉnh Quai Giỏ A */}
-            <div className="absolute -top-1 sm:-top-2 flex items-center justify-center size-9 sm:size-10 rounded-full bg-coral-500 border-2 border-white shadow-md select-none">
-              <span className="text-xl sm:text-2xl -mt-0.5">🎀</span>
+          {/* MIỆNG GIỎ MÂY TRE ĐAN HIỂN THỊ SỐ LƯỢNG TINH GỌN */}
+          <div className="relative z-10 w-full bg-coral-100/90 border-b-2 border-coral-200 px-3.5 sm:px-4 py-2.5 flex items-center justify-between gap-2 shadow-2xs">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <ShoppingBasket className="size-4 text-coral-800 shrink-0" />
+              <span className="text-xs sm:text-sm font-black text-coral-900 tracking-tight truncate">
+                Giỏ A (Táo Đỏ):
+              </span>
+              <FlatClayRedApple className="size-4.5 inline-block shrink-0" />
             </div>
+            <span className="whitespace-nowrap px-3 py-1 rounded-full font-black text-xs min-w-max flex items-center gap-1 text-coral-900 bg-white/95 border border-coral-300 shadow-2xs shrink-0">
+              {applesA} / {maxApplesPerBasket} <FlatClayRedApple className="size-3.5 inline-block" />
+            </span>
           </div>
 
-          {/* THÀNH GIỎ MÂY ĐAN 3D VỮNG CHÃI TRÊN MẶT ĐẤT */}
+          {/* LÒNG GIỎ CHỨA TÁO KÉO THẢ & CHẠM 2 CHIỀU */}
           <div
             className={cn(
-              'w-full flex flex-col items-center rounded-t-2xl rounded-b-[2.5rem] border-4 shadow-clay transition-all duration-300 relative overflow-hidden',
-              isDragOverA
-                ? 'ring-2 ring-coral-300 border-coral-400 bg-coral-100/90 shadow-md'
-                : 'border-coral-200/90 bg-gradient-to-b from-coral-50/70 via-amber-50/40 to-orange-50/60',
+              'relative z-10 w-full min-h-28 sm:min-h-32 p-3 sm:p-4 flex items-center justify-center flex-wrap gap-2 sm:gap-3 transition-colors',
+              isDragOverA && 'bg-coral-100/60',
             )}
           >
-            {/* Wicker Weave Texture Layer */}
-            <div
-              className="absolute inset-0 pointer-events-none opacity-40 rounded-t-2xl rounded-b-[2.5rem]"
-              style={wovenTextureStyle}
-            />
-
-            {/* MIỆNG GIỎ MÂY TRE ĐAN HIỂN THỊ SỐ LƯỢNG TINH GỌN */}
-            <div className="relative z-10 w-full bg-coral-100/90 border-b-2 border-coral-200 px-3.5 sm:px-4 py-2 flex items-center justify-between gap-2 shadow-2xs">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <ShoppingBasket className="size-4 text-coral-800 shrink-0" />
-                <span className="text-xs sm:text-sm font-black text-coral-900 tracking-tight truncate">
-                  Giỏ A (Táo Đỏ): 🍎
+            {basketRedAppleIds.length === 0 ? (
+              <div className="flex flex-col items-center justify-center text-center py-2 text-coral-400 space-y-1">
+                <span className="text-2xl sm:text-3xl opacity-80">🧺</span>
+                <span className="text-xs font-black text-coral-700 italic">
+                  Chạm hoặc kéo táo đỏ 🍎 vào giỏ A
                 </span>
               </div>
-              <span className="whitespace-nowrap px-3 py-1 rounded-full font-black text-xs min-w-max flex items-center gap-1.5 text-coral-900 bg-white/95 border border-coral-300 shadow-2xs shrink-0">
-                {applesA} / {maxApplesPerBasket} 🍎
-              </span>
-            </div>
-
-            {/* LÒNG GIỎ CHỨA TÁO KÉO THẢ & CHẠM 2 CHIỀU */}
-            <div
-              className={cn(
-                'relative z-10 w-full min-h-28 sm:min-h-32 p-3 sm:p-4 flex items-center justify-center flex-wrap gap-1.5 sm:gap-2 transition-colors',
-                isDragOverA && 'bg-coral-100/60',
-              )}
-            >
-              {basketRedAppleIds.length === 0 ? (
-                <div className="flex flex-col items-center justify-center text-center py-2 text-coral-400 space-y-1">
-                  <span className="text-2xl sm:text-3xl opacity-80">🧺</span>
-                  <span className="text-xs font-black text-coral-700 italic">
-                    Chạm hoặc kéo táo đỏ 🍎 vào giỏ A
-                  </span>
-                </div>
-              ) : (
-                basketRedAppleIds.map((id) => (
-                  <button
-                    key={`basket-apple-a-${id}`}
-                    type="button"
-                    draggable
-                    onDragStart={(e) => handleBasketAppleDragStart(e, 'A', id)}
-                    onDragEnd={handleDragEnd}
-                    onClick={() => handleSubAppleWithId('A', id)}
-                    title="Chạm hoặc kéo về cây để trả táo đỏ 🍎"
-                    className={cn(
-                      'text-3xl sm:text-4xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 active:scale-95 transition-transform cursor-grab active:cursor-grabbing p-0.5 filter drop-shadow-sm',
-                      draggingItem?.source === 'basket' && draggingItem?.type === 'A' && draggingItem?.id === id && 'opacity-70 scale-110',
-                    )}
-                  >
-                    🍎
-                  </button>
-                ))
-              )}
-            </div>
-
-            {/* Dragging Feedback Indicator */}
-            {isDragOverA && (
-              <div className="relative z-10 w-full text-center pb-2 text-xs font-black text-coral-800 animate-pulse">
-                ✨ Thả tay để cho táo đỏ vào Giỏ A!
-              </div>
+            ) : (
+              basketRedAppleIds.map((id) => (
+                <button
+                  key={`basket-apple-a-${id}`}
+                  type="button"
+                  draggable
+                  onDragStart={(e) => handleBasketAppleDragStart(e, 'A', id)}
+                  onDragEnd={handleDragEnd}
+                  onClick={() => handleSubAppleWithId('A', id)}
+                  title="Chạm hoặc kéo về cây để trả táo đỏ 🍎"
+                  aria-label={`Trả quả táo đỏ số ${id + 1} về cây`}
+                  className={cn(
+                    'animate-in zoom-in-50 duration-200 select-none hover:scale-125 active:scale-95 transition-transform cursor-grab active:cursor-grabbing p-0.5 filter drop-shadow-sm',
+                    draggingItem?.source === 'basket' && draggingItem?.type === 'A' && draggingItem?.id === id && 'opacity-70 scale-110',
+                  )}
+                >
+                  <FlatClayRedApple className="size-10 sm:size-12 pointer-events-none drop-shadow-sm" />
+                </button>
+              ))
             )}
           </div>
+
+          {/* Dragging Feedback Indicator */}
+          {isDragOverA && (
+            <div className="relative z-10 w-full text-center pb-2 text-xs font-black text-coral-800 animate-pulse">
+              ✨ Thả tay để cho táo đỏ vào Giỏ A!
+            </div>
+          )}
         </div>
 
-        {/* 🧺 CHIẾC GIỎ MÂY B: TÁO XANH 🍏 (NƠ XANH LÁ 🎗️) */}
+        {/* 🧺 CHIẾC GIỎ B: TÁO XANH */}
         <div
           onDragOver={(e) => handleDragOverBasket(e, 'B')}
           onDragLeave={() => handleDragLeaveBasket('B')}
           onDrop={(e) => handleDropOnBasket(e, 'B')}
-          className="relative flex flex-col items-center select-none"
+          className={cn(
+            'w-full flex flex-col rounded-3xl border-3 shadow-clay transition-all duration-300 relative overflow-hidden select-none',
+            isDragOverB
+              ? 'ring-4 ring-mint-300 border-mint-400 bg-mint-100/90 shadow-md'
+              : 'border-mint-200 bg-gradient-to-b from-mint-50/80 to-emerald-50/40',
+          )}
         >
-          {/* QUAI GIỎ MÂY UỐN VÒM VỚI NƠ XANH LÁ 🎗️ */}
-          <div className="relative w-44 sm:w-52 h-14 sm:h-16 flex items-center justify-center -mb-3 z-10 pointer-events-none">
-            <svg
-              viewBox="0 0 200 80"
-              className="w-full h-full drop-shadow-md overflow-visible"
-            >
-              <defs>
-                <linearGradient id="handleGradB" x1="0" y1="0" x2="1" y2="0">
-                  <stop offset="0%" stopColor="#b45309" />
-                  <stop offset="30%" stopColor="#fbbf24" />
-                  <stop offset="70%" stopColor="#f59e0b" />
-                  <stop offset="100%" stopColor="#92400e" />
-                </linearGradient>
-              </defs>
-              <path
-                d="M 20,80 Q 100,-15 180,80"
-                fill="none"
-                stroke="url(#handleGradB)"
-                strokeWidth="14"
-                strokeLinecap="round"
-              />
-              <path
-                d="M 20,80 Q 100,-15 180,80"
-                fill="none"
-                stroke="#78350f"
-                strokeWidth="3"
-                strokeDasharray="6 6"
-                strokeLinecap="round"
-              />
-            </svg>
+          {/* Wicker Weave Texture Layer */}
+          <div
+            className="absolute inset-0 pointer-events-none opacity-40 rounded-3xl"
+            style={wovenTextureStyle}
+          />
 
-            {/* Chiếc Nơ Ruy Băng Xanh Lá 🎗️ ở Đỉnh Quai Giỏ B */}
-            <div className="absolute -top-1 sm:-top-2 flex items-center justify-center size-9 sm:size-10 rounded-full bg-mint-600 border-2 border-white shadow-md select-none">
-              <span className="text-xl sm:text-2xl -mt-0.5">🎗️</span>
+          {/* MIỆNG GIỎ MÂY TRE ĐAN HIỂN THỊ SỐ LƯỢNG TINH GỌN */}
+          <div className="relative z-10 w-full bg-mint-100/90 border-b-2 border-mint-200 px-3.5 sm:px-4 py-2.5 flex items-center justify-between gap-2 shadow-2xs">
+            <div className="flex items-center gap-1.5 min-w-0">
+              <ShoppingBasket className="size-4 text-mint-800 shrink-0" />
+              <span className="text-xs sm:text-sm font-black text-mint-900 tracking-tight truncate">
+                Giỏ B (Táo Xanh):
+              </span>
+              <FlatClayGreenApple className="size-4.5 inline-block shrink-0" />
             </div>
+            <span className="whitespace-nowrap px-3 py-1 rounded-full font-black text-xs min-w-max flex items-center gap-1 text-mint-900 bg-white/95 border border-mint-300 shadow-2xs shrink-0">
+              {applesB} / {maxApplesPerBasket} <FlatClayGreenApple className="size-3.5 inline-block" />
+            </span>
           </div>
 
-          {/* THÀNH GIỎ MÂY ĐAN 3D VỮNG CHÃI TRÊN MẶT ĐẤT */}
+          {/* LÒNG GIỎ CHỨA TÁO KÉO THẢ & CHẠM 2 CHIỀU */}
           <div
             className={cn(
-              'w-full flex flex-col items-center rounded-t-2xl rounded-b-[2.5rem] border-4 shadow-clay transition-all duration-300 relative overflow-hidden',
-              isDragOverB
-                ? 'ring-2 ring-mint-300 border-mint-400 bg-mint-100/90 shadow-md'
-                : 'border-mint-200/90 bg-gradient-to-b from-mint-50/70 via-emerald-50/40 to-teal-50/60',
+              'relative z-10 w-full min-h-28 sm:min-h-32 p-3 sm:p-4 flex items-center justify-center flex-wrap gap-2 sm:gap-3 transition-colors',
+              isDragOverB && 'bg-mint-100/60',
             )}
           >
-            {/* Wicker Weave Texture Layer */}
-            <div
-              className="absolute inset-0 pointer-events-none opacity-40 rounded-t-2xl rounded-b-[2.5rem]"
-              style={wovenTextureStyle}
-            />
-
-            {/* MIỆNG GIỎ MÂY TRE ĐAN HIỂN THỊ SỐ LƯỢNG TINH GỌN */}
-            <div className="relative z-10 w-full bg-mint-100/90 border-b-2 border-mint-200 px-3.5 sm:px-4 py-2 flex items-center justify-between gap-2 shadow-2xs">
-              <div className="flex items-center gap-1.5 min-w-0">
-                <ShoppingBasket className="size-4 text-mint-800 shrink-0" />
-                <span className="text-xs sm:text-sm font-black text-mint-900 tracking-tight truncate">
-                  Giỏ B (Táo Xanh): 🍏
+            {basketGreenAppleIds.length === 0 ? (
+              <div className="flex flex-col items-center justify-center text-center py-2 text-mint-400 space-y-1">
+                <span className="text-2xl sm:text-3xl opacity-80">🧺</span>
+                <span className="text-xs font-black text-mint-700 italic">
+                  Chạm hoặc kéo táo xanh 🍏 vào giỏ B
                 </span>
               </div>
-              <span className="whitespace-nowrap px-3 py-1 rounded-full font-black text-xs min-w-max flex items-center gap-1.5 text-mint-900 bg-white/95 border border-mint-300 shadow-2xs shrink-0">
-                {applesB} / {maxApplesPerBasket} 🍏
-              </span>
-            </div>
-
-            {/* LÒNG GIỎ CHỨA TÁO KÉO THẢ & CHẠM 2 CHIỀU */}
-            <div
-              className={cn(
-                'relative z-10 w-full min-h-28 sm:min-h-32 p-3 sm:p-4 flex items-center justify-center flex-wrap gap-1.5 sm:gap-2 transition-colors',
-                isDragOverB && 'bg-mint-100/60',
-              )}
-            >
-              {basketGreenAppleIds.length === 0 ? (
-                <div className="flex flex-col items-center justify-center text-center py-2 text-mint-400 space-y-1">
-                  <span className="text-2xl sm:text-3xl opacity-80">🧺</span>
-                  <span className="text-xs font-black text-mint-700 italic">
-                    Chạm hoặc kéo táo xanh 🍏 vào giỏ B
-                  </span>
-                </div>
-              ) : (
-                basketGreenAppleIds.map((id) => (
-                  <button
-                    key={`basket-apple-b-${id}`}
-                    type="button"
-                    draggable
-                    onDragStart={(e) => handleBasketAppleDragStart(e, 'B', id)}
-                    onDragEnd={handleDragEnd}
-                    onClick={() => handleSubAppleWithId('B', id)}
-                    title="Chạm hoặc kéo về cây để trả táo xanh 🍏"
-                    className={cn(
-                      'text-3xl sm:text-4xl animate-in zoom-in-50 duration-200 select-none hover:scale-125 active:scale-95 transition-transform cursor-grab active:cursor-grabbing p-0.5 filter drop-shadow-sm',
-                      draggingItem?.source === 'basket' && draggingItem?.type === 'B' && draggingItem?.id === id && 'opacity-70 scale-110',
-                    )}
-                  >
-                    🍏
-                  </button>
-                ))
-              )}
-            </div>
-
-            {/* Dragging Feedback Indicator */}
-            {isDragOverB && (
-              <div className="relative z-10 w-full text-center pb-2 text-xs font-black text-mint-800 animate-pulse">
-                ✨ Thả tay để cho táo xanh vào Giỏ B!
-              </div>
+            ) : (
+              basketGreenAppleIds.map((id) => (
+                <button
+                  key={`basket-apple-b-${id}`}
+                  type="button"
+                  draggable
+                  onDragStart={(e) => handleBasketAppleDragStart(e, 'B', id)}
+                  onDragEnd={handleDragEnd}
+                  onClick={() => handleSubAppleWithId('B', id)}
+                  title="Chạm hoặc kéo về cây để trả táo xanh 🍏"
+                  aria-label={`Trả quả táo xanh số ${id + 1} về cây`}
+                  className={cn(
+                    'animate-in zoom-in-50 duration-200 select-none hover:scale-125 active:scale-95 transition-transform cursor-grab active:cursor-grabbing p-0.5 filter drop-shadow-sm',
+                    draggingItem?.source === 'basket' && draggingItem?.type === 'B' && draggingItem?.id === id && 'opacity-70 scale-110',
+                  )}
+                >
+                  <FlatClayGreenApple className="size-10 sm:size-12 pointer-events-none drop-shadow-sm" />
+                </button>
+              ))
             )}
           </div>
+
+          {/* Dragging Feedback Indicator */}
+          {isDragOverB && (
+            <div className="relative z-10 w-full text-center pb-2 text-xs font-black text-mint-800 animate-pulse">
+              ✨ Thả tay để cho táo xanh vào Giỏ B!
+            </div>
+          )}
         </div>
       </div>
 
@@ -800,8 +891,8 @@ export function AsmoInteractiveAppleTreeCanvas({
           {/* KHỐI PHÉP TÍNH ĐỒ CHƠI GỖ KHỔNG LỒ (GIANT MONTESSORI WOODEN BLOCKS) */}
           <div className="flex items-center justify-center gap-2 sm:gap-4 flex-wrap select-none my-1">
             {/* Khối Giỏ A */}
-            <div className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-2xl bg-coral-50 border-2 border-coral-200 text-coral-700 shadow-clay">
-              <span className="text-2xl sm:text-3xl">🍎</span>
+            <div className="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-2xl bg-coral-50 border-2 border-coral-200 text-coral-700 shadow-clay">
+              <FlatClayRedApple className="size-7 sm:size-8 shrink-0" />
               <span className="font-display font-black text-2xl sm:text-3xl text-coral-700">
                 {applesA}
               </span>
@@ -813,8 +904,8 @@ export function AsmoInteractiveAppleTreeCanvas({
             </div>
 
             {/* Khối Giỏ B */}
-            <div className="flex items-center gap-1.5 px-3.5 sm:px-4 py-2 rounded-2xl bg-mint-50 border-2 border-mint-200 text-mint-700 shadow-clay">
-              <span className="text-2xl sm:text-3xl">🍏</span>
+            <div className="flex items-center gap-2 px-3.5 sm:px-4 py-2 rounded-2xl bg-mint-50 border-2 border-mint-200 text-mint-700 shadow-clay">
+              <FlatClayGreenApple className="size-7 sm:size-8 shrink-0" />
               <span className="font-display font-black text-2xl sm:text-3xl text-mint-700">
                 {applesB}
               </span>
