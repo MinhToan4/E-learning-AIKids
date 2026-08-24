@@ -47,7 +47,7 @@ export type AsmoLessonPhase = 'explore' | 'tips' | 'practice' | 'quiz' | 'done'
 export const ASMO_LESSON_PHASES = [
   {
     id: 'explore' as const,
-    label: '1. 📖 Khám phá',
+    label: '1. Khám phá',
     title: 'Khám phá Khái niệm',
     description: 'Quan sát & Nhận diện',
     icon: BookOpen,
@@ -55,7 +55,7 @@ export const ASMO_LESSON_PHASES = [
   },
   {
     id: 'tips' as const,
-    label: '2. 💡 Mẹo Mee',
+    label: '2. Mẹo Mee',
     title: 'Mẹo Mèo Mee & Bí kíp',
     description: 'Bí kíp tính nhanh',
     icon: Lightbulb,
@@ -63,7 +63,7 @@ export const ASMO_LESSON_PHASES = [
   },
   {
     id: 'practice' as const,
-    label: '3. 🎮 Thực hành',
+    label: '3. Thực hành',
     title: 'Thực hành Thao tác',
     description: 'Thao tác trực quan',
     icon: Gamepad2,
@@ -71,7 +71,7 @@ export const ASMO_LESSON_PHASES = [
   },
   {
     id: 'quiz' as const,
-    label: '4. 🏆 Thử tài',
+    label: '4. Thử tài',
     title: 'Thử tài Olympic',
     description: 'Chinh phục 3 Sao',
     icon: Trophy,
@@ -305,6 +305,50 @@ export function AsmoCurriculumLessonPage() {
   const advanceToPhase = (nextPhase: AsmoLessonPhase) => {
     setPhase(nextPhase)
     setShowHint(false)
+  }
+
+  const handleSpeakCurrentPhase = () => {
+    if (!lesson) return
+    if (phase === 'explore') {
+      speakVietnamese(lesson.theory?.summary || lesson.title)
+    } else if (phase === 'tips') {
+      speakVietnamese(lesson.meeTip?.quote ? `${lesson.meeTip.quote}. ${lesson.meeTip.storyAdvice}` : lesson.title)
+    } else if (phase === 'practice') {
+      speakVietnamese(lesson.interactivePractice?.instruction || lesson.title)
+    } else if (phase === 'quiz') {
+      speakVietnamese(lesson.quiz?.questionText || lesson.title)
+    } else {
+      speakVietnamese(lesson.title)
+    }
+  }
+
+  const handleResetCurrentPhase = () => {
+    if (lesson?.visualType === 'apple_drop') {
+      setApplesA(0)
+      setApplesB(0)
+    } else if (lesson?.visualType === 'balloon_pop') {
+      setPoppedBalloons([])
+    } else if (lesson?.visualType === 'cake_tray') {
+      setCakeRows(3)
+      setCakeCols(4)
+    } else if (lesson?.visualType === 'analog_clock' || lesson?.visualType === 'elapsed_time') {
+      setClockHour(8)
+      setClockMinute(15)
+    } else if (
+      lesson?.visualType === 'pizza_fraction' ||
+      lesson?.visualType === 'compare_fractions' ||
+      lesson?.visualType === 'fraction_add_sub' ||
+      lesson?.visualType === 'fraction_of_number'
+    ) {
+      setPizzaShaded(0)
+    } else if (lesson?.visualType === 'candy_division' || lesson?.visualType === 'div_remainder') {
+      setCandyTotal(12)
+      setCandyPlates(3)
+    }
+    setSelectedOptionId(null)
+    setQuizSubmitted(false)
+    setPracticeCompleted(false)
+    setPracticeFeedback(null)
   }
 
   // ── Step 3: Verify Practice ──
@@ -762,30 +806,27 @@ export function AsmoCurriculumLessonPage() {
           LEFT COLUMN: 70% MAIN STAGE & LESSON WORKSPACE
       ══════════════════════════════════════════════════════════════════════ */}
       <div className="flex-1 flex flex-col gap-3 sm:gap-4 min-w-0 overflow-hidden">
-        {/* ── 1. HEADER CARD (COMPACT HERO HEADER) ── */}
-        <div className="ui-card p-3 sm:p-4 shrink-0 bg-white rounded-3xl border-2 border-brand-100 shadow-clay space-y-2.5">
-          {/* Dòng 1: Breadcrumb nhẹ nhàng + Badge XP & Thẻ Sao trạm ⭐⭐⭐ */}
-          <div className="flex flex-wrap items-center justify-between gap-2">
-            <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 min-w-0">
+        {/* ── 1. HEADER CARD (COMPACT 2-ROW HERO HEADER) ── */}
+        <div className="ui-card p-3 sm:p-4 shrink-0 bg-white rounded-3xl border border-brand-100 shadow-xs space-y-2.5">
+          {/* Hàng 1 (Top Action Header - 1 hàng ngang duy nhất): Trái: Tên bài học | Phải: Star Rack + XP + Loa + Đặt lại */}
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-2 min-w-0">
               <Link
                 to={`/asmo/curriculum?stage=${stage.id}`}
-                className="hover:text-brand-600 transition-colors font-bold text-slate-500 hover:underline truncate max-w-[200px] sm:max-w-none"
+                title="Quay lại danh sách bài học"
+                className="size-8 sm:size-9 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 flex items-center justify-center transition-all cursor-pointer shrink-0"
               >
-                Chặng {stage.stageNumber}: {stage.title.split(':')[1]?.trim() || stage.title}
+                <ChevronLeft className="size-4" />
               </Link>
-              <span className="text-slate-300 select-none">›</span>
-              <span className="font-extrabold text-brand-700 truncate">
+              <h1 className="font-display text-base sm:text-lg font-black text-slate-900 truncate">
                 Trạm {lesson.lessonNumber}: <AsmoFormula text={lesson.title} />
-              </span>
-            </nav>
+              </h1>
+            </div>
 
             <div className="flex items-center gap-2 shrink-0">
-              <span className="rounded-xl bg-sun-50 border border-sun-200 px-2 py-0.5 text-xs font-bold text-sun-950 flex items-center gap-1">
-                <Zap className="size-3 text-amber-500 fill-amber-500" />
-                +{lesson.xpReward} XP
-              </span>
+              {/* Star Rack */}
               <div
-                className="lesson-star-rack flex items-center gap-1 bg-sun-50/80 border border-sun-200 rounded-xl px-2 py-0.5 shadow-2xs"
+                className="lesson-star-rack flex items-center gap-1 bg-sun-50/90 border border-sun-200 rounded-xl px-2 py-1 shadow-2xs"
                 aria-label={`Sao của trạm: ${liveStars} sao đã nhận`}
               >
                 <span className="text-[11px] font-extrabold text-sun-950 mr-0.5 hidden sm:inline">
@@ -817,27 +858,41 @@ export function AsmoCurriculumLessonPage() {
                     </span>
                   ))}
               </div>
+
+              {/* XP Badge */}
+              <span className="rounded-xl bg-sun-50 border border-sun-200 px-2 py-1 text-xs font-bold text-sun-950 flex items-center gap-1">
+                <Zap className="size-3 text-amber-500 fill-amber-500" />
+                +{lesson.xpReward} XP
+              </span>
+
+              {/* Nút Loa 🔊 */}
+              <button
+                type="button"
+                onClick={handleSpeakCurrentPhase}
+                title="Nghe Mèo Mee đọc hướng dẫn"
+                aria-label="Phát âm thanh giọng nói"
+                className="flex items-center justify-center size-8 sm:size-9 rounded-xl bg-brand-500 hover:bg-brand-600 text-white shadow-2xs transition-all active:scale-90 cursor-pointer"
+              >
+                <Volume2 className="size-4 stroke-[2.5]" />
+              </button>
+
+              {/* Nút Đặt lại 🔄 */}
+              <button
+                type="button"
+                onClick={handleResetCurrentPhase}
+                title="Đặt lại thao tác"
+                aria-label="Đặt lại thao tác"
+                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs transition-all active:scale-95 cursor-pointer"
+              >
+                <RotateCcw className="size-3.5 text-brand-600" />
+                <span className="hidden sm:inline">Đặt lại</span>
+              </button>
             </div>
           </div>
 
-          {/* Dòng 2: Tiêu đề bài học */}
-          <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
-            <h1 className="font-display text-xl sm:text-2xl font-black text-slate-900 tracking-tight leading-tight">
-              <AsmoFormula text={lesson.title} />
-            </h1>
-            {!isElementary && (
-              <p className="text-xs sm:text-sm font-semibold text-slate-500 truncate shrink-0">
-                <span className="text-slate-400">Sản phẩm của trạm:</span>{' '}
-                <strong className="text-slate-700 font-bold">
-                  <AsmoFormula text={lesson.subtitle} />
-                </strong>
-              </p>
-            )}
-          </div>
-
-          {/* ── 2. THANH 4 TAB STEPPER SIÊU TINH TẾ (COMPACT 1-ROW STEPPER) ── */}
+          {/* Hàng 2 (4 Bước Stepper 1 hàng) */}
           <nav
-            className="grid grid-cols-4 gap-1.5 sm:gap-2 p-1 sm:p-1.5 bg-brand-50/50 rounded-2xl border-2 border-brand-100"
+            className="grid grid-cols-4 gap-1.5 sm:gap-2 p-1 bg-brand-50/50 rounded-2xl border border-brand-100"
             aria-label="Các giai đoạn bài học"
           >
             {ASMO_LESSON_PHASES.map((p, idx) => {
@@ -856,16 +911,16 @@ export function AsmoCurriculumLessonPage() {
                     setShowHint(false)
                   }}
                   className={cn(
-                    'flex items-center justify-center gap-1 sm:gap-1.5 py-1.5 px-2 rounded-xl text-xs sm:text-sm transition-all select-none cursor-pointer text-center truncate',
+                    'flex items-center justify-center gap-1 py-1.5 px-2 rounded-xl text-xs sm:text-sm transition-all select-none cursor-pointer text-center truncate',
                     isActive
-                      ? 'bg-brand-500 text-white shadow-clay border-2 border-brand-500 font-extrabold scale-[1.01]'
+                      ? 'bg-brand-500 text-white shadow-sm border border-brand-600 font-extrabold scale-[1.01]'
                       : isDone
-                        ? 'bg-mint-50 text-mint-700 border-2 border-mint-200 font-bold'
-                        : 'bg-white text-slate-600 hover:bg-slate-50 border-2 border-slate-200 font-bold',
+                        ? 'bg-mint-50 text-mint-700 border border-mint-200 font-bold'
+                        : 'bg-white text-slate-600 hover:bg-slate-50 border border-slate-200 font-bold',
                   )}
                 >
                   {isDone && !isActive && (
-                    <span className="size-4 rounded-full bg-mint-600 text-white flex items-center justify-center text-[10px] font-black shrink-0">
+                    <span className="size-3.5 rounded-full bg-mint-600 text-white flex items-center justify-center text-[9px] font-black shrink-0">
                       ✓
                     </span>
                   )}
@@ -879,13 +934,13 @@ export function AsmoCurriculumLessonPage() {
         {/* ── 3. KHU VỰC NỘI DUNG CHÍNH (FULL-WIDTH FOR ELEMENTARY / 70% FOR SECONDARY) ── */}
         <main className="lesson-stage-main min-h-0 flex-1 relative overflow-y-auto hidden-scrollbar pb-6 pr-1 space-y-4">
           {/* ══════════════════════════════════════════════════════════════════
-              PHASE 1: 📖 KHÁM PHÁ KHÁI NIỆM (QUAN SÁT & NHẬN DIỆN)
+              PHASE 1: KHÁM PHÁ KHÁI NIỆM (QUAN SÁT & NHẬN DIỆN)
           ══════════════════════════════════════════════════════════════════ */}
           {phase === 'explore' && (
-            <div className="rounded-3xl border-2 border-brand-100 shadow-clay bg-white p-4 sm:p-7 space-y-4 sm:space-y-5 animate-fade-up">
+            <div className="rounded-3xl border border-brand-100 shadow-xs bg-white p-4 sm:p-6 space-y-4 animate-fade-up">
               {/* Theory Card for Secondary / High School only */}
               {!isElementary && (
-                <div className="rounded-2xl bg-brand-50/80 border-2 border-brand-100 p-5 space-y-2.5">
+                <div className="rounded-2xl bg-brand-50/80 border border-brand-100 p-4 space-y-2">
                   <div className="flex items-center gap-2 text-brand-600 font-extrabold text-xs uppercase tracking-wider">
                     <Sparkles className="size-4 text-amber-500" />
                     <span>Trọng Tâm Kiến Thức Bài Học</span>
@@ -897,7 +952,7 @@ export function AsmoCurriculumLessonPage() {
                     <AsmoFormula text={lesson.theory.summary} />
                   </p>
                   {lesson.theory.formulaLatex && (
-                    <div className="p-3 rounded-2xl bg-white border-2 border-brand-100 text-center font-mono text-brand-800 text-sm sm:text-base shadow-2xs font-bold">
+                    <div className="p-3 rounded-2xl bg-white border border-brand-100 text-center font-mono text-brand-800 text-sm sm:text-base shadow-2xs font-bold">
                       <AsmoFormula text={`$$${lesson.theory.formulaLatex}$$`} />
                     </div>
                   )}
@@ -905,7 +960,7 @@ export function AsmoCurriculumLessonPage() {
               )}
 
               {/* Dynamic Interactive Pedagogical Visualizer for Lesson */}
-              <div className="rounded-3xl bg-brand-50/40 border-2 border-brand-100 p-4 sm:p-6 flex flex-col items-center justify-center space-y-4 min-h-[280px]">
+              <div className="w-full flex flex-col items-center justify-center">
                 {/* 1. Apple Drop Visualizer */}
                 {lesson.visualType === 'apple_drop' && (
                   <div className="w-full max-w-4xl mx-auto">
@@ -925,7 +980,6 @@ export function AsmoCurriculumLessonPage() {
                         setApplesB(0)
                       }}
                       onNextPhase={() => advanceToPhase('tips')}
-                      instruction="🍎 Chạm hoặc kéo táo vào giỏ để gộp thành 10 nhé! 🧺"
                     />
                   </div>
                 )}

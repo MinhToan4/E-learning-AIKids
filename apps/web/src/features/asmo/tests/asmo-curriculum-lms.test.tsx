@@ -353,10 +353,10 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).toContain('+50 XP')
 
     // 2. Compact 1-Row Stepper Tabs
-    expect(markup).toContain('1. 📖 Khám phá')
-    expect(markup).toContain('2. 💡 Mẹo Mee')
-    expect(markup).toContain('3. 🎮 Thực hành')
-    expect(markup).toContain('4. 🏆 Thử tài')
+    expect(markup).toContain('1. Khám phá')
+    expect(markup).toContain('2. Mẹo Mee')
+    expect(markup).toContain('3. Thực hành')
+    expect(markup).toContain('4. Thử tài')
 
     // 3. Main Stage Visualizer for Elementary (Visual-First Canvas)
     expect(markup).toContain('Giỏ A (Táo Đỏ):')
@@ -402,7 +402,6 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).toContain('Trọng Tâm Kiến Thức Bài Học')
     expect(markup).toContain('🌟 Ghi Nhớ Nhanh:')
     expect(markup).toContain('Chỉnh Giờ:')
-    expect(markup).toContain('Sản phẩm của trạm:')
     expect(markup).toContain('<aside')
     expect(markup).toContain('Mee đang hỗ trợ: Con làm được! 🐾')
     expect(markup).toContain('🔊 Nghe Mee Đọc')

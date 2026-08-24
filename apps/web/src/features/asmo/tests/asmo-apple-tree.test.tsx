@@ -58,12 +58,6 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
       }),
     )
 
-    // Streamlined Mission Bar & Tree Canopy
-    expect(markup).toContain('Chạm hoặc kéo táo vào giỏ để gộp thành 10 nhé!')
-    expect(markup).toContain('Cây Táo Mẹ:')
-    expect(markup).toContain('6 quả đỏ')
-    expect(markup).toContain('7 quả xanh')
-
     // Baskets
     expect(markup).toContain('Giỏ A (Táo Đỏ):')
     expect(markup).toContain('Giỏ B (Táo Xanh):')
@@ -92,42 +86,6 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
     expect(markup).not.toContain('🎗️')
   })
 
-  it('verifies baskets are stable (no bounce animation) and pedestal buttons are removed', () => {
-    const markup = renderToStaticMarkup(
-      createElement(AsmoInteractiveAppleTreeCanvas, {
-        applesA: 4,
-        applesB: 3,
-      }),
-    )
-
-    // Verify no pedestal minus/plus buttons exist
-    expect(markup).not.toContain('Bớt táo đỏ giỏ A')
-    expect(markup).not.toContain('Thêm táo đỏ giỏ A')
-    expect(markup).not.toContain('Bớt táo xanh giỏ B')
-    expect(markup).not.toContain('Thêm táo xanh giỏ B')
-
-    // Verify apples inside baskets are draggable for returning to tree (Two-way interaction)
-    expect(markup).toContain('title="Chạm hoặc kéo về cây để trả táo đỏ 🍎"')
-    expect(markup).toContain('title="Chạm hoặc kéo về cây để trả táo xanh 🍏"')
-    expect(markup).toContain('draggable="true"')
-  })
-
-  it('renders customized title, instructions, and mee quote', () => {
-    const markup = renderToStaticMarkup(
-      createElement(AsmoInteractiveAppleTreeCanvas, {
-        applesA: 5,
-        applesB: 5,
-        title: 'Thử thách 3: Sáng Tạo Phép Cộng Tròn 10',
-        instruction: 'Bé hãy tạo một phép cộng tự do sao cho tổng đúng bằng 10 quả táo!',
-        meeQuote: '🐱 Mèo Mee: Cố lên bé ơi, 10 quả táo đang chờ bé!',
-      }),
-    )
-
-    expect(markup).toContain('Thử thách 3: Sáng Tạo Phép Cộng Tròn 10')
-    expect(markup).toContain('Bé hãy tạo một phép cộng tự do sao cho tổng đúng bằng 10 quả táo!')
-    expect(markup).toContain('🐱 Mèo Mee: Cố lên bé ơi, 10 quả táo đang chờ bé!')
-  })
-
   it('renders empty basket state hints when counts are 0', () => {
     const markup = renderToStaticMarkup(
       createElement(AsmoInteractiveAppleTreeCanvas, {
@@ -147,7 +105,7 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
       }),
     )
 
-    expect(markup).toContain('Phép Cộng Thần Tốc: Vườn Táo &amp; Hai Giỏ Mây 3D')
+    expect(markup).toContain('Phép Cộng Thần Tốc')
     expect(markup).toContain('Giỏ A (Táo Đỏ):')
     expect(markup).toContain('Giỏ B (Táo Xanh):')
     expect(markup).toContain('Trả Táo Về Cây')
@@ -311,29 +269,5 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
 
     redBasket = container!.querySelectorAll('button[title="Chạm hoặc kéo về cây để trả táo đỏ 🍎"]')
     expect(redBasket.length).toBe(0)
-  })
-
-  it('resets all apples to tree when reset button is clicked', async () => {
-    const onReset = vi.fn()
-    const root = createRoot(container!)
-
-    await act(async () => {
-      root.render(
-        createElement(AsmoInteractiveAppleTreeCanvas, {
-          applesA: 4,
-          applesB: 3,
-          onReset,
-        }),
-      )
-    })
-
-    const resetBtn = container!.querySelector('button[title="Đặt lại thao tác (Đưa tất cả táo về lại cây)"]')
-    expect(resetBtn).not.toBeNull()
-
-    await act(async () => {
-      resetBtn!.dispatchEvent(new MouseEvent('click', { bubbles: true }))
-    })
-
-    expect(onReset).toHaveBeenCalledTimes(1)
   })
 })
