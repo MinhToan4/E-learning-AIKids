@@ -91,6 +91,7 @@ export const designerAssets = {
   },
   asmoScenes: {
     appleForest: '/assets/asmo-scenes/scene_apple_forest.png',
+    treeMother: '/assets/asmo-scenes/tree_mother_soft_clay.png',
     sweetBakery: '/assets/asmo-scenes/scene_sweet_bakery.png',
     pizzaOcean: '/assets/asmo-scenes/scene_pizza_ocean.png',
     clockMountain: '/assets/asmo-scenes/scene_clock_mountain.png',

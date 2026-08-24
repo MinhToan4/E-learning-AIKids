@@ -134,7 +134,7 @@ describe('ASMO 3D Learning Journey & Topics', () => {
     const addMarkup = renderToStaticMarkup(createElement(AsmoKidsArithmeticVisualizer, { mode: 'addition' }))
     expect(addMarkup).toContain('Giỏ A')
     expect(addMarkup).toContain('Giỏ B')
-    expect(addMarkup).toContain('Tổng số táo trong cả 2 giỏ')
+    expect(addMarkup).toContain('TỔNG SỐ TÁO TRONG CẢ 2 GIỎ')
 
     // 2. Subtraction mode
     const subMarkup = renderToStaticMarkup(createElement(AsmoKidsArithmeticVisualizer, { mode: 'subtraction' }))

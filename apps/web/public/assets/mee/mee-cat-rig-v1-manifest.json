@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "artboard": {
+    "name": "Mee Cat",
+    "width": 834,
+    "height": 711,
+    "baseline": 650
+  },
+  "stateMachine": "MeeCatController",
+  "inputs": [
+    {
+      "name": "state",
+      "type": "number",
+      "values": {
+        "idle": 0,
+        "look": 1,
+        "hint": 2,
+        "celebrate": 3,
+        "eat": 4,
+        "sleepy": 5
+      },
+      "description": "Chuyển trạng thái hoạt ảnh chính của Mèo Mee"
+    },
+    {
+      "name": "blink",
+      "type": "trigger",
+      "description": "Kích hoạt hiệu ứng chớp mắt tức thì"
+    },
+    {
+      "name": "lookX",
+      "type": "number",
+      "min": -100,
+      "max": 100,
+      "description": "Tọa độ liếc mắt & nghiêng đầu theo phương ngang"
+    },
+    {
+      "name": "lookY",
+      "type": "number",
+      "min": -100,
+      "max": 100,
+      "description": "Tọa độ liếc mắt & nghiêng đầu theo phương dọc"
+    },
+    {
+      "name": "earWiggle",
+      "type": "number",
+      "min": -30,
+      "max": 30,
+      "description": "Góc lắc ve vẩy tai"
+    }
+  ],
+  "pivots": {
+    "root": [417, 650],
+    "head": [417, 355],
+    "leftEar": [172, 152],
+    "rightEar": [660, 152],
+    "leftPaw": [180, 560],
+    "rightPaw": [650, 560],
+    "leftEye": [290, 138],
+    "rightEye": [544, 138]
+  },
+  "timelines": {
+    "idle": { "duration": 2400, "loop": true },
+    "hint": { "duration": 1800, "loop": false },
+    "celebrate": { "duration": 1200, "loop": true },
+    "eat": { "duration": 1600, "loop": true },
+    "sleepy": { "duration": 3000, "loop": true }
+  },
+  "source": "mee-cat-rig-v1-source.svg",
+  "output": "mee-cat-rig-v1.riv"
+}

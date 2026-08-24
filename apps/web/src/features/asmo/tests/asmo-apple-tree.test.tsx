@@ -44,11 +44,15 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
     expect(markup).toContain('4 / 10 🍎')
     expect(markup).toContain('3 / 10 🍏')
 
-    // Realtime calculation bar
-    expect(markup).toContain('Tổng số táo trong cả 2 giỏ')
-    expect(markup).toContain('7 quả táo tổng cộng')
-    expect(markup).toContain('7 quả táo thơm ngon')
-    expect(markup).toContain('katex')
+    // Tree Mother Soft Clay 2.5D Diorama
+    expect(markup).toContain('tree_mother_soft_clay.png')
+    expect(markup).toContain('alt="Cây Táo Mẹ Soft Clay 2.5D"')
+
+    // Streamlined realtime calculation bar (no duplicated text/formula)
+    expect(markup).toContain('TỔNG SỐ TÁO TRONG CẢ 2 GIỎ')
+    expect(markup).not.toContain('quả táo tổng cộng')
+    expect(markup).not.toContain('quả táo thơm ngon')
+    expect(markup).not.toContain('katex')
   })
 
   it('verifies baskets are stable (no bounce animation) and pedestal buttons are removed', () => {
@@ -85,8 +89,6 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
     expect(markup).toContain('Thử thách 3: Sáng Tạo Phép Cộng Tròn 10')
     expect(markup).toContain('Bé hãy tạo một phép cộng tự do sao cho tổng đúng bằng 10 quả táo!')
     expect(markup).toContain('🐱 Mèo Mee: Cố lên bé ơi, 10 quả táo đang chờ bé!')
-    expect(markup).toContain('10 quả táo tổng cộng')
-    expect(markup).toContain('10 quả táo thơm ngon')
   })
 
   it('renders empty basket state hints when counts are 0', () => {
@@ -99,8 +101,6 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
 
     expect(markup).toContain('Chạm hoặc kéo táo đỏ 🍎 vào giỏ A')
     expect(markup).toContain('Chạm hoặc kéo táo xanh 🍏 vào giỏ B')
-    expect(markup).toContain('0 quả táo tổng cộng')
-    expect(markup).toContain('0 quả táo thơm ngon')
   })
 
   it('renders within AsmoKidsArithmeticVisualizer in addition mode seamlessly', () => {

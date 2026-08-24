@@ -3,11 +3,19 @@ import { Navigate, Route, Routes } from 'react-router'
 import { useAuth } from '@/shared/store/auth'
 import { AppShell } from '@/shared/components/layout/AppShell'
 import { AgeExperienceProvider } from '@/shared/age-experience/AgeExperienceProvider'
-import { WelcomePage } from '@/features/auth/pages/WelcomePage'
-import { LoginPage } from '@/features/auth/pages/LoginPage'
 import { AUTH_UNAUTHORIZED_EVENT, type User } from '@/shared/lib/api'
 
 // Lazy auth pages
+const WelcomePage = lazy(() =>
+  import('@/features/auth/pages/WelcomePage').then((m) => ({
+    default: m.WelcomePage,
+  })),
+)
+const LoginPage = lazy(() =>
+  import('@/features/auth/pages/LoginPage').then((m) => ({
+    default: m.LoginPage,
+  })),
+)
 const RegisterPage = lazy(() =>
   import('@/features/auth/pages/RegisterPage').then((m) => ({
     default: m.RegisterPage,
@@ -73,6 +81,11 @@ const ProfilePage = lazy(() =>
 const AvatarStudioPage = lazy(() =>
   import('@/features/avatar-studio/AvatarStudioPage').then((m) => ({
     default: m.AvatarStudioPage,
+  })),
+)
+const MeeCatStudioPage = lazy(() =>
+  import('@/features/mee-rig/pages/MeeCatStudioPage').then((m) => ({
+    default: m.MeeCatStudioPage,
   })),
 )
 const PublicProfilePage = lazy(() =>
@@ -386,6 +399,14 @@ export function App() {
                   <AvatarStudioPage />
                 </Guard>
               }
+            />
+            <Route
+              path="/lab/mee-cat"
+              element={<MeeCatStudioPage />}
+            />
+            <Route
+              path="/mee-cat-studio"
+              element={<MeeCatStudioPage />}
             />
             <Route
               path="/community"

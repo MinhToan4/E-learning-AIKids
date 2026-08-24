@@ -10,6 +10,7 @@ import { cn } from '@/shared/lib/cn'
 import { PinPadModal } from '@/shared/components/ui/PinPadModal'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
+import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 
 type ChildCard = {
   id: string
@@ -153,10 +154,9 @@ export function ChildPickerPage() {
 
         {kids.length === 0 && !loading ? (
           <div className="ui-card mx-auto flex max-w-md flex-col items-center gap-4 p-8 text-center">
-            <img
-              src={designerAssets.brand.mascot}
-              alt=""
-              className="h-24 w-24 rounded-2xl object-cover shadow-soft"
+            <AikidCatCharacter
+              pose="welcome"
+              className="h-28 w-28 shrink-0 drop-shadow-md"
             />
             <h2 className="font-display text-2xl">Chưa có hồ sơ con</h2>
             <p className="text-sm text-muted">

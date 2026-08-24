@@ -106,9 +106,9 @@ describe('designer AIKid assets on disk', () => {
     )
   })
 
-  it('includes all 5 ASMO Soft Clay transparent diorama scenes', () => {
+  it('includes all ASMO Soft Clay transparent diorama scenes (islands + tree mother)', () => {
     const scenes = Object.values(designerAssets.asmoScenes)
-    expect(scenes).toHaveLength(5)
+    expect(scenes).toHaveLength(6)
     for (const scenePath of scenes) {
       expect(scenePath.endsWith('.png')).toBe(true)
       expect(existsSync(publicPath(scenePath)), `scene asset missing: ${scenePath}`).toBe(true)

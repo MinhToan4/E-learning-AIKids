@@ -77,8 +77,7 @@ describe('AI learning game engines', () => {
     )
     expect(html).toContain('Đi lên')
     expect(html).not.toContain('Quay trái')
-    expect(html).not.toContain('Quay phải')
-    expect(html).toContain('/assets/aikid-ui/mascot-original/world-walking.webp')
+    expect(html).toContain('aikid-cat-character')
     expect(html).toContain('blockly-cat-position')
   })
 

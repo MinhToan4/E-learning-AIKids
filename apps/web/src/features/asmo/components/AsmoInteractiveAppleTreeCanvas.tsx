@@ -1,6 +1,6 @@
-import { useState, useMemo, useEffect } from 'react'
+import { useState, useEffect } from 'react'
 import { Sparkles, RefreshCw, ShoppingBasket, Volume2, ArrowRight, Star } from 'lucide-react'
-import { AsmoFormula } from './AsmoFormula'
+import { designerAssets } from '@/shared/config/assets'
 import { cn } from '@/shared/lib/cn'
 
 export type AppleBasketType = 'A' | 'B'
@@ -44,31 +44,31 @@ export function speakVietnamese(text: string) {
   }
 }
 
-// Organic pre-defined positions for hanging apples on the tree canopy
+// Organic pre-defined positions for hanging apples on the 2D flat soft clay mother tree canopy
 const RED_APPLE_POSITIONS = [
-  { top: '24%', left: '20%', rot: '-6deg', delay: '0ms' },
-  { top: '34%', left: '19%', rot: '8deg', delay: '120ms' },
-  { top: '26%', left: '29%', rot: '-4deg', delay: '240ms' },
-  { top: '44%', left: '22%', rot: '5deg', delay: '180ms' },
-  { top: '23%', left: '38%', rot: '-8deg', delay: '60ms' },
-  { top: '36%', left: '31%', rot: '7deg', delay: '300ms' },
-  { top: '48%', left: '28%', rot: '-3deg', delay: '150ms' },
-  { top: '30%', left: '41%', rot: '6deg', delay: '210ms' },
-  { top: '44%', left: '39%', rot: '-5deg', delay: '90ms' },
-  { top: '50%', left: '34%', rot: '4deg', delay: '270ms' },
+  { top: '18%', left: '38%', rot: '-4deg', delay: '0ms' },
+  { top: '22%', left: '30%', rot: '6deg', delay: '120ms' },
+  { top: '30%', left: '25%', rot: '-8deg', delay: '240ms' },
+  { top: '38%', left: '28%', rot: '5deg', delay: '180ms' },
+  { top: '28%', left: '36%', rot: '-5deg', delay: '60ms' },
+  { top: '46%', left: '24%', rot: '7deg', delay: '300ms' },
+  { top: '48%', left: '32%', rot: '-3deg', delay: '150ms' },
+  { top: '40%', left: '38%', rot: '6deg', delay: '210ms' },
+  { top: '48%', left: '40%', rot: '-6deg', delay: '90ms' },
+  { top: '22%', left: '44%', rot: '4deg', delay: '270ms' },
 ]
 
 const GREEN_APPLE_POSITIONS = [
-  { top: '24%', left: '57%', rot: '5deg', delay: '50ms' },
-  { top: '35%', left: '58%', rot: '-7deg', delay: '190ms' },
-  { top: '23%', left: '67%', rot: '6deg', delay: '110ms' },
-  { top: '43%', left: '66%', rot: '-4deg', delay: '260ms' },
-  { top: '26%', left: '77%', rot: '8deg', delay: '80ms' },
-  { top: '48%', left: '59%', rot: '-6deg', delay: '220ms' },
-  { top: '44%', left: '78%', rot: '5deg', delay: '140ms' },
-  { top: '50%', left: '70%', rot: '-8deg', delay: '310ms' },
-  { top: '32%', left: '73%', rot: '4deg', delay: '170ms' },
-  { top: '32%', left: '60%', rot: '-5deg', delay: '250ms' },
+  { top: '18%', left: '58%', rot: '4deg', delay: '50ms' },
+  { top: '22%', left: '66%', rot: '-6deg', delay: '190ms' },
+  { top: '30%', left: '72%', rot: '8deg', delay: '110ms' },
+  { top: '38%', left: '68%', rot: '-5deg', delay: '260ms' },
+  { top: '28%', left: '60%', rot: '6deg', delay: '80ms' },
+  { top: '46%', left: '72%', rot: '-7deg', delay: '220ms' },
+  { top: '48%', left: '64%', rot: '5deg', delay: '140ms' },
+  { top: '40%', left: '58%', rot: '-4deg', delay: '310ms' },
+  { top: '48%', left: '56%', rot: '5deg', delay: '170ms' },
+  { top: '22%', left: '52%', rot: '-5deg', delay: '250ms' },
 ]
 
 function createInitialAppleIds(count: number, max: number): number[] {
@@ -357,11 +357,6 @@ export function AsmoInteractiveAppleTreeCanvas({
     setIsDragOverTree(false)
   }
 
-  // KaTeX formula string
-  const formulaLatex = useMemo(() => {
-    return `\\mathbf{${applesA}} + \\mathbf{${applesB}} = \\mathbf{${totalApples}}`
-  }, [applesA, applesB, totalApples])
-
   // Subtle woven wicker background styling
   const wovenTextureStyle = {
     backgroundImage: `repeating-linear-gradient(45deg, rgba(217, 119, 6, 0.09) 0px, rgba(217, 119, 6, 0.09) 6px, transparent 6px, transparent 12px), repeating-linear-gradient(-45deg, rgba(217, 119, 6, 0.09) 0px, rgba(217, 119, 6, 0.09) 6px, transparent 6px, transparent 12px)`,
@@ -440,7 +435,7 @@ export function AsmoInteractiveAppleTreeCanvas({
         onDragLeave={handleDragLeaveTree}
         onDrop={handleDropOnTree}
         className={cn(
-          'relative w-full max-w-2xl h-64 sm:h-76 rounded-3xl overflow-hidden bg-gradient-to-b from-sky-100/90 via-sky-50/70 to-mint-50/80 border-2 border-brand-100 shadow-inner flex items-center justify-center p-2 transition-all duration-300',
+          'relative w-full max-w-2xl h-72 sm:h-80 md:h-96 rounded-3xl overflow-hidden bg-gradient-to-b from-sky-100/90 via-sky-50/70 to-mint-50/80 border-2 border-brand-100 shadow-inner flex items-center justify-center p-2 transition-all duration-300',
           isDragOverTree && 'ring-4 ring-emerald-400 bg-emerald-100/60 shadow-lg',
         )}
       >
@@ -463,95 +458,12 @@ export function AsmoInteractiveAppleTreeCanvas({
           </div>
         )}
 
-        {/* Tree Trunk & Branches (Soft Clay SVG Canvas) */}
-        <svg
-          className="absolute inset-0 w-full h-full pointer-events-none z-0"
-          viewBox="0 0 600 280"
-          preserveAspectRatio="none"
-        >
-          <defs>
-            <linearGradient id="trunkGrad" x1="0" y1="0" x2="1" y2="0">
-              <stop offset="0%" stopColor="#78350f" />
-              <stop offset="35%" stopColor="#92400e" />
-              <stop offset="70%" stopColor="#b45309" />
-              <stop offset="100%" stopColor="#78350f" />
-            </linearGradient>
-            <linearGradient id="canopyGrad1" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#34d399" />
-              <stop offset="50%" stopColor="#10b981" />
-              <stop offset="100%" stopColor="#059669" />
-            </linearGradient>
-            <linearGradient id="canopyGrad2" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#4ade80" />
-              <stop offset="50%" stopColor="#22c55e" />
-              <stop offset="100%" stopColor="#16a34a" />
-            </linearGradient>
-            <linearGradient id="canopyGradHighlight" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#86efac" />
-              <stop offset="100%" stopColor="#22c55e" />
-            </linearGradient>
-            <filter id="softShadow" x="-10%" y="-10%" width="120%" height="130%">
-              <feDropShadow dx="0" dy="5" stdDeviation="6" floodColor="#064e3b" floodOpacity="0.28" />
-            </filter>
-          </defs>
-
-          {/* Meadow Hills Grass */}
-          <path
-            d="M 0,230 Q 150,210 300,235 T 600,225 L 600,280 L 0,280 Z"
-            fill="#a7f3d0"
-            opacity="0.8"
-          />
-          <path
-            d="M 0,245 Q 200,230 400,250 T 600,240 L 600,280 L 0,280 Z"
-            fill="#6ee7b7"
-            opacity="0.9"
-          />
-
-          {/* Sturdy Tree Trunk with Root Outlines */}
-          <path
-            d="M 270,140 Q 260,195 240,265 L 360,265 Q 340,195 330,140 Z"
-            fill="url(#trunkGrad)"
-          />
-          {/* Main Branches */}
-          <path
-            d="M 275,150 Q 200,120 160,105 Q 195,130 270,165 Z"
-            fill="#92400e"
-          />
-          <path
-            d="M 325,150 Q 400,120 440,105 Q 405,130 330,165 Z"
-            fill="#92400e"
-          />
-
-          {/* Lush Green Canopy Layers */}
-          <g filter="url(#softShadow)">
-            {/* Background deeper green foliage */}
-            <circle cx="160" cy="110" r="68" fill="url(#canopyGrad1)" />
-            <circle cx="440" cy="110" r="68" fill="url(#canopyGrad1)" />
-            <circle cx="230" cy="75" r="75" fill="url(#canopyGrad1)" />
-            <circle cx="370" cy="75" r="75" fill="url(#canopyGrad1)" />
-            <circle cx="300" cy="65" r="85" fill="url(#canopyGrad1)" />
-
-            {/* Foreground vibrant lime/mint foliage clusters */}
-            <circle cx="190" cy="130" r="62" fill="url(#canopyGrad2)" />
-            <circle cx="410" cy="130" r="62" fill="url(#canopyGrad2)" />
-            <circle cx="250" cy="115" r="68" fill="url(#canopyGrad2)" />
-            <circle cx="350" cy="115" r="68" fill="url(#canopyGrad2)" />
-            <circle cx="300" cy="105" r="72" fill="url(#canopyGrad2)" />
-          </g>
-
-          {/* Highlight Canopy Bubbles */}
-          <circle cx="270" cy="65" r="35" fill="url(#canopyGradHighlight)" opacity="0.6" />
-          <circle cx="150" cy="95" r="30" fill="url(#canopyGradHighlight)" opacity="0.6" />
-          <circle cx="430" cy="95" r="30" fill="url(#canopyGradHighlight)" opacity="0.6" />
-
-          {/* Flowers on Meadow */}
-          <circle cx="70" cy="260" r="6" fill="#f43f5e" />
-          <circle cx="90" cy="265" r="5" fill="#fbbf24" />
-          <circle cx="530" cy="262" r="6" fill="#ec4899" />
-          <circle cx="510" cy="268" r="5" fill="#fbbf24" />
-          <circle cx="210" cy="265" r="5" fill="#a855f7" />
-          <circle cx="390" cy="265" r="5" fill="#38bdf8" />
-        </svg>
+        {/* Tree Mother Soft Clay 2.5D Diorama Image */}
+        <img
+          src={designerAssets.asmoScenes.treeMother}
+          alt="Cây Táo Mẹ Soft Clay 2.5D"
+          className="absolute inset-0 w-full h-full object-contain object-bottom pointer-events-none drop-shadow-md select-none z-0"
+        />
 
         {/* Tree Interactive Layer: Large Hanging Apples */}
         <div className="relative w-full h-full z-10">
@@ -882,7 +794,7 @@ export function AsmoInteractiveAppleTreeCanvas({
         <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-4 sm:p-5 text-center shadow-clay space-y-3 relative overflow-hidden">
           <div className="flex items-center justify-center gap-1.5 text-xs font-black uppercase text-brand-700 tracking-wider">
             <Sparkles className="size-4 text-sun-500 animate-spin" />
-            <span>🌟 Tổng số táo trong cả 2 giỏ:</span>
+            <span>✨ TỔNG SỐ TÁO TRONG CẢ 2 GIỎ:</span>
           </div>
 
           {/* KHỐI PHÉP TÍNH ĐỒ CHƠI GỖ KHỔNG LỒ (GIANT MONTESSORI WOODEN BLOCKS) */}
@@ -925,18 +837,6 @@ export function AsmoInteractiveAppleTreeCanvas({
               </span>
               <span className="text-2xl animate-bounce">✨</span>
             </div>
-          </div>
-
-          {/* Text mô tả cho test & phụ huynh */}
-          <div className="flex flex-wrap items-center justify-center gap-2 text-xs sm:text-sm font-bold text-slate-700">
-            <span className="text-slate-900 font-black">
-              {totalApples} quả táo tổng cộng ({totalApples} quả táo thơm ngon)
-            </span>
-          </div>
-
-          {/* KaTeX Standard Display */}
-          <div className="pt-0.5 text-xs text-brand-900 font-semibold opacity-80">
-            <AsmoFormula text={`$$${formulaLatex}$$`} />
           </div>
 
           {/* Nút Chuyển Bước Tiếp Theo ➔ */}

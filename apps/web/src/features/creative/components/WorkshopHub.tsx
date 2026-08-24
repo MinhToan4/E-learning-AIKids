@@ -1,6 +1,7 @@
 import { ChevronRight } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets } from '@/shared/config/assets'
+import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import type { WorkshopStep } from '../lib/workshop-types'
 
 type HubCard = {
@@ -41,10 +42,9 @@ export function WorkshopHub({ onGo }: Props) {
     <div className="flex flex-col gap-6">
       {/* Header */}
       <div className="flex items-start gap-4">
-        <img
-          src={designerAssets.brand.mascot}
-          alt="Mascot AI Kids"
-          className="h-14 w-14 rounded-2xl object-cover shadow-soft"
+        <AikidCatCharacter
+          pose="welcome"
+          className="h-14 w-14 shrink-0 drop-shadow-soft"
         />
         <div>
           <h1 className="font-display text-3xl text-text">Xưởng Sáng Tạo</h1>

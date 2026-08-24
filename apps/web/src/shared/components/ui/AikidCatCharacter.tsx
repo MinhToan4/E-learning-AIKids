@@ -1,4 +1,9 @@
 import { cn } from '@/shared/lib/cn'
+import {
+  MeeCatInteractiveCanvas,
+  type MeeCatState,
+  type MeeCatVariant,
+} from '@/features/mee-rig/components/MeeCatInteractiveCanvas'
 
 export type AikidCatPose =
   | 'welcome'
@@ -7,31 +12,46 @@ export type AikidCatPose =
   | 'thinking'
   | 'celebrate'
   | 'support'
+  | 'eat'
+  | 'sleepy'
 
-const ORIGINAL_CAT_POSES: Record<AikidCatPose, string> = {
-  welcome: '/assets/aikid-ui/mascot-original/course-wave.webp',
-  guide: '/assets/aikid-ui/mascot-original/course-wave.webp',
-  walking: '/assets/aikid-ui/mascot-original/world-walking.webp',
-  thinking: '/assets/designer/brand/modal-cat-original.webp',
-  celebrate: '/assets/aikid-ui/mascot-original/world-celebrate.webp',
-  support: '/assets/aikid-ui/mascot-original/course-wave.webp',
+const POSE_TO_STATE_MAP: Record<AikidCatPose, MeeCatState> = {
+  welcome: 'hint',
+  guide: 'look',
+  walking: 'idle',
+  thinking: 'look',
+  celebrate: 'celebrate',
+  support: 'hint',
+  eat: 'eat',
+  sleepy: 'sleepy',
 }
 
 export function AikidCatCharacter({
   pose = 'welcome',
+  variant = 'full-body',
+  quote,
   className,
 }: {
   pose?: AikidCatPose
+  variant?: MeeCatVariant
+  quote?: string
   className?: string
 }) {
+  const catState = POSE_TO_STATE_MAP[pose] || 'idle'
+
   return (
-    <img
-      src={ORIGINAL_CAT_POSES[pose]}
-      alt=""
-      aria-hidden="true"
-      decoding="async"
-      draggable={false}
-      className={cn('aikid-cat-character', className)}
-    />
+    <div
+      className={cn('aikid-cat-character inline-flex items-center justify-center', className)}
+      data-testid="aikid-cat-character"
+      data-pose={pose}
+    >
+      <MeeCatInteractiveCanvas
+        state={catState}
+        variant={variant}
+        quote={quote}
+        transparentBackground
+        className="h-full w-full"
+      />
+    </div>
   )
 }

@@ -3,24 +3,69 @@ import { createUuid } from './uuid'
 
 const API_BASE = environment.apiBaseUrl
 const TOKEN_KEY = 'storymee.access_token'
+const SHARED_TOKEN_COOKIE = 'storymee_shared_token'
 export const AUTH_UNAUTHORIZED_EVENT = 'storymee:auth-unauthorized'
+
+function sharedCookieDomain(): string {
+  if (typeof window === 'undefined') return ''
+  return window.location.hostname.toLowerCase().endsWith('.aikid.vn')
+    ? '; Domain=.aikid.vn'
+    : ''
+}
+
+function readSharedTokenCookie(): string | null {
+  if (typeof document === 'undefined') return null
+  const prefix = `${SHARED_TOKEN_COOKIE}=`
+  const entry = document.cookie.split('; ').find((cookie) => cookie.startsWith(prefix))
+  if (!entry) return null
+  try {
+    return decodeURIComponent(entry.slice(prefix.length)) || null
+  } catch {
+    return null
+  }
+}
+
+function writeSharedTokenCookie(token: string): void {
+  if (typeof document === 'undefined') return
+  const secure = typeof window !== 'undefined' && window.location.protocol === 'https:'
+    ? '; Secure'
+    : ''
+  document.cookie = `${SHARED_TOKEN_COOKIE}=${encodeURIComponent(token)}; Path=/; Max-Age=2592000; SameSite=Lax${sharedCookieDomain()}${secure}`
+}
+
+function clearSharedTokenCookie(): void {
+  if (typeof document === 'undefined') return
+  document.cookie = `${SHARED_TOKEN_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax${sharedCookieDomain()}`
+  // Also clear any old host-only cookie left by a previous deployment.
+  document.cookie = `${SHARED_TOKEN_COOKIE}=; Path=/; Max-Age=0; SameSite=Lax`
+}
 
 export function gatewayUrl(path: string): string {
   return `${API_BASE}${path}`
 }
 
 export function getAccessToken(): string | null {
-  return typeof localStorage === 'undefined' ? null : localStorage.getItem(TOKEN_KEY)
+  if (typeof localStorage === 'undefined') return readSharedTokenCookie()
+  const sharedToken = readSharedTokenCookie()
+  if (sharedToken) {
+    localStorage.setItem(TOKEN_KEY, sharedToken)
+    return sharedToken
+  }
+  const localToken = localStorage.getItem(TOKEN_KEY)
+  if (localToken) writeSharedTokenCookie(localToken)
+  return localToken
 }
 
 export function setAccessToken(token: string): void {
   clearResponseCache()
   if (typeof localStorage !== 'undefined') localStorage.setItem(TOKEN_KEY, token)
+  writeSharedTokenCookie(token)
 }
 
 export function clearAccessToken(): void {
   clearResponseCache()
   if (typeof localStorage !== 'undefined') localStorage.removeItem(TOKEN_KEY)
+  clearSharedTokenCookie()
 }
 
 export async function fetchRemoteBlob(url: string): Promise<Blob> {
