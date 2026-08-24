@@ -3,6 +3,17 @@ import { Sparkles, RefreshCw, Star, Minus, Plus, Volume2, Heart } from 'lucide-r
 import { AsmoInteractiveAppleTreeCanvas, speakVietnamese } from './AsmoInteractiveAppleTreeCanvas'
 import { AsmoFormula } from './AsmoFormula'
 import { renderBalanceScaleSvg } from './AsmoDiagramEngine'
+import {
+  FlatClayBalloon,
+  FlatClayPopBurst,
+  FlatClayCupcake,
+  FlatClayCandy,
+  FlatClayWatermelon,
+  FlatClayPizzaSlice,
+  FlatClayCube,
+  FlatClayRedApple,
+  FlatClayGreenApple,
+} from './AsmoFlatClayIcons'
 import { cn } from '@/shared/lib/cn'
 
 export type ArithmeticVisualizerMode =
@@ -89,16 +100,16 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
   // 2. MODE: SUBTRACTION (NỔ BÓNG BAY 🎈 & BẢNG TÍNH MONTESSORI)
   // ══════════════════════════════════════════════════════════════════════════
   const initialBalloons = useMemo(() => [
-    { id: 1, color: 'from-rose-400 to-rose-600 border-rose-300 text-white', shadow: 'shadow-rose-300/50', emoji: '🎈' },
-    { id: 2, color: 'from-amber-400 to-amber-600 border-amber-300 text-white', shadow: 'shadow-amber-300/50', emoji: '🎈' },
-    { id: 3, color: 'from-emerald-400 to-emerald-600 border-emerald-300 text-white', shadow: 'shadow-emerald-300/50', emoji: '🎈' },
-    { id: 4, color: 'from-sky-400 to-sky-600 border-sky-300 text-white', shadow: 'shadow-sky-300/50', emoji: '🎈' },
-    { id: 5, color: 'from-purple-400 to-purple-600 border-purple-300 text-white', shadow: 'shadow-purple-300/50', emoji: '🎈' },
-    { id: 6, color: 'from-pink-400 to-pink-600 border-pink-300 text-white', shadow: 'shadow-pink-300/50', emoji: '🎈' },
-    { id: 7, color: 'from-indigo-400 to-indigo-600 border-indigo-300 text-white', shadow: 'shadow-indigo-300/50', emoji: '🎈' },
-    { id: 8, color: 'from-teal-400 to-teal-600 border-teal-300 text-white', shadow: 'shadow-teal-300/50', emoji: '🎈' },
-    { id: 9, color: 'from-orange-400 to-orange-600 border-orange-300 text-white', shadow: 'shadow-orange-300/50', emoji: '🎈' },
-    { id: 10, color: 'from-lime-400 to-lime-600 border-lime-300 text-white', shadow: 'shadow-lime-300/50', emoji: '🎈' },
+    { id: 1, colorKey: 'rose' as const, shadow: 'shadow-rose-300/50' },
+    { id: 2, colorKey: 'amber' as const, shadow: 'shadow-amber-300/50' },
+    { id: 3, colorKey: 'emerald' as const, shadow: 'shadow-emerald-300/50' },
+    { id: 4, colorKey: 'sky' as const, shadow: 'shadow-sky-300/50' },
+    { id: 5, colorKey: 'purple' as const, shadow: 'shadow-purple-300/50' },
+    { id: 6, colorKey: 'pink' as const, shadow: 'shadow-pink-300/50' },
+    { id: 7, colorKey: 'indigo' as const, shadow: 'shadow-indigo-300/50' },
+    { id: 8, colorKey: 'teal' as const, shadow: 'shadow-teal-300/50' },
+    { id: 9, colorKey: 'orange' as const, shadow: 'shadow-orange-300/50' },
+    { id: 10, colorKey: 'lime' as const, shadow: 'shadow-lime-300/50' },
   ], [])
 
   const [poppedBalloonIds, setPoppedBalloonIds] = useState<number[]>([1, 2, 3])
@@ -359,22 +370,17 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                       type="button"
                       onClick={() => handlePopBalloon(b.id)}
                       className={cn(
-                        'relative size-14 sm:size-16 rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer border-3 select-none active:scale-90',
+                        'relative size-14 sm:size-16 rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer border-2 select-none active:scale-90',
                         isPopped
-                          ? 'bg-slate-200/80 border-slate-300 text-slate-400 opacity-40 scale-85 shadow-none'
-                          : cn('bg-gradient-to-br shadow-clay hover:scale-110 active:scale-95', b.color, b.shadow),
+                          ? 'bg-slate-100/80 border-slate-300 opacity-50 scale-85 shadow-none'
+                          : 'bg-white border-sky-200 shadow-clay hover:scale-110 active:scale-95',
                         isAnimating && 'animate-ping',
                       )}
                     >
-                      <span className="text-2xl sm:text-3xl select-none leading-none">
-                        {isPopped ? '💥' : b.emoji}
-                      </span>
-                      <span className={cn('text-[11px] font-black leading-none mt-0.5', isPopped ? 'text-slate-500' : 'text-white drop-shadow-xs')}>
-                        {b.id}
-                      </span>
-
-                      {!isPopped && (
-                        <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-0.5 h-2.5 bg-slate-400/80 pointer-events-none" />
+                      {isPopped ? (
+                        <FlatClayPopBurst size={38} />
+                      ) : (
+                        <FlatClayBalloon color={b.colorKey} number={b.id} size={46} showString={false} />
                       )}
                     </button>
                   )
@@ -383,9 +389,15 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
 
               {/* Sub-counter badge */}
               <div className="z-10 flex items-center justify-center gap-3 bg-white/95 px-4 py-1.5 rounded-full border border-sky-200 shadow-2xs text-xs font-black text-slate-800">
-                <span>🎈 Ban đầu: <strong>10 quả</strong></span>
-                <span>💥 Nổ: <strong className="text-rose-600">{poppedBalloonIds.length}</strong></span>
-                <span>✨ Còn: <strong className="text-emerald-600">{remainingBalloonsCount}</strong></span>
+                <span className="flex items-center gap-1">
+                  <FlatClayBalloon color="sky" size={16} showString={false} /> Ban đầu: <strong>10 quả</strong>
+                </span>
+                <span className="flex items-center gap-1">
+                  <FlatClayPopBurst size={16} /> Nổ: <strong className="text-rose-600">{poppedBalloonIds.length}</strong>
+                </span>
+                <span className="flex items-center gap-1">
+                  ✨ Còn: <strong className="text-emerald-600">{remainingBalloonsCount}</strong>
+                </span>
               </div>
             </div>
 
@@ -396,7 +408,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               </span>
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-sky-50 border-2 border-sky-200 text-sky-800 shadow-clay">
-                  <span className="text-2xl sm:text-3xl">🎈</span>
+                  <FlatClayBalloon color="sky" size={28} showString={false} />
                   <span className="font-display font-black text-2xl sm:text-3xl text-sky-800">10</span>
                 </div>
 
@@ -405,7 +417,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                 </div>
 
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-700 shadow-clay">
-                  <span className="text-2xl sm:text-3xl">💥</span>
+                  <FlatClayPopBurst size={28} />
                   <span className="font-display font-black text-2xl sm:text-3xl text-rose-700">{poppedBalloonIds.length}</span>
                 </div>
 
@@ -418,12 +430,8 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                   remainingBalloonsCount > 0 && 'scale-105 ring-4 ring-brand-200 animate-pulse',
                 )}>
                   <span className="font-display font-black text-2xl sm:text-3xl text-white">{remainingBalloonsCount}</span>
-                  <span className="text-xl sm:text-2xl animate-bounce">🎈</span>
+                  <FlatClayBalloon color="rose" size={28} showString={false} className="animate-bounce" />
                 </div>
-              </div>
-
-              <div className="font-mono font-bold text-xs text-slate-500">
-                10 − {poppedBalloonIds.length} = <span className="text-sky-600 font-black underline">{remainingBalloonsCount} quả bóng</span> còn bay
               </div>
             </div>
           </div>
@@ -503,13 +511,13 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                         onMouseEnter={() => setHighlightedRow(r)}
                         onMouseLeave={() => setHighlightedRow(null)}
                         className={cn(
-                          'size-12 sm:size-14 rounded-2xl flex flex-col items-center justify-center text-2xl sm:text-3xl transition-all duration-200 shadow-clay border-2 cursor-pointer',
+                          'size-12 sm:size-14 rounded-2xl flex flex-col items-center justify-center transition-all duration-200 shadow-clay border-2 cursor-pointer',
                           isRowLit
                             ? 'bg-amber-300 border-amber-400 scale-110 ring-4 ring-amber-300 animate-bounce'
                             : 'bg-white border-amber-200 hover:scale-105 hover:bg-amber-50',
                         )}
                       >
-                        <span>{r % 2 === 0 ? '🍰' : '🧁'}</span>
+                        <FlatClayCupcake size={36} flavor={r % 2 === 0 ? 'strawberry' : 'vanilla'} />
                       </button>
                     )
                   }),
@@ -524,7 +532,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               </span>
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-50 border-2 border-amber-200 text-amber-800 shadow-clay">
-                  <span className="text-2xl sm:text-3xl">🥞</span>
+                  <FlatClayCupcake size={28} flavor="strawberry" />
                   <span className="font-display font-black text-2xl sm:text-3xl text-amber-800">{multRows} hàng</span>
                 </div>
 
@@ -533,7 +541,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                 </div>
 
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-800 shadow-clay">
-                  <span className="text-2xl sm:text-3xl">🧁</span>
+                  <FlatClayCupcake size={28} flavor="vanilla" />
                   <span className="font-display font-black text-2xl sm:text-3xl text-emerald-800">{multCols} cột</span>
                 </div>
 
@@ -543,12 +551,8 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
 
                 <div className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl bg-brand-500 text-white font-black text-2xl sm:text-3xl shadow-clay border-2 border-brand-600 transition-all duration-300">
                   <span className="font-display font-black text-2xl sm:text-3xl text-white">{totalCakes}</span>
-                  <span className="text-xl sm:text-2xl animate-bounce">🍰</span>
+                  <FlatClayCupcake size={28} flavor="strawberry" className="animate-bounce" />
                 </div>
-              </div>
-
-              <div className="font-mono font-bold text-xs text-slate-500">
-                {multRows} × {multCols} = <span className="text-amber-700 font-black underline">{totalCakes} chiếc bánh</span> thơm ngon
               </div>
             </div>
           </div>
@@ -560,7 +564,10 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
             {/* Tactile Division Stepper Controls */}
             <div className="w-full flex items-center justify-center gap-3 sm:gap-6 bg-sky-50/90 border-2 border-sky-200 px-4 py-2 rounded-2xl text-xs shadow-2xs">
               <div className="flex items-center gap-2">
-                <span className="text-slate-800 font-black">Số kẹo 🍬:</span>
+                <span className="text-slate-800 font-black flex items-center gap-1">
+                  <FlatClayCandy size={16} />
+                  <span>Số kẹo:</span>
+                </span>
                 <div className="flex items-center gap-1 bg-white p-1 rounded-2xl border-2 border-rose-300 shadow-2xs">
                   <button
                     type="button"
@@ -620,9 +627,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                   <span className="text-[10px] sm:text-xs font-black text-sky-800 -mt-1">Đĩa {pIdx + 1}</span>
                   <div className="flex items-center justify-center gap-1 flex-wrap mt-0.5 max-w-[80px]">
                     {Array.from({ length: candiesPerPlate }).map((_, cIdx) => (
-                      <span key={`candy-${pIdx}-${cIdx}`} className="text-base sm:text-lg select-none animate-in zoom-in-50">
-                        🍬
-                      </span>
+                      <FlatClayCandy key={`candy-${pIdx}-${cIdx}`} size={22} className="animate-in zoom-in-50" />
                     ))}
                   </div>
                   <span className="text-[11px] font-mono font-black text-sky-900 mt-0.5">
@@ -635,7 +640,8 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
             {/* Remainder candies dish */}
             {remainderCandies > 0 && (
               <div className="flex items-center gap-2 bg-amber-100/80 border-2 border-amber-300 px-4 py-1.5 rounded-full text-xs font-black text-amber-900 shadow-2xs">
-                <span>🍬 Kẹo thừa chưa chia đủ:</span>
+                <FlatClayCandy size={16} />
+                <span>Kẹo thừa chưa chia đủ:</span>
                 <span className="font-mono font-black text-amber-800">{remainderCandies} cái</span>
               </div>
             )}
@@ -647,7 +653,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               </span>
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 shadow-clay">
-                  <span className="text-2xl sm:text-3xl">🍬</span>
+                  <FlatClayCandy size={28} />
                   <span className="font-display font-black text-2xl sm:text-3xl text-rose-800">{totalCandies}</span>
                 </div>
 
@@ -666,12 +672,8 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
 
                 <div className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl bg-brand-500 text-white font-black text-2xl sm:text-3xl shadow-clay border-2 border-brand-600 transition-all duration-300">
                   <span className="font-display font-black text-2xl sm:text-3xl text-white">{candiesPerPlate}</span>
-                  <span className="text-xs font-black uppercase text-white/90">🍬 / đĩa</span>
+                  <FlatClayCandy size={24} className="animate-bounce" />
                 </div>
-              </div>
-
-              <div className="font-mono font-bold text-xs text-slate-500">
-                {totalCandies} ÷ {platesCount} = <span className="text-rose-700 font-black underline">{candiesPerPlate} kẹo mỗi đĩa</span> {remainderCandies > 0 ? `(dư ${remainderCandies})` : '(chia hết)'}
               </div>
             </div>
           </div>
@@ -847,7 +849,10 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
           <div className="w-full max-w-lg space-y-3.5 flex flex-col items-center">
             <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-white p-3.5 rounded-2xl border-2 border-brand-200 shadow-2xs w-full">
               <div className="flex items-center gap-2">
-                <span className="font-black text-slate-800">Đĩa Trái (Dưa 🍉):</span>
+                <span className="font-black text-slate-800 flex items-center gap-1">
+                  <span>Đĩa Trái:</span>
+                  <FlatClayWatermelon size={20} />
+                </span>
                 <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-emerald-300 shadow-2xs">
                   <button
                     type="button"
@@ -872,7 +877,10 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="font-black text-slate-800">Đĩa Phải (Táo 🍎):</span>
+                <span className="font-black text-slate-800 flex items-center gap-1">
+                  <span>Đĩa Phải:</span>
+                  <FlatClayRedApple size={20} />
+                </span>
                 <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-rose-300 shadow-2xs">
                   <button
                     type="button"
@@ -910,7 +918,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
             <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-800 shadow-clay">
-                  <span className="text-2xl sm:text-3xl">🍉</span>
+                  <FlatClayWatermelon size={28} />
                   <span className="font-display font-black text-2xl sm:text-3xl text-emerald-800">{scaleLeft} dưa</span>
                 </div>
 
@@ -919,19 +927,9 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                 </div>
 
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 shadow-clay">
-                  <span className="text-2xl sm:text-3xl">🍎</span>
+                  <FlatClayRedApple size={28} />
                   <span className="font-display font-black text-2xl sm:text-3xl text-rose-800">{scaleRight} táo</span>
                 </div>
-              </div>
-
-              <div className="font-mono font-bold text-xs text-slate-500">
-                {scaleLeft * 3 === scaleRight ? (
-                  <span className="text-emerald-700 font-black">⚖️ Cân thăng bằng: {scaleLeft} dưa = {scaleRight} táo (1 dưa = 3 táo)</span>
-                ) : scaleLeft * 3 > scaleRight ? (
-                  <span className="text-amber-700 font-black">⚖️ Đĩa trái nặng hơn!</span>
-                ) : (
-                  <span className="text-rose-700 font-black">⚖️ Đĩa phải nặng hơn!</span>
-                )}
               </div>
             </div>
           </div>
@@ -988,27 +986,21 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               {cubeLayers[2] > 0 && (
                 <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
                   {Array.from({ length: cubeLayers[2] }).map((_, i) => (
-                    <div key={`vis-t3-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-pink-300">
-                      🧊
-                    </div>
+                    <FlatClayCube key={`vis-t3-${i}`} size={36} color="pink" />
                   ))}
                 </div>
               )}
               {cubeLayers[1] > 0 && (
                 <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
                   {Array.from({ length: cubeLayers[1] }).map((_, i) => (
-                    <div key={`vis-t2-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-500 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-purple-300">
-                      🧊
-                    </div>
+                    <FlatClayCube key={`vis-t2-${i}`} size={36} color="purple" />
                   ))}
                 </div>
               )}
               {cubeLayers[0] > 0 && (
                 <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
                   {Array.from({ length: cubeLayers[0] }).map((_, i) => (
-                    <div key={`vis-t1-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-600 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-indigo-300">
-                      🧊
-                    </div>
+                    <FlatClayCube key={`vis-t1-${i}`} size={36} color="indigo" />
                   ))}
                 </div>
               )}
@@ -1018,24 +1010,24 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
             <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                 <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-indigo-50 border-2 border-indigo-200 text-indigo-900 shadow-clay">
+                  <FlatClayCube size={22} color="indigo" />
                   <span className="font-display font-black text-xl text-indigo-900">{cubeLayers[0]} (dưới)</span>
                 </div>
                 <span className="font-black text-xl text-indigo-500">+</span>
                 <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-purple-50 border-2 border-purple-200 text-purple-900 shadow-clay">
+                  <FlatClayCube size={22} color="purple" />
                   <span className="font-display font-black text-xl text-purple-900">{cubeLayers[1]} (giữa)</span>
                 </div>
                 <span className="font-black text-xl text-purple-500">+</span>
                 <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-pink-50 border-2 border-pink-200 text-pink-900 shadow-clay">
+                  <FlatClayCube size={22} color="pink" />
                   <span className="font-display font-black text-xl text-pink-900">{cubeLayers[2]} (trên)</span>
                 </div>
                 <span className="font-black text-xl text-indigo-500">=</span>
                 <div className="flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-brand-500 text-white font-black text-2xl shadow-clay border-2 border-brand-600">
                   <span className="font-display font-black text-2xl text-white">{cubeLayers[0] + cubeLayers[1] + cubeLayers[2]}</span>
-                  <span className="text-lg animate-bounce">🧊</span>
+                  <FlatClayCube size={24} color="rose" className="animate-bounce" />
                 </div>
-              </div>
-              <div className="font-mono font-bold text-xs text-slate-500">
-                Tổng cộng = {cubeLayers[0]} + {cubeLayers[1]} + {cubeLayers[2]} = <span className="text-indigo-700 font-black underline">{cubeLayers[0] + cubeLayers[1] + cubeLayers[2]} khối lập phương</span>
               </div>
             </div>
           </div>

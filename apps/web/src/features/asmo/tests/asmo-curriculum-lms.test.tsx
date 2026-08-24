@@ -361,8 +361,8 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     // 3. Main Stage Visualizer for Elementary (Visual-First Canvas)
     expect(markup).toContain('Giỏ A (Táo Đỏ):')
     expect(markup).toContain('Giỏ B (Táo Xanh):')
-    expect(markup).toContain('quả táo tổng cộng')
-    expect(markup).toContain('Bí Kíp Nhìn Hình:')
+    expect(markup).toContain('TỔNG SỐ TÁO TRONG CẢ 2 GIỎ:')
+    expect(markup).not.toContain('Bí Kíp Nhìn Hình:')
     expect(markup).not.toContain('Trọng Tâm Kiến Thức Bài Học')
     expect(markup).not.toContain('🌟 Ghi Nhớ Nhanh:')
 

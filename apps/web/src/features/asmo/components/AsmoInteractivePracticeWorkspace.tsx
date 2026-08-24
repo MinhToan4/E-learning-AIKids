@@ -30,6 +30,17 @@ import { AsmoFormula } from './AsmoFormula'
 import { AsmoInteractiveAppleTreeCanvas } from './AsmoInteractiveAppleTreeCanvas'
 import { AikidCatCharacter, type AikidCatPose } from '@/shared/components/ui/AikidCatCharacter'
 import { renderClockSvg, renderBalanceScaleSvg } from './AsmoDiagramEngine'
+import {
+  FlatClayBalloon,
+  FlatClayPopBurst,
+  FlatClayCupcake,
+  FlatClayCandy,
+  FlatClayWatermelon,
+  FlatClayPizzaSlice,
+  FlatClayCube,
+  FlatClayRedApple,
+  FlatClayGreenApple,
+} from './AsmoFlatClayIcons'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
@@ -378,9 +389,9 @@ export function AsmoInteractivePracticeWorkspace({
             {/* Balloon Sky Container */}
             <div className="w-full bg-gradient-to-b from-sky-100/90 via-sky-50/70 to-mint-50/80 border-2 border-sky-200 rounded-3xl p-4 sm:p-5 shadow-clay flex flex-col items-center space-y-3 relative overflow-hidden">
               <div className="flex items-center justify-between w-full z-10 px-1">
-                <span className="text-xs font-black text-sky-900 flex items-center gap-1">
-                  <span>🎈</span>
-                  <span>Chạm vào bóng để nổ 💥 hoặc bơm lại</span>
+                <span className="text-xs font-black text-sky-900 flex items-center gap-1.5">
+                  <FlatClayBalloon color="sky" size={18} showString={false} />
+                  <span>Chạm vào bóng để nổ hoặc bơm lại</span>
                 </span>
                 <button
                   type="button"
@@ -397,19 +408,11 @@ export function AsmoInteractivePracticeWorkspace({
                 {Array.from({ length: 10 }).map((_, idx) => {
                   const id = idx + 1
                   const isPopped = poppedBalloons.includes(id)
-                  const colors = [
-                    'from-rose-400 to-rose-600 border-rose-300',
-                    'from-amber-400 to-amber-600 border-amber-300',
-                    'from-emerald-400 to-emerald-600 border-emerald-300',
-                    'from-sky-400 to-sky-600 border-sky-300',
-                    'from-purple-400 to-purple-600 border-purple-300',
-                    'from-pink-400 to-pink-600 border-pink-300',
-                    'from-indigo-400 to-indigo-600 border-indigo-300',
-                    'from-teal-400 to-teal-600 border-teal-300',
-                    'from-orange-400 to-orange-600 border-orange-300',
-                    'from-lime-400 to-lime-600 border-lime-300',
-                  ]
-                  const colorClass = colors[idx % colors.length]
+                  const colorKeys = [
+                    'rose', 'amber', 'emerald', 'sky', 'purple',
+                    'pink', 'indigo', 'teal', 'orange', 'lime',
+                  ] as const
+                  const colorKey = colorKeys[idx % colorKeys.length]
 
                   return (
                     <button
@@ -423,20 +426,16 @@ export function AsmoInteractivePracticeWorkspace({
                         }
                       }}
                       className={cn(
-                        'relative size-14 sm:size-16 rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer border-3 select-none active:scale-90',
+                        'relative size-14 sm:size-16 rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer border-2 select-none active:scale-90',
                         isPopped
-                          ? 'bg-slate-200/80 border-slate-300 text-slate-400 opacity-40 scale-85 shadow-none'
-                          : cn('bg-gradient-to-br shadow-clay hover:scale-110 active:scale-95 text-white', colorClass),
+                          ? 'bg-slate-100/80 border-slate-300 opacity-50 scale-85 shadow-none'
+                          : 'bg-white border-sky-200 shadow-clay hover:scale-110 active:scale-95',
                       )}
                     >
-                      <span className="text-2xl sm:text-3xl select-none leading-none">
-                        {isPopped ? '💥' : '🎈'}
-                      </span>
-                      <span className={cn('text-[11px] font-black leading-none mt-0.5', isPopped ? 'text-slate-500' : 'text-white drop-shadow-xs')}>
-                        {id}
-                      </span>
-                      {!isPopped && (
-                        <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-0.5 h-2.5 bg-slate-400/80 pointer-events-none" />
+                      {isPopped ? (
+                        <FlatClayPopBurst size={38} />
+                      ) : (
+                        <FlatClayBalloon color={colorKey} number={id} size={46} showString={false} />
                       )}
                     </button>
                   )
@@ -445,9 +444,15 @@ export function AsmoInteractivePracticeWorkspace({
 
               {/* Sub-counter */}
               <div className="z-10 flex items-center justify-center gap-3 bg-white/95 px-4 py-1.5 rounded-full border border-sky-200 shadow-2xs text-xs font-black text-slate-800">
-                <span>🎈 Ban đầu: <strong>10 quả</strong></span>
-                <span>💥 Nổ: <strong className="text-rose-600">{poppedBalloons.length}</strong></span>
-                <span>✨ Còn: <strong className="text-emerald-600">{10 - poppedBalloons.length}</strong></span>
+                <span className="flex items-center gap-1">
+                  <FlatClayBalloon color="sky" size={16} showString={false} /> Ban đầu: <strong>10 quả</strong>
+                </span>
+                <span className="flex items-center gap-1">
+                  <FlatClayPopBurst size={16} /> Nổ: <strong className="text-rose-600">{poppedBalloons.length}</strong>
+                </span>
+                <span className="flex items-center gap-1">
+                  ✨ Còn: <strong className="text-emerald-600">{10 - poppedBalloons.length}</strong>
+                </span>
               </div>
             </div>
 
@@ -455,7 +460,7 @@ export function AsmoInteractivePracticeWorkspace({
             <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-sky-50 border-2 border-sky-200 text-sky-800 shadow-clay">
-                  <span className="text-2xl sm:text-3xl">🎈</span>
+                  <FlatClayBalloon color="sky" size={28} showString={false} />
                   <span className="font-display font-black text-2xl sm:text-3xl text-sky-800">10</span>
                 </div>
 
@@ -464,7 +469,7 @@ export function AsmoInteractivePracticeWorkspace({
                 </div>
 
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-700 shadow-clay">
-                  <span className="text-2xl sm:text-3xl">💥</span>
+                  <FlatClayPopBurst size={28} />
                   <span className="font-display font-black text-2xl sm:text-3xl text-rose-700">{poppedBalloons.length}</span>
                 </div>
 
@@ -477,12 +482,8 @@ export function AsmoInteractivePracticeWorkspace({
                   10 - poppedBalloons.length > 0 && 'scale-105 ring-4 ring-brand-200 animate-pulse',
                 )}>
                   <span className="font-display font-black text-2xl sm:text-3xl text-white">{10 - poppedBalloons.length}</span>
-                  <span className="text-xl sm:text-2xl animate-bounce">🎈</span>
+                  <FlatClayBalloon color="rose" size={28} showString={false} className="animate-bounce" />
                 </div>
-              </div>
-
-              <div className="font-mono font-bold text-xs text-slate-500">
-                10 (ban đầu) − {poppedBalloons.length} (nổ mất) = <span className="text-sky-600 font-black underline">{10 - poppedBalloons.length} quả bóng</span> còn lại
               </div>
             </div>
           </div>
@@ -553,9 +554,9 @@ export function AsmoInteractivePracticeWorkspace({
                 Array.from({ length: cakeCols }).map((_, c) => (
                   <div
                     key={`practice-cake-${r}-${c}`}
-                    className="size-12 sm:size-14 rounded-2xl bg-white border-2 border-amber-300 flex items-center justify-center text-2xl sm:text-3xl shadow-clay animate-in zoom-in-50 select-none hover:scale-110 transition-transform cursor-pointer"
+                    className="size-12 sm:size-14 rounded-2xl bg-white border-2 border-amber-300 flex items-center justify-center shadow-clay animate-in zoom-in-50 select-none hover:scale-110 transition-transform cursor-pointer"
                   >
-                    {r % 2 === 0 ? '🍰' : '🧁'}
+                    <FlatClayCupcake size={36} flavor={r % 2 === 0 ? 'strawberry' : 'vanilla'} />
                   </div>
                 )),
               )}
@@ -565,7 +566,7 @@ export function AsmoInteractivePracticeWorkspace({
             <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-50 border-2 border-amber-200 text-amber-800 shadow-clay">
-                  <span className="text-2xl sm:text-3xl">🥞</span>
+                  <FlatClayCupcake size={28} flavor="strawberry" />
                   <span className="font-display font-black text-2xl sm:text-3xl text-amber-800">{cakeRows} hàng</span>
                 </div>
 
@@ -574,7 +575,7 @@ export function AsmoInteractivePracticeWorkspace({
                 </div>
 
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-800 shadow-clay">
-                  <span className="text-2xl sm:text-3xl">🧁</span>
+                  <FlatClayCupcake size={28} flavor="vanilla" />
                   <span className="font-display font-black text-2xl sm:text-3xl text-emerald-800">{cakeCols} cột</span>
                 </div>
 
@@ -584,12 +585,8 @@ export function AsmoInteractivePracticeWorkspace({
 
                 <div className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl bg-brand-500 text-white font-black text-2xl sm:text-3xl shadow-clay border-2 border-brand-600 transition-all duration-300">
                   <span className="font-display font-black text-2xl sm:text-3xl text-white">{cakeRows * cakeCols}</span>
-                  <span className="text-xl sm:text-2xl animate-bounce">🍰</span>
+                  <FlatClayCupcake size={28} flavor="strawberry" className="animate-bounce" />
                 </div>
-              </div>
-
-              <div className="font-mono font-bold text-xs text-slate-500">
-                {cakeRows} hàng × {cakeCols} cột = <span className="text-amber-700 font-black underline">{cakeRows * cakeCols} chiếc bánh</span> thơm ngon
               </div>
             </div>
           </div>
@@ -601,7 +598,10 @@ export function AsmoInteractivePracticeWorkspace({
             {/* Controls */}
             <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-white p-3.5 rounded-2xl border-2 border-brand-200 shadow-2xs">
               <div className="flex items-center gap-2">
-                <span className="font-black text-slate-800">Số kẹo 🍬:</span>
+                <span className="font-black text-slate-800 flex items-center gap-1">
+                  <FlatClayCandy size={16} />
+                  <span>Số kẹo:</span>
+                </span>
                 <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-rose-300 shadow-2xs">
                   <button
                     type="button"
@@ -663,9 +663,7 @@ export function AsmoInteractivePracticeWorkspace({
                     <span className="text-xs font-black text-brand-800">Đĩa {plateIdx + 1}</span>
                     <div className="flex items-center justify-center gap-1 flex-wrap min-h-12">
                       {Array.from({ length: candiesPerPlate }).map((_, cIdx) => (
-                        <span key={`plate-candy-${cIdx}`} className="text-xl animate-in zoom-in-50">
-                          🍬
-                        </span>
+                        <FlatClayCandy key={`plate-candy-${cIdx}`} size={20} className="animate-in zoom-in-50" />
                       ))}
                     </div>
                     <span className="text-xs font-extrabold text-slate-600">{candiesPerPlate} cái</span>
@@ -675,8 +673,9 @@ export function AsmoInteractivePracticeWorkspace({
             </div>
 
             {candyTotal % candyPlates !== 0 && (
-              <div className="bg-amber-100/80 border-2 border-amber-300 rounded-2xl p-2 text-center text-xs font-black text-amber-900 shadow-2xs">
-                🍬 Kẹo dư chưa chia: {candyTotal % candyPlates} cái
+              <div className="flex items-center justify-center gap-1 bg-amber-100/80 border-2 border-amber-300 rounded-2xl p-2 text-center text-xs font-black text-amber-900 shadow-2xs">
+                <FlatClayCandy size={16} />
+                <span>Kẹo dư chưa chia: {candyTotal % candyPlates} cái</span>
               </div>
             )}
 
@@ -684,7 +683,7 @@ export function AsmoInteractivePracticeWorkspace({
             <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 shadow-clay">
-                  <span className="text-2xl sm:text-3xl">🍬</span>
+                  <FlatClayCandy size={28} />
                   <span className="font-display font-black text-2xl sm:text-3xl text-rose-800">{candyTotal}</span>
                 </div>
 
@@ -703,16 +702,8 @@ export function AsmoInteractivePracticeWorkspace({
 
                 <div className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl bg-brand-500 text-white font-black text-2xl sm:text-3xl shadow-clay border-2 border-brand-600 transition-all duration-300">
                   <span className="font-display font-black text-2xl sm:text-3xl text-white">{Math.floor(candyTotal / candyPlates)}</span>
-                  <span className="text-xs font-black uppercase text-white/90">🍬 / đĩa</span>
+                  <FlatClayCandy size={24} className="animate-bounce" />
                 </div>
-              </div>
-
-              <div className="font-mono font-bold text-xs text-slate-500">
-                {candyTotal} kẹo ÷ {candyPlates} đĩa ={' '}
-                <span className="text-rose-700 font-black underline">
-                  {Math.floor(candyTotal / candyPlates)} kẹo mỗi đĩa
-                </span>
-                {candyTotal % candyPlates !== 0 && ` (dư ${candyTotal % candyPlates} kẹo)`}
               </div>
             </div>
           </div>
@@ -1068,7 +1059,10 @@ export function AsmoInteractivePracticeWorkspace({
               </div>
 
               <div className="flex items-center gap-2">
-                <span className="font-black text-slate-800">Đĩa Phải (Táo 🍎):</span>
+                <span className="font-black text-slate-800 flex items-center gap-1">
+                  <span>Đĩa Phải:</span>
+                  <FlatClayRedApple size={20} />
+                </span>
                 <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-rose-300 shadow-2xs">
                   <button
                     type="button"
@@ -1106,7 +1100,7 @@ export function AsmoInteractivePracticeWorkspace({
             <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-800 shadow-clay">
-                  <span className="text-2xl sm:text-3xl">🍉</span>
+                  <FlatClayWatermelon size={28} />
                   <span className="font-display font-black text-2xl sm:text-3xl text-emerald-800">{scaleLeft} dưa</span>
                 </div>
 
@@ -1115,19 +1109,9 @@ export function AsmoInteractivePracticeWorkspace({
                 </div>
 
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 shadow-clay">
-                  <span className="text-2xl sm:text-3xl">🍎</span>
+                  <FlatClayRedApple size={28} />
                   <span className="font-display font-black text-2xl sm:text-3xl text-rose-800">{scaleRight} táo</span>
                 </div>
-              </div>
-
-              <div className="font-mono font-bold text-xs text-slate-500">
-                {scaleLeft * 3 === scaleRight ? (
-                  <span className="text-emerald-700 font-black">⚖️ Cân thăng bằng: {scaleLeft} quả dưa nặng bằng {scaleRight} quả táo! (1 dưa = 3 táo)</span>
-                ) : scaleLeft * 3 > scaleRight ? (
-                  <span className="text-amber-700 font-black">⚖️ Đĩa trái nghiêng xuống (nặng hơn đĩa phải)!</span>
-                ) : (
-                  <span className="text-rose-700 font-black">⚖️ Đĩa phải nghiêng xuống (nặng hơn đĩa trái)!</span>
-                )}
               </div>
             </div>
           </div>
@@ -1186,9 +1170,7 @@ export function AsmoInteractivePracticeWorkspace({
               {cubeLayersCount[2] > 0 && (
                 <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
                   {Array.from({ length: cubeLayersCount[2] }).map((_, i) => (
-                    <div key={`prac-t3-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-pink-300">
-                      🧊
-                    </div>
+                    <FlatClayCube key={`prac-t3-${i}`} size={36} color="pink" />
                   ))}
                 </div>
               )}
@@ -1196,9 +1178,7 @@ export function AsmoInteractivePracticeWorkspace({
               {cubeLayersCount[1] > 0 && (
                 <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
                   {Array.from({ length: cubeLayersCount[1] }).map((_, i) => (
-                    <div key={`prac-t2-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-500 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-purple-300">
-                      🧊
-                    </div>
+                    <FlatClayCube key={`prac-t2-${i}`} size={36} color="purple" />
                   ))}
                 </div>
               )}
@@ -1206,9 +1186,7 @@ export function AsmoInteractivePracticeWorkspace({
               {cubeLayersCount[0] > 0 && (
                 <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
                   {Array.from({ length: cubeLayersCount[0] }).map((_, i) => (
-                    <div key={`prac-t1-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-600 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-indigo-300">
-                      🧊
-                    </div>
+                    <FlatClayCube key={`prac-t1-${i}`} size={36} color="indigo" />
                   ))}
                 </div>
               )}
@@ -1218,24 +1196,24 @@ export function AsmoInteractivePracticeWorkspace({
             <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                 <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-indigo-50 border-2 border-indigo-200 text-indigo-900 shadow-clay">
+                  <FlatClayCube size={22} color="indigo" />
                   <span className="font-display font-black text-xl text-indigo-900">{cubeLayersCount[0]} (dưới)</span>
                 </div>
                 <span className="font-black text-xl text-indigo-500">+</span>
                 <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-purple-50 border-2 border-purple-200 text-purple-900 shadow-clay">
+                  <FlatClayCube size={22} color="purple" />
                   <span className="font-display font-black text-xl text-purple-900">{cubeLayersCount[1]} (giữa)</span>
                 </div>
                 <span className="font-black text-xl text-purple-500">+</span>
                 <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-pink-50 border-2 border-pink-200 text-pink-900 shadow-clay">
+                  <FlatClayCube size={22} color="pink" />
                   <span className="font-display font-black text-xl text-pink-900">{cubeLayersCount[2]} (trên)</span>
                 </div>
                 <span className="font-black text-xl text-indigo-500">=</span>
                 <div className="flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-brand-500 text-white font-black text-2xl shadow-clay border-2 border-brand-600">
                   <span className="font-display font-black text-2xl text-white">{cubeLayersCount[0] + cubeLayersCount[1] + cubeLayersCount[2]}</span>
-                  <span className="text-lg animate-bounce">🧊</span>
+                  <FlatClayCube size={24} color="rose" className="animate-bounce" />
                 </div>
-              </div>
-              <div className="font-mono font-bold text-xs text-slate-500">
-                Tổng cộng = {cubeLayersCount[0]} + {cubeLayersCount[1]} + {cubeLayersCount[2]} = <span className="text-indigo-700 font-black underline">{cubeLayersCount[0] + cubeLayersCount[1] + cubeLayersCount[2]} khối lập phương</span>
               </div>
             </div>
           </div>

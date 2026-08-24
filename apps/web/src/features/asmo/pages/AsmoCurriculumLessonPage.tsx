@@ -37,6 +37,17 @@ import { AsmoFormula } from '../components/AsmoFormula'
 import { AsmoInteractiveAppleTreeCanvas, speakVietnamese } from '../components/AsmoInteractiveAppleTreeCanvas'
 import { AsmoInteractivePracticeWorkspace } from '../components/AsmoInteractivePracticeWorkspace'
 import { renderClockSvg, renderBalanceScaleSvg, renderMatchstickFigureSvg } from '../components/AsmoDiagramEngine'
+import {
+  FlatClayBalloon,
+  FlatClayPopBurst,
+  FlatClayCupcake,
+  FlatClayCandy,
+  FlatClayWatermelon,
+  FlatClayPizzaSlice,
+  FlatClayCube,
+  FlatClayRedApple,
+  FlatClayGreenApple,
+} from '../components/AsmoFlatClayIcons'
 import { AikidCatCharacter, type AikidCatPose } from '@/shared/components/ui/AikidCatCharacter'
 import { AdventureModal } from '@/shared/components/ui/AdventureModal'
 import { Button } from '@/shared/components/ui/Button'
@@ -989,9 +1000,9 @@ export function AsmoCurriculumLessonPage() {
                   <div className="w-full max-w-lg space-y-3.5">
                     <div className="w-full bg-gradient-to-b from-sky-100/90 via-sky-50/70 to-mint-50/80 border-2 border-sky-200 rounded-3xl p-4 sm:p-5 shadow-clay flex flex-col items-center space-y-3 relative overflow-hidden">
                       <div className="flex items-center justify-between w-full z-10 px-1">
-                        <span className="text-xs font-black text-sky-900 flex items-center gap-1">
-                          <span>🎈</span>
-                          <span>Chạm vào bóng để nổ 💥 hoặc bơm lại</span>
+                        <span className="text-xs font-black text-sky-900 flex items-center gap-1.5">
+                          <FlatClayBalloon color="sky" size={18} showString={false} />
+                          <span>Chạm vào bóng để nổ hoặc bơm lại</span>
                         </span>
                         <button
                           type="button"
@@ -1008,19 +1019,11 @@ export function AsmoCurriculumLessonPage() {
                         {Array.from({ length: 10 }).map((_, idx) => {
                           const id = idx + 1
                           const isPopped = poppedBalloons.includes(id)
-                          const colors = [
-                            'from-rose-400 to-rose-600 border-rose-300',
-                            'from-amber-400 to-amber-600 border-amber-300',
-                            'from-emerald-400 to-emerald-600 border-emerald-300',
-                            'from-sky-400 to-sky-600 border-sky-300',
-                            'from-purple-400 to-purple-600 border-purple-300',
-                            'from-pink-400 to-pink-600 border-pink-300',
-                            'from-indigo-400 to-indigo-600 border-indigo-300',
-                            'from-teal-400 to-teal-600 border-teal-300',
-                            'from-orange-400 to-orange-600 border-orange-300',
-                            'from-lime-400 to-lime-600 border-lime-300',
-                          ]
-                          const colorClass = colors[idx % colors.length]
+                          const colorKeys = [
+                            'rose', 'amber', 'emerald', 'sky', 'purple',
+                            'pink', 'indigo', 'teal', 'orange', 'lime',
+                          ] as const
+                          const colorKey = colorKeys[idx % colorKeys.length]
 
                           return (
                             <button
@@ -1034,20 +1037,16 @@ export function AsmoCurriculumLessonPage() {
                                 }
                               }}
                               className={cn(
-                                'relative size-14 sm:size-16 rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer border-3 select-none active:scale-90',
+                                'relative size-14 sm:size-16 rounded-3xl flex flex-col items-center justify-center transition-all duration-300 cursor-pointer border-2 select-none active:scale-90',
                                 isPopped
-                                  ? 'bg-slate-200/80 border-slate-300 text-slate-400 opacity-40 scale-85 shadow-none'
-                                  : cn('bg-gradient-to-br shadow-clay hover:scale-110 active:scale-95 text-white', colorClass),
+                                  ? 'bg-slate-100/80 border-slate-300 opacity-50 scale-85 shadow-none'
+                                  : 'bg-white border-sky-200 shadow-clay hover:scale-110 active:scale-95',
                               )}
                             >
-                              <span className="text-2xl sm:text-3xl select-none leading-none">
-                                {isPopped ? '💥' : '🎈'}
-                              </span>
-                              <span className={cn('text-[11px] font-black leading-none mt-0.5', isPopped ? 'text-slate-500' : 'text-white drop-shadow-xs')}>
-                                {id}
-                              </span>
-                              {!isPopped && (
-                                <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-0.5 h-2.5 bg-slate-400/80 pointer-events-none" />
+                              {isPopped ? (
+                                <FlatClayPopBurst size={38} />
+                              ) : (
+                                <FlatClayBalloon color={colorKey} number={id} size={46} showString={false} />
                               )}
                             </button>
                           )
@@ -1056,9 +1055,15 @@ export function AsmoCurriculumLessonPage() {
 
                       {/* Sub-counter */}
                       <div className="z-10 flex items-center justify-center gap-3 bg-white/95 px-4 py-1.5 rounded-full border border-sky-200 shadow-2xs text-xs font-black text-slate-800">
-                        <span>🎈 Ban đầu: <strong>10 quả</strong></span>
-                        <span>💥 Nổ: <strong className="text-rose-600">{poppedBalloons.length}</strong></span>
-                        <span>✨ Còn: <strong className="text-emerald-600">{10 - poppedBalloons.length}</strong></span>
+                        <span className="flex items-center gap-1">
+                          <FlatClayBalloon color="sky" size={16} showString={false} /> Ban đầu: <strong>10 quả</strong>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <FlatClayPopBurst size={16} /> Nổ: <strong className="text-rose-600">{poppedBalloons.length}</strong>
+                        </span>
+                        <span className="flex items-center gap-1">
+                          ✨ Còn: <strong className="text-emerald-600">{10 - poppedBalloons.length}</strong>
+                        </span>
                       </div>
                     </div>
 
@@ -1066,7 +1071,7 @@ export function AsmoCurriculumLessonPage() {
                     <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
                       <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                         <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-sky-50 border-2 border-sky-200 text-sky-800 shadow-clay">
-                          <span className="text-2xl sm:text-3xl">🎈</span>
+                          <FlatClayBalloon color="sky" size={28} showString={false} />
                           <span className="font-display font-black text-2xl sm:text-3xl text-sky-800">10</span>
                         </div>
 
@@ -1075,7 +1080,7 @@ export function AsmoCurriculumLessonPage() {
                         </div>
 
                         <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-700 shadow-clay">
-                          <span className="text-2xl sm:text-3xl">💥</span>
+                          <FlatClayPopBurst size={28} />
                           <span className="font-display font-black text-2xl sm:text-3xl text-rose-700">{poppedBalloons.length}</span>
                         </div>
 
@@ -1088,12 +1093,8 @@ export function AsmoCurriculumLessonPage() {
                           10 - poppedBalloons.length > 0 && 'scale-105 ring-4 ring-brand-200 animate-pulse',
                         )}>
                           <span className="font-display font-black text-2xl sm:text-3xl text-white">{10 - poppedBalloons.length}</span>
-                          <span className="text-xl sm:text-2xl animate-bounce">🎈</span>
+                          <FlatClayBalloon color="rose" size={28} showString={false} className="animate-bounce" />
                         </div>
-                      </div>
-
-                      <div className="font-mono font-bold text-xs text-slate-500">
-                        10 (ban đầu) − {poppedBalloons.length} (nổ mất) = <span className="text-sky-600 font-black underline">{10 - poppedBalloons.length} quả bóng</span> còn lại
                       </div>
                     </div>
                   </div>
@@ -1168,9 +1169,9 @@ export function AsmoCurriculumLessonPage() {
                         Array.from({ length: cakeCols }).map((_, c) => (
                           <div
                             key={`cake-${r}-${c}`}
-                            className="size-12 sm:size-14 rounded-2xl bg-white border-2 border-amber-300 flex items-center justify-center text-2xl sm:text-3xl shadow-clay animate-in zoom-in-50 select-none hover:scale-110 transition-transform cursor-pointer"
+                            className="size-12 sm:size-14 rounded-2xl bg-white border-2 border-amber-300 flex items-center justify-center shadow-clay animate-in zoom-in-50 select-none hover:scale-110 transition-transform cursor-pointer"
                           >
-                            {r % 2 === 0 ? '🍰' : '🧁'}
+                            <FlatClayCupcake size={36} flavor={r % 2 === 0 ? 'strawberry' : 'vanilla'} />
                           </div>
                         )),
                       )}
@@ -1180,7 +1181,7 @@ export function AsmoCurriculumLessonPage() {
                     <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
                       <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                         <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-50 border-2 border-amber-200 text-amber-800 shadow-clay">
-                          <span className="text-2xl sm:text-3xl">🥞</span>
+                          <FlatClayCupcake size={28} flavor="strawberry" />
                           <span className="font-display font-black text-2xl sm:text-3xl text-amber-800">{cakeRows} hàng</span>
                         </div>
 
@@ -1189,7 +1190,7 @@ export function AsmoCurriculumLessonPage() {
                         </div>
 
                         <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-800 shadow-clay">
-                          <span className="text-2xl sm:text-3xl">🧁</span>
+                          <FlatClayCupcake size={28} flavor="vanilla" />
                           <span className="font-display font-black text-2xl sm:text-3xl text-emerald-800">{cakeCols} cột</span>
                         </div>
 
@@ -1199,12 +1200,8 @@ export function AsmoCurriculumLessonPage() {
 
                         <div className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl bg-brand-500 text-white font-black text-2xl sm:text-3xl shadow-clay border-2 border-brand-600 transition-all duration-300">
                           <span className="font-display font-black text-2xl sm:text-3xl text-white">{cakeRows * cakeCols}</span>
-                          <span className="text-xl sm:text-2xl animate-bounce">🍰</span>
+                          <FlatClayCupcake size={28} flavor="strawberry" className="animate-bounce" />
                         </div>
-                      </div>
-
-                      <div className="font-mono font-bold text-xs text-slate-500">
-                        {cakeRows} hàng × {cakeCols} cột = <span className="text-amber-700 font-black underline">{cakeRows * cakeCols} chiếc bánh</span> thơm ngon
                       </div>
                     </div>
                   </div>
@@ -1382,7 +1379,10 @@ export function AsmoCurriculumLessonPage() {
                   <div className="w-full max-w-lg space-y-3.5 flex flex-col items-center">
                     <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-white p-3.5 rounded-2xl border-2 border-brand-200 shadow-2xs w-full">
                       <div className="flex items-center gap-2">
-                        <span className="font-black text-slate-800">Đĩa Trái (Dưa 🍉):</span>
+                        <span className="font-black text-slate-800 flex items-center gap-1">
+                          <span>Đĩa Trái:</span>
+                          <FlatClayWatermelon size={20} />
+                        </span>
                         <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-emerald-300 shadow-2xs">
                           <button
                             type="button"
@@ -1409,13 +1409,16 @@ export function AsmoCurriculumLessonPage() {
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <span className="font-black text-slate-800">Đĩa Phải (Táo 🍎):</span>
+                        <span className="font-black text-slate-800 flex items-center gap-1">
+                          <span>Đĩa Phải:</span>
+                          <FlatClayRedApple size={20} />
+                        </span>
                         <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-rose-300 shadow-2xs">
                           <button
                             type="button"
                             aria-label="Bớt táo"
                             disabled={scaleRight <= 1}
-                            onClick={() => setScaleRight((s) => (s > 1 ? s - 1 : 1))}
+                            onClick={() => setScaleRight((r) => (r > 1 ? r - 1 : 1))}
                             className="size-8 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                           >
                             <Minus className="size-4 stroke-[3]" />
@@ -1427,7 +1430,7 @@ export function AsmoCurriculumLessonPage() {
                             type="button"
                             aria-label="Thêm táo"
                             disabled={scaleRight >= 15}
-                            onClick={() => setScaleRight((s) => (s < 15 ? s + 1 : 15))}
+                            onClick={() => setScaleRight((r) => (r < 15 ? r + 1 : 15))}
                             className="size-8 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                           >
                             <Plus className="size-4 stroke-[3]" />
@@ -1449,7 +1452,7 @@ export function AsmoCurriculumLessonPage() {
                     <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
                       <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                         <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-800 shadow-clay">
-                          <span className="text-2xl sm:text-3xl">🍉</span>
+                          <FlatClayWatermelon size={28} />
                           <span className="font-display font-black text-2xl sm:text-3xl text-emerald-800">{scaleLeft} dưa</span>
                         </div>
 
@@ -1458,19 +1461,9 @@ export function AsmoCurriculumLessonPage() {
                         </div>
 
                         <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 shadow-clay">
-                          <span className="text-2xl sm:text-3xl">🍎</span>
+                          <FlatClayRedApple size={28} />
                           <span className="font-display font-black text-2xl sm:text-3xl text-rose-800">{scaleRight} táo</span>
                         </div>
-                      </div>
-
-                      <div className="font-mono font-bold text-xs text-slate-500">
-                        {scaleLeft * 3 === scaleRight ? (
-                          <span className="text-emerald-700 font-black">⚖️ Cân thăng bằng: {scaleLeft} quả dưa nặng bằng {scaleRight} quả táo! (1 dưa = 3 táo)</span>
-                        ) : scaleLeft * 3 > scaleRight ? (
-                          <span className="text-amber-700 font-black">⚖️ Đĩa trái nghiêng xuống (nặng hơn đĩa phải)!</span>
-                        ) : (
-                          <span className="text-rose-700 font-black">⚖️ Đĩa phải nghiêng xuống (nặng hơn đĩa trái)!</span>
-                        )}
                       </div>
                     </div>
                   </div>
@@ -1482,7 +1475,10 @@ export function AsmoCurriculumLessonPage() {
                     {/* Controls */}
                     <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-white p-3.5 rounded-2xl border-2 border-brand-200 shadow-2xs">
                       <div className="flex items-center gap-2">
-                        <span className="font-black text-slate-800">Số kẹo 🍬:</span>
+                        <span className="font-black text-slate-800 flex items-center gap-1">
+                          <FlatClayCandy size={16} />
+                          <span>Số kẹo:</span>
+                        </span>
                         <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-rose-300 shadow-2xs">
                           <button
                             type="button"
@@ -1544,9 +1540,7 @@ export function AsmoCurriculumLessonPage() {
                             <span className="text-xs font-black text-brand-800">Đĩa {plateIdx + 1}</span>
                             <div className="flex items-center justify-center gap-1 flex-wrap min-h-10">
                               {Array.from({ length: candiesPerPlate }).map((_, cIdx) => (
-                                <span key={`plate-candy-${cIdx}`} className="text-lg animate-in zoom-in-50">
-                                  🍬
-                                </span>
+                                <FlatClayCandy key={`plate-candy-${cIdx}`} size={20} className="animate-in zoom-in-50" />
                               ))}
                             </div>
                             <span className="text-xs font-extrabold text-slate-600">{candiesPerPlate} cái</span>
@@ -1556,8 +1550,9 @@ export function AsmoCurriculumLessonPage() {
                     </div>
 
                     {candyTotal % candyPlates !== 0 && (
-                      <div className="bg-amber-100/80 border-2 border-amber-300 rounded-2xl p-2 text-center text-xs font-black text-amber-900 shadow-2xs">
-                        🍬 Kẹo dư chưa chia: {candyTotal % candyPlates} cái
+                      <div className="flex items-center justify-center gap-1 bg-amber-100/80 border-2 border-amber-300 rounded-2xl p-2 text-center text-xs font-black text-amber-900 shadow-2xs">
+                        <FlatClayCandy size={16} />
+                        <span>Kẹo dư chưa chia: {candyTotal % candyPlates} cái</span>
                       </div>
                     )}
 
@@ -1565,7 +1560,7 @@ export function AsmoCurriculumLessonPage() {
                     <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
                       <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                         <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 shadow-clay">
-                          <span className="text-2xl sm:text-3xl">🍬</span>
+                          <FlatClayCandy size={28} />
                           <span className="font-display font-black text-2xl sm:text-3xl text-rose-800">{candyTotal}</span>
                         </div>
 
@@ -1584,16 +1579,8 @@ export function AsmoCurriculumLessonPage() {
 
                         <div className="flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl bg-brand-500 text-white font-black text-2xl sm:text-3xl shadow-clay border-2 border-brand-600 transition-all duration-300">
                           <span className="font-display font-black text-2xl sm:text-3xl text-white">{Math.floor(candyTotal / candyPlates)}</span>
-                          <span className="text-xs font-black uppercase text-white/90">🍬 / đĩa</span>
+                          <FlatClayCandy size={24} className="animate-bounce" />
                         </div>
-                      </div>
-
-                      <div className="font-mono font-bold text-xs text-slate-500">
-                        {candyTotal} kẹo ÷ {candyPlates} đĩa ={' '}
-                        <span className="text-rose-700 font-black underline">
-                          {Math.floor(candyTotal / candyPlates)} kẹo mỗi đĩa
-                        </span>
-                        {candyTotal % candyPlates !== 0 && ` (dư ${candyTotal % candyPlates} kẹo)`}
                       </div>
                     </div>
                   </div>
@@ -2129,9 +2116,7 @@ export function AsmoCurriculumLessonPage() {
                       {cubeLayers[2] > 0 && (
                         <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
                           {Array.from({ length: cubeLayers[2] }).map((_, i) => (
-                            <div key={`t3-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-pink-300">
-                              🧊
-                            </div>
+                            <FlatClayCube key={`t3-${i}`} size={36} color="pink" />
                           ))}
                         </div>
                       )}
@@ -2139,9 +2124,7 @@ export function AsmoCurriculumLessonPage() {
                       {cubeLayers[1] > 0 && (
                         <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
                           {Array.from({ length: cubeLayers[1] }).map((_, i) => (
-                            <div key={`t2-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-500 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-purple-300">
-                              🧊
-                            </div>
+                            <FlatClayCube key={`t2-${i}`} size={36} color="purple" />
                           ))}
                         </div>
                       )}
@@ -2149,9 +2132,7 @@ export function AsmoCurriculumLessonPage() {
                       {cubeLayers[0] > 0 && (
                         <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
                           {Array.from({ length: cubeLayers[0] }).map((_, i) => (
-                            <div key={`t1-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-600 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-indigo-300">
-                              🧊
-                            </div>
+                            <FlatClayCube key={`t1-${i}`} size={36} color="indigo" />
                           ))}
                         </div>
                       )}
@@ -2160,25 +2141,25 @@ export function AsmoCurriculumLessonPage() {
                     {/* Giant Montessori Toy Calculation Board */}
                     <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
                       <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
-                        <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-indigo-50 border-2 border-indigo-200 text-indigo-900 shadow-clay">
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-indigo-50 border-2 border-indigo-200 text-indigo-900 shadow-clay">
+                          <FlatClayCube size={22} color="indigo" />
                           <span className="font-display font-black text-xl text-indigo-900">{cubeLayers[0]} (dưới)</span>
                         </div>
                         <span className="font-black text-xl text-indigo-500">+</span>
-                        <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-purple-50 border-2 border-purple-200 text-purple-900 shadow-clay">
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-purple-50 border-2 border-purple-200 text-purple-900 shadow-clay">
+                          <FlatClayCube size={22} color="purple" />
                           <span className="font-display font-black text-xl text-purple-900">{cubeLayers[1]} (giữa)</span>
                         </div>
                         <span className="font-black text-xl text-purple-500">+</span>
-                        <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-pink-50 border-2 border-pink-200 text-pink-900 shadow-clay">
+                        <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-2xl bg-pink-50 border-2 border-pink-200 text-pink-900 shadow-clay">
+                          <FlatClayCube size={22} color="pink" />
                           <span className="font-display font-black text-xl text-pink-900">{cubeLayers[2]} (trên)</span>
                         </div>
                         <span className="font-black text-xl text-indigo-500">=</span>
                         <div className="flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-brand-500 text-white font-black text-2xl shadow-clay border-2 border-brand-600">
                           <span className="font-display font-black text-2xl text-white">{cubeLayers[0] + cubeLayers[1] + cubeLayers[2]}</span>
-                          <span className="text-lg animate-bounce">🧊</span>
+                          <FlatClayCube size={24} color="rose" className="animate-bounce" />
                         </div>
-                      </div>
-                      <div className="font-mono font-bold text-xs text-slate-500">
-                        Tổng cộng = {cubeLayers[0]} + {cubeLayers[1]} + {cubeLayers[2]} = <span className="text-indigo-700 font-black underline">{cubeLayers[0] + cubeLayers[1] + cubeLayers[2]} khối lập phương</span>
                       </div>
                     </div>
                   </div>
@@ -2247,116 +2228,8 @@ export function AsmoCurriculumLessonPage() {
                   )}
               </div>
 
-              {/* Đáy bài: Thẻ Bí Kíp Nhìn Hình 1 dòng ngắn (Elementary Cấp 1) hoặc Key Takeaways (Secondary / High) */}
-              {isElementary ? (
-                <div className="rounded-2xl bg-gradient-to-r from-amber-50 via-emerald-50 to-sky-50 border-2 border-emerald-300/80 p-3.5 sm:p-4 text-center shadow-xs">
-                  <span className="font-display font-extrabold text-xs sm:text-sm text-slate-800 flex items-center justify-center gap-1.5 sm:gap-2 flex-wrap">
-                    <span className="text-amber-800 font-black flex items-center gap-1">
-                      <Sparkles className="size-4 text-amber-500" />
-                      <span>Bí Kíp Nhìn Hình:</span>
-                    </span>
-                    {lesson.visualType === 'apple_drop' && (
-                      <span className="text-rose-700 font-black">
-                        🍎 {applesA} quả đỏ + {applesB} quả xanh = {applesA + applesB} quả táo tổng cộng ({applesA + applesB} quả táo thơm ngon)!
-                      </span>
-                    )}
-                    {lesson.visualType === 'balloon_pop' && (
-                      <span className="text-sky-700 font-black">
-                        🎈 10 quả − {poppedBalloons.length} quả nổ = {10 - poppedBalloons.length} quả bóng bay xinh xắn!
-                      </span>
-                    )}
-                    {lesson.visualType === 'cake_tray' && (
-                      <span className="text-amber-700 font-black">
-                        🍰 {cakeRows} hàng × {cakeCols} cột = {cakeRows * cakeCols} chiếc bánh thơm ngon!
-                      </span>
-                    )}
-                    {(lesson.visualType === 'pizza_fraction' ||
-                      lesson.visualType === 'compare_fractions' ||
-                      lesson.visualType === 'fraction_add_sub' ||
-                      lesson.visualType === 'fraction_of_number') && (
-                      <span className="text-emerald-700 font-black">
-                        🍕 Phân số trực quan: {pizzaShaded}/{pizzaSlices} chiếc bánh pizza!
-                      </span>
-                    )}
-                    {(lesson.visualType === 'candy_division' || lesson.visualType === 'div_remainder') && (
-                      <span className="text-purple-700 font-black">
-                        🍬 {candyTotal} kẹo ÷ {candyPlates} đĩa = {Math.floor(candyTotal / candyPlates)} kẹo mỗi đĩa{candyTotal % candyPlates !== 0 ? ` (dư ${candyTotal % candyPlates} kẹo)` : ''}!
-                      </span>
-                    )}
-                    {lesson.visualType === 'make10' && (
-                      <span className="text-pink-700 font-black">
-                        🌈 Bạn thân tròn 10: 1+9, 2+8, 3+7, 4+6, 5+5 luôn bằng 10!
-                      </span>
-                    )}
-                    {lesson.visualType === 'times_table_25' && (
-                      <span className="text-emerald-700 font-black">
-                        🐸 {tableBase} × {tableMultiplier} = {tableBase * tableMultiplier} (Ếch nhảy {tableMultiplier} bước {tableBase} đơn vị)!
-                      </span>
-                    )}
-                    {lesson.visualType === 'times_table_69' && (
-                      <span className="text-indigo-700 font-black">
-                        ✨ 9 × {table9Factor} = {9 * table9Factor} (chục {table9Factor - 1} + đv {9 - (table9Factor - 1)} = 9)!
-                      </span>
-                    )}
-                    {lesson.visualType === 'column_add' && (
-                      <span className="text-rose-700 font-black">
-                        ➕ Cộng hàng đơn vị (8+7=15 viết 5 nhớ 1), cộng hàng chục (4+3+1=8) ➔ 85!
-                      </span>
-                    )}
-                    {lesson.visualType === 'column_sub' && (
-                      <span className="text-amber-700 font-black">
-                        ➖ Mượn 1 chục: 13 − 8 = 5 (viết 5), 6 bớt 1 còn 5: 5 − 2 = 3 (viết 3) ➔ 35!
-                      </span>
-                    )}
-                    {lesson.visualType === 'perimeter_area' && (
-                      <span className="text-teal-700 font-black">
-                        📐 Chu vi P = (4 + 3) × 2 = 14m · Diện tích S = 4 × 3 = 12m²!
-                      </span>
-                    )}
-                    {lesson.visualType === 'analog_clock' && (
-                      <span className="text-sky-700 font-black">
-                        ⏰ Đồng hồ: {clockHour} giờ {clockMinute < 10 ? `0${clockMinute}` : clockMinute} phút!
-                      </span>
-                    )}
-                    {lesson.visualType === 'balance_scale' && (
-                      <span className="text-teal-700 font-black">
-                        ⚖️ Cân thăng bằng: 1 Quả Dưa = 4 Quả Táo!
-                      </span>
-                    )}
-                    {lesson.visualType === 'cube_3d' && (
-                      <span className="text-indigo-700 font-black">
-                        🧊 Đếm theo tầng: 4 + 2 + 1 = 7 khối lập phương!
-                      </span>
-                    )}
-                    {lesson.visualType === 'matchstick' && (
-                      <span className="text-amber-700 font-black">
-                        🥢 Ô đầu 4 que, ô sau thêm 3 que ➔ 4 + 3 + 3 = 10 que diêm!
-                      </span>
-                    )}
-                    {lesson.visualType !== 'apple_drop' &&
-                      lesson.visualType !== 'balloon_pop' &&
-                      lesson.visualType !== 'cake_tray' &&
-                      lesson.visualType !== 'pizza_fraction' &&
-                      lesson.visualType !== 'compare_fractions' &&
-                      lesson.visualType !== 'fraction_add_sub' &&
-                      lesson.visualType !== 'fraction_of_number' &&
-                      lesson.visualType !== 'candy_division' &&
-                      lesson.visualType !== 'div_remainder' &&
-                      lesson.visualType !== 'make10' &&
-                      lesson.visualType !== 'times_table_25' &&
-                      lesson.visualType !== 'times_table_69' &&
-                      lesson.visualType !== 'column_add' &&
-                      lesson.visualType !== 'column_sub' &&
-                      lesson.visualType !== 'perimeter_area' &&
-                      lesson.visualType !== 'analog_clock' &&
-                      lesson.visualType !== 'balance_scale' &&
-                      lesson.visualType !== 'cube_3d' &&
-                      lesson.visualType !== 'matchstick' && (
-                        <span className="text-brand-700 font-black">{lesson.theory.title}</span>
-                      )}
-                  </span>
-                </div>
-              ) : (
+              {/* Đáy bài: Key Takeaways chỉ hiển thị cho Secondary / High School (Phase 1 Elementary đã có Bảng tính Montessori trực quan 100%) */}
+              {!isElementary && (
                 <div className="rounded-2xl bg-brand-50/60 border border-brand-200 p-4 sm:p-5 space-y-2.5">
                   <span className="text-xs font-black text-brand-800 uppercase tracking-wider flex items-center gap-1.5">
                     <Star className="size-4 text-amber-500 fill-amber-500" />
