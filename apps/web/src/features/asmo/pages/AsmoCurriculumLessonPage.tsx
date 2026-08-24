@@ -36,6 +36,7 @@ import {
 import { AsmoFormula } from '../components/AsmoFormula'
 import { AsmoInteractiveAppleTreeCanvas, speakVietnamese } from '../components/AsmoInteractiveAppleTreeCanvas'
 import { AsmoInteractivePracticeWorkspace } from '../components/AsmoInteractivePracticeWorkspace'
+import { AsmoVisualSecretComicCard } from '../components/AsmoVisualSecretComicCard'
 import { renderClockSvg, renderBalanceScaleSvg, renderMatchstickFigureSvg } from '../components/AsmoDiagramEngine'
 import {
   FlatClayBalloon,
@@ -2256,97 +2257,11 @@ export function AsmoCurriculumLessonPage() {
               PHASE 2: 💡 MẸO MÈO MEE & BÍ KÍP (BÍ KÍP TÍNH NHANH)
           ══════════════════════════════════════════════════════════════════ */}
           {phase === 'tips' && (
-            isElementary ? (
-              <div className="rounded-3xl border-2 border-brand-100 shadow-clay bg-white p-6 sm:p-8 space-y-6 text-center animate-fade-up">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-sun-100 border border-sun-200 text-xs font-black text-sun-950 shadow-2xs">
-                  <span>✨</span>
-                  <span>Tranh Bí Kíp Mèo Mee</span>
-                  <span>✨</span>
-                </div>
-
-                <div className="flex flex-col items-center justify-center gap-5">
-                  <AikidCatCharacter pose={lesson.meeTip.pose} className="size-32 sm:size-40 drop-shadow-md animate-bounce" />
-
-                  <div className="max-w-xl w-full bg-brand-50/80 rounded-3xl border-2 border-brand-100 p-5 sm:p-6 shadow-clay space-y-3 text-center">
-                    <div className="flex items-center justify-center gap-2">
-                      <span className="text-xs font-black text-brand-800 uppercase tracking-wide">
-                        🐱 Câu Thần Chú Mèo Mee:
-                      </span>
-                      <button
-                        type="button"
-                        onClick={() => speakVietnamese(lesson.meeTip.quote + '. ' + lesson.meeTip.storyAdvice)}
-                        title="Nghe Mèo Mee đọc thần chú"
-                        aria-label="Phát âm thanh thần chú"
-                        className="size-8 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white flex items-center justify-center shadow-clay cursor-pointer active:scale-90 transition-all border-2 border-brand-600"
-                      >
-                        <Volume2 className="size-4 stroke-[2.5]" />
-                      </button>
-                    </div>
-                    <p className="text-base sm:text-xl font-black text-slate-900 italic leading-snug">
-                      &quot;{lesson.meeTip.quote}&quot;
-                    </p>
-                    <div className="bg-white/95 rounded-2xl p-3 border-2 border-brand-100 text-xs sm:text-sm font-extrabold text-slate-800">
-                      <AsmoFormula text={lesson.meeTip.storyAdvice} />
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-3xl border-2 border-brand-100 shadow-clay bg-white p-5 sm:p-7 space-y-6 animate-fade-up">
-                {/* Mee's Story Card */}
-                <div className="flex flex-col sm:flex-row items-center gap-5 bg-brand-50/80 rounded-3xl border-2 border-brand-100 p-6 shadow-clay">
-                  <div className="shrink-0 flex flex-col items-center">
-                    <AikidCatCharacter pose={lesson.meeTip.pose} className="size-28 sm:size-36 drop-shadow-md" />
-                    <span className="text-xs font-black text-brand-900 mt-2 bg-brand-100 px-3 py-0.5 rounded-full border border-brand-200">
-                      Trợ Giảng AI Mèo Mee
-                    </span>
-                  </div>
-
-                  <div className="space-y-3.5 text-center sm:text-left flex-1">
-                    <div className="bg-white/90 border-2 border-brand-100 rounded-2xl p-4 shadow-2xs">
-                      <span className="text-xs font-black text-brand-800 block mb-1">
-                        🐱 Mèo Mee Kể Chuyện:
-                      </span>
-                      <p className="text-sm sm:text-base font-extrabold text-slate-900 italic leading-snug">
-                        &quot;{lesson.meeTip.quote}&quot;
-                      </p>
-                    </div>
-
-                    <div className="bg-white/90 border-2 border-brand-100 rounded-2xl p-4 space-y-1">
-                      <span className="text-xs font-black text-brand-700 block">
-                        💡 Câu Thần Chú Giải Nhanh:
-                      </span>
-                      <p className="text-xs sm:text-sm font-bold text-slate-800 leading-relaxed">
-                        <AsmoFormula text={lesson.meeTip.storyAdvice} />
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Fast Tips & Common Pitfalls Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs sm:text-sm">
-                  <div className="rounded-2xl bg-sky-50 border border-sky-200 p-4 space-y-1.5">
-                    <span className="font-black text-sky-800 flex items-center gap-1.5">
-                      <Zap className="size-4 text-sky-600 fill-sky-600" />
-                      <span>⚡ Mẹo Nhẩm Nhanh Thần Tốc:</span>
-                    </span>
-                    <p className="text-slate-700 font-semibold leading-relaxed">
-                      Luôn nhóm các số tạo thành cặp tròn 10 hoặc tròn 100 trước khi cộng dồn để tiết kiệm thời gian.
-                    </p>
-                  </div>
-
-                  <div className="rounded-2xl bg-rose-50 border border-rose-200 p-4 space-y-1.5">
-                    <span className="font-black text-rose-800 flex items-center gap-1.5">
-                      <XCircle className="size-4 text-rose-600" />
-                      <span>⚠️ Lỗi Thường Gặp Cần Tránh:</span>
-                    </span>
-                    <p className="text-slate-700 font-semibold leading-relaxed">
-                      Quên cộng số nhớ ở hàng chục, hoặc nhầm lẫn giữa số bị trừ và số trừ trong phép tính có lời văn.
-                    </p>
-                  </div>
-                </div>
-              </div>
-            )
+            <AsmoVisualSecretComicCard
+              lesson={lesson}
+              stage={stage}
+              onAdvanceToPractice={() => advanceToPhase('practice')}
+            />
           )}
 
           {/* ══════════════════════════════════════════════════════════════════

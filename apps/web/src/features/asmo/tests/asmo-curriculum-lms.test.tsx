@@ -21,6 +21,7 @@ import {
 } from '../components/AsmoIslandWorldMap'
 import { AsmoInteractiveLessonModal } from '../components/AsmoInteractiveLessonModal'
 import { AsmoInteractivePracticeWorkspace } from '../components/AsmoInteractivePracticeWorkspace'
+import { AsmoVisualSecretComicCard } from '../components/AsmoVisualSecretComicCard'
 
 describe('ASMO Curriculum LMS Dataset & Logic', () => {
   beforeEach(() => {
@@ -685,4 +686,180 @@ describe('ASMO Multi-Level Practice Lab & Diagnostic Verification Engine', () =>
     expect(markup).not.toContain('XUẤT SẮC BÉ ƠI! BẠN ĐÃ VƯỢT QUA THỬ THÁCH')
   })
 })
+
+describe('ASMO Phase 2 Visual Secret Comic Infographic Card (Mẹo Mee 2.5D Soft Clay)', () => {
+  it('renders Trạm 1 (Gộp Táo - apple_drop) with 2 boxes of apples, sum box and skip counting secret', () => {
+    const stage1 = ASMO_LMS_STAGES[0]
+    const lesson1 = stage1.lessons[0] // s1-apples
+    const markup = renderToStaticMarkup(
+      createElement(AsmoVisualSecretComicCard, {
+        lesson: lesson1,
+        stage: stage1,
+        onAdvanceToPractice: () => {},
+      }),
+    )
+
+    // Top banner
+    expect(markup).toContain('TRANH BÍ KÍP MÈO MEE · TRẠM 1')
+    expect(markup).toContain('aikid-cat-character')
+    expect(markup).toContain('Trợ Giảng Mee 🐱')
+    expect(markup).toContain('Câu Khẩu Quyết Thần Chú:')
+    expect(markup).toContain('Phát âm thanh thần chú')
+
+    // Central Secret Diagram for Station 1
+    expect(markup).toContain('Giỏ A (4 Quả Táo Đỏ)')
+    expect(markup).toContain('Giỏ B (3 Quả Táo Xanh)')
+    expect(markup).toContain('Tổng Số Táo Cả 2 Giỏ Sau Khi Gộp:')
+    expect(markup).toContain('Bí Kíp Đếm Tiếp Siêu Tốc')
+    expect(markup).toContain('Giữ số lớn:')
+    expect(markup).toContain('Đếm thêm 3 nấc')
+
+    // Bottom CTA button
+    expect(markup).toContain('🎮 Bắt Đầu Thực Hành Trạm 1 ➔')
+  })
+
+  it('renders Trạm 2 (Nổ Bóng Trừ - balloon_pop) with 3 comic panels: Initial 10, Burst 3, and Reverse Thinking', () => {
+    const stage1 = ASMO_LMS_STAGES[0]
+    const lesson2 = stage1.lessons[1] // s1-balloons
+    const markup = renderToStaticMarkup(
+      createElement(AsmoVisualSecretComicCard, {
+        lesson: lesson2,
+        stage: stage1,
+        onAdvanceToPractice: () => {},
+      }),
+    )
+
+    expect(markup).toContain('TRANH BÍ KÍP MÈO MEE · TRẠM 2')
+    expect(markup).toContain('Khung 1: Ban Đầu (10 Bóng)')
+    expect(markup).toContain('Khung 2: Nổ 3 Bóng 💥')
+    expect(markup).toContain('Khung 3: Tính Ngược 💡')
+    expect(markup).toContain('Hỏi ngược lại:')
+    expect(markup).toContain('3 + ')
+    expect(markup).toContain('7 Quả Bóng Bay Còn Lại Sau Phép Trừ:')
+    expect(markup).toContain('🎮 Bắt Đầu Thực Hành Trạm 2 ➔')
+  })
+
+  it('renders Trạm 3 (Phép Nhân Khay Bánh - cake_tray) with 3 rows of cupcakes and repeated addition strip', () => {
+    const stage2 = ASMO_LMS_STAGES[1]
+    const lessonCake = stage2.lessons[0] // s2-cake-tray
+    const markup = renderToStaticMarkup(
+      createElement(AsmoVisualSecretComicCard, {
+        lesson: lessonCake,
+        stage: stage2,
+        onAdvanceToPractice: () => {},
+      }),
+    )
+
+    expect(markup).toContain('Khay Bánh Cupcake Soft Clay (3 Hàng × 4 Cột)')
+    expect(markup).toContain('Hàng 1: 4 Bánh Dâu 🍓 (+4)')
+    expect(markup).toContain('Hàng 2: 4 Bánh Vani 🍦 (+4)')
+    expect(markup).toContain('Hàng 3: 4 Bánh Matcha 🍵 (+4)')
+    expect(markup).toContain('4 + 4 + 4 = 12 bánh')
+    expect(markup).toContain('3 hàng × 4 bánh = 12 bánh')
+  })
+
+  it('renders Trạm 4 (Phép Chia Đĩa Kẹo - candy_division) with 12 candies evenly distributed into 3 plates', () => {
+    const stage2 = ASMO_LMS_STAGES[1]
+    const lessonCandy = stage2.lessons[3] // s2-candy-division
+    const markup = renderToStaticMarkup(
+      createElement(AsmoVisualSecretComicCard, {
+        lesson: lessonCandy,
+        stage: stage2,
+        onAdvanceToPractice: () => {},
+      }),
+    )
+
+    expect(markup).toContain('Túi 12 Kẹo Mút Cầu Vồng 🍬 Chia Đều Vào 3 Đĩa')
+    expect(markup).toContain('Đĩa Sứ #1')
+    expect(markup).toContain('Đĩa Sứ #2')
+    expect(markup).toContain('Đĩa Sứ #3')
+    expect(markup).toContain('12 Kẹo ÷ 3 Đĩa =')
+    expect(markup).toContain('4')
+    expect(markup).toContain('Kẹo Mỗi Đĩa')
+  })
+
+  it('renders Trạm 5 (Cầu Vồng Make 10 - make10) with 5 rainbow pairs and Olympic fast calculation', () => {
+    const stage1 = ASMO_LMS_STAGES[0]
+    const lessonMake10 = stage1.lessons[2] // s1-make10
+    const markup = renderToStaticMarkup(
+      createElement(AsmoVisualSecretComicCard, {
+        lesson: lessonMake10,
+        stage: stage1,
+        onAdvanceToPractice: () => {},
+      }),
+    )
+
+    expect(markup).toContain('🌈 Cầu Vồng 5 Cặp Bạn Thân Make 10')
+    expect(markup).toContain('1 &amp; 9')
+    expect(markup).toContain('2 &amp; 8')
+    expect(markup).toContain('3 &amp; 7')
+    expect(markup).toContain('4 &amp; 6')
+    expect(markup).toContain('5 &amp; 5')
+    expect(markup).toContain('Ứng Dụng Olympic: Tính Nhanh 1 + 3 + 5 + 7 + 9')
+    expect(markup).toContain('25')
+  })
+
+  it('renders Trạm 6 (Phân Số Pizza - pizza_fraction) with 8 slices, 3 lifted slices and Numerator/Denominator diagram', () => {
+    const stage3 = ASMO_LMS_STAGES[2]
+    const lessonPizza = stage3.lessons[0] // s3-pizza-intro
+    const markup = renderToStaticMarkup(
+      createElement(AsmoVisualSecretComicCard, {
+        lesson: lessonPizza,
+        stage: stage3,
+        onAdvanceToPractice: () => {},
+      }),
+    )
+
+    expect(markup).toContain('Chiếc Bánh Pizza 8 Lát Bằng Nhau')
+    expect(markup).toContain('TỬ SỐ (Ở Trên):')
+    expect(markup).toContain('3 (Lát đã lấy)')
+    expect(markup).toContain('MẪU SỐ (Ở Dưới):')
+    expect(markup).toContain('8 (Tổng số lát)')
+    expect(markup).toContain('3/8')
+  })
+
+  it('renders Trạm 7 (Cân Thăng Bằng - balance_scale) with 1 watermelon = 3 apples and substitution rule 2 watermelons = 6 apples', () => {
+    const stage4 = ASMO_LMS_STAGES[3]
+    const lessonScale = stage4.lessons[2] // s4-balance-scale
+    const markup = renderToStaticMarkup(
+      createElement(AsmoVisualSecretComicCard, {
+        lesson: lessonScale,
+        stage: stage4,
+        onAdvanceToPractice: () => {},
+      }),
+    )
+
+    expect(markup).toContain('⚖️ Cân Thăng Bằng &amp; Phép Thế Olympic')
+    expect(markup).toContain('Cân 1 (Đã Cho):')
+    expect(markup).toContain('1 Dưa Hấu')
+    expect(markup).toContain('3 Quả Táo')
+    expect(markup).toContain('Cân 2 (Suy Ra):')
+    expect(markup).toContain('2 Dưa Hấu')
+    expect(markup).toContain('6 Quả Táo!')
+  })
+
+  it('renders Trạm 8 (Khối Lập Phương 3D - cube_3d) with 3 separated isometric layers (4 + 2 + 1 = 7 cubes)', () => {
+    const stage5 = ASMO_LMS_STAGES[4]
+    const lessonCube = stage5.lessons[0] // s5-cube-counting
+    const markup = renderToStaticMarkup(
+      createElement(AsmoVisualSecretComicCard, {
+        lesson: lessonCube,
+        stage: stage5,
+        onAdvanceToPractice: () => {},
+      }),
+    )
+
+    expect(markup).toContain('🧊 Bí Kíp Tách 3 Tầng Đếm Khối Lập Phương 3D')
+    expect(markup).toContain('Tầng 3 (Tầng Đỉnh)')
+    expect(markup).toContain('1 Khối')
+    expect(markup).toContain('Tầng 2 (Tầng Giữa)')
+    expect(markup).toContain('2 Khối')
+    expect(markup).toContain('Tầng 1 (Tầng Đáy)')
+    expect(markup).toContain('4 Khối')
+    expect(markup).toContain('Tổng cộng:')
+    expect(markup).toContain('7')
+    expect(markup).toContain('khối lập phương')
+  })
+})
+
 
