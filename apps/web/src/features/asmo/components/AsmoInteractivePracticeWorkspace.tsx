@@ -305,8 +305,9 @@ export function AsmoInteractivePracticeWorkspace({
               <div className="text-[11px] font-black text-emerald-800 uppercase tracking-wider">
                 Phòng Thực Hành Tương Tác Đa Cấp Độ
               </div>
-              <h2 className="text-base sm:text-lg font-extrabold text-slate-900 leading-snug">
-                Thử thách {currentChallengeIdx + 1}/{challenges.length}: {currentChallenge.title}
+              <h2 className="text-base sm:text-lg font-extrabold text-slate-900 leading-snug flex items-center gap-1.5 flex-wrap">
+                <span>Thử thách {currentChallengeIdx + 1}/{challenges.length}:</span>
+                <AsmoFormula text={currentChallenge.title} className="inline" />
               </h2>
             </div>
           </div>
@@ -335,7 +336,7 @@ export function AsmoInteractivePracticeWorkspace({
                   )}
                 >
                   <span>{c.level === 1 ? '🥉' : c.level === 2 ? '🥈' : '🥇'}</span>
-                  <span>{c.levelLabel.split(':')[0]}</span>
+                  <AsmoFormula text={c.levelLabel.split(':')[0]} className="inline" />
                   {isCompleted && <CheckCircle2 className="size-3.5 text-emerald-600 shrink-0" />}
                 </button>
               )
@@ -349,13 +350,14 @@ export function AsmoInteractivePracticeWorkspace({
             <Sparkles className="size-4 text-amber-500 fill-amber-400" />
             <span>Nhiệm Vụ Thử Thách:</span>
           </div>
-          <p className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
+          <div className="text-sm sm:text-base font-extrabold text-slate-900 leading-snug">
             <AsmoFormula text={currentChallenge.instruction} />
-          </p>
+          </div>
           {currentChallenge.hint && (
-            <p className="text-xs font-semibold text-slate-500 pt-0.5">
-              💡 Gợi ý của Mee: <AsmoFormula text={currentChallenge.hint} />
-            </p>
+            <div className="text-xs font-semibold text-slate-500 pt-0.5 flex items-center gap-1 flex-wrap">
+              <span>💡 Gợi ý của Mee:</span>
+              <AsmoFormula text={currentChallenge.hint} className="inline" />
+            </div>
           )}
         </div>
       </div>
@@ -908,10 +910,10 @@ export function AsmoInteractivePracticeWorkspace({
             {/* Header & Reset Button */}
             <div className="flex items-center justify-between bg-white px-4 py-2.5 rounded-2xl border-2 border-purple-200 text-xs shadow-clay">
               <div className="flex items-center gap-2">
-                <span className="font-black text-purple-900">
-                  {currentChallengeIdx === 0 && '🥉 Thử thách 1: Ghép 2 cặp bạn thân từ 4 số'}
-                  {currentChallengeIdx === 1 && '🥈 Thử thách 2: Ghép đủ 3 cặp bạn thân từ 6 số'}
-                  {currentChallengeIdx === 2 && '🥇 Thử thách 3: Ghép 2 cặp tròn 10 để tính tổng dãy số 25'}
+                <span className="font-black text-purple-900 flex items-center gap-1.5 flex-wrap">
+                  {currentChallengeIdx === 0 && <AsmoFormula text="🥉 Thử thách 1: Ghép 2 cặp bạn thân từ 4 số" className="inline" />}
+                  {currentChallengeIdx === 1 && <AsmoFormula text="🥈 Thử thách 2: Ghép đủ 3 cặp bạn thân từ 6 số" className="inline" />}
+                  {currentChallengeIdx === 2 && <AsmoFormula text="🥇 Thử thách 3: Ghép 2 cặp tròn 10 để tính tổng dãy số 25" className="inline" />}
                 </span>
               </div>
               <button
@@ -1623,7 +1625,9 @@ export function AsmoInteractivePracticeWorkspace({
           lesson.visualType !== 'cube_3d' && (
             <div className="w-full max-w-md space-y-4 text-center">
               <span className="text-6xl animate-bounce select-none">{lesson.icon}</span>
-              <h3 className="text-base font-extrabold text-slate-800">{lesson.theory.title}</h3>
+              <h3 className="text-base font-extrabold text-slate-800">
+                <AsmoFormula text={lesson.theory.title} className="inline" />
+              </h3>
               <p className="text-xs sm:text-sm text-slate-600 font-semibold max-w-sm mx-auto">
                 <AsmoFormula text={currentChallenge.instruction} />
               </p>

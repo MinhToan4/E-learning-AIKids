@@ -64,7 +64,7 @@ export function AsmoVisualSecretComicCard({
           </div>
 
           <span className="text-xs font-black text-amber-900 bg-amber-100/80 border border-amber-300/80 px-3 py-1 rounded-full">
-            {stage.title}
+            <AsmoFormula text={stage.title} className="inline" />
           </span>
         </div>
 
@@ -103,9 +103,11 @@ export function AsmoVisualSecretComicCard({
               </button>
             </div>
 
-            <p className="text-base sm:text-xl font-black text-slate-900 italic leading-snug">
-              &quot;{lesson.meeTip.quote}&quot;
-            </p>
+            <div className="text-base sm:text-xl font-black text-slate-900 italic leading-snug flex items-center justify-center sm:justify-start gap-1 flex-wrap">
+              <span>&quot;</span>
+              <AsmoFormula text={lesson.meeTip.quote} className="inline" />
+              <span>&quot;</span>
+            </div>
 
             <div className="bg-amber-50/90 rounded-2xl p-2.5 sm:p-3 border border-amber-200 text-xs sm:text-sm font-extrabold text-slate-800">
               <AsmoFormula text={lesson.meeTip.storyAdvice} />

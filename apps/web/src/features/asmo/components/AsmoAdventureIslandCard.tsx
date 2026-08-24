@@ -21,6 +21,7 @@ import {
   getStageStats,
 } from '../data/asmo-curriculum-lms'
 import { ASMO_ISLAND_THEMES, type AsmoIslandTheme } from './AsmoIslandWorldMap'
+import { AsmoFormula } from './AsmoFormula'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { KidLockImageIcon } from '@/shared/components/icons/KidImageIcons'
 import { Button } from '@/shared/components/ui/Button'
@@ -315,7 +316,7 @@ export function AsmoAdventureIslandCard({
           {/* Island Grand Title & Stage Name */}
           <div>
             <span className="text-xs font-bold text-slate-500 uppercase tracking-wider block">
-              {stage.title}
+              <AsmoFormula text={stage.title} className="inline" />
             </span>
             <h3 className="font-display text-2xl sm:text-3xl font-black text-slate-900 leading-snug mt-1">
               {theme.heroEmoji} {theme.islandName}

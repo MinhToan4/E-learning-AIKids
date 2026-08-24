@@ -2220,11 +2220,11 @@ export function AsmoCurriculumLessonPage() {
                     <div className="text-center space-y-3 p-4">
                       <span className="text-5xl select-none">{lesson.icon}</span>
                       <h3 className="text-base font-extrabold text-slate-800">
-                        {lesson.theory.title}
+                        <AsmoFormula text={lesson.theory.title} className="inline" />
                       </h3>
-                      <p className="text-xs sm:text-sm text-slate-500 font-semibold max-w-md">
-                        {lesson.theory.visualHint || 'Quan sát mô hình trực quan chuẩn sư phạm ASMO và khám phá bí kíp giải toán!'}
-                      </p>
+                      <div className="text-xs sm:text-sm text-slate-500 font-semibold max-w-md mx-auto">
+                        <AsmoFormula text={lesson.theory.visualHint || 'Quan sát mô hình trực quan chuẩn sư phạm ASMO và khám phá bí kíp giải toán!'} />
+                      </div>
                     </div>
                   )}
               </div>
@@ -2578,9 +2578,9 @@ export function AsmoCurriculumLessonPage() {
               </p>
               <h2
                 id="asmo-sidebar-assistant-title"
-                className="font-display text-sm sm:text-base font-extrabold text-slate-900 leading-tight truncate"
+                className="font-display text-sm sm:text-base font-extrabold text-slate-900 leading-tight"
               >
-                {dynamicGuideCopy.title}
+                <AsmoFormula text={dynamicGuideCopy.title} className="inline" />
               </h2>
             </div>
           </div>
@@ -2661,8 +2661,10 @@ export function AsmoCurriculumLessonPage() {
           </div>
 
           {/* Catchy Mnemonic Rhyme */}
-          <div className="bg-white/95 rounded-xl p-2.5 border border-sun-200 text-xs font-extrabold text-sun-950 italic leading-snug">
-            &quot;{visualMnemonic}&quot;
+          <div className="bg-white/95 rounded-xl p-2.5 border border-sun-200 text-xs font-extrabold text-sun-950 italic leading-snug flex items-center gap-1 flex-wrap">
+            <span>&quot;</span>
+            <AsmoFormula text={visualMnemonic} className="inline" />
+            <span>&quot;</span>
           </div>
 
           {/* Nút [ 💡 Bật Mí Gợi Ý ] */}

@@ -460,8 +460,9 @@ export function AsmoExamArenaPage() {
                   )}
                 >
                   <div className="flex items-center justify-between mb-3 border-b pb-2 border-slate-200/60">
-                    <span className="font-bold text-sm text-slate-800">
-                      Câu {idx + 1}: {q.title}
+                    <span className="font-bold text-sm text-slate-800 flex items-center gap-1.5 flex-wrap">
+                      <span>Câu {idx + 1}:</span>
+                      <AsmoFormula text={q.title} className="inline" />
                     </span>
                     <span
                       className={cn(

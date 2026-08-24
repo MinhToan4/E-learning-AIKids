@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { designerAssets } from '@/shared/config/assets'
 import { cn } from '@/shared/lib/cn'
+import { AsmoFormula } from './AsmoFormula'
 
 export type AppleBasketType = 'A' | 'B'
 
@@ -542,8 +543,14 @@ export function AsmoInteractiveAppleTreeCanvas({
       {/* Optional Title Header */}
       {title && (
         <div className="w-full text-center py-1">
-          <h2 className="text-base sm:text-lg font-black text-slate-800 tracking-tight">{title}</h2>
-          {meeQuote && <p className="text-xs font-semibold text-slate-600 mt-0.5">{meeQuote}</p>}
+          <h2 className="text-base sm:text-lg font-black text-slate-800 tracking-tight flex items-center justify-center gap-1.5 flex-wrap">
+            <AsmoFormula text={title} className="inline" />
+          </h2>
+          {meeQuote && (
+            <div className="text-xs font-semibold text-slate-600 mt-0.5 flex items-center justify-center gap-1 flex-wrap">
+              <AsmoFormula text={meeQuote} className="inline" />
+            </div>
+          )}
         </div>
       )}
 

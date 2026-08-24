@@ -344,12 +344,12 @@ export function AsmoQuestionCard({
                 </button>
 
                 <div className="min-w-0 flex-1 text-center">
-                  <p className="truncate text-xs font-bold text-indigo-950">
-                    {steps[currentStep]?.title}
-                  </p>
-                  <p className="truncate text-[11px] text-indigo-700">
-                    {steps[currentStep]?.description}
-                  </p>
+                  <div className="text-xs font-bold text-indigo-950">
+                    <AsmoFormula text={steps[currentStep]?.title || ''} className="inline" />
+                  </div>
+                  <div className="text-[11px] text-indigo-700">
+                    <AsmoFormula text={steps[currentStep]?.description || ''} className="inline" />
+                  </div>
                 </div>
 
                 <button

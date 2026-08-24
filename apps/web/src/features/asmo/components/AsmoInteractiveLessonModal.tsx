@@ -268,11 +268,11 @@ export function AsmoInteractiveLessonModal({
                   <span>Trọng Tâm Kiến Thức</span>
                 </div>
                 <h3 className="text-base sm:text-lg font-bold text-white leading-snug">
-                  {lesson.theory.title}
+                  <AsmoFormula text={lesson.theory.title} />
                 </h3>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  {lesson.theory.summary}
-                </p>
+                <div className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  <AsmoFormula text={lesson.theory.summary} />
+                </div>
                 {lesson.theory.formulaLatex && (
                   <div className="p-2.5 rounded-xl bg-slate-900/80 border border-indigo-400/30 text-center font-mono text-amber-300 text-sm">
                     <AsmoFormula text={`$$${lesson.theory.formulaLatex}$$`} />
@@ -504,7 +504,7 @@ export function AsmoInteractiveLessonModal({
                     </svg>
 
                     <div className="bg-emerald-950/60 border border-emerald-400/40 rounded-2xl p-2.5 text-center font-mono font-bold text-emerald-300 text-base">
-                      Phân số biểu thị: $\frac{`{${pizzaShaded}}`}{`{${pizzaSlices}}`}$ chiếc bánh pizza
+                      <AsmoFormula text={`Phân số biểu thị: $\\frac{${pizzaShaded}}{${pizzaSlices}}$ chiếc bánh pizza`} />
                     </div>
                   </div>
                 )}
@@ -563,9 +563,9 @@ export function AsmoInteractiveLessonModal({
                   lesson.visualType !== 'balance_scale' && (
                     <div className="text-center space-y-2">
                       <span className="text-5xl">{lesson.icon}</span>
-                      <p className="text-xs text-indigo-200 font-medium">
-                        {lesson.theory.visualHint || 'Quan sát mô hình trực quan chuẩn sư phạm ASMO'}
-                      </p>
+                      <div className="text-xs text-indigo-200 font-medium">
+                        <AsmoFormula text={lesson.theory.visualHint || 'Quan sát mô hình trực quan chuẩn sư phạm ASMO'} />
+                      </div>
                     </div>
                   )}
               </div>
@@ -603,16 +603,18 @@ export function AsmoInteractiveLessonModal({
                 <div className="space-y-3 text-center sm:text-left flex-1">
                   <div className="bg-amber-400/10 border border-amber-400/30 rounded-2xl p-3.5">
                     <span className="text-xs font-bold text-amber-200 block mb-1">🐱 Mèo Mee Kể Chuyện:</span>
-                    <p className="text-sm sm:text-base font-extrabold text-amber-300 italic leading-snug">
-                      &quot;{lesson.meeTip.quote}&quot;
-                    </p>
+                    <div className="text-sm sm:text-base font-extrabold text-amber-300 italic leading-snug flex items-center gap-1 flex-wrap">
+                      <span>&quot;</span>
+                      <AsmoFormula text={lesson.meeTip.quote} className="inline" />
+                      <span>&quot;</span>
+                    </div>
                   </div>
 
                   <div className="bg-indigo-900/40 border border-indigo-400/30 rounded-2xl p-3.5 space-y-1">
                     <span className="text-xs font-bold text-indigo-300 block">💡 Câu Thần Chú Giải Nhanh:</span>
-                    <p className="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
+                    <div className="text-xs sm:text-sm text-slate-200 leading-relaxed font-medium">
                       <AsmoFormula text={lesson.meeTip.storyAdvice} />
-                    </p>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -664,7 +666,7 @@ export function AsmoInteractiveLessonModal({
                 <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
                   <span className="text-xs font-black text-amber-300 uppercase tracking-wider flex items-center gap-1.5">
                     <HelpCircle className="size-4 text-rose-400" />
-                    <span>{lesson.quiz.questionTitle}</span>
+                    <AsmoFormula text={lesson.quiz.questionTitle} className="inline" />
                   </span>
                   <span className="rounded-md bg-amber-500/20 px-2 py-0.5 text-[10px] font-bold text-amber-300 border border-amber-400/30">
                     ⭐ 1–3 Sao + {lesson.xpReward} XP
@@ -769,9 +771,9 @@ export function AsmoInteractiveLessonModal({
                         <h4 className="text-base sm:text-lg font-black text-emerald-300">
                           🎉 CHÍNH XÁC XUẤT SẮC! BẠN ĐÃ ĐẠT {earnedStars} SAO!
                         </h4>
-                        <p className="text-xs sm:text-sm text-slate-200 mt-1">
-                          {lesson.quiz.correctExplanation}
-                        </p>
+                        <div className="text-xs sm:text-sm text-slate-200 mt-1">
+                          <AsmoFormula text={lesson.quiz.correctExplanation} />
+                        </div>
                       </div>
 
                       <div className="flex items-center justify-center gap-3 pt-2">

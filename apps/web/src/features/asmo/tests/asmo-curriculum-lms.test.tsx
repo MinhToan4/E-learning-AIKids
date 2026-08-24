@@ -738,12 +738,30 @@ describe('ASMO Multi-Level Practice Lab & Diagnostic Verification Engine', () =>
     // Check manipulative controls
     expect(markup).toContain('Giỏ A (Táo Đỏ):')
     expect(markup).toContain('Giỏ B (Táo Xanh):')
-    expect(markup).toContain('Thêm')
+    expect(markup).toContain('Cây Táo Mẹ')
     expect(markup).toContain('Kiểm Tra Kết Quả Thử Thách')
     expect(markup).toContain('Đặt lại thao tác')
 
     // Ensure NO pre-baked success celebration banner is shown initially
     expect(markup).not.toContain('XUẤT SẮC BÉ ƠI! BẠN ĐÃ VƯỢT QUA THỬ THÁCH')
+  })
+
+  it('renders AsmoInteractivePracticeWorkspace challenge titles with KaTeX without raw $ delimiters', () => {
+    const cakeLesson = ASMO_LMS_STAGES[1].lessons[0] // s2-cake-tray (Challenge title: "Xếp Khay Bánh $3 \times 4$")
+    const markup = renderToStaticMarkup(
+      createElement(AsmoInteractivePracticeWorkspace, {
+        lesson: cakeLesson,
+        onCompleteAllChallenges: () => {},
+        onAdvanceToQuiz: () => {},
+      }),
+    )
+
+    // Ensure KaTeX rendered markup is present and raw $3 \times 4$ is not leaked
+    expect(markup).toContain('Thử thách 1/3:')
+    expect(markup).toContain('Xếp Khay Bánh')
+    expect(markup).toContain('katex')
+    expect(markup).not.toContain('$3 \\times 4$')
+    expect(markup).not.toContain('$3 \\\\times 4$')
   })
 })
 

@@ -181,9 +181,10 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
                   {currentExam.code}
                 </span>
               </div>
-              <p className="text-xs text-slate-300 mt-0.5 line-clamp-1">
-                {currentExam.title} · Khối Lớp {currentExam.grade} · Năm {currentExam.year}
-              </p>
+              <div className="text-xs text-slate-300 mt-0.5 line-clamp-1 flex items-center gap-1 flex-wrap">
+                <AsmoFormula text={currentExam.title} className="inline" />
+                <span>· Khối Lớp {currentExam.grade} · Năm {currentExam.year}</span>
+              </div>
             </div>
           </div>
 
@@ -502,7 +503,7 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
                             </span>
                           </div>
                           <div className="text-xs font-semibold text-slate-700 mt-1 line-clamp-1">
-                            {q.title}
+                            <AsmoFormula text={q.title} className="inline" />
                           </div>
                         </div>
                       </div>
@@ -661,7 +662,7 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
                                       {sIdx + 1}
                                     </span>
                                     <h5 className="font-bold text-xs text-indigo-950">
-                                      {step.title}
+                                      <AsmoFormula text={step.title} className="inline" />
                                     </h5>
                                   </div>
                                   <div className="text-xs text-slate-700 pl-7 leading-relaxed">
