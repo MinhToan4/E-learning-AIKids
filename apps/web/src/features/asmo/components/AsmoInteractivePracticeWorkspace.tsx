@@ -1038,18 +1038,38 @@ export function AsmoInteractivePracticeWorkspace({
           </div>
         )}
 
-        {/* ── 8. BALANCE SCALE MANIPULATOR ── */}
+        {/* ── 8. BALANCE SCALE MANIPULATOR (Trạm 7: Cân Thăng Bằng Soft Clay) ── */}
         {lesson.visualType === 'balance_scale' && (
-          <div className="w-full max-w-md space-y-4 flex flex-col items-center">
-            <div className="flex items-center gap-4 text-xs bg-white p-3 rounded-2xl border-2 border-slate-200">
-              <div className="flex items-center gap-1.5">
-                <span className="font-extrabold text-slate-700">Đĩa Trái (Dưa 🍉):</span>
-                <span className="font-black text-emerald-800 text-sm">{scaleLeft} quả</span>
+          <div className="w-full max-w-lg space-y-3.5 flex flex-col items-center">
+            <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-white p-3.5 rounded-2xl border-2 border-brand-200 shadow-2xs w-full">
+              <div className="flex items-center gap-2">
+                <span className="font-black text-slate-800">Đĩa Trái (Dưa 🍉):</span>
+                <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-emerald-300 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Bớt dưa"
+                    disabled={scaleLeft <= 1}
+                    onClick={() => setScaleLeft((s) => (s > 1 ? s - 1 : 1))}
+                    className="size-8 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-6 text-center font-display font-black text-sm text-emerald-950 select-none">{scaleLeft}</span>
+                  <button
+                    type="button"
+                    aria-label="Thêm dưa"
+                    disabled={scaleLeft >= 5}
+                    onClick={() => setScaleLeft((s) => (s < 5 ? s + 1 : 5))}
+                    className="size-8 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center gap-2 border-l border-slate-200 pl-3">
-                <span className="font-extrabold text-slate-700">Đĩa Phải (Táo 🍎):</span>
-                <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-rose-200 shadow-2xs">
+              <div className="flex items-center gap-2">
+                <span className="font-black text-slate-800">Đĩa Phải (Táo 🍎):</span>
+                <div className="flex items-center gap-1.5 bg-white/90 p-1 rounded-2xl border-2 border-rose-300 shadow-2xs">
                   <button
                     type="button"
                     aria-label="Bớt táo đĩa phải"
@@ -1063,9 +1083,9 @@ export function AsmoInteractivePracticeWorkspace({
                   <button
                     type="button"
                     aria-label="Thêm táo đĩa phải"
-                    disabled={scaleRight >= 12}
-                    onClick={() => setScaleRight((r) => (r < 12 ? r + 1 : 12))}
-                    className="size-8 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                    disabled={scaleRight >= 15}
+                    onClick={() => setScaleRight((r) => (r < 15 ? r + 1 : 15))}
+                    className="size-8 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
                   >
                     <Plus className="size-4 stroke-[3]" />
                   </button>
@@ -1081,10 +1101,147 @@ export function AsmoInteractivePracticeWorkspace({
                 label: `Đĩa trái: ${scaleLeft} Dưa — Đĩa phải: ${scaleRight} Táo`,
               })}
             </div>
+
+            {/* Giant Montessori Toy Calculation Board */}
+            <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
+              <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
+                <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-800 shadow-clay">
+                  <span className="text-2xl sm:text-3xl">🍉</span>
+                  <span className="font-display font-black text-2xl sm:text-3xl text-emerald-800">{scaleLeft} dưa</span>
+                </div>
+
+                <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                  {scaleLeft * 3 === scaleRight ? '=' : scaleLeft * 3 > scaleRight ? '>' : '<'}
+                </div>
+
+                <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 shadow-clay">
+                  <span className="text-2xl sm:text-3xl">🍎</span>
+                  <span className="font-display font-black text-2xl sm:text-3xl text-rose-800">{scaleRight} táo</span>
+                </div>
+              </div>
+
+              <div className="font-mono font-bold text-xs text-slate-500">
+                {scaleLeft * 3 === scaleRight ? (
+                  <span className="text-emerald-700 font-black">⚖️ Cân thăng bằng: {scaleLeft} quả dưa nặng bằng {scaleRight} quả táo! (1 dưa = 3 táo)</span>
+                ) : scaleLeft * 3 > scaleRight ? (
+                  <span className="text-amber-700 font-black">⚖️ Đĩa trái nghiêng xuống (nặng hơn đĩa phải)!</span>
+                ) : (
+                  <span className="text-rose-700 font-black">⚖️ Đĩa phải nghiêng xuống (nặng hơn đĩa trái)!</span>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
-        {/* ── 9. FALLBACK FOR OTHER VISUAL TYPES ── */}
+        {/* ── 9. 3D CUBE MANIPULATOR (Trạm 8: Khối Lập Phương Soft Clay) ── */}
+        {lesson.visualType === 'cube_3d' && (
+          <div className="w-full max-w-lg space-y-4 text-center">
+            {/* Layer Controls */}
+            <div className="grid grid-cols-3 gap-2.5 bg-indigo-50/80 p-3 rounded-2xl border-2 border-indigo-200 shadow-2xs">
+              {[
+                { label: 'Tầng 1 (Dưới)', idx: 0 },
+                { label: 'Tầng 2 (Giữa)', idx: 1 },
+                { label: 'Tầng 3 (Trên)', idx: 2 },
+              ].map((tier) => (
+                <div key={tier.label} className="flex flex-col items-center gap-1.5 bg-white p-2 rounded-2xl border-2 border-indigo-100 shadow-xs">
+                  <span className="text-[11px] font-black text-slate-700">{tier.label}</span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      aria-label={`Bớt khối ${tier.label}`}
+                      disabled={cubeLayersCount[tier.idx] <= 0}
+                      onClick={() => {
+                        const next = [...cubeLayersCount]
+                        next[tier.idx] = Math.max(0, next[tier.idx] - 1)
+                        setCubeLayersCount(next)
+                      }}
+                      className="size-7 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black flex items-center justify-center disabled:opacity-30 cursor-pointer active:scale-90"
+                    >
+                      <Minus className="size-3.5 stroke-[3]" />
+                    </button>
+                    <span className="w-5 text-center font-display font-black text-sm text-indigo-950">
+                      {cubeLayersCount[tier.idx]}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label={`Thêm khối ${tier.label}`}
+                      disabled={cubeLayersCount[tier.idx] >= 6}
+                      onClick={() => {
+                        const next = [...cubeLayersCount]
+                        next[tier.idx] = Math.min(6, next[tier.idx] + 1)
+                        setCubeLayersCount(next)
+                      }}
+                      className="size-7 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black flex items-center justify-center disabled:opacity-30 cursor-pointer active:scale-90"
+                    >
+                      <Plus className="size-3.5 stroke-[3]" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Isometric 2D Flat Soft Clay Layer Stacking Illustration */}
+            <div className="p-4 bg-gradient-to-b from-indigo-100/90 via-indigo-50/70 to-purple-50/80 rounded-3xl border-2 border-indigo-200 shadow-clay flex flex-col items-center justify-center gap-2">
+              {/* Tier 3 (Top) */}
+              {cubeLayersCount[2] > 0 && (
+                <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
+                  {Array.from({ length: cubeLayersCount[2] }).map((_, i) => (
+                    <div key={`prac-t3-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-pink-300">
+                      🧊
+                    </div>
+                  ))}
+                </div>
+              )}
+              {/* Tier 2 (Middle) */}
+              {cubeLayersCount[1] > 0 && (
+                <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
+                  {Array.from({ length: cubeLayersCount[1] }).map((_, i) => (
+                    <div key={`prac-t2-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-500 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-purple-300">
+                      🧊
+                    </div>
+                  ))}
+                </div>
+              )}
+              {/* Tier 1 (Bottom) */}
+              {cubeLayersCount[0] > 0 && (
+                <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
+                  {Array.from({ length: cubeLayersCount[0] }).map((_, i) => (
+                    <div key={`prac-t1-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-600 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-indigo-300">
+                      🧊
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Giant Montessori Toy Calculation Board */}
+            <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
+              <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
+                <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-indigo-50 border-2 border-indigo-200 text-indigo-900 shadow-clay">
+                  <span className="font-display font-black text-xl text-indigo-900">{cubeLayersCount[0]} (dưới)</span>
+                </div>
+                <span className="font-black text-xl text-indigo-500">+</span>
+                <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-purple-50 border-2 border-purple-200 text-purple-900 shadow-clay">
+                  <span className="font-display font-black text-xl text-purple-900">{cubeLayersCount[1]} (giữa)</span>
+                </div>
+                <span className="font-black text-xl text-purple-500">+</span>
+                <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-pink-50 border-2 border-pink-200 text-pink-900 shadow-clay">
+                  <span className="font-display font-black text-xl text-pink-900">{cubeLayersCount[2]} (trên)</span>
+                </div>
+                <span className="font-black text-xl text-indigo-500">=</span>
+                <div className="flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-brand-500 text-white font-black text-2xl shadow-clay border-2 border-brand-600">
+                  <span className="font-display font-black text-2xl text-white">{cubeLayersCount[0] + cubeLayersCount[1] + cubeLayersCount[2]}</span>
+                  <span className="text-lg animate-bounce">🧊</span>
+                </div>
+              </div>
+              <div className="font-mono font-bold text-xs text-slate-500">
+                Tổng cộng = {cubeLayersCount[0]} + {cubeLayersCount[1]} + {cubeLayersCount[2]} = <span className="text-indigo-700 font-black underline">{cubeLayersCount[0] + cubeLayersCount[1] + cubeLayersCount[2]} khối lập phương</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── 10. FALLBACK FOR OTHER VISUAL TYPES ── */}
         {lesson.visualType !== 'apple_drop' &&
           lesson.visualType !== 'balloon_pop' &&
           lesson.visualType !== 'cake_tray' &&
@@ -1097,7 +1254,8 @@ export function AsmoInteractivePracticeWorkspace({
           lesson.visualType !== 'analog_clock' &&
           lesson.visualType !== 'elapsed_time' &&
           lesson.visualType !== 'make10' &&
-          lesson.visualType !== 'balance_scale' && (
+          lesson.visualType !== 'balance_scale' &&
+          lesson.visualType !== 'cube_3d' && (
             <div className="w-full max-w-md space-y-4 text-center">
               <span className="text-6xl animate-bounce select-none">{lesson.icon}</span>
               <h3 className="text-base font-extrabold text-slate-800">{lesson.theory.title}</h3>

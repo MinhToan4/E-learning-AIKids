@@ -539,6 +539,14 @@ export function AsmoInteractiveAppleTreeCanvas({
         className,
       )}
     >
+      {/* Optional Title Header */}
+      {title && (
+        <div className="w-full text-center py-1">
+          <h2 className="text-base sm:text-lg font-black text-slate-800 tracking-tight">{title}</h2>
+          {meeQuote && <p className="text-xs font-semibold text-slate-600 mt-0.5">{meeQuote}</p>}
+        </div>
+      )}
+
       {/* ══════════════════════════════════════════════════════════════════════
           1. TÁN CÂY TÁO MẸ 🌳 SOFT CLAY (EXPANSIVE CANOPY DROP ZONE 2 CHIỀU)
       ══════════════════════════════════════════════════════════════════════ */}

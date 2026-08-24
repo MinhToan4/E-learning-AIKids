@@ -808,9 +808,9 @@ export function AsmoCurriculumLessonPage() {
       <div className="flex-1 flex flex-col gap-3 sm:gap-4 min-w-0 overflow-hidden">
         {/* ── 1. HEADER CARD (COMPACT 2-ROW HERO HEADER) ── */}
         <div className="ui-card p-3 sm:p-4 shrink-0 bg-white rounded-3xl border border-brand-100 shadow-xs space-y-2.5">
-          {/* Hàng 1 (Top Action Header - 1 hàng ngang duy nhất): Trái: Tên bài học | Phải: Star Rack + XP + Loa + Đặt lại */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 min-w-0">
+          {/* Hàng 1 (Top Action Header): Trái: [ < ] + Badge Trạm X + Tên bài học | Phải: Star Rack + XP + Loa + Đặt lại */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-3">
+            <div className="flex items-center gap-2 min-w-0 flex-wrap sm:flex-nowrap">
               <Link
                 to={`/asmo/curriculum?stage=${stage.id}`}
                 title="Quay lại danh sách bài học"
@@ -818,20 +818,20 @@ export function AsmoCurriculumLessonPage() {
               >
                 <ChevronLeft className="size-4" />
               </Link>
-              <h1 className="font-display text-base sm:text-lg font-black text-slate-900 truncate">
-                Trạm {lesson.lessonNumber}: <AsmoFormula text={lesson.title} />
+              <span className="bg-brand-50 border border-brand-200 text-brand-700 font-extrabold px-2.5 py-1 rounded-xl text-xs sm:text-sm shrink-0">
+                Trạm {lesson.lessonNumber}
+              </span>
+              <h1 className="font-display text-base sm:text-lg font-black text-slate-900 leading-snug">
+                <AsmoFormula text={lesson.title} />
               </h1>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0">
+            <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 self-end sm:self-auto">
               {/* Star Rack */}
               <div
                 className="lesson-star-rack flex items-center gap-1 bg-sun-50/90 border border-sun-200 rounded-xl px-2 py-1 shadow-2xs"
-                aria-label={`Sao của trạm: ${liveStars} sao đã nhận`}
+                aria-label={`${liveStars} sao đã nhận`}
               >
-                <span className="text-[11px] font-extrabold text-sun-950 mr-0.5 hidden sm:inline">
-                  Sao của trạm
-                </span>
                 {[1, 2, 3].map((starIdx) => (
                   <Star
                     key={starIdx}
@@ -882,7 +882,7 @@ export function AsmoCurriculumLessonPage() {
                 onClick={handleResetCurrentPhase}
                 title="Đặt lại thao tác"
                 aria-label="Đặt lại thao tác"
-                className="flex items-center gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs transition-all active:scale-95 cursor-pointer"
+                className="flex items-center justify-center sm:justify-start gap-1 px-2.5 py-1.5 rounded-xl text-xs font-bold bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 shadow-2xs transition-all active:scale-95 cursor-pointer"
               >
                 <RotateCcw className="size-3.5 text-brand-600" />
                 <span className="hidden sm:inline">Đặt lại</span>
@@ -1377,15 +1377,102 @@ export function AsmoCurriculumLessonPage() {
                   </div>
                 )}
 
-                {/* 6. Balance Scale Visualizer */}
+                {/* 6. Balance Scale Visualizer (Trạm 7: Cân Thăng Bằng Soft Clay) */}
                 {lesson.visualType === 'balance_scale' && (
-                  <div className="w-full max-w-md">
-                    {renderBalanceScaleSvg({
-                      left: { emoji: '🍉', text: '1 Quả Dưa' },
-                      right: { emoji: '🍎', text: '4 Quả Táo' },
-                      tilt: 'equal',
-                      label: 'Cân thăng bằng: 1 Dưa = 4 Táo',
-                    })}
+                  <div className="w-full max-w-lg space-y-3.5 flex flex-col items-center">
+                    <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-white p-3.5 rounded-2xl border-2 border-brand-200 shadow-2xs w-full">
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-slate-800">Đĩa Trái (Dưa 🍉):</span>
+                        <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-emerald-300 shadow-2xs">
+                          <button
+                            type="button"
+                            aria-label="Bớt dưa"
+                            disabled={scaleLeft <= 1}
+                            onClick={() => setScaleLeft((s) => (s > 1 ? s - 1 : 1))}
+                            className="size-8 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            <Minus className="size-4 stroke-[3]" />
+                          </button>
+                          <span className="w-6 text-center font-display font-black text-sm text-emerald-950 select-none">
+                            {scaleLeft}
+                          </span>
+                          <button
+                            type="button"
+                            aria-label="Thêm dưa"
+                            disabled={scaleLeft >= 5}
+                            onClick={() => setScaleLeft((s) => (s < 5 ? s + 1 : 5))}
+                            className="size-8 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            <Plus className="size-4 stroke-[3]" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="font-black text-slate-800">Đĩa Phải (Táo 🍎):</span>
+                        <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-rose-300 shadow-2xs">
+                          <button
+                            type="button"
+                            aria-label="Bớt táo"
+                            disabled={scaleRight <= 1}
+                            onClick={() => setScaleRight((s) => (s > 1 ? s - 1 : 1))}
+                            className="size-8 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            <Minus className="size-4 stroke-[3]" />
+                          </button>
+                          <span className="w-6 text-center font-display font-black text-sm text-rose-950 select-none">
+                            {scaleRight}
+                          </span>
+                          <button
+                            type="button"
+                            aria-label="Thêm táo"
+                            disabled={scaleRight >= 15}
+                            onClick={() => setScaleRight((s) => (s < 15 ? s + 1 : 15))}
+                            className="size-8 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                          >
+                            <Plus className="size-4 stroke-[3]" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="w-full">
+                      {renderBalanceScaleSvg({
+                        left: { emoji: '🍉', text: `${scaleLeft} Quả Dưa` },
+                        right: { emoji: '🍎', text: `${scaleRight} Quả Táo` },
+                        tilt: scaleLeft * 3 === scaleRight ? 'equal' : scaleLeft * 3 > scaleRight ? 'left' : 'right',
+                        label: `Đĩa trái: ${scaleLeft} Dưa — Đĩa phải: ${scaleRight} Táo`,
+                      })}
+                    </div>
+
+                    {/* Giant Montessori Toy Calculation Board */}
+                    <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
+                      <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
+                        <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-800 shadow-clay">
+                          <span className="text-2xl sm:text-3xl">🍉</span>
+                          <span className="font-display font-black text-2xl sm:text-3xl text-emerald-800">{scaleLeft} dưa</span>
+                        </div>
+
+                        <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                          {scaleLeft * 3 === scaleRight ? '=' : scaleLeft * 3 > scaleRight ? '>' : '<'}
+                        </div>
+
+                        <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 shadow-clay">
+                          <span className="text-2xl sm:text-3xl">🍎</span>
+                          <span className="font-display font-black text-2xl sm:text-3xl text-rose-800">{scaleRight} táo</span>
+                        </div>
+                      </div>
+
+                      <div className="font-mono font-bold text-xs text-slate-500">
+                        {scaleLeft * 3 === scaleRight ? (
+                          <span className="text-emerald-700 font-black">⚖️ Cân thăng bằng: {scaleLeft} quả dưa nặng bằng {scaleRight} quả táo! (1 dưa = 3 táo)</span>
+                        ) : scaleLeft * 3 > scaleRight ? (
+                          <span className="text-amber-700 font-black">⚖️ Đĩa trái nghiêng xuống (nặng hơn đĩa phải)!</span>
+                        ) : (
+                          <span className="text-rose-700 font-black">⚖️ Đĩa phải nghiêng xuống (nặng hơn đĩa trái)!</span>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 )}
 
@@ -1989,31 +2076,109 @@ export function AsmoCurriculumLessonPage() {
                   </div>
                 )}
 
-                {/* ── 14. 3D CUBE VISUALIZER ── */}
+                {/* ── 14. 3D CUBE VISUALIZER (Trạm 8: Khối Lập Phương Soft Clay) ── */}
                 {lesson.visualType === 'cube_3d' && (
-                  <div className="w-full max-w-md space-y-4 text-center">
-                    <div className="bg-white p-4 rounded-3xl border-2 border-indigo-200 shadow-sm space-y-3">
-                      <div className="text-xs font-black text-indigo-900 uppercase">
-                        Đếm Khối Lập Phương Theo Từng Tầng
+                  <div className="w-full max-w-lg space-y-4 text-center">
+                    {/* Layer Controls */}
+                    <div className="grid grid-cols-3 gap-2.5 bg-indigo-50/80 p-3 rounded-2xl border-2 border-indigo-200 shadow-2xs">
+                      {[
+                        { label: 'Tầng 1 (Dưới)', idx: 0 },
+                        { label: 'Tầng 2 (Giữa)', idx: 1 },
+                        { label: 'Tầng 3 (Trên)', idx: 2 },
+                      ].map((tier) => (
+                        <div key={tier.label} className="flex flex-col items-center gap-1.5 bg-white p-2 rounded-2xl border-2 border-indigo-100 shadow-xs">
+                          <span className="text-[11px] font-black text-slate-700">{tier.label}</span>
+                          <div className="flex items-center gap-1">
+                            <button
+                              type="button"
+                              aria-label={`Bớt khối ${tier.label}`}
+                              disabled={cubeLayers[tier.idx] <= 0}
+                              onClick={() => {
+                                const next = [...cubeLayers]
+                                next[tier.idx] = Math.max(0, next[tier.idx] - 1)
+                                setCubeLayers(next)
+                              }}
+                              className="size-7 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black flex items-center justify-center disabled:opacity-30 cursor-pointer active:scale-90"
+                            >
+                              <Minus className="size-3.5 stroke-[3]" />
+                            </button>
+                            <span className="w-5 text-center font-display font-black text-sm text-indigo-950">
+                              {cubeLayers[tier.idx]}
+                            </span>
+                            <button
+                              type="button"
+                              aria-label={`Thêm khối ${tier.label}`}
+                              disabled={cubeLayers[tier.idx] >= 6}
+                              onClick={() => {
+                                const next = [...cubeLayers]
+                                next[tier.idx] = Math.min(6, next[tier.idx] + 1)
+                                setCubeLayers(next)
+                              }}
+                              className="size-7 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black flex items-center justify-center disabled:opacity-30 cursor-pointer active:scale-90"
+                            >
+                              <Plus className="size-3.5 stroke-[3]" />
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Isometric 2D Flat Soft Clay Layer Stacking Illustration */}
+                    <div className="p-4 bg-gradient-to-b from-indigo-100/90 via-indigo-50/70 to-purple-50/80 rounded-3xl border-2 border-indigo-200 shadow-clay flex flex-col items-center justify-center gap-2">
+                      {/* Tier 3 (Top) */}
+                      {cubeLayers[2] > 0 && (
+                        <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
+                          {Array.from({ length: cubeLayers[2] }).map((_, i) => (
+                            <div key={`t3-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-pink-300">
+                              🧊
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {/* Tier 2 (Middle) */}
+                      {cubeLayers[1] > 0 && (
+                        <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
+                          {Array.from({ length: cubeLayers[1] }).map((_, i) => (
+                            <div key={`t2-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-500 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-purple-300">
+                              🧊
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      {/* Tier 1 (Bottom) */}
+                      {cubeLayers[0] > 0 && (
+                        <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
+                          {Array.from({ length: cubeLayers[0] }).map((_, i) => (
+                            <div key={`t1-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-600 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-indigo-300">
+                              🧊
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Giant Montessori Toy Calculation Board */}
+                    <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
+                      <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
+                        <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-indigo-50 border-2 border-indigo-200 text-indigo-900 shadow-clay">
+                          <span className="font-display font-black text-xl text-indigo-900">{cubeLayers[0]} (dưới)</span>
+                        </div>
+                        <span className="font-black text-xl text-indigo-500">+</span>
+                        <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-purple-50 border-2 border-purple-200 text-purple-900 shadow-clay">
+                          <span className="font-display font-black text-xl text-purple-900">{cubeLayers[1]} (giữa)</span>
+                        </div>
+                        <span className="font-black text-xl text-purple-500">+</span>
+                        <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-pink-50 border-2 border-pink-200 text-pink-900 shadow-clay">
+                          <span className="font-display font-black text-xl text-pink-900">{cubeLayers[2]} (trên)</span>
+                        </div>
+                        <span className="font-black text-xl text-indigo-500">=</span>
+                        <div className="flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-brand-500 text-white font-black text-2xl shadow-clay border-2 border-brand-600">
+                          <span className="font-display font-black text-2xl text-white">{cubeLayers[0] + cubeLayers[1] + cubeLayers[2]}</span>
+                          <span className="text-lg animate-bounce">🧊</span>
+                        </div>
                       </div>
-                      <div className="flex items-center justify-center gap-3">
-                        <div className="p-3 bg-indigo-50 rounded-2xl border border-indigo-200 text-xs font-bold text-indigo-950">
-                          <span className="block text-[10px] text-indigo-600">Tầng 1 (Dưới):</span>
-                          <span className="text-lg font-black">4 khối</span>
-                        </div>
-                        <span className="text-lg font-black text-indigo-500">+</span>
-                        <div className="p-3 bg-indigo-50 rounded-2xl border border-indigo-200 text-xs font-bold text-indigo-950">
-                          <span className="block text-[10px] text-indigo-600">Tầng 2 (Giữa):</span>
-                          <span className="text-lg font-black">2 khối</span>
-                        </div>
-                        <span className="text-lg font-black text-indigo-500">+</span>
-                        <div className="p-3 bg-indigo-50 rounded-2xl border border-indigo-200 text-xs font-bold text-indigo-950">
-                          <span className="block text-[10px] text-indigo-600">Tầng 3 (Trên):</span>
-                          <span className="text-lg font-black">1 khối</span>
-                        </div>
-                      </div>
-                      <div className="bg-indigo-50 border border-indigo-300 rounded-2xl p-3 font-display font-extrabold text-indigo-950 text-base">
-                        <AsmoFormula text="Tổng cộng: $4 + 2 + 1 = 7$ khối lập phương 🧊" />
+                      <div className="font-mono font-bold text-xs text-slate-500">
+                        Tổng cộng = {cubeLayers[0]} + {cubeLayers[1]} + {cubeLayers[2]} = <span className="text-indigo-700 font-black underline">{cubeLayers[0] + cubeLayers[1] + cubeLayers[2]} khối lập phương</span>
                       </div>
                     </div>
                   </div>

@@ -1,6 +1,8 @@
 import { useState, useMemo } from 'react'
 import { Sparkles, RefreshCw, Star, Minus, Plus, Volume2, Heart } from 'lucide-react'
 import { AsmoInteractiveAppleTreeCanvas, speakVietnamese } from './AsmoInteractiveAppleTreeCanvas'
+import { AsmoFormula } from './AsmoFormula'
+import { renderBalanceScaleSvg } from './AsmoDiagramEngine'
 import { cn } from '@/shared/lib/cn'
 
 export type ArithmeticVisualizerMode =
@@ -9,6 +11,9 @@ export type ArithmeticVisualizerMode =
   | 'multiplication'
   | 'division'
   | 'make10'
+  | 'pizza_fraction'
+  | 'balance_scale'
+  | 'cube_3d'
   | 'column'
   | 'gauss'
 
@@ -27,6 +32,9 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
     if (topicId === 'elem-subtraction') return 'subtraction'
     if (topicId === 'elem-multiplication') return 'multiplication'
     if (topicId === 'elem-division') return 'division'
+    if (topicId === 'elem-fraction' || topicId === 'pizza_fraction') return 'pizza_fraction'
+    if (topicId === 'elem-balance' || topicId === 'balance_scale') return 'balance_scale'
+    if (topicId === 'elem-cube' || topicId === 'cube_3d') return 'cube_3d'
     if (level === 2) return 'column'
     if (level === 3) return 'gauss'
     return 'make10'
@@ -46,6 +54,12 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
       setActiveMode('multiplication')
     } else if (topicId === 'elem-division') {
       setActiveMode('division')
+    } else if (topicId === 'elem-fraction' || topicId === 'pizza_fraction') {
+      setActiveMode('pizza_fraction')
+    } else if (topicId === 'elem-balance' || topicId === 'balance_scale') {
+      setActiveMode('balance_scale')
+    } else if (topicId === 'elem-cube' || topicId === 'cube_3d') {
+      setActiveMode('cube_3d')
     }
   }, [topicId, level, forcedMode])
 
@@ -72,7 +86,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 2. MODE: SUBTRACTION (NỔ BÓNG BAY 🎈 & BẢNG TÍNH TO KHỔNG LỒ)
+  // 2. MODE: SUBTRACTION (NỔ BÓNG BAY 🎈 & BẢNG TÍNH MONTESSORI)
   // ══════════════════════════════════════════════════════════════════════════
   const initialBalloons = useMemo(() => [
     { id: 1, color: 'from-rose-400 to-rose-600 border-rose-300 text-white', shadow: 'shadow-rose-300/50', emoji: '🎈' },
@@ -87,7 +101,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
     { id: 10, color: 'from-lime-400 to-lime-600 border-lime-300 text-white', shadow: 'shadow-lime-300/50', emoji: '🎈' },
   ], [])
 
-  const [poppedBalloonIds, setPoppedBalloonIds] = useState<number[]>([1, 2, 3]) // Default 3 popped
+  const [poppedBalloonIds, setPoppedBalloonIds] = useState<number[]>([1, 2, 3])
   const [popAnimId, setPopAnimId] = useState<number | null>(null)
   const remainingBalloonsCount = initialBalloons.length - poppedBalloonIds.length
 
@@ -106,7 +120,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 3. MODE: MULTIPLICATION (KHAY BÁNH CUPCAKE 3D HÀNG × CỘT)
+  // 3. MODE: MULTIPLICATION (KHAY BÁNH CUPCAKE HÀNG × CỘT)
   // ══════════════════════════════════════════════════════════════════════════
   const [multRows, setMultRows] = useState<number>(3)
   const [multCols, setMultCols] = useState<number>(4)
@@ -169,10 +183,27 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
   }
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 6. MODE: COLUMN ADDITION WITH CARRY
+  // 6. MODE: PIZZA FRACTION (PHÂN SỐ PIZZA CẮT LÁT)
   // ══════════════════════════════════════════════════════════════════════════
-  const [boxOnes, setBoxOnes] = useState<number>(8) // Target: 8 (48 + 37 = 85)
-  const [boxTens, setBoxTens] = useState<number>(3) // Target: 3
+  const [pizzaSlices, setPizzaSlices] = useState<number>(8)
+  const [pizzaShaded, setPizzaShaded] = useState<number>(3)
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // 7. MODE: BALANCE SCALE (CÂN THĂNG BẰNG SOFT CLAY)
+  // ══════════════════════════════════════════════════════════════════════════
+  const [scaleLeft, setScaleLeft] = useState<number>(2)
+  const [scaleRight, setScaleRight] = useState<number>(6)
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // 8. MODE: 3D CUBE (KHỐI LẬP PHƯƠNG MONTESSORI)
+  // ══════════════════════════════════════════════════════════════════════════
+  const [cubeLayers, setCubeLayers] = useState<number[]>([4, 2, 1])
+
+  // ══════════════════════════════════════════════════════════════════════════
+  // 9. MODE: COLUMN ADDITION WITH CARRY
+  // ══════════════════════════════════════════════════════════════════════════
+  const [boxOnes, setBoxOnes] = useState<number>(8)
+  const [boxTens, setBoxTens] = useState<number>(3)
 
   const onesSum = boxOnes + 7
   const hasCarry = onesSum >= 10
@@ -182,9 +213,9 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
   const isLvl2Correct = boxOnes === 8 && boxTens === 3 && tensSum === 8 && onesDigitResult === 5
 
   // ══════════════════════════════════════════════════════════════════════════
-  // 7. MODE: GAUSS RAINBOW SEQUENCE
+  // 10. MODE: GAUSS RAINBOW SEQUENCE
   // ══════════════════════════════════════════════════════════════════════════
-  const [gaussActivePairsCount, setGaussActivePairsCount] = useState<number>(10) // 1 to 10
+  const [gaussActivePairsCount, setGaussActivePairsCount] = useState<number>(10)
   const gaussNumbers = Array.from({ length: 20 }, (_, i) => i + 1)
   const rainbowColors = [
     '#f43f5e', '#fb923c', '#eab308', '#10b981', '#06b6d4',
@@ -205,13 +236,16 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                 Phép Tính Vui Nhộn &amp; Trực Quan Sư Phạm Tiểu Học
               </span>
               <span className="text-[11px] text-slate-500 font-bold block truncate">
-                {activeMode === 'addition' && '🍎 Phép Cộng Thần Tốc: Thả táo vào giỏ & Nhảy số sinh động'}
-                {activeMode === 'subtraction' && '🎈 Phép Trừ Thông Minh: Bấm nổ bóng bay & Bớt kẹo'}
-                {activeMode === 'multiplication' && '🍰 Phép Nhân Sắc Màu: Xếp khay bánh theo hàng & cột'}
-                {activeMode === 'division' && '🍽️ Phép Chia Chia Đều: Chia kẹo vào các đĩa xinh xắn'}
-                {activeMode === 'make10' && 'Level 1: 🎈 Bí kíp ghép cặp 10 siêu tốc'}
-                {activeMode === 'column' && 'Level 2: 🧩 Điền chữ số bí ẩn & Phép cộng có nhớ'}
-                {activeMode === 'gauss' && 'Level 3: 🌈 Cầu vồng Gauss & Dãy số cách đều'}
+                {activeMode === 'addition' && '🍎 Phép Cộng: Thả táo vào giỏ & Nhảy số sinh động'}
+                {activeMode === 'subtraction' && '🎈 Phép Trừ: Bấm nổ bóng bay & Bớt số lượng'}
+                {activeMode === 'multiplication' && '🍰 Phép Nhân: Xếp khay bánh theo Hàng × Cột'}
+                {activeMode === 'division' && '🍽️ Phép Chia: Chia đều kẹo mút vào các đĩa sứ'}
+                {activeMode === 'make10' && 'Level 1: 🎈 Bí Kíp Ghép Cặp 10 Tính Nhẩm Thần Tốc'}
+                {activeMode === 'pizza_fraction' && '🍕 Phân Số: Cắt lát bánh pizza trực quan'}
+                {activeMode === 'balance_scale' && '⚖️ Cân Thăng Bằng: Cân đĩa bập bênh quả ngọt'}
+                {activeMode === 'cube_3d' && '🧊 Khối Lập Phương: Đếm hình theo từng tầng'}
+                {activeMode === 'column' && '🧮 Cột Dọc: Phép tính có nhớ / có mượn'}
+                {activeMode === 'gauss' && '🌈 Chuỗi Gauss: Dãy số cách đều thần đồng'}
               </span>
             </div>
           </div>
@@ -262,7 +296,10 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
             { id: 'multiplication' as const, emoji: '🍰', label: 'Nhân Khay Bánh', color: 'bg-emerald-500 text-white shadow-clay border-emerald-600' },
             { id: 'division' as const, emoji: '🍽️', label: 'Chia Kẹo Đều', color: 'bg-sky-500 text-white shadow-clay border-sky-600' },
             { id: 'make10' as const, emoji: '🔟', label: 'Kết Bạn 10', color: 'bg-indigo-600 text-white shadow-clay border-indigo-700' },
-            { id: 'column' as const, emoji: '🧮', label: 'Cột Dọc Có Nhớ', color: 'bg-purple-600 text-white shadow-clay border-purple-700' },
+            { id: 'pizza_fraction' as const, emoji: '🍕', label: 'Phân Số Pizza', color: 'bg-orange-500 text-white shadow-clay border-orange-600' },
+            { id: 'balance_scale' as const, emoji: '⚖️', label: 'Cân Thăng Bằng', color: 'bg-teal-600 text-white shadow-clay border-teal-700' },
+            { id: 'cube_3d' as const, emoji: '🧊', label: 'Khối Lập Phương', color: 'bg-purple-600 text-white shadow-clay border-purple-700' },
+            { id: 'column' as const, emoji: '🧮', label: 'Cột Dọc', color: 'bg-indigo-500 text-white shadow-clay border-indigo-600' },
             { id: 'gauss' as const, emoji: '🌈', label: 'Cầu Vồng Gauss', color: 'bg-pink-500 text-white shadow-clay border-pink-600' },
           ].map((tab) => (
             <button
@@ -308,7 +345,6 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
           <div className="w-full max-w-lg flex flex-col items-center space-y-3">
             {/* Balloon Sky Container */}
             <div className="w-full bg-gradient-to-b from-sky-100/90 via-sky-50/70 to-mint-50/80 border-2 border-sky-200 rounded-3xl p-4 sm:p-5 shadow-clay flex flex-col items-center space-y-3 relative overflow-hidden">
-              {/* Sky Clouds */}
               <div className="absolute top-2 left-4 text-xl opacity-75 animate-pulse select-none">☁️</div>
               <div className="absolute top-3 right-6 text-lg opacity-70 animate-pulse select-none">☁️</div>
 
@@ -337,7 +373,6 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                         {b.id}
                       </span>
 
-                      {/* Balloon knot string */}
                       {!isPopped && (
                         <div className="absolute -bottom-2.5 left-1/2 -translate-x-1/2 w-0.5 h-2.5 bg-slate-400/80 pointer-events-none" />
                       )}
@@ -356,34 +391,28 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
 
             {/* Giant Montessori Toy Calculation Board */}
             <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
-              <span className="text-xs font-black text-brand-800 uppercase tracking-wider block">
-                🎈 Phép trừ trực quan thời gian thực:
+              <span className="text-[11px] font-black uppercase text-sky-700 tracking-wider block">
+                Phép trừ trực quan thời gian thực
               </span>
-
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
-                {/* Initial 10 block */}
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-sky-50 border-2 border-sky-200 text-sky-800 shadow-clay">
                   <span className="text-2xl sm:text-3xl">🎈</span>
                   <span className="font-display font-black text-2xl sm:text-3xl text-sky-800">10</span>
                 </div>
 
-                {/* Minus Sign */}
                 <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
                   −
                 </div>
 
-                {/* Popped count block */}
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-700 shadow-clay">
                   <span className="text-2xl sm:text-3xl">💥</span>
                   <span className="font-display font-black text-2xl sm:text-3xl text-rose-700">{poppedBalloonIds.length}</span>
                 </div>
 
-                {/* Equal Sign */}
                 <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
                   =
                 </div>
 
-                {/* Glowing Result block */}
                 <div className={cn(
                   'flex items-center gap-2 px-4 sm:px-5 py-2 rounded-2xl bg-brand-500 text-white font-black text-2xl sm:text-3xl shadow-clay border-2 border-brand-600 transition-all duration-300',
                   remainingBalloonsCount > 0 && 'scale-105 ring-4 ring-brand-200 animate-pulse',
@@ -394,13 +423,13 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               </div>
 
               <div className="font-mono font-bold text-xs text-slate-500">
-                10 - {poppedBalloonIds.length} = {remainingBalloonsCount} (quả bóng còn bay)
+                10 − {poppedBalloonIds.length} = <span className="text-sky-600 font-black underline">{remainingBalloonsCount} quả bóng</span> còn bay
               </div>
             </div>
           </div>
         )}
 
-        {/* ── 3. MODE: MULTIPLICATION (KHAY BÁNH CUPCAKE 3D HÀNG × CỘT) ── */}
+        {/* ── 3. MODE: MULTIPLICATION (KHAY BÁNH CUPCAKE HÀNG × CỘT) ── */}
         {activeMode === 'multiplication' && (
           <div className="w-full max-w-lg flex flex-col items-center space-y-3">
             {/* Tactile Grid Stepper Controls */}
@@ -490,10 +519,9 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
 
             {/* Giant Montessori Toy Calculation Board */}
             <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
-              <span className="text-xs font-black text-brand-800 uppercase tracking-wider block">
-                🍰 Bảng nhân trực quan:
+              <span className="text-[11px] font-black uppercase text-amber-700 tracking-wider block">
+                Bảng nhân trực quan
               </span>
-
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-amber-50 border-2 border-amber-200 text-amber-800 shadow-clay">
                   <span className="text-2xl sm:text-3xl">🥞</span>
@@ -520,7 +548,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               </div>
 
               <div className="font-mono font-bold text-xs text-slate-500">
-                {multRows} × {multCols} = {totalCakes} chiếc bánh ({Array.from({ length: multRows }).map(() => multCols).join(' + ')})
+                {multRows} × {multCols} = <span className="text-amber-700 font-black underline">{totalCakes} chiếc bánh</span> thơm ngon
               </div>
             </div>
           </div>
@@ -607,17 +635,16 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
             {/* Remainder candies dish */}
             {remainderCandies > 0 && (
               <div className="flex items-center gap-2 bg-amber-100/80 border-2 border-amber-300 px-4 py-1.5 rounded-full text-xs font-black text-amber-900 shadow-2xs">
-                <span>🍬 Kẹo thừa chưa chia đủ (Số dư):</span>
+                <span>🍬 Kẹo thừa chưa chia đủ:</span>
                 <span className="font-mono font-black text-amber-800">{remainderCandies} cái</span>
               </div>
             )}
 
             {/* Giant Montessori Toy Calculation Board */}
             <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
-              <span className="text-xs font-black text-brand-800 uppercase tracking-wider block">
-                🍽️ Kết quả phép chia chia đều:
+              <span className="text-[11px] font-black uppercase text-sky-700 tracking-wider block">
+                Kết quả phép chia chia đều
               </span>
-
               <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
                 <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 shadow-clay">
                   <span className="text-2xl sm:text-3xl">🍬</span>
@@ -644,30 +671,23 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               </div>
 
               <div className="font-mono font-bold text-xs text-slate-500">
-                {totalCandies} : {platesCount} = {candiesPerPlate} {remainderCandies > 0 ? `(dư ${remainderCandies})` : '(chia hết)'}
+                {totalCandies} ÷ {platesCount} = <span className="text-rose-700 font-black underline">{candiesPerPlate} kẹo mỗi đĩa</span> {remainderCandies > 0 ? `(dư ${remainderCandies})` : '(chia hết)'}
               </div>
             </div>
           </div>
         )}
 
-        {/* ── 5. MODE: MAKE-10 PAIR MATCHING (LEVEL 1) ── */}
+        {/* ── 5. MODE: MAKE-10 PAIR MATCHING ── */}
         {activeMode === 'make10' && (
           <div className="w-full max-w-lg flex flex-col items-center space-y-3 relative">
-            {/* Heart celebration popup */}
             {heartAnim && (
               <div className="absolute inset-0 flex items-center justify-center z-30 pointer-events-none animate-ping text-5xl">
                 💖 ✨ 🌈
               </div>
             )}
 
-            {/* Sequence formula banner */}
-            <div className="w-full bg-gradient-to-r from-purple-100 via-pink-100 to-amber-100 rounded-2xl border-2 border-purple-300 p-2.5 text-center shadow-2xs">
-              <span className="text-xs font-black text-purple-900 block mb-0.5">
-                🎈 Bí kíp ghép cặp 10 siêu tốc
-              </span>
-              <div className="text-base sm:text-lg font-black font-mono tracking-wide text-slate-900 bg-white/90 px-3 py-1 rounded-xl border border-purple-200 shadow-inner inline-block">
-                1 + 3 + 5 + 7 + 9 = ?
-              </div>
+            <div className="text-center font-bold text-xs text-indigo-900 bg-indigo-50 border border-indigo-200 px-3 py-1 rounded-xl">
+              Bí kíp ghép cặp 10 siêu tốc: 1 + 3 + 5 + 7 + 9 = ?
             </div>
 
             {/* Giant Tactile Number Bubbles */}
@@ -716,22 +736,314 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
               </div>
             </div>
 
-            {/* Montessori Toy Calculation Board */}
-            <div className="w-full bg-emerald-50 border-2 border-emerald-300 text-emerald-950 font-bold p-3 rounded-2xl text-center shadow-xs space-y-1">
-              <span className="text-xs text-emerald-800 font-black block">
-                🌈 Phép tính gộp thông minh:
-              </span>
+            {/* Giant Calculation Board */}
+            <div className="w-full bg-emerald-50 border-2 border-emerald-300 text-emerald-950 font-bold p-3 rounded-2xl text-center shadow-clay space-y-1">
               <div className="font-mono font-black text-emerald-950 text-sm sm:text-base">
-                (1 + 9) + (3 + 7) + 5 = 10 + 10 + 5 = 25
+                (1 + 9) + (3 + 7) + 5 = 10 + 10 + 5 = <span className="text-emerald-700 font-black underline">25</span>
               </div>
             </div>
           </div>
         )}
 
-        {/* ── 6. MODE: COLUMN ADDITION (LEVEL 2) ── */}
+        {/* ── 6. MODE: PIZZA FRACTION (Trạm 6) ── */}
+        {activeMode === 'pizza_fraction' && (
+          <div className="w-full max-w-md space-y-3.5 flex flex-col items-center">
+            {/* Slice Count Stepper */}
+            <div className="flex flex-wrap items-center justify-center gap-3 text-xs bg-white p-3 rounded-2xl border-2 border-brand-100 shadow-clay w-full">
+              <div className="flex items-center gap-2">
+                <span className="font-black text-slate-700">Số lát:</span>
+                {[4, 6, 8, 10].map((num) => (
+                  <button
+                    key={`vis-slice-btn-${num}`}
+                    type="button"
+                    onClick={() => {
+                      setPizzaSlices(num)
+                      if (pizzaShaded > num) setPizzaShaded(num)
+                    }}
+                    className={cn(
+                      'px-2.5 py-1 rounded-xl font-black text-xs cursor-pointer border-2 transition-all active:scale-95',
+                      pizzaSlices === num
+                        ? 'bg-brand-500 text-white border-brand-600 shadow-clay'
+                        : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 shadow-2xs',
+                    )}
+                  >
+                    {num}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2 border-l border-slate-200 pl-3">
+                <span className="font-black text-slate-700">Đã chọn:</span>
+                <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-emerald-300 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Bớt lát pizza"
+                    disabled={pizzaShaded <= 0}
+                    onClick={() => setPizzaShaded((s) => (s > 0 ? s - 1 : 0))}
+                    className="size-8 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-6 text-center font-display font-black text-sm text-emerald-950 select-none">{pizzaShaded}</span>
+                  <button
+                    type="button"
+                    aria-label="Thêm lát pizza"
+                    disabled={pizzaShaded >= pizzaSlices}
+                    onClick={() => setPizzaShaded((s) => (s < pizzaSlices ? s + 1 : pizzaSlices))}
+                    className="size-8 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* SVG Pizza Pie Soft Clay */}
+            <div className="relative p-3 bg-gradient-to-b from-amber-50 to-orange-50 rounded-full border-4 border-amber-200 shadow-clay">
+              <svg viewBox="0 0 160 160" className="size-44 select-none drop-shadow-md cursor-pointer overflow-visible">
+                <circle cx="80" cy="80" r="72" fill="#d97706" stroke="#92400e" strokeWidth="4" />
+                <circle cx="80" cy="80" r="66" fill="#fef3c7" stroke="#f59e0b" strokeWidth="2" />
+                {Array.from({ length: pizzaSlices }).map((_, i) => {
+                  const startAngle = (i * 360) / pizzaSlices
+                  const endAngle = ((i + 1) * 360) / pizzaSlices
+                  const isShaded = i < pizzaShaded
+
+                  const x1 = 80 + 64 * Math.cos(((startAngle - 90) * Math.PI) / 180)
+                  const y1 = 80 + 64 * Math.sin(((startAngle - 90) * Math.PI) / 180)
+                  const x2 = 80 + 64 * Math.cos(((endAngle - 90) * Math.PI) / 180)
+                  const y2 = 80 + 64 * Math.sin(((endAngle - 90) * Math.PI) / 180)
+
+                  const largeArc = endAngle - startAngle > 180 ? 1 : 0
+                  const d = `M 80,80 L ${x1},${y1} A 64,64 0 ${largeArc},1 ${x2},${y2} Z`
+
+                  return (
+                    <path
+                      key={`vis-slice-${i}`}
+                      d={d}
+                      fill={isShaded ? '#ef4444' : '#fef08a'}
+                      stroke="#92400e"
+                      strokeWidth="2"
+                      onClick={() => {
+                        if (isShaded) setPizzaShaded(i)
+                        else setPizzaShaded(i + 1)
+                      }}
+                      className="transition-all duration-200 hover:opacity-85 active:scale-98"
+                    />
+                  )
+                })}
+                <circle cx="80" cy="80" r="5" fill="#78350f" />
+              </svg>
+            </div>
+
+            {/* KaTeX Fraction Board */}
+            <div className="w-full bg-emerald-50 border-2 border-emerald-300 rounded-3xl p-3.5 text-center font-display font-extrabold text-emerald-950 text-base shadow-clay">
+              <AsmoFormula text={`Phân số biểu thị: $\\frac{${pizzaShaded}}{${pizzaSlices}}$ chiếc bánh pizza 🍕`} />
+            </div>
+          </div>
+        )}
+
+        {/* ── 7. MODE: BALANCE SCALE (Trạm 7) ── */}
+        {activeMode === 'balance_scale' && (
+          <div className="w-full max-w-lg space-y-3.5 flex flex-col items-center">
+            <div className="flex flex-wrap items-center justify-between gap-3 text-xs bg-white p-3.5 rounded-2xl border-2 border-brand-200 shadow-2xs w-full">
+              <div className="flex items-center gap-2">
+                <span className="font-black text-slate-800">Đĩa Trái (Dưa 🍉):</span>
+                <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-emerald-300 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Bớt dưa"
+                    disabled={scaleLeft <= 1}
+                    onClick={() => setScaleLeft((s) => (s > 1 ? s - 1 : 1))}
+                    className="size-8 rounded-xl bg-emerald-100 hover:bg-emerald-200 text-emerald-800 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-6 text-center font-display font-black text-sm text-emerald-950 select-none">{scaleLeft}</span>
+                  <button
+                    type="button"
+                    aria-label="Thêm dưa"
+                    disabled={scaleLeft >= 5}
+                    onClick={() => setScaleLeft((s) => (s < 5 ? s + 1 : 5))}
+                    className="size-8 rounded-xl bg-emerald-500 hover:bg-emerald-600 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <span className="font-black text-slate-800">Đĩa Phải (Táo 🍎):</span>
+                <div className="flex items-center gap-1.5 bg-white p-1 rounded-2xl border-2 border-rose-300 shadow-2xs">
+                  <button
+                    type="button"
+                    aria-label="Bớt táo"
+                    disabled={scaleRight <= 1}
+                    onClick={() => setScaleRight((r) => (r > 1 ? r - 1 : 1))}
+                    className="size-8 rounded-xl bg-rose-100 hover:bg-rose-200 text-rose-800 font-black flex items-center justify-center transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Minus className="size-4 stroke-[3]" />
+                  </button>
+                  <span className="w-6 text-center font-display font-black text-sm text-rose-950 select-none">{scaleRight}</span>
+                  <button
+                    type="button"
+                    aria-label="Thêm táo"
+                    disabled={scaleRight >= 15}
+                    onClick={() => setScaleRight((r) => (r < 15 ? r + 1 : 15))}
+                    className="size-8 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-black flex items-center justify-center shadow-clay transition-all active:scale-90 disabled:opacity-40 cursor-pointer"
+                  >
+                    <Plus className="size-4 stroke-[3]" />
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <div className="w-full">
+              {renderBalanceScaleSvg({
+                left: { emoji: '🍉', text: `${scaleLeft} Quả Dưa` },
+                right: { emoji: '🍎', text: `${scaleRight} Quả Táo` },
+                tilt: scaleLeft * 3 === scaleRight ? 'equal' : scaleLeft * 3 > scaleRight ? 'left' : 'right',
+                label: `Đĩa trái: ${scaleLeft} Dưa — Đĩa phải: ${scaleRight} Táo`,
+              })}
+            </div>
+
+            {/* Giant Calculation Board */}
+            <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
+              <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
+                <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-emerald-50 border-2 border-emerald-200 text-emerald-800 shadow-clay">
+                  <span className="text-2xl sm:text-3xl">🍉</span>
+                  <span className="font-display font-black text-2xl sm:text-3xl text-emerald-800">{scaleLeft} dưa</span>
+                </div>
+
+                <div className="size-9 sm:size-11 rounded-2xl bg-sun-100 text-sun-800 font-black text-2xl sm:text-3xl flex items-center justify-center shadow-clay border-2 border-sun-200">
+                  {scaleLeft * 3 === scaleRight ? '=' : scaleLeft * 3 > scaleRight ? '>' : '<'}
+                </div>
+
+                <div className="flex items-center gap-1.5 px-3.5 py-2 rounded-2xl bg-rose-50 border-2 border-rose-200 text-rose-800 shadow-clay">
+                  <span className="text-2xl sm:text-3xl">🍎</span>
+                  <span className="font-display font-black text-2xl sm:text-3xl text-rose-800">{scaleRight} táo</span>
+                </div>
+              </div>
+
+              <div className="font-mono font-bold text-xs text-slate-500">
+                {scaleLeft * 3 === scaleRight ? (
+                  <span className="text-emerald-700 font-black">⚖️ Cân thăng bằng: {scaleLeft} dưa = {scaleRight} táo (1 dưa = 3 táo)</span>
+                ) : scaleLeft * 3 > scaleRight ? (
+                  <span className="text-amber-700 font-black">⚖️ Đĩa trái nặng hơn!</span>
+                ) : (
+                  <span className="text-rose-700 font-black">⚖️ Đĩa phải nặng hơn!</span>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── 8. MODE: 3D CUBE (Trạm 8) ── */}
+        {activeMode === 'cube_3d' && (
+          <div className="w-full max-w-lg space-y-4 text-center">
+            <div className="grid grid-cols-3 gap-2.5 bg-indigo-50/80 p-3 rounded-2xl border-2 border-indigo-200 shadow-2xs">
+              {[
+                { label: 'Tầng 1 (Dưới)', idx: 0 },
+                { label: 'Tầng 2 (Giữa)', idx: 1 },
+                { label: 'Tầng 3 (Trên)', idx: 2 },
+              ].map((tier) => (
+                <div key={tier.label} className="flex flex-col items-center gap-1.5 bg-white p-2 rounded-2xl border-2 border-indigo-100 shadow-xs">
+                  <span className="text-[11px] font-black text-slate-700">{tier.label}</span>
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      aria-label={`Bớt khối ${tier.label}`}
+                      disabled={cubeLayers[tier.idx] <= 0}
+                      onClick={() => {
+                        const next = [...cubeLayers]
+                        next[tier.idx] = Math.max(0, next[tier.idx] - 1)
+                        setCubeLayers(next)
+                      }}
+                      className="size-7 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black flex items-center justify-center disabled:opacity-30 cursor-pointer active:scale-90"
+                    >
+                      <Minus className="size-3.5 stroke-[3]" />
+                    </button>
+                    <span className="w-5 text-center font-display font-black text-sm text-indigo-950">
+                      {cubeLayers[tier.idx]}
+                    </span>
+                    <button
+                      type="button"
+                      aria-label={`Thêm khối ${tier.label}`}
+                      disabled={cubeLayers[tier.idx] >= 6}
+                      onClick={() => {
+                        const next = [...cubeLayers]
+                        next[tier.idx] = Math.min(6, next[tier.idx] + 1)
+                        setCubeLayers(next)
+                      }}
+                      className="size-7 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black flex items-center justify-center disabled:opacity-30 cursor-pointer active:scale-90"
+                    >
+                      <Plus className="size-3.5 stroke-[3]" />
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Isometric 2D Flat Soft Clay Layer Stacking Illustration */}
+            <div className="p-4 bg-gradient-to-b from-indigo-100/90 via-indigo-50/70 to-purple-50/80 rounded-3xl border-2 border-indigo-200 shadow-clay flex flex-col items-center justify-center gap-2">
+              {cubeLayers[2] > 0 && (
+                <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
+                  {Array.from({ length: cubeLayers[2] }).map((_, i) => (
+                    <div key={`vis-t3-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-pink-400 to-rose-500 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-pink-300">
+                      🧊
+                    </div>
+                  ))}
+                </div>
+              )}
+              {cubeLayers[1] > 0 && (
+                <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
+                  {Array.from({ length: cubeLayers[1] }).map((_, i) => (
+                    <div key={`vis-t2-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-purple-400 to-indigo-500 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-purple-300">
+                      🧊
+                    </div>
+                  ))}
+                </div>
+              )}
+              {cubeLayers[0] > 0 && (
+                <div className="flex items-center justify-center gap-1.5 animate-in zoom-in-50">
+                  {Array.from({ length: cubeLayers[0] }).map((_, i) => (
+                    <div key={`vis-t1-${i}`} className="size-10 rounded-2xl bg-gradient-to-br from-indigo-500 to-sky-600 text-white font-black text-xs flex items-center justify-center shadow-clay border-2 border-indigo-300">
+                      🧊
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Giant Montessori Toy Calculation Board */}
+            <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 sm:p-4 text-center shadow-clay space-y-2">
+              <div className="flex items-center justify-center gap-2 sm:gap-3 flex-wrap select-none my-0.5">
+                <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-indigo-50 border-2 border-indigo-200 text-indigo-900 shadow-clay">
+                  <span className="font-display font-black text-xl text-indigo-900">{cubeLayers[0]} (dưới)</span>
+                </div>
+                <span className="font-black text-xl text-indigo-500">+</span>
+                <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-purple-50 border-2 border-purple-200 text-purple-900 shadow-clay">
+                  <span className="font-display font-black text-xl text-purple-900">{cubeLayers[1]} (giữa)</span>
+                </div>
+                <span className="font-black text-xl text-purple-500">+</span>
+                <div className="flex items-center gap-1 px-3 py-1.5 rounded-2xl bg-pink-50 border-2 border-pink-200 text-pink-900 shadow-clay">
+                  <span className="font-display font-black text-xl text-pink-900">{cubeLayers[2]} (trên)</span>
+                </div>
+                <span className="font-black text-xl text-indigo-500">=</span>
+                <div className="flex items-center gap-2 px-4 py-1.5 rounded-2xl bg-brand-500 text-white font-black text-2xl shadow-clay border-2 border-brand-600">
+                  <span className="font-display font-black text-2xl text-white">{cubeLayers[0] + cubeLayers[1] + cubeLayers[2]}</span>
+                  <span className="text-lg animate-bounce">🧊</span>
+                </div>
+              </div>
+              <div className="font-mono font-bold text-xs text-slate-500">
+                Tổng cộng = {cubeLayers[0]} + {cubeLayers[1]} + {cubeLayers[2]} = <span className="text-indigo-700 font-black underline">{cubeLayers[0] + cubeLayers[1] + cubeLayers[2]} khối lập phương</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── 9. MODE: COLUMN ADDITION ── */}
         {activeMode === 'column' && (
           <div className="w-full max-w-md flex flex-col items-center space-y-3">
-            {/* Interactive Column Board */}
             <div className="w-full bg-slate-50 rounded-3xl border-2 border-indigo-200 p-4 sm:p-5 shadow-clay">
               <div className="flex items-center justify-between text-xs font-black text-slate-600 border-b border-slate-200 pb-2 mb-3">
                 <span className="w-24 text-center uppercase tracking-wider text-indigo-700 font-black">Hàng Chục</span>
@@ -829,7 +1141,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                     onClick={() => setBoxTens((prev) => (prev < 9 ? prev + 1 : 0))}
                     className="size-7 sm:size-8 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-black flex items-center justify-center shadow-xs transition-all active:scale-90 cursor-pointer"
                   >
-                    <Plus className="size-3.5 sm:size-4 stroke-[3]" />
+                    <Plus className="size-3.5 stroke-[3]" />
                   </button>
                 </div>
               </div>
@@ -846,7 +1158,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
           </div>
         )}
 
-        {/* ── 7. MODE: GAUSS RAINBOW SEQUENCE (LEVEL 3) ── */}
+        {/* ── 10. MODE: GAUSS RAINBOW SEQUENCE ── */}
         {activeMode === 'gauss' && (
           <div className="w-full max-w-lg flex flex-col items-center space-y-3">
             <div className="w-full bg-slate-50 rounded-3xl border-2 border-indigo-200 p-3 sm:p-4 shadow-clay">
@@ -930,7 +1242,7 @@ export function AsmoKidsArithmeticVisualizer({ level = 1, topicId, mode: forcedM
                 Công thức Gauss tổng quát:
               </span>
               <div className="font-mono font-black text-emerald-950 text-sm sm:text-base">
-                S = (20 × 21) : 2 = 10 × 21 = 210
+                S = (20 × 21) : 2 = 10 × 21 = <span className="text-emerald-700 font-black underline">210</span>
               </div>
             </div>
           </div>

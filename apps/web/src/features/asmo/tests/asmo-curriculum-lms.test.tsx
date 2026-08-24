@@ -346,10 +346,10 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     )
 
     // 1. Compact Hero Header & Badges
-    expect(markup).toContain('Trạm 1:')
+    expect(markup).toContain('Trạm 1')
     expect(markup).toContain('Gộp Táo')
     expect(markup).not.toContain('Sản phẩm của trạm:')
-    expect(markup).toContain('Sao của trạm')
+    expect(markup).not.toContain('Sao của trạm')
     expect(markup).toContain('+50 XP')
 
     // 2. Compact 1-Row Stepper Tabs

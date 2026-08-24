@@ -583,7 +583,7 @@ export function renderGridCheckerboardPuzzleSvg(
 }
 
 // ============================================================================
-// 4. RENDER BALANCE SCALE SVG (Bập bênh / Cân đĩa)
+// 4. RENDER BALANCE SCALE SVG (Bập bênh / Cân đĩa Soft Clay)
 // ============================================================================
 
 export function renderBalanceScaleSvg(
@@ -591,77 +591,136 @@ export function renderBalanceScaleSvg(
   options?: { className?: string; scale?: number },
 ): React.JSX.Element {
   const items = Array.isArray(balances) ? balances : [balances]
-  const totalWidth = items.length * 180
-  const height = 170
+  const totalWidth = items.length * 200
+  const height = 180
 
   return (
-    <div className={options?.className ?? 'flex items-center justify-center p-5 rounded-3xl bg-white border border-slate-200 shadow-sm max-w-2xl mx-auto w-full'}>
+    <div className={options?.className ?? 'flex items-center justify-center p-4 sm:p-5 rounded-3xl bg-gradient-to-b from-sky-50/90 via-teal-50/60 to-emerald-50/80 border-2 border-brand-200 shadow-clay max-w-2xl mx-auto w-full'}>
       <svg
         viewBox={`0 0 ${totalWidth} ${height}`}
-        className="w-full max-h-56 select-none font-bold"
+        className="w-full max-h-56 select-none font-bold overflow-visible"
         role="img"
         aria-label="Balance scale diagram"
       >
+        <defs>
+          <filter id="scaleShadow" x="-20%" y="-20%" width="140%" height="140%">
+            <feDropShadow dx="0" dy="3" stdDeviation="3" floodColor="#0f172a" floodOpacity="0.15" />
+          </filter>
+          <linearGradient id="beamGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stopColor="#f59e0b" />
+            <stop offset="50%" stopColor="#fbbf24" />
+            <stop offset="100%" stopColor="#f59e0b" />
+          </linearGradient>
+          <linearGradient id="panGradLeft" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#ecfdf5" />
+            <stop offset="100%" stopColor="#a7f3d0" />
+          </linearGradient>
+          <linearGradient id="panGradRight" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stopColor="#fff1f2" />
+            <stop offset="100%" stopColor="#fecdd3" />
+          </linearGradient>
+        </defs>
+
         {items.map((b, idx) => {
-          const offsetX = idx * 180 + 15
+          const offsetX = idx * 200 + 10
           // Tilt y positions
-          let leftY = 95
-          let rightY = 95
+          let leftY = 90
+          let rightY = 90
           if (b.tilt === 'left') {
-            // Left is heavier (lower)
-            leftY = 110
-            rightY = 80
+            leftY = 108
+            rightY = 72
           } else if (b.tilt === 'right') {
-            // Right is heavier (lower)
-            leftY = 80
-            rightY = 110
+            leftY = 72
+            rightY = 108
           }
 
-          const fulcrumX = 75
-          const fulcrumY = 100
+          const fulcrumX = 90
+          const fulcrumY = 96
 
           return (
-            <g key={`scale-${idx}`} transform={`translate(${offsetX}, 20)`}>
-              {/* Fulcrum Base Triangle */}
-              <polygon points={`${fulcrumX},${fulcrumY} ${fulcrumX - 14},${fulcrumY + 28} ${fulcrumX + 14},${fulcrumY + 28}`} fill="#1e293b" />
-              {/* Beam */}
+            <g key={`scale-${idx}`} transform={`translate(${offsetX}, 15)`}>
+              {/* Fulcrum Base Triangle & Pivot */}
+              <polygon
+                points={`${fulcrumX},${fulcrumY} ${fulcrumX - 18},${fulcrumY + 36} ${fulcrumX + 18},${fulcrumY + 36}`}
+                fill="#4338ca"
+                stroke="#312e81"
+                strokeWidth="2.5"
+                strokeLinejoin="round"
+                filter="url(#scaleShadow)"
+              />
+              <circle cx={fulcrumX} cy={fulcrumY} r="7" fill="#fbbf24" stroke="#d97706" strokeWidth="2.5" />
+
+              {/* Wooden Balance Beam */}
               <line
-                x1="15"
+                x1="24"
                 y1={leftY}
-                x2="135"
+                x2="156"
                 y2={rightY}
-                stroke="#1e293b"
-                strokeWidth="5"
+                stroke="url(#beamGrad)"
+                strokeWidth="8"
+                strokeLinecap="round"
+                filter="url(#scaleShadow)"
+              />
+              <line
+                x1="24"
+                y1={leftY}
+                x2="156"
+                y2={rightY}
+                stroke="#b45309"
+                strokeWidth="1.5"
                 strokeLinecap="round"
               />
-              {/* Left Item */}
-              <g transform={`translate(20, ${leftY - 12})`}>
-                <text x="0" y="0" fontSize="28" textAnchor="middle" dominantBaseline="middle">
-                  {b.left.emoji ?? '🍎'}
+
+              {/* Left Pan Strings & Tray */}
+              <line x1="28" y1={leftY} x2="16" y2={leftY + 34} stroke="#94a3b8" strokeWidth="1.8" strokeDasharray="3 2" />
+              <line x1="28" y1={leftY} x2="48" y2={leftY + 34} stroke="#94a3b8" strokeWidth="1.8" strokeDasharray="3 2" />
+              {/* Left Clay Pan */}
+              <path
+                d={`M 12,${leftY + 34} Q 32,${leftY + 46} 52,${leftY + 34} Z`}
+                fill="url(#panGradLeft)"
+                stroke="#059669"
+                strokeWidth="2.5"
+                filter="url(#scaleShadow)"
+              />
+
+              {/* Left Item in Pan */}
+              <g transform={`translate(32, ${leftY + 22})`}>
+                <text x="0" y="0" fontSize="26" textAnchor="middle" dominantBaseline="middle">
+                  {b.left.emoji ?? '🍉'}
                 </text>
                 {b.left.text && (
-                  <text x="0" y="16" fontSize="12" fill="#475569" textAnchor="middle">
+                  <text x="0" y="24" fontSize="11" fill="#065f46" textAnchor="middle" fontWeight="900">
                     {b.left.text}
                   </text>
                 )}
               </g>
-              {/* Right Item */}
-              <g transform={`translate(130, ${rightY - 12})`}>
-                <text x="0" y="0" fontSize="28" textAnchor="middle" dominantBaseline="middle">
-                  {b.right.emoji ?? '🍌'}
+
+              {/* Right Pan Strings & Tray */}
+              <line x1="152" y1={rightY} x2="136" y2={rightY + 34} stroke="#94a3b8" strokeWidth="1.8" strokeDasharray="3 2" />
+              <line x1="152" y1={rightY} x2="168" y2={rightY + 34} stroke="#94a3b8" strokeWidth="1.8" strokeDasharray="3 2" />
+              {/* Right Clay Pan */}
+              <path
+                d={`M 132,${rightY + 34} Q 152,${rightY + 46} 172,${rightY + 34} Z`}
+                fill="url(#panGradRight)"
+                stroke="#e11d48"
+                strokeWidth="2.5"
+                filter="url(#scaleShadow)"
+              />
+
+              {/* Right Item in Pan */}
+              <g transform={`translate(152, ${rightY + 22})`}>
+                <text x="0" y="0" fontSize="26" textAnchor="middle" dominantBaseline="middle">
+                  {b.right.emoji ?? '🍎'}
                 </text>
                 {b.right.text && (
-                  <text x="0" y="16" fontSize="12" fill="#475569" textAnchor="middle">
+                  <text x="0" y="24" fontSize="11" fill="#9f1239" textAnchor="middle" fontWeight="900">
                     {b.right.text}
                   </text>
                 )}
               </g>
-              {/* Scale Label */}
-              {b.label && (
-                <text x={fulcrumX} y={fulcrumY + 44} fontSize="13" fill="#64748b" textAnchor="middle" fontWeight="bold">
-                  {b.label}
-                </text>
-              )}
+
+              {/* Scale Base Pill */}
+              <rect x={fulcrumX - 28} y={fulcrumY + 34} width="56" height="8" rx="4" fill="#312e81" />
             </g>
           )
         })}
