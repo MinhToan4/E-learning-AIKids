@@ -118,7 +118,7 @@ export function Asmo3DLabPage() {
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         {/* Left Column: 3D Canvas (7 cols) */}
         <div className="lg:col-span-7 flex flex-col gap-4">
-          <div className="rounded-3xl border border-slate-700/80 bg-slate-950 p-2 shadow-2xl">
+          <div className="rounded-3xl border-2 border-brand-100 bg-white p-2 shadow-clay">
             <AsmoThreeViewer
               key={`${currentKey}-${activeStepIndex}`}
               spec={dynamicSpec}

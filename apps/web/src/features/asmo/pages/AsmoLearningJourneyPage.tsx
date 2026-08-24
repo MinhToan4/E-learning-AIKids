@@ -488,7 +488,7 @@ export function AsmoLearningJourneyPage() {
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
                       <span className={cn('text-xs font-black truncate', isCurrent ? 'text-white' : 'text-slate-900')}>
-                        {topic.shortTitle}
+                        <AsmoFormula text={topic.shortTitle} className="truncate inline" />
                       </span>
                       <span className={cn('text-[9px] font-extrabold px-1 rounded-md shrink-0', isCurrent ? 'bg-white/20 text-indigo-100' : 'bg-slate-100 text-slate-600')}>
                         {tierBadge}
@@ -499,9 +499,9 @@ export function AsmoLearningJourneyPage() {
                         </span>
                       )}
                     </div>
-                    <p className={cn('text-[11px] truncate mt-0.5', isCurrent ? 'text-indigo-100' : 'text-slate-500')}>
-                      {topic.subtitle}
-                    </p>
+                    <div className={cn('text-[11px] truncate mt-0.5', isCurrent ? 'text-indigo-100' : 'text-slate-500')}>
+                      <AsmoFormula text={topic.subtitle} className="truncate inline" />
+                    </div>
                   </div>
                 </button>
               )
@@ -517,7 +517,7 @@ export function AsmoLearningJourneyPage() {
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="font-display text-lg font-extrabold text-slate-900">
-                {currentTopic.title}
+                <AsmoFormula text={currentTopic.title} className="inline" />
               </h2>
               <span className="rounded-md bg-indigo-50 px-2 py-0.5 text-[11px] font-bold text-indigo-700 border border-indigo-200">
                 {currentTopic.topicCode}
@@ -526,9 +526,9 @@ export function AsmoLearningJourneyPage() {
                 Lớp {currentTopic.targetGrades.join(', ')}
               </span>
             </div>
-            <p className="text-xs text-slate-600 mt-0.5">
-              {currentTopic.description}
-            </p>
+            <div className="text-xs text-slate-600 mt-0.5">
+              <AsmoFormula text={currentTopic.description} className="inline" />
+            </div>
           </div>
         </div>
 
@@ -567,7 +567,7 @@ export function AsmoLearningJourneyPage() {
           {/* TẦNG 1 (Phía trên): Biểu đồ SVG / 3D to full cột */}
           <div className="w-full">
             {currentTopic.visualMode === 'three_3d' && dynamicSpec ? (
-              <div className="rounded-3xl border border-slate-700/80 bg-slate-950 p-2 shadow-2xl">
+              <div className="rounded-3xl border-2 border-brand-100 bg-white p-2 shadow-clay">
                 <AsmoThreeViewer
                   key={`${currentTopic.id}-${currentLevel}-${activePedagogicalStep}`}
                   spec={dynamicSpec}

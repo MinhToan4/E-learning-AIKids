@@ -486,7 +486,7 @@ export function AsmoExamArenaPage() {
                   </div>
 
                   {q.renderSpec && (
-                    <div className="mb-4 rounded-3xl border border-slate-700 bg-slate-950 p-2 shadow-xl">
+                    <div className="mb-4 rounded-3xl border-2 border-brand-100 bg-white p-2 shadow-clay">
                       <AsmoThreeViewer
                         key={q.id}
                         spec={q.renderSpec}
