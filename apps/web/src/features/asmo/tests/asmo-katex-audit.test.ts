@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import katex from 'katex'
+import { KATEX_MACROS, normalizeMathFormula } from '../components/AsmoFormula'
 import { ASMO_SAMPLE_EXAMS } from '../data/asmo-sample-exams'
 
 describe('ASMO KaTeX & Exam Quality Gate Audit', () => {
@@ -37,7 +38,8 @@ describe('ASMO KaTeX & Exam Quality Gate Audit', () => {
             checkedFormulas++
             const math = m.replace(/^\$\$|\$\$$|^\$|\$$/g, '').trim()
             try {
-              katex.renderToString(math, { throwOnError: true })
+              const clean = normalizeMathFormula(math)
+              katex.renderToString(clean, { throwOnError: true, macros: KATEX_MACROS, strict: false })
             } catch (err: unknown) {
               errors.push({
                 examId: exam.id,

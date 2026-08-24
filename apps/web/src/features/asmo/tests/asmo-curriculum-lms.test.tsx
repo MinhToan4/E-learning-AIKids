@@ -607,6 +607,66 @@ describe('ASMO Multi-Level Practice Lab & Diagnostic Verification Engine', () =>
     expect(ch3Correct.feedback).toContain('10 + 10 + 5 = 25')
   })
 
+  it('accurately verifies column_add and column_sub multi-level practice challenges', () => {
+    const colAddLesson = ASMO_LMS_STAGES[0].lessons[3] // s1-column-add
+    const colSubLesson = ASMO_LMS_STAGES[0].lessons[4] // s1-column-sub
+
+    // column_add challenges
+    const addChallenges = getLessonPracticeChallenges(colAddLesson)
+    expect(addChallenges).toHaveLength(3)
+
+    // Challenge 1: 4_ + _7 = 85 -> A=8, B=3
+    const addCh1Wrong = verifyPracticeChallenge(colAddLesson, 0, { columnCarryA: 5, columnCarryB: 3 })
+    expect(addCh1Wrong.isCorrect).toBe(false)
+    const addCh1Correct = verifyPracticeChallenge(colAddLesson, 0, { columnCarryA: 8, columnCarryB: 3 })
+    expect(addCh1Correct.isCorrect).toBe(true)
+    expect(addCh1Correct.feedback).toContain('48 + 37 = 85')
+
+    // Challenge 2: 5_ + 28 = 84 -> A=6
+    const addCh2Correct = verifyPracticeChallenge(colAddLesson, 1, { columnCarryA: 6, columnCarryB: 2 })
+    expect(addCh2Correct.isCorrect).toBe(true)
+
+    // Challenge 3: _9 + 3_ = 92 -> A=5, B=3
+    const addCh3Correct = verifyPracticeChallenge(colAddLesson, 2, { columnCarryA: 5, columnCarryB: 3 })
+    expect(addCh3Correct.isCorrect).toBe(true)
+
+    // column_sub challenges
+    const subChallenges = getLessonPracticeChallenges(colSubLesson)
+    expect(subChallenges).toHaveLength(3)
+
+    // Challenge 1: 63 - 28 = 35 -> A=3, B=5
+    const subCh1Correct = verifyPracticeChallenge(colSubLesson, 0, { columnCarryA: 3, columnCarryB: 5 })
+    expect(subCh1Correct.isCorrect).toBe(true)
+    expect(subCh1Correct.feedback).toContain('63 - 28 = 35')
+
+    // Challenge 2: 72 - _7 = 35 -> A=3
+    const subCh2Correct = verifyPracticeChallenge(colSubLesson, 1, { columnCarryA: 3, columnCarryB: 7 })
+    expect(subCh2Correct.isCorrect).toBe(true)
+
+    // Challenge 3: 8_ - 47 = 34 -> A=1
+    const subCh3Correct = verifyPracticeChallenge(colSubLesson, 2, { columnCarryA: 1, columnCarryB: 4 })
+    expect(subCh3Correct.isCorrect).toBe(true)
+  })
+
+  it('renders AsmoInteractivePracticeWorkspace with Montessori Column Board for column_add and column_sub', () => {
+    const colAddLesson = ASMO_LMS_STAGES[0].lessons[3]
+    const markup = renderToStaticMarkup(
+      createElement(AsmoInteractivePracticeWorkspace, {
+        lesson: colAddLesson,
+        onCompleteAllChallenges: () => {},
+        onAdvanceToQuiz: () => {},
+      }),
+    )
+
+    expect(markup).toContain('Bảng Đặt Tính Cột Dọc Montessori Điền Ô Trống')
+    expect(markup).toContain('Phép Cộng Có Nhớ')
+    expect(markup).toContain('Hàng chục')
+    expect(markup).toContain('Đơn vị')
+    expect(markup).toContain('Chọn số cho ô')
+    expect(markup).toContain('Phép tính đang tạo:')
+    expect(markup).not.toContain('🧮</span><h3') // Ensure no fallback 🧮 header
+  })
+
   it('renders AsmoInteractivePracticeWorkspace with make10 dynamic balls and challenge step indicators', () => {
     const make10Lesson = ASMO_LMS_STAGES[0].lessons[2]
     const markup = renderToStaticMarkup(

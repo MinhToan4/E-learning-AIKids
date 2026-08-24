@@ -7,6 +7,26 @@ type Props = {
   className?: string
 }
 
+export const KATEX_MACROS: Record<string, string> = {
+  '\\square': '{\\fbox{\\vphantom{0}\\phantom{0}}}',
+  '\\Box': '{\\fbox{\\vphantom{0}\\phantom{0}}}',
+  '\\placeholder': '{\\fbox{\\vphantom{0}\\phantom{0}}}',
+  '\\bold': '\\mathbf',
+  '\\le': '\\leqslant',
+  '\\ge': '\\geqslant',
+  '\\ne': '\\neq',
+}
+
+export function normalizeMathFormula(math: string): string {
+  if (!math) return ''
+  return math
+    .replace(/□/g, '\\square')
+    .replace(/−/g, '-')
+    .replace(/×/g, '\\times ')
+    .replace(/÷/g, '\\div ')
+    .replace(/\\{2,}([a-zA-Z]+)/g, '\\$1')
+}
+
 const ALLOWED_MATH_FUNCS = new Set([
   'sin',
   'cos',
@@ -136,6 +156,10 @@ export function AsmoFormula({ text, className }: Props) {
     if (!text) return ''
 
     let input = text
+    // Replace unicode □ (U+25A1) with \square
+    input = input.replace(/□/g, '\\square')
+    // Normalize backslash: convert \\([a-zA-Z]+) or \\\\([a-zA-Z]+) to \
+    input = input.replace(/\\{2,}([a-zA-Z]+)/g, '\\$1')
 
     // 1. Transform vertical arithmetic blocks (e.g. 1 7 \n + C D \n ------ \n 8 2) into pixel-perfect grid aligned HTML
     const lines = input.split('\n')
@@ -274,24 +298,31 @@ export function AsmoFormula({ text, className }: Props) {
     // 3. Render $$block math$$ first
     let processed = input.replace(/\$\$([\s\S]+?)\$\$/g, (_, math) => {
       try {
-        return katex.renderToString(math.trim(), {
+        const clean = normalizeMathFormula(math.trim())
+        return katex.renderToString(clean, {
           displayMode: true,
           throwOnError: false,
+          strict: false,
+          macros: KATEX_MACROS,
         })
       } catch {
         return `<div class="katex-block-fallback">${math}</div>`
       }
     })
 
-    // 4. Render $inline math$
+    // 4. Render $inline math$ with No-wrap protection
     processed = processed.replace(/\$([^\$\n]+?)\$/g, (_, math) => {
       try {
-        return katex.renderToString(math.trim(), {
+        const clean = normalizeMathFormula(math.trim())
+        const rendered = katex.renderToString(clean, {
           displayMode: false,
           throwOnError: false,
+          strict: false,
+          macros: KATEX_MACROS,
         })
+        return `<span class="katex-inline-wrapper whitespace-nowrap inline-flex items-center">${rendered}</span>`
       } catch {
-        return `<span class="katex-inline-fallback">${math}</span>`
+        return `<span class="katex-inline-fallback whitespace-nowrap inline-flex items-center">${math}</span>`
       }
     })
 

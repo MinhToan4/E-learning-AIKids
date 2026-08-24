@@ -1,4 +1,5 @@
 import katex from 'katex'
+import { KATEX_MACROS, normalizeMathFormula } from '../components/AsmoFormula'
 import type { AsmoExam, AsmoQuestion, AsmoDomainType } from '../types'
 
 export type AsmoAuditSeverity = 'error' | 'warning' | 'suggestion'
@@ -183,7 +184,8 @@ export function auditFormulaAndSyntax(
       formulaCount++
 
       try {
-        katex.renderToString(math, { throwOnError: true })
+        const clean = normalizeMathFormula(math)
+        katex.renderToString(clean, { throwOnError: true, macros: KATEX_MACROS, strict: false })
       } catch (err: unknown) {
         issues.push({
           id: `${q.id}-${field}-katex-render-err`,

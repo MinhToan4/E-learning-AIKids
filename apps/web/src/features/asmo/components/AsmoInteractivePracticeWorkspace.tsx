@@ -87,6 +87,7 @@ export function AsmoInteractivePracticeWorkspace({
   const [selectedMake10, setSelectedMake10] = useState<number[]>([])
   const [columnCarryA, setColumnCarryA] = useState<number>(0)
   const [columnCarryB, setColumnCarryB] = useState<number>(0)
+  const [activeCarrySlot, setActiveCarrySlot] = useState<'A' | 'B'>('A')
   const [rectWidth, setRectWidth] = useState<number>(4)
   const [rectHeight, setRectHeight] = useState<number>(3)
   const [cubeLayersCount, setCubeLayersCount] = useState<number[]>([4, 2, 1])
@@ -151,8 +152,9 @@ export function AsmoInteractivePracticeWorkspace({
       setPairedMake10([])
       setSelectedMake10([])
     } else if (lesson.visualType === 'column_add' || lesson.visualType === 'column_sub') {
-      setColumnCarryA(typeof init.columnCarryA === 'number' ? init.columnCarryA : 5)
-      setColumnCarryB(typeof init.columnCarryB === 'number' ? init.columnCarryB : 3)
+      setColumnCarryA(typeof init.columnCarryA === 'number' ? init.columnCarryA : 0)
+      setColumnCarryB(typeof init.columnCarryB === 'number' ? init.columnCarryB : 0)
+      setActiveCarrySlot('A')
     } else if (lesson.visualType === 'perimeter_area') {
       setRectWidth(typeof init.rectWidth === 'number' ? init.rectWidth : 4)
       setRectHeight(typeof init.rectHeight === 'number' ? init.rectHeight : 3)
@@ -277,6 +279,11 @@ export function AsmoInteractivePracticeWorkspace({
     } else if (lesson.visualType === 'make10') {
       setPairedMake10([])
       setSelectedMake10([])
+    } else if (lesson.visualType === 'column_add' || lesson.visualType === 'column_sub') {
+      const init = currentChallenge?.initialState || {}
+      setColumnCarryA(typeof init.columnCarryA === 'number' ? init.columnCarryA : 0)
+      setColumnCarryB(typeof init.columnCarryB === 'number' ? init.columnCarryB : 0)
+      setActiveCarrySlot('A')
     }
   }
 
@@ -1219,7 +1226,385 @@ export function AsmoInteractivePracticeWorkspace({
           </div>
         )}
 
-        {/* ── 10. FALLBACK FOR OTHER VISUAL TYPES ── */}
+        {/* ── 10. COLUMN ARITHMETIC MANIPULATOR (BẢNG ĐẶT TÍNH CỘT DỌC MONTESSORI SOFT CLAY) ── */}
+        {(lesson.visualType === 'column_add' || lesson.visualType === 'column_sub') && (
+          <div className="w-full max-w-lg space-y-4">
+            {/* Header / Sub-title & Active Slot Guide */}
+            <div className="flex flex-wrap items-center justify-between gap-2 bg-white px-4 py-2.5 rounded-2xl border-2 border-brand-200 shadow-2xs text-xs">
+              <span className="font-black text-brand-900 flex items-center gap-1.5">
+                <span>🧮</span>
+                <span>Bảng Đặt Tính Cột Dọc Montessori Điền Ô Trống</span>
+              </span>
+              <span className="text-[11px] font-extrabold px-2.5 py-0.5 rounded-full bg-brand-50 text-brand-700 border border-brand-200">
+                {lesson.visualType === 'column_add' ? 'Phép Cộng Có Nhớ' : 'Phép Trừ Có Mượn'}
+              </span>
+            </div>
+
+            {/* Giant Montessori Calculation Board */}
+            <div
+              className={cn(
+                'p-5 sm:p-6 rounded-3xl border-2 shadow-clay flex flex-col items-center justify-center space-y-4 relative overflow-hidden transition-all',
+                lesson.visualType === 'column_add'
+                  ? 'bg-gradient-to-b from-rose-50/90 via-pink-50/50 to-amber-50/60 border-rose-200'
+                  : 'bg-gradient-to-b from-amber-50/90 via-orange-50/50 to-sun-50/60 border-amber-200',
+              )}
+            >
+              {/* Carry / Borrow Glow Indicator Badge */}
+              <div className="flex items-center justify-center min-h-6">
+                {lesson.visualType === 'column_add' ? (
+                  (currentChallengeIdx === 0 && columnCarryA + 7 >= 10) ||
+                  (currentChallengeIdx === 1 && columnCarryA + 8 >= 10) ||
+                  (currentChallengeIdx === 2 && 9 + columnCarryB >= 10) ? (
+                    <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-emerald-500 text-white font-black text-xs shadow-clay animate-bounce">
+                      ✨ Nhớ 1 sang hàng chục!
+                    </span>
+                  ) : (
+                    <span className="text-[11px] font-bold text-slate-400">
+                      💡 Chạm vào ô trống để điền chữ số 0..9
+                    </span>
+                  )
+                ) : (
+                  <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-amber-500 text-white font-black text-xs shadow-clay">
+                    💥 Mượn 1 chục ($10$) từ hàng chục
+                  </span>
+                )}
+              </div>
+
+              {/* Grid Column Calculations */}
+              <div className="font-mono flex flex-col items-center justify-center space-y-2 select-none">
+                {/* ── ROW 1 (TOP NUMBER) ── */}
+                <div className="flex items-center justify-end gap-3 w-48 sm:w-56 pr-2">
+                  {/* Tens Digit */}
+                  {lesson.visualType === 'column_add' ? (
+                    currentChallengeIdx === 2 ? (
+                      /* Challenge 3: Top tens is box A */
+                      <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-sans font-bold text-slate-400 mb-0.5">Hàng chục</span>
+                        <button
+                          type="button"
+                          onClick={() => setActiveCarrySlot('A')}
+                          className={cn(
+                            'size-14 sm:size-16 rounded-2xl flex items-center justify-center font-black text-2xl sm:text-3xl border-2 transition-all cursor-pointer shadow-clay',
+                            activeCarrySlot === 'A'
+                              ? 'bg-brand-500 text-white border-brand-600 ring-4 ring-brand-200 scale-105 animate-pulse'
+                              : 'bg-white text-brand-800 border-brand-300 hover:bg-brand-50',
+                          )}
+                        >
+                          {columnCarryA}
+                        </button>
+                      </div>
+                    ) : (
+                      /* Challenge 1: 4 | Challenge 2: 5 */
+                      <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-sans font-bold text-slate-400 mb-0.5">Hàng chục</span>
+                        <div className="size-14 sm:size-16 rounded-2xl bg-white border-2 border-slate-200 flex items-center justify-center font-black text-2xl sm:text-3xl text-slate-800 shadow-2xs">
+                          {currentChallengeIdx === 0 ? '4' : '5'}
+                        </div>
+                      </div>
+                    )
+                  ) : (
+                    /* column_sub: Challenge 1: 6 | Challenge 2: 7 | Challenge 3: 8 */
+                    <div className="flex flex-col items-center">
+                      <span className="text-[10px] font-sans font-bold text-slate-400 mb-0.5">Hàng chục</span>
+                      <div className="size-14 sm:size-16 rounded-2xl bg-white border-2 border-slate-200 flex items-center justify-center font-black text-2xl sm:text-3xl text-slate-800 shadow-2xs">
+                        {currentChallengeIdx === 0 ? '6' : currentChallengeIdx === 1 ? '7' : '8'}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Units Digit */}
+                  {lesson.visualType === 'column_add' ? (
+                    currentChallengeIdx === 2 ? (
+                      /* Challenge 3: Top unit is static 9 */
+                      <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-sans font-bold text-slate-400 mb-0.5">Đơn vị</span>
+                        <div className="size-14 sm:size-16 rounded-2xl bg-white border-2 border-slate-200 flex items-center justify-center font-black text-2xl sm:text-3xl text-slate-800 shadow-2xs">
+                          9
+                        </div>
+                      </div>
+                    ) : (
+                      /* Challenge 1 & 2: Top unit is box A */
+                      <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-sans font-bold text-slate-400 mb-0.5">Đơn vị</span>
+                        <button
+                          type="button"
+                          onClick={() => setActiveCarrySlot('A')}
+                          className={cn(
+                            'size-14 sm:size-16 rounded-2xl flex items-center justify-center font-black text-2xl sm:text-3xl border-2 transition-all cursor-pointer shadow-clay',
+                            activeCarrySlot === 'A'
+                              ? 'bg-rose-500 text-white border-rose-600 ring-4 ring-rose-200 scale-105 animate-pulse'
+                              : 'bg-white text-rose-700 border-rose-300 hover:bg-rose-50',
+                          )}
+                        >
+                          {columnCarryA}
+                        </button>
+                      </div>
+                    )
+                  ) : (
+                    /* column_sub */
+                    currentChallengeIdx === 2 ? (
+                      /* Challenge 3: Top unit is box A */
+                      <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-sans font-bold text-slate-400 mb-0.5">Đơn vị</span>
+                        <button
+                          type="button"
+                          onClick={() => setActiveCarrySlot('A')}
+                          className={cn(
+                            'size-14 sm:size-16 rounded-2xl flex items-center justify-center font-black text-2xl sm:text-3xl border-2 transition-all cursor-pointer shadow-clay',
+                            activeCarrySlot === 'A'
+                              ? 'bg-amber-500 text-white border-amber-600 ring-4 ring-amber-200 scale-105 animate-pulse'
+                              : 'bg-white text-amber-800 border-amber-300 hover:bg-amber-50',
+                          )}
+                        >
+                          {columnCarryA}
+                        </button>
+                      </div>
+                    ) : (
+                      /* Challenge 1: 3 | Challenge 2: 2 */
+                      <div className="flex flex-col items-center">
+                        <span className="text-[10px] font-sans font-bold text-slate-400 mb-0.5">Đơn vị</span>
+                        <div className="size-14 sm:size-16 rounded-2xl bg-white border-2 border-slate-200 flex items-center justify-center font-black text-2xl sm:text-3xl text-slate-800 shadow-2xs">
+                          {currentChallengeIdx === 0 ? '3' : '2'}
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+
+                {/* ── ROW 2 (OPERATOR + BOTTOM NUMBER) ── */}
+                <div className="flex items-center justify-end gap-3 w-48 sm:w-56 pr-2 relative">
+                  {/* Operator Symbol (+ or −) */}
+                  <span
+                    className={cn(
+                      'font-black text-3xl sm:text-4xl absolute -left-2 top-2',
+                      lesson.visualType === 'column_add' ? 'text-rose-500' : 'text-amber-500',
+                    )}
+                  >
+                    {lesson.visualType === 'column_add' ? '+' : '−'}
+                  </span>
+
+                  {/* Tens Digit */}
+                  {lesson.visualType === 'column_add' ? (
+                    currentChallengeIdx === 0 ? (
+                      /* Challenge 1: Bottom tens is box B */
+                      <button
+                        type="button"
+                        onClick={() => setActiveCarrySlot('B')}
+                        className={cn(
+                          'size-14 sm:size-16 rounded-2xl flex items-center justify-center font-black text-2xl sm:text-3xl border-2 transition-all cursor-pointer shadow-clay',
+                          activeCarrySlot === 'B'
+                            ? 'bg-brand-500 text-white border-brand-600 ring-4 ring-brand-200 scale-105 animate-pulse'
+                            : 'bg-white text-brand-800 border-brand-300 hover:bg-brand-50',
+                        )}
+                      >
+                        {columnCarryB}
+                      </button>
+                    ) : (
+                      /* Challenge 2: 2 | Challenge 3: 3 */
+                      <div className="size-14 sm:size-16 rounded-2xl bg-white border-2 border-slate-200 flex items-center justify-center font-black text-2xl sm:text-3xl text-slate-800 shadow-2xs">
+                        {currentChallengeIdx === 1 ? '2' : '3'}
+                      </div>
+                    )
+                  ) : (
+                    /* column_sub */
+                    currentChallengeIdx === 1 ? (
+                      /* Challenge 2: Bottom tens is box A */
+                      <button
+                        type="button"
+                        onClick={() => setActiveCarrySlot('A')}
+                        className={cn(
+                          'size-14 sm:size-16 rounded-2xl flex items-center justify-center font-black text-2xl sm:text-3xl border-2 transition-all cursor-pointer shadow-clay',
+                          activeCarrySlot === 'A'
+                            ? 'bg-amber-500 text-white border-amber-600 ring-4 ring-amber-200 scale-105 animate-pulse'
+                            : 'bg-white text-amber-800 border-amber-300 hover:bg-amber-50',
+                        )}
+                      >
+                        {columnCarryA}
+                      </button>
+                    ) : (
+                      /* Challenge 1: 2 | Challenge 3: 4 */
+                      <div className="size-14 sm:size-16 rounded-2xl bg-white border-2 border-slate-200 flex items-center justify-center font-black text-2xl sm:text-3xl text-slate-800 shadow-2xs">
+                        {currentChallengeIdx === 0 ? '2' : '4'}
+                      </div>
+                    )
+                  )}
+
+                  {/* Units Digit */}
+                  {lesson.visualType === 'column_add' ? (
+                    currentChallengeIdx === 2 ? (
+                      /* Challenge 3: Bottom unit is box B */
+                      <button
+                        type="button"
+                        onClick={() => setActiveCarrySlot('B')}
+                        className={cn(
+                          'size-14 sm:size-16 rounded-2xl flex items-center justify-center font-black text-2xl sm:text-3xl border-2 transition-all cursor-pointer shadow-clay',
+                          activeCarrySlot === 'B'
+                            ? 'bg-rose-500 text-white border-rose-600 ring-4 ring-rose-200 scale-105 animate-pulse'
+                            : 'bg-white text-rose-700 border-rose-300 hover:bg-rose-50',
+                        )}
+                      >
+                        {columnCarryB}
+                      </button>
+                    ) : (
+                      /* Challenge 1: 7 | Challenge 2: 8 */
+                      <div className="size-14 sm:size-16 rounded-2xl bg-white border-2 border-slate-200 flex items-center justify-center font-black text-2xl sm:text-3xl text-slate-800 shadow-2xs">
+                        {currentChallengeIdx === 0 ? '7' : '8'}
+                      </div>
+                    )
+                  ) : (
+                    /* column_sub: Challenge 1: 8 | Challenge 2: 7 | Challenge 3: 7 */
+                    <div className="size-14 sm:size-16 rounded-2xl bg-white border-2 border-slate-200 flex items-center justify-center font-black text-2xl sm:text-3xl text-slate-800 shadow-2xs">
+                      {currentChallengeIdx === 0 ? '8' : '7'}
+                    </div>
+                  )}
+                </div>
+
+                {/* ── ROW 3 (SOFT CLAY HORIZONTAL LINE) ── */}
+                <div className="w-52 sm:w-60 h-1.5 rounded-full bg-slate-800 my-1 shadow-xs" />
+
+                {/* ── ROW 4 (RESULT ROW) ── */}
+                <div className="flex items-center justify-end gap-3 w-48 sm:w-56 pr-2">
+                  {lesson.visualType === 'column_add' ? (
+                    /* Target Sum: 85 (C1), 84 (C2), 92 (C3) */
+                    <div className="flex items-center gap-3">
+                      <div className="size-14 sm:size-16 rounded-2xl bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center font-black text-2xl sm:text-3xl text-emerald-800 shadow-clay">
+                        {currentChallengeIdx === 0 ? '8' : currentChallengeIdx === 1 ? '8' : '9'}
+                      </div>
+                      <div className="size-14 sm:size-16 rounded-2xl bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center font-black text-2xl sm:text-3xl text-emerald-800 shadow-clay">
+                        {currentChallengeIdx === 0 ? '5' : currentChallengeIdx === 1 ? '4' : '2'}
+                      </div>
+                    </div>
+                  ) : (
+                    /* column_sub */
+                    currentChallengeIdx === 0 ? (
+                      /* Challenge 1: Result tens is box A, unit is box B */
+                      <div className="flex items-center gap-3">
+                        <button
+                          type="button"
+                          onClick={() => setActiveCarrySlot('A')}
+                          className={cn(
+                            'size-14 sm:size-16 rounded-2xl flex items-center justify-center font-black text-2xl sm:text-3xl border-2 transition-all cursor-pointer shadow-clay',
+                            activeCarrySlot === 'A'
+                              ? 'bg-amber-500 text-white border-amber-600 ring-4 ring-amber-200 scale-105 animate-pulse'
+                              : 'bg-white text-amber-800 border-amber-300 hover:bg-amber-50',
+                          )}
+                        >
+                          {columnCarryA}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setActiveCarrySlot('B')}
+                          className={cn(
+                            'size-14 sm:size-16 rounded-2xl flex items-center justify-center font-black text-2xl sm:text-3xl border-2 transition-all cursor-pointer shadow-clay',
+                            activeCarrySlot === 'B'
+                              ? 'bg-amber-500 text-white border-amber-600 ring-4 ring-amber-200 scale-105 animate-pulse'
+                              : 'bg-white text-amber-800 border-amber-300 hover:bg-amber-50',
+                          )}
+                        >
+                          {columnCarryB}
+                        </button>
+                      </div>
+                    ) : (
+                      /* Challenge 2: 35 | Challenge 3: 34 */
+                      <div className="flex items-center gap-3">
+                        <div className="size-14 sm:size-16 rounded-2xl bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center font-black text-2xl sm:text-3xl text-emerald-800 shadow-clay">
+                          3
+                        </div>
+                        <div className="size-14 sm:size-16 rounded-2xl bg-emerald-50 border-2 border-emerald-300 flex items-center justify-center font-black text-2xl sm:text-3xl text-emerald-800 shadow-clay">
+                          {currentChallengeIdx === 1 ? '5' : '4'}
+                        </div>
+                      </div>
+                    )
+                  )}
+                </div>
+              </div>
+
+              {/* Interactive Digit Stepper & Touchpad */}
+              <div className="w-full bg-white/90 p-3 rounded-2xl border border-slate-200 space-y-2 text-center">
+                <div className="flex items-center justify-between px-1 text-xs font-black text-slate-700">
+                  <span>Chọn số cho ô {activeCarrySlot === 'A' ? 'Ô [ ? ] (A)' : 'Ô [ ? ] (B)'}:</span>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (activeCarrySlot === 'A') setColumnCarryA((prev) => (prev > 0 ? prev - 1 : 9))
+                        else setColumnCarryB((prev) => (prev > 0 ? prev - 1 : 9))
+                      }}
+                      className="size-7 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-800 font-black flex items-center justify-center cursor-pointer active:scale-90"
+                    >
+                      <Minus className="size-3.5 stroke-[3]" />
+                    </button>
+                    <span className="w-6 text-center font-mono font-black text-sm text-brand-900">
+                      {activeCarrySlot === 'A' ? columnCarryA : columnCarryB}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (activeCarrySlot === 'A') setColumnCarryA((prev) => (prev < 9 ? prev + 1 : 0))
+                        else setColumnCarryB((prev) => (prev < 9 ? prev + 1 : 0))
+                      }}
+                      className="size-7 rounded-xl bg-brand-500 hover:bg-brand-600 text-white font-black flex items-center justify-center cursor-pointer active:scale-90"
+                    >
+                      <Plus className="size-3.5 stroke-[3]" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* 0..9 Quick Pick Buttons */}
+                <div className="grid grid-cols-5 sm:grid-cols-10 gap-1 sm:gap-1.5 justify-items-center">
+                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((digit) => {
+                    const currentVal = activeCarrySlot === 'A' ? columnCarryA : columnCarryB
+                    const isSelected = currentVal === digit
+
+                    return (
+                      <button
+                        key={`col-digit-${digit}`}
+                        type="button"
+                        onClick={() => {
+                          if (activeCarrySlot === 'A') setColumnCarryA(digit)
+                          else setColumnCarryB(digit)
+                        }}
+                        className={cn(
+                          'size-8 sm:size-9 rounded-xl font-mono font-black text-sm flex items-center justify-center transition-all cursor-pointer border-2 active:scale-90 select-none',
+                          isSelected
+                            ? 'bg-brand-500 text-white border-brand-600 shadow-clay scale-105'
+                            : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50',
+                        )}
+                      >
+                        {digit}
+                      </button>
+                    )
+                  })}
+                </div>
+              </div>
+            </div>
+
+            {/* Calculation Status Summary Card */}
+            <div className="w-full bg-white border-2 border-brand-100 rounded-3xl p-3.5 text-center shadow-clay space-y-1">
+              <div className="text-xs font-black text-slate-800">
+                {lesson.visualType === 'column_add' ? (
+                  currentChallengeIdx === 0 ? (
+                    <span>Phép tính đang tạo: <strong className="text-rose-600">4{columnCarryA}</strong> + <strong className="text-brand-600">{columnCarryB}7</strong> = <strong className="text-emerald-700">{40 + columnCarryA + columnCarryB * 10 + 7}</strong> (Mục tiêu: 85)</span>
+                  ) : currentChallengeIdx === 1 ? (
+                    <span>Phép tính đang tạo: <strong className="text-rose-600">5{columnCarryA}</strong> + 28 = <strong className="text-emerald-700">{50 + columnCarryA + 28}</strong> (Mục tiêu: 84)</span>
+                  ) : (
+                    <span>Phép tính đang tạo: <strong className="text-brand-600">{columnCarryA}9</strong> + <strong className="text-rose-600">3{columnCarryB}</strong> = <strong className="text-emerald-700">{columnCarryA * 10 + 9 + 30 + columnCarryB}</strong> (Mục tiêu: 92)</span>
+                  )
+                ) : (
+                  currentChallengeIdx === 0 ? (
+                    <span>Phép tính: 63 − 28 = <strong className="text-amber-700">{columnCarryA}{columnCarryB}</strong> (Mục tiêu: 35)</span>
+                  ) : currentChallengeIdx === 1 ? (
+                    <span>Phép tính: 72 − <strong className="text-amber-700">{columnCarryA}7</strong> = <strong className="text-emerald-700">{72 - (columnCarryA * 10 + 7)}</strong> (Mục tiêu: 35)</span>
+                  ) : (
+                    <span>Phép tính: <strong className="text-amber-700">8{columnCarryA}</strong> − 47 = <strong className="text-emerald-700">{80 + columnCarryA - 47}</strong> (Mục tiêu: 34)</span>
+                  )
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* ── 11. FALLBACK FOR OTHER VISUAL TYPES ── */}
         {lesson.visualType !== 'apple_drop' &&
           lesson.visualType !== 'balloon_pop' &&
           lesson.visualType !== 'cake_tray' &&
@@ -1233,6 +1618,8 @@ export function AsmoInteractivePracticeWorkspace({
           lesson.visualType !== 'elapsed_time' &&
           lesson.visualType !== 'make10' &&
           lesson.visualType !== 'balance_scale' &&
+          lesson.visualType !== 'column_add' &&
+          lesson.visualType !== 'column_sub' &&
           lesson.visualType !== 'cube_3d' && (
             <div className="w-full max-w-md space-y-4 text-center">
               <span className="text-6xl animate-bounce select-none">{lesson.icon}</span>

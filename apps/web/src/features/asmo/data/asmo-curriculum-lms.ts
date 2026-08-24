@@ -1760,6 +1760,90 @@ export function getLessonPracticeChallenges(lesson: AsmoLmsLesson): AsmoLmsPract
     ]
   }
 
+  // 8. Column Addition (Cộng Có Nhớ Cột Dọc)
+  if (visualType === 'column_add') {
+    return [
+      {
+        id: `${id}-c1`,
+        level: 1,
+        levelLabel: '🥉 Thử thách 1: Khởi động',
+        title: 'Hoàn Thành Phép Cộng $4\\square + \\square 7 = 85$',
+        instruction: 'Bé hãy tìm 2 chữ số còn thiếu trong phép tính đặt tính cột dọc: $4\\square + \\square 7 = 85$!',
+        hint: 'Hàng đơn vị: $\\square + 7 = 15 \\Rightarrow \\square = 8$ (nhớ 1). Hàng chục: $4 + \\square + 1 = 8 \\Rightarrow \\square = 3$.',
+        taskType: 'column_add_fill',
+        taskConfig: { targetA: 8, targetB: 3, expectedResult: 85 },
+        initialState: { columnCarryA: 0, columnCarryB: 0 },
+        successFeedback: 'Chính xác! $48 + 37 = 85$ với 1 nhớ sang hàng chục!',
+      },
+      {
+        id: `${id}-c2`,
+        level: 2,
+        levelLabel: '🥈 Thử thách 2: Tìm ẩn số',
+        title: 'Tìm Ẩn Số $5\\square + 28 = 84$',
+        instruction: 'Bé hãy tìm chữ số hàng đơn vị để hoàn thành phép cộng có nhớ: $5\\square + 28 = 84$!',
+        hint: 'Hàng đơn vị: $\\square + 8 = 14 \\Rightarrow \\square = 6$ (nhớ 1 sang hàng chục: $5 + 2 + 1 = 8$).',
+        taskType: 'column_add_fill',
+        taskConfig: { targetA: 6, targetB: 2, expectedResult: 84 },
+        initialState: { columnCarryA: 0, columnCarryB: 2 },
+        successFeedback: 'Tuyệt vời! $56 + 28 = 84$ rất chuẩn xác!',
+      },
+      {
+        id: `${id}-c3`,
+        level: 3,
+        levelLabel: '🥇 Thử thách 3: Thử thách IQ',
+        title: 'Thử Thách IQ: Điền Số $\\square 9 + 3\\square = 92$',
+        instruction: 'Thử thách IQ: Tìm 2 chữ số bí ẩn để phép tính $\\square 9 + 3\\square = 92$ chính xác!',
+        hint: 'Hàng đơn vị: $9 + \\square = 12 \\Rightarrow \\square = 3$ (nhớ 1). Hàng chục: $\\square + 3 + 1 = 9 \\Rightarrow \\square = 5$.',
+        taskType: 'column_add_fill',
+        taskConfig: { targetA: 5, targetB: 3, expectedResult: 92 },
+        initialState: { columnCarryA: 0, columnCarryB: 0 },
+        successFeedback: 'Đỉnh cao Olympic! $59 + 33 = 92$ hoàn hảo!',
+      },
+    ]
+  }
+
+  // 9. Column Subtraction (Trừ Có Mượn Cột Dọc)
+  if (visualType === 'column_sub') {
+    return [
+      {
+        id: `${id}-c1`,
+        level: 1,
+        levelLabel: '🥉 Thử thách 1: Khởi động',
+        title: 'Đặt Tính Phép Trừ $63 - 28 = 35$',
+        instruction: 'Bé hãy thực hiện phép trừ có mượn: $63 - 28 = ?$ (mượn 1 chục thành 13 đơn vị).',
+        hint: '$13 - 8 = 5$, hàng chục bớt 1 còn $5 - 2 = 3$. Kết quả là 35.',
+        taskType: 'column_sub_fill',
+        taskConfig: { targetA: 3, targetB: 5, expectedResult: 35 },
+        initialState: { columnCarryA: 0, columnCarryB: 0 },
+        successFeedback: 'Rất chuẩn xác! $63 - 28 = 35$ ($13 - 8 = 5$ nhớ 1; $6 - 2 - 1 = 3$).',
+      },
+      {
+        id: `${id}-c2`,
+        level: 2,
+        levelLabel: '🥈 Thử thách 2: Tìm ẩn số',
+        title: 'Tìm Ẩn Số $72 - \\square 7 = 35$',
+        instruction: 'Bé hãy tìm chữ số hàng chục của số trừ để phép tính $72 - \\square 7 = 35$ đúng!',
+        hint: '$12 - 7 = 5$. Hàng chục $7$ bớt $1$ còn $6$, $6 - \\square = 3 \\Rightarrow \\square = 3$.',
+        taskType: 'column_sub_fill',
+        taskConfig: { targetA: 3, targetB: 7, expectedResult: 35 },
+        initialState: { columnCarryA: 0, columnCarryB: 7 },
+        successFeedback: 'Xuất sắc! $72 - 37 = 35$ chính xác!',
+      },
+      {
+        id: `${id}-c3`,
+        level: 3,
+        levelLabel: '🥇 Thử thách 3: Thử thách IQ',
+        title: 'Thử Thách IQ: Điền Số $8\\square - 47 = 34$',
+        instruction: 'Thử thách IQ: Tìm chữ số hàng đơn vị của số bị trừ để $8\\square - 47 = 34$!',
+        hint: 'Hàng đơn vị: mượn 1 chục thành $1\\square - 7 = 4 \\Rightarrow 1\\square = 11 \\Rightarrow \\square = 1$. Hàng chục: $7 - 4 = 3$.',
+        taskType: 'column_sub_fill',
+        taskConfig: { targetA: 1, targetB: 4, expectedResult: 34 },
+        initialState: { columnCarryA: 0, columnCarryB: 4 },
+        successFeedback: 'Đỉnh cao Olympic! $81 - 47 = 34$ cực kỳ thông minh!',
+      },
+    ]
+  }
+
   // Generic fallback for any other visual types
   return [
     {
@@ -2079,6 +2163,66 @@ export function verifyPracticeChallenge(
         return { isCorrect: true, feedback: 'Đỉnh cao! 2 quả Dưa thăng bằng với 8 quả Táo!' }
       }
       return { isCorrect: false, feedback: `Bé hãy chỉnh đĩa phải có 8 quả táo nhé!` }
+    }
+  }
+
+  // 8. Column Addition (Cộng Có Nhớ Cột Dọc)
+  if (lesson.visualType === 'column_add') {
+    const carryA = typeof state.columnCarryA === 'number' ? state.columnCarryA : 0
+    const carryB = typeof state.columnCarryB === 'number' ? state.columnCarryB : 0
+
+    if (challengeIndex === 0) {
+      if (carryA === 8 && carryB === 3) {
+        return { isCorrect: true, feedback: 'Chính xác! $48 + 37 = 85$ với 1 nhớ sang hàng chục!' }
+      }
+      if (carryA !== 8) {
+        return { isCorrect: false, feedback: `Hàng đơn vị: $\\square + 7 = 15$ nên ô trống thứ nhất phải là 8 (hiện đang là ${carryA})!` }
+      }
+      return { isCorrect: false, feedback: `Hàng chục: $4 + \\square + 1\\text{ (nhớ)} = 8$ nên ô trống thứ hai phải là 3 (hiện đang là ${carryB})!` }
+    }
+
+    if (challengeIndex === 1) {
+      if (carryA === 6) {
+        return { isCorrect: true, feedback: 'Tuyệt vời! $56 + 28 = 84$ rất chuẩn xác!' }
+      }
+      return { isCorrect: false, feedback: `Hàng đơn vị: $\\square + 8 = 14$ nên ô trống phải là 6 (hiện đang là ${carryA})!` }
+    }
+
+    if (challengeIndex === 2) {
+      if (carryA === 5 && carryB === 3) {
+        return { isCorrect: true, feedback: 'Đỉnh cao Olympic! $59 + 33 = 92$ hoàn hảo!' }
+      }
+      if (carryB !== 3) {
+        return { isCorrect: false, feedback: `Hàng đơn vị: $9 + \\square = 12$ nên ô trống thứ hai phải là 3 (hiện đang là ${carryB})!` }
+      }
+      return { isCorrect: false, feedback: `Hàng chục: $\\square + 3 + 1\\text{ (nhớ)} = 9$ nên ô trống thứ nhất phải là 5 (hiện đang là ${carryA})!` }
+    }
+  }
+
+  // 9. Column Subtraction (Trừ Có Mượn Cột Dọc)
+  if (lesson.visualType === 'column_sub') {
+    const carryA = typeof state.columnCarryA === 'number' ? state.columnCarryA : 0
+    const carryB = typeof state.columnCarryB === 'number' ? state.columnCarryB : 0
+
+    if (challengeIndex === 0) {
+      if (carryA === 3 && carryB === 5) {
+        return { isCorrect: true, feedback: 'Rất chuẩn xác! $63 - 28 = 35$ ($13 - 8 = 5$ nhớ 1; $6 - 2 - 1 = 3$).' }
+      }
+      return { isCorrect: false, feedback: `Bé hãy tính kết quả $63 - 28$: Hàng chục là 3 và Hàng đơn vị là 5 nhé!` }
+    }
+
+    if (challengeIndex === 1) {
+      if (carryA === 3) {
+        return { isCorrect: true, feedback: 'Xuất sắc! $72 - 37 = 35$ chính xác!' }
+      }
+      return { isCorrect: false, feedback: `Hàng chục: $7$ bớt 1 mượn còn $6$, $6 - \\square = 3 \\Rightarrow \\square = 3$ (hiện đang là ${carryA})!` }
+    }
+
+    if (challengeIndex === 2) {
+      if (carryA === 1) {
+        return { isCorrect: true, feedback: 'Đỉnh cao Olympic! $81 - 47 = 34$ cực kỳ thông minh!' }
+      }
+      return { isCorrect: false, feedback: `Hàng đơn vị mượn 1 chục: $1\\square - 7 = 4 \\Rightarrow \\square = 1$ (hiện đang là ${carryA})!` }
     }
   }
 
