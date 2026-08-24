@@ -347,9 +347,9 @@ export const ASMO_3D_TEMPLATES: Record<AsmoTemplateKey, Asmo3DTemplateConfig> = 
       faces: [
         { id: 1, pos: [0, 0.5, 0], color: 0x4f46e5, label: '1' },
         { id: 2, pos: [1, 0.5, 0], color: 0x06b6d4, label: '2' },
-        { id: 3, pos: [-1, 0.5, 0], color: 0x06b6d4, label: '3' },
+        { id: 3, pos: [-1, 0.5, 0], color: 0xec4899, label: '3' },
         { id: 4, pos: [0, 1.5, 0], color: 0x10b981, label: '4' },
-        { id: 5, pos: [0, -0.5, 0], color: 0x10b981, label: '5' },
+        { id: 5, pos: [0, -0.5, 0], color: 0x059669, label: '5' },
         { id: 6, pos: [0, -1.5, 0], color: 0xf59e0b, label: '6' },
       ],
     },

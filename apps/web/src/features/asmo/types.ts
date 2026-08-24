@@ -52,6 +52,13 @@ export type AsmoVisualSpec = {
   fractionTotal?: number
   fractionShaded?: number
   matchCount?: number
+  foldProgress?: number
+  selectedFacePair?: string
+  activeWing?: number | 'all'
+  eatenSlices?: number
+  balanceStep?: number
+  isTilting?: boolean
+  selectedLayer?: number
 }
 
 export type AsmoExplanationStep = {

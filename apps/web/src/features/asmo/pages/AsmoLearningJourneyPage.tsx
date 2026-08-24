@@ -283,12 +283,18 @@ export function AsmoLearningJourneyPage() {
 
   // Dynamic visual spec for 3D Viewer if applicable
   const templateConfig = currentTopic.threeTemplateKey ? ASMO_3D_TEMPLATES[currentTopic.threeTemplateKey] : null
-  const dynamicSpec: AsmoVisualSpec | null = templateConfig
-    ? {
-        ...templateConfig.renderSpec,
-        explanationStep: activePedagogicalStep - 1,
-      }
-    : null
+  const dynamicSpec: AsmoVisualSpec | null = useMemo(() => {
+    if (currentTopic.visualMode !== 'three_3d') return null
+    const baseSpec =
+      currentLevelData.dynamicVisualSpec ||
+      currentProblem.renderSpec ||
+      (templateConfig ? templateConfig.renderSpec : null)
+    if (!baseSpec) return null
+    return {
+      ...baseSpec,
+      explanationStep: activePedagogicalStep - 1,
+    }
+  }, [currentTopic, currentLevelData, currentProblem, templateConfig, activePedagogicalStep])
 
   return (
     <div className="mx-auto w-full max-w-7xl space-y-6 p-4 sm:p-6 lg:p-8">
@@ -573,6 +579,11 @@ export function AsmoLearningJourneyPage() {
                   spec={dynamicSpec}
                   height={400}
                   interactive
+                  onStepChange={(stepIdx) => {
+                    if (stepIdx >= 0 && stepIdx < 3) {
+                      setActivePedagogicalStep((stepIdx + 1) as 1 | 2 | 3)
+                    }
+                  }}
                 />
               </div>
             ) : (
