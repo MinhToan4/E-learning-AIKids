@@ -24,6 +24,7 @@ import type { AsmoSubject, AsmoVisualSpec } from '../types'
 import { AsmoThreeViewer } from '../components/AsmoThreeViewer'
 import { AsmoMathVisualizer } from '../components/AsmoMathVisualizer'
 import { AsmoFormula } from '../components/AsmoFormula'
+import { FlatClayIcon } from '../components/AsmoFlatClayIcons'
 import { AsmoMeeTutor } from '../components/AsmoMeeTutor'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
@@ -378,7 +379,7 @@ export function AsmoLearningJourneyPage() {
                       : 'bg-slate-100 hover:bg-slate-200 text-slate-700',
                   )}
                 >
-                  <span>{subj.icon}</span>
+                  <FlatClayIcon name={subj.icon} size={16} />
                   <span>{subj.name}</span>
                 </button>
               )
@@ -445,7 +446,7 @@ export function AsmoLearningJourneyPage() {
                       : 'bg-slate-50 hover:bg-indigo-50/60 text-slate-700 border-slate-200/80',
                   )}
                 >
-                  <span className="text-sm">{group.icon}</span>
+                  <FlatClayIcon name={group.icon} size={16} />
                   <span className="font-extrabold">{group.shortLabel}</span>
                   <span className={cn('text-[10px] px-1.5 py-0.2 rounded-md font-mono', isGroupActive ? 'bg-white/20 text-indigo-100' : 'bg-slate-200/70 text-slate-600')}>
                     {group.grades}
@@ -483,7 +484,7 @@ export function AsmoLearningJourneyPage() {
                       : 'bg-white hover:bg-indigo-50/60 border-slate-200/80 text-slate-800 shadow-2xs',
                   )}
                 >
-                  <span className="text-2xl shrink-0">{topic.icon}</span>
+                  <FlatClayIcon name={topic.icon} size={28} className="shrink-0" />
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
                       <span className={cn('text-xs font-black truncate', isCurrent ? 'text-white' : 'text-slate-900')}>
@@ -512,7 +513,7 @@ export function AsmoLearningJourneyPage() {
       {/* ── ACTIVE TOPIC HEADER INFO ── */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/80 p-4 rounded-2xl border border-slate-200">
         <div className="flex items-center gap-3">
-          <span className="text-3xl">{currentTopic.icon}</span>
+          <FlatClayIcon name={currentTopic.icon} size={36} className="shrink-0" />
           <div>
             <div className="flex items-center gap-2 flex-wrap">
               <h2 className="font-display text-lg font-extrabold text-slate-900">

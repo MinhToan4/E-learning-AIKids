@@ -31,6 +31,7 @@ import { AsmoInteractiveAppleTreeCanvas } from './AsmoInteractiveAppleTreeCanvas
 import { AikidCatCharacter, type AikidCatPose } from '@/shared/components/ui/AikidCatCharacter'
 import { renderClockSvg, renderBalanceScaleSvg } from './AsmoDiagramEngine'
 import {
+  FlatClayIcon,
   FlatClayBalloon,
   FlatClayPopBurst,
   FlatClayCupcake,
@@ -1624,7 +1625,7 @@ export function AsmoInteractivePracticeWorkspace({
           lesson.visualType !== 'column_sub' &&
           lesson.visualType !== 'cube_3d' && (
             <div className="w-full max-w-md space-y-4 text-center">
-              <span className="text-6xl animate-bounce select-none">{lesson.icon}</span>
+              <FlatClayIcon name={lesson.icon} size={56} className="animate-bounce select-none mx-auto" />
               <h3 className="text-base font-extrabold text-slate-800">
                 <AsmoFormula text={lesson.theory.title} className="inline" />
               </h3>

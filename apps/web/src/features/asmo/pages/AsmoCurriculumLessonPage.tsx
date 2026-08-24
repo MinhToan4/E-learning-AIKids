@@ -39,6 +39,7 @@ import { AsmoInteractivePracticeWorkspace } from '../components/AsmoInteractiveP
 import { AsmoVisualSecretComicCard } from '../components/AsmoVisualSecretComicCard'
 import { renderClockSvg, renderBalanceScaleSvg, renderMatchstickFigureSvg } from '../components/AsmoDiagramEngine'
 import {
+  FlatClayIcon,
   FlatClayBalloon,
   FlatClayPopBurst,
   FlatClayCupcake,
@@ -2218,7 +2219,7 @@ export function AsmoCurriculumLessonPage() {
                   lesson.visualType !== 'matchstick' &&
                   lesson.visualType !== 'olympic_arena' && (
                     <div className="text-center space-y-3 p-4">
-                      <span className="text-5xl select-none">{lesson.icon}</span>
+                      <FlatClayIcon name={lesson.icon} size={56} className="select-none mx-auto" />
                       <h3 className="text-base font-extrabold text-slate-800">
                         <AsmoFormula text={lesson.theory.title} className="inline" />
                       </h3>

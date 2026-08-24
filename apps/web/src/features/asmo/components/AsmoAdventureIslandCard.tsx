@@ -22,6 +22,7 @@ import {
 } from '../data/asmo-curriculum-lms'
 import { ASMO_ISLAND_THEMES, type AsmoIslandTheme } from './AsmoIslandWorldMap'
 import { AsmoFormula } from './AsmoFormula'
+import { FlatClayIcon, FlatClayStar, FlatClayZap, FlatClayTrophy } from './AsmoFlatClayIcons'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { KidLockImageIcon } from '@/shared/components/icons/KidImageIcons'
 import { Button } from '@/shared/components/ui/Button'
@@ -400,9 +401,9 @@ export function AsmoAdventureIslandCard({
           </div>
 
           <div className="flex items-center gap-3 text-xs font-bold text-slate-600">
-            <span className="flex items-center gap-1 text-amber-700 bg-amber-100/80 px-2.5 py-0.5 rounded-full border border-amber-200/80">
-              <Star className="size-3.5 text-amber-500 fill-amber-500" />
-              <span>{stats.totalStars}/{stats.maxStars} ⭐</span>
+            <span className="flex items-center gap-1.5 text-amber-700 bg-amber-100/80 px-2.5 py-0.5 rounded-full border border-amber-200/80">
+              <FlatClayStar size={14} />
+              <span>{stats.totalStars}/{stats.maxStars} Sao</span>
             </span>
             <span className="flex items-center gap-1 text-sky-800 bg-sky-100/80 px-2.5 py-0.5 rounded-full border border-sky-200/80">
               <Zap className="size-3.5 text-sky-500 fill-sky-500" />
@@ -414,10 +415,18 @@ export function AsmoAdventureIslandCard({
         {/* Wavy Trail Stepping Stone Canvas */}
         <div className="relative rounded-[2rem] bg-gradient-to-b from-white/95 via-slate-50/90 to-white/95 border-2 border-slate-200/90 p-5 sm:p-7 shadow-inner overflow-x-auto select-none">
           {/* Subtle Background Floating Cute Decors */}
-          <div className="absolute top-3 left-6 text-base opacity-40 pointer-events-none select-none">🌸</div>
-          <div className="absolute top-4 right-16 text-base opacity-40 pointer-events-none select-none">🍄</div>
-          <div className="absolute bottom-4 left-1/4 text-base opacity-35 pointer-events-none select-none">🍀</div>
-          <div className="absolute bottom-3 right-1/3 text-base opacity-35 pointer-events-none select-none">✨</div>
+          <div className="absolute top-3 left-6 text-base opacity-40 pointer-events-none select-none">
+            <FlatClayIcon name="sparkles" size={18} />
+          </div>
+          <div className="absolute top-4 right-16 text-base opacity-40 pointer-events-none select-none">
+            <FlatClayIcon name="star" size={18} />
+          </div>
+          <div className="absolute bottom-4 left-1/4 text-base opacity-35 pointer-events-none select-none">
+            <FlatClayIcon name="sparkles" size={16} />
+          </div>
+          <div className="absolute bottom-3 right-1/3 text-base opacity-35 pointer-events-none select-none">
+            <FlatClayIcon name="star" size={16} />
+          </div>
 
           {/* Stepping Trail Nodes Row with Wavy Vertical Offsets */}
           <div className="min-w-[680px] sm:min-w-[760px] flex items-center justify-between gap-1 relative z-10 py-6">
@@ -459,9 +468,9 @@ export function AsmoAdventureIslandCard({
                       {/* Top Crown with 3 Stars for Completed Stations */}
                       {isCompleted && (
                         <div className="absolute -top-3.5 left-1/2 -translate-x-1/2 flex items-center gap-0.5 bg-gradient-to-r from-amber-300 to-yellow-400 text-amber-950 px-2 py-0.5 rounded-full text-[9px] font-black shadow-xs border border-amber-200 z-10 animate-pop whitespace-nowrap">
-                          <span>⭐</span>
-                          <span>⭐</span>
-                          <span>⭐</span>
+                          <FlatClayStar size={10} />
+                          <FlatClayStar size={10} />
+                          <FlatClayStar size={10} />
                         </div>
                       )}
 
@@ -488,15 +497,15 @@ export function AsmoAdventureIslandCard({
                         {lesson.lessonNumber}
                       </span>
 
-                      {/* Center 3D Icon or Cute Lock */}
+                      {/* Center 3D Flat Clay Icon or Cute Lock */}
                       {!isUnlocked ? (
                         <div className="text-slate-400">
                           <KidLockImageIcon size={26} />
                         </div>
                       ) : (
-                        <span className="text-2xl sm:text-3xl select-none group-hover/station:scale-110 transition-transform">
-                          {meta.icon}
-                        </span>
+                        <div className="select-none group-hover/station:scale-110 transition-transform">
+                          <FlatClayIcon name={meta.icon} size={34} />
+                        </div>
                       )}
 
                       {/* Status Badges */}

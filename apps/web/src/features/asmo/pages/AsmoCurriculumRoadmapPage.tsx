@@ -21,6 +21,7 @@ import {
   resetLmsProgress,
 } from '../data/asmo-curriculum-lms'
 import { AsmoIslandWorldMap } from '../components/AsmoIslandWorldMap'
+import { FlatClayStar, FlatClayZap, FlatClayIcon, FlatClayTrophy } from '../components/AsmoFlatClayIcons'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 
 export function AsmoCurriculumRoadmapPage() {
@@ -93,12 +94,12 @@ export function AsmoCurriculumRoadmapPage() {
         {/* Global Progress Header Badges */}
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           <div className="flex items-center gap-1.5 rounded-2xl bg-amber-50 border border-amber-200 px-3.5 py-1.5 text-xs font-black text-amber-800 shadow-2xs">
-            <Star className="size-4 text-amber-500 fill-amber-500" />
-            <span>{progress.totalStars} / {totalPossibleStars} Sao ⭐</span>
+            <FlatClayStar size={16} />
+            <span>{progress.totalStars} / {totalPossibleStars} Sao</span>
           </div>
 
           <div className="flex items-center gap-1.5 rounded-2xl bg-sky-50 border border-sky-200 px-3.5 py-1.5 text-xs font-black text-sky-800 shadow-2xs">
-            <Zap className="size-4 text-sky-500 fill-sky-500" />
+            <FlatClayZap size={16} />
             <span>{progress.totalXp} XP</span>
           </div>
 

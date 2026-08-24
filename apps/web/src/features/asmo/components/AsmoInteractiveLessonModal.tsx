@@ -27,6 +27,7 @@ import {
   ASMO_LMS_STAGES,
 } from '../data/asmo-curriculum-lms'
 import { AsmoFormula } from './AsmoFormula'
+import { FlatClayIcon } from './AsmoFlatClayIcons'
 import { AsmoInteractiveAppleTreeCanvas } from './AsmoInteractiveAppleTreeCanvas'
 import { AsmoInteractivePracticeWorkspace } from './AsmoInteractivePracticeWorkspace'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -164,7 +165,7 @@ export function AsmoInteractiveLessonModal({
         {/* ── MODAL HEADER ── */}
         <div className="flex items-center justify-between px-5 py-3.5 border-b border-white/10 bg-slate-950/60 shrink-0">
           <div className="flex items-center gap-3">
-            <span className="text-2xl sm:text-3xl select-none">{lesson.icon}</span>
+            <FlatClayIcon name={lesson.icon} size={32} />
             <div>
               <div className="flex items-center gap-2">
                 <span className="rounded-md bg-indigo-500/30 px-2 py-0.5 text-[10px] font-black text-indigo-300 border border-indigo-400/40">
@@ -562,7 +563,7 @@ export function AsmoInteractiveLessonModal({
                   lesson.visualType !== 'elapsed_time' &&
                   lesson.visualType !== 'balance_scale' && (
                     <div className="text-center space-y-2">
-                      <span className="text-5xl">{lesson.icon}</span>
+                      <FlatClayIcon name={lesson.icon} size={56} className="mx-auto" />
                       <div className="text-xs text-indigo-200 font-medium">
                         <AsmoFormula text={lesson.theory.visualHint || 'Quan sát mô hình trực quan chuẩn sư phạm ASMO'} />
                       </div>

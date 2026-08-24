@@ -22,6 +22,7 @@ import {
   getStageStats,
 } from '../data/asmo-curriculum-lms'
 import { AsmoFormula } from './AsmoFormula'
+import { FlatClayIcon, FlatClayStar, FlatClayZap, FlatClayTrophy } from './AsmoFlatClayIcons'
 import { AikidCatCharacter, type AikidCatPose } from '@/shared/components/ui/AikidCatCharacter'
 import { CuteProgress } from '@/shared/components/ui/CuteProgress'
 import { KidLockImageIcon } from '@/shared/components/icons/KidImageIcons'
@@ -500,7 +501,7 @@ export function AsmoIslandWorldMap({
                     : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 hover:border-mint-200',
                 )}
               >
-                <span className="text-base select-none shrink-0">{theme.heroEmoji}</span>
+                <FlatClayIcon name={theme.heroEmoji} size={20} className="shrink-0" />
                 <span className="whitespace-nowrap">{ASMO_ISLAND_SHORT_NAMES[stg.id] || `Đảo ${stg.stageNumber}`}</span>
 
                 {stats.isCompleted ? (
@@ -510,8 +511,9 @@ export function AsmoIslandWorldMap({
                 ) : isLocked ? (
                   <span className="shrink-0"><KidLockImageIcon size={14} /></span>
                 ) : (
-                  <span className="text-[10px] text-amber-500 font-black shrink-0">
-                    {stats.totalStars}⭐
+                  <span className="inline-flex items-center gap-0.5 text-[10px] text-amber-500 font-black shrink-0">
+                    <FlatClayStar size={11} />
+                    <span>{stats.totalStars}</span>
                   </span>
                 )}
               </button>

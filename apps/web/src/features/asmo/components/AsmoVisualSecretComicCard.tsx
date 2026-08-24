@@ -17,6 +17,7 @@ import type { AsmoLmsLesson, AsmoLmsStage } from '../data/asmo-curriculum-lms'
 import { AsmoFormula } from './AsmoFormula'
 import { speakVietnamese } from './AsmoInteractiveAppleTreeCanvas'
 import {
+  FlatClayIcon,
   FlatClayBalloon,
   FlatClayPopBurst,
   FlatClayCupcake,
@@ -26,6 +27,15 @@ import {
   FlatClayCube,
   FlatClayRedApple,
   FlatClayGreenApple,
+  FlatClayClock,
+  FlatClayScale,
+  FlatClayCubeNet,
+  FlatClayMatchstick,
+  FlatClayCompass,
+  FlatClayColumnCalc,
+  FlatClayTrophy,
+  FlatClayStar,
+  FlatClayZap,
 } from './AsmoFlatClayIcons'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { Button } from '@/shared/components/ui/Button'
@@ -749,6 +759,10 @@ function renderVisualSecretDiagram(lesson: AsmoLmsLesson): React.JSX.Element {
             </span>
 
             <div className="flex flex-wrap items-center justify-center gap-4 py-2">
+              <div className="flex flex-col items-center">
+                <FlatClayColumnCalc size={72} />
+              </div>
+
               <div className="bg-white rounded-2xl p-4 border-2 border-amber-200 shadow-sm space-y-1 text-center min-w-[140px]">
                 <span className="text-xs font-black text-orange-600 block">1. Cột Đơn Vị</span>
                 <p className="text-sm font-bold text-slate-700">Cộng/Trừ hàng đơn vị trước</p>
@@ -780,6 +794,10 @@ function renderVisualSecretDiagram(lesson: AsmoLmsLesson): React.JSX.Element {
               ⏰ Bí Kíp Đọc Đồng Hồ Kim & Khoảng Thời Gian
             </span>
 
+            <div className="flex justify-center py-2">
+              <FlatClayClock size={80} hours={3} minutes={0} />
+            </div>
+
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-center">
               <div className="bg-white rounded-2xl p-4 border-2 border-sky-200 shadow-sm space-y-1.5">
                 <span className="text-xs font-black text-rose-600 block">🔴 Kim Ngắn (Chỉ Giờ)</span>
@@ -799,13 +817,64 @@ function renderVisualSecretDiagram(lesson: AsmoLmsLesson): React.JSX.Element {
         </div>
       )
 
+    case 'grid_maze':
+      return (
+        <div className="space-y-5">
+          <div className="rounded-3xl bg-gradient-to-r from-sky-50 to-indigo-50 border-3 border-sky-200 p-5 text-center space-y-4 shadow-clay">
+            <span className="inline-block px-4 py-1 rounded-full bg-sky-600 text-white text-xs font-black shadow-2xs">
+              🧭 Bí Kíp Mê Cung Toạ Độ & Hướng Đi
+            </span>
+            <div className="flex justify-center py-2">
+              <FlatClayCompass size={80} />
+            </div>
+            <p className="text-xs font-bold text-slate-700">
+              Nhận diện 4 hướng Bắc (N) - Đông (E) - Nam (S) - Tây (W) và đếm bước đi theo lưới ô vuông!
+            </p>
+          </div>
+        </div>
+      )
+
+    case 'matchstick':
+      return (
+        <div className="space-y-5">
+          <div className="rounded-3xl bg-gradient-to-r from-amber-50 to-rose-50 border-3 border-amber-200 p-5 text-center space-y-4 shadow-clay">
+            <span className="inline-block px-4 py-1 rounded-full bg-rose-500 text-white text-xs font-black shadow-2xs">
+              🥢 Bí Kíp Xếp Que Diêm Hình Học
+            </span>
+            <div className="flex justify-center items-center gap-3 py-2">
+              <FlatClayMatchstick size={64} />
+              <FlatClayMatchstick size={64} />
+              <FlatClayMatchstick size={64} />
+              <FlatClayMatchstick size={64} />
+            </div>
+            <p className="text-xs font-bold text-slate-700">
+              4 que diêm tạo thành 1 hình vuông! Để tạo 2 hình vuông liền kề chỉ cần 7 que diêm (dùng chung 1 cạnh)!
+            </p>
+          </div>
+        </div>
+      )
+
+    case 'olympic_arena':
+      return (
+        <div className="space-y-5">
+          <div className="rounded-3xl bg-gradient-to-r from-amber-50 via-sun-50 to-orange-50 border-3 border-amber-300 p-5 text-center space-y-4 shadow-clay">
+            <span className="inline-block px-4 py-1 rounded-full bg-amber-500 text-white text-xs font-black shadow-2xs">
+              🏆 Đấu Trường Olympic ASMO
+            </span>
+            <div className="flex justify-center py-2">
+              <FlatClayTrophy size={80} />
+            </div>
+            <p className="text-xs sm:text-sm font-bold text-slate-800 max-w-md mx-auto">
+              Chinh phục đề thi Olympic với tư duy logic sắc bén, trình bày chặt chẽ và nhẩm nhanh siêu tốc cùng Mèo Mee!
+            </p>
+          </div>
+        </div>
+      )
+
     case 'times_table_25':
     case 'times_table_69':
     case 'div_remainder':
     case 'perimeter_area':
-    case 'grid_maze':
-    case 'matchstick':
-    case 'olympic_arena':
     default:
       return (
         <div className="space-y-5">
@@ -813,6 +882,10 @@ function renderVisualSecretDiagram(lesson: AsmoLmsLesson): React.JSX.Element {
             <span className="inline-block px-4 py-1 rounded-full bg-amber-500 text-white text-xs font-black shadow-2xs">
               🌟 Bí Kíp Olympic Trọng Tâm
             </span>
+
+            <div className="flex justify-center py-2">
+              <FlatClayIcon name={lesson.icon} size={64} />
+            </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-left">
               <div className="bg-white rounded-2xl p-3.5 border-2 border-amber-200 shadow-sm space-y-1">
@@ -826,7 +899,7 @@ function renderVisualSecretDiagram(lesson: AsmoLmsLesson): React.JSX.Element {
 
               <div className="bg-white rounded-2xl p-3.5 border-2 border-amber-200 shadow-sm space-y-1">
                 <span className="text-xs font-black text-amber-700 flex items-center gap-1">
-                  <Zap className="size-3.5" /> 2. Áp Dụng Mẹo Mee
+                  <FlatClayZap size={14} /> 2. Áp Dụng Mẹo Mee
                 </span>
                 <p className="text-xs font-semibold text-slate-700 leading-relaxed">
                   Dùng câu thần chú tính nhanh để biến phép tính phức tạp thành đơn giản.
@@ -835,7 +908,7 @@ function renderVisualSecretDiagram(lesson: AsmoLmsLesson): React.JSX.Element {
 
               <div className="bg-white rounded-2xl p-3.5 border-2 border-amber-200 shadow-sm space-y-1">
                 <span className="text-xs font-black text-amber-700 flex items-center gap-1">
-                  <Trophy className="size-3.5" /> 3. Kiểm Tra Lại
+                  <FlatClayStar size={14} /> 3. Kiểm Tra Lại
                 </span>
                 <p className="text-xs font-semibold text-slate-700 leading-relaxed">
                   Thử tính ngược hoặc đối chiếu đáp án để đạt trọn vẹn 3 Sao Olympic!

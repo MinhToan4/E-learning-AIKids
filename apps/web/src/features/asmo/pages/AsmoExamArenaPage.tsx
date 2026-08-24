@@ -22,6 +22,7 @@ import { AsmoExamTimer } from '../components/AsmoExamTimer'
 import { AsmoMeeTutor } from '../components/AsmoMeeTutor'
 import { AsmoExamAuditModal } from '../components/AsmoExamAuditModal'
 import { AsmoFormula } from '../components/AsmoFormula'
+import { FlatClayTrophy, FlatClayMedal, FlatClayStar, FlatClayZap } from '../components/AsmoFlatClayIcons'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
@@ -375,8 +376,8 @@ export function AsmoExamArenaPage() {
             )}
           >
             <div className="relative z-10 max-w-xl mx-auto flex flex-col items-center">
-              <div className="flex size-20 items-center justify-center rounded-3xl bg-white/20 shadow-inner backdrop-blur-md mb-4">
-                <Trophy className="size-10 text-sun-300 animate-bounce" />
+              <div className="flex size-22 items-center justify-center rounded-3xl bg-white/20 shadow-inner backdrop-blur-md mb-4 animate-bounce">
+                <FlatClayTrophy size={60} />
               </div>
 
               <span className="inline-flex items-center gap-1 rounded-full bg-white/20 px-3.5 py-1 text-xs font-extrabold uppercase tracking-wider backdrop-blur-md">

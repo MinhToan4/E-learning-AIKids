@@ -37,6 +37,7 @@ import type { AsmoExam, AsmoGrade, AsmoSubject } from '../types'
 import { AsmoMeeTutor } from '../components/AsmoMeeTutor'
 import { AsmoIslandWorldMap } from '../components/AsmoIslandWorldMap'
 import { AsmoFormula } from '../components/AsmoFormula'
+import { FlatClayIcon } from '../components/AsmoFlatClayIcons'
 import { AsmoExamAuditModal } from '../components/AsmoExamAuditModal'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { Button } from '@/shared/components/ui/Button'
@@ -836,7 +837,7 @@ export function AsmoHubPage() {
                 >
                   <div>
                     <div className="flex items-center gap-2 mb-2">
-                      <span className="text-xl">{topic.icon}</span>
+                      <FlatClayIcon name={topic.icon} size={24} className="shrink-0" />
                       <span className="rounded-md bg-purple-100 text-purple-800 text-[10px] font-black px-2 py-0.5">
                         {topic.topicCode}
                       </span>

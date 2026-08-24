@@ -13,6 +13,7 @@ import { ASMO_3D_TEMPLATES } from '../data/asmo-3d-templates'
 import type { AsmoTemplateKey, AsmoVisualSpec } from '../types'
 import { AsmoThreeViewer } from '../components/AsmoThreeViewer'
 import { AsmoQuestionCard } from '../components/AsmoQuestionCard'
+import { FlatClayIcon } from '../components/AsmoFlatClayIcons'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
@@ -106,7 +107,7 @@ export function Asmo3DLabPage() {
                   : 'bg-white/90 hover:bg-indigo-50/70 border border-slate-200/80 text-slate-700 shadow-xs',
               )}
             >
-              <span>{tpl.icon}</span>
+              <FlatClayIcon name={tpl.icon} size={20} />
               <span>{tpl.title}</span>
             </button>
           )
@@ -139,7 +140,7 @@ export function Asmo3DLabPage() {
                   className="rounded-xl border border-slate-100 bg-slate-50 p-2.5 text-xs"
                 >
                   <div className="flex items-center gap-1.5 font-bold text-slate-800 mb-0.5">
-                    <span>{act.icon}</span>
+                    <FlatClayIcon name={act.icon} size={16} />
                     <span>{act.label}</span>
                   </div>
                   <p className="text-[11px] text-slate-500 leading-snug">{act.description}</p>
