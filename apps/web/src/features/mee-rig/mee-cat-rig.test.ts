@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import manifest from '../../../public/assets/mee/mee-cat-rig-v1-manifest.json'
-import { getVisemeFromWord } from './hooks/useMeeCatSpeech'
+import { decomposeWordToVisemes } from './hooks/useMeeCatSpeech'
 
 describe('Mee Cat Rig System', () => {
   it('should have valid artboard dimensions and baseline in manifest', () => {
@@ -40,17 +40,26 @@ describe('Mee Cat Rig System', () => {
     expect(manifest.timelines).toHaveProperty('sleepy')
   })
 
-  describe('Lip-sync & Viseme Mapping Engine', () => {
-    it('maps Vietnamese and English vowels correctly to visemes', () => {
-      expect(getVisemeFromWord('Chào')).toBe('open')
-      expect(getVisemeFromWord('bạn')).toBe('closed')
-      expect(getVisemeFromWord('nhỏ')).toBe('round')
-      expect(getVisemeFromWord('Mèo')).toBe('closed')
-      expect(getVisemeFromWord('Mee')).toBe('closed')
-      expect(getVisemeFromWord('Em')).toBe('smile')
-      expect(getVisemeFromWord('Uống')).toBe('round')
-      expect(getVisemeFromWord('Ăn')).toBe('open')
-      expect(getVisemeFromWord('Đi')).toBe('smile')
+  describe('Lip-sync & 3-Phase Syllable Decomposition Engine', () => {
+    it('decomposes Vietnamese syllables into accurate micro-viseme sequences', () => {
+      const chaoSeq = decomposeWordToVisemes('Chào')
+      expect(chaoSeq.length).toBeGreaterThanOrEqual(2)
+      expect(chaoSeq[0].viseme).toBe('ch')
+      expect(chaoSeq[1].viseme).toBe('aa')
+
+      const meoSeq = decomposeWordToVisemes('Mèo')
+      expect(meoSeq[0].viseme).toBe('closed')
+      expect(meoSeq[1].viseme).toBe('ee')
+
+      const toanSeq = decomposeWordToVisemes('Toán')
+      expect(toanSeq[0].viseme).toBe('th')
+
+      const vuiSeq = decomposeWordToVisemes('Vui')
+      expect(vuiSeq[0].viseme).toBe('fv')
+
+      const meeSeq = decomposeWordToVisemes('Mee')
+      expect(meeSeq[0].viseme).toBe('closed')
+      expect(meeSeq[1].viseme).toBe('ee')
     })
   })
 })

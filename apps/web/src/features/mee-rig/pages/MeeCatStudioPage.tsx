@@ -5,7 +5,7 @@ import {
   type MeeCatState,
   type MeeCatVariant,
 } from '../components/MeeCatInteractiveCanvas'
-import type { Gesture } from '../hooks/useMeeCatSpeech'
+import type { Gesture, Viseme } from '../hooks/useMeeCatSpeech'
 import {
   Sparkles,
   Eye,
@@ -114,6 +114,7 @@ export function MeeCatStudioPage() {
   const [speechInput, setSpeechInput] = useState(SAMPLE_SPEECHES[0])
   const [selectedGesture, setSelectedGesture] = useState<Gesture>('auto')
   const [isSpeaking, setIsSpeaking] = useState(false)
+  const [manualViseme, setManualViseme] = useState<Viseme | undefined>(undefined)
 
   const handleManualBlink = () => {
     setIsBlinking(true)
@@ -244,6 +245,7 @@ export function MeeCatStudioPage() {
               isSpeaking={isSpeaking}
               speechText={speechInput}
               gesture={selectedGesture}
+              viseme={manualViseme}
               onSpeechEnd={() => setIsSpeaking(false)}
               quote={activeState === 'hint' ? SAMPLE_SPEECHES[customQuoteIndex] : undefined}
             />
@@ -373,6 +375,54 @@ export function MeeCatStudioPage() {
                       }`}
                     >
                       <div>{opt.label}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* 9-Viseme Live Preview Matrix */}
+              <div className="mt-2">
+                <label className="text-xs font-black text-slate-700 flex items-center justify-between mb-1.5">
+                  <span className="flex items-center gap-1">
+                    <span>👄 9 Khẩu Hình Chi Tiết (Visemes):</span>
+                  </span>
+                  {manualViseme && (
+                    <button
+                      type="button"
+                      onClick={() => setManualViseme(undefined)}
+                      className="text-[10px] text-amber-700 font-bold hover:underline"
+                    >
+                      Bỏ chọn (Tự động)
+                    </button>
+                  )}
+                </label>
+                <div className="grid grid-cols-3 gap-1">
+                  {[
+                    { id: 'closed', label: 'CLOSED (M,B,P)', desc: 'Ngậm chữ w' },
+                    { id: 'aa', label: 'AA (A,Ă,Â)', desc: 'Mở dọc sâu' },
+                    { id: 'oh', label: 'OH (O,Ô,Ơ)', desc: 'Tròn môi' },
+                    { id: 'oo', label: 'OO (U,Ư,Qu)', desc: 'Chu tròn nhỏ' },
+                    { id: 'ee', label: 'EE (E,Ê,I,Y)', desc: 'Cười dẹt hé răng' },
+                    { id: 'fv', label: 'FV (V,F,Ph)', desc: 'Chạm răng môi' },
+                    { id: 'th', label: 'TH (L,T,Đ,N)', desc: 'Lưỡi chạm vòm' },
+                    { id: 'ch', label: 'CH (Ch,Tr,Gi)', desc: 'Vuông hé răng' },
+                    { id: 'open_mid', label: 'OPEN (Lướt)', desc: 'Mở tự nhiên' },
+                  ].map((v) => (
+                    <button
+                      key={v.id}
+                      type="button"
+                      onClick={() => {
+                        setActiveState('talk')
+                        setManualViseme(v.id as any)
+                      }}
+                      className={`rounded-lg p-1 text-center transition border text-[10px] ${
+                        manualViseme === v.id
+                          ? 'border-amber-500 bg-amber-200 text-amber-950 font-black shadow-xs'
+                          : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-amber-50 font-bold'
+                      }`}
+                    >
+                      <div className="font-extrabold">{v.label.split(' ')[0]}</div>
+                      <div className="text-[8px] text-slate-500 truncate">{v.desc}</div>
                     </button>
                   ))}
                 </div>
