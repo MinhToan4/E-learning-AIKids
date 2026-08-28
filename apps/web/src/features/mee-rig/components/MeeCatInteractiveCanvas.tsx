@@ -372,52 +372,52 @@ export function MeeCatInteractiveCanvas({
             </radialGradient>
           </defs>
 
-          {/* --- 1. FULL TAIL BONE (Back layer) --- */}
+          {/* --- UNIFIED MASCOT RIG CONTAINER (Toàn bộ cơ thể Mèo Mee thống nhất 100% từ bàn chân tới đỉnh đầu) --- */}
           <g
-            id="full-tail"
+            id="mee-cat-whole-body"
             style={{
-              transformOrigin: '1953px 3620px',
-              transform: `rotate(${tailBaseRot}deg)`,
-              transition: state === 'celebrate' ? 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.35s ease-out',
+              transformOrigin: '2015px 5579px',
+              transform: `translate(${headLookX * 0.35}px, ${(headLookY * 0.35) + (breathePhase * 10) + sleepyHeadDrop + talkHeadNodY + jumpY}px) rotate(${headRotation * 0.35}deg)`,
+              transition: state === 'sleepy' ? 'transform 0.5s ease-in-out' : state === 'celebrate' ? 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.25s ease-out',
             }}
           >
-            <path d="M1771.48 4123.58C1682.8 3952.97 1762.75 3732.34 1953.68 3620.59L4201.12 2305.2C4473.32 2145.92 4809.19 2216.58 4935.54 2459.78C5061.83 2702.92 4926.4 3018.41 4639.8 3149.76L2287.7 4263.61C2086.46 4355.6 1860 4294.19 1771.48 4123.58Z" fill="url(#fb-paint0_linear)" />
-            <path d="M4668.95 3135.26C4659.42 3140.23 4649.7 3144.98 4639.8 3149.51L4630.92 3153.54C4626.27 2989.01 4584.44 2827.66 4508.55 2681.6C4432.67 2535.53 4324.7 2408.54 4192.75 2310.15L4201.17 2305.04C4473.32 2145.77 4809.19 2216.47 4935.54 2459.62C5057.49 2694.55 4935.64 2996.61 4668.95 3135.26Z" fill="url(#fb-paint1_linear)" />
-          </g>
-
-          {/* --- 2. LEGS BONES (Squatting and jumping) --- */}
-          <g
-            id="full-legs"
-            style={{
-              transformOrigin: '2015px 5250px',
-              transform: `scaleY(${jumpLegScaleY})`,
-              transition: 'transform 0.18s ease-out',
-            }}
-          >
-            <g id="left-leg" style={{ transformOrigin: '1191px 3799px', transform: state === 'celebrate' ? (celebrateStep % 2 === 0 ? 'rotate(-10deg)' : 'rotate(6deg)') : 'none' }}>
-              <path d="M402.049 3799.67C402.049 3799.67 833.272 4749.19 941.499 5093.78C870.029 5103.99 796.363 5137.94 765.835 5227.53C697.631 5427.59 1075.05 5595.85 1411.57 5577.62C1559.84 5568.85 1705.11 5532.19 1839.78 5469.55C1881.62 5450.24 1917.06 5419.36 1941.91 5380.55C1966.76 5341.74 1979.98 5296.63 1980.02 5250.55V3863.33L402.049 3799.67Z" fill="url(#fb-paint3_linear)" />
+            {/* --- 1. FULL TAIL BONE (Back layer) --- */}
+            <g
+              id="full-tail"
+              style={{
+                transformOrigin: '1953px 3620px',
+                transform: `rotate(${tailBaseRot}deg)`,
+                transition: state === 'celebrate' ? 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.35s ease-out',
+              }}
+            >
+              <path d="M1771.48 4123.58C1682.8 3952.97 1762.75 3732.34 1953.68 3620.59L4201.12 2305.2C4473.32 2145.92 4809.19 2216.58 4935.54 2459.78C5061.83 2702.92 4926.4 3018.41 4639.8 3149.76L2287.7 4263.61C2086.46 4355.6 1860 4294.19 1771.48 4123.58Z" fill="url(#fb-paint0_linear)" />
+              <path d="M4668.95 3135.26C4659.42 3140.23 4649.7 3144.98 4639.8 3149.51L4630.92 3153.54C4626.27 2989.01 4584.44 2827.66 4508.55 2681.6C4432.67 2535.53 4324.7 2408.54 4192.75 2310.15L4201.17 2305.04C4473.32 2145.77 4809.19 2216.47 4935.54 2459.62C5057.49 2694.55 4935.64 2996.61 4668.95 3135.26Z" fill="url(#fb-paint1_linear)" />
             </g>
-            <g id="right-leg" style={{ transformOrigin: '2839px 3799px', transform: state === 'celebrate' ? (celebrateStep % 2 === 0 ? 'rotate(10deg)' : 'rotate(-6deg)') : 'none' }}>
-              <path d="M3628.18 3799.67C3628.18 3799.67 3196.96 4749.19 3088.73 5093.78C3160.46 5103.99 3233.87 5137.94 3264.4 5227.53C3332.6 5427.59 2955.19 5595.85 2618.66 5577.62C2470.4 5568.85 2325.12 5532.19 2190.45 5469.55C2148.61 5450.24 2113.17 5419.36 2088.32 5380.55C2063.47 5341.74 2050.25 5296.63 2050.21 5250.55V3863.33L3628.18 3799.67Z" fill="url(#fb-paint2_linear)" />
-            </g>
-          </g>
 
-          {/* --- 3 & 4. UNIFIED UPPER BODY & HEAD (Thống nhất thân, đầu, tai, mặt không bao giờ bị rời mảnh) --- */}
-          <g
-            id="full-upper-body"
-            style={{
-              transformOrigin: '2015px 4468px',
-              transform: `translate(${headLookX * 0.6}px, ${(headLookY * 0.6) + (breathePhase * 14) + sleepyHeadDrop + talkHeadNodY}px) rotate(${headRotation}deg)`,
-              transition: state === 'sleepy' ? 'transform 0.5s ease-in-out' : 'transform 0.2s ease-out',
-            }}
-          >
-            {/* Main Body & Skull Base Silhouette */}
+            {/* --- 2. LEGS BONES (Gắn liền vững chắc với thân) --- */}
+            <g
+              id="full-legs"
+              style={{
+                transformOrigin: '2015px 5250px',
+                transform: `scaleY(${jumpLegScaleY})`,
+                transition: 'transform 0.18s ease-out',
+              }}
+            >
+              <g id="left-leg" style={{ transformOrigin: '1191px 3799px', transform: state === 'celebrate' ? (celebrateStep % 2 === 0 ? 'rotate(-6deg)' : 'rotate(4deg)') : 'none' }}>
+                <path d="M402.049 3799.67C402.049 3799.67 833.272 4749.19 941.499 5093.78C870.029 5103.99 796.363 5137.94 765.835 5227.53C697.631 5427.59 1075.05 5595.85 1411.57 5577.62C1559.84 5568.85 1705.11 5532.19 1839.78 5469.55C1881.62 5450.24 1917.06 5419.36 1941.91 5380.55C1966.76 5341.74 1979.98 5296.63 1980.02 5250.55V3863.33L402.049 3799.67Z" fill="url(#fb-paint3_linear)" />
+              </g>
+              <g id="right-leg" style={{ transformOrigin: '2839px 3799px', transform: state === 'celebrate' ? (celebrateStep % 2 === 0 ? 'rotate(6deg)' : 'rotate(-4deg)') : 'none' }}>
+                <path d="M3628.18 3799.67C3628.18 3799.67 3196.96 4749.19 3088.73 5093.78C3160.46 5103.99 3233.87 5137.94 3264.4 5227.53C3332.6 5427.59 2955.19 5595.85 2618.66 5577.62C2470.4 5568.85 2325.12 5532.19 2190.45 5469.55C2148.61 5450.24 2113.17 5419.36 2088.32 5380.55C2063.47 5341.74 2050.25 5296.63 2050.21 5250.55V3863.33L3628.18 3799.67Z" fill="url(#fb-paint2_linear)" />
+              </g>
+            </g>
+
+            {/* --- 3. MAIN BODY & SKULL SILHOUETTE --- */}
             <g id="full-body-base">
               <path d="M1884.81 155.143H2145.17C2377.31 155.109 2607.19 200.805 2821.68 289.62C3036.16 378.436 3231.05 508.631 3395.21 672.771C3559.37 836.911 3689.59 1031.78 3778.44 1246.25C3867.28 1460.72 3913 1690.59 3912.99 1922.73V2917.43C3913 3121.13 3872.89 3322.83 3794.94 3511.02C3716.99 3699.22 3602.74 3870.21 3458.7 4014.25C3314.67 4158.29 3143.67 4272.55 2955.48 4350.5C2767.28 4428.45 2565.58 4468.57 2361.88 4468.57H1668.82C1257.35 4468.52 862.75 4305.03 571.817 4014.06C280.884 3723.1 117.443 3328.49 117.443 2917.02V1922.73C117.429 1453.98 303.621 1004.42 635.062 672.933C966.503 341.45 1416.05 155.197 1884.81 155.143Z" fill="url(#fb-paint8_linear)" />
               <path d="M1982.62 4468.57H1668.82C1031.91 4468.57 484.445 4084.83 245.63 3535.9C345.252 3516.23 446.559 3506.34 548.104 3506.39C1196.09 3506.39 1751.06 3904.02 1982.62 4468.57Z" fill="#FF960B" />
             </g>
 
-            {/* Forehead Fur (Đốm lông cam nguyên bản chuẩn nét cong hữu cơ) */}
+            {/* Forehead Fur (Đốm lông cam nguyên bản) */}
             <path
               d="M3564.63 869.071C3419.23 961.42 3250.05 1006.45 3056.06 1006.45C2571.08 1006.45 2177.53 665.23 2177.53 244.327C2177.51 214.464 2179.5 184.634 2183.51 155.041C2706.57 171.428 3070.61 376.29 3354.66 630.67C3434.55 702.19 3496.98 776.62 3564.63 869.071Z"
               fill="#FF960B"
@@ -581,10 +581,9 @@ export function MeeCatInteractiveCanvas({
                 <ellipse cx="-35" cy="-45" rx="45" ry="25" fill="#ffffff" opacity="0.75" transform="rotate(-20 -35 -45)" />
               </g>
             )}
-          </g>
 
-          {/* --- 5. FRONT ARMS & PAWS (Holding Snack / Waving / Pointing) --- */}
-          <g id="full-arms">
+            {/* --- 4. FRONT ARMS & PAWS (Holding Snack / Waving / Pointing) --- */}
+            <g id="full-arms">
             {/* Left Arm */}
             <g
               id="left-arm"
@@ -626,6 +625,7 @@ export function MeeCatInteractiveCanvas({
               <path d="M2593.39 3008.61C2705.7 3017.85 2764.1 3047.61 2786.87 3059.2C2797.08 3064.3 2802.19 3066.75 2808.62 3066.45C2813.2 3066.19 2817.53 3064.27 2820.79 3061.04C2824.05 3057.81 2826.02 3053.5 2826.32 3048.92C2826.62 3044.35 2825.24 3039.81 2822.43 3036.19C2819.62 3032.56 2815.58 3030.09 2811.07 3029.23C2809.49 3028.57 2806.48 3027.09 2803.82 3025.71C2780.44 3013.87 2722.14 2984.46 2614.93 2972.97C2613.2 2975.42 2611.51 2978.08 2609.83 2980.38C2603.74 2989.42 2598.25 2998.85 2593.39 3008.61Z" fill="#E05A00" />
               <path d="M2578.08 3205.3C2579.56 3210.1 2581.24 3214.85 2583.18 3219.59C2585.94 3226.84 2589.05 3233.99 2592.47 3240.93C2664.61 3229.8 2709.58 3236.19 2729.7 3239.04C2740.82 3240.58 2746.39 3241.39 2752.57 3239.04C2756.73 3237.28 2760.11 3234.07 2762.09 3230.01C2764.07 3225.95 2764.5 3221.3 2763.32 3216.94C2762.14 3212.58 2759.41 3208.8 2755.65 3206.29C2751.89 3203.78 2747.35 3202.72 2742.87 3203.31C2741.13 3203.31 2737.76 3202.6 2734.85 3202.29C2712.39 3198.77 2660.73 3191.52 2578.08 3205.3Z" fill="#E05A00" />
             </g>
+          </g>
           </g>
 
           {/* --- 6. DEBUG SKELETON (Full Body) --- */}
