@@ -184,8 +184,8 @@ export function MeeCatInteractiveCanvas({
   const leftEarRot = (-earAngle * 0.4) + sleepyEarDroop + talkEarWiggle + (state === 'celebrate' ? (celebrateStep % 2 === 0 ? -6 : 4) : state === 'look' ? headLookX * 0.15 : 0)
   const rightEarRot = (earAngle * 0.4) - sleepyEarDroop - talkEarWiggle + (state === 'celebrate' ? (celebrateStep % 2 === 0 ? 6 : -4) : state === 'look' ? headLookX * 0.15 : 0)
 
-  // Tail animations
-  const tailBaseRot = tailWiggle + (state === 'celebrate' ? [-25, 30, -20, 25][tailFrame] : state === 'sleepy' ? -18 : effectiveSpeaking ? [-12, 16, -8, 12][tailFrame] : [0, 8, -6, 6][tailFrame])
+  // Tail animations (Vẫy đuôi mềm mại, khớp chuẩn ở hông)
+  const tailBaseRot = tailWiggle + (state === 'celebrate' ? [-15, 20, -12, 18][tailFrame] : state === 'sleepy' ? -6 : effectiveSpeaking ? [-8, 10, -6, 8][tailFrame] : [0, 6, -4, 4][tailFrame])
 
   // Celebrate / Talk Jump displacement values
   const jumpY = state === 'celebrate'
@@ -418,20 +418,55 @@ export function MeeCatInteractiveCanvas({
               <path d="M1982.62 4468.57H1668.82C1031.91 4468.57 484.445 4084.83 245.63 3535.9C345.252 3516.23 446.559 3506.34 548.104 3506.39C1196.09 3506.39 1751.06 3904.02 1982.62 4468.57Z" fill="#FF960B" />
             </g>
 
-            {/* Forehead Fur */}
-            <path d="M3564.63 869.071C3419.23 961.42 3250.05 1006.45 3056.06 1006.45C2571.08 1006.45 2177.53 665.23 2177.53 244.327C2177.51 214.464 2179.5 184.634 2183.51 155.041C2706.57 171.428 3070.61 376.29 3354.66 630.67C3434.55 702.19 3496.98 776.62 3564.63 869.071Z" fill="#FF960B" />
+            {/* Orange Head Backing Patch (Đảm bảo nửa đầu phải luôn là màu cam liền mạch, không bao giờ bị hở mảng trắng khi tai xoay) */}
+            <path
+              d="M 2180 155 Q 3100 160 3580 650 Q 3913 1100 3913 1922 L 2015 1922 L 2015 155 Z"
+              fill="#FF960B"
+            />
 
-            {/* Left Ear - ANCHORED BASE PIVOT (980, 600) */}
-            <g id="left-ear" style={{ transformOrigin: '980px 600px', transform: `rotate(${leftEarRot}deg)`, transition: 'transform 0.2s ease-out' }}>
-              <path d="M425.532 138.807C411.289 45.2842 519.108 -26.5935 619.524 9.49848L913.983 115.171L1434.54 301.961L987.751 599.631L541.162 897.301L467.292 412.841L425.532 138.807Z" fill="url(#fb-paint4_linear)" />
-              <path d="M600.737 276.947C592.365 221.813 655.872 179.493 715.091 200.781L888.662 263.01L1195.37 373.073L932.157 548.428L668.788 723.783L625.344 438.365L600.737 276.947Z" fill="url(#fb-paint5_linear)" />
+            {/* Left Ear - DEEP ANCHORED BASE (Chân tai ngàm sâu vào hộp sọ) */}
+            <g
+              id="left-ear"
+              style={{
+                transformOrigin: '950px 580px',
+                transform: `rotate(${leftEarRot}deg)`,
+                transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              }}
+            >
+              <path
+                d="M425.532 138.807C411.289 45.2842 519.108 -26.5935 619.524 9.49848L913.983 115.171L1434.54 301.961L1350 580L987.751 750L541.162 897.301L467.292 412.841L425.532 138.807Z"
+                fill="url(#fb-paint4_linear)"
+              />
+              <path
+                d="M600.737 276.947C592.365 221.813 655.872 179.493 715.091 200.781L888.662 263.01L1195.37 373.073L932.157 548.428L668.788 723.783L625.344 438.365L600.737 276.947Z"
+                fill="url(#fb-paint5_linear)"
+              />
             </g>
 
-            {/* Right Ear - ANCHORED BASE PIVOT (3080, 600) */}
-            <g id="right-ear" style={{ transformOrigin: '3080px 600px', transform: `rotate(${rightEarRot}deg)`, transition: 'transform 0.2s ease-out' }}>
-              <path d="M3639.93 138.807C3654.17 45.2842 3546.35 -26.5935 3445.93 9.49848L3151.47 115.171L2630.76 301.961L3077.6 599.631L3524.45 897.301L3598.22 412.841L3639.93 138.807Z" fill="url(#fb-paint6_linear)" />
-              <path d="M3464.67 276.947C3473.09 221.813 3409.54 179.493 3350.37 200.781L3176.8 263.01L2870.19 373.073L3133.4 548.428L3396.62 723.783L3440.11 438.365L3464.67 276.947Z" fill="url(#fb-paint7_linear)" />
+            {/* Right Ear - DEEP ANCHORED BASE (Chân tai ngàm sâu và xếp lớp dưới đốm trán) */}
+            <g
+              id="right-ear"
+              style={{
+                transformOrigin: '3100px 580px',
+                transform: `rotate(${rightEarRot}deg)`,
+                transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+              }}
+            >
+              <path
+                d="M3639.93 138.807C3654.17 45.2842 3546.35 -26.5935 3445.93 9.49848L3151.47 115.171L2630.76 301.961L2700 580L3077.6 750L3524.45 897.301L3598.22 412.841L3639.93 138.807Z"
+                fill="url(#fb-paint6_linear)"
+              />
+              <path
+                d="M3464.67 276.947C3473.09 221.813 3409.54 179.493 3350.37 200.781L3176.8 263.01L2870.19 373.073L3133.4 548.428L3396.62 723.783L3440.11 438.365L3464.67 276.947Z"
+                fill="url(#fb-paint7_linear)"
+              />
             </g>
+
+            {/* Forehead Fur Foreground (Đốm lông trán cam uốn lượn ôm trọn mặt trên) */}
+            <path
+              d="M3564.63 869.071C3419.23 961.42 3250.05 1006.45 3056.06 1006.45C2571.08 1006.45 2177.53 665.23 2177.53 244.327C2177.51 214.464 2179.5 184.634 2183.51 155.041C2706.57 171.428 3070.61 376.29 3354.66 630.67C3434.55 702.19 3496.98 776.62 3564.63 869.071Z"
+              fill="#FF960B"
+            />
 
             {/* Eyes */}
             <g id="eyes">
