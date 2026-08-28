@@ -12,21 +12,20 @@ export interface UseMeeCatSpeechOptions {
 
 /**
  * Phoneme/Vowel to Viseme mapper for Vietnamese & English:
- * - wide: a, ă, â, o (mở rộng miệng)
- * - round: u, ư, ô, oo, w (tròn môi)
+ * - open: a, ă, â (mở miệng vừa vặn, không há to)
+ * - round: u, ư, ô, o, oo, w (tròn môi)
  * - smile: e, ê, i, y (miệng bẹt mỉm cười)
- * - closed: m, b, p (ngậm môi)
- * - open: default open
+ * - closed: m, b, p (ngậm môi chúm chím)
  */
 export function getVisemeFromWord(word: string): Viseme {
   const clean = word.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '')
   if (!clean) return 'closed'
 
-  // Check initial or prominent vowel
+  // Check prominent vowels & consonants
   for (const char of clean) {
-    if ('a'.includes(char)) return 'wide'
-    if ('ou'.includes(char)) return 'round'
+    if ('ouo'.includes(char)) return 'round'
     if ('ei'.includes(char)) return 'smile'
+    if ('a'.includes(char)) return 'open'
     if ('mbp'.includes(char)) return 'closed'
   }
   return 'open'

@@ -477,33 +477,31 @@ export function MeeCatInteractiveCanvas({
                   )}
                 </g>
               ) : effectiveSpeaking ? (
-                /* Dynamic Lip-sync Viseme shapes */
+                /* Dynamic Lip-sync Viseme shapes (Vừa vặn, không há to, mặc định ngậm miệng) */
                 <g id="mouth-viseme">
                   {currentViseme === 'round' ? (
-                    /* O / U / W round mouth */
+                    /* O / U / Ô / Ơ / Ư / W: Miệng tròn nhỏ */
                     <g transform="translate(0, 50)">
-                      <ellipse cx="2015" cy="1520" rx="320" ry="380" fill="url(#fb-paint9_linear)" />
-                      <ellipse cx="2015" cy="1680" rx="180" ry="140" fill="#FFAEAE" />
+                      <ellipse cx="2015" cy="1500" rx="200" ry="220" fill="url(#fb-paint9_linear)" />
+                      <ellipse cx="2015" cy="1620" rx="120" ry="90" fill="#FFAEAE" />
                     </g>
                   ) : currentViseme === 'smile' ? (
-                    /* E / I / Y smile mouth */
+                    /* E / Ê / I / Y: Miệng cười mở dẹt */
                     <g transform="translate(0, 50)">
-                      <path d="M 1350 1420 Q 2015 1950 2680 1420 Q 2015 1320 1350 1420 Z" fill="url(#fb-paint9_linear)" />
-                      <path d="M 1650 1560 Q 2015 1820 2380 1560 Z" fill="#FFAEAE" />
-                    </g>
-                  ) : currentViseme === 'closed' ? (
-                    /* M / B / P / Rest closed cute mouth */
-                    <g transform="translate(0, 80)">
-                      <path d="M 1650 1450 Q 1830 1620 2015 1450 Q 2200 1620 2380 1450" stroke="#8E3817" strokeWidth="65" fill="none" strokeLinecap="round" />
+                      <path d="M 1520 1440 Q 2015 1740 2510 1440 Q 2015 1360 1520 1440 Z" fill="url(#fb-paint9_linear)" />
+                      <path d="M 1720 1540 Q 2015 1700 2310 1540 Z" fill="#FFAEAE" />
                     </g>
                   ) : currentViseme === 'open' ? (
-                    /* Medium open mouth */
-                    <g transform="translate(0, 40) scale(0.85) translate(355, 270)">
-                      <path d="M3373.39 1773.36C3373.39 1977.81 3277.88 2162.92 3123.24 2296.87C2968.61 2430.83 2755.42 2513.73 2519.67 2513.73H1510.41C1039.01 2513.73 656.842 2182.27 656.842 1773.51C656.842 1569.06 752.357 1383.96 906.989 1250C961.407 1202.99 1021.54 1163.05 1085.97 1131.11L1133.86 1187.82L1190.57 1254.95C1209.92 1277.82 1250.61 1273.99 1263.83 1248.01L1302.48 1171.9L1367.72 1043.45C1415.06 1036.59 1462.83 1033.18 1510.66 1033.25H2519.83C2565.25 1033.21 2610.63 1036.33 2655.62 1042.59L2721.37 1172L2760.02 1248.11C2773.19 1274.1 2813.88 1277.93 2833.23 1255.06L2889.89 1187.93L2939.77 1128.91C3198.65 1255.82 3373.39 1496.88 3373.39 1773.36Z" fill="url(#fb-paint9_linear)" />
+                    /* A / Ă / Â: Miệng mở vừa phải, tròn trịa duyên dáng */
+                    <g transform="translate(0, 50)">
+                      <path d="M 1560 1420 Q 2015 1860 2470 1420 Q 2015 1340 1560 1420 Z" fill="url(#fb-paint9_linear)" />
+                      <ellipse cx="2015" cy="1660" rx="160" ry="120" fill="#FFAEAE" />
                     </g>
                   ) : (
-                    /* Default Wide A / Ă / Â mouth */
-                    <path d="M3373.39 1773.36C3373.39 1977.81 3277.88 2162.92 3123.24 2296.87C2968.61 2430.83 2755.42 2513.73 2519.67 2513.73H1510.41C1039.01 2513.73 656.842 2182.27 656.842 1773.51C656.842 1569.06 752.357 1383.96 906.989 1250C961.407 1202.99 1021.54 1163.05 1085.97 1131.11L1133.86 1187.82L1190.57 1254.95C1209.92 1277.82 1250.61 1273.99 1263.83 1248.01L1302.48 1171.9L1367.72 1043.45C1415.06 1036.59 1462.83 1033.18 1510.66 1033.25H2519.83C2565.25 1033.21 2610.63 1036.33 2655.62 1042.59L2721.37 1172L2760.02 1248.11C2773.19 1274.1 2813.88 1277.93 2833.23 1255.06L2889.89 1187.93L2939.77 1128.91C3198.65 1255.82 3373.39 1496.88 3373.39 1773.36Z" fill="url(#fb-paint9_linear)" />
+                    /* M / B / P / Rest / Mặc định: Ngậm miệng bình thường hình chữ w */
+                    <g transform="translate(0, 50)">
+                      <path d="M 1650 1450 Q 1830 1620 2015 1450 Q 2200 1620 2380 1450" stroke="#8E3817" strokeWidth="65" fill="none" strokeLinecap="round" />
+                    </g>
                   )}
                 </g>
               ) : (
@@ -710,16 +708,16 @@ export function MeeCatInteractiveCanvas({
               ) : effectiveSpeaking ? (
                 <g id="mouth-live-viseme">
                   {currentViseme === 'round' ? (
-                    <circle cx="417" cy="225" r="16" fill="#e11d48" />
+                    <circle cx="417" cy="225" r="14" fill="#e11d48" />
                   ) : currentViseme === 'smile' ? (
-                    <path d="M380,212 Q417,235 454,212 Z" fill="#e11d48" />
-                  ) : currentViseme === 'closed' ? (
-                    <path d="M385,215 Q400,226 417,215 Q434,226 449,215" stroke="#f48108" strokeWidth="5" fill="none" strokeLinecap="round" />
-                  ) : (
-                    <g id="mouth-happy">
-                      <path d="M375,208 Q417,265 459,208 Z" fill="#e11d48" />
-                      <path d="M392,230 Q417,256 442,230 Z" fill="#fb7185" />
+                    <path d="M380,212 Q417,232 454,212 Z" fill="#e11d48" />
+                  ) : currentViseme === 'open' ? (
+                    <g id="mouth-open-half">
+                      <path d="M380,210 Q417,242 454,210 Z" fill="#e11d48" />
+                      <path d="M395,225 Q417,242 439,225 Z" fill="#fb7185" />
                     </g>
+                  ) : (
+                    <path d="M385,215 Q400,226 417,215 Q434,226 449,215" stroke="#f48108" strokeWidth="5" fill="none" strokeLinecap="round" />
                   )}
                 </g>
               ) : (

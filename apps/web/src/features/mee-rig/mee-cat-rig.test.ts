@@ -42,14 +42,14 @@ describe('Mee Cat Rig System', () => {
 
   describe('Lip-sync & Viseme Mapping Engine', () => {
     it('maps Vietnamese and English vowels correctly to visemes', () => {
-      expect(getVisemeFromWord('Chào')).toBe('wide')
+      expect(getVisemeFromWord('Chào')).toBe('open')
       expect(getVisemeFromWord('bạn')).toBe('closed')
       expect(getVisemeFromWord('nhỏ')).toBe('round')
       expect(getVisemeFromWord('Mèo')).toBe('closed')
       expect(getVisemeFromWord('Mee')).toBe('closed')
       expect(getVisemeFromWord('Em')).toBe('smile')
       expect(getVisemeFromWord('Uống')).toBe('round')
-      expect(getVisemeFromWord('Ăn')).toBe('wide')
+      expect(getVisemeFromWord('Ăn')).toBe('open')
       expect(getVisemeFromWord('Đi')).toBe('smile')
     })
   })
