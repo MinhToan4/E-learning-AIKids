@@ -487,71 +487,42 @@ export function MeeCatInteractiveCanvas({
                   )}
                 </g>
               ) : effectiveSpeaking ? (
-                /* Dynamic 9-Viseme Lip-sync System (Tỷ lệ cân đối tăng ~25-30%, chi tiết môi răng lưỡi) */
+                /* Dynamic Cute Cartoon Chibi Lip-sync System (5 Khẩu hình Mèo Thuần Nét Cong Mềm Mại) */
                 <g id="mouth-viseme">
-                  {currentViseme === 'aa' ? (
-                    /* A / Ă / Â: Miệng mở dọc cao, thấy vòm họng và lưỡi nằm đáy */
-                    <g id="viseme-aa">
-                      <path d="M 1680 1020 Q 2011 1380 2340 1020 Q 2011 965 1680 1020 Z" fill="#D83D00" />
-                      <path d="M 1800 1190 Q 2011 1360 2220 1190 Z" fill="#FFAEAE" />
-                      <path d="M 2011 965 L 2011 995" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
+                  {currentViseme === 'open' ? (
+                    /* A / Ă / Â: Miệng mở hình hạt dẻ cong tròn đáng yêu */
+                    <g id="viseme-open">
+                      <path d="M 1720 1020 Q 2011 1290 2300 1020 Q 2011 975 1720 1020 Z" fill="#D83D00" />
+                      <path d="M 1830 1160 Q 2011 1275 2190 1160 Z" fill="#FFAEAE" />
+                      <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
                     </g>
-                  ) : currentViseme === 'oh' ? (
-                    /* O / Ô / Ơ: Miệng tròn O rõ nét */
-                    <g id="viseme-oh">
-                      <ellipse cx="2011" cy="1120" rx="150" ry="170" fill="#D83D00" />
-                      <ellipse cx="2011" cy="1185" rx="95" ry="65" fill="#FFAEAE" />
+                  ) : currentViseme === 'round' ? (
+                    /* O / Ô / Ơ / U / Ư / Qu: Miệng chu tròn nhỏ nhắn dễ thương */
+                    <g id="viseme-round">
+                      <ellipse cx="2011" cy="1095" rx="115" ry="130" fill="#D83D00" />
+                      <ellipse cx="2011" cy="1150" rx="70" ry="45" fill="#FFAEAE" />
                       <path d="M 2011 965 L 2011 1015" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
                     </g>
-                  ) : currentViseme === 'oo' ? (
-                    /* U / Ư / Qu / W: Miệng chu tròn nhỏ xinh ở trung tâm */
-                    <g id="viseme-oo">
-                      <ellipse cx="2011" cy="1080" rx="80" ry="90" fill="#D83D00" />
-                      <path d="M 2011 965 L 2011 1020" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
-                    </g>
-                  ) : currentViseme === 'ee' ? (
-                    /* E / Ê / I / Y: Miệng cười dẹt ngang, hé răng thỏ xinh */
-                    <g id="viseme-ee">
-                      <path d="M 1640 1025 Q 2011 1170 2380 1025 Q 2011 975 1640 1025 Z" fill="#D83D00" />
-                      <path d="M 1860 1085 Q 2011 1145 2160 1085 Z" fill="#FFAEAE" />
-                      <rect x="1955" y="1000" width="112" height="42" rx="8" fill="#ffffff" />
-                      <path d="M 2011 965 L 2011 995" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
-                    </g>
-                  ) : currentViseme === 'fv' ? (
-                    /* V / F / Ph: Môi dưới chạm nhẹ hàm răng trên */
-                    <g id="viseme-fv">
-                      <path d="M 1740 1025 Q 2011 1190 2280 1025 Q 2011 985 1740 1025 Z" fill="#D83D00" />
-                      <rect x="1950" y="1005" width="122" height="40" rx="8" fill="#ffffff" />
+                  ) : currentViseme === 'smile' ? (
+                    /* E / Ê / I / Y: Miệng cười cong trăng khuyết ngọt ngào */
+                    <g id="viseme-smile">
+                      <path d="M 1700 1025 Q 2011 1175 2320 1025 Q 2011 985 1700 1025 Z" fill="#D83D00" />
+                      <path d="M 1850 1090 Q 2011 1155 2170 1090 Z" fill="#FFAEAE" />
                       <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
                     </g>
-                  ) : currentViseme === 'th' ? (
-                    /* L / T / Đ / N / R / S / X: Đầu lưỡi cong lên chạm vòm họng */
-                    <g id="viseme-th">
-                      <path d="M 1720 1025 Q 2011 1240 2300 1025 Q 2011 985 1720 1025 Z" fill="#D83D00" />
-                      <ellipse cx="2011" cy="1070" rx="90" ry="55" fill="#FFAEAE" />
+                  ) : currentViseme === 'half' ? (
+                    /* Phụ âm / Mấp máy nhỏ nhẹ nhàng */
+                    <g id="viseme-half">
+                      <path d="M 1760 1020 Q 2011 1130 2260 1020 Q 2011 990 1760 1020 Z" fill="#D83D00" />
+                      <ellipse cx="2011" cy="1065" rx="65" ry="35" fill="#FFAEAE" />
                       <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
-                    </g>
-                  ) : currentViseme === 'ch' ? (
-                    /* Ch / Tr / Gi / Nh / J: Miệng vuông tròn hé răng */
-                    <g id="viseme-ch">
-                      <path d="M 1700 1025 Q 2011 1230 2320 1025 Q 2011 965 1700 1025 Z" fill="#D83D00" />
-                      <rect x="1940" y="1000" width="142" height="35" rx="8" fill="#ffffff" />
-                      <ellipse cx="2011" cy="1150" rx="85" ry="45" fill="#FFAEAE" />
-                      <path d="M 2011 965 L 2011 995" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
-                    </g>
-                  ) : currentViseme === 'open_mid' ? (
-                    /* Âm mở chuyển tiếp: Miệng oval vừa vặn */
-                    <g id="viseme-open-mid">
-                      <path d="M 1720 1020 Q 2011 1280 2300 1020 Q 2011 975 1720 1020 Z" fill="#D83D00" />
-                      <path d="M 1830 1150 Q 2011 1260 2190 1150 Z" fill="#FFAEAE" />
-                      <path d="M 2011 965 L 2011 995" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
                     </g>
                   ) : (
-                    /* M / B / P / Rest / Mặc định: Miệng ngậm chúm chím chữ w dễ thương */
+                    /* Closed / Rest: Miệng ngậm chúm chím chữ w mèo cute */
                     <g id="viseme-closed">
-                      <path d="M 2011 965 L 2011 1025" stroke="#8E3817" strokeWidth="48" strokeLinecap="round" />
-                      <path d="M 2011 1025 Q 1820 1120 1660 1025" stroke="#8E3817" strokeWidth="48" fill="none" strokeLinecap="round" />
-                      <path d="M 2011 1025 Q 2200 1120 2360 1025" stroke="#8E3817" strokeWidth="48" fill="none" strokeLinecap="round" />
+                      <path d="M 2011 965 L 2011 1020" stroke="#8E3817" strokeWidth="45" strokeLinecap="round" />
+                      <path d="M 2011 1020 Q 1830 1105 1680 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
+                      <path d="M 2011 1020 Q 2190 1105 2340 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
                     </g>
                   )}
                 </g>
@@ -774,44 +745,25 @@ export function MeeCatInteractiveCanvas({
                 </g>
               ) : effectiveSpeaking ? (
                 <g id="mouth-live-viseme">
-                  {currentViseme === 'aa' ? (
-                    <g id="half-viseme-aa">
-                      <path d="M375,208 Q417,252 459,208 Z" fill="#e11d48" />
-                      <path d="M390,228 Q417,250 444,228 Z" fill="#fb7185" />
+                  {currentViseme === 'open' ? (
+                    <g id="half-viseme-open">
+                      <path d="M375,210 Q417,248 459,210 Z" fill="#e11d48" />
+                      <path d="M390,230 Q417,246 444,230 Z" fill="#fb7185" />
                     </g>
-                  ) : currentViseme === 'oh' ? (
-                    <g id="half-viseme-oh">
-                      <ellipse cx="417" cy="225" rx="20" ry="24" fill="#e11d48" />
-                      <ellipse cx="417" cy="233" rx="12" ry="8" fill="#fb7185" />
+                  ) : currentViseme === 'round' ? (
+                    <g id="half-viseme-round">
+                      <ellipse cx="417" cy="225" rx="16" ry="18" fill="#e11d48" />
+                      <ellipse cx="417" cy="231" rx="10" ry="6" fill="#fb7185" />
                     </g>
-                  ) : currentViseme === 'oo' ? (
-                    <circle cx="417" cy="225" r="12" fill="#e11d48" />
-                  ) : currentViseme === 'ee' ? (
-                    <g id="half-viseme-ee">
-                      <path d="M375,212 Q417,230 459,212 Z" fill="#e11d48" />
-                      <rect x="407" y="209" width="20" height="7" rx="2" fill="#ffffff" />
-                      <path d="M395,220 Q417,228 439,220 Z" fill="#fb7185" />
+                  ) : currentViseme === 'smile' ? (
+                    <g id="half-viseme-smile">
+                      <path d="M378,212 Q417,232 456,212 Z" fill="#e11d48" />
+                      <path d="M395,222 Q417,229 439,222 Z" fill="#fb7185" />
                     </g>
-                  ) : currentViseme === 'fv' ? (
-                    <g id="half-viseme-fv">
-                      <path d="M380,212 Q417,232 454,212 Z" fill="#e11d48" />
-                      <rect x="408" y="210" width="18" height="6" rx="2" fill="#ffffff" />
-                    </g>
-                  ) : currentViseme === 'th' ? (
-                    <g id="half-viseme-th">
-                      <path d="M378,212 Q417,238 456,212 Z" fill="#e11d48" />
-                      <ellipse cx="417" cy="220" rx="12" ry="7" fill="#fb7185" />
-                    </g>
-                  ) : currentViseme === 'ch' ? (
-                    <g id="half-viseme-ch">
-                      <path d="M376,210 Q417,236 458,210 Z" fill="#e11d48" />
-                      <rect x="405" y="209" width="24" height="5" rx="2" fill="#ffffff" />
-                      <ellipse cx="417" cy="227" rx="11" ry="6" fill="#fb7185" />
-                    </g>
-                  ) : currentViseme === 'open_mid' ? (
-                    <g id="half-viseme-open-mid">
-                      <path d="M378,210 Q417,242 456,210 Z" fill="#e11d48" />
-                      <path d="M393,225 Q417,242 441,225 Z" fill="#fb7185" />
+                  ) : currentViseme === 'half' ? (
+                    <g id="half-viseme-half">
+                      <path d="M382,213 Q417,228 452,213 Z" fill="#e11d48" />
+                      <ellipse cx="417" cy="221" rx="8" ry="4" fill="#fb7185" />
                     </g>
                   ) : (
                     <path d="M385,215 Q400,226 417,215 Q434,226 449,215" stroke="#f48108" strokeWidth="5" fill="none" strokeLinecap="round" />

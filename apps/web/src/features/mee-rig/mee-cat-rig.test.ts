@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import manifest from '../../../public/assets/mee/mee-cat-rig-v1-manifest.json'
-import { decomposeWordToVisemes } from './hooks/useMeeCatSpeech'
+import { getDominantViseme } from './hooks/useMeeCatSpeech'
 
 describe('Mee Cat Rig System', () => {
   it('should have valid artboard dimensions and baseline in manifest', () => {
@@ -40,26 +40,17 @@ describe('Mee Cat Rig System', () => {
     expect(manifest.timelines).toHaveProperty('sleepy')
   })
 
-  describe('Lip-sync & 3-Phase Syllable Decomposition Engine', () => {
-    it('decomposes Vietnamese syllables into accurate micro-viseme sequences', () => {
-      const chaoSeq = decomposeWordToVisemes('Chào')
-      expect(chaoSeq.length).toBeGreaterThanOrEqual(2)
-      expect(chaoSeq[0].viseme).toBe('ch')
-      expect(chaoSeq[1].viseme).toBe('aa')
-
-      const meoSeq = decomposeWordToVisemes('Mèo')
-      expect(meoSeq[0].viseme).toBe('closed')
-      expect(meoSeq[1].viseme).toBe('ee')
-
-      const toanSeq = decomposeWordToVisemes('Toán')
-      expect(toanSeq[0].viseme).toBe('th')
-
-      const vuiSeq = decomposeWordToVisemes('Vui')
-      expect(vuiSeq[0].viseme).toBe('fv')
-
-      const meeSeq = decomposeWordToVisemes('Mee')
-      expect(meeSeq[0].viseme).toBe('closed')
-      expect(meeSeq[1].viseme).toBe('ee')
+  describe('Lip-sync & Cute Chibi Viseme Engine', () => {
+    it('maps Vietnamese and English words into natural cute dominant visemes', () => {
+      expect(getDominantViseme('Chào')).toBe('open')
+      expect(getDominantViseme('bạn')).toBe('open')
+      expect(getDominantViseme('Mèo')).toBe('smile')
+      expect(getDominantViseme('Mee')).toBe('smile')
+      expect(getDominantViseme('nhỏ')).toBe('round')
+      expect(getDominantViseme('Toán')).toBe('open')
+      expect(getDominantViseme('Vui')).toBe('round')
+      expect(getDominantViseme('Đi')).toBe('smile')
+      expect(getDominantViseme('')).toBe('closed')
     })
   })
 })

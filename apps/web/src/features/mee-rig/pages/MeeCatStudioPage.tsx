@@ -380,11 +380,11 @@ export function MeeCatStudioPage() {
                 </div>
               </div>
 
-              {/* 9-Viseme Live Preview Matrix */}
+              {/* 5-Viseme Cute Cartoon Live Preview */}
               <div className="mt-2">
                 <label className="text-xs font-black text-slate-700 flex items-center justify-between mb-1.5">
                   <span className="flex items-center gap-1">
-                    <span>👄 9 Khẩu Hình Chi Tiết (Visemes):</span>
+                    <span>👄 5 Khẩu Hình Mèo Cute:</span>
                   </span>
                   {manualViseme && (
                     <button
@@ -398,15 +398,11 @@ export function MeeCatStudioPage() {
                 </label>
                 <div className="grid grid-cols-3 gap-1">
                   {[
-                    { id: 'closed', label: 'CLOSED (M,B,P)', desc: 'Ngậm chữ w' },
-                    { id: 'aa', label: 'AA (A,Ă,Â)', desc: 'Mở dọc sâu' },
-                    { id: 'oh', label: 'OH (O,Ô,Ơ)', desc: 'Tròn môi' },
-                    { id: 'oo', label: 'OO (U,Ư,Qu)', desc: 'Chu tròn nhỏ' },
-                    { id: 'ee', label: 'EE (E,Ê,I,Y)', desc: 'Cười dẹt hé răng' },
-                    { id: 'fv', label: 'FV (V,F,Ph)', desc: 'Chạm răng môi' },
-                    { id: 'th', label: 'TH (L,T,Đ,N)', desc: 'Lưỡi chạm vòm' },
-                    { id: 'ch', label: 'CH (Ch,Tr,Gi)', desc: 'Vuông hé răng' },
-                    { id: 'open_mid', label: 'OPEN (Lướt)', desc: 'Mở tự nhiên' },
+                    { id: 'closed', label: 'CLOSED (:3)', desc: 'Ngậm chúm chím' },
+                    { id: 'open', label: 'OPEN (A,Ă,Â)', desc: 'Mở cong hạt dẻ' },
+                    { id: 'round', label: 'ROUND (O,U)', desc: 'Chu tròn chúm' },
+                    { id: 'smile', label: 'SMILE (E,I)', desc: 'Cười trăng khuyết' },
+                    { id: 'half', label: 'HALF (Lướt)', desc: 'Mấp máy nhẹ' },
                   ].map((v) => (
                     <button
                       key={v.id}
@@ -415,13 +411,13 @@ export function MeeCatStudioPage() {
                         setActiveState('talk')
                         setManualViseme(v.id as any)
                       }}
-                      className={`rounded-lg p-1 text-center transition border text-[10px] ${
+                      className={`rounded-lg p-1.5 text-center transition border text-[10px] ${
                         manualViseme === v.id
                           ? 'border-amber-500 bg-amber-200 text-amber-950 font-black shadow-xs'
                           : 'border-slate-200 bg-slate-50 text-slate-700 hover:bg-amber-50 font-bold'
                       }`}
                     >
-                      <div className="font-extrabold">{v.label.split(' ')[0]}</div>
+                      <div className="font-extrabold">{v.label}</div>
                       <div className="text-[8px] text-slate-500 truncate">{v.desc}</div>
                     </button>
                   ))}
