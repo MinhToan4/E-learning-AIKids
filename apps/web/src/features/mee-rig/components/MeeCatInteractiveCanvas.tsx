@@ -1,8 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react'
 import { Alignment, Fit, Layout, useRive } from '@rive-app/react-canvas'
 import { cn } from '@/shared/lib/cn'
+import { useMeeCatSpeech, type Gesture, type Viseme } from '../hooks/useMeeCatSpeech'
 
-export type MeeCatState = 'idle' | 'look' | 'hint' | 'celebrate' | 'eat' | 'sleepy'
+export type MeeCatState = 'idle' | 'look' | 'hint' | 'celebrate' | 'eat' | 'sleepy' | 'talk'
 export type MeeCatVariant = 'half-body' | 'full-body'
 
 export interface MeeCatInteractiveCanvasProps {
@@ -17,6 +18,11 @@ export interface MeeCatInteractiveCanvasProps {
   engineMode?: 'svg-rig' | 'rive'
   transparentBackground?: boolean
   className?: string
+  isSpeaking?: boolean
+  speechText?: string
+  gesture?: Gesture
+  viseme?: Viseme
+  onSpeechEnd?: () => void
   onQuoteChange?: (quote: string) => void
 }
 
@@ -39,6 +45,11 @@ export function MeeCatInteractiveCanvas({
   engineMode = 'svg-rig',
   transparentBackground = false,
   className,
+  isSpeaking = false,
+  speechText = '',
+  gesture = 'auto',
+  viseme: controlledViseme,
+  onSpeechEnd,
 }: MeeCatInteractiveCanvasProps) {
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 })
   const [isHovered, setIsHovered] = useState(false)
@@ -47,8 +58,21 @@ export function MeeCatInteractiveCanvas({
   const [tailFrame, setTailFrame] = useState(0)
   const [celebrateStep, setCelebrateStep] = useState(0)
   const [sleepyNod, setSleepyNod] = useState(0)
+  const [talkStep, setTalkStep] = useState(0)
   const [breathePhase, setBreathePhase] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
+
+  // Speech TTS and Viseme hook
+  const effectiveSpeaking = isSpeaking || state === 'talk'
+  const effectiveSpeechText = speechText || quote || (state === 'talk' ? 'Mèo Mee xin chào các bạn nhỏ!' : '')
+  const { viseme: autoViseme, activeGesture, currentWord } = useMeeCatSpeech({
+    text: effectiveSpeechText,
+    isSpeaking: effectiveSpeaking,
+    gesture,
+    onSpeechEnd,
+  })
+
+  const currentViseme = controlledViseme || autoViseme
 
   // Rive Engine Fallback / Runtime
   const layout = new Layout({ fit: Fit.Contain, alignment: Alignment.Center })
@@ -120,13 +144,22 @@ export function MeeCatInteractiveCanvas({
     return () => clearInterval(sleepyInterval)
   }, [state])
 
+  // 4. TALKING GESTURE RHYTHM LOOP (Phát âm gật gù nhịp nhàng)
+  useEffect(() => {
+    if (!effectiveSpeaking) return
+    const talkInterval = setInterval(() => {
+      setTalkStep((prev) => (prev + 1) % 4)
+    }, 240)
+    return () => clearInterval(talkInterval)
+  }, [effectiveSpeaking])
+
   // Tail waving rhythm
   useEffect(() => {
     const tailInterval = setInterval(() => {
       setTailFrame((prev) => (prev + 1) % 4)
-    }, state === 'celebrate' ? 140 : 350)
+    }, state === 'celebrate' ? 140 : effectiveSpeaking ? 220 : 350)
     return () => clearInterval(tailInterval)
-  }, [state])
+  }, [state, effectiveSpeaking])
 
   const shouldBlink = isBlinking || internalBlink || state === 'sleepy'
   const activeQuote = quote?.trim() || ''
@@ -138,38 +171,78 @@ export function MeeCatInteractiveCanvas({
   // Sleepy head nod progression
   const sleepyHeadDrop = state === 'sleepy' ? [0, 20, 45, 65, 35, 10][sleepyNod] : 0
   const sleepyHeadRot = state === 'sleepy' ? [0, 3, 7, 10, 5, 2][sleepyNod] : 0
-  const headRotation = (headLookX * 0.45) + sleepyHeadRot
+
+  // Talking head nod rhythm (gật đầu nhẹ nhấn nhá theo câu nói)
+  const talkHeadNodY = effectiveSpeaking ? [0, 15, -8, 20][talkStep] : 0
+  const talkHeadRot = effectiveSpeaking ? [0, 2.5, -2, 1.5][talkStep] : 0
+
+  const headRotation = (headLookX * 0.45) + sleepyHeadRot + talkHeadRot
 
   // Ear rotations with FIXED BASE PIVOTS (750, 750) and (3300, 750)
   const sleepyEarDroop = state === 'sleepy' ? 18 : 0
-  const leftEarRot = -earAngle + sleepyEarDroop + (state === 'celebrate' ? (celebrateStep % 2 === 0 ? -14 : 8) : state === 'look' ? headLookX * 0.25 : 0)
-  const rightEarRot = earAngle - sleepyEarDroop + (state === 'celebrate' ? (celebrateStep % 2 === 0 ? 14 : -8) : state === 'look' ? headLookX * 0.25 : 0)
+  const talkEarWiggle = effectiveSpeaking ? (talkStep % 2 === 0 ? -6 : 6) : 0
+  const leftEarRot = -earAngle + sleepyEarDroop + talkEarWiggle + (state === 'celebrate' ? (celebrateStep % 2 === 0 ? -14 : 8) : state === 'look' ? headLookX * 0.25 : 0)
+  const rightEarRot = earAngle - sleepyEarDroop - talkEarWiggle + (state === 'celebrate' ? (celebrateStep % 2 === 0 ? 14 : -8) : state === 'look' ? headLookX * 0.25 : 0)
 
   // Tail animations
-  const tailBaseRot = tailWiggle + (state === 'celebrate' ? [-25, 30, -20, 25][tailFrame] : state === 'sleepy' ? -18 : [0, 8, -6, 6][tailFrame])
+  const tailBaseRot = tailWiggle + (state === 'celebrate' ? [-25, 30, -20, 25][tailFrame] : state === 'sleepy' ? -18 : effectiveSpeaking ? [-12, 16, -8, 12][tailFrame] : [0, 8, -6, 6][tailFrame])
 
-  // Celebrate Jump displacement values
-  const jumpY = state === 'celebrate' ? [35, -160, -130, 20][celebrateStep] : 0
-  const jumpLegScaleY = state === 'celebrate' ? [0.85, 1.15, 1.05, 0.9][celebrateStep] : 1
-
-  // Arm positions
-  // Eating state: Left arm brings the fish right up to the wide open mouth!
-  const leftArmRot = state === 'hint'
-    ? -45
-    : state === 'celebrate'
-    ? [-35, -75, -60, -25][celebrateStep]
-    : state === 'eat'
-    ? [-15, -65, -35, -15][chewFrame]
+  // Celebrate / Talk Jump displacement values
+  const jumpY = state === 'celebrate'
+    ? [35, -160, -130, 20][celebrateStep]
+    : effectiveSpeaking && activeGesture === 'enthusiastic'
+    ? [10, -45, -30, 5][talkStep]
     : 0
 
-  const rightArmRot = state === 'celebrate'
-    ? [35, 75, 60, 25][celebrateStep]
-    : state === 'eat'
-    ? [10, 25, 15, 5][chewFrame]
-    : 0
+  const jumpLegScaleY = state === 'celebrate'
+    ? [0.85, 1.15, 1.05, 0.9][celebrateStep]
+    : effectiveSpeaking && activeGesture === 'enthusiastic'
+    ? [0.95, 1.05, 1.02, 0.98][talkStep]
+    : 1
 
-  const leftArmTranslateY = state === 'eat' ? [0, -240, -60, 0][chewFrame] : 0
-  const leftArmTranslateX = state === 'eat' ? [0, 140, 40, 0][chewFrame] : 0
+  // Arm positions according to state and speech gestures:
+  // - point-left: Left arm stretches and points to the left (-65deg)
+  // - point-right: Right arm stretches and points to the right (+65deg)
+  // - explain: Alternating lively explaining gestures
+  // - enthusiastic: Both arms wave up with excitement
+  let leftArmRot = 0
+  let rightArmRot = 0
+  let leftArmTranslateY = 0
+  let leftArmTranslateX = 0
+
+  if (state === 'hint') {
+    leftArmRot = -45
+  } else if (state === 'celebrate') {
+    leftArmRot = [-35, -75, -60, -25][celebrateStep]
+    rightArmRot = [35, 75, 60, 25][celebrateStep]
+  } else if (state === 'eat') {
+    leftArmRot = [-15, -65, -35, -15][chewFrame]
+    rightArmRot = [10, 25, 15, 5][chewFrame]
+    leftArmTranslateY = [0, -240, -60, 0][chewFrame]
+    leftArmTranslateX = [0, 140, 40, 0][chewFrame]
+  } else if (effectiveSpeaking) {
+    if (activeGesture === 'point-left') {
+      leftArmRot = -65 + (talkStep % 2 === 0 ? -8 : 4)
+      rightArmRot = 10
+      leftArmTranslateY = -60
+      leftArmTranslateX = -40
+    } else if (activeGesture === 'point-right') {
+      leftArmRot = -10
+      rightArmRot = 65 + (talkStep % 2 === 0 ? 8 : -4)
+    } else if (activeGesture === 'explain') {
+      leftArmRot = [-25, -45, -30, -15][talkStep]
+      rightArmRot = [25, 45, 30, 15][talkStep]
+      leftArmTranslateY = -30
+    } else if (activeGesture === 'enthusiastic') {
+      leftArmRot = [-60, -85, -70, -40][talkStep]
+      rightArmRot = [60, 85, 70, 40][talkStep]
+      leftArmTranslateY = -80
+    } else {
+      // Gentle rhythm
+      leftArmRot = [-15, -30, -20, -10][talkStep]
+      rightArmRot = [15, 30, 20, 10][talkStep]
+    }
+  }
 
   if (engineMode === 'rive') {
     return (
@@ -195,19 +268,29 @@ export function MeeCatInteractiveCanvas({
         className,
       )}
     >
-      {/* Interactive Speech Bubble for Mascot Hints */}
-      {activeQuote && (
+      {/* Interactive Speech Bubble for Mascot Hints / Active Speech */}
+      {(activeQuote || (effectiveSpeaking && effectiveSpeechText)) && (
         <div className="absolute bottom-[95%] left-1/2 z-30 min-w-[180px] max-w-xs w-max -translate-x-1/2 rounded-2xl border-2 border-amber-300 bg-white/95 p-3 text-xs font-black text-slate-800 shadow-clay backdrop-blur animate-in fade-in slide-in-from-bottom-2 sm:text-sm">
-          <div className="flex items-center gap-1.5 font-extrabold text-amber-600">
-            <span>🐾 Mèo Mee</span>
-            <span className="text-[10px] uppercase tracking-wider text-amber-400">Trợ giảng AI</span>
+          <div className="flex items-center justify-between gap-1.5 font-extrabold text-amber-600">
+            <span className="flex items-center gap-1">
+              <span>🐾 Mèo Mee</span>
+              {effectiveSpeaking && <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />}
+            </span>
+            <span className="text-[10px] uppercase tracking-wider text-amber-400">
+              {effectiveSpeaking ? 'Đang thuyết trình...' : 'Trợ giảng AI'}
+            </span>
           </div>
-          <p className="mt-1 leading-snug">{activeQuote}</p>
+          <p className="mt-1 leading-snug">
+            {activeQuote || effectiveSpeechText}
+          </p>
+          {effectiveSpeaking && currentWord && (
+            <div className="mt-1.5 inline-block rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-black text-amber-800">
+              Đang đọc: {currentWord}
+            </div>
+          )}
           <div className="absolute -bottom-2 left-1/2 h-3.5 w-3.5 -translate-x-1/2 rotate-45 border-b-2 border-r-2 border-amber-300 bg-white" />
         </div>
       )}
-
-
 
       {/* =========================================================================
           VARIANT 1: FULL BODY RIG (FROM Group 1.svg: ViewBox 0 0 4983 5579)
@@ -296,7 +379,7 @@ export function MeeCatInteractiveCanvas({
             style={{
               transformOrigin: '1953px 3620px',
               transform: `rotate(${tailBaseRot}deg)`,
-              transition: state === 'celebrate' ? 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.4s ease-out',
+              transition: state === 'celebrate' ? 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.35s ease-out',
             }}
           >
             <path d="M1771.48 4123.58C1682.8 3952.97 1762.75 3732.34 1953.68 3620.59L4201.12 2305.2C4473.32 2145.92 4809.19 2216.58 4935.54 2459.78C5061.83 2702.92 4926.4 3018.41 4639.8 3149.76L2287.7 4263.61C2086.46 4355.6 1860 4294.19 1771.48 4123.58Z" fill="url(#fb-paint0_linear)" />
@@ -338,7 +421,7 @@ export function MeeCatInteractiveCanvas({
             id="full-head"
             style={{
               transformOrigin: '2015px 1922px',
-              transform: `translate(${headLookX * 2}px, ${(headLookY * 2) + sleepyHeadDrop}px) rotate(${headRotation}deg)`,
+              transform: `translate(${headLookX * 2}px, ${(headLookY * 2) + sleepyHeadDrop + talkHeadNodY}px) rotate(${headRotation}deg)`,
               transition: state === 'sleepy' ? 'transform 0.5s ease-in-out' : 'transform 0.15s ease-out',
             }}
           >
@@ -372,33 +455,59 @@ export function MeeCatInteractiveCanvas({
               )}
             </g>
 
-            {/* Nose & Mouth (DEFAULT: Iconic Wide Open Mouth for all states) */}
+            {/* Dynamic Mouth System with Lip-sync Visemes */}
             <g id="mouth">
               {state === 'eat' ? (
                 <g id="mouth-munching">
-                  {/* Phase 1: Bite into fish cookie */}
                   {chewFrame === 1 ? (
                     <g transform="translate(0, 40)">
                       <path d="M3373.39 1773.36C3373.39 1977.81 3277.88 2162.92 3123.24 2296.87C2968.61 2430.83 2755.42 2513.73 2519.67 2513.73H1510.41C1039.01 2513.73 656.842 2182.27 656.842 1773.51C656.842 1569.06 752.357 1383.96 906.989 1250C961.407 1202.99 1021.54 1163.05 1085.97 1131.11L1133.86 1187.82L1190.57 1254.95C1209.92 1277.82 1250.61 1273.99 1263.83 1248.01L1302.48 1171.9L1367.72 1043.45C1415.06 1036.59 1462.83 1033.18 1510.66 1033.25H2519.83C2565.25 1033.21 2610.63 1036.33 2655.62 1042.59L2721.37 1172L2760.02 1248.11C2773.19 1274.1 2813.88 1277.93 2833.23 1255.06L2889.89 1187.93L2939.77 1128.91C3198.65 1255.82 3373.39 1496.88 3373.39 1773.36Z" fill="url(#fb-paint9_linear)" />
                     </g>
                   ) : chewFrame === 2 ? (
-                    /* Phase 2: Chewing closed mouth (nhóp nhép) */
                     <g transform="translate(0, 40)">
                       <path d="M 1650 1450 Q 1830 1620 2015 1450 Q 2200 1620 2380 1450" stroke="#8E3817" strokeWidth="65" fill="none" strokeLinecap="round" />
                     </g>
                   ) : chewFrame === 3 ? (
-                    /* Phase 3: Mlem licking tongue */
                     <g transform="translate(0, 40)">
                       <path d="M 1650 1450 Q 1830 1620 2015 1450 Q 2200 1620 2380 1450" stroke="#8E3817" strokeWidth="65" fill="none" strokeLinecap="round" />
                       <ellipse cx="2015" cy="1580" rx="90" ry="70" fill="#ff7676" stroke="#8E3817" strokeWidth="20" />
                     </g>
                   ) : (
-                    /* Phase 0: Ready to bite (wide open) */
+                    <path d="M3373.39 1773.36C3373.39 1977.81 3277.88 2162.92 3123.24 2296.87C2968.61 2430.83 2755.42 2513.73 2519.67 2513.73H1510.41C1039.01 2513.73 656.842 2182.27 656.842 1773.51C656.842 1569.06 752.357 1383.96 906.989 1250C961.407 1202.99 1021.54 1163.05 1085.97 1131.11L1133.86 1187.82L1190.57 1254.95C1209.92 1277.82 1250.61 1273.99 1263.83 1248.01L1302.48 1171.9L1367.72 1043.45C1415.06 1036.59 1462.83 1033.18 1510.66 1033.25H2519.83C2565.25 1033.21 2610.63 1036.33 2655.62 1042.59L2721.37 1172L2760.02 1248.11C2773.19 1274.1 2813.88 1277.93 2833.23 1255.06L2889.89 1187.93L2939.77 1128.91C3198.65 1255.82 3373.39 1496.88 3373.39 1773.36Z" fill="url(#fb-paint9_linear)" />
+                  )}
+                </g>
+              ) : effectiveSpeaking ? (
+                /* Dynamic Lip-sync Viseme shapes */
+                <g id="mouth-viseme">
+                  {currentViseme === 'round' ? (
+                    /* O / U / W round mouth */
+                    <g transform="translate(0, 50)">
+                      <ellipse cx="2015" cy="1520" rx="320" ry="380" fill="url(#fb-paint9_linear)" />
+                      <ellipse cx="2015" cy="1680" rx="180" ry="140" fill="#FFAEAE" />
+                    </g>
+                  ) : currentViseme === 'smile' ? (
+                    /* E / I / Y smile mouth */
+                    <g transform="translate(0, 50)">
+                      <path d="M 1350 1420 Q 2015 1950 2680 1420 Q 2015 1320 1350 1420 Z" fill="url(#fb-paint9_linear)" />
+                      <path d="M 1650 1560 Q 2015 1820 2380 1560 Z" fill="#FFAEAE" />
+                    </g>
+                  ) : currentViseme === 'closed' ? (
+                    /* M / B / P / Rest closed cute mouth */
+                    <g transform="translate(0, 80)">
+                      <path d="M 1650 1450 Q 1830 1620 2015 1450 Q 2200 1620 2380 1450" stroke="#8E3817" strokeWidth="65" fill="none" strokeLinecap="round" />
+                    </g>
+                  ) : currentViseme === 'open' ? (
+                    /* Medium open mouth */
+                    <g transform="translate(0, 40) scale(0.85) translate(355, 270)">
+                      <path d="M3373.39 1773.36C3373.39 1977.81 3277.88 2162.92 3123.24 2296.87C2968.61 2430.83 2755.42 2513.73 2519.67 2513.73H1510.41C1039.01 2513.73 656.842 2182.27 656.842 1773.51C656.842 1569.06 752.357 1383.96 906.989 1250C961.407 1202.99 1021.54 1163.05 1085.97 1131.11L1133.86 1187.82L1190.57 1254.95C1209.92 1277.82 1250.61 1273.99 1263.83 1248.01L1302.48 1171.9L1367.72 1043.45C1415.06 1036.59 1462.83 1033.18 1510.66 1033.25H2519.83C2565.25 1033.21 2610.63 1036.33 2655.62 1042.59L2721.37 1172L2760.02 1248.11C2773.19 1274.1 2813.88 1277.93 2833.23 1255.06L2889.89 1187.93L2939.77 1128.91C3198.65 1255.82 3373.39 1496.88 3373.39 1773.36Z" fill="url(#fb-paint9_linear)" />
+                    </g>
+                  ) : (
+                    /* Default Wide A / Ă / Â mouth */
                     <path d="M3373.39 1773.36C3373.39 1977.81 3277.88 2162.92 3123.24 2296.87C2968.61 2430.83 2755.42 2513.73 2519.67 2513.73H1510.41C1039.01 2513.73 656.842 2182.27 656.842 1773.51C656.842 1569.06 752.357 1383.96 906.989 1250C961.407 1202.99 1021.54 1163.05 1085.97 1131.11L1133.86 1187.82L1190.57 1254.95C1209.92 1277.82 1250.61 1273.99 1263.83 1248.01L1302.48 1171.9L1367.72 1043.45C1415.06 1036.59 1462.83 1033.18 1510.66 1033.25H2519.83C2565.25 1033.21 2610.63 1036.33 2655.62 1042.59L2721.37 1172L2760.02 1248.11C2773.19 1274.1 2813.88 1277.93 2833.23 1255.06L2889.89 1187.93L2939.77 1128.91C3198.65 1255.82 3373.39 1496.88 3373.39 1773.36Z" fill="url(#fb-paint9_linear)" />
                   )}
                 </g>
               ) : (
-                /* DEFAULT WIDE OPEN MOUTH FOR ALL STATES (Idle, Look, Celebrate, Hint, Sleepy) */
+                /* DEFAULT WIDE OPEN MOUTH FOR ALL OTHER STATES (Idle, Look, Celebrate, Hint, Sleepy) */
                 <g id="mouth-open">
                   <path d="M3373.39 1773.36C3373.39 1977.81 3277.88 2162.92 3123.24 2296.87C2968.61 2430.83 2755.42 2513.73 2519.67 2513.73H1510.41C1039.01 2513.73 656.842 2182.27 656.842 1773.51C656.842 1569.06 752.357 1383.96 906.989 1250C961.407 1202.99 1021.54 1163.05 1085.97 1131.11L1133.86 1187.82L1190.57 1254.95C1209.92 1277.82 1250.61 1273.99 1263.83 1248.01L1302.48 1171.9L1367.72 1043.45C1415.06 1036.59 1462.83 1033.18 1510.66 1033.25H2519.83C2565.25 1033.21 2610.63 1036.33 2655.62 1042.59L2721.37 1172L2760.02 1248.11C2773.19 1274.1 2813.88 1277.93 2833.23 1255.06L2889.89 1187.93L2939.77 1128.91C3198.65 1255.82 3373.39 1496.88 3373.39 1773.36Z" fill="url(#fb-paint9_linear)" />
                 </g>
@@ -417,7 +526,7 @@ export function MeeCatInteractiveCanvas({
             )}
           </g>
 
-          {/* --- 5. FRONT ARMS & PAWS (Holding Snack / Waving) --- */}
+          {/* --- 5. FRONT ARMS & PAWS (Holding Snack / Waving / Pointing) --- */}
           <g id="full-arms">
             {/* Left Arm */}
             <g
@@ -432,22 +541,16 @@ export function MeeCatInteractiveCanvas({
               <path d="M1420.46 2980.38C1418.82 2977.88 1417.14 2975.27 1415.35 2972.97C1307.74 2984.46 1249.69 3013.81 1226.46 3025.71C1223.81 3027.09 1220.8 3028.57 1219.21 3029.23C1214.71 3030.09 1210.67 3032.56 1207.86 3036.19C1205.05 3039.81 1203.66 3044.35 1203.96 3048.92C1204.27 3053.5 1206.23 3057.81 1209.49 3061.04C1212.75 3064.27 1217.08 3066.19 1221.66 3066.45C1228.35 3066.75 1233.41 3064.25 1243.41 3059.2C1266.18 3047.61 1324.79 3017.85 1436.89 3008.61C1432.03 2998.85 1426.54 2989.42 1420.46 2980.38Z" fill="#E05A00" />
               <path d="M1295.38 3201.98C1292.32 3202.29 1289.1 3202.85 1287.37 3203.01C1282.89 3202.42 1278.34 3203.48 1274.58 3205.98C1270.82 3208.49 1268.1 3212.28 1266.91 3216.64C1265.73 3221 1266.17 3225.64 1268.14 3229.71C1270.12 3233.77 1273.5 3236.98 1277.67 3238.74C1283.84 3241.24 1289.41 3240.42 1300.54 3238.74C1320.65 3235.88 1365.63 3229.5 1437.76 3240.63C1441.18 3233.69 1444.3 3226.54 1447.05 3219.29C1448.84 3214.54 1450.52 3209.79 1452.16 3205C1369.51 3191.52 1317.84 3198.77 1295.38 3201.98Z" fill="#E05A00" />
 
-              {/* JUMBO GOLDEN FISH COOKIE - FIXED POSITION RIGHT IN HAND PAW (840, 3080) */}
+              {/* JUMBO GOLDEN FISH COOKIE - IN HAND PAW ONLY WHEN AT STATE EAT */}
               {state === 'eat' && (
                 <g id="fish-cookie-snack" transform="translate(840, 3080) rotate(-35)">
-                  {/* Top & Bottom Fins */}
                   <path d="M 320 120 Q 420 20 520 120 Z" fill="#d97706" />
                   <path d="M 320 440 Q 420 540 520 440 Z" fill="#d97706" />
-                  {/* Tail Fin */}
                   <polygon points="680,280 820,160 780,280 820,400" fill="#f59e0b" stroke="#b45309" strokeWidth="18" strokeLinejoin="round" />
-                  {/* Fish Body */}
                   <path d="M 60 280 Q 60 120 380 120 Q 680 120 680 280 Q 680 440 380 440 Q 60 440 60 280 Z" fill="url(#fish-cookie-grad)" stroke="#b45309" strokeWidth="22" />
-                  {/* Fish Eye */}
                   <circle cx="180" cy="230" r="28" fill="#78350f" />
                   <circle cx="170" cy="220" r="9" fill="#ffffff" />
-                  {/* Baked Fish Scales Pattern */}
                   <path d="M 310 200 Q 345 235 310 270 M 370 200 Q 405 235 370 270 M 430 200 Q 465 235 430 270 M 340 270 Q 375 305 340 340 M 400 270 Q 435 305 400 340" stroke="#b45309" strokeWidth="16" fill="none" strokeLinecap="round" />
-                  {/* Fish Mouth Smile */}
                   <path d="M 120 330 Q 150 360 180 330" stroke="#78350f" strokeWidth="16" fill="none" strokeLinecap="round" />
                 </g>
               )}
@@ -562,7 +665,7 @@ export function MeeCatInteractiveCanvas({
             id="head"
             style={{
               transformOrigin: '417px 355px',
-              transform: `translate(${headLookX}px, ${(headLookY) + (sleepyHeadDrop * 0.35)}px) rotate(${headRotation}deg)`,
+              transform: `translate(${headLookX}px, ${(headLookY) + (sleepyHeadDrop * 0.35) + (talkHeadNodY * 0.3)}px) rotate(${headRotation}deg)`,
               transition: state === 'sleepy' ? 'transform 0.5s ease-in-out' : 'transform 0.15s ease-out',
             }}
           >
@@ -603,6 +706,21 @@ export function MeeCatInteractiveCanvas({
                 <g id="mouth-eating" transform={`translate(0, ${chewFrame % 2 === 0 ? 6 : -2})`}>
                   <path d="M380,210 Q417,245 454,210 Z" fill="#e11d48" />
                   <path fill="url(#live-snack)" d="M327.47,228.66a5,5,0,0,1-.86-10L506.84,187a5,5,0,1,1,1.73,9.9L328.34,228.59A5.1,5.1,0,0,1,327.47,228.66Z" />
+                </g>
+              ) : effectiveSpeaking ? (
+                <g id="mouth-live-viseme">
+                  {currentViseme === 'round' ? (
+                    <circle cx="417" cy="225" r="16" fill="#e11d48" />
+                  ) : currentViseme === 'smile' ? (
+                    <path d="M380,212 Q417,235 454,212 Z" fill="#e11d48" />
+                  ) : currentViseme === 'closed' ? (
+                    <path d="M385,215 Q400,226 417,215 Q434,226 449,215" stroke="#f48108" strokeWidth="5" fill="none" strokeLinecap="round" />
+                  ) : (
+                    <g id="mouth-happy">
+                      <path d="M375,208 Q417,265 459,208 Z" fill="#e11d48" />
+                      <path d="M392,230 Q417,256 442,230 Z" fill="#fb7185" />
+                    </g>
+                  )}
                 </g>
               ) : (
                 <g id="mouth-happy">

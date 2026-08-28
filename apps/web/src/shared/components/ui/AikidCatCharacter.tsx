@@ -4,6 +4,7 @@ import {
   type MeeCatState,
   type MeeCatVariant,
 } from '@/features/mee-rig/components/MeeCatInteractiveCanvas'
+import type { Gesture, Viseme } from '@/features/mee-rig/hooks/useMeeCatSpeech'
 
 export type AikidCatPose =
   | 'welcome'
@@ -14,6 +15,7 @@ export type AikidCatPose =
   | 'support'
   | 'eat'
   | 'sleepy'
+  | 'talk'
 
 const POSE_TO_STATE_MAP: Record<AikidCatPose, MeeCatState> = {
   welcome: 'hint',
@@ -24,6 +26,19 @@ const POSE_TO_STATE_MAP: Record<AikidCatPose, MeeCatState> = {
   support: 'hint',
   eat: 'eat',
   sleepy: 'sleepy',
+  talk: 'talk',
+}
+
+export interface AikidCatCharacterProps {
+  pose?: AikidCatPose
+  variant?: MeeCatVariant
+  quote?: string
+  className?: string
+  isSpeaking?: boolean
+  speechText?: string
+  gesture?: Gesture
+  viseme?: Viseme
+  onSpeechEnd?: () => void
 }
 
 export function AikidCatCharacter({
@@ -31,12 +46,12 @@ export function AikidCatCharacter({
   variant = 'full-body',
   quote,
   className,
-}: {
-  pose?: AikidCatPose
-  variant?: MeeCatVariant
-  quote?: string
-  className?: string
-}) {
+  isSpeaking,
+  speechText,
+  gesture,
+  viseme,
+  onSpeechEnd,
+}: AikidCatCharacterProps) {
   const catState = POSE_TO_STATE_MAP[pose] || 'idle'
 
   return (
@@ -49,6 +64,11 @@ export function AikidCatCharacter({
         state={catState}
         variant={variant}
         quote={quote}
+        isSpeaking={isSpeaking}
+        speechText={speechText}
+        gesture={gesture}
+        viseme={viseme}
+        onSpeechEnd={onSpeechEnd}
         transparentBackground
         className="h-full w-full"
       />

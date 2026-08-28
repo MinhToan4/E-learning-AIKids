@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import manifest from '../../../public/assets/mee/mee-cat-rig-v1-manifest.json'
+import { getVisemeFromWord } from './hooks/useMeeCatSpeech'
 
 describe('Mee Cat Rig System', () => {
   it('should have valid artboard dimensions and baseline in manifest', () => {
@@ -37,5 +38,19 @@ describe('Mee Cat Rig System', () => {
     expect(manifest.timelines).toHaveProperty('celebrate')
     expect(manifest.timelines).toHaveProperty('eat')
     expect(manifest.timelines).toHaveProperty('sleepy')
+  })
+
+  describe('Lip-sync & Viseme Mapping Engine', () => {
+    it('maps Vietnamese and English vowels correctly to visemes', () => {
+      expect(getVisemeFromWord('Chào')).toBe('wide')
+      expect(getVisemeFromWord('bạn')).toBe('closed')
+      expect(getVisemeFromWord('nhỏ')).toBe('round')
+      expect(getVisemeFromWord('Mèo')).toBe('closed')
+      expect(getVisemeFromWord('Mee')).toBe('closed')
+      expect(getVisemeFromWord('Em')).toBe('smile')
+      expect(getVisemeFromWord('Uống')).toBe('round')
+      expect(getVisemeFromWord('Ăn')).toBe('wide')
+      expect(getVisemeFromWord('Đi')).toBe('smile')
+    })
   })
 })

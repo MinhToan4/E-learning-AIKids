@@ -5,6 +5,7 @@ import {
   type MeeCatState,
   type MeeCatVariant,
 } from '../components/MeeCatInteractiveCanvas'
+import type { Gesture } from '../hooks/useMeeCatSpeech'
 import {
   Sparkles,
   Eye,
@@ -18,6 +19,12 @@ import {
   ArrowLeft,
   RotateCcw,
   Cat,
+  Volume2,
+  VolumeX,
+  Mic,
+  Hand,
+  Play,
+  Square,
 } from 'lucide-react'
 
 const STATE_PRESETS: Array<{
@@ -33,6 +40,13 @@ const STATE_PRESETS: Array<{
     desc: 'Thở nhịp nhàng, mắt chớp tự nhiên 3-4s, đuôi vẫy nhẹ',
     icon: Smile,
     badgeColor: 'bg-emerald-100 text-emerald-700',
+  },
+  {
+    id: 'talk',
+    label: 'Thuyết trình (Talk)',
+    desc: 'Lipsync theo text, chỉ trỏ tay và gật đầu nhịp nhàng',
+    icon: Mic,
+    badgeColor: 'bg-amber-100 text-amber-800',
   },
   {
     id: 'look',
@@ -51,7 +65,7 @@ const STATE_PRESETS: Array<{
   {
     id: 'celebrate',
     label: 'Ăn mừng (Celebrate)',
-    desc: 'Nhảy nhót, vẫy đuôi tít mù, má hồng lấp lánh',
+    desc: 'Nhảy nhót, vẫy đuôi tít mù, má hồng hớn hở',
     icon: Sparkles,
     badgeColor: 'bg-pink-100 text-pink-700',
   },
@@ -65,10 +79,25 @@ const STATE_PRESETS: Array<{
   {
     id: 'sleepy',
     label: 'Buồn ngủ (Sleepy)',
-    desc: 'Mắt nhắm cong tít, bóng zZz lơ lửng',
+    desc: 'Mắt nhắm cong tít, đầu gật gù, bóng ngủ ở mũi',
     icon: Moon,
     badgeColor: 'bg-purple-100 text-purple-700',
   },
+]
+
+const SAMPLE_SPEECHES = [
+  'Chào các bạn nhỏ! Mình là Mèo Mee, trợ giảng AI của các bạn đây!',
+  'Nhìn sang bên trái này, chúng ta có một bài toán ASMO rất thú vị!',
+  'Con hãy thực hiện phép tính từ trái sang phải để tìm ra kết quả chính xác nhé!',
+  'Bé làm bài xuất sắc lắm! Mèo Mee vỗ tay khen ngợi con nào!',
+]
+
+const GESTURE_OPTIONS: Array<{ id: Gesture; label: string; desc: string }> = [
+  { id: 'auto', label: 'Tự Động (AI Auto)', desc: 'Tự luân chuyển cử chỉ chỉ trỏ & thuyết trình theo nhịp câu' },
+  { id: 'point-left', label: 'Chỉ Bên Trái', desc: 'Tay trái vươn sang trái chỉ vào đề bài / hình vẽ' },
+  { id: 'point-right', label: 'Chỉ Bên Phải', desc: 'Tay phải vươn sang phải chỉ vào kết quả / bảng' },
+  { id: 'explain', label: 'Thuyết Trình (2 tay)', desc: 'Hai tay mở ra vào giải thích sinh động' },
+  { id: 'enthusiastic', label: 'Hào Hứng (Nhún nhảy)', desc: 'Vung hai tay lên cao cổ vũ nhiệt tình' },
 ]
 
 export function MeeCatStudioPage() {
@@ -81,12 +110,10 @@ export function MeeCatStudioPage() {
   const [engineMode, setEngineMode] = useState<'svg-rig' | 'rive'>('svg-rig')
   const [customQuoteIndex, setCustomQuoteIndex] = useState(0)
 
-  const QUOTES = [
-    'Mèo Mee gợi ý: Con hãy thực hiện phép tính từ trái sang phải nhé!',
-    'Mèo Mee gợi ý: Khoảng cách giữa 2 số liên tiếp tăng thêm 3 đơn vị đó!',
-    'Mèo Mee gợi ý: Thử chia nhỏ hình vẽ phức tạp thành các hình quen thuộc nhé!',
-    'Mèo Mee cổ vũ: Con thông minh lắm, chỉ còn 1 bước nữa là xong rồi! 🐾🎉',
-  ]
+  // Speech & Lip-sync State
+  const [speechInput, setSpeechInput] = useState(SAMPLE_SPEECHES[0])
+  const [selectedGesture, setSelectedGesture] = useState<Gesture>('auto')
+  const [isSpeaking, setIsSpeaking] = useState(false)
 
   const handleManualBlink = () => {
     setIsBlinking(true)
@@ -94,7 +121,19 @@ export function MeeCatStudioPage() {
   }
 
   const handleNextQuote = () => {
-    setCustomQuoteIndex((prev) => (prev + 1) % QUOTES.length)
+    setCustomQuoteIndex((prev) => (prev + 1) % SAMPLE_SPEECHES.length)
+  }
+
+  const handlePlaySpeech = () => {
+    setActiveState('talk')
+    setIsSpeaking(true)
+  }
+
+  const handleStopSpeech = () => {
+    setIsSpeaking(false)
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+    }
   }
 
   const downloadFile = (filename: string, path: string) => {
@@ -126,7 +165,7 @@ export function MeeCatStudioPage() {
           </Link>
           <div className="inline-flex items-center gap-2 rounded-2xl bg-amber-500/15 border border-amber-400/40 px-3.5 py-1.5 text-xs font-black text-amber-800 backdrop-blur">
             <Flame className="h-4 w-4 text-amber-600 animate-pulse" />
-            <span>Mee Cat Rig Studio v1.2</span>
+            <span>Mee Cat Rig Studio v1.3 • Lipsync & Gestures</span>
           </div>
         </div>
 
@@ -187,10 +226,10 @@ export function MeeCatStudioPage() {
       </header>
 
       {/* Main Studio Grid */}
-      <div className="relative z-10 grid gap-6 lg:grid-cols-[minmax(26rem,1fr)_minmax(22rem,26rem)]">
+      <div className="relative z-10 grid gap-6 lg:grid-cols-[minmax(26rem,1fr)_minmax(24rem,28rem)]">
         {/* Left Column: Interactive Stage */}
         <section
-          className="flex min-h-[34rem] flex-col items-center justify-center rounded-[2.5rem] border-3 border-white/80 bg-white/60 p-4 sm:p-8 shadow-clay backdrop-blur"
+          className="flex min-h-[36rem] flex-col items-center justify-center rounded-[2.5rem] border-3 border-white/80 bg-white/60 p-4 sm:p-8 shadow-clay backdrop-blur"
           aria-label="Sân khấu Mèo Mee"
         >
           <div className="w-full max-w-[620px]">
@@ -202,7 +241,11 @@ export function MeeCatStudioPage() {
               tailWiggle={tailWiggle}
               isBlinking={isBlinking}
               engineMode={engineMode}
-              quote={activeState === 'hint' ? QUOTES[customQuoteIndex] : undefined}
+              isSpeaking={isSpeaking}
+              speechText={speechInput}
+              gesture={selectedGesture}
+              onSpeechEnd={() => setIsSpeaking(false)}
+              quote={activeState === 'hint' ? SAMPLE_SPEECHES[customQuoteIndex] : undefined}
             />
           </div>
 
@@ -215,7 +258,7 @@ export function MeeCatStudioPage() {
 
         {/* Right Column: State Machine & Rigging Control Panel */}
         <aside
-          className="flex flex-col gap-5 rounded-[2.5rem] border-3 border-white/80 bg-white/90 p-5 sm:p-6 shadow-clay backdrop-blur"
+          className="flex flex-col gap-5 rounded-[2.5rem] border-3 border-white/80 bg-white/90 p-5 sm:p-6 shadow-clay backdrop-blur overflow-y-auto max-h-[calc(100vh-7rem)]"
           aria-label="Bảng điều khiển hoạt ảnh Mèo Mee"
         >
           {/* Section 1: State Machine Presets */}
@@ -229,7 +272,7 @@ export function MeeCatStudioPage() {
               </span>
             </div>
 
-            <div className="grid grid-cols-2 gap-2.5">
+            <div className="grid grid-cols-2 gap-2">
               {STATE_PRESETS.map((preset) => {
                 const Icon = preset.icon
                 const isActive = activeState === preset.id
@@ -237,8 +280,13 @@ export function MeeCatStudioPage() {
                   <button
                     key={preset.id}
                     type="button"
-                    onClick={() => setActiveState(preset.id)}
-                    className={`group flex flex-col items-start rounded-2xl p-3 text-left transition-all border-2 ${
+                    onClick={() => {
+                      setActiveState(preset.id)
+                      if (preset.id !== 'talk') {
+                        handleStopSpeech()
+                      }
+                    }}
+                    className={`group flex flex-col items-start rounded-2xl p-2.5 text-left transition-all border-2 ${
                       isActive
                         ? 'border-amber-500 bg-amber-50/80 ring-2 ring-amber-300 shadow-sm'
                         : 'border-slate-100 bg-slate-50/80 hover:border-slate-200 hover:bg-slate-100/80'
@@ -268,13 +316,100 @@ export function MeeCatStudioPage() {
             </div>
           </div>
 
-          {/* Section 2: Realtime Joint & Rigging Controls */}
+          {/* Section 2: AI Lipsync & Speech Studio */}
           <div className="border-t border-slate-100 pt-4">
-            <h2 className="font-display text-lg font-black text-slate-800 mb-3">
-              2. Điều Khiển Khớp Xương (Joints)
+            <div className="flex items-center justify-between mb-2">
+              <h2 className="font-display text-base font-black text-slate-800 flex items-center gap-1.5">
+                <Volume2 className="h-4 w-4 text-amber-600" />
+                <span>2. Thuyết Trình AI & Lip-sync</span>
+              </h2>
+              {isSpeaking && (
+                <span className="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2 py-0.5 text-[10px] font-black text-emerald-700 animate-pulse">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Đang nói
+                </span>
+              )}
+            </div>
+
+            {/* Custom Text input */}
+            <div className="flex flex-col gap-2">
+              <textarea
+                value={speechInput}
+                onChange={(e) => setSpeechInput(e.target.value)}
+                placeholder="Nhập câu tiếng Việt để Mèo Mee phát âm và lipsync..."
+                rows={2}
+                className="w-full rounded-xl border border-amber-200 bg-amber-50/40 p-2.5 text-xs font-bold text-slate-800 focus:border-amber-400 focus:outline-hidden focus:ring-2 focus:ring-amber-300"
+              />
+
+              {/* Sample speech chips */}
+              <div className="flex flex-wrap gap-1">
+                {SAMPLE_SPEECHES.map((sample, idx) => (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => setSpeechInput(sample)}
+                    className="rounded-lg bg-slate-100 hover:bg-amber-100 px-2 py-1 text-[10px] font-bold text-slate-600 hover:text-amber-800 transition"
+                  >
+                    Mẫu #{idx + 1}
+                  </button>
+                ))}
+              </div>
+
+              {/* Gesture Selection */}
+              <div className="mt-2">
+                <label className="text-xs font-black text-slate-700 flex items-center gap-1 mb-1.5">
+                  <Hand className="h-3.5 w-3.5 text-amber-600" />
+                  <span>Cử Chỉ Tay Chân (Gestures):</span>
+                </label>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {GESTURE_OPTIONS.map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => setSelectedGesture(opt.id)}
+                      className={`rounded-xl px-2.5 py-1.5 text-left text-[11px] font-extrabold transition border ${
+                        selectedGesture === opt.id
+                          ? 'border-amber-500 bg-amber-100 text-amber-900 shadow-2xs'
+                          : 'border-slate-200/80 bg-white text-slate-600 hover:bg-slate-50'
+                      }`}
+                    >
+                      <div>{opt.label}</div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Play & Stop Buttons */}
+              <div className="grid grid-cols-2 gap-2 mt-2">
+                <button
+                  type="button"
+                  onClick={handlePlaySpeech}
+                  disabled={isSpeaking || !speechInput.trim()}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl bg-gradient-to-r from-amber-500 to-orange-500 py-2.5 px-3 text-xs font-black text-white hover:from-amber-600 hover:to-orange-600 transition shadow-sm disabled:opacity-50"
+                >
+                  <Play className="h-3.5 w-3.5 fill-current" />
+                  <span>Nói & Lipsync</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={handleStopSpeech}
+                  disabled={!isSpeaking}
+                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 py-2.5 px-3 text-xs font-black text-rose-700 hover:bg-rose-100 transition disabled:opacity-40"
+                >
+                  <Square className="h-3.5 w-3.5 fill-current" />
+                  <span>Dừng</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Section 3: Realtime Joint & Rigging Controls */}
+          <div className="border-t border-slate-100 pt-4">
+            <h2 className="font-display text-base font-black text-slate-800 mb-2.5">
+              3. Điều Khiển Khớp Xương (Joints)
             </h2>
 
-            <div className="flex flex-col gap-3.5 text-xs font-bold text-slate-700">
+            <div className="flex flex-col gap-3 text-xs font-bold text-slate-700">
               {/* Ear Wiggle Slider */}
               <div>
                 <div className="flex justify-between mb-1">
@@ -310,10 +445,10 @@ export function MeeCatStudioPage() {
               )}
 
               {/* Bones Debugger Toggle */}
-              <label className="flex items-center justify-between rounded-2xl bg-slate-50 p-3 border border-slate-100 cursor-pointer hover:bg-slate-100/80 transition">
+              <label className="flex items-center justify-between rounded-2xl bg-slate-50 p-2.5 border border-slate-100 cursor-pointer hover:bg-slate-100/80 transition">
                 <div className="flex items-center gap-2">
                   <Bone className="h-4 w-4 text-amber-600" />
-                  <span>Hiển thị Khung Xương & Pivot ({variant === 'full-body' ? '8 Khớp' : '5 Khớp'})</span>
+                  <span>Hiển thị Khung Xương ({variant === 'full-body' ? '8 Khớp' : '5 Khớp'})</span>
                 </div>
                 <input
                   type="checkbox"
@@ -346,11 +481,11 @@ export function MeeCatStudioPage() {
             </div>
           </div>
 
-          {/* Section 3: Export & Assets Download */}
-          <div className="mt-auto border-t border-slate-100 pt-4">
-            <h2 className="font-display text-sm font-black text-slate-800 mb-2 flex items-center gap-1.5">
-              <Download className="h-4 w-4 text-amber-600" />
-              <span>3. Tải Về File Rig Đã Chuẩn Hóa</span>
+          {/* Section 4: Export & Assets Download */}
+          <div className="mt-auto border-t border-slate-100 pt-3">
+            <h2 className="font-display text-xs font-black text-slate-800 mb-2 flex items-center gap-1.5">
+              <Download className="h-3.5 w-3.5 text-amber-600" />
+              <span>4. Tải Về Tài Nguyên Rig</span>
             </h2>
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -361,9 +496,9 @@ export function MeeCatStudioPage() {
                     '/assets/mee/mee-cat-fullbody-rig-v1-source.svg',
                   )
                 }
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-amber-50 border border-amber-200/80 py-2 px-3 text-xs font-extrabold text-amber-800 hover:bg-amber-100 transition"
+                className="flex items-center justify-center gap-1 rounded-xl bg-amber-50 border border-amber-200/80 py-1.5 px-2 text-[11px] font-extrabold text-amber-800 hover:bg-amber-100 transition"
               >
-                <span>Full Body SVG (Group 1)</span>
+                <span>Full Body SVG</span>
               </button>
               <button
                 type="button"
@@ -373,7 +508,7 @@ export function MeeCatStudioPage() {
                     '/assets/mee/mee-cat-rig-v1-manifest.json',
                   )
                 }
-                className="flex items-center justify-center gap-1.5 rounded-xl bg-sky-50 border border-sky-200/80 py-2 px-3 text-xs font-extrabold text-sky-800 hover:bg-sky-100 transition"
+                className="flex items-center justify-center gap-1 rounded-xl bg-sky-50 border border-sky-200/80 py-1.5 px-2 text-[11px] font-extrabold text-sky-800 hover:bg-sky-100 transition"
               >
                 <span>Manifest (.json)</span>
               </button>
