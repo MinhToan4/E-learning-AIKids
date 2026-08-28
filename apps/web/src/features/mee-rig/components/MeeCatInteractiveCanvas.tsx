@@ -455,75 +455,90 @@ export function MeeCatInteractiveCanvas({
               )}
             </g>
 
-            {/* Dynamic Mouth System with Lip-sync Visemes */}
+            {/* Dynamic Mouth System with Lip-sync Visemes (Gắn chuẩn liền dưới mũi, tỷ lệ mèo con cute) */}
             <g id="mouth">
               {state === 'eat' ? (
                 <g id="mouth-munching">
                   {chewFrame === 1 ? (
-                    <g transform="translate(0, 50)">
-                      <path d="M 1520 1420 Q 2015 1820 2510 1420 Q 2015 1340 1520 1420 Z" fill="url(#fb-paint9_linear)" />
-                      <ellipse cx="2015" cy="1640" rx="160" ry="110" fill="#FFAEAE" />
+                    <g id="eat-chew-1">
+                      <path d="M 1740 1020 Q 2011 1260 2280 1020 Q 2011 975 1740 1020 Z" fill="#D83D00" />
+                      <path d="M 1850 1140 Q 2011 1245 2170 1140 Z" fill="#FFAEAE" />
+                      <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
                     </g>
                   ) : chewFrame === 2 ? (
-                    <g transform="translate(0, 50)">
-                      <path d="M 1650 1450 Q 1830 1620 2015 1450 Q 2200 1620 2380 1450" stroke="#8E3817" strokeWidth="65" fill="none" strokeLinecap="round" />
+                    <g id="eat-chew-2">
+                      <path d="M 2011 965 L 2011 1015" stroke="#8E3817" strokeWidth="45" strokeLinecap="round" />
+                      <path d="M 2011 1015 Q 1860 1095 1740 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
+                      <path d="M 2011 1015 Q 2160 1095 2280 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
                     </g>
                   ) : chewFrame === 3 ? (
-                    <g transform="translate(0, 50)">
-                      <path d="M 1650 1450 Q 1830 1620 2015 1450 Q 2200 1620 2380 1450" stroke="#8E3817" strokeWidth="65" fill="none" strokeLinecap="round" />
-                      <ellipse cx="2015" cy="1580" rx="90" ry="70" fill="#ff7676" stroke="#8E3817" strokeWidth="20" />
+                    <g id="eat-chew-3">
+                      <path d="M 2011 965 L 2011 1015" stroke="#8E3817" strokeWidth="45" strokeLinecap="round" />
+                      <path d="M 2011 1015 Q 1860 1095 1740 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
+                      <path d="M 2011 1015 Q 2160 1095 2280 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
+                      <ellipse cx="2011" cy="1075" rx="70" ry="50" fill="#FFAEAE" stroke="#8E3817" strokeWidth="15" />
                     </g>
                   ) : (
-                    <g transform="translate(0, 50)">
-                      <path d="M 1560 1430 Q 2015 1780 2470 1430 Q 2015 1350 1560 1430 Z" fill="url(#fb-paint9_linear)" />
-                      <ellipse cx="2015" cy="1620" rx="140" ry="90" fill="#FFAEAE" />
+                    <g id="eat-chew-0">
+                      <path d="M 1760 1020 Q 2011 1220 2260 1020 Q 2011 980 1760 1020 Z" fill="#D83D00" />
+                      <path d="M 1870 1120 Q 2011 1205 2150 1120 Z" fill="#FFAEAE" />
+                      <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
                     </g>
                   )}
                 </g>
               ) : effectiveSpeaking ? (
-                /* Dynamic Lip-sync Viseme shapes (Vừa vặn, không há to, mặc định ngậm miệng) */
+                /* Dynamic Lip-sync Viseme shapes (Miệng cử động ngay dưới mũi, vừa vặn duyên dáng) */
                 <g id="mouth-viseme">
                   {currentViseme === 'round' ? (
                     /* O / U / Ô / Ơ / Ư / W: Miệng tròn nhỏ */
-                    <g transform="translate(0, 50)">
-                      <ellipse cx="2015" cy="1500" rx="200" ry="220" fill="url(#fb-paint9_linear)" />
-                      <ellipse cx="2015" cy="1620" rx="120" ry="90" fill="#FFAEAE" />
+                    <g id="viseme-round">
+                      <ellipse cx="2011" cy="1100" rx="120" ry="130" fill="#D83D00" />
+                      <ellipse cx="2011" cy="1155" rx="75" ry="45" fill="#FFAEAE" />
+                      <path d="M 2011 965 L 2011 1020" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
                     </g>
                   ) : currentViseme === 'smile' ? (
-                    /* E / Ê / I / Y: Miệng cười mở dẹt */
-                    <g transform="translate(0, 50)">
-                      <path d="M 1520 1440 Q 2015 1740 2510 1440 Q 2015 1360 1520 1440 Z" fill="url(#fb-paint9_linear)" />
-                      <path d="M 1720 1540 Q 2015 1700 2310 1540 Z" fill="#FFAEAE" />
+                    /* E / Ê / I / Y: Miệng cười mở dẹt nhẹ */
+                    <g id="viseme-smile">
+                      <path d="M 1740 1020 Q 2011 1180 2280 1020 Q 2011 980 1740 1020 Z" fill="#D83D00" />
+                      <path d="M 1860 1095 Q 2011 1165 2160 1095 Z" fill="#FFAEAE" />
+                      <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
                     </g>
                   ) : currentViseme === 'open' ? (
-                    /* A / Ă / Â: Miệng mở vừa phải, tròn trịa duyên dáng */
-                    <g transform="translate(0, 50)">
-                      <path d="M 1560 1420 Q 2015 1860 2470 1420 Q 2015 1340 1560 1420 Z" fill="url(#fb-paint9_linear)" />
-                      <ellipse cx="2015" cy="1660" rx="160" ry="120" fill="#FFAEAE" />
+                    /* A / Ă / Â: Miệng mở vừa phải, tròn trịa đáng yêu */
+                    <g id="viseme-open">
+                      <path d="M 1760 1020 Q 2011 1260 2260 1020 Q 2011 975 1760 1020 Z" fill="#D83D00" />
+                      <path d="M 1860 1140 Q 2011 1245 2160 1140 Z" fill="#FFAEAE" />
+                      <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
                     </g>
                   ) : (
-                    /* M / B / P / Rest / Mặc định: Ngậm miệng bình thường hình chữ w */
-                    <g transform="translate(0, 50)">
-                      <path d="M 1650 1450 Q 1830 1620 2015 1450 Q 2200 1620 2380 1450" stroke="#8E3817" strokeWidth="65" fill="none" strokeLinecap="round" />
+                    /* M / B / P / Rest / Mặc định: Miệng ngậm hình chữ w chúm chím */
+                    <g id="viseme-closed">
+                      <path d="M 2011 965 L 2011 1015" stroke="#8E3817" strokeWidth="45" strokeLinecap="round" />
+                      <path d="M 2011 1015 Q 1860 1095 1740 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
+                      <path d="M 2011 1015 Q 2160 1095 2280 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
                     </g>
                   )}
                 </g>
               ) : state === 'celebrate' ? (
-                /* ĂN MỪNG: Miệng cười tươi hớn hở chuẩn tỷ lệ */
-                <g id="mouth-celebrate" transform="translate(0, 50)">
-                  <path d="M 1480 1420 Q 2015 1860 2550 1420 Q 2015 1320 1480 1420 Z" fill="url(#fb-paint9_linear)" />
-                  <ellipse cx="2015" cy="1650" rx="180" ry="130" fill="#FFAEAE" />
+                /* ĂN MỪNG: Miệng cười tươi rạng rỡ ngay dưới mũi */
+                <g id="mouth-celebrate">
+                  <path d="M 1720 1020 Q 2011 1300 2300 1020 Q 2011 970 1720 1020 Z" fill="#D83D00" />
+                  <path d="M 1830 1160 Q 2011 1285 2190 1160 Z" fill="#FFAEAE" />
+                  <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
                 </g>
               ) : state === 'hint' ? (
-                /* GỢI Ý: Miệng cười nhẹ nhàng */
-                <g id="mouth-hint" transform="translate(0, 50)">
-                  <path d="M 1540 1430 Q 2015 1750 2490 1430 Q 2015 1350 1540 1430 Z" fill="url(#fb-paint9_linear)" />
-                  <ellipse cx="2015" cy="1580" rx="140" ry="90" fill="#FFAEAE" />
+                /* GỢI Ý: Miệng cười mở nhẹ */
+                <g id="mouth-hint">
+                  <path d="M 1760 1020 Q 2011 1220 2260 1020 Q 2011 980 1760 1020 Z" fill="#D83D00" />
+                  <path d="M 1870 1120 Q 2011 1205 2150 1120 Z" fill="#FFAEAE" />
+                  <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
                 </g>
               ) : (
-                /* MẶC ĐỊNH (Idle, Look, Sleepy, v.v.): Miệng ngậm chúm chím chữ w dễ thương */
-                <g id="mouth-closed-default" transform="translate(0, 50)">
-                  <path d="M 1650 1450 Q 1830 1620 2015 1450 Q 2200 1620 2380 1450" stroke="#8E3817" strokeWidth="65" fill="none" strokeLinecap="round" />
+                /* MẶC ĐỊNH (Idle, Look, Sleepy, v.v.): Miệng ngậm chúm chím chữ w chuẩn mèo hoạt hình */
+                <g id="mouth-closed-default">
+                  <path d="M 2011 965 L 2011 1015" stroke="#8E3817" strokeWidth="45" strokeLinecap="round" />
+                  <path d="M 2011 1015 Q 1860 1095 1740 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
+                  <path d="M 2011 1015 Q 2160 1095 2280 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
                 </g>
               )}
 
