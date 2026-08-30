@@ -86,10 +86,10 @@ const STATE_PRESETS: Array<{
 ]
 
 const SAMPLE_SPEECHES = [
-  'Chào các bạn nhỏ! Mình là Mèo Mee, trợ giảng AI của các bạn đây!',
+  'Chào các bạn nhỏ! Mình là Mèo AIKI, trợ giảng AI của các bạn đây!',
   'Nhìn sang bên trái này, chúng ta có một bài toán ASMO rất thú vị!',
   'Con hãy thực hiện phép tính từ trái sang phải để tìm ra kết quả chính xác nhé!',
-  'Bé làm bài xuất sắc lắm! Mèo Mee vỗ tay khen ngợi con nào!',
+  'Bé làm bài xuất sắc lắm! Mèo AIKI vỗ tay khen ngợi con nào!',
 ]
 
 const GESTURE_OPTIONS: Array<{ id: Gesture; label: string; desc: string }> = [
@@ -166,7 +166,7 @@ export function MeeCatStudioPage() {
           </Link>
           <div className="inline-flex items-center gap-2 rounded-2xl bg-amber-500/15 border border-amber-400/40 px-3.5 py-1.5 text-xs font-black text-amber-800 backdrop-blur">
             <Flame className="h-4 w-4 text-amber-600 animate-pulse" />
-            <span>Mee Cat Rig Studio v1.3 • Lipsync & Gestures</span>
+            <span>AIKI Cat Mascot Studio v2.0 • Full Rig & Lipsync</span>
           </div>
         </div>
 
@@ -531,20 +531,32 @@ export function MeeCatStudioPage() {
           <div className="mt-auto border-t border-slate-100 pt-3">
             <h2 className="font-display text-xs font-black text-slate-800 mb-2 flex items-center gap-1.5">
               <Download className="h-3.5 w-3.5 text-amber-600" />
-              <span>4. Tải Về Tài Nguyên Rig</span>
+              <span>4. Tải Về Tài Nguyên AIKI Rig</span>
             </h2>
-            <div className="grid grid-cols-2 gap-2">
+            <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() =>
                   downloadFile(
-                    'mee-cat-fullbody-rig-v1-source.svg',
-                    '/assets/mee/mee-cat-fullbody-rig-v1-source.svg',
+                    'AIKI.svg',
+                    '/assets/mee/aiki/AIKI.svg',
                   )
                 }
                 className="flex items-center justify-center gap-1 rounded-xl bg-amber-50 border border-amber-200/80 py-1.5 px-2 text-[11px] font-extrabold text-amber-800 hover:bg-amber-100 transition"
               >
-                <span>Full Body SVG</span>
+                <span>AIKI.svg</span>
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  downloadFile(
+                    'AIKI-pose-1.svg',
+                    '/assets/mee/aiki/AIKI pose 1.svg',
+                  )
+                }
+                className="flex items-center justify-center gap-1 rounded-xl bg-orange-50 border border-orange-200/80 py-1.5 px-2 text-[11px] font-extrabold text-orange-800 hover:bg-orange-100 transition"
+              >
+                <span>Pose 1</span>
               </button>
               <button
                 type="button"

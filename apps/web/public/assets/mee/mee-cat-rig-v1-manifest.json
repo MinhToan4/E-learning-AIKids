@@ -1,10 +1,11 @@
 {
-  "version": 1,
+  "version": 2,
+  "mascot": "AIKI",
   "artboard": {
-    "name": "Mee Cat",
-    "width": 834,
-    "height": 711,
-    "baseline": 650
+    "name": "AIKI Cat",
+    "width": 1420,
+    "height": 1935,
+    "baseline": 1691
   },
   "stateMachine": "MeeCatController",
   "inputs": [
@@ -17,9 +18,10 @@
         "hint": 2,
         "celebrate": 3,
         "eat": 4,
-        "sleepy": 5
+        "sleepy": 5,
+        "talk": 6
       },
-      "description": "Chuyển trạng thái hoạt ảnh chính của Mèo Mee"
+      "description": "Chuyển trạng thái hoạt ảnh chính của Mèo AIKI"
     },
     {
       "name": "blink",
@@ -49,21 +51,23 @@
     }
   ],
   "pivots": {
-    "root": [417, 650],
-    "head": [417, 355],
-    "leftEar": [172, 152],
-    "rightEar": [660, 152],
-    "leftPaw": [180, 560],
-    "rightPaw": [650, 560],
-    "leftEye": [290, 138],
-    "rightEye": [544, 138]
+    "root": [555, 1935],
+    "head": [555, 450],
+    "leftEar": [280, 328],
+    "rightEar": [842, 328],
+    "leftPaw": [140, 1149],
+    "rightPaw": [970, 1149],
+    "leftEye": [335, 433],
+    "rightEye": [770, 433],
+    "tail": [628, 1578]
   },
   "timelines": {
     "idle": { "duration": 2400, "loop": true },
     "hint": { "duration": 1800, "loop": false },
     "celebrate": { "duration": 1200, "loop": true },
     "eat": { "duration": 1600, "loop": true },
-    "sleepy": { "duration": 3000, "loop": true }
+    "sleepy": { "duration": 3000, "loop": true },
+    "talk": { "duration": 2000, "loop": true }
   },
   "source": "mee-cat-rig-v1-source.svg",
   "output": "mee-cat-rig-v1.riv"

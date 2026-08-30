@@ -27,10 +27,10 @@ export interface MeeCatInteractiveCanvasProps {
 }
 
 const ASMO_HINTS = [
-  'Mèo Mee gợi ý: Con hãy đọc kỹ đề bài và thực hiện từng phép tính nhé!',
-  'Mèo Mee gợi ý: Quan sát quy luật dãy số để tìm số tiếp theo thật nhanh nào!',
-  'Mèo Mee gợi ý: Con hãy thử chia nhỏ hình vẽ phức tạp thành các hình quen thuộc nhé!',
-  'Mèo Mee vỗ tay khen ngợi: Bé làm bài xuất sắc lắm, tiếp tục phát huy nha! 🐾✨',
+  'Mèo AIKI gợi ý: Con hãy đọc kỹ đề bài và thực hiện từng phép tính nhé!',
+  'Mèo AIKI gợi ý: Quan sát quy luật dãy số để tìm số tiếp theo thật nhanh nào!',
+  'Mèo AIKI gợi ý: Con hãy thử chia nhỏ hình vẽ phức tạp thành các hình quen thuộc nhé!',
+  'Mèo AIKI vỗ tay khen ngợi: Bé làm bài xuất sắc lắm, tiếp tục phát huy nha! 🐾✨',
 ]
 
 export function MeeCatInteractiveCanvas({
@@ -64,7 +64,7 @@ export function MeeCatInteractiveCanvas({
 
   // Speech TTS and Viseme hook
   const effectiveSpeaking = isSpeaking || state === 'talk'
-  const effectiveSpeechText = speechText || quote || (state === 'talk' ? 'Mèo Mee xin chào các bạn nhỏ!' : '')
+  const effectiveSpeechText = speechText || quote || (state === 'talk' ? 'Mèo AIKI xin chào các bạn nhỏ!' : '')
   const { viseme: autoViseme, activeGesture, currentWord } = useMeeCatSpeech({
     text: effectiveSpeechText,
     isSpeaking: effectiveSpeaking,
@@ -92,7 +92,7 @@ export function MeeCatInteractiveCanvas({
       const centerY = rect.top + rect.height / 2
       const deltaX = Math.max(-1, Math.min(1, (e.clientX - centerX) / (rect.width / 2)))
       const deltaY = Math.max(-1, Math.min(1, (e.clientY - centerY) / (rect.height / 2)))
-      setCursorPos({ x: deltaX * 24, y: deltaY * 18 })
+      setCursorPos({ x: deltaX * 18, y: deltaY * 14 })
     }
     window.addEventListener('mousemove', handleMouseMove)
     return () => window.removeEventListener('mousemove', handleMouseMove)
@@ -117,7 +117,7 @@ export function MeeCatInteractiveCanvas({
     return () => clearInterval(breatheInterval)
   }, [breathingSpeed, state])
 
-  // 1. CELEBRATE JUMP & SQUAT LOOP (4 Phases: 0=Squat, 1=Jump Up, 2=Peak Air, 3=Land)
+  // 1. CELEBRATE JUMP & SQUAT LOOP
   useEffect(() => {
     if (state !== 'celebrate') return
     const jumpInterval = setInterval(() => {
@@ -126,7 +126,7 @@ export function MeeCatInteractiveCanvas({
     return () => clearInterval(jumpInterval)
   }, [state])
 
-  // 2. EATING & MUNCHING LOOP (Chewing mouth + hand movement)
+  // 2. EATING & MUNCHING LOOP
   useEffect(() => {
     if (state !== 'eat') return
     const chewInterval = setInterval(() => {
@@ -135,7 +135,7 @@ export function MeeCatInteractiveCanvas({
     return () => clearInterval(chewInterval)
   }, [state])
 
-  // 3. SLEEPY DROOPING & NODDING LOOP (Gật gà gật gù)
+  // 3. SLEEPY DROOPING & NODDING LOOP
   useEffect(() => {
     if (state !== 'sleepy') return
     const sleepyInterval = setInterval(() => {
@@ -144,7 +144,7 @@ export function MeeCatInteractiveCanvas({
     return () => clearInterval(sleepyInterval)
   }, [state])
 
-  // 4. TALKING GESTURE RHYTHM LOOP (Phát âm gật gù nhịp nhàng)
+  // 4. TALKING GESTURE RHYTHM LOOP
   useEffect(() => {
     if (!effectiveSpeaking) return
     const talkInterval = setInterval(() => {
@@ -169,197 +169,158 @@ export function MeeCatInteractiveCanvas({
   const headLookY = state === 'look' || isHovered ? cursorPos.y : 0
 
   // Sleepy head nod progression
-  const sleepyHeadDrop = state === 'sleepy' ? [0, 20, 45, 65, 35, 10][sleepyNod] : 0
-  const sleepyHeadRot = state === 'sleepy' ? [0, 3, 7, 10, 5, 2][sleepyNod] : 0
+  const sleepyHeadDrop = state === 'sleepy' ? [0, 8, 18, 25, 14, 4][sleepyNod] : 0
+  const sleepyHeadRot = state === 'sleepy' ? [0, 2, 4, 6, 3, 1][sleepyNod] : 0
 
-  // Talking head nod rhythm (gật đầu nhẹ nhấn nhá theo câu nói)
-  const talkHeadNodY = effectiveSpeaking ? [0, 15, -8, 20][talkStep] : 0
-  const talkHeadRot = effectiveSpeaking ? [0, 2.5, -2, 1.5][talkStep] : 0
+  // Talking head nod rhythm
+  const talkHeadNodY = effectiveSpeaking ? [0, 8, -4, 10][talkStep] : 0
+  const talkHeadRot = effectiveSpeaking ? [0, 2, -1.5, 1][talkStep] : 0
 
-  const headRotation = (headLookX * 0.25) + sleepyHeadRot + talkHeadRot
+  const headRotation = (headLookX * 0.2) + sleepyHeadRot + talkHeadRot
 
-  // Ear rotations (Tai gắn cố định trên sọ, rung lắc nhẹ nhàng tự nhiên)
+  // Ear rotations (Tai gắn trên sọ với tâm gốc 280px và 842px)
   const talkEarWiggle = effectiveSpeaking ? (talkStep % 2 === 0 ? -2 : 2) : 0
-  const leftEarRot = (-earAngle * 0.2) + talkEarWiggle + (state === 'celebrate' ? (celebrateStep % 2 === 0 ? -3 : 2) : 0)
-  const rightEarRot = (earAngle * 0.2) - talkEarWiggle + (state === 'celebrate' ? (celebrateStep % 2 === 0 ? 3 : -2) : 0)
+  const leftEarRot = (-earAngle * 0.2) + talkEarWiggle + (state === 'celebrate' ? (celebrateStep % 2 === 0 ? -4 : 2) : 0)
+  const rightEarRot = (earAngle * 0.2) - talkEarWiggle + (state === 'celebrate' ? (celebrateStep % 2 === 0 ? 4 : -2) : 0)
 
-  // Tail animations (Vẫy đuôi mềm mại, khớp chuẩn ở hông)
-  const tailBaseRot = tailWiggle + (state === 'celebrate' ? [-15, 20, -12, 18][tailFrame] : state === 'sleepy' ? -6 : effectiveSpeaking ? [-8, 10, -6, 8][tailFrame] : [0, 6, -4, 4][tailFrame])
+  // Tail animations
+  const tailBaseRot = tailWiggle + (state === 'celebrate' ? [-12, 16, -10, 14][tailFrame] : state === 'sleepy' ? -5 : effectiveSpeaking ? [-6, 8, -5, 7][tailFrame] : [0, 5, -3, 3][tailFrame])
 
   // Celebrate / Talk Jump displacement values
   const jumpY = state === 'celebrate'
-    ? [35, -160, -130, 20][celebrateStep]
+    ? [15, -60, -50, 10][celebrateStep]
     : effectiveSpeaking && activeGesture === 'enthusiastic'
-    ? [10, -45, -30, 5][talkStep]
+    ? [5, -20, -15, 2][talkStep]
     : 0
 
   const jumpLegScaleY = state === 'celebrate'
-    ? [0.85, 1.15, 1.05, 0.9][celebrateStep]
+    ? [0.9, 1.1, 1.05, 0.95][celebrateStep]
     : effectiveSpeaking && activeGesture === 'enthusiastic'
-    ? [0.95, 1.05, 1.02, 0.98][talkStep]
+    ? [0.96, 1.04, 1.02, 0.98][talkStep]
     : 1
 
-  // Arm positions according to state and speech gestures:
-  // - point-left: Left arm stretches and points to the left (-65deg)
-  // - point-right: Right arm stretches and points to the right (+65deg)
-  // - explain: Alternating lively explaining gestures
-  // - enthusiastic: Both arms wave up with excitement
+  // Arm rotations & gestures
   let leftArmRot = 0
   let rightArmRot = 0
   let leftArmTranslateY = 0
   let leftArmTranslateX = 0
+  let useRaisedLeftArm = false
+  let useRaisedRightArm = false
 
   if (state === 'hint') {
-    leftArmRot = -45
+    useRaisedLeftArm = true
+    leftArmRot = -15
   } else if (state === 'celebrate') {
-    leftArmRot = [-35, -75, -60, -25][celebrateStep]
-    rightArmRot = [35, 75, 60, 25][celebrateStep]
+    useRaisedLeftArm = true
+    useRaisedRightArm = true
+    leftArmRot = [-10, -25, -20, -5][celebrateStep]
+    rightArmRot = [10, 25, 20, 5][celebrateStep]
   } else if (state === 'eat') {
-    leftArmRot = [-15, -65, -35, -15][chewFrame]
-    rightArmRot = [10, 25, 15, 5][chewFrame]
-    leftArmTranslateY = [0, -240, -60, 0][chewFrame]
-    leftArmTranslateX = [0, 140, 40, 0][chewFrame]
+    leftArmRot = [-5, -25, -15, -5][chewFrame]
+    rightArmRot = [5, 12, 8, 2][chewFrame]
+    leftArmTranslateY = [0, -80, -30, 0][chewFrame]
+    leftArmTranslateX = [0, 40, 15, 0][chewFrame]
   } else if (effectiveSpeaking) {
     if (activeGesture === 'point-left') {
-      leftArmRot = -65 + (talkStep % 2 === 0 ? -8 : 4)
-      rightArmRot = 10
-      leftArmTranslateY = -60
-      leftArmTranslateX = -40
+      useRaisedLeftArm = true
+      leftArmRot = -20 + (talkStep % 2 === 0 ? -4 : 2)
+      rightArmRot = 5
     } else if (activeGesture === 'point-right') {
-      leftArmRot = -10
-      rightArmRot = 65 + (talkStep % 2 === 0 ? 8 : -4)
+      useRaisedRightArm = true
+      leftArmRot = -5
+      rightArmRot = 20 + (talkStep % 2 === 0 ? 4 : -2)
     } else if (activeGesture === 'explain') {
-      leftArmRot = [-25, -45, -30, -15][talkStep]
-      rightArmRot = [25, 45, 30, 15][talkStep]
-      leftArmTranslateY = -30
+      leftArmRot = [-10, -20, -15, -5][talkStep]
+      rightArmRot = [10, 20, 15, 5][talkStep]
     } else if (activeGesture === 'enthusiastic') {
-      leftArmRot = [-60, -85, -70, -40][talkStep]
-      rightArmRot = [60, 85, 70, 40][talkStep]
-      leftArmTranslateY = -80
-    } else {
-      // Gentle rhythm
-      leftArmRot = [-15, -30, -20, -10][talkStep]
-      rightArmRot = [15, 30, 20, 10][talkStep]
+      useRaisedLeftArm = true
+      useRaisedRightArm = true
+      leftArmRot = [-15, -30, -25, -10][talkStep]
+      rightArmRot = [15, 30, 25, 10][talkStep]
+      leftArmTranslateY = -20
     }
-  }
-
-  if (engineMode === 'rive') {
-    return (
-      <div className="relative flex aspect-[834/711] w-full max-w-[680px] items-center justify-center rounded-[2.5rem] bg-gradient-to-b from-amber-50 to-orange-50/40 p-4 shadow-clay">
-        <RiveComponent className="h-full w-full" aria-label="Mee Cat Rive Engine Canvas" />
-        <div className="absolute bottom-3 left-4 rounded-xl bg-slate-900/70 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
-          Rive Canvas Runtime Mode (v1)
-        </div>
-      </div>
-    )
   }
 
   return (
     <div
       ref={containerRef}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
       className={cn(
-        'relative flex aspect-square select-none items-center justify-center transition-all duration-500',
-        transparentBackground
-          ? 'w-full bg-transparent p-0'
-          : 'w-full max-w-[680px] rounded-[2.5rem] bg-gradient-to-b from-amber-50/90 via-sky-50/30 to-orange-100/50 p-2 sm:p-4 shadow-clay',
-        className,
+        'relative flex items-center justify-center select-none overflow-visible',
+        !transparentBackground && 'rounded-3xl bg-gradient-to-b from-amber-50/60 to-orange-50/80 p-2 sm:p-4 shadow-sm border border-amber-100/80',
+        className
       )}
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => {
+        setIsHovered(false)
+        setCursorPos({ x: 0, y: 0 })
+      }}
     >
-      {/* Interactive Speech Bubble for Mascot Hints / Active Speech */}
-      {(activeQuote || (effectiveSpeaking && effectiveSpeechText)) && (
-        <div className="absolute bottom-[95%] left-1/2 z-30 min-w-[180px] max-w-xs w-max -translate-x-1/2 rounded-2xl border-2 border-amber-300 bg-white/95 p-3 text-xs font-black text-slate-800 shadow-clay backdrop-blur animate-in fade-in slide-in-from-bottom-2 sm:text-sm">
-          <div className="flex items-center justify-between gap-1.5 font-extrabold text-amber-600">
-            <span className="flex items-center gap-1">
-              <span>🐾 Mèo Mee</span>
-              {effectiveSpeaking && <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping" />}
-            </span>
-            <span className="text-[10px] uppercase tracking-wider text-amber-400">
-              {effectiveSpeaking ? 'Đang thuyết trình...' : 'Trợ giảng AI'}
-            </span>
+      {/* Speech Bubble Quote */}
+      {activeQuote && (
+        <div className="absolute -top-16 left-1/2 -translate-x-1/2 z-30 animate-in fade-in zoom-in-95 duration-200 pointer-events-none min-w-[200px] max-w-sm w-max">
+          <div className="rounded-2xl bg-white px-4 py-2.5 shadow-xl border-2 border-amber-400 text-xs sm:text-sm font-black text-amber-950 text-center leading-snug">
+            {activeQuote}
+            <div className="absolute -bottom-2 left-1/2 -translate-x-1/2 w-3 h-3 bg-white border-r-2 border-b-2 border-amber-400 rotate-45" />
           </div>
-          <p className="mt-1 leading-snug">
-            {activeQuote || effectiveSpeechText}
-          </p>
-          {effectiveSpeaking && currentWord && (
-            <div className="mt-1.5 inline-block rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-black text-amber-800">
-              Đang đọc: {currentWord}
-            </div>
-          )}
-          <div className="absolute -bottom-2 left-1/2 h-3.5 w-3.5 -translate-x-1/2 rotate-45 border-b-2 border-r-2 border-amber-300 bg-white" />
         </div>
       )}
 
-      {/* =========================================================================
-          VARIANT 1: FULL BODY RIG (FROM Group 1.svg: ViewBox 0 0 4983 5579)
-      ========================================================================= */}
-      {variant === 'full-body' ? (
+      {/* Rive Engine Mode */}
+      {engineMode === 'rive' && (
+        <div className="w-full h-full aspect-[4/3] flex items-center justify-center">
+          <RiveComponent className="w-full h-full" />
+        </div>
+      )}
+
+      {/* SVG Interactive Rig Engine */}
+      {engineMode === 'svg-rig' && (
         <svg
-          viewBox="0 0 4983 5579"
+          viewBox="0 0 1420.17 1935.35"
           className="h-full w-full drop-shadow-lg transition-transform duration-200 ease-out"
           xmlns="http://www.w3.org/2000/svg"
-          aria-label="Mèo Mee Full Body Rig"
+          xmlnsXlink="http://www.w3.org/1999/xlink"
+          aria-label="Mèo AIKI Interactive Mascot Rig"
           style={{
             transform: `translateY(${jumpY * 0.4}px)`,
           }}
         >
           <defs>
-            <linearGradient id="fb-paint0_linear" x1="4795.89" y1="2541.93" x2="1624.95" y2="4180.87" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#FF960B" />
-              <stop offset="1" stopColor="#E05A00" />
+            <linearGradient id="aiki-tail-grad" x1="3042.74" y1="1323.57" x2="2182.76" y2="1873.49" gradientTransform="matrix(0.85, 0.47, -0.48, 0.86, -515.88, -1323.55)" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stopColor="#ff8517"/>
+              <stop offset="0.45" stopColor="#f47016"/>
             </linearGradient>
-            <linearGradient id="fb-paint1_linear" x1="4385.95" y1="3059.02" x2="4597.73" y2="2188.34" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#FAF1E0" />
-              <stop offset="0.65" stopColor="#FEFDFA" />
-              <stop offset="1" stopColor="white" />
+            <linearGradient id="aiki-left-ear-grad" x1="174.51" y1="10.98" x2="347.89" y2="534.44" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stopColor="#fffdfa"/>
+              <stop offset="0.2" stopColor="#fffbf5"/>
+              <stop offset="0.43" stopColor="#fff6e6"/>
+              <stop offset="0.69" stopColor="#ffedce"/>
+              <stop offset="0.95" stopColor="#ffe1ad"/>
+              <stop offset="1" stopColor="#ffdfa6"/>
             </linearGradient>
-            <linearGradient id="fb-paint2_linear" x1="2839.2" y1="5579" x2="2839.2" y2="3799.67" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#FF960B" />
-              <stop offset="1" stopColor="#E05A00" />
+            <linearGradient id="aiki-right-ear-grad" x1="841.78" x2="841.78" y2="545.5" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stopColor="#ff8517"/>
+              <stop offset="0.44" stopColor="#fc8017"/>
+              <stop offset="0.96" stopColor="#f57116"/>
+              <stop offset="1" stopColor="#f47016"/>
             </linearGradient>
-            <linearGradient id="fb-paint3_linear" x1="1191.03" y1="5579" x2="1191.03" y2="3799.67" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#FF960B" />
-              <stop offset="1" stopColor="#E05A00" />
+            <linearGradient id="aiki-left-leg-grad" x1="251.31" y1="1735.87" x2="251.31" y2="876.44" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stopColor="#ff8517"/>
+              <stop offset="0.31" stopColor="#fc8017"/>
+              <stop offset="0.67" stopColor="#f57116"/>
+              <stop offset="0.7" stopColor="#f47016"/>
             </linearGradient>
-            <linearGradient id="fb-paint4_linear" x1="1034.36" y1="646.137" x2="416.661" y2="28.4265" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#FAF1E0" />
-              <stop offset="0.65" stopColor="#FEFDFA" />
-              <stop offset="1" stopColor="white" />
-            </linearGradient>
-            <linearGradient id="fb-paint5_linear" x1="897.647" y1="723.783" x2="897.647" y2="195.165" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#FF7676" />
-              <stop offset="1" stopColor="#FFAEAE" />
-            </linearGradient>
-            <linearGradient id="fb-paint6_linear" x1="3620.68" y1="56.5151" x2="3002.98" y2="674.226" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#FF960B" />
-              <stop offset="1" stopColor="#E05A00" />
-            </linearGradient>
-            <linearGradient id="fb-paint7_linear" x1="3123.29" y1="565.989" x2="3354.8" y2="164.94" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#FF7676" />
-              <stop offset="1" stopColor="#FFAEAE" />
-            </linearGradient>
-            <linearGradient id="fb-paint8_linear" x1="2015.09" y1="4468.57" x2="2015.09" y2="155.143" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#EFD3A0" />
-              <stop offset="0.27" stopColor="#FCF6EB" />
-              <stop offset="0.55" stopColor="#FFFEFD" />
-              <stop offset="1" stopColor="white" />
-            </linearGradient>
-            <linearGradient id="fb-paint9_linear" x1="2015.09" y1="1032.99" x2="2015.09" y2="2513.73" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#E24000" />
-              <stop offset="0.6" stopColor="#D83D00" />
-              <stop offset="1" stopColor="#A32A00" />
-            </linearGradient>
-            <linearGradient id="fb-paint10_linear" x1="1464.31" y1="3043.68" x2="0.0265325" y2="3043.68" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#FF960B" />
-              <stop offset="1" stopColor="#E05A00" />
-            </linearGradient>
-            <linearGradient id="fb-paint11_linear" x1="2565.93" y1="3043.68" x2="4030.21" y2="3043.68" gradientUnits="userSpaceOnUse">
-              <stop stopColor="#FF960B" />
-              <stop offset="1" stopColor="#E05A00" />
+            <linearGradient id="aiki-right-leg-grad" x1="862.16" y1="1735.87" x2="862.16" y2="876.44" xlinkHref="#aiki-left-leg-grad" />
+            <linearGradient id="aiki-body-grad" x1="554.9" y1="146.56" x2="554.9" y2="1691.12" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stopColor="#fffdfa"/>
+              <stop offset="0.38" stopColor="#fffcf8"/>
+              <stop offset="0.56" stopColor="#fffaf0"/>
+              <stop offset="0.71" stopColor="#fff5e3"/>
+              <stop offset="0.83" stopColor="#ffeed1"/>
+              <stop offset="0.93" stopColor="#ffe6b9"/>
+              <stop offset="1" stopColor="#ffdfa6"/>
             </linearGradient>
             {/* Golden Fish Biscuit Gradient */}
-            <linearGradient id="fish-cookie-grad" x1="0" y1="0" x2="800" y2="600" gradientUnits="userSpaceOnUse">
+            <linearGradient id="fish-cookie-grad" x1="0" y1="0" x2="300" y2="200" gradientUnits="userSpaceOnUse">
               <stop offset="0%" stopColor="#fde047" />
               <stop offset="50%" stopColor="#f59e0b" />
               <stop offset="100%" stopColor="#b45309" />
@@ -372,492 +333,354 @@ export function MeeCatInteractiveCanvas({
             </radialGradient>
           </defs>
 
-          {/* --- UNIFIED MASCOT RIG CONTAINER (Toàn bộ cơ thể Mèo Mee thống nhất 100% từ bàn chân tới đỉnh đầu) --- */}
+          {/* --- UNIFIED MASCOT RIG CONTAINER (Tâm gốc tại chân 555px, 1935px) --- */}
           <g
-            id="mee-cat-whole-body"
+            id="aiki-whole-mascot"
             style={{
-              transformOrigin: '2015px 5579px',
+              transformOrigin: '554.9px 1935px',
               transform: `translate(${headLookX * 0.35}px, ${(headLookY * 0.35) + (breathePhase * 10) + sleepyHeadDrop + talkHeadNodY + jumpY}px) rotate(${headRotation * 0.35}deg)`,
               transition: state === 'sleepy' ? 'transform 0.5s ease-in-out' : state === 'celebrate' ? 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.25s ease-out',
             }}
           >
-            {/* --- 1. FULL TAIL BONE (Back layer) --- */}
+            {/* --- 1. TAIL BONE (Back Layer) --- */}
             <g
-              id="full-tail"
+              id="aiki-tail"
               style={{
-                transformOrigin: '1953px 3620px',
+                transformOrigin: '628px 1578px',
                 transform: `rotate(${tailBaseRot}deg)`,
                 transition: state === 'celebrate' ? 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.35s ease-out',
               }}
             >
-              <path d="M1771.48 4123.58C1682.8 3952.97 1762.75 3732.34 1953.68 3620.59L4201.12 2305.2C4473.32 2145.92 4809.19 2216.58 4935.54 2459.78C5061.83 2702.92 4926.4 3018.41 4639.8 3149.76L2287.7 4263.61C2086.46 4355.6 1860 4294.19 1771.48 4123.58Z" fill="url(#fb-paint0_linear)" />
-              <path d="M4668.95 3135.26C4659.42 3140.23 4649.7 3144.98 4639.8 3149.51L4630.92 3153.54C4626.27 2989.01 4584.44 2827.66 4508.55 2681.6C4432.67 2535.53 4324.7 2408.54 4192.75 2310.15L4201.17 2305.04C4473.32 2145.77 4809.19 2216.47 4935.54 2459.62C5057.49 2694.55 4935.64 2996.61 4668.95 3135.26Z" fill="url(#fb-paint1_linear)" />
+              <path
+                fill="url(#aiki-tail-grad)"
+                d="M1281.85,1376.83a404.06,404.06,0,0,1-91.71,43.84q-17.85,5.94-35.45,10L628.38,1578.78c-73.86,25.59-151.46-8-178.21-73.26s4.54-144.81,74.5-179.92L999.3,1051.3q15.23-9.78,32-18.48a401.88,401.88,0,0,1,95.94-35.21c122.75-27.84,241.87,8.49,280.85,103.65C1447.11,1196.58,1388.2,1308.15,1281.85,1376.83Z"
+              />
             </g>
 
-            {/* --- 2. LEGS BONES (Gắn liền vững chắc với thân) --- */}
+            {/* --- 2. LEFT EAR BONE --- */}
             <g
-              id="full-legs"
+              id="aiki-left-ear"
               style={{
-                transformOrigin: '2015px 5250px',
-                transform: `scaleY(${jumpLegScaleY})`,
-                transition: 'transform 0.18s ease-out',
-              }}
-            >
-              <g id="left-leg" style={{ transformOrigin: '1191px 3799px', transform: state === 'celebrate' ? (celebrateStep % 2 === 0 ? 'rotate(-6deg)' : 'rotate(4deg)') : 'none' }}>
-                <path d="M402.049 3799.67C402.049 3799.67 833.272 4749.19 941.499 5093.78C870.029 5103.99 796.363 5137.94 765.835 5227.53C697.631 5427.59 1075.05 5595.85 1411.57 5577.62C1559.84 5568.85 1705.11 5532.19 1839.78 5469.55C1881.62 5450.24 1917.06 5419.36 1941.91 5380.55C1966.76 5341.74 1979.98 5296.63 1980.02 5250.55V3863.33L402.049 3799.67Z" fill="url(#fb-paint3_linear)" />
-              </g>
-              <g id="right-leg" style={{ transformOrigin: '2839px 3799px', transform: state === 'celebrate' ? (celebrateStep % 2 === 0 ? 'rotate(6deg)' : 'rotate(-4deg)') : 'none' }}>
-                <path d="M3628.18 3799.67C3628.18 3799.67 3196.96 4749.19 3088.73 5093.78C3160.46 5103.99 3233.87 5137.94 3264.4 5227.53C3332.6 5427.59 2955.19 5595.85 2618.66 5577.62C2470.4 5568.85 2325.12 5532.19 2190.45 5469.55C2148.61 5450.24 2113.17 5419.36 2088.32 5380.55C2063.47 5341.74 2050.25 5296.63 2050.21 5250.55V3863.33L3628.18 3799.67Z" fill="url(#fb-paint2_linear)" />
-              </g>
-            </g>
-
-            {/* --- 3. MAIN BODY & SKULL SILHOUETTE --- */}
-            <g id="full-body-base">
-              <path d="M1884.81 155.143H2145.17C2377.31 155.109 2607.19 200.805 2821.68 289.62C3036.16 378.436 3231.05 508.631 3395.21 672.771C3559.37 836.911 3689.59 1031.78 3778.44 1246.25C3867.28 1460.72 3913 1690.59 3912.99 1922.73V2917.43C3913 3121.13 3872.89 3322.83 3794.94 3511.02C3716.99 3699.22 3602.74 3870.21 3458.7 4014.25C3314.67 4158.29 3143.67 4272.55 2955.48 4350.5C2767.28 4428.45 2565.58 4468.57 2361.88 4468.57H1668.82C1257.35 4468.52 862.75 4305.03 571.817 4014.06C280.884 3723.1 117.443 3328.49 117.443 2917.02V1922.73C117.429 1453.98 303.621 1004.42 635.062 672.933C966.503 341.45 1416.05 155.197 1884.81 155.143Z" fill="url(#fb-paint8_linear)" />
-              <path d="M1982.62 4468.57H1668.82C1031.91 4468.57 484.445 4084.83 245.63 3535.9C345.252 3516.23 446.559 3506.34 548.104 3506.39C1196.09 3506.39 1751.06 3904.02 1982.62 4468.57Z" fill="#FF960B" />
-            </g>
-
-            {/* Forehead Fur (Đốm lông cam nguyên bản) */}
-            <path
-              d="M3564.63 869.071C3419.23 961.42 3250.05 1006.45 3056.06 1006.45C2571.08 1006.45 2177.53 665.23 2177.53 244.327C2177.51 214.464 2179.5 184.634 2183.51 155.041C2706.57 171.428 3070.61 376.29 3354.66 630.67C3434.55 702.19 3496.98 776.62 3564.63 869.071Z"
-              fill="#FF960B"
-            />
-
-            {/* Left Ear - Original Clean Rig */}
-            <g
-              id="left-ear"
-              style={{
-                transformOrigin: '913px 115px',
+                transformOrigin: '280px 328px',
                 transform: `rotate(${leftEarRot}deg)`,
                 transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
               }}
             >
+              <circle fill="#fffdfa" cx="279.54" cy="328.08" r="217.37" />
               <path
-                d="M425.532 138.807C411.289 45.2842 519.108 -26.5935 619.524 9.49848L913.983 115.171L1434.54 301.961L987.751 599.631L541.162 897.301L467.292 412.841L425.532 138.807Z"
-                fill="url(#fb-paint4_linear)"
+                fill="url(#aiki-left-ear-grad)"
+                d="M448.5,191.27A116.88,116.88,0,0,0,436,175.87l-62-64.66L297.43,31.39C243.17-25.18,148-1.79,126.15,73.49L95.31,179.71l-25,86a118.44,118.44,0,0,0-3.92,19.43,216.61,216.61,0,0,0,2,94.79c28.65,116.58,146.39,187.85,263,159.2s187.85-146.39,159.2-263A216.43,216.43,0,0,0,448.5,191.27Z"
               />
               <path
-                d="M600.737 276.947C592.365 221.813 655.872 179.493 715.091 200.781L888.662 263.01L1195.37 373.073L932.157 548.428L668.788 723.783L625.344 438.365L600.737 276.947Z"
-                fill="url(#fb-paint5_linear)"
+                fill="#f3a3a3"
+                d="M380.68,220.85a73.69,73.69,0,0,0-7.85-9.69l-39-40.69-48.19-50.24c-34.15-35.6-94-20.88-107.8,26.5L158.4,213.58l-15.72,54.15A73.92,73.92,0,0,0,140.22,280a136.8,136.8,0,1,0,240.46-59.1Z"
               />
             </g>
 
-            {/* Right Ear - Original Clean Rig */}
+            {/* --- 3. RIGHT EAR BONE --- */}
             <g
-              id="right-ear"
+              id="aiki-right-ear"
               style={{
-                transformOrigin: '3151px 115px',
+                transformOrigin: '842px 328px',
                 transform: `rotate(${rightEarRot}deg)`,
                 transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
               }}
             >
+              <circle fill="#fffdfa" cx="841.79" cy="328.08" r="217.37" />
               <path
-                d="M3639.93 138.807C3654.17 45.2842 3546.35 -26.5935 3445.93 9.49848L3151.47 115.171L2630.76 301.961L3077.6 599.631L3524.45 897.301L3598.22 412.841L3639.93 138.807Z"
-                fill="url(#fb-paint6_linear)"
+                fill="url(#aiki-right-ear-grad)"
+                d="M672.83,191.27a116.88,116.88,0,0,1,12.48-15.4l62-64.66L823.9,31.39c54.26-56.57,149.42-33.18,171.28,42.1L1026,179.71l25,86a118.44,118.44,0,0,1,3.92,19.43,216.61,216.61,0,0,1-2.05,94.79c-28.65,116.58-146.39,187.85-263,159.2s-187.85-146.39-159.2-263A216.43,216.43,0,0,1,672.83,191.27Z"
               />
               <path
-                d="M3464.67 276.947C3473.09 221.813 3409.54 179.493 3350.37 200.781L3176.8 263.01L2870.19 373.073L3133.4 548.428L3396.62 723.783L3440.11 438.365L3464.67 276.947Z"
-                fill="url(#fb-paint7_linear)"
+                fill="#f3a3a3"
+                d="M740.65,220.85a73.69,73.69,0,0,1,7.85-9.69l39-40.69,48.19-50.24c34.15-35.6,94-20.88,107.8,26.5l19.41,66.85,15.72,54.15A73.92,73.92,0,0,1,981.11,280a136.8,136.8,0,1,1-240.46-59.1Z"
               />
             </g>
 
+            {/* --- 4. LEGS BONES --- */}
+            <g
+              id="aiki-legs"
+              style={{
+                transformOrigin: '554.9px 1700px',
+                transform: `scaleY(${jumpLegScaleY})`,
+                transition: 'transform 0.18s ease-out',
+              }}
+            >
+              {/* Left Leg */}
+              <g id="aiki-left-leg" style={{ transformOrigin: '251px 1488px', transform: state === 'celebrate' ? (celebrateStep % 2 === 0 ? 'rotate(-6deg)' : 'rotate(4deg)') : 'none' }}>
+                <circle fill="#ff8517" cx="251.31" cy="1488.77" r="247.1" />
+                <path
+                  fill="#ff8517"
+                  d="M498.41,1480c-.36-132-111.28-238.64-247.75-238.29S3.85,1349.28,4.21,1481.24c0,0,0,2.12.1,6.07v.21c.78,27,7.48,137.42,64.35,248.5A38.4,38.4,0,0,1,67,1774.09c-49.65,79.1-64.85,153.44,47.75,158.82C361,1944.66,404.26,1911.53,441.91,1888c31.61-19.72,50-294.14,55-381.53A232.85,232.85,0,0,0,498.41,1480Z"
+                />
+                <path
+                  fill="url(#aiki-left-leg-grad)"
+                  d="M498.37,1492.15c0-1.12,0-2.25,0-3.37V1123.54c0-136.47-110.63-247.1-247.1-247.1h0c-136.47,0-247.1,110.63-247.1,247.1v365.24c0,1.11,0,2.22,0,3.33-2.71,123.06,92.65,229.36,221.21,242.42l.76.08.71.08c.88.09,1.74.14,2.61.22l3.48.29c.49,0,1,.06,1.48.09,1.66.11,3.31.22,5,.3l1,0c1.73.08,3.46.14,5.2.18.72,0,1.44,0,2.17,0,1.15,0,2.3,0,3.45,0h.43c125.44-.07,232.83-92.12,245.47-215.38A235.18,235.18,0,0,0,498.37,1492.15Z"
+                />
+              </g>
+
+              {/* Right Leg */}
+              <g id="aiki-right-leg" style={{ transformOrigin: '862px 1488px', transform: state === 'celebrate' ? (celebrateStep % 2 === 0 ? 'rotate(6deg)' : 'rotate(-4deg)') : 'none' }}>
+                <path
+                  fill="#ff8517"
+                  d="M615.06,1480c.36-132,111.28-238.64,247.75-238.29s246.8,107.6,246.44,239.56c0,0,0,2.12-.09,6.07v.21c-.78,27-7.49,137.42-64.35,248.5a38.4,38.4,0,0,0,1.63,38.07c49.66,79.1,64.86,153.44-47.74,158.82-246.18,11.75-289.49-21.38-327.13-44.87-31.61-19.72-50-294.14-55-381.53A232.85,232.85,0,0,1,615.06,1480Z"
+                />
+                <circle fill="#ff8517" cx="862.15" cy="1488.77" r="247.1" />
+                <path
+                  fill="url(#aiki-right-leg-grad)"
+                  d="M615.1,1492.15c0-1.12,0-2.25,0-3.37V1123.54c0-136.47,110.63-247.1,247.09-247.1h0c136.47,0,247.1,110.63,247.1,247.1v365.24c0,1.11,0,2.22,0,3.33,2.71,123.06-92.66,229.36-221.21,242.42l-.76.08-.72.08c-.87.09-1.74.14-2.61.22l-3.47.29-1.49.09c-1.65.11-3.3.22-5,.3l-1,0c-1.73.08-3.46.14-5.2.18l-2.17,0c-1.15,0-2.3,0-3.46,0h-.42c-125.45-.07-232.84-92.12-245.47-215.38A233.14,233.14,0,0,1,615.1,1492.15Z"
+                />
+              </g>
+            </g>
+
+            {/* --- 5. MAIN TORSO / SKULL SILHOUETTE --- */}
+            <rect fill="url(#aiki-body-grad)" y="146.56" width="1109.81" height="1544.56" rx="545.18" />
+
+            {/* Forehead Orange Fur Patch */}
+            <path
+              fill="#ff8517"
+              d="M1099.72,585C970,660.44,793.46,636.23,673.79,516.56c-103.21-103.21-135.42-248.71-93.92-370C837.84,153.49,1051.1,339.61,1099.72,585Z"
+            />
+
+            {/* --- 6. NOSE & EYES --- */}
+            {/* Nose */}
+            <path
+              fill="#f3a3a3"
+              d="M590.33,517.19a50.41,50.41,0,0,1-74.44,0h0l-8.24-9c-12.88-14.11,3.22-31.73,29-31.73h32.93c25.77,0,41.87,17.62,29,31.73l-8.23,9Z"
+            />
+
             {/* Eyes */}
-            <g id="eyes">
+            <g id="aiki-eyes">
               {shouldBlink ? (
-                <g id="eyes-blinking">
-                  <path d="M1220 720 Q1382 840 1540 720" stroke="#8E3817" strokeWidth="80" fill="none" strokeLinecap="round" />
-                  <path d="M2480 720 Q2648 840 2807 720" stroke="#8E3817" strokeWidth="80" fill="none" strokeLinecap="round" />
+                /* Happy curved / closed eyes */
+                <g id="aiki-eyes-closed">
+                  <path
+                    fill="#84391a"
+                    d="M440.5,473.42a16,16,0,0,1-10.11-3.59c-41-33.3-84.09-43.53-127.93-30.4-33.06,9.89-53.87,29.39-54.08,29.58a16.06,16.06,0,1,1-22.1-23.3c1.07-1,26.65-25,67-37a156.47,156.47,0,0,1,72-4.61c29.48,5.08,58.2,18.82,85.34,40.84a16.06,16.06,0,0,1-10.13,28.53Z"
+                  />
+                  <path
+                    fill="#84391a"
+                    d="M875.81,473.42a16,16,0,0,1-10.11-3.59c-41-33.3-84.08-43.53-127.93-30.4-33,9.89-53.87,29.39-54.07,29.58a16.06,16.06,0,1,1-22.11-23.3c1.07-1,26.66-25,67-37a156.47,156.47,0,0,1,72-4.61c29.49,5.08,58.2,18.82,85.34,40.84a16.06,16.06,0,0,1-10.13,28.53Z"
+                  />
                 </g>
               ) : (
-                <g id="eyes-open">
-                  <path d="M1541.75 741.497C1534.82 741.251 1528.2 738.549 1523.07 733.873C1517.95 729.198 1514.65 722.853 1513.78 715.973C1502.7 647.515 1448.02 595.547 1382.27 595.547C1316.52 595.547 1261.79 647.515 1250.71 715.973C1249.83 722.853 1246.54 729.198 1241.41 733.873C1236.29 738.549 1229.67 741.251 1222.74 741.497C1205.28 741.497 1191.65 724.345 1194.61 705.508C1210.23 607.595 1288.29 533.113 1382.27 533.113C1476.25 533.113 1554.31 607.595 1569.93 705.508C1572.84 724.345 1559.21 741.497 1541.75 741.497Z" fill="#8E3817" />
-                  <path d="M2807.8 741.497C2800.87 741.251 2794.25 738.549 2789.13 733.873C2784 729.198 2780.71 722.853 2779.83 715.973C2768.75 647.515 2714.07 595.547 2648.32 595.547C2582.57 595.547 2527.84 647.515 2516.76 715.973C2515.88 722.853 2512.59 729.198 2507.46 733.873C2502.34 738.549 2495.72 741.251 2488.79 741.497C2471.33 741.497 2457.7 724.345 2460.66 705.508C2475.97 607.492 2554.03 533.113 2648.02 533.113C2742 533.113 2820.06 607.492 2835.68 705.508C2838.43 724.345 2825.01 741.497 2807.8 741.497Z" fill="#8E3817" />
+                /* Expressive rounded dot eyes with look-at tracking */
+                <g id="aiki-eyes-open">
+                  <rect
+                    fill="#84391a"
+                    x={287.35 + headLookX * 0.6}
+                    y={357.97 + headLookY * 0.6}
+                    width="96.31"
+                    height="151.34"
+                    rx="48.15"
+                    style={{ transition: 'x 0.1s ease-out, y 0.1s ease-out' }}
+                  />
+                  <rect
+                    fill="#84391a"
+                    x={722.56 + headLookX * 0.6}
+                    y={357.97 + headLookY * 0.6}
+                    width="96.31"
+                    height="151.34"
+                    rx="48.15"
+                    style={{ transition: 'x 0.1s ease-out, y 0.1s ease-out' }}
+                  />
                 </g>
               )}
             </g>
 
-            {/* Dynamic Mouth System with Lip-sync Visemes (Gắn chuẩn liền dưới mũi, tỷ lệ mèo con cute) */}
-            <g id="mouth">
+            {/* --- 7. MOUTH & LIPSYNC VISEMES (Dưới chóp mũi Y=517.19) --- */}
+            <g id="aiki-mouth">
               {state === 'eat' ? (
-                <g id="mouth-munching">
+                /* Eating / munching */
+                <g id="aiki-mouth-eat">
                   {chewFrame === 1 ? (
-                    <g id="eat-chew-1">
-                      <path d="M 1740 1020 Q 2011 1260 2280 1020 Q 2011 975 1740 1020 Z" fill="#D83D00" />
-                      <path d="M 1850 1140 Q 2011 1245 2170 1140 Z" fill="#FFAEAE" />
-                      <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
-                    </g>
-                  ) : chewFrame === 2 ? (
-                    <g id="eat-chew-2">
-                      <path d="M 2011 965 L 2011 1015" stroke="#8E3817" strokeWidth="45" strokeLinecap="round" />
-                      <path d="M 2011 1015 Q 1860 1095 1740 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
-                      <path d="M 2011 1015 Q 2160 1095 2280 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
+                    <g id="aiki-chew-open">
+                      <path d="M 470 540 Q 553 650 636 540 Q 553 520 470 540 Z" fill="#d83d00" />
+                      <path d="M 505 605 Q 553 645 601 605 Z" fill="#f3a3a3" />
+                      <path d="M 553 517 L 553 530" stroke="#84391a" strokeWidth="10" strokeLinecap="round" />
                     </g>
                   ) : chewFrame === 3 ? (
-                    <g id="eat-chew-3">
-                      <path d="M 2011 965 L 2011 1015" stroke="#8E3817" strokeWidth="45" strokeLinecap="round" />
-                      <path d="M 2011 1015 Q 1860 1095 1740 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
-                      <path d="M 2011 1015 Q 2160 1095 2280 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
-                      <ellipse cx="2011" cy="1075" rx="70" ry="50" fill="#FFAEAE" stroke="#8E3817" strokeWidth="15" />
+                    <g id="aiki-chew-tongue">
+                      <path d="M 553 517 L 553 538" stroke="#84391a" strokeWidth="12" strokeLinecap="round" />
+                      <path d="M 553 538 Q 500 575 450 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
+                      <path d="M 553 538 Q 606 575 656 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
+                      <ellipse cx="553" cy="565" rx="30" ry="20" fill="#f3a3a3" stroke="#84391a" strokeWidth="6" />
                     </g>
                   ) : (
-                    <g id="eat-chew-0">
-                      <path d="M 1760 1020 Q 2011 1220 2260 1020 Q 2011 980 1760 1020 Z" fill="#D83D00" />
-                      <path d="M 1870 1120 Q 2011 1205 2150 1120 Z" fill="#FFAEAE" />
-                      <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
+                    <g id="aiki-chew-closed">
+                      <path d="M 553 517 L 553 538" stroke="#84391a" strokeWidth="12" strokeLinecap="round" />
+                      <path d="M 553 538 Q 500 575 450 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
+                      <path d="M 553 538 Q 606 575 656 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
                     </g>
                   )}
                 </g>
               ) : effectiveSpeaking ? (
-                /* Dynamic Cute Cartoon Chibi Lip-sync System (5 Khẩu hình Mèo Thuần Nét Cong Mềm Mại) */
-                <g id="mouth-viseme">
+                /* Dynamic Cute Cartoon Chibi Lip-sync System (5 Visemes) */
+                <g id="aiki-mouth-viseme">
                   {currentViseme === 'open' ? (
-                    /* A / Ă / Â: Miệng mở hình hạt dẻ cong tròn đáng yêu */
-                    <g id="viseme-open">
-                      <path d="M 1720 1020 Q 2011 1290 2300 1020 Q 2011 975 1720 1020 Z" fill="#D83D00" />
-                      <path d="M 1830 1160 Q 2011 1275 2190 1160 Z" fill="#FFAEAE" />
-                      <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
+                    /* A / Ă / Â */
+                    <g id="aiki-viseme-open">
+                      <path d="M 450 540 Q 553 660 656 540 Q 553 520 450 540 Z" fill="#d83d00" />
+                      <path d="M 490 610 Q 553 655 616 610 Z" fill="#f3a3a3" />
+                      <path d="M 553 517 L 553 530" stroke="#84391a" strokeWidth="10" strokeLinecap="round" />
                     </g>
                   ) : currentViseme === 'round' ? (
-                    /* O / Ô / Ơ / U / Ư / Qu: Miệng chu tròn nhỏ nhắn dễ thương */
-                    <g id="viseme-round">
-                      <ellipse cx="2011" cy="1095" rx="115" ry="130" fill="#D83D00" />
-                      <ellipse cx="2011" cy="1150" rx="70" ry="45" fill="#FFAEAE" />
-                      <path d="M 2011 965 L 2011 1015" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
+                    /* O / Ô / Ơ / U / Ư / Qu */
+                    <g id="aiki-viseme-round">
+                      <ellipse cx="553" cy="580" rx="45" ry="50" fill="#d83d00" />
+                      <ellipse cx="553" cy="602" rx="28" ry="18" fill="#f3a3a3" />
+                      <path d="M 553 517 L 553 535" stroke="#84391a" strokeWidth="10" strokeLinecap="round" />
                     </g>
                   ) : currentViseme === 'smile' ? (
-                    /* E / Ê / I / Y: Miệng cười cong trăng khuyết ngọt ngào */
-                    <g id="viseme-smile">
-                      <path d="M 1700 1025 Q 2011 1175 2320 1025 Q 2011 985 1700 1025 Z" fill="#D83D00" />
-                      <path d="M 1850 1090 Q 2011 1155 2170 1090 Z" fill="#FFAEAE" />
-                      <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
+                    /* E / Ê / I / Y */
+                    <g id="aiki-viseme-smile">
+                      <path d="M 445 540 Q 553 615 661 540 Q 553 525 445 540 Z" fill="#d83d00" />
+                      <path d="M 495 575 Q 553 605 611 575 Z" fill="#f3a3a3" />
+                      <path d="M 553 517 L 553 530" stroke="#84391a" strokeWidth="10" strokeLinecap="round" />
                     </g>
                   ) : currentViseme === 'half' ? (
-                    /* Phụ âm / Mấp máy nhỏ nhẹ nhàng */
-                    <g id="viseme-half">
-                      <path d="M 1760 1020 Q 2011 1130 2260 1020 Q 2011 990 1760 1020 Z" fill="#D83D00" />
-                      <ellipse cx="2011" cy="1065" rx="65" ry="35" fill="#FFAEAE" />
-                      <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
+                    /* Mấp máy nhẹ */
+                    <g id="aiki-viseme-half">
+                      <path d="M 470 540 Q 553 590 636 540 Q 553 525 470 540 Z" fill="#d83d00" />
+                      <ellipse cx="553" cy="565" rx="25" ry="14" fill="#f3a3a3" />
+                      <path d="M 553 517 L 553 530" stroke="#84391a" strokeWidth="10" strokeLinecap="round" />
                     </g>
                   ) : (
-                    /* Closed / Rest: Miệng ngậm chúm chím chữ w mèo cute */
-                    <g id="viseme-closed">
-                      <path d="M 2011 965 L 2011 1020" stroke="#8E3817" strokeWidth="45" strokeLinecap="round" />
-                      <path d="M 2011 1020 Q 1830 1105 1680 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
-                      <path d="M 2011 1020 Q 2190 1105 2340 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
+                    /* Closed / Rest :3 */
+                    <g id="aiki-viseme-closed">
+                      <path d="M 553 517 L 553 540" stroke="#84391a" strokeWidth="12" strokeLinecap="round" />
+                      <path d="M 553 540 Q 500 580 445 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
+                      <path d="M 553 540 Q 606 580 661 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
                     </g>
                   )}
                 </g>
               ) : state === 'celebrate' ? (
-                /* ĂN MỪNG: Miệng cười tươi rạng rỡ ngay dưới mũi */
-                <g id="mouth-celebrate">
-                  <path d="M 1720 1020 Q 2011 1300 2300 1020 Q 2011 970 1720 1020 Z" fill="#D83D00" />
-                  <path d="M 1830 1160 Q 2011 1285 2190 1160 Z" fill="#FFAEAE" />
-                  <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
+                /* Big Happy Smile (from Pose 2) */
+                <g id="aiki-mouth-celebrate">
+                  <rect x="450" y="525" width="206" height="104" rx="52" fill="#e74516" />
+                  <ellipse cx="553" cy="595" rx="55" ry="25" fill="#f3a3a3" />
+                  <path d="M 553 517 L 553 526" stroke="#84391a" strokeWidth="10" strokeLinecap="round" />
                 </g>
               ) : state === 'hint' ? (
-                /* GỢI Ý: Miệng cười mở nhẹ */
-                <g id="mouth-hint">
-                  <path d="M 1760 1020 Q 2011 1220 2260 1020 Q 2011 980 1760 1020 Z" fill="#D83D00" />
-                  <path d="M 1870 1120 Q 2011 1205 2150 1120 Z" fill="#FFAEAE" />
-                  <path d="M 2011 965 L 2011 1000" stroke="#8E3817" strokeWidth="35" strokeLinecap="round" />
+                /* Hint smile */
+                <g id="aiki-mouth-hint">
+                  <path d="M 465 540 Q 553 620 641 540 Q 553 525 465 540 Z" fill="#d83d00" />
+                  <path d="M 505 585 Q 553 615 601 585 Z" fill="#f3a3a3" />
+                  <path d="M 553 517 L 553 530" stroke="#84391a" strokeWidth="10" strokeLinecap="round" />
                 </g>
               ) : (
-                /* MẶC ĐỊNH (Idle, Look, Sleepy, v.v.): Miệng ngậm chúm chím chữ w chuẩn mèo hoạt hình */
-                <g id="mouth-closed-default">
-                  <path d="M 2011 965 L 2011 1015" stroke="#8E3817" strokeWidth="45" strokeLinecap="round" />
-                  <path d="M 2011 1015 Q 1860 1095 1740 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
-                  <path d="M 2011 1015 Q 2160 1095 2280 1020" stroke="#8E3817" strokeWidth="45" fill="none" strokeLinecap="round" />
+                /* Default Closed :3 */
+                <g id="aiki-mouth-default">
+                  <path d="M 553 517 L 553 538" stroke="#84391a" strokeWidth="12" strokeLinecap="round" />
+                  <path d="M 553 538 Q 500 575 450 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
+                  <path d="M 553 538 Q 606 575 656 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
                 </g>
               )}
-
-              {/* Nose & Tongue Tip */}
-              <path d="M1969.4 950.903C1974.67 956.752 1981.1 961.429 1988.29 964.63C1995.48 967.831 2003.26 969.486 2011.13 969.486C2019 969.486 2026.79 967.831 2033.98 964.63C2041.17 961.429 2047.6 956.752 2052.87 950.903L2107.14 891.022L2143.38 851.153C2148.51 845.491 2151.89 838.462 2153.1 830.919C2154.31 823.376 2153.31 815.643 2150.21 808.66C2147.11 801.676 2142.05 795.741 2135.65 791.577C2129.24 787.412 2121.77 785.195 2114.13 785.197L2011.42 779.734L1908.34 785.197C1900.67 785.115 1893.14 787.274 1886.67 791.408C1880.21 795.542 1875.08 801.472 1871.94 808.471C1868.79 815.471 1867.75 823.237 1868.95 830.818C1870.15 838.398 1873.53 845.465 1878.68 851.153L1914.93 891.022L1969.4 950.903Z" fill="#FFAEAE" />
             </g>
 
-            {/* SLEEPY SNOT BUBBLE (Nở to phập phồng ở mũi khi ngủ) */}
+            {/* Sleepy Snot Bubble */}
             {state === 'sleepy' && (
-              <g id="snot-bubble" transform="translate(2015, 920)">
-                <circle cx="0" cy="0" r={160 + (breathePhase * 140)} fill="url(#sleep-bubble-grad)" stroke="#ffffff" strokeWidth="12" opacity="0.85" />
-                <ellipse cx="-35" cy="-45" rx="45" ry="25" fill="#ffffff" opacity="0.75" transform="rotate(-20 -35 -45)" />
+              <g id="aiki-snot-bubble" transform="translate(553, 510)">
+                <circle cx="0" cy="0" r={45 + (breathePhase * 35)} fill="url(#sleep-bubble-grad)" stroke="#ffffff" strokeWidth="4" opacity="0.85" />
+                <ellipse cx="-10" cy="-12" rx="12" ry="7" fill="#ffffff" opacity="0.75" transform="rotate(-20 -10 -12)" />
               </g>
             )}
 
-            {/* --- 4. FRONT ARMS & PAWS (Holding Snack / Waving / Pointing) --- */}
-            <g id="full-arms">
-            {/* Left Arm */}
-            <g
-              id="left-arm"
-              style={{
-                transformOrigin: '1200px 2800px',
-                transform: `translate(${leftArmTranslateX}px, ${leftArmTranslateY}px) rotate(${leftArmRot}deg)`,
-                transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
-              }}
-            >
-              <path d="M1464 3138.43C1463.25 3155.1 1460.86 3171.65 1456.85 3187.84C1455.42 3193.77 1453.84 3199.53 1452 3205.3C1450.52 3210.1 1448.84 3214.85 1446.9 3219.6C1444.14 3226.85 1441.03 3233.99 1437.61 3240.93C1410.28 3296.96 1363.97 3341.49 1306.92 3366.62L1303.24 3368.1C1292.68 3371.93 1282.11 3375.71 1271.44 3379.33C1079.39 3445.03 986.628 3461.01 771.552 3450.8C504.303 3437.94 347.833 3394.65 130.103 3271.11C88.6591 3247.5 54.5828 3212.85 31.6704 3171.02C8.75801 3129.19 -2.09072 3081.82 0.332836 3034.18L15.3417 2724.77C19.2726 2643.09 116.473 2604.3 176.253 2659.74C364.68 2834.38 520.333 2913.96 797.027 2927.29C910.103 2932.75 905.254 2936.58 1009.75 2910.59C1020.02 2907.86 1029.13 2901.88 1035.72 2893.55C1042.31 2885.21 1046.02 2874.96 1046.31 2864.34C1046.28 2864.21 1046.28 2864.07 1046.31 2863.93C1047.55 2838.36 1057.08 2813.88 1073.46 2794.2C1089.84 2774.52 1112.18 2760.7 1137.11 2754.83C1162.03 2748.96 1188.19 2751.36 1211.63 2761.67C1235.07 2771.98 1254.52 2789.63 1267.05 2811.97C1273.38 2823.32 1277.81 2835.63 1280.17 2848.41C1281.56 2856.49 1284.91 2864.09 1289.93 2870.56C1294.95 2877.04 1301.49 2882.17 1308.96 2885.53C1351.57 2904.75 1388.31 2934.92 1415.45 2972.98C1417.19 2975.43 1418.87 2978.08 1420.56 2980.38C1426.61 2989.42 1432.07 2998.85 1436.89 3008.61C1437.51 3009.68 1438.07 3010.8 1438.58 3011.93C1457.45 3051.32 1466.18 3094.8 1464 3138.43Z" fill="url(#fb-paint10_linear)" />
-              <path d="M1420.46 2980.38C1418.82 2977.88 1417.14 2975.27 1415.35 2972.97C1307.74 2984.46 1249.69 3013.81 1226.46 3025.71C1223.81 3027.09 1220.8 3028.57 1219.21 3029.23C1214.71 3030.09 1210.67 3032.56 1207.86 3036.19C1205.05 3039.81 1203.66 3044.35 1203.96 3048.92C1204.27 3053.5 1206.23 3057.81 1209.49 3061.04C1212.75 3064.27 1217.08 3066.19 1221.66 3066.45C1228.35 3066.75 1233.41 3064.25 1243.41 3059.2C1266.18 3047.61 1324.79 3017.85 1436.89 3008.61C1432.03 2998.85 1426.54 2989.42 1420.46 2980.38Z" fill="#E05A00" />
-              <path d="M1295.38 3201.98C1292.32 3202.29 1289.1 3202.85 1287.37 3203.01C1282.89 3202.42 1278.34 3203.48 1274.58 3205.98C1270.82 3208.49 1268.1 3212.28 1266.91 3216.64C1265.73 3221 1266.17 3225.64 1268.14 3229.71C1270.12 3233.77 1273.5 3236.98 1277.67 3238.74C1283.84 3241.24 1289.41 3240.42 1300.54 3238.74C1320.65 3235.88 1365.63 3229.5 1437.76 3240.63C1441.18 3233.69 1444.3 3226.54 1447.05 3219.29C1448.84 3214.54 1450.52 3209.79 1452.16 3205C1369.51 3191.52 1317.84 3198.77 1295.38 3201.98Z" fill="#E05A00" />
-
-              {/* JUMBO GOLDEN FISH COOKIE - IN HAND PAW ONLY WHEN AT STATE EAT */}
-              {state === 'eat' && (
-                <g id="fish-cookie-snack" transform="translate(840, 3080) rotate(-35)">
-                  <path d="M 320 120 Q 420 20 520 120 Z" fill="#d97706" />
-                  <path d="M 320 440 Q 420 540 520 440 Z" fill="#d97706" />
-                  <polygon points="680,280 820,160 780,280 820,400" fill="#f59e0b" stroke="#b45309" strokeWidth="18" strokeLinejoin="round" />
-                  <path d="M 60 280 Q 60 120 380 120 Q 680 120 680 280 Q 680 440 380 440 Q 60 440 60 280 Z" fill="url(#fish-cookie-grad)" stroke="#b45309" strokeWidth="22" />
-                  <circle cx="180" cy="230" r="28" fill="#78350f" />
-                  <circle cx="170" cy="220" r="9" fill="#ffffff" />
-                  <path d="M 310 200 Q 345 235 310 270 M 370 200 Q 405 235 370 270 M 430 200 Q 465 235 430 270 M 340 270 Q 375 305 340 340 M 400 270 Q 435 305 400 340" stroke="#b45309" strokeWidth="16" fill="none" strokeLinecap="round" />
-                  <path d="M 120 330 Q 150 360 180 330" stroke="#78350f" strokeWidth="16" fill="none" strokeLinecap="round" />
-                </g>
-              )}
-            </g>
-
-            {/* Right Arm */}
-            <g
-              id="right-arm"
-              style={{
-                transformOrigin: '2800px 2800px',
-                transform: `rotate(${rightArmRot}deg)`,
-                transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
-              }}
-            >
-              <path d="M2566.23 3138.43C2566.98 3155.09 2569.37 3171.65 2573.38 3187.84C2574.81 3193.76 2576.39 3199.53 2578.23 3205.3C2579.71 3210.1 2581.39 3214.85 2583.33 3219.6C2586.09 3226.84 2589.2 3233.99 2592.63 3240.93C2619.94 3296.95 2666.23 3341.48 2723.26 3366.62L2726.94 3368.1C2737.51 3371.93 2748.07 3375.71 2758.74 3379.33C2950.8 3445.03 3043.55 3461.01 3258.63 3450.8C3525.88 3437.93 3682.35 3394.64 3900.08 3271.1C3941.54 3247.54 3975.64 3212.92 3998.59 3171.12C4021.53 3129.32 4032.43 3081.97 4030.05 3034.34L4015.1 2724.93C4011.16 2643.25 3913.96 2604.45 3854.18 2659.89C3665.76 2834.53 3510.1 2914.12 3233.41 2927.44C3120.33 2932.9 3125.18 2936.73 3020.68 2910.75C3010.41 2908.02 3001.3 2902.04 2994.72 2893.7C2988.13 2885.36 2984.41 2875.12 2984.13 2864.49C2984.16 2864.36 2984.16 2864.22 2984.13 2864.09C2982.89 2838.51 2973.36 2814.03 2956.97 2794.35C2940.59 2774.67 2918.25 2760.85 2893.33 2754.98C2868.4 2749.11 2842.25 2751.52 2818.8 2761.82C2795.36 2772.13 2775.91 2789.78 2763.39 2812.12C2757 2823.46 2752.52 2835.77 2750.12 2848.57C2748.73 2856.64 2745.37 2864.25 2740.35 2870.72C2735.33 2877.19 2728.8 2882.33 2721.32 2885.68C2678.72 2904.9 2641.97 2935.07 2614.83 2973.13C2613.1 2975.58 2611.41 2978.23 2609.73 2980.53C2603.67 2989.58 2598.22 2999.01 2593.39 3008.76C2592.78 3009.83 2592.22 3010.96 2591.71 3012.08C2572.85 3051.42 2564.09 3094.85 2566.23 3138.43Z" fill="url(#fb-paint11_linear)" />
-              <path d="M2593.39 3008.61C2705.7 3017.85 2764.1 3047.61 2786.87 3059.2C2797.08 3064.3 2802.19 3066.75 2808.62 3066.45C2813.2 3066.19 2817.53 3064.27 2820.79 3061.04C2824.05 3057.81 2826.02 3053.5 2826.32 3048.92C2826.62 3044.35 2825.24 3039.81 2822.43 3036.19C2819.62 3032.56 2815.58 3030.09 2811.07 3029.23C2809.49 3028.57 2806.48 3027.09 2803.82 3025.71C2780.44 3013.87 2722.14 2984.46 2614.93 2972.97C2613.2 2975.42 2611.51 2978.08 2609.83 2980.38C2603.74 2989.42 2598.25 2998.85 2593.39 3008.61Z" fill="#E05A00" />
-              <path d="M2578.08 3205.3C2579.56 3210.1 2581.24 3214.85 2583.18 3219.59C2585.94 3226.84 2589.05 3233.99 2592.47 3240.93C2664.61 3229.8 2709.58 3236.19 2729.7 3239.04C2740.82 3240.58 2746.39 3241.39 2752.57 3239.04C2756.73 3237.28 2760.11 3234.07 2762.09 3230.01C2764.07 3225.95 2764.5 3221.3 2763.32 3216.94C2762.14 3212.58 2759.41 3208.8 2755.65 3206.29C2751.89 3203.78 2747.35 3202.72 2742.87 3203.31C2741.13 3203.31 2737.76 3202.6 2734.85 3202.29C2712.39 3198.77 2660.73 3191.52 2578.08 3205.3Z" fill="#E05A00" />
-            </g>
-          </g>
-          </g>
-
-          {/* --- 6. DEBUG SKELETON (Full Body) --- */}
-          {showBones && (
-            <g id="fb-bones-debug" className="animate-in fade-in">
-              <line x1="2015" y1="4468" x2="2015" y2="1922" stroke="#ef4444" strokeWidth="30" strokeDasharray="50 30" />
-              <line x1="2015" y1="4468" x2="1953" y2="3620" stroke="#f97316" strokeWidth="25" strokeDasharray="40 25" />
-              <line x1="1953" y1="3620" x2="4640" y2="3150" stroke="#f97316" strokeWidth="25" strokeDasharray="40 25" />
-              <line x1="2015" y1="4468" x2="1191" y2="5200" stroke="#84cc16" strokeWidth="25" strokeDasharray="40 25" />
-              <line x1="2015" y1="4468" x2="2839" y2="5200" stroke="#84cc16" strokeWidth="25" strokeDasharray="40 25" />
-              <line x1="2015" y1="2800" x2="1200" y2="2800" stroke="#06b6d4" strokeWidth="25" strokeDasharray="40 25" />
-              <line x1="2015" y1="2800" x2="2800" y2="2800" stroke="#06b6d4" strokeWidth="25" strokeDasharray="40 25" />
-
-              <circle cx="2015" cy="4468" r="70" fill="#ef4444" stroke="#ffffff" strokeWidth="15" />
-              <circle cx="2015" cy="1922" r="70" fill="#ef4444" stroke="#ffffff" strokeWidth="15" />
-              <circle cx="1953" cy="3620" r="60" fill="#f97316" stroke="#ffffff" strokeWidth="15" />
-              <circle cx="4640" cy="3150" r="60" fill="#f97316" stroke="#ffffff" strokeWidth="15" />
-              <circle cx="1191" cy="5200" r="60" fill="#84cc16" stroke="#ffffff" strokeWidth="15" />
-              <circle cx="2839" cy="5200" r="60" fill="#84cc16" stroke="#ffffff" strokeWidth="15" />
-              <circle cx="750" cy="750" r="50" fill="#06b6d4" stroke="#ffffff" strokeWidth="12" />
-              <circle cx="3300" cy="750" r="50" fill="#06b6d4" stroke="#ffffff" strokeWidth="12" />
-            </g>
-          )}
-        </svg>
-      ) : (
-        /* =========================================================================
-            VARIANT 2: HALF BODY / DESK RIG (FROM login-cat.svg: 0 0 834 711)
-        ========================================================================= */
-        <svg
-          viewBox="0 0 834.19 711.34"
-          className="h-full w-full drop-shadow-md transition-transform duration-200 ease-out"
-          xmlns="http://www.w3.org/2000/svg"
-          aria-label="Mèo Mee Half Body Rig"
-          style={{
-            transform: `translateY(${jumpY * 0.2}px)`,
-          }}
-        >
-          <defs>
-            <linearGradient id="live-ear-grad-left" x1="40.83" y1="27.94" x2="184.94" y2="172.05" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#fffffe" />
-              <stop offset="60%" stopColor="#f2fafd" />
-              <stop offset="100%" stopColor="#cfeef9" />
-            </linearGradient>
-            <linearGradient id="live-ear-inner-left" x1="86.56" y1="75.57" x2="177.19" y2="166.21" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#f7a424" />
-              <stop offset="100%" stopColor="#e5500e" />
-            </linearGradient>
-            <linearGradient id="live-ear-grad-right" x1="792.41" y1="27.78" x2="648.3" y2="171.89" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#f7a424" />
-              <stop offset="100%" stopColor="#f48108" />
-            </linearGradient>
-            <linearGradient id="live-ear-inner-right" x1="746.68" y1="75.41" x2="656.05" y2="166.04" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#f7a424" />
-              <stop offset="100%" stopColor="#e5500e" />
-            </linearGradient>
-            <linearGradient id="live-body-grad" x1="417.09" y1="27.39" x2="417.09" y2="711.34" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#ffffff" />
-              <stop offset="70%" stopColor="#fbfcfe" />
-              <stop offset="100%" stopColor="#d5f0fa" />
-            </linearGradient>
-            <linearGradient id="live-paw-grad" x1="250" y1="590" x2="0" y2="590" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#f7a424" />
-              <stop offset="100%" stopColor="#f48108" />
-            </linearGradient>
-            <linearGradient id="live-paw-grad-right" x1="580" y1="590" x2="830" y2="590" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#f7a424" />
-              <stop offset="100%" stopColor="#f48108" />
-            </linearGradient>
-            <linearGradient id="live-snack" x1="320" y1="200" x2="520" y2="200" gradientUnits="userSpaceOnUse">
-              <stop offset="0%" stopColor="#fb923c" />
-              <stop offset="100%" stopColor="#ea580c" />
-            </linearGradient>
-            <radialGradient id="live-snot-grad" cx="40%" cy="40%" r="60%">
-              <stop offset="0%" stopColor="#ffffff" stopOpacity="0.8" />
-              <stop offset="70%" stopColor="#38bdf8" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#0284c7" stopOpacity="0.6" />
-            </radialGradient>
-          </defs>
-
-          {/* Left Ear */}
-          <g id="left-ear" style={{ transformOrigin: '172px 152px', transform: `rotate(${leftEarRot}deg)`, transition: 'transform 0.25s' }}>
-            <path fill="url(#live-ear-grad-left)" d="M266.52,81.88,172,152l-94.54,70.1L61.9,102.33,52.6,30.71a26.86,26.86,0,0,1,38-28.18l65.84,29.7Z" />
-            <path fill="url(#live-ear-inner-left)" d="M230.18,108.57l-59.46,44.1-59.45,44.09-9.78-75.32-5.85-45a16.89,16.89,0,0,1,23.89-17.72l41.41,18.68Z" />
-          </g>
-
-          {/* Right Ear */}
-          <g id="right-ear" style={{ transformOrigin: '660px 152px', transform: `rotate(${rightEarRot}deg)`, transition: 'transform 0.25s' }}>
-            <path fill="url(#live-ear-grad-right)" d="M566.73,80.64l94.07,70.73,94.07,70.73,16.34-119.65L781,30.88A26.86,26.86,0,0,0,743.18,2.46l-66,29.26Z" />
-            <path fill="url(#live-ear-inner-right)" d="M602.9,107.58l59.16,44.48,59.16,44.49,10.28-75.26,6.15-45A16.9,16.9,0,0,0,713.87,58.4L672.34,76.81Z" />
-          </g>
-
-          {/* Head */}
-          <g
-            id="head"
-            style={{
-              transformOrigin: '417px 355px',
-              transform: `translate(${headLookX}px, ${(headLookY) + (sleepyHeadDrop * 0.35) + (talkHeadNodY * 0.3)}px) rotate(${headRotation}deg)`,
-              transition: state === 'sleepy' ? 'transform 0.5s ease-in-out' : 'transform 0.15s ease-out',
-            }}
-          >
-            <path fill="url(#live-body-grad)" d="M417.09,27.39h0A409.06,409.06,0,0,1,826.16,436.45V711.34H8V436.45A409.06,409.06,0,0,1,417.09,27.39Z" />
-            <path fill="#f7a424" d="M738.05,182.82a196,196,0,0,1-129,48.15c-108.65,0-196.74-88.08-196.74-196.73q0-3.42.12-6.82,2.31,0,4.62,0a409.19,409.19,0,0,1,321,155.43Z" />
-            <g id="cheeks">
-              <ellipse cx="260" cy="180" rx="28" ry="18" fill="#fca5a5" opacity={state === 'celebrate' ? '0.9' : state === 'eat' ? '0.85' : '0.55'} />
-              <ellipse cx="574" cy="180" rx="28" ry="18" fill="#fca5a5" opacity={state === 'celebrate' ? '0.9' : state === 'eat' ? '0.85' : '0.55'} />
-            </g>
-            <g id="eyebrows">
-              <path fill="#f48108" d="M321.56,138.54a5.18,5.18,0,0,1-5.11-4.29,24.77,24.77,0,0,0-48.79,0,5.2,5.2,0,0,1-5.11,4.29,5.18,5.18,0,0,1-5.14-6,35.16,35.16,0,0,1,69.28,0A5.17,5.17,0,0,1,321.56,138.54Z" />
-              <path fill="#f48108" d="M571,138.54a5.19,5.19,0,0,1-5.11-4.29,24.77,24.77,0,0,0-48.79,0,5.18,5.18,0,0,1-5.11,4.29,5.17,5.17,0,0,1-5.13-6,35.16,35.16,0,0,1,69.28,0A5.18,5.18,0,0,1,571,138.54Z" />
-            </g>
-            <g id="eyes">
-              {shouldBlink ? (
-                <g id="eyes-blinking">
-                  <path d="M265,148 Q290,165 315,148" stroke="#334155" strokeWidth="8" fill="none" strokeLinecap="round" />
-                  <path d="M519,148 Q544,165 569,148" stroke="#334155" strokeWidth="8" fill="none" strokeLinecap="round" />
-                </g>
-              ) : (
-                <g id="eyes-open">
-                  <g id="left-eye" transform={`translate(${headLookX * 0.4}, ${headLookY * 0.4})`}>
-                    <circle cx="290" cy="138" r="16" fill="#1e293b" />
-                    <circle cx="295" cy="133" r="6" fill="#ffffff" />
+            {/* --- 8. FRONT ARMS & PAWS --- */}
+            <g id="aiki-arms">
+              {/* Left Arm */}
+              <g
+                id="aiki-left-arm"
+                style={{
+                  transformOrigin: useRaisedLeftArm ? '410px 948px' : '140px 1149px',
+                  transform: `translate(${leftArmTranslateX}px, ${leftArmTranslateY}px) rotate(${leftArmRot}deg)`,
+                  transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                }}
+              >
+                {useRaisedLeftArm ? (
+                  /* Pointing / Raised Left Arm (Pose 1) */
+                  <g id="aiki-left-arm-raised">
+                    <path fill="#ff8517" d="M353.89,1051.91,87.82,930.49a99.54,99.54,0,0,1,70.92-186L438.1,831a119.25,119.25,0,0,1,83.64,158.39,119.21,119.21,0,0,1-153.85,68.93A122.68,122.68,0,0,1,353.89,1051.91Z" />
+                    <circle fill="#ff8517" cx="410.24" cy="948.32" r="119.2" />
+                    <path fill="#ff8517" d="M669.85,792.43c11.26-17.49,16.11-38.51,15.89-60.59,0-2.09-.09-4.18-.2-6.29s-.26-4.16-.46-6.26-.46-4.46-.76-6.7c-3-22.38-10.68-45.11-21.7-65.72q-1.36-2.58-2.81-5.09c-.48-.86-1-1.7-1.47-2.54q-1.51-2.58-3.12-5.1c-13.2-21-29.91-38.92-48.51-50.9a105.36,105.36,0,0,0-18.63-9.63q-2.54-1-5.07-1.83c-53.49-17.5-103.51,21.4-138.43,75.67a136.78,136.78,0,0,0-7.22,12.67L310,883.81a119.2,119.2,0,0,0,200.48,129c.38-.6.75-1.19,1.11-1.78L661.23,804.34A133.49,133.49,0,0,0,669.85,792.43Z" />
+                    <path fill="#f47016" d="M669.85,792.43c11.26-17.49,16.11-38.51,15.89-60.59,0-2.09-.09-4.18-.2-6.29s-.26-4.16-.46-6.26-.46-4.46-.76-6.7c-3-22.38-10.68-45.11-21.7-65.72q-1.36-2.58-2.81-5.09c-.48-.86-1-1.7-1.47-2.54q-1.51-2.58-3.12-5.1c-13.2-21-29.91-38.92-48.51-50.9a105.36,105.36,0,0,0-18.63-9.63q-2.54-1-5.07-1.83c-53.49-17.5-103.51,21.4-138.43,75.67,0,0,161.11,7.82,216.65,156.89A133.49,133.49,0,0,0,669.85,792.43Z" />
                   </g>
-                  <g id="right-eye" transform={`translate(${headLookX * 0.4}, ${headLookY * 0.4})`}>
-                    <circle cx="544" cy="138" r="16" fill="#1e293b" />
-                    <circle cx="549" cy="133" r="6" fill="#ffffff" />
+                ) : (
+                  /* Default Front Resting Left Arm */
+                  <g id="aiki-left-arm-resting">
+                    <path fill="#ff8517" d="M21.21,1141.66,21.3,849.2A99.54,99.54,0,0,1,220,836.55l37.19,290.08a123.24,123.24,0,0,1,2,15.27,119.21,119.21,0,1,1-237.92-.24Z" />
+                    <circle fill="#ff8517" cx="140.16" cy="1149.48" r="119.2" />
+                    <path fill="#ff8517" d="M23.75,1429c1.32,20.76,9.89,40.56,23.17,58.2q1.89,2.49,3.9,4.94c1.31,1.61,2.68,3.2,4.08,4.76s3,3.32,4.59,4.95c15.71,16.22,35.37,30,56.47,40q2.64,1.26,5.29,2.43c.89.4,1.79.78,2.68,1.17q2.76,1.17,5.54,2.26c23.07,9,47.18,13.57,69.26,12.16a106,106,0,0,0,20.7-3.3c1.76-.47,3.49-1,5.17-1.54C278,1537.4,295.2,1476.4,291.1,1412a134.41,134.41,0,0,0-1.71-14.48L259.12,1141.9A119.2,119.2,0,0,0,21.2,1157.05c.05.7.1,1.4.17,2.09l2.25,255.18A133.74,133.74,0,0,0,23.75,1429Z" />
+                    <path fill="#f47016" d="M23.75,1429c1.32,20.76,9.89,40.56,23.17,58.2q1.89,2.49,3.9,4.94c1.31,1.61,2.68,3.2,4.08,4.76s3,3.32,4.59,4.95c15.71,16.22,35.37,30,56.47,40q2.64,1.26,5.29,2.43c.89.4,1.79.78,2.68,1.17q2.76,1.17,5.54,2.26c23.07,9,47.18,13.57,69.26,12.16a106,106,0,0,0,20.7-3.3c1.76-.47,3.49-1,5.17-1.54C278,1537.4,295.2,1476.4,291.1,1412c0,0-134.3,89.33-267.48,2.32A133.74,133.74,0,0,0,23.75,1429Z" />
                   </g>
-                </g>
-              )}
-            </g>
-            <g id="nose">
-              <path fill="#f48108" d="M434.47,150.91H399.72A7.47,7.47,0,0,0,394,163.17l6.45,7.75L411.35,184a7.58,7.58,0,0,0,.85.85v24.69h9.48V185.14a8.06,8.06,0,0,0,1.16-1.11l10.92-13.11,6.45-7.75A7.47,7.47,0,0,0,434.47,150.91Z" />
-            </g>
-            <g id="mouth">
-              {state === 'eat' ? (
-                <g id="mouth-eating" transform={`translate(0, ${chewFrame % 2 === 0 ? 6 : -2})`}>
-                  <path d="M380,210 Q417,245 454,210 Z" fill="#e11d48" />
-                  <path fill="url(#live-snack)" d="M327.47,228.66a5,5,0,0,1-.86-10L506.84,187a5,5,0,1,1,1.73,9.9L328.34,228.59A5.1,5.1,0,0,1,327.47,228.66Z" />
-                </g>
-              ) : effectiveSpeaking ? (
-                <g id="mouth-live-viseme">
-                  {currentViseme === 'open' ? (
-                    <g id="half-viseme-open">
-                      <path d="M375,210 Q417,248 459,210 Z" fill="#e11d48" />
-                      <path d="M390,230 Q417,246 444,230 Z" fill="#fb7185" />
-                    </g>
-                  ) : currentViseme === 'round' ? (
-                    <g id="half-viseme-round">
-                      <ellipse cx="417" cy="225" rx="16" ry="18" fill="#e11d48" />
-                      <ellipse cx="417" cy="231" rx="10" ry="6" fill="#fb7185" />
-                    </g>
-                  ) : currentViseme === 'smile' ? (
-                    <g id="half-viseme-smile">
-                      <path d="M378,212 Q417,232 456,212 Z" fill="#e11d48" />
-                      <path d="M395,222 Q417,229 439,222 Z" fill="#fb7185" />
-                    </g>
-                  ) : currentViseme === 'half' ? (
-                    <g id="half-viseme-half">
-                      <path d="M382,213 Q417,228 452,213 Z" fill="#e11d48" />
-                      <ellipse cx="417" cy="221" rx="8" ry="4" fill="#fb7185" />
-                    </g>
-                  ) : (
-                    <path d="M385,215 Q400,226 417,215 Q434,226 449,215" stroke="#f48108" strokeWidth="5" fill="none" strokeLinecap="round" />
-                  )}
-                </g>
-              ) : (
-                <g id="mouth-happy">
-                  <path d="M375,208 Q417,265 459,208 Z" fill="#e11d48" />
-                  <path d="M392,230 Q417,256 442,230 Z" fill="#fb7185" />
-                </g>
-              )}
-            </g>
+                )}
 
-            {/* Snot Sleep Bubble for Half-Body */}
-            {state === 'sleepy' && (
-              <g id="half-snot-bubble" transform="translate(417, 185)">
-                <circle cx="0" cy="0" r={22 + (breathePhase * 16)} fill="url(#live-snot-grad)" stroke="#ffffff" strokeWidth="2.5" opacity="0.85" />
-                <circle cx="-5" cy="-6" r="4" fill="#ffffff" opacity="0.8" />
+                {/* Golden Fish Cookie Snack (Eat state) */}
+                {state === 'eat' && (
+                  <g id="aiki-fish-cookie" transform="translate(320, 1180) rotate(-35)">
+                    <path d="M 120 45 Q 160 8 200 45 Z" fill="#d97706" />
+                    <path d="M 120 165 Q 160 200 200 165 Z" fill="#d97706" />
+                    <polygon points="255,105 310,60 295,105 310,150" fill="#f59e0b" stroke="#b45309" strokeWidth="6" strokeLinejoin="round" />
+                    <path d="M 25 105 Q 25 45 145 45 Q 255 45 255 105 Q 255 165 145 165 Q 25 165 25 105 Z" fill="url(#fish-cookie-grad)" stroke="#b45309" strokeWidth="8" />
+                    <circle cx="70" cy="85" r="10" fill="#78350f" />
+                    <circle cx="66" cy="81" r="3" fill="#ffffff" />
+                    <path d="M 120 75 Q 135 90 120 105 M 145 75 Q 160 90 145 105 M 130 105 Q 145 120 130 135" stroke="#b45309" strokeWidth="6" fill="none" strokeLinecap="round" />
+                  </g>
+                )}
               </g>
-            )}
+
+              {/* Right Arm */}
+              <g
+                id="aiki-right-arm"
+                style={{
+                  transformOrigin: useRaisedRightArm ? '1405px 1057px' : '970px 1149px',
+                  transform: `rotate(${rightArmRot}deg)`,
+                  transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                }}
+              >
+                {useRaisedRightArm ? (
+                  /* Pointing / Raised Right Arm (Pose 2) */
+                  <g id="aiki-right-arm-raised">
+                    <path fill="#ff8517" d="M1508.39,999,1375.23,738.63a99.54,99.54,0,1,0-182.67,79.13L1291.43,1093a119.2,119.2,0,1,0,217-94Z" />
+                    <circle fill="#ff8517" cx="1405.96" cy="1057.68" r="119.2" />
+                    <path fill="#ff8517" d="M1266.94,1326.71c-16.74,12.35-37.4,18.53-59.45,19.72-2.08.11-4.18.17-6.29.2s-4.17,0-6.27-.07-4.48-.17-6.74-.32c-22.53-1.58-45.7-7.78-67-17.46-1.76-.81-3.52-1.63-5.25-2.48-.89-.43-1.76-.88-2.62-1.31-1.79-.91-3.55-1.84-5.3-2.79-21.77-11.84-40.75-27.37-53.89-45.17a106.4,106.4,0,0,1-10.79-18c-.78-1.65-1.49-3.3-2.15-5-20.88-52.26,14.75-104.66,66.68-143a136,136,0,0,1,12.19-8l215.11-141.36a119.2,119.2,0,0,1,141.54,191.84c-.57.42-1.14.82-1.71,1.22l-196.74,162.52A133.09,133.09,0,0,1,1266.94,1326.71Z" />
+                    <path fill="#f47016" d="M1266.94,1326.71c-16.74,12.35-37.4,18.53-59.45,19.72-2.08.11-4.18.17-6.29.2s-4.17,0-6.27-.07-4.48-.17-6.74-.32c-22.53-1.58-45.7-7.78-67-17.46-1.76-.81-3.52-1.63-5.25-2.48-.89-.43-1.76-.88-2.62-1.31-1.79-.91-3.55-1.84-5.3-2.79-21.77-11.84-40.75-27.37-53.89-45.17a106.4,106.4,0,0,1-10.79-18c-.78-1.65-1.49-3.3-2.15-5-20.88-52.26,14.75-104.66,66.68-143,0,0,18.08,160.28,170.39,206.2A133.09,133.09,0,0,1,1266.94,1326.71Z" />
+                  </g>
+                ) : (
+                  /* Default Front Resting Right Arm */
+                  <g id="aiki-right-arm-resting">
+                    <path fill="#ff8517" d="M1089.39,1141.66l-.09-292.46a99.54,99.54,0,0,0-198.68-12.65l-37.19,290.08a123.24,123.24,0,0,0-2,15.27,119.21,119.21,0,1,0,237.92-.24Z" />
+                    <circle fill="#ff8517" cx="970.44" cy="1149.48" r="119.2" />
+                    <path fill="#ff8517" d="M1086.85,1429c-1.32,20.76-9.89,40.56-23.17,58.2q-1.89,2.49-3.9,4.94c-1.31,1.61-2.68,3.2-4.08,4.76s-3,3.32-4.59,4.95c-15.71,16.22-35.37,30-56.47,40q-2.64,1.26-5.29,2.43c-.89.4-1.79.78-2.68,1.17q-2.76,1.17-5.54,2.26c-23.07,9-47.18,13.57-69.26,12.16a106,106,0,0,1-20.7-3.3c-1.76-.47-3.49-1-5.17-1.54-53.43-17.66-70.6-78.66-66.5-143.06a134.41,134.41,0,0,1,1.71-14.48l30.27-255.62a119.2,119.2,0,0,1,237.92,15.15c-.05.7-.1,1.4-.16,2.09L1087,1414.32A133.74,133.74,0,0,1,1086.85,1429Z" />
+                    <path fill="#f47016" d="M1086.85,1429c-1.32,20.76-9.89,40.56-23.17,58.2q-1.89,2.49-3.9,4.94c-1.31,1.61-2.68,3.2-4.08,4.76s-3,3.32-4.59,4.95c-15.71,16.22-35.37,30-56.47,40q-2.64,1.26-5.29,2.43c-.89.4-1.79.78-2.68,1.17q-2.76,1.17-5.54,2.26c-23.07,9-47.18,13.57-69.26,12.16a106,106,0,0,1-20.7-3.3c-1.76-.47-3.49-1-5.17-1.54-53.43-17.66-70.6-78.66-66.5-143.06,0,0,134.3,89.33,267.48,2.32A133.74,133.74,0,0,1,1086.85,1429Z" />
+                  </g>
+                )}
+              </g>
+            </g>
           </g>
 
-          {/* Left Paw */}
-          <g
-            id="left-paw"
-            style={{
-              transformOrigin: '180px 560px',
-              transform: `translate(${leftArmTranslateX * 0.4}px, ${leftArmTranslateY * 0.4}px) rotate(${leftArmRot}deg)`,
-              transition: 'transform 0.25s',
-            }}
-          >
-            <path fill="url(#live-paw-grad)" d="M250.85,598.31a43.28,43.28,0,0,1-.29,5,41,41,0,0,1-.89,5,42.7,42.7,0,0,1-22.9,28.43l-.22.1c-1.64.68-3.28,1.34-4.94,2A269.07,269.07,0,0,1,8.93,631,15.63,15.63,0,0,1,0,616.92V528.64A4.71,4.71,0,0,1,7.76,525a179.54,179.54,0,0,0,177.05,32.54v-.07a17.76,17.76,0,0,1,12.81-17.19,17.92,17.92,0,0,1,23,17.18,42.61,42.61,0,0,1,21.14,14.45,42.55,42.55,0,0,1,9.13,26.37Z" />
-            <path fill="#f48108" d="M245.32,577.3c-6.4-.95-17.82-1-27.36,8.15a2.5,2.5,0,1,1-3.46-3.62,36.17,36.17,0,0,1,27.22-9.89A42.16,42.16,0,0,1,245.32,577.3Z" />
-            <path fill="#f48108" d="M250.56,603.3a41,41,0,0,1-.89,5,30.74,30.74,0,0,0-22.2-.08,2.49,2.49,0,0,1-1.86,0,2.51,2.51,0,0,1,.08-4.65A35.47,35.47,0,0,1,250.56,603.3Z" />
-          </g>
-
-          {/* Right Paw */}
-          <g
-            id="right-paw"
-            style={{
-              transformOrigin: '650px 560px',
-              transform: `rotate(${rightArmRot}deg)`,
-              transition: 'transform 0.25s',
-            }}
-          >
-            <path fill="url(#live-paw-grad-right)" d="M583.34,598.31a43.28,43.28,0,0,0,.29,5,41,41,0,0,0,.89,5,42.7,42.7,0,0,0,22.9,28.43l.22.1c1.64.68,3.28,1.34,4.94,2A269.07,269.07,0,0,0,825.26,631a15.63,15.63,0,0,0,8.93-14.09V528.64a4.71,4.71,0,0,0-7.76-3.61,179.54,179.54,0,0,1-177,32.54v-.07a17.76,17.76,0,0,0-12.81-17.19,17.92,17.92,0,0,0-23,17.18,42.61,42.61,0,0,0-21.14,14.45,42.55,42.55,0,0,0-9.13,26.37Z" />
-            <path fill="#f48108" d="M588.87,577.3c6.4-.95,17.82-1,27.36,8.15a2.5,2.5,0,0,0,3.46-3.62,36.17,36.17,0,0,0-27.22-9.89A42.16,42.16,0,0,0,588.87,577.3Z" />
-            <path fill="#f48108" d="M583.63,603.3a41,41,0,0,0,.89,5,30.74,30.74,0,0,1,22.2-.08,2.49,2.49,0,0,0,1.86,0,2.51,2.51,0,0,0-.08-4.65A35.47,35.47,0,0,0,583.63,603.3Z" />
-          </g>
-
-          {/* Desk Card */}
-          <g id="desk-card">
-            <rect x="235" y="280" width="364" height="120" rx="18" fill="#ffffff" stroke="#e2e8f0" strokeWidth="4" />
-            <rect x="254.59" y="341.48" width="325" height="6" fill="#cbd5e1" rx="3" />
-            <circle cx="300" cy="315" r="10" fill="#f59e0b" />
-            <circle cx="330" cy="315" r="10" fill="#3b82f6" />
-            <circle cx="360" cy="315" r="10" fill="#10b981" />
-          </g>
-
-          {/* Debug overlay */}
+          {/* --- 9. DEBUG SKELETON (AIKI) --- */}
           {showBones && (
-            <g id="bones-debug-overlay" className="animate-in fade-in">
-              <line x1="417" y1="650" x2="417" y2="355" stroke="#ef4444" strokeWidth="6" strokeDasharray="8 6" />
-              <line x1="417" y1="355" x2="172" y2="152" stroke="#06b6d4" strokeWidth="5" strokeDasharray="6 4" />
-              <line x1="417" y1="355" x2="660" y2="152" stroke="#06b6d4" strokeWidth="5" strokeDasharray="6 4" />
-              <line x1="417" y1="650" x2="180" y2="560" stroke="#84cc16" strokeWidth="5" strokeDasharray="6 4" />
-              <line x1="417" y1="650" x2="650" y2="560" stroke="#84cc16" strokeWidth="5" strokeDasharray="6 4" />
-              <circle cx="417" cy="650" r="12" fill="#ef4444" stroke="#ffffff" strokeWidth="3" />
-              <circle cx="417" cy="355" r="14" fill="#ef4444" stroke="#ffffff" strokeWidth="3" />
-              <circle cx="172" cy="152" r="12" fill="#06b6d4" stroke="#ffffff" strokeWidth="3" />
-              <circle cx="660" cy="152" r="12" fill="#06b6d4" stroke="#ffffff" strokeWidth="3" />
-              <circle cx="180" cy="560" r="12" fill="#84cc16" stroke="#ffffff" strokeWidth="3" />
-              <circle cx="650" cy="560" r="12" fill="#84cc16" stroke="#ffffff" strokeWidth="3" />
+            <g id="aiki-bones-debug" className="animate-in fade-in">
+              <line x1="555" y1="1691" x2="555" y2="450" stroke="#ef4444" strokeWidth="12" strokeDasharray="20 12" />
+              <line x1="555" y1="1691" x2="628" y2="1578" stroke="#f97316" strokeWidth="10" strokeDasharray="16 10" />
+              <line x1="628" y1="1578" x2="1281" y2="1376" stroke="#f97316" strokeWidth="10" strokeDasharray="16 10" />
+              <line x1="555" y1="1691" x2="251" y2="1488" stroke="#84cc16" strokeWidth="10" strokeDasharray="16 10" />
+              <line x1="555" y1="1691" x2="862" y2="1488" stroke="#84cc16" strokeWidth="10" strokeDasharray="16 10" />
+              <line x1="555" y1="950" x2="140" y2="1149" stroke="#06b6d4" strokeWidth="10" strokeDasharray="16 10" />
+              <line x1="555" y1="950" x2="970" y2="1149" stroke="#06b6d4" strokeWidth="10" strokeDasharray="16 10" />
+              <line x1="555" y1="450" x2="280" y2="328" stroke="#a855f7" strokeWidth="10" strokeDasharray="16 10" />
+              <line x1="555" y1="450" x2="842" y2="328" stroke="#a855f7" strokeWidth="10" strokeDasharray="16 10" />
+
+              <circle cx="555" cy="1691" r="25" fill="#ef4444" stroke="#ffffff" strokeWidth="6" />
+              <circle cx="555" cy="450" r="25" fill="#ef4444" stroke="#ffffff" strokeWidth="6" />
+              <circle cx="280" cy="328" r="20" fill="#a855f7" stroke="#ffffff" strokeWidth="5" />
+              <circle cx="842" cy="328" r="20" fill="#a855f7" stroke="#ffffff" strokeWidth="5" />
+              <circle cx="140" cy="1149" r="20" fill="#06b6d4" stroke="#ffffff" strokeWidth="5" />
+              <circle cx="970" cy="1149" r="20" fill="#06b6d4" stroke="#ffffff" strokeWidth="5" />
+              <circle cx="251" cy="1488" r="20" fill="#84cc16" stroke="#ffffff" strokeWidth="5" />
+              <circle cx="862" cy="1488" r="20" fill="#84cc16" stroke="#ffffff" strokeWidth="5" />
+              <circle cx="628" cy="1578" r="20" fill="#f97316" stroke="#ffffff" strokeWidth="5" />
             </g>
           )}
         </svg>

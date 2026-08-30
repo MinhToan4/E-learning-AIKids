@@ -2,11 +2,11 @@ import { describe, it, expect } from 'vitest'
 import manifest from '../../../public/assets/mee/mee-cat-rig-v1-manifest.json'
 import { getDominantViseme } from './hooks/useMeeCatSpeech'
 
-describe('Mee Cat Rig System', () => {
+describe('AIKI Cat Rig System', () => {
   it('should have valid artboard dimensions and baseline in manifest', () => {
-    expect(manifest.artboard.width).toBe(834)
-    expect(manifest.artboard.height).toBe(711)
-    expect(manifest.artboard.baseline).toBe(650)
+    expect(manifest.artboard.width).toBe(1420)
+    expect(manifest.artboard.height).toBe(1935)
+    expect(manifest.artboard.baseline).toBe(1691)
   })
 
   it('should declare the correct state machine name and inputs', () => {
@@ -27,9 +27,9 @@ describe('Mee Cat Rig System', () => {
     expect(manifest.pivots).toHaveProperty('leftPaw')
     expect(manifest.pivots).toHaveProperty('rightPaw')
 
-    expect(manifest.pivots.head).toEqual([417, 355])
-    expect(manifest.pivots.leftEar).toEqual([172, 152])
-    expect(manifest.pivots.rightEar).toEqual([660, 152])
+    expect(manifest.pivots.head).toEqual([555, 450])
+    expect(manifest.pivots.leftEar).toEqual([280, 328])
+    expect(manifest.pivots.rightEar).toEqual([842, 328])
   })
 
   it('should declare all animation timeline durations', () => {
@@ -38,6 +38,7 @@ describe('Mee Cat Rig System', () => {
     expect(manifest.timelines).toHaveProperty('celebrate')
     expect(manifest.timelines).toHaveProperty('eat')
     expect(manifest.timelines).toHaveProperty('sleepy')
+    expect(manifest.timelines).toHaveProperty('talk')
   })
 
   describe('Lip-sync & Cute Chibi Viseme Engine', () => {
