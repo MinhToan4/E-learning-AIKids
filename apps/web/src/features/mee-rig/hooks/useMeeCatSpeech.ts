@@ -5,8 +5,14 @@ export type Viseme = 'closed' | 'open' | 'round' | 'smile' | 'half'
 export type Gesture =
   | 'auto'
   | 'point-left'
+  | 'point-high-left'
+  | 'point-low-left'
   | 'point-right'
+  | 'point-high-right'
+  | 'point-low-right'
   | 'explain'
+  | 'think'
+  | 'clap'
   | 'enthusiastic'
   | 'idle'
 
@@ -131,8 +137,10 @@ export function useMeeCatSpeech({
       const lectureGesturePool: Gesture[] = [
         'point-left',
         'explain',
-        'point-left',
-        'explain',
+        'point-high-left',
+        'point-low-left',
+        'think',
+        'clap',
       ]
       let gIdx = 0
       setActiveGesture(lectureGesturePool[0])

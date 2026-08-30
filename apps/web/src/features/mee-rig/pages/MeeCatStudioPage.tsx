@@ -34,11 +34,17 @@ const SAMPLE_SPEECHES = [
 ]
 
 const LECTURE_GESTURES = [
-  { id: 'point-left' as Gesture, label: '👈 Chỉ Bảng Bên Trái', desc: 'Tay vươn sang trái hướng bảng, lộ 100% khuôn miệng' },
-  { id: 'point-right' as Gesture, label: '👉 Chỉ Bảng Bên Phải', desc: 'Tay vươn sang phải hướng bảng, lộ 100% khuôn miệng' },
+  { id: 'point-high-left' as Gesture, label: '☝️ Chỉ Tầm Cao (Tiêu Đề Trái)', desc: 'Tay vươn chếch lên trên chỉ dòng tiêu đề, đầu ngước nhẹ' },
+  { id: 'point-left' as Gesture, label: '👈 Chỉ Tầm Ngang (Giữa Bảng Trái)', desc: 'Tay vươn ngang ngực chỉ công thức chính, lộ 100% khuôn miệng' },
+  { id: 'point-low-left' as Gesture, label: '👇 Chỉ Tầm Thấp (Đáp Số Trái)', desc: 'Tay hạ chếch xuống dưới chỉ các bước giải, đầu cúi nhẹ' },
+  { id: 'point-high-right' as Gesture, label: '☝️ Chỉ Tầm Cao (Tiêu Đề Phải)', desc: 'Tay phải vươn chếch lên trên chỉ góc bảng phải' },
+  { id: 'point-right' as Gesture, label: '👉 Chỉ Tầm Ngang (Giữa Bảng Phải)', desc: 'Tay phải vươn ngang chỉ công thức bảng phải' },
+  { id: 'point-low-right' as Gesture, label: '👇 Chỉ Tầm Thấp (Đáp Số Phải)', desc: 'Tay phải hạ xuống dưới chỉ đáp số bảng phải' },
+  { id: 'think' as Gesture, label: '💡 Gợi Ý & Đang Tư Duy', desc: 'Tay đặt nhẹ dưới cằm, đầu nghiêng suy nghĩ đố vui' },
+  { id: 'clap' as Gesture, label: '👏 Vỗ Tay Khen Ngợi', desc: 'Hai tay vỗ vào nhau nhịp nhàng tán dương học sinh' },
   { id: 'explain' as Gesture, label: '👐 Thuyết Trình 2 Tay', desc: 'Hai tay co gập đung đưa ở tầm ngực dưới tự nhiên' },
-  { id: 'enthusiastic' as Gesture, label: '🎉 Tuyên Dương & Chúc Mừng', desc: 'Vung hai tay lên cao chúc mừng học sinh' },
-  { id: 'auto' as Gesture, label: '🤖 Tự Động Phối Hợp', desc: 'Tự động luân chuyển cử chỉ chỉ bảng và thuyết trình' },
+  { id: 'enthusiastic' as Gesture, label: '🎉 Tuyên Dương Hào Hứng', desc: 'Vung hai tay lên cao cổ vũ nhiệt tình' },
+  { id: 'auto' as Gesture, label: '🤖 Tự Động Phối Hợp', desc: 'Tự động luân chuyển đa dạng cử chỉ khi đọc bài giảng' },
 ]
 
 const STATE_PRESETS: Array<{ id: MeeCatState; label: string; icon: any; desc: string }> = [
@@ -238,12 +244,18 @@ export function MeeCatStudioPage() {
             {showLectureBoard && bgMode !== 'green-screen' && (
               <div className="w-full md:w-[56%] max-w-[420px] animate-in fade-in zoom-in-95 duration-200">
                 <div className="rounded-3xl border-4 border-amber-900/40 bg-gradient-to-b from-slate-900 to-slate-950 p-5 text-white shadow-2xl relative overflow-hidden">
-                  {/* Chalkboard Header */}
-                  <div className="flex items-center justify-between border-b border-white/15 pb-3 mb-3">
+                  {/* Chalkboard Header with High Point Indicator */}
+                  <div className="flex items-center justify-between border-b border-white/15 pb-3 mb-3 relative">
                     <div className="flex items-center gap-2">
                       <BookOpen className="h-4 w-4 text-amber-400" />
-                      <span className="text-xs font-black tracking-wider text-amber-300 uppercase">
+                      <span className="text-xs font-black tracking-wider text-amber-300 uppercase relative">
                         Bảng Bài Giảng Tương Tác
+                        {(selectedGesture === 'point-high-left' || selectedGesture === 'point-high-right') && (
+                          <span className="absolute -top-1 -right-4 flex h-4 w-4">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                            <span className="relative inline-flex rounded-full h-4 w-4 bg-amber-500/80 border-2 border-white" />
+                          </span>
+                        )}
                       </span>
                     </div>
                     <span className="rounded-full bg-emerald-500/20 border border-emerald-400/40 px-2 py-0.5 text-[10px] font-black text-emerald-300">
@@ -251,7 +263,7 @@ export function MeeCatStudioPage() {
                     </span>
                   </div>
 
-                  {/* Math Formula / Question Focus Card with Interactive Laser Sweep / Pinpoint Feedback */}
+                  {/* Math Formula / Question Focus Card with Mid Point Indicator */}
                   <div className="rounded-2xl bg-slate-800/80 border border-white/10 p-3 mb-3 text-center relative overflow-hidden">
                     <div className="text-[11px] font-bold text-amber-200/80 uppercase">Ví dụ minh họa</div>
                     <div className="relative inline-block mt-1">
@@ -259,7 +271,7 @@ export function MeeCatStudioPage() {
                         25 + 17 = 42
                       </div>
 
-                      {/* Point Indicator (📍 Laser Pinpoint Dot) */}
+                      {/* Mid Point Indicator (📍 Laser Pinpoint Dot) */}
                       {(selectedGesture === 'point-left' || selectedGesture === 'point-right' || selectedGesture === 'auto') && (
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
                           <span className="relative flex h-5 w-5">
@@ -270,7 +282,7 @@ export function MeeCatStudioPage() {
                       )}
                     </div>
 
-                    {/* Enthusiastic Praise Badge */}
+                    {/* Interactive Feedback Badges */}
                     {selectedGesture === 'enthusiastic' && (
                       <div className="absolute top-2 right-2 animate-bounce">
                         <span className="rounded-full bg-amber-500 text-slate-950 font-black text-[9px] px-2 py-0.5 shadow-md">
@@ -278,10 +290,30 @@ export function MeeCatStudioPage() {
                         </span>
                       </div>
                     )}
+                    {selectedGesture === 'clap' && (
+                      <div className="absolute top-2 right-2 animate-bounce">
+                        <span className="rounded-full bg-emerald-500 text-slate-950 font-black text-[9px] px-2 py-0.5 shadow-md">
+                          👏 HOAN HÔ!
+                        </span>
+                      </div>
+                    )}
+                    {selectedGesture === 'think' && (
+                      <div className="absolute top-2 right-2 animate-pulse">
+                        <span className="rounded-full bg-sky-500 text-white font-black text-[9px] px-2 py-0.5 shadow-md">
+                          💡 GỢI Ý NÀO!
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Dynamic Speech Text Highlight Area */}
-                  <div className="rounded-2xl bg-amber-500/10 border border-amber-400/30 p-3.5 min-h-[90px] flex items-center justify-center">
+                  {/* Dynamic Speech Text Highlight Area with Low Point Indicator */}
+                  <div className="rounded-2xl bg-amber-500/10 border border-amber-400/30 p-3.5 min-h-[90px] flex items-center justify-center relative">
+                    {(selectedGesture === 'point-low-left' || selectedGesture === 'point-low-right') && (
+                      <div className="absolute top-2 left-2 pointer-events-none flex h-4 w-4">
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                        <span className="relative inline-flex rounded-full h-4 w-4 bg-amber-500/80 border-2 border-white" />
+                      </div>
+                    )}
                     <p className="text-xs sm:text-sm font-bold text-amber-100 text-center leading-relaxed">
                       {speechInput || 'Gõ văn bản vào Textbox bên phải để Mèo AIKI bắt đầu giảng bài và chỉ trỏ trực tiếp vào bảng này...'}
                     </p>

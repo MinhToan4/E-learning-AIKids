@@ -160,23 +160,33 @@ export function MeeCatInteractiveCanvas({
   const activeQuote = quote?.trim() || ''
 
   // Transform Computations for Skeletal Joints
-  const isPointingLeft =
+  const isPointingLeftGroup =
     (state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')) &&
-    effectiveGesture === 'point-left'
+    (effectiveGesture === 'point-left' || effectiveGesture === 'point-high-left' || effectiveGesture === 'point-low-left')
 
-  const isPointingRight =
+  const isPointingRightGroup =
     (state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')) &&
-    effectiveGesture === 'point-right'
+    (effectiveGesture === 'point-right' || effectiveGesture === 'point-high-right' || effectiveGesture === 'point-low-right')
 
   const headLookX = state === 'look' || isHovered
     ? cursorPos.x
-    : isPointingLeft
+    : effectiveGesture === 'think'
+    ? 10
+    : isPointingLeftGroup
     ? -12
-    : isPointingRight
+    : isPointingRightGroup
     ? 12
     : 0
 
-  const headLookY = state === 'look' || isHovered ? cursorPos.y : 0
+  const headLookY = state === 'look' || isHovered
+    ? cursorPos.y
+    : effectiveGesture === 'think'
+    ? -10
+    : effectiveGesture === 'point-high-left' || effectiveGesture === 'point-high-right'
+    ? -8
+    : effectiveGesture === 'point-low-left' || effectiveGesture === 'point-low-right'
+    ? 8
+    : 0
 
   // Sleepy head nod progression
   const sleepyHeadDrop = state === 'sleepy' ? [0, 8, 18, 25, 14, 4][sleepyNod] : 0
@@ -186,9 +196,19 @@ export function MeeCatInteractiveCanvas({
   const talkHeadNodY = effectiveSpeaking ? [0, 8, -4, 10][talkStep] : 0
   const talkHeadRot = effectiveSpeaking
     ? [0, 2, -1.5, 1][talkStep]
-    : isPointingLeft
+    : effectiveGesture === 'think'
+    ? 6
+    : effectiveGesture === 'point-high-left'
+    ? -5
+    : effectiveGesture === 'point-low-left'
+    ? 4
+    : effectiveGesture === 'point-high-right'
+    ? 5
+    : effectiveGesture === 'point-low-right'
+    ? -4
+    : isPointingLeftGroup
     ? -3.5
-    : isPointingRight
+    : isPointingRightGroup
     ? 3.5
     : 0
 
@@ -215,7 +235,7 @@ export function MeeCatInteractiveCanvas({
     ? [0.96, 1.05, 1.02, 0.98][talkStep]
     : 1
 
-  // --- 100% ARTIST ORIGINAL VECTOR ARM POSES & CLEAN POINTING (KHÔNG CHE MỒM) ---
+  // --- 100% ARTIST ORIGINAL VECTOR ARM POSES & CLEAN MULTI-GESTURE ENGINE ---
   type ArmMode = 'resting' | 'bent-pose1' | 'raised-pose2'
 
   let leftArmMode: ArmMode = 'resting'
@@ -243,15 +263,39 @@ export function MeeCatInteractiveCanvas({
     leftArmRot = [5, 30, 20, 5][chewFrame]
     rightArmRot = -10
   } else if (state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')) {
-    // 1. 👈 CHỈ BẢNG BÊN TRÁI: Dùng Pose 2 vươn hẳn sang bên trái (away from mouth at X=555), KHÔNG CHE MỒM
-    if (effectiveGesture === 'point-left') {
+    // 1. ☝️ CHỈ TẦM CAO BÊN TRÁI (Tiêu Đề / Góc Bảng Trên)
+    if (effectiveGesture === 'point-high-left') {
+      leftArmMode = 'raised-pose2'
+      rightArmMode = 'resting'
+      leftArmOrigin = '140px 800px'
+      leftArmRot = [-10, -5, -12, -7][talkStep]
+      rightArmRot = -5
+    }
+    // 2. 👈 CHỈ TẦM NGANG BÊN TRÁI (Nội Dung Chính / Giữa Bảng)
+    else if (effectiveGesture === 'point-left') {
       leftArmMode = 'raised-pose2'
       rightArmMode = 'resting'
       leftArmOrigin = '140px 800px'
       leftArmRot = [18, 23, 20, 16][talkStep]
       rightArmRot = -5
     }
-    // 2. 👉 CHỈ BẢNG BÊN PHẢI: Dùng Pose 2 Mirrored vươn hẳn sang bên phải, KHÔNG CHE MỒM
+    // 3. 👇 CHỈ TẦM THẤP BÊN TRÁI (Đáp Số / Các Bước Dưới)
+    else if (effectiveGesture === 'point-low-left') {
+      leftArmMode = 'raised-pose2'
+      rightArmMode = 'resting'
+      leftArmOrigin = '140px 800px'
+      leftArmRot = [45, 50, 47, 43][talkStep]
+      rightArmRot = -5
+    }
+    // 4. ☝️ CHỈ TẦM CAO BÊN PHẢI (Tiêu Đề Bên Phải)
+    else if (effectiveGesture === 'point-high-right') {
+      leftArmMode = 'resting'
+      rightArmMode = 'raised-pose2'
+      rightArmOrigin = '970px 800px'
+      leftArmRot = 5
+      rightArmRot = [10, 5, 12, 7][talkStep]
+    }
+    // 5. 👉 CHỈ TẦM NGANG BÊN PHẢI (Nội Dung Chính Bên Phải)
     else if (effectiveGesture === 'point-right') {
       leftArmMode = 'resting'
       rightArmMode = 'raised-pose2'
@@ -259,7 +303,32 @@ export function MeeCatInteractiveCanvas({
       leftArmRot = 5
       rightArmRot = [-18, -23, -20, -16][talkStep]
     }
-    // 3. 👐 THUYẾT TRÌNH 2 TAY: Hai tay Pose 1 đung đưa ở tầm ngực dưới (Y=950, cách xa mồm Y=540)
+    // 6. 👇 CHỈ TẦM THẤP BÊN PHẢI (Đáp Số Bên Phải)
+    else if (effectiveGesture === 'point-low-right') {
+      leftArmMode = 'resting'
+      rightArmMode = 'raised-pose2'
+      rightArmOrigin = '970px 800px'
+      leftArmRot = 5
+      rightArmRot = [-45, -50, -47, -43][talkStep]
+    }
+    // 7. 💡 GỢI Ý / ĐANG TƯ DUY SUY NGHĨ (Đặt tay má/cằm, đầu nghiêng thông thái)
+    else if (effectiveGesture === 'think') {
+      leftArmMode = 'bent-pose1'
+      rightArmMode = 'resting'
+      leftArmOrigin = '140px 880px'
+      leftArmRot = -16
+      rightArmRot = -5
+    }
+    // 8. 👏 VỖ TAY KHEN NGỢI (Vỗ 2 tay co gập khen ngợi học sinh)
+    else if (effectiveGesture === 'clap') {
+      leftArmMode = 'bent-pose1'
+      rightArmMode = 'bent-pose1'
+      leftArmOrigin = '140px 920px'
+      rightArmOrigin = '970px 920px'
+      leftArmRot = [16, 0, 16, 0][talkStep]
+      rightArmRot = [-16, 0, -16, 0][talkStep]
+    }
+    // 9. 👐 THUYẾT TRÌNH 2 TAY (Hai tay Pose 1 đung đưa ở tầm ngực dưới tự nhiên)
     else if (effectiveGesture === 'explain') {
       leftArmMode = 'bent-pose1'
       rightArmMode = 'bent-pose1'
@@ -268,7 +337,7 @@ export function MeeCatInteractiveCanvas({
       leftArmRot = [-8, 6, -4, 8][talkStep]
       rightArmRot = [8, -6, 4, -8][talkStep]
     }
-    // 4. 🎉 HÀO HỨNG: Cả 2 tay Pose 2 vung cao ăn mừng
+    // 10. 🎉 HÀO HỨNG: Cả 2 tay Pose 2 vung cao ăn mừng
     else if (effectiveGesture === 'enthusiastic') {
       leftArmMode = 'raised-pose2'
       rightArmMode = 'raised-pose2'
@@ -277,7 +346,7 @@ export function MeeCatInteractiveCanvas({
       leftArmRot = [5, 16, 10, 0][talkStep]
       rightArmRot = [-5, -16, -10, 0][talkStep]
     }
-    // Mặc định: Chỉ sang bên trái
+    // Mặc định: Chỉ ngang bên trái
     else {
       leftArmMode = 'raised-pose2'
       rightArmMode = 'resting'
