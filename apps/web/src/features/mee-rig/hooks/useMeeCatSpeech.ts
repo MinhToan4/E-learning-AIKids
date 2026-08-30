@@ -1,7 +1,18 @@
 import { useState, useEffect, useRef } from 'react'
 
 export type Viseme = 'closed' | 'open' | 'round' | 'smile' | 'half'
-export type Gesture = 'auto' | 'explain' | 'point-left' | 'point-right' | 'enthusiastic' | 'idle'
+
+export type Gesture =
+  | 'auto'
+  | 'point-left'
+  | 'point-right'
+  | 'underline-left'
+  | 'underline-right'
+  | 'callout-left'
+  | 'callout-right'
+  | 'explain'
+  | 'enthusiastic'
+  | 'idle'
 
 export interface UseMeeCatSpeechOptions {
   text?: string
@@ -119,15 +130,21 @@ export function useMeeCatSpeech({
 
     boundaryFiredRef.current = false
 
-    // Auto gesture cycling
+    // Auto gesture cycling for lecture presentation
     if (gesture === 'auto') {
-      const gesturePool: Gesture[] = ['point-left', 'explain', 'point-right', 'enthusiastic', 'point-left']
+      const lectureGesturePool: Gesture[] = [
+        'point-left',
+        'underline-left',
+        'callout-left',
+        'explain',
+        'point-left',
+      ]
       let gIdx = 0
-      setActiveGesture(gesturePool[0])
+      setActiveGesture(lectureGesturePool[0])
       gestureTimerRef.current = setInterval(() => {
-        gIdx = (gIdx + 1) % gesturePool.length
-        setActiveGesture(gesturePool[gIdx])
-      }, 2400)
+        gIdx = (gIdx + 1) % lectureGesturePool.length
+        setActiveGesture(lectureGesturePool[gIdx])
+      }, 2600)
     }
 
     // Function to start cadence timer fallback if onboundary is not supported
@@ -137,7 +154,6 @@ export function useMeeCatSpeech({
       const paceMs = 300
       wordTimerRef.current = setInterval(() => {
         if (boundaryFiredRef.current) {
-          // If onboundary is active, disable fallback timer
           if (wordTimerRef.current) {
             clearInterval(wordTimerRef.current)
             wordTimerRef.current = null
@@ -172,13 +188,11 @@ export function useMeeCatSpeech({
 
         // Khi âm thanh THỰC SỰ phát ra từ loa
         utterance.onstart = () => {
-          // Bắt đầu ngay từ đầu tiên khi loa phát
           if (words.length > 0) {
             setCurrentWord(words[0])
             triggerWordViseme(words[0], 280)
           }
 
-          // Dự phòng fallback sau 400ms nếu trình duyệt không bắn onboundary
           setTimeout(() => {
             if (!boundaryFiredRef.current && isSpeaking) {
               startFallbackWordTimer()
@@ -210,7 +224,6 @@ export function useMeeCatSpeech({
         }
 
         utterance.onerror = () => {
-          // Fallback sang cadence timer nếu có lỗi voice
           startFallbackWordTimer()
         }
 

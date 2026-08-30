@@ -159,15 +159,20 @@ export function MeeCatInteractiveCanvas({
   const activeQuote = quote?.trim() || ''
 
   // Transform Computations for Skeletal Joints
-  const isPointingLeft = (state === 'talk' || effectiveSpeaking) && effectiveGesture === 'point-left'
-  const isPointingRight = (state === 'talk' || effectiveSpeaking) && effectiveGesture === 'point-right'
+  const isPointingLeft =
+    (state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')) &&
+    (effectiveGesture === 'point-left' || effectiveGesture === 'underline-left' || effectiveGesture === 'callout-left')
+
+  const isPointingRight =
+    (state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')) &&
+    (effectiveGesture === 'point-right' || effectiveGesture === 'underline-right' || effectiveGesture === 'callout-right')
 
   const headLookX = state === 'look' || isHovered
     ? cursorPos.x
     : isPointingLeft
-    ? -10
+    ? -12
     : isPointingRight
-    ? 10
+    ? 12
     : 0
 
   const headLookY = state === 'look' || isHovered ? cursorPos.y : 0
@@ -181,9 +186,9 @@ export function MeeCatInteractiveCanvas({
   const talkHeadRot = effectiveSpeaking
     ? [0, 2, -1.5, 1][talkStep]
     : isPointingLeft
-    ? -3.5
+    ? -4
     : isPointingRight
-    ? 3.5
+    ? 4
     : 0
 
   const headRotation = (headLookX * 0.2) + sleepyHeadRot + talkHeadRot
@@ -209,7 +214,7 @@ export function MeeCatInteractiveCanvas({
     ? [0.96, 1.05, 1.02, 0.98][talkStep]
     : 1
 
-  // --- DEDICATED CHARACTER ARM POSES & KINEMATICS ---
+  // --- DEDICATED CHARACTER ARM POSES & LECTURE KINEMATICS ---
   type ArmMode = 'resting' | 'raised-pointing' | 'bent-to-mouth'
 
   let leftArmMode: ArmMode = 'resting'
@@ -218,6 +223,8 @@ export function MeeCatInteractiveCanvas({
   let rightArmRot = 0
   let leftArmTranslateY = 0
   let leftArmTranslateX = 0
+  let rightArmTranslateY = 0
+  let rightArmTranslateX = 0
 
   if (state === 'celebrate') {
     leftArmMode = 'raised-pointing'
@@ -237,35 +244,75 @@ export function MeeCatInteractiveCanvas({
     leftArmTranslateX = [0, 80, 40, 0][chewFrame]
     rightArmRot = -10
   } else if (state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')) {
+    // 1. 👈 CHỈ THẲNG BẢNG BÊN TRÁI (Direct Point Left)
     if (effectiveGesture === 'point-left') {
-      // 👈 CHỈ SANG TRÁI: Dùng cánh tay vươn Pose 2 chỉ thẳng ra phía bảng/bài học bên trái
       leftArmMode = 'raised-pointing'
       rightArmMode = 'resting'
-      leftArmRot = -2 + (effectiveSpeaking ? (talkStep % 2 === 0 ? -4 : 3) : (talkStep % 2 === 0 ? -2 : 1))
+      leftArmRot = [-4, -10, -6, -2][talkStep]
+      leftArmTranslateX = [-10, -25, -18, -6][talkStep]
       rightArmRot = -5
-    } else if (effectiveGesture === 'point-right') {
-      // 👉 CHỈ SANG PHẢI: Dùng cánh tay vươn Pose 2 chỉ thẳng ra phía bên phải
+    }
+    // 2. 📏 QUÉT DÒNG / GẠCH CHÂN BÊN TRÁI (Sweep Underline Left)
+    else if (effectiveGesture === 'underline-left') {
+      leftArmMode = 'raised-pointing'
+      rightArmMode = 'resting'
+      leftArmRot = [-16, -10, -4, -12][talkStep]
+      leftArmTranslateX = [-40, -20, 0, -30][talkStep]
+      leftArmTranslateY = [15, 10, 5, 12][talkStep]
+      rightArmRot = -5
+    }
+    // 3. 🙋‍♂️ VẪY GỌI CHÚ Ý BÊN TRÁI (Call Attention Left)
+    else if (effectiveGesture === 'callout-left') {
+      leftArmMode = 'raised-pointing'
+      rightArmMode = 'resting'
+      leftArmRot = [-24, -14, -26, -16][talkStep]
+      leftArmTranslateY = [-25, -5, -28, -10][talkStep]
+      rightArmRot = -5
+    }
+    // 4. 👉 CHỈ THẲNG BẢNG BÊN PHẢI (Direct Point Right)
+    else if (effectiveGesture === 'point-right') {
       leftArmMode = 'resting'
       rightArmMode = 'raised-pointing'
       leftArmRot = 5
-      rightArmRot = 2 + (effectiveSpeaking ? (talkStep % 2 === 0 ? 4 : -3) : (talkStep % 2 === 0 ? 2 : -1))
-    } else if (effectiveGesture === 'explain') {
-      // 👐 THUYẾT TRÌNH (2 tay): Cả 2 tay co gập Pose 1 đung đưa nhịp nhàng diễn giải
+      rightArmRot = [4, 10, 6, 2][talkStep]
+      rightArmTranslateX = [10, 25, 18, 6][talkStep]
+    }
+    // 5. 📐 QUÉT DÒNG / GẠCH CHÂN BÊN PHẢI (Sweep Underline Right)
+    else if (effectiveGesture === 'underline-right') {
+      leftArmMode = 'resting'
+      rightArmMode = 'raised-pointing'
+      leftArmRot = 5
+      rightArmRot = [16, 10, 4, 12][talkStep]
+      rightArmTranslateX = [40, 20, 0, 30][talkStep]
+      rightArmTranslateY = [15, 10, 5, 12][talkStep]
+    }
+    // 6. 🙋‍♀️ VẪY GỌI CHÚ Ý BÊN PHẢI (Call Attention Right)
+    else if (effectiveGesture === 'callout-right') {
+      leftArmMode = 'resting'
+      rightArmMode = 'raised-pointing'
+      leftArmRot = 5
+      rightArmRot = [24, 14, 26, 16][talkStep]
+      rightArmTranslateY = [-25, -5, -28, -10][talkStep]
+    }
+    // 7. 👐 THUYẾT TRÌNH 2 TAY (Explain & Present)
+    else if (effectiveGesture === 'explain') {
       leftArmMode = 'bent-to-mouth'
       rightArmMode = 'bent-to-mouth'
-      leftArmRot = (effectiveSpeaking ? (talkStep % 2 === 0 ? 6 : -5) : (talkStep % 2 === 0 ? 3 : -3))
-      rightArmRot = (effectiveSpeaking ? (talkStep % 2 === 0 ? -6 : 5) : (talkStep % 2 === 0 ? -3 : 3))
-    } else if (effectiveGesture === 'enthusiastic') {
-      // 🎉 HÀO HỨNG (Nhún nhảy): Cả 2 tay vung cao lên trời nhiệt tình
+      leftArmRot = (effectiveSpeaking ? (talkStep % 2 === 0 ? 8 : -6) : (talkStep % 2 === 0 ? 4 : -4))
+      rightArmRot = (effectiveSpeaking ? (talkStep % 2 === 0 ? -8 : 6) : (talkStep % 2 === 0 ? -4 : 4))
+    }
+    // 8. 🎉 HÀO HỨNG (Enthusiastic Celebration)
+    else if (effectiveGesture === 'enthusiastic') {
       leftArmMode = 'raised-pointing'
       rightArmMode = 'raised-pointing'
-      leftArmRot = 8 + (effectiveSpeaking ? (talkStep % 2 === 0 ? 10 : -6) : (talkStep % 2 === 0 ? 5 : -3))
-      rightArmRot = -8 + (effectiveSpeaking ? (talkStep % 2 === 0 ? -10 : 6) : (talkStep % 2 === 0 ? -5 : 3))
-    } else {
-      // Mặc định: Chỉ sang bên trái
+      leftArmRot = 10 + (effectiveSpeaking ? (talkStep % 2 === 0 ? 12 : -6) : (talkStep % 2 === 0 ? 6 : -4))
+      rightArmRot = -10 + (effectiveSpeaking ? (talkStep % 2 === 0 ? -12 : 6) : (talkStep % 2 === 0 ? -6 : 4))
+    }
+    // Mặc định: Chỉ sang bên trái
+    else {
       leftArmMode = 'raised-pointing'
       rightArmMode = 'resting'
-      leftArmRot = -2 + (effectiveSpeaking ? (talkStep % 2 === 0 ? -4 : 3) : 0)
+      leftArmRot = -4
       rightArmRot = -5
     }
   }
@@ -733,7 +780,7 @@ export function MeeCatInteractiveCanvas({
                 id="aiki-right-arm"
                 style={{
                   transformOrigin: '970px 880px',
-                  transform: `rotate(${rightArmRot}deg)`,
+                  transform: `translate(${rightArmTranslateX}px, ${rightArmTranslateY}px) rotate(${rightArmRot}deg)`,
                   transition: 'transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 }}
               >

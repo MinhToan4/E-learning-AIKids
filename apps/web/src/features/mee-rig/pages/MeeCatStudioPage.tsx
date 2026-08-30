@@ -1,118 +1,82 @@
 import React, { useState } from 'react'
 import { Link } from 'react-router'
 import {
-  MeeCatInteractiveCanvas,
-  type MeeCatState,
-  type MeeCatVariant,
-} from '../components/MeeCatInteractiveCanvas'
-import type { Gesture, Viseme } from '../hooks/useMeeCatSpeech'
-import {
   Sparkles,
-  Eye,
-  Smile,
-  Cookie,
-  Moon,
-  Lightbulb,
-  Bone,
-  Download,
-  Flame,
-  ArrowLeft,
-  RotateCcw,
-  Cat,
   Volume2,
-  VolumeX,
-  Mic,
-  Hand,
   Play,
   Square,
-  Sparkle,
+  Flame,
+  ArrowLeft,
+  Cat,
+  Hand,
+  Layers,
+  Download,
+  Smile,
+  BookOpen,
+  HelpCircle,
+  Trophy,
+  Cookie,
+  Moon,
+  Video,
+  Monitor,
+  Eye,
+  Sliders,
+  Maximize2
 } from 'lucide-react'
-
-const STATE_PRESETS: Array<{
-  id: MeeCatState
-  label: string
-  desc: string
-  icon: React.ComponentType<{ className?: string }>
-  badgeColor: string
-}> = [
-  {
-    id: 'talk',
-    label: 'Thuyết trình (Talk)',
-    desc: 'Lipsync cử động mồm theo text, chỉ trỏ sang trái sinh động',
-    icon: Mic,
-    badgeColor: 'bg-amber-100 text-amber-800',
-  },
-  {
-    id: 'idle',
-    label: 'Nghỉ ngơi (Idle)',
-    desc: 'Thở nhịp nhàng, mắt chớp tự nhiên 3-4s, đuôi vẫy nhẹ',
-    icon: Smile,
-    badgeColor: 'bg-emerald-100 text-emerald-700',
-  },
-  {
-    id: 'look',
-    label: 'Theo chuột (Look)',
-    desc: 'Đầu và tròng mắt xoay theo vị trí con trỏ chuột',
-    icon: Eye,
-    badgeColor: 'bg-sky-100 text-sky-700',
-  },
-  {
-    id: 'hint',
-    label: 'Gợi ý ASMO (Hint)',
-    desc: 'Giơ tay vẫy và hiển thị bóng thoại bài học',
-    icon: Lightbulb,
-    badgeColor: 'bg-amber-100 text-amber-700',
-  },
-  {
-    id: 'celebrate',
-    label: 'Ăn mừng (Celebrate)',
-    desc: 'Nhảy nhót, vẫy đuôi tít mù, má hồng hớn hở',
-    icon: Sparkles,
-    badgeColor: 'bg-pink-100 text-pink-700',
-  },
-  {
-    id: 'eat',
-    label: 'Ăn bánh (Munch)',
-    desc: 'Gặm snack cá và nhai miệng nhịp nhàng',
-    icon: Cookie,
-    badgeColor: 'bg-orange-100 text-orange-700',
-  },
-  {
-    id: 'sleepy',
-    label: 'Buồn ngủ (Sleepy)',
-    desc: 'Mắt nhắm cong tít, đầu gật gù, bóng ngủ ở mũi',
-    icon: Moon,
-    badgeColor: 'bg-purple-100 text-purple-700',
-  },
-]
+import { MeeCatInteractiveCanvas, type MeeCatState, type MeeCatVariant } from '../components/MeeCatInteractiveCanvas'
+import type { Gesture, Viseme } from '../hooks/useMeeCatSpeech'
 
 const SAMPLE_SPEECHES = [
-  'Chào các bạn nhỏ! Mình là Mèo AIKI, trợ giảng AI của các bạn đây!',
-  'Nhìn sang bên trái bài toán này nhé, chúng ta có một quy luật số rất thú vị!',
-  'Con hãy thực hiện phép tính từ trái sang phải để tìm ra đáp án chính xác nào!',
-  'Bé làm bài xuất sắc lắm! Mèo AIKI vỗ tay khen ngợi con nha!',
+  'Chào các bạn nhỏ! Mình là Mèo Mee, trợ giảng AI của các bạn đây!',
+  'Nhìn sang bảng bài học này, chúng ta có phép tính 25 cộng 17 bằng bao nhiêu nhé!',
+  'Hãy quan sát kỹ từng bước giải từ trái sang phải nào!',
+  'Xuất sắc lắm các bạn nhỏ! Chúng mình cùng vỗ tay khen ngợi nào!',
 ]
 
-const GESTURE_OPTIONS: Array<{ id: Gesture; label: string; desc: string }> = [
-  { id: 'point-left', label: '👈 Chỉ Sang Trái', desc: 'Tay trái vươn sang bên trái chỉ vào đề bài / hình vẽ' },
-  { id: 'point-right', label: '👉 Chỉ Sang Phải', desc: 'Tay phải vươn sang bên phải chỉ vào đáp án / bảng' },
-  { id: 'explain', label: '👐 Thuyết Trình (2 tay)', desc: 'Hai tay mở ra vào giải thích sinh động' },
-  { id: 'enthusiastic', label: '🎉 Hào Hứng (Nhún nhảy)', desc: 'Vung hai tay lên cao cổ vũ nhiệt tình' },
-  { id: 'auto', label: '🤖 Tự Động (AI Auto)', desc: 'Tự luân chuyển cử chỉ chỉ trỏ & thuyết trình theo nhịp câu' },
+const LECTURE_GESTURES_LEFT = [
+  { id: 'point-left' as Gesture, label: '👈 Chỉ Điểm Bảng Trái', desc: 'Tay vươn chỉ thẳng từng dòng nội dung' },
+  { id: 'underline-left' as Gesture, label: '📏 Quét Dòng & Gạch Chân', desc: 'Tay quét nhịp nhàng gạch chân công thức' },
+  { id: 'callout-left' as Gesture, label: '🙋‍♂️ Vẫy Gọi Chú Ý Trái', desc: 'Vẫy tay góc bảng nhắc học sinh tập trung' },
+]
+
+const LECTURE_GESTURES_RIGHT = [
+  { id: 'point-right' as Gesture, label: '👉 Chỉ Điểm Bảng Phải', desc: 'Tay vươn chỉ thẳng nội dung bên phải' },
+  { id: 'underline-right' as Gesture, label: '📐 Quét Dòng & Gạch Chân', desc: 'Tay quét nhịp nhàng gạch chân bên phải' },
+  { id: 'callout-right' as Gesture, label: '🙋‍♀️ Vẫy Gọi Chú Ý Phải', desc: 'Vẫy tay góc bảng bên phải gọi tập trung' },
+]
+
+const PRESENTATION_GESTURES = [
+  { id: 'explain' as Gesture, label: '👐 Diễn Giải 2 Tay', desc: 'Hai tay co gập đung đưa giảng giải sinh động' },
+  { id: 'enthusiastic' as Gesture, label: '🎉 Tuyên Dương & Chúc Mừng', desc: 'Vung hai tay lên cao cổ vũ nhiệt tình' },
+  { id: 'auto' as Gesture, label: '🤖 Tự Động (AI Lecture Auto)', desc: 'Tự luân chuyển cử chỉ chỉ trỏ & giảng bài' },
+]
+
+const STATE_PRESETS: Array<{ id: MeeCatState; label: string; icon: any; desc: string }> = [
+  { id: 'talk', label: 'Thuyết trình (Talk)', icon: Volume2, desc: 'Lipsync cử động mồm theo text, chỉ trỏ bảng giảng' },
+  { id: 'idle', label: 'Nghỉ ngơi (Idle)', icon: Smile, desc: 'Thở nhịp nhàng, mắt chớp tự nhiên 3-5s' },
+  { id: 'look', label: 'Theo chuột (Look)', icon: Eye, desc: 'Đầu và tròng mắt xoay theo vị trí con trỏ chuột' },
+  { id: 'hint', label: 'Gợi ý ASMO (Hint)', icon: HelpCircle, desc: 'Giơ tay vẫy và hiển thị bóng thoại bài học' },
+  { id: 'celebrate', label: 'Ăn mừng (Celebrate)', icon: Trophy, desc: 'Nhảy nhót, vẫy đuôi tít mù, má hồng rạng rỡ' },
+  { id: 'eat', label: 'Ăn bánh (Munch)', icon: Cookie, desc: 'Gặm snack cá và nhai miệng nhồm nhoàm' },
+  { id: 'sleepy', label: 'Buồn ngủ (Sleepy)', icon: Moon, desc: 'Mắt lim dim, đầu gật gù, bong bóng ngủ' },
 ]
 
 export function MeeCatStudioPage() {
   const [activeState, setActiveState] = useState<MeeCatState>('talk')
   const [variant, setVariant] = useState<MeeCatVariant>('full-body')
+  const [engineMode, setEngineMode] = useState<'svg-rig' | 'rive'>('svg-rig')
+  const [bgMode, setBgMode] = useState<'pastel' | 'green-screen' | 'transparent'>('pastel')
+  const [catPosition, setCatPosition] = useState<'right' | 'left'>('right')
+  const [showLectureBoard, setShowLectureBoard] = useState(true)
+
   const [showBones, setShowBones] = useState(false)
   const [earAngle, setEarAngle] = useState(0)
   const [tailWiggle, setTailWiggle] = useState(0)
   const [isBlinking, setIsBlinking] = useState(false)
-  const [engineMode, setEngineMode] = useState<'svg-rig' | 'rive'>('svg-rig')
   const [customQuoteIndex, setCustomQuoteIndex] = useState(0)
 
-  // Speech & Lip-sync State
-  const [speechInput, setSpeechInput] = useState(SAMPLE_SPEECHES[0])
+  // Speech TTS and Lipsync state
+  const [speechInput, setSpeechInput] = useState(SAMPLE_SPEECHES[1])
   const [selectedGesture, setSelectedGesture] = useState<Gesture>('point-left')
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [manualViseme, setManualViseme] = useState<Viseme | undefined>(undefined)
@@ -120,10 +84,6 @@ export function MeeCatStudioPage() {
   const handleManualBlink = () => {
     setIsBlinking(true)
     setTimeout(() => setIsBlinking(false), 240)
-  }
-
-  const handleNextQuote = () => {
-    setCustomQuoteIndex((prev) => (prev + 1) % SAMPLE_SPEECHES.length)
   }
 
   const handlePlaySpeech = () => {
@@ -171,94 +131,172 @@ export function MeeCatStudioPage() {
           </Link>
           <div className="inline-flex items-center gap-2 rounded-2xl bg-amber-500/15 border border-amber-400/40 px-3.5 py-1.5 text-xs font-black text-amber-800 backdrop-blur">
             <Flame className="h-4 w-4 text-amber-600 animate-pulse" />
-            <span>AIKI Mascot Studio • Full Rig, Thuyết Trình & Lipsync</span>
+            <span>AIKI Mascot Studio • Phòng Thu & Giảng Bài Video</span>
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          {/* Variant Selector: Full-Body vs Half-Body */}
+        <div className="flex flex-wrap items-center gap-3">
+          {/* Position Selector: Cat on Right vs Cat on Left */}
           <div className="inline-flex rounded-2xl bg-white/90 p-1 border border-slate-200/80 shadow-2xs">
             <button
               type="button"
-              onClick={() => setVariant('full-body')}
+              onClick={() => {
+                setCatPosition('right')
+                setSelectedGesture('point-left')
+              }}
               className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-black transition ${
-                variant === 'full-body'
+                catPosition === 'right'
                   ? 'bg-amber-500 text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              <Cat className="h-3.5 w-3.5" />
-              <span>Full Toàn Thân</span>
+              <span>👈 Mèo đứng Phải (Giảng Trái)</span>
             </button>
             <button
               type="button"
-              onClick={() => setVariant('half-body')}
-              className={`rounded-xl px-3 py-1.5 text-xs font-black transition ${
-                variant === 'half-body'
+              onClick={() => {
+                setCatPosition('left')
+                setSelectedGesture('point-right')
+              }}
+              className={`inline-flex items-center gap-1.5 rounded-xl px-3 py-1.5 text-xs font-black transition ${
+                catPosition === 'left'
                   ? 'bg-amber-500 text-white shadow-xs'
                   : 'text-slate-600 hover:text-slate-900'
               }`}
             >
-              Bán thân ôm bàn
+              <span>👉 Mèo đứng Trái (Giảng Phải)</span>
             </button>
           </div>
 
-          {/* Engine Selector */}
+          {/* Background Selector for Chroma Key Green Screen Video Recording */}
           <div className="inline-flex rounded-2xl bg-white/90 p-1 border border-slate-200/80 shadow-2xs">
             <button
               type="button"
-              onClick={() => setEngineMode('svg-rig')}
-              className={`rounded-xl px-3 py-1.5 text-xs font-black transition ${
-                engineMode === 'svg-rig'
-                  ? 'bg-amber-500 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+              onClick={() => setBgMode('pastel')}
+              className={`rounded-xl px-2.5 py-1.5 text-xs font-black transition ${
+                bgMode === 'pastel' ? 'bg-amber-500 text-white shadow-xs' : 'text-slate-600'
               }`}
+              title="Phông nền Pastel tiêu chuẩn"
             >
-              ⚡ Live SVG Rig
+              🎨 Pastel
             </button>
             <button
               type="button"
-              onClick={() => setEngineMode('rive')}
-              className={`rounded-xl px-3 py-1.5 text-xs font-black transition ${
-                engineMode === 'rive'
-                  ? 'bg-amber-500 text-white shadow-xs'
-                  : 'text-slate-600 hover:text-slate-900'
+              onClick={() => setBgMode('green-screen')}
+              className={`rounded-xl px-2.5 py-1.5 text-xs font-black transition ${
+                bgMode === 'green-screen' ? 'bg-emerald-600 text-white shadow-xs' : 'text-slate-600'
               }`}
+              title="Phông nền xanh lá để quay video OBS & tách nền"
             >
-              🎨 Rive Canvas
+              🟩 Phông Xanh (OBS)
+            </button>
+            <button
+              type="button"
+              onClick={() => setBgMode('transparent')}
+              className={`rounded-xl px-2.5 py-1.5 text-xs font-black transition ${
+                bgMode === 'transparent' ? 'bg-slate-800 text-white shadow-xs' : 'text-slate-600'
+              }`}
+              title="Nền trong suốt"
+            >
+              🏁 Trong suốt
             </button>
           </div>
         </div>
       </header>
 
       {/* Main Studio Grid */}
-      <div className="relative z-10 grid gap-6 lg:grid-cols-[minmax(26rem,1fr)_minmax(26rem,30rem)]">
-        {/* Left Column: Interactive Stage */}
+      <div className="relative z-10 grid gap-6 lg:grid-cols-[minmax(32rem,1fr)_minmax(24rem,28rem)]">
+        {/* Left Column: Interactive Lecture Stage */}
         <section
-          className="flex min-h-[36rem] flex-col items-center justify-center rounded-[2.5rem] border-3 border-white/80 bg-white/60 p-4 sm:p-8 shadow-clay backdrop-blur"
-          aria-label="Sân khấu Mèo Mee"
+          className={`flex min-h-[38rem] flex-col items-center justify-center rounded-[2.5rem] border-3 p-4 sm:p-6 transition-colors duration-300 ${
+            bgMode === 'green-screen'
+              ? 'bg-[#00ff00] border-emerald-500 shadow-xl'
+              : bgMode === 'transparent'
+              ? 'bg-transparent border-dashed border-slate-300'
+              : 'border-white/80 bg-white/60 shadow-clay backdrop-blur'
+          }`}
+          aria-label="Sân khấu Giảng Bài Mèo Mee"
         >
-          <div className="w-full max-w-[620px]">
-            <MeeCatInteractiveCanvas
-              state={activeState}
-              variant={variant}
-              showBones={showBones}
-              earAngle={earAngle}
-              tailWiggle={tailWiggle}
-              isBlinking={isBlinking}
-              engineMode={engineMode}
-              isSpeaking={isSpeaking}
-              speechText={speechInput}
-              gesture={selectedGesture}
-              viseme={manualViseme}
-              onSpeechEnd={() => setIsSpeaking(false)}
-              quote={isSpeaking || activeState === 'talk' ? speechInput : activeState === 'hint' ? SAMPLE_SPEECHES[customQuoteIndex] : undefined}
-            />
+          {/* Lecture Simulator Container */}
+          <div
+            className={`w-full flex flex-col md:flex-row items-center justify-center gap-4 ${
+              catPosition === 'left' ? 'md:flex-row' : 'md:flex-row-reverse'
+            }`}
+          >
+            {/* 1. Mèo AIKI Mascot Stage */}
+            <div className="w-full md:w-1/2 max-w-[420px] flex items-center justify-center">
+              <MeeCatInteractiveCanvas
+                state={activeState}
+                variant={variant}
+                showBones={showBones}
+                earAngle={earAngle}
+                tailWiggle={tailWiggle}
+                isBlinking={isBlinking}
+                engineMode={engineMode}
+                transparentBackground={bgMode !== 'pastel'}
+                isSpeaking={isSpeaking}
+                speechText={speechInput}
+                gesture={selectedGesture}
+                viseme={manualViseme}
+                onSpeechEnd={() => setIsSpeaking(false)}
+                quote={!showLectureBoard && (isSpeaking || activeState === 'talk') ? speechInput : undefined}
+                className="w-full h-auto aspect-[4/5]"
+              />
+            </div>
+
+            {/* 2. Interactive AI Lecture Blackboard (Bảng Bài Giảng Trực Quan) */}
+            {showLectureBoard && bgMode !== 'green-screen' && (
+              <div className="w-full md:w-1/2 max-w-[440px] animate-in fade-in zoom-in-95 duration-200">
+                <div className="rounded-3xl border-4 border-amber-900/40 bg-gradient-to-b from-slate-900 to-slate-950 p-5 text-white shadow-2xl relative overflow-hidden">
+                  {/* Chalkboard Header */}
+                  <div className="flex items-center justify-between border-b border-white/15 pb-3 mb-3">
+                    <div className="flex items-center gap-2">
+                      <BookOpen className="h-4 w-4 text-amber-400" />
+                      <span className="text-xs font-black tracking-wider text-amber-300 uppercase">
+                        Bảng Bài Giảng Tương Tác
+                      </span>
+                    </div>
+                    <span className="rounded-full bg-emerald-500/20 border border-emerald-400/40 px-2 py-0.5 text-[10px] font-black text-emerald-300">
+                      LIVE LESSON
+                    </span>
+                  </div>
+
+                  {/* Math Formula / Question Focus Card */}
+                  <div className="rounded-2xl bg-slate-800/80 border border-white/10 p-3 mb-3 text-center">
+                    <div className="text-[11px] font-bold text-amber-200/80 uppercase">Ví dụ minh họa</div>
+                    <div className="text-xl sm:text-2xl font-black text-amber-400 font-mono tracking-wide mt-1">
+                      25 + 17 = 42
+                    </div>
+                  </div>
+
+                  {/* Dynamic Speech Text Highlight Area */}
+                  <div className="rounded-2xl bg-amber-500/10 border border-amber-400/30 p-3.5 min-h-[90px] flex items-center justify-center">
+                    <p className="text-xs sm:text-sm font-bold text-amber-100 text-center leading-relaxed">
+                      {speechInput || 'Gõ văn bản vào Textbox bên phải để Mèo AIKI bắt đầu giảng bài và chỉ trỏ trực tiếp vào bảng này...'}
+                    </p>
+                  </div>
+
+                  {/* Pointer Focus Target Indicator */}
+                  <div className="mt-3 flex items-center justify-between text-[10px] font-bold text-slate-400">
+                    <span>Trạng thái: <strong className="text-amber-300">{isSpeaking ? '🎙️ Đang giảng bài...' : '⏸️ Sẵn sàng'}</strong></span>
+                    <span>Cử chỉ: <strong className="text-sky-300">{selectedGesture}</strong></span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
+          {/* Toggle Board Helper */}
           <div className="mt-4 flex flex-wrap items-center justify-center gap-2 text-center">
-            <span className="rounded-full bg-slate-900/10 px-3 py-1 text-xs font-bold text-slate-700">
-              💡 Thử gõ văn bản vào Textbox bên phải và bấm "Nói & Lipsync" để xem Mèo AIKI chỉ trỏ sang trái và mấp máy mồm!
+            <button
+              type="button"
+              onClick={() => setShowLectureBoard((prev) => !prev)}
+              className="rounded-full bg-slate-900/10 hover:bg-slate-900/20 px-3 py-1 text-xs font-bold text-slate-700 transition"
+            >
+              {showLectureBoard ? 'Ẩn Bảng Bài Giảng (Chỉ hiện Mèo)' : 'Hiện Bảng Bài Giảng Tương Tác'}
+            </button>
+            <span className="text-xs font-medium text-slate-500">
+              • Thử bấm các cử chỉ <strong>Chỉ Điểm</strong>, <strong>Quét Dòng</strong>, <strong>Vẫy Gọi</strong> bên phải!
             </span>
           </div>
         </section>
@@ -268,16 +306,16 @@ export function MeeCatStudioPage() {
           className="flex flex-col gap-5 rounded-[2.5rem] border-3 border-white/80 bg-white/90 p-5 sm:p-6 shadow-clay backdrop-blur overflow-y-auto max-h-[calc(100vh-7rem)]"
           aria-label="Bảng điều khiển hoạt ảnh Mèo Mee"
         >
-          {/* Section 1: AI Lipsync & Speech Studio (PROMINENT TOP) */}
+          {/* Section 1: AI Lipsync & Lecture Speech Studio */}
           <div className="rounded-3xl bg-amber-50/70 p-4 border-2 border-amber-200 shadow-xs">
             <div className="flex items-center justify-between mb-2">
               <h2 className="font-display text-base font-black text-amber-950 flex items-center gap-2">
                 <Volume2 className="h-5 w-5 text-amber-600" />
-                <span>1. Thuyết Trình AI & Lip-sync Theo Ô Chữ</span>
+                <span>1. Giảng Bài AI & Lip-sync Đồng Bộ</span>
               </h2>
               {isSpeaking && (
                 <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500 text-white px-2.5 py-0.5 text-xs font-black animate-pulse shadow-xs">
-                  <span className="h-2 w-2 rounded-full bg-white animate-ping" /> ĐANG NÓI...
+                  <span className="h-2 w-2 rounded-full bg-white animate-ping" /> ĐANG GIẢNG BÀI...
                 </span>
               )}
             </div>
@@ -285,19 +323,19 @@ export function MeeCatStudioPage() {
             {/* Custom Text input */}
             <div className="flex flex-col gap-2.5">
               <label className="text-xs font-black text-slate-700">
-                📝 Nhập văn bản để Mèo AIKI đọc & mấp máy khẩu hình:
+                📝 Nội dung lời giảng của Mèo AIKI:
               </label>
               <textarea
                 value={speechInput}
                 onChange={(e) => setSpeechInput(e.target.value)}
-                placeholder="Gõ bất kỳ câu tiếng Việt nào vào đây để Mèo AIKI đọc và lipsync..."
+                placeholder="Gõ lời giảng bài vào đây để Mèo AIKI đọc và mấp máy khẩu hình..."
                 rows={3}
                 className="w-full rounded-2xl border-2 border-amber-300 bg-white p-3 text-xs font-bold text-slate-900 shadow-xs focus:border-amber-500 focus:outline-hidden focus:ring-2 focus:ring-amber-400"
               />
 
               {/* Sample speech chips */}
               <div className="flex flex-wrap gap-1.5 items-center">
-                <span className="text-[11px] font-black text-amber-900">Mẫu gợi ý:</span>
+                <span className="text-[11px] font-black text-amber-900">Mẫu lời giảng:</span>
                 {SAMPLE_SPEECHES.map((sample, idx) => (
                   <button
                     key={idx}
@@ -321,7 +359,7 @@ export function MeeCatStudioPage() {
                   className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 py-3 px-4 text-xs font-black text-white hover:from-amber-600 hover:to-orange-600 transition shadow-md hover:shadow-lg disabled:opacity-50 active:scale-95"
                 >
                   <Play className="h-4 w-4 fill-current" />
-                  <span>▶️ Nói & Lip-sync Ngay</span>
+                  <span>▶️ Bắt Đầu Giảng Bài</span>
                 </button>
 
                 <button
@@ -331,18 +369,18 @@ export function MeeCatStudioPage() {
                   className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-rose-300 bg-rose-50 py-3 px-4 text-xs font-black text-rose-700 hover:bg-rose-100 transition disabled:opacity-40 active:scale-95"
                 >
                   <Square className="h-4 w-4 fill-current" />
-                  <span>⏹ Dừng Nói</span>
+                  <span>⏹ Tạm Dừng</span>
                 </button>
               </div>
 
-              {/* Gesture Selection */}
+              {/* Lecture Gestures Selection */}
               <div className="mt-2 pt-2 border-t border-amber-200/60">
                 <label className="text-xs font-black text-slate-800 flex items-center gap-1.5 mb-1.5">
                   <Hand className="h-4 w-4 text-amber-600" />
-                  <span>Cử Chỉ Tay Thuyết Trình:</span>
+                  <span>Cử Chỉ Giảng Bài Chuyên Nghiệp ({catPosition === 'right' ? 'Bên Trái' : 'Bên Phải'}):</span>
                 </label>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {GESTURE_OPTIONS.map((opt) => (
+                <div className="grid grid-cols-1 gap-1.5">
+                  {(catPosition === 'right' ? LECTURE_GESTURES_LEFT : LECTURE_GESTURES_RIGHT).map((opt) => (
                     <button
                       key={opt.id}
                       type="button"
@@ -350,14 +388,36 @@ export function MeeCatStudioPage() {
                         setSelectedGesture(opt.id)
                         setActiveState('talk')
                       }}
-                      className={`rounded-xl px-2.5 py-2 text-left text-[11px] font-extrabold transition border-2 ${
+                      className={`rounded-xl p-2.5 text-left text-[11px] font-extrabold transition border-2 ${
+                        selectedGesture === opt.id
+                          ? 'border-amber-500 bg-amber-200/80 text-amber-950 shadow-xs'
+                          : 'border-white bg-white/90 text-slate-700 hover:bg-white shadow-2xs'
+                      }`}
+                    >
+                      <div className="font-black text-amber-950">{opt.label}</div>
+                      <div className="text-[10px] text-slate-600 mt-0.5">{opt.desc}</div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Presentation & Joyful Gestures */}
+                <div className="mt-2 pt-2 border-t border-amber-200/40 grid grid-cols-1 gap-1.5">
+                  {PRESENTATION_GESTURES.map((opt) => (
+                    <button
+                      key={opt.id}
+                      type="button"
+                      onClick={() => {
+                        setSelectedGesture(opt.id)
+                        setActiveState('talk')
+                      }}
+                      className={`rounded-xl p-2 text-left text-[11px] font-extrabold transition border-2 ${
                         selectedGesture === opt.id
                           ? 'border-amber-500 bg-amber-200/80 text-amber-950 shadow-xs'
                           : 'border-white bg-white/90 text-slate-700 hover:bg-white shadow-2xs'
                       }`}
                     >
                       <div className="font-black">{opt.label}</div>
-                      <div className="text-[9px] text-slate-500 truncate mt-0.5">{opt.desc}</div>
+                      <div className="text-[9px] text-slate-500">{opt.desc}</div>
                     </button>
                   ))}
                 </div>
@@ -409,7 +469,7 @@ export function MeeCatStudioPage() {
             </div>
           </div>
 
-          {/* Section 2: Other State Machine Presets */}
+          {/* Section 2: Other Mascot States */}
           <div>
             <div className="flex items-center justify-between mb-3">
               <h2 className="font-display text-base font-black text-slate-800">
@@ -428,51 +488,54 @@ export function MeeCatStudioPage() {
                     onClick={() => {
                       setActiveState(preset.id)
                       if (preset.id !== 'talk') {
-                        handleStopSpeech()
+                        setIsSpeaking(false)
                       }
                     }}
-                    className={`group flex flex-col items-start rounded-2xl p-2.5 text-left transition-all border-2 ${
+                    className={`flex flex-col items-start gap-1 rounded-2xl p-3 text-left transition border-2 ${
                       isActive
-                        ? 'border-amber-500 bg-amber-50/80 ring-2 ring-amber-300 shadow-sm'
-                        : 'border-slate-100 bg-slate-50/80 hover:border-slate-200 hover:bg-slate-100/80'
+                        ? 'border-amber-500 bg-amber-100/90 text-amber-950 shadow-soft scale-[1.02]'
+                        : 'border-white/80 bg-white/70 text-slate-700 hover:bg-white hover:border-slate-200'
                     }`}
                   >
-                    <div className="flex w-full items-center justify-between mb-1">
-                      <div
-                        className={`rounded-xl p-1.5 ${
-                          isActive ? 'bg-amber-500 text-white' : 'bg-white text-slate-600 shadow-2xs'
-                        }`}
-                      >
-                        <Icon className="h-4 w-4" />
-                      </div>
-                      {isActive && (
-                        <span className="h-2 w-2 rounded-full bg-amber-500 animate-ping" />
-                      )}
+                    <div className="flex w-full items-center justify-between">
+                      <span className="font-extrabold text-xs flex items-center gap-1.5">
+                        <Icon className={`h-4 w-4 ${isActive ? 'text-amber-600' : 'text-slate-500'}`} />
+                        {preset.label}
+                      </span>
+                      {isActive && <span className="h-2 w-2 rounded-full bg-amber-500 animate-ping" />}
                     </div>
-                    <span className="font-black text-xs text-slate-800 line-clamp-1">
-                      {preset.label}
-                    </span>
-                    <span className="text-[10px] text-slate-500 line-clamp-1 font-medium mt-0.5">
-                      {preset.desc}
-                    </span>
+                    <p className="text-[10px] text-slate-500 line-clamp-2 leading-snug">{preset.desc}</p>
                   </button>
                 )
               })}
             </div>
           </div>
 
-          {/* Section 3: Fine-Tuning Rig Sliders */}
-          <div className="border-t border-slate-100 pt-4">
-            <h2 className="font-display text-base font-black text-slate-800 mb-3">
-              3. Tinh Chỉnh Khớp & Hoạt Họa
+          {/* Section 3: Fine-tuning & Skeleton */}
+          <div className="rounded-3xl bg-slate-50 p-4 border border-slate-200">
+            <h2 className="font-display text-sm font-black text-slate-800 mb-3 flex items-center gap-2">
+              <Sliders className="h-4 w-4 text-slate-600" />
+              <span>3. Tinh Chỉnh Xương & Hoạt Ảnh</span>
             </h2>
 
-            <div className="flex flex-col gap-4">
-              {/* Ear Angle Slider */}
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-700">Góc Vểnh Tai:</span>
-                  <span className="font-mono font-black text-amber-600">{earAngle}°</span>
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-bold text-slate-700">Khung Xương & Điểm Khớp</span>
+                <button
+                  type="button"
+                  onClick={() => setShowBones((prev) => !prev)}
+                  className={`rounded-xl px-3 py-1 text-xs font-black transition ${
+                    showBones ? 'bg-red-500 text-white' : 'bg-slate-200 text-slate-700'
+                  }`}
+                >
+                  {showBones ? 'Bật (ON)' : 'Tắt (OFF)'}
+                </button>
+              </div>
+
+              <div>
+                <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                  <span>Góc nghiêng tai</span>
+                  <span>{earAngle}°</span>
                 </div>
                 <input
                   type="range"
@@ -480,68 +543,57 @@ export function MeeCatStudioPage() {
                   max="30"
                   value={earAngle}
                   onChange={(e) => setEarAngle(Number(e.target.value))}
-                  className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-amber-500"
+                  className="w-full accent-amber-500"
                 />
               </div>
 
-              {/* Tail Wiggle Slider */}
-              <div className="flex flex-col gap-1.5">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="font-bold text-slate-700">Góc Vẫy Đuôi:</span>
-                  <span className="font-mono font-black text-amber-600">{tailWiggle}°</span>
+              <div>
+                <div className="flex justify-between text-xs font-bold text-slate-700 mb-1">
+                  <span>Góc vẫy đuôi</span>
+                  <span>{tailWiggle}°</span>
                 </div>
                 <input
                   type="range"
-                  min="-40"
-                  max="40"
+                  min="-25"
+                  max="25"
                   value={tailWiggle}
                   onChange={(e) => setTailWiggle(Number(e.target.value))}
-                  className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-amber-500"
+                  className="w-full accent-amber-500"
                 />
               </div>
 
-              {/* Action Buttons: Chớp mắt & Hiện Xương */}
-              <div className="grid grid-cols-2 gap-2 mt-1">
+              <div className="pt-2">
                 <button
                   type="button"
                   onClick={handleManualBlink}
-                  className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 bg-white py-2 px-3 text-xs font-black text-slate-700 hover:bg-slate-50 transition shadow-2xs"
+                  className="w-full rounded-2xl bg-white border border-slate-300 py-2 text-xs font-black text-slate-700 hover:bg-slate-100 transition shadow-2xs"
                 >
-                  <Eye className="h-3.5 w-3.5 text-amber-500" />
-                  <span>Chớp mắt ngay</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => setShowBones(!showBones)}
-                  className={`inline-flex items-center justify-center gap-1.5 rounded-xl py-2 px-3 text-xs font-black transition border ${
-                    showBones
-                      ? 'bg-rose-500 text-white border-rose-600 shadow-2xs'
-                      : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50 shadow-2xs'
-                  }`}
-                >
-                  <Bone className="h-3.5 w-3.5" />
-                  <span>{showBones ? 'Ẩn Xương Pivot' : 'Hiện Xương Pivot'}</span>
+                  😉 Chớp mắt thủ công
                 </button>
               </div>
             </div>
           </div>
 
-          {/* Section 4: Export Assets */}
-          <div className="border-t border-slate-100 pt-4">
-            <h2 className="font-display text-base font-black text-slate-800 mb-2">
-              4. Tải Xuất Tài Nguyên (Export)
+          {/* Section 4: Downloads */}
+          <div className="rounded-3xl bg-amber-500/10 p-4 border border-amber-400/30">
+            <h2 className="font-display text-sm font-black text-amber-950 mb-2 flex items-center gap-2">
+              <Download className="h-4 w-4 text-amber-700" />
+              <span>4. Tải Xuất Tài Nguyên Cho Dựng Video</span>
             </h2>
-            <div className="flex flex-col gap-2">
+            <div className="grid grid-cols-2 gap-2">
               <button
                 type="button"
-                onClick={() =>
-                  downloadFile('aiki-cat-rig-source.svg', '/assets/mee/mee-cat-rig-v1-source.svg')
-                }
-                className="inline-flex items-center justify-center gap-2 rounded-xl bg-slate-800 py-2.5 px-4 text-xs font-black text-white hover:bg-slate-900 transition shadow-sm"
+                onClick={() => downloadFile('aiki-cat-rig-vector.svg', '/assets/mee/mee-cat-rig-v1-source.svg')}
+                className="rounded-2xl bg-white border border-amber-300 p-2.5 text-center text-xs font-black text-amber-900 hover:bg-amber-100 transition shadow-2xs"
               >
-                <Download className="h-4 w-4" />
-                <span>Tải SVG Nguồn Chuẩn Khớp (.svg)</span>
+                SVG Chuẩn Rig
+              </button>
+              <button
+                type="button"
+                onClick={() => downloadFile('aiki-manifest.json', '/assets/mee/mee-cat-rig-v1-manifest.json')}
+                className="rounded-2xl bg-white border border-amber-300 p-2.5 text-center text-xs font-black text-amber-900 hover:bg-amber-100 transition shadow-2xs"
+              >
+                Manifest Rive JSON
               </button>
             </div>
           </div>
