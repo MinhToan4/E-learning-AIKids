@@ -86,7 +86,7 @@ export function MeeCatInteractiveCanvas({
       const centerY = rect.top + rect.height / 2
       const deltaX = Math.max(-1, Math.min(1, (e.clientX - centerX) / (rect.width / 2)))
       const deltaY = Math.max(-1, Math.min(1, (e.clientY - centerY) / (rect.height / 2)))
-      setCursorPos({ x: deltaX * 18, y: deltaY * 14 })
+      setCursorPos({ x: deltaX * 35, y: deltaY * 20 })
     }
     window.addEventListener('mousemove', handleMouseMove)
     return () => window.removeEventListener('mousemove', handleMouseMove)
@@ -168,24 +168,54 @@ export function MeeCatInteractiveCanvas({
     (state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')) &&
     (effectiveGesture === 'point-right' || effectiveGesture === 'point-high-right' || effectiveGesture === 'point-low-right')
 
-  const headLookX = state === 'look' || isHovered
+  // --- CỬ ĐỘNG LIẾC MẮT (EYE SIDE-GLANCE TOWARDS SCREEN/BOARD) ---
+  const eyeLookX = state === 'look' || isHovered
     ? cursorPos.x
     : effectiveGesture === 'think'
-    ? 10
-    : isPointingLeftGroup
-    ? -12
-    : isPointingRightGroup
+    ? 30
+    : effectiveGesture === 'point-high-left'
+    ? -45
+    : effectiveGesture === 'point-left'
+    ? -48
+    : effectiveGesture === 'point-low-left'
+    ? -42
+    : effectiveGesture === 'point-high-right'
+    ? 45
+    : effectiveGesture === 'point-right'
+    ? 48
+    : effectiveGesture === 'point-low-right'
+    ? 42
+    : 0
+
+  const eyeLookY = state === 'look' || isHovered
+    ? cursorPos.y
+    : effectiveGesture === 'think'
+    ? -25
+    : effectiveGesture === 'point-high-left' || effectiveGesture === 'point-high-right'
+    ? -20
+    : effectiveGesture === 'point-low-left' || effectiveGesture === 'point-low-right'
+    ? 20
+    : 0
+
+  // Head Position and Tilting towards Screen
+  const headLookX = state === 'look' || isHovered
+    ? cursorPos.x * 0.4
+    : effectiveGesture === 'think'
     ? 12
+    : isPointingLeftGroup
+    ? -18
+    : isPointingRightGroup
+    ? 18
     : 0
 
   const headLookY = state === 'look' || isHovered
-    ? cursorPos.y
+    ? cursorPos.y * 0.4
     : effectiveGesture === 'think'
-    ? -10
+    ? -12
     : effectiveGesture === 'point-high-left' || effectiveGesture === 'point-high-right'
-    ? -8
+    ? -10
     : effectiveGesture === 'point-low-left' || effectiveGesture === 'point-low-right'
-    ? 8
+    ? 10
     : 0
 
   // Sleepy head nod progression
@@ -197,22 +227,22 @@ export function MeeCatInteractiveCanvas({
   const talkHeadRot = effectiveSpeaking
     ? [0, 2, -1.5, 1][talkStep]
     : effectiveGesture === 'think'
-    ? 6
+    ? 7
     : effectiveGesture === 'point-high-left'
-    ? -5
+    ? -6
     : effectiveGesture === 'point-low-left'
-    ? 4
-    : effectiveGesture === 'point-high-right'
     ? 5
+    : effectiveGesture === 'point-high-right'
+    ? 6
     : effectiveGesture === 'point-low-right'
-    ? -4
+    ? -5
     : isPointingLeftGroup
-    ? -3.5
+    ? -4
     : isPointingRightGroup
-    ? 3.5
+    ? 4
     : 0
 
-  const headRotation = (headLookX * 0.2) + sleepyHeadRot + talkHeadRot
+  const headRotation = (headLookX * 0.25) + sleepyHeadRot + talkHeadRot
 
   // Ear rotations
   const talkEarWiggle = effectiveSpeaking ? (talkStep % 2 === 0 ? -2 : 2) : 0
@@ -235,7 +265,7 @@ export function MeeCatInteractiveCanvas({
     ? [0.96, 1.05, 1.02, 0.98][talkStep]
     : 1
 
-  // --- 100% ARTIST ORIGINAL VECTOR ARM POSES & CLEAN MULTI-GESTURE ENGINE ---
+  // --- 100% ARTIST VECTOR ARMS & AUTHENTIC SCREEN POINTING ---
   type ArmMode = 'resting' | 'bent-pose1' | 'raised-pose2'
 
   let leftArmMode: ArmMode = 'resting'
@@ -263,55 +293,55 @@ export function MeeCatInteractiveCanvas({
     leftArmRot = [5, 30, 20, 5][chewFrame]
     rightArmRot = -10
   } else if (state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')) {
-    // 1. ☝️ CHỈ TẦM CAO BÊN TRÁI (Tiêu Đề / Góc Bảng Trên)
+    // 1. ☝️ CHỈ TẦM CAO BÊN TRÁI: Cánh tay thẳng xoay -112deg vươn thẳng sang góc trên màn hình/bảng
     if (effectiveGesture === 'point-high-left') {
-      leftArmMode = 'raised-pose2'
+      leftArmMode = 'resting'
       rightArmMode = 'resting'
-      leftArmOrigin = '140px 800px'
-      leftArmRot = [-10, -5, -12, -7][talkStep]
+      leftArmOrigin = '140px 880px'
+      leftArmRot = [-112, -116, -113, -110][talkStep]
       rightArmRot = -5
     }
-    // 2. 👈 CHỈ TẦM NGANG BÊN TRÁI (Nội Dung Chính / Giữa Bảng)
+    // 2. 👈 CHỈ TẦM NGANG BÊN TRÁI: Cánh tay thẳng xoay -88deg vươn ngang thẳng sang màn hình/bảng (X=-410, Y=880)
     else if (effectiveGesture === 'point-left') {
-      leftArmMode = 'raised-pose2'
+      leftArmMode = 'resting'
       rightArmMode = 'resting'
-      leftArmOrigin = '140px 800px'
-      leftArmRot = [18, 23, 20, 16][talkStep]
+      leftArmOrigin = '140px 880px'
+      leftArmRot = [-88, -92, -89, -86][talkStep]
       rightArmRot = -5
     }
-    // 3. 👇 CHỈ TẦM THẤP BÊN TRÁI (Đáp Số / Các Bước Dưới)
+    // 3. 👇 CHỈ TẦM THẤP BÊN TRÁI: Cánh tay thẳng xoay -62deg hạ xuống chỉ bước giải/đáp án
     else if (effectiveGesture === 'point-low-left') {
-      leftArmMode = 'raised-pose2'
+      leftArmMode = 'resting'
       rightArmMode = 'resting'
-      leftArmOrigin = '140px 800px'
-      leftArmRot = [45, 50, 47, 43][talkStep]
+      leftArmOrigin = '140px 880px'
+      leftArmRot = [-62, -66, -63, -60][talkStep]
       rightArmRot = -5
     }
-    // 4. ☝️ CHỈ TẦM CAO BÊN PHẢI (Tiêu Đề Bên Phải)
+    // 4. ☝️ CHỈ TẦM CAO BÊN PHẢI: Cánh tay thẳng bên phải xoay +112deg sang góc trên phải màn hình
     else if (effectiveGesture === 'point-high-right') {
       leftArmMode = 'resting'
-      rightArmMode = 'raised-pose2'
-      rightArmOrigin = '970px 800px'
+      rightArmMode = 'resting'
+      rightArmOrigin = '970px 880px'
       leftArmRot = 5
-      rightArmRot = [10, 5, 12, 7][talkStep]
+      rightArmRot = [112, 116, 113, 110][talkStep]
     }
-    // 5. 👉 CHỈ TẦM NGANG BÊN PHẢI (Nội Dung Chính Bên Phải)
+    // 5. 👉 CHỈ TẦM NGANG BÊN PHẢI: Cánh tay thẳng bên phải xoay +88deg vươn ngang sang phải màn hình (X=1520)
     else if (effectiveGesture === 'point-right') {
       leftArmMode = 'resting'
-      rightArmMode = 'raised-pose2'
-      rightArmOrigin = '970px 800px'
+      rightArmMode = 'resting'
+      rightArmOrigin = '970px 880px'
       leftArmRot = 5
-      rightArmRot = [-18, -23, -20, -16][talkStep]
+      rightArmRot = [88, 92, 89, 86][talkStep]
     }
-    // 6. 👇 CHỈ TẦM THẤP BÊN PHẢI (Đáp Số Bên Phải)
+    // 6. 👇 CHỈ TẦM THẤP BÊN PHẢI: Cánh tay thẳng bên phải xoay +62deg hạ xuống
     else if (effectiveGesture === 'point-low-right') {
       leftArmMode = 'resting'
-      rightArmMode = 'raised-pose2'
-      rightArmOrigin = '970px 800px'
+      rightArmMode = 'resting'
+      rightArmOrigin = '970px 880px'
       leftArmRot = 5
-      rightArmRot = [-45, -50, -47, -43][talkStep]
+      rightArmRot = [62, 66, 63, 60][talkStep]
     }
-    // 7. 💡 GỢI Ý / ĐANG TƯ DUY SUY NGHĨ (Đặt tay má/cằm, đầu nghiêng thông thái)
+    // 7. 💡 GỢI Ý / ĐANG TƯ DUY: Tay co gập Pose 1 đặt nhẹ dưới cằm/má, đầu nghiêng, mắt liếc lên
     else if (effectiveGesture === 'think') {
       leftArmMode = 'bent-pose1'
       rightArmMode = 'resting'
@@ -319,7 +349,7 @@ export function MeeCatInteractiveCanvas({
       leftArmRot = -16
       rightArmRot = -5
     }
-    // 8. 👏 VỖ TAY KHEN NGỢI (Vỗ 2 tay co gập khen ngợi học sinh)
+    // 8. 👏 VỖ TAY KHEN NGỢI: Hai tay Pose 1 vỗ vào nhau nhịp nhàng ở tầm ngực dưới
     else if (effectiveGesture === 'clap') {
       leftArmMode = 'bent-pose1'
       rightArmMode = 'bent-pose1'
@@ -328,7 +358,7 @@ export function MeeCatInteractiveCanvas({
       leftArmRot = [16, 0, 16, 0][talkStep]
       rightArmRot = [-16, 0, -16, 0][talkStep]
     }
-    // 9. 👐 THUYẾT TRÌNH 2 TAY (Hai tay Pose 1 đung đưa ở tầm ngực dưới tự nhiên)
+    // 9. 👐 THUYẾT TRÌNH 2 TAY: Hai tay Pose 1 đung đưa ở tầm ngực dưới tự nhiên
     else if (effectiveGesture === 'explain') {
       leftArmMode = 'bent-pose1'
       rightArmMode = 'bent-pose1'
@@ -346,12 +376,12 @@ export function MeeCatInteractiveCanvas({
       leftArmRot = [5, 16, 10, 0][talkStep]
       rightArmRot = [-5, -16, -10, 0][talkStep]
     }
-    // Mặc định: Chỉ ngang bên trái
+    // Mặc định: Chỉ ngang sang trái màn hình
     else {
-      leftArmMode = 'raised-pose2'
+      leftArmMode = 'resting'
       rightArmMode = 'resting'
-      leftArmOrigin = '140px 800px'
-      leftArmRot = 18
+      leftArmOrigin = '140px 880px'
+      leftArmRot = -88
       rightArmRot = -5
     }
   }
@@ -470,7 +500,7 @@ export function MeeCatInteractiveCanvas({
       {/* SVG Interactive Rig Engine */}
       {engineMode === 'svg-rig' && (
         <svg
-          viewBox="-240 -60 1900 2060"
+          viewBox="-300 -60 2000 2060"
           className="h-full w-full drop-shadow-md transition-transform duration-200 ease-out"
           xmlns="http://www.w3.org/2000/svg"
           xmlnsXlink="http://www.w3.org/1999/xlink"
@@ -641,7 +671,7 @@ export function MeeCatInteractiveCanvas({
               d="M1099.72,585C970,660.44,793.46,636.23,673.79,516.56c-103.21-103.21-135.42-248.71-93.92-370C837.84,153.49,1051.1,339.61,1099.72,585Z"
             />
 
-            {/* --- 6. NOSE & EYES --- */}
+            {/* --- 6. NOSE & EYES WITH SIDE-GLANCE & CATCHLIGHTS --- */}
             {/* Nose */}
             <path
               fill="#f3a3a3"
@@ -663,26 +693,35 @@ export function MeeCatInteractiveCanvas({
                   />
                 </g>
               ) : (
-                /* Expressive rounded dot eyes with look-at tracking */
+                /* Expressive rounded dot eyes with look-at and side-glance tracking */
                 <g id="aiki-eyes-open">
-                  <rect
-                    fill="#84391a"
-                    x={287.35 + headLookX * 0.6}
-                    y={357.97 + headLookY * 0.6}
-                    width="96.31"
-                    height="151.34"
-                    rx="48.15"
-                    style={{ transition: 'x 0.1s ease-out, y 0.1s ease-out' }}
-                  />
-                  <rect
-                    fill="#84391a"
-                    x={722.56 + headLookX * 0.6}
-                    y={357.97 + headLookY * 0.6}
-                    width="96.31"
-                    height="151.34"
-                    rx="48.15"
-                    style={{ transition: 'x 0.1s ease-out, y 0.1s ease-out' }}
-                  />
+                  {/* Left Eye & Pupil Catchlight */}
+                  <g style={{ transform: `translate(${eyeLookX}px, ${eyeLookY}px)`, transition: 'transform 0.16s ease-out' }}>
+                    <rect
+                      fill="#84391a"
+                      x={287.35}
+                      y={357.97}
+                      width="96.31"
+                      height="151.34"
+                      rx="48.15"
+                    />
+                    <circle cx={318} cy={395} r="15" fill="#ffffff" />
+                    <circle cx={346} cy={442} r="8" fill="#ffffff" />
+                  </g>
+
+                  {/* Right Eye & Pupil Catchlight */}
+                  <g style={{ transform: `translate(${eyeLookX}px, ${eyeLookY}px)`, transition: 'transform 0.16s ease-out' }}>
+                    <rect
+                      fill="#84391a"
+                      x={722.56}
+                      y={357.97}
+                      width="96.31"
+                      height="151.34"
+                      rx="48.15"
+                    />
+                    <circle cx={753} cy={395} r="15" fill="#ffffff" />
+                    <circle cx={781} cy={442} r="8" fill="#ffffff" />
+                  </g>
                 </g>
               )}
             </g>
@@ -763,7 +802,7 @@ export function MeeCatInteractiveCanvas({
               </g>
             )}
 
-            {/* --- 8. FRONT ARMS & PAWS (Left & Right Arms) --- */}
+            {/* --- 8. FRONT ARMS & PAWS (Left & Right Arms - 100% OUTWARD SCREEN POINTING) --- */}
             <g id="aiki-arms">
               {/* Left Arm (Viewer's Left, Mascot's Right) */}
               <g
@@ -783,7 +822,7 @@ export function MeeCatInteractiveCanvas({
                     <path fill="#f47016" d="M669.85,792.43c11.26-17.49,16.11-38.51,15.89-60.59,0-2.09-.09-4.18-.2-6.29s-.26-4.16-.46-6.26-.46-4.46-.76-6.7c-3-22.38-10.68-45.11-21.7-65.72q-1.36-2.58-2.81-5.09c-.48-.86-1-1.7-1.47-2.54q-1.51-2.58-3.12-5.1c-13.2-21-29.91-38.92-48.51-50.9a105.36,105.36,0,0,0-18.63-9.63q-2.54-1-5.07-1.83c-53.49-17.5-103.51,21.4-138.43,75.67,0,0,161.11,7.82,216.65,156.89A133.49,133.49,0,0,0,669.85,792.43Z" />
                   </g>
                 ) : leftArmMode === 'raised-pose2' ? (
-                  /* 100% ARTIST ORIGINAL POSE 2 ARM (AIKI pose 2.svg - Vươn ra ngoài hướng bảng bên trái) */
+                  /* 100% ARTIST ORIGINAL POSE 2 ARM (AIKI pose 2.svg) */
                   <g id="aiki-left-arm-pose2" transform="translate(-294.07, 56.78)">
                     <path fill="#ff8517" d="M174.7,559.66,442.33,677.57a99.54,99.54,0,0,1-68.47,186.94L93.38,781.68a120.41,120.41,0,0,1-14.76-4.37A119.2,119.2,0,1,1,174.7,559.66Z" />
                     <path fill="#ff8517" d="M386.33,522.27c12.13-16.9,18-37.65,18.92-59.71.08-2.09.12-4.18.12-6.29s-.06-4.17-.15-6.28-.23-4.47-.42-6.73c-1.88-22.51-8.4-45.59-18.37-66.73q-1.23-2.64-2.55-5.23c-.43-.87-.89-1.74-1.34-2.6q-1.4-2.65-2.86-5.26c-12.13-21.6-27.91-40.37-45.89-53.27a106.44,106.44,0,0,0-18.12-10.55c-1.66-.75-3.32-1.45-5-2.08-52.54-20.17-104.45,16.17-142.06,68.61a135.47,135.47,0,0,0-7.85,12.29l-138.45,217A119.2,119.2,0,0,0,216.07,734.38c.41-.58.81-1.15,1.2-1.73L377.12,533.74A133.14,133.14,0,0,0,386.33,522.27Z" />
@@ -831,7 +870,7 @@ export function MeeCatInteractiveCanvas({
                     <path fill="#f47016" d="M669.85,792.43c11.26-17.49,16.11-38.51,15.89-60.59,0-2.09-.09-4.18-.2-6.29s-.26-4.16-.46-6.26-.46-4.46-.76-6.7c-3-22.38-10.68-45.11-21.7-65.72q-1.36-2.58-2.81-5.09c-.48-.86-1-1.7-1.47-2.54q-1.51-2.58-3.12-5.1c-13.2-21-29.91-38.92-48.51-50.9a105.36,105.36,0,0,0-18.63-9.63q-2.54-1-5.07-1.83c-53.49-17.5-103.51,21.4-138.43,75.67,0,0,161.11,7.82,216.65,156.89A133.49,133.49,0,0,0,669.85,792.43Z" />
                   </g>
                 ) : rightArmMode === 'raised-pose2' ? (
-                  /* 100% ARTIST ORIGINAL POSE 2 ARM MIRRORED (Vươn ra ngoài hướng bảng bên phải) */
+                  /* 100% ARTIST ORIGINAL POSE 2 ARM MIRRORED */
                   <g id="aiki-right-arm-pose2" transform="translate(1109.81, 0) scale(-1, 1)">
                     <g transform="translate(-294.07, 56.78)">
                       <path fill="#ff8517" d="M174.7,559.66,442.33,677.57a99.54,99.54,0,0,1-68.47,186.94L93.38,781.68a120.41,120.41,0,0,1-14.76-4.37A119.2,119.2,0,1,1,174.7,559.66Z" />
