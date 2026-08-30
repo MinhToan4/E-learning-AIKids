@@ -224,7 +224,7 @@ export function MeeCatStudioPage() {
             }`}
           >
             {/* 1. Mèo AIKI Mascot Stage */}
-            <div className="w-full md:w-1/2 max-w-[420px] flex items-center justify-center">
+            <div className="w-full md:w-[44%] max-w-[340px] flex items-center justify-center">
               <MeeCatInteractiveCanvas
                 state={activeState}
                 variant={variant}
@@ -240,13 +240,13 @@ export function MeeCatStudioPage() {
                 viseme={manualViseme}
                 onSpeechEnd={() => setIsSpeaking(false)}
                 quote={!showLectureBoard && (isSpeaking || activeState === 'talk') ? speechInput : undefined}
-                className="w-full h-auto aspect-[4/5]"
+                className="w-full h-auto aspect-[4/5] p-3 sm:p-5"
               />
             </div>
 
             {/* 2. Interactive AI Lecture Blackboard (Bảng Bài Giảng Trực Quan) */}
             {showLectureBoard && bgMode !== 'green-screen' && (
-              <div className="w-full md:w-1/2 max-w-[440px] animate-in fade-in zoom-in-95 duration-200">
+              <div className="w-full md:w-[56%] max-w-[420px] animate-in fade-in zoom-in-95 duration-200">
                 <div className="rounded-3xl border-4 border-amber-900/40 bg-gradient-to-b from-slate-900 to-slate-950 p-5 text-white shadow-2xl relative overflow-hidden">
                   {/* Chalkboard Header */}
                   <div className="flex items-center justify-between border-b border-white/15 pb-3 mb-3">
