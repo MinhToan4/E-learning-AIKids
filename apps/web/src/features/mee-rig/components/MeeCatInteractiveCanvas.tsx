@@ -55,7 +55,7 @@ export function MeeCatInteractiveCanvas({
   const [breathePhase, setBreathePhase] = useState(0)
   const containerRef = useRef<HTMLDivElement>(null)
 
-  // Speech TTS and Viseme hook
+  // Speech TTS and Viseme hook with audio boundary real-time synchronization
   const effectiveSpeaking = isSpeaking
   const effectiveSpeechText = speechText || quote || ''
   const { viseme: autoViseme, activeGesture, currentWord } = useMeeCatSpeech({
@@ -159,7 +159,17 @@ export function MeeCatInteractiveCanvas({
   const activeQuote = quote?.trim() || ''
 
   // Transform Computations for Skeletal Joints
-  const headLookX = state === 'look' || isHovered ? cursorPos.x : 0
+  const isPointingLeft = (state === 'talk' || effectiveSpeaking) && effectiveGesture === 'point-left'
+  const isPointingRight = (state === 'talk' || effectiveSpeaking) && effectiveGesture === 'point-right'
+
+  const headLookX = state === 'look' || isHovered
+    ? cursorPos.x
+    : isPointingLeft
+    ? -10
+    : isPointingRight
+    ? 10
+    : 0
+
   const headLookY = state === 'look' || isHovered ? cursorPos.y : 0
 
   // Sleepy head nod progression
@@ -170,7 +180,11 @@ export function MeeCatInteractiveCanvas({
   const talkHeadNodY = effectiveSpeaking ? [0, 8, -4, 10][talkStep] : 0
   const talkHeadRot = effectiveSpeaking
     ? [0, 2, -1.5, 1][talkStep]
-    : (state === 'talk' && effectiveGesture === 'point-left' ? -4 : state === 'talk' && effectiveGesture === 'point-right' ? 4 : 0)
+    : isPointingLeft
+    ? -3.5
+    : isPointingRight
+    ? 3.5
+    : 0
 
   const headRotation = (headLookX * 0.2) + sleepyHeadRot + talkHeadRot
 
@@ -195,55 +209,63 @@ export function MeeCatInteractiveCanvas({
     ? [0.96, 1.05, 1.02, 0.98][talkStep]
     : 1
 
-  // --- KINEMATICS GESTURE ENGINE CHUẨN XÁC VỚI HƯỚNG QUAY THỰC TẾ ---
-  type LeftArmMode = 'resting' | 'raised-wave' | 'bent-to-mouth'
+  // --- DEDICATED CHARACTER ARM POSES & KINEMATICS ---
+  type ArmMode = 'resting' | 'raised-pointing' | 'bent-to-mouth'
 
-  let leftArmMode: LeftArmMode = 'resting'
+  let leftArmMode: ArmMode = 'resting'
+  let rightArmMode: ArmMode = 'resting'
   let leftArmRot = 0
   let rightArmRot = 0
   let leftArmTranslateY = 0
   let leftArmTranslateX = 0
 
   if (state === 'celebrate') {
-    leftArmMode = 'raised-wave'
+    leftArmMode = 'raised-pointing'
+    rightArmMode = 'raised-pointing'
     leftArmRot = [5, 18, 12, 0][celebrateStep]
-    rightArmRot = [-70, -90, -80, -60][celebrateStep]
+    rightArmRot = [-5, -18, -12, 0][celebrateStep]
   } else if (state === 'hint') {
     leftArmMode = 'bent-to-mouth'
+    rightArmMode = 'resting'
     leftArmRot = -5
     rightArmRot = 0
   } else if (state === 'eat') {
     leftArmMode = 'resting'
+    rightArmMode = 'resting'
     leftArmRot = [5, 30, 20, 5][chewFrame]
     leftArmTranslateY = [0, -120, -70, 0][chewFrame]
     leftArmTranslateX = [0, 80, 40, 0][chewFrame]
     rightArmRot = -10
   } else if (state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')) {
-    // ACTIVE PRESENTATION GESTURES
     if (effectiveGesture === 'point-left') {
-      // 👈 CHỈ SANG TRÁI: Tay trái xoay +60deg (theo chiều kim đồng hồ) vươn thẳng ra ngoài bên trái
-      leftArmMode = 'resting'
-      leftArmRot = 58 + (effectiveSpeaking ? (talkStep % 2 === 0 ? 5 : -4) : (talkStep % 2 === 0 ? 3 : -2))
-      rightArmRot = -5 // Tay phải buông nhẹ bên hông
+      // 👈 CHỈ SANG TRÁI: Dùng cánh tay vươn Pose 2 chỉ thẳng ra phía bảng/bài học bên trái
+      leftArmMode = 'raised-pointing'
+      rightArmMode = 'resting'
+      leftArmRot = -2 + (effectiveSpeaking ? (talkStep % 2 === 0 ? -4 : 3) : (talkStep % 2 === 0 ? -2 : 1))
+      rightArmRot = -5
     } else if (effectiveGesture === 'point-right') {
-      // 👉 CHỈ SANG PHẢI: Tay phải xoay -60deg (ngược chiều kim đồng hồ) vươn thẳng ra ngoài bên phải
+      // 👉 CHỈ SANG PHẢI: Dùng cánh tay vươn Pose 2 chỉ thẳng ra phía bên phải
       leftArmMode = 'resting'
-      leftArmRot = 5 // Tay trái buông nhẹ bên hông
-      rightArmRot = -58 + (effectiveSpeaking ? (talkStep % 2 === 0 ? -5 : 4) : (talkStep % 2 === 0 ? -3 : 2))
+      rightArmMode = 'raised-pointing'
+      leftArmRot = 5
+      rightArmRot = 2 + (effectiveSpeaking ? (talkStep % 2 === 0 ? 4 : -3) : (talkStep % 2 === 0 ? 2 : -1))
     } else if (effectiveGesture === 'explain') {
-      // 👐 THUYẾT TRÌNH (2 tay): Cả 2 tay mở rộng sang 2 bên
-      leftArmMode = 'resting'
-      leftArmRot = 35 + (effectiveSpeaking ? (talkStep % 2 === 0 ? 8 : -6) : (talkStep % 2 === 0 ? 4 : -4))
-      rightArmRot = -35 + (effectiveSpeaking ? (talkStep % 2 === 0 ? -8 : 6) : (talkStep % 2 === 0 ? -4 : 4))
+      // 👐 THUYẾT TRÌNH (2 tay): Cả 2 tay co gập Pose 1 đung đưa nhịp nhàng diễn giải
+      leftArmMode = 'bent-to-mouth'
+      rightArmMode = 'bent-to-mouth'
+      leftArmRot = (effectiveSpeaking ? (talkStep % 2 === 0 ? 6 : -5) : (talkStep % 2 === 0 ? 3 : -3))
+      rightArmRot = (effectiveSpeaking ? (talkStep % 2 === 0 ? -6 : 5) : (talkStep % 2 === 0 ? -3 : 3))
     } else if (effectiveGesture === 'enthusiastic') {
-      // 🎉 HÀO HỨNG (Nhún nhảy): Cả 2 tay vung cao lên trời
-      leftArmMode = 'raised-wave'
-      leftArmRot = 12 + (effectiveSpeaking ? (talkStep % 2 === 0 ? 10 : -6) : (talkStep % 2 === 0 ? 6 : -4))
-      rightArmRot = -85 + (effectiveSpeaking ? (talkStep % 2 === 0 ? -12 : 6) : (talkStep % 2 === 0 ? -8 : 4))
+      // 🎉 HÀO HỨNG (Nhún nhảy): Cả 2 tay vung cao lên trời nhiệt tình
+      leftArmMode = 'raised-pointing'
+      rightArmMode = 'raised-pointing'
+      leftArmRot = 8 + (effectiveSpeaking ? (talkStep % 2 === 0 ? 10 : -6) : (talkStep % 2 === 0 ? 5 : -3))
+      rightArmRot = -8 + (effectiveSpeaking ? (talkStep % 2 === 0 ? -10 : 6) : (talkStep % 2 === 0 ? -5 : 3))
     } else {
       // Mặc định: Chỉ sang bên trái
-      leftArmMode = 'resting'
-      leftArmRot = 58 + (effectiveSpeaking ? (talkStep % 2 === 0 ? 5 : -4) : 0)
+      leftArmMode = 'raised-pointing'
+      rightArmMode = 'resting'
+      leftArmRot = -2 + (effectiveSpeaking ? (talkStep % 2 === 0 ? -4 : 3) : 0)
       rightArmRot = -5
     }
   }
@@ -667,15 +689,15 @@ export function MeeCatInteractiveCanvas({
                   transition: 'transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 }}
               >
-                {leftArmMode === 'raised-wave' ? (
-                  /* Raised Waving Arm */
+                {leftArmMode === 'raised-pointing' ? (
+                  /* Raised Pointing Arm (Pose 2 - Vươn ra phía bảng/bài học bên trái) */
                   <g id="aiki-left-arm-raised" transform="translate(-294.07, 56.78)">
                     <path fill="#ff8517" d="M174.7,559.66,442.33,677.57a99.54,99.54,0,0,1-68.47,186.94L93.38,781.68a120.41,120.41,0,0,1-14.76-4.37A119.2,119.2,0,1,1,174.7,559.66Z" />
                     <path fill="#ff8517" d="M386.33,522.27c12.13-16.9,18-37.65,18.92-59.71.08-2.09.12-4.18.12-6.29s-.06-4.17-.15-6.28-.23-4.47-.42-6.73c-1.88-22.51-8.4-45.59-18.37-66.73q-1.23-2.64-2.55-5.23c-.43-.87-.89-1.74-1.34-2.6q-1.4-2.65-2.86-5.26c-12.13-21.6-27.91-40.37-45.89-53.27a106.44,106.44,0,0,0-18.12-10.55c-1.66-.75-3.32-1.45-5-2.08-52.54-20.17-104.45,16.17-142.06,68.61a135.47,135.47,0,0,0-7.85,12.29l-138.45,217A119.2,119.2,0,0,0,216.07,734.38c.41-.58.81-1.15,1.2-1.73L377.12,533.74A133.14,133.14,0,0,0,386.33,522.27Z" />
                     <path fill="#f47016" d="M386.33,522.27c12.13-16.9,18-37.65,18.92-59.71.08-2.09.12-4.18.12-6.29s-.06-4.17-.15-6.28-.23-4.47-.42-6.73c-1.88-22.51-8.4-45.59-18.37-66.73q-1.23-2.64-2.55-5.23c-.43-.87-.89-1.74-1.34-2.6q-1.4-2.65-2.86-5.26c-12.13-21.6-27.91-40.37-45.89-53.27a106.44,106.44,0,0,0-18.12-10.55c-1.66-.75-3.32-1.45-5-2.08-52.54-20.17-104.45,16.17-142.06,68.61,0,0,160.51,15.91,208.48,167.59A133.14,133.14,0,0,0,386.33,522.27Z" />
                   </g>
                 ) : leftArmMode === 'bent-to-mouth' ? (
-                  /* Bent to mouth Arm */
+                  /* Bent to chest/chin Arm (Pose 1 - Co tay duyên dáng) */
                   <g id="aiki-left-arm-bent">
                     <path fill="#ff8517" d="M353.89,1051.91,87.82,930.49a99.54,99.54,0,0,1,70.92-186L438.1,831a119.25,119.25,0,0,1,83.64,158.39,119.21,119.21,0,0,1-153.85,68.93A122.68,122.68,0,0,1,353.89,1051.91Z" />
                     <circle fill="#ff8517" cx="410.24" cy="948.32" r="119.2" />
@@ -715,12 +737,32 @@ export function MeeCatInteractiveCanvas({
                   transition: 'transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 }}
               >
-                <g id="aiki-right-arm-clean">
-                  <path fill="#ff8517" d="M1089.39,1141.66l-.09-292.46a99.54,99.54,0,0,0-198.68-12.65l-37.19,290.08a123.24,123.24,0,0,0-2,15.27,119.21,119.21,0,1,0,237.92-.24Z" />
-                  <circle fill="#ff8517" cx="970.44" cy="1149.48" r="119.2" />
-                  <path fill="#ff8517" d="M1086.85,1429c-1.32,20.76-9.89,40.56-23.17,58.2q-1.89,2.49-3.9,4.94c-1.31,1.61-2.68,3.2-4.08,4.76s-3,3.32-4.59,4.95c-15.71,16.22-35.37,30-56.47,40q-2.64,1.26-5.29,2.43c-.89.4-1.79.78-2.68,1.17q-2.76,1.17-5.54,2.26c-23.07,9-47.18,13.57-69.26,12.16a106,106,0,0,1-20.7-3.3c-1.76-.47-3.49-1-5.17-1.54-53.43-17.66-70.6-78.66-66.5-143.06a134.41,134.41,0,0,1,1.71-14.48l30.27-255.62a119.2,119.2,0,0,1,237.92,15.15c-.05.7-.1,1.4-.16,2.09L1087,1414.32A133.74,133.74,0,0,1,1086.85,1429Z" />
-                  <path fill="#f47016" d="M1086.85,1429c-1.32,20.76-9.89,40.56-23.17,58.2q-1.89,2.49-3.9,4.94c-1.31,1.61-2.68,3.2-4.08,4.76s-3,3.32-4.59,4.95c-15.71,16.22-35.37,30-56.47,40q-2.64,1.26-5.29,2.43c-.89.4-1.79.78-2.68,1.17q-2.76,1.17-5.54,2.26c-23.07,9-47.18,13.57-69.26,12.16a106,106,0,0,1-20.7-3.3c-1.76-.47-3.49-1-5.17-1.54-53.43-17.66-70.6-78.66-66.5-143.06,0,0,134.3,89.33,267.48,2.32A133.74,133.74,0,0,1,1086.85,1429Z" />
-                </g>
+                {rightArmMode === 'raised-pointing' ? (
+                  /* Raised Pointing Arm (Pose 2 - Vươn ra phía bên phải) */
+                  <g id="aiki-right-arm-raised" transform="translate(1109.81, 0) scale(-1, 1)">
+                    <g transform="translate(-294.07, 56.78)">
+                      <path fill="#ff8517" d="M174.7,559.66,442.33,677.57a99.54,99.54,0,0,1-68.47,186.94L93.38,781.68a120.41,120.41,0,0,1-14.76-4.37A119.2,119.2,0,1,1,174.7,559.66Z" />
+                      <path fill="#ff8517" d="M386.33,522.27c12.13-16.9,18-37.65,18.92-59.71.08-2.09.12-4.18.12-6.29s-.06-4.17-.15-6.28-.23-4.47-.42-6.73c-1.88-22.51-8.4-45.59-18.37-66.73q-1.23-2.64-2.55-5.23c-.43-.87-.89-1.74-1.34-2.6q-1.4-2.65-2.86-5.26c-12.13-21.6-27.91-40.37-45.89-53.27a106.44,106.44,0,0,0-18.12-10.55c-1.66-.75-3.32-1.45-5-2.08-52.54-20.17-104.45,16.17-142.06,68.61a135.47,135.47,0,0,0-7.85,12.29l-138.45,217A119.2,119.2,0,0,0,216.07,734.38c.41-.58.81-1.15,1.2-1.73L377.12,533.74A133.14,133.14,0,0,0,386.33,522.27Z" />
+                      <path fill="#f47016" d="M386.33,522.27c12.13-16.9,18-37.65,18.92-59.71.08-2.09.12-4.18.12-6.29s-.06-4.17-.15-6.28-.23-4.47-.42-6.73c-1.88-22.51-8.4-45.59-18.37-66.73q-1.23-2.64-2.55-5.23c-.43-.87-.89-1.74-1.34-2.6q-1.4-2.65-2.86-5.26c-12.13-21.6-27.91-40.37-45.89-53.27a106.44,106.44,0,0,0-18.12-10.55c-1.66-.75-3.32-1.45-5-2.08-52.54-20.17-104.45,16.17-142.06,68.61,0,0,160.51,15.91,208.48,167.59A133.14,133.14,0,0,0,386.33,522.27Z" />
+                    </g>
+                  </g>
+                ) : rightArmMode === 'bent-to-mouth' ? (
+                  /* Bent to chest/chin Arm (Pose 1 Mirrored) */
+                  <g id="aiki-right-arm-bent" transform="translate(1109.81, 0) scale(-1, 1)">
+                    <path fill="#ff8517" d="M353.89,1051.91,87.82,930.49a99.54,99.54,0,0,1,70.92-186L438.1,831a119.25,119.25,0,0,1,83.64,158.39,119.21,119.21,0,0,1-153.85,68.93A122.68,122.68,0,0,1,353.89,1051.91Z" />
+                    <circle fill="#ff8517" cx="410.24" cy="948.32" r="119.2" />
+                    <path fill="#ff8517" d="M669.85,792.43c11.26-17.49,16.11-38.51,15.89-60.59,0-2.09-.09-4.18-.2-6.29s-.26-4.16-.46-6.26-.46-4.46-.76-6.7c-3-22.38-10.68-45.11-21.7-65.72q-1.36-2.58-2.81-5.09c-.48-.86-1-1.7-1.47-2.54q-1.51-2.58-3.12-5.1c-13.2-21-29.91-38.92-48.51-50.9a105.36,105.36,0,0,0-18.63-9.63q-2.54-1-5.07-1.83c-53.49-17.5-103.51,21.4-138.43,75.67a136.78,136.78,0,0,0-7.22,12.67L310,883.81a119.2,119.2,0,0,0,200.48,129c.38-.6.75-1.19,1.11-1.78L661.23,804.34A133.49,133.49,0,0,0,669.85,792.43Z" />
+                    <path fill="#f47016" d="M669.85,792.43c11.26-17.49,16.11-38.51,15.89-60.59,0-2.09-.09-4.18-.2-6.29s-.26-4.16-.46-6.26-.46-4.46-.76-6.7c-3-22.38-10.68-45.11-21.7-65.72q-1.36-2.58-2.81-5.09c-.48-.86-1-1.7-1.47-2.54q-1.51-2.58-3.12-5.1c-13.2-21-29.91-38.92-48.51-50.9a105.36,105.36,0,0,0-18.63-9.63q-2.54-1-5.07-1.83c-53.49-17.5-103.51,21.4-138.43,75.67,0,0,161.11,7.82,216.65,156.89A133.49,133.49,0,0,0,669.85,792.43Z" />
+                  </g>
+                ) : (
+                  /* Standard Clean Right Arm */
+                  <g id="aiki-right-arm-clean">
+                    <path fill="#ff8517" d="M1089.39,1141.66l-.09-292.46a99.54,99.54,0,0,0-198.68-12.65l-37.19,290.08a123.24,123.24,0,0,0-2,15.27,119.21,119.21,0,1,0,237.92-.24Z" />
+                    <circle fill="#ff8517" cx="970.44" cy="1149.48" r="119.2" />
+                    <path fill="#ff8517" d="M1086.85,1429c-1.32,20.76-9.89,40.56-23.17,58.2q-1.89,2.49-3.9,4.94c-1.31,1.61-2.68,3.2-4.08,4.76s-3,3.32-4.59,4.95c-15.71,16.22-35.37,30-56.47,40q-2.64,1.26-5.29,2.43c-.89.4-1.79.78-2.68,1.17q-2.76,1.17-5.54,2.26c-23.07,9-47.18,13.57-69.26,12.16a106,106,0,0,1-20.7-3.3c-1.76-.47-3.49-1-5.17-1.54-53.43-17.66-70.6-78.66-66.5-143.06a134.41,134.41,0,0,1,1.71-14.48l30.27-255.62a119.2,119.2,0,0,1,237.92,15.15c-.05.7-.1,1.4-.16,2.09L1087,1414.32A133.74,133.74,0,0,1,1086.85,1429Z" />
+                    <path fill="#f47016" d="M1086.85,1429c-1.32,20.76-9.89,40.56-23.17,58.2q-1.89,2.49-3.9,4.94c-1.31,1.61-2.68,3.2-4.08,4.76s-3,3.32-4.59,4.95c-15.71,16.22-35.37,30-56.47,40q-2.64,1.26-5.29,2.43c-.89.4-1.79.78-2.68,1.17q-2.76,1.17-5.54,2.26c-23.07,9-47.18,13.57-69.26,12.16a106,106,0,0,1-20.7-3.3c-1.76-.47-3.49-1-5.17-1.54-53.43-17.66-70.6-78.66-66.5-143.06,0,0,134.3,89.33,267.48,2.32A133.74,133.74,0,0,1,1086.85,1429Z" />
+                  </g>
+                )}
               </g>
             </g>
           </g>
