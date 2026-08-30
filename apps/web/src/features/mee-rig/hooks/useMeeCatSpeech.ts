@@ -11,27 +11,47 @@ export interface UseMeeCatSpeechOptions {
 }
 
 /**
- * Xác định 1 Khẩu hình Trọng tâm (Dominant Viseme) chuẩn xác theo nguyên âm tiếng Việt:
- * - A / Ă / Â -> 'open' (Mở cong hạt dẻ to thoáng)
- * - O / Ô / Ơ / U / Ư / Qu -> 'round' (Chu tròn nhỏ nhắn Ooh)
- * - E / Ê / I / Y -> 'smile' (Cười cong trăng khuyết ngọt ngào)
- * - Phụ âm nhẹ / lướt -> 'half' (Mấp máy nhỏ)
- * - Ngắt nhịp / khoảng lặng -> 'closed' (Ngậm chúm chím :3)
+ * Phân tích âm vị & nguyên âm tiếng Việt để trả về khẩu hình mèo chuẩn xác nhất:
+ * 1. OPEN (A, Ă, Â): Mở to thoáng hạt dẻ (chào, bạn, năm, bậc, đào, tạo, ngành, bản, bài, toán, làm, quà, ta, v.v.)
+ * 2. SMILE (E, Ê, I, Y): Cười dẹt trăng khuyết hé răng (mèo, mee, hình, chuyên, tín, chỉ, tiên, quyết, trình, phiên, bé, v.v.)
+ * 3. ROUND (O, Ô, Ơ, U, Ư): Chu tròn chúm (học, nhỏ, vui, khóa, loại, khung, so, cùng, đúng, con, cô, một, v.v.)
+ * 4. HALF: Mấp máy nhẹ với phụ âm lướt
+ * 5. CLOSED: Ngậm chúm chím :3
  */
 export function getDominantViseme(word: string): Viseme {
-  const clean = word.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').trim()
-  if (!clean) return 'closed'
+  const raw = word.toLowerCase().trim()
+  if (!raw) return 'closed'
 
-  // Common high-frequency Vietnamese words dictionary
-  if (['chao', 'ban', 'bai', 'toan', 'lam', 'qua', 'ta', 'nha', 'bac', 'cac', 'cam', 'nam', 'tam', 'lang', 'nao', 'sao', 'tay', 'vang'].includes(clean)) return 'open'
-  if (['meo', 'mee', 'be', 'di', 'nhin', 'ket', 'gi', 'nhe', 'thich', 'biet', 'tiep', 'hien', 'tien', 'em', 'khen', 'ngoi'].includes(clean)) return 'smile'
-  if (['nho', 'co', 'chu', 'dung', 'hoc', 'mot', 'con', 'vui', 'thu', 'luc', 'cung', 'khong', 'so', 'tro', 'giang', 'chuc'].includes(clean)) return 'round'
+  const normalized = raw
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[.,!?;:"'()/\\-]/g, '')
+    .trim()
 
-  // Vowel Regex Matching
-  if (/[aăâ]/.test(clean)) return 'open'
-  if (/[oôơuư]/.test(clean)) return 'round'
-  if (/[eêiy]/.test(clean)) return 'smile'
-  if (/^[bcdđghklmnpqrstvx]/.test(clean)) return 'half'
+  if (!normalized) return 'closed'
+
+  // 1. Âm đuôi 'eo' (mèo, khéo, kẹo) -> SMILE
+  if (/eo/.test(normalized)) return 'smile'
+
+  // 2. Vần có nguyên âm chính 'a' (chào, bạn, năm, bậc, đào, tạo, ngành, bản, bài, toán...) -> OPEN
+  if (/(ao|au|ay|ai|ang|anh|ach|am|an|ap|at|ak|a|ă|â)/.test(normalized)) {
+    return 'open'
+  }
+
+  // 3. Vần 'oan', 'oat', 'oang', 'oam' (toán, đoàn, hoan) -> OPEN
+  if (/oa[ntmkgc]/.test(normalized)) {
+    return 'open'
+  }
+
+  // 4. Vần có nguyên âm chính 'o', 'ô', 'ơ', 'u', 'ư' (học, nhỏ, vui, khóa, loại, khung, so, cùng...) -> ROUND
+  if (/(ui|uy|uo|ươ|uô|oai|oay|ong|ung|ông|ương|uông|oc|uc|ôc|ơ|u|ư|o|ô)/.test(normalized)) {
+    return 'round'
+  }
+
+  // 5. Vần có nguyên âm chính 'e', 'ê', 'i', 'y' (mee, hình, tín, chỉ, đi, tiên, quyết, trình...) -> SMILE
+  if (/(i[eê]|y[eê]|uy[eê]n|uy[eê]t|inh|ich|i[ntmp]|e[ntmp]|ê[ntmp]|ec|et|ee|i|e|ê|y)/.test(normalized)) {
+    return 'smile'
+  }
 
   return 'open'
 }
@@ -51,16 +71,14 @@ export function useMeeCatSpeech({
   const gestureTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    if (gesture !== 'auto') {
-      setActiveGesture(gesture)
-    }
+    setActiveGesture(gesture)
   }, [gesture])
 
-  // Kích hoạt một nhịp mở khẩu hình khớp với từ đang đọc
+  // Kích hoạt một nhịp mở - đóng khẩu hình chuẩn xác cho từng từ
   const triggerWordViseme = (word: string, paceMs: number = 320) => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
 
-    const clean = word.replace(/[.,!?;:"'()]/g, '').trim()
+    const clean = word.replace(/[.,!?;:"'()/\\-]/g, '').trim()
     if (!clean) {
       setViseme('closed')
       return
@@ -69,8 +87,8 @@ export function useMeeCatSpeech({
     const dominant = getDominantViseme(clean)
     setViseme(dominant)
 
-    // Khẩu hình mở trong 70% thời lượng từ, sau đó tự khép về closed trước từ kế tiếp
-    const openHoldMs = Math.max(160, Math.min(260, Math.round(paceMs * 0.7)))
+    // Khẩu hình mở trong 72% thời lượng từ, sau đó tự khép nhẹ về closed / half trước từ kế tiếp
+    const openHoldMs = Math.max(180, Math.min(280, Math.round(paceMs * 0.72)))
     closeTimerRef.current = setTimeout(() => {
       setViseme('closed')
     }, openHoldMs)
@@ -90,18 +108,23 @@ export function useMeeCatSpeech({
       return
     }
 
-    const words = text.trim().split(/\s+/).filter(Boolean)
+    // Tách từ theo khoảng trắng và ký tự ngăn cách
+    const words = text
+      .trim()
+      .split(/[\s,.;:!?/\\-]+/)
+      .filter(Boolean)
+
     if (words.length === 0) return
 
     let wordIdx = 0
-    const paceMs = 320 // 320ms mỗi từ tương ứng tốc độ đọc chuẩn ~190 wpm
+    const paceMs = 320 // 320ms mỗi từ
 
-    // 1. Kích hoạt ngay lập tức từ đầu tiên
+    // 1. Kích hoạt tức thì từ đầu tiên
     setCurrentWord(words[0])
     triggerWordViseme(words[0], paceMs)
     wordIdx = 1
 
-    // 2. Chạy bộ timer nhịp điệu luân chuyển từng từ (Cadence Loop)
+    // 2. Chạy bộ đập nhịp Cadence tuần tự qua từng từ của văn bản
     if (wordTimerRef.current) clearInterval(wordTimerRef.current)
     wordTimerRef.current = setInterval(() => {
       if (wordIdx < words.length) {
@@ -119,16 +142,16 @@ export function useMeeCatSpeech({
 
     // 3. Tự động luân chuyển cử chỉ khi để chế độ auto
     if (gesture === 'auto') {
-      const gesturePool: Gesture[] = ['point-left', 'explain', 'point-left', 'enthusiastic']
+      const gesturePool: Gesture[] = ['point-left', 'explain', 'point-right', 'enthusiastic', 'point-left']
       let gIdx = 0
       setActiveGesture(gesturePool[0])
       gestureTimerRef.current = setInterval(() => {
         gIdx = (gIdx + 1) % gesturePool.length
         setActiveGesture(gesturePool[gIdx])
-      }, 2000)
+      }, 2200)
     }
 
-    // 4. Phát âm thanh qua Web SpeechSynthesis (nếu trình duyệt hỗ trợ)
+    // 4. Phát giọng đọc Text-to-Speech (TTS)
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       try {
         window.speechSynthesis.cancel()
@@ -137,19 +160,8 @@ export function useMeeCatSpeech({
         utterance.pitch = 1.1
 
         const voices = window.speechSynthesis.getVoices()
-        const viVoice = voices.find((v) => v.lang.includes('vi') || v.name.includes('Vietnamese'))
+        const viVoice = voices.find((v) => v.lang.includes('vi') || v.name.includes('Vietnamese') || v.lang.includes('VI'))
         if (viVoice) utterance.voice = viVoice
-
-        utterance.onboundary = (event) => {
-          if (event.name === 'word' || event.charIndex !== undefined) {
-            const substring = text.slice(event.charIndex)
-            const matchedWord = substring.split(/\s+/)[0] || ''
-            if (matchedWord) {
-              setCurrentWord(matchedWord)
-              triggerWordViseme(matchedWord, paceMs)
-            }
-          }
-        }
 
         utterance.onend = () => {
           if (wordTimerRef.current) clearInterval(wordTimerRef.current)
@@ -161,12 +173,12 @@ export function useMeeCatSpeech({
         }
 
         utterance.onerror = () => {
-          // Vẫn để wordTimer tiếp tục chạy hết câu thoại
+          // Vẫn giữ timer chạy nhịp nhàng hết câu
         }
 
         window.speechSynthesis.speak(utterance)
       } catch {
-        // Fallback tự động chạy qua wordTimer
+        // Fallback chạy bằng wordTimer
       }
     }
 

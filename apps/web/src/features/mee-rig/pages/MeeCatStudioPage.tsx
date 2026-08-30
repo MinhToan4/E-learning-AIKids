@@ -128,7 +128,11 @@ export function MeeCatStudioPage() {
 
   const handlePlaySpeech = () => {
     setActiveState('talk')
-    setIsSpeaking(true)
+    setManualViseme(undefined)
+    setIsSpeaking(false)
+    setTimeout(() => {
+      setIsSpeaking(true)
+    }, 40)
   }
 
   const handleStopSpeech = () => {
