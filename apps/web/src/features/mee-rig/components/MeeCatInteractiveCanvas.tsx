@@ -26,13 +26,6 @@ export interface MeeCatInteractiveCanvasProps {
   onQuoteChange?: (quote: string) => void
 }
 
-const ASMO_HINTS = [
-  'Mèo AIKI gợi ý: Con hãy đọc kỹ đề bài và thực hiện từng phép tính nhé!',
-  'Mèo AIKI gợi ý: Quan sát quy luật dãy số để tìm số tiếp theo thật nhanh nào!',
-  'Mèo AIKI gợi ý: Con hãy thử chia nhỏ hình vẽ phức tạp thành các hình quen thuộc nhé!',
-  'Mèo AIKI vỗ tay khen ngợi: Bé làm bài xuất sắc lắm, tiếp tục phát huy nha! 🐾✨',
-]
-
 export function MeeCatInteractiveCanvas({
   state = 'idle',
   variant = 'full-body',
@@ -64,7 +57,7 @@ export function MeeCatInteractiveCanvas({
 
   // Speech TTS and Viseme hook
   const effectiveSpeaking = isSpeaking || state === 'talk'
-  const effectiveSpeechText = speechText || quote || (state === 'talk' ? 'Mèo AIKI xin chào các bạn nhỏ!' : '')
+  const effectiveSpeechText = speechText || quote || (state === 'talk' ? 'Chào các bạn nhỏ! Mèo AIKI đang thuyết trình cho các con đây!' : '')
   const { viseme: autoViseme, activeGesture, currentWord } = useMeeCatSpeech({
     text: effectiveSpeechText,
     isSpeaking: effectiveSpeaking,
@@ -117,7 +110,7 @@ export function MeeCatInteractiveCanvas({
     return () => clearInterval(breatheInterval)
   }, [breathingSpeed, state])
 
-  // 1. CELEBRATE JUMP & SQUAT LOOP
+  // Celebrate jump loop
   useEffect(() => {
     if (state !== 'celebrate') return
     const jumpInterval = setInterval(() => {
@@ -126,7 +119,7 @@ export function MeeCatInteractiveCanvas({
     return () => clearInterval(jumpInterval)
   }, [state])
 
-  // 2. EATING & MUNCHING LOOP
+  // Eating loop
   useEffect(() => {
     if (state !== 'eat') return
     const chewInterval = setInterval(() => {
@@ -135,7 +128,7 @@ export function MeeCatInteractiveCanvas({
     return () => clearInterval(chewInterval)
   }, [state])
 
-  // 3. SLEEPY DROOPING & NODDING LOOP
+  // Sleepy loop
   useEffect(() => {
     if (state !== 'sleepy') return
     const sleepyInterval = setInterval(() => {
@@ -144,7 +137,7 @@ export function MeeCatInteractiveCanvas({
     return () => clearInterval(sleepyInterval)
   }, [state])
 
-  // 4. TALKING GESTURE RHYTHM LOOP
+  // Talking gesture rhythm loop
   useEffect(() => {
     if (!effectiveSpeaking) return
     const talkInterval = setInterval(() => {
@@ -178,12 +171,12 @@ export function MeeCatInteractiveCanvas({
 
   const headRotation = (headLookX * 0.2) + sleepyHeadRot + talkHeadRot
 
-  // Ear rotations (Tai gắn trên sọ với tâm gốc 280px và 842px)
+  // Ear rotations
   const talkEarWiggle = effectiveSpeaking ? (talkStep % 2 === 0 ? -2 : 2) : 0
   const leftEarRot = (-earAngle * 0.2) + talkEarWiggle + (state === 'celebrate' ? (celebrateStep % 2 === 0 ? -4 : 2) : 0)
   const rightEarRot = (earAngle * 0.2) - talkEarWiggle + (state === 'celebrate' ? (celebrateStep % 2 === 0 ? 4 : -2) : 0)
 
-  // Tail animations (Vẫy đuôi mềm mại)
+  // Tail animations
   const tailBaseRot = tailWiggle + (state === 'celebrate' ? [-14, 18, -10, 15][tailFrame] : state === 'sleepy' ? -5 : effectiveSpeaking ? [-6, 8, -5, 7][tailFrame] : [0, 5, -3, 3][tailFrame])
 
   // Celebrate / Talk Jump displacement values
@@ -199,68 +192,51 @@ export function MeeCatInteractiveCanvas({
     ? [0.96, 1.04, 1.02, 0.98][talkStep]
     : 1
 
-  // Arm Pose Selection & Kinematics (Left & Right Arms)
-  type LeftArmMode = 'resting' | 'bent-to-mouth' | 'raised-wave'
-  type RightArmMode = 'resting' | 'bent-across-belly'
+  // --- ARM KINEMATICS & POSE SELECTION ---
+  type LeftArmMode = 'resting' | 'pointing-left' | 'bent-to-mouth' | 'raised-wave'
 
   let leftArmMode: LeftArmMode = 'resting'
-  let rightArmMode: RightArmMode = 'resting'
   let leftArmRot = 0
   let rightArmRot = 0
   let leftArmTranslateY = 0
   let leftArmTranslateX = 0
 
   if (state === 'celebrate') {
-    // Ăn mừng: Tay trái vẫy cao tít, tay phải co trước bụng theo đúng bản vẽ recommend.png!
+    // Ăn mừng: Tay trái vẫy cao tít mù, tay phải khép nhẹ bên hông
     leftArmMode = 'raised-wave'
-    rightArmMode = 'bent-across-belly'
     leftArmRot = [-8, -22, -18, -4][celebrateStep]
-    rightArmRot = [4, 12, 8, 2][celebrateStep]
+    rightArmRot = [-10, -16, -12, -6][celebrateStep]
   } else if (state === 'hint') {
-    // Gợi ý: Tay trái giơ lên chỉ miệng/đầu (Pose 1), tay phải để tự nhiên
+    // Gợi ý: Tay trái giơ lên chỉ miệng/đầu (Pose 1), tay phải buông nghỉ
     leftArmMode = 'bent-to-mouth'
-    rightArmMode = 'resting'
     leftArmRot = -5
+    rightArmRot = 0
   } else if (state === 'eat') {
-    // Ăn bánh cá: Tay trái cầm bánh đưa lên miệng nhai, tay phải ôm bụng
+    // Ăn bánh: Tay trái cầm bánh đưa lên miệng nhai, tay phải nghỉ
     leftArmMode = 'resting'
-    rightArmMode = 'bent-across-belly'
     leftArmRot = [-5, -35, -25, -5][chewFrame]
     leftArmTranslateY = [0, -120, -70, 0][chewFrame]
     leftArmTranslateX = [0, 80, 40, 0][chewFrame]
+    rightArmRot = -10
   } else if (effectiveSpeaking) {
-    if (activeGesture === 'point-left') {
-      leftArmMode = 'raised-wave'
-      rightArmMode = 'resting'
-      leftArmRot = -15 + (talkStep % 2 === 0 ? -4 : 2)
+    // Thuyết trình & Lip-sync: Cử chỉ chỉ trỏ sang bên trái
+    if (activeGesture === 'point-left' || state === 'talk' || activeGesture === 'auto') {
+      // Chỉ trỏ sang bên trái (đề bài, bảng viết): Tay trái vươn thẳng sang trái
+      leftArmMode = 'resting'
+      leftArmRot = -50 + (talkStep % 2 === 0 ? -4 : 4) // Xoay -50 độ vươn sang bên trái
+      rightArmRot = 0 // Tay phải buông tự nhiên dọc thân
     } else if (activeGesture === 'point-right') {
       leftArmMode = 'resting'
-      rightArmMode = 'bent-across-belly'
-      rightArmRot = 12 + (talkStep % 2 === 0 ? 4 : -2)
+      leftArmRot = 0
+      rightArmRot = -15 + (talkStep % 2 === 0 ? -4 : 4)
     } else if (activeGesture === 'explain') {
       leftArmMode = 'bent-to-mouth'
-      rightArmMode = 'bent-across-belly'
       leftArmRot = [-5, -15, -10, 0][talkStep]
-      rightArmRot = [0, 8, 4, 0][talkStep]
+      rightArmRot = [0, -12, -6, 0][talkStep]
     } else if (activeGesture === 'enthusiastic') {
       leftArmMode = 'raised-wave'
-      rightArmMode = 'bent-across-belly'
       leftArmRot = [-10, -25, -20, -5][talkStep]
-      rightArmRot = [5, 15, 10, 0][talkStep]
-    } else {
-      // Auto gesture cadence
-      if (talkStep === 1) {
-        leftArmMode = 'bent-to-mouth'
-        rightArmMode = 'resting'
-      } else if (talkStep === 3) {
-        leftArmMode = 'resting'
-        rightArmMode = 'bent-across-belly'
-      } else {
-        leftArmMode = 'resting'
-        rightArmMode = 'resting'
-        leftArmRot = talkStep % 2 === 0 ? -4 : 4
-        rightArmRot = talkStep % 2 === 0 ? 4 : -4
-      }
+      rightArmRot = [-8, -16, -12, -4][talkStep]
     }
   }
 
@@ -365,7 +341,7 @@ export function MeeCatInteractiveCanvas({
               transition: state === 'sleepy' ? 'transform 0.5s ease-in-out' : state === 'celebrate' ? 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.25s ease-out',
             }}
           >
-            {/* --- 1. TAIL BONE (Back Layer with White Tip from Pose 1 & Recommend Art) --- */}
+            {/* --- 1. TAIL BONE (Back Layer with White Tip) --- */}
             <g
               id="aiki-tail"
               style={{
@@ -374,12 +350,10 @@ export function MeeCatInteractiveCanvas({
                 transition: state === 'celebrate' ? 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.35s ease-out',
               }}
             >
-              {/* Orange Tail Base */}
               <path
                 fill="url(#aiki-tail-grad)"
                 d="M1281.85,1376.83a404.06,404.06,0,0,1-91.71,43.84q-17.85,5.94-35.45,10L628.38,1578.78c-73.86,25.59-151.46-8-178.21-73.26s4.54-144.81,74.5-179.92L999.3,1051.3q15.23-9.78,32-18.48a401.88,401.88,0,0,1,95.94-35.21c122.75-27.84,241.87,8.49,280.85,103.65C1447.11,1196.58,1388.2,1308.15,1281.85,1376.83Z"
               />
-              {/* Crisp White Tail Tip */}
               <path
                 fill="#fffdfa"
                 d="M1218.34,1758.49c70.37-161.57,76.59-303.13,65.19-404.32,119.32,40.08,202.16,133.07,185.94,234.63C1453.24,1690.52,1344.9,1755.16,1218.34,1758.49Z"
@@ -519,51 +493,8 @@ export function MeeCatInteractiveCanvas({
 
             {/* --- 7. MOUTH & LIPSYNC VISEMES --- */}
             <g id="aiki-mouth">
-              {state === 'eat' ? (
-                /* Eating / munching */
-                <g id="aiki-mouth-eat">
-                  {chewFrame === 1 ? (
-                    <g id="aiki-chew-open">
-                      <path d="M 470 540 Q 553 650 636 540 Q 553 520 470 540 Z" fill="#d83d00" />
-                      <path d="M 505 605 Q 553 645 601 605 Z" fill="#f3a3a3" />
-                      <path d="M 553 517 L 553 530" stroke="#84391a" strokeWidth="10" strokeLinecap="round" />
-                    </g>
-                  ) : chewFrame === 3 ? (
-                    <g id="aiki-chew-tongue">
-                      <path d="M 553 517 L 553 538" stroke="#84391a" strokeWidth="12" strokeLinecap="round" />
-                      <path d="M 553 538 Q 500 575 450 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
-                      <path d="M 553 538 Q 606 575 656 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
-                      <ellipse cx="553" cy="565" rx="30" ry="20" fill="#f3a3a3" stroke="#84391a" strokeWidth="6" />
-                    </g>
-                  ) : (
-                    <g id="aiki-chew-closed">
-                      <path d="M 553 517 L 553 538" stroke="#84391a" strokeWidth="12" strokeLinecap="round" />
-                      <path d="M 553 538 Q 500 575 450 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
-                      <path d="M 553 538 Q 606 575 656 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
-                    </g>
-                  )}
-                </g>
-              ) : state === 'celebrate' ? (
-                /* Big Laughing Open Mouth with 2 cute fangs (from recommend.png) */
-                <g id="aiki-mouth-celebrate">
-                  <path
-                    d="M 390 535 Q 553 480 716 535 Q 745 660 553 660 Q 361 660 390 535 Z"
-                    fill="#d83d00"
-                    stroke="#84391a"
-                    strokeWidth="10"
-                    strokeLinejoin="round"
-                  />
-                  <path
-                    d="M 440 615 Q 553 580 666 615 Q 616 655 553 655 Q 490 655 440 615 Z"
-                    fill="#ff8517"
-                  />
-                  {/* Left Fang */}
-                  <polygon points="435,524 455,524 445,552" fill="#fffdfa" stroke="#84391a" strokeWidth="6" strokeLinejoin="round" />
-                  {/* Right Fang */}
-                  <polygon points="651,524 671,524 661,552" fill="#fffdfa" stroke="#84391a" strokeWidth="6" strokeLinejoin="round" />
-                </g>
-              ) : effectiveSpeaking ? (
-                /* Dynamic Cute Cartoon Chibi Lip-sync System (5 Visemes) */
+              {effectiveSpeaking ? (
+                /* DYNAMIC 5-VISEME LIPSYNC ENGINE DRIVEN BY SPEECH */
                 <g id="aiki-mouth-viseme">
                   {currentViseme === 'open' ? (
                     /* A / Ă / Â */
@@ -601,6 +532,49 @@ export function MeeCatInteractiveCanvas({
                       <path d="M 553 517 L 553 540" stroke="#84391a" strokeWidth="12" strokeLinecap="round" />
                       <path d="M 553 540 Q 500 580 445 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
                       <path d="M 553 540 Q 606 580 661 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
+                    </g>
+                  )}
+                </g>
+              ) : state === 'celebrate' ? (
+                /* Big Laughing Open Mouth with 2 cute fangs (from recommend.png) */
+                <g id="aiki-mouth-celebrate">
+                  <path
+                    d="M 390 535 Q 553 480 716 535 Q 745 660 553 660 Q 361 660 390 535 Z"
+                    fill="#d83d00"
+                    stroke="#84391a"
+                    strokeWidth="10"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M 440 615 Q 553 580 666 615 Q 616 655 553 655 Q 490 655 440 615 Z"
+                    fill="#ff8517"
+                  />
+                  {/* Left Fang */}
+                  <polygon points="435,524 455,524 445,552" fill="#fffdfa" stroke="#84391a" strokeWidth="6" strokeLinejoin="round" />
+                  {/* Right Fang */}
+                  <polygon points="651,524 671,524 661,552" fill="#fffdfa" stroke="#84391a" strokeWidth="6" strokeLinejoin="round" />
+                </g>
+              ) : state === 'eat' ? (
+                /* Eating / munching */
+                <g id="aiki-mouth-eat">
+                  {chewFrame === 1 ? (
+                    <g id="aiki-chew-open">
+                      <path d="M 470 540 Q 553 650 636 540 Q 553 520 470 540 Z" fill="#d83d00" />
+                      <path d="M 505 605 Q 553 645 601 605 Z" fill="#f3a3a3" />
+                      <path d="M 553 517 L 553 530" stroke="#84391a" strokeWidth="10" strokeLinecap="round" />
+                    </g>
+                  ) : chewFrame === 3 ? (
+                    <g id="aiki-chew-tongue">
+                      <path d="M 553 517 L 553 538" stroke="#84391a" strokeWidth="12" strokeLinecap="round" />
+                      <path d="M 553 538 Q 500 575 450 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
+                      <path d="M 553 538 Q 606 575 656 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
+                      <ellipse cx="553" cy="565" rx="30" ry="20" fill="#f3a3a3" stroke="#84391a" strokeWidth="6" />
+                    </g>
+                  ) : (
+                    <g id="aiki-chew-closed">
+                      <path d="M 553 517 L 553 538" stroke="#84391a" strokeWidth="12" strokeLinecap="round" />
+                      <path d="M 553 538 Q 500 575 450 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
+                      <path d="M 553 538 Q 606 575 656 540" stroke="#84391a" strokeWidth="12" fill="none" strokeLinecap="round" />
                     </g>
                   )}
                 </g>
@@ -656,7 +630,7 @@ export function MeeCatInteractiveCanvas({
                     <path fill="#f47016" d="M669.85,792.43c11.26-17.49,16.11-38.51,15.89-60.59,0-2.09-.09-4.18-.2-6.29s-.26-4.16-.46-6.26-.46-4.46-.76-6.7c-3-22.38-10.68-45.11-21.7-65.72q-1.36-2.58-2.81-5.09c-.48-.86-1-1.7-1.47-2.54q-1.51-2.58-3.12-5.1c-13.2-21-29.91-38.92-48.51-50.9a105.36,105.36,0,0,0-18.63-9.63q-2.54-1-5.07-1.83c-53.49-17.5-103.51,21.4-138.43,75.67,0,0,161.11,7.82,216.65,156.89A133.49,133.49,0,0,0,669.85,792.43Z" />
                   </g>
                 ) : (
-                  /* Resting straight down Arm (from AIKI.svg) */
+                  /* Standard Clean Left Arm (from AIKI.svg, used for resting and pointing left) */
                   <g id="aiki-left-arm-resting">
                     <path fill="#ff8517" d="M21.21,1141.66,21.3,849.2A99.54,99.54,0,0,1,220,836.55l37.19,290.08a123.24,123.24,0,0,1,2,15.27,119.21,119.21,0,1,1-237.92-.24Z" />
                     <circle fill="#ff8517" cx="140.16" cy="1149.48" r="119.2" />
@@ -679,32 +653,21 @@ export function MeeCatInteractiveCanvas({
                 )}
               </g>
 
-              {/* Right Arm (Viewer's Right, Mascot's Left) */}
+              {/* Right Arm (Viewer's Right, Mascot's Left - 100% Clean Standard Arm from AIKI.svg) */}
               <g
                 id="aiki-right-arm"
                 style={{
-                  transformOrigin: rightArmMode === 'bent-across-belly' ? '970px 950px' : '970px 950px',
+                  transformOrigin: '970px 950px',
                   transform: `rotate(${rightArmRot}deg)`,
                   transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 }}
               >
-                {rightArmMode === 'bent-across-belly' ? (
-                  /* Bent across belly Arm (from Pose 2 & Recommend Art, offset adjusted to exact body coordinate) */
-                  <g id="aiki-right-arm-bent" transform="translate(-294.07, 56.78)">
-                    <path fill="#ff8517" d="M1508.39,999,1375.23,738.63a99.54,99.54,0,1,0-182.67,79.13L1291.43,1093a119.2,119.2,0,1,0,217-94Z" />
-                    <circle fill="#ff8517" cx="1405.96" cy="1057.68" r="119.2" />
-                    <path fill="#ff8517" d="M1266.94,1326.71c-16.74,12.35-37.4,18.53-59.45,19.72-2.08.11-4.18.17-6.29.2s-4.17,0-6.27-.07-4.48-.17-6.74-.32c-22.53-1.58-45.7-7.78-67-17.46-1.76-.81-3.52-1.63-5.25-2.48-.89-.43-1.76-.88-2.62-1.31-1.79-.91-3.55-1.84-5.3-2.79-21.77-11.84-40.75-27.37-53.89-45.17a106.4,106.4,0,0,1-10.79-18c-.78-1.65-1.49-3.3-2.15-5-20.88-52.26,14.75-104.66,66.68-143a136,136,0,0,1,12.19-8l215.11-141.36a119.2,119.2,0,0,1,141.54,191.84c-.57.42-1.14.82-1.71,1.22l-196.74,162.52A133.09,133.09,0,0,1,1266.94,1326.71Z" />
-                    <path fill="#f47016" d="M1266.94,1326.71c-16.74,12.35-37.4,18.53-59.45,19.72-2.08.11-4.18.17-6.29.2s-4.17,0-6.27-.07-4.48-.17-6.74-.32c-22.53-1.58-45.7-7.78-67-17.46-1.76-.81-3.52-1.63-5.25-2.48-.89-.43-1.76-.88-2.62-1.31-1.79-.91-3.55-1.84-5.3-2.79-21.77-11.84-40.75-27.37-53.89-45.17a106.4,106.4,0,0,1-10.79-18c-.78-1.65-1.49-3.3-2.15-5-20.88-52.26,14.75-104.66,66.68-143,0,0,18.08,160.28,170.39,206.2A133.09,133.09,0,0,1,1266.94,1326.71Z" />
-                  </g>
-                ) : (
-                  /* Resting straight down Arm (from AIKI.svg) */
-                  <g id="aiki-right-arm-resting">
-                    <path fill="#ff8517" d="M1089.39,1141.66l-.09-292.46a99.54,99.54,0,0,0-198.68-12.65l-37.19,290.08a123.24,123.24,0,0,0-2,15.27,119.21,119.21,0,1,0,237.92-.24Z" />
-                    <circle fill="#ff8517" cx="970.44" cy="1149.48" r="119.2" />
-                    <path fill="#ff8517" d="M1086.85,1429c-1.32,20.76-9.89,40.56-23.17,58.2q-1.89,2.49-3.9,4.94c-1.31,1.61-2.68,3.2-4.08,4.76s-3,3.32-4.59,4.95c-15.71,16.22-35.37,30-56.47,40q-2.64,1.26-5.29,2.43c-.89.4-1.79.78-2.68,1.17q-2.76,1.17-5.54,2.26c-23.07,9-47.18,13.57-69.26,12.16a106,106,0,0,1-20.7-3.3c-1.76-.47-3.49-1-5.17-1.54-53.43-17.66-70.6-78.66-66.5-143.06a134.41,134.41,0,0,1,1.71-14.48l30.27-255.62a119.2,119.2,0,0,1,237.92,15.15c-.05.7-.1,1.4-.16,2.09L1087,1414.32A133.74,133.74,0,0,1,1086.85,1429Z" />
-                    <path fill="#f47016" d="M1086.85,1429c-1.32,20.76-9.89,40.56-23.17,58.2q-1.89,2.49-3.9,4.94c-1.31,1.61-2.68,3.2-4.08,4.76s-3,3.32-4.59,4.95c-15.71,16.22-35.37,30-56.47,40q-2.64,1.26-5.29,2.43c-.89.4-1.79.78-2.68,1.17q-2.76,1.17-5.54,2.26c-23.07,9-47.18,13.57-69.26,12.16a106,106,0,0,1-20.7-3.3c-1.76-.47-3.49-1-5.17-1.54-53.43-17.66-70.6-78.66-66.5-143.06,0,0,134.3,89.33,267.48,2.32A133.74,133.74,0,0,1,1086.85,1429Z" />
-                  </g>
-                )}
+                <g id="aiki-right-arm-clean">
+                  <path fill="#ff8517" d="M1089.39,1141.66l-.09-292.46a99.54,99.54,0,0,0-198.68-12.65l-37.19,290.08a123.24,123.24,0,0,0-2,15.27,119.21,119.21,0,1,0,237.92-.24Z" />
+                  <circle fill="#ff8517" cx="970.44" cy="1149.48" r="119.2" />
+                  <path fill="#ff8517" d="M1086.85,1429c-1.32,20.76-9.89,40.56-23.17,58.2q-1.89,2.49-3.9,4.94c-1.31,1.61-2.68,3.2-4.08,4.76s-3,3.32-4.59,4.95c-15.71,16.22-35.37,30-56.47,40q-2.64,1.26-5.29,2.43c-.89.4-1.79.78-2.68,1.17q-2.76,1.17-5.54,2.26c-23.07,9-47.18,13.57-69.26,12.16a106,106,0,0,1-20.7-3.3c-1.76-.47-3.49-1-5.17-1.54-53.43-17.66-70.6-78.66-66.5-143.06a134.41,134.41,0,0,1,1.71-14.48l30.27-255.62a119.2,119.2,0,0,1,237.92,15.15c-.05.7-.1,1.4-.16,2.09L1087,1414.32A133.74,133.74,0,0,1,1086.85,1429Z" />
+                  <path fill="#f47016" d="M1086.85,1429c-1.32,20.76-9.89,40.56-23.17,58.2q-1.89,2.49-3.9,4.94c-1.31,1.61-2.68,3.2-4.08,4.76s-3,3.32-4.59,4.95c-15.71,16.22-35.37,30-56.47,40q-2.64,1.26-5.29,2.43c-.89.4-1.79.78-2.68,1.17q-2.76,1.17-5.54,2.26c-23.07,9-47.18,13.57-69.26,12.16a106,106,0,0,1-20.7-3.3c-1.76-.47-3.49-1-5.17-1.54-53.43-17.66-70.6-78.66-66.5-143.06,0,0,134.3,89.33,267.48,2.32A133.74,133.74,0,0,1,1086.85,1429Z" />
+                </g>
               </g>
             </g>
           </g>

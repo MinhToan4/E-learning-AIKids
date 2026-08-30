@@ -12,7 +12,7 @@ export interface UseMeeCatSpeechOptions {
 
 /**
  * Xác định 1 Khẩu hình Trọng tâm (Dominant Viseme) chuẩn xác theo nguyên âm tiếng Việt:
- * - A / Ă / Â -> 'open' (Mở cong hạt đậu tròn duyên dáng)
+ * - A / Ă / Â -> 'open' (Mở cong hạt dẻ to thoáng)
  * - O / Ô / Ơ / U / Ư / Qu -> 'round' (Chu tròn nhỏ nhắn Ooh)
  * - E / Ê / I / Y -> 'smile' (Cười cong trăng khuyết ngọt ngào)
  * - Phụ âm nhẹ / lướt -> 'half' (Mấp máy nhỏ)
@@ -46,11 +46,9 @@ export function useMeeCatSpeech({
   const [activeGesture, setActiveGesture] = useState<Gesture>(gesture)
   const [currentWord, setCurrentWord] = useState<string>('')
 
-  const fallbackTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
+  const wordTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const gestureTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
-  const isBoundaryActiveRef = useRef<boolean>(false)
-  const lastBoundaryTimeRef = useRef<number>(0)
 
   useEffect(() => {
     if (gesture !== 'auto') {
@@ -59,7 +57,7 @@ export function useMeeCatSpeech({
   }, [gesture])
 
   // Kích hoạt một nhịp mở khẩu hình khớp với từ đang đọc
-  const triggerWordViseme = (word: string, durationMs: number = 340) => {
+  const triggerWordViseme = (word: string, paceMs: number = 320) => {
     if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
 
     const clean = word.replace(/[.,!?;:"'()]/g, '').trim()
@@ -71,8 +69,8 @@ export function useMeeCatSpeech({
     const dominant = getDominantViseme(clean)
     setViseme(dominant)
 
-    // Khẩu hình mở trong 65% thời lượng từ, sau đó khép về closed trước từ kế tiếp
-    const openHoldMs = Math.max(140, Math.min(260, Math.round(durationMs * 0.65)))
+    // Khẩu hình mở trong 70% thời lượng từ, sau đó tự khép về closed trước từ kế tiếp
+    const openHoldMs = Math.max(160, Math.min(260, Math.round(paceMs * 0.7)))
     closeTimerRef.current = setTimeout(() => {
       setViseme('closed')
     }, openHoldMs)
@@ -84,132 +82,101 @@ export function useMeeCatSpeech({
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel()
       }
-      if (fallbackTimerRef.current) clearInterval(fallbackTimerRef.current)
+      if (wordTimerRef.current) clearInterval(wordTimerRef.current)
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
       if (gestureTimerRef.current) clearInterval(gestureTimerRef.current)
-      isBoundaryActiveRef.current = false
       setViseme('closed')
       setCurrentWord('')
       return
     }
 
-    const words = text.trim().split(/\s+/)
-    let wordIdx = 0
-    isBoundaryActiveRef.current = false
-    lastBoundaryTimeRef.current = 0
+    const words = text.trim().split(/\s+/).filter(Boolean)
+    if (words.length === 0) return
 
-    // Cử chỉ tay chân chuyển đổi nhịp nhàng theo câu
+    let wordIdx = 0
+    const paceMs = 320 // 320ms mỗi từ tương ứng tốc độ đọc chuẩn ~190 wpm
+
+    // 1. Kích hoạt ngay lập tức từ đầu tiên
+    setCurrentWord(words[0])
+    triggerWordViseme(words[0], paceMs)
+    wordIdx = 1
+
+    // 2. Chạy bộ timer nhịp điệu luân chuyển từng từ (Cadence Loop)
+    if (wordTimerRef.current) clearInterval(wordTimerRef.current)
+    wordTimerRef.current = setInterval(() => {
+      if (wordIdx < words.length) {
+        const w = words[wordIdx]
+        setCurrentWord(w)
+        triggerWordViseme(w, paceMs)
+        wordIdx++
+      } else {
+        if (wordTimerRef.current) clearInterval(wordTimerRef.current)
+        setViseme('closed')
+        setCurrentWord('')
+        if (onSpeechEnd) onSpeechEnd()
+      }
+    }, paceMs)
+
+    // 3. Tự động luân chuyển cử chỉ khi để chế độ auto
     if (gesture === 'auto') {
-      const gesturePool: Gesture[] = ['explain', 'point-left', 'explain', 'point-right', 'enthusiastic']
+      const gesturePool: Gesture[] = ['point-left', 'explain', 'point-left', 'enthusiastic']
       let gIdx = 0
       setActiveGesture(gesturePool[0])
       gestureTimerRef.current = setInterval(() => {
         gIdx = (gIdx + 1) % gesturePool.length
         setActiveGesture(gesturePool[gIdx])
-      }, 2400)
+      }, 2000)
     }
 
-    // Fallback timer (chỉ chạy khi trình duyệt không hỗ trợ onboundary hoặc gặp lỗi)
-    const runFallbackTimer = (paceMs: number = 380) => {
-      if (fallbackTimerRef.current) clearInterval(fallbackTimerRef.current)
-      wordIdx = 0
-      fallbackTimerRef.current = setInterval(() => {
-        // Nếu onboundary của TTS đã tiếp quản thì dừng ngay fallback timer
-        if (isBoundaryActiveRef.current) {
-          if (fallbackTimerRef.current) clearInterval(fallbackTimerRef.current)
-          return
+    // 4. Phát âm thanh qua Web SpeechSynthesis (nếu trình duyệt hỗ trợ)
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      try {
+        window.speechSynthesis.cancel()
+        const utterance = new SpeechSynthesisUtterance(text)
+        utterance.rate = 0.95
+        utterance.pitch = 1.1
+
+        const voices = window.speechSynthesis.getVoices()
+        const viVoice = voices.find((v) => v.lang.includes('vi') || v.name.includes('Vietnamese'))
+        if (viVoice) utterance.voice = viVoice
+
+        utterance.onboundary = (event) => {
+          if (event.name === 'word' || event.charIndex !== undefined) {
+            const substring = text.slice(event.charIndex)
+            const matchedWord = substring.split(/\s+/)[0] || ''
+            if (matchedWord) {
+              setCurrentWord(matchedWord)
+              triggerWordViseme(matchedWord, paceMs)
+            }
+          }
         }
 
-        if (wordIdx < words.length) {
-          const w = words[wordIdx]
-          setCurrentWord(w)
-          triggerWordViseme(w, paceMs)
-          wordIdx++
-        } else {
-          if (fallbackTimerRef.current) clearInterval(fallbackTimerRef.current)
+        utterance.onend = () => {
+          if (wordTimerRef.current) clearInterval(wordTimerRef.current)
+          if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
+          if (gestureTimerRef.current) clearInterval(gestureTimerRef.current)
           setViseme('closed')
           setCurrentWord('')
           if (onSpeechEnd) onSpeechEnd()
         }
-      }, paceMs)
-    }
 
-    const hasSpeechSynth = typeof window !== 'undefined' && 'speechSynthesis' in window
-
-    if (hasSpeechSynth) {
-      window.speechSynthesis.cancel()
-      const utterance = new SpeechSynthesisUtterance(text)
-      utterance.rate = 0.98
-      utterance.pitch = 1.15
-
-      const voices = window.speechSynthesis.getVoices()
-      const viVoice = voices.find((v) => v.lang.includes('vi') || v.name.includes('Vietnamese'))
-      if (viVoice) utterance.voice = viVoice
-
-      // LẮNG NGHE CHÍNH XÁC TỪNG TỪ ĐƯỢC PHÁT RA TỪ GIỌNG ĐỌC TTS
-      utterance.onboundary = (event) => {
-        isBoundaryActiveRef.current = true
-        // Tắt ngay fallback timer nếu đang chạy
-        if (fallbackTimerRef.current) {
-          clearInterval(fallbackTimerRef.current)
-          fallbackTimerRef.current = null
+        utterance.onerror = () => {
+          // Vẫn để wordTimer tiếp tục chạy hết câu thoại
         }
 
-        const now = performance.now()
-        // Debounce chống duplicate micro events (< 160ms)
-        if (now - lastBoundaryTimeRef.current < 160) return
-        lastBoundaryTimeRef.current = now
-
-        if (event.name === 'word' || event.charIndex !== undefined) {
-          const substring = text.slice(event.charIndex)
-          const matchedWord = substring.split(/\s+/)[0] || ''
-          if (matchedWord) {
-            setCurrentWord(matchedWord)
-            triggerWordViseme(matchedWord, 360)
-          }
-        }
-      }
-
-      utterance.onstart = () => {
-        // Dự phòng fallback sau 400ms nếu onboundary không phát
-        setTimeout(() => {
-          if (!isBoundaryActiveRef.current && isSpeaking) {
-            runFallbackTimer(380)
-          }
-        }, 400)
-      }
-
-      utterance.onend = () => {
-        if (fallbackTimerRef.current) clearInterval(fallbackTimerRef.current)
-        if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
-        if (gestureTimerRef.current) clearInterval(gestureTimerRef.current)
-        isBoundaryActiveRef.current = false
-        setViseme('closed')
-        setCurrentWord('')
-        if (onSpeechEnd) onSpeechEnd()
-      }
-
-      utterance.onerror = () => {
-        runFallbackTimer(380)
-      }
-
-      try {
         window.speechSynthesis.speak(utterance)
       } catch {
-        runFallbackTimer(380)
+        // Fallback tự động chạy qua wordTimer
       }
-    } else {
-      runFallbackTimer(380)
     }
 
     return () => {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel()
       }
-      if (fallbackTimerRef.current) clearInterval(fallbackTimerRef.current)
+      if (wordTimerRef.current) clearInterval(wordTimerRef.current)
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
       if (gestureTimerRef.current) clearInterval(gestureTimerRef.current)
-      isBoundaryActiveRef.current = false
     }
   }, [isSpeaking, text, gesture, onSpeechEnd])
 
