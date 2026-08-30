@@ -261,12 +261,38 @@ export function MeeCatStudioPage() {
                     </span>
                   </div>
 
-                  {/* Math Formula / Question Focus Card */}
-                  <div className="rounded-2xl bg-slate-800/80 border border-white/10 p-3 mb-3 text-center">
+                  {/* Math Formula / Question Focus Card with Interactive Laser Sweep / Pinpoint Feedback */}
+                  <div className="rounded-2xl bg-slate-800/80 border border-white/10 p-3 mb-3 text-center relative overflow-hidden">
                     <div className="text-[11px] font-bold text-amber-200/80 uppercase">Ví dụ minh họa</div>
-                    <div className="text-xl sm:text-2xl font-black text-amber-400 font-mono tracking-wide mt-1">
-                      25 + 17 = 42
+                    <div className="relative inline-block mt-1">
+                      <div className="text-xl sm:text-2xl font-black text-amber-400 font-mono tracking-wide px-2 py-0.5">
+                        25 + 17 = 42
+                      </div>
+
+                      {/* 1. Point Indicator (📍 Laser Pinpoint Dot) */}
+                      {(selectedGesture === 'point-left' || selectedGesture === 'point-right') && (
+                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
+                          <span className="relative flex h-5 w-5">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                            <span className="relative inline-flex rounded-full h-5 w-5 bg-amber-500/60 border-2 border-white" />
+                          </span>
+                        </div>
+                      )}
+
+                      {/* 2. Underline Sweep Indicator (📏 Laser Sweep Bar) */}
+                      {(selectedGesture === 'underline-left' || selectedGesture === 'underline-right') && (
+                        <div className="absolute -bottom-1 left-0 right-0 h-1.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-400 shadow-[0_0_12px_#f59e0b] animate-pulse" />
+                      )}
                     </div>
+
+                    {/* 3. Callout Attention Indicator (🙋‍♂️ Bouncing Alert Badge) */}
+                    {(selectedGesture === 'callout-left' || selectedGesture === 'callout-right') && (
+                      <div className="absolute top-2 right-2 animate-bounce">
+                        <span className="rounded-full bg-amber-500 text-slate-950 font-black text-[9px] px-2 py-0.5 shadow-md">
+                          ⭐ CHÚ Ý NÀO!
+                        </span>
+                      </div>
+                    )}
                   </div>
 
                   {/* Dynamic Speech Text Highlight Area */}

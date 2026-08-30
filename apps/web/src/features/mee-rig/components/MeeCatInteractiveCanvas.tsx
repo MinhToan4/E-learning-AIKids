@@ -138,14 +138,16 @@ export function MeeCatInteractiveCanvas({
     return () => clearInterval(sleepyInterval)
   }, [state])
 
-  // Talking gesture rhythm loop
+  // Active gesture cadence loop (Chạy liên tục khi ở state talk, speaking hoặc khi có gesture active)
   useEffect(() => {
-    if (!effectiveSpeaking && state !== 'talk') return
+    const isGestureActive = state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')
+    if (!isGestureActive) return
+    const intervalMs = effectiveGesture === 'underline-left' || effectiveGesture === 'underline-right' ? 320 : 250
     const talkInterval = setInterval(() => {
       setTalkStep((prev) => (prev + 1) % 4)
-    }, 250)
+    }, intervalMs)
     return () => clearInterval(talkInterval)
-  }, [effectiveSpeaking, state])
+  }, [effectiveSpeaking, state, effectiveGesture])
 
   // Tail waving rhythm
   useEffect(() => {
@@ -169,10 +171,14 @@ export function MeeCatInteractiveCanvas({
 
   const headLookX = state === 'look' || isHovered
     ? cursorPos.x
+    : effectiveGesture === 'underline-left'
+    ? [-18, -12, -6, -14][talkStep]
+    : effectiveGesture === 'underline-right'
+    ? [18, 12, 6, 14][talkStep]
     : isPointingLeft
-    ? -12
+    ? -14
     : isPointingRight
-    ? 12
+    ? 14
     : 0
 
   const headLookY = state === 'look' || isHovered ? cursorPos.y : 0
@@ -185,6 +191,10 @@ export function MeeCatInteractiveCanvas({
   const talkHeadNodY = effectiveSpeaking ? [0, 8, -4, 10][talkStep] : 0
   const talkHeadRot = effectiveSpeaking
     ? [0, 2, -1.5, 1][talkStep]
+    : effectiveGesture === 'underline-left'
+    ? [-4, -3, -1.5, -3.5][talkStep]
+    : effectiveGesture === 'underline-right'
+    ? [4, 3, 1.5, 3.5][talkStep]
     : isPointingLeft
     ? -3.5
     : isPointingRight
@@ -214,13 +224,17 @@ export function MeeCatInteractiveCanvas({
     ? [0.96, 1.05, 1.02, 0.98][talkStep]
     : 1
 
-  // --- 100% ARTIST ORIGINAL VECTOR ARM POSES (AIKI.svg, AIKI pose 1.svg, AIKI pose 2.svg) ---
+  // --- 100% ARTIST ORIGINAL VECTOR ARM POSES & DISTINCT KINEMATICS ---
   type ArmMode = 'resting' | 'bent-pose1' | 'raised-pose2'
 
   let leftArmMode: ArmMode = 'resting'
   let rightArmMode: ArmMode = 'resting'
   let leftArmRot = 0
   let rightArmRot = 0
+  let leftArmTranslateX = 0
+  let leftArmTranslateY = 0
+  let rightArmTranslateX = 0
+  let rightArmTranslateY = 0
 
   if (state === 'celebrate') {
     leftArmMode = 'raised-pose2'
@@ -238,54 +252,66 @@ export function MeeCatInteractiveCanvas({
     leftArmRot = [5, 30, 20, 5][chewFrame]
     rightArmRot = -10
   } else if (state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')) {
-    // 1. 👈 CHỈ THẲNG BẢNG BÊN TRÁI: Dùng Cánh Tay Pose 1 gốc xoay hướng về phía bảng
+    // 1. 👈 CHỈ ĐIỂM BẢNG TRÁI: Dáng tay găm cố định góc -24deg, nhấp nhô nhẹ nhấn nhá từng từ
     if (effectiveGesture === 'point-left') {
       leftArmMode = 'bent-pose1'
       rightArmMode = 'resting'
-      leftArmRot = -22 + (effectiveSpeaking ? (talkStep % 2 === 0 ? -4 : 2) : 0)
+      leftArmRot = [-24, -27, -25, -23][talkStep]
+      leftArmTranslateX = [-15, -22, -18, -14][talkStep]
+      leftArmTranslateY = [0, 4, 2, 0][talkStep]
       rightArmRot = -5
     }
-    // 2. 📏 QUÉT DÒNG / GẠCH CHÂN BÊN TRÁI: Cánh Tay Pose 1 quét nhịp nhàng
+    // 2. 📏 QUÉT DÒNG / GẠCH CHÂN BÊN TRÁI: Dáng tay quét một dải biên độ lớn từ -38deg đến -12deg
     else if (effectiveGesture === 'underline-left') {
       leftArmMode = 'bent-pose1'
       rightArmMode = 'resting'
-      leftArmRot = [-28, -20, -14, -24][talkStep]
+      leftArmRot = [-38, -26, -12, -28][talkStep]
+      leftArmTranslateX = [-60, -30, 10, -40][talkStep]
+      leftArmTranslateY = [-20, 0, 20, -5][talkStep]
       rightArmRot = -5
     }
-    // 3. 🙋‍♂️ VẪY GỌI CHÚ Ý BÊN TRÁI: Dùng Cánh Tay Pose 2 giơ cao vẫy nhẹ
+    // 3. 🙋‍♂️ VẪY GỌI CHÚ Ý BÊN TRÁI: Dùng Cánh Tay Pose 2 giơ cao vẫy liên tục góc trên
     else if (effectiveGesture === 'callout-left') {
       leftArmMode = 'raised-pose2'
       rightArmMode = 'resting'
-      leftArmRot = [-12, -4, -15, -6][talkStep]
+      leftArmRot = [-28, -12, -32, -15][talkStep]
+      leftArmTranslateY = [-30, -10, -35, -12][talkStep]
+      leftArmTranslateX = [-15, -5, -20, -10][talkStep]
       rightArmRot = -5
     }
-    // 4. 👉 CHỈ THẲNG BẢNG BÊN PHẢI: Dùng Cánh Tay Pose 1 Mirrored xoay hướng về bên phải
+    // 4. 👉 CHỈ ĐIỂM BẢNG PHẢI: Dáng tay găm cố định góc +24deg
     else if (effectiveGesture === 'point-right') {
       leftArmMode = 'resting'
       rightArmMode = 'bent-pose1'
       leftArmRot = 5
-      rightArmRot = 22 + (effectiveSpeaking ? (talkStep % 2 === 0 ? 4 : -2) : 0)
+      rightArmRot = [24, 27, 25, 23][talkStep]
+      rightArmTranslateX = [15, 22, 18, 14][talkStep]
+      rightArmTranslateY = [0, 4, 2, 0][talkStep]
     }
-    // 5. 📐 QUÉT DÒNG / GẠCH CHÂN BÊN PHẢI: Cánh Tay Pose 1 Mirrored quét nhịp nhàng
+    // 5. 📐 QUÉT DÒNG / GẠCH CHÂN BÊN PHẢI: Quét dải biên độ lớn từ +38deg đến +12deg
     else if (effectiveGesture === 'underline-right') {
       leftArmMode = 'resting'
       rightArmMode = 'bent-pose1'
       leftArmRot = 5
-      rightArmRot = [28, 20, 14, 24][talkStep]
+      rightArmRot = [38, 26, 12, 28][talkStep]
+      rightArmTranslateX = [60, 30, -10, 40][talkStep]
+      rightArmTranslateY = [-20, 0, 20, -5][talkStep]
     }
-    // 6. 🙋‍♀️ VẪY GỌI CHÚ Ý BÊN PHẢI: Dùng Cánh Tay Pose 2 Mirrored giơ cao
+    // 6. 🙋‍♀️ VẪY GỌI CHÚ Ý BÊN PHẢI: Cánh Tay Pose 2 Mirrored giơ cao vẫy
     else if (effectiveGesture === 'callout-right') {
       leftArmMode = 'resting'
       rightArmMode = 'raised-pose2'
       leftArmRot = 5
-      rightArmRot = [12, 4, 15, 6][talkStep]
+      rightArmRot = [28, 12, 32, 15][talkStep]
+      rightArmTranslateY = [-30, -10, -35, -12][talkStep]
+      rightArmTranslateX = [15, 5, 20, 10][talkStep]
     }
     // 7. 👐 THUYẾT TRÌNH 2 TAY: Cả hai tay Pose 1 đung đưa linh hoạt
     else if (effectiveGesture === 'explain') {
       leftArmMode = 'bent-pose1'
       rightArmMode = 'bent-pose1'
-      leftArmRot = (effectiveSpeaking ? (talkStep % 2 === 0 ? 8 : -6) : (talkStep % 2 === 0 ? 4 : -4))
-      rightArmRot = (effectiveSpeaking ? (talkStep % 2 === 0 ? -8 : 6) : (talkStep % 2 === 0 ? -4 : 4))
+      leftArmRot = [-10, 8, -6, 10][talkStep]
+      rightArmRot = [10, -8, 6, -10][talkStep]
     }
     // 8. 🎉 HÀO HỨNG: Cả 2 tay Pose 2 vung cao
     else if (effectiveGesture === 'enthusiastic') {
@@ -298,7 +324,7 @@ export function MeeCatInteractiveCanvas({
     else {
       leftArmMode = 'bent-pose1'
       rightArmMode = 'resting'
-      leftArmRot = -18
+      leftArmRot = -22
       rightArmRot = -5
     }
   }
@@ -717,8 +743,8 @@ export function MeeCatInteractiveCanvas({
                 id="aiki-left-arm"
                 style={{
                   transformOrigin: '140px 880px',
-                  transform: `rotate(${leftArmRot}deg)`,
-                  transition: 'transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  transform: `translate(${leftArmTranslateX}px, ${leftArmTranslateY}px) rotate(${leftArmRot}deg)`,
+                  transition: effectiveGesture === 'underline-left' ? 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)' : 'transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 }}
               >
                 {leftArmMode === 'bent-pose1' ? (
@@ -765,8 +791,8 @@ export function MeeCatInteractiveCanvas({
                 id="aiki-right-arm"
                 style={{
                   transformOrigin: '970px 880px',
-                  transform: `rotate(${rightArmRot}deg)`,
-                  transition: 'transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  transform: `translate(${rightArmTranslateX}px, ${rightArmTranslateY}px) rotate(${rightArmRot}deg)`,
+                  transition: effectiveGesture === 'underline-right' ? 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)' : 'transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 }}
               >
                 {rightArmMode === 'bent-pose1' ? (
