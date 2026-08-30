@@ -183,8 +183,8 @@ export function MeeCatInteractiveCanvas({
   const leftEarRot = (-earAngle * 0.2) + talkEarWiggle + (state === 'celebrate' ? (celebrateStep % 2 === 0 ? -4 : 2) : 0)
   const rightEarRot = (earAngle * 0.2) - talkEarWiggle + (state === 'celebrate' ? (celebrateStep % 2 === 0 ? 4 : -2) : 0)
 
-  // Tail animations
-  const tailBaseRot = tailWiggle + (state === 'celebrate' ? [-12, 16, -10, 14][tailFrame] : state === 'sleepy' ? -5 : effectiveSpeaking ? [-6, 8, -5, 7][tailFrame] : [0, 5, -3, 3][tailFrame])
+  // Tail animations (Vẫy đuôi mềm mại)
+  const tailBaseRot = tailWiggle + (state === 'celebrate' ? [-14, 18, -10, 15][tailFrame] : state === 'sleepy' ? -5 : effectiveSpeaking ? [-6, 8, -5, 7][tailFrame] : [0, 5, -3, 3][tailFrame])
 
   // Celebrate / Talk Jump displacement values
   const jumpY = state === 'celebrate'
@@ -199,45 +199,68 @@ export function MeeCatInteractiveCanvas({
     ? [0.96, 1.04, 1.02, 0.98][talkStep]
     : 1
 
-  // Arm rotations & gestures
+  // Arm Pose Selection & Kinematics (Left & Right Arms)
+  type LeftArmMode = 'resting' | 'bent-to-mouth' | 'raised-wave'
+  type RightArmMode = 'resting' | 'bent-across-belly'
+
+  let leftArmMode: LeftArmMode = 'resting'
+  let rightArmMode: RightArmMode = 'resting'
   let leftArmRot = 0
   let rightArmRot = 0
   let leftArmTranslateY = 0
   let leftArmTranslateX = 0
-  let useRaisedLeftArm = false
-  let useRaisedRightArm = false
 
-  if (state === 'hint') {
-    useRaisedLeftArm = true
-    leftArmRot = -15
-  } else if (state === 'celebrate') {
-    useRaisedLeftArm = true
-    useRaisedRightArm = true
-    leftArmRot = [-10, -25, -20, -5][celebrateStep]
-    rightArmRot = [10, 25, 20, 5][celebrateStep]
+  if (state === 'celebrate') {
+    // Ăn mừng: Tay trái vẫy cao tít, tay phải co trước bụng theo đúng bản vẽ recommend.png!
+    leftArmMode = 'raised-wave'
+    rightArmMode = 'bent-across-belly'
+    leftArmRot = [-8, -22, -18, -4][celebrateStep]
+    rightArmRot = [4, 12, 8, 2][celebrateStep]
+  } else if (state === 'hint') {
+    // Gợi ý: Tay trái giơ lên chỉ miệng/đầu (Pose 1), tay phải để tự nhiên
+    leftArmMode = 'bent-to-mouth'
+    rightArmMode = 'resting'
+    leftArmRot = -5
   } else if (state === 'eat') {
-    leftArmRot = [-5, -25, -15, -5][chewFrame]
-    rightArmRot = [5, 12, 8, 2][chewFrame]
-    leftArmTranslateY = [0, -80, -30, 0][chewFrame]
-    leftArmTranslateX = [0, 40, 15, 0][chewFrame]
+    // Ăn bánh cá: Tay trái cầm bánh đưa lên miệng nhai, tay phải ôm bụng
+    leftArmMode = 'resting'
+    rightArmMode = 'bent-across-belly'
+    leftArmRot = [-5, -35, -25, -5][chewFrame]
+    leftArmTranslateY = [0, -120, -70, 0][chewFrame]
+    leftArmTranslateX = [0, 80, 40, 0][chewFrame]
   } else if (effectiveSpeaking) {
     if (activeGesture === 'point-left') {
-      useRaisedLeftArm = true
-      leftArmRot = -20 + (talkStep % 2 === 0 ? -4 : 2)
-      rightArmRot = 5
+      leftArmMode = 'raised-wave'
+      rightArmMode = 'resting'
+      leftArmRot = -15 + (talkStep % 2 === 0 ? -4 : 2)
     } else if (activeGesture === 'point-right') {
-      useRaisedRightArm = true
-      leftArmRot = -5
-      rightArmRot = 20 + (talkStep % 2 === 0 ? 4 : -2)
+      leftArmMode = 'resting'
+      rightArmMode = 'bent-across-belly'
+      rightArmRot = 12 + (talkStep % 2 === 0 ? 4 : -2)
     } else if (activeGesture === 'explain') {
-      leftArmRot = [-10, -20, -15, -5][talkStep]
-      rightArmRot = [10, 20, 15, 5][talkStep]
+      leftArmMode = 'bent-to-mouth'
+      rightArmMode = 'bent-across-belly'
+      leftArmRot = [-5, -15, -10, 0][talkStep]
+      rightArmRot = [0, 8, 4, 0][talkStep]
     } else if (activeGesture === 'enthusiastic') {
-      useRaisedLeftArm = true
-      useRaisedRightArm = true
-      leftArmRot = [-15, -30, -25, -10][talkStep]
-      rightArmRot = [15, 30, 25, 10][talkStep]
-      leftArmTranslateY = -20
+      leftArmMode = 'raised-wave'
+      rightArmMode = 'bent-across-belly'
+      leftArmRot = [-10, -25, -20, -5][talkStep]
+      rightArmRot = [5, 15, 10, 0][talkStep]
+    } else {
+      // Auto gesture cadence
+      if (talkStep === 1) {
+        leftArmMode = 'bent-to-mouth'
+        rightArmMode = 'resting'
+      } else if (talkStep === 3) {
+        leftArmMode = 'resting'
+        rightArmMode = 'bent-across-belly'
+      } else {
+        leftArmMode = 'resting'
+        rightArmMode = 'resting'
+        leftArmRot = talkStep % 2 === 0 ? -4 : 4
+        rightArmRot = talkStep % 2 === 0 ? 4 : -4
+      }
     }
   }
 
@@ -342,7 +365,7 @@ export function MeeCatInteractiveCanvas({
               transition: state === 'sleepy' ? 'transform 0.5s ease-in-out' : state === 'celebrate' ? 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.25s ease-out',
             }}
           >
-            {/* --- 1. TAIL BONE (Back Layer) --- */}
+            {/* --- 1. TAIL BONE (Back Layer with White Tip from Pose 1 & Recommend Art) --- */}
             <g
               id="aiki-tail"
               style={{
@@ -351,9 +374,15 @@ export function MeeCatInteractiveCanvas({
                 transition: state === 'celebrate' ? 'transform 0.15s cubic-bezier(0.34, 1.56, 0.64, 1)' : 'transform 0.35s ease-out',
               }}
             >
+              {/* Orange Tail Base */}
               <path
                 fill="url(#aiki-tail-grad)"
                 d="M1281.85,1376.83a404.06,404.06,0,0,1-91.71,43.84q-17.85,5.94-35.45,10L628.38,1578.78c-73.86,25.59-151.46-8-178.21-73.26s4.54-144.81,74.5-179.92L999.3,1051.3q15.23-9.78,32-18.48a401.88,401.88,0,0,1,95.94-35.21c122.75-27.84,241.87,8.49,280.85,103.65C1447.11,1196.58,1388.2,1308.15,1281.85,1376.83Z"
+              />
+              {/* Crisp White Tail Tip */}
+              <path
+                fill="#fffdfa"
+                d="M1218.34,1758.49c70.37-161.57,76.59-303.13,65.19-404.32,119.32,40.08,202.16,133.07,185.94,234.63C1453.24,1690.52,1344.9,1755.16,1218.34,1758.49Z"
               />
             </g>
 
@@ -407,7 +436,7 @@ export function MeeCatInteractiveCanvas({
               }}
             >
               {/* Left Leg */}
-              <g id="aiki-left-leg" style={{ transformOrigin: '251px 1488px', transform: state === 'celebrate' ? (celebrateStep % 2 === 0 ? 'rotate(-6deg)' : 'rotate(4deg)') : 'none' }}>
+              <g id="aiki-left-leg" style={{ transformOrigin: '251px 1488px', transform: state === 'celebrate' ? (celebrateStep % 2 === 0 ? 'rotate(-5deg)' : 'rotate(3deg)') : 'none' }}>
                 <circle fill="#ff8517" cx="251.31" cy="1488.77" r="247.1" />
                 <path
                   fill="#ff8517"
@@ -420,7 +449,7 @@ export function MeeCatInteractiveCanvas({
               </g>
 
               {/* Right Leg */}
-              <g id="aiki-right-leg" style={{ transformOrigin: '862px 1488px', transform: state === 'celebrate' ? (celebrateStep % 2 === 0 ? 'rotate(6deg)' : 'rotate(-4deg)') : 'none' }}>
+              <g id="aiki-right-leg" style={{ transformOrigin: '862px 1488px', transform: state === 'celebrate' ? (celebrateStep % 2 === 0 ? 'rotate(5deg)' : 'rotate(-3deg)') : 'none' }}>
                 <path
                   fill="#ff8517"
                   d="M615.06,1480c.36-132,111.28-238.64,247.75-238.29s246.8,107.6,246.44,239.56c0,0,0,2.12-.09,6.07v.21c-.78,27-7.49,137.42-64.35,248.5a38.4,38.4,0,0,0,1.63,38.07c49.66,79.1,64.86,153.44-47.74,158.82-246.18,11.75-289.49-21.38-327.13-44.87-31.61-19.72-50-294.14-55-381.53A232.85,232.85,0,0,1,615.06,1480Z"
@@ -451,7 +480,7 @@ export function MeeCatInteractiveCanvas({
 
             {/* Eyes */}
             <g id="aiki-eyes">
-              {shouldBlink ? (
+              {shouldBlink || state === 'celebrate' ? (
                 /* Happy curved / closed eyes */
                 <g id="aiki-eyes-closed">
                   <path
@@ -488,7 +517,7 @@ export function MeeCatInteractiveCanvas({
               )}
             </g>
 
-            {/* --- 7. MOUTH & LIPSYNC VISEMES (Dưới chóp mũi Y=517.19) --- */}
+            {/* --- 7. MOUTH & LIPSYNC VISEMES --- */}
             <g id="aiki-mouth">
               {state === 'eat' ? (
                 /* Eating / munching */
@@ -514,6 +543,25 @@ export function MeeCatInteractiveCanvas({
                     </g>
                   )}
                 </g>
+              ) : state === 'celebrate' ? (
+                /* Big Laughing Open Mouth with 2 cute fangs (from recommend.png) */
+                <g id="aiki-mouth-celebrate">
+                  <path
+                    d="M 390 535 Q 553 480 716 535 Q 745 660 553 660 Q 361 660 390 535 Z"
+                    fill="#d83d00"
+                    stroke="#84391a"
+                    strokeWidth="10"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d="M 440 615 Q 553 580 666 615 Q 616 655 553 655 Q 490 655 440 615 Z"
+                    fill="#ff8517"
+                  />
+                  {/* Left Fang */}
+                  <polygon points="435,524 455,524 445,552" fill="#fffdfa" stroke="#84391a" strokeWidth="6" strokeLinejoin="round" />
+                  {/* Right Fang */}
+                  <polygon points="651,524 671,524 661,552" fill="#fffdfa" stroke="#84391a" strokeWidth="6" strokeLinejoin="round" />
+                </g>
               ) : effectiveSpeaking ? (
                 /* Dynamic Cute Cartoon Chibi Lip-sync System (5 Visemes) */
                 <g id="aiki-mouth-viseme">
@@ -522,6 +570,8 @@ export function MeeCatInteractiveCanvas({
                     <g id="aiki-viseme-open">
                       <path d="M 450 540 Q 553 660 656 540 Q 553 520 450 540 Z" fill="#d83d00" />
                       <path d="M 490 610 Q 553 655 616 610 Z" fill="#f3a3a3" />
+                      <polygon points="480,530 496,530 488,548" fill="#fffdfa" />
+                      <polygon points="610,530 626,530 618,548" fill="#fffdfa" />
                       <path d="M 553 517 L 553 530" stroke="#84391a" strokeWidth="10" strokeLinecap="round" />
                     </g>
                   ) : currentViseme === 'round' ? (
@@ -554,13 +604,6 @@ export function MeeCatInteractiveCanvas({
                     </g>
                   )}
                 </g>
-              ) : state === 'celebrate' ? (
-                /* Big Happy Smile (from Pose 2) */
-                <g id="aiki-mouth-celebrate">
-                  <rect x="450" y="525" width="206" height="104" rx="52" fill="#e74516" />
-                  <ellipse cx="553" cy="595" rx="55" ry="25" fill="#f3a3a3" />
-                  <path d="M 553 517 L 553 526" stroke="#84391a" strokeWidth="10" strokeLinecap="round" />
-                </g>
               ) : state === 'hint' ? (
                 /* Hint smile */
                 <g id="aiki-mouth-hint">
@@ -586,27 +629,34 @@ export function MeeCatInteractiveCanvas({
               </g>
             )}
 
-            {/* --- 8. FRONT ARMS & PAWS --- */}
+            {/* --- 8. FRONT ARMS & PAWS (Left & Right Arms) --- */}
             <g id="aiki-arms">
-              {/* Left Arm */}
+              {/* Left Arm (Viewer's Left, Mascot's Right) */}
               <g
                 id="aiki-left-arm"
                 style={{
-                  transformOrigin: useRaisedLeftArm ? '410px 948px' : '140px 1149px',
+                  transformOrigin: leftArmMode === 'bent-to-mouth' ? '140px 950px' : leftArmMode === 'raised-wave' ? '140px 850px' : '140px 950px',
                   transform: `translate(${leftArmTranslateX}px, ${leftArmTranslateY}px) rotate(${leftArmRot}deg)`,
                   transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 }}
               >
-                {useRaisedLeftArm ? (
-                  /* Pointing / Raised Left Arm (Pose 1) */
-                  <g id="aiki-left-arm-raised">
+                {leftArmMode === 'raised-wave' ? (
+                  /* Raised Waving Arm (from Pose 2 & Recommend Art) */
+                  <g id="aiki-left-arm-raised" transform="translate(-294.07, 56.78)">
+                    <path fill="#ff8517" d="M174.7,559.66,442.33,677.57a99.54,99.54,0,0,1-68.47,186.94L93.38,781.68a120.41,120.41,0,0,1-14.76-4.37A119.2,119.2,0,1,1,174.7,559.66Z" />
+                    <path fill="#ff8517" d="M386.33,522.27c12.13-16.9,18-37.65,18.92-59.71.08-2.09.12-4.18.12-6.29s-.06-4.17-.15-6.28-.23-4.47-.42-6.73c-1.88-22.51-8.4-45.59-18.37-66.73q-1.23-2.64-2.55-5.23c-.43-.87-.89-1.74-1.34-2.6q-1.4-2.65-2.86-5.26c-12.13-21.6-27.91-40.37-45.89-53.27a106.44,106.44,0,0,0-18.12-10.55c-1.66-.75-3.32-1.45-5-2.08-52.54-20.17-104.45,16.17-142.06,68.61a135.47,135.47,0,0,0-7.85,12.29l-138.45,217A119.2,119.2,0,0,0,216.07,734.38c.41-.58.81-1.15,1.2-1.73L377.12,533.74A133.14,133.14,0,0,0,386.33,522.27Z" />
+                    <path fill="#f47016" d="M386.33,522.27c12.13-16.9,18-37.65,18.92-59.71.08-2.09.12-4.18.12-6.29s-.06-4.17-.15-6.28-.23-4.47-.42-6.73c-1.88-22.51-8.4-45.59-18.37-66.73q-1.23-2.64-2.55-5.23c-.43-.87-.89-1.74-1.34-2.6q-1.4-2.65-2.86-5.26c-12.13-21.6-27.91-40.37-45.89-53.27a106.44,106.44,0,0,0-18.12-10.55c-1.66-.75-3.32-1.45-5-2.08-52.54-20.17-104.45,16.17-142.06,68.61,0,0,160.51,15.91,208.48,167.59A133.14,133.14,0,0,0,386.33,522.27Z" />
+                  </g>
+                ) : leftArmMode === 'bent-to-mouth' ? (
+                  /* Bent to mouth Arm (from Pose 1) */
+                  <g id="aiki-left-arm-bent">
                     <path fill="#ff8517" d="M353.89,1051.91,87.82,930.49a99.54,99.54,0,0,1,70.92-186L438.1,831a119.25,119.25,0,0,1,83.64,158.39,119.21,119.21,0,0,1-153.85,68.93A122.68,122.68,0,0,1,353.89,1051.91Z" />
                     <circle fill="#ff8517" cx="410.24" cy="948.32" r="119.2" />
                     <path fill="#ff8517" d="M669.85,792.43c11.26-17.49,16.11-38.51,15.89-60.59,0-2.09-.09-4.18-.2-6.29s-.26-4.16-.46-6.26-.46-4.46-.76-6.7c-3-22.38-10.68-45.11-21.7-65.72q-1.36-2.58-2.81-5.09c-.48-.86-1-1.7-1.47-2.54q-1.51-2.58-3.12-5.1c-13.2-21-29.91-38.92-48.51-50.9a105.36,105.36,0,0,0-18.63-9.63q-2.54-1-5.07-1.83c-53.49-17.5-103.51,21.4-138.43,75.67a136.78,136.78,0,0,0-7.22,12.67L310,883.81a119.2,119.2,0,0,0,200.48,129c.38-.6.75-1.19,1.11-1.78L661.23,804.34A133.49,133.49,0,0,0,669.85,792.43Z" />
                     <path fill="#f47016" d="M669.85,792.43c11.26-17.49,16.11-38.51,15.89-60.59,0-2.09-.09-4.18-.2-6.29s-.26-4.16-.46-6.26-.46-4.46-.76-6.7c-3-22.38-10.68-45.11-21.7-65.72q-1.36-2.58-2.81-5.09c-.48-.86-1-1.7-1.47-2.54q-1.51-2.58-3.12-5.1c-13.2-21-29.91-38.92-48.51-50.9a105.36,105.36,0,0,0-18.63-9.63q-2.54-1-5.07-1.83c-53.49-17.5-103.51,21.4-138.43,75.67,0,0,161.11,7.82,216.65,156.89A133.49,133.49,0,0,0,669.85,792.43Z" />
                   </g>
                 ) : (
-                  /* Default Front Resting Left Arm */
+                  /* Resting straight down Arm (from AIKI.svg) */
                   <g id="aiki-left-arm-resting">
                     <path fill="#ff8517" d="M21.21,1141.66,21.3,849.2A99.54,99.54,0,0,1,220,836.55l37.19,290.08a123.24,123.24,0,0,1,2,15.27,119.21,119.21,0,1,1-237.92-.24Z" />
                     <circle fill="#ff8517" cx="140.16" cy="1149.48" r="119.2" />
@@ -617,7 +667,7 @@ export function MeeCatInteractiveCanvas({
 
                 {/* Golden Fish Cookie Snack (Eat state) */}
                 {state === 'eat' && (
-                  <g id="aiki-fish-cookie" transform="translate(320, 1180) rotate(-35)">
+                  <g id="aiki-fish-cookie" transform="translate(180, 1120) rotate(-35)">
                     <path d="M 120 45 Q 160 8 200 45 Z" fill="#d97706" />
                     <path d="M 120 165 Q 160 200 200 165 Z" fill="#d97706" />
                     <polygon points="255,105 310,60 295,105 310,150" fill="#f59e0b" stroke="#b45309" strokeWidth="6" strokeLinejoin="round" />
@@ -629,25 +679,25 @@ export function MeeCatInteractiveCanvas({
                 )}
               </g>
 
-              {/* Right Arm */}
+              {/* Right Arm (Viewer's Right, Mascot's Left) */}
               <g
                 id="aiki-right-arm"
                 style={{
-                  transformOrigin: useRaisedRightArm ? '1405px 1057px' : '970px 1149px',
+                  transformOrigin: rightArmMode === 'bent-across-belly' ? '970px 950px' : '970px 950px',
                   transform: `rotate(${rightArmRot}deg)`,
                   transition: 'transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 }}
               >
-                {useRaisedRightArm ? (
-                  /* Pointing / Raised Right Arm (Pose 2) */
-                  <g id="aiki-right-arm-raised">
+                {rightArmMode === 'bent-across-belly' ? (
+                  /* Bent across belly Arm (from Pose 2 & Recommend Art, offset adjusted to exact body coordinate) */
+                  <g id="aiki-right-arm-bent" transform="translate(-294.07, 56.78)">
                     <path fill="#ff8517" d="M1508.39,999,1375.23,738.63a99.54,99.54,0,1,0-182.67,79.13L1291.43,1093a119.2,119.2,0,1,0,217-94Z" />
                     <circle fill="#ff8517" cx="1405.96" cy="1057.68" r="119.2" />
                     <path fill="#ff8517" d="M1266.94,1326.71c-16.74,12.35-37.4,18.53-59.45,19.72-2.08.11-4.18.17-6.29.2s-4.17,0-6.27-.07-4.48-.17-6.74-.32c-22.53-1.58-45.7-7.78-67-17.46-1.76-.81-3.52-1.63-5.25-2.48-.89-.43-1.76-.88-2.62-1.31-1.79-.91-3.55-1.84-5.3-2.79-21.77-11.84-40.75-27.37-53.89-45.17a106.4,106.4,0,0,1-10.79-18c-.78-1.65-1.49-3.3-2.15-5-20.88-52.26,14.75-104.66,66.68-143a136,136,0,0,1,12.19-8l215.11-141.36a119.2,119.2,0,0,1,141.54,191.84c-.57.42-1.14.82-1.71,1.22l-196.74,162.52A133.09,133.09,0,0,1,1266.94,1326.71Z" />
                     <path fill="#f47016" d="M1266.94,1326.71c-16.74,12.35-37.4,18.53-59.45,19.72-2.08.11-4.18.17-6.29.2s-4.17,0-6.27-.07-4.48-.17-6.74-.32c-22.53-1.58-45.7-7.78-67-17.46-1.76-.81-3.52-1.63-5.25-2.48-.89-.43-1.76-.88-2.62-1.31-1.79-.91-3.55-1.84-5.3-2.79-21.77-11.84-40.75-27.37-53.89-45.17a106.4,106.4,0,0,1-10.79-18c-.78-1.65-1.49-3.3-2.15-5-20.88-52.26,14.75-104.66,66.68-143,0,0,18.08,160.28,170.39,206.2A133.09,133.09,0,0,1,1266.94,1326.71Z" />
                   </g>
                 ) : (
-                  /* Default Front Resting Right Arm */
+                  /* Resting straight down Arm (from AIKI.svg) */
                   <g id="aiki-right-arm-resting">
                     <path fill="#ff8517" d="M1089.39,1141.66l-.09-292.46a99.54,99.54,0,0,0-198.68-12.65l-37.19,290.08a123.24,123.24,0,0,0-2,15.27,119.21,119.21,0,1,0,237.92-.24Z" />
                     <circle fill="#ff8517" cx="970.44" cy="1149.48" r="119.2" />
@@ -667,8 +717,8 @@ export function MeeCatInteractiveCanvas({
               <line x1="628" y1="1578" x2="1281" y2="1376" stroke="#f97316" strokeWidth="10" strokeDasharray="16 10" />
               <line x1="555" y1="1691" x2="251" y2="1488" stroke="#84cc16" strokeWidth="10" strokeDasharray="16 10" />
               <line x1="555" y1="1691" x2="862" y2="1488" stroke="#84cc16" strokeWidth="10" strokeDasharray="16 10" />
-              <line x1="555" y1="950" x2="140" y2="1149" stroke="#06b6d4" strokeWidth="10" strokeDasharray="16 10" />
-              <line x1="555" y1="950" x2="970" y2="1149" stroke="#06b6d4" strokeWidth="10" strokeDasharray="16 10" />
+              <line x1="555" y1="950" x2="140" y2="950" stroke="#06b6d4" strokeWidth="10" strokeDasharray="16 10" />
+              <line x1="555" y1="950" x2="970" y2="950" stroke="#06b6d4" strokeWidth="10" strokeDasharray="16 10" />
               <line x1="555" y1="450" x2="280" y2="328" stroke="#a855f7" strokeWidth="10" strokeDasharray="16 10" />
               <line x1="555" y1="450" x2="842" y2="328" stroke="#a855f7" strokeWidth="10" strokeDasharray="16 10" />
 
@@ -676,8 +726,8 @@ export function MeeCatInteractiveCanvas({
               <circle cx="555" cy="450" r="25" fill="#ef4444" stroke="#ffffff" strokeWidth="6" />
               <circle cx="280" cy="328" r="20" fill="#a855f7" stroke="#ffffff" strokeWidth="5" />
               <circle cx="842" cy="328" r="20" fill="#a855f7" stroke="#ffffff" strokeWidth="5" />
-              <circle cx="140" cy="1149" r="20" fill="#06b6d4" stroke="#ffffff" strokeWidth="5" />
-              <circle cx="970" cy="1149" r="20" fill="#06b6d4" stroke="#ffffff" strokeWidth="5" />
+              <circle cx="140" cy="950" r="20" fill="#06b6d4" stroke="#ffffff" strokeWidth="5" />
+              <circle cx="970" cy="950" r="20" fill="#06b6d4" stroke="#ffffff" strokeWidth="5" />
               <circle cx="251" cy="1488" r="20" fill="#84cc16" stroke="#ffffff" strokeWidth="5" />
               <circle cx="862" cy="1488" r="20" fill="#84cc16" stroke="#ffffff" strokeWidth="5" />
               <circle cx="628" cy="1578" r="20" fill="#f97316" stroke="#ffffff" strokeWidth="5" />
