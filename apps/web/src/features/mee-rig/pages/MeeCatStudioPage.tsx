@@ -33,22 +33,12 @@ const SAMPLE_SPEECHES = [
   'Xuất sắc lắm các bạn nhỏ! Chúng mình cùng vỗ tay khen ngợi nào!',
 ]
 
-const LECTURE_GESTURES_LEFT = [
-  { id: 'point-left' as Gesture, label: '👈 Chỉ Điểm Bảng Trái', desc: 'Tay vươn chỉ thẳng từng dòng nội dung' },
-  { id: 'underline-left' as Gesture, label: '📏 Quét Dòng & Gạch Chân', desc: 'Tay quét nhịp nhàng gạch chân công thức' },
-  { id: 'callout-left' as Gesture, label: '🙋‍♂️ Vẫy Gọi Chú Ý Trái', desc: 'Vẫy tay góc bảng nhắc học sinh tập trung' },
-]
-
-const LECTURE_GESTURES_RIGHT = [
-  { id: 'point-right' as Gesture, label: '👉 Chỉ Điểm Bảng Phải', desc: 'Tay vươn chỉ thẳng nội dung bên phải' },
-  { id: 'underline-right' as Gesture, label: '📐 Quét Dòng & Gạch Chân', desc: 'Tay quét nhịp nhàng gạch chân bên phải' },
-  { id: 'callout-right' as Gesture, label: '🙋‍♀️ Vẫy Gọi Chú Ý Phải', desc: 'Vẫy tay góc bảng bên phải gọi tập trung' },
-]
-
-const PRESENTATION_GESTURES = [
-  { id: 'explain' as Gesture, label: '👐 Diễn Giải 2 Tay', desc: 'Hai tay co gập đung đưa giảng giải sinh động' },
-  { id: 'enthusiastic' as Gesture, label: '🎉 Tuyên Dương & Chúc Mừng', desc: 'Vung hai tay lên cao cổ vũ nhiệt tình' },
-  { id: 'auto' as Gesture, label: '🤖 Tự Động (AI Lecture Auto)', desc: 'Tự luân chuyển cử chỉ chỉ trỏ & giảng bài' },
+const LECTURE_GESTURES = [
+  { id: 'point-left' as Gesture, label: '👈 Chỉ Bảng Bên Trái', desc: 'Tay vươn sang trái hướng bảng, lộ 100% khuôn miệng' },
+  { id: 'point-right' as Gesture, label: '👉 Chỉ Bảng Bên Phải', desc: 'Tay vươn sang phải hướng bảng, lộ 100% khuôn miệng' },
+  { id: 'explain' as Gesture, label: '👐 Thuyết Trình 2 Tay', desc: 'Hai tay co gập đung đưa ở tầm ngực dưới tự nhiên' },
+  { id: 'enthusiastic' as Gesture, label: '🎉 Tuyên Dương & Chúc Mừng', desc: 'Vung hai tay lên cao chúc mừng học sinh' },
+  { id: 'auto' as Gesture, label: '🤖 Tự Động Phối Hợp', desc: 'Tự động luân chuyển cử chỉ chỉ bảng và thuyết trình' },
 ]
 
 const STATE_PRESETS: Array<{ id: MeeCatState; label: string; icon: any; desc: string }> = [
@@ -269,8 +259,8 @@ export function MeeCatStudioPage() {
                         25 + 17 = 42
                       </div>
 
-                      {/* 1. Point Indicator (📍 Laser Pinpoint Dot) */}
-                      {(selectedGesture === 'point-left' || selectedGesture === 'point-right') && (
+                      {/* Point Indicator (📍 Laser Pinpoint Dot) */}
+                      {(selectedGesture === 'point-left' || selectedGesture === 'point-right' || selectedGesture === 'auto') && (
                         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none">
                           <span className="relative flex h-5 w-5">
                             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
@@ -278,18 +268,13 @@ export function MeeCatStudioPage() {
                           </span>
                         </div>
                       )}
-
-                      {/* 2. Underline Sweep Indicator (📏 Laser Sweep Bar) */}
-                      {(selectedGesture === 'underline-left' || selectedGesture === 'underline-right') && (
-                        <div className="absolute -bottom-1 left-0 right-0 h-1.5 rounded-full bg-gradient-to-r from-amber-400 via-yellow-200 to-amber-400 shadow-[0_0_12px_#f59e0b] animate-pulse" />
-                      )}
                     </div>
 
-                    {/* 3. Callout Attention Indicator (🙋‍♂️ Bouncing Alert Badge) */}
-                    {(selectedGesture === 'callout-left' || selectedGesture === 'callout-right') && (
+                    {/* Enthusiastic Praise Badge */}
+                    {selectedGesture === 'enthusiastic' && (
                       <div className="absolute top-2 right-2 animate-bounce">
                         <span className="rounded-full bg-amber-500 text-slate-950 font-black text-[9px] px-2 py-0.5 shadow-md">
-                          ⭐ CHÚ Ý NÀO!
+                          ⭐ XUẤT SẮC!
                         </span>
                       </div>
                     )}
@@ -403,10 +388,10 @@ export function MeeCatStudioPage() {
               <div className="mt-2 pt-2 border-t border-amber-200/60">
                 <label className="text-xs font-black text-slate-800 flex items-center gap-1.5 mb-1.5">
                   <Hand className="h-4 w-4 text-amber-600" />
-                  <span>Cử Chỉ Giảng Bài Chuyên Nghiệp ({catPosition === 'right' ? 'Bên Trái' : 'Bên Phải'}):</span>
+                  <span>Cử Chỉ Giảng Bài & Thuyết Trình:</span>
                 </label>
                 <div className="grid grid-cols-1 gap-1.5">
-                  {(catPosition === 'right' ? LECTURE_GESTURES_LEFT : LECTURE_GESTURES_RIGHT).map((opt) => (
+                  {LECTURE_GESTURES.map((opt) => (
                     <button
                       key={opt.id}
                       type="button"
@@ -422,28 +407,6 @@ export function MeeCatStudioPage() {
                     >
                       <div className="font-black text-amber-950">{opt.label}</div>
                       <div className="text-[10px] text-slate-600 mt-0.5">{opt.desc}</div>
-                    </button>
-                  ))}
-                </div>
-
-                {/* Presentation & Joyful Gestures */}
-                <div className="mt-2 pt-2 border-t border-amber-200/40 grid grid-cols-1 gap-1.5">
-                  {PRESENTATION_GESTURES.map((opt) => (
-                    <button
-                      key={opt.id}
-                      type="button"
-                      onClick={() => {
-                        setSelectedGesture(opt.id)
-                        setActiveState('talk')
-                      }}
-                      className={`rounded-xl p-2 text-left text-[11px] font-extrabold transition border-2 ${
-                        selectedGesture === opt.id
-                          ? 'border-amber-500 bg-amber-200/80 text-amber-950 shadow-xs'
-                          : 'border-white bg-white/90 text-slate-700 hover:bg-white shadow-2xs'
-                      }`}
-                    >
-                      <div className="font-black">{opt.label}</div>
-                      <div className="text-[9px] text-slate-500">{opt.desc}</div>
                     </button>
                   ))}
                 </div>

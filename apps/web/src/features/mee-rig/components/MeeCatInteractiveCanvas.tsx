@@ -138,14 +138,13 @@ export function MeeCatInteractiveCanvas({
     return () => clearInterval(sleepyInterval)
   }, [state])
 
-  // Active gesture cadence loop (Chạy liên tục khi ở state talk, speaking hoặc khi có gesture active)
+  // Active gesture cadence loop
   useEffect(() => {
     const isGestureActive = state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')
     if (!isGestureActive) return
-    const intervalMs = effectiveGesture === 'underline-left' || effectiveGesture === 'underline-right' ? 320 : 250
     const talkInterval = setInterval(() => {
       setTalkStep((prev) => (prev + 1) % 4)
-    }, intervalMs)
+    }, 240)
     return () => clearInterval(talkInterval)
   }, [effectiveSpeaking, state, effectiveGesture])
 
@@ -163,22 +162,18 @@ export function MeeCatInteractiveCanvas({
   // Transform Computations for Skeletal Joints
   const isPointingLeft =
     (state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')) &&
-    (effectiveGesture === 'point-left' || effectiveGesture === 'underline-left' || effectiveGesture === 'callout-left')
+    effectiveGesture === 'point-left'
 
   const isPointingRight =
     (state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')) &&
-    (effectiveGesture === 'point-right' || effectiveGesture === 'underline-right' || effectiveGesture === 'callout-right')
+    effectiveGesture === 'point-right'
 
   const headLookX = state === 'look' || isHovered
     ? cursorPos.x
-    : effectiveGesture === 'underline-left'
-    ? [-18, -12, -6, -14][talkStep]
-    : effectiveGesture === 'underline-right'
-    ? [18, 12, 6, 14][talkStep]
     : isPointingLeft
-    ? -14
+    ? -12
     : isPointingRight
-    ? 14
+    ? 12
     : 0
 
   const headLookY = state === 'look' || isHovered ? cursorPos.y : 0
@@ -191,10 +186,6 @@ export function MeeCatInteractiveCanvas({
   const talkHeadNodY = effectiveSpeaking ? [0, 8, -4, 10][talkStep] : 0
   const talkHeadRot = effectiveSpeaking
     ? [0, 2, -1.5, 1][talkStep]
-    : effectiveGesture === 'underline-left'
-    ? [-4, -3, -1.5, -3.5][talkStep]
-    : effectiveGesture === 'underline-right'
-    ? [4, 3, 1.5, 3.5][talkStep]
     : isPointingLeft
     ? -3.5
     : isPointingRight
@@ -224,23 +215,23 @@ export function MeeCatInteractiveCanvas({
     ? [0.96, 1.05, 1.02, 0.98][talkStep]
     : 1
 
-  // --- 100% ARTIST ORIGINAL VECTOR ARM POSES & DISTINCT KINEMATICS ---
+  // --- 100% ARTIST ORIGINAL VECTOR ARM POSES & CLEAN POINTING (KHÔNG CHE MỒM) ---
   type ArmMode = 'resting' | 'bent-pose1' | 'raised-pose2'
 
   let leftArmMode: ArmMode = 'resting'
   let rightArmMode: ArmMode = 'resting'
   let leftArmRot = 0
   let rightArmRot = 0
-  let leftArmTranslateX = 0
-  let leftArmTranslateY = 0
-  let rightArmTranslateX = 0
-  let rightArmTranslateY = 0
+  let leftArmOrigin = '140px 880px'
+  let rightArmOrigin = '970px 880px'
 
   if (state === 'celebrate') {
     leftArmMode = 'raised-pose2'
     rightArmMode = 'raised-pose2'
-    leftArmRot = [5, 18, 12, 0][celebrateStep]
-    rightArmRot = [-5, -18, -12, 0][celebrateStep]
+    leftArmOrigin = '140px 800px'
+    rightArmOrigin = '970px 800px'
+    leftArmRot = [0, 12, 6, -4][celebrateStep]
+    rightArmRot = [0, -12, -6, 4][celebrateStep]
   } else if (state === 'hint') {
     leftArmMode = 'bent-pose1'
     rightArmMode = 'resting'
@@ -252,79 +243,46 @@ export function MeeCatInteractiveCanvas({
     leftArmRot = [5, 30, 20, 5][chewFrame]
     rightArmRot = -10
   } else if (state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')) {
-    // 1. 👈 CHỈ ĐIỂM BẢNG TRÁI: Dáng tay găm cố định góc -24deg, nhấp nhô nhẹ nhấn nhá từng từ
+    // 1. 👈 CHỈ BẢNG BÊN TRÁI: Dùng Pose 2 vươn hẳn sang bên trái (away from mouth at X=555), KHÔNG CHE MỒM
     if (effectiveGesture === 'point-left') {
-      leftArmMode = 'bent-pose1'
-      rightArmMode = 'resting'
-      leftArmRot = [-24, -27, -25, -23][talkStep]
-      leftArmTranslateX = [-15, -22, -18, -14][talkStep]
-      leftArmTranslateY = [0, 4, 2, 0][talkStep]
-      rightArmRot = -5
-    }
-    // 2. 📏 QUÉT DÒNG / GẠCH CHÂN BÊN TRÁI: Dáng tay quét một dải biên độ lớn từ -38deg đến -12deg
-    else if (effectiveGesture === 'underline-left') {
-      leftArmMode = 'bent-pose1'
-      rightArmMode = 'resting'
-      leftArmRot = [-38, -26, -12, -28][talkStep]
-      leftArmTranslateX = [-60, -30, 10, -40][talkStep]
-      leftArmTranslateY = [-20, 0, 20, -5][talkStep]
-      rightArmRot = -5
-    }
-    // 3. 🙋‍♂️ VẪY GỌI CHÚ Ý BÊN TRÁI: Dùng Cánh Tay Pose 2 giơ cao vẫy liên tục góc trên
-    else if (effectiveGesture === 'callout-left') {
       leftArmMode = 'raised-pose2'
       rightArmMode = 'resting'
-      leftArmRot = [-28, -12, -32, -15][talkStep]
-      leftArmTranslateY = [-30, -10, -35, -12][talkStep]
-      leftArmTranslateX = [-15, -5, -20, -10][talkStep]
+      leftArmOrigin = '140px 800px'
+      leftArmRot = [18, 23, 20, 16][talkStep]
       rightArmRot = -5
     }
-    // 4. 👉 CHỈ ĐIỂM BẢNG PHẢI: Dáng tay găm cố định góc +24deg
+    // 2. 👉 CHỈ BẢNG BÊN PHẢI: Dùng Pose 2 Mirrored vươn hẳn sang bên phải, KHÔNG CHE MỒM
     else if (effectiveGesture === 'point-right') {
       leftArmMode = 'resting'
-      rightArmMode = 'bent-pose1'
-      leftArmRot = 5
-      rightArmRot = [24, 27, 25, 23][talkStep]
-      rightArmTranslateX = [15, 22, 18, 14][talkStep]
-      rightArmTranslateY = [0, 4, 2, 0][talkStep]
-    }
-    // 5. 📐 QUÉT DÒNG / GẠCH CHÂN BÊN PHẢI: Quét dải biên độ lớn từ +38deg đến +12deg
-    else if (effectiveGesture === 'underline-right') {
-      leftArmMode = 'resting'
-      rightArmMode = 'bent-pose1'
-      leftArmRot = 5
-      rightArmRot = [38, 26, 12, 28][talkStep]
-      rightArmTranslateX = [60, 30, -10, 40][talkStep]
-      rightArmTranslateY = [-20, 0, 20, -5][talkStep]
-    }
-    // 6. 🙋‍♀️ VẪY GỌI CHÚ Ý BÊN PHẢI: Cánh Tay Pose 2 Mirrored giơ cao vẫy
-    else if (effectiveGesture === 'callout-right') {
-      leftArmMode = 'resting'
       rightArmMode = 'raised-pose2'
+      rightArmOrigin = '970px 800px'
       leftArmRot = 5
-      rightArmRot = [28, 12, 32, 15][talkStep]
-      rightArmTranslateY = [-30, -10, -35, -12][talkStep]
-      rightArmTranslateX = [15, 5, 20, 10][talkStep]
+      rightArmRot = [-18, -23, -20, -16][talkStep]
     }
-    // 7. 👐 THUYẾT TRÌNH 2 TAY: Cả hai tay Pose 1 đung đưa linh hoạt
+    // 3. 👐 THUYẾT TRÌNH 2 TAY: Hai tay Pose 1 đung đưa ở tầm ngực dưới (Y=950, cách xa mồm Y=540)
     else if (effectiveGesture === 'explain') {
       leftArmMode = 'bent-pose1'
       rightArmMode = 'bent-pose1'
-      leftArmRot = [-10, 8, -6, 10][talkStep]
-      rightArmRot = [10, -8, 6, -10][talkStep]
+      leftArmOrigin = '140px 880px'
+      rightArmOrigin = '970px 880px'
+      leftArmRot = [-8, 6, -4, 8][talkStep]
+      rightArmRot = [8, -6, 4, -8][talkStep]
     }
-    // 8. 🎉 HÀO HỨNG: Cả 2 tay Pose 2 vung cao
+    // 4. 🎉 HÀO HỨNG: Cả 2 tay Pose 2 vung cao ăn mừng
     else if (effectiveGesture === 'enthusiastic') {
       leftArmMode = 'raised-pose2'
       rightArmMode = 'raised-pose2'
-      leftArmRot = 10 + (effectiveSpeaking ? (talkStep % 2 === 0 ? 12 : -6) : (talkStep % 2 === 0 ? 6 : -4))
-      rightArmRot = -10 + (effectiveSpeaking ? (talkStep % 2 === 0 ? -12 : 6) : (talkStep % 2 === 0 ? -6 : 4))
+      leftArmOrigin = '140px 800px'
+      rightArmOrigin = '970px 800px'
+      leftArmRot = [5, 16, 10, 0][talkStep]
+      rightArmRot = [-5, -16, -10, 0][talkStep]
     }
-    // Mặc định: Chỉ sang bên trái với Pose 1
+    // Mặc định: Chỉ sang bên trái
     else {
-      leftArmMode = 'bent-pose1'
+      leftArmMode = 'raised-pose2'
       rightArmMode = 'resting'
-      leftArmRot = -22
+      leftArmOrigin = '140px 800px'
+      leftArmRot = 18
       rightArmRot = -5
     }
   }
@@ -660,7 +618,7 @@ export function MeeCatInteractiveCanvas({
               )}
             </g>
 
-            {/* --- 7. MOUTH & LIPSYNC VISEMES --- */}
+            {/* --- 7. MOUTH & LIPSYNC VISEMES (100% UNBLOCKED & FULLY VISIBLE) --- */}
             <g id="aiki-mouth">
               {controlledViseme ? (
                 /* Manual viseme preview button override */
@@ -742,9 +700,9 @@ export function MeeCatInteractiveCanvas({
               <g
                 id="aiki-left-arm"
                 style={{
-                  transformOrigin: '140px 880px',
-                  transform: `translate(${leftArmTranslateX}px, ${leftArmTranslateY}px) rotate(${leftArmRot}deg)`,
-                  transition: effectiveGesture === 'underline-left' ? 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)' : 'transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  transformOrigin: leftArmOrigin,
+                  transform: `rotate(${leftArmRot}deg)`,
+                  transition: 'transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 }}
               >
                 {leftArmMode === 'bent-pose1' ? (
@@ -756,7 +714,7 @@ export function MeeCatInteractiveCanvas({
                     <path fill="#f47016" d="M669.85,792.43c11.26-17.49,16.11-38.51,15.89-60.59,0-2.09-.09-4.18-.2-6.29s-.26-4.16-.46-6.26-.46-4.46-.76-6.7c-3-22.38-10.68-45.11-21.7-65.72q-1.36-2.58-2.81-5.09c-.48-.86-1-1.7-1.47-2.54q-1.51-2.58-3.12-5.1c-13.2-21-29.91-38.92-48.51-50.9a105.36,105.36,0,0,0-18.63-9.63q-2.54-1-5.07-1.83c-53.49-17.5-103.51,21.4-138.43,75.67,0,0,161.11,7.82,216.65,156.89A133.49,133.49,0,0,0,669.85,792.43Z" />
                   </g>
                 ) : leftArmMode === 'raised-pose2' ? (
-                  /* 100% ARTIST ORIGINAL POSE 2 ARM (AIKI pose 2.svg) */
+                  /* 100% ARTIST ORIGINAL POSE 2 ARM (AIKI pose 2.svg - Vươn ra ngoài hướng bảng bên trái) */
                   <g id="aiki-left-arm-pose2" transform="translate(-294.07, 56.78)">
                     <path fill="#ff8517" d="M174.7,559.66,442.33,677.57a99.54,99.54,0,0,1-68.47,186.94L93.38,781.68a120.41,120.41,0,0,1-14.76-4.37A119.2,119.2,0,1,1,174.7,559.66Z" />
                     <path fill="#ff8517" d="M386.33,522.27c12.13-16.9,18-37.65,18.92-59.71.08-2.09.12-4.18.12-6.29s-.06-4.17-.15-6.28-.23-4.47-.42-6.73c-1.88-22.51-8.4-45.59-18.37-66.73q-1.23-2.64-2.55-5.23c-.43-.87-.89-1.74-1.34-2.6q-1.4-2.65-2.86-5.26c-12.13-21.6-27.91-40.37-45.89-53.27a106.44,106.44,0,0,0-18.12-10.55c-1.66-.75-3.32-1.45-5-2.08-52.54-20.17-104.45,16.17-142.06,68.61a135.47,135.47,0,0,0-7.85,12.29l-138.45,217A119.2,119.2,0,0,0,216.07,734.38c.41-.58.81-1.15,1.2-1.73L377.12,533.74A133.14,133.14,0,0,0,386.33,522.27Z" />
@@ -790,9 +748,9 @@ export function MeeCatInteractiveCanvas({
               <g
                 id="aiki-right-arm"
                 style={{
-                  transformOrigin: '970px 880px',
-                  transform: `translate(${rightArmTranslateX}px, ${rightArmTranslateY}px) rotate(${rightArmRot}deg)`,
-                  transition: effectiveGesture === 'underline-right' ? 'transform 0.3s cubic-bezier(0.25, 1, 0.5, 1)' : 'transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                  transformOrigin: rightArmOrigin,
+                  transform: `rotate(${rightArmRot}deg)`,
+                  transition: 'transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1)',
                 }}
               >
                 {rightArmMode === 'bent-pose1' ? (
@@ -804,7 +762,7 @@ export function MeeCatInteractiveCanvas({
                     <path fill="#f47016" d="M669.85,792.43c11.26-17.49,16.11-38.51,15.89-60.59,0-2.09-.09-4.18-.2-6.29s-.26-4.16-.46-6.26-.46-4.46-.76-6.7c-3-22.38-10.68-45.11-21.7-65.72q-1.36-2.58-2.81-5.09c-.48-.86-1-1.7-1.47-2.54q-1.51-2.58-3.12-5.1c-13.2-21-29.91-38.92-48.51-50.9a105.36,105.36,0,0,0-18.63-9.63q-2.54-1-5.07-1.83c-53.49-17.5-103.51,21.4-138.43,75.67,0,0,161.11,7.82,216.65,156.89A133.49,133.49,0,0,0,669.85,792.43Z" />
                   </g>
                 ) : rightArmMode === 'raised-pose2' ? (
-                  /* 100% ARTIST ORIGINAL POSE 2 ARM MIRRORED */
+                  /* 100% ARTIST ORIGINAL POSE 2 ARM MIRRORED (Vươn ra ngoài hướng bảng bên phải) */
                   <g id="aiki-right-arm-pose2" transform="translate(1109.81, 0) scale(-1, 1)">
                     <g transform="translate(-294.07, 56.78)">
                       <path fill="#ff8517" d="M174.7,559.66,442.33,677.57a99.54,99.54,0,0,1-68.47,186.94L93.38,781.68a120.41,120.41,0,0,1-14.76-4.37A119.2,119.2,0,1,1,174.7,559.66Z" />

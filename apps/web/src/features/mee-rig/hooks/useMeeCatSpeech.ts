@@ -6,10 +6,6 @@ export type Gesture =
   | 'auto'
   | 'point-left'
   | 'point-right'
-  | 'underline-left'
-  | 'underline-right'
-  | 'callout-left'
-  | 'callout-right'
   | 'explain'
   | 'enthusiastic'
   | 'idle'
@@ -134,17 +130,16 @@ export function useMeeCatSpeech({
     if (gesture === 'auto') {
       const lectureGesturePool: Gesture[] = [
         'point-left',
-        'underline-left',
-        'callout-left',
         'explain',
         'point-left',
+        'explain',
       ]
       let gIdx = 0
       setActiveGesture(lectureGesturePool[0])
       gestureTimerRef.current = setInterval(() => {
         gIdx = (gIdx + 1) % lectureGesturePool.length
         setActiveGesture(lectureGesturePool[gIdx])
-      }, 2600)
+      }, 3000)
     }
 
     // Function to start cadence timer fallback if onboundary is not supported
