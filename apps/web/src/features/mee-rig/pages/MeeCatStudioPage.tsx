@@ -34,17 +34,17 @@ const SAMPLE_SPEECHES = [
 ]
 
 const LECTURE_GESTURES = [
-  { id: 'point-high-left' as Gesture, label: '☝️ Chỉ Tầm Cao (Tiêu Đề Trái)', desc: 'Tay vươn chếch lên trên chỉ dòng tiêu đề, đầu ngước nhẹ' },
-  { id: 'point-left' as Gesture, label: '👈 Chỉ Tầm Ngang (Giữa Bảng Trái)', desc: 'Tay vươn ngang ngực chỉ công thức chính, lộ 100% khuôn miệng' },
-  { id: 'point-low-left' as Gesture, label: '👇 Chỉ Tầm Thấp (Đáp Số Trái)', desc: 'Tay hạ chếch xuống dưới chỉ các bước giải, đầu cúi nhẹ' },
-  { id: 'point-high-right' as Gesture, label: '☝️ Chỉ Tầm Cao (Tiêu Đề Phải)', desc: 'Tay phải vươn chếch lên trên chỉ góc bảng phải' },
-  { id: 'point-right' as Gesture, label: '👉 Chỉ Tầm Ngang (Giữa Bảng Phải)', desc: 'Tay phải vươn ngang chỉ công thức bảng phải' },
-  { id: 'point-low-right' as Gesture, label: '👇 Chỉ Tầm Thấp (Đáp Số Phải)', desc: 'Tay phải hạ xuống dưới chỉ đáp số bảng phải' },
-  { id: 'think' as Gesture, label: '💡 Gợi Ý & Đang Tư Duy', desc: 'Tay đặt nhẹ dưới cằm, đầu nghiêng suy nghĩ đố vui' },
-  { id: 'clap' as Gesture, label: '👏 Vỗ Tay Khen Ngợi', desc: 'Hai tay vỗ vào nhau nhịp nhàng tán dương học sinh' },
-  { id: 'explain' as Gesture, label: '👐 Thuyết Trình 2 Tay', desc: 'Hai tay co gập đung đưa ở tầm ngực dưới tự nhiên' },
-  { id: 'enthusiastic' as Gesture, label: '🎉 Tuyên Dương Hào Hứng', desc: 'Vung hai tay lên cao cổ vũ nhiệt tình' },
-  { id: 'auto' as Gesture, label: '🤖 Tự Động Phối Hợp', desc: 'Tự động luân chuyển đa dạng cử chỉ khi đọc bài giảng' },
+  { id: 'point-left' as Gesture, label: '👈 Chỉ Ngang Bảng Trái', desc: 'Thuyết trình 3: Tay duỗi thẳng 100% sang ngang bảng bài giảng' },
+  { id: 'point-high-left' as Gesture, label: '☝️ Chỉ Tầm Cao Trái', desc: 'Thuyết trình 4: Tay chỉ vươn lên góc trên bảng bài giảng' },
+  { id: 'point-right' as Gesture, label: '👉 Chỉ Ngang Bảng Phải', desc: 'Tay phải duỗi thẳng sang ngang bảng bài giảng' },
+  { id: 'point-high-right' as Gesture, label: '☝️ Chỉ Tầm Cao Phải', desc: 'Tay phải chỉ vươn lên góc trên bảng bài giảng' },
+  { id: 'think' as Gesture, label: '💡 Đang Suy Nghĩ', desc: 'Suy nghĩ: Tay đặt nhẹ dưới cằm/má, đầu nghiêng suy tư đố vui' },
+  { id: 'idea' as Gesture, label: '💡 Aha! Nghĩ Ra Ý Tưởng', desc: 'Nghĩ ra ý tưởng: Tay phải giơ ngón trỏ chỉ lên trời' },
+  { id: 'explain' as Gesture, label: '👐 Thuyết Trình Mở Rộng', desc: 'Thuyết trình 2: Hai tay mở rộng sang hai bên diễn giải' },
+  { id: 'presentation' as Gesture, label: '🤲 Thuyết Trình Cơ Bản', desc: 'Thuyết trình 1: Hai tay co trước ngực nói bài giảng' },
+  { id: 'celebrate-1' as Gesture, label: '🎉 Hoan Hô & Nhún Nhảy', desc: 'Vui mừng 1.1: Hai tay mở rộng nhún nhảy ăn mừng' },
+  { id: 'celebrate-2' as Gesture, label: '🎉 Vung Tay Lên Trời', desc: 'Vui mừng 1.2: Vung cả hai tay lên cao, mắt cười tít mù' },
+  { id: 'auto' as Gesture, label: '🤖 Tự Động Phối Hợp', desc: 'Tự động luân chuyển mượt mà giữa các hành động trong bài giảng' },
 ]
 
 const STATE_PRESETS: Array<{ id: MeeCatState; label: string; icon: any; desc: string }> = [
@@ -283,7 +283,7 @@ export function MeeCatStudioPage() {
                     </div>
 
                     {/* Interactive Feedback Badges */}
-                    {selectedGesture === 'enthusiastic' && (
+                    {(selectedGesture === 'celebrate-1' || selectedGesture === 'celebrate-2' || selectedGesture === 'enthusiastic') && (
                       <div className="absolute top-2 right-2 animate-bounce">
                         <span className="rounded-full bg-amber-500 text-slate-950 font-black text-[9px] px-2 py-0.5 shadow-md">
                           ⭐ XUẤT SẮC!
@@ -297,10 +297,17 @@ export function MeeCatStudioPage() {
                         </span>
                       </div>
                     )}
+                    {selectedGesture === 'idea' && (
+                      <div className="absolute top-2 right-2 animate-pulse">
+                        <span className="rounded-full bg-amber-400 text-slate-950 font-black text-[9px] px-2 py-0.5 shadow-md">
+                          💡 AHA! Ý TƯỞNG!
+                        </span>
+                      </div>
+                    )}
                     {selectedGesture === 'think' && (
                       <div className="absolute top-2 right-2 animate-pulse">
                         <span className="rounded-full bg-sky-500 text-white font-black text-[9px] px-2 py-0.5 shadow-md">
-                          💡 GỢI Ý NÀO!
+                          🤔 ĐANG SUY NGHĨ...
                         </span>
                       </div>
                     )}

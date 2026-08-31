@@ -10,8 +10,13 @@ export type Gesture =
   | 'point-right'
   | 'point-high-right'
   | 'point-low-right'
-  | 'explain'
   | 'think'
+  | 'idea'
+  | 'explain'
+  | 'presentation'
+  | 'celebrate'
+  | 'celebrate-1'
+  | 'celebrate-2'
   | 'clap'
   | 'enthusiastic'
   | 'idle'
@@ -132,37 +137,88 @@ export function useMeeCatSpeech({
 
     boundaryFiredRef.current = false
 
-    // Auto gesture cycling for lecture presentation
+    // Auto gesture cycling for lecture presentation using official artist poses
     if (gesture === 'auto') {
       const lectureGesturePool: Gesture[] = [
         'point-left',
         'explain',
         'point-high-left',
-        'point-low-left',
+        'idea',
         'think',
-        'clap',
+        'presentation',
+        'celebrate-1',
       ]
       let gIdx = 0
       setActiveGesture(lectureGesturePool[0])
       gestureTimerRef.current = setInterval(() => {
         gIdx = (gIdx + 1) % lectureGesturePool.length
         setActiveGesture(lectureGesturePool[gIdx])
-      }, 3000)
+      }, 3200)
     }
 
-    // Function to start cadence timer fallback if onboundary is not supported
-    const startFallbackWordTimer = () => {
-      if (wordTimerRef.current) return
+    // 1. Tích hợp Web SpeechSynthesis API
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+
+      const utterance = new SpeechSynthesisUtterance(text)
+      utterance.rate = 0.95
+      utterance.pitch = 1.25
+
+      const voices = window.speechSynthesis.getVoices()
+      const viVoice = voices.find((v) => v.lang.startsWith('vi') || v.name.toLowerCase().includes('vietnam'))
+      if (viVoice) {
+        utterance.voice = viVoice
+      }
+
+      // Khi phát âm từng từ, bắt chính xác event 'boundary' của Web Speech API
+      utterance.onboundary = (e) => {
+        if (e.name === 'word') {
+          boundaryFiredRef.current = true
+          const charIndex = e.charIndex
+          const remainingText = text.slice(charIndex)
+          const match = remainingText.match(/^[\w\u00C0-\u1EF9]+/)
+          const currentWordSpoken = match ? match[0] : ''
+          if (currentWordSpoken) {
+            setCurrentWord(currentWordSpoken)
+            triggerWordViseme(currentWordSpoken, 280)
+          }
+        }
+      }
+
+      utterance.onend = () => {
+        setViseme('closed')
+        setCurrentWord('')
+        if (onSpeechEnd) onSpeechEnd()
+      }
+
+      utterance.onerror = () => {
+        setViseme('closed')
+        setCurrentWord('')
+        if (onSpeechEnd) onSpeechEnd()
+      }
+
+      window.speechSynthesis.speak(utterance)
+
+      // 2. Fallback Cadence Engine nếu onboundary không bắn (một số trình duyệt không phát event boundary)
+      const estimatedPaceMs = Math.max(240, Math.min(420, Math.round(3000 / Math.max(1, words.length))))
+      let wordIdx = 0
+
+      wordTimerRef.current = setInterval(() => {
+        if (!boundaryFiredRef.current && wordIdx < words.length) {
+          const w = words[wordIdx]
+          setCurrentWord(w)
+          triggerWordViseme(w, estimatedPaceMs)
+          wordIdx++
+        } else if (wordIdx >= words.length && !window.speechSynthesis.speaking) {
+          setViseme('closed')
+          setCurrentWord('')
+        }
+      }, estimatedPaceMs)
+    } else {
+      // Khi môi trường không có Web Speech (hoặc SSR/Mock), chạy cadence nhả chữ
       let wordIdx = 0
       const paceMs = 300
       wordTimerRef.current = setInterval(() => {
-        if (boundaryFiredRef.current) {
-          if (wordTimerRef.current) {
-            clearInterval(wordTimerRef.current)
-            wordTimerRef.current = null
-          }
-          return
-        }
         if (wordIdx < words.length) {
           const w = words[wordIdx]
           setCurrentWord(w)
@@ -177,67 +233,6 @@ export function useMeeCatSpeech({
       }, paceMs)
     }
 
-    // WEB SPEECH SYNTHESIS WITH ONSTART & ONBOUNDARY REAL-TIME SYNC
-    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
-      try {
-        window.speechSynthesis.cancel()
-        const utterance = new SpeechSynthesisUtterance(text)
-        utterance.rate = 0.95
-        utterance.pitch = 1.1
-
-        const voices = window.speechSynthesis.getVoices()
-        const viVoice = voices.find((v) => v.lang.includes('vi') || v.name.includes('Vietnamese') || v.lang.includes('VI'))
-        if (viVoice) utterance.voice = viVoice
-
-        // Khi âm thanh THỰC SỰ phát ra từ loa
-        utterance.onstart = () => {
-          if (words.length > 0) {
-            setCurrentWord(words[0])
-            triggerWordViseme(words[0], 280)
-          }
-
-          setTimeout(() => {
-            if (!boundaryFiredRef.current && isSpeaking) {
-              startFallbackWordTimer()
-            }
-          }, 380)
-        }
-
-        // Bắt chính xác từng từ khi voice đọc đến ký tự tương ứng
-        utterance.onboundary = (event) => {
-          if (event.name === 'word' || event.name === 'sentence' || !event.name) {
-            boundaryFiredRef.current = true
-            const charIdx = event.charIndex ?? 0
-            const remaining = text.slice(charIdx).trim()
-            const currentToken = remaining.split(/[\s,.;:!?/\\-]+/)[0]
-            if (currentToken) {
-              setCurrentWord(currentToken)
-              triggerWordViseme(currentToken, 280)
-            }
-          }
-        }
-
-        utterance.onend = () => {
-          if (wordTimerRef.current) clearInterval(wordTimerRef.current)
-          if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
-          if (gestureTimerRef.current) clearInterval(gestureTimerRef.current)
-          setViseme('closed')
-          setCurrentWord('')
-          if (onSpeechEnd) onSpeechEnd()
-        }
-
-        utterance.onerror = () => {
-          startFallbackWordTimer()
-        }
-
-        window.speechSynthesis.speak(utterance)
-      } catch {
-        startFallbackWordTimer()
-      }
-    } else {
-      startFallbackWordTimer()
-    }
-
     return () => {
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel()
@@ -246,7 +241,11 @@ export function useMeeCatSpeech({
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
       if (gestureTimerRef.current) clearInterval(gestureTimerRef.current)
     }
-  }, [isSpeaking, text, gesture, onSpeechEnd])
+  }, [text, isSpeaking, gesture, onSpeechEnd])
 
-  return { viseme, activeGesture, currentWord }
+  return {
+    viseme,
+    activeGesture,
+    currentWord,
+  }
 }
