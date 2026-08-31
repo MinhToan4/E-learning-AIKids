@@ -227,14 +227,20 @@ export function MeeCatInteractiveCanvas({
     ? [8, -30, -25, 4][celebrateStep]
     : 0
 
-  // Determine current active pose
-  const activePose: Gesture = (state === 'celebrate')
-    ? 'celebrate-2'
-    : (state === 'hint')
-    ? 'idea'
-    : (effectiveSpeaking || state === 'talk' || (effectiveGesture && effectiveGesture !== 'idle'))
-    ? effectiveGesture
-    : 'presentation'
+  // Resolve active pose with 100% guarantee that arms will NEVER be empty/disappear
+  let resolvedPose: Gesture = 'presentation'
+  if (state === 'celebrate') {
+    resolvedPose = 'celebrate-2'
+  } else if (state === 'hint') {
+    resolvedPose = 'idea'
+  } else if (effectiveGesture && effectiveGesture !== 'auto' && effectiveGesture !== 'idle') {
+    resolvedPose = effectiveGesture
+  } else if (effectiveSpeaking) {
+    resolvedPose = effectiveGesture === 'auto' ? 'point-left' : effectiveGesture
+  } else {
+    // When idle / ready / auto without speech: default to presentation arms
+    resolvedPose = 'presentation'
+  }
 
   // RENDER 5 VISEMES CUTE
   const renderVisemeContent = (vis: Viseme) => {
@@ -478,7 +484,7 @@ export function MeeCatInteractiveCanvas({
 
             {/* Eyes */}
             <g id="aiki-eyes">
-              {shouldBlink || activePose === 'celebrate-2' ? (
+              {shouldBlink || resolvedPose === 'celebrate-2' || state === 'celebrate' ? (
                 /* Happy curved / closed eyes */
                 <g id="aiki-eyes-closed">
                   <path fill="#84391a" d="M250.7,269.4a9.1,9.1,0,0,1-5.7-2c-23.3-19-47.8-24.8-72.8-17.3a83.7,83.7,0,0,0-30.8,16.8,9.1,9.1,0,1,1-12.6-13.3,102.3,102.3,0,0,1,38.1-21.1,89.2,89.2,0,0,1,41-2.6c16.8,2.9,33.1,10.7,48.6,23.3a9.1,9.1,0,0,1-5.8,16.2Z" />
@@ -510,7 +516,7 @@ export function MeeCatInteractiveCanvas({
                 <g id="aiki-viseme-preview">{renderVisemeContent(controlledViseme)}</g>
               ) : effectiveSpeaking ? (
                 <g id="aiki-viseme-speaking">{renderVisemeContent(currentViseme)}</g>
-              ) : activePose === 'celebrate-2' || state === 'celebrate' ? (
+              ) : resolvedPose === 'celebrate-2' || state === 'celebrate' ? (
                 <g id="aiki-viseme-celebrate">{renderVisemeContent('smile')}</g>
               ) : (
                 <g id="aiki-viseme-default">{renderVisemeContent('closed')}</g>
@@ -528,7 +534,7 @@ export function MeeCatInteractiveCanvas({
             {/* --- 8. OFFICIAL ARTIST ACTION ARMS & GESTURES --- */}
             <g id="aiki-official-action-arms">
               {/* 1. 👈 CHỈ BẢNG NGANG BÊN TRÁI (Thuyết trình - idle 3.svg) */}
-              {activePose === 'point-left' && (
+              {resolvedPose === 'point-left' && (
                 <g id="pose-point-left" className="animate-in fade-in duration-150">
                   {/* Left Arm reaching straight into chalkboard */}
                   <g transform="translate(-345.84, 0)">
@@ -548,7 +554,7 @@ export function MeeCatInteractiveCanvas({
               )}
 
               {/* 2. ☝️ CHỈ BẢNG TẦM CAO BÊN TRÁI (Thuyết trình - idle 4.svg) */}
-              {(activePose === 'point-high-left' || activePose === 'point-low-left') && (
+              {(resolvedPose === 'point-high-left' || resolvedPose === 'point-low-left') && (
                 <g id="pose-point-high-left" className="animate-in fade-in duration-150">
                   {/* Left Arm pointing up-left */}
                   <g transform="translate(-273.59, 34.8)">
@@ -568,7 +574,7 @@ export function MeeCatInteractiveCanvas({
               )}
 
               {/* 3. 👉 CHỈ BẢNG NGANG BÊN PHẢI (Mirrored Thuyết trình - idle 3) */}
-              {activePose === 'point-right' && (
+              {resolvedPose === 'point-right' && (
                 <g id="pose-point-right" transform="translate(631.59, 0) scale(-1, 1)" className="animate-in fade-in duration-150">
                   <g transform="translate(-345.84, 0)">
                     <path fill="#ff8517" d="M245.5,411.35l166.13,10a56.65,56.65,0,1,1,.44,113.29L246,545.9a67.84,67.84,0,1,1-.51-134.55Z" />
@@ -586,7 +592,7 @@ export function MeeCatInteractiveCanvas({
               )}
 
               {/* 4. ☝️ CHỈ BẢNG TẦM CAO BÊN PHẢI (Mirrored Thuyết trình - idle 4) */}
-              {(activePose === 'point-high-right' || activePose === 'point-low-right') && (
+              {(resolvedPose === 'point-high-right' || resolvedPose === 'point-low-right') && (
                 <g id="pose-point-high-right" transform="translate(631.59, 0) scale(-1, 1)" className="animate-in fade-in duration-150">
                   <g transform="translate(-273.59, 34.8)">
                     <path fill="#ff8517" d="M168.19,488.29l139.47-90.82a56.65,56.65,0,0,1,67.76,90.8L248.66,596.13a69.07,69.07,0,0,1-6.67,5.68,67.84,67.84,0,0,1-81.15-108.74A69.37,69.37,0,0,1,168.19,488.29Z" />
@@ -604,7 +610,7 @@ export function MeeCatInteractiveCanvas({
               )}
 
               {/* 5. 💡 ĐANG SUY NGHĨ / TƯ DUY (Suy nghĩ.svg) */}
-              {activePose === 'think' && (
+              {resolvedPose === 'think' && (
                 <g id="pose-think" className="animate-in fade-in duration-150">
                   {/* Left Arm at chin/cheek */}
                   <path fill="#ff8517" d="M201.39,598.63,50,529.54A56.65,56.65,0,1,1,90.34,423.68l159,49.22a67.84,67.84,0,1,1-39.95,129.37A67.12,67.12,0,0,1,201.39,598.63Z" />
@@ -621,7 +627,7 @@ export function MeeCatInteractiveCanvas({
               )}
 
               {/* 6. 💡 AHA! NGHĨ RA Ý TƯỞNG (Nghĩ ra ý tưởng.svg) */}
-              {(activePose === 'idea' || state === 'hint') && (
+              {(resolvedPose === 'idea' || state === 'hint') && (
                 <g id="pose-idea" className="animate-in fade-in duration-150">
                   {/* Left Arm resting at waist */}
                   <path fill="#ff8517" d="M195.81,606.1,46.12,533.34A56.65,56.65,0,0,1,89.05,428.49l157.74,53.09a67.83,67.83,0,1,1-51,124.52Z" />
@@ -638,7 +644,7 @@ export function MeeCatInteractiveCanvas({
               )}
 
               {/* 7. 👐 THUYẾT TRÌNH MỞ RỘNG 2 TAY (Thuyết trình - idle 2.svg) */}
-              {activePose === 'explain' && (
+              {resolvedPose === 'explain' && (
                 <g id="pose-explain" className="animate-in fade-in duration-150">
                   <g transform="translate(-154.97, 0)">
                     <path fill="#ff8517" d="M44.6,506.27l147.53-77a56.65,56.65,0,0,1,58.75,96.87L114.37,621.32a68.56,68.56,0,0,1-7.18,5A67.84,67.84,0,1,1,44.6,506.27Z" />
@@ -655,8 +661,8 @@ export function MeeCatInteractiveCanvas({
                 </g>
               )}
 
-              {/* 8. 🤲 THUYẾT TRÌNH CƠ BẢN (Thuyết trình - idle 1.svg) */}
-              {(activePose === 'presentation' || activePose === 'idle' || activePose === 'clap' || state === 'eat' || state === 'sleepy') && (
+              {/* 8. 🤲 THUYẾT TRÌNH CƠ BẢN (Thuyết trình - idle 1.svg) - DEFAULT FOR IDLE, PRESENTATION & FALLBACK */}
+              {(resolvedPose === 'presentation' || resolvedPose === 'idle' || resolvedPose === 'clap' || state === 'eat' || state === 'sleepy' || (!['point-left', 'point-high-left', 'point-low-left', 'point-right', 'point-high-right', 'point-low-right', 'think', 'idea', 'explain', 'celebrate-1', 'celebrate-2', 'celebrate', 'enthusiastic'].includes(resolvedPose))) && (
                 <g id="pose-presentation" className="animate-in fade-in duration-150">
                   {/* Left Arm bent in front of chest */}
                   <path fill="#ff8517" d="M81.71,655.92,15.36,503.28a56.65,56.65,0,0,1,100.81-51.71l85.26,142.94a69.44,69.44,0,0,1,4.49,7.52A67.84,67.84,0,1,1,81.71,655.92Z" />
@@ -673,7 +679,7 @@ export function MeeCatInteractiveCanvas({
               )}
 
               {/* 9. 🎉 VUI MỪNG / HOAN HÔ 1 (Vui mừng - idle 1.1.svg) */}
-              {(activePose === 'celebrate-1' || activePose === 'enthusiastic') && (
+              {(resolvedPose === 'celebrate-1' || resolvedPose === 'enthusiastic') && (
                 <g id="pose-celebrate-1" className="animate-in fade-in duration-150">
                   <g transform="translate(-260.63, 42.14)">
                     <path fill="#ff8517" d="M148.1,438.17l157-55.15a56.65,56.65,0,1,1,44.3,104.28L200.71,562a70.67,70.67,0,0,1-7.83,3.93A67.84,67.84,0,1,1,148.1,438.17Z" />
@@ -691,7 +697,7 @@ export function MeeCatInteractiveCanvas({
               )}
 
               {/* 10. 🎉 VUI MỪNG VUNG TAY CAO (Vui mừng - idle 1.2.svg) */}
-              {(activePose === 'celebrate-2' || activePose === 'celebrate') && (
+              {(resolvedPose === 'celebrate-2' || resolvedPose === 'celebrate') && (
                 <g id="pose-celebrate-2" className="animate-in fade-in duration-150">
                   <g transform="translate(-245.23, 0)">
                     <path fill="#ff8517" d="M247.28,309.52,351.45,439.33a56.65,56.65,0,0,1-83.65,76.41L147.94,400.27a66.93,66.93,0,0,1-6.32-6.08,67.84,67.84,0,1,1,100.18-91.5A68.85,68.85,0,0,1,247.28,309.52Z" />

@@ -81,7 +81,7 @@ export function useMeeCatSpeech({
   onSpeechEnd,
 }: UseMeeCatSpeechOptions) {
   const [viseme, setViseme] = useState<Viseme>('closed')
-  const [activeGesture, setActiveGesture] = useState<Gesture>(gesture)
+  const [activeGesture, setActiveGesture] = useState<Gesture>(gesture === 'auto' ? 'point-left' : gesture)
   const [currentWord, setCurrentWord] = useState<string>('')
 
   const wordTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
@@ -90,7 +90,7 @@ export function useMeeCatSpeech({
   const boundaryFiredRef = useRef<boolean>(false)
 
   useEffect(() => {
-    setActiveGesture(gesture)
+    setActiveGesture(gesture === 'auto' ? 'point-left' : gesture)
   }, [gesture])
 
   // Kích hoạt một nhịp mở - đóng khẩu hình chuẩn xác cho từng từ
@@ -124,6 +124,7 @@ export function useMeeCatSpeech({
       if (gestureTimerRef.current) clearInterval(gestureTimerRef.current)
       setViseme('closed')
       setCurrentWord('')
+      setActiveGesture(gesture === 'auto' ? 'point-left' : gesture)
       boundaryFiredRef.current = false
       return
     }
