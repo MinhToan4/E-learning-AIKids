@@ -83,7 +83,7 @@ function contextForAccountRole(
   // admin may also own a family persona, while users.role can remain `parent`.
   // Never let a previously persisted family context downgrade that account
   // immediately after login.
-  if ((access.platformRoles?.length ?? 0) > 0) {
+  if ((access.platformRoles?.length ?? 0) > 0 || role === 'admin') {
     return access.contexts.find((context) => context.actor === 'admin')
   }
   if (role === 'teacher') {
