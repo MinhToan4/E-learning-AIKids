@@ -254,6 +254,7 @@ export function LoginPage() {
                 </div>
                 <GoogleSignInButton
                   role={adultRole}
+                  registration={{ parentalConsentAccepted: true }}
                   onSuccess={(user) => {
                     goAfterAdult(user)
                   }}

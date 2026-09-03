@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react'
+import { useEffect, useState, useRef } from 'react'
 import type { User } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { firebaseApp } from '@/shared/lib/firebase-client'
@@ -15,6 +15,12 @@ type Props = {
   registration?: { nickname?: string; parentalConsentAccepted: boolean }
 }
 
+type GoogleAuthRuntime = {
+  auth: import('firebase/auth').Auth
+  GoogleAuthProvider: typeof import('firebase/auth').GoogleAuthProvider
+  signInWithPopup: typeof import('firebase/auth').signInWithPopup
+}
+
 /**
  * Full-width Google sign-in matching our primary login button.
  * Uses Firebase Auth under the hood.
@@ -28,23 +34,45 @@ export function GoogleSignInButton({
   registration,
 }: Props) {
   const [busy, setBusy] = useState(false)
+  const [preparing, setPreparing] = useState(true)
   const completeFirebaseSignIn = useAuth((state) => state.completeFirebaseSignIn)
   const handlers = useRef({ onSuccess, onError, role, registration })
+  const runtime = useRef<GoogleAuthRuntime | null>(null)
+  const preparationError = useRef<unknown>(null)
   handlers.current = { onSuccess, onError, role, registration }
+
+  useEffect(() => {
+    let active = true
+    void Promise.all([firebaseApp(), import('firebase/auth')])
+      .then(([app, firebaseAuth]) => {
+        if (!app) throw new Error('Firebase chưa được cấu hình.')
+        if (!active) return
+        runtime.current = {
+          auth: firebaseAuth.getAuth(app),
+          GoogleAuthProvider: firebaseAuth.GoogleAuthProvider,
+          signInWithPopup: firebaseAuth.signInWithPopup,
+        }
+      })
+      .catch((error) => {
+        if (active) preparationError.current = error
+      })
+      .finally(() => {
+        if (active) setPreparing(false)
+      })
+    return () => {
+      active = false
+    }
+  }, [])
 
   async function startGoogleSignIn() {
     setBusy(true)
     try {
-      const app = await firebaseApp()
-      if (!app) {
-        throw new Error('Firebase chưa được cấu hình.')
-      }
-
-      const { getAuth, signInWithPopup, GoogleAuthProvider } = await import('firebase/auth')
-      const auth = getAuth(app)
-      const provider = new GoogleAuthProvider()
-      
-      const result = await signInWithPopup(auth, provider)
+      // Keep popup creation in the original click activation. Loading Firebase
+      // here first leaves Safari/WebView with an opened but blank auth window.
+      if (!runtime.current) throw preparationError.current ?? new Error('Google đang khởi tạo. Vui lòng thử lại.')
+      const provider = new runtime.current.GoogleAuthProvider()
+      provider.setCustomParameters({ prompt: 'select_account' })
+      const result = await runtime.current.signInWithPopup(runtime.current.auth, provider)
       const idToken = await result.user.getIdToken()
 
       const user = await completeFirebaseSignIn(idToken, {
@@ -70,7 +98,7 @@ export function GoogleSignInButton({
     <div className={cn('w-full', className)}>
       <button
         type="button"
-        disabled={busy || disabled}
+        disabled={busy || preparing || disabled}
         onClick={() => void startGoogleSignIn()}
         className={cn(
           'ui-btn ui-btn-secondary w-full !min-h-12 gap-3',
@@ -79,7 +107,7 @@ export function GoogleSignInButton({
       >
         <GoogleGIcon className="h-5 w-5 shrink-0" />
         <span>
-          {busy ? 'Đang đăng nhập…' : 'Tiếp tục với Google'}
+          {preparing ? 'Đang chuẩn bị Google…' : busy ? 'Đang đăng nhập…' : 'Tiếp tục với Google'}
         </span>
       </button>
     </div>
