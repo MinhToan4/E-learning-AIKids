@@ -235,9 +235,34 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   loginAdult: async (login, password, role = 'parent') => {
     set({ error: null })
-    const idToken = await signInWithFirebasePassword(login, password)
+    const trimmedLogin = login.trim()
+    const isEmail = trimmedLogin.includes('@')
+
+    if (isEmail) {
+      try {
+        const idToken = await signInWithFirebasePassword(trimmedLogin, password)
+        await clearPreviousLearnerData()
+        const hydrated = await exchangeFirebaseSession(idToken, { role })
+        set(hydrated)
+        return hydrated.user
+      } catch (firebaseErr: any) {
+        const code = String(firebaseErr?.code || '')
+        const canFallback =
+          code === 'auth/user-not-found' ||
+          code === 'auth/invalid-credential' ||
+          code === 'auth/invalid-login-credentials' ||
+          code === 'auth/invalid-email'
+        if (!canFallback) throw firebaseErr
+      }
+    }
+
+    // Username login (e.g. storymee-admin, teacher usernames) or unmigrated account fallback
+    const { user } = await api<{ user: User }>('/api/auth/login/adult', {
+      method: 'POST',
+      body: JSON.stringify({ login: trimmedLogin, password }),
+    })
     await clearPreviousLearnerData()
-    const hydrated = await exchangeFirebaseSession(idToken, { role })
+    const hydrated = await hydrateAdultAccess(user)
     set(hydrated)
     return hydrated.user
   },

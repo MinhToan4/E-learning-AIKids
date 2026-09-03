@@ -199,11 +199,11 @@ export function LoginPage() {
                   ) : (
                     <>
                       <label>
-                        <span className="sr-only">Email</span>
+                        <span className="sr-only">Email hoặc tên đăng nhập</span>
                         <input
                           type="text"
                           autoComplete="username"
-                          placeholder="Nhập email"
+                          placeholder="Nhập email hoặc tên đăng nhập"
                           className="min-h-12 w-full rounded-2xl border-[3px] border-white/80 bg-white/95 px-4 text-center text-sm font-bold shadow-sm outline-none transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-50 sm:min-h-14 sm:text-base"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}

@@ -64,11 +64,11 @@ describe('auth store', () => {
 
     const user = await useAuth
       .getState()
-      .loginAdult('storymee-admin', 'example-password')
+      .loginAdult('admin@example.test', 'example-password')
 
     expect(user.role).toBe('admin')
     expect(mocks.signInWithFirebasePassword).toHaveBeenCalledWith(
-      'storymee-admin',
+      'admin@example.test',
       'example-password',
     )
     expect(mocks.api).toHaveBeenNthCalledWith(
@@ -80,6 +80,55 @@ describe('auth store', () => {
           idToken: 'firebase-id-token',
           role: 'parent',
         }),
+      },
+    )
+  })
+
+  it('logs in adults with a username directly via core account API', async () => {
+    mocks.api
+      .mockResolvedValueOnce({
+        user: {
+          id: 'admin-1',
+          role: 'admin',
+          email: null,
+          nickname: 'Admin',
+          avatarId: null,
+          level: 1,
+          xp: 0,
+          onboarded: true,
+          goal: null,
+          parentId: null,
+          classId: null,
+        },
+      })
+      .mockResolvedValueOnce({
+        contexts: [
+          {
+            id: 'platform:admin-1',
+            type: 'platform',
+            label: 'Quản trị AIKid',
+            defaultRoute: '/admin',
+            actor: 'admin',
+            roles: ['admin'],
+            permissions: ['platform.admin'],
+          },
+        ],
+        active: null,
+      })
+      .mockResolvedValueOnce({ accessToken: 'admin-token' })
+
+    const user = await useAuth
+      .getState()
+      .loginAdult('storymee-admin', 'admin-password')
+
+    expect(user.role).toBe('admin')
+    expect(mocks.signInWithFirebasePassword).not.toHaveBeenCalled()
+    expect(mocks.api).toHaveBeenNthCalledWith(
+      1,
+      '/api/auth/login/adult',
+      {
+        method: 'POST',
+        body: JSON.stringify({ login: 'storymee-admin', password: 'admin-password' }),
       },
     )
   })
