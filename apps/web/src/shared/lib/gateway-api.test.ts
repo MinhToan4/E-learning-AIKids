@@ -895,6 +895,24 @@ describe('StoryMee Gateway adapter', () => {
     ])
   })
 
+  it('exchanges every Firebase provider token through the generic account session route', async () => {
+    const fetchMock = vi.fn().mockResolvedValueOnce(response({
+      accessToken: 'firebase-session',
+      user: { id: 'u-firebase', role: 'parent', name: 'Firebase Parent' },
+    }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    await api('/api/auth/login/firebase', {
+      method: 'POST',
+      body: JSON.stringify({ idToken: 'firebase-id-token', role: 'parent' }),
+    })
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      'https://dev-hub.storymee.com/api/v1/account/auth/firebase/session',
+      expect.any(Object),
+    )
+  })
+
   it('routes parent approvals, profile, gate and admin surfaces to core domains', async () => {
     const fetchMock = vi.fn()
       .mockResolvedValueOnce(response({ data: { approvals: [] } }))

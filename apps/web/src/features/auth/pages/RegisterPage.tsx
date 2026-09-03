@@ -18,7 +18,6 @@ export function RegisterPage() {
   const [error, setError] = useState<string | null>(null)
   const [busy, setBusy] = useState(false)
   const registerAdult = useAuth((s) => s.registerAdult)
-  const setSessionUser = useAuth((s) => s.setSessionUser)
   const navigate = useNavigate()
 
   function goAfter(user: User) {
@@ -201,8 +200,12 @@ export function RegisterPage() {
               </div>
               <GoogleSignInButton
                 role="parent"
+                disabled={!consentAccepted}
+                registration={{
+                  nickname: nickname.trim() || undefined,
+                  parentalConsentAccepted: consentAccepted,
+                }}
                 onSuccess={(user) => {
-                  setSessionUser(user)
                   goAfter(user)
                 }}
                 onError={(msg) => setError(msg)}

@@ -54,3 +54,63 @@ export async function disconnectFirebaseSession(): Promise<void> {
     // Keep the cleanup narrow: notification delivery is app-internal now.
   }
 }
+
+async function firebaseAuth() {
+  const app = await firebaseApp()
+  if (!app) throw new Error('Firebase chưa được cấu hình.')
+  const { getAuth } = await import('firebase/auth')
+  return getAuth(app)
+}
+
+export async function signInWithFirebasePassword(
+  email: string,
+  password: string,
+): Promise<string> {
+  const auth = await firebaseAuth()
+  const { signInWithEmailAndPassword } = await import('firebase/auth')
+  const credential = await signInWithEmailAndPassword(auth, email, password)
+  return credential.user.getIdToken()
+}
+
+export async function registerWithFirebasePassword(
+  email: string,
+  password: string,
+): Promise<{ idToken: string; sendVerification: () => Promise<void> }> {
+  const auth = await firebaseAuth()
+  const { createUserWithEmailAndPassword, sendEmailVerification } = await import('firebase/auth')
+  const credential = await createUserWithEmailAndPassword(auth, email, password)
+  return {
+    idToken: await credential.user.getIdToken(),
+    sendVerification: () => sendEmailVerification(credential.user),
+  }
+}
+
+export async function sendFirebasePasswordReset(email: string): Promise<void> {
+  const auth = await firebaseAuth()
+  const { sendPasswordResetEmail } = await import('firebase/auth')
+  await sendPasswordResetEmail(auth, email)
+}
+
+export async function confirmFirebasePasswordReset(
+  actionCode: string,
+  newPassword: string,
+): Promise<void> {
+  const auth = await firebaseAuth()
+  const { confirmPasswordReset } = await import('firebase/auth')
+  await confirmPasswordReset(auth, actionCode, newPassword)
+}
+
+export async function changeFirebasePassword(
+  currentPassword: string,
+  newPassword: string,
+): Promise<void> {
+  const auth = await firebaseAuth()
+  const user = auth.currentUser
+  if (!user?.email) throw new Error('Tài khoản hiện tại không dùng mật khẩu email.')
+  const { EmailAuthProvider, reauthenticateWithCredential, updatePassword } = await import('firebase/auth')
+  await reauthenticateWithCredential(
+    user,
+    EmailAuthProvider.credential(user.email, currentPassword),
+  )
+  await updatePassword(user, newPassword)
+}

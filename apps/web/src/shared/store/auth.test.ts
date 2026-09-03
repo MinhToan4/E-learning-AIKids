@@ -4,6 +4,9 @@ const mocks = vi.hoisted(() => ({
   api: vi.fn(),
   clearAccessToken: vi.fn(),
   disconnectFirebaseSession: vi.fn().mockResolvedValue(undefined),
+  signInWithFirebasePassword: vi.fn().mockResolvedValue('firebase-id-token'),
+  registerWithFirebasePassword: vi.fn(),
+  changeFirebasePassword: vi.fn(),
   clearOfflineLearningData: vi.fn().mockResolvedValue(undefined),
 }))
 
@@ -14,6 +17,9 @@ vi.mock('@/shared/lib/api', () => ({
 
 vi.mock('@/shared/lib/firebase-client', () => ({
   disconnectFirebaseSession: mocks.disconnectFirebaseSession,
+  signInWithFirebasePassword: mocks.signInWithFirebasePassword,
+  registerWithFirebasePassword: mocks.registerWithFirebasePassword,
+  changeFirebasePassword: mocks.changeFirebasePassword,
 }))
 
 vi.mock('@/shared/lib/offline-storage', () => ({
@@ -34,7 +40,7 @@ describe('auth store', () => {
     })
   })
 
-  it('uses the adult login contract for admin, parent and teacher accounts', async () => {
+  it('signs adults in with Firebase and exchanges the ID token for an account session', async () => {
     mocks.api
       .mockResolvedValueOnce({
         user: {
@@ -61,14 +67,18 @@ describe('auth store', () => {
       .loginAdult('storymee-admin', 'example-password')
 
     expect(user.role).toBe('admin')
+    expect(mocks.signInWithFirebasePassword).toHaveBeenCalledWith(
+      'storymee-admin',
+      'example-password',
+    )
     expect(mocks.api).toHaveBeenNthCalledWith(
       1,
-      '/api/auth/login/adult',
+      '/api/auth/login/firebase',
       {
         method: 'POST',
         body: JSON.stringify({
-          login: 'storymee-admin',
-          password: 'example-password',
+          idToken: 'firebase-id-token',
+          role: 'parent',
         }),
       },
     )
@@ -97,6 +107,42 @@ describe('auth store', () => {
     expect(useAuth.getState().error).toContain('hết hạn')
     expect(mocks.clearAccessToken).toHaveBeenCalled()
     expect(mocks.clearOfflineLearningData).toHaveBeenCalled()
+  })
+
+  it('creates the credential in Firebase and sends only its token to core Account', async () => {
+    const sendVerification = vi.fn().mockResolvedValue(undefined)
+    mocks.registerWithFirebasePassword.mockResolvedValueOnce({
+      idToken: 'new-firebase-token',
+      sendVerification,
+    })
+    mocks.api
+      .mockResolvedValueOnce({
+        user: {
+          id: 'parent-1', role: 'parent', email: 'parent@example.test', nickname: 'An',
+          avatarId: null, level: 1, xp: 0, onboarded: true, goal: null,
+          parentId: null, classId: null,
+        },
+      })
+      .mockResolvedValueOnce({ contexts: [], active: null })
+
+    await useAuth.getState().registerAdult(
+      'parent@example.test', 'example-password', 'parent', 'An', true,
+    )
+
+    expect(mocks.registerWithFirebasePassword)
+      .toHaveBeenCalledWith('parent@example.test', 'example-password')
+    expect(mocks.api).toHaveBeenNthCalledWith(1, '/api/auth/login/firebase', {
+      method: 'POST',
+      body: JSON.stringify({
+        idToken: 'new-firebase-token',
+        role: 'parent',
+        registration: true,
+        nickname: 'An',
+        parentalConsentAccepted: true,
+        termsAccepted: true,
+      }),
+    })
+    expect(sendVerification).toHaveBeenCalled()
   })
 
   it('selects the platform context for an admin that also has a parent persona', async () => {

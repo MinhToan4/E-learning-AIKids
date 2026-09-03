@@ -36,7 +36,6 @@ export function LoginPage() {
   const { toasts, showToast, dismissToast } = useToast()
   const loginStudent = useAuth((s) => s.loginStudent)
   const loginAdult = useAuth((s) => s.loginAdult)
-  const setSessionUser = useAuth((s) => s.setSessionUser)
   const navigate = useNavigate()
 
   function goAfterAdult(user: User) {
@@ -64,7 +63,7 @@ export function LoginPage() {
         const user = await loginStudent(nickname.trim(), undefined)
         navigate(user.onboarded ? '/home' : '/onboarding')
       } else {
-        const user = await loginAdult(email.trim(), password)
+        const user = await loginAdult(email.trim(), password, adultRole)
         goAfterAdult(user)
       }
     } catch (err) {
@@ -200,11 +199,11 @@ export function LoginPage() {
                   ) : (
                     <>
                       <label>
-                        <span className="sr-only">Email hoặc Tên đăng nhập</span>
+                        <span className="sr-only">Email</span>
                         <input
                           type="text"
                           autoComplete="username"
-                          placeholder="Nhập email hoặc tên đăng nhập"
+                          placeholder="Nhập email"
                           className="min-h-12 w-full rounded-2xl border-[3px] border-white/80 bg-white/95 px-4 text-center text-sm font-bold shadow-sm outline-none transition-all focus:border-brand-500 focus:bg-white focus:ring-4 focus:ring-brand-50 sm:min-h-14 sm:text-base"
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
@@ -256,7 +255,6 @@ export function LoginPage() {
                 <GoogleSignInButton
                   role={adultRole}
                   onSuccess={(user) => {
-                    setSessionUser(user)
                     goAfterAdult(user)
                   }}
                   onError={(msg) => showToast(msg, 'error')}

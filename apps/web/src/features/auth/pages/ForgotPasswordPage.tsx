@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
-import { api } from '@/shared/lib/api'
+import { sendFirebasePasswordReset } from '@/shared/lib/firebase-client'
 import { BrandLogo } from '@/shared/components/ui/BrandLogo'
 import { designerAssets } from '@/shared/config/assets'
 import {
@@ -21,10 +21,7 @@ export function ForgotPasswordPage() {
     setBusy(true)
     setError(null)
     try {
-      await api('/api/auth/forgot-password', {
-        method: 'POST',
-        body: JSON.stringify({ email: email.trim() }),
-      })
+      await sendFirebasePasswordReset(email.trim())
       setSent(true)
     } catch (err) {
       if (shouldConfirmPasswordResetEmail(err)) {

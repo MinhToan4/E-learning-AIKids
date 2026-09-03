@@ -644,7 +644,7 @@ export function normalizeGatewayRequest(path: string, options: RequestInit = {})
     return { path: '/api/v1/account/auth/firebase/custom-token', options }
   }
   if (path === '/api/auth/login/firebase') {
-    return { path: '/api/v1/account/auth/firebase/google', options }
+    return { path: '/api/v1/account/auth/firebase/session', options }
   }
   if (path === '/api/auth/login/google') {
     return { path: '/api/v1/account/auth/google', options }

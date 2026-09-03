@@ -2013,6 +2013,7 @@ function ApprovalsTab() {
 // ── Profile Tab ───────────────────────────────────────────────
 function ProfileTab() {
   const user = useAuth((s) => s.user)
+  const updateAccountPassword = useAuth((s) => s.changePassword)
   const [profile, setProfile] = useState<ParentProfileData | null>(null)
   const [phone, setPhone] = useState('')
   const [lang, setLang] = useState('vi')
@@ -2059,16 +2060,13 @@ function ProfileTab() {
       return
     }
     try {
-      await api('/api/auth/change-password', {
-        method: 'POST',
-        body: JSON.stringify({ currentPassword: currentPw, newPassword: newPw }),
-      })
+      await updateAccountPassword(currentPw, newPw)
       showToast('Đã đổi mật khẩu!', 'success')
       setCurrentPw('')
       setNewPw('')
       setChangingPw(false)
-    } catch (err) {
-      showToast(err instanceof Error ? err.message : 'Mật khẩu cũ không đúng', 'error')
+    } catch {
+      showToast('Không thể đổi mật khẩu. Hãy kiểm tra mật khẩu hiện tại và thử lại.', 'error')
     }
   }
 

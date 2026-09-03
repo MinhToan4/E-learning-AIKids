@@ -1,9 +1,9 @@
 import { useState, useRef } from 'react'
-import { api } from '@/shared/lib/api'
 import type { User } from '@/shared/lib/api'
 import { cn } from '@/shared/lib/cn'
 import { firebaseApp } from '@/shared/lib/firebase-client'
 import { authFeedback } from '@/features/auth/lib/auth-feedback'
+import { useAuth } from '@/shared/store/auth'
 
 type Props = {
   /** parent | teacher — only for brand-new Google accounts */
@@ -11,6 +11,8 @@ type Props = {
   onSuccess: (user: User) => void
   onError: (message: string) => void
   className?: string
+  disabled?: boolean
+  registration?: { nickname?: string; parentalConsentAccepted: boolean }
 }
 
 /**
@@ -22,10 +24,13 @@ export function GoogleSignInButton({
   onSuccess,
   onError,
   className,
+  disabled = false,
+  registration,
 }: Props) {
   const [busy, setBusy] = useState(false)
-  const handlers = useRef({ onSuccess, onError, role })
-  handlers.current = { onSuccess, onError, role }
+  const completeFirebaseSignIn = useAuth((state) => state.completeFirebaseSignIn)
+  const handlers = useRef({ onSuccess, onError, role, registration })
+  handlers.current = { onSuccess, onError, role, registration }
 
   async function startGoogleSignIn() {
     setBusy(true)
@@ -42,17 +47,11 @@ export function GoogleSignInButton({
       const result = await signInWithPopup(auth, provider)
       const idToken = await result.user.getIdToken()
 
-      const data = await api<{ user: User }>('/api/auth/login/firebase', {
-        method: 'POST',
-        body: JSON.stringify({
-          idToken,
-          role: handlers.current.role,
-          parentalConsentAccepted: true,
-          termsAccepted: true,
-        }),
+      const user = await completeFirebaseSignIn(idToken, {
+        role: handlers.current.role,
+        registration: handlers.current.registration,
       })
-      
-      handlers.current.onSuccess(data.user)
+      handlers.current.onSuccess(user)
     } catch (e: any) {
       // Ignore user cancellation errors (popup closed)
       if (e.code === 'auth/popup-closed-by-user' || e.code === 'auth/cancelled-popup-request') {
@@ -71,7 +70,7 @@ export function GoogleSignInButton({
     <div className={cn('w-full', className)}>
       <button
         type="button"
-        disabled={busy}
+        disabled={busy || disabled}
         onClick={() => void startGoogleSignIn()}
         className={cn(
           'ui-btn ui-btn-secondary w-full !min-h-12 gap-3',

@@ -6,7 +6,12 @@ import {
   type AccountAccess,
   type User,
 } from '@/shared/lib/api'
-import { disconnectFirebaseSession } from '@/shared/lib/firebase-client'
+import {
+  disconnectFirebaseSession,
+  changeFirebasePassword,
+  registerWithFirebasePassword,
+  signInWithFirebasePassword,
+} from '@/shared/lib/firebase-client'
 import { clearOfflineLearningData } from '@/shared/lib/offline-storage'
 
 async function disconnectFirebase(): Promise<void> {
@@ -39,9 +44,13 @@ type AuthState = {
   ) => Promise<User>
   /** Parent hands device to child (ends parent session) */
   enterAsChild: (childId: string, pin?: string) => Promise<User>
-  loginAdult: (login: string, password: string) => Promise<User>
+  loginAdult: (login: string, password: string, role?: 'parent' | 'teacher') => Promise<User>
   /** After GIS credential verified by API — set session user */
   setSessionUser: (user: User) => void
+  completeFirebaseSignIn: (
+    idToken: string,
+    options: { role: 'parent' | 'teacher'; registration?: { nickname?: string; parentalConsentAccepted: boolean } },
+  ) => Promise<User>
   registerAdult: (
     email: string,
     password: string,
@@ -123,6 +132,28 @@ async function hydrateAdultAccess(user: User) {
   }
 }
 
+async function exchangeFirebaseSession(
+  idToken: string,
+  options: { role: 'parent' | 'teacher'; registration?: { nickname?: string; parentalConsentAccepted: boolean } },
+) {
+  const { user } = await api<{ user: User }>('/api/auth/login/firebase', {
+    method: 'POST',
+    body: JSON.stringify({
+      idToken,
+      role: options.role,
+      ...(options.registration
+        ? {
+            registration: true,
+            nickname: options.registration.nickname,
+            parentalConsentAccepted: options.registration.parentalConsentAccepted,
+            termsAccepted: true,
+          }
+        : {}),
+    }),
+  })
+  return hydrateAdultAccess(user)
+}
+
 export const useAuth = create<AuthState>((set, get) => ({
   user: null,
   access: null,
@@ -202,16 +233,19 @@ export const useAuth = create<AuthState>((set, get) => ({
     return user
   },
 
-  loginAdult: async (login, password) => {
+  loginAdult: async (login, password, role = 'parent') => {
     set({ error: null })
-    // WHY: normalizeGatewayRequest maps '/api/auth/login/adult' → '/api/v1/account/login'
-    // The bare '/api/auth/login' has no mapping and would throw ApiError 501.
-    const { user } = await api<{ user: User }>('/api/auth/login/adult', {
-      method: 'POST',
-      body: JSON.stringify({ login, password }),
-    })
+    const idToken = await signInWithFirebasePassword(login, password)
     await clearPreviousLearnerData()
-    const hydrated = await hydrateAdultAccess(user)
+    const hydrated = await exchangeFirebaseSession(idToken, { role })
+    set(hydrated)
+    return hydrated.user
+  },
+
+  completeFirebaseSignIn: async (idToken, options) => {
+    set({ error: null })
+    await clearPreviousLearnerData()
+    const hydrated = await exchangeFirebaseSession(idToken, options)
     set(hydrated)
     return hydrated.user
   },
@@ -223,17 +257,12 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   registerAdult: async (email, password, role, nickname, parentalConsentAccepted) => {
     set({ error: null })
-    const { user } = await api<{ user: User }>('/api/auth/register/adult', {
-      method: 'POST',
-      body: JSON.stringify({
-        email,
-        password,
-        role,
-        nickname,
-        parentalConsentAccepted,
-      }),
+    const firebase = await registerWithFirebasePassword(email, password)
+    const hydrated = await exchangeFirebaseSession(firebase.idToken, {
+      role,
+      registration: { nickname, parentalConsentAccepted },
     })
-    const hydrated = await hydrateAdultAccess(user)
+    await firebase.sendVerification().catch(() => undefined)
     await clearPreviousLearnerData()
     set(hydrated)
     return hydrated.user
@@ -254,10 +283,7 @@ export const useAuth = create<AuthState>((set, get) => ({
   },
 
   changePassword: async (currentPassword, newPassword) => {
-    await api('/api/auth/change-password', {
-      method: 'POST',
-      body: JSON.stringify({ currentPassword, newPassword }),
-    })
+    await changeFirebasePassword(currentPassword, newPassword)
   },
 
   logout: async () => {
