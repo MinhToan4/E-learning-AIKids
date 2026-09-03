@@ -56,6 +56,14 @@ type AdminUser = {
   level: number
   xp: number
   createdAt: string
+  loginUsername?: string | null
+  authProviders?: string[]
+  isFirebaseLinked?: boolean
+  isGoogleLinked?: boolean
+  firebaseUid?: string | null
+  googleSub?: string | null
+  platformRoles?: string[]
+  personas?: string[]
 }
 
 type CourseOverview = {
@@ -145,8 +153,52 @@ export type AdminTab = 'system' | 'analytics' | 'logs' | 'ai' | 'users' | 'cours
 const ROLE_LABELS: Record<string, string> = {
   student: 'Học sinh',
   parent: 'Phụ huynh',
-  teacher: 'Giảng viên',
-  admin: 'Quản trị viên',
+  teacher: 'Giáo viên',
+  admin: 'Admin',
+}
+
+function UserAuthBadges({ user }: { user: AdminUser }) {
+  const hasFirebase = Boolean(user.isFirebaseLinked || user.firebaseUid || user.authProviders?.includes('firebase'))
+  const hasGoogle = Boolean(user.isGoogleLinked || user.googleSub || user.authProviders?.includes('google') || user.authProviders?.includes('google.com') || user.authProviders?.includes('firebase_google'))
+  const hasLocal = Boolean(user.loginUsername || !hasFirebase)
+  const isStudent = user.role === 'student' || Boolean(user.authProviders?.includes('pin'))
+
+  return (
+    <div className="flex flex-wrap items-center gap-1.5">
+      {hasFirebase && (
+        <span
+          title={user.firebaseUid ? `Firebase UID: ${user.firebaseUid}` : 'Đã xác thực qua Firebase Auth'}
+          className="inline-flex items-center gap-1 rounded-full border border-orange-200 bg-orange-50 px-2 py-0.5 text-xs font-bold text-orange-700 shadow-sm"
+        >
+          <span>🟠</span> Firebase Auth
+        </span>
+      )}
+      {hasGoogle && (
+        <span
+          title={user.googleSub ? `Google Sub: ${user.googleSub}` : 'Đăng nhập bằng Google'}
+          className="inline-flex items-center gap-1 rounded-full border border-sky-200 bg-sky-50 px-2 py-0.5 text-xs font-bold text-sky-700 shadow-sm"
+        >
+          <span>🔵</span> Google
+        </span>
+      )}
+      {hasLocal && (
+        <span
+          title={user.loginUsername ? `Tên đăng nhập alias: ${user.loginUsername}` : 'Tài khoản nội bộ'}
+          className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-700 shadow-sm"
+        >
+          <span>⚪</span> {user.loginUsername ? `Nội bộ (${user.loginUsername})` : 'Nội bộ'}
+        </span>
+      )}
+      {isStudent && (
+        <span
+          title="Đăng nhập bằng mã PIN học sinh"
+          className="inline-flex items-center gap-1 rounded-full border border-sun-200 bg-sun-100 px-2 py-0.5 text-xs font-bold text-sun-800 shadow-sm"
+        >
+          <span>🟡</span> Mã PIN
+        </span>
+      )}
+    </div>
+  )
 }
 
 const emptyRouting = (): RoutingState => ({
@@ -347,6 +399,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // ── Search / filter state ──────────────────────────────
   const [userSearch, setUserSearch] = useState('')
   const [userActiveFilter, setUserActiveFilter] = useState<'' | 'active' | 'inactive'>('')
+  const [userAuthFilter, setUserAuthFilter] = useState<'' | 'firebase' | 'google' | 'local' | 'pin'>('')
   const [logSearch, setLogSearch] = useState('')
   const [courseSearch, setCourseSearch] = useState('')
   const [courseStatusFilter, setCourseStatusFilter] = useState<'' | 'open' | 'soon'>('')
@@ -360,14 +413,27 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     if (roleFilter) list = list.filter((u) => u.role === roleFilter)
     if (userActiveFilter === 'active') list = list.filter((u) => u.active)
     if (userActiveFilter === 'inactive') list = list.filter((u) => !u.active)
+    if (userAuthFilter === 'firebase') {
+      list = list.filter((u) => Boolean(u.isFirebaseLinked || u.firebaseUid || u.authProviders?.includes('firebase')))
+    } else if (userAuthFilter === 'google') {
+      list = list.filter((u) => Boolean(u.isGoogleLinked || u.googleSub || u.authProviders?.includes('google') || u.authProviders?.includes('google.com') || u.authProviders?.includes('firebase_google')))
+    } else if (userAuthFilter === 'local') {
+      list = list.filter((u) => Boolean(u.loginUsername || !u.isFirebaseLinked || u.authProviders?.includes('password') || u.authProviders?.includes('local')))
+    } else if (userAuthFilter === 'pin') {
+      list = list.filter((u) => u.role === 'student' || Boolean(u.authProviders?.includes('pin')))
+    }
     if (userSearch) {
       const q = userSearch.toLowerCase()
       list = list.filter(
-        (u) => u.nickname?.toLowerCase().includes(q) || u.email?.toLowerCase().includes(q),
+        (u) =>
+          u.nickname?.toLowerCase().includes(q) ||
+          u.email?.toLowerCase().includes(q) ||
+          u.loginUsername?.toLowerCase().includes(q) ||
+          u.firebaseUid?.toLowerCase().includes(q),
       )
     }
     return list
-  }, [users, roleFilter, userActiveFilter, userSearch])
+  }, [users, roleFilter, userActiveFilter, userAuthFilter, userSearch])
 
   const filteredLogs = useMemo(() => {
     let list = loginLogs
@@ -613,6 +679,19 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       setEditTarget(null)
       await load()
     } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi cập nhật', 'error') }
+  }
+
+  async function syncFirebaseClaims(userId: string) {
+    try {
+      const data = await api<{ message?: string }>(`/api/admin/users/${userId}/sync-firebase-claims`, {
+        method: 'POST',
+      })
+      showToast(data.message ?? 'Đã đồng bộ Custom Claims lên Firebase Auth thành công', 'success')
+      await load()
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Lỗi đồng bộ Custom Claims lên Firebase', 'error')
+      throw e
+    }
   }
 
   async function purgeLogs() {
@@ -981,15 +1060,23 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <option value="active">Đang hoạt động</option>
             <option value="inactive">Vô hiệu hóa</option>
           </select>
+          {/* Auth provider filter */}
+          <select aria-label="Lọc tài khoản theo nguồn xác thực" className="min-h-11 rounded-xl border-2 border-border px-3 text-sm font-bold" value={userAuthFilter} onChange={(e) => setUserAuthFilter(e.target.value as '' | 'firebase' | 'google' | 'local' | 'pin')}>
+            <option value="">Tất cả nguồn</option>
+            <option value="firebase">Đã lên Firebase</option>
+            <option value="google">Dùng Google</option>
+            <option value="local">Nội bộ / Alias</option>
+            <option value="pin">Học sinh PIN</option>
+          </select>
           {/* Result count badge */}
-          {(userSearch || roleFilter || userActiveFilter) && (
+          {(userSearch || roleFilter || userActiveFilter || userAuthFilter) && (
             <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">
               {filteredUsers.length} / {users.length} tài khoản
             </span>
           )}
           {/* Clear all */}
-          {(userSearch || roleFilter || userActiveFilter) && (
-            <button type="button" className="text-xs font-bold text-muted underline" onClick={() => { setUserSearch(''); setRoleFilter(''); setUserActiveFilter('') }}>Xóa bộ lọc</button>
+          {(userSearch || roleFilter || userActiveFilter || userAuthFilter) && (
+            <button type="button" className="text-xs font-bold text-muted underline" onClick={() => { setUserSearch(''); setRoleFilter(''); setUserActiveFilter(''); setUserAuthFilter('') }}>Xóa bộ lọc</button>
           )}
           {/* Background reload indicator — shown when reloading with existing data (stale-while-revalidate) */}
           {loading && users.length > 0 && (
@@ -1003,20 +1090,38 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               <tr>
                 <th className="px-4 py-3 font-extrabold">Người dùng</th>
                 <th className="px-4 py-3 font-extrabold">Vai trò</th>
+                <th className="px-4 py-3 font-extrabold">Phương thức xác thực</th>
                 <th className="px-4 py-3 font-extrabold">Trạng thái</th>
                 <th className="px-4 py-3 font-extrabold" />
               </tr>
             </thead>
             <tbody>
               {usersPag.slice.length === 0 ? (
-                <tr><td colSpan={4} className="px-4 py-8 text-center text-muted">{users.length === 0 ? 'Không có tài khoản nào' : 'Không có tài khoản khớp bộ lọc'}</td></tr>
+                <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">{users.length === 0 ? 'Không có tài khoản nào' : 'Không có tài khoản khớp bộ lọc'}</td></tr>
               ) : usersPag.slice.map((u) => (
-                <tr key={u.id} className="border-b border-border/40">
+                <tr key={u.id} className="border-b border-border/40 hover:bg-brand-50/30">
                   <td className="px-4 py-3">
                     <p className="font-bold">{u.nickname ?? '—'}</p>
                     <p className="text-xs text-muted">{u.email ?? u.id.slice(0, 10)}</p>
                   </td>
-                  <td className="px-4 py-3 font-bold">{ROLE_LABELS[u.role] ?? u.role}</td>
+                  <td className="px-4 py-3">
+                    <div className="flex flex-col items-start gap-1">
+                      <span className="font-bold">{ROLE_LABELS[u.role] ?? u.role}</span>
+                      {u.platformRoles?.includes('superadmin') && (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-xs font-extrabold text-amber-800">
+                          👑 Superadmin
+                        </span>
+                      )}
+                      {u.platformRoles?.includes('platform_admin') && (
+                        <span className="inline-flex items-center gap-1 rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 text-xs font-extrabold text-purple-700">
+                          🛡️ Platform Admin
+                        </span>
+                      )}
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <UserAuthBadges user={u} />
+                  </td>
                   <td className="px-4 py-3">
                     <span className={cn('rounded-full px-2 py-0.5 text-xs font-extrabold', u.active ? 'bg-mint-100 text-success' : 'bg-coral-100 text-danger')}>
                       {u.active ? 'Đang hoạt động' : 'Đã vô hiệu hóa'}
@@ -1064,9 +1169,22 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                     <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600">
                       {ROLE_LABELS[u.role] ?? u.role}
                     </span>
+                    {u.platformRoles?.includes('superadmin') && (
+                      <span className="rounded-full border border-amber-300 bg-amber-50 px-2 py-0.5 text-xs font-extrabold text-amber-800">
+                        👑 Superadmin
+                      </span>
+                    )}
+                    {u.platformRoles?.includes('platform_admin') && (
+                      <span className="rounded-full border border-purple-200 bg-purple-50 px-2 py-0.5 text-xs font-extrabold text-purple-700">
+                        🛡️ Platform Admin
+                      </span>
+                    )}
                     <span className={cn('rounded-full px-2 py-0.5 text-xs font-extrabold', u.active ? 'bg-mint-100 text-success' : 'bg-coral-100 text-danger')}>
                       {u.active ? 'Đang hoạt động' : 'Đã vô hiệu hóa'}
                     </span>
+                  </div>
+                  <div className="mt-2">
+                    <UserAuthBadges user={u} />
                   </div>
                 </div>
                 <div className="flex shrink-0 flex-col gap-1.5">
@@ -1922,6 +2040,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         onChange={setEditForm}
         onSubmit={(e) => void patchUser(e)}
         onClose={() => setEditTarget(null)}
+        onSyncClaims={syncFirebaseClaims}
       />
     </div>
   )
@@ -1938,10 +2057,12 @@ type EditUserModalProps = {
   onChange: React.Dispatch<React.SetStateAction<{ nickname: string; role: AdminUser['role']; email: string; newPassword: string }>>
   onSubmit: (e: React.FormEvent) => void
   onClose: () => void
+  onSyncClaims: (userId: string) => Promise<void>
 }
 
-function EditUserModal({ target, form, onChange, onSubmit, onClose }: EditUserModalProps) {
+function EditUserModal({ target, form, onChange, onSubmit, onClose, onSyncClaims }: EditUserModalProps) {
   const firstInputRef = useRef<HTMLInputElement>(null)
+  const [syncingClaims, setSyncingClaims] = useState(false)
 
   // Auto-focus nickname input when modal opens
   useEffect(() => {
@@ -1959,6 +2080,16 @@ function EditUserModal({ target, form, onChange, onSubmit, onClose }: EditUserMo
   }, [target, onClose])
 
   if (!target) return null
+
+  async function handleSyncClaims() {
+    if (!target) return
+    setSyncingClaims(true)
+    try {
+      await onSyncClaims(target.id)
+    } finally {
+      setSyncingClaims(false)
+    }
+  }
 
   // Render into document.body via portal so the overlay truly covers the full
   // viewport, unaffected by any CSS transform / will-change on ancestor elements.
@@ -2018,8 +2149,8 @@ function EditUserModal({ target, form, onChange, onSubmit, onClose }: EditUserMo
             >
               <option value="student">Học sinh</option>
               <option value="parent">Phụ huynh</option>
-              <option value="teacher">Giảng viên</option>
-              <option value="admin">Quản trị viên</option>
+              <option value="teacher">Giáo viên</option>
+              <option value="admin">Admin</option>
             </select>
           </label>
 
@@ -2053,6 +2184,76 @@ function EditUserModal({ target, form, onChange, onSubmit, onClose }: EditUserMo
             />
             <span className="text-xs font-normal text-muted">Tối thiểu 8 ký tự. Để trống để giữ nguyên mật khẩu.</span>
           </label>
+
+          {/* Khu vực Thông tin Xác thực & Firebase */}
+          <div className="rounded-2xl border-2 border-border/80 bg-brand-50/40 p-4">
+            <h3 className="text-xs font-extrabold uppercase tracking-wide text-brand-600 mb-3">
+              Thông tin Xác thực & Firebase
+            </h3>
+            <div className="space-y-2.5 text-xs">
+              {/* Trạng thái Firebase Auth */}
+              <div className="flex items-start justify-between gap-2">
+                <span className="text-muted font-bold">Firebase Auth:</span>
+                <div className="text-right">
+                  {target.isFirebaseLinked || target.firebaseUid ? (
+                    <div>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-mint-100 px-2 py-0.5 font-extrabold text-success">
+                        ✓ Đã liên kết
+                      </span>
+                      {target.firebaseUid && (
+                        <p className="mt-1 font-mono text-[11px] text-muted break-all select-all">
+                          UID: {target.firebaseUid}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 font-bold text-muted">
+                      Chưa liên kết
+                    </span>
+                  )}
+                </div>
+              </div>
+
+              {/* Trạng thái Google Sign-in */}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-muted font-bold">Google Sign-in:</span>
+                {target.isGoogleLinked || target.googleSub ? (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-sky-100 px-2 py-0.5 font-extrabold text-sky-700">
+                    🔵 Đã liên kết
+                  </span>
+                ) : (
+                  <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2 py-0.5 font-bold text-muted">
+                    Chưa liên kết
+                  </span>
+                )}
+              </div>
+
+              {/* Tên đăng nhập alias (loginUsername) */}
+              <div className="flex items-center justify-between gap-2">
+                <span className="text-muted font-bold">Tên đăng nhập alias:</span>
+                {target.loginUsername ? (
+                  <code className="rounded bg-brand-100/70 px-2 py-0.5 font-mono font-bold text-brand-800">
+                    {target.loginUsername}
+                  </code>
+                ) : (
+                  <span className="text-muted italic">—</span>
+                )}
+              </div>
+            </div>
+
+            {/* Nút hành động Đồng bộ Custom Claims lên Firebase */}
+            <div className="mt-3 pt-3 border-t border-border/60">
+              <Button
+                type="button"
+                variant="secondary"
+                disabled={syncingClaims}
+                onClick={() => void handleSyncClaims()}
+                className="w-full text-xs font-bold"
+              >
+                {syncingClaims ? 'Đang đồng bộ Custom Claims...' : '⚡ Đồng bộ Custom Claims lên Firebase'}
+              </Button>
+            </div>
+          </div>
 
           {/* Actions */}
           <div className="mt-2 flex justify-end gap-3 border-t border-border/60 pt-4">

@@ -541,7 +541,7 @@ export function normalizeGatewayRequest(path: string, options: RequestInit = {})
   if (path === '/api/admin/system' || path === '/api/admin/analytics') {
     return { path: '/api/v1/system/aikids/admin/summary', options }
   }
-  if (/^\/api\/admin\/users(?:\/[^/?]+)?(?:\?.*)?$/.test(path) ||
+  if (/^\/api\/admin\/users(?:\/[^/?]+)*(?:\?.*)?$/.test(path) ||
       /^\/api\/admin\/login-logs(?:\?.*)?$/.test(path)) {
     const isAdminUserPatch = /^\/api\/admin\/users\/[^/?]+$/.test(path) &&
       (options.method ?? 'GET').toUpperCase() === 'PATCH'
@@ -2419,8 +2419,25 @@ export type QuestDetail = {
     /** Optional card illustration */
     imageUrl?: string | null
     imageAlt?: string | null
+    mee?: {
+      readText?: string
+      gesture?: 'presentation' | 'point-left' | 'point-right' | 'think' | 'idea'
+      autoRead?: boolean
+    }
   }>
-  check: Array<{ id: string; question: string; options: string[] }>
+  check: Array<{
+    id: string
+    question: string
+    options: string[]
+    /** Nội dung sư phạm do LMS cung cấp; frontend không tự suy luận lời giải. */
+    mee?: {
+      readText?: string
+      strategy?: string
+      hints?: string[]
+      gesture?: 'presentation' | 'point-left' | 'point-right' | 'think' | 'idea'
+      autoRead?: boolean
+    }
+  }>
   chips: Record<
     string,
     Array<{ id: string; slot: string; label: string; emoji: string; description?: string }>
