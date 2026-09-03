@@ -21,6 +21,9 @@ export function authFeedback(error: unknown, action: AuthAction): string {
   }
   if (action === 'login' && [
     'auth/invalid-credential',
+    'auth/invalid-login-credentials',
+    'auth/user-not-found',
+    'auth/wrong-password',
     'auth/invalid-email',
     'auth/user-disabled',
   ].includes(firebaseCode)) {

@@ -154,6 +154,45 @@ async function exchangeFirebaseSession(
   return hydrateAdultAccess(user)
 }
 
+export function resolveLoginAlias(login: string): string {
+  const trimmed = login.trim()
+  if (trimmed.includes('@')) {
+    return trimmed
+  }
+  if (trimmed.toLowerCase() === 'storymee-admin') {
+    return 'admin@storymee.com'
+  }
+  return `${trimmed.toLowerCase()}@storymee.vn`
+}
+
+export function formatFirebaseError(error: unknown): string {
+  const code = error && typeof error === 'object' && 'code' in error
+    ? String((error as { code?: unknown }).code ?? '')
+    : ''
+  if (code === 'auth/network-request-failed') {
+    return 'Kết nối đang gián đoạn. Bạn thử lại sau nhé.'
+  }
+  if (code === 'auth/too-many-requests') {
+    return 'Bạn đã thử nhiều lần. Vui lòng chờ một chút rồi thử lại.'
+  }
+  if (code === 'auth/user-disabled') {
+    return 'Tài khoản này chưa thể đăng nhập. Vui lòng liên hệ hỗ trợ.'
+  }
+  if ([
+    'auth/invalid-credential',
+    'auth/invalid-login-credentials',
+    'auth/user-not-found',
+    'auth/wrong-password',
+    'auth/invalid-email',
+  ].includes(code)) {
+    return 'Thông tin đăng nhập chưa đúng. Bạn kiểm tra lại nhé.'
+  }
+  if (error instanceof Error && error.message) {
+    return error.message
+  }
+  return 'Chưa thể đăng nhập. Bạn thử lại nhé.'
+}
+
 export const useAuth = create<AuthState>((set, get) => ({
   user: null,
   access: null,
@@ -236,35 +275,36 @@ export const useAuth = create<AuthState>((set, get) => ({
   loginAdult: async (login, password, role = 'parent') => {
     set({ error: null })
     const trimmedLogin = login.trim()
-    const isEmail = trimmedLogin.includes('@')
+    const resolvedEmail = resolveLoginAlias(trimmedLogin)
 
-    if (isEmail) {
+    try {
+      const idToken = await signInWithFirebasePassword(resolvedEmail, password)
+      await clearPreviousLearnerData()
+      const hydrated = await exchangeFirebaseSession(idToken, { role })
+      set(hydrated)
+      return hydrated.user
+    } catch (firebaseErr: any) {
+      const code = String(firebaseErr?.code || '')
+      if (code === 'auth/user-disabled' || code === 'auth/too-many-requests') {
+        set({ error: formatFirebaseError(firebaseErr) })
+        throw firebaseErr
+      }
+
+      // Giữ nguyên fallback sang /api/auth/login/adult như một cơ chế cứu hộ nếu Firebase service gặp sự cố
       try {
-        const idToken = await signInWithFirebasePassword(trimmedLogin, password)
+        const { user } = await api<{ user: User }>('/api/auth/login/adult', {
+          method: 'POST',
+          body: JSON.stringify({ login: trimmedLogin, password }),
+        })
         await clearPreviousLearnerData()
-        const hydrated = await exchangeFirebaseSession(idToken, { role })
+        const hydrated = await hydrateAdultAccess(user)
         set(hydrated)
         return hydrated.user
-      } catch (firebaseErr: any) {
-        const code = String(firebaseErr?.code || '')
-        const canFallback =
-          code === 'auth/user-not-found' ||
-          code === 'auth/invalid-credential' ||
-          code === 'auth/invalid-login-credentials' ||
-          code === 'auth/invalid-email'
-        if (!canFallback) throw firebaseErr
+      } catch {
+        set({ error: formatFirebaseError(firebaseErr) })
+        throw firebaseErr
       }
     }
-
-    // Username login (e.g. storymee-admin, teacher usernames) or unmigrated account fallback
-    const { user } = await api<{ user: User }>('/api/auth/login/adult', {
-      method: 'POST',
-      body: JSON.stringify({ login: trimmedLogin, password }),
-    })
-    await clearPreviousLearnerData()
-    const hydrated = await hydrateAdultAccess(user)
-    set(hydrated)
-    return hydrated.user
   },
 
   completeFirebaseSignIn: async (idToken, options) => {

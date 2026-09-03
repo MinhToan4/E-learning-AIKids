@@ -26,7 +26,7 @@ vi.mock('@/shared/lib/offline-storage', () => ({
   clearOfflineLearningData: mocks.clearOfflineLearningData,
 }))
 
-import { useAuth } from './auth'
+import { resolveLoginAlias, useAuth } from './auth'
 
 describe('auth store', () => {
   beforeEach(() => {
@@ -40,7 +40,26 @@ describe('auth store', () => {
     })
   })
 
-  it('signs adults in with Firebase and exchanges the ID token for an account session', async () => {
+  describe('resolveLoginAlias', () => {
+    it('resolves storymee-admin to admin@storymee.com case-insensitively', () => {
+      expect(resolveLoginAlias('storymee-admin')).toBe('admin@storymee.com')
+      expect(resolveLoginAlias('StoryMee-Admin')).toBe('admin@storymee.com')
+      expect(resolveLoginAlias('  STORYMEE-ADMIN  ')).toBe('admin@storymee.com')
+    })
+
+    it('retains email addresses as-is after trimming', () => {
+      expect(resolveLoginAlias('admin@example.test')).toBe('admin@example.test')
+      expect(resolveLoginAlias('  user@domain.vn  ')).toBe('user@domain.vn')
+    })
+
+    it('defaults non-email usernames to @storymee.vn alias', () => {
+      expect(resolveLoginAlias('teacher1')).toBe('teacher1@storymee.vn')
+      expect(resolveLoginAlias('Teacher_Anna')).toBe('teacher_anna@storymee.vn')
+      expect(resolveLoginAlias('  user123  ')).toBe('user123@storymee.vn')
+    })
+  })
+
+  it('signs adults in with normal email via Firebase and exchanges the ID token', async () => {
     mocks.api
       .mockResolvedValueOnce({
         user: {
@@ -84,13 +103,13 @@ describe('auth store', () => {
     )
   })
 
-  it('logs in adults with a username directly via core account API', async () => {
+  it('automatically resolves storymee-admin to admin@storymee.com and calls signInWithFirebasePassword', async () => {
     mocks.api
       .mockResolvedValueOnce({
         user: {
           id: 'admin-1',
           role: 'admin',
-          email: null,
+          email: 'admin@storymee.com',
           nickname: 'Admin',
           avatarId: null,
           level: 1,
@@ -122,15 +141,83 @@ describe('auth store', () => {
       .loginAdult('storymee-admin', 'admin-password')
 
     expect(user.role).toBe('admin')
-    expect(mocks.signInWithFirebasePassword).not.toHaveBeenCalled()
+    expect(mocks.signInWithFirebasePassword).toHaveBeenCalledWith(
+      'admin@storymee.com',
+      'admin-password',
+    )
+    expect(mocks.api).toHaveBeenNthCalledWith(
+      1,
+      '/api/auth/login/firebase',
+      {
+        method: 'POST',
+        body: JSON.stringify({
+          idToken: 'firebase-id-token',
+          role: 'parent',
+        }),
+      },
+    )
+  })
+
+  it('falls back to /api/auth/login/adult if Firebase authentication fails with recoverable error', async () => {
+    mocks.signInWithFirebasePassword.mockRejectedValueOnce({
+      code: 'auth/user-not-found',
+      message: 'User not found in Firebase',
+    })
+
+    mocks.api
+      .mockResolvedValueOnce({
+        user: {
+          id: 'legacy-user-1',
+          role: 'parent',
+          email: 'legacy@example.test',
+          nickname: 'Legacy Parent',
+          avatarId: null,
+          level: 1,
+          xp: 0,
+          onboarded: true,
+          goal: null,
+          parentId: null,
+          classId: null,
+        },
+      })
+      .mockResolvedValueOnce({
+        contexts: [],
+        active: null,
+      })
+
+    const user = await useAuth
+      .getState()
+      .loginAdult('legacy@example.test', 'legacy-password')
+
+    expect(user.id).toBe('legacy-user-1')
+    expect(mocks.signInWithFirebasePassword).toHaveBeenCalledWith(
+      'legacy@example.test',
+      'legacy-password',
+    )
     expect(mocks.api).toHaveBeenNthCalledWith(
       1,
       '/api/auth/login/adult',
       {
         method: 'POST',
-        body: JSON.stringify({ login: 'storymee-admin', password: 'admin-password' }),
+        body: JSON.stringify({ login: 'legacy@example.test', password: 'legacy-password' }),
       },
     )
+  })
+
+  it('sets store error and rejects when Firebase login fails and fallback also fails', async () => {
+    mocks.signInWithFirebasePassword.mockRejectedValueOnce({
+      code: 'auth/invalid-credential',
+      message: 'Invalid credentials',
+    })
+    mocks.api.mockRejectedValueOnce(new Error('Core account API rejected credentials'))
+
+    await expect(
+      useAuth.getState().loginAdult('admin@example.test', 'wrong-password'),
+    ).rejects.toMatchObject({
+      code: 'auth/invalid-credential',
+    })
+
+    expect(useAuth.getState().error).toBe('Thông tin đăng nhập chưa đúng. Bạn kiểm tra lại nhé.')
   })
 
   it('fails closed and clears learner state when the JWT expires', () => {
