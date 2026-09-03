@@ -52,6 +52,7 @@ type AdminUser = {
   role: string
   email: string | null
   nickname: string | null
+  name?: string | null
   active: boolean
   level: number
   xp: number
@@ -428,6 +429,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       const q = userSearch.toLowerCase()
       list = list.filter(
         (u) =>
+          u.name?.toLowerCase().includes(q) ||
           u.nickname?.toLowerCase().includes(q) ||
           u.email?.toLowerCase().includes(q) ||
           u.loginUsername?.toLowerCase().includes(q) ||
@@ -1103,7 +1105,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               ) : usersPag.slice.map((u) => (
                 <tr key={u.id} className="border-b border-border/40 hover:bg-brand-50/30">
                   <td className="px-4 py-3">
-                    <p className="font-bold">{u.nickname ?? '—'}</p>
+                    <p className="font-bold">{u.name ?? u.nickname ?? '—'}</p>
                     <p className="text-xs text-muted">{u.email ?? u.id.slice(0, 10)}</p>
                   </td>
                   <td className="px-4 py-3">
@@ -1165,7 +1167,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <div key={u.id} className="px-4 py-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-bold text-sm">{u.nickname ?? '—'}</p>
+                  <p className="truncate font-bold text-sm">{u.name ?? u.nickname ?? '—'}</p>
                   <p className="truncate text-xs text-muted">{u.email ?? u.id.slice(0, 10)}</p>
                   <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
                     <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600">
