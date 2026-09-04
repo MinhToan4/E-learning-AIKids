@@ -38,6 +38,7 @@ const AsmoAdminStudio = lazy(() => import('../components/AsmoAdminStudio').then(
 const VietQrModal = lazy(() => import('../components/VietQrModal').then((module) => ({ default: module.VietQrModal })))
 const AdminBillingPos = lazy(() => import('../components/AdminBillingPos').then((module) => ({ default: module.AdminBillingPos })))
 const PlanEditorModal = lazy(() => import('../components/PlanEditorModal').then((module) => ({ default: module.PlanEditorModal })))
+const AiEngineStudio = lazy(() => import('../components/AiEngineStudio').then((m) => ({ default: m.AiEngineStudio })))
 
 // ── Types ───────────────────────────────────────────────────
 type SystemInfo = {
@@ -1945,93 +1946,15 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     </div>
   )
 
-  // AI tab
+  // AI Engine & Multi-Provider Studio tab
   const aiTab = (
-    <div className="flex flex-col gap-5 max-w-3xl">
-      <div className="ui-card flex flex-col gap-4 p-5">
-        <div>
-          <h2 className="font-display text-xl">1. API Key Vidtory</h2>
-          <p className="text-sm text-muted">Key mã hóa AES-GCM trên server — không trả full key về trình duyệt.</p>
-        </div>
-        <div className={cn('rounded-2xl p-3 text-sm', vidtoryStatus?.configured ? 'bg-mint-100' : 'bg-sun-100/60')}>
-          <p className="font-bold">
-            Trạng thái:{' '}
-            {vidtoryStatus?.configured
-              ? <span className="text-success">Đã cấu hình · {vidtoryStatus.maskedHint} · {vidtoryStatus.source}</span>
-              : <span className="text-warning">Chưa có key</span>}
-          </p>
-        </div>
-        <form className="flex flex-col gap-3" onSubmit={(e) => void saveVidtoryKey(e)}>
-          <label className="flex flex-col gap-1 text-sm font-bold">
-            API Key mới
-            <input type="password" autoComplete="off" minLength={8} required placeholder="vidtory_…" className="min-h-11 rounded-xl border-2 border-border px-3 font-mono text-sm" value={vidtoryKey} onChange={(e) => setVidtoryKey(e.target.value)} />
-          </label>
-          <div className="flex flex-wrap gap-2">
-            <Button type="submit">Lưu key (mã hóa)</Button>
-            {vidtoryStatus?.configured && <Button type="button" variant="secondary" onClick={() => void clearVidtoryKey()}>Xóa key</Button>}
-          </div>
-        </form>
-      </div>
-      <form className="ui-card flex flex-col gap-4 p-5" onSubmit={(e) => void saveRouting(e)}>
-        <div>
-          <h2 className="font-display text-xl">2. Mô hình AI và tỷ lệ sử dụng</h2>
-          <p className="text-sm text-muted">Chia tỷ lệ yêu cầu giữa các mô hình. Tổng tỷ lệ nên bằng 100%.</p>
-        </div>
-        <label className="flex flex-col gap-1 text-sm font-bold">
-          Địa chỉ dịch vụ API
-          <input className="min-h-11 rounded-xl border-2 border-border px-3 font-mono text-sm" value={routing.baseURL} onChange={(e) => setRouting((r) => ({ ...r, baseURL: e.target.value }))} placeholder="https://bapi.vidtory.net" />
-        </label>
-        {(['image', 'video'] as const).map((kind) => (
-          <section key={kind} className="rounded-2xl border-2 border-border p-4">
-            <h3 className="font-display text-lg text-brand-600">{kind === 'image' ? 'Tạo ảnh' : 'Tạo video'}</h3>
-            <div className="mt-3 grid gap-3 sm:grid-cols-2">
-              {kind === 'image' ? (
-                <>
-                  <label className="flex flex-col gap-1 text-sm font-bold">Tỷ lệ khung hình
-                    <select className="min-h-11 rounded-xl border-2 border-border px-2" value={routing.image.aspectRatio} onChange={(e) => setRouting((r) => ({ ...r, image: { ...r.image, aspectRatio: e.target.value } }))}>
-                      <option value="IMAGE_ASPECT_RATIO_SQUARE">Vuông 1:1</option>
-                      <option value="IMAGE_ASPECT_RATIO_LANDSCAPE">Ngang 16:9</option>
-                      <option value="IMAGE_ASPECT_RATIO_PORTRAIT">Dọc 9:16</option>
-                    </select>
-                  </label>
-                  <label className="flex flex-col gap-1 text-sm font-bold">Độ phân giải
-                    <select className="min-h-11 rounded-xl border-2 border-border px-2" value={routing.image.resolution} onChange={(e) => setRouting((r) => ({ ...r, image: { ...r.image, resolution: e.target.value } }))}>
-                      <option value="1K">1K</option><option value="2K">2K</option><option value="4K">4K</option>
-                    </select>
-                  </label>
-                </>
-              ) : (
-                <>
-                  <label className="flex flex-col gap-1 text-sm font-bold">Tỷ lệ khung hình
-                    <select className="min-h-11 rounded-xl border-2 border-border px-2" value={routing.video.aspectRatio} onChange={(e) => setRouting((r) => ({ ...r, video: { ...r.video, aspectRatio: e.target.value } }))}>
-                      <option value="VIDEO_ASPECT_RATIO_LANDSCAPE">Ngang 16:9</option>
-                      <option value="VIDEO_ASPECT_RATIO_PORTRAIT">Dọc 9:16</option>
-                    </select>
-                  </label>
-                  <label className="flex flex-col gap-1 text-sm font-bold">Thời lượng (giây)
-                    <input type="number" min={1} max={30} className="min-h-11 rounded-xl border-2 border-border px-2" value={routing.video.duration} onChange={(e) => setRouting((r) => ({ ...r, video: { ...r.video, duration: Number(e.target.value) || 6 } }))} />
-                  </label>
-                </>
-              )}
-            </div>
-            <div className="mt-3 flex flex-col gap-2">
-              {routing[kind].models.map((m, i) => (
-                <div key={`${kind}-${i}`} className="grid gap-2 rounded-xl bg-brand-50/60 p-2 grid-cols-2 sm:grid-cols-[1fr_1fr_80px_70px_auto]">
-                  <input className="col-span-2 sm:col-span-1 min-h-11 rounded-lg border border-border px-3 font-mono text-xs" aria-label={`Mã mô hình ${i + 1}`} placeholder="Mã mô hình" value={m.modelId} onChange={(e) => updateModel(kind, i, { modelId: e.target.value })} />
-                  <input className="col-span-2 sm:col-span-1 min-h-11 rounded-lg border border-border px-3 text-sm" aria-label={`Tên hiển thị mô hình ${i + 1}`} placeholder="Tên hiển thị" value={m.label ?? ''} onChange={(e) => updateModel(kind, i, { label: e.target.value })} />
-                  <input type="number" min={0} max={100} className="min-h-11 rounded-lg border border-border px-3 text-sm" aria-label={`Tỷ lệ sử dụng mô hình ${i + 1}`} value={m.weight} onChange={(e) => updateModel(kind, i, { weight: Number(e.target.value) })} />
-                  <span className="flex items-center justify-center text-xs font-extrabold text-brand-600">{m.percent != null ? `${m.percent}%` : '—'}</span>
-                  <Button type="button" variant="ghost" onClick={() => removeModel(kind, i)}>Xóa</Button>
-                </div>
-              ))}
-              <Button type="button" variant="secondary" onClick={() => addModel(kind)}>Thêm mô hình {kind === 'image' ? 'ảnh' : 'video'}</Button>
-            </div>
-          </section>
-        ))}
-        <Button type="submit">Lưu cấu hình mô hình</Button>
-      </form>
-    </div>
+    <CmsErrorBoundary name="AI Engine & Routing Studio">
+      <Suspense fallback={<div className="ui-card p-8 font-display">Đang tải Trung tâm Điều phối AI...</div>}>
+        <AiEngineStudio />
+      </Suspense>
+    </CmsErrorBoundary>
   )
+
 
   // ── Billing tab UI ──────────────────────────────────────────
   const filteredBillingSubs = useMemo(() => {
@@ -2515,7 +2438,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       case 'users': return users.length > 0 || !loading
       case 'logs': return loginLogs.length > 0 || logSummary !== null || !loading
       case 'courses': return courses.length > 0 || !loading
-      case 'ai': return vidtoryStatus !== null
+      case 'ai': return true
       case 'billing': return billingStats !== null || !loading
       case 'legends': return true
       case 'asmo': return true
@@ -2539,7 +2462,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       case 'courses':
         return <CmsErrorBoundary name="Khóa học">{coursesTab}</CmsErrorBoundary>
       case 'ai':
-        return <CmsErrorBoundary name="AI Vidtory">{aiTab}</CmsErrorBoundary>
+        return aiTab
       case 'billing':
         return <CmsErrorBoundary name="Gói & Thanh toán">{billingTab}</CmsErrorBoundary>
       case 'legends':
@@ -2589,7 +2512,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             {tab === 'system' ? 'Hệ thống & tài khoản'
               : tab === 'analytics' ? 'Phân tích hoạt động'
                 : tab === 'logs' ? 'Nhật ký đăng nhập'
-                  : tab === 'ai' ? 'AI Vidtory'
+                  : tab === 'ai' ? 'Trung tâm AI & Điều phối Mô hình'
                     : tab === 'legends' ? 'Legend & Reward Studio'
                     : tab === 'asmo' ? 'Học & Thi ASMO'
                     : tab === 'billing' ? 'Gói & Thanh toán'

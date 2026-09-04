@@ -718,7 +718,7 @@ export function AppShell() {
       { to: '/admin/asmo', label: 'Học & Thi ASMO', icon: CmsSessionsIcon },
       { to: '/admin/legends', label: 'Huyền thoại & Reward', icon: CmsAiIcon },
       { to: '/admin/billing', label: 'Gói & Thanh toán', icon: CmsBillingIcon },
-      { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
+      { to: '/admin/ai', label: 'Điều phối AI', icon: CmsAiIcon },
       { to: '/teacher/courses', label: 'Biên soạn', icon: CmsCoursesIcon },
     ]
     // Show only the most-used items in the pinned bar; the rest live in the drawer

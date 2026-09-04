@@ -2611,3 +2611,104 @@ export type QuestProgress = {
   stars: number
   xpEarned: number
 }
+
+// ── Multi-Provider AI Engine & Policy Types & APIs ──────────
+export interface AiProviderCatalogItem {
+  id: string
+  displayName: string
+  kind: string
+  capabilities: string[]
+  aliases?: string[]
+  status: string
+  defaultModels?: Record<string, string>
+  allowedOnPlan?: boolean
+}
+
+export interface AiPlanPolicy {
+  allowedProviders?: string[]
+  defaultImageRoute?: string[]
+  note?: string
+}
+
+export interface AiProviderPolicyResponse {
+  planProviderPolicy: Record<string, AiPlanPolicy>
+  disabledImageProviders: string[]
+  sdkApiKey?: string
+  geminiApiKey?: string
+  universalNegativePrompt?: string
+}
+
+export interface AiProvidersResponse {
+  catalog: AiProviderCatalogItem[]
+  planProviderPolicy?: Record<string, AiPlanPolicy>
+  plan?: {
+    plan?: string
+    remaining?: number
+    allowedProviders?: string[]
+    defaultImageRoute?: string[]
+  } | null
+  imageRoute?: {
+    preferred?: string | null
+    routeLabel?: string
+    chain?: Array<{
+      providerId: string
+      credentialSource: string
+      hasCredentials: boolean
+      projectId?: string | null
+    }>
+  }
+}
+
+export async function fetchAiProviders(query?: { preferred?: string; userId?: string }): Promise<AiProvidersResponse> {
+  const searchParams = new URLSearchParams()
+  if (query?.preferred) searchParams.set('preferred', query.preferred)
+  if (query?.userId) searchParams.set('userId', query.userId)
+  const qs = searchParams.toString() ? `?${searchParams.toString()}` : ''
+  return api<AiProvidersResponse>(`/api/v1/jobs/providers${qs}`)
+}
+
+export async function fetchAiProviderPolicy(): Promise<AiProviderPolicyResponse> {
+  return api<AiProviderPolicyResponse>('/api/v1/jobs/providers/policy')
+}
+
+export async function updateAiProviderPolicy(data: {
+  planProviderPolicy?: Record<string, AiPlanPolicy>
+  disabledImageProviders?: string[]
+  sdkApiKey?: string
+  geminiApiKey?: string
+  vertexApiKey?: string
+  vertexProjectId?: string
+  vertexLocation?: string
+  universalNegativePrompt?: string
+  videoProvider?: string
+  llmProvider?: string
+  [key: string]: unknown
+}): Promise<AiProviderPolicyResponse> {
+  return api<AiProviderPolicyResponse>('/api/v1/jobs/providers/policy', {
+    method: 'PUT',
+    body: JSON.stringify(data),
+  })
+}
+
+export async function saveProviderApiKey(provider: string, apiKey: string): Promise<{ success: boolean; maskedHint?: string }> {
+  const cleanKey = apiKey.trim()
+  const payload: Record<string, unknown> = {
+    apiKey: cleanKey,
+    provider,
+  }
+  if (provider === 'vidtory-sdk') payload.sdkApiKey = cleanKey
+  if (provider === 'gemini-native') payload.geminiApiKey = cleanKey
+  if (provider === 'vertex') payload.vertexApiKey = cleanKey
+  if (provider === 'openai') payload.openaiApiKey = cleanKey
+
+  await api<unknown>('/api/v1/jobs/providers/policy', {
+    method: 'PUT',
+    body: JSON.stringify(payload),
+  })
+
+  return {
+    success: true,
+    maskedHint: cleanKey.length > 8 ? `${cleanKey.slice(0, 5)}••••${cleanKey.slice(-4)}` : '••••',
+  }
+}
+
