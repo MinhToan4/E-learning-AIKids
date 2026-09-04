@@ -1446,17 +1446,30 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
   // WHY: BE trả { status, data: {...} } — normalizeGatewayResponse đã unwrap "data"
   // thành payload. Các handler dưới đây chuẩn hóa từng endpoint để FE nhận
   // đúng shape, không cần type-cast thừa.
-  if (path === '/api/v1/billing/admin/subscriptions/stats') {
+  if (path === '/api/v1/billing/admin/subscriptions/stats' || path === '/api/admin/billing/subscriptions/stats') {
     return {
       stats: recordValue(payload.stats),
       plans: Array.isArray(payload.plans) ? payload.plans : [],
     }
   }
-  if (/^\/api\/v1\/billing\/admin\/subscriptions(?:\?.*)?$/.test(path)) {
+  if (/^\/api\/(?:v1\/billing\/admin|admin\/billing)\/subscriptions(?:\?.*)?$/.test(path)) {
     return Array.isArray(body.data) ? body.data : (Array.isArray(payload) ? payload : [])
   }
-  if (path === '/api/v1/billing/admin/subscriptions/pending-intents') {
+  if (path === '/api/v1/billing/admin/subscriptions/pending-intents' || path === '/api/admin/billing/subscriptions/pending-intents') {
     return Array.isArray(body.data) ? body.data : (Array.isArray(payload) ? payload : [])
+  }
+  if (
+    path === '/api/v1/billing/admin/subscriptions/checkout' ||
+    path === '/api/admin/billing/subscriptions/checkout' ||
+    path === '/api/v1/billing/admin/subscriptions/grant' ||
+    path === '/api/admin/billing/subscriptions/grant' ||
+    /^\/api\/(?:v1\/billing\/admin|admin\/billing)\/subscriptions\/intents\/[^/?]+\/complete$/.test(path)
+  ) {
+    return {
+      status: String(body.status ?? payload.status ?? 'success'),
+      message: String(body.message ?? payload.message ?? ''),
+      data: (body.data && typeof body.data === 'object' ? body.data : payload) as Record<string, unknown>,
+    }
   }
   if (path === '/api/parent/plans') {
     const rows = Array.isArray(body.data) ? body.data as Array<Record<string, unknown>> : []

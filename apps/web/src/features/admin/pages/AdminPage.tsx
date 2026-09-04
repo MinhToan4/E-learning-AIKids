@@ -9,7 +9,7 @@
  */
 import { lazy, Suspense, useEffect, useRef, useState, useCallback, useMemo, type ReactNode } from 'react'
 import { createPortal } from 'react-dom'
-import { Search } from 'lucide-react'
+import { Search, X } from 'lucide-react'
 import { useNavigate } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
@@ -32,8 +32,11 @@ import {
   CmsUsersIcon,
 } from '@/shared/components/icons/CmsIcons'
 import { CmsErrorBoundary } from '@/shared/components/CmsErrorBoundary'
+import type { VietQrModalData } from '../components/VietQrModal'
 const LegendRewardStudio = lazy(() => import('../components/LegendRewardStudio').then((module) => ({ default: module.LegendRewardStudio })))
 const AsmoAdminStudio = lazy(() => import('../components/AsmoAdminStudio').then((module) => ({ default: module.AsmoAdminStudio })))
+const VietQrModal = lazy(() => import('../components/VietQrModal').then((module) => ({ default: module.VietQrModal })))
+const AdminBillingPos = lazy(() => import('../components/AdminBillingPos').then((module) => ({ default: module.AdminBillingPos })))
 
 // ── Types ───────────────────────────────────────────────────
 type SystemInfo = {
@@ -49,7 +52,7 @@ type SystemInfo = {
   vidtory?: { configured: boolean; maskedHint: string | null; source: string }
 }
 
-type AdminUser = {
+export type AdminUser = {
   id: string
   role: string
   email: string | null
@@ -163,7 +166,7 @@ type RoutingState = {
 }
 
 // ── Billing types ─────────────────────────────────────────────
-type PlanDef = {
+export type PlanDef = {
   id: string; name: string; amountMinor: number; currency: string;
   monthlyCreateCredits: number; maxChildren: number; maxOpenCoursesPerChild?: number;
   features: string[]; requiresPayment: boolean;
@@ -440,7 +443,10 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const [billingSubSearch, setBillingSubSearch] = useState('')
   const [billingSubs, setBillingSubs] = useState<SubscriptionRow[]>([])
   const [pendingIntents, setPendingIntents] = useState<PendingIntent[]>([])
-  // Grant form — targetUser tìm bằng email, không phải UUID thủ công
+  // POS & Grant form state
+  const [billingAdminMode, setBillingAdminMode] = useState<'checkout' | 'vietqr' | 'grant'>('checkout')
+  const [paymentMethod, setPaymentMethod] = useState<'transfer' | 'cash'>('transfer')
+  const [vietQrModalIntent, setVietQrModalIntent] = useState<VietQrModalData | null>(null)
   const [grantForm, setGrantForm] = useState({ userEmail: '', planId: 'starter', durationMonths: 1, reason: '' })
   const [grantLoading, setGrantLoading] = useState(false)
   const [grantUserResults, setGrantUserResults] = useState<AdminUser[]>([])
@@ -448,6 +454,23 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const [grantSelectedUser, setGrantSelectedUser] = useState<AdminUser | null>(null)
   const [billingConfirmIntent, setBillingConfirmIntent] = useState<PendingIntent | null>(null)
   const [billingPlanView, setBillingPlanView] = useState<'subscribers' | 'plans'>('subscribers')
+
+  // Plan metadata — bổ sung từ billingPlans nếu có, fallback sang labels cứng
+  const PLAN_LABELS: Record<string, string> = useMemo(() => {
+    const base: Record<string, string> = { free: 'Miễn phí', starter: 'Starter', premium_family: 'Premium Gia Đình', pro: 'Pro' }
+    billingPlans.forEach((p) => { base[p.id] = p.name })
+    return base
+  }, [billingPlans])
+
+  const availablePlans: PlanDef[] = useMemo(() => {
+    const nonFree = billingPlans.filter((p) => p.id !== 'free')
+    if (nonFree.length > 0) return nonFree
+    return [
+      { id: 'starter', name: 'Starter', amountMinor: 69000, currency: 'vnd', monthlyCreateCredits: 20, maxChildren: 2, maxOpenCoursesPerChild: 2, features: ['20 lượt tạo AI/tháng', 'Tối đa 2 hồ sơ trẻ'], requiresPayment: true },
+      { id: 'premium_family', name: 'Premium Gia Đình', amountMinor: 149000, currency: 'vnd', monthlyCreateCredits: 60, maxChildren: 4, maxOpenCoursesPerChild: 5, features: ['60 lượt tạo AI/tháng', 'Tối đa 4 hồ sơ trẻ'], requiresPayment: true },
+      { id: 'pro', name: 'Pro', amountMinor: 349000, currency: 'vnd', monthlyCreateCredits: 200, maxChildren: 8, maxOpenCoursesPerChild: 999, features: ['200 lượt tạo AI/tháng', 'Tối đa 8 hồ sơ trẻ'], requiresPayment: true },
+    ]
+  }, [billingPlans])
 
   // ── Search / filter state ──────────────────────────────
   const [userSearch, setUserSearch] = useState('')
@@ -805,44 +828,184 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi purge', 'error') }
   }
 
-  // ── Billing handlers ────────────────────────────────────────
+  // ── Billing / POS handlers ───────────────────────────────────
 
-  /** Tìm user theo email để admin chọn khi grant gói thủ công */
-  async function searchGrantUser(email: string) {
-    const q = email.trim()
-    if (q.length < 3) { setGrantUserResults([]); return }
-    setGrantUserSearching(true)
-    try {
-      const data = await api<{ users: AdminUser[] }>(`/api/admin/users?email=${encodeURIComponent(q)}`)
-      // Lọc chỉ hiện parent/teacher — không grant cho student/child
-      setGrantUserResults((data.users ?? []).filter((u) => u.role === 'parent' || u.role === 'teacher'))
-    } catch { setGrantUserResults([]) }
-    finally { setGrantUserSearching(false) }
+  function generateSuggestedReason(
+    mode: 'checkout' | 'vietqr' | 'grant',
+    method: 'transfer' | 'cash',
+    planName: string,
+    durationMonths: number,
+  ) {
+    const todayStr = new Date().toLocaleDateString('vi-VN', { day: '2-digit', month: '2-digit' })
+    if (mode === 'checkout') {
+      return method === 'cash'
+        ? `Thu tiền mặt tại quầy gói ${planName} ${durationMonths} tháng ngày ${todayStr}`
+        : `Thu tiền chuyển khoản ngân hàng gói ${planName} ${durationMonths} tháng ngày ${todayStr}`
+    }
+    if (mode === 'vietqr') {
+      return `Tạo đơn VietQR gói ${planName} ${durationMonths} tháng ngày ${todayStr}`
+    }
+    return `Cấp học bổng / ưu đãi 0đ gói ${planName} ${durationMonths} tháng ngày ${todayStr}`
   }
 
-  async function grantPlan(e: React.FormEvent) {
+  /** Tìm user theo email / tên / username để admin chọn khi lên gói / thanh toán / grant */
+  async function searchGrantUser(email: string) {
+    const q = email.trim()
+    if (q.length < 2) {
+      setGrantUserResults([])
+      return
+    }
+
+    const lower = q.toLowerCase()
+    // Tìm kiếm tức thì từ mảng users đã tải để không bị trễ mạng
+    if (users.length > 0) {
+      const immediate = users.filter((u) => {
+        const isEligible = u.role === 'parent' || u.role === 'teacher'
+        if (!isEligible) return false
+        const matchEmail = (u.email ?? '').toLowerCase().includes(lower)
+        const matchName = (u.nickname ?? '').toLowerCase().includes(lower)
+        const matchUsername = (u.loginUsername ?? '').toLowerCase().includes(lower)
+        return matchEmail || matchName || matchUsername
+      })
+      if (immediate.length > 0) {
+        setGrantUserResults(immediate)
+      }
+    }
+
+    setGrantUserSearching(true)
+    try {
+      const data = await api<{ users: AdminUser[] }>(`/api/admin/users?search=${encodeURIComponent(q)}`)
+      const results = (data.users ?? []).filter((u) => {
+        const isEligible = u.role === 'parent' || u.role === 'teacher'
+        if (!isEligible) return false
+        const matchEmail = (u.email ?? '').toLowerCase().includes(lower)
+        const matchName = (u.nickname ?? '').toLowerCase().includes(lower)
+        const matchUsername = (u.loginUsername ?? '').toLowerCase().includes(lower)
+        return matchEmail || matchName || matchUsername
+      })
+      setGrantUserResults(results)
+    } catch {
+      // nếu API lỗi, vẫn giữ kết quả tức thì nếu có
+    } finally {
+      setGrantUserSearching(false)
+    }
+  }
+
+  function resetGrantForm() {
+    setGrantForm({ userEmail: '', planId: 'starter', durationMonths: 1, reason: '' })
+    setGrantSelectedUser(null)
+    setGrantUserResults([])
+  }
+
+  async function handlePosSubmit(e: React.FormEvent) {
     e.preventDefault()
-    if (!grantSelectedUser || !grantForm.planId) return
+    if (!grantSelectedUser || !grantForm.planId) {
+      showToast('Vui lòng chọn phụ huynh hoặc giảng viên', 'error')
+      return
+    }
+
+    const planName = PLAN_LABELS[grantForm.planId] ?? grantForm.planId
+    const autoReason = grantForm.reason.trim() || generateSuggestedReason(
+      billingAdminMode, paymentMethod, planName, grantForm.durationMonths,
+    )
+
     setGrantLoading(true)
     try {
-      const payload = {
-        targetUserId: grantSelectedUser.id,
-        planId: grantForm.planId,
-        durationMonths: Number(grantForm.durationMonths) || 1,
-        reason: grantForm.reason.trim() || `Admin cấp thủ công cho ${grantSelectedUser.email}`,
+      if (billingAdminMode === 'checkout') {
+        const payload = {
+          targetUserId: grantSelectedUser.id,
+          planId: grantForm.planId,
+          durationMonths: Number(grantForm.durationMonths) || 1,
+          immediatePaid: true,
+          paymentMethod,
+          note: autoReason,
+        }
+        const res = await api<{ message?: string; data?: unknown }>(
+          '/api/admin/billing/subscriptions/checkout',
+          { method: 'POST', body: JSON.stringify(payload) },
+        )
+        showToast(
+          res.message || `Đã thu tiền và kích hoạt gói ${planName} thành công cho ${grantSelectedUser.email}!`,
+          'success',
+        )
+        resetGrantForm()
+        await load()
+      } else if (billingAdminMode === 'vietqr') {
+        const payload = {
+          targetUserId: grantSelectedUser.id,
+          planId: grantForm.planId,
+          durationMonths: Number(grantForm.durationMonths) || 1,
+          immediatePaid: false,
+          paymentMethod: 'vietqr',
+          note: autoReason,
+        }
+        const res = await api<{
+          message?: string
+          data?: {
+            paymentIntent?: { id: string; publicId: string; amountMinor: string | number }
+            vietqr?: { paymentCode: string; amount: number }
+          }
+        }>(
+          '/api/admin/billing/subscriptions/checkout',
+          { method: 'POST', body: JSON.stringify(payload) },
+        )
+        const data = res.data
+        const curPlan = billingPlans.find((p) => p.id === grantForm.planId)
+        const unitPrice = curPlan?.amountMinor ?? (grantForm.planId === 'starter' ? 69000 : grantForm.planId === 'premium_family' ? 149000 : 349000)
+        const totalAmount = unitPrice * grantForm.durationMonths
+        const paymentCode = data?.vietqr?.paymentCode || data?.paymentIntent?.publicId?.replace(/^pi_/, '').slice(0, 16).toUpperCase() || 'AIKIDS'
+        const publicId = data?.paymentIntent?.publicId || ''
+
+        setVietQrModalIntent({
+          publicId,
+          paymentCode,
+          amount: data?.vietqr?.amount || Number(data?.paymentIntent?.amountMinor || totalAmount),
+          planId: grantForm.planId,
+          planName,
+          userName: grantSelectedUser.nickname ?? grantSelectedUser.email ?? 'Phụ huynh',
+          userEmail: grantSelectedUser.email ?? '',
+          durationMonths: grantForm.durationMonths,
+        })
+        showToast(res.message || 'Đã tạo đơn chờ thanh toán VietQR!', 'success')
+        await load()
+      } else {
+        // Mode grant (học bổng / 0đ)
+        const payload = {
+          targetUserId: grantSelectedUser.id,
+          planId: grantForm.planId,
+          durationMonths: Number(grantForm.durationMonths) || 1,
+          reason: autoReason,
+        }
+        const res = await api<{ message?: string }>(
+          '/api/admin/billing/subscriptions/grant',
+          { method: 'POST', body: JSON.stringify(payload) },
+        )
+        showToast(
+          res.message || `Đã cấp gói ${planName} thành công cho ${grantSelectedUser.email}!`,
+          'success',
+        )
+        resetGrantForm()
+        await load()
       }
-      const res = await api<{ message: string }>(
-        '/api/admin/billing/subscriptions/grant',
-        { method: 'POST', body: JSON.stringify(payload) },
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Lỗi xử lý lên gói', 'error')
+    } finally {
+      setGrantLoading(false)
+    }
+  }
+
+  async function handleConfirmVietQrPaid(publicId: string) {
+    try {
+      const res = await api<{ message?: string }>(
+        `/api/admin/billing/subscriptions/intents/${encodeURIComponent(publicId)}/complete`,
+        { method: 'POST' },
       )
-      showToast(res.message ?? `Đã cấp gói ${grantForm.planId} cho ${grantSelectedUser.email}`, 'success')
-      // Reset form
-      setGrantForm({ userEmail: '', planId: 'starter', durationMonths: 1, reason: '' })
-      setGrantSelectedUser(null)
-      setGrantUserResults([])
+      showToast(res.message || 'Xác nhận nhận tiền thành công!', 'success')
+      setVietQrModalIntent(null)
       await load()
-    } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi cấp gói', 'error') }
-    finally { setGrantLoading(false) }
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Lỗi xác nhận nhận tiền', 'error')
+    }
   }
 
   /** Quick-grant từ subscriber row — prefill user vào form */
@@ -851,8 +1014,16 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       id: sub.userId, email: sub.email, nickname: sub.name,
       role: sub.role, active: sub.active, level: 1, xp: 0, createdAt: sub.createdAt,
     })
-    setGrantForm((f) => ({ ...f, userEmail: sub.email ?? '' }))
-    // Scroll to grant form
+    const targetPlan = sub.plan && sub.plan !== 'free' ? sub.plan : 'starter'
+    const planName = PLAN_LABELS[targetPlan] ?? targetPlan
+    const suggested = generateSuggestedReason(billingAdminMode, paymentMethod, planName, grantForm.durationMonths)
+    setGrantForm((f) => ({
+      ...f,
+      userEmail: sub.email ?? '',
+      planId: targetPlan,
+      reason: suggested,
+    }))
+    // Scroll to POS form
     document.getElementById('billing-grant-form')?.scrollIntoView({ behavior: 'smooth', block: 'start' })
   }
 
@@ -1683,13 +1854,6 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     )
   }, [billingSubs, billingSubSearch])
 
-  // Plan metadata — bổ sung từ billingPlans nếu có, fallback sang labels cứng
-  const PLAN_LABELS: Record<string, string> = useMemo(() => {
-    const base: Record<string, string> = { free: 'Miễn phí', starter: 'Starter', premium_family: 'Premium Gia Đình', pro: 'Pro' }
-    billingPlans.forEach((p) => { base[p.id] = p.name })
-    return base
-  }, [billingPlans])
-
   const PLAN_COLORS: Record<string, string> = {
     free: 'bg-slate-100 text-slate-600',
     starter: 'bg-sky-50 text-sky-700',
@@ -1975,175 +2139,39 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
           )}
         </div>
 
-        {/* ─── RIGHT: Grant panel ─── */}
-        <div id="billing-grant-form" className="flex flex-col gap-4">
-          <form
-            className="ui-card p-5"
-            onSubmit={(e) => void grantPlan(e)}
-          >
-            <div className="mb-4">
-              <p className="text-xs font-extrabold uppercase tracking-wide text-brand-500">Cấp gói thủ công</p>
-              <h2 className="font-display text-xl text-text mt-0.5">Kích hoạt không qua thanh toán</h2>
+        {/* ─── RIGHT: TRUNG TÂM LÊN GÓI & THU NGÂN (ADMIN POS) ─── */}
+        <Suspense
+          fallback={
+            <div id="billing-grant-form" className="ui-card p-6 min-h-[480px] flex items-center justify-center">
+              <div className="flex flex-col items-center gap-3">
+                <div className="h-8 w-8 animate-spin rounded-full border-4 border-brand-500 border-t-transparent" />
+                <p className="text-xs font-bold text-muted">Đang tải Admin POS...</p>
+              </div>
             </div>
-
-            {/* User search */}
-            <div className="flex flex-col gap-1">
-              <label className="text-sm font-bold" htmlFor="grant-user-search">Tìm phụ huynh / giảng viên</label>
-              <div className="relative">
-                <span className="pointer-events-none absolute inset-y-0 left-3 flex items-center text-muted">
-                  <Search size={15} />
-                </span>
-                <input
-                  id="grant-user-search"
-                  type="search"
-                  placeholder="Nhập email..."
-                  className="w-full min-h-11 rounded-xl border-2 border-border bg-white pl-9 pr-3 text-sm outline-none transition focus:border-brand-400"
-                  value={grantForm.userEmail}
-                  onChange={(e) => {
-                    setGrantForm((f) => ({ ...f, userEmail: e.target.value }))
-                    void searchGrantUser(e.target.value)
-                  }}
-                  autoComplete="off"
-                />
-              </div>
-              {/* Search results dropdown */}
-              {grantUserSearching && (
-                <p className="text-xs text-muted animate-pulse">Đang tìm...</p>
-              )}
-              {!grantUserSearching && grantUserResults.length > 0 && !grantSelectedUser && (
-                <div className="rounded-xl border-2 border-brand-200 bg-white shadow-sm overflow-hidden">
-                  {grantUserResults.map((u) => (
-                    <button
-                      key={u.id}
-                      type="button"
-                      className="flex w-full items-center gap-3 px-3 py-2.5 text-left text-sm hover:bg-brand-50 transition"
-                      onClick={() => {
-                        setGrantSelectedUser(u)
-                        setGrantForm((f) => ({ ...f, userEmail: u.email ?? f.userEmail }))
-                        setGrantUserResults([])
-                      }}
-                    >
-                      <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-100 text-xs font-bold text-brand-600">
-                        {(u.nickname ?? u.email ?? '?')[0]?.toUpperCase()}
-                      </span>
-                      <div className="min-w-0">
-                        <p className="font-bold truncate">{u.nickname ?? '—'}</p>
-                        <p className="text-xs text-muted truncate font-mono">{u.email}</p>
-                      </div>
-                      <span className="ml-auto rounded-full bg-slate-100 px-2 py-0.5 text-xs font-bold text-slate-600 shrink-0">
-                        {ROLE_LABELS[u.role] ?? u.role}
-                      </span>
-                    </button>
-                  ))}
-                </div>
-              )}
-              {!grantUserSearching && grantForm.userEmail.length >= 3 && grantUserResults.length === 0 && !grantSelectedUser && (
-                <p className="text-xs text-muted">Không tìm thấy phụ huynh/giảng viên với email này.</p>
-              )}
-              {/* Selected user chip */}
-              {grantSelectedUser && (
-                <div className="flex items-center gap-2 rounded-xl bg-brand-50 px-3 py-2">
-                  <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-200 text-xs font-black text-brand-700">
-                    {(grantSelectedUser.nickname ?? grantSelectedUser.email ?? '?')[0]?.toUpperCase()}
-                  </span>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-bold text-sm truncate">{grantSelectedUser.nickname ?? '—'}</p>
-                    <p className="text-xs text-muted font-mono truncate">{grantSelectedUser.email}</p>
-                  </div>
-                  <button
-                    type="button"
-                    className="shrink-0 text-muted hover:text-danger transition text-lg leading-none"
-                    onClick={() => { setGrantSelectedUser(null); setGrantForm((f) => ({ ...f, userEmail: '' })); setGrantUserResults([]) }}
-                    aria-label="Xóa người dùng đã chọn"
-                  >
-                    ✕
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Plan select */}
-            <label className="mt-3 flex flex-col gap-1 text-sm font-bold">
-              Gói học
-              <select
-                className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm outline-none transition focus:border-brand-400"
-                value={grantForm.planId}
-                onChange={(e) => setGrantForm((f) => ({ ...f, planId: e.target.value }))}
-              >
-                {billingPlans.filter((p) => p.id !== 'free').map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.name} — {p.amountMinor === 0 ? 'Miễn phí' : `${Number(p.amountMinor).toLocaleString('vi-VN')}₫/tháng`}
-                  </option>
-                ))}
-              </select>
-              {/* Selected plan info */}
-              {(() => {
-                const sel = billingPlans.find((p) => p.id === grantForm.planId)
-                if (!sel) return null
-                return (
-                  <span className="text-xs text-muted font-normal">
-                    {sel.monthlyCreateCredits} lượt AI · tối đa {sel.maxChildren} hồ sơ trẻ · {sel.maxOpenCoursesPerChild === 999 ? 'không giới hạn' : sel.maxOpenCoursesPerChild ?? '?'} khóa/trẻ
-                  </span>
-                )
-              })()}
-            </label>
-
-            {/* Duration */}
-            <label className="mt-3 flex flex-col gap-1 text-sm font-bold">
-              Thời hạn (tháng)
-              <div className="flex gap-2">
-                {[1, 3, 6, 12].map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    className={cn(
-                      'flex-1 rounded-xl border-2 py-2 text-sm font-bold transition',
-                      grantForm.durationMonths === m
-                        ? 'border-brand-400 bg-brand-50 text-brand-700'
-                        : 'border-border bg-white text-muted hover:border-brand-300',
-                    )}
-                    onClick={() => setGrantForm((f) => ({ ...f, durationMonths: m }))}
-                  >
-                    {m}th
-                  </button>
-                ))}
-              </div>
-            </label>
-
-            {/* Reason */}
-            <label className="mt-3 flex flex-col gap-1 text-sm font-bold">
-              Lý do cấp
-              <input
-                required
-                placeholder="VD: CK qua tổng đài ngày 09/08, mã GD 123456..."
-                className="min-h-11 rounded-xl border-2 border-border bg-white px-3 text-sm outline-none transition focus:border-brand-400"
-                value={grantForm.reason}
-                onChange={(e) => setGrantForm((f) => ({ ...f, reason: e.target.value }))}
-              />
-            </label>
-
-            {/* Summary before submit */}
-            {grantSelectedUser && (
-              <div className="mt-3 rounded-xl bg-brand-50 p-3 text-xs">
-                <p className="font-extrabold text-brand-700 mb-1">Xác nhận kích hoạt:</p>
-                <p><span className="text-muted">Tài khoản:</span> <span className="font-bold">{grantSelectedUser.email}</span></p>
-                <p><span className="text-muted">Gói:</span> <span className="font-bold">{PLAN_LABELS[grantForm.planId] ?? grantForm.planId}</span></p>
-                <p><span className="text-muted">Thời hạn:</span> <span className="font-bold">{grantForm.durationMonths} tháng</span></p>
-                <p className="mt-1 text-muted italic">Gói sẽ được kích hoạt ngay, không thể hoàn tác.</p>
-              </div>
-            )}
-
-            <Button
-              type="submit"
-              disabled={grantLoading || !grantSelectedUser}
-              className="mt-4 w-full"
-            >
-              {grantLoading ? 'Đang kích hoạt...' : '⚡ Kích hoạt gói ngay'}
-            </Button>
-          </form>
-
-
-        </div>
+          }
+        >
+          <AdminBillingPos
+            billingAdminMode={billingAdminMode}
+            setBillingAdminMode={setBillingAdminMode}
+            paymentMethod={paymentMethod}
+            setPaymentMethod={setPaymentMethod}
+            grantForm={grantForm}
+            setGrantForm={setGrantForm}
+            grantLoading={grantLoading}
+            grantSelectedUser={grantSelectedUser}
+            setGrantSelectedUser={setGrantSelectedUser}
+            grantUserResults={grantUserResults}
+            setGrantUserResults={setGrantUserResults}
+            grantUserSearching={grantUserSearching}
+            searchGrantUser={searchGrantUser}
+            availablePlans={availablePlans}
+            planLabels={PLAN_LABELS}
+            planBadgeColors={PLAN_BADGE_COLORS}
+            roleLabels={ROLE_LABELS}
+            handlePosSubmit={handlePosSubmit}
+            generateSuggestedReason={generateSuggestedReason}
+          />
+        </Suspense>
       </div>
 
       {/* Confirm payment intent dialog */}
@@ -2155,6 +2183,17 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         onConfirm={() => billingConfirmIntent && void confirmIntent(billingConfirmIntent)}
         onCancel={() => setBillingConfirmIntent(null)}
       />
+
+      {/* VietQR Modal */}
+      {vietQrModalIntent && (
+        <Suspense fallback={null}>
+          <VietQrModal
+            intent={vietQrModalIntent}
+            onClose={() => setVietQrModalIntent(null)}
+            onConfirmPaid={handleConfirmVietQrPaid}
+          />
+        </Suspense>
+      )}
     </div>
   )
 
@@ -2528,3 +2567,5 @@ function EditUserModal({ target, form, onChange, onSubmit, onClose, onSyncClaims
     document.body,  // ← portal target: outside any transform context
   )
 }
+
+
