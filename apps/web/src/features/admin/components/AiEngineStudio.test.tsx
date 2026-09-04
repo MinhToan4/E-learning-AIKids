@@ -82,7 +82,7 @@ describe('AiEngineStudio Component', () => {
     document.body.innerHTML = ''
   })
 
-  it('renders AiEngineStudio without crashing and displays all 4 sub-tabs', async () => {
+  it('renders AiEngineStudio without crashing and displays all 5 sub-tabs', async () => {
     await act(async () => {
       root.render(createElement(AiEngineStudio))
     })
@@ -91,11 +91,12 @@ describe('AiEngineStudio Component', () => {
     const studioEl = container.querySelector('[data-testid="ai-engine-studio"]')
     expect(studioEl).not.toBeNull()
 
-    // 4 tab buttons
+    // 5 tab buttons
     expect(container.textContent).toContain('1. Nhà Cung Cấp & Khóa API')
     expect(container.textContent).toContain('2. Luồng Điều Phối & Fallback')
-    expect(container.textContent).toContain('3. Ma Trận Gói Học (Plan Matrix)')
-    expect(container.textContent).toContain('4. An Toàn Trẻ Em & Probe Tester')
+    expect(container.textContent).toContain('3. Khung Prompt Sẵn (Prompt Studio)')
+    expect(container.textContent).toContain('4. Ma Trận Gói Học (Plan Matrix)')
+    expect(container.textContent).toContain('5. An Toàn Trẻ Em & Probe Tester')
 
     // Tab 1 content by default
     expect(container.textContent).toContain('Danh Mục Nhà Cung Cấp & Quản Trị Khóa Kết Nối')
@@ -108,7 +109,7 @@ describe('AiEngineStudio Component', () => {
     expect(container.textContent).toContain('Suno Audio Engine')
   })
 
-  it('switches between all 4 sub-tabs seamlessly', async () => {
+  it('switches between all 5 sub-tabs seamlessly', async () => {
     await act(async () => {
       root.render(createElement(AiEngineStudio))
     })
@@ -128,9 +129,28 @@ describe('AiEngineStudio Component', () => {
     expect(container.textContent).toContain('Cấu hình Tạo Video (Video Engine)')
     expect(container.textContent).toContain('Bộ Não Sư Phạm Mèo Mee')
 
-    // ── Tab 3: Plan Matrix ──────────────────────────────────
+    // ── Tab 3: Prompt Studio ────────────────────────────────
+    const promptsTabBtn = buttons().find((b) =>
+      b.textContent?.includes('3. Khung Prompt Sẵn (Prompt Studio)'),
+    )
+    expect(promptsTabBtn).toBeDefined()
+    await act(async () => {
+      promptsTabBtn?.click()
+    })
+
+    expect(container.textContent).toContain('Trung Tâm Quản Trị Khung Prompt Sẵn (Prompt Studio)')
+    expect(container.textContent).toContain('Phác Thảo Sang Tranh Vẽ (Sketch to Art)')
+    expect(container.textContent).toContain('Xưởng Tạo Nhân Vật & Linh Vật (Character Studio)')
+    expect(container.textContent).toContain('Kịch Bản Truyện Tranh 4 Khung (4-Panel Comic)')
+    expect(container.textContent).toContain('Sáng Tác Truyện Chữ Thiếu Nhi (Story Narrative)')
+    expect(container.textContent).toContain('Ghép Thẻ Tạo Ảnh Bài Học (Scaffolded Chip Prompt)')
+    expect(container.textContent).toContain('Minh Họa Toán & Khoa Học ASMO (ASMO Visualizer)')
+    expect(container.textContent).toContain('Trợ Giảng Sư Phạm Mèo Mee (Mee Tutor System Prompt)')
+    expect(container.textContent).toContain('Video Hoạt Cảnh Thiếu Nhi (Video Motion Prompt)')
+
+    // ── Tab 4: Plan Matrix ──────────────────────────────────
     const matrixTabBtn = buttons().find((b) =>
-      b.textContent?.includes('3. Ma Trận Gói Học (Plan Matrix)'),
+      b.textContent?.includes('4. Ma Trận Gói Học (Plan Matrix)'),
     )
     expect(matrixTabBtn).toBeDefined()
     await act(async () => {
@@ -143,9 +163,9 @@ describe('AiEngineStudio Component', () => {
     expect(container.textContent).toContain('Gói Premium Gia Đình')
     expect(container.textContent).toContain('Gói Pro VIP (ASMO Master)')
 
-    // ── Tab 4: Child Safety & Probe Tester ───────────────────
+    // ── Tab 5: Child Safety & Probe Tester ───────────────────
     const safetyTabBtn = buttons().find((b) =>
-      b.textContent?.includes('4. An Toàn Trẻ Em & Probe Tester'),
+      b.textContent?.includes('5. An Toàn Trẻ Em & Probe Tester'),
     )
     expect(safetyTabBtn).toBeDefined()
     await act(async () => {
@@ -224,7 +244,7 @@ describe('AiEngineStudio Component', () => {
 
     // Switch to matrix tab
     const matrixTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('3. Ma Trận Gói Học (Plan Matrix)'),
+      b.textContent?.includes('4. Ma Trận Gói Học (Plan Matrix)'),
     )
     await act(async () => {
       matrixTabBtn?.click()
@@ -263,7 +283,7 @@ describe('AiEngineStudio Component', () => {
 
     // Switch to safety tab
     const safetyTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('4. An Toàn Trẻ Em & Probe Tester'),
+      b.textContent?.includes('5. An Toàn Trẻ Em & Probe Tester'),
     )
     await act(async () => {
       safetyTabBtn?.click()
@@ -371,7 +391,7 @@ describe('AiEngineStudio Component', () => {
 
     // Switch to safety tab
     const safetyTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('4. An Toàn Trẻ Em & Probe Tester'),
+      b.textContent?.includes('5. An Toàn Trẻ Em & Probe Tester'),
     )
     await act(async () => {
       safetyTabBtn?.click()
@@ -592,7 +612,7 @@ describe('AiEngineStudio Component', () => {
 
     // Switch to safety tab
     const safetyTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('4. An Toàn Trẻ Em & Probe Tester'),
+      b.textContent?.includes('5. An Toàn Trẻ Em & Probe Tester'),
     )
     await act(async () => {
       safetyTabBtn?.click()
@@ -699,5 +719,376 @@ describe('AiEngineStudio Component', () => {
       }),
     )
     expect(document.body.textContent).toContain('Đã lưu cấu hình Luồng điều phối')
+  })
+
+  // ── Prompt Studio Specific Tests ─────────────────────────
+  it('filters prompt frameworks by category (all, art, story, lesson, asmo, video)', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Switch to Tab 3: Prompt Studio
+    const promptsTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('3. Khung Prompt Sẵn (Prompt Studio)'),
+    )
+    expect(promptsTabBtn).toBeDefined()
+    await act(async () => {
+      promptsTabBtn?.click()
+    })
+
+    // All categories initially show all 8 items
+    expect(container.textContent).toContain('Phác Thảo Sang Tranh Vẽ (Sketch to Art)')
+    expect(container.textContent).toContain('Xưởng Tạo Nhân Vật & Linh Vật (Character Studio)')
+    expect(container.textContent).toContain('Kịch Bản Truyện Tranh 4 Khung (4-Panel Comic)')
+    expect(container.textContent).toContain('Sáng Tác Truyện Chữ Thiếu Nhi (Story Narrative)')
+    expect(container.textContent).toContain('Ghép Thẻ Tạo Ảnh Bài Học (Scaffolded Chip Prompt)')
+    expect(container.textContent).toContain('Minh Họa Toán & Khoa Học ASMO (ASMO Visualizer)')
+    expect(container.textContent).toContain('Trợ Giảng Sư Phạm Mèo Mee (Mee Tutor System Prompt)')
+    expect(container.textContent).toContain('Video Hoạt Cảnh Thiếu Nhi (Video Motion Prompt)')
+
+    const filterBtn = (label: string) =>
+      Array.from(container.querySelectorAll('button')).find((b) =>
+        b.textContent?.includes(label),
+      )
+
+    // Filter by Art: only art frameworks visible
+    await act(async () => {
+      filterBtn('Tranh vẽ & Mỹ thuật')?.click()
+    })
+    expect(container.textContent).toContain('Phác Thảo Sang Tranh Vẽ (Sketch to Art)')
+    expect(container.textContent).toContain('Xưởng Tạo Nhân Vật & Linh Vật (Character Studio)')
+    expect(container.textContent).not.toContain('Kịch Bản Truyện Tranh 4 Khung')
+    expect(container.textContent).not.toContain('Video Hoạt Cảnh Thiếu Nhi')
+
+    // Filter by Story
+    await act(async () => {
+      filterBtn('Truyện & Kịch bản')?.click()
+    })
+    expect(container.textContent).toContain('Kịch Bản Truyện Tranh 4 Khung (4-Panel Comic)')
+    expect(container.textContent).toContain('Sáng Tác Truyện Chữ Thiếu Nhi (Story Narrative)')
+    expect(container.textContent).not.toContain('Phác Thảo Sang Tranh Vẽ')
+
+    // Filter by Lesson
+    await act(async () => {
+      filterBtn('Ghép thẻ bài học')?.click()
+    })
+    expect(container.textContent).toContain('Ghép Thẻ Tạo Ảnh Bài Học (Scaffolded Chip Prompt)')
+    expect(container.textContent).not.toContain('Kịch Bản Truyện Tranh 4 Khung')
+
+    // Filter by ASMO
+    await act(async () => {
+      filterBtn('ASMO & Trợ giảng')?.click()
+    })
+    expect(container.textContent).toContain('Minh Họa Toán & Khoa Học ASMO (ASMO Visualizer)')
+    expect(container.textContent).toContain('Trợ Giảng Sư Phạm Mèo Mee (Mee Tutor System Prompt)')
+    expect(container.textContent).not.toContain('Ghép Thẻ Tạo Ảnh Bài Học')
+
+    // Filter by Video
+    await act(async () => {
+      filterBtn('Video hoạt cảnh')?.click()
+    })
+    expect(container.textContent).toContain('Video Hoạt Cảnh Thiếu Nhi (Video Motion Prompt)')
+    expect(container.textContent).not.toContain('Minh Họa Toán & Khoa Học ASMO')
+
+    // Restore to All
+    await act(async () => {
+      filterBtn('Tất cả')?.click()
+    })
+    expect(container.textContent).toContain('Phác Thảo Sang Tranh Vẽ (Sketch to Art)')
+    expect(container.textContent).toContain('Video Hoạt Cảnh Thiếu Nhi (Video Motion Prompt)')
+  })
+
+  it('edits prefix, suffix, and quality keywords in prompt framework card and updates live preview in real time', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Switch to Tab 3: Prompt Studio
+    const promptsTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('3. Khung Prompt Sẵn (Prompt Studio)'),
+    )
+    await act(async () => {
+      promptsTabBtn?.click()
+    })
+
+    // Find prefix textarea for Sketch to Art
+    const prefixInput = container.querySelector(
+      'textarea[aria-label="Tiền tố Phác Thảo Sang Tranh Vẽ (Sketch to Art)"]',
+    ) as HTMLTextAreaElement
+    expect(prefixInput).not.toBeNull()
+
+    // Edit prefix
+    await act(async () => {
+      const descriptor = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')
+      descriptor?.set?.call(
+        prefixInput,
+        'Vẽ lại bức tranh từ phác thảo của bé theo phong cách {styleDescriptor}.',
+      )
+      prefixInput.dispatchEvent(new Event('input', { bubbles: true }))
+      prefixInput.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+
+    // Live preview for sketch_to_art must reflect this update
+    let livePreview = container.querySelector('[data-testid="live-prompt-framework-sketch_to_art"]')
+    expect(livePreview?.textContent).toContain('Vẽ lại bức tranh từ phác thảo của bé theo phong cách')
+    expect(livePreview?.textContent).toContain('handmade claymation, matte plasticine')
+
+    // Find suffix textarea for Sketch to Art
+    const suffixInput = container.querySelector(
+      'textarea[aria-label="Hậu tố Phác Thảo Sang Tranh Vẽ (Sketch to Art)"]',
+    ) as HTMLTextAreaElement
+    expect(suffixInput).not.toBeNull()
+
+    // Edit suffix
+    await act(async () => {
+      const descriptor = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')
+      descriptor?.set?.call(suffixInput, 'Bảo đảm an toàn tuyệt đối lứa tuổi 6-12.')
+      suffixInput.dispatchEvent(new Event('input', { bubbles: true }))
+      suffixInput.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+
+    livePreview = container.querySelector('[data-testid="live-prompt-framework-sketch_to_art"]')
+    expect(livePreview?.textContent).toContain('Bảo đảm an toàn tuyệt đối lứa tuổi 6-12.')
+  })
+
+  it('inserts dynamic variable token when clicking a variable chip', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Switch to Tab 3: Prompt Studio
+    const promptsTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('3. Khung Prompt Sẵn (Prompt Studio)'),
+    )
+    await act(async () => {
+      promptsTabBtn?.click()
+    })
+
+    // Find variable chip button for childSketch
+    const chipBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('{childSketch}'),
+    )
+    expect(chipBtn).toBeDefined()
+
+    await act(async () => {
+      chipBtn?.click()
+    })
+
+    // Toast notification confirms insertion
+    expect(document.body.textContent).toContain('Đã chèn biến {childSketch} vào tiền tố')
+
+    // Prefix textarea now contains {childSketch}
+    const prefixInput = container.querySelector(
+      'textarea[aria-label="Tiền tố Phác Thảo Sang Tranh Vẽ (Sketch to Art)"]',
+    ) as HTMLTextAreaElement
+    expect(prefixInput.value).toContain('{childSketch}')
+  })
+
+  it('resets single framework and restores all default frameworks', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Switch to Tab 3: Prompt Studio
+    const promptsTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('3. Khung Prompt Sẵn (Prompt Studio)'),
+    )
+    await act(async () => {
+      promptsTabBtn?.click()
+    })
+
+    // Edit prefix of character studio
+    const prefixInput = container.querySelector(
+      'textarea[aria-label="Tiền tố Xưởng Tạo Nhân Vật & Linh Vật (Character Studio)"]',
+    ) as HTMLTextAreaElement
+    expect(prefixInput).not.toBeNull()
+
+    await act(async () => {
+      const descriptor = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')
+      descriptor?.set?.call(prefixInput, 'Một nhân vật hoàn toàn mới.')
+      prefixInput.dispatchEvent(new Event('input', { bubbles: true }))
+      prefixInput.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+
+    let livePreview = container.querySelector(
+      '[data-testid="live-prompt-framework-character_mascot"]',
+    )
+    expect(livePreview?.textContent).toContain('Một nhân vật hoàn toàn mới.')
+
+    // Click "Khôi phục mẫu chuẩn mục này" on character card
+    const resetSingleButtons = Array.from(container.querySelectorAll('button')).filter((b) =>
+      b.textContent?.includes('Khôi phục mẫu chuẩn mục này'),
+    )
+    expect(resetSingleButtons.length).toBeGreaterThan(0)
+
+    await act(async () => {
+      resetSingleButtons[1].click() // Second card is character_mascot
+    })
+
+    // Live preview restored
+    livePreview = container.querySelector('[data-testid="live-prompt-framework-character_mascot"]')
+    expect(livePreview?.textContent).toContain('Create a full-body original character illustration')
+    expect(document.body.textContent).toContain('Đã khôi phục khung prompt')
+
+    // Click "Khôi phục toàn bộ mặc định" in global toolbar
+    const resetAllBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Khôi phục toàn bộ mặc định'),
+    )
+    expect(resetAllBtn).toBeDefined()
+
+    await act(async () => {
+      resetAllBtn?.click()
+    })
+
+    expect(document.body.textContent).toContain('Đã khôi phục toàn bộ 8 khung prompt')
+  })
+
+  it('saves prompt frameworks and displays success toast', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Switch to Tab 3: Prompt Studio
+    const promptsTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('3. Khung Prompt Sẵn (Prompt Studio)'),
+    )
+    await act(async () => {
+      promptsTabBtn?.click()
+    })
+
+    // Click "Lưu tất cả khung prompt"
+    const saveBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Lưu tất cả khung prompt'),
+    )
+    expect(saveBtn).toBeDefined()
+
+    await act(async () => {
+      saveBtn?.click()
+    })
+
+    expect(document.body.textContent).toContain(
+      'Đã lưu cấu hình 8 khung prompt chuẩn SSOT thành công!',
+    )
+  })
+
+  it('interacts with live variable tester inputs and sends prompt to probe tester in tab 5', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Switch to Tab 3: Prompt Studio
+    const promptsTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('3. Khung Prompt Sẵn (Prompt Studio)'),
+    )
+    await act(async () => {
+      promptsTabBtn?.click()
+    })
+
+    // Find variable input for topic (ASMO)
+    const topicInput = container.querySelector(
+      'input[aria-label="Giá trị thử nghiệm topic"]',
+    ) as HTMLInputElement
+    expect(topicInput).not.toBeNull()
+
+    await act(async () => {
+      const descriptor = Object.getOwnPropertyDescriptor(HTMLInputElement.prototype, 'value')
+      descriptor?.set?.call(topicInput, 'Hình học không gian xếp khối lập phương Olympic')
+      topicInput.dispatchEvent(new Event('input', { bubbles: true }))
+      topicInput.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+
+    // Live preview updates with new topic
+    const livePreview = container.querySelector(
+      '[data-testid="live-prompt-framework-asmo_math_visual"]',
+    )
+    expect(livePreview?.textContent).toContain('Hình học không gian xếp khối lập phương Olympic')
+
+    // Click "Thử nghiệm qua Probe Tester"
+    const probeButtons = Array.from(container.querySelectorAll('button')).filter((b) =>
+      b.textContent?.includes('Thử nghiệm qua Probe Tester'),
+    )
+    expect(probeButtons.length).toBeGreaterThan(0)
+
+    await act(async () => {
+      probeButtons[0].click()
+    })
+
+    // Should navigate to Tab 5 (Probe Tester)
+    expect(container.textContent).toContain('Công Cụ Thử Nghiệm Nhanh Pipeline (Probe Tester)')
+    expect(document.body.textContent).toContain('Đã nạp prompt vào Probe Tester ở Tab 5!')
+  })
+
+  it('toggles framework enabled state and copies full prompt with visual feedback', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Switch to Tab 3: Prompt Studio
+    const promptsTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('3. Khung Prompt Sẵn (Prompt Studio)'),
+    )
+    await act(async () => {
+      promptsTabBtn?.click()
+    })
+
+    // Toggle switch for first framework
+    const toggleBtn = container.querySelector(
+      'button[aria-label="Bật tắt khung Phác Thảo Sang Tranh Vẽ (Sketch to Art)"]',
+    ) as HTMLButtonElement
+    expect(toggleBtn).not.toBeNull()
+
+    await act(async () => {
+      toggleBtn.click()
+    })
+
+    // Copy full prompt button
+    const copyPromptBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Sao chép Prompt đầy đủ'),
+    )
+    expect(copyPromptBtn).toBeDefined()
+
+    await act(async () => {
+      copyPromptBtn?.click()
+    })
+
+    expect(document.body.textContent).toContain('Đã sao chép prompt')
+  })
+
+  it('opens and closes import JSON modal cleanly', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Switch to Tab 3: Prompt Studio
+    const promptsTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('3. Khung Prompt Sẵn (Prompt Studio)'),
+    )
+    await act(async () => {
+      promptsTabBtn?.click()
+    })
+
+    // Open import modal
+    const importBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Nhập cấu hình JSON'),
+    )
+    expect(importBtn).toBeDefined()
+
+    await act(async () => {
+      importBtn?.click()
+    })
+
+    expect(document.body.textContent).toContain('Nhập Cấu Hình Khung Prompt JSON')
+
+    // Close modal via Hủy
+    const cancelBtn = Array.from(document.body.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Hủy',
+    )
+    expect(cancelBtn).toBeDefined()
+
+    await act(async () => {
+      cancelBtn?.click()
+    })
+
+    expect(document.body.querySelector('#import-modal-title')).toBeNull()
   })
 })
