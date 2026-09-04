@@ -700,6 +700,14 @@ export function App() {
               }
             />
             <Route
+              path="/admin/asmo"
+              element={
+                <Guard roles={['admin']}>
+                  <AdminPage tab="asmo" />
+                </Guard>
+              }
+            />
+            <Route
               path="/admin/legends"
               element={
                 <Guard roles={['admin']}>

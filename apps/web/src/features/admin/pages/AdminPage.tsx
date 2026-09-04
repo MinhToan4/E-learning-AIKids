@@ -33,6 +33,7 @@ import {
 } from '@/shared/components/icons/CmsIcons'
 import { CmsErrorBoundary } from '@/shared/components/CmsErrorBoundary'
 const LegendRewardStudio = lazy(() => import('../components/LegendRewardStudio').then((module) => ({ default: module.LegendRewardStudio })))
+const AsmoAdminStudio = lazy(() => import('../components/AsmoAdminStudio').then((module) => ({ default: module.AsmoAdminStudio })))
 
 // ── Types ───────────────────────────────────────────────────
 type SystemInfo = {
@@ -198,7 +199,7 @@ type LoginLogSummary = {
   purgedAt: string
 }
 
-export type AdminTab = 'system' | 'analytics' | 'logs' | 'ai' | 'users' | 'courses' | 'legends' | 'billing'
+export type AdminTab = 'system' | 'analytics' | 'logs' | 'ai' | 'users' | 'courses' | 'legends' | 'billing' | 'asmo'
 
 const ROLE_LABELS: Record<string, string> = {
   student: 'Học sinh',
@@ -2174,6 +2175,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       case 'ai': return vidtoryStatus !== null
       case 'billing': return billingStats !== null || !loading
       case 'legends': return true
+      case 'asmo': return true
       default: return true
     }
   }
@@ -2213,6 +2215,22 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </Suspense>
           </CmsErrorBoundary>
         )
+      case 'asmo':
+        return (
+          <CmsErrorBoundary name="ASMO Learning & Exam Studio">
+            <Suspense
+              fallback={
+                <div className="ui-card p-8" role="status">
+                  <div className="ui-skeleton h-8 w-72 rounded-xl" />
+                  <div className="ui-skeleton mt-5 h-48 rounded-2xl" />
+                  <p className="mt-4 text-sm text-muted">Đang mở ASMO Studio…</p>
+                </div>
+              }
+            >
+              <AsmoAdminStudio />
+            </Suspense>
+          </CmsErrorBoundary>
+        )
       default:
         return null
     }
@@ -2230,6 +2248,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                 : tab === 'logs' ? 'Nhật ký đăng nhập'
                   : tab === 'ai' ? 'AI Vidtory'
                     : tab === 'legends' ? 'Legend & Reward Studio'
+                    : tab === 'asmo' ? 'Học & Thi ASMO'
                     : tab === 'billing' ? 'Gói & Thanh toán'
                     : tab === 'users' ? 'Tài khoản'
                       : 'Khóa học'}

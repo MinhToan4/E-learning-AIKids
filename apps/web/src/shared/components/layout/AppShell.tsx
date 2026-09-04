@@ -1,4 +1,4 @@
-import { Suspense, useEffect, useState } from 'react'
+import { Suspense, useEffect, useState, useSyncExternalStore } from 'react'
 import type { CSSProperties } from 'react'
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router'
 import { prefetchRoute } from '@/app/route-prefetch'
@@ -18,6 +18,7 @@ import {
   CmsLogsIcon,
   CmsLogoutIcon,
   CmsOverviewIcon,
+  CmsSessionsIcon,
   CmsUsersIcon,
 } from '@/shared/components/icons/CmsIcons'
 
@@ -26,6 +27,7 @@ import {
   KidBackpackImageIcon,
   KidBadgeImageIcon,
   KidEventImageIcon,
+  KidCreativeImageIcon,
   KidHomeImageIcon,
   KidProfileImageIcon,
   KidProgressImageIcon,
@@ -73,8 +75,22 @@ function RouteOutlet() {
   return <Suspense fallback={<RouteContentFallback />}><Outlet /></Suspense>
 }
 
+function useMediaQuery(query: string) {
+  return useSyncExternalStore(
+    (onChange) => {
+      if (typeof window.matchMedia !== 'function') return () => undefined
+      const media = window.matchMedia(query)
+      media.addEventListener('change', onChange)
+      return () => media.removeEventListener('change', onChange)
+    },
+    () => typeof window.matchMedia === 'function' && window.matchMedia(query).matches,
+    () => false,
+  )
+}
+
 function studentFeatureTone(pathname: string): StudentFeatureTone {
   if (pathname.startsWith('/asmo')) return 'sky'
+  if (pathname.startsWith('/lab/mee-cat') || pathname.startsWith('/mee-cat-studio')) return 'sky'
   if (pathname.startsWith('/world') || pathname.startsWith('/course') || pathname.startsWith('/lesson')) return 'sky'
   if (pathname.startsWith('/progress') || pathname.startsWith('/leaderboard')) return 'mint'
   if (pathname.startsWith('/achievements') || pathname.startsWith('/backpack')) return 'sun'
@@ -163,6 +179,7 @@ function MobileLogoutButton() {
 const studentPinnedNav: StudentNavItem[] = [
   { to: '/home',        label: 'Nhà',     icon: KidHomeImageIcon, tone: 'brand' },
   { to: '/world',       label: 'Học',     icon: KidWorldImageIcon, tone: 'sky' },
+  { to: '/lab/mee-cat', label: 'Lab Mee', icon: KidCreativeImageIcon, tone: 'sky' },
   { to: '/progress', label: 'Tiến bộ', icon: KidProgressImageIcon, tone: 'mint' },
 ]
 const studentDrawerNav: StudentNavItem[] = [
@@ -270,49 +287,48 @@ function StudentDrawer() {
       )}
 
       {/* Drawer sheet — slide up */}
-      <div
-        className={cn(
-          'student-drawer-sheet',
-          open ? 'student-drawer-open' : 'student-drawer-closed',
-        )}
-        role="dialog"
-        aria-modal="true"
-        aria-label="Bộ sưu tập của con"
-      >
-        <div className="student-drawer-handle" aria-hidden="true" />
-        <p className="student-drawer-title">Bộ sưu tập của con</p>
-        <nav className="student-drawer-grid" aria-label="Bộ sưu tập">
-          {studentDrawerNav.map(({ to, label, icon: Icon, tone }) => (
-            <NavLink
-              key={to}
-              to={to}
-              data-feature-tone={tone}
-              onPointerEnter={() => prefetchRoute(to)}
-              onFocus={() => prefetchRoute(to)}
-              onClick={handleNav}
-              className={({ isActive }) =>
-                cn('student-drawer-item', isActive && 'student-drawer-item-active')
-              }
+      {open && (
+        <div
+          className="student-drawer-sheet student-drawer-open"
+          role="dialog"
+          aria-modal="true"
+          aria-label="Bộ sưu tập của con"
+        >
+          <div className="student-drawer-handle" aria-hidden="true" />
+          <p className="student-drawer-title">Bộ sưu tập của con</p>
+          <nav className="student-drawer-grid" aria-label="Bộ sưu tập">
+            {studentDrawerNav.map(({ to, label, icon: Icon, tone }) => (
+              <NavLink
+                key={to}
+                to={to}
+                data-feature-tone={tone}
+                onPointerEnter={() => prefetchRoute(to)}
+                onFocus={() => prefetchRoute(to)}
+                onClick={handleNav}
+                className={({ isActive }) =>
+                  cn('student-drawer-item', isActive && 'student-drawer-item-active')
+                }
+              >
+                <span className="student-drawer-icon" aria-hidden="true">
+                  <Icon size={38} />
+                </span>
+                <span>{label}</span>
+              </NavLink>
+            ))}
+            <button
+              type="button"
+              onClick={() => void handleLogout()}
+              disabled={loggingOut}
+              className="student-drawer-item student-drawer-logout"
             >
               <span className="student-drawer-icon" aria-hidden="true">
-                <Icon size={38} />
+                <CmsLogoutIcon size={23} />
               </span>
-              <span>{label}</span>
-            </NavLink>
-          ))}
-          <button
-            type="button"
-            onClick={() => void handleLogout()}
-            disabled={loggingOut}
-            className="student-drawer-item student-drawer-logout"
-          >
-            <span className="student-drawer-icon" aria-hidden="true">
-              <CmsLogoutIcon size={23} />
-            </span>
-            <span>{loggingOut ? 'Đang thoát…' : 'Đăng xuất'}</span>
-          </button>
-        </nav>
-      </div>
+              <span>{loggingOut ? 'Đang thoát…' : 'Đăng xuất'}</span>
+            </button>
+          </nav>
+        </div>
+      )}
 
       {/* Pinned bottom bar */}
       <nav
@@ -621,6 +637,7 @@ export function AppShell() {
   const enteredFromParent = useAuth((s) => s.enteredFromParent)
   const location = useLocation()
   const { handleLogout, loggingOut } = useLogoutAction()
+  const showDesktopStudentNav = useMediaQuery('(min-width: 768px)')
 
   const [gateOpen, setGateOpen] = useState(false)
   const [profileTheme, setProfileTheme] = useState(() =>
@@ -698,6 +715,7 @@ export function AppShell() {
       { to: '/admin/logs', label: 'Nhật ký', icon: CmsLogsIcon },
       { to: '/admin/users', label: 'Tài khoản', icon: CmsUsersIcon },
       { to: '/admin/courses', label: 'Khóa học', icon: CmsCoursesIcon },
+      { to: '/admin/asmo', label: 'Học & Thi ASMO', icon: CmsSessionsIcon },
       { to: '/admin/legends', label: 'Huyền thoại & Reward', icon: CmsAiIcon },
       { to: '/admin/billing', label: 'Gói & Thanh toán', icon: CmsBillingIcon },
       { to: '/admin/ai', label: 'AI Vidtory', icon: CmsAiIcon },
@@ -734,7 +752,7 @@ export function AppShell() {
         ? profilePageThemeStyle(profileTheme)
         : aikidStudentBackground(location.pathname)}
     >
-      <aside className="student-rail fixed left-0 top-0 z-30 hidden h-dvh w-24 flex-col items-center gap-1.5 border-r border-border/70 py-4 md:flex">
+      {showDesktopStudentNav && <aside className="student-rail fixed left-0 top-0 z-30 flex h-dvh w-24 flex-col items-center gap-1.5 border-r border-border/70 py-4">
         <NavLink
           to="/home"
           className="mb-3 flex w-full items-center justify-center px-2"
@@ -791,7 +809,7 @@ export function AppShell() {
           </button>
         </div>
         
-      </aside>
+      </aside>}
 
       <div className="fixed right-3 top-3 z-40 flex items-center gap-2 sm:right-4 md:right-6">
         {showParentButton && (
@@ -818,9 +836,7 @@ export function AppShell() {
       )}
 
       {/* Mobile student bottom nav — StudentDrawer handles pinned bar + sheet */}
-      <div className="md:hidden">
-        <StudentDrawer />
-      </div>
+      {!showDesktopStudentNav && <StudentDrawer />}
 
 
       <ParentGateModal open={gateOpen} onClose={() => setGateOpen(false)} />
