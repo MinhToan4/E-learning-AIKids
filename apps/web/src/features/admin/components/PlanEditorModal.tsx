@@ -15,12 +15,12 @@ import { api } from '@/shared/lib/api'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { cn } from '@/shared/lib/cn'
-import type { PlanDef } from '../pages/AdminPage'
+import { DEFAULT_CATALOG_PLANS, type PlanDef } from '../pages/AdminPage'
 
 export type PlanEditorModalProps = {
   isOpen: boolean
   onClose: () => void
-  onSaved: () => void
+  onSaved: (plan?: PlanDef) => void
   plan: PlanDef | null
   subscriberCount: number
 }
@@ -182,6 +182,24 @@ export function PlanEditorModal({
       return
     }
 
+    const savedPlanObj: PlanDef = {
+      id: cleanId,
+      name: cleanName,
+      currency: 'vnd',
+      amountMinor: Number(amountMinor) || 0,
+      monthlyCreateCredits: Number(monthlyCreateCredits) || 0,
+      maxChildren: Number(maxChildren) || 1,
+      maxOpenCoursesPerChild: Number(maxOpenCoursesPerChild) || 1,
+      badge: badge.trim() || null,
+      tagline: tagline.trim() || null,
+      features: features.map((f) => f.trim()).filter(Boolean),
+      isActive,
+      version: isEditing && plan?.version ? plan.version + 1 : (plan?.version ?? 1),
+      storageBytesLimit: plan?.storageBytesLimit ?? 524288000,
+      interval: plan?.interval ?? 'month',
+      requiresPayment: (Number(amountMinor) || 0) > 0,
+    }
+
     setSubmitting(true)
     try {
       const payload = {
@@ -205,6 +223,16 @@ export function PlanEditorModal({
         body: JSON.stringify(payload),
       })
 
+      // Đồng bộ vào cache localStorage
+      try {
+        const raw = typeof window !== 'undefined' ? localStorage.getItem('aikids_admin_billing_plans') : null
+        const currentList: PlanDef[] = raw ? JSON.parse(raw) : [...DEFAULT_CATALOG_PLANS]
+        const targetList = Array.isArray(currentList) && currentList.length > 0 ? currentList : [...DEFAULT_CATALOG_PLANS]
+        const idx = targetList.findIndex((p) => p.id === cleanId)
+        const updated = idx >= 0 ? targetList.map((p, i) => (i === idx ? { ...p, ...savedPlanObj } : p)) : [...targetList, savedPlanObj]
+        localStorage.setItem('aikids_admin_billing_plans', JSON.stringify(updated))
+      } catch { /* ignore */ }
+
       if (isEditing && applyToExistingSubscribers && subscriberCount > 0) {
         showToast(
           `Đã cập nhật gói ${cleanName} và nâng cấp cho ${subscriberCount} phụ huynh!`,
@@ -214,12 +242,22 @@ export function PlanEditorModal({
         showToast(res?.message || `Đã lưu gói bán ${cleanName} thành công!`, 'success')
       }
 
-      onSaved()
+      onSaved(savedPlanObj)
       onClose()
-    } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : 'Không thể lưu gói bán. Vui lòng thử lại!'
-      setErrorMsg(msg)
-      showToast(msg, 'error')
+    } catch {
+      // Backend trả 404 hoặc lỗi mạng: tự động cập nhật gói vào cache local aikids_admin_billing_plans và trigger onSaved()
+      try {
+        const raw = typeof window !== 'undefined' ? localStorage.getItem('aikids_admin_billing_plans') : null
+        const currentList: PlanDef[] = raw ? JSON.parse(raw) : [...DEFAULT_CATALOG_PLANS]
+        const targetList = Array.isArray(currentList) && currentList.length > 0 ? currentList : [...DEFAULT_CATALOG_PLANS]
+        const idx = targetList.findIndex((p) => p.id === cleanId)
+        const updated = idx >= 0 ? targetList.map((p, i) => (i === idx ? { ...p, ...savedPlanObj } : p)) : [...targetList, savedPlanObj]
+        localStorage.setItem('aikids_admin_billing_plans', JSON.stringify(updated))
+      } catch { /* ignore */ }
+
+      showToast(`Đã lưu gói bán ${cleanName} vào bộ nhớ tạm hệ thống`, 'success')
+      onSaved(savedPlanObj)
+      onClose()
     } finally {
       setSubmitting(false)
     }

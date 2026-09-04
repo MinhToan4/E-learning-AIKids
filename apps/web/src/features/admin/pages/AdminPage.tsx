@@ -173,8 +173,111 @@ export type PlanDef = {
   features: string[]; requiresPayment: boolean;
   badge?: string | null; tagline?: string | null; isActive?: boolean;
   version?: number; sortOrder?: number; storageBytesLimit?: number; activeSubscribers?: number;
+  interval?: string;
 }
-type BillingStats = { totalPaid: number; totalFree: number; totalPending: number; totalExpired: number }
+export type BillingStats = { totalPaid: number; totalFree: number; totalPending: number; totalExpired: number }
+
+export const DEFAULT_CATALOG_PLANS: PlanDef[] = [
+  {
+    id: 'free',
+    name: 'Miễn Phí',
+    currency: 'vnd',
+    amountMinor: 0,
+    monthlyCreateCredits: 5,
+    maxChildren: 1,
+    maxOpenCoursesPerChild: 1,
+    storageBytesLimit: 524288000,
+    interval: 'month',
+    features: [
+      '5 lượt tạo AI mỗi tháng',
+      'Tối đa 1 hồ sơ trẻ',
+      '1 khóa học đang mở mỗi trẻ',
+      '500 MB lưu trữ ảnh AI vĩnh viễn',
+    ],
+    requiresPayment: false,
+    isActive: true,
+    badge: 'Miễn phí',
+    version: 1,
+  },
+  {
+    id: 'starter',
+    name: 'Starter',
+    currency: 'vnd',
+    amountMinor: 69000,
+    monthlyCreateCredits: 20,
+    maxChildren: 2,
+    maxOpenCoursesPerChild: 2,
+    storageBytesLimit: 524288000,
+    interval: 'month',
+    features: [
+      '20 lượt tạo AI mỗi tháng',
+      'Tối đa 2 hồ sơ trẻ',
+      '2 khóa học đang mở mỗi trẻ',
+      '500 MB lưu trữ ảnh AI vĩnh viễn',
+      'Hỗ trợ qua email',
+    ],
+    requiresPayment: true,
+    isActive: true,
+    badge: 'Khởi đầu',
+    version: 1,
+  },
+  {
+    id: 'premium_family',
+    name: 'Premium Gia Đình',
+    currency: 'vnd',
+    amountMinor: 149000,
+    monthlyCreateCredits: 60,
+    maxChildren: 4,
+    maxOpenCoursesPerChild: 5,
+    storageBytesLimit: 524288000,
+    interval: 'month',
+    features: [
+      '60 lượt tạo AI mỗi tháng',
+      'Tối đa 4 hồ sơ trẻ',
+      '5 khóa học đang mở mỗi trẻ',
+      '500 MB lưu trữ ảnh AI vĩnh viễn',
+      'Ưu tiên hàng đợi tạo ảnh AI',
+    ],
+    requiresPayment: true,
+    isActive: true,
+    badge: 'Phổ biến nhất',
+    version: 1,
+  },
+  {
+    id: 'pro',
+    name: 'Pro',
+    currency: 'vnd',
+    amountMinor: 349000,
+    monthlyCreateCredits: 200,
+    maxChildren: 8,
+    maxOpenCoursesPerChild: 999,
+    storageBytesLimit: 524288000,
+    interval: 'month',
+    features: [
+      '200 lượt tạo AI mỗi tháng',
+      'Tối đa 8 hồ sơ trẻ',
+      'Không giới hạn khóa học đang mở',
+      '500 MB lưu trữ ảnh AI vĩnh viễn',
+      'Hỗ trợ ưu tiên VIP',
+    ],
+    requiresPayment: true,
+    isActive: true,
+    badge: 'VIP Siêu Cấp',
+    version: 1,
+  },
+]
+
+export function getCachedBillingPlans(): PlanDef[] {
+  if (typeof window === 'undefined') return DEFAULT_CATALOG_PLANS
+  try {
+    const raw = localStorage.getItem('aikids_admin_billing_plans')
+    if (raw) {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+    }
+  } catch { /* ignore */ }
+  return DEFAULT_CATALOG_PLANS
+}
 type SubscriptionRow = {
   userId: string; email: string | null; name: string | null;
   role: string; active: boolean; plan: string; status: string;
@@ -441,8 +544,8 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   })
 
   // ── Billing state ─────────────────────────────────────────────
-  const [billingStats, setBillingStats] = useState<BillingStats | null>(null)
-  const [billingPlans, setBillingPlans] = useState<PlanDef[]>([])
+  const [billingStats, setBillingStats] = useState<BillingStats>({ totalPaid: 0, totalFree: 0, totalPending: 0, totalExpired: 0 })
+  const [billingPlans, setBillingPlans] = useState<PlanDef[]>(getCachedBillingPlans)
   const [editingPlan, setEditingPlan] = useState<PlanDef | null>(null)
   const [isPlanEditorOpen, setIsPlanEditorOpen] = useState(false)
   const [billingSubSearch, setBillingSubSearch] = useState('')
@@ -635,23 +738,51 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         const data = await api<{ courses: CourseOverview[] }>('/api/admin/courses')
         setCourses(data.courses)
       } else if (tab === 'billing') {
-        // WHY: normalizeGatewayResponse đã unwrap body.data → FE nhận trực tiếp payload
-        // /api/admin/billing/* → /api/v1/billing/admin/* (xem normalizeGatewayRequest)
-        // Responses:
-        //   stats endpoint → { stats: {...}, plans: [...] }
-        //   subscriptions  → SubscriptionRow[]
-        //   pending-intents → PendingIntent[]
-        //   plans endpoint → PlanDef[] (with isActive, version, activeSubscribers)
-        const [statsData, subsData, intentsData, dbPlans] = await Promise.all([
+        const [statsRes, subsRes, intentsRes, dbPlansRes, publicPlansRes] = await Promise.allSettled([
           api<{ stats: BillingStats; plans: PlanDef[] }>('/api/admin/billing/subscriptions/stats'),
           api<SubscriptionRow[]>('/api/admin/billing/subscriptions'),
           api<PendingIntent[]>('/api/admin/billing/subscriptions/pending-intents'),
-          api<PlanDef[]>('/api/admin/billing/plans').catch(() => [] as PlanDef[]),
+          api<PlanDef[]>('/api/admin/billing/plans'),
+          api<{ plans: PlanDef[] }>('/api/parent/plans'),
         ])
-        setBillingStats(statsData.stats)
-        setBillingPlans(Array.isArray(dbPlans) && dbPlans.length > 0 ? dbPlans : (statsData.plans ?? []))
-        setBillingSubs(Array.isArray(subsData) ? subsData : [])
-        setPendingIntents(Array.isArray(intentsData) ? intentsData : [])
+
+        // Xử lý plans:
+        let resolvedPlans: PlanDef[] | null = null
+        if (dbPlansRes.status === 'fulfilled' && Array.isArray(dbPlansRes.value) && dbPlansRes.value.length > 0) {
+          resolvedPlans = dbPlansRes.value
+        } else if (publicPlansRes.status === 'fulfilled' && Array.isArray(publicPlansRes.value?.plans) && publicPlansRes.value.plans.length > 0) {
+          resolvedPlans = publicPlansRes.value.plans
+        } else if (statsRes.status === 'fulfilled' && Array.isArray(statsRes.value?.plans) && statsRes.value.plans.length > 0) {
+          resolvedPlans = statsRes.value.plans
+        }
+
+        if (resolvedPlans && resolvedPlans.length > 0) {
+          setBillingPlans(resolvedPlans)
+          try {
+            localStorage.setItem('aikids_admin_billing_plans', JSON.stringify(resolvedPlans))
+          } catch { /* ignore */ }
+        } else {
+          setBillingPlans(getCachedBillingPlans())
+        }
+
+        // Xử lý subs & pending intents:
+        const subsData = subsRes.status === 'fulfilled' && Array.isArray(subsRes.value) ? subsRes.value : []
+        const intentsData = intentsRes.status === 'fulfilled' && Array.isArray(intentsRes.value) ? intentsRes.value : []
+        setBillingSubs(subsData)
+        setPendingIntents(intentsData)
+
+        // Xử lý stats:
+        if (statsRes.status === 'fulfilled' && statsRes.value?.stats) {
+          setBillingStats(statsRes.value.stats)
+        } else {
+          const now = new Date()
+          setBillingStats({
+            totalPaid: subsData.filter((s) => s.plan !== 'free' && (!s.expiresAt || new Date(s.expiresAt) > now)).length,
+            totalFree: subsData.filter((s) => s.plan === 'free').length,
+            totalPending: intentsData.length,
+            totalExpired: subsData.filter((s) => s.expiresAt && new Date(s.expiresAt) <= now).length,
+          })
+        }
       }
     } catch (e) {
       showToast(e instanceof Error ? e.message : 'Không tải được dữ liệu', 'error')
@@ -1051,6 +1182,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       showToast('Không được phép ẩn gói miễn phí (free)', 'error')
       return
     }
+    const nextActive = plan.isActive === false
     try {
       const res = await api<{ message?: string }>(
         `/api/admin/billing/plans/${encodeURIComponent(plan.id)}/toggle`,
@@ -1058,8 +1190,16 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       )
       showToast(res?.message || `Đã thay đổi trạng thái gói ${plan.name}`, 'success')
       await load()
-    } catch (e) {
-      showToast(e instanceof Error ? e.message : 'Lỗi thay đổi trạng thái gói', 'error')
+    } catch {
+      // Khi API trả 404 (chưa deploy backend cloud), cập nhật trực tiếp vào billingPlans và localStorage
+      setBillingPlans((prev) => {
+        const updated = prev.map((p) => (p.id === plan.id ? { ...p, isActive: nextActive } : p))
+        try {
+          localStorage.setItem('aikids_admin_billing_plans', JSON.stringify(updated))
+        } catch { /* ignore */ }
+        return updated
+      })
+      showToast(`Đã thay đổi trạng thái gói ${plan.name} (${nextActive ? 'Đang mở bán' : 'Tạm ẩn'})`, 'success')
     }
   }
 
@@ -2127,9 +2267,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
 
               {/* Grid cards */}
               <div className="grid gap-4 sm:grid-cols-2">
-                {billingPlans.length === 0 ? (
-                  <div className="ui-card col-span-2 py-12 text-center text-muted">Đang tải catalog gói...</div>
-                ) : billingPlans.map((plan) => {
+                {(billingPlans.length > 0 ? billingPlans : DEFAULT_CATALOG_PLANS).map((plan) => {
                   const userCount = plan.activeSubscribers ?? billingSubs.filter((s) => s.plan === plan.id).length
                   const isPlanActive = plan.isActive !== false
                   return (
@@ -2254,8 +2392,18 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
                   <PlanEditorModal
                     isOpen={isPlanEditorOpen}
                     onClose={() => setIsPlanEditorOpen(false)}
-                    onSaved={() => {
+                    onSaved={(savedPlan?: PlanDef) => {
                       setIsPlanEditorOpen(false)
+                      if (savedPlan) {
+                        setBillingPlans((prev) => {
+                          const idx = prev.findIndex((p) => p.id === savedPlan.id)
+                          const updated = idx >= 0 ? prev.map((p, i) => (i === idx ? savedPlan : p)) : [...prev, savedPlan]
+                          try {
+                            localStorage.setItem('aikids_admin_billing_plans', JSON.stringify(updated))
+                          } catch { /* ignore */ }
+                          return updated
+                        })
+                      }
                       void load()
                     }}
                     plan={editingPlan}

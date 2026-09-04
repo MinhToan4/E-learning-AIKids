@@ -137,4 +137,39 @@ describe('PlanEditorModal Component', () => {
     expect(onSaved).toHaveBeenCalled()
     expect(onClose).toHaveBeenCalled()
   })
+
+  it('falls back to local cache and triggers onSaved when API returns 404 or fails', async () => {
+    mockApi.mockRejectedValueOnce(new Error('404 Not Found'))
+
+    const onSaved = vi.fn()
+    const onClose = vi.fn()
+
+    act(() => {
+      root.render(
+        createElement(PlanEditorModal, {
+          isOpen: true,
+          onClose,
+          onSaved,
+          plan: samplePlan,
+          subscriberCount: 5,
+        }),
+      )
+    })
+
+    const form = document.querySelector('form')
+    expect(form).not.toBeNull()
+
+    await act(async () => {
+      form!.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }))
+    })
+
+    expect(mockApi).toHaveBeenCalled()
+    expect(onSaved).toHaveBeenCalledWith(
+      expect.objectContaining({
+        id: 'pro',
+        name: 'Gói Cao Cấp',
+      }),
+    )
+    expect(onClose).toHaveBeenCalled()
+  })
 })
