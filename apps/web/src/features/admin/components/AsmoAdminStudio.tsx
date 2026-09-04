@@ -30,10 +30,23 @@ import {
   Wrench,
   TrendingUp,
   Check,
+  Plus,
+  Trash2,
+  Download,
+  Upload,
+  Wand2,
+  Lightbulb,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
-import type { AsmoExam, AsmoGrade, AsmoSubject, AsmoQuestion } from '@/features/asmo/types'
+import type {
+  AsmoExam,
+  AsmoGrade,
+  AsmoSubject,
+  AsmoQuestion,
+  AsmoCurriculumWeek,
+  AsmoTemplateKey,
+} from '@/features/asmo/types'
 import { ASMO_SAMPLE_EXAMS } from '@/features/asmo/data/asmo-sample-exams'
 import { ASMO_CURRICULUM_WEEKS } from '@/features/asmo/data/asmo-curriculum'
 import {
@@ -239,6 +252,886 @@ const TEMPLATE_3D_LABELS: Record<string, { label: string; icon: string; desc: st
   },
 }
 
+export type AsmoCurriculumWeekItem = AsmoCurriculumWeek & {
+  meeTip?: {
+    quote: string
+    storyAdvice: string
+  }
+  solutionSteps?: string[]
+  commonPitfall?: string
+}
+
+export function generatePedagogicalTipsAndSolution(week: {
+  topic: string
+  title: string
+  keyCompetencies: string[]
+  grade: number
+  subject: string
+}) {
+  const titleLower = week.title.toLowerCase()
+
+  let quote = ''
+  let storyAdvice = ''
+  let formulaLatex = '$x = \\frac{a + b}{2}$'
+  let pitfall = ''
+
+  if (week.subject === 'math') {
+    if (
+      titleLower.includes('khối') ||
+      titleLower.includes('lập phương') ||
+      titleLower.includes('hình học') ||
+      titleLower.includes('diện tích') ||
+      titleLower.includes('chu vi')
+    ) {
+      quote = '🐱 Mèo Mee mách bạn: Nhìn hình vẽ kỹ, chớ vội tính ngay; đếm từng góc cạnh, lời giải mở ra tay!'
+      storyAdvice = `Chiến thuật Mèo Mee: Với dạng toán hình không gian và chu vi diện tích lớp ${week.grade}, hãy phân rã hình phức tạp thành các khối đơn vị cơ bản. Đánh số từng tầng từ dưới lên để không đếm trùng!`
+      formulaLatex = week.grade <= 5 ? '$S = a \\times b$' : '$V = a \\times b \\times c$'
+      pitfall = 'Bỏ sót các khối hộp hoặc mặt phẳng bị che khuất ở tầng đáy và mặt sau.'
+    } else if (
+      titleLower.includes('đồng hồ') ||
+      titleLower.includes('thời gian') ||
+      titleLower.includes('góc')
+    ) {
+      quote = '🐱 Mèo Mee mách bạn: Kim giờ kim phút cùng nhau xoay tròn; mỗi phút trôi qua góc lệch càng thêm ngon!'
+      storyAdvice = 'Chiến thuật Mèo Mee: Trong 1 giờ (60 phút), kim phút quay $360^\\circ$ (mỗi phút $6^\\circ$), kim giờ quay $30^\\circ$ (mỗi phút $0.5^\\circ$). Đừng quên tính độ lệch kim giờ khi kim phút di chuyển!'
+      formulaLatex = '$\\Delta \\theta = |30H - 5.5M|^\\circ$'
+      pitfall = 'Quên cộng góc dịch chuyển của kim giờ khi kim phút đã chạy qua số 12.'
+    } else if (
+      titleLower.includes('phân số') ||
+      titleLower.includes('tỉ số') ||
+      titleLower.includes('phần trăm')
+    ) {
+      quote = '🐱 Mèo Mee mách bạn: Quy đồng mẫu số nhớ kĩ không quên; tử mẫu đồng lòng, tính toán vững bền!'
+      storyAdvice = 'Chiến thuật Mèo Mee: Luôn rút gọn phân số về tối giản trước khi nhân chia. Khi so sánh hai phân số, thử dùng phần bù hoặc nhân chéo thay vì quy đồng mẫu số lớn.'
+      formulaLatex = '$\\frac{a}{b} + \\frac{c}{d} = \\frac{ad + bc}{bd}$'
+      pitfall = 'Cộng trực tiếp cả tử với tử và mẫu với mẫu khi chưa quy đồng.'
+    } else if (
+      titleLower.includes('que diêm') ||
+      titleLower.includes('quy luật') ||
+      titleLower.includes('dãy số') ||
+      titleLower.includes('logic')
+    ) {
+      quote = '🐱 Mèo Mee mách bạn: Đổi chỗ que diêm, tìm ra quy luật; tư duy sáng tạo, lời giải bật ra ngay!'
+      storyAdvice = 'Chiến thuật Mèo Mee: Với dãy số quy luật, tính hiệu giữa hai số liên tiếp $\\Delta = u_{n+1} - u_n$. Nếu hiệu không đổi là cấp số cộng, nếu hiệu tăng đều là dãy số cấp 2!'
+      formulaLatex = '$u_n = u_1 + (n - 1)d$'
+      pitfall = 'Vội vã kết luận quy luật chỉ qua 2 phần tử đầu tiên mà không thử lại với phần tử thứ 3 và 4.'
+    } else {
+      quote = '🐱 Mèo Mee mách bạn: Đọc kỹ đề bài, gạch chân dữ kiện; bình tĩnh tính toán, vươn tầm chuyên gia Olympic!'
+      storyAdvice = `Chiến thuật Mèo Mee: Đề thi ASMO dạng "${week.title}" đòi hỏi phân loại giả thiết. Hãy lập bảng tóm tắt đại lượng đã biết và đại lượng cần tìm trước khi bắt tay làm bài.`
+      formulaLatex = '$A = \\sum_{i=1}^{n} x_i$'
+      pitfall = 'Nhầm lẫn giữa các đơn vị tính và không kiểm tra lại tính hợp lý của kết quả số học.'
+    }
+  } else if (week.subject === 'science') {
+    quote = '🐱 Mèo Mee mách bạn: Quan sát thiên nhiên, đặt câu hỏi đúng; thực nghiệm chứng minh, kiến thức nở hoa!'
+    storyAdvice = `Chiến thuật Mèo Mee: Trong chuyên đề Khoa học "${week.title}", hãy liên hệ hiện tượng thực tế với các định luật vật lý/sinh học cốt lõi. Chú ý các điều kiện thí nghiệm chuẩn.`
+    formulaLatex = '$F = m \\times a$'
+    pitfall = 'Nhầm lẫn giữa nguyên nhân và kết quả khi phân tích biểu đồ thí nghiệm sinh thái.'
+  } else {
+    quote = '🐱 Mèo Mee mách bạn: Bắt từ then chốt, đoán nghĩa theo câu; tự tin phản xạ, tiếng Anh cực siêu!'
+    storyAdvice = `Chiến thuật Mèo Mee: Trong phần thi Tiếng Anh "${week.title}", hãy đọc lướt câu hỏi trước để xác định từ khóa (Keywords), sau đó quét nhanh bài đọc (Scanning) để tìm vị trí chứa đáp án.`
+    formulaLatex = '$\\text{Subject} + \\text{Verb} + \\text{Object}$'
+    pitfall = 'Dịch từng từ theo nghĩa đen (word-by-word) thay vì hiểu theo cụm thành ngữ hoặc ngữ cảnh tổng thể.'
+  }
+
+  const solutionSteps = [
+    `Bước 1 (Phân tích giả thiết): Đọc kỹ yêu cầu bài toán "${week.title}". Xác định các đại lượng đã cho trong chủ đề ${week.topic} và phân tích điều kiện ràng buộc cốt lõi.`,
+    `Bước 2 (Mô hình hóa & Công thức KaTeX): Thiết lập mô hình giải toán và áp dụng công thức tương thích: ${formulaLatex}. Rút gọn các biểu thức phụ để đơn giản hóa quá trình tính toán.`,
+    `Bước 3 (Tính toán chi tiết & Kết luận): Thực hiện các phép tính số học cụ thể theo các năng lực trọng tâm: ${week.keyCompetencies.join(', ')}. Thử lại đáp án vào đề bài để đảm bảo độ chính xác 100%.`,
+  ]
+
+  return {
+    quote,
+    storyAdvice,
+    solutionSteps,
+    commonPitfall: pitfall,
+  }
+}
+
+export function validateCurriculumJson(jsonText: string): {
+  isValid: boolean
+  error?: string
+  data?: AsmoCurriculumWeekItem[]
+} {
+  try {
+    const parsed = JSON.parse(jsonText)
+    if (!Array.isArray(parsed)) {
+      return {
+        isValid: false,
+        error: 'Định dạng dữ liệu không hợp lệ: JSON phải là một mảng danh sách các tuần học (Array).',
+      }
+    }
+
+    if (parsed.length === 0) {
+      return {
+        isValid: false,
+        error: 'Mảng dữ liệu JSON không được để trống.',
+      }
+    }
+
+    const validatedList: AsmoCurriculumWeekItem[] = []
+
+    for (let i = 0; i < parsed.length; i++) {
+      const item = parsed[i]
+      const rowIdx = i + 1
+
+      if (typeof item !== 'object' || item === null) {
+        return {
+          isValid: false,
+          error: `Mục thứ #${rowIdx} không phải là một đối tượng (object) hợp lệ.`,
+        }
+      }
+
+      if (typeof item.week !== 'number') {
+        return {
+          isValid: false,
+          error: `Mục thứ #${rowIdx} thiếu hoặc sai kiểu trường 'week' (bắt buộc là số nguyên, ví dụ: 1, 2, 3).`,
+        }
+      }
+
+      if (!['math', 'science', 'english'].includes(item.subject)) {
+        return {
+          isValid: false,
+          error: `Mục thứ #${rowIdx} trường 'subject' không hợp lệ. Phải là một trong: 'math', 'science', 'english'.`,
+        }
+      }
+
+      if (typeof item.grade !== 'number' || item.grade < 1 || item.grade > 12) {
+        return {
+          isValid: false,
+          error: `Mục thứ #${rowIdx} trường 'grade' không hợp lệ. Phải là số nguyên từ 1 đến 12.`,
+        }
+      }
+
+      if (typeof item.title !== 'string' || item.title.trim().length === 0) {
+        return {
+          isValid: false,
+          error: `Mục thứ #${rowIdx} thiếu trường 'title' (tiêu đề tuần học không được để trống).`,
+        }
+      }
+
+      const keyCompetencies = Array.isArray(item.keyCompetencies)
+        ? item.keyCompetencies.filter((c: unknown) => typeof c === 'string')
+        : ['Tư duy logic']
+
+      validatedList.push({
+        week: item.week,
+        subject: item.subject,
+        grade: item.grade,
+        topic: item.topic || `ASMO-${item.subject.toUpperCase()}-G${item.grade}-W${item.week}`,
+        title: item.title,
+        summary: item.summary || `Chuyên đề tuần ${item.week}: ${item.title}`,
+        keyCompetencies: keyCompetencies.length > 0 ? keyCompetencies : ['Tư duy logic'],
+        visualTemplate: item.visualTemplate,
+        sampleQuestionIds: Array.isArray(item.sampleQuestionIds) ? item.sampleQuestionIds : [],
+        meeTip: item.meeTip && typeof item.meeTip === 'object' ? item.meeTip : undefined,
+        solutionSteps: Array.isArray(item.solutionSteps) ? item.solutionSteps : undefined,
+        commonPitfall: typeof item.commonPitfall === 'string' ? item.commonPitfall : undefined,
+      })
+    }
+
+    return {
+      isValid: true,
+      data: validatedList,
+    }
+  } catch (err: unknown) {
+    return {
+      isValid: false,
+      error: `Lỗi cú pháp JSON: ${err instanceof Error ? err.message : String(err)}`,
+    }
+  }
+}
+
+interface CurriculumWeekEditModalProps {
+  isOpen: boolean
+  onClose: () => void
+  initialData: AsmoCurriculumWeekItem
+  isNew?: boolean
+  onSave: (week: AsmoCurriculumWeekItem) => void
+}
+
+function CurriculumWeekEditModal({
+  isOpen,
+  onClose,
+  initialData,
+  isNew = false,
+  onSave,
+}: CurriculumWeekEditModalProps) {
+  const [title, setTitle] = useState(initialData.title)
+  const [week, setWeek] = useState(initialData.week)
+  const [subject, setSubject] = useState<AsmoSubject>(initialData.subject)
+  const [grade, setGrade] = useState<AsmoGrade>(initialData.grade)
+  const [topic, setTopic] = useState(initialData.topic)
+  const [summary, setSummary] = useState(initialData.summary)
+  const [keyCompetencies, setKeyCompetencies] = useState<string[]>(initialData.keyCompetencies || [])
+  const [newTagInput, setNewTagInput] = useState('')
+  const [visualTemplate, setVisualTemplate] = useState<AsmoTemplateKey | ''>(
+    initialData.visualTemplate || '',
+  )
+  const [quote, setQuote] = useState(initialData.meeTip?.quote || '')
+  const [storyAdvice, setStoryAdvice] = useState(initialData.meeTip?.storyAdvice || '')
+
+  if (!isOpen || typeof document === 'undefined') return null
+
+  const handleAddTag = () => {
+    const trimmed = newTagInput.trim()
+    if (trimmed && !keyCompetencies.includes(trimmed)) {
+      setKeyCompetencies([...keyCompetencies, trimmed])
+      setNewTagInput('')
+    }
+  }
+
+  const handleRemoveTag = (indexToRemove: number) => {
+    setKeyCompetencies(keyCompetencies.filter((_, idx) => idx !== indexToRemove))
+  }
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    onSave({
+      ...initialData,
+      title,
+      week,
+      subject,
+      grade,
+      topic,
+      summary,
+      keyCompetencies,
+      visualTemplate: visualTemplate ? (visualTemplate as AsmoTemplateKey) : undefined,
+      meeTip: quote || storyAdvice ? { quote, storyAdvice } : undefined,
+    })
+  }
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in"
+    >
+      <div className="w-full max-w-2xl rounded-3xl border-2 border-border/80 bg-surface p-6 shadow-clay animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between border-b-2 border-border/80 pb-3">
+          <div className="flex items-center gap-2.5">
+            <span className="text-2xl">{isNew ? '➕' : '✏️'}</span>
+            <div>
+              <h3 className="font-display text-lg font-black text-text">
+                {isNew ? 'Thêm Tuần Học Mới' : 'Chỉnh Sửa Tuần Học'}
+              </h3>
+              <p className="text-xs text-muted font-bold">
+                {isNew ? 'Khởi tạo cấu trúc tuần học chuẩn ASMO' : `Tuần ${week}: ${title || 'Chưa đặt tên'}`}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl p-1.5 text-muted hover:bg-slate-100 hover:text-text cursor-pointer"
+          >
+            <X className="size-5" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="mt-4 flex flex-col gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="sm:col-span-2">
+              <label className="block text-xs font-black text-muted uppercase">Tiêu đề tuần học</label>
+              <input
+                value={title}
+                onChange={(e) => setTitle(e.target.value)}
+                required
+                placeholder="Ví dụ: Đếm Khối Lập Phương 3D & Không Gian Đa Chiều"
+                className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-xs font-black text-muted uppercase">Tuần số (Week)</label>
+              <input
+                type="number"
+                min={1}
+                max={100}
+                value={week}
+                onChange={(e) => setWeek(Number(e.target.value))}
+                required
+                className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs font-black text-muted uppercase">Môn học</label>
+              <select
+                value={subject}
+                onChange={(e) => setSubject(e.target.value as AsmoSubject)}
+                className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none cursor-pointer"
+              >
+                <option value="math">📐 Toán Olympic</option>
+                <option value="science">🔬 Khoa Học Tự Nhiên</option>
+                <option value="english">🔤 Tiếng Anh Học Thuật</option>
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-black text-muted uppercase">Khối lớp</label>
+              <select
+                value={grade}
+                onChange={(e) => setGrade(Number(e.target.value) as AsmoGrade)}
+                className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none cursor-pointer"
+              >
+                {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+                  <option key={g} value={g}>
+                    Lớp {g}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-xs font-black text-muted uppercase">Mã chuyên đề (Topic)</label>
+              <input
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                required
+                placeholder="ASMO-MATH-G1-W01"
+                className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="block text-xs font-black text-muted uppercase">Tóm tắt nội dung sư phạm</label>
+            <textarea
+              rows={2}
+              value={summary}
+              onChange={(e) => setSummary(e.target.value)}
+              placeholder="Tóm tắt trọng tâm bài học và mục tiêu hình thành tư duy..."
+              className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none leading-relaxed"
+            />
+          </div>
+
+          {/* Key Competencies Chip Manager */}
+          <div>
+            <label className="block text-xs font-black text-muted uppercase mb-1">
+              Năng lực trọng tâm (Key Competencies)
+            </label>
+            <div className="flex flex-wrap items-center gap-1.5 rounded-2xl border-2 border-border/80 bg-white p-2.5 min-h-[44px]">
+              {keyCompetencies.map((tag, idx) => (
+                <span
+                  key={`${tag}-${idx}`}
+                  className="inline-flex items-center gap-1 rounded-xl border border-brand-200 bg-brand-50 px-2 py-1 text-xs font-bold text-brand-800 shadow-xs"
+                >
+                  <span>{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag(idx)}
+                    className="text-brand-500 hover:text-red-500 ml-0.5 cursor-pointer font-black"
+                    title={`Xóa "${tag}"`}
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              <div className="flex items-center gap-1">
+                <input
+                  type="text"
+                  placeholder="Thêm năng lực..."
+                  value={newTagInput}
+                  onChange={(e) => setNewTagInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault()
+                      handleAddTag()
+                    }
+                  }}
+                  className="rounded-xl border border-border/80 px-2 py-1 text-xs font-medium text-text focus:border-brand-400 focus:outline-none"
+                />
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleAddTag}
+                  className="rounded-xl text-xs py-1 px-2.5 font-bold"
+                >
+                  + Thêm
+                </Button>
+              </div>
+            </div>
+          </div>
+
+          {/* Visual Template Dropdown */}
+          <div>
+            <label className="block text-xs font-black text-muted uppercase mb-1">
+              Mẫu 3D Lab tương tác (Visual Template)
+            </label>
+            <select
+              value={visualTemplate}
+              onChange={(e) => setVisualTemplate(e.target.value as AsmoTemplateKey | '')}
+              className="w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none cursor-pointer"
+            >
+              <option value="">Không sử dụng mô hình 3D (Lý thuyết cơ bản)</option>
+              {Object.entries(TEMPLATE_3D_LABELS).map(([k, meta]) => (
+                <option key={k} value={k}>
+                  {meta.icon} {meta.label} — {meta.desc}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          {/* Mèo Mee Tips Section */}
+          <div className="rounded-2xl border-2 border-amber-200 bg-amber-50/50 p-3.5 space-y-3">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🐱</span>
+              <span className="text-xs font-black text-amber-900 uppercase">
+                Bí Kíp & Lời Khuyên Mèo Mee
+              </span>
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-amber-800">
+                Câu khẩu hiệu Mèo Mee (Quote)
+              </label>
+              <input
+                value={quote}
+                onChange={(e) => setQuote(e.target.value)}
+                placeholder="Ví dụ: Nhìn hình vẽ kỹ, chớ vội tính ngay; đếm từng góc cạnh, lời giải mở ra tay!"
+                className="mt-1 w-full rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
+              />
+            </div>
+
+            <div>
+              <label className="block text-[11px] font-bold text-amber-800">
+                Lời khuyên tư duy & Mẹo nhận diện bẫy (Story Advice)
+              </label>
+              <textarea
+                rows={2}
+                value={storyAdvice}
+                onChange={(e) => setStoryAdvice(e.target.value)}
+                placeholder="Ví dụ: Đánh số thứ tự các khối theo từng tầng từ dưới lên để không bỏ sót..."
+                className="mt-1 w-full rounded-xl border border-amber-300 bg-white px-3 py-1.5 text-xs font-medium text-text focus:border-brand-400 focus:outline-none leading-relaxed"
+              />
+            </div>
+          </div>
+
+          <div className="flex items-center justify-end gap-2 border-t-2 border-border/80 pt-4">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClose}
+              className="rounded-2xl font-black text-xs"
+            >
+              Hủy
+            </Button>
+            <Button
+              type="submit"
+              className="rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-black text-xs shadow-clay"
+            >
+              {isNew ? 'Tạo tuần học' : 'Lưu tuần học'}
+            </Button>
+          </div>
+        </form>
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
+interface CurriculumImportModalProps {
+  isOpen: boolean
+  onClose: () => void
+  onImport: (items: AsmoCurriculumWeekItem[], mode: 'replace' | 'append') => void
+  onDownloadTemplate: () => void
+}
+
+function CurriculumImportModal({
+  isOpen,
+  onClose,
+  onImport,
+  onDownloadTemplate,
+}: CurriculumImportModalProps) {
+  const [jsonText, setJsonText] = useState('')
+  const [importMode, setImportMode] = useState<'replace' | 'append'>('replace')
+  const [validationError, setValidationError] = useState<string | null>(null)
+  const [validData, setValidData] = useState<AsmoCurriculumWeekItem[] | null>(null)
+
+  if (!isOpen || typeof document === 'undefined') return null
+
+  const handleJsonChange = (text: string) => {
+    setJsonText(text)
+    if (!text.trim()) {
+      setValidationError(null)
+      setValidData(null)
+      return
+    }
+    const res = validateCurriculumJson(text)
+    if (res.isValid && res.data) {
+      setValidationError(null)
+      setValidData(res.data)
+    } else {
+      setValidationError(res.error || 'Dữ liệu JSON không hợp lệ')
+      setValidData(null)
+    }
+  }
+
+  const handleFileDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    const file = e.dataTransfer.files[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const content = event.target?.result as string
+        handleJsonChange(content)
+      }
+      reader.readAsText(file)
+    }
+  }
+
+  const handleFileInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (file) {
+      const reader = new FileReader()
+      reader.onload = (event) => {
+        const content = event.target?.result as string
+        handleJsonChange(content)
+      }
+      reader.readAsText(file)
+    }
+  }
+
+  const handleConfirm = () => {
+    if (!validData || validData.length === 0) {
+      const res = validateCurriculumJson(jsonText)
+      if (!res.isValid || !res.data) {
+        setValidationError(res.error || 'Vui lòng kiểm tra lại cấu trúc JSON!')
+        return
+      }
+      onImport(res.data, importMode)
+    } else {
+      onImport(validData, importMode)
+    }
+  }
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in"
+    >
+      <div className="w-full max-w-xl rounded-3xl border-2 border-border/80 bg-surface p-6 shadow-clay animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between border-b-2 border-border/80 pb-3">
+          <div className="flex items-center gap-2.5">
+            <span className="text-2xl">📥</span>
+            <div>
+              <h3 className="font-display text-lg font-black text-text">
+                Nhập Lộ Trình Học ASMO (Import JSON)
+              </h3>
+              <p className="text-xs text-muted font-bold">
+                Nạp danh sách các tuần chuyên đề tự động từ file JSON
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl p-1.5 text-muted hover:bg-slate-100 hover:text-text cursor-pointer"
+          >
+            <X className="size-5" />
+          </button>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-4">
+          {/* Drag & Drop Zone */}
+          <div
+            onDragOver={(e) => e.preventDefault()}
+            onDrop={handleFileDrop}
+            className="flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-sky-300 bg-sky-50/50 p-5 text-center transition-all hover:bg-sky-50"
+          >
+            <Upload className="size-8 text-sky-500 mb-2" />
+            <p className="text-xs font-black text-sky-900">
+              Kéo thả file <code className="rounded bg-sky-200/80 px-1 py-0.5">.json</code> vào đây
+            </p>
+            <p className="text-[11px] text-muted font-medium mt-1">hoặc</p>
+            <label className="mt-2 inline-flex items-center gap-1.5 rounded-xl border border-sky-300 bg-white px-3 py-1 text-xs font-black text-sky-700 shadow-xs cursor-pointer hover:bg-sky-50">
+              <span>Chọn file từ máy</span>
+              <input
+                type="file"
+                accept=".json,application/json"
+                onChange={handleFileInputChange}
+                className="hidden"
+              />
+            </label>
+          </div>
+
+          {/* Paste JSON Area */}
+          <div>
+            <div className="flex items-center justify-between mb-1">
+              <label className="text-xs font-black text-muted uppercase">
+                Hoặc dán chuỗi JSON trực tiếp
+              </label>
+              <button
+                type="button"
+                onClick={onDownloadTemplate}
+                className="text-xs font-bold text-brand-600 hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <Download className="size-3" />
+                <span>Tải mẫu JSON chuẩn</span>
+              </button>
+            </div>
+            <textarea
+              rows={6}
+              value={jsonText}
+              onChange={(e) => handleJsonChange(e.target.value)}
+              placeholder="[&#10;  {&#10;    &quot;week&quot;: 1,&#10;    &quot;subject&quot;: &quot;math&quot;,&#10;    &quot;grade&quot;: 1,&#10;    &quot;title&quot;: &quot;Đếm Khối Lập Phương 3D&quot;&#10;  }&#10;]"
+              className="w-full font-mono rounded-2xl border-2 border-border/80 bg-white p-3 text-xs font-medium text-text focus:border-brand-400 focus:outline-none leading-relaxed"
+            />
+          </div>
+
+          {/* Schema Validator Status */}
+          {validationError && (
+            <div className="flex items-start gap-2.5 rounded-2xl border-2 border-red-200 bg-red-50 p-3 text-xs font-bold text-red-700 animate-in fade-in">
+              <AlertCircle className="size-4 shrink-0 mt-0.5 text-red-600" />
+              <span>{validationError}</span>
+            </div>
+          )}
+
+          {validData && (
+            <div className="flex items-center gap-2 rounded-2xl border-2 border-emerald-200 bg-emerald-50 p-3 text-xs font-black text-emerald-800 animate-in fade-in">
+              <CheckCircle2 className="size-4 shrink-0 text-emerald-600" />
+              <span>Dữ liệu hợp lệ! Đã phát hiện {validData.length} tuần học sẵn sàng nạp.</span>
+            </div>
+          )}
+
+          {/* Mode Selector */}
+          <div className="rounded-2xl border-2 border-border/80 bg-slate-50 p-3">
+            <span className="block text-xs font-black text-muted uppercase mb-2">
+              Chế độ nạp dữ liệu:
+            </span>
+            <div className="flex flex-col sm:flex-row gap-3">
+              <label className="flex items-center gap-2 text-xs font-bold text-text cursor-pointer">
+                <input
+                  type="radio"
+                  name="importMode"
+                  value="replace"
+                  checked={importMode === 'replace'}
+                  onChange={() => setImportMode('replace')}
+                  className="accent-brand-500"
+                />
+                <span>Ghi đè toàn bộ lộ trình</span>
+              </label>
+              <label className="flex items-center gap-2 text-xs font-bold text-text cursor-pointer">
+                <input
+                  type="radio"
+                  name="importMode"
+                  value="append"
+                  checked={importMode === 'append'}
+                  onChange={() => setImportMode('append')}
+                  className="accent-brand-500"
+                />
+                <span>Gộp thêm vào lộ trình hiện có</span>
+              </label>
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="flex items-center justify-end gap-2 border-t-2 border-border/80 pt-4">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClose}
+              className="rounded-2xl font-black text-xs"
+            >
+              Hủy
+            </Button>
+            <Button
+              type="button"
+              onClick={handleConfirm}
+              disabled={Boolean(validationError) || !jsonText.trim()}
+              className="rounded-2xl bg-brand-500 hover:bg-brand-600 disabled:opacity-50 text-white font-black text-xs shadow-clay cursor-pointer"
+            >
+              Xác nhận Nhập Lộ Trình
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
+interface CurriculumGeneratorPreviewModalProps {
+  isOpen: boolean
+  onClose: () => void
+  week: AsmoCurriculumWeekItem
+  initialGenerated: {
+    quote: string
+    storyAdvice: string
+    solutionSteps: string[]
+    commonPitfall: string
+  }
+  onApply: (data: {
+    quote: string
+    storyAdvice: string
+    solutionSteps: string[]
+    commonPitfall: string
+  }) => void
+}
+
+function CurriculumGeneratorPreviewModal({
+  isOpen,
+  onClose,
+  week,
+  initialGenerated,
+  onApply,
+}: CurriculumGeneratorPreviewModalProps) {
+  const [quote, setQuote] = useState(initialGenerated.quote)
+  const [storyAdvice, setStoryAdvice] = useState(initialGenerated.storyAdvice)
+  const [solutionSteps, setSolutionSteps] = useState<string[]>(initialGenerated.solutionSteps)
+  const [commonPitfall, setCommonPitfall] = useState(initialGenerated.commonPitfall)
+
+  if (!isOpen || typeof document === 'undefined') return null
+
+  const handleStepChange = (index: number, val: string) => {
+    const next = [...solutionSteps]
+    next[index] = val
+    setSolutionSteps(next)
+  }
+
+  const handleConfirmApply = () => {
+    onApply({
+      quote,
+      storyAdvice,
+      solutionSteps,
+      commonPitfall,
+    })
+  }
+
+  return createPortal(
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in"
+    >
+      <div className="w-full max-w-2xl rounded-3xl border-2 border-border/80 bg-surface p-6 shadow-clay animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between border-b-2 border-border/80 pb-3">
+          <div className="flex items-center gap-2.5">
+            <span className="text-2xl">🪄</span>
+            <div>
+              <h3 className="font-display text-lg font-black text-text">
+                Xem Trước & Tinh Chỉnh Bí Kíp Sư Phạm (Smart Generator)
+              </h3>
+              <p className="text-xs text-muted font-bold">
+                Tuần {week.week}: {week.title} · Lớp {week.grade} ·{' '}
+                {week.subject === 'math' ? 'Toán' : week.subject === 'science' ? 'Khoa Học' : 'Tiếng Anh'}
+              </p>
+            </div>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            className="rounded-xl p-1.5 text-muted hover:bg-slate-100 hover:text-text cursor-pointer"
+          >
+            <X className="size-5" />
+          </button>
+        </div>
+
+        <div className="mt-4 flex flex-col gap-4">
+          {/* Quote Section */}
+          <div className="rounded-2xl border-2 border-amber-200 bg-amber-50/60 p-3.5 space-y-2">
+            <div className="flex items-center gap-2">
+              <span className="text-xl">🐱</span>
+              <label className="text-xs font-black text-amber-900 uppercase">
+                Câu khẩu hiệu truyền cảm hứng Mèo Mee
+              </label>
+            </div>
+            <input
+              value={quote}
+              onChange={(e) => setQuote(e.target.value)}
+              className="w-full rounded-xl border border-amber-300 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
+            />
+          </div>
+
+          {/* Story Advice Section */}
+          <div>
+            <label className="block text-xs font-black text-muted uppercase mb-1">
+              Lời khuyên tư duy & Chiến thuật giải nhanh
+            </label>
+            <textarea
+              rows={2}
+              value={storyAdvice}
+              onChange={(e) => setStoryAdvice(e.target.value)}
+              className="w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none leading-relaxed"
+            />
+          </div>
+
+          {/* 3 Solution Steps with KaTeX Preview */}
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-xs font-black text-indigo-900 uppercase tracking-wider">
+                Hướng dẫn giải 3 bước chuẩn ASMO (Hỗ trợ KaTeX)
+              </label>
+              <span className="rounded-lg bg-indigo-100 text-indigo-800 px-2 py-0.5 text-[10px] font-black">
+                KaTeX Live Preview
+              </span>
+            </div>
+
+            {solutionSteps.map((step, idx) => (
+              <div
+                key={idx}
+                className="rounded-2xl border-2 border-indigo-100 bg-indigo-50/40 p-3 space-y-2"
+              >
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-black text-indigo-800">
+                    Bước {idx + 1}
+                  </span>
+                </div>
+                <textarea
+                  rows={2}
+                  value={step}
+                  onChange={(e) => handleStepChange(idx, e.target.value)}
+                  className="w-full rounded-xl border border-indigo-200 bg-white px-3 py-1.5 text-xs font-medium text-text focus:border-brand-400 focus:outline-none"
+                />
+                <div className="rounded-xl border border-indigo-200/80 bg-white/90 p-2.5 text-xs">
+                  <span className="text-[10px] font-bold text-indigo-500 uppercase block mb-0.5">
+                    Hiển thị công thức:
+                  </span>
+                  <AsmoFormula text={step} />
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Common Pitfall */}
+          <div>
+            <label className="block text-xs font-black text-amber-900 uppercase mb-1">
+              Bẫy tư duy học sinh thường gặp
+            </label>
+            <textarea
+              rows={2}
+              value={commonPitfall}
+              onChange={(e) => setCommonPitfall(e.target.value)}
+              className="w-full rounded-2xl border-2 border-amber-200 bg-amber-50/40 px-3 py-2 text-xs font-bold text-amber-900 focus:border-brand-400 focus:outline-none leading-relaxed"
+            />
+          </div>
+
+          {/* Modal Actions */}
+          <div className="flex items-center justify-end gap-2 border-t-2 border-border/80 pt-4">
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={onClose}
+              className="rounded-2xl font-black text-xs"
+            >
+              Hủy
+            </Button>
+            <Button
+              type="button"
+              onClick={handleConfirmApply}
+              className="rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-black text-xs shadow-clay flex items-center gap-1.5 cursor-pointer"
+            >
+              <Sparkles className="size-4" />
+              <span>Áp dụng vào tuần học</span>
+            </Button>
+          </div>
+        </div>
+      </div>
+    </div>,
+    document.body,
+  )
+}
+
 export function AsmoAdminStudio() {
   const [activeTab, setActiveTab] = useState<AsmoStudioTab>('exams')
 
@@ -261,6 +1154,25 @@ export function AsmoAdminStudio() {
   const [curriculumSubject, setCurriculumSubject] = useState<'all' | AsmoSubject>('all')
   const [curriculumGrade, setCurriculumGrade] = useState<'all' | number>('all')
 
+  // Curriculum Data State
+  const [curriculumWeeks, setCurriculumWeeks] = useState<AsmoCurriculumWeekItem[]>(() =>
+    ASMO_CURRICULUM_WEEKS.map((w) => ({
+      ...w,
+      keyCompetencies: [...w.keyCompetencies],
+      sampleQuestionIds: [...w.sampleQuestionIds],
+    })),
+  )
+  const [editingWeek, setEditingWeek] = useState<AsmoCurriculumWeekItem | null>(null)
+  const [isCreatingWeek, setIsCreatingWeek] = useState(false)
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false)
+  const [previewGenWeek, setPreviewGenWeek] = useState<{
+    week: AsmoCurriculumWeekItem
+    quote: string
+    storyAdvice: string
+    solutionSteps: string[]
+    commonPitfall: string
+  } | null>(null)
+
   // Modals & Drawers state
   const [editingExam, setEditingExam] = useState<ExamWithStatus | null>(null)
   const [viewingQuestionsExam, setViewingQuestionsExam] = useState<ExamWithStatus | null>(null)
@@ -278,7 +1190,15 @@ export function AsmoAdminStudio() {
 
   // Lock background scroll when any modal is open
   useEffect(() => {
-    const isAnyModalOpen = Boolean(editingExam || viewingQuestionsExam || auditingExamModal)
+    const isAnyModalOpen = Boolean(
+      editingExam ||
+        viewingQuestionsExam ||
+        auditingExamModal ||
+        editingWeek ||
+        isCreatingWeek ||
+        isImportModalOpen ||
+        previewGenWeek,
+    )
     if (isAnyModalOpen) {
       const prevOverflow = document.body.style.overflow
       const didChange = prevOverflow !== 'hidden'
@@ -291,7 +1211,15 @@ export function AsmoAdminStudio() {
         }
       }
     }
-  }, [editingExam, viewingQuestionsExam, auditingExamModal])
+  }, [
+    editingExam,
+    viewingQuestionsExam,
+    auditingExamModal,
+    editingWeek,
+    isCreatingWeek,
+    isImportModalOpen,
+    previewGenWeek,
+  ])
 
   // Trigger temporary toast
   const showToast = useCallback((msg: string) => {
@@ -476,14 +1404,123 @@ export function AsmoAdminStudio() {
     return { katexErrors, mathInconsistencies, pedagogicalWarnings, taxonomyIssues }
   }, [auditResults])
 
+  // Curriculum Handlers
+  const handleDeleteWeek = useCallback(
+    (weekToDelete: AsmoCurriculumWeekItem) => {
+      setCurriculumWeeks((prev) =>
+        prev.filter(
+          (w) =>
+            !(
+              w.week === weekToDelete.week &&
+              w.subject === weekToDelete.subject &&
+              w.grade === weekToDelete.grade
+            ),
+        ),
+      )
+      showToast(`Đã xóa tuần ${weekToDelete.week}: ${weekToDelete.title}`)
+    },
+    [showToast],
+  )
+
+  const handleResetCurriculum = useCallback(() => {
+    setCurriculumWeeks(
+      ASMO_CURRICULUM_WEEKS.map((w) => ({
+        ...w,
+        keyCompetencies: [...w.keyCompetencies],
+        sampleQuestionIds: [...w.sampleQuestionIds],
+      })),
+    )
+    showToast('Đã khôi phục lộ trình học về mặc định!')
+  }, [showToast])
+
+  const handleExportCurriculum = useCallback(() => {
+    const blob = new Blob([JSON.stringify(curriculumWeeks, null, 2)], {
+      type: 'application/json',
+    })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'asmo_curriculum_export.json'
+    a.click()
+    URL.revokeObjectURL(url)
+    showToast(`Đã xuất ${curriculumWeeks.length} tuần học ra file asmo_curriculum_export.json thành công!`)
+  }, [curriculumWeeks, showToast])
+
+  const handleDownloadTemplate = useCallback(() => {
+    const sampleTemplate = [
+      {
+        week: 1,
+        subject: 'math',
+        grade: 1,
+        topic: 'ASMO-MATH-G1-W01',
+        title: 'Đếm Khối Lập Phương & Không Gian Đa Chiều',
+        summary: 'Làm quen với góc nhìn 3D, đếm số khối bị che khuất và xoay hình trong không gian.',
+        keyCompetencies: ['Tư duy không gian', 'Đếm hình khối', 'Bóc tách tầng'],
+        visualTemplate: '3D_CUBE_CLUSTER',
+        sampleQuestionIds: ['asmo-math-g1-2020-r1-q05'],
+        meeTip: {
+          quote: 'Nhìn hình vẽ kỹ, chớ vội tính ngay; đếm từng góc cạnh, lời giải mở ra tay!',
+          storyAdvice: 'Đánh số từng tầng từ dưới lên trên để tránh bỏ sót khối bị che khuất.',
+        },
+        solutionSteps: [
+          'Bước 1: Phân tích số tầng của mô hình từ thấp đến cao.',
+          'Bước 2: Áp dụng công thức đếm theo cột $N = \\sum h_i$.',
+          'Bước 3: Tổng hợp số lượng khối lập phương.',
+        ],
+        commonPitfall: 'Bỏ sót các khối ở tầng 1 bị che khuất hoàn toàn.',
+      },
+    ]
+    const blob = new Blob([JSON.stringify(sampleTemplate, null, 2)], {
+      type: 'application/json',
+    })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = 'asmo_curriculum_template.json'
+    a.click()
+    URL.revokeObjectURL(url)
+    showToast('Đã tải xuống file JSON mẫu chuẩn hóa!')
+  }, [showToast])
+
+  const handleGenerateAllTips = useCallback(() => {
+    setCurriculumWeeks((prev) =>
+      prev.map((w) => {
+        const gen = generatePedagogicalTipsAndSolution(w)
+        return {
+          ...w,
+          meeTip: {
+            quote: gen.quote,
+            storyAdvice: gen.storyAdvice,
+          },
+          solutionSteps: gen.solutionSteps,
+          commonPitfall: gen.commonPitfall,
+        }
+      }),
+    )
+    showToast(
+      `⚡ Đã tự động sinh Bí kíp Mèo Mee và Lời giải 3 bước cho toàn bộ ${curriculumWeeks.length} tuần học!`,
+    )
+  }, [curriculumWeeks.length, showToast])
+
+  const handleOpenPreviewGen = useCallback((weekItem: AsmoCurriculumWeekItem) => {
+    const gen = generatePedagogicalTipsAndSolution(weekItem)
+    setPreviewGenWeek({
+      week: weekItem,
+      quote: gen.quote,
+      storyAdvice: gen.storyAdvice,
+      solutionSteps: gen.solutionSteps,
+      commonPitfall: gen.commonPitfall,
+    })
+  }, [])
+
   // Filtered Curriculum Weeks
   const filteredWeeks = useMemo(() => {
-    return ASMO_CURRICULUM_WEEKS.filter((w) => {
+    return curriculumWeeks.filter((w) => {
       if (curriculumSubject !== 'all' && w.subject !== curriculumSubject) return false
       if (curriculumGrade !== 'all' && w.grade !== curriculumGrade) return false
       return true
     })
-  }, [curriculumSubject, curriculumGrade])
+  }, [curriculumWeeks, curriculumSubject, curriculumGrade])
 
   return (
     <div className="flex flex-col gap-6">
@@ -904,44 +1941,103 @@ export function AsmoAdminStudio() {
       {/* ── TAB 2: CURRICULUM ROADMAP ── */}
       {activeTab === 'curriculum' && (
         <div className="flex flex-col gap-6">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 rounded-3xl border-2 border-border/80 bg-surface p-4 shadow-clay">
-            <div className="flex flex-wrap items-center gap-3">
-              <span className="text-xs font-black uppercase text-brand-600 tracking-wider">
-                Lộ Trình Học Chuẩn ASMO
-              </span>
-              {/* Subject Filter */}
-              <select
-                aria-label="Lọc lộ trình theo môn"
-                value={curriculumSubject}
-                onChange={(e) => setCurriculumSubject(e.target.value as 'all' | AsmoSubject)}
-                className="rounded-2xl border-2 border-border/80 bg-white px-3 py-1.5 text-xs font-black text-text focus:border-brand-400 focus:outline-none"
-              >
-                <option value="all">Tất cả môn</option>
-                <option value="math">📐 Toán Olympic</option>
-                <option value="science">🔬 Khoa Học Tự Nhiên</option>
-                <option value="english">🔤 Tiếng Anh Học Thuật</option>
-              </select>
+          {/* Toolbar */}
+          <div className="flex flex-col gap-4 rounded-3xl border-2 border-border/80 bg-surface p-5 shadow-clay">
+            <div className="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-4">
+              {/* Filters */}
+              <div className="flex flex-wrap items-center gap-3">
+                <span className="text-xs font-black uppercase text-brand-600 tracking-wider">
+                  Lộ Trình Học Chuẩn ASMO
+                </span>
+                {/* Subject Filter */}
+                <select
+                  aria-label="Lọc lộ trình theo môn"
+                  value={curriculumSubject}
+                  onChange={(e) => setCurriculumSubject(e.target.value as 'all' | AsmoSubject)}
+                  className="rounded-2xl border-2 border-border/80 bg-white px-3 py-1.5 text-xs font-black text-text focus:border-brand-400 focus:outline-none cursor-pointer"
+                >
+                  <option value="all">Tất cả môn</option>
+                  <option value="math">📐 Toán Olympic</option>
+                  <option value="science">🔬 Khoa Học Tự Nhiên</option>
+                  <option value="english">🔤 Tiếng Anh Học Thuật</option>
+                </select>
 
-              {/* Grade Filter */}
-              <select
-                aria-label="Lọc lộ trình theo lớp"
-                value={curriculumGrade}
-                onChange={(e) =>
-                  setCurriculumGrade(e.target.value === 'all' ? 'all' : Number(e.target.value))
-                }
-                className="rounded-2xl border-2 border-border/80 bg-white px-3 py-1.5 text-xs font-black text-text focus:border-brand-400 focus:outline-none"
-              >
-                <option value="all">Tất cả khối lớp</option>
-                {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
-                  <option key={g} value={g}>
-                    Lớp {g}
-                  </option>
-                ))}
-              </select>
+                {/* Grade Filter */}
+                <select
+                  aria-label="Lọc lộ trình theo lớp"
+                  value={curriculumGrade}
+                  onChange={(e) =>
+                    setCurriculumGrade(e.target.value === 'all' ? 'all' : Number(e.target.value))
+                  }
+                  className="rounded-2xl border-2 border-border/80 bg-white px-3 py-1.5 text-xs font-black text-text focus:border-brand-400 focus:outline-none cursor-pointer"
+                >
+                  <option value="all">Tất cả khối lớp</option>
+                  {Array.from({ length: 12 }, (_, i) => i + 1).map((g) => (
+                    <option key={g} value={g}>
+                      Lớp {g}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Data & Generator Action Buttons */}
+              <div className="flex flex-wrap items-center gap-2">
+                <Button
+                  type="button"
+                  onClick={() => setIsCreatingWeek(true)}
+                  className="rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-black text-xs px-3.5 py-2 shadow-clay flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Plus className="size-4" />
+                  <span>+ Thêm tuần mới</span>
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleGenerateAllTips}
+                  className="rounded-2xl border-2 border-purple-200 bg-purple-50 hover:bg-purple-100 text-purple-700 font-black text-xs px-3 py-2 shadow-sm flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Sparkles className="size-4 text-purple-600" />
+                  <span>⚡ Sinh Tips toàn bộ lộ trình</span>
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={() => setIsImportModalOpen(true)}
+                  className="rounded-2xl border-2 border-sky-200 bg-sky-50 hover:bg-sky-100 text-sky-700 font-black text-xs px-3 py-2 shadow-sm flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Upload className="size-4 text-sky-600" />
+                  <span>📥 Nhập Lộ trình (Import JSON)</span>
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="secondary"
+                  onClick={handleExportCurriculum}
+                  className="rounded-2xl border-2 border-emerald-200 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 font-black text-xs px-3 py-2 shadow-sm flex items-center gap-1.5 cursor-pointer"
+                >
+                  <Download className="size-4 text-emerald-600" />
+                  <span>📤 Xuất Lộ trình (Export JSON)</span>
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={handleResetCurriculum}
+                  className="rounded-2xl text-muted hover:bg-slate-100 hover:text-text font-black text-xs px-2.5 py-2 flex items-center gap-1 cursor-pointer"
+                  title="Khôi phục về danh sách lộ trình gốc"
+                >
+                  <RotateCcw className="size-3.5" />
+                  <span>Khôi phục mặc định</span>
+                </Button>
+              </div>
             </div>
 
-            <div className="text-xs font-bold text-muted">
-              Đang hiển thị <strong className="text-text">{filteredWeeks.length}</strong> tuần chuyên đề
+            <div className="flex items-center justify-between border-t border-border/60 pt-3 text-xs">
+              <div className="text-muted font-bold">
+                Đang hiển thị <strong className="text-text">{filteredWeeks.length}</strong> / {curriculumWeeks.length} tuần chuyên đề
+              </div>
             </div>
           </div>
 
@@ -954,10 +2050,10 @@ export function AsmoAdminStudio() {
 
               return (
                 <div
-                  key={`${weekItem.subject}-${weekItem.week}`}
+                  key={`${weekItem.subject}-${weekItem.grade}-${weekItem.week}-${weekItem.topic}`}
                   className="flex flex-col justify-between gap-4 rounded-3xl border-2 border-border/80 bg-surface p-5 shadow-clay hover:border-brand-200 transition-all"
                 >
-                  <div className="flex flex-col gap-2">
+                  <div className="flex flex-col gap-3">
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-2">
                         <span className="flex size-9 items-center justify-center rounded-2xl border-2 border-brand-200 bg-brand-500 font-display text-xs font-black text-white shadow-clay">
@@ -973,7 +2069,12 @@ export function AsmoAdminStudio() {
                                 : 'border-orange-200 bg-orange-50 text-orange-800',
                           )}
                         >
-                          {weekItem.subject === 'math' ? 'Toán' : weekItem.subject === 'science' ? 'Khoa Học' : 'Tiếng Anh'} · Lớp {weekItem.grade}
+                          {weekItem.subject === 'math'
+                            ? 'Toán'
+                            : weekItem.subject === 'science'
+                              ? 'Khoa Học'
+                              : 'Tiếng Anh'}{' '}
+                          · Lớp {weekItem.grade}
                         </span>
                       </div>
                       <span className="text-[11px] font-bold text-muted">
@@ -989,7 +2090,7 @@ export function AsmoAdminStudio() {
                     </p>
 
                     {/* Key Competencies Chips */}
-                    <div className="mt-2 flex flex-wrap items-center gap-1.5">
+                    <div className="flex flex-wrap items-center gap-1.5">
                       <span className="text-[10px] font-bold text-muted uppercase">Trọng tâm:</span>
                       {weekItem.keyCompetencies.map((comp) => (
                         <span
@@ -1000,32 +2101,98 @@ export function AsmoAdminStudio() {
                         </span>
                       ))}
                     </div>
-                  </div>
 
-                  {/* 3D Template Badge */}
-                  {templateInfo ? (
-                    <div className="flex items-center gap-3 rounded-2xl border-2 border-amber-200 bg-amber-50/80 p-3 shadow-sm">
-                      <span className="text-2xl">{templateInfo.icon}</span>
-                      <div className="flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <span className="text-xs font-black text-amber-900">
-                            {templateInfo.label}
+                    {/* 3D Template Badge */}
+                    {templateInfo ? (
+                      <div className="flex items-center gap-3 rounded-2xl border-2 border-amber-200 bg-amber-50/80 p-3 shadow-sm">
+                        <span className="text-2xl">{templateInfo.icon}</span>
+                        <div className="flex-1">
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-black text-amber-900">
+                              {templateInfo.label}
+                            </span>
+                            <span className="rounded-lg bg-amber-200 px-1.5 py-0.2 text-[10px] font-black text-amber-900">
+                              3D LAB
+                            </span>
+                          </div>
+                          <p className="text-[11px] text-amber-800 font-medium">
+                            {templateInfo.desc}
+                          </p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-2 text-xs text-muted italic">
+                        <BookOpen className="size-3.5" />
+                        <span>Bài học lý thuyết & giải bài tập Olympic tổng hợp</span>
+                      </div>
+                    )}
+
+                    {/* Mèo Mee Tips Box (nếu có) */}
+                    {weekItem.meeTip && (
+                      <div className="flex items-start gap-2.5 rounded-2xl border-2 border-amber-300 bg-amber-50/90 p-3 shadow-xs">
+                        <span className="text-xl shrink-0">🐱</span>
+                        <div className="flex-1 text-xs">
+                          <p className="font-black text-amber-900 italic">
+                            "{weekItem.meeTip.quote}"
+                          </p>
+                          <p className="mt-1 text-amber-800 font-medium leading-relaxed">
+                            {weekItem.meeTip.storyAdvice}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Lời giải 3 bước ASMO (nếu có) */}
+                    {weekItem.solutionSteps && weekItem.solutionSteps.length > 0 && (
+                      <div className="space-y-1.5 rounded-2xl border border-indigo-200 bg-indigo-50/50 p-2.5 text-xs">
+                        <div className="flex items-center justify-between">
+                          <span className="font-black text-indigo-900 text-[11px] uppercase tracking-wider">
+                            💡 Khung giải 3 bước ASMO:
                           </span>
-                          <span className="rounded-lg bg-amber-200 px-1.5 py-0.2 text-[10px] font-black text-amber-900">
-                            3D LAB
+                          <span className="rounded-md bg-indigo-200 px-1.5 py-0.2 text-[10px] font-black text-indigo-900">
+                            KaTeX
                           </span>
                         </div>
-                        <p className="text-[11px] text-amber-800 font-medium">
-                          {templateInfo.desc}
+                        <p className="text-[11px] text-indigo-800 font-bold truncate">
+                          {weekItem.solutionSteps[0]}
                         </p>
                       </div>
+                    )}
+                  </div>
+
+                  {/* Actions Toolbar on each card */}
+                  <div className="flex items-center justify-between border-t border-border/70 pt-3 mt-1">
+                    <div className="flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setEditingWeek(weekItem)}
+                        className="rounded-xl border-2 border-brand-200 text-brand-700 hover:bg-brand-50 font-bold text-xs px-2.5 py-1 flex items-center gap-1 cursor-pointer"
+                      >
+                        <Edit3 className="size-3.5" />
+                        <span>Sửa tuần học</span>
+                      </Button>
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => handleOpenPreviewGen(weekItem)}
+                        className="rounded-xl border-2 border-purple-200 bg-purple-50/60 text-purple-700 hover:bg-purple-100 font-bold text-xs px-2.5 py-1 flex items-center gap-1 cursor-pointer"
+                      >
+                        <Wand2 className="size-3.5 text-purple-600" />
+                        <span>🪄 Sinh Tips & Lời giải</span>
+                      </Button>
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-xs text-muted italic">
-                      <BookOpen className="size-3.5" />
-                      <span>Bài học lý thuyết & giải bài tập Olympic tổng hợp</span>
-                    </div>
-                  )}
+
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      onClick={() => handleDeleteWeek(weekItem)}
+                      className="rounded-xl text-red-500 hover:bg-red-50 hover:text-red-700 font-bold text-xs px-2 py-1 flex items-center gap-1 cursor-pointer"
+                    >
+                      <Trash2 className="size-3.5" />
+                      <span>Xóa tuần</span>
+                    </Button>
+                  </div>
                 </div>
               )
             })}
@@ -1798,6 +2965,120 @@ export function AsmoAdminStudio() {
             )
             setAuditingExamModal(updated)
             showToast(`Đã lưu cập nhật kiểm định cho đề ${updated.code}!`)
+          }}
+        />
+      )}
+
+      {/* ── MODAL: EDIT CURRICULUM WEEK ── */}
+      {editingWeek && (
+        <CurriculumWeekEditModal
+          isOpen={Boolean(editingWeek)}
+          initialData={editingWeek}
+          isNew={false}
+          onClose={() => setEditingWeek(null)}
+          onSave={(updatedWeek) => {
+            setCurriculumWeeks((prev) =>
+              prev.map((w) =>
+                w.week === editingWeek.week &&
+                w.subject === editingWeek.subject &&
+                w.grade === editingWeek.grade
+                  ? updatedWeek
+                  : w,
+              ),
+            )
+            showToast(`Đã lưu thay đổi tuần ${updatedWeek.week}: "${updatedWeek.title}"!`)
+            setEditingWeek(null)
+          }}
+        />
+      )}
+
+      {/* ── MODAL: CREATE NEW CURRICULUM WEEK ── */}
+      {isCreatingWeek && (
+        <CurriculumWeekEditModal
+          isOpen={isCreatingWeek}
+          initialData={{
+            week:
+              curriculumWeeks.length > 0
+                ? Math.max(...curriculumWeeks.map((w) => w.week)) + 1
+                : 1,
+            subject: curriculumSubject === 'all' ? 'math' : curriculumSubject,
+            grade: (curriculumGrade === 'all' ? 1 : curriculumGrade) as AsmoGrade,
+            topic: `ASMO-TOPIC-W${curriculumWeeks.length + 1}`,
+            title: '',
+            summary: '',
+            keyCompetencies: ['Tư duy logic', 'Phương pháp ASMO'],
+            visualTemplate: '3D_CUBE_CLUSTER',
+            sampleQuestionIds: [],
+            meeTip: {
+              quote: 'Mèo Mee luôn đồng hành cùng bạn!',
+              storyAdvice: 'Quan sát kỹ và suy luận từng bước một nhé!',
+            },
+            solutionSteps: [],
+            commonPitfall: '',
+          }}
+          isNew={true}
+          onClose={() => setIsCreatingWeek(false)}
+          onSave={(newWeek) => {
+            setCurriculumWeeks((prev) => [...prev, newWeek])
+            showToast(`Đã thêm tuần học mới: "${newWeek.title}"!`)
+            setIsCreatingWeek(false)
+          }}
+        />
+      )}
+
+      {/* ── MODAL: IMPORT JSON ── */}
+      {isImportModalOpen && (
+        <CurriculumImportModal
+          isOpen={isImportModalOpen}
+          onClose={() => setIsImportModalOpen(false)}
+          onDownloadTemplate={handleDownloadTemplate}
+          onImport={(items, mode) => {
+            if (mode === 'replace') {
+              setCurriculumWeeks(items)
+              showToast(`Đã ghi đè toàn bộ ${items.length} tuần học vào lộ trình!`)
+            } else {
+              setCurriculumWeeks((prev) => [...prev, ...items])
+              showToast(`Đã gộp thêm ${items.length} tuần học vào lộ trình!`)
+            }
+            setIsImportModalOpen(false)
+          }}
+        />
+      )}
+
+      {/* ── MODAL: PREVIEW & APPLY SMART GENERATOR ── */}
+      {previewGenWeek && (
+        <CurriculumGeneratorPreviewModal
+          isOpen={Boolean(previewGenWeek)}
+          week={previewGenWeek.week}
+          initialGenerated={{
+            quote: previewGenWeek.quote,
+            storyAdvice: previewGenWeek.storyAdvice,
+            solutionSteps: previewGenWeek.solutionSteps,
+            commonPitfall: previewGenWeek.commonPitfall,
+          }}
+          onClose={() => setPreviewGenWeek(null)}
+          onApply={(data) => {
+            setCurriculumWeeks((prev) =>
+              prev.map((w) =>
+                w.week === previewGenWeek.week.week &&
+                w.subject === previewGenWeek.week.subject &&
+                w.grade === previewGenWeek.week.grade
+                  ? {
+                      ...w,
+                      meeTip: {
+                        quote: data.quote,
+                        storyAdvice: data.storyAdvice,
+                      },
+                      solutionSteps: data.solutionSteps,
+                      commonPitfall: data.commonPitfall,
+                    }
+                  : w,
+              ),
+            )
+            showToast(
+              `Đã áp dụng Bí kíp & Lời giải chuẩn hóa vào tuần ${previewGenWeek.week.week}: ${previewGenWeek.week.title}!`,
+            )
+            setPreviewGenWeek(null)
           }}
         />
       )}
