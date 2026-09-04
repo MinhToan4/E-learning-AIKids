@@ -1313,13 +1313,30 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
   if (path === '/api/admin/system') return { system: payload.system }
   if (path === '/api/admin/analytics') return { analytics: payload.analytics }
   if (/^\/api\/admin\/users(?:\?.*)?$/.test(path)) {
-    const rows = Array.isArray(body.data) ? body.data as Array<Record<string, unknown>> : []
+    const rows = (
+      Array.isArray(body.data)
+        ? body.data
+        : Array.isArray(payload.users)
+          ? payload.users
+          : Array.isArray(body.users)
+            ? body.users
+            : Array.isArray(data)
+              ? data
+              : []
+    ) as Array<Record<string, unknown>>
     return {
       users: rows.map((row) => ({
         ...row,
         nickname: row.name ? String(row.name) : null,
         level: Number(row.level ?? 1),
         xp: Number(row.xp ?? 0),
+        guardianParent: (row.guardianParent && typeof row.guardianParent === 'object')
+          ? row.guardianParent
+          : null,
+        children: Array.isArray(row.children) ? row.children : [],
+        childrenCount: typeof row.childrenCount === 'number'
+          ? row.childrenCount
+          : (Array.isArray(row.children) ? row.children.length : 0),
       })),
     }
   }

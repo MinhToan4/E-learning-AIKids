@@ -65,6 +65,54 @@ type AdminUser = {
   googleSub?: string | null
   platformRoles?: string[]
   personas?: string[]
+  guardianParent?: { id: string; name: string | null; email: string | null; childProfileId?: string } | null
+  children?: Array<{ id: string | null; profileId: string; name: string }>
+  childrenCount?: number
+}
+
+type DisplayAdminUser = AdminUser & {
+  isChildInFamily?: boolean
+}
+
+function groupUsersByFamilyList(
+  list: AdminUser[],
+): DisplayAdminUser[] {
+  const visited = new Set<string>()
+  const result: DisplayAdminUser[] = []
+
+  // 1. Nhóm các Hộ gia đình: Phụ huynh đứng đầu, các con thụt dòng
+  const parentsInList = list.filter((u) => {
+    if (u.role === 'parent') return true
+    if (u.children && u.children.length > 0) return true
+    return list.some((c) => c.guardianParent?.id === u.id)
+  })
+
+  for (const parent of parentsInList) {
+    if (visited.has(parent.id)) continue
+    visited.add(parent.id)
+    result.push({ ...parent, isChildInFamily: false })
+
+    const childIdsFromParent = new Set((parent.children || []).map((c) => c.id).filter(Boolean))
+    const childrenInList = list.filter((c) => {
+      if (c.id === parent.id || visited.has(c.id)) return false
+      return c.guardianParent?.id === parent.id || childIdsFromParent.has(c.id)
+    })
+
+    for (const child of childrenInList) {
+      visited.add(child.id)
+      result.push({ ...child, isChildInFamily: true })
+    }
+  }
+
+  // 2. Nhóm các tài khoản khác (Admin, Giáo viên, Độc lập chưa xử lý)
+  for (const u of list) {
+    if (!visited.has(u.id)) {
+      visited.add(u.id)
+      result.push({ ...u, isChildInFamily: false })
+    }
+  }
+
+  return result
 }
 
 type CourseOverview = {
@@ -403,6 +451,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const [userSearch, setUserSearch] = useState('')
   const [userActiveFilter, setUserActiveFilter] = useState<'' | 'active' | 'inactive'>('')
   const [userAuthFilter, setUserAuthFilter] = useState<'' | 'firebase' | 'google' | 'local' | 'pin'>('')
+  const [groupByFamily, setGroupByFamily] = useState(false)
   const [logSearch, setLogSearch] = useState('')
   const [courseSearch, setCourseSearch] = useState('')
   const [courseStatusFilter, setCourseStatusFilter] = useState<'' | 'open' | 'soon'>('')
@@ -411,7 +460,7 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   const navigate = useNavigate()
 
   // ── Filtered arrays (client-side) ───────────────────────────
-  const filteredUsers = useMemo(() => {
+  const filteredUsers = useMemo<DisplayAdminUser[]>(() => {
     let list = users
     if (roleFilter) list = list.filter((u) => u.role === roleFilter)
     if (userActiveFilter === 'active') list = list.filter((u) => u.active)
@@ -423,21 +472,69 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     } else if (userAuthFilter === 'local') {
       list = list.filter((u) => Boolean(u.loginUsername || !u.isFirebaseLinked || u.authProviders?.includes('password') || u.authProviders?.includes('local')))
     } else if (userAuthFilter === 'pin') {
-      list = list.filter((u) => u.role === 'student' || Boolean(u.authProviders?.includes('pin')))
+      list = list.filter((u) => u.role === 'student' || u.role === 'child' || Boolean(u.authProviders?.includes('pin')))
     }
-    if (userSearch) {
-      const q = userSearch.toLowerCase()
-      list = list.filter(
-        (u) =>
+
+    if (userSearch.trim()) {
+      const q = userSearch.trim().toLowerCase()
+
+      // 1. Direct match từ toàn bộ users
+      const directMatchIds = new Set<string>()
+      for (const u of users) {
+        const matchesSelf = Boolean(
           u.name?.toLowerCase().includes(q) ||
           u.nickname?.toLowerCase().includes(q) ||
           u.email?.toLowerCase().includes(q) ||
           u.loginUsername?.toLowerCase().includes(q) ||
-          u.firebaseUid?.toLowerCase().includes(q),
-      )
+          u.firebaseUid?.toLowerCase().includes(q) ||
+          (u.guardianParent && (
+            (u.guardianParent.name && u.guardianParent.name.toLowerCase().includes(q)) ||
+            (u.guardianParent.email && u.guardianParent.email.toLowerCase().includes(q))
+          )) ||
+          (u.children && u.children.some((c) => c.name?.toLowerCase().includes(q)))
+        )
+        if (matchesSelf) {
+          directMatchIds.add(u.id)
+        }
+      }
+
+      // 2. Family-Aware Search:
+      // - Nếu một phụ huynh khớp tìm kiếm, tự động bao gồm cả các tài khoản con của họ trong kết quả!
+      // - Nếu một tài khoản con khớp tìm kiếm, tự động bao gồm cả tài khoản phụ huynh của bé đó!
+      const familyUserIds = new Set<string>(directMatchIds)
+      for (const u of users) {
+        if (directMatchIds.has(u.id)) {
+          // Phụ huynh khớp -> gom tài khoản con
+          if (u.role === 'parent' || (u.children && u.children.length > 0)) {
+            const childIds = (u.children || []).map((c) => c.id).filter(Boolean) as string[]
+            for (const cId of childIds) familyUserIds.add(cId)
+            for (const other of users) {
+              if (other.guardianParent?.id === u.id) {
+                familyUserIds.add(other.id)
+              }
+            }
+          }
+          // Con khớp -> gom tài khoản phụ huynh & anh chị em
+          if (u.guardianParent?.id) {
+            familyUserIds.add(u.guardianParent.id)
+            for (const other of users) {
+              if (other.guardianParent?.id === u.guardianParent.id) {
+                familyUserIds.add(other.id)
+              }
+            }
+          }
+        }
+      }
+
+      list = list.filter((u) => familyUserIds.has(u.id))
     }
-    return list
-  }, [users, roleFilter, userActiveFilter, userAuthFilter, userSearch])
+
+    if (groupByFamily) {
+      return groupUsersByFamilyList(list)
+    }
+
+    return list.map((u) => ({ ...u, isChildInFamily: false }))
+  }, [users, roleFilter, userActiveFilter, userAuthFilter, userSearch, groupByFamily])
 
   const filteredLogs = useMemo(() => {
     let list = loginLogs
@@ -1072,15 +1169,43 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             <option value="local">Nội bộ / Alias</option>
             <option value="pin">Học sinh PIN</option>
           </select>
+          {/* Toggle Gom nhóm Gia đình */}
+          <button
+            type="button"
+            onClick={() => setGroupByFamily((prev) => !prev)}
+            className={cn(
+              'flex items-center gap-1.5 min-h-11 rounded-xl px-3.5 py-2 text-xs font-extrabold transition border-2 cursor-pointer select-none',
+              groupByFamily
+                ? 'bg-brand-500 text-white border-brand-500 shadow-sm'
+                : 'bg-white text-ink border-border hover:border-brand-300 hover:bg-brand-50/50'
+            )}
+            aria-pressed={groupByFamily}
+            title="Gom nhóm tài khoản theo gia đình"
+          >
+            <span aria-hidden="true">👨‍👩‍👧</span>
+            <span>Gom nhóm Gia đình</span>
+          </button>
           {/* Result count badge */}
-          {(userSearch || roleFilter || userActiveFilter || userAuthFilter) && (
+          {(userSearch || roleFilter || userActiveFilter || userAuthFilter || groupByFamily) && (
             <span className="rounded-full bg-brand-50 px-3 py-1 text-xs font-bold text-brand-600">
               {filteredUsers.length} / {users.length} tài khoản
             </span>
           )}
           {/* Clear all */}
-          {(userSearch || roleFilter || userActiveFilter || userAuthFilter) && (
-            <button type="button" className="text-xs font-bold text-muted underline" onClick={() => { setUserSearch(''); setRoleFilter(''); setUserActiveFilter(''); setUserAuthFilter('') }}>Xóa bộ lọc</button>
+          {(userSearch || roleFilter || userActiveFilter || userAuthFilter || groupByFamily) && (
+            <button
+              type="button"
+              className="text-xs font-bold text-muted underline cursor-pointer"
+              onClick={() => {
+                setUserSearch('')
+                setRoleFilter('')
+                setUserActiveFilter('')
+                setUserAuthFilter('')
+                setGroupByFamily(false)
+              }}
+            >
+              Xóa bộ lọc
+            </button>
           )}
           {/* Background reload indicator — shown when reloading with existing data (stale-while-revalidate) */}
           {loading && users.length > 0 && (
@@ -1103,10 +1228,55 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               {usersPag.slice.length === 0 ? (
                 <tr><td colSpan={5} className="px-4 py-8 text-center text-muted">{users.length === 0 ? 'Không có tài khoản nào' : 'Không có tài khoản khớp bộ lọc'}</td></tr>
               ) : usersPag.slice.map((u) => (
-                <tr key={u.id} className="border-b border-border/40 hover:bg-brand-50/30">
+                <tr
+                  key={u.id}
+                  className={cn(
+                    'border-b border-border/40 hover:bg-brand-50/30 transition-colors',
+                    u.isChildInFamily && 'bg-slate-50/60'
+                  )}
+                >
                   <td className="px-4 py-3">
-                    <p className="font-bold">{u.name ?? u.nickname ?? '—'}</p>
-                    <p className="text-xs text-muted">{u.email ?? u.id.slice(0, 10)}</p>
+                    <div className={cn('flex items-start gap-2', u.isChildInFamily && 'pl-5')}>
+                      {u.isChildInFamily && (
+                        <span className="text-brand-400 font-bold text-base select-none mt-0.5" title="Tài khoản con">
+                          ↳
+                        </span>
+                      )}
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <p className="font-bold">{u.name ?? u.nickname ?? '—'}</p>
+                          {u.isChildInFamily && (
+                            <span className="rounded-full bg-purple-100 text-purple-700 px-1.5 py-0.2 text-[10px] font-bold">
+                              Con
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-muted">{u.email ?? u.id.slice(0, 10)}</p>
+                        {(u.role === 'student' || u.role === 'child') && u.guardianParent && (
+                          <div className="mt-1">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                setUserSearch(u.guardianParent?.email || u.guardianParent?.name || '')
+                                setRoleFilter('')
+                              }}
+                              className="inline-flex items-center gap-1 rounded-md bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200/80 px-2 py-0.5 text-xs font-semibold transition cursor-pointer text-left"
+                              title={`Tìm phụ huynh: ${u.guardianParent.name || u.guardianParent.email}`}
+                            >
+                              <span aria-hidden="true">👨‍👧</span>
+                              <span>Phụ huynh: <strong>{u.guardianParent.name || u.guardianParent.email}</strong></span>
+                            </button>
+                          </div>
+                        )}
+                        {u.role === 'parent' && u.children && u.children.length > 0 && (
+                          <div className="mt-1 inline-flex items-center gap-1 rounded-md bg-amber-50 text-amber-800 border border-amber-200/80 px-2 py-0.5 text-xs font-semibold">
+                            <span aria-hidden="true">👶</span>
+                            <span>{u.children.length} con: {u.children.map((c) => c.name).join(', ')}</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex flex-col items-start gap-1">
@@ -1164,12 +1334,57 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
               {users.length === 0 ? 'Không có tài khoản nào' : 'Không có tài khoản khớp bộ lọc'}
             </p>
           ) : usersPag.slice.map((u) => (
-            <div key={u.id} className="px-4 py-3">
+            <div
+              key={u.id}
+              className={cn(
+                'px-4 py-3 transition-colors',
+                u.isChildInFamily && 'bg-slate-50/60 pl-6 border-l-4 border-brand-300'
+              )}
+            >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <p className="truncate font-bold text-sm">{u.name ?? u.nickname ?? '—'}</p>
-                  <p className="truncate text-xs text-muted">{u.email ?? u.id.slice(0, 10)}</p>
-                  <div className="mt-1.5 flex flex-wrap items-center gap-1.5">
+                  <div className="flex items-start gap-1.5">
+                    {u.isChildInFamily && (
+                      <span className="text-brand-400 font-bold text-base select-none mt-0.5" title="Tài khoản con">
+                        ↳
+                      </span>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-1.5">
+                        <p className="truncate font-bold text-sm">{u.name ?? u.nickname ?? '—'}</p>
+                        {u.isChildInFamily && (
+                          <span className="shrink-0 rounded-full bg-purple-100 text-purple-700 px-1.5 py-0.2 text-[10px] font-bold">
+                            Con
+                          </span>
+                        )}
+                      </div>
+                      <p className="truncate text-xs text-muted">{u.email ?? u.id.slice(0, 10)}</p>
+                      {(u.role === 'student' || u.role === 'child') && u.guardianParent && (
+                        <div className="mt-1">
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              setUserSearch(u.guardianParent?.email || u.guardianParent?.name || '')
+                              setRoleFilter('')
+                            }}
+                            className="inline-flex items-center gap-1 rounded-md bg-purple-50 hover:bg-purple-100 text-purple-700 border border-purple-200/80 px-2 py-0.5 text-xs font-semibold transition cursor-pointer text-left"
+                            title={`Tìm phụ huynh: ${u.guardianParent.name || u.guardianParent.email}`}
+                          >
+                            <span aria-hidden="true">👨‍👧</span>
+                            <span>Phụ huynh: <strong>{u.guardianParent.name || u.guardianParent.email}</strong></span>
+                          </button>
+                        </div>
+                      )}
+                      {u.role === 'parent' && u.children && u.children.length > 0 && (
+                        <div className="mt-1 inline-flex items-center gap-1 rounded-md bg-amber-50 text-amber-800 border border-amber-200/80 px-2 py-0.5 text-xs font-semibold">
+                          <span aria-hidden="true">👶</span>
+                          <span>{u.children.length} con: {u.children.map((c) => c.name).join(', ')}</span>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-1.5">
                     <span className="rounded-full bg-brand-50 px-2 py-0.5 text-xs font-bold text-brand-600">
                       {ROLE_LABELS[u.role] ?? u.role}
                     </span>
