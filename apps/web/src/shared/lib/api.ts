@@ -1446,6 +1446,21 @@ function normalizeGatewayResponse(path: string, data: unknown): unknown {
   // WHY: BE trả { status, data: {...} } — normalizeGatewayResponse đã unwrap "data"
   // thành payload. Các handler dưới đây chuẩn hóa từng endpoint để FE nhận
   // đúng shape, không cần type-cast thừa.
+  if (
+    path === '/api/v1/billing/admin/plans' ||
+    path === '/api/admin/billing/plans' ||
+    /^\/api\/(?:v1\/billing\/admin|admin\/billing)\/plans(?:\/[^/?]+\/toggle)?(?:\?.*)?$/.test(path)
+  ) {
+    if (Array.isArray(body.data)) return body.data
+    if (Array.isArray(payload)) return payload
+    if (body.data && typeof body.data === 'object') {
+      return {
+        ...body.data,
+        ...(body.message ? { message: String(body.message) } : {}),
+      }
+    }
+    return payload
+  }
   if (path === '/api/v1/billing/admin/subscriptions/stats' || path === '/api/admin/billing/subscriptions/stats') {
     return {
       stats: recordValue(payload.stats),

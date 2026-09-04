@@ -37,6 +37,7 @@ const LegendRewardStudio = lazy(() => import('../components/LegendRewardStudio')
 const AsmoAdminStudio = lazy(() => import('../components/AsmoAdminStudio').then((module) => ({ default: module.AsmoAdminStudio })))
 const VietQrModal = lazy(() => import('../components/VietQrModal').then((module) => ({ default: module.VietQrModal })))
 const AdminBillingPos = lazy(() => import('../components/AdminBillingPos').then((module) => ({ default: module.AdminBillingPos })))
+const PlanEditorModal = lazy(() => import('../components/PlanEditorModal').then((module) => ({ default: module.PlanEditorModal })))
 
 // ── Types ───────────────────────────────────────────────────
 type SystemInfo = {
@@ -170,6 +171,8 @@ export type PlanDef = {
   id: string; name: string; amountMinor: number; currency: string;
   monthlyCreateCredits: number; maxChildren: number; maxOpenCoursesPerChild?: number;
   features: string[]; requiresPayment: boolean;
+  badge?: string | null; tagline?: string | null; isActive?: boolean;
+  version?: number; sortOrder?: number; storageBytesLimit?: number; activeSubscribers?: number;
 }
 type BillingStats = { totalPaid: number; totalFree: number; totalPending: number; totalExpired: number }
 type SubscriptionRow = {
@@ -440,6 +443,8 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   // ── Billing state ─────────────────────────────────────────────
   const [billingStats, setBillingStats] = useState<BillingStats | null>(null)
   const [billingPlans, setBillingPlans] = useState<PlanDef[]>([])
+  const [editingPlan, setEditingPlan] = useState<PlanDef | null>(null)
+  const [isPlanEditorOpen, setIsPlanEditorOpen] = useState(false)
   const [billingSubSearch, setBillingSubSearch] = useState('')
   const [billingSubs, setBillingSubs] = useState<SubscriptionRow[]>([])
   const [pendingIntents, setPendingIntents] = useState<PendingIntent[]>([])
@@ -636,13 +641,15 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         //   stats endpoint → { stats: {...}, plans: [...] }
         //   subscriptions  → SubscriptionRow[]
         //   pending-intents → PendingIntent[]
-        const [statsData, subsData, intentsData] = await Promise.all([
+        //   plans endpoint → PlanDef[] (with isActive, version, activeSubscribers)
+        const [statsData, subsData, intentsData, dbPlans] = await Promise.all([
           api<{ stats: BillingStats; plans: PlanDef[] }>('/api/admin/billing/subscriptions/stats'),
           api<SubscriptionRow[]>('/api/admin/billing/subscriptions'),
           api<PendingIntent[]>('/api/admin/billing/subscriptions/pending-intents'),
+          api<PlanDef[]>('/api/admin/billing/plans').catch(() => [] as PlanDef[]),
         ])
         setBillingStats(statsData.stats)
-        setBillingPlans(statsData.plans ?? [])
+        setBillingPlans(Array.isArray(dbPlans) && dbPlans.length > 0 ? dbPlans : (statsData.plans ?? []))
         setBillingSubs(Array.isArray(subsData) ? subsData : [])
         setPendingIntents(Array.isArray(intentsData) ? intentsData : [])
       }
@@ -1037,6 +1044,23 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
       showToast(res.message ?? 'Thanh toán đã được xác nhận', 'success')
       await load()
     } catch (e) { showToast(e instanceof Error ? e.message : 'Lỗi xác nhận', 'error') }
+  }
+
+  async function handleTogglePlan(plan: PlanDef) {
+    if (plan.id === 'free') {
+      showToast('Không được phép ẩn gói miễn phí (free)', 'error')
+      return
+    }
+    try {
+      const res = await api<{ message?: string }>(
+        `/api/admin/billing/plans/${encodeURIComponent(plan.id)}/toggle`,
+        { method: 'PATCH' },
+      )
+      showToast(res?.message || `Đã thay đổi trạng thái gói ${plan.name}`, 'success')
+      await load()
+    } catch (e) {
+      showToast(e instanceof Error ? e.message : 'Lỗi thay đổi trạng thái gói', 'error')
+    }
   }
 
   // ── Tab content renderers ────────────────────────────────
@@ -2072,69 +2096,177 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
             </div>
           )}
 
-          {/* ── Plan Catalog View ─────────────────────────── */}
+          {/* ── Plan Catalog View (Package Builder) ──────────────── */}
           {billingPlanView === 'plans' && (
-            <div className="grid gap-4 sm:grid-cols-2">
-              {billingPlans.length === 0 ? (
-                <div className="ui-card col-span-2 py-12 text-center text-muted">Đang tải catalog gói...</div>
-              ) : billingPlans.map((plan) => {
-                const userCount = billingSubs.filter((s) => s.plan === plan.id).length
-                return (
-                  <div
-                    key={plan.id}
-                    className={cn(
-                      'ui-card flex flex-col gap-3 p-5 transition hover:shadow-md',
-                      plan.id !== 'free' ? 'border-2' : 'border border-dashed border-border',
-                    )}
-                  >
-                    <div className="flex items-start justify-between gap-3">
-                      <div>
-                        <span className={cn('inline-block rounded-full px-2.5 py-0.5 text-xs font-extrabold mb-2', PLAN_BADGE_COLORS[plan.id] ?? 'bg-brand-50 text-brand-600')}>
-                          {plan.id.toUpperCase()}
-                        </span>
-                        <h3 className="font-display text-lg text-text">{plan.name}</h3>
-                        <p className="text-2xl font-black text-brand-600 mt-1">{formatVnd(plan.amountMinor)}</p>
-                      </div>
-                      <div className="text-right shrink-0">
-                        <p className="font-display text-2xl text-text">{userCount}</p>
-                        <p className="text-xs text-muted">thuê bao</p>
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2 rounded-xl bg-page p-3 text-center text-xs">
-                      <div>
-                        <p className="font-extrabold text-brand-600">{plan.monthlyCreateCredits}</p>
-                        <p className="text-muted">lượt AI/tháng</p>
-                      </div>
-                      <div>
-                        <p className="font-extrabold text-brand-600">{plan.maxChildren}</p>
-                        <p className="text-muted">hồ sơ trẻ</p>
-                      </div>
-                      <div>
-                        <p className="font-extrabold text-brand-600">
-                          {plan.maxOpenCoursesPerChild === 999 ? '∞' : (plan.maxOpenCoursesPerChild ?? '?')}
-                        </p>
-                        <p className="text-muted">khóa/trẻ</p>
-                      </div>
-                    </div>
-
-                    <ul className="flex flex-col gap-1.5">
-                      {plan.features.map((f, i) => (
-                        <li key={i} className="flex items-start gap-2 text-xs text-muted">
-                          <span className="mt-0.5 text-success shrink-0">✓</span>
-                          {f}
-                        </li>
-                      ))}
-                    </ul>
-
-                    <div className="mt-auto pt-3 border-t border-border/60">
-                      <p className="text-xs text-muted">
-                        {plan.requiresPayment ? '💳 Yêu cầu thanh toán' : '🎁 Miễn phí, tự động kích hoạt'}
-                      </p>
-                    </div>
+            <div className="flex flex-col gap-4">
+              {/* Thanh công cụ quản trị & tùy biến gói bán (Package Builder) */}
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 rounded-3xl border-2 border-border/80 bg-surface p-5 shadow-clay">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl">📦</span>
+                    <h3 className="font-display text-lg font-black text-text">
+                      Quản trị danh mục gói bán & Tùy biến (Package Builder)
+                    </h3>
                   </div>
-                )
-              })}
+                  <p className="text-xs text-muted mt-1">
+                    Tùy chỉnh định mức lượt tạo AI, giới hạn tài khoản con, chính sách bảo toàn quyền lợi (Grandfathering) và trạng thái mở bán.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setEditingPlan(null)
+                    setIsPlanEditorOpen(true)
+                  }}
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-brand-500 hover:bg-brand-600 active:scale-95 px-4 py-2.5 text-sm font-black text-white shadow-clay transition shrink-0 cursor-pointer"
+                >
+                  <span className="text-lg leading-none">+</span>
+                  <span>Tạo gói bán mới</span>
+                </button>
+              </div>
+
+              {/* Grid cards */}
+              <div className="grid gap-4 sm:grid-cols-2">
+                {billingPlans.length === 0 ? (
+                  <div className="ui-card col-span-2 py-12 text-center text-muted">Đang tải catalog gói...</div>
+                ) : billingPlans.map((plan) => {
+                  const userCount = plan.activeSubscribers ?? billingSubs.filter((s) => s.plan === plan.id).length
+                  const isPlanActive = plan.isActive !== false
+                  return (
+                    <div
+                      key={plan.id}
+                      className={cn(
+                        'ui-card flex flex-col gap-3 p-5 transition hover:shadow-md',
+                        plan.id !== 'free' ? 'border-2' : 'border border-dashed border-border',
+                        !isPlanActive && 'opacity-75 bg-page/50',
+                      )}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                            <span className={cn('inline-block rounded-full px-2.5 py-0.5 text-xs font-extrabold', PLAN_BADGE_COLORS[plan.id] ?? 'bg-brand-50 text-brand-600')}>
+                              {plan.id.toUpperCase()}
+                            </span>
+                            {plan.badge && (
+                              <span className="inline-block rounded-full bg-amber-100 px-2 py-0.5 text-[11px] font-black text-amber-800 border border-amber-300">
+                                {plan.badge}
+                              </span>
+                            )}
+                            <span className="inline-block rounded-full bg-border/60 px-2 py-0.5 text-[10px] font-bold text-muted">
+                              v{plan.version ?? 1}
+                            </span>
+                          </div>
+                          <h3 className="font-display text-lg text-text">{plan.name}</h3>
+                          {plan.tagline && (
+                            <p className="text-xs text-muted line-clamp-1">{plan.tagline}</p>
+                          )}
+                          <p className="text-2xl font-black text-brand-600 mt-1">{formatVnd(plan.amountMinor)}</p>
+                        </div>
+                        <div className="text-right shrink-0">
+                          <p className="font-display text-2xl text-text">{userCount}</p>
+                          <p className="text-xs text-muted">phụ huynh</p>
+                          <div className="mt-1">
+                            <span
+                              className={cn(
+                                'inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-black',
+                                isPlanActive
+                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                                  : 'bg-stone-100 text-stone-600 border border-stone-200',
+                              )}
+                            >
+                              <span>{isPlanActive ? '🟢' : '⚪'}</span>
+                              <span>{isPlanActive ? 'Đang mở bán' : 'Tạm ẩn'}</span>
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-3 gap-2 rounded-xl bg-page p-3 text-center text-xs">
+                        <div>
+                          <p className="font-extrabold text-brand-600">{plan.monthlyCreateCredits}</p>
+                          <p className="text-muted">lượt AI/tháng</p>
+                        </div>
+                        <div>
+                          <p className="font-extrabold text-brand-600">{plan.maxChildren}</p>
+                          <p className="text-muted">hồ sơ trẻ</p>
+                        </div>
+                        <div>
+                          <p className="font-extrabold text-brand-600">
+                            {plan.maxOpenCoursesPerChild === 999 ? '∞' : (plan.maxOpenCoursesPerChild ?? '?')}
+                          </p>
+                          <p className="text-muted">khóa/trẻ</p>
+                        </div>
+                      </div>
+
+                      <ul className="flex flex-col gap-1.5">
+                        {plan.features.map((f, i) => (
+                          <li key={i} className="flex items-start gap-2 text-xs text-muted">
+                            <span className="mt-0.5 text-success shrink-0">✓</span>
+                            <span>{f}</span>
+                          </li>
+                        ))}
+                      </ul>
+
+                      <div className="mt-auto pt-3 border-t border-border/60 flex flex-col gap-2.5">
+                        <p className="text-xs text-muted">
+                          {plan.requiresPayment ? '💳 Yêu cầu thanh toán' : '🎁 Miễn phí, tự động kích hoạt'}
+                        </p>
+
+                        <div className="flex items-center gap-2 pt-1">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingPlan(plan)
+                              setIsPlanEditorOpen(true)
+                            }}
+                            className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl border-2 border-border/80 bg-surface px-3 py-1.5 text-xs font-black text-text shadow-sm transition hover:bg-brand-50 hover:border-brand-300 hover:text-brand-700 active:scale-95 cursor-pointer"
+                          >
+                            <span>✏️</span>
+                            <span>Chỉnh sửa gói</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => void handleTogglePlan(plan)}
+                            disabled={plan.id === 'free'}
+                            title={plan.id === 'free' ? 'Không được phép ẩn gói miễn phí (free)' : (isPlanActive ? 'Ẩn gói khỏi danh mục' : 'Mở bán lại gói này')}
+                            className={cn(
+                              'inline-flex items-center justify-center gap-1.5 rounded-xl border-2 border-border/80 bg-surface px-3 py-1.5 text-xs font-black shadow-sm transition active:scale-95 cursor-pointer',
+                              plan.id === 'free'
+                                ? 'opacity-40 cursor-not-allowed text-muted'
+                                : isPlanActive
+                                  ? 'text-stone-700 hover:bg-stone-100 hover:border-stone-300'
+                                  : 'text-emerald-700 hover:bg-emerald-50 hover:border-emerald-300',
+                            )}
+                          >
+                            <span>👁️</span>
+                            <span>{isPlanActive ? 'Ẩn gói' : 'Hiện gói'}</span>
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+              </div>
+
+              {/* Plan Editor Modal */}
+              {isPlanEditorOpen && (
+                <Suspense fallback={null}>
+                  <PlanEditorModal
+                    isOpen={isPlanEditorOpen}
+                    onClose={() => setIsPlanEditorOpen(false)}
+                    onSaved={() => {
+                      setIsPlanEditorOpen(false)
+                      void load()
+                    }}
+                    plan={editingPlan}
+                    subscriberCount={
+                      editingPlan
+                        ? (editingPlan.activeSubscribers ?? billingSubs.filter((s) => s.plan === editingPlan.id).length)
+                        : 0
+                    }
+                  />
+                </Suspense>
+              )}
             </div>
           )}
         </div>

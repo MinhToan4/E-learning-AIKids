@@ -1116,4 +1116,34 @@ describe('StoryMee Gateway adapter', () => {
     ])
     expect(localStorage.getItem('storymee.access_token')).toBe('scoped-session')
   })
+
+  it('normalizes admin billing plans requests and unwraps response data cleanly', async () => {
+    const plansMock = [
+      { id: 'free', name: 'Gói Trải Nghiệm', amountMinor: 0, monthlyCreateCredits: 5, maxChildren: 1, isActive: true },
+      { id: 'pro', name: 'Gói Cao Cấp', amountMinor: 99000, monthlyCreateCredits: 30, maxChildren: 2, isActive: true },
+    ]
+    const toggleMock = { id: 'pro', name: 'Gói Cao Cấp', isActive: false }
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({ status: 'success', data: plansMock }))
+      .mockResolvedValueOnce(response({ status: 'success', message: 'Đã tắt gói bán Gói Cao Cấp', data: toggleMock }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const plansResult = await api<typeof plansMock>('/api/admin/billing/plans')
+    expect(plansResult).toEqual(plansMock)
+
+    const toggleResult = await api<{ id: string; isActive: boolean; message?: string }>(
+      '/api/admin/billing/plans/pro/toggle',
+      { method: 'PATCH' },
+    )
+    expect(toggleResult).toMatchObject({
+      id: 'pro',
+      isActive: false,
+      message: 'Đã tắt gói bán Gói Cao Cấp',
+    })
+
+    expect(fetchMock.mock.calls[0][0]).toBe('https://dev-hub.storymee.com/api/v1/billing/admin/plans')
+    expect(fetchMock.mock.calls[1][0]).toBe('https://dev-hub.storymee.com/api/v1/billing/admin/plans/pro/toggle')
+  })
 })
+
