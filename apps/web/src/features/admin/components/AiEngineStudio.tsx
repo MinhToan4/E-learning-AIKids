@@ -29,11 +29,19 @@ import {
   Eye,
   EyeOff,
   Flame,
+  X,
 } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { useToast } from '@/shared/hooks/useToast'
 import { cn } from '@/shared/lib/cn'
+import {
+  ART_STYLES,
+  type ArtStyleId,
+  type ArtStyleDef,
+  buildArtGenerationPrompt,
+  getArtStyle,
+} from '@/shared/lib/creation/creative'
 import {
   fetchAiProviders,
   fetchAiProviderPolicy,
@@ -143,32 +151,19 @@ export const KNOWN_PROVIDERS: ProviderDefinitionMeta[] = [
 export const DEFAULT_NEGATIVE_PROMPT =
   'deformed, bad anatomy, disfigured, poorly drawn face, mutated, extra limbs, blurry, violence, blood, gore, scary, NSFW, nudity, adult content, realistic photo of child, horror, weapons, monster teeth'
 
-export const AI_KIDS_STYLE_PRESETS = [
-  {
-    id: 'claymation',
-    name: '🧸 3D Soft Claymation',
-    tagline: 'Hallmark UI signature — Đất nặn ấm áp, đáng yêu',
-    prompt:
-      'soft claymation style, cute 3d plasticine figure, warm rounded shapes, smooth tactile texture, joyful pastel colors, cheerful lighting',
-    badgeBg: 'bg-brand-100 text-brand-700',
-  },
-  {
-    id: 'watercolor',
-    name: '🎨 Watercolor Fairy',
-    tagline: 'Màu nước cổ tích, êm dịu và khơi dậy trí tưởng tượng',
-    prompt:
-      'enchanting watercolor illustration, whimsical storybook art, soft pastel washes, friendly hand-drawn lineart, cozy warm ambiance',
-    badgeBg: 'bg-sky-100 text-sky-700',
-  },
-  {
-    id: 'vibrant_cartoon',
-    name: '✨ Vibrant Kids Cartoon',
-    tagline: 'Hoạt hình 2D sống động, nét vẽ rõ ràng, năng động',
-    prompt:
-      'clean 2d vector cartoon, vibrant friendly colors, bold expressive outlines, adorable mascot design, kid-friendly education aesthetic',
-    badgeBg: 'bg-mint-100 text-mint-700',
-  },
-]
+export const DEFAULT_PROMPT_PREFIX =
+  'Study the child-provided reference sketch and identify its main subjects, approximate composition, colors and story. Recreate that same idea as a polished'
+
+export const DEFAULT_PROMPT_SUFFIX =
+  'Keep the subjects and composition recognizable while improving clarity, detail and finish like a skilled children’s-book illustrator. Child-safe and wholesome for ages 6-15; friendly mood; no violence, frightening imagery, adult content, text, watermark or border.'
+
+export const AI_KIDS_STYLE_PRESETS = ART_STYLES.map((style) => ({
+  id: style.id,
+  name: style.labelVi,
+  tagline: style.tip,
+  prompt: style.promptDescriptor,
+  badgeBg: 'bg-brand-100 text-brand-700',
+}))
 
 export const PLANS_CONFIG: Array<{ id: string; name: string; badge: string; color: string }> = [
   { id: 'free', name: 'Gói Miễn Phí (Free)', badge: 'Trải nghiệm', color: 'bg-slate-100 text-slate-700' },
@@ -208,12 +203,19 @@ export function AiEngineStudio() {
 
   // Image Engine config
   const [imageConfig, setImageConfig] = useState({
-    provider: 'gemini-native', // 'gemini-native' | 'gflow' | 'vertex' | 'vidtory-sdk' | 'dreamina'
-    aspectRatio: '1:1', // '1:1' | '16:9' | '9:16'
-    resolution: '1K', // '1K' | '2K' | '4K'
-    stylePreset: 'claymation', // 'claymation' | 'watercolor' | 'vibrant_cartoon' | 'auto'
+    provider: 'gemini-native',
+    aspectRatio: '1:1',
+    resolution: '1K',
+    stylePreset: 'clay', // Mặc định là 'clay' (Soft clay signature của AI Kids)
     autoCompressWebp: true,
+    promptPrefix: DEFAULT_PROMPT_PREFIX,
+    promptSuffix: DEFAULT_PROMPT_SUFFIX,
+    autoWrapPrompt: true,
   })
+  const [isEditingPromptFrame, setIsEditingPromptFrame] = useState(false)
+  const [copiedLivePrompt, setCopiedLivePrompt] = useState(false)
+  const [activePreviewStyle, setActivePreviewStyle] = useState<ArtStyleDef | null>(null)
+  const [copiedModalPrompt, setCopiedModalPrompt] = useState(false)
 
   // Video Engine config
   const [videoConfig, setVideoConfig] = useState({
@@ -274,6 +276,15 @@ export function AiEngineStudio() {
   const [pingStates, setPingStates] = useState<
     Record<string, { status: 'idle' | 'pinging' | 'ok' | 'fail'; latency?: number }>
   >({})
+
+  // Current selected art style definition from SSOT
+  const currentStyleDef = useMemo(() => {
+    return (
+      ART_STYLES.find((s) => s.id === imageConfig.stylePreset) ||
+      ART_STYLES.find((s) => s.id === 'clay') ||
+      ART_STYLES[0]
+    )
+  }, [imageConfig.stylePreset])
 
   // ── Load initial data ─────────────────────────────────────
   const loadData = useCallback(async () => {
@@ -341,6 +352,9 @@ export function AiEngineStudio() {
             ...(cfg.resolution ? { resolution: cfg.resolution } : {}),
             ...(cfg.stylePreset ? { stylePreset: cfg.stylePreset } : {}),
             ...(typeof cfg.autoCompressWebp === 'boolean' ? { autoCompressWebp: cfg.autoCompressWebp } : {}),
+            ...(typeof cfg.promptPrefix === 'string' ? { promptPrefix: cfg.promptPrefix } : {}),
+            ...(typeof cfg.promptSuffix === 'string' ? { promptSuffix: cfg.promptSuffix } : {}),
+            ...(typeof cfg.autoWrapPrompt === 'boolean' ? { autoWrapPrompt: cfg.autoWrapPrompt } : {}),
           }))
         } else if (p.imageProvider) {
           const imgProv = p.imageProvider
@@ -1120,32 +1134,193 @@ export function AiEngineStudio() {
                     </label>
                   </div>
 
+                  {/* Phong cách mỹ thuật - 14 SSOT Art Styles */}
                   <label className="flex flex-col gap-1 text-xs font-bold text-text">
                     Phong cách mỹ thuật chủ đạo
                     <select
                       aria-label="Phong cách mỹ thuật"
-                      className="min-h-9 rounded-xl border-2 border-border px-2.5 text-xs bg-surface"
+                      className="min-h-9 rounded-xl border-2 border-border px-2.5 text-xs bg-surface font-semibold text-text"
                       value={imageConfig.stylePreset}
                       onChange={(e) => setImageConfig((prev) => ({ ...prev, stylePreset: e.target.value }))}
                     >
-                      <option value="claymation">🧸 Đất nặn 3D (Soft Claymation)</option>
-                      <option value="watercolor">🎨 Màu nước cổ tích (Watercolor)</option>
-                      <option value="vibrant_cartoon">✨ Hoạt hình 2D sống động</option>
-                      <option value="auto">🎯 Tự do theo Prompt</option>
+                      {ART_STYLES.map((style) => (
+                        <option key={style.id} value={style.id}>
+                          {style.labelVi} — {style.tip}
+                        </option>
+                      ))}
                     </select>
                   </label>
 
-                  <label className="flex items-center gap-2 pt-1 text-xs text-text font-medium cursor-pointer">
-                    <input
-                      type="checkbox"
-                      checked={imageConfig.autoCompressWebp}
-                      onChange={(e) =>
-                        setImageConfig((prev) => ({ ...prev, autoCompressWebp: e.target.checked }))
-                      }
-                      className="w-4 h-4 rounded-md border-2 border-border text-brand-600 accent-brand-500 cursor-pointer"
-                    />
-                    <span>Tối ưu nén WebP cho thiếu nhi (&lt;1.5s)</span>
-                  </label>
+                  {/* Badge phong cách đang chọn */}
+                  <div className="p-2.5 rounded-xl bg-brand-50/70 border border-brand-200/80 text-xs flex flex-col gap-1">
+                    <div className="flex items-center justify-between gap-1 flex-wrap">
+                      <span className="font-bold text-brand-800 flex items-center gap-1.5">
+                        <Sparkles size={13} className="text-brand-600 shrink-0" />
+                        <span>{currentStyleDef.labelVi}</span>
+                        <span className="text-[11px] font-medium text-brand-600">({currentStyleDef.tip})</span>
+                      </span>
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-bold bg-white text-brand-700 border border-brand-200">
+                        ID: {currentStyleDef.id}
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-muted line-clamp-2 italic">
+                      &ldquo;{currentStyleDef.promptDescriptor}&rdquo;
+                    </p>
+                  </div>
+
+                  {/* Checkbox Options */}
+                  <div className="flex flex-col gap-1.5 pt-1">
+                    <label className="flex items-center gap-2 text-xs text-text font-medium cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={imageConfig.autoCompressWebp}
+                        onChange={(e) =>
+                          setImageConfig((prev) => ({ ...prev, autoCompressWebp: e.target.checked }))
+                        }
+                        className="w-4 h-4 rounded-md border-2 border-border text-brand-600 accent-brand-500 cursor-pointer"
+                      />
+                      <span>Tối ưu nén WebP cho thiếu nhi (&lt;1.5s)</span>
+                    </label>
+
+                    <label className="flex items-center gap-2 text-xs text-text font-medium cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={imageConfig.autoWrapPrompt}
+                        onChange={(e) =>
+                          setImageConfig((prev) => ({ ...prev, autoWrapPrompt: e.target.checked }))
+                        }
+                        className="w-4 h-4 rounded-md border-2 border-border text-brand-600 accent-brand-500 cursor-pointer"
+                      />
+                      <span>Tự động lồng khung prompt thiếu nhi cho app.aikid.vn &amp; play.aikid.vn</span>
+                    </label>
+                  </div>
+
+                  {/* Khối Khung Prompt Phong Cách (Prompt Framework) */}
+                  <div className="pt-2 border-t border-border/60 flex flex-col gap-2">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-text flex items-center gap-1.5">
+                        <Wand2 size={13} className="text-brand-600" />
+                        Khung Prompt Phong Cách (Prompt Framework)
+                      </span>
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingPromptFrame((prev) => !prev)}
+                        className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700 underline cursor-pointer"
+                      >
+                        <Sliders size={12} />
+                        <span>{isEditingPromptFrame ? 'Thu gọn khung prompt' : 'Tùy biến khung prompt (Prefix & Suffix)'}</span>
+                      </button>
+                    </div>
+
+                    {isEditingPromptFrame && (
+                      <div className="flex flex-col gap-2.5 p-2.5 rounded-xl bg-brand-50/40 border border-brand-200/60 animate-in fade-in duration-150">
+                        {/* Prefix */}
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[11px] font-bold text-text flex items-center justify-between">
+                            <span>Tiền tố / Base Instruction</span>
+                            <span className="text-[10px] font-normal text-muted">Mô tả tác vụ phác thảo</span>
+                          </label>
+                          <textarea
+                            aria-label="Tiền tố prompt"
+                            rows={2}
+                            value={imageConfig.promptPrefix}
+                            onChange={(e) =>
+                              setImageConfig((prev) => ({ ...prev, promptPrefix: e.target.value }))
+                            }
+                            className="w-full p-2 rounded-lg border-2 border-border text-[11px] font-mono leading-relaxed bg-surface"
+                            placeholder="Nhập tiền tố / Base Instruction..."
+                          />
+                        </div>
+
+                        {/* Slot chip phong cách */}
+                        <div className="p-2 rounded-lg bg-amber-50/80 border border-amber-200 text-xs">
+                          <div className="flex items-center gap-1.5 text-[10px] font-extrabold text-amber-800 uppercase tracking-wider">
+                            <Sparkles size={12} />
+                            <span>Vị trí chèn phong cách</span>
+                          </div>
+                          <p className="font-mono text-[11px] text-amber-900 mt-1 break-words">
+                            <span className="font-bold">{'{styleDescriptor}'}:</span> &ldquo;{currentStyleDef?.promptDescriptor || ''}&rdquo;
+                          </p>
+                        </div>
+
+                        {/* Suffix */}
+                        <div className="flex flex-col gap-1">
+                          <label className="text-[11px] font-bold text-text flex items-center justify-between">
+                            <span>Hậu tố An toàn &amp; Hoàn thiện</span>
+                            <span className="text-[10px] font-normal text-muted">Tiêu chuẩn nét vẽ &amp; an toàn thiếu nhi</span>
+                          </label>
+                          <textarea
+                            aria-label="Hậu tố prompt"
+                            rows={3}
+                            value={imageConfig.promptSuffix}
+                            onChange={(e) =>
+                              setImageConfig((prev) => ({ ...prev, promptSuffix: e.target.value }))
+                            }
+                            className="w-full p-2 rounded-lg border-2 border-border text-[11px] font-mono leading-relaxed bg-surface"
+                            placeholder="Nhập hậu tố an toàn & hoàn thiện..."
+                          />
+                        </div>
+
+                        {/* Reset template button */}
+                        <div className="flex justify-end">
+                          <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={() =>
+                              setImageConfig((prev) => ({
+                                ...prev,
+                                promptPrefix: DEFAULT_PROMPT_PREFIX,
+                                promptSuffix: DEFAULT_PROMPT_SUFFIX,
+                              }))
+                            }
+                            className="min-h-7.5 h-7 px-2.5 text-xs flex items-center gap-1"
+                          >
+                            <RefreshCw size={12} />
+                            <span>Khôi phục mẫu chuẩn app.aikid.vn</span>
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Live Prompt Preview */}
+                    <div className="p-2.5 rounded-xl bg-slate-900 text-slate-100 border border-slate-800">
+                      <div className="flex items-center justify-between pb-1.5 border-b border-slate-800 mb-1.5">
+                        <span className="text-[10px] font-mono uppercase tracking-wider text-slate-400 font-bold flex items-center gap-1">
+                          <Sparkles size={11} className="text-sun-400" />
+                          Live Prompt Preview
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const fullPrompt = `${imageConfig.promptPrefix} ${currentStyleDef?.promptDescriptor || ''}. ${imageConfig.promptSuffix}`
+                            void navigator.clipboard.writeText(fullPrompt)
+                            setCopiedLivePrompt(true)
+                            setTimeout(() => setCopiedLivePrompt(false), 2000)
+                          }}
+                          className="inline-flex items-center gap-1 text-[11px] font-bold text-brand-300 hover:text-white transition cursor-pointer"
+                          aria-label="Sao chép prompt hoàn chỉnh"
+                        >
+                          {copiedLivePrompt ? (
+                            <>
+                              <Check size={12} className="text-mint-400" />
+                              <span className="text-mint-400">Đã sao chép</span>
+                            </>
+                          ) : (
+                            <>
+                              <Copy size={12} />
+                              <span>Sao chép prompt hoàn chỉnh</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                      <div
+                        className="font-mono text-[11px] leading-relaxed text-slate-200 select-all break-words max-h-24 overflow-y-auto"
+                        data-testid="live-prompt-preview"
+                      >
+                        {`${imageConfig.promptPrefix} ${currentStyleDef?.promptDescriptor || ''}. ${imageConfig.promptSuffix}`}
+                      </div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -1461,54 +1636,88 @@ export function AiEngineStudio() {
             </div>
           </div>
 
-          {/* AI Kids Style Presets - Compact 3 columns */}
+          {/* AI Kids Style Presets - 14 SSOT Art Styles Grid */}
           <div className="ui-card p-4 border-2 border-border/80 bg-surface shadow-soft rounded-2xl">
-            <div className="flex items-center gap-1.5 text-brand-600 font-extrabold text-[11px] uppercase tracking-wider">
-              <Wand2 size={14} />
-              <span>Phong Cách Tạo Hình Độc Quyền (AI Kids Style Presets)</span>
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <div className="flex items-center gap-1.5 text-brand-600 font-extrabold text-[11px] uppercase tracking-wider">
+                  <Wand2 size={14} />
+                  <span>Phong Cách Tạo Hình Độc Quyền (AI Kids Style Presets)</span>
+                </div>
+                <h3 className="font-display text-lg font-bold text-text mt-0.5">
+                  Bộ 14 Phong Cách Mỹ Thuật Thiếu Nhi SSOT
+                </h3>
+                <p className="text-xs text-muted mt-0.5 leading-relaxed">
+                  Các phong cách thiết kế mỹ thuật chuẩn mực tạo nên bản sắc thương hiệu AI Kids ấm áp và an toàn.
+                </p>
+              </div>
+              <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-brand-100 text-brand-700 border border-brand-200">
+                14 Phong Cách Chuẩn (SSOT)
+              </span>
             </div>
-            <h3 className="font-display text-lg font-bold text-text mt-0.5">
-              Bộ Phong Cách Hallmark Đất Nặn &amp; Hoạt Họa
-            </h3>
-            <p className="text-xs text-muted mt-0.5 leading-relaxed">
-              Các phong cách thiết kế mỹ thuật chuẩn mực tạo nên bản sắc thương hiệu AI Kids ấm áp và an toàn.
-            </p>
 
-            <div className="mt-3.5 grid gap-3 md:grid-cols-3">
-              {AI_KIDS_STYLE_PRESETS.map((preset) => (
-                <div
-                  key={preset.id}
-                  className="p-3 rounded-xl border-2 border-border/80 bg-surface flex flex-col justify-between"
-                >
-                  <div>
-                    <span className={cn('px-2 py-0.5 rounded-full text-[11px] font-extrabold', preset.badgeBg)}>
-                      {preset.name}
-                    </span>
-                    <p className="text-xs text-muted mt-1.5 leading-relaxed">{preset.tagline}</p>
-                    <div className="mt-2 p-2 rounded-lg bg-slate-50 border border-border/60 text-[10px] font-mono text-muted line-clamp-2">
-                      {preset.prompt}
+            <div className="mt-3.5 grid gap-3 md:grid-cols-2 xl:grid-cols-3 max-h-[600px] overflow-y-auto pr-1">
+              {ART_STYLES.map((style) => {
+                const isCopied = copiedPresetId === style.id
+                return (
+                  <div
+                    key={style.id}
+                    className="p-3.5 rounded-2xl border-2 border-border/80 bg-surface hover:border-brand-300 hover:shadow-soft transition-all duration-200 flex flex-col justify-between"
+                  >
+                    <div>
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-display font-black text-sm text-text">
+                              {style.labelVi}
+                            </span>
+                            <span className="px-1.5 py-0.5 rounded-md text-[10px] font-mono font-bold bg-brand-50 text-brand-700 border border-brand-200">
+                              {style.id}
+                            </span>
+                          </div>
+                          <p className="text-xs text-muted mt-0.5">{style.tip}</p>
+                        </div>
+                      </div>
+
+                      <div className="mt-2.5 p-2 rounded-xl bg-slate-50 border border-border/60 text-[11px] font-mono text-muted leading-relaxed line-clamp-3">
+                        {style.promptDescriptor}
+                      </div>
+                    </div>
+
+                    <div className="mt-3 pt-2.5 border-t border-border/60 flex items-center gap-2">
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        onClick={() => copyPreset(style.id, style.promptDescriptor)}
+                        className="flex-1 text-xs min-h-8 h-8 flex items-center justify-center gap-1.5 px-2 cursor-pointer"
+                        title="Sao chép promptDescriptor"
+                      >
+                        {isCopied ? (
+                          <>
+                            <Check size={13} className="text-success" />
+                            <span className="text-success font-bold">Đã chép</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={13} />
+                            <span>Sao chép Descriptor</span>
+                          </>
+                        )}
+                      </Button>
+
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        onClick={() => setActivePreviewStyle(style)}
+                        className="flex-1 text-xs min-h-8 h-8 flex items-center justify-center gap-1 px-2 font-bold cursor-pointer"
+                      >
+                        <Eye size={13} />
+                        <span>Xem khung prompt hoàn chỉnh</span>
+                      </Button>
                     </div>
                   </div>
-
-                  <Button
-                    variant="ghost"
-                    onClick={() => copyPreset(preset.id, preset.prompt)}
-                    className="mt-2.5 text-xs min-h-8 h-8 flex items-center justify-center gap-1.5"
-                  >
-                    {copiedPresetId === preset.id ? (
-                      <>
-                        <Check size={13} className="text-success" />
-                        <span className="text-success font-bold">Đã sao chép prompt</span>
-                      </>
-                    ) : (
-                      <>
-                        <Copy size={13} />
-                        <span>Sao chép Prompt</span>
-                      </>
-                    )}
-                  </Button>
-                </div>
-              ))}
+                )
+              })}
             </div>
           </div>
 
@@ -1610,6 +1819,82 @@ export function AiEngineStudio() {
           </div>
         </div>
       )}
+
+      {/* ── Modal Xem Khung Prompt Hoàn Chỉnh (Tab 4) ────────────────────── */}
+      {activePreviewStyle &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-in fade-in duration-200"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="prompt-modal-title"
+          >
+            <div className="ui-card w-full max-w-xl p-5 border-2 border-border/80 bg-surface shadow-clay rounded-3xl flex flex-col gap-3.5">
+              <div className="flex items-start justify-between gap-3">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <span className="p-1.5 rounded-xl bg-brand-100 text-brand-700">
+                      <Wand2 size={16} />
+                    </span>
+                    <h4 id="prompt-modal-title" className="font-display text-base font-bold text-text">
+                      Khung Prompt Hoàn Chỉnh: {activePreviewStyle.labelVi} ({activePreviewStyle.id})
+                    </h4>
+                  </div>
+                  <p className="text-xs text-muted mt-1">
+                    Chuỗi prompt chuẩn mực sinh ra bởi hàm <code className="text-brand-600 font-bold">buildArtGenerationPrompt(&apos;{activePreviewStyle.id}&apos;)</code>
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setActivePreviewStyle(null)}
+                  className="p-1 rounded-xl hover:bg-slate-100 text-muted hover:text-text transition cursor-pointer"
+                  aria-label="Đóng"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <div
+                className="p-3 rounded-2xl bg-slate-900 text-slate-100 border border-slate-800 font-mono text-xs leading-relaxed max-h-48 overflow-y-auto select-all"
+                data-testid="modal-full-prompt"
+              >
+                {buildArtGenerationPrompt(activePreviewStyle.id)}
+              </div>
+
+              <div className="flex items-center justify-end gap-2 pt-1">
+                <Button
+                  variant="ghost"
+                  onClick={() => setActivePreviewStyle(null)}
+                  className="text-xs min-h-8 px-3"
+                >
+                  Đóng
+                </Button>
+                <Button
+                  onClick={() => {
+                    void navigator.clipboard.writeText(buildArtGenerationPrompt(activePreviewStyle.id))
+                    setCopiedModalPrompt(true)
+                    setTimeout(() => setCopiedModalPrompt(false), 2000)
+                  }}
+                  className="text-xs min-h-8 px-4 font-bold flex items-center gap-1.5"
+                >
+                  {copiedModalPrompt ? (
+                    <>
+                      <Check size={13} className="text-mint-300" />
+                      <span>Đã sao chép prompt</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={13} />
+                      <span>Sao chép Prompt Hoàn Chỉnh</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+            </div>
+          </div>,
+          document.body,
+        )}
 
       {/* ── Toast Notifications Portal ─────────────────────────────────── */}
       {typeof document !== 'undefined' &&

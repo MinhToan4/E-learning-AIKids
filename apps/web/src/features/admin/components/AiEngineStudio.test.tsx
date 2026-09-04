@@ -5,6 +5,7 @@ import { act, createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { AiEngineStudio } from './AiEngineStudio'
+import { ART_STYLES, buildArtGenerationPrompt } from '@/shared/lib/creation/creative'
 import * as apiModule from '@/shared/lib/api'
 
 // Mock api functions
@@ -417,7 +418,7 @@ describe('AiEngineStudio Component', () => {
     expect(container.textContent).toContain('Thay đổi Service Account / Key')
   })
 
-  it('renders Image Engine block in routing tab with provider, aspect ratio, resolution, and style preset', async () => {
+  it('renders Image Engine block in routing tab with 14 SSOT art styles and live prompt preview', async () => {
     await act(async () => {
       root.render(createElement(AiEngineStudio))
     })
@@ -456,13 +457,183 @@ describe('AiEngineStudio Component', () => {
     expect(resSelect.innerHTML).toContain('2K')
     expect(resSelect.innerHTML).toContain('4K')
 
+    // Style preset dropdown: Must contain all 14 SSOT Art Styles
     const styleSelect = container.querySelector('select[aria-label="Phong cách mỹ thuật"]') as HTMLSelectElement
     expect(styleSelect).not.toBeNull()
-    expect(styleSelect.innerHTML).toContain('Đất nặn 3D (Soft Claymation)')
-    expect(styleSelect.innerHTML).toContain('Màu nước cổ tích (Watercolor)')
-    expect(styleSelect.innerHTML).toContain('Hoạt hình 2D sống động')
+    expect(styleSelect.options.length).toBe(14)
+    expect(styleSelect.value).toBe('clay')
 
+    const expectedStyleIds = [
+      'watercolor', 'cartoon', 'crayon', 'anime', 'manga',
+      'comic', 'sketch', '3d', 'pixel', 'chibi',
+      'clay', 'fabric', 'manhwa', 'semirealistic',
+    ]
+    for (const styleId of expectedStyleIds) {
+      const opt = Array.from(styleSelect.options).find((o) => o.value === styleId)
+      expect(opt).toBeDefined()
+    }
+
+    // Selected style badge & descriptor preview
+    expect(container.textContent).toContain('Đất sét')
+    expect(container.textContent).toContain('Soft clay handmade')
+    expect(container.textContent).toContain('handmade claymation, matte plasticine')
+
+    // Checkboxes
     expect(container.textContent).toContain('Tối ưu nén WebP cho thiếu nhi')
+    expect(container.textContent).toContain('Tự động lồng khung prompt thiếu nhi cho app.aikid.vn & play.aikid.vn')
+
+    // Live Prompt Preview
+    const livePreview = container.querySelector('[data-testid="live-prompt-preview"]')
+    expect(livePreview).not.toBeNull()
+    expect(livePreview?.textContent).toContain('handmade claymation, matte plasticine')
+    expect(livePreview?.textContent).toContain('Study the child-provided reference sketch')
+    expect(livePreview?.textContent).toContain('Child-safe and wholesome for ages 6-15')
+  })
+
+  it('switches between 14 SSOT art styles and dynamically updates badge and live prompt preview', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Switch to routing tab
+    const routingTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('2. Luồng Điều Phối & Fallback'),
+    )
+    await act(async () => {
+      routingTabBtn?.click()
+    })
+
+    const styleSelect = container.querySelector('select[aria-label="Phong cách mỹ thuật"]') as HTMLSelectElement
+    expect(styleSelect).not.toBeNull()
+
+    // Switch to watercolor
+    await act(async () => {
+      styleSelect.value = 'watercolor'
+      styleSelect.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+
+    expect(container.textContent).toContain('Màu nước')
+    expect(container.textContent).toContain('Mềm, loang nhẹ như màu nước')
+    let livePreview = container.querySelector('[data-testid="live-prompt-preview"]')
+    expect(livePreview?.textContent).toContain('watercolor on cold-pressed paper')
+
+    // Switch to anime
+    await act(async () => {
+      styleSelect.value = 'anime'
+      styleSelect.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+
+    expect(container.textContent).toContain('Anime')
+    expect(container.textContent).toContain('Mắt to, màu tươi vừa phải')
+    livePreview = container.querySelector('[data-testid="live-prompt-preview"]')
+    expect(livePreview?.textContent).toContain('high-quality child-friendly anime')
+  })
+
+  it('customizes prompt frame prefix and suffix and resets to default template', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Switch to routing tab
+    const routingTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('2. Luồng Điều Phối & Fallback'),
+    )
+    await act(async () => {
+      routingTabBtn?.click()
+    })
+
+    // Click toggle button to open prompt frame editor
+    const toggleBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Tùy biến khung prompt (Prefix & Suffix)'),
+    )
+    expect(toggleBtn).toBeDefined()
+
+    await act(async () => {
+      toggleBtn?.click()
+    })
+
+    // Prefix & Suffix textareas are visible
+    const prefixInput = container.querySelector('textarea[aria-label="Tiền tố prompt"]') as HTMLTextAreaElement
+    const suffixInput = container.querySelector('textarea[aria-label="Hậu tố prompt"]') as HTMLTextAreaElement
+    expect(prefixInput).not.toBeNull()
+    expect(suffixInput).not.toBeNull()
+
+    // Edit prefix
+    await act(async () => {
+      const descriptor = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')
+      descriptor?.set?.call(prefixInput, 'Vẽ lại bức tranh thiếu nhi phong cách')
+      prefixInput.dispatchEvent(new Event('input', { bubbles: true }))
+      prefixInput.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+
+    // Live preview immediately reflects custom prefix
+    let livePreview = container.querySelector('[data-testid="live-prompt-preview"]')
+    expect(livePreview?.textContent).toContain('Vẽ lại bức tranh thiếu nhi phong cách')
+
+    // Click reset to default template
+    const resetBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Khôi phục mẫu chuẩn app.aikid.vn'),
+    )
+    expect(resetBtn).toBeDefined()
+
+    await act(async () => {
+      resetBtn?.click()
+    })
+
+    // Verify restored
+    livePreview = container.querySelector('[data-testid="live-prompt-preview"]')
+    expect(livePreview?.textContent).toContain('Study the child-provided reference sketch')
+  })
+
+  it('displays all 14 SSOT art styles in child safety tab with modal preview', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Switch to safety tab
+    const safetyTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('4. An Toàn Trẻ Em & Probe Tester'),
+    )
+    await act(async () => {
+      safetyTabBtn?.click()
+    })
+
+    // Check header
+    expect(container.textContent).toContain('Bộ 14 Phong Cách Mỹ Thuật Thiếu Nhi SSOT')
+    expect(container.textContent).toContain('14 Phong Cách Chuẩn (SSOT)')
+
+    // Check that all 14 labels are present
+    for (const style of ART_STYLES) {
+      expect(container.textContent).toContain(style.labelVi)
+    }
+
+    // Find "Xem khung prompt hoàn chỉnh" buttons
+    const previewButtons = Array.from(container.querySelectorAll('button')).filter((b) =>
+      b.textContent?.includes('Xem khung prompt hoàn chỉnh'),
+    )
+    expect(previewButtons.length).toBe(14)
+
+    // Click preview on first item (watercolor)
+    await act(async () => {
+      previewButtons[0].click()
+    })
+
+    // Modal should be open in document.body
+    const modalPrompt = document.body.querySelector('[data-testid="modal-full-prompt"]')
+    expect(modalPrompt).not.toBeNull()
+    expect(modalPrompt?.textContent).toBe(buildArtGenerationPrompt(ART_STYLES[0].id))
+
+    // Close modal
+    const closeBtn = Array.from(document.body.querySelectorAll('button')).find(
+      (b) => b.textContent === 'Đóng' || b.getAttribute('aria-label') === 'Đóng',
+    )
+    expect(closeBtn).toBeDefined()
+
+    await act(async () => {
+      closeBtn?.click()
+    })
+
+    expect(document.body.querySelector('[data-testid="modal-full-prompt"]')).toBeNull()
   })
 
   it('updates image config and saves complete routing settings (Image + Video + LLM)', async () => {
@@ -494,6 +665,14 @@ describe('AiEngineStudio Component', () => {
       aspectSelect.dispatchEvent(new Event('change', { bubbles: true }))
     })
 
+    // Change style preset to crayon
+    const styleSelect = container.querySelector('select[aria-label="Phong cách mỹ thuật"]') as HTMLSelectElement
+    expect(styleSelect).not.toBeNull()
+    await act(async () => {
+      styleSelect.value = 'crayon'
+      styleSelect.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+
     // Click "Lưu luồng điều phối"
     const saveBtn = Array.from(container.querySelectorAll('button')).find((b) =>
       b.textContent?.includes('Lưu luồng điều phối'),
@@ -510,6 +689,10 @@ describe('AiEngineStudio Component', () => {
         imageConfig: expect.objectContaining({
           provider: 'vertex',
           aspectRatio: '16:9',
+          stylePreset: 'crayon',
+          autoWrapPrompt: true,
+          promptPrefix: expect.any(String),
+          promptSuffix: expect.any(String),
         }),
         videoProvider: expect.any(String),
         llmProvider: expect.any(String),
