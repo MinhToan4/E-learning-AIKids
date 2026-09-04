@@ -2635,7 +2635,20 @@ export interface AiProviderPolicyResponse {
   disabledImageProviders: string[]
   sdkApiKey?: string
   geminiApiKey?: string
+  vertexApiKey?: string
+  vertexProjectId?: string
+  vertexLocation?: string
   universalNegativePrompt?: string
+  videoProvider?: string
+  llmProvider?: string
+  imageProvider?: string
+  imageConfig?: {
+    provider?: string
+    aspectRatio?: string
+    resolution?: string
+    stylePreset?: string
+    autoCompressWebp?: boolean
+  }
 }
 
 export interface AiProvidersResponse {

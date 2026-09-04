@@ -48,6 +48,7 @@ vi.mock('@/shared/lib/api', async (importOriginal) => {
       disabledImageProviders: [],
       sdkApiKey: 'vidtory_live_12345678',
       geminiApiKey: 'AIzaSy12345678',
+      vertexProjectId: '1091492607886',
       universalNegativePrompt: 'deformed, bad anatomy, violence, nsfw',
     }),
     updateAiProviderPolicy: vi.fn().mockResolvedValue({
@@ -401,5 +402,119 @@ describe('AiEngineStudio Component', () => {
       }),
     )
     expect(document.body.textContent).toContain('Đã lưu Bộ lọc An toàn Trẻ em')
+  })
+
+  it('displays Google Vertex AI as active and configured with GCP ADC badge and project info', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Vertex card should show active state, ADC badge, and project info
+    expect(container.textContent).toContain('Google Vertex AI (Enterprise / Free Trial)')
+    expect(container.textContent).toContain('GCP ADC / Service Account')
+    expect(container.textContent).toContain('Project: 1091492607886 · us-central1')
+    expect(container.textContent).toContain('GCP-1091492607886 (Active)')
+    expect(container.textContent).toContain('Thay đổi Service Account / Key')
+  })
+
+  it('renders Image Engine block in routing tab with provider, aspect ratio, resolution, and style preset', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Switch to routing tab
+    const routingTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('2. Luồng Điều Phối & Fallback'),
+    )
+    await act(async () => {
+      routingTabBtn?.click()
+    })
+
+    // Image Engine block presence
+    expect(container.textContent).toContain('Cấu hình Tạo Ảnh (Image Engine)')
+    expect(container.textContent).toContain('Động Cơ Tạo Ảnh Chính & Phong Cách')
+
+    // Dropdowns & select options
+    const providerSelect = container.querySelector('select[aria-label="Nhà cung cấp ảnh chính"]') as HTMLSelectElement
+    expect(providerSelect).not.toBeNull()
+    expect(providerSelect.value).toBe('gemini-native')
+    expect(providerSelect.innerHTML).toContain('Google Gemini Native')
+    expect(providerSelect.innerHTML).toContain('Google Flow')
+    expect(providerSelect.innerHTML).toContain('Google Vertex AI')
+    expect(providerSelect.innerHTML).toContain('Vidtory SDK')
+    expect(providerSelect.innerHTML).toContain('Dreamina')
+
+    const aspectSelect = container.querySelector('select[aria-label="Tỷ lệ khung hình ảnh"]') as HTMLSelectElement
+    expect(aspectSelect).not.toBeNull()
+    expect(aspectSelect.innerHTML).toContain('Vuông 1:1')
+    expect(aspectSelect.innerHTML).toContain('Ngang 16:9')
+    expect(aspectSelect.innerHTML).toContain('Dọc 9:16')
+
+    const resSelect = container.querySelector('select[aria-label="Độ phân giải ảnh"]') as HTMLSelectElement
+    expect(resSelect).not.toBeNull()
+    expect(resSelect.innerHTML).toContain('1K')
+    expect(resSelect.innerHTML).toContain('2K')
+    expect(resSelect.innerHTML).toContain('4K')
+
+    const styleSelect = container.querySelector('select[aria-label="Phong cách mỹ thuật"]') as HTMLSelectElement
+    expect(styleSelect).not.toBeNull()
+    expect(styleSelect.innerHTML).toContain('Đất nặn 3D (Soft Claymation)')
+    expect(styleSelect.innerHTML).toContain('Màu nước cổ tích (Watercolor)')
+    expect(styleSelect.innerHTML).toContain('Hoạt hình 2D sống động')
+
+    expect(container.textContent).toContain('Tối ưu nén WebP cho thiếu nhi')
+  })
+
+  it('updates image config and saves complete routing settings (Image + Video + LLM)', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Switch to routing tab
+    const routingTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('2. Luồng Điều Phối & Fallback'),
+    )
+    await act(async () => {
+      routingTabBtn?.click()
+    })
+
+    // Change image provider to vertex
+    const providerSelect = container.querySelector('select[aria-label="Nhà cung cấp ảnh chính"]') as HTMLSelectElement
+    expect(providerSelect).not.toBeNull()
+    await act(async () => {
+      providerSelect.value = 'vertex'
+      providerSelect.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+
+    // Change aspect ratio to 16:9
+    const aspectSelect = container.querySelector('select[aria-label="Tỷ lệ khung hình ảnh"]') as HTMLSelectElement
+    expect(aspectSelect).not.toBeNull()
+    await act(async () => {
+      aspectSelect.value = '16:9'
+      aspectSelect.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+
+    // Click "Lưu luồng điều phối"
+    const saveBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Lưu luồng điều phối'),
+    )
+    expect(saveBtn).toBeDefined()
+
+    await act(async () => {
+      saveBtn?.click()
+    })
+
+    expect(apiModule.updateAiProviderPolicy).toHaveBeenCalledWith(
+      expect.objectContaining({
+        imageProvider: 'vertex',
+        imageConfig: expect.objectContaining({
+          provider: 'vertex',
+          aspectRatio: '16:9',
+        }),
+        videoProvider: expect.any(String),
+        llmProvider: expect.any(String),
+      }),
+    )
+    expect(document.body.textContent).toContain('Đã lưu cấu hình Luồng điều phối')
   })
 })

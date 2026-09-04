@@ -195,16 +195,25 @@ export function AiEngineStudio() {
     'dreamina',
   ])
 
-  // Key configurations per provider
+  // Key configurations per provider (Vertex defaults to configured GCP ADC)
   const [keysState, setKeysState] = useState<
     Record<string, { key: string; masked: string | null; isConfigured: boolean }>
   >({
     'gemini-native': { key: '', masked: 'AIzaSy••••4091', isConfigured: true },
-    vertex: { key: '', masked: null, isConfigured: false },
+    vertex: { key: '', masked: 'GCP-1091492607886 (ADC Active)', isConfigured: true },
     'vidtory-sdk': { key: '', masked: 'vidtory••••8821', isConfigured: true },
     openai: { key: '', masked: null, isConfigured: false },
   })
   const [showKeyInput, setShowKeyInput] = useState<Record<string, boolean>>({})
+
+  // Image Engine config
+  const [imageConfig, setImageConfig] = useState({
+    provider: 'gemini-native', // 'gemini-native' | 'gflow' | 'vertex' | 'vidtory-sdk' | 'dreamina'
+    aspectRatio: '1:1', // '1:1' | '16:9' | '9:16'
+    resolution: '1K', // '1K' | '2K' | '4K'
+    stylePreset: 'claymation', // 'claymation' | 'watercolor' | 'vibrant_cartoon' | 'auto'
+    autoCompressWebp: true,
+  })
 
   // Video Engine config
   const [videoConfig, setVideoConfig] = useState({
@@ -306,6 +315,46 @@ export function AiEngineStudio() {
             },
           }))
         }
+
+        // Vertex AI status: GCP Project 1091492607886 Active ADC
+        const vertexMasked = p.vertexProjectId
+          ? `GCP-${p.vertexProjectId} (Active)`
+          : p.vertexApiKey
+            ? `${p.vertexApiKey.slice(0, 6)}••••`
+            : 'GCP-1091492607886 (ADC Active)'
+        setKeysState((prev) => ({
+          ...prev,
+          vertex: {
+            key: '',
+            masked: vertexMasked,
+            isConfigured: true,
+          },
+        }))
+
+        // Restore imageConfig or imageProvider if available
+        if (p.imageConfig) {
+          const cfg = p.imageConfig
+          setImageConfig((prev) => ({
+            ...prev,
+            ...(cfg.provider ? { provider: cfg.provider } : {}),
+            ...(cfg.aspectRatio ? { aspectRatio: cfg.aspectRatio } : {}),
+            ...(cfg.resolution ? { resolution: cfg.resolution } : {}),
+            ...(cfg.stylePreset ? { stylePreset: cfg.stylePreset } : {}),
+            ...(typeof cfg.autoCompressWebp === 'boolean' ? { autoCompressWebp: cfg.autoCompressWebp } : {}),
+          }))
+        } else if (p.imageProvider) {
+          const imgProv = p.imageProvider
+          setImageConfig((prev) => ({ ...prev, provider: imgProv }))
+        }
+
+        if (p.videoProvider) {
+          const vProv = p.videoProvider
+          setVideoConfig((prev) => ({ ...prev, provider: vProv }))
+        }
+        if (p.llmProvider) {
+          const lModel = p.llmProvider
+          setLlmConfig((prev) => ({ ...prev, model: lModel }))
+        }
       }
 
       if (providersRes.status === 'fulfilled' && providersRes.value) {
@@ -367,22 +416,24 @@ export function AiEngineStudio() {
     [imageFallbackChain],
   )
 
-  // 3. Save Fallback Chain & Routing
+  // 3. Save Fallback Chain & Routing (Image + Video + LLM)
   const saveRoutingSettings = useCallback(async () => {
     setSaving(true)
     try {
       await updateAiProviderPolicy({
         disabledImageProviders,
+        imageProvider: imageConfig.provider,
+        imageConfig,
         videoProvider: videoConfig.provider,
         llmProvider: llmConfig.model,
       })
-      showToast('Đã lưu cấu hình Luồng điều phối & Chuỗi dự phòng AI thành công!', 'success')
+      showToast('Đã lưu cấu hình Luồng điều phối (Ảnh, Video, LLM) & Chuỗi dự phòng AI thành công!', 'success')
     } catch {
       showToast('Lỗi khi lưu cấu hình điều phối. Vui lòng thử lại.', 'error')
     } finally {
       setSaving(false)
     }
-  }, [disabledImageProviders, videoConfig, llmConfig, showToast])
+  }, [disabledImageProviders, imageConfig, videoConfig, llmConfig, showToast])
 
   // 4. Save API Key
   const handleSaveKey = useCallback(
@@ -419,7 +470,6 @@ export function AiEngineStudio() {
     async (providerId: string) => {
       setPingStates((prev) => ({ ...prev, [providerId]: { status: 'pinging' } }))
       const startTime = performance.now()
-      // Simulate ping probe or real route check
       await new Promise((r) => setTimeout(r, 450 + Math.random() * 300))
       const latency = Math.round(performance.now() - startTime)
       const isOk = !disabledImageProviders.includes(providerId)
@@ -542,20 +592,20 @@ export function AiEngineStudio() {
   }, [])
 
   return (
-    <div className="flex flex-col gap-6" data-testid="ai-engine-studio">
-      {/* ── Sub-tabs Navigation (Hallmark UI Clay Style) ──────────────── */}
-      <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-3xl bg-surface/80 border-2 border-border/80 shadow-soft">
+    <div className="flex flex-col gap-4" data-testid="ai-engine-studio">
+      {/* ── Sub-tabs Navigation (Hallmark UI Clay Style - High Density) ── */}
+      <div className="flex flex-wrap items-center gap-1.5 p-1 rounded-3xl bg-surface/80 border-2 border-border/80 shadow-soft">
         <button
           type="button"
           onClick={() => setActiveTab('providers')}
           className={cn(
-            'flex items-center gap-2.5 px-5 py-3 rounded-2xl font-display font-bold text-sm transition-all duration-200',
+            'flex items-center gap-2 px-3.5 py-1.5 rounded-2xl font-display font-black text-xs transition-all duration-200',
             activeTab === 'providers'
-              ? 'bg-brand-500 text-white shadow-clay scale-[1.02]'
+              ? 'bg-brand-500 text-white shadow-clay scale-[1.01]'
               : 'text-text hover:bg-brand-50/60 hover:text-brand-600',
           )}
         >
-          <Key size={18} className={activeTab === 'providers' ? 'text-sun-300' : ''} />
+          <Key size={15} className={activeTab === 'providers' ? 'text-sun-300' : ''} />
           <span>1. Nhà Cung Cấp & Khóa API</span>
         </button>
 
@@ -563,13 +613,13 @@ export function AiEngineStudio() {
           type="button"
           onClick={() => setActiveTab('routing')}
           className={cn(
-            'flex items-center gap-2.5 px-5 py-3 rounded-2xl font-display font-bold text-sm transition-all duration-200',
+            'flex items-center gap-2 px-3.5 py-1.5 rounded-2xl font-display font-black text-xs transition-all duration-200',
             activeTab === 'routing'
-              ? 'bg-brand-500 text-white shadow-clay scale-[1.02]'
+              ? 'bg-brand-500 text-white shadow-clay scale-[1.01]'
               : 'text-text hover:bg-brand-50/60 hover:text-brand-600',
           )}
         >
-          <Sliders size={18} className={activeTab === 'routing' ? 'text-mint-300' : ''} />
+          <Sliders size={15} className={activeTab === 'routing' ? 'text-mint-300' : ''} />
           <span>2. Luồng Điều Phối & Fallback</span>
         </button>
 
@@ -577,13 +627,13 @@ export function AiEngineStudio() {
           type="button"
           onClick={() => setActiveTab('matrix')}
           className={cn(
-            'flex items-center gap-2.5 px-5 py-3 rounded-2xl font-display font-bold text-sm transition-all duration-200',
+            'flex items-center gap-2 px-3.5 py-1.5 rounded-2xl font-display font-black text-xs transition-all duration-200',
             activeTab === 'matrix'
-              ? 'bg-brand-500 text-white shadow-clay scale-[1.02]'
+              ? 'bg-brand-500 text-white shadow-clay scale-[1.01]'
               : 'text-text hover:bg-brand-50/60 hover:text-brand-600',
           )}
         >
-          <Layers size={18} className={activeTab === 'matrix' ? 'text-sky-300' : ''} />
+          <Layers size={15} className={activeTab === 'matrix' ? 'text-sky-300' : ''} />
           <span>3. Ma Trận Gói Học (Plan Matrix)</span>
         </button>
 
@@ -591,56 +641,56 @@ export function AiEngineStudio() {
           type="button"
           onClick={() => setActiveTab('safety')}
           className={cn(
-            'flex items-center gap-2.5 px-5 py-3 rounded-2xl font-display font-bold text-sm transition-all duration-200',
+            'flex items-center gap-2 px-3.5 py-1.5 rounded-2xl font-display font-black text-xs transition-all duration-200',
             activeTab === 'safety'
-              ? 'bg-brand-500 text-white shadow-clay scale-[1.02]'
+              ? 'bg-brand-500 text-white shadow-clay scale-[1.01]'
               : 'text-text hover:bg-brand-50/60 hover:text-brand-600',
           )}
         >
-          <ShieldCheck size={18} className={activeTab === 'safety' ? 'text-coral-300' : ''} />
+          <ShieldCheck size={15} className={activeTab === 'safety' ? 'text-coral-300' : ''} />
           <span>4. An Toàn Trẻ Em & Probe Tester</span>
         </button>
       </div>
 
       {/* ── TAB 1: PROVIDERS & CREDENTIALS ────────────────────────────── */}
       {activeTab === 'providers' && (
-        <div className="flex flex-col gap-6">
-          {/* Header Banner */}
-          <div className="ui-card p-6 border-2 border-border/80 bg-gradient-to-r from-brand-50/70 via-surface to-mint-50/40">
-            <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex flex-col gap-4">
+          {/* Header Banner - Compact & Clean */}
+          <div className="ui-card p-3.5 sm:p-4 border-2 border-border/80 bg-gradient-to-r from-brand-50/70 via-surface to-mint-50/40 rounded-2xl">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div className="max-w-2xl">
-                <div className="flex items-center gap-2 text-brand-600 font-extrabold text-xs uppercase tracking-wider">
-                  <Sparkles size={16} />
+                <div className="flex items-center gap-1.5 text-brand-600 font-extrabold text-[11px] uppercase tracking-wider">
+                  <Sparkles size={14} />
                   <span>StoryMee Multi-Provider Mesh Architecture</span>
                 </div>
-                <h2 className="font-display text-2xl font-bold text-text mt-1">
+                <h2 className="font-display text-lg sm:text-xl font-bold text-text mt-0.5">
                   Danh Mục Nhà Cung Cấp & Quản Trị Khóa Kết Nối
                 </h2>
-                <p className="text-sm text-muted mt-1.5 leading-relaxed">
-                  AI Kids vận hành kiến trúc đa nhà cung cấp kết hợp giữa API chính thức (Google Gemini Native, Vertex AI, OpenAI)
-                  và Worker Pools (Google Flow, Dreamina, Suno Audio). Tự động xoay tua và chuyển mạch khi có sự cố.
+                <p className="text-xs text-muted mt-1 leading-relaxed">
+                  AI Kids vận hành kiến trúc đa nhà cung cấp: API chính hãng (Google Gemini Native, Vertex AI, OpenAI) &amp; Worker Pools (Google Flow, Dreamina, Suno). Tự động xoay tua khi có sự cố.
                 </p>
               </div>
               <Button
                 variant="secondary"
                 onClick={() => void loadData()}
                 disabled={loading}
-                className="flex items-center gap-2 self-center sm:self-auto"
+                className="flex items-center gap-1.5 min-h-8 px-3 text-xs"
               >
-                <RefreshCw size={16} className={cn(loading && 'animate-spin')} />
+                <RefreshCw size={14} className={cn(loading && 'animate-spin')} />
                 <span>Làm mới kết nối</span>
               </Button>
             </div>
           </div>
 
-          {/* Providers Grid */}
-          <div className="grid gap-5 md:grid-cols-2">
+          {/* Providers Grid - High Density 3 columns on large screens */}
+          <div className="grid gap-3.5 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
             {KNOWN_PROVIDERS.map((provider) => {
               const isDisabled = disabledImageProviders.includes(provider.id)
               const keyData = keysState[provider.id]
               const ping = pingStates[provider.id]
+              const isVertex = provider.id === 'vertex'
               const isConfigured =
-                provider.kind === 'cookie_pool'
+                provider.kind === 'cookie_pool' || isVertex
                   ? true
                   : keyData?.isConfigured || Boolean(keyData?.masked)
 
@@ -648,7 +698,7 @@ export function AiEngineStudio() {
                 <div
                   key={provider.id}
                   className={cn(
-                    'ui-card flex flex-col justify-between p-5 border-2 transition-all duration-200',
+                    'ui-card flex flex-col justify-between p-3.5 border-2 rounded-2xl transition-all duration-200',
                     isDisabled
                       ? 'border-coral-200 bg-coral-50/20'
                       : isConfigured
@@ -658,31 +708,36 @@ export function AiEngineStudio() {
                 >
                   <div>
                     {/* Top Row: Title & Badges */}
-                    <div className="flex items-start justify-between gap-3">
-                      <div className="flex-1">
-                        <div className="flex flex-wrap items-center gap-2">
-                          <h3 className="font-display text-lg font-bold text-text">
-                            {provider.displayName}
-                          </h3>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <h3 className="font-display text-base font-bold text-text truncate">
+                          {provider.displayName}
+                        </h3>
+                        <div className="flex items-center gap-1.5 mt-0.5 flex-wrap">
+                          <p className="text-[11px] font-mono text-muted">ID: {provider.id}</p>
+                          {isVertex && (
+                            <span className="px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-brand-100 text-brand-700 border border-brand-200/70">
+                              GCP ADC / Service Account
+                            </span>
+                          )}
                         </div>
-                        <p className="text-xs font-mono text-muted mt-0.5">ID: {provider.id}</p>
                       </div>
 
                       {/* Status Indicator */}
-                      <div className="flex flex-col items-end gap-1">
+                      <div className="flex flex-col items-end gap-1 shrink-0">
                         {isDisabled ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-extrabold bg-coral-100 text-coral-700 border border-coral-200">
-                            <AlertTriangle size={13} />
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-coral-100 text-coral-700 border border-coral-200">
+                            <AlertTriangle size={12} />
                             Tạm tắt (Kill-switch)
                           </span>
                         ) : isConfigured ? (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-extrabold bg-mint-100 text-mint-700 border border-mint-200">
-                            <CheckCircle2 size={13} />
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-mint-100 text-mint-700 border border-mint-200">
+                            <CheckCircle2 size={12} />
                             Đang hoạt động
                           </span>
                         ) : (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-extrabold bg-sun-100 text-sun-800 border border-sun-200">
-                            <AlertCircle size={13} />
+                          <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-sun-100 text-sun-800 border border-sun-200">
+                            <AlertCircle size={12} />
                             Chưa có khóa
                           </span>
                         )}
@@ -690,20 +745,20 @@ export function AiEngineStudio() {
                     </div>
 
                     {/* Capabilities & Badges */}
-                    <div className="mt-3 flex flex-wrap gap-1.5">
+                    <div className="mt-2 flex flex-wrap gap-1">
                       {provider.capabilities.map((cap) => (
                         <span
                           key={cap}
-                          className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold uppercase tracking-wider bg-brand-50 text-brand-700 border border-brand-200/60"
+                          className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-brand-50 text-brand-700 border border-brand-200/60"
                         >
-                          {cap === 'image' && <ImageIcon size={12} />}
-                          {cap === 'video' && <VideoIcon size={12} />}
-                          {cap === 'llm' && <Cpu size={12} />}
-                          {cap === 'audio' && <Volume2 size={12} />}
+                          {cap === 'image' && <ImageIcon size={11} />}
+                          {cap === 'video' && <VideoIcon size={11} />}
+                          {cap === 'llm' && <Cpu size={11} />}
+                          {cap === 'audio' && <Volume2 size={11} />}
                           {cap}
                         </span>
                       ))}
-                      <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-lg text-xs font-bold text-muted bg-slate-100">
+                      <span className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-md text-[10px] font-bold text-muted bg-slate-100">
                         {provider.kind === 'api_key'
                           ? 'API Key Trực tiếp'
                           : provider.kind === 'sdk'
@@ -714,43 +769,54 @@ export function AiEngineStudio() {
                       </span>
                     </div>
 
-                    <p className="text-xs text-muted mt-3 leading-relaxed">
+                    <p className="text-xs text-muted mt-2 line-clamp-2 leading-relaxed">
                       {provider.description}
                     </p>
 
-                    {/* Endpoint / Model Info */}
-                    <div className="mt-3.5 p-2.5 rounded-xl bg-brand-50/40 border border-border/60 text-xs font-mono text-muted space-y-1">
-                      {provider.defaultModel && (
+                    {/* Endpoint / Model / Project Info */}
+                    <div className="mt-2.5 p-2 rounded-xl bg-brand-50/40 border border-border/60 text-[11px] font-mono text-muted space-y-1">
+                      {isVertex ? (
                         <div className="flex items-center justify-between">
-                          <span>Mô hình mặc định:</span>
-                          <span className="font-bold text-text">{provider.defaultModel}</span>
+                          <span className="font-semibold text-text">Dự án GCP:</span>
+                          <span className="font-bold text-brand-600">Project: 1091492607886 · us-central1</span>
                         </div>
-                      )}
-                      {provider.endpoint && (
-                        <div className="flex items-center justify-between truncate">
-                          <span>Endpoint:</span>
-                          <span className="font-semibold text-brand-600 truncate ml-2">
-                            {provider.endpoint}
-                          </span>
-                        </div>
+                      ) : (
+                        <>
+                          {provider.defaultModel && (
+                            <div className="flex items-center justify-between">
+                              <span>Mô hình mặc định:</span>
+                              <span className="font-bold text-text truncate ml-1">{provider.defaultModel}</span>
+                            </div>
+                          )}
+                          {provider.endpoint && (
+                            <div className="flex items-center justify-between truncate">
+                              <span>Endpoint:</span>
+                              <span className="font-semibold text-brand-600 truncate ml-1">
+                                {provider.endpoint}
+                              </span>
+                            </div>
+                          )}
+                        </>
                       )}
                     </div>
                   </div>
 
                   {/* Key Management & Controls */}
-                  <div className="mt-4 pt-3 border-t border-border/60 flex flex-col gap-2.5">
+                  <div className="mt-3 pt-2.5 border-t border-border/60 flex flex-col gap-2">
                     {/* Key Input / Masked hint */}
                     {provider.kind !== 'cookie_pool' ? (
-                      <div className="flex flex-col gap-1.5">
+                      <div className="flex flex-col gap-1">
                         <div className="flex items-center justify-between text-xs">
-                          <span className="font-bold text-text">Khóa API / Credential:</span>
+                          <span className="font-bold text-text">
+                            {isVertex ? 'GCP Credential:' : 'Khóa API / Credential:'}
+                          </span>
                           {keyData?.masked && (
-                            <span className="font-mono text-muted">{keyData.masked}</span>
+                            <span className="font-mono text-muted text-[11px]">{keyData.masked}</span>
                           )}
                         </div>
 
                         {showKeyInput[provider.id] ? (
-                          <div className="flex gap-2">
+                          <div className="flex gap-1.5">
                             <input
                               type="password"
                               placeholder={provider.keyPlaceholder || 'Nhập API key...'}
@@ -764,12 +830,12 @@ export function AiEngineStudio() {
                                   },
                                 }))
                               }
-                              className="flex-1 min-h-10 px-3 rounded-xl border-2 border-border font-mono text-xs bg-surface"
+                              className="flex-1 min-h-8 px-2.5 rounded-xl border-2 border-border font-mono text-xs bg-surface"
                             />
                             <Button
                               onClick={() => void handleSaveKey(provider.id)}
                               disabled={saving}
-                              className="min-h-10 px-3 text-xs"
+                              className="min-h-8 px-2.5 text-xs"
                             >
                               Lưu
                             </Button>
@@ -778,7 +844,7 @@ export function AiEngineStudio() {
                               onClick={() =>
                                 setShowKeyInput((prev) => ({ ...prev, [provider.id]: false }))
                               }
-                              className="min-h-10 px-2 text-xs"
+                              className="min-h-8 px-2 text-xs"
                             >
                               Hủy
                             </Button>
@@ -791,28 +857,30 @@ export function AiEngineStudio() {
                             }
                             className="text-left text-xs font-bold text-brand-600 hover:text-brand-700 underline"
                           >
-                            {isConfigured ? 'Thay đổi khóa API khác' : '+ Thêm khóa API mới'}
+                            {isConfigured
+                              ? (isVertex ? 'Thay đổi Service Account / Key' : 'Thay đổi khóa API khác')
+                              : '+ Thêm khóa API mới'}
                           </button>
                         )}
                       </div>
                     ) : (
                       <div className="text-xs text-muted flex items-center justify-between">
                         <span>Trạng thái Pool:</span>
-                        <span className="font-bold text-success">Khả dụng (Worker Mesh sẵn sàng)</span>
+                        <span className="font-bold text-success text-[11px]">Khả dụng (Worker Mesh sẵn sàng)</span>
                       </div>
                     )}
 
                     {/* Action Buttons: Ping & Kill-switch */}
-                    <div className="flex items-center justify-between gap-2 pt-2">
+                    <div className="flex items-center justify-between gap-2 pt-1">
                       <Button
                         type="button"
                         variant="secondary"
                         onClick={() => void handleTestPing(provider.id)}
                         disabled={ping?.status === 'pinging'}
-                        className="text-xs min-h-9 px-3 flex items-center gap-1.5"
+                        className="text-xs min-h-7.5 h-7 px-2.5 flex items-center gap-1.5"
                       >
                         <Activity
-                          size={14}
+                          size={13}
                           className={cn(ping?.status === 'pinging' && 'animate-spin text-brand-600')}
                         />
                         <span>
@@ -829,14 +897,14 @@ export function AiEngineStudio() {
                           type="button"
                           onClick={() => void toggleKillSwitch(provider.id)}
                           className={cn(
-                            'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl font-bold text-xs transition border-2',
+                            'inline-flex items-center gap-1 min-h-7.5 h-7 px-2.5 rounded-xl font-bold text-xs transition border-2',
                             isDisabled
                               ? 'bg-coral-100 text-coral-700 border-coral-300 hover:bg-coral-200'
                               : 'bg-surface text-muted border-border hover:bg-slate-100',
                           )}
-                          title="Bật/Tắt khẩn cấp"
+                          title={isDisabled ? 'Bật lại' : 'Ngắt khẩn cấp'}
                         >
-                          <Power size={13} className={isDisabled ? 'text-coral-600' : 'text-success'} />
+                          <Power size={12} className={isDisabled ? 'text-coral-600' : 'text-success'} />
                           <span>{isDisabled ? 'Đang Tắt (Bật lại)' : 'Ngắt khẩn cấp'}</span>
                         </button>
                       )}
@@ -851,32 +919,32 @@ export function AiEngineStudio() {
 
       {/* ── TAB 2: SMART ROUTING & FALLBACK PIPELINE ─────────────────── */}
       {activeTab === 'routing' && (
-        <div className="flex flex-col gap-6">
-          {/* Fallback Chain Section */}
-          <div className="ui-card p-6 border-2 border-border/80 bg-surface shadow-soft">
-            <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col gap-4">
+          {/* Fallback Chain Section - Compact & Streamlined */}
+          <div className="ui-card p-4 border-2 border-border/80 bg-surface shadow-soft rounded-2xl">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <div className="flex items-center gap-2 text-brand-600 font-extrabold text-xs uppercase tracking-wider">
-                  <Sliders size={16} />
+                <div className="flex items-center gap-1.5 text-brand-600 font-extrabold text-[11px] uppercase tracking-wider">
+                  <Sliders size={14} />
                   <span>Image Generation Fallback Chain</span>
                 </div>
-                <h3 className="font-display text-xl font-bold text-text mt-1">
+                <h3 className="font-display text-lg font-bold text-text mt-0.5">
                   Chuỗi Dự Phòng Tạo Ảnh Tự Động (Fallback Pipeline)
                 </h3>
-                <p className="text-sm text-muted mt-1 leading-relaxed max-w-2xl">
+                <p className="text-xs text-muted mt-0.5 leading-relaxed max-w-2xl">
                   Khi học sinh yêu cầu tạo ảnh minh họa bài học hoặc truyện tranh, hệ thống sẽ gửi yêu cầu tới
                   nhà cung cấp đứng đầu danh sách. Nếu gặp lỗi quá tải (429) hoặc timeout, bộ điều phối sẽ tự động
                   chuyển tiếp sang nhà cung cấp kế tiếp trong chuỗi.
                 </p>
               </div>
 
-              <Button onClick={() => void saveRoutingSettings()} disabled={saving}>
+              <Button onClick={() => void saveRoutingSettings()} disabled={saving} className="min-h-9 px-4 text-xs font-bold">
                 Lưu luồng điều phối
               </Button>
             </div>
 
-            {/* Pipeline Visual Flow */}
-            <div className="mt-6 flex flex-col gap-3">
+            {/* Pipeline Visual Flow - Sleek 42px row height */}
+            <div className="mt-4 flex flex-col gap-2">
               {imageFallbackChain.map((providerId, index) => {
                 const meta = KNOWN_PROVIDERS.find((p) => p.id === providerId)
                 const isDisabled = disabledImageProviders.includes(providerId)
@@ -885,7 +953,7 @@ export function AiEngineStudio() {
                   <div
                     key={providerId}
                     className={cn(
-                      'flex items-center justify-between p-4 rounded-2xl border-2 transition-all duration-200',
+                      'flex items-center justify-between p-2.5 px-3.5 rounded-xl border-2 transition-all duration-200',
                       isDisabled
                         ? 'border-coral-200 bg-coral-50/40 opacity-75'
                         : index === 0
@@ -893,11 +961,11 @@ export function AiEngineStudio() {
                           : 'border-border/80 bg-surface',
                     )}
                   >
-                    <div className="flex items-center gap-3.5">
+                    <div className="flex items-center gap-3 min-w-0">
                       {/* Step Number Badge */}
                       <span
                         className={cn(
-                          'w-8 h-8 rounded-full flex items-center justify-center font-display font-black text-sm',
+                          'w-6 h-6 rounded-full flex items-center justify-center font-display font-black text-xs shrink-0',
                           index === 0
                             ? 'bg-brand-500 text-white shadow-soft'
                             : 'bg-slate-200 text-slate-700',
@@ -906,23 +974,23 @@ export function AiEngineStudio() {
                         {index + 1}
                       </span>
 
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <span className="font-display font-bold text-base text-text">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-display font-bold text-sm text-text">
                             {meta?.displayName || providerId}
                           </span>
                           {index === 0 && (
-                            <span className="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-brand-100 text-brand-700 uppercase">
+                            <span className="px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-brand-100 text-brand-700 uppercase">
                               Ưu tiên #1
                             </span>
                           )}
                           {isDisabled && (
-                            <span className="px-2 py-0.5 rounded-md text-[11px] font-extrabold bg-coral-100 text-coral-700">
+                            <span className="px-1.5 py-0.5 rounded-md text-[10px] font-extrabold bg-coral-100 text-coral-700">
                               Đã ngắt (Kill-switch)
                             </span>
                           )}
                         </div>
-                        <p className="text-xs text-muted">
+                        <p className="text-[11px] text-muted truncate">
                           {providerId === 'gflow'
                             ? 'Miễn phí chi phí qua Chrome Worker Pool'
                             : providerId === 'gemini-native'
@@ -930,47 +998,47 @@ export function AiEngineStudio() {
                               : providerId === 'vidtory-sdk'
                                 ? 'Vidtory Cloud Mesh — Dự phòng tin cậy'
                                 : providerId === 'vertex'
-                                  ? 'GCP Vertex AI VIP Quota'
+                                  ? 'GCP Vertex AI VIP Quota (1091492607886)'
                                   : 'Dreamina Worker Pool'}
                         </p>
                       </div>
                     </div>
 
                     {/* Up / Down & Kill-switch Actions */}
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-1.5 shrink-0">
                       <button
                         type="button"
                         onClick={() => movePriority(index, 'up')}
                         disabled={index === 0}
-                        className="p-2 rounded-xl border-2 border-border hover:bg-brand-50 text-text disabled:opacity-30 disabled:pointer-events-none transition"
+                        className="p-1.5 rounded-lg border-2 border-border hover:bg-brand-50 text-text disabled:opacity-30 disabled:pointer-events-none transition"
                         title="Tăng thứ tự ưu tiên"
                         aria-label={`Tăng ưu tiên cho ${providerId}`}
                       >
-                        <ArrowUp size={16} />
+                        <ArrowUp size={14} />
                       </button>
                       <button
                         type="button"
                         onClick={() => movePriority(index, 'down')}
                         disabled={index === imageFallbackChain.length - 1}
-                        className="p-2 rounded-xl border-2 border-border hover:bg-brand-50 text-text disabled:opacity-30 disabled:pointer-events-none transition"
+                        className="p-1.5 rounded-lg border-2 border-border hover:bg-brand-50 text-text disabled:opacity-30 disabled:pointer-events-none transition"
                         title="Giảm thứ tự ưu tiên"
                         aria-label={`Giảm ưu tiên cho ${providerId}`}
                       >
-                        <ArrowDown size={16} />
+                        <ArrowDown size={14} />
                       </button>
                       <button
                         type="button"
                         onClick={() => void toggleKillSwitch(providerId)}
                         className={cn(
-                          'p-2 rounded-xl border-2 transition',
+                          'p-1.5 rounded-lg border-2 transition',
                           isDisabled
                             ? 'border-coral-300 bg-coral-100 text-coral-700'
                             : 'border-border text-muted hover:bg-slate-100',
                         )}
-                        title={isDisabled ? 'Bật lại' : 'Tắt khẩn cấp'}
+                        title={isDisabled ? 'Bật lại' : 'Ngắt khẩn cấp'}
                         aria-label={`Bật tắt ${providerId}`}
                       >
-                        <Power size={16} />
+                        <Power size={14} />
                       </button>
                     </div>
                   </div>
@@ -979,27 +1047,129 @@ export function AiEngineStudio() {
             </div>
           </div>
 
-          {/* Video Engine & LLM Tutor Settings */}
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Video Engine */}
-            <div className="ui-card p-6 border-2 border-border/80 bg-surface shadow-soft flex flex-col justify-between">
+          {/* 3 Engines Grid: 🎨 Image Engine | 🎬 Video Engine | 🧠 LLM Engine */}
+          <div className="grid gap-3.5 grid-cols-1 lg:grid-cols-3">
+            {/* Card 1: 🎨 Image Engine */}
+            <div className="ui-card p-4 border-2 border-border/80 bg-surface shadow-soft rounded-2xl flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-2 text-mint-600 font-extrabold text-xs uppercase tracking-wider">
-                  <VideoIcon size={16} />
+                <div className="flex items-center gap-1.5 text-brand-600 font-extrabold text-[11px] uppercase tracking-wider">
+                  <ImageIcon size={14} />
+                  <span>Cấu hình Tạo Ảnh (Image Engine)</span>
+                </div>
+                <h4 className="font-display text-base font-bold text-text mt-0.5">
+                  Động Cơ Tạo Ảnh Chính &amp; Phong Cách
+                </h4>
+                <p className="text-xs text-muted mt-0.5 leading-relaxed">
+                  Thiết lập chuẩn xuất ảnh minh họa bài giảng ASMO, truyện tranh Mèo Mee.
+                </p>
+
+                <div className="mt-3.5 space-y-3">
+                  <label className="flex flex-col gap-1 text-xs font-bold text-text">
+                    Nhà cung cấp ảnh chính
+                    <select
+                      aria-label="Nhà cung cấp ảnh chính"
+                      className="min-h-9 rounded-xl border-2 border-border px-2.5 text-xs font-semibold bg-surface"
+                      value={imageConfig.provider}
+                      onChange={(e) => setImageConfig((prev) => ({ ...prev, provider: e.target.value }))}
+                    >
+                      <option value="gemini-native">
+                        Google Gemini Native (AI Studio - Nhanh nhất &amp; Trực tiếp)
+                      </option>
+                      <option value="gflow">
+                        Google Flow (Worker Extension - Tiết kiệm chi phí)
+                      </option>
+                      <option value="vertex">
+                        Google Vertex AI (Enterprise / GCP Quota lớn)
+                      </option>
+                      <option value="vidtory-sdk">
+                        Vidtory SDK (Imagen-3 Network)
+                      </option>
+                      <option value="dreamina">
+                        Dreamina (Worker Extension nghệ thuật)
+                      </option>
+                    </select>
+                  </label>
+
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="flex flex-col gap-1 text-xs font-bold text-text">
+                      Tỷ lệ khung hình
+                      <select
+                        aria-label="Tỷ lệ khung hình ảnh"
+                        className="min-h-9 rounded-xl border-2 border-border px-2 text-xs bg-surface"
+                        value={imageConfig.aspectRatio}
+                        onChange={(e) => setImageConfig((prev) => ({ ...prev, aspectRatio: e.target.value }))}
+                      >
+                        <option value="1:1">Vuông 1:1 (Ảnh bài học / Avatar)</option>
+                        <option value="16:9">Ngang 16:9 (Tranh bài giảng)</option>
+                        <option value="9:16">Dọc 9:16 (Truyện tranh điện thoại)</option>
+                      </select>
+                    </label>
+
+                    <label className="flex flex-col gap-1 text-xs font-bold text-text">
+                      Độ phân giải
+                      <select
+                        aria-label="Độ phân giải ảnh"
+                        className="min-h-9 rounded-xl border-2 border-border px-2 text-xs bg-surface"
+                        value={imageConfig.resolution}
+                        onChange={(e) => setImageConfig((prev) => ({ ...prev, resolution: e.target.value }))}
+                      >
+                        <option value="1K">1K (1024x1024 - Khuyên dùng)</option>
+                        <option value="2K">2K (Chất lượng cao)</option>
+                        <option value="4K">4K (Siêu nét)</option>
+                      </select>
+                    </label>
+                  </div>
+
+                  <label className="flex flex-col gap-1 text-xs font-bold text-text">
+                    Phong cách mỹ thuật chủ đạo
+                    <select
+                      aria-label="Phong cách mỹ thuật"
+                      className="min-h-9 rounded-xl border-2 border-border px-2.5 text-xs bg-surface"
+                      value={imageConfig.stylePreset}
+                      onChange={(e) => setImageConfig((prev) => ({ ...prev, stylePreset: e.target.value }))}
+                    >
+                      <option value="claymation">🧸 Đất nặn 3D (Soft Claymation)</option>
+                      <option value="watercolor">🎨 Màu nước cổ tích (Watercolor)</option>
+                      <option value="vibrant_cartoon">✨ Hoạt hình 2D sống động</option>
+                      <option value="auto">🎯 Tự do theo Prompt</option>
+                    </select>
+                  </label>
+
+                  <label className="flex items-center gap-2 pt-1 text-xs text-text font-medium cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={imageConfig.autoCompressWebp}
+                      onChange={(e) =>
+                        setImageConfig((prev) => ({ ...prev, autoCompressWebp: e.target.checked }))
+                      }
+                      className="w-4 h-4 rounded-md border-2 border-border text-brand-600 accent-brand-500 cursor-pointer"
+                    />
+                    <span>Tối ưu nén WebP cho thiếu nhi (&lt;1.5s)</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            {/* Card 2: 🎬 Video Engine */}
+            <div className="ui-card p-4 border-2 border-border/80 bg-surface shadow-soft rounded-2xl flex flex-col justify-between">
+              <div>
+                <div className="flex items-center gap-1.5 text-mint-600 font-extrabold text-[11px] uppercase tracking-wider">
+                  <VideoIcon size={14} />
                   <span>Cấu hình Tạo Video (Video Engine)</span>
                 </div>
-                <h4 className="font-display text-lg font-bold text-text mt-1">
-                  Động Cơ Video Veo & Narwhal
+                <h4 className="font-display text-base font-bold text-text mt-0.5">
+                  Động Cơ Video Veo &amp; Narwhal
                 </h4>
-                <p className="text-xs text-muted mt-1 leading-relaxed">
+                <p className="text-xs text-muted mt-0.5 leading-relaxed">
                   Thiết lập chuẩn xuất hoạt cảnh cho các nhân vật AI Kids và hoạt cảnh bài học ASMO.
                 </p>
 
-                <div className="mt-4 space-y-3.5">
-                  <label className="flex flex-col gap-1.5 text-xs font-bold text-text">
+                <div className="mt-3.5 space-y-3">
+                  <label className="flex flex-col gap-1 text-xs font-bold text-text">
                     Nhà cung cấp video chính
                     <select
-                      className="min-h-11 rounded-xl border-2 border-border px-3 text-sm bg-surface"
+                      aria-label="Nhà cung cấp video chính"
+                      className="min-h-9 rounded-xl border-2 border-border px-2.5 text-xs font-semibold bg-surface"
                       value={videoConfig.provider}
                       onChange={(e) => setVideoConfig((v) => ({ ...v, provider: e.target.value }))}
                     >
@@ -1009,11 +1179,12 @@ export function AiEngineStudio() {
                     </select>
                   </label>
 
-                  <div className="grid grid-cols-2 gap-3">
-                    <label className="flex flex-col gap-1.5 text-xs font-bold text-text">
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="flex flex-col gap-1 text-xs font-bold text-text">
                       Tỷ lệ khung hình
                       <select
-                        className="min-h-11 rounded-xl border-2 border-border px-3 text-sm bg-surface"
+                        aria-label="Tỷ lệ khung hình video"
+                        className="min-h-9 rounded-xl border-2 border-border px-2 text-xs bg-surface"
                         value={videoConfig.aspectRatio}
                         onChange={(e) => setVideoConfig((v) => ({ ...v, aspectRatio: e.target.value }))}
                       >
@@ -1023,10 +1194,11 @@ export function AiEngineStudio() {
                       </select>
                     </label>
 
-                    <label className="flex flex-col gap-1.5 text-xs font-bold text-text">
+                    <label className="flex flex-col gap-1 text-xs font-bold text-text">
                       Độ phân giải
                       <select
-                        className="min-h-11 rounded-xl border-2 border-border px-3 text-sm bg-surface"
+                        aria-label="Độ phân giải video"
+                        className="min-h-9 rounded-xl border-2 border-border px-2 text-xs bg-surface"
                         value={videoConfig.resolution}
                         onChange={(e) => setVideoConfig((v) => ({ ...v, resolution: e.target.value }))}
                       >
@@ -1036,7 +1208,7 @@ export function AiEngineStudio() {
                     </label>
                   </div>
 
-                  <label className="flex flex-col gap-1.5 text-xs font-bold text-text">
+                  <label className="flex flex-col gap-1 text-xs font-bold text-text">
                     Thời lượng mỗi video ({videoConfig.duration}s)
                     <input
                       type="range"
@@ -1047,7 +1219,7 @@ export function AiEngineStudio() {
                       onChange={(e) => setVideoConfig((v) => ({ ...v, duration: Number(e.target.value) }))}
                       className="w-full accent-brand-500 cursor-pointer"
                     />
-                    <div className="flex justify-between text-[11px] text-muted">
+                    <div className="flex justify-between text-[10px] text-muted">
                       <span>4s (Nhanh)</span>
                       <span>6s (Chuẩn)</span>
                       <span>8s</span>
@@ -1058,30 +1230,31 @@ export function AiEngineStudio() {
               </div>
             </div>
 
-            {/* LLM & Tutor Mèo Mee */}
-            <div className="ui-card p-6 border-2 border-border/80 bg-surface shadow-soft flex flex-col justify-between">
+            {/* Card 3: 🧠 LLM & Tutor Mèo Mee */}
+            <div className="ui-card p-4 border-2 border-border/80 bg-surface shadow-soft rounded-2xl flex flex-col justify-between">
               <div>
-                <div className="flex items-center gap-2 text-brand-600 font-extrabold text-xs uppercase tracking-wider">
-                  <Cpu size={16} />
-                  <span>Trợ Giảng AI & Mô Hình Ngôn Ngữ</span>
+                <div className="flex items-center gap-1.5 text-brand-600 font-extrabold text-[11px] uppercase tracking-wider">
+                  <Cpu size={14} />
+                  <span>Trợ Giảng AI &amp; Mô Hình Ngôn Ngữ</span>
                 </div>
-                <h4 className="font-display text-lg font-bold text-text mt-1">
+                <h4 className="font-display text-base font-bold text-text mt-0.5">
                   Bộ Não Sư Phạm Mèo Mee
                 </h4>
-                <p className="text-xs text-muted mt-1 leading-relaxed">
+                <p className="text-xs text-muted mt-0.5 leading-relaxed">
                   Điều phối mô hình thông minh cho đố vui, giải thích thuật toán và gợi ý bài tập ASMO.
                 </p>
 
-                <div className="mt-4 space-y-3.5">
-                  <label className="flex flex-col gap-1.5 text-xs font-bold text-text">
+                <div className="mt-3.5 space-y-3">
+                  <label className="flex flex-col gap-1 text-xs font-bold text-text">
                     Mô hình ưu tiên
                     <select
-                      className="min-h-11 rounded-xl border-2 border-border px-3 text-sm bg-surface"
+                      aria-label="Mô hình ngôn ngữ ưu tiên"
+                      className="min-h-9 rounded-xl border-2 border-border px-2.5 text-xs font-semibold bg-surface"
                       value={llmConfig.model}
                       onChange={(e) => setLlmConfig((l) => ({ ...l, model: e.target.value }))}
                     >
                       <option value="gemini-2.5-flash">
-                        🌟 Google Gemini 2.5 Flash (Khuyên dùng - Nhanh, thông minh, tiết kiệm)
+                        🌟 Google Gemini 2.5 Flash (Nhanh, thông minh, tiết kiệm)
                       </option>
                       <option value="gpt-4o-mini">
                         ⚡ OpenAI GPT-4o Mini (Logic toán ASMO chuyên sâu)
@@ -1090,7 +1263,7 @@ export function AiEngineStudio() {
                     </select>
                   </label>
 
-                  <label className="flex flex-col gap-1.5 text-xs font-bold text-text">
+                  <label className="flex flex-col gap-1 text-xs font-bold text-text">
                     Độ sáng tạo (Temperature: {llmConfig.temperature})
                     <input
                       type="range"
@@ -1101,17 +1274,18 @@ export function AiEngineStudio() {
                       onChange={(e) => setLlmConfig((l) => ({ ...l, temperature: Number(e.target.value) }))}
                       className="w-full accent-brand-500 cursor-pointer"
                     />
-                    <div className="flex justify-between text-[11px] text-muted">
+                    <div className="flex justify-between text-[10px] text-muted">
                       <span>0.1 (Chính xác / Toán)</span>
-                      <span>0.5 (Cân bằng sư phạm)</span>
-                      <span>1.0 (Kể chuyện vui vẻ)</span>
+                      <span>0.5 (Cân bằng)</span>
+                      <span>1.0 (Kể chuyện)</span>
                     </div>
                   </label>
 
-                  <label className="flex flex-col gap-1.5 text-xs font-bold text-text">
-                    Độ dài phản hồi tối đa (Max Tokens: {llmConfig.maxTokens})
+                  <label className="flex flex-col gap-1 text-xs font-bold text-text">
+                    Độ dài phản hồi tối đa
                     <select
-                      className="min-h-11 rounded-xl border-2 border-border px-3 text-sm bg-surface"
+                      aria-label="Độ dài phản hồi tối đa"
+                      className="min-h-9 rounded-xl border-2 border-border px-2.5 text-xs bg-surface"
                       value={llmConfig.maxTokens}
                       onChange={(e) => setLlmConfig((l) => ({ ...l, maxTokens: Number(e.target.value) }))}
                     >
@@ -1129,44 +1303,43 @@ export function AiEngineStudio() {
 
       {/* ── TAB 3: PLAN PROVIDER MATRIX ─────────────────────────────── */}
       {activeTab === 'matrix' && (
-        <div className="flex flex-col gap-6">
-          <div className="ui-card p-6 border-2 border-border/80 bg-surface shadow-soft">
-            <div className="flex flex-wrap items-start justify-between gap-4">
+        <div className="flex flex-col gap-4">
+          <div className="ui-card p-4 border-2 border-border/80 bg-surface shadow-soft rounded-2xl">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <div className="flex items-center gap-2 text-brand-600 font-extrabold text-xs uppercase tracking-wider">
-                  <Layers size={16} />
+                <div className="flex items-center gap-1.5 text-brand-600 font-extrabold text-[11px] uppercase tracking-wider">
+                  <Layers size={14} />
                   <span>Plan Provider Policy Matrix</span>
                 </div>
-                <h3 className="font-display text-xl font-bold text-text mt-1">
+                <h3 className="font-display text-lg font-bold text-text mt-0.5">
                   Ma Trận Phân Quyền AI Theo Gói Học (AI Kids Plans)
                 </h3>
-                <p className="text-sm text-muted mt-1 leading-relaxed max-w-2xl">
-                  Kiểm soát chính xác nhà cung cấp nào được phép sử dụng cho từng hạng học sinh (Free vs Pro).
-                  Giúp tối ưu hóa chi phí vận hành mà vẫn đảm bảo trải nghiệm VIP cho học sinh trả phí.
+                <p className="text-xs text-muted mt-0.5 leading-relaxed max-w-2xl">
+                  Kiểm soát chính xác nhà cung cấp nào được phép sử dụng cho từng hạng học sinh (Free vs Pro). Giúp tối ưu hóa chi phí vận hành mà vẫn đảm bảo trải nghiệm VIP.
                 </p>
               </div>
 
-              <Button onClick={() => void savePlanMatrix()} disabled={saving}>
+              <Button onClick={() => void savePlanMatrix()} disabled={saving} className="min-h-9 px-4 text-xs font-bold">
                 Lưu ma trận gói học
               </Button>
             </div>
 
-            {/* Matrix Table */}
-            <div className="mt-6 overflow-x-auto">
+            {/* Matrix Table - High Density */}
+            <div className="mt-4 overflow-x-auto">
               <table className="w-full border-collapse text-left">
                 <thead>
-                  <tr className="border-b-2 border-border/80 text-xs font-extrabold uppercase tracking-wider text-muted">
-                    <th className="py-3 px-4 min-w-[200px]">Gói Học AI Kids</th>
-                    <th className="py-3 px-3 text-center">Gemini Native</th>
-                    <th className="py-3 px-3 text-center">Vertex AI</th>
-                    <th className="py-3 px-3 text-center">Vidtory SDK</th>
-                    <th className="py-3 px-3 text-center">Google Flow</th>
-                    <th className="py-3 px-3 text-center">Dreamina</th>
-                    <th className="py-3 px-3 text-center">OpenAI</th>
-                    <th className="py-3 px-4 min-w-[180px]">Tuyến Tạo Ảnh Mặc Định</th>
+                  <tr className="border-b-2 border-border/80 text-[11px] font-extrabold uppercase tracking-wider text-muted">
+                    <th className="py-2.5 px-3 min-w-[180px]">Gói Học AI Kids</th>
+                    <th className="py-2.5 px-2 text-center">Gemini Native</th>
+                    <th className="py-2.5 px-2 text-center">Vertex AI</th>
+                    <th className="py-2.5 px-2 text-center">Vidtory SDK</th>
+                    <th className="py-2.5 px-2 text-center">Google Flow</th>
+                    <th className="py-2.5 px-2 text-center">Dreamina</th>
+                    <th className="py-2.5 px-2 text-center">OpenAI</th>
+                    <th className="py-2.5 px-3 min-w-[160px]">Tuyến Tạo Ảnh Mặc Định</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border/60 text-sm">
+                <tbody className="divide-y divide-border/60 text-xs">
                   {PLANS_CONFIG.map((plan) => {
                     const currentPlan = planMatrix[plan.id] || {
                       allowedProviders: [],
@@ -1177,21 +1350,21 @@ export function AiEngineStudio() {
 
                     return (
                       <tr key={plan.id} className="hover:bg-brand-50/30 transition">
-                        <td className="py-4 px-4">
+                        <td className="py-3 px-3">
                           <div className="flex flex-col">
-                            <span className="font-display font-bold text-base text-text">
+                            <span className="font-display font-bold text-sm text-text">
                               {plan.name}
                             </span>
                             <span
                               className={cn(
-                                'inline-block w-fit mt-1 px-2 py-0.5 rounded-full text-[11px] font-extrabold',
+                                'inline-block w-fit mt-0.5 px-2 py-0.5 rounded-full text-[10px] font-extrabold',
                                 plan.color,
                               )}
                             >
                               {plan.badge}
                             </span>
                             {currentPlan.note && (
-                              <span className="text-[11px] text-muted mt-1 italic">
+                              <span className="text-[10px] text-muted mt-0.5 italic">
                                 {currentPlan.note}
                               </span>
                             )}
@@ -1203,13 +1376,13 @@ export function AiEngineStudio() {
                           (provId) => {
                             const isChecked = allowed.includes(provId)
                             return (
-                              <td key={provId} className="py-4 px-3 text-center">
-                                <label className="inline-flex items-center justify-center cursor-pointer p-1">
+                              <td key={provId} className="py-3 px-2 text-center">
+                                <label className="inline-flex items-center justify-center cursor-pointer p-0.5">
                                   <input
                                     type="checkbox"
                                     checked={isChecked}
                                     onChange={() => togglePlanProvider(plan.id, provId)}
-                                    className="w-5 h-5 rounded-lg border-2 border-border text-brand-600 accent-brand-500 cursor-pointer"
+                                    className="w-4 h-4 rounded-md border-2 border-border text-brand-600 accent-brand-500 cursor-pointer"
                                   />
                                 </label>
                               </td>
@@ -1218,11 +1391,11 @@ export function AiEngineStudio() {
                         )}
 
                         {/* Default Image Route Select */}
-                        <td className="py-4 px-4">
+                        <td className="py-3 px-3">
                           <select
                             value={defaultRoute}
                             onChange={(e) => handleDefaultRouteSelect(plan.id, e.target.value)}
-                            className="w-full min-h-10 rounded-xl border-2 border-border px-3 text-xs font-bold bg-surface"
+                            className="w-full min-h-8 rounded-xl border-2 border-border px-2 text-xs font-bold bg-surface"
                           >
                             {allowed.map((provId) => {
                               const meta = KNOWN_PROVIDERS.find((p) => p.id === provId)
@@ -1246,21 +1419,20 @@ export function AiEngineStudio() {
 
       {/* ── TAB 4: CHILD SAFETY & PROBE TESTER ───────────────────────── */}
       {activeTab === 'safety' && (
-        <div className="flex flex-col gap-6">
-          {/* Universal Negative Prompt */}
-          <div className="ui-card p-6 border-2 border-border/80 bg-surface shadow-soft">
-            <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="flex flex-col gap-4">
+          {/* Universal Negative Prompt - Compact */}
+          <div className="ui-card p-4 border-2 border-border/80 bg-surface shadow-soft rounded-2xl">
+            <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
-                <div className="flex items-center gap-2 text-coral-600 font-extrabold text-xs uppercase tracking-wider">
-                  <ShieldCheck size={16} />
+                <div className="flex items-center gap-1.5 text-coral-600 font-extrabold text-[11px] uppercase tracking-wider">
+                  <ShieldCheck size={14} />
                   <span>Bộ Lọc An Toàn Thiếu Nhi (Universal Negative Prompt)</span>
                 </div>
-                <h3 className="font-display text-xl font-bold text-text mt-1">
+                <h3 className="font-display text-lg font-bold text-text mt-0.5">
                   Chặn Nội Dung Không Phù Hợp Cho Trẻ Em Toàn Cầu
                 </h3>
-                <p className="text-sm text-muted mt-1 leading-relaxed max-w-2xl">
-                  Chuỗi từ khóa này tự động được tiêm vào tất cả các yêu cầu tạo ảnh trên toàn hệ thống,
-                  đảm bảo loại trừ các hình ảnh rùng rợn, hở hang, bạo lực hoặc giải phẫu bất thường.
+                <p className="text-xs text-muted mt-0.5 leading-relaxed max-w-2xl">
+                  Chuỗi từ khóa tự động tiêm vào tất cả các yêu cầu tạo ảnh trên toàn hệ thống nhằm loại bỏ hình ảnh rùng rợn, bạo lực hay phản cảm.
                 </p>
               </div>
 
@@ -1268,52 +1440,52 @@ export function AiEngineStudio() {
                 <Button
                   variant="secondary"
                   onClick={() => setNegativePrompt(DEFAULT_NEGATIVE_PROMPT)}
-                  className="text-xs"
+                  className="text-xs min-h-8 px-3"
                 >
                   Khôi phục mẫu chuẩn
                 </Button>
-                <Button onClick={() => void saveSafetyConfig()} disabled={saving}>
+                <Button onClick={() => void saveSafetyConfig()} disabled={saving} className="text-xs min-h-8 px-3.5 font-bold">
                   Lưu bộ lọc an toàn
                 </Button>
               </div>
             </div>
 
-            <div className="mt-4">
+            <div className="mt-3">
               <textarea
-                rows={4}
+                rows={3}
                 value={negativePrompt}
                 onChange={(e) => setNegativePrompt(e.target.value)}
-                className="w-full p-3.5 rounded-2xl border-2 border-border font-mono text-xs text-text bg-brand-50/20 focus:bg-surface leading-relaxed"
+                className="w-full p-3 rounded-xl border-2 border-border font-mono text-xs text-text bg-brand-50/20 focus:bg-surface leading-relaxed"
                 placeholder="Nhập các từ khóa cấm phân cách bằng dấu phẩy..."
               />
             </div>
           </div>
 
-          {/* AI Kids Style Presets */}
-          <div className="ui-card p-6 border-2 border-border/80 bg-surface shadow-soft">
-            <div className="flex items-center gap-2 text-brand-600 font-extrabold text-xs uppercase tracking-wider">
-              <Wand2 size={16} />
+          {/* AI Kids Style Presets - Compact 3 columns */}
+          <div className="ui-card p-4 border-2 border-border/80 bg-surface shadow-soft rounded-2xl">
+            <div className="flex items-center gap-1.5 text-brand-600 font-extrabold text-[11px] uppercase tracking-wider">
+              <Wand2 size={14} />
               <span>Phong Cách Tạo Hình Độc Quyền (AI Kids Style Presets)</span>
             </div>
-            <h3 className="font-display text-xl font-bold text-text mt-1">
-              Bộ Phong Cách Hallmark Đất Nặn & Hoạt Họa
+            <h3 className="font-display text-lg font-bold text-text mt-0.5">
+              Bộ Phong Cách Hallmark Đất Nặn &amp; Hoạt Họa
             </h3>
-            <p className="text-sm text-muted mt-1 leading-relaxed">
+            <p className="text-xs text-muted mt-0.5 leading-relaxed">
               Các phong cách thiết kế mỹ thuật chuẩn mực tạo nên bản sắc thương hiệu AI Kids ấm áp và an toàn.
             </p>
 
-            <div className="mt-5 grid gap-4 md:grid-cols-3">
+            <div className="mt-3.5 grid gap-3 md:grid-cols-3">
               {AI_KIDS_STYLE_PRESETS.map((preset) => (
                 <div
                   key={preset.id}
-                  className="p-4 rounded-2xl border-2 border-border/80 bg-surface flex flex-col justify-between"
+                  className="p-3 rounded-xl border-2 border-border/80 bg-surface flex flex-col justify-between"
                 >
                   <div>
-                    <span className={cn('px-2.5 py-1 rounded-full text-xs font-extrabold', preset.badgeBg)}>
+                    <span className={cn('px-2 py-0.5 rounded-full text-[11px] font-extrabold', preset.badgeBg)}>
                       {preset.name}
                     </span>
-                    <p className="text-xs text-muted mt-2 leading-relaxed">{preset.tagline}</p>
-                    <div className="mt-3 p-2.5 rounded-xl bg-slate-50 border border-border/60 text-[11px] font-mono text-muted line-clamp-3">
+                    <p className="text-xs text-muted mt-1.5 leading-relaxed">{preset.tagline}</p>
+                    <div className="mt-2 p-2 rounded-lg bg-slate-50 border border-border/60 text-[10px] font-mono text-muted line-clamp-2">
                       {preset.prompt}
                     </div>
                   </div>
@@ -1321,16 +1493,16 @@ export function AiEngineStudio() {
                   <Button
                     variant="ghost"
                     onClick={() => copyPreset(preset.id, preset.prompt)}
-                    className="mt-3 text-xs min-h-9 flex items-center justify-center gap-1.5"
+                    className="mt-2.5 text-xs min-h-8 h-8 flex items-center justify-center gap-1.5"
                   >
                     {copiedPresetId === preset.id ? (
                       <>
-                        <Check size={14} className="text-success" />
+                        <Check size={13} className="text-success" />
                         <span className="text-success font-bold">Đã sao chép prompt</span>
                       </>
                     ) : (
                       <>
-                        <Copy size={14} />
+                        <Copy size={13} />
                         <span>Sao chép Prompt</span>
                       </>
                     )}
@@ -1341,31 +1513,31 @@ export function AiEngineStudio() {
           </div>
 
           {/* Probe Tester Tool */}
-          <div className="ui-card p-6 border-2 border-border/80 bg-surface shadow-soft">
-            <div className="flex items-center gap-2 text-mint-600 font-extrabold text-xs uppercase tracking-wider">
-              <Activity size={16} />
+          <div className="ui-card p-4 border-2 border-border/80 bg-surface shadow-soft rounded-2xl">
+            <div className="flex items-center gap-1.5 text-mint-600 font-extrabold text-[11px] uppercase tracking-wider">
+              <Activity size={14} />
               <span>Công Cụ Thử Nghiệm Nhanh Pipeline (Probe Tester)</span>
             </div>
-            <h3 className="font-display text-xl font-bold text-text mt-1">
-              Bắn Thử Nghiệm Prompt & Đo Độ Trễ (Latency Probe)
+            <h3 className="font-display text-lg font-bold text-text mt-0.5">
+              Bắn Thử Nghiệm Prompt &amp; Đo Độ Trễ (Latency Probe)
             </h3>
-            <p className="text-sm text-muted mt-1 leading-relaxed">
+            <p className="text-xs text-muted mt-0.5 leading-relaxed">
               Gửi một prompt thử nghiệm thực tế qua bộ điều phối để kiểm tra thứ tự Fallback, bộ lọc an toàn và đo thời gian phản hồi.
             </p>
 
-            <div className="mt-5 flex flex-col gap-4">
-              <div className="flex flex-col sm:flex-row gap-3">
+            <div className="mt-3.5 flex flex-col gap-3">
+              <div className="flex flex-col sm:flex-row gap-2.5">
                 <input
                   type="text"
                   value={probePrompt}
                   onChange={(e) => setProbePrompt(e.target.value)}
                   placeholder="Nhập prompt thử nghiệm..."
-                  className="flex-1 min-h-12 px-4 rounded-2xl border-2 border-border text-sm font-semibold bg-surface"
+                  className="flex-1 min-h-10 px-3.5 rounded-xl border-2 border-border text-xs font-semibold bg-surface"
                 />
                 <select
                   value={probeProvider}
                   onChange={(e) => setProbeProvider(e.target.value)}
-                  className="min-h-12 px-3 rounded-2xl border-2 border-border text-sm font-bold bg-surface"
+                  className="min-h-10 px-3 rounded-xl border-2 border-border text-xs font-bold bg-surface"
                 >
                   <option value="auto">🎯 Tự động điều phối (Auto Routing)</option>
                   <option value="gemini-native">Google Gemini Native</option>
@@ -1377,9 +1549,9 @@ export function AiEngineStudio() {
                 <Button
                   onClick={() => void handleRunProbe()}
                   disabled={probeRunning}
-                  className="min-h-12 px-6 flex items-center gap-2"
+                  className="min-h-10 px-5 flex items-center gap-1.5 text-xs font-bold"
                 >
-                  <Play size={16} className={cn(probeRunning && 'animate-spin')} />
+                  <Play size={14} className={cn(probeRunning && 'animate-spin')} />
                   <span>{probeRunning ? 'Đang gửi probe...' : 'Chạy Probe'}</span>
                 </Button>
               </div>
@@ -1388,7 +1560,7 @@ export function AiEngineStudio() {
               {probeResult && (
                 <div
                   className={cn(
-                    'p-4 rounded-2xl border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all',
+                    'p-3.5 rounded-xl border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 transition-all',
                     probeResult.success
                       ? 'border-mint-200 bg-mint-50/40'
                       : 'border-coral-200 bg-coral-50/40',
@@ -1397,18 +1569,18 @@ export function AiEngineStudio() {
                   <div className="flex items-center gap-3">
                     <span
                       className={cn(
-                        'w-10 h-10 rounded-full flex items-center justify-center font-bold',
+                        'w-8 h-8 rounded-full flex items-center justify-center font-bold shrink-0',
                         probeResult.success ? 'bg-mint-100 text-mint-700' : 'bg-coral-100 text-coral-700',
                       )}
                     >
-                      {probeResult.success ? <CheckCircle2 size={20} /> : <AlertTriangle size={20} />}
+                      {probeResult.success ? <CheckCircle2 size={16} /> : <AlertTriangle size={16} />}
                     </span>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-display font-bold text-base text-text">
+                        <span className="font-display font-bold text-sm text-text">
                           Kết quả Probe: {probeResult.resolvedProvider}
                         </span>
-                        <span className="text-xs font-mono text-muted">
+                        <span className="text-[11px] font-mono text-muted">
                           [{probeResult.timestamp}]
                         </span>
                       </div>
@@ -1418,12 +1590,12 @@ export function AiEngineStudio() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 text-xs font-mono">
-                    <div className="p-2 rounded-xl bg-white/80 border border-border/60">
+                  <div className="flex items-center gap-3 text-xs font-mono">
+                    <div className="p-1.5 px-2.5 rounded-lg bg-white/80 border border-border/60">
                       <span className="text-muted">Độ trễ: </span>
                       <span className="font-bold text-brand-600">{probeResult.latencyMs}ms</span>
                     </div>
-                    <div className="p-2 rounded-xl bg-white/80 border border-border/60">
+                    <div className="p-1.5 px-2.5 rounded-lg bg-white/80 border border-border/60">
                       <span className="text-muted">Status: </span>
                       <span
                         className={cn('font-bold', probeResult.success ? 'text-success' : 'text-danger')}
