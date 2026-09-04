@@ -16,6 +16,9 @@ export default defineConfig(({ mode }) => {
         '@': resolve(__dirname, 'src'),
       },
     },
+    optimizeDeps: {
+      include: ['fflate'],
+    },
     server: {
       port: 5173,
       proxy: {

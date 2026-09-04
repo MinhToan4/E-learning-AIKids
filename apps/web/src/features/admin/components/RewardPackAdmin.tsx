@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { AlertCircle, CheckCircle2, Download, FileArchive, Image, RefreshCw, Rocket, ShieldCheck, Upload } from 'lucide-react'
-import { unzip } from 'fflate'
 import { Button } from '@/shared/components/ui/Button'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
 import { api, uploadToStoryMeeStorage } from '@/shared/lib/api'
@@ -102,6 +101,7 @@ function inspectManifest(manifest: RewardPackManifest, entries: Record<string, U
 
 async function unpack(file: File): Promise<LocalPreview> {
   if (file.size === 0 || file.size > MAX_BYTES) throw new Error('ZIP phải từ 1 byte đến 250 MB.')
+  const { unzip } = await import('fflate')
   const compressed = new Uint8Array(await file.arrayBuffer())
   const entries = await new Promise<Record<string, Uint8Array>>((resolve, reject) => {
     unzip(compressed, (error, result) =>
