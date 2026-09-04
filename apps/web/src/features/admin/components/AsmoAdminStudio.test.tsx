@@ -3,7 +3,7 @@ globalThis.IS_REACT_ACT_ENVIRONMENT = true
 
 import { act, createElement } from 'react'
 import { createRoot, type Root } from 'react-dom/client'
-import { describe, it, expect, beforeEach, afterEach } from 'vitest'
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { AsmoAdminStudio } from './AsmoAdminStudio'
 
 describe('AsmoAdminStudio Component', () => {
@@ -177,18 +177,18 @@ describe('AsmoAdminStudio Component', () => {
 
     expect(updatedToggle.textContent).not.toEqual(initialText)
 
-    // A notification toast should be rendered
-    const toast = container.querySelector('[role="alert"]')
+    // A notification toast should be rendered via Portal into document.body
+    const toast = document.body.querySelector('[role="alert"]')
     expect(toast).toBeDefined()
     expect(toast?.textContent).toMatch(/Đã kích hoạt|Đã chuyển về bản nháp/)
   })
 
-  it('opens and closes regulation modal and questions modal', () => {
+  it('opens and closes regulation modal and questions modal via createPortal', () => {
     act(() => {
       root.render(createElement(AsmoAdminStudio))
     })
 
-    // 1. Test Regulation Modal
+    // 1. Test Regulation Modal (rendered via createPortal into document.body)
     const regButton = Array.from(container.querySelectorAll('button')).find((btn) =>
       btn.textContent?.includes('Chỉnh quy chế'),
     )
@@ -198,11 +198,11 @@ describe('AsmoAdminStudio Component', () => {
       regButton?.click()
     })
 
-    expect(container.textContent).toContain('Chỉnh Quy Chế Phòng Thi')
-    expect(container.textContent).toContain('Thời lượng (phút)')
+    expect(document.body.textContent).toContain('Chỉnh Quy Chế Phòng Thi')
+    expect(document.body.textContent).toContain('Thời lượng (phút)')
 
     // Click 'Hủy' button to close
-    const cancelButton = Array.from(container.querySelectorAll('button')).find(
+    const cancelButton = Array.from(document.body.querySelectorAll('button')).find(
       (btn) => btn.textContent === 'Hủy',
     )
     expect(cancelButton).toBeDefined()
@@ -211,9 +211,9 @@ describe('AsmoAdminStudio Component', () => {
       cancelButton?.click()
     })
 
-    expect(container.textContent).not.toContain('Chỉnh Quy Chế Phòng Thi')
+    expect(document.body.textContent).not.toContain('Chỉnh Quy Chế Phòng Thi')
 
-    // 2. Test Question details modal
+    // 2. Test Question details modal (rendered via createPortal into document.body)
     const viewQuestionsButton = Array.from(container.querySelectorAll('button')).find((btn) =>
       btn.textContent?.includes('Chi tiết câu hỏi'),
     )
@@ -223,10 +223,10 @@ describe('AsmoAdminStudio Component', () => {
       viewQuestionsButton?.click()
     })
 
-    expect(container.textContent).toContain('Chi Tiết Câu Hỏi & Đáp Án KaTeX')
+    expect(document.body.textContent).toContain('Chi Tiết Câu Hỏi & Đáp Án KaTeX')
 
     // Click 'Đóng' button to close
-    const closeButton = Array.from(container.querySelectorAll('button')).find(
+    const closeButton = Array.from(document.body.querySelectorAll('button')).find(
       (btn) => btn.textContent === 'Đóng',
     )
     expect(closeButton).toBeDefined()
@@ -235,6 +235,179 @@ describe('AsmoAdminStudio Component', () => {
       closeButton?.click()
     })
 
-    expect(container.textContent).not.toContain('Chi Tiết Câu Hỏi & Đáp Án KaTeX')
+    expect(document.body.textContent).not.toContain('Chi Tiết Câu Hỏi & Đáp Án KaTeX')
+  })
+
+  it('paginates exams list with 12 items per page and renders Paginator', () => {
+    act(() => {
+      root.render(createElement(AsmoAdminStudio))
+    })
+
+    // Verify pagination range info in DOM
+    expect(container.textContent).toContain('1–12 / 100')
+    expect(container.textContent).toContain('Hiển thị 12 / 100 đề thi')
+
+    // Find next page button
+    const nextBtn = container.querySelector('button[aria-label="Trang sau"]') as HTMLButtonElement
+    expect(nextBtn).toBeDefined()
+
+    act(() => {
+      nextBtn.click()
+    })
+
+    // Now on page 2 (13-24)
+    expect(container.textContent).toContain('13–24 / 100')
+  })
+
+  it('handles KaTeX quick repair and batch repair in Audit Tab', () => {
+    act(() => {
+      root.render(createElement(AsmoAdminStudio))
+    })
+
+    // Switch to audit tab
+    const auditTabBtn = Array.from(container.querySelectorAll('button')).find((btn) =>
+      btn.textContent?.includes('Kiểm định chất lượng'),
+    )
+    act(() => {
+      auditTabBtn?.click()
+    })
+
+    // Verify Batch Repair Button exists
+    const batchRepairBtn = Array.from(container.querySelectorAll('button')).find((btn) =>
+      btn.textContent?.includes('Sửa nhanh tất cả (20 đề)'),
+    )
+    expect(batchRepairBtn).toBeDefined()
+
+    // Find first single quick repair button
+    const singleRepairBtn = Array.from(container.querySelectorAll('button')).find((btn) =>
+      btn.textContent?.includes('Sửa nhanh KaTeX'),
+    )
+    expect(singleRepairBtn).toBeDefined()
+  })
+
+  it('triggers quick repair with visual spinner and transitions to repaired state with toast', async () => {
+    vi.useFakeTimers()
+    try {
+      act(() => {
+        root.render(createElement(AsmoAdminStudio))
+      })
+
+      // Switch to audit tab
+      const auditTabBtn = Array.from(container.querySelectorAll('button')).find((btn) =>
+        btn.textContent?.includes('Kiểm định chất lượng'),
+      )
+      act(() => {
+        auditTabBtn?.click()
+      })
+
+      // Find first single quick repair button
+      const singleRepairBtn = Array.from(container.querySelectorAll('button')).find((btn) =>
+        btn.textContent?.includes('Sửa nhanh KaTeX'),
+      )
+      expect(singleRepairBtn).toBeDefined()
+
+      // Click repair
+      act(() => {
+        singleRepairBtn?.click()
+      })
+
+      // Should show loading spinner state
+      expect(container.textContent).toContain('Đang chuẩn hóa...')
+
+      // Advance timers by 400ms to complete repair
+      act(() => {
+        vi.advanceTimersByTime(400)
+      })
+
+      // Should now show repaired checkmark state
+      expect(container.textContent).toContain('Đã chuẩn hóa')
+
+      // Portal toast should be visible in document.body
+      const toast = document.body.querySelector('[role="alert"]')
+      expect(toast).toBeDefined()
+      expect(toast?.textContent).toContain('Đã chuẩn hóa KaTeX và lời giải 3 bước thành công')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('triggers batch repair of 20 exams and updates health score and state', () => {
+    vi.useFakeTimers()
+    try {
+      act(() => {
+        root.render(createElement(AsmoAdminStudio))
+      })
+
+      // Switch to audit tab
+      const auditTabBtn = Array.from(container.querySelectorAll('button')).find((btn) =>
+        btn.textContent?.includes('Kiểm định chất lượng'),
+      )
+      act(() => {
+        auditTabBtn?.click()
+      })
+
+      const batchRepairBtn = Array.from(container.querySelectorAll('button')).find((btn) =>
+        btn.textContent?.includes('Sửa nhanh tất cả (20 đề)'),
+      )
+      expect(batchRepairBtn).toBeDefined()
+
+      // Click batch repair
+      act(() => {
+        batchRepairBtn?.click()
+      })
+
+      // Fast forward 500ms
+      act(() => {
+        vi.advanceTimersByTime(500)
+      })
+
+      // Toast should announce batch repair success
+      const toast = document.body.querySelector('[role="alert"]')
+      expect(toast).toBeDefined()
+      expect(toast?.textContent).toContain('Đã chuẩn hóa KaTeX và lời giải 3 bước thành công cho toàn bộ 20 đề thi!')
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('opens AsmoExamAuditModal via createPortal and locks/restores document.body overflow', () => {
+    act(() => {
+      root.render(createElement(AsmoAdminStudio))
+    })
+
+    // Switch to audit tab
+    const auditTabBtn = Array.from(container.querySelectorAll('button')).find((btn) =>
+      btn.textContent?.includes('Kiểm định chất lượng'),
+    )
+    act(() => {
+      auditTabBtn?.click()
+    })
+
+    // Click "Xem lỗi chi tiết"
+    const viewAuditBtn = Array.from(container.querySelectorAll('button')).find((btn) =>
+      btn.textContent?.includes('Xem lỗi chi tiết'),
+    )
+    expect(viewAuditBtn).toBeDefined()
+
+    act(() => {
+      viewAuditBtn?.click()
+    })
+
+    // Modal rendered via createPortal into document.body
+    expect(document.body.textContent).toContain('Thẩm Định Đề Thi ASMO')
+    expect(document.body.style.overflow).toBe('hidden')
+
+    // Click "Đóng bảng thẩm định" button
+    const closeAuditBtn = Array.from(document.body.querySelectorAll('button')).find((btn) =>
+      btn.textContent?.includes('Đóng bảng thẩm định'),
+    )
+    expect(closeAuditBtn).toBeDefined()
+
+    act(() => {
+      closeAuditBtn?.click()
+    })
+
+    expect(document.body.textContent).not.toContain('Thẩm Định Đề Thi ASMO')
+    expect(document.body.style.overflow).not.toBe('hidden')
   })
 })

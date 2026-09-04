@@ -1,4 +1,5 @@
 import { useState, useMemo, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import {
   X,
   CheckCircle2,
@@ -69,6 +70,21 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
     setCurrentExam(exam)
   }, [exam])
 
+  // Lock background scroll when modal is open
+  useEffect(() => {
+    if (!isOpen) return
+    const prevOverflow = document.body.style.overflow
+    const didChange = prevOverflow !== 'hidden'
+    if (didChange) {
+      document.body.style.overflow = 'hidden'
+    }
+    return () => {
+      if (didChange) {
+        document.body.style.overflow = prevOverflow
+      }
+    }
+  }, [isOpen])
+
   // Run core audit on current exam
   const auditResult: AsmoExamAuditResult = useMemo(() => {
     return auditAsmoExam(currentExam)
@@ -123,7 +139,7 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
     })
   }, [auditResult, currentExam, filterStatus, filterDomain, searchQuery])
 
-  if (!isOpen) return null
+  if (!isOpen || typeof document === 'undefined') return null
 
   // Score badge theme
   const getScoreBadgeColor = (score: number) => {
@@ -158,7 +174,7 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
     }
   }
 
-  return (
+  return createPortal(
     <div
       role="dialog"
       aria-modal="true"
@@ -719,6 +735,7 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
           </Button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   )
 }

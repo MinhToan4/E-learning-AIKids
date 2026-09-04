@@ -1,4 +1,7 @@
-import { useState, useMemo, useCallback } from 'react'
+import { useState, useMemo, useCallback, useEffect } from 'react'
+import { createPortal } from 'react-dom'
+import { usePagination } from '@/shared/hooks/usePagination'
+import { Paginator } from '@/shared/components/ui/Paginator'
 import {
   FileText,
   Map,
@@ -268,6 +271,28 @@ export function AsmoAdminStudio() {
   const [auditTimestamp, setAuditTimestamp] = useState<string>(() => new Date().toLocaleTimeString('vi-VN'))
   const [toastNotification, setToastNotification] = useState<string | null>(null)
 
+  // Repair state
+  const [repairingExamId, setRepairingExamId] = useState<string | null>(null)
+  const [repairedExamIds, setRepairedExamIds] = useState<Set<string>>(new Set())
+  const [isRepairingAll, setIsRepairingAll] = useState(false)
+
+  // Lock background scroll when any modal is open
+  useEffect(() => {
+    const isAnyModalOpen = Boolean(editingExam || viewingQuestionsExam || auditingExamModal)
+    if (isAnyModalOpen) {
+      const prevOverflow = document.body.style.overflow
+      const didChange = prevOverflow !== 'hidden'
+      if (didChange) {
+        document.body.style.overflow = 'hidden'
+      }
+      return () => {
+        if (didChange) {
+          document.body.style.overflow = prevOverflow
+        }
+      }
+    }
+  }, [editingExam, viewingQuestionsExam, auditingExamModal])
+
   // Trigger temporary toast
   const showToast = useCallback((msg: string) => {
     setToastNotification(msg)
@@ -328,12 +353,42 @@ export function AsmoAdminStudio() {
 
   // Auto Repair Exam in Audit Tab
   const handleQuickRepair = useCallback((exam: AsmoExam) => {
-    const repaired = autoRepairExam(exam)
-    setExams((prev) =>
-      prev.map((item) => (item.id === exam.id ? { ...repaired, isPublished: item.isPublished } : item)),
-    )
-    showToast(`Đã tự động chuẩn hóa KaTeX và lời giải 3 bước cho đề "${exam.code}"!`)
+    setRepairingExamId(exam.id)
+    setTimeout(() => {
+      const repaired = autoRepairExam(exam)
+      setExams((prev) =>
+        prev.map((item) => (item.id === exam.id ? { ...repaired, isPublished: item.isPublished } : item)),
+      )
+      setRepairedExamIds((prev) => new Set(prev).add(exam.id))
+      setRepairingExamId(null)
+      showToast(`⚡ Đã chuẩn hóa KaTeX và lời giải 3 bước thành công cho đề ${exam.title || exam.code}!`)
+    }, 400)
   }, [showToast])
+
+  // Batch quick repair for top 20 exams in Audit Tab
+  const handleRepairAllExams = useCallback(() => {
+    setIsRepairingAll(true)
+    setTimeout(() => {
+      const targetCount = Math.min(exams.length, 20)
+      const newlyRepairedIds = new Set<string>()
+
+      setExams((prev) =>
+        prev.map((item, idx) => {
+          if (idx < 20) {
+            const repaired = autoRepairExam(item)
+            newlyRepairedIds.add(item.id)
+            return { ...repaired, isPublished: item.isPublished }
+          }
+          return item
+        }),
+      )
+
+      setRepairedExamIds((prev) => new Set([...prev, ...newlyRepairedIds]))
+      setIsRepairingAll(false)
+      setAuditTimestamp(new Date().toLocaleTimeString('vi-VN'))
+      showToast(`⚡ Đã chuẩn hóa KaTeX và lời giải 3 bước thành công cho toàn bộ ${targetCount} đề thi!`)
+    }, 500)
+  }, [exams, showToast])
 
   // Run full audit
   const handleRunFullAudit = useCallback(() => {
@@ -361,6 +416,16 @@ export function AsmoAdminStudio() {
       return true
     })
   }, [exams, filterSubject, filterGrade, filterStatus, searchQuery])
+
+  // Pagination for exams list: 12 items/page
+  const {
+    slice: paginatedExams,
+    page: examPage,
+    totalPages: examTotalPages,
+    prev: prevExamPage,
+    next: nextExamPage,
+    goTo: goToExamPage,
+  } = usePagination(filteredExams, 12)
 
   // Metrics calculation
   const metrics = useMemo(() => {
@@ -422,23 +487,26 @@ export function AsmoAdminStudio() {
 
   return (
     <div className="flex flex-col gap-6">
-      {/* Toast popup */}
-      {toastNotification && (
-        <div
-          role="alert"
-          className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-500 px-5 py-3.5 text-sm font-black text-white shadow-clay animate-in fade-in slide-in-from-bottom-3"
-        >
-          <Sparkles className="size-5 shrink-0 animate-spin" />
-          <span>{toastNotification}</span>
-          <button
-            type="button"
-            onClick={() => setToastNotification(null)}
-            className="ml-2 rounded-lg p-1 hover:bg-emerald-600"
+      {/* Toast popup via Portal to escape transform page-enter stacking context */}
+      {toastNotification &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            role="alert"
+            className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-2xl border-2 border-emerald-300 bg-emerald-500 px-5 py-3.5 text-sm font-black text-white shadow-clay animate-in fade-in slide-in-from-bottom-3"
           >
-            <X className="size-4" />
-          </button>
-        </div>
-      )}
+            <Sparkles className="size-5 shrink-0 animate-spin" />
+            <span>{toastNotification}</span>
+            <button
+              type="button"
+              onClick={() => setToastNotification(null)}
+              className="ml-2 rounded-lg p-1 hover:bg-emerald-600 cursor-pointer"
+            >
+              <X className="size-4" />
+            </button>
+          </div>,
+          document.body,
+        )}
 
       {/* Header Banner — Soft Clay Hallmark */}
       <div className="relative overflow-hidden rounded-3xl border-2 border-border/80 bg-gradient-to-r from-amber-50 via-orange-50 to-brand-50 p-6 sm:p-8 shadow-clay">
@@ -671,7 +739,7 @@ export function AsmoAdminStudio() {
             </div>
 
             <div className="text-xs font-bold text-muted self-end sm:self-center">
-              Hiển thị <span className="text-text font-black">{filteredExams.length}</span> / {exams.length} đề thi
+              Hiển thị <span className="text-text font-black">{paginatedExams.length}</span> / {filteredExams.length} đề thi (Tổng {exams.length})
             </div>
           </div>
 
@@ -694,7 +762,7 @@ export function AsmoAdminStudio() {
                 </Button>
               </div>
             ) : (
-              filteredExams.map((exam) => (
+              paginatedExams.map((exam) => (
                 <div
                   key={exam.id}
                   className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 rounded-3xl border-2 border-border/80 bg-surface p-5 shadow-clay transition-all hover:border-brand-200"
@@ -816,6 +884,20 @@ export function AsmoAdminStudio() {
               ))
             )}
           </div>
+
+          {/* Pagination Controls */}
+          {filteredExams.length > 0 && (
+            <Paginator
+              page={examPage}
+              totalPages={examTotalPages}
+              totalItems={filteredExams.length}
+              pageSize={12}
+              onPrev={prevExamPage}
+              onNext={nextExamPage}
+              onGoTo={goToExamPage}
+              className="rounded-3xl border-2 border-border/80 bg-surface shadow-clay"
+            />
+          )}
         </div>
       )}
 
@@ -996,15 +1078,28 @@ export function AsmoAdminStudio() {
                 />
               </div>
 
-              <Button
-                type="button"
-                onClick={handleRunFullAudit}
-                disabled={isAuditingAll}
-                className="w-full gap-2 rounded-2xl border-2 border-emerald-600 bg-emerald-600 font-black text-white shadow-clay hover:bg-emerald-700"
-              >
-                <RotateCcw className={cn('size-4', isAuditingAll && 'animate-spin')} />
-                {isAuditingAll ? 'Đang phân tích cú pháp…' : 'Quét lại toàn bộ ngân hàng đề'}
-              </Button>
+              <div className="flex flex-col gap-2 w-full">
+                <Button
+                  type="button"
+                  onClick={handleRunFullAudit}
+                  disabled={isAuditingAll || isRepairingAll}
+                  className="w-full gap-2 rounded-2xl border-2 border-emerald-600 bg-emerald-600 font-black text-white shadow-clay hover:bg-emerald-700"
+                >
+                  <RotateCcw className={cn('size-4', isAuditingAll && 'animate-spin')} />
+                  {isAuditingAll ? 'Đang phân tích cú pháp…' : 'Quét lại toàn bộ ngân hàng đề'}
+                </Button>
+
+                <Button
+                  type="button"
+                  onClick={handleRepairAllExams}
+                  disabled={isRepairingAll || isAuditingAll}
+                  className="w-full gap-2 rounded-2xl border-2 border-amber-500 bg-gradient-to-r from-amber-500 to-orange-500 font-black text-white shadow-clay hover:from-amber-600 hover:to-orange-600 cursor-pointer"
+                  title="Tự động chuẩn hóa KaTeX và bổ sung 3 bước sư phạm cho toàn bộ 20 đề tiêu biểu"
+                >
+                  <Sparkles className={cn('size-4', isRepairingAll && 'animate-spin')} />
+                  {isRepairingAll ? 'Đang chuẩn hóa…' : `⚡ Sửa nhanh tất cả (${Math.min(exams.length, 20)} đề)`}
+                </Button>
+              </div>
             </div>
 
             {/* Breakdown Categories */}
@@ -1153,16 +1248,52 @@ export function AsmoAdminStudio() {
                     )}
 
                     {/* Quick Repair Button */}
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      onClick={() => handleQuickRepair(exam)}
-                      className="gap-1 rounded-xl border border-amber-300 bg-amber-50 text-xs font-black text-amber-800 hover:bg-amber-100 shadow-sm"
-                      title="Tự động chuẩn hóa KaTeX và bổ sung 3 bước sư phạm"
-                    >
-                      <Wrench className="size-3" />
-                      <span>Sửa nhanh KaTeX</span>
-                    </Button>
+                    {repairedExamIds.has(exam.id) ? (
+                      <button
+                        type="button"
+                        onClick={() => handleQuickRepair(exam)}
+                        disabled={repairingExamId === exam.id}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-emerald-300 bg-emerald-50 px-3 py-1.5 text-xs font-black text-emerald-800 shadow-sm transition-all hover:bg-emerald-100 cursor-pointer disabled:opacity-60"
+                        title="Đề thi đã được chuẩn hóa KaTeX và lời giải 3 bước. Nhấp để chuẩn hóa lại nếu cần."
+                      >
+                        {repairingExamId === exam.id ? (
+                          <>
+                            <RotateCcw className="size-3 animate-spin text-emerald-700" />
+                            <span>Đang chuẩn hóa...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>✅ Đã chuẩn hóa</span>
+                          </>
+                        )}
+                      </button>
+                    ) : (
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        disabled={repairingExamId === exam.id}
+                        onClick={() => handleQuickRepair(exam)}
+                        className={cn(
+                          'gap-1.5 rounded-xl border text-xs font-black shadow-sm transition-all cursor-pointer',
+                          repairingExamId === exam.id
+                            ? 'border-amber-400 bg-amber-100 text-amber-900 opacity-80'
+                            : 'border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100',
+                        )}
+                        title="Tự động chuẩn hóa KaTeX và bổ sung 3 bước sư phạm"
+                      >
+                        {repairingExamId === exam.id ? (
+                          <>
+                            <RotateCcw className="size-3 animate-spin text-amber-700" />
+                            <span>Đang chuẩn hóa...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Wrench className="size-3" />
+                            <span>Sửa nhanh KaTeX</span>
+                          </>
+                        )}
+                      </Button>
+                    )}
 
                     {/* Audit Details Modal Trigger */}
                     <Button
@@ -1360,294 +1491,300 @@ export function AsmoAdminStudio() {
       )}
 
       {/* ── MODAL: EDIT REGULATION ── */}
-      {editingExam && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in"
-        >
-          <div className="w-full max-w-lg rounded-3xl border-2 border-border/80 bg-surface p-6 shadow-clay animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
-            <div className="flex items-center justify-between border-b-2 border-border/80 pb-3">
-              <div className="flex items-center gap-2">
-                <span className="text-2xl">⚙️</span>
-                <h3 className="font-display text-lg font-black text-text">
-                  Chỉnh Quy Chế Phòng Thi
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setEditingExam(null)}
-                className="rounded-xl p-1.5 text-muted hover:bg-slate-100 hover:text-text cursor-pointer"
-              >
-                <X className="size-5" />
-              </button>
-            </div>
-
-            <form onSubmit={handleSaveRegulation} className="mt-4 flex flex-col gap-4">
-              <div>
-                <label className="block text-xs font-bold text-muted uppercase">Tên đề thi</label>
-                <input
-                  name="title"
-                  defaultValue={editingExam.title}
-                  required
-                  className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-muted uppercase">Vòng thi (Round)</label>
-                  <input
-                    name="round"
-                    defaultValue={editingExam.round}
-                    required
-                    className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
-                  />
+      {editingExam &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4 backdrop-blur-xs animate-in fade-in"
+          >
+            <div className="w-full max-w-lg rounded-3xl border-2 border-border/80 bg-surface p-6 shadow-clay animate-in zoom-in-95 max-h-[90vh] overflow-y-auto">
+              <div className="flex items-center justify-between border-b-2 border-border/80 pb-3">
+                <div className="flex items-center gap-2">
+                  <span className="text-2xl">⚙️</span>
+                  <h3 className="font-display text-lg font-black text-text">
+                    Chỉnh Quy Chế Phòng Thi
+                  </h3>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-muted uppercase">Năm tổ chức</label>
-                  <input
-                    type="number"
-                    name="year"
-                    defaultValue={editingExam.year}
-                    required
-                    className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-muted uppercase">Thời lượng (phút)</label>
-                  <input
-                    type="number"
-                    name="durationMinutes"
-                    defaultValue={editingExam.durationMinutes}
-                    required
-                    min={10}
-                    max={180}
-                    className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-muted uppercase">Điểm đỗ (Pass)</label>
-                  <input
-                    type="number"
-                    name="passScore"
-                    defaultValue={editingExam.passScore}
-                    required
-                    min={1}
-                    className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-muted uppercase">Tổng điểm</label>
-                  <input
-                    type="number"
-                    name="totalPoints"
-                    defaultValue={editingExam.totalPoints}
-                    required
-                    min={10}
-                    className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-xs font-bold text-muted uppercase">Mô tả đề thi</label>
-                <textarea
-                  name="description"
-                  defaultValue={editingExam.description}
-                  rows={3}
-                  className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
-                />
-              </div>
-
-              <div className="mt-2 flex items-center justify-end gap-2">
-                <Button
+                <button
                   type="button"
-                  variant="secondary"
                   onClick={() => setEditingExam(null)}
-                  className="rounded-2xl font-bold"
+                  className="rounded-xl p-1.5 text-muted hover:bg-slate-100 hover:text-text cursor-pointer"
                 >
-                  Hủy
-                </Button>
-                <Button
-                  type="submit"
-                  className="rounded-2xl border-2 border-brand-600 bg-brand-500 font-black text-white shadow-clay hover:bg-brand-600"
-                >
-                  Lưu quy chế
-                </Button>
+                  <X className="size-5" />
+                </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
+
+              <form onSubmit={handleSaveRegulation} className="mt-4 flex flex-col gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-muted uppercase">Tên đề thi</label>
+                  <input
+                    name="title"
+                    defaultValue={editingExam.title}
+                    required
+                    className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-muted uppercase">Vòng thi (Round)</label>
+                    <input
+                      name="round"
+                      defaultValue={editingExam.round}
+                      required
+                      className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-muted uppercase">Năm tổ chức</label>
+                    <input
+                      type="number"
+                      name="year"
+                      defaultValue={editingExam.year}
+                      required
+                      className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-xs font-bold text-muted uppercase">Thời lượng (phút)</label>
+                    <input
+                      type="number"
+                      name="durationMinutes"
+                      defaultValue={editingExam.durationMinutes}
+                      required
+                      min={10}
+                      max={180}
+                      className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-muted uppercase">Điểm đỗ (Pass)</label>
+                    <input
+                      type="number"
+                      name="passScore"
+                      defaultValue={editingExam.passScore}
+                      required
+                      min={1}
+                      className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-xs font-bold text-muted uppercase">Tổng điểm</label>
+                    <input
+                      type="number"
+                      name="totalPoints"
+                      defaultValue={editingExam.totalPoints}
+                      required
+                      min={10}
+                      className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-muted uppercase">Mô tả đề thi</label>
+                  <textarea
+                    name="description"
+                    defaultValue={editingExam.description}
+                    rows={3}
+                    className="mt-1 w-full rounded-2xl border-2 border-border/80 bg-white px-3 py-2 text-xs font-bold text-text focus:border-brand-400 focus:outline-none"
+                  />
+                </div>
+
+                <div className="mt-2 flex items-center justify-end gap-2">
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => setEditingExam(null)}
+                    className="rounded-2xl font-bold"
+                  >
+                    Hủy
+                  </Button>
+                  <Button
+                    type="submit"
+                    className="rounded-2xl border-2 border-brand-600 bg-brand-500 font-black text-white shadow-clay hover:bg-brand-600"
+                  >
+                    Lưu quy chế
+                  </Button>
+                </div>
+              </form>
+            </div>
+          </div>,
+          document.body,
+        )}
 
       {/* ── MODAL: VIEW QUESTIONS DETAILS WITH KATEX & MEE HINT ── */}
-      {viewingQuestionsExam && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in"
-        >
-          <div className="flex h-full max-h-[90vh] w-full max-w-4xl flex-col rounded-3xl border-2 border-border/80 bg-surface shadow-clay animate-in zoom-in-95 overflow-hidden">
-            {/* Modal Header */}
-            <div className="flex items-center justify-between border-b-2 border-border/80 bg-gradient-to-r from-brand-50 to-white px-6 py-4">
-              <div>
-                <span className="rounded-xl border border-brand-200 bg-brand-100 px-2.5 py-0.5 text-xs font-black text-brand-800">
-                  {viewingQuestionsExam.code}
-                </span>
-                <h3 className="mt-1 font-display text-lg font-black text-text">
-                  Chi Tiết Câu Hỏi & Đáp Án KaTeX ({viewingQuestionsExam.questions.length} câu)
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setViewingQuestionsExam(null)}
-                className="rounded-xl p-1.5 text-muted hover:bg-slate-100 hover:text-text cursor-pointer"
-              >
-                <X className="size-5" />
-              </button>
-            </div>
-
-            {/* Questions Scrollable Content */}
-            <div className="flex-1 overflow-y-auto p-6 space-y-6">
-              {viewingQuestionsExam.questions.map((q, idx) => (
-                <div
-                  key={q.id || idx}
-                  className="rounded-3xl border-2 border-border/80 bg-white p-5 shadow-sm space-y-4"
+      {viewingQuestionsExam &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4 backdrop-blur-xs animate-in fade-in"
+          >
+            <div className="flex h-full max-h-[90vh] w-full max-w-4xl flex-col rounded-3xl border-2 border-border/80 bg-surface shadow-clay animate-in zoom-in-95 overflow-hidden">
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b-2 border-border/80 bg-gradient-to-r from-brand-50 to-white px-6 py-4">
+                <div>
+                  <span className="rounded-xl border border-brand-200 bg-brand-100 px-2.5 py-0.5 text-xs font-black text-brand-800">
+                    {viewingQuestionsExam.code}
+                  </span>
+                  <h3 className="mt-1 font-display text-lg font-black text-text">
+                    Chi Tiết Câu Hỏi & Đáp Án KaTeX ({viewingQuestionsExam.questions.length} câu)
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setViewingQuestionsExam(null)}
+                  className="rounded-xl p-1.5 text-muted hover:bg-slate-100 hover:text-text cursor-pointer"
                 >
-                  {/* Question Title & Meta */}
-                  <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
-                    <div className="flex items-center gap-2">
-                      <span className="flex size-8 items-center justify-center rounded-xl bg-brand-500 font-black text-xs text-white shadow-sm">
-                        {idx + 1}
-                      </span>
-                      <span className="font-display font-black text-sm text-text">
-                        {q.title || `Câu hỏi ${idx + 1}`}
-                      </span>
+                  <X className="size-5" />
+                </button>
+              </div>
+
+              {/* Questions Scrollable Content */}
+              <div className="flex-1 overflow-y-auto p-6 space-y-6">
+                {viewingQuestionsExam.questions.map((q, idx) => (
+                  <div
+                    key={q.id || idx}
+                    className="rounded-3xl border-2 border-border/80 bg-white p-5 shadow-sm space-y-4"
+                  >
+                    {/* Question Title & Meta */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="flex size-8 items-center justify-center rounded-xl bg-brand-500 font-black text-xs text-white shadow-sm">
+                          {idx + 1}
+                        </span>
+                        <span className="font-display font-black text-sm text-text">
+                          {q.title || `Câu hỏi ${idx + 1}`}
+                        </span>
+                      </div>
+
+                      <div className="flex items-center gap-2">
+                        <span className="rounded-lg bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
+                          {q.topicName || q.topicCode}
+                        </span>
+                        <span className="rounded-lg bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-black text-amber-700">
+                          {q.points} điểm
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="flex items-center gap-2">
-                      <span className="rounded-lg bg-indigo-50 border border-indigo-200 px-2 py-0.5 text-[10px] font-bold text-indigo-700">
-                        {q.topicName || q.topicCode}
-                      </span>
-                      <span className="rounded-lg bg-amber-50 border border-amber-200 px-2 py-0.5 text-[10px] font-black text-amber-700">
-                        {q.points} điểm
-                      </span>
+                    {/* Question Text with KaTeX */}
+                    <div className="rounded-2xl border-2 border-slate-100 bg-slate-50/70 p-4 text-sm text-text leading-relaxed">
+                      <AsmoFormula text={q.text} />
                     </div>
-                  </div>
 
-                  {/* Question Text with KaTeX */}
-                  <div className="rounded-2xl border-2 border-slate-100 bg-slate-50/70 p-4 text-sm text-text leading-relaxed">
-                    <AsmoFormula text={q.text} />
-                  </div>
+                    {/* Options List */}
+                    {q.options && q.options.length > 0 && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                        {q.options.map((opt) => {
+                          const isCorrect =
+                            opt.id.trim().toUpperCase() === q.correctAnswer?.trim().toUpperCase() ||
+                            opt.label.trim().toUpperCase() === q.correctAnswer?.trim().toUpperCase()
 
-                  {/* Options List */}
-                  {q.options && q.options.length > 0 && (
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                      {q.options.map((opt) => {
-                        const isCorrect =
-                          opt.id.trim().toUpperCase() === q.correctAnswer?.trim().toUpperCase() ||
-                          opt.label.trim().toUpperCase() === q.correctAnswer?.trim().toUpperCase()
-
-                        return (
-                          <div
-                            key={opt.id}
-                            className={cn(
-                              'flex items-center gap-3 rounded-2xl border-2 p-3 text-xs font-bold transition-all',
-                              isCorrect
-                                ? 'border-emerald-300 bg-emerald-50 text-emerald-900 shadow-sm'
-                                : 'border-border/60 bg-white text-text',
-                            )}
-                          >
-                            <span
+                          return (
+                            <div
+                              key={opt.id}
                               className={cn(
-                                'flex size-7 shrink-0 items-center justify-center rounded-xl text-xs font-black border',
+                                'flex items-center gap-3 rounded-2xl border-2 p-3 text-xs font-bold transition-all',
                                 isCorrect
-                                  ? 'border-emerald-400 bg-emerald-500 text-white'
-                                  : 'border-slate-300 bg-slate-100 text-slate-700',
+                                  ? 'border-emerald-300 bg-emerald-50 text-emerald-900 shadow-sm'
+                                  : 'border-border/60 bg-white text-text',
                               )}
                             >
-                              {opt.label}
-                            </span>
-                            <div className="flex-1">
-                              <AsmoFormula text={opt.text} />
-                            </div>
-                            {isCorrect && (
-                              <span className="rounded-lg bg-emerald-200 px-2 py-0.5 text-[10px] font-black text-emerald-900">
-                                Đáp án đúng
+                              <span
+                                className={cn(
+                                  'flex size-7 shrink-0 items-center justify-center rounded-xl text-xs font-black border',
+                                  isCorrect
+                                    ? 'border-emerald-400 bg-emerald-500 text-white'
+                                    : 'border-slate-300 bg-slate-100 text-slate-700',
+                                )}
+                              >
+                                {opt.label}
                               </span>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
-                  )}
-
-                  {/* Mèo Mee Hint */}
-                  {q.meeHint && (
-                    <div className="flex items-start gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-3.5 shadow-sm">
-                      <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-amber-400 text-xl shadow-clay">
-                        🐱
-                      </div>
-                      <div className="flex-1 text-xs">
-                        <span className="font-black text-amber-900">Mèo Mee Định Hướng:</span>
-                        <p className="mt-0.5 font-bold text-amber-800 leading-relaxed">
-                          {typeof q.meeHint === 'string'
-                            ? q.meeHint
-                            : (q.meeHint as { text?: string })?.text}
-                        </p>
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Pedagogical Explanation Steps (KaTeX) */}
-                  {q.explanationSteps && q.explanationSteps.length > 0 ? (
-                    <div className="space-y-2 rounded-2xl border-2 border-indigo-100 bg-indigo-50/40 p-4">
-                      <p className="text-xs font-black uppercase text-indigo-900 tracking-wider">
-                        Lời giải sư phạm 3 bước (KaTeX chuẩn hóa):
-                      </p>
-                      <div className="space-y-2 text-xs">
-                        {q.explanationSteps.map((step) => (
-                          <div
-                            key={step.stepIndex}
-                            className="rounded-xl border border-indigo-200 bg-white p-3 shadow-xs"
-                          >
-                            <p className="font-black text-indigo-700">{step.title}</p>
-                            <div className="mt-1 text-text leading-relaxed">
-                              <AsmoFormula text={step.description} />
+                              <div className="flex-1">
+                                <AsmoFormula text={opt.text} />
+                              </div>
+                              {isCorrect && (
+                                <span className="rounded-lg bg-emerald-200 px-2 py-0.5 text-[10px] font-black text-emerald-900">
+                                  Đáp án đúng
+                                </span>
+                              )}
                             </div>
-                          </div>
-                        ))}
+                          )
+                        })}
                       </div>
-                    </div>
-                  ) : q.explanation ? (
-                    <div className="rounded-2xl border-2 border-border/80 bg-slate-50 p-4 text-xs">
-                      <p className="font-black text-brand-700">Lời giải chi tiết:</p>
-                      <div className="mt-1 text-text leading-relaxed">
-                        <AsmoFormula text={q.explanation} />
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              ))}
-            </div>
+                    )}
 
-            {/* Modal Footer */}
-            <div className="flex items-center justify-end border-t-2 border-border/80 bg-white px-6 py-3">
-              <Button
-                type="button"
-                onClick={() => setViewingQuestionsExam(null)}
-                className="rounded-2xl font-black"
-              >
-                Đóng
-              </Button>
+                    {/* Mèo Mee Hint */}
+                    {q.meeHint && (
+                      <div className="flex items-start gap-3 rounded-2xl border-2 border-amber-300 bg-amber-50 p-3.5 shadow-sm">
+                        <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-amber-400 text-xl shadow-clay">
+                          🐱
+                        </div>
+                        <div className="flex-1 text-xs">
+                          <span className="font-black text-amber-900">Mèo Mee Định Hướng:</span>
+                          <p className="mt-0.5 font-bold text-amber-800 leading-relaxed">
+                            {typeof q.meeHint === 'string'
+                              ? q.meeHint
+                              : (q.meeHint as { text?: string })?.text}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Pedagogical Explanation Steps (KaTeX) */}
+                    {q.explanationSteps && q.explanationSteps.length > 0 ? (
+                      <div className="space-y-2 rounded-2xl border-2 border-indigo-100 bg-indigo-50/40 p-4">
+                        <p className="text-xs font-black uppercase text-indigo-900 tracking-wider">
+                          Lời giải sư phạm 3 bước (KaTeX chuẩn hóa):
+                        </p>
+                        <div className="space-y-2 text-xs">
+                          {q.explanationSteps.map((step) => (
+                            <div
+                              key={step.stepIndex}
+                              className="rounded-xl border border-indigo-200 bg-white p-3 shadow-xs"
+                            >
+                              <p className="font-black text-indigo-700">{step.title}</p>
+                              <div className="mt-1 text-text leading-relaxed">
+                                <AsmoFormula text={step.description} />
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : q.explanation ? (
+                      <div className="rounded-2xl border-2 border-border/80 bg-slate-50 p-4 text-xs">
+                        <p className="font-black text-brand-700">Lời giải chi tiết:</p>
+                        <div className="mt-1 text-text leading-relaxed">
+                          <AsmoFormula text={q.explanation} />
+                        </div>
+                      </div>
+                    ) : null}
+                  </div>
+                ))}
+              </div>
+
+              {/* Modal Footer */}
+              <div className="flex items-center justify-end border-t-2 border-border/80 bg-white px-6 py-3">
+                <Button
+                  type="button"
+                  onClick={() => setViewingQuestionsExam(null)}
+                  className="rounded-2xl font-black"
+                >
+                  Đóng
+                </Button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body,
+        )}
 
       {/* ── AUDIT EXAM MODAL (Integration with existing AsmoExamAuditModal) ── */}
       {auditingExamModal && (
