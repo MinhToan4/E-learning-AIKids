@@ -267,13 +267,40 @@ export const DEFAULT_CATALOG_PLANS: PlanDef[] = [
   },
 ]
 
+export function normalizePlanDef(p: any): PlanDef {
+  const id = String(p.id || p.code || p.planId || '').toLowerCase()
+  const rawPrice = p.amountMinor ?? p.priceMonthly ?? p.price ?? 0
+  const amountMinor = typeof rawPrice === 'number' ? rawPrice : Number(rawPrice) || 0
+  const defaultCredits = id === 'starter' ? 20 : id === 'premium_family' ? 60 : id === 'pro' ? 200 : 5
+  return {
+    id: id || 'custom',
+    name: p.name || id,
+    tagline: p.tagline || '',
+    currency: (p.currency || 'vnd').toLowerCase(),
+    amountMinor: isNaN(amountMinor) ? 0 : amountMinor,
+    monthlyCreateCredits: p.monthlyCreateCredits ?? defaultCredits,
+    maxChildren: p.maxChildren ?? (id === 'starter' ? 2 : id === 'premium_family' ? 4 : id === 'pro' ? 8 : 1),
+    maxOpenCoursesPerChild: p.maxOpenCoursesPerChild ?? (id === 'starter' ? 2 : id === 'premium_family' ? 5 : id === 'pro' ? 999 : 1),
+    storageBytesLimit: p.storageBytesLimit ?? 524288000,
+    interval: p.interval ?? 'month',
+    features: Array.isArray(p.features) ? p.features : [],
+    requiresPayment: p.requiresPayment ?? (amountMinor > 0),
+    isActive: p.isActive !== false,
+    badge: p.badge || (id === 'starter' ? 'Phổ biến' : id === 'premium_family' ? 'Bán chạy nhất' : id === 'pro' ? 'VIP' : undefined),
+    version: p.version ?? 1,
+    activeSubscribers: p.activeSubscribers,
+  }
+}
+
 export function getCachedBillingPlans(): PlanDef[] {
   if (typeof window === 'undefined') return DEFAULT_CATALOG_PLANS
   try {
     const raw = localStorage.getItem('aikids_admin_billing_plans')
     if (raw) {
       const parsed = JSON.parse(raw)
-      if (Array.isArray(parsed) && parsed.length > 0) return parsed
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed.map(normalizePlanDef)
+      }
     }
   } catch { /* ignore */ }
   return DEFAULT_CATALOG_PLANS
@@ -571,13 +598,9 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
   }, [billingPlans])
 
   const availablePlans: PlanDef[] = useMemo(() => {
-    const nonFree = billingPlans.filter((p) => p.id !== 'free')
+    const nonFree = billingPlans.filter((p) => p.id !== 'free' && (p as any).code !== 'free')
     if (nonFree.length > 0) return nonFree
-    return [
-      { id: 'starter', name: 'Starter', amountMinor: 69000, currency: 'vnd', monthlyCreateCredits: 20, maxChildren: 2, maxOpenCoursesPerChild: 2, features: ['20 lượt tạo AI/tháng', 'Tối đa 2 hồ sơ trẻ'], requiresPayment: true },
-      { id: 'premium_family', name: 'Premium Gia Đình', amountMinor: 149000, currency: 'vnd', monthlyCreateCredits: 60, maxChildren: 4, maxOpenCoursesPerChild: 5, features: ['60 lượt tạo AI/tháng', 'Tối đa 4 hồ sơ trẻ'], requiresPayment: true },
-      { id: 'pro', name: 'Pro', amountMinor: 349000, currency: 'vnd', monthlyCreateCredits: 200, maxChildren: 8, maxOpenCoursesPerChild: 999, features: ['200 lượt tạo AI/tháng', 'Tối đa 8 hồ sơ trẻ'], requiresPayment: true },
-    ]
+    return DEFAULT_CATALOG_PLANS.filter((p) => p.id !== 'free')
   }, [billingPlans])
 
   // ── Search / filter state ──────────────────────────────
@@ -757,9 +780,10 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
         }
 
         if (resolvedPlans && resolvedPlans.length > 0) {
-          setBillingPlans(resolvedPlans)
+          const normalized = resolvedPlans.map(normalizePlanDef)
+          setBillingPlans(normalized)
           try {
-            localStorage.setItem('aikids_admin_billing_plans', JSON.stringify(resolvedPlans))
+            localStorage.setItem('aikids_admin_billing_plans', JSON.stringify(normalized))
           } catch { /* ignore */ }
         } else {
           setBillingPlans(getCachedBillingPlans())

@@ -53,7 +53,8 @@ export function AdminBillingPos({
   generateSuggestedReason,
 }: AdminBillingPosProps) {
   const selPlan = availablePlans.find((p) => p.id === grantForm.planId) ?? availablePlans[0]
-  const unitPrice = billingAdminMode === 'grant' ? 0 : (selPlan?.amountMinor ?? 0)
+  const rawUnitPrice = selPlan?.amountMinor ?? (selPlan as any)?.priceMonthly ?? (selPlan as any)?.price ?? 0
+  const unitPrice = billingAdminMode === 'grant' ? 0 : (Number(rawUnitPrice) || 0)
   const totalAmount = unitPrice * grantForm.durationMonths
 
   return (
@@ -280,7 +281,11 @@ export function AdminBillingPos({
                   </div>
                   <div className="text-right shrink-0">
                     <p className={cn('font-display font-black text-sm', isSelected ? 'text-brand-600' : 'text-text')}>
-                      {billingAdminMode === 'grant' ? '0₫' : `${Number(p.amountMinor).toLocaleString('vi-VN')}₫`}
+                      {billingAdminMode === 'grant' ? '0₫' : (() => {
+                        const rawP = p.amountMinor ?? (p as any)?.priceMonthly ?? (p as any)?.price ?? 0
+                        const amt = Number(rawP) || 0
+                        return amt === 0 ? 'Miễn phí' : `${amt.toLocaleString('vi-VN')}₫`
+                      })()}
                     </p>
                     <p className="text-[10px] text-muted">/tháng</p>
                   </div>
