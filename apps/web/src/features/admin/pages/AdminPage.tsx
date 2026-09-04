@@ -31,6 +31,7 @@ import {
   CmsSessionsIcon,
   CmsUsersIcon,
 } from '@/shared/components/icons/CmsIcons'
+import { CmsErrorBoundary } from '@/shared/components/CmsErrorBoundary'
 const LegendRewardStudio = lazy(() => import('../components/LegendRewardStudio').then((module) => ({ default: module.LegendRewardStudio })))
 
 // ── Types ───────────────────────────────────────────────────
@@ -2182,15 +2183,38 @@ export function AdminPage({ tab }: { tab: AdminTab }) {
     // For filter reloads, keep rendering existing data so the edit panel stays.
     if (loading && !hasData()) return loadingEl
     switch (tab) {
-      case 'system': return systemTab
-      case 'analytics': return analyticsTab
-      case 'logs': return logsTab
-      case 'users': return usersTab
-      case 'courses': return coursesTab
-      case 'ai': return aiTab
-      case 'billing': return billingTab
-      case 'legends': return <Suspense fallback={<div className="ui-card p-8" role="status"><div className="ui-skeleton h-8 w-72 rounded-xl" /><div className="ui-skeleton mt-5 h-48 rounded-2xl" /><p className="mt-4 text-sm text-muted">Đang mở Legend Studio…</p></div>}><LegendRewardStudio /></Suspense>
-      default: return null
+      case 'system':
+        return <CmsErrorBoundary name="Hệ thống">{systemTab}</CmsErrorBoundary>
+      case 'analytics':
+        return <CmsErrorBoundary name="Phân tích hoạt động">{analyticsTab}</CmsErrorBoundary>
+      case 'logs':
+        return <CmsErrorBoundary name="Nhật ký đăng nhập">{logsTab}</CmsErrorBoundary>
+      case 'users':
+        return <CmsErrorBoundary name="Tài khoản">{usersTab}</CmsErrorBoundary>
+      case 'courses':
+        return <CmsErrorBoundary name="Khóa học">{coursesTab}</CmsErrorBoundary>
+      case 'ai':
+        return <CmsErrorBoundary name="AI Vidtory">{aiTab}</CmsErrorBoundary>
+      case 'billing':
+        return <CmsErrorBoundary name="Gói & Thanh toán">{billingTab}</CmsErrorBoundary>
+      case 'legends':
+        return (
+          <CmsErrorBoundary name="Legend & Reward Studio">
+            <Suspense
+              fallback={
+                <div className="ui-card p-8" role="status">
+                  <div className="ui-skeleton h-8 w-72 rounded-xl" />
+                  <div className="ui-skeleton mt-5 h-48 rounded-2xl" />
+                  <p className="mt-4 text-sm text-muted">Đang mở Legend Studio…</p>
+                </div>
+              }
+            >
+              <LegendRewardStudio />
+            </Suspense>
+          </CmsErrorBoundary>
+        )
+      default:
+        return null
     }
   }
 

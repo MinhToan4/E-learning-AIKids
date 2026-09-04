@@ -67,6 +67,16 @@ describe('Legend Reward Studio level ordering', () => {
 
     expect(items.sort(compareLevelUnlockRules).map((item) => item.name)).toEqual(['Quà A', 'Quà B'])
   })
+
+  it('safely handles items with missing or undefined name without throwing', () => {
+    const items = [
+      { name: 'Quà B', unlockRule: { value: 3 } },
+      { name: undefined as unknown as string, unlockRule: { value: 3 } },
+      { name: 'Quà A', unlockRule: { value: 3 } },
+    ]
+
+    expect(() => items.sort(compareLevelUnlockRules)).not.toThrow()
+  })
 })
 
 describe('Legend Reward Studio map lifecycle actions', () => {

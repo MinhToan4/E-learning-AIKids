@@ -87,7 +87,7 @@ export const compareLevelUnlockRules = (
   right: Pick<StudioItem, 'unlockRule' | 'name'>,
 ) => {
   const levelDifference = Number(left.unlockRule.value) - Number(right.unlockRule.value)
-  return levelDifference || left.name.localeCompare(right.name, 'vi')
+  return levelDifference || (left.name ?? '').localeCompare(right.name ?? '', 'vi')
 }
 
 export const isVisibleOnPublishedMap = (item: Pick<StudioItem, 'source' | 'status'>) =>
@@ -209,8 +209,10 @@ function ChapterStickerArtwork({
 }
 
 function legacyRewardStudioItems(studioItems: readonly StudioItem[]): StudioItem[] {
-  const studioCodes = new Set(studioItems.map((item) => item.code))
-  return REWARD_CATALOG
+  const rows: readonly StudioItem[] = Array.isArray(studioItems) ? studioItems : []
+  const studioCodes = new Set(rows.map((item) => item.code))
+  const catalog = Array.isArray(REWARD_CATALOG) ? REWARD_CATALOG : []
+  return catalog
     .filter((reward) => !studioCodes.has(reward.id))
     .map((reward): StudioItem => ({
       id: `legacy:${reward.id}`,
@@ -231,12 +233,14 @@ function legacyRewardStudioItems(studioItems: readonly StudioItem[]): StudioItem
 }
 
 function legacyStorybookStudioItems(studioItems: readonly StudioItem[]): StudioItem[] {
+  const rows: readonly StudioItem[] = Array.isArray(studioItems) ? studioItems : []
   const studioChapterCodes = new Set(
-    studioItems
+    rows
       .filter((item) => item.contentType === 'chapter')
       .map((item) => item.code.toUpperCase()),
   )
-  return STORYBOOK_PAGES
+  const pages = Array.isArray(STORYBOOK_PAGES) ? STORYBOOK_PAGES : []
+  return pages
     .filter((page) => !studioChapterCodes.has(page.slug.toUpperCase()))
     .map((page): StudioItem => {
       const definition = storybookChapter(page.slug)
@@ -274,7 +278,8 @@ function legacyStorybookStudioItems(studioItems: readonly StudioItem[]): StudioI
 }
 
 function runtimeAchievementItems(rows: readonly AchievementRow[]): StudioItem[] {
-  return rows.map((achievement): StudioItem => {
+  const safeRows: readonly AchievementRow[] = Array.isArray(rows) ? rows : []
+  return safeRows.map((achievement): StudioItem => {
     const artwork = achievement.imageUrl ?? achievement.milestones?.[0]?.imageUrl ?? achievementBadgeAsset(achievement)
     return {
     id: `runtime:${achievement.type}`,
@@ -517,7 +522,9 @@ export function LegendRewardStudio() {
         legendStudioApi.list<{ items: StudioItem[] }>(),
         gamificationApi.achievements().catch(() => ({ achievements: [] })),
       ])
-      const allStudioItems = result.items.map((item) => ({ ...item, source: 'studio' as const }))
+      const rawItems = Array.isArray(result?.items) ? result.items : []
+      const allStudioItems = rawItems.map((item) => ({ ...item, source: 'studio' as const }))
+      const rawAchievements = Array.isArray(achievementsResult?.achievements) ? achievementsResult.achievements : []
       const layoutItems = allStudioItems.filter((item) => item.code === PROFILE_CARD_LAYOUT_CODE).sort((left, right) => right.version - left.version)
       setProfileLayoutItem(layoutItems[0])
       const studioItems = allStudioItems.filter((item) => item.code !== PROFILE_CARD_LAYOUT_CODE)
@@ -526,7 +533,7 @@ export function LegendRewardStudio() {
         ...studioItems,
         ...legacyRewardStudioItems(studioItems),
         ...legacyStorybookStudioItems(studioItems),
-        ...runtimeAchievementItems(achievementsResult.achievements).filter((item) => !studioAchievementCodes.has(studioAchievementCode(item.code))),
+        ...runtimeAchievementItems(rawAchievements).filter((item) => !studioAchievementCodes.has(studioAchievementCode(item.code))),
       ])
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Không tải được Legend Studio.')
