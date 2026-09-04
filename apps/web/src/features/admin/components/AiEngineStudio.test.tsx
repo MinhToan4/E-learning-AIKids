@@ -66,8 +66,22 @@ vi.mock('@/shared/lib/api', async (importOriginal) => {
 describe('AiEngineStudio Component', () => {
   let container: HTMLDivElement
   let root: Root
+  let mockStorage: Record<string, string> = {}
 
   beforeEach(() => {
+    mockStorage = {}
+    vi.stubGlobal('localStorage', {
+      getItem: vi.fn((key: string) => mockStorage[key] ?? null),
+      setItem: vi.fn((key: string, val: string) => {
+        mockStorage[key] = val
+      }),
+      removeItem: vi.fn((key: string) => {
+        delete mockStorage[key]
+      }),
+      clear: vi.fn(() => {
+        mockStorage = {}
+      }),
+    })
     container = document.createElement('div')
     document.body.appendChild(container)
     root = createRoot(container)
@@ -80,6 +94,7 @@ describe('AiEngineStudio Component', () => {
     })
     container.remove()
     document.body.innerHTML = ''
+    vi.unstubAllGlobals()
   })
 
   it('renders AiEngineStudio without crashing and displays all 5 sub-tabs', async () => {
@@ -96,7 +111,7 @@ describe('AiEngineStudio Component', () => {
     expect(container.textContent).toContain('2. Luồng Điều Phối & Fallback')
     expect(container.textContent).toContain('3. Khung Prompt Sẵn (Prompt Studio)')
     expect(container.textContent).toContain('4. Ma Trận Gói Học (Plan Matrix)')
-    expect(container.textContent).toContain('5. An Toàn Trẻ Em & Probe Tester')
+    expect(container.textContent).toContain('5. An Toàn, Kiểm Duyệt & Probe Tester')
 
     // Tab 1 content by default
     expect(container.textContent).toContain('Danh Mục Nhà Cung Cấp & Quản Trị Khóa Kết Nối')
@@ -165,7 +180,7 @@ describe('AiEngineStudio Component', () => {
 
     // ── Tab 5: Child Safety & Probe Tester ───────────────────
     const safetyTabBtn = buttons().find((b) =>
-      b.textContent?.includes('5. An Toàn Trẻ Em & Probe Tester'),
+      b.textContent?.includes('5. An Toàn, Kiểm Duyệt & Probe Tester'),
     )
     expect(safetyTabBtn).toBeDefined()
     await act(async () => {
@@ -283,7 +298,7 @@ describe('AiEngineStudio Component', () => {
 
     // Switch to safety tab
     const safetyTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('5. An Toàn Trẻ Em & Probe Tester'),
+      b.textContent?.includes('5. An Toàn, Kiểm Duyệt & Probe Tester'),
     )
     await act(async () => {
       safetyTabBtn?.click()
@@ -391,7 +406,7 @@ describe('AiEngineStudio Component', () => {
 
     // Switch to safety tab
     const safetyTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('5. An Toàn Trẻ Em & Probe Tester'),
+      b.textContent?.includes('5. An Toàn, Kiểm Duyệt & Probe Tester'),
     )
     await act(async () => {
       safetyTabBtn?.click()
@@ -612,7 +627,7 @@ describe('AiEngineStudio Component', () => {
 
     // Switch to safety tab
     const safetyTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('5. An Toàn Trẻ Em & Probe Tester'),
+      b.textContent?.includes('5. An Toàn, Kiểm Duyệt & Probe Tester'),
     )
     await act(async () => {
       safetyTabBtn?.click()
@@ -1091,4 +1106,272 @@ describe('AiEngineStudio Component', () => {
 
     expect(document.body.querySelector('#import-modal-title')).toBeNull()
   })
+
+  // ── Sub-tab 5: AI Rejection Review Queue Tests ─────────────────────────────
+  it('displays AI Rejection & False-Positive Review Queue in Tab 5 with pending badge and KPIs', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    // Check Tab 5 button has pending badge
+    const badge = container.querySelector('[data-testid="rejection-pending-badge"]')
+    expect(badge).not.toBeNull()
+    expect(badge?.textContent).toBe('3')
+
+    // Switch to Tab 5
+    const safetyTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('5. An Toàn, Kiểm Duyệt & Probe Tester'),
+    )
+    await act(async () => {
+      safetyTabBtn?.click()
+    })
+
+    // Header check
+    expect(container.textContent).toContain('Hàng Đợi Thẩm Định Từ Chối Của AI')
+    expect(container.textContent).toContain('Xử Lý Chặn Nhầm & Cứu Sáng Tạo Của Bé')
+
+    // KPI Metrics check
+    expect(container.textContent).toContain('Tổng Số Ca Bị Chặn')
+    expect(container.textContent).toContain('Chờ Thẩm Định')
+    expect(container.textContent).toContain('Tỷ Lệ Chặn Nhầm')
+    expect(container.textContent).toContain('Đã Gỡ Chặn')
+
+    // Incident cards check
+    expect(container.textContent).toContain('Bé Minh Triết')
+    expect(container.textContent).toContain('Bé Bảo An')
+    expect(container.textContent).toContain('Bé Gia Huy')
+    expect(container.textContent).toContain('Thanh kiếm gỗ đồ chơi của hiệp sĩ')
+
+    // Highlight trigger check
+    const markEl = container.querySelector('mark')
+    expect(markEl).not.toBeNull()
+    expect(markEl?.textContent).toBe('kiếm gỗ')
+  })
+
+  it('filters rejection incidents by pending, approved_override, and confirmed_rejected', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    const safetyTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('5. An Toàn, Kiểm Duyệt & Probe Tester'),
+    )
+    await act(async () => {
+      safetyTabBtn?.click()
+    })
+
+    // Filter by pending
+    const filterPendingBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('⏳ Chờ thẩm định'),
+    )
+    expect(filterPendingBtn).toBeDefined()
+    await act(async () => {
+      filterPendingBtn?.click()
+    })
+
+    expect(container.querySelector('[data-testid="incident-card-inc_001"]')).not.toBeNull()
+    expect(container.querySelector('[data-testid="incident-card-inc_005"]')).toBeNull()
+
+    // Filter by confirmed_rejected
+    const filterRejectedBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('❌ Xác nhận vi phạm'),
+    )
+    expect(filterRejectedBtn).toBeDefined()
+    await act(async () => {
+      filterRejectedBtn?.click()
+    })
+
+    expect(container.querySelector('[data-testid="incident-card-inc_005"]')).not.toBeNull()
+    expect(container.querySelector('[data-testid="incident-card-inc_001"]')).toBeNull()
+
+    // Filter by approved_override
+    const filterApprovedBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('✅ Đã duyệt gỡ chặn'),
+    )
+    expect(filterApprovedBtn).toBeDefined()
+    await act(async () => {
+      filterApprovedBtn?.click()
+    })
+
+    expect(container.querySelector('[data-testid="incident-card-inc_004"]')).not.toBeNull()
+    expect(container.querySelector('[data-testid="incident-card-inc_001"]')).toBeNull()
+  })
+
+  it('allows approving override for a pending rejection incident', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    const safetyTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('5. An Toàn, Kiểm Duyệt & Probe Tester'),
+    )
+    await act(async () => {
+      safetyTabBtn?.click()
+    })
+
+    const card = container.querySelector('[data-testid="incident-card-inc_001"]')
+    expect(card).not.toBeNull()
+    expect(card?.textContent).toContain('⏳ Chờ thẩm định')
+
+    const approveBtn = Array.from(card!.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Duyệt cho phép (Gỡ chặn)'),
+    )
+    expect(approveBtn).toBeDefined()
+
+    await act(async () => {
+      approveBtn?.click()
+    })
+
+    const updatedCard = container.querySelector('[data-testid="incident-card-inc_001"]')
+    expect(updatedCard?.textContent).toContain('✅ Đã duyệt gỡ chặn')
+    expect(document.body.textContent).toContain('Đã gỡ chặn thành công')
+  })
+
+  it('allows confirming rejection for an incident', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    const safetyTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('5. An Toàn, Kiểm Duyệt & Probe Tester'),
+    )
+    await act(async () => {
+      safetyTabBtn?.click()
+    })
+
+    const card = container.querySelector('[data-testid="incident-card-inc_002"]')
+    expect(card).not.toBeNull()
+
+    const rejectBtn = Array.from(card!.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Xác nhận vi phạm'),
+    )
+    expect(rejectBtn).toBeDefined()
+
+    await act(async () => {
+      rejectBtn?.click()
+    })
+
+    const updatedCard = container.querySelector('[data-testid="incident-card-inc_002"]')
+    expect(updatedCard?.textContent).toContain('❌ Xác nhận vi phạm')
+    expect(document.body.textContent).toContain('Đã xác nhận vi phạm')
+  })
+
+  it('opens refine prompt modal, updates prompt and saves recreation for student', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    const safetyTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('5. An Toàn, Kiểm Duyệt & Probe Tester'),
+    )
+    await act(async () => {
+      safetyTabBtn?.click()
+    })
+
+    const card = container.querySelector('[data-testid="incident-card-inc_001"]')
+    const refineBtn = Array.from(card!.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Sửa nhanh prompt'),
+    )
+    expect(refineBtn).toBeDefined()
+
+    await act(async () => {
+      refineBtn?.click()
+    })
+
+    // Check modal appears in portal
+    const modal = document.body.querySelector('[data-testid="refine-prompt-modal"]')
+    expect(modal).not.toBeNull()
+    expect(modal?.textContent).toContain('Sửa Nhanh Prompt & Tái Tạo Tranh Cho Bé')
+    expect(modal?.textContent).toContain('Bé Minh Triết')
+
+    // Find prompt textarea inside modal
+    const textarea = modal?.querySelector('textarea') as HTMLTextAreaElement
+    expect(textarea).not.toBeNull()
+
+    await act(async () => {
+      const descriptor = Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype, 'value')
+      descriptor?.set?.call(textarea, 'Thanh đũa phép bằng gỗ thần kỳ của hiệp sĩ tí hon')
+      textarea.dispatchEvent(new Event('input', { bubbles: true }))
+      textarea.dispatchEvent(new Event('change', { bubbles: true }))
+    })
+
+    // Submit save button
+    const saveBtn = Array.from(modal!.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Lưu & Tái tạo tranh ngay cho bé'),
+    )
+    expect(saveBtn).toBeDefined()
+
+    await act(async () => {
+      saveBtn?.click()
+    })
+
+    // Modal closes
+    expect(document.body.querySelector('[data-testid="refine-prompt-modal"]')).toBeNull()
+
+    // Card shows refined prompt
+    const updatedCard = container.querySelector('[data-testid="incident-card-inc_001"]')
+    expect(updatedCard?.textContent).toContain('Prompt đã hiệu chỉnh:')
+    expect(updatedCard?.textContent).toContain('Thanh đũa phép bằng gỗ thần kỳ của hiệp sĩ tí hon')
+  })
+
+  it('adds whitelist keyword exception for an incident trigger', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    const safetyTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('5. An Toàn, Kiểm Duyệt & Probe Tester'),
+    )
+    await act(async () => {
+      safetyTabBtn?.click()
+    })
+
+    const card = container.querySelector('[data-testid="incident-card-inc_001"]')
+    const whitelistBtn = Array.from(card!.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Thêm ngoại lệ'),
+    )
+    expect(whitelistBtn).toBeDefined()
+
+    await act(async () => {
+      whitelistBtn?.click()
+    })
+
+    expect(document.body.textContent).toContain('Đã thêm ngoại lệ "kiếm gỗ" vào Whitelist an toàn')
+  })
+
+  it('opens sketch zoom modal on clicking sketch thumbnail and closes it', async () => {
+    await act(async () => {
+      root.render(createElement(AiEngineStudio))
+    })
+
+    const safetyTabBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('5. An Toàn, Kiểm Duyệt & Probe Tester'),
+    )
+    await act(async () => {
+      safetyTabBtn?.click()
+    })
+
+    const card = container.querySelector('[data-testid="incident-card-inc_001"]')
+    const thumbnailContainer = card?.querySelector('div[title="Nhấn để phóng to nét vẽ của bé"]') as HTMLElement
+    expect(thumbnailContainer).not.toBeNull()
+
+    await act(async () => {
+      thumbnailContainer.click()
+    })
+
+    const zoomDialog = document.body.querySelector('div[aria-label="Phóng to nét vẽ phác thảo của bé"]')
+    expect(zoomDialog).not.toBeNull()
+    expect(zoomDialog?.textContent).toContain('Chi Tiết Bản Vẽ Phác Thảo Của Bé')
+    expect(zoomDialog?.querySelector('img')).not.toBeNull()
+
+    const closeBtn = zoomDialog?.querySelector('button[aria-label="Đóng"]') as HTMLButtonElement
+    expect(closeBtn).not.toBeNull()
+
+    await act(async () => {
+      closeBtn.click()
+    })
+
+    expect(document.body.querySelector('div[aria-label="Phóng to nét vẽ phác thảo của bé"]')).toBeNull()
+  })
 })
+
