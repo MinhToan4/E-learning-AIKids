@@ -51,22 +51,27 @@ export class CmsErrorBoundary extends Component<CmsErrorBoundaryProps, CmsErrorB
         </p>
 
         {(this.state.error || this.state.errorInfo) && (
-          <details className="mt-3 text-left w-full max-w-lg rounded-xl border border-border bg-page p-3 text-xs">
-            <summary className="cursor-pointer font-bold text-muted hover:text-ink">
+          <details open className="mt-4 text-left w-full max-w-lg rounded-2xl border-2 border-danger/20 bg-page p-4 text-xs">
+            <summary className="cursor-pointer font-bold text-ink hover:text-brand-700 select-none">
               Chi tiết kỹ thuật
             </summary>
+            {/dynamically imported module|Failed to fetch|Load chunk/i.test(this.state.error?.message ?? '') && (
+              <div className="mt-2 rounded-xl bg-amber-50 p-2.5 font-sans font-bold text-amber-900 border border-amber-200">
+                💡 Trình duyệt đang giữ file mã nguồn cũ trong bộ nhớ đệm. Vui lòng bấm nút <strong>"Xóa cache & Tải lại"</strong> bên dưới hoặc nhấn <code>Cmd+Shift+R</code> để nạp bản mới.
+              </div>
+            )}
             {this.state.error?.message && (
-              <div className="mt-2 font-mono whitespace-pre-wrap text-danger">
-                {this.state.error.message}
+              <div className="mt-2 font-mono whitespace-pre-wrap font-bold text-danger bg-coral-50 p-2.5 rounded-xl border border-coral-200">
+                {this.state.error.name}: {this.state.error.message}
               </div>
             )}
             {this.state.error?.stack && (
-              <pre className="mt-2 max-h-36 overflow-auto text-[11px] text-muted">
+              <pre className="mt-2 max-h-36 overflow-auto text-[11px] text-muted font-mono bg-slate-100 p-2 rounded-lg">
                 {this.state.error.stack.split('\n').slice(0, 5).join('\n')}
               </pre>
             )}
             {this.state.errorInfo?.componentStack && (
-              <pre className="mt-2 max-h-36 overflow-auto text-[11px] text-muted">
+              <pre className="mt-2 max-h-36 overflow-auto text-[11px] text-muted font-mono bg-slate-100 p-2 rounded-lg">
                 {this.state.errorInfo.componentStack.split('\n').slice(0, 5).join('\n')}
               </pre>
             )}
