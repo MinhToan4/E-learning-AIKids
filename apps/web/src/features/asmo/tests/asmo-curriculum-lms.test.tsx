@@ -370,13 +370,13 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     // 4. Gamified Companion Sidebar for Elementary (Sidebar <aside> is ALWAYS present with 4 blocks)
     expect(markup).toContain('<aside')
     expect(markup).toContain('aikid-cat-character')
-    expect(markup).toContain('Mee đang hỗ trợ: Con làm được! 🐾')
-    expect(markup).toContain('🔊 Nghe Mee Đọc')
+    expect(markup).toContain('Nghe Mee đọc')
+    expect(markup).toContain('grid-cols-[7.5rem_minmax(0,1fr)]')
     expect(markup).toContain('Nhiệm Vụ Trực Quan')
     expect(markup).toContain('Thả táo đỏ vào Giỏ A')
     expect(markup).toContain('Thả táo xanh vào Giỏ B')
-    expect(markup).toContain('Mẹo Mee Thông Minh')
-    expect(markup).toContain('💡 Bật Mí Gợi Ý')
+    expect(markup).not.toContain('Mẹo Mee Thông Minh')
+    expect(markup).not.toContain('💡 Bật Mí Gợi Ý')
     expect(markup).toContain('Huy Hiệu Vùng Đảo')
 
     // 5. Action Buttons
@@ -404,11 +404,11 @@ describe('ASMO Floating Islands & LMS UI Components (100% Original AI Kids World
     expect(markup).toContain('🌟 Ghi Nhớ Nhanh:')
     expect(markup).toContain('Chỉnh Giờ:')
     expect(markup).toContain('<aside')
-    expect(markup).toContain('Mee đang hỗ trợ: Con làm được! 🐾')
-    expect(markup).toContain('🔊 Nghe Mee Đọc')
+    expect(markup).toContain('Nghe Mee đọc')
+    expect(markup).toContain('grid-cols-[7.5rem_minmax(0,1fr)]')
     expect(markup).toContain('🎯 Trọng Tâm Tư Duy Olympic')
-    expect(markup).toContain('Mẹo Mee Thông Minh')
-    expect(markup).toContain('💡 Bật Mí Gợi Ý')
+    expect(markup).not.toContain('Mẹo Mee Thông Minh')
+    expect(markup).not.toContain('💡 Bật Mí Gợi Ý')
     expect(markup).toContain('Huy Hiệu Vùng Đảo')
   })
 
@@ -779,10 +779,10 @@ describe('ASMO Phase 2 Visual Secret Comic Infographic Card (Mẹo Mee 2.5D Soft
 
     // Top banner
     expect(markup).toContain('TRANH BÍ KÍP MÈO MEE · TRẠM 1')
-    expect(markup).toContain('aikid-cat-character')
-    expect(markup).toContain('Trợ Giảng Mee 🐱')
-    expect(markup).toContain('Câu Khẩu Quyết Thần Chú:')
-    expect(markup).toContain('Phát âm thanh thần chú')
+    expect(markup).not.toContain('aikid-cat-character')
+    expect(markup).toContain('Chỉ cần nhớ')
+    expect(markup).not.toContain('animate-bounce')
+    expect(markup).not.toContain('Phát âm thanh thần chú')
 
     // Central Secret Diagram for Station 1
     expect(markup).toContain('Giỏ A (4 Quả Táo Đỏ)')
@@ -939,5 +939,3 @@ describe('ASMO Phase 2 Visual Secret Comic Infographic Card (Mẹo Mee 2.5D Soft
     expect(markup).toContain('khối lập phương')
   })
 })
-
-

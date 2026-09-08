@@ -2464,9 +2464,37 @@ export type QuestDetail = {
     /** Optional card illustration */
     imageUrl?: string | null
     imageAlt?: string | null
+    videoUrl?: string | null
+    optionImages?: string[]
+    optionLabels?: string[]
+    optionDescs?: string[]
+    dialogueLines?: Array<{
+      id: string
+      speaker: string
+      role: 'left' | 'right' | 'center'
+      text: string
+    }>
+    additionalImages?: Array<{
+      id: string
+      url: string
+      alt: string
+      caption?: string
+    }>
+    compareData?: {
+      leftTitle?: string
+      leftText?: string
+      leftImage?: string
+      rightTitle?: string
+      rightText?: string
+      rightImage?: string
+    }
+    compareImages?: { left: string; right: string }
+    enabledModules?: string[]
     mee?: {
       readText?: string
-      gesture?: 'presentation' | 'point-left' | 'point-right' | 'think' | 'idea'
+      audioUrl?: string
+      voiceProvider?: 'vertex'
+      gesture?: 'presentation' | 'point-left' | 'point-right' | 'think' | 'idea' | 'celebrate'
       autoRead?: boolean
     }
   }>
@@ -2479,7 +2507,7 @@ export type QuestDetail = {
       readText?: string
       strategy?: string
       hints?: string[]
-      gesture?: 'presentation' | 'point-left' | 'point-right' | 'think' | 'idea'
+      gesture?: 'presentation' | 'point-left' | 'point-right' | 'think' | 'idea' | 'celebrate'
       autoRead?: boolean
     }
   }>
@@ -2593,6 +2621,16 @@ export type LectureRow = {
       sound?: string
       direction?: string
     }>
+    imageUrl?: string
+    imageAlt?: string
+    videoUrl?: string
+    mee?: {
+      readText?: string
+      audioUrl?: string
+      voiceProvider?: 'vertex'
+      gesture?: 'presentation' | 'point-left' | 'point-right' | 'think' | 'idea' | 'celebrate'
+      autoRead?: boolean
+    }
   }>
 }
 
@@ -2648,6 +2686,9 @@ export interface AiProviderPolicyResponse {
     resolution?: string
     stylePreset?: string
     autoCompressWebp?: boolean
+    promptPrefix?: string
+    promptSuffix?: string
+    autoWrapPrompt?: boolean
   }
 }
 
@@ -2724,4 +2765,3 @@ export async function saveProviderApiKey(provider: string, apiKey: string): Prom
     maskedHint: cleanKey.length > 8 ? `${cleanKey.slice(0, 5)}••••${cleanKey.slice(-4)}` : '••••',
   }
 }
-

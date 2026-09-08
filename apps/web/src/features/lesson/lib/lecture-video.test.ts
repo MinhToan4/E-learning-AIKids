@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { resolveLectureVideo } from './lecture-video'
+import { resolveLectureAudio, resolveLectureVideo } from './lecture-video'
 
 describe('resolveLectureVideo', () => {
   it('turns the supplied YouTube watch URL into a privacy-enhanced embed', () => {
@@ -25,5 +25,13 @@ describe('resolveLectureVideo', () => {
     expect(resolveLectureVideo('javascript:alert(1)')).toBeNull()
     expect(resolveLectureVideo('https://www.youtube.com/watch?v=bad')).toBeNull()
     expect(resolveLectureVideo(null)).toBeNull()
+  })
+})
+
+describe('resolveLectureAudio', () => {
+  it('accepts only HTTPS audio URLs', () => {
+    expect(resolveLectureAudio('https://cdn.example.com/aiki.mp3')).toBe('https://cdn.example.com/aiki.mp3')
+    expect(resolveLectureAudio('http://cdn.example.com/aiki.mp3')).toBeNull()
+    expect(resolveLectureAudio('javascript:alert(1)')).toBeNull()
   })
 })

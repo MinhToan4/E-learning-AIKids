@@ -6,6 +6,9 @@ const files = readdirSync(assetsDir)
 const budgets = [
   { pattern: /^AdminPage-.*\.js$/, maxKb: 90 },
   { pattern: /^LegendRewardStudio-.*\.js$/, maxKb: 160 },
+  { pattern: /^HomePage-.*\.js$/, maxKb: 25 },
+  { pattern: /^AsmoHubPage-.*\.js$/, maxKb: 20 },
+  { pattern: /^asmo-api-.*\.js$/, maxKb: 15 },
   { pattern: /^index-.*\.js$/, maxKb: 260 },
 ]
 

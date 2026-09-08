@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { ArrowRight } from 'lucide-react'
 import { designerAssets } from '@/shared/config/assets'
 import { cn } from '@/shared/lib/cn'
+import { normalizeVietnameseSpeech } from '@/shared/lib/vietnameseSpeech'
 import { AsmoFormula } from './AsmoFormula'
 
 export type AppleBasketType = 'A' | 'B'
@@ -195,14 +196,7 @@ export function speakVietnamese(text: string) {
   if (typeof window === 'undefined' || !window.speechSynthesis) return
   try {
     window.speechSynthesis.cancel()
-    const cleanText = text
-      .replace(/[\$#\*`~_]/g, '')
-      .replace(/🍎/g, ' táo đỏ ')
-      .replace(/🍏/g, ' táo xanh ')
-      .replace(/🧺/g, ' giỏ ')
-      .replace(/✨/g, '')
-      .replace(/🎉/g, '')
-      .trim()
+    const cleanText = normalizeVietnameseSpeech(text)
     const utterance = new SpeechSynthesisUtterance(cleanText || text)
     utterance.lang = 'vi-VN'
     utterance.rate = 0.95

@@ -39,6 +39,7 @@ export interface AikidCatCharacterProps {
   gesture?: Gesture
   viseme?: Viseme
   onSpeechEnd?: () => void
+  animated?: boolean
 }
 
 const POSE_TO_GESTURE_MAP: Partial<Record<AikidCatPose, Gesture>> = {
@@ -61,6 +62,7 @@ export function AikidCatCharacter({
   gesture,
   viseme,
   onSpeechEnd,
+  animated,
 }: AikidCatCharacterProps) {
   const catState = POSE_TO_STATE_MAP[pose] || 'idle'
   const effectiveGesture = gesture || POSE_TO_GESTURE_MAP[pose] || 'presentation'
@@ -80,6 +82,7 @@ export function AikidCatCharacter({
         gesture={effectiveGesture}
         viseme={viseme}
         onSpeechEnd={onSpeechEnd}
+        animated={animated}
         transparentBackground
         className="h-full w-full"
       />

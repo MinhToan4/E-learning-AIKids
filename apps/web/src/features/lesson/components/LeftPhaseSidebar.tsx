@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
-import { Check, ChevronLeft, ChevronRight, Circle, Lightbulb, MessageCircle, RotateCcw, Target } from 'lucide-react'
+import React, { useCallback, useEffect, useState } from 'react'
+import { Check, ChevronLeft, ChevronRight, Circle, Lightbulb, MessageCircle, RotateCcw, Square, Target, Volume2 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 import { Button } from '@/shared/components/ui/Button'
 import { MeeTutorAvatar, type MeeTutorPose } from './MeeTutorAvatar'
+import type { Gesture } from '@/features/mee-rig/hooks/useMeeCatSpeech'
 
 export type Phase = 'learn' | 'game' | 'practice' | 'check' | 'done'
 export type PoseType = MeeTutorPose
@@ -23,6 +24,14 @@ interface Props {
   goals: string[]
   product?: string
   successCriteria?: string[]
+  narrationText?: string
+  hints?: string[]
+  autoRead?: boolean
+  gesture?: Gesture
+  narrationKey?: string | number
+  stages?: Array<{ id: string; label: string; kind?: string }>
+  currentStageIndex?: number
+  onSelectStage?: (index: number) => void
 }
 
 const LEARNING_STEPS = [
@@ -34,11 +43,34 @@ const LEARNING_STEPS = [
 
 const PHASE_ORDER: Phase[] = ['learn', 'game', 'practice', 'check', 'done']
 
-export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, phase, maxUnlockedPhase, goals, product, successCriteria = [] }: Props) {
+export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, phase, maxUnlockedPhase, goals, product, successCriteria = [], narrationText, hints = [], autoRead = false, gesture = 'presentation', narrationKey, stages, currentStageIndex, onSelectStage }: Props) {
   const [showHint, setShowHint] = useState(false)
   const [collapsed, setCollapsed] = useState(false)
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const [hintLevel, setHintLevel] = useState(0)
   const currentPhaseIndex = PHASE_ORDER.indexOf(phase === 'done' ? 'check' : phase)
-  const currentPhaseLabel = LEARNING_STEPS[currentPhaseIndex]?.label ?? 'Hoàn thành'
+  const currentPhaseLabel = (stages && stages.length > 0)
+    ? (stages[currentStageIndex ?? 0]?.label ?? 'Quy tắc AIKI')
+    : (LEARNING_STEPS[currentPhaseIndex]?.label ?? 'Hoàn thành')
+  const speechText = narrationText?.trim() || guideCopy.body
+  const activeSpeechText = showHint ? (hints[hintLevel] ?? speechText) : speechText
+  const stopSpeaking = useCallback(() => {
+    setIsSpeaking(false)
+    window.speechSynthesis?.cancel()
+  }, [])
+
+  useEffect(() => {
+    setShowHint(false)
+    setHintLevel(0)
+    stopSpeaking()
+    if (!autoRead || !speechText.trim()) return
+    const timer = window.setTimeout(() => setIsSpeaking(true), 250)
+    return () => window.clearTimeout(timer)
+  }, [autoRead, narrationKey, speechText, stopSpeaking])
+
+  useEffect(() => stopSpeaking, [stopSpeaking])
+
+  const isAikiMode = Boolean(stages && stages.length > 0)
 
   return (
     <aside className={cn(
@@ -51,34 +83,58 @@ export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, p
           <MeeTutorAvatar pose={guideCopy.pose} className="size-12" />
           <span className="font-display text-sm text-brand-800">Mee</span>
           <span className="rounded-xl bg-brand-50 px-2 py-1 text-center text-[11px] font-extrabold leading-tight text-brand-700">{currentPhaseLabel}</span>
-          <div className="my-1 grid gap-2" aria-label={`Tiến trình trạm: bước ${Math.min(currentPhaseIndex + 1, 4)} trên 4`}>
-            {LEARNING_STEPS.map((step, index) => (
-              <span
-                key={step.id}
-                className={cn(
-                  'size-3 rounded-full border-2',
-                  index < currentPhaseIndex || phase === 'done'
-                    ? 'border-mint-500 bg-mint-500'
-                    : index === currentPhaseIndex
-                      ? 'border-brand-600 bg-brand-100'
-                      : 'border-border bg-white',
-                )}
-                title={step.label}
-                aria-hidden="true"
-              />
-            ))}
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              setCollapsed(false)
-              setShowHint(true)
-            }}
-            className="grid size-11 place-items-center rounded-2xl border-2 border-sun-200 bg-sun-50 text-sun-700"
-            aria-label="Mở gợi ý từ Mee"
-          >
-            <Lightbulb size={20} aria-hidden="true" />
-          </button>
+          {isAikiMode ? (
+            <div className="my-1 grid gap-2" aria-label={`Tiến trình trạm: chặng ${Math.min((currentStageIndex ?? 0) + 1, stages!.length)} trên ${stages!.length}`}>
+              {stages!.map((step, index) => (
+                <button
+                  key={step.id || index}
+                  type="button"
+                  onClick={() => onSelectStage?.(index)}
+                  className={cn(
+                    'size-3 rounded-full border-2 transition-transform hover:scale-125',
+                    index < (currentStageIndex ?? 0)
+                      ? 'border-mint-500 bg-mint-500'
+                      : index === (currentStageIndex ?? 0)
+                        ? 'border-brand-600 bg-brand-100 ring-2 ring-brand-300'
+                        : 'border-border bg-white',
+                  )}
+                  title={step.label}
+                  aria-label={step.label}
+                />
+              ))}
+            </div>
+          ) : (
+            <div className="my-1 grid gap-2" aria-label={`Tiến trình trạm: bước ${Math.min(currentPhaseIndex + 1, 4)} trên 4`}>
+              {LEARNING_STEPS.map((step, index) => (
+                <span
+                  key={step.id}
+                  className={cn(
+                    'size-3 rounded-full border-2',
+                    index < currentPhaseIndex || phase === 'done'
+                      ? 'border-mint-500 bg-mint-500'
+                      : index === currentPhaseIndex
+                        ? 'border-brand-600 bg-brand-100'
+                        : 'border-border bg-white',
+                  )}
+                  title={step.label}
+                  aria-hidden="true"
+                />
+              ))}
+            </div>
+          )}
+          {!isAikiMode && (
+            <button
+              type="button"
+              onClick={() => {
+                setCollapsed(false)
+                setShowHint(true)
+              }}
+              className="grid size-11 place-items-center rounded-2xl border-2 border-sun-200 bg-sun-50 text-sun-700"
+              aria-label="Mở gợi ý từ Mee"
+            >
+              <Lightbulb size={20} aria-hidden="true" />
+            </button>
+          )}
           <button
             type="button"
             onClick={() => setCollapsed(false)}
@@ -88,10 +144,95 @@ export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, p
             <ChevronLeft size={20} aria-hidden="true" />
           </button>
         </div>
+      ) : isAikiMode ? (
+        <div className="flex flex-col">
+          {/* Khung 1: Bạn Mèo AIKI */}
+          <div className="flex items-center gap-3 border-b-2 border-border pb-3">
+            <MeeTutorAvatar
+              pose={guideCopy.pose}
+              className="size-16 shrink-0"
+              isSpeaking={isSpeaking}
+              speechText={activeSpeechText}
+              gesture={gesture}
+              onSpeechEnd={() => setIsSpeaking(false)}
+            />
+            <div className="min-w-0 flex-1 text-left">
+              <p className="flex items-center gap-1 text-xs font-extrabold text-coral-600">
+                <MessageCircle size={15} aria-hidden="true" /> Mee đang hỗ trợ
+              </p>
+              <h2 id="lesson-guide-title" className="font-display text-lg leading-tight text-text">
+                {guideCopy.title}
+              </h2>
+            </div>
+            <button
+              type="button"
+              onClick={() => setCollapsed(true)}
+              className="grid size-11 shrink-0 place-items-center rounded-2xl border-2 border-border bg-white text-brand-700 hover:bg-brand-50 transition"
+              aria-label="Thu gọn trợ giảng Mee"
+            >
+              <ChevronRight size={20} aria-hidden="true" />
+            </button>
+          </div>
+
+          <div
+            key={guideCopy.title + guideCopy.body}
+            className="mt-3 rounded-2xl bg-brand-50 p-4 text-left animate-[feedback-pop_0.4s_ease-out]"
+          >
+            <p className="text-xs font-extrabold text-brand-700">{guideCopy.eyebrow}</p>
+            <p className="mt-1.5 text-sm font-semibold leading-relaxed text-text">
+              {guideCopy.body}
+            </p>
+          </div>
+
+          {/* Khung 2: Hành trình 5 chặng */}
+          <section className="mt-4 border-t-2 border-border pt-4" aria-labelledby="mee-journey-title">
+            <h3 id="mee-journey-title" className="font-display text-base text-text">
+              Hành trình trạm
+            </h3>
+            <ol className="mt-2 grid gap-2">
+              {stages!.map((step, index) => {
+                const complete = index < (currentStageIndex ?? 0)
+                const active = index === (currentStageIndex ?? 0)
+                return (
+                  <li
+                    key={step.id || index}
+                    onClick={() => onSelectStage?.(index)}
+                    className={cn(
+                      'flex min-h-11 items-center gap-3 rounded-2xl px-3 py-2 text-sm font-extrabold cursor-pointer transition',
+                      active
+                        ? 'border-2 border-brand-500 bg-brand-100 text-brand-900 shadow-xs'
+                        : complete
+                          ? 'border-2 border-transparent bg-mint-50 text-mint-800 hover:bg-mint-100'
+                          : 'border-2 border-transparent bg-surface text-muted hover:bg-brand-50/50',
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'grid size-7 shrink-0 place-items-center rounded-full',
+                        complete
+                          ? 'bg-mint-200 text-mint-700'
+                          : active
+                            ? 'bg-white text-brand-700 shadow-xs'
+                            : 'bg-white text-muted',
+                      )}
+                      aria-hidden="true"
+                    >
+                      {complete ? <Check size={17} /> : <Circle size={13} />}
+                    </span>
+                    <span className="flex-1 text-left line-clamp-1">{step.label}</span>
+                    <span className="ml-auto text-xs font-bold">
+                      {complete ? 'Xong' : active ? 'Đang học' : 'Tiếp theo'}
+                    </span>
+                  </li>
+                )
+              })}
+            </ol>
+          </section>
+        </div>
       ) : (
         <div className="flex flex-col">
           <div className="flex items-center gap-3 border-b-2 border-border pb-3">
-            <MeeTutorAvatar pose={guideCopy.pose} className="size-16 shrink-0" />
+            <MeeTutorAvatar pose={guideCopy.pose} className="size-16 shrink-0" isSpeaking={isSpeaking} speechText={activeSpeechText} gesture={showHint ? 'idea' : gesture} onSpeechEnd={() => setIsSpeaking(false)} />
             <div className="min-w-0 flex-1 text-left">
               <p className="flex items-center gap-1 text-xs font-extrabold text-coral-600"><MessageCircle size={15} aria-hidden="true" /> Mee đang hỗ trợ</p>
               <h2 id="lesson-guide-title" className="font-display text-lg leading-tight text-text">{guideCopy.title}</h2>
@@ -114,7 +255,7 @@ export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, p
           {showHint && (
             <div className="mt-3 rounded-2xl border-2 border-sun-200 bg-sun-50 p-3 text-left animate-pop" role="status">
               <p className="flex items-center gap-2 text-sm font-extrabold text-sun-700"><Lightbulb size={18} aria-hidden="true" /> Mee gợi ý</p>
-              <p className="mt-1 text-sm font-semibold leading-relaxed text-text">Làm từng bước từ trên xuống. Sau mỗi bước, con hãy đối chiếu ô “Sản phẩm đạt chuẩn” trước khi lưu.</p>
+              <p className="mt-1 text-sm font-semibold leading-relaxed text-text">{hints[hintLevel] ?? 'Làm từng bước từ trên xuống. Sau mỗi bước, con hãy tự kiểm tra lại trước khi tiếp tục.'}</p>
             </div>
           )}
 
@@ -125,9 +266,13 @@ export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, p
           )}
 
           <div className="mt-3 flex flex-wrap gap-2">
-            <Button className="flex-1" variant="secondary" onClick={() => setShowHint(!showHint)} aria-expanded={showHint}>
+            <Button className="flex-1" variant="secondary" onClick={() => { setShowHint(true); if (showHint && hints.length > 1) setHintLevel((level) => Math.min(level + 1, hints.length - 1)) }} aria-expanded={showHint}>
               <Lightbulb size={18} aria-hidden="true" />
-              {showHint ? 'Ẩn gợi ý' : 'Gợi ý cho con'}
+              {showHint && hintLevel < hints.length - 1 ? 'Gợi ý thêm' : showHint ? 'Đang gợi ý' : 'Gợi ý cho con'}
+            </Button>
+            <Button variant="secondary" onClick={() => isSpeaking ? stopSpeaking() : setIsSpeaking(true)} aria-label={isSpeaking ? 'Dừng Mèo Mee đọc' : 'Nghe Mèo Mee đọc'}>
+              {isSpeaking ? <Square size={18} aria-hidden="true" /> : <Volume2 size={18} aria-hidden="true" />}
+              {isSpeaking ? 'Dừng' : 'Mee đọc'}
             </Button>
             {videoUrl && (
               <Button variant="ghost" onClick={() => setShowHint(false)}>

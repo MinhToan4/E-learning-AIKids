@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from 'react'
-import { Alignment, Fit, Layout, useRive } from '@rive-app/react-canvas'
+import React, { lazy, Suspense, useEffect, useRef, useState } from 'react'
 import { cn } from '@/shared/lib/cn'
 import { useMeeCatSpeech, type Gesture, type Viseme } from '../hooks/useMeeCatSpeech'
+
+const MeeRiveRenderer = lazy(() => import('./MeeRiveRenderer'))
 
 export type MeeCatState = 'idle' | 'look' | 'hint' | 'celebrate' | 'eat' | 'sleepy' | 'talk'
 export type MeeCatVariant = 'half-body' | 'full-body'
@@ -24,6 +25,8 @@ export interface MeeCatInteractiveCanvasProps {
   viseme?: Viseme
   onSpeechEnd?: () => void
   onQuoteChange?: (quote: string) => void
+  /** Disable background timers for decorative/static instances such as storyboards. */
+  animated?: boolean
 }
 
 export function MeeCatInteractiveCanvas({
@@ -43,6 +46,7 @@ export function MeeCatInteractiveCanvas({
   gesture = 'auto',
   viseme: controlledViseme,
   onSpeechEnd,
+  animated = true,
 }: MeeCatInteractiveCanvasProps) {
   const [cursorPos, setCursorPos] = useState({ x: 0, y: 0 })
   const [isHovered, setIsHovered] = useState(false)
@@ -68,17 +72,9 @@ export function MeeCatInteractiveCanvas({
   const currentViseme = controlledViseme || autoViseme
   const effectiveGesture: Gesture = gesture !== 'auto' ? gesture : activeGesture
 
-  // Rive Engine Fallback
-  const layout = new Layout({ fit: Fit.Contain, alignment: Alignment.Center })
-  const { RiveComponent } = useRive({
-    src: '/assets/mee/mee-cat-rig-v1.riv',
-    stateMachines: 'MeeCatController',
-    autoplay: true,
-    layout,
-  })
-
   // Mouse move tracker for Look-At-Cursor mode
   useEffect(() => {
+    if (!animated || state !== 'look') return
     const handleMouseMove = (e: MouseEvent) => {
       if (!containerRef.current) return
       const rect = containerRef.current.getBoundingClientRect()
@@ -90,71 +86,73 @@ export function MeeCatInteractiveCanvas({
     }
     window.addEventListener('mousemove', handleMouseMove)
     return () => window.removeEventListener('mousemove', handleMouseMove)
-  }, [])
+  }, [animated, state])
 
   // Natural Blinking Interval
   useEffect(() => {
-    if (state === 'sleepy') return
+    if (!animated || state === 'sleepy') return
     const blinkInterval = setInterval(() => {
       setInternalBlink(true)
       setTimeout(() => setInternalBlink(false), 180)
     }, 3800)
     return () => clearInterval(blinkInterval)
-  }, [state])
+  }, [animated, state])
 
   // Breathing loop
   useEffect(() => {
+    if (!animated) return
     const speed = state === 'sleepy' ? 2200 : 1500 / breathingSpeed
     const breatheInterval = setInterval(() => {
       setBreathePhase((prev) => (prev === 0 ? 1 : 0))
     }, speed)
     return () => clearInterval(breatheInterval)
-  }, [breathingSpeed, state])
+  }, [animated, breathingSpeed, state])
 
   // Celebrate jump loop
   useEffect(() => {
-    if (state !== 'celebrate' && effectiveGesture !== 'celebrate' && effectiveGesture !== 'celebrate-1' && effectiveGesture !== 'celebrate-2') return
+    if (!animated || (state !== 'celebrate' && effectiveGesture !== 'celebrate' && effectiveGesture !== 'celebrate-1' && effectiveGesture !== 'celebrate-2')) return
     const jumpInterval = setInterval(() => {
       setCelebrateStep((prev) => (prev + 1) % 4)
     }, 200)
     return () => clearInterval(jumpInterval)
-  }, [state, effectiveGesture])
+  }, [animated, state, effectiveGesture])
 
   // Eating loop
   useEffect(() => {
-    if (state !== 'eat') return
+    if (!animated || state !== 'eat') return
     const chewInterval = setInterval(() => {
       setChewFrame((prev) => (prev + 1) % 4)
     }, 280)
     return () => clearInterval(chewInterval)
-  }, [state])
+  }, [animated, state])
 
   // Sleepy loop
   useEffect(() => {
-    if (state !== 'sleepy') return
+    if (!animated || state !== 'sleepy') return
     const sleepyInterval = setInterval(() => {
       setSleepyNod((prev) => (prev + 1) % 6)
     }, 600)
     return () => clearInterval(sleepyInterval)
-  }, [state])
+  }, [animated, state])
 
   // Active cadence step loop
   useEffect(() => {
     const isGestureActive = state === 'talk' || effectiveSpeaking || (effectiveGesture && effectiveGesture !== 'idle')
-    if (!isGestureActive) return
+    if (!animated || !isGestureActive) return
     const talkInterval = setInterval(() => {
       setTalkStep((prev) => (prev + 1) % 4)
     }, 260)
     return () => clearInterval(talkInterval)
-  }, [effectiveSpeaking, state, effectiveGesture])
+  }, [animated, effectiveSpeaking, state, effectiveGesture])
 
   // Tail rhythm
   useEffect(() => {
+    if (!animated) return
     const tailInterval = setInterval(() => {
       setTailFrame((prev) => (prev + 1) % 4)
     }, state === 'celebrate' ? 140 : effectiveSpeaking ? 220 : 350)
     return () => clearInterval(tailInterval)
-  }, [state, effectiveSpeaking])
+  }, [animated, state, effectiveSpeaking])
 
   const shouldBlink = isBlinking || internalBlink || state === 'sleepy'
   const activeQuote = quote?.trim() || ''
@@ -349,7 +347,9 @@ export function MeeCatInteractiveCanvas({
       {/* Rive Engine Mode */}
       {engineMode === 'rive' && (
         <div className="w-full h-full aspect-[4/3] flex items-center justify-center">
-          <RiveComponent className="w-full h-full" />
+          <Suspense fallback={<div className="h-full w-full animate-pulse rounded-3xl bg-amber-50" />}>
+            <MeeRiveRenderer />
+          </Suspense>
         </div>
       )}
 

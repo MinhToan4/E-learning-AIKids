@@ -4134,6 +4134,8 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
     transition: transform 180ms ease, box-shadow 180ms ease;
     scroll-snap-align: start;
     box-shadow: 0 8px 0 rgba(0, 0, 0, 0.1);
+    content-visibility: auto;
+    contain-intrinsic-size: auto 25rem;
   }
 
   .home-course-island-grid {
@@ -7269,6 +7271,15 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 @media (prefers-reduced-motion: reduce) {
   .mee-tutor-avatar,
   .mee-tutor-avatar__accent {
+    animation: none !important;
+  }
+}
+
+/* Mobile motion budget: recurring decoration must not compete with scrolling. */
+@media (max-width: 767px) {
+  .animate-bounce,
+  .animate-pulse,
+  .animate-spin-slow {
     animation: none !important;
   }
 }

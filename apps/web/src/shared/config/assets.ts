@@ -85,9 +85,9 @@ export const designerAssets = {
     mapSmall: '/assets/game/idea-island-map-960.webp',
   },
   worldScenes: {
-    aiValley: '/assets/aikid-ui/world-scenes/scene-ai-valley-generated.png',
-    storyIsland: '/assets/aikid-ui/world-scenes/scene-story-island-generated.png',
-    creativeMountain: '/assets/aikid-ui/world-scenes/scene-creative-mountain-generated.png',
+    aiValley: '/assets/aikid-ui/world-scenes/scene-ai-valley-generated.webp',
+    storyIsland: '/assets/aikid-ui/world-scenes/scene-story-island-generated.webp',
+    creativeMountain: '/assets/aikid-ui/world-scenes/scene-creative-mountain-generated.webp',
   },
   asmoScenes: {
     appleForest: '/assets/asmo-scenes/scene_apple_forest.png',

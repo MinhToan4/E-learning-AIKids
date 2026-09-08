@@ -130,7 +130,7 @@ describe('ASMO 5 Adventure Islands & Winding Trail Stations', () => {
     expect(markup).toContain('Toàn Cảnh 5 Vùng Đảo')
 
     // Verify Master Design System Elements on Hub Page (Streamlined Ribbon & Scene Hero)
-    expect(markup).toContain('5 Vùng Đảo Diệu Kỳ')
+    expect(markup).toContain('Chặng học của con')
     expect(markup).toContain('course-map-hero')
     expect(markup).toContain('course-map-ribbon')
     expect(markup).not.toContain('course-station-map')

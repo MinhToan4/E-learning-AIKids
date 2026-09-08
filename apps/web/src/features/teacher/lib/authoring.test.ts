@@ -2,11 +2,20 @@ import { describe, expect, it } from 'vitest'
 import {
   buildLectureGameConfig,
   courseDraftReadiness,
+  createAikiRuleLearnCards,
+  detectLessonFormat,
+  isAikiRuleLesson,
+  serializeLearnCardsForHub,
   lectureDraftReadiness,
   serializeLectureGameConfig,
   slugifyAuthoringId,
+  getStageBlocks,
+  type StageBlockItem,
   type LectureDraft,
 } from './authoring'
+import { normalizeLectureDraft, getActiveModules } from '../components/LectureDrawer'
+import { FEATURE_BLOCKS_CATEGORIES } from '../pages/TeacherPage'
+import { hydrateAikiRuleCard } from '../../lesson/pages/LessonPage'
 
 const gameContent = {
   lobby: {
@@ -119,6 +128,93 @@ describe('authoring ids and readiness', () => {
     expect(result.steps.find((step) => step.id === 'content')?.complete).toBe(true)
   })
 
+  it('creates and validates the five ordered AIKI rule stages', () => {
+    const cards = createAikiRuleLearnCards().map((card) => ({
+      ...card,
+      body: 'Nội dung đủ dài, gần gũi và phù hợp với trẻ trong phần này.',
+      imageUrl: 'https://cdn.example.com/stage.webp',
+      mee: { ...card.mee!, readText: 'AIKI đọc lời hướng dẫn ngắn gọn cho trẻ.' },
+    }))
+    expect(isAikiRuleLesson(cards)).toBe(true)
+    expect(detectLessonFormat(cards)).toBe('aiki-rule-5steps')
+    const aikiReadiness = lectureDraftReadiness({
+      ...completeLecture,
+      learnCards: cards,
+      gameInstruction: '',
+      practiceInstruction: '',
+      checkQuestions: [],
+      checkQuestion: '',
+    })
+    expect(aikiReadiness.total).toBe(2)
+    expect(aikiReadiness.completed).toBe(2)
+    expect(aikiReadiness.complete).toBe(true)
+    expect(aikiReadiness.steps.map((step) => step.id)).toEqual(['basics', 'content'])
+    expect(aikiReadiness.steps.find((step) => step.id === 'content')?.complete).toBe(true)
+    expect(isAikiRuleLesson([cards[1], cards[0], ...cards.slice(2)])).toBe(false)
+    expect(detectLessonFormat([cards[1], cards[0], ...cards.slice(2)])).toBe('standard')
+    cards[1].optionImages = ['https://cdn.example.com/zico.webp', 'https://cdn.example.com/sonet.webp']
+    cards[1].optionLabels = ['Tranh A (Zico)', 'Tranh B (Sonet)']
+    cards[1].optionDescs = ['Mô tả A', 'Mô tả B']
+    cards[0].dialogueLines = [{ id: 'd-1', speaker: 'zico', role: 'left', text: 'Chào!' }]
+    cards[0].additionalImages = [{ id: 'img-1', url: 'https://cdn.example.com/extra.webp', alt: 'Minh họa' }]
+    cards[3].compareImages = { left: 'https://cdn.example.com/ai.webp', right: 'https://cdn.example.com/kid.webp' }
+    cards[3].compareData = { leftTitle: 'AI', rightTitle: 'Bé' }
+    cards[0].enabledModules = ['dialogue', 'images']
+    const serialized = serializeLearnCardsForHub(cards)
+    expect(serialized.map((card) => card.kind)).toEqual(['concept', 'example', 'steps', 'compare', 'remember'])
+    expect(serialized.every((card) => card.visualItems.some((item) => item.label === '__AIKI_RULE_STAGE__'))).toBe(true)
+
+    const situationMeta = JSON.parse(serialized[0].visualItems.find((item) => item.label === '__AIKI_RULE_STAGE__')!.text)
+    expect(situationMeta.dialogueLines).toEqual([{ id: 'd-1', speaker: 'zico', role: 'left', text: 'Chào!' }])
+    expect(situationMeta.additionalImages).toEqual([{ id: 'img-1', url: 'https://cdn.example.com/extra.webp', alt: 'Minh họa' }])
+    expect(situationMeta.enabledModules).toEqual(['dialogue', 'images'])
+
+    const riddleMeta = JSON.parse(serialized[1].visualItems.find((item) => item.label === '__AIKI_RULE_STAGE__')!.text)
+    expect(riddleMeta.optionImages).toEqual(['https://cdn.example.com/zico.webp', 'https://cdn.example.com/sonet.webp'])
+    expect(riddleMeta.optionLabels).toEqual(['Tranh A (Zico)', 'Tranh B (Sonet)'])
+    expect(riddleMeta.optionDescs).toEqual(['Mô tả A', 'Mô tả B'])
+
+    const explanationMeta = JSON.parse(serialized[3].visualItems.find((item) => item.label === '__AIKI_RULE_STAGE__')!.text)
+    expect(explanationMeta.compareImages).toEqual({ left: 'https://cdn.example.com/ai.webp', right: 'https://cdn.example.com/kid.webp' })
+    expect(explanationMeta.compareData).toEqual({ leftTitle: 'AI', rightTitle: 'Bé' })
+
+    // Verify normalizeLectureDraft restores all 6 module fields
+    const normalized = normalizeLectureDraft({
+      ...completeLecture,
+      learnCards: serialized,
+    })
+    expect(normalized.learnCards[0].dialogueLines).toEqual([{ id: 'd-1', speaker: 'zico', role: 'left', text: 'Chào!' }])
+    expect(normalized.learnCards[0].additionalImages).toEqual([{ id: 'img-1', url: 'https://cdn.example.com/extra.webp', alt: 'Minh họa' }])
+    expect(normalized.learnCards[0].enabledModules).toEqual(['dialogue', 'images'])
+    expect(normalized.learnCards[1].optionLabels).toEqual(['Tranh A (Zico)', 'Tranh B (Sonet)'])
+    expect(normalized.learnCards[1].optionDescs).toEqual(['Mô tả A', 'Mô tả B'])
+    expect(normalized.learnCards[3].compareData).toEqual({ leftTitle: 'AI', rightTitle: 'Bé' })
+    expect(normalized.lessonFormat).toBe('aiki-rule-5steps')
+    expect(normalized.learnCards.map((c) => c.kind)).toEqual(['situation', 'aiki-riddle', 'rule', 'explanation', 'closing'])
+    expect(detectLessonFormat(serialized, 'aiki-rule-5steps')).toBe('aiki-rule-5steps')
+    expect(detectLessonFormat(serialized, 'standard')).toBe('standard')
+    expect(detectLessonFormat(serialized)).toBe('aiki-rule-5steps')
+
+    // Verify hydrateAikiRuleCard decodes from visualItems and removes __AIKI_RULE_STAGE__
+    const hydratedSituation = hydrateAikiRuleCard(serialized[0] as any)
+    expect(hydratedSituation.dialogueLines).toEqual([{ id: 'd-1', speaker: 'zico', role: 'left', text: 'Chào!' }])
+    expect(hydratedSituation.additionalImages).toEqual([{ id: 'img-1', url: 'https://cdn.example.com/extra.webp', alt: 'Minh họa' }])
+    expect(hydratedSituation.enabledModules).toEqual(['dialogue', 'images'])
+    expect(hydratedSituation.visualItems?.some((item) => item.label === '__AIKI_RULE_STAGE__')).toBe(false)
+
+    // Verify fallback to tip when visualItems has no metadata
+    const legacyCard = {
+      id: 'legacy-1',
+      title: 'Tình huống',
+      body: 'Nội dung',
+      tip: '<!--__AIKI_RULE_STAGE__:{"dialogueLines":[{"id":"d-legacy","speaker":"ai","role":"left","text":"Xin chào!"}]}-->',
+      kind: 'concept',
+      visualItems: [],
+    }
+    const hydratedLegacy = hydrateAikiRuleCard(legacyCard as any)
+    expect(hydratedLegacy.dialogueLines).toEqual([{ id: 'd-legacy', speaker: 'ai', role: 'left', text: 'Xin chào!' }])
+  })
+
   it('serializes game content without embedding policy fields', () => {
     const draft = {
       ...completeLecture,
@@ -136,4 +232,174 @@ describe('authoring ids and readiness', () => {
     expect(JSON.parse(serializeLectureGameConfig('data-runner', config)))
       .toEqual(gameContent)
   })
+
+  it('provides feature blocks library categories and active module resolution', () => {
+    // 1. Verify 4 categories in FEATURE_BLOCKS_CATEGORIES
+    expect(FEATURE_BLOCKS_CATEGORIES).toHaveLength(4)
+    const categoryNames = FEATURE_BLOCKS_CATEGORIES.map((c) => c.category)
+    expect(categoryNames).toEqual([
+      'Kể Chuyện & Bài Giảng',
+      'Bố Cục & Văn Bản',
+      'Mini-Game Engine',
+      'Luyện Tập & Đánh Giá',
+    ])
+
+    // Verify all essential block IDs are present
+    const allBlockIds = FEATURE_BLOCKS_CATEGORIES.flatMap((c) => c.items.map((i) => i.id))
+    expect(allBlockIds).toContain('versus-ab')
+    expect(allBlockIds).toContain('dialogue')
+    expect(allBlockIds).toContain('compare')
+    expect(allBlockIds).toContain('poster')
+    expect(allBlockIds).toContain('gallery')
+    expect(allBlockIds).toContain('video')
+    expect(allBlockIds).toContain('voice')
+    expect(allBlockIds).toContain('layout-text')
+    expect(allBlockIds).toContain('layout-split')
+    expect(allBlockIds).toContain('layout-grid')
+    expect(allBlockIds).toContain('layout-callout')
+    expect(allBlockIds).toContain('layout-storyboard')
+    expect(allBlockIds).toContain('layout-formula')
+    expect(allBlockIds).toContain('data-runner')
+    expect(allBlockIds).toContain('truth-patrol')
+    expect(allBlockIds).toContain('battle-math')
+    expect(allBlockIds).toContain('blockly')
+    expect(allBlockIds).toContain('quiz')
+    expect(allBlockIds).toContain('ordering')
+    expect(allBlockIds).toContain('pledge')
+
+    // 2. Verify getActiveModules resolution with explicit enabledModules
+    const cardWithExplicit: any = {
+      id: 'c1',
+      title: 'Tùy biến',
+      body: 'Nội dung',
+      tip: '',
+      kind: 'concept',
+      layout: 'text',
+      visualItems: [],
+      enabledModules: ['dialogue', 'images', 'poster'],
+    }
+    expect(getActiveModules(cardWithExplicit, 0)).toEqual(['dialogue', 'images', 'poster'])
+
+    // 2.1. Verify empty enabledModules preserves empty array (triggers Empty State Dropzone)
+    const cardWithEmpty: any = {
+      ...cardWithExplicit,
+      enabledModules: [],
+    }
+    expect(getActiveModules(cardWithEmpty, 0)).toEqual([])
+
+    // 3. Verify getActiveModules resolution with implicit fallback
+    const cardSituation: any = {
+      id: 's1',
+      title: 'Tình huống',
+      body: 'Mở đầu',
+      tip: '',
+      kind: 'situation',
+      layout: 'text',
+      visualItems: [],
+      videoUrl: 'https://cdn.example.com/intro.mp4',
+    }
+    const situationModules = getActiveModules(cardSituation, 0)
+    expect(situationModules).toContain('text')
+    expect(situationModules).toContain('video')
+    expect(situationModules).toContain('dialogue')
+
+    const cardRiddle: any = {
+      id: 's2',
+      title: 'Câu đố',
+      body: 'Chọn tranh',
+      tip: '',
+      kind: 'aiki-riddle',
+      layout: 'text',
+      visualItems: [],
+    }
+    expect(getActiveModules(cardRiddle, 1)).toContain('versus-ab')
+  })
+
+  it('supports flexible stage content blocks: multiple textboxes and arbitrary reordering', () => {
+    // 1. Initial creation from fallback
+    const defaultCards = createAikiRuleLearnCards()
+    const stage0 = defaultCards[0]
+    const initialBlocks = getStageBlocks(stage0, 0)
+    expect(initialBlocks.length).toBeGreaterThan(0)
+    expect(initialBlocks.some((b) => b.type === 'dialogue')).toBe(true)
+
+    // 2. Custom block sequence with multiple textboxes (e.g., text -> video -> text)
+    const customBlocks: StageBlockItem[] = [
+      {
+        id: 'blk-text-top',
+        type: 'text',
+        title: 'Giới thiệu phần 1',
+        body: 'Hôm nay chúng ta cùng khám phá một tình huống kỳ lạ.',
+      },
+      {
+        id: 'blk-video-mid',
+        type: 'video',
+        videoUrl: 'https://cdn.example.com/demo.mp4',
+      },
+      {
+        id: 'blk-text-bottom',
+        type: 'text',
+        title: 'Lời nhắn bổ sung ở dưới',
+        body: 'Các bạn hãy chú ý chi tiết trong video vừa rồi nhé!',
+      },
+      {
+        id: 'blk-callout',
+        type: 'layout-callout',
+        tip: 'Mẹo vàng: Hãy quan sát kỹ nét vẽ của nhân vật.',
+      },
+    ]
+
+    const cardWithMultipleBlocks: any = {
+      ...stage0,
+      contentBlocks: customBlocks,
+      enabledModules: ['text', 'video', 'layout-callout'],
+    }
+
+    const resolvedBlocks = getStageBlocks(cardWithMultipleBlocks, 0)
+    expect(resolvedBlocks).toHaveLength(4)
+    expect(resolvedBlocks[0].id).toBe('blk-text-top')
+    expect(resolvedBlocks[1].id).toBe('blk-video-mid')
+    expect(resolvedBlocks[2].id).toBe('blk-text-bottom')
+    expect(resolvedBlocks[3].id).toBe('blk-callout')
+
+    // 3. Reordering blocks (e.g. moving bottom textbox to the very top)
+    const reorderedBlocks = [
+      resolvedBlocks[2], // blk-text-bottom
+      resolvedBlocks[0], // blk-text-top
+      resolvedBlocks[1], // blk-video-mid
+      resolvedBlocks[3], // blk-callout
+    ]
+    expect(reorderedBlocks[0].id).toBe('blk-text-bottom')
+    expect(reorderedBlocks[1].id).toBe('blk-text-top')
+
+    // 4. Serialization roundtrip preserves contentBlocks
+    const allCards = createAikiRuleLearnCards()
+    allCards[0] = {
+      ...allCards[0],
+      contentBlocks: reorderedBlocks,
+      enabledModules: ['text', 'video', 'layout-callout'],
+    }
+
+    const serialized = serializeLearnCardsForHub(allCards)
+    const stage0Serialized = serialized[0]
+    expect(stage0Serialized.visualItems.some((v) => v.label === '__AIKI_RULE_STAGE__')).toBe(true)
+
+    // Normalize back to draft
+    const normalized = normalizeLectureDraft({
+      ...completeLecture,
+      id: 'test-lecture',
+      title: 'Bài học kiểm thử',
+      learnCards: serialized as any,
+    })
+
+    const normalizedStage0 = normalized.learnCards[0]
+    expect(normalizedStage0.contentBlocks).toBeDefined()
+    expect(normalizedStage0.contentBlocks).toHaveLength(4)
+    expect(normalizedStage0.contentBlocks![0].id).toBe('blk-text-bottom')
+    expect(normalizedStage0.contentBlocks![1].id).toBe('blk-text-top')
+    expect(normalizedStage0.contentBlocks![2].id).toBe('blk-video-mid')
+    expect(normalizedStage0.contentBlocks![3].id).toBe('blk-callout')
+  })
 })
+
+

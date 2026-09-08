@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react'
+import { normalizeVietnameseSpeech } from '@/shared/lib/vietnameseSpeech'
 
 export type Viseme = 'closed' | 'open' | 'round' | 'smile' | 'half'
 
@@ -88,6 +89,7 @@ export function useMeeCatSpeech({
   const closeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const gestureTimerRef = useRef<ReturnType<typeof setInterval> | null>(null)
   const boundaryFiredRef = useRef<boolean>(false)
+  const utteranceRef = useRef<SpeechSynthesisUtterance | null>(null)
 
   useEffect(() => {
     setActiveGesture(gesture === 'auto' ? 'point-left' : gesture)
@@ -114,10 +116,12 @@ export function useMeeCatSpeech({
   }
 
   useEffect(() => {
+    const spokenText = normalizeVietnameseSpeech(text)
     // Dọn dẹp toàn bộ khi dừng nói hoặc text rỗng
-    if (!isSpeaking || !text.trim()) {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+    if (!isSpeaking || !spokenText) {
+      if (utteranceRef.current && typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel()
+        utteranceRef.current = null
       }
       if (wordTimerRef.current) clearInterval(wordTimerRef.current)
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
@@ -129,7 +133,7 @@ export function useMeeCatSpeech({
       return
     }
 
-    const words = text
+    const words = spokenText
       .trim()
       .split(/[\s,.;:!?/\\-]+/)
       .filter(Boolean)
@@ -161,7 +165,8 @@ export function useMeeCatSpeech({
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
       window.speechSynthesis.cancel()
 
-      const utterance = new SpeechSynthesisUtterance(text)
+      const utterance = new SpeechSynthesisUtterance(spokenText)
+      utteranceRef.current = utterance
       utterance.rate = 0.95
       utterance.pitch = 1.25
 
@@ -176,7 +181,7 @@ export function useMeeCatSpeech({
         if (e.name === 'word') {
           boundaryFiredRef.current = true
           const charIndex = e.charIndex
-          const remainingText = text.slice(charIndex)
+          const remainingText = spokenText.slice(charIndex)
           const match = remainingText.match(/^[\w\u00C0-\u1EF9]+/)
           const currentWordSpoken = match ? match[0] : ''
           if (currentWordSpoken) {
@@ -187,12 +192,14 @@ export function useMeeCatSpeech({
       }
 
       utterance.onend = () => {
+        utteranceRef.current = null
         setViseme('closed')
         setCurrentWord('')
         if (onSpeechEnd) onSpeechEnd()
       }
 
       utterance.onerror = () => {
+        utteranceRef.current = null
         setViseme('closed')
         setCurrentWord('')
         if (onSpeechEnd) onSpeechEnd()
@@ -235,8 +242,9 @@ export function useMeeCatSpeech({
     }
 
     return () => {
-      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      if (utteranceRef.current && typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel()
+        utteranceRef.current = null
       }
       if (wordTimerRef.current) clearInterval(wordTimerRef.current)
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current)

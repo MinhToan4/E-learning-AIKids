@@ -103,7 +103,13 @@ export function EquippedProfile({
   const frameReward = equipment.frame
   const frame = REWARD_CATALOG.find((item) => item.id === frameReward)
   const generatedLevelFrame = frameReward?.match(/^frame-level-(\d+)$/)
-  const frameAsset = frameReward && catalogAssetUrls[frameReward]
+  // Compact cards appear on performance-sensitive overview screens. Their
+  // CSS frame preserves the reward identity without downloading a 0.8–1.6 MB
+  // presentation SVG; full profile and collection screens keep the artwork.
+  const useCompactFrame = compact && !generatedLevelFrame
+  const frameAsset = useCompactFrame
+    ? undefined
+    : frameReward && catalogAssetUrls[frameReward]
     ? catalogAssetUrls[frameReward]
     : generatedLevelFrame
     ? getGeneratedRewardAssetUrl(frameReward, 'primary', { release: '2026.08.01.5', format: 'png' })
@@ -114,12 +120,16 @@ export function EquippedProfile({
   const title = titleReward?.equipValue ?? (titleLevel
     ? `${titleTierNames[levelRewardTier(titleLevel)]} · Mốc ${titleLevel}`
     : undefined)
-  const titleCrestAsset = titleLevel
+  const titleCrestAsset = compact
+    ? undefined
+    : titleLevel
     ? getResolvedRewardAssetUrl(equipment.title)
     : titleReward
       ? getGeneratedRewardAssetUrl('title-epic', 'primary', { release: '2026.08.01.6', format: 'webp' })
       : undefined
-  const titlePlaqueAsset = (equipment.title && catalogAssetUrls[equipment.title]) || rewardTitleAsset(equipment.title)
+  const titlePlaqueAsset = compact
+    ? undefined
+    : (equipment.title && catalogAssetUrls[equipment.title]) || rewardTitleAsset(equipment.title)
   const img = profileAvatar?.url ?? avatarImage(avatarId)
   const companionReward = REWARD_CATALOG.find((item) => item.id === equipment.companion)
   const companionLevel = getLevelRewardNumber(equipment.companion, 'companion')
@@ -272,7 +282,9 @@ export function EquippedProfile({
             />
             )}
             <span className="relative flex h-7 w-7 shrink-0 items-center justify-center overflow-hidden rounded-full border border-white/80 bg-gradient-to-br from-yellow-300 to-amber-500 text-sm shadow-inner" aria-hidden="true">
-              {titleCrestAsset
+              {compact
+                ? '✦'
+                : titleCrestAsset
                 ? <img
                     src={titleCrestAsset}
                     alt=""

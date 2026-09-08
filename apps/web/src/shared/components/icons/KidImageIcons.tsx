@@ -14,6 +14,7 @@ function createKidImageIcon(fileName: string) {
         alt=""
         width={size}
         height={size}
+        loading="lazy"
         decoding="async"
         draggable={false}
         className={`aikid-clay-icon ${className}`}
@@ -32,6 +33,7 @@ function createGeneratedImageIcon(fileName: string) {
         alt=""
         width={size}
         height={size}
+        loading="lazy"
         decoding="async"
         draggable={false}
         className={`aikid-clay-icon ${className}`}

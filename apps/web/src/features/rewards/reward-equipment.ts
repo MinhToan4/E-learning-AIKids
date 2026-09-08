@@ -102,6 +102,9 @@ export function rewardFrameStyle(frameId?: string): CSSProperties {
   if (frameId === 'frame-galaxy-storyteller') {
     return { padding: 7, background: 'conic-gradient(#312e81,#c084fc,#fbbf24,#312e81)', boxShadow: '0 0 25px rgba(192,132,252,.55)' }
   }
+  if (frameId === 'frame-creative-arena') {
+    return { padding: 7, background: 'conic-gradient(#0ea5e9,#34d399,#fbbf24,#fb7185,#0ea5e9)', boxShadow: '0 8px 30px rgba(14,165,233,.3)' }
+  }
   return {}
 }
 

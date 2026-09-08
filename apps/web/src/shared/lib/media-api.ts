@@ -281,7 +281,7 @@ export async function promoteCourseAsset(assetId: string): Promise<{
 }
 
 /** Course-authoring upload for teacher/admin CMS. Family actors get 403. */
-export async function uploadCmsImage(params: {
+export async function uploadCmsCourseMedia(params: {
   file: File | Blob
   fileName?: string
   purpose?: string
@@ -319,3 +319,6 @@ export async function uploadCmsImage(params: {
   })
   return res.asset
 }
+
+/** Backward-compatible image-specific alias used by existing admin surfaces. */
+export const uploadCmsImage = uploadCmsCourseMedia

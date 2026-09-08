@@ -23,6 +23,7 @@ function newQuestion(index: number): CheckQuestion {
     options: ['', '', ''],
     answer: 0,
     explain: '',
+    mee: { readText: '', strategy: '', hints: [], gesture: 'presentation', autoRead: false },
   }
 }
 
@@ -239,6 +240,69 @@ export function CheckQuestionBuilder({ questions, onChange, maxQuestions = 10, r
                   style={textareaStyle}
                 />
               </label>
+
+              <fieldset style={{ border: '1.5px solid #bae6fd', borderRadius: '0.75rem', background: '#f0f9ff', padding: '0.75rem' }}>
+                <legend style={{ ...labelTextStyle, padding: '0 0.25rem', color: '#0369a1' }}>Hướng dẫn cho Mèo Mee</legend>
+                <label style={labelStyle}>
+                  <span style={labelTextStyle}>Lời Mee đọc <span style={{ fontWeight: 400 }}>(trống thì đọc nguyên câu hỏi)</span></span>
+                  <textarea
+                    value={q.mee?.readText ?? ''}
+                    readOnly={readOnly}
+                    onChange={(e) => updateQuestion(q.id, { mee: { readText: e.target.value, strategy: q.mee?.strategy ?? '', hints: q.mee?.hints ?? [], gesture: q.mee?.gesture ?? 'presentation', autoRead: q.mee?.autoRead ?? false } })}
+                    placeholder="Một câu ngắn, tự nhiên và phù hợp để nghe..."
+                    rows={2}
+                    style={textareaStyle}
+                  />
+                </label>
+                <label style={{ ...labelStyle, marginTop: '0.625rem' }}>
+                  <span style={labelTextStyle}>Định hướng cách giải <span style={{ fontWeight: 400 }}>(không đọc thẳng cho trẻ)</span></span>
+                  <textarea
+                    value={q.mee?.strategy ?? ''}
+                    readOnly={readOnly}
+                    onChange={(e) => updateQuestion(q.id, { mee: { readText: q.mee?.readText ?? '', strategy: e.target.value, hints: q.mee?.hints ?? [], gesture: q.mee?.gesture ?? 'presentation', autoRead: q.mee?.autoRead ?? false } })}
+                    placeholder="Kiến thức cần dùng và thứ tự suy luận..."
+                    rows={2}
+                    style={textareaStyle}
+                  />
+                </label>
+                <label style={{ ...labelStyle, marginTop: '0.625rem' }}>
+                  <span style={labelTextStyle}>Gợi ý tăng dần <span style={{ fontWeight: 400 }}>(mỗi dòng một mức)</span></span>
+                  <textarea
+                    value={(q.mee?.hints ?? []).join('\n')}
+                    readOnly={readOnly}
+                    onChange={(e) => updateQuestion(q.id, { mee: { readText: q.mee?.readText ?? '', strategy: q.mee?.strategy ?? '', hints: e.target.value.split(/\r?\n/).map((hint) => hint.trim()).filter(Boolean), gesture: q.mee?.gesture ?? 'presentation', autoRead: q.mee?.autoRead ?? false } })}
+                    placeholder={'Nhìn lại dữ kiện quan trọng.\nCon thử làm bước đầu tiên trước nhé.'}
+                    rows={3}
+                    style={textareaStyle}
+                  />
+                </label>
+                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.75rem', marginTop: '0.625rem', alignItems: 'end' }}>
+                  <label style={{ ...labelStyle, flex: '1 1 12rem' }}>
+                    <span style={labelTextStyle}>Cử chỉ</span>
+                    <select
+                      value={q.mee?.gesture ?? 'presentation'}
+                      disabled={readOnly}
+                      onChange={(e) => updateQuestion(q.id, { mee: { readText: q.mee?.readText ?? '', strategy: q.mee?.strategy ?? '', hints: q.mee?.hints ?? [], gesture: e.target.value as NonNullable<CheckQuestion['mee']>['gesture'], autoRead: q.mee?.autoRead ?? false } })}
+                      style={{ ...textareaStyle, minHeight: '3rem', resize: 'none' }}
+                    >
+                      <option value="presentation">Trình bày</option>
+                      <option value="point-left">Chỉ bên trái</option>
+                      <option value="point-right">Chỉ bên phải</option>
+                      <option value="think">Cùng suy nghĩ</option>
+                      <option value="idea">Nêu mẹo</option>
+                    </select>
+                  </label>
+                  <label style={{ display: 'flex', minHeight: '3rem', alignItems: 'center', gap: '0.5rem', fontSize: '0.8125rem', fontWeight: 600, color: '#475569' }}>
+                    <input
+                      type="checkbox"
+                      checked={q.mee?.autoRead ?? false}
+                      disabled={readOnly}
+                      onChange={(e) => updateQuestion(q.id, { mee: { readText: q.mee?.readText ?? '', strategy: q.mee?.strategy ?? '', hints: q.mee?.hints ?? [], gesture: q.mee?.gesture ?? 'presentation', autoRead: e.target.checked } })}
+                    />
+                    Tự đọc khi hiện câu
+                  </label>
+                </div>
+              </fieldset>
             </div>
           </div>
         )

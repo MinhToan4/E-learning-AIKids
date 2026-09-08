@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { useParams, useNavigate, Link } from 'react-router'
 import {
   BookOpen,
@@ -23,6 +23,7 @@ import {
   Plus,
   Minus,
   Volume2,
+  Square,
 } from 'lucide-react'
 import {
   ASMO_LMS_STAGES,
@@ -34,7 +35,7 @@ import {
   isLessonUnlocked,
 } from '../data/asmo-curriculum-lms'
 import { AsmoFormula } from '../components/AsmoFormula'
-import { AsmoInteractiveAppleTreeCanvas, speakVietnamese } from '../components/AsmoInteractiveAppleTreeCanvas'
+import { AsmoInteractiveAppleTreeCanvas } from '../components/AsmoInteractiveAppleTreeCanvas'
 import { AsmoInteractivePracticeWorkspace } from '../components/AsmoInteractivePracticeWorkspace'
 import { AsmoVisualSecretComicCard } from '../components/AsmoVisualSecretComicCard'
 import { renderClockSvg, renderBalanceScaleSvg, renderMatchstickFigureSvg } from '../components/AsmoDiagramEngine'
@@ -249,6 +250,32 @@ export function AsmoCurriculumLessonPage() {
   const [earnedStars, setEarnedStars] = useState(0)
   const [isQuizCorrect, setIsQuizCorrect] = useState(false)
   const [showCelebrationModal, setShowCelebrationModal] = useState(false)
+  const [meeSpeechText, setMeeSpeechText] = useState('')
+  const [meeSpeaking, setMeeSpeaking] = useState(false)
+  const meeSpeechTimerRef = useRef<number | null>(null)
+
+  const speakWithMee = (text: string) => {
+    if (meeSpeechTimerRef.current !== null) window.clearTimeout(meeSpeechTimerRef.current)
+    window.speechSynthesis?.cancel()
+    setMeeSpeaking(false)
+    setMeeSpeechText(text)
+    meeSpeechTimerRef.current = window.setTimeout(() => {
+      setMeeSpeaking(true)
+      meeSpeechTimerRef.current = null
+    }, 20)
+  }
+
+  const stopMee = () => {
+    if (meeSpeechTimerRef.current !== null) window.clearTimeout(meeSpeechTimerRef.current)
+    meeSpeechTimerRef.current = null
+    window.speechSynthesis?.cancel()
+    setMeeSpeaking(false)
+  }
+
+  useEffect(() => () => {
+    if (meeSpeechTimerRef.current !== null) window.clearTimeout(meeSpeechTimerRef.current)
+    window.speechSynthesis?.cancel()
+  }, [])
 
   // ── Sync progress on mount & lesson change ──
   useEffect(() => {
@@ -323,15 +350,15 @@ export function AsmoCurriculumLessonPage() {
   const handleSpeakCurrentPhase = () => {
     if (!lesson) return
     if (phase === 'explore') {
-      speakVietnamese(lesson.theory?.summary || lesson.title)
+      speakWithMee(lesson.theory?.summary || lesson.title)
     } else if (phase === 'tips') {
-      speakVietnamese(lesson.meeTip?.quote ? `${lesson.meeTip.quote}. ${lesson.meeTip.storyAdvice}` : lesson.title)
+      speakWithMee(lesson.meeTip?.quote || lesson.title)
     } else if (phase === 'practice') {
-      speakVietnamese(lesson.interactivePractice?.instruction || lesson.title)
+      speakWithMee(lesson.interactivePractice?.instruction || lesson.title)
     } else if (phase === 'quiz') {
-      speakVietnamese(lesson.quiz?.questionText || lesson.title)
+      speakWithMee(lesson.quiz?.questionText || lesson.title)
     } else {
-      speakVietnamese(lesson.title)
+      speakWithMee(lesson.title)
     }
   }
 
@@ -421,25 +448,25 @@ export function AsmoCurriculumLessonPage() {
       return {
         eyebrow: 'Khám phá Khái niệm',
         title: 'Mee kể con nghe',
-        body: lesson.theory.summary,
+        body: 'Quan sát hình bên trái để tìm quy luật nhé.',
         pose: 'guide' as AikidCatPose,
       }
     }
 
     if (phase === 'tips') {
       return {
-        eyebrow: 'Mẹo Mèo Mee & Bí kíp',
-        title: 'Bí kíp tính nhanh ✨',
-        body: lesson.meeTip.quote,
+        eyebrow: 'Mẹo Mee',
+        title: 'Nhớ một điều thôi',
+        body: 'Nhìn sơ đồ bên trái và nhớ hai bước màu nhé.',
         pose: lesson.meeTip.pose,
       }
     }
 
     if (phase === 'practice') {
       return {
-        eyebrow: 'Thực hành Thao tác',
-        title: 'Thử tay nghề ngay!',
-        body: lesson.interactivePractice.instruction,
+        eyebrow: 'Thực hành',
+        title: 'Con làm từng bước nhé',
+        body: 'Làm một thử thách mỗi lần. Mee sẽ đánh dấu khi con xong.',
         pose: 'thinking' as AikidCatPose,
       }
     }
@@ -448,8 +475,8 @@ export function AsmoCurriculumLessonPage() {
       if (quizSubmitted && isQuizCorrect) {
         return {
           eyebrow: 'Xuất sắc!',
-          title: 'Con làm đúng rồi! 🎉',
-          body: lesson.quiz.correctExplanation,
+          title: 'Con làm đúng rồi!',
+          body: 'Giỏi lắm! Con đã biết dùng bí kíp.',
           pose: 'celebrate' as AikidCatPose,
         }
       }
@@ -457,14 +484,14 @@ export function AsmoCurriculumLessonPage() {
         return {
           eyebrow: 'Chưa đúng',
           title: 'Cùng thử lại nhé!',
-          body: 'Đọc kỹ lại câu hỏi và tham khảo Mẹo Mèo Mee ở Bước 2 nhé.',
+          body: 'Đọc lại đề, rồi loại từng đáp án chưa đúng nhé.',
           pose: 'support' as AikidCatPose,
         }
       }
       return {
-        eyebrow: 'Thử tài Olympic',
-        title: 'Chinh phục 3 Sao ⭐',
-        body: 'Đọc kỹ câu hỏi và chọn đáp án chính xác nhất để nhận 3 Sao và XP!',
+        eyebrow: 'Thử tài',
+        title: 'Chọn một đáp án',
+        body: 'Đọc đề bên trái, chọn đáp án rồi bấm Nộp bài.',
         pose: 'thinking' as AikidCatPose,
       }
     }
@@ -476,33 +503,6 @@ export function AsmoCurriculumLessonPage() {
       pose: 'celebrate' as AikidCatPose,
     }
   }, [lesson, phase, quizSubmitted, isQuizCorrect])
-
-  // ── Mẹo / Khẩu quyết tính nhanh vui nhộn cho Khối 3 ──
-  const visualMnemonic = useMemo(() => {
-    if (!lesson) return 'Quan sát thật kỹ và cùng Mèo Mee giải toán nhé!'
-    if (lesson.id.includes('apples') || lesson.visualType === 'apple_drop' || lesson.visualType === 'make10') {
-      return '1 đi với 9, 2 sánh cùng 8, 3 kết đôi 7, 4 tìm bạn 6, 5 bắt tay 5!'
-    }
-    if (lesson.visualType === 'balloon_pop' || lesson.id.includes('subtraction')) {
-      return 'Bớt bao nhiêu bóng, đếm ngay bóng còn, phép trừ thật gọn!'
-    }
-    if (lesson.visualType === 'cake_tray' || lesson.id.includes('multiplication')) {
-      return 'Số hàng nhân số cột, đếm bánh ngon một lèo!'
-    }
-    if (lesson.visualType === 'pizza_fraction' || lesson.visualType === 'compare_fractions') {
-      return 'Mẫu số là tổng phần chia, tử số là phần bánh bé đang cầm!'
-    }
-    if (lesson.visualType === 'analog_clock' || lesson.visualType === 'elapsed_time') {
-      return 'Kim ngắn chỉ giờ êm ả, kim dài chỉ phút nhảy xa 5 bước!'
-    }
-    if (lesson.visualType === 'times_table_69') {
-      return 'Bảng 9 diệu kỳ: Chữ số hàng chục cộng hàng đơn vị luôn bằng 9!'
-    }
-    if (lesson.meeTip.quote) {
-      return lesson.meeTip.quote
-    }
-    return 'Quan sát thật kỹ, áp dụng bí kíp Mèo Mee để giải nhanh chuẩn xác!'
-  }, [lesson])
 
   // ── Checklist 3 nhiệm vụ mini trực quan cho Khối 2 ──
   const checklistItems = useMemo(() => {
@@ -696,19 +696,19 @@ export function AsmoCurriculumLessonPage() {
             id: 'task-1',
             icon: '➕',
             label: 'Cộng hàng đơn vị & nhớ 1',
-            done: true,
+            done: phase !== 'explore',
           },
           {
             id: 'task-2',
             icon: '🔟',
             label: 'Cộng hàng chục thêm 1 nhớ',
-            done: true,
+            done: phase === 'practice' || phase === 'quiz' || phase === 'done',
           },
           {
             id: 'task-3',
             icon: '✨',
             label: 'Viết kết quả 85',
-            done: true,
+            done: practiceCompleted || phase === 'quiz' || phase === 'done',
           },
         ]
       }
@@ -718,19 +718,19 @@ export function AsmoCurriculumLessonPage() {
             id: 'task-1',
             icon: '➖',
             label: 'Mượn 1 chục trừ hàng đơn vị',
-            done: true,
+            done: phase !== 'explore',
           },
           {
             id: 'task-2',
             icon: '🔟',
             label: 'Bớt 1 hàng chục & trừ tiếp',
-            done: true,
+            done: phase === 'practice' || phase === 'quiz' || phase === 'done',
           },
           {
             id: 'task-3',
             icon: '✨',
             label: 'Viết kết quả 35',
-            done: true,
+            done: practiceCompleted || phase === 'quiz' || phase === 'done',
           },
         ]
       }
@@ -2562,49 +2562,45 @@ export function AsmoCurriculumLessonPage() {
           RIGHT COLUMN: 30% SIDEBAR TRỢ GIẢNG HỌC TẬP SỐNG ĐỘNG (GAMIFIED COMPANION PANEL)
       ══════════════════════════════════════════════════════════════════════ */}
       <aside
-        className="w-full lg:w-[320px] xl:w-[350px] shrink-0 self-stretch overflow-y-auto hidden-scrollbar rounded-3xl border-2 border-brand-100 bg-white p-4 sm:p-5 shadow-clay flex flex-col gap-3.5"
+        className="w-full lg:w-[420px] xl:w-[460px] shrink-0 self-stretch overflow-y-auto hidden-scrollbar rounded-3xl border-2 border-brand-100 bg-white p-4 shadow-clay flex flex-col gap-3.5"
         aria-labelledby="asmo-sidebar-assistant-title"
       >
         {/* ── KHỐI 1: MÈO MEE ĐỒNG HÀNH & GIỌNG ĐỌC 🔊 ── */}
-        <div className="rounded-2xl bg-brand-50/80 border-2 border-brand-100 p-3.5 shadow-2xs space-y-3">
-          <div className="flex items-center gap-3">
+        <div className="rounded-3xl bg-gradient-to-br from-amber-50 via-white to-brand-50 border-2 border-brand-100 p-3.5 shadow-soft">
+          <div className="grid grid-cols-[7.5rem_minmax(0,1fr)] items-center gap-2">
             <AikidCatCharacter
               pose={dynamicGuideCopy.pose}
-              className="size-14 sm:size-16 shrink-0 drop-shadow-sm animate-bounce"
+              isSpeaking={meeSpeaking}
+              speechText={meeSpeechText || dynamicGuideCopy.body}
+              onSpeechEnd={() => setMeeSpeaking(false)}
+              animated={meeSpeaking}
+              className="h-40 w-30 shrink-0 drop-shadow-md xl:h-44 xl:w-32"
             />
-            <div className="min-w-0 flex-1 text-left">
-              <p className="flex items-center gap-1 text-[11px] font-black text-brand-700 uppercase tracking-wider">
-                <MessageCircle className="size-3.5 text-brand-500" />
-                <span>Mee đang hỗ trợ: Con làm được! 🐾</span>
+            <div className="relative min-w-0 rounded-3xl border-2 border-brand-200 bg-white px-4 py-3.5 text-left shadow-clay">
+              <span className="absolute -left-3 bottom-9 size-6 rotate-45 border-b-2 border-l-2 border-brand-200 bg-white" aria-hidden="true" />
+              <p className="relative flex items-center gap-1.5 text-[11px] font-black uppercase tracking-wider text-brand-700">
+                <MessageCircle className="size-4 text-brand-500" aria-hidden="true" />
+                <span>{dynamicGuideCopy.eyebrow}</span>
               </p>
-              <h2
-                id="asmo-sidebar-assistant-title"
-                className="font-display text-sm sm:text-base font-extrabold text-slate-900 leading-tight"
-              >
+              <h2 id="asmo-sidebar-assistant-title" className="relative mt-1 font-display text-base font-black leading-tight text-slate-900 xl:text-lg">
                 <AsmoFormula text={dynamicGuideCopy.title} className="inline" />
               </h2>
+              <p className="relative mt-2 text-sm font-bold leading-relaxed text-slate-800">
+                <AsmoFormula text={dynamicGuideCopy.body} />
+              </p>
             </div>
           </div>
 
-          {/* Dynamic Mee speech balloon */}
-          <div className="relative rounded-2xl bg-white/95 border-2 border-brand-100 p-3 text-left shadow-2xs">
-            <p className="text-[10px] font-black text-brand-700 uppercase tracking-wider">
-              {dynamicGuideCopy.eyebrow}
-            </p>
-            <p className="mt-1 text-xs sm:text-sm font-extrabold leading-snug text-slate-800">
-              <AsmoFormula text={dynamicGuideCopy.body} />
-            </p>
-          </div>
-
-          {/* Nút Lớn [ 🔊 Nghe Mee Đọc ] */}
+          {/* Large, direct voice control below the character conversation. */}
           <button
             type="button"
-            onClick={() => speakVietnamese(dynamicGuideCopy.body)}
+            onClick={() => meeSpeaking ? stopMee() : handleSpeakCurrentPhase()}
             title="Nghe Mèo Mee đọc hướng dẫn bằng giọng tiếng Việt dễ thương"
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-2xl bg-brand-500 hover:bg-brand-600 text-white font-extrabold text-xs sm:text-sm shadow-clay active:scale-95 transition-all cursor-pointer border-2 border-brand-600 select-none"
+            className="mt-1 flex min-h-12 w-full items-center justify-center gap-2 rounded-2xl border-2 border-brand-600 bg-brand-500 px-4 py-3 text-sm font-extrabold text-white shadow-clay transition-all hover:bg-brand-600 active:scale-[0.98] cursor-pointer select-none"
+            aria-label={meeSpeaking ? 'Dừng Mèo Mee đọc' : 'Nghe Mèo Mee đọc'}
           >
-            <Volume2 className="size-4 stroke-[2.5]" />
-            <span>🔊 Nghe Mee Đọc</span>
+            {meeSpeaking ? <Square className="size-5" aria-hidden="true" /> : <Volume2 className="size-5" aria-hidden="true" />}
+            <span>{meeSpeaking ? 'Dừng Mee' : 'Nghe Mee đọc'}</span>
           </button>
         </div>
 
@@ -2652,48 +2648,34 @@ export function AsmoCurriculumLessonPage() {
           </div>
         </section>
 
-        {/* ── KHỐI 3: HỘP BÍ KÍP / MẸO MEE THÔNG MINH (VISUAL TIP CARD) ── */}
-        <div className="rounded-2xl bg-sun-50/70 border-2 border-sun-200 p-3.5 text-sun-950 shadow-2xs text-left space-y-2">
-          <div className="flex items-center gap-2">
-            <span className="text-base">💡</span>
-            <span className="text-xs font-black text-sun-950 uppercase tracking-wider">
-              Mẹo Mee Thông Minh
-            </span>
-          </div>
-
-          {/* Catchy Mnemonic Rhyme */}
-          <div className="bg-white/95 rounded-xl p-2.5 border border-sun-200 text-xs font-extrabold text-sun-950 italic leading-snug flex items-center gap-1 flex-wrap">
-            <span>&quot;</span>
-            <AsmoFormula text={visualMnemonic} className="inline" />
-            <span>&quot;</span>
-          </div>
-
-          {/* Nút [ 💡 Bật Mí Gợi Ý ] */}
+        {/* A hint stays hidden until requested, avoiding repeated lesson copy. */}
+        {(phase === 'practice' || phase === 'quiz') && <div className="rounded-2xl bg-sun-50/70 p-2.5 text-sun-950 shadow-2xs text-left space-y-2">
           <button
             type="button"
             onClick={() => setShowHint(!showHint)}
             className="w-full flex items-center justify-center gap-1.5 py-2 px-3 rounded-2xl bg-white hover:bg-slate-50 text-slate-800 border-2 border-slate-200 font-extrabold text-xs shadow-2xs transition-all cursor-pointer active:scale-95"
           >
             <Lightbulb className="size-3.5 text-sun-600" />
-            <span>{showHint ? 'Ẩn Gợi Ý' : '💡 Bật Mí Gợi Ý'}</span>
+            <span>{showHint ? 'Ẩn gợi ý' : 'Con cần gợi ý?'}</span>
           </button>
 
           {showHint && (
             <div className="rounded-xl border-2 border-sun-300 bg-sun-50/90 p-2.5 text-xs font-bold text-sun-950 animate-pop space-y-1">
               <p className="flex items-center gap-1 font-black text-sun-950 text-[11px]">
-                <span>🐱 Mee mách nước:</span>
+                <span>Mee mách nhỏ:</span>
               </p>
               <p className="font-semibold text-slate-700 leading-relaxed text-[11px]">
                 <AsmoFormula
                   text={
-                    lesson.meeTip.storyAdvice ||
-                    'Làm tuần tự từ Khám phá đến Thử tài. Khi gặp bài Olympic khó, hãy nhớ quy luật ghép cặp hoặc trực quan hoá nhé!'
+                    phase === 'quiz'
+                      ? 'Dùng bí kíp đã học, rồi loại đáp án chưa đúng.'
+                      : 'Làm đúng một bước trước khi chuyển sang bước tiếp theo.'
                   }
                 />
               </p>
             </div>
           )}
-        </div>
+        </div>}
 
         {/* ── KHỐI 4: THẺ THƯỞNG TRẠM SOFT CLAY (CANDY CARD) ── */}
         <div className="rounded-2xl bg-brand-50/70 border-2 border-brand-200 p-3.5 shadow-clay flex items-center justify-between gap-2 mt-auto">

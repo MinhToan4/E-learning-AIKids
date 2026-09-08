@@ -4,9 +4,12 @@ import { resolveLectureVideo } from '@/features/lesson/lib/lecture-video'
 type Props = {
   title: string
   url: string
+  onPlay?: () => void
+  onPause?: () => void
+  onEnded?: () => void
 }
 
-export function LectureVideo({ title, url }: Props) {
+export function LectureVideo({ title, url, onPlay, onPause, onEnded }: Props) {
   const source = useMemo(() => resolveLectureVideo(url), [url])
 
   if (!source) {
@@ -38,6 +41,9 @@ export function LectureVideo({ title, url }: Props) {
           playsInline
           preload="metadata"
           src={source.src}
+          onPlay={onPlay}
+          onPause={onPause}
+          onEnded={onEnded}
         >
           Trình duyệt không hỗ trợ video.
         </video>

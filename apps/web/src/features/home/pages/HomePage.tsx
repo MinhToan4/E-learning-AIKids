@@ -166,6 +166,8 @@ function CourseCard({ course, index }: { course: CourseSummary; index: number })
           alt=""
           className="home-course-island-art"
           aria-hidden
+          loading="lazy"
+          decoding="async"
         />
         <AikidCatCharacter
           pose={coursePoses[index % coursePoses.length]}
@@ -233,6 +235,8 @@ function ContinueLearningCard({ course }: { course: CourseSummary }) {
         src={cover}
         alt=""
         aria-hidden="true"
+        decoding="async"
+        fetchPriority="high"
         onError={(event) => {
           event.currentTarget.onerror = null
           event.currentTarget.src = designerAssets.lobby.bgHome
@@ -313,17 +317,22 @@ export function HomePage() {
         return { streak, mission }
       }
 
-      const [c, enrollmentData, a, profile, gamification, rewardState] =
-        await Promise.all([
+      // Courses are the only data required to start learning. Render them as
+      // soon as they arrive; rewards and profile counters enhance the page later.
+      const [c, enrollmentData] = await Promise.all([
         api<{ courses: CourseSummary[] }>('/api/courses'),
         api<{ enrollments: EnrollmentSummary[] }>('/api/enrollments'),
-        api<{ achievements: AchievementRow[] }>('/api/gamification/achievements'),
-        api<{ totalXp: number; level: number; xpIntoLevel: number; xpToNextLevel: number }>('/api/gamification/profile'),
+      ])
+      setCourses(coursesWithEnrollments(c.courses, enrollmentData.enrollments))
+      setLoading(false)
+
+      const [a, profile, gamification, rewardState] = await Promise.all([
+        api<{ achievements: AchievementRow[] }>('/api/gamification/achievements').catch(() => null),
+        api<{ totalXp: number; level: number; xpIntoLevel: number; xpToNextLevel: number }>('/api/gamification/profile').catch(() => null),
         fetchMissionAndStreak(),
         api<{ equipment: Array<{ kind: RewardKind; rewardId: string }> }>('/api/gamification/storybook')
           .catch(() => null),
       ])
-      setCourses(coursesWithEnrollments(c.courses, enrollmentData.enrollments))
       if (gamification.streak) {
         setStreak({
           current: gamification.streak.current,
@@ -331,16 +340,18 @@ export function HomePage() {
           lastActivityDate: gamification.streak.lastActivityDate,
         })
       }
-      setBadges(recentUnlockedAchievements(a.achievements, 3))
+      if (a) setBadges(recentUnlockedAchievements(a.achievements, 3))
       if (gamification.mission?.mission) {
         setDailyMission(gamification.mission.mission)
       } else {
         setDailyMission(null)
       }
-      setExplorerXp(profile.totalXp)
-      setExplorerLevel(profile.level)
-      setXpIntoLevel(profile.xpIntoLevel)
-      setXpToNextLevel(profile.xpToNextLevel)
+      if (profile) {
+        setExplorerXp(profile.totalXp)
+        setExplorerLevel(profile.level)
+        setXpIntoLevel(profile.xpIntoLevel)
+        setXpToNextLevel(profile.xpToNextLevel)
+      }
       if (user && rewardState) {
         const synced = rewardEquipmentFromRows(rewardState.equipment)
         setProfileEquipment(syncRewardEquipment(user.id, synced))
@@ -537,7 +548,7 @@ export function HomePage() {
                   >
                     <span className="grid h-14 w-14 flex-shrink-0 place-items-center" aria-hidden="true">
                       {badgeAsset ? (
-                        <img src={badgeAsset} alt="" className="h-14 w-14 object-contain" />
+                        <img src={badgeAsset} alt="" loading="lazy" decoding="async" className="h-14 w-14 object-contain" />
                       ) : (
                         <NavBadgeIcon size={38} />
                       )}

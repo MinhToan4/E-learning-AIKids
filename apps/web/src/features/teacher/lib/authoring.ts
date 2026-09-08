@@ -38,6 +38,38 @@ export type CheckQuestion = {
   options: string[] // 2–6 đáp án
   answer: number    // index 0-based của đáp án đúng
   explain: string
+  mee?: {
+    readText: string
+    /** Ghi chú cho hệ thống/giáo viên, không đọc nguyên văn cho trẻ. */
+    strategy: string
+    /** Gợi ý theo thứ tự từ nhẹ đến rõ, không đưa đáp án ngay ở mức đầu. */
+    hints: string[]
+    gesture: 'presentation' | 'point-left' | 'point-right' | 'think' | 'idea' | 'celebrate' | 'celebrate-1' | 'explain' | 'idle'
+    autoRead: boolean
+  }
+}
+
+export type DialogueLine = {
+  id: string
+  speaker: string
+  role: 'left' | 'right' | 'center'
+  text: string
+}
+
+export type StageImageItem = {
+  id: string
+  url: string
+  alt: string
+  caption?: string
+}
+
+export type StageCompareData = {
+  leftTitle?: string
+  leftText?: string
+  leftImage?: string
+  rightTitle?: string
+  rightText?: string
+  rightImage?: string
 }
 
 export type LearnVisualItemDraft = {
@@ -50,14 +82,323 @@ export type LearnVisualItemDraft = {
   direction?: string
 }
 
+export type ContentBlockType =
+  | 'text'              // Textbox / Đoạn văn bản
+  | 'layout-text'       // 1 Cột Tập Trung
+  | 'layout-split'      // Bố cục 2 Cột (Chữ + Media)
+  | 'layout-grid'       // Lưới Ô Thẻ
+  | 'layout-callout'    // Hộp Ghi Nhớ Nổi Bật
+  | 'layout-formula'    // Công thức KaTeX
+  | 'layout-storyboard' // Chuỗi Storyboard
+  | 'voice'             // Mèo AIKI & Lời đọc Lipsync
+  | 'video'             // Video Bài Giảng
+  | 'versus-ab'         // 2 Tranh Đối Đầu A/B
+  | 'dialogue'          // Kịch Bản Phân Vai Comic
+  | 'compare'           // Bảng So Sánh 2 Cột
+  | 'poster'            // Poster Quy Tắc Vàng
+  | 'images'            // Album Ảnh Minh Họa
+
+export interface StageBlockItem {
+  id: string
+  type: ContentBlockType
+  title?: string
+  body?: string
+  tip?: string
+  tone?: 'brand' | 'sky' | 'mint' | 'sun' | 'coral'
+  imageUrl?: string
+  imageAlt?: string
+  videoUrl?: string
+  formula?: string
+  visualItems?: LearnVisualItemDraft[]
+}
+
 export type LearnCardDraft = {
   id: string
   title: string
   body: string
   tip: string
-  kind: 'concept' | 'example' | 'compare' | 'steps' | 'storyboard' | 'remember'
+  kind: 'concept' | 'example' | 'compare' | 'steps' | 'storyboard' | 'remember' | 'situation' | 'aiki-riddle' | 'rule' | 'explanation' | 'closing'
   layout: 'text' | 'split' | 'visual-grid' | 'storyboard'
   visualItems: LearnVisualItemDraft[]
+  imageUrl?: string
+  imageAlt?: string
+  videoUrl?: string
+  optionImages?: string[]
+  optionLabels?: string[]
+  optionDescs?: string[]
+  dialogueLines?: DialogueLine[]
+  additionalImages?: StageImageItem[]
+  compareData?: StageCompareData
+  compareImages?: { left: string; right: string }
+  enabledModules?: string[] // ['versus-ab', 'images', 'dialogue', 'compare', 'poster', 'video']
+  contentBlocks?: StageBlockItem[]
+  mee?: {
+    readText: string
+    /** URL audio đã được Vertex tạo qua StoryMee Hub; FE không gọi Vertex trực tiếp. */
+    audioUrl?: string
+    voiceProvider?: 'vertex'
+    gesture: 'presentation' | 'point-left' | 'point-right' | 'think' | 'idea' | 'celebrate' | 'celebrate-1' | 'explain' | 'idle'
+    autoRead: boolean
+  }
+}
+
+export type LessonFormat = 'standard' | 'aiki-rule-5steps'
+
+export const AIKI_RULE_STAGE_KINDS = [
+  'situation',
+  'aiki-riddle',
+  'rule',
+  'explanation',
+  'closing',
+] as const
+export const AIKI_RULE_META_LABEL = '__AIKI_RULE_STAGE__'
+export const AIKI_RULE_HUB_KINDS_ORDER = ['concept', 'example', 'steps', 'compare', 'remember'] as const
+export const AIKI_RULE_STAGE_IDS = [
+  'aiki-rule-situation',
+  'aiki-rule-riddle',
+  'aiki-rule-rule',
+  'aiki-rule-explanation',
+  'aiki-rule-closing',
+] as const
+
+export function isAikiRuleLesson(cards: LearnCardDraft[]): boolean {
+  if (!Array.isArray(cards) || cards.length !== AIKI_RULE_STAGE_KINDS.length) return false
+  // 1. Khớp trực tiếp 5 kinds mới (situation, aiki-riddle, rule, explanation, closing)
+  if (cards.every((card, index) => card.kind === AIKI_RULE_STAGE_KINDS[index])) return true
+  // 2. Khớp 5 kinds dạng Hub lưu DB (concept, example, steps, compare, remember)
+  if (cards.every((card, index) => card.kind === AIKI_RULE_HUB_KINDS_ORDER[index])) return true
+  // 3. Có chứa metadata __AIKI_RULE_STAGE__ trong visualItems
+  if (cards.some((card) => card.visualItems?.some((item) => item.label === AIKI_RULE_META_LABEL))) return true
+  // 4. Có ID theo chuẩn aiki-rule-* đúng thứ tự 5 stage
+  if (cards.every((card, index) => card.id === AIKI_RULE_STAGE_IDS[index] || card.id?.startsWith(`aiki-rule-${AIKI_RULE_STAGE_KINDS[index]}`))) return true
+  return false
+}
+
+export function detectLessonFormat(cards: LearnCardDraft[], explicitFormat?: string): LessonFormat {
+  if (explicitFormat === 'aiki-rule-5steps' || explicitFormat === 'standard') {
+    return explicitFormat
+  }
+  if (isAikiRuleLesson(cards)) return 'aiki-rule-5steps'
+  return 'standard'
+}
+
+export type AikiRuleStageMeta = {
+  kind: typeof AIKI_RULE_STAGE_KINDS[number]
+  label: string
+  shortLabel: string
+}
+
+export const AIKI_RULE_STAGE_METAS: readonly AikiRuleStageMeta[] = [
+  { kind: 'situation', label: '1. Tình huống', shortLabel: 'Tình huống' },
+  { kind: 'aiki-riddle', label: '2. Câu đố AIKI', shortLabel: 'Câu đố' },
+  { kind: 'rule', label: '3. Quy tắc Vàng', shortLabel: 'Quy tắc' },
+  { kind: 'explanation', label: '4. Giải thích', shortLabel: 'Giải thích' },
+  { kind: 'closing', label: '5. Bản Cam Kết', shortLabel: 'Cam kết' },
+]
+
+export interface ParsedDialogue {
+  id: string
+  speaker: string
+  speakerName?: string
+  text: string
+  role?: 'left' | 'right' | 'center'
+}
+
+export function parseComicDialogue(source?: string): ParsedDialogue[] {
+  if (!source) return []
+  const lines = source.split('\n').map((l) => l.trim()).filter(Boolean)
+  const result: ParsedDialogue[] = []
+  lines.forEach((line, idx) => {
+    const match = line.match(/^([A-Za-z0-9_\u00C0-\u024F\u1EA0-\u1EF9\s]+)[:：]\s*(.*)$/)
+    if (match) {
+      const name = match[1].trim()
+      const text = match[2].trim()
+      const lower = name.toLowerCase()
+      let role: 'left' | 'right' | 'center' = 'center'
+      if (lower.includes('zico') || lower.includes('cam')) role = 'left'
+      else if (lower.includes('sonet') || lower.includes('xanh')) role = 'right'
+      result.push({
+        id: `dialogue-${idx}`,
+        speaker: lower.includes('zico') ? 'zico' : lower.includes('sonet') ? 'sonet' : 'aki',
+        speakerName: name,
+        text,
+        role,
+      })
+    }
+  })
+  return result
+}
+
+export function parseVersusOption(opt: string, optIdx: number, tip?: string): { title: string; desc?: string } {
+  const match = opt.match(/^(.*?)\s*\((.*?)\)$/)
+  if (match) {
+    return {
+      title: match[1].trim(),
+      desc: match[2].trim(),
+    }
+  }
+  return {
+    title: opt,
+    desc: optIdx === 0
+      ? 'Phương án quen thuộc hoặc sao chép'
+      : 'Phương án sáng tạo độc đáo từ cảm xúc và câu chuyện riêng của con',
+  }
+}
+
+const AIKI_RULE_HUB_KINDS: Record<typeof AIKI_RULE_STAGE_KINDS[number], 'concept' | 'example' | 'steps' | 'compare' | 'remember'> = {
+  situation: 'concept',
+  'aiki-riddle': 'example',
+  rule: 'steps',
+  explanation: 'compare',
+  closing: 'remember',
+}
+
+
+export function createAikiRuleLearnCards(): LearnCardDraft[] {
+  const stages: Array<Pick<LearnCardDraft, 'id' | 'title' | 'kind'> & { gesture: NonNullable<LearnCardDraft['mee']>['gesture'] }> = [
+    { id: 'aiki-rule-situation', title: '1. Tình huống', kind: 'situation', gesture: 'presentation' },
+    { id: 'aiki-rule-riddle', title: '2. Câu đố của AIKI', kind: 'aiki-riddle', gesture: 'think' },
+    { id: 'aiki-rule-rule', title: '3. Quy tắc', kind: 'rule', gesture: 'idea' },
+    { id: 'aiki-rule-explanation', title: '4. Giải thích', kind: 'explanation', gesture: 'point-left' },
+    { id: 'aiki-rule-closing', title: '5. Chốt', kind: 'closing', gesture: 'celebrate' },
+  ]
+  return stages.map((stage) => ({
+    ...stage,
+    body: '',
+    tip: '',
+    layout: 'text',
+    visualItems: [],
+    imageUrl: '',
+    imageAlt: '',
+    videoUrl: '',
+    optionImages: stage.kind === 'aiki-riddle' ? ['', ''] : undefined,
+    optionLabels: stage.kind === 'aiki-riddle' ? ['Ảnh A: Bức tranh của Zico', 'Ảnh B: Bức tranh của Sonet'] : undefined,
+    optionDescs: stage.kind === 'aiki-riddle' ? ['Siêu anh hùng quen thuộc (ai cũng vẽ được)', 'Siêu anh hùng bố cầm vợt muỗi (độc nhất của riêng con)'] : undefined,
+    dialogueLines: stage.kind === 'situation' ? [
+      { id: 'd-1', speaker: 'zico', role: 'left', text: 'Của tớ đẹp hơn!' },
+      { id: 'd-2', speaker: 'sonet', role: 'right', text: 'Không, của tớ đúng hơn!' },
+      { id: 'd-3', speaker: 'aki', role: 'center', text: 'DỪNG LẠIIII...! Các cậu ơi, hãy giúp tớ vụ này!' },
+    ] : undefined,
+    additionalImages: [],
+    compareData: stage.kind === 'explanation' ? {
+      leftTitle: 'Kho Dữ Liệu Của AI',
+      leftText: 'AI chỉ lấy những hình ảnh quen thuộc trong kho hàng ngàn mẫu có sẵn. Ai gõ câu giống nhau thì kết quả cũng giống hệt nhau.',
+      rightTitle: 'Bộ Não Sáng Tạo Của Con',
+      rightText: 'Chỉ có con mới có kỷ niệm riêng, cảm xúc thật, gia đình và sự tưởng tượng độc đáo mà AI không thể tự nghĩ ra được!',
+    } : undefined,
+    compareImages: stage.kind === 'explanation' ? { left: '', right: '' } : undefined,
+    enabledModules: stage.kind === 'situation' ? ['dialogue']
+      : stage.kind === 'aiki-riddle' ? ['versus-ab']
+      : stage.kind === 'rule' ? ['poster']
+      : stage.kind === 'explanation' ? ['compare']
+      : ['poster'],
+    mee: {
+      readText: '',
+      audioUrl: '',
+      voiceProvider: 'vertex',
+      gesture: stage.gesture,
+      autoRead: false,
+    },
+  }))
+}
+
+export function getActiveModules(card: LearnCardDraft, stageIndex: number): string[] {
+  if (Array.isArray(card.enabledModules)) {
+    return card.enabledModules
+  }
+  const modules: string[] = []
+  if (card.title || card.body || card.tip) modules.push('text')
+  if (card.mee?.audioUrl || card.mee?.readText || card.mee?.gesture) modules.push('voice')
+  if (card.videoUrl) modules.push('video')
+  if (stageIndex === 0 || card.kind === 'situation' || (card.dialogueLines && card.dialogueLines.length > 0)) {
+    modules.push('dialogue')
+  }
+  if (stageIndex === 1 || card.kind === 'aiki-riddle' || (card.optionImages && card.optionImages.length > 0)) {
+    modules.push('versus-ab')
+  }
+  if (stageIndex === 2 || stageIndex === 4 || card.kind === 'rule' || card.kind === 'closing') {
+    modules.push('poster')
+  }
+  if (stageIndex === 3 || card.kind === 'explanation' || card.compareData || card.compareImages?.left || card.compareImages?.right) {
+    modules.push('compare')
+  }
+  if (card.additionalImages && card.additionalImages.length > 0) {
+    modules.push('images')
+  }
+  return modules
+}
+
+export function getStageBlocks(card: LearnCardDraft, stageIndex: number): StageBlockItem[] {
+  if (card.contentBlocks && card.contentBlocks.length > 0) {
+    return card.contentBlocks
+  }
+  if (Array.isArray(card.contentBlocks)) {
+    return []
+  }
+  const activeMods = getActiveModules(card, stageIndex)
+  const blocks: StageBlockItem[] = []
+  for (const mod of activeMods) {
+    if (mod === 'text' || mod === 'layout-text') {
+      blocks.push({ id: `blk-text-${stageIndex}`, type: 'text', title: card.title || 'Đoạn văn bản', body: card.body, tip: card.tip })
+    } else if (mod === 'voice') {
+      blocks.push({ id: `blk-voice-${stageIndex}`, type: 'voice' })
+    } else if (mod === 'video') {
+      blocks.push({ id: `blk-video-${stageIndex}`, type: 'video' })
+    } else if (mod === 'dialogue') {
+      blocks.push({ id: `blk-dialogue-${stageIndex}`, type: 'dialogue' })
+    } else if (mod === 'versus-ab') {
+      blocks.push({ id: `blk-versus-ab-${stageIndex}`, type: 'versus-ab' })
+    } else if (mod === 'compare') {
+      blocks.push({ id: `blk-compare-${stageIndex}`, type: 'compare' })
+    } else if (mod === 'poster') {
+      blocks.push({ id: `blk-poster-${stageIndex}`, type: 'poster' })
+    } else if (mod === 'images') {
+      blocks.push({ id: `blk-images-${stageIndex}`, type: 'images' })
+    } else if (mod === 'layout-callout') {
+      blocks.push({ id: `blk-callout-${stageIndex}`, type: 'layout-callout', title: 'Hộp Ghi Nhớ Nổi Bật', tip: card.tip })
+    } else if (mod === 'layout-formula') {
+      blocks.push({ id: `blk-formula-${stageIndex}`, type: 'layout-formula', title: 'Công Thức KaTeX' })
+    } else if (mod === 'layout-split') {
+      blocks.push({ id: `blk-split-${stageIndex}`, type: 'layout-split', title: 'Bố cục 2 Cột Chữ + Media', body: card.body, imageUrl: card.imageUrl })
+    } else if (mod === 'layout-grid') {
+      blocks.push({ id: `blk-grid-${stageIndex}`, type: 'layout-grid', title: 'Lưới 3 Ô Thẻ', visualItems: card.visualItems })
+    } else if (mod === 'layout-storyboard') {
+      blocks.push({ id: `blk-storyboard-${stageIndex}`, type: 'layout-storyboard', title: 'Chuỗi Storyboard', visualItems: card.visualItems })
+    }
+  }
+  return blocks
+}
+
+/** Encode new rule-stage metadata inside fields accepted by the deployed LMS schema. */
+export function serializeLearnCardsForHub(cards: LearnCardDraft[]): LearnCardDraft[] {
+  return cards.map((card) => {
+    if (!AIKI_RULE_STAGE_KINDS.includes(card.kind as typeof AIKI_RULE_STAGE_KINDS[number])) return card
+    const kind = card.kind as typeof AIKI_RULE_STAGE_KINDS[number]
+    const metadata = JSON.stringify({
+      kind,
+      imageUrl: card.imageUrl,
+      imageAlt: card.imageAlt,
+      videoUrl: card.videoUrl,
+      optionImages: card.optionImages,
+      optionLabels: card.optionLabels,
+      optionDescs: card.optionDescs,
+      dialogueLines: card.dialogueLines,
+      additionalImages: card.additionalImages,
+      compareData: card.compareData,
+      compareImages: card.compareImages,
+      enabledModules: card.enabledModules,
+      contentBlocks: card.contentBlocks,
+      mee: card.mee,
+    })
+    return {
+      ...card,
+      kind: AIKI_RULE_HUB_KINDS[kind],
+      visualItems: [
+        ...card.visualItems.filter((item) => item.label !== AIKI_RULE_META_LABEL),
+        { label: AIKI_RULE_META_LABEL, text: metadata, tone: 'brand' },
+      ],
+    }
+  })
 }
 
 export type LectureDraft = {
@@ -66,6 +407,7 @@ export type LectureDraft = {
   skill: string
   hook: string
   practiceKind: string
+  lessonFormat?: LessonFormat
   videoUrl: string
   concept: string
   example: string
@@ -267,16 +609,30 @@ export function courseDraftReadiness(draft: CourseDraft): AuthoringReadiness {
 
 export function lectureDraftReadiness(draft: LectureDraft): AuthoringReadiness {
   const videoIsValid = !draft.videoUrl.trim() || /^https:\/\//i.test(draft.videoUrl.trim())
-  const options = [draft.checkOption1, draft.checkOption2, draft.checkOption3]
+  const hasAikiRuleStage = isAikiRuleLesson(draft.learnCards) || draft.learnCards.some((card) => AIKI_RULE_STAGE_KINDS.includes(card.kind as typeof AIKI_RULE_STAGE_KINDS[number]))
+
+  const basicsStep = step('basics', 'Thông tin trạm', [
+    [/^[a-z0-9-]{3,64}$/.test(draft.id), 'Đường dẫn bài học'],
+    [hasLength(draft.title, 3), 'Tên bài học'],
+    [hasLength(draft.skill, 3), 'Kỹ năng trọng tâm'],
+    [hasLength(draft.hook, 5), 'Câu hỏi khởi động'],
+    [lines(draft.goalsText).length >= 3 && lines(draft.goalsText).every((item) => hasLength(item, 10)), 'Ít nhất 3 mục tiêu rõ ràng'],
+    [videoIsValid, 'Liên kết video HTTPS'],
+  ])
+
+  if (hasAikiRuleStage) {
+    return readiness([
+      basicsStep,
+      step('content', '5 chặng Quy tắc AIKI', [
+        [isAikiRuleLesson(draft.learnCards), 'Dạng Quy tắc AIKI cần đủ 5 chặng đúng thứ tự'],
+        [draft.learnCards.every((card) => hasLength(card.title, 2)), 'Mỗi chặng cần có tiêu đề'],
+        [draft.learnCards.every((card) => hasLength(card.body, 10) || hasLength(card.mee?.readText ?? '', 10)), 'Mỗi chặng cần có nội dung hoặc lời đọc đầy đủ'],
+      ]),
+    ])
+  }
+
   return readiness([
-    step('basics', 'Thông tin trạm', [
-      [/^[a-z0-9-]{3,64}$/.test(draft.id), 'Đường dẫn bài học'],
-      [hasLength(draft.title, 3), 'Tên bài học'],
-      [hasLength(draft.skill, 3), 'Kỹ năng trọng tâm'],
-      [hasLength(draft.hook, 5), 'Câu hỏi khởi động'],
-      [lines(draft.goalsText).length >= 3 && lines(draft.goalsText).every((item) => hasLength(item, 10)), 'Ít nhất 3 mục tiêu rõ ràng'],
-      [videoIsValid, 'Liên kết video HTTPS'],
-    ]),
+    basicsStep,
     step('content', 'Khám phá', [
       [draft.learnCards.length >= 2, 'Ít nhất 2 khối nội dung Khám phá'],
       [draft.learnCards.every((card) => hasLength(card.title, 3) && hasLength(card.body, 30)), 'Mỗi khối Khám phá cần tiêu đề và nội dung đầy đủ'],

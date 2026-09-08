@@ -1,6 +1,24 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
-import { BookOpen, BrainCircuit, Check, Clock3, Gamepad2, Lightbulb, MoveRight, PencilLine, Play, ScanSearch, ShieldCheck, Star, Target, Timer, Trophy, Volume2 } from 'lucide-react'
+import { BookOpen, BrainCircuit, Check, ChevronLeft, ChevronRight, Clock3, Gamepad2, Lightbulb, MessageSquareText, MoveRight, PencilLine, Play, Printer, ScanSearch, ShieldCheck, Sparkles, Star, Target, Timer, Trophy, Volume2, ZoomIn } from 'lucide-react'
+import {
+  ZicoDrawingFallback,
+  SonetDrawingFallback,
+  AiWarehouseVisual,
+  KidBrainVisual,
+  CreativeKnightBadgeVisual,
+  AikiPictureZoomModal,
+  AikiPosterModal,
+  type ZoomImageData,
+} from '@/features/lesson/components/AikiRuleVisuals'
+import {
+  AIKI_RULE_STAGE_METAS,
+  parseVersusOption,
+  parseComicDialogue,
+  type ParsedDialogue,
+  type DialogueLine,
+} from '@/features/teacher/lib/authoring'
+import type { Gesture } from '@/features/mee-rig/hooks/useMeeCatSpeech'
 import {
   ART_STYLES,
   CHARACTER_SHAPES,
@@ -85,6 +103,40 @@ const PHASES = [
 
 const PHASE_ORDER = ['learn', 'game', 'practice', 'check', 'done']
 
+export function hydrateAikiRuleCard(card: QuestDetail['learnCards'][number]): QuestDetail['learnCards'][number] {
+  const encodedItem = card.visualItems?.find((item) => item.label === '__AIKI_RULE_STAGE__')
+  if (encodedItem) {
+    try {
+      const meta = JSON.parse(encodedItem.text)
+      const visualItems = card.visualItems?.filter((item) => item.label !== '__AIKI_RULE_STAGE__')
+      return {
+        ...card,
+        ...meta,
+        visualItems,
+      }
+    } catch {
+      /* ignore and fallback to tip */
+    }
+  }
+
+  if (card.tip && card.tip.includes('__AIKI_RULE_STAGE__')) {
+    const match = card.tip.match(/<!--__AIKI_RULE_STAGE__:(.*?)-->/)
+    if (match) {
+      try {
+        const meta = JSON.parse(match[1])
+        return {
+          ...card,
+          ...meta,
+        }
+      } catch {
+        return card
+      }
+    }
+  }
+
+  return card
+}
+
 export function LessonPage() {
   const { questId = '' } = useParams()
   const navigate = useNavigate()
@@ -92,6 +144,12 @@ export function LessonPage() {
   const [phase, setPhase] = useState<Phase>('learn')
   const [gameHint, setGameHint] = useState<GameHint | null>(null)
   const [maxUnlockedPhase, setMaxUnlockedPhase] = useState<Phase>('learn')
+  const [aikiRuleStage, setAikiRuleStage] = useState(0)
+  const [zoomedImage, setZoomedImage] = useState<ZoomImageData | null>(null)
+  const [isPosterModalOpen, setIsPosterModalOpen] = useState(false)
+  const [hasAcknowledgedRule, setHasAcknowledgedRule] = useState(false)
+  const [hasCommitted, setHasCommitted] = useState(false)
+  const [manualMeeCue, setManualMeeCue] = useState<{ key: number; text: string; gesture?: Gesture } | null>(null)
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [parts, setParts] = useState<PromptParts>({})
@@ -167,6 +225,12 @@ export function LessonPage() {
     setReviewMode(false)
     setOfflineManifest(null)
     setQuest(null)
+    setAikiRuleStage(0)
+    setZoomedImage(null)
+    setIsPosterModalOpen(false)
+    setHasAcknowledgedRule(false)
+    setHasCommitted(false)
+    setManualMeeCue(null)
   }, [])
 
   function recoverCurrentPhase(error: unknown): boolean {
@@ -313,6 +377,50 @@ export function LessonPage() {
   }, [quest, phase, checkResult?.nextQuestId])
 
   const promptText = useMemo(() => assemblePrompt(parts), [parts])
+  const isAikiRuleJourney = Boolean(
+    quest && (
+      quest.id.includes('aiki') ||
+      quest.id.includes('rule') ||
+      quest.title.toLowerCase().includes('quy tắc') ||
+      quest.learnCards.some((c) => c.visualItems?.some((item) => item.label === '__AIKI_RULE_STAGE__')) ||
+      quest.learnCards.some((c) => c.tip?.includes('__AIKI_RULE_STAGE__')) ||
+      quest.learnCards.length === 5 && quest.learnCards[0]?.id?.includes('situation')
+    )
+  )
+
+  const hydratedLearnCards = useMemo(() => {
+    if (!quest) return []
+    return quest.learnCards.map(hydrateAikiRuleCard)
+  }, [quest])
+
+  const visibleLearnCards = useMemo(() => {
+    if (isAikiRuleJourney) {
+      const card = hydratedLearnCards[aikiRuleStage] || hydratedLearnCards[0]
+      return card ? [card] : []
+    }
+    return hydratedLearnCards
+  }, [isAikiRuleJourney, hydratedLearnCards, aikiRuleStage])
+
+  async function handleAikiFinish() {
+    if (!quest || busy) return
+    setBusy(true)
+    try {
+      const checkRes = await learningApi.submitCheck(quest.id, { answers: [] })
+      setLiveStars(checkRes.stars)
+      setCheckResult(checkRes)
+      setPhase('done')
+    } catch {
+      setLiveStars(3)
+      setCheckResult({
+        stars: 3,
+        message: 'Xuất sắc! Con đã trở thành Hiệp Sĩ Sáng Tạo và nắm vững Quy Tắc Vàng AIKI!',
+        nextQuestId: null,
+      })
+      setPhase('done')
+    } finally {
+      setBusy(false)
+    }
+  }
   const panels = useMemo(() => storyToPanelHints(story), [story])
   const gameStation = quest?.stations?.stations.find(
     (station) => station.kind === 'game',
@@ -653,6 +761,21 @@ export function LessonPage() {
     }
 
     if (phase === 'learn') {
+      if (isAikiRuleJourney) {
+        const stagePrompts = [
+          'Cùng xem Zico và Sonet đang tranh luận điều gì nhé!',
+          'Hãy giúp Mèo AIKI quan sát và chọn bức tranh đúng nhé!',
+          'Cùng đọc to Quy Tắc Vàng của Xưởng AIKI nhé!',
+          'Xem giải thích để hiểu vì sao quy tắc này lại quan trọng nhé!',
+          'Cùng đọc lời hứa để trở thành Hiệp Sĩ Sáng Tạo nhé!',
+        ]
+        return {
+          eyebrow: 'Mee kể con nghe',
+          title: AIKI_RULE_STAGE_METAS[aikiRuleStage]?.label || 'Khám phá quy tắc',
+          body: stagePrompts[aikiRuleStage] || 'Cùng học quy tắc AIKI nhé!',
+          pose: 'guide' as const,
+        }
+      }
       return {
         eyebrow: 'Mee kể con nghe',
         title: 'Khám phá điều mới',
@@ -744,6 +867,8 @@ export function LessonPage() {
     answerFeedback,
     checkResult?.message,
     gameHint,
+    isAikiRuleJourney,
+    aikiRuleStage,
   ])
 
   if (loading) {
@@ -786,117 +911,182 @@ export function LessonPage() {
   return (
     <div className="page-enter flex h-dvh flex-col gap-4 overflow-hidden p-2 sm:p-4 lg:flex-row">
       <div className="flex-1 flex flex-col gap-4 min-w-0 overflow-hidden">
-        {/* ── Header ──────────────────────────────────────────────── */}
-        <div className="ui-card p-4 shrink-0">
-          <div className="flex flex-wrap items-start justify-between gap-3">
-          <div className="min-w-0">
-            <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">Trạm {quest.order}</p>
-            <h1 className="font-display text-2xl sm:text-3xl leading-tight">{quest.title}</h1>
-            {practiceStation?.product && (
-              <p className="mt-1 text-xs font-semibold text-muted">
-                Sản phẩm của trạm: <strong className="text-text">{practiceStation.product}</strong>
-              </p>
-            )}
-          </div>
-          {phase !== 'done' && liveStars > 0 && (
-            <div className="lesson-star-rack" aria-label={`Sao của trạm: ${liveStars} sao đã nhận`}>
-              <span className="lesson-star-rack-label">Sao của trạm</span>
-              {[1, 2, 3].map((star) => (
-                <Star
-                  key={star}
-                  size={28}
-                  className={cn(
-                    'lesson-star-placeholder',
-                    star <= liveStars && 'lesson-star-earned',
-                  )}
-                  aria-hidden="true"
-                />
-              ))}
-              {starBurst && Array.from({ length: starBurst.count }, (_, index) => (
-                <span
-                  key={`${starBurst.id}-${index}`}
-                  className="lesson-star-fly"
-                  aria-hidden="true"
-                >
-                  ⭐
+        {/* ── Header Card Chuẩn Soft Clay 3 Tầng ────────────────────────── */}
+        {isAikiRuleJourney ? (
+          <div className="ui-card p-4 sm:p-5 shrink-0 bg-white rounded-3xl border-2 border-border shadow-clay">
+            {/* Tầng 1: Meta Tag & Huy Hiệu Mục Tiêu */}
+            <div className="flex items-center justify-between gap-3 flex-wrap">
+              <div className="flex items-center gap-2 flex-wrap">
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 border border-brand-200 px-3 py-1 text-xs font-black text-brand-800 uppercase tracking-wider shadow-2xs">
+                  <Sparkles size={13} className="text-brand-600" />
+                  Trạm {quest.order || 1} · Quy tắc sáng tạo
                 </span>
-              ))}
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-mint-50 border border-mint-200 px-3 py-1 text-xs font-black text-mint-800 shadow-2xs">
+                  <span className="size-2 rounded-full bg-mint-500" />
+                  Chặng {aikiRuleStage + 1} / {Math.max(5, hydratedLearnCards.length)}: {AIKI_RULE_STAGE_METAS[aikiRuleStage]?.shortLabel || AIKI_RULE_STAGE_METAS[aikiRuleStage]?.label || `Chặng ${aikiRuleStage + 1}`}
+                </span>
+              </div>
+
+              {/* Hộp Thưởng Mục Tiêu */}
+              <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3.5 py-1 text-xs font-black text-amber-900 shadow-2xs shrink-0">
+                <span className="text-xs font-black">⭐ 3 Sao</span>
+                <span className="text-amber-300">•</span>
+                <span className="flex items-center gap-1 text-xs font-black">
+                  <span>🏆</span>
+                  <span>Hiệp Sĩ AIKI</span>
+                </span>
+              </div>
             </div>
-          )}
+
+            {/* Tầng 2: Tiêu Đề Trạm Hoàn Chỉnh (100% Chiều Rộng, TUYỆT ĐỐI KHÔNG CÓ TRUNCATE) */}
+            <h1 className="mt-2.5 font-display text-xl sm:text-2xl lg:text-[1.65rem] font-black text-text leading-snug">
+              {quest.title}
+            </h1>
+
+            {/* Tầng 3: Thanh Tiến Độ Kẹo Dẻo Mini Track */}
+            <div className="mt-3 pt-3 border-t border-slate-100 flex items-center justify-between gap-3">
+              <div className="flex items-center gap-1.5 flex-1" aria-label={`Tiến độ chặng ${aikiRuleStage + 1} trên 5`}>
+                {[0, 1, 2, 3, 4].map((stageIdx) => {
+                  const isDone = stageIdx < aikiRuleStage
+                  const isActive = stageIdx === aikiRuleStage
+                  const meta = AIKI_RULE_STAGE_METAS[stageIdx]
+                  return (
+                    <div
+                      key={stageIdx}
+                      className={cn(
+                        "h-2 flex-1 rounded-full transition-all duration-300",
+                        isActive
+                          ? "bg-brand-500 ring-2 ring-brand-200 shadow-xs"
+                          : isDone
+                            ? "bg-mint-500"
+                            : "bg-slate-100"
+                      )}
+                      title={meta?.label}
+                    />
+                  )
+                })}
+              </div>
+              <span className="text-xs font-black text-muted shrink-0">
+                {Math.round(((aikiRuleStage + 1) / 5) * 100)}% hoàn thành
+              </span>
+            </div>
           </div>
-          
-          {/* ── Horizontal Phase Nav ──────────────────────────────── */}
-          <nav className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t-2 border-border/50 w-full">
-            {PHASES.map((p, idx) => {
-              const maxIdx = PHASE_ORDER.indexOf(maxUnlockedPhase === 'done' ? 'check' : maxUnlockedPhase)
-              const currentIdx = PHASE_ORDER.indexOf(phase === 'done' ? 'check' : phase)
-              const isUnlocked = idx <= maxIdx
-              const isActive = idx === currentIdx
-              
-              return (
-                <button
-                  key={p.id}
-                  aria-label={`${p.label}: ${p.description}`}
-                  title={`${p.label} · ${p.description}`}
-                  onClick={() => {
-                    if (isUnlocked) {
-                      setPhase(p.id)
-                      if (p.id !== 'game') setGameHint(null)
-                    }
-                  }}
-                  disabled={!isUnlocked}
-                  className={cn(
-                    "flex min-h-11 items-center gap-2 px-3 py-1.5 rounded-2xl border-2 text-sm font-bold transition-all",
-                    isActive ? "bg-brand-50 border-brand-500 text-brand-700 shadow-sm"
-                             : isUnlocked ? "bg-white border-border text-text hover:border-brand-200"
-                                          : "bg-surface border-transparent text-muted opacity-60 cursor-not-allowed"
-                  )}
-                >
-                  <p.icon size={16} />
-                  <span className="text-left leading-tight">
-                    <span className="block">{p.label}</span>
-                    <span className="hidden text-[10px] font-bold text-current opacity-70 lg:block">{p.description}</span>
-                  </span>
-                </button>
-              )
-            })}
-          </nav>
-        </div>
+        ) : (
+          <div className="ui-card p-4 shrink-0">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div className="min-w-0">
+                <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">Trạm {quest.order}</p>
+                <h1 className="font-display text-2xl sm:text-3xl leading-tight">{quest.title}</h1>
+                {practiceStation?.product && (
+                  <p className="mt-1 text-xs font-semibold text-muted">
+                    Sản phẩm của trạm: <strong className="text-text">{practiceStation.product}</strong>
+                  </p>
+                )}
+              </div>
+              {phase !== 'done' && liveStars > 0 && (
+                <div className="lesson-star-rack" aria-label={`Sao của trạm: ${liveStars} sao đã nhận`}>
+                  <span className="lesson-star-rack-label">Sao của trạm</span>
+                  {[1, 2, 3].map((star) => (
+                    <Star
+                      key={star}
+                      size={28}
+                      className={cn(
+                        'lesson-star-placeholder',
+                        star <= liveStars && 'lesson-star-earned',
+                      )}
+                      aria-hidden="true"
+                    />
+                  ))}
+                  {starBurst && Array.from({ length: starBurst.count }, (_, index) => (
+                    <span
+                      key={`${starBurst.id}-${index}`}
+                      className="lesson-star-fly"
+                      aria-hidden="true"
+                    >
+                      ⭐
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* ── Horizontal Phase Nav ──────────────────────────────── */}
+            <nav className="flex flex-wrap items-center gap-2 mt-4 pt-4 border-t-2 border-border/50 w-full">
+              {PHASES.map((p, idx) => {
+                const maxIdx = PHASE_ORDER.indexOf(maxUnlockedPhase === 'done' ? 'check' : maxUnlockedPhase)
+                const currentIdx = PHASE_ORDER.indexOf(phase === 'done' ? 'check' : phase)
+                const isUnlocked = idx <= maxIdx
+                const isActive = idx === currentIdx
+                
+                return (
+                  <button
+                    key={p.id}
+                    aria-label={`${p.label}: ${p.description}`}
+                    title={`${p.label} · ${p.description}`}
+                    onClick={() => {
+                      if (isUnlocked) {
+                        setPhase(p.id)
+                        if (p.id !== 'game') setGameHint(null)
+                      }
+                    }}
+                    disabled={!isUnlocked}
+                    className={cn(
+                      "flex min-h-11 items-center gap-2 px-3 py-1.5 rounded-2xl border-2 text-sm font-bold transition-all",
+                      isActive ? "bg-brand-50 border-brand-500 text-brand-700 shadow-sm"
+                               : isUnlocked ? "bg-white border-border text-text hover:border-brand-200"
+                                            : "bg-surface border-transparent text-muted opacity-60 cursor-not-allowed"
+                    )}
+                  >
+                    <p.icon size={16} />
+                    <span className="text-left leading-tight">
+                      <span className="block">{p.label}</span>
+                      <span className="hidden text-[10px] font-bold text-current opacity-70 lg:block">{p.description}</span>
+                    </span>
+                  </button>
+                )
+              })}
+            </nav>
+          </div>
+        )}
 
       <main className="lesson-stage-main min-h-0 flex-1 relative overflow-y-auto hidden-scrollbar pb-10 pr-2">
         {phase === 'learn' && (
         <div className="flex flex-col gap-6 animate-fade-up">
-          <div className="rounded-3xl border border-brand-100 bg-gradient-to-r from-brand-50 via-white to-sky-50 p-4 sm:p-5">
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-              {quest.coverImage && (
-                <img
-                  src={quest.coverImage}
-                  alt={quest.coverImageAlt || `Minh họa cho ${quest.title}`}
-                  className="h-32 w-full rounded-2xl object-cover sm:h-28 sm:w-48"
-                  onError={(event) => { event.currentTarget.style.display = 'none' }}
-                />
-              )}
-              <div className="min-w-0">
-                <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">Nhiệm vụ hôm nay</p>
-                <p className="mt-1 font-display text-2xl leading-tight">Con sắp mở khóa một bí mật AI ✨</p>
-                <p className="mt-1 text-sm font-semibold leading-relaxed text-muted">
-                  Đọc nhanh, thử một dự đoán và đừng ngại sửa câu trả lời. Mỗi lần kiểm chứng đều giúp con tiến bộ.
-                </p>
+          {!isAikiRuleJourney && (
+            <div className="rounded-3xl border border-brand-100 bg-gradient-to-r from-brand-50 via-white to-sky-50 p-4 sm:p-5">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
+                {quest.coverImage && (
+                  <img
+                    src={quest.coverImage}
+                    alt={quest.coverImageAlt || `Minh họa cho ${quest.title}`}
+                    className="h-32 w-full rounded-2xl object-cover sm:h-28 sm:w-48"
+                    onError={(event) => { event.currentTarget.style.display = 'none' }}
+                  />
+                )}
+                <div className="min-w-0">
+                  <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">Nhiệm vụ hôm nay</p>
+                  <p className="mt-1 font-display text-2xl leading-tight">Con sắp mở khóa một bí mật AI ✨</p>
+                  <p className="mt-1 text-sm font-semibold leading-relaxed text-muted">
+                    Đọc nhanh, thử một dự đoán và đừng ngại sửa câu trả lời. Mỗi lần kiểm chứng đều giúp con tiến bộ.
+                  </p>
+                </div>
               </div>
             </div>
-          </div>
+          )}
           {/* Hook highlight */}
-          <div className="relative overflow-hidden rounded-[2rem] border-[4px] border-brand-200 bg-brand-50 p-6 sm:p-8 shadow-clay text-center">
-             <h2 className="font-display text-2xl sm:text-3xl font-black text-brand-800 leading-tight">
-               {quest.hook}
-             </h2>
-             <div className="absolute top-0 right-0 -translate-y-4 translate-x-4 opacity-20" aria-hidden="true">
-               <Star size={120} className="fill-brand-500 text-brand-500" />
-             </div>
-          </div>
+          {!isAikiRuleJourney && (
+            <div className="relative overflow-hidden rounded-[2rem] border-[4px] border-brand-200 bg-brand-50 p-6 sm:p-8 shadow-clay text-center">
+               <h2 className="font-display text-2xl sm:text-3xl font-black text-brand-800 leading-tight">
+                 {quest.hook}
+               </h2>
+               <div className="absolute top-0 right-0 -translate-y-4 translate-x-4 opacity-20" aria-hidden="true">
+                 <Star size={120} className="fill-brand-500 text-brand-500" />
+               </div>
+            </div>
+          )}
 
           {/* Goals */}
-          {quest.goals.length > 0 && (
+          {!isAikiRuleJourney && quest.goals.length > 0 && (
             <div className="flex flex-col gap-4 rounded-[1.5rem] bg-white border-2 border-border p-5 shadow-sm">
               <p className="text-sm font-extrabold uppercase tracking-wider text-coral-500 flex items-center gap-2">
                 <Target size={18} /> Hôm nay con sẽ:
@@ -914,15 +1104,16 @@ export function LessonPage() {
 
           {/* Short visual explanations are authored by LMS; the UI only controls presentation. */}
           <section className="grid gap-4" aria-label="Nội dung xem và hiểu">
-            {quest.learnCards.map((card, idx) => {
+            {visibleLearnCards.map((card, idx) => {
+              const currentStageIndex = isAikiRuleJourney ? aikiRuleStage : idx
               const CARD_ICONS = [BrainCircuit, ScanSearch, Lightbulb]
-              const CardIcon = CARD_ICONS[idx % CARD_ICONS.length]!
+              const CardIcon = CARD_ICONS[currentStageIndex % CARD_ICONS.length]!
               const TONES = [
                 { bg: 'bg-sun-50', border: 'border-sun-200', text: 'text-sun-700', iconBg: 'bg-sun-200' },
                 { bg: 'bg-mint-50', border: 'border-mint-200', text: 'text-mint-700', iconBg: 'bg-mint-200' },
                 { bg: 'bg-brand-50', border: 'border-brand-200', text: 'text-brand-700', iconBg: 'bg-brand-200' },
               ]
-              const tone = TONES[idx % TONES.length]
+              const tone = TONES[currentStageIndex % TONES.length]
               const isStoryboardCard = card.visualItems?.some((item) =>
                 Boolean(item.shot || item.duration || item.sound || item.direction),
               ) ?? card.layout === 'storyboard'
@@ -931,11 +1122,16 @@ export function LessonPage() {
               return (
                 <article key={card.id} className={cn(
                   "relative grid gap-4 rounded-[1.5rem] border-2 p-4 shadow-sm sm:p-5",
-                  usesSplitLayout && card.visualItems?.length && !isStoryboardCard && "lg:grid-cols-[minmax(16rem,.78fr)_minmax(0,1.22fr)]",
+                  usesSplitLayout && card.visualItems?.length && !isStoryboardCard && !isAikiRuleJourney && "lg:grid-cols-[minmax(16rem,.78fr)_minmax(0,1.22fr)]",
                   tone.bg, tone.border
                 )}>
                   <div className={cn('flex flex-col justify-center', isStoryboardCard && 'max-w-4xl')}>
-                    {card.imageUrl && (
+                    {card.videoUrl && (
+                      <div className="mb-4">
+                        <LectureVideo url={card.videoUrl} title={card.title} />
+                      </div>
+                    )}
+                    {card.imageUrl && !card.videoUrl && (
                       <img
                         src={card.imageUrl}
                         alt={card.imageAlt || card.title}
@@ -949,15 +1145,593 @@ export function LessonPage() {
                     <h3 className={cn("mt-3 font-display text-xl leading-tight", tone.text)}>
                       {card.title}
                     </h3>
-                    <p className="mt-2 text-base font-semibold leading-relaxed text-text">{card.body}</p>
-                    {card.tip && (
+                    {!(isAikiRuleJourney && (
+                      currentStageIndex === 0 ||
+                      currentStageIndex === 1 ||
+                      card.body.includes('C1 —') ||
+                      card.body.includes('Cận cảnh') ||
+                      card.body.includes('máy lùi ra') ||
+                      card.body.includes('Trong khung')
+                    )) && (
+                      <p className="mt-2 text-base font-semibold leading-relaxed text-text">{card.body}</p>
+                    )}
+                    {card.tip && !isAikiRuleJourney && (
                       <p className={cn("mt-3 rounded-xl border bg-white/80 px-3 py-2 text-sm font-bold leading-snug", tone.border, tone.text)}>
                         Ghi nhớ: {card.tip}
                       </p>
                     )}
+
+                    {/* ── MODULE: BỘ SƯU TẬP ẢNH KÈM CAPTION ───────────── */}
+                    {card.additionalImages && card.additionalImages.length > 0 && (
+                      <div className="mt-4 rounded-2xl border-2 border-emerald-100 bg-emerald-50/50 p-4">
+                        <div className="mb-3 flex items-center gap-2 text-xs font-black uppercase tracking-wider text-emerald-800">
+                          <span>🖼️</span>
+                          <span>Bộ sưu tập hình ảnh minh họa</span>
+                        </div>
+                        <div className={cn(
+                          "grid gap-3",
+                          card.additionalImages.length === 1 ? "grid-cols-1 max-w-md mx-auto" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
+                        )}>
+                          {card.additionalImages.map((imgItem, imgIdx) => (
+                            <figure key={imgItem.id || imgIdx} className="group overflow-hidden rounded-2xl border-2 border-emerald-100 bg-emerald-50/40 p-2 shadow-2xs transition hover:shadow-md">
+                              <div className="overflow-hidden rounded-xl aspect-video bg-slate-100 relative">
+                                <img
+                                  src={imgItem.url}
+                                  alt={imgItem.alt || `Minh họa ${imgIdx + 1}`}
+                                  className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                  onError={(e) => { e.currentTarget.style.display = 'none' }}
+                                />
+                              </div>
+                              {imgItem.caption && (
+                                <figcaption className="mt-2 text-center text-xs font-bold text-emerald-950 px-1 leading-snug">
+                                  {imgItem.caption}
+                                </figcaption>
+                              )}
+                            </figure>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* ── MODULE: KỊCH BẢN PHÂN VAI TÌNH HUỐNG ────────── */}
+                    {((isAikiRuleJourney && currentStageIndex === 0) || (card.dialogueLines && card.dialogueLines.length > 0)) && (() => {
+                      const dialogueSource = card.tip || card.body
+                      const parsedDialogues = parseComicDialogue(dialogueSource)
+                      const defaultDialogues: ParsedDialogue[] = [
+                        { id: 'd-1', speaker: 'zico', speakerName: 'Zico', text: 'Của tớ đẹp hơn!' },
+                        { id: 'd-2', speaker: 'sonet', speakerName: 'Sonet', text: 'Không, của tớ đúng hơn!' },
+                        { id: 'd-3', speaker: 'aki', speakerName: 'Mèo AKI', text: 'DỪNG LẠIIII...! Các cậu ơi, hãy giúp tớ vụ này!' },
+                      ]
+                      const dialogues = (card.dialogueLines && card.dialogueLines.length > 0)
+                        ? card.dialogueLines.map((d: DialogueLine) => ({
+                            id: d.id,
+                            speaker: d.speaker,
+                            speakerName: d.speaker === 'zico' ? 'Zico (áo cam)' : d.speaker === 'sonet' ? 'Sonet (áo xanh)' : d.speaker === 'aki' ? 'Mèo AKI' : d.speaker === 'teacher' ? 'Cô giáo' : d.speaker,
+                            text: d.text,
+                            role: d.role || (d.speaker === 'zico' ? 'left' : d.speaker === 'sonet' ? 'right' : 'center'),
+                          }))
+                        : parsedDialogues.length > 0
+                          ? parsedDialogues
+                          : defaultDialogues
+
+                      return (
+                        <div className="mt-4 space-y-4 rounded-3xl border-2 border-orange-200 bg-white/85 p-4 sm:p-5 shadow-xs text-left">
+                          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-orange-100 pb-3">
+                            <div className="flex items-center gap-2 text-sm font-black uppercase tracking-wider text-orange-800">
+                              <MessageSquareText size={18} className="text-orange-600" />
+                              Kịch bản Phân vai Tình huống
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setManualMeeCue({
+                                  key: Date.now(),
+                                  text: card.mee?.readText?.trim() || card.body || 'Các cậu ơi, cùng lắng nghe tình huống này nhé!',
+                                  gesture: 'presentation',
+                                })
+                              }}
+                              className="inline-flex items-center gap-1.5 rounded-full border-2 border-orange-300 bg-orange-50 px-3.5 py-1.5 text-xs font-black text-orange-900 transition hover:bg-orange-100 active:scale-95 shadow-xs cursor-pointer"
+                            >
+                              <Volume2 size={15} />
+                              🔊 Nghe AIKI kể tình huống
+                            </button>
+                          </div>
+
+                          <div className="flex flex-col gap-3.5 pt-1">
+                            {dialogues.map((d: ParsedDialogue) => {
+                              const isLeft = (d as any).role === 'left' || d.speaker === 'zico'
+                              const isRight = (d as any).role === 'right' || d.speaker === 'sonet'
+
+                              if (isLeft) {
+                                return (
+                                  <div key={d.id} className="flex items-start gap-2.5 max-w-[88%] sm:max-w-[78%] self-start animate-fade-up">
+                                    <div className="grid size-10 shrink-0 place-items-center rounded-full bg-orange-100 border-2 border-orange-300 text-lg shadow-xs" title={d.speakerName || 'Zico'}>
+                                      👦
+                                    </div>
+                                    <div className="flex flex-col">
+                                      <span className="text-[11px] font-black uppercase text-orange-700 ml-1 mb-0.5">
+                                        {d.speakerName || 'Zico (áo cam)'}
+                                      </span>
+                                      <div className="rounded-2xl rounded-tl-xs border-2 border-orange-200 bg-orange-50 p-3.5 text-sm sm:base font-bold text-orange-950 shadow-xs leading-relaxed">
+                                        {d.text}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+                              }
+                              if (isRight) {
+                                return (
+                                  <div key={d.id} className="flex flex-row-reverse items-start gap-2.5 max-w-[88%] sm:max-w-[78%] self-end animate-fade-up">
+                                    <div className="grid size-10 shrink-0 place-items-center rounded-full bg-sky-100 border-2 border-sky-300 text-lg shadow-xs" title={d.speakerName || 'Sonet'}>
+                                      🧒
+                                    </div>
+                                    <div className="flex flex-col items-end">
+                                      <span className="text-[11px] font-black uppercase text-sky-700 mr-1 mb-0.5">
+                                        {d.speakerName || 'Sonet (áo xanh)'}
+                                      </span>
+                                      <div className="rounded-2xl rounded-tr-xs border-2 border-sky-200 bg-sky-50 p-3.5 text-sm sm:text-base font-bold text-sky-950 shadow-xs text-right leading-relaxed">
+                                        {d.text}
+                                      </div>
+                                    </div>
+                                  </div>
+                                )
+                              }
+                              return (
+                                <div key={d.id} className="w-full my-1 animate-pop">
+                                  <div className="mx-auto flex max-w-xl flex-col items-center">
+                                    <div className="mb-1 inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-100 px-3 py-0.5 text-xs font-black text-amber-900 shadow-xs">
+                                      <span>🐱</span>
+                                      <span>{d.speakerName || 'TIẾNG AKI'}</span>
+                                    </div>
+                                    <div className="w-full rounded-2xl border-2 border-brand-300 bg-gradient-to-r from-brand-50 via-amber-50 to-brand-50 p-4 text-center font-bold text-brand-950 shadow-clay text-sm sm:text-base leading-relaxed">
+                                      {d.text}
+                                    </div>
+                                  </div>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        </div>
+                      )
+                    })()}
+
+                    {/* ── MODULE: CÂU ĐỐ TRANH LỰA CHỌN A / B ─────────── */}
+                    {((isAikiRuleJourney && currentStageIndex === 1) || (card.optionImages && card.optionImages.length > 0)) && (() => {
+                      const riddle = quest.check[0] || {
+                        id: 'aiki-stage-riddle',
+                        question: card.body || 'Bức tranh nào đúng yêu cầu của cô giáo?',
+                        options: [
+                          'Bức của Zico (vẽ siêu anh hùng đẹp nhưng ai cũng vẽ được)',
+                          'Bức của Sonet (siêu anh hùng bố cầm vợt muỗi của riêng bạn ấy)',
+                        ],
+                      }
+                      const feedback = answerFeedback[riddle.id]
+                      const isChecking = checkingQuestionId === riddle.id
+
+                      return (
+                        <div className="mt-4 space-y-4 rounded-3xl border-3 border-brand-200 bg-white p-5 sm:p-6 shadow-clay animate-fade-up text-left">
+                          <div className="flex items-center justify-between gap-2 border-b border-brand-100 pb-3">
+                            <div className="flex items-center gap-2 text-brand-700 font-extrabold text-sm uppercase tracking-wider">
+                              <BrainCircuit size={20} className="text-brand-600" />
+                              Câu đố của AIKI · Chọn bức tranh đúng
+                            </div>
+                            <span className="rounded-full bg-brand-100 px-3 py-0.5 text-xs font-black text-brand-800">
+                              {isAikiRuleJourney ? `Chặng ${currentStageIndex + 1}/5` : 'Chọn tranh A/B'}
+                            </span>
+                          </div>
+
+                          <p className="font-display text-lg sm:text-xl text-brand-950 font-black leading-snug">
+                            {riddle.question}
+                          </p>
+                          <p className="text-xs sm:text-sm font-bold text-amber-800 flex items-center gap-1.5">
+                            <span>👀</span>
+                            <span>Bé hãy nhìn 2 bức tranh bên dưới và bấm trực tiếp vào bức tranh con chọn nhé:</span>
+                          </p>
+
+                          <div className="relative grid gap-5 sm:grid-cols-2 pt-2">
+                            {riddle.options.map((opt, optIdx) => {
+                              const isSelected = answers[riddle.id] === optIdx
+                              const isCorrect = isSelected && feedback?.correct
+                              const isWrong = isSelected && feedback && !feedback.correct
+                              const optLetter = String.fromCharCode(65 + optIdx)
+                              const parsed = parseVersusOption(opt, optIdx, card.tip)
+                              const optTitle = card.optionLabels?.[optIdx] || parsed.title
+                              const optDesc = card.optionDescs?.[optIdx] || parsed.desc
+                              const optImageUrl = card.optionImages?.[optIdx]
+
+                              return (
+                                <button
+                                  key={opt}
+                                  type="button"
+                                  disabled={feedback?.correct === true || isChecking}
+                                  onClick={() => void chooseCheckAnswer(riddle.id, optIdx)}
+                                  className={cn(
+                                    "group relative flex flex-col justify-between p-4 sm:p-5 rounded-3xl border-3 text-left transition-all duration-200 shadow-xs active:scale-[0.98] cursor-pointer",
+                                    isSelected
+                                      ? isCorrect
+                                        ? "border-mint-500 bg-mint-50 text-mint-950 shadow-clay ring-4 ring-mint-200/50"
+                                        : isWrong
+                                          ? "border-coral-500 bg-coral-50 text-coral-950 ring-4 ring-coral-200/50"
+                                          : "border-brand-500 bg-brand-50 text-brand-950 shadow-clay"
+                                      : "border-border bg-white hover:border-brand-300 hover:bg-brand-50/20 hover:shadow-md text-text"
+                                  )}
+                                >
+                                  <div className="w-full">
+                                    <div className="flex items-start justify-between gap-3 w-full">
+                                      <div className="flex items-center gap-3">
+                                        <span
+                                          className={cn(
+                                            "grid size-11 shrink-0 place-items-center rounded-2xl text-lg font-black shadow-xs transition-transform group-hover:scale-105",
+                                            isSelected
+                                              ? isCorrect
+                                                ? "bg-mint-500 text-white"
+                                                : isWrong
+                                                  ? "bg-coral-500 text-white"
+                                                  : "bg-brand-500 text-white"
+                                              : optIdx === 0
+                                                ? "bg-amber-100 text-amber-900 border-2 border-amber-300"
+                                                : "bg-sky-100 text-sky-900 border-2 border-sky-300"
+                                          )}
+                                        >
+                                          {optLetter}
+                                        </span>
+                                        <div>
+                                          <span className="text-[11px] font-black uppercase tracking-wider text-muted">
+                                            Phương án {optLetter}
+                                          </span>
+                                          <h4 className="font-display text-base sm:text-lg font-black leading-tight text-text">
+                                            {optTitle}
+                                          </h4>
+                                        </div>
+                                      </div>
+                                      {isCorrect && (
+                                        <span className="grid size-8 place-items-center rounded-full bg-mint-500 text-white shadow-xs">
+                                          <Check size={20} />
+                                        </span>
+                                      )}
+                                    </div>
+
+                                    <div className="relative mt-3.5 w-full overflow-hidden rounded-2xl border-2 border-dashed border-current/25 bg-white/75 aspect-[4/3] group/art shadow-inner flex items-center justify-center">
+                                      {optImageUrl ? (
+                                        <img
+                                          src={optImageUrl}
+                                          alt={optTitle}
+                                          className="size-full object-cover transition-transform duration-300 group-hover/art:scale-105"
+                                          onError={(e) => { e.currentTarget.style.display = 'none' }}
+                                        />
+                                      ) : optIdx === 0 ? (
+                                        <ZicoDrawingFallback className="size-full" />
+                                      ) : (
+                                        <SonetDrawingFallback className="size-full" />
+                                      )}
+
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation()
+                                          setZoomedImage({
+                                            title: optTitle,
+                                            subtitle: `Phương án ${optLetter} · Chi tiết tranh`,
+                                            url: optImageUrl,
+                                            isFallbackZico: !optImageUrl && optIdx === 0,
+                                            isFallbackSonet: !optImageUrl && optIdx === 1,
+                                            description: optDesc || (optIdx === 0
+                                              ? 'Bức tranh vẽ siêu nhân quen thuộc giống như trên phim, ai cũng có thể vẽ hoặc sao chép tương tự nhau.'
+                                              : 'Bức tranh vẽ Bố dũng cảm cầm vợt muỗi bảo vệ cả nhà — câu chuyện đời thật độc nhất vô nhị chỉ có ở gia đình con!'),
+                                            onSelect: () => void chooseCheckAnswer(riddle.id, optIdx),
+                                          })
+                                        }}
+                                        className="absolute bottom-2.5 right-2.5 z-10 flex items-center gap-1 rounded-full bg-black/65 px-2.5 py-1 text-[11px] font-black text-white backdrop-blur-xs transition hover:bg-black/85 active:scale-95 shadow-xs cursor-pointer"
+                                        title="Phóng to xem tranh chi tiết"
+                                      >
+                                        <ZoomIn size={13} />
+                                        <span>Xem tranh to</span>
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  {optDesc && (
+                                    <div className="mt-3 rounded-xl bg-white/85 p-2.5 border border-current/10 text-xs sm:text-sm font-semibold leading-relaxed text-text/90">
+                                      👉 {optDesc}
+                                    </div>
+                                  )}
+                                </button>
+                              )
+                            })}
+                          </div>
+
+                          {isChecking && (
+                            <div className="flex items-center gap-2 rounded-2xl bg-brand-50 p-3 text-sm font-bold text-brand-700 animate-pulse">
+                              <span className="size-2 rounded-full bg-brand-500 animate-ping" />
+                              AIKI đang xem xét câu trả lời của con…
+                            </div>
+                          )}
+
+                          {feedback && (
+                            <div
+                              className={cn(
+                                "rounded-2xl border-2 p-4 animate-pop text-left",
+                                feedback.correct
+                                  ? "border-mint-300 bg-mint-50 text-mint-900"
+                                  : "border-coral-300 bg-coral-50 text-coral-900"
+                              )}
+                              role="status"
+                            >
+                              <div className="flex items-center gap-2 font-extrabold text-base sm:text-lg">
+                                <span>{feedback.correct ? '🎉' : '💡'}</span>
+                                <span>{feedback.correct ? 'Tuyệt vời! Con chọn hoàn toàn chính xác!' : 'Chưa đúng rồi, bé thử suy nghĩ thêm nhé!'}</span>
+                              </div>
+                              <p className="mt-1.5 text-sm font-semibold leading-relaxed">
+                                {feedback.explanation}
+                              </p>
+                              {feedback.correct && isAikiRuleJourney && (
+                                <div className="mt-4 pt-3 border-t border-mint-200 flex justify-end">
+                                  <Button
+                                    variant="primary"
+                                    className="h-11 px-5 font-extrabold shadow-clay"
+                                    onClick={() => setAikiRuleStage(2)}
+                                  >
+                                    Tiếp tục sang Chặng 3: Quy tắc Vàng
+                                    <ChevronRight size={18} />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )
+                    })()}
+
+                    {/* ── MODULE: TUYÊN BỐ QUY TẮC VÀNG POSTER ────────── */}
+                    {isAikiRuleJourney && currentStageIndex === 2 && (() => {
+                      return (
+                        <div className="mt-4 space-y-4 text-left">
+                          <div className="relative overflow-hidden rounded-3xl border-3 border-amber-300 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-6 sm:p-8 shadow-clay animate-fade-up">
+                            <div className="flex items-center justify-between gap-2 border-b border-amber-200/80 pb-3">
+                              <div className="flex items-center gap-2 text-amber-900 font-extrabold text-sm uppercase tracking-wider">
+                                <Sparkles size={20} className="text-amber-600 fill-amber-400" />
+                                Quy Tắc Vàng AIKI
+                              </div>
+                              <span className="rounded-full bg-amber-200 px-3 py-0.5 text-xs font-black text-amber-900">
+                                Chặng 3/5
+                              </span>
+                            </div>
+
+                            <div className="mt-4 flex flex-col items-center text-center">
+                              <span className="text-4xl sm:text-5xl animate-bounce">🌟</span>
+                              <h3 className="mt-2 font-display text-xl sm:text-3xl font-black text-amber-950 leading-snug max-w-2xl">
+                                {card.body || 'Ý TƯỞNG CỦA CON LÀ SỐ 1 · AI CHỈ LÀ TRỢ LÝ GIÚP CON LÀM ĐẸP HƠN!'}
+                              </h3>
+                            </div>
+
+                            {card.tip && (
+                              <div className="mt-5 rounded-2xl border-2 border-amber-300/70 bg-white/80 p-4 text-sm font-bold text-amber-950 leading-relaxed shadow-xs">
+                                💡 <span className="font-extrabold">Bí kíp ghi nhớ:</span> {card.tip}
+                              </div>
+                            )}
+
+                            <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
+                              <Button
+                                variant="secondary"
+                                className="h-14 px-6 text-sm sm:text-base font-black border-2 border-amber-400 bg-white/95 hover:bg-amber-100 text-amber-950 shadow-xs flex items-center gap-2"
+                                onClick={() => setIsPosterModalOpen(true)}
+                              >
+                                <Printer size={19} className="text-amber-700" />
+                                📥 Tải / In Poster Vàng
+                              </Button>
+
+                              {!hasAcknowledgedRule ? (
+                                <Button
+                                  variant="primary"
+                                  className="h-14 px-8 text-base sm:text-lg font-black shadow-clay bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 border-b-4 border-orange-700 active:border-b-0 active:translate-y-1"
+                                  onClick={() => {
+                                    setHasAcknowledgedRule(true)
+                                    setStarBurst({ id: Date.now(), count: 1 })
+                                    setManualMeeCue({
+                                      key: Date.now(),
+                                      text: 'Xuất sắc! Con đã nắm trọn Quy tắc Vàng này rồi!',
+                                      gesture: 'celebrate',
+                                    })
+                                  }}
+                                >
+                                  <Star size={20} className="fill-white" />
+                                  🌟 Con đã ghi nhớ quy tắc!
+                                </Button>
+                              ) : (
+                                <div className="flex flex-wrap items-center gap-3 animate-pop">
+                                  <div className="inline-flex items-center gap-2 rounded-2xl border-2 border-mint-300 bg-mint-50 px-5 py-2.5 text-base font-black text-mint-900 shadow-sm">
+                                    <Check className="size-5 text-mint-600" />
+                                    ✨ Con đã ghi nhớ quy tắc vàng thành công! ⭐
+                                  </div>
+                                  <Button
+                                    variant="secondary"
+                                    className="h-12 px-6 font-extrabold border-2 border-amber-300 hover:bg-amber-100 text-amber-900"
+                                    onClick={() => setAikiRuleStage(3)}
+                                  >
+                                    Tiếp tục sang phần Giải thích
+                                    <ChevronRight size={20} />
+                                  </Button>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      )
+                    })()}
+
+                    {/* ── MODULE: BẢNG SO SÁNH 2 CỘT ─────────────────── */}
+                    {((isAikiRuleJourney && currentStageIndex === 3) || Boolean(card.compareData)) && (() => {
+                      const leftTitle = card.compareData?.leftTitle || card.visualItems?.[0]?.label || 'Dữ liệu quen thuộc & chung chung'
+                      const leftText = card.compareData?.leftText || card.visualItems?.[0]?.text || 'AI chỉ lấy những hình ảnh quen thuộc trong kho hàng ngàn mẫu có sẵn. Ai gõ câu giống nhau thì kết quả cũng giống hệt nhau.'
+                      const leftImage = card.compareData?.leftImage || card.compareImages?.left
+
+                      const rightTitle = card.compareData?.rightTitle || card.visualItems?.[1]?.label || 'Ý tưởng độc nhất vô nhị'
+                      const rightText = card.compareData?.rightText || card.visualItems?.[1]?.text || 'Chỉ có con mới có kỷ niệm riêng, cảm xúc thật, gia đình và sự tưởng tượng độc đáo mà AI không thể tự nghĩ ra được!'
+                      const rightImage = card.compareData?.rightImage || card.compareImages?.right
+
+                      return (
+                        <div className="mt-4 space-y-4 text-left">
+                          <div className="rounded-3xl border-3 border-sky-200 bg-white p-5 sm:p-6 shadow-clay animate-fade-up">
+                            <div className="flex items-center justify-between gap-2 border-b border-sky-100 pb-3">
+                              <div className="flex items-center gap-2 text-sky-800 font-extrabold text-sm uppercase tracking-wider">
+                                <ScanSearch size={20} className="text-sky-600" />
+                                Bảng So Sánh Hai Mặt Bản Chất
+                              </div>
+                              <span className="rounded-full bg-sky-100 px-3 py-0.5 text-xs font-black text-sky-800">
+                                {isAikiRuleJourney ? `Chặng ${currentStageIndex + 1}/5` : 'So sánh'}
+                              </span>
+                            </div>
+
+                            <p className="mt-3 font-display text-base sm:text-lg font-bold text-text leading-relaxed">
+                              {card.body}
+                            </p>
+
+                            <div className="mt-4 grid gap-4 sm:grid-cols-2">
+                              {/* Cột 1: Kho của AI */}
+                              <div className="flex flex-col justify-between rounded-2xl border-2 border-slate-200 bg-slate-50 p-4 sm:p-5 shadow-xs">
+                                <div>
+                                  <div className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white px-3 py-1 text-xs font-black uppercase text-slate-700">
+                                    <span>🤖</span>
+                                    Kho Dữ Liệu Của AI
+                                  </div>
+                                  <h4 className="mt-3 font-display text-base font-black text-slate-800">
+                                    {leftTitle}
+                                  </h4>
+                                  <p className="mt-1.5 text-sm font-semibold leading-relaxed text-slate-600">
+                                    {leftText}
+                                  </p>
+                                  <AiWarehouseVisual imageUrl={leftImage} className="mt-3.5" />
+                                </div>
+                                <div className="mt-4 rounded-xl border border-slate-200 bg-white/80 p-2.5 text-xs font-bold text-slate-500">
+                                  ⚠️ Không có ký ức riêng của con
+                                </div>
+                              </div>
+
+                              {/* Cột 2: Bộ Não Sáng Tạo Của Con */}
+                              <div className="flex flex-col justify-between rounded-2xl border-2 border-brand-300 bg-gradient-to-br from-amber-50 to-brand-50 p-4 sm:p-5 shadow-clay">
+                                <div>
+                                  <div className="inline-flex items-center gap-2 rounded-full border border-brand-300 bg-brand-100 px-3 py-1 text-xs font-black uppercase text-brand-900">
+                                    <Sparkles size={13} className="text-brand-600 fill-brand-400" />
+                                    Bộ Não Sáng Tạo Của Con
+                                  </div>
+                                  <h4 className="mt-3 font-display text-base font-black text-brand-950">
+                                    {rightTitle}
+                                  </h4>
+                                  <p className="mt-1.5 text-sm font-semibold leading-relaxed text-brand-900">
+                                    {rightText}
+                                  </p>
+                                  <KidBrainVisual imageUrl={rightImage} className="mt-3.5" />
+                                </div>
+                                <div className="mt-4 rounded-xl border border-brand-200 bg-white/90 p-2.5 text-xs font-black text-brand-700">
+                                  ✨ Con chính là thuyền trưởng chỉ huy AI!
+                                </div>
+                              </div>
+                            </div>
+
+                            {card.tip && (
+                              <div className="mt-4 rounded-2xl border-2 border-brand-200 bg-brand-50/60 p-4 text-left shadow-xs">
+                                <div className="flex items-center gap-2 font-black text-brand-900 text-sm">
+                                  <span>🐱</span>
+                                  <span>Bật mí từ Mèo AIKI:</span>
+                                </div>
+                                <p className="mt-1 text-sm font-bold text-brand-950 leading-relaxed">
+                                  {card.tip}
+                                </p>
+                              </div>
+                            )}
+
+                            {isAikiRuleJourney && currentStageIndex === 3 && (
+                              <div className="mt-5 flex justify-end">
+                                <Button
+                                  variant="secondary"
+                                  className="h-12 px-6 font-extrabold border-2 border-sky-300 hover:bg-sky-100 text-sky-900"
+                                  onClick={() => setAikiRuleStage(4)}
+                                >
+                                  Tiếp tục sang phần Chốt cam kết
+                                  <ChevronRight size={20} />
+                                </Button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )
+                    })()}
+
+                    {/* ── MODULE: BẢN CAM KẾT HIỆP SĨ SÁNG TẠO ────────── */}
+                    {isAikiRuleJourney && currentStageIndex === 4 && (() => {
+                      return (
+                        <div className="mt-4 space-y-4">
+                          <div className="rounded-3xl border-3 border-amber-300 bg-gradient-to-br from-amber-50 via-yellow-50 to-orange-50 p-6 sm:p-8 shadow-clay text-center flex flex-col items-center gap-5 animate-fade-up">
+                            <div className="inline-flex items-center gap-2 rounded-full border border-amber-400 bg-amber-200/90 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-amber-950 shadow-xs">
+                              <Trophy className="size-4 text-amber-700 fill-amber-500" />
+                              🛡️ BẢN CAM KẾT HIỆP SĨ SÁNG TẠO AIKI
+                            </div>
+
+                            <h3 className="font-display text-xl sm:text-2xl font-black text-amber-950 max-w-xl leading-tight">
+                              {card.body || 'Lời hứa của con khi dùng AI: Luôn có ý tưởng của riêng mình trước khi nhờ AI hỗ trợ!'}
+                            </h3>
+
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setHasCommitted((prev) => !prev)
+                                if (!hasCommitted) {
+                                  setStarBurst({ id: Date.now(), count: 1 })
+                                  setManualMeeCue({
+                                    key: Date.now(),
+                                    text: 'Tuyệt vời! Chào mừng Hiệp Sĩ Sáng Tạo mới của Xưởng AIKI!',
+                                    gesture: 'celebrate',
+                                  })
+                                }
+                              }}
+                              className={cn(
+                                "flex items-center gap-3 px-6 py-4 rounded-2xl border-3 font-black text-base sm:text-lg transition-all shadow-xs active:scale-[0.98] cursor-pointer",
+                                hasCommitted
+                                  ? "border-mint-500 bg-mint-50 text-mint-900 shadow-clay ring-4 ring-mint-200/60"
+                                  : "border-brand-300 bg-white hover:border-brand-400 text-brand-900 hover:shadow-md"
+                              )}
+                            >
+                              <span
+                                className={cn(
+                                  "grid size-8 place-items-center rounded-xl border-2 transition-all",
+                                  hasCommitted
+                                    ? "bg-mint-500 border-mint-600 text-white shadow-xs"
+                                    : "border-brand-300 bg-brand-50 text-brand-400"
+                                )}
+                              >
+                                {hasCommitted ? <Check size={20} /> : null}
+                              </span>
+                              <span>
+                                {hasCommitted
+                                  ? 'Con đã là Hiệp Sĩ Sáng Tạo! 🌟'
+                                  : 'Con đã sẵn sàng làm Hiệp Sĩ Sáng Tạo! ✋'}
+                              </span>
+                            </button>
+
+                            {hasCommitted && (
+                              <CreativeKnightBadgeVisual className="my-2" />
+                            )}
+
+                            <p className="text-sm font-semibold text-amber-800 max-w-md">
+                              Con đã hoàn thành toàn bộ 5 chặng của Quy tắc AIKI! Bấm nút bên dưới để hoàn tất trạm học và nhận sao nhé!
+                            </p>
+
+                            <Button
+                              variant="primary"
+                              className="w-full sm:w-auto min-w-[280px] text-lg sm:text-xl font-black h-16 rounded-2xl shadow-clay border-b-[4px] border-brand-700 active:border-b-0 active:translate-y-1 mt-2"
+                              onClick={() => void handleAikiFinish()}
+                              disabled={busy}
+                            >
+                              {!busy && <Star size={24} className="fill-white" aria-hidden="true" />}
+                              {busy ? 'Đang hoàn thành…' : 'Hoàn thành trạm học & Nhận sao ⭐'}
+                            </Button>
+                          </div>
+                        </div>
+                      )
+                    })()}
                   </div>
 
-                  {card.visualItems?.length ? (
+                  {!isAikiRuleJourney && card.visualItems?.length ? (
                     <div className={cn(
                       'grid content-center gap-3',
                       isStoryboardCard
@@ -1032,6 +1806,31 @@ export function LessonPage() {
             })}
           </section>
 
+          {isAikiRuleJourney && (
+            <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+              {aikiRuleStage > 0 ? (
+                <Button
+                  variant="secondary"
+                  className="min-h-12 px-5 font-extrabold cursor-pointer"
+                  onClick={() => setAikiRuleStage((value) => Math.max(0, value - 1))}
+                >
+                  <ChevronLeft size={20} aria-hidden="true" />
+                  Chặng trước
+                </Button>
+              ) : <div />}
+              {aikiRuleStage < 4 && (
+                <Button
+                  variant="primary"
+                  className="min-h-12 px-5 font-extrabold ml-auto shadow-clay cursor-pointer"
+                  onClick={() => setAikiRuleStage((value) => Math.min(4, value + 1))}
+                >
+                  Chặng tiếp theo: {AIKI_RULE_STAGE_METAS[aikiRuleStage + 1]?.shortLabel || AIKI_RULE_STAGE_METAS[aikiRuleStage + 1]?.label}
+                  <ChevronRight size={20} aria-hidden="true" />
+                </Button>
+              )}
+            </div>
+          )}
+
           {quest.media && quest.media.length > 0 && (
             <div className="rounded-2xl border border-sky-100 bg-sky-50/60 p-3">
               <p className="mb-2 text-xs font-extrabold uppercase tracking-wider text-sky-600">Góc quan sát</p>
@@ -1046,26 +1845,28 @@ export function LessonPage() {
             </div>
           )}
 
-          <Button
-            variant="primary"
-            className="w-full text-lg sm:text-xl font-black h-16 rounded-2xl shadow-clay border-b-[4px] border-brand-700 active:border-b-0 active:translate-y-1 mt-2"
-            onClick={() => {
-              if (reviewMode) {
-                setReviewMode(false)
-                setPhase('done')
-                return
-              }
-              void advanceFromLearn()
-            }}
-            disabled={busy}
-          >
-            {!reviewMode && <Gamepad2 size={24} aria-hidden="true" />}
-            {reviewMode
-              ? 'Quay lại kết quả'
-              : gameStation
-                ? 'Bắt đầu trò chơi'
-                : 'Bắt đầu thực hành'}
-          </Button>
+          {!isAikiRuleJourney && (
+            <Button
+              variant="primary"
+              className="w-full text-lg sm:text-xl font-black h-16 rounded-2xl shadow-clay border-b-[4px] border-brand-700 active:border-b-0 active:translate-y-1 mt-2"
+              onClick={() => {
+                if (reviewMode) {
+                  setReviewMode(false)
+                  setPhase('done')
+                  return
+                }
+                void advanceFromLearn()
+              }}
+              disabled={busy}
+            >
+              {!reviewMode && <Gamepad2 size={24} aria-hidden="true" />}
+              {reviewMode
+                ? 'Quay lại kết quả'
+                : gameStation
+                  ? 'Bắt đầu trò chơi'
+                  : 'Bắt đầu thực hành'}
+            </Button>
+          )}
         </div>
       )}
 
@@ -1894,6 +2695,29 @@ export function LessonPage() {
         goals={quest.goals}
         product={practiceStation?.product}
         successCriteria={practiceCriteria}
+        narrationText={phase === 'learn' ? (manualMeeCue?.text || visibleLearnCards[0]?.mee?.readText || (isAikiRuleJourney ? dynamicGuideCopy.body : visibleLearnCards[0]?.body) || dynamicGuideCopy.body) : dynamicGuideCopy.body}
+        autoRead={phase === 'learn' && manualMeeCue !== null}
+        gesture={manualMeeCue?.gesture}
+        narrationKey={manualMeeCue?.key}
+        stages={isAikiRuleJourney ? hydratedLearnCards.map((c, i) => ({
+          id: c.id,
+          label: AIKI_RULE_STAGE_METAS[i]?.label || c.title,
+          kind: c.kind,
+        })) : undefined}
+        currentStageIndex={isAikiRuleJourney ? aikiRuleStage : undefined}
+        onSelectStage={isAikiRuleJourney ? (idx) => setAikiRuleStage(idx) : undefined}
+      />
+
+      {/* Modals cho AIKI Rule: Phóng to tranh & Tấm Poster Quy Tắc Vàng */}
+      <AikiPictureZoomModal
+        data={zoomedImage}
+        onClose={() => setZoomedImage(null)}
+      />
+      <AikiPosterModal
+        open={isPosterModalOpen}
+        onClose={() => setIsPosterModalOpen(false)}
+        ruleBody={hydratedLearnCards[2]?.body || visibleLearnCards[0]?.body || 'Nghĩ ra ý tưởng của riêng mình trước, sau đó mới dùng AI để làm cho ý tưởng phong phú hơn!'}
+        ruleTip={hydratedLearnCards[2]?.tip || visibleLearnCards[0]?.tip}
       />
     </div>
   )

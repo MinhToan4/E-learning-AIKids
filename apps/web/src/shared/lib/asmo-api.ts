@@ -1,5 +1,4 @@
 import { api } from './api'
-import { ASMO_SAMPLE_EXAMS } from '@/features/asmo/data/asmo-sample-exams'
 import type {
   AsmoExam,
   AsmoGrade,
@@ -42,9 +41,14 @@ export type AsmoExamSubmissionResult = {
   newAchievements?: string[]
 }
 
-function filterSampleExams(filters?: AsmoExamFilter): AsmoExam[] {
-  if (!filters) return ASMO_SAMPLE_EXAMS
-  return ASMO_SAMPLE_EXAMS.filter((exam) => {
+async function loadSampleExams(): Promise<AsmoExam[]> {
+  const { ASMO_SAMPLE_EXAMS } = await import('@/features/asmo/data/asmo-sample-exams')
+  return ASMO_SAMPLE_EXAMS
+}
+
+function filterSampleExams(exams: AsmoExam[], filters?: AsmoExamFilter): AsmoExam[] {
+  if (!filters) return exams
+  return exams.filter((exam) => {
     if (filters.subject && exam.subject !== filters.subject) return false
     if (filters.grade !== undefined) {
       if (filters.subject === 'math') {
@@ -154,8 +158,8 @@ function extractSubmissionResult(res: unknown, examId: string, payload: AsmoExam
   return null
 }
 
-function localGradeExam(examId: string, payload: AsmoExamSubmissionPayload): AsmoExamSubmissionResult {
-  const targetExam = ASMO_SAMPLE_EXAMS.find((e) => e.id === examId) || ASMO_SAMPLE_EXAMS[0]
+function localGradeExam(exams: AsmoExam[], examId: string, payload: AsmoExamSubmissionPayload): AsmoExamSubmissionResult {
+  const targetExam = exams.find((e) => e.id === examId) || exams[0]
   let score = 0
   let correctCount = 0
   const questionResults: AsmoExamQuestionResult[] = []
@@ -220,7 +224,7 @@ export async function listAsmoExams(filters?: AsmoExamFilter): Promise<AsmoExam[
     // Backend offline / network fallback
   }
 
-  return filterSampleExams(filters)
+  return filterSampleExams(await loadSampleExams(), filters)
 }
 
 /**
@@ -239,10 +243,11 @@ export async function getAsmoExam(examId: string): Promise<AsmoExam> {
     // Backend offline / network fallback
   }
 
-  const local = ASMO_SAMPLE_EXAMS.find((e) => e.id === examId)
+  const sampleExams = await loadSampleExams()
+  const local = sampleExams.find((e) => e.id === examId)
   if (local) return local
 
-  return ASMO_SAMPLE_EXAMS[0]
+  return sampleExams[0]
 }
 
 /**
@@ -264,7 +269,7 @@ export async function submitAsmoExam(
     // Backend offline / network fallback
   }
 
-  return localGradeExam(examId, payload)
+  return localGradeExam(await loadSampleExams(), examId, payload)
 }
 
 export const asmoApi = {

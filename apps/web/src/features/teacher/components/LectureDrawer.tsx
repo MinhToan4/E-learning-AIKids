@@ -16,23 +16,39 @@
 import { useState, useCallback, useEffect, useId, useRef } from 'react'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
 import { AdventureModal } from '@/shared/components/ui/AdventureModal'
-import { X, CheckCircle2, Circle, Youtube, BookOpen, Gamepad2, Palette, HelpCircle, BookMarked, Target, Lightbulb, Eye, Plus, Trash2, ChevronUp, ChevronDown, BrainCircuit, ScanSearch, ListChecks, PanelsTopLeft, Scale, BookmarkCheck } from 'lucide-react'
+import { X, CheckCircle2, Circle, Youtube, BookOpen, Gamepad2, Palette, HelpCircle, BookMarked, Target, Lightbulb, Eye, Plus, Trash2, ChevronUp, ChevronDown, BrainCircuit, ScanSearch, ListChecks, PanelsTopLeft, Scale, BookmarkCheck, MessageCircleQuestion, Flag, Clapperboard, Volume2, Trophy, MessageSquareText, Sparkles, Image as ImageIcon, Check, Play, Film, Split, GripVertical, ArrowUp, ArrowDown } from 'lucide-react'
 import { api } from '@/shared/lib/api'
+import { uploadCmsCourseMedia } from '@/shared/lib/media-api'
 import { cn } from '@/shared/lib/cn'
 import { useToast } from '@/shared/hooks/useToast'
 import {
   GAME_OPTIONS, PRACTICE_OPTIONS, GAME_DIFFICULTIES,
   buildLectureGameConfig, lectureDraftReadiness,
-  serializeLectureGameConfig, slugifyAuthoringId,
+  serializeLectureGameConfig, serializeLearnCardsForHub, slugifyAuthoringId, createAikiRuleLearnCards, AIKI_RULE_META_LABEL,
+  AIKI_RULE_STAGE_KINDS,
+  detectLessonFormat, isAikiRuleLesson, type LessonFormat,
   type LectureDraft,
   type LearnCardDraft,
+  type DialogueLine,
+  type StageImageItem,
+  type StageCompareData,
+  type ContentBlockType,
+  type StageBlockItem,
+  getActiveModules,
+  getStageBlocks,
 } from '../lib/authoring'
+
+export { getActiveModules }
+import { StageBlockItemCard } from './StageBlockItemCard'
 import { GameSelector } from './GameSelector'
 import { QuizQuestionBuilder, type EditableQuestion } from './QuizQuestionBuilder'
 import { CatalogGameBuilder } from './CatalogGameBuilder'
 import { QuestionBankPicker } from './QuestionBankPicker'
 import { CheckQuestionBuilder } from './CheckQuestionBuilder'
 import { CurriculumGame } from '@/features/lesson/components/CurriculumGame'
+import { LectureVideo } from '@/features/lesson/components/LectureVideo'
+import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
+import { MeeCatInteractiveCanvas } from '@/features/mee-rig/components/MeeCatInteractiveCanvas'
 import type { CurriculumGameConfig } from '@/features/lesson/lib/curriculum-game'
 
 type Props = {
@@ -53,15 +69,57 @@ type Props = {
   onDirtyChange?: (dirty: boolean) => void
 }
 
-type Section = 'basics' | 'content' | 'game' | 'practice' | 'check'
+type Section = 'basics' | 'content' | 'game' | 'practice' | 'check' | 'stage-0' | 'stage-1' | 'stage-2' | 'stage-3' | 'stage-4'
 
-const SECTIONS: { id: Section; label: string; icon: React.ReactNode }[] = [
+const AIKI_SECTIONS: { id: Section; label: string; icon: React.ReactNode }[] = [
+  { id: 'basics', label: 'Thông tin trạm', icon: <BookOpen size={14} /> },
+  { id: 'stage-0', label: '1. Tình huống', icon: <Clapperboard size={14} /> },
+  { id: 'stage-1', label: '2. Câu đố AIKI', icon: <BrainCircuit size={14} /> },
+  { id: 'stage-2', label: '3. Quy tắc', icon: <Lightbulb size={14} /> },
+  { id: 'stage-3', label: '4. Giải thích', icon: <ScanSearch size={14} /> },
+  { id: 'stage-4', label: '5. Chốt', icon: <Trophy size={14} /> },
+]
+
+const STANDARD_SECTIONS: { id: Section; label: string; icon: React.ReactNode }[] = [
   { id: 'basics', label: 'Thông tin trạm', icon: <BookOpen size={14} /> },
   { id: 'content', label: 'Khám phá', icon: <BookOpen size={14} /> },
   { id: 'game', label: 'Thử cùng Mee', icon: <Gamepad2 size={14} /> },
   { id: 'practice', label: 'Tự tay làm', icon: <Palette size={14} /> },
   { id: 'check', label: 'Thử thách', icon: <HelpCircle size={14} /> },
 ]
+
+const AIKI_STAGE_NAMES = [
+  '1. Tình huống',
+  '2. Câu đố AIKI',
+  '3. Quy tắc',
+  '4. Giải thích',
+  '5. Chốt',
+] as const
+
+const AVAILABLE_MODULES = [
+  { id: 'text', label: 'Đoạn văn bản (Textbox)', icon: '📖', desc: 'Thêm một đoạn văn bản hoặc tiêu đề mới' },
+  { id: 'layout-callout', label: 'Hộp Ghi Nhớ Nổi Bật', icon: '💡', desc: 'Khung vàng ghi chú bí kíp bỏ túi' },
+  { id: 'layout-formula', label: 'Công Thức KaTeX', icon: '🔤', desc: 'Công thức toán học hoặc định nghĩa cô đọng' },
+  { id: 'layout-split', label: '2 Cột Chữ + Media', icon: '📰', desc: 'Cột chữ kết hợp cột ảnh/video minh họa' },
+  { id: 'layout-grid', label: 'Lưới 3 Ô Thẻ', icon: '🍱', desc: 'Lưới 3 thẻ ví dụ trực quan' },
+  { id: 'layout-storyboard', label: 'Chuỗi Storyboard', icon: '🎬', desc: 'Chuỗi 3 cảnh kịch bản diễn biến' },
+  { id: 'voice', label: 'Mèo AIKI & Lipsync', icon: '🐱', desc: 'Studio tương tác, giọng đọc AI & khẩu hình Lipsync' },
+  { id: 'video', label: 'Video Bài Giảng', icon: '🎬', desc: 'Video MP4 / YouTube phát tự động' },
+  { id: 'versus-ab', label: '2 Ảnh Đối Đầu A/B', icon: '🖼️', desc: 'Upload & cấu hình 2 ảnh đối đầu A & B' },
+  { id: 'dialogue', label: 'Kịch Bản Phân Vai Comic', icon: '💬', desc: 'Phân vai Zico / Sonet / AKI / Tùy chọn' },
+  { id: 'compare', label: 'Bảng So Sánh 2 Cột', icon: '⚖️', desc: 'Bảng 2 cột tiêu đề, nội dung & 2 ảnh so sánh' },
+  { id: 'poster', label: 'Poster Quy Tắc Vàng', icon: '📜', desc: 'Quy tắc to bản, ảnh poster riêng & bí kíp bỏ túi' },
+  { id: 'images', label: 'Bộ Sưu Tập Ảnh Minh Họa', icon: '📷', desc: 'Danh sách ảnh kèm caption chú thích' },
+] as const
+
+function speakTextPreview(text: string) {
+  if (typeof window === 'undefined' || !('speechSynthesis' in window) || !text?.trim()) return
+  window.speechSynthesis.cancel()
+  const utterance = new SpeechSynthesisUtterance(text.trim())
+  utterance.lang = 'vi-VN'
+  utterance.rate = 1.0
+  window.speechSynthesis.speak(utterance)
+}
 
 const SELF_CONTAINED_QUIZ_GAMES = ['math-kids']
 const CATALOG_GAMES = ['data-runner', 'truth-patrol']
@@ -77,14 +135,28 @@ const LEARN_KIND_OPTIONS: Array<{ id: LearnCardDraft['kind']; label: string }> =
   { id: 'steps', label: 'Từng bước' },
   { id: 'storyboard', label: 'Storyboard' },
   { id: 'remember', label: 'Ghi nhớ' },
+  { id: 'situation', label: 'Tình huống' },
+  { id: 'aiki-riddle', label: 'Câu đố của AIKI' },
+  { id: 'rule', label: 'Quy tắc' },
+  { id: 'explanation', label: 'Giải thích' },
+  { id: 'closing', label: 'Chốt' },
 ]
 
-const LEARN_LAYOUT_OPTIONS: Array<{ id: LearnCardDraft['layout']; label: string; description: string }> = [
-  { id: 'text', label: 'Đọc tập trung', description: 'Một cột, phù hợp giải thích ý chính.' },
-  { id: 'split', label: 'Chữ + ví dụ', description: 'Hai cột trên màn hình lớn.' },
-  { id: 'visual-grid', label: 'Lưới ví dụ', description: '2–3 ô để so sánh hoặc phân loại.' },
-  { id: 'storyboard', label: 'Storyboard', description: 'Các khung cảnh theo trình tự.' },
+const LEARN_LAYOUT_OPTIONS: Array<{ id: LearnCardDraft['layout']; label: string; icon: string; description: string }> = [
+  { id: 'text', label: '1 Cột Tập Trung', icon: '📖', description: 'Một cột, phù hợp giải thích ý chính & đọc tập trung.' },
+  { id: 'split', label: '2 Cột Chữ + Media', icon: '📰', description: 'Hai cột trên màn hình lớn: Chữ bên trái, ảnh bên phải.' },
+  { id: 'visual-grid', label: 'Lưới 3 Ô Thẻ', icon: '🍱', description: '2–3 ô để so sánh hoặc phân loại ý tưởng.' },
+  { id: 'storyboard', label: 'Chuỗi Storyboard', icon: '🎬', description: 'Các khung cảnh tranh vẽ diễn hoạt theo trình tự.' },
 ]
+
+const LECTURE_GESTURES = [
+  { id: 'presentation', label: '🤲 Thuyết trình cơ bản' },
+  { id: 'point-left', label: '👈 Chỉ bảng bài học' },
+  { id: 'think', label: '💡 Cùng suy nghĩ (đố vui)' },
+  { id: 'idea', label: '💡 Aha! Nêu mẹo (quy tắc)' },
+  { id: 'celebrate-1', label: '🎉 Hoan hô ăn mừng' },
+  { id: 'explain', label: '👐 Diễn giải mở rộng' },
+] as const
 
 const LEARN_KIND_PRESENTATION = {
   concept: { label: 'Khái niệm', icon: BrainCircuit, tone: 'border-sun-200 bg-sun-50 text-sun-800' },
@@ -93,16 +165,38 @@ const LEARN_KIND_PRESENTATION = {
   steps: { label: 'Từng bước', icon: ListChecks, tone: 'border-brand-200 bg-brand-50 text-brand-800' },
   storyboard: { label: 'Storyboard', icon: PanelsTopLeft, tone: 'border-coral-200 bg-coral-50 text-coral-800' },
   remember: { label: 'Ghi nhớ', icon: BookmarkCheck, tone: 'border-sun-200 bg-white text-sun-800' },
+  situation: { label: 'Tình huống', icon: Clapperboard, tone: 'border-coral-200 bg-coral-50 text-coral-800' },
+  'aiki-riddle': { label: 'Câu đố của AIKI', icon: MessageCircleQuestion, tone: 'border-sky-200 bg-sky-50 text-sky-800' },
+  rule: { label: 'Quy tắc', icon: BookmarkCheck, tone: 'border-brand-200 bg-brand-50 text-brand-800' },
+  explanation: { label: 'Giải thích', icon: BrainCircuit, tone: 'border-mint-200 bg-mint-50 text-mint-800' },
+  closing: { label: 'Chốt', icon: Flag, tone: 'border-sun-200 bg-sun-50 text-sun-800' },
 } satisfies Record<LearnCardDraft['kind'], { label: string; icon: typeof Lightbulb; tone: string }>
 
 function defaultLearnCards(concept = '', example = ''): LearnCardDraft[] {
   return [
-    { id: 'concept', title: 'Khám phá ý chính', body: concept, tip: '', kind: 'concept', layout: 'text', visualItems: [] },
-    { id: 'example', title: 'Ví dụ để hiểu rõ', body: example, tip: '', kind: 'example', layout: 'split', visualItems: [] },
+    { id: 'concept', title: 'Khám phá ý chính', body: concept, tip: '', kind: 'concept', layout: 'text', visualItems: [], mee: { readText: '', gesture: 'presentation', autoRead: false } },
+    { id: 'example', title: 'Ví dụ để hiểu rõ', body: example, tip: '', kind: 'example', layout: 'split', visualItems: [], mee: { readText: '', gesture: 'point-left', autoRead: false } },
   ]
 }
 
-function normalizeLearnKind(value: unknown, index: number): LearnCardDraft['kind'] {
+function normalizeLearnKind(value: unknown, index: number, id = '', isAiki = false): LearnCardDraft['kind'] {
+  const encodedKind = ({
+    'aiki-rule-situation': 'situation',
+    'aiki-rule-riddle': 'aiki-riddle',
+    'aiki-rule-rule': 'rule',
+    'aiki-rule-explanation': 'explanation',
+    'aiki-rule-closing': 'closing',
+  } as const)[id as 'aiki-rule-situation']
+  if (encodedKind) return encodedKind
+  if (value === 'situation' || value === 'aiki-riddle' || value === 'rule' || value === 'explanation' || value === 'closing') return value
+  // Khôi phục theo vị trí 5 chặng nếu nhận được Hub kind
+  if (isAiki || id.startsWith('aiki-rule-')) {
+    if (index === 0 && value === 'concept') return 'situation'
+    if (index === 1 && value === 'example') return 'aiki-riddle'
+    if (index === 2 && value === 'steps') return 'rule'
+    if (index === 3 && value === 'compare') return 'explanation'
+    if (index === 4 && value === 'remember') return 'closing'
+  }
   if (value === 'concept' || value === 'example' || value === 'compare' || value === 'steps' || value === 'storyboard' || value === 'remember') return value
   if (value === 'guided-practice') return 'steps'
   if (value === 'artifact') return 'remember'
@@ -115,23 +209,46 @@ function normalizeLearnLayout(value: unknown, hasVisualItems: boolean, kind: Lea
   return hasVisualItems ? 'split' : 'text'
 }
 
-function normalizeLectureDraft(draft: LectureDraft): LectureDraft {
+export function normalizeLectureDraft(draft: LectureDraft): LectureDraft {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const explicitFormat = (draft as any).lessonFormat || (draft as any).gameConfig?.lessonFormat
+  const isAiki = explicitFormat === 'aiki-rule-5steps' || isAikiRuleLesson(draft.learnCards || [])
   const sourceCards = draft.learnCards?.length ? draft.learnCards : defaultLearnCards(draft.concept, draft.example)
   return {
     ...draft,
+    lessonFormat: isAiki ? 'aiki-rule-5steps' : (explicitFormat === 'standard' ? 'standard' : (draft.lessonFormat ?? 'standard')),
     practiceConfigText: draft.practiceConfigText ?? '',
     learnCards: sourceCards.map((card, index) => {
-      const visualItems = Array.isArray(card.visualItems) ? card.visualItems : []
-      const kind = normalizeLearnKind(card.kind, index)
+      const sourceVisualItems = Array.isArray(card.visualItems) ? card.visualItems : []
+      const encodedItem = sourceVisualItems.find((item) => item.label === AIKI_RULE_META_LABEL)
+      let encoded: Partial<LearnCardDraft> = {}
+      try { encoded = encodedItem ? JSON.parse(encodedItem.text) as Partial<LearnCardDraft> : {} } catch { encoded = {} }
+      const visualItems = sourceVisualItems.filter((item) => item.label !== AIKI_RULE_META_LABEL)
+      const kind = isAiki && index < AIKI_RULE_STAGE_KINDS.length
+        ? AIKI_RULE_STAGE_KINDS[index]
+        : normalizeLearnKind(encoded.kind ?? card.kind, index, card.id, isAiki)
       return {
         ...card,
-        id: card.id || `learn-${index + 1}`,
+        id: card.id || (isAiki && index < AIKI_RULE_STAGE_KINDS.length ? `aiki-rule-${AIKI_RULE_STAGE_KINDS[index]}` : `learn-${index + 1}`),
         title: card.title || `Khối khám phá ${index + 1}`,
         body: card.body || '',
         tip: card.tip ?? '',
         kind,
         layout: normalizeLearnLayout(card.layout, visualItems.length > 0, kind),
         visualItems,
+        imageUrl: encoded.imageUrl ?? card.imageUrl ?? '',
+        imageAlt: encoded.imageAlt ?? card.imageAlt ?? '',
+        videoUrl: encoded.videoUrl ?? card.videoUrl ?? '',
+        optionImages: encoded.optionImages ?? card.optionImages ?? (kind === 'aiki-riddle' ? ['', ''] : undefined),
+        optionLabels: encoded.optionLabels ?? card.optionLabels,
+        optionDescs: encoded.optionDescs ?? card.optionDescs,
+        dialogueLines: encoded.dialogueLines ?? card.dialogueLines,
+        additionalImages: encoded.additionalImages ?? card.additionalImages,
+        compareData: encoded.compareData ?? card.compareData,
+        enabledModules: encoded.enabledModules ?? card.enabledModules,
+        contentBlocks: encoded.contentBlocks ?? card.contentBlocks,
+        compareImages: encoded.compareImages ?? card.compareImages ?? (kind === 'explanation' ? { left: '', right: '' } : undefined),
+        mee: encoded.mee ?? card.mee ?? { readText: '', audioUrl: '', voiceProvider: 'vertex', gesture: 'presentation', autoRead: false },
       }
     }),
   }
@@ -200,6 +317,388 @@ function StudentLearnPreview({ draft }: { draft: LectureDraft }) {
       <div className="mt-3 rounded-xl bg-sky-50 px-3 py-3 text-xs font-semibold leading-relaxed text-sky-900">
         <strong>Cách viết đúng:</strong> giải thích một ý trong 2–4 câu; ví dụ phải có nhân vật hoặc tình huống cụ thể; tránh định nghĩa dài và thuật ngữ chưa được giải thích.
       </div>
+    </aside>
+  )
+}
+
+function getBlockIcon(type: ContentBlockType): string {
+  switch (type) {
+    case 'text':
+    case 'layout-text':
+      return '📖'
+    case 'layout-callout':
+      return '💡'
+    case 'layout-formula':
+      return '🔤'
+    case 'layout-split':
+      return '📰'
+    case 'layout-grid':
+      return '🍱'
+    case 'layout-storyboard':
+      return '🎬'
+    case 'voice':
+      return '🐱'
+    case 'video':
+      return '🎬'
+    case 'versus-ab':
+      return '🖼️'
+    case 'dialogue':
+      return '💬'
+    case 'compare':
+      return '⚖️'
+    case 'poster':
+      return '📜'
+    case 'images':
+      return '📷'
+    default:
+      return '📦'
+  }
+}
+
+function getBlockTitle(type: ContentBlockType, customTitle?: string): string {
+  switch (type) {
+    case 'text':
+    case 'layout-text':
+      return customTitle || 'ĐOẠN VĂN BẢN'
+    case 'layout-callout':
+      return customTitle || 'HỘP GHI NHỚ NỔI BẬT'
+    case 'layout-formula':
+      return customTitle || 'CÔNG THỨC KATEX'
+    case 'layout-split':
+      return customTitle || '2 CỘT CHỮ + MEDIA'
+    case 'layout-grid':
+      return customTitle || 'LƯỚI Ô THẺ'
+    case 'layout-storyboard':
+      return customTitle || 'CHUỖI STORYBOARD'
+    case 'voice':
+      return 'MÈO AIKI ĐỒNG HÀNH & TRỢ GIẢNG AI'
+    case 'video':
+      return 'VIDEO BÀI GIẢNG'
+    case 'versus-ab':
+      return '2 TRANH ĐỐI ĐẦU A/B'
+    case 'dialogue':
+      return 'KỊCH BẢN PHÂN VAI COMIC'
+    case 'compare':
+      return 'BẢNG SO SÁNH 2 CỘT'
+    case 'poster':
+      return 'POSTER QUY TẮC VÀNG'
+    case 'images':
+      return 'BỘ SƯU TẬP ẢNH MINH HỌA'
+    default:
+      return customTitle || 'KHỐI NỘI DUNG'
+  }
+}
+
+function StudentStagePreview({ card, stageIndex }: { card: LearnCardDraft; stageIndex: number }) {
+  const presentation = LEARN_KIND_PRESENTATION[card.kind] ?? LEARN_KIND_PRESENTATION.example
+  const KindIcon = presentation.icon
+  const stageName = AIKI_STAGE_NAMES[stageIndex] ?? `Chặng ${stageIndex + 1}`
+  const stageBlocks = getStageBlocks(card, stageIndex)
+
+  return (
+    <aside className="ui-card h-fit p-4 lg:sticky lg:top-4" aria-label={`Xem trước ${stageName} trên màn học sinh`}>
+      <div className="flex items-center justify-between gap-2">
+        <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-sky-700">
+          <Eye size={15} /> Xem trước học sinh
+        </p>
+        <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-[11px] font-black text-brand-800">
+          Chặng {stageIndex + 1}/5
+        </span>
+      </div>
+
+      <article className={`mt-3 rounded-2xl border-2 p-4 shadow-sm ${presentation.tone}`}>
+        <div className="flex items-center justify-between gap-2">
+          <span className="grid size-9 place-items-center rounded-xl bg-white/80">
+            <KindIcon size={20} aria-hidden="true" />
+          </span>
+          <div className="flex items-center gap-1.5 flex-wrap justify-end">
+            <span className="rounded-full bg-white/80 px-2 py-0.5 text-[10px] font-extrabold uppercase tracking-wide">
+              {presentation.label}
+            </span>
+            {stageBlocks.map((b) => (
+              <span key={b.id} className="rounded-full bg-brand-50 border border-brand-200 px-1.5 py-0.5 text-[9px] font-black text-brand-800">
+                {b.type === 'versus-ab' ? '🖼️ A/B' : b.type === 'images' ? '📷 Ảnh' : b.type === 'dialogue' ? '💬 Thoại' : b.type === 'compare' ? '⚖️ So sánh' : b.type === 'poster' ? '📜 Poster' : b.type === 'voice' ? '🐱 Mèo' : b.type === 'video' ? '🎬 Video' : b.type === 'layout-callout' ? '💡 Ghi nhớ' : b.type === 'layout-formula' ? '🔤 KaTeX' : b.type === 'layout-split' ? '📰 2 Cột' : b.type === 'layout-grid' ? '🍱 Lưới' : b.type === 'layout-storyboard' ? '🎬 Storyboard' : '📖 Chữ'}
+              </span>
+            ))}
+          </div>
+        </div>
+
+        {stageBlocks.length === 0 ? (
+          <p className="mt-3 text-center text-xs font-bold text-muted py-4">Chặng này chưa có khối nội dung nào.</p>
+        ) : (
+          <div className="mt-3 space-y-3">
+            {stageBlocks.map((block) => {
+              if (block.type === 'text' || block.type === 'layout-text') {
+                return (
+                  <div key={block.id} className="rounded-xl border border-current/15 bg-white/70 p-3">
+                    {block.title && <h3 className="font-display text-base leading-snug">{block.title}</h3>}
+                    <p className="mt-1 whitespace-pre-line text-sm font-semibold leading-relaxed text-text">
+                      {block.body?.trim() || 'Nội dung đoạn văn bản sẽ hiển thị ở đây.'}
+                    </p>
+                    {block.tip && (
+                      <p className="mt-2 rounded-xl border border-current/20 bg-white/90 px-3 py-1.5 text-xs font-bold text-brand-900">
+                        💡 Ghi nhớ: {block.tip}
+                      </p>
+                    )}
+                  </div>
+                )
+              }
+
+              if (block.type === 'layout-callout') {
+                return (
+                  <div key={block.id} className="rounded-xl border-2 border-amber-300 bg-amber-50/90 p-3 text-amber-950 shadow-2xs">
+                    <p className="text-[11px] font-black uppercase tracking-wider text-amber-800 flex items-center gap-1 mb-1">
+                      💡 {block.title || 'Hộp Ghi Nhớ Nổi Bật'}
+                    </p>
+                    <p className="text-xs font-bold leading-relaxed">{block.tip || block.body || 'Bí kíp bỏ túi cho bé...'}</p>
+                  </div>
+                )
+              }
+
+              if (block.type === 'layout-formula') {
+                return (
+                  <div key={block.id} className="rounded-xl border border-brand-200 bg-brand-50/70 p-3 text-center">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-brand-800 mb-1">{block.title || 'Công Thức KaTeX'}</p>
+                    <div className="font-mono text-xs font-black text-brand-950 py-1.5 px-2 bg-white rounded-lg border border-brand-200 shadow-2xs">
+                      {block.formula || '$$\\text{Ý tưởng con} + \\text{Sức mạnh AI} = \\text{Tác phẩm độc nhất}$$'}
+                    </div>
+                  </div>
+                )
+              }
+
+              if (block.type === 'layout-split') {
+                return (
+                  <div key={block.id} className="grid grid-cols-2 gap-2 rounded-xl border border-current/15 bg-white/70 p-2.5 items-center">
+                    <div>
+                      {block.title && <h4 className="font-display text-xs font-bold text-text">{block.title}</h4>}
+                      <p className="text-[11px] font-semibold text-text mt-0.5">{block.body || 'Nội dung giải thích...'}</p>
+                    </div>
+                    <div className="overflow-hidden rounded-lg aspect-video bg-slate-100 border border-slate-200 grid place-items-center">
+                      {block.imageUrl ? (
+                        <img src={block.imageUrl} alt={block.imageAlt || 'Media'} className="size-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                      ) : (
+                        <span className="text-[10px] font-bold text-muted">Ảnh / Media</span>
+                      )}
+                    </div>
+                  </div>
+                )
+              }
+
+              if (block.type === 'layout-grid') {
+                const items = (block.visualItems && block.visualItems.length > 0) ? block.visualItems : card.visualItems
+                return (
+                  <div key={block.id} className="rounded-xl border border-current/15 bg-white/70 p-2.5">
+                    {block.title && <h4 className="font-display text-xs font-black text-text mb-1.5">{block.title}</h4>}
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {items.map((item, vIdx) => (
+                        <div key={vIdx} className="rounded-lg border border-brand-200 bg-brand-50/70 p-1.5 text-center">
+                          <p className="text-[10px] font-black text-brand-900 truncate">{item.label}</p>
+                          <p className="text-[9px] font-semibold text-brand-800 line-clamp-2 mt-0.5">{item.text}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              }
+
+              if (block.type === 'layout-storyboard') {
+                const items = (block.visualItems && block.visualItems.length > 0) ? block.visualItems : card.visualItems
+                return (
+                  <div key={block.id} className="rounded-xl border border-current/15 bg-white/70 p-2.5">
+                    {block.title && <h4 className="font-display text-xs font-black text-text mb-1.5">{block.title}</h4>}
+                    <div className="grid grid-cols-3 gap-1.5">
+                      {items.map((item, vIdx) => (
+                        <div key={vIdx} className="rounded-lg border border-sky-200 bg-sky-50/70 p-1.5 text-center">
+                          <span className="inline-block rounded bg-sky-200 px-1 text-[8px] font-black text-sky-900">Cảnh {vIdx + 1}</span>
+                          <p className="text-[10px] font-black text-sky-950 truncate mt-0.5">{item.label}</p>
+                          <p className="text-[9px] font-semibold text-sky-800 line-clamp-2">{item.text}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              }
+
+              if (block.type === 'video') {
+                return (
+                  <div key={block.id} className="overflow-hidden rounded-xl border border-border">
+                    {card.videoUrl ? (
+                      <LectureVideo title={card.title} url={card.videoUrl} />
+                    ) : (
+                      <div className="aspect-video bg-slate-900 grid place-items-center text-white text-xs font-bold">
+                        🎬 Video Bài Giảng (Chưa nhập URL)
+                      </div>
+                    )}
+                  </div>
+                )
+              }
+
+              if (block.type === 'versus-ab') {
+                return (
+                  <div key={block.id} className="grid grid-cols-2 gap-2">
+                    <div className="rounded-xl border border-amber-200 bg-white p-2 text-center">
+                      <span className="rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-black text-amber-800">
+                        {card.optionLabels?.[0] || 'Tranh A: Zico'}
+                      </span>
+                      {card.optionDescs?.[0] && (
+                        <p className="mt-0.5 text-[9px] text-muted line-clamp-1">{card.optionDescs[0]}</p>
+                      )}
+                      {card.optionImages?.[0] ? (
+                        <img src={card.optionImages[0]} alt="Tranh A" className="mt-1.5 aspect-video w-full rounded-lg object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                      ) : (
+                        <div className="mt-1.5 aspect-video rounded-lg bg-amber-50 grid place-items-center text-[10px] font-bold text-amber-700">🎨 Minh họa mặc định</div>
+                      )}
+                    </div>
+                    <div className="rounded-xl border border-sky-200 bg-white p-2 text-center">
+                      <span className="rounded bg-sky-100 px-1.5 py-0.5 text-[10px] font-black text-sky-800">
+                        {card.optionLabels?.[1] || 'Tranh B: Sonet'}
+                      </span>
+                      {card.optionDescs?.[1] && (
+                        <p className="mt-0.5 text-[9px] text-muted line-clamp-1">{card.optionDescs[1]}</p>
+                      )}
+                      {card.optionImages?.[1] ? (
+                        <img src={card.optionImages[1]} alt="Tranh B" className="mt-1.5 aspect-video w-full rounded-lg object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                      ) : (
+                        <div className="mt-1.5 aspect-video rounded-lg bg-sky-50 grid place-items-center text-[10px] font-bold text-sky-700">🎨 Minh họa mặc định</div>
+                      )}
+                    </div>
+                  </div>
+                )
+              }
+
+              if (block.type === 'dialogue') {
+                return (
+                  <div key={block.id} className="space-y-2 rounded-xl border border-orange-200 bg-orange-50/70 p-3 text-left">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-orange-800 flex items-center gap-1">
+                      <MessageSquareText size={12} /> Kịch bản đối thoại:
+                    </p>
+                    <div className="flex flex-col gap-1.5">
+                      {(card.dialogueLines || []).map((line, lIdx) => {
+                        const isLeft = line.role === 'left' || line.speaker === 'zico'
+                        const isRight = line.role === 'right' || line.speaker === 'sonet'
+                        return (
+                          <div
+                            key={line.id || lIdx}
+                            className={cn(
+                              "flex items-start gap-1.5 text-xs",
+                              isLeft ? "self-start max-w-[90%]" : isRight ? "self-end flex-row-reverse max-w-[90%]" : "self-center w-full justify-center"
+                            )}
+                          >
+                            <span className="grid size-6 place-items-center rounded-full bg-white border border-current/20 text-xs shrink-0">
+                              {isLeft ? '👦' : isRight ? '🧒' : '🐱'}
+                            </span>
+                            <div className={cn(
+                              "rounded-xl px-2.5 py-1.5 text-xs font-semibold leading-relaxed shadow-2xs",
+                              isLeft ? "bg-orange-100 text-orange-950 rounded-tl-none" : isRight ? "bg-sky-100 text-sky-950 rounded-tr-none text-right" : "bg-amber-100 text-amber-950 text-center w-full"
+                            )}>
+                              <span className="block text-[9px] font-black opacity-75 uppercase">
+                                {line.speaker === 'zico' ? 'Zico' : line.speaker === 'sonet' ? 'Sonet' : line.speaker === 'aki' ? 'Mèo AKI' : line.speaker}
+                              </span>
+                              {line.text}
+                            </div>
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )
+              }
+
+              if (block.type === 'compare') {
+                return (
+                  <div key={block.id} className="grid grid-cols-2 gap-2">
+                    <div className="rounded-xl border border-slate-200 bg-white p-2 text-center">
+                      <span className="text-[10px] font-black text-slate-700">
+                        🤖 {card.compareData?.leftTitle || 'Kho dữ liệu AI'}
+                      </span>
+                      {card.compareData?.leftText && (
+                        <p className="mt-0.5 text-[9px] text-slate-600 line-clamp-2">{card.compareData.leftText}</p>
+                      )}
+                      {(card.compareData?.leftImage || card.compareImages?.left) ? (
+                        <img src={card.compareData?.leftImage || card.compareImages?.left} alt="Cột trái" className="mt-1.5 aspect-video w-full rounded-lg object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                      ) : (
+                        <div className="mt-1.5 aspect-video rounded-lg bg-slate-100 grid place-items-center text-[10px] font-bold text-slate-600">📁 Đồ họa sẵn sàng</div>
+                      )}
+                    </div>
+                    <div className="rounded-xl border border-brand-200 bg-white p-2 text-center">
+                      <span className="text-[10px] font-black text-brand-800">
+                        🧠 {card.compareData?.rightTitle || 'Não sáng tạo con'}
+                      </span>
+                      {card.compareData?.rightText && (
+                        <p className="mt-0.5 text-[9px] text-brand-900 line-clamp-2">{card.compareData.rightText}</p>
+                      )}
+                      {(card.compareData?.rightImage || card.compareImages?.right) ? (
+                        <img src={card.compareData?.rightImage || card.compareImages?.right} alt="Cột phải" className="mt-1.5 aspect-video w-full rounded-lg object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                      ) : (
+                        <div className="mt-1.5 aspect-video rounded-lg bg-brand-50 grid place-items-center text-[10px] font-bold text-brand-700">💡 Đồ họa sẵn sàng</div>
+                      )}
+                    </div>
+                  </div>
+                )
+              }
+
+              if (block.type === 'poster') {
+                return (
+                  <div key={block.id} className="rounded-xl border-2 border-yellow-300 bg-yellow-50/90 p-3 text-center">
+                    <p className="text-[10px] font-black uppercase tracking-wider text-yellow-800">📜 Poster Quy Tắc Vàng</p>
+                    <p className="mt-1 font-display text-sm font-black text-yellow-950 uppercase">{card.body || 'HÃY LUÔN TỰ TAY THÊM Ý TƯỞNG CỦA RIÊNG MÌNH!'}</p>
+                    {card.tip && (
+                      <p className="mt-1.5 text-xs font-bold text-yellow-900">💡 {card.tip}</p>
+                    )}
+                    {card.imageUrl && (
+                      <img src={card.imageUrl} alt="Poster" className="mt-2 aspect-video w-full rounded-lg object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                    )}
+                  </div>
+                )
+              }
+
+              if (block.type === 'images') {
+                return (
+                  <div key={block.id} className="space-y-2">
+                    <p className="text-[10px] font-black uppercase text-brand-800">📷 Ảnh minh họa bổ sung ({(card.additionalImages || []).length}):</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      {(card.additionalImages || []).map((imgItem, imgIdx) => (
+                        <div key={imgItem.id || imgIdx} className="overflow-hidden rounded-xl border border-current/20 bg-white/90 p-1 text-center">
+                          {imgItem.url ? (
+                            <img src={imgItem.url} alt={imgItem.alt || 'Ảnh'} className="aspect-video w-full rounded-lg object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                          ) : (
+                            <div className="aspect-video rounded-lg bg-slate-100 grid place-items-center text-[10px] text-muted">Chưa có ảnh</div>
+                          )}
+                          {imgItem.caption && (
+                            <p className="mt-1 text-[9px] font-bold text-text truncate">{imgItem.caption}</p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )
+              }
+
+              if (block.type === 'voice') {
+                return (
+                  <div key={block.id} className="flex items-center gap-3 rounded-2xl border border-sky-200 bg-sky-50/70 p-3">
+                    <AikidCatCharacter
+                      pose={card.mee?.gesture === 'think' ? 'thinking' : card.mee?.gesture === 'celebrate' ? 'celebrate' : 'guide'}
+                      gesture={card.mee?.gesture ?? 'presentation'}
+                      isSpeaking={false}
+                      animated={true}
+                      className="h-14 w-14 shrink-0 object-contain"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="text-[11px] font-extrabold uppercase text-sky-800">Mèo AIKI nói:</p>
+                      <p className="mt-0.5 line-clamp-3 text-xs font-semibold text-sky-950 italic">
+                        "{card.mee?.readText?.trim() || card.body?.trim() || 'Chào các bạn nhỏ!'}"
+                      </p>
+                    </div>
+                  </div>
+                )
+              }
+
+              return null
+            })}
+          </div>
+        )}
+      </article>
     </aside>
   )
 }
@@ -288,14 +787,78 @@ function PracticeKindPreview({ draft, compact = false }: { draft: LectureDraft; 
 }
 
 function FullStationPreview({ draft, gameConfig }: { draft: LectureDraft; gameConfig: CurriculumGameConfig }) {
+  const isAiki = detectLessonFormat(draft.learnCards) === 'aiki-rule-5steps' || isAikiRuleLesson(draft.learnCards)
+  const [activeAikiStage, setActiveAikiStage] = useState<number>(0)
   const [previewSection, setPreviewSection] = useState<Section>('basics')
   const goals = goalLines(draft.goalsText)
   const steps = goalLines(draft.practiceStepsText)
   const criteria = goalLines(draft.successCriteriaText)
+
+  if (isAiki) {
+    const defaultCards = createAikiRuleLearnCards()
+    const card = draft.learnCards[activeAikiStage] ?? defaultCards[activeAikiStage]
+    const stageIcons = ['🎬', '🖼️', '📜', '⚖️', '🏆']
+    return (
+      <div className="text-left">
+        {/* Navigation 5 chặng AIKI */}
+        <nav className="mb-4 flex gap-2 overflow-x-auto rounded-2xl border border-brand-200 bg-brand-50/70 p-2" aria-label="Chọn chặng AIKI muốn xem trước">
+          {AIKI_STAGE_NAMES.map((name, index) => {
+            const isSelected = activeAikiStage === index
+            return (
+              <button
+                key={name}
+                type="button"
+                onClick={() => setActiveAikiStage(index)}
+                aria-current={isSelected ? 'page' : undefined}
+                className={cn(
+                  'flex min-h-10 shrink-0 items-center gap-2 rounded-xl px-3.5 text-xs font-black transition cursor-pointer',
+                  isSelected
+                    ? 'bg-brand-600 text-white shadow-sm'
+                    : 'text-brand-900 bg-white/80 hover:bg-white border border-brand-200/60'
+                )}
+              >
+                <span>{stageIcons[index]}</span>
+                <span>{name}</span>
+              </button>
+            )
+          })}
+        </nav>
+
+        {/* Nội dung xem trước chặng học sinh */}
+        <div className="station-preview-scroll overflow-y-auto pr-1">
+          {card && <StudentStagePreview card={card} stageIndex={activeAikiStage} />}
+
+          {/* Điều hướng chuyển chặng */}
+          <div className="mt-4 flex items-center justify-between border-t border-border/80 pt-3">
+            <button
+              type="button"
+              disabled={activeAikiStage === 0}
+              onClick={() => setActiveAikiStage((prev) => Math.max(0, prev - 1))}
+              className="rounded-xl border border-border bg-white px-3 py-1.5 text-xs font-bold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-slate-50 cursor-pointer"
+            >
+              ← Chặng trước
+            </button>
+            <span className="text-xs font-black text-brand-800">
+              Chặng {activeAikiStage + 1} / 5
+            </span>
+            <button
+              type="button"
+              disabled={activeAikiStage === 4}
+              onClick={() => setActiveAikiStage((prev) => Math.min(4, prev + 1))}
+              className="rounded-xl bg-brand-600 text-white px-3.5 py-1.5 text-xs font-bold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-brand-700 cursor-pointer shadow-xs"
+            >
+              Chặng tiếp theo →
+            </button>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className="text-left">
       <nav className="mb-4 flex gap-2 overflow-x-auto rounded-2xl border border-border bg-white p-2" aria-label="Chọn phần muốn xem trước">
-        {SECTIONS.map((section) => (
+        {STANDARD_SECTIONS.map((section) => (
           <button
             key={section.id}
             type="button"
@@ -411,12 +974,60 @@ function emptyDraft(): LectureDraft {
 }
 
 export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = false, archived = false, onArchive, onRestore, readOnly = false, onDirtyChange }: Props) {
+  const { showToast } = useToast()
+  const uid = useId()
   const initialDraftRef = useRef(normalizeLectureDraft(lecture ?? emptyDraft()))
   const [draft, setDraft] = useState<LectureDraft>(() => initialDraftRef.current)
   const [activeSection, setActiveSection] = useState<Section>('basics')
   const [quizQuestions, setQuizQuestions] = useState<EditableQuestion[]>([])
   const [showBankPicker, setShowBankPicker] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [uploadingStageMedia, setUploadingStageMedia] = useState<string | null>(null)
+  const [lessonFormat, setLessonFormat] = useState<LessonFormat>(() => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let explicit: string | undefined = (lecture as any)?.lessonFormat
+    if (!explicit && lecture?.gameStructuredText) {
+      try {
+        const parsed = JSON.parse(lecture.gameStructuredText)
+        explicit = parsed.lessonFormat
+      } catch {}
+    }
+    return detectLessonFormat(initialDraftRef.current.learnCards, explicit)
+  })
+  const [previewSpeakingIndex, setPreviewSpeakingIndex] = useState<number | null>(null)
+  const [isDragOver, setIsDragOver] = useState(false)
+  const [draggingBlockIdx, setDraggingBlockIdx] = useState<number | null>(null)
+  const [dragOverBlockIdx, setDragOverBlockIdx] = useState<number | null>(null)
+  const [isTrashDragOver, setIsTrashDragOver] = useState(false)
+
+  const previewAikiVoice = useCallback((index: number, text: string) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      showToast('Trình duyệt không hỗ trợ phát thử giọng đọc.', 'info')
+      return
+    }
+    window.speechSynthesis.cancel()
+    if (previewSpeakingIndex === index) {
+      setPreviewSpeakingIndex(null)
+      return
+    }
+    const clean = text.trim()
+    if (!clean) {
+      showToast('Vui lòng nhập lời đọc hoặc nội dung trước khi nghe thử.', 'info')
+      return
+    }
+    const utterance = new SpeechSynthesisUtterance(clean)
+    utterance.rate = 0.95
+    utterance.pitch = 1.25
+    const voices = window.speechSynthesis.getVoices()
+    const viVoice = voices.find((v) => v.lang.startsWith('vi') || v.name.toLowerCase().includes('vietnam'))
+    if (viVoice) utterance.voice = viVoice
+
+    setPreviewSpeakingIndex(index)
+    utterance.onend = () => setPreviewSpeakingIndex(null)
+    utterance.onerror = () => setPreviewSpeakingIndex(null)
+    window.speechSynthesis.speak(utterance)
+  }, [previewSpeakingIndex, showToast])
+
   const [confirmClose, setConfirmClose] = useState(false)
   const [showFullPreview, setShowFullPreview] = useState(false)
   const draftStorageKey = `aikids:teacher-lecture-draft:${courseId}:${lecture?.id || 'new'}`
@@ -429,8 +1040,6 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
       return parsed.savedAt && parsed.draft ? { savedAt: parsed.savedAt, draft: normalizeLectureDraft(parsed.draft) } : null
     } catch { return null }
   })
-  const { showToast } = useToast()
-  const uid = useId()
 
   const isEdit = !!lecture
   const readiness = lectureDraftReadiness(draft)
@@ -456,6 +1065,18 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
     return () => window.clearTimeout(timer)
   }, [draft, dirty, draftStorageKey, readOnly, recovery])
 
+  useEffect(() => {
+    if (lessonFormat === 'aiki-rule-5steps' && (activeSection === 'content' || activeSection === 'game' || activeSection === 'practice' || activeSection === 'check')) {
+      setActiveSection('stage-0')
+    }
+  }, [lessonFormat, activeSection])
+
+  useEffect(() => {
+    if (lessonFormat === 'standard' && activeSection.startsWith('stage-')) {
+      setActiveSection('content')
+    }
+  }, [lessonFormat, activeSection])
+
   const requestClose = useCallback(() => {
     if (dirty) setConfirmClose(true)
     else onClose()
@@ -476,12 +1097,354 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
   const updateLearnCard = useCallback((index: number, patch: Partial<LearnCardDraft>) => {
     if (readOnly) return
     setDraft((previous) => {
-      const learnCards = previous.learnCards.map((card, cardIndex) => cardIndex === index ? { ...card, ...patch } : card)
+      let cards = previous.learnCards
+      if (cards.length <= index) {
+        const defaults = createAikiRuleLearnCards()
+        cards = defaults.map((d, i) => cards[i] ?? d)
+      }
+      const learnCards = cards.map((card, cardIndex) => cardIndex === index ? { ...card, ...patch } : card)
       const conceptCard = learnCards.find((card) => card.kind === 'concept')
       const exampleCard = learnCards.find((card) => card.kind === 'example')
       return { ...previous, learnCards, concept: conceptCard?.body ?? previous.concept, example: exampleCard?.body ?? previous.example }
     })
   }, [readOnly])
+
+  const uploadLearnCardMedia = useCallback(async (
+    index: number,
+    field: 'videoUrl' | 'imageUrl' | 'audioUrl' | 'optionImageA' | 'optionImageB' | 'compareLeft' | 'compareRight',
+    file: File,
+  ) => {
+    if (readOnly) return
+    const isOptionOrCompare = ['optionImageA', 'optionImageB', 'compareLeft', 'compareRight'].includes(field)
+    const isImage = field === 'imageUrl' || isOptionOrCompare
+    const limits: Record<typeof field, number> = {
+      videoUrl: 250 * 1024 * 1024,
+      imageUrl: 10 * 1024 * 1024,
+      audioUrl: 25 * 1024 * 1024,
+      optionImageA: 10 * 1024 * 1024,
+      optionImageB: 10 * 1024 * 1024,
+      compareLeft: 10 * 1024 * 1024,
+      compareRight: 10 * 1024 * 1024,
+    }
+    const prefix = field === 'videoUrl' ? 'video/' : field === 'audioUrl' ? 'audio/' : 'image/'
+    if (!file.type.startsWith(prefix) || file.size > limits[field]) {
+      showToast(field === 'videoUrl' ? 'Video cần đúng định dạng và tối đa 250 MB.' : isImage ? 'Ảnh cần đúng định dạng và tối đa 10 MB.' : 'Audio cần đúng định dạng và tối đa 25 MB.', 'error')
+      return
+    }
+    const uploadKey = `${index}:${field}`
+    setUploadingStageMedia(uploadKey)
+    try {
+      const asset = await uploadCmsCourseMedia({ file, purpose: `aiki_rule_${field}`, questId: lecture?.id })
+      if (field === 'audioUrl') {
+        const current = draft.learnCards[index]
+        updateLearnCard(index, { mee: { readText: current?.mee?.readText ?? current?.body ?? '', audioUrl: asset.url, voiceProvider: 'vertex', gesture: current?.mee?.gesture ?? 'presentation', autoRead: current?.mee?.autoRead ?? false } })
+      } else if (field === 'optionImageA') {
+        const current = draft.learnCards[index]
+        const currentOptions = [...(current?.optionImages || ['', ''])]
+        currentOptions[0] = asset.url
+        updateLearnCard(index, { optionImages: currentOptions })
+      } else if (field === 'optionImageB') {
+        const current = draft.learnCards[index]
+        const currentOptions = [...(current?.optionImages || ['', ''])]
+        currentOptions[1] = asset.url
+        updateLearnCard(index, { optionImages: currentOptions })
+      } else if (field === 'compareLeft') {
+        const current = draft.learnCards[index]
+        updateLearnCard(index, { compareImages: { left: asset.url, right: current?.compareImages?.right || '' } })
+      } else if (field === 'compareRight') {
+        const current = draft.learnCards[index]
+        updateLearnCard(index, { compareImages: { left: current?.compareImages?.left || '', right: asset.url } })
+      } else {
+        updateLearnCard(index, { [field]: asset.url })
+      }
+      showToast('Đã tải media lên StoryMee.', 'success')
+    } catch (error) {
+      showToast(error instanceof Error ? error.message : 'Không tải được media.', 'error')
+    } finally {
+      setUploadingStageMedia(null)
+    }
+  }, [draft.learnCards, lecture?.id, readOnly, showToast, updateLearnCard])
+
+  const uploadAdditionalImageItem = useCallback(async (stageIndex: number, imgIndex: number, file: File) => {
+    if (readOnly) return
+    if (!file.type.startsWith('image/') || file.size > 10 * 1024 * 1024) {
+      showToast('Ảnh cần đúng định dạng và tối đa 10 MB.', 'error')
+      return
+    }
+    const uploadKey = `${stageIndex}:additionalImage:${imgIndex}`
+    setUploadingStageMedia(uploadKey)
+    try {
+      const asset = await uploadCmsCourseMedia({ file, purpose: 'aiki_rule_additional', questId: lecture?.id })
+      const current = draft.learnCards[stageIndex]
+      const list = [...(current?.additionalImages || [])]
+      if (list[imgIndex]) {
+        list[imgIndex] = { ...list[imgIndex], url: asset.url }
+        updateLearnCard(stageIndex, { additionalImages: list })
+      }
+      showToast('Đã tải ảnh minh họa lên.', 'success')
+    } catch (err) {
+      showToast(err instanceof Error ? err.message : 'Không tải được ảnh.', 'error')
+    } finally {
+      setUploadingStageMedia(null)
+    }
+  }, [draft.learnCards, lecture?.id, readOnly, showToast, updateLearnCard])
+
+  const updateStageBlocks = useCallback((stageIndex: number, newBlocks: StageBlockItem[]) => {
+    if (readOnly) return
+    const currentCard = draft.learnCards[stageIndex]
+    if (!currentCard) return
+
+    const uniqueModules = Array.from(new Set(newBlocks.map((b) => b.type)))
+    const patch: Partial<LearnCardDraft> = {
+      contentBlocks: newBlocks,
+      enabledModules: uniqueModules,
+    }
+
+    const firstTextBlock = newBlocks.find((b) => b.type === 'text' || b.type === 'layout-text')
+    if (firstTextBlock) {
+      if (firstTextBlock.title !== undefined) patch.title = firstTextBlock.title
+      if (firstTextBlock.body !== undefined) patch.body = firstTextBlock.body
+      if (firstTextBlock.tip !== undefined) patch.tip = firstTextBlock.tip
+    }
+
+    updateLearnCard(stageIndex, patch)
+  }, [draft.learnCards, readOnly, updateLearnCard])
+
+  const updateBlockItem = useCallback((stageIndex: number, blockId: string, blockPatch: Partial<StageBlockItem>) => {
+    if (readOnly) return
+    const card = draft.learnCards[stageIndex]
+    if (!card) return
+    const blocks = getStageBlocks(card, stageIndex)
+    const newBlocks = blocks.map((b) => (b.id === blockId ? { ...b, ...blockPatch } : b))
+    updateStageBlocks(stageIndex, newBlocks)
+  }, [draft.learnCards, readOnly, updateStageBlocks])
+
+  const moveBlock = useCallback((stageIndex: number, blockIndex: number, direction: -1 | 1) => {
+    if (readOnly) return
+    const card = draft.learnCards[stageIndex]
+    if (!card) return
+    const blocks = [...getStageBlocks(card, stageIndex)]
+    const targetIndex = blockIndex + direction
+    if (targetIndex < 0 || targetIndex >= blocks.length) return
+    const temp = blocks[blockIndex]
+    blocks[blockIndex] = blocks[targetIndex]
+    blocks[targetIndex] = temp
+    updateStageBlocks(stageIndex, blocks)
+  }, [draft.learnCards, readOnly, updateStageBlocks])
+
+  const removeBlock = useCallback((stageIndex: number, blockId: string) => {
+    if (readOnly) return
+    const card = draft.learnCards[stageIndex]
+    if (!card) return
+    const blocks = getStageBlocks(card, stageIndex)
+    const newBlocks = blocks.filter((b) => b.id !== blockId)
+    updateStageBlocks(stageIndex, newBlocks)
+    showToast('Đã xóa khối nội dung!', 'info')
+  }, [draft.learnCards, readOnly, showToast, updateStageBlocks])
+
+  const removeModuleFromStage = useCallback((stageIndex: number, modId: string) => {
+    if (readOnly) return
+    const card = draft.learnCards[stageIndex]
+    if (!card) return
+    const blocks = getStageBlocks(card, stageIndex)
+    const newBlocks = blocks.filter((b) => b.type !== modId && b.id !== modId)
+    updateStageBlocks(stageIndex, newBlocks)
+  }, [draft.learnCards, readOnly, updateStageBlocks])
+
+  const handleAddModule = useCallback((blockId: string, explicitStageIndex?: number, insertIndex?: number) => {
+    if (readOnly) return
+
+    // 1. Nếu là Game Engine
+    if (['data-runner', 'truth-patrol', 'battle-math', 'blockly'].includes(blockId)) {
+      const defaultInstructions: Record<string, string> = {
+        'data-runner': 'Thu thập các gói dữ liệu sạch và né tránh thông tin sai lệch!',
+        'truth-patrol': 'Nhận diện tin tức thật giả và bắn hạ thiên thạch fake news!',
+        'battle-math': 'Giải cứu các con số và đối đầu thử thách toán học vui nhộn!',
+        'blockly': 'Kéo thả các khối lệnh tư duy logic để giúp Mèo AIKI vượt mê cung!',
+      }
+      const gameTitles: Record<string, string> = {
+        'data-runner': 'Data Runner',
+        'truth-patrol': 'Truth Patrol',
+        'battle-math': 'Battle Math',
+        'blockly': 'Blockly Code',
+      }
+      setDraft((prev) => ({
+        ...prev,
+        gameType: blockId,
+        gameInstruction: prev.gameInstruction || defaultInstructions[blockId] || 'Hoàn thành thử thách mini-game cùng Mèo AIKI!',
+      }))
+      if (lessonFormat === 'standard') {
+        setActiveSection('game')
+      }
+      showToast(`Đã chọn Game Engine: ${gameTitles[blockId] || blockId}`, 'success')
+      return
+    }
+
+    // 2. Xác định stageIndex mục tiêu
+    let targetStageIndex = explicitStageIndex
+    if (targetStageIndex === undefined) {
+      if (activeSection.startsWith('stage-')) {
+        targetStageIndex = parseInt(activeSection.replace('stage-', ''), 10)
+      } else {
+        targetStageIndex = 0
+      }
+    }
+
+    const card = draft.learnCards[targetStageIndex]
+    if (!card) return
+    const stageBlocks = getStageBlocks(card, targetStageIndex)
+    const timestamp = Date.now()
+    let newBlock: StageBlockItem | null = null
+
+    if (blockId === 'text' || blockId === 'layout-text') {
+      newBlock = {
+        id: `blk-text-${timestamp}`,
+        type: 'text',
+        title: `Đoạn văn bản ${stageBlocks.length + 1}`,
+        body: '',
+      }
+      showToast('Đã thêm khối Đoạn văn bản mới!', 'success')
+    } else if (blockId === 'layout-callout') {
+      newBlock = {
+        id: `blk-callout-${timestamp}`,
+        type: 'layout-callout',
+        title: 'Hộp Ghi Nhớ Nổi Bật',
+        tip: '💡 Bí kíp bỏ túi: Hãy luôn tự tay thêm ý tưởng của riêng con!',
+      }
+      showToast('Đã thêm Hộp Ghi Nhớ Nổi Bật!', 'success')
+    } else if (blockId === 'layout-formula') {
+      newBlock = {
+        id: `blk-formula-${timestamp}`,
+        type: 'layout-formula',
+        title: 'Công Thức KaTeX',
+        formula: '$$\\text{Ý tưởng con} + \\text{Sức mạnh AI} = \\text{Tác phẩm độc nhất}$$',
+      }
+      showToast('Đã thêm Khối Công Thức KaTeX!', 'success')
+    } else if (blockId === 'layout-split') {
+      newBlock = {
+        id: `blk-split-${timestamp}`,
+        type: 'layout-split',
+        title: 'Bố cục 2 Cột Chữ + Media',
+        body: 'Nhập nội dung giải thích ở đây...',
+        imageUrl: '',
+      }
+      showToast('Đã thêm Bố cục 2 Cột Chữ + Media!', 'success')
+    } else if (blockId === 'layout-grid') {
+      newBlock = {
+        id: `blk-grid-${timestamp}`,
+        type: 'layout-grid',
+        title: 'Lưới 3 Ô Thẻ',
+        visualItems: [
+          { label: 'Ý tưởng 1', text: 'Chi tiết 1', tone: 'brand' },
+          { label: 'Ý tưởng 2', text: 'Chi tiết 2', tone: 'sky' },
+          { label: 'Ý tưởng 3', text: 'Chi tiết 3', tone: 'mint' },
+        ],
+      }
+      showToast('Đã thêm Bố cục Lưới 3 Ô Thẻ!', 'success')
+    } else if (blockId === 'layout-storyboard') {
+      newBlock = {
+        id: `blk-storyboard-${timestamp}`,
+        type: 'layout-storyboard',
+        title: 'Chuỗi Storyboard',
+        visualItems: [
+          { label: 'Cảnh 1', text: 'Mở đầu', tone: 'brand' },
+          { label: 'Cảnh 2', text: 'Diễn biến', tone: 'sky' },
+          { label: 'Cảnh 3', text: 'Kết thúc', tone: 'mint' },
+        ],
+      }
+      showToast('Đã thêm Khối Storyboard 3 Cảnh!', 'success')
+    } else if (blockId === 'voice') {
+      newBlock = { id: `blk-voice-${timestamp}`, type: 'voice' }
+      if (!card.mee) {
+        updateLearnCard(targetStageIndex, {
+          mee: { readText: card.body || '', audioUrl: '', voiceProvider: 'vertex', gesture: 'presentation', autoRead: true },
+        })
+      }
+      showToast('Đã thêm Khối Mèo AIKI & Lipsync!', 'success')
+    } else if (blockId === 'video') {
+      newBlock = { id: `blk-video-${timestamp}`, type: 'video' }
+      showToast('Đã thêm Khối Video bài giảng!', 'success')
+    } else if (blockId === 'versus-ab' || blockId === 'quiz') {
+      newBlock = { id: `blk-versus-ab-${timestamp}`, type: 'versus-ab' }
+      if (!card.optionImages || card.optionImages.length < 2) {
+        updateLearnCard(targetStageIndex, {
+          optionImages: ['', ''],
+          optionLabels: ['Ảnh A: Bức tranh của Zico', 'Ảnh B: Bức tranh của Sonet'],
+          optionDescs: ['Siêu anh hùng quen thuộc (ai cũng vẽ được)', 'Siêu anh hùng bố cầm vợt muỗi (độc nhất của riêng con)'],
+        })
+      }
+      showToast('Đã thêm Khối 2 Ảnh Đối Đầu A/B!', 'success')
+    } else if (blockId === 'dialogue') {
+      newBlock = { id: `blk-dialogue-${timestamp}`, type: 'dialogue' }
+      if (!card.dialogueLines || card.dialogueLines.length === 0) {
+        updateLearnCard(targetStageIndex, {
+          dialogueLines: [
+            { id: `d-${timestamp}-1`, speaker: 'zico', role: 'left', text: 'Của tớ đẹp hơn!' },
+            { id: `d-${timestamp}-2`, speaker: 'sonet', role: 'right', text: 'Không, của tớ đúng hơn!' },
+            { id: `d-${timestamp}-3`, speaker: 'aki', role: 'center', text: 'DỪNG LẠIIII...! Các cậu ơi, hãy giúp tớ vụ này!' },
+          ],
+        })
+      }
+      showToast('Đã thêm Khối Kịch Bản Phân Vai Comic!', 'success')
+    } else if (blockId === 'compare' || blockId === 'ordering') {
+      newBlock = { id: `blk-compare-${timestamp}`, type: 'compare' }
+      if (!card.compareData) {
+        updateLearnCard(targetStageIndex, {
+          compareData: {
+            leftTitle: 'Kho Dữ Liệu Của AI',
+            leftText: 'AI chỉ lấy những hình ảnh quen thuộc trong kho hàng ngàn mẫu có sẵn. Ai gõ câu giống nhau thì kết quả cũng giống hệt nhau.',
+            leftImage: '',
+            rightTitle: 'Bộ Não Sáng Tạo Của Con',
+            rightText: 'Chỉ có con mới có kỷ niệm riêng, cảm xúc thật, gia đình và sự tưởng tượng độc đáo mà AI không thể tự nghĩ ra được!',
+            rightImage: '',
+          },
+        })
+      }
+      showToast('Đã thêm Khối Bảng So Sánh 2 Cột!', 'success')
+    } else if (blockId === 'poster' || blockId === 'pledge') {
+      newBlock = { id: `blk-poster-${timestamp}`, type: 'poster' }
+      if (blockId === 'pledge') {
+        updateLearnCard(targetStageIndex, {
+          body: '🛡️ BẢN CAM KẾT HIỆP SĨ: Con cam kết sử dụng AI an toàn, sáng tạo và trung thực!',
+          tip: 'Luôn kiểm chứng thông tin và tự tay thêm dấu ấn riêng của con!',
+        })
+      }
+      showToast('Đã thêm Khối Poster Quy Tắc Vàng!', 'success')
+    } else if (blockId === 'images' || blockId === 'gallery') {
+      newBlock = { id: `blk-images-${timestamp}`, type: 'images' }
+      if (!card.additionalImages || card.additionalImages.length === 0) {
+        updateLearnCard(targetStageIndex, {
+          additionalImages: [{ id: `img-${timestamp}`, url: '', alt: 'Minh họa chặng', caption: '' }],
+        })
+      }
+      showToast('Đã thêm Khối Bộ Sưu Tập Ảnh!', 'success')
+    }
+
+    if (newBlock) {
+      const nextBlocks = [...stageBlocks]
+      if (insertIndex !== undefined && insertIndex >= 0 && insertIndex <= nextBlocks.length) {
+        nextBlocks.splice(insertIndex, 0, newBlock)
+      } else {
+        nextBlocks.push(newBlock)
+      }
+      updateStageBlocks(targetStageIndex, nextBlocks)
+    }
+  }, [activeSection, draft.learnCards, lessonFormat, readOnly, showToast, updateLearnCard, updateStageBlocks])
+
+  const addModuleToStage = useCallback((stageIndex: number, modId: string) => {
+    handleAddModule(modId, stageIndex)
+  }, [handleAddModule])
+
+  useEffect(() => {
+    const handleFeatureBlockEvent = (event: Event) => {
+      const customEvent = event as CustomEvent<{ blockId: string }>
+      if (customEvent.detail?.blockId) {
+        handleAddModule(customEvent.detail.blockId)
+      }
+    }
+    window.addEventListener('aikids:add-feature-block', handleFeatureBlockEvent)
+    return () => window.removeEventListener('aikids:add-feature-block', handleFeatureBlockEvent)
+  }, [handleAddModule])
 
   const addLearnCard = useCallback(() => {
     if (readOnly) return
@@ -495,8 +1458,21 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         kind: 'example',
         layout: 'text',
         visualItems: [],
+        mee: { readText: '', gesture: 'presentation', autoRead: false },
       }],
     }))
+  }, [readOnly])
+
+  const applyAikiRuleTemplate = useCallback(() => {
+    if (readOnly) return
+    setDraft((previous) => ({
+      ...previous,
+      learnCards: createAikiRuleLearnCards(),
+      concept: '',
+      example: '',
+    }))
+    setLessonFormat('aiki-rule-5steps')
+    setActiveSection('stage-0')
   }, [readOnly])
 
   const moveLearnCard = useCallback((index: number, direction: -1 | 1) => {
@@ -586,7 +1562,17 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
     if (missing.length > 0) {
       const firstIncomplete = readiness.steps.find((step) => !step.complete)
       if (firstIncomplete?.id === 'basics') setActiveSection('basics')
-      else if (firstIncomplete?.id === 'content') setActiveSection('content')
+      else if (firstIncomplete?.id === 'content') {
+        if (lessonFormat === 'aiki-rule-5steps') {
+          const firstIncompleteStage = [0, 1, 2, 3, 4].find((idx) => {
+            const card = draft.learnCards[idx]
+            return !card || card.title.trim().length < 2 || (card.body.trim().length < 10 && (card.mee?.readText?.trim().length ?? 0) < 10)
+          })
+          setActiveSection(`stage-${firstIncompleteStage ?? 0}` as Section)
+        } else {
+          setActiveSection('content')
+        }
+      }
       else if (firstIncomplete?.id === 'game') setActiveSection('game')
       else if (firstIncomplete?.id === 'practice') setActiveSection('practice')
       else if (firstIncomplete?.id === 'check') setActiveSection('check')
@@ -606,13 +1592,17 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         goals: draft.goalsText.split('\n').map((s) => s.trim()).filter(Boolean),
         concept: draft.concept,
         example: draft.example,
-        learnCards: draft.learnCards,
+        learnCards: serializeLearnCardsForHub(draft.learnCards),
         videoUrl: draft.videoUrl || null,
         reward: draft.reward,
         duration: draft.duration,
         practiceKind: draft.practiceKind,
+        lessonFormat,
         gameType: draft.gameType,
-        gameConfig,
+        gameConfig: {
+          ...gameConfig,
+          lessonFormat,
+        },
         gameInstruction: draft.gameInstruction,
         gameOutcome: draft.gameOutcome,
         gameCards: draft.gameCardsText.split('\n').map((s) => s.trim()).filter(Boolean),
@@ -689,6 +1679,11 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
   })
 
   const sectionStatus = (sectionId: Section) => {
+    if (sectionId.startsWith('stage-')) {
+      const idx = parseInt(sectionId.replace('stage-', ''), 10)
+      const card = draft.learnCards[idx]
+      return Boolean(card && card.title.trim().length >= 2 && (card.body.trim().length >= 10 || (card.mee?.readText?.trim().length ?? 0) >= 10))
+    }
     const step = readiness.steps.find((s) => {
       if (sectionId === 'basics') return s.id === 'basics'
       if (sectionId === 'content') return s.id === 'content'
@@ -701,6 +1696,17 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
   }
 
   const sectionMissing = (sectionId: Section) => {
+    if (sectionId.startsWith('stage-')) {
+      const idx = parseInt(sectionId.replace('stage-', ''), 10)
+      const card = draft.learnCards[idx]
+      const missing: string[] = []
+      if (!card) return ['Chưa có dữ liệu chặng']
+      if (card.title.trim().length < 2) missing.push('Tiêu đề chặng')
+      if (card.body.trim().length < 10 && (card.mee?.readText?.trim().length ?? 0) < 10) {
+        missing.push('Nội dung hoặc Lời đọc cho bé (tối thiểu 10 ký tự)')
+      }
+      return missing
+    }
     const stepId = sectionId === 'basics' ? 'basics' : sectionId === 'content' ? 'content' : sectionId === 'game' ? 'game' : sectionId === 'practice' ? 'practice' : 'check'
     return readiness.steps.find((step) => step.id === stepId)?.missing ?? []
   }
@@ -752,6 +1758,32 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                 {draft.title}
               </div>
             )}
+            <div className="flex items-center gap-2 mt-1">
+              <span className="text-xs font-bold text-muted">Cấu trúc trạm học:</span>
+              <select
+                disabled={readOnly}
+                value={lessonFormat}
+                onChange={(e) => {
+                  const format = e.target.value as LessonFormat
+                  setLessonFormat(format)
+                  if (format === 'aiki-rule-5steps') {
+                    if (!isAikiRuleLesson(draft.learnCards)) {
+                      setDraft((d) => ({ ...d, lessonFormat: format, learnCards: createAikiRuleLearnCards() }))
+                    } else {
+                      setDraft((d) => ({ ...d, lessonFormat: format }))
+                    }
+                    setActiveSection('stage-0')
+                  } else {
+                    setDraft((d) => ({ ...d, lessonFormat: format }))
+                    setActiveSection('content')
+                  }
+                }}
+                className="rounded-xl border-2 border-brand-200 bg-brand-50/70 px-3 py-1 text-xs font-black text-brand-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
+              >
+                <option value="aiki-rule-5steps">🐱 Quy tắc AIKI (5 bước mới)</option>
+                <option value="standard">📖 Khám phá tiêu chuẩn (4 phase cũ)</option>
+              </select>
+            </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
             <button
@@ -809,7 +1841,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
           flexShrink: 0,
           scrollbarWidth: 'none',
         }}>
-          {SECTIONS.map((section) => {
+          {(lessonFormat === 'aiki-rule-5steps' ? AIKI_SECTIONS : STANDARD_SECTIONS).map((section) => {
             const isActive = activeSection === section.id
             const complete = sectionStatus(section.id)
             return (
@@ -947,17 +1979,322 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
             </div>
           )}
 
+          {/* ── AIKI RULE STAGE (1 of 5) ── */}
+          {lessonFormat === 'aiki-rule-5steps' && activeSection.startsWith('stage-') && (() => {
+            const stageIndex = parseInt(activeSection.replace('stage-', ''), 10)
+            const defaultCards = createAikiRuleLearnCards()
+            const card = draft.learnCards[stageIndex] ?? defaultCards[stageIndex]
+            if (!card) return null
+            const stageBlocks = getStageBlocks(card, stageIndex)
+
+            const stageInfo = [
+              { title: '1. Tình huống', icon: Clapperboard, desc: 'Mở đầu bằng câu chuyện/tình huống gần gũi kích thích sự tò mò.' },
+              { title: '2. Câu đố AIKI', icon: BrainCircuit, desc: 'Thử thách trực giác: Trẻ quan sát 2 tranh vẽ A và B để chọn ra tranh độc nhất.' },
+              { title: '3. Quy tắc', icon: Lightbulb, desc: 'Đúc kết bài học thành 1 quy tắc cốt lõi, dễ nhớ cho trẻ.' },
+              { title: '4. Giải thích', icon: ScanSearch, desc: 'So sánh trực quan 2 mặt: Kho dữ liệu sao chép của AI vs Não sáng tạo của con.' },
+              { title: '5. Chốt', icon: Trophy, desc: 'Tổng kết và trao huy hiệu/lời động viên tự hào cho bé.' },
+            ][stageIndex] ?? { title: card.title, icon: Lightbulb, desc: '' }
+            const StageIcon = stageInfo.icon
+
+            return (
+              <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(20rem,.95fr)]">
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                  {/* Header chặng */}
+                  <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/60 p-4 shadow-sm">
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="flex items-center gap-2.5">
+                        <span className="grid size-10 place-items-center rounded-xl bg-brand-600 text-white shadow-xs">
+                          <StageIcon size={20} />
+                        </span>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="rounded-md bg-brand-200 px-1.5 py-0.5 text-[10px] font-black text-brand-900 uppercase">
+                              Chặng {stageIndex + 1}/5
+                            </span>
+                            <h3 className="font-display text-lg text-brand-950">{stageInfo.title}</h3>
+                          </div>
+                          <p className="mt-0.5 text-xs font-semibold text-brand-800">{stageInfo.desc}</p>
+                        </div>
+                      </div>
+                      <span className="rounded-full bg-brand-100 border border-brand-200 px-2.5 py-1 text-[11px] font-black text-brand-900">
+                        {stageBlocks.length} khối nội dung
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* ── CANVAS CHẶNG (PURE BLOCK-BASED) ── */}
+                  {stageBlocks.length === 0 ? (
+                    /* 📥 EMPTY STATE DROPZONE: Vùng Thả Rỗng Khi Chặng Chưa Có Khối Nào */
+                    <div
+                      onDragOver={(e) => {
+                        e.preventDefault()
+                        e.dataTransfer.dropEffect = 'copy'
+                        if (!isDragOver) setIsDragOver(true)
+                      }}
+                      onDragLeave={(e) => {
+                        if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                          setIsDragOver(false)
+                        }
+                      }}
+                      onDrop={(e) => {
+                        e.preventDefault()
+                        setIsDragOver(false)
+                        const blockId = e.dataTransfer.getData('text/plain')
+                        if (blockId) {
+                          handleAddModule(blockId, stageIndex)
+                        }
+                      }}
+                      className={cn(
+                        "flex flex-col items-center justify-center rounded-3xl border-3 border-dashed py-14 px-6 text-center transition-all duration-200",
+                        isDragOver
+                          ? "border-brand-500 bg-brand-50/90 ring-4 ring-brand-300/50 scale-[1.01]"
+                          : "border-sky-300 bg-gradient-to-b from-sky-50/60 to-brand-50/30 hover:border-brand-400 hover:bg-sky-50/80"
+                      )}
+                    >
+                      <div className="grid size-16 place-items-center rounded-2xl bg-white shadow-md text-3xl mb-3 border border-sky-200">
+                        {isDragOver ? '✨' : '📥'}
+                      </div>
+                      <h4 className="font-display text-base font-black text-sky-950 sm:text-lg">
+                        {isDragOver ? 'Thả khối tính năng vào đây để tạo nội dung ngay!' : 'Vùng Kéo Thả Soạn Chặng Đang Trống'}
+                      </h4>
+                      <p className="mt-1.5 max-w-md text-xs font-semibold text-sky-800 leading-relaxed">
+                        Kéo thả các khối tính năng từ bảng bên trái vào đây để bắt đầu nhập liệu, hoặc bấm nhanh vào các khối gợi ý bên dưới:
+                      </p>
+
+                      <div className="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full max-w-xl">
+                        {AVAILABLE_MODULES.map((mod) => (
+                          <button
+                            key={mod.id}
+                            type="button"
+                            disabled={readOnly}
+                            onClick={() => handleAddModule(mod.id, stageIndex)}
+                            className="flex items-center gap-2 rounded-xl border border-sky-200 bg-white px-3 py-2.5 text-xs font-black text-slate-800 shadow-2xs hover:border-brand-400 hover:bg-brand-50 hover:text-brand-900 transition active:scale-95 cursor-pointer text-left"
+                          >
+                            <span className="text-base">{mod.icon}</span>
+                            <span className="truncate">{mod.label}</span>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    /* 🧱 DANH SÁCH CÁC BLOCK CARDS ĐÃ KÍCH HOẠT */
+                    <div className="space-y-4">
+                      {/* 🗑️ VÙNG THẢ ĐỂ XÓA KHỐI KHI ĐANG KÉO */}
+                      {draggingBlockIdx !== null && (
+                        <div
+                          onDragOver={(e) => {
+                            e.preventDefault()
+                            e.dataTransfer.dropEffect = 'move'
+                            if (!isTrashDragOver) setIsTrashDragOver(true)
+                          }}
+                          onDragLeave={(e) => {
+                            if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                              setIsTrashDragOver(false)
+                            }
+                          }}
+                          onDrop={(e) => {
+                            e.preventDefault()
+                            setIsTrashDragOver(false)
+                            if (draggingBlockIdx !== null && stageBlocks[draggingBlockIdx]) {
+                              removeBlock(stageIndex, stageBlocks[draggingBlockIdx].id)
+                              setDraggingBlockIdx(null)
+                            }
+                          }}
+                          className={cn(
+                            "flex items-center justify-center gap-2 rounded-2xl border-2 border-dashed py-4 px-4 text-center transition-all animate-pulse",
+                            isTrashDragOver
+                              ? "border-rose-500 bg-rose-100 text-rose-800 scale-[1.02] shadow-md ring-4 ring-rose-200"
+                              : "border-rose-300 bg-rose-50/80 text-rose-700 hover:border-rose-400 hover:bg-rose-100/60"
+                          )}
+                        >
+                          <Trash2 size={20} className={isTrashDragOver ? "scale-125 transition-transform text-rose-600" : "text-rose-500"} />
+                          <span className="text-sm font-extrabold">
+                            {isTrashDragOver ? 'Thả vào đây để xóa khối này ngay lập tức!' : 'Kéo khối thả vào đây để gỡ bỏ khỏi chặng'}
+                          </span>
+                        </div>
+                      )}
+
+                      {/* 📦 DANH SÁCH KHỐI NỘI DUNG TUẦN TỰ */}
+                      {stageBlocks.map((block, bIdx) => (
+                        <StageBlockItemCard
+                          key={block.id}
+                          block={block}
+                          bIdx={bIdx}
+                          totalBlocks={stageBlocks.length}
+                          stageIndex={stageIndex}
+                          card={card}
+                          stageBlocks={stageBlocks}
+                          readOnly={readOnly}
+                          draggingBlockIdx={draggingBlockIdx}
+                          dragOverBlockIdx={dragOverBlockIdx}
+                          setDraggingBlockIdx={setDraggingBlockIdx}
+                          setDragOverBlockIdx={setDragOverBlockIdx}
+                          setIsTrashDragOver={setIsTrashDragOver}
+                          moveBlock={moveBlock}
+                          removeBlock={removeBlock}
+                          updateStageBlocks={updateStageBlocks}
+                          updateBlockItem={updateBlockItem}
+                          updateLearnCard={updateLearnCard}
+                          uploadingStageMedia={uploadingStageMedia}
+                          setUploadingStageMedia={setUploadingStageMedia}
+                          uploadLearnCardMedia={uploadLearnCardMedia}
+                          uploadAdditionalImageItem={uploadAdditionalImageItem}
+                          previewAikiVoice={previewAikiVoice}
+                          previewSpeakingIndex={previewSpeakingIndex}
+                          speakTextPreview={speakTextPreview}
+                          courseId={courseId}
+                          handleAddModule={handleAddModule}
+                          stageInfo={stageInfo}
+                          inputStyle={inputStyle}
+                          textareaStyle={textareaStyle}
+                          showToast={showToast}
+                        />
+                      ))}
+
+                      {/* ➕ BOTTOM DROPZONE & QUICK ADD */}
+                      <div
+                        onDragOver={(e) => {
+                          e.preventDefault()
+                          e.dataTransfer.dropEffect = 'copy'
+                          if (!isDragOver) setIsDragOver(true)
+                        }}
+                        onDragLeave={(e) => {
+                          if (!e.currentTarget.contains(e.relatedTarget as Node)) {
+                            setIsDragOver(false)
+                          }
+                        }}
+                        onDrop={(e) => {
+                          e.preventDefault()
+                          setIsDragOver(false)
+                          const blockId = e.dataTransfer.getData('text/plain')
+                          if (blockId) {
+                            handleAddModule(blockId, stageIndex)
+                          }
+                        }}
+                        className={cn(
+                          "rounded-2xl border-2 border-dashed p-4 transition-all duration-200 text-center",
+                          isDragOver
+                            ? "border-brand-500 bg-brand-50/90 ring-4 ring-brand-300/40"
+                            : "border-sky-200 bg-sky-50/50 hover:border-brand-300 hover:bg-sky-50/80"
+                        )}
+                      >
+                        <p className="text-xs font-bold text-sky-900">
+                          {isDragOver ? '✨ Thả để thêm khối vào cuối chặng!' : '➕ Thêm khối vào chặng này (kéo từ menu trái hoặc bấm nhanh):'}
+                        </p>
+                        <div className="mt-2.5 flex flex-wrap justify-center gap-2">
+                          {AVAILABLE_MODULES.map((mod) => (
+                            <button
+                              key={mod.id}
+                              type="button"
+                              disabled={readOnly}
+                              onClick={() => handleAddModule(mod.id, stageIndex)}
+                              className="flex items-center gap-1.5 rounded-xl border border-sky-200 bg-white px-3 py-1.5 text-xs font-black text-slate-800 shadow-2xs hover:border-brand-400 hover:bg-brand-50 transition cursor-pointer active:scale-95"
+                              title={mod.desc}
+                            >
+                              <span>{mod.icon}</span>
+                              <span>+ {mod.label}</span>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  
+{/* Nút Chặng trước & Chặng tiếp theo ở cuối màn hình */}
+                  <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-border bg-white p-3 shadow-xs">
+                    {stageIndex > 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => setActiveSection(`stage-${stageIndex - 1}` as Section)}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-page px-4 py-2.5 text-xs font-bold text-text hover:bg-slate-100 transition active:scale-95"
+                      >
+                        ← Chặng trước: {AIKI_STAGE_NAMES[stageIndex - 1]}
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setActiveSection('basics')}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-page px-4 py-2.5 text-xs font-bold text-text hover:bg-slate-100 transition active:scale-95"
+                      >
+                        ← Thông tin trạm
+                      </button>
+                    )}
+
+                    {stageIndex < 4 ? (
+                      <button
+                        type="button"
+                        onClick={() => setActiveSection(`stage-${stageIndex + 1}` as Section)}
+                        className="inline-flex items-center gap-1.5 rounded-xl bg-brand-600 px-5 py-2.5 text-xs font-extrabold text-white shadow-xs hover:bg-brand-700 transition active:scale-95"
+                      >
+                        Chặng tiếp theo: {AIKI_STAGE_NAMES[stageIndex + 1]} ➔
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={handleSave}
+                        disabled={saving || !readiness.complete}
+                        className={cn(
+                          "inline-flex items-center gap-1.5 rounded-xl px-5 py-2.5 text-xs font-extrabold text-white shadow-xs transition active:scale-95",
+                          readiness.complete ? "bg-emerald-600 hover:bg-emerald-700 cursor-pointer" : "bg-slate-300 cursor-not-allowed opacity-70"
+                        )}
+                      >
+                        {saving ? 'Đang lưu...' : 'Hoàn thành & Lưu trạm học ➔'}
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Live preview */}
+                <StudentStagePreview card={card} stageIndex={stageIndex} />
+              </div>
+            )
+          })()}
+
           {/* ── CONTENT ── */}
-          {activeSection === 'content' && (
+          {lessonFormat === 'standard' && activeSection === 'content' && (
             <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(20rem,.95fr)]">
               <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div className="rounded-xl border border-sun-200 bg-sun-50 px-3 py-3 text-sm font-semibold leading-relaxed text-sun-900">
+              <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/50 p-4 shadow-sm">
+                <p className="text-xs font-extrabold uppercase tracking-wide text-brand-800">Dạng bài học</p>
+                <div className="mt-2.5 grid gap-3 sm:grid-cols-2">
+                  <button
+                    type="button"
+                    disabled={readOnly}
+                    onClick={() => setLessonFormat('standard')}
+                    className="flex flex-col items-start rounded-xl border-2 p-3 text-left transition border-brand-500 bg-white shadow-sm ring-2 ring-brand-200"
+                  >
+                    <span className="flex items-center gap-2 text-sm font-extrabold text-text">
+                      <BookOpen size={16} className="text-brand-600" /> Khám phá tự do
+                    </span>
+                    <span className="mt-1 text-xs text-muted">Tự do thêm bớt và sắp xếp các khối Khái niệm, Ví dụ, So sánh...</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    disabled={readOnly}
+                    onClick={() => {
+                      setLessonFormat('aiki-rule-5steps')
+                      applyAikiRuleTemplate()
+                    }}
+                    className="flex flex-col items-start rounded-xl border-2 p-3 text-left transition border-border bg-white/60 hover:bg-white"
+                  >
+                    <span className="flex items-center gap-2 text-sm font-extrabold text-text">
+                      <Clapperboard size={16} className="text-brand-600" /> Quy tắc AIKI (5 chặng)
+                    </span>
+                    <span className="mt-1 text-xs text-muted">Mạch chuẩn: Tình huống ➔ Câu đố ➔ Quy tắc ➔ Giải thích ➔ Chốt. Có Video & Mèo AIKI.</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="rounded-xl border border-sun-200 bg-sun-50 px-3.5 py-3 text-xs font-bold leading-relaxed text-sun-900">
                 <strong>Mỗi khối là một màn đọc ngắn của học sinh.</strong> Chọn loại nội dung, layout và sắp thứ tự theo mạch: hiểu ý chính → xem ví dụ → tự ghi nhớ.
               </div>
+
               {draft.learnCards.map((card, index) => (
                 <section key={card.id} className="rounded-2xl border-2 border-border bg-white p-4 shadow-sm">
                   <div className="flex flex-wrap items-center justify-between gap-2">
-                    <p className="text-sm font-extrabold text-text">Khối {index + 1}</p>
+                    <p className="text-sm font-extrabold text-text">Khối {index + 1}: {card.title}</p>
                     <div className="flex gap-1">
                       <button type="button" disabled={readOnly || index === 0} onClick={() => moveLearnCard(index, -1)} className="grid size-10 place-items-center rounded-xl border border-border text-muted disabled:opacity-30" aria-label={`Đưa khối ${index + 1} lên`}><ChevronUp size={17} /></button>
                       <button type="button" disabled={readOnly || index === draft.learnCards.length - 1} onClick={() => moveLearnCard(index, 1)} className="grid size-10 place-items-center rounded-xl border border-border text-muted disabled:opacity-30" aria-label={`Đưa khối ${index + 1} xuống`}><ChevronDown size={17} /></button>
@@ -981,11 +2318,388 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                     <input readOnly={readOnly} value={card.title} onChange={(event) => updateLearnCard(index, { title: event.target.value })} style={{ ...inputStyle, marginTop: '0.35rem' }} />
                   </label>
                   <label className="mt-3 block text-xs font-extrabold text-text">Nội dung học sinh đọc
-                    <textarea readOnly={readOnly} value={card.body} onChange={(event) => updateLearnCard(index, { body: event.target.value })} rows={5} style={{ ...textareaStyle, marginTop: '0.35rem' }} placeholder="Giải thích một ý rõ ràng trong 2–4 câu..." />
+                    <textarea readOnly={readOnly} value={card.body} onChange={(event) => updateLearnCard(index, { body: event.target.value })} rows={4} style={{ ...textareaStyle, marginTop: '0.35rem' }} placeholder="Giải thích một ý rõ ràng trong 2–4 câu..." />
                   </label>
                   <label className="mt-3 block text-xs font-extrabold text-text">Câu ghi nhớ
                     <input readOnly={readOnly} value={card.tip} onChange={(event) => updateLearnCard(index, { tip: event.target.value })} style={{ ...inputStyle, marginTop: '0.35rem' }} placeholder="Một câu ngắn để học sinh nhớ ý chính" />
                   </label>
+                  <div className="mt-3 grid gap-3 rounded-xl bg-slate-50 p-3 sm:grid-cols-2">
+                    <label className="text-[11px] font-extrabold text-muted">Video chính của phần
+                      <input type="url" readOnly={readOnly} value={card.videoUrl ?? ''} onChange={(event) => updateLearnCard(index, { videoUrl: event.target.value })} style={{ ...inputStyle, marginTop: '0.25rem' }} placeholder="https://cdn.example.com/video.mp4 hoặc YouTube" />
+                      <span className="mt-1 block text-[11px] font-bold text-amber-700 leading-tight">
+                        💡 Khi nhập Video URL, video sẽ tự động thay thế khung kịch bản phân cảnh trên màn hình học sinh.
+                      </span>
+                      {!readOnly && <span className="mt-2 flex min-h-11 cursor-pointer items-center justify-center rounded-xl border-2 border-brand-200 bg-white px-3 text-xs font-extrabold text-brand-700"><Clapperboard size={16} className="mr-2" aria-hidden="true" />{uploadingStageMedia === `${index}:videoUrl` ? 'Đang tải video…' : 'Tải video lên'}<input className="sr-only" type="file" accept="video/mp4,video/webm" disabled={uploadingStageMedia !== null} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadLearnCardMedia(index, 'videoUrl', file); event.currentTarget.value = '' }} /></span>}
+                    </label>
+                    <label className="text-[11px] font-extrabold text-muted">Ảnh chính của phần
+                      <input type="url" readOnly={readOnly} value={card.imageUrl ?? ''} onChange={(event) => updateLearnCard(index, { imageUrl: event.target.value })} style={{ ...inputStyle, marginTop: '0.25rem' }} placeholder="https://cdn.example.com/image.webp" />
+                      {!readOnly && <span className="mt-2 flex min-h-11 cursor-pointer items-center justify-center rounded-xl border-2 border-brand-200 bg-white px-3 text-xs font-extrabold text-brand-700"><Eye size={16} className="mr-2" aria-hidden="true" />{uploadingStageMedia === `${index}:imageUrl` ? 'Đang tải ảnh…' : 'Tải ảnh lên'}<input className="sr-only" type="file" accept="image/png,image/jpeg,image/webp" disabled={uploadingStageMedia !== null} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadLearnCardMedia(index, 'imageUrl', file); event.currentTarget.value = '' }} /></span>}
+                    </label>
+                    {card.videoUrl && (
+                      <div className="sm:col-span-2 overflow-hidden rounded-xl border border-border">
+                        <LectureVideo title={card.title} url={card.videoUrl} />
+                      </div>
+                    )}
+                    {card.imageUrl && !card.videoUrl && (
+                      <div className="sm:col-span-2 overflow-hidden rounded-xl border border-border">
+                        <img src={card.imageUrl} alt={card.imageAlt || card.title} className="aspect-video w-full rounded-xl object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                      </div>
+                    )}
+                    <label className="text-[11px] font-extrabold text-muted sm:col-span-2">Mô tả ảnh cho trẻ dùng trình đọc màn hình
+                      <input readOnly={readOnly} value={card.imageAlt ?? ''} onChange={(event) => updateLearnCard(index, { imageAlt: event.target.value })} style={{ ...inputStyle, marginTop: '0.25rem' }} placeholder="Mô tả điều quan trọng trong ảnh, không ghi 'hình ảnh'" />
+                    </label>
+                  </div>
+
+                  {/* Khối tải 2 tranh phương án A và B cho Chặng 2 (aiki-riddle) */}
+                  {card.kind === 'aiki-riddle' && (
+                    <div className="mt-3 rounded-2xl border-2 border-amber-300 bg-amber-50/80 p-4">
+                      <p className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-amber-900">
+                        <BrainCircuit size={16} className="text-amber-700" />
+                        🖼️ Hình ảnh 2 bức tranh cho phương án lựa chọn (A và B)
+                      </p>
+                      <p className="mt-1 text-xs font-medium text-amber-800">
+                        Trẻ em 6–10 tuổi nhìn vào tranh vẽ trực quan để chọn! Nếu chưa upload ảnh, hệ thống tự động hiển thị tranh vẽ minh họa thủ công Hallmark Craft ngộ nghĩnh cực đẹp.
+                      </p>
+                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                        {/* Ảnh Tranh A: Zico */}
+                        <div className="rounded-xl border border-amber-200 bg-white p-3 shadow-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-amber-950">Ảnh A: Bức tranh của Zico</span>
+                            <span className="rounded-md bg-amber-100 px-1.5 py-0.5 text-[10px] font-black text-amber-800">Phương án A</span>
+                          </div>
+                          <p className="mt-0.5 text-[11px] text-muted">Siêu anh hùng quen thuộc (ai cũng vẽ được)</p>
+                          <input
+                            type="url"
+                            readOnly={readOnly}
+                            value={card.optionImages?.[0] ?? ''}
+                            onChange={(event) => {
+                              const next = [...(card.optionImages || ['', ''])]
+                              next[0] = event.target.value
+                              updateLearnCard(index, { optionImages: next })
+                            }}
+                            style={{ ...inputStyle, marginTop: '0.35rem' }}
+                            placeholder="https://cdn.example.com/zico-hero.webp"
+                          />
+                          {!readOnly && (
+                            <span className="mt-2 flex min-h-10 cursor-pointer items-center justify-center rounded-xl border border-amber-300 bg-amber-50 px-3 text-xs font-extrabold text-amber-900 hover:bg-amber-100">
+                              <Eye size={15} className="mr-1.5" />
+                              {uploadingStageMedia === `${index}:optionImageA` ? 'Đang tải ảnh A…' : 'Tải ảnh tranh A lên'}
+                              <input
+                                className="sr-only"
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp"
+                                disabled={uploadingStageMedia !== null}
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0]
+                                  if (file) void uploadLearnCardMedia(index, 'optionImageA', file)
+                                  event.currentTarget.value = ''
+                                }}
+                              />
+                            </span>
+                          )}
+                          {card.optionImages?.[0] && (
+                            <div className="mt-2 overflow-hidden rounded-lg border border-amber-200 aspect-video">
+                              <img src={card.optionImages[0]} alt="Bức tranh của Zico" className="size-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Ảnh Tranh B: Sonet */}
+                        <div className="rounded-xl border border-sky-200 bg-white p-3 shadow-xs">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-black text-sky-950">Ảnh B: Bức tranh của Sonet</span>
+                            <span className="rounded-md bg-sky-100 px-1.5 py-0.5 text-[10px] font-black text-sky-800">Phương án B</span>
+                          </div>
+                          <p className="mt-0.5 text-[11px] text-muted">Siêu anh hùng bố cầm vợt muỗi (độc nhất của riêng con)</p>
+                          <input
+                            type="url"
+                            readOnly={readOnly}
+                            value={card.optionImages?.[1] ?? ''}
+                            onChange={(event) => {
+                              const next = [...(card.optionImages || ['', ''])]
+                              next[1] = event.target.value
+                              updateLearnCard(index, { optionImages: next })
+                            }}
+                            style={{ ...inputStyle, marginTop: '0.35rem' }}
+                            placeholder="https://cdn.example.com/sonet-hero.webp"
+                          />
+                          {!readOnly && (
+                            <span className="mt-2 flex min-h-10 cursor-pointer items-center justify-center rounded-xl border border-sky-300 bg-sky-50 px-3 text-xs font-extrabold text-sky-900 hover:bg-sky-100">
+                              <Eye size={15} className="mr-1.5" />
+                              {uploadingStageMedia === `${index}:optionImageB` ? 'Đang tải ảnh B…' : 'Tải ảnh tranh B lên'}
+                              <input
+                                className="sr-only"
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp"
+                                disabled={uploadingStageMedia !== null}
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0]
+                                  if (file) void uploadLearnCardMedia(index, 'optionImageB', file)
+                                  event.currentTarget.value = ''
+                                }}
+                              />
+                            </span>
+                          )}
+                          {card.optionImages?.[1] && (
+                            <div className="mt-2 overflow-hidden rounded-lg border border-sky-200 aspect-video">
+                              <img src={card.optionImages[1]} alt="Bức tranh của Sonet" className="size-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Khối tải ảnh Bảng So Sánh Hai Mặt cho Chặng 4 (explanation) */}
+                  {card.kind === 'explanation' && (
+                    <div className="mt-3 rounded-2xl border-2 border-sky-300 bg-sky-50/80 p-4">
+                      <p className="flex items-center gap-2 text-xs font-black uppercase tracking-wider text-sky-900">
+                        <ScanSearch size={16} className="text-sky-700" />
+                        🖼️ Hình ảnh minh họa Bảng So Sánh (Kho AI vs Não của con)
+                      </p>
+                      <p className="mt-1 text-xs font-medium text-sky-800">
+                        Upload ảnh minh họa trực quan 2 cột đối so. Mặc định có hình minh họa đồ họa sẵn sàng!
+                      </p>
+                      <div className="mt-3 grid gap-3 sm:grid-cols-2">
+                        {/* Cột Trái: Kho AI */}
+                        <div className="rounded-xl border border-slate-200 bg-white p-3 shadow-xs">
+                          <span className="text-xs font-black text-slate-800">Cột Trái: Kho Dữ Liệu AI</span>
+                          <input
+                            type="url"
+                            readOnly={readOnly}
+                            value={card.compareImages?.left ?? ''}
+                            onChange={(event) => {
+                              updateLearnCard(index, { compareImages: { left: event.target.value, right: card.compareImages?.right || '' } })
+                            }}
+                            style={{ ...inputStyle, marginTop: '0.35rem' }}
+                            placeholder="https://cdn.example.com/ai-copy.webp"
+                          />
+                          {!readOnly && (
+                            <span className="mt-2 flex min-h-10 cursor-pointer items-center justify-center rounded-xl border border-slate-300 bg-slate-50 px-3 text-xs font-extrabold text-slate-800 hover:bg-slate-100">
+                              <Eye size={15} className="mr-1.5" />
+                              {uploadingStageMedia === `${index}:compareLeft` ? 'Đang tải ảnh…' : 'Tải ảnh Kho AI lên'}
+                              <input
+                                className="sr-only"
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp"
+                                disabled={uploadingStageMedia !== null}
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0]
+                                  if (file) void uploadLearnCardMedia(index, 'compareLeft', file)
+                                  event.currentTarget.value = ''
+                                }}
+                              />
+                            </span>
+                          )}
+                          {card.compareImages?.left && (
+                            <div className="mt-2 overflow-hidden rounded-lg border border-slate-200 aspect-video">
+                              <img src={card.compareImages.left} alt="Minh họa Kho AI" className="size-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                            </div>
+                          )}
+                        </div>
+
+                        {/* Cột Phải: Não con */}
+                        <div className="rounded-xl border border-brand-200 bg-white p-3 shadow-xs">
+                          <span className="text-xs font-black text-brand-900">Cột Phải: Não Sáng Tạo Của Con</span>
+                          <input
+                            type="url"
+                            readOnly={readOnly}
+                            value={card.compareImages?.right ?? ''}
+                            onChange={(event) => {
+                              updateLearnCard(index, { compareImages: { left: card.compareImages?.left || '', right: event.target.value } })
+                            }}
+                            style={{ ...inputStyle, marginTop: '0.35rem' }}
+                            placeholder="https://cdn.example.com/kid-brain.webp"
+                          />
+                          {!readOnly && (
+                            <span className="mt-2 flex min-h-10 cursor-pointer items-center justify-center rounded-xl border border-brand-300 bg-amber-50 px-3 text-xs font-extrabold text-brand-900 hover:bg-amber-100">
+                              <Eye size={15} className="mr-1.5" />
+                              {uploadingStageMedia === `${index}:compareRight` ? 'Đang tải ảnh…' : 'Tải ảnh Não Con lên'}
+                              <input
+                                className="sr-only"
+                                type="file"
+                                accept="image/png,image/jpeg,image/webp"
+                                disabled={uploadingStageMedia !== null}
+                                onChange={(event) => {
+                                  const file = event.target.files?.[0]
+                                  if (file) void uploadLearnCardMedia(index, 'compareRight', file)
+                                  event.currentTarget.value = ''
+                                }}
+                              />
+                            </span>
+                          )}
+                          {card.compareImages?.right && (
+                            <div className="mt-2 overflow-hidden rounded-lg border border-brand-200 aspect-video">
+                              <img src={card.compareImages.right} alt="Minh họa Não Con" className="size-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  {/* 🐱 KHỐI STUDIO: MÈO AIKI ĐỒNG HÀNH & TRỢ GIẢNG AI (2 CỘT CHUẨN MỰC) */}
+                  <div className="mt-4 rounded-2xl border-2 border-brand-200 bg-gradient-to-br from-brand-50/80 via-sky-50/50 to-white p-4 shadow-sm">
+                    <div className="flex items-center justify-between gap-2 border-b border-brand-100 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span className="grid size-8 place-items-center rounded-lg bg-brand-500 text-white text-base shadow-xs">
+                          🐱
+                        </span>
+                        <div>
+                          <h4 className="text-xs font-black uppercase tracking-wider text-brand-950">
+                            MÈO AIKI ĐỒNG HÀNH & TRỢ GIẢNG AI
+                          </h4>
+                          <p className="text-[11px] text-brand-800">
+                            Character Rig tương tác trực tiếp · Giọng đọc Vertex AI & Khẩu hình Lipsync
+                          </p>
+                        </div>
+                      </div>
+                      <span className="rounded-full bg-white border border-brand-200 px-2 py-0.5 text-[10px] font-extrabold text-brand-700 shadow-2xs">
+                        Studio Trợ Giảng
+                      </span>
+                    </div>
+
+                    <div className="mt-3.5 grid gap-4 lg:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)] items-stretch">
+                      <div className="flex flex-col justify-between gap-3">
+                        <div>
+                          <label className="block text-[11px] font-black uppercase tracking-wider text-slate-700">
+                            Lời đọc cho bé <span className="font-semibold normal-case text-muted">(để trống AIKI sẽ đọc nội dung bài ở trên)</span>
+                            <textarea
+                              readOnly={readOnly}
+                              value={card.mee?.readText ?? ''}
+                              onChange={(event) => updateLearnCard(index, {
+                                mee: {
+                                  ...(card.mee ?? { readText: '', gesture: 'presentation', autoRead: false }),
+                                  readText: event.target.value,
+                                  voiceProvider: 'vertex',
+                                  gesture: (card.mee?.gesture as any) ?? 'presentation',
+                                  autoRead: card.mee?.autoRead ?? false,
+                                }
+                              })}
+                              rows={2}
+                              style={{ ...textareaStyle, marginTop: '0.25rem', minHeight: '3.25rem' }}
+                              placeholder="Rút gọn thành 1–2 câu dễ hiểu, vui tươi và tràn đầy năng lượng..."
+                            />
+                          </label>
+                        </div>
+
+                        <div>
+                          <label className="block text-[11px] font-black uppercase tracking-wider text-slate-700">
+                            Audio Vertex AI (StoryMee Hub)
+                            <div className="mt-1 flex items-center gap-2">
+                              <input
+                                type="url"
+                                readOnly={readOnly}
+                                value={card.mee?.audioUrl ?? ''}
+                                onChange={(event) => updateLearnCard(index, {
+                                  mee: {
+                                    ...(card.mee ?? { readText: '', gesture: 'presentation', autoRead: false }),
+                                    audioUrl: event.target.value,
+                                    voiceProvider: 'vertex',
+                                  }
+                                })}
+                                style={{ ...inputStyle, marginTop: 0 }}
+                                placeholder="https://cdn.example.com/aiki-voice.mp3"
+                                className="flex-1 min-h-9"
+                              />
+                              {!readOnly && (
+                                <label className="shrink-0 flex min-h-9 items-center justify-center gap-1 rounded-xl border-2 border-brand-200 bg-white px-2.5 text-[11px] font-black text-brand-700 hover:bg-brand-50 cursor-pointer shadow-2xs transition">
+                                  <Volume2 size={13} />
+                                  <span>{uploadingStageMedia === `${index}:audioUrl` ? 'Đang tải…' : 'Tải MP3'}</span>
+                                  <input
+                                    className="sr-only"
+                                    type="file"
+                                    accept="audio/mpeg,audio/mp4,audio/wav,audio/webm"
+                                    disabled={uploadingStageMedia !== null}
+                                    onChange={(event) => {
+                                      const file = event.target.files?.[0]
+                                      if (file) void uploadLearnCardMedia(index, 'audioUrl', file)
+                                      event.currentTarget.value = ''
+                                    }}
+                                  />
+                                </label>
+                              )}
+                            </div>
+                          </label>
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-3 pt-1 border-t border-brand-100/60">
+                          <label className="min-w-44 flex-1 text-[11px] font-black uppercase tracking-wider text-slate-700">
+                            Cử chỉ giảng dạy
+                            <select
+                              disabled={readOnly}
+                              value={card.mee?.gesture ?? 'presentation'}
+                              onChange={(event) => updateLearnCard(index, {
+                                mee: {
+                                  ...(card.mee ?? { readText: '', gesture: 'presentation', autoRead: false }),
+                                  gesture: event.target.value as any,
+                                }
+                              })}
+                              style={{ ...inputStyle, marginTop: '0.25rem', height: '2.4rem' }}
+                            >
+                              {LECTURE_GESTURES.map((g) => (
+                                <option key={g.id} value={g.id}>{g.label}</option>
+                              ))}
+                            </select>
+                          </label>
+
+                          <label className="flex items-center gap-2 text-xs font-bold text-slate-800 cursor-pointer mt-4">
+                            <input
+                              type="checkbox"
+                              disabled={readOnly}
+                              checked={card.mee?.autoRead ?? false}
+                              onChange={(event) => updateLearnCard(index, {
+                                mee: {
+                                  ...(card.mee ?? { readText: '', gesture: 'presentation', autoRead: false }),
+                                  autoRead: event.target.checked,
+                                }
+                              })}
+                              className="size-4 rounded text-brand-600 focus:ring-brand-400"
+                            />
+                            <span>Tự đọc khi mở chặng</span>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="flex flex-col items-center justify-between rounded-2xl border-2 border-brand-200 bg-gradient-to-b from-brand-50 via-amber-50/60 to-white p-3 shadow-inner relative overflow-hidden">
+                        <div className="w-full flex items-center justify-between text-[10px] font-black text-brand-800">
+                          <span className="flex items-center gap-1">
+                            <span className="size-2 rounded-full bg-emerald-500 animate-pulse" />
+                            Interactive Rig
+                          </span>
+                          <span className="uppercase opacity-75">
+                            {card.mee?.gesture ?? 'presentation'}
+                          </span>
+                        </div>
+
+                        <div className="h-44 w-full flex items-center justify-center my-1">
+                          <MeeCatInteractiveCanvas
+                            variant="half-body"
+                            animated={true}
+                            transparentBackground={true}
+                            state={card.mee?.gesture === 'think' ? 'look' : card.mee?.gesture === 'celebrate' || card.mee?.gesture === 'celebrate-1' ? 'celebrate' : previewSpeakingIndex === index ? 'talk' : 'idle'}
+                            gesture={(card.mee?.gesture as any) ?? 'presentation'}
+                            isSpeaking={previewSpeakingIndex === index}
+                            speechText={card.mee?.readText || card.body}
+                            className="size-full max-h-44"
+                          />
+                        </div>
+
+                        <button
+                          type="button"
+                          onClick={() => previewAikiVoice(index, card.mee?.readText?.trim() || card.body)}
+                          className={cn(
+                            "w-full flex items-center justify-center gap-2 rounded-xl py-2 px-3 text-xs font-black transition active:scale-95 shadow-xs cursor-pointer",
+                            previewSpeakingIndex === index
+                              ? "bg-rose-500 hover:bg-rose-600 text-white animate-pulse"
+                              : "bg-brand-600 hover:bg-brand-700 text-white"
+                          )}
+                        >
+                          <Volume2 size={15} />
+                          <span>{previewSpeakingIndex === index ? 'Dừng đọc & lipsync' : '🔊 Nghe thử giọng & Lipsync'}</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
                   {(card.layout === 'split' || card.layout === 'visual-grid' || card.layout === 'storyboard') && (
                     <div className="mt-4 rounded-xl border border-sky-200 bg-sky-50/60 p-3">
                       <div className="flex flex-wrap items-start justify-between gap-2">
@@ -1024,7 +2738,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
           )}
 
           {/* ── GAME ── */}
-          {activeSection === 'game' && (
+          {lessonFormat === 'standard' && activeSection === 'game' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
               {/* Game selector */}
               <div>
@@ -1141,7 +2855,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
           )}
 
           {/* ── PRACTICE ── */}
-          {activeSection === 'practice' && (
+          {lessonFormat === 'standard' && activeSection === 'practice' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ padding: '0.75rem 1rem', background: '#ecfdf5', border: '1px solid #a7f3d0', borderRadius: '0.625rem', fontSize: '0.8125rem', color: '#065f46' }}>
                 <strong>Tự tay làm phải dùng kiến thức vừa học.</strong> Học sinh cần biết làm gì, tạo ra sản phẩm nào, tự kiểm tra theo tiêu chí nào và lưu sản phẩm riêng tư.
@@ -1208,7 +2922,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
           )}
 
           {/* ── CHECK ── */}
-          {activeSection === 'check' && (
+          {lessonFormat === 'standard' && activeSection === 'check' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{
                 padding: '0.75rem 1rem',
@@ -1313,7 +3027,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         tone="guidance"
         eyebrow="Xem trước như học sinh"
         title={draft.title || 'Trạm học chưa có tên'}
-        description="Toàn bộ hành trình trong một trạm: mở bài → khám phá → chơi → thực hành → thử thách."
+        description={lessonFormat === 'aiki-rule-5steps' ? 'Toàn bộ hành trình 5 chặng Quy tắc AIKI: Tình huống → Câu đố AIKI → Quy tắc → Giải thích → Chốt.' : 'Toàn bộ hành trình trong một trạm: mở bài → khám phá → chơi → thực hành → thử thách.'}
         showMascot={false}
         className="station-preview-modal"
         onClose={() => setShowFullPreview(false)}

@@ -1,6 +1,5 @@
 import React from 'react'
 import {
-  Volume2,
   Sparkles,
   ArrowRight,
   Zap,
@@ -15,7 +14,6 @@ import {
 } from 'lucide-react'
 import type { AsmoLmsLesson, AsmoLmsStage } from '../data/asmo-curriculum-lms'
 import { AsmoFormula } from './AsmoFormula'
-import { speakVietnamese } from './AsmoInteractiveAppleTreeCanvas'
 import {
   FlatClayIcon,
   FlatClayBalloon,
@@ -37,7 +35,6 @@ import {
   FlatClayStar,
   FlatClayZap,
 } from './AsmoFlatClayIcons'
-import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { Button } from '@/shared/components/ui/Button'
 import { cn } from '@/shared/lib/cn'
 
@@ -47,16 +44,29 @@ export interface AsmoVisualSecretComicCardProps {
   onAdvanceToPractice: () => void
 }
 
+function getShortMeeRule(lesson: AsmoLmsLesson): string {
+  const rules: Partial<Record<AsmoLmsLesson['visualType'], string>> = {
+    column_add: 'Cộng đơn vị → nhớ 1 → cộng hàng chục.',
+    column_sub: 'Mượn 1 chục → trừ đơn vị → trừ hàng chục.',
+    apple_drop: 'Giữ số lớn, rồi đếm tiếp.',
+    balloon_pop: 'Bớt đi, rồi đếm số còn lại.',
+    make10: 'Ghép hai số thành 10 trước.',
+    cake_tray: 'Số hàng nhân số bánh mỗi hàng.',
+    candy_division: 'Chia đều từng chiếc kẹo.',
+    div_remainder: 'Chia đều trước, phần thừa là số dư.',
+    pizza_fraction: 'Tử số ở trên, mẫu số ở dưới.',
+    compare_fractions: 'Cùng mẫu số: so sánh tử số.',
+    analog_clock: 'Kim ngắn chỉ giờ, kim dài chỉ phút.',
+  }
+
+  return rules[lesson.visualType] || lesson.meeTip.quote.split(/[.!?]/)[0]
+}
+
 export function AsmoVisualSecretComicCard({
   lesson,
   stage,
   onAdvanceToPractice,
 }: AsmoVisualSecretComicCardProps) {
-  const handlePlayVoice = () => {
-    const speechText = `${lesson.meeTip.quote}. ${lesson.meeTip.storyAdvice}`
-    speakVietnamese(speechText)
-  }
-
   return (
     <section
       aria-label="Tranh bí kíp trực quan Mèo Mee"
@@ -78,50 +88,16 @@ export function AsmoVisualSecretComicCard({
           </span>
         </div>
 
-        {/* Comic Mascot Speech Bubble Header */}
-        <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6 bg-white/95 rounded-3xl border-2 border-amber-200 p-4 sm:p-5 shadow-clay relative">
-          {/* Mascot Cat */}
-          <div className="shrink-0 flex flex-col items-center">
-            <div className="relative">
-              <AikidCatCharacter pose={lesson.meeTip.pose} className="size-20 sm:size-24 drop-shadow-md animate-bounce" />
-              <span className="absolute -bottom-1 -right-1 flex h-6 w-6 items-center justify-center rounded-full bg-amber-500 text-[10px] text-white font-black shadow-clay-sm border border-white">
-                AI
-              </span>
-            </div>
-            <span className="text-[11px] font-black text-brand-900 mt-1.5 bg-brand-100/90 px-2.5 py-0.5 rounded-full border border-brand-200">
-              Trợ Giảng Mee 🐱
-            </span>
-          </div>
-
-          {/* Speech Bubble Content */}
-          <div className="flex-1 space-y-2.5 text-center sm:text-left w-full">
-            <div className="flex items-center justify-between gap-2">
-              <span className="text-xs font-black text-amber-800 uppercase tracking-wide flex items-center gap-1.5">
-                <Lightbulb className="size-4 text-amber-500 fill-amber-500" />
-                <span>Câu Khẩu Quyết Thần Chú:</span>
-              </span>
-
-              {/* Sound Audio Button */}
-              <button
-                type="button"
-                onClick={handlePlayVoice}
-                title="Nghe Mèo Mee đọc thần chú"
-                aria-label="Phát âm thanh thần chú"
-                className="size-9 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white flex items-center justify-center shadow-clay cursor-pointer active:scale-90 transition-all border-2 border-amber-600"
-              >
-                <Volume2 className="size-4.5 stroke-[2.5]" />
-              </button>
-            </div>
-
-            <div className="text-base sm:text-xl font-black text-slate-900 italic leading-snug flex items-center justify-center sm:justify-start gap-1 flex-wrap">
-              <span>&quot;</span>
-              <AsmoFormula text={lesson.meeTip.quote} className="inline" />
-              <span>&quot;</span>
-            </div>
-
-            <div className="bg-amber-50/90 rounded-2xl p-2.5 sm:p-3 border border-amber-200 text-xs sm:text-sm font-extrabold text-slate-800">
-              <AsmoFormula text={lesson.meeTip.storyAdvice} />
-            </div>
+        {/* Mee stays in the assistant rail; the lesson card keeps one visual rule. */}
+        <div className="flex items-start gap-3 rounded-2xl bg-amber-50/90 px-4 py-3 shadow-2xs">
+          <span className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-amber-400 text-white">
+            <Lightbulb className="size-5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0 text-left">
+            <p className="text-[11px] font-black uppercase tracking-wide text-amber-800">Chỉ cần nhớ</p>
+            <p className="mt-0.5 text-base font-black leading-snug text-slate-900 sm:text-lg">
+              <AsmoFormula text={getShortMeeRule(lesson)} />
+            </p>
           </div>
         </div>
       </header>
@@ -751,6 +727,8 @@ function renderVisualSecretDiagram(lesson: AsmoLmsLesson): React.JSX.Element {
     // ────────────────────────────────────────────────────────────────────────
     case 'column_add':
     case 'column_sub':
+      {
+      const isSubtraction = lesson.visualType === 'column_sub'
       return (
         <div className="space-y-5">
           <div className="rounded-3xl bg-gradient-to-r from-amber-50 to-orange-50 border-3 border-amber-200 p-5 text-center space-y-4 shadow-clay">
@@ -765,9 +743,9 @@ function renderVisualSecretDiagram(lesson: AsmoLmsLesson): React.JSX.Element {
 
               <div className="bg-white rounded-2xl p-4 border-2 border-amber-200 shadow-sm space-y-1 text-center min-w-[140px]">
                 <span className="text-xs font-black text-orange-600 block">1. Cột Đơn Vị</span>
-                <p className="text-sm font-bold text-slate-700">Cộng/Trừ hàng đơn vị trước</p>
+                <p className="text-sm font-bold text-slate-700">{isSubtraction ? 'Trừ hàng đơn vị trước' : 'Cộng hàng đơn vị trước'}</p>
                 <span className="inline-block text-[11px] font-black text-orange-800 bg-orange-100 px-2 py-0.5 rounded-full">
-                  Nhớ / Mượn 1 chục
+                  {isSubtraction ? 'Mượn 1 chục' : 'Nhớ 1 chục'}
                 </span>
               </div>
 
@@ -775,15 +753,16 @@ function renderVisualSecretDiagram(lesson: AsmoLmsLesson): React.JSX.Element {
 
               <div className="bg-white rounded-2xl p-4 border-2 border-amber-200 shadow-sm space-y-1 text-center min-w-[140px]">
                 <span className="text-xs font-black text-indigo-600 block">2. Cột Hàng Chục</span>
-                <p className="text-sm font-bold text-slate-700">Cộng/Trừ hàng chục</p>
+                <p className="text-sm font-bold text-slate-700">{isSubtraction ? 'Trừ hàng chục' : 'Cộng hàng chục'}</p>
                 <span className="inline-block text-[11px] font-black text-indigo-800 bg-indigo-100 px-2 py-0.5 rounded-full">
-                  Thêm số nhớ vào
+                  {isSubtraction ? 'Bớt 1 đã mượn' : 'Thêm 1 đã nhớ'}
                 </span>
               </div>
             </div>
           </div>
         </div>
       )
+      }
 
     case 'analog_clock':
     case 'elapsed_time':
