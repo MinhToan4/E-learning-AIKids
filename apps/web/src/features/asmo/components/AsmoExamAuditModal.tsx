@@ -65,6 +65,11 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
   const [filterDomain, setFilterDomain] = useState<FilterDomain>('all')
   const [searchQuery, setSearchQuery] = useState('')
   const [expandedQuestionId, setExpandedQuestionId] = useState<string | null>(null)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     setCurrentExam(exam)
@@ -174,7 +179,7 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
     }
   }
 
-  return createPortal(
+  const modalContent = (
     <div
       role="dialog"
       aria-modal="true"
@@ -735,7 +740,12 @@ export function AsmoExamAuditModal({ isOpen, onClose, exam, onExamUpdated }: Pro
           </Button>
         </div>
       </div>
-    </div>,
-    document.body,
+    </div>
   )
+
+  if (!mounted || typeof document === 'undefined' || !document.body) {
+    return modalContent
+  }
+
+  return createPortal(modalContent, document.body)
 }
