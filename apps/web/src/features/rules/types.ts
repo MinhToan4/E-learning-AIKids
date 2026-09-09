@@ -8,6 +8,8 @@ export type RuleQuestion = {
   retryFeedback: string
 }
 
+export type AikiRuleQuestion = RuleQuestion
+
 export type RuleVideoSlide = {
   stage: string
   speaker: string
@@ -30,6 +32,11 @@ export type AikiRule = {
   akiTip: string
   slides: RuleVideoSlide[]
   questions: [RuleQuestion, RuleQuestion] // Exactly 2 review questions
+  compareMindset?: {
+    aiWarehouse?: string
+    kidMind?: string
+  }
+  knightCommitment?: string
 }
 
 export type RuleProgressStatus = 'locked' | 'available' | 'completed'

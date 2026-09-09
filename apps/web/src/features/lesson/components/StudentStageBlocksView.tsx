@@ -730,20 +730,25 @@ export function StudentStageBlocksView({
               <div className="flex items-center justify-between gap-2 border-b border-brand-100 pb-3">
                 <div className="flex items-center gap-2 text-brand-700 font-extrabold text-sm uppercase tracking-wider">
                   <BrainCircuit size={20} className="text-brand-600" />
-                  {block.title || 'Câu đố của AIKI · Chọn bức tranh đúng'}
+                  {block.title || 'Tư liệu học tập · Quan sát & Đối chiếu tranh'}
                 </div>
                 <span className="rounded-full bg-brand-100 px-3 py-0.5 text-xs font-black text-brand-800">
-                  {isAikiRuleJourney ? `Chặng ${stageIndex + 1}/5` : 'Chọn tranh A/B'}
+                  {isAikiRuleJourney ? `Chặng ${stageIndex + 1}/5` : 'Đối chiếu A/B'}
                 </span>
               </div>
 
               <p className="font-display text-xl sm:text-2xl text-brand-950 font-black leading-snug">
                 {block.body || riddle.question}
               </p>
-              <p className="text-sm sm:text-base font-bold text-amber-800 flex items-center gap-1.5">
-                <span>👀</span>
-                <span>Bé hãy nhìn 2 bức tranh bên dưới và bấm trực tiếp vào bức tranh con chọn nhé:</span>
-              </p>
+              <div className="flex items-center justify-between flex-wrap gap-2 text-sm sm:text-base font-bold text-amber-900 bg-amber-50/80 px-3.5 py-2 rounded-2xl border border-amber-200">
+                <div className="flex items-center gap-2">
+                  <span>👀</span>
+                  <span>Bé quan sát kỹ chi tiết 2 bức tranh bên dưới:</span>
+                </div>
+                <span className="text-xs font-black text-brand-700 bg-white px-2.5 py-1 rounded-xl shadow-2xs border border-brand-200">
+                  👉 Chọn đáp án ở Bảng Tương Tác bên phải
+                </span>
+              </div>
 
               <div className="relative grid gap-5 sm:grid-cols-2 pt-2">
                 {riddle.options.map((opt: string, optIdx: number) => {
@@ -776,13 +781,11 @@ export function StudentStageBlocksView({
                     stationFallback[optIdx]
 
                   return (
-                    <button
+                    <div
                       key={opt}
-                      type="button"
-                      disabled={feedback?.correct === true || isChecking}
                       onClick={() => handleChooseAnswerInternal(riddle.id, optIdx)}
                       className={cn(
-                        'group relative flex flex-col justify-between p-4 sm:p-5 rounded-3xl border-3 text-left transition-all duration-200 shadow-xs active:scale-[0.98] cursor-pointer',
+                        'group relative flex flex-col justify-between p-4 sm:p-5 rounded-3xl border-3 text-left transition-all duration-200 shadow-xs active:scale-[0.99] cursor-pointer',
                         isSelected
                           ? isCorrect
                             ? 'border-mint-500 bg-mint-50 text-mint-950 shadow-clay ring-4 ring-mint-200/50'
@@ -813,7 +816,7 @@ export function StudentStageBlocksView({
                             </span>
                             <div>
                               <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-muted">
-                                Phương án {optLetter}
+                                Bức tranh {optLetter}
                               </span>
                               <h4 className="font-display text-lg sm:text-xl font-black leading-tight text-text">
                                 {optTitle}
@@ -882,44 +885,33 @@ export function StudentStageBlocksView({
                           👉 {optDesc}
                         </div>
                       )}
-                    </button>
+                    </div>
                   )
                 })}
               </div>
 
-              {isChecking && (
-                <div className="flex items-center gap-2 rounded-2xl bg-brand-50 p-3 text-sm font-bold text-brand-700 animate-pulse">
-                  <span className="size-2 rounded-full bg-brand-500 animate-ping" />
-                  AIKI đang xem xét câu trả lời của con…
-                </div>
-              )}
-
               {feedback && (
                 <div
                   className={cn(
-                    'rounded-2xl border-2 p-4 animate-pop text-left',
+                    'rounded-2xl border-2 p-3.5 animate-pop text-left flex items-center justify-between gap-3',
                     feedback.correct ? 'border-mint-300 bg-mint-50 text-mint-900' : 'border-coral-300 bg-coral-50 text-coral-900'
                   )}
                   role="status"
                 >
-                  <div className="flex items-center gap-2 font-extrabold text-base sm:text-lg">
+                  <div className="flex items-center gap-2 font-bold text-sm">
                     <span>{feedback.correct ? '🎉' : '💡'}</span>
                     <span>
-                      {feedback.correct ? 'Tuyệt vời! Con chọn hoàn toàn chính xác!' : 'Chưa đúng rồi, bé thử suy nghĩ thêm nhé!'}
+                      {feedback.correct ? 'Con đã chọn đúng tranh! Xem giải thích 3 bước ở bảng bên phải 👉' : 'Chưa đúng, hãy xem gợi ý từ Coach Mee bên phải nhé!'}
                     </span>
                   </div>
-                  <p className="mt-1.5 text-sm font-semibold leading-relaxed">{feedback.explanation}</p>
                   {feedback.correct && onNextStage && (
-                    <div className="mt-4 pt-3 border-t border-mint-200 flex justify-end">
-                      <Button
-                        variant="primary"
-                        className="h-11 px-5 font-extrabold shadow-clay cursor-pointer"
-                        onClick={() => onNextStage(stageIndex + 1)}
-                      >
-                        Tiếp tục sang Chặng {stageIndex + 2}
-                        <ChevronRight size={18} />
-                      </Button>
-                    </div>
+                    <Button
+                      variant="primary"
+                      className="h-9 px-4 text-xs font-black shadow-sm shrink-0"
+                      onClick={() => onNextStage(stageIndex + 1)}
+                    >
+                      Sang Chặng {stageIndex + 2} ➜
+                    </Button>
                   )}
                 </div>
               )}

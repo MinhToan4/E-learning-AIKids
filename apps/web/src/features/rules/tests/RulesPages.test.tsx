@@ -133,5 +133,48 @@ describe('AikiRuleWorkspace direct integration', () => {
     expect(markup).toContain('🎙️ Nghe AKI đọc quy tắc')
     expect(markup).toContain('Ôn lại một chút nhé')
   })
+
+  it('strictly adheres to Soft Clay / Hallmark Craft SSOT and has zero dark theme remnants', () => {
+    const roadmapMarkup = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        { initialEntries: ['/rules'] },
+        createElement(Routes, null, createElement(Route, { path: '/rules', element: createElement(RulesRoadmapPage) })),
+      ),
+    )
+
+    const workspaceMarkup = renderToStaticMarkup(
+      createElement(
+        MemoryRouter,
+        { initialEntries: ['/rules/1'] },
+        createElement(
+          Routes,
+          null,
+          createElement(Route, { path: '/rules/:ruleId', element: createElement(RuleLearningPage) }),
+        ),
+      ),
+    )
+
+    const darkHexCodes = ['#141224', '#181530', '#221c44', '#1b1736', '#2a244d']
+    darkHexCodes.forEach((hex) => {
+      expect(roadmapMarkup).not.toContain(hex)
+      expect(workspaceMarkup).not.toContain(hex)
+    })
+
+    // Soft Clay pastel classes
+    expect(roadmapMarkup).toContain('bg-[#f3f0ff]')
+    expect(roadmapMarkup).toContain('shadow-clay')
+    expect(roadmapMarkup).toContain('rounded-3xl')
+    expect(roadmapMarkup).toContain('border-border')
+
+    expect(workspaceMarkup).toContain('bg-[#f3f0ff]')
+    expect(workspaceMarkup).toContain('shadow-clay')
+    expect(workspaceMarkup).toContain('rounded-3xl')
+    expect(workspaceMarkup).toContain('border-border')
+
+    // Split screen layout preservation
+    expect(workspaceMarkup).toContain('lg:col-span-7')
+    expect(workspaceMarkup).toContain('lg:col-span-5')
+  })
 })
 

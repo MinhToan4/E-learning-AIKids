@@ -9,6 +9,7 @@ import {
   CourseBookIcon,
   NavWorldIcon,
 } from '@/shared/components/icons/KidNavIcons'
+import { AdventureModal } from '@/shared/components/ui/AdventureModal'
 import { type QuestProgress } from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
@@ -16,6 +17,10 @@ import { designerAssets } from '@/shared/config/assets'
 import { RulesRoadmapContent } from '@/features/rules/components/RulesRoadmapContent'
 import { useRulesProgress } from '@/features/rules/hooks/useRulesProgress'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
+
+// WHY: Sếp yêu cầu tạm thời unlock toàn bộ các đảo M1..M5 để test nội dung.
+// Đổi thành false bất kỳ lúc nào để bật lại luật Gatekeeper Island.
+export const FORCE_UNLOCK_ALL_ISLANDS = true
 
 export type PathwayCourse = {
   id: string
@@ -85,9 +90,9 @@ function buildStationPath(total: number) {
 }
 
 function QuestNode({ quest, index, total }: { quest: QuestProgress; index: number; total: number }) {
-  const locked = quest.status === 'locked'
+  const locked = !FORCE_UNLOCK_ALL_ISLANDS && quest.status === 'locked'
   const done = quest.status === 'completed'
-  const available = quest.status === 'available' || quest.status === 'in_progress'
+  const available = FORCE_UNLOCK_ALL_ISLANDS || quest.status === 'available' || quest.status === 'in_progress'
 
   const nodeEl = (
     <div className="quest-node-compact-wrap">
@@ -198,18 +203,26 @@ export function WorldPage() {
         pathRow = processedCourses.find((row) => row.id === courseId)
         setRegionIndex(Math.max(0, processedCourses.findIndex((row) => row.id === courseId)))
 
-        if (!pathRow || pathRow.status === 'locked') {
+        if (!pathRow || (!FORCE_UNLOCK_ALL_ISLANDS && pathRow.status === 'locked')) {
           throw new Error(pathRow?.lockMessage || 'Khóa học này chưa được mở trong lộ trình của con.')
         }
         setPathway({ ...journey, courses: processedCourses })
         setCourseTitle(courseTitle)
-        if (pathRow.status === 'available') {
-          setEnrollmentRequired(true)
-          return
+        try {
+          const data = await learningApi.getCourseProgress(courseId)
+          if (data && data.quests && data.quests.length > 0) {
+            setQuests(data.quests)
+            setMeta({ totalStars: data.totalStars, completedCount: data.completedCount })
+          } else if (!FORCE_UNLOCK_ALL_ISLANDS && pathRow.status === 'available') {
+            setEnrollmentRequired(true)
+          }
+        } catch (e) {
+          if (!FORCE_UNLOCK_ALL_ISLANDS && pathRow.status === 'available') {
+            setEnrollmentRequired(true)
+            return
+          }
+          throw e
         }
-        const data = await learningApi.getCourseProgress(courseId)
-        setQuests(data.quests)
-        setMeta({ totalStars: data.totalStars, completedCount: data.completedCount })
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Không tải được bản đồ')
       } finally {
@@ -220,7 +233,7 @@ export function WorldPage() {
 
   const next = quests.find(
     (q) => q.status === 'available' || q.status === 'in_progress',
-  )
+  ) ?? (quests.length > 0 ? quests[0] : undefined)
   const progressPct = quests.length > 0 ? Math.round((meta.completedCount / quests.length) * 100) : 0
   const currentRegion = WORLD_REGIONS[regionIndex % WORLD_REGIONS.length]
 
@@ -246,7 +259,7 @@ export function WorldPage() {
     return <PathwayOverview pathway={pathway} />
   }
 
-  if (courseId && (courseId === 'aiki-rules' || courseId.toLowerCase().includes('rule') || isAikiRuleCourse({ id: courseId, title: courseTitle }, regionIndex))) {
+  if (courseId && (courseId === 'aiki-rules' || courseId.startsWith('rule-') || isAikiRuleCourse({ id: courseId, title: courseTitle }, regionIndex))) {
     return (
       <RulesRoadmapContent
         courseId={courseId}
@@ -254,6 +267,35 @@ export function WorldPage() {
         onSelectRule={(ruleNum) => navigate(`/lesson/rule-${ruleNum}`)}
         ruleUrlPattern={(ruleNum) => `/lesson/rule-${ruleNum}`}
       />
+    )
+  }
+
+  if (courseId && error) {
+    return (
+      <div className="flex flex-col items-center justify-center py-10 px-4 page-enter">
+        <div className="ui-card mx-auto w-full max-w-xl p-8 text-center border-2 border-amber-200 bg-white/95 shadow-clay rounded-3xl">
+          <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-100/90 border-2 border-amber-300 shadow-soft mb-4">
+            <KidLockImageIcon size={52} aria-hidden="true" />
+          </div>
+          <AikidCatCharacter pose="guide" className="mx-auto h-28 w-28 drop-shadow-md mb-3" />
+          <h1 className="font-display text-2xl sm:text-3xl font-black text-text">
+            Vùng Đất Này Đang Chờ Mở Khóa!
+          </h1>
+          <p className="mt-3 text-sm sm:text-base font-semibold text-muted leading-relaxed max-w-md mx-auto">
+            {error || 'Bé hãy hoàn thành Đảo Quy Tắc Vàng AIKI trước để nhận Huy hiệu Hiệp Sĩ và mở khóa toàn bộ hành trình sáng tạo nhé!'}
+          </p>
+          <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
+            <Button onClick={() => navigate('/world')} className="w-full sm:w-auto">
+              🗺️ Chọn Đảo Khác / Bản Đồ Thế Giới
+            </Button>
+            <Link to="/world" className="w-full sm:w-auto">
+              <Button variant="secondary" className="w-full">
+                🛡️ Đến Đảo Quy Tắc Vàng
+              </Button>
+            </Link>
+          </div>
+        </div>
+      </div>
     )
   }
 
@@ -321,12 +363,6 @@ export function WorldPage() {
           </div>
         </div>
       </header>
-
-      {error && (
-        <p className="rounded-xl bg-coral-100 px-3 py-2 text-danger text-sm" role="alert">
-          {error}
-        </p>
-      )}
 
       {enrollmentRequired && !loading && (
         <section className="ui-card mx-auto w-full max-w-xl p-6 text-center">
@@ -402,11 +438,17 @@ export function WorldPage() {
 
 
 
-export function isAikiRuleCourse(course: { id: string; title: string }, index?: number): boolean {
-  if (course.id === 'aiki-rules' || course.id.toLowerCase().includes('rule')) return true
+export function isAikiRuleCourse(course: { id: string; title: string }, _index?: number): boolean {
+  if (course.id === 'aiki-rules' || course.id.startsWith('rule-')) return true
   const lowerTitle = (course.title || '').toLowerCase()
-  if (lowerTitle.includes('quy tắc') || lowerTitle.includes('quy tac') || lowerTitle.includes('rule')) return true
-  return index === 0
+  if (
+    lowerTitle.includes('mười quy tắc') ||
+    lowerTitle.includes('muoi quy tac') ||
+    lowerTitle.includes('module 0')
+  ) {
+    return true
+  }
+  return false
 }
 
 export function isCourseRuleCompleted(course: PathwayCourse): boolean {
@@ -417,11 +459,18 @@ export function isCourseRuleCompleted(course: PathwayCourse): boolean {
   return false
 }
 
-export function applyGatekeeperRules(courses: PathwayCourse[]): PathwayCourse[] {
+export function applyGatekeeperRules(
+  courses: PathwayCourse[],
+  forceUnlockOverride?: boolean,
+): PathwayCourse[] {
   if (courses.length === 0) return []
 
+  const forceUnlock = forceUnlockOverride ?? FORCE_UNLOCK_ALL_ISLANDS
   const ruleCourseIndex = courses.findIndex((c, i) => isAikiRuleCourse(c, i))
-  const targetRuleIndex = ruleCourseIndex >= 0 ? ruleCourseIndex : 0
+  if (ruleCourseIndex < 0) {
+    return courses
+  }
+  const targetRuleIndex = ruleCourseIndex
   const ruleCourse = courses[targetRuleIndex]
 
   const isRuleDone = ruleCourse ? isCourseRuleCompleted(ruleCourse) : false
@@ -438,22 +487,22 @@ export function applyGatekeeperRules(courses: PathwayCourse[]): PathwayCourse[] 
       }
     }
 
-    if (!isRuleDone) {
-      // Đảo Quy Tắc CHƯA HOÀN THÀNH: Tất cả các đảo khác bị KHÓA
-      return {
-        ...course,
-        status: 'locked' as const,
-        reasonCode: 'gatekeeper_rule_incomplete',
-        lockMessage: 'Bé hãy hoàn thành Đảo Quy Tắc Vàng AIKI trước để nhận Huy hiệu Hiệp Sĩ và mở khóa toàn bộ hành trình sáng tạo nhé!',
-      }
-    } else {
-      // Đảo Quy Tắc ĐÃ HOÀN THÀNH: Mở khóa đồng thời (Song song / Parallel)
+    if (forceUnlock || isRuleDone) {
+      // Đảo Quy Tắc ĐÃ HOÀN THÀNH HOẶC FORCE_UNLOCK: Mở khóa toàn bộ các khóa học
       const status = course.status === 'locked' ? 'available' : course.status
       return {
         ...course,
         status,
         reasonCode: 'requirements_met',
         lockMessage: undefined,
+      }
+    } else {
+      // Đảo Quy Tắc CHƯA HOÀN THÀNH: Tất cả các đảo khác bị KHÓA
+      return {
+        ...course,
+        status: 'locked' as const,
+        reasonCode: 'gatekeeper_rule_incomplete',
+        lockMessage: 'Bé hãy hoàn thành Đảo Quy Tắc Vàng AIKI trước để nhận Huy hiệu Hiệp Sĩ và mở khóa toàn bộ hành trình sáng tạo nhé!',
       }
     }
   })
@@ -544,11 +593,13 @@ function RoadmapCourseNode({
   index,
   isRecommended,
   courseHref,
+  onLockedClick,
 }: {
   course: PathwayCourse
   index: number
   isRecommended: boolean
   courseHref: string
+  onLockedClick?: (course: PathwayCourse) => void
 }) {
   const region = getRegionForCourse(course, index);
   const isRule = isAikiRuleCourse(course, index);
@@ -557,7 +608,7 @@ function RoadmapCourseNode({
 
   const isCompleted = isRule ? rulesCompletedCount >= 10 : course.status === 'completed';
   const isActive = isRule ? (rulesCompletedCount > 0 && rulesCompletedCount < 10) : course.status === 'active';
-  const isLocked = isRule ? false : course.status === 'locked';
+  const isLocked = isRule ? false : (!FORCE_UNLOCK_ALL_ISLANDS && course.status === 'locked');
   const stationCount = isRule ? 10 : Math.max(0, Math.round(course.questCount ?? 0));
   const completedStations = isRule
     ? rulesCompletedCount
@@ -567,17 +618,35 @@ function RoadmapCourseNode({
       );
   const nextStation = course.stations?.find(
     (station) => station.status === 'available' || station.status === 'in_progress',
-  );
+  ) ?? (course.stations && course.stations.length > 0 ? course.stations[0] : undefined);
   const previousRegion = index > 0 ? WORLD_REGIONS[(index - 1) % WORLD_REGIONS.length] : null;
+
+  const handleLockedClick = (e?: React.MouseEvent | React.KeyboardEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    if (isLocked && onLockedClick) {
+      onLockedClick(course);
+    }
+  };
 
   const cardInner = (
     <div
       className={cn(
         'world-region-ribbon flex w-full flex-col gap-3 px-5 py-4 text-white transition-transform duration-200 sm:px-8 sm:py-5',
-        isLocked && 'opacity-60',
+        isLocked && 'opacity-70 cursor-pointer',
         !isLocked && 'hover:-translate-y-0.5',
       )}
       style={{ backgroundColor: region.ribbon }}
+      onClick={isLocked ? handleLockedClick : undefined}
+      role={isLocked ? 'button' : undefined}
+      tabIndex={isLocked ? 0 : undefined}
+      onKeyDown={isLocked ? (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          handleLockedClick(e);
+        }
+      } : undefined}
     >
       <div className="flex flex-wrap items-center gap-1.5">
         {course.isGatekeeper ? (
@@ -664,7 +733,7 @@ function RoadmapCourseNode({
               const stationLabel = `Trạm ${stationNumber}: ${station?.title ?? ''}${isDone ? ', đã xong' : isCurrent ? ', tiếp theo' : ', chưa mở'}`;
               return (
                 <li key={station?.id ?? stationNumber}>
-                  {station && station.status !== 'locked' ? (
+                  {station && !isLocked && (FORCE_UNLOCK_ALL_ISLANDS || station.status !== 'locked') ? (
                     <Link
                       to={`/lesson/${station.id}`}
                       className={dotClassName}
@@ -673,6 +742,19 @@ function RoadmapCourseNode({
                     >
                       {stationNumber}
                     </Link>
+                  ) : isLocked ? (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleLockedClick(e);
+                      }}
+                      className={cn(dotClassName, 'cursor-pointer hover:scale-110 transition-transform')}
+                      aria-label={stationLabel}
+                      title="Bấm để xem điều kiện mở khóa đảo này"
+                    >
+                      {stationNumber}
+                    </button>
                   ) : (
                     <span className={dotClassName} aria-label={stationLabel} aria-disabled="true">
                       {stationNumber}
@@ -686,15 +768,36 @@ function RoadmapCourseNode({
       )}
 
       {isLocked && (
-        <div className="flex items-center gap-3 rounded-2xl border border-white/40 bg-black/10 p-3 text-left">
-          <KidLockImageIcon size={42} className="shrink-0" aria-hidden="true" />
-          <div>
-            <p className="text-sm font-extrabold text-white">Vùng sẽ mở khi con sẵn sàng</p>
-            <p className="mt-0.5 text-xs font-semibold leading-relaxed text-white/90">
-              {course.lockMessage || (course.reasonCode === 'prerequisite_incomplete' && previousRegion
-                ? `Hoàn thành ${previousRegion.name} để mở vùng này.`
-                : 'Hoàn thành điều kiện trong hành trình để mở vùng này.')}
-            </p>
+        <div className="flex flex-col gap-2.5">
+          <button
+            type="button"
+            onClick={handleLockedClick}
+            className="flex items-center gap-3 rounded-2xl border border-white/40 bg-black/20 p-3 text-left hover:bg-black/30 transition-colors w-full cursor-pointer focus-visible:outline focus-visible:outline-2 focus-visible:outline-white"
+          >
+            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-amber-400/20 text-amber-300">
+              <KidLockImageIcon size={38} aria-hidden="true" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-extrabold text-white flex items-center gap-1.5">
+                <span>🛡️ Đảo Đang Khóa</span>
+                <span className="text-[10px] rounded-md bg-white/25 px-1.5 py-0.5 font-black uppercase tracking-wider">Xem điều kiện</span>
+              </p>
+              <p className="mt-0.5 text-xs font-semibold leading-relaxed text-white/90 line-clamp-2">
+                {course.lockMessage || (course.reasonCode === 'prerequisite_incomplete' && previousRegion
+                  ? `Hoàn thành ${previousRegion.name} để mở vùng này.`
+                  : 'Bé hãy hoàn thành Đảo Quy Tắc Vàng AIKI trước để mở khóa nhé!')}
+              </p>
+            </div>
+          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={handleLockedClick}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-amber-400 px-4 py-2 text-xs font-black text-amber-950 shadow-soft hover:bg-amber-300 active:scale-95 transition-all cursor-pointer"
+            >
+              <KidLockImageIcon size={20} aria-hidden="true" />
+              <span>Xem cách mở khóa</span>
+            </button>
           </div>
         </div>
       )}
@@ -715,9 +818,16 @@ function RoadmapCourseNode({
             >
               Học tiếp
             </Link>
-          ) : null}
+          ) : (
+            <Link
+              to={`/world/${course.id}`}
+              className="world-course-primary-action"
+            >
+              Bắt đầu học
+            </Link>
+          )}
           <Link
-            to={isRule ? `/world/${course.id || 'aiki-rules'}` : courseHref}
+            to={isRule ? `/world/${course.id || 'aiki-rules'}` : `/world/${course.id}`}
             className="inline-flex min-h-11 items-center gap-1 rounded-xl px-2 text-sm font-extrabold text-white focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-white"
           >
             {isCompleted ? 'Học lại' : 'Xem toàn bộ trạm'}
@@ -728,15 +838,23 @@ function RoadmapCourseNode({
     </div>
   )
 
-  const card = <div className={cn('w-full', isLocked && 'cursor-not-allowed')}>{cardInner}</div>
+  const card = (
+    <div
+      onClick={isLocked ? handleLockedClick : undefined}
+      className={cn('w-full', isLocked && 'cursor-pointer')}
+    >
+      {cardInner}
+    </div>
+  )
 
   return (
     <li
+      onClick={isLocked ? handleLockedClick : undefined}
       className={cn(
         'world-region-card relative overflow-visible',
         isCompleted && 'world-region-card-completed',
         (isActive || isRecommended) && !isCompleted && 'world-region-card-current',
-        isLocked && 'world-region-card-locked grayscale-[.35]',
+        isLocked && 'world-region-card-locked grayscale-[.35] cursor-pointer',
       )}
     >
       <div className="relative flex min-h-[29rem] flex-col justify-between pt-6 sm:min-h-[32rem] sm:pt-7">
@@ -798,6 +916,7 @@ function LearningWorldScene({ kind }: { kind: LearningWorldKind }) {
 }
 
 function PathwayOverview({ pathway }: { pathway: Pathway }) {
+  const [lockedModalCourse, setLockedModalCourse] = useState<PathwayCourse | null>(null)
   const [selectedSource, setSelectedSource] = useState<PathwayCourse['programSource'] | null>(null)
   // Canonical pathway responses include `enrolled`; status is retained as a
   // defensive fallback for older cached/deployed gateway responses.
@@ -934,11 +1053,17 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
                   : `${sourceRecommended.completedCount ?? 0}/${sourceRecommended.questCount ?? 0} trạm đã hoàn thành`}
               </p>
             </div>
-            <Link to={isAikiRuleCourse(sourceRecommended) ? `/lesson/rule-${currentRuleId}` : (nextStation ? `/lesson/${nextStation.id}` : courseHref(sourceRecommended))}>
-              <Button>
-                {sourceRecommended.status === 'available' && !nextStation ? 'Xem & bắt đầu' : 'Học tiếp'}
+            {sourceRecommended.status === 'locked' ? (
+              <Button onClick={() => setLockedModalCourse(sourceRecommended)}>
+                🔒 Xem điều kiện mở
               </Button>
-            </Link>
+            ) : (
+              <Link to={isAikiRuleCourse(sourceRecommended) ? `/lesson/rule-${currentRuleId}` : (nextStation ? `/lesson/${nextStation.id}` : courseHref(sourceRecommended))}>
+                <Button>
+                  {sourceRecommended.status === 'available' && !nextStation ? 'Xem & bắt đầu' : 'Học tiếp'}
+                </Button>
+              </Link>
+            )}
           </div>
         )}
         {!selectedCategory && (
@@ -1037,6 +1162,7 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
                   index={index}
                   isRecommended={course.id === sourceRecommended?.id}
                   courseHref={courseHref(course)}
+                  onLockedClick={(c) => setLockedModalCourse(c)}
                 />
               ))}
             </ol>
@@ -1065,6 +1191,47 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
           </div>
         </section>
       )}
+
+      {/* Soft Clay Modal khi bấm vào đảo đang bị khóa */}
+      <AdventureModal
+        open={Boolean(lockedModalCourse)}
+        onClose={() => setLockedModalCourse(null)}
+        tone="guidance"
+        eyebrow="🛡️ Đảo Đang Chờ Mở Khóa"
+        title="Đảo Này Đang Chờ Mở Khóa!"
+        description={
+          lockedModalCourse?.lockMessage ||
+          'Bé hãy hoàn thành Đảo Quy Tắc Vàng AIKI trước để nhận Huy hiệu Hiệp Sĩ và mở khóa toàn bộ hành trình sáng tạo nhé!'
+        }
+        artwork={
+          <div className="flex items-center justify-center my-2">
+            <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-100/90 shadow-soft border-2 border-amber-300">
+              <KidLockImageIcon size={52} aria-hidden="true" />
+            </div>
+          </div>
+        }
+        showMascot={true}
+        actions={
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full mt-2">
+            <Link
+              to="/world/aiki-rules"
+              className="w-full sm:w-auto"
+              onClick={() => setLockedModalCourse(null)}
+            >
+              <Button className="w-full">
+                🛡️ Đến Đảo Quy Tắc Ngay
+              </Button>
+            </Link>
+            <Button
+              variant="secondary"
+              onClick={() => setLockedModalCourse(null)}
+              className="w-full sm:w-auto"
+            >
+              Đóng để chọn đảo khác
+            </Button>
+          </div>
+        }
+      />
     </div>
   )
 }

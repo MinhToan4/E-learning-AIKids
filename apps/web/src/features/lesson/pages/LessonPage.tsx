@@ -11,8 +11,11 @@ import {
   AikiPosterModal,
   type ZoomImageData,
 } from '@/features/lesson/components/AikiRuleVisuals'
-import { AikiRuleWorkspace } from '@/features/rules/components/AikiRuleWorkspace'
+import { AikiRuleVideoPlayer } from '@/features/lesson/components/AikiRuleVideoPlayer'
+import { AikiRuleQuiz } from '@/features/lesson/components/AikiRuleQuiz'
+import type { AikiRule } from '@/features/rules/types'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
+import { useRulesProgress } from '@/features/rules/hooks/useRulesProgress'
 import {
   AIKI_RULE_STAGE_METAS,
   parseVersusOption,
@@ -81,7 +84,8 @@ import {
   queueOfflineProgress,
   type OfflineManifest,
 } from '@/features/lesson/lib/offline-learning'
-import { LeftPhaseSidebar, type Phase, type PoseType } from '@/features/lesson/components/LeftPhaseSidebar'
+import { LessonInteractiveSidebar } from '@/features/lesson/components/LessonInteractiveSidebar'
+import type { Phase, PoseType } from '@/features/lesson/components/LessonInteractiveSidebar'
 import { StudentStageBlocksView } from '@/features/lesson/components/StudentStageBlocksView'
 import type { LearnCardDraft } from '@/features/teacher/lib/authoring'
 import { useAikiSituationNarrator } from '@/features/lesson/hooks/useAikiSituationNarrator'
@@ -143,9 +147,110 @@ export function hydrateAikiRuleCard(card: QuestDetail['learnCards'][number]): Qu
   return card
 }
 
+export function createAikiRuleCardsFromData(rule: AikiRule): QuestDetail['learnCards'] {
+  return [
+    // Chặng 0: Tình huống
+    {
+      id: `rule-${rule.id}-situation`,
+      title: `1. Tình huống: ${rule.shortTitle}`,
+      kind: 'situation',
+      body: rule.slides[0]?.dialogue || 'Cùng lắng nghe tình huống nhé!',
+      tip: rule.akiTip,
+      imageUrl: rule.slides[0]?.image || rule.posterImage,
+      dialogueLines: rule.slides.map((s, idx) => ({
+        id: `d-${idx}`,
+        speaker: s.speaker.toLowerCase().includes('sonet') ? 'sonet' : s.speaker.toLowerCase().includes('zico') ? 'zico' : 'aki',
+        role: s.speaker.toLowerCase().includes('sonet') ? 'right' : s.speaker.toLowerCase().includes('zico') ? 'left' : 'center',
+        text: s.dialogue,
+      })),
+      enabledModules: ['images', 'dialogue'],
+      mee: {
+        gesture: 'presentation',
+        readText: rule.slides[0]?.dialogue || 'Cùng lắng nghe tình huống nhé!',
+      },
+    },
+    // Chặng 1: Thử tài
+    {
+      id: `rule-${rule.id}-riddle`,
+      title: '2. Thử tài phản xạ',
+      kind: 'aiki-riddle',
+      body: rule.questions[0]?.prompt || 'Bức tranh nào thể hiện đúng quy tắc?',
+      tip: rule.questions[0]?.hint,
+      optionImages: [
+        rule.slides[1]?.image || `/assets/aiki-rules/rule${rule.id}_opt_a.jpg`,
+        rule.slides[2]?.image || `/assets/aiki-rules/rule${rule.id}_opt_b.jpg`,
+      ],
+      optionLabels: [
+        rule.questions[0]?.options[0] || 'Phương án A',
+        rule.questions[0]?.options[1] || 'Phương án B',
+      ],
+      optionDescs: [
+        rule.questions[0]?.hint || 'Phương án A',
+        rule.questions[0]?.successFeedback || 'Phương án B',
+      ],
+      enabledModules: ['versus-ab'],
+      mee: {
+        gesture: 'think',
+        readText: rule.questions[0]?.prompt || 'Con hãy chọn bức tranh đúng nhé!',
+      },
+    },
+    // Chặng 2: Poster Quy tắc Vàng
+    {
+      id: `rule-${rule.id}-rule`,
+      title: '3. Poster Quy tắc Vàng',
+      kind: 'rule',
+      imageUrl: rule.posterImage,
+      body: rule.audioVoiceText || rule.title,
+      tip: rule.akiTip,
+      enabledModules: ['poster'],
+      mee: {
+        gesture: 'idea',
+        readText: rule.audioVoiceText || rule.title,
+      },
+    },
+    // Chặng 3: Giải thích & So sánh
+    {
+      id: `rule-${rule.id}-explanation`,
+      title: '4. So sánh cùng AIKI',
+      kind: 'explanation',
+      compareData: {
+        leftTitle: 'Kho Dữ Liệu Của AI',
+        leftText: rule.compareMindset?.aiWarehouse || 'AI chỉ lấy những hình ảnh quen thuộc trong kho hàng ngàn mẫu có sẵn. Ai gõ câu giống nhau thì kết quả cũng giống hệt nhau.',
+        rightTitle: 'Bộ Não Sáng Tạo Của Con',
+        rightText: rule.compareMindset?.kidMind || 'Chỉ có con mới có kỷ niệm riêng, cảm xúc thật, gia đình và sự tưởng tượng độc đáo mà AI không thể tự nghĩ ra được!',
+        leftImage: '/assets/aiki-rules/aiki_compare_ai_warehouse.jpg',
+        rightImage: '/assets/aiki-rules/aiki_compare_kid_mind.jpg',
+      },
+      compareImages: {
+        left: '/assets/aiki-rules/aiki_compare_ai_warehouse.jpg',
+        right: '/assets/aiki-rules/aiki_compare_kid_mind.jpg',
+      },
+      enabledModules: ['compare'],
+      mee: {
+        gesture: 'point-left',
+        readText: 'Kho dữ liệu AI chỉ có mẫu quen thuộc, còn ý tưởng độc đáo nằm trong đầu con!',
+      },
+    },
+    // Chặng 4: Cam kết
+    {
+      id: `rule-${rule.id}-closing`,
+      title: '5. Cam kết Hiệp Sĩ',
+      kind: 'closing',
+      imageUrl: rule.posterImage,
+      body: rule.knightCommitment || 'Con cam kết luôn dùng ý tưởng độc đáo của riêng mình!',
+      enabledModules: ['poster'],
+      mee: {
+        gesture: 'celebrate',
+        readText: 'Chúc mừng Hiệp Sĩ Sáng Tạo mới của Xưởng AIKI!',
+      },
+    },
+  ] as QuestDetail['learnCards']
+}
+
 export function LessonPage() {
   const { questId = '' } = useParams()
   const navigate = useNavigate()
+  const { completeRule } = useRulesProgress()
   const [quest, setQuest] = useState<QuestDetail | null>(null)
   const [phase, setPhase] = useState<Phase>('learn')
   const [gameHint, setGameHint] = useState<GameHint | null>(null)
@@ -287,7 +392,7 @@ export function LessonPage() {
 
 
     void (async () => {
-      if (questId.startsWith('rule-') || questId.includes('rule')) {
+      if (questId.startsWith('rule-') || questId === 'aiki-rules') {
         const rId = parseInt(questId.replace(/[^0-9]/g, '') || '1', 10) || 1
         const rData = AIKI_RULES_DATA.find((r) => r.id === rId) || AIKI_RULES_DATA[0]
         setQuest({
@@ -298,10 +403,16 @@ export function LessonPage() {
           duration: `${rData.durationSec}s`,
           hook: rData.title,
           goals: [rData.goal],
-          learnCards: [],
+          learnCards: createAikiRuleCardsFromData(rData),
           stations: { stations: [] },
           practiceKind: 'chips',
-          check: [],
+          check: rData.questions.map((q) => ({
+            id: String(q.id),
+            question: q.prompt,
+            options: q.options,
+            correctIndex: q.correctIndex,
+            explanation: q.successFeedback || q.hint || 'Quy tắc vàng AIKI',
+          })),
         } as any)
         setLoading(false)
         return
@@ -425,12 +536,12 @@ export function LessonPage() {
   const promptText = useMemo(() => assemblePrompt(parts), [parts])
   const isAikiRuleJourney = Boolean(
     questId.startsWith('rule-') ||
-    questId.includes('rule') ||
+    questId === 'aiki-rules' ||
     (quest && (
-      quest.id.includes('aiki') ||
-      quest.id.includes('rule') ||
-      quest.title.toLowerCase().includes('quy tắc') ||
-      quest.title.toLowerCase().includes('quy tac') ||
+      quest.courseId === 'aiki-rules' ||
+      quest.id.startsWith('rule-') ||
+      quest.title.toLowerCase().includes('quy tắc vàng') ||
+      quest.title.toLowerCase().includes('mười quy tắc') ||
       quest.learnCards.some((c) => c.visualItems?.some((item) => item.label === '__AIKI_RULE_STAGE__')) ||
       quest.learnCards.some((c) => c.tip?.includes('__AIKI_RULE_STAGE__')) ||
       (quest.learnCards.length === 5 && quest.learnCards[0]?.id?.includes('situation'))
@@ -448,10 +559,18 @@ export function LessonPage() {
     return 1
   }, [questId, quest?.order, quest?.title])
 
+  const ruleData = useMemo(() => {
+    if (!isAikiRuleJourney) return null
+    return AIKI_RULES_DATA.find((r) => r.id === ruleId) || AIKI_RULES_DATA[0]
+  }, [isAikiRuleJourney, ruleId])
+
   const hydratedLearnCards = useMemo(() => {
     if (!quest) return []
+    if (isAikiRuleJourney && quest.learnCards.length === 0 && ruleData) {
+      return createAikiRuleCardsFromData(ruleData)
+    }
     return quest.learnCards.map(hydrateAikiRuleCard)
-  }, [quest])
+  }, [quest, isAikiRuleJourney, ruleData])
 
   const visibleLearnCards = useMemo(() => {
     if (isAikiRuleJourney) {
@@ -467,6 +586,9 @@ export function LessonPage() {
 
   async function handleAikiFinish() {
     if (!quest || busy) return
+    if (isAikiRuleJourney) {
+      completeRule(ruleId)
+    }
     setBusy(true)
     try {
       const checkRes = await learningApi.submitCheck(quest.id, { answers: [] })
@@ -975,6 +1097,48 @@ export function LessonPage() {
     aikiRuleStage,
   ])
 
+  const currentInteractiveRiddle = useMemo(() => {
+    if (isAikiRuleJourney && ruleData?.questions?.[0]) {
+      const q = ruleData.questions[0]
+      return {
+        id: q.id,
+        question: q.prompt,
+        options: q.options,
+        answer: q.correctIndex,
+        explanation: q.successFeedback,
+        meeHint: q.hint,
+        hints: [
+          '🔍 Tầng 1: Quan sát kỹ số lượng chi tiết hoặc hành động trong hai bức tranh bên trái.',
+          '💡 Tầng 2: Loại bỏ phương án vẽ chung chung hoặc vi phạm quy tắc đạo đức.',
+          q.hint || '🌟 Tầng 3: Tả càng rõ, AI vẽ càng đúng!',
+        ],
+      }
+    }
+    if (quest?.check?.[0]) {
+      const q = quest.check[0] as unknown as {
+        id: string
+        question: string
+        options: string[]
+        correctIndex?: number
+        explanation?: string
+      }
+      return {
+        id: q.id,
+        question: q.question,
+        options: q.options,
+        answer: q.correctIndex ?? 0,
+        explanation: q.explanation || quest.hook,
+        meeHint: quest.hook,
+        hints: [
+          '🔍 Tầng 1: Hãy nhìn kỹ chủ thể chính và bối cảnh của câu hỏi.',
+          '💡 Tầng 2: Đọc kỹ từng từ khóa để tìm ra phương án đầy đủ nhất.',
+          `🌟 Tầng 3: ${quest.hook || 'Tả càng rõ, AKI vẽ càng đúng!'}`,
+        ],
+      }
+    }
+    return undefined
+  }, [isAikiRuleJourney, ruleData, quest])
+
   if (loading) {
     return (
       <p className="animate-pulse text-muted" aria-live="polite">
@@ -1008,25 +1172,12 @@ export function LessonPage() {
     return <p className="text-muted">Không tìm thấy trạm.</p>
   }
 
-  if (isAikiRuleJourney) {
-    return (
-      <AikiRuleWorkspace
-        ruleId={ruleId}
-        courseId={quest?.courseId || 'aiki-rules'}
-        backUrl={`/world/${quest?.courseId || 'aiki-rules'}`}
-        nextUrlPattern={(nextId) => `/lesson/rule-${nextId}`}
-        onCompleteRule={(completedRuleId) => {
-          if (quest?.id) {
-            void learningApi.submitCheck(quest.id, { answers: [] }).catch(() => {})
-          }
-        }}
-      />
-    )
-  }
-
   const allCheckAnswersCorrect =
     quest.check.length > 0 &&
     quest.check.every((question) => answerFeedback[question.id]?.correct)
+
+  const currentLearnVideoUrl = quest?.videoUrl || visibleLearnCards[0]?.videoUrl
+  const currentLearnVideoTitle = visibleLearnCards[0]?.title || quest?.title
 
   return (
     <div className="page-enter flex h-dvh flex-col gap-4 overflow-hidden p-2 sm:p-4 lg:flex-row">
@@ -1209,6 +1360,22 @@ export function LessonPage() {
       )}>
         {phase === 'learn' && (
         <div className={cn("flex flex-col gap-6 animate-fade-up", isSidebarCollapsed ? "w-full max-w-[1400px] mx-auto" : "w-full")}>
+          {/* Video bài giảng quy tắc 16:9 sắc nét đặt ngay trong Mainbar */}
+          {isAikiRuleJourney && ruleData && (
+            <AikiRuleVideoPlayer rule={ruleData} />
+          )}
+
+          {/* Video bài giảng to bản 16:9 sắc nét đặt ở Mainbar cho khóa học thông thường */}
+          {!isAikiRuleJourney && currentLearnVideoUrl && (
+            <div className="rounded-3xl border-2 border-brand-200 bg-white p-3 sm:p-4 shadow-clay overflow-hidden">
+              <div className="flex items-center gap-2 mb-2 text-xs font-black text-brand-700 uppercase tracking-wider">
+                <Play size={15} className="text-brand-600" />
+                <span>Video bài giảng trạm {quest.order || ''}</span>
+              </div>
+              <LectureVideo title={currentLearnVideoTitle || ''} url={currentLearnVideoUrl} />
+            </div>
+          )}
+
           {!isAikiRuleJourney && (
             <div className="rounded-3xl border border-brand-100 bg-gradient-to-r from-brand-50 via-white to-sky-50 p-4 sm:p-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -1318,6 +1485,15 @@ export function LessonPage() {
               )
             })}
           </section>
+
+          {/* Câu hỏi ôn tập 2 câu A/B/C với phản hồi đúng/sai tức thì ở Chặng 1 của Quy Tắc */}
+          {isAikiRuleJourney && aikiRuleStage === 1 && ruleData && ruleData.questions.length > 0 && (
+            <AikiRuleQuiz
+              questions={ruleData.questions}
+              ruleId={ruleId}
+              onNextStage={() => setAikiRuleStage((prev) => Math.min(4, prev + 1))}
+            />
+          )}
 
           {isAikiRuleJourney && (
             <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
@@ -2213,12 +2389,10 @@ export function LessonPage() {
       </main>
       </div>
 
-      <LeftPhaseSidebar
+      <LessonInteractiveSidebar
         isCollapsed={isSidebarCollapsed}
         onToggleCollapse={toggleSidebarCollapse}
         guideCopy={dynamicGuideCopy}
-        videoUrl={phase === 'learn' ? quest?.videoUrl : null}
-        videoTitle={quest?.title}
         phase={phase}
         maxUnlockedPhase={maxUnlockedPhase}
         goals={quest.goals}
@@ -2235,6 +2409,44 @@ export function LessonPage() {
         })) : undefined}
         currentStageIndex={isAikiRuleJourney ? aikiRuleStage : undefined}
         onSelectStage={isAikiRuleJourney ? (idx) => setAikiRuleStage(idx) : undefined}
+        riddle={currentInteractiveRiddle}
+        selectedAnswer={currentInteractiveRiddle ? answers[currentInteractiveRiddle.id] : undefined}
+        onSelectAnswer={(optIdx) => {
+          if (currentInteractiveRiddle) void chooseCheckAnswer(currentInteractiveRiddle.id, optIdx)
+        }}
+        answerFeedback={currentInteractiveRiddle ? answerFeedback[currentInteractiveRiddle.id] : undefined}
+        isChecking={checkingQuestionId !== null}
+        onNextStage={isAikiRuleJourney ? (nextIdx) => setAikiRuleStage(nextIdx) : undefined}
+        onRewardStar={() => {
+          setStarBurst({ id: Date.now(), count: 1 })
+          setLiveStars((prev) => Math.min(3, prev + 1))
+        }}
+        liveStars={liveStars}
+        hasAcknowledgedRule={hasAcknowledgedRule}
+        onAcknowledgeRule={() => {
+          setHasAcknowledgedRule(true)
+          setStarBurst({ id: Date.now(), count: 1 })
+          setManualMeeCue({
+            key: Date.now(),
+            text: 'Xuất sắc! Con đã nắm trọn Quy tắc Vàng này rồi!',
+            gesture: 'celebrate',
+          })
+        }}
+        onOpenPosterModal={() => setIsPosterModalOpen(true)}
+        hasCommitted={hasCommitted}
+        onToggleCommit={() => {
+          setHasCommitted((prev) => !prev)
+          if (!hasCommitted) {
+            setStarBurst({ id: Date.now(), count: 1 })
+            setManualMeeCue({
+              key: Date.now(),
+              text: 'Tuyệt vời! Chào mừng Hiệp Sĩ Sáng Tạo mới của Xưởng AIKI!',
+              gesture: 'celebrate',
+            })
+          }
+        }}
+        onAikiFinish={() => void handleAikiFinish()}
+        busy={busy}
       />
 
       {/* Modals cho AIKI Rule: Phóng to tranh & Tấm Poster Quy Tắc Vàng */}

@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useState } from 'react'
-import { Check, ChevronLeft, ChevronRight, Circle, Lightbulb, MessageCircle, RotateCcw, Square, Target, Volume2 } from 'lucide-react'
+import { Check, ChevronLeft, ChevronRight, Circle, Lightbulb, MessageCircle, Square, Target, Volume2 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
-import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 import { Button } from '@/shared/components/ui/Button'
 import { MeeTutorAvatar, type MeeTutorPose } from './MeeTutorAvatar'
 import type { Gesture } from '@/features/mee-rig/hooks/useMeeCatSpeech'
@@ -307,12 +306,6 @@ export function LeftPhaseSidebar({
             </div>
           )}
 
-          {videoUrl && (
-            <div className="mt-3 w-full animate-fade-up">
-              <LectureVideo title={videoTitle || ''} url={videoUrl} />
-            </div>
-          )}
-
           <div className="mt-3 flex flex-wrap gap-2">
             <Button className="flex-1" variant="secondary" onClick={() => { setShowHint(true); if (showHint && hints.length > 1) setHintLevel((level) => Math.min(level + 1, hints.length - 1)) }} aria-expanded={showHint}>
               <Lightbulb size={18} aria-hidden="true" />
@@ -322,12 +315,6 @@ export function LeftPhaseSidebar({
               {isSpeaking ? <Square size={18} aria-hidden="true" /> : <Volume2 size={18} aria-hidden="true" />}
               {isSpeaking ? 'Dừng' : 'Mee đọc'}
             </Button>
-            {videoUrl && (
-              <Button variant="ghost" onClick={() => setShowHint(false)}>
-                <RotateCcw size={18} aria-hidden="true" />
-                Xem lại
-              </Button>
-            )}
           </div>
 
           <section className="mt-4 border-t-2 border-border pt-4" aria-labelledby="mee-journey-title">

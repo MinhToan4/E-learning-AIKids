@@ -4,6 +4,7 @@ import {
   isAikiRuleCourse,
   isCourseRuleCompleted,
   applyGatekeeperRules,
+  FORCE_UNLOCK_ALL_ISLANDS,
   type PathwayCourse,
 } from './WorldPage'
 
@@ -37,11 +38,16 @@ describe('World pathway enrollment visibility', () => {
 })
 
 describe('Gatekeeper Island (Đảo Quy Tắc Vàng AIKI)', () => {
-  it('identifies rule island by id, title, or index 0', () => {
+  it('exports FORCE_UNLOCK_ALL_ISLANDS set to true for testing', () => {
+    expect(FORCE_UNLOCK_ALL_ISLANDS).toBe(true)
+  })
+
+  it('identifies rule island by id, prefix, or title', () => {
     expect(isAikiRuleCourse({ id: 'aiki-rules', title: 'Khóa học bất kỳ' })).toBe(true)
-    expect(isAikiRuleCourse({ id: 'c-1', title: 'Quy tắc vàng AIKI' })).toBe(true)
-    expect(isAikiRuleCourse({ id: 'c-1', title: 'AI Rule Explorer' })).toBe(true)
-    expect(isAikiRuleCourse({ id: 'c-random', title: 'Sáng tạo truyện tranh' }, 0)).toBe(true)
+    expect(isAikiRuleCourse({ id: 'rule-1', title: 'Khóa học 1' })).toBe(true)
+    expect(isAikiRuleCourse({ id: 'c-1', title: 'Mười quy tắc vàng AIKI' })).toBe(true)
+    expect(isAikiRuleCourse({ id: 'c-0', title: 'Module 0: Nhập môn' })).toBe(true)
+    expect(isAikiRuleCourse({ id: 'c-random', title: 'Sáng tạo truyện tranh' }, 0)).toBe(false)
     expect(isAikiRuleCourse({ id: 'c-random', title: 'Sáng tạo truyện tranh' }, 1)).toBe(false)
   })
 
@@ -52,14 +58,37 @@ describe('Gatekeeper Island (Đảo Quy Tắc Vàng AIKI)', () => {
     expect(isCourseRuleCompleted(course({ status: 'available', questCount: 5, completedCount: 0 }))).toBe(false)
   })
 
-  it('keeps gatekeeper island open and locks all other islands when gatekeeper is incomplete', () => {
+  it('unlocks all islands for boss testing when FORCE_UNLOCK_ALL_ISLANDS is true', () => {
+    const courses: PathwayCourse[] = [
+      course({ id: 'aiki-rules', title: 'Quy tắc vàng AIKI', status: 'locked', questCount: 5, completedCount: 2 }),
+      course({ id: 'course-story', title: 'Đảo kể chuyện', status: 'locked' }),
+      course({ id: 'course-mountain', title: 'Dãy núi sáng tạo', status: 'locked' }),
+    ]
+
+    const result = applyGatekeeperRules(courses)
+
+    // Gatekeeper island must be open, never locked
+    expect(result[0].isGatekeeper).toBe(true)
+    expect(result[0].status).toBe('available')
+
+    // All other islands must be unlocked for testing
+    expect(result[1].status).toBe('available')
+    expect(result[1].reasonCode).toBe('requirements_met')
+    expect(result[1].lockMessage).toBeUndefined()
+
+    expect(result[2].status).toBe('available')
+    expect(result[2].reasonCode).toBe('requirements_met')
+    expect(result[2].lockMessage).toBeUndefined()
+  })
+
+  it('keeps gatekeeper island open and locks all other islands when force unlock is disabled and gatekeeper is incomplete', () => {
     const courses: PathwayCourse[] = [
       course({ id: 'aiki-rules', title: 'Quy tắc vàng AIKI', status: 'locked', questCount: 5, completedCount: 2 }),
       course({ id: 'course-story', title: 'Đảo kể chuyện', status: 'available' }),
       course({ id: 'course-mountain', title: 'Dãy núi sáng tạo', status: 'available' }),
     ]
 
-    const result = applyGatekeeperRules(courses)
+    const result = applyGatekeeperRules(courses, false)
 
     // Gatekeeper island must be open, never locked
     expect(result[0].isGatekeeper).toBe(true)
