@@ -110,6 +110,25 @@ export interface StageBlockItem {
   videoUrl?: string
   formula?: string
   visualItems?: LearnVisualItemDraft[]
+  optionImages?: [string, string] | string[]
+  optionLabels?: [string, string] | string[]
+  optionDescs?: [string, string] | string[]
+  dialogueLines?: DialogueLine[]
+  compareImages?: { left: string; right: string }
+  compareData?: {
+    leftTitle?: string
+    rightTitle?: string
+    leftText?: string
+    rightText?: string
+    leftImage?: string
+    rightImage?: string
+    rows?: Array<{ aspect: string; left: string; right: string }>
+  }
+  additionalImages?: StageImageItem[]
+  posterText?: string
+  posterRuleNumber?: number
+  gesture?: string
+  readText?: string
 }
 
 export type LearnCardDraft = {
@@ -272,8 +291,8 @@ export function createAikiRuleLearnCards(): LearnCardDraft[] {
     imageAlt: '',
     videoUrl: '',
     optionImages: stage.kind === 'aiki-riddle' ? ['', ''] : undefined,
-    optionLabels: stage.kind === 'aiki-riddle' ? ['Ảnh A: Bức tranh của Zico', 'Ảnh B: Bức tranh của Sonet'] : undefined,
-    optionDescs: stage.kind === 'aiki-riddle' ? ['Siêu anh hùng quen thuộc (ai cũng vẽ được)', 'Siêu anh hùng bố cầm vợt muỗi (độc nhất của riêng con)'] : undefined,
+    optionLabels: undefined,
+    optionDescs: undefined,
     dialogueLines: stage.kind === 'situation' ? [
       { id: 'd-1', speaker: 'zico', role: 'left', text: 'Của tớ đẹp hơn!' },
       { id: 'd-2', speaker: 'sonet', role: 'right', text: 'Không, của tớ đúng hơn!' },
@@ -287,7 +306,7 @@ export function createAikiRuleLearnCards(): LearnCardDraft[] {
       rightText: 'Chỉ có con mới có kỷ niệm riêng, cảm xúc thật, gia đình và sự tưởng tượng độc đáo mà AI không thể tự nghĩ ra được!',
     } : undefined,
     compareImages: stage.kind === 'explanation' ? { left: '', right: '' } : undefined,
-    enabledModules: stage.kind === 'situation' ? ['dialogue']
+    enabledModules: stage.kind === 'situation' ? ['images', 'dialogue']
       : stage.kind === 'aiki-riddle' ? ['versus-ab']
       : stage.kind === 'rule' ? ['poster']
       : stage.kind === 'explanation' ? ['compare']
@@ -302,14 +321,19 @@ export function createAikiRuleLearnCards(): LearnCardDraft[] {
   }))
 }
 
+export const createAikiRuleDefaultCards = createAikiRuleLearnCards
+
 export function getActiveModules(card: LearnCardDraft, stageIndex: number): string[] {
   if (Array.isArray(card.enabledModules)) {
     return card.enabledModules
   }
   const modules: string[] = []
+  if (card.imageUrl || (card.additionalImages && card.additionalImages.length > 0)) {
+    modules.push('images')
+  }
+  if (card.videoUrl) modules.push('video')
   if (card.title || card.body || card.tip) modules.push('text')
   if (card.mee?.audioUrl || card.mee?.readText || card.mee?.gesture) modules.push('voice')
-  if (card.videoUrl) modules.push('video')
   if (stageIndex === 0 || card.kind === 'situation' || (card.dialogueLines && card.dialogueLines.length > 0)) {
     modules.push('dialogue')
   }
@@ -321,9 +345,6 @@ export function getActiveModules(card: LearnCardDraft, stageIndex: number): stri
   }
   if (stageIndex === 3 || card.kind === 'explanation' || card.compareData || card.compareImages?.left || card.compareImages?.right) {
     modules.push('compare')
-  }
-  if (card.additionalImages && card.additionalImages.length > 0) {
-    modules.push('images')
   }
   return modules
 }
@@ -340,20 +361,26 @@ export function getStageBlocks(card: LearnCardDraft, stageIndex: number): StageB
   for (const mod of activeMods) {
     if (mod === 'text' || mod === 'layout-text') {
       blocks.push({ id: `blk-text-${stageIndex}`, type: 'text', title: card.title || 'Đoạn văn bản', body: card.body, tip: card.tip })
-    } else if (mod === 'voice') {
-      blocks.push({ id: `blk-voice-${stageIndex}`, type: 'voice' })
     } else if (mod === 'video') {
-      blocks.push({ id: `blk-video-${stageIndex}`, type: 'video' })
+      blocks.push({ id: `blk-video-${stageIndex}`, type: 'video', title: card.title, videoUrl: card.videoUrl })
     } else if (mod === 'dialogue') {
-      blocks.push({ id: `blk-dialogue-${stageIndex}`, type: 'dialogue' })
+      blocks.push({ id: `blk-dialogue-${stageIndex}`, type: 'dialogue', dialogueLines: card.dialogueLines, body: card.body, tip: card.tip })
     } else if (mod === 'versus-ab') {
-      blocks.push({ id: `blk-versus-ab-${stageIndex}`, type: 'versus-ab' })
+      blocks.push({
+        id: `blk-versus-ab-${stageIndex}`,
+        type: 'versus-ab',
+        optionImages: card.optionImages,
+        optionLabels: card.optionLabels,
+        optionDescs: card.optionDescs,
+        body: card.body,
+        tip: card.tip,
+      })
     } else if (mod === 'compare') {
-      blocks.push({ id: `blk-compare-${stageIndex}`, type: 'compare' })
+      blocks.push({ id: `blk-compare-${stageIndex}`, type: 'compare', compareImages: card.compareImages, compareData: card.compareData })
     } else if (mod === 'poster') {
-      blocks.push({ id: `blk-poster-${stageIndex}`, type: 'poster' })
+      blocks.push({ id: `blk-poster-${stageIndex}`, type: 'poster', posterText: card.body, tip: card.tip })
     } else if (mod === 'images') {
-      blocks.push({ id: `blk-images-${stageIndex}`, type: 'images' })
+      blocks.push({ id: `blk-images-${stageIndex}`, type: 'images', imageUrl: card.imageUrl, imageAlt: card.imageAlt, additionalImages: card.additionalImages })
     } else if (mod === 'layout-callout') {
       blocks.push({ id: `blk-callout-${stageIndex}`, type: 'layout-callout', title: 'Hộp Ghi Nhớ Nổi Bật', tip: card.tip })
     } else if (mod === 'layout-formula') {
@@ -364,6 +391,8 @@ export function getStageBlocks(card: LearnCardDraft, stageIndex: number): StageB
       blocks.push({ id: `blk-grid-${stageIndex}`, type: 'layout-grid', title: 'Lưới 3 Ô Thẻ', visualItems: card.visualItems })
     } else if (mod === 'layout-storyboard') {
       blocks.push({ id: `blk-storyboard-${stageIndex}`, type: 'layout-storyboard', title: 'Chuỗi Storyboard', visualItems: card.visualItems })
+    } else if (mod === 'voice') {
+      blocks.push({ id: `blk-voice-${stageIndex}`, type: 'voice', readText: card.mee?.readText, gesture: card.mee?.gesture })
     }
   }
   return blocks

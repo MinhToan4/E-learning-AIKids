@@ -58,6 +58,16 @@ const CourseIntroPage = lazy(() =>
     default: m.CourseIntroPage,
   })),
 )
+const RulesRoadmapPage = lazy(() =>
+  import('@/features/rules/pages/RulesRoadmapPage').then((m) => ({
+    default: m.RulesRoadmapPage,
+  })),
+)
+const RuleLearningPage = lazy(() =>
+  import('@/features/rules/pages/RuleLearningPage').then((m) => ({
+    default: m.RuleLearningPage,
+  })),
+)
 const LessonPage = lazy(() =>
   import('@/features/lesson/pages/LessonPage').then((m) => ({
     default: m.LessonPage,
@@ -357,6 +367,22 @@ export function App() {
               element={
                 <Guard roles={['student']} requireOnboarded>
                   <WorldPage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/rules"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <RulesRoadmapPage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/rules/:ruleId"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <RuleLearningPage />
                 </Guard>
               }
             />

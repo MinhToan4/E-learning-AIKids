@@ -41,55 +41,74 @@ export function strongPrompt(value: PromptLabValue): string {
 
 type StrongPromptKey = 'role' | 'task' | 'context' | 'format'
 
-const PROMPT_PARTS: Array<{
+export const PROMPT_PARTS: Array<{
   key: StrongPromptKey
+  colorName: string
+  colorBadge: string
   label: string
+  keyName: string
   hint: string
   tone: string
   choices: string[]
 }> = [
   {
     key: 'role',
-    label: 'Vai trò',
-    hint: 'AI sẽ hóa thân thành ai?',
-    tone: 'border-brand-200 bg-brand-50 text-brand-700',
+    colorName: 'Xanh',
+    colorBadge: 'bg-sky-500 text-white',
+    label: 'Chìa Xanh: Cái gì',
+    keyName: 'Cái gì',
+    hint: 'Nhân vật hay đồ vật gì? (Con mèo mướp, Cái cốc sứ, Chiếc xe đạp...)',
+    tone: 'border-sky-300 bg-sky-50 text-sky-800',
     choices: [
-      'Hãy đóng vai một họa sĩ minh họa cho trẻ em',
-      'Hãy đóng vai một người kể chuyện sáng tạo',
-      'Hãy đóng vai một trợ lý học tập thân thiện',
+      'Một chú mèo mướp béo',
+      'Một chiếc cốc sứ trắng',
+      'Một chú cún xù màu nâu',
+      'Một chiếc xe đạp mini',
     ],
   },
   {
     key: 'task',
-    label: 'Nhiệm vụ',
-    hint: 'AI cần làm điều gì?',
-    tone: 'border-sky-200 bg-sky-50 text-sky-700',
+    colorName: 'Vàng',
+    colorBadge: 'bg-amber-400 text-amber-950',
+    label: 'Chìa Vàng: Trông như thế nào',
+    keyName: 'Trông như thế nào',
+    hint: 'Màu sắc, đặc điểm ngoại hình? (Lông vằn béo tròn, Sứ mẻ ở miệng...)',
+    tone: 'border-amber-300 bg-amber-50 text-amber-800',
     choices: [
-      'Vẽ một chú mèo cam đang chơi bóng',
-      'Viết một câu chuyện ngắn về tình bạn',
-      'Giải thích ý tưởng bằng từ ngữ dễ hiểu',
+      'Lông vằn màu cam, tròn xoe đáng yêu',
+      'Màu men trắng bóng, có một vết mẻ ở miệng',
+      'Bộ lông xù màu nâu hạt dẻ, tai cụp',
+      'Khung sắt sơn đỏ tươi, có giỏ mây phía trước',
     ],
   },
   {
     key: 'context',
-    label: 'Ngữ cảnh',
-    hint: 'Sản phẩm dành cho ai, ở đâu?',
-    tone: 'border-mint-200 bg-mint-50 text-mint-700',
+    colorName: 'Cam',
+    colorBadge: 'bg-orange-500 text-white',
+    label: 'Chìa Cam: Đang làm gì',
+    keyName: 'Đang làm gì',
+    hint: 'Đang có hành động gì? (Đang ngủ say sưa, Đang bốc khói nghi ngút...)',
+    tone: 'border-orange-300 bg-orange-50 text-orange-800',
     choices: [
-      'Dành cho học sinh 8–11 tuổi',
-      'Trong một khu vườn đầy hoa và ánh nắng',
-      'Dùng ngôn ngữ tích cực, an toàn và dễ hiểu',
+      'Đang nằm ngủ say sưa cuộn tròn',
+      'Đang bốc hơi khói nghi ngút thơm lừng',
+      'Đang nghiêng đầu tò mò vẫy đuôi',
+      'Đang dựng chân chống dựa vào bờ tường',
     ],
   },
   {
     key: 'format',
-    label: 'Định dạng',
-    hint: 'Kết quả cần trông như thế nào?',
-    tone: 'border-sun-200 bg-sun-50 text-sun-700',
+    colorName: 'Đỏ',
+    colorBadge: 'bg-rose-500 text-white',
+    label: 'Chìa Đỏ: Ở đâu',
+    keyName: 'Ở đâu',
+    hint: 'Vị trí bối cảnh ở đâu? (Trên ghế mây cạnh cửa sổ, Trên bàn gỗ...)',
+    tone: 'border-rose-300 bg-rose-50 text-rose-800',
     choices: [
-      'Trình bày thành 3 ý ngắn gọn',
-      'Tranh màu nước, khung vuông, màu ấm',
-      'Một đoạn văn dưới 80 từ và có tiêu đề',
+      'Trên chiếc ghế mây êm ái cạnh cửa sổ đầy nắng',
+      'Trên mặt bàn gỗ sồi cạnh cuốn sổ mở dở',
+      'Dưới bóng râm cây cổ thụ trên thảm cỏ xanh',
+      'Trước hiên nhà lát gạch đỏ ngập tràn hoa',
     ],
   },
 ]
@@ -102,6 +121,7 @@ export function PromptLab({
   onChange: (value: PromptLabValue) => void
 }) {
   const [activeTab, setActiveTab] = useState<StrongPromptKey>('role')
+  const [generatedSuccess, setGeneratedSuccess] = useState(false)
 
   const field = (key: keyof PromptLabValue, next: string) =>
     onChange({ ...value, [key]: next })
@@ -258,6 +278,57 @@ export function PromptLab({
                 })}
               </div>
             </div>
+          </div>
+        </div>
+
+        {/* 4 Keys Status & Instant Validation Generate Button */}
+        <div className="flex flex-col gap-3 rounded-2xl border-4 border-sky-200 bg-white p-4 shadow-sm">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <span className="text-sm font-black text-slate-700">Bộ 4 Chìa Khóa Lệnh (Đảo 1):</span>
+            <span className="text-xs font-bold text-slate-500">
+              {filledPartsCount === 4 ? '🎉 Đủ 4 chìa khóa!' : `Cần cắm đủ 4 chìa (${filledPartsCount}/4)`}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            {PROMPT_PARTS.map((p) => {
+              const hasKey = !!value[p.key]
+              return (
+                <div
+                  key={p.key}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-xl border-2 text-xs font-black transition-all ${
+                    hasKey
+                      ? `${p.tone} border-current shadow-xs`
+                      : 'border-dashed border-slate-200 bg-slate-50 text-slate-400'
+                  }`}
+                >
+                  <span>{hasKey ? '🔑' : '⚪'}</span>
+                  <span className="truncate">{p.label.replace('Chìa ', '')}</span>
+                </div>
+              )
+            })}
+          </div>
+
+          <div className="mt-2 flex flex-col items-center gap-2">
+            <button
+              type="button"
+              disabled={filledPartsCount < 4}
+              onClick={() => setGeneratedSuccess(true)}
+              className={`w-full py-3.5 px-6 rounded-2xl font-black text-base transition-all border-2 ${
+                filledPartsCount === 4
+                  ? 'bg-emerald-500 hover:bg-emerald-600 active:translate-y-1 text-white border-emerald-600 shadow-clay animate-pulse'
+                  : 'bg-slate-200 text-slate-400 border-slate-300 cursor-not-allowed'
+              }`}
+            >
+              {filledPartsCount === 4
+                ? '✨ BẬT SÁNG NÚT TẠO! BẤM ĐỂ TẠO ẢNH NGAY'
+                : `🔒 Nút Tạo đang khóa (Còn thiếu ${4 - filledPartsCount} chìa khóa)`}
+            </button>
+            {generatedSuccess && filledPartsCount === 4 && (
+              <p className="text-center text-xs font-black text-emerald-600 animate-in fade-in">
+                🎉 Tuyệt vời! AKI đã nhận đủ 4 chìa khóa và sẵn sàng vẽ đúng ý tưởng của con!
+              </p>
+            )}
           </div>
         </div>
       </fieldset>

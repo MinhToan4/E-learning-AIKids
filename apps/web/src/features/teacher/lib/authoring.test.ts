@@ -400,6 +400,29 @@ describe('authoring ids and readiness', () => {
     expect(normalizedStage0.contentBlocks![2].id).toBe('blk-video-mid')
     expect(normalizedStage0.contentBlocks![3].id).toBe('blk-callout')
   })
+
+  it('includes images at the beginning when imageUrl is set and enables images for situation stage', () => {
+    const defaultCards = createAikiRuleLearnCards()
+    expect(defaultCards[0].enabledModules).toEqual(['images', 'dialogue'])
+    expect(defaultCards[1].optionLabels).toBeUndefined()
+    expect(defaultCards[1].optionDescs).toBeUndefined()
+
+    // Without enabledModules, imageUrl triggers images module first
+    const cardWithHero: any = {
+      id: 'qt1-situation',
+      title: 'Tình huống',
+      imageUrl: '/assets/aiki-rules/rule1_superhero_dad.jpg',
+      dialogueLines: [{ id: 'd1', speaker: 'zico', role: 'left', text: 'Chào!' }],
+    }
+    const modules = getActiveModules(cardWithHero, 0)
+    expect(modules[0]).toBe('images')
+    expect(modules).toContain('dialogue')
+
+    const blocks = getStageBlocks(cardWithHero, 0)
+    expect(blocks[0].type).toBe('images')
+    expect(blocks[0].imageUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.jpg')
+  })
 })
+
 
 

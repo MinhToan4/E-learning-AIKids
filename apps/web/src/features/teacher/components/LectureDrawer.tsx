@@ -16,7 +16,7 @@
 import { useState, useCallback, useEffect, useId, useRef } from 'react'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
 import { AdventureModal } from '@/shared/components/ui/AdventureModal'
-import { X, CheckCircle2, Circle, Youtube, BookOpen, Gamepad2, Palette, HelpCircle, BookMarked, Target, Lightbulb, Eye, Plus, Trash2, ChevronUp, ChevronDown, BrainCircuit, ScanSearch, ListChecks, PanelsTopLeft, Scale, BookmarkCheck, MessageCircleQuestion, Flag, Clapperboard, Volume2, Trophy, MessageSquareText, Sparkles, Image as ImageIcon, Check, Play, Film, Split, GripVertical, ArrowUp, ArrowDown } from 'lucide-react'
+import { X, CheckCircle2, Circle, Youtube, BookOpen, Gamepad2, Palette, HelpCircle, BookMarked, Target, Lightbulb, Eye, Plus, Trash2, ChevronUp, ChevronDown, BrainCircuit, ScanSearch, ListChecks, PanelsTopLeft, Scale, BookmarkCheck, MessageCircleQuestion, Flag, Clapperboard, Volume2, Trophy, MessageSquareText, Sparkles, Image as ImageIcon, Check, Play, Film, Split, GripVertical, ArrowUp, ArrowDown, ZoomIn } from 'lucide-react'
 import { api } from '@/shared/lib/api'
 import { uploadCmsCourseMedia } from '@/shared/lib/media-api'
 import { cn } from '@/shared/lib/cn'
@@ -390,6 +390,7 @@ function getBlockTitle(type: ContentBlockType, customTitle?: string): string {
 }
 
 function StudentStagePreview({ card, stageIndex }: { card: LearnCardDraft; stageIndex: number }) {
+  const [zoomedImage, setZoomedImage] = useState<{ url: string; title?: string } | null>(null)
   const presentation = LEARN_KIND_PRESENTATION[card.kind] ?? LEARN_KIND_PRESENTATION.example
   const KindIcon = presentation.icon
   const stageName = AIKI_STAGE_NAMES[stageIndex] ?? `Chặng ${stageIndex + 1}`
@@ -446,7 +447,7 @@ function StudentStagePreview({ card, stageIndex }: { card: LearnCardDraft; stage
 
               if (block.type === 'layout-callout') {
                 return (
-                  <div key={block.id} className="rounded-xl border-2 border-amber-300 bg-amber-50/90 p-3 text-amber-950 shadow-2xs">
+                  <div key={block.id} className="rounded-xl border-2 border-amber-300 bg-amber-50/90 p-3 text-amber-950">
                     <p className="text-[11px] font-black uppercase tracking-wider text-amber-800 flex items-center gap-1 mb-1">
                       💡 {block.title || 'Hộp Ghi Nhớ Nổi Bật'}
                     </p>
@@ -567,38 +568,21 @@ function StudentStagePreview({ card, stageIndex }: { card: LearnCardDraft; stage
               }
 
               if (block.type === 'dialogue') {
+                const lines = card.dialogueLines || []
                 return (
-                  <div key={block.id} className="space-y-2 rounded-xl border border-orange-200 bg-orange-50/70 p-3 text-left">
-                    <p className="text-[10px] font-black uppercase tracking-wider text-orange-800 flex items-center gap-1">
-                      <MessageSquareText size={12} /> Kịch bản đối thoại:
-                    </p>
-                    <div className="flex flex-col gap-1.5">
-                      {(card.dialogueLines || []).map((line, lIdx) => {
-                        const isLeft = line.role === 'left' || line.speaker === 'zico'
-                        const isRight = line.role === 'right' || line.speaker === 'sonet'
-                        return (
-                          <div
-                            key={line.id || lIdx}
-                            className={cn(
-                              "flex items-start gap-1.5 text-xs",
-                              isLeft ? "self-start max-w-[90%]" : isRight ? "self-end flex-row-reverse max-w-[90%]" : "self-center w-full justify-center"
-                            )}
-                          >
-                            <span className="grid size-6 place-items-center rounded-full bg-white border border-current/20 text-xs shrink-0">
-                              {isLeft ? '👦' : isRight ? '🧒' : '🐱'}
-                            </span>
-                            <div className={cn(
-                              "rounded-xl px-2.5 py-1.5 text-xs font-semibold leading-relaxed shadow-2xs",
-                              isLeft ? "bg-orange-100 text-orange-950 rounded-tl-none" : isRight ? "bg-sky-100 text-sky-950 rounded-tr-none text-right" : "bg-amber-100 text-amber-950 text-center w-full"
-                            )}>
-                              <span className="block text-[9px] font-black opacity-75 uppercase">
-                                {line.speaker === 'zico' ? 'Zico' : line.speaker === 'sonet' ? 'Sonet' : line.speaker === 'aki' ? 'Mèo AKI' : line.speaker}
-                              </span>
-                              {line.text}
-                            </div>
-                          </div>
-                        )
-                      })}
+                  <div key={block.id} className="space-y-2 rounded-xl border border-border/80 bg-white/80 p-2.5">
+                    <p className="text-[10px] font-black uppercase text-brand-800">💬 Kịch bản Comic ({lines.length} câu)</p>
+                    <div className="space-y-1.5">
+                      {lines.map((line) => (
+                        <div key={line.id} className="flex items-start gap-2 text-xs">
+                          <span className="shrink-0 rounded-md bg-brand-100 px-1.5 py-0.5 font-black text-brand-800">
+                            {line.speaker}
+                          </span>
+                          <p className="flex-1 rounded-lg bg-slate-50 px-2 py-1 text-[11px] font-semibold text-text">
+                            {line.text}
+                          </p>
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )
@@ -608,11 +592,11 @@ function StudentStagePreview({ card, stageIndex }: { card: LearnCardDraft; stage
                 return (
                   <div key={block.id} className="grid grid-cols-2 gap-2">
                     <div className="rounded-xl border border-slate-200 bg-white p-2 text-center">
-                      <span className="text-[10px] font-black text-slate-700">
-                        🤖 {card.compareData?.leftTitle || 'Kho dữ liệu AI'}
+                      <span className="text-[10px] font-black text-slate-800">
+                        🤖 {card.compareData?.leftTitle || 'Trợ lý AI'}
                       </span>
                       {card.compareData?.leftText && (
-                        <p className="mt-0.5 text-[9px] text-slate-600 line-clamp-2">{card.compareData.leftText}</p>
+                        <p className="mt-0.5 text-[9px] text-muted line-clamp-2">{card.compareData.leftText}</p>
                       )}
                       {(card.compareData?.leftImage || card.compareImages?.left) ? (
                         <img src={card.compareData?.leftImage || card.compareImages?.left} alt="Cột trái" className="mt-1.5 aspect-video w-full rounded-lg object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
@@ -653,23 +637,80 @@ function StudentStagePreview({ card, stageIndex }: { card: LearnCardDraft; stage
               }
 
               if (block.type === 'images') {
+                const heroImage = block.imageUrl || card.imageUrl
+                const additionalImgs = block.additionalImages || card.additionalImages || []
+
                 return (
-                  <div key={block.id} className="space-y-2">
-                    <p className="text-[10px] font-black uppercase text-brand-800">📷 Ảnh minh họa bổ sung ({(card.additionalImages || []).length}):</p>
-                    <div className="grid grid-cols-2 gap-2">
-                      {(card.additionalImages || []).map((imgItem, imgIdx) => (
-                        <div key={imgItem.id || imgIdx} className="overflow-hidden rounded-xl border border-current/20 bg-white/90 p-1 text-center">
-                          {imgItem.url ? (
-                            <img src={imgItem.url} alt={imgItem.alt || 'Ảnh'} className="aspect-video w-full rounded-lg object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
-                          ) : (
-                            <div className="aspect-video rounded-lg bg-slate-100 grid place-items-center text-[10px] text-muted">Chưa có ảnh</div>
-                          )}
-                          {imgItem.caption && (
-                            <p className="mt-1 text-[9px] font-bold text-text truncate">{imgItem.caption}</p>
-                          )}
+                  <div key={block.id} className="space-y-3">
+                    {/* Ảnh chính Hero Image to bản */}
+                    {heroImage && (
+                      <div className="relative overflow-hidden rounded-2xl border-2 border-emerald-200 bg-emerald-50/60 p-2 group/art">
+                        <img
+                          src={heroImage}
+                          alt={block.imageAlt || card.imageAlt || block.title || card.title || 'Ảnh chính chặng'}
+                          className="w-full max-h-[280px] object-contain rounded-xl mx-auto transition-transform duration-300 group-hover/art:scale-101"
+                          onError={(e) => { e.currentTarget.style.display = 'none' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setZoomedImage({
+                            url: heroImage,
+                            title: block.title || card.title || `Ảnh chính Chặng ${stageIndex + 1}`,
+                          })}
+                          className="absolute bottom-3 right-3 z-10 flex items-center gap-1 rounded-full bg-black/75 px-2.5 py-1 text-[10px] font-black text-white backdrop-blur-xs transition hover:bg-black/90 cursor-pointer shadow-xs"
+                          title="Phóng to xem ảnh"
+                        >
+                          <ZoomIn size={12} />
+                          <span>🔍 Xem to</span>
+                        </button>
+                      </div>
+                    )}
+
+                    {/* Danh sách ảnh minh họa bổ sung */}
+                    {additionalImgs.length > 0 && (
+                      <div className="space-y-1.5">
+                        <p className="text-[10px] font-black uppercase text-brand-800">
+                          📷 Ảnh minh họa bổ sung ({additionalImgs.length}):
+                        </p>
+                        <div className="grid grid-cols-2 gap-2">
+                          {additionalImgs.map((imgItem, imgIdx) => (
+                            <div key={imgItem.id || imgIdx} className="group relative overflow-hidden rounded-xl border border-emerald-100 bg-white/95 p-1 text-center shadow-2xs">
+                              {imgItem.url ? (
+                                <>
+                                  <img
+                                    src={imgItem.url}
+                                    alt={imgItem.alt || 'Ảnh'}
+                                    className="aspect-video w-full rounded-lg object-cover"
+                                    onError={(e) => { e.currentTarget.style.display = 'none' }}
+                                  />
+                                  <button
+                                    type="button"
+                                    onClick={() => setZoomedImage({
+                                      url: imgItem.url,
+                                      title: imgItem.caption || `Ảnh minh họa #${imgIdx + 1}`,
+                                    })}
+                                    className="absolute bottom-2 right-2 flex items-center gap-0.5 rounded bg-black/60 px-1.5 py-0.5 text-[9px] font-bold text-white opacity-0 group-hover:opacity-100 transition cursor-pointer"
+                                  >
+                                    <ZoomIn size={10} />
+                                  </button>
+                                </>
+                              ) : (
+                                <div className="aspect-video rounded-lg bg-slate-100 grid place-items-center text-[10px] text-muted">Chưa có ảnh</div>
+                              )}
+                              {imgItem.caption && (
+                                <p className="mt-1 text-[9px] font-bold text-text truncate">{imgItem.caption}</p>
+                              )}
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
+                      </div>
+                    )}
+
+                    {!heroImage && additionalImgs.length === 0 && (
+                      <div className="rounded-xl border border-dashed border-emerald-200 bg-emerald-50/40 p-3 text-center text-xs font-bold text-emerald-800">
+                        Chưa có ảnh minh họa nào.
+                      </div>
+                    )}
                   </div>
                 )
               }
@@ -699,6 +740,37 @@ function StudentStagePreview({ card, stageIndex }: { card: LearnCardDraft; stage
           </div>
         )}
       </article>
+
+      {/* Modal phóng to ảnh */}
+      {zoomedImage && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 backdrop-blur-xs p-4"
+          onClick={() => setZoomedImage(null)}
+        >
+          <div
+            className="relative max-h-[85vh] max-w-2xl w-full rounded-2xl bg-white p-4 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between pb-2 border-b border-border/80">
+              <span className="text-xs font-black text-text truncate">{zoomedImage.title || 'Xem ảnh phóng to'}</span>
+              <button
+                type="button"
+                onClick={() => setZoomedImage(null)}
+                className="grid size-7 place-items-center rounded-lg hover:bg-slate-100 text-muted hover:text-text cursor-pointer"
+              >
+                <X size={15} />
+              </button>
+            </div>
+            <div className="mt-3 flex items-center justify-center max-h-[70vh] overflow-auto">
+              <img
+                src={zoomedImage.url}
+                alt={zoomedImage.title || 'Ảnh phóng to'}
+                className="max-h-[68vh] w-auto object-contain rounded-xl shadow-md"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </aside>
   )
 }

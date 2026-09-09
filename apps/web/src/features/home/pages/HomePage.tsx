@@ -58,6 +58,26 @@ export function coursesWithEnrollments(
 }
 
 
+export function isOfficialAikiIsland(c: CourseSummary): boolean {
+  const key = `${c.courseKey ?? ''} ${c.id}`.toLowerCase()
+  const title = (c.title || '').toLowerCase()
+  // Explicitly hide scratch-101 and legacy scratch courses
+  if (key.includes('scratch') || title.includes('scratch')) return false
+  return true
+}
+
+export function getAikiIslandSortOrder(c: CourseSummary): number {
+  const key = `${c.courseKey ?? ''} ${c.id}`.toLowerCase()
+  const title = (c.title || '').toLowerCase()
+  if (key.includes('muoi-quy-tac') || title.includes('quy tắc') || title.includes('module 0')) return 0
+  if (key.includes('dao-1') || title.includes('module 1') || title.includes('thám hiểm')) return 1
+  if (key.includes('dao-2') || title.includes('module 2') || title.includes('hoạ sĩ')) return 2
+  if (key.includes('dao-3') || title.includes('module 3') || title.includes('nhân vật')) return 3
+  if (key.includes('dao-4') || title.includes('module 4') || title.includes('truyện tranh')) return 4
+  if (key.includes('dao-5') || title.includes('module 5') || title.includes('trò chơi')) return 5
+  return 99
+}
+
 export function courseBadge(course: CourseSummary) {
   const level = `${course.courseKey ?? ''} ${course.id}`.match(/(?:^|[^a-z0-9])l([12])(?:[^a-z0-9]|$)/i)
   return level ? `L${level[1]}` : 'AI'
@@ -144,13 +164,16 @@ function CourseCard({ course, index }: { course: CourseSummary; index: number })
       ? Math.round((completedCount / questCount) * 100)
       : 0
   )
-  const courseTones = ['var(--color-mint-600)', 'var(--color-sun-600)', 'var(--color-sky-600)']
+  const courseTones = ['#7c3aed', '#10b981', '#f59e0b', '#0284c7', '#ec4899', '#8b5cf6']
   const courseScenes = [
     designerAssets.worldScenes.aiValley,
     designerAssets.worldScenes.storyIsland,
     designerAssets.worldScenes.creativeMountain,
+    designerAssets.worldScenes.aiValley,
+    designerAssets.worldScenes.storyIsland,
+    designerAssets.worldScenes.creativeMountain,
   ]
-  const coursePoses = ['guide', 'thinking', 'celebrate'] as const
+  const coursePoses = ['guide', 'thinking', 'celebrate', 'support', 'thinking', 'celebrate'] as const
   const courseStyle = { '--home-course-accent': courseTones[index % courseTones.length] } as CSSProperties
 
   return (
@@ -389,7 +412,10 @@ export function HomePage() {
     }
   }, [user])
 
-  const open = courses.filter((c) => c.status === 'open')
+  const open = courses
+    .filter((c) => c.status === 'open')
+    .filter(isOfficialAikiIsland)
+    .sort((a, b) => getAikiIslandSortOrder(a) - getAikiIslandSortOrder(b))
   // A child only sees courses explicitly selected by their parent. Adult
   // contexts keep the full catalog for discovery and administration.
   const accessibleCourses =

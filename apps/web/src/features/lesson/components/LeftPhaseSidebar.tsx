@@ -105,7 +105,7 @@ export function LeftPhaseSidebar({
   return (
     <aside className={cn(
       'lesson-guide-panel fixed bottom-20 right-3 z-30 max-h-[calc(100dvh-7rem)] shrink-0 self-start overflow-y-auto rounded-3xl border-2 border-brand-200 bg-white p-3 shadow-clay transition-[width] duration-200 lg:sticky lg:top-4 lg:bottom-auto lg:right-auto lg:z-auto',
-      collapsed ? 'w-[68px] sm:w-[76px]' : 'w-[min(22rem,calc(100vw-1.5rem))] lg:w-[300px]',
+      collapsed ? 'w-[68px] sm:w-[76px]' : 'w-[min(22rem,calc(100vw-1.5rem))] lg:w-[35%] xl:w-[32%]',
       className
     )} aria-labelledby="lesson-guide-title">
       {collapsed ? (

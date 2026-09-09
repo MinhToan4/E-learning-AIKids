@@ -89,6 +89,7 @@ function useMediaQuery(query: string) {
 }
 
 function studentFeatureTone(pathname: string): StudentFeatureTone {
+  if (pathname.startsWith('/rules')) return 'sun'
   if (pathname.startsWith('/asmo')) return 'sky'
   if (pathname.startsWith('/lab/mee-cat') || pathname.startsWith('/mee-cat-studio')) return 'sky'
   if (pathname.startsWith('/world') || pathname.startsWith('/course') || pathname.startsWith('/lesson')) return 'sky'
@@ -183,6 +184,7 @@ const studentPinnedNav: StudentNavItem[] = [
   { to: '/progress', label: 'Tiến bộ', icon: KidProgressImageIcon, tone: 'mint' },
 ]
 const studentDrawerNav: StudentNavItem[] = [
+  { to: '/rules',        label: 'Quy tắc',  icon: KidBadgeImageIcon, tone: 'sun' },
   { to: '/asmo',         label: 'Olympic 3D', icon: KidBadgeImageIcon, tone: 'sky' },
   { to: '/events',       label: 'Sự kiện', icon: KidEventImageIcon, tone: 'coral' },
   { to: '/storybook',    label: 'Huyền thoại', icon: KidStorybookImageIcon, tone: 'coral' },
@@ -193,11 +195,13 @@ const studentDrawerNav: StudentNavItem[] = [
 ]
 // Cấp độ là trang chi tiết mở theo ngữ cảnh từ Hồ sơ, không phải đích điều hướng chính.
 const studentNav: StudentNavItem[] = [
-  ...studentPinnedNav,
-  ...studentDrawerNav.slice(0, 1),
-  ...studentDrawerNav.slice(2, 3),
+  ...studentPinnedNav.slice(0, 2),
+  { to: '/rules',        label: 'Quy tắc',  icon: KidBadgeImageIcon, tone: 'sun' },
+  ...studentPinnedNav.slice(2),
   ...studentDrawerNav.slice(1, 2),
-  ...studentDrawerNav.slice(3),
+  ...studentDrawerNav.slice(3, 4),
+  ...studentDrawerNav.slice(2, 3),
+  ...studentDrawerNav.slice(4),
 ]
 
 // ── Desktop sidebar nav (vertical) ───────────────────────────

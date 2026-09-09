@@ -31,7 +31,9 @@ type Props = {
     outcomesText: string
     credential: string
     finalAssessment: string
+    isGatekeeper?: boolean
   } | null   // null = create mode
+  hasExistingGatekeeper?: boolean
   onSaved: (courseId?: string) => void
   onClose: () => void
 }
@@ -46,8 +48,12 @@ function emptyDraft(): CourseDraft {
   }
 }
 
-export function CourseFormModal({ course, onSaved, onClose }: Props) {
+export function CourseFormModal({ course, hasExistingGatekeeper = false, onSaved, onClose }: Props) {
   const [draft, setDraft] = useState<CourseDraft>(() => course ? { ...course } : emptyDraft())
+  const [isGatekeeper, setIsGatekeeper] = useState<boolean>(() => {
+    if (course?.id === 'aiki-rules' || course?.title?.toLowerCase().includes('quy tắc')) return true
+    return false
+  })
   const [saving, setSaving] = useState(false)
   const [activeTab, setActiveTab] = useState<'basics' | 'outcomes' | 'recognition'>('basics')
   const { showToast } = useToast()
@@ -88,6 +94,7 @@ export function CourseFormModal({ course, onSaved, onClose }: Props) {
         outcomes: draft.outcomesText.split('\n').map((s) => s.trim()).filter(Boolean),
         credential: automaticCredential,
         finalAssessment: automaticCompletion,
+        isGatekeeper,
       }
 
       if (isEdit) {
@@ -205,6 +212,78 @@ export function CourseFormModal({ course, onSaved, onClose }: Props) {
           {/* ── BASICS ── */}
           {activeTab === 'basics' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.875rem' }}>
+              {/* Lựa chọn loại đảo theo quy định CMS */}
+              <div style={{
+                padding: '0.875rem', borderRadius: '0.75rem',
+                background: '#f1f5f9', border: '1px solid #cbd5e1',
+                marginBottom: '0.25rem',
+              }}>
+                <label style={{ display: 'block', fontSize: '0.8125rem', fontWeight: 700, color: '#0f172a', marginBottom: '0.5rem' }}>
+                  Loại Đảo / Chương Trình Học Tập *
+                </label>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.5rem' }}>
+                  {/* Option 1: Standard Learning Island */}
+                  <button
+                    type="button"
+                    onClick={() => setIsGatekeeper(false)}
+                    style={{
+                      padding: '0.75rem', borderRadius: '0.625rem', textAlign: 'left',
+                      border: !isGatekeeper ? '2px solid #6366f1' : '1px solid #e2e8f0',
+                      background: !isGatekeeper ? '#eef2ff' : '#fff',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: '#1e1b4b', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <span>📚 Đảo Khóa Học Thường</span>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#64748b', marginTop: '0.25rem' }}>
+                      Các bài học khám phá, sáng tạo thông thường
+                    </div>
+                  </button>
+
+                  {/* Option 2: Gatekeeper Rule Island */}
+                  <button
+                    type="button"
+                    disabled={hasExistingGatekeeper && !isEdit}
+                    onClick={() => {
+                      setIsGatekeeper(true)
+                      if (!isEdit) {
+                        setDraft((prev) => ({
+                          ...prev,
+                          id: 'aiki-rules',
+                          title: 'Quy tắc vàng AIKI',
+                          shortTitle: '10 Quy Tắc Vàng',
+                          tagline: 'Mười quy tắc của Xưởng sáng tạo AIKid',
+                          description: 'Khám phá 10 bí quyết để trở thành Nhà Sáng Tạo AI nhí thông thái trước khi bước vào Xưởng sáng tạo.',
+                          productLabel: 'Bộ sưu tập 10 Poster Vàng in treo bàn học',
+                          ageTrack: '8–11 tuổi',
+                          courseKey: 'AIKI-RULES',
+                          durationLabel: '10 bài ngắn',
+                          skillsText: 'Nghĩ ý tưởng trước khi hỏi AI\nViết xong nội dung mới gửi cho AI\nBảo vệ hình ảnh và thông tin cá nhân',
+                          outcomesText: 'Hoàn thành 10 quy tắc vàng\nNhận Huy hiệu Hiệp Sĩ Sáng Tạo\nMở khóa toàn bộ các hòn đảo học tập',
+                        }))
+                      }
+                    }}
+                    style={{
+                      padding: '0.75rem', borderRadius: '0.625rem', textAlign: 'left',
+                      border: isGatekeeper ? '2px solid #f59e0b' : '1px solid #e2e8f0',
+                      background: isGatekeeper ? '#fef3c7' : (hasExistingGatekeeper && !isEdit ? '#f8fafc' : '#fff'),
+                      opacity: hasExistingGatekeeper && !isEdit ? 0.6 : 1,
+                      cursor: hasExistingGatekeeper && !isEdit ? 'not-allowed' : 'pointer',
+                    }}
+                  >
+                    <div style={{ fontWeight: 700, fontSize: '0.8125rem', color: '#78350f', display: 'flex', alignItems: 'center', gap: '0.25rem' }}>
+                      <span>🛡️ Đảo Quy Tắc Vàng</span>
+                    </div>
+                    <div style={{ fontSize: '0.75rem', color: '#92400e', marginTop: '0.25rem' }}>
+                      {hasExistingGatekeeper && !isEdit
+                        ? 'Đã có 1 Đảo Quy Tắc trong lộ trình'
+                        : 'Cửa ngõ tiên quyết (Mỗi lộ trình duy nhất 1 đảo)'}
+                    </div>
+                  </button>
+                </div>
+              </div>
+
               <FormField label="Tên vùng/khóa học *">
                 <input type="text" value={draft.title} onChange={(e) => set('title', e.target.value)} placeholder="VD: AI Nhí — Tập 1: Khám Phá Thế Giới AI" style={inputStyle} />
               </FormField>
