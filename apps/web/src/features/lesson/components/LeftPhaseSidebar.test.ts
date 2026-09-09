@@ -70,4 +70,19 @@ describe('LeftPhaseSidebar', () => {
     expect(markup).not.toContain('Mục tiêu của con')
     expect(markup).not.toContain('Không nên hiển thị')
   })
+
+  it('renders collapsed dock mode with mini avatar and expand action', () => {
+    const markup = renderToStaticMarkup(
+      createElement(LeftPhaseSidebar, {
+        guideCopy: { eyebrow: 'Hi', title: 'Test Title', body: 'Test Body', pose: 'welcome' as const },
+        phase: 'learn',
+        maxUnlockedPhase: 'practice',
+        goals: ['Mục tiêu'],
+        isCollapsed: true,
+      })
+    )
+
+    expect(markup).toContain('Mở rộng trợ lý Mee')
+    expect(markup).toContain('w-[68px] sm:w-[76px]')
+  })
 })

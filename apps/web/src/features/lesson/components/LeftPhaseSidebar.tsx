@@ -32,6 +32,8 @@ interface Props {
   stages?: Array<{ id: string; label: string; kind?: string }>
   currentStageIndex?: number
   onSelectStage?: (index: number) => void
+  isCollapsed?: boolean
+  onToggleCollapse?: (collapsed: boolean) => void
 }
 
 const LEARNING_STEPS = [
@@ -43,9 +45,35 @@ const LEARNING_STEPS = [
 
 const PHASE_ORDER: Phase[] = ['learn', 'game', 'practice', 'check', 'done']
 
-export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, phase, maxUnlockedPhase, goals, product, successCriteria = [], narrationText, hints = [], autoRead = false, gesture = 'presentation', narrationKey, stages, currentStageIndex, onSelectStage }: Props) {
+export function LeftPhaseSidebar({
+  className,
+  guideCopy,
+  videoUrl,
+  videoTitle,
+  phase,
+  maxUnlockedPhase,
+  goals,
+  product,
+  successCriteria = [],
+  narrationText,
+  hints = [],
+  autoRead = false,
+  gesture = 'presentation',
+  narrationKey,
+  stages,
+  currentStageIndex,
+  onSelectStage,
+  isCollapsed,
+  onToggleCollapse,
+}: Props) {
   const [showHint, setShowHint] = useState(false)
-  const [collapsed, setCollapsed] = useState(false)
+  const [internalCollapsed, setInternalCollapsed] = useState(false)
+  const collapsed = isCollapsed !== undefined ? isCollapsed : internalCollapsed
+  const setCollapsed = (val: boolean | ((prev: boolean) => boolean)) => {
+    const nextVal = typeof val === 'function' ? val(collapsed) : val
+    setInternalCollapsed(nextVal)
+    onToggleCollapse?.(nextVal)
+  }
   const [isSpeaking, setIsSpeaking] = useState(false)
   const [hintLevel, setHintLevel] = useState(0)
   const currentPhaseIndex = PHASE_ORDER.indexOf(phase === 'done' ? 'check' : phase)
@@ -64,8 +92,10 @@ export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, p
     setHintLevel(0)
     stopSpeaking()
     if (!autoRead || !speechText.trim()) return
-    const timer = window.setTimeout(() => setIsSpeaking(true), 250)
-    return () => window.clearTimeout(timer)
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window && window.speechSynthesis.paused) {
+      window.speechSynthesis.resume()
+    }
+    setIsSpeaking(true)
   }, [autoRead, narrationKey, speechText, stopSpeaking])
 
   useEffect(() => stopSpeaking, [stopSpeaking])
@@ -75,14 +105,28 @@ export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, p
   return (
     <aside className={cn(
       'lesson-guide-panel fixed bottom-20 right-3 z-30 max-h-[calc(100dvh-7rem)] shrink-0 self-start overflow-y-auto rounded-3xl border-2 border-brand-200 bg-white p-3 shadow-clay transition-[width] duration-200 lg:sticky lg:top-4 lg:bottom-auto lg:right-auto lg:z-auto',
-      collapsed ? 'w-[72px]' : 'w-[min(22rem,calc(100vw-1.5rem))] lg:w-[280px]',
+      collapsed ? 'w-[68px] sm:w-[76px]' : 'w-[min(22rem,calc(100vw-1.5rem))] lg:w-[300px]',
       className
     )} aria-labelledby="lesson-guide-title">
       {collapsed ? (
-        <div className="flex flex-col items-center gap-2">
-          <MeeTutorAvatar pose={guideCopy.pose} className="size-12" />
-          <span className="font-display text-sm text-brand-800">Mee</span>
-          <span className="rounded-xl bg-brand-50 px-2 py-1 text-center text-[11px] font-extrabold leading-tight text-brand-700">{currentPhaseLabel}</span>
+        <div className="flex flex-col items-center gap-2.5 py-1">
+          <div
+            className="relative group cursor-pointer"
+            onClick={() => setCollapsed(false)}
+            title="Mở rộng trợ lý Mee"
+          >
+            <MeeTutorAvatar
+              pose={guideCopy.pose}
+              className="size-12 sm:size-14 transition-transform group-hover:scale-110"
+              isSpeaking={isSpeaking}
+              speechText={activeSpeechText}
+              gesture={gesture}
+              onSpeechEnd={() => setIsSpeaking(false)}
+            />
+            <span className="absolute -bottom-1 -right-1 size-3.5 rounded-full bg-mint-500 border-2 border-white shadow-2xs" />
+          </div>
+          <span className="font-display text-xs sm:text-sm font-black text-brand-800">Mee</span>
+          <span className="rounded-xl bg-brand-50 px-2 py-1 text-center text-[10px] sm:text-[11px] font-extrabold leading-tight text-brand-700 max-w-[64px] truncate">{currentPhaseLabel}</span>
           {isAikiMode ? (
             <div className="my-1 grid gap-2" aria-label={`Tiến trình trạm: chặng ${Math.min((currentStageIndex ?? 0) + 1, stages!.length)} trên ${stages!.length}`}>
               {stages!.map((step, index) => (
@@ -91,7 +135,7 @@ export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, p
                   type="button"
                   onClick={() => onSelectStage?.(index)}
                   className={cn(
-                    'size-3 rounded-full border-2 transition-transform hover:scale-125',
+                    'size-3 rounded-full border-2 transition-transform hover:scale-125 cursor-pointer',
                     index < (currentStageIndex ?? 0)
                       ? 'border-mint-500 bg-mint-500'
                       : index === (currentStageIndex ?? 0)
@@ -129,8 +173,9 @@ export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, p
                 setCollapsed(false)
                 setShowHint(true)
               }}
-              className="grid size-11 place-items-center rounded-2xl border-2 border-sun-200 bg-sun-50 text-sun-700"
+              className="grid size-11 place-items-center rounded-2xl border-2 border-sun-200 bg-sun-50 text-sun-700 hover:bg-sun-100 transition shadow-xs"
               aria-label="Mở gợi ý từ Mee"
+              title="Mở gợi ý từ Mee"
             >
               <Lightbulb size={20} aria-hidden="true" />
             </button>
@@ -138,8 +183,9 @@ export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, p
           <button
             type="button"
             onClick={() => setCollapsed(false)}
-            className="grid size-11 place-items-center rounded-2xl border-2 border-brand-200 bg-brand-50 text-brand-700"
-            aria-label="Mở trợ giảng Mee"
+            className="grid size-11 place-items-center rounded-2xl border-2 border-brand-200 bg-brand-50 text-brand-700 hover:bg-brand-100 hover:scale-105 transition shadow-xs cursor-pointer"
+            aria-label="Mở rộng trợ lý Mee"
+            title="Mở rộng trợ lý Mee"
           >
             <ChevronLeft size={20} aria-hidden="true" />
           </button>
@@ -167,8 +213,9 @@ export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, p
             <button
               type="button"
               onClick={() => setCollapsed(true)}
-              className="grid size-11 shrink-0 place-items-center rounded-2xl border-2 border-border bg-white text-brand-700 hover:bg-brand-50 transition"
+              className="grid size-11 shrink-0 place-items-center rounded-2xl border-2 border-border bg-white text-brand-700 hover:bg-brand-50 transition shadow-xs cursor-pointer"
               aria-label="Thu gọn trợ giảng Mee"
+              title="Thu gọn trợ lý Mee để mở rộng không gian học"
             >
               <ChevronRight size={20} aria-hidden="true" />
             </button>
@@ -240,8 +287,9 @@ export function LeftPhaseSidebar({ className, guideCopy, videoUrl, videoTitle, p
             <button
               type="button"
               onClick={() => setCollapsed(true)}
-              className="grid size-11 shrink-0 place-items-center rounded-2xl border-2 border-border bg-white text-brand-700"
+              className="grid size-11 shrink-0 place-items-center rounded-2xl border-2 border-border bg-white text-brand-700 hover:bg-brand-50 transition shadow-xs cursor-pointer"
               aria-label="Thu gọn trợ giảng Mee"
+              title="Thu gọn trợ lý Mee để mở rộng không gian học"
             >
               <ChevronRight size={20} aria-hidden="true" />
             </button>

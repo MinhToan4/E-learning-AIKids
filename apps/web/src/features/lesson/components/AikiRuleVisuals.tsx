@@ -6,12 +6,12 @@ import { cn } from '@/shared/lib/cn'
 // ── 1. FALLBACK TRANH ZICO (Hallmark Craft / SVG) ──────────────────────────
 export function ZicoDrawingFallback({ className }: { className?: string }) {
   return (
-    <div className={cn("relative size-full flex flex-col items-center justify-between p-3 bg-gradient-to-b from-amber-50/90 via-orange-50/70 to-amber-100/60 select-none overflow-hidden", className)}>
+    <div className={cn("relative size-full min-h-[280px] sm:min-h-[340px] flex flex-col items-center justify-between p-3.5 bg-gradient-to-b from-amber-50/90 via-orange-50/70 to-amber-100/60 select-none overflow-hidden", className)}>
       {/* Khung viền sáp vẽ nét đứt trẻ em */}
       <div className="absolute inset-1 rounded-2xl border-2 border-dashed border-amber-300/80 pointer-events-none" />
 
       {/* Đồ họa SVG Tranh Zico: Siêu nhân rập khuôn theo phim */}
-      <svg viewBox="0 0 320 220" className="w-full max-h-[75%] drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 320 220" className="w-full max-h-[78%] drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="skyGradZico" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#bae6fd" />
@@ -83,9 +83,9 @@ export function ZicoDrawingFallback({ className }: { className?: string }) {
       </svg>
 
       {/* Nhãn ghi chú tranh vẽ sáp của Zico */}
-      <div className="z-10 mt-1 flex items-center gap-1.5 rounded-full border-2 border-amber-300 bg-white/95 px-3 py-1 text-center shadow-xs">
-        <span className="text-xs">🎨</span>
-        <span className="text-[11px] font-black text-amber-900 tracking-tight">
+      <div className="z-10 mt-1.5 flex items-center gap-2 rounded-full border-2 border-amber-300 bg-white/95 px-3.5 py-1.5 text-center shadow-xs">
+        <span className="text-sm">🎨</span>
+        <span className="text-xs sm:text-sm font-black text-amber-900 tracking-tight">
           Bức của Zico: Siêu nhân quen thuộc (ai cũng vẽ giống nhau)
         </span>
       </div>
@@ -96,15 +96,15 @@ export function ZicoDrawingFallback({ className }: { className?: string }) {
 // ── 2. FALLBACK TRANH SONET (Hallmark Craft / SVG) ─────────────────────────
 export function SonetDrawingFallback({ className }: { className?: string }) {
   return (
-    <div className={cn("relative size-full flex flex-col items-center justify-between p-3 bg-gradient-to-b from-sky-50/95 via-indigo-50/70 to-sky-100/60 select-none overflow-hidden", className)}>
+    <div className={cn("relative size-full min-h-[280px] sm:min-h-[340px] flex flex-col items-center justify-between p-3.5 bg-gradient-to-b from-sky-50/95 via-indigo-50/70 to-sky-100/60 select-none overflow-hidden", className)}>
       {/* Khung viền nét vẽ và ghim kẹp giấy mint */}
       <div className="absolute inset-1 rounded-2xl border-2 border-dashed border-sky-300/80 pointer-events-none" />
-      <div className="absolute top-2 left-4 z-10 flex items-center gap-1 rounded-sm bg-mint-400 px-2 py-0.5 text-[9px] font-black text-white shadow-xs rotate-[-3deg]">
+      <div className="absolute top-2 left-4 z-10 flex items-center gap-1.5 rounded-sm bg-mint-500 px-2.5 py-1 text-[10px] font-black text-white shadow-xs rotate-[-3deg]">
         📎 Ghim tranh Sonet
       </div>
 
       {/* Đồ họa SVG Tranh Sonet: Siêu anh hùng Bố cầm vợt muỗi ngộ nghĩnh */}
-      <svg viewBox="0 0 320 220" className="w-full max-h-[75%] drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <svg viewBox="0 0 320 220" className="w-full max-h-[78%] drop-shadow-sm" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <linearGradient id="roomGradSonet" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#fef3c7" />
@@ -211,9 +211,9 @@ export function SonetDrawingFallback({ className }: { className?: string }) {
       </svg>
 
       {/* Nhãn ghi chú tranh Sonet */}
-      <div className="z-10 mt-1 flex items-center gap-1.5 rounded-full border-2 border-sky-300 bg-white/95 px-3 py-1 text-center shadow-xs">
-        <span className="text-xs">✨</span>
-        <span className="text-[11px] font-black text-sky-900 tracking-tight">
+      <div className="z-10 mt-1.5 flex items-center gap-2 rounded-full border-2 border-sky-300 bg-white/95 px-3.5 py-1.5 text-center shadow-xs">
+        <span className="text-sm">✨</span>
+        <span className="text-xs sm:text-sm font-black text-sky-900 tracking-tight">
           Bức của Sonet: Bố dũng cảm cầm vợt muỗi (ý tưởng riêng của con)
         </span>
       </div>
@@ -222,18 +222,35 @@ export function SonetDrawingFallback({ className }: { className?: string }) {
 }
 
 // ── 3. MINH HỌA CỘT KHO DỮ LIỆU AI (Chặng 4) ──────────────────────────────
-export function AiWarehouseVisual({ imageUrl, className }: { imageUrl?: string; className?: string }) {
+export function AiWarehouseVisual({ imageUrl, className, onZoom }: { imageUrl?: string; className?: string; onZoom?: () => void }) {
   if (imageUrl) {
     return (
-      <div className={cn("overflow-hidden rounded-2xl border-2 border-slate-200 aspect-video shadow-xs", className)}>
-        <img src={imageUrl} alt="Kho dữ liệu AI" className="size-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+      <div className={cn("group/zoom relative overflow-hidden rounded-2xl border-2 border-slate-200 aspect-video shadow-xs bg-slate-50", className)}>
+        <img
+          src={imageUrl}
+          alt="Kho dữ liệu AI"
+          className={cn("size-full object-cover transition-transform duration-300 group-hover/zoom:scale-105", onZoom && "cursor-pointer")}
+          onClick={onZoom}
+          onError={(e) => { e.currentTarget.style.display = 'none' }}
+        />
+        {onZoom && (
+          <button
+            type="button"
+            onClick={onZoom}
+            className="absolute bottom-2 right-2 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold text-slate-800 shadow-md backdrop-blur-xs transition hover:bg-white hover:scale-105"
+            title="Xem tranh to"
+          >
+            <ZoomIn size={13} className="text-slate-600" />
+            <span>Xem to</span>
+          </button>
+        )}
       </div>
     )
   }
 
   return (
-    <div className={cn("relative w-full rounded-2xl border-2 border-slate-200 bg-slate-100 p-3.5 flex flex-col items-center justify-center overflow-hidden shadow-xs", className)}>
-      <svg viewBox="0 0 280 140" className="w-full max-h-32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <div className={cn("relative w-full rounded-2xl border-2 border-slate-200 bg-slate-100 p-4 flex flex-col items-center justify-center overflow-hidden shadow-xs", className)}>
+      <svg viewBox="0 0 280 140" className="w-full max-h-36 sm:max-h-44 drop-shadow-xs" fill="none" xmlns="http://www.w3.org/2000/svg">
         {/* Nền xám máy móc */}
         <rect x="4" y="4" width="272" height="132" rx="12" fill="#f1f5f9" />
         {/* Máy photocopy / máy in robot */}
@@ -266,7 +283,7 @@ export function AiWarehouseVisual({ imageUrl, className }: { imageUrl?: string; 
         <text x="50" y="125" fontSize="10" fontWeight="bold" fill="#64748b" fontFamily="monospace">010101 101010</text>
         <text x="140" y="28" fontSize="11" fontWeight="800" fill="#475569">Sao chép hàng loạt giống hệt</text>
       </svg>
-      <span className="mt-1 text-[11px] font-bold text-slate-600">
+      <span className="mt-2 text-xs sm:text-sm font-bold text-slate-700">
         🤖 AI chỉ tổng hợp mẫu có sẵn — không có ký ức riêng
       </span>
     </div>
@@ -274,18 +291,35 @@ export function AiWarehouseVisual({ imageUrl, className }: { imageUrl?: string; 
 }
 
 // ── 4. MINH HỌA CỘT BỘ NÃO SÁNG TẠO CỦA CON (Chặng 4) ──────────────────────
-export function KidBrainVisual({ imageUrl, className }: { imageUrl?: string; className?: string }) {
+export function KidBrainVisual({ imageUrl, className, onZoom }: { imageUrl?: string; className?: string; onZoom?: () => void }) {
   if (imageUrl) {
     return (
-      <div className={cn("overflow-hidden rounded-2xl border-2 border-brand-300 aspect-video shadow-xs", className)}>
-        <img src={imageUrl} alt="Não sáng tạo của con" className="size-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
+      <div className={cn("group/zoom relative overflow-hidden rounded-2xl border-2 border-brand-300 aspect-video shadow-xs bg-amber-50/50", className)}>
+        <img
+          src={imageUrl}
+          alt="Não sáng tạo của con"
+          className={cn("size-full object-cover transition-transform duration-300 group-hover/zoom:scale-105", onZoom && "cursor-pointer")}
+          onClick={onZoom}
+          onError={(e) => { e.currentTarget.style.display = 'none' }}
+        />
+        {onZoom && (
+          <button
+            type="button"
+            onClick={onZoom}
+            className="absolute bottom-2 right-2 flex items-center gap-1.5 rounded-full bg-white/90 px-2.5 py-1 text-xs font-bold text-brand-900 shadow-md backdrop-blur-xs transition hover:bg-white hover:scale-105"
+            title="Xem tranh to"
+          >
+            <ZoomIn size={13} className="text-brand-600" />
+            <span>Xem to</span>
+          </button>
+        )}
       </div>
     )
   }
 
   return (
-    <div className={cn("relative w-full rounded-2xl border-2 border-brand-300 bg-gradient-to-br from-amber-50 to-orange-50 p-3.5 flex flex-col items-center justify-center overflow-hidden shadow-clay", className)}>
-      <svg viewBox="0 0 280 140" className="w-full max-h-32" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <div className={cn("relative w-full rounded-2xl border-2 border-brand-300 bg-gradient-to-br from-amber-50 to-orange-50 p-4 flex flex-col items-center justify-center overflow-hidden shadow-clay", className)}>
+      <svg viewBox="0 0 280 140" className="w-full max-h-36 sm:max-h-44 drop-shadow-xs" fill="none" xmlns="http://www.w3.org/2000/svg">
         <defs>
           <radialGradient id="bulbGlow" cx="50%" cy="50%" r="50%">
             <stop offset="0%" stopColor="#fef08a" />
@@ -340,7 +374,7 @@ export function KidBrainVisual({ imageUrl, className }: { imageUrl?: string; cla
 
         <text x="140" y="125" fontSize="11" fontWeight="900" fill="#92400e" textAnchor="middle">Kỷ niệm gia đình · Ý tưởng độc nhất</text>
       </svg>
-      <span className="mt-1 text-[11px] font-black text-amber-900">
+      <span className="mt-2 text-xs sm:text-sm font-black text-amber-950">
         ✨ Con chính là thuyền trưởng sáng tạo chỉ huy AI!
       </span>
     </div>

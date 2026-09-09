@@ -163,15 +163,30 @@ export function useMeeCatSpeech({
 
     // 1. Tích hợp Web SpeechSynthesis API
     if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume()
+      }
       window.speechSynthesis.cancel()
 
       const utterance = new SpeechSynthesisUtterance(spokenText)
       utteranceRef.current = utterance
+      utterance.lang = 'vi-VN'
       utterance.rate = 0.95
       utterance.pitch = 1.25
 
       const voices = window.speechSynthesis.getVoices()
-      const viVoice = voices.find((v) => v.lang.startsWith('vi') || v.name.toLowerCase().includes('vietnam'))
+      const viVoice = voices.find((v) => {
+        const l = (v.lang || '').toLowerCase()
+        const n = (v.name || '').toLowerCase()
+        return (
+          l.startsWith('vi') ||
+          l.includes('vn') ||
+          n.includes('vietnam') ||
+          n.includes('vietnamese') ||
+          /\blinh\b/i.test(n) ||
+          /\ban\b/i.test(n)
+        )
+      })
       if (viVoice) {
         utterance.voice = viVoice
       }
@@ -191,7 +206,15 @@ export function useMeeCatSpeech({
         }
       }
 
+      const keepAliveTimer = setInterval(() => {
+        if (typeof window !== 'undefined' && window.speechSynthesis?.speaking && !window.speechSynthesis?.paused) {
+          window.speechSynthesis.pause()
+          window.speechSynthesis.resume()
+        }
+      }, 10000)
+
       utterance.onend = () => {
+        clearInterval(keepAliveTimer)
         utteranceRef.current = null
         setViseme('closed')
         setCurrentWord('')
@@ -199,6 +222,7 @@ export function useMeeCatSpeech({
       }
 
       utterance.onerror = () => {
+        clearInterval(keepAliveTimer)
         utteranceRef.current = null
         setViseme('closed')
         setCurrentWord('')
@@ -206,6 +230,9 @@ export function useMeeCatSpeech({
       }
 
       window.speechSynthesis.speak(utterance)
+      if (window.speechSynthesis.paused) {
+        window.speechSynthesis.resume()
+      }
 
       // 2. Fallback Cadence Engine nếu onboundary không bắn (một số trình duyệt không phát event boundary)
       const estimatedPaceMs = Math.max(240, Math.min(420, Math.round(3000 / Math.max(1, words.length))))

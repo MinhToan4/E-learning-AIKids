@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router'
-import { BookOpen, BrainCircuit, Check, ChevronLeft, ChevronRight, Clock3, Gamepad2, Lightbulb, MessageSquareText, MoveRight, PencilLine, Play, Printer, ScanSearch, ShieldCheck, Sparkles, Star, Target, Timer, Trophy, Volume2, ZoomIn } from 'lucide-react'
+import { BookOpen, BrainCircuit, Check, ChevronLeft, ChevronRight, Clock3, Gamepad2, Lightbulb, MessageSquareText, MoveRight, PencilLine, Play, Printer, ScanSearch, ShieldCheck, Sparkles, Square, Star, Target, Timer, Trophy, Volume2, ZoomIn } from 'lucide-react'
 import {
   ZicoDrawingFallback,
   SonetDrawingFallback,
@@ -79,6 +79,7 @@ import {
   type OfflineManifest,
 } from '@/features/lesson/lib/offline-learning'
 import { LeftPhaseSidebar, type Phase, type PoseType } from '@/features/lesson/components/LeftPhaseSidebar'
+import { useAikiSituationNarrator } from '@/features/lesson/hooks/useAikiSituationNarrator'
 
 type PlayState = 'idle' | 'playing' | 'ended'
 
@@ -149,7 +150,27 @@ export function LessonPage() {
   const [isPosterModalOpen, setIsPosterModalOpen] = useState(false)
   const [hasAcknowledgedRule, setHasAcknowledgedRule] = useState(false)
   const [hasCommitted, setHasCommitted] = useState(false)
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
+    try {
+      return localStorage.getItem('aikids_lesson_sidebar_collapsed') === 'true'
+    } catch {
+      return false
+    }
+  })
+  const toggleSidebarCollapse = (collapsed: boolean) => {
+    setIsSidebarCollapsed(collapsed)
+    try {
+      localStorage.setItem('aikids_lesson_sidebar_collapsed', String(collapsed))
+    } catch {}
+  }
   const [manualMeeCue, setManualMeeCue] = useState<{ key: number; text: string; gesture?: Gesture } | null>(null)
+  const {
+    isPlaying: isNarratingSituation,
+    activeSpeaker,
+    speakingLineIndex,
+    playSituation,
+    stop: stopSituationNarrator,
+  } = useAikiSituationNarrator()
   const [error, setError] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [parts, setParts] = useState<PromptParts>({})
@@ -400,6 +421,10 @@ export function LessonPage() {
     }
     return hydratedLearnCards
   }, [isAikiRuleJourney, hydratedLearnCards, aikiRuleStage])
+
+  useEffect(() => {
+    stopSituationNarrator()
+  }, [aikiRuleStage, phase, stopSituationNarrator])
 
   async function handleAikiFinish() {
     if (!quest || busy) return
@@ -724,9 +749,42 @@ export function LessonPage() {
     setCheckingQuestionId(questionId)
     setLastActiveQuestionId(questionId)
     setError(null)
+
+    if (isAikiRuleJourney) {
+      const firstCheck = quest?.check?.[0] as any
+      const correctIdx = typeof firstCheck?.correctIndex === 'number' ? firstCheck.correctIndex : 1
+      const isCorrect = optionIndex === correctIdx
+      const explanation = isCorrect
+        ? (firstCheck?.explain || 'Tuyệt vời! Con chọn hoàn toàn chính xác! Bức tranh của Sonet có chi tiết Bố cầm vợt muỗi — câu chuyện thật độc nhất của riêng bạn ấy! 🎉')
+        : 'Bức này quen thuộc quá, ai cũng có thể vẽ được giống hệt nhau. Bé hãy thử lại bức của Sonet xem sao nhé! 💡'
+
+      setAnswerFeedback((current) => ({
+        ...current,
+        [questionId]: {
+          correct: isCorrect,
+          explanation,
+        },
+      }))
+
+      if (isCorrect) {
+        setLiveStars((s) => Math.min(3, s + 1))
+        setStarBurst({ id: Date.now(), count: 1 })
+      }
+
+      try {
+        await learningApi.checkAnswer(questId, {
+          questionId,
+          optionIndex,
+        })
+      } catch {
+        // Luồng Aiki Rule: Bảo lưu phản hồi visual cho học sinh, không xoá lựa chọn
+      } finally {
+        setCheckingQuestionId(null)
+      }
+      return
+    }
+
     try {
-
-
       const feedback = await learningApi.checkAnswer(questId, {
         questionId,
         optionIndex,
@@ -914,7 +972,7 @@ export function LessonPage() {
         {/* ── Header Card Chuẩn Soft Clay 3 Tầng ────────────────────────── */}
         {isAikiRuleJourney ? (
           <div className="ui-card p-4 sm:p-5 shrink-0 bg-white rounded-3xl border-2 border-border shadow-clay">
-            {/* Tầng 1: Meta Tag & Huy Hiệu Mục Tiêu */}
+            {/* Tầng 1: Meta Tag & Huy Hiệu Mục Tiêu & Nút Mở Rộng */}
             <div className="flex items-center justify-between gap-3 flex-wrap">
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="inline-flex items-center gap-1.5 rounded-full bg-brand-100 border border-brand-200 px-3 py-1 text-xs font-black text-brand-800 uppercase tracking-wider shadow-2xs">
@@ -927,19 +985,35 @@ export function LessonPage() {
                 </span>
               </div>
 
-              {/* Hộp Thưởng Mục Tiêu */}
-              <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3.5 py-1 text-xs font-black text-amber-900 shadow-2xs shrink-0">
-                <span className="text-xs font-black">⭐ 3 Sao</span>
-                <span className="text-amber-300">•</span>
-                <span className="flex items-center gap-1 text-xs font-black">
-                  <span>🏆</span>
-                  <span>Hiệp Sĩ AIKI</span>
-                </span>
+              <div className="flex items-center gap-2 flex-wrap shrink-0">
+                <button
+                  type="button"
+                  onClick={() => toggleSidebarCollapse(!isSidebarCollapsed)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border-2 px-3.5 py-1.5 text-xs font-black transition-all shadow-xs cursor-pointer active:scale-95",
+                    isSidebarCollapsed
+                      ? "bg-brand-500 border-brand-600 text-white hover:bg-brand-600 ring-2 ring-brand-200"
+                      : "bg-white border-brand-200 text-brand-800 hover:bg-brand-50"
+                  )}
+                  title={isSidebarCollapsed ? "Hiển thị trợ lý Mèo Mee bên cạnh" : "Mở rộng toàn màn hình không gian học"}
+                >
+                  <span>{isSidebarCollapsed ? "📖 Hiện Trợ Lý Mee" : "↔️ Mở Rộng Không Gian Học"}</span>
+                </button>
+
+                {/* Hộp Thưởng Mục Tiêu */}
+                <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3.5 py-1 text-xs font-black text-amber-900 shadow-2xs shrink-0">
+                  <span className="text-xs font-black">⭐ 3 Sao</span>
+                  <span className="text-amber-300">•</span>
+                  <span className="flex items-center gap-1 text-xs font-black">
+                    <span>🏆</span>
+                    <span>Hiệp Sĩ AIKI</span>
+                  </span>
+                </div>
               </div>
             </div>
 
             {/* Tầng 2: Tiêu Đề Trạm Hoàn Chỉnh (100% Chiều Rộng, TUYỆT ĐỐI KHÔNG CÓ TRUNCATE) */}
-            <h1 className="mt-2.5 font-display text-xl sm:text-2xl lg:text-[1.65rem] font-black text-text leading-snug">
+            <h1 className="mt-2.5 font-display text-2xl sm:text-3xl lg:text-4xl font-black text-text leading-tight">
               {quest.title}
             </h1>
 
@@ -976,38 +1050,53 @@ export function LessonPage() {
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
                 <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">Trạm {quest.order}</p>
-                <h1 className="font-display text-2xl sm:text-3xl leading-tight">{quest.title}</h1>
+                <h1 className="font-display text-2xl sm:text-3xl lg:text-4xl font-black leading-tight text-text">{quest.title}</h1>
                 {practiceStation?.product && (
                   <p className="mt-1 text-xs font-semibold text-muted">
                     Sản phẩm của trạm: <strong className="text-text">{practiceStation.product}</strong>
                   </p>
                 )}
               </div>
-              {phase !== 'done' && liveStars > 0 && (
-                <div className="lesson-star-rack" aria-label={`Sao của trạm: ${liveStars} sao đã nhận`}>
-                  <span className="lesson-star-rack-label">Sao của trạm</span>
-                  {[1, 2, 3].map((star) => (
-                    <Star
-                      key={star}
-                      size={28}
-                      className={cn(
-                        'lesson-star-placeholder',
-                        star <= liveStars && 'lesson-star-earned',
-                      )}
-                      aria-hidden="true"
-                    />
-                  ))}
-                  {starBurst && Array.from({ length: starBurst.count }, (_, index) => (
-                    <span
-                      key={`${starBurst.id}-${index}`}
-                      className="lesson-star-fly"
-                      aria-hidden="true"
-                    >
-                      ⭐
-                    </span>
-                  ))}
-                </div>
-              )}
+              <div className="flex items-center gap-2 flex-wrap">
+                <button
+                  type="button"
+                  onClick={() => toggleSidebarCollapse(!isSidebarCollapsed)}
+                  className={cn(
+                    "inline-flex items-center gap-1.5 rounded-full border-2 px-3.5 py-1.5 text-xs font-black transition-all shadow-xs cursor-pointer active:scale-95",
+                    isSidebarCollapsed
+                      ? "bg-brand-500 border-brand-600 text-white hover:bg-brand-600 ring-2 ring-brand-200"
+                      : "bg-white border-brand-200 text-brand-800 hover:bg-brand-50"
+                  )}
+                  title={isSidebarCollapsed ? "Hiển thị trợ lý Mèo Mee bên cạnh" : "Mở rộng toàn màn hình không gian học"}
+                >
+                  <span>{isSidebarCollapsed ? "📖 Hiện Trợ Lý Mee" : "↔️ Mở Rộng Không Gian Học"}</span>
+                </button>
+                {phase !== 'done' && liveStars > 0 && (
+                  <div className="lesson-star-rack" aria-label={`Sao của trạm: ${liveStars} sao đã nhận`}>
+                    <span className="lesson-star-rack-label">Sao của trạm</span>
+                    {[1, 2, 3].map((star) => (
+                      <Star
+                        key={star}
+                        size={28}
+                        className={cn(
+                          'lesson-star-placeholder',
+                          star <= liveStars && 'lesson-star-earned',
+                        )}
+                        aria-hidden="true"
+                      />
+                    ))}
+                    {starBurst && Array.from({ length: starBurst.count }, (_, index) => (
+                      <span
+                        key={`${starBurst.id}-${index}`}
+                        className="lesson-star-fly"
+                        aria-hidden="true"
+                      >
+                        ⭐
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
             </div>
             
             {/* ── Horizontal Phase Nav ──────────────────────────────── */}
@@ -1049,9 +1138,12 @@ export function LessonPage() {
           </div>
         )}
 
-      <main className="lesson-stage-main min-h-0 flex-1 relative overflow-y-auto hidden-scrollbar pb-10 pr-2">
+      <main className={cn(
+        "lesson-stage-main min-h-0 flex-1 relative overflow-y-auto hidden-scrollbar pb-10 pr-2",
+        isSidebarCollapsed && "w-full max-w-[1400px] mx-auto"
+      )}>
         {phase === 'learn' && (
-        <div className="flex flex-col gap-6 animate-fade-up">
+        <div className={cn("flex flex-col gap-6 animate-fade-up", isSidebarCollapsed ? "w-full max-w-[1400px] mx-auto" : "w-full")}>
           {!isAikiRuleJourney && (
             <div className="rounded-3xl border border-brand-100 bg-gradient-to-r from-brand-50 via-white to-sky-50 p-4 sm:p-5">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
@@ -1132,17 +1224,42 @@ export function LessonPage() {
                       </div>
                     )}
                     {card.imageUrl && !card.videoUrl && (
-                      <img
-                        src={card.imageUrl}
-                        alt={card.imageAlt || card.title}
-                        className="mb-3 h-32 w-full rounded-xl object-cover"
-                        onError={(event) => { event.currentTarget.style.display = 'none' }}
-                      />
+                      <div className={cn(
+                        "relative mb-4 w-full overflow-hidden rounded-2xl border-2 border-orange-200 bg-orange-50/60 shadow-clay group/art flex items-center justify-center",
+                        isAikiRuleJourney ? "min-h-[280px] sm:min-h-[360px] max-h-[560px]" : ""
+                      )}>
+                        <img
+                          src={card.imageUrl}
+                          alt={card.imageAlt || card.title}
+                          className={cn(
+                            "rounded-2xl transition-transform duration-300 group-hover/art:scale-101 mx-auto",
+                            isAikiRuleJourney ? "w-auto max-w-full max-h-[560px] object-contain" : "w-full h-32 object-cover"
+                          )}
+                          onError={(event) => { event.currentTarget.style.display = 'none' }}
+                        />
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            setZoomedImage({
+                              title: card.title,
+                              subtitle: isAikiRuleJourney ? `Minh họa Chặng ${currentStageIndex + 1}` : 'Chi tiết tranh minh họa',
+                              url: card.imageUrl || undefined,
+                              description: card.body,
+                            })
+                          }}
+                          className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-black/70 px-3 py-1.5 text-xs font-black text-white backdrop-blur-xs transition hover:bg-black/85 active:scale-95 shadow-xs cursor-pointer"
+                          title="Phóng to xem tranh chi tiết"
+                        >
+                          <ZoomIn size={14} />
+                          <span>🔍 Xem tranh to</span>
+                        </button>
+                      </div>
                     )}
                     <div className={cn("grid size-12 place-items-center rounded-2xl border-2 shadow-sm", tone.iconBg, tone.border)}>
                       <CardIcon size={26} className={tone.text} aria-hidden="true" />
                     </div>
-                    <h3 className={cn("mt-3 font-display text-xl leading-tight", tone.text)}>
+                    <h3 className={cn("mt-3 font-display text-xl sm:text-2xl lg:text-3xl font-black leading-tight", tone.text)}>
                       {card.title}
                     </h3>
                     {!(isAikiRuleJourney && (
@@ -1153,7 +1270,7 @@ export function LessonPage() {
                       card.body.includes('máy lùi ra') ||
                       card.body.includes('Trong khung')
                     )) && (
-                      <p className="mt-2 text-base font-semibold leading-relaxed text-text">{card.body}</p>
+                      <p className="mt-3 text-lg sm:text-xl font-semibold leading-relaxed text-text">{card.body}</p>
                     )}
                     {card.tip && !isAikiRuleJourney && (
                       <p className={cn("mt-3 rounded-xl border bg-white/80 px-3 py-2 text-sm font-bold leading-snug", tone.border, tone.text)}>
@@ -1224,35 +1341,87 @@ export function LessonPage() {
                             <button
                               type="button"
                               onClick={() => {
-                                setManualMeeCue({
-                                  key: Date.now(),
-                                  text: card.mee?.readText?.trim() || card.body || 'Các cậu ơi, cùng lắng nghe tình huống này nhé!',
-                                  gesture: 'presentation',
-                                })
+                                if (isNarratingSituation) {
+                                  stopSituationNarrator()
+                                } else {
+                                  playSituation(dialogues, card.mee?.readText?.trim() || card.body)
+                                  setManualMeeCue({
+                                    key: Date.now(),
+                                    text: card.mee?.readText?.trim() || card.body || 'Các cậu ơi, cùng lắng nghe tình huống này nhé!',
+                                    gesture: 'presentation',
+                                  })
+                                }
                               }}
-                              className="inline-flex items-center gap-1.5 rounded-full border-2 border-orange-300 bg-orange-50 px-3.5 py-1.5 text-xs font-black text-orange-900 transition hover:bg-orange-100 active:scale-95 shadow-xs cursor-pointer"
+                              className={cn(
+                                'inline-flex items-center gap-1.5 rounded-full border-2 px-3.5 py-1.5 text-xs font-black transition active:scale-95 shadow-xs cursor-pointer',
+                                isNarratingSituation
+                                  ? 'border-orange-500 bg-orange-500 text-white animate-pulse'
+                                  : 'border-orange-300 bg-orange-50 text-orange-900 hover:bg-orange-100'
+                              )}
+                              aria-label={isNarratingSituation ? 'Dừng kể tình huống' : 'Nghe AIKI kể tình huống'}
                             >
-                              <Volume2 size={15} />
-                              🔊 Nghe AIKI kể tình huống
+                              {isNarratingSituation ? (
+                                <>
+                                  <Square size={13} className="fill-current" />
+                                  <span>⏹️ Đang kể... (Bấm để dừng)</span>
+                                  <span className="flex items-center gap-0.5 ml-1">
+                                    <span className="inline-block h-2 w-0.5 rounded-full bg-white animate-[bounce_0.8s_infinite_100ms]" />
+                                    <span className="inline-block h-3 w-0.5 rounded-full bg-white animate-[bounce_0.8s_infinite_200ms]" />
+                                    <span className="inline-block h-2 w-0.5 rounded-full bg-white animate-[bounce_0.8s_infinite_300ms]" />
+                                  </span>
+                                </>
+                              ) : (
+                                <>
+                                  <Volume2 size={15} />
+                                  <span>🔊 Nghe AIKI kể tình huống</span>
+                                </>
+                              )}
                             </button>
                           </div>
 
                           <div className="flex flex-col gap-3.5 pt-1">
-                            {dialogues.map((d: ParsedDialogue) => {
+                            {dialogues.map((d: ParsedDialogue, index: number) => {
                               const isLeft = (d as any).role === 'left' || d.speaker === 'zico'
                               const isRight = (d as any).role === 'right' || d.speaker === 'sonet'
+                              const isLineActive = isNarratingSituation && (speakingLineIndex === index || (speakingLineIndex === -1 && activeSpeaker === d.speaker))
 
                               if (isLeft) {
                                 return (
-                                  <div key={d.id} className="flex items-start gap-2.5 max-w-[88%] sm:max-w-[78%] self-start animate-fade-up">
-                                    <div className="grid size-10 shrink-0 place-items-center rounded-full bg-orange-100 border-2 border-orange-300 text-lg shadow-xs" title={d.speakerName || 'Zico'}>
+                                  <div
+                                    key={d.id}
+                                    className={cn(
+                                      'flex items-start gap-3 max-w-[90%] sm:max-w-[80%] self-start animate-fade-up transition-all duration-300',
+                                      isLineActive && 'scale-[1.02]'
+                                    )}
+                                  >
+                                    <div
+                                      className={cn(
+                                        'grid size-11 sm:size-12 shrink-0 place-items-center rounded-full bg-orange-100 border-2 text-xl shadow-xs transition-all',
+                                        isLineActive ? 'border-orange-500 ring-4 ring-orange-200 animate-bounce' : 'border-orange-300'
+                                      )}
+                                      title={d.speakerName || 'Zico'}
+                                    >
                                       👦
                                     </div>
                                     <div className="flex flex-col">
-                                      <span className="text-[11px] font-black uppercase text-orange-700 ml-1 mb-0.5">
-                                        {d.speakerName || 'Zico (áo cam)'}
-                                      </span>
-                                      <div className="rounded-2xl rounded-tl-xs border-2 border-orange-200 bg-orange-50 p-3.5 text-sm sm:base font-bold text-orange-950 shadow-xs leading-relaxed">
+                                      <div className="flex items-center gap-2 ml-1 mb-1">
+                                        <span className="text-xs sm:text-sm font-black uppercase text-orange-800">
+                                          {d.speakerName || 'Zico (áo cam)'}
+                                        </span>
+                                        {isLineActive && (
+                                          <span className="inline-flex items-center gap-1 rounded-full bg-orange-500 px-2 py-0.5 text-[10px] font-black text-white shadow-2xs animate-pulse">
+                                            <Volume2 size={10} /> Đang nói
+                                          </span>
+                                        )}
+                                      </div>
+                                      <div
+                                        className={cn(
+                                          'rounded-2xl rounded-tl-xs border-2 p-4 text-base sm:text-lg font-bold shadow-xs leading-relaxed transition-all',
+                                          isLineActive
+                                            ? 'border-orange-500 bg-orange-100 text-orange-950 ring-2 ring-orange-300 shadow-md'
+                                            : 'border-orange-200 bg-orange-50 text-orange-950'
+                                        )}
+                                      >
                                         {d.text}
                                       </div>
                                     </div>
@@ -1261,15 +1430,41 @@ export function LessonPage() {
                               }
                               if (isRight) {
                                 return (
-                                  <div key={d.id} className="flex flex-row-reverse items-start gap-2.5 max-w-[88%] sm:max-w-[78%] self-end animate-fade-up">
-                                    <div className="grid size-10 shrink-0 place-items-center rounded-full bg-sky-100 border-2 border-sky-300 text-lg shadow-xs" title={d.speakerName || 'Sonet'}>
+                                  <div
+                                    key={d.id}
+                                    className={cn(
+                                      'flex flex-row-reverse items-start gap-3 max-w-[90%] sm:max-w-[80%] self-end animate-fade-up transition-all duration-300',
+                                      isLineActive && 'scale-[1.02]'
+                                    )}
+                                  >
+                                    <div
+                                      className={cn(
+                                        'grid size-11 sm:size-12 shrink-0 place-items-center rounded-full bg-sky-100 border-2 text-xl shadow-xs transition-all',
+                                        isLineActive ? 'border-sky-500 ring-4 ring-sky-200 animate-bounce' : 'border-sky-300'
+                                      )}
+                                      title={d.speakerName || 'Sonet'}
+                                    >
                                       🧒
                                     </div>
                                     <div className="flex flex-col items-end">
-                                      <span className="text-[11px] font-black uppercase text-sky-700 mr-1 mb-0.5">
-                                        {d.speakerName || 'Sonet (áo xanh)'}
-                                      </span>
-                                      <div className="rounded-2xl rounded-tr-xs border-2 border-sky-200 bg-sky-50 p-3.5 text-sm sm:text-base font-bold text-sky-950 shadow-xs text-right leading-relaxed">
+                                      <div className="flex items-center gap-2 mr-1 mb-1">
+                                        {isLineActive && (
+                                          <span className="inline-flex items-center gap-1 rounded-full bg-sky-500 px-2 py-0.5 text-[10px] font-black text-white shadow-2xs animate-pulse">
+                                            <Volume2 size={10} /> Đang nói
+                                          </span>
+                                        )}
+                                        <span className="text-xs sm:text-sm font-black uppercase text-sky-800">
+                                          {d.speakerName || 'Sonet (áo xanh)'}
+                                        </span>
+                                      </div>
+                                      <div
+                                        className={cn(
+                                          'rounded-2xl rounded-tr-xs border-2 p-4 text-base sm:text-lg font-bold shadow-xs text-right leading-relaxed transition-all',
+                                          isLineActive
+                                            ? 'border-sky-500 bg-sky-100 text-sky-950 ring-2 ring-sky-300 shadow-md'
+                                            : 'border-sky-200 bg-sky-50 text-sky-950'
+                                        )}
+                                      >
                                         {d.text}
                                       </div>
                                     </div>
@@ -1277,13 +1472,38 @@ export function LessonPage() {
                                 )
                               }
                               return (
-                                <div key={d.id} className="w-full my-1 animate-pop">
+                                <div
+                                  key={d.id}
+                                  className={cn(
+                                    'w-full my-2 animate-pop transition-all duration-300',
+                                    isLineActive && 'scale-[1.02]'
+                                  )}
+                                >
                                   <div className="mx-auto flex max-w-xl flex-col items-center">
-                                    <div className="mb-1 inline-flex items-center gap-1.5 rounded-full border border-amber-300 bg-amber-100 px-3 py-0.5 text-xs font-black text-amber-900 shadow-xs">
+                                    <div
+                                      className={cn(
+                                        'mb-1.5 inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1 text-xs sm:text-sm font-black shadow-xs transition-all',
+                                        isLineActive
+                                          ? 'border-amber-400 bg-amber-200 text-amber-950 ring-2 ring-amber-300 animate-pulse'
+                                          : 'border-amber-300 bg-amber-100 text-amber-900'
+                                      )}
+                                    >
                                       <span>🐱</span>
                                       <span>{d.speakerName || 'TIẾNG AKI'}</span>
+                                      {isLineActive && (
+                                        <span className="ml-1 inline-flex items-center gap-0.5 text-[10px] bg-amber-500 text-white px-1.5 py-0.5 rounded-full">
+                                          <Volume2 size={9} /> Đang hô to
+                                        </span>
+                                      )}
                                     </div>
-                                    <div className="w-full rounded-2xl border-2 border-brand-300 bg-gradient-to-r from-brand-50 via-amber-50 to-brand-50 p-4 text-center font-bold text-brand-950 shadow-clay text-sm sm:text-base leading-relaxed">
+                                    <div
+                                      className={cn(
+                                        'w-full rounded-2xl border-2 p-4 sm:p-5 text-center font-black shadow-clay text-base sm:text-lg leading-relaxed transition-all',
+                                        isLineActive
+                                          ? 'border-brand-500 bg-gradient-to-r from-brand-100 via-amber-100 to-brand-100 text-brand-950 ring-2 ring-brand-300 shadow-lg'
+                                          : 'border-brand-300 bg-gradient-to-r from-brand-50 via-amber-50 to-brand-50 text-brand-950'
+                                      )}
+                                    >
                                       {d.text}
                                     </div>
                                   </div>
@@ -1320,10 +1540,10 @@ export function LessonPage() {
                             </span>
                           </div>
 
-                          <p className="font-display text-lg sm:text-xl text-brand-950 font-black leading-snug">
+                          <p className="font-display text-xl sm:text-2xl text-brand-950 font-black leading-snug">
                             {riddle.question}
                           </p>
-                          <p className="text-xs sm:text-sm font-bold text-amber-800 flex items-center gap-1.5">
+                          <p className="text-sm sm:text-base font-bold text-amber-800 flex items-center gap-1.5">
                             <span>👀</span>
                             <span>Bé hãy nhìn 2 bức tranh bên dưới và bấm trực tiếp vào bức tranh con chọn nhé:</span>
                           </p>
@@ -1337,7 +1557,10 @@ export function LessonPage() {
                               const parsed = parseVersusOption(opt, optIdx, card.tip)
                               const optTitle = card.optionLabels?.[optIdx] || parsed.title
                               const optDesc = card.optionDescs?.[optIdx] || parsed.desc
-                              const optImageUrl = card.optionImages?.[optIdx]
+                              const defaultOptImages = isAikiRuleJourney && (currentStageIndex === 1 || aikiRuleStage === 1) && (questId?.includes('qt1') || quest?.id?.includes('qt1') || quest?.title?.includes('QT1') || quest?.title?.includes('Quy tắc 1'))
+                                ? ['/assets/aiki-rules/rule1_opt_zico.jpg', '/assets/aiki-rules/rule1_opt_sonet.jpg']
+                                : undefined
+                              const optImageUrl = card.optionImages?.[optIdx] || defaultOptImages?.[optIdx]
 
                               return (
                                 <button
@@ -1376,10 +1599,10 @@ export function LessonPage() {
                                           {optLetter}
                                         </span>
                                         <div>
-                                          <span className="text-[11px] font-black uppercase tracking-wider text-muted">
+                                          <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-muted">
                                             Phương án {optLetter}
                                           </span>
-                                          <h4 className="font-display text-base sm:text-lg font-black leading-tight text-text">
+                                          <h4 className="font-display text-lg sm:text-xl font-black leading-tight text-text">
                                             {optTitle}
                                           </h4>
                                         </div>
@@ -1391,7 +1614,7 @@ export function LessonPage() {
                                       )}
                                     </div>
 
-                                    <div className="relative mt-3.5 w-full overflow-hidden rounded-2xl border-2 border-dashed border-current/25 bg-white/75 aspect-[4/3] group/art shadow-inner flex items-center justify-center">
+                                    <div className="relative mt-3.5 w-full min-h-[260px] sm:min-h-[320px] aspect-[4/3] overflow-hidden rounded-2xl border-2 border-dashed border-current/25 bg-white/75 group/art shadow-inner flex items-center justify-center">
                                       {optImageUrl ? (
                                         <img
                                           src={optImageUrl}
@@ -1431,7 +1654,7 @@ export function LessonPage() {
                                   </div>
 
                                   {optDesc && (
-                                    <div className="mt-3 rounded-xl bg-white/85 p-2.5 border border-current/10 text-xs sm:text-sm font-semibold leading-relaxed text-text/90">
+                                    <div className="mt-3 rounded-xl bg-white/85 p-3 border border-current/10 text-sm sm:text-base font-semibold leading-relaxed text-text/90">
                                       👉 {optDesc}
                                     </div>
                                   )}
@@ -1499,13 +1722,13 @@ export function LessonPage() {
 
                             <div className="mt-4 flex flex-col items-center text-center">
                               <span className="text-4xl sm:text-5xl animate-bounce">🌟</span>
-                              <h3 className="mt-2 font-display text-xl sm:text-3xl font-black text-amber-950 leading-snug max-w-2xl">
+                              <h3 className="mt-2 font-display text-2xl sm:text-4xl font-black text-amber-950 leading-snug max-w-3xl">
                                 {card.body || 'Ý TƯỞNG CỦA CON LÀ SỐ 1 · AI CHỈ LÀ TRỢ LÝ GIÚP CON LÀM ĐẸP HƠN!'}
                               </h3>
                             </div>
 
                             {card.tip && (
-                              <div className="mt-5 rounded-2xl border-2 border-amber-300/70 bg-white/80 p-4 text-sm font-bold text-amber-950 leading-relaxed shadow-xs">
+                              <div className="mt-5 rounded-2xl border-2 border-amber-300/70 bg-white/80 p-5 text-base sm:text-lg font-bold text-amber-950 leading-relaxed shadow-xs">
                                 💡 <span className="font-extrabold">Bí kíp ghi nhớ:</span> {card.tip}
                               </div>
                             )}
@@ -1563,11 +1786,11 @@ export function LessonPage() {
                     {((isAikiRuleJourney && currentStageIndex === 3) || Boolean(card.compareData)) && (() => {
                       const leftTitle = card.compareData?.leftTitle || card.visualItems?.[0]?.label || 'Dữ liệu quen thuộc & chung chung'
                       const leftText = card.compareData?.leftText || card.visualItems?.[0]?.text || 'AI chỉ lấy những hình ảnh quen thuộc trong kho hàng ngàn mẫu có sẵn. Ai gõ câu giống nhau thì kết quả cũng giống hệt nhau.'
-                      const leftImage = card.compareData?.leftImage || card.compareImages?.left
+                      const leftImage = card.compareData?.leftImage || card.compareImages?.left || (isAikiRuleJourney ? '/assets/aiki-rules/aiki_compare_ai_warehouse.jpg' : undefined)
 
                       const rightTitle = card.compareData?.rightTitle || card.visualItems?.[1]?.label || 'Ý tưởng độc nhất vô nhị'
                       const rightText = card.compareData?.rightText || card.visualItems?.[1]?.text || 'Chỉ có con mới có kỷ niệm riêng, cảm xúc thật, gia đình và sự tưởng tượng độc đáo mà AI không thể tự nghĩ ra được!'
-                      const rightImage = card.compareData?.rightImage || card.compareImages?.right
+                      const rightImage = card.compareData?.rightImage || card.compareImages?.right || (isAikiRuleJourney ? '/assets/aiki-rules/aiki_compare_kid_mind.jpg' : undefined)
 
                       return (
                         <div className="mt-4 space-y-4 text-left">
@@ -1582,7 +1805,7 @@ export function LessonPage() {
                               </span>
                             </div>
 
-                            <p className="mt-3 font-display text-base sm:text-lg font-bold text-text leading-relaxed">
+                            <p className="mt-3 font-display text-lg sm:text-xl font-bold text-text leading-relaxed">
                               {card.body}
                             </p>
 
@@ -1594,15 +1817,24 @@ export function LessonPage() {
                                     <span>🤖</span>
                                     Kho Dữ Liệu Của AI
                                   </div>
-                                  <h4 className="mt-3 font-display text-base font-black text-slate-800">
+                                  <h4 className="mt-3 font-display text-lg sm:text-xl font-black text-slate-800">
                                     {leftTitle}
                                   </h4>
-                                  <p className="mt-1.5 text-sm font-semibold leading-relaxed text-slate-600">
+                                  <p className="mt-1.5 text-base sm:text-lg font-semibold leading-relaxed text-slate-600">
                                     {leftText}
                                   </p>
-                                  <AiWarehouseVisual imageUrl={leftImage} className="mt-3.5" />
+                                  <AiWarehouseVisual
+                                    imageUrl={leftImage}
+                                    onZoom={leftImage ? () => setZoomedImage({
+                                      title: leftTitle,
+                                      subtitle: 'So sánh bản chất · Kho dữ liệu AI',
+                                      url: leftImage,
+                                      description: leftText,
+                                    }) : undefined}
+                                    className="mt-3.5"
+                                  />
                                 </div>
-                                <div className="mt-4 rounded-xl border border-slate-200 bg-white/80 p-2.5 text-xs font-bold text-slate-500">
+                                <div className="mt-4 rounded-xl border border-slate-200 bg-white/80 p-3 text-sm font-bold text-slate-500">
                                   ⚠️ Không có ký ức riêng của con
                                 </div>
                               </div>
@@ -1614,15 +1846,24 @@ export function LessonPage() {
                                     <Sparkles size={13} className="text-brand-600 fill-brand-400" />
                                     Bộ Não Sáng Tạo Của Con
                                   </div>
-                                  <h4 className="mt-3 font-display text-base font-black text-brand-950">
+                                  <h4 className="mt-3 font-display text-lg sm:text-xl font-black text-brand-950">
                                     {rightTitle}
                                   </h4>
-                                  <p className="mt-1.5 text-sm font-semibold leading-relaxed text-brand-900">
+                                  <p className="mt-1.5 text-base sm:text-lg font-semibold leading-relaxed text-brand-900">
                                     {rightText}
                                   </p>
-                                  <KidBrainVisual imageUrl={rightImage} className="mt-3.5" />
+                                  <KidBrainVisual
+                                    imageUrl={rightImage}
+                                    onZoom={rightImage ? () => setZoomedImage({
+                                      title: rightTitle,
+                                      subtitle: 'So sánh bản chất · Bộ não sáng tạo của con',
+                                      url: rightImage,
+                                      description: rightText,
+                                    }) : undefined}
+                                    className="mt-3.5"
+                                  />
                                 </div>
-                                <div className="mt-4 rounded-xl border border-brand-200 bg-white/90 p-2.5 text-xs font-black text-brand-700">
+                                <div className="mt-4 rounded-xl border border-brand-200 bg-white/90 p-3 text-sm font-black text-brand-700">
                                   ✨ Con chính là thuyền trưởng chỉ huy AI!
                                 </div>
                               </div>
@@ -1667,7 +1908,7 @@ export function LessonPage() {
                               🛡️ BẢN CAM KẾT HIỆP SĨ SÁNG TẠO AIKI
                             </div>
 
-                            <h3 className="font-display text-xl sm:text-2xl font-black text-amber-950 max-w-xl leading-tight">
+                            <h3 className="font-display text-2xl sm:text-3xl font-black text-amber-950 max-w-2xl leading-snug">
                               {card.body || 'Lời hứa của con khi dùng AI: Luôn có ý tưởng của riêng mình trước khi nhờ AI hỗ trợ!'}
                             </h3>
 
@@ -2687,6 +2928,8 @@ export function LessonPage() {
       </div>
 
       <LeftPhaseSidebar
+        isCollapsed={isSidebarCollapsed}
+        onToggleCollapse={toggleSidebarCollapse}
         guideCopy={dynamicGuideCopy}
         videoUrl={phase === 'learn' ? quest?.videoUrl : null}
         videoTitle={quest?.title}
