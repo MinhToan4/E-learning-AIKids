@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { lazy, Suspense, useMemo, useState } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router'
 import { Button } from '@/shared/components/ui/Button'
 import { useAuth } from '@/shared/store/auth'
@@ -9,8 +9,13 @@ import { designerAssets } from '@/shared/config/assets'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
 import { GoogleSignInButton } from '@/features/auth/components/GoogleSignInButton'
-import { PinPadModal } from '@/shared/components/ui/PinPadModal'
 import type { User } from '@/shared/lib/api'
+
+const PinPadModal = lazy(() =>
+  import('@/shared/components/ui/PinPadModal').then((m) => ({
+    default: m.PinPadModal,
+  })),
+)
 import { authFeedback } from '@/features/auth/lib/auth-feedback'
 import { LoginCatFrame } from '@/features/auth/components/LoginCatFrame'
 
@@ -275,19 +280,23 @@ export function LoginPage() {
           />
         </div>
       </div>
-      <PinPadModal
-        isOpen={showPinModal}
-        onClose={() => {
-          setShowPinModal(false)
-          setPin('')
-        }}
-        onSubmit={(value) => void onSubmitPin(value)}
-        title={`Xin chào ${nickname || 'bạn nhỏ'}!`}
-        subtitle="Nhập mã PIN 6 số Ba / Mẹ đã đặt"
-        busy={busy}
-        pin={pin}
-        setPin={setPin}
-      />
+      {showPinModal && (
+        <Suspense fallback={null}>
+          <PinPadModal
+            isOpen={showPinModal}
+            onClose={() => {
+              setShowPinModal(false)
+              setPin('')
+            }}
+            onSubmit={(value) => void onSubmitPin(value)}
+            title={`Xin chào ${nickname || 'bạn nhỏ'}!`}
+            subtitle="Nhập mã PIN 6 số Ba / Mẹ đã đặt"
+            busy={busy}
+            pin={pin}
+            setPin={setPin}
+          />
+        </Suspense>
+      )}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
     </div>
   )

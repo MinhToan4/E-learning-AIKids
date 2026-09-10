@@ -17,6 +17,14 @@ export const designerAssets = {
     playLearn: '/assets/designer/brand/lets_play_and_learn.svg',
     cosmic: '/assets/designer/brand/cosmic_bg.svg',
   },
+  catPoses: {
+    guide: '/assets/designer/brand/modal-cat-original.webp',
+    welcome: '/assets/aikid-ui/mascot-original/course-wave.webp',
+    walking: '/assets/aikid-ui/mascot-original/world-walking.webp',
+    thinking: '/assets/designer/brand/modal-cat-original.webp',
+    celebrate: '/assets/aikid-ui/mascot-original/world-celebrate.webp',
+    support: '/assets/aikid-ui/mascot-original/course-wave.webp',
+  },
   companions: {
     cloud: '/assets/designer/companions/paco-cloud-companion.png',
     leaf: '/assets/designer/companions/paco-leaf-companion.png',

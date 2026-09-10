@@ -199,14 +199,14 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
           setPathway({ ...journey, courses: finalCourses })
           return
         }
-        let courseTitle = ''
-        let pathRow: PathwayCourse | undefined
-
-        const journey = await learningApi.getPathway()
+        const [journey, courseResp, progressData] = await Promise.all([
+          learningApi.getPathway(),
+          learningApi.getCourse<{ course: { title: string } }>(courseId),
+          learningApi.getCourseProgress(courseId).catch(() => null),
+        ])
         const processedCourses = applyGatekeeperRules(journey.courses)
-        const courseResp = await learningApi.getCourse<{ course: { title: string } }>(courseId)
-        courseTitle = courseResp.course.title
-        pathRow = processedCourses.find((row) => row.id === courseId)
+        const courseTitle = courseResp.course.title
+        const pathRow = processedCourses.find((row) => row.id === courseId)
         const targetOrder = getAikiCourseSortOrder(pathRow || { id: courseId, title: courseTitle })
         setRegionIndex(targetOrder < WORLD_REGIONS.length ? targetOrder : Math.max(0, processedCourses.findIndex((row) => row.id === courseId)))
 
@@ -215,20 +215,12 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
         }
         setPathway({ ...journey, courses: processedCourses })
         setCourseTitle(courseTitle)
-        try {
-          const data = await learningApi.getCourseProgress(courseId)
-          if (data && data.quests && data.quests.length > 0) {
-            setQuests(data.quests)
-            setMeta({ totalStars: data.totalStars, completedCount: data.completedCount })
-          } else if (!FORCE_UNLOCK_ALL_ISLANDS && pathRow.status === 'available') {
-            setEnrollmentRequired(true)
-          }
-        } catch (e) {
-          if (!FORCE_UNLOCK_ALL_ISLANDS && pathRow.status === 'available') {
-            setEnrollmentRequired(true)
-            return
-          }
-          throw e
+
+        if (progressData && progressData.quests && progressData.quests.length > 0) {
+          setQuests(progressData.quests)
+          setMeta({ totalStars: progressData.totalStars, completedCount: progressData.completedCount })
+        } else if (!FORCE_UNLOCK_ALL_ISLANDS && pathRow.status === 'available') {
+          setEnrollmentRequired(true)
         }
       } catch (e) {
         setError(e instanceof Error ? e.message : 'Không tải được bản đồ')

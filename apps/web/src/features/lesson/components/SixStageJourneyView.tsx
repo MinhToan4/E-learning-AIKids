@@ -633,93 +633,41 @@ export function SixStageJourneyView({
               className="rounded-3xl bg-white p-5 sm:p-7 shadow-clay border-2 border-brand-100 flex flex-col gap-6 animate-fade-up"
             >
               <div className="flex flex-col md:flex-row gap-6 items-center">
-                {/* Cột trái: Nếu là Bài 1.2 hiển thị Banner 4 chiếc chìa khoá Soft Clay kèm ảnh mẫu, nếu không hiển thị ảnh mục tiêu chuẩn */}
-                {isLesson1_2 ? (
-                  <div className="w-full md:w-1/2 rounded-2xl overflow-hidden shadow-lg border-4 border-amber-200 bg-gradient-to-br from-[#FFF3E2] via-[#FFE7E2] to-[#EFE6FF] flex flex-col items-center justify-center p-4 sm:p-5 relative aspect-[4/3] group">
-                    {isValidImageUrl(journey.stage1_goal.imageUrl) ? (
-                      <div className="w-full flex-1 min-h-0 flex items-center justify-center relative overflow-hidden">
-                        <img
-                          src={journey.stage1_goal.imageUrl}
-                          alt={journey.stage1_goal.title}
-                          className="max-w-full max-h-40 sm:max-h-48 object-contain cursor-pointer group-hover:scale-105 transition-transform duration-300 rounded-xl shadow-xs"
-                          onClick={() =>
-                            setZoomImage({
-                              url: journey.stage1_goal.imageUrl,
-                              title: journey.stage1_goal.title,
-                            })
-                          }
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).src = '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
-                          }}
-                        />
-                      </div>
-                    ) : (
-                      <div className="flex gap-3 sm:gap-4 justify-center text-4xl sm:text-5xl drop-shadow-sm select-none">
-                        <span className="inline-block hover:scale-110 transition-transform hue-rotate-[190deg]">🔑</span>
-                        <span className="inline-block hover:scale-110 transition-transform">🔑</span>
-                        <span className="inline-block hover:scale-110 transition-transform hue-rotate-[-25deg]">🔑</span>
-                        <span className="inline-block hover:scale-110 transition-transform hue-rotate-[-60deg]">🔑</span>
-                      </div>
-                    )}
-                    <div className="font-baloo text-xl sm:text-2xl font-black text-slate-800 text-center mt-2 leading-tight">
-                      Bốn chiếc chìa khoá
-                    </div>
-                    <div className="text-xs sm:text-sm font-bold text-slate-600 text-center mt-1.5 leading-relaxed max-w-xs">
-                      Mở được cả bốn thì AKI vẽ đúng ngay từ lần đầu tiên
-                    </div>
-                    <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full font-medium pointer-events-none">
-                      🎯 Hình mẫu mục tiêu
-                    </div>
-                    {isValidImageUrl(journey.stage1_goal.imageUrl) && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setZoomImage({
-                            url: journey.stage1_goal.imageUrl,
-                            title: journey.stage1_goal.title,
-                          })
-                        }
-                        className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
-                        title="Xem ảnh phóng to"
-                      >
-                        <span>🔍 Xem ảnh mẫu</span>
-                      </button>
-                    )}
+                {/* Cột trái: Khung ảnh to bản, chiếm trọn 100% tỷ lệ 4:3 đẹp đẽ */}
+                <div className="w-full md:w-1/2 rounded-2xl overflow-hidden shadow-lg border-4 border-amber-200 bg-amber-50/50 group relative aspect-[4/3] flex items-center justify-center p-1.5">
+                  <img
+                    src={journey.stage1_goal.imageUrl}
+                    alt={journey.stage1_goal.title}
+                    className="w-full h-full object-contain cursor-pointer group-hover:scale-105 transition-transform duration-300 rounded-xl"
+                    onClick={() =>
+                      setZoomImage({
+                        url: journey.stage1_goal.imageUrl,
+                        title: journey.stage1_goal.title,
+                      })
+                    }
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = isLesson1_2
+                        ? '/assets/aiki-islands/island1_lesson2_keys_v2.jpg'
+                        : '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+                    }}
+                  />
+                  <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full font-medium pointer-events-none">
+                    🎯 {isLesson1_2 ? 'Bốn chiếc chìa khoá thần kỳ' : 'Hình mẫu mục tiêu'}
                   </div>
-                ) : (
-                  <div className="w-full md:w-1/2 rounded-2xl overflow-hidden shadow-lg border-4 border-amber-200 bg-amber-50/50 group relative aspect-[4/3] flex items-center justify-center p-1.5">
-                    <img
-                      src={journey.stage1_goal.imageUrl}
-                      alt={journey.stage1_goal.title}
-                      className="w-full h-full object-contain cursor-pointer group-hover:scale-105 transition-transform duration-300"
-                      onClick={() =>
-                        setZoomImage({
-                          url: journey.stage1_goal.imageUrl,
-                          title: journey.stage1_goal.title,
-                        })
-                      }
-                      onError={(e) => {
-                        (e.target as HTMLImageElement).src = '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
-                      }}
-                    />
-                    <div className="absolute bottom-2 left-2 bg-black/60 backdrop-blur-sm text-white text-xs px-2.5 py-1 rounded-full font-medium pointer-events-none">
-                      🎯 Hình mẫu mục tiêu
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setZoomImage({
-                          url: journey.stage1_goal.imageUrl,
-                          title: journey.stage1_goal.title,
-                        })
-                      }
-                      className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
-                      title="Xem ảnh phóng to"
-                    >
-                      <span>🔍 Phóng to</span>
-                    </button>
-                  </div>
-                )}
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setZoomImage({
+                        url: journey.stage1_goal.imageUrl,
+                        title: journey.stage1_goal.title,
+                      })
+                    }
+                    className="absolute top-2 right-2 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
+                    title="Xem ảnh phóng to"
+                  >
+                    <span>🔍 Phóng to</span>
+                  </button>
+                </div>
 
                 {/* Nội dung mục tiêu & Lời dặn của AKI */}
                 <div className="w-full md:w-1/2 flex flex-col gap-4">
@@ -1759,47 +1707,22 @@ export function SixStageJourneyView({
                 </div>
               ) : (
                 <>
-                  {/* CHẶNG 0: Bảng Tra Cứu Công Thức 4 Ô Mật Mã + Lời dặn AKI */}
+                  {/* CHẶNG 0: Trợ Lý Đồng Hành Sư Phạm Của AKI (Không lặp lại 4 ô công thức) */}
                   {currentStage === 0 && (
                     <div className="flex flex-col gap-3">
-                      <div className="bg-gradient-to-b from-blue-50/70 to-indigo-50/70 rounded-2xl p-3.5 border-2 border-indigo-200 shadow-2xs flex flex-col gap-2.5 text-left">
+                      <div className="bg-gradient-to-b from-amber-50/80 to-yellow-50/60 rounded-2xl p-3.5 border-2 border-amber-200 shadow-2xs flex flex-col gap-2.5 text-left">
                         <div className="flex items-center justify-between">
-                          <span className="text-xs font-black uppercase tracking-wider text-indigo-950 flex items-center gap-1.5">
-                            <span>🔍</span>
-                            <span>Công Thức 4 Ô Mật Mã</span>
+                          <span className="text-xs font-black uppercase tracking-wider text-amber-950 flex items-center gap-1.5">
+                            <span>💡</span>
+                            <span>Mẹo Vàng Của AKI</span>
                           </span>
-                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-100 text-indigo-700">
+                          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-amber-200 text-amber-900">
                             Bí Kíp Vàng
                           </span>
                         </div>
-                        <p className="text-[11px] text-slate-600 font-medium leading-relaxed">
-                          Ghi nhớ 4 ô mật mã này để bức tranh không bao giờ bị AI đoán mò nhé:
+                        <p className="text-xs font-bold text-slate-800 leading-relaxed">
+                          {journey.stage1_goal.keyPoints?.[2] || 'Tả càng rõ - Vẽ càng đúng! Chỗ nào các cậu bỏ trống, Ây Ai như tớ sẽ tự điền vào đấy nhé!'}
                         </p>
-
-                        <div className="flex flex-col gap-2">
-                          {formulaCards.map((card) => (
-                            <div
-                              key={card.id}
-                              className={cn(
-                                'p-2.5 rounded-xl border shadow-2xs flex items-start gap-2.5 transition-all',
-                                card.bg
-                              )}
-                            >
-                              <span className="text-base shrink-0 leading-none mt-0.5">{card.icon}</span>
-                              <div className="flex-1 min-w-0">
-                                <div className="flex items-center gap-1.5 flex-wrap">
-                                  <span className={cn('text-[10px] font-black px-1.5 py-0.5 rounded-md', card.badge)}>
-                                    {card.code}
-                                  </span>
-                                  <span className="text-[10px] text-slate-500 font-bold">({card.sub})</span>
-                                </div>
-                                <p className="text-xs font-bold text-slate-800 mt-1 leading-snug">
-                                  {card.val}
-                                </p>
-                              </div>
-                            </div>
-                          ))}
-                        </div>
                       </div>
 
                       <div className="bg-slate-50 rounded-2xl p-3.5 border border-slate-200 flex flex-col gap-2.5">
@@ -1807,7 +1730,7 @@ export function SixStageJourneyView({
                           🎯 Nhiệm vụ chặng này:
                         </p>
                         <p className="text-xs text-slate-600 font-medium">
-                          {getStageInstruction(0)}
+                          Đọc kỹ mục tiêu và ghi nhớ công thức 4 ô bên cạnh để giải câu đố ở chặng sau nhé!
                         </p>
                         <div className="mt-1">
                           {renderSidebarAction(0)}

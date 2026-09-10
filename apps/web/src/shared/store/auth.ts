@@ -2,6 +2,7 @@ import { create } from 'zustand'
 import {
   api,
   clearAccessToken,
+  getAccessToken,
   type AccessContext,
   type AccountAccess,
   type User,
@@ -219,10 +220,14 @@ export const useAuth = create<AuthState>((set, get) => ({
 
   bootstrap: async () => {
     set({ loading: true, error: null })
+    const token = getAccessToken()
+    if (!token) {
+      set({ user: null, access: null, activeContext: null, loading: false, enteredFromParent: false })
+      return
+    }
     try {
       const { user } = await api<{ user: User }>('/api/auth/me')
       if (user.role === 'student') {
-        // WHY: bootstrap tức là tự đăng nhập (refresh trình duyệt), không phải từ phụ huynh
         set({ user, access: null, activeContext: null, loading: false, enteredFromParent: false })
         return
       }

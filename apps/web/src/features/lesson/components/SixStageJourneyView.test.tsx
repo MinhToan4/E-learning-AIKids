@@ -134,14 +134,13 @@ describe('SixStageJourneyView', () => {
     expect(mainCanvas?.textContent).toContain('Mục tiêu: Đừng Để AKI Đoán Mò')
     expect(mainCanvas?.textContent).toContain('Con hiểu được AI tạo ảnh không tự nghĩ được')
 
-    // Right Column: Companion Sidebar with 4-Slot Formula & Key points
+    // Right Column: Companion Sidebar with AKI Tip & Key points
     const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
     expect(sidebar).not.toBeNull()
     expect(sidebar?.textContent).toContain('Chặng 1/6: Mục tiêu')
     expect(sidebar?.textContent).toContain('AKI Đồng Hành')
     expect(sidebar?.textContent).toContain('LỜI THOẠI CỦA AKI')
-    expect(sidebar?.textContent).toContain('Công Thức 4 Ô Mật Mã')
-    expect(sidebar?.textContent).toContain('Tả càng rõ, tranh càng đúng ý')
+    expect(sidebar?.textContent).toContain('Mẹo Vàng Của AKI')
     expect(sidebar?.textContent).toContain('Nhiệm vụ chặng này')
     expect(sidebar?.textContent).toContain('42 Sao tích lũy')
   })
@@ -641,13 +640,18 @@ describe('SixStageJourneyView', () => {
       )
     })
     const sidebar0 = container.querySelector('[data-testid="interactive-sidebar"]')
-    expect(sidebar0?.textContent).toContain('Công Thức 4 Ô Mật Mã')
-    expect(sidebar0?.textContent).toContain('CÁI GÌ')
-    expect(sidebar0?.textContent).toContain('TRÔNG THẾ NÀO')
-    expect(sidebar0?.textContent).toContain('ĐANG LÀM GÌ')
-    expect(sidebar0?.textContent).toContain('Ở ĐÂU')
+    expect(sidebar0?.textContent).toContain('Mẹo Vàng Của AKI')
+    expect(sidebar0?.textContent).toContain('Bí Kíp Vàng')
     expect(sidebar0?.textContent).toContain('LỜI THOẠI CỦA AKI')
     expect(sidebar0?.textContent).not.toContain('LỜI DẶN DÒ TỪ AKI')
+
+    // Công Thức Câu Lệnh Bốn Ô được hiển thị ở Main Learning Canvas
+    const main0 = container.querySelector('[data-testid="stage-0-goal"]')
+    expect(main0?.textContent).toContain('Công Thức Câu Lệnh Bốn Ô')
+    expect(main0?.textContent).toContain('CÁI GÌ')
+    expect(main0?.textContent).toContain('TRÔNG THẾ NÀO')
+    expect(main0?.textContent).toContain('ĐANG LÀM GÌ')
+    expect(main0?.textContent).toContain('Ở ĐÂU')
 
     // Stage 1: Cheat-sheet
     act(() => {
@@ -807,8 +811,7 @@ describe('SixStageJourneyView', () => {
 
     const stage0 = container.querySelector('[data-testid="stage-0-goal"]')
     expect(stage0).not.toBeNull()
-    expect(stage0?.textContent).toContain('Bốn chiếc chìa khoá')
-    expect(stage0?.textContent).toContain('Mở được cả bốn thì AKI vẽ đúng ngay từ lần đầu tiên')
+    expect(stage0?.textContent).toContain('Bốn chiếc chìa khoá thần kỳ')
     expect(stage0?.textContent).toContain('Công Thức Câu Lệnh Bốn Ô')
     expect(stage0?.textContent).toContain('CÁI GÌ')
     expect(stage0?.textContent).toContain('TRÔNG THẾ NÀO')

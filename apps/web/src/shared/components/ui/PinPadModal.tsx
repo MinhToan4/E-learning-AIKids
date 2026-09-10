@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom'
 import { cn } from '@/shared/lib/cn'
 import { useToast } from '@/shared/hooks/useToast'
 import { ToastContainer } from '@/shared/components/ui/Toast'
-import { AikidModalCatCharacter } from '@/shared/components/ui/AikidModalCatCharacter'
+import { designerAssets } from '@/shared/config/assets'
 
 export type PinPadModalProps = {
   isOpen: boolean
@@ -111,7 +111,7 @@ export function PinPadModal({
       aria-labelledby="pin-title"
     >
       <div className="ui-card relative w-full max-w-md overflow-hidden rounded-t-3xl p-5 shadow-clay sm:rounded-3xl">
-        <AikidModalCatCharacter className="pointer-events-none absolute -right-5 top-4 z-0 w-24 rotate-6 opacity-90 drop-shadow-sm" />
+        <img src={designerAssets.catPoses.guide} alt="" aria-hidden="true" className="pointer-events-none absolute -right-5 top-4 z-0 w-24 rotate-6 opacity-90 drop-shadow-sm" />
         <div className="relative z-10 mb-4 flex items-center gap-3 pr-16">
           {avatarContent && (
             <span className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-brand-50 text-3xl">
