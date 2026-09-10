@@ -86,8 +86,8 @@ describe('RuleLearningPage Component', () => {
     // Right Column: AKI Interaction check
     expect(markup).toContain('Ôn lại một chút nhé')
     expect(markup).toContain('Sai cũng không sao, con thử lại được')
-    expect(markup).toContain('Trong câu chuyện của Zico và Sonet')
-    expect(markup).toContain('Vì Sonet đã tự nghĩ ý tưởng')
+    expect(markup).toContain(AIKI_RULES_DATA[0].questions[0].options[0])
+    expect(markup).toContain(AIKI_RULES_DATA[0].questions[0].options[1])
     expect(markup).toContain('Trả lời')
     expect(markup).toContain('AKI mách nhỏ')
   })

@@ -28,14 +28,16 @@ describe('AIKI 10 Golden Rules Data Integrity', () => {
     })
   })
 
-  it('each rule has exactly 2 review questions with 3 options each and valid correctIndex', () => {
+  it('each rule has exactly 2 review questions with valid options and correctIndex', () => {
     AIKI_RULES_DATA.forEach((rule) => {
       expect(rule.questions).toHaveLength(2)
       rule.questions.forEach((q) => {
         expect(q.id).toBeTruthy()
         expect(q.prompt).toBeTruthy()
-        expect(q.options).toHaveLength(3)
-        expect([0, 1, 2]).toContain(q.correctIndex)
+        expect(q.options.length).toBeGreaterThanOrEqual(2)
+        expect(q.options.length).toBeLessThanOrEqual(4)
+        expect(q.correctIndex).toBeGreaterThanOrEqual(0)
+        expect(q.correctIndex).toBeLessThan(q.options.length)
         expect(q.hint).toBeTruthy()
         expect(q.successFeedback).toBeTruthy()
         expect(q.retryFeedback).toBeTruthy()

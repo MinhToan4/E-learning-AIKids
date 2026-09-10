@@ -18,6 +18,7 @@ import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { CuteProgress } from '@/shared/components/ui/CuteProgress'
 import { recentUnlockedAchievements } from '@/features/achievements/achievement-inventory'
 import { achievementBadgeAsset } from '@/features/achievements/achievement-badge-assets'
+import { getAikiCourseSortOrder } from '@/features/world/pages/WorldPage'
 import {
   profileCardBackgroundStyle,
   readRewardEquipment,
@@ -66,17 +67,7 @@ export function isOfficialAikiIsland(c: CourseSummary): boolean {
   return true
 }
 
-export function getAikiIslandSortOrder(c: CourseSummary): number {
-  const key = `${c.courseKey ?? ''} ${c.id}`.toLowerCase()
-  const title = (c.title || '').toLowerCase()
-  if (key.includes('muoi-quy-tac') || title.includes('quy tắc') || title.includes('module 0')) return 0
-  if (key.includes('dao-1') || title.includes('module 1') || title.includes('thám hiểm')) return 1
-  if (key.includes('dao-2') || title.includes('module 2') || title.includes('hoạ sĩ')) return 2
-  if (key.includes('dao-3') || title.includes('module 3') || title.includes('nhân vật')) return 3
-  if (key.includes('dao-4') || title.includes('module 4') || title.includes('truyện tranh')) return 4
-  if (key.includes('dao-5') || title.includes('module 5') || title.includes('trò chơi')) return 5
-  return 99
-}
+export const getAikiIslandSortOrder = getAikiCourseSortOrder
 
 export function courseBadge(course: CourseSummary) {
   const level = `${course.courseKey ?? ''} ${course.id}`.match(/(?:^|[^a-z0-9])l([12])(?:[^a-z0-9]|$)/i)

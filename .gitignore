@@ -20,6 +20,7 @@ secrets/
 artifacts/
 *.tmp*
 *.reward-pack.zip
+*.zip
 tmp/
 .vercel/
 courses/

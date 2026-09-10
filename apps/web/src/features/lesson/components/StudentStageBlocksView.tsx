@@ -39,6 +39,7 @@ import {
   type DialogueLine,
 } from '@/features/teacher/lib/authoring'
 import { useAikiSituationNarrator } from '@/features/lesson/hooks/useAikiSituationNarrator'
+import { playInstantSound } from '@/features/lesson/components/LessonInteractiveSidebar'
 
 export interface StudentStageBlocksViewProps {
   card: LearnCardDraft
@@ -60,6 +61,7 @@ export interface StudentStageBlocksViewProps {
   answerFeedback?: Record<string, { correct: boolean; explanation: string }>
   checkingQuestionId?: string | null
   onChooseAnswer?: (questionId: string, optionIndex: number) => void
+  onRewardStar?: () => void
   // Situation narrator
   isNarratingSituation?: boolean
   speakingLineIndex?: number
@@ -95,6 +97,7 @@ export function StudentStageBlocksView({
   answerFeedback: externalFeedback,
   checkingQuestionId: externalCheckingId,
   onChooseAnswer,
+  onRewardStar,
   isNarratingSituation: externalIsNarrating,
   speakingLineIndex: externalSpeakingLineIndex,
   activeSpeaker: externalActiveSpeaker,
@@ -164,11 +167,18 @@ export function StudentStageBlocksView({
   }, [quest, card.body, stationNum])
 
   const handleChooseAnswerInternal = (riddleId: string, optIdx: number) => {
+    const expectedCorrectIdx = quest?.check?.[0]?.correctIndex ?? (stationNum === 1 ? 1 : 1)
+    const isCorrect = optIdx === expectedCorrectIdx
+    playInstantSound(isCorrect ? 'correct' : 'wrong')
+    if (isCorrect) {
+      playInstantSound('star')
+      onRewardStar?.()
+    }
+
     if (onChooseAnswer) {
       onChooseAnswer(riddleId, optIdx)
     } else {
       setLocalAnswers((prev) => ({ ...prev, [riddleId]: optIdx }))
-      const isCorrect = optIdx === 1
       setLocalFeedback((prev) => ({
         ...prev,
         [riddleId]: {
@@ -725,7 +735,7 @@ export function StudentStageBlocksView({
             <div
               key={block.id}
               data-testid="block-versus-ab"
-              className="rounded-3xl border-3 border-brand-200 bg-white p-5 sm:p-6 shadow-clay animate-fade-up text-left space-y-4"
+              className="rounded-3xl border-3 border-brand-200 bg-white p-5 sm:p-7 shadow-clay animate-fade-up text-left space-y-5"
             >
               <div className="flex items-center justify-between gap-2 border-b border-brand-100 pb-3">
                 <div className="flex items-center gap-2 text-brand-700 font-extrabold text-sm uppercase tracking-wider">
@@ -740,17 +750,14 @@ export function StudentStageBlocksView({
               <p className="font-display text-xl sm:text-2xl text-brand-950 font-black leading-snug">
                 {block.body || riddle.question}
               </p>
-              <div className="flex items-center justify-between flex-wrap gap-2 text-sm sm:text-base font-bold text-amber-900 bg-amber-50/80 px-3.5 py-2 rounded-2xl border border-amber-200">
+              <div className="flex items-center justify-between flex-wrap gap-2 text-sm sm:text-base font-bold text-amber-900 bg-amber-50/80 px-4 py-2.5 rounded-2xl border border-amber-200">
                 <div className="flex items-center gap-2">
                   <span>👀</span>
-                  <span>Bé quan sát kỹ chi tiết 2 bức tranh bên dưới:</span>
+                  <span>Bé hãy quan sát kỹ 2 bức tranh bên dưới và bấm chọn Phương án đúng:</span>
                 </div>
-                <span className="text-xs font-black text-brand-700 bg-white px-2.5 py-1 rounded-xl shadow-2xs border border-brand-200">
-                  👉 Chọn đáp án ở Bảng Tương Tác bên phải
-                </span>
               </div>
 
-              <div className="relative grid gap-5 sm:grid-cols-2 pt-2">
+              <div className="grid gap-6 grid-cols-1 md:grid-cols-2 pt-2">
                 {riddle.options.map((opt: string, optIdx: number) => {
                   const isSelected = selectedAnswer === optIdx
                   const isCorrect = isSelected && feedback?.correct
@@ -783,135 +790,210 @@ export function StudentStageBlocksView({
                   return (
                     <div
                       key={opt}
-                      onClick={() => handleChooseAnswerInternal(riddle.id, optIdx)}
-                      className={cn(
-                        'group relative flex flex-col justify-between p-4 sm:p-5 rounded-3xl border-3 text-left transition-all duration-200 shadow-xs active:scale-[0.99] cursor-pointer',
-                        isSelected
-                          ? isCorrect
-                            ? 'border-mint-500 bg-mint-50 text-mint-950 shadow-clay ring-4 ring-mint-200/50'
-                            : isWrong
-                            ? 'border-coral-500 bg-coral-50 text-coral-950 ring-4 ring-coral-200/50'
-                            : 'border-brand-500 bg-brand-50 text-brand-950 shadow-clay'
-                          : 'border-border bg-white hover:border-brand-300 hover:bg-brand-50/20 hover:shadow-md text-text'
-                      )}
+                      className="flex flex-col gap-3"
                     >
-                      <div className="w-full">
-                        <div className="flex items-start justify-between gap-3 w-full">
-                          <div className="flex items-center gap-3">
-                            <span
-                              className={cn(
-                                'grid size-11 shrink-0 place-items-center rounded-2xl text-lg font-black shadow-xs transition-transform group-hover:scale-105',
-                                isSelected
-                                  ? isCorrect
-                                    ? 'bg-mint-500 text-white'
-                                    : isWrong
-                                    ? 'bg-coral-500 text-white'
-                                    : 'bg-brand-500 text-white'
-                                  : optIdx === 0
-                                  ? 'bg-amber-100 text-amber-900 border-2 border-amber-300'
-                                  : 'bg-sky-100 text-sky-900 border-2 border-sky-300'
-                              )}
-                            >
-                              {optLetter}
-                            </span>
-                            <div>
-                              <span className="text-xs sm:text-sm font-black uppercase tracking-wider text-muted">
-                                Bức tranh {optLetter}
-                              </span>
-                              <h4 className="font-display text-lg sm:text-xl font-black leading-tight text-text">
-                                {optTitle}
-                              </h4>
-                            </div>
-                          </div>
-                          {isCorrect && (
-                            <span className="grid size-8 place-items-center rounded-full bg-mint-500 text-white shadow-xs">
-                              <Check size={20} />
-                            </span>
-                          )}
-                        </div>
-
-                        <div className="relative mt-3.5 w-full min-h-[260px] sm:min-h-[320px] aspect-[4/3] overflow-hidden rounded-2xl border-2 border-dashed border-current/25 bg-white/75 group/art shadow-inner flex items-center justify-center">
-                          {optImageUrl ? (
-                            <img
-                              src={optImageUrl}
-                              alt={optTitle}
-                              className="size-full object-cover transition-transform duration-300 group-hover/art:scale-105"
-                              onError={(e) => { e.currentTarget.style.display = 'none' }}
-                            />
-                          ) : stationNum === 1 ? (
-                            optIdx === 0 ? (
-                              <ZicoDrawingFallback className="size-full" />
-                            ) : (
-                              <SonetDrawingFallback className="size-full" />
-                            )
+                      {/* Khung tranh lớn, to bản với nút xem to */}
+                      <div
+                        onClick={() => handleChooseAnswerInternal(riddle.id, optIdx)}
+                        className={cn(
+                          'relative w-full aspect-[4/3] min-h-[280px] sm:min-h-[340px] overflow-hidden rounded-3xl border-3 bg-slate-100 group shadow-md flex items-center justify-center cursor-pointer transition-all duration-200',
+                          isSelected
+                            ? isCorrect
+                              ? 'border-mint-500 ring-4 ring-mint-300/50 shadow-clay'
+                              : isWrong
+                              ? 'border-coral-400 ring-4 ring-coral-300/50'
+                              : 'border-brand-500'
+                            : 'border-border hover:border-brand-300'
+                        )}
+                      >
+                        {optImageUrl ? (
+                          <img
+                            src={optImageUrl}
+                            alt={optTitle}
+                            className="size-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            onError={(e) => { e.currentTarget.style.display = 'none' }}
+                          />
+                        ) : stationNum === 1 ? (
+                          optIdx === 0 ? (
+                            <ZicoDrawingFallback className="size-full" />
                           ) : (
-                            <div className="flex flex-col items-center justify-center text-muted p-4 text-center">
-                              <Sparkles className="size-10 text-brand-400 mb-2" />
-                              <p className="font-bold text-sm">Hình minh họa {optLetter}</p>
-                            </div>
-                          )}
+                            <SonetDrawingFallback className="size-full" />
+                          )
+                        ) : (
+                          <div className="flex flex-col items-center justify-center text-muted p-4 text-center">
+                            <Sparkles className="size-12 text-brand-400 mb-2" />
+                            <p className="font-bold text-sm">Hình minh họa {optLetter}</p>
+                          </div>
+                        )}
 
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              onZoomImage?.({
-                                title: optTitle,
-                                subtitle: `Phương án ${optLetter} · Chi tiết tranh`,
-                                url: optImageUrl,
-                                isFallbackZico: !optImageUrl && optIdx === 0 && stationNum === 1,
-                                isFallbackSonet: !optImageUrl && optIdx === 1 && stationNum === 1,
-                                description:
-                                  optDesc ||
-                                  (stationNum === 1
-                                    ? (optIdx === 0
-                                      ? 'Bức tranh vẽ siêu nhân quen thuộc giống như trên phim, ai cũng có thể vẽ hoặc sao chép tương tự nhau.'
-                                      : 'Bức tranh vẽ Bố dũng cảm cầm vợt muỗi bảo vệ cả nhà — câu chuyện đời thật độc nhất vô nhị chỉ có ở gia đình con!')
-                                    : `Phương án ${optLetter}`),
-                                onSelect: () => handleChooseAnswerInternal(riddle.id, optIdx),
-                              })
-                            }}
-                            className="absolute bottom-2.5 right-2.5 z-10 flex items-center gap-1 rounded-full bg-black/65 px-2.5 py-1 text-[11px] font-black text-white backdrop-blur-xs transition hover:bg-black/85 active:scale-95 shadow-xs cursor-pointer"
-                            title="Phóng to xem tranh chi tiết"
-                          >
-                            <ZoomIn size={13} />
-                            <span>Xem tranh to</span>
-                          </button>
+                        <div className="absolute top-3 left-3 flex items-center gap-2">
+                          <span className={cn(
+                            "grid size-9 place-items-center rounded-xl text-sm font-black shadow-xs backdrop-blur-md transition-colors",
+                            isSelected
+                              ? isCorrect
+                                ? 'bg-mint-500 text-white'
+                                : isWrong
+                                ? 'bg-coral-500 text-white'
+                                : 'bg-brand-500 text-white'
+                              : 'bg-black/60 text-white'
+                          )}>
+                            {optLetter}
+                          </span>
                         </div>
+
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            onZoomImage?.({
+                              title: optTitle,
+                              subtitle: `Phương án ${optLetter} · Chi tiết tranh`,
+                              url: optImageUrl,
+                              isFallbackZico: !optImageUrl && optIdx === 0 && stationNum === 1,
+                              isFallbackSonet: !optImageUrl && optIdx === 1 && stationNum === 1,
+                              description:
+                                optDesc ||
+                                (stationNum === 1
+                                  ? (optIdx === 0
+                                    ? 'Bức tranh vẽ siêu nhân quen thuộc giống như trên phim, ai cũng có thể vẽ hoặc sao chép tương tự nhau.'
+                                    : 'Bức tranh vẽ Bố dũng cảm cầm vợt muỗi bảo vệ cả nhà — câu chuyện đời thật độc nhất vô nhị chỉ có ở gia đình con!')
+                                  : `Phương án ${optLetter}`),
+                              onSelect: () => handleChooseAnswerInternal(riddle.id, optIdx),
+                            })
+                          }}
+                          className="absolute bottom-3 right-3 z-10 flex items-center gap-1.5 rounded-full bg-black/70 px-3 py-1.5 text-xs font-black text-white backdrop-blur-sm transition hover:bg-black/90 active:scale-95 shadow-xs cursor-pointer"
+                          title="Phóng to xem tranh chi tiết"
+                        >
+                          <ZoomIn size={15} />
+                          <span>🔍 Xem to</span>
+                        </button>
                       </div>
 
-                      {optDesc && (
-                        <div className="mt-3 rounded-xl bg-white/85 p-3 border border-current/10 text-sm sm:text-base font-semibold leading-relaxed text-text/90">
-                          👉 {optDesc}
+                      {/* Nút chọn phương án to bản chuẩn Soft Clay */}
+                      <button
+                        type="button"
+                        disabled={isChecking}
+                        onClick={() => handleChooseAnswerInternal(riddle.id, optIdx)}
+                        className={cn(
+                          'group relative flex items-start gap-3.5 p-4 sm:p-5 rounded-3xl border-3 text-left transition-all duration-150 shadow-clay active:scale-[0.98] cursor-pointer',
+                          isSelected
+                            ? isCorrect
+                              ? 'border-mint-500 bg-mint-50 text-mint-950 ring-4 ring-mint-300/50 shadow-clay'
+                              : isWrong
+                              ? 'border-coral-400 bg-coral-50 text-coral-950 ring-4 ring-coral-300/50'
+                              : 'border-brand-500 bg-brand-50 text-brand-950'
+                            : 'border-border bg-white hover:border-brand-400 hover:bg-brand-50/30 text-text'
+                        )}
+                      >
+                        <span
+                          className={cn(
+                            'grid size-11 shrink-0 place-items-center rounded-2xl text-lg font-black shadow-xs transition-transform group-hover:scale-105',
+                            isSelected
+                              ? isCorrect
+                                ? 'bg-mint-500 text-white'
+                                : isWrong
+                                ? 'bg-coral-500 text-white'
+                                : 'bg-brand-500 text-white'
+                              : optIdx === 0
+                              ? 'bg-amber-100 text-amber-900 border-2 border-amber-300'
+                              : 'bg-sky-100 text-sky-900 border-2 border-sky-300'
+                          )}
+                        >
+                          {optLetter}
+                        </span>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center justify-between gap-2">
+                            <span className="text-xs font-black uppercase tracking-wider text-muted">
+                              Phương án {optLetter}
+                            </span>
+                            {isCorrect && (
+                              <span className="flex items-center gap-1 rounded-full bg-mint-500 text-white px-2.5 py-0.5 text-xs font-black shadow-xs">
+                                <Check size={14} /> Chính xác!
+                              </span>
+                            )}
+                          </div>
+                          <h4 className="mt-0.5 font-display text-base sm:text-lg font-black leading-tight text-text">
+                            {optTitle}
+                          </h4>
+                          {optDesc && (
+                            <p className="mt-1.5 text-xs sm:text-sm font-semibold leading-relaxed text-slate-700">
+                              👉 {optDesc}
+                            </p>
+                          )}
                         </div>
-                      )}
+                      </button>
                     </div>
                   )
                 })}
               </div>
 
+              {/* Bảng Giải Thích 3 Bước Sư Phạm xuất hiện ngay bên dưới 2 tranh ở Cột Trái */}
               {feedback && (
                 <div
                   className={cn(
-                    'rounded-2xl border-2 p-3.5 animate-pop text-left flex items-center justify-between gap-3',
-                    feedback.correct ? 'border-mint-300 bg-mint-50 text-mint-900' : 'border-coral-300 bg-coral-50 text-coral-900'
+                    'mt-6 rounded-3xl border-3 p-5 sm:p-6 shadow-clay animate-fade-up text-left space-y-3.5',
+                    feedback.correct
+                      ? 'border-mint-400 bg-mint-50/90 text-mint-950 ring-4 ring-mint-200/50'
+                      : 'border-coral-300 bg-coral-50/90 text-coral-950'
                   )}
                   role="status"
                 >
-                  <div className="flex items-center gap-2 font-bold text-sm">
-                    <span>{feedback.correct ? '🎉' : '💡'}</span>
-                    <span>
-                      {feedback.correct ? 'Con đã chọn đúng tranh! Xem giải thích 3 bước ở bảng bên phải 👉' : 'Chưa đúng, hãy xem gợi ý từ Coach Mee bên phải nhé!'}
-                    </span>
+                  <div className="flex items-center justify-between gap-3 border-b border-current/15 pb-3">
+                    <div className="flex items-center gap-2.5 font-display text-lg sm:text-xl font-black">
+                      <span className="text-2xl">{feedback.correct ? '🎉' : '💡'}</span>
+                      <span>
+                        {feedback.correct
+                          ? 'Con đã chọn rất chính xác! Giải thích 3 bước sư phạm:'
+                          : 'Chưa đúng rồi! Cùng phân tích để ghi nhớ nhé:'}
+                      </span>
+                    </div>
+                    {feedback.correct && (
+                      <span className="rounded-full bg-mint-500 text-white px-3 py-1 text-xs font-black shadow-xs shrink-0">
+                        +1 ⭐ Xuất sắc
+                      </span>
+                    )}
                   </div>
+
+                  <div className="grid gap-3 pt-1 text-sm sm:text-base font-sans">
+                    <div className="flex items-start gap-3 bg-white/90 p-3.5 rounded-2xl border border-current/10 shadow-2xs">
+                      <span className="font-black text-brand-700 shrink-0 bg-brand-100 px-2.5 py-1 rounded-xl text-xs sm:text-sm">
+                        Bước 1 · Nhận diện
+                      </span>
+                      <span className="font-semibold text-slate-800 leading-relaxed">
+                        Quan sát kỹ hai bức tranh và chi tiết khác biệt trong câu lệnh tạo ảnh.
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3 bg-white/90 p-3.5 rounded-2xl border border-current/10 shadow-2xs">
+                      <span className="font-black text-amber-800 shrink-0 bg-amber-100 px-2.5 py-1 rounded-xl text-xs sm:text-sm">
+                        Bước 2 · Phân tích
+                      </span>
+                      <span className="font-semibold text-slate-800 leading-relaxed">
+                        {feedback.explanation ||
+                          riddle.explanation ||
+                          'AI chỉ vẽ theo dữ liệu cụ thể ta cung cấp; thiếu chi tiết AI sẽ tự đoán bừa.'}
+                      </span>
+                    </div>
+                    <div className="flex items-start gap-3 bg-white/90 p-3.5 rounded-2xl border border-current/10 shadow-2xs">
+                      <span className="font-black text-mint-800 shrink-0 bg-mint-100 px-2.5 py-1 rounded-xl text-xs sm:text-sm">
+                        Bước 3 · Kết luận
+                      </span>
+                      <span className="font-semibold text-slate-800 leading-relaxed">
+                        Luôn áp dụng công thức miêu tả rõ ràng, độc đáo và không sao chép tác phẩm của người khác!
+                      </span>
+                    </div>
+                  </div>
+
                   {feedback.correct && onNextStage && (
-                    <Button
-                      variant="primary"
-                      className="h-9 px-4 text-xs font-black shadow-sm shrink-0"
-                      onClick={() => onNextStage(stageIndex + 1)}
-                    >
-                      Sang Chặng {stageIndex + 2} ➜
-                    </Button>
+                    <div className="pt-3 flex justify-end">
+                      <Button
+                        variant="primary"
+                        className="h-12 px-6 font-black text-sm sm:text-base rounded-2xl shadow-clay cursor-pointer flex items-center gap-2"
+                        onClick={() => onNextStage(stageIndex + 1)}
+                      >
+                        <span>Tiếp tục sang Chặng {stageIndex + 2}</span>
+                        <ChevronRight className="size-5" />
+                      </Button>
+                    </div>
                   )}
                 </div>
               )}

@@ -16,7 +16,7 @@ describe('AikiRuleQuiz', () => {
 
     expect(markup).toContain('data-testid="aiki-rule-quiz"')
     expect(markup).toContain('Thử tài câu hỏi ôn tập Quy tắc 1')
-    expect(markup).toContain(rule.questions[0].prompt)
+    expect(markup).toContain(rule.questions[0].prompt.replace(/"/g, '&quot;'))
     expect(markup).toContain(rule.questions[0].options[0])
     expect(markup).toContain(rule.questions[0].options[1])
   })

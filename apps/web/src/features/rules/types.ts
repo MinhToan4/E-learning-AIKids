@@ -1,8 +1,8 @@
 export type RuleQuestion = {
   id: string
   prompt: string
-  options: [string, string, string] // Exactly 3 options A, B, C
-  correctIndex: 0 | 1 | 2
+  options: string[] // Options A, B or A, B, C
+  correctIndex: number
   hint: string
   successFeedback: string
   retryFeedback: string

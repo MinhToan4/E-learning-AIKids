@@ -122,6 +122,9 @@ async function createJob(
 export async function generateCreativeImage(input: {
   prompt: string
   imageDataUrl?: string
+  provider?: string // 'gflow' | 'google-flow'
+  aspectRatio?: string
+  modelId?: string
 }): Promise<string> {
   const references: string[] = []
   if (input.imageDataUrl) {
@@ -146,6 +149,9 @@ export async function generateCreativeImage(input: {
   }
   const job = await createJob('image', {
     prompt: input.prompt,
+    provider: input.provider || 'gflow',
+    model_id: input.modelId || 'NARWHAL',
+    aspect_ratio: input.aspectRatio || '1:1',
     ...(references.length
       ? {
           reference_image_url: references[0],

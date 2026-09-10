@@ -151,11 +151,35 @@ export function autoWrapMath(text: string): string {
   return s
 }
 
+/**
+ * CodeGraph Security XSS Sanitizer:
+ * Cleans untrusted HTML tags, executable scripts, and malicious event handlers
+ * from raw input before formula and diagram transformations occur, ensuring safe dangerouslySetInnerHTML usage.
+ */
+export function sanitizeFormulaInput(raw: string): string {
+  if (!raw) return ''
+
+  let clean = raw
+    // 1. Remove dangerous executable tag blocks completely along with their inner content
+    .replace(/<\s*(?:script|iframe|object|embed|style|form|link|meta|base)\b[^>]*>[\s\S]*?<\s*\/\s*(?:script|iframe|object|embed|style|form|link|meta|base)\s*>/gi, '')
+    // 2. Remove standalone dangerous tags
+    .replace(/<\s*(?:script|iframe|object|embed|style|form|input|button|link|meta|base|img|svg|audio|video)\b[^>]*\/?>/gi, '')
+    // 3. Strip all inline JavaScript event handlers (e.g. onerror, onload, onclick)
+    .replace(/\bon[a-zA-Z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+    // 4. Strip dangerous pseudo-protocols
+    .replace(/(?:javascript|vbscript)\s*:/gi, '')
+    .replace(/data\s*:\s*text\/html/gi, '')
+    // 5. Strip any unexpected HTML tags in raw input to ensure only AsmoFormula-generated markup reaches dangerouslySetInnerHTML
+    .replace(/<\s*\/?[a-zA-Z][a-zA-Z0-9:-]*\b[^>]*>/gi, '')
+
+  return clean
+}
+
 export function AsmoFormula({ text, className }: Props) {
   const html = useMemo(() => {
     if (!text) return ''
 
-    let input = text
+    let input = sanitizeFormulaInput(text)
     // Replace unicode □ (U+25A1) with \square
     input = input.replace(/□/g, '\\square')
     // Normalize backslash: convert \\([a-zA-Z]+) or \\\\([a-zA-Z]+) to \

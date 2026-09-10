@@ -32,7 +32,7 @@ export default defineConfig(({ mode }) => {
     },
     build: {
       target: 'es2022',
-      chunkSizeWarningLimit: 2500,
+      chunkSizeWarningLimit: 1000,
       assetsInlineLimit: 4096, // inline SVGs < 4 KB, don't inline images
       cssCodeSplit: true,
       rollupOptions: {

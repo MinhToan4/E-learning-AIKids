@@ -1,0 +1,96 @@
+import { describe, expect, it } from 'vitest'
+import { createElement } from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import { LessonInteractiveSidebar } from './LessonInteractiveSidebar'
+
+describe('LessonInteractiveSidebar', () => {
+  const defaultGuideCopy = {
+    eyebrow: 'Hiệp Sĩ Sáng Tạo',
+    title: 'Học Quy Tắc 1 Cùng Mèo AKI',
+    body: 'Chào con! Hôm nay hãy cùng AKI khám phá quy tắc sáng tạo đầu tiên nhé!',
+    pose: 'guide' as const,
+  }
+
+  const sampleStages = [
+    { id: 'stage-1', label: 'Tình Huống' },
+    { id: 'stage-2', label: 'Câu Đố Của AKI' },
+    { id: 'stage-3', label: 'Khắc Ghi Quy Tắc 1' },
+    { id: 'stage-4', label: 'Bí Quyết Tư Duy' },
+    { id: 'stage-5', label: 'Lời Dặn & Nhận Cúp' },
+  ]
+
+  it('renders mini MeeTutorAvatar in AKI speech bubble', () => {
+    const markup = renderToStaticMarkup(
+      createElement(LessonInteractiveSidebar, {
+        guideCopy: defaultGuideCopy,
+        phase: 'learn',
+        maxUnlockedPhase: 'learn',
+        stages: sampleStages,
+        currentStageIndex: 0,
+      })
+    )
+
+    expect(markup).toContain('Lời thoại của AKI')
+    expect(markup).toContain('border-amber-300 bg-amber-100')
+    expect(markup).toContain('DỪNG LẠIII')
+  })
+
+  it('renders Knight Quest & Tip Card at the bottom with 5 segments and contextual tip for stage 0', () => {
+    const markup = renderToStaticMarkup(
+      createElement(LessonInteractiveSidebar, {
+        guideCopy: defaultGuideCopy,
+        phase: 'learn',
+        maxUnlockedPhase: 'learn',
+        stages: sampleStages,
+        currentStageIndex: 0,
+        liveStars: 3,
+      })
+    )
+
+    expect(markup).toContain('Tiến độ Hiệp Sĩ Quy Tắc')
+    expect(markup).toContain('3 Sao')
+    expect(markup).toContain('Để ý kỹ: Tìm chi tiết khiến bức tranh của Sonet và Zico khác nhau nhé!')
+    expect(markup).toContain('Chặng trước')
+    expect(markup).toContain('Chặng sau')
+  })
+
+  it('renders contextual tips for stage 1 and stage 4', () => {
+    const markupStage1 = renderToStaticMarkup(
+      createElement(LessonInteractiveSidebar, {
+        guideCopy: defaultGuideCopy,
+        phase: 'learn',
+        maxUnlockedPhase: 'learn',
+        stages: sampleStages,
+        currentStageIndex: 1,
+      })
+    )
+    expect(markupStage1).toContain('Bấm chọn tranh: Chọn bức tranh thể hiện ý tưởng độc nhất của con!')
+
+    const markupStage4 = renderToStaticMarkup(
+      createElement(LessonInteractiveSidebar, {
+        guideCopy: defaultGuideCopy,
+        phase: 'learn',
+        maxUnlockedPhase: 'learn',
+        stages: sampleStages,
+        currentStageIndex: 4,
+      })
+    )
+    expect(markupStage4).toContain('Tuyên thệ: Nhận cúp Hiệp Sĩ và sẵn sàng cho bài tiếp theo!')
+    expect(markupStage4).toContain('Nhận Cúp')
+  })
+
+  it('renders stage 1 quiz and interactive options cleanly without popup', () => {
+    const markup = renderToStaticMarkup(
+      createElement(LessonInteractiveSidebar, {
+        guideCopy: defaultGuideCopy,
+        phase: 'learn',
+        maxUnlockedPhase: 'learn',
+        stages: sampleStages,
+        currentStageIndex: 1,
+      })
+    )
+    expect(markup).toContain('Câu Đố Của AKI')
+    expect(markup).toContain('Bức nào mới đúng yêu cầu của cô? Bấm chọn đi nào!')
+    expect(markup).not.toContain('Thu nhỏ box')
+  })
+})

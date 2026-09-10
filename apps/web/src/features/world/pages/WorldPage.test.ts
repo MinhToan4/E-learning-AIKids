@@ -4,6 +4,8 @@ import {
   isAikiRuleCourse,
   isCourseRuleCompleted,
   applyGatekeeperRules,
+  getAikiCourseSortOrder,
+  sortAikiCourses,
   FORCE_UNLOCK_ALL_ISLANDS,
   type PathwayCourse,
 } from './WorldPage'
@@ -126,3 +128,86 @@ describe('Gatekeeper Island (Đảo Quy Tắc Vàng AIKI)', () => {
     expect(result[2].lockMessage).toBeUndefined()
   })
 })
+
+describe('Multi-tier World & Program Source mapping', () => {
+  it('correctly filters courses by programSource', () => {
+    const courses: PathwayCourse[] = [
+      course({ id: 'aiki-rules', programSource: 'aikid_official' }),
+      course({ id: 'course-school', programSource: 'workspace' }),
+      course({ id: 'course-free', programSource: 'creator_marketplace' }),
+    ]
+
+    const aikidCourses = courses.filter((c) => (c.programSource ?? 'aikid_official') === 'aikid_official')
+    expect(aikidCourses).toHaveLength(1)
+    expect(aikidCourses[0].id).toBe('aiki-rules')
+
+    const workspaceCourses = courses.filter((c) => c.programSource === 'workspace')
+    expect(workspaceCourses).toHaveLength(1)
+    expect(workspaceCourses[0].id).toBe('course-school')
+
+    const freeCourses = courses.filter((c) => c.programSource === 'creator_marketplace')
+    expect(freeCourses).toHaveLength(1)
+    expect(freeCourses[0].id).toBe('course-free')
+  })
+})
+
+describe('AI Kids Learning Roadmap Order (Module 0 / Quy tắc đầu tiên > M1 -> M5)', () => {
+  it('assigns correct order values: Rule = 0, M1 = 1, M2 = 2, M3 = 3, M4 = 4, M5 = 5', () => {
+    expect(getAikiCourseSortOrder({ id: 'aiki-rules', title: 'Module 0 — Mười quy tắc của Xưởng sáng tạo' })).toBe(0)
+    expect(getAikiCourseSortOrder({ id: 'rule-gold', title: 'Quy tắc vàng AIKI' })).toBe(0)
+    expect(getAikiCourseSortOrder({ id: 'dao-1-nha-tham-hiem-ai', title: 'Module 1 — Nhà thám hiểm AI' })).toBe(1)
+    expect(getAikiCourseSortOrder({ id: 'dao-2-hoa-si-ai', title: 'Module 2 — Tớ là hoạ sĩ AI!' })).toBe(2)
+    expect(getAikiCourseSortOrder({ id: 'dao-3-biet-doi-nhan-vat-ai', title: 'Module 3 — Biệt đội nhân vật AI' })).toBe(3)
+    expect(getAikiCourseSortOrder({ id: 'dao-4-vuong-quoc-truyen-tranh-ai', title: 'Module 4 — Vương quốc truyện tranh AI' })).toBe(4)
+    expect(getAikiCourseSortOrder({ id: 'dao-5-nha-phat-minh-tro-choi-ai', title: 'Module 5 — Nhà phát minh trò chơi AI' })).toBe(5)
+  })
+
+  it('sorts inverted course list [M5, M4, M3, M2, M1, M0] in correct ascending order: Rule -> M1 -> M5', () => {
+    const reversedCourses: PathwayCourse[] = [
+      course({ id: 'dao-5-tro-choi', title: 'Module 5 — Nhà phát minh trò chơi AI' }),
+      course({ id: 'dao-4-truyen-tranh', title: 'Module 4 — Vương quốc truyện tranh AI' }),
+      course({ id: 'dao-3-nhan-vat', title: 'Module 3 — Biệt đội nhân vật AI' }),
+      course({ id: 'dao-2-hoa-si', title: 'Module 2 — Tớ là hoạ sĩ AI!' }),
+      course({ id: 'dao-1-tham-hiem', title: 'Module 1 — Nhà thám hiểm AI' }),
+      course({ id: 'aiki-rules', title: 'Module 0 — Mười quy tắc của Xưởng sáng tạo' }),
+    ]
+
+    const sorted = sortAikiCourses(reversedCourses)
+
+    expect(sorted.map((c) => c.title)).toEqual([
+      'Module 0 — Mười quy tắc của Xưởng sáng tạo',
+      'Module 1 — Nhà thám hiểm AI',
+      'Module 2 — Tớ là hoạ sĩ AI!',
+      'Module 3 — Biệt đội nhân vật AI',
+      'Module 4 — Vương quốc truyện tranh AI',
+      'Module 5 — Nhà phát minh trò chơi AI',
+    ])
+  })
+
+  it('applyGatekeeperRules ensures Gatekeeper Island (Quy tắc) is always first and islands are ordered M0 -> M5', () => {
+    const reversedCourses: PathwayCourse[] = [
+      course({ id: 'dao-5-tro-choi', title: 'Module 5 — Nhà phát minh trò chơi AI', status: 'locked' }),
+      course({ id: 'dao-4-truyen-tranh', title: 'Module 4 — Vương quốc truyện tranh AI', status: 'locked' }),
+      course({ id: 'dao-3-nhan-vat', title: 'Module 3 — Biệt đội nhân vật AI', status: 'locked' }),
+      course({ id: 'dao-2-hoa-si', title: 'Module 2 — Tớ là hoạ sĩ AI!', status: 'locked' }),
+      course({ id: 'dao-1-tham-hiem', title: 'Module 1 — Nhà thám hiểm AI', status: 'locked' }),
+      course({ id: 'aiki-rules', title: 'Module 0 — Mười quy tắc của Xưởng sáng tạo', status: 'locked' }),
+    ]
+
+    const processed = applyGatekeeperRules(reversedCourses)
+
+    // First item must be Module 0 Gatekeeper
+    expect(processed[0].id).toBe('aiki-rules')
+    expect(processed[0].isGatekeeper).toBe(true)
+    expect(processed[0].status).toBe('available')
+
+    // Subsequent items must follow M1 -> M5
+    expect(processed[1].id).toBe('dao-1-tham-hiem')
+    expect(processed[2].id).toBe('dao-2-hoa-si')
+    expect(processed[3].id).toBe('dao-3-nhan-vat')
+    expect(processed[4].id).toBe('dao-4-truyen-tranh')
+    expect(processed[5].id).toBe('dao-5-tro-choi')
+  })
+})
+
+

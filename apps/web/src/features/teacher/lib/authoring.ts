@@ -1,3 +1,5 @@
+import type { LessonSixStageJourney } from '@/shared/lib/api'
+
 export type AuthoringStepId = 'basics' | 'content' | 'outcomes' | 'recognition' | 'learn' | 'game' | 'practice' | 'check'
 
 export type AuthoringStep = {
@@ -161,7 +163,7 @@ export type LearnCardDraft = {
   }
 }
 
-export type LessonFormat = 'standard' | 'aiki-rule-5steps'
+export type LessonFormat = 'standard' | 'aiki-rule-5steps' | 'aiki-island-6steps'
 
 export const AIKI_RULE_STAGE_KINDS = [
   'situation',
@@ -193,10 +195,11 @@ export function isAikiRuleLesson(cards: LearnCardDraft[]): boolean {
   return false
 }
 
-export function detectLessonFormat(cards: LearnCardDraft[], explicitFormat?: string): LessonFormat {
-  if (explicitFormat === 'aiki-rule-5steps' || explicitFormat === 'standard') {
+export function detectLessonFormat(cards: LearnCardDraft[], explicitFormat?: string, isIsland?: boolean): LessonFormat {
+  if (explicitFormat === 'aiki-island-6steps' || explicitFormat === 'aiki-rule-5steps' || explicitFormat === 'standard') {
     return explicitFormat
   }
+  if (isIsland) return 'aiki-island-6steps'
   if (isAikiRuleLesson(cards)) return 'aiki-rule-5steps'
   return 'standard'
 }
@@ -437,6 +440,8 @@ export type LectureDraft = {
   hook: string
   practiceKind: string
   lessonFormat?: LessonFormat
+  metadata?: Record<string, unknown>
+  sixStageJourney?: LessonSixStageJourney
   videoUrl: string
   concept: string
   example: string
@@ -638,16 +643,40 @@ export function courseDraftReadiness(draft: CourseDraft): AuthoringReadiness {
 
 export function lectureDraftReadiness(draft: LectureDraft): AuthoringReadiness {
   const videoIsValid = !draft.videoUrl.trim() || /^https:\/\//i.test(draft.videoUrl.trim())
-  const hasAikiRuleStage = isAikiRuleLesson(draft.learnCards) || draft.learnCards.some((card) => AIKI_RULE_STAGE_KINDS.includes(card.kind as typeof AIKI_RULE_STAGE_KINDS[number]))
+  const isIsland =
+    draft.lessonFormat === 'aiki-island-6steps' ||
+    Boolean(draft.sixStageJourney) ||
+    (/^bai-\d+-\d+/i.test(draft.id) && draft.lessonFormat !== 'standard' && draft.lessonFormat !== 'aiki-rule-5steps')
+  const hasAikiRuleStage = !isIsland && (isAikiRuleLesson(draft.learnCards) || draft.learnCards.some((card) => AIKI_RULE_STAGE_KINDS.includes(card.kind as typeof AIKI_RULE_STAGE_KINDS[number])))
 
   const basicsStep = step('basics', 'Thông tin trạm', [
     [/^[a-z0-9-]{3,64}$/.test(draft.id), 'Đường dẫn bài học'],
     [hasLength(draft.title, 3), 'Tên bài học'],
     [hasLength(draft.skill, 3), 'Kỹ năng trọng tâm'],
     [hasLength(draft.hook, 5), 'Câu hỏi khởi động'],
-    [lines(draft.goalsText).length >= 3 && lines(draft.goalsText).every((item) => hasLength(item, 10)), 'Ít nhất 3 mục tiêu rõ ràng'],
+    [
+      isIsland
+        ? lines(draft.goalsText).length >= 1
+        : lines(draft.goalsText).length >= 3 && lines(draft.goalsText).every((item) => hasLength(item, 10)),
+      isIsland ? 'Ít nhất 1 mục tiêu rõ ràng' : 'Ít nhất 3 mục tiêu rõ ràng',
+    ],
     [videoIsValid, 'Liên kết video HTTPS'],
   ])
+
+  if (isIsland) {
+    const j = draft.sixStageJourney
+    return readiness([
+      basicsStep,
+      step('content', '6 Chặng Sư Phạm Đảo AIKids', [
+        [Boolean(j?.stage1_goal?.title || draft.title), 'Chặng 1: Tiêu đề bài học'],
+        [Boolean(j?.stage2_confirmGoal?.question), 'Chặng 2: Câu hỏi xác nhận mục tiêu'],
+        [Boolean(j?.stage3_video?.videoUrl || draft.videoUrl), 'Chặng 3: Video bài giảng'],
+        [Boolean(j?.stage4_quiz?.questions && j.stage4_quiz.questions.length > 0), 'Chặng 4: Câu hỏi bài test'],
+        [Boolean(j?.stage5_practice?.subjectName), 'Chặng 5: Xưởng thực hành AI'],
+        [Boolean(j?.stage6_completion?.title), 'Chặng 6: Màn kết thúc'],
+      ]),
+    ])
+  }
 
   if (hasAikiRuleStage) {
     return readiness([

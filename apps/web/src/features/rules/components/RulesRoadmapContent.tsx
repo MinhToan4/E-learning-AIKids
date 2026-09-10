@@ -35,7 +35,7 @@ export function RulesRoadmapContent({
       navigate(ruleUrlPattern(ruleId))
       return
     }
-    navigate(`/lesson/rule-${ruleId}`)
+    navigate(`/world/${courseId || 'aiki-rules'}/lesson/rule-${ruleId}`)
   }
 
   return (

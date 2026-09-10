@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link, useParams, useNavigate } from 'react-router'
-import { CheckCircle2, Star, Trophy, Zap, ChevronRight } from 'lucide-react'
+import { CheckCircle2, Star, Trophy, Zap, ChevronRight, ArrowLeft } from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { CuteProgress } from '@/shared/components/ui/CuteProgress'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
@@ -89,7 +89,7 @@ function buildStationPath(total: number) {
   }, `M ${points[0].x} ${points[0].y}`)
 }
 
-function QuestNode({ quest, index, total }: { quest: QuestProgress; index: number; total: number }) {
+function QuestNode({ quest, index, total, courseId }: { quest: QuestProgress; index: number; total: number; courseId?: string }) {
   const locked = !FORCE_UNLOCK_ALL_ISLANDS && quest.status === 'locked'
   const done = quest.status === 'completed'
   const available = FORCE_UNLOCK_ALL_ISLANDS || quest.status === 'available' || quest.status === 'in_progress'
@@ -124,6 +124,8 @@ function QuestNode({ quest, index, total }: { quest: QuestProgress; index: numbe
     </div>
   )
 
+  const lessonUrl = courseId ? `/world/${courseId}/lesson/${quest.id}` : `/lesson/${quest.id}`
+
   return (
     <li
       className="quest-map-point"
@@ -135,7 +137,7 @@ function QuestNode({ quest, index, total }: { quest: QuestProgress; index: numbe
       {locked ? (
         <div className="cursor-not-allowed">{nodeEl}</div>
       ) : (
-        <Link to={`/lesson/${quest.id}`} className="block">
+        <Link to={lessonUrl} className="block">
           {nodeEl}
         </Link>
       )}
@@ -143,8 +145,12 @@ function QuestNode({ quest, index, total }: { quest: QuestProgress; index: numbe
   )
 }
 
-export function WorldPage() {
-  const { courseId } = useParams()
+export interface WorldPageProps {
+  showSpacesSelector?: boolean
+}
+
+export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
+  const { courseId, programId, trackId } = useParams<{ courseId?: string; programId?: string; trackId?: string }>()
   const navigate = useNavigate()
   const [quests, setQuests] = useState<QuestProgress[]>([])
   const [meta, setMeta] = useState({ totalStars: 0, completedCount: 0 })
@@ -201,7 +207,8 @@ export function WorldPage() {
         const courseResp = await learningApi.getCourse<{ course: { title: string } }>(courseId)
         courseTitle = courseResp.course.title
         pathRow = processedCourses.find((row) => row.id === courseId)
-        setRegionIndex(Math.max(0, processedCourses.findIndex((row) => row.id === courseId)))
+        const targetOrder = getAikiCourseSortOrder(pathRow || { id: courseId, title: courseTitle })
+        setRegionIndex(targetOrder < WORLD_REGIONS.length ? targetOrder : Math.max(0, processedCourses.findIndex((row) => row.id === courseId)))
 
         if (!pathRow || (!FORCE_UNLOCK_ALL_ISLANDS && pathRow.status === 'locked')) {
           throw new Error(pathRow?.lockMessage || 'Khóa học này chưa được mở trong lộ trình của con.')
@@ -256,16 +263,23 @@ export function WorldPage() {
         </p>
       )
     }
-    return <PathwayOverview pathway={pathway} />
+    return (
+      <PathwayOverview
+        pathway={pathway}
+        programId={programId}
+        trackId={trackId}
+        showSpacesSelector={showSpacesSelector}
+      />
+    )
   }
 
   if (courseId && (courseId === 'aiki-rules' || courseId.startsWith('rule-') || isAikiRuleCourse({ id: courseId, title: courseTitle }, regionIndex))) {
     return (
       <RulesRoadmapContent
         courseId={courseId}
-        backUrl="/world"
-        onSelectRule={(ruleNum) => navigate(`/lesson/rule-${ruleNum}`)}
-        ruleUrlPattern={(ruleNum) => `/lesson/rule-${ruleNum}`}
+        backUrl="/world/program/aikid_official/creator"
+        onSelectRule={(ruleNum) => navigate(`/world/${courseId}/lesson/rule-${ruleNum}`)}
+        ruleUrlPattern={(ruleNum) => `/world/${courseId}/lesson/rule-${ruleNum}`}
       />
     )
   }
@@ -285,10 +299,10 @@ export function WorldPage() {
             {error || 'Bé hãy hoàn thành Đảo Quy Tắc Vàng AIKI trước để nhận Huy hiệu Hiệp Sĩ và mở khóa toàn bộ hành trình sáng tạo nhé!'}
           </p>
           <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
-            <Button onClick={() => navigate('/world')} className="w-full sm:w-auto">
-              🗺️ Chọn Đảo Khác / Bản Đồ Thế Giới
+            <Button onClick={() => navigate('/world/program/aikid_official/creator')} className="w-full sm:w-auto">
+              🗺️ Danh sách các Đảo
             </Button>
-            <Link to="/world" className="w-full sm:w-auto">
+            <Link to="/world/aiki-rules" className="w-full sm:w-auto">
               <Button variant="secondary" className="w-full">
                 🛡️ Đến Đảo Quy Tắc Vàng
               </Button>
@@ -304,8 +318,8 @@ export function WorldPage() {
       <header className="course-map-hero">
         <div className="course-map-heading">
           <p className="mb-1 flex flex-wrap items-center justify-center gap-2 text-xs font-extrabold text-brand-700">
-            <Link to="/world" className="inline-flex min-h-11 items-center gap-1 hover:text-brand-900">
-              <NavWorldIcon size={21} aria-hidden="true" /> World
+            <Link to="/world/program/aikid_official/creator" className="inline-flex min-h-11 items-center gap-1 hover:text-brand-900">
+              <NavWorldIcon size={21} aria-hidden="true" /> Khóa sáng tạo nội dung
             </Link>
             <span aria-hidden="true">›</span>
             <span>{currentRegion.name}</span>
@@ -338,7 +352,7 @@ export function WorldPage() {
                   <h2 className="font-display text-xl text-text">{next.title}</h2>
                   <p className="text-sm font-bold text-muted">Trạm {next.order} · {next.duration}</p>
                 </div>
-                <Link to={`/lesson/${next.id}`} className="course-map-primary-action animate-pop">
+                <Link to={`/world/${courseId}/lesson/${next.id}`} className="course-map-primary-action animate-pop">
                   {next.status === 'in_progress' ? 'Tiếp tục học' : 'Bắt đầu học'}
                 </Link>
               </aside>
@@ -414,7 +428,7 @@ export function WorldPage() {
             </svg>
             <ol className="course-game-stations">
             {quests.map((q, i) => (
-              <QuestNode key={q.id} quest={q} index={i} total={quests.length} />
+              <QuestNode key={q.id} quest={q} index={i} total={quests.length} courseId={courseId} />
             ))}
             </ol>
           </div>
@@ -465,17 +479,18 @@ export function applyGatekeeperRules(
 ): PathwayCourse[] {
   if (courses.length === 0) return []
 
+  const sortedCourses = sortAikiCourses(courses)
   const forceUnlock = forceUnlockOverride ?? FORCE_UNLOCK_ALL_ISLANDS
-  const ruleCourseIndex = courses.findIndex((c, i) => isAikiRuleCourse(c, i))
+  const ruleCourseIndex = sortedCourses.findIndex((c, i) => isAikiRuleCourse(c, i))
   if (ruleCourseIndex < 0) {
-    return courses
+    return sortedCourses
   }
   const targetRuleIndex = ruleCourseIndex
-  const ruleCourse = courses[targetRuleIndex]
+  const ruleCourse = sortedCourses[targetRuleIndex]
 
   const isRuleDone = ruleCourse ? isCourseRuleCompleted(ruleCourse) : false
 
-  return courses.map((course, idx) => {
+  return sortedCourses.map((course, idx) => {
     const isThisRuleCourse = idx === targetRuleIndex
     if (isThisRuleCourse) {
       // Đảo Quy Tắc LUÔN LUÔN mở sẵn cho học sinh mới vào, không bao giờ bị khóa
@@ -577,14 +592,100 @@ export const WORLD_REGIONS = [
   },
 ] as const
 
-export function getRegionForCourse(course: { id: string; title: string; shortTitle?: string }, index: number) {
-  const lower = `${course.id} ${course.title} ${course.shortTitle ?? ''}`.toLowerCase()
-  if (lower.includes('quy tắc') || lower.includes('quy tac') || lower.includes('module 0') || lower.includes('rule')) return WORLD_REGIONS[0]
-  if (lower.includes('nha-tham-hiem') || lower.includes('nhà thám hiểm') || lower.includes('module 1') || lower.includes('chìa khoá')) return WORLD_REGIONS[1]
-  if (lower.includes('hoa-si') || lower.includes('hoạ sĩ') || lower.includes('module 2')) return WORLD_REGIONS[2]
-  if (lower.includes('nhan-vat') || lower.includes('nhân vật') || lower.includes('module 3')) return WORLD_REGIONS[3]
-  if (lower.includes('truyen-tranh') || lower.includes('truyện tranh') || lower.includes('module 4')) return WORLD_REGIONS[4]
-  if (lower.includes('tro-choi') || lower.includes('trò chơi') || lower.includes('module 5')) return WORLD_REGIONS[5]
+export function getAikiCourseSortOrder(course: {
+  id?: string
+  slug?: string
+  title?: string
+  shortTitle?: string
+  courseKey?: string
+  metadata?: any
+}): number {
+  if (course.metadata?.sortOrder !== undefined && typeof course.metadata.sortOrder === 'number') {
+    return Number(course.metadata.sortOrder)
+  }
+  if (course.metadata?.regionOrder !== undefined && typeof course.metadata.regionOrder === 'number') {
+    return Number(course.metadata.regionOrder)
+  }
+
+  const key = `${course.courseKey ?? ''} ${course.id ?? ''} ${course.slug ?? ''}`.toLowerCase()
+  const title = `${course.title ?? ''} ${course.shortTitle ?? ''}`.toLowerCase()
+  const combined = `${key} ${title}`
+
+  if (
+    combined.includes('muoi-quy-tac') ||
+    combined.includes('quy tắc') ||
+    combined.includes('quy tac') ||
+    combined.includes('module 0') ||
+    combined.includes('aiki-rules') ||
+    combined.includes('rule')
+  ) {
+    return 0
+  }
+  if (
+    combined.includes('dao-1') ||
+    combined.includes('module 1') ||
+    combined.includes('nha-tham-hiem') ||
+    combined.includes('nhà thám hiểm') ||
+    combined.includes('chìa khoá')
+  ) {
+    return 1
+  }
+  if (
+    combined.includes('dao-2') ||
+    combined.includes('module 2') ||
+    combined.includes('hoa-si') ||
+    combined.includes('hoạ sĩ')
+  ) {
+    return 2
+  }
+  if (
+    combined.includes('dao-3') ||
+    combined.includes('module 3') ||
+    combined.includes('nhan-vat') ||
+    combined.includes('nhân vật')
+  ) {
+    return 3
+  }
+  if (
+    combined.includes('dao-4') ||
+    combined.includes('module 4') ||
+    combined.includes('truyen-tranh') ||
+    combined.includes('truyện tranh')
+  ) {
+    return 4
+  }
+  if (
+    combined.includes('dao-5') ||
+    combined.includes('module 5') ||
+    combined.includes('tro-choi') ||
+    combined.includes('trò chơi')
+  ) {
+    return 5
+  }
+  return 99
+}
+
+export function sortAikiCourses<
+  T extends {
+    id?: string
+    slug?: string
+    title?: string
+    shortTitle?: string
+    courseKey?: string
+    metadata?: any
+  },
+>(courses: T[]): T[] {
+  return [...courses].sort((a, b) => getAikiCourseSortOrder(a) - getAikiCourseSortOrder(b))
+}
+
+export function getRegionForCourse(
+  course: { id?: string; title?: string; shortTitle?: string; courseKey?: string; metadata?: any },
+  index: number,
+) {
+  const order = getAikiCourseSortOrder(course)
+  if (order < WORLD_REGIONS.length) {
+    return WORLD_REGIONS[order]
+  }
   return WORLD_REGIONS[index % WORLD_REGIONS.length]
 }
 
@@ -706,7 +807,7 @@ function RoadmapCourseNode({
                   <li key={stationNumber}>
                     {isRuleUnlocked ? (
                       <Link
-                        to={`/lesson/rule-${stationNumber}`}
+                        to={`/world/${course.id || 'aiki-rules'}/lesson/rule-${stationNumber}`}
                         className={dotClassName}
                         aria-label={stationLabel}
                         title={`Quy tắc ${stationNumber}`}
@@ -735,7 +836,7 @@ function RoadmapCourseNode({
                 <li key={station?.id ?? stationNumber}>
                   {station && !isLocked && (FORCE_UNLOCK_ALL_ISLANDS || station.status !== 'locked') ? (
                     <Link
-                      to={`/lesson/${station.id}`}
+                      to={`/world/${course.id}/lesson/${station.id}`}
                       className={dotClassName}
                       aria-label={stationLabel}
                       title={station.title}
@@ -806,14 +907,14 @@ function RoadmapCourseNode({
         <div className="flex flex-wrap items-center gap-2">
           {isRule ? (
             <Link
-              to={`/lesson/rule-${currentRuleId}`}
+              to={`/world/${course.id || 'aiki-rules'}/lesson/rule-${currentRuleId}`}
               className="world-course-primary-action"
             >
               Học tiếp
             </Link>
           ) : nextStation ? (
             <Link
-              to={`/lesson/${nextStation.id}`}
+              to={`/world/${course.id}/lesson/${nextStation.id}`}
               className="world-course-primary-action"
             >
               Học tiếp
@@ -915,9 +1016,25 @@ function LearningWorldScene({ kind }: { kind: LearningWorldKind }) {
   )
 }
 
-function PathwayOverview({ pathway }: { pathway: Pathway }) {
+function PathwayOverview({
+  pathway,
+  programId,
+  trackId,
+  showSpacesSelector = false,
+}: {
+  pathway: Pathway
+  programId?: string
+  trackId?: string
+  showSpacesSelector?: boolean
+}) {
+  const navigate = useNavigate()
   const [lockedModalCourse, setLockedModalCourse] = useState<PathwayCourse | null>(null)
-  const [selectedSource, setSelectedSource] = useState<PathwayCourse['programSource'] | null>(null)
+
+  const isSpacesView = Boolean(showSpacesSelector)
+  const selectedSource: PathwayCourse['programSource'] | null = isSpacesView
+    ? null
+    : (programId as PathwayCourse['programSource']) || 'aikid_official'
+
   // Canonical pathway responses include `enrolled`; status is retained as a
   // defensive fallback for older cached/deployed gateway responses.
   const visibleCourses = pathway.courses.filter(isPathwayCourseVisible)
@@ -949,9 +1066,11 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
   const currentRuleId = AIKI_RULES_DATA.find((r) => rulesProgress.rules[r.id]?.status === 'available')?.id ?? 1
 
   const selectedCategory = categories.find((category) => category.id === selectedSource)
-  const selectedCourses = selectedSource
-    ? visibleCourses.filter((course) => sourceOf(course) === selectedSource)
-    : []
+  const selectedCourses = sortAikiCourses(
+    selectedSource
+      ? visibleCourses.filter((course) => sourceOf(course) === selectedSource)
+      : [],
+  )
   const sourceRecommended = selectedCourses.find(
     (course) => course.id === pathway.recommendedCourseId,
   ) ?? selectedCourses.find((course) => course.status === 'active')
@@ -972,9 +1091,334 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
     (sum, course) => sum + Math.max(0, course.completedCount ?? 0),
     0,
   )
+  const totalStars = selectedCourses.reduce((sum, course) => sum + (course.totalStars ?? 0), 0)
   const totalProgress = totalStations > 0
     ? Math.round((completedStations / totalStations) * 100)
     : 0
+
+  // ─────────────────────────────────────────────────────────────
+  // Trường hợp 1: Chế độ Thư viện Không Gian Học Tập (/world/spaces)
+  // ─────────────────────────────────────────────────────────────
+  if (isSpacesView || !selectedSource) {
+    return (
+      <div className="page-enter flex flex-col gap-5">
+        <header className="world-guide-panel">
+          <AikidCatCharacter pose="walking" className="world-guide-mascot" />
+          <div className="world-guide-copy">
+            <div className="min-w-0">
+              <button
+                type="button"
+                onClick={() => navigate('/world/program/aikid_official')}
+                className="mb-2 inline-flex items-center gap-1.5 text-xs font-extrabold text-brand-700 hover:text-brand-900 transition-colors cursor-pointer"
+              >
+                <ArrowLeft size={16} />
+                <span>Về AIKid của em</span>
+              </button>
+              <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
+                Thư viện hành trình
+              </p>
+              <h1 className="font-display text-3xl sm:text-4xl leading-tight">
+                Không gian học tập
+              </h1>
+              <p className="mt-1 text-base text-muted">
+                Chọn không gian con muốn tiếp tục học hôm nay.
+              </p>
+            </div>
+          </div>
+        </header>
+
+        <section aria-labelledby="learning-library-title" className="space-y-4">
+          <div>
+            <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">Ba không gian học tập</p>
+            <h2 id="learning-library-title" className="mt-1 font-display text-2xl text-text sm:text-3xl">Con muốn học ở đâu?</h2>
+          </div>
+          <div className="grid gap-4 lg:grid-cols-3">
+            {categories.map((category) => {
+              const courses = visibleCourses.filter((course) => sourceOf(course) === category.id)
+              const active = courses.filter((course) => course.status === 'active').length
+              const stations = courses.reduce((sum, course) => sum + Math.max(0, course.questCount ?? 0), 0)
+              const doneStations = courses.reduce((sum, course) => sum + Math.max(0, course.completedCount ?? 0), 0)
+              const progress = stations > 0 ? Math.round(doneStations / stations * 100) : 0
+              return (
+                <button
+                  key={category.id}
+                  type="button"
+                  className={cn(
+                    'learning-world-card ui-card border-2 text-left transition-transform hover:-translate-y-1 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-focus cursor-pointer',
+                    category.tone,
+                  )}
+                  onClick={() => navigate('/world/program/' + category.id)}
+                >
+                  <LearningWorldScene kind={category.id} />
+                  <span className="learning-world-copy">
+                    <span className="block text-xs font-extrabold uppercase tracking-wide opacity-80">{category.eyebrow}</span>
+                    <span className="mt-1 block font-display text-2xl text-text">{category.title}</span>
+                    <span className="mt-1 block text-sm font-bold leading-relaxed text-muted">{category.description}</span>
+                    <span className="mt-3 flex min-h-9 flex-wrap items-center gap-x-2 gap-y-1 rounded-xl bg-white/85 px-3 py-2 text-sm font-extrabold text-text shadow-soft">
+                      {courses.length > 0
+                        ? <>
+                            <span>{doneStations}/{stations} trạm</span>
+                            <span aria-hidden="true" className="text-border">·</span>
+                            <span>{progress}% hoàn thành</span>
+                            {active > 0 && <span className="text-brand-700">{active} đang học</span>}
+                          </>
+                        : 'Chưa có chương trình'}
+                    </span>
+                  </span>
+                </button>
+              )
+            })}
+          </div>
+        </section>
+      </div>
+    )
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Trường hợp 2: AIKID CỦA EM - BẬC 1: Danh sách các Chương trình học (/world/program/aikid_official)
+  // Khi selectedSource === 'aikid_official' và KHÔNG CÓ trackId
+  // ─────────────────────────────────────────────────────────────
+  if (selectedSource === 'aikid_official' && !trackId) {
+    return (
+      <div className="page-enter flex flex-col gap-5">
+        <header className="world-guide-panel">
+          <img
+            src={LEARNING_WORLD_SCENES.aikid_official}
+            alt=""
+            className="world-guide-scene"
+            aria-hidden="true"
+          />
+          <AikidCatCharacter pose="walking" className="world-guide-mascot" />
+          <div className="world-guide-copy">
+            <div className="min-w-0">
+              <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
+                🌟 Không gian học chính thức
+              </p>
+              <h1 className="font-display text-3xl sm:text-4xl leading-tight">
+                AIKid của em
+              </h1>
+              <p className="mt-1 text-base text-muted">
+                Khám phá các chương trình rèn luyện tư duy và sáng tạo cùng AI được biên soạn chuẩn hóa cho học sinh.
+              </p>
+
+              {/* Tóm tắt nhanh */}
+              {selectedCourses.length > 0 && (
+                <div className="mt-3 flex flex-wrap items-center gap-3">
+                  <div className="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold shadow-soft border border-border">
+                    <CheckCircle2 size={13} className="text-mint-600" aria-hidden />
+                    {completedStations}/{totalStations} trạm đã hoàn thành
+                  </div>
+                  <div className="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold shadow-soft border border-border">
+                    <Trophy size={13} className="text-sun-600" aria-hidden />
+                    {totalProgress}% tiến độ tổng
+                  </div>
+                </div>
+              )}
+              {selectedCourses.length > 0 && (
+                <CuteProgress
+                  value={totalProgress}
+                  label="Lộ trình AIKid của em"
+                  tone="mint"
+                  className="mt-4"
+                />
+              )}
+            </div>
+          </div>
+
+          {sourceRecommended && (
+            <div className="world-next-ticket">
+              <div>
+                <p className="flex items-center gap-1 text-xs font-extrabold uppercase text-mint-700">
+                  <Star size={11} className="fill-mint-500 text-mint-500" aria-hidden />
+                  Trạm tiếp theo
+                </p>
+                <p className="mt-1 font-display text-xl">{nextStation?.title ?? sourceRecommended.title}</p>
+                <p className="mt-1 text-sm font-bold text-muted">
+                  {nextStation
+                    ? `${sourceRecommended.shortTitle} · Trạm ${nextStation.order}`
+                    : `${sourceRecommended.completedCount ?? 0}/${sourceRecommended.questCount ?? 0} trạm đã hoàn thành`}
+                </p>
+              </div>
+              {sourceRecommended.status === 'locked' ? (
+                <Button onClick={() => setLockedModalCourse(sourceRecommended)}>
+                  🔒 Xem điều kiện mở
+                </Button>
+              ) : (
+                <Link to={isAikiRuleCourse(sourceRecommended) ? `/world/${sourceRecommended.id || 'aiki-rules'}/lesson/rule-${currentRuleId}` : (nextStation ? `/world/${sourceRecommended.id}/lesson/${nextStation.id}` : courseHref(sourceRecommended))}>
+                  <Button>
+                    {sourceRecommended.status === 'available' && !nextStation ? 'Xem & bắt đầu' : 'Học tiếp'}
+                  </Button>
+                </Link>
+              )}
+            </div>
+          )}
+        </header>
+
+        {/* Danh mục Các Chương Trình Học */}
+        <section aria-labelledby="programs-heading" className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
+                Lộ trình học tập
+              </p>
+              <h2 id="programs-heading" className="mt-0.5 font-display text-2xl text-text sm:text-3xl">
+                Các chương trình học
+              </h2>
+            </div>
+          </div>
+
+          <div className="grid gap-6">
+            {/* 1. Card lớn chính thức: Khóa sáng tạo nội dung cùng AIKID */}
+            <div className="ui-card relative overflow-hidden rounded-3xl border-2 border-brand-200 bg-gradient-to-br from-white via-white to-brand-50/40 p-6 sm:p-8 shadow-clay transition-all hover:shadow-hover">
+              <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
+                <div className="flex-1 space-y-3">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-mint-100 border border-mint-200 px-3 py-1 text-xs font-black text-mint-800 shadow-2xs">
+                      🌟 CHƯƠNG TRÌNH CHÍNH THỨC
+                    </span>
+                    <span className="inline-flex items-center gap-1 rounded-full bg-brand-100 border border-brand-200 px-2.5 py-1 text-xs font-extrabold text-brand-800">
+                      {selectedCourses.length || 6} Đảo học tập
+                    </span>
+                  </div>
+
+                  <h3 className="font-display text-2xl sm:text-3xl text-text">
+                    Khóa sáng tạo nội dung cùng AIKID
+                  </h3>
+
+                  <p className="text-sm sm:text-base font-medium text-muted leading-relaxed max-w-2xl">
+                    Nắm vững 10 quy tắc vàng an toàn, cùng AKI sáng tạo nhân vật, viết truyện tranh và xây dựng các thế giới diệu kỳ.
+                  </p>
+
+                  {/* Thống kê tiến độ */}
+                  <div className="pt-2">
+                    <div className="flex flex-wrap items-center gap-4 text-xs font-extrabold text-slate-600 mb-2">
+                      <span className="flex items-center gap-1">
+                        <CheckCircle2 size={15} className="text-mint-600" />
+                        {completedStations}/{totalStations} trạm hoàn thành
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Trophy size={15} className="text-sun-500" />
+                        {completedCount}/{selectedCourses.length || 6} đảo chinh phục
+                      </span>
+                      {totalStars > 0 && (
+                        <span className="flex items-center gap-1">
+                          <Star size={15} className="fill-sun-400 text-sun-400" />
+                          {totalStars} sao đạt được
+                        </span>
+                      )}
+                    </div>
+                    <div className="max-w-md">
+                      <CuteProgress
+                        value={totalProgress}
+                        label="Tiến độ chương trình"
+                        tone="mint"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Nút hành động */}
+                <div className="flex flex-col sm:flex-row lg:flex-col items-center gap-4 shrink-0 w-full sm:w-auto">
+                  <Button
+                    className="w-full sm:w-auto px-8 py-4 text-base font-black shadow-clay active:shadow-press"
+                    onClick={() => navigate('/world/program/aikid_official/creator')}
+                  >
+                    {totalProgress > 0 ? 'Tiếp tục học các đảo →' : 'Khám phá các đảo →'}
+                  </Button>
+                </div>
+              </div>
+            </div>
+
+            {/* 2. Card phụ: Toán tư duy & Khoa học AI (ASMO Lab) - Coming Soon */}
+            <div className="ui-card relative overflow-hidden rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/70 p-6 sm:p-7 opacity-80 transition-all">
+              <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-200 px-3 py-1 text-xs font-extrabold text-slate-600">
+                      🚀 SẮP RA MẮT
+                    </span>
+                    <span className="rounded-full bg-amber-100 border border-amber-200 px-2.5 py-0.5 text-xs font-bold text-amber-800">
+                      Đang biên soạn
+                    </span>
+                  </div>
+                  <h3 className="font-display text-xl sm:text-2xl text-slate-700">
+                    Toán tư duy & Khoa học AI (ASMO Lab)
+                  </h3>
+                  <p className="text-sm font-medium text-slate-500 leading-relaxed max-w-xl">
+                    Rèn luyện tư duy logic, giải toán thực tế và mô phỏng 3D tương tác cùng AI.
+                  </p>
+                </div>
+                <div className="shrink-0 w-full sm:w-auto">
+                  <Button variant="secondary" disabled className="w-full sm:w-auto opacity-60 cursor-not-allowed">
+                    Đang biên soạn...
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* 3. Nút nhỏ cuối trang */}
+          <div className="pt-4 text-center">
+            <button
+              type="button"
+              onClick={() => navigate('/world/spaces')}
+              className="inline-flex items-center gap-2 text-xs sm:text-sm font-bold text-muted hover:text-brand-700 transition-colors cursor-pointer py-2 px-4 rounded-xl hover:bg-white/60"
+            >
+              <span>Xem các không gian khác (Trường học, Khóa học tự do)</span>
+              <span>→</span>
+            </button>
+          </div>
+        </section>
+
+        {/* Soft Clay Modal khi bấm vào đảo đang bị khóa */}
+        <AdventureModal
+          open={Boolean(lockedModalCourse)}
+          onClose={() => setLockedModalCourse(null)}
+          tone="guidance"
+          eyebrow="🛡️ Đảo Đang Chờ Mở Khóa"
+          title="Đảo Này Đang Chờ Mở Khóa!"
+          description={
+            lockedModalCourse?.lockMessage ||
+            'Bé hãy hoàn thành Đảo Quy Tắc Vàng AIKI trước để nhận Huy hiệu Hiệp Sĩ và mở khóa toàn bộ hành trình sáng tạo nhé!'
+          }
+          artwork={
+            <div className="flex items-center justify-center my-2">
+              <div className="flex h-20 w-20 items-center justify-center rounded-3xl bg-amber-100/90 shadow-soft border-2 border-amber-300">
+                <KidLockImageIcon size={52} aria-hidden="true" />
+              </div>
+            </div>
+          }
+          showMascot={true}
+          actions={
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 w-full mt-2">
+              <Link
+                to="/world/aiki-rules"
+                className="w-full sm:w-auto"
+                onClick={() => setLockedModalCourse(null)}
+              >
+                <Button className="w-full">
+                  🛡️ Đến Đảo Quy Tắc Ngay
+                </Button>
+              </Link>
+              <Button
+                variant="secondary"
+                onClick={() => setLockedModalCourse(null)}
+                className="w-full sm:w-auto"
+              >
+                Đóng để chọn đảo khác
+              </Button>
+            </div>
+          }
+        />
+      </div>
+    )
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // Trường hợp 3: BẬC 2: Chương trình -> Danh sách các Đảo
+  // (Khi trackId === 'creator' hoặc khi selectedSource !== 'aikid_official')
+  // ─────────────────────────────────────────────────────────────
+  const isCreatorTrack = selectedSource === 'aikid_official' && trackId === 'creator'
 
   return (
     <div className="page-enter flex flex-col gap-5">
@@ -990,33 +1434,41 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
         <AikidCatCharacter pose="walking" className="world-guide-mascot" />
         <div className="world-guide-copy">
           <div className="min-w-0">
-            <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
-              {selectedCategory ? `Học · ${selectedCategory.title}` : 'Học · Thư viện hành trình'}
-            </p>
-            <h1 className="font-display text-3xl sm:text-4xl leading-tight">
-              {selectedCategory
-                ? selectedCategory.title
-                : `Hành trình của ${pathway.student.nickname ?? 'con'}`}
-            </h1>
-            <p className="mt-1 text-base text-muted">
-              {selectedCategory
-                ? selectedCategory.description
-                : 'Chọn nơi con muốn tiếp tục học hôm nay.'}
-            </p>
-
-            {selectedCategory && (
+            {/* Nút quay lại */}
+            {isCreatorTrack ? (
               <button
                 type="button"
-                className="mt-3 inline-flex min-h-11 items-center gap-2 rounded-2xl border border-brand-100 bg-white/90 px-3 py-2 text-sm font-extrabold text-brand-800 shadow-soft focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-focus"
-                onClick={() => setSelectedSource(null)}
+                onClick={() => navigate('/world/program/aikid_official')}
+                className="mb-2 inline-flex items-center gap-1.5 text-xs font-extrabold text-brand-700 hover:text-brand-900 transition-colors cursor-pointer"
               >
-                <NavWorldIcon size={22} aria-hidden="true" />
-                Xem tất cả nguồn học
+                <ArrowLeft size={16} />
+                <span>Danh sách chương trình</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => navigate('/world/spaces')}
+                className="mb-2 inline-flex items-center gap-1.5 text-xs font-extrabold text-brand-700 hover:text-brand-900 transition-colors cursor-pointer"
+              >
+                <ArrowLeft size={16} />
+                <span>Xem tất cả không gian học</span>
               </button>
             )}
 
-            {/* Progress is scoped to the selected learning space. */}
-            {selectedCategory && selectedCourses.length > 0 && (
+            <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
+              {isCreatorTrack ? 'AIKid của em › Khóa sáng tạo nội dung cùng AIKID' : (selectedCategory?.eyebrow || 'Lộ trình học')}
+            </p>
+            <h1 className="font-display text-3xl sm:text-4xl leading-tight">
+              {isCreatorTrack ? 'Khóa sáng tạo nội dung cùng AIKID' : (selectedCategory?.title || 'Hành trình của con')}
+            </h1>
+            <p className="mt-1 text-base text-muted">
+              {isCreatorTrack
+                ? 'Nắm vững 10 quy tắc vàng an toàn, cùng AKI sáng tạo nhân vật, viết truyện tranh và xây dựng các thế giới diệu kỳ.'
+                : (selectedCategory?.description || 'Khám phá các trạm học.')}
+            </p>
+
+            {/* Thống kê tiến độ */}
+            {selectedCourses.length > 0 && (
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold shadow-soft border border-border">
                   <CheckCircle2 size={13} className="text-mint-600" aria-hidden />
@@ -1024,14 +1476,14 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
                 </div>
                 <div className="flex items-center gap-1.5 rounded-full bg-white/90 px-3 py-1.5 text-xs font-bold shadow-soft border border-border">
                   <Trophy size={13} className="text-sun-600" aria-hidden />
-                  {totalProgress}% không gian này
+                  {totalProgress}% hoàn thành
                 </div>
               </div>
             )}
-            {selectedCategory && selectedCourses.length > 0 && (
+            {selectedCourses.length > 0 && (
               <CuteProgress
                 value={totalProgress}
-                label={`Lộ trình ${selectedCategory.title}`}
+                label={isCreatorTrack ? 'Tiến độ Khóa sáng tạo nội dung' : `Lộ trình ${selectedCategory?.title}`}
                 tone="mint"
                 className="mt-4"
               />
@@ -1058,7 +1510,7 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
                 🔒 Xem điều kiện mở
               </Button>
             ) : (
-              <Link to={isAikiRuleCourse(sourceRecommended) ? `/lesson/rule-${currentRuleId}` : (nextStation ? `/lesson/${nextStation.id}` : courseHref(sourceRecommended))}>
+              <Link to={isAikiRuleCourse(sourceRecommended) ? `/world/${sourceRecommended.id || 'aiki-rules'}/lesson/rule-${currentRuleId}` : (nextStation ? `/world/${sourceRecommended.id}/lesson/${nextStation.id}` : courseHref(sourceRecommended))}>
                 <Button>
                   {sourceRecommended.status === 'available' && !nextStation ? 'Xem & bắt đầu' : 'Học tiếp'}
                 </Button>
@@ -1066,90 +1518,25 @@ function PathwayOverview({ pathway }: { pathway: Pathway }) {
             )}
           </div>
         )}
-        {!selectedCategory && (
-          <div className="world-next-ticket">
-            <div>
-              <p className="flex items-center gap-1 text-xs font-extrabold uppercase text-brand-700">
-                <NavWorldIcon size={16} aria-hidden="true" />
-                Chọn không gian học
-              </p>
-              <p className="mt-1 font-display text-xl">Mỗi nơi, một hành trình riêng</p>
-              <p className="mt-1 text-sm font-bold leading-relaxed text-muted">
-                Tiến độ và trạm tiếp theo sẽ đổi theo nơi con chọn.
-              </p>
-            </div>
-          </div>
-        )}
       </header>
 
-      {!selectedSource ? (
-        <section aria-labelledby="learning-library-title" className="space-y-4">
-          <div>
-            <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">Ba không gian học tập</p>
-            <h2 id="learning-library-title" className="mt-1 font-display text-2xl text-text sm:text-3xl">Con muốn học ở đâu?</h2>
-          </div>
-          <div className="grid gap-4 lg:grid-cols-3">
-            {categories.map((category) => {
-              const courses = visibleCourses.filter((course) => sourceOf(course) === category.id)
-              const active = courses.filter((course) => course.status === 'active').length
-              const stations = courses.reduce((sum, course) => sum + Math.max(0, course.questCount ?? 0), 0)
-              const doneStations = courses.reduce((sum, course) => sum + Math.max(0, course.completedCount ?? 0), 0)
-              const progress = stations > 0 ? Math.round(doneStations / stations * 100) : 0
-              return (
-                <button
-                  key={category.id}
-                  type="button"
-                  className={cn(
-                    'learning-world-card ui-card border-2 text-left transition-transform hover:-translate-y-1 focus-visible:outline focus-visible:outline-3 focus-visible:outline-offset-3 focus-visible:outline-focus',
-                    category.tone,
-                  )}
-                  onClick={() => setSelectedSource(category.id)}
-                >
-                  <LearningWorldScene kind={category.id} />
-                  <span className="learning-world-copy">
-                    <span className="block text-xs font-extrabold uppercase tracking-wide opacity-80">{category.eyebrow}</span>
-                    <span className="mt-1 block font-display text-2xl text-text">{category.title}</span>
-                    <span className="mt-1 block text-sm font-bold leading-relaxed text-muted">{category.description}</span>
-                    <span className="mt-3 flex min-h-9 flex-wrap items-center gap-x-2 gap-y-1 rounded-xl bg-white/85 px-3 py-2 text-sm font-extrabold text-text shadow-soft">
-                      {courses.length > 0
-                        ? <>
-                            <span>{doneStations}/{stations} trạm</span>
-                            <span aria-hidden="true" className="text-border">·</span>
-                            <span>{progress}% hoàn thành</span>
-                            {active > 0 && <span className="text-brand-700">{active} đang học</span>}
-                          </>
-                        : 'Chưa có chương trình'}
-                    </span>
-                  </span>
-                </button>
-              )
-            })}
-          </div>
-        </section>
-      ) : selectedCourses.length === 0 ? (
+      {selectedCourses.length === 0 ? (
         <div className="ui-card p-6 text-center">
           <CourseBookIcon size={44} className="mx-auto text-brand-500" aria-hidden="true" />
           <p className="mt-3 font-display text-xl">Chưa có chương trình trong mục này</p>
           <p className="mt-2 text-sm text-muted">
             Chương trình được trường giao hoặc gia đình đăng ký sẽ xuất hiện tại đây.
           </p>
-          <Button className="mt-4" variant="secondary" onClick={() => setSelectedSource(null)}>
-            Quay lại thư viện
+          <Button className="mt-4" variant="secondary" onClick={() => navigate('/world/spaces')}>
+            Quay lại thư viện không gian
           </Button>
-        </div>
-      ) : visibleCourses.length === 0 ? (
-        <div className="ui-card p-6 text-center">
-          <p className="font-display text-xl">Cha mẹ chưa chọn khóa học</p>
-          <p className="mt-2 text-sm text-muted">
-            Nhờ cha mẹ vào mục Con của tôi để chọn và mở khóa học cho con nhé.
-          </p>
         </div>
       ) : (
         <section aria-label="Lộ trình khóa học" className="relative px-2">
           {/* ── Section label ── */}
           <p className="mb-5 text-xs font-extrabold uppercase tracking-widest text-brand-500 flex items-center gap-2">
             <span className="inline-block h-px flex-1 bg-brand-100" />
-            🗺️ Các vùng trong thế giới AIKid
+            🗺️ Các Đảo Trong Khóa Sáng Tạo AIKID
             <span className="inline-block h-px flex-1 bg-brand-100" />
           </p>
 

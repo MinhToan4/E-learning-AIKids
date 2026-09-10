@@ -6,7 +6,13 @@ import { findApiRoute } from './api-route-tree'
 const sourceRoot = resolve(import.meta.dirname, '../..')
 const applicationFiles = globSync('**/*.{ts,tsx}', {
   cwd: sourceRoot,
-  exclude: ['**/*.test.ts', '**/*.test.tsx', 'shared/lib/api.ts', 'shared/lib/api-route-tree.ts'],
+  exclude: [
+    '**/*.test.ts',
+    '**/*.test.tsx',
+    'shared/lib/api.ts',
+    'shared/lib/gateway-normalizers.ts',
+    'shared/lib/api-route-tree.ts',
+  ],
 })
 
 // Captures the stable portion of string and template-literal API paths. A

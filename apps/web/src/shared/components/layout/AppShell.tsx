@@ -746,11 +746,21 @@ export function AppShell() {
   // Icon Ba / Mẹ chỉ xuất hiện khi phụ huynh chủ động dùng luồng "Chuyển sang con".
   const showParentButton = enteredFromParent
   const isCreative = location.pathname.startsWith('/creative')
+  const isLessonOrRule =
+    location.pathname.startsWith('/lesson') ||
+    location.pathname.includes('/lesson/') ||
+    location.pathname.includes('/rule/') ||
+    location.pathname.startsWith('/rules')
   const featureTone = studentFeatureTone(location.pathname)
 
   return (
     <div
-      className="aikid-student-shell min-h-dvh bg-fixed pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-8 md:pl-[6rem]"
+      className={cn(
+        "aikid-student-shell bg-fixed md:pl-[6rem]",
+        isLessonOrRule
+          ? "h-dvh max-h-dvh overflow-hidden flex flex-col pb-0 md:pb-0"
+          : "min-h-dvh pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-8"
+      )}
       data-feature-tone={featureTone}
       style={location.pathname.startsWith('/profile') && profileTheme
         ? profilePageThemeStyle(profileTheme)
@@ -829,7 +839,11 @@ export function AppShell() {
         <NotificationBell />
       </div>
 
-      {isCreative ? (
+      {isLessonOrRule ? (
+        <main className="flex-1 min-h-0 w-full px-2 sm:px-3 lg:px-4 py-1 sm:py-2 overflow-hidden flex flex-col">
+          <RouteOutlet />
+        </main>
+      ) : isCreative ? (
         <main className="mx-auto max-w-[1440px] px-2 py-2 sm:px-4">
           <RouteOutlet />
         </main>

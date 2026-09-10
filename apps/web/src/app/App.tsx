@@ -354,11 +354,47 @@ export function App() {
                 </Guard>
               }
             />
+            <Route path="/learn" element={<Navigate to="/world/program/aikid_official" replace />} />
+            <Route path="/world" element={<Navigate to="/world/program/aikid_official" replace />} />
+            <Route path="/world/aikid" element={<Navigate to="/world/program/aikid_official" replace />} />
+            <Route path="/world/official" element={<Navigate to="/world/program/aikid_official" replace />} />
             <Route
-              path="/world"
+              path="/world/program/:programId"
               element={
                 <Guard roles={['student']} requireOnboarded>
                   <WorldPage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/world/program/:programId/:trackId"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <WorldPage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/world/spaces"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <WorldPage showSpacesSelector />
+                </Guard>
+              }
+            />
+            <Route
+              path="/world/:courseId/lesson/:lessonId"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <LessonPage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/world/:courseId/rule/:ruleId"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <LessonPage />
                 </Guard>
               }
             />
@@ -388,6 +424,14 @@ export function App() {
             />
             <Route
               path="/lesson/:questId"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <LessonPage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/lesson/:questId/studio"
               element={
                 <Guard roles={['student']} requireOnboarded>
                   <LessonPage />

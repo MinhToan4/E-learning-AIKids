@@ -253,7 +253,7 @@ export function AsmoThreeViewer({
     renderer.setSize(width, containerHeight)
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
     rendererRef.current = renderer
-    container.innerHTML = ''
+    container.replaceChildren()
     container.appendChild(renderer.domElement)
 
     // 3. Studio Lighting - Bright Soft Clay 3D

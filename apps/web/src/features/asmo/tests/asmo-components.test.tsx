@@ -1,7 +1,7 @@
 import { createElement } from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { describe, it, expect } from 'vitest'
-import { AsmoFormula } from '../components/AsmoFormula'
+import { AsmoFormula, sanitizeFormulaInput } from '../components/AsmoFormula'
 import { AsmoMeeTutor } from '../components/AsmoMeeTutor'
 import { AsmoExamTimer } from '../components/AsmoExamTimer'
 
@@ -186,5 +186,22 @@ describe('ASMO UI Components', () => {
     )
     expect(markupDiv).toContain('katex')
     expect(markupDiv).toContain('Trục số 5 số nguyên liên tiếp')
+  })
+
+  it('sanitizes malicious script tags and inline event handlers to prevent XSS (CodeGraph Security)', () => {
+    const malicious = '<script>alert("XSS")</script><img src="x" onerror="alert(1)">Cho $x < 5$ và **y > 3**'
+    const cleaned = sanitizeFormulaInput(malicious)
+    expect(cleaned).not.toContain('<script>')
+    expect(cleaned).not.toContain('onerror')
+    expect(cleaned).not.toContain('<img')
+    expect(cleaned).toContain('Cho $x < 5$ và **y > 3**')
+
+    const markup = renderToStaticMarkup(
+      createElement(AsmoFormula, { text: malicious }),
+    )
+    expect(markup).not.toContain('<script')
+    expect(markup).not.toContain('onerror')
+    expect(markup).not.toContain('<img')
+    expect(markup).toContain('<strong class="font-extrabold text-slate-900">y > 3</strong>')
   })
 })

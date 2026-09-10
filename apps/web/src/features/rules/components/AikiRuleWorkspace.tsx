@@ -176,7 +176,7 @@ export function AikiRuleWorkspace({
   const defaultBackUrl = backUrl ?? (courseId ? `/world/${courseId}` : '/world')
   const getNextRuleUrl = (nextId: number) => {
     if (nextUrlPattern) return nextUrlPattern(nextId)
-    return `/lesson/rule-${nextId}`
+    return `/world/${courseId || 'aiki-rules'}/lesson/rule-${nextId}`
   }
 
   return (
