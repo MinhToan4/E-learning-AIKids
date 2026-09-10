@@ -19,6 +19,7 @@ import { IdentityLockEngine } from './engines/IdentityLockEngine'
 import { CardForgeEngine } from './engines/CardForgeEngine'
 import { PromptPreviewBar } from './components/PromptPreviewBar'
 import { SurpriseRollButton } from './components/SurpriseRollButton'
+import { ShuffleEngineButton } from './components/ShuffleEngineButton'
 
 export interface CreativeEngineShellProps {
   mode?: CreativeEngineMode
@@ -168,8 +169,15 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
           })}
         </div>
 
-        {/* Nút Xúc Xắc Ma Thuật 🎲 */}
-        <SurpriseRollButton onRoll={handleRollSurprise} disabled={isGenerating} />
+        {/* Cụm Nút Tiện Ích: Đổi Engine Ngẫu Nhiên 🎲 & Xúc Xắc Phối Thẻ 🎲 */}
+        <div className="flex items-center gap-2 flex-wrap">
+          <ShuffleEngineButton
+            currentMode={activeMode}
+            onShuffle={handleSwitchMode}
+            disabled={isGenerating}
+          />
+          <SurpriseRollButton onRoll={handleRollSurprise} disabled={isGenerating} />
+        </div>
       </div>
 
       {/* ── 3. KHU VỰC ENGINE ACTIVE ── */}
