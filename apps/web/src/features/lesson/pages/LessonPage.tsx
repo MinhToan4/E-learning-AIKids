@@ -16,6 +16,7 @@ import { AikiRuleQuiz } from '@/features/lesson/components/AikiRuleQuiz'
 import { AikiStudioWorkspace } from '@/features/lesson/components/AikiStudioWorkspace'
 import { SixStageJourneyView } from '@/features/lesson/components/SixStageJourneyView'
 import { resolveIslandSixStageJourney } from '@/features/lesson/lib/island-journey-resolver'
+import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
 import { getAikiStudioConfig } from '@/features/lesson/data/aiki-studio-configs'
 import type { AikiRule } from '@/features/rules/types'
 import { AIKI_RULES_DATA } from '@/features/rules/data/rules-data'
@@ -576,6 +577,7 @@ export function LessonPage() {
 
   const isIslandJourney = Boolean(
     !isAikiRuleJourney && (
+      Boolean(findIslandCurriculum(quest)) ||
       quest?.courseId?.startsWith('dao-') ||
       quest?.id?.startsWith('bai-') ||
       questId?.startsWith('bai-') ||

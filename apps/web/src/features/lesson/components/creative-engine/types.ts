@@ -35,6 +35,7 @@ export interface BlockSlot {
   keyId: string
   label: string
   required?: boolean
+  locked?: boolean
   category?: CreativeBlockCategory
   currentBlock?: CreativeBlock | null
   colorScheme?: 'sky' | 'amber' | 'mint' | 'rose' | 'purple' | 'emerald' | 'indigo' | 'slate'
@@ -44,6 +45,7 @@ export interface BlockSlot {
 export interface EngineProps {
   onPromptChange: (prompt: string, blocks: CreativeBlock[]) => void
   characterName?: string
+  selectedSubject?: string
   lessonId?: string
   currentPrompt?: string
   lockedFeatures?: string[]

@@ -51,52 +51,51 @@ const INITIAL_SLOTS: BlockSlot[] = [
 export const MagicKeysEngine: React.FC<EngineProps> = ({
   onPromptChange,
   characterName,
+  selectedSubject,
   currentPrompt,
 }) => {
+  const effectiveSubject = selectedSubject || characterName || 'Cái cốc sứ trắng'
+
+  const buildSubjectBlock = useCallback((name: string): CreativeBlock => {
+    const matched = SUBJECT_BLOCKS.find(
+      (b) =>
+        b.label.toLowerCase().includes(name.toLowerCase()) ||
+        name.toLowerCase().includes(b.label.toLowerCase())
+    )
+    if (matched) {
+      return { ...matched, label: name, text: name }
+    }
+    const icon = name.includes('cốc')
+      ? '☕'
+      : name.includes('xe')
+      ? '🚲'
+      : name.includes('sổ')
+      ? '📖'
+      : name.includes('đồng hồ')
+      ? '⏰'
+      : '🎨'
+    return {
+      id: `custom-sub-${name}`,
+      label: name,
+      text: name,
+      category: 'subject',
+      icon,
+      colorScheme: 'sky',
+    }
+  }, [])
+
   const [slots, setSlots] = useState<BlockSlot[]>(() => {
-    // Khởi tạo nếu có characterName
     return INITIAL_SLOTS.map((slot) => {
-      if (slot.keyId === 'subject' && characterName) {
-        const matched = SUBJECT_BLOCKS.find(
-          (b) =>
-            b.label.toLowerCase().includes(characterName.toLowerCase()) ||
-            characterName.toLowerCase().includes(b.label.toLowerCase())
-        )
-        if (matched) {
-          return { ...slot, currentBlock: matched }
-        }
+      if (slot.keyId === 'subject') {
         return {
           ...slot,
-          currentBlock: {
-            id: 'custom-sub',
-            label: characterName,
-            text: characterName,
-            category: 'subject',
-            icon: '🎨',
-            colorScheme: 'sky',
-          },
+          currentBlock: buildSubjectBlock(effectiveSubject),
+          locked: true,
         }
       }
       return slot
     })
   })
-
-  // Tất cả blocks để hiển thị trong Palette
-  const allBlocks = useMemo(() => {
-    return [
-      ...SUBJECT_BLOCKS,
-      ...COLOR_SHAPE_BLOCKS,
-      ...ACTION_BLOCKS,
-      ...CONTEXT_BLOCKS,
-    ]
-  }, [])
-
-  const categories = [
-    { id: 'subject', label: '1. Ai/Cái gì', icon: '🐿️' },
-    { id: 'color-shape', label: '2. Trông thế nào', icon: '🎨' },
-    { id: 'action', label: '3. Làm gì', icon: '🏃' },
-    { id: 'context', label: '4. Ở đâu', icon: '🌲' },
-  ]
 
   // Cập nhật prompt khi slots thay đổi
   const syncPrompt = useCallback(
@@ -113,10 +112,45 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
     [onPromptChange]
   )
 
+  // Khóa ô slot-subject theo món đồ đã chọn (tự động cập nhật khi đổi món đồ ở Sidebar)
+  useEffect(() => {
+    setSlots((prev) => {
+      const next = prev.map((slot) => {
+        if (slot.keyId === 'subject') {
+          return {
+            ...slot,
+            currentBlock: buildSubjectBlock(effectiveSubject),
+            locked: true,
+          }
+        }
+        return slot
+      })
+      syncPrompt(next)
+      return next
+    })
+  }, [effectiveSubject, buildSubjectBlock, syncPrompt])
+
+  // Tập trung vào 3 nhóm thuộc tính mô tả: 2. Trông thế nào, 3. Đang làm gì, 4. Ở đâu
+  const allBlocks = useMemo(() => {
+    return [
+      ...COLOR_SHAPE_BLOCKS,
+      ...ACTION_BLOCKS,
+      ...CONTEXT_BLOCKS,
+    ]
+  }, [])
+
+  const categories = [
+    { id: 'color-shape', label: '2. Trông thế nào', icon: '🎨' },
+    { id: 'action', label: '3. Đang làm gì', icon: '🏃' },
+    { id: 'context', label: '4. Ở đâu', icon: '🌲' },
+  ]
+
   // Xử lý chọn block (từ Palette click hoặc drop)
   const handleSelectBlock = (block: CreativeBlock) => {
     setSlots((prev) => {
       const next = prev.map((slot) => {
+        // Không ghi đè slot đã bị khóa cứng
+        if (slot.locked) return slot
         if (slot.category === block.category) {
           return { ...slot, currentBlock: block }
         }
@@ -131,7 +165,7 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
   const handleDropBlock = (slotId: string, block: CreativeBlock) => {
     setSlots((prev) => {
       const next = prev.map((slot) => {
-        if (slot.id === slotId) {
+        if (slot.id === slotId && !slot.locked) {
           return { ...slot, currentBlock: block }
         }
         return slot
@@ -141,11 +175,11 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
     })
   }
 
-  // Gỡ block ra khỏi slot
+  // Gỡ block ra khỏi slot (nếu không bị khóa)
   const handleRemoveBlock = (slotId: string) => {
     setSlots((prev) => {
       const next = prev.map((slot) => {
-        if (slot.id === slotId) {
+        if (slot.id === slotId && !slot.locked) {
           return { ...slot, currentBlock: null }
         }
         return slot
@@ -164,7 +198,7 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
       {/* Khay 4 Ô Slot chìa khóa */}
       <BlockSlotTray
         title="4 Chìa Khóa Vàng AKI"
-        subtitle="Điền đủ 4 ô để tạo câu lệnh chuẩn nhất"
+        subtitle="Ô 1 đã khóa món đồ; điền tiếp 3 ô để câu lệnh chuẩn nhất"
         slots={slots}
         onRemoveBlock={handleRemoveBlock}
         onDropBlock={handleDropBlock}
@@ -173,7 +207,7 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
       {/* Khay Thẻ Bài Cho Bé Chọn */}
       <BlockPalette
         title="Khay Thẻ Bài 4 Nhóm Chìa Khóa"
-        subtitle="Chạm vào thẻ bất kỳ để gắn vào ô chìa khóa tương ứng"
+        subtitle="Tập trung 3 nhóm thuộc tính: Trông thế nào · Đang làm gì · Ở đâu"
         blocks={allBlocks}
         selectedBlockIds={selectedBlockIds}
         onSelectBlock={handleSelectBlock}

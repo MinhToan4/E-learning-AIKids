@@ -1,5 +1,5 @@
-import React from 'react'
-import { X, Sparkles, CheckCircle2 } from 'lucide-react'
+import React, { useState } from 'react'
+import { X, Sparkles, CheckCircle2, Lock } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { playInstantSound } from '../../LessonInteractiveSidebar'
 import type { BlockSlot, CreativeBlock } from '../types'
@@ -70,6 +70,8 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
   isComplete,
   className,
 }) => {
+  const [dragOverSlotId, setDragOverSlotId] = useState<string | null>(null)
+
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault()
     e.dataTransfer.dropEffect = 'copy'
@@ -77,6 +79,9 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
 
   const handleDrop = (e: React.DragEvent<HTMLDivElement>, slotId: string) => {
     e.preventDefault()
+    setDragOverSlotId(null)
+    const targetSlot = slots.find((s) => s.id === slotId)
+    if (targetSlot?.locked) return
     try {
       const dataStr = e.dataTransfer.getData('application/json')
       if (dataStr) {
@@ -93,6 +98,8 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
 
   const handleRemove = (slotId: string, e: React.MouseEvent) => {
     e.stopPropagation()
+    const targetSlot = slots.find((s) => s.id === slotId)
+    if (targetSlot?.locked) return
     playInstantSound('click')
     onRemoveBlock(slotId)
   }
@@ -137,17 +144,24 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
           const color =
             SLOT_COLOR_CLASSES[slot.colorScheme || 'sky'] || SLOT_COLOR_CLASSES.sky
           const hasBlock = !!slot.currentBlock
+          const isSlotDragOver = dragOverSlotId === slot.id
 
           return (
             <div
               key={slot.id}
               data-testid={`slot-${slot.id}`}
-              onDragOver={handleDragOver}
+              onDragOver={(e) => {
+                handleDragOver(e)
+                setDragOverSlotId(slot.id)
+              }}
+              onDragLeave={() => setDragOverSlotId(null)}
               onDrop={(e) => handleDrop(e, slot.id)}
               onClick={() => onSlotClick && onSlotClick(slot)}
               className={cn(
                 'min-h-[64px] rounded-2xl border-2 p-2.5 flex flex-col justify-between transition-all duration-200 select-none relative',
-                hasBlock
+                isSlotDragOver
+                  ? 'border-indigo-500 bg-indigo-100/90 ring-4 ring-indigo-300 scale-102 shadow-md'
+                  : hasBlock
                   ? cn(color.filled, 'border-solid')
                   : cn(color.empty, 'border-dashed cursor-pointer')
               )}
@@ -178,16 +192,25 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
                     </span>
                   </div>
 
-                  {/* Nút X gỡ thẻ */}
-                  <button
-                    type="button"
-                    title="Gỡ thẻ này ra"
-                    data-testid={`slot-remove-${slot.id}`}
-                    onClick={(e) => handleRemove(slot.id, e)}
-                    className="size-6 rounded-full bg-slate-200/80 hover:bg-rose-100 hover:text-rose-700 text-slate-600 flex items-center justify-center transition-colors cursor-pointer shrink-0"
-                  >
-                    <X size={12} strokeWidth={3} />
-                  </button>
+                  {/* Nút X gỡ thẻ hoặc biểu tượng khóa cố định */}
+                  {slot.locked ? (
+                    <span
+                      title="Món đồ đã khóa từ Sidebar"
+                      className="size-6 rounded-full bg-sky-100/90 text-sky-700 flex items-center justify-center shrink-0 shadow-2xs"
+                    >
+                      <Lock size={12} strokeWidth={2.5} />
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      title="Gỡ thẻ này ra"
+                      data-testid={`slot-remove-${slot.id}`}
+                      onClick={(e) => handleRemove(slot.id, e)}
+                      className="size-6 rounded-full bg-slate-200/80 hover:bg-rose-100 hover:text-rose-700 text-slate-600 flex items-center justify-center transition-colors cursor-pointer shrink-0"
+                    >
+                      <X size={12} strokeWidth={3} />
+                    </button>
+                  )}
                 </div>
               ) : (
                 <div className="flex items-center justify-center py-1 text-slate-400">

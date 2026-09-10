@@ -24,7 +24,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
     "lessonNumber": "1.1",
     "title": "Bài 1.1 — Một từ hay năm từ?",
     "subtitle": "Tả càng rõ, AKI vẽ càng đúng!",
-    "imageUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg",
+    "imageUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
     "objective": "Trẻ đưa ra được câu lệnh đầu tiên cho AKI và hiểu sự khác biệt giữa câu lệnh 1 từ và 5 chi tiết vàng.",
     "skillLearned": "Tạo câu lệnh chuẩn đủ 5 chi tiết: Đối tượng, Hình dáng, Hành động, Đồ vật đi kèm, Nơi chốn.",
     "nextLessonSlug": "bai-1-2-bon-chiec-chia-khoa",
@@ -33,12 +33,13 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "id": "bai-1-1-mot-tu-hay-nam-tu-stage1-goal",
         "title": "Mục tiêu bài học: Bài 1.1 — Một từ hay năm từ?",
         "goalText": "Trẻ đưa ra được câu lệnh đầu tiên cho AKI và hiểu sự khác biệt giữa câu lệnh 1 từ và 5 chi tiết vàng.",
-        "imageUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg",
+        "imageUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
         "speech": "Mimi: Xong! Đây là con mèo. Đúng là con mèo rồi đấy... Nhưng mà con mèo trong đầu tớ không phải con này!\nAKI: Các cậu ơi, các cậu nghĩ Mimi làm sai ở chỗ nào nhỉ? Vì Mimi chỉ gõ đúng hai chữ 'con mèo' thôi đấy!",
         "keyPoints": [
-          "Trẻ đưa ra được câu lệnh đầu tiên cho AKI và hiểu sự khác biệt giữa câu lệnh 1 từ và 5 chi tiết vàng.",
-          "Tạo câu lệnh chuẩn đủ 5 chi tiết: Đối tượng, Hình dáng, Hành động, Đồ vật đi kèm, Nơi chốn.",
-          "QUY TẮC VÀNG: Chỗ nào các cậu bỏ trống, Ây Ai như tớ sẽ tự điền vào. Tả càng rõ - Vẽ càng đúng!"
+          "CÁI GÌ (Xanh Sky): 'một con mèo'",
+          "TRÔNG NHƯ THẾ NÀO (Vàng Sun): 'mèo mướp vàng béo tròn'",
+          "ĐANG LÀM GÌ (Cam Mango): 'đang nằm ngủ cuộn tròn'",
+          "Ở ĐÂU (Hồng Gum): 'trên ghế mây cạnh cửa sổ'"
         ]
       },
       "stage2_confirmGoal": {
@@ -65,7 +66,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "title": "Video bài giảng: Bài 1.1 — Một từ hay năm từ?",
         "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
         "durationSec": 180,
-        "posterUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg",
+        "posterUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
         "timestamps": [
           {
             "label": "Tình huống khám phá",
@@ -100,7 +101,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 1,
             "explanation": "QUY TẮC VÀNG: Chỗ nào các cậu bỏ trống, Ây Ai như tớ sẽ tự điền vào. Tả càng rõ - Vẽ càng đúng!",
-            "visualUrl": "Hai bức ảnh cạnh nhau: Một bên là con mèo xám đơn điệu ngơ ngác, một bên là chú mèo mướp béo nằm ngủ ngon lành bên cửa sổ ngập nắng ấm."
+            "visualUrl": "/assets/aiki-islands/island1_lesson1_opt_a.jpg"
           },
           {
             "id": "bai-1-1-mot-tu-hay-nam-tu-q2",
@@ -112,7 +113,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "Chính xác! Bé hãy nhớ: QUY TẮC VÀNG: Chỗ nào các cậu bỏ trống, Ây Ai như tớ sẽ tự điền vào. Tả càng rõ - Vẽ càng đúng!",
-            "visualUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg"
+            "visualUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2"
           },
           {
             "id": "bai-1-1-mot-tu-hay-nam-tu-q3",
@@ -124,7 +125,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "Rất tốt! Bé đã làm chủ kỹ năng: Tạo câu lệnh chuẩn đủ 5 chi tiết: Đối tượng, Hình dáng, Hành động, Đồ vật đi kèm, Nơi chốn.",
-            "visualUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg"
+            "visualUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2"
           }
         ],
         "passScore": 2
@@ -172,7 +173,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "instruction": "Kiểm tra tranh và bấm nộp bài"
           }
         ],
-        "sampleUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg"
+        "sampleUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2"
       },
       "stage6_completion": {
         "id": "bai-1-1-mot-tu-hay-nam-tu-stage6-completion",
@@ -180,7 +181,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 1.1 — Một từ hay năm từ?\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
         "rewardBadge": {
           "name": "Huy hiệu Bài 1.1 — Một từ hay năm từ?",
-          "iconUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg",
+          "iconUrl": "/assets/aiki-islands/island1_lesson1_cat.jpg?v=2",
           "stars": 3,
           "xp": 50
         },
@@ -195,66 +196,105 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
     "lessonNumber": "1.2",
     "title": "Bài 1.2 — Bốn chiếc chìa khoá",
     "subtitle": "Bộ khung 4 chìa khoá vạn năng để mở cánh cửa sáng tạo AI!",
-    "imageUrl": "/assets/aiki-islands/island1_lesson2_keys.jpg",
-    "objective": "Trẻ viết được một câu lệnh có đủ bốn phần: Cái gì, Trông như thế nào, Đang làm gì, Ở đâu.",
+    "imageUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg",
+    "objective": "Viết được một câu lệnh có đủ bốn phần: Cái gì, Trông như thế nào, Đang làm gì, Ở đâu",
     "skillLearned": "Công thức bốn ô màu sắc: Xanh (Cái gì), Vàng (Trông như thế nào), Cam (Đang làm gì), Đỏ (Ở đâu).",
     "nextLessonSlug": "bai-1-3-um-ba-la-bien-hinh",
     "journey": {
       "stage1_goal": {
         "id": "bai-1-2-bon-chiec-chia-khoa-stage1-goal",
-        "title": "Mục tiêu bài học: Bài 1.2 — Bốn chiếc chìa khoá",
-        "goalText": "Trẻ viết được một câu lệnh có đủ bốn phần: Cái gì, Trông như thế nào, Đang làm gì, Ở đâu.",
-        "imageUrl": "/assets/aiki-islands/island1_lesson2_keys.jpg",
+        "title": "Bài 1.2 — Bốn chiếc chìa khoá",
+        "goalText": "Viết được một câu lệnh có đủ bốn phần: Cái gì, Trông như thế nào, Đang làm gì, Ở đâu",
+        "imageUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg",
         "speech": "Zico: Một con mèo rất đẹp, rất là đẹp, đẹp lắm luôn, tớ rất thích nó...\nAKI: Hả? Zico viết dài thế mà tranh vẫn chưa rõ kìa! Viết dài toàn từ khen chưa chắc đã rõ đâu nhé các cậu!",
         "keyPoints": [
-          "Trẻ viết được một câu lệnh có đủ bốn phần: Cái gì, Trông như thế nào, Đang làm gì, Ở đâu.",
-          "Công thức bốn ô màu sắc: Xanh (Cái gì), Vàng (Trông như thế nào), Cam (Đang làm gì), Đỏ (Ở đâu).",
-          "CÔNG THỨC 4 CHÌA KHOÁ: Cái gì · Trông như thế nào · Đang làm gì · Ở đâu"
+          "CÁI GÌ (Xanh Sky): 'một cái cốc'",
+          "TRÔNG NHƯ THẾ NÀO (Vàng Sun): 'sứ trắng, có vết mẻ ở miệng'",
+          "ĐANG LÀM GÌ (Cam Mango): 'đang bốc khói'",
+          "Ở ĐÂU (Hồng Gum): 'trên bàn gỗ, cạnh cuốn sổ'"
         ]
       },
       "stage2_confirmGoal": {
         "id": "bai-1-2-bon-chiec-chia-khoa-stage2-confirm",
-        "question": "Câu lệnh 'Một con chó xù màu nâu đang chạy' còn thiếu phần nào?",
+        "question": "Bộ chìa khoá nào mở được một câu lệnh tốt?",
         "options": [
           {
             "id": "opt-a",
-            "text": "Thiếu chìa khoá ĐỎ: Ở đâu (chưa nói chó đang chạy ở đâu)",
-            "imageUrl": "/assets/aiki-islands/island1_lesson2_opt_a.jpg"
+            "text": "Bộ chìa khoá A",
+            "keyItems": [
+              { "label": "Ai vẽ", "color": "#3FA9F5" },
+              { "label": "Vẽ lúc nào", "color": "#F5C93E" },
+              { "label": "Vẽ ở đâu", "color": "#FF9427" },
+              { "label": "Vẽ bằng gì", "color": "#FF6FA5" }
+            ]
           },
           {
             "id": "opt-b",
-            "text": "Thiếu chìa khoá XANH: Cái gì (chưa nói con gì)",
-            "imageUrl": "/assets/aiki-islands/island1_lesson2_opt_b.jpg"
+            "text": "Bộ chìa khoá B",
+            "keyItems": [
+              { "label": "Cái gì", "color": "#3FA9F5" },
+              { "label": "Trông như thế nào", "color": "#F5C93E" },
+              { "label": "Đang làm gì", "color": "#FF9427" },
+              { "label": "Ở đâu", "color": "#FF6FA5" }
+            ]
+          },
+          {
+            "id": "opt-c",
+            "text": "Bộ chìa khoá C",
+            "keyItems": [
+              { "label": "Cái gì", "color": "#3FA9F5" },
+              { "label": "Màu gì", "color": "#F5C93E" },
+              { "label": "To hay nhỏ", "color": "#FF9427" },
+              { "label": "Của ai", "color": "#FF6FA5" }
+            ]
           }
         ],
-        "correctIndex": 0,
-        "explanation": "CÔNG THỨC 4 CHÌA KHOÁ: Cái gì · Trông như thế nào · Đang làm gì · Ở đâu",
-        "speech": "Soi giúp AKI câu lệnh này nhé: 'Một con chó xù màu nâu đang chạy'. Đố các cậu câu này đang thiếu chiếc chìa khoá màu nào trong 4 chìa?"
+        "correctIndex": 1,
+        "explanation": "Đúng rồi các cậu ơi! Bốn chìa khoá này chính là bốn ô các cậu sẽ điền trong Xưởng. Giờ xem AKI dùng chúng thế nào nhé.",
+        "speech": "Các cậu vừa đọc xong ở chặng Mục tiêu đấy — nhớ lại xem nào! Bộ chìa khoá nào mở được một câu lệnh tốt?"
       },
       "stage3_video": {
         "id": "bai-1-2-bon-chiec-chia-khoa-stage3-video",
         "title": "Video bài giảng: Bài 1.2 — Bốn chiếc chìa khoá",
         "videoUrl": "https://www.youtube.com/embed/dQw4w9WgXcQ",
-        "durationSec": 180,
-        "posterUrl": "/assets/aiki-islands/island1_lesson2_keys.jpg",
+        "durationSec": 270,
+        "posterUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg",
         "timestamps": [
           {
-            "label": "Tình huống khám phá",
-            "startSec": 0,
-            "endSec": 45,
-            "speech": "Zico: Một con mèo rất đẹp, rất là đẹp, đẹp lắm luôn, tớ rất thích nó...\nAKI: Hả? Zico viết dài thế mà tranh vẫn chưa rõ kìa! Viết dài toàn từ khen chưa chắc đã rõ đâu nhé các cậu!"
+            "label": "Tình huống",
+            "startSec": 15,
+            "endSec": 50,
+            "speech": "Zico tả dài mà AKI vẫn vẽ sai"
           },
           {
-            "label": "Quy tắc & Bí kíp vàng",
-            "startSec": 45,
+            "label": "Cắt 4 màu",
+            "startSec": 50,
             "endSec": 120,
-            "speech": "Bốn chiếc chìa khoá: Xanh là CÁI GÌ, Vàng là TRÔNG NHƯ THẾ NÀO, Cam là ĐANG LÀM GÌ, Đỏ là Ở ĐÂU! Đủ bốn chìa khoá là AKI hết chỗ đoán bừa!"
+            "speech": "Câu của Zico cắt thành bốn phần bốn màu"
           },
           {
-            "label": "Thực hành cùng AKI",
+            "label": "Soi câu thiếu",
             "startSec": 120,
             "endSec": 180,
-            "speech": "Nhớ bốn món đồ thật các cậu chọn hôm trước không? Lấy ra xoay một vòng, nhìn thật kỹ rồi điền đủ 4 chìa khoá để tạo nhé! Cho người nhà xem và đố họ đoán xem cậu tả gì!"
+            "speech": "Chó xù · con voi — thiếu chìa nào?"
+          },
+          {
+            "label": "Đọc cho thuộc",
+            "startSec": 180,
+            "endSec": 240,
+            "speech": "Bốn chìa, AKI đọc — các cậu nhớ"
+          },
+          {
+            "label": "Làm cùng",
+            "startSec": 240,
+            "endSec": 270,
+            "speech": "Cái cốc của AKI, điền đủ bốn ô"
+          },
+          {
+            "label": "Thử thách",
+            "startSec": 270,
+            "endSec": 300,
+            "speech": "Bốn món đồ thật trong nhà các cậu"
           }
         ]
       },
@@ -264,38 +304,39 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "questions": [
           {
             "id": "bai-1-2-bon-chiec-chia-khoa-q1",
-            "prompt": "Câu lệnh 'Một con chó xù màu nâu đang chạy' còn thiếu phần nào?",
+            "prompt": "“Một con chó xù màu nâu đang chạy” — thiếu chìa khoá nào?",
             "options": [
-              "Thiếu chìa khoá ĐỎ: Ở đâu (chưa nói chó đang chạy ở đâu)",
-              "Thiếu chìa khoá XANH: Cái gì (chưa nói con gì)"
+              "CÁI GÌ",
+              "ĐANG LÀM GÌ",
+              "Ở ĐÂU"
             ],
-            "correctIndex": 0,
-            "explanation": "CÔNG THỨC 4 CHÌA KHOÁ: Cái gì · Trông như thế nào · Đang làm gì · Ở đâu",
-            "visualUrl": "Thanh 4 chìa khoá màu sắc: Ô Xanh (Chó) sáng, Vàng (Xù nâu) sáng, Cam (Đang chạy) sáng, riêng ô Đỏ (Ở đâu) bị xám mờ."
+            "correctIndex": 2,
+            "explanation": "Thiếu Ở ĐÂU nên tớ cho nó chạy giữa nền trắng trơn đấy!",
+            "visualUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg"
           },
           {
             "id": "bai-1-2-bon-chiec-chia-khoa-q2",
-            "prompt": "Quy tắc vàng của bài \"Bài 1.2 — Bốn chiếc chìa khoá\" là gì?",
+            "prompt": "“Một con voi trong rừng” — câu này thiếu mấy chiếc chìa khoá?",
             "options": [
-              "CÔNG THỨC 4 CHÌA KHOÁ: Cái gì · Trông như thế nào · Đang làm gì · Ở đâu",
-              "Cứ bấm tạo ảnh bừa bãi không cần câu lệnh",
-              "Chỉ dùng từ chung chung một từ duy nhất"
+              "Thiếu 1 chìa",
+              "Thiếu 2 chìa: trông thế nào & đang làm gì",
+              "Không thiếu chìa nào"
             ],
-            "correctIndex": 0,
-            "explanation": "Chính xác! Bé hãy nhớ: CÔNG THỨC 4 CHÌA KHOÁ: Cái gì · Trông như thế nào · Đang làm gì · Ở đâu",
-            "visualUrl": "/assets/aiki-islands/island1_lesson2_keys.jpg"
+            "correctIndex": 1,
+            "explanation": "Chính xác! Chưa nói voi to hay nhỏ, màu gì và đang đứng hay đang uống nước!",
+            "visualUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg"
           },
           {
             "id": "bai-1-2-bon-chiec-chia-khoa-q3",
-            "prompt": "Kỹ năng quan trọng bé rèn luyện được trong bài này là gì?",
+            "prompt": "Chiếc chìa khoá nào hay bị các bạn quên nhất?",
             "options": [
-              "Công thức bốn ô màu sắc: Xanh (Cái gì), Vàng (Trông như thế nào), Cam (Đang làm gì), Đỏ (Ở đâu).",
-              "Sao chép tranh của người khác mà không sáng tạo",
-              "Không kiểm tra lại kết quả tranh sau khi tạo"
+              "CÁI GÌ",
+              "ĐANG LÀM GÌ — đồ vật cũng làm gì được",
+              "Ở ĐÂU"
             ],
-            "correctIndex": 0,
-            "explanation": "Rất tốt! Bé đã làm chủ kỹ năng: Công thức bốn ô màu sắc: Xanh (Cái gì), Vàng (Trông như thế nào), Cam (Đang làm gì), Đỏ (Ở đâu).",
-            "visualUrl": "/assets/aiki-islands/island1_lesson2_keys.jpg"
+            "correctIndex": 1,
+            "explanation": "Đúng rồi! Các bạn hay nghĩ đồ vật nằm yên, nhưng thật ra cái cốc 'đang bốc khói' đều là Đang làm gì đấy!",
+            "visualUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg"
           }
         ],
         "passScore": 2
@@ -343,15 +384,15 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "instruction": "Kiểm tra tranh và bấm nộp bài"
           }
         ],
-        "sampleUrl": "/assets/aiki-islands/island1_lesson2_keys.jpg"
+        "sampleUrl": "/assets/aiki-islands/island1_lesson2_teacup.jpg"
       },
       "stage6_completion": {
         "id": "bai-1-2-bon-chiec-chia-khoa-stage6-completion",
         "title": "Chúc mừng Nhà Sáng Tạo Tí Hon!",
-        "congratsMessage": "Bé đã hoàn thành xuất sắc bài học \"Bài 1.2 — Bốn chiếc chìa khoá\" và xuất xưởng tác phẩm tuyệt đẹp vào Balo Sáng Tạo!",
+        "congratsMessage": "Các cậu xong Bài 1.2 — Bốn chiếc chìa khoá rồi! Bốn món đồ trong nhà đã bay thẳng vào Kho sáng tạo 🪄",
         "rewardBadge": {
           "name": "Huy hiệu Bài 1.2 — Bốn chiếc chìa khoá",
-          "iconUrl": "/assets/aiki-islands/island1_lesson2_keys.jpg",
+          "iconUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg",
           "stars": 3,
           "xp": 50
         },
@@ -442,7 +483,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "PHONG CÁCH NGHỆ THUẬT: Đất nặn Clay · Màu nước · Pixel Art · Xé dán Quilling",
-            "visualUrl": "Bảng so sánh 4 ô phong cách nghệ thuật: Đất nặn tròn trịa, Màu nước loang nhẹ, Pixel khối vuông và Tranh xé dán giấy nổi quilling."
+            "visualUrl": "/assets/aiki-islands/island1_lesson3_styles.jpg"
           },
           {
             "id": "bai-1-3-um-ba-la-bien-hinh-q2",
@@ -614,7 +655,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 1,
             "explanation": "QUY TẮC SỬA LỖI: Gọi tên lỗi · Tìm chỗ thiếu · Viết thêm vào câu lệnh",
-            "visualUrl": "Một bên là ngón tay bấm nút Tạo liên tục với dấu gạch chéo đỏ, một bên là kính lúp soi chữ và chiếc bút chì vàng đang sửa câu lệnh."
+            "visualUrl": "/assets/aiki-islands/island1_lesson4_opt_a.jpg"
           },
           {
             "id": "bai-1-4-ky-su-tai-ba-q2",
@@ -785,7 +826,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "3 CÂU HỎI TÌM CHUYỆN: Đang làm gì? · Có gì lạ? · Rồi sao?",
-            "visualUrl": "Chú cáo lông đỏ đứng trên nền tuyết lạnh, miệng ngậm phong thư ánh vàng lấp lánh như đang chuẩn bị lên đường thực hiện nhiệm vụ bí mật."
+            "visualUrl": "/assets/aiki-islands/island2_lesson1_opt_a.jpg"
           },
           {
             "id": "bai-2-1-buc-tranh-biet-noi-q2",
@@ -956,7 +997,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "BỐ CỤC 3 LỚP: Tiền cảnh · Ở giữa (Ngôi sao 1/3) · Phía sau",
-            "visualUrl": "Khung lưới chia 9 ô với điểm giao cắt 1/3 phát sáng ngôi sao vàng, đối lập với hình ảnh nhồi nhét tất cả vào tâm giữa."
+            "visualUrl": "/assets/aiki-islands/island2_lesson2_opt_a.jpg"
           },
           {
             "id": "bai-2-2-ai-la-ngoi-sao-q2",
@@ -1127,7 +1168,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "CẢM XÚC CỦA SẮC MÀU: Bình minh vàng · Hoàng hôn cam tím · Đêm xanh · Đèn nến",
-            "visualUrl": "Một bên là ngọn hải đăng chiếu luồng sáng vàng rực qua nền trời đêm bão tím thẫm sóng gió dữ dội, một bên là phong cảnh ban trưa phẳng lặng."
+            "visualUrl": "/assets/aiki-islands/island2_lesson3_colors.jpg"
           },
           {
             "id": "bai-2-3-cam-xuc-cua-sac-mau-q2",
@@ -1298,7 +1339,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "4 MẢNH GHÉP HOÀN HẢO: Chuyện gì · Ngôi sao · Cảm xúc · Tên tranh A3",
-            "visualUrl": "Bốn mảnh ghép puzzle vàng óng lồng khít vào nhau tạo nên bức tranh toàn cảnh gia đình thú hoàn hảo trong khung tranh gỗ A3 sang trọng."
+            "visualUrl": "/assets/aiki-islands/island2_lesson4_masterpiece.jpg"
           },
           {
             "id": "bai-2-4-manh-ghep-hoan-hao-q2",
@@ -1469,7 +1510,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "HỒ SƠ ADN NHÂN VẬT: Tên · Thích · Sợ · Giỏi · Dở · Ước mơ",
-            "visualUrl": "Bảng hồ sơ ADN nhân vật mở ra 6 ô với hình vẽ Hiệp Sĩ Cáo Lửa Red vừa dũng cảm vừa vụng về buộc dây giày cực kỳ đáng yêu."
+            "visualUrl": "/assets/aiki-islands/island3_lesson1_profile.jpg"
           },
           {
             "id": "bai-3-1-ho-so-biet-doi-q2",
@@ -1640,7 +1681,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "MẬT MÃ 3 ĐIỂM KHÓA: Mũ len đỏ bông trắng · Đuôi xù cam · Túi vải nâu chéo",
-            "visualUrl": "Hình ảnh Sóc Bông với 3 vòng tròn neon vàng khóa chặt vào: Mũ len đỏ quả bông trắng, Đuôi to xù cam và Túi vải nâu chéo bên hông."
+            "visualUrl": "/assets/aiki-islands/island3_lesson2_dna.jpg"
           },
           {
             "id": "bai-3-2-mat-ma-nhan-dien-q2",
@@ -1811,7 +1852,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "CÂU THẦN CHÚ: ĐỔI MẶT · KHÔNG ĐỔI NGƯỜI",
-            "visualUrl": "Lưới 6 ô biểu cảm của Sóc Bông: Vui sướng, Buồn bã, Tức giận, Sợ hãi, Ngạc nhiên, Buồn ngủ nhưng luôn giữ nguyên mũ len đỏ quả bông trắng, đuôi to xù cam và túi nâu."
+            "visualUrl": "/assets/aiki-islands/island3_lesson3_expressions.jpg"
           },
           {
             "id": "bai-3-3-bien-hoa-bieu-cam-q2",
@@ -1982,7 +2023,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "CĂN CỨ BÍ MẬT: NƠI Ở KỂ ĐƯỢC TÍNH CÁCH NHÂN VẬT",
-            "visualUrl": "Căn cứ hốc cây sồi ấm cúng của Sóc Bông: kệ gỗ xếp hạt dẻ theo kích cỡ, bản đồ rừng vẽ tay, sợi dây thừng leo núi và đèn đom đóm vàng êm dịu."
+            "visualUrl": "/assets/aiki-islands/island3_lesson4_lair.jpg"
           },
           {
             "id": "bai-3-4-can-cu-bi-mat-cua-biet-doi-q2",
@@ -2154,7 +2195,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "3 CỔNG CỐT TRUYỆN: Khởi đầu bình thường · Có chuyện xảy ra · Giải quyết xong xuôi",
-            "visualUrl": "Cánh cổng thần thoại với 3 vòm cổng phát sáng rực rỡ: Cổng Xanh lá (Khởi đầu bình thường), Cổng Vàng cam (Biến cố sự cố), Cổng Đỏ tím (Giải quyết thắng lợi)."
+            "visualUrl": "/assets/aiki-islands/island4_lesson1_3gates.jpg"
           },
           {
             "id": "bai-4-1-3-cong-cua-vuong-quoc-q2",
@@ -2326,7 +2367,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "KHUNG XƯƠNG 4 CHẶNG: Muốn · Cản · Làm · Kết",
-            "visualUrl": "Sơ đồ 4 bậc thang thử thách: Bậc 1 Muốn, Bậc 2 Cản (Vách đá dựng đứng sấm sét), Bậc 3 Làm (Bắc cầu leo qua), Bậc 4 Kết (Đỉnh núi rực rỡ)."
+            "visualUrl": "/assets/aiki-islands/island4_lesson2_4beats.jpg"
           },
           {
             "id": "bai-4-2-04-chang-thu-thach-q2",
@@ -2497,7 +2538,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "STORYBOARD 8 Ô: VẼ HÌNH QUE · GIỮ ĐÚNG NHỊP ĐIỆU CỐT TRUYỆN",
-            "visualUrl": "Tờ giấy chia 8 ô với những nét vẽ hình que sinh động, mũi tên chỉ dẫn hành động rõ ràng của từng khung truyện."
+            "visualUrl": "/assets/aiki-islands/island4_lesson3_storyboard1.jpg"
           },
           {
             "id": "bai-4-3-ban-do-8-o-p1-mo-q2",
@@ -2669,7 +2710,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "KHÓA 3 YẾU TỐ: Đúng nhân vật · Đúng việc storyboard · Đúng phong cách",
-            "visualUrl": "Chiếc khóa vàng 3 chấu ma thuật: Chấu 1 khóa Nhân vật, Chấu 2 khóa Hành động Storyboard, Chấu 3 khóa Phong cách nghệ thuật."
+            "visualUrl": "/assets/aiki-islands/island4_lesson4_storyboard2.jpg"
           },
           {
             "id": "bai-4-4-ban-do-8-o-p2-khoa-q2",
@@ -2840,7 +2881,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "VƯƠNG MIỆN HOÀN HẢO: Tự viết lời thoại · Đặt tên truyện · Xuất bản bìa Comic",
-            "visualUrl": "Khung truyện tranh chuẩn mực với 2 bong bóng thoại thanh thoát, chữ rõ ràng không che lấp biểu cảm của nhân vật."
+            "visualUrl": "/assets/aiki-islands/island4_lesson5_comicbook.jpg"
           },
           {
             "id": "bai-4-5-vuong-mien-hoan-hao-q2",
@@ -3011,7 +3052,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "SĂN LÙNG BỘ SƯU TẬP: 12 THỨ CÙNG MỘT HỌ · Ý TƯỞNG CỦA CHÍNH CẬU",
-            "visualUrl": "Vòng tròn 12 thẻ bài ma thuật nguyên tố phát sáng hài hòa xung quanh viên ngọc trung tâm."
+            "visualUrl": "/assets/aiki-islands/island5_lesson1_hunting.jpg"
           },
           {
             "id": "bai-5-1-san-lung-bo-suu-tap-q2",
@@ -3182,7 +3223,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "LUẬT NGÂN SÁCH ĐIỂM: Sức + Nhanh + Khéo = 20 điểm công bằng",
-            "visualUrl": "Chiếc cân thăng bằng ma thuật: Một bên là các đồng điểm vàng được chia đều vào 3 bình chứa Sức - Nhanh - Khéo đạt trạng thái cân bằng tuyệt đối."
+            "visualUrl": "/assets/aiki-islands/island5_lesson2_stats.jpg"
           },
           {
             "id": "bai-5-2-phu-phep-mat-the-q2",
@@ -3353,7 +3394,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "KHÓA THẺ CHUYÊN NGHIỆP: Chung công thức nền · Mặt lưng đối xứng 100%",
-            "visualUrl": "Bộ bài úp với mặt lưng hoa văn bánh răng vàng kim và cổ ngữ ma thuật đối xứng tâm hoàn hảo trên nền lam thẫm bí ẩn."
+            "visualUrl": "/assets/aiki-islands/island5_lesson3_lockcards.jpg"
           },
           {
             "id": "bai-5-3-khoa-the-q2",
@@ -3524,7 +3565,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "5 PHẦN LUẬT CHƠI: Số người · Đi trước · Lượt chơi · So thẻ tương khắc · Ai thắng",
-            "visualUrl": "Vòng tròn ngũ hành nguyên tố tương khắc: Lửa khắc Cây, Cây khắc Nước, Nước khắc Băng, Băng khắc Lửa với các mũi tên phát sáng."
+            "visualUrl": "/assets/aiki-islands/island5_lesson4_rules.jpg"
           },
           {
             "id": "bai-5-4-luat-choi-q2",
@@ -3694,7 +3735,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             ],
             "correctIndex": 0,
             "explanation": "ĐẤU TRƯỜNG KHAI MỞ: Bàn cờ 4 thành phần · Chơi thật cùng gia đình",
-            "visualUrl": "Bàn cờ Đấu trường thần thoại khổ A3 trải rộng rực rỡ với vạch Xuất phát tại Làng Băng Giá, đường đi 24 ô, các ô Bẫy Tuyết, Rương Kho Báu và đỉnh Đích Thiên Đường sáng ngời."
+            "visualUrl": "/assets/aiki-islands/island5_lesson5_arena.jpg"
           },
           {
             "id": "bai-5-5-dau-truong-khai-mo-q2",

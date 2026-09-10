@@ -93,21 +93,44 @@ describe('island-journey-resolver', () => {
       stations: { stage: 'learn', stations: [] },
     }
 
-    it('preserves quest.sixStageJourney when already valid', () => {
+    it('preserves quest.sixStageJourney for non-SSOT custom lessons when already valid', () => {
       const customJourney: any = {
         stage1_goal: { id: 'g1', title: 'Custom Goal' },
         stage2_confirmGoal: { id: 'g2' },
-        stage3_video: { id: 'g3' },
+        stage3_video: { id: 'g3', videoUrl: 'https://cdn.example.com/custom.mp4' },
         stage4_quiz: { id: 'g4' },
         stage5_practice: { id: 'g5' },
         stage6_completion: { id: 'g6' },
       }
       const resolved = resolveIslandSixStageJourney({
         ...mockQuest,
+        id: 'custom-non-island-quest',
+        title: 'Bài Tùy Biến Ngoài Đảo',
         sixStageJourney: customJourney,
       })
       expect(resolved).toBe(customJourney)
       expect(resolved.stage1_goal.title).toBe('Custom Goal')
+    })
+
+    it('prioritizes SSOT registry over outdated DB sixStageJourney for island lessons while preserving custom videoUrl', () => {
+      const outdatedDbJourney: any = {
+        stage1_goal: { id: 'old-g1', title: 'Old Slide ASMO Title', imageUrl: '/old-asmo-slide.jpg' },
+        stage2_confirmGoal: { id: 'old-g2', question: 'Old ASMO question' },
+        stage3_video: { id: 'old-g3', videoUrl: 'https://cdn.example.com/custom-video.mp4' },
+        stage4_quiz: { id: 'old-g4' },
+        stage5_practice: { id: 'old-g5' },
+        stage6_completion: { id: 'old-g6', nextLessonSlug: 'custom-next-slug' },
+      }
+      const resolved = resolveIslandSixStageJourney({
+        ...mockQuest,
+        videoUrl: undefined,
+        sixStageJourney: outdatedDbJourney,
+      })
+      // SSOT title & 3D Soft Clay should prevail over outdated DB slide
+      expect(resolved.stage1_goal.title).toContain('Một từ hay năm từ')
+      expect(resolved.stage1_goal.imageUrl).toBe('/assets/aiki-islands/island1_lesson1_cat.jpg?v=2')
+      // Custom videoUrl from DB journey is preserved
+      expect(resolved.stage3_video.videoUrl).toBe('https://cdn.example.com/custom-video.mp4')
     })
 
     it('resolves all 6 stages from SSOT registry when quest.sixStageJourney is null', () => {

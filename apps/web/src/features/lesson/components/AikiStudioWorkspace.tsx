@@ -28,6 +28,8 @@ import {
   getAikiStudioConfig,
 } from '../data/aiki-studio-configs'
 import { CreativeEngineShell } from './creative-engine'
+import { KidBackpackImageIcon } from '@/shared/components/icons/KidImageIcons'
+import { api } from '@/shared/lib/api'
 
 export interface StudioImageItem {
   id: string
@@ -38,6 +40,63 @@ export interface StudioImageItem {
   toneBg: string
   aspectRatio?: string
   verifiedFeatures?: boolean
+  partIndex?: number
+  partTurn?: 1 | 2
+}
+
+export interface PracticePartDef {
+  partNumber: number
+  title: string
+  icon: string
+}
+
+export interface PracticePartState extends PracticePartDef {
+  images: StudioImageItem[]
+  isDone: boolean
+  isActive: boolean
+}
+
+export function getDefaultPracticeParts(lessonId?: string, subjectName?: string): PracticePartDef[] {
+  const normId = (lessonId || '').toLowerCase()
+  if (normId.includes('1-2') || normId.includes('chia-khoa') || (subjectName && subjectName.toLowerCase().includes('cốc'))) {
+    return [
+      { partNumber: 1, title: 'Cái cốc sứ trắng', icon: '☕' },
+      { partNumber: 2, title: 'Cái xe đạp', icon: '🚲' },
+      { partNumber: 3, title: 'Cuốn sổ tay mở', icon: '📖' },
+      { partNumber: 4, title: 'Cái đồng hồ cổ', icon: '⏰' },
+    ]
+  }
+  if (normId.includes('1-1') || normId.includes('meo-muop') || (subjectName && subjectName.toLowerCase().includes('mèo'))) {
+    return [
+      { partNumber: 1, title: 'Chú mèo mướp béo', icon: '🐱' },
+      { partNumber: 2, title: 'Chiếc ghế mây tròn', icon: '🪑' },
+      { partNumber: 3, title: 'Khung cửa sổ ngập nắng', icon: '🪟' },
+      { partNumber: 4, title: 'Bát cá ngừ thơm phức', icon: '🐟' },
+    ]
+  }
+  if (normId.includes('1-3')) {
+    return [
+      { partNumber: 1, title: 'Chú trâu bản làng', icon: '🐃' },
+      { partNumber: 2, title: 'Con cún lông xù', icon: '🐶' },
+      { partNumber: 3, title: 'Cây đa đầu làng', icon: '🌳' },
+      { partNumber: 4, title: 'Ngôi nhà cổ mái ngói', icon: '🏠' },
+    ]
+  }
+  if (normId.includes('1-4')) {
+    return [
+      { partNumber: 1, title: 'Bàn tay năm ngón cầm bút', icon: '✍️' },
+      { partNumber: 2, title: 'Chú gấu đội mũ len đỏ', icon: '🐻' },
+      { partNumber: 3, title: 'Chiếc bánh sinh nhật dâu tây', icon: '🎂' },
+      { partNumber: 4, title: 'Cánh diều ngũ sắc', icon: '🪁' },
+    ]
+  }
+  const base = subjectName || 'Cái cốc sứ trắng'
+  return [
+    { partNumber: 1, title: base, icon: '🎨' },
+    { partNumber: 2, title: 'Cái xe đạp', icon: '🚲' },
+    { partNumber: 3, title: 'Cuốn sổ tay mở', icon: '📖' },
+    { partNumber: 4, title: 'Cái đồng hồ cổ', icon: '⏰' },
+  ]
 }
 
 export interface AikiStudioWorkspaceProps {
@@ -57,6 +116,9 @@ export interface AikiStudioWorkspaceProps {
   initialPrompt?: string
   preloadedImages?: StudioImageItem[]
   onZoomImage?: (data: { title: string; subtitle?: string; description?: string; imageUrl?: string }) => void
+  activePartIndex?: number
+  onPartChange?: (index: number) => void
+  onPracticePartsSync?: (parts: PracticePartState[], activeIndex: number) => void
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -1250,7 +1312,7 @@ export function AikiStudioWorkspace({
   characterName,
   lockedFeatures,
   initialAttemptsLeft,
-  maxAttempts = 6,
+  maxAttempts = 8,
   studentStars = 42,
   onBackToLesson,
   onSubmitWork,
@@ -1259,6 +1321,9 @@ export function AikiStudioWorkspace({
   initialPrompt,
   preloadedImages,
   onZoomImage,
+  activePartIndex: propActivePartIndex,
+  onPartChange,
+  onPracticePartsSync,
 }: AikiStudioWorkspaceProps) {
   // ── TRÍCH XUẤT CẤU HÌNH ĐỘNG TỪ CONFIG HOẶC FALLBACK ─────────────────────
   const effectiveConfig = useMemo(() => {
@@ -1365,9 +1430,48 @@ export function AikiStudioWorkspace({
 
   // gallery ban đầu rỗng [], không nạp 3 ảnh mock dở dang
   const [gallery, setGallery] = useState<StudioImageItem[]>(() => {
-    if (preloadedImages && preloadedImages.length > 0) return preloadedImages
+    if (preloadedImages && preloadedImages.length > 0) {
+      return preloadedImages.map((img, idx) => ({
+        ...img,
+        partIndex: img.partIndex !== undefined ? img.partIndex : Math.floor(idx / 2),
+        partTurn: img.partTurn !== undefined ? img.partTurn : ((idx % 2) + 1 as 1 | 2),
+      }))
+    }
     return []
   })
+
+  // ── QUẢN LÝ 4 PHẦN THỰC HÀNH / 4 MÓN ĐỒ ──────────────────────────────────
+  const [internalPartIndex, setInternalPartIndex] = useState<number>(0)
+  const activePartIndex = propActivePartIndex !== undefined ? propActivePartIndex : internalPartIndex
+  const handleSelectPart = (idx: number) => {
+    setInternalPartIndex(idx)
+    onPartChange?.(idx)
+  }
+
+  const practicePartDefs = useMemo(() => {
+    return getDefaultPracticeParts(lessonId, effectiveCharacterName)
+  }, [lessonId, effectiveCharacterName])
+
+  const currentPartDef = practicePartDefs[activePartIndex] || practicePartDefs[0]
+  const activePartSubject = currentPartDef?.title || effectiveCharacterName
+
+  const practicePartsState: PracticePartState[] = useMemo(() => {
+    return practicePartDefs.map((def, idx) => {
+      const pImages = gallery.filter((img) =>
+        img.partIndex !== undefined ? img.partIndex === idx : Math.floor((img.turn - 1) / 2) === idx
+      )
+      return {
+        ...def,
+        images: pImages,
+        isDone: pImages.length >= 2,
+        isActive: idx === activePartIndex,
+      }
+    })
+  }, [practicePartDefs, gallery, activePartIndex])
+
+  useEffect(() => {
+    onPracticePartsSync?.(practicePartsState, activePartIndex)
+  }, [practicePartsState, activePartIndex, onPracticePartsSync])
 
   // currentWorkflowStep ban đầu = 0 (Bước 1), không nạp sẵn bước 2
   const [currentWorkflowStep, setCurrentWorkflowStep] = useState<number>(() => {
@@ -1406,6 +1510,71 @@ export function AikiStudioWorkspace({
       badgeColor: 'bg-amber-500',
     },
   ])
+
+  // Tab trong Modal Balo: 'images' | 'comics' | 'rewards'
+  const [backpackModalTab, setBackpackModalTab] = useState<'images' | 'comics' | 'rewards'>('images')
+  const [realBackpackAssets, setRealBackpackAssets] = useState<
+    Array<{ id: string; name: string; thumbnail?: string; createdAt?: string }>
+  >([])
+  const [realBackpackProjects, setRealBackpackProjects] = useState<
+    Array<{ id: string; title: string; kind?: string; thumbnail?: string }>
+  >([])
+  const [realBackpackRewards, setRealBackpackRewards] = useState<
+    Array<{ code: string; name: string }>
+  >([])
+
+  // Tích hợp gọi API /api/backpack và /api/projects để đồng bộ Balo thật của hệ thống
+  useEffect(() => {
+    let isMounted = true
+    async function syncRealBackpack() {
+      try {
+        const [backpackRes, projectsRes, gamificationRes] = await Promise.allSettled([
+          api<{ assets: Array<{ id: string; name: string; thumbnail?: string; createdAt?: string }> }>('/api/backpack'),
+          api<{ projects: Array<{ id: string; title: string; kind?: string; thumbnail?: string }> }>('/api/projects'),
+          api<{ inventory: Array<{ rewardId: string }> }>('/api/gamification/storybook'),
+        ])
+        if (!isMounted) return
+
+        if (backpackRes.status === 'fulfilled' && Array.isArray(backpackRes.value?.assets)) {
+          setRealBackpackAssets(backpackRes.value.assets)
+        }
+        if (projectsRes.status === 'fulfilled' && Array.isArray(projectsRes.value?.projects)) {
+          setRealBackpackProjects(projectsRes.value.projects)
+        }
+        if (gamificationRes.status === 'fulfilled' && Array.isArray(gamificationRes.value?.inventory)) {
+          setRealBackpackRewards(
+            gamificationRes.value.inventory.map((inv) => ({
+              code: inv.rewardId,
+              name: inv.rewardId,
+            }))
+          )
+        }
+
+        // Đọc thêm từ localStorage nếu có tranh đã lưu trước đó
+        if (typeof localStorage !== 'undefined') {
+          const cached = localStorage.getItem('aiki_backpack_saved_works')
+          if (cached) {
+            const parsed = JSON.parse(cached)
+            if (Array.isArray(parsed) && parsed.length > 0) {
+              setBackpackWorks((prev) => {
+                const map = new Map<string, any>()
+                prev.forEach((item) => map.set(item.id, item))
+                parsed.forEach((item: any) => map.set(item.id, item))
+                return Array.from(map.values())
+              })
+            }
+          }
+        }
+      } catch (err) {
+        // Fallback offline an toàn
+      }
+    }
+
+    void syncRealBackpack()
+    return () => {
+      isMounted = false
+    }
+  }, [])
 
   // Lịch sử chat: Ban đầu chỉ có 1 tin nhắn chào đón duy nhất từ AKI
   const [chatMessages, setChatMessages] = useState<
@@ -1484,6 +1653,21 @@ export function AikiStudioWorkspace({
   const chatScrollRef = useRef<HTMLDivElement>(null)
   const promptInputRef = useRef<HTMLInputElement>(null)
 
+  const latestStudioImage = useMemo(() => {
+    if (gallery && gallery.length > 0) {
+      return gallery[gallery.length - 1]
+    }
+    return null
+  }, [gallery])
+
+  const latestAkiMessageText = useMemo(() => {
+    const akiMsgs = chatMessages.filter((m) => m.sender === 'aki')
+    if (akiMsgs.length > 0) {
+      return akiMsgs[akiMsgs.length - 1].text
+    }
+    return `Chào bé! Hôm nay chúng mình vào Xưởng để cùng tạo tranh ${effectiveCharacterName}. Bước 1: Hãy thử một câu lệnh thật ngắn chỉ có 1-2 từ (ví dụ: '${step1QuickPrompt}') xem tớ vẽ ra thế nào nhé!`
+  }, [chatMessages, effectiveCharacterName, step1QuickPrompt])
+
   // Auto scroll chat when new messages or gallery items appear
   useEffect(() => {
     if (chatScrollRef.current) {
@@ -1550,13 +1734,20 @@ export function AikiStudioWorkspace({
       resultImageUrl = sampleUrl
     }
 
+    const currentPartImages = gallery.filter((img) =>
+      img.partIndex !== undefined ? img.partIndex === activePartIndex : Math.floor((img.turn - 1) / 2) === activePartIndex
+    )
+    const turnInPart = (currentPartImages.length >= 1 ? 2 : 1) as 1 | 2
+
     const newImage: StudioImageItem = {
-      id: `img-${Date.now()}`,
+      id: `img-p${activePartIndex + 1}-${turnInPart}-${Date.now()}`,
       turn: newTurn,
       prompt: rawPrompt,
       time: timeStr,
       toneBg: newTurn % 2 === 0 ? 'bg-purple-100' : 'bg-pink-100',
       url: resultImageUrl,
+      partIndex: activePartIndex,
+      partTurn: turnInPart,
     }
 
     // 5. Đưa ảnh vào gallery (Kho Sáng Tạo), cập nhật tiến trình bước kế tiếp
@@ -1566,6 +1757,13 @@ export function AikiStudioWorkspace({
     setIsGenerating(false)
     playInstantSound('correct')
     setCurrentPrompt('')
+
+    // Nếu đã hoàn thành 2 lượt của phần này và còn phần kế tiếp, tự động chuyển phần tiếp theo
+    if (turnInPart === 2 && activePartIndex < 3) {
+      setTimeout(() => {
+        handleSelectPart(activePartIndex + 1)
+      }, 800)
+    }
 
     // Tiến lên bước tiếp theo
     const completedStepIdx = currentWorkflowStep
@@ -1651,21 +1849,31 @@ export function AikiStudioWorkspace({
           '/assets/aiki-islands/island1_lesson1_cat.jpg',
       }
 
-    setBackpackWorks((prev) => [
-      {
-        id: `bp-${Date.now()}`,
-        title:
-          finalCandidate.prompt.length > 32
-            ? `${finalCandidate.prompt.slice(0, 32)}...`
-            : finalCandidate.prompt,
-        stationLabel: effectiveBadge,
-        url: finalCandidate.url,
-        time: finalCandidate.time,
-        isNew: true,
-        badgeColor: 'bg-indigo-600',
-      },
-      ...prev,
-    ])
+    const newWork = {
+      id: `bp-${Date.now()}`,
+      title:
+        finalCandidate.prompt.length > 32
+          ? `${finalCandidate.prompt.slice(0, 32)}...`
+          : finalCandidate.prompt,
+      stationLabel: effectiveBadge,
+      url: finalCandidate.url,
+      time: finalCandidate.time,
+      isNew: true,
+      badgeColor: 'bg-indigo-600',
+    }
+
+    setBackpackWorks((prev) => [newWork, ...prev])
+
+    try {
+      if (typeof localStorage !== 'undefined') {
+        const key = 'aiki_backpack_saved_works'
+        const existing = localStorage.getItem(key)
+        const parsed = existing ? JSON.parse(existing) : []
+        localStorage.setItem(key, JSON.stringify([newWork, ...parsed].slice(0, 20)))
+      }
+    } catch {
+      // ignore
+    }
 
     setTimeout(() => {
       setIsSubmitModalOpen(false)
@@ -1714,12 +1922,12 @@ export function AikiStudioWorkspace({
         'w-full flex flex-col transition-all duration-300 font-sans text-slate-900',
         isFullscreen
           ? 'fixed inset-0 z-[99999] bg-[#faf8ff] w-screen h-screen flex flex-col p-3 sm:p-5 overflow-y-auto'
-          : 'relative bg-[#faf8ff] rounded-3xl border-2 border-indigo-100 p-3 sm:p-5 shadow-sm',
+          : 'relative bg-[#faf8ff] rounded-3xl border-2 border-indigo-100 p-2.5 sm:p-3.5 shadow-sm h-full min-h-0 flex-1 overflow-hidden flex flex-col gap-2',
         className
       )}
     >
       {/* ── TOP BAR BÁM SÁT 100% MOCKUP ──────────────────────────────────────── */}
-      <header className="flex flex-wrap items-center justify-between gap-3 pb-4 mb-4 border-b border-indigo-100/80">
+      <header className="flex flex-wrap items-center justify-between gap-2 pb-2 mb-1 border-b border-indigo-100/80 shrink-0">
         <div className="flex items-center gap-2.5 flex-wrap">
           {/* Nút quay lại bài học */}
           <button
@@ -1781,138 +1989,138 @@ export function AikiStudioWorkspace({
         </div>
       </header>
 
-      {/* ── 3 CỘT XƯỞNG SÁNG TẠO ────────────────────────────────────────────── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-5 items-start">
-        {/* ── CỘT 1: TIẾN TRÌNH 4 BƯỚC THỰC HÀNH & MẸO VÀNG AKI ────────── */}
-        <aside
-          data-testid="studio-col-tasks"
-          className="w-full lg:col-span-3 xl:col-span-3 flex flex-col gap-3.5 order-2 lg:order-1"
-        >
-          {/* Card 1: Tiến Trình 4 Bước Thực Hành */}
-          <div className="bg-white rounded-2xl border-2 border-slate-100 p-4 shadow-2xs text-left">
-            <div className="flex items-center justify-between mb-3">
-              <div className="flex items-center gap-2 text-slate-900 font-black text-sm">
-                <span className="text-base">🎯</span>
-                <span>Tiến Trình 4 Bước Thực Hành</span>
-                <span className="sr-only">Nhiệm vụ hôm nay</span>
-              </div>
-              <span className="text-[11px] font-black px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
-                Bước {Math.min(4, currentWorkflowStep + 1)}/4
-              </span>
-            </div>
+      {/* ── THANH TIẾN TRÌNH 4 BƯỚC THỰC HÀNH (ẨN KHỎI VÙNG CANVAS - ĐÃ CÓ Ở SIDEBAR) ────────── */}
+      <div
+        data-testid="studio-col-tasks"
+        className="sr-only"
+        aria-label="Tiến trình 4 bước thực hành"
+      >
+        {/* Tiêu đề & huy hiệu tiến trình */}
+        <div className="flex items-center gap-2 shrink-0">
+          <span className="text-base">🎯</span>
+          <span className="text-xs sm:text-sm font-black text-slate-900">
+            Tiến Trình 4 Bước Thực Hành
+          </span>
+          <span className="sr-only">Nhiệm vụ hôm nay</span>
+          <span className="text-[10px] font-black px-2 py-0.5 rounded-full bg-indigo-50 text-indigo-700 border border-indigo-200">
+            Bước {Math.min(4, currentWorkflowStep + 1)}/4
+          </span>
+        </div>
 
-            <div className="flex flex-col gap-2.5">
-              {[
-                { title: 'Bước 1: Thử câu lệnh ban đầu (1-2 từ)', promptHint: step1QuickPrompt ? `💡 Thử: "${step1QuickPrompt}"` : 'Thử lệnh 1-2 từ' },
-                { title: 'Bước 2: Thêm hình dáng & màu sắc', promptHint: step2QuickPrompt ? `💡 Thêm: "${step2QuickPrompt}"` : 'Thêm màu sắc & hình dáng' },
-                { title: 'Bước 3: Hoàn thiện câu lệnh 5 chi tiết vàng', promptHint: step3QuickPrompt ? `💡 5 chi tiết: "${step3QuickPrompt}"` : 'Đủ 5 chi tiết vàng' },
-                { title: 'Bước 4: Soi kỹ tranh & nộp vào Balo', promptHint: '🔍 Soi kỹ tranh và nộp bài' },
-              ].map((step, idx) => {
-                const isDone = idx < currentWorkflowStep
-                const isCurrent = idx === currentWorkflowStep
-
-                if (isDone) {
-                  return (
-                    <div
-                      key={idx}
-                      className="flex items-center justify-between gap-2 text-xs sm:text-sm font-bold text-slate-800 bg-emerald-50/70 p-2.5 rounded-xl border border-emerald-200 transition-all"
-                    >
-                      <div className="flex items-center gap-2.5 min-w-0">
-                        <span className="size-5 rounded-full bg-emerald-500 text-white flex items-center justify-center shrink-0 shadow-2xs">
-                          <Check size={12} strokeWidth={3.5} />
-                        </span>
-                        <span className="truncate font-bold">{step.title}</span>
-                      </div>
-                      <span className="text-[10px] font-black text-emerald-800 bg-emerald-100 px-2 py-0.5 rounded-full shrink-0">
-                        ✓ Đã xong
-                      </span>
-                    </div>
-                  )
-                }
-
-                if (isCurrent) {
-                  return (
-                    <div
-                      key={idx}
-                      className="flex flex-col gap-1.5 bg-indigo-50/90 p-2.5 rounded-xl border-2 border-indigo-500 shadow-sm ring-2 ring-indigo-200 transition-all"
-                    >
-                      <div className="flex items-center justify-between gap-2">
-                        <div className="flex items-center gap-2 text-xs sm:text-sm font-black text-indigo-950 min-w-0">
-                          <span className="size-5 rounded-full bg-indigo-600 text-white flex items-center justify-center shrink-0 text-xs font-black shadow-2xs">
-                            {idx + 1}
-                          </span>
-                          <span className="truncate">{step.title}</span>
-                        </div>
-                        <span className="text-[10px] font-black text-indigo-700 bg-indigo-100 px-2 py-0.5 rounded-full shrink-0 animate-pulse">
-                          ● Đang làm
-                        </span>
-                      </div>
-                      <p className="text-[11px] font-bold text-indigo-700 pl-7 truncate">
-                        {step.promptHint}
-                      </p>
-                    </div>
-                  )
-                }
-
-                return (
-                  <div
-                    key={idx}
-                    className="flex items-center justify-between gap-2 text-xs sm:text-sm font-medium text-slate-400 p-2.5 rounded-xl bg-slate-50/50 border border-slate-100"
+        {/* Dải 4 Pills Stepper 1 dòng tinh gọn: [✓ 1. Lệnh ngắn] ➔ [● 2. Dáng & Màu] ➔ [3. Đủ 5 chi tiết] ➔ [4. Soi & Nộp] */}
+        <div className="flex items-center gap-1 sm:gap-2 flex-wrap justify-center flex-1">
+          {[
+            {
+              stepNum: 1,
+              badgeText: '1. Lệnh ngắn',
+              title: 'Bước 1: Thử câu lệnh ban đầu (1-2 từ)',
+              promptHint: step1QuickPrompt ? `💡 Thử: "${step1QuickPrompt}"` : 'Thử lệnh 1-2 từ',
+            },
+            {
+              stepNum: 2,
+              badgeText: '2. Dáng & Màu',
+              title: 'Bước 2: Thêm hình dáng & màu sắc',
+              promptHint: step2QuickPrompt ? `💡 Thêm: "${step2QuickPrompt}"` : 'Thêm màu sắc & hình dáng',
+            },
+            {
+              stepNum: 3,
+              badgeText: '3. Đủ 5 chi tiết',
+              title: 'Bước 3: Hoàn thiện câu lệnh 5 chi tiết vàng',
+              promptHint: step3QuickPrompt ? `💡 5 chi tiết: "${step3QuickPrompt}"` : 'Đủ 5 chi tiết vàng',
+            },
+            {
+              stepNum: 4,
+              badgeText: '4. Soi & Nộp',
+              title: 'Bước 4: Soi kỹ tranh & nộp vào Balo',
+              promptHint: '🔍 Soi kỹ tranh và nộp bài',
+            },
+          ].map((s, idx) => {
+            const isDone = idx < currentWorkflowStep
+            const isCurrent = idx === currentWorkflowStep
+            return (
+              <React.Fragment key={s.stepNum}>
+                {idx > 0 && <span className="text-slate-300 font-bold text-xs select-none">➔</span>}
+                <div
+                  className={cn(
+                    'flex items-center gap-1.5 px-2.5 py-1 rounded-xl text-xs font-bold transition-all',
+                    isDone
+                      ? 'bg-emerald-50 text-emerald-800 border border-emerald-200 shadow-2xs'
+                      : isCurrent
+                      ? 'bg-indigo-50 text-indigo-950 border-2 border-indigo-500 shadow-xs ring-2 ring-indigo-200 scale-102'
+                      : 'bg-slate-50 text-slate-400 border border-slate-200'
+                  )}
+                  title={`${s.title} (${s.promptHint})`}
+                >
+                  <span
+                    className={cn(
+                      'size-4 sm:size-5 rounded-full flex items-center justify-center text-[10px] font-black shrink-0',
+                      isDone
+                        ? 'bg-emerald-500 text-white'
+                        : isCurrent
+                        ? 'bg-indigo-600 text-white'
+                        : 'border border-slate-200 text-slate-400'
+                    )}
                   >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <span className="size-5 rounded-full border border-slate-200 text-slate-400 flex items-center justify-center shrink-0 text-xs font-bold">
-                        {idx + 1}
-                      </span>
-                      <span className="truncate">{step.title}</span>
-                    </div>
-                    <span className="text-[10px] font-bold text-slate-400 bg-slate-100 px-2 py-0.5 rounded-full shrink-0">
-                      Chờ
+                    {isDone ? <Check size={10} strokeWidth={3.5} /> : s.stepNum}
+                  </span>
+                  <span className="text-[10px] font-black px-1.5 py-0.2 rounded-md bg-white/80 border border-current shadow-2xs shrink-0">
+                    {s.badgeText}
+                  </span>
+                  <span className="text-[11px] sm:text-xs font-black truncate max-w-[140px] sm:max-w-[170px]">
+                    {s.title}
+                  </span>
+                  {isDone && (
+                    <span className="text-[9px] font-black text-emerald-800 bg-emerald-100 px-1.5 py-0.2 rounded-full shrink-0">
+                      ✓ Đã xong
                     </span>
-                  </div>
-                )
-              })}
-            </div>
+                  )}
+                  {isCurrent && (
+                    <span className="text-[9px] font-black text-indigo-700 bg-indigo-100 px-1.5 py-0.2 rounded-full shrink-0 animate-pulse">
+                      ● Đang làm
+                    </span>
+                  )}
+                </div>
+              </React.Fragment>
+            )
+          })}
+        </div>
+
+        {/* Mẹo vàng AKI & Nút Tua lại video */}
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="hidden lg:flex items-center gap-1.5 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-xl text-[11px] font-bold text-amber-950 max-w-[220px]">
+            <span className="shrink-0">💡</span>
+            <span className="shrink-0 font-black">Mẹo Vàng Của AKI:</span>
+            <span className="truncate text-amber-900">{effectiveAkiMotto}</span>
           </div>
 
-          {/* Card 2: 💡 Mẹo Vàng Của AKI */}
-          <div className="bg-amber-50/90 border-2 border-amber-200 rounded-2xl p-4 shadow-2xs text-left">
-            <div className="flex items-center gap-2 mb-2 text-amber-950 font-black text-sm">
-              <span className="text-base">💡</span>
-              <span>Mẹo Vàng Của AKI</span>
-            </div>
-            <p className="text-xs font-bold text-amber-900/90 leading-relaxed">
-              {effectiveAkiMotto}
-            </p>
-          </div>
-
-          {/* Nút Tua lại video / Xem lại bài */}
           <button
             type="button"
             onClick={onReplayVideo || onBackToLesson}
-            className="w-full py-2 px-3 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-xs font-black text-slate-600 flex items-center justify-center gap-2 shadow-2xs transition-all active:scale-95 cursor-pointer"
+            className="py-1 px-2.5 rounded-xl bg-white hover:bg-slate-50 border border-slate-200 text-[11px] font-bold text-slate-600 flex items-center gap-1 shadow-2xs transition-all active:scale-95 cursor-pointer"
+            title="Tua lại video bài giảng"
           >
-            <RotateCcw size={14} className="text-slate-500" />
+            <RotateCcw size={12} className="text-slate-500" />
             <span>↺ Tua lại video / Xem lại bài</span>
           </button>
-        </aside>
+        </div>
+      </div>
 
-        {/* ── CỘT 2: STUDIO CANVAS CHAT & PROMPT BOX (LIVE STUDIO COACH) ────── */}
-        <main
+      {/* ── BỐ CỤC 2 KHU VỰC: CHÍNH (70-75%, COL-SPAN-8) & PHỤ (25-30%, COL-SPAN-4) ── */}
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-3.5 flex-1 min-h-0 w-full overflow-hidden items-stretch">
+        {/* ── KHU VỰC CHÍNH: GAME ENGINE & LIVE CANVAS (LG:COL-SPAN-8, 70-75% WIDTH) ── */}
+        <div
           data-testid="studio-col-canvas"
-          className="w-full lg:col-span-6 xl:col-span-6 flex flex-col justify-between bg-white rounded-3xl border-2 border-indigo-100 shadow-sm p-4 sm:p-5 min-h-[640px] order-1 lg:order-2"
+          className="w-full lg:col-span-8 xl:col-span-8 flex flex-col h-full min-h-0 bg-white rounded-3xl border-2 border-indigo-100 shadow-sm p-3 sm:p-4 overflow-y-auto hidden-scrollbar justify-between gap-3 text-left"
         >
-          {/* Header Chat */}
-          <div className="flex items-center justify-between pb-3 mb-3 border-b border-slate-100">
-            <div className="flex items-center gap-2.5">
-              <div className="size-9 rounded-full bg-amber-400 border-2 border-white shadow-xs flex items-center justify-center text-lg">
+          {/* 1. Header AKI · Xưởng Bài X, Chỉ vẽ {Character} & Mật mã đặc điểm */}
+          <div className="flex items-center justify-between gap-2 flex-wrap pb-1.5 border-b border-slate-100 shrink-0">
+            <div className="flex items-center gap-2">
+              <div className="size-8 rounded-full bg-amber-400 border border-white shadow-2xs flex items-center justify-center text-sm font-bold">
                 🐱
               </div>
-              <div className="text-left">
+              <div>
                 <div className="text-xs sm:text-sm font-black text-slate-900">
                   AKI · Xưởng {effectiveBadge}
-                </div>
-                <div className="text-[11px] font-semibold text-slate-400">
-                  Cứ nói chuyện với tớ như nói với bạn ấy
                 </div>
               </div>
             </div>
@@ -1921,198 +2129,158 @@ export function AikiStudioWorkspace({
               <Lock size={12} className="text-purple-600" />
               <span>Hôm nay chỉ vẽ {effectiveCharacterName}</span>
             </div>
-          </div>
 
-          {/* Vùng Tin Nhắn Chat & Kết quả Tranh (Scrollable) */}
-          <div
-            ref={chatScrollRef}
-            className="flex-1 overflow-y-auto pr-1 space-y-4 max-h-[480px] scroll-smooth"
-          >
-            {/* Lịch sử hội thoại động giữa AKI và học sinh */}
-            {chatMessages.map((msg, idx) => {
-              if (msg.sender === 'student') {
-                return (
-                  <div key={msg.id || idx} className="flex items-start justify-end gap-2 animate-fade-up">
-                    <div className="max-w-[85%] bg-indigo-600 text-white rounded-2xl rounded-tr-xs p-3.5 text-left text-xs sm:text-sm font-bold shadow-sm leading-relaxed">
-                      {msg.text}
-                    </div>
-                    <div className="size-8 rounded-full bg-indigo-100 border border-indigo-200 flex items-center justify-center text-base shrink-0">
-                      🎨
-                    </div>
-                  </div>
-                )
-              }
-
-              return (
-                <div key={msg.id || idx} className="flex items-start gap-2.5 animate-fade-up">
-                  <div className="size-8 rounded-full bg-amber-400 flex items-center justify-center text-base shrink-0">
-                    🐱
-                  </div>
-                  <div className="flex-1 bg-slate-50 border border-slate-200/80 rounded-2xl rounded-tl-xs p-3 sm:p-4 text-left space-y-3 shadow-2xs">
-                    <p className="font-bold text-slate-800 text-xs sm:text-sm whitespace-pre-line leading-relaxed">
-                      {msg.text}
-                    </p>
-
-                    {/* Thẻ đặc điểm khóa nếu có ở tin đầu */}
-                    {idx === 0 && effectiveLockedFeatures.length > 0 && (
-                      <div className="flex flex-wrap gap-2 pt-1">
-                        {effectiveLockedFeatures.map((feat, fIdx) => (
-                          <span
-                            key={fIdx}
-                            className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-purple-100/70 border border-purple-300 text-purple-900 text-xs font-black"
-                          >
-                            <Lock size={11} className="text-purple-700" />
-                            <span>{feat}</span>
-                          </span>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Khung Tranh AI sinh ra nếu có */}
-                    {msg.image && (
-                      <div
-                        onClick={() => handleOpenInspect(msg.image!)}
-                        className={cn(
-                          'relative w-full rounded-2xl overflow-hidden border-2 cursor-pointer group transition-all duration-200 shadow-sm flex flex-col',
-                          msg.image.toneBg || 'bg-pink-100',
-                          'border-pink-200 hover:border-indigo-400 hover:shadow-md'
-                        )}
-                      >
-                        <div className="w-full h-48 sm:h-56 flex items-center justify-center p-3 relative overflow-hidden">
-                          {msg.image.url ? (
-                            <img
-                              src={msg.image.url}
-                              alt={msg.image.prompt}
-                              className="size-full object-contain rounded-xl transition-transform duration-300 group-hover:scale-105"
-                              onError={(e) => {
-                                e.currentTarget.style.display = 'none'
-                              }}
-                            />
-                          ) : null}
-                          <StudioTopicIllustration
-                            type={illustrationType}
-                            className="max-h-full max-w-full"
-                          />
-                        </div>
-
-                        {/* Footer của khung tranh */}
-                        <div className="bg-white/95 backdrop-blur-xs px-3 py-2 border-t border-pink-100 flex items-center justify-between text-xs">
-                          <div className="flex items-center gap-2">
-                            <span className="inline-flex items-center gap-1 text-emerald-700 font-black">
-                              <Check size={13} strokeWidth={3} /> Bay thẳng vào Kho rồi
-                            </span>
-                            <span className="text-slate-400 font-semibold">
-                              Lượt {msg.image.turn} / {maxAttempts} · {msg.image.time}
-                            </span>
-                          </div>
-
-                          <button
-                            type="button"
-                            onClick={(e) => {
-                              e.stopPropagation()
-                              handleOpenInspect(msg.image!)
-                            }}
-                            className="inline-flex items-center gap-1 font-black text-indigo-600 hover:text-indigo-800 cursor-pointer"
-                          >
-                            <span>Xem to, soi kỹ →</span>
-                          </button>
-                        </div>
-                      </div>
-                    )}
-
-                    {/* Nút gợi ý nhanh 1-chạm TO RÕ */}
-                    {msg.quickPrompt && (
-                      <div className="pt-1 flex items-center gap-2 flex-wrap">
-                        <button
-                          type="button"
-                          data-testid="studio-quick-chip"
-                          onClick={() => handleQuickChipClick(msg.quickPrompt!)}
-                          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-amber-400 hover:bg-amber-500 text-amber-950 font-black text-xs sm:text-sm shadow-xs hover:shadow-md transition-all active:scale-95 cursor-pointer border border-amber-500/50"
-                        >
-                          <span>💡</span>
-                          <span>{msg.quickPromptLabel || `Thử ngay: "${msg.quickPrompt}"`}</span>
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Khung kiểm chứng tương tác (ở bước 4 hoặc hoàn thiện) */}
-                    {msg.isVerification && (
-                      <div className="bg-white border-2 border-amber-200 rounded-xl p-3 space-y-2 shadow-2xs">
-                        <p className="text-xs sm:text-sm font-extrabold text-amber-950">
-                          {effectiveVerificationQuestion.question}
-                        </p>
-
-                        {verifyStatus === 'pending' ? (
-                          <div className="flex items-center gap-2 pt-1 flex-wrap">
-                            <button
-                              type="button"
-                              data-testid="studio-verify-yes"
-                              onClick={() => {
-                                playInstantSound('star')
-                                setVerifyStatus('enough')
-                              }}
-                              className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-2xs transition-all active:scale-95 cursor-pointer"
-                            >
-                              Đủ rồi, chuẩn!
-                            </button>
-                            <button
-                              type="button"
-                              data-testid="studio-verify-no"
-                              onClick={() => {
-                                playInstantSound('click')
-                                setVerifyStatus('retry')
-                                promptInputRef.current?.focus()
-                              }}
-                              className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold text-xs transition-all active:scale-95 cursor-pointer"
-                            >
-                              Thiếu, để tớ tả lại
-                            </button>
-                          </div>
-                        ) : verifyStatus === 'enough' ? (
-                          <div className="space-y-2 pt-1">
-                            <div className="flex items-center gap-1.5 text-xs font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-lg">
-                              <CheckCircle2 size={14} />
-                              <span>Hoan hô! Bức này chuẩn chỉnh mật mã đặc điểm rồi! ✨</span>
-                            </div>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                playInstantSound('click')
-                                setIsSubmitModalOpen(true)
-                              }}
-                              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xs shadow-clay active:scale-95 cursor-pointer"
-                            >
-                              <span>🎒 Nộp Bài Vào Balo Ngay 🏆</span>
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-lg">
-                            Cậu thêm chi tiết vào ô bên dưới rồi nhờ tớ vẽ lại nhé!
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )
-            })}
-
-            {/* Trạng thái AKI đang vẽ */}
-            {isGenerating && (
-              <div className="flex items-start gap-2.5 animate-pulse">
-                <div className="size-8 rounded-full bg-amber-400 flex items-center justify-center text-base">
-                  🐱
-                </div>
-                <div className="bg-amber-50 border border-amber-200 rounded-2xl rounded-tl-xs p-3 text-xs sm:text-sm font-black text-amber-900 flex items-center gap-2">
-                  <Sparkles size={16} className="text-amber-600 animate-spin" />
-                  <span>AKI đang vẽ tranh cho bé đây, chờ tớ 1 giây nhé... ✨</span>
-                </div>
+            {/* Danh sách huy hiệu khóa đặc điểm nhân vật */}
+            {effectiveLockedFeatures.length > 0 && (
+              <div className="w-full flex flex-wrap items-center gap-1.5 pt-1">
+                <span className="text-[10px] font-extrabold text-slate-400">Đặc điểm:</span>
+                {effectiveLockedFeatures.map((feat, fIdx) => (
+                  <span
+                    key={fIdx}
+                    className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-purple-100/80 border border-purple-200 text-purple-900 text-[10px] font-bold"
+                  >
+                    <Lock size={9} className="text-purple-700" />
+                    <span>{feat}</span>
+                  </span>
+                ))}
               </div>
             )}
           </div>
 
-          {/* ── KHUNG SÁNG TẠO GAME ENGINE DƯỚI CHÂN (CREATIVE ENGINE SUITE) ────── */}
-          <div className="mt-3 pt-3 border-t border-slate-100 flex flex-col gap-2.5 text-left">
+          {/* 2. Dặn dò của AKI - ẩn hoàn toàn khỏi vùng giữa canvas (đã có ở Sidebar), giữ sr-only cho trợ năng & test assertions log */}
+          <div className="sr-only" aria-live="polite" data-testid="studio-aki-instructions-log">
+            <span data-testid="studio-aki-instructions-title">Dặn Dò Của AKI</span>
+            <span>Bước {currentWorkflowStep + 1}/4</span>
+            <p>
+              {isGenerating
+                ? '🐱 AKI đang kết nối Gateway và tạo tranh bằng Google Flow cho bé... Chờ tớ một chút nhé! ✨'
+                : latestAkiMessageText}
+            </p>
+            {chatMessages
+              .filter((m) => m.sender === 'aki')
+              .map((msg) => (
+                <span key={msg.id}>{msg.text} </span>
+              ))}
+          </div>
+
+          {/* 3. Khung hiển thị Live Canvas kết quả */}
+          {latestStudioImage ? (
+            <div
+              data-testid="studio-live-canvas-display"
+              className="relative w-full rounded-2xl overflow-hidden border-2 border-indigo-100 shadow-xs flex flex-col bg-slate-50 group shrink-0"
+            >
+              <div
+                onClick={() => handleOpenInspect(latestStudioImage)}
+                className={cn(
+                  'w-full h-44 sm:h-52 md:h-56 flex items-center justify-center p-2.5 relative overflow-hidden cursor-pointer',
+                  latestStudioImage.toneBg || 'bg-pink-100'
+                )}
+              >
+                {latestStudioImage.url ? (
+                  <img
+                    src={latestStudioImage.url}
+                    alt={latestStudioImage.prompt}
+                    className="size-full object-contain rounded-xl transition-transform duration-300 group-hover:scale-103"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none'
+                    }}
+                  />
+                ) : null}
+                <StudioTopicIllustration
+                  type={illustrationType}
+                  className="max-h-full max-w-full"
+                />
+
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation()
+                    handleOpenInspect(latestStudioImage)
+                  }}
+                  className="absolute top-2.5 right-2.5 bg-black/65 hover:bg-black/85 text-white text-xs font-black px-3 py-1.5 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
+                  title="Xem to, soi kỹ bức tranh này"
+                >
+                  <span>🔍 Xem to, soi kỹ →</span>
+                </button>
+              </div>
+
+              {/* Footer khung tranh */}
+              <div className="bg-white/95 backdrop-blur-xs px-3 py-2 border-t border-slate-100 flex items-center justify-between text-xs flex-wrap gap-1">
+                <span className="inline-flex items-center gap-1.5 text-emerald-700 font-black bg-emerald-50 px-2 py-0.5 rounded-lg">
+                  <Check size={12} strokeWidth={3} /> Bay thẳng vào Kệ & Balo rồi
+                </span>
+                <span className="text-slate-600 font-bold truncate max-w-[240px]">
+                  Lượt {latestStudioImage.turn}/{maxAttempts} · "{latestStudioImage.prompt}"
+                </span>
+              </div>
+            </div>
+          ) : (
+            <div
+              data-testid="studio-canvas-empty"
+              className="w-full h-32 sm:h-36 rounded-2xl border-2 border-dashed border-indigo-200 bg-gradient-to-b from-indigo-50/30 via-white to-amber-50/20 flex flex-col items-center justify-center p-3 text-center group transition-all shrink-0"
+            >
+              <div className="size-11 rounded-2xl bg-amber-100/90 border border-amber-300 shadow-2xs flex items-center justify-center text-xl mb-1 group-hover:scale-105 transition-transform">
+                🎨
+              </div>
+              <div className="text-xs sm:text-sm font-black text-slate-900 mb-0.5">
+                Canvas Live Sáng Tạo Đang Sẵn Sàng!
+              </div>
+              <p className="text-xs font-semibold text-slate-500 max-w-sm leading-tight">
+                Chọn ghép khối bên dưới rồi bấm <span className="font-black text-amber-700">"Vẽ Đi AKI! ✨"</span> nhé!
+              </p>
+            </div>
+          )}
+
+          {/* 4. Khung kiểm chứng đặc điểm (Verification Step) */}
+          {(currentWorkflowStep >= 2 || (preloadedImages && preloadedImages.length > 0)) && (
+            <div className="bg-white border-2 border-amber-200 rounded-2xl p-3 space-y-2 shadow-2xs shrink-0">
+              <p className="text-xs sm:text-sm font-black text-amber-950 leading-tight">
+                {effectiveVerificationQuestion.question}
+              </p>
+
+              {verifyStatus === 'pending' ? (
+                <div className="flex items-center gap-2 pt-0.5">
+                  <button
+                    type="button"
+                    data-testid="studio-verify-yes"
+                    onClick={() => {
+                      playInstantSound('star')
+                      setVerifyStatus('enough')
+                    }}
+                    className="px-3.5 py-1.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs shadow-2xs transition-all active:scale-95 cursor-pointer"
+                  >
+                    Đủ rồi, chuẩn!
+                  </button>
+                  <button
+                    type="button"
+                    data-testid="studio-verify-no"
+                    onClick={() => {
+                      playInstantSound('click')
+                      setVerifyStatus('retry')
+                      promptInputRef.current?.focus()
+                    }}
+                    className="px-3.5 py-1.5 rounded-xl bg-white hover:bg-slate-100 border border-slate-300 text-slate-700 font-bold text-xs transition-all active:scale-95 cursor-pointer"
+                  >
+                    Thiếu, để tớ tả lại
+                  </button>
+                </div>
+              ) : verifyStatus === 'enough' ? (
+                <div className="space-y-1.5 pt-0.5">
+                  <div className="flex items-center gap-1.5 text-xs font-black text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-xl">
+                    <CheckCircle2 size={14} />
+                    <span>Hoan hô! Bức này chuẩn chỉnh mật mã đặc điểm rồi! ✨</span>
+                  </div>
+                </div>
+              ) : (
+                <div className="text-xs font-bold text-amber-800 bg-amber-50 px-2.5 py-1 rounded-xl">
+                  Cậu thêm chi tiết bằng cách ghép thẻ hoặc gõ lệnh rồi nhờ tớ vẽ lại nhé!
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* 5. CreativeEngineShell: Khối thẻ bài, công cụ sáng tạo kéo thả siêu rộng rãi */}
+          <div className="w-full flex-1 min-h-[360px] pt-1">
             <CreativeEngineShell
               currentPrompt={currentPrompt}
               onPromptChange={setCurrentPrompt}
@@ -2121,6 +2289,7 @@ export function AikiStudioWorkspace({
               maxAttempts={maxAttempts}
               isGenerating={isGenerating}
               characterName={effectiveCharacterName}
+              selectedSubject={activePartSubject}
               lessonId={lessonId}
               lockedFeatures={effectiveLockedFeatures}
               illustrationType={illustrationType}
@@ -2145,16 +2314,16 @@ export function AikiStudioWorkspace({
               onQuickPromptClick={handleQuickChipClick}
             />
           </div>
-        </main>
+        </div>
 
-        {/* ── CỘT 3: KHO SÁNG TẠO & BALO SÁNG TẠO ───────────────────────────── */}
+        {/* ── KHU VỰC PHỤ: KỆ TRƯNG BÀY MEN GỐM SOFT CLAY & BALO THẬT (LG:COL-SPAN-4, 25-30% WIDTH) ── */}
         <aside
           data-testid="studio-col-gallery"
-          className="w-full lg:col-span-3 xl:col-span-3 flex flex-col gap-3.5 order-3"
+          className="w-full lg:col-span-4 xl:col-span-4 flex flex-col h-full min-h-0 overflow-y-auto hidden-scrollbar gap-3 text-left"
         >
           {/* Card 1: Gauge Đồng hồ lượt vẽ */}
-          <div className="bg-white rounded-2xl border-2 border-slate-100 p-4 shadow-2xs flex items-center gap-4 text-left">
-            <div className="relative size-16 shrink-0 flex items-center justify-center">
+          <div className="bg-white rounded-2xl border-2 border-slate-100 p-3 shadow-2xs flex items-center gap-3.5 text-left shrink-0">
+            <div className="relative size-14 shrink-0 flex items-center justify-center">
               <svg className="size-full -rotate-90" viewBox="0 0 36 36">
                 <path
                   className="text-slate-100"
@@ -2173,156 +2342,223 @@ export function AikiStudioWorkspace({
                   d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
                 />
               </svg>
-              <span className="absolute font-black text-sm text-slate-800">
+              <span className="absolute font-black text-xs sm:text-sm text-slate-800">
                 {attemptsLeft}/{maxAttempts}
               </span>
             </div>
 
-            <div className="flex-1">
+            <div className="flex-1 min-w-0">
               <div className="text-xs font-black text-slate-900">Lượt vẽ của bài này</div>
-              <p className="text-[11px] font-semibold text-slate-400 mt-1 leading-tight">
+              <p className="text-[11px] font-semibold text-slate-400 mt-0.5 leading-tight">
                 Hết lượt vẫn sửa chữ và nộp bài ngon lành. Bài sau lại đầy {maxAttempts} lượt!
               </p>
             </div>
           </div>
 
-          {/* Card 2: KHO SÁNG TẠO (3 Ô LƯỢT VẼ CỰC KỲ RÕ RÀNG) */}
-          <div className="bg-white rounded-2xl border-2 border-slate-100 p-4 shadow-2xs text-left">
-            <div className="flex items-center justify-between mb-1.5">
+          {/* Card 2: KHO SÁNG TẠO - KỆ TRƯNG BÀY TRANH NGHỆ THUẬT SOFT CLAY (Art Gallery Easel) */}
+          <div className="bg-white rounded-3xl border-2 border-amber-200/80 p-3.5 shadow-clay text-left flex flex-col gap-2.5 shrink-0">
+            <div className="flex items-center justify-between flex-wrap gap-1.5">
               <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black text-slate-900">
                 <span>🖼️</span>
                 <span>KHO SÁNG TẠO</span>
               </div>
-              <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
-                {gallery.length} ảnh
+              <div className="flex items-center gap-1.5 flex-wrap">
+                <span className="text-xs font-black text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full">
+                  {gallery.length} ảnh
+                </span>
+                <span className="text-xs font-black text-purple-700 bg-purple-100 border border-purple-200 px-2 py-0.5 rounded-full">
+                  BALO SÁNG TẠO ({gallery.length}/8 ảnh)
+                </span>
+              </div>
+            </div>
+
+            {/* Badge Lượt tạo của phần này */}
+            {(() => {
+              const activeImgsCount = gallery.filter((img) =>
+                img.partIndex !== undefined ? img.partIndex === activePartIndex : Math.floor((img.turn - 1) / 2) === activePartIndex
+              ).length
+              return (
+                <div className="flex items-center justify-between text-xs font-black text-amber-900 bg-amber-100/80 border border-amber-300/80 px-2.5 py-1 rounded-xl shadow-2xs">
+                  <span>Lượt tạo của phần này {activeImgsCount >= 2 ? '2/2' : `${activeImgsCount}/2`}</span>
+                  <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded-md">
+                    Phần {activePartIndex + 1}: {currentPartDef.title}
+                  </span>
+                </div>
+              )
+            })()}
+
+            {/* Thanh đếm tiến độ tác phẩm */}
+            <div className="flex items-center justify-between text-xs font-black text-amber-900 bg-amber-100/80 border border-amber-300/80 px-2.5 py-1 rounded-xl shadow-2xs">
+              <span>⭐ Đã tạo: {gallery.length} / {maxAttempts} tác phẩm</span>
+              <span className="text-[10px] font-bold text-amber-700 bg-amber-50 px-1.5 py-0.2 rounded-md">
+                Men Gốm
               </span>
             </div>
 
-            <p className="text-[11px] font-semibold text-slate-400 mb-3 leading-tight">
+            <p className="text-[11px] font-semibold text-slate-400 leading-tight">
               Vẽ xong là ảnh tự bay về đây — khỏi bấm lưu, khỏi lo mất 🪄
             </p>
 
-            {/* Lưới 3 ô Lượt 1, Lượt 2, Lượt 3 */}
+            {/* LƯỚI BỘ SƯU TẬP 8 Ô (4 HÀNG X 2 CỘT: P1 LƯỢT 1/2, P2 LƯỢT 1/2, P3 LƯỢT 1/2, P4 LƯỢT 1/2) */}
             <div className="flex flex-col gap-2.5">
-              {[0, 1, 2].map((slotIdx) => {
-                const turnNum = slotIdx + 1
-                const img = gallery[slotIdx]
+              {practicePartDefs.map((pDef, pIdx) => {
+                const partNum = pIdx + 1
+                const pImages = gallery.filter((img) =>
+                  img.partIndex !== undefined ? img.partIndex === pIdx : Math.floor((img.turn - 1) / 2) === pIdx
+                )
+                const isCurrentPart = pIdx === activePartIndex
+                const isPartDone = pImages.length >= 2
 
-                if (img) {
-                  return (
-                    <div
-                      key={img.id || slotIdx}
-                      onClick={() => handleOpenInspect(img)}
-                      className={cn(
-                        'relative rounded-2xl overflow-hidden border-2 cursor-pointer group transition-all duration-200 hover:scale-[1.02] shadow-2xs p-2.5 flex items-center gap-3',
-                        img.toneBg || 'bg-pink-50',
-                        submittedCandidate?.id === img.id
-                          ? 'border-indigo-600 ring-2 ring-indigo-300'
-                          : 'border-slate-200 hover:border-indigo-300'
-                      )}
-                    >
-                      {/* Thumbnail */}
-                      <div className="size-16 rounded-xl overflow-hidden shrink-0 bg-white/80 border border-slate-100 flex items-center justify-center relative">
-                        {img.url ? (
-                          <img
-                            src={img.url}
-                            alt=""
-                            className="size-full object-cover rounded-lg group-hover:scale-105 transition-transform"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none'
-                            }}
-                          />
-                        ) : null}
-                        <StudioTopicIllustration type={illustrationType} className="max-h-14" />
-                      </div>
-
-                      {/* Info */}
-                      <div className="flex-1 min-w-0 text-left">
-                        <div className="flex items-center gap-1.5 flex-wrap">
-                          <span className="text-[10px] font-black text-white bg-indigo-600 px-2 py-0.5 rounded-full">
-                            🎨 Lượt {turnNum}
-                          </span>
-                          <span className="text-[10px] font-semibold text-slate-400">{img.time}</span>
-                        </div>
-                        <p className="text-xs font-bold text-slate-800 line-clamp-2 mt-1">
-                          "{img.prompt}"
-                        </p>
-                        <span className="text-[11px] font-black text-indigo-600 group-hover:underline mt-0.5 inline-block">
-                          🔍 Soi to ảnh →
-                        </span>
-                      </div>
-                    </div>
-                  )
-                }
-
-                // Ô nét đứt thân thiện đang chờ bé vẽ
-                const isNextTurn = slotIdx === gallery.length
                 return (
                   <div
-                    key={slotIdx}
-                    onClick={() => {
-                      if (isNextTurn) {
-                        promptInputRef.current?.focus()
-                        playInstantSound('click')
-                      }
-                    }}
+                    key={pDef.partNumber}
                     className={cn(
-                      'rounded-2xl border-2 border-dashed p-3 flex items-center gap-3 text-left transition-all',
-                      isNextTurn
-                        ? 'border-indigo-300 bg-indigo-50/50 hover:bg-indigo-50/90 cursor-pointer animate-pulse'
-                        : 'border-slate-200 bg-slate-50/50 text-slate-400'
+                      'p-2 rounded-2xl border transition-all text-left flex flex-col gap-1.5',
+                      isCurrentPart
+                        ? 'bg-amber-50/60 border-amber-300 ring-2 ring-amber-200 shadow-2xs'
+                        : isPartDone
+                        ? 'bg-emerald-50/40 border-emerald-200'
+                        : 'bg-slate-50/40 border-slate-200'
                     )}
                   >
+                    {/* Header Dòng Phần */}
                     <div
-                      className={cn(
-                        'size-14 rounded-xl border flex items-center justify-center shrink-0 text-xl font-bold',
-                        isNextTurn
-                          ? 'bg-indigo-100/70 border-indigo-200 text-indigo-600'
-                          : 'bg-slate-100 border-slate-200 text-slate-400'
-                      )}
+                      onClick={() => handleSelectPart(pIdx)}
+                      className="flex items-center justify-between gap-1 cursor-pointer select-none"
                     >
-                      🎨
-                    </div>
-                    <div>
-                      <div
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <span className="text-sm shrink-0">{pDef.icon}</span>
+                        <span className="text-xs font-black text-slate-800 truncate">
+                          Phần {partNum}: {pDef.title}
+                        </span>
+                      </div>
+                      <span
                         className={cn(
-                          'text-xs font-black',
-                          isNextTurn ? 'text-indigo-900' : 'text-slate-500'
+                          'text-[10px] font-black px-2 py-0.5 rounded-full shrink-0',
+                          isPartDone
+                            ? 'bg-emerald-500 text-white shadow-2xs'
+                            : isCurrentPart
+                            ? 'bg-indigo-600 text-white animate-pulse'
+                            : 'bg-slate-200 text-slate-600'
                         )}
                       >
-                        🎨 Lượt {turnNum}: Đang chờ bé vẽ...
-                      </div>
-                      <p className="text-[11px] font-medium text-slate-400 mt-0.5">
-                        {slotIdx === 0
-                          ? 'Thử câu lệnh 1-2 từ'
-                          : slotIdx === 1
-                          ? 'Thêm hình dáng & màu sắc'
-                          : 'Đủ 5 chi tiết vàng'}
-                      </p>
+                        {isPartDone ? 'XONG ✓' : isCurrentPart ? 'ĐANG LÀM' : 'CHỜ'}
+                      </span>
+                    </div>
+
+                    {/* 2 Cột: Lượt 1 và Lượt 2 */}
+                    <div className="grid grid-cols-2 gap-2">
+                      {[0, 1].map((turnIdx) => {
+                        const turnInPart = (turnIdx + 1) as 1 | 2
+                        const globalTurn = pIdx * 2 + turnInPart
+                        const img = pImages[turnIdx]
+
+                        if (img) {
+                          return (
+                            <div
+                              key={img.id || turnIdx}
+                              onClick={() => handleOpenInspect(img)}
+                              className={cn(
+                                'relative rounded-xl overflow-hidden border-2 cursor-pointer group transition-all duration-200 hover:scale-[1.01] shadow-clay p-2 flex flex-col gap-1.5',
+                                img.toneBg || 'bg-gradient-to-r from-amber-50/70 to-orange-50/40',
+                                submittedCandidate?.id === img.id
+                                  ? 'border-indigo-600 ring-2 ring-indigo-300'
+                                  : 'border-amber-300/80 hover:border-amber-400'
+                              )}
+                            >
+                              <div className="w-full aspect-[4/3] rounded-lg overflow-hidden shrink-0 bg-white/90 border border-amber-200/80 shadow-2xs flex items-center justify-center relative">
+                                {img.url ? (
+                                  <img
+                                    src={img.url}
+                                    alt=""
+                                    className="size-full object-cover rounded-md group-hover:scale-105 transition-transform"
+                                    onError={(e) => {
+                                      e.currentTarget.style.display = 'none'
+                                    }}
+                                  />
+                                ) : null}
+                                <StudioTopicIllustration type={illustrationType} className="max-h-12" />
+                                <span className="absolute top-1 left-1 text-[9px] font-black text-white bg-black/60 backdrop-blur-xs px-1.5 py-0.2 rounded-md">
+                                  P{partNum} lượt {turnInPart}/2
+                                </span>
+                              </div>
+
+                              <div className="flex-1 min-w-0 text-left">
+                                <div className="flex items-center justify-between gap-1">
+                                  <span className="text-[10px] font-black text-white bg-indigo-600 px-1.5 py-0.2 rounded-full">
+                                    🎨 Lượt {globalTurn}
+                                  </span>
+                                  <span className="text-[9px] font-semibold text-slate-400">{img.time}</span>
+                                </div>
+                                <p className="text-[11px] font-bold text-slate-800 line-clamp-1 mt-0.5">
+                                  "{img.prompt}"
+                                </p>
+                                <div className="flex items-center justify-between gap-1 mt-1">
+                                  <span className="text-[10px] font-black text-indigo-600 group-hover:underline">
+                                    🔍 Soi to →
+                                  </span>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation()
+                                      setSubmittedCandidate(img)
+                                      playInstantSound('star')
+                                    }}
+                                    className={cn(
+                                      'px-1.5 py-0.2 rounded text-[9px] font-black transition-all cursor-pointer',
+                                      submittedCandidate?.id === img.id
+                                        ? 'bg-emerald-600 text-white shadow-2xs'
+                                        : 'bg-white border border-indigo-200 text-indigo-700 hover:bg-indigo-50'
+                                    )}
+                                  >
+                                    {submittedCandidate?.id === img.id ? '✓ Đang chọn' : '✓ Chọn nộp'}
+                                  </button>
+                                </div>
+                              </div>
+                            </div>
+                          )
+                        }
+
+                        // Ô chưa vẽ
+                        const isNextTurn = isCurrentPart && turnIdx === pImages.length
+                        return (
+                          <div
+                            key={turnIdx}
+                            onClick={() => {
+                              if (!isCurrentPart) {
+                                handleSelectPart(pIdx)
+                              }
+                              promptInputRef.current?.focus()
+                              playInstantSound('click')
+                            }}
+                            className={cn(
+                              'rounded-xl border-2 border-dashed p-2 flex flex-col items-center justify-center text-center gap-1 transition-all min-h-[95px] cursor-pointer',
+                              isNextTurn
+                                ? 'border-amber-400 bg-amber-50/70 hover:bg-amber-100/70 animate-pulse shadow-sm'
+                                : 'border-slate-200 bg-slate-50/60 hover:bg-slate-100/60 text-slate-400'
+                            )}
+                          >
+                            <span className="text-base">{isNextTurn ? '🖌️' : '🎨'}</span>
+                            <div className="text-[10px] font-black leading-tight">
+                              <span className={cn(isNextTurn ? 'text-amber-950' : 'text-slate-500')}>
+                                🎨 Lượt {globalTurn}: Đang chờ bé vẽ...
+                              </span>
+                            </div>
+                            {isNextTurn && (
+                              <span className="text-[10px] font-black text-amber-900 bg-amber-200/80 px-2 py-0.5 rounded-full inline-block mt-0.5">
+                                Chờ cọ vẽ của bé trổ tài!
+                              </span>
+                            )}
+                            <span className="text-[9px] font-bold text-slate-400">
+                              P{partNum} lượt {turnInPart}/2
+                            </span>
+                          </div>
+                        )
+                      })}
                     </div>
                   </div>
                 )
               })}
-
-              {/* Nếu có thêm các lượt 4, 5, 6 */}
-              {gallery.slice(3).map((img) => (
-                <div
-                  key={img.id}
-                  onClick={() => handleOpenInspect(img)}
-                  className="relative rounded-2xl overflow-hidden border-2 border-slate-200 cursor-pointer p-2.5 flex items-center gap-3 bg-slate-50 hover:border-indigo-300"
-                >
-                  <div className="size-14 rounded-xl overflow-hidden shrink-0 bg-white border border-slate-100 flex items-center justify-center">
-                    {img.url ? <img src={img.url} alt="" className="size-full object-cover rounded-lg" /> : null}
-                    <StudioTopicIllustration type={illustrationType} className="max-h-12" />
-                  </div>
-                  <div className="flex-1 min-w-0 text-left">
-                    <span className="text-[10px] font-black text-white bg-slate-600 px-2 py-0.5 rounded-full">
-                      🎨 Lượt {img.turn}
-                    </span>
-                    <p className="text-xs font-bold text-slate-700 truncate mt-1">"{img.prompt}"</p>
-                  </div>
-                </div>
-              ))}
             </div>
 
             {/* Nút Mở Kho sáng tạo */}
@@ -2331,33 +2567,59 @@ export function AikiStudioWorkspace({
               onClick={() => {
                 if (gallery[0]) handleOpenInspect(gallery[gallery.length - 1] || gallery[0])
               }}
-              className="mt-3 w-full py-2 px-3 rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-2xs transition-all active:scale-95 cursor-pointer"
+              className="mt-1 w-full py-2 px-3 rounded-xl bg-sky-500 hover:bg-sky-600 text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-2xs transition-all active:scale-95 cursor-pointer"
             >
               <span>Mở Kho sáng tạo →</span>
             </button>
           </div>
 
-          {/* Card 3: BALO SÁNG TẠO CỦA BÉ */}
-          <div className="bg-white rounded-2xl border-2 border-purple-100 p-3.5 shadow-2xs text-left">
-            <div className="flex items-center justify-between mb-2">
-              <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black text-purple-950">
-                <span>🎒</span>
+          {/* Card 3: BALO SÁNG TẠO CỦA BÉ (ĐỒNG BỘ CHUẨN VỚI BALO THẬT) */}
+          <div className="bg-white rounded-3xl border-2 border-purple-200/90 p-3.5 shadow-clay text-left flex flex-col gap-2.5 shrink-0">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-xs sm:text-sm font-black text-purple-950">
+                <KidBackpackImageIcon size={20} className="text-purple-600 shrink-0" />
                 <span>BALO SÁNG TẠO CỦA BÉ</span>
               </div>
-              <span className="text-[10px] font-black uppercase tracking-wider text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md">
+              <span className="text-[10px] font-black uppercase tracking-wider text-purple-700 bg-purple-100 px-2 py-0.5 rounded-md">
                 SẢN PHẨM ĐÃ HOÀN THÀNH
               </span>
             </div>
 
-            <div className="flex flex-col gap-2">
-              {backpackWorks.map((work) => (
+            {/* 3 Ngăn Báu Vật Chuẩn Nhận Diện Balo Thật */}
+            <div className="grid grid-cols-3 gap-1.5 p-2 rounded-2xl bg-purple-50/80 border border-purple-200/80 text-center">
+              <div className="flex flex-col items-center">
+                <span className="text-sm">🖼️</span>
+                <span className="text-[10px] font-black text-purple-950">Tranh & Ảnh</span>
+                <span className="text-[9px] font-bold text-purple-700">
+                  {backpackWorks.length + realBackpackAssets.length}
+                </span>
+              </div>
+              <div className="flex flex-col items-center border-x border-purple-200">
+                <span className="text-sm">📖</span>
+                <span className="text-[10px] font-black text-purple-950">Truyện Tranh</span>
+                <span className="text-[9px] font-bold text-purple-700">
+                  {Math.max(1, realBackpackProjects.length)}
+                </span>
+              </div>
+              <div className="flex flex-col items-center">
+                <span className="text-sm">🏅</span>
+                <span className="text-[10px] font-black text-purple-950">Huy Hiệu</span>
+                <span className="text-[9px] font-bold text-purple-700">
+                  {Math.max(3, realBackpackRewards.length)}
+                </span>
+              </div>
+            </div>
+
+            {/* Danh sách tác phẩm preview (đảm bảo chứa Hồ sơ biệt đội) */}
+            <div className="flex flex-col gap-1.5 max-h-36 overflow-y-auto hidden-scrollbar">
+              {backpackWorks.slice(0, 3).map((work) => (
                 <div
                   key={work.id}
                   className="flex items-center gap-2.5 p-1.5 rounded-xl hover:bg-slate-50 transition-colors"
                 >
                   <span
                     className={cn(
-                      'size-6 rounded-full text-white flex items-center justify-center text-[10px] font-black shrink-0',
+                      'size-5 rounded-full text-white flex items-center justify-center text-[10px] font-black shrink-0',
                       work.isNew ? 'bg-indigo-600 animate-pulse' : work.badgeColor || 'bg-emerald-500'
                     )}
                   >
@@ -2368,7 +2630,7 @@ export function AikiStudioWorkspace({
                     <div className="text-[10px] text-slate-400">{work.stationLabel}</div>
                   </div>
                   {work.isNew && (
-                    <span className="text-[9px] font-black text-white bg-indigo-600 px-1.5 py-0.5 rounded-md">
+                    <span className="text-[9px] font-black text-white bg-indigo-600 px-1.5 py-0.2 rounded-md">
                       Mới
                     </span>
                   )}
@@ -2384,7 +2646,7 @@ export function AikiStudioWorkspace({
                 playInstantSound('click')
                 setIsBackpackModalOpen(true)
               }}
-              className="mt-3 w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-clay active:scale-95 cursor-pointer transition-all"
+              className="w-full py-2.5 px-3 rounded-xl bg-purple-600 hover:bg-purple-700 active:bg-purple-800 text-white text-xs font-black flex items-center justify-center gap-1.5 shadow-clay active:scale-95 cursor-pointer transition-all"
             >
               <span>🎒 Mở Balo Sáng Tạo</span>
               <span>→</span>
@@ -2400,7 +2662,7 @@ export function AikiStudioWorkspace({
               setIsSubmitModalOpen(true)
             }}
             className={cn(
-              'w-full py-3.5 px-4 rounded-2xl text-sm sm:text-base font-black shadow-clay flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer',
+              'w-full py-3.5 px-4 rounded-2xl text-sm sm:text-base font-black shadow-clay flex items-center justify-center gap-2 transition-all active:scale-98 cursor-pointer mt-auto shrink-0',
               currentWorkflowStep >= 3 || gallery.length >= 3
                 ? 'animate-pulse bg-gradient-to-r from-amber-500 via-rose-500 to-indigo-600 text-white shadow-lg shadow-indigo-300 ring-4 ring-amber-300 border-2 border-white scale-102'
                 : 'bg-indigo-600 hover:bg-indigo-700 text-white'
@@ -2500,7 +2762,7 @@ export function AikiStudioWorkspace({
         </div>
       )}
 
-      {/* ── MODAL: BALO SÁNG TẠO CỦA BÉ ───────────────────────────────────────── */}
+      {/* ── MODAL: BALO SÁNG TẠO CỦA BÉ (ĐỒNG BỘ CHUẨN 3 TAB HỆ THỐNG) ────────── */}
       {isBackpackModalOpen && (
         <div
           data-testid="studio-backpack-modal"
@@ -2508,18 +2770,21 @@ export function AikiStudioWorkspace({
           onClick={() => setIsBackpackModalOpen(false)}
         >
           <div
-            className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 text-left border-3 border-purple-200"
+            className="bg-white rounded-3xl max-w-xl w-full p-5 sm:p-6 shadow-2xl space-y-4 text-left border-3 border-purple-200 max-h-[90vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
+            {/* Header Modal */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">
               <div className="flex items-center gap-2.5">
-                <span className="text-3xl">🎒</span>
+                <div className="size-10 rounded-2xl bg-purple-100 border border-purple-200 flex items-center justify-center">
+                  <KidBackpackImageIcon size={24} />
+                </div>
                 <div>
                   <h3 className="text-base sm:text-lg font-black text-slate-900">
                     Balo Sáng Tạo Của Bé
                   </h3>
                   <p className="text-xs font-semibold text-slate-400">
-                    Kho báu tác phẩm, bảo bối và huy hiệu đã thu thập
+                    Đồng bộ báu vật tranh ảnh, truyện tranh và huy hiệu của con
                   </p>
                 </div>
               </div>
@@ -2539,86 +2804,177 @@ export function AikiStudioWorkspace({
                 <div className="text-[10px] font-bold text-amber-700">Sao Đã Đạt</div>
               </div>
               <div className="bg-purple-50 border border-purple-200 rounded-2xl p-2.5">
-                <div className="text-lg font-black text-purple-900">🖼️ {backpackWorks.length}</div>
+                <div className="text-lg font-black text-purple-900">
+                  🖼️ {backpackWorks.length + realBackpackAssets.length}
+                </div>
                 <div className="text-[10px] font-bold text-purple-700">Tác Phẩm</div>
               </div>
               <div className="bg-emerald-50 border border-emerald-200 rounded-2xl p-2.5">
-                <div className="text-lg font-black text-emerald-900">🏆 3</div>
+                <div className="text-lg font-black text-emerald-900">
+                  🏆 {Math.max(3, realBackpackRewards.length)}
+                </div>
                 <div className="text-[10px] font-bold text-emerald-700">Huy Hiệu</div>
               </div>
             </div>
 
-            {/* Danh sách tác phẩm trong balo */}
-            <div className="space-y-2">
-              <div className="text-xs font-black text-slate-700 uppercase tracking-wide">
-                Tác phẩm đã cất vào balo ({backpackWorks.length}):
-              </div>
-              <div className="max-h-56 overflow-y-auto space-y-2 pr-1">
-                {backpackWorks.map((item) => (
-                  <div
-                    key={item.id}
-                    className="flex items-center justify-between gap-3 p-2.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-purple-300 transition-all"
+            {/* 3 Tab Chuẩn Hệ Thống Balo */}
+            <div className="flex items-center gap-1.5 p-1 rounded-2xl bg-purple-50/80 border border-purple-200">
+              {[
+                { id: 'images' as const, label: '🖼️ Tranh & Ảnh', count: backpackWorks.length + realBackpackAssets.length },
+                { id: 'comics' as const, label: '📖 Truyện Tranh', count: Math.max(1, realBackpackProjects.length) },
+                { id: 'rewards' as const, label: '🏅 Huy Hiệu', count: Math.max(3, realBackpackRewards.length) },
+              ].map((tab) => (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={() => {
+                    playInstantSound('click')
+                    setBackpackModalTab(tab.id)
+                  }}
+                  className={cn(
+                    'flex-1 py-2 px-2.5 rounded-xl text-xs font-black transition-all flex items-center justify-center gap-1 cursor-pointer',
+                    backpackModalTab === tab.id
+                      ? 'bg-purple-600 text-white shadow-xs scale-102'
+                      : 'text-purple-800 hover:bg-purple-100/60'
+                  )}
+                >
+                  <span>{tab.label}</span>
+                  <span
+                    className={cn(
+                      'text-[10px] px-1.5 py-0.2 rounded-full font-bold',
+                      backpackModalTab === tab.id ? 'bg-purple-800 text-purple-100' : 'bg-purple-200/60 text-purple-900'
+                    )}
                   >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <div className="size-12 rounded-xl bg-purple-100 border border-purple-200 flex items-center justify-center overflow-hidden shrink-0">
-                        {item.url ? (
-                          <img
-                            src={item.url}
-                            alt=""
-                            className="size-full object-cover"
-                            onError={(e) => {
-                              e.currentTarget.style.display = 'none'
-                            }}
-                          />
-                        ) : (
-                          <span className="text-xl">🎨</span>
-                        )}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="font-black text-xs sm:text-sm text-slate-900 truncate">
-                          {item.title}
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
+            </div>
+
+            {/* Nội dung theo Tab */}
+            {backpackModalTab === 'images' && (
+              <div className="space-y-2">
+                <div className="text-xs font-black text-slate-700 uppercase tracking-wide">
+                  Tác phẩm đã cất vào balo ({backpackWorks.length}):
+                </div>
+                <div className="max-h-56 overflow-y-auto space-y-2 pr-1">
+                  {backpackWorks.map((item) => (
+                    <div
+                      key={item.id}
+                      className="flex items-center justify-between gap-3 p-2.5 rounded-2xl bg-slate-50 border border-slate-200 hover:border-purple-300 transition-all"
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
+                        <div className="size-12 rounded-xl bg-purple-100 border border-purple-200 flex items-center justify-center overflow-hidden shrink-0">
+                          {item.url ? (
+                            <img
+                              src={item.url}
+                              alt=""
+                              className="size-full object-cover"
+                              onError={(e) => {
+                                e.currentTarget.style.display = 'none'
+                              }}
+                            />
+                          ) : (
+                            <span className="text-xl">🎨</span>
+                          )}
                         </div>
-                        <div className="text-[11px] font-semibold text-purple-700">
-                          {item.stationLabel} {item.time ? `· ${item.time}` : ''}
+                        <div className="min-w-0">
+                          <div className="font-black text-xs sm:text-sm text-slate-900 truncate">
+                            {item.title}
+                          </div>
+                          <div className="text-[11px] font-semibold text-purple-700">
+                            {item.stationLabel} {item.time ? `· ${item.time}` : ''}
+                          </div>
                         </div>
                       </div>
+                      <span className="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg shrink-0">
+                        ✓ Đã lưu
+                      </span>
                     </div>
-                    <span className="text-xs font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-lg shrink-0">
-                      ✓ Đã lưu
-                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {backpackModalTab === 'comics' && (
+              <div className="space-y-2">
+                <div className="text-xs font-black text-slate-700 uppercase tracking-wide">
+                  Dự án truyện tranh của bé:
+                </div>
+                <div className="max-h-56 overflow-y-auto space-y-2 pr-1">
+                  {realBackpackProjects.length > 0 ? (
+                    realBackpackProjects.map((proj) => (
+                      <div
+                        key={proj.id}
+                        className="flex items-center justify-between gap-3 p-2.5 rounded-2xl bg-slate-50 border border-slate-200"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          <div className="size-12 rounded-xl bg-amber-100 border border-amber-200 flex items-center justify-center overflow-hidden shrink-0 text-xl">
+                            📖
+                          </div>
+                          <div className="min-w-0">
+                            <div className="font-black text-xs sm:text-sm text-slate-900 truncate">
+                              {proj.title}
+                            </div>
+                            <div className="text-[11px] font-semibold text-amber-700">
+                              Truyện tranh AI
+                            </div>
+                          </div>
+                        </div>
+                        <span className="text-xs font-black text-amber-700 bg-amber-50 px-2 py-1 rounded-lg shrink-0">
+                          Đã lưu
+                        </span>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="p-4 rounded-2xl bg-slate-50 border border-slate-200 text-center text-xs text-slate-500">
+                      📖 Bé hoàn thành thêm các bài học truyện để mở khóa truyện tranh nhé!
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {backpackModalTab === 'rewards' && (
+              <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3.5 space-y-2.5">
+                <div className="text-xs font-black text-purple-900 uppercase tracking-wide">
+                  Huy hiệu & Bảo bối hiệp sĩ:
+                </div>
+                <div className="grid grid-cols-3 gap-2 text-center text-xs font-bold text-purple-950">
+                  <div className="bg-white/90 p-2.5 rounded-xl border border-purple-200 shadow-2xs">
+                    <span className="text-2xl block mb-0.5">🏅</span>
+                    <span>Hiệp Sĩ AIKI</span>
                   </div>
-                ))}
+                  <div className="bg-white/90 p-2.5 rounded-xl border border-purple-200 shadow-2xs">
+                    <span className="text-2xl block mb-0.5">🖌️</span>
+                    <span>Cọ Thần Kỳ</span>
+                  </div>
+                  <div className="bg-white/90 p-2.5 rounded-xl border border-purple-200 shadow-2xs">
+                    <span className="text-2xl block mb-0.5">🔑</span>
+                    <span>Khóa 5 Chi Tiết</span>
+                  </div>
+                </div>
               </div>
-            </div>
+            )}
 
-            {/* Huy hiệu & Bảo bối */}
-            <div className="bg-purple-50/70 border border-purple-200 rounded-2xl p-3 space-y-2">
-              <div className="text-xs font-black text-purple-900 uppercase tracking-wide">
-                Bảo bối hiệp sĩ:
-              </div>
-              <div className="grid grid-cols-3 gap-2 text-center text-xs font-bold text-purple-950">
-                <div className="bg-white/80 p-2 rounded-xl border border-purple-200 shadow-2xs">
-                  <span className="text-lg block">🏅</span>
-                  <span>Hiệp Sĩ AIKI</span>
-                </div>
-                <div className="bg-white/80 p-2 rounded-xl border border-purple-200 shadow-2xs">
-                  <span className="text-lg block">🖌️</span>
-                  <span>Cọ Thần Kỳ</span>
-                </div>
-                <div className="bg-white/80 p-2 rounded-xl border border-purple-200 shadow-2xs">
-                  <span className="text-lg block">🔑</span>
-                  <span>Khóa 5 Chi Tiết</span>
-                </div>
-              </div>
-            </div>
+            {/* Nút liên kết tới trang Balo thật */}
+            <div className="pt-2 border-t border-slate-100 flex flex-col sm:flex-row items-center gap-2">
+              <a
+                href="/backpack"
+                className="w-full sm:flex-1 py-2.5 px-4 rounded-xl bg-purple-600 hover:bg-purple-700 text-white font-black text-xs sm:text-sm flex items-center justify-center gap-2 shadow-clay cursor-pointer transition-all active:scale-95 text-center"
+              >
+                <KidBackpackImageIcon size={18} />
+                <span>Khám Phá Toàn Bộ Balo Tại /backpack →</span>
+              </a>
 
-            <button
-              type="button"
-              onClick={() => setIsBackpackModalOpen(false)}
-              className="w-full py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-sm cursor-pointer"
-            >
-              Đóng Balo
-            </button>
+              <button
+                type="button"
+                onClick={() => setIsBackpackModalOpen(false)}
+                className="w-full sm:w-auto py-2.5 px-4 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs sm:text-sm cursor-pointer"
+              >
+                Đóng Balo
+              </button>
+            </div>
           </div>
         </div>
       )}

@@ -174,14 +174,15 @@ export const BlockPalette: React.FC<BlockPaletteProps> = ({
                 }
               }}
               className={cn(
-                'group relative min-h-[52px] px-3 py-2 rounded-2xl border-2 select-none cursor-pointer',
-                'flex items-center justify-between gap-2 text-left transition-all duration-150 active:scale-95',
+                'group relative min-h-[56px] px-3 py-2.5 rounded-2xl border-2 select-none',
+                'cursor-grab active:cursor-grabbing hover:scale-102 active:scale-95 transition-all duration-150',
+                'flex items-center justify-between gap-2.5 text-left shadow-2xs',
                 isSelected ? color.active : color.idle
               )}
             >
-              <div className="flex items-center gap-2 min-w-0 flex-1">
+              <div className="flex items-center gap-2.5 min-w-0 flex-1">
                 {block.icon && (
-                  <span className="text-lg shrink-0 group-hover:scale-110 transition-transform">
+                  <span className="text-xl sm:text-2xl shrink-0 group-hover:scale-110 transition-transform">
                     {block.icon}
                   </span>
                 )}

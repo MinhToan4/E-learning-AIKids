@@ -127,20 +127,21 @@ describe('SixStageJourneyView', () => {
     expect(container.textContent).toContain('Thực hành')
     expect(container.textContent).toContain('Hoàn thành')
 
-    // Left Column: Main Learning Canvas & Stage 0 Goal
+    // Left Column: Main Learning Canvas & Stage 0 Goal (clean, non-cluttered)
     const mainCanvas = container.querySelector('[data-testid="main-learning-canvas"]')
     expect(mainCanvas).not.toBeNull()
     expect(mainCanvas?.querySelector('[data-testid="stage-0-goal"]')).not.toBeNull()
     expect(mainCanvas?.textContent).toContain('Mục tiêu: Đừng Để AKI Đoán Mò')
     expect(mainCanvas?.textContent).toContain('Con hiểu được AI tạo ảnh không tự nghĩ được')
-    expect(mainCanvas?.textContent).toContain('Tả càng rõ, tranh càng đúng ý')
 
-    // Right Column: Companion Sidebar
+    // Right Column: Companion Sidebar with 4-Slot Formula & Key points
     const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
     expect(sidebar).not.toBeNull()
     expect(sidebar?.textContent).toContain('Chặng 1/6: Mục tiêu')
     expect(sidebar?.textContent).toContain('AKI Đồng Hành')
     expect(sidebar?.textContent).toContain('LỜI THOẠI CỦA AKI')
+    expect(sidebar?.textContent).toContain('Công Thức 4 Ô Mật Mã')
+    expect(sidebar?.textContent).toContain('Tả càng rõ, tranh càng đúng ý')
     expect(sidebar?.textContent).toContain('Nhiệm vụ chặng này')
     expect(sidebar?.textContent).toContain('42 Sao tích lũy')
   })
@@ -235,7 +236,7 @@ describe('SixStageJourneyView', () => {
     })
 
     expect(container.textContent).toContain('Chính xác! Tuyệt vời quá bé ơi!')
-    expect(container.textContent).toContain('👉 Xem video bài học thôi nào 🎬')
+    expect(container.textContent).toContain('🎬 Xem video bài học thôi nào →')
 
     // Click to advance to video stage
     const toVideoBtn = Array.from(container.querySelectorAll('button')).find((b) =>
@@ -488,7 +489,7 @@ describe('SixStageJourneyView', () => {
     expect(document.body.querySelector('[data-testid="lightbox-modal"]')).toBeNull()
   })
 
-  it('verifies Stage 2 video layout is full-width with 16:9 aspect ratio, compact horizontal chip timestamps and action buttons', () => {
+  it('verifies Stage 2 video layout is cinema full-width 16:9, timestamps moved to Sidebar for non-cluttered view, and seeking works', () => {
     const root = createRoot(container)
     act(() => {
       root.render(
@@ -515,11 +516,27 @@ describe('SixStageJourneyView', () => {
     expect(videoWrapper).not.toBeNull()
     expect(videoWrapper?.className).toContain('aspect-video')
 
-    // Timestamps must be in horizontal scrolling chips container
-    const chipContainer = stage2Section?.querySelector('.overflow-x-auto')
-    expect(chipContainer).not.toBeNull()
-    const chips = chipContainer?.children
-    expect(chips?.length).toBe(3)
+    // Mainbar iframe has base video URL initially
+    const iframe = stage2Section?.querySelector('iframe')
+    expect(iframe).not.toBeNull()
+    expect(iframe?.getAttribute('src')).toBe('https://www.youtube.com/embed/dQw4w9WgXcQ')
+
+    // Timestamps are cleanly displayed in Companion Sidebar (Interactive Chapters)
+    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
+    expect(sidebar).not.toBeNull()
+    expect(sidebar?.textContent).toContain('Mốc Phân Đoạn Video')
+    expect(sidebar?.textContent).toContain('Tình huống khởi động')
+    expect(sidebar?.textContent).toContain('Bí kíp 4 chìa khóa')
+
+    // Clicking a timestamp seeks video player in Mainbar
+    const chapterBtn = Array.from(sidebar?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('Bí kíp 4 chìa khóa')
+    )
+    expect(chapterBtn).toBeDefined()
+    act(() => {
+      chapterBtn?.click()
+    })
+    expect(stage2Section?.querySelector('iframe')?.getAttribute('src')).toContain('start=45')
 
     // Action button footer container
     const footerAction = stage2Section?.querySelector('.flex.justify-between.items-center.pt-1')
@@ -571,5 +588,384 @@ describe('SixStageJourneyView', () => {
     expect(sidebar?.className).toContain('md:w-[300px]')
     expect(sidebar?.className).toContain('lg:w-[360px]')
   })
+
+  it('renders Stage 4 Practice with interactive sidebar containing 4 practice steps and AKI golden motto', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+          initialStageIndex={4}
+        />
+      )
+    })
+
+    // Main workspace for practice stage
+    expect(container.querySelector('[data-testid="stage-4-practice"]')).not.toBeNull()
+    expect(container.querySelector('[data-testid="aiki-studio-workspace"]')).not.toBeNull()
+
+    // Interactive sidebar is visible at Stage 4
+    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
+    expect(sidebar).not.toBeNull()
+
+    // Sidebar displays 4 practice steps clearly
+    expect(sidebar?.textContent).toContain('Tiến Trình 4 Bước Thực Hành')
+    expect(sidebar?.textContent).toContain('Bước 1: Thử câu lệnh ban đầu (1-2 từ)')
+    expect(sidebar?.textContent).toContain('Bước 2: Thêm hình dáng & màu sắc')
+    expect(sidebar?.textContent).toContain('Bước 3: Hoàn thiện câu lệnh 5 chi tiết vàng')
+    expect(sidebar?.textContent).toContain('Bước 4: Soi kỹ tranh & nộp vào Balo')
+
+    // Sidebar displays AKI golden motto & locked features
+    expect(sidebar?.textContent).toContain('MẸO VÀNG CỦA AKI')
+    expect(sidebar?.textContent).toContain('Tả càng rõ, tranh càng đúng ý!')
+    expect(sidebar?.textContent).toContain('Mật mã đặc điểm vàng')
+    expect(sidebar?.textContent).toContain('mèo mướp vàng béo tròn')
+    expect(sidebar?.textContent).toContain('↺ Xem lại video bài giảng')
+  })
+
+  it('verifies specialized sidebar widgets across Stages 0, 1, 3, and 5 according to pedagogical design', () => {
+    const root = createRoot(container)
+
+    // Stage 0: 4-slot formula & AKI advice
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          key="stage-0"
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+          initialStageIndex={0}
+        />
+      )
+    })
+    const sidebar0 = container.querySelector('[data-testid="interactive-sidebar"]')
+    expect(sidebar0?.textContent).toContain('Công Thức 4 Ô Mật Mã')
+    expect(sidebar0?.textContent).toContain('CÁI GÌ')
+    expect(sidebar0?.textContent).toContain('TRÔNG THẾ NÀO')
+    expect(sidebar0?.textContent).toContain('ĐANG LÀM GÌ')
+    expect(sidebar0?.textContent).toContain('Ở ĐÂU')
+    expect(sidebar0?.textContent).toContain('LỜI THOẠI CỦA AKI')
+    expect(sidebar0?.textContent).not.toContain('LỜI DẶN DÒ TỪ AKI')
+
+    // Stage 1: Cheat-sheet
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          key="stage-1"
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+          initialStageIndex={1}
+        />
+      )
+    })
+    const sidebar1 = container.querySelector('[data-testid="interactive-sidebar"]')
+    expect(sidebar1?.textContent).toContain('Bảng Gợi Ý Mật Mã')
+    expect(sidebar1?.textContent).toContain('Cheat-sheet')
+    expect(sidebar1?.textContent).toContain('LỜI THOẠI CỦA AKI')
+    expect(sidebar1?.textContent).not.toContain('CỐ VẤN AKI DẶN DÒ')
+
+    // Stage 3: Live Scoreboard and AKI Advisor
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          key="stage-3"
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+          initialStageIndex={3}
+        />
+      )
+    })
+    const sidebar3 = container.querySelector('[data-testid="interactive-sidebar"]')
+    expect(sidebar3?.textContent).toContain('Bảng Điểm Trực Tiếp')
+    expect(sidebar3?.textContent).toContain('GÓC CỐ VẤN AKI')
+
+    // Select answers and submit quiz in Stage 3
+    const ans1 = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('AKI sẽ đoán mò hình dáng')
+    )
+    const ans2 = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Miêu tả càng rõ tranh càng đúng ý')
+    )
+    act(() => {
+      ans1?.click()
+      ans2?.click()
+    })
+    const submitBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Nộp bài kiểm tra')
+    )
+    act(() => {
+      submitBtn?.click()
+    })
+    expect(sidebar3?.textContent).toContain('✓ Đã đúng 2/2 câu để mở Xưởng!')
+    expect(sidebar3?.textContent).toContain('ĐÃ ĐẠT CHUẨN')
+
+    // Stage 5: Rewards, Home Mission & Next Lesson Teaser
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          key="stage-5"
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+          initialStageIndex={5}
+        />
+      )
+    })
+    const sidebar5 = container.querySelector('[data-testid="interactive-sidebar"]')
+    expect(sidebar5?.textContent).toContain('Tổng Kết Phần Thưởng')
+    expect(sidebar5?.textContent).toContain('+3 Sao')
+    expect(sidebar5?.textContent).toContain('+5 Xu')
+    expect(sidebar5?.textContent).toContain('+50 XP')
+    expect(sidebar5?.textContent).toContain('Việc Ngoài Màn Hình (Home Mission)')
+    expect(sidebar5?.textContent).toContain('Bé hãy đem tranh khoe với bố mẹ ngay bây giờ, đố bố mẹ đoán xem bé đã vẽ gì nhé!')
+    expect(sidebar5?.textContent).toContain('TEASER BÀI HỌC TIẾP THEO')
+  })
+
+  it('renders 4 practice items/parts widget in Stage 4 sidebar and switches workspace parts on click', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-2-bon-chiec-chia-khoa"
+          lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
+          initialStageIndex={4}
+        />
+      )
+    })
+
+    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
+    expect(sidebar).not.toBeNull()
+
+    // 1. Kiểm tra Khối Bốn món đồ của các cậu
+    expect(sidebar?.textContent).toContain('Bốn món đồ của các cậu')
+    expect(sidebar?.textContent).toContain('Bài này có 4 phần. Mỗi phần 2 lượt tạo.')
+    expect(sidebar?.textContent).toContain('Chỉ 4 lượt chọn')
+
+    // 2. 4 Cards món đồ
+    const part1Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-1"]') as HTMLButtonElement
+    const part2Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-2"]') as HTMLButtonElement
+    const part3Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-3"]') as HTMLButtonElement
+    const part4Btn = sidebar?.querySelector('[data-testid="sidebar-practice-part-4"]') as HTMLButtonElement
+
+    expect(part1Btn).not.toBeNull()
+    expect(part2Btn).not.toBeNull()
+    expect(part3Btn).not.toBeNull()
+    expect(part4Btn).not.toBeNull()
+
+    // Mặc định part 1 đang làm
+    expect(part1Btn.textContent).toContain('PHẦN 1 - ĐANG LÀM')
+    expect(part1Btn.textContent).toContain('Cái cốc sứ trắng')
+    expect(part2Btn.textContent).toContain('PHẦN 2 - CHỜ')
+    expect(part2Btn.textContent).toContain('Cái xe đạp')
+
+    // 3. Click chọn Phần 2 -> chuyển sang ĐANG LÀM
+    act(() => {
+      part2Btn.click()
+    })
+
+    expect(part2Btn.textContent).toContain('PHẦN 2 - ĐANG LÀM')
+
+    // 4. Mẹo vàng AKI và nút Tua lại video
+    expect(sidebar?.textContent).toContain('MẸO VÀNG CỦA AKI')
+    expect(sidebar?.textContent).toContain('↺ Tua lại video')
+  })
+
+  it('renders Lesson 1.2 Stage 0 with 4-keys banner and 4-colored formula grid', () => {
+    const lesson1_2Journey: LessonSixStageJourney = {
+      ...mockJourney,
+      stage1_goal: {
+        id: 'bai-1-2-stage1-goal',
+        title: 'Bài 1.2 — Bốn chiếc chìa khoá',
+        goalText: 'Viết được một câu lệnh có đủ bốn phần: Cái gì, Trông như thế nào, Đang làm gì, Ở đâu',
+        imageUrl: '/assets/aiki-islands/island1_lesson2_keys.jpg',
+        speech: 'Zico: Một con mèo rất đẹp... AKI: Hả? Zico viết dài thế mà tranh vẫn chưa rõ kìa!',
+        keyPoints: [
+          "CÁI GÌ (Xanh Sky): 'một cái cốc'",
+          "TRÔNG NHƯ THẾ NÀO (Vàng Sun): 'sứ trắng, có vết mẻ ở miệng'",
+          "ĐANG LÀM GÌ (Cam Mango): 'đang bốc khói'",
+          "Ở ĐÂU (Hồng Gum): 'trên bàn gỗ, cạnh cuốn sổ'",
+        ],
+      },
+    }
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={lesson1_2Journey}
+          lessonId="bai-1-2-bon-chiec-chia-khoa"
+          lessonTitle="Bài 1.2 — Bốn chiếc chìa khoá"
+          initialStageIndex={0}
+        />
+      )
+    })
+
+    const stage0 = container.querySelector('[data-testid="stage-0-goal"]')
+    expect(stage0).not.toBeNull()
+    expect(stage0?.textContent).toContain('Bốn chiếc chìa khoá')
+    expect(stage0?.textContent).toContain('Mở được cả bốn thì AKI vẽ đúng ngay từ lần đầu tiên')
+    expect(stage0?.textContent).toContain('Công Thức Câu Lệnh Bốn Ô')
+    expect(stage0?.textContent).toContain('CÁI GÌ')
+    expect(stage0?.textContent).toContain('TRÔNG THẾ NÀO')
+    expect(stage0?.textContent).toContain('ĐANG LÀM GÌ')
+    expect(stage0?.textContent).toContain('Ở ĐÂU')
+    expect(stage0?.textContent).toContain('“một cái cốc”')
+  })
+
+  it('renders Lesson 1.2 Stage 1 with 3-column key sets and unlocks with mint feedback on correct choice', () => {
+    const lesson1_2Journey: LessonSixStageJourney = {
+      ...mockJourney,
+      stage2_confirmGoal: {
+        id: 'bai-1-2-stage2-confirm',
+        question: 'Bộ chìa khoá nào mở được một câu lệnh tốt?',
+        options: [
+          {
+            id: 'opt-a',
+            text: 'Bộ chìa khoá A',
+            keyItems: [
+              { label: 'Ai vẽ', color: '#3FA9F5' },
+              { label: 'Vẽ lúc nào', color: '#F5C93E' },
+              { label: 'Vẽ ở đâu', color: '#FF9427' },
+              { label: 'Vẽ bằng gì', color: '#FF6FA5' },
+            ],
+          },
+          {
+            id: 'opt-b',
+            text: 'Bộ chìa khoá B',
+            keyItems: [
+              { label: 'Cái gì', color: '#3FA9F5' },
+              { label: 'Trông như thế nào', color: '#F5C93E' },
+              { label: 'Đang làm gì', color: '#FF9427' },
+              { label: 'Ở đâu', color: '#FF6FA5' },
+            ],
+          },
+          {
+            id: 'opt-c',
+            text: 'Bộ chìa khoá C',
+            keyItems: [
+              { label: 'Cái gì', color: '#3FA9F5' },
+              { label: 'Màu gì', color: '#F5C93E' },
+              { label: 'To hay nhỏ', color: '#FF9427' },
+              { label: 'Của ai', color: '#FF6FA5' },
+            ],
+          },
+        ],
+        correctIndex: 1,
+        explanation: 'Đúng rồi các cậu ơi! Bốn chìa khoá này chính là bốn ô các cậu sẽ điền trong Xưởng.',
+        speech: 'Bộ chìa khoá nào mở được một câu lệnh tốt?',
+      },
+    }
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={lesson1_2Journey}
+          lessonId="bai-1-2-bon-chiec-chia-khoa"
+          lessonTitle="Bài 1.2 — Bốn chiếc chìa khoá"
+          initialStageIndex={1}
+        />
+      )
+    })
+
+    const stage1 = container.querySelector('[data-testid="stage-1-confirm"]')
+    expect(stage1).not.toBeNull()
+    expect(stage1?.textContent).toContain('Bộ chìa khoá nào mở được một câu lệnh tốt?')
+    expect(stage1?.textContent).toContain('Bộ chìa khoá A')
+    expect(stage1?.textContent).toContain('Bộ chìa khoá B')
+    expect(stage1?.textContent).toContain('Bộ chìa khoá C')
+    expect(stage1?.textContent).toContain('Ai vẽ')
+    expect(stage1?.textContent).toContain('Cái gì')
+    expect(stage1?.textContent).toContain('Trông như thế nào')
+
+    // Find option buttons
+    const buttons = stage1?.querySelectorAll('button') || []
+    // Click Option B (index 1)
+    const optBBtn = buttons[1] as HTMLButtonElement
+    expect(optBBtn).toBeDefined()
+    expect(optBBtn.textContent).toContain('Bộ chìa khoá B')
+
+    act(() => {
+      optBBtn.click()
+    })
+
+    // Expect unlocked state
+    expect(optBBtn.textContent).toContain('🔓')
+    expect(optBBtn.textContent).toContain('Đúng bộ này rồi! 🎉')
+    expect(stage1?.textContent).toContain('Đúng rồi các cậu ơi!')
+    expect(stage1?.textContent).toContain('🎬 Xem video bài học thôi nào →')
+  })
+
+  it('renders Quick Station Switcher and navigates between Lesson 1.1 and 1.2', () => {
+    const handleNavigate = vi.fn()
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1-mot-tu-hay-nam-tu"
+          lessonTitle="Bài 1.1 — Một từ hay năm từ?"
+          onNavigateNextLesson={handleNavigate}
+        />
+      )
+    })
+
+    expect(container.textContent).toContain('Trạm 1: Mèo Mimi 🐱')
+    expect(container.textContent).toContain('Trạm 2: 4 Chìa Khoá 🔑')
+
+    const station2Btn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Trạm 2: 4 Chìa Khoá')
+    )
+    expect(station2Btn).toBeDefined()
+    act(() => {
+      station2Btn?.click()
+    })
+    expect(handleNavigate).toHaveBeenCalledWith('bai-1-2-bon-chiec-chia-khoa')
+  })
+
+  it('renders 4-formula cards in Stage 0 for Lesson 1.1 to eliminate blank space', () => {
+    const lesson1_1Journey: LessonSixStageJourney = {
+      ...mockJourney,
+      stage1_goal: {
+        ...mockJourney.stage1_goal,
+        keyPoints: [
+          "CÁI GÌ (Xanh Sky): 'một con mèo'",
+          "TRÔNG NHƯ THẾ NÀO (Vàng Sun): 'mèo mướp vàng béo tròn'",
+          "ĐANG LÀM GÌ (Cam Mango): 'đang nằm ngủ cuộn tròn'",
+          "Ở ĐÂU (Hồng Gum): 'trên ghế mây cạnh cửa sổ'",
+        ],
+      },
+    }
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={lesson1_1Journey}
+          lessonId="bai-1-1-mot-tu-hay-nam-tu"
+          lessonTitle="Bài 1.1 — Một từ hay năm từ?"
+          initialStageIndex={0}
+        />
+      )
+    })
+
+    const stage0 = container.querySelector('[data-testid="stage-0-goal"]')
+    expect(stage0).not.toBeNull()
+    expect(stage0?.textContent).toContain('Công Thức Câu Lệnh Bốn Ô')
+    expect(stage0?.textContent).toContain('CÁI GÌ')
+    expect(stage0?.textContent).toContain('“một con mèo”')
+    expect(stage0?.textContent).toContain('TRÔNG THẾ NÀO')
+    expect(stage0?.textContent).toContain('“mèo mướp vàng béo tròn”')
+    expect(stage0?.textContent).toContain('ĐANG LÀM GÌ')
+    expect(stage0?.textContent).toContain('“đang nằm ngủ cuộn tròn”')
+    expect(stage0?.textContent).toContain('Ở ĐÂU')
+    expect(stage0?.textContent).toContain('“trên ghế mây cạnh cửa sổ”')
+  })
 })
+
 

@@ -62,36 +62,44 @@ export function isValidSixStageJourney(journey?: unknown): journey is LessonSixS
 
 /**
  * Resolver hoàn hảo:
- * 1. Nếu quest đã có `sixStageJourney` hợp lệ do backend/custom cung cấp: Dùng ngay.
- * 2. Ưu tiên số 1 khi DB thiếu sixStageJourney: Tra cứu từ SSOT `island-curriculum-registry`
- *    để đảm bảo nội dung 100% chuẩn quy chuẩn 6 chặng sư phạm của AKI (không có "Phương án A/B", Studio Config chuẩn).
+ * 1. ƯU TIÊN HÀNG ĐẦU: Tra cứu từ SSOT `island-curriculum-registry` cho tất cả các bài học Đảo M1-M5
+ *    để lấy trọn vẹn dữ liệu SSOT sư phạm và hình ảnh 3D Soft Clay mới, ngăn dữ liệu slide ASMO cũ
+ *    trong DB ghi đè. Giữ nguyên videoUrl tùy biến và nextLessonSlug nếu có.
+ * 2. Nếu quest ngoài giáo trình Đảo nhưng có `sixStageJourney` hợp lệ do backend/custom cung cấp: Dùng ngay.
  * 3. Fallback: Tự động phục hồi linh hoạt từ metadata, learnCards, check, coverImage của quest.
  */
 export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStageJourney {
-  // 1. Nếu quest đã có sixStageJourney hợp lệ: giữ nguyên
-  if (isValidSixStageJourney(quest.sixStageJourney)) {
-    return quest.sixStageJourney
-  }
-
-  // 2. Ưu tiên hàng đầu khi DB thiếu: Tìm kiếm trong thư viện SSOT 22 bài học Aiki Islands
+  // 1. Ưu tiên hàng đầu: Tìm kiếm trong thư viện SSOT 22 bài học Aiki Islands (M1-M5)
   const curriculumItem = findIslandCurriculum(quest)
   if (curriculumItem) {
     const journey = curriculumItem.journey
+    const customVideoUrl =
+      (quest.videoUrl && quest.videoUrl.trim() !== '' ? quest.videoUrl : undefined) ||
+      (quest.sixStageJourney?.stage3_video?.videoUrl && quest.sixStageJourney.stage3_video.videoUrl.trim() !== ''
+        ? quest.sixStageJourney.stage3_video.videoUrl
+        : undefined)
+
+    const customNextSlug =
+      computeNextIslandLessonSlug(quest.id) ||
+      quest.sixStageJourney?.stage6_completion?.nextLessonSlug ||
+      journey.stage6_completion.nextLessonSlug
+
     return {
       ...journey,
       stage3_video: {
         ...journey.stage3_video,
-        videoUrl:
-          quest.videoUrl && quest.videoUrl.trim() !== ''
-            ? quest.videoUrl
-            : journey.stage3_video.videoUrl,
+        videoUrl: customVideoUrl || journey.stage3_video.videoUrl,
       },
       stage6_completion: {
         ...journey.stage6_completion,
-        nextLessonSlug:
-          computeNextIslandLessonSlug(quest.id) || journey.stage6_completion.nextLessonSlug,
+        nextLessonSlug: customNextSlug,
       },
     }
+  }
+
+  // 2. Nếu bài học ngoài SSOT nhưng quest đã có sixStageJourney hợp lệ: giữ nguyên
+  if (isValidSixStageJourney(quest.sixStageJourney)) {
+    return quest.sixStageJourney
   }
 
   // 3. Fallback khôi phục từ Studio Config và dữ liệu bài học cho các bài ngoài SSOT

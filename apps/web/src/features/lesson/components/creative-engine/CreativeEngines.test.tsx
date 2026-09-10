@@ -320,7 +320,7 @@ describe('CreativeEngine Suite', () => {
       expect(html).toContain('Chuẩn Cân Bằng')
     })
 
-    it('renders CreativeEngineShell with tabs switcher, shuffle button and prompt preview', () => {
+    it('renders CreativeEngineShell with simplified engine-hidden UI and compact surprise roll button', () => {
       const html = renderToStaticMarkup(
         <CreativeEngineShell
           currentPrompt="Sóc Bông đang ôm quả thông"
@@ -336,9 +336,11 @@ describe('CreativeEngine Suite', () => {
       )
       expect(html).toContain('data-testid="creative-engine-shell"')
       expect(html).toContain('data-testid="studio-step-quick-btn"')
-      expect(html).toContain('data-testid="engine-tab-magic-keys"')
-      expect(html).toContain('data-testid="engine-tab-identity-lock"')
-      expect(html).toContain('data-testid="shuffle-engine-btn"')
+      // Đã ẩn hoàn toàn khái niệm Engine khỏi frontend theo yêu cầu của Sếp
+      expect(html).not.toContain('data-testid="engine-tab-magic-keys"')
+      expect(html).not.toContain('data-testid="engine-tab-identity-lock"')
+      expect(html).not.toContain('data-testid="shuffle-engine-btn"')
+      // Nút xúc xắc ma thuật tinh gọn, thanh preview câu lệnh, input và nút vẽ vẫn đầy đủ
       expect(html).toContain('data-testid="surprise-roll-btn"')
       expect(html).toContain('data-testid="prompt-preview-bar"')
       expect(html).toContain('data-testid="studio-prompt-input"')

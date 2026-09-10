@@ -591,6 +591,7 @@ export interface SixStageConfirmOption {
   id: string
   text: string
   imageUrl?: string
+  keyItems?: { label: string; color: string }[]
 }
 
 export interface SixStageConfirmGoal {

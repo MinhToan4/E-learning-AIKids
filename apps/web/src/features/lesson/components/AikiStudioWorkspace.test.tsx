@@ -316,4 +316,111 @@ describe('AikiStudioWorkspace', () => {
     spy.mockRestore()
     warnSpy.mockRestore()
   })
+
+  it('verifies 2-zone layout (col-span-8 and col-span-4), compact top stepper, and Art Gallery Easel', () => {
+    const html = renderToStaticMarkup(
+      <AikiStudioWorkspace
+        lessonId="bai-3-2"
+        lessonTitle="Bắt AKI vẽ Sóc Bông"
+        lessonBadge="Bài 3.2"
+        characterName="Sóc Bông"
+        maxAttempts={6}
+        studentStars={50}
+      />
+    )
+
+    // Bố cục 2 khu vực: Chính (col-span-8) và Phụ (col-span-4)
+    expect(html).toContain('lg:col-span-8')
+    expect(html).toContain('lg:col-span-4')
+
+    // Thanh Stepper 1 dòng tinh gọn trên đỉnh
+    expect(html).toContain('data-testid="studio-col-tasks"')
+    expect(html).toContain('Tiến Trình 4 Bước Thực Hành')
+    expect(html).toContain('1. Lệnh ngắn')
+    expect(html).toContain('2. Dáng &amp; Màu')
+    expect(html).toContain('3. Đủ 5 chi tiết')
+    expect(html).toContain('4. Soi &amp; Nộp')
+
+    // Kệ Trưng Bày Nghệ Thuật Soft Clay (Art Gallery Easel)
+    expect(html).toContain('⭐ Đã tạo: 0 / 6 tác phẩm')
+    expect(html).toContain('Chờ cọ vẽ của bé trổ tài!')
+    expect(html).toContain('Men Gốm')
+
+    // Balo thật của hệ thống với 3 ngăn báu vật
+    expect(html).toContain('BALO SÁNG TẠO CỦA BÉ')
+    expect(html).toContain('Tranh &amp; Ảnh')
+    expect(html).toContain('Truyện Tranh')
+    expect(html).toContain('Huy Hiệu')
+  })
+
+  it('opens Backpack Modal with 3 system tabs and link to /backpack', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-3-2"
+          characterName="Sóc Bông"
+          studentStars={25}
+        />
+      )
+    })
+
+    // Click nút mở Balo
+    const openBpBtn = container.querySelector('[data-testid="studio-open-backpack-btn"]') as HTMLButtonElement
+    expect(openBpBtn).not.toBeNull()
+
+    await act(async () => {
+      openBpBtn.click()
+    })
+
+    // Modal Balo xuất hiện
+    const modal = container.querySelector('[data-testid="studio-backpack-modal"]')
+    expect(modal).not.toBeNull()
+    expect(modal?.textContent).toContain('Balo Sáng Tạo Của Bé')
+    expect(modal?.textContent).toContain('Tranh & Ảnh')
+    expect(modal?.textContent).toContain('Truyện Tranh')
+    expect(modal?.textContent).toContain('Huy Hiệu')
+    expect(modal?.textContent).toContain('Khám Phá Toàn Bộ Balo Tại /backpack →')
+
+    // Dọn dẹp
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('manages 4 practice items/parts and 8-slot gallery grid matching requirements', async () => {
+    const html = renderToStaticMarkup(
+      <AikiStudioWorkspace
+        lessonId="bai-1-2"
+        lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
+        lessonBadge="Bài 1.2"
+        characterName="Cốc Sứ Trắng"
+        maxAttempts={8}
+      />
+    )
+
+    // 1. Kiểm tra 4 Món đồ mặc định theo bài 1.2
+    expect(html).toContain('Cái cốc sứ trắng')
+    expect(html).toContain('Cái xe đạp')
+    expect(html).toContain('Cuốn sổ tay mở')
+    expect(html).toContain('Cái đồng hồ cổ')
+
+    // 2. Kiểm tra Badges yêu cầu
+    expect(html).toContain('BALO SÁNG TẠO (0/8 ảnh)')
+    expect(html).toContain('Lượt tạo của phần này 0/2')
+
+    // 3. Kiểm tra Lưới 8 ô (4 hàng x 2 cột: P1 lượt 1/2, P2 lượt 1/2, P3 lượt 1/2, P4 lượt 1/2)
+    expect(html).toContain('P1 lượt 1/2')
+    expect(html).toContain('P1 lượt 2/2')
+    expect(html).toContain('P2 lượt 1/2')
+    expect(html).toContain('P2 lượt 2/2')
+    expect(html).toContain('P3 lượt 1/2')
+    expect(html).toContain('P3 lượt 2/2')
+    expect(html).toContain('P4 lượt 1/2')
+    expect(html).toContain('P4 lượt 2/2')
+  })
 })

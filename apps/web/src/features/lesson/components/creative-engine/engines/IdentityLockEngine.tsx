@@ -98,7 +98,14 @@ export const IdentityLockEngine: React.FC<EngineProps> = ({
                 key={expr.id}
                 role="button"
                 tabIndex={0}
+                draggable={true}
                 data-testid={`expression-card-${expr.id}`}
+                onDragStart={(e) => {
+                  try {
+                    e.dataTransfer.setData('application/json', JSON.stringify(expr))
+                    e.dataTransfer.setData('text/plain', expr.id)
+                  } catch {}
+                }}
                 onClick={() => handleSelectExpression(expr)}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
@@ -107,10 +114,11 @@ export const IdentityLockEngine: React.FC<EngineProps> = ({
                   }
                 }}
                 className={cn(
-                  'min-h-[52px] p-2.5 rounded-xl border-2 transition-all duration-150 cursor-pointer flex items-center gap-2 select-none active:scale-95',
+                  'min-h-[54px] p-2.5 rounded-xl border-2 transition-all duration-150 select-none flex items-center gap-2',
+                  'cursor-grab active:cursor-grabbing hover:scale-102 active:scale-95',
                   isSelected
                     ? 'border-amber-500 bg-amber-500/10 text-amber-950 shadow-xs ring-2 ring-amber-300'
-                    : 'border-slate-200 bg-white hover:border-amber-300 text-slate-800'
+                    : 'border-slate-200 bg-white hover:border-amber-300 text-slate-800 shadow-2xs'
                 )}
               >
                 <span className="text-2xl shrink-0">{expr.icon}</span>

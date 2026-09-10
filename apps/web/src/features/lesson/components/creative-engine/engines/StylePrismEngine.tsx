@@ -58,15 +58,28 @@ export const StylePrismEngine: React.FC<EngineProps> = ({
           </span>
         </div>
 
-        {/* Thẻ đối tượng đang được biến hình */}
-        <div className="flex items-center gap-2 bg-white/90 rounded-xl p-2.5 border border-purple-200/80">
+        {/* Thẻ đối tượng đang được biến hình (Hỗ trợ thả style vào đây) */}
+        <div
+          onDragOver={(e) => {
+            e.preventDefault()
+            e.dataTransfer.dropEffect = 'copy'
+          }}
+          onDrop={(e) => {
+            e.preventDefault()
+            try {
+              const data = e.dataTransfer.getData('application/json')
+              if (data) handleSelectStyle(JSON.parse(data))
+            } catch {}
+          }}
+          className="flex items-center gap-2 bg-white/90 rounded-xl p-2.5 border border-purple-200/80 transition-all"
+        >
           <span className="text-xl">🪄</span>
           <div className="flex-1 min-w-0">
             <div className="text-xs font-black text-slate-800">
               Đối tượng biến hình: <span className="text-purple-700">{selectedSubject}</span>
             </div>
             <div className="text-[11px] font-semibold text-slate-500">
-              Chạm vào 1 trong 4 Lăng Kính bên dưới để đổi ngay phong cách vẽ!
+              Kéo hoặc chạm vào 1 trong 4 Lăng Kính bên dưới để đổi ngay phong cách vẽ!
             </div>
           </div>
         </div>
@@ -82,7 +95,14 @@ export const StylePrismEngine: React.FC<EngineProps> = ({
               key={style.id}
               role="button"
               tabIndex={0}
+              draggable={true}
               data-testid={`prism-card-${style.id}`}
+              onDragStart={(e) => {
+                try {
+                  e.dataTransfer.setData('application/json', JSON.stringify(style))
+                  e.dataTransfer.setData('text/plain', style.id)
+                } catch {}
+              }}
               onClick={() => handleSelectStyle(style)}
               onKeyDown={(e) => {
                 if (e.key === 'Enter' || e.key === ' ') {
@@ -91,10 +111,11 @@ export const StylePrismEngine: React.FC<EngineProps> = ({
                 }
               }}
               className={cn(
-                'min-h-[76px] rounded-2xl border-2 p-3.5 transition-all duration-200 cursor-pointer select-none relative flex items-start gap-3',
+                'min-h-[76px] rounded-2xl border-2 p-3.5 transition-all duration-150 select-none relative flex items-start gap-3',
+                'cursor-grab active:cursor-grabbing hover:scale-102 active:scale-95',
                 isSelected
                   ? 'border-purple-500 bg-purple-500/10 shadow-md ring-2 ring-purple-400 scale-[1.01]'
-                  : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-purple-50/30 shadow-2xs active:scale-98'
+                  : 'border-slate-200 bg-white hover:border-purple-300 hover:bg-purple-50/30 shadow-2xs'
               )}
             >
               <div className="size-11 rounded-xl bg-white border border-slate-200 shadow-2xs flex items-center justify-center text-2xl shrink-0">
