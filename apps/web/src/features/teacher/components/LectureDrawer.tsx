@@ -49,6 +49,7 @@ import { QuestionBankPicker } from './QuestionBankPicker'
 import { CheckQuestionBuilder } from './CheckQuestionBuilder'
 import { CurriculumGame } from '@/features/lesson/components/CurriculumGame'
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
+import { SixStageGoalStage } from '@/features/lesson/components/SixStageGoalStage'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { MeeCatInteractiveCanvas } from '@/features/mee-rig/components/MeeCatInteractiveCanvas'
 import type { CurriculumGameConfig } from '@/features/lesson/lib/curriculum-game'
@@ -460,43 +461,12 @@ function StudentStagePreview({
         <div className="mt-3">
           {/* Chặng 0: Mục tiêu */}
           {stageIndex === 0 && (
-            <div className="space-y-3">
-              {sixStageJourney.stage1_goal.imageUrl && (
-                <div className="relative overflow-hidden rounded-2xl border-2 border-brand-200 bg-brand-50/40 p-2">
-                  <img
-                    src={sixStageJourney.stage1_goal.imageUrl}
-                    alt={sixStageJourney.stage1_goal.title}
-                    className="w-full max-h-[220px] object-cover rounded-xl"
-                    onError={(e) => { e.currentTarget.style.display = 'none' }}
-                  />
-                </div>
-              )}
-              <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/60 p-4 shadow-sm">
-                <span className="text-[10px] font-black uppercase text-brand-700">🎯 Mục tiêu sư phạm</span>
-                <h3 className="font-display text-base font-black text-brand-950 mt-1">{sixStageJourney.stage1_goal.title || 'Tiêu đề bài học'}</h3>
-                <p className="mt-1.5 text-xs font-semibold leading-relaxed text-slate-700 bg-white p-2.5 rounded-xl border border-brand-100">
-                  {sixStageJourney.stage1_goal.goalText || 'Mục tiêu bài học...'}
-                </p>
-              </div>
-              <div className="rounded-2xl border border-amber-200 bg-amber-50/80 p-3 space-y-1.5">
-                <p className="text-[10px] font-black uppercase text-amber-800 flex items-center gap-1">
-                  <Star size={12} className="fill-amber-500 text-amber-500" />
-                  3 Điểm vàng cần nhớ:
-                </p>
-                {sixStageJourney.stage1_goal.keyPoints.map((point, idx) => (
-                  <div key={idx} className="flex items-start gap-1.5 text-xs font-semibold text-slate-800 bg-white/90 p-2 rounded-lg border border-amber-100">
-                    <span className="size-4 rounded-full bg-amber-500 text-white font-bold text-[10px] grid place-items-center shrink-0 mt-0.5">{idx + 1}</span>
-                    <span>{point}</span>
-                  </div>
-                ))}
-              </div>
-              {sixStageJourney.stage1_goal.speech && (
-                <div className="flex items-center gap-2.5 rounded-2xl border border-sky-200 bg-sky-50/80 p-2.5">
-                  <AikidCatCharacter pose="guide" gesture="presentation" isSpeaking={false} animated={true} className="h-10 w-10 shrink-0" />
-                  <p className="text-xs font-semibold text-sky-950 italic line-clamp-2">"{sixStageJourney.stage1_goal.speech}"</p>
-                </div>
-              )}
-            </div>
+            <SixStageGoalStage
+              goal={sixStageJourney.stage1_goal}
+              fourKeys={sixStageJourney.stage1_goal.keyPoints.length >= 4 || sixStageJourney.stage1_goal.title.toLowerCase().includes('chìa khoá')}
+              showContinue={false}
+              onImageClick={(image) => setZoomedImage(image)}
+            />
           )}
 
           {/* Chặng 1: Xác nhận */}
@@ -2413,7 +2383,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
             const currentJourney = draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)
 
             return (
-              <div className="grid items-start gap-5 lg:grid-cols-[minmax(0,1.05fr)_minmax(20rem,.95fr)]">
+              <div className={cn('grid items-start gap-5', stageIndex === 0 ? 'grid-cols-1' : 'lg:grid-cols-[minmax(0,1.05fr)_minmax(20rem,.95fr)]')}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {/* Header chặng 6 bước */}
                   <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/60 p-4 shadow-sm">
@@ -2435,7 +2405,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                             <h3 className="font-display text-lg text-brand-950">{ISLAND_6_STAGE_NAMES[stageIndex]}</h3>
                           </div>
                           <p className="mt-0.5 text-xs font-semibold text-brand-800">
-                            {stageIndex === 0 ? 'Ảnh mục tiêu, tiêu đề, mục tiêu cốt lõi và 3 điểm vàng cần nhớ.' :
+                            {stageIndex === 0 ? 'Ảnh mục tiêu, mục tiêu cốt lõi và các thẻ nội dung hiển thị đúng như màn học sinh.' :
                              stageIndex === 1 ? '1 câu đố A/B xác nhận mục tiêu và mở khóa video bài học.' :
                              stageIndex === 2 ? 'Video bài giảng YouTube/MP4 và các mốc phân đoạn thời gian.' :
                              stageIndex === 3 ? 'Bộ câu hỏi trắc nghiệm kiểm tra kiến thức sau video.' :
@@ -2520,9 +2490,11 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                       </div>
 
                       <div>
-                        <label className="block text-xs font-black uppercase text-slate-700">3 Điểm vàng cần ghi nhớ</label>
+                        <label className="block text-xs font-black uppercase text-slate-700">
+                          {currentJourney.stage1_goal.keyPoints.length >= 4 ? '4 chìa khóa (hiển thị 1–1 trên frontend)' : 'Điểm vàng cần ghi nhớ'}
+                        </label>
                         <div className="mt-1.5 space-y-2">
-                          {[0, 1, 2].map((idx) => (
+                          {Array.from({ length: Math.max(3, currentJourney.stage1_goal.keyPoints.length) }, (_, idx) => idx).map((idx) => (
                             <div key={idx} className="flex items-center gap-2">
                               <span className="size-6 rounded-full bg-amber-500 text-white font-bold text-xs grid place-items-center shrink-0">
                                 {idx + 1}
@@ -2538,7 +2510,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                                     return { ...j, stage1_goal: { ...j.stage1_goal, keyPoints: pts } }
                                   })
                                 }}
-                                placeholder={`Điểm vàng thứ ${idx + 1}...`}
+                                placeholder={currentJourney.stage1_goal.keyPoints.length >= 4 ? `Chìa khóa ${idx + 1}...` : `Điểm vàng thứ ${idx + 1}...`}
                                 className="flex-1 rounded-xl border border-border bg-page px-3 py-1.5 text-xs font-semibold text-text"
                               />
                             </div>
