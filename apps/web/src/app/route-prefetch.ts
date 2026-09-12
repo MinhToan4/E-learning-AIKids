@@ -1,4 +1,5 @@
 const prefetched = new Set<string>()
+const prefetchTimers = new Map<string, ReturnType<typeof setTimeout>>()
 
 type NetworkInformation = {
   saveData?: boolean
@@ -15,11 +16,9 @@ function canPrefetchRoute(): boolean {
   return true
 }
 
-/** Warm the route chunk while the user hovers/focuses a navigation item. */
-export function prefetchRoute(path: string) {
-  if (!canPrefetchRoute()) return
+function resolveRouteKey(path: string): string {
   const normalized = path.split('?')[0]
-  const key = normalized === '/admin/legends'
+  return normalized === '/admin/legends'
     ? 'admin-legends'
     : normalized === '/lab/mee-cat' || normalized === '/mee-cat-studio'
       ? 'mee-cat'
@@ -28,9 +27,10 @@ export function prefetchRoute(path: string) {
       : normalized.startsWith('/asmo/journey')
         ? 'asmo-journey'
         : normalized.split('/').filter(Boolean)[0] ?? 'home'
-  if (prefetched.has(key)) return
-  prefetched.add(key)
-  const load = key === 'admin-legends'
+}
+
+function loadRouteChunk(key: string) {
+  return key === 'admin-legends'
     ? Promise.all([import('@/features/admin/pages/AdminPage'), import('@/features/admin/components/LegendRewardStudio')])
     : key === 'mee-cat' ? import('@/features/mee-rig/pages/MeeCatStudioPage')
     : key === 'asmo-curriculum' ? Promise.all([import('@/features/asmo/pages/AsmoCurriculumRoadmapPage'), import('@/features/asmo/pages/AsmoCurriculumLessonPage')])
@@ -50,5 +50,52 @@ export function prefetchRoute(path: string) {
                           : key === 'creative' ? import('@/features/creative/pages/CreativePage')
                             : key === 'asmo' ? import('@/features/asmo/pages/AsmoHubPage')
                               : null
-  void load?.catch(() => prefetched.delete(key))
+}
+
+/** Cancel a pending prefetch timer if mouse leaves before debounce expires. */
+export function cancelPrefetchRoute(path?: string) {
+  if (path) {
+    const key = resolveRouteKey(path)
+    const timer = prefetchTimers.get(key)
+    if (timer) {
+      clearTimeout(timer)
+      prefetchTimers.delete(key)
+    }
+  } else {
+    for (const [, timer] of prefetchTimers) {
+      clearTimeout(timer)
+    }
+    prefetchTimers.clear()
+  }
+}
+
+/** Warm the route chunk while the user hovers/focuses a navigation item with 180ms debounce. */
+export function prefetchRoute(path: string) {
+  if (!canPrefetchRoute()) return
+  const key = resolveRouteKey(path)
+  if (prefetched.has(key)) return
+
+  // Cancel any pending prefetch for other routes during rapid cursor sweeping (Hover Storm)
+  for (const [otherKey, pendingTimer] of prefetchTimers) {
+    if (otherKey !== key) {
+      clearTimeout(pendingTimer)
+      prefetchTimers.delete(otherKey)
+    }
+  }
+
+  // Debounce existing timer for this key
+  const existingTimer = prefetchTimers.get(key)
+  if (existingTimer) {
+    clearTimeout(existingTimer)
+  }
+
+  const timer = setTimeout(() => {
+    prefetchTimers.delete(key)
+    if (prefetched.has(key)) return
+    prefetched.add(key)
+    const load = loadRouteChunk(key)
+    void load?.catch(() => prefetched.delete(key))
+  }, 180)
+
+  prefetchTimers.set(key, timer)
 }

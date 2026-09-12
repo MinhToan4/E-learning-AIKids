@@ -1,3 +1,5 @@
+import type React from 'react'
+
 export type CreativeEngineMode =
   | 'magic-keys'
   | 'style-prism'
@@ -34,12 +36,16 @@ export interface BlockSlot {
   id: string
   keyId: string
   label: string
+  keyNumber?: number
+  keyTitle?: string
   required?: boolean
   locked?: boolean
   category?: CreativeBlockCategory
   currentBlock?: CreativeBlock | null
   colorScheme?: 'sky' | 'amber' | 'mint' | 'rose' | 'purple' | 'emerald' | 'indigo' | 'slate'
   hint?: string
+  lockImage?: string
+  subjectImage?: string
 }
 
 export interface EngineProps {
@@ -51,6 +57,8 @@ export interface EngineProps {
   lockedFeatures?: string[]
   illustrationType?: string
   activeBlocks?: CreativeBlock[]
+  canvasSlot?: React.ReactNode
+  practiceSlot?: React.ReactNode
 }
 
 export interface EngineConfigInfo {

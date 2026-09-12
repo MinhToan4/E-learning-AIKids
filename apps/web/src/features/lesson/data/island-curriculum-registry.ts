@@ -369,7 +369,7 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
             "instruction": "Kiểm tra tranh và bấm nộp bài"
           }
         ],
-        "sampleUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg"
+        "sampleUrl": "/assets/aiki-islands/island1_lesson2_teacup.jpg"
       },
       "stage6_completion": {
         "id": "bai-1-2-bon-chiec-chia-khoa-stage6-completion",

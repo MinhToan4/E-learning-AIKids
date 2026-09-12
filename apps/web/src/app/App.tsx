@@ -1,9 +1,15 @@
 import { lazy, Suspense, useEffect } from 'react'
 import { Navigate, Route, Routes } from 'react-router'
 import { useAuth } from '@/shared/store/auth'
-import { AppShell } from '@/shared/components/layout/AppShell'
 import { AgeExperienceProvider } from '@/shared/age-experience/AgeExperienceProvider'
 import { AUTH_UNAUTHORIZED_EVENT, type User } from '@/shared/lib/api'
+
+// Lazy layout
+const AppShell = lazy(() =>
+  import('@/shared/components/layout/AppShell').then((m) => ({
+    default: m.AppShell,
+  })),
+)
 
 // Lazy auth pages
 const WelcomePage = lazy(() =>
@@ -384,6 +390,14 @@ export function App() {
             />
             <Route
               path="/world/:courseId/lesson/:lessonId"
+              element={
+                <Guard roles={['student']} requireOnboarded>
+                  <LessonPage />
+                </Guard>
+              }
+            />
+            <Route
+              path="/world/:courseId/quests/:lessonId"
               element={
                 <Guard roles={['student']} requireOnboarded>
                   <LessonPage />

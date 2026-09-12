@@ -17,11 +17,13 @@ describe('island-journey-resolver', () => {
     it('computes first lesson of next island at island boundary', () => {
       expect(computeNextIslandLessonSlug('bai-1-4')).toBe('bai-2-1')
       expect(computeNextIslandLessonSlug('bai-2-4')).toBe('bai-3-1')
-      expect(computeNextIslandLessonSlug('bai-4-4')).toBe('bai-5-1')
+      expect(computeNextIslandLessonSlug('bai-4-4')).toBe('bai-4-5')
+      expect(computeNextIslandLessonSlug('bai-4-5')).toBe('bai-5-1')
     })
 
     it('returns undefined for the final island 5 capstone lesson', () => {
-      expect(computeNextIslandLessonSlug('bai-5-4')).toBeUndefined()
+      expect(computeNextIslandLessonSlug('bai-5-4')).toBe('bai-5-5')
+      expect(computeNextIslandLessonSlug('bai-5-5')).toBeUndefined()
     })
   })
 
@@ -164,7 +166,7 @@ describe('island-journey-resolver', () => {
       expect(resolved.stage5_practice.workflowSteps.length).toBeGreaterThanOrEqual(4)
 
       // Stage 6: Completion
-      expect(resolved.stage6_completion.nextLessonSlug).toBe('bai-1-2')
+      expect(resolved.stage6_completion.nextLessonSlug).toBe('bai-1-2-bon-chiec-chia-khoa')
       expect(resolved.stage6_completion.rewardBadge.xp).toBe(50)
     })
 

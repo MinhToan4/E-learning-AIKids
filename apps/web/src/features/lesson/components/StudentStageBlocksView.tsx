@@ -442,6 +442,40 @@ export function StudentStageBlocksView({
           )
         }
 
+        if (block.type === 'layout-four-keys') {
+          const items = (block.visualItems || []).slice(0, 4)
+          const keyStyles = [
+            'border-sky-300 bg-sky-50 text-sky-950',
+            'border-amber-300 bg-amber-50 text-amber-950',
+            'border-orange-300 bg-orange-50 text-orange-950',
+            'border-rose-300 bg-rose-50 text-rose-950',
+          ]
+          return (
+            <section key={block.id} data-testid="block-layout-four-keys" className="rounded-3xl bg-white p-4 shadow-clay sm:p-6 text-left">
+              <div className="mx-auto max-w-4xl">
+                <div className="text-center">
+                  <span className="inline-flex min-h-10 items-center rounded-full bg-brand-100 px-4 text-xs font-black uppercase tracking-wide text-brand-800">Bộ khung câu lệnh</span>
+                  <h3 className="mt-3 font-display text-2xl font-black text-text sm:text-3xl">{block.title || 'Bốn chiếc chìa khóa mở câu lệnh'}</h3>
+                  {block.body && <p className="mx-auto mt-2 max-w-2xl text-base font-semibold leading-relaxed text-slate-700">{block.body}</p>}
+                </div>
+                <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {items.map((item, index) => (
+                    <article key={`${block.id}-${index}`} className={cn('min-h-40 rounded-3xl border-2 p-4 shadow-sm', keyStyles[index])}>
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="grid size-11 place-items-center rounded-2xl bg-white font-black shadow-sm" aria-hidden="true">{index + 1}</span>
+                        <span className="rounded-full bg-white/80 px-2.5 py-1 text-[11px] font-black uppercase">Chìa khóa {index + 1}</span>
+                      </div>
+                      <h4 className="mt-4 text-lg font-black leading-tight">{item.label}</h4>
+                      <p className="mt-2 text-sm font-semibold leading-relaxed opacity-90">{item.text}</p>
+                    </article>
+                  ))}
+                </div>
+                {block.tip && <p className="mt-4 rounded-2xl bg-brand-50 px-4 py-3 text-center text-sm font-black text-brand-900">{block.tip}</p>}
+              </div>
+            </section>
+          )
+        }
+
         // ── 7. BLOCK: LAYOUT-STORYBOARD (Chuỗi Storyboard) ────────
         if (block.type === 'layout-storyboard') {
           const items = block.visualItems || card.visualItems || []

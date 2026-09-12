@@ -23,15 +23,14 @@ export function computeNextIslandLessonSlug(questId: string): string | undefined
     const island = parseInt(match[1], 10)
     const lesson = parseInt(match[2], 10)
 
-    // Đảo 4: bài 4-4 sang bài 5-1 (hoặc bài 4-5 nếu có), bài 4-5 sang 5-1
-    if (island === 4 && lesson === 4) {
+    // Đảo 4 có 5 bài (4.1 -> 4.2 -> 4.3 -> 4.4 -> 4.5 -> 5.1)
+    if (island === 4) {
+      if (lesson < 5) return `bai-4-${lesson + 1}`
       return 'bai-5-1'
     }
-    if (island === 4 && lesson >= 5) {
-      return 'bai-5-1'
-    }
-    // Đảo 5: bài 5-4 và 5-5 là trạm cuối
-    if (island === 5 && (lesson === 4 || lesson >= 5)) {
+    // Đảo 5 có 5 bài (5.1 -> 5.2 -> 5.3 -> 5.4 -> 5.5 -> undefined)
+    if (island === 5) {
+      if (lesson < 5) return `bai-5-${lesson + 1}`
       return undefined
     }
 
@@ -80,9 +79,9 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
         : undefined)
 
     const customNextSlug =
-      computeNextIslandLessonSlug(quest.id) ||
+      journey.stage6_completion?.nextLessonSlug ||
       quest.sixStageJourney?.stage6_completion?.nextLessonSlug ||
-      journey.stage6_completion.nextLessonSlug
+      computeNextIslandLessonSlug(quest.id)
 
     return {
       ...journey,

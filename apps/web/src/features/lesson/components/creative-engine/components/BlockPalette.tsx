@@ -14,6 +14,8 @@ export interface BlockPaletteProps {
   activeCategory?: string
   onCategoryChange?: (category: string) => void
   className?: string
+  hideHeader?: boolean
+  hideCategories?: boolean
 }
 
 const COLOR_CLASSES: Record<
@@ -62,24 +64,32 @@ const COLOR_CLASSES: Record<
 }
 
 export const BlockPalette: React.FC<BlockPaletteProps> = ({
-  title = 'Khay Thẻ Bài Ma Thuật',
-  subtitle = 'Chạm hoặc Kéo thẻ vào ô trống để ghép câu lệnh',
+  title = 'Khay Thẻ Bài 4 Nhóm Chìa Khóa',
+  subtitle = 'Chạm 1 cái để gắn vào ô chìa khóa',
   blocks,
   selectedBlockIds = [],
   onSelectBlock,
   categories,
-  activeCategory,
+  activeCategory: propActiveCategory,
   onCategoryChange,
   className,
+  hideHeader,
+  hideCategories,
 }) => {
   const [internalCategory, setInternalCategory] = useState<string>('all')
-  const currentCategory = activeCategory !== undefined ? activeCategory : internalCategory
+  const effectiveCategory = propActiveCategory !== undefined ? propActiveCategory : internalCategory
+  const currentCategory =
+    effectiveCategory === 'all' && categories && categories.length > 0
+      ? categories[0].id
+      : effectiveCategory
   const setCategory = onCategoryChange || setInternalCategory
 
   const filteredBlocks =
-    currentCategory && currentCategory !== 'all'
+    categories && categories.length > 0 && currentCategory && currentCategory !== 'all'
       ? blocks.filter((b) => b.category === currentCategory)
       : blocks
+
+  const displayBlocks = filteredBlocks.slice(0, 6)
 
   const handleBlockClick = (block: CreativeBlock) => {
     playInstantSound('click')
@@ -99,62 +109,52 @@ export const BlockPalette: React.FC<BlockPaletteProps> = ({
     <div
       data-testid="block-palette"
       className={cn(
-        'w-full bg-white/95 rounded-2xl border-2 border-indigo-100 p-3.5 sm:p-4 shadow-xs flex flex-col gap-3 text-left',
+        'w-full bg-slate-50/60 rounded-2xl border border-slate-100 p-1.5 sm:p-2 shadow-2xs flex flex-col gap-1 text-left shrink-0',
         className
       )}
     >
-      {/* Header Khay Thẻ */}
-      <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div>
-          <div className="flex items-center gap-1.5 font-black text-xs sm:text-sm text-slate-800">
-            <Sparkles size={14} className="text-amber-500" />
-            <span>{title}</span>
+      <span className="sr-only">{title || 'Khay Thẻ Bài 4 Nhóm Chìa Khóa'}</span>
+
+      {/* Header Khay Thẻ Tinh Gọn 1 Dòng */}
+      {!hideHeader && (
+        <div className="flex items-center justify-between gap-1.5 px-0.5">
+          <div className="flex items-center gap-1.5">
+            <Sparkles size={13} className="text-amber-500 shrink-0" />
+            <span className="font-black text-xs text-slate-800 tracking-tight">{title}</span>
+            {subtitle && (
+              <span className="text-[10px] font-semibold text-slate-400 hidden sm:inline truncate">
+                · {subtitle}
+              </span>
+            )}
           </div>
-          {subtitle && (
-            <p className="text-[11px] font-semibold text-slate-400 mt-0.5">
-              {subtitle}
-            </p>
+
+          {/* Danh mục filter nếu có */}
+          {!hideCategories && categories && categories.length > 0 && (
+            <div className="flex items-center gap-1">
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => setCategory(cat.id)}
+                  className={cn(
+                    'px-1.5 py-0.5 rounded-lg text-[10px] font-black inline-flex items-center gap-1 transition-all cursor-pointer min-h-[22px]',
+                    currentCategory === cat.id
+                      ? 'bg-amber-500 text-white shadow-xs'
+                      : 'bg-white text-slate-600 hover:bg-slate-100 border border-slate-200'
+                  )}
+                >
+                  {cat.icon && <span>{cat.icon}</span>}
+                  <span>{cat.label}</span>
+                </button>
+              ))}
+            </div>
           )}
         </div>
+      )}
 
-        {/* Danh mục filter nếu có */}
-        {categories && categories.length > 0 && (
-          <div className="flex items-center gap-1.5 flex-wrap">
-            <button
-              type="button"
-              onClick={() => setCategory('all')}
-              className={cn(
-                'px-2.5 py-1 rounded-xl text-xs font-black transition-all cursor-pointer min-h-[32px]',
-                currentCategory === 'all'
-                  ? 'bg-indigo-600 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-              )}
-            >
-              Tất cả
-            </button>
-            {categories.map((cat) => (
-              <button
-                key={cat.id}
-                type="button"
-                onClick={() => setCategory(cat.id)}
-                className={cn(
-                  'px-2.5 py-1 rounded-xl text-xs font-black inline-flex items-center gap-1 transition-all cursor-pointer min-h-[32px]',
-                  currentCategory === cat.id
-                    ? 'bg-indigo-600 text-white shadow-xs'
-                    : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                )}
-              >
-                {cat.icon && <span>{cat.icon}</span>}
-                <span>{cat.label}</span>
-              </button>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Grid danh sách các Thẻ Bài Soft Clay */}
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 sm:gap-2.5">
-        {filteredBlocks.map((block) => {
+      {/* Dải Thẻ Từ 1 Chạm (Quick Word Chips - Tối đa 6 thẻ mỗi danh mục, không icon, cực kỳ gọn gàng) */}
+      <div className="flex flex-wrap items-center gap-2 py-1 min-h-[48px] sm:min-h-[56px]">
+        {displayBlocks.map((block) => {
           const isSelected = selectedBlockIds.includes(block.id)
           const color = COLOR_CLASSES[block.colorScheme || 'sky'] || COLOR_CLASSES.sky
 
@@ -174,56 +174,22 @@ export const BlockPalette: React.FC<BlockPaletteProps> = ({
                 }
               }}
               className={cn(
-                'group relative min-h-[56px] px-3 py-2.5 rounded-2xl border-2 select-none',
-                'cursor-grab active:cursor-grabbing hover:scale-102 active:scale-95 transition-all duration-150',
-                'flex items-center justify-between gap-2.5 text-left shadow-2xs',
+                'group relative min-h-[36px] px-3 py-1.5 rounded-xl border-2 select-none shrink-0 cursor-pointer active:scale-95 hover:scale-102 transition-all duration-150 flex items-center justify-between gap-1.5 text-left shadow-2xs text-xs whitespace-nowrap',
                 isSelected ? color.active : color.idle
               )}
             >
-              <div className="flex items-center gap-2.5 min-w-0 flex-1">
-                {block.icon && (
-                  <span className="text-xl sm:text-2xl shrink-0 group-hover:scale-110 transition-transform">
-                    {block.icon}
-                  </span>
-                )}
-                <div className="min-w-0 flex-1">
-                  <div className="text-xs font-black truncate leading-snug">
-                    {block.label}
-                  </div>
-                  {block.hint && (
-                    <div
-                      className={cn(
-                        'text-[10px] font-semibold truncate leading-tight mt-0.5',
-                        isSelected ? 'text-white/80' : 'text-slate-500'
-                      )}
-                    >
-                      {block.hint}
-                    </div>
-                  )}
-                </div>
-              </div>
+              <span className="text-xs font-black leading-tight">{block.label}</span>
 
               {/* Status indicator */}
-              <div className="shrink-0 flex items-center">
-                {isSelected ? (
-                  <div className="size-5 rounded-full bg-white text-emerald-600 flex items-center justify-center shadow-xs">
-                    <Check size={12} strokeWidth={3} />
-                  </div>
-                ) : block.badge ? (
-                  <span
-                    className={cn(
-                      'text-[9px] font-black px-1.5 py-0.5 rounded-md uppercase tracking-wider',
-                      color.badge
-                    )}
-                  >
-                    {block.badge}
-                  </span>
-                ) : (
-                  <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity font-bold">
-                    +
-                  </span>
-                )}
-              </div>
+              {isSelected ? (
+                <div className="size-4 rounded-full bg-white text-emerald-600 flex items-center justify-center shadow-xs shrink-0 ml-1">
+                  <Check size={10} strokeWidth={3} />
+                </div>
+              ) : (
+                <span className="text-xs opacity-0 group-hover:opacity-100 transition-opacity font-bold text-amber-600 ml-1 shrink-0">
+                  +
+                </span>
+              )}
             </div>
           )
         })}

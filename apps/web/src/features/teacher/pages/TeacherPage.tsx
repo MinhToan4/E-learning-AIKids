@@ -46,6 +46,7 @@ export const FEATURE_BLOCKS_CATEGORIES: Array<{
       { id: 'layout-text', name: '1 Cột Tập Trung', icon: '📖', desc: 'Văn bản lớn ở giữa', color: 'border-slate-200 bg-slate-50/80 text-slate-950' },
       { id: 'layout-split', name: '2 Cột Chữ + Media', icon: '📰', desc: 'Chữ bên trái, ảnh bên phải', badge: 'Chuẩn', color: 'border-blue-200 bg-blue-50/80 text-blue-950' },
       { id: 'layout-grid', name: 'Lưới 3 Ô Thẻ', icon: '🍱', desc: 'Phân loại ví dụ/ý tưởng', color: 'border-purple-200 bg-purple-50/80 text-purple-950' },
+      { id: 'layout-four-keys', name: 'Bố Cục 4 Chìa Khóa', icon: '🔑', desc: '4 ô Cái gì · Trông thế nào · Làm gì · Ở đâu', badge: 'Template', color: 'border-sky-200 bg-gradient-to-r from-sky-50 via-amber-50 to-rose-50 text-slate-950' },
       { id: 'layout-callout', name: 'Hộp Ghi Nhớ Nổi Bật', icon: '💡', desc: 'Khung bo cong nhấn mạnh', badge: 'Mẹo', color: 'border-amber-200 bg-amber-50/80 text-amber-950' },
       { id: 'layout-storyboard', name: 'Chuỗi Storyboard', icon: '🎬', desc: '3 cảnh tuần tự', color: 'border-emerald-200 bg-emerald-50/80 text-emerald-950' },
       { id: 'layout-formula', name: 'Công Thức KaTeX', icon: '🔤', desc: 'Toán học trực quan', color: 'border-indigo-200 bg-indigo-50/80 text-indigo-950' },
@@ -185,6 +186,53 @@ type LearningProgram = {
   readOnly: boolean
   imageUrl?: string
   regions: CourseLectures[]
+}
+
+type CurriculumPayload = { courses?: unknown; programs?: unknown }
+
+function normalizeCourseLectures(value: unknown): CourseLectures | null {
+  if (!value || typeof value !== 'object') return null
+  const source = value as Partial<CourseLectures>
+  if (typeof source.id !== 'string' || !source.id.trim()) return null
+  return {
+    ...source,
+    id: source.id,
+    title: typeof source.title === 'string' && source.title.trim() ? source.title : 'Khóa học chưa đặt tên',
+    shortTitle: typeof source.shortTitle === 'string' ? source.shortTitle : '',
+    status: typeof source.status === 'string' ? source.status : 'soon',
+    lectures: Array.isArray(source.lectures)
+      ? source.lectures.filter((lecture): lecture is Lecture => Boolean(lecture && typeof lecture === 'object' && typeof lecture.id === 'string'))
+      : [],
+  }
+}
+
+/** Chặn dữ liệu import thiếu mảng làm sập toàn bộ CMS; quyền ghi vẫn do Hub kiểm soát. */
+export function normalizeCurriculumPayload(payload: CurriculumPayload): { courses: CourseLectures[]; programs: LearningProgram[] } {
+  const courses = Array.isArray(payload.courses)
+    ? payload.courses.map(normalizeCourseLectures).filter((course): course is CourseLectures => Boolean(course))
+    : []
+  const programs = Array.isArray(payload.programs)
+    ? payload.programs.flatMap((value) => {
+        if (!value || typeof value !== 'object') return []
+        const source = value as Partial<LearningProgram>
+        if (typeof source.id !== 'string' || !source.id.trim()) return []
+        const regions = Array.isArray(source.regions)
+          ? source.regions.map(normalizeCourseLectures).filter((course): course is CourseLectures => Boolean(course))
+          : []
+        const program: LearningProgram = {
+          ...source,
+          id: source.id,
+          title: typeof source.title === 'string' && source.title.trim() ? source.title : 'Chương trình chưa đặt tên',
+          description: typeof source.description === 'string' ? source.description : '',
+          source: source.source === 'workspace' || source.source === 'creator_marketplace' ? source.source : 'aikid_official',
+          unlockMode: source.unlockMode === 'parallel' ? 'parallel' : 'sequential',
+          readOnly: Boolean(source.readOnly),
+          regions,
+        }
+        return [program]
+      })
+    : []
+  return { courses, programs }
 }
 
 type CourseReadiness = {
@@ -495,9 +543,10 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   }, [])
 
   const loadLectures = useCallback(async () => {
-    const data = await api<{ courses: CourseLectures[]; programs: LearningProgram[] }>('/api/teacher/lectures')
+    const rawData = await api<CurriculumPayload>('/api/teacher/lectures')
+    const data = normalizeCurriculumPayload(rawData)
     setCourses(data.courses)
-    const allPrograms = data.programs ?? []
+    const allPrograms = data.programs
     setPrograms(allPrograms)
     const requestedProgramId = searchParams.get('programId')
     const requestedCourseId = searchParams.get('courseId')

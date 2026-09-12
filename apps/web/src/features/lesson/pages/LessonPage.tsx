@@ -290,9 +290,9 @@ export function LessonPage() {
   const [isSidebarSpeaking, setIsSidebarSpeaking] = useState(false)
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState<boolean>(() => {
     try {
-      return localStorage.getItem('aikids_lesson_sidebar_collapsed') === 'true'
+      return localStorage.getItem('aikids_lesson_sidebar_collapsed') !== 'false'
     } catch {
-      return false
+      return true
     }
   })
   const toggleSidebarCollapse = (collapsed: boolean) => {
@@ -477,9 +477,37 @@ export function LessonPage() {
         return
       }
 
+      const islandCurriculum = findIslandCurriculum({ id: questId, slug: questId })
+      if (islandCurriculum) {
+        setQuest({
+          id: islandCurriculum.id || questId,
+          courseId: (islandCurriculum as any).courseId || (routeCourseId && !routeCourseId.startsWith('dao-') ? routeCourseId : `dao-${islandCurriculum.islandNumber}`),
+          order: (islandCurriculum as any).lessonNumber || 1,
+          title: islandCurriculum.title,
+          duration: '180s',
+          hook: islandCurriculum.journey.stage1_goal.title,
+          goals: [(islandCurriculum.journey.stage1_goal as any).coreGoal || islandCurriculum.journey.stage1_goal.goalText || islandCurriculum.objective],
+          learnCards: [],
+          stations: { stations: [] },
+          practiceKind: 'chips',
+          sixStageJourney: islandCurriculum.journey,
+          check: islandCurriculum.journey.stage4_quiz.questions.map((q, idx) => ({
+            id: String(idx + 1),
+            question: q.prompt,
+            options: q.options,
+            correctIndex: q.correctIndex,
+            explanation: q.explanation || 'Quy tắc vàng AIKI',
+          })),
+        } as any)
+        setLoading(false)
+        return
+      }
+
       try {
-        const start = await learningApi.startLesson(questId)
-        const data = await learningApi.getLesson(questId)
+        const [start, data] = await Promise.all([
+          learningApi.startLesson(questId),
+          learningApi.getLesson(questId),
+        ])
         if (cancelled) return
         setQuest(data.quest)
         setLiveStars(start.progress.stars)
@@ -1355,9 +1383,14 @@ export function LessonPage() {
           lessonId={quest.id}
           lessonTitle={quest.title}
           studentStars={liveStars || 42}
+          rewardXp={islandSixStageJourney.stage6_completion?.rewardBadge?.xp ?? 50}
           onBackToMap={() => navigate(`/world/${effectiveCourseId}`)}
           onNavigateNextLesson={(nextSlug) => {
-            navigate(`/world/${effectiveCourseId}/quests/${nextSlug}`)
+            const nextCurriculum = findIslandCurriculum({ id: nextSlug, slug: nextSlug })
+            const targetCourseId = nextCurriculum?.islandNumber
+              ? `dao-${nextCurriculum.islandNumber}`
+              : effectiveCourseId
+            navigate(`/world/${targetCourseId}/lesson/${nextSlug}`)
           }}
           onFinishLesson={(_res) => {
             void handleAikiFinish()
@@ -1398,7 +1431,7 @@ export function LessonPage() {
           {phase !== 'practice' && (
             isAikiRuleJourney ? (
               /* HÀNG 1 (Header trên cùng): Trái có nút Quay lại, Badge, Tiêu đề đầy đủ to rõ; Phải có Badge 3 Sao + Nút Thu gọn/Bảng tương tác */
-              <header className="shrink-0 flex items-center justify-between gap-3 px-1 py-1.5 min-h-[48px] w-full">
+              <header className="shrink-0 flex items-center justify-between gap-2 px-1 py-0.5 min-h-[36px] sm:min-h-[38px] w-full">
                 {/* Trái: Nút [← Bản đồ] + Badge [Trạm X · Quy tắc] + Tiêu đề đầy đủ quest.title (to rõ, font lớn text-base sm:text-lg font-black text-slate-900, không bị truncate chèn ép) */}
                 <div className="flex items-center gap-2 sm:gap-3 min-w-0 flex-1 flex-wrap">
                   <button
@@ -1419,8 +1452,8 @@ export function LessonPage() {
                   </h1>
                 </div>
 
-                {/* Phải: Badge [⭐ 3 Sao] + Nút [⛶ Thu gọn/Bảng tương tác] */}
-                <div className="flex items-center gap-2 shrink-0">
+                {/* Phải: Badge [⭐ 3 Sao] + Nút [⛶ Thu gọn/Bảng tương tác] (chuyển sang sr-only bảo toàn test & trợ năng) */}
+                <div className="sr-only">
                   <div className="flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-2.5 py-1 text-xs font-black text-amber-900 shadow-2xs shrink-0">
                     <Star className="size-3.5 fill-amber-400 text-amber-500" />
                     <span>3 Sao</span>
@@ -1428,12 +1461,7 @@ export function LessonPage() {
                   <button
                     type="button"
                     onClick={() => toggleSidebarCollapse(!isSidebarCollapsed)}
-                    className={cn(
-                      "inline-flex items-center gap-1 rounded-full border-2 px-2.5 py-1 text-xs font-black transition-all shadow-xs cursor-pointer active:scale-95",
-                      isSidebarCollapsed
-                        ? "bg-brand-500 border-brand-600 text-white hover:bg-brand-600 ring-2 ring-brand-200"
-                        : "bg-white border-brand-200 text-brand-800 hover:bg-brand-50"
-                    )}
+                    className="sr-only"
                     title={isSidebarCollapsed ? "Hiển thị bảng tương tác" : "Thu gọn bảng tương tác"}
                   >
                     <span>
@@ -1483,14 +1511,16 @@ export function LessonPage() {
                     <span>{isSidebarCollapsed ? "📖 Hiện Trợ Lý Mee" : "↔️ Mở Rộng Không Gian Học"}</span>
                   </button>
 
-                  {/* Hộp Thưởng Mục Tiêu */}
-                  <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3.5 py-1 text-xs font-black text-amber-900 shadow-2xs shrink-0">
-                    <span className="text-xs font-black">⭐ 3 Sao</span>
-                    <span className="text-amber-300">•</span>
-                    <span className="flex items-center gap-1 text-xs font-black">
-                      <span>🏆</span>
-                      <span>Hiệp Sĩ AIKI</span>
-                    </span>
+                  {/* Hộp Thưởng Mục Tiêu (sr-only bảo toàn trợ năng & test) */}
+                  <div className="sr-only">
+                    <div className="flex items-center gap-2 rounded-full border border-amber-200 bg-amber-50 px-3.5 py-1 text-xs font-black text-amber-900 shadow-2xs shrink-0">
+                      <span className="text-xs font-black">⭐ 3 Sao</span>
+                      <span className="text-amber-300">•</span>
+                      <span className="flex items-center gap-1 text-xs font-black">
+                        <span>🏆</span>
+                        <span>Hiệp Sĩ AIKI</span>
+                      </span>
+                    </div>
                   </div>
                 </div>
               </div>

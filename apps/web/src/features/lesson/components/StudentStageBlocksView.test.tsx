@@ -328,5 +328,33 @@ describe('StudentStageBlocksView', () => {
     // Chứa nhãn được parse từ options
     expect(html).toContain('Thiếu chi tiết riêng đặc biệt của Bông')
   })
-})
 
+  it('renders the CMS four-key template with the same four editable items', () => {
+    const html = renderToStaticMarkup(
+      <StudentStageBlocksView
+        stageIndex={0}
+        card={{
+          ...baseCard,
+          contentBlocks: [{
+            id: 'four-keys',
+            type: 'layout-four-keys',
+            title: 'Bốn chiếc chìa khóa',
+            body: 'Ghép đủ bốn chìa khóa.',
+            tip: 'Đủ 4 chìa là hết đoán bừa!',
+            visualItems: [
+              { label: 'Cái gì?', text: 'Chiếc cốc', tone: 'sky' },
+              { label: 'Trông như thế nào?', text: 'Sứ trắng mẻ miệng', tone: 'sun' },
+              { label: 'Đang làm gì?', text: 'Đang bốc khói', tone: 'coral' },
+              { label: 'Ở đâu?', text: 'Trên bàn gỗ', tone: 'brand' },
+            ],
+          }],
+        }}
+      />
+    )
+
+    expect(html).toContain('data-testid="block-layout-four-keys"')
+    expect(html.match(/Chìa khóa [1-4]/g)).toHaveLength(4)
+    expect(html).toContain('Sứ trắng mẻ miệng')
+    expect(html).toContain('Đủ 4 chìa là hết đoán bừa!')
+  })
+})

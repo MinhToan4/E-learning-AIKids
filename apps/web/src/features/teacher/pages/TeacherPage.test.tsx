@@ -1,6 +1,24 @@
 import { describe, expect, it } from 'vitest'
+import { FEATURE_BLOCKS_CATEGORIES, normalizeCurriculumPayload } from './TeacherPage'
 
 describe('TeacherPage subsystems and learning space specifications', () => {
+  it('normalizes incomplete imported curriculum data instead of crashing the CMS', () => {
+    const result = normalizeCurriculumPayload({
+      courses: [{ id: 'course-new', title: 'Bốn chiếc chìa khóa', lectures: null }],
+      programs: [{ id: 'program-new', title: 'AI Creator', regions: null }],
+    })
+
+    expect(result.courses[0].lectures).toEqual([])
+    expect(result.courses[0].status).toBe('soon')
+    expect(result.programs[0].regions).toEqual([])
+    expect(result.programs[0].source).toBe('aikid_official')
+  })
+
+  it('exposes the four-key layout in the main drag-and-drop palette', () => {
+    const layoutBlocks = FEATURE_BLOCKS_CATEGORIES.flatMap((category) => category.items)
+    expect(layoutBlocks.some((item) => item.id === 'layout-four-keys')).toBe(true)
+  })
+
   it('defines 2 distinct subsystems: Giảng Dạy & Lớp Học vs Creator Studio', () => {
     const teachingTabs = [
       { key: 'class', label: 'Lớp & Học sinh', path: '/teacher/class' },

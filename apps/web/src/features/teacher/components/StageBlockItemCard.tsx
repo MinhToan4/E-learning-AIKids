@@ -39,6 +39,8 @@ export function getBlockIcon(type: ContentBlockType): string {
       return '📰'
     case 'layout-grid':
       return '🍱'
+    case 'layout-four-keys':
+      return '🔑'
     case 'layout-storyboard':
       return '🎬'
     case 'voice':
@@ -73,6 +75,8 @@ export function getBlockTitle(type: ContentBlockType, customTitle?: string): str
       return customTitle || '2 CỘT CHỮ + MEDIA'
     case 'layout-grid':
       return customTitle || 'LƯỚI Ô THẺ'
+    case 'layout-four-keys':
+      return customTitle || 'BỐ CỤC 4 CHÌA KHÓA'
     case 'layout-storyboard':
       return customTitle || 'CHUỖI STORYBOARD'
     case 'voice':
@@ -439,7 +443,7 @@ export function StageBlockItemCard({
       )}
 
       {/* ── 5. BLOCK: Lưới Ô Thẻ / Storyboard (layout-grid / layout-storyboard) ── */}
-      {(block.type === 'layout-grid' || block.type === 'layout-storyboard') && (
+      {(block.type === 'layout-grid' || block.type === 'layout-storyboard' || block.type === 'layout-four-keys') && (
         <div className="mt-3.5 rounded-xl border border-sky-200 bg-sky-50/60 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
             <label className="text-xs font-extrabold text-text flex-1">
@@ -449,7 +453,7 @@ export function StageBlockItemCard({
                 value={block.title ?? ''}
                 onChange={(e) => updateBlockItem(stageIndex, block.id, { title: e.target.value })}
                 style={{ ...inputStyle, marginTop: '0.2rem' }}
-                placeholder={block.type === 'layout-storyboard' ? "VD: Chuỗi Storyboard 3 Cảnh..." : "VD: Lưới 3 Ô Thẻ..."}
+                placeholder={block.type === 'layout-storyboard' ? "VD: Chuỗi Storyboard 3 Cảnh..." : block.type === 'layout-four-keys' ? "VD: Bốn chiếc chìa khóa..." : "VD: Lưới 3 Ô Thẻ..."}
               />
             </label>
             {!readOnly && (
@@ -459,7 +463,7 @@ export function StageBlockItemCard({
                   const currentItems = block.visualItems || []
                   const nextItems: LearnVisualItemDraft[] = [
                     ...currentItems,
-                    { label: block.type === 'layout-storyboard' ? `Cảnh ${currentItems.length + 1}` : `Ý tưởng ${currentItems.length + 1}`, text: '', tone: 'brand' },
+                    { label: block.type === 'layout-storyboard' ? `Cảnh ${currentItems.length + 1}` : block.type === 'layout-four-keys' ? `Chìa khóa ${currentItems.length + 1}` : `Ý tưởng ${currentItems.length + 1}`, text: '', tone: 'brand' },
                   ]
                   updateBlockItem(stageIndex, block.id, { visualItems: nextItems })
                 }}
@@ -469,6 +473,16 @@ export function StageBlockItemCard({
               </button>
             )}
           </div>
+          {block.type === 'layout-four-keys' && (
+            <div className="mb-3 grid gap-2 sm:grid-cols-2">
+              <label className="text-[11px] font-extrabold text-muted">Lời dẫn
+                <textarea readOnly={readOnly} value={block.body ?? ''} onChange={(e) => updateBlockItem(stageIndex, block.id, { body: e.target.value })} rows={2} style={{ ...textareaStyle, minHeight: '2.5rem', marginTop: '0.25rem' }} />
+              </label>
+              <label className="text-[11px] font-extrabold text-muted">Câu ghi nhớ
+                <textarea readOnly={readOnly} value={block.tip ?? ''} onChange={(e) => updateBlockItem(stageIndex, block.id, { tip: e.target.value })} rows={2} style={{ ...textareaStyle, minHeight: '2.5rem', marginTop: '0.25rem' }} />
+              </label>
+            </div>
+          )}
           <div className="grid gap-2">
             {(block.visualItems || []).map((item, vIdx) => (
               <div key={vIdx} className="grid gap-2 rounded-xl border border-slate-200 bg-white p-3 sm:grid-cols-[minmax(8rem,.42fr)_minmax(0,1fr)_2.5rem]">

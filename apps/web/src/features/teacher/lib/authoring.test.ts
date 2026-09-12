@@ -3,6 +3,7 @@ import {
   buildLectureGameConfig,
   courseDraftReadiness,
   createAikiRuleLearnCards,
+  createFourKeysBlock,
   detectLessonFormat,
   isAikiRuleLesson,
   serializeLearnCardsForHub,
@@ -422,7 +423,21 @@ describe('authoring ids and readiness', () => {
     expect(blocks[0].type).toBe('images')
     expect(blocks[0].imageUrl).toBe('/assets/aiki-rules/rule1_superhero_dad.jpg')
   })
+
+  it('creates an editable four-key layout without sharing template item references', () => {
+    const first = createFourKeysBlock('four-keys-a')
+    const second = createFourKeysBlock('four-keys-b')
+
+    expect(first.type).toBe('layout-four-keys')
+    expect(first.visualItems?.map((item) => item.label)).toEqual([
+      'Cái gì?',
+      'Trông như thế nào?',
+      'Đang làm gì?',
+      'Ở đâu?',
+    ])
+
+    first.visualItems![0].label = 'Ai?'
+    expect(second.visualItems?.[0].label).toBe('Cái gì?')
+  })
 })
-
-
 

@@ -2313,6 +2313,455 @@ export function FlatClayOrange({ size = 48, className }: BaseFlatClayIconProps) 
 }
 
 // ════════════════════════════════════════════════════════════════════════════
+// 12b. SOFT CLAY OBJECTS CHO XƯỞNG VẼ AIKI (Cốc Sứ, Xe Đạp, Sổ Tay, Đồng Hồ Cổ, Chìa Khóa Vàng)
+// ════════════════════════════════════════════════════════════════════════════
+
+/** Cốc sứ men trắng quai tròn hoa vàng Soft Clay */
+export function FlatClayTeacup({ size = 48, className }: BaseFlatClayIconProps) {
+  const idSuffix = React.useId().replace(/:/g, '')
+  const cupGrad = `cup-grad-${idSuffix}`
+  const saucerGrad = `saucer-grad-${idSuffix}`
+  const filterId = `teacup-shadow-${idSuffix}`
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn('inline-block select-none overflow-visible', className)}
+      role="img"
+      aria-label="Cốc sứ trắng"
+    >
+      <defs>
+        <radialGradient id={cupGrad} cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="55%" stopColor="#fef3c7" />
+          <stop offset="85%" stopColor="#fed7aa" />
+          <stop offset="100%" stopColor="#fdba74" />
+        </radialGradient>
+        <linearGradient id={saucerGrad} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="50%" stopColor="#fef3c7" />
+          <stop offset="100%" stopColor="#fed7aa" />
+        </linearGradient>
+        <filter id={filterId} x="-20%" y="-10%" width="140%" height="130%">
+          <feDropShadow dx="0" dy="2" stdDeviation="1.8" floodColor="#78350f" floodOpacity="0.18" />
+        </filter>
+      </defs>
+
+      <g filter={`url(#${filterId})`}>
+        {/* Làn khói ấm bốc lên uốn lượn nhẹ nhàng */}
+        <path
+          d="M 27 20 C 25 15 29 13 27 7"
+          stroke="#94a3b8"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          fill="none"
+          opacity="0.65"
+        />
+        <path
+          d="M 35 19 C 37 14 33 12 36 6"
+          stroke="#cbd5e1"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          fill="none"
+          opacity="0.8"
+        />
+
+        {/* Đĩa lót sứ màu be ấm áp bên dưới */}
+        <ellipse cx="32" cy="53" rx="23" ry="5.5" fill={`url(#${saucerGrad})`} stroke="#f59e0b" strokeWidth="1.6" />
+        <ellipse cx="32" cy="52" rx="17" ry="3.5" fill="#fffbeb" stroke="#fde68a" strokeWidth="1" />
+
+        {/* Quai cầm tròn bo cong mềm mại */}
+        <path
+          d="M 44 28 C 55 28 55 43 43 45"
+          stroke="#f59e0b"
+          strokeWidth="5"
+          strokeLinecap="round"
+          fill="none"
+        />
+        <path
+          d="M 44 28 C 55 28 55 43 43 45"
+          stroke="#fed7aa"
+          strokeWidth="3.2"
+          strokeLinecap="round"
+          fill="none"
+        />
+
+        {/* Thân cốc sứ bo tròn men trắng sữa */}
+        <path
+          d="M 18 25 C 18 46 23 50 32 50 C 41 50 46 46 46 25 Z"
+          fill={`url(#${cupGrad})`}
+          stroke="#f59e0b"
+          strokeWidth="1.6"
+        />
+
+        {/* Miệng cốc & Lòng nước trà ấm */}
+        <ellipse cx="32" cy="25" rx="14" ry="4" fill="#fef3c7" stroke="#f59e0b" strokeWidth="1.4" />
+        <ellipse cx="32" cy="25" rx="12" ry="3.2" fill="#d97706" opacity="0.9" />
+        <ellipse cx="32" cy="25" rx="8" ry="2" fill="#f59e0b" opacity="0.8" />
+
+        {/* Bông hoa vàng nhỏ xinh xắn trên thân cốc */}
+        <g transform="translate(30, 38)">
+          <circle cx="0" cy="-4" r="1.8" fill="#facc15" stroke="#eab308" strokeWidth="0.6" />
+          <circle cx="3.8" cy="-1.2" r="1.8" fill="#facc15" stroke="#eab308" strokeWidth="0.6" />
+          <circle cx="2.4" cy="3.2" r="1.8" fill="#facc15" stroke="#eab308" strokeWidth="0.6" />
+          <circle cx="-2.4" cy="3.2" r="1.8" fill="#facc15" stroke="#eab308" strokeWidth="0.6" />
+          <circle cx="-3.8" cy="-1.2" r="1.8" fill="#facc15" stroke="#eab308" strokeWidth="0.6" />
+          <circle cx="0" cy="0" r="1.6" fill="#ea580c" />
+        </g>
+
+        {/* Vệt sáng phản quang Soft Clay trên thân cốc */}
+        <path
+          d="M 21 28 C 21 38 23 44 25 46"
+          stroke="#ffffff"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+          opacity="0.8"
+          fill="none"
+        />
+      </g>
+    </svg>
+  )
+}
+
+/** Chiếc xe đạp cổ điển xanh pastel giỏ hoa Soft Clay */
+export function FlatClayBicycle({ size = 48, className }: BaseFlatClayIconProps) {
+  const idSuffix = React.useId().replace(/:/g, '')
+  const bikeGrad = `bike-grad-${idSuffix}`
+  const filterId = `bike-shadow-${idSuffix}`
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn('inline-block select-none overflow-visible', className)}
+      role="img"
+      aria-label="Cái xe đạp"
+    >
+      <defs>
+        <linearGradient id={bikeGrad} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#38bdf8" />
+          <stop offset="100%" stopColor="#0284c7" />
+        </linearGradient>
+        <filter id={filterId} x="-15%" y="-10%" width="130%" height="130%">
+          <feDropShadow dx="0" dy="2" stdDeviation="1.8" floodColor="#0f172a" floodOpacity="0.18" />
+        </filter>
+      </defs>
+
+      <g filter={`url(#${filterId})`}>
+        {/* 1. Bánh sau (cx=17, cy=43) */}
+        <circle cx="17" cy="43" r="12.5" stroke="#78350f" strokeWidth="3" fill="#f8fafc" fillOpacity="0.2" />
+        <circle cx="17" cy="43" r="10" stroke="#cbd5e1" strokeWidth="1" fill="none" />
+        <line x1="17" y1="33" x2="17" y2="53" stroke="#94a3b8" strokeWidth="0.9" />
+        <line x1="7" y1="43" x2="27" y2="43" stroke="#94a3b8" strokeWidth="0.9" />
+        <line x1="10" y1="36" x2="24" y2="50" stroke="#94a3b8" strokeWidth="0.9" />
+        <line x1="10" y1="50" x2="24" y2="36" stroke="#94a3b8" strokeWidth="0.9" />
+        <circle cx="17" cy="43" r="2.6" fill="#0284c7" stroke="#0369a1" strokeWidth="0.8" />
+
+        {/* 2. Bánh trước (cx=47, cy=43) */}
+        <circle cx="47" cy="43" r="12.5" stroke="#78350f" strokeWidth="3" fill="#f8fafc" fillOpacity="0.2" />
+        <circle cx="47" cy="43" r="10" stroke="#cbd5e1" strokeWidth="1" fill="none" />
+        <line x1="47" y1="33" x2="47" y2="53" stroke="#94a3b8" strokeWidth="0.9" />
+        <line x1="37" y1="43" x2="57" y2="43" stroke="#94a3b8" strokeWidth="0.9" />
+        <line x1="40" y1="36" x2="54" y2="50" stroke="#94a3b8" strokeWidth="0.9" />
+        <line x1="40" y1="50" x2="54" y2="36" stroke="#94a3b8" strokeWidth="0.9" />
+        <circle cx="47" cy="43" r="2.6" fill="#0284c7" stroke="#0369a1" strokeWidth="0.8" />
+
+        {/* 3. Khung xe màu xanh pastel dày dặn */}
+        {/* Càng sau */}
+        <line x1="17" y1="43" x2="32" y2="43" stroke={`url(#${bikeGrad})`} strokeWidth="3.2" strokeLinecap="round" />
+        <line x1="17" y1="43" x2="27" y2="28" stroke={`url(#${bikeGrad})`} strokeWidth="3.2" strokeLinecap="round" />
+        {/* Cột yên */}
+        <line x1="27" y1="25" x2="32" y2="43" stroke={`url(#${bikeGrad})`} strokeWidth="3.2" strokeLinecap="round" />
+        {/* Gióng ngang & gióng chéo */}
+        <line x1="27" y1="28" x2="43" y2="27" stroke={`url(#${bikeGrad})`} strokeWidth="3.2" strokeLinecap="round" />
+        <line x1="32" y1="43" x2="43" y2="27" stroke={`url(#${bikeGrad})`} strokeWidth="3.2" strokeLinecap="round" />
+        {/* Cổ xe và càng trước */}
+        <line x1="43" y1="20" x2="47" y2="43" stroke={`url(#${bikeGrad})`} strokeWidth="3.2" strokeLinecap="round" />
+
+        {/* Trục giữa & Bàn đạp */}
+        <circle cx="32" cy="43" r="4.2" fill="#e2e8f0" stroke="#64748b" strokeWidth="1.2" />
+        <circle cx="32" cy="43" r="2" fill="#334155" />
+        <line x1="32" y1="43" x2="35" y2="49" stroke="#64748b" strokeWidth="2.2" strokeLinecap="round" />
+        <rect x="33" y="48" width="5" height="2.2" rx="1" fill="#1e293b" />
+
+        {/* Yên xe da nâu bo cong mềm mại */}
+        <path
+          d="M 22 26 C 24 23.5 32 23.5 33 26 C 32 28 28 28.5 24 28 Z"
+          fill="#b45309"
+          stroke="#78350f"
+          strokeWidth="1.2"
+        />
+        <circle cx="26" cy="24.8" r="1.2" fill="#fed7aa" opacity="0.6" />
+
+        {/* Tay lái ghi-đông */}
+        <path
+          d="M 43 20 L 43 16 L 40 15 M 43 16 L 46 15"
+          stroke="#0284c7"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          fill="none"
+        />
+
+        {/* Giỏ mây xinh xắn phía trước */}
+        <path
+          d="M 45 22 L 53 22 L 51 30 L 45 30 Z"
+          fill="#fde68a"
+          stroke="#d97706"
+          strokeWidth="1.2"
+        />
+        <line x1="47" y1="22" x2="47" y2="30" stroke="#d97706" strokeWidth="0.8" />
+        <line x1="50" y1="22" x2="49" y2="30" stroke="#d97706" strokeWidth="0.8" />
+        <line x1="45" y1="26" x2="52" y2="26" stroke="#d97706" strokeWidth="0.8" />
+
+        {/* Hoa xuân ngũ sắc tràn ra miệng giỏ */}
+        <circle cx="47" cy="20.5" r="2.2" fill="#f472b6" stroke="#db2777" strokeWidth="0.5" />
+        <circle cx="50" cy="19.5" r="2" fill="#facc15" stroke="#ca8a04" strokeWidth="0.5" />
+        <circle cx="53" cy="20.5" r="2.2" fill="#ef4444" stroke="#b91c1c" strokeWidth="0.5" />
+        <circle cx="49" cy="17.5" r="1.5" fill="#22c55e" />
+      </g>
+    </svg>
+  )
+}
+
+/** Cuốn sổ tay mở sẵn 2 trang phác thảo Soft Clay */
+export function FlatClayNotebook({ size = 48, className }: BaseFlatClayIconProps) {
+  const idSuffix = React.useId().replace(/:/g, '')
+  const bookGrad = `book-grad-${idSuffix}`
+  const filterId = `book-shadow-${idSuffix}`
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn('inline-block select-none overflow-visible', className)}
+      role="img"
+      aria-label="Cuốn sổ tay mở"
+    >
+      <defs>
+        <linearGradient id={bookGrad} x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#d97706" />
+          <stop offset="100%" stopColor="#92400e" />
+        </linearGradient>
+        <filter id={filterId} x="-15%" y="-10%" width="130%" height="130%">
+          <feDropShadow dx="0" dy="2.5" stdDeviation="2" floodColor="#78350f" floodOpacity="0.22" />
+        </filter>
+      </defs>
+
+      <g filter={`url(#${filterId})`}>
+        {/* Bìa da nâu bo cong mở rộng */}
+        <path
+          d="M 9 15 C 9 13 11 12 14 12 L 50 12 C 53 12 55 13 55 15 L 55 51 C 55 53 53 54 50 54 L 14 54 C 11 54 9 53 9 51 Z"
+          fill={`url(#${bookGrad})`}
+          stroke="#78350f"
+          strokeWidth="1.6"
+        />
+
+        {/* 2 Trang giấy mở đôi Soft Clay màu ngả vàng */}
+        {/* Trang trái */}
+        <path
+          d="M 12 15 C 20 16 26 16 31 17 L 31 49 C 26 48 20 48 12 47 Z"
+          fill="#fef3c7"
+          stroke="#fde68a"
+          strokeWidth="1.2"
+        />
+        {/* Trang phải */}
+        <path
+          d="M 52 15 C 44 16 38 16 33 17 L 33 49 C 38 48 44 48 52 47 Z"
+          fill="#fffbeb"
+          stroke="#fde68a"
+          strokeWidth="1.2"
+        />
+        {/* Rãnh gáy sổ */}
+        <line x1="32" y1="16" x2="32" y2="50" stroke="#b45309" strokeWidth="2" />
+
+        {/* Nét vẽ phác thảo trên trang trái */}
+        <line x1="15" y1="22" x2="27" y2="22" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="15" y1="28" x2="26" y2="28" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="15" y1="34" x2="24" y2="34" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="15" y1="40" x2="28" y2="40" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" />
+
+        {/* Nét vẽ phác thảo ngôi sao vàng trên trang phải */}
+        <polygon
+          points="42,22 43.5,25.5 47.5,26 44.5,29 45.5,33 42,31 38.5,33 39.5,29 36.5,26 40.5,25.5"
+          fill="#fde68a"
+          stroke="#f59e0b"
+          strokeWidth="1"
+        />
+        <line x1="37" y1="38" x2="48" y2="38" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" />
+        <line x1="37" y1="43" x2="45" y2="43" stroke="#cbd5e1" strokeWidth="1.5" strokeLinecap="round" />
+
+        {/* Dây ruy băng đánh dấu trang màu đỏ ruby thắm */}
+        <path
+          d="M 31 14 L 31 53 L 33 50 L 35 53 L 35 14 Z"
+          fill="#ef4444"
+          stroke="#b91c1c"
+          strokeWidth="0.8"
+        />
+
+        {/* Bút chì gỗ nhỏ nhắn bên cạnh phải */}
+        <line x1="56" y1="16" x2="56" y2="38" stroke="#f59e0b" strokeWidth="3.4" strokeLinecap="round" />
+        <polygon points="54.3,38 57.7,38 56,43" fill="#fed7aa" />
+        <polygon points="55.1,41 56.9,41 56,43" fill="#1e293b" />
+        <rect x="54.3" y="14" width="3.4" height="3" rx="0.8" fill="#f472b6" />
+      </g>
+    </svg>
+  )
+}
+
+/** Chiếc đồng hồ cổ quả lắc gỗ mun quý phái baroque Soft Clay */
+export function FlatClayVintageClock({ size = 48, className }: BaseFlatClayIconProps) {
+  const idSuffix = React.useId().replace(/:/g, '')
+  const woodGrad = `wood-grad-${idSuffix}`
+  const goldGrad = `gold-grad-${idSuffix}`
+  const filterId = `clock-shadow-${idSuffix}`
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn('inline-block select-none overflow-visible', className)}
+      role="img"
+      aria-label="Cái đồng hồ cổ"
+    >
+      <defs>
+        <linearGradient id={woodGrad} x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#78350f" />
+          <stop offset="50%" stopColor="#451a03" />
+          <stop offset="100%" stopColor="#290f02" />
+        </linearGradient>
+        <radialGradient id={goldGrad} cx="40%" cy="35%" r="65%">
+          <stop offset="0%" stopColor="#fef08a" />
+          <stop offset="45%" stopColor="#facc15" />
+          <stop offset="85%" stopColor="#eab308" />
+          <stop offset="100%" stopColor="#ca8a04" />
+        </radialGradient>
+        <filter id={filterId} x="-15%" y="-10%" width="130%" height="130%">
+          <feDropShadow dx="0" dy="2.5" stdDeviation="2" floodColor="#1e293b" floodOpacity="0.25" />
+        </filter>
+      </defs>
+
+      <g filter={`url(#${filterId})`}>
+        {/* Vỏ đồng hồ quả lắc gỗ mun uốn lượn baroque */}
+        <path
+          d="M 21 11 C 25 7 39 7 43 11 C 49 14 50 20 50 46 C 50 55 45 57 32 57 C 19 57 14 55 14 46 C 14 20 15 14 21 11 Z"
+          fill={`url(#${woodGrad})`}
+          stroke="#3b1a08"
+          strokeWidth="1.6"
+        />
+
+        {/* Chóp đỉnh hạt châu vàng & tai trang trí baroque */}
+        <circle cx="32" cy="7" r="3.2" fill={`url(#${goldGrad})`} stroke="#92400e" strokeWidth="1" />
+        <circle cx="31" cy="6" r="0.8" fill="#ffffff" />
+        <circle cx="15.5" cy="24" r="2.2" fill="#ca8a04" stroke="#78350f" strokeWidth="0.8" />
+        <circle cx="48.5" cy="24" r="2.2" fill="#ca8a04" stroke="#78350f" strokeWidth="0.8" />
+
+        {/* Mặt số tròn màu vàng hoàng kim */}
+        <circle cx="32" cy="24" r="14" fill={`url(#${goldGrad})`} stroke="#92400e" strokeWidth="1.5" />
+        <circle cx="32" cy="24" r="11" fill="#fffbeb" stroke="#ca8a04" strokeWidth="1" />
+
+        {/* Vạch số 12, 3, 6, 9 */}
+        <line x1="32" y1="14.5" x2="32" y2="16.5" stroke="#78350f" strokeWidth="1.6" strokeLinecap="round" />
+        <line x1="32" y1="31.5" x2="32" y2="33.5" stroke="#78350f" strokeWidth="1.6" strokeLinecap="round" />
+        <line x1="22.5" y1="24" x2="24.5" y2="24" stroke="#78350f" strokeWidth="1.6" strokeLinecap="round" />
+        <line x1="39.5" y1="24" x2="41.5" y2="24" stroke="#78350f" strokeWidth="1.6" strokeLinecap="round" />
+
+        {/* Kim đồng hồ 10:10 kinh điển */}
+        <line x1="32" y1="24" x2="27" y2="19.5" stroke="#451a03" strokeWidth="2.2" strokeLinecap="round" />
+        <line x1="32" y1="24" x2="38" y2="20" stroke="#451a03" strokeWidth="1.8" strokeLinecap="round" />
+        <circle cx="32" cy="24" r="1.8" fill="#ca8a04" stroke="#78350f" strokeWidth="0.8" />
+
+        {/* Khoang quả lắc bên dưới */}
+        <rect x="25" y="38" width="14" height="15" rx="7" fill="#1c0a00" stroke="#78350f" strokeWidth="1" />
+        <line x1="32" y1="39" x2="32" y2="47" stroke="#ca8a04" strokeWidth="1.6" />
+        <circle cx="32" cy="47" r="4.2" fill={`url(#${goldGrad})`} stroke="#92400e" strokeWidth="1" />
+        <circle cx="31" cy="46" r="1" fill="#ffffff" opacity="0.8" />
+      </g>
+    </svg>
+  )
+}
+
+/** Chìa khóa vàng hoàng kim óng ánh Soft Clay */
+export function FlatClayKey({ size = 48, className }: BaseFlatClayIconProps) {
+  const idSuffix = React.useId().replace(/:/g, '')
+  const keyGrad = `key-grad-${idSuffix}`
+  const filterId = `key-shadow-${idSuffix}`
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 64 64"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={cn('inline-block select-none overflow-visible', className)}
+      role="img"
+      aria-label="Chìa khóa vàng"
+    >
+      <defs>
+        <radialGradient id={keyGrad} cx="35%" cy="30%" r="70%">
+          <stop offset="0%" stopColor="#fef08a" />
+          <stop offset="40%" stopColor="#facc15" />
+          <stop offset="85%" stopColor="#eab308" />
+          <stop offset="100%" stopColor="#b45309" />
+        </radialGradient>
+        <filter id={filterId} x="-15%" y="-10%" width="130%" height="130%">
+          <feDropShadow dx="0" dy="2.5" stdDeviation="2" floodColor="#78350f" floodOpacity="0.22" />
+        </filter>
+      </defs>
+
+      <g filter={`url(#${filterId})`}>
+        {/* Đầu chìa tròn to bo cong mềm mại */}
+        <circle cx="32" cy="20" r="14" fill={`url(#${keyGrad})`} stroke="#b45309" strokeWidth="1.8" />
+
+        {/* Lỗ tâm hình trái tim Soft Clay */}
+        <path
+          d="M 32 18 C 32 15 28.5 15 28.5 18 C 28.5 21 32 24 32 24 C 32 24 35.5 21 35.5 18 C 35.5 15 32 15 32 18 Z"
+          fill="#ffffff"
+          stroke="#b45309"
+          strokeWidth="1"
+        />
+
+        {/* Trục thân chìa dài */}
+        <rect x="29.5" y="32" width="5" height="23" rx="2.5" fill={`url(#${keyGrad})`} stroke="#b45309" strokeWidth="1.5" />
+
+        {/* Răng chìa (2 mấu khóa Soft Clay bo góc) */}
+        <path
+          d="M 34.5 44 L 41 44 C 42.5 44 42.5 47 41 47 L 34.5 47 M 34.5 49 L 39 49 C 40.5 49 40.5 52 39 52 L 34.5 52 Z"
+          fill="#facc15"
+          stroke="#b45309"
+          strokeWidth="1.3"
+        />
+
+        {/* Highlight vệt sáng phản quang Soft Clay */}
+        <path
+          d="M 23 16 C 25 11 34 10 39 13"
+          stroke="#ffffff"
+          strokeWidth="2.2"
+          strokeLinecap="round"
+          opacity="0.85"
+          fill="none"
+        />
+        <line x1="31" y1="34" x2="31" y2="48" stroke="#ffffff" strokeWidth="1.4" strokeLinecap="round" opacity="0.8" />
+      </g>
+    </svg>
+  )
+}
+
+// ════════════════════════════════════════════════════════════════════════════
 // 13. COMPONENT ĐA NĂNG <FlatClayIcon />
 // ════════════════════════════════════════════════════════════════════════════
 
@@ -2403,6 +2852,66 @@ export function FlatClayIcon({
   }
   if (key === '📐' || key === '📦' || key === 'cube_net' || key === 'cubenet' || key === 'geometry' || key === 'perimeter_area') {
     return <FlatClayCubeNet size={size} className={className} />
+  }
+
+  // 5b. AIKI Studio Objects & Key Elements
+  if (
+    key === 'teacup' ||
+    key === 'ceramic-cup' ||
+    key === 'ceramic_cup' ||
+    key === 'cup' ||
+    key === 'cái cốc sứ trắng' ||
+    key === 'cốc sứ' ||
+    key === 'cốc' ||
+    key === '☕'
+  ) {
+    return <FlatClayTeacup size={size} className={className} />
+  }
+
+  if (
+    key === 'bicycle' ||
+    key === 'bike' ||
+    key === 'cái xe đạp' ||
+    key === 'xe đạp' ||
+    key === '🚲'
+  ) {
+    return <FlatClayBicycle size={size} className={className} />
+  }
+
+  if (
+    key === 'notebook' ||
+    key === 'book' ||
+    key === 'cuốn sổ tay mở' ||
+    key === 'sổ tay' ||
+    key === 'sổ' ||
+    key === '📖' ||
+    key === '📕'
+  ) {
+    return <FlatClayNotebook size={size} className={className} />
+  }
+
+  if (
+    key === 'vintage-clock' ||
+    key === 'vintage_clock' ||
+    key === 'clock-vintage' ||
+    key === 'clock_vintage' ||
+    key === 'cái đồng hồ cổ' ||
+    key === 'đồng hồ cổ'
+  ) {
+    return <FlatClayVintageClock size={size} className={className} />
+  }
+
+  if (
+    key === 'key' ||
+    key === 'golden-key' ||
+    key === 'golden_key' ||
+    key === 'gold-key' ||
+    key === 'chìa khóa' ||
+    key === 'chìa khoá' ||
+    key === 'chìa khóa vàng' ||
+    key === '🔑'
+  ) {
+    return <FlatClayKey size={size} className={className} />
   }
 
   // 6. Time & Measurement & Montessori Tools

@@ -133,6 +133,89 @@ export const COLOR_SHAPE_BLOCKS: CreativeBlock[] = [
     icon: '💎',
     colorScheme: 'sky',
   },
+  {
+    id: 'cs-su-trang-men-bong',
+    label: 'Sứ trắng men bóng',
+    text: 'chất liệu men sứ màu trắng sữa bóng bẩy mịn màng',
+    category: 'color-shape',
+    icon: '☕',
+    colorScheme: 'sky',
+  },
+  {
+    id: 'cs-me-mieng-goc',
+    label: 'Mẻ miệng một góc',
+    text: 'vết mẻ nhỏ một góc miệng cốc mộc mạc',
+    category: 'color-shape',
+    icon: '✨',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'cs-quai-cam-tron',
+    label: 'Có quai tròn xinh',
+    text: 'có quai cầm tròn xinh xắn',
+    category: 'color-shape',
+    icon: '⚪',
+    colorScheme: 'rose',
+  },
+  {
+    id: 'cs-men-ran-moc',
+    label: 'Men gốm rạn mộc',
+    text: 'men gốm rạn phong cách vintage mộc mạc',
+    category: 'color-shape',
+    icon: '🏺',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'cs-hoa-tiet-lam',
+    label: 'Họa tiết hoa lam',
+    text: 'vẽ họa tiết nhành hoa màu lam tinh tế',
+    category: 'color-shape',
+    icon: '🌸',
+    colorScheme: 'mint',
+  },
+]
+
+export const CERAMIC_CUP_COLOR_SHAPE_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'cs-su-trang-men-bong',
+    label: 'Sứ trắng men bóng',
+    text: 'chất liệu men sứ màu trắng sữa bóng bẩy mịn màng',
+    category: 'color-shape',
+    icon: '☕',
+    colorScheme: 'sky',
+  },
+  {
+    id: 'cs-me-mieng-goc',
+    label: 'Mẻ miệng một góc',
+    text: 'vết mẻ nhỏ một góc miệng cốc mộc mạc',
+    category: 'color-shape',
+    icon: '✨',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'cs-quai-cam-tron',
+    label: 'Có quai tròn xinh',
+    text: 'có quai cầm tròn xinh xắn',
+    category: 'color-shape',
+    icon: '⚪',
+    colorScheme: 'rose',
+  },
+  {
+    id: 'cs-men-ran-moc',
+    label: 'Men gốm rạn mộc',
+    text: 'men gốm rạn phong cách vintage mộc mạc',
+    category: 'color-shape',
+    icon: '🏺',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'cs-hoa-tiet-lam',
+    label: 'Họa tiết hoa lam',
+    text: 'vẽ họa tiết nhành hoa màu lam tinh tế',
+    category: 'color-shape',
+    icon: '🌸',
+    colorScheme: 'mint',
+  },
 ]
 
 export const ACTION_BLOCKS: CreativeBlock[] = [
@@ -183,6 +266,89 @@ export const ACTION_BLOCKS: CreativeBlock[] = [
     category: 'action',
     icon: '🛹',
     colorScheme: 'amber',
+  },
+  {
+    id: 'act-khoi-nghi-ngut',
+    label: 'Đang bốc khói nghi ngút',
+    text: 'làn hơi nóng bốc lên nghi ngút thơm lừng',
+    category: 'action',
+    icon: '💨',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'act-toa-huong-thom',
+    label: 'Tỏa hương thơm ngát',
+    text: 'đang tỏa hương trà thơm ngát ngập tràn',
+    category: 'action',
+    icon: '🍵',
+    colorScheme: 'mint',
+  },
+  {
+    id: 'act-chua-tra-nong',
+    label: 'Chứa đầy trà nóng',
+    text: 'đang chứa đầy trà nóng ấm áp',
+    category: 'action',
+    icon: '☕',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'act-dat-ngay-ngan',
+    label: 'Đặt ngay ngắn đón nắng',
+    text: 'đang được đặt ngay ngắn đón ánh nắng sớm',
+    category: 'action',
+    icon: '☀️',
+    colorScheme: 'mint',
+  },
+  {
+    id: 'act-yen-ben-sach',
+    label: 'Nằm yên bên trang sách',
+    text: 'đang nằm yên tĩnh bên trang sách đang đọc',
+    category: 'action',
+    icon: '📖',
+    colorScheme: 'indigo',
+  },
+]
+
+export const CERAMIC_CUP_ACTION_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'act-khoi-nghi-ngut',
+    label: 'Đang bốc khói nghi ngút',
+    text: 'làn hơi nóng bốc lên nghi ngút thơm lừng',
+    category: 'action',
+    icon: '💨',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'act-toa-huong-thom',
+    label: 'Tỏa hương thơm ngát',
+    text: 'đang tỏa hương trà thơm ngát ngập tràn',
+    category: 'action',
+    icon: '🍵',
+    colorScheme: 'mint',
+  },
+  {
+    id: 'act-chua-tra-nong',
+    label: 'Chứa đầy trà nóng',
+    text: 'đang chứa đầy trà nóng ấm áp',
+    category: 'action',
+    icon: '☕',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'act-dat-ngay-ngan',
+    label: 'Đặt ngay ngắn đón nắng',
+    text: 'đang được đặt ngay ngắn đón ánh nắng sớm',
+    category: 'action',
+    icon: '☀️',
+    colorScheme: 'mint',
+  },
+  {
+    id: 'act-yen-ben-sach',
+    label: 'Nằm yên bên trang sách',
+    text: 'đang nằm yên tĩnh bên trang sách đang đọc',
+    category: 'action',
+    icon: '📖',
+    colorScheme: 'indigo',
   },
 ]
 
@@ -235,6 +401,455 @@ export const CONTEXT_BLOCKS: CreativeBlock[] = [
     icon: '🔬',
     colorScheme: 'indigo',
   },
+  {
+    id: 'ctx-ban-go-soi',
+    label: 'Trên bàn gỗ sồi mộc',
+    text: 'trên mặt bàn gỗ sồi thô mộc ấm áp',
+    category: 'context',
+    icon: '🪵',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'ctx-canh-so-tay',
+    label: 'Cạnh cuốn sổ tay mở',
+    text: 'đặt cạnh một cuốn sổ tay đang mở trang giấy vẽ',
+    category: 'context',
+    icon: '📖',
+    colorScheme: 'indigo',
+  },
+  {
+    id: 'ctx-bau-cua-so',
+    label: 'Bên bậu cửa sổ nắng',
+    text: 'bên bậu cửa sổ gỗ đón ánh nắng ban mai',
+    category: 'context',
+    icon: '🪟',
+    colorScheme: 'sky',
+  },
+  {
+    id: 'ctx-quan-ca-phe',
+    label: 'Trong góc quán cà phê',
+    text: 'trong góc quán cà phê nhỏ ngập tràn ánh đèn vàng',
+    category: 'context',
+    icon: '☕',
+    colorScheme: 'rose',
+  },
+  {
+    id: 'ctx-khan-trai-ban',
+    label: 'Trên khăn trải bàn kẻ',
+    text: 'trên tấm khăn trải bàn vải linen ấm áp',
+    category: 'context',
+    icon: '🧺',
+    colorScheme: 'mint',
+  },
+]
+
+export const CERAMIC_CUP_CONTEXT_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'ctx-ban-go-soi',
+    label: 'Trên bàn gỗ sồi mộc',
+    text: 'trên mặt bàn gỗ sồi thô mộc ấm áp',
+    category: 'context',
+    icon: '🪵',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'ctx-canh-so-tay',
+    label: 'Cạnh cuốn sổ tay mở',
+    text: 'đặt cạnh một cuốn sổ tay đang mở trang giấy vẽ',
+    category: 'context',
+    icon: '📖',
+    colorScheme: 'indigo',
+  },
+  {
+    id: 'ctx-bau-cua-so',
+    label: 'Bên bậu cửa sổ nắng',
+    text: 'bên bậu cửa sổ gỗ đón ánh nắng ban mai',
+    category: 'context',
+    icon: '🪟',
+    colorScheme: 'sky',
+  },
+  {
+    id: 'ctx-quan-ca-phe',
+    label: 'Trong góc quán cà phê',
+    text: 'trong góc quán cà phê nhỏ ngập tràn ánh đèn vàng',
+    category: 'context',
+    icon: '☕',
+    colorScheme: 'rose',
+  },
+  {
+    id: 'ctx-khan-trai-ban',
+    label: 'Trên khăn trải bàn kẻ',
+    text: 'trên tấm khăn trải bàn vải linen ấm áp',
+    category: 'context',
+    icon: '🧺',
+    colorScheme: 'mint',
+  },
+]
+
+export const CERAMIC_CUP_BLOCKS: CreativeBlock[] = [
+  ...CERAMIC_CUP_COLOR_SHAPE_BLOCKS,
+  ...CERAMIC_CUP_ACTION_BLOCKS,
+  ...CERAMIC_CUP_CONTEXT_BLOCKS,
+]
+
+// ── BỘ TỪ VỰNG: MÓN 2 - XE ĐẠP (BICYCLE) ──────────────────────────────────
+export const BICYCLE_COLOR_SHAPE_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'cs-bike-khung-xanh',
+    label: 'Khung thép xanh bóng',
+    text: 'khung thép màu xanh dương bóng bẩy',
+    category: 'color-shape',
+    icon: '🚲',
+    colorScheme: 'sky',
+  },
+  {
+    id: 'cs-bike-banh-nan-hoa',
+    label: 'Bánh nan hoa tròn',
+    text: 'hai bánh xe nan hoa tròn xoe quay đều',
+    category: 'color-shape',
+    icon: '⚙️',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'cs-bike-chuong-nho',
+    label: 'Chuông kính coong nhỏ',
+    text: 'chiếc chuông nhỏ bằng đồng kêu kính coong vui tai',
+    category: 'color-shape',
+    icon: '🔔',
+    colorScheme: 'rose',
+  },
+  {
+    id: 'cs-bike-yen-da-nau',
+    label: 'Yên da nâu ấm',
+    text: 'chiếc yên xe bọc da màu nâu cổ điển êm ái',
+    category: 'color-shape',
+    icon: '🪑',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'cs-bike-gio-may',
+    label: 'Giỏ mây trước xe',
+    text: 'giỏ đan bằng mây gắn trước đầu xe mộc mạc',
+    category: 'color-shape',
+    icon: '🧺',
+    colorScheme: 'mint',
+  },
+]
+
+export const BICYCLE_ACTION_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'act-bike-lan-banh',
+    label: 'Đang lăn bánh bon bon',
+    text: 'đang lăn bánh bon bon lướt êm trên đường',
+    category: 'action',
+    icon: '💨',
+    colorScheme: 'sky',
+  },
+  {
+    id: 'act-bike-dung-chan-chong',
+    label: 'Đang dựng chân chống',
+    text: 'đang dựng chân chống nghiêng đứng yên nghỉ ngơi',
+    category: 'action',
+    icon: '🛑',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'act-bike-cho-gio-hoa',
+    label: 'Chở giỏ hoa rực rỡ',
+    text: 'đang chở giỏ hoa tươi rực rỡ sắc màu phía trước',
+    category: 'action',
+    icon: '🌸',
+    colorScheme: 'rose',
+  },
+  {
+    id: 'act-bike-don-hoang-hon',
+    label: 'Đón ánh hoàng hôn',
+    text: 'đang đón những tia nắng vàng ấm của buổi chiều tà',
+    category: 'action',
+    icon: '🌅',
+    colorScheme: 'mint',
+  },
+]
+
+export const BICYCLE_CONTEXT_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'ctx-bike-bo-ho',
+    label: 'Bên bờ hồ lộng gió',
+    text: 'bên bờ hồ nước xanh biếc lộng gió mát rượi',
+    category: 'context',
+    icon: '🌊',
+    colorScheme: 'sky',
+  },
+  {
+    id: 'ctx-bike-bong-cay',
+    label: 'Dưới bóng cây râm mát',
+    text: 'dưới bóng mát của tán cây cổ thụ sum sê',
+    category: 'context',
+    icon: '🌳',
+    colorScheme: 'mint',
+  },
+  {
+    id: 'ctx-bike-duong-lang',
+    label: 'Trên đường làng rải sỏi',
+    text: 'trên con đường làng quanh co rải sỏi trắng',
+    category: 'context',
+    icon: '🛤️',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'ctx-bike-truoc-hien',
+    label: 'Trước hiên nhà nhỏ',
+    text: 'trước hiên ngôi nhà gỗ nhỏ nở đầy hoa leo',
+    category: 'context',
+    icon: '🏡',
+    colorScheme: 'rose',
+  },
+]
+
+export const BICYCLE_BLOCKS: CreativeBlock[] = [
+  ...BICYCLE_COLOR_SHAPE_BLOCKS,
+  ...BICYCLE_ACTION_BLOCKS,
+  ...BICYCLE_CONTEXT_BLOCKS,
+]
+
+// ── BỘ TỪ VỰNG: MÓN 3 - CUỐN SỔ TAY (NOTEBOOK) ────────────────────────────
+export const NOTEBOOK_COLOR_SHAPE_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'cs-note-bia-da',
+    label: 'Bìa da nâu cổ điển',
+    text: 'bìa da màu nâu thô mộc phong cách cổ điển',
+    category: 'color-shape',
+    icon: '📔',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'cs-note-trang-giay',
+    label: 'Trang giấy ngả vàng',
+    text: 'những trang giấy ngả vàng thơm mùi sách mới',
+    category: 'color-shape',
+    icon: '📄',
+    colorScheme: 'mint',
+  },
+  {
+    id: 'cs-note-day-do',
+    label: 'Dây đánh dấu đỏ',
+    text: 'sợi dây lụa đánh dấu trang màu đỏ thắm',
+    category: 'color-shape',
+    icon: '🔖',
+    colorScheme: 'rose',
+  },
+  {
+    id: 'cs-note-kep-but-chi',
+    label: 'Kẹp bút chì gỗ',
+    text: 'kẹp thêm chiếc bút chì gỗ gọt nhọn bên gáy',
+    category: 'color-shape',
+    icon: '✏️',
+    colorScheme: 'sky',
+  },
+  {
+    id: 'cs-note-gay-so',
+    label: 'Gáy sổ may chỉ',
+    text: 'gáy sổ được may bằng sợi chỉ thô chắc chắn',
+    category: 'color-shape',
+    icon: '🧵',
+    colorScheme: 'purple',
+  },
+]
+
+export const NOTEBOOK_ACTION_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'act-note-mo-trang',
+    label: 'Đang mở sẵn trang vẽ',
+    text: 'đang mở sẵn trang vẽ phác thảo nét chì mộc',
+    category: 'action',
+    icon: '📖',
+    colorScheme: 'sky',
+  },
+  {
+    id: 'act-note-lap-lanh',
+    label: 'Lấp lánh dưới ánh đèn',
+    text: 'lấp lánh dịu dàng dưới ánh đèn bàn màu vàng ấm',
+    category: 'action',
+    icon: '💡',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'act-note-luu-net-ve',
+    label: 'Lưu giữ nét vẽ phác',
+    text: 'đang lưu giữ những nét vẽ phác họa ngộ nghĩnh',
+    category: 'action',
+    icon: '🎨',
+    colorScheme: 'rose',
+  },
+  {
+    id: 'act-note-nam-yen',
+    label: 'Nằm yên tĩnh đón gió',
+    text: 'nằm yên tĩnh để làn gió khẽ lật nhẹ từng trang giấy',
+    category: 'action',
+    icon: '🍃',
+    colorScheme: 'mint',
+  },
+]
+
+export const NOTEBOOK_CONTEXT_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'ctx-note-ban-hoc',
+    label: 'Trên bàn học ấm cúng',
+    text: 'trên góc bàn học gỗ ấm cúng ngăn nắp',
+    category: 'context',
+    icon: '🪑',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'ctx-note-tach-tra',
+    label: 'Bên tách trà chiều',
+    text: 'đặt cạnh một tách trà hoa cúc ấm áp bốc khói nhẹ',
+    category: 'context',
+    icon: '🍵',
+    colorScheme: 'mint',
+  },
+  {
+    id: 'ctx-note-tan-cay',
+    label: 'Dưới tán cây râm mát',
+    text: 'dưới tán cây xanh ngát ngập tràn bóng râm',
+    category: 'context',
+    icon: '🌳',
+    colorScheme: 'sky',
+  },
+  {
+    id: 'ctx-note-thu-vien',
+    label: 'Trong thư viện nhỏ',
+    text: 'trong căn phòng thư viện nhỏ yên tĩnh ấm áp',
+    category: 'context',
+    icon: '📚',
+    colorScheme: 'rose',
+  },
+]
+
+export const NOTEBOOK_BLOCKS: CreativeBlock[] = [
+  ...NOTEBOOK_COLOR_SHAPE_BLOCKS,
+  ...NOTEBOOK_ACTION_BLOCKS,
+  ...NOTEBOOK_CONTEXT_BLOCKS,
+]
+
+// ── BỘ TỪ VỰNG: MÓN 4 - CÁI ĐỒNG HỒ CỔ (CLOCK) ───────────────────────────
+export const CLOCK_COLOR_SHAPE_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'cs-clk-vo-go',
+    label: 'Vỏ gỗ mun cổ kính',
+    text: 'vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính',
+    category: 'color-shape',
+    icon: '🕰️',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'cs-clk-mat-so',
+    label: 'Mặt số la mã vàng',
+    text: 'mặt số la mã mạ vàng sáng lấp lánh tinh xảo',
+    category: 'color-shape',
+    icon: '🟡',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'cs-clk-kim-dong-ho',
+    label: 'Kim đồng hồ tích tắc',
+    text: 'đôi kim thanh mảnh uốn lượn phong cách quý tộc',
+    category: 'color-shape',
+    icon: '⏱️',
+    colorScheme: 'sky',
+  },
+  {
+    id: 'cs-clk-qua-lac',
+    label: 'Quả lắc đồng đu đưa',
+    text: 'quả lắc bằng đồng sáng bóng đung đưa nhịp nhàng',
+    category: 'color-shape',
+    icon: '🔔',
+    colorScheme: 'rose',
+  },
+  {
+    id: 'cs-clk-chan-de',
+    label: 'Chân đế chạm hoa',
+    text: 'chân đế bằng đồng chạm khắc hoa văn tinh xảo',
+    category: 'color-shape',
+    icon: '🌺',
+    colorScheme: 'mint',
+  },
+]
+
+export const CLOCK_ACTION_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'act-clk-diem-chuong',
+    label: 'Đang điểm chuông ngân',
+    text: 'đang vang lên tiếng chuông điểm giờ trong trẻo ngân nga',
+    category: 'action',
+    icon: '🎵',
+    colorScheme: 'purple',
+  },
+  {
+    id: 'act-clk-tich-tac',
+    label: 'Tích tắc đếm từng giây',
+    text: 'tiếng tích tắc êm tai đều đặn đếm từng nhịp thời gian',
+    category: 'action',
+    icon: '⏰',
+    colorScheme: 'sky',
+  },
+  {
+    id: 'act-clk-phan-chieu',
+    label: 'Phản chiếu nắng chiều',
+    text: 'phản chiếu ánh nắng hoàng hôn vàng óng qua lớp kính',
+    category: 'action',
+    icon: '✨',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'act-clk-vung-chai',
+    label: 'Đứng vững chãi yên bình',
+    text: 'đứng vững chãi trang nghiêm tỏa vẻ đẹp bình yên cổ điển',
+    category: 'action',
+    icon: '🏛️',
+    colorScheme: 'mint',
+  },
+]
+
+export const CLOCK_CONTEXT_BLOCKS: CreativeBlock[] = [
+  {
+    id: 'ctx-clk-tuong-gach',
+    label: 'Treo trên tường gạch',
+    text: 'treo trang trọng trên bức tường gạch đỏ mộc mạc',
+    category: 'context',
+    icon: '🧱',
+    colorScheme: 'rose',
+  },
+  {
+    id: 'ctx-clk-lo-suoi',
+    label: 'Trên lò sưởi ấm áp',
+    text: 'ngay trên bệ lò sưởi đá bập bùng ngọn lửa ấm áp',
+    category: 'context',
+    icon: '🔥',
+    colorScheme: 'amber',
+  },
+  {
+    id: 'ctx-clk-ke-sach',
+    label: 'Trên kệ sách phòng khách',
+    text: 'trên kệ sách gỗ phòng khách sang trọng ấm cúng',
+    category: 'context',
+    icon: '📚',
+    colorScheme: 'indigo',
+  },
+  {
+    id: 'ctx-clk-cua-so',
+    label: 'Bên cửa sổ nhìn ra vườn',
+    text: 'bên ô cửa sổ lớn nhìn ra khu vườn ngập hoa nắng',
+    category: 'context',
+    icon: '🪟',
+    colorScheme: 'sky',
+  },
+]
+
+export const CLOCK_BLOCKS: CreativeBlock[] = [
+  ...CLOCK_COLOR_SHAPE_BLOCKS,
+  ...CLOCK_ACTION_BLOCKS,
+  ...CLOCK_CONTEXT_BLOCKS,
 ]
 
 export const STYLE_BLOCKS: CreativeBlock[] = [

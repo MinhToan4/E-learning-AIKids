@@ -24,4 +24,29 @@ describe('short-lived API response cache', () => {
     await api('/api/admin/legend-studio')
     expect(fetchMock).toHaveBeenCalledTimes(3)
   })
+
+  it('reuses responses for newly cached Phase 1 endpoints', async () => {
+    const fetchMock = vi.fn().mockImplementation(async () => ok())
+    vi.stubGlobal('fetch', fetchMock)
+
+    // Test course caching
+    await api('/api/courses/course-1')
+    await api('/api/courses/course-1')
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+
+    // Test learning pathway caching
+    await api('/api/learning/pathway')
+    await api('/api/learning/pathway')
+    expect(fetchMock).toHaveBeenCalledTimes(2)
+
+    // Test age-policy caching
+    await api('/api/learning/age-policy')
+    await api('/api/learning/age-policy')
+    expect(fetchMock).toHaveBeenCalledTimes(3)
+
+    // Test notifications debounce caching
+    await api('/api/notifications')
+    await api('/api/notifications')
+    expect(fetchMock).toHaveBeenCalledTimes(4)
+  })
 })

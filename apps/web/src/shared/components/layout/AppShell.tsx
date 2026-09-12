@@ -854,7 +854,7 @@ export function AppShell() {
       )}
 
       {/* Mobile student bottom nav — StudentDrawer handles pinned bar + sheet */}
-      {!showDesktopStudentNav && <StudentDrawer />}
+      {!showDesktopStudentNav && !isLessonOrRule && <StudentDrawer />}
 
 
       <ParentGateModal open={gateOpen} onClose={() => setGateOpen(false)} />

@@ -5,107 +5,135 @@ import { playInstantSound } from '../../LessonInteractiveSidebar'
 import type { CreativeBlock } from '../types'
 
 export interface PromptPreviewBarProps {
-  blocks: CreativeBlock[]
+  blocks?: CreativeBlock[]
   generatedPrompt: string
   onReset?: () => void
   lockedFeatures?: string[]
   className?: string
+  stepQuickPrompt?: string
+  stepQuickLabel?: string
+  onQuickPromptClick?: (prompt: string) => void
 }
 
 export const PromptPreviewBar: React.FC<PromptPreviewBarProps> = ({
-  blocks,
+  blocks = [],
   generatedPrompt,
   onReset,
   lockedFeatures = [],
   className,
+  stepQuickPrompt,
+  stepQuickLabel,
+  onQuickPromptClick,
 }) => {
-  const [showFullText, setShowFullText] = useState(false)
-
   const handleReset = () => {
     playInstantSound('click')
     if (onReset) onReset()
   }
 
+  const isPromptAlreadyIncluded = Boolean(
+    generatedPrompt &&
+      stepQuickPrompt &&
+      generatedPrompt.toLowerCase().includes(stepQuickPrompt.toLowerCase().trim())
+  )
+
   return (
     <div
       data-testid="prompt-preview-bar"
       className={cn(
-        'w-full bg-linear-to-r from-amber-50/90 via-orange-50/70 to-pink-50/90 rounded-2xl border-2 border-amber-200/90 p-3 sm:p-3.5 shadow-2xs flex flex-col gap-2 text-left',
+        'flex items-center gap-2 bg-amber-50/80 border border-amber-200/90 rounded-2xl px-3 py-1.5 shadow-2xs min-h-[46px] text-left transition-all',
         className
       )}
     >
-      {/* Header Bar */}
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 text-xs font-black text-amber-950">
-          <Sparkles size={14} className="text-amber-600" />
-          <span>Chuỗi Câu Lệnh Ma Thuật (Block-chain)</span>
-        </div>
+      {/* Icon tia sáng & Nội dung câu lệnh tự ghép */}
+      <span className="text-sm shrink-0 text-amber-600">✨</span>
 
-        <div className="flex items-center gap-2">
-          {/* Nút bật/tắt xem câu lệnh chi tiết */}
-          <button
-            type="button"
-            onClick={() => setShowFullText(!showFullText)}
-            className="inline-flex items-center gap-1 text-[11px] font-bold text-amber-800 hover:text-amber-950 cursor-pointer bg-white/70 hover:bg-white px-2 py-0.5 rounded-lg border border-amber-200 transition-colors"
+      <div className="flex-1 min-w-0 text-xs sm:text-sm md:text-base font-bold text-slate-800 leading-snug">
+        {blocks && blocks.length > 0 ? (
+          <div
+            data-testid="prompt-linked-blocks"
+            className="flex flex-wrap items-center gap-1.5 py-0.5"
           >
-            {showFullText ? <EyeOff size={11} /> : <Eye size={11} />}
-            <span>{showFullText ? 'Thu gọn' : 'Xem câu lệnh'}</span>
-          </button>
+            {blocks.map((block, idx) => {
+              const isFirst = idx === 0
+              const colorMap: Record<string, string> = {
+                subject: 'bg-sky-100/90 text-sky-950 border-sky-300 shadow-2xs',
+                'color-shape': 'bg-amber-100/90 text-amber-950 border-amber-300 shadow-2xs',
+                action: 'bg-emerald-100/90 text-emerald-950 border-emerald-300 shadow-2xs',
+                context: 'bg-rose-100/90 text-rose-950 border-rose-300 shadow-2xs',
+              }
+              const colorClass =
+                colorMap[block.category] || 'bg-amber-100/90 text-amber-950 border-amber-300'
+              const keyNumber = idx + 1
 
-          {/* Nút Reset nếu có block */}
-          {blocks.length > 0 && onReset && (
-            <button
-              type="button"
-              onClick={handleReset}
-              title="Làm mới khay ghép thẻ"
-              className="inline-flex items-center gap-1 text-[11px] font-bold text-slate-500 hover:text-rose-600 cursor-pointer bg-white/70 hover:bg-rose-50 px-2 py-0.5 rounded-lg border border-slate-200 transition-colors"
-            >
-              <RotateCcw size={11} />
-              <span>Xếp lại</span>
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Dải chuỗi các Block liên kết */}
-      <div className="flex items-center gap-1.5 flex-wrap min-h-[36px]">
-        {/* Khóa đặc điểm VIP dán sẵn */}
-        {lockedFeatures.map((feat, idx) => (
-          <React.Fragment key={`feat-${idx}`}>
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-purple-100 border border-purple-300 text-purple-900 text-xs font-black shadow-2xs">
-              <span>🔒</span>
-              <span>{feat}</span>
+              return (
+                <React.Fragment key={block.id || idx}>
+                  {!isFirst && (
+                    <span className="text-amber-500 font-black text-sm select-none px-0.5">
+                      +
+                    </span>
+                  )}
+                  <div
+                    data-testid={`prompt-block-chip-${block.id || idx}`}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl border font-black text-xs sm:text-[13px] transition-all hover:scale-102',
+                      colorClass
+                    )}
+                    title={`Chìa Khóa ${keyNumber}: ${block.label || block.text}`}
+                  >
+                    <span className="text-[10px] opacity-75 font-bold shrink-0">
+                      🔑 {keyNumber}
+                    </span>
+                    <span className="leading-snug break-words">{block.text || block.label}</span>
+                  </div>
+                </React.Fragment>
+              )
+            })}
+            <span className="sr-only line-clamp-2 sm:line-clamp-3 break-words text-slate-900">
+              {generatedPrompt}
             </span>
-            <span className="text-amber-400 font-bold text-xs">+</span>
-          </React.Fragment>
-        ))}
-
-        {/* Các block được chọn */}
-        {blocks.length === 0 ? (
-          <div className="text-xs font-medium text-amber-900/60 italic py-1">
-            Chưa có thẻ nào được gắn... Bé hãy chạm hoặc kéo các thẻ phía trên nhé! 👇
           </div>
+        ) : generatedPrompt ? (
+          <span className="line-clamp-2 sm:line-clamp-3 break-words text-slate-900 font-bold">
+            {generatedPrompt}
+          </span>
         ) : (
-          blocks.map((b, idx) => (
-            <React.Fragment key={b.id || idx}>
-              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-white border border-amber-300 text-amber-950 text-xs font-black shadow-2xs animate-fade-in">
-                {b.icon && <span className="text-sm">{b.icon}</span>}
-                <span>{b.label}</span>
-              </span>
-              {idx < blocks.length - 1 && (
-                <ArrowRight size={12} className="text-amber-500 stroke-[3]" />
-              )}
-            </React.Fragment>
-          ))
+          <span className="text-slate-400 italic font-medium line-clamp-1">
+            Chạm vào các chìa khóa ở trên để ghép câu lệnh ma thuật...
+          </span>
         )}
       </div>
 
-      {/* Preview văn bản câu lệnh hoàn chỉnh khi toggle hoặc mặc định */}
-      {showFullText && generatedPrompt && (
-        <div className="mt-1 p-2.5 bg-white rounded-xl border border-amber-200/80 text-xs font-bold text-slate-800 leading-relaxed shadow-inner">
-          <span className="text-amber-600 font-black mr-1.5">AKI sẽ vẽ:</span>
-          <span>"{generatedPrompt}"</span>
-        </div>
+      {/* Dải gợi ý nhanh 1-chạm nếu có stepQuickPrompt */}
+      {stepQuickPrompt && (
+        <button
+          type="button"
+          data-testid="studio-step-quick-btn"
+          onClick={() => {
+            if (onQuickPromptClick) {
+              onQuickPromptClick(stepQuickPrompt)
+            }
+          }}
+          className={cn(
+            'shrink-0 px-2.5 py-1 rounded-xl bg-linear-to-r from-amber-400 via-amber-300 to-yellow-400 hover:from-amber-500 hover:to-yellow-500 text-amber-950 font-black text-xs sm:text-sm border border-amber-500/60 shadow-2xs transition-all active:scale-95 cursor-pointer flex items-center gap-1 max-w-[200px] sm:max-w-xs truncate',
+            isPromptAlreadyIncluded && 'hidden'
+          )}
+          title="Chạm để thử ngay câu lệnh này"
+        >
+          <span className="shrink-0">👉 {stepQuickLabel || 'Chạm để thử ngay:'}</span>
+          <span className="underline decoration-1 font-black truncate">"{stepQuickPrompt}"</span>
+        </button>
+      )}
+
+      {/* Nút Reset gỡ nhanh nếu có block */}
+      {blocks.length > 0 && onReset && (
+        <button
+          type="button"
+          onClick={handleReset}
+          title="Làm mới câu lệnh"
+          className="size-7 rounded-xl flex items-center justify-center text-slate-400 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 transition-colors cursor-pointer shrink-0"
+        >
+          <RotateCcw size={12} />
+        </button>
       )}
     </div>
   )

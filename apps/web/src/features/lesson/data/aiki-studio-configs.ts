@@ -14,6 +14,7 @@ export interface PracticeWorkflow {
 
 export interface AikiStudioConfig {
   lessonId: string
+  sampleUrl?: string
   subjectName: string
   badge: string
   missionChecklist: Array<{ id: string; label: string; done?: boolean; inProgress?: boolean }>

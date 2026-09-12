@@ -190,6 +190,12 @@ const inFlightGetRequests = new Map<string, Promise<unknown>>()
 const getResponseCache = new Map<string, { expiresAt: number; value: unknown }>()
 
 function responseCacheTtl(path: string): number {
+  if (path.startsWith('/api/courses/')) return 15_000
+  if (path.startsWith('/api/learning/pathway')) return 30_000
+  if (path.startsWith('/api/learning/age-policy')) return 300_000 // 5 phút policy tuổi tĩnh
+  if (path.startsWith('/api/progress/')) return 15_000
+  if (path.startsWith('/api/parent/plans') || path.startsWith('/api/parent/subscription')) return 60_000
+  if (path.startsWith('/api/notifications')) return 15_000 // debounce 15s tránh spam request khi đổi tab
   if (path.startsWith('/api/admin/legend-studio')) return 30_000
   if (path.startsWith('/api/gamification/catalog')) return 60_000
   if (path === '/api/gamification/achievements') return 15_000

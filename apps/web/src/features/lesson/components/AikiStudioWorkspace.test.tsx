@@ -5,7 +5,7 @@ import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
 import { describe, expect, it, vi } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
-import { AikiStudioWorkspace } from './AikiStudioWorkspace'
+import { AikiStudioWorkspace, getStudioAIArtwork, renderObjectClayIcon, type StudioImageItem } from './AikiStudioWorkspace'
 import { getAikiStudioConfig } from '../data/aiki-studio-configs'
 import * as creativeApi from '@/shared/lib/creative-api'
 
@@ -214,7 +214,7 @@ describe('AikiStudioWorkspace', () => {
     expect(cfgRule1.subjectName).toContain('Siêu Anh Hùng Bố')
   })
 
-  it('calls Google Flow Gateway via generateCreativeImage with provider gflow and updates gallery', async () => {
+  it('calls creative API via generateCreativeImage and updates gallery', async () => {
     const spy = vi.spyOn(creativeApi, 'generateCreativeImage').mockResolvedValueOnce(
       'https://cdn.example.com/gflow-generated-socbong.png'
     )
@@ -242,12 +242,11 @@ describe('AikiStudioWorkspace', () => {
       quickChipBtn.click()
     })
 
-    // Kiểm tra generateCreativeImage được gọi với provider 'gflow'
+    // Kiểm tra generateCreativeImage được gọi
     expect(spy).toHaveBeenCalledTimes(1)
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({
         prompt: 'Sóc Bông',
-        provider: 'gflow',
         aspectRatio: '1:1',
       })
     )
@@ -267,7 +266,7 @@ describe('AikiStudioWorkspace', () => {
     spy.mockRestore()
   })
 
-  it('gracefully falls back to curated sampleUrl when Google Flow Gateway is unavailable or worker is busy', async () => {
+  it('gracefully falls back to curated sampleUrl when creative API is unavailable or worker is busy', async () => {
     const spy = vi.spyOn(creativeApi, 'generateCreativeImage').mockRejectedValueOnce(
       new Error('Worker timeout or extension disconnected')
     )
@@ -293,11 +292,12 @@ describe('AikiStudioWorkspace', () => {
       quickChipBtn.click()
     })
 
-    // Kiểm tra API vẫn được gọi với provider 'gflow'
+    // Kiểm tra API vẫn được gọi
     expect(spy).toHaveBeenCalledTimes(1)
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({
-        provider: 'gflow',
+        prompt: 'Sóc Bông',
+        aspectRatio: '1:1',
       })
     )
 
@@ -422,5 +422,356 @@ describe('AikiStudioWorkspace', () => {
     expect(html).toContain('P3 lượt 2/2')
     expect(html).toContain('P4 lượt 1/2')
     expect(html).toContain('P4 lượt 2/2')
+
+    // 4. Kiểm tra Thanh Chọn 4 Món Đồ Thực Hành (Practice Items Switcher) ngay trên Header
+    expect(html).toContain('Món đồ bé vẽ:')
+    expect(html).toContain('data-testid="practice-item-select-1"')
+    expect(html).toContain('data-testid="practice-item-select-2"')
+    expect(html).toContain('data-testid="practice-item-select-3"')
+    expect(html).toContain('data-testid="practice-item-select-4"')
+  })
+
+  it('synchronizes step1QuickPrompt when switching practice items (e.g. from cup to clock)', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-2"
+          lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
+          lessonBadge="Bài 1.2"
+          characterName="Cốc Sứ Trắng"
+          maxAttempts={8}
+        />
+      )
+    })
+
+    // Ban đầu chọn Part 1: Cái cốc sứ trắng -> prompt gợi ý là "Cái cốc"
+    const quickPromptBtnInitial = container.querySelector('[data-testid="studio-step-quick-btn"]')
+    expect(quickPromptBtnInitial?.textContent).toContain('Cái cốc')
+
+    // Click chuyển sang Part 4: Cái đồng hồ cổ
+    const part4Btn = container.querySelector('[data-testid="practice-item-select-4"]') as HTMLButtonElement
+    expect(part4Btn).not.toBeNull()
+
+    await act(async () => {
+      part4Btn.click()
+    })
+
+    // Sau khi chuyển, prompt gợi ý cập nhật theo Món 4 (Cái đồng)
+    const quickPromptBtnAfter = container.querySelector('[data-testid="studio-step-quick-btn"]')
+    expect(quickPromptBtnAfter?.textContent).toContain('Cái đồng')
+    expect(quickPromptBtnAfter?.textContent).not.toContain('Cốc Sứ')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('switches sample artwork and banner dynamically across 4 soft clay items in Lesson 1.2', async () => {
+    // 1. Kiểm tra unit hàm getStudioAIArtwork
+    expect(getStudioAIArtwork('teacup', 'bai-1-2', 'Cái cốc sứ trắng')).toBe('/assets/aiki-islands/island1_lesson2_teacup.jpg')
+    expect(getStudioAIArtwork(undefined, 'bai-1-2', 'Cái xe đạp')).toBe('/assets/aiki-islands/island1_lesson2_bicycle.jpg')
+    expect(getStudioAIArtwork(undefined, 'bai-1-2', 'Cuốn sổ tay mở')).toBe('/assets/aiki-islands/island1_lesson2_notebook.jpg')
+    expect(getStudioAIArtwork(undefined, 'bai-1-2', 'Cái đồng hồ cổ')).toBe('/assets/aiki-islands/island1_lesson2_clock.jpg')
+
+    // 2. Kiểm tra tương tác component AikiStudioWorkspace
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-2"
+          lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
+          lessonBadge="Bài 1.2"
+          characterName="Cốc Sứ Trắng"
+          maxAttempts={8}
+        />
+      )
+    })
+
+    const emptyCanvas = container.querySelector('[data-testid="studio-canvas-empty"]')
+    expect(emptyCanvas).not.toBeNull()
+
+    // Ban đầu: Món 1 (Cốc sứ)
+    const emptyImg = emptyCanvas?.querySelector('img') as HTMLImageElement
+    expect(emptyImg.src).toContain('island1_lesson2_teacup.jpg')
+    expect(emptyCanvas?.textContent).toContain('Món 1: Cái cốc sứ trắng')
+
+    // Chuyển sang Món 2 (Xe đạp)
+    const part2Btn = container.querySelector('[data-testid="practice-item-select-2"]') as HTMLButtonElement
+    await act(async () => {
+      part2Btn.click()
+    })
+    expect(emptyImg.src).toContain('island1_lesson2_bicycle.jpg')
+    expect(emptyCanvas?.textContent).toContain('Món 2: Cái xe đạp')
+
+    // Chuyển sang Món 3 (Sổ tay)
+    const part3Btn = container.querySelector('[data-testid="practice-item-select-3"]') as HTMLButtonElement
+    await act(async () => {
+      part3Btn.click()
+    })
+    expect(emptyImg.src).toContain('island1_lesson2_notebook.jpg')
+    expect(emptyCanvas?.textContent).toContain('Món 3: Cuốn sổ tay mở')
+
+    // Chuyển sang Món 4 (Đồng hồ)
+    const part4Btn = container.querySelector('[data-testid="practice-item-select-4"]') as HTMLButtonElement
+    await act(async () => {
+      part4Btn.click()
+    })
+    expect(emptyImg.src).toContain('island1_lesson2_clock.jpg')
+    expect(emptyCanvas?.textContent).toContain('Món 4: Cái đồng hồ cổ')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('renders Flat Clay SVG icons for practice parts correctly and clearly without dark background', () => {
+    const container = document.createElement('div')
+    const root = createRoot(container)
+
+    act(() => {
+      root.render(
+        <div>
+          <div data-testid="icon-teacup">{renderObjectClayIcon('Cái cốc sứ trắng', 28)}</div>
+          <div data-testid="icon-bicycle">{renderObjectClayIcon('Cái xe đạp', 28)}</div>
+          <div data-testid="icon-notebook">{renderObjectClayIcon('Cuốn sổ tay mở', 28)}</div>
+          <div data-testid="icon-clock">{renderObjectClayIcon('Cái đồng hồ cổ', 28)}</div>
+        </div>
+      )
+    })
+
+    const teacupSvg = container.querySelector('[data-testid="icon-teacup"] svg')
+    const bicycleSvg = container.querySelector('[data-testid="icon-bicycle"] svg')
+    const notebookSvg = container.querySelector('[data-testid="icon-notebook"] svg')
+    const clockSvg = container.querySelector('[data-testid="icon-clock"] svg')
+
+    expect(teacupSvg?.getAttribute('aria-label')).toBe('Cốc sứ trắng')
+    expect(bicycleSvg?.getAttribute('aria-label')).toBe('Cái xe đạp')
+    expect(notebookSvg?.getAttribute('aria-label')).toBe('Cuốn sổ tay mở')
+    expect(clockSvg?.getAttribute('aria-label')).toBe('Cái đồng hồ cổ')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('renders Column 1 practice items with THỰC HÀNH status pill and turn badges matching mockup', () => {
+    const container = document.createElement('div')
+    const root = createRoot(container)
+
+    act(() => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-2"
+          lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
+          lessonBadge="Bài 1.2"
+          characterName="Cốc Sứ Trắng"
+          maxAttempts={8}
+        />
+      )
+    })
+
+    const part1Card = container.querySelector('[data-testid="practice-item-select-1"]')
+    const part2Card = container.querySelector('[data-testid="practice-item-select-2"]')
+
+    expect(part1Card).not.toBeNull()
+    expect(part1Card?.textContent).toContain('THỰC HÀNH 01 · ĐANG LÀM')
+    expect(part1Card?.textContent).toContain('Cái cốc sứ trắng')
+    expect(part1Card?.textContent).toContain('lượt 1')
+    expect(part1Card?.textContent).toContain('lượt 2')
+
+    expect(part2Card).not.toBeNull()
+    expect(part2Card?.textContent).toContain('THỰC HÀNH 02 · CHỜ')
+    expect(part2Card?.textContent).toContain('Cái xe đạp')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('renders Column 1 practice items with flex-1, min-h-[58px], overflow-hidden and responsive scrollable container', () => {
+    const container = document.createElement('div')
+    const root = createRoot(container)
+
+    act(() => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-2"
+          lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
+          lessonBadge="Bài 1.2"
+          characterName="Cốc Sứ Trắng"
+          maxAttempts={8}
+        />
+      )
+    })
+
+    const part1Btn = container.querySelector('[data-testid="practice-item-select-1"]') as HTMLButtonElement
+    expect(part1Btn).not.toBeNull()
+    expect(part1Btn.className).toContain('flex-1')
+    expect(part1Btn.className).toContain('min-h-[58px]')
+    expect(part1Btn.className).toContain('overflow-hidden')
+
+    const parentList = part1Btn.parentElement
+    expect(parentList).not.toBeNull()
+    expect(parentList?.className).toContain('justify-between')
+    expect(parentList?.className).toContain('min-h-0')
+    expect(parentList?.className).toContain('overflow-y-auto')
+
+    const outerCol1 = parentList?.parentElement
+    expect(outerCol1).not.toBeNull()
+    expect(outerCol1?.className).toContain('overflow-hidden')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('correctly scopes gallery images to activePartIndex so switching parts does not display previous part image', async () => {
+    const preloadedMock = [
+      {
+        id: 'img-p1-1',
+        turn: 1,
+        partIndex: 0,
+        prompt: 'Cái cốc sứ trắng tinh',
+        time: '08:30',
+        toneBg: 'bg-amber-100',
+        url: '/assets/aiki-islands/island1_lesson2_teacup.jpg',
+      },
+    ]
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-2"
+          lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
+          lessonBadge="Bài 1.2"
+          characterName="Cốc Sứ Trắng"
+          maxAttempts={8}
+          preloadedImages={preloadedMock}
+        />
+      )
+    })
+
+    // Part 1 (Cốc sứ): Canvas có ảnh của Part 1
+    const activeCanvasImg = container.querySelector('[data-testid="studio-col-canvas"] img') as HTMLImageElement
+    expect(activeCanvasImg).not.toBeNull()
+    expect(activeCanvasImg.src).toContain('island1_lesson2_teacup.jpg')
+
+    // Chuyển sang Part 3 (Cuốn sổ tay mở) - phần này chưa vẽ
+    const part3Btn = container.querySelector('[data-testid="practice-item-select-3"]') as HTMLButtonElement
+    await act(async () => {
+      part3Btn.click()
+    })
+
+    // Khung canvas phải ở trạng thái empty chờ vẽ Part 3, TUYỆT ĐỐI không hiển thị ảnh Part 1 (Cái cốc)
+    const emptyCanvas = container.querySelector('[data-testid="studio-canvas-empty"]')
+    expect(emptyCanvas).not.toBeNull()
+    expect(emptyCanvas?.textContent).toContain('Món 3: Cuốn sổ tay mở')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('accurately reflects turn 1 and turn 2 states based on gallery, preventing turn 1 from being green when not drawn', async () => {
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    // 1. Trường hợp gallery rỗng (chưa vẽ tranh nào)
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-2"
+          lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
+          lessonBadge="Bài 1.2"
+          characterName="Cốc Sứ Trắng"
+          maxAttempts={8}
+          preloadedImages={[]}
+        />
+      )
+    })
+
+    const part1Card = container.querySelector('[data-testid="practice-item-select-1"]') as HTMLButtonElement
+    expect(part1Card).not.toBeNull()
+    expect(part1Card.textContent).toContain('THỰC HÀNH 01 · ĐANG LÀM')
+
+    const turnBadges = part1Card.querySelectorAll('span.rounded-md')
+    expect(turnBadges.length).toBe(2)
+    // Lượt 1: đang làm, màu vàng amber, tuyệt đối không có dấu tick xanh
+    expect(turnBadges[0].textContent).toBe('lượt 1')
+    expect(turnBadges[0].className).toContain('bg-amber-100/80')
+    expect(turnBadges[0].className).not.toContain('bg-emerald-100/90')
+
+    // Lượt 2: chờ, màu xám slate
+    expect(turnBadges[1].textContent).toBe('lượt 2')
+    expect(turnBadges[1].className).toContain('bg-slate-100')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+
+    // 2. Trường hợp gallery có 1 ảnh của Part 1
+    const oneImageMock: StudioImageItem[] = [
+      {
+        id: 'img-p1-turn1',
+        url: '/assets/aiki-islands/island1_lesson2_teacup.jpg',
+        prompt: 'Cái cốc sứ trắng',
+        time: '1 phút trước',
+        toneBg: 'bg-amber-100',
+        turn: 1,
+        partIndex: 0,
+        partTurn: 1,
+      },
+    ]
+
+    const container2 = document.createElement('div')
+    document.body.appendChild(container2)
+    const root2 = createRoot(container2)
+
+    await act(async () => {
+      root2.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-2"
+          lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
+          lessonBadge="Bài 1.2"
+          characterName="Cốc Sứ Trắng"
+          maxAttempts={8}
+          preloadedImages={oneImageMock}
+        />
+      )
+    })
+
+    const part1CardAfter1 = container2.querySelector('[data-testid="practice-item-select-1"]') as HTMLButtonElement
+    expect(part1CardAfter1.textContent).toContain('THỰC HÀNH 01 · 1/2 LƯỢT')
+    const turnBadgesAfter1 = part1CardAfter1.querySelectorAll('span.rounded-md')
+    // Lượt 1: đã xong, xanh lá có tick
+    expect(turnBadgesAfter1[0].textContent).toBe('✓ lượt 1')
+    expect(turnBadgesAfter1[0].className).toContain('bg-emerald-100/90')
+    // Lượt 2: đang làm, màu vàng amber
+    expect(turnBadgesAfter1[1].textContent).toBe('lượt 2')
+    expect(turnBadgesAfter1[1].className).toContain('bg-amber-100/80')
+
+    act(() => {
+      root2.unmount()
+    })
+    container2.remove()
   })
 })

@@ -37,6 +37,7 @@ import {
   type StageBlockItem,
   getActiveModules,
   getStageBlocks,
+  createFourKeysBlock,
 } from '../lib/authoring'
 
 export { getActiveModules }
@@ -122,6 +123,7 @@ const AVAILABLE_MODULES = [
   { id: 'layout-formula', label: 'Công Thức KaTeX', icon: '🔤', desc: 'Công thức toán học hoặc định nghĩa cô đọng' },
   { id: 'layout-split', label: '2 Cột Chữ + Media', icon: '📰', desc: 'Cột chữ kết hợp cột ảnh/video minh họa' },
   { id: 'layout-grid', label: 'Lưới 3 Ô Thẻ', icon: '🍱', desc: 'Lưới 3 thẻ ví dụ trực quan' },
+  { id: 'layout-four-keys', label: 'Bố cục 4 Chìa Khóa', icon: '🔑', desc: 'Template 4 ô đúng giao diện bài Bốn chiếc chìa khóa' },
   { id: 'layout-storyboard', label: 'Chuỗi Storyboard', icon: '🎬', desc: 'Chuỗi 3 cảnh kịch bản diễn biến' },
   { id: 'voice', label: 'Mèo AIKI & Lipsync', icon: '🐱', desc: 'Studio tương tác, giọng đọc AI & khẩu hình Lipsync' },
   { id: 'video', label: 'Video Bài Giảng', icon: '🎬', desc: 'Video MP4 / YouTube phát tự động' },
@@ -1726,6 +1728,9 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         ],
       }
       showToast('Đã thêm Bố cục Lưới 3 Ô Thẻ!', 'success')
+    } else if (blockId === 'layout-four-keys') {
+      newBlock = createFourKeysBlock(`blk-four-keys-${timestamp}`)
+      showToast('Đã thêm template Bốn chiếc chìa khóa!', 'success')
     } else if (blockId === 'layout-storyboard') {
       newBlock = {
         id: `blk-storyboard-${timestamp}`,
@@ -3353,6 +3358,11 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                           <button
                             key={mod.id}
                             type="button"
+                            draggable={!readOnly}
+                            onDragStart={(event) => {
+                              event.dataTransfer.setData('text/plain', mod.id)
+                              event.dataTransfer.effectAllowed = 'copy'
+                            }}
                             disabled={readOnly}
                             onClick={() => handleAddModule(mod.id, stageIndex)}
                             className="flex items-center gap-2 rounded-xl border border-sky-200 bg-white px-3 py-2.5 text-xs font-black text-slate-800 shadow-2xs hover:border-brand-400 hover:bg-brand-50 hover:text-brand-900 transition active:scale-95 cursor-pointer text-left"
@@ -3473,6 +3483,11 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                             <button
                               key={mod.id}
                               type="button"
+                              draggable={!readOnly}
+                              onDragStart={(event) => {
+                                event.dataTransfer.setData('text/plain', mod.id)
+                                event.dataTransfer.effectAllowed = 'copy'
+                              }}
                               disabled={readOnly}
                               onClick={() => handleAddModule(mod.id, stageIndex)}
                               className="flex items-center gap-1.5 rounded-xl border border-sky-200 bg-white px-3 py-1.5 text-xs font-black text-slate-800 shadow-2xs hover:border-brand-400 hover:bg-brand-50 transition cursor-pointer active:scale-95"
@@ -4074,6 +4089,11 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                                 <button
                                   key={mod.id}
                                   type="button"
+                                  draggable={!readOnly}
+                                  onDragStart={(event) => {
+                                    event.dataTransfer.setData('text/plain', mod.id)
+                                    event.dataTransfer.effectAllowed = 'copy'
+                                  }}
                                   disabled={readOnly}
                                   onClick={() => handleAddModule(mod.id, stageIndex)}
                                   className="flex items-center gap-2 rounded-xl border border-sky-200 bg-white px-2.5 py-2 text-xs font-black text-slate-800 shadow-2xs hover:border-brand-400 hover:bg-brand-50 hover:text-brand-900 transition active:scale-95 cursor-pointer text-left"

@@ -47,7 +47,7 @@ async function waitForJob(jobId: string): Promise<Job> {
     // SSE can be interrupted by proxies or a deploy. Fall back to bounded,
     // progressively slower polling instead of the old fixed 1.5s loop.
   }
-  const delays = [2_000, 3_000, 5_000, 8_000, 10_000]
+  const delays = [1_000, 1_500, 2_000, 2_500, 3_000]
   for (let attempt = 0; attempt < 30; attempt += 1) {
     const job = await api<Job>(`/api/v1/jobs/${encodeURIComponent(jobId)}`)
     const status = String(job.status ?? '').toLowerCase()
@@ -147,18 +147,24 @@ export async function generateCreativeImage(input: {
     const url = uploaded.url ?? uploaded.imageUrl
     if (url) references.push(url)
   }
-  const job = await createJob('image', {
-    prompt: input.prompt,
-    provider: input.provider || 'gflow',
-    model_id: input.modelId || 'NARWHAL',
-    aspect_ratio: input.aspectRatio || '1:1',
-    ...(references.length
-      ? {
-          reference_image_url: references[0],
-          reference_image_urls: references,
-        }
-      : {}),
-  })
+  const timeoutPromise = new Promise<never>((_, reject) =>
+    setTimeout(() => reject(new Error('Creative generation timeout (60s)')), 60000)
+  )
+  const job = await Promise.race([
+    createJob('image', {
+      prompt: input.prompt,
+      provider: input.provider,
+      model_id: input.modelId || 'NARWHAL',
+      aspect_ratio: input.aspectRatio || '1:1',
+      ...(references.length
+        ? {
+            reference_image_url: references[0],
+            reference_image_urls: references,
+          }
+        : {}),
+    }),
+    timeoutPromise,
+  ])
   const url = outputUrls(job.outputUrls)[0]
   if (!url) throw new Error('StoryMee chưa trả về ảnh.')
   return url

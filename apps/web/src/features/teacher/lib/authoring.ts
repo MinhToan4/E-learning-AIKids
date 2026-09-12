@@ -89,6 +89,7 @@ export type ContentBlockType =
   | 'layout-text'       // 1 Cột Tập Trung
   | 'layout-split'      // Bố cục 2 Cột (Chữ + Media)
   | 'layout-grid'       // Lưới Ô Thẻ
+  | 'layout-four-keys'  // Bộ 4 chìa khóa câu lệnh
   | 'layout-callout'    // Hộp Ghi Nhớ Nổi Bật
   | 'layout-formula'    // Công thức KaTeX
   | 'layout-storyboard' // Chuỗi Storyboard
@@ -131,6 +132,25 @@ export interface StageBlockItem {
   posterRuleNumber?: number
   gesture?: string
   readText?: string
+}
+
+export const FOUR_KEYS_DEFAULT_ITEMS: LearnVisualItemDraft[] = [
+  { label: 'Cái gì?', text: 'Nhân vật hoặc đồ vật chính', tone: 'sky' },
+  { label: 'Trông như thế nào?', text: 'Màu sắc, hình dáng và đặc điểm', tone: 'sun' },
+  { label: 'Đang làm gì?', text: 'Hành động đang diễn ra', tone: 'coral' },
+  { label: 'Ở đâu?', text: 'Bối cảnh hoặc địa điểm', tone: 'brand' },
+]
+
+/** Tạo bản sao độc lập để CMS có thể sửa/kéo thả mà không làm đổi template gốc. */
+export function createFourKeysBlock(id = `blk-four-keys-${Date.now()}`): StageBlockItem {
+  return {
+    id,
+    type: 'layout-four-keys',
+    title: 'Bốn chiếc chìa khóa mở câu lệnh',
+    body: 'Ghép đủ bốn chìa khóa để AI hiểu đúng ý tưởng của con.',
+    tip: 'Cái gì · Trông như thế nào · Đang làm gì · Ở đâu',
+    visualItems: FOUR_KEYS_DEFAULT_ITEMS.map((item) => ({ ...item })),
+  }
 }
 
 export type LearnCardDraft = {
@@ -392,6 +412,8 @@ export function getStageBlocks(card: LearnCardDraft, stageIndex: number): StageB
       blocks.push({ id: `blk-split-${stageIndex}`, type: 'layout-split', title: 'Bố cục 2 Cột Chữ + Media', body: card.body, imageUrl: card.imageUrl })
     } else if (mod === 'layout-grid') {
       blocks.push({ id: `blk-grid-${stageIndex}`, type: 'layout-grid', title: 'Lưới 3 Ô Thẻ', visualItems: card.visualItems })
+    } else if (mod === 'layout-four-keys') {
+      blocks.push({ ...createFourKeysBlock(`blk-four-keys-${stageIndex}`), visualItems: card.visualItems?.length ? card.visualItems : FOUR_KEYS_DEFAULT_ITEMS.map((item) => ({ ...item })) })
     } else if (mod === 'layout-storyboard') {
       blocks.push({ id: `blk-storyboard-${stageIndex}`, type: 'layout-storyboard', title: 'Chuỗi Storyboard', visualItems: card.visualItems })
     } else if (mod === 'voice') {

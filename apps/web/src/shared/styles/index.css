@@ -6658,6 +6658,16 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 
 /* Mobile polish — 375 / 414 safe areas */
 @layer utilities {
+  .hidden-scrollbar, .scrollbar-none {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .hidden-scrollbar::-webkit-scrollbar, .scrollbar-none::-webkit-scrollbar {
+    display: none;
+    width: 0;
+    height: 0;
+  }
+
   .safe-pb {
     padding-bottom: max(0.5rem, env(safe-area-inset-bottom, 0px));
   }

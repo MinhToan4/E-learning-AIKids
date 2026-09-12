@@ -115,6 +115,7 @@ describe('SixStageJourneyView', () => {
           journey={mockJourney}
           lessonId="bai-1-1"
           lessonTitle="Đừng Để AKI Đoán Mò"
+          initialSidebarCollapsed={false}
         />
       )
     })
@@ -157,25 +158,25 @@ describe('SixStageJourneyView', () => {
       )
     })
 
-    // Initially, sidebar is visible
-    expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
+    // Initially, sidebar is collapsed by default
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
     const toggleBtn = container.querySelector('[data-testid="toggle-sidebar-btn"]') as HTMLButtonElement
     expect(toggleBtn).not.toBeNull()
+    expect(toggleBtn.textContent).toContain('Bảng tương tác')
+
+    // Click toggle to expand
+    act(() => {
+      toggleBtn.click()
+    })
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
     expect(toggleBtn.textContent).toContain('Thu gọn')
 
-    // Click toggle to collapse
+    // Click toggle again to collapse
     act(() => {
       toggleBtn.click()
     })
     expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
     expect(toggleBtn.textContent).toContain('Bảng tương tác')
-
-    // Click toggle again to expand
-    act(() => {
-      toggleBtn.click()
-    })
-    expect(container.querySelector('[data-testid="interactive-sidebar"]')).not.toBeNull()
-    expect(toggleBtn.textContent).toContain('Thu gọn')
   })
 
   it('synchronizes stage transition from 0 to 1 between Main Block and Sidebar', () => {
@@ -186,6 +187,7 @@ describe('SixStageJourneyView', () => {
           journey={mockJourney}
           lessonId="bai-1-1"
           lessonTitle="Đừng Để AKI Đoán Mò"
+          initialSidebarCollapsed={false}
         />
       )
     })
@@ -218,6 +220,7 @@ describe('SixStageJourneyView', () => {
           lessonId="bai-1-1"
           lessonTitle="Đừng Để AKI Đoán Mò"
           initialStageIndex={1}
+          initialSidebarCollapsed={false}
         />
       )
     })
@@ -264,6 +267,7 @@ describe('SixStageJourneyView', () => {
           lessonId="bai-1-1"
           lessonTitle="Đừng Để AKI Đoán Mò"
           initialStageIndex={3}
+          initialSidebarCollapsed={false}
         />
       )
     })
@@ -315,6 +319,7 @@ describe('SixStageJourneyView', () => {
           initialStageIndex={5}
           onFinishLesson={onFinishLesson}
           onNavigateNextLesson={onNavigateNextLesson}
+          initialSidebarCollapsed={false}
         />
       )
     })
@@ -344,6 +349,77 @@ describe('SixStageJourneyView', () => {
     expect(onNavigateNextLesson).toHaveBeenCalledWith('bai-1-2-bon-chiec-chia-khoa')
   })
 
+  it('renders Stage 5 completion in a side-by-side 2-column layout fitting one screen with floating drawer sidebar', () => {
+    const onNavigateNextLesson = vi.fn()
+    const onBackToMap = vi.fn()
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+          initialStageIndex={5}
+          initialSidebarCollapsed={false}
+          onNavigateNextLesson={onNavigateNextLesson}
+          onBackToMap={onBackToMap}
+        />
+      )
+    })
+
+    const stage5Section = container.querySelector('[data-testid="stage-5-completion"]')
+    expect(stage5Section).not.toBeNull()
+
+    // 1. Main canvas has full width (w-full) at Stage 5
+    const mainCanvas = container.querySelector('[data-testid="main-learning-canvas"]')
+    expect(mainCanvas?.className).toContain('w-full')
+
+    // 2. Side-by-side grid layout container
+    const gridContainer = stage5Section?.querySelector('.grid')
+    expect(gridContainer).not.toBeNull()
+    expect(gridContainer?.className).toContain('grid-cols-1')
+    expect(gridContainer?.className).toContain('md:grid-cols-12')
+
+    // 3. Left column (Artwork display)
+    expect(stage5Section?.textContent).toContain('Tác phẩm kiệt xuất vừa cất vào Balo')
+    expect(stage5Section?.textContent).toContain('Huy hiệu Mèo Mướp Béo')
+    const zoomBtn = Array.from(stage5Section?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('Phóng to')
+    )
+    expect(zoomBtn).toBeDefined()
+
+    // 4. Right column (Trophy clay image, stars, title, congrats, action buttons)
+    expect(stage5Section?.textContent).toContain('Chặng 6: Hoàn thành bài học')
+    const trophyImg = stage5Section?.querySelector('img[alt="Cúp Vàng Sáng Tạo"]') as HTMLImageElement | null
+    expect(trophyImg).not.toBeNull()
+    expect(trophyImg?.src).toContain('/assets/trophy-clay-gold.png')
+    const trophyBadge = stage5Section?.querySelector('[data-testid="stage6-trophy-xp-badge"]')
+    expect(trophyBadge).not.toBeNull()
+    expect(trophyBadge?.textContent).toContain('+50 XP')
+    expect(stage5Section?.textContent).toContain('+50 XP')
+    expect(stage5Section?.textContent).toContain('Chúc mừng Nhà Sáng Tạo Tí Hon!')
+    expect(stage5Section?.textContent).toContain('Bé đã hoàn thành xuất sắc bài học')
+    expect(stage5Section?.textContent).toContain('👉 Khám Phá Bài Tiếp Theo 🚀')
+
+    // 5. Floating drawer sidebar with backdrop at Stage 5
+    const backdrop = container.querySelector('[data-testid="sidebar-overlay-backdrop"]')
+    expect(backdrop).not.toBeNull()
+
+    const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
+    expect(sidebar).not.toBeNull()
+    expect(sidebar?.className).toContain('fixed')
+    expect(sidebar?.textContent).toContain('✕ Đóng')
+
+    // Clicking close button closes the floating drawer
+    const closeBtn = Array.from(sidebar?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('✕ Đóng')
+    )
+    act(() => {
+      closeBtn?.click()
+    })
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
+  })
+
   it('verifies Top Header Stepper has NO emoji icons, has ChevronRight delimiters, sharp text without opacity-40, and smooth navigation', () => {
     const root = createRoot(container)
     act(() => {
@@ -353,6 +429,7 @@ describe('SixStageJourneyView', () => {
           lessonId="bai-1-1"
           lessonTitle="Đừng Để AKI Đoán Mò"
           initialStageIndex={0}
+          initialSidebarCollapsed={false}
         />
       )
     })
@@ -457,15 +534,13 @@ describe('SixStageJourneyView', () => {
 
     imgContainers?.forEach((box) => {
       expect(box.className).toContain('aspect-[4/3]')
-      expect(box.className).not.toContain('max-h-[220px]')
-      expect(box.className).not.toContain('sm:max-h-[260px]')
+      expect(box.className).toContain('sm:aspect-[16/10]')
     })
 
     const images = stage1Section?.querySelectorAll('img')
     expect(images?.length).toBe(2)
     images?.forEach((img) => {
-      expect(img.className).toContain('object-contain')
-      expect(img.className).not.toContain('sm:object-cover')
+      expect(img.className).toContain('object-cover')
     })
 
     // Test clicking zoom button to open Lightbox Modal
@@ -497,6 +572,7 @@ describe('SixStageJourneyView', () => {
           lessonId="bai-1-1"
           lessonTitle="Đừng Để AKI Đoán Mò"
           initialStageIndex={2}
+          initialSidebarCollapsed={false}
         />
       )
     })
@@ -565,6 +641,7 @@ describe('SixStageJourneyView', () => {
           lessonId="bai-1-1"
           lessonTitle="Đừng Để AKI Đoán Mò"
           initialStageIndex={3}
+          initialSidebarCollapsed={false}
         />
       )
     })
@@ -576,7 +653,7 @@ describe('SixStageJourneyView', () => {
     // Question visualUrl rendered with object-contain
     const quizImg = quizSection?.querySelector('img[src="/assets/aiki-islands/island1_lesson1_opt_a.jpg"]')
     expect(quizImg).not.toBeNull()
-    expect(quizImg?.className).toContain('object-contain')
+    expect(quizImg?.className).toContain('object-cover')
 
     // 2-column layout container uses md:flex-row
     const twoColContainer = container.querySelector('.flex.flex-col.md\\:flex-row')
@@ -597,6 +674,7 @@ describe('SixStageJourneyView', () => {
           lessonId="bai-1-1"
           lessonTitle="Đừng Để AKI Đoán Mò"
           initialStageIndex={4}
+          initialSidebarCollapsed={false}
         />
       )
     })
@@ -605,9 +683,18 @@ describe('SixStageJourneyView', () => {
     expect(container.querySelector('[data-testid="stage-4-practice"]')).not.toBeNull()
     expect(container.querySelector('[data-testid="aiki-studio-workspace"]')).not.toBeNull()
 
-    // Interactive sidebar is visible at Stage 4
+    // Main canvas keeps 100% width at Stage 4 even when sidebar is open
+    const mainCanvas = container.querySelector('[data-testid="main-learning-canvas"]')
+    expect(mainCanvas?.className).toContain('w-full')
+
+    // Interactive sidebar is visible at Stage 4 as a floating slide-over drawer with backdrop
+    const backdrop = container.querySelector('[data-testid="sidebar-overlay-backdrop"]')
+    expect(backdrop).not.toBeNull()
+
     const sidebar = container.querySelector('[data-testid="interactive-sidebar"]')
     expect(sidebar).not.toBeNull()
+    expect(sidebar?.className).toContain('fixed')
+    expect(sidebar?.textContent).toContain('✕ Đóng')
 
     // Sidebar displays 4 practice steps clearly
     expect(sidebar?.textContent).toContain('Tiến Trình 4 Bước Thực Hành')
@@ -622,6 +709,16 @@ describe('SixStageJourneyView', () => {
     expect(sidebar?.textContent).toContain('Mật mã đặc điểm vàng')
     expect(sidebar?.textContent).toContain('mèo mướp vàng béo tròn')
     expect(sidebar?.textContent).toContain('↺ Xem lại video bài giảng')
+
+    // Clicking close button closes the floating drawer
+    const closeBtn = Array.from(sidebar?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('✕ Đóng')
+    )
+    expect(closeBtn).toBeDefined()
+    act(() => {
+      closeBtn?.click()
+    })
+    expect(container.querySelector('[data-testid="interactive-sidebar"]')).toBeNull()
   })
 
   it('verifies specialized sidebar widgets across Stages 0, 1, 3, and 5 according to pedagogical design', () => {
@@ -636,6 +733,7 @@ describe('SixStageJourneyView', () => {
           lessonId="bai-1-1"
           lessonTitle="Đừng Để AKI Đoán Mò"
           initialStageIndex={0}
+          initialSidebarCollapsed={false}
         />
       )
     })
@@ -645,9 +743,9 @@ describe('SixStageJourneyView', () => {
     expect(sidebar0?.textContent).toContain('LỜI THOẠI CỦA AKI')
     expect(sidebar0?.textContent).not.toContain('LỜI DẶN DÒ TỪ AKI')
 
-    // Công Thức Câu Lệnh Bốn Ô được hiển thị ở Main Learning Canvas
+    // Bốn Chiếc Chìa Khóa Mở Khóa Câu Lệnh được hiển thị ở Main Learning Canvas
     const main0 = container.querySelector('[data-testid="stage-0-goal"]')
-    expect(main0?.textContent).toContain('Công Thức Câu Lệnh Bốn Ô')
+    expect(main0?.textContent).toContain('BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH')
     expect(main0?.textContent).toContain('CÁI GÌ')
     expect(main0?.textContent).toContain('TRÔNG THẾ NÀO')
     expect(main0?.textContent).toContain('ĐANG LÀM GÌ')
@@ -662,6 +760,7 @@ describe('SixStageJourneyView', () => {
           lessonId="bai-1-1"
           lessonTitle="Đừng Để AKI Đoán Mò"
           initialStageIndex={1}
+          initialSidebarCollapsed={false}
         />
       )
     })
@@ -680,6 +779,7 @@ describe('SixStageJourneyView', () => {
           lessonId="bai-1-1"
           lessonTitle="Đừng Để AKI Đoán Mò"
           initialStageIndex={3}
+          initialSidebarCollapsed={false}
         />
       )
     })
@@ -716,6 +816,7 @@ describe('SixStageJourneyView', () => {
           lessonId="bai-1-1"
           lessonTitle="Đừng Để AKI Đoán Mò"
           initialStageIndex={5}
+          initialSidebarCollapsed={false}
         />
       )
     })
@@ -738,6 +839,7 @@ describe('SixStageJourneyView', () => {
           lessonId="bai-1-2-bon-chiec-chia-khoa"
           lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
           initialStageIndex={4}
+          initialSidebarCollapsed={false}
         />
       )
     })
@@ -811,8 +913,12 @@ describe('SixStageJourneyView', () => {
 
     const stage0 = container.querySelector('[data-testid="stage-0-goal"]')
     expect(stage0).not.toBeNull()
-    expect(stage0?.textContent).toContain('Bốn chiếc chìa khoá thần kỳ')
-    expect(stage0?.textContent).toContain('Công Thức Câu Lệnh Bốn Ô')
+    expect(stage0?.textContent).toContain('Rương 4 Chìa Khóa Thần Kỳ')
+    expect(stage0?.textContent).toContain('BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH')
+    expect(stage0?.textContent).toContain('1. Cái gì')
+    expect(stage0?.textContent).toContain('2. Trông thế nào')
+    expect(stage0?.textContent).toContain('3. Đang làm gì')
+    expect(stage0?.textContent).toContain('4. Ở đâu')
     expect(stage0?.textContent).toContain('CÁI GÌ')
     expect(stage0?.textContent).toContain('TRÔNG THẾ NÀO')
     expect(stage0?.textContent).toContain('ĐANG LÀM GÌ')
@@ -879,6 +985,7 @@ describe('SixStageJourneyView', () => {
     const stage1 = container.querySelector('[data-testid="stage-1-confirm"]')
     expect(stage1).not.toBeNull()
     expect(stage1?.textContent).toContain('Bộ chìa khoá nào mở được một câu lệnh tốt?')
+    expect(stage1?.textContent).toContain('Chiếc Rương Thần Kỳ ở chặng trước có 3 ổ khóa (A, B, C)')
     expect(stage1?.textContent).toContain('Bộ chìa khoá A')
     expect(stage1?.textContent).toContain('Bộ chìa khoá B')
     expect(stage1?.textContent).toContain('Bộ chìa khoá C')
@@ -904,7 +1011,7 @@ describe('SixStageJourneyView', () => {
     expect(stage1?.textContent).toContain('🎬 Xem video bài học thôi nào →')
   })
 
-  it('renders Quick Station Switcher and navigates between Lesson 1.1 and 1.2', () => {
+  it('renders clean single current station title badge without clutter station switcher buttons', () => {
     const handleNavigate = vi.fn()
     const root = createRoot(container)
     act(() => {
@@ -918,17 +1025,32 @@ describe('SixStageJourneyView', () => {
       )
     })
 
-    expect(container.textContent).toContain('Trạm 1: Mèo Mimi 🐱')
-    expect(container.textContent).toContain('Trạm 2: 4 Chìa Khoá 🔑')
+    const badge = container.querySelector('[data-testid="current-station-badge"]')
+    expect(badge).not.toBeNull()
+    expect(badge?.textContent).toContain('Trạm 1: Mèo Mimi')
+    expect(badge?.textContent).toContain('🐱')
 
-    const station2Btn = Array.from(container.querySelectorAll('button')).find((b) =>
-      b.textContent?.includes('Trạm 2: 4 Chìa Khoá')
-    )
-    expect(station2Btn).toBeDefined()
+    // 6 chặng tiến độ hiển thị đầy đủ, thoáng đãng
+    const nav = container.querySelector('nav[aria-label="Tiến độ bài học 6 chặng"]')
+    expect(nav).not.toBeNull()
+    expect(nav?.querySelectorAll('button').length).toBe(6)
+
+    // Kiểm tra với Bài 1.2
     act(() => {
-      station2Btn?.click()
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-2-bon-chiec-chia-khoa"
+          lessonTitle="Bài 1.2 — Bốn Chiếc Chìa Khóa Vạn Năng"
+          onNavigateNextLesson={handleNavigate}
+        />
+      )
     })
-    expect(handleNavigate).toHaveBeenCalledWith('bai-1-2-bon-chiec-chia-khoa')
+
+    const badge2 = container.querySelector('[data-testid="current-station-badge"]')
+    expect(badge2).not.toBeNull()
+    expect(badge2?.textContent).toContain('Trạm 2: 4 Chìa Khoá')
+    expect(badge2?.textContent).toContain('🔑')
   })
 
   it('renders 4-formula cards in Stage 0 for Lesson 1.1 to eliminate blank space', () => {
@@ -959,7 +1081,7 @@ describe('SixStageJourneyView', () => {
 
     const stage0 = container.querySelector('[data-testid="stage-0-goal"]')
     expect(stage0).not.toBeNull()
-    expect(stage0?.textContent).toContain('Công Thức Câu Lệnh Bốn Ô')
+    expect(stage0?.textContent).toContain('BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH')
     expect(stage0?.textContent).toContain('CÁI GÌ')
     expect(stage0?.textContent).toContain('“một con mèo”')
     expect(stage0?.textContent).toContain('TRÔNG THẾ NÀO')
@@ -968,6 +1090,533 @@ describe('SixStageJourneyView', () => {
     expect(stage0?.textContent).toContain('“đang nằm ngủ cuộn tròn”')
     expect(stage0?.textContent).toContain('Ở ĐÂU')
     expect(stage0?.textContent).toContain('“trên ghế mây cạnh cửa sổ”')
+  })
+
+  it('verifies Lesson 1.2 visual linkage: exact 4 key images, chest pin badges, robust clay cards, and narrative connection to stage 1', () => {
+    const lesson1_2Journey: LessonSixStageJourney = {
+      ...mockJourney,
+      stage1_goal: {
+        id: 'bai-1-2-stage1-goal',
+        title: 'Bài 1.2 — Bốn chiếc chìa khoá',
+        goalText: 'Viết được một câu lệnh có đủ bốn phần: Cái gì, Trông như thế nào, Đang làm gì, Ở đâu',
+        imageUrl: '/assets/aiki-islands/island1_lesson2_keys.jpg',
+        speech: 'Zico: Một con mèo rất đẹp... AKI: Hả? Zico viết dài thế mà tranh vẫn chưa rõ kìa!',
+        keyPoints: [
+          "CÁI GÌ (Xanh Sky): 'một cái cốc'",
+          "TRÔNG NHƯ THẾ NÀO (Vàng Sun): 'sứ trắng, có vết mẻ ở miệng'",
+          "ĐANG LÀM GÌ (Cam Mango): 'đang bốc khói'",
+          "Ở ĐÂU (Hồng Gum): 'trên bàn gỗ, cạnh cuốn sổ'",
+        ],
+      },
+      stage2_confirmGoal: {
+        id: 'bai-1-2-stage2-confirm',
+        question: 'Bộ chìa khoá nào mở được một câu lệnh tốt?',
+        options: [
+          { id: 'opt-a', text: 'Bộ chìa khoá A' },
+          { id: 'opt-b', text: 'Bộ chìa khoá B' },
+        ],
+        correctIndex: 1,
+        explanation: 'Đúng rồi các cậu ơi!',
+        speech: 'Bộ chìa khoá nào mở được một câu lệnh tốt?',
+      },
+    }
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={lesson1_2Journey}
+          lessonId="bai-1-2-bon-chiec-chia-khoa"
+          lessonTitle="Bài 1.2 — Bốn chiếc chìa khoá"
+          initialStageIndex={0}
+        />
+      )
+    })
+
+    const stage0 = container.querySelector('[data-testid="stage-0-goal"]')
+    expect(stage0).not.toBeNull()
+
+    // 1. Corner badge
+    expect(stage0?.textContent).toContain('Rương 4 Chìa Khóa Thần Kỳ')
+
+    // 2. 4 Pin Badges on chest image foot
+    expect(stage0?.textContent).toContain('1. Cái gì')
+    expect(stage0?.textContent).toContain('2. Trông thế nào')
+    expect(stage0?.textContent).toContain('3. Đang làm gì')
+    expect(stage0?.textContent).toContain('4. Ở đâu')
+
+    // 3. Formula cards images - slot 1 MUST be key_what_blue.jpg (Blue bear with wings, NOT cup!)
+    const cardImages = stage0?.querySelectorAll('.grid img') || []
+    expect(cardImages.length).toBe(4)
+    expect((cardImages[0] as HTMLImageElement).src).toContain('/assets/aiki-keys/key_what_blue.jpg')
+    expect((cardImages[1] as HTMLImageElement).src).toContain('/assets/aiki-keys/key_how_yellow.jpg')
+    expect((cardImages[2] as HTMLImageElement).src).toContain('/assets/aiki-keys/key_action_orange.jpg')
+    expect((cardImages[3] as HTMLImageElement).src).toContain('/assets/aiki-keys/key_where_pink.jpg')
+
+    // 4. Detailed card badges format: [1] CÁI GÌ, [2] TRÔNG THẾ NÀO, etc.
+    expect(stage0?.textContent).toContain('[1] CÁI GÌ')
+    expect(stage0?.textContent).toContain('[2] TRÔNG THẾ NÀO')
+    expect(stage0?.textContent).toContain('[3] ĐANG LÀM GÌ')
+    expect(stage0?.textContent).toContain('[4] Ở ĐÂU')
+
+    // 5. Advance to Stage 1 and verify narrative connection
+    const advanceBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Đã hiểu mục tiêu')
+    )
+    act(() => {
+      advanceBtn?.click()
+    })
+
+    const stage1 = container.querySelector('[data-testid="stage-1-confirm"]')
+    expect(stage1).not.toBeNull()
+    expect(stage1?.textContent).toContain(
+      'Chiếc Rương Thần Kỳ ở chặng trước có 3 ổ khóa (A, B, C). Bé hãy dùng đúng 4 Chiếc Chìa Khóa Vàng vừa tìm thấy để mở Ổ Khóa B nhé!'
+    )
+  })
+
+  it('renders 3 Soft Clay locks and defaults active key tray to correct 4 Golden Keys', () => {
+    const lesson1_2Journey: LessonSixStageJourney = {
+      ...mockJourney,
+      stage2_confirmGoal: {
+        id: 'bai-1-2-stage2-confirm',
+        question: 'Bộ chìa khoá nào mở được một câu lệnh tốt?',
+        options: [
+          {
+            id: 'opt-a',
+            text: 'Bộ chìa khoá A',
+            keyItems: [
+              { label: 'Ai vẽ', color: '#64748B' },
+              { label: 'Vẽ lúc nào', color: '#64748B' },
+              { label: 'Vẽ ở đâu', color: '#64748B' },
+              { label: 'Vẽ bằng gì', color: '#64748B' },
+            ],
+          },
+          {
+            id: 'opt-b',
+            text: 'Bộ chìa khoá B',
+            keyItems: [
+              { label: 'Cái gì', color: '#0EA5E9' },
+              { label: 'Trông như thế nào', color: '#EAB308' },
+              { label: 'Đang làm gì', color: '#F97316' },
+              { label: 'Ở đâu', color: '#EC4899' },
+            ],
+          },
+          {
+            id: 'opt-c',
+            text: 'Bộ chìa khoá C',
+            keyItems: [
+              { label: 'Màu gì', color: '#64748B' },
+              { label: 'To hay nhỏ', color: '#64748B' },
+              { label: 'Đẹp hay xấu', color: '#64748B' },
+              { label: 'Thích không', color: '#64748B' },
+            ],
+          },
+        ],
+        correctIndex: 1,
+        explanation: 'Đúng rồi các cậu ơi! Bốn chìa khoá này chính là bốn ô các cậu sẽ điền trong Xưởng.',
+        speech: 'Bộ chìa khoá nào mở được một câu lệnh tốt?',
+      },
+    }
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={lesson1_2Journey}
+          lessonId="bai-1-2-bon-chiec-chia-khoa"
+          lessonTitle="Bài 1.2 — Bốn chiếc chìa khoá"
+          initialStageIndex={1}
+        />
+      )
+    })
+
+    const stage1 = container.querySelector('[data-testid="stage-1-confirm"]')
+    expect(stage1).not.toBeNull()
+
+    // 1. Initial State: All 3 locks show closed amber soft clay
+    const optionButtons = stage1?.querySelectorAll('button') || []
+    expect(optionButtons.length).toBeGreaterThanOrEqual(3)
+
+    const optAImg = optionButtons[0]?.querySelector('img') as HTMLImageElement
+    const optBImg = optionButtons[1]?.querySelector('img') as HTMLImageElement
+    const optCImg = optionButtons[2]?.querySelector('img') as HTMLImageElement
+    expect(optAImg.src).toContain('/assets/aiki-keys/lock_closed_amber.jpg')
+    expect(optBImg.src).toContain('/assets/aiki-keys/lock_closed_amber.jpg')
+    expect(optCImg.src).toContain('/assets/aiki-keys/lock_closed_amber.jpg')
+
+    // 2. Initial State: All 3 sets of keys are rendered directly on the cards
+    expect(optionButtons[0]?.textContent).toContain('Ai vẽ')
+    expect(optionButtons[0]?.textContent).toContain('Vẽ lúc nào')
+    expect(optionButtons[1]?.textContent).toContain('Cái gì')
+    expect(optionButtons[1]?.textContent).toContain('Trông như thế nào')
+    expect(optionButtons[1]?.textContent).toContain('Đang làm gì')
+    expect(optionButtons[1]?.textContent).toContain('Ở đâu')
+    expect(optionButtons[2]?.textContent).toContain('Màu gì')
+    expect(optionButtons[2]?.textContent).toContain('To hay nhỏ')
+
+    // Amber tip message below
+    expect(stage1?.textContent).toContain('Bé hãy quan sát 4 chiếc chìa khóa của 3 bộ ở trên')
+
+    // 3. User clicks Option A (Wrong option)
+    act(() => {
+      optionButtons[0]?.click()
+    })
+    expect((optionButtons[0]?.querySelector('img') as HTMLImageElement).src).toContain(
+      '/assets/aiki-keys/lock_wrong_rose.jpg'
+    )
+    expect(optionButtons[0]?.textContent).toContain('Chưa mở được 🔒')
+
+    // 4. User clicks Option B (Correct option)
+    act(() => {
+      optionButtons[1]?.click()
+    })
+    expect((optionButtons[1]?.querySelector('img') as HTMLImageElement).src).toContain(
+      '/assets/aiki-keys/lock_open_mint.jpg'
+    )
+    expect(optionButtons[1]?.textContent).toContain('Đúng bộ này rồi! 🎉')
+    expect(stage1?.textContent).toContain('Đúng rồi các cậu ơi!')
+    expect(stage1?.textContent).toContain('🎬 Xem video bài học thôi nào →')
+  })
+
+  it('navigates Stage 4 quiz using single question stepper with side-by-side layout and progress indicators', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+          initialStageIndex={3}
+          initialSidebarCollapsed={false}
+        />
+      )
+    })
+
+    const quizSection = container.querySelector('section[data-testid="stage-3-quiz"]')
+    expect(quizSection).not.toBeNull()
+
+    // 1. Initial State: Câu 1 / 2
+    expect(quizSection?.textContent).toContain('CÂU 1 / 2')
+    expect(quizSection?.textContent).toContain('👉 Hãy chọn 1 đáp án')
+
+    // Find Next button
+    const nextBtn = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('Câu tiếp theo')
+    )
+    expect(nextBtn).toBeDefined()
+
+    // 2. Click next question
+    act(() => {
+      nextBtn?.click()
+    })
+
+    // Now active: Câu 2 / 2
+    expect(quizSection?.textContent).toContain('CÂU 2 / 2')
+    expect(quizSection?.textContent).toContain('Câu cuối cùng')
+
+    // Find Prev button
+    const prevBtn = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('Câu trước')
+    )
+    expect(prevBtn).toBeDefined()
+
+    // 3. Click prev question
+    act(() => {
+      prevBtn?.click()
+    })
+    expect(quizSection?.textContent).toContain('CÂU 1 / 2')
+  })
+
+  it('handles answering questions, submitting quiz and displays feedback with correct/incorrect indicators and explanations', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+          initialStageIndex={3}
+          initialSidebarCollapsed={false}
+        />
+      )
+    })
+
+    const quizSection = container.querySelector('section[data-testid="stage-3-quiz"]')
+    expect(quizSection).not.toBeNull()
+
+    // 1. Câu 1: Chọn đáp án A (đúng)
+    const optA_Q1 = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('AKI sẽ đoán mò hình dáng và màu sắc')
+    )
+    expect(optA_Q1).toBeDefined()
+    act(() => {
+      optA_Q1?.click()
+    })
+
+    // Nút Nộp bài phải bị disabled vì chưa trả lời đủ 2 câu
+    const submitBtn = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('Nộp bài kiểm tra')
+    )
+    expect(submitBtn?.getAttribute('disabled')).not.toBeNull()
+
+    // Chuyển sang Câu 2
+    const nextBtn = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('Câu tiếp theo')
+    )
+    act(() => {
+      nextBtn?.click()
+    })
+
+    // 2. Câu 2: Chọn đáp án A (đúng)
+    const optA_Q2 = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('Miêu tả càng rõ tranh càng đúng ý')
+    )
+    expect(optA_Q2).toBeDefined()
+    act(() => {
+      optA_Q2?.click()
+    })
+
+    // Giờ đã trả lời đủ câu -> Nút nộp bài enabled
+    expect(submitBtn?.getAttribute('disabled')).toBeNull()
+
+    // 3. Nộp bài
+    act(() => {
+      submitBtn?.click()
+    })
+
+    // Hiển thị kết quả điểm số và giải thích
+    expect(quizSection?.textContent).toContain('2/2 điểm')
+    expect(quizSection?.textContent).toContain('Miêu tả càng chi tiết thì tranh càng chính xác!')
+
+    // Quay lại câu 1 xem kết quả
+    const prevBtn = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('Câu trước')
+    )
+    act(() => {
+      prevBtn?.click()
+    })
+    expect(quizSection?.textContent).toContain('AI không tự nghĩ được nên phải đoán mò')
+  })
+
+  it('provides instant feedback per question when clicking "Kiểm tra đáp án ✨" in Quiz stage', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+          initialStageIndex={3}
+          initialSidebarCollapsed={false}
+        />
+      )
+    })
+
+    const quizSection = container.querySelector('section[data-testid="stage-3-quiz"]')
+    expect(quizSection).not.toBeNull()
+
+    // 1. Kiểm tra ban đầu: Nút "Kiểm tra đáp án ✨" bị disabled khi chưa chọn phương án
+    const checkBtnQ1 = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('Kiểm tra đáp án')
+    )
+    expect(checkBtnQ1).toBeDefined()
+    expect(checkBtnQ1?.getAttribute('disabled')).not.toBeNull()
+
+    // 2. Chọn đáp án đúng cho Câu 1
+    const optA_Q1 = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('AKI sẽ đoán mò hình dáng và màu sắc')
+    )
+    expect(optA_Q1).toBeDefined()
+    act(() => {
+      optA_Q1?.click()
+    })
+
+    // Giờ nút kiểm tra đã enabled
+    expect(checkBtnQ1?.getAttribute('disabled')).toBeNull()
+
+    // Bấm "Kiểm tra đáp án ✨"
+    act(() => {
+      checkBtnQ1?.click()
+    })
+
+    // Hiện phản hồi tức thì: huy hiệu đúng và hộp giải thích
+    expect(quizSection?.textContent).toContain('✓ Đúng rồi!')
+    expect(quizSection?.textContent).toContain('AI không tự nghĩ được nên phải đoán mò')
+
+    // Các lựa chọn của câu 1 đã bị disabled sau khi kiểm tra
+    expect(optA_Q1?.getAttribute('disabled')).not.toBeNull()
+
+    // Chuyển sang Câu 2
+    const nextBtn = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('Câu tiếp theo')
+    )
+    expect(nextBtn).toBeDefined()
+    act(() => {
+      nextBtn?.click()
+    })
+
+    // Chọn phương án sai cho Câu 2 (phương án B)
+    const optB_Q2 = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('Bấm nút liên tục không cần nghĩ')
+    )
+    expect(optB_Q2).toBeDefined()
+    act(() => {
+      optB_Q2?.click()
+    })
+
+    const checkBtnQ2 = Array.from(quizSection?.querySelectorAll('button') || []).find((b) =>
+      b.textContent?.includes('Kiểm tra đáp án')
+    )
+    act(() => {
+      checkBtnQ2?.click()
+    })
+
+    // Hiện phản hồi tức thì sai: huy hiệu chưa chính xác và hộp giải thích
+    expect(quizSection?.textContent).toContain('✕ Chưa chính xác')
+    expect(quizSection?.textContent).toContain('Miêu tả càng chi tiết thì tranh càng chính xác!')
+  })
+
+  it('renders horizontal timeline stepper in Stage 2 Video and seeks player directly when clicking chapter nodes', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+          initialStageIndex={2}
+          initialSidebarCollapsed={true}
+        />
+      )
+    })
+
+    const stage2Section = container.querySelector('section[data-testid="stage-2-video"]')
+    expect(stage2Section).not.toBeNull()
+
+    // Kiểm tra timeline stepper dàn ngang chuẩn AikiRuleVideoPlayer
+    const timelineStepper = stage2Section?.querySelector('[data-testid="video-timeline-stepper"]')
+    expect(timelineStepper).not.toBeNull()
+    expect(timelineStepper?.textContent).toContain('Xem lại video')
+    expect(timelineStepper?.textContent).toContain('Nghe AKI giảng')
+    expect(timelineStepper?.textContent).toContain('Tình huống khởi động')
+
+    // Bấm mốc "Thực hành cùng AKI" (node thứ 3, startSec = 120)
+    const node3 = container.querySelector('[data-testid="video-chapter-node-3"]') as HTMLButtonElement
+    expect(node3).not.toBeNull()
+    act(() => {
+      node3.click()
+    })
+
+    // iframe URL cập nhật tua tới giây 120
+    const iframe = stage2Section?.querySelector('iframe')
+    expect(iframe?.getAttribute('src')).toContain('start=120')
+  })
+
+  it('renders dynamic XP badge from SSOT rewardBadge config and passes correct XP to onFinishLesson callback', () => {
+    const onFinishLessonMock = vi.fn()
+    const onNavigateNextLessonMock = vi.fn()
+    const onBackToMapMock = vi.fn()
+
+    const customJourney: LessonSixStageJourney = {
+      ...mockJourney,
+      stage6_completion: {
+        ...mockJourney.stage6_completion,
+        rewardBadge: {
+          name: 'Huy hiệu Phù Thủy Ngôn Từ',
+          iconUrl: '/assets/trophy-clay-gold.png',
+          stars: 3,
+          xp: 80,
+        },
+        nextLessonSlug: 'bai-1-2-bon-chiec-chia-khoa',
+      },
+    }
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={customJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+          initialStageIndex={5}
+          onFinishLesson={onFinishLessonMock}
+          onNavigateNextLesson={onNavigateNextLessonMock}
+          onBackToMap={onBackToMapMock}
+        />
+      )
+    })
+
+    const trophyBadge = container.querySelector('[data-testid="stage6-trophy-xp-badge"]')
+    expect(trophyBadge).not.toBeNull()
+    expect(trophyBadge?.textContent).toContain('+80 XP')
+
+    // Click "👉 Khám Phá Bài Tiếp Theo 🚀"
+    const nextBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Khám Phá Bài Tiếp Theo')
+    )
+    expect(nextBtn).toBeDefined()
+    act(() => {
+      nextBtn?.click()
+    })
+
+    expect(onFinishLessonMock).toHaveBeenCalledWith({
+      stars: 3,
+      xp: 80,
+      nextLessonSlug: 'bai-1-2-bon-chiec-chia-khoa',
+    })
+    expect(onNavigateNextLessonMock).toHaveBeenCalledWith('bai-1-2-bon-chiec-chia-khoa')
+
+    // Click "🗺️ Quay Về Bản Đồ Đảo"
+    const backBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Quay Về Bản Đồ Đảo')
+    )
+    expect(backBtn).toBeDefined()
+    act(() => {
+      backBtn?.click()
+    })
+
+    expect(onFinishLessonMock).toHaveBeenCalledWith({
+      stars: 3,
+      xp: 80,
+    })
+    expect(onBackToMapMock).toHaveBeenCalled()
+  })
+
+  it('allows overriding XP via rewardXp prop and transmits overridden XP to onFinishLesson callback', () => {
+    const onFinishLessonMock = vi.fn()
+    const onNavigateNextLessonMock = vi.fn()
+
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+          initialStageIndex={5}
+          rewardXp={100}
+          onFinishLesson={onFinishLessonMock}
+          onNavigateNextLesson={onNavigateNextLessonMock}
+        />
+      )
+    })
+
+    const trophyBadge = container.querySelector('[data-testid="stage6-trophy-xp-badge"]')
+    expect(trophyBadge).not.toBeNull()
+    expect(trophyBadge?.textContent).toContain('+100 XP')
+
+    const nextBtn = Array.from(container.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Khám Phá Bài Tiếp Theo')
+    )
+    act(() => {
+      nextBtn?.click()
+    })
+
+    expect(onFinishLessonMock).toHaveBeenCalledWith({
+      stars: 3,
+      xp: 100,
+      nextLessonSlug: mockJourney.stage6_completion.nextLessonSlug,
+    })
   })
 })
 
