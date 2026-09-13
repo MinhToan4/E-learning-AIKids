@@ -206,6 +206,7 @@ describe('authoring ids and readiness', () => {
     }, 'de66602b-c9a0-4589-a04b-226ce3b31120')
     expect(migratedCourseLesson.lessonFormat).toBe('aiki-island-6steps')
     expect(migratedCourseLesson.sixStageJourney?.stage1_goal.title).toContain('Bốn chiếc chìa khoá')
+    expect(migratedCourseLesson.sixStageJourney?.stage2_confirmGoal.options).toHaveLength(3)
     expect(migratedCourseLesson.learnCards[0].kind).not.toBe('situation')
     expect(migratedCourseLesson.learnCards[0].contentBlocks?.slice(0, 2).map((block) => block.type)).toEqual([
       'text',

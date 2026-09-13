@@ -86,6 +86,7 @@ export function resolveIslandSixStageJourney(quest: QuestDetail): LessonSixStage
     return {
       ...journey,
       stageContentBlocks: quest.sixStageJourney?.stageContentBlocks,
+      stageBlockEditorVersion: quest.sixStageJourney?.stageBlockEditorVersion,
       stage3_video: {
         ...journey.stage3_video,
         videoUrl: customVideoUrl || journey.stage3_video.videoUrl,

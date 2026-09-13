@@ -285,9 +285,10 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
   const format: LessonFormat = isAiki ? 'aiki-rule-5steps' : (isIsland ? 'aiki-island-6steps' : (explicitFormat === 'standard' ? 'standard' : (draft.lessonFormat ?? 'standard')))
 
   let sixStageJourney = draft.sixStageJourney || ((draft as any).metadata?.sixStageJourney as LessonSixStageJourney | undefined)
-  if (isIsland && !sixStageJourney) {
+  if (isIsland) {
     try {
-      sixStageJourney = resolveIslandSixStageJourney(draft as any)
+      // The editor must use the same SSOT resolver as the learner screen.
+      sixStageJourney = resolveIslandSixStageJourney({ ...draft, sixStageJourney } as any)
     } catch {
       // ignore
     }
@@ -1454,7 +1455,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
 
   const [confirmClose, setConfirmClose] = useState(false)
   const [showFullPreview, setShowFullPreview] = useState(false)
-  const [showInlinePreview, setShowInlinePreview] = useState(false)
+  const [showInlinePreview, setShowInlinePreview] = useState(true)
   const draftStorageKey = `aikids:teacher-lecture-draft:${courseId}:${lecture?.id || 'new'}`
   const [recovery, setRecovery] = useState<{ savedAt: string; draft: LectureDraft } | null>(() => {
     if (readOnly) return null
@@ -2716,102 +2717,53 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                         />
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <div className={cn(
-                          "rounded-xl border-2 p-3.5 space-y-2.5",
-                          currentJourney.stage2_confirmGoal.correctIndex === 0 ? "border-emerald-400 bg-emerald-50/40" : "border-border bg-page"
-                        )}>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-black text-slate-800 uppercase">🅰️ Phương án A</span>
-                            <label className="flex items-center gap-1 text-xs font-bold text-emerald-700 cursor-pointer">
-                              <input
-                                type="radio"
-                                name="confirmCorrect"
-                                checked={currentJourney.stage2_confirmGoal.correctIndex === 0}
-                                onChange={() => {
-                                  updateSixStage((j) => ({ ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, correctIndex: 0 } }))
-                                }}
-                              />
-                              <span>Đáp án đúng</span>
-                            </label>
+                      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
+                        {currentJourney.stage2_confirmGoal.options.map((option, optionIndex) => (
+                          <div key={option.id || optionIndex} className={cn(
+                            'space-y-2.5 rounded-xl border-2 p-3.5',
+                            currentJourney.stage2_confirmGoal.correctIndex === optionIndex ? 'border-emerald-400 bg-emerald-50/40' : 'border-border bg-page',
+                          )}>
+                            <div className="flex items-center justify-between gap-2">
+                              <span className="text-xs font-black uppercase text-slate-800">Phương án {String.fromCharCode(65 + optionIndex)}</span>
+                              <label className="flex items-center gap-1 text-xs font-bold text-emerald-700 cursor-pointer">
+                                <input type="radio" name="confirmCorrect" checked={currentJourney.stage2_confirmGoal.correctIndex === optionIndex} onChange={() => updateSixStage((j) => ({ ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, correctIndex: optionIndex } }))} />
+                                Đáp án đúng
+                              </label>
+                            </div>
+                            <input type="text" value={option.text} onChange={(event) => updateSixStage((j) => {
+                              const options = [...j.stage2_confirmGoal.options]
+                              options[optionIndex] = { ...options[optionIndex], text: event.target.value }
+                              return { ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, options } }
+                            })} placeholder={`Tên bộ chìa khóa ${String.fromCharCode(65 + optionIndex)}...`} className="w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs font-semibold text-text" />
+                            <input type="text" value={option.imageUrl || ''} onChange={(event) => updateSixStage((j) => {
+                              const options = [...j.stage2_confirmGoal.options]
+                              options[optionIndex] = { ...options[optionIndex], imageUrl: event.target.value }
+                              return { ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, options } }
+                            })} placeholder="URL ảnh minh họa..." className="w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs font-semibold text-text" />
+                            {option.keyItems?.length ? (
+                              <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-1">
+                                {option.keyItems.map((keyItem, keyIndex) => (
+                                  <div key={keyIndex} className="grid grid-cols-[1fr_5.5rem] gap-1.5">
+                                    <input type="text" value={keyItem.label} onChange={(event) => updateSixStage((j) => {
+                                      const options = [...j.stage2_confirmGoal.options]
+                                      const keyItems = [...(options[optionIndex].keyItems || [])]
+                                      keyItems[keyIndex] = { ...keyItems[keyIndex], label: event.target.value }
+                                      options[optionIndex] = { ...options[optionIndex], keyItems }
+                                      return { ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, options } }
+                                    })} placeholder={`Chìa ${keyIndex + 1}`} className="rounded-lg border border-border bg-white px-2 py-1 text-xs font-semibold" />
+                                    <input type="text" value={keyItem.color} onChange={(event) => updateSixStage((j) => {
+                                      const options = [...j.stage2_confirmGoal.options]
+                                      const keyItems = [...(options[optionIndex].keyItems || [])]
+                                      keyItems[keyIndex] = { ...keyItems[keyIndex], color: event.target.value }
+                                      options[optionIndex] = { ...options[optionIndex], keyItems }
+                                      return { ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, options } }
+                                    })} placeholder="Màu" className="rounded-lg border border-border bg-white px-2 py-1 text-xs font-semibold" />
+                                  </div>
+                                ))}
+                              </div>
+                            ) : null}
                           </div>
-                          <input
-                            type="text"
-                            value={currentJourney.stage2_confirmGoal.options[0]?.text || ''}
-                            onChange={(e) => {
-                              const val = e.target.value
-                              updateSixStage((j) => {
-                                const opts = [...j.stage2_confirmGoal.options]
-                                opts[0] = { ...opts[0], text: val }
-                                return { ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, options: opts } }
-                              })
-                            }}
-                            placeholder="Nội dung phương án A..."
-                            className="w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs font-semibold text-text"
-                          />
-                          <input
-                            type="text"
-                            value={currentJourney.stage2_confirmGoal.options[0]?.imageUrl || ''}
-                            onChange={(e) => {
-                              const val = e.target.value
-                              updateSixStage((j) => {
-                                const opts = [...j.stage2_confirmGoal.options]
-                                opts[0] = { ...opts[0], imageUrl: val }
-                                return { ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, options: opts } }
-                              })
-                            }}
-                            placeholder="URL ảnh phương án A..."
-                            className="w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs font-semibold text-text"
-                          />
-                        </div>
-
-                        <div className={cn(
-                          "rounded-xl border-2 p-3.5 space-y-2.5",
-                          currentJourney.stage2_confirmGoal.correctIndex === 1 ? "border-emerald-400 bg-emerald-50/40" : "border-border bg-page"
-                        )}>
-                          <div className="flex items-center justify-between">
-                            <span className="text-xs font-black text-slate-800 uppercase">🅱️ Phương án B</span>
-                            <label className="flex items-center gap-1 text-xs font-bold text-emerald-700 cursor-pointer">
-                              <input
-                                type="radio"
-                                name="confirmCorrect"
-                                checked={currentJourney.stage2_confirmGoal.correctIndex === 1}
-                                onChange={() => {
-                                  updateSixStage((j) => ({ ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, correctIndex: 1 } }))
-                                }}
-                              />
-                              <span>Đáp án đúng</span>
-                            </label>
-                          </div>
-                          <input
-                            type="text"
-                            value={currentJourney.stage2_confirmGoal.options[1]?.text || ''}
-                            onChange={(e) => {
-                              const val = e.target.value
-                              updateSixStage((j) => {
-                                const opts = [...j.stage2_confirmGoal.options]
-                                opts[1] = { ...opts[1], text: val }
-                                return { ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, options: opts } }
-                              })
-                            }}
-                            placeholder="Nội dung phương án B..."
-                            className="w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs font-semibold text-text"
-                          />
-                          <input
-                            type="text"
-                            value={currentJourney.stage2_confirmGoal.options[1]?.imageUrl || ''}
-                            onChange={(e) => {
-                              const val = e.target.value
-                              updateSixStage((j) => {
-                                const opts = [...j.stage2_confirmGoal.options]
-                                opts[1] = { ...opts[1], imageUrl: val }
-                                return { ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, options: opts } }
-                              })
-                            }}
-                            placeholder="URL ảnh phương án B..."
-                            className="w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs font-semibold text-text"
-                          />
-                        </div>
+                        ))}
                       </div>
 
                       <div>
@@ -3345,6 +3297,19 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                       </div>
                       <span className="rounded-full border border-sky-200 bg-white px-2.5 py-1 text-[11px] font-black text-sky-800">{islandBlocks.length} block</span>
                     </div>
+
+                    {islandBlocks.length === 0 && (
+                      <div className="rounded-xl border border-dashed border-sky-300 bg-white p-5 text-center">
+                        <p className="text-sm font-bold text-slate-700">Chặng này chưa có block nội dung.</p>
+                        <button
+                          type="button"
+                          onClick={() => handleAddModule(stageIndex === 2 ? 'video' : 'layout-text', stageIndex)}
+                          className="mt-3 inline-flex min-h-10 items-center gap-1.5 rounded-xl border-2 border-brand-300 bg-brand-50 px-4 text-xs font-black text-brand-800 hover:bg-brand-100"
+                        >
+                          <Plus size={14} /> Tạo block đầu tiên
+                        </button>
+                      </div>
+                    )}
 
                     {islandCard && islandBlocks.map((block, blockIndex) => (
                       <StageBlockItemCard
