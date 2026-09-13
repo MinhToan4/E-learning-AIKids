@@ -27,6 +27,14 @@ export const FEATURE_BLOCKS_CATEGORIES: Array<{
   items: FeatureBlockItem[]
 }> = [
   {
+    category: 'Khối Chuẩn Khóa Học',
+    icon: '🧱',
+    items: [
+      { id: 'course-text', name: 'Nội Dung Bài Học', icon: '📖', desc: 'Tiêu đề, nội dung và ghi nhớ của chặng', badge: 'Khóa học', color: 'border-brand-200 bg-brand-50/80 text-brand-950' },
+      { id: 'course-four-keys', name: 'Bộ 4 Chìa Khóa', icon: '🔑', desc: 'Một bộ gồm Cái gì · Trông thế nào · Làm gì · Ở đâu', badge: 'Khóa học', color: 'border-amber-200 bg-amber-50/80 text-amber-950' },
+    ],
+  },
+  {
     category: 'Kể Chuyện & Bài Giảng',
     icon: '📚',
     items: [

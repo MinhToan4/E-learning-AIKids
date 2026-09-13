@@ -496,6 +496,21 @@ export function StageBlockItemCard({
               <label className="text-[11px] font-extrabold text-muted">Lời dẫn
                 <textarea readOnly={readOnly} value={block.body ?? ''} onChange={(e) => updateBlockItem(stageIndex, block.id, { body: e.target.value })} rows={2} style={{ ...textareaStyle, minHeight: '2.5rem', marginTop: '0.25rem' }} />
               </label>
+              {block.id.startsWith('course-confirm-option-') && (
+                <label className="flex min-h-10 items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 text-xs font-black text-emerald-800">
+                  <input
+                    type="radio"
+                    name="course-confirm-correct"
+                    checked={Boolean(block.isCorrect)}
+                    disabled={readOnly}
+                    onChange={() => updateStageBlocks(stageIndex, stageBlocks.map((item) => ({
+                      ...item,
+                      isCorrect: item.type === 'layout-four-keys' ? item.id === block.id : item.isCorrect,
+                    })))}
+                  />
+                  Đáp án đúng
+                </label>
+              )}
               <label className="text-[11px] font-extrabold text-muted">Câu ghi nhớ
                 <textarea readOnly={readOnly} value={block.tip ?? ''} onChange={(e) => updateBlockItem(stageIndex, block.id, { tip: e.target.value })} rows={2} style={{ ...textareaStyle, minHeight: '2.5rem', marginTop: '0.25rem' }} />
               </label>

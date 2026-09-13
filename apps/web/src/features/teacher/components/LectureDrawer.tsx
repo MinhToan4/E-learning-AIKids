@@ -121,6 +121,8 @@ export const ISLAND_6_STAGE_NAMES = [
 ] as const
 
 const AVAILABLE_MODULES = [
+  { id: 'course-text', label: 'Nội Dung Bài Học', icon: '📖', desc: 'Khối nội dung chuẩn cho khóa học 6 chặng' },
+  { id: 'course-four-keys', label: 'Bộ 4 Chìa Khóa', icon: '🔑', desc: 'Một bộ 4 ô kéo thả dùng trong Mục tiêu hoặc Xác nhận' },
   { id: 'text', label: 'Đoạn văn bản (Textbox)', icon: '📖', desc: 'Thêm một đoạn văn bản hoặc tiêu đề mới' },
   { id: 'layout-callout', label: 'Hộp Ghi Nhớ Nổi Bật', icon: '💡', desc: 'Khung vàng ghi chú bí kíp bỏ túi' },
   { id: 'layout-formula', label: 'Công Thức KaTeX', icon: '🔤', desc: 'Công thức toán học hoặc định nghĩa cô đọng' },
@@ -154,6 +156,7 @@ function goalLines(value: string) {
 }
 
 const COURSE_GOAL_BLOCK_PREFIX = 'course-goal-'
+const COURSE_CONFIRM_BLOCK_PREFIX = 'course-confirm-'
 
 function goalKeyItems(keyPoints: string[]): LearnVisualItemDraft[] {
   const defaults = ['Cái gì?', 'Trông như thế nào?', 'Đang làm gì?', 'Ở đâu?']
@@ -184,6 +187,37 @@ function buildCourseGoalBlocks(journey: LessonSixStageJourney, existing: StageBl
     },
     { id: `${COURSE_GOAL_BLOCK_PREFIX}image`, type: 'images', title: 'Ảnh mục tiêu', imageUrl: journey.stage1_goal.imageUrl, imageAlt: journey.stage1_goal.title, additionalImages: [] },
     ...authoredExtras,
+  ]
+}
+
+function confirmKeyItems(option: LessonSixStageJourney['stage2_confirmGoal']['options'][number]): LearnVisualItemDraft[] {
+  if (option.keyItems?.length) return option.keyItems.slice(0, 4).map((item, index) => ({
+    label: item.label,
+    text: item.label,
+    tone: (['sky', 'sun', 'coral', 'brand'] as const)[index],
+  }))
+  const [, values = ''] = option.text.split(':')
+  return goalKeyItems(values.split('·').map((item) => item.trim()).filter(Boolean))
+}
+
+function buildCourseConfirmBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {
+  if (journey.stageBlockEditorVersion === 3) return existing
+  return [
+    {
+      id: `${COURSE_CONFIRM_BLOCK_PREFIX}question`,
+      type: 'text',
+      title: 'Câu hỏi xác nhận',
+      body: journey.stage2_confirmGoal.question,
+      tip: journey.stage2_confirmGoal.explanation,
+    },
+    ...journey.stage2_confirmGoal.options.map((option, index) => ({
+      ...createFourKeysBlock(`${COURSE_CONFIRM_BLOCK_PREFIX}option-${index}`),
+      title: option.text.split(':')[0]?.trim() || `Bộ chìa khóa ${String.fromCharCode(65 + index)}`,
+      body: `Phương án ${String.fromCharCode(65 + index)}`,
+      imageUrl: option.imageUrl,
+      visualItems: confirmKeyItems(option),
+      isCorrect: journey.stage2_confirmGoal.correctIndex === index,
+    })),
   ]
 }
 
@@ -355,9 +389,11 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
         enabledModules: encoded.enabledModules ?? card.enabledModules,
         contentBlocks: isIsland && index === 0 && sixStageJourney
           ? buildCourseGoalBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
+          : (isIsland && index === 1 && sixStageJourney
+            ? buildCourseConfirmBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
           : (isIsland
               ? (legacyAikiCourseResidue ? [] : islandStageBlocks.filter((block) => block.type !== 'voice'))
-              : encoded.contentBlocks ?? card.contentBlocks),
+              : encoded.contentBlocks ?? card.contentBlocks)),
         compareImages: encoded.compareImages ?? card.compareImages ?? (kind === 'explanation' ? { left: '', right: '' } : undefined),
         mee: isIsland && index === 0 && sixStageJourney
           ? { ...(encoded.mee ?? card.mee), readText: sixStageJourney.stage1_goal.speech, voiceProvider: 'vertex', gesture: encoded.mee?.gesture ?? card.mee?.gesture ?? 'presentation', autoRead: encoded.mee?.autoRead ?? card.mee?.autoRead ?? false }
@@ -717,9 +753,12 @@ function StudentStagePreview({
               )}
             </div>
           )}
-          {stageCard && getStageBlocks(stageCard, stageIndex).length > 0 && (
+          {stageCard && getStageBlocks(stageCard, stageIndex).some((block) => !block.id.startsWith('course-goal-') && !block.id.startsWith('course-confirm-')) && (
             <div className="mt-4 border-t border-sky-100 pt-4">
-              <StudentStageBlocksView card={stageCard} stageIndex={stageIndex} />
+              <StudentStageBlocksView
+                card={{ ...stageCard, contentBlocks: getStageBlocks(stageCard, stageIndex).filter((block) => !block.id.startsWith('course-goal-') && !block.id.startsWith('course-confirm-')) }}
+                stageIndex={stageIndex}
+              />
             </div>
           )}
         </div>
@@ -1677,6 +1716,25 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         },
       }))
     }
+    if (isIslandCourse && stageIndex === 1) {
+      const questionBlock = newBlocks.find((block) => block.id === `${COURSE_CONFIRM_BLOCK_PREFIX}question` || block.type === 'text')
+      const optionBlocks = newBlocks.filter((block) => block.type === 'layout-four-keys')
+      updateSixStage((journey) => ({
+        ...journey,
+        stage2_confirmGoal: {
+          ...journey.stage2_confirmGoal,
+          question: questionBlock?.body ?? '',
+          explanation: questionBlock?.tip ?? '',
+          correctIndex: Math.max(0, optionBlocks.findIndex((block) => block.isCorrect)),
+          options: optionBlocks.map((block, index) => ({
+            id: journey.stage2_confirmGoal.options[index]?.id || `confirm-${index + 1}`,
+            text: `${block.title || `Bộ chìa khóa ${String.fromCharCode(65 + index)}`}: ${(block.visualItems || []).slice(0, 4).map((item) => item.text || item.label).join(' · ')}`,
+            imageUrl: block.imageUrl || '',
+            keyItems: (block.visualItems || []).slice(0, 4).map((item) => ({ label: item.text || item.label, color: item.tone || 'brand' })),
+          })),
+        },
+      }))
+    }
   }, [draft.learnCards, isIslandCourse, readOnly, updateLearnCard, updateSixStage])
 
   const updateBlockItem = useCallback((stageIndex: number, blockId: string, blockPatch: Partial<StageBlockItem>) => {
@@ -1770,9 +1828,9 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
     const timestamp = Date.now()
     let newBlock: StageBlockItem | null = null
 
-    if (blockId === 'text' || blockId === 'layout-text') {
+    if (blockId === 'text' || blockId === 'layout-text' || blockId === 'course-text') {
       newBlock = {
-        id: `blk-text-${timestamp}`,
+        id: blockId === 'course-text' && isIslandCourse && targetStageIndex === 1 ? `${COURSE_CONFIRM_BLOCK_PREFIX}question-${timestamp}` : `blk-text-${timestamp}`,
         type: 'text',
         title: `Đoạn văn bản ${stageBlocks.length + 1}`,
         body: '',
@@ -1815,8 +1873,13 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         ],
       }
       showToast('Đã thêm Bố cục Lưới 3 Ô Thẻ!', 'success')
-    } else if (blockId === 'layout-four-keys') {
-      newBlock = createFourKeysBlock(`blk-four-keys-${timestamp}`)
+    } else if (blockId === 'layout-four-keys' || blockId === 'course-four-keys') {
+      newBlock = createFourKeysBlock(blockId === 'course-four-keys' && isIslandCourse && targetStageIndex === 1
+        ? `${COURSE_CONFIRM_BLOCK_PREFIX}option-${timestamp}`
+        : `blk-four-keys-${timestamp}`)
+      if (blockId === 'course-four-keys' && isIslandCourse && targetStageIndex === 1) {
+        newBlock.isCorrect = !stageBlocks.some((block) => block.type === 'layout-four-keys' && block.isCorrect)
+      }
       showToast('Đã thêm template Bốn chiếc chìa khóa!', 'success')
     } else if (blockId === 'layout-storyboard') {
       newBlock = {
@@ -2063,7 +2126,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
       const baseJourney = isIslandCourse ? (draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)) : undefined
       const finalJourney = baseJourney ? {
         ...baseJourney,
-        stageBlockEditorVersion: 2,
+        stageBlockEditorVersion: 3,
         stageContentBlocks: Object.fromEntries(
           draft.learnCards.slice(0, 6).map((card, index) => [`stage-${index}`, card.contentBlocks ?? []])
         ),
@@ -2690,7 +2753,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                     </div>
                   )}
 
-                  {stageIndex === 1 && (
+                  {stageIndex === 1 && false && (
                     <div className="space-y-4 rounded-2xl border border-border bg-white p-5 shadow-xs">
                       <div>
                         <label className="block text-xs font-black uppercase text-slate-700">Câu hỏi câu đố xác nhận</label>

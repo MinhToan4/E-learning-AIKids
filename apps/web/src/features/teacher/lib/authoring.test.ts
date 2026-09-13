@@ -219,7 +219,11 @@ describe('authoring ids and readiness', () => {
       'island-stage-1', 'island-stage-2', 'island-stage-3',
       'island-stage-4', 'island-stage-5', 'island-stage-6',
     ])
-    expect(migratedCourseLesson.learnCards.slice(1).every((card) => card.contentBlocks?.length === 0)).toBe(true)
+    expect(migratedCourseLesson.learnCards[1].contentBlocks?.map((block) => block.type)).toEqual([
+      'text', 'layout-four-keys', 'layout-four-keys', 'layout-four-keys',
+    ])
+    expect(migratedCourseLesson.learnCards[1].contentBlocks?.filter((block) => block.isCorrect)).toHaveLength(1)
+    expect(migratedCourseLesson.learnCards.slice(2).every((card) => card.contentBlocks?.length === 0)).toBe(true)
     expect(migratedCourseLesson.learnCards.some((card) => card.title.includes('Câu đố của AIKI'))).toBe(false)
 
     // Verify hydrateAikiRuleCard decodes from visualItems and removes __AIKI_RULE_STAGE__
@@ -261,10 +265,11 @@ describe('authoring ids and readiness', () => {
   })
 
   it('provides feature blocks library categories and active module resolution', () => {
-    // 1. Verify 4 categories in FEATURE_BLOCKS_CATEGORIES
-    expect(FEATURE_BLOCKS_CATEGORIES).toHaveLength(4)
+    // 1. Verify course-native templates are separated from generic blocks.
+    expect(FEATURE_BLOCKS_CATEGORIES).toHaveLength(5)
     const categoryNames = FEATURE_BLOCKS_CATEGORIES.map((c) => c.category)
     expect(categoryNames).toEqual([
+      'Khối Chuẩn Khóa Học',
       'Kể Chuyện & Bài Giảng',
       'Bố Cục & Văn Bản',
       'Mini-Game Engine',
@@ -273,6 +278,8 @@ describe('authoring ids and readiness', () => {
 
     // Verify all essential block IDs are present
     const allBlockIds = FEATURE_BLOCKS_CATEGORIES.flatMap((c) => c.items.map((i) => i.id))
+    expect(allBlockIds).toContain('course-text')
+    expect(allBlockIds).toContain('course-four-keys')
     expect(allBlockIds).toContain('versus-ab')
     expect(allBlockIds).toContain('dialogue')
     expect(allBlockIds).toContain('compare')

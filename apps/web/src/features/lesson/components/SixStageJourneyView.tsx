@@ -289,7 +289,8 @@ export function SixStageJourneyView({
   }, [journey.stage1_goal.keyPoints, isLesson1_1])
 
   const supplementalStageCard = useMemo<LearnCardDraft | null>(() => {
-    const blocks = journey.stageContentBlocks?.[`stage-${currentStage}`] as StageBlockItem[] | undefined
+    const blocks = (journey.stageContentBlocks?.[`stage-${currentStage}`] as StageBlockItem[] | undefined)
+      ?.filter((block) => !block.id.startsWith('course-goal-') && !block.id.startsWith('course-confirm-'))
     if (!Array.isArray(blocks) || blocks.length === 0) return null
     return {
       id: `island-stage-${currentStage + 1}`,

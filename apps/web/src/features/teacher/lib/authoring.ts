@@ -132,6 +132,7 @@ export interface StageBlockItem {
   posterRuleNumber?: number
   gesture?: string
   readText?: string
+  isCorrect?: boolean
 }
 
 export const FOUR_KEYS_DEFAULT_ITEMS: LearnVisualItemDraft[] = [
