@@ -684,6 +684,8 @@ export interface LessonSixStageJourney {
   stage4_quiz: SixStageQuiz
   stage5_practice: SixStagePractice
   stage6_completion: SixStageCompletion
+  /** Optional author-defined blocks appended to each native six-stage screen. */
+  stageContentBlocks?: Record<string, unknown[]>
 }
 
 

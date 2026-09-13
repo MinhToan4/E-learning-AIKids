@@ -50,6 +50,7 @@ import { CheckQuestionBuilder } from './CheckQuestionBuilder'
 import { CurriculumGame } from '@/features/lesson/components/CurriculumGame'
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 import { SixStageGoalStage } from '@/features/lesson/components/SixStageGoalStage'
+import { StudentStageBlocksView } from '@/features/lesson/components/StudentStageBlocksView'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { MeeCatInteractiveCanvas } from '@/features/mee-rig/components/MeeCatInteractiveCanvas'
 import type { CurriculumGameConfig } from '@/features/lesson/lib/curriculum-game'
@@ -257,7 +258,17 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
     }
   }
 
-  const sourceCards = draft.learnCards?.length ? draft.learnCards : defaultLearnCards(draft.concept, draft.example)
+  const sourceCards = draft.learnCards?.length ? [...draft.learnCards] : defaultLearnCards(draft.concept, draft.example)
+  if (isIsland) {
+    while (sourceCards.length < 6) {
+      const index = sourceCards.length
+      sourceCards.push({
+        id: `island-stage-${index + 1}`,
+        title: ISLAND_6_STAGE_NAMES[index] || `Chặng ${index + 1}`,
+        body: '', tip: '', kind: index === 0 ? 'concept' : 'example', layout: 'text', visualItems: [], contentBlocks: [],
+      })
+    }
+  }
   return {
     ...draft,
     lessonFormat: format,
@@ -295,7 +306,9 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
         additionalImages: encoded.additionalImages ?? card.additionalImages,
         compareData: encoded.compareData ?? card.compareData,
         enabledModules: encoded.enabledModules ?? card.enabledModules,
-        contentBlocks: encoded.contentBlocks ?? card.contentBlocks,
+        contentBlocks: encoded.contentBlocks ?? card.contentBlocks ?? (isIsland
+          ? sixStageJourney?.stageContentBlocks?.[`stage-${index}`] as StageBlockItem[] | undefined
+          : undefined),
         compareImages: encoded.compareImages ?? card.compareImages ?? (kind === 'explanation' ? { left: '', right: '' } : undefined),
         mee: encoded.mee ?? card.mee ?? { readText: '', audioUrl: '', voiceProvider: 'vertex', gesture: 'presentation', autoRead: false },
       }
@@ -443,11 +456,13 @@ function StudentStagePreview({
   stageIndex,
   isIsland,
   sixStageJourney,
+  stageCard,
 }: {
   card?: LearnCardDraft
   stageIndex: number
   isIsland?: boolean
   sixStageJourney?: LessonSixStageJourney
+  stageCard?: LearnCardDraft
 }) {
   const [zoomedImage, setZoomedImage] = useState<{ url: string; title?: string } | null>(null)
 
@@ -648,6 +663,11 @@ function StudentStagePreview({
                   Bài tiếp theo: <span className="font-mono text-brand-600">{sixStageJourney.stage6_completion.nextLessonSlug}</span>
                 </div>
               )}
+            </div>
+          )}
+          {stageCard && getStageBlocks(stageCard, stageIndex).length > 0 && (
+            <div className="mt-4 border-t border-sky-100 pt-4">
+              <StudentStageBlocksView card={stageCard} stageIndex={stageIndex} />
             </div>
           )}
         </div>
@@ -1951,7 +1971,13 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
     setSaving(true)
     try {
       const gameConfig = buildGameConfigForSave()
-      const finalJourney = isIslandCourse ? (draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)) : undefined
+      const baseJourney = isIslandCourse ? (draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)) : undefined
+      const finalJourney = baseJourney ? {
+        ...baseJourney,
+        stageContentBlocks: Object.fromEntries(
+          draft.learnCards.slice(0, 6).map((card, index) => [`stage-${index}`, card.contentBlocks ?? []])
+        ),
+      } : undefined
       const payload = {
         courseId,
         id: draft.id,
@@ -2395,6 +2421,8 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
           {isIslandCourse && activeSection.startsWith('stage-') && (() => {
             const stageIndex = parseInt(activeSection.replace('stage-', ''), 10)
             const currentJourney = draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)
+            const islandCard = draft.learnCards[stageIndex]
+            const islandBlocks = islandCard ? getStageBlocks(islandCard, stageIndex) : []
 
             return (
               <div className={cn('grid items-start gap-5', stageIndex === 0 ? 'grid-cols-1' : 'lg:grid-cols-[minmax(0,1.05fr)_minmax(20rem,.95fr)]')}>
@@ -3203,6 +3231,72 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                     </div>
                   )}
 
+                  {/* Khối bổ sung: cùng cơ chế kéo-thả với option block hiện có. */}
+                  <div
+                    onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = 'copy'; setIsDragOver(true) }}
+                    onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setIsDragOver(false) }}
+                    onDrop={(event) => {
+                      event.preventDefault()
+                      setIsDragOver(false)
+                      const blockId = event.dataTransfer.getData('text/plain')
+                      if (blockId) handleAddModule(blockId, stageIndex)
+                    }}
+                    className={cn(
+                      'space-y-3 rounded-2xl border-2 border-dashed p-4 transition',
+                      isDragOver ? 'border-brand-500 bg-brand-50 ring-4 ring-brand-200/50' : 'border-sky-200 bg-sky-50/40'
+                    )}
+                  >
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <h4 className="text-sm font-black text-sky-950">Canvas block bổ sung của chặng</h4>
+                        <p className="text-xs font-semibold text-sky-800">Kéo block từ thư viện bên trái vào đây; thứ tự này được lưu và hiển thị trên frontend.</p>
+                      </div>
+                      <span className="rounded-full border border-sky-200 bg-white px-2.5 py-1 text-[11px] font-black text-sky-800">{islandBlocks.length} block</span>
+                    </div>
+
+                    {islandCard && islandBlocks.map((block, blockIndex) => (
+                      <StageBlockItemCard
+                        key={block.id}
+                        block={block}
+                        bIdx={blockIndex}
+                        totalBlocks={islandBlocks.length}
+                        stageIndex={stageIndex}
+                        card={islandCard}
+                        stageBlocks={islandBlocks}
+                        readOnly={readOnly}
+                        draggingBlockIdx={draggingBlockIdx}
+                        dragOverBlockIdx={dragOverBlockIdx}
+                        setDraggingBlockIdx={setDraggingBlockIdx}
+                        setDragOverBlockIdx={setDragOverBlockIdx}
+                        setIsTrashDragOver={setIsTrashDragOver}
+                        moveBlock={moveBlock}
+                        removeBlock={removeBlock}
+                        updateStageBlocks={updateStageBlocks}
+                        updateBlockItem={updateBlockItem}
+                        updateLearnCard={updateLearnCard}
+                        uploadingStageMedia={uploadingStageMedia}
+                        setUploadingStageMedia={setUploadingStageMedia}
+                        uploadLearnCardMedia={uploadLearnCardMedia}
+                        uploadAdditionalImageItem={uploadAdditionalImageItem}
+                        previewAikiVoice={previewAikiVoice}
+                        previewSpeakingIndex={previewSpeakingIndex}
+                        speakTextPreview={speakTextPreview}
+                        courseId={courseId}
+                        handleAddModule={handleAddModule}
+                        stageInfo={{ title: ISLAND_6_STAGE_NAMES[stageIndex], icon: Target, desc: 'Nội dung bổ sung của chặng' }}
+                        inputStyle={inputStyle}
+                        textareaStyle={textareaStyle}
+                        showToast={showToast}
+                      />
+                    ))}
+
+                    {islandBlocks.length === 0 && (
+                      <div className="rounded-xl border border-dashed border-sky-300 bg-white/80 px-4 py-8 text-center text-xs font-bold text-sky-800">
+                        Thả block vào đây hoặc bấm “+ Thêm” ở thư viện bên trái.
+                      </div>
+                    )}
+                  </div>
+
                   {/* Nút Điều hướng Chặng */}
                   <div className="mt-4 flex items-center justify-between gap-3 rounded-2xl border border-border bg-white p-3 shadow-xs">
                     {stageIndex > 0 ? (
@@ -3252,6 +3346,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                   stageIndex={stageIndex}
                   isIsland={true}
                   sixStageJourney={currentJourney}
+                  stageCard={islandCard}
                 />
               </div>
             )

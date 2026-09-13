@@ -122,6 +122,7 @@ describe('island-journey-resolver', () => {
         stage4_quiz: { id: 'old-g4' },
         stage5_practice: { id: 'old-g5' },
         stage6_completion: { id: 'old-g6', nextLessonSlug: 'custom-next-slug' },
+        stageContentBlocks: { 'stage-0': [{ id: 'extra-tip', type: 'layout-callout', tip: 'Mẹo do giáo viên thêm' }] },
       }
       const resolved = resolveIslandSixStageJourney({
         ...mockQuest,
@@ -133,6 +134,7 @@ describe('island-journey-resolver', () => {
       expect(resolved.stage1_goal.imageUrl).toBe('/assets/aiki-islands/island1_lesson1_cat.jpg?v=2')
       // Custom videoUrl from DB journey is preserved
       expect(resolved.stage3_video.videoUrl).toBe('https://cdn.example.com/custom-video.mp4')
+      expect(resolved.stageContentBlocks?.['stage-0']).toEqual(outdatedDbJourney.stageContentBlocks['stage-0'])
     })
 
     it('resolves all 6 stages from SSOT registry when quest.sixStageJourney is null', () => {

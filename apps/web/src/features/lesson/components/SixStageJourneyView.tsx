@@ -34,6 +34,8 @@ import {
   type AikiStudioConfig,
 } from '../data/aiki-studio-configs'
 import { playInstantSound } from './LessonInteractiveSidebar'
+import { StudentStageBlocksView } from './StudentStageBlocksView'
+import type { LearnCardDraft, StageBlockItem } from '@/features/teacher/lib/authoring'
 
 export interface SixStageJourneyViewProps {
   journey: LessonSixStageJourney
@@ -285,6 +287,18 @@ export function SixStageJourneyView({
       },
     ]
   }, [journey.stage1_goal.keyPoints, isLesson1_1])
+
+  const supplementalStageCard = useMemo<LearnCardDraft | null>(() => {
+    const blocks = journey.stageContentBlocks?.[`stage-${currentStage}`] as StageBlockItem[] | undefined
+    if (!Array.isArray(blocks) || blocks.length === 0) return null
+    return {
+      id: `island-stage-${currentStage + 1}`,
+      title: STAGES[currentStage]?.title || `Chặng ${currentStage + 1}`,
+      body: '', tip: '', kind: currentStage === 0 ? 'concept' : 'example', layout: 'text', visualItems: [],
+      contentBlocks: blocks,
+      mee: { readText: '', gesture: 'presentation', autoRead: false },
+    }
+  }, [currentStage, journey.stageContentBlocks])
 
   const confirmOptions = useMemo(() => {
     return journey.stage2_confirmGoal.options.map((option) => {
@@ -1829,6 +1843,16 @@ export function SixStageJourneyView({
                   </div>
                 </div>
               </div>
+            </section>
+          )}
+          {supplementalStageCard && (
+            <section aria-label="Nội dung bổ sung của chặng" className="animate-fade-up">
+              <StudentStageBlocksView
+                card={supplementalStageCard}
+                stageIndex={currentStage}
+                onNextStage={currentStage < 5 ? advanceToStage : undefined}
+                onZoomImage={(image) => image.url && setZoomImage({ url: image.url, title: image.title })}
+              />
             </section>
           )}
         </div>

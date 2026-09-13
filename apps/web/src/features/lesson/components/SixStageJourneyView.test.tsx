@@ -146,6 +146,28 @@ describe('SixStageJourneyView', () => {
     expect(sidebar?.textContent).toContain('42 Sao tích lũy')
   })
 
+  it('renders teacher drag-and-drop blocks appended to the matching course stage', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={{
+            ...mockJourney,
+            stageContentBlocks: {
+              'stage-0': [{ id: 'teacher-tip', type: 'layout-callout', title: 'Bí kíp riêng', tip: 'Quan sát đủ bốn chìa khóa.' }],
+            },
+          }}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+        />
+      )
+    })
+
+    expect(container.querySelector('[data-testid="block-layout-callout"]')).not.toBeNull()
+    expect(container.textContent).toContain('Quan sát đủ bốn chìa khóa.')
+    act(() => root.unmount())
+  })
+
   it('toggles sidebar collapse/expand smoothly', () => {
     const root = createRoot(container)
     act(() => {
@@ -1619,5 +1641,4 @@ describe('SixStageJourneyView', () => {
     })
   })
 })
-
 
