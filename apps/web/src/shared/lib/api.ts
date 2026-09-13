@@ -686,6 +686,8 @@ export interface LessonSixStageJourney {
   stage6_completion: SixStageCompletion
   /** Optional author-defined blocks appended to each native six-stage screen. */
   stageContentBlocks?: Record<string, unknown[]>
+  /** CMS block schema version. Version 2 stores the goal stage as one unified canvas. */
+  stageBlockEditorVersion?: number
 }
 
 

@@ -207,6 +207,10 @@ describe('authoring ids and readiness', () => {
     expect(migratedCourseLesson.lessonFormat).toBe('aiki-island-6steps')
     expect(migratedCourseLesson.sixStageJourney?.stage1_goal.title).toContain('Bốn chiếc chìa khoá')
     expect(migratedCourseLesson.learnCards[0].kind).not.toBe('situation')
+    expect(migratedCourseLesson.learnCards[0].contentBlocks?.slice(0, 2).map((block) => block.type)).toEqual([
+      'text',
+      'layout-four-keys',
+    ])
 
     // Verify hydrateAikiRuleCard decodes from visualItems and removes __AIKI_RULE_STAGE__
     const hydratedSituation = hydrateAikiRuleCard(serialized[0] as any)

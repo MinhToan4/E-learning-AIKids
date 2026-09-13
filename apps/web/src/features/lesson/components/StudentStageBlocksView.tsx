@@ -250,7 +250,7 @@ export function StudentStageBlocksView({
 
   return (
     <div className="flex flex-col gap-5 w-full">
-      {stageBlocks.map((block) => {
+      {stageBlocks.filter((block) => !block.id.startsWith('course-goal-')).map((block) => {
         // ── 1. BLOCK: VIDEO BÀI GIẢNG ───────────────────────────
         if (block.type === 'video') {
           const videoUrl = block.videoUrl || card.videoUrl

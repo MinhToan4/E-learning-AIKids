@@ -15,6 +15,24 @@ describe('StudentStageBlocksView', () => {
     visualItems: [],
   }
 
+  it('does not duplicate native goal blocks already rendered by the six-stage frontend', () => {
+    const html = renderToStaticMarkup(
+      <StudentStageBlocksView
+        card={{
+          ...baseCard,
+          contentBlocks: [
+            { id: 'course-goal-text', type: 'text', title: 'Mục tiêu chuẩn', body: 'Nội dung chuẩn' },
+            { id: 'custom-note', type: 'layout-callout', title: 'Ghi chú thêm', tip: 'Nội dung bổ sung' },
+          ],
+        }}
+        stageIndex={0}
+      />
+    )
+
+    expect(html).not.toContain('Mục tiêu chuẩn')
+    expect(html).toContain('Ghi chú thêm')
+  })
+
   it('renders blocks in exact WYSIWYG order when order is changed (e.g. Text before Video, or Video before KaTeX)', () => {
     // Trường hợp 1: Text trước, Video sau
     const blocksTextFirst: StageBlockItem[] = [

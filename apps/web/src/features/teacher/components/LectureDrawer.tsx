@@ -30,6 +30,7 @@ import {
   detectLessonFormat, isAikiRuleLesson, type LessonFormat,
   type LectureDraft,
   type LearnCardDraft,
+  type LearnVisualItemDraft,
   type DialogueLine,
   type StageImageItem,
   type StageCompareData,
@@ -150,6 +151,41 @@ const CATALOG_GAMES = ['data-runner', 'truth-patrol']
 
 function goalLines(value: string) {
   return value.split(/\r?\n/).map((item) => item.trim()).filter(Boolean)
+}
+
+const COURSE_GOAL_BLOCK_PREFIX = 'course-goal-'
+
+function goalKeyItems(keyPoints: string[]): LearnVisualItemDraft[] {
+  const defaults = ['Cái gì?', 'Trông như thế nào?', 'Đang làm gì?', 'Ở đâu?']
+  return Array.from({ length: 4 }, (_, index) => {
+    const value = keyPoints[index] || ''
+    const separator = value.indexOf(':')
+    return {
+      label: separator > 0 ? value.slice(0, separator).trim() : defaults[index],
+      text: separator > 0 ? value.slice(separator + 1).trim() : value,
+      tone: (['sky', 'sun', 'coral', 'brand'] as const)[index],
+    }
+  })
+}
+
+function buildCourseGoalBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {
+  if (journey.stageBlockEditorVersion === 2) return existing
+  const existingFourKeys = existing.find((block) => block.type === 'layout-four-keys')
+  const authoredExtras = existing.filter((block) =>
+    !block.id.startsWith(COURSE_GOAL_BLOCK_PREFIX) && block !== existingFourKeys
+  )
+  return [
+    { id: `${COURSE_GOAL_BLOCK_PREFIX}text`, type: 'text', title: journey.stage1_goal.title, body: journey.stage1_goal.goalText },
+    {
+      ...createFourKeysBlock(`${COURSE_GOAL_BLOCK_PREFIX}four-keys`),
+      ...(existingFourKeys || {}),
+      id: `${COURSE_GOAL_BLOCK_PREFIX}four-keys`,
+      visualItems: existingFourKeys?.visualItems?.length ? existingFourKeys.visualItems.slice(0, 4) : goalKeyItems(journey.stage1_goal.keyPoints),
+    },
+    { id: `${COURSE_GOAL_BLOCK_PREFIX}image`, type: 'images', title: 'Ảnh mục tiêu', imageUrl: journey.stage1_goal.imageUrl, imageAlt: journey.stage1_goal.title, additionalImages: [] },
+    { id: `${COURSE_GOAL_BLOCK_PREFIX}voice`, type: 'voice', readText: journey.stage1_goal.speech, gesture: 'presentation' },
+    ...authoredExtras,
+  ]
 }
 
 const LEARN_KIND_OPTIONS: Array<{ id: LearnCardDraft['kind']; label: string }> = [
@@ -296,7 +332,7 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
         kind,
         layout: normalizeLearnLayout(card.layout, visualItems.length > 0, kind),
         visualItems,
-        imageUrl: encoded.imageUrl ?? card.imageUrl ?? '',
+        imageUrl: isIsland && index === 0 && sixStageJourney ? sixStageJourney.stage1_goal.imageUrl : encoded.imageUrl ?? card.imageUrl ?? '',
         imageAlt: encoded.imageAlt ?? card.imageAlt ?? '',
         videoUrl: encoded.videoUrl ?? card.videoUrl ?? '',
         optionImages: encoded.optionImages ?? card.optionImages ?? (kind === 'aiki-riddle' ? ['', ''] : undefined),
@@ -306,11 +342,15 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
         additionalImages: encoded.additionalImages ?? card.additionalImages,
         compareData: encoded.compareData ?? card.compareData,
         enabledModules: encoded.enabledModules ?? card.enabledModules,
-        contentBlocks: encoded.contentBlocks ?? card.contentBlocks ?? (isIsland
-          ? sixStageJourney?.stageContentBlocks?.[`stage-${index}`] as StageBlockItem[] | undefined
-          : undefined),
+        contentBlocks: isIsland && index === 0 && sixStageJourney
+          ? buildCourseGoalBlocks(sixStageJourney, (encoded.contentBlocks ?? card.contentBlocks ?? sixStageJourney.stageContentBlocks?.['stage-0'] ?? []) as StageBlockItem[])
+          : encoded.contentBlocks ?? card.contentBlocks ?? (isIsland
+              ? sixStageJourney?.stageContentBlocks?.[`stage-${index}`] as StageBlockItem[] | undefined
+              : undefined),
         compareImages: encoded.compareImages ?? card.compareImages ?? (kind === 'explanation' ? { left: '', right: '' } : undefined),
-        mee: encoded.mee ?? card.mee ?? { readText: '', audioUrl: '', voiceProvider: 'vertex', gesture: 'presentation', autoRead: false },
+        mee: isIsland && index === 0 && sixStageJourney
+          ? { ...(encoded.mee ?? card.mee), readText: sixStageJourney.stage1_goal.speech, voiceProvider: 'vertex', gesture: encoded.mee?.gesture ?? card.mee?.gesture ?? 'presentation', autoRead: encoded.mee?.autoRead ?? card.mee?.autoRead ?? false }
+          : encoded.mee ?? card.mee ?? { readText: '', audioUrl: '', voiceProvider: 'vertex', gesture: 'presentation', autoRead: false },
       }
     }),
   }
@@ -1490,9 +1530,22 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
       const learnCards = cards.map((card, cardIndex) => cardIndex === index ? { ...card, ...patch } : card)
       const conceptCard = learnCards.find((card) => card.kind === 'concept')
       const exampleCard = learnCards.find((card) => card.kind === 'example')
-      return { ...previous, learnCards, concept: conceptCard?.body ?? previous.concept, example: exampleCard?.body ?? previous.example }
+      const next = { ...previous, learnCards, concept: conceptCard?.body ?? previous.concept, example: exampleCard?.body ?? previous.example }
+      if (isIslandCourse && index === 0 && (patch.imageUrl !== undefined || patch.mee !== undefined)) {
+        const journey = previous.sixStageJourney || resolveIslandSixStageJourney(previous as any)
+        const sixStageJourney = {
+          ...journey,
+          stage1_goal: {
+            ...journey.stage1_goal,
+            imageUrl: patch.imageUrl ?? journey.stage1_goal.imageUrl,
+            speech: patch.mee?.readText ?? journey.stage1_goal.speech,
+          },
+        }
+        return { ...next, sixStageJourney, metadata: { ...previous.metadata, sixStageJourney } }
+      }
+      return next
     })
-  }, [readOnly])
+  }, [isIslandCourse, readOnly])
 
   const uploadLearnCardMedia = useCallback(async (
     index: number,
@@ -1593,7 +1646,25 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
     }
 
     updateLearnCard(stageIndex, patch)
-  }, [draft.learnCards, readOnly, updateLearnCard])
+
+    if (isIslandCourse && stageIndex === 0) {
+      const textBlock = newBlocks.find((block) => block.id === `${COURSE_GOAL_BLOCK_PREFIX}text`)
+      const keysBlock = newBlocks.find((block) => block.id === `${COURSE_GOAL_BLOCK_PREFIX}four-keys` || block.type === 'layout-four-keys')
+      const imageBlock = newBlocks.find((block) => block.id === `${COURSE_GOAL_BLOCK_PREFIX}image`)
+      const voiceBlock = newBlocks.find((block) => block.id === `${COURSE_GOAL_BLOCK_PREFIX}voice`)
+      updateSixStage((journey) => ({
+        ...journey,
+        stage1_goal: {
+          ...journey.stage1_goal,
+          title: textBlock?.title ?? journey.stage1_goal.title,
+          goalText: textBlock?.body ?? '',
+          imageUrl: imageBlock?.imageUrl ?? journey.stage1_goal.imageUrl,
+          speech: voiceBlock?.readText ?? journey.stage1_goal.speech,
+          keyPoints: keysBlock?.visualItems?.slice(0, 4).map((item) => `${item.label}: ${item.text}`) ?? [],
+        },
+      }))
+    }
+  }, [draft.learnCards, isIslandCourse, readOnly, updateLearnCard, updateSixStage])
 
   const updateBlockItem = useCallback((stageIndex: number, blockId: string, blockPatch: Partial<StageBlockItem>) => {
     if (readOnly) return
@@ -1974,6 +2045,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
       const baseJourney = isIslandCourse ? (draft.sixStageJourney || resolveIslandSixStageJourney(draft as any)) : undefined
       const finalJourney = baseJourney ? {
         ...baseJourney,
+        stageBlockEditorVersion: 2,
         stageContentBlocks: Object.fromEntries(
           draft.learnCards.slice(0, 6).map((card, index) => [`stage-${index}`, card.contentBlocks ?? []])
         ),
@@ -2460,7 +2532,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                   </div>
 
                   {/* Form nội dung từng chặng */}
-                  {stageIndex === 0 && (
+                  {stageIndex === 0 && false && (
                     <div className="space-y-4 rounded-2xl border border-border bg-white p-5 shadow-xs">
                       <div>
                         <label className="block text-xs font-black uppercase text-slate-700">Ảnh Mục Tiêu (Cover / Illustration)</label>
@@ -3231,7 +3303,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                     </div>
                   )}
 
-                  {/* Khối bổ sung: cùng cơ chế kéo-thả với option block hiện có. */}
+                  {/* Canvas SSOT: cả nội dung chuẩn và block tùy biến cùng một luồng kéo-thả. */}
                   <div
                     onDragOver={(event) => { event.preventDefault(); event.dataTransfer.dropEffect = 'copy'; setIsDragOver(true) }}
                     onDragLeave={(event) => { if (!event.currentTarget.contains(event.relatedTarget as Node)) setIsDragOver(false) }}
@@ -3248,8 +3320,8 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                   >
                     <div className="flex items-center justify-between gap-3">
                       <div>
-                        <h4 className="text-sm font-black text-sky-950">Canvas block bổ sung của chặng</h4>
-                        <p className="text-xs font-semibold text-sky-800">Kéo block từ thư viện bên trái vào đây; thứ tự này được lưu và hiển thị trên frontend.</p>
+                        <h4 className="text-sm font-black text-sky-950">Canvas nội dung của chặng</h4>
+                        <p className="text-xs font-semibold text-sky-800">Kéo block từ thư viện bên trái, thả vào đúng vị trí và sắp xếp theo thứ tự học sinh sẽ học.</p>
                       </div>
                       <span className="rounded-full border border-sky-200 bg-white px-2.5 py-1 text-[11px] font-black text-sky-800">{islandBlocks.length} block</span>
                     </div>
