@@ -98,6 +98,7 @@ import {
   PRACTICE_OPTIONS,
   serializeLectureGameConfig,
 } from '../lib/authoring'
+
 import {
   CmsAnalyticsIcon,
   CmsCoursesIcon,
@@ -105,6 +106,24 @@ import {
   CmsLecturesIcon,
   CmsUsersIcon,
 } from '@/shared/components/icons/CmsIcons'
+
+export function courseLessonFormat(isRuleCourse: boolean) {
+  return isRuleCourse ? 'aiki-rule-5steps' as const : 'aiki-island-6steps' as const
+}
+
+export function isAikiRulesCourse(course?: { id: string; title: string; isGatekeeper?: boolean } | null) {
+  if (!course) return false
+  const id = course.id.toLowerCase()
+  const title = course.title.toLowerCase()
+  return Boolean(
+    course.isGatekeeper ||
+    id === 'aiki-rules' ||
+    id.includes('rule') ||
+    title.includes('quy tắc') ||
+    title.includes('quy tac') ||
+    title.includes('module 0')
+  )
+}
 
 // ── Types ───────────────────────────────────────────────────
 type StudentRow = {
@@ -482,17 +501,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
   const editableCourses = courses.filter((course) => !course.readOnly)
   const referenceCourses = courses.filter((course) => course.readOnly)
   const lectures = activeCourse?.lectures ?? []
-  const isCurrentCourseRule = Boolean(
-    activeCourse && (
-      activeCourse.isGatekeeper ||
-      activeCourse.id === 'aiki-rules' ||
-      activeCourse.id.toLowerCase().includes('rule') ||
-      activeCourse.title.toLowerCase().includes('quy tắc') ||
-      activeCourse.title.toLowerCase().includes('quy tac') ||
-      activeCourse.title.toLowerCase().includes('module 0') ||
-      courses.findIndex((c) => c.id === activeCourse.id) === 0
-    )
-  )
+  const isCurrentCourseRule = isAikiRulesCourse(activeCourse)
 
   const openRuleDrawerForStation = useCallback((stationIndex: number) => {
     const safeIdx = Math.max(0, Math.min(9, stationIndex))
@@ -1478,7 +1487,10 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                   title: drawerLecture.title,
                   skill: drawerLecture.skill ?? '',
                   hook: drawerLecture.hook ?? '',
-                  lessonFormat: (drawerLecture as any).lessonFormat ?? ((drawerLecture.gameConfig as any)?.lessonFormat) ?? (selectedCourseId.startsWith('dao-') || drawerLecture.id.startsWith('bai-') ? 'aiki-island-6steps' : (drawerLecture.learnCards?.length === 5 ? 'aiki-rule-5steps' : 'standard')),
+                  // Course lessons always use the 6-stage learning journey. The
+                  // 5-card shape alone is not evidence of an AIKI Rule because
+                  // legacy course lessons also persisted five generic cards.
+                  lessonFormat: courseLessonFormat(isCurrentCourseRule),
                   sixStageJourney: (drawerLecture as any).sixStageJourney ?? (drawerLecture.gameConfig as any)?.sixStageJourney ?? (drawerLecture as any).metadata?.sixStageJourney,
                   metadata: (drawerLecture as any).metadata,
                   videoUrl: drawerLecture.videoUrl ?? '',

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { FEATURE_BLOCKS_CATEGORIES, normalizeCurriculumPayload } from './TeacherPage'
+import { FEATURE_BLOCKS_CATEGORIES, courseLessonFormat, isAikiRulesCourse, normalizeCurriculumPayload } from './TeacherPage'
 
 describe('TeacherPage subsystems and learning space specifications', () => {
   it('normalizes incomplete imported curriculum data instead of crashing the CMS', () => {
@@ -17,6 +17,13 @@ describe('TeacherPage subsystems and learning space specifications', () => {
   it('exposes the four-key layout in the main drag-and-drop palette', () => {
     const layoutBlocks = FEATURE_BLOCKS_CATEGORIES.flatMap((category) => category.items)
     expect(layoutBlocks.some((item) => item.id === 'layout-four-keys')).toBe(true)
+  })
+
+  it('keeps course lessons separate from the AIKI Rules subsystem', () => {
+    expect(courseLessonFormat(false)).toBe('aiki-island-6steps')
+    expect(courseLessonFormat(true)).toBe('aiki-rule-5steps')
+    expect(isAikiRulesCourse({ id: 'de66602b-c9a0-4589-a04b-226ce3b31120', title: 'Nhà thám hiểm AI' })).toBe(false)
+    expect(isAikiRulesCourse({ id: 'aiki-rules', title: 'Mười quy tắc Xưởng' })).toBe(true)
   })
 
   it('defines 2 distinct subsystems: Giảng Dạy & Lớp Học vs Creator Studio', () => {

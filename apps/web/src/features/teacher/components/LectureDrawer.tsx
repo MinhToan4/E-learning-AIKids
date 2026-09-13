@@ -235,14 +235,17 @@ function normalizeLearnLayout(value: unknown, hasVisualItems: boolean, kind: Lea
 export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): LectureDraft {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const explicitFormat = (draft as any).lessonFormat || (draft as any).gameConfig?.lessonFormat
-  const isAiki = explicitFormat === 'aiki-rule-5steps' || isAikiRuleLesson(draft.learnCards || [])
-  const isIsland = !isAiki && (
+  const hasIslandContract =
     explicitFormat === 'aiki-island-6steps' ||
     courseId.startsWith('dao-') ||
     Boolean(draft.metadata?.sixStageJourney) ||
     Boolean(draft.sixStageJourney) ||
     (/^bai-\d+-\d+/i.test(draft.id || '') && explicitFormat !== 'standard')
-  )
+  // The explicit six-stage course contract wins over legacy five-card data.
+  // Several migrated course lessons still carry exactly five generic cards;
+  // treating card count/order as authoritative turned them into AIKI Rules.
+  const isAiki = !hasIslandContract && (explicitFormat === 'aiki-rule-5steps' || isAikiRuleLesson(draft.learnCards || []))
+  const isIsland = hasIslandContract
   const format: LessonFormat = isAiki ? 'aiki-rule-5steps' : (isIsland ? 'aiki-island-6steps' : (explicitFormat === 'standard' ? 'standard' : (draft.lessonFormat ?? 'standard')))
 
   let sixStageJourney = draft.sixStageJourney || ((draft as any).metadata?.sixStageJourney as LessonSixStageJourney | undefined)
@@ -264,11 +267,15 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
       const sourceVisualItems = Array.isArray(card.visualItems) ? card.visualItems : []
       const encodedItem = sourceVisualItems.find((item) => item.label === AIKI_RULE_META_LABEL)
       let encoded: Partial<LearnCardDraft> = {}
-      try { encoded = encodedItem ? JSON.parse(encodedItem.text) as Partial<LearnCardDraft> : {} } catch { encoded = {} }
+      // AIKI Rule metadata must never reshape a six-stage course lesson.
+      // It is legacy residue on some migrated lessons and is discarded here.
+      if (isAiki) {
+        try { encoded = encodedItem ? JSON.parse(encodedItem.text) as Partial<LearnCardDraft> : {} } catch { encoded = {} }
+      }
       const visualItems = sourceVisualItems.filter((item) => item.label !== AIKI_RULE_META_LABEL)
       const kind = isAiki && index < AIKI_RULE_STAGE_KINDS.length
         ? AIKI_RULE_STAGE_KINDS[index]
-        : normalizeLearnKind(encoded.kind ?? card.kind, index, card.id, isAiki)
+        : normalizeLearnKind(encoded.kind ?? card.kind, index, isAiki ? card.id : '', isAiki)
       return {
         ...card,
         id: card.id || (isAiki && index < AIKI_RULE_STAGE_KINDS.length ? `aiki-rule-${AIKI_RULE_STAGE_KINDS[index]}` : `learn-${index + 1}`),
@@ -1306,7 +1313,8 @@ function emptyDraft(): LectureDraft {
 export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = false, archived = false, onArchive, onRestore, readOnly = false, onDirtyChange }: Props) {
   const uid = useId()
   const { showToast } = useToast()
-  const isAikiRule = (lecture as any)?.lessonFormat === 'aiki-rule-5steps' || (lecture?.learnCards ? isAikiRuleLesson(lecture.learnCards) : false)
+  const hasIslandContract = (lecture as any)?.lessonFormat === 'aiki-island-6steps' || Boolean((lecture as any)?.metadata?.sixStageJourney) || Boolean(lecture?.sixStageJourney)
+  const isAikiRule = !hasIslandContract && ((lecture as any)?.lessonFormat === 'aiki-rule-5steps' || (lecture?.learnCards ? isAikiRuleLesson(lecture.learnCards) : false))
   const isIslandCourse = !isAikiRule && Boolean(
     courseId.startsWith('dao-') ||
     (lecture as any)?.lessonFormat === 'aiki-island-6steps' ||
@@ -2159,7 +2167,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
             <div className="flex items-center gap-2 mt-1">
               <span className="text-xs font-bold text-muted">Cấu trúc trạm học:</span>
               <select
-                disabled={readOnly}
+                disabled={readOnly || isIslandCourse}
                 value={lessonFormat}
                 onChange={(e) => {
                   const format = e.target.value as LessonFormat
@@ -2178,8 +2186,14 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                 }}
                 className="rounded-xl border-2 border-brand-200 bg-brand-50/70 px-3 py-1 text-xs font-black text-brand-800 shadow-xs focus:outline-none focus:ring-2 focus:ring-brand-500"
               >
-                <option value="aiki-rule-5steps">🐱 Quy tắc AIKI (5 bước mới)</option>
-                <option value="standard">📖 Khám phá tiêu chuẩn (4 phase cũ)</option>
+                {isIslandCourse ? (
+                  <option value="aiki-island-6steps">Khóa học · 6 chặng Mục tiêu → Hoàn thành</option>
+                ) : (
+                  <>
+                    <option value="aiki-rule-5steps">Quy tắc AIKI · 5 bước riêng</option>
+                    <option value="standard">Khám phá tiêu chuẩn</option>
+                  </>
+                )}
               </select>
             </div>
           </div>

@@ -196,6 +196,18 @@ describe('authoring ids and readiness', () => {
     expect(detectLessonFormat(serialized, 'standard')).toBe('standard')
     expect(detectLessonFormat(serialized)).toBe('aiki-rule-5steps')
 
+    const migratedCourseLesson = normalizeLectureDraft({
+      ...completeLecture,
+      id: '6390499b-0bcd-4f42-8393-c96804a444bd',
+      title: 'Bài 1.2 — Bốn chiếc chìa khoá',
+      lessonFormat: 'aiki-island-6steps',
+      learnCards: serialized,
+      sixStageJourney: undefined,
+    }, 'de66602b-c9a0-4589-a04b-226ce3b31120')
+    expect(migratedCourseLesson.lessonFormat).toBe('aiki-island-6steps')
+    expect(migratedCourseLesson.sixStageJourney?.stage1_goal.title).toContain('Bốn chiếc chìa khoá')
+    expect(migratedCourseLesson.learnCards[0].kind).not.toBe('situation')
+
     // Verify hydrateAikiRuleCard decodes from visualItems and removes __AIKI_RULE_STAGE__
     const hydratedSituation = hydrateAikiRuleCard(serialized[0] as any)
     expect(hydratedSituation.dialogueLines).toEqual([{ id: 'd-1', speaker: 'zico', role: 'left', text: 'Chào!' }])
@@ -440,4 +452,3 @@ describe('authoring ids and readiness', () => {
     expect(second.visualItems?.[0].label).toBe('Cái gì?')
   })
 })
-
