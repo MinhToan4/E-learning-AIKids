@@ -2,7 +2,7 @@ import React from 'react'
 import {
   GripVertical, ArrowUp, ArrowDown, Trash2, Plus, Eye, Volume2,
   Clapperboard, BrainCircuit, ScanSearch, MessageSquareText,
-  Image as ImageIcon, Sparkles, Upload
+  Image as ImageIcon, Sparkles, Upload, ChevronDown, ChevronRight,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { uploadCmsCourseMedia } from '@/shared/lib/media-api'
@@ -165,6 +165,7 @@ export function StageBlockItemCard({
 }: StageBlockItemCardProps) {
   const isDraggingThis = draggingBlockIdx === bIdx
   const isDragOverThis = dragOverBlockIdx === bIdx
+  const [expanded, setExpanded] = React.useState(bIdx === 0)
 
   return (
     <div
@@ -239,6 +240,15 @@ export function StageBlockItemCard({
 
         {/* Bộ nút hành động */}
         <div className="flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => setExpanded((value) => !value)}
+            className="inline-flex min-h-8 items-center gap-1 rounded-lg border border-slate-200 bg-slate-50 px-2 text-[11px] font-extrabold text-slate-700 hover:bg-slate-100"
+            aria-expanded={expanded}
+          >
+            {expanded ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+            {expanded ? 'Thu gọn' : 'Chỉnh sửa'}
+          </button>
           {!readOnly && (
             <>
               <button
@@ -271,6 +281,14 @@ export function StageBlockItemCard({
           )}
         </div>
       </div>
+
+      {!expanded && (
+        <p className="mt-2 truncate text-xs font-semibold text-slate-500">
+          {block.body || block.tip || block.readText || `${block.visualItems?.length || 0} mục nội dung`}
+        </p>
+      )}
+
+      {expanded && <>
 
       {/* ── 1. BLOCK: Đoạn văn bản (text / layout-text) ── */}
       {(block.type === 'text' || block.type === 'layout-text') && (
@@ -1450,6 +1468,7 @@ export function StageBlockItemCard({
           </div>
         </div>
       )}
+      </>}
     </div>
   )
 }

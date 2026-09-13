@@ -1455,6 +1455,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
 
   const [confirmClose, setConfirmClose] = useState(false)
   const [showFullPreview, setShowFullPreview] = useState(false)
+  const [showInlinePreview, setShowInlinePreview] = useState(false)
   const draftStorageKey = `aikids:teacher-lecture-draft:${courseId}:${lecture?.id || 'new'}`
   const [recovery, setRecovery] = useState<{ savedAt: string; draft: LectureDraft } | null>(() => {
     if (readOnly) return null
@@ -2303,6 +2304,21 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
             >
               <Eye size={14} /> Xem toàn bộ
             </button>
+            {isIslandCourse && activeSection.startsWith('stage-') && (
+              <button
+                type="button"
+                onClick={() => setShowInlinePreview((value) => !value)}
+                className={cn(
+                  'inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-xs font-extrabold transition',
+                  showInlinePreview
+                    ? 'border-sky-300 bg-sky-100 text-sky-900'
+                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50',
+                )}
+                aria-pressed={showInlinePreview}
+              >
+                <Split size={14} /> {showInlinePreview ? 'Ẩn xem trước' : 'Xem song song'}
+              </button>
+            )}
             {/* Progress indicator — chỉ có nghĩa khi edit/create, ẩn khi chỉ xem */}
             {!readOnly && (
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.375rem', fontSize: '0.8125rem', color: '#64748b' }}>
@@ -2497,7 +2513,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
             const islandBlocks = islandCard ? getStageBlocks(islandCard, stageIndex) : []
 
             return (
-              <div className={cn('grid items-start gap-5', stageIndex === 0 ? 'grid-cols-1' : 'lg:grid-cols-[minmax(0,1.05fr)_minmax(20rem,.95fr)]')}>
+              <div className={cn('grid items-start gap-5', showInlinePreview && 'lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,.85fr)]')}>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                   {/* Header chặng 6 bước */}
                   <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/60 p-4 shadow-sm">
@@ -3414,12 +3430,14 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                 </div>
 
                 {/* Live preview Đảo 6 chặng */}
-                <StudentStagePreview
-                  stageIndex={stageIndex}
-                  isIsland={true}
-                  sixStageJourney={currentJourney}
-                  stageCard={islandCard}
-                />
+                {showInlinePreview && (
+                  <StudentStagePreview
+                    stageIndex={stageIndex}
+                    isIsland={true}
+                    sixStageJourney={currentJourney}
+                    stageCard={islandCard}
+                  />
+                )}
               </div>
             )
           })()}
