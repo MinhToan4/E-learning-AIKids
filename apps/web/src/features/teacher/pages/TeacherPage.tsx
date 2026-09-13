@@ -1286,6 +1286,9 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
                   {FEATURE_BLOCKS_CATEGORIES.map((category) => {
                     const isOpen = openCategories[category.category] ?? true
+                    const visibleItems = isCurrentCourseRule
+                      ? category.items
+                      : category.items.filter((item) => item.id !== 'voice')
                     return (
                       <div key={category.category} className="rounded-xl border border-border/80 bg-white/80 overflow-hidden shadow-2xs">
                         <button
@@ -1301,7 +1304,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                           </div>
                           <div className="flex items-center gap-1 shrink-0 text-muted">
                             <span className="text-[9px] font-bold px-1.5 py-0.2 bg-white rounded-full border border-border/70 text-slate-600">
-                              {category.items.length}
+                              {visibleItems.length}
                             </span>
                             {isOpen ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
                           </div>
@@ -1309,7 +1312,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
 
                         {isOpen && (
                           <div className="p-1.5 flex flex-col gap-1 bg-slate-50/40">
-                            {category.items.map((item) => (
+                            {visibleItems.map((item) => (
                               <div
                                 key={item.id}
                                 draggable

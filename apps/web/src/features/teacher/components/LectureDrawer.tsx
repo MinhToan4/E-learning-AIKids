@@ -169,10 +169,10 @@ function goalKeyItems(keyPoints: string[]): LearnVisualItemDraft[] {
 }
 
 function buildCourseGoalBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {
-  if (journey.stageBlockEditorVersion === 2) return existing
+  if (journey.stageBlockEditorVersion === 2) return existing.filter((block) => block.type !== 'voice')
   const existingFourKeys = existing.find((block) => block.type === 'layout-four-keys')
   const authoredExtras = existing.filter((block) =>
-    !block.id.startsWith(COURSE_GOAL_BLOCK_PREFIX) && block !== existingFourKeys
+    !block.id.startsWith(COURSE_GOAL_BLOCK_PREFIX) && block !== existingFourKeys && block.type !== 'voice'
   )
   return [
     { id: `${COURSE_GOAL_BLOCK_PREFIX}text`, type: 'text', title: journey.stage1_goal.title, body: journey.stage1_goal.goalText },
@@ -183,7 +183,6 @@ function buildCourseGoalBlocks(journey: LessonSixStageJourney, existing: StageBl
       visualItems: existingFourKeys?.visualItems?.length ? existingFourKeys.visualItems.slice(0, 4) : goalKeyItems(journey.stage1_goal.keyPoints),
     },
     { id: `${COURSE_GOAL_BLOCK_PREFIX}image`, type: 'images', title: 'Ảnh mục tiêu', imageUrl: journey.stage1_goal.imageUrl, imageAlt: journey.stage1_goal.title, additionalImages: [] },
-    { id: `${COURSE_GOAL_BLOCK_PREFIX}voice`, type: 'voice', readText: journey.stage1_goal.speech, gesture: 'presentation' },
     ...authoredExtras,
   ]
 }
@@ -344,9 +343,9 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
         enabledModules: encoded.enabledModules ?? card.enabledModules,
         contentBlocks: isIsland && index === 0 && sixStageJourney
           ? buildCourseGoalBlocks(sixStageJourney, (encoded.contentBlocks ?? card.contentBlocks ?? sixStageJourney.stageContentBlocks?.['stage-0'] ?? []) as StageBlockItem[])
-          : encoded.contentBlocks ?? card.contentBlocks ?? (isIsland
+          : ((encoded.contentBlocks ?? card.contentBlocks ?? (isIsland
               ? sixStageJourney?.stageContentBlocks?.[`stage-${index}`] as StageBlockItem[] | undefined
-              : undefined),
+              : undefined))?.filter((block) => !isIsland || block.type !== 'voice')),
         compareImages: encoded.compareImages ?? card.compareImages ?? (kind === 'explanation' ? { left: '', right: '' } : undefined),
         mee: isIsland && index === 0 && sixStageJourney
           ? { ...(encoded.mee ?? card.mee), readText: sixStageJourney.stage1_goal.speech, voiceProvider: 'vertex', gesture: encoded.mee?.gesture ?? card.mee?.gesture ?? 'presentation', autoRead: encoded.mee?.autoRead ?? card.mee?.autoRead ?? false }
@@ -1711,6 +1710,11 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
   const handleAddModule = useCallback((blockId: string, explicitStageIndex?: number, insertIndex?: number) => {
     if (readOnly) return
 
+    if (isIslandCourse && blockId === 'voice') {
+      showToast('Khối trợ giảng Mèo AIKI chỉ dùng cho Quy tắc AIKI, không dùng trong Khóa học 6 chặng.', 'info')
+      return
+    }
+
     // 1. Nếu là Game Engine
     if (['data-runner', 'truth-patrol', 'battle-math', 'blockly'].includes(blockId)) {
       const defaultInstructions: Record<string, string> = {
@@ -1889,7 +1893,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
       }
       updateStageBlocks(targetStageIndex, nextBlocks)
     }
-  }, [activeSection, draft.learnCards, lessonFormat, readOnly, showToast, updateLearnCard, updateStageBlocks])
+  }, [activeSection, draft.learnCards, isIslandCourse, lessonFormat, readOnly, showToast, updateLearnCard, updateStageBlocks])
 
   const addModuleToStage = useCallback((stageIndex: number, modId: string) => {
     handleAddModule(modId, stageIndex)

@@ -211,6 +211,9 @@ describe('authoring ids and readiness', () => {
       'text',
       'layout-four-keys',
     ])
+    expect(migratedCourseLesson.learnCards.every((card) =>
+      !(card.contentBlocks || []).some((block) => block.type === 'voice')
+    )).toBe(true)
 
     // Verify hydrateAikiRuleCard decodes from visualItems and removes __AIKI_RULE_STAGE__
     const hydratedSituation = hydrateAikiRuleCard(serialized[0] as any)
