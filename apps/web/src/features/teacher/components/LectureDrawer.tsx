@@ -187,6 +187,13 @@ function buildCourseGoalBlocks(journey: LessonSixStageJourney, existing: StageBl
   ]
 }
 
+function isLegacyAikiCourseResidue(card: LearnCardDraft, encodedItem?: LearnVisualItemDraft) {
+  return Boolean(encodedItem) ||
+    card.id.startsWith('aiki-rule-') ||
+    ['situation', 'aiki-riddle', 'rule', 'explanation', 'closing'].includes(card.kind) ||
+    /câu đố của aiki|mèo aiki|quy tắc vàng/i.test(card.title)
+}
+
 const LEARN_KIND_OPTIONS: Array<{ id: LearnCardDraft['kind']; label: string }> = [
   { id: 'concept', label: 'Khái niệm' },
   { id: 'example', label: 'Ví dụ đời sống' },
@@ -320,16 +327,20 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
         try { encoded = encodedItem ? JSON.parse(encodedItem.text) as Partial<LearnCardDraft> : {} } catch { encoded = {} }
       }
       const visualItems = sourceVisualItems.filter((item) => item.label !== AIKI_RULE_META_LABEL)
+      const legacyAikiCourseResidue = isIsland && isLegacyAikiCourseResidue(card, encodedItem)
+      const islandStageBlocks: StageBlockItem[] = isIsland
+        ? (sixStageJourney?.stageContentBlocks?.[`stage-${index}`] ?? card.contentBlocks ?? []) as StageBlockItem[]
+        : []
       const kind = isAiki && index < AIKI_RULE_STAGE_KINDS.length
         ? AIKI_RULE_STAGE_KINDS[index]
         : normalizeLearnKind(encoded.kind ?? card.kind, index, isAiki ? card.id : '', isAiki)
       return {
         ...card,
-        id: card.id || (isAiki && index < AIKI_RULE_STAGE_KINDS.length ? `aiki-rule-${AIKI_RULE_STAGE_KINDS[index]}` : `learn-${index + 1}`),
-        title: card.title || `Khối khám phá ${index + 1}`,
+        id: isIsland ? `island-stage-${index + 1}` : (card.id || (isAiki && index < AIKI_RULE_STAGE_KINDS.length ? `aiki-rule-${AIKI_RULE_STAGE_KINDS[index]}` : `learn-${index + 1}`)),
+        title: isIsland ? (ISLAND_6_STAGE_NAMES[index] || `Chặng ${index + 1}`) : (card.title || `Khối khám phá ${index + 1}`),
         body: card.body || '',
         tip: card.tip ?? '',
-        kind,
+        kind: isIsland ? (index === 0 ? 'concept' : 'example') : kind,
         layout: normalizeLearnLayout(card.layout, visualItems.length > 0, kind),
         visualItems,
         imageUrl: isIsland && index === 0 && sixStageJourney ? sixStageJourney.stage1_goal.imageUrl : encoded.imageUrl ?? card.imageUrl ?? '',
@@ -343,10 +354,10 @@ export function normalizeLectureDraft(draft: LectureDraft, courseId = ''): Lectu
         compareData: encoded.compareData ?? card.compareData,
         enabledModules: encoded.enabledModules ?? card.enabledModules,
         contentBlocks: isIsland && index === 0 && sixStageJourney
-          ? buildCourseGoalBlocks(sixStageJourney, (encoded.contentBlocks ?? card.contentBlocks ?? sixStageJourney.stageContentBlocks?.['stage-0'] ?? []) as StageBlockItem[])
-          : ((encoded.contentBlocks ?? card.contentBlocks ?? (isIsland
-              ? sixStageJourney?.stageContentBlocks?.[`stage-${index}`] as StageBlockItem[] | undefined
-              : undefined))?.filter((block) => !isIsland || block.type !== 'voice')),
+          ? buildCourseGoalBlocks(sixStageJourney, legacyAikiCourseResidue ? [] : islandStageBlocks)
+          : (isIsland
+              ? (legacyAikiCourseResidue ? [] : islandStageBlocks.filter((block) => block.type !== 'voice'))
+              : encoded.contentBlocks ?? card.contentBlocks),
         compareImages: encoded.compareImages ?? card.compareImages ?? (kind === 'explanation' ? { left: '', right: '' } : undefined),
         mee: isIsland && index === 0 && sixStageJourney
           ? { ...(encoded.mee ?? card.mee), readText: sixStageJourney.stage1_goal.speech, voiceProvider: 'vertex', gesture: encoded.mee?.gesture ?? card.mee?.gesture ?? 'presentation', autoRead: encoded.mee?.autoRead ?? card.mee?.autoRead ?? false }
@@ -510,7 +521,7 @@ function StudentStagePreview({
     const stageName = ISLAND_6_STAGE_NAMES[stageIndex] ?? `Chặng ${stageIndex + 1}`
 
     return (
-      <aside className="ui-card h-fit p-4 lg:sticky lg:top-4" aria-label={`Xem trước ${stageName} trên màn học sinh`}>
+      <aside className="ui-card min-w-0 h-fit overflow-hidden p-4 lg:sticky lg:top-4" aria-label={`Xem trước ${stageName} trên màn học sinh`}>
         <div className="flex items-center justify-between gap-2 pb-2 border-b border-border/80">
           <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-sky-700">
             <Eye size={15} /> Xem trước học sinh (Đảo AIKids)
@@ -526,6 +537,7 @@ function StudentStagePreview({
             <SixStageGoalStage
               goal={sixStageJourney.stage1_goal}
               fourKeys={sixStageJourney.stage1_goal.keyPoints.length >= 4 || sixStageJourney.stage1_goal.title.toLowerCase().includes('chìa khoá')}
+              compact={true}
               showContinue={false}
               onImageClick={(image) => setZoomedImage(image)}
             />
@@ -553,7 +565,7 @@ function StudentStagePreview({
                   >
                     <div className="flex items-center justify-between gap-1 mb-1">
                       <span className="text-[10px] font-black text-slate-700 uppercase">
-                        {idx === 0 ? '🅰️ Phương án A' : '🅱️ Phương án B'}
+                        Phương án {String.fromCharCode(65 + idx)}
                       </span>
                       {idx === sixStageJourney.stage2_confirmGoal.correctIndex && (
                         <span className="rounded bg-emerald-600 text-white text-[9px] font-extrabold px-1">ĐÚNG</span>
@@ -2518,8 +2530,8 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
             const islandBlocks = islandCard ? getStageBlocks(islandCard, stageIndex) : []
 
             return (
-              <div className={cn('grid items-start gap-5', showInlinePreview && 'lg:grid-cols-[minmax(0,1.15fr)_minmax(20rem,.85fr)]')}>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className={cn('grid min-w-0 items-start gap-5', showInlinePreview && 'xl:grid-cols-[minmax(0,1.15fr)_minmax(22rem,.85fr)]')}>
+                <div className="flex min-w-0 flex-col gap-4">
                   {/* Header chặng 6 bước */}
                   <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/60 p-4 shadow-sm">
                     <div className="flex items-center justify-between gap-2">

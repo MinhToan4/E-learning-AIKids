@@ -6,6 +6,7 @@ import type { SixStageGoal } from '@/shared/lib/api'
 type Props = {
   goal: SixStageGoal
   fourKeys?: boolean
+  compact?: boolean
   onContinue?: () => void
   onImageClick?: (image: { url: string; title: string }) => void
   showContinue?: boolean
@@ -24,16 +25,16 @@ function pointValue(raw?: string, fallback = '') {
   return match ? `“${match[1]}”` : raw
 }
 
-export function SixStageGoalStage({ goal, fourKeys = false, onContinue, onImageClick, showContinue = true }: Props) {
+export function SixStageGoalStage({ goal, fourKeys = false, compact = false, onContinue, onImageClick, showContinue = true }: Props) {
   const cards = KEY_STYLES.map((style, index) => ({
     ...style,
     value: pointValue(goal.keyPoints[index], 'Nội dung chìa khóa'),
   }))
 
   return (
-    <section data-testid="stage-0-goal" className="rounded-3xl bg-white p-5 sm:p-7 shadow-clay border-2 border-brand-100 flex flex-col gap-6">
-      <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-stretch">
-        <div className="w-full md:w-1/2 rounded-3xl overflow-hidden shadow-clay border-4 border-amber-200 bg-amber-50 group relative aspect-[4/3] flex items-center justify-center">
+    <section data-testid="stage-0-goal" className={cn('rounded-3xl bg-white shadow-clay border-2 border-brand-100 flex flex-col', compact ? 'gap-4 p-3' : 'gap-6 p-5 sm:p-7')}>
+      <div className={cn('flex flex-col items-stretch', compact ? 'gap-4' : 'gap-6 md:flex-row lg:gap-8')}>
+        <div className={cn('w-full rounded-3xl overflow-hidden shadow-clay border-4 border-amber-200 bg-amber-50 group relative aspect-[4/3] flex items-center justify-center', !compact && 'md:w-1/2')}>
           <img
             src={goal.imageUrl}
             alt={goal.title}
@@ -56,7 +57,7 @@ export function SixStageGoalStage({ goal, fourKeys = false, onContinue, onImageC
           )}
         </div>
 
-        <div className="w-full md:w-1/2 flex flex-col justify-between gap-3 sm:gap-4">
+        <div className={cn('w-full flex flex-col justify-between gap-3 sm:gap-4', !compact && 'md:w-1/2')}>
           <div className="flex flex-col gap-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs sm:text-sm font-bold w-fit border border-brand-200/60"><Sparkles size={13} className="text-brand-500" /><span>Chặng 1: Mục tiêu bài học</span></div>
             <h2 className="text-xl sm:text-2xl font-black text-slate-800 leading-tight">{goal.title}</h2>
@@ -67,7 +68,7 @@ export function SixStageGoalStage({ goal, fourKeys = false, onContinue, onImageC
           {fourKeys ? (
             <div className="flex flex-col gap-2 flex-1 justify-between">
               <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black uppercase tracking-wider text-amber-950">🔑 BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH (Khớp 1-1 Với Rương):</div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-3.5 flex-1 items-stretch">
+              <div className={cn('grid gap-3 sm:gap-3.5 flex-1 items-stretch', compact ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2')}>
                 {cards.map((card, index) => (
                   <div key={card.code} className={cn('p-2 sm:p-2.5 rounded-2xl border-2 bg-white/95 shadow-clay-sm hover:shadow-clay transition-all flex items-center gap-2.5 sm:gap-3', card.bg)}>
                     <img src={card.image} alt={card.code} className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl object-contain bg-amber-50/60 border-2 border-amber-200/90 p-1 shrink-0 shadow-xs" />

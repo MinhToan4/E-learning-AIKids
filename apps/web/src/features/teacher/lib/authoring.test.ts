@@ -215,6 +215,12 @@ describe('authoring ids and readiness', () => {
     expect(migratedCourseLesson.learnCards.every((card) =>
       !(card.contentBlocks || []).some((block) => block.type === 'voice')
     )).toBe(true)
+    expect(migratedCourseLesson.learnCards.map((card) => card.id)).toEqual([
+      'island-stage-1', 'island-stage-2', 'island-stage-3',
+      'island-stage-4', 'island-stage-5', 'island-stage-6',
+    ])
+    expect(migratedCourseLesson.learnCards.slice(1).every((card) => card.contentBlocks?.length === 0)).toBe(true)
+    expect(migratedCourseLesson.learnCards.some((card) => card.title.includes('Câu đố của AIKI'))).toBe(false)
 
     // Verify hydrateAikiRuleCard decodes from visualItems and removes __AIKI_RULE_STAGE__
     const hydratedSituation = hydrateAikiRuleCard(serialized[0] as any)
