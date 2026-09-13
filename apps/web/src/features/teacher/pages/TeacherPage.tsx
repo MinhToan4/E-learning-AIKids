@@ -61,13 +61,22 @@ export const FEATURE_BLOCKS_CATEGORIES: Array<{
     ],
   },
   {
-    category: 'Mini-Game Engine',
+    category: 'Game Engine Bài Học',
     icon: '🎮',
     items: [
       { id: 'data-runner', name: 'Data Runner', icon: '🏃', desc: 'Chạy vượt chướng ngại vật nhặt từ khóa', badge: 'Engine', color: 'border-blue-200 bg-blue-50/80 text-blue-950' },
       { id: 'truth-patrol', name: 'Truth Patrol', icon: '🚀', desc: 'Bắn thiên thạch fake news / quét sự thật', badge: 'Engine', color: 'border-cyan-200 bg-cyan-50/80 text-cyan-950' },
       { id: 'battle-math', name: 'Battle Math', icon: '⚔️', desc: 'Đấu trí toán học thần tốc cùng AIKI', badge: 'Engine', color: 'border-violet-200 bg-violet-50/80 text-violet-950' },
       { id: 'blockly', name: 'Blockly Code', icon: '🧩', desc: 'Lập trình kéo thả logic tư duy máy tính', badge: 'Engine', color: 'border-orange-200 bg-orange-50/80 text-orange-950' },
+    ],
+  },
+  {
+    category: 'Game Engine Thực Hành',
+    icon: '🎨',
+    items: [
+      { id: 'practice-brief', name: 'Đề Bài Thực Hành', icon: '🎯', desc: 'Mục tiêu, sản phẩm và chi tiết bắt buộc', badge: 'Thực hành', color: 'border-amber-200 bg-amber-50/80 text-amber-950' },
+      { id: 'practice-workflow', name: 'Quy Trình 4 Bước', icon: '🪜', desc: 'Bốn bước thao tác có thể sắp xếp', badge: 'Thực hành', color: 'border-mint-200 bg-mint-50/80 text-mint-950' },
+      { id: 'practice-ai-studio', name: 'Xưởng Tạo Tranh AI', icon: '🎨', desc: 'Game engine ghép 4 chìa khóa và tạo sản phẩm', badge: 'Engine', color: 'border-brand-200 bg-brand-50/80 text-brand-950' },
     ],
   },
   {
@@ -1293,7 +1302,7 @@ export function TeacherPage({ tab }: { tab: TeacherTab }) {
                   </div>
 
                   {FEATURE_BLOCKS_CATEGORIES.map((category) => {
-                    const isOpen = openCategories[category.category] ?? true
+                    const isOpen = openCategories[category.category] ?? category.category === 'Khối Chuẩn Khóa Học'
                     const visibleItems = isCurrentCourseRule
                       ? category.items
                       : category.items.filter((item) => item.id !== 'voice')

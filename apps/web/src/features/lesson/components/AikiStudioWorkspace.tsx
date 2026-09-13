@@ -2237,7 +2237,7 @@ export function AikiStudioWorkspace({
         'w-full flex flex-col transition-all duration-300 font-sans text-slate-900',
         isFullscreen
           ? 'fixed inset-0 z-[99999] bg-[#faf8ff] w-screen h-screen flex flex-col p-3 sm:p-5 overflow-y-auto'
-          : 'relative bg-[#faf8ff] rounded-3xl border-2 border-indigo-100 p-2.5 sm:p-3.5 shadow-sm h-full min-h-0 flex-1 overflow-hidden flex flex-col gap-2',
+          : 'relative bg-[#faf8ff] rounded-3xl border-2 border-indigo-100 p-2.5 sm:p-3.5 shadow-sm min-h-[42rem] flex-1 overflow-y-auto flex flex-col gap-2 xl:h-full xl:min-h-0 xl:overflow-hidden',
         className
       )}
     >
@@ -2384,11 +2384,11 @@ export function AikiStudioWorkspace({
       </div>
 
       {/* ── BỐ CỤC CHÍNH: XƯỞNG SÁNG TẠO 100% FULL WIDTH ── */}
-      <div className="w-full flex-1 min-h-0 flex flex-col overflow-hidden">
+      <div className="w-full flex-1 min-h-0 flex flex-col overflow-y-auto xl:overflow-hidden">
         {/* ── KHU VỰC CHÍNH: GAME ENGINE & LIVE CANVAS (100% FULL WIDTH) ── */}
         <div
           data-testid="studio-col-canvas"
-          className="w-full flex-1 min-h-0 flex flex-col h-full bg-white rounded-3xl border-2 border-indigo-100 shadow-sm p-2 sm:p-2.5 overflow-hidden gap-1.5 text-left"
+          className="w-full flex-1 min-h-0 flex flex-col bg-white rounded-3xl border-2 border-indigo-100 shadow-sm p-2 sm:p-2.5 overflow-y-auto gap-1.5 text-left xl:h-full xl:overflow-hidden"
         >
           {/* sr-only bảo toàn 100% test assertions line 52 AikiStudioWorkspace.test.tsx & trợ năng */}
           <div className="sr-only">

@@ -266,13 +266,14 @@ describe('authoring ids and readiness', () => {
 
   it('provides feature blocks library categories and active module resolution', () => {
     // 1. Verify course-native templates are separated from generic blocks.
-    expect(FEATURE_BLOCKS_CATEGORIES).toHaveLength(5)
+    expect(FEATURE_BLOCKS_CATEGORIES).toHaveLength(6)
     const categoryNames = FEATURE_BLOCKS_CATEGORIES.map((c) => c.category)
     expect(categoryNames).toEqual([
       'Khối Chuẩn Khóa Học',
       'Kể Chuyện & Bài Giảng',
       'Bố Cục & Văn Bản',
-      'Mini-Game Engine',
+      'Game Engine Bài Học',
+      'Game Engine Thực Hành',
       'Luyện Tập & Đánh Giá',
     ])
 
@@ -280,6 +281,7 @@ describe('authoring ids and readiness', () => {
     const allBlockIds = FEATURE_BLOCKS_CATEGORIES.flatMap((c) => c.items.map((i) => i.id))
     expect(allBlockIds).toContain('course-text')
     expect(allBlockIds).toContain('course-four-keys')
+    expect(allBlockIds).toContain('practice-ai-studio')
     expect(allBlockIds).toContain('versus-ab')
     expect(allBlockIds).toContain('dialogue')
     expect(allBlockIds).toContain('compare')

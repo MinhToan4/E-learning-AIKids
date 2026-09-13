@@ -1182,7 +1182,7 @@ export function SixStageJourneyView({
           {currentStage === 2 && (
             <section
               data-testid="stage-2-video"
-              className="h-full max-h-full min-h-0 rounded-3xl bg-white p-3 sm:p-4 shadow-clay border-2 border-brand-100 flex flex-col justify-between gap-2 overflow-hidden animate-fade-up"
+              className="min-h-0 rounded-3xl bg-white p-3 sm:p-4 shadow-clay border-2 border-brand-100 flex flex-col justify-between gap-3 overflow-y-auto animate-fade-up lg:h-full lg:max-h-full lg:overflow-hidden"
             >
               {/* Header nhỏ */}
               <div className="shrink-0 flex items-center justify-between gap-2">
@@ -1196,15 +1196,11 @@ export function SixStageJourneyView({
               </div>
 
               {/* KHUNG VIDEO 16:9 TO RÕ Ở TRUNG TÂM (CHIẾM TRỌN BỀ NGANG, CHIỀU CAO TỐI ƯU) */}
-              <div className="flex-1 min-h-0 w-full max-w-4xl mx-auto flex items-center justify-center overflow-hidden [container-type:size]">
+              <div className="flex min-h-0 w-full flex-1 items-center justify-center overflow-hidden">
                 <div
-                  className="relative aspect-video rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-900 bg-black flex items-center justify-center"
+                  className="relative aspect-video w-full max-w-7xl rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border-4 border-slate-900 bg-black"
                   style={{
-                    height: 'min(100cqh, calc(100cqw * 9 / 16))',
-                    width: 'min(100cqw, calc(100cqh * 16 / 9))',
-                    maxHeight: '100%',
-                    maxWidth: '100%',
-                    aspectRatio: '16 / 9',
+                    width: 'min(100%, 1280px, calc((100dvh - 245px) * 16 / 9))',
                   }}
                 >
                   <iframe
@@ -1665,7 +1661,7 @@ export function SixStageJourneyView({
           {currentStage === 4 && (
             <section
               data-testid="stage-4-practice"
-              className="w-full h-full min-h-0 flex-1 flex flex-col overflow-hidden animate-fade-up"
+              className="w-full min-h-0 flex-1 flex flex-col overflow-y-auto animate-fade-up xl:h-full xl:overflow-hidden"
             >
 
               <AikiStudioWorkspace

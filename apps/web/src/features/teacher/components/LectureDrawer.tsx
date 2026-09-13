@@ -1836,6 +1836,32 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         body: '',
       }
       showToast('Đã thêm khối Đoạn văn bản mới!', 'success')
+    } else if (blockId === 'practice-brief') {
+      newBlock = {
+        id: `blk-practice-brief-${timestamp}`,
+        type: 'layout-callout',
+        title: 'Đề bài thực hành',
+        body: 'Mô tả sản phẩm học sinh cần hoàn thành.',
+        tip: 'Liệt kê các chi tiết bắt buộc để học sinh tự kiểm tra.',
+      }
+      showToast('Đã thêm block Đề bài thực hành!', 'success')
+    } else if (blockId === 'practice-workflow') {
+      newBlock = {
+        id: `blk-practice-workflow-${timestamp}`,
+        type: 'layout-storyboard',
+        title: 'Quy trình 4 bước thực hành',
+        visualItems: Array.from({ length: 4 }, (_, index) => ({ label: `Bước ${index + 1}`, text: 'Nhập hướng dẫn thao tác...', tone: (['brand', 'sky', 'mint', 'sun'] as const)[index] })),
+      }
+      showToast('Đã thêm block Quy trình 4 bước!', 'success')
+    } else if (blockId === 'practice-ai-studio') {
+      newBlock = {
+        id: `blk-practice-studio-${timestamp}`,
+        type: 'layout-four-keys',
+        title: 'Xưởng tạo tranh AI · 4 chìa khóa',
+        body: 'Học sinh ghép bốn thành phần để tạo câu lệnh và sinh sản phẩm.',
+        visualItems: goalKeyItems([]),
+      }
+      showToast('Đã thêm Game Engine Xưởng tạo tranh AI!', 'success')
     } else if (blockId === 'layout-callout') {
       newBlock = {
         id: `blk-callout-${timestamp}`,
