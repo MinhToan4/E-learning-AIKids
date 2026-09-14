@@ -2131,7 +2131,7 @@ export function AikiStudioWorkspace({
   )
 
   const previewCanvasColumn = (
-    <div className="w-full h-full min-h-0 flex flex-col">
+    <div className="flex w-full min-w-0 flex-col gap-1">
       {/* Header Cột 3: Đồng bộ cao độ với Cột 1 và Cột 2, tích hợp nút Nộp Bài tinh gọn */}
       <div className="flex items-center justify-between gap-1.5 pb-1 shrink-0">
         <div className="flex items-center gap-1 text-xs font-black text-amber-950 uppercase tracking-wider px-1">
@@ -2155,7 +2155,7 @@ export function AikiStudioWorkspace({
       {latestStudioImage ? (
         <div
           data-testid="studio-live-canvas-display"
-          className="relative w-full flex-1 h-full min-h-0 rounded-3xl overflow-hidden border-2 border-amber-200 shadow-clay-sm flex flex-col bg-linear-to-b from-amber-50/60 via-white to-amber-50/40 group shrink-0 justify-between p-2.5"
+          className="group relative flex aspect-[4/3] w-full min-w-0 flex-col justify-between overflow-hidden rounded-3xl border-2 border-amber-200 bg-linear-to-b from-amber-50/60 via-white to-amber-50/40 p-2.5 shadow-clay-sm"
         >
           <div
             onClick={() => handleOpenInspect(latestStudioImage)}
@@ -2198,7 +2198,7 @@ export function AikiStudioWorkspace({
         /* PREVIEW TRẮNG THÔNG BÁO THÂN THIỆN - TUYỆT ĐỐI KHÔNG ĐỂ ẢNH MẪU ĐỂ TRÁNH NHẦM LẪN */
         <div
           data-testid="studio-canvas-empty"
-          className="w-full flex-1 h-full min-h-0 rounded-3xl border-2 border-dashed border-indigo-200 bg-linear-to-b from-indigo-50/30 via-white to-amber-50/20 flex flex-col items-center justify-center p-4 sm:p-6 text-center group transition-all shrink-0 shadow-clay-sm relative overflow-hidden"
+          className="group relative flex aspect-[4/3] w-full min-w-0 flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-indigo-200 bg-linear-to-b from-indigo-50/30 via-white to-amber-50/20 p-4 text-center shadow-clay-sm transition-all sm:p-6"
         >
           {/* Ảnh mẫu & text ẩn sr-only phục vụ test suite & trợ năng, không render thị giác để tránh bé nhầm lẫn */}
           <div className="sr-only" aria-hidden="true">

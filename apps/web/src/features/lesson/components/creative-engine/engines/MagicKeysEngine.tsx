@@ -349,7 +349,7 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
 
           {/* CỘT 3 (BÊN PHẢI CÙNG): KHUNG PREVIEW TRANH VẼ (PHẦN ẢNH) */}
           {canvasSlot && (
-            <div className="aspect-[4/3] w-full min-w-0 md:col-span-2 md:row-start-2 md:aspect-video md:max-w-5xl md:justify-self-center xl:col-span-1 xl:col-start-3 xl:row-start-1 xl:aspect-[4/3] xl:max-w-none">
+            <div className="w-full min-w-0 self-start md:col-span-2 md:row-start-2 md:max-w-4xl md:justify-self-center xl:col-span-1 xl:col-start-3 xl:row-start-1 xl:max-w-none">
               {canvasSlot}
             </div>
           )}
