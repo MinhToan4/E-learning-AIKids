@@ -28,3 +28,6 @@ courses/
 docs/
 backup/
 *.bak
+
+__pycache__/
+*.pyc

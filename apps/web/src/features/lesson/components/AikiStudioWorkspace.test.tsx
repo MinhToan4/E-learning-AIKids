@@ -1,15 +1,41 @@
 // @vitest-environment jsdom
 ;(globalThis as unknown as { IS_REACT_ACT_ENVIRONMENT: boolean }).IS_REACT_ACT_ENVIRONMENT = true
 
+let mockStorage: Record<string, string> = {}
+const mockLocalStorage = {
+  getItem: (key: string) => mockStorage[key] ?? null,
+  setItem: (key: string, val: string) => {
+    mockStorage[key] = String(val)
+  },
+  removeItem: (key: string) => {
+    delete mockStorage[key]
+  },
+  clear: () => {
+    mockStorage = {}
+  },
+  get length() {
+    return Object.keys(mockStorage).length
+  },
+  key: (i: number) => Object.keys(mockStorage)[i] ?? null,
+}
+Object.defineProperty(globalThis, 'localStorage', {
+  value: mockLocalStorage,
+  writable: true,
+  configurable: true,
+})
+
 import React, { act } from 'react'
 import { createRoot } from 'react-dom/client'
-import { describe, expect, it, vi } from 'vitest'
+import { describe, expect, it, vi, beforeEach } from 'vitest'
 import { renderToStaticMarkup } from 'react-dom/server'
 import { AikiStudioWorkspace, getStudioAIArtwork, renderObjectClayIcon, type StudioImageItem } from './AikiStudioWorkspace'
 import { getAikiStudioConfig } from '../data/aiki-studio-configs'
 import * as creativeApi from '@/shared/lib/creative-api'
 
 describe('AikiStudioWorkspace', () => {
+  beforeEach(() => {
+    mockStorage = {}
+  })
   it('renders fresh practice session cleanly matching the simplified, gamified UI', () => {
     const html = renderToStaticMarkup(
       <AikiStudioWorkspace
@@ -774,4 +800,424 @@ describe('AikiStudioWorkspace', () => {
     })
     container2.remove()
   })
+
+  it('handles 2-turn evolution tabs and switches displayedPartImage vs studio-canvas-empty correctly', async () => {
+    const mockImages: StudioImageItem[] = [
+      {
+        id: 'img-p1-t1',
+        url: '/assets/aiki-islands/island1_lesson2_teacup.jpg',
+        prompt: 'Cái cốc sứ trắng',
+        time: '08:30',
+        toneBg: 'bg-amber-100',
+        turn: 1,
+        partIndex: 0,
+        partTurn: 1,
+      },
+    ]
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-2"
+          lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
+          lessonBadge="Bài 1.2"
+          characterName="Cốc Sứ Trắng"
+          maxAttempts={8}
+          preloadedImages={mockImages}
+        />
+      )
+    })
+
+    // 1. Kiểm tra Turn Switcher tabs
+    expect(container.textContent).toContain('Lượt 1: Sơ khai')
+    expect(container.textContent).toContain('Lượt 2: Hoàn thiện ★')
+    expect(container.textContent).toContain('✓ Đã vẽ')
+    expect(container.textContent).toContain('Chưa vẽ')
+
+    // 2. Khung ảnh to đang hiển thị ảnh Lượt 1
+    const liveCanvas = container.querySelector('[data-testid="studio-live-canvas-display"]')
+    expect(liveCanvas).not.toBeNull()
+    expect(liveCanvas?.textContent).toContain('Lượt 1')
+
+    // 3. Click chuyển sang Tab Lượt 2
+    const buttons = container.querySelectorAll('button')
+    const turn2Btn = Array.from(buttons).find((b) => b.textContent?.includes('Lượt 2: Hoàn thiện ★'))
+    expect(turn2Btn).toBeDefined()
+
+    await act(async () => {
+      turn2Btn?.click()
+    })
+
+    // 4. Vì chưa vẽ lượt 2, canvas to chuyển sang studio-canvas-empty
+    const emptyCanvas = container.querySelector('[data-testid="studio-canvas-empty"]')
+    expect(emptyCanvas).not.toBeNull()
+    expect(emptyCanvas?.textContent).toContain('Khung Tranh Của Bé Đang Chờ!')
+
+    // 5. Kiểm tra Dải phim Mini Filmstrip Gallery
+    expect(container.textContent).toContain('Balo bài học:')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('opens Masterpiece Selection modal, allows candidate selection, and confirms submission', async () => {
+    const onSubmitWorkSpy = vi.fn()
+    const mockImages: StudioImageItem[] = [
+      {
+        id: 'img-p1-t1',
+        url: '/assets/aiki-islands/island1_lesson2_teacup.jpg',
+        prompt: 'Cái cốc sứ trắng',
+        time: '08:30',
+        toneBg: 'bg-amber-100',
+        turn: 1,
+        partIndex: 0,
+        partTurn: 1,
+      },
+      {
+        id: 'img-p1-t2',
+        url: '/assets/aiki-islands/island1_lesson2_teacup.jpg',
+        prompt: 'Cái cốc sứ trắng có quai tròn viền vàng',
+        time: '08:32',
+        toneBg: 'bg-purple-100',
+        turn: 2,
+        partIndex: 0,
+        partTurn: 2,
+      },
+    ]
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-2"
+          lessonTitle="Bốn Chiếc Chìa Khóa Vạn Năng"
+          lessonBadge="Bài 1.2"
+          characterName="Cốc Sứ Trắng"
+          maxAttempts={8}
+          preloadedImages={mockImages}
+          onSubmitWork={onSubmitWorkSpy}
+        />
+      )
+    })
+
+    // 1. Nút Submit hiển thị số ảnh đã tạo (2 ảnh)
+    const submitBtn = container.querySelector('[data-testid="studio-submit-btn"]') as HTMLButtonElement
+    expect(submitBtn).not.toBeNull()
+    expect(submitBtn.textContent).toContain('2 ảnh')
+
+    // 2. Mở Modal Nộp Bài
+    await act(async () => {
+      submitBtn.click()
+    })
+
+    const modal = container.querySelector('[data-testid="studio-submit-modal"]')
+    expect(modal).not.toBeNull()
+    expect(modal?.textContent).toContain('Chọn Kiệt Tác Của Bé Để Nhận Cúp Vàng!')
+    expect(modal?.textContent).toContain('Bé hãy chạm vào bức tranh bé tự hào nhất')
+    expect(modal?.textContent).toContain('⭐ KIỆT TÁC CHỌN NỘP')
+
+    // 3. Bấm xác nhận nộp bài
+    const confirmBtn = container.querySelector('[data-testid="studio-confirm-submit"]') as HTMLButtonElement
+    expect(confirmBtn).not.toBeNull()
+
+    await act(async () => {
+      confirmBtn.click()
+    })
+
+    // Modal chuyển sang trạng thái chúc mừng nhận cúp
+    expect(modal?.textContent).toContain('XUẤT SẮC QUÁ CẬU ƠI!')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('supports multiplatform horizontal scrolling (touch-pan-x, chevron buttons, drag-to-scroll, active thumbnail indicator)', async () => {
+    // Mock scrollIntoView and scrollBy for jsdom
+    const scrollIntoViewMock = vi.fn()
+    window.HTMLElement.prototype.scrollIntoView = scrollIntoViewMock
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-2"
+          characterName="Cái cốc sứ trắng"
+          maxAttempts={8}
+        />
+      )
+    })
+
+    // 1. Kiểm tra hai nút cuộn Chevron tactile
+    const scrollLeftBtn = container.querySelector('[data-testid="filmstrip-scroll-left"]') as HTMLButtonElement
+    const scrollRightBtn = container.querySelector('[data-testid="filmstrip-scroll-right"]') as HTMLButtonElement
+    expect(scrollLeftBtn).not.toBeNull()
+    expect(scrollRightBtn).not.toBeNull()
+    expect(scrollLeftBtn.getAttribute('aria-label')).toBe('Cuộn sang trái')
+    expect(scrollRightBtn.getAttribute('aria-label')).toBe('Cuộn sang phải')
+
+    // 2. Ban đầu canScrollLeft = false -> disabled
+    expect(scrollLeftBtn.disabled).toBe(true)
+    expect(scrollLeftBtn.className).toContain('opacity-30')
+
+    // 3. Kiểm tra container dải phim có các class đa nền tảng
+    const filmstripEl = container.querySelector('.touch-pan-x') as HTMLDivElement
+    expect(filmstripEl).not.toBeNull()
+    expect(filmstripEl.className).toContain('scroll-smooth')
+    expect(filmstripEl.className).toContain('snap-x')
+    expect(filmstripEl.className).toContain('select-none')
+    expect(filmstripEl.className).toContain('cursor-grab')
+    expect(filmstripEl.textContent).toContain('🎒')
+    expect(filmstripEl.textContent).toContain('Balo bài học:')
+
+    // 4. Kiểm tra thumbnail active có data-active-filmstrip="true" và snap-start
+    const activeThumbnail = filmstripEl.querySelector('[data-active-filmstrip="true"]') as HTMLElement
+    expect(activeThumbnail).not.toBeNull()
+    expect(activeThumbnail.className).toContain('snap-start')
+    expect(scrollIntoViewMock).toHaveBeenCalled()
+
+    // 5. Giả lập cuộn filmstrip để kích hoạt checkFilmstripScroll
+    Object.defineProperty(filmstripEl, 'scrollLeft', { value: 50, writable: true })
+    Object.defineProperty(filmstripEl, 'clientWidth', { value: 300, writable: true })
+    Object.defineProperty(filmstripEl, 'scrollWidth', { value: 600, writable: true })
+
+    await act(async () => {
+      filmstripEl.dispatchEvent(new Event('scroll'))
+    })
+
+    expect(scrollLeftBtn.disabled).toBe(false)
+    expect(scrollRightBtn.disabled).toBe(false)
+
+    // 6. Click nút cuộn chevron
+    const scrollByMock = vi.fn()
+    filmstripEl.scrollBy = scrollByMock
+
+    await act(async () => {
+      scrollRightBtn.click()
+    })
+    expect(scrollByMock).toHaveBeenCalledWith(expect.objectContaining({ left: 140, behavior: 'smooth' }))
+
+    await act(async () => {
+      scrollLeftBtn.click()
+    })
+    expect(scrollByMock).toHaveBeenCalledWith(expect.objectContaining({ left: -140, behavior: 'smooth' }))
+
+    // 7. Test Mouse Drag-to-Scroll
+    await act(async () => {
+      filmstripEl.dispatchEvent(new MouseEvent('mousedown', { bubbles: true, clientX: 200 }))
+      filmstripEl.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, clientX: 150 }))
+      filmstripEl.dispatchEvent(new MouseEvent('mouseup', { bubbles: true }))
+    })
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('blocks Turn 1 when already drawn with clear message, and blocks Turn 2 when completed', async () => {
+    const mockImages: StudioImageItem[] = [
+      {
+        id: 'img-p1-t1',
+        url: '/assets/aiki-islands/island1_lesson2_teacup.jpg',
+        prompt: 'Cái cốc sứ trắng',
+        time: '08:30',
+        toneBg: 'bg-amber-100',
+        turn: 1,
+        partIndex: 0,
+        partTurn: 1,
+      },
+    ]
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-2"
+          characterName="Cốc Sứ Trắng"
+          maxAttempts={8}
+          preloadedImages={mockImages}
+        />
+      )
+    })
+
+    // Initially Turn 1 is selected; since it is already drawn, the draw button is disabled with message
+    const drawBtn = container.querySelector('[data-testid="studio-draw-btn"]') as HTMLButtonElement
+    expect(drawBtn).not.toBeNull()
+    expect(drawBtn.disabled).toBe(true)
+    expect(drawBtn.textContent).toContain('🔒 Lượt 1 đã vẽ xong · Chuyển sang Lượt 2 nhé!')
+
+    // Switch to Turn 2
+    const buttons = container.querySelectorAll('button')
+    const turn2Btn = Array.from(buttons).find((b) => b.textContent?.includes('Lượt 2: Hoàn thiện ★'))
+    await act(async () => {
+      turn2Btn?.click()
+    })
+
+    // Turn 2 is not drawn yet, button should NOT show locked message
+    const drawBtnAfter = container.querySelector('[data-testid="studio-draw-btn"]') as HTMLButtonElement
+    expect(drawBtnAfter.textContent).not.toContain('🔒 Lượt 1 đã vẽ xong')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('supports CMS configuration via maxTurnsPerItem and turnsPerItem prop', () => {
+    const configWithMaxTurns = {
+      ...getAikiStudioConfig('bai-1-2'),
+      maxTurnsPerItem: 1,
+    }
+
+    const html = renderToStaticMarkup(
+      <AikiStudioWorkspace
+        lessonId="bai-1-2"
+        config={configWithMaxTurns}
+        turnsPerItem={1}
+      />
+    )
+
+    expect(html).toContain('data-testid="aiki-studio-workspace"')
+  })
+
+  it('restores gallery and selectedTurnByPart from localStorage session, calculating attemptsLeft accurately', async () => {
+    const sessionKey = 'aiki_studio_session_bai-test-session'
+    const sessionTurnsKey = 'aiki_studio_turns_bai-test-session'
+    const savedGallery = [
+      {
+        id: 'img-saved-1',
+        url: '/assets/aiki-islands/island1_lesson2_teacup.jpg',
+        prompt: 'Cái cốc sứ',
+        time: '08:30',
+        toneBg: 'bg-amber-100',
+        turn: 1,
+        partIndex: 0,
+        partTurn: 1 as const,
+      },
+      {
+        id: 'img-saved-2',
+        url: '/assets/aiki-islands/island1_lesson2_teacup.jpg',
+        prompt: 'Cái cốc sứ viền vàng',
+        time: '08:35',
+        toneBg: 'bg-purple-100',
+        turn: 2,
+        partIndex: 0,
+        partTurn: 2 as const,
+      },
+    ]
+
+    localStorage.setItem(sessionKey, JSON.stringify(savedGallery))
+    localStorage.setItem(sessionTurnsKey, JSON.stringify({ 0: 2 }))
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-test-session"
+          maxAttempts={8}
+        />
+      )
+    })
+
+    // attemptsLeft should be maxAttempts - 2 = 6
+    expect(container.textContent).toContain('6')
+    // Both turns drawn for part 0 -> on turn 2 shows completion message
+    const drawBtn = container.querySelector('[data-testid="studio-draw-btn"]') as HTMLButtonElement
+    expect(drawBtn.disabled).toBe(true)
+    expect(drawBtn.textContent).toContain('🏆 Đã hoàn thành 2/2 lượt món này')
+
+    localStorage.removeItem(sessionKey)
+    localStorage.removeItem(sessionTurnsKey)
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
+
+  it('saves masterpiece and all gallery works to aiki_backpack_saved_works when confirming submit', async () => {
+    const mockImages: StudioImageItem[] = [
+      {
+        id: 'img-sub-1',
+        url: '/assets/aiki-islands/island1_lesson2_teacup.jpg',
+        prompt: 'Cái cốc sứ trắng',
+        time: '08:30',
+        toneBg: 'bg-amber-100',
+        turn: 1,
+        partIndex: 0,
+        partTurn: 1,
+      },
+      {
+        id: 'img-sub-2',
+        url: '/assets/aiki-islands/island1_lesson2_teacup.jpg',
+        prompt: 'Cái cốc sứ quai vàng',
+        time: '08:32',
+        toneBg: 'bg-purple-100',
+        turn: 2,
+        partIndex: 0,
+        partTurn: 2,
+      },
+    ]
+
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-2"
+          characterName="Cốc Sứ Trắng"
+          maxAttempts={8}
+          preloadedImages={mockImages}
+        />
+      )
+    })
+
+    const submitBtn = container.querySelector('[data-testid="studio-submit-btn"]') as HTMLButtonElement
+    await act(async () => {
+      submitBtn.click()
+    })
+
+    const confirmBtn = container.querySelector('[data-testid="studio-confirm-submit"]') as HTMLButtonElement
+    await act(async () => {
+      confirmBtn.click()
+    })
+
+    const backpackRaw = localStorage.getItem('aiki_backpack_saved_works')
+    expect(backpackRaw).not.toBeNull()
+    const savedWorks = JSON.parse(backpackRaw!)
+    expect(Array.isArray(savedWorks)).toBe(true)
+    expect(savedWorks.length).toBeGreaterThanOrEqual(2)
+    // Masterpiece is marked
+    expect(savedWorks[0].isMasterpiece).toBe(true)
+
+    localStorage.removeItem('aiki_backpack_saved_works')
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
 })
+

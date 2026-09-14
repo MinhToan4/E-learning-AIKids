@@ -43,4 +43,30 @@ describe('SixStageGoalStage', () => {
     expect(container.querySelector('button')).toBeNull()
     act(() => root.unmount())
   })
+
+  it('applies anti-clipping styles (line-clamp-3, leading-snug, break-words, items-start) so long text is fully legible on iPad', () => {
+    container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+    act(() => root.render(<SixStageGoalStage goal={goal} fourKeys showContinue={false} />))
+
+    // Card containers must use items-start and min-h-[64px]
+    const cardElements = container.querySelectorAll('.min-h-\\[64px\\]')
+    expect(cardElements.length).toBe(4)
+    cardElements.forEach((el) => {
+      expect(el.className).toContain('items-start')
+      expect(el.className).toContain('min-h-[64px]')
+    })
+
+    // Value text must use line-clamp-3, leading-snug, break-words (not line-clamp-1)
+    const valueTexts = container.querySelectorAll('p.line-clamp-3')
+    expect(valueTexts.length).toBe(4)
+    valueTexts.forEach((el) => {
+      expect(el.className).toContain('leading-snug')
+      expect(el.className).toContain('break-words')
+      expect(el.className).not.toContain('line-clamp-1')
+    })
+
+    act(() => root.unmount())
+  })
 })

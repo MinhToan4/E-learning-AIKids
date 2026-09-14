@@ -174,7 +174,7 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
       </div>
 
       {/* Danh sách 4 Ô Slot Thần Kỳ (Bố Cục Dọc: Ảnh 3D trên, Text dưới) */}
-      <div className={cn("grid content-start gap-1.5 sm:gap-2", isGrid2x2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-2 sm:grid-cols-4")}>
+      <div className={cn("grid content-start gap-1.5 sm:gap-2", isGrid2x2 ? "grid-cols-2" : "grid-cols-2 sm:grid-cols-4")}>
         {slots.map((slot, index) => {
           const color =
             SLOT_COLOR_CLASSES[slot.colorScheme || 'sky'] || SLOT_COLOR_CLASSES.sky
@@ -196,7 +196,7 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
               onDrop={(e) => handleDrop(e, slot.id)}
               onClick={() => onSlotClick && onSlotClick(slot)}
               className={cn(
-                isGrid2x2 ? "min-h-[9rem] p-2 sm:min-h-[10rem] sm:p-2.5" : "min-h-[64px] sm:min-h-[72px] p-2 sm:p-2.5",
+                isGrid2x2 ? "min-h-[7.5rem] p-2 sm:min-h-[8.5rem] sm:p-2.5" : "min-h-[64px] sm:min-h-[72px] p-2 sm:p-2.5",
                 "rounded-2xl border-2 flex flex-col justify-between transition-all duration-150 select-none relative cursor-pointer group",
                 isSlotDragOver
                   ? 'border-indigo-500 bg-indigo-100/90 ring-4 ring-indigo-300 scale-102 shadow-md'
@@ -208,7 +208,7 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
               )}
             >
               {/* Tầng 1: Header cố định chiều cao ~26px */}
-              <div className="flex items-center justify-between gap-1 mb-1 shrink-0 w-full h-[26px]">
+              <div className="flex items-center justify-between gap-1 mb-1 shrink-0 w-full min-h-[26px]">
                 <div className="flex items-center gap-1.5 min-w-0">
                   {/* Badge Chìa Khóa ở góc */}
                   <span
@@ -221,7 +221,7 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
                     <span>{slot.keyNumber || index + 1}</span>
                   </span>
                   {/* Tiêu đề ngắn gọn, không bao giờ bị cắt cụt */}
-                  <span className="text-xs sm:text-sm font-black text-slate-800 whitespace-nowrap leading-tight truncate">
+                  <span className="text-xs sm:text-sm font-black text-slate-800 leading-tight break-words min-w-0">
                     {slot.keyTitle || slot.label?.replace(/🔑\s*\d+\.\s*/, '') || `Ô số ${index + 1}`}
                   </span>
                   {slot.required && !hasBlock && (
@@ -314,7 +314,7 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
                   </div>
 
                   {/* Text hướng dẫn / nhóm từ to rõ */}
-                  <span className="text-xs sm:text-[13px] font-black text-slate-700 leading-tight px-1 text-center line-clamp-1">
+                  <span className="text-[11px] sm:text-xs font-bold text-slate-600 leading-tight px-1 text-center break-words">
                     {catInfo.chips.join(' · ')}
                   </span>
                 </div>

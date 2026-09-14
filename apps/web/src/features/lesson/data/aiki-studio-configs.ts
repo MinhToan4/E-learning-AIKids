@@ -73,6 +73,7 @@ export interface AikiStudioConfig {
     | 'elemental-duo'
     | 'board-game-arena'
     | 'generic'
+  maxTurnsPerItem?: number
 }
 
 export function createDefaultPracticeWorkflow(config: {

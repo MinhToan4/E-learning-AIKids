@@ -463,13 +463,13 @@ describe('CreativeEngine Suite', () => {
       expect(htmlIncluded).toContain('hidden')
     })
 
-    it('renders full multi-line prompt without line-clamp-1 truncation in PromptPreviewBar', () => {
+    it('renders full multi-line prompt without line-clamp truncation in PromptPreviewBar', () => {
       const longPrompt = 'Cái đồng hồ cổ vỏ bằng gỗ mun sẫm màu chạm trổ cổ kính đôi kim thanh mảnh uốn lượn phong cách quý tộc treo trang trọng trên bức tường gạch đỏ mộc mạc'
       const html = renderToStaticMarkup(
         <PromptPreviewBar generatedPrompt={longPrompt} />
       )
-      expect(html).toContain('line-clamp-2 sm:line-clamp-3 break-words text-slate-900')
-      expect(html).not.toContain('line-clamp-1 break-words')
+      expect(html).toContain('break-words text-slate-900')
+      expect(html).not.toContain('line-clamp')
       expect(html).toContain(longPrompt)
     })
 
@@ -929,6 +929,60 @@ describe('CreativeEngine Suite', () => {
         root.unmount()
       })
       container.remove()
+    })
+
+    it('positions promptSlot above canvasSlot and spans canvasSlot full-width in MagicKeysEngine', () => {
+      const html = renderToStaticMarkup(
+        <MagicKeysEngine
+          selectedSubject="Cái cốc sứ trắng"
+          lessonId="bai-1-2"
+          onPromptChange={vi.fn()}
+          practiceSlot={<div data-testid="test-practice">Món đồ</div>}
+          canvasSlot={<div data-testid="test-canvas">Tranh vẽ</div>}
+          promptSlot={<div data-testid="test-prompt-slot">Thanh câu lệnh</div>}
+        />
+      )
+
+      expect(html).toContain('data-testid="test-practice"')
+      expect(html).toContain('data-testid="test-canvas"')
+      expect(html).toContain('data-testid="test-prompt-slot"')
+
+      // PromptSlot: Row 2 under 4 keys when < xl, span 3 at row 2 when >= xl
+      expect(html).toContain('md:col-span-2 md:row-start-2 xl:col-span-3 xl:row-start-2')
+      // CanvasSlot: Row 3 when < xl, column 3 row 1 when >= xl, NO md:max-w-2xl, NO md:justify-self-center
+      expect(html).toContain('md:col-span-2 md:row-start-3 xl:col-span-1 xl:col-start-3 xl:row-start-1')
+      expect(html).not.toContain('md:max-w-2xl')
+      expect(html).not.toContain('md:justify-self-center')
+    })
+
+    it('passes promptBarContent as promptSlot to MagicKeysEngine in CreativeEngineShell without bottom duplication', () => {
+      const html = renderToStaticMarkup(
+        <CreativeEngineShell
+          mode="magic-keys"
+          characterName="Cái cốc sứ trắng"
+          lessonId="bai-1-2"
+          currentPrompt="Cái cốc sứ trắng"
+          onPromptChange={vi.fn()}
+          onGenerate={vi.fn()}
+          attemptsLeft={6}
+          maxAttempts={6}
+          isGenerating={false}
+          practiceSlot={<div data-testid="test-practice">Món đồ</div>}
+          canvasSlot={<div data-testid="test-canvas">Tranh vẽ</div>}
+        />
+      )
+
+      // PromptPreviewBar and draw button are rendered
+      expect(html).toContain('data-testid="prompt-preview-bar"')
+      expect(html).toContain('data-testid="studio-draw-btn"')
+
+      // Grid classes ensure promptSlot is placed at row 2 above canvasSlot at row 3
+      expect(html).toContain('md:col-span-2 md:row-start-2 xl:col-span-3 xl:row-start-2')
+      expect(html).toContain('md:col-span-2 md:row-start-3 xl:col-span-1 xl:col-start-3 xl:row-start-1')
+
+      // Ensure draw button is not duplicated (only 1 occurrence)
+      const drawBtnCount = (html.match(/data-testid="studio-draw-btn"/g) || []).length
+      expect(drawBtnCount).toBe(1)
     })
   })
 })

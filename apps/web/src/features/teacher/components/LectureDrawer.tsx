@@ -16,8 +16,15 @@
 import { useState, useCallback, useEffect, useId, useRef } from 'react'
 import { ConfirmDialog } from '@/shared/components/ui/ConfirmDialog'
 import { AdventureModal } from '@/shared/components/ui/AdventureModal'
-import { X, CheckCircle2, Circle, Youtube, BookOpen, Gamepad2, Palette, HelpCircle, BookMarked, Target, Lightbulb, Eye, Plus, Trash2, ChevronUp, ChevronDown, BrainCircuit, ScanSearch, ListChecks, PanelsTopLeft, Scale, BookmarkCheck, MessageCircleQuestion, Flag, Clapperboard, Volume2, Trophy, MessageSquareText, Sparkles, Image as ImageIcon, Check, Play, Film, Split, GripVertical, ArrowUp, ArrowDown, ZoomIn, Star } from 'lucide-react'
-import { api, type LessonSixStageJourney } from '@/shared/lib/api'
+import { X, CheckCircle2, Circle, Youtube, BookOpen, Gamepad2, Palette, HelpCircle, BookMarked, Target, Lightbulb, Eye, Plus, Trash2, ChevronUp, ChevronDown, ChevronRight, BrainCircuit, ScanSearch, ListChecks, PanelsTopLeft, Scale, BookmarkCheck, MessageCircleQuestion, Flag, Clapperboard, Volume2, Trophy, MessageSquareText, Sparkles, Image as ImageIcon, Check, Play, Film, Split, GripVertical, ArrowUp, ArrowDown, ZoomIn, Star, Maximize2, Minimize2, Smartphone, Tablet, Monitor, RotateCcw, Pause, ArrowRight } from 'lucide-react'
+import {
+  api,
+  type LessonSixStageJourney,
+  type SixStagePractice,
+  type SixStagePracticePartDef,
+  type SixStageFourKeysOptions,
+  type SixStageWorkflowStep,
+} from '@/shared/lib/api'
 import { resolveIslandSixStageJourney } from '@/features/lesson/lib/island-journey-resolver'
 import { uploadCmsCourseMedia } from '@/shared/lib/media-api'
 import { cn } from '@/shared/lib/cn'
@@ -51,6 +58,7 @@ import { CheckQuestionBuilder } from './CheckQuestionBuilder'
 import { CurriculumGame } from '@/features/lesson/components/CurriculumGame'
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 import { SixStageGoalStage } from '@/features/lesson/components/SixStageGoalStage'
+import { ConfirmGoalStageEditor } from './ConfirmGoalStageEditor'
 import { StudentStageBlocksView } from '@/features/lesson/components/StudentStageBlocksView'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { MeeCatInteractiveCanvas } from '@/features/mee-rig/components/MeeCatInteractiveCanvas'
@@ -119,6 +127,47 @@ export const ISLAND_6_STAGE_NAMES = [
   '5. 🎨 Thực hành (AI Studio)',
   '6. 🏆 Màn kết thúc',
 ] as const
+
+export const DEFAULT_PRACTICE_PARTS: SixStagePracticePartDef[] = [
+  { partNumber: 1, title: 'Cái cốc sứ trắng', icon: '☕', emoji: '☕', iconImage: '/assets/aiki-islands/island1_lesson2_teacup.jpg' },
+  { partNumber: 2, title: 'Cái xe đạp', icon: '🚲', emoji: '🚲', iconImage: '/assets/aiki-islands/island1_lesson2_bicycle.jpg' },
+  { partNumber: 3, title: 'Cuốn sổ tay mở', icon: '📖', emoji: '📖', iconImage: '/assets/aiki-islands/island1_lesson2_notebook.jpg' },
+  { partNumber: 4, title: 'Cái đồng hồ cổ', icon: '⏰', emoji: '⏰', iconImage: '/assets/aiki-islands/island1_lesson2_clock.jpg' },
+]
+
+export const DEFAULT_FOUR_KEYS_OPTIONS: SixStageFourKeysOptions = {
+  what: ['Cốc sứ trắng', 'Cái xe đạp', 'Cuốn sổ tay', 'Đồng hồ để bàn cổ'],
+  how: ['men bóng mẻ miệng', 'màu xanh mini xinh xắn', 'bìa da nâu cổ điển', 'vỏ đồng sáng bóng'],
+  action: ['đang bốc khói nghi ngút', 'đang dựng chân chống', 'đang mở sẵn trang giấy', 'đang tích tắc báo thức'],
+  where: ['trên bàn gỗ mộc', 'bên hiên cửa sổ nắng', 'trong phòng đọc ấm áp', 'trên kệ đầu giường'],
+}
+
+export function suggestFourKeysForSubject(subjectName: string): {
+  parts: SixStagePracticePartDef[]
+  fourKeys: SixStageFourKeysOptions
+} {
+  const norm = (subjectName || '').toLowerCase()
+  if (norm.includes('mèo') || norm.includes('cat')) {
+    return {
+      parts: [
+        { partNumber: 1, title: 'Chú Mèo Mướp Vàng', icon: '🐱', emoji: '🐱', iconImage: '/assets/aiki-keys/key_subject_cat.jpg' },
+        { partNumber: 2, title: 'Mèo Béo Ngủ Ghế Mây', icon: '🪑', emoji: '🪑', iconImage: '/assets/aiki-keys/key_what_blue.jpg' },
+        { partNumber: 3, title: 'Mèo Bắt Bướm Nắng Vàng', icon: '🦋', emoji: '🦋', iconImage: '/assets/aiki-keys/key_action_orange.jpg' },
+        { partNumber: 4, title: 'Mèo Trèo Cây Cau', icon: '🌳', emoji: '🌳', iconImage: '/assets/aiki-keys/key_where_pink.jpg' },
+      ],
+      fourKeys: {
+        what: ['Mèo mướp vàng', 'Mèo tam thể', 'Mèo Ba Tư lông xù', 'Mèo con mắt biếc'],
+        how: ['béo tròn bụ bẫm', 'lông vàng óng ả', 'tai vểnh mắt tròn', 'đeo nơ đỏ xinh'],
+        action: ['đang ngủ cuộn tròn', 'đang vờn bóng len', 'đang rình bắt bướm', 'đang sưởi nắng ấm'],
+        where: ['trên ghế mây êm ái', 'bên bậu cửa sổ', 'giữa thảm cỏ hoa', 'trong giỏ len ấm áp'],
+      },
+    }
+  }
+  return {
+    parts: DEFAULT_PRACTICE_PARTS,
+    fourKeys: DEFAULT_FOUR_KEYS_OPTIONS,
+  }
+}
 
 const AVAILABLE_MODULES = [
   { id: 'course-text', label: 'Nội Dung Bài Học', icon: '📖', desc: 'Khối nội dung chuẩn cho khóa học 6 chặng' },
@@ -538,7 +587,514 @@ function getBlockTitle(type: ContentBlockType, customTitle?: string): string {
   }
 }
 
-function StudentStagePreview({
+function PracticePartsAndFourKeysEditor({
+  practice,
+  onChange,
+  showToast,
+}: {
+  practice: SixStagePractice
+  onChange: (patch: Partial<SixStagePractice>) => void
+  showToast: (msg: string, type?: 'info' | 'success' | 'error') => void
+}) {
+  const parts: SixStagePracticePartDef[] = (practice.practiceParts && practice.practiceParts.length > 0)
+    ? practice.practiceParts
+    : DEFAULT_PRACTICE_PARTS
+
+  const fourKeys: SixStageFourKeysOptions = practice.fourKeysOptions || DEFAULT_FOUR_KEYS_OPTIONS
+
+  const [inputWhat, setInputWhat] = useState('')
+  const [inputHow, setInputHow] = useState('')
+  const [inputAction, setInputAction] = useState('')
+  const [inputWhere, setInputWhere] = useState('')
+
+  const handleAddTag = (category: keyof SixStageFourKeysOptions, text: string, setInput: (v: string) => void) => {
+    const trimmed = text.trim()
+    if (!trimmed) return
+    const currentList = fourKeys[category] || []
+    if (currentList.includes(trimmed)) {
+      showToast(`Thẻ "${trimmed}" đã có trong danh sách`, 'info')
+      setInput('')
+      return
+    }
+    const nextList = [...currentList, trimmed]
+    onChange({
+      fourKeysOptions: {
+        ...fourKeys,
+        [category]: nextList,
+      },
+    })
+    setInput('')
+  }
+
+  const handleRemoveTag = (category: keyof SixStageFourKeysOptions, indexToRemove: number) => {
+    const currentList = fourKeys[category] || []
+    const nextList = currentList.filter((_, idx) => idx !== indexToRemove)
+    onChange({
+      fourKeysOptions: {
+        ...fourKeys,
+        [category]: nextList,
+      },
+    })
+  }
+
+  const handleUpdatePart = (index: number, patch: Partial<SixStagePracticePartDef>) => {
+    const nextParts = [...parts]
+    nextParts[index] = { ...nextParts[index], ...patch }
+    onChange({ practiceParts: nextParts })
+  }
+
+  const handleAddPart = () => {
+    if (parts.length >= 6) {
+      showToast('Đã đạt giới hạn tối đa 6 món đồ', 'info')
+      return
+    }
+    const nextNumber = parts.length + 1
+    const nextParts: SixStagePracticePartDef[] = [
+      ...parts,
+      {
+        partNumber: nextNumber,
+        title: `Món đồ thứ ${nextNumber}`,
+        icon: '🎨',
+        emoji: '🎨',
+      },
+    ]
+    onChange({ practiceParts: nextParts })
+  }
+
+  const handleRemovePart = (indexToRemove: number) => {
+    if (parts.length <= 1) {
+      showToast('Phải có ít nhất 1 món đồ thực hành', 'info')
+      return
+    }
+    const nextParts = parts
+      .filter((_, idx) => idx !== indexToRemove)
+      .map((p, idx) => ({ ...p, partNumber: idx + 1 }))
+    onChange({ practiceParts: nextParts })
+  }
+
+  const handleLoadDefaultParts = () => {
+    onChange({ practiceParts: DEFAULT_PRACTICE_PARTS })
+    showToast('✅ Đã nạp 4 món đồ thực hành mặc định', 'success')
+  }
+
+  const handleSuggestFourKeys = () => {
+    const suggested = suggestFourKeysForSubject(practice.subjectName)
+    onChange({
+      practiceParts: suggested.parts,
+      fourKeysOptions: suggested.fourKeys,
+    })
+    showToast('🪄 Đã gợi ý bộ thẻ 4 Chìa Khóa và món đồ chuẩn theo bài!', 'success')
+  }
+
+  return (
+    <div className="space-y-4">
+      {/* ── 1. Món đồ bé vẽ (Practice Parts) ────────────────────────── */}
+      <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/50 p-4 space-y-3 shadow-2xs">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-brand-200/70 pb-2.5">
+          <div>
+            <h4 className="text-xs font-black uppercase text-brand-950 flex items-center gap-1.5">
+              <span>🎒 Món đồ bé vẽ trong bài (Practice Parts)</span>
+              <span className="rounded-full bg-brand-200 text-brand-900 px-2 py-0.5 text-[10px] font-black">
+                {parts.length} món
+              </span>
+            </h4>
+            <p className="text-[11px] font-medium text-brand-800 mt-0.5">
+              Học sinh sẽ thực hành vẽ lần lượt từng món đồ này (1..4) bằng câu lệnh 4 Chìa Khóa.
+            </p>
+          </div>
+          <div className="flex items-center gap-1.5">
+            <button
+              type="button"
+              onClick={handleLoadDefaultParts}
+              className="rounded-xl border border-brand-300 bg-white px-2.5 py-1 text-xs font-black text-brand-700 shadow-2xs hover:bg-brand-50 transition cursor-pointer"
+            >
+              🔄 Nạp 4 món mặc định
+            </button>
+            <button
+              type="button"
+              onClick={handleAddPart}
+              className="rounded-xl border border-brand-400 bg-brand-600 px-2.5 py-1 text-xs font-black text-white shadow-2xs hover:bg-brand-700 transition cursor-pointer flex items-center gap-1"
+            >
+              <Plus size={13} />
+              <span>Thêm món</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+          {parts.map((part, pIdx) => (
+            <div
+              key={part.partNumber || pIdx}
+              className="rounded-xl border border-border bg-white p-2.5 flex items-center gap-2 shadow-2xs hover:border-brand-300 transition"
+            >
+              <span className="size-6 rounded-lg bg-brand-100 text-brand-900 font-black text-[10px] grid place-items-center shrink-0">
+                #{part.partNumber || pIdx + 1}
+              </span>
+              <input
+                type="text"
+                value={part.emoji || part.icon || '🎨'}
+                onChange={(e) => handleUpdatePart(pIdx, { emoji: e.target.value, icon: e.target.value })}
+                title="Icon hoặc Emoji"
+                className="w-10 text-center rounded-lg border border-border bg-slate-50 px-1.5 py-1 text-sm shrink-0"
+              />
+              <input
+                type="text"
+                value={part.title}
+                onChange={(e) => handleUpdatePart(pIdx, { title: e.target.value })}
+                placeholder={`Tên món đồ ${pIdx + 1}...`}
+                className="flex-1 min-w-0 rounded-lg border border-border bg-page px-2 py-1 text-xs font-bold text-slate-800"
+              />
+              <button
+                type="button"
+                onClick={() => handleRemovePart(pIdx)}
+                title="Xóa món đồ này"
+                className="size-7 rounded-lg text-slate-400 hover:text-rose-600 hover:bg-rose-50 grid place-items-center transition shrink-0 cursor-pointer"
+              >
+                <Trash2 size={13} />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* ── 2. Ngân hàng thẻ 4 Chìa Khóa (4-Key Option Cards) ────────── */}
+      <div className="rounded-2xl border-2 border-brand-200 bg-white p-4 space-y-3.5 shadow-2xs">
+        <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/80 pb-2.5">
+          <div>
+            <h4 className="text-xs font-black uppercase text-slate-900 flex items-center gap-1.5">
+              <span>🔑 Ngân Hàng Thẻ 4 Chìa Khóa (AI Studio Magic Keys)</span>
+              <span className="rounded-full bg-amber-100 text-amber-900 px-2 py-0.5 text-[10px] font-black">
+                Hallmark SSOT
+              </span>
+            </h4>
+            <p className="text-[11px] font-medium text-slate-600 mt-0.5">
+              Học sinh bấm chọn các thẻ này ở Bàn phím Ma Thuật để ghép thành câu lệnh hoàn chỉnh.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={handleSuggestFourKeys}
+            className="rounded-xl border border-brand-300 bg-brand-50 px-3 py-1.5 text-xs font-black text-brand-800 shadow-2xs hover:bg-brand-100 transition cursor-pointer flex items-center gap-1.5"
+          >
+            <Sparkles size={13} className="text-brand-600" />
+            <span>🪄 Gợi ý thẻ 4 Chìa Khóa theo bài</span>
+          </button>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {/* Khay 1: Cái gì? (Sky Blue) */}
+          <div className="rounded-2xl border-2 border-sky-300 bg-sky-50/70 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-sky-900 flex items-center gap-1">
+                🔑 1. Cái gì? (Chủ thể / Đồ vật)
+              </span>
+              <span className="rounded-full bg-sky-500 text-white text-[9px] font-black px-1.5 py-0.2">
+                {(fourKeys.what || []).length} thẻ
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1.5 min-h-[32px] p-1.5 rounded-xl bg-white/90 border border-sky-200">
+              {(fourKeys.what || []).map((tag, tIdx) => (
+                <span
+                  key={tIdx}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold bg-sky-100 text-sky-900 border border-sky-300 px-2 py-0.5 rounded-lg shadow-2xs"
+                >
+                  <span>{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag('what', tIdx)}
+                    className="hover:text-rose-600 font-black cursor-pointer ml-0.5"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              {(fourKeys.what || []).length === 0 && (
+                <span className="text-[11px] text-muted italic">Chưa có thẻ nào</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={inputWhat}
+                onChange={(e) => setInputWhat(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleAddTag('what', inputWhat, setInputWhat)
+                  }
+                }}
+                placeholder="VD: Cốc sứ trắng, Cái xe đạp..."
+                className="flex-1 min-w-0 rounded-lg border border-sky-300 bg-white px-2.5 py-1 text-xs font-semibold text-sky-950 placeholder:text-sky-300"
+              />
+              <button
+                type="button"
+                onClick={() => handleAddTag('what', inputWhat, setInputWhat)}
+                className="rounded-lg bg-sky-600 hover:bg-sky-700 text-white px-2.5 py-1 text-xs font-black shadow-2xs transition cursor-pointer shrink-0"
+              >
+                + Thêm
+              </button>
+            </div>
+          </div>
+
+          {/* Khay 2: Trông thế nào? (Sun Yellow) */}
+          <div className="rounded-2xl border-2 border-amber-300 bg-amber-50/70 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-amber-900 flex items-center gap-1">
+                🔑 2. Trông thế nào? (Hình dáng / Màu sắc)
+              </span>
+              <span className="rounded-full bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.2">
+                {(fourKeys.how || []).length} thẻ
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1.5 min-h-[32px] p-1.5 rounded-xl bg-white/90 border border-amber-200">
+              {(fourKeys.how || []).map((tag, tIdx) => (
+                <span
+                  key={tIdx}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold bg-amber-100 text-amber-900 border border-amber-300 px-2 py-0.5 rounded-lg shadow-2xs"
+                >
+                  <span>{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag('how', tIdx)}
+                    className="hover:text-rose-600 font-black cursor-pointer ml-0.5"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              {(fourKeys.how || []).length === 0 && (
+                <span className="text-[11px] text-muted italic">Chưa có thẻ nào</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={inputHow}
+                onChange={(e) => setInputHow(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleAddTag('how', inputHow, setInputHow)
+                  }
+                }}
+                placeholder="VD: men bóng mẻ miệng, màu xanh mini..."
+                className="flex-1 min-w-0 rounded-lg border border-amber-300 bg-white px-2.5 py-1 text-xs font-semibold text-amber-950 placeholder:text-amber-300"
+              />
+              <button
+                type="button"
+                onClick={() => handleAddTag('how', inputHow, setInputHow)}
+                className="rounded-lg bg-amber-600 hover:bg-amber-700 text-white px-2.5 py-1 text-xs font-black shadow-2xs transition cursor-pointer shrink-0"
+              >
+                + Thêm
+              </button>
+            </div>
+          </div>
+
+          {/* Khay 3: Đang làm gì? (Mint Green) */}
+          <div className="rounded-2xl border-2 border-emerald-300 bg-emerald-50/70 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-emerald-900 flex items-center gap-1">
+                🔑 3. Đang làm gì? (Hành động)
+              </span>
+              <span className="rounded-full bg-emerald-500 text-white text-[9px] font-black px-1.5 py-0.2">
+                {(fourKeys.action || []).length} thẻ
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1.5 min-h-[32px] p-1.5 rounded-xl bg-white/90 border border-emerald-200">
+              {(fourKeys.action || []).map((tag, tIdx) => (
+                <span
+                  key={tIdx}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold bg-emerald-100 text-emerald-900 border border-emerald-300 px-2 py-0.5 rounded-lg shadow-2xs"
+                >
+                  <span>{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag('action', tIdx)}
+                    className="hover:text-rose-600 font-black cursor-pointer ml-0.5"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              {(fourKeys.action || []).length === 0 && (
+                <span className="text-[11px] text-muted italic">Chưa có thẻ nào</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={inputAction}
+                onChange={(e) => setInputAction(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleAddTag('action', inputAction, setInputAction)
+                  }
+                }}
+                placeholder="VD: đang bốc khói nghi ngút, đang chạy bon bon..."
+                className="flex-1 min-w-0 rounded-lg border border-emerald-300 bg-white px-2.5 py-1 text-xs font-semibold text-emerald-950 placeholder:text-emerald-300"
+              />
+              <button
+                type="button"
+                onClick={() => handleAddTag('action', inputAction, setInputAction)}
+                className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-2.5 py-1 text-xs font-black shadow-2xs transition cursor-pointer shrink-0"
+              >
+                + Thêm
+              </button>
+            </div>
+          </div>
+
+          {/* Khay 4: Ở đâu? (Coral Red) */}
+          <div className="rounded-2xl border-2 border-rose-300 bg-rose-50/70 p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-black text-rose-900 flex items-center gap-1">
+                🔑 4. Ở đâu? (Bối cảnh / Vị trí)
+              </span>
+              <span className="rounded-full bg-rose-500 text-white text-[9px] font-black px-1.5 py-0.2">
+                {(fourKeys.where || []).length} thẻ
+              </span>
+            </div>
+            <div className="flex flex-wrap gap-1.5 min-h-[32px] p-1.5 rounded-xl bg-white/90 border border-rose-200">
+              {(fourKeys.where || []).map((tag, tIdx) => (
+                <span
+                  key={tIdx}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold bg-rose-100 text-rose-900 border border-rose-300 px-2 py-0.5 rounded-lg shadow-2xs"
+                >
+                  <span>{tag}</span>
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveTag('where', tIdx)}
+                    className="hover:text-rose-600 font-black cursor-pointer ml-0.5"
+                  >
+                    ×
+                  </button>
+                </span>
+              ))}
+              {(fourKeys.where || []).length === 0 && (
+                <span className="text-[11px] text-muted italic">Chưa có thẻ nào</span>
+              )}
+            </div>
+            <div className="flex items-center gap-1.5">
+              <input
+                type="text"
+                value={inputWhere}
+                onChange={(e) => setInputWhere(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    e.preventDefault()
+                    handleAddTag('where', inputWhere, setInputWhere)
+                  }
+                }}
+                placeholder="VD: trên bàn gỗ mộc, bên cửa sổ..."
+                className="flex-1 min-w-0 rounded-lg border border-rose-300 bg-white px-2.5 py-1 text-xs font-semibold text-rose-950 placeholder:text-rose-300"
+              />
+              <button
+                type="button"
+                onClick={() => handleAddTag('where', inputWhere, setInputWhere)}
+                className="rounded-lg bg-rose-600 hover:bg-rose-700 text-white px-2.5 py-1 text-xs font-black shadow-2xs transition cursor-pointer shrink-0"
+              >
+                + Thêm
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function PracticeWorkflowStepsAccordion({
+  workflowSteps,
+  onChange,
+}: {
+  workflowSteps: SixStageWorkflowStep[]
+  onChange: (steps: SixStageWorkflowStep[]) => void
+}) {
+  const [isOpen, setIsOpen] = useState(false)
+
+  const handleUpdateStep = (idx: number, patch: Partial<SixStageWorkflowStep>) => {
+    const nextSteps = [...workflowSteps]
+    nextSteps[idx] = { ...nextSteps[idx], ...patch }
+    onChange(nextSteps)
+  }
+
+  return (
+    <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden shadow-2xs transition-all">
+      <button
+        type="button"
+        onClick={() => setIsOpen((prev) => !prev)}
+        className="w-full flex items-center justify-between p-3.5 bg-slate-50/80 hover:bg-slate-100/90 transition cursor-pointer text-left gap-3"
+        aria-expanded={isOpen}
+      >
+        <div className="flex flex-col gap-0.5 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-black text-slate-800 flex items-center gap-1.5">
+              💬 Lời thoại &amp; Gợi ý từng lượt của AKI (Nâng cao)
+            </span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-slate-200 text-slate-700">
+              {workflowSteps.length} lượt
+            </span>
+          </div>
+          <p className="text-[11px] text-slate-500 font-medium leading-normal">
+            Gợi ý câu lệnh nhanh xuất hiện trên thanh prompt (&apos;Chạm để thử ngay&apos;) và lời thoại động viên của AKI qua các lượt vẽ của bé.
+          </p>
+        </div>
+        <div className="text-slate-400 shrink-0 p-1">
+          {isOpen ? <ChevronDown size={18} /> : <ChevronRight size={18} />}
+        </div>
+      </button>
+
+      {isOpen && (
+        <div className="p-3.5 border-t border-slate-200 space-y-3 bg-slate-50/40 animate-in fade-in duration-150">
+          {workflowSteps.map((ws, wsIdx) => (
+            <div key={ws.step || wsIdx} className="rounded-xl border border-slate-200 bg-white p-3 space-y-2 shadow-2xs">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-black text-brand-900">
+                  Bước {ws.step}: {ws.title || `Lượt ${ws.step}`}
+                </span>
+                <span className="text-[10px] font-bold text-slate-400">Lượt vẽ {ws.step}/4</span>
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Tên bước kịch bản</label>
+                <input
+                  type="text"
+                  value={ws.title}
+                  onChange={(e) => handleUpdateStep(wsIdx, { title: e.target.value })}
+                  placeholder="Tên bước..."
+                  className="w-full rounded-lg border border-border bg-page px-2.5 py-1.5 text-xs font-semibold text-text"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Câu lệnh gợi ý nhanh (&apos;Chạm để thử ngay&apos;)</label>
+                <input
+                  type="text"
+                  value={ws.quickPrompt}
+                  onChange={(e) => handleUpdateStep(wsIdx, { quickPrompt: e.target.value })}
+                  placeholder="Từ khóa / Câu lệnh mẫu khởi đầu..."
+                  className="w-full rounded-lg border border-border bg-page px-2.5 py-1.5 text-xs font-mono text-text"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] font-bold text-slate-500 mb-0.5">Lời thoại AKI động viên bé</label>
+                <textarea
+                  rows={2}
+                  value={ws.akiSpeech}
+                  onChange={(e) => handleUpdateStep(wsIdx, { akiSpeech: e.target.value })}
+                  placeholder="Lời thoại AKI hướng dẫn..."
+                  className="w-full rounded-lg border border-border bg-page p-2 text-xs italic text-text"
+                />
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
+export type PreviewViewportMode = 'mobile' | 'tablet' | 'pc' | 'full'
+
+export function StudentStagePreview({
   card,
   stageIndex,
   isIsland,
@@ -552,133 +1108,483 @@ function StudentStagePreview({
   stageCard?: LearnCardDraft
 }) {
   const [zoomedImage, setZoomedImage] = useState<{ url: string; title?: string } | null>(null)
+  const [viewport, setViewport] = useState<PreviewViewportMode>('mobile')
+  const [isFullscreen, setIsFullscreen] = useState(false)
+  const { showToast } = useToast()
+
+  // State tương tác cho Chặng 2 (Video bài học preview)
+  const [previewVideoSeekSec, setPreviewVideoSeekSec] = useState(0)
+  const [isPlayingPreviewVideo, setIsPlayingPreviewVideo] = useState(false)
+
+  // State tương tác cho Chặng 5 (Thực hành AI Studio)
+  const [selectedPartIndex, setSelectedPartIndex] = useState(0)
+  const [activeWhat, setActiveWhat] = useState<string | null>(null)
+  const [activeHow, setActiveHow] = useState<string | null>(null)
+  const [activeAction, setActiveAction] = useState<string | null>(null)
+  const [activeWhere, setActiveWhere] = useState<string | null>(null)
+
+  // Lắng nghe phím Escape để đóng toàn màn hình
+  useEffect(() => {
+    if (!isFullscreen) return
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setIsFullscreen(false)
+      }
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    return () => window.removeEventListener('keydown', handleKeyDown)
+  }, [isFullscreen])
 
   if (isIsland && sixStageJourney) {
     const stageName = ISLAND_6_STAGE_NAMES[stageIndex] ?? `Chặng ${stageIndex + 1}`
 
-    return (
-      <aside className="ui-card min-w-0 h-fit overflow-hidden p-4 lg:sticky lg:top-4" aria-label={`Xem trước ${stageName} trên màn học sinh`}>
-        <div className="flex items-center justify-between gap-2 pb-2 border-b border-border/80">
-          <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-sky-700">
-            <Eye size={15} /> Xem trước học sinh (Đảo AIKids)
-          </p>
-          <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-[11px] font-black text-brand-800">
-            Chặng {stageIndex + 1}/6
-          </span>
-        </div>
+    const renderIslandStageContent = (isFs: boolean, vp: PreviewViewportMode) => {
+      const isMobile = vp === 'mobile'
+      const isWide = !isMobile && (vp === 'tablet' || vp === 'pc' || vp === 'full')
 
-        <div className="mt-3">
+      return (
+        <div className="space-y-4">
           {/* Chặng 0: Mục tiêu */}
           {stageIndex === 0 && (
             <SixStageGoalStage
               goal={sixStageJourney.stage1_goal}
               fourKeys={sixStageJourney.stage1_goal.keyPoints.length >= 4 || sixStageJourney.stage1_goal.title.toLowerCase().includes('chìa khoá')}
-              compact={true}
+              compact={isMobile || !isFs}
               showContinue={false}
               onImageClick={(image) => setZoomedImage(image)}
             />
           )}
 
           {/* Chặng 1: Xác nhận */}
-          {stageIndex === 1 && (
-            <div className="space-y-3">
-              <div className="rounded-2xl border-2 border-sky-200 bg-sky-50/70 p-3.5 shadow-sm">
-                <span className="text-[10px] font-black uppercase text-sky-700">❓ Câu đố xác nhận</span>
-                <p className="font-display text-sm font-black text-sky-950 mt-1">
-                  {sixStageJourney.stage2_confirmGoal.question || 'Câu hỏi xác nhận...'}
-                </p>
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {sixStageJourney.stage2_confirmGoal.options.map((opt, idx) => (
-                  <div
-                    key={opt.id || idx}
-                    className={cn(
-                      "rounded-xl border-2 p-2 text-center transition",
-                      idx === sixStageJourney.stage2_confirmGoal.correctIndex
-                        ? "border-emerald-400 bg-emerald-50/90 ring-2 ring-emerald-200"
-                        : "border-slate-200 bg-white"
-                    )}
-                  >
-                    <div className="flex items-center justify-between gap-1 mb-1">
-                      <span className="text-[10px] font-black text-slate-700 uppercase">
-                        Phương án {String.fromCharCode(65 + idx)}
-                      </span>
-                      {idx === sixStageJourney.stage2_confirmGoal.correctIndex && (
-                        <span className="rounded bg-emerald-600 text-white text-[9px] font-extrabold px-1">ĐÚNG</span>
-                      )}
-                    </div>
-                    {opt.imageUrl ? (
-                      <img src={opt.imageUrl} alt={opt.text} className="aspect-video w-full rounded-lg object-cover" onError={(e) => { e.currentTarget.style.display = 'none' }} />
-                    ) : (
-                      <div className="aspect-video rounded-lg bg-slate-100 grid place-items-center text-[10px] text-muted">Chưa có ảnh</div>
-                    )}
-                    <p className="mt-1.5 text-xs font-bold text-slate-800 line-clamp-2">{opt.text}</p>
-                  </div>
-                ))}
-              </div>
-              {sixStageJourney.stage2_confirmGoal.explanation && (
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-2.5 text-xs font-semibold text-emerald-900">
-                  💡 <strong>Giải thích:</strong> {sixStageJourney.stage2_confirmGoal.explanation}
-                </div>
-              )}
-            </div>
-          )}
+          {stageIndex === 1 && (() => {
+            const rawOptions = (sixStageJourney.stage2_confirmGoal.options && sixStageJourney.stage2_confirmGoal.options.length >= 2)
+              ? sixStageJourney.stage2_confirmGoal.options
+              : [
+                  { id: 'opt-a', text: 'Bộ chìa khoá A: Ai vẽ · Vẽ lúc nào · Vẽ ở đâu · Vẽ bằng gì' },
+                  { id: 'opt-b', text: 'Bộ chìa khoá B: Cái gì · Trông như thế nào · Đang làm gì · Ở đâu' },
+                  { id: 'opt-c', text: 'Bộ chìa khoá C: Cái gì · Màu gì · To hay nhỏ · Của ai' },
+                ]
 
-          {/* Chặng 2: Video */}
-          {stageIndex === 2 && (
-            <div className="space-y-3">
-              <div className="rounded-2xl border-2 border-purple-200 bg-purple-50/60 p-3 shadow-sm">
-                <span className="text-[10px] font-black uppercase text-purple-700">🎬 Video bài học</span>
-                <p className="font-display text-sm font-black text-purple-950 mt-0.5">{sixStageJourney.stage3_video.title}</p>
-              </div>
-              <div className="aspect-video w-full rounded-2xl bg-slate-900 grid place-items-center text-white relative overflow-hidden shadow-sm">
-                {sixStageJourney.stage3_video.posterUrl && (
-                  <img src={sixStageJourney.stage3_video.posterUrl} alt="Poster" className="absolute inset-0 w-full h-full object-cover opacity-50" />
-                )}
-                <div className="relative z-10 flex flex-col items-center gap-1.5 text-center p-3">
-                  <div className="size-12 rounded-full bg-white/20 backdrop-blur-xs grid place-items-center border border-white/40">
-                    <Play size={22} className="text-white fill-white ml-0.5" />
+            const confirmCards = rawOptions.map((opt, idx) => {
+              let title = opt.text
+              let keys: string[] = []
+              if (opt.keyItems && opt.keyItems.length > 0) {
+                keys = opt.keyItems.map((k) => k.label)
+              } else if (opt.text.includes('·')) {
+                const parts = opt.text.split(':')
+                title = parts[0]?.trim() || opt.text
+                keys = (parts[1] || '').split('·').map((k) => k.trim()).filter(Boolean)
+              }
+              if (keys.length === 0) {
+                if (idx === sixStageJourney.stage2_confirmGoal.correctIndex) {
+                  keys = ['Cái gì?', 'Trông thế nào?', 'Đang làm gì?', 'Ở đâu?']
+                } else if (idx === 0) {
+                  keys = ['Ai vẽ?', 'Vẽ lúc nào?', 'Vẽ ở đâu?', 'Vẽ bằng gì?']
+                } else {
+                  keys = ['Cái gì?', 'Màu gì?', 'To hay nhỏ?', 'Của ai?']
+                }
+              }
+              return {
+                ...opt,
+                displayTitle: title,
+                keys,
+              }
+            })
+
+            return (
+              <div className="space-y-3">
+                <div className="rounded-2xl border-2 border-sky-200 bg-sky-50/70 p-3.5 shadow-sm">
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <span className="text-[10px] font-black uppercase text-sky-700 flex items-center gap-1">
+                      ❓ Chặng 2: Xác nhận mục tiêu
+                    </span>
+                    <span className="text-[9px] font-bold text-sky-600 bg-sky-100 px-2 py-0.5 rounded-full">
+                      3 Ổ Khóa Thần Kỳ
+                    </span>
                   </div>
-                  <span className="text-xs font-bold tracking-wide">Thời lượng: {sixStageJourney.stage3_video.durationSec}s</span>
+                  <h4 className="font-display text-sm sm:text-base font-black text-sky-950">
+                    {sixStageJourney.stage2_confirmGoal.question || 'Bộ chìa khoá nào mở được một câu lệnh tốt?'}
+                  </h4>
+                  <p className="text-[11px] sm:text-xs text-sky-800/80 font-medium mt-0.5">
+                    Chiếc Rương Thần Kỳ có 3 ổ khóa (A, B, C). Bé dùng đúng 4 Chiếc Chìa Khóa Vàng để mở Ổ Khóa B nhé!
+                  </p>
+                </div>
+
+                {/* 3 Bộ chìa khóa A, B, C dàn hàng ngang rộng rãi ở chế độ PC / Tablet */}
+                <div className={cn(
+                  "grid gap-3.5",
+                  isWide ? "grid-cols-1 md:grid-cols-3 sm:gap-4" : "grid-cols-1"
+                )}>
+                  {confirmCards.map((option, idx) => {
+                    const isCorrect = idx === sixStageJourney.stage2_confirmGoal.correctIndex
+                    const letter = String.fromCharCode(65 + idx)
+                    return (
+                      <div
+                        key={option.id || idx}
+                        className={cn(
+                          "relative flex flex-col justify-between rounded-2xl p-3 sm:p-3.5 border-2 transition-all min-w-0 shadow-clay-xs",
+                          isCorrect
+                            ? "border-emerald-400 bg-emerald-50/90 ring-2 ring-emerald-300/60"
+                            : "border-slate-200 bg-white"
+                        )}
+                      >
+                        {/* Header: Badge A, B, C & Status */}
+                        <div className="flex items-center justify-between mb-2">
+                          <span className={cn(
+                            "size-7 rounded-lg flex items-center justify-center font-black text-xs border shrink-0 shadow-2xs",
+                            isCorrect ? "bg-emerald-500 text-white border-emerald-500" : "bg-slate-100 text-slate-700 border-slate-200"
+                          )}>
+                            {letter}
+                          </span>
+                          {isCorrect ? (
+                            <span className="rounded-full bg-emerald-600 text-white text-[9.5px] font-black px-2 py-0.5 shadow-2xs flex items-center gap-1">
+                              <Check size={11} /> ĐÚNG
+                            </span>
+                          ) : (
+                            <span className="rounded-full bg-slate-100 text-slate-500 text-[9.5px] font-bold px-2 py-0.5">
+                              Khóa
+                            </span>
+                          )}
+                        </div>
+
+                        {/* Ổ Khóa thần kỳ Card Header */}
+                        <div className="flex items-center gap-2 mb-2 pb-2 border-b border-slate-100">
+                          <div className={cn(
+                            "size-9 sm:size-10 rounded-xl flex items-center justify-center text-lg border shrink-0 shadow-2xs",
+                            isCorrect ? "bg-emerald-100 border-emerald-300" : "bg-amber-50 border-amber-200"
+                          )}>
+                            {isCorrect ? '🔑' : '🔒'}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <h5 className={cn("text-xs sm:text-sm font-black truncate leading-tight", isCorrect ? "text-emerald-950" : "text-slate-800")}>
+                              {isCorrect ? `🔑 Ổ Khóa ${letter} [ĐÚNG]` : `🔒 Ổ Khóa ${letter}`}
+                            </h5>
+                            <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 block truncate mt-0.5">
+                              {isCorrect ? '✨ 4 Chìa Khóa Vàng' : 'Bộ 4 Chìa Khóa'}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Hiển thị 1 ảnh đại diện của 4 chìa khóa nếu có imageUrl, hoặc fallback về lưới 2x2 */}
+                        {option.imageUrl ? (
+                          <div className="my-1.5 rounded-xl overflow-hidden bg-slate-100 border border-slate-200/70 flex-1 flex items-center justify-center p-1 min-h-[120px]">
+                            <img
+                              src={option.imageUrl}
+                              alt={option.displayTitle || option.text}
+                              className="w-full h-auto max-h-[160px] object-contain rounded-lg"
+                            />
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-1.5 my-1.5 p-2 rounded-xl bg-slate-50 border border-slate-200/70 flex-1">
+                            {option.keys.slice(0, 4).map((kLabel, kIdx) => {
+                              const keyColorStyles = [
+                                { bg: 'bg-sky-50', text: 'text-sky-900', border: 'border-sky-200', tag: 'bg-sky-500' },
+                                { bg: 'bg-amber-50', text: 'text-amber-900', border: 'border-amber-200', tag: 'bg-amber-500' },
+                                { bg: 'bg-emerald-50', text: 'text-emerald-900', border: 'border-emerald-200', tag: 'bg-emerald-500' },
+                                { bg: 'bg-rose-50', text: 'text-rose-900', border: 'border-rose-200', tag: 'bg-rose-500' },
+                              ][kIdx % 4]
+
+                              return (
+                                <div
+                                  key={kIdx}
+                                  className={cn(
+                                    "flex flex-col items-center text-center p-1.5 rounded-lg border shadow-2xs gap-0.5",
+                                    keyColorStyles.bg, keyColorStyles.border
+                                  )}
+                                >
+                                  <span className={cn("text-[7.5px] font-black uppercase px-1 rounded text-white tracking-wider", keyColorStyles.tag)}>
+                                    CHÌA {kIdx + 1}
+                                  </span>
+                                  <span className={cn("text-[10px] sm:text-[11px] font-extrabold leading-snug line-clamp-3 break-words", keyColorStyles.text)}>
+                                    {kLabel}
+                                  </span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
+
+                        {/* Nhãn trạng thái dưới đáy */}
+                        <div className={cn(
+                          "mt-2 py-1.5 px-2.5 rounded-xl text-center text-[10px] sm:text-[11px] font-black border",
+                          isCorrect ? "bg-emerald-100/90 text-emerald-800 border-emerald-300" : "bg-slate-100 text-slate-500 border-slate-200"
+                        )}>
+                          {isCorrect ? '✓ Mở Rương Thần Kỳ' : 'Ổ khóa đang khóa'}
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+
+                {sixStageJourney.stage2_confirmGoal.explanation && (
+                  <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-2.5 text-xs font-semibold text-emerald-900">
+                    💡 <strong>Giải thích:</strong> {sixStageJourney.stage2_confirmGoal.explanation}
+                  </div>
+                )}
+              </div>
+            )
+          })()}
+
+          {/* Chặng 2: Video bài học */}
+          {stageIndex === 2 && (() => {
+            const videoChapters = (sixStageJourney.stage3_video.timestamps && sixStageJourney.stage3_video.timestamps.length > 0)
+              ? sixStageJourney.stage3_video.timestamps
+              : [
+                  { label: 'Tình huống mở đầu', startSec: 0, endSec: 30 },
+                  { label: 'Khám phá bí kíp', startSec: 30, endSec: 75 },
+                  { label: 'Quy tắc 4 chìa khóa', startSec: 75, endSec: 120 },
+                  { label: 'Thực hành cùng AKI', startSec: 120, endSec: 150 },
+                  { label: 'Mẹo tránh lỗi đoán mò', startSec: 150, endSec: 175 },
+                  { label: 'Tổng kết bài học', startSec: 175, endSec: 180 },
+                ]
+
+            const totalDurationSec = (sixStageJourney.stage3_video.durationSec && sixStageJourney.stage3_video.durationSec > 0)
+              ? sixStageJourney.stage3_video.durationSec
+              : (videoChapters.length > 0 ? (videoChapters[videoChapters.length - 1].endSec || 180) : 180)
+
+            const currentChapterIndex = Math.max(0, videoChapters.findIndex(
+              (c) => previewVideoSeekSec >= c.startSec && previewVideoSeekSec < (c.endSec || totalDurationSec)
+            ))
+            const currentChapter = videoChapters[currentChapterIndex] || videoChapters[0]
+
+            const handleSeekPreviewVideo = (sec: number) => {
+              setPreviewVideoSeekSec(sec)
+            }
+
+            return (
+              <div className="space-y-3">
+                {/* Header Banner */}
+                <div className="rounded-2xl border-2 border-purple-200 bg-purple-50/70 p-3 sm:p-3.5 shadow-sm">
+                  <div className="flex items-center justify-between gap-1 mb-1">
+                    <span className="text-[10px] font-black uppercase text-purple-700 flex items-center gap-1">
+                      🎬 Chặng 3: Video bài giảng
+                    </span>
+                    <span className="text-[9px] font-bold text-purple-600 bg-purple-100 px-2 py-0.5 rounded-full">
+                      {videoChapters.length} Mốc kiến thức
+                    </span>
+                  </div>
+                  <h4 className="font-display text-sm sm:text-base font-black text-purple-950">
+                    {sixStageJourney.stage3_video.title || 'Video bài giảng 4 Chìa Khóa'}
+                  </h4>
+                </div>
+
+                {/* Khung Video Canvas Player */}
+                <div className="aspect-video w-full rounded-2xl bg-slate-900 grid place-items-center text-white relative overflow-hidden shadow-md max-h-[420px] border-2 border-slate-800">
+                  {sixStageJourney.stage3_video.posterUrl && (
+                    <img
+                      src={sixStageJourney.stage3_video.posterUrl}
+                      alt="Poster"
+                      className="absolute inset-0 w-full h-full object-cover opacity-60"
+                    />
+                  )}
+                  <div className="relative z-10 flex flex-col items-center gap-2.5 text-center p-3">
+                    <button
+                      type="button"
+                      onClick={() => setIsPlayingPreviewVideo(!isPlayingPreviewVideo)}
+                      className="size-14 sm:size-16 rounded-full bg-brand-500/90 text-white hover:bg-brand-500 hover:scale-105 active:scale-95 transition-all shadow-clay grid place-items-center border-2 border-white/50 cursor-pointer"
+                      title={isPlayingPreviewVideo ? "Tạm dừng preview" : "Phát video preview"}
+                    >
+                      {isPlayingPreviewVideo ? (
+                        <Pause size={28} className="fill-white" />
+                      ) : (
+                        <Play size={28} className="fill-white ml-1" />
+                      )}
+                    </button>
+                    <div className="flex items-center gap-2 bg-black/60 backdrop-blur-xs px-3 py-1 rounded-full text-xs font-bold tracking-wide text-white border border-white/20">
+                      <span>Thời lượng: {totalDurationSec}s</span>
+                      <span>•</span>
+                      <span className="text-amber-400 font-mono">
+                        Đang ở: {Math.floor(previewVideoSeekSec / 60)}:{String(previewVideoSeekSec % 60).padStart(2, '0')}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* THANH TIẾN TRÌNH STEPPER DÀN NGANG CHUẨN (Golden Milestone Stepper Bar) */}
+                <div
+                  data-testid="video-timeline-stepper"
+                  className="w-full rounded-2xl bg-amber-50/90 border-2 border-amber-200 px-3 py-2 sm:px-4 sm:py-2.5 shadow-xs shrink-0 flex flex-col gap-1.5"
+                >
+                  <div className="flex items-center gap-2.5 sm:gap-3">
+                    {/* Nút Play / tua đầu */}
+                    <button
+                      type="button"
+                      data-testid="video-timeline-play-btn"
+                      onClick={() => handleSeekPreviewVideo((previewVideoSeekSec || 0) === 0 ? (videoChapters[1]?.startSec || 0) : 0)}
+                      className="size-8 sm:size-9 rounded-xl sm:rounded-2xl bg-brand-500 text-white shadow-clay hover:bg-brand-600 active:scale-95 flex items-center justify-center cursor-pointer transition-all shrink-0"
+                      aria-label="Tua lại từ đầu hoặc sang mốc tiếp theo"
+                      title="Tua lại từ đầu"
+                    >
+                      <Play size={18} className="translate-x-0.5 fill-white" />
+                    </button>
+
+                    {/* Scrubbable Timeline Track with Stage Markers 1, 2, 3, 4, 5... */}
+                    <div className="relative flex-1 py-1">
+                      <div className="relative h-4 sm:h-5 w-full rounded-full bg-amber-100 border-2 border-amber-300 shadow-inner flex items-center">
+                        <div
+                          className="h-full rounded-full bg-gradient-to-r from-amber-400 via-brand-400 to-orange-400 transition-all duration-150 pointer-events-none"
+                          style={{
+                            width: `${Math.min(100, Math.max(4, (((previewVideoSeekSec || 0) / totalDurationSec) * 100)))}%`,
+                          }}
+                        />
+
+                        {/* Numbered Chapter Markers */}
+                        {videoChapters.map((m, idx) => {
+                          const posPercent = Math.max(3, Math.min(97, (m.startSec / totalDurationSec) * 100))
+                          const isPassed = (previewVideoSeekSec || 0) >= m.startSec
+                          const isCurrent = currentChapterIndex === idx
+                          return (
+                            <button
+                              key={idx}
+                              type="button"
+                              data-testid={`video-chapter-node-${idx + 1}`}
+                              onClick={() => handleSeekPreviewVideo(m.startSec)}
+                              className={cn(
+                                'absolute top-1/2 -translate-y-1/2 -translate-x-1/2 size-6 sm:size-7 rounded-full border-2 border-white shadow-clay flex items-center justify-center font-display font-black text-xs sm:text-sm select-none transition-all duration-200 cursor-pointer',
+                                isCurrent
+                                  ? 'bg-brand-500 text-white scale-125 ring-4 ring-brand-200 z-10 shadow-clay'
+                                  : isPassed
+                                    ? 'bg-amber-400 text-amber-950 font-black'
+                                    : 'bg-amber-100 border-amber-300 text-amber-700 hover:bg-amber-200'
+                              )}
+                              style={{ left: `${posPercent}%` }}
+                              title={`${Math.floor(m.startSec / 60)}:${String(m.startSec % 60).padStart(2, '0')}: ${m.label}`}
+                            >
+                              {idx + 1}
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    <span className="text-xs sm:text-sm font-mono font-black text-amber-900 shrink-0">
+                      {Math.floor((previewVideoSeekSec || 0) / 60)}:{String((previewVideoSeekSec || 0) % 60).padStart(2, '0')} / {Math.floor(totalDurationSec / 60)}:{String(totalDurationSec % 60).padStart(2, '0')}
+                    </span>
+                  </div>
+
+                  {/* Hàng nút phụ & tên mốc đang xem */}
+                  <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5 border-t border-amber-200/60 text-xs sm:text-sm">
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => handleSeekPreviewVideo(0)}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer"
+                        title="Xem lại từ đầu"
+                      >
+                        <RotateCcw size={13} className="text-amber-700" />
+                        <span>Xem lại video</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => showToast(`🔊 AKI đang giảng mốc ${currentChapterIndex + 1}: ${currentChapter.label}`, 'info')}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-white px-2.5 py-1 text-xs sm:text-sm font-bold text-amber-900 hover:bg-amber-50 shadow-2xs transition cursor-pointer"
+                        title="Nghe AKI giảng bài"
+                      >
+                        <Volume2 size={13} className="text-brand-600" />
+                        <span>Nghe AKI giảng</span>
+                      </button>
+                    </div>
+
+                    <div className="flex items-center gap-2">
+                      {currentChapter && (
+                        <span className="inline-flex items-center gap-1 text-xs sm:text-sm font-black text-brand-700 bg-brand-50 px-2 py-0.5 rounded-lg border border-brand-200">
+                          <span>🎯 Mốc {currentChapterIndex + 1}:</span>
+                          <span className="max-w-[200px] truncate">{currentChapter.label}</span>
+                        </span>
+                      )}
+                      <span className="hidden sm:inline text-xs sm:text-sm text-amber-800/80 italic">
+                        Video gồm {videoChapters.length} mốc — con bấm tua xem lại bất kỳ lúc nào nhé!
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Danh sách phân đoạn chi tiết */}
+                {videoChapters.length > 0 && (
+                  <div className="rounded-2xl border border-slate-200 bg-white p-3 space-y-1.5 shadow-2xs">
+                    <p className="text-[10px] font-black uppercase text-slate-600 flex items-center justify-between">
+                      <span>Phân đoạn mốc bài học ({videoChapters.length}):</span>
+                      <span className="text-[9px] font-medium text-slate-400">Bấm mốc để tua</span>
+                    </p>
+                    {videoChapters.map((ts, idx) => {
+                      const isActive = currentChapterIndex === idx
+                      return (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => handleSeekPreviewVideo(ts.startSec)}
+                          className={cn(
+                            "w-full flex items-center justify-between text-xs font-semibold py-1.5 px-2 rounded-xl transition cursor-pointer text-left",
+                            isActive
+                              ? "bg-amber-100/70 text-amber-950 font-bold border border-amber-300/80"
+                              : "text-slate-700 hover:bg-slate-50 border border-transparent"
+                          )}
+                        >
+                          <span className="flex items-center gap-1.5 truncate">
+                            <span className={cn(
+                              "size-5 rounded-full flex items-center justify-center text-[10px] font-black shrink-0",
+                              isActive ? "bg-brand-500 text-white" : "bg-slate-100 text-slate-600"
+                            )}>
+                              {idx + 1}
+                            </span>
+                            <span className="truncate">{ts.label}</span>
+                          </span>
+                          <span className="text-slate-400 font-mono text-[10px] shrink-0 ml-2">
+                            {Math.floor(ts.startSec / 60)}:{String(ts.startSec % 60).padStart(2, '0')} - {Math.floor((ts.endSec || totalDurationSec) / 60)}:{String((ts.endSec || totalDurationSec) % 60).padStart(2, '0')}
+                          </span>
+                        </button>
+                      )
+                    })}
+                  </div>
+                )}
+
+                {/* Footer chuyển chặng */}
+                <div className="shrink-0 flex justify-between items-center pt-1">
+                  <button
+                    type="button"
+                    onClick={() => showToast('Học sinh bấm: Quay lại câu đố (Chặng 2)', 'info')}
+                    className="inline-flex items-center justify-center rounded-xl border border-slate-300 bg-white px-3 sm:px-4 py-2 text-xs sm:text-sm font-bold text-slate-700 hover:bg-slate-50 transition cursor-pointer shadow-2xs"
+                  >
+                    Quay lại câu đố
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => showToast('Học sinh bấm: Làm bài test thử tài (Chặng 4)', 'info')}
+                    className="inline-flex items-center gap-1.5 px-4 sm:px-6 py-2 sm:py-2.5 text-xs sm:text-sm font-black rounded-xl shadow-clay border-b-[3px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white cursor-pointer transition-all"
+                  >
+                    <span>📝 Làm bài test thử tài →</span>
+                    <ArrowRight size={14} />
+                  </button>
                 </div>
               </div>
-              {sixStageJourney.stage3_video.timestamps && sixStageJourney.stage3_video.timestamps.length > 0 && (
-                <div className="rounded-xl border border-slate-200 bg-white p-2.5 space-y-1">
-                  <p className="text-[10px] font-black uppercase text-slate-600">Phân đoạn video:</p>
-                  {sixStageJourney.stage3_video.timestamps.map((ts, idx) => (
-                    <div key={idx} className="flex items-center justify-between text-xs font-semibold text-slate-700 py-1 border-b border-slate-100 last:border-0">
-                      <span>{idx + 1}. {ts.label}</span>
-                      <span className="text-slate-400 font-mono text-[10px]">{ts.startSec}s - {ts.endSec}s</span>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
+            )
+          })()}
 
           {/* Chặng 3: Quiz */}
           {stageIndex === 3 && (
             <div className="space-y-3">
               <div className="rounded-2xl border-2 border-indigo-200 bg-indigo-50/60 p-3 shadow-sm">
                 <span className="text-[10px] font-black uppercase text-indigo-700">📝 Bài test thử tài</span>
-                <p className="font-display text-sm font-black text-indigo-950 mt-0.5">{sixStageJourney.stage4_quiz.title}</p>
+                <p className="font-display text-sm sm:text-base font-black text-indigo-950 mt-0.5">{sixStageJourney.stage4_quiz.title}</p>
                 <span className="text-[10px] font-bold text-indigo-600">Đạt yêu cầu: {sixStageJourney.stage4_quiz.passScore} câu</span>
               </div>
-              <div className="space-y-2">
+              <div className="space-y-2.5">
                 {sixStageJourney.stage4_quiz.questions.map((q, idx) => (
-                  <div key={q.id || idx} className="rounded-xl border border-slate-200 bg-white p-2.5 text-xs">
-                    <p className="font-bold text-slate-900 mb-1.5">{idx + 1}. {q.prompt}</p>
-                    <div className="space-y-1">
+                  <div key={q.id || idx} className="rounded-xl border border-slate-200 bg-white p-3 text-xs shadow-2xs">
+                    <p className="font-bold text-slate-900 mb-2">{idx + 1}. {q.prompt}</p>
+                    <div className="space-y-1.5">
                       {q.options.map((opt, optIdx) => (
                         <div
                           key={optIdx}
                           className={cn(
-                            "px-2 py-1 rounded text-[11px] font-semibold flex items-center justify-between",
+                            "px-2.5 py-1.5 rounded-lg text-xs font-semibold flex items-center justify-between",
                             optIdx === q.correctIndex ? "bg-emerald-50 text-emerald-800 border border-emerald-200" : "bg-slate-50 text-slate-600"
                           )}
                         >
                           <span>{opt}</span>
-                          {optIdx === q.correctIndex && <Check size={12} className="text-emerald-600" />}
+                          {optIdx === q.correctIndex && <Check size={13} className="text-emerald-600 shrink-0" />}
                         </div>
                       ))}
                     </div>
@@ -688,42 +1594,294 @@ function StudentStagePreview({
             </div>
           )}
 
-          {/* Chặng 4: Practice */}
-          {stageIndex === 4 && (
-            <div className="space-y-3">
-              <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/70 p-3 shadow-sm">
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-black uppercase text-brand-700">🎨 Xưởng thực hành AI</span>
-                  <span className="rounded-full bg-brand-200 text-brand-900 px-2 py-0.5 text-[10px] font-black">
-                    {sixStageJourney.stage5_practice.badge}
+          {/* Chặng 4: Practice (Thực hành AI Studio) */}
+          {stageIndex === 4 && (() => {
+            const parts = (sixStageJourney.stage5_practice.practiceParts && sixStageJourney.stage5_practice.practiceParts.length > 0)
+              ? sixStageJourney.stage5_practice.practiceParts
+              : DEFAULT_PRACTICE_PARTS
+
+            const fourKeys = sixStageJourney.stage5_practice.fourKeysOptions || DEFAULT_FOUR_KEYS_OPTIONS
+
+            const currentWhat = activeWhat || fourKeys.what?.[0] || 'Cái cốc sứ trắng'
+            const currentHow = activeHow || fourKeys.how?.[0] || 'men bóng mẻ miệng'
+            const currentAction = activeAction || fourKeys.action?.[0] || 'đang bốc khói nghi ngút'
+            const currentWhere = activeWhere || fourKeys.where?.[0] || 'trên bàn gỗ mộc'
+
+            return (
+              <div className="space-y-3">
+                <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/70 p-3 shadow-sm flex items-center justify-between">
+                  <div>
+                    <span className="text-[10px] font-black uppercase text-brand-700 flex items-center gap-1">
+                      🎨 Xưởng Sáng Tạo AI Kids
+                    </span>
+                    <h4 className="font-display text-sm sm:text-base font-black text-brand-950 mt-0.5">
+                      {sixStageJourney.stage5_practice.subjectName || 'Chủ thể bài thực hành'}
+                    </h4>
+                  </div>
+                  <span className="rounded-full bg-brand-200 text-brand-900 px-2.5 py-1 text-[10px] font-black shadow-2xs">
+                    {sixStageJourney.stage5_practice.badge || 'Bài thực hành'}
                   </span>
                 </div>
-                <h4 className="font-display text-sm font-black text-brand-950 mt-1">{sixStageJourney.stage5_practice.subjectName}</h4>
-                <p className="text-[11px] text-brand-800 font-semibold italic mt-1 bg-white/80 p-2 rounded-lg border border-brand-100">
-                  "{sixStageJourney.stage5_practice.akiMotto}"
-                </p>
-              </div>
-              <div className="rounded-xl border border-slate-200 bg-white p-2.5">
-                <p className="text-[10px] font-black uppercase text-slate-700 mb-1">Chi tiết vàng bắt buộc:</p>
-                <div className="flex flex-wrap gap-1">
-                  {sixStageJourney.stage5_practice.lockedFeatures.map((f, idx) => (
-                    <span key={idx} className="rounded-md bg-amber-50 text-amber-800 border border-amber-200 text-[10px] font-bold px-1.5 py-0.5">
-                      🔒 {f}
-                    </span>
-                  ))}
+
+                {/* 3 Cột của Xưởng Sáng Tạo AI Kids - Dàn ngang chuẩn Desktop khi xem PC/Tablet */}
+                <div className={cn(
+                  "grid gap-3.5",
+                  isWide ? "grid-cols-1 md:grid-cols-3 sm:gap-4" : "grid-cols-1"
+                )}>
+                  {/* Cột 1: Danh sách các thẻ món đồ bé vẽ */}
+                  <div className="flex flex-col gap-2 rounded-2xl border border-border bg-slate-50/70 p-3 shadow-2xs">
+                    <div className="flex items-center justify-between border-b border-border/60 pb-1.5">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 flex items-center gap-1">
+                        🎒 Món đồ bé vẽ ({parts.length})
+                      </span>
+                      <span className="text-[9px] font-bold text-slate-400">Click chọn</span>
+                    </div>
+                    <div className="space-y-1.5">
+                      {parts.map((part, pIdx) => {
+                        const isSelected = pIdx === selectedPartIndex
+                        return (
+                          <div
+                            key={part.partNumber || pIdx}
+                            onClick={() => setSelectedPartIndex(pIdx)}
+                            className={cn(
+                              "rounded-xl p-2.5 border transition flex items-center justify-between gap-2 shadow-2xs cursor-pointer hover:border-brand-300",
+                              isSelected ? "border-brand-500 bg-brand-50/95 ring-2 ring-brand-300/80" : "border-border bg-white hover:bg-slate-50"
+                            )}
+                          >
+                            <div className="flex items-center gap-2.5 min-w-0">
+                              <span className="size-8 rounded-lg bg-white border border-border/80 grid place-items-center text-sm shadow-2xs shrink-0">
+                                {part.icon || part.emoji || '🎨'}
+                              </span>
+                              <div className="min-w-0">
+                                <span className="text-[8px] font-black uppercase tracking-wider text-brand-700 block whitespace-nowrap">
+                                  THỰC HÀNH 0{part.partNumber || pIdx + 1}
+                                </span>
+                                <span className="text-[11px] sm:text-xs font-bold text-slate-900 truncate block">
+                                  {part.title}
+                                </span>
+                              </div>
+                            </div>
+                            {isSelected ? (
+                              <span className="rounded bg-brand-600 text-white text-[8px] font-black px-1.5 py-0.5 shrink-0 whitespace-nowrap">
+                                ĐANG VẼ
+                              </span>
+                            ) : (
+                              <span className="text-[9px] font-bold text-slate-400 shrink-0">
+                                Chọn
+                              </span>
+                            )}
+                          </div>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Cột 2: Bàn phím 4 Chìa Khóa Ma Thuật */}
+                  <div className="flex flex-col gap-2.5 rounded-2xl border border-border bg-slate-50/70 p-3 shadow-2xs">
+                    <div className="flex items-center justify-between border-b border-border/60 pb-1.5">
+                      <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 flex items-center gap-1">
+                        🎹 Bàn phím 4 Chìa Khóa
+                      </span>
+                      <span className="text-[9px] font-black text-brand-700 bg-brand-100 px-1.5 py-0.2 rounded-full">
+                        SSOT
+                      </span>
+                    </div>
+
+                    <div className="space-y-2">
+                      {/* 1. Cái gì */}
+                      <div className="rounded-xl border border-sky-200 bg-sky-50/80 p-2">
+                        <span className="text-[9px] font-black text-sky-900 uppercase block mb-1">🔑 1. Cái gì?</span>
+                        <div className="flex flex-wrap gap-1">
+                          {(fourKeys.what || []).map((t, idx) => {
+                            const isSelected = currentWhat === t
+                            return (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => setActiveWhat(t)}
+                                className={cn(
+                                  "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
+                                  isSelected
+                                    ? "bg-sky-500 text-white border-sky-600 shadow-2xs ring-1 ring-sky-300"
+                                    : "bg-white text-sky-900 border-sky-200 hover:bg-sky-100/70"
+                                )}
+                              >
+                                {t}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* 2. Trông thế nào */}
+                      <div className="rounded-xl border border-amber-200 bg-amber-50/80 p-2">
+                        <span className="text-[9px] font-black text-amber-900 uppercase block mb-1">🔑 2. Trông thế nào?</span>
+                        <div className="flex flex-wrap gap-1">
+                          {(fourKeys.how || []).map((t, idx) => {
+                            const isSelected = currentHow === t
+                            return (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => setActiveHow(t)}
+                                className={cn(
+                                  "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
+                                  isSelected
+                                    ? "bg-amber-500 text-white border-amber-600 shadow-2xs ring-1 ring-amber-300"
+                                    : "bg-white text-amber-900 border-amber-200 hover:bg-amber-100/70"
+                                )}
+                              >
+                                {t}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* 3. Đang làm gì */}
+                      <div className="rounded-xl border border-emerald-200 bg-emerald-50/80 p-2">
+                        <span className="text-[9px] font-black text-emerald-900 uppercase block mb-1">🔑 3. Đang làm gì?</span>
+                        <div className="flex flex-wrap gap-1">
+                          {(fourKeys.action || []).map((t, idx) => {
+                            const isSelected = currentAction === t
+                            return (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => setActiveAction(t)}
+                                className={cn(
+                                  "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
+                                  isSelected
+                                    ? "bg-emerald-500 text-white border-emerald-600 shadow-2xs ring-1 ring-emerald-300"
+                                    : "bg-white text-emerald-900 border-emerald-200 hover:bg-emerald-100/70"
+                                )}
+                              >
+                                {t}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+
+                      {/* 4. Ở đâu */}
+                      <div className="rounded-xl border border-rose-200 bg-rose-50/80 p-2">
+                        <span className="text-[9px] font-black text-rose-900 uppercase block mb-1">🔑 4. Ở đâu?</span>
+                        <div className="flex flex-wrap gap-1">
+                          {(fourKeys.where || []).map((t, idx) => {
+                            const isSelected = currentWhere === t
+                            return (
+                              <button
+                                key={idx}
+                                type="button"
+                                onClick={() => setActiveWhere(t)}
+                                className={cn(
+                                  "text-[10px] sm:text-[10.5px] font-bold px-2 py-0.5 rounded-md border transition cursor-pointer text-left",
+                                  isSelected
+                                    ? "bg-rose-500 text-white border-rose-600 shadow-2xs ring-1 ring-rose-300"
+                                    : "bg-white text-rose-900 border-rose-200 hover:bg-rose-100/70"
+                                )}
+                              >
+                                {t}
+                              </button>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Câu lệnh đang ghép thời gian thực */}
+                    <div className="rounded-xl border border-slate-200 bg-white p-2.5 shadow-2xs">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[8px] font-black uppercase text-slate-500 block">✨ Câu lệnh đang ghép:</span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveWhat(null)
+                            setActiveHow(null)
+                            setActiveAction(null)
+                            setActiveWhere(null)
+                          }}
+                          className="flex items-center gap-0.5 text-[9px] font-bold text-slate-400 hover:text-slate-600 cursor-pointer"
+                          title="Đặt lại câu lệnh"
+                        >
+                          <RotateCcw size={9} />
+                          <span>Đặt lại</span>
+                        </button>
+                      </div>
+                      <p className="text-[10.5px] sm:text-xs font-bold text-slate-800 leading-snug">
+                        ✨ <span className="text-sky-700 font-extrabold">{currentWhat}</span> +{' '}
+                        <span className="text-amber-700 font-extrabold">{currentHow}</span> +{' '}
+                        <span className="text-emerald-700 font-extrabold">{currentAction}</span> +{' '}
+                        <span className="text-rose-700 font-extrabold">{currentWhere}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Cột 3: Khung tranh AI Canvas & Thông tin AKI */}
+                  <div className="flex flex-col justify-between gap-2.5 rounded-2xl border border-border bg-slate-50/70 p-3 shadow-2xs">
+                    <div>
+                      <div className="flex items-center justify-between border-b border-border/60 pb-1.5 mb-2">
+                        <span className="text-[10px] font-black uppercase tracking-wider text-slate-700 flex items-center gap-1">
+                          🖼️ Khung Tranh AI Canvas
+                        </span>
+                        <span className="rounded-full bg-brand-100 text-brand-900 px-2 py-0.2 text-[9px] font-black">
+                          {sixStageJourney.stage5_practice.badge || 'Bài thực hành'}
+                        </span>
+                      </div>
+
+                      <div className="aspect-video w-full rounded-xl bg-slate-900 border border-slate-200 overflow-hidden relative shadow-clay-xs grid place-items-center">
+                        {parts[selectedPartIndex]?.iconImage || sixStageJourney.stage5_practice.sampleUrl ? (
+                          <img
+                            src={parts[selectedPartIndex]?.iconImage || sixStageJourney.stage5_practice.sampleUrl}
+                            alt="Tranh mẫu"
+                            className="w-full h-full object-cover"
+                            onError={(e) => { e.currentTarget.style.display = 'none' }}
+                          />
+                        ) : (
+                          <div className="text-center p-2">
+                            <span className="text-2xl block mb-1">🎨</span>
+                            <span className="text-[10px] text-slate-400 font-bold">Khung tranh bé sáng tạo</span>
+                          </div>
+                        )}
+                        <div className="absolute top-2 left-2 rounded-md bg-black/60 px-1.5 py-0.5 text-[8px] font-black text-white backdrop-blur-xs">
+                          Còn 4/4 lượt vẽ
+                        </div>
+                      </div>
+
+                      {sixStageJourney.stage5_practice.lockedFeatures?.length > 0 && (
+                        <div className="mt-2.5 flex flex-wrap gap-1">
+                          {sixStageJourney.stage5_practice.lockedFeatures.slice(0, 4).map((f, fIdx) => (
+                            <span key={fIdx} className="text-[9px] font-bold bg-amber-50 text-amber-800 border border-amber-200 px-1.5 py-0.2 rounded">
+                              🔒 {f}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {sixStageJourney.stage5_practice.akiMotto && (
+                        <div className="mt-2.5 rounded-xl bg-white/90 p-2.5 border border-brand-100 shadow-2xs">
+                          <p className="text-[10.5px] text-brand-900 font-semibold italic">
+                            &ldquo;{sixStageJourney.stage5_practice.akiMotto}&rdquo;
+                          </p>
+                        </div>
+                      )}
+                    </div>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        showToast(`🎨 AKI nhận câu thần chú: "${currentWhat} ${currentHow} ${currentAction} ${currentWhere}"!`, 'success')
+                      }}
+                      className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-brand-600 to-sky-600 text-white font-black text-xs shadow-clay-sm flex items-center justify-center gap-1.5 cursor-pointer hover:brightness-105 active:scale-98 transition mt-2"
+                    >
+                      <Sparkles size={14} />
+                      <span>✨ AKI Vẽ Tranh (Còn 4/4 lượt)</span>
+                    </button>
+                  </div>
                 </div>
               </div>
-              <div className="rounded-xl border border-slate-200 bg-white p-2.5 space-y-1.5">
-                <p className="text-[10px] font-black uppercase text-slate-700">Kịch bản 4 bước:</p>
-                {sixStageJourney.stage5_practice.workflowSteps.map((ws, idx) => (
-                  <div key={idx} className="text-xs bg-slate-50 p-2 rounded-lg border border-slate-100">
-                    <span className="font-bold text-slate-800">Bước {ws.step}: {ws.title}</span>
-                    <p className="text-[11px] text-slate-500 font-mono mt-0.5 truncate">Lệnh: {ws.quickPrompt}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
+            )
+          })()}
 
           {/* Chặng 5: Completion */}
           {stageIndex === 5 && (
@@ -753,6 +1911,7 @@ function StudentStagePreview({
               )}
             </div>
           )}
+
           {stageCard && getStageBlocks(stageCard, stageIndex).some((block) => !block.id.startsWith('course-goal-') && !block.id.startsWith('course-confirm-')) && (
             <div className="mt-4 border-t border-sky-100 pt-4">
               <StudentStageBlocksView
@@ -762,6 +1921,229 @@ function StudentStagePreview({
             </div>
           )}
         </div>
+      )
+    }
+
+    return (
+      <aside className="ui-card min-w-0 h-fit overflow-hidden p-4 lg:sticky lg:top-4" aria-label={`Xem trước ${stageName} trên màn học sinh`}>
+        {/* Header Preview với Viewport Selector */}
+        <div className="flex flex-col gap-2 pb-2.5 border-b border-border/80">
+          <div className="flex items-center justify-between gap-2">
+            <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-wide text-sky-700">
+              <Eye size={15} /> Xem trước học sinh (Đảo AIKids)
+            </p>
+            <span className="rounded-full bg-brand-100 px-2.5 py-0.5 text-[11px] font-black text-brand-800">
+              Chặng {stageIndex + 1}/6
+            </span>
+          </div>
+
+          {/* Thanh công cụ Viewport Selector trên header preview */}
+          <div className="flex items-center justify-between gap-1.5 pt-0.5">
+            <div className="flex items-center gap-1 rounded-lg bg-slate-100 p-0.5 border border-slate-200/80 text-[10.5px]">
+              <button
+                type="button"
+                onClick={() => setViewport('mobile')}
+                className={cn(
+                  "flex items-center gap-1 px-2 py-1 rounded-md font-bold transition cursor-pointer",
+                  viewport === 'mobile' ? "bg-white text-brand-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                )}
+                title="Xem dạng Mobile (375px)"
+              >
+                <Smartphone size={12} />
+                <span>Mobile</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewport('tablet')}
+                className={cn(
+                  "flex items-center gap-1 px-2 py-1 rounded-md font-bold transition cursor-pointer",
+                  viewport === 'tablet' ? "bg-white text-brand-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                )}
+                title="Xem dạng iPad (768px)"
+              >
+                <Tablet size={12} />
+                <span>iPad</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewport('pc')}
+                className={cn(
+                  "flex items-center gap-1 px-2 py-1 rounded-md font-bold transition cursor-pointer",
+                  viewport === 'pc' ? "bg-white text-brand-900 shadow-2xs" : "text-slate-600 hover:text-slate-900"
+                )}
+                title="Xem dạng PC (1024px+)"
+              >
+                <Monitor size={12} />
+                <span>PC</span>
+              </button>
+            </div>
+
+            {/* Nút nổi bật: ⛶ Toàn màn hình */}
+            <button
+              type="button"
+              onClick={() => setIsFullscreen(true)}
+              className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-sky-600 to-brand-600 hover:from-sky-700 hover:to-brand-700 text-white px-2.5 py-1 text-[10.5px] font-black shadow-2xs transition active:scale-95 cursor-pointer shrink-0"
+              title="Phóng to toàn màn hình (Fullscreen Modal)"
+            >
+              <Maximize2 size={13} />
+              <span>Toàn màn hình</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Nội dung xem trước Inline */}
+        <div className={cn(
+          "mt-3 transition-all",
+          viewport === 'mobile' && "max-w-[385px] mx-auto",
+          viewport === 'tablet' && "w-full overflow-x-auto",
+          viewport === 'pc' && "w-full overflow-x-auto"
+        )}>
+          {renderIslandStageContent(false, viewport)}
+        </div>
+
+        {/* Chế độ Xem Trước Toàn Màn Hình (Fullscreen Modal Preview) */}
+        {isFullscreen && (
+          <div
+            className="fixed inset-0 z-50 flex flex-col bg-slate-900/25 backdrop-blur-md animate-in fade-in duration-200"
+            role="dialog"
+            aria-modal="true"
+            aria-label={`Xem trước toàn màn hình: ${stageName}`}
+          >
+            {/* Thanh điều khiển trên cùng (Header Modal nền trắng Soft Clay) */}
+            <header className="flex h-14 shrink-0 items-center justify-between border-b border-border/80 bg-white/95 px-4 sm:px-6 text-slate-900 shadow-2xs z-10">
+              <div className="flex items-center gap-3 min-w-0">
+                <span className="flex size-8 items-center justify-center rounded-lg bg-sky-50 text-sky-600 border border-sky-200 shrink-0">
+                  <Eye size={18} />
+                </span>
+                <div className="min-w-0">
+                  <h2 className="text-sm font-black text-slate-900 truncate flex items-center gap-2">
+                    <span>👁️ Xem Trước Trải Nghiệm Học Sinh:</span>
+                    <span className="text-brand-600 truncate">{stageName}</span>
+                  </h2>
+                  <span className="text-[11px] font-medium text-slate-500 block truncate">
+                    Đảo AIKids · Chặng {stageIndex + 1}/6
+                  </span>
+                </div>
+              </div>
+
+              {/* Bộ nút chuyển kích thước xem thử */}
+              <div className="flex items-center gap-1 rounded-xl bg-slate-100 p-1 border border-slate-200/80">
+                <button
+                  type="button"
+                  onClick={() => setViewport('mobile')}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition cursor-pointer",
+                    viewport === 'mobile'
+                      ? "bg-brand-500 text-white font-black shadow-xs"
+                      : "bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+                  )}
+                  title="Xem trước màn hình Điện thoại (375px)"
+                >
+                  <Smartphone size={14} />
+                  <span className="hidden md:inline">📱 Điện thoại 375px</span>
+                  <span className="md:hidden">375px</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setViewport('tablet')}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition cursor-pointer",
+                    viewport === 'tablet'
+                      ? "bg-brand-500 text-white font-black shadow-xs"
+                      : "bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+                  )}
+                  title="Xem trước màn hình iPad / Máy tính bảng (768px)"
+                >
+                  <Tablet size={14} />
+                  <span className="hidden md:inline">📱 iPad / Tablet 768px</span>
+                  <span className="md:hidden">768px</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setViewport('pc')}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition cursor-pointer",
+                    viewport === 'pc'
+                      ? "bg-brand-500 text-white font-black shadow-xs"
+                      : "bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+                  )}
+                  title="Xem trước màn hình Máy tính PC (1200px)"
+                >
+                  <Monitor size={14} />
+                  <span className="hidden md:inline">💻 Máy tính PC 1200px</span>
+                  <span className="md:hidden">1200px</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setViewport('full')}
+                  className={cn(
+                    "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs transition cursor-pointer",
+                    viewport === 'full'
+                      ? "bg-brand-500 text-white font-black shadow-xs"
+                      : "bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold"
+                  )}
+                  title="Xem trước màn hình Tràn viền (100%)"
+                >
+                  <Maximize2 size={14} />
+                  <span className="hidden md:inline">🖥️ Full màn hình 100%</span>
+                  <span className="md:hidden">100%</span>
+                </button>
+              </div>
+
+              {/* Nút đóng Esc */}
+              <button
+                type="button"
+                onClick={() => setIsFullscreen(false)}
+                className="flex items-center gap-1.5 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold px-3 py-1.5 text-xs border border-slate-200 transition cursor-pointer shadow-xs shrink-0"
+                title="Đóng chế độ xem trước (Esc)"
+              >
+                <X size={15} />
+                <span className="hidden sm:inline">✕ Đóng (Esc)</span>
+              </button>
+            </header>
+
+            {/* Vùng chứa nội dung xem trước (Canvas area) */}
+            <div className="flex-1 bg-slate-100/70 p-4 sm:p-6 overflow-y-auto flex justify-center items-start">
+              {viewport === 'mobile' ? (
+                <div className="w-[375px] max-w-full rounded-[2.5rem] border-[6px] border-slate-300 bg-white shadow-2xl overflow-hidden flex flex-col shrink-0 my-auto sm:my-0">
+                  {/* Tai thỏ / Dynamic Island / rãnh loa thoại */}
+                  <div className="h-5 flex justify-center items-center py-1 bg-slate-100 border-b border-slate-200 shrink-0">
+                    <div className="w-16 h-1 rounded-full bg-slate-300" />
+                  </div>
+                  {/* Vùng xem trước bên trong điện thoại có scroll */}
+                  <div className="overflow-y-auto max-h-[75vh] p-3 text-left">
+                    {renderIslandStageContent(true, viewport)}
+                  </div>
+                </div>
+              ) : viewport === 'tablet' ? (
+                <div className="w-[768px] max-w-full rounded-2xl border-4 border-slate-300 bg-white shadow-xl overflow-hidden p-4 shrink-0">
+                  {renderIslandStageContent(true, viewport)}
+                </div>
+              ) : (
+                <div className={cn(
+                  "w-full rounded-2xl border-2 border-slate-200 bg-white shadow-lg p-6 shrink-0",
+                  viewport === 'full' ? "max-w-[1600px]" : "max-w-[1240px]"
+                )}>
+                  {renderIslandStageContent(true, viewport)}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Modal phóng to ảnh */}
+        {zoomedImage && (
+          <AdventureModal
+            open={!!zoomedImage}
+            onClose={() => setZoomedImage(null)}
+            title={zoomedImage.title || 'Chi tiết ảnh'}
+          >
+            <img src={zoomedImage.url} alt="Chi tiết" className="w-full h-auto rounded-xl" />
+          </AdventureModal>
+        )}
       </aside>
     )
   }
@@ -2466,13 +3848,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         </div>
 
         {/* Section tabs */}
-        <div style={{
-          display: 'flex', overflowX: 'auto', padding: '0 1.5rem',
-          borderBottom: '1px solid #e2e8f0',
-          background: '#fff',
-          flexShrink: 0,
-          scrollbarWidth: 'none',
-        }}>
+        <div className="overflow-x-auto scroll-smooth flex items-center gap-1.5 px-4 py-2 bg-white border-b border-border shrink-0 custom-scrollbar">
           {(isIslandCourse ? ISLAND_6_STAGE_SECTIONS : (lessonFormat === 'aiki-rule-5steps' ? AIKI_SECTIONS : STANDARD_SECTIONS)).map((section) => {
             const isActive = activeSection === section.id
             const complete = sectionStatus(section.id)
@@ -2481,23 +3857,22 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                 key={section.id}
                 type="button"
                 onClick={() => setActiveSection(section.id)}
-                style={{
-                  display: 'flex', alignItems: 'center', gap: '0.375rem',
-                  padding: '0.75rem 1rem', border: 'none', background: 'transparent',
-                  color: isActive ? '#6366f1' : '#64748b',
-                  fontSize: '0.875rem', fontWeight: isActive ? 700 : 500,
-                  cursor: 'pointer', whiteSpace: 'nowrap',
-                  borderBottom: isActive ? '2px solid #6366f1' : '2px solid transparent',
-                  transition: 'all 0.2s',
-                }}
+                className={cn(
+                  "shrink-0 min-w-max flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer whitespace-nowrap",
+                  isActive
+                    ? "bg-brand-50 text-brand-700 border-2 border-brand-300 shadow-2xs font-black"
+                    : "text-slate-600 hover:text-slate-900 hover:bg-slate-50 border border-transparent"
+                )}
               >
                 {complete
-                  ? <CheckCircle2 size={13} color="#10b981" />
-                  : <Circle size={13} color={isActive ? '#6366f1' : '#cbd5e1'} />
+                  ? <CheckCircle2 size={13} className="text-emerald-500 shrink-0" />
+                  : <Circle size={13} className={cn("shrink-0", isActive ? "text-brand-500" : "text-slate-300")} />
                 }
-                {section.label}
+                <span>{section.label}</span>
                 {!complete && sectionMissing(section.id).length > 0 && (
-                  <span className="grid min-w-5 place-items-center rounded-full bg-sun-100 px-1 text-[10px] font-extrabold text-warning">{sectionMissing(section.id).length}</span>
+                  <span className="grid min-w-5 place-items-center rounded-full bg-sun-100 px-1 text-[10px] font-extrabold text-warning shrink-0">
+                    {sectionMissing(section.id).length}
+                  </span>
                 )}
               </button>
             )
@@ -2779,108 +4154,20 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                     </div>
                   )}
 
-                  {stageIndex === 1 && false && (
-                    <div className="space-y-4 rounded-2xl border border-border bg-white p-5 shadow-xs">
-                      <div>
-                        <label className="block text-xs font-black uppercase text-slate-700">Câu hỏi câu đố xác nhận</label>
-                        <textarea
-                          rows={2}
-                          value={currentJourney.stage2_confirmGoal.question}
-                          onChange={(e) => {
-                            const val = e.target.value
-                            updateSixStage((j) => ({ ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, question: val } }))
-                          }}
-                          placeholder="Nhập câu đố để bé chọn A hay B..."
-                          className="mt-1.5 w-full rounded-xl border border-border bg-page p-3 text-xs font-semibold text-text"
-                        />
-                      </div>
-
-                      <div>
-                        <div className="flex items-center justify-between">
-                          <label className="block text-xs font-black uppercase text-slate-700">Lời dẫn của Mèo AKI</label>
-                          <button
-                            type="button"
-                            onClick={() => previewAikiVoice(1, currentJourney.stage2_confirmGoal.speech)}
-                            className="flex items-center gap-1 text-[11px] font-bold text-sky-600 hover:text-sky-800 cursor-pointer"
-                          >
-                            <Volume2 size={13} />
-                            <span>Nghe thử giọng AKI</span>
-                          </button>
-                        </div>
-                        <input
-                          type="text"
-                          value={currentJourney.stage2_confirmGoal.speech}
-                          onChange={(e) => {
-                            const val = e.target.value
-                            updateSixStage((j) => ({ ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, speech: val } }))
-                          }}
-                          className="mt-1.5 w-full rounded-xl border border-border bg-page px-3 py-2 text-xs font-semibold text-text italic"
-                        />
-                      </div>
-
-                      <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
-                        {currentJourney.stage2_confirmGoal.options.map((option, optionIndex) => (
-                          <div key={option.id || optionIndex} className={cn(
-                            'space-y-2.5 rounded-xl border-2 p-3.5',
-                            currentJourney.stage2_confirmGoal.correctIndex === optionIndex ? 'border-emerald-400 bg-emerald-50/40' : 'border-border bg-page',
-                          )}>
-                            <div className="flex items-center justify-between gap-2">
-                              <span className="text-xs font-black uppercase text-slate-800">Phương án {String.fromCharCode(65 + optionIndex)}</span>
-                              <label className="flex items-center gap-1 text-xs font-bold text-emerald-700 cursor-pointer">
-                                <input type="radio" name="confirmCorrect" checked={currentJourney.stage2_confirmGoal.correctIndex === optionIndex} onChange={() => updateSixStage((j) => ({ ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, correctIndex: optionIndex } }))} />
-                                Đáp án đúng
-                              </label>
-                            </div>
-                            <input type="text" value={option.text} onChange={(event) => updateSixStage((j) => {
-                              const options = [...j.stage2_confirmGoal.options]
-                              options[optionIndex] = { ...options[optionIndex], text: event.target.value }
-                              return { ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, options } }
-                            })} placeholder={`Tên bộ chìa khóa ${String.fromCharCode(65 + optionIndex)}...`} className="w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs font-semibold text-text" />
-                            <input type="text" value={option.imageUrl || ''} onChange={(event) => updateSixStage((j) => {
-                              const options = [...j.stage2_confirmGoal.options]
-                              options[optionIndex] = { ...options[optionIndex], imageUrl: event.target.value }
-                              return { ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, options } }
-                            })} placeholder="URL ảnh minh họa..." className="w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs font-semibold text-text" />
-                            {option.keyItems?.length ? (
-                              <div className="grid gap-1.5 sm:grid-cols-2 xl:grid-cols-1">
-                                {option.keyItems.map((keyItem, keyIndex) => (
-                                  <div key={keyIndex} className="grid grid-cols-[1fr_5.5rem] gap-1.5">
-                                    <input type="text" value={keyItem.label} onChange={(event) => updateSixStage((j) => {
-                                      const options = [...j.stage2_confirmGoal.options]
-                                      const keyItems = [...(options[optionIndex].keyItems || [])]
-                                      keyItems[keyIndex] = { ...keyItems[keyIndex], label: event.target.value }
-                                      options[optionIndex] = { ...options[optionIndex], keyItems }
-                                      return { ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, options } }
-                                    })} placeholder={`Chìa ${keyIndex + 1}`} className="rounded-lg border border-border bg-white px-2 py-1 text-xs font-semibold" />
-                                    <input type="text" value={keyItem.color} onChange={(event) => updateSixStage((j) => {
-                                      const options = [...j.stage2_confirmGoal.options]
-                                      const keyItems = [...(options[optionIndex].keyItems || [])]
-                                      keyItems[keyIndex] = { ...keyItems[keyIndex], color: event.target.value }
-                                      options[optionIndex] = { ...options[optionIndex], keyItems }
-                                      return { ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, options } }
-                                    })} placeholder="Màu" className="rounded-lg border border-border bg-white px-2 py-1 text-xs font-semibold" />
-                                  </div>
-                                ))}
-                              </div>
-                            ) : null}
-                          </div>
-                        ))}
-                      </div>
-
-                      <div>
-                        <label className="block text-xs font-black uppercase text-slate-700">Lời giải thích khi trả lời</label>
-                        <textarea
-                          rows={2}
-                          value={currentJourney.stage2_confirmGoal.explanation}
-                          onChange={(e) => {
-                            const val = e.target.value
-                            updateSixStage((j) => ({ ...j, stage2_confirmGoal: { ...j.stage2_confirmGoal, explanation: val } }))
-                          }}
-                          placeholder="Giải thích vì sao đáp án đó chính xác..."
-                          className="mt-1.5 w-full rounded-xl border border-border bg-page p-3 text-xs font-semibold text-text"
-                        />
-                      </div>
-                    </div>
+                  {stageIndex === 1 && (
+                    <ConfirmGoalStageEditor
+                      confirmGoal={currentJourney.stage2_confirmGoal}
+                      onChange={(patch) => {
+                        updateSixStage((j) => ({
+                          ...j,
+                          stage2_confirmGoal: { ...j.stage2_confirmGoal, ...patch },
+                        }))
+                      }}
+                      previewAikiVoice={previewAikiVoice}
+                      readOnly={readOnly}
+                      showToast={showToast}
+                      questId={draft.questId}
+                    />
                   )}
 
                   {stageIndex === 2 && (
@@ -3223,58 +4510,34 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                         />
                       </div>
 
-                      <div>
-                        <label className="block text-xs font-black uppercase text-slate-700 mb-2">Kịch bản 4 bước thực hành (Workflow Steps)</label>
-                        <div className="space-y-2.5">
-                          {currentJourney.stage5_practice.workflowSteps.map((ws, wsIdx) => (
-                            <div key={ws.step || wsIdx} className="rounded-xl border border-slate-200 bg-slate-50/70 p-3 space-y-2">
-                              <span className="text-xs font-black text-brand-900">Bước {ws.step}: {ws.title}</span>
-                              <input
-                                type="text"
-                                value={ws.title}
-                                onChange={(e) => {
-                                  const val = e.target.value
-                                  updateSixStage((j) => {
-                                    const steps = [...j.stage5_practice.workflowSteps]
-                                    steps[wsIdx] = { ...steps[wsIdx], title: val }
-                                    return { ...j, stage5_practice: { ...j.stage5_practice, workflowSteps: steps } }
-                                  })
-                                }}
-                                placeholder="Tên bước..."
-                                className="w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs font-semibold"
-                              />
-                              <input
-                                type="text"
-                                value={ws.quickPrompt}
-                                onChange={(e) => {
-                                  const val = e.target.value
-                                  updateSixStage((j) => {
-                                    const steps = [...j.stage5_practice.workflowSteps]
-                                    steps[wsIdx] = { ...steps[wsIdx], quickPrompt: val }
-                                    return { ...j, stage5_practice: { ...j.stage5_practice, workflowSteps: steps } }
-                                  })
-                                }}
-                                placeholder="Từ khóa / Câu lệnh mẫu khởi đầu..."
-                                className="w-full rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs font-mono"
-                              />
-                              <textarea
-                                rows={2}
-                                value={ws.akiSpeech}
-                                onChange={(e) => {
-                                  const val = e.target.value
-                                  updateSixStage((j) => {
-                                    const steps = [...j.stage5_practice.workflowSteps]
-                                    steps[wsIdx] = { ...steps[wsIdx], akiSpeech: val }
-                                    return { ...j, stage5_practice: { ...j.stage5_practice, workflowSteps: steps } }
-                                  })
-                                }}
-                                placeholder="Lời thoại AKI hướng dẫn..."
-                                className="w-full rounded-lg border border-border bg-white p-2 text-xs italic"
-                              />
-                            </div>
-                          ))}
-                        </div>
-                      </div>
+                      {/* Cấu hình Món đồ bé vẽ & Ngân hàng thẻ 4 Chìa Khóa */}
+                      <PracticePartsAndFourKeysEditor
+                        practice={currentJourney.stage5_practice}
+                        onChange={(patch) => {
+                          updateSixStage((j) => ({
+                            ...j,
+                            stage5_practice: {
+                              ...j.stage5_practice,
+                              ...patch,
+                            },
+                          }))
+                        }}
+                        showToast={showToast}
+                      />
+
+                      {/* Lời thoại & Gợi ý từng lượt của AKI (Nâng cao) - Accordion tinh gọn */}
+                      <PracticeWorkflowStepsAccordion
+                        workflowSteps={currentJourney.stage5_practice.workflowSteps}
+                        onChange={(steps) => {
+                          updateSixStage((j) => ({
+                            ...j,
+                            stage5_practice: {
+                              ...j.stage5_practice,
+                              workflowSteps: steps,
+                            },
+                          }))
+                        }}
+                      />
                     </div>
                   )}
 

@@ -458,6 +458,7 @@ export function serializeLearnCardsForHub(cards: LearnCardDraft[]): LearnCardDra
 
 export type LectureDraft = {
   id: string
+  questId?: string
   title: string
   skill: string
   hook: string

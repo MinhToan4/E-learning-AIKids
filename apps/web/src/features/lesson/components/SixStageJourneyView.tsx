@@ -303,6 +303,9 @@ export function SixStageJourneyView({
 
   const confirmOptions = useMemo(() => {
     return journey.stage2_confirmGoal.options.map((option) => {
+      if (option.imageUrl) {
+        return option
+      }
       if (option.keyItems && option.keyItems.length > 0) {
         return option
       }
@@ -324,10 +327,17 @@ export function SixStageJourneyView({
   }, [journey.stage2_confirmGoal.options])
 
   const hasKeyOptions = useMemo(() => {
-    return confirmOptions.some(
-      (opt) => opt.keyItems && opt.keyItems.length > 0
+    return (
+      isLesson1_2 ||
+      confirmOptions.some(
+        (opt) =>
+          (opt.keyItems && opt.keyItems.length > 0) ||
+          Boolean(opt.imageUrl && (opt.imageUrl.includes('key') || opt.imageUrl.includes('4keys'))) ||
+          opt.text.toLowerCase().includes('chìa khoá') ||
+          opt.text.toLowerCase().includes('chìa khóa')
+      )
     )
-  }, [confirmOptions])
+  }, [isLesson1_2, confirmOptions])
 
 
   // Web Speech synthesis for AKI
@@ -684,9 +694,8 @@ export function SixStageJourneyView({
           data-testid="main-learning-canvas"
           className={cn(
             'flex-1 min-w-0 flex flex-col gap-4 pr-1',
-            currentStage === 4
-              ? 'h-full min-h-0 overflow-hidden pr-0 gap-0'
-              : 'overflow-y-auto hidden-scrollbar',
+            'min-h-0 overflow-y-auto overscroll-contain touch-pan-y',
+            currentStage === 4 ? 'gap-2 pr-0.5 sm:pr-1' : 'hidden-scrollbar',
             (isSidebarCollapsed || currentStage === 4 || currentStage === 5) && 'w-full'
           )}
         >
@@ -777,7 +786,7 @@ export function SixStageJourneyView({
                         <div
                           key={card.id}
                           className={cn(
-                            "p-2 sm:p-2.5 rounded-2xl border-2 bg-white/95 shadow-clay-sm hover:shadow-clay transition-all flex items-center gap-2.5 sm:gap-3",
+                            "p-2 sm:p-2.5 rounded-2xl border-2 bg-white/95 shadow-clay-sm hover:shadow-clay transition-all flex items-start gap-2.5 sm:gap-3 min-h-[64px] h-auto",
                             card.bg
                           )}
                         >
@@ -795,7 +804,7 @@ export function SixStageJourneyView({
                             >
                               [{idx + 1}] {card.code}
                             </span>
-                            <p className="text-xs sm:text-sm font-black text-slate-900 mt-0.5 line-clamp-1 leading-tight">
+                            <p className="text-xs sm:text-sm font-black text-slate-900 mt-0.5 line-clamp-3 leading-snug break-words">
                               {card.val}
                             </p>
                             <span className="text-[11px] sm:text-xs font-bold text-slate-500 block mt-0.5">
@@ -945,41 +954,51 @@ export function SixStageJourneyView({
                           </div>
                         </div>
 
-                        {/* LƯỚI 2x2 CỦA 4 CHÌA KHÓA: GỌN GÀNG, VỪA VẶN */}
-                        <div className="grid grid-cols-2 gap-1.5 sm:gap-2 my-2 p-2 sm:p-2.5 rounded-2xl bg-slate-50/90 border border-slate-200/60 flex-1">
-                          {option.keyItems?.map((k, kIdx) => {
-                            const keyThumbnail =
-                              kIdx === 0
-                                ? '/assets/aiki-keys/key_what_blue.jpg'
-                                : kIdx === 1
-                                ? '/assets/aiki-keys/key_how_yellow.jpg'
-                                : kIdx === 2
-                                ? '/assets/aiki-keys/key_action_orange.jpg'
-                                : '/assets/aiki-keys/key_where_pink.jpg'
+                        {/* HIỂN THỊ 1 ẢNH 4 CHÌA KHÓA NẾU CÓ imageUrl, HOẶC FALLBACK VỀ LƯỚI 2x2 */}
+                        {option.imageUrl ? (
+                          <div className="my-2 rounded-2xl overflow-hidden bg-slate-100/80 border border-slate-200/80 flex-1 flex items-center justify-center p-1 min-h-[160px]">
+                            <img
+                              src={option.imageUrl}
+                              alt={option.text}
+                              className="w-full h-auto max-h-[220px] object-contain rounded-xl group-hover:scale-[1.02] transition-transform duration-200"
+                            />
+                          </div>
+                        ) : (
+                          <div className="grid grid-cols-2 gap-1.5 sm:gap-2 my-2 p-2 sm:p-2.5 rounded-2xl bg-slate-50/90 border border-slate-200/60 flex-1">
+                            {option.keyItems?.map((k, kIdx) => {
+                              const keyThumbnail =
+                                kIdx === 0
+                                  ? '/assets/aiki-keys/key_what_blue.jpg'
+                                  : kIdx === 1
+                                  ? '/assets/aiki-keys/key_how_yellow.jpg'
+                                  : kIdx === 2
+                                  ? '/assets/aiki-keys/key_action_orange.jpg'
+                                  : '/assets/aiki-keys/key_where_pink.jpg'
 
-                            return (
-                              <div
-                                key={kIdx}
-                                className="flex flex-col items-center text-center p-1.5 sm:p-2 rounded-xl bg-white border border-slate-200/80 shadow-2xs gap-1 transition-transform hover:scale-[1.02]"
-                              >
-                                <img
-                                  src={keyThumbnail}
-                                  alt={k.label}
-                                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg object-contain bg-amber-50/40 p-0.5 border border-amber-200/80 shrink-0 shadow-2xs"
-                                />
-                                <span
-                                  className="text-[10px] sm:text-xs font-black uppercase px-2 py-0.5 rounded-full text-white tracking-wider"
-                                  style={{ backgroundColor: k.color || '#F59E0B' }}
+                              return (
+                                <div
+                                  key={kIdx}
+                                  className="flex flex-col items-center text-center p-1.5 sm:p-2 rounded-xl bg-white border border-slate-200/80 shadow-2xs gap-1 transition-transform hover:scale-[1.02]"
                                 >
-                                  CHÌA {kIdx + 1}
-                                </span>
-                                <span className="text-xs sm:text-sm font-black text-slate-800 line-clamp-1 leading-tight">
-                                  {k.label}
-                                </span>
-                              </div>
-                            )
-                          })}
-                        </div>
+                                  <img
+                                    src={keyThumbnail}
+                                    alt={k.label}
+                                    className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg object-contain bg-amber-50/40 p-0.5 border border-amber-200/80 shrink-0 shadow-2xs"
+                                  />
+                                  <span
+                                    className="text-[10px] sm:text-xs font-black uppercase px-2 py-0.5 rounded-full text-white tracking-wider"
+                                    style={{ backgroundColor: k.color || '#F59E0B' }}
+                                  >
+                                    CHÌA {kIdx + 1}
+                                  </span>
+                                  <span className="text-[11px] sm:text-xs font-black text-slate-800 line-clamp-2 leading-tight break-words text-center">
+                                    {k.label}
+                                  </span>
+                                </div>
+                              )
+                            })}
+                          </div>
+                        )}
 
                         {/* Nhãn trạng thái dưới đáy thẻ */}
                         <div
@@ -1661,7 +1680,7 @@ export function SixStageJourneyView({
           {currentStage === 4 && (
             <section
               data-testid="stage-4-practice"
-              className="flex h-auto w-full min-w-0 shrink-0 flex-col overflow-visible rounded-3xl border-2 border-brand-100 bg-white p-2 shadow-clay animate-fade-up sm:p-3"
+              className="flex h-auto w-full min-w-0 shrink-0 flex-col overflow-visible rounded-3xl border-2 border-brand-100 bg-white p-2 pb-8 sm:p-3 sm:pb-4 shadow-clay animate-fade-up"
             >
 
               <AikiStudioWorkspace

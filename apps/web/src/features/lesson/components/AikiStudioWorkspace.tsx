@@ -17,6 +17,8 @@ import {
   Backpack,
   Award,
   ShieldCheck,
+  ChevronLeft,
+  ChevronRight,
 } from 'lucide-react'
 import { cn } from '@/shared/lib/cn'
 import { generateCreativeImage } from '@/shared/lib/creative-api'
@@ -168,6 +170,7 @@ export interface AikiStudioWorkspaceProps {
   activePartIndex?: number
   onPartChange?: (index: number) => void
   onPracticePartsSync?: (parts: PracticePartState[], activeIndex: number) => void
+  turnsPerItem?: number
 }
 
 // ────────────────────────────────────────────────────────────────────────────
@@ -1433,11 +1436,14 @@ export function AikiStudioWorkspace({
   activePartIndex: propActivePartIndex,
   onPartChange,
   onPracticePartsSync,
+  turnsPerItem,
 }: AikiStudioWorkspaceProps) {
   // ── TRÍCH XUẤT CẤU HÌNH ĐỘNG TỪ CONFIG HOẶC FALLBACK ─────────────────────
   const effectiveConfig = useMemo(() => {
     return config || getAikiStudioConfig(lessonId, lessonTitle)
   }, [config, lessonId, lessonTitle])
+
+  const maxTurnsPerPart = turnsPerItem || effectiveConfig?.maxTurnsPerItem || 2
 
   const effectiveBadge = lessonBadge || effectiveConfig?.badge || 'Bài 3.2'
   const effectiveTitle = lessonTitle || effectiveConfig?.subjectName || 'Bắt AKI vẽ Sóc Bông bằng mật mã của các cậu'
@@ -1531,9 +1537,34 @@ export function AikiStudioWorkspace({
 
   // ── STATES TƯƠI MỚI CHUẨN SƯ PHẠM ──────────────────────────────────────────
   const [isFullscreen, setIsFullscreen] = useState(false)
-  // attemptsLeft ban đầu đầy đủ maxAttempts (6 lượt), không giả lập 3 lượt dở dang
+
+  // Persistence Session Keys
+  const sessionKey = `aiki_studio_session_${lessonId || 'default'}`
+  const sessionTurnsKey = `aiki_studio_turns_${lessonId || 'default'}`
+
+  // gallery ban đầu: đọc từ localStorage nếu có, nếu không thì dùng preloadedImages hoặc []
+  const initialSavedGallery = useMemo<StudioImageItem[] | null>(() => {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const raw = localStorage.getItem(sessionKey)
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return parsed
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return null
+  }, [sessionKey])
+
+  const initialGalleryLength = (initialSavedGallery || preloadedImages || []).length
+
+  // attemptsLeft tính chuẩn xác dựa trên số tranh ban đầu
   const [attemptsLeft, setAttemptsLeft] = useState<number>(() =>
-    initialAttemptsLeft !== undefined ? initialAttemptsLeft : maxAttempts
+    initialAttemptsLeft !== undefined ? initialAttemptsLeft : Math.max(0, maxAttempts - initialGalleryLength)
   )
   // currentPrompt ban đầu trống rỗng, sẵn sàng đón câu lệnh mới
   const [currentPrompt, setCurrentPrompt] = useState<string>(() =>
@@ -1548,13 +1579,16 @@ export function AikiStudioWorkspace({
   const [hasVoiceInput, setHasVoiceInput] = useState(false)
   const [isBackpackModalOpen, setIsBackpackModalOpen] = useState(false)
 
-  // gallery ban đầu rỗng [], không nạp 3 ảnh mock dở dang
+  // gallery: khôi phục từ localStorage nếu có, nếu không nạp preloadedImages hoặc []
   const [gallery, setGallery] = useState<StudioImageItem[]>(() => {
+    if (initialSavedGallery && initialSavedGallery.length > 0) {
+      return initialSavedGallery
+    }
     if (preloadedImages && preloadedImages.length > 0) {
       return preloadedImages.map((img, idx) => ({
         ...img,
         partIndex: img.partIndex !== undefined ? img.partIndex : Math.floor(idx / 2),
-        partTurn: img.partTurn !== undefined ? img.partTurn : ((idx % 2) + 1 as 1 | 2),
+        partTurn: img.partTurn !== undefined ? img.partTurn : (((idx % 2) + 1) as 1 | 2),
       }))
     }
     return []
@@ -1568,11 +1602,11 @@ export function AikiStudioWorkspace({
       return {
         ...def,
         images: pImages,
-        isDone: pImages.length >= 2,
+        isDone: pImages.length >= maxTurnsPerPart,
         isActive: idx === activePartIndex,
       }
     })
-  }, [practicePartDefs, gallery, activePartIndex])
+  }, [practicePartDefs, gallery, activePartIndex, maxTurnsPerPart])
 
   useEffect(() => {
     onPracticePartsSync?.(practicePartsState, activePartIndex)
@@ -1580,8 +1614,9 @@ export function AikiStudioWorkspace({
 
   // currentWorkflowStep ban đầu = 0 (Bước 1), không nạp sẵn bước 2
   const [currentWorkflowStep, setCurrentWorkflowStep] = useState<number>(() => {
-    if (preloadedImages && preloadedImages.length > 0) {
-      return Math.min(3, Math.max(0, preloadedImages.length - 1))
+    const initialImages = (initialSavedGallery && initialSavedGallery.length > 0) ? initialSavedGallery : preloadedImages
+    if (initialImages && initialImages.length > 0) {
+      return Math.min(3, Math.max(0, initialImages.length - 1))
     }
     return 0
   })
@@ -1707,15 +1742,16 @@ export function AikiStudioWorkspace({
       showVerifyControls?: boolean
     }> = []
 
-    if (preloadedImages && preloadedImages.length > 0) {
-      preloadedImages.forEach((item, idx) => {
+    const initialImages = (initialSavedGallery && initialSavedGallery.length > 0) ? initialSavedGallery : preloadedImages
+    if (initialImages && initialImages.length > 0) {
+      initialImages.forEach((item, idx) => {
         initialMsgs.push({
           id: `msg-preloaded-student-${item.id || idx}`,
           sender: 'student',
           text: item.prompt,
           time: item.time,
         })
-        const isLast = idx === preloadedImages.length - 1
+        const isLast = idx === initialImages.length - 1
         initialMsgs.push({
           id: `msg-preloaded-aki-${item.id || idx}`,
           sender: 'aki',
@@ -1764,12 +1800,143 @@ export function AikiStudioWorkspace({
     )
   }, [gallery, activePartIndex])
 
+  const [selectedTurnByPart, setSelectedTurnByPart] = useState<Record<number, 1 | 2>>(() => {
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const raw = localStorage.getItem(sessionTurnsKey)
+        if (raw) {
+          const parsed = JSON.parse(raw)
+          if (parsed && typeof parsed === 'object') {
+            return parsed
+          }
+        }
+      } catch {
+        // ignore
+      }
+    }
+    return {}
+  })
+
+  // Tự động đồng bộ gallery & selectedTurnByPart vào localStorage
+  useEffect(() => {
+    if (typeof localStorage === 'undefined') return
+    try {
+      localStorage.setItem(sessionKey, JSON.stringify(gallery))
+    } catch {
+      // ignore
+    }
+  }, [gallery, sessionKey])
+
+  useEffect(() => {
+    if (typeof localStorage === 'undefined') return
+    try {
+      localStorage.setItem(sessionTurnsKey, JSON.stringify(selectedTurnByPart))
+    } catch {
+      // ignore
+    }
+  }, [selectedTurnByPart, sessionTurnsKey])
+
+  const currentPartTurn =
+    selectedTurnByPart[activePartIndex] ||
+    (activePartImages.some((img) => img.partTurn === 2)
+      ? 2
+      : activePartImages.some((img) => img.partTurn === 1)
+      ? 1
+      : 1)
+
+  const isCurrentPartTurnAlreadyDrawn = activePartImages.some((img) => img.partTurn === currentPartTurn)
+  const turnLockedMessage =
+    currentPartTurn === 1
+      ? '🔒 Lượt 1 đã vẽ xong · Chuyển sang Lượt 2 nhé!'
+      : '🏆 Đã hoàn thành 2/2 lượt món này'
+
   const latestStudioImage = useMemo(() => {
     if (activePartImages && activePartImages.length > 0) {
       return activePartImages[activePartImages.length - 1]
     }
     return null
   }, [activePartImages])
+
+  const displayedPartImage =
+    activePartImages.find((img) => img.partTurn === currentPartTurn) ||
+    (selectedTurnByPart[activePartIndex] ? null : latestStudioImage)
+
+  // ── ĐIỀU HƯỚNG CUỘN NGANG DẢI PHIM BALO BÀI HỌC ──────────────────────────
+  const filmstripRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const checkFilmstripScroll = () => {
+    const el = filmstripRef.current
+    if (!el) return
+    setCanScrollLeft(el.scrollLeft > 2)
+    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4)
+  }
+
+  useEffect(() => {
+    checkFilmstripScroll()
+    window.addEventListener('resize', checkFilmstripScroll)
+    return () => {
+      window.removeEventListener('resize', checkFilmstripScroll)
+    }
+  }, [gallery.length, activePartIndex, currentPartTurn])
+
+  const handleScrollFilmstrip = (direction: 'left' | 'right') => {
+    const el = filmstripRef.current
+    if (!el) return
+    const scrollAmount = direction === 'left' ? -140 : 140
+    if (typeof el.scrollBy === 'function') {
+      el.scrollBy({ left: scrollAmount, behavior: 'smooth' })
+    } else {
+      el.scrollLeft += scrollAmount
+    }
+    playInstantSound('click')
+    setTimeout(checkFilmstripScroll, 300)
+  }
+
+  useEffect(() => {
+    const el = filmstripRef.current
+    if (!el) return
+    const activeEl = el.querySelector('[data-active-filmstrip="true"]') as HTMLElement | null
+    if (activeEl && typeof activeEl.scrollIntoView === 'function') {
+      activeEl.scrollIntoView({ behavior: 'smooth', inline: 'nearest', block: 'nearest' })
+    }
+    setTimeout(checkFilmstripScroll, 350)
+  }, [activePartIndex, currentPartTurn])
+
+  const isDraggingFilmstrip = useRef(false)
+  const filmstripStartX = useRef(0)
+  const filmstripScrollLeft = useRef(0)
+  const hasDraggedFilmstrip = useRef(false)
+
+  const handleFilmstripMouseDown = (e: React.MouseEvent) => {
+    const el = filmstripRef.current
+    if (!el) return
+    isDraggingFilmstrip.current = true
+    hasDraggedFilmstrip.current = false
+    const pageX = e.pageX ?? e.clientX
+    filmstripStartX.current = pageX - el.offsetLeft
+    filmstripScrollLeft.current = el.scrollLeft
+  }
+
+  const handleFilmstripMouseMove = (e: React.MouseEvent) => {
+    if (!isDraggingFilmstrip.current) return
+    const el = filmstripRef.current
+    if (!el) return
+    e.preventDefault()
+    const pageX = e.pageX ?? e.clientX
+    const x = pageX - el.offsetLeft
+    const walk = (x - filmstripStartX.current) * 1.5
+    if (Math.abs(walk) > 4) {
+      hasDraggedFilmstrip.current = true
+    }
+    el.scrollLeft = filmstripScrollLeft.current - walk
+    checkFilmstripScroll()
+  }
+
+  const handleFilmstripMouseUpOrLeave = () => {
+    isDraggingFilmstrip.current = false
+  }
 
   const latestAkiMessageText = useMemo(() => {
     const akiMsgs = chatMessages.filter((m) => m.sender === 'aki')
@@ -1789,7 +1956,7 @@ export function AikiStudioWorkspace({
   // Xử lý gửi prompt thực thi vẽ tranh (kết nối Gateway Google Flow & graceful fallback)
   const handleExecutePrompt = async (promptToRun?: string) => {
     const rawPrompt = (promptToRun !== undefined ? promptToRun : currentPrompt).trim()
-    if (!rawPrompt || attemptsLeft <= 0 || isGenerating) return
+    if (!rawPrompt || attemptsLeft <= 0 || isGenerating || isCurrentPartTurnAlreadyDrawn) return
 
     playInstantSound('click')
     setIsGenerating(true)
@@ -1847,7 +2014,7 @@ export function AikiStudioWorkspace({
     const currentPartImages = gallery.filter((img) =>
       img.partIndex !== undefined ? img.partIndex === activePartIndex : Math.floor((img.turn - 1) / 2) === activePartIndex
     )
-    const turnInPart = (currentPartImages.length >= 1 ? 2 : 1) as 1 | 2
+    const turnInPart = (currentPartImages.some((img) => img.partTurn === 1) ? 2 : 1) as 1 | 2
 
     const newImage: StudioImageItem = {
       id: `img-p${activePartIndex + 1}-${turnInPart}-${Date.now()}`,
@@ -1867,11 +2034,15 @@ export function AikiStudioWorkspace({
     setIsGenerating(false)
     playInstantSound('correct')
 
-    // Nếu đã hoàn thành 2 lượt của phần này và còn phần kế tiếp, tự động chuyển phần tiếp theo
-    if (turnInPart === 2 && activePartIndex < 3) {
-      setTimeout(() => {
-        handleSelectPart(activePartIndex + 1)
-      }, 800)
+    if (turnInPart === 1) {
+      setSelectedTurnByPart((prev) => ({ ...prev, [activePartIndex]: 2 }))
+    } else if (turnInPart === 2) {
+      if (activePartIndex < practicePartDefs.length - 1) {
+        setTimeout(() => {
+          handleSelectPart(activePartIndex + 1)
+          setSelectedTurnByPart((prev) => ({ ...prev, [activePartIndex + 1]: 1 }))
+        }, 900)
+      }
     }
 
     // Tiến lên bước tiếp theo
@@ -1958,27 +2129,56 @@ export function AikiStudioWorkspace({
           '/assets/aiki-islands/island1_lesson1_cat.jpg',
       }
 
-    const newWork = {
-      id: `bp-${Date.now()}`,
-      title:
-        finalCandidate.prompt.length > 32
-          ? `${finalCandidate.prompt.slice(0, 32)}...`
-          : finalCandidate.prompt,
-      stationLabel: effectiveBadge,
-      url: finalCandidate.url,
-      time: finalCandidate.time,
-      isNew: true,
-      badgeColor: 'bg-indigo-600',
-    }
+    const allWorks = [
+      {
+        id: finalCandidate.id || `bp-masterpiece-${Date.now()}`,
+        title: `Kiệt tác: ${finalCandidate.prompt.slice(0, 32)}...`,
+        stationLabel: effectiveBadge,
+        url: finalCandidate.url,
+        time: finalCandidate.time,
+        prompt: finalCandidate.prompt,
+        lessonId,
+        isNew: true,
+        isMasterpiece: true,
+        badgeColor: 'bg-amber-500',
+      },
+      ...gallery
+        .filter((img) => img.id !== finalCandidate.id)
+        .map((img) => ({
+          id: img.id || `bp-${Date.now()}`,
+          title: `${activePartSubject || effectiveCharacterName} (Lượt ${img.partTurn || 1}): ${img.prompt.slice(0, 28)}...`,
+          stationLabel: effectiveBadge,
+          url: img.url,
+          time: img.time,
+          prompt: img.prompt,
+          lessonId,
+          isNew: true,
+          badgeColor: 'bg-indigo-600',
+        })),
+    ]
 
-    setBackpackWorks((prev) => [newWork, ...prev])
+    setBackpackWorks((prev) => {
+      const map = new Map<string, any>()
+      allWorks.forEach((item) => map.set(item.id, item))
+      prev.forEach((item) => {
+        if (!map.has(item.id)) {
+          map.set(item.id, item)
+        }
+      })
+      return Array.from(map.values())
+    })
 
     try {
       if (typeof localStorage !== 'undefined') {
         const key = 'aiki_backpack_saved_works'
         const existing = localStorage.getItem(key)
         const parsed = existing ? JSON.parse(existing) : []
-        localStorage.setItem(key, JSON.stringify([newWork, ...parsed].slice(0, 20)))
+        const existingList = Array.isArray(parsed) ? parsed : []
+        const combined = [
+          ...allWorks,
+          ...existingList.filter((item: any) => !allWorks.some((w) => w.id === item.id)),
+        ]
+        localStorage.setItem(key, JSON.stringify(combined.slice(0, 30)))
       }
     } catch {
       // ignore
@@ -2030,7 +2230,7 @@ export function AikiStudioWorkspace({
         <span>🎯</span>
         <span>Món đồ bé vẽ:</span>
       </div>
-      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 md:grid-cols-1">
+      <div className="grid grid-cols-2 gap-1.5 md:grid-cols-1">
         {practicePartDefs.map((part, pIdx) => {
           const isSelected = pIdx === activePartIndex
           const partImages = gallery.filter((img) =>
@@ -2133,7 +2333,7 @@ export function AikiStudioWorkspace({
   const previewCanvasColumn = (
     <div className="flex w-full min-w-0 flex-col gap-1.5 rounded-2xl border-2 border-amber-200/70 bg-slate-50/90 p-2 shadow-2xs">
       {/* Header Cột 3: Đồng bộ cao độ với Cột 1 và Cột 2, tích hợp nút Nộp Bài tinh gọn */}
-      <div className="flex items-center justify-between gap-1.5 pb-1 shrink-0">
+      <div className="flex items-center justify-between gap-1.5 pb-1 shrink-0 flex-wrap sm:flex-nowrap">
         <div className="flex items-center gap-1 text-xs font-black text-amber-950 uppercase tracking-wider px-1">
           <span>🖼️</span>
           <span>Tranh sáng tạo:</span>
@@ -2145,38 +2345,104 @@ export function AikiStudioWorkspace({
             playInstantSound('click')
             setIsSubmitModalOpen(true)
           }}
-          className="px-3 py-1 rounded-full text-xs font-black shadow-clay bg-indigo-600 hover:bg-indigo-700 text-white flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all shrink-0"
+          className={cn(
+            'px-3 py-1 rounded-full text-xs font-black shadow-clay flex items-center gap-1.5 cursor-pointer active:scale-95 transition-all shrink-0',
+            gallery.length >= 1
+              ? 'bg-indigo-600 hover:bg-indigo-700 text-white'
+              : 'bg-slate-200 text-slate-500 hover:bg-slate-300'
+          )}
         >
           <Trophy size={13} />
-          <span>🏆 Nộp Bài & Cất Vào Balo</span>
+          <span>🏆 Nộp Bài & Cất Vào Balo{gallery.length >= 1 ? ` (${gallery.length} ảnh)` : ''}</span>
         </button>
       </div>
 
-      {latestStudioImage ? (
+      {/* Tầng 1: Bộ Chuyển Đổi 2 Lượt Tiến Hóa (Turn Switcher) */}
+      <div className="grid grid-cols-2 gap-1.5 shrink-0">
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedTurnByPart((prev) => ({ ...prev, [activePartIndex]: 1 }))
+            playInstantSound('click')
+          }}
+          className={cn(
+            'flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer select-none',
+            currentPartTurn === 1
+              ? 'bg-amber-100 border-2 border-amber-400 text-amber-950 font-black shadow-xs'
+              : 'bg-white/80 border-2 border-slate-200 text-slate-600 hover:bg-amber-50/60 font-bold'
+          )}
+        >
+          <span className="flex items-center gap-1">
+            <span>🌱</span>
+            <span>Lượt 1: Sơ khai</span>
+          </span>
+          <span
+            className={cn(
+              'text-[10px] px-1.5 py-0.5 rounded-md font-bold',
+              activePartImages.some((img) => img.partTurn === 1)
+                ? 'bg-emerald-100 text-emerald-800'
+                : 'bg-slate-100 text-slate-400'
+            )}
+          >
+            {activePartImages.some((img) => img.partTurn === 1) ? '✓ Đã vẽ' : 'Chưa vẽ'}
+          </span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => {
+            setSelectedTurnByPart((prev) => ({ ...prev, [activePartIndex]: 2 }))
+            playInstantSound('click')
+          }}
+          className={cn(
+            'flex items-center justify-between px-2.5 py-1.5 rounded-xl text-xs transition-all cursor-pointer select-none',
+            currentPartTurn === 2
+              ? 'bg-indigo-100 border-2 border-indigo-400 text-indigo-950 font-black shadow-xs'
+              : 'bg-white/80 border-2 border-slate-200 text-slate-600 hover:bg-indigo-50/60 font-bold'
+          )}
+        >
+          <span className="flex items-center gap-1">
+            <span>✨</span>
+            <span>Lượt 2: Hoàn thiện ★</span>
+          </span>
+          <span
+            className={cn(
+              'text-[10px] px-1.5 py-0.5 rounded-md font-bold',
+              activePartImages.some((img) => img.partTurn === 2)
+                ? 'bg-emerald-100 text-emerald-800'
+                : 'bg-slate-100 text-slate-400'
+            )}
+          >
+            {activePartImages.some((img) => img.partTurn === 2) ? '✓ Đã vẽ' : 'Chưa vẽ'}
+          </span>
+        </button>
+      </div>
+
+      {displayedPartImage ? (
         <div
           data-testid="studio-live-canvas-display"
-          className="group relative flex aspect-[4/3] w-full min-w-0 flex-col justify-between overflow-hidden rounded-3xl border-2 border-amber-200 bg-linear-to-b from-amber-50/60 via-white to-amber-50/40 p-2.5 shadow-clay-sm"
+          className="group relative flex aspect-[4/3] max-h-[340px] sm:max-h-[380px] lg:max-h-none w-full min-w-0 flex-col justify-between overflow-hidden rounded-3xl border-2 border-amber-200 bg-linear-to-b from-amber-50/60 via-white to-amber-50/40 p-2.5 shadow-clay-sm"
         >
           <div
-            onClick={() => handleOpenInspect(latestStudioImage)}
+            onClick={() => handleOpenInspect(displayedPartImage)}
             className="w-full flex-1 min-h-0 flex items-center justify-center relative overflow-hidden rounded-2xl cursor-pointer bg-amber-100/30 border border-amber-200/60"
           >
             {/* FULL ẢNH KHÔNG CROP */}
             <img
-              src={latestStudioImage.url || getStudioAIArtwork(illustrationType, lessonId, activePartSubject || effectiveCharacterName)}
-              alt={latestStudioImage.prompt || activePartSubject || effectiveCharacterName}
+              src={displayedPartImage.url || getStudioAIArtwork(illustrationType, lessonId, activePartSubject || effectiveCharacterName)}
+              alt={displayedPartImage.prompt || activePartSubject || effectiveCharacterName}
               className="size-full object-cover rounded-2xl transition-transform duration-300 group-hover:scale-102"
             />
             <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2 z-10 pointer-events-none">
               <div className="bg-amber-500/95 backdrop-blur-xs text-white text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl shadow-clay-xs flex items-center gap-1.5 border border-amber-300">
                 <span>✨</span>
-                <span className="uppercase tracking-wide">Tác phẩm: {activePartSubject}</span>
+                <span className="uppercase tracking-wide">Món: {activePartSubject} · Lượt {displayedPartImage.partTurn || currentPartTurn}</span>
               </div>
               <button
                 type="button"
                 onClick={(e) => {
                   e.stopPropagation()
-                  handleOpenInspect(latestStudioImage)
+                  handleOpenInspect(displayedPartImage)
                 }}
                 className="pointer-events-auto bg-black/60 hover:bg-black/80 text-white text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer"
                 title="Xem to, soi kỹ bức tranh này"
@@ -2190,7 +2456,7 @@ export function AikiStudioWorkspace({
               <Check size={11} strokeWidth={3} /> Đã lưu vào Balo
             </span>
             <span className="text-slate-600 font-bold truncate max-w-[200px] text-[11px] sm:text-xs">
-              Lượt {latestStudioImage.turn}/{maxAttempts}
+              Lượt {displayedPartImage.turn}/{maxAttempts}
             </span>
           </div>
         </div>
@@ -2198,15 +2464,16 @@ export function AikiStudioWorkspace({
         /* PREVIEW TRẮNG THÔNG BÁO THÂN THIỆN - TUYỆT ĐỐI KHÔNG ĐỂ ẢNH MẪU ĐỂ TRÁNH NHẦM LẪN */
         <div
           data-testid="studio-canvas-empty"
-          className="group relative flex aspect-[4/3] w-full min-w-0 flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-indigo-200 bg-linear-to-b from-indigo-50/30 via-white to-amber-50/20 p-4 text-center shadow-clay-sm transition-all sm:p-6"
+          className="group relative flex aspect-[4/3] max-h-[340px] sm:max-h-[380px] lg:max-h-none w-full min-w-0 flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-indigo-200 bg-linear-to-b from-indigo-50/30 via-white to-amber-50/20 p-4 text-center shadow-clay-sm transition-all sm:p-6"
         >
           {/* Ảnh mẫu & text ẩn sr-only phục vụ test suite & trợ năng, không render thị giác để tránh bé nhầm lẫn */}
-          <div className="sr-only" aria-hidden="true">
+          <div className="sr-only">
             <img
               src={getStudioAIArtwork(illustrationType, lessonId, activePartSubject || effectiveCharacterName)}
               alt={activePartSubject || effectiveCharacterName}
             />
             <span>Món {activePartIndex + 1}: {activePartSubject}</span>
+            <div>Khung Tranh Sáng Tạo Của Bé Đang Chờ! Chọn món đồ bên trái, chạm các chìa khóa ở giữa để chọn từ, rồi bấm &quot;Vẽ Đi AKI! ✨&quot; để tranh xuất hiện tại đây nhé!</div>
           </div>
 
           <div className="absolute top-3 left-3 bg-indigo-600/90 backdrop-blur-xs text-white text-[11px] sm:text-xs font-black px-2.5 py-1 rounded-xl shadow-clay-xs flex items-center gap-1.5 border border-indigo-400 pointer-events-none">
@@ -2215,18 +2482,137 @@ export function AikiStudioWorkspace({
           </div>
 
           <div className="flex flex-col items-center justify-center my-auto max-w-sm">
-            <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-3xl bg-amber-100/80 border-2 border-amber-200 flex items-center justify-center text-3xl sm:text-4xl shadow-clay-sm mb-2 sm:mb-3 transition-transform group-hover:scale-105">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 rounded-2xl bg-amber-100/80 border border-amber-200 flex items-center justify-center text-xl sm:text-2xl shadow-clay-xs mb-1.5 transition-transform group-hover:scale-105">
               🎨
             </div>
-            <div className="text-sm sm:text-base md:text-lg font-black text-slate-900 leading-snug">
-              Khung Tranh Sáng Tạo Của Bé Đang Chờ!
+            <div className="text-xs sm:text-sm font-black text-slate-800 leading-snug">
+              Khung Tranh Của Bé Đang Chờ!
             </div>
-            <p className="text-xs sm:text-sm text-slate-500 font-semibold leading-relaxed mt-1">
-              Chọn món đồ bên trái, chạm các chìa khóa ở giữa để chọn từ, rồi bấm <strong className="text-amber-700 font-black">"Vẽ Đi AKI! ✨"</strong> để tranh xuất hiện tại đây nhé!
+            <p className="text-[11px] sm:text-xs text-slate-500 font-medium leading-relaxed mt-0.5 max-w-xs">
+              Ghép 4 chìa khóa rồi bấm Vẽ Đi AKI! ✨ để xem tranh nhé
             </p>
           </div>
         </div>
       )}
+
+      {/* Tầng 2: Dải Phim Bộ Sưu Tập Toàn Bộ Các Lượt (Mini Filmstrip Gallery) */}
+      <div className="relative flex items-center gap-1 sm:gap-1.5 w-full min-w-0 pt-0.5">
+        <button
+          type="button"
+          data-testid="filmstrip-scroll-left"
+          onClick={() => handleScrollFilmstrip('left')}
+          disabled={!canScrollLeft}
+          title="Cuộn sang trái"
+          aria-label="Cuộn sang trái"
+          className={cn(
+            "size-7 sm:size-8 rounded-full bg-white/95 border border-amber-200 shadow-clay-xs text-amber-900 transition-all flex items-center justify-center shrink-0 cursor-pointer",
+            "hover:bg-amber-100 hover:border-amber-300 active:scale-90",
+            !canScrollLeft && "opacity-30 cursor-not-allowed pointer-events-none"
+          )}
+        >
+          <ChevronLeft size={16} strokeWidth={2.5} />
+        </button>
+
+        <div
+          ref={filmstripRef}
+          onScroll={checkFilmstripScroll}
+          onMouseDown={handleFilmstripMouseDown}
+          onMouseMove={handleFilmstripMouseMove}
+          onMouseUp={handleFilmstripMouseUpOrLeave}
+          onMouseLeave={handleFilmstripMouseUpOrLeave}
+          className="flex-1 min-w-0 flex items-center gap-2 overflow-x-auto py-1 px-1 hidden-scrollbar touch-pan-x scroll-smooth select-none cursor-grab active:cursor-grabbing snap-x"
+        >
+          <span className="text-[10px] font-black text-slate-500 uppercase tracking-wider shrink-0 select-none flex items-center gap-1">
+            <span>🎒</span>
+            <span>Balo bài học:</span>
+          </span>
+          {practicePartDefs.map((part, pIdx) => (
+            <React.Fragment key={pIdx}>
+              {([1, 2] as const).map((tNum) => {
+                const img = gallery.find(
+                  (g) =>
+                    (g.partIndex !== undefined ? g.partIndex === pIdx : Math.floor((g.turn - 1) / 2) === pIdx) &&
+                    (g.partTurn !== undefined ? g.partTurn === tNum : ((g.turn % 2 === 1 ? 1 : 2) === tNum))
+                )
+                const isCurrentDisplayed = Boolean(
+                  displayedPartImage
+                    ? (img && displayedPartImage.id === img.id)
+                    : (pIdx === activePartIndex && currentPartTurn === tNum)
+                )
+
+                if (img) {
+                  return (
+                    <div
+                      key={`part-${pIdx}-turn-${tNum}`}
+                      data-active-filmstrip={isCurrentDisplayed ? 'true' : undefined}
+                      onClick={() => {
+                        if (hasDraggedFilmstrip.current) return
+                        handleSelectPart(pIdx)
+                        setSelectedTurnByPart((prev) => ({ ...prev, [pIdx]: tNum }))
+                        playInstantSound('click')
+                      }}
+                      title={`${part.title} - Lượt ${tNum}`}
+                      className={cn(
+                        'size-12 sm:size-14 rounded-xl border-2 overflow-hidden cursor-pointer relative group transition-transform hover:scale-105 shadow-2xs shrink-0 snap-start',
+                        isCurrentDisplayed
+                          ? 'ring-2 ring-amber-400 border-amber-400 scale-105 shadow-clay-xs'
+                          : 'border-slate-200'
+                      )}
+                    >
+                      <img
+                        src={img.url || getStudioAIArtwork(illustrationType, lessonId, part.title || effectiveCharacterName)}
+                        alt={`${part.title} Lượt ${tNum}`}
+                        className="size-full object-cover"
+                      />
+                      <div className="absolute top-0.5 left-0.5 bg-black/60 backdrop-blur-xs text-white text-[9px] font-black px-1 rounded-sm flex items-center gap-0.5 pointer-events-none">
+                        <span>{part.icon}</span>
+                        <span>L{tNum}</span>
+                      </div>
+                    </div>
+                  )
+                }
+
+                return (
+                  <div
+                    key={`part-${pIdx}-turn-${tNum}-empty`}
+                    data-active-filmstrip={isCurrentDisplayed ? 'true' : undefined}
+                    onClick={() => {
+                      if (hasDraggedFilmstrip.current) return
+                      handleSelectPart(pIdx)
+                      setSelectedTurnByPart((prev) => ({ ...prev, [pIdx]: tNum }))
+                      playInstantSound('click')
+                    }}
+                    title={`${part.title} - Lượt ${tNum} (Chưa vẽ)`}
+                    className={cn(
+                      'size-12 sm:size-14 rounded-xl border-2 border-dashed border-slate-200 bg-slate-50/60 flex flex-col items-center justify-center text-[10px] text-slate-400 font-bold shrink-0 cursor-pointer transition-transform hover:scale-105 snap-start',
+                      pIdx === activePartIndex && currentPartTurn === tNum && 'border-amber-400 bg-amber-50/50 ring-2 ring-amber-400/40'
+                    )}
+                  >
+                    <span className="text-xs opacity-60">{part.icon}</span>
+                    <span className="text-[9px] opacity-70">L{tNum}</span>
+                  </div>
+                )
+              })}
+            </React.Fragment>
+          ))}
+        </div>
+
+        <button
+          type="button"
+          data-testid="filmstrip-scroll-right"
+          onClick={() => handleScrollFilmstrip('right')}
+          disabled={!canScrollRight}
+          title="Cuộn sang phải"
+          aria-label="Cuộn sang phải"
+          className={cn(
+            "size-7 sm:size-8 rounded-full bg-white/95 border border-amber-200 shadow-clay-xs text-amber-900 transition-all flex items-center justify-center shrink-0 cursor-pointer",
+            "hover:bg-amber-100 hover:border-amber-300 active:scale-90",
+            !canScrollRight && "opacity-30 cursor-not-allowed pointer-events-none"
+          )}
+        >
+          <ChevronRight size={16} strokeWidth={2.5} />
+        </button>
+      </div>
     </div>
   )
 
@@ -2490,6 +2876,8 @@ export function AikiStudioWorkspace({
               attemptsLeft={attemptsLeft}
               maxAttempts={maxAttempts}
               isGenerating={isGenerating}
+              isTurnLocked={isCurrentPartTurnAlreadyDrawn}
+              turnLockedMessage={turnLockedMessage}
               characterName={effectiveCharacterName}
               selectedSubject={activePartSubject}
               lessonId={lessonId}
@@ -3048,7 +3436,7 @@ export function AikiStudioWorkspace({
           }}
         >
           <div
-            className="bg-white rounded-3xl max-w-md w-full p-6 sm:p-7 shadow-2xl space-y-4 text-center border-4 border-amber-300 animate-scale-up"
+            className="bg-white rounded-3xl max-w-lg w-full p-5 sm:p-6 shadow-2xl space-y-4 text-center border-4 border-amber-300 animate-scale-up"
             onClick={(e) => e.stopPropagation()}
           >
             {submittedSuccess ? (
@@ -3071,33 +3459,91 @@ export function AikiStudioWorkspace({
               </div>
             ) : (
               <>
-                <div className="size-16 mx-auto rounded-full bg-indigo-50 border-2 border-indigo-200 flex items-center justify-center text-3xl">
-                  🎨
+                <div className="space-y-1">
+                  <div className="size-12 mx-auto rounded-2xl bg-amber-100 border-2 border-amber-300 flex items-center justify-center text-2xl shadow-clay-xs mb-1">
+                    🎨
+                  </div>
+                  <h3 className="text-lg sm:text-xl font-black text-indigo-950">
+                    🎨 Chọn Kiệt Tác Của Bé Để Nhận Cúp Vàng!
+                  </h3>
+                  <p className="text-xs sm:text-sm font-medium text-slate-600 max-w-md mx-auto leading-relaxed">
+                    Bé hãy chạm vào bức tranh bé tự hào nhất để đem sang Chặng 6 nhận Cúp Vàng nhé! (Toàn bộ các tranh còn lại đều được cất an toàn vào Balo của bé)
+                  </p>
                 </div>
-                <h3 className="text-xl font-black text-indigo-950">
-                  Nộp Bài Xưởng Sáng Tạo
-                </h3>
-                <p className="text-xs sm:text-sm font-bold text-slate-600">
-                  Cậu đã chọn bức tranh đẹp nhất (Lượt {submittedCandidate?.turn}) với các đặc điểm nhận diện hoàn hảo!
-                </p>
 
-                {/* Preview tranh chọn nộp */}
-                <div className="w-40 h-32 mx-auto rounded-xl bg-pink-100 border-2 border-pink-300 p-1 flex items-center justify-center overflow-hidden">
-                  <img
-                    src={submittedCandidate?.url || getStudioAIArtwork(illustrationType, lessonId, submittedCandidate?.prompt || activePartSubject || effectiveCharacterName)}
-                    alt=""
-                    className="size-full object-cover rounded-lg"
-                  />
-                </div>
+                {/* Lưới Triển Lãm các tranh đã vẽ trong gallery */}
+                {gallery.length > 0 ? (
+                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-[300px] overflow-y-auto p-1">
+                    {gallery.map((img) => {
+                      const isSelected = submittedCandidate?.id === img.id
+                      const pIdx = img.partIndex !== undefined ? img.partIndex : Math.floor((img.turn - 1) / 2)
+                      const partDef = practicePartDefs[pIdx] || practicePartDefs[0]
+                      const itemTitle = partDef?.title || activePartSubject || effectiveCharacterName
+                      const turnNumber = img.partTurn || ((img.turn % 2 === 0 ? 2 : 1) as 1 | 2)
+
+                      return (
+                        <div
+                          key={img.id}
+                          onClick={() => {
+                            setSubmittedCandidate(img)
+                            playInstantSound('click')
+                          }}
+                          className={cn(
+                            'rounded-2xl border-2 p-1.5 cursor-pointer relative transition-all text-left flex flex-col justify-between',
+                            isSelected
+                              ? 'border-amber-400 bg-amber-50/90 ring-3 ring-amber-400 scale-[1.02] shadow-clay-sm'
+                              : 'border-slate-200 bg-white hover:border-amber-300 hover:bg-amber-50/40 shadow-2xs'
+                          )}
+                        >
+                          {isSelected && (
+                            <span className="absolute -top-2 left-2 bg-amber-500 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full shadow-xs uppercase tracking-wide z-10">
+                              ⭐ KIỆT TÁC CHỌN NỘP
+                            </span>
+                          )}
+
+                          <div className="aspect-[4/3] w-full rounded-xl overflow-hidden mb-1.5 bg-slate-100">
+                            <img
+                              src={img.url || getStudioAIArtwork(illustrationType, lessonId, img.prompt || itemTitle)}
+                              alt={img.prompt}
+                              className="size-full object-cover"
+                            />
+                          </div>
+
+                          <div className="space-y-0.5 px-0.5">
+                            <div className="text-[11px] font-black text-slate-800 truncate flex items-center gap-1">
+                              <span>{partDef?.icon || '🎨'}</span>
+                              <span className="truncate">{itemTitle} · Lượt {turnNumber}</span>
+                            </div>
+                            <p className="text-[10px] text-slate-500 font-medium truncate">
+                              {img.prompt}
+                            </p>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="py-8 text-center bg-slate-50 rounded-2xl border-2 border-dashed border-slate-200">
+                    <p className="text-xs sm:text-sm font-bold text-slate-500">
+                      Bé chưa vẽ bức tranh nào. Hãy vẽ ít nhất 1 bức tranh rồi quay lại nộp nhé!
+                    </p>
+                  </div>
+                )}
 
                 <div className="flex items-center justify-center gap-3 pt-2">
                   <button
                     type="button"
                     data-testid="studio-confirm-submit"
                     onClick={handleConfirmSubmit}
-                    className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm shadow-clay active:scale-95 cursor-pointer"
+                    disabled={gallery.length === 0 && !submittedCandidate}
+                    className={cn(
+                      'px-6 py-2.5 rounded-xl text-white font-black text-sm shadow-clay active:scale-95 cursor-pointer transition-all',
+                      gallery.length === 0 && !submittedCandidate
+                        ? 'bg-slate-300 cursor-not-allowed'
+                        : 'bg-indigo-600 hover:bg-indigo-700'
+                    )}
                   >
-                    Đồng ý nộp bài 🏆
+                    🏆 Đồng ý nộp kiệt tác này
                   </button>
                   <button
                     type="button"

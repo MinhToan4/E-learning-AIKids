@@ -1,0 +1,133 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300" width="100%" height="100%">
+  <defs>
+    <!-- Soft Clay Gradients -->
+    <linearGradient id="bgGradA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F8FAFC" />
+      <stop offset="100%" stop-color="#EDF2F7" />
+    </linearGradient>
+    <linearGradient id="headerGradA" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#475569" />
+      <stop offset="100%" stop-color="#334155" />
+    </linearGradient>
+    
+    <!-- Hallmark Colors Gradients -->
+    <linearGradient id="skyGradA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F0F9FF" />
+      <stop offset="100%" stop-color="#E0F2FE" />
+    </linearGradient>
+    <linearGradient id="sunGradA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFBEB" />
+      <stop offset="100%" stop-color="#FEF3C7" />
+    </linearGradient>
+    <linearGradient id="mangoGradA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF7ED" />
+      <stop offset="100%" stop-color="#FFEDD5" />
+    </linearGradient>
+    <linearGradient id="roseGradA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF1F2" />
+      <stop offset="100%" stop-color="#FFE4E6" />
+    </linearGradient>
+
+    <!-- Golden Key Gradient -->
+    <linearGradient id="goldKeyA" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FDE047" />
+      <stop offset="50%" stop-color="#F59E0B" />
+      <stop offset="100%" stop-color="#D97706" />
+    </linearGradient>
+
+    <!-- Filters -->
+    <filter id="clayShadowA" x="-5%" y="-5%" width="110%" height="115%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="6" stdDeviation="6" flood-color="#0F172A" flood-opacity="0.08" />
+    </filter>
+    <filter id="cardShadowA" x="-10%" y="-10%" width="120%" height="125%" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="3" stdDeviation="3" flood-color="#475569" flood-opacity="0.07" />
+    </filter>
+
+    <!-- Shared Key Icon Symbol -->
+    <g id="miniKeyA">
+      <circle cx="10" cy="10" r="6" fill="url(#goldKeyA)" stroke="#B45309" stroke-width="1.2" />
+      <circle cx="10" cy="10" r="2.2" fill="#FFFFFF" opacity="0.9" />
+      <rect x="15" y="8.5" width="13" height="3" rx="1.5" fill="url(#goldKeyA)" stroke="#B45309" stroke-width="1" />
+      <rect x="21" y="11.5" width="2.5" height="3.5" rx="0.8" fill="url(#goldKeyA)" stroke="#B45309" stroke-width="0.8" />
+      <rect x="25" y="11.5" width="2.5" height="4.5" rx="0.8" fill="url(#goldKeyA)" stroke="#B45309" stroke-width="0.8" />
+    </g>
+  </defs>
+
+  <!-- Card Background -->
+  <rect x="6" y="6" width="388" height="288" rx="24" fill="url(#bgGradA)" stroke="#CBD5E1" stroke-width="2" filter="url(#clayShadowA)" />
+
+  <!-- Card Header -->
+  <g transform="translate(16, 16)">
+    <!-- Header Background Badge -->
+    <rect x="0" y="0" width="368" height="44" rx="14" fill="url(#headerGradA)" />
+    <!-- Lock Emoji / Icon Circle -->
+    <circle cx="24" cy="22" r="14" fill="#FFFFFF" opacity="0.15" />
+    <text x="24" y="27" text-anchor="middle" font-size="16">🔒</text>
+    <!-- Title Text -->
+    <text x="46" y="28" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif" font-size="16" font-weight="900" fill="#FFFFFF" letter-spacing="0.5">
+      BỘ CHÌA KHÓA A
+    </text>
+    <!-- Subtitle Pill -->
+    <rect x="262" y="10" width="96" height="24" rx="12" fill="#FFFFFF" opacity="0.18" />
+    <text x="310" y="26" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="11" font-weight="800" fill="#F1F5F9">
+      4 CHÌA KHÓA
+    </text>
+  </g>
+
+  <!-- 2x2 Grid of Keys -->
+  <!-- Key 1: Sky Blue (#0ea5e9) - Ai vẽ -->
+  <g transform="translate(16, 72)" filter="url(#cardShadowA)">
+    <rect width="178" height="96" rx="16" fill="url(#skyGradA)" stroke="#0EA5E9" stroke-width="2" />
+    <!-- Tag Chìa 1 -->
+    <rect x="10" y="10" width="60" height="20" rx="10" fill="#0EA5E9" />
+    <text x="40" y="24" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="900" fill="#FFFFFF" letter-spacing="0.5">CHÌA 1</text>
+    <!-- Mini Key Icon -->
+    <use href="#miniKeyA" x="135" y="8" />
+    <!-- Label -->
+    <text x="89" y="66" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="900" fill="#0369A1">
+      Ai vẽ
+    </text>
+  </g>
+
+  <!-- Key 2: Sun Yellow (#f59e0b) - Vẽ lúc nào -->
+  <g transform="translate(206, 72)" filter="url(#cardShadowA)">
+    <rect width="178" height="96" rx="16" fill="url(#sunGradA)" stroke="#F59E0B" stroke-width="2" />
+    <!-- Tag Chìa 2 -->
+    <rect x="10" y="10" width="60" height="20" rx="10" fill="#F59E0B" />
+    <text x="40" y="24" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="900" fill="#FFFFFF" letter-spacing="0.5">CHÌA 2</text>
+    <!-- Mini Key Icon -->
+    <use href="#miniKeyA" x="135" y="8" />
+    <!-- Label -->
+    <text x="89" y="66" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="900" fill="#B45309">
+      Vẽ lúc nào
+    </text>
+  </g>
+
+  <!-- Key 3: Mango Orange (#f97316) - Vẽ ở đâu -->
+  <g transform="translate(16, 180)" filter="url(#cardShadowA)">
+    <rect width="178" height="96" rx="16" fill="url(#mangoGradA)" stroke="#F97316" stroke-width="2" />
+    <!-- Tag Chìa 3 -->
+    <rect x="10" y="10" width="60" height="20" rx="10" fill="#F97316" />
+    <text x="40" y="24" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="900" fill="#FFFFFF" letter-spacing="0.5">CHÌA 3</text>
+    <!-- Mini Key Icon -->
+    <use href="#miniKeyA" x="135" y="8" />
+    <!-- Label -->
+    <text x="89" y="66" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="900" fill="#C2410C">
+      Vẽ ở đâu
+    </text>
+  </g>
+
+  <!-- Key 4: Rose Pink (#f43f5e) - Vẽ bằng gì -->
+  <g transform="translate(206, 180)" filter="url(#cardShadowA)">
+    <rect width="178" height="96" rx="16" fill="url(#roseGradA)" stroke="#F43F5E" stroke-width="2" />
+    <!-- Tag Chìa 4 -->
+    <rect x="10" y="10" width="60" height="20" rx="10" fill="#F43F5E" />
+    <text x="40" y="24" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="10" font-weight="900" fill="#FFFFFF" letter-spacing="0.5">CHÌA 4</text>
+    <!-- Mini Key Icon -->
+    <use href="#miniKeyA" x="135" y="8" />
+    <!-- Label -->
+    <text x="89" y="66" text-anchor="middle" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" font-size="16" font-weight="900" fill="#BE123C">
+      Vẽ bằng gì
+    </text>
+  </g>
+</svg>

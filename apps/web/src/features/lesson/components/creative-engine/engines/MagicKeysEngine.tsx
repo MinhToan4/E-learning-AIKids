@@ -112,7 +112,11 @@ const INITIAL_SLOTS: BlockSlot[] = [
   },
 ]
 
-export const MagicKeysEngine: React.FC<EngineProps> = ({
+export interface MagicKeysEngineProps extends EngineProps {
+  promptSlot?: React.ReactNode
+}
+
+export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
   onPromptChange,
   characterName,
   selectedSubject,
@@ -120,6 +124,7 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
   currentPrompt,
   canvasSlot,
   practiceSlot,
+  promptSlot,
 }) => {
   const [selectedSubjectOverride, setSelectedSubjectOverride] = useState<string | null>(null)
   const effectiveSubject = selectedSubjectOverride || selectedSubject || characterName || 'Cái cốc sứ trắng'
@@ -327,13 +332,13 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
         <div className="grid w-full min-h-0 items-start gap-2.5 md:grid-cols-[minmax(200px,250px)_minmax(0,1fr)] xl:grid-cols-[minmax(200px,230px)_minmax(400px,1fr)_minmax(340px,520px)]">
           {/* CỘT 1 (BÊN TRÁI): MÓN ĐỒ BÉ VẼ */}
           {practiceSlot && (
-            <div className="w-full min-w-0 self-start md:col-start-1 md:row-start-1">
+            <div className="w-full min-w-0 self-start md:col-start-1 md:row-start-1 xl:col-start-1 xl:row-start-1">
               {practiceSlot}
             </div>
           )}
 
           {/* CỘT 2 (Ở GIỮA): 4 CHÌA KHÓA VÀNG AKI */}
-          <div className="min-w-0 self-start md:col-start-2 md:row-start-1">
+          <div className="min-w-0 self-start md:col-start-2 md:row-start-1 xl:col-start-2 xl:row-start-1">
             <BlockSlotTray
               title="4 Chìa Khóa Vàng AKI"
               subtitle="Chạm ô để đổi từ gợi ý"
@@ -347,23 +352,39 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
             />
           </div>
 
-          {/* CỘT 3 (BÊN PHẢI CÙNG): KHUNG PREVIEW TRANH VẼ (PHẦN ẢNH) */}
+          {/* THANH CÂU LỆNH & NÚT VẼ:
+              - Khi < xl: Nằm ở Hàng 2 (md:col-span-2 md:row-start-2), NGAY DƯỚI 4 CHÌA KHÓA VÀ TRÊN TRANH SÁNG TẠO!
+              - Khi >= xl: Nằm ở Hàng 2 (xl:col-span-3 xl:row-start-2), trải dài dưới cả 3 cột!
+          */}
+          {promptSlot && (
+            <div className="w-full min-w-0 md:col-span-2 md:row-start-2 xl:col-span-3 xl:row-start-2">
+              {promptSlot}
+            </div>
+          )}
+
+          {/* CỘT 3: KHUNG PREVIEW TRANH VẼ (PHẦN ẢNH)
+              - Khi < xl: Nằm ở Hàng 3 (md:col-span-2 md:row-start-3), TRÀN VIỀN 100% (ngang bằng tổng chiều dài Món đồ + 4 Chìa khóa, loại bỏ hoàn toàn md:max-w-2xl và md:justify-self-center)!
+              - Khi >= xl: Nằm ở Cột 3, Hàng 1 (xl:col-span-1 xl:col-start-3 xl:row-start-1)!
+          */}
           {canvasSlot && (
-            <div className="w-full min-w-0 self-start md:col-span-2 md:row-start-2 md:max-w-4xl md:justify-self-center xl:col-span-1 xl:col-start-3 xl:row-start-1 xl:max-w-none">
+            <div className="w-full min-w-0 self-start md:col-span-2 md:row-start-3 xl:col-span-1 xl:col-start-3 xl:row-start-1">
               {canvasSlot}
             </div>
           )}
         </div>
       ) : (
-        <BlockSlotTray
-          title="4 Chìa Khóa Vàng AKI"
-          subtitle="Chạm ô để đổi từ gợi ý"
-          slots={slots}
-          activeSlotId={activeSlotId}
-          onSlotClick={handleSlotClick}
-          onRemoveBlock={handleRemoveBlock}
-          onDropBlock={handleDropBlock}
-        />
+        <>
+          <BlockSlotTray
+            title="4 Chìa Khóa Vàng AKI"
+            subtitle="Chạm ô để đổi từ gợi ý"
+            slots={slots}
+            activeSlotId={activeSlotId}
+            onSlotClick={handleSlotClick}
+            onRemoveBlock={handleRemoveBlock}
+            onDropBlock={handleDropBlock}
+          />
+          {promptSlot}
+        </>
       )}
 
       {/* MODAL DIALOG SOFT CLAY CHỌN TỪ CHO 4 CHÌA KHÓA VÀNG (BẢO TOÀN BLOCKPALETTE TRONG DOM) */}

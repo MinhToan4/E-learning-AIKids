@@ -13,7 +13,6 @@ import {
 } from '@/features/lesson/components/AikiRuleVisuals'
 import { AikiRuleVideoPlayer } from '@/features/lesson/components/AikiRuleVideoPlayer'
 import { AikiRuleQuiz } from '@/features/lesson/components/AikiRuleQuiz'
-import { AikiStudioWorkspace } from '@/features/lesson/components/AikiStudioWorkspace'
 import { SixStageJourneyView } from '@/features/lesson/components/SixStageJourneyView'
 import { resolveIslandSixStageJourney } from '@/features/lesson/lib/island-journey-resolver'
 import { findIslandCurriculum } from '@/features/lesson/data/island-curriculum-registry'
@@ -69,10 +68,7 @@ import {
   type PromptLabValue,
 } from '@/features/lesson/components/PromptLab'
 import { CardBalancePractice } from '@/features/lesson/components/CardBalancePractice'
-import {
-  CurriculumGame,
-  type GameEvidence,
-} from '@/features/lesson/components/CurriculumGame'
+import type { GameEvidence } from '@/features/lesson/components/CurriculumGame'
 import type { GameHint } from '@/features/lesson/components/games/types'
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 
@@ -96,6 +92,17 @@ import type { LearnCardDraft } from '@/features/teacher/lib/authoring'
 import { useAikiSituationNarrator } from '@/features/lesson/hooks/useAikiSituationNarrator'
 
 type PlayState = 'idle' | 'playing' | 'ended'
+
+const AikiStudioWorkspace = React.lazy(() =>
+  import('@/features/lesson/components/AikiStudioWorkspace').then((m) => ({
+    default: m.AikiStudioWorkspace,
+  })),
+)
+const CurriculumGame = React.lazy(() =>
+  import('@/features/lesson/components/CurriculumGame').then((m) => ({
+    default: m.CurriculumGame,
+  })),
+)
 
 // These workshops can continue from course-created work only; the API verifies ownership.
 const GEN_KINDS = new Set(['ai_pick', 'video', 'chips', 'character'])
@@ -884,41 +891,54 @@ export function LessonPage() {
   }
 
   async function advanceFromLearn() {
-    setBusy(true)
+    const prevPhase = phase
     setError(null)
+    const hasGame = quest?.stations?.stations?.some((s) => s.kind === 'game')
+    const nextPhase = hasGame ? 'game' : 'practice'
+    setPhase(nextPhase)
+
     try {
       const response = await learningApi.advanceLesson(questId, {
         fromPhase: 'learn',
       })
-      setPhase(response.progress.phase)
+      if (response?.progress?.phase) {
+        setPhase(response.progress.phase)
+      }
     } catch (e) {
       if (!recoverCurrentPhase(e)) {
+        setPhase(prevPhase)
         setError(e instanceof Error ? e.message : 'Chưa mở được phần chơi')
       }
-    } finally {
-      setBusy(false)
     }
   }
 
   async function advanceFromGame(
     gameEvidence: GameEvidence | { skipped: true },
   ) {
-    setBusy(true)
+    const prevPhase = phase
+    const prevStars = liveStars
     setError(null)
+    setPhase('practice')
+    setLiveStars((prev) => Math.max(prev, 1))
+    setStarBurst({ id: Date.now(), count: 1 })
+
     try {
       const result = await learningApi.advanceLesson(questId, {
         fromPhase: 'game',
         gameEvidence,
       })
-      setLiveStars(result.progress.stars)
-      setStarBurst({ id: Date.now(), count: 1 })
-      setPhase('practice')
+      if (result?.progress?.stars != null) {
+        setLiveStars(result.progress.stars)
+      }
+      if (result?.progress?.phase) {
+        setPhase(result.progress.phase)
+      }
     } catch (e) {
       if (!recoverCurrentPhase(e)) {
+        setPhase(prevPhase)
+        setLiveStars(prevStars)
         setError(e instanceof Error ? e.message : 'Chưa lưu được lượt chơi')
       }
-    } finally {
-      setBusy(false)
     }
   }
 
@@ -1982,14 +2002,22 @@ export function LessonPage() {
               </p>
             </div>
           </div>
-          <CurriculumGame
-            gameType={gameStation.gameType}
-            gameConfig={gameStation.gameConfig}
-            instruction={gameStation.instruction ?? ''}
-            outcome={gameStation.outcome}
-            onComplete={(evidence) => void advanceFromGame(evidence)}
-            onGameHint={setGameHint}
-          />
+          <React.Suspense
+            fallback={
+              <div className="flex items-center justify-center p-12">
+                <div className="w-8 h-8 rounded-full border-4 border-amber-400 border-t-transparent animate-spin" />
+              </div>
+            }
+          >
+            <CurriculumGame
+              gameType={gameStation.gameType}
+              gameConfig={gameStation.gameConfig}
+              instruction={gameStation.instruction ?? ''}
+              outcome={gameStation.outcome}
+              onComplete={(evidence) => void advanceFromGame(evidence)}
+              onGameHint={setGameHint}
+            />
+          </React.Suspense>
         </div>
       )}
 
@@ -2011,41 +2039,49 @@ export function LessonPage() {
       {phase === 'practice' && (
         is5StageJourney && quest ? (
           <div className="w-full">
-            <AikiStudioWorkspace
-              config={studioConfig}
-              lessonId={quest.id}
-              lessonTitle={quest.title}
-              lessonBadge={
-                isAikiRuleJourney
-                  ? `QT ${ruleId}`
-                  : quest.order
-                    ? `Bài ${quest.order}`
-                    : 'Bài thực hành'
+            <React.Suspense
+              fallback={
+                <div className="flex items-center justify-center p-12">
+                  <div className="w-8 h-8 rounded-full border-4 border-amber-400 border-t-transparent animate-spin" />
+                </div>
               }
-              characterName={studioCharacterName}
-              lockedFeatures={studioLockedFeatures}
-              initialAttemptsLeft={6}
-              maxAttempts={6}
-              studentStars={liveStars || 42}
-              onBackToLesson={() => setPhase('learn')}
-              onReplayVideo={() => {
-                setPhase('learn')
-                setVideoSeekTarget({ sec: 0, token: Date.now() })
-              }}
-              onZoomImage={(data) => setZoomedImage({ subtitle: '', description: '', ...data })}
-              onSubmitWork={({ selectedImage, prompt }) => {
-                setGenerated({
-                  title: prompt,
-                  url:
-                    selectedImage.url ||
-                    studioConfig?.preloadedImages?.[studioConfig.preloadedImages.length - 1]?.url ||
-                    '/assets/aiki-islands/island3_lesson2_code3.jpg',
-                  mediaKind: 'image',
-                })
-                setPracticeSaved(true)
-                void handleAikiFinish()
-              }}
-            />
+            >
+              <AikiStudioWorkspace
+                config={studioConfig}
+                lessonId={quest.id}
+                lessonTitle={quest.title}
+                lessonBadge={
+                  isAikiRuleJourney
+                    ? `QT ${ruleId}`
+                    : quest.order
+                      ? `Bài ${quest.order}`
+                      : 'Bài thực hành'
+                }
+                characterName={studioCharacterName}
+                lockedFeatures={studioLockedFeatures}
+                initialAttemptsLeft={6}
+                maxAttempts={6}
+                studentStars={liveStars || 42}
+                onBackToLesson={() => setPhase('learn')}
+                onReplayVideo={() => {
+                  setPhase('learn')
+                  setVideoSeekTarget({ sec: 0, token: Date.now() })
+                }}
+                onZoomImage={(data) => setZoomedImage({ subtitle: '', description: '', ...data })}
+                onSubmitWork={({ selectedImage, prompt }) => {
+                  setGenerated({
+                    title: prompt,
+                    url:
+                      selectedImage.url ||
+                      studioConfig?.preloadedImages?.[studioConfig.preloadedImages.length - 1]?.url ||
+                      '/assets/aiki-islands/island3_lesson2_code3.jpg',
+                    mediaKind: 'image',
+                  })
+                  setPracticeSaved(true)
+                  void handleAikiFinish()
+                }}
+              />
+            </React.Suspense>
           </div>
         ) : (
         <div className="ui-card flex flex-col gap-5 p-4 sm:p-5 animate-fade-up">

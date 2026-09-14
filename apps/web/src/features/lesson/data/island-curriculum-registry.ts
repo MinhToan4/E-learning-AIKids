@@ -220,18 +220,18 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "options": [
           {
             "id": "opt-a",
-            "text": "Bộ chìa khoá A: Ai vẽ · Vẽ lúc nào · Vẽ ở đâu · Vẽ bằng gì",
-            "imageUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg"
+            "text": "Bộ chìa khoá A",
+            "imageUrl": "/assets/aiki-keys/option_a_4keys.svg"
           },
           {
             "id": "opt-b",
-            "text": "Bộ chìa khoá B: Cái gì · Trông như thế nào · Đang làm gì · Ở đâu",
-            "imageUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg"
+            "text": "Bộ chìa khoá B",
+            "imageUrl": "/assets/aiki-keys/option_b_4keys.svg"
           },
           {
             "id": "opt-c",
-            "text": "Bộ chìa khoá C: Cái gì · Màu gì · To hay nhỏ · Của ai",
-            "imageUrl": "/assets/aiki-islands/island1_lesson2_keys_v2.jpg"
+            "text": "Bộ chìa khoá C",
+            "imageUrl": "/assets/aiki-keys/option_c_4keys.svg"
           }
         ],
         "correctIndex": 1,

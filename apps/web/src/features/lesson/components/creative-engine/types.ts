@@ -59,6 +59,7 @@ export interface EngineProps {
   activeBlocks?: CreativeBlock[]
   canvasSlot?: React.ReactNode
   practiceSlot?: React.ReactNode
+  promptSlot?: React.ReactNode
 }
 
 export interface EngineConfigInfo {

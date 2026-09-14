@@ -46,9 +46,9 @@ export function SixStageGoalStage({ goal, fourKeys = false, compact = false, onC
             <span>🔑</span><span>{fourKeys ? 'Rương 4 Chìa Khóa Thần Kỳ' : 'Chìa Khóa Mục Tiêu'}</span>
           </div>
           {fourKeys && (
-            <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-center gap-1.5 z-10 pointer-events-none">
+            <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-center gap-1 sm:gap-1.5 z-10 pointer-events-none flex-wrap">
               {['bg-blue-600/90', 'bg-amber-500/90', 'bg-orange-500/90', 'bg-rose-500/90'].map((color, index) => (
-                <span key={color} className={cn('px-2 py-0.5 rounded-full text-white text-[11px] sm:text-xs font-black backdrop-blur-xs shadow-xs', color)}>{index + 1}. {['Cái gì', 'Trông thế nào', 'Đang làm gì', 'Ở đâu'][index]}</span>
+                <span key={color} className={cn('px-1.5 sm:px-2 py-0.5 rounded-full text-white text-[10px] sm:text-xs font-black backdrop-blur-xs shadow-xs shrink-0', color)}>{index + 1}. {['Cái gì', 'Trông thế nào', 'Đang làm gì', 'Ở đâu'][index]}</span>
               ))}
             </div>
           )}
@@ -60,19 +60,23 @@ export function SixStageGoalStage({ goal, fourKeys = false, compact = false, onC
         <div className={cn('w-full flex flex-col justify-between gap-3 sm:gap-4', !compact && 'md:w-1/2')}>
           <div className="flex flex-col gap-2">
             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs sm:text-sm font-bold w-fit border border-brand-200/60"><Sparkles size={13} className="text-brand-500" /><span>Chặng 1: Mục tiêu bài học</span></div>
-            <h2 className="text-xl sm:text-2xl font-black text-slate-800 leading-tight">{goal.title}</h2>
+            <h2 className={cn("font-black text-slate-800 leading-tight", compact ? "text-lg sm:text-xl" : "text-xl sm:text-2xl")}>{goal.title}</h2>
           </div>
-          <div className="text-base text-slate-700 font-medium leading-relaxed bg-brand-50/70 p-4 sm:p-5 rounded-3xl border-2 border-brand-100 shadow-clay-sm flex items-start gap-3">
+          <div className={cn("text-slate-700 font-medium leading-relaxed bg-brand-50/70 rounded-3xl border-2 border-brand-100 shadow-clay-sm flex items-start gap-3", compact ? "p-3 sm:p-4 text-sm" : "p-4 sm:p-5 text-base")}>
             <span className="text-2xl shrink-0 mt-0.5">🎯</span><div><span className="font-black text-brand-900 block mb-1 text-xs sm:text-sm uppercase tracking-wide">Mục Tiêu Cốt Lõi:</span><p className="font-semibold text-slate-800 text-sm sm:text-base leading-relaxed">{goal.goalText}</p></div>
           </div>
           {fourKeys ? (
             <div className="flex flex-col gap-2 flex-1 justify-between">
-              <div className="flex items-center gap-1.5 text-xs sm:text-sm font-black uppercase tracking-wider text-amber-950">🔑 BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH (Khớp 1-1 Với Rương):</div>
+              <div className={cn("flex items-center gap-1.5 font-black uppercase tracking-wider text-amber-950", compact ? "text-xs" : "text-xs sm:text-sm")}>🔑 BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH (Khớp 1-1 Với Rương):</div>
               <div className={cn('grid gap-3 sm:gap-3.5 flex-1 items-stretch', compact ? 'grid-cols-1' : 'grid-cols-1 sm:grid-cols-2')}>
                 {cards.map((card, index) => (
-                  <div key={card.code} className={cn('p-2 sm:p-2.5 rounded-2xl border-2 bg-white/95 shadow-clay-sm hover:shadow-clay transition-all flex items-center gap-2.5 sm:gap-3', card.bg)}>
-                    <img src={card.image} alt={card.code} className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl object-contain bg-amber-50/60 border-2 border-amber-200/90 p-1 shrink-0 shadow-xs" />
-                    <div className="flex-1 min-w-0 flex flex-col justify-center"><span className={cn('px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black uppercase tracking-wider w-fit', card.badge)}>[{index + 1}] {card.code}</span><p className="text-xs sm:text-sm font-black text-slate-900 mt-0.5 line-clamp-1 leading-tight">{card.value}</p><span className="text-[11px] sm:text-xs font-bold text-slate-500 block mt-0.5">({card.sub})</span></div>
+                  <div key={card.code} className={cn('p-2 sm:p-2.5 rounded-2xl border-2 bg-white/95 shadow-clay-sm hover:shadow-clay transition-all flex items-start gap-2 sm:gap-2.5 min-h-[64px] h-auto', card.bg)}>
+                    <img src={card.image} alt={card.code} className="w-9 h-9 sm:w-11 sm:h-11 rounded-xl object-contain bg-amber-50/60 border-2 border-amber-200/90 p-1 shrink-0 mt-0.5 shadow-xs" />
+                    <div className="flex-1 min-w-0 flex flex-col justify-center">
+                      <span className={cn('px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black uppercase tracking-wider w-fit', card.badge)}>[{index + 1}] {card.code}</span>
+                      <p className="text-xs sm:text-[13px] font-black text-slate-900 mt-0.5 line-clamp-3 leading-snug break-words">{card.value}</p>
+                      <span className="text-[11px] sm:text-xs font-bold text-slate-500 block mt-0.5">({card.sub})</span>
+                    </div>
                   </div>
                 ))}
               </div>

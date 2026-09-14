@@ -649,6 +649,21 @@ export interface SixStageWorkflowStep {
   instruction: string
 }
 
+export interface SixStagePracticePartDef {
+  partNumber: number
+  title: string
+  icon?: string
+  iconImage?: string
+  emoji?: string
+}
+
+export interface SixStageFourKeysOptions {
+  what?: string[]
+  how?: string[]
+  action?: string[]
+  where?: string[]
+}
+
 export interface SixStagePractice {
   id: string
   title: string
@@ -660,6 +675,8 @@ export interface SixStagePractice {
   maxAttempts: number
   workflowSteps: SixStageWorkflowStep[]
   sampleUrl?: string
+  practiceParts?: SixStagePracticePartDef[]
+  fourKeysOptions?: SixStageFourKeysOptions
 }
 
 export interface SixStageRewardBadge {

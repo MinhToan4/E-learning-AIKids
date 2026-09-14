@@ -946,6 +946,20 @@ describe('SixStageJourneyView', () => {
     expect(stage0?.textContent).toContain('ĐANG LÀM GÌ')
     expect(stage0?.textContent).toContain('Ở ĐÂU')
     expect(stage0?.textContent).toContain('“một cái cốc”')
+
+    // Anti-clipping checks for 4 keys on iPad / student screens
+    const cards = stage0?.querySelectorAll('.min-h-\\[64px\\]')
+    expect(cards?.length).toBe(4)
+    cards?.forEach((el) => {
+      expect(el.className).toContain('items-start')
+    })
+    const texts = stage0?.querySelectorAll('p.line-clamp-3')
+    expect(texts?.length).toBe(4)
+    texts?.forEach((el) => {
+      expect(el.className).toContain('leading-snug')
+      expect(el.className).toContain('break-words')
+      expect(el.className).not.toContain('line-clamp-1')
+    })
   })
 
   it('renders Lesson 1.2 Stage 1 with 3-column key sets and unlocks with mint feedback on correct choice', () => {

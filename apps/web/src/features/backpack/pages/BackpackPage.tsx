@@ -180,7 +180,35 @@ export function BackpackPage() {
         api<{ items: GamificationReward[] }>('/api/gamification/catalog?type=reward'),
       ])
       setAssets(a.status === 'fulfilled' ? a.value.assets : [])
-      setProjects(p.status === 'fulfilled' ? p.value.projects : [])
+
+      let savedLocalProjects: Project[] = []
+      if (typeof localStorage !== 'undefined') {
+        try {
+          const raw = localStorage.getItem('aiki_backpack_saved_works')
+          if (raw) {
+            const parsed = JSON.parse(raw)
+            if (Array.isArray(parsed)) {
+              savedLocalProjects = parsed.map((item: any) => ({
+                id: item.id || `bp-${Date.now()}-${Math.random()}`,
+                title: item.title || 'Tác phẩm tranh vẽ',
+                kind: 'image',
+                thumbnail: item.url || '',
+                content: item.prompt || '',
+                shareStatus: 'private',
+              }))
+            }
+          }
+        } catch {
+          // ignore
+        }
+      }
+
+      const remoteProjects = p.status === 'fulfilled' ? p.value.projects : []
+      const mergedProjects = [
+        ...savedLocalProjects,
+        ...remoteProjects.filter((rp) => !savedLocalProjects.some((lp) => lp.id === rp.id)),
+      ]
+      setProjects(mergedProjects)
       if (inventoryResult.status === 'fulfilled' && catalogResult.status === 'fulfilled') {
         const owned = new Set(inventoryResult.value.inventory.map((item) => item.rewardId))
         setRewards(displayableRewardInventory(
