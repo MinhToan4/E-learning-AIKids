@@ -1232,6 +1232,19 @@ export function normalizeGatewayResponse(path: string, data: unknown): unknown {
       },
     }
   }
+  if (path === '/api/media/promote' || path === '/api/v1/media/gallery/promote') {
+    const raw = (payload && typeof payload === 'object' && 'data' in payload)
+      ? (payload as any).data?.asset ?? (payload as any).data
+      : (payload as any)?.asset ?? payload
+    return {
+      asset: {
+        id: String(raw?.id ?? raw?.mediaId ?? ''),
+        url: String(raw?.url ?? raw?.imageUrl ?? ''),
+        mediaId: String(raw?.mediaId ?? raw?.id ?? ''),
+        storageBackend: String(raw?.storageBackend ?? 'storymee-media'),
+      },
+    }
+  }
   if (path === '/api/courses' && Array.isArray(payload.courses)) {
     return {
       courses: payload.courses.map((course) => {

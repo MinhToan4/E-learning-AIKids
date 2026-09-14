@@ -960,9 +960,48 @@ export function LessonPage() {
       } else if (quest.practiceKind === 'detective') {
         payload = { pickedCorrect: detectivePick === 0 }
       } else if (quest.practiceKind === 'sketch') {
-        payload = {
-          sketchDataUrl,
-          text: journalText.trim(),
+        let uploadedUrl: string | undefined
+        if (sketchDataUrl && sketchDataUrl.startsWith('data:image/')) {
+          try {
+            const [header, base64Data] = sketchDataUrl.split(',')
+            const mimeMatch = header.match(/data:(.*?);base64/)
+            const mimeType = mimeMatch ? mimeMatch[1] : 'image/webp'
+            const binaryStr = atob(base64Data)
+            const len = binaryStr.length
+            const bytes = new Uint8Array(len)
+            for (let i = 0; i < len; i++) {
+              bytes[i] = binaryStr.charCodeAt(i)
+            }
+            const blob = new Blob([bytes], { type: mimeType })
+            const form = new FormData()
+            form.append('file', blob, 'aikids-sketch.webp')
+            form.append('permanent', '1')
+            form.append('assetType', 'aikids')
+
+            const uploaded = await api<{ asset?: { url: string }; url?: string }>('/api/media/upload', {
+              method: 'POST',
+              body: form,
+            })
+            const maybeUrl = uploaded?.asset?.url || uploaded?.url
+            if (maybeUrl) {
+              uploadedUrl = maybeUrl
+            }
+          } catch (uploadErr) {
+            console.warn('[LessonPage] Không thể upload ảnh vẽ lên storage, fallback sang dataUrl:', uploadErr)
+          }
+        }
+
+        if (uploadedUrl) {
+          payload = {
+            sketchUrl: uploadedUrl,
+            sketchDataUrl: uploadedUrl,
+            text: journalText.trim(),
+          }
+        } else {
+          payload = {
+            sketchDataUrl,
+            text: journalText.trim(),
+          }
         }
       } else if (
         quest.practiceKind === 'journal' ||

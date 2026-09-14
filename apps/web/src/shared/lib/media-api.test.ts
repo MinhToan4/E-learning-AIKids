@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest'
 import { ApiError } from './api'
 import {
   profileAvatarUpdateBody,
+  promoteMedia,
   updateMyProfileAvatar,
   validateProfileAvatarFile,
 } from './media-api'
@@ -231,3 +232,84 @@ describe('profile avatar upload validation', () => {
     },
   )
 })
+
+describe('promoteMedia', () => {
+  it('unwraps response with direct { asset: ... } payload', async () => {
+    const assetPayload = {
+      id: 'asset_direct_01',
+      url: 'https://storage.storymee.com/promoted-direct.webp',
+      mediaId: 'asset_direct_01',
+      storageBackend: 'storymee-media',
+    }
+    const request = vi.fn().mockResolvedValue({ asset: assetPayload })
+
+    const result = await promoteMedia('asset_direct_01', request)
+    expect(result).toEqual(assetPayload)
+    expect(request).toHaveBeenCalledWith(
+      '/api/media/promote',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ assetId: 'asset_direct_01', purpose: 'course_ref_promote' }),
+      }),
+    )
+  })
+
+  it('unwraps response with nested { data: { asset: ... } } payload', async () => {
+    const assetPayload = {
+      id: 'asset_nested_02',
+      url: 'https://storage.storymee.com/promoted-nested.webp',
+      mediaId: 'asset_nested_02',
+      storageBackend: 'storymee-media',
+    }
+    const request = vi.fn().mockResolvedValue({ data: { asset: assetPayload } })
+
+    const result = await promoteMedia('asset_nested_02', request)
+    expect(result).toEqual(assetPayload)
+    expect(request).toHaveBeenCalledWith(
+      '/api/media/promote',
+      expect.objectContaining({
+        method: 'POST',
+        body: JSON.stringify({ assetId: 'asset_nested_02', purpose: 'course_ref_promote' }),
+      }),
+    )
+  })
+
+  it('throws error when no asset is found in response', async () => {
+    const request = vi.fn().mockResolvedValue({})
+
+    await expect(promoteMedia('asset_empty', request)).rejects.toThrow(
+      'Không nhận được thông tin tệp sau khi lưu vào ba lô.',
+    )
+  })
+
+  it('resolves real api() call and normalizes gateway response', async () => {
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({
+          data: {
+            asset: {
+              id: 'asset_gw_01',
+              url: 'https://storage.storymee.com/gateway-promoted.webp',
+              mediaId: 'asset_gw_01',
+              storageBackend: 'storymee-media',
+            },
+          },
+        }),
+        {
+          status: 200,
+          headers: { 'Content-Type': 'application/json' },
+        },
+      ),
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    const result = await promoteMedia('asset_gw_01')
+    expect(result).toEqual({
+      id: 'asset_gw_01',
+      url: 'https://storage.storymee.com/gateway-promoted.webp',
+      mediaId: 'asset_gw_01',
+      storageBackend: 'storymee-media',
+    })
+  })
+})
+

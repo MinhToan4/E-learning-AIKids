@@ -260,25 +260,28 @@ export async function updateMyProfileAvatar(
  * Promote a course-created asset to Vidtory media (not free photo upload).
  * Students may only use in-course drawings/generations as refs.
  */
-export async function promoteCourseAsset(assetId: string): Promise<{
+export async function promoteMedia(
+  assetId: string,
+  request: <T>(path: string, options?: RequestInit) => Promise<T> = api,
+): Promise<{
   id: string
   url: string
   mediaId: string
   storageBackend: string
 }> {
-  const res = await api<{
-    asset: {
-      id: string
-      url: string
-      mediaId: string
-      storageBackend: string
-    }
+  const res = await request<{
+    asset?: { id: string; url: string; mediaId: string; storageBackend: string }
+    data?: { asset?: { id: string; url: string; mediaId: string; storageBackend: string } }
   }>('/api/media/promote', {
     method: 'POST',
     body: JSON.stringify({ assetId, purpose: 'course_ref_promote' }),
   })
-  return res.asset
+  const asset = res.asset ?? res.data?.asset
+  if (!asset) throw new Error('Không nhận được thông tin tệp sau khi lưu vào ba lô.')
+  return asset
 }
+
+export const promoteCourseAsset = promoteMedia
 
 /** Course-authoring upload for teacher/admin CMS. Family actors get 403. */
 export async function uploadCmsCourseMedia(params: {

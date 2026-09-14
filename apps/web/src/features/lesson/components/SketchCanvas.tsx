@@ -79,25 +79,34 @@ export function SketchCanvas({
     setHasStroke(true)
   }
 
+  function exportCanvas(c: HTMLCanvasElement): string | null {
+    try {
+      const webp = c.toDataURL('image/webp', 0.82)
+      if (webp && webp.startsWith('data:image/webp')) {
+        return webp
+      }
+      return c.toDataURL('image/png')
+    } catch {
+      try {
+        return c.toDataURL('image/png')
+      } catch {
+        return null
+      }
+    }
+  }
+
   function end() {
     if (!drawing.current) return
     drawing.current = false
     const c = canvasRef.current
     if (!c || !hasStroke) {
       // hasStroke may lag one frame — export if path drawn
-      try {
-        const url = c?.toDataURL('image/png')
-        if (url && url.length > 500) onChange(url)
-      } catch {
-        onChange(null)
-      }
+      const url = c ? exportCanvas(c) : null
+      if (url && url.length > 500) onChange(url)
+      else onChange(null)
       return
     }
-    try {
-      onChange(c.toDataURL('image/png'))
-    } catch {
-      onChange(null)
-    }
+    onChange(exportCanvas(c))
   }
 
   function clear() {

@@ -48,6 +48,51 @@ describe('StoryMee Gateway adapter', () => {
       .rejects.toThrow('StoryMee Media không trả về URL Storage hợp lệ.')
   })
 
+  it('normalizes /api/media/promote responses whether direct or nested in data', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(response({
+        data: {
+          asset: {
+            id: 'promoted-nested-1',
+            url: 'https://storage.storymee.com/promoted-nested.webp',
+            mediaId: 'promoted-nested-1',
+            storageBackend: 'storymee-media',
+          },
+        },
+      }))
+      .mockResolvedValueOnce(response({
+        asset: {
+          id: 'promoted-direct-2',
+          url: 'https://storage.storymee.com/promoted-direct.webp',
+          mediaId: 'promoted-direct-2',
+          storageBackend: 'storymee-media',
+        },
+      }))
+    vi.stubGlobal('fetch', fetchMock)
+
+    const res1 = await api<{ asset: { id: string; url: string } }>('/api/media/promote', {
+      method: 'POST',
+      body: JSON.stringify({ assetId: 'promoted-nested-1', purpose: 'course_ref_promote' }),
+    })
+    expect(res1.asset).toEqual({
+      id: 'promoted-nested-1',
+      url: 'https://storage.storymee.com/promoted-nested.webp',
+      mediaId: 'promoted-nested-1',
+      storageBackend: 'storymee-media',
+    })
+
+    const res2 = await api<{ asset: { id: string; url: string } }>('/api/media/promote', {
+      method: 'POST',
+      body: JSON.stringify({ assetId: 'promoted-direct-2', purpose: 'course_ref_promote' }),
+    })
+    expect(res2.asset).toEqual({
+      id: 'promoted-direct-2',
+      url: 'https://storage.storymee.com/promoted-direct.webp',
+      mediaId: 'promoted-direct-2',
+      storageBackend: 'storymee-media',
+    })
+  })
+
   it('translates nickname + PIN child login without a family code and persists the StoryMee JWT', async () => {
     const fetchMock = vi.fn().mockResolvedValue(response({
       token: 'storymee-jwt',
