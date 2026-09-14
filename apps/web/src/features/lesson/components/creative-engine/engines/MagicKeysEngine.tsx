@@ -324,7 +324,7 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
     <div data-testid="magic-keys-engine" className="flex w-full min-h-0 flex-col gap-2.5">
       {/* Tầng 1: Bố cục 3 Cột (Món đồ - 4 Chìa khóa - Tranh AI Canvas) */}
       {practiceSlot || canvasSlot ? (
-        <div className="grid w-full min-h-0 items-start gap-2.5 md:grid-cols-[minmax(170px,220px)_minmax(0,1fr)] xl:grid-cols-[minmax(170px,210px)_minmax(420px,1fr)_minmax(300px,400px)]">
+        <div className="grid w-full min-h-0 items-start gap-2.5 md:grid-cols-[minmax(200px,250px)_minmax(0,1fr)] 2xl:grid-cols-[minmax(200px,230px)_minmax(400px,1fr)_minmax(380px,520px)]">
           {/* CỘT 1 (BÊN TRÁI): MÓN ĐỒ BÉ VẼ */}
           {practiceSlot && (
             <div className="w-full min-w-0 self-start md:col-start-1 md:row-start-1">
@@ -349,7 +349,7 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
 
           {/* CỘT 3 (BÊN PHẢI CÙNG): KHUNG PREVIEW TRANH VẼ (PHẦN ẢNH) */}
           {canvasSlot && (
-            <div className="aspect-[4/3] w-full min-w-0 md:col-span-2 md:row-start-2 md:aspect-video xl:col-span-1 xl:col-start-3 xl:row-start-1 xl:aspect-[4/3]">
+            <div className="aspect-[4/3] w-full min-w-0 md:col-span-2 md:row-start-2 md:aspect-video 2xl:col-span-1 2xl:col-start-3 2xl:row-start-1 2xl:aspect-[4/3]">
               {canvasSlot}
             </div>
           )}

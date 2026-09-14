@@ -2030,7 +2030,7 @@ export function AikiStudioWorkspace({
         <span>🎯</span>
         <span>Món đồ bé vẽ:</span>
       </div>
-      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-1">
+      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 md:grid-cols-1">
         {practicePartDefs.map((part, pIdx) => {
           const isSelected = pIdx === activePartIndex
           const partImages = gallery.filter((img) =>
@@ -2237,7 +2237,7 @@ export function AikiStudioWorkspace({
         'w-full flex flex-col transition-all duration-300 font-sans text-slate-900',
         isFullscreen
           ? 'fixed inset-0 z-[99999] bg-[#faf8ff] w-screen h-screen flex flex-col p-3 sm:p-5 overflow-y-auto'
-          : 'relative bg-[#faf8ff] rounded-3xl border-2 border-indigo-100 p-2.5 sm:p-3.5 shadow-sm min-h-[42rem] flex-1 overflow-y-auto flex flex-col gap-2 xl:h-full xl:min-h-0 xl:overflow-hidden',
+          : 'relative flex min-h-0 flex-col gap-2 overflow-visible rounded-3xl border-2 border-indigo-100 bg-[#faf8ff] p-2.5 shadow-sm sm:p-3.5',
         className
       )}
     >
@@ -2384,11 +2384,11 @@ export function AikiStudioWorkspace({
       </div>
 
       {/* ── BỐ CỤC CHÍNH: XƯỞNG SÁNG TẠO 100% FULL WIDTH ── */}
-      <div className="w-full flex-1 min-h-0 flex flex-col overflow-y-auto xl:overflow-hidden">
+      <div className="flex w-full min-h-0 flex-col overflow-visible">
         {/* ── KHU VỰC CHÍNH: GAME ENGINE & LIVE CANVAS (100% FULL WIDTH) ── */}
         <div
           data-testid="studio-col-canvas"
-          className="w-full flex-1 min-h-0 flex flex-col bg-white rounded-3xl border-2 border-indigo-100 shadow-sm p-2 sm:p-2.5 overflow-y-auto gap-1.5 text-left xl:h-full xl:overflow-hidden"
+          className="flex w-full min-h-0 flex-col gap-1.5 overflow-visible rounded-3xl border-2 border-indigo-100 bg-white p-2 text-left shadow-sm sm:p-2.5"
         >
           {/* sr-only bảo toàn 100% test assertions line 52 AikiStudioWorkspace.test.tsx & trợ năng */}
           <div className="sr-only">
@@ -2478,9 +2478,9 @@ export function AikiStudioWorkspace({
           )}
 
           {/* 4. CreativeEngineShell: Tranh AI Canvas & Bàn Phím 4 Chìa Khóa Ma Thuật Tinh Gọn */}
-          <div className="w-full flex-1 min-h-0 flex flex-col">
+          <div className="flex w-full min-h-0 flex-col">
             <CreativeEngineShell
-              className="flex-1 min-h-0 flex flex-col justify-between"
+              className="min-h-0"
               mode="magic-keys"
               practiceSlot={practiceColumn}
               canvasSlot={previewCanvasColumn}

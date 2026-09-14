@@ -624,7 +624,7 @@ describe('AikiStudioWorkspace', () => {
     const parentList = part1Btn.parentElement
     expect(parentList).not.toBeNull()
     expect(parentList?.className).toContain('grid')
-    expect(parentList?.className).toContain('lg:grid-cols-1')
+    expect(parentList?.className).toContain('md:grid-cols-1')
     expect(parentList?.className).not.toContain('justify-between')
 
     const outerCol1 = parentList?.parentElement

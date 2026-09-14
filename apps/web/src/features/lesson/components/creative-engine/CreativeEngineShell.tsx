@@ -97,7 +97,7 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
       )}
     >
       {/* ── BÀN PHÍM 4 CHÌA KHÓA MA THUẬT & THANH CÂU LỆNH HỢP NHẤT (~145-155PX) ── */}
-      <div className="w-full flex-1 min-h-0 bg-white rounded-3xl border-2 border-amber-200/80 p-2 sm:p-2.5 shadow-clay flex flex-col justify-between gap-1.5">
+      <div className="flex w-full min-h-0 flex-col gap-1.5 rounded-3xl border-2 border-amber-200/80 bg-white p-2 shadow-clay sm:p-2.5">
         {/* VÙNG ENGINE ACTIVE (Tầng 1: BlockSlotTray & Tầng 2: BlockPalette) */}
         {activeMode === 'magic-keys' && (
           <MagicKeysEngine
