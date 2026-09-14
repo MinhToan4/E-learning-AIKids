@@ -90,6 +90,7 @@ export type ContentBlockType =
   | 'layout-split'      // Bố cục 2 Cột (Chữ + Media)
   | 'layout-grid'       // Lưới Ô Thẻ
   | 'layout-four-keys'  // Bộ 4 chìa khóa câu lệnh
+  | 'layout-confirm-option' // Phương án xác nhận mục tiêu (Chặng 2)
   | 'layout-callout'    // Hộp Ghi Nhớ Nổi Bật
   | 'layout-formula'    // Công thức KaTeX
   | 'layout-storyboard' // Chuỗi Storyboard
@@ -415,6 +416,8 @@ export function getStageBlocks(card: LearnCardDraft, stageIndex: number): StageB
       blocks.push({ id: `blk-grid-${stageIndex}`, type: 'layout-grid', title: 'Lưới 3 Ô Thẻ', visualItems: card.visualItems })
     } else if (mod === 'layout-four-keys') {
       blocks.push({ ...createFourKeysBlock(`blk-four-keys-${stageIndex}`), visualItems: card.visualItems?.length ? card.visualItems : FOUR_KEYS_DEFAULT_ITEMS.map((item) => ({ ...item })) })
+    } else if (mod === 'layout-confirm-option') {
+      blocks.push({ id: `blk-confirm-option-${stageIndex}`, type: 'layout-confirm-option', title: card.title || 'Bộ chìa khóa A', body: card.body || 'Phương án A', imageUrl: card.imageUrl, isCorrect: false })
     } else if (mod === 'layout-storyboard') {
       blocks.push({ id: `blk-storyboard-${stageIndex}`, type: 'layout-storyboard', title: 'Chuỗi Storyboard', visualItems: card.visualItems })
     } else if (mod === 'voice') {

@@ -476,6 +476,45 @@ export function StudentStageBlocksView({
           )
         }
 
+        // ── BLOCK: LAYOUT-CONFIRM-OPTION (Phương án Xác nhận Mục tiêu) ──
+        if (block.type === 'layout-confirm-option') {
+          return (
+            <div
+              key={block.id}
+              data-testid="block-layout-confirm-option"
+              className={cn(
+                "rounded-3xl border-2 bg-white p-4 sm:p-5 shadow-sm text-left transition-all",
+                block.isCorrect ? "border-emerald-400 bg-emerald-50/20 ring-2 ring-emerald-200" : "border-border"
+              )}
+            >
+              <div className="flex items-center justify-between gap-2 mb-3">
+                <span className="rounded-full bg-brand-100 px-3 py-1 text-xs font-black text-brand-800">
+                  {block.title || 'Phương án lựa chọn'}
+                </span>
+                {block.isCorrect && (
+                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-black text-emerald-800 flex items-center gap-1">
+                    ✓ Đáp án đúng
+                  </span>
+                )}
+              </div>
+              {block.imageUrl && (
+                <div className="aspect-[16/10] sm:aspect-[2/1] w-full rounded-2xl overflow-hidden mb-3 bg-slate-50 border border-slate-200/80 flex items-center justify-center">
+                  <img
+                    src={block.imageUrl}
+                    alt={block.title || 'Hình ảnh phương án'}
+                    className="size-full object-contain p-2"
+                  />
+                </div>
+              )}
+              {block.body && (
+                <p className="text-sm sm:text-base font-semibold text-slate-700 leading-relaxed">
+                  {block.body}
+                </p>
+              )}
+            </div>
+          )
+        }
+
         // ── 7. BLOCK: LAYOUT-STORYBOARD (Chuỗi Storyboard) ────────
         if (block.type === 'layout-storyboard') {
           const items = block.visualItems || card.visualItems || []

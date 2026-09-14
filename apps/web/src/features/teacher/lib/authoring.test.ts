@@ -220,7 +220,7 @@ describe('authoring ids and readiness', () => {
       'island-stage-4', 'island-stage-5', 'island-stage-6',
     ])
     expect(migratedCourseLesson.learnCards[1].contentBlocks?.map((block) => block.type)).toEqual([
-      'text', 'layout-four-keys', 'layout-four-keys', 'layout-four-keys',
+      'text', 'layout-confirm-option', 'layout-confirm-option', 'layout-confirm-option',
     ])
     expect(migratedCourseLesson.learnCards[1].contentBlocks?.filter((block) => block.isCorrect)).toHaveLength(1)
     expect(migratedCourseLesson.learnCards.slice(2).every((card) => card.contentBlocks?.length === 0)).toBe(true)

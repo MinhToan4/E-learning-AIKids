@@ -1046,19 +1046,30 @@ html[data-sticker-effect='sparkle'] .ui-badge-clay {
 
   /* Page / section motion — GPU-friendly, respects reduced-motion */
   .page-enter {
-    animation: page-enter 0.28s ease-out both;
+    animation: page-enter 0.22s cubic-bezier(0.16, 1, 0.3, 1) both;
+    will-change: opacity, transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   .animate-fade-up {
-    animation: fade-up 0.32s ease-out both;
+    animation: fade-up 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+    will-change: opacity, transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   .animate-fade-down {
     animation: fade-down 0.28s ease-out both;
+    will-change: opacity, transform;
+    transform: translateZ(0);
+    backface-visibility: hidden;
   }
 
   .animate-pop {
-    animation: pop-in 0.45s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+    animation: pop-in 0.3s cubic-bezier(0.22, 1.2, 0.36, 1) both;
+    will-change: opacity, transform;
+    transform: translateZ(0);
   }
 
   @keyframes page-enter {

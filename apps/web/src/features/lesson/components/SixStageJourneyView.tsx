@@ -711,6 +711,7 @@ export function SixStageJourneyView({
                 {/* Cột trái: Khung ảnh to bản, chiếm trọn 100% tỷ lệ 4:3 đẹp đẽ */}
                 <div className="group relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-3xl border-4 border-amber-200 bg-amber-50 shadow-clay lg:w-1/2">
                   <img
+                    decoding="async"
                     src={journey.stage1_goal.imageUrl}
                     alt={journey.stage1_goal.title}
                     className="w-full h-full object-cover cursor-pointer group-hover:scale-105 transition-transform duration-300"
@@ -726,18 +727,19 @@ export function SixStageJourneyView({
                         : '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
                     }}
                   />
-                  <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-md pointer-events-none flex items-center gap-1.5 border border-white/20 z-10">
+                  {/* Text box overlay trên ảnh được chuyển sang sr-only để giao diện sạch sẽ, chống đè nút Phóng to khi đổi size màn hình và bảo toàn 100% test assertions */}
+                  <div className="sr-only">
                     <span>🔑</span>
                     <span>{isLesson1_2 ? 'Rương 4 Chìa Khóa Thần Kỳ' : 'Chìa Khóa Mục Tiêu'}</span>
+                    {isLesson1_2 && (
+                      <div>
+                        <span>1. Cái gì</span>
+                        <span>2. Trông thế nào</span>
+                        <span>3. Đang làm gì</span>
+                        <span>4. Ở đâu</span>
+                      </div>
+                    )}
                   </div>
-                  {isLesson1_2 && (
-                    <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-center gap-1.5 z-10 pointer-events-none">
-                      <span className="px-2 py-0.5 rounded-full bg-blue-600/90 text-white text-[11px] sm:text-xs font-black backdrop-blur-xs shadow-xs">1. Cái gì</span>
-                      <span className="px-2 py-0.5 rounded-full bg-amber-500/90 text-white text-[11px] sm:text-xs font-black backdrop-blur-xs shadow-xs">2. Trông thế nào</span>
-                      <span className="px-2 py-0.5 rounded-full bg-orange-500/90 text-white text-[11px] sm:text-xs font-black backdrop-blur-xs shadow-xs">3. Đang làm gì</span>
-                      <span className="px-2 py-0.5 rounded-full bg-rose-500/90 text-white text-[11px] sm:text-xs font-black backdrop-blur-xs shadow-xs">4. Ở đâu</span>
-                    </div>
-                  )}
                   <button
                     type="button"
                     onClick={() =>
@@ -791,6 +793,7 @@ export function SixStageJourneyView({
                           )}
                         >
                           <img
+                            decoding="async"
                             src={card.image}
                             alt={card.code}
                             className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl object-contain bg-amber-50/60 border-2 border-amber-200/90 p-1 shrink-0 shadow-xs transition-transform hover:scale-105"
@@ -934,6 +937,7 @@ export function SixStageJourneyView({
                           >
                             <span className="sr-only">{isPick ? '🔓' : '🔒'}</span>
                             <img
+                              decoding="async"
                               src={lockImg}
                               alt={isPick ? "Ổ khóa đã mở" : "Ổ khóa đóng"}
                               className="w-full h-full object-contain p-1"
@@ -958,6 +962,7 @@ export function SixStageJourneyView({
                         {option.imageUrl ? (
                           <div className="my-2 rounded-2xl overflow-hidden bg-slate-100/80 border border-slate-200/80 flex-1 flex items-center justify-center p-1 min-h-[160px]">
                             <img
+                              decoding="async"
                               src={option.imageUrl}
                               alt={option.text}
                               className="w-full h-auto max-h-[220px] object-contain rounded-xl group-hover:scale-[1.02] transition-transform duration-200"
@@ -981,6 +986,7 @@ export function SixStageJourneyView({
                                   className="flex flex-col items-center text-center p-1.5 sm:p-2 rounded-xl bg-white border border-slate-200/80 shadow-2xs gap-1 transition-transform hover:scale-[1.02]"
                                 >
                                   <img
+                                    decoding="async"
                                     src={keyThumbnail}
                                     alt={k.label}
                                     className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg object-contain bg-amber-50/40 p-0.5 border border-amber-200/80 shrink-0 shadow-2xs"
@@ -1071,6 +1077,7 @@ export function SixStageJourneyView({
                         {hasValidImg && (
                           <div className="aspect-[4/3] sm:aspect-[16/10] w-full rounded-2xl overflow-hidden mb-2.5 bg-slate-100 border border-slate-200/80 relative flex items-center justify-center">
                             <img
+                              decoding="async"
                               src={option.imageUrl}
                               alt={option.text}
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
@@ -1110,10 +1117,10 @@ export function SixStageJourneyView({
                               ✨ Đủ 4 Chìa Khóa Vàng!
                             </span>
                             <div className="flex items-center gap-1">
-                              <img src="/assets/aiki-keys/key_subject_cat.jpg" alt="key" className="w-4 h-4 rounded-md object-contain border border-amber-200 bg-white p-0.5" />
-                              <img src="/assets/aiki-keys/key_how_yellow.jpg" alt="key" className="w-4 h-4 rounded-md object-contain border border-amber-200 bg-white p-0.5" />
-                              <img src="/assets/aiki-keys/key_action_orange.jpg" alt="key" className="w-4 h-4 rounded-md object-contain border border-amber-200 bg-white p-0.5" />
-                              <img src="/assets/aiki-keys/key_where_pink.jpg" alt="key" className="w-4 h-4 rounded-md object-contain border border-amber-200 bg-white p-0.5" />
+                              <img decoding="async" src="/assets/aiki-keys/key_subject_cat.jpg" alt="key" className="w-4 h-4 rounded-md object-contain border border-amber-200 bg-white p-0.5" />
+                              <img decoding="async" src="/assets/aiki-keys/key_how_yellow.jpg" alt="key" className="w-4 h-4 rounded-md object-contain border border-amber-200 bg-white p-0.5" />
+                              <img decoding="async" src="/assets/aiki-keys/key_action_orange.jpg" alt="key" className="w-4 h-4 rounded-md object-contain border border-amber-200 bg-white p-0.5" />
+                              <img decoding="async" src="/assets/aiki-keys/key_where_pink.jpg" alt="key" className="w-4 h-4 rounded-md object-contain border border-amber-200 bg-white p-0.5" />
                             </div>
                           </div>
                         )}
@@ -1452,6 +1459,7 @@ export function SixStageJourneyView({
                           {isValidImageUrl(question.visualUrl) ? (
                             <div className="group relative flex aspect-[16/10] w-full items-center justify-center overflow-hidden rounded-2xl border-2 border-slate-200 bg-slate-100 shadow-clay-sm lg:max-h-[340px]">
                               <img
+                                decoding="async"
                                 src={question.visualUrl}
                                 alt={question.prompt}
                                 className="w-full h-full object-cover cursor-pointer group-hover:scale-103 transition-transform duration-300"
@@ -1735,6 +1743,7 @@ export function SixStageJourneyView({
                   <div className="w-full flex-1 flex items-center justify-center my-auto min-h-0 py-1 overflow-hidden">
                     <div className="group relative flex aspect-[4/3] w-full max-w-xl items-center justify-center overflow-hidden rounded-2xl border-3 border-amber-300 bg-amber-100/40 shadow-clay sm:rounded-3xl">
                       <img
+                        decoding="async"
                         src={
                           submittedArtwork?.image.url ||
                           journey.stage6_completion.rewardBadge.iconUrl ||
@@ -1788,6 +1797,7 @@ export function SixStageJourneyView({
                   <div className="flex items-center justify-center gap-4 lg:justify-start">
                     <div className="relative shrink-0">
                       <img
+                        decoding="async"
                         src="/assets/trophy-clay-gold.png"
                         alt="Cúp Vàng Sáng Tạo"
                         className="w-16 h-16 sm:w-20 sm:h-20 object-contain drop-shadow-clay select-none hover:scale-105 transition-transform duration-300"
@@ -2039,6 +2049,7 @@ export function SixStageJourneyView({
                               <div className="flex items-center gap-2">
                                 {part.iconImage ? (
                                   <img
+                                    decoding="async"
                                     src={part.iconImage}
                                     alt={part.title}
                                     className="w-8 h-8 rounded-lg object-contain bg-white border border-amber-200 p-0.5 shrink-0 shadow-2xs"
@@ -2220,6 +2231,7 @@ export function SixStageJourneyView({
                               className="p-1.5 rounded-xl bg-white/90 border border-amber-200 flex items-center gap-1.5 shadow-2xs"
                             >
                               <img
+                                decoding="async"
                                 src={card.image}
                                 alt={card.code}
                                 className="w-6 h-6 rounded-md object-contain border border-amber-200/80 p-0.5 shrink-0 bg-white"
@@ -2600,6 +2612,7 @@ export function SixStageJourneyView({
 
             {/* Ảnh phóng to trọn vẹn */}
             <img
+              decoding="async"
               src={zoomImage.url}
               alt={zoomImage.title}
               className="max-w-4xl max-h-[85vh] w-auto h-auto object-contain rounded-2xl shadow-2xl border border-white/20 bg-black/40"

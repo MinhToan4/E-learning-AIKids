@@ -29,12 +29,29 @@ import type { AikiRuleQuestion } from '@/features/rules/types'
 export type Phase = 'learn' | 'game' | 'practice' | 'check' | 'done'
 export type PoseType = MeeTutorPose
 
+let sharedAudioCtx: AudioContext | null = null
+
+function getAudioContext(): AudioContext | null {
+  try {
+    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
+    if (!AudioCtx) return null
+    if (!sharedAudioCtx || sharedAudioCtx.state === 'closed') {
+      sharedAudioCtx = new AudioCtx()
+    }
+    if (sharedAudioCtx.state === 'suspended') {
+      void sharedAudioCtx.resume()
+    }
+    return sharedAudioCtx
+  } catch {
+    return null
+  }
+}
+
 // Web Audio API zero-latency feedback sounds (<5ms)
 export function playInstantSound(type: 'correct' | 'wrong' | 'click' | 'star') {
   try {
-    const AudioCtx = window.AudioContext || (window as unknown as { webkitAudioContext: typeof AudioContext }).webkitAudioContext
-    if (!AudioCtx) return
-    const ctx = new AudioCtx()
+    const ctx = getAudioContext()
+    if (!ctx) return
     const osc = ctx.createOscillator()
     const gain = ctx.createGain()
     osc.connect(gain)

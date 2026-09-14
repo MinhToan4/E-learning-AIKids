@@ -42,16 +42,19 @@ export function SixStageGoalStage({ goal, fourKeys = false, compact = false, onC
             onClick={() => onImageClick?.({ url: goal.imageUrl, title: goal.title })}
             onError={(event) => { event.currentTarget.src = fourKeys ? '/assets/aiki-islands/island1_lesson2_keys_v2.jpg' : '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2' }}
           />
-          <div className="absolute top-3 left-3 bg-black/70 backdrop-blur-md text-white text-xs px-3 py-1.5 rounded-full font-bold shadow-md pointer-events-none flex items-center gap-1.5 border border-white/20 z-10">
-            <span>🔑</span><span>{fourKeys ? 'Rương 4 Chìa Khóa Thần Kỳ' : 'Chìa Khóa Mục Tiêu'}</span>
+          {/* Text box overlay trên ảnh chuyển sang sr-only để tránh đè / vỡ layout khi đổi size màn hình */}
+          <div className="sr-only">
+            <span>🔑</span>
+            <span>{fourKeys ? 'Rương 4 Chìa Khóa Thần Kỳ' : 'Chìa Khóa Mục Tiêu'}</span>
+            {fourKeys && (
+              <div>
+                <span>1. Cái gì</span>
+                <span>2. Trông thế nào</span>
+                <span>3. Đang làm gì</span>
+                <span>4. Ở đâu</span>
+              </div>
+            )}
           </div>
-          {fourKeys && (
-            <div className="absolute bottom-2.5 left-2.5 right-2.5 flex items-center justify-center gap-1 sm:gap-1.5 z-10 pointer-events-none flex-wrap">
-              {['bg-blue-600/90', 'bg-amber-500/90', 'bg-orange-500/90', 'bg-rose-500/90'].map((color, index) => (
-                <span key={color} className={cn('px-1.5 sm:px-2 py-0.5 rounded-full text-white text-[10px] sm:text-xs font-black backdrop-blur-xs shadow-xs shrink-0', color)}>{index + 1}. {['Cái gì', 'Trông thế nào', 'Đang làm gì', 'Ở đâu'][index]}</span>
-              ))}
-            </div>
-          )}
           {onImageClick && (
             <button type="button" onClick={() => onImageClick({ url: goal.imageUrl, title: goal.title })} className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10">🔍 Phóng to</button>
           )}

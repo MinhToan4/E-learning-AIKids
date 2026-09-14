@@ -41,6 +41,8 @@ export function getBlockIcon(type: ContentBlockType): string {
       return '🍱'
     case 'layout-four-keys':
       return '🔑'
+    case 'layout-confirm-option':
+      return '🔘'
     case 'layout-storyboard':
       return '🎬'
     case 'voice':
@@ -77,6 +79,8 @@ export function getBlockTitle(type: ContentBlockType, customTitle?: string): str
       return customTitle || 'LƯỚI Ô THẺ'
     case 'layout-four-keys':
       return customTitle || 'BỐ CỤC 4 CHÌA KHÓA'
+    case 'layout-confirm-option':
+      return customTitle || 'PHƯƠNG ÁN XÁC NHẬN MỤC TIÊU'
     case 'layout-storyboard':
       return customTitle || 'CHUỖI STORYBOARD'
     case 'voice':
@@ -167,6 +171,14 @@ export function StageBlockItemCard({
   const isDragOverThis = dragOverBlockIdx === bIdx
   const [expanded, setExpanded] = React.useState(bIdx === 0)
 
+  const isConfirmOption = block.type === 'layout-confirm-option' || block.id.startsWith('course-confirm-option-')
+  const confirmOptionIndex = isConfirmOption
+    ? stageBlocks
+        .filter((b) => b.type === 'layout-confirm-option' || b.id.startsWith('course-confirm-option-'))
+        .findIndex((b) => b.id === block.id)
+    : -1
+  const optionLetter = confirmOptionIndex >= 0 ? String.fromCharCode(65 + confirmOptionIndex) : ''
+
   return (
     <div
       draggable={!readOnly}
@@ -218,7 +230,7 @@ export function StageBlockItemCard({
     >
       {/* ── Thanh Header của thẻ khối ── */}
       <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-3">
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {!readOnly && (
             <span
               className="cursor-grab active:cursor-grabbing p-1 text-slate-400 hover:text-slate-700 select-none"
@@ -227,15 +239,55 @@ export function StageBlockItemCard({
               <GripVertical size={18} />
             </span>
           )}
-          <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-700">
-            Khối {bIdx + 1}
-          </span>
-          <div className="flex items-center gap-1.5">
-            <span className="text-base">{getBlockIcon(block.type)}</span>
-            <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">
-              {getBlockTitle(block.type, block.title)}
-            </h4>
-          </div>
+          {isConfirmOption ? (
+            <>
+              <span className="rounded-lg bg-brand-100 text-brand-800 px-2.5 py-1 text-xs font-black">
+                Phương án {optionLetter || bIdx + 1}
+              </span>
+              <label
+                onClick={(e) => e.stopPropagation()}
+                className={cn(
+                  "inline-flex items-center gap-1.5 px-3 py-1 rounded-xl text-xs font-black transition cursor-pointer select-none border",
+                  block.isCorrect
+                    ? "border-emerald-500 bg-emerald-50 text-emerald-800 ring-2 ring-emerald-300"
+                    : "border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100"
+                )}
+                title="Chọn phương án này làm đáp án đúng"
+              >
+                <input
+                  type="radio"
+                  name={`course-confirm-correct-${stageIndex}`}
+                  checked={Boolean(block.isCorrect)}
+                  disabled={readOnly}
+                  onChange={() => {
+                    updateStageBlocks(stageIndex, stageBlocks.map((item) => ({
+                      ...item,
+                      isCorrect: (item.type === 'layout-confirm-option' || item.id.startsWith('course-confirm-option-'))
+                        ? item.id === block.id
+                        : item.isCorrect,
+                    })))
+                  }}
+                  className="accent-emerald-600 size-3.5 cursor-pointer"
+                />
+                <span>{block.isCorrect ? '✅ Đáp án đúng' : '🔘 Đáp án đúng'}</span>
+              </label>
+              <span className="text-xs font-bold text-slate-700 truncate max-w-[180px] sm:max-w-[260px]">
+                {block.title || `Bộ chìa khóa ${optionLetter}`}
+              </span>
+            </>
+          ) : (
+            <>
+              <span className="rounded-md bg-slate-100 px-2 py-0.5 text-[10px] font-black text-slate-700">
+                Khối {bIdx + 1}
+              </span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-base">{getBlockIcon(block.type)}</span>
+                <h4 className="text-xs font-black uppercase tracking-wider text-slate-900">
+                  {getBlockTitle(block.type, block.title)}
+                </h4>
+              </div>
+            </>
+          )}
         </div>
 
         {/* Bộ nút hành động */}
@@ -284,7 +336,9 @@ export function StageBlockItemCard({
 
       {!expanded && (
         <p className="mt-2 truncate text-xs font-semibold text-slate-500">
-          {block.body || block.tip || block.readText || `${block.visualItems?.length || 0} mục nội dung`}
+          {isConfirmOption
+            ? `${block.title || `Bộ chìa khóa ${optionLetter}`} — ${block.body || 'Chưa có mô tả'}${block.imageUrl ? ' (Đã có ảnh)' : ''}`
+            : block.body || block.tip || block.readText || `${block.visualItems?.length || 0} mục nội dung`}
         </p>
       )}
 
@@ -460,8 +514,163 @@ export function StageBlockItemCard({
         </div>
       )}
 
-      {/* ── 5. BLOCK: Lưới Ô Thẻ / Storyboard (layout-grid / layout-storyboard) ── */}
-      {(block.type === 'layout-grid' || block.type === 'layout-storyboard' || block.type === 'layout-four-keys') && (
+      {/* ── 4B. BLOCK: Phương Án Xác Nhận Mục Tiêu (layout-confirm-option) ── */}
+      {isConfirmOption && (
+        <div className="mt-3.5 space-y-3.5 rounded-2xl border-2 border-brand-200/80 bg-gradient-to-b from-brand-50/40 to-white p-4">
+          <label className="block text-xs font-extrabold text-slate-800">
+            Tiêu đề phương án
+            <input
+              readOnly={readOnly}
+              value={block.title ?? ''}
+              onChange={(e) => updateBlockItem(stageIndex, block.id, { title: e.target.value })}
+              style={{ ...inputStyle, marginTop: '0.35rem' }}
+              placeholder={`VD: Bộ chìa khoá ${optionLetter || 'A'}`}
+            />
+          </label>
+
+          {/* Vùng upload ảnh thật trực quan */}
+          <div className="rounded-2xl border-2 border-dashed border-sky-200 bg-sky-50/50 p-4">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <span className="text-xs font-black uppercase tracking-wider text-sky-900 flex items-center gap-1.5">
+                <ImageIcon size={15} className="text-sky-600" />
+                Ảnh minh họa phương án
+              </span>
+              {block.imageUrl && !readOnly && (
+                <button
+                  type="button"
+                  onClick={() => updateBlockItem(stageIndex, block.id, { imageUrl: '' })}
+                  className="inline-flex items-center gap-1 text-[11px] font-bold text-coral-600 hover:text-coral-700 cursor-pointer"
+                >
+                  <Trash2 size={13} /> Xóa ảnh
+                </button>
+              )}
+            </div>
+
+            {block.imageUrl ? (
+              <div className="relative group overflow-hidden rounded-2xl border-2 border-sky-300 bg-white shadow-sm">
+                <div className="aspect-[16/10] sm:aspect-[2/1] w-full max-h-[300px] bg-slate-100 flex items-center justify-center overflow-hidden">
+                  <img
+                    src={block.imageUrl}
+                    alt={block.title || `Phương án ${optionLetter}`}
+                    className="size-full object-contain p-2"
+                    onError={(e) => {
+                      e.currentTarget.style.display = 'none'
+                    }}
+                  />
+                </div>
+                {!readOnly && (
+                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3 backdrop-blur-xs">
+                    <label className="inline-flex items-center gap-1.5 rounded-xl bg-white px-4 py-2 text-xs font-black text-slate-800 shadow-md hover:bg-slate-50 cursor-pointer">
+                      <Upload size={14} />
+                      <span>Đổi ảnh</span>
+                      <input
+                        type="file"
+                        accept="image/png,image/jpeg,image/webp,image/gif"
+                        className="sr-only"
+                        disabled={uploadingStageMedia !== null}
+                        onChange={async (event) => {
+                          const file = event.target.files?.[0]
+                          if (file) {
+                            setUploadingStageMedia(`${stageIndex}:block:${block.id}`)
+                            try {
+                              const res = await uploadCmsCourseMedia({ file, purpose: 'block_image', questId: courseId })
+                              if (res?.url) {
+                                updateBlockItem(stageIndex, block.id, { imageUrl: res.url })
+                                showToast('Đổi ảnh thành công!', 'success')
+                              } else {
+                                throw new Error('No URL returned')
+                              }
+                            } catch {
+                              const reader = new FileReader()
+                              reader.onload = () => {
+                                updateBlockItem(stageIndex, block.id, { imageUrl: reader.result as string })
+                                showToast('Đã tải ảnh preview thành công!', 'success')
+                              }
+                              reader.readAsDataURL(file)
+                            } finally {
+                              setUploadingStageMedia(null)
+                            }
+                          }
+                          event.currentTarget.value = ''
+                        }}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      onClick={() => updateBlockItem(stageIndex, block.id, { imageUrl: '' })}
+                      className="inline-flex items-center gap-1.5 rounded-xl bg-rose-600 px-3.5 py-2 text-xs font-black text-white shadow-md hover:bg-rose-700 cursor-pointer"
+                    >
+                      <Trash2 size={14} />
+                      <span>Xóa ảnh</span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center py-6 px-4 text-center rounded-xl bg-white border border-sky-200">
+                <div className="grid size-12 place-items-center rounded-2xl bg-sky-100 text-sky-700 mb-2">
+                  <Upload size={22} />
+                </div>
+                <p className="text-xs font-bold text-slate-700 mb-1">Tải ảnh từ máy tính lên</p>
+                <p className="text-[11px] font-semibold text-slate-400 mb-3">Hỗ trợ PNG, JPG, WEBP</p>
+                {!readOnly && (
+                  <label className="inline-flex items-center gap-1.5 rounded-xl bg-sky-600 hover:bg-sky-700 text-white px-4 py-2 text-xs font-black shadow-xs cursor-pointer active:scale-95 transition">
+                    <Upload size={14} />
+                    <span>{uploadingStageMedia === `${stageIndex}:block:${block.id}` ? 'Đang tải lên…' : 'Tải ảnh từ máy tính lên'}</span>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp,image/gif"
+                      className="sr-only"
+                      disabled={uploadingStageMedia !== null}
+                      onChange={async (event) => {
+                        const file = event.target.files?.[0]
+                        if (file) {
+                          setUploadingStageMedia(`${stageIndex}:block:${block.id}`)
+                          try {
+                            const res = await uploadCmsCourseMedia({ file, purpose: 'block_image', questId: courseId })
+                            if (res?.url) {
+                              updateBlockItem(stageIndex, block.id, { imageUrl: res.url })
+                              showToast('Tải ảnh thành công!', 'success')
+                            } else {
+                              throw new Error('No URL returned')
+                            }
+                          } catch {
+                            const reader = new FileReader()
+                            reader.onload = () => {
+                              updateBlockItem(stageIndex, block.id, { imageUrl: reader.result as string })
+                              showToast('Đã tải ảnh preview thành công!', 'success')
+                            }
+                            reader.readAsDataURL(file)
+                          } finally {
+                            setUploadingStageMedia(null)
+                          }
+                        }
+                        event.currentTarget.value = ''
+                      }}
+                    />
+                  </label>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Nội dung văn bản (Text / Mô tả) */}
+          <label className="block text-xs font-extrabold text-slate-800">
+            Nội dung chữ của phương án (kết hợp Chữ + Ảnh hoặc chỉ dùng Chữ)
+            <textarea
+              readOnly={readOnly}
+              value={block.body ?? ''}
+              onChange={(e) => updateBlockItem(stageIndex, block.id, { body: e.target.value })}
+              rows={3}
+              style={{ ...textareaStyle, marginTop: '0.35rem' }}
+              placeholder="Nhập nội dung phương án cho học sinh lựa chọn..."
+            />
+          </label>
+        </div>
+      )}
+
+      {/* ── 5. BLOCK: Lưới Ô Thẻ / Storyboard / Bốn chìa khóa gốc (layout-grid / layout-storyboard / layout-four-keys) ── */}
+      {(block.type === 'layout-grid' || block.type === 'layout-storyboard' || (block.type === 'layout-four-keys' && !isConfirmOption)) && (
         <div className="mt-3.5 rounded-xl border border-sky-200 bg-sky-50/60 p-3">
           <div className="flex flex-wrap items-center justify-between gap-2 mb-2">
             <label className="text-xs font-extrabold text-text flex-1">
@@ -496,21 +705,6 @@ export function StageBlockItemCard({
               <label className="text-[11px] font-extrabold text-muted">Lời dẫn
                 <textarea readOnly={readOnly} value={block.body ?? ''} onChange={(e) => updateBlockItem(stageIndex, block.id, { body: e.target.value })} rows={2} style={{ ...textareaStyle, minHeight: '2.5rem', marginTop: '0.25rem' }} />
               </label>
-              {block.id.startsWith('course-confirm-option-') && (
-                <label className="flex min-h-10 items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 text-xs font-black text-emerald-800">
-                  <input
-                    type="radio"
-                    name="course-confirm-correct"
-                    checked={Boolean(block.isCorrect)}
-                    disabled={readOnly}
-                    onChange={() => updateStageBlocks(stageIndex, stageBlocks.map((item) => ({
-                      ...item,
-                      isCorrect: item.type === 'layout-four-keys' ? item.id === block.id : item.isCorrect,
-                    })))}
-                  />
-                  Đáp án đúng
-                </label>
-              )}
               <label className="text-[11px] font-extrabold text-muted">Câu ghi nhớ
                 <textarea readOnly={readOnly} value={block.tip ?? ''} onChange={(e) => updateBlockItem(stageIndex, block.id, { tip: e.target.value })} rows={2} style={{ ...textareaStyle, minHeight: '2.5rem', marginTop: '0.25rem' }} />
               </label>

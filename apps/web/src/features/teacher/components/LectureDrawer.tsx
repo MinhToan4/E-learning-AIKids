@@ -58,7 +58,6 @@ import { CheckQuestionBuilder } from './CheckQuestionBuilder'
 import { CurriculumGame } from '@/features/lesson/components/CurriculumGame'
 import { LectureVideo } from '@/features/lesson/components/LectureVideo'
 import { SixStageGoalStage } from '@/features/lesson/components/SixStageGoalStage'
-import { ConfirmGoalStageEditor } from './ConfirmGoalStageEditor'
 import { StudentStageBlocksView } from '@/features/lesson/components/StudentStageBlocksView'
 import { AikidCatCharacter } from '@/shared/components/ui/AikidCatCharacter'
 import { MeeCatInteractiveCanvas } from '@/features/mee-rig/components/MeeCatInteractiveCanvas'
@@ -178,6 +177,7 @@ const AVAILABLE_MODULES = [
   { id: 'layout-split', label: '2 Cột Chữ + Media', icon: '📰', desc: 'Cột chữ kết hợp cột ảnh/video minh họa' },
   { id: 'layout-grid', label: 'Lưới 3 Ô Thẻ', icon: '🍱', desc: 'Lưới 3 thẻ ví dụ trực quan' },
   { id: 'layout-four-keys', label: 'Bố cục 4 Chìa Khóa', icon: '🔑', desc: 'Template 4 ô đúng giao diện bài Bốn chiếc chìa khóa' },
+  { id: 'layout-confirm-option', label: 'Phương Án Lựa Chọn (A, B, C...)', icon: '🔘', desc: 'Phương án trắc nghiệm xác nhận mục tiêu (Chữ + Ảnh)' },
   { id: 'layout-storyboard', label: 'Chuỗi Storyboard', icon: '🎬', desc: 'Chuỗi 3 cảnh kịch bản diễn biến' },
   { id: 'voice', label: 'Mèo AIKI & Lipsync', icon: '🐱', desc: 'Studio tương tác, giọng đọc AI & khẩu hình Lipsync' },
   { id: 'video', label: 'Video Bài Giảng', icon: '🎬', desc: 'Video MP4 / YouTube phát tự động' },
@@ -250,7 +250,18 @@ function confirmKeyItems(option: LessonSixStageJourney['stage2_confirmGoal']['op
 }
 
 function buildCourseConfirmBlocks(journey: LessonSixStageJourney, existing: StageBlockItem[] = []): StageBlockItem[] {
-  if (journey.stageBlockEditorVersion === 3) return existing
+  if (journey.stageBlockEditorVersion === 3 && existing.length > 0) {
+    return existing.map((block) => {
+      if (block.type === 'layout-four-keys' && (block.id.startsWith(COURSE_CONFIRM_BLOCK_PREFIX) || block.id.includes('option'))) {
+        return {
+          ...block,
+          type: 'layout-confirm-option' as const,
+          visualItems: [],
+        }
+      }
+      return block
+    })
+  }
   return [
     {
       id: `${COURSE_CONFIRM_BLOCK_PREFIX}question`,
@@ -260,12 +271,13 @@ function buildCourseConfirmBlocks(journey: LessonSixStageJourney, existing: Stag
       tip: journey.stage2_confirmGoal.explanation,
     },
     ...journey.stage2_confirmGoal.options.map((option, index) => ({
-      ...createFourKeysBlock(`${COURSE_CONFIRM_BLOCK_PREFIX}option-${index}`),
+      id: `${COURSE_CONFIRM_BLOCK_PREFIX}option-${index}`,
+      type: 'layout-confirm-option' as const,
       title: option.text.split(':')[0]?.trim() || `Bộ chìa khóa ${String.fromCharCode(65 + index)}`,
-      body: `Phương án ${String.fromCharCode(65 + index)}`,
-      imageUrl: option.imageUrl,
-      visualItems: confirmKeyItems(option),
+      body: option.text.includes(':') ? option.text.split(':')[1]?.trim() : (option.text || `Phương án ${String.fromCharCode(65 + index)}`),
+      imageUrl: option.imageUrl || '',
       isCorrect: journey.stage2_confirmGoal.correctIndex === index,
+      visualItems: [],
     })),
   ]
 }
@@ -3100,19 +3112,18 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
     }
     if (isIslandCourse && stageIndex === 1) {
       const questionBlock = newBlocks.find((block) => block.id === `${COURSE_CONFIRM_BLOCK_PREFIX}question` || block.type === 'text')
-      const optionBlocks = newBlocks.filter((block) => block.type === 'layout-four-keys')
+      const optionBlocks = newBlocks.filter((block) => block.id.startsWith(COURSE_CONFIRM_BLOCK_PREFIX + 'option-') || block.type === 'layout-confirm-option' || block.type === 'layout-four-keys')
       updateSixStage((journey) => ({
         ...journey,
         stage2_confirmGoal: {
           ...journey.stage2_confirmGoal,
-          question: questionBlock?.body ?? '',
-          explanation: questionBlock?.tip ?? '',
+          question: questionBlock?.body ?? journey.stage2_confirmGoal.question,
+          explanation: questionBlock?.tip ?? journey.stage2_confirmGoal.explanation,
           correctIndex: Math.max(0, optionBlocks.findIndex((block) => block.isCorrect)),
           options: optionBlocks.map((block, index) => ({
-            id: journey.stage2_confirmGoal.options[index]?.id || `confirm-${index + 1}`,
-            text: `${block.title || `Bộ chìa khóa ${String.fromCharCode(65 + index)}`}: ${(block.visualItems || []).slice(0, 4).map((item) => item.text || item.label).join(' · ')}`,
+            id: block.id || `confirm-${index + 1}`,
+            text: block.title ? (block.body && block.body !== block.title && block.body !== `Phương án ${String.fromCharCode(65 + index)}` ? `${block.title}: ${block.body}` : block.title) : `Bộ chìa khóa ${String.fromCharCode(65 + index)}`,
             imageUrl: block.imageUrl || '',
-            keyItems: (block.visualItems || []).slice(0, 4).map((item) => ({ label: item.text || item.label, color: item.tone || 'brand' })),
           })),
         },
       }))
@@ -3281,14 +3292,24 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
         ],
       }
       showToast('Đã thêm Bố cục Lưới 3 Ô Thẻ!', 'success')
-    } else if (blockId === 'layout-four-keys' || blockId === 'course-four-keys') {
-      newBlock = createFourKeysBlock(blockId === 'course-four-keys' && isIslandCourse && targetStageIndex === 1
-        ? `${COURSE_CONFIRM_BLOCK_PREFIX}option-${timestamp}`
-        : `blk-four-keys-${timestamp}`)
-      if (blockId === 'course-four-keys' && isIslandCourse && targetStageIndex === 1) {
-        newBlock.isCorrect = !stageBlocks.some((block) => block.type === 'layout-four-keys' && block.isCorrect)
+    } else if (blockId === 'layout-four-keys' || blockId === 'course-four-keys' || blockId === 'layout-confirm-option') {
+      if (isIslandCourse && targetStageIndex === 1) {
+        const optionBlocks = stageBlocks.filter((b) => b.type === 'layout-confirm-option' || b.id.startsWith(COURSE_CONFIRM_BLOCK_PREFIX + 'option-'))
+        const optLetter = String.fromCharCode(65 + optionBlocks.length)
+        newBlock = {
+          id: `${COURSE_CONFIRM_BLOCK_PREFIX}option-${timestamp}`,
+          type: 'layout-confirm-option',
+          title: `Bộ chìa khóa ${optLetter}`,
+          body: `Phương án ${optLetter}`,
+          imageUrl: '',
+          isCorrect: optionBlocks.length === 0,
+          visualItems: [],
+        }
+        showToast(`Đã thêm Phương án ${optLetter}!`, 'success')
+      } else {
+        newBlock = createFourKeysBlock(`blk-four-keys-${timestamp}`)
+        showToast('Đã thêm template Bốn chiếc chìa khóa!', 'success')
       }
-      showToast('Đã thêm template Bốn chiếc chìa khóa!', 'success')
     } else if (blockId === 'layout-storyboard') {
       newBlock = {
         id: `blk-storyboard-${timestamp}`,
@@ -4154,21 +4175,7 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                     </div>
                   )}
 
-                  {stageIndex === 1 && (
-                    <ConfirmGoalStageEditor
-                      confirmGoal={currentJourney.stage2_confirmGoal}
-                      onChange={(patch) => {
-                        updateSixStage((j) => ({
-                          ...j,
-                          stage2_confirmGoal: { ...j.stage2_confirmGoal, ...patch },
-                        }))
-                      }}
-                      previewAikiVoice={previewAikiVoice}
-                      readOnly={readOnly}
-                      showToast={showToast}
-                      questId={draft.questId}
-                    />
-                  )}
+
 
                   {stageIndex === 2 && (
                     <div className="space-y-4 rounded-2xl border border-border bg-white p-5 shadow-xs">
@@ -4659,7 +4666,18 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                         <h4 className="text-sm font-black text-sky-950">Canvas nội dung của chặng</h4>
                         <p className="text-xs font-semibold text-sky-800">Kéo block từ thư viện bên trái, thả vào đúng vị trí và sắp xếp theo thứ tự học sinh sẽ học.</p>
                       </div>
-                      <span className="rounded-full border border-sky-200 bg-white px-2.5 py-1 text-[11px] font-black text-sky-800">{islandBlocks.length} block</span>
+                      <div className="flex items-center gap-2">
+                        {stageIndex === 1 && !readOnly && (
+                          <button
+                            type="button"
+                            onClick={() => handleAddModule('layout-confirm-option', stageIndex)}
+                            className="inline-flex items-center gap-1.5 rounded-xl border border-brand-300 bg-brand-50 px-3 py-1.5 text-xs font-black text-brand-800 shadow-2xs hover:bg-brand-100 transition cursor-pointer active:scale-95"
+                          >
+                            <Plus size={14} /> + Thêm phương án
+                          </button>
+                        )}
+                        <span className="rounded-full border border-sky-200 bg-white px-2.5 py-1 text-[11px] font-black text-sky-800">{islandBlocks.length} block</span>
+                      </div>
                     </div>
 
                     {islandBlocks.length === 0 && (
@@ -4667,10 +4685,10 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                         <p className="text-sm font-bold text-slate-700">Chặng này chưa có block nội dung.</p>
                         <button
                           type="button"
-                          onClick={() => handleAddModule(stageIndex === 2 ? 'video' : 'layout-text', stageIndex)}
-                          className="mt-3 inline-flex min-h-10 items-center gap-1.5 rounded-xl border-2 border-brand-300 bg-brand-50 px-4 text-xs font-black text-brand-800 hover:bg-brand-100"
+                          onClick={() => handleAddModule(stageIndex === 1 ? 'layout-confirm-option' : stageIndex === 2 ? 'video' : 'layout-text', stageIndex)}
+                          className="mt-3 inline-flex min-h-10 items-center gap-1.5 rounded-xl border-2 border-brand-300 bg-brand-50 px-4 text-xs font-black text-brand-800 hover:bg-brand-100 cursor-pointer"
                         >
-                          <Plus size={14} /> Tạo block đầu tiên
+                          <Plus size={14} /> {stageIndex === 1 ? 'Tạo phương án đầu tiên' : 'Tạo block đầu tiên'}
                         </button>
                       </div>
                     )}
@@ -4710,6 +4728,18 @@ export function LectureDrawer({ courseId, lecture, onSaved, onClose, inline = fa
                         showToast={showToast}
                       />
                     ))}
+
+                    {stageIndex === 1 && !readOnly && islandBlocks.length > 0 && (
+                      <div className="flex justify-center pt-2">
+                        <button
+                          type="button"
+                          onClick={() => handleAddModule('layout-confirm-option', stageIndex)}
+                          className="inline-flex items-center gap-2 rounded-2xl border-2 border-dashed border-brand-400 bg-white/90 px-5 py-3 text-xs font-black text-brand-800 hover:bg-brand-50 hover:border-brand-500 shadow-xs transition active:scale-95 cursor-pointer"
+                        >
+                          <Plus size={16} /> + Thêm phương án lựa chọn mới (A, B, C...)
+                        </button>
+                      </div>
+                    )}
 
                     {islandBlocks.length === 0 && (
                       <div className="rounded-xl border border-dashed border-sky-300 bg-white/80 px-4 py-8 text-center text-xs font-bold text-sky-800">

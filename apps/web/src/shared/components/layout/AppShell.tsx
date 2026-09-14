@@ -756,7 +756,7 @@ export function AppShell() {
   return (
     <div
       className={cn(
-        "aikid-student-shell bg-fixed md:pl-[6rem]",
+        "aikid-student-shell bg-scroll md:bg-fixed md:pl-[6rem]",
         isLessonOrRule
           ? "h-dvh max-h-dvh overflow-hidden flex flex-col pb-0 md:pb-0"
           : "min-h-dvh pb-[calc(5.75rem+env(safe-area-inset-bottom,0px))] md:pb-8"
