@@ -599,7 +599,7 @@ describe('AikiStudioWorkspace', () => {
     container.remove()
   })
 
-  it('renders Column 1 practice items with flex-1, min-h-[58px], overflow-hidden and responsive scrollable container', () => {
+  it('renders content-sized Column 1 practice items without stretching them to preview height', () => {
     const container = document.createElement('div')
     const root = createRoot(container)
 
@@ -617,19 +617,19 @@ describe('AikiStudioWorkspace', () => {
 
     const part1Btn = container.querySelector('[data-testid="practice-item-select-1"]') as HTMLButtonElement
     expect(part1Btn).not.toBeNull()
-    expect(part1Btn.className).toContain('flex-1')
-    expect(part1Btn.className).toContain('min-h-[58px]')
+    expect(part1Btn.className).not.toContain('flex-1')
+    expect(part1Btn.className).not.toContain('min-h-[58px]')
     expect(part1Btn.className).toContain('overflow-hidden')
 
     const parentList = part1Btn.parentElement
     expect(parentList).not.toBeNull()
-    expect(parentList?.className).toContain('justify-between')
-    expect(parentList?.className).toContain('min-h-0')
-    expect(parentList?.className).toContain('overflow-y-auto')
+    expect(parentList?.className).toContain('grid')
+    expect(parentList?.className).toContain('lg:grid-cols-1')
+    expect(parentList?.className).not.toContain('justify-between')
 
     const outerCol1 = parentList?.parentElement
     expect(outerCol1).not.toBeNull()
-    expect(outerCol1?.className).toContain('overflow-hidden')
+    expect(outerCol1?.className).not.toContain('h-full')
 
     act(() => {
       root.unmount()

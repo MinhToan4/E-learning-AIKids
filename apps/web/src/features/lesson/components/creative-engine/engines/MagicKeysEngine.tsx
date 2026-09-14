@@ -324,16 +324,16 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
     <div data-testid="magic-keys-engine" className="flex flex-col gap-2.5 flex-1 min-h-0 justify-between">
       {/* Tầng 1: Bố cục 3 Cột (Món đồ - 4 Chìa khóa - Tranh AI Canvas) */}
       {practiceSlot || canvasSlot ? (
-        <div className="flex flex-col lg:flex-row gap-2.5 items-stretch w-full flex-1 min-h-0">
+        <div className="grid w-full flex-1 min-h-0 items-start gap-2.5 lg:grid-cols-[minmax(170px,220px)_minmax(430px,1fr)_minmax(300px,400px)]">
           {/* CỘT 1 (BÊN TRÁI): MÓN ĐỒ BÉ VẼ */}
           {practiceSlot && (
-            <div className="w-full sm:w-[195px] md:w-[210px] lg:w-[225px] shrink-0 flex flex-col min-h-0 h-full">
+            <div className="w-full min-w-0 self-start">
               {practiceSlot}
             </div>
           )}
 
           {/* CỘT 2 (Ở GIỮA): 4 CHÌA KHÓA VÀNG AKI */}
-          <div className="flex-1 min-w-[280px] flex flex-col min-h-0 h-full justify-between">
+          <div className="min-w-0 self-start">
             <BlockSlotTray
               title="4 Chìa Khóa Vàng AKI"
               subtitle="Chạm ô để đổi từ gợi ý"
@@ -343,13 +343,13 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
               onRemoveBlock={handleRemoveBlock}
               onDropBlock={handleDropBlock}
               isGrid2x2={true}
-              className="h-full justify-between"
+              className="h-auto"
             />
           </div>
 
           {/* CỘT 3 (BÊN PHẢI CÙNG): KHUNG PREVIEW TRANH VẼ (PHẦN ẢNH) */}
           {canvasSlot && (
-            <div className="w-full sm:w-[280px] md:w-[320px] lg:w-[360px] xl:w-[400px] shrink-0 flex flex-col min-h-0 h-full">
+            <div className="w-full min-w-0 self-stretch lg:min-h-[30rem]">
               {canvasSlot}
             </div>
           )}

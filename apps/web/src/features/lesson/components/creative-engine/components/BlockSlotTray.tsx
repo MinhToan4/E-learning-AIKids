@@ -174,7 +174,7 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
       </div>
 
       {/* Danh sách 4 Ô Slot Thần Kỳ (Bố Cục Dọc: Ảnh 3D trên, Text dưới) */}
-      <div className={cn("grid gap-1.5 sm:gap-2", isGrid2x2 ? "grid-cols-2 flex-1" : "grid-cols-2 sm:grid-cols-4")}>
+      <div className={cn("grid content-start gap-1.5 sm:gap-2", isGrid2x2 ? "grid-cols-1 sm:grid-cols-2" : "grid-cols-2 sm:grid-cols-4")}>
         {slots.map((slot, index) => {
           const color =
             SLOT_COLOR_CLASSES[slot.colorScheme || 'sky'] || SLOT_COLOR_CLASSES.sky
@@ -196,7 +196,7 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
               onDrop={(e) => handleDrop(e, slot.id)}
               onClick={() => onSlotClick && onSlotClick(slot)}
               className={cn(
-                isGrid2x2 ? "min-h-[105px] sm:min-h-[115px] md:min-h-[125px] p-1.5 sm:p-2" : "min-h-[64px] sm:min-h-[72px] p-2 sm:p-2.5",
+                isGrid2x2 ? "min-h-[9rem] p-2 sm:min-h-[10rem] sm:p-2.5" : "min-h-[64px] sm:min-h-[72px] p-2 sm:p-2.5",
                 "rounded-2xl border-2 flex flex-col justify-between transition-all duration-150 select-none relative cursor-pointer group",
                 isSlotDragOver
                   ? 'border-indigo-500 bg-indigo-100/90 ring-4 ring-indigo-300 scale-102 shadow-md'
@@ -252,13 +252,12 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
 
               {/* Tầng 2: Center Body - Tên từ vựng / Món đồ to rõ, bỏ hoàn toàn vòng tròn tick xanh to */}
               {isFixedSubjectSlot ? (
-                <div className="flex-1 min-w-0 flex flex-col items-center justify-center my-auto py-1 text-center">
-                  {/* Hidden image and SVG to preserve test compatibility */}
+                <div className="flex min-w-0 flex-1 items-center justify-center gap-2.5 py-2 text-left">
                   {slot.subjectImage && (
                     <img
                       src={slot.subjectImage}
                       alt={slot.currentBlock?.label || 'Món đồ'}
-                      className="hidden"
+                      className="size-12 shrink-0 rounded-xl border border-sky-200 bg-white object-cover shadow-2xs sm:size-14"
                     />
                   )}
                   {slot.currentBlock?.icon && (
@@ -271,18 +270,17 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
                     </div>
                   )}
 
-                  {/* Tên món đồ to rõ, đậm đà */}
-                  <span className="text-sm sm:text-base md:text-lg font-black text-slate-900 leading-snug px-1 text-center line-clamp-2">
-                    {slot.currentBlock?.label || slot.hint || 'Món đồ'}
-                  </span>
-
-                  {/* Tag phụ tinh tế, chỉ 1 tag duy nhất */}
-                  <span className="text-[10px] sm:text-[11px] font-bold text-slate-500 bg-slate-100 px-2 py-0.5 rounded-full mt-1 border border-slate-200/60">
-                    Món đồ bài học
-                  </span>
+                  <div className="min-w-0">
+                    <span className="block text-sm font-black leading-snug text-slate-900 sm:text-base">
+                      {slot.currentBlock?.label || slot.hint || 'Món đồ'}
+                    </span>
+                    <span className="mt-1 inline-flex rounded-full border border-slate-200/60 bg-slate-100 px-2 py-0.5 text-[10px] font-bold text-slate-500 sm:text-[11px]">
+                      Món đồ bài học
+                    </span>
+                  </div>
                 </div>
               ) : hasBlock && slot.currentBlock ? (
-                <div className="flex-1 min-w-0 flex flex-col items-center justify-center my-auto py-1 text-center">
+                <div className="flex min-w-0 flex-1 flex-col items-center justify-center py-2 text-center">
                   {/* Hidden SVG to preserve test compatibility */}
                   {slot.currentBlock.icon && (
                     <div className="hidden">
@@ -306,7 +304,7 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
                   </span>
                 </div>
               ) : (
-                <div className="flex-1 min-w-0 flex flex-col items-center justify-center my-auto py-1 text-center">
+                <div className="flex min-w-0 flex-1 flex-col items-center justify-center py-2 text-center">
                   {/* Emoji ẩn để pass textContent assertion trong test */}
                   <span className="sr-only">{catInfo.icon}</span>
 

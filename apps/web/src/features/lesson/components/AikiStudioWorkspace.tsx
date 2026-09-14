@@ -2025,12 +2025,12 @@ export function AikiStudioWorkspace({
   }
 
   const practiceColumn = (
-    <div className="w-full h-full flex flex-col bg-slate-50/90 rounded-2xl p-2 border-2 border-amber-200/70 shadow-2xs gap-1.5 sm:gap-2 min-h-0 overflow-hidden">
+    <div className="flex w-full flex-col gap-1.5 rounded-2xl border-2 border-amber-200/70 bg-slate-50/90 p-2 shadow-2xs sm:gap-2">
       <div className="flex items-center gap-1 text-xs font-black text-amber-950 uppercase tracking-wider px-1 shrink-0">
         <span>🎯</span>
         <span>Món đồ bé vẽ:</span>
       </div>
-      <div className="flex flex-col gap-1.5 flex-1 justify-between min-h-0 overflow-y-auto pr-0.5">
+      <div className="grid grid-cols-1 gap-1.5 sm:grid-cols-2 lg:grid-cols-1">
         {practicePartDefs.map((part, pIdx) => {
           const isSelected = pIdx === activePartIndex
           const partImages = gallery.filter((img) =>
@@ -2052,7 +2052,7 @@ export function AikiStudioWorkspace({
               }}
               title={`${part.partNumber}. ${part.title}`}
               className={cn(
-                'w-full p-1.5 sm:p-2 rounded-xl sm:rounded-2xl border-2 transition-all flex flex-col justify-between gap-1 cursor-pointer select-none text-left shadow-2xs flex-1 min-h-[58px] overflow-hidden',
+                'w-full p-2 rounded-xl sm:rounded-2xl border-2 transition-all flex flex-col gap-1.5 cursor-pointer select-none text-left shadow-2xs overflow-hidden',
                 isSelected
                   ? 'bg-amber-50/95 border-amber-400 ring-2 ring-amber-300 shadow-clay-xs scale-[1.01]'
                   : isPartFullyDone
