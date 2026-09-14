@@ -2388,7 +2388,7 @@ export function AikiStudioWorkspace({
         {/* ── KHU VỰC CHÍNH: GAME ENGINE & LIVE CANVAS (100% FULL WIDTH) ── */}
         <div
           data-testid="studio-col-canvas"
-          className="flex w-full min-h-0 flex-col gap-1.5 overflow-visible rounded-3xl border-2 border-indigo-100 bg-white p-2 text-left shadow-sm sm:p-2.5"
+          className="flex w-full min-w-0 min-h-0 flex-col gap-1.5 overflow-visible text-left"
         >
           {/* sr-only bảo toàn 100% test assertions line 52 AikiStudioWorkspace.test.tsx & trợ năng */}
           <div className="sr-only">
