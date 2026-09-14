@@ -698,9 +698,9 @@ export function SixStageJourneyView({
               data-testid="stage-0-goal"
               className="rounded-3xl bg-white p-5 sm:p-7 shadow-clay border-2 border-brand-100 flex flex-col gap-6 animate-fade-up"
             >
-              <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-stretch">
+              <div className="flex flex-col items-start gap-6 lg:flex-row lg:gap-8">
                 {/* Cột trái: Khung ảnh to bản, chiếm trọn 100% tỷ lệ 4:3 đẹp đẽ */}
-                <div className="w-full md:w-1/2 rounded-3xl overflow-hidden shadow-clay border-4 border-amber-200 bg-amber-50 group relative aspect-[4/3] flex items-center justify-center">
+                <div className="group relative flex aspect-[4/3] w-full items-center justify-center overflow-hidden rounded-3xl border-4 border-amber-200 bg-amber-50 shadow-clay lg:w-1/2">
                   <img
                     src={journey.stage1_goal.imageUrl}
                     alt={journey.stage1_goal.title}
@@ -745,7 +745,7 @@ export function SixStageJourneyView({
                 </div>
 
                 {/* Nội dung mục tiêu & Lời dặn của AKI */}
-                <div className="w-full md:w-1/2 flex flex-col justify-between gap-3 sm:gap-4">
+                <div className="flex w-full flex-col justify-between gap-3 sm:gap-4 lg:w-1/2">
                   <div className="flex flex-col gap-2">
                     <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs sm:text-sm font-bold w-fit border border-brand-200/60">
                       <Sparkles size={13} className="text-brand-500" />
@@ -853,7 +853,7 @@ export function SixStageJourneyView({
 
               {/* Tùy biến giao diện theo loại options: Có keyItems (3 Bộ chìa khoá A/B/C) hoặc Cards A & B thông thường */}
               {hasKeyOptions ? (
-                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 lg:gap-5 items-stretch">
+                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-5 lg:items-stretch">
                   {confirmOptions.map((option, idx) => {
                     const optKey = option.id || `opt-${idx}`
                     const isSelected = selectedConfirmOption === idx
@@ -1340,7 +1340,7 @@ export function SixStageJourneyView({
           {currentStage === 3 && (
             <section
               data-testid="stage-3-quiz"
-              className="rounded-3xl bg-white p-3 sm:p-4 shadow-clay border-2 border-brand-100 flex flex-col justify-between h-full min-h-0 flex-1 overflow-hidden animate-fade-up gap-2"
+              className="flex min-h-0 flex-col gap-3 overflow-y-auto rounded-3xl border-2 border-brand-100 bg-white p-3 shadow-clay animate-fade-up sm:p-4"
             >
               <h2 className="sr-only">{journey.stage4_quiz.title}</h2>
               {/* Dải chỉ báo tiến độ & trạng thái câu hỏi 1 hàng duy nhất */}
@@ -1413,7 +1413,7 @@ export function SixStageJourneyView({
               </div>
 
               {/* Danh sách câu hỏi Single Question Stepper 2 Cột */}
-              <div className="w-full flex-1 min-h-0 overflow-hidden">
+              <div className="w-full min-h-0">
                 {journey.stage4_quiz.questions.map((question, qIdx) => {
                   const selectedOpt = quizAnswers[qIdx]
                   const isActive = qIdx === activeQuizQuestionIdx
@@ -1423,15 +1423,15 @@ export function SixStageJourneyView({
                     <div
                       key={question.id || qIdx}
                       className={cn(
-                        'w-full h-full transition-all',
+                        'w-full transition-all',
                         isActive ? 'block' : 'hidden'
                       )}
                     >
-                      <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-5 items-stretch w-full h-full min-h-0">
+                      <div className="grid w-full min-h-0 grid-cols-1 items-start gap-4 lg:grid-cols-12 lg:gap-5">
                         {/* CỘT TRÁI (Ảnh To Rõ Ràng - 5/12 cols trên MD, 5/12 trên LG) */}
-                        <div className="md:col-span-5 lg:col-span-5 flex flex-col justify-center h-full min-h-0">
+                        <div className="flex min-h-0 flex-col justify-center lg:col-span-5">
                           {isValidImageUrl(question.visualUrl) ? (
-                            <div className="w-full h-full max-h-[260px] sm:max-h-[300px] md:max-h-[340px] rounded-2xl overflow-hidden border-2 border-slate-200 bg-slate-100 relative flex items-center justify-center group shadow-clay-sm">
+                            <div className="group relative flex aspect-[16/10] w-full items-center justify-center overflow-hidden rounded-2xl border-2 border-slate-200 bg-slate-100 shadow-clay-sm lg:max-h-[340px]">
                               <img
                                 src={question.visualUrl}
                                 alt={question.prompt}
@@ -1455,7 +1455,7 @@ export function SixStageJourneyView({
                               </button>
                             </div>
                           ) : (
-                            <div className="w-full h-full max-h-[260px] sm:max-h-[300px] md:max-h-[340px] rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 flex flex-col items-center justify-center p-4 text-center text-slate-400">
+                            <div className="flex aspect-[16/10] w-full flex-col items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50 p-4 text-center text-slate-400 lg:max-h-[340px]">
                               <span className="text-3xl mb-1">🎨</span>
                               <span className="text-xs font-bold">Hình ảnh minh họa cho câu hỏi {qIdx + 1}</span>
                             </div>
@@ -1463,7 +1463,7 @@ export function SixStageJourneyView({
                         </div>
 
                         {/* CỘT PHẢI (Câu Hỏi & Các Đáp Án - 7/12 cols trên MD, 7/12 trên LG) */}
-                        <div className="md:col-span-7 lg:col-span-7 flex flex-col justify-between bg-slate-50/70 rounded-2xl p-3 sm:p-4 border border-slate-200/80 shadow-2xs h-full min-h-0 overflow-hidden">
+                        <div className="flex min-h-0 flex-col justify-between rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3 shadow-2xs sm:p-4 lg:col-span-7">
                           <div>
                             <div className="flex items-center gap-2 mb-1.5">
                               <span className="px-2.5 py-0.5 rounded-xl bg-brand-500 text-white text-xs font-black shadow-xs">
@@ -1696,11 +1696,11 @@ export function SixStageJourneyView({
           {currentStage === 5 && (
             <section
               data-testid="stage-5-completion"
-              className="rounded-3xl bg-white p-4 sm:p-6 lg:p-7 shadow-clay border-2 border-brand-100 w-full min-h-[460px] max-h-[calc(100vh-140px)] flex flex-col justify-center animate-fade-up overflow-hidden"
+              className="flex w-full min-h-0 flex-col justify-center overflow-y-auto rounded-3xl border-2 border-brand-100 bg-white p-4 shadow-clay animate-fade-up sm:p-6 lg:p-7"
             >
-              <div className="grid grid-cols-1 md:grid-cols-12 gap-4 lg:gap-6 items-center w-full h-full">
+              <div className="grid w-full grid-cols-1 items-center gap-4 lg:grid-cols-12 lg:gap-6">
                 {/* CỘT TRÁI (md:col-span-6 lg:col-span-6): Trưng bày tác phẩm kiệt xuất vừa cất vào Balo */}
-                <div className="md:col-span-6 lg:col-span-6 flex flex-col h-full justify-between rounded-2xl bg-amber-50/70 p-3.5 sm:p-4 border-2 border-amber-200">
+                <div className="flex flex-col justify-between rounded-2xl border-2 border-amber-200 bg-amber-50/70 p-3.5 sm:p-4 lg:col-span-6 lg:h-full">
                   <div className="flex items-center justify-between text-xs font-black text-amber-900 uppercase tracking-wider mb-2">
                     <span className="flex items-center gap-1.5">
                       <Award size={16} className="text-amber-600" />
@@ -1714,7 +1714,7 @@ export function SixStageJourneyView({
 
                   {/* Khung ảnh to, sắc nét chuẩn tỷ lệ 4:3, tràn viền lấp đầy 100% không còn hở khoảng trắng 2 bên */}
                   <div className="w-full flex-1 flex items-center justify-center my-auto min-h-0 py-1 overflow-hidden">
-                    <div className="relative h-full max-h-[440px] sm:max-h-[460px] aspect-[4/3] rounded-2xl sm:rounded-3xl overflow-hidden shadow-clay border-3 border-amber-300 bg-amber-100/40 group flex items-center justify-center">
+                    <div className="group relative flex aspect-[4/3] w-full max-w-xl items-center justify-center overflow-hidden rounded-2xl border-3 border-amber-300 bg-amber-100/40 shadow-clay sm:rounded-3xl">
                       <img
                         src={
                           submittedArtwork?.image.url ||
@@ -1759,14 +1759,14 @@ export function SixStageJourneyView({
                 </div>
 
                 {/* CỘT PHẢI (md:col-span-6 lg:col-span-6): Vinh danh, Tiêu đề, Lời chúc & Các nút điều hướng */}
-                <div className="md:col-span-6 lg:col-span-6 flex flex-col justify-center gap-3.5 sm:gap-4 text-center md:text-left h-full">
-                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-900 text-xs sm:text-sm font-bold border border-amber-300/60 self-center md:self-start">
+                <div className="flex flex-col justify-center gap-3.5 text-center sm:gap-4 lg:col-span-6 lg:h-full lg:text-left">
+                  <div className="inline-flex items-center gap-1.5 self-center rounded-full border border-amber-300/60 bg-amber-50 px-3 py-1 text-xs font-bold text-amber-900 sm:text-sm lg:self-start">
                     <Trophy size={13} className="text-amber-600" />
                     <span>Chặng 6: Hoàn thành bài học</span>
                   </div>
 
                   {/* Vinh danh: Cúp vàng đất nặn 3D Hallmark Soft Clay + 3 Sao vàng */}
-                  <div className="flex items-center justify-center md:justify-start gap-4">
+                  <div className="flex items-center justify-center gap-4 lg:justify-start">
                     <div className="relative shrink-0">
                       <img
                         src="/assets/trophy-clay-gold.png"

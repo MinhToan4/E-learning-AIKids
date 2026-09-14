@@ -400,7 +400,7 @@ describe('SixStageJourneyView', () => {
     const gridContainer = stage5Section?.querySelector('.grid')
     expect(gridContainer).not.toBeNull()
     expect(gridContainer?.className).toContain('grid-cols-1')
-    expect(gridContainer?.className).toContain('md:grid-cols-12')
+    expect(gridContainer?.className).toContain('lg:grid-cols-12')
 
     // 3. Left column (Artwork display)
     expect(stage5Section?.textContent).toContain('Tác phẩm kiệt xuất vừa cất vào Balo')
@@ -1641,4 +1641,3 @@ describe('SixStageJourneyView', () => {
     })
   })
 })
-
