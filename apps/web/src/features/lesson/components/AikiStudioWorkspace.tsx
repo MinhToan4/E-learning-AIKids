@@ -2237,7 +2237,7 @@ export function AikiStudioWorkspace({
         'w-full flex flex-col transition-all duration-300 font-sans text-slate-900',
         isFullscreen
           ? 'fixed inset-0 z-[99999] bg-[#faf8ff] w-screen h-screen flex flex-col p-3 sm:p-5 overflow-y-auto'
-          : 'relative flex min-h-0 flex-col gap-2 overflow-visible rounded-3xl border-2 border-indigo-100 bg-[#faf8ff] p-2.5 shadow-sm sm:p-3.5',
+          : 'relative flex w-full min-w-0 min-h-0 flex-col gap-2 overflow-visible',
         className
       )}
     >
