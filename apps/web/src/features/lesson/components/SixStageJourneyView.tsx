@@ -603,7 +603,7 @@ export function SixStageJourneyView({
             className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-100/90 text-amber-950 border border-amber-300/80 shadow-2xs shrink-0 font-black text-xs sm:text-sm select-none"
           >
             <span>{isLesson1_2 ? '🔑' : '🐱'}</span>
-            <span>{isLesson1_2 ? 'Trạm 2: 4 Chìa Khoá' : 'Trạm 1: Mèo Mimi'}</span>
+            <span className="hidden sm:inline">{isLesson1_2 ? 'Trạm 2: 4 Chìa Khoá' : 'Trạm 1: Mèo Mimi'}</span>
           </div>
 
           <nav
@@ -619,7 +619,7 @@ export function SixStageJourneyView({
                   {idx > 0 && (
                     <ChevronRight
                       size={12}
-                      className="size-3 text-slate-400 shrink-0 mx-0.5"
+                      className="mx-0.5 hidden size-3 shrink-0 text-slate-400 sm:block"
                       aria-hidden="true"
                     />
                   )}
@@ -627,7 +627,7 @@ export function SixStageJourneyView({
                     type="button"
                     onClick={() => handleStageSelect(header.index)}
                     className={cn(
-                      'flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] sm:text-xs transition-all duration-200 cursor-pointer shrink-0 shadow-2xs',
+                      'flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full p-1 text-[11px] shadow-2xs transition-all duration-200 sm:size-auto sm:gap-1.5 sm:px-2.5 sm:py-1 sm:text-xs',
                       isActive &&
                         'bg-brand-500 text-white ring-2 ring-brand-300 shadow-sm font-black scale-105',
                       isDone &&
@@ -650,7 +650,7 @@ export function SixStageJourneyView({
                         {header.index + 1}
                       </span>
                     )}
-                    <span className="inline">{header.title}</span>
+                    <span className="hidden sm:inline">{header.title}</span>
                   </button>
                 </React.Fragment>
               )
