@@ -252,12 +252,12 @@ export const BlockSlotTray: React.FC<BlockSlotTrayProps> = ({
 
               {/* Tầng 2: Center Body - Tên từ vựng / Món đồ to rõ, bỏ hoàn toàn vòng tròn tick xanh to */}
               {isFixedSubjectSlot ? (
-                <div className="flex min-w-0 flex-1 items-center justify-center gap-2.5 py-2 text-left">
+                <div className="flex min-w-0 flex-1 items-center justify-center py-2 text-center">
                   {slot.subjectImage && (
                     <img
                       src={slot.subjectImage}
                       alt={slot.currentBlock?.label || 'Món đồ'}
-                      className="size-12 shrink-0 rounded-xl border border-sky-200 bg-white object-cover shadow-2xs sm:size-14"
+                      className="sr-only"
                     />
                   )}
                   {slot.currentBlock?.icon && (

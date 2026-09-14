@@ -321,19 +321,19 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
   const currentActiveSlot = slots.find((s) => s.id === activeSlotId)
 
   return (
-    <div data-testid="magic-keys-engine" className="flex flex-col gap-2.5 flex-1 min-h-0 justify-between">
+    <div data-testid="magic-keys-engine" className="flex w-full min-h-0 flex-col gap-2.5">
       {/* Tầng 1: Bố cục 3 Cột (Món đồ - 4 Chìa khóa - Tranh AI Canvas) */}
       {practiceSlot || canvasSlot ? (
-        <div className="grid w-full flex-1 min-h-0 items-start gap-2.5 lg:grid-cols-[minmax(170px,220px)_minmax(430px,1fr)_minmax(300px,400px)]">
+        <div className="grid w-full min-h-0 items-start gap-2.5 md:grid-cols-[minmax(170px,220px)_minmax(0,1fr)] xl:grid-cols-[minmax(170px,210px)_minmax(420px,1fr)_minmax(300px,400px)]">
           {/* CỘT 1 (BÊN TRÁI): MÓN ĐỒ BÉ VẼ */}
           {practiceSlot && (
-            <div className="w-full min-w-0 self-start">
+            <div className="w-full min-w-0 self-start md:col-start-1 md:row-start-1">
               {practiceSlot}
             </div>
           )}
 
           {/* CỘT 2 (Ở GIỮA): 4 CHÌA KHÓA VÀNG AKI */}
-          <div className="min-w-0 self-start">
+          <div className="min-w-0 self-start md:col-start-2 md:row-start-1">
             <BlockSlotTray
               title="4 Chìa Khóa Vàng AKI"
               subtitle="Chạm ô để đổi từ gợi ý"
@@ -349,7 +349,7 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
 
           {/* CỘT 3 (BÊN PHẢI CÙNG): KHUNG PREVIEW TRANH VẼ (PHẦN ẢNH) */}
           {canvasSlot && (
-            <div className="w-full min-w-0 self-stretch lg:min-h-[30rem]">
+            <div className="aspect-[4/3] w-full min-w-0 md:col-span-2 md:row-start-2 md:aspect-video xl:col-span-1 xl:col-start-3 xl:row-start-1 xl:aspect-[4/3]">
               {canvasSlot}
             </div>
           )}
