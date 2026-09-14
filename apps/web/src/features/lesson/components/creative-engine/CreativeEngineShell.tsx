@@ -169,7 +169,7 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
         )}
 
         {/* ── TẦNG 3: THANH CÂU LỆNH TỰ ĐỘNG & NÚT VẼ (NẰM CHUNG 1 HÀNG) ── */}
-        <div className="flex items-center gap-2 w-full pt-1 border-t border-amber-100/90 shrink-0">
+        <div className="flex w-full shrink-0 flex-col items-stretch gap-2 border-t border-amber-100/90 pt-1 sm:flex-row sm:items-center">
           {/* Bên trái: Hộp câu lệnh tự động ghép từ 4 chìa khóa & Chip gợi ý 1-chạm */}
           <PromptPreviewBar
             blocks={activeBlocks}
@@ -184,7 +184,7 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
               setActiveBlocks([])
               onPromptChange('')
             }}
-            className="flex-1 min-w-0"
+            className="w-full min-w-0 flex-1"
           />
 
           {/* Input prompt ẩn trong DOM (sr-only) để 100% tương thích test suite & trợ năng */}
@@ -211,7 +211,7 @@ export const CreativeEngineShell: React.FC<CreativeEngineShellProps> = ({
             onClick={onGenerate}
             disabled={attemptsLeft <= 0 || isGenerating || !currentPrompt.trim()}
             className={cn(
-              'min-h-[48px] px-4 sm:px-5 py-2 sm:py-2.5 rounded-2xl font-black text-sm sm:text-base shadow-clay transition-all duration-150 active:scale-95 cursor-pointer select-none shrink-0 flex items-center gap-1.5',
+              'flex min-h-[48px] w-full shrink-0 items-center justify-center gap-1.5 rounded-2xl px-4 py-2 text-sm font-black shadow-clay transition-all duration-150 active:scale-95 cursor-pointer select-none sm:w-auto sm:px-5 sm:py-2.5 sm:text-base',
               attemptsLeft > 0 && !isGenerating && currentPrompt.trim()
                 ? 'bg-amber-500 hover:bg-amber-600 text-white border-b-4 border-amber-700 hover:border-amber-800'
                 : 'bg-slate-200 text-slate-400 cursor-not-allowed border-none'

@@ -1661,7 +1661,7 @@ export function SixStageJourneyView({
           {currentStage === 4 && (
             <section
               data-testid="stage-4-practice"
-              className="w-full min-h-0 flex-1 flex flex-col overflow-y-auto animate-fade-up xl:h-full xl:overflow-hidden"
+              className="flex w-full min-h-0 flex-1 flex-col overflow-y-auto overscroll-contain pb-3 animate-fade-up"
             >
 
               <AikiStudioWorkspace
