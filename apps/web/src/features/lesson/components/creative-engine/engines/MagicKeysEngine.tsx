@@ -343,7 +343,7 @@ export const MagicKeysEngine: React.FC<EngineProps> = ({
               onRemoveBlock={handleRemoveBlock}
               onDropBlock={handleDropBlock}
               isGrid2x2={true}
-              className="h-auto"
+              className="h-auto border-2 border-amber-200/70 bg-slate-50/90"
             />
           </div>
 

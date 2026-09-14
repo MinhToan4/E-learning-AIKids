@@ -2131,7 +2131,7 @@ export function AikiStudioWorkspace({
   )
 
   const previewCanvasColumn = (
-    <div className="flex w-full min-w-0 flex-col gap-1">
+    <div className="flex w-full min-w-0 flex-col gap-1.5 rounded-2xl border-2 border-amber-200/70 bg-slate-50/90 p-2 shadow-2xs">
       {/* Header Cột 3: Đồng bộ cao độ với Cột 1 và Cột 2, tích hợp nút Nộp Bài tinh gọn */}
       <div className="flex items-center justify-between gap-1.5 pb-1 shrink-0">
         <div className="flex items-center gap-1 text-xs font-black text-amber-950 uppercase tracking-wider px-1">
