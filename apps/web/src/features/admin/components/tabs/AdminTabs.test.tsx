@@ -13,7 +13,8 @@ import { AdminCoursesTab } from './AdminCoursesTab'
 import { AdminRolesTab } from './AdminRolesTab'
 import { AdminPage } from '../../pages/AdminPage'
 import { AdminBillingPos, AI_CREDIT_PACKS } from '../AdminBillingPos'
-import { groupUsersByFamilyList, type AdminUser } from '../../types'
+import { PendingIntentDetailModal } from '../PendingIntentDetailModal'
+import { groupUsersByFamilyList, type AdminUser, type PendingIntent } from '../../types'
 
 const mockApi = vi.fn()
 vi.mock('@/shared/lib/api', () => ({
@@ -371,5 +372,111 @@ describe('Admin Domain Tabs & POS Refactor', () => {
     expect(container.textContent).toContain('Vai trò & Quyền hạn')
     expect(container.textContent).toContain('👥 NGƯỜI DÙNG & PHÂN QUYỀN')
   })
+
+  it('PendingIntentDetailModal renders order details, MBBank payment info, and triggers onConfirm', async () => {
+    const mockIntent: PendingIntent = {
+      id: 'pi-modal-test',
+      publicId: 'pi_modal123',
+      provider: 'vietqr',
+      purpose: 'user_sub',
+      amountMinor: '129000',
+      currency: 'vnd',
+      status: 'pending',
+      userId: 'u-10',
+      userEmail: 'mother@storymee.vn',
+      userName: 'Mẹ Thu Hằng',
+      paymentCode: 'AIKIDS888',
+      courseTitle: null,
+      createdAt: '2026-09-18T10:00:00.000Z',
+    }
+    const onConfirm = vi.fn()
+    const onClose = vi.fn()
+
+    act(() => {
+      root.render(
+        <PendingIntentDetailModal
+          intent={mockIntent}
+          isOpen={true}
+          onClose={onClose}
+          onConfirm={onConfirm}
+        />,
+      )
+    })
+
+    expect(document.body.textContent).toContain('Đơn hàng #AIKIDS888')
+    expect(document.body.textContent).toContain('Chờ thanh toán')
+    expect(document.body.textContent).toContain('129.000₫')
+    expect(document.body.textContent).toContain('Mẹ Thu Hằng')
+    expect(document.body.textContent).toContain('mother@storymee.vn')
+    expect(document.body.textContent).toContain('0382228888')
+    expect(document.body.textContent).toContain('CONG TY CONG NGHE GIAO DUC AI KIDS')
+    expect(document.body.textContent).toContain('MBBank (Ngân hàng TMCP Quân Đội)')
+    expect(document.body.textContent).toContain('Xác nhận Đã Nhận Tiền & Kích Hoạt Gói')
+
+    const confirmBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Xác nhận Đã Nhận Tiền'),
+    )
+    expect(confirmBtn).toBeDefined()
+    await act(async () => {
+      confirmBtn?.click()
+    })
+    expect(onConfirm).toHaveBeenCalledWith(mockIntent)
+  })
+
+  it('AdminBillingPos calls onViewPendingIntentDetail when clicking the pending intent card', () => {
+    const onViewDetail = vi.fn()
+    const onConfirm = vi.fn()
+    const mockIntent: PendingIntent = {
+      id: 'pi-click-test',
+      publicId: 'pi_click123',
+      provider: 'vietqr',
+      purpose: 'user_sub',
+      amountMinor: '129000',
+      currency: 'vnd',
+      status: 'pending',
+      userId: 'u-11',
+      userEmail: 'click@storymee.vn',
+      userName: 'Phụ Huynh Click',
+      paymentCode: 'CLICK789',
+      courseTitle: null,
+      createdAt: '2026-09-18T10:00:00.000Z',
+    }
+    const props = {
+      billingAdminMode: 'checkout' as const,
+      setBillingAdminMode: vi.fn(),
+      paymentMethod: 'transfer' as const,
+      setPaymentMethod: vi.fn(),
+      grantForm: { userEmail: '', planId: 'starter', durationMonths: 1, reason: '' },
+      setGrantForm: vi.fn(),
+      grantLoading: false,
+      grantSelectedUser: null,
+      setGrantSelectedUser: vi.fn(),
+      grantUserResults: [],
+      setGrantUserResults: vi.fn(),
+      grantUserSearching: false,
+      searchGrantUser: vi.fn(),
+      availablePlans: [],
+      planLabels: {},
+      planBadgeColors: {},
+      roleLabels: {},
+      handlePosSubmit: vi.fn(),
+      generateSuggestedReason: vi.fn().mockReturnValue(''),
+      pendingIntents: [mockIntent],
+      onConfirmPendingIntent: onConfirm,
+      onViewPendingIntentDetail: onViewDetail,
+    }
+
+    act(() => {
+      root.render(<AdminBillingPos {...props} />)
+    })
+
+    const card = container.querySelector('[role="button"]') as HTMLElement
+    expect(card).toBeDefined()
+    act(() => {
+      card?.click()
+    })
+    expect(onViewDetail).toHaveBeenCalledWith(mockIntent)
+  })
 })
+
 

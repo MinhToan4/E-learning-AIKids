@@ -633,13 +633,13 @@ export function AsmoIslandWorldMap({
 
               {/* HÀNG 2: VÉ TRẠM TIẾP THEO (RỘNG RÃI TOÀN NGANG) */}
               {currentActiveLesson && (
-                <aside className="course-map-next-ticket bg-white/95 text-slate-900 rounded-2xl p-4 sm:p-5 border-2 border-white shadow-clay flex flex-col md:flex-row md:items-center justify-between gap-4 w-full !max-w-none">
-                  <div className="min-w-0 flex-1">
+                <aside className="course-map-next-ticket bg-white/95 text-slate-900 rounded-2xl p-4 sm:p-5 border-2 border-white shadow-clay flex flex-col xl:flex-row xl:items-center justify-between gap-4 w-full !max-w-none">
+                  <div className="min-w-0 w-full xl:flex-1">
                     <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-mint-100 text-mint-800 text-[11px] font-black uppercase tracking-wider mb-1.5">
                       <Sparkles className="size-3 text-mint-600 shrink-0" />
                       <span>TRẠM TIẾP THEO</span>
                     </div>
-                    <h2 className="font-display text-lg sm:text-2xl font-black text-slate-900 leading-snug">
+                    <h2 className="font-display text-lg sm:text-2xl font-black text-slate-900 leading-snug break-words">
                       <AsmoFormula text={currentActiveLesson.title} />
                     </h2>
                     <p className="text-xs sm:text-sm font-bold text-slate-600 mt-1">
@@ -647,11 +647,11 @@ export function AsmoIslandWorldMap({
                     </p>
                   </div>
 
-                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
+                  <div className="flex flex-col sm:flex-row flex-wrap xl:flex-nowrap items-stretch sm:items-center gap-2.5 shrink-0 w-full xl:w-auto">
                     <button
                       type="button"
                       onClick={() => onOpenLesson(currentActiveLesson)}
-                      className="inline-flex min-h-[2.9rem] items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-sun-400 to-coral-500 hover:from-sun-300 hover:to-coral-400 text-slate-950 font-black text-xs sm:text-sm shadow-clay hover:scale-105 active:scale-95 transition-all cursor-pointer border-0 whitespace-nowrap"
+                      className="inline-flex min-h-[2.9rem] items-center justify-center gap-2 px-5 py-2.5 rounded-2xl bg-gradient-to-r from-sun-400 to-coral-500 hover:from-sun-300 hover:to-coral-400 text-slate-950 font-black text-xs sm:text-sm shadow-clay hover:scale-105 active:scale-95 transition-all cursor-pointer border-0 sm:whitespace-nowrap flex-1 sm:flex-initial"
                     >
                       <span>
                         {progress.lessons[currentActiveLesson.id]?.completed
@@ -672,7 +672,7 @@ export function AsmoIslandWorldMap({
                           el?.scrollIntoView({ behavior: 'smooth' })
                         }
                       }}
-                      className="inline-flex min-h-[2.9rem] items-center justify-center gap-1.5 rounded-2xl bg-brand-50 hover:bg-brand-100 text-brand-900 border-2 border-brand-200 font-bold px-4 py-2.5 text-xs shadow-xs hover:scale-105 active:scale-95 transition-all cursor-pointer whitespace-nowrap"
+                      className="inline-flex min-h-[2.9rem] items-center justify-center gap-1.5 rounded-2xl bg-brand-50 hover:bg-brand-100 text-brand-900 border-2 border-brand-200 font-bold px-4 py-2.5 text-xs shadow-xs hover:scale-105 active:scale-95 transition-all cursor-pointer sm:whitespace-nowrap flex-1 sm:flex-initial"
                     >
                       <Map className="size-4 text-brand-600 shrink-0" />
                       <span>🗺️ Mở Bản Đồ Trạm Chi Tiết ➔</span>

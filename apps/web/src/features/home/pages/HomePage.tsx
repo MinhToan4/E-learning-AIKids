@@ -500,9 +500,9 @@ export function HomePage() {
 
       {/* The primary learning action comes before secondary rewards. */}
       {(continueCourse || dailyMission) && (
-        <section className="grid items-stretch gap-4 lg:grid-cols-12" aria-label="Tiếp tục hành trình học">
+        <section className="grid items-stretch gap-4 md:grid-cols-12 lg:gap-6" aria-label="Tiếp tục hành trình học">
           {continueCourse && (
-            <div className={dailyMission ? 'lg:col-span-8' : 'lg:col-span-12'}>
+            <div className={dailyMission ? 'md:col-span-7 lg:col-span-8' : 'md:col-span-12 lg:col-span-12'}>
               <ContinueLearningCard course={continueCourse} />
             </div>
           )}
@@ -510,7 +510,7 @@ export function HomePage() {
           {dailyMission && (
             <article className={cn(
               'relative flex flex-col justify-between overflow-hidden border-4 border-white bg-sun-50 p-6 rounded-[2rem] shadow-[0_8px_0_rgba(255,201,74,0.35)] transition-transform hover:-translate-y-1 active:translate-y-1 active:shadow-[0_0px_0_rgba(255,201,74,0.35)]',
-              continueCourse ? 'lg:col-span-4' : 'lg:col-span-12',
+              continueCourse ? 'md:col-span-5 lg:col-span-4' : 'md:col-span-12 lg:col-span-12',
             )}>
               <div className="flex items-center justify-between gap-2">
                 <h2 className="font-display text-xl">Nhiệm vụ hôm nay</h2>

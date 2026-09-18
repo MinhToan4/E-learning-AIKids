@@ -565,11 +565,11 @@ export function AsmoLearningJourneyPage() {
       </div>
 
       {/* ── MAIN WORKSPACE: UNIFIED VISUAL CANVAS (LEFT) & QUESTION/MEE TUTOR (RIGHT) ── */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
         {/* ══════════════════════════════════════════════════════════════════════════ */}
         {/* CỘT TRÁI: KHÔNG GIAN TRỰC QUAN HÓA & TIẾN TRÌNH BƯỚC GIẢI LIỀN MẠCH (7 cols) */}
         {/* ══════════════════════════════════════════════════════════════════════════ */}
-        <div className="lg:col-span-7 flex flex-col gap-4">
+        <div className="md:col-span-7 flex flex-col gap-4">
           {/* TẦNG 1 (Phía trên): Biểu đồ SVG / 3D to full cột */}
           <div className="w-full">
             {currentTopic.visualMode === 'three_3d' && dynamicSpec ? (
@@ -746,7 +746,7 @@ export function AsmoLearningJourneyPage() {
         {/* ══════════════════════════════════════════════════════════════════════════ */}
         {/* CỘT PHẢI: TRẮC NGHIỆM & TRỢ GIẢNG MÈO MEE TẬP TRUNG DUY NHẤT (5 cols)     */}
         {/* ══════════════════════════════════════════════════════════════════════════ */}
-        <div className="lg:col-span-5 flex flex-col gap-4">
+        <div className="md:col-span-5 flex flex-col gap-4">
           <div className="rounded-3xl border border-slate-200/80 bg-white/95 p-5 sm:p-6 shadow-clay backdrop-blur-md space-y-4">
             {/* Header / Badges */}
             <div className="flex items-center justify-between border-b border-slate-100 pb-3">

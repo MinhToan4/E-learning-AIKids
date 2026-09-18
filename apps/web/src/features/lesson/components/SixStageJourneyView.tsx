@@ -358,14 +358,6 @@ export function SixStageJourneyView({
   const currentChapter = videoChapters[currentChapterIndex] || videoChapters[0]
 
 
-  const isLesson1_2 = useMemo(() => {
-    return (
-      lessonId.includes('1-2') ||
-      lessonTitle.toLowerCase().includes('bốn chiếc chìa khoá') ||
-      journey.stage1_goal.title.toLowerCase().includes('bốn chiếc chìa khoá')
-    )
-  }, [lessonId, lessonTitle, journey.stage1_goal.title])
-
   const isLesson1_1 = useMemo(() => {
     return (
       lessonId.includes('1-1') ||
@@ -374,6 +366,20 @@ export function SixStageJourneyView({
       (journey.stage1_goal.keyPoints && journey.stage1_goal.keyPoints.some((kp) => kp.toLowerCase().includes('mèo')))
     )
   }, [lessonId, lessonTitle, journey.stage1_goal])
+
+  const isLesson1_2 = useMemo(() => {
+    return (
+      stationInfo?.lessonNumber === '1.2' ||
+      matchedCurriculum?.lessonNumber === '1.2' ||
+      (!isLesson1_1 && (
+        lessonTitle.toLowerCase().includes('bốn chiếc chìa khoá') ||
+        lessonTitle.toLowerCase().includes('bốn chiếc chìa khóa') ||
+        journey.stage1_goal.title.toLowerCase().includes('bốn chiếc chìa khoá') ||
+        journey.stage1_goal.title.toLowerCase().includes('bốn chiếc chìa khóa') ||
+        (lessonId.includes('1-2') && !lessonId.includes('1-1'))
+      ))
+    )
+  }, [stationInfo, matchedCurriculum, lessonId, lessonTitle, journey.stage1_goal.title, isLesson1_1])
 
   const isDedicatedLessonVideo = useMemo(() => {
     const num = stationInfo?.lessonNumber
@@ -495,6 +501,7 @@ export function SixStageJourneyView({
   }, [journey.stage2_confirmGoal.options])
 
   const hasKeyOptions = useMemo(() => {
+    if (isLesson1_1) return false
     return (
       isLesson1_2 ||
       confirmOptions.some(
@@ -505,7 +512,7 @@ export function SixStageJourneyView({
           opt.text.toLowerCase().includes('chìa khóa')
       )
     )
-  }, [isLesson1_2, confirmOptions])
+  }, [isLesson1_1, isLesson1_2, confirmOptions])
 
 
   // Web Speech synthesis for AKI
@@ -841,7 +848,7 @@ export function SixStageJourneyView({
                     className={cn(
                       'flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-full p-1 text-[11px] shadow-2xs transition-all duration-200 sm:size-auto sm:gap-1.5 sm:px-2.5 sm:py-1 sm:text-xs',
                       isActive &&
-                        'bg-brand-500 text-white ring-2 ring-brand-300 shadow-sm font-black scale-105',
+                        'bg-brand-500 text-white font-black shadow-sm border border-brand-600/30 active:translate-y-0.5',
                       isDone &&
                         !isActive &&
                         'bg-emerald-50 border border-emerald-300 text-emerald-800 font-bold hover:bg-emerald-100',
@@ -916,7 +923,7 @@ export function SixStageJourneyView({
           data-testid="main-learning-canvas"
           className={cn(
             'flex-1 min-w-0 flex flex-col gap-4 pr-1',
-            'min-h-0 overflow-y-auto overscroll-contain touch-pan-y',
+            'min-h-0 h-full overflow-y-auto overscroll-contain touch-pan-y',
             currentStage === 4 ? 'gap-2 pr-0.5 sm:pr-1' : 'hidden-scrollbar',
             (isSidebarCollapsed || currentStage === 4 || currentStage === 5) && 'w-full'
           )}
@@ -927,121 +934,128 @@ export function SixStageJourneyView({
           {currentStage === 0 && (
             <section
               data-testid="stage-0-goal"
-              className="rounded-3xl bg-white p-5 sm:p-7 shadow-clay border-2 border-brand-100 flex flex-col gap-6 animate-fade-up"
+              className="rounded-3xl bg-white p-5 sm:p-7 shadow-clay border-2 border-brand-100 flex flex-col gap-5 animate-fade-up"
             >
               {/* Phần 1 - Tiêu đề & Header */}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-2 shrink-0">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-brand-50 text-brand-700 text-xs sm:text-sm font-bold w-fit border border-brand-200/60">
                   <Sparkles size={13} className="text-brand-500" />
                   <span>Chặng 1: Mục tiêu bài học</span>
                 </div>
-
                 <h2 className="text-xl sm:text-2xl font-black text-slate-800 leading-tight">
                   {journey.stage1_goal.title}
                 </h2>
               </div>
 
-              {/* Phần 2 - Khung Ảnh Minh Họa (Hero Banner Row) */}
-              <div className="w-full max-w-2xl mx-auto rounded-3xl overflow-hidden shadow-clay border-4 border-amber-200 bg-amber-50 group relative aspect-[16/9] sm:aspect-[21/9] lg:aspect-[16/9] max-h-[340px] sm:max-h-[380px] flex items-center justify-center">
-                <img
-                  decoding="async"
-                  src={journey.stage1_goal.imageUrl}
-                  alt={journey.stage1_goal.title}
-                  className="w-full h-full object-cover cursor-pointer group-hover:scale-105 transition-transform duration-300"
-                  onClick={() =>
-                    setZoomImage({
-                      url: journey.stage1_goal.imageUrl,
-                      title: journey.stage1_goal.title,
-                    })
-                  }
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = isLesson1_2
-                      ? '/assets/aiki-islands/island1_lesson2_keys_v2.jpg'
-                      : '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
-                  }}
-                />
-                {/* Text box overlay trên ảnh được chuyển sang sr-only để giao diện sạch sẽ, chống đè nút Phóng to khi đổi size màn hình và bảo toàn 100% test assertions */}
-                <div className="sr-only">
-                  <span>🔑</span>
-                  <span>{isLesson1_2 ? 'Rương 4 Chìa Khóa Thần Kỳ' : 'Chìa Khóa Mục Tiêu'}</span>
-                  {isLesson1_2 && (
-                    <div>
-                      <span>1. Cái gì</span>
-                      <span>2. Trông thế nào</span>
-                      <span>3. Đang làm gì</span>
-                      <span>4. Ở đâu</span>
-                    </div>
-                  )}
-                </div>
-                <button
-                  type="button"
-                  onClick={() =>
-                    setZoomImage({
-                      url: journey.stage1_goal.imageUrl,
-                      title: journey.stage1_goal.title,
-                    })
-                  }
-                  className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
-                  title="Xem ảnh phóng to"
-                >
-                  <span>🔍 Phóng to</span>
-                </button>
-              </div>
-
-              {/* Phần 3 - Thẻ Mục Tiêu Cốt Lõi */}
-              <div className="w-full rounded-3xl border-2 border-brand-100 bg-brand-50/70 p-4 sm:p-5 shadow-clay-sm flex items-start gap-3">
-                <span className="text-2xl shrink-0 mt-0.5">🎯</span>
-                <div>
-                  <span className="font-black text-brand-900 block mb-1 text-xs sm:text-sm uppercase tracking-wide">
-                    Mục Tiêu Cốt Lõi:
-                  </span>
-                  <p className="font-semibold text-slate-800 text-sm sm:text-base leading-relaxed">{journey.stage1_goal.goalText}</p>
-                </div>
-              </div>
-
-              {/* Phần 4 - Bốn Chiếc Chìa Khóa Vàng */}
-              <div className="flex flex-col gap-2.5 sm:gap-3">
-                <div className="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm font-black uppercase tracking-wider text-amber-950 min-w-0 break-words">
-                  <span>🔑 BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH (Khớp 1-1 Với Rương):</span>
-                </div>
-                <div className="grid gap-3 sm:gap-4 items-stretch grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
-                  {formulaCards.map((card, idx) => (
-                    <div
-                      key={card.id}
-                      className={cn(
-                        "p-2 sm:p-2.5 rounded-2xl border-2 bg-white/95 shadow-clay-sm hover:shadow-clay transition-all flex items-start gap-2.5 sm:gap-3 min-h-[64px] h-auto",
-                        card.bg
+              {/* Thân nội dung 2 cột */}
+              <div className="flex flex-col lg:flex-row gap-6 items-center">
+                {/* Cột Trái (Ảnh) */}
+                <div className="w-full lg:w-1/2 flex flex-col">
+                  <div className="w-full aspect-[4/3] max-h-[380px] rounded-3xl overflow-hidden shadow-clay border-4 border-amber-200 bg-amber-50 group relative flex items-center justify-center p-1.5">
+                    <img
+                      decoding="async"
+                      src={journey.stage1_goal.imageUrl}
+                      alt={journey.stage1_goal.title}
+                      className="w-full h-full object-contain rounded-2xl cursor-pointer group-hover:scale-105 transition-transform duration-300"
+                      onClick={() =>
+                        setZoomImage({
+                          url: journey.stage1_goal.imageUrl,
+                          title: journey.stage1_goal.title,
+                        })
+                      }
+                      onError={(e) => {
+                        (e.target as HTMLImageElement).src = isLesson1_2
+                          ? '/assets/aiki-islands/island1_lesson2_keys_v2.jpg'
+                          : '/assets/aiki-islands/island1_lesson1_cat.jpg?v=2'
+                      }}
+                    />
+                    {/* Giữ nguyên sr-only text và nút Phóng to */}
+                    <div className="sr-only">
+                      <span>🔑</span>
+                      <span>{isLesson1_2 ? 'Rương 4 Chìa Khóa Thần Kỳ' : 'Chìa Khóa Mục Tiêu'}</span>
+                      {isLesson1_2 && (
+                        <div>
+                          <span>1. Cái gì</span>
+                          <span>2. Trông thế nào</span>
+                          <span>3. Đang làm gì</span>
+                          <span>4. Ở đâu</span>
+                        </div>
                       )}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        setZoomImage({
+                          url: journey.stage1_goal.imageUrl,
+                          title: journey.stage1_goal.title,
+                        })
+                      }
+                      className="absolute top-3 right-3 bg-black/60 hover:bg-black/80 text-white text-xs font-bold px-2.5 py-1 rounded-xl backdrop-blur-xs flex items-center gap-1 opacity-90 hover:opacity-100 transition shadow-xs cursor-pointer z-10"
+                      title="Xem ảnh phóng to"
                     >
-                      <img
-                        decoding="async"
-                        src={card.image}
-                        alt={card.code}
-                        className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl object-contain bg-amber-50/60 border-2 border-amber-200/90 p-1 shrink-0 shadow-xs transition-transform hover:scale-105"
-                      />
-                      <div className="flex-1 min-w-0 flex flex-col justify-center">
-                        <span
+                      <span>🔍 Phóng to</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* Cột Phải (Mục tiêu cốt lõi + Box 4 chìa khóa 2x2) */}
+                <div className="w-full lg:w-1/2 flex flex-col gap-4">
+                  {/* Mục Tiêu Cốt Lõi */}
+                  <div className="w-full rounded-3xl border-2 border-brand-100 bg-brand-50/70 p-4 sm:p-5 shadow-clay-sm flex items-start gap-3 shrink-0">
+                    <span className="text-2xl shrink-0 mt-0.5">🎯</span>
+                    <div>
+                      <span className="font-black text-brand-900 block mb-1 text-xs sm:text-sm uppercase tracking-wide">
+                        Mục Tiêu Cốt Lõi:
+                      </span>
+                      <p className="font-semibold text-slate-800 text-sm sm:text-base leading-relaxed">{journey.stage1_goal.goalText}</p>
+                    </div>
+                  </div>
+
+                  {/* Bốn Chiếc Chìa Khóa Vàng - Lưới 2x2 */}
+                  <div className="flex flex-col gap-2.5 sm:gap-3 flex-1 min-h-0">
+                    <div className="flex flex-wrap items-center gap-1.5 text-xs sm:text-sm font-black uppercase tracking-wider text-amber-950 min-w-0 break-words shrink-0">
+                      <span>🔑 BỐN CHIẾC CHÌA KHÓA MỞ KHÓA CÂU LỆNH (Khớp 1-1 Với Rương):</span>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      {formulaCards.map((card, idx) => (
+                        <div
+                          key={card.id}
                           className={cn(
-                            "px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black uppercase tracking-wider w-fit",
-                            card.badge
+                            "p-2 sm:p-2.5 rounded-2xl border-2 bg-white/95 shadow-clay-sm hover:shadow-clay transition-all flex items-start gap-2.5 sm:gap-3 min-h-[64px] h-auto",
+                            card.bg
                           )}
                         >
-                          [{idx + 1}] {card.code}
-                        </span>
-                        <p className="text-xs sm:text-sm font-black text-slate-900 mt-0.5 line-clamp-3 leading-snug break-words">
-                          {card.val}
-                        </p>
-                        <span className="text-[11px] sm:text-xs font-bold text-slate-500 block mt-0.5">
-                          ({card.sub})
-                        </span>
-                      </div>
+                          <img
+                            decoding="async"
+                            src={card.image}
+                            alt={card.code}
+                            className="w-11 h-11 sm:w-13 sm:h-13 rounded-xl object-contain bg-amber-50/60 border-2 border-amber-200/90 p-1 shrink-0 shadow-xs transition-transform hover:scale-105"
+                          />
+                          <div className="flex-1 min-w-0 flex flex-col justify-center">
+                            <span
+                              className={cn(
+                                "px-2 py-0.5 rounded-md text-[10px] sm:text-[11px] font-black uppercase tracking-wider w-fit",
+                                card.badge
+                              )}
+                            >
+                              [{idx + 1}] {card.code}
+                            </span>
+                            <p className="text-xs sm:text-sm font-black text-slate-900 mt-0.5 line-clamp-3 leading-snug break-words">
+                              {card.val}
+                            </p>
+                            <span className="text-[11px] sm:text-xs font-bold text-slate-500 block mt-0.5">
+                              ({card.sub})
+                            </span>
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+                  </div>
                 </div>
               </div>
 
-              {/* Action button - Sticky đáy */}
-              <div className="shrink-0 pt-2 pb-1 bg-white/95 backdrop-blur-xs flex justify-end border-t border-slate-100 sticky bottom-0 z-20">
+              {/* Action button */}
+              <div className="pt-2 flex justify-end">
                 <Button
                   variant="primary"
                   className="w-full sm:w-auto px-6 sm:px-8 py-3 sm:py-3.5 text-sm sm:text-base font-black rounded-2xl shadow-clay border-b-[4px] border-brand-700 bg-brand-600 hover:bg-brand-700 text-white flex items-center justify-center gap-2 cursor-pointer"
@@ -1060,31 +1074,33 @@ export function SixStageJourneyView({
           {currentStage === 1 && (
             <section
               data-testid="stage-1-confirm"
-              className="rounded-3xl bg-white p-4 sm:p-5 shadow-clay border-2 border-brand-100 flex flex-col gap-3.5 sm:gap-4 animate-fade-up"
+              className="rounded-3xl bg-white p-4 sm:p-6 shadow-clay border-2 border-brand-100 flex flex-col gap-4 animate-fade-up"
             >
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold w-fit border border-amber-200/60">
-                <HelpCircle size={13} className="text-amber-600" />
-                <span>Chặng 2: Xác nhận mục tiêu</span>
-              </div>
+              <div className="flex flex-col gap-2 shrink-0">
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-amber-50 text-amber-800 text-xs font-bold w-fit border border-amber-200/60">
+                  <HelpCircle size={13} className="text-amber-600" />
+                  <span>Chặng 2: Xác nhận mục tiêu</span>
+                </div>
 
-              <div className="text-center sm:text-left">
-                <h2 className="text-lg sm:text-xl font-black text-slate-800">
-                  {journey.stage2_confirmGoal.question}
-                </h2>
-                {isLesson1_2 ? (
-                  <p className="text-sm sm:text-base text-slate-600 mt-1 font-semibold">
-                    Chiếc Rương Thần Kỳ ở chặng trước có 3 ổ khóa (A, B, C). Bé hãy dùng đúng 4 Chiếc Chìa Khóa Vàng vừa tìm thấy để mở Ổ Khóa B nhé!
-                  </p>
-                ) : (
-                  <p className="text-sm sm:text-base text-slate-600 mt-0.5 font-semibold">
-                    Bé hãy chọn 1 đáp án chính xác nhất để chuẩn bị bước vào xem video nhé!
-                  </p>
-                )}
+                <div className="text-center sm:text-left">
+                  <h2 className="text-lg sm:text-xl font-black text-slate-800">
+                    {journey.stage2_confirmGoal.question}
+                  </h2>
+                  {isLesson1_2 ? (
+                    <p className="text-sm sm:text-base text-slate-600 mt-1 font-semibold">
+                      Chiếc Rương Thần Kỳ ở chặng trước có 3 ổ khóa (A, B, C). Bé hãy dùng đúng 4 Chiếc Chìa Khóa Vàng vừa tìm thấy để mở Ổ Khóa B nhé!
+                    </p>
+                  ) : (
+                    <p className="text-sm sm:text-base text-slate-600 mt-0.5 font-semibold">
+                      Bé hãy chọn 1 đáp án chính xác nhất để chuẩn bị bước vào xem video nhé!
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Tùy biến giao diện theo loại options: Có keyItems (3 Bộ chìa khoá A/B/C) hoặc Cards A & B thông thường */}
               {hasKeyOptions ? (
-                <div className="grid grid-cols-1 gap-4 lg:grid-cols-3 lg:gap-5 lg:items-stretch">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 max-w-5xl w-full mx-auto my-2">
                   {confirmOptions.map((option, idx) => {
                     const optKey = option.id || `opt-${idx}`
                     const isSelected = selectedConfirmOption === idx
@@ -1111,7 +1127,7 @@ export function SixStageJourneyView({
                           }
                         }}
                         className={cn(
-                          'relative flex flex-col justify-between rounded-3xl p-3.5 sm:p-4 border-2 text-left transition-all duration-200 cursor-pointer shadow-clay-sm hover:shadow-clay group',
+                          'relative h-auto flex flex-col justify-between rounded-3xl p-3.5 sm:p-4 border-2 text-left transition-all duration-200 cursor-pointer shadow-clay-sm hover:shadow-clay group',
                           isPick
                             ? 'border-mint-500 bg-mint-50/90 ring-2 ring-mint-400 ring-offset-2 scale-[1.02]'
                             : isSelected && !isCorrect
@@ -1247,7 +1263,7 @@ export function SixStageJourneyView({
                   })}
                 </div>
               ) : (
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6 max-w-4xl w-full mx-auto my-2">
                   {journey.stage2_confirmGoal.options.map((option, idx) => {
                     const optKey = option.id || `opt-${idx}`
                     const isSelected = selectedConfirmOption === idx
@@ -1285,7 +1301,7 @@ export function SixStageJourneyView({
                           }
                         }}
                         className={cn(
-                          'flex flex-col items-center p-2.5 sm:p-3.5 rounded-2xl border-2 transition-all duration-200 text-left cursor-pointer group relative shadow-2xs hover:shadow-sm',
+                          'h-auto flex flex-col items-center justify-between p-3.5 sm:p-4 rounded-2xl border-2 transition-all duration-200 text-left cursor-pointer group relative shadow-2xs hover:shadow-sm gap-2.5',
                           cardStyle
                         )}
                       >
@@ -1294,12 +1310,12 @@ export function SixStageJourneyView({
                         </span>
 
                         {hasValidImg && (
-                          <div className="aspect-[4/3] sm:aspect-[16/10] w-full rounded-2xl overflow-hidden mb-2.5 bg-slate-100 border border-slate-200/80 relative flex items-center justify-center">
+                          <div className="aspect-[4/3] sm:aspect-[16/10] w-full max-h-[260px] rounded-2xl overflow-hidden bg-slate-100/80 border border-slate-200/80 relative flex items-center justify-center p-1">
                             <img
                               decoding="async"
                               src={option.imageUrl}
                               alt={option.text}
-                              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              className="object-contain w-full h-full rounded-xl group-hover:scale-105 transition-transform duration-300"
                               onError={() => {
                                 setFailedOptionImages((prev) => ({ ...prev, [optKey]: true }))
                               }}
@@ -1326,38 +1342,32 @@ export function SixStageJourneyView({
                           </div>
                         )}
 
-                        <p className="text-sm sm:text-base font-bold text-slate-800 text-center w-full leading-snug px-1 line-clamp-2">
+                        <p className="text-sm sm:text-base font-bold text-slate-800 text-center w-full leading-snug px-1 mt-1">
                           {option.text}
                         </p>
 
-                        {isSelected && isCorrect && (
-                          <div className="mt-1.5 flex items-center justify-center gap-1.5 flex-wrap animate-fade-up">
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-100/90 text-amber-900 border border-amber-300 text-[11px] sm:text-xs font-black shadow-2xs">
-                              ✨ Đủ 4 Chìa Khóa Vàng!
-                            </span>
-                            <div className="flex items-center gap-1">
-                              <img decoding="async" src="/assets/aiki-keys/key_subject_cat.jpg" alt="key" className="w-4 h-4 rounded-md object-contain border border-amber-200 bg-white p-0.5" />
-                              <img decoding="async" src="/assets/aiki-keys/key_how_yellow.jpg" alt="key" className="w-4 h-4 rounded-md object-contain border border-amber-200 bg-white p-0.5" />
-                              <img decoding="async" src="/assets/aiki-keys/key_action_orange.jpg" alt="key" className="w-4 h-4 rounded-md object-contain border border-amber-200 bg-white p-0.5" />
-                              <img decoding="async" src="/assets/aiki-keys/key_where_pink.jpg" alt="key" className="w-4 h-4 rounded-md object-contain border border-amber-200 bg-white p-0.5" />
-                            </div>
-                          </div>
-                        )}
+                        {/* Nhãn/nút trạng thái dưới chân mỗi card */}
+                        <div
+                          className={cn(
+                            'mt-1 py-1.5 px-3 rounded-xl text-center text-xs sm:text-sm font-black border transition-colors w-full',
+                            isSelected && isCorrect
+                              ? 'bg-mint-100 text-mint-800 border-mint-300'
+                              : isSelected && !isCorrect
+                              ? 'bg-rose-100 text-rose-700 border-rose-300'
+                              : 'bg-slate-100 text-slate-600 border-slate-200 group-hover:bg-brand-50 group-hover:text-brand-700 group-hover:border-brand-200'
+                          )}
+                        >
+                          {isSelected && isCorrect
+                            ? 'Chính xác! 🎉'
+                            : isSelected && !isCorrect
+                            ? 'Chưa đúng, thử lại nhé! ❌'
+                            : 'Bấm để chọn đáp án này'}
+                        </div>
 
                         {isSelected && (
-                          <div className="mt-1.5 flex items-center gap-1.5 font-bold text-sm sm:text-base">
-                            {isCorrect ? (
-                              <>
-                                <CheckCircle2 size={16} className="text-mint-600 shrink-0" />
-                                <span className="text-mint-700">Chính xác! Tuyệt vời quá bé ơi!</span>
-                              </>
-                            ) : (
-                              <>
-                                <X size={16} className="text-rose-500 shrink-0" />
-                                <span className="text-rose-600">Chưa đúng rồi, bé hãy thử chọn lại nhé!</span>
-                              </>
-                            )}
-                          </div>
+                          <span className="sr-only">
+                            {isCorrect ? 'Chính xác! Tuyệt vời quá bé ơi!' : 'Chưa đúng rồi, bé hãy thử chọn lại nhé!'}
+                          </span>
                         )}
                       </button>
                     )
@@ -1680,9 +1690,9 @@ export function SixStageJourneyView({
                         isActive ? 'block' : 'hidden'
                       )}
                     >
-                      <div className="grid w-full min-h-0 grid-cols-1 items-start gap-4 lg:grid-cols-12 lg:gap-5">
+                      <div className="grid w-full min-h-0 grid-cols-1 items-start gap-4 md:grid-cols-12 md:gap-4 lg:gap-5">
                         {/* CỘT TRÁI (Ảnh To Rõ Ràng - 5/12 cols trên MD, 5/12 trên LG) */}
-                        <div className="flex min-h-0 flex-col justify-center lg:col-span-5">
+                        <div className="flex min-h-0 flex-col justify-center md:col-span-5">
                           {isValidImageUrl(question.visualUrl) ? (
                             <div className="group relative flex aspect-[16/10] w-full items-center justify-center overflow-hidden rounded-2xl border-2 border-slate-200 bg-slate-100 shadow-clay-sm lg:max-h-[340px]">
                               <img
@@ -1717,7 +1727,7 @@ export function SixStageJourneyView({
                         </div>
 
                         {/* CỘT PHẢI (Câu Hỏi & Các Đáp Án - 7/12 cols trên MD, 7/12 trên LG) */}
-                        <div className="flex min-h-0 flex-col justify-between rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3 shadow-2xs sm:p-4 lg:col-span-7">
+                        <div className="flex min-h-0 flex-col justify-between rounded-2xl border border-slate-200/80 bg-slate-50/70 p-3 shadow-2xs sm:p-4 md:col-span-7">
                           <div>
                             <div className="flex items-center gap-2 mb-1.5">
                               <span className="px-2.5 py-0.5 rounded-xl bg-brand-500 text-white text-xs font-black shadow-xs">

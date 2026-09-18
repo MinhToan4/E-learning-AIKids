@@ -2001,6 +2001,14 @@ export function AikiStudioWorkspace({
     activePartImages.find((img) => img.partTurn === currentPartTurn) ||
     (selectedTurnByPart[activePartIndex] ? null : latestStudioImage)
 
+  useEffect(() => {
+    if (displayedPartImage?.prompt) {
+      setCurrentPrompt(displayedPartImage.prompt)
+    } else {
+      setCurrentPrompt(activePartSubject || effectiveCharacterName || '')
+    }
+  }, [displayedPartImage, activePartIndex, currentPartTurn, activePartSubject, effectiveCharacterName])
+
   // ── ĐIỀU HƯỚNG CUỘN NGANG DẢI PHIM BALO BÀI HỌC ──────────────────────────
   const filmstripRef = useRef<HTMLDivElement>(null)
   const [canScrollLeft, setCanScrollLeft] = useState(false)
@@ -2151,7 +2159,7 @@ export function AikiStudioWorkspace({
         // 3. Gọi generateCreativeImage
         const generatedUrl = await generateCreativeImage({
           prompt: rawPrompt,
-          aspectRatio: '1:1',
+          aspectRatio: '4:3',
           refImageUrl: activeRefImageUrl,
         })
         if (generatedUrl) {
@@ -2540,7 +2548,7 @@ export function AikiStudioWorkspace({
   const previewCanvasColumn = (
     <div className="flex w-full min-w-0 flex-col gap-1.5 rounded-2xl border-2 border-amber-200/70 bg-slate-50/90 p-2 shadow-2xs">
       {/* Header Cột 3: Đồng bộ cao độ với Cột 1 và Cột 2, tích hợp nút Nộp Bài tinh gọn */}
-      <div className="flex items-center justify-between gap-1.5 pb-1 shrink-0 flex-wrap sm:flex-nowrap">
+      <div className="flex items-center justify-between gap-1.5 pb-1 shrink-0 flex-wrap sm:flex-nowrap max-w-md sm:max-w-lg xl:max-w-none w-full mx-auto">
         <div className="flex items-center gap-1.5 text-xs font-black text-amber-950 uppercase tracking-wider px-1">
           <span>🖼️</span>
           <span>Tranh sáng tạo:</span>
@@ -2586,7 +2594,7 @@ export function AikiStudioWorkspace({
       </div>
 
       {/* Tầng 1: Bộ Chuyển Đổi 2 Lượt Tiến Hóa (Turn Switcher) */}
-      <div className="grid grid-cols-2 gap-1.5 shrink-0">
+      <div className="grid grid-cols-2 gap-1.5 shrink-0 max-w-md sm:max-w-lg xl:max-w-none w-full mx-auto">
         <button
           type="button"
           onClick={() => {
@@ -2649,7 +2657,7 @@ export function AikiStudioWorkspace({
       {displayedPartImage ? (
         <div
           data-testid="studio-live-canvas-display"
-          className="group relative flex aspect-[4/3] max-h-[340px] sm:max-h-[380px] lg:max-h-[290px] xl:max-h-[310px] 2xl:max-h-[350px] w-full min-w-0 flex-col justify-between overflow-hidden rounded-3xl border-2 border-amber-200 bg-linear-to-b from-amber-50/60 via-white to-amber-50/40 p-2.5 shadow-clay-sm"
+          className="group relative flex aspect-[4/3] max-h-[340px] sm:max-h-[380px] lg:max-h-[290px] xl:max-h-[310px] 2xl:max-h-[350px] w-full max-w-md sm:max-w-lg xl:max-w-none mx-auto min-w-0 flex-col justify-between overflow-hidden rounded-3xl border-2 border-amber-200 bg-linear-to-b from-amber-50/60 via-white to-amber-50/40 p-2.5 shadow-clay-sm"
         >
           <div
             onClick={() => handleOpenInspect(displayedPartImage)}
@@ -2659,7 +2667,7 @@ export function AikiStudioWorkspace({
             <img
               src={displayedPartImage.url || getStudioAIArtwork(illustrationType, lessonId, activePartSubject || effectiveCharacterName)}
               alt={displayedPartImage.prompt || activePartSubject || effectiveCharacterName}
-              className="size-full object-cover rounded-2xl transition-transform duration-300 group-hover:scale-102"
+              className="size-full object-contain rounded-2xl transition-transform duration-300 group-hover:scale-102 drop-shadow-xs"
             />
             <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-2 z-10 pointer-events-none">
               <div className="bg-amber-500/95 backdrop-blur-xs text-white text-xs sm:text-sm font-black px-2.5 py-1 rounded-xl shadow-clay-xs flex items-center gap-1.5 border border-amber-300">
@@ -2679,6 +2687,22 @@ export function AikiStudioWorkspace({
               </button>
             </div>
           </div>
+          {displayedPartImage?.prompt && (
+            <div
+              data-testid="studio-live-canvas-prompt"
+              className="bg-amber-50/95 border border-amber-200/90 rounded-xl px-3 py-1.5 text-xs text-amber-950 font-bold flex items-center gap-2 mt-2 shadow-2xs w-full"
+            >
+              <span className="shrink-0 text-sm">💬</span>
+              <div className="flex-1 min-w-0 text-left">
+                <span className="text-[10px] font-black uppercase text-amber-800 tracking-wide block">
+                  Câu lệnh đã kết hợp:
+                </span>
+                <span className="text-[11px] sm:text-xs font-semibold text-slate-800 leading-snug break-words">
+                  &ldquo;{displayedPartImage.prompt}&rdquo;
+                </span>
+              </div>
+            </div>
+          )}
           <div className="bg-white/95 backdrop-blur-xs px-2.5 py-1.5 rounded-xl border border-amber-200/70 flex items-center justify-between text-xs flex-wrap gap-1 shrink-0 mt-2 shadow-2xs">
             <span className="inline-flex items-center gap-1 text-emerald-700 font-black bg-emerald-50 px-2 py-0.5 rounded-lg text-[11px] sm:text-xs">
               <Check size={11} strokeWidth={3} /> Đã lưu vào Balo
@@ -2692,7 +2716,7 @@ export function AikiStudioWorkspace({
         /* PREVIEW TRẮNG THÔNG BÁO THÂN THIỆN - TUYỆT ĐỐI KHÔNG ĐỂ ẢNH MẪU ĐỂ TRÁNH NHẦM LẪN */
         <div
           data-testid="studio-canvas-empty"
-          className="group relative flex aspect-[4/3] max-h-[340px] sm:max-h-[380px] lg:max-h-[290px] xl:max-h-[310px] 2xl:max-h-[350px] w-full min-w-0 flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-indigo-200 bg-linear-to-b from-indigo-50/30 via-white to-amber-50/20 p-4 text-center shadow-clay-sm transition-all sm:p-6"
+          className="group relative flex aspect-[4/3] max-h-[340px] sm:max-h-[380px] lg:max-h-[290px] xl:max-h-[310px] 2xl:max-h-[350px] w-full max-w-md sm:max-w-lg xl:max-w-none mx-auto min-w-0 flex-col items-center justify-center overflow-hidden rounded-3xl border-2 border-dashed border-indigo-200 bg-linear-to-b from-indigo-50/30 via-white to-amber-50/20 p-4 text-center shadow-clay-sm transition-all sm:p-6"
         >
           {/* Ảnh mẫu & text ẩn sr-only phục vụ test suite & trợ năng, không render thị giác để tránh bé nhầm lẫn */}
           <div className="sr-only">
@@ -2725,7 +2749,7 @@ export function AikiStudioWorkspace({
 
       {/* Tầng 2: Dải Phim Bộ Sưu Tập Toàn Bộ Các Lượt (Mini Filmstrip Gallery) */}
       {!isCreativeNotebook && (
-        <div className="relative flex items-center gap-1 sm:gap-1.5 w-full min-w-0 pt-0.5">
+        <div className="relative flex items-center gap-1 sm:gap-1.5 w-full min-w-0 pt-0.5 max-w-md sm:max-w-lg xl:max-w-none mx-auto">
         <button
           type="button"
           data-testid="filmstrip-scroll-left"
@@ -3414,11 +3438,11 @@ export function AikiStudioWorkspace({
             </div>
 
             {/* Khung ảnh phóng to */}
-            <div className="w-full aspect-[4/3] rounded-2xl bg-pink-50 border-2 border-pink-200 p-1 flex items-center justify-center overflow-hidden">
+            <div className="w-full aspect-[4/3] max-h-[60vh] rounded-2xl bg-pink-50/70 border-2 border-pink-200 p-1 flex items-center justify-center overflow-hidden">
               <img
                 src={selectedInspectImage.url || getStudioAIArtwork(illustrationType, lessonId, selectedInspectImage.prompt || activePartSubject || effectiveCharacterName)}
                 alt=""
-                className="size-full object-cover rounded-xl"
+                className="size-full object-contain rounded-xl drop-shadow-xs"
               />
             </div>
 
@@ -3762,7 +3786,7 @@ export function AikiStudioWorkspace({
                             <img
                               src={img.url || getStudioAIArtwork(illustrationType, lessonId, img.prompt || itemTitle)}
                               alt={img.prompt}
-                              className="size-full object-cover"
+                              className="size-full object-contain"
                             />
                           </div>
 

@@ -613,9 +613,9 @@ function AdultChrome({
   brandTo: string
 }) {
   return (
-    <div className="role-shell role-tone-parent min-h-dvh lg:pl-60">
+    <div className="role-shell role-tone-parent min-h-dvh md:pl-60">
       {/* Desktop sidebar */}
-      <aside className="role-rail fixed inset-y-0 left-0 z-30 hidden w-60 flex-col lg:flex">
+      <aside className="role-rail fixed inset-y-0 left-0 z-30 hidden w-60 flex-col md:flex">
         <div className="role-brand">
           <NavLink to={brandTo} aria-label="Trang chính phụ huynh">
             <BrandLogo size="md" />
@@ -627,7 +627,7 @@ function AdultChrome({
       </aside>
 
       {/* Mobile top bar */}
-      <header className="role-mobile-topbar lg:hidden">
+      <header className="role-mobile-topbar md:hidden">
         <NavLink to={brandTo} aria-label="Trang chính phụ huynh">
           <BrandLogo size="sm" />
         </NavLink>
@@ -635,12 +635,12 @@ function AdultChrome({
       </header>
 
       {/* Main */}
-      <main className="page-enter mx-auto max-w-6xl px-3 py-5 pb-[max(5.5rem,calc(5rem+env(safe-area-inset-bottom,0px)))] sm:px-5 sm:py-6 lg:pb-6">
+      <main className="page-enter mx-auto max-w-6xl px-3 py-5 pb-[max(5.5rem,calc(5rem+env(safe-area-inset-bottom,0px)))] sm:px-5 sm:py-6 md:pb-6">
         <RouteOutlet />
       </main>
 
       {/* Mobile bottom nav */}
-      <div className="lg:hidden">
+      <div className="md:hidden">
         <AdminDrawer
           nav={nav}
           pinnedNav={nav.filter((item) => ['/kids', '/parent', '/parent/learning'].includes(item.to))}

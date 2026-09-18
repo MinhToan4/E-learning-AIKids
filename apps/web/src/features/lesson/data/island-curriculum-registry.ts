@@ -2451,31 +2451,31 @@ export const ISLAND_CURRICULUM_LESSONS: IslandCurriculumLesson[] = [
         "practiceParts": [
           {
             "partNumber": 1,
-            "title": "Căn Cứ Hốc Cây Của Sóc Bông",
-            "icon": "☕",
-            "emoji": "☕",
-            "iconImage": "/assets/aiki-islands/island1_lesson2_teacup.jpg"
+            "title": "Căn Cứ Hốc Cây Sóc Bông",
+            "icon": "🐿️",
+            "emoji": "🐿️",
+            "iconImage": "/assets/aiki-islands/island3_lesson4_lair.jpg"
           },
           {
             "partNumber": 2,
-            "title": "Chiếc xe đạp mini",
-            "icon": "🚲",
-            "emoji": "🚲",
-            "iconImage": "/assets/aiki-islands/island1_lesson2_bicycle.jpg"
+            "title": "Pháo Đài Lửa Hiệp Sĩ Cáo",
+            "icon": "🦊",
+            "emoji": "🦊",
+            "iconImage": "/assets/aiki-islands/island3_lesson4_lair.jpg"
           },
           {
             "partNumber": 3,
-            "title": "Cuốn sổ tay bìa da",
-            "icon": "📖",
-            "emoji": "📖",
-            "iconImage": "/assets/aiki-islands/island1_lesson2_notebook.jpg"
+            "title": "Trạm Không Gian Robot Leo",
+            "icon": "🤖",
+            "emoji": "🤖",
+            "iconImage": "/assets/aiki-islands/island3_lesson4_lair.jpg"
           },
           {
             "partNumber": 4,
-            "title": "Cái đồng hồ cổ",
-            "icon": "⏰",
-            "emoji": "⏰",
-            "iconImage": "/assets/aiki-islands/island1_lesson2_clock.jpg"
+            "title": "Phòng Thám Tử Mèo Mimi",
+            "icon": "🐱",
+            "emoji": "🐱",
+            "iconImage": "/assets/aiki-islands/island3_lesson4_lair.jpg"
           }
         ]
       },

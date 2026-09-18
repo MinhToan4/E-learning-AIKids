@@ -1,10 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { Link } from 'react-router'
-import { Check, Lock } from 'lucide-react'
-
 import { api, type AchievementRow } from '@/shared/lib/api'
 import { Button } from '@/shared/components/ui/Button'
-import { AdventureModal } from '@/shared/components/ui/AdventureModal'
 import { EmptyState } from '@/shared/components/ui/EmptyState'
 import { ErrorState } from '@/shared/components/ui/ErrorState'
 import { PageMotion } from '@/shared/components/ui/PageMotion'
@@ -13,199 +10,145 @@ import { CardGridSkeleton } from '@/shared/components/ui/Skeleton'
 import { NavBadgeIcon } from '@/shared/components/icons/KidNavIcons'
 import { cn } from '@/shared/lib/cn'
 import { displayableAchievements, groupAchievementSeries, type AchievementSeries } from '../achievement-inventory'
-import { achievementBadgeAsset } from '../achievement-badge-assets'
-import { meePersonalRecordAsset } from '../mee-record-assets'
+import { TopPodiumShowcase, loadFavoriteBadges, saveFavoriteBadges } from '../components/TopPodiumShowcase'
+import { SoftClayShelf } from '../components/SoftClayShelf'
+import { BadgeDetailModal } from '../components/BadgeDetailModal'
 
 type Filter = 'all' | 'unlocked' | 'locked'
-type AchievementTone = 'brand' | 'sky' | 'mint' | 'sun' | 'coral'
 
-const categoryLabels: Record<string, string> = {
-  learning: 'Học tập',
-  lessons_completed: 'Học tập',
-  courses_completed: 'Học tập',
-  creation: 'Sáng tạo',
-  creative: 'Sáng tạo',
-  ai_skills: 'Kỹ năng số',
-  habit: 'Thói quen',
-  streak: 'Thói quen',
-  stars: 'Ngôi sao',
-  xp: 'Cấp độ',
-  level: 'Cấp độ',
-  collaboration: 'Cộng tác',
-  challenge: 'Thử thách',
-  discovery: 'Khám phá',
-  records: 'Kỷ lục',
-  social: 'Cộng đồng',
-  starter: 'Khởi hành',
-  general: 'Khác',
+export type ShelfCategory = 'habits' | 'learning' | 'creative' | 'stars' | 'olympic'
+
+export interface ShelfConfig {
+  id: ShelfCategory
+  title: string
+  subtitle: string
+  icon: string
 }
 
-function categoryLabel(value?: string) {
-  if (!value) return 'Khác'
-  return categoryLabels[value] ?? value.replaceAll('_', ' ')
+export interface SeriesRepresentativeBadge extends AchievementRow {
+  seriesKey: string
+  seriesTitle: string
+  currentLevel: number
+  totalLevels: number
+  series: AchievementSeries
 }
 
-function categoryTone(value?: string): AchievementTone {
-  if (value === 'learning' || value === 'lessons_completed' || value === 'courses_completed') return 'sky'
-  if (value === 'habit' || value === 'streak' || value === 'starter') return 'mint'
-  if (value === 'stars') return 'sun'
-  if (value === 'creation' || value === 'creative' || value === 'collaboration') return 'coral'
-  return 'brand'
-}
+export const SHELVES_CONFIG: ShelfConfig[] = [
+  {
+    id: 'habits',
+    title: '🌿 Tầng 1: Mầm Xanh Chăm Chỉ',
+    subtitle: 'Thói quen học tập, chuỗi ngày liên tiếp & vạch xuất phát',
+    icon: '🌿',
+  },
+  {
+    id: 'learning',
+    title: '🎒 Tầng 2: Nhà Thám Hiểm Bài Học',
+    subtitle: 'Chinh phục từng bài học và khóa học bổ ích',
+    icon: '🎒',
+  },
+  {
+    id: 'creative',
+    title: '🎨 Tầng 3: Xưởng Sáng Tạo Nhí',
+    subtitle: 'Vẽ tranh, viết truyện, sáng tạo công nghệ & AI',
+    icon: '🎨',
+  },
+  {
+    id: 'stars',
+    title: '⭐ Tầng 4: Bầu Trời Tinh Thể Sao',
+    subtitle: 'Ngôi sao tri thức, điểm kinh nghiệm XP & cấp bậc',
+    icon: '⭐',
+  },
+  {
+    id: 'olympic',
+    title: '🏆 Tầng 5: Đỉnh Cao Olympic',
+    subtitle: 'Đấu trường ASMO, SASMO, kỷ lục cá nhân & thử thách lớn',
+    icon: '🏆',
+  },
+]
 
-function percent(item: AchievementRow) {
-  if (item.unlocked) return 100
-  if (item.currentValue == null || item.requiredValue <= 0) return 0
-  return Math.min(100, Math.round((item.currentValue / item.requiredValue) * 100))
-}
+export function classifyAchievementShelf(item: AchievementRow): ShelfCategory {
+  const seriesKey = item.seriesKey?.toLowerCase() ?? ''
+  const category = item.category?.toLowerCase() ?? ''
+  const type = item.type.toLowerCase()
+  const text = `${type} ${seriesKey} ${category} ${item.title} ${item.description}`.toLowerCase()
 
-function progressUnit(item: AchievementRow) {
-  const semantic = `${item.type} ${item.seriesKey ?? ''} ${item.category ?? ''}`.toLowerCase()
-  if (semantic.includes('lesson') || semantic.includes('learning')) return 'bài học'
-  if (semantic.includes('course')) return 'khóa học'
-  if (semantic.includes('streak') || semantic.includes('habit')) return 'ngày học'
-  if (semantic.includes('star')) return 'ngôi sao'
-  if (semantic.includes('xp')) return 'XP'
-  if (semantic.includes('level')) return 'cấp'
-  if (semantic.includes('creation') || semantic.includes('creative')) return 'tác phẩm'
-  if (semantic.includes('collaboration')) return 'hoạt động chung'
-  return 'bước'
-}
+  // 1. Olympic & Challenges & Records
+  if (
+    seriesKey.includes('asmo')
+    || seriesKey.includes('sasmo')
+    || seriesKey.includes('olympic')
+    || seriesKey.includes('challenge')
+    || seriesKey.includes('record')
+    || seriesKey.includes('quest')
+    || seriesKey.includes('perfect')
+    || category === 'challenge'
+    || category === 'records'
+    || category === 'discovery'
+    || text.includes('asmo')
+    || text.includes('sasmo')
+    || text.includes('olympic')
+    || text.includes('kỷ lục')
+    || text.includes('thử thách')
+    || text.includes('hoàn hảo')
+    || text.includes('nhiệm vụ')
+  ) {
+    return 'olympic'
+  }
 
-function achievementTitleParts(title: string) {
-  const [tier, ...nameParts] = title.split(' · ')
-  return nameParts.length > 0 ? { tier, name: nameParts.join(' · ') } : { tier: 'Mầm xanh', name: title }
-}
+  // 2. Creative & AI & Creations
+  if (
+    seriesKey.includes('creative')
+    || seriesKey.includes('creation')
+    || seriesKey.includes('collab')
+    || category === 'creation'
+    || category === 'creative'
+    || category === 'ai_skills'
+    || category === 'collaboration'
+    || text.includes('sáng tạo')
+    || text.includes('tác phẩm')
+    || text.includes('truyện')
+    || text.includes('vẽ')
+    || text.includes('ảnh')
+    || text.includes('code')
+    || text.includes('ai')
+    || text.includes('cộng tác')
+  ) {
+    return 'creative'
+  }
 
-function achievementTier(tier: string) {
-  const normalized = tier.toLowerCase()
-  if (normalized.includes('bạc')) return 'silver'
-  if (normalized.includes('vàng')) return 'gold'
-  if (normalized.includes('pha lê')) return 'crystal'
-  if (normalized.includes('huyền thoại')) return 'legend'
-  return 'green'
-}
+  // 3. Stars, XP, Level
+  if (
+    seriesKey.includes('star')
+    || seriesKey.includes('xp')
+    || seriesKey.includes('level')
+    || category === 'stars'
+    || category === 'xp'
+    || category === 'level'
+    || text.includes('ngôi sao')
+    || text.includes('star')
+    || text.includes('cấp độ')
+    || text.includes('xp')
+  ) {
+    return 'stars'
+  }
 
-function LockedAchievementProgress({ item, compact = false, showInstruction = true }: { item: AchievementRow; compact?: boolean; showInstruction?: boolean }) {
-  const current = Math.max(0, item.currentValue ?? 0)
-  const remaining = Math.max(0, item.requiredValue - current)
-  const progress = percent({ ...item, currentValue: current })
+  // 4. Learning & Lessons & Courses
+  if (
+    seriesKey.includes('lesson')
+    || seriesKey.includes('course')
+    || category === 'learning'
+    || category === 'lessons_completed'
+    || category === 'courses_completed'
+    || text.includes('bài học')
+    || text.includes('khóa học')
+    || text.includes('lesson')
+    || text.includes('course')
+  ) {
+    return 'learning'
+  }
 
-  return (
-    <div className={cn('achievement-unlock-guide', compact && 'achievement-unlock-guide-compact')}>
-      {showInstruction && (
-        <p className="achievement-unlock-instruction">
-          <span>Cách mở</span>
-          {item.description}
-        </p>
-      )}
-      <div className="achievement-progress-meta">
-        <span className="achievement-progress-status">
-          <Lock size={14} aria-hidden="true" />
-          Còn {remaining.toLocaleString('vi-VN')} {progressUnit(item)}
-        </span>
-        <strong>{current.toLocaleString('vi-VN')}/{item.requiredValue.toLocaleString('vi-VN')}</strong>
-      </div>
-      <div
-        className="achievement-progress-track"
-        role="progressbar"
-        aria-label={`Tiến độ mở ${item.title}`}
-        aria-valuemin={0}
-        aria-valuemax={item.requiredValue}
-        aria-valuenow={Math.min(current, item.requiredValue)}
-      >
-        <span className="achievement-progress-fill" style={{ width: `${progress}%` }} />
-      </div>
-    </div>
-  )
-}
-
-function AchievementSeriesCard({ series, onShowJourney }: { series: AchievementSeries; onShowJourney: (series: AchievementSeries) => void }) {
-  const unlockedItems = series.items.filter((item) => item.unlocked)
-  const nextItem = series.items.find((item) => !item.unlocked)
-  const currentItem = nextItem ?? unlockedItems.at(-1) ?? series.items[0]
-  const imageSrc = achievementBadgeAsset(currentItem)
-    ?? (currentItem.icon.startsWith('/') || currentItem.icon.startsWith('http') ? currentItem.icon : null)
-  const completed = nextItem == null
-  const displayLevel = completed ? series.items.length : Math.min(series.items.length, unlockedItems.length + 1)
-  const title = achievementTitleParts(currentItem.title)
-
-  return (
-    <article
-      className={cn('achievement-series-card', completed ? 'achievement-card-unlocked' : 'achievement-card-locked')}
-      data-tone={categoryTone(currentItem.category)}
-      data-tier={achievementTier(title.tier)}
-    >
-      <div className="achievement-series-summary">
-        <div className="achievement-medallion" aria-hidden="true">
-          {imageSrc ? (
-            <img src={imageSrc} alt="" className="h-12 w-12 object-contain" />
-          ) : currentItem.unlocked ? <NavBadgeIcon size={38} /> : <Lock size={26} />}
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="achievement-card-labels">
-            <span className="achievement-tier-label">{title.tier}</span>
-            <span className="achievement-category-label">{categoryLabel(currentItem.category)}</span>
-          </div>
-          <h3 className="achievement-card-title font-display text-text">{title.name}</h3>
-        </div>
-        <span className="achievement-series-level" aria-label={`Đang ở cấp ${displayLevel}`}>
-          Cấp {displayLevel}
-        </span>
-      </div>
-
-      <div className="achievement-series-footer">
-        {nextItem ? (
-          <LockedAchievementProgress item={nextItem} showInstruction={false} />
-        ) : (
-          <p className="achievement-state achievement-state-unlocked">
-            <Check size={17} aria-hidden="true" /> Đã hoàn thành chuỗi
-          </p>
-        )}
-        <button type="button" className="achievement-journey-trigger" onClick={() => onShowJourney(series)}>
-          Hành trình {series.items.length} cấp
-        </button>
-      </div>
-    </article>
-  )
-}
-
-function PersonalRecordCard({ item }: { item: AchievementRow }) {
-  const imageSrc = meePersonalRecordAsset(item)
-    ?? achievementBadgeAsset(item)
-    ?? (item.icon.startsWith('/') || item.icon.startsWith('http') ? item.icon : null)
-  const value = item.currentValue ?? (item.unlocked ? item.requiredValue : 0)
-  const title = achievementTitleParts(item.title)
-  const hasRecord = value > 0
-  return (
-    <article
-      className={cn('achievement-record-card', !hasRecord && 'achievement-record-card-empty')}
-      data-tone={categoryTone(item.category)}
-      data-tier={achievementTier(title.tier)}
-    >
-      <div className="achievement-record-icon" aria-hidden="true">
-        {imageSrc ? <img src={imageSrc} alt="" /> : <NavBadgeIcon size={48} />}
-        <p className="achievement-record-value font-display">{value.toLocaleString('vi-VN')}</p>
-      </div>
-      <span className="achievement-tier-label">{title.tier}</span>
-      <h3 className="achievement-card-title font-display text-text">{title.name}</h3>
-      <span className="sr-only">{hasRecord ? `Giá trị kỷ lục: ${value.toLocaleString('vi-VN')}` : 'Chưa có kỷ lục'}</span>
-      {item.unlocked ? (
-        <p className="achievement-record-caption text-sm font-semibold text-muted">Kỷ lục tốt nhất của con</p>
-      ) : (
-        <LockedAchievementProgress item={item} compact showInstruction={false} />
-      )}
-    </article>
-  )
-}
-
-const personalRecordSeries = new Set([
-  'lessons', 'courses', 'streak', 'stars', 'xp', 'level',
-  'best-score', 'perfect-streak', 'creative-projects', 'quests',
-])
-
-function isPersonalRecordSeries(series: AchievementSeries) {
-  return personalRecordSeries.has(series.key)
+  // 5. Habits, Streak, Starter (default for habit/daily)
+  return 'habits'
 }
 
 export function AchievementsPage() {
@@ -213,7 +156,12 @@ export function AchievementsPage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<Filter>('all')
-  const [selectedSeries, setSelectedSeries] = useState<AchievementSeries | null>(null)
+
+  // Selected badge for Detail Modal
+  const [selectedBadge, setSelectedBadge] = useState<AchievementRow | null>(null)
+
+  // 3 Proudest Treasure Badges: [Treasure1, Treasure2, Treasure3]
+  const [favoriteBadges, setFavoriteBadges] = useState<(string | null)[]>(loadFavoriteBadges)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -228,76 +176,215 @@ export function AchievementsPage() {
     }
   }, [])
 
-  useEffect(() => { void load() }, [load])
+  useEffect(() => {
+    void load()
+  }, [load])
 
-  const unlocked = items.filter((item) => item.unlocked).length
-  const visible = useMemo(() => items.filter((item) => {
-    if (filter === 'unlocked') return item.unlocked
-    if (filter === 'locked') return !item.unlocked
-    return true
-  }), [filter, items])
-  const personalRecords = useMemo(() => {
-    return groupAchievementSeries(visible)
-      .filter(isPersonalRecordSeries)
-      .map((series) => series.items.find((item) => !item.unlocked) ?? series.items.at(-1))
-      .filter((item): item is AchievementRow => item != null)
-  }, [visible])
-  const achievementSeries = useMemo(() => groupAchievementSeries(items).filter((series) => {
-    if (filter === 'unlocked') return series.items.some((item) => item.unlocked)
-    if (filter === 'locked') return series.items.some((item) => !item.unlocked)
-    return true
-  }), [filter, items])
+  // Group into Series families
+  const seriesList = useMemo(() => groupAchievementSeries(items), [items])
+
+  // Aggregate into exactly 1 representative badge per series:
+  // - If any level is unlocked: Highest unlocked level
+  // - If none unlocked: Level 1 in Pokédex mystery silhouette mode
+  const representativeBadges = useMemo(() => {
+    return seriesList.map((series): SeriesRepresentativeBadge => {
+      const unlockedMilestones = series.items.filter((item) => item.unlocked)
+      const totalLevels = series.items.length
+      const currentLevel = unlockedMilestones.length
+
+      const baseItem = currentLevel > 0
+        ? unlockedMilestones[unlockedMilestones.length - 1]
+        : series.items[0]
+
+      const seriesTitle = baseItem.title.includes(' · ')
+        ? baseItem.title.split(' · ')[0].trim()
+        : baseItem.title
+
+      return {
+        ...baseItem,
+        seriesKey: series.key,
+        seriesTitle,
+        currentLevel,
+        totalLevels,
+        series,
+        unlocked: currentLevel > 0,
+      }
+    })
+  }, [seriesList])
+
+  const unlockedSeriesCount = useMemo(
+    () => representativeBadges.filter((b) => b.currentLevel > 0).length,
+    [representativeBadges],
+  )
+  const totalSeriesCount = representativeBadges.length
+
+  // List of unlocked treasures for Top 3 showcase picker
+  const unlockedTreasures = useMemo(
+    () => representativeBadges.filter((b) => b.currentLevel > 0),
+    [representativeBadges],
+  )
+
+  // Combined inventory for looking up pinned badges
+  const combinedAchievements = useMemo(
+    () => [...items, ...representativeBadges],
+    [items, representativeBadges],
+  )
+
+  // Selected series for detail modal
+  const selectedSeries = useMemo(() => {
+    if (!selectedBadge) return null
+    if ('series' in selectedBadge && (selectedBadge as SeriesRepresentativeBadge).series) {
+      return (selectedBadge as SeriesRepresentativeBadge).series
+    }
+    return (
+      seriesList.find((series) => series.items.some((item) => item.type === selectedBadge.type))
+      ?? null
+    )
+  }, [selectedBadge, seriesList])
+
+  // Filtered series representatives based on active filter ('all' | 'unlocked' | 'locked')
+  const visibleRepresentativeBadges = useMemo(() => {
+    return representativeBadges.filter((badge) => {
+      if (filter === 'unlocked') return badge.currentLevel > 0
+      if (filter === 'locked') return badge.currentLevel === 0
+      return true
+    })
+  }, [filter, representativeBadges])
+
+  // Group visible series into 5 soft clay shelves
+  const shelfItemsMap = useMemo(() => {
+    const map = new Map<ShelfCategory, SeriesRepresentativeBadge[]>()
+    for (const shelf of SHELVES_CONFIG) {
+      map.set(shelf.id, [])
+    }
+    for (const badge of visibleRepresentativeBadges) {
+      const category = classifyAchievementShelf(badge)
+      const list = map.get(category) ?? []
+      list.push(badge)
+      map.set(category, list)
+    }
+    return map
+  }, [visibleRepresentativeBadges])
+
+  // Set of pinned badge types for quick O(1) lookup
+  const favoriteBadgeTypes = useMemo(() => {
+    return new Set(favoriteBadges.filter((type): type is string => Boolean(type)))
+  }, [favoriteBadges])
+
+  // Handlers for showcase pin / unpin
+  const handlePinToPodium = useCallback(
+    (badgeType: string, slotIndex: number) => {
+      setFavoriteBadges((prev) => {
+        const next = [...prev]
+        for (let i = 0; i < next.length; i++) {
+          if (next[i] === badgeType) next[i] = null
+        }
+        next[slotIndex] = badgeType
+        saveFavoriteBadges(next)
+        return next
+      })
+    },
+    [],
+  )
+
+  const handleUnpinFromPodium = useCallback((badgeType: string) => {
+    setFavoriteBadges((prev) => {
+      const next = prev.map((t) => (t === badgeType ? null : t))
+      saveFavoriteBadges(next)
+      return next
+    })
+  }, [])
 
   return (
-    <PageMotion className="achievement-experience flex flex-col gap-5">
+    <PageMotion className="achievement-experience flex flex-col gap-6 min-w-0">
+      {/* Header Hero */}
       <header className="student-feature-hero achievement-hero" data-tone="sun">
         <ImportantCardMascot pose="celebrate" />
-        <Link to="/profile" className="inline-flex min-h-11 items-center font-extrabold text-brand-700 hover:underline">
+        <Link
+          to="/profile"
+          className="inline-flex min-h-11 items-center font-extrabold text-brand-700 hover:underline"
+        >
           ← Về hồ sơ
         </Link>
         <div className="student-feature-hero-row mt-2">
           <div>
             <div className="eyebrow-chip">
               <NavBadgeIcon size={20} aria-hidden="true" />
-              Vùng sưu tập
+              Vùng sưu tập báu vật
             </div>
-            <h1 className="font-display text-3xl text-text sm:text-4xl">Huy hiệu của con</h1>
+            <h1 className="font-display text-3xl text-text sm:text-4xl">
+              Kệ Trưng Bày Huy Hiệu Soft Clay
+            </h1>
             <p className="mt-1 max-w-xl text-base font-semibold text-muted">
-              Mỗi huy hiệu ghi lại một điều con đã làm được.
+              Mỗi huy hiệu là một viên gạch thành tựu, cùng Mèo Mee tích lũy thật nhiều nhé!
             </p>
           </div>
-          {!loading && items.length > 0 && (
-            <div className="achievement-hero-count">
-              <span className="achievement-hero-medal" aria-hidden="true"><NavBadgeIcon size={34} /></span>
-              <p><strong className="block font-display text-2xl text-text">{unlocked}/{items.length}</strong><span className="text-sm font-bold text-muted">đã mở</span></p>
+          {!loading && totalSeriesCount > 0 && (
+            <div className="achievement-hero-count shrink-0">
+              <span className="achievement-hero-medal" aria-hidden="true">
+                <NavBadgeIcon size={34} />
+              </span>
+              <p>
+                <strong className="block font-display text-2xl text-text">
+                  {unlockedSeriesCount}/{totalSeriesCount}
+                </strong>
+                <span className="text-sm font-bold text-muted">báu vật đã mở</span>
+              </p>
             </div>
           )}
         </div>
-        {!loading && items.length > 0 && (
-          <div className="achievement-collection-progress">
-            <span className="sr-only">Đã mở {unlocked} trên {items.length} huy hiệu</span>
-            <span style={{ width: `${Math.round((unlocked / items.length) * 100)}%` }} />
+        {!loading && totalSeriesCount > 0 && (
+          <div className="achievement-collection-progress mt-3">
+            <span className="sr-only">
+              Đã mở {unlockedSeriesCount} trên {totalSeriesCount} báu vật
+            </span>
+            <span
+              style={{
+                width: `${Math.round((unlockedSeriesCount / totalSeriesCount) * 100)}%`,
+              }}
+            />
           </div>
         )}
       </header>
 
+      {/* Error & Loading States */}
       {error && <ErrorState message={error} onRetry={() => void load()} inline />}
       {loading && <CardGridSkeleton count={6} />}
+
+      {/* Empty State */}
       {!loading && !error && items.length === 0 && (
         <EmptyState
           title="Hành trình vừa bắt đầu"
           description="Hoàn thành một bài học để nhận huy hiệu đầu tiên."
-          action={<Link to="/home"><Button>Về sảnh học</Button></Link>}
+          action={
+            <Link to="/home">
+              <Button>Về sảnh học</Button>
+            </Link>
+          }
         />
       )}
 
+      {/* Main Content Area */}
       {!loading && !error && items.length > 0 && (
-        <>
-          <nav className="achievement-filter-rail flex gap-2 overflow-x-auto" aria-label="Lọc huy hiệu">
+        <div className="flex flex-col gap-6 min-w-0">
+          {/* 3 Proudest Treasures Showcase */}
+          <TopPodiumShowcase
+            unlockedItems={unlockedTreasures}
+            allAchievements={combinedAchievements}
+            favoriteBadges={favoriteBadges}
+            onFavoritesChange={setFavoriteBadges}
+            onViewBadgeDetail={setSelectedBadge}
+          />
+
+          {/* Filter Navigation Rail */}
+          <nav
+            className="achievement-filter-rail flex items-center gap-2 overflow-x-auto py-1"
+            aria-label="Lọc báu vật"
+          >
             {([
-              ['all', 'Tất cả'],
-              ['unlocked', 'Đã mở'],
-              ['locked', 'Đang khám phá'],
+              ['all', `Tất cả báu vật (${totalSeriesCount})`],
+              ['unlocked', `Đã mở (${unlockedSeriesCount})`],
+              ['locked', `Chưa mở (${totalSeriesCount - unlockedSeriesCount})`],
             ] as const).map(([value, label]) => (
               <button
                 key={value}
@@ -305,7 +392,7 @@ export function AchievementsPage() {
                 aria-pressed={filter === value}
                 onClick={() => setFilter(value)}
                 className={cn(
-                  'min-h-11 shrink-0 rounded-2xl border px-4 text-sm font-extrabold',
+                  'min-h-11 shrink-0 rounded-2xl border px-4 text-sm font-extrabold transition-colors',
                   filter === value
                     ? 'border-sun-400 bg-sun-400 text-sun-700 shadow-press'
                     : 'border-border bg-white/90 text-text hover:border-sun-200 hover:bg-sun-50',
@@ -316,81 +403,45 @@ export function AchievementsPage() {
             ))}
           </nav>
 
-          {visible.length ? (
-            <div className="achievement-duo-layout">
-              {personalRecords.length > 0 && (
-                <section aria-labelledby="personal-records-title">
-                  <div className="achievement-section-heading">
-                    <div>
-                      <p className="text-sm font-extrabold text-brand-600">Thành tích tốt nhất</p>
-                      <h2 id="personal-records-title" className="font-display text-3xl text-text">Kỷ lục cá nhân</h2>
-                    </div>
-                    <span>{personalRecords.length}</span>
-                  </div>
-                  <div className="achievement-record-grid">
-                    {personalRecords.map((item) => (
-                      <PersonalRecordCard key={`${item.type}-${item.requiredValue}`} item={item} />
-                    ))}
-                  </div>
-                </section>
-              )}
+          {/* 5 Shelves Showcase */}
+          {visibleRepresentativeBadges.length > 0 ? (
+            <div className="flex flex-col gap-6 min-w-0">
+              {SHELVES_CONFIG.map((shelf) => {
+                const shelfItems = shelfItemsMap.get(shelf.id) ?? []
+                if (shelfItems.length === 0) return null
 
-              {achievementSeries.length > 0 && (
-                <section aria-labelledby="awards-title">
-                  <div className="achievement-section-heading">
-                    <div>
-                      <p className="text-sm font-extrabold text-sun-700">Mở từng cấp, tiến hoá từng huy hiệu</p>
-                      <h2 id="awards-title" className="font-display text-3xl text-text">Bộ sưu tập thành tích</h2>
-                    </div>
-                    <span>{achievementSeries.length}</span>
-                  </div>
-                  <div className="achievement-series-grid">
-                    {achievementSeries.map((series) => (
-                      <AchievementSeriesCard key={series.key} series={series} onShowJourney={setSelectedSeries} />
-                    ))}
-                  </div>
-                </section>
-              )}
+                return (
+                  <SoftClayShelf
+                    key={shelf.id}
+                    shelfId={shelf.id}
+                    title={shelf.title}
+                    subtitle={shelf.subtitle}
+                    icon={shelf.icon}
+                    items={shelfItems}
+                    favoriteBadgeTypes={favoriteBadgeTypes}
+                    onSelectBadge={setSelectedBadge}
+                  />
+                )
+              })}
             </div>
           ) : (
-            <EmptyState title="Không có huy hiệu trong mục này" description="Chọn một mục khác để xem tiếp." />
+            <EmptyState
+              title="Không có báu vật trong mục này"
+              description="Chọn một mục khác để tiếp tục ngắm nhìn bộ sưu tập con nhé."
+            />
           )}
-        </>
+        </div>
       )}
 
-      <AchievementJourneyModal series={selectedSeries} onClose={() => setSelectedSeries(null)} />
+      {/* Badge Detail Modal */}
+      <BadgeDetailModal
+        item={selectedBadge}
+        series={selectedSeries}
+        favoriteBadges={favoriteBadges}
+        onPinToPodium={handlePinToPodium}
+        onUnpinFromPodium={handleUnpinFromPodium}
+        onClose={() => setSelectedBadge(null)}
+      />
     </PageMotion>
-  )
-}
-
-export function AchievementJourneyModal({ series, onClose }: { series: AchievementSeries | null; onClose: () => void }) {
-  if (!series) return null
-  const unlockedCount = series.items.filter((item) => item.unlocked).length
-  const nextItem = series.items.find((item) => !item.unlocked)
-  const representative = nextItem ?? series.items.at(-1) ?? series.items[0]
-
-  return (
-    <AdventureModal
-      open
-      tone="achievement"
-      eyebrow={`${unlockedCount} cấp đã mở`}
-      title={representative.title.replace(/^.+? · /, '')}
-      description="Mỗi lần đạt một mốc, huy hiệu của con sẽ tiến hoá thêm một cấp."
-      onClose={onClose}
-      actions={<Button variant="secondary" onClick={onClose}>Quay lại bộ sưu tập</Button>}
-    >
-      <ol className="achievement-journey-list" aria-label="Các cấp huy hiệu">
-        {series.items.map((item, index) => (
-          <li key={`${item.type}-${item.requiredValue}`} className={cn(item.unlocked && 'is-unlocked', item === nextItem && 'is-next')}>
-            <span className="achievement-journey-step" aria-hidden="true">{item.unlocked ? <Check size={17} /> : index + 1}</span>
-            <span>
-              <strong>{item.title}</strong>
-              <small>{item.requiredValue.toLocaleString('vi-VN')} {progressUnit(item)}</small>
-            </span>
-            <b>{item.unlocked ? 'Đã mở' : item === nextItem ? 'Tiếp theo' : 'Chưa mở'}</b>
-          </li>
-        ))}
-      </ol>
-    </AdventureModal>
   )
 }

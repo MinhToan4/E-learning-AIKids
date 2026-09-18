@@ -554,6 +554,77 @@ describe('CreativeEngine Suite', () => {
       expect(html).not.toContain('Lông vằn cam trắng')
     })
 
+    it('renders MagicKeysEngine for Chú Mèo Mướp Vàng with cat base vocabulary only and no cup blocks', () => {
+      const html = renderToStaticMarkup(
+        <MagicKeysEngine
+          selectedSubject="Chú Mèo Mướp Vàng"
+          lessonId="bai-1-1"
+          onPromptChange={vi.fn()}
+        />
+      )
+      expect(html).toContain('Lông vằn vàng cam')
+      expect(html).toContain('Béo tròn bụ bẫm')
+      expect(html).toContain('Mắt tròn xoe biếc xanh')
+      expect(html).not.toContain('Mẻ miệng một góc')
+      expect(html).not.toContain('Sứ trắng men bóng')
+    })
+
+    it('renders MagicKeysEngine for Mèo Béo Ngủ Ghế Mây with sleeping cat vocabulary', () => {
+      const html = renderToStaticMarkup(
+        <MagicKeysEngine
+          selectedSubject="Mèo Béo Ngủ Ghế Mây"
+          lessonId="bai-1-1"
+          onPromptChange={vi.fn()}
+        />
+      )
+      expect(html).toContain('Cuộn tròn như cuộn len')
+      expect(html).toContain('Má phúng phính say sưa')
+      expect(html).toContain('Bộ lông xù mềm mại')
+      expect(html).not.toContain('Mẻ miệng một góc')
+    })
+
+    it('renders MagicKeysEngine for Mèo Bắt Bướm Nắng Vàng with butterfly catching vocabulary', () => {
+      const html = renderToStaticMarkup(
+        <MagicKeysEngine
+          selectedSubject="Mèo Bắt Bướm Nắng Vàng"
+          lessonId="bai-1-1"
+          onPromptChange={vi.fn()}
+        />
+      )
+      expect(html).toContain('Ánh mắt chăm chú sáng ngời')
+      expect(html).toContain('Bốn chân nhanh thoăn thoắt')
+      expect(html).toContain('Vằn cam rực rỡ dưới nắng')
+      expect(html).not.toContain('Mẻ miệng một góc')
+    })
+
+    it('renders MagicKeysEngine for Mèo Phi Hành Gia with astronaut cat vocabulary', () => {
+      const html = renderToStaticMarkup(
+        <MagicKeysEngine
+          selectedSubject="Mèo Phi Hành Gia"
+          lessonId="bai-1-1"
+          onPromptChange={vi.fn()}
+        />
+      )
+      expect(html).toContain('Bộ đồ phi hành gia trắng')
+      expect(html).toContain('Mũ kính tròn trong suốt')
+      expect(html).toContain('Huy hiệu sao vàng ngực')
+      expect(html).not.toContain('Mẻ miệng một góc')
+    })
+
+    it('renders MagicKeysEngine for Căn Cứ Hốc Cây Sóc Bông with treehouse base vocabulary', () => {
+      const html = renderToStaticMarkup(
+        <MagicKeysEngine
+          selectedSubject="Căn Cứ Hốc Cây Sóc Bông"
+          lessonId="bai-3-4"
+          onPromptChange={vi.fn()}
+        />
+      )
+      expect(html).toContain('Đèn nấm ma thuật')
+      expect(html).toContain('Thang dây bện vỏ cây')
+      expect(html).not.toContain('Mẻ miệng một góc')
+    })
+
+
     it('renders MagicKeysEngine for bicycle subject with bicycle vocabulary', () => {
       const html = renderToStaticMarkup(
         <MagicKeysEngine
@@ -1699,6 +1770,49 @@ describe('CreativeEngine Suite', () => {
       expect(blocks[0].category).toBe('subject')
       expect(blocks[0].label).toBe('Hiệp Sĩ Cáo Lửa')
       expect(assembled).toContain('Hiệp Sĩ Cáo Lửa')
+
+      act(() => {
+        root.unmount()
+      })
+      container.remove()
+    })
+
+    it('MagicKeysEngine: reverse syncs slots when currentPrompt changes from outside', async () => {
+      const onPromptChange = vi.fn()
+      const container = document.createElement('div')
+      document.body.appendChild(container)
+      const root = createRoot(container)
+
+      await act(async () => {
+        root.render(
+          <MagicKeysEngine
+            selectedSubject="Cái cốc sứ trắng"
+            lessonId="bai-1-2"
+            currentPrompt="Cái cốc sứ trắng"
+            onPromptChange={onPromptChange}
+          />
+        )
+      })
+
+      // Giờ người dùng xem lại một ảnh có prompt đã kết hợp đầy đủ
+      const fullPrompt = 'Cái cốc sứ trắng chất liệu men sứ màu trắng sữa bóng bẩy mịn màng làn hơi nóng bốc lên nghi ngút thơm lừng'
+      await act(async () => {
+        root.render(
+          <MagicKeysEngine
+            selectedSubject="Cái cốc sứ trắng"
+            lessonId="bai-1-2"
+            currentPrompt={fullPrompt}
+            onPromptChange={onPromptChange}
+          />
+        )
+      })
+
+      // Kiểm tra slot color-shape và action đã được đồng bộ với block tương ứng
+      const slotColorShape = container.querySelector('[data-testid="slot-slot-color-shape"]')
+      expect(slotColorShape?.textContent).toContain('Sứ trắng men bóng')
+
+      const slotAction = container.querySelector('[data-testid="slot-slot-action"]')
+      expect(slotAction?.textContent).toContain('Đang bốc khói nghi ngút')
 
       act(() => {
         root.unmount()

@@ -247,9 +247,9 @@ export function AsmoExamArenaPage() {
 
       {/* ── EXAM BODY / RESULTS ── */}
       {!isSubmitted ? (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
           {/* Main Question Area (8 cols) */}
-          <div className="lg:col-span-8 flex flex-col gap-6">
+          <div className="md:col-span-7 lg:col-span-8 flex flex-col gap-6">
             {/* Question Card */}
             <AsmoQuestionCard
               key={currentQuestion.id}
@@ -299,7 +299,7 @@ export function AsmoExamArenaPage() {
           </div>
 
           {/* Right Sidebar: Question Palette & Mee Tutor (4 cols) */}
-          <div className="lg:col-span-4 flex flex-col gap-5">
+          <div className="md:col-span-5 lg:col-span-4 flex flex-col gap-5">
             {/* Question Navigation Grid */}
             <div className="rounded-3xl border border-slate-200/80 bg-white/90 p-5 shadow-clay backdrop-blur-md">
               <div className="flex items-center justify-between mb-3 border-b border-slate-100 pb-2.5">

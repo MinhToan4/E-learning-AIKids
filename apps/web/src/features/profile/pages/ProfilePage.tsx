@@ -252,7 +252,7 @@ export function ProfilePage() {
           border: 'none',
         }}
       >
-        <div className="grid items-center gap-5 p-4 sm:p-5 lg:grid-cols-[minmax(0,1fr)_21rem] lg:px-6 lg:py-5">
+        <div className="grid items-center gap-5 p-4 sm:p-5 md:grid-cols-[minmax(0,1fr)_18rem] lg:grid-cols-[minmax(0,1fr)_21rem] md:px-5 lg:px-6 lg:py-5">
           {user && (
             <EquippedProfile
               user={user}

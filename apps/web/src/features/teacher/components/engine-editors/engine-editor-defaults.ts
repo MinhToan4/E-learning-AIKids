@@ -479,13 +479,13 @@ export function suggestFourKeysForSubject(subjectName: string): {
         { partNumber: 1, title: 'Chú Mèo Mướp Vàng', icon: '🐱', emoji: '🐱', iconImage: '/assets/aiki-keys/key_subject_cat.jpg' },
         { partNumber: 2, title: 'Mèo Béo Ngủ Ghế Mây', icon: '🪑', emoji: '🪑', iconImage: '/assets/aiki-keys/key_what_blue.jpg' },
         { partNumber: 3, title: 'Mèo Bắt Bướm Nắng Vàng', icon: '🦋', emoji: '🦋', iconImage: '/assets/aiki-keys/key_action_orange.jpg' },
-        { partNumber: 4, title: 'Mèo Trèo Cây Cau', icon: '🌳', emoji: '🌳', iconImage: '/assets/aiki-keys/key_where_pink.jpg' },
+        { partNumber: 4, title: 'Mèo Phi Hành Gia', icon: '🚀', emoji: '🚀', iconImage: '/assets/aiki-keys/key_where_pink.jpg' },
       ],
       fourKeys: {
-        what: ['Mèo mướp vàng', 'Mèo tam thể', 'Mèo Ba Tư lông xù', 'Mèo con mắt biếc'],
-        how: ['béo tròn bụ bẫm', 'lông vàng óng ả', 'tai vểnh mắt tròn', 'đeo nơ đỏ xinh'],
-        action: ['đang ngủ cuộn tròn', 'đang vờn bóng len', 'đang rình bắt bướm', 'đang sưởi nắng ấm'],
-        where: ['trên ghế mây êm ái', 'bên bậu cửa sổ', 'giữa thảm cỏ hoa', 'trong giỏ len ấm áp'],
+        what: ['Chú Mèo Mướp Vàng', 'Mèo Béo Ngủ Ghế Mây', 'Mèo Bắt Bướm Nắng Vàng', 'Mèo Phi Hành Gia'],
+        how: ['Lông vằn vàng cam', 'Béo tròn bụ bẫm', 'Cuộn tròn như cuộn len', 'Bộ đồ phi hành gia trắng'],
+        action: ['Ngồi liếm láp bàn chân', 'Ngủ khò say sưa', 'Bật nhảy chộp bướm', 'Bay lơ lửng không trọng lực'],
+        where: ['Bên thềm nhà đón nắng', 'Trên chiếc ghế mây tròn', 'Giữa vườn hoa bướm rực rỡ', 'Giữa dải ngân hà kỳ ảo'],
       },
     }
   }

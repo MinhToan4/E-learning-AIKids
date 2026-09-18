@@ -115,9 +115,9 @@ export function Asmo3DLabPage() {
       </div>
 
       {/* Main Grid: 3D Viewport on Left, Question Card & Mee Tutor on Right */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
         {/* Left Column: 3D Canvas (7 cols) */}
-        <div className="lg:col-span-7 flex flex-col gap-4">
+        <div className="md:col-span-7 flex flex-col gap-4">
           <div className="rounded-3xl border-2 border-brand-100 bg-white p-2 shadow-clay">
             <AsmoThreeViewer
               key={`${currentKey}-${activeStepIndex}`}
@@ -151,7 +151,7 @@ export function Asmo3DLabPage() {
         </div>
 
         {/* Right Column: Question Card & Solver (5 cols) */}
-        <div className="lg:col-span-5 flex flex-col gap-4">
+        <div className="md:col-span-5 flex flex-col gap-4">
           <AsmoQuestionCard
             key={templateConfig.problem.id}
             question={templateConfig.problem}

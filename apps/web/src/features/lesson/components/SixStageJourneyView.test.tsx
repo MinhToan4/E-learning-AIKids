@@ -553,7 +553,7 @@ describe('SixStageJourneyView', () => {
     expect(container.textContent).toContain('Vì câu lệnh của bé chưa ghi rõ màu sắc lông mèo')
   })
 
-  it('verifies Stage 1 option image container uses aspect-[4/3] object-contain without cropping or max-h restrictions, and supports full-screen zoom Lightbox', () => {
+  it('verifies Stage 1 option image container uses aspect-[4/3] object-contain and max-h-[260px] to prevent vertical stretching, and supports full-screen zoom Lightbox', () => {
     const root = createRoot(container)
     act(() => {
       root.render(
@@ -569,18 +569,28 @@ describe('SixStageJourneyView', () => {
     const stage1Section = container.querySelector('section[data-testid="stage-1-confirm"]')
     expect(stage1Section).not.toBeNull()
 
+    // Verify option cards use h-auto and max-w-4xl to prevent vertical and horizontal stretching
+    const optionsGrid = stage1Section?.querySelector('.max-w-4xl')
+    expect(optionsGrid).not.toBeNull()
+    const optionCards = optionsGrid?.querySelectorAll('button')
+    expect(optionCards?.length).toBe(2)
+    optionCards?.forEach((card) => {
+      expect(card.className).toContain('h-auto')
+    })
+
     const imgContainers = stage1Section?.querySelectorAll('.aspect-\\[4\\/3\\]')
     expect(imgContainers?.length).toBe(2)
 
     imgContainers?.forEach((box) => {
       expect(box.className).toContain('aspect-[4/3]')
       expect(box.className).toContain('sm:aspect-[16/10]')
+      expect(box.className).toContain('max-h-[260px]')
     })
 
     const images = stage1Section?.querySelectorAll('img')
     expect(images?.length).toBe(2)
     images?.forEach((img) => {
-      expect(img.className).toContain('object-cover')
+      expect(img.className).toContain('object-contain')
     })
 
     // Test clicking zoom button to open Lightbox Modal
@@ -601,6 +611,45 @@ describe('SixStageJourneyView', () => {
       window.dispatchEvent(new KeyboardEvent('keydown', { key: 'Escape' }))
     })
     expect(document.body.querySelector('[data-testid="lightbox-modal"]')).toBeNull()
+  })
+
+  it('verifies Stage 0 (Chặng 1) layout has 2 columns: left image container with aspect-[4/3] max-h-[380px] object-contain, right objective and 2x2 formula keys', () => {
+    const root = createRoot(container)
+    act(() => {
+      root.render(
+        <SixStageJourneyView
+          journey={mockJourney}
+          lessonId="bai-1-1"
+          lessonTitle="Đừng Để AKI Đoán Mò"
+          initialStageIndex={0}
+        />
+      )
+    })
+
+    const stage0Section = container.querySelector('section[data-testid="stage-0-goal"]')
+    expect(stage0Section).not.toBeNull()
+
+    // 2-column layout
+    const twoColContainer = Array.from(stage0Section?.children || []).find((el) =>
+      el.className.includes('lg:flex-row')
+    )
+    expect(twoColContainer).not.toBeNull()
+
+    // Left Column: Image container with aspect-[4/3] and max-h-[380px] object-contain
+    const leftCol = twoColContainer?.children[0]
+    expect(leftCol?.className).toContain('lg:w-1/2')
+    const imgContainer = leftCol?.querySelector('.aspect-\\[4\\/3\\]')
+    expect(imgContainer?.className).toContain('max-h-[380px]')
+    const heroImg = leftCol?.querySelector('img')
+    expect(heroImg?.className).toContain('object-contain')
+
+    // Right Column: Objective card + 4 formula keys in 2x2 grid
+    const rightCol = twoColContainer?.children[1]
+    expect(rightCol?.className).toContain('lg:w-1/2')
+    const keysGrid = rightCol?.querySelector('.grid.grid-cols-1.sm\\:grid-cols-2')
+    expect(keysGrid).not.toBeNull()
+    const keyItems = keysGrid?.children || []
+    expect(keyItems.length).toBe(4)
   })
 
   it('verifies Stage 2 video layout is cinema full-width 16:9, timestamps moved to Sidebar for non-cluttered view, and seeking works', () => {

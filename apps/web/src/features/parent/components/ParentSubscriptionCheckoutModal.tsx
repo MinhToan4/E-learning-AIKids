@@ -4,6 +4,7 @@ import {
   Check,
   CheckCircle2,
   Copy,
+  Download,
   HardDrive,
   Headphones,
   Palette,
@@ -105,6 +106,8 @@ export interface ParentSubscriptionCheckoutModalProps {
   publicId?: string
   initialMode?: CheckoutProductMode
   initialPackId?: string
+  planAmount?: number
+  planName?: string
 }
 
 export type PaymentTab = 'vietqr' | 'manual' | 'wallets'
@@ -117,6 +120,18 @@ const BANK_INFO = {
   amountFormatted: '129.000 đ',
   hotline: '0382.228.888',
 }
+
+export const POPULAR_BANK_APPS = [
+  { id: 'mbbank', name: 'MB Bank', scheme: 'mbmobile://', short: 'MB', color: 'bg-blue-600' },
+  { id: 'vcb', name: 'Vietcombank', scheme: 'vietcombank://', short: 'VCB', color: 'bg-emerald-600' },
+  { id: 'tcb', name: 'Techcombank', scheme: 'techcombank://', short: 'TCB', color: 'bg-red-600' },
+  { id: 'bidv', name: 'BIDV', scheme: 'bidvsmartbanking://', short: 'BIDV', color: 'bg-teal-700' },
+  { id: 'vpbank', name: 'VPBank', scheme: 'vpbankneo://', short: 'VPB', color: 'bg-green-600' },
+  { id: 'tpbank', name: 'TPBank', scheme: 'tpbankmobile://', short: 'TPB', color: 'bg-purple-600' },
+  { id: 'acb', name: 'ACB ONE', scheme: 'acbone://', short: 'ACB', color: 'bg-blue-700' },
+  { id: 'momo', name: 'Ví MoMo', scheme: 'momo://', short: 'MoMo', color: 'bg-pink-600' },
+  { id: 'zalopay', name: 'ZaloPay', scheme: 'zalopay://', short: 'ZaloPay', color: 'bg-cyan-600' },
+]
 
 export interface PaymentIntentResponse {
   status?: string
@@ -183,6 +198,8 @@ export function ParentSubscriptionCheckoutModal({
   publicId: initialPublicId,
   initialMode = 'sub',
   initialPackId,
+  planAmount,
+  planName,
 }: ParentSubscriptionCheckoutModalProps) {
   const [productMode, setProductMode] = useState<CheckoutProductMode>(initialMode)
   const [selectedPackId, setSelectedPackId] = useState<string>(
@@ -204,7 +221,8 @@ export function ParentSubscriptionCheckoutModal({
   const selectedPack = useMemo(() => findCreditPack(selectedPackId), [selectedPackId])
 
   // Amounts calculation
-  const baseAmount = productMode === 'sub' ? BANK_INFO.amount : selectedPack.price
+  const subAmount = typeof planAmount === 'number' && planAmount > 0 ? planAmount : BANK_INFO.amount
+  const baseAmount = productMode === 'sub' ? subAmount : selectedPack.price
   const effectiveAmount = partialPayment ? partialPayment.amountDue : baseAmount
   const effectiveAmountFormatted = formatMoney(effectiveAmount)
 
@@ -348,10 +366,69 @@ export function ParentSubscriptionCheckoutModal({
     setManualSubmitted(true)
   }, [])
 
-  if (!open) return null
-
   // VietQR URL with dynamically computed amount (using remaining amountDue if partially paid)
   const vietQrUrl = `https://img.vietqr.io/image/MB-0382228888-compact2.png?amount=${effectiveAmount}&addInfo=${encodeURIComponent(activePaymentCode)}&accountName=${encodeURIComponent('CONG TY AI KIDS')}`
+
+  // Download QR code image to device
+  const handleDownloadQr = useCallback(() => {
+    fetch(vietQrUrl)
+      .then((res) => res.blob())
+      .then((blob) => {
+        if (typeof window === 'undefined') return
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.style.display = 'none'
+        a.href = url
+        a.download = `vietqr-aikids-${activePaymentCode}.png`
+        document.body.appendChild(a)
+        try {
+          a.click()
+        } catch {
+          // ignore jsdom navigation error
+        }
+        window.URL.revokeObjectURL(url)
+        document.body.removeChild(a)
+      })
+      .catch(() => {
+        if (typeof window === 'undefined') return
+        const a = document.createElement('a')
+        a.href = vietQrUrl
+        a.download = `vietqr-aikids-${activePaymentCode}.png`
+        a.target = '_blank'
+        document.body.appendChild(a)
+        try {
+          a.click()
+        } catch {
+          // ignore jsdom navigation error
+        }
+        document.body.removeChild(a)
+      })
+  }, [vietQrUrl, activePaymentCode])
+
+  // Copy full payment instructions in 1 tap
+  const copyAllPaymentInfo = useCallback(() => {
+    const textToCopy = `Ngân hàng: ${BANK_INFO.bankName} | STK: ${BANK_INFO.accountNumber} | Chủ TK: ${BANK_INFO.accountName} | Số tiền: ${effectiveAmountFormatted} | Nội dung: ${activePaymentCode}`
+    copyToClipboard(textToCopy, 'allInfo')
+  }, [effectiveAmountFormatted, activePaymentCode, copyToClipboard])
+
+  // Open banking app with deep link scheme
+  const handleOpenBankApp = useCallback(
+    async (app: (typeof POPULAR_BANK_APPS)[0]) => {
+      await copyToClipboard(activePaymentCode, `bank_app_${app.id}`)
+      setTimeout(() => {
+        try {
+          if (typeof window !== 'undefined') {
+            window.location.href = app.scheme
+          }
+        } catch {
+          // ignore jsdom navigation error
+        }
+      }, 500)
+    },
+    [activePaymentCode, copyToClipboard],
+  )
+
+  if (!open) return null
 
   return createPortal(
     <div
@@ -387,7 +464,7 @@ export function ParentSubscriptionCheckoutModal({
                 {isSuccess
                   ? 'Kích Hoạt Thành Công!'
                   : productMode === 'sub'
-                    ? 'Nâng Cấp Gói AI Kid Toàn Diện'
+                    ? (planName ? `Nâng Cấp Gói ${planName}` : 'Nâng Cấp Gói AI Kid Toàn Diện')
                     : 'Nạp Thêm Lượt Tạo Ảnh AI'}
               </h2>
             </div>
@@ -803,7 +880,16 @@ export function ParentSubscriptionCheckoutModal({
                           loading="eager"
                         />
                       </div>
-                      <p className="mt-2 text-center text-[11px] font-bold text-muted">
+                      <button
+                        type="button"
+                        onClick={handleDownloadQr}
+                        className="mt-2.5 inline-flex items-center justify-center gap-1.5 w-full rounded-xl border border-brand-300 bg-brand-50/90 px-3 py-2 text-xs font-black text-brand-700 shadow-soft hover:bg-brand-100 active:scale-[0.98] transition"
+                        aria-label="Tải mã QR về máy"
+                      >
+                        <Download size={14} />
+                        <span>Tải mã QR về máy</span>
+                      </button>
+                      <p className="mt-1.5 text-center text-[11px] font-bold text-muted">
                         Mở App Ngân Hàng bất kỳ quét mã để thanh toán tức thì
                       </p>
                     </div>
@@ -912,9 +998,120 @@ export function ParentSubscriptionCheckoutModal({
                         </div>
                       </div>
 
+                      {/* Copy full details button */}
+                      <button
+                        type="button"
+                        onClick={copyAllPaymentInfo}
+                        className="mt-2 w-full inline-flex items-center justify-center gap-1.5 rounded-xl border border-cream-300 bg-cream-50 px-3 py-2 text-xs font-black text-brand-700 shadow-soft hover:bg-cream-100 active:scale-[0.98] transition"
+                        aria-label="Sao chép toàn bộ thông tin chuyển khoản"
+                      >
+                        {copiedField === 'allInfo' ? (
+                          <>
+                            <Check size={14} className="text-mint-600" />
+                            <span className="text-mint-700">Đã chép toàn bộ thông tin chuyển khoản!</span>
+                          </>
+                        ) : (
+                          <>
+                            <Copy size={14} />
+                            <span>Sao chép toàn bộ thông tin</span>
+                          </>
+                        )}
+                      </button>
+
                       {/* Warning notice */}
                       <div className="mt-2 rounded-xl bg-amber-50/80 p-2.5 border border-amber-200/80 text-[11px] font-bold text-amber-900 leading-snug">
                         ⚠️ Vui lòng giữ nguyên nội dung chuyển khoản để hệ thống kích hoạt tự động
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Bank App Switcher Tray */}
+                  <div className="rounded-2xl border border-cream-300/80 bg-white/90 p-3.5 shadow-soft space-y-2.5">
+                    <div className="flex flex-wrap items-center justify-between gap-1">
+                      <span className="text-xs font-black uppercase tracking-wider text-brand-900">
+                        📱 Mở Nhanh Ứng Dụng Ngân Hàng / Ví Điện Tử
+                      </span>
+                      <span className="text-[11px] font-bold text-muted">
+                        (Tự động sao chép mã thanh toán khi chạm)
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                      {POPULAR_BANK_APPS.map((app) => {
+                        const isCopiedThis = copiedField === `bank_app_${app.id}`
+                        return (
+                          <button
+                            key={app.id}
+                            type="button"
+                            onClick={() => handleOpenBankApp(app)}
+                            className={cn(
+                              'flex flex-col items-center justify-center p-2 rounded-xl border transition shadow-soft text-center active:scale-95',
+                              isCopiedThis
+                                ? 'border-mint-500 bg-mint-50 text-mint-800 ring-2 ring-mint-300'
+                                : 'border-cream-200 bg-cream-50/70 hover:border-brand-300 hover:bg-brand-50/50 text-text',
+                            )}
+                            aria-label={`Mở app ${app.name}`}
+                          >
+                            <span
+                              className={cn(
+                                'flex h-7 w-7 items-center justify-center rounded-lg text-xs font-black text-white shadow-sm mb-1',
+                                app.color,
+                              )}
+                            >
+                              {app.short}
+                            </span>
+                            <span className="text-[11px] font-extrabold truncate w-full">
+                              {app.name}
+                            </span>
+                            {isCopiedThis && (
+                              <span className="text-[9px] font-black text-mint-700 animate-in fade-in">
+                                Đã chép mã!
+                              </span>
+                            )}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  {/* 3-Step Quick Guide & Napas 24/7 Certification */}
+                  <div className="rounded-2xl border border-cream-300/70 bg-gradient-to-r from-cream-50 via-sun-50/40 to-white p-3.5 shadow-soft space-y-2">
+                    <div className="flex items-center justify-between gap-2 border-b border-cream-200/80 pb-2">
+                      <span className="text-xs font-black uppercase tracking-wider text-amber-900">
+                        ✨ 3 Bước Thanh Toán Nhanh Cho Ba Mẹ
+                      </span>
+                      <span className="inline-flex items-center gap-1 rounded-full bg-mint-100 border border-mint-200 px-2.5 py-0.5 text-[10px] font-black text-mint-800">
+                        <ShieldCheck size={12} className="text-mint-600" />
+                        Napas 24/7 Tự Động
+                      </span>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs font-bold text-text">
+                      <div className="flex items-start gap-2 rounded-xl bg-white/80 p-2 border border-cream-200">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-500 text-[11px] font-black text-white">
+                          1
+                        </span>
+                        <span className="text-[11px]">
+                          Tải ảnh QR hoặc chọn App ngân hàng phía trên.
+                        </span>
+                      </div>
+
+                      <div className="flex items-start gap-2 rounded-xl bg-white/80 p-2 border border-cream-200">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-500 text-[11px] font-black text-white">
+                          2
+                        </span>
+                        <span className="text-[11px]">
+                          Mở app ngân hàng, chọn Quét QR (hoặc chọn ảnh từ máy).
+                        </span>
+                      </div>
+
+                      <div className="flex items-start gap-2 rounded-xl bg-white/80 p-2 border border-cream-200">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-brand-500 text-[11px] font-black text-white">
+                          3
+                        </span>
+                        <span className="text-[11px]">
+                          Xác nhận chuyển khoản. Gói kích hoạt sau 3 giây!
+                        </span>
                       </div>
                     </div>
                   </div>

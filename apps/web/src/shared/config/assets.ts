@@ -94,8 +94,11 @@ export const designerAssets = {
   },
   worldScenes: {
     aiValley: '/assets/aikid-ui/world-scenes/scene-ai-valley-generated.webp',
-    storyIsland: '/assets/aikid-ui/world-scenes/scene-story-island-generated.webp',
+    promptKeys: '/assets/aikid-ui/world-scenes/scene-prompt-keys-generated.webp',
     creativeMountain: '/assets/aikid-ui/world-scenes/scene-creative-mountain-generated.webp',
+    characterLab: '/assets/aikid-ui/world-scenes/scene-character-lab-generated.webp',
+    storyIsland: '/assets/aikid-ui/world-scenes/scene-story-island-generated.webp',
+    gameArena: '/assets/aikid-ui/world-scenes/scene-game-arena-generated.webp',
   },
   asmoScenes: {
     appleForest: '/assets/asmo-scenes/scene_apple_forest.png',

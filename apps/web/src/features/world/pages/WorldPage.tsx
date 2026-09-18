@@ -17,6 +17,8 @@ import { type QuestProgress } from '@/shared/lib/api'
 import { learningApi } from '@/shared/lib/learning-api'
 import { cn } from '@/shared/lib/cn'
 import { designerAssets } from '@/shared/config/assets'
+import { WorldProgramIslandCard } from '../components/WorldProgramIslandCard'
+import { FlatClayIcon } from '@/features/asmo/components/AsmoFlatClayIcons'
 
 // WHY: Sếp yêu cầu tạm thời unlock toàn bộ các đảo M1..M5 để test nội dung.
 // Đổi thành false bất kỳ lúc nào để bật lại luật Gatekeeper Island.
@@ -439,7 +441,7 @@ export function WorldPage({ showSpacesSelector = false }: WorldPageProps = {}) {
               </p>
             </div>
             {next && (
-              <aside className="course-map-next-ticket">
+              <aside className="course-map-next-ticket flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <p className="text-xs font-extrabold text-mint-700">TRẠM TIẾP THEO</p>
                   <h2 className="font-display text-xl text-text">{next.title}</h2>
@@ -658,7 +660,7 @@ export const WORLD_REGIONS = [
     badge: 'ĐẢO KHÁM PHÁ',
     description: '4 Chìa Khóa Lệnh — Tạo hình ảnh đơn lẻ đúng ý mình và sửa câu lệnh như một kỹ sư AI thực thụ.',
     background: designerAssets.lobby.bgArt,
-    scene: designerAssets.worldScenes.storyIsland,
+    scene: designerAssets.worldScenes.promptKeys,
     ribbon: '#10b981',
     trailLabel: 'Đường thám hiểm 4 chìa khoá lệnh',
     pose: 'thinking' as const,
@@ -680,7 +682,7 @@ export const WORLD_REGIONS = [
     badge: 'ĐẢO NHÂN VẬT',
     description: 'Hồ Sơ & 6 Biểu Cảm — Khoá mật mã nhận diện 3 điểm, biến hoá 6 biểu cảm và căn cứ bí mật.',
     background: designerAssets.lobby.bgCharacter,
-    scene: designerAssets.worldScenes.aiValley,
+    scene: designerAssets.worldScenes.characterLab,
     ribbon: '#0284c7',
     trailLabel: 'Đường mật mã nhân vật',
     pose: 'support' as const,
@@ -702,7 +704,7 @@ export const WORLD_REGIONS = [
     badge: 'ĐẢO TRÒ CHƠI',
     description: 'Đấu Trường Thẻ Bài — Bộ 12 thẻ bài cân bằng chỉ số Sức-Nhanh-Khéo, bàn cờ A3 và luật chơi công bằng.',
     background: designerAssets.lobby.bgHome,
-    scene: designerAssets.worldScenes.creativeMountain,
+    scene: designerAssets.worldScenes.gameArena,
     ribbon: '#8b5cf6',
     trailLabel: 'Đấu trường thẻ bài đỉnh cao',
     pose: 'celebrate' as const,
@@ -919,7 +921,7 @@ function RoadmapCourseNode({
             <span>{region.trailLabel}</span>
             <strong>{completedStations}/{stationCount} trạm</strong>
           </div>
-          <ol className="world-station-path">
+          <ol className="world-station-path scroll-smooth pr-6">
             {Array.from({ length: stationCount }, (_, stationIndex) => {
               const stationNumber = stationIndex + 1;
               const station = course.stations?.[stationIndex];
@@ -1050,7 +1052,7 @@ function RoadmapCourseNode({
         isLocked && 'world-region-card-locked grayscale-[.35] cursor-pointer',
       )}
     >
-      <div className="relative flex min-h-[29rem] flex-col justify-between pt-6 sm:min-h-[32rem] sm:pt-7">
+      <div className="relative flex min-h-[22rem] sm:min-h-[28rem] lg:min-h-[32rem] flex-col justify-between pt-6 sm:pt-7">
         <div className="relative z-10 px-5 text-center sm:px-8">
           {course.isGatekeeper && (
             <div className="mb-2 inline-flex items-center gap-1.5 rounded-full border-2 border-amber-300 bg-amber-100 px-3.5 py-1 text-xs font-black text-amber-950 shadow-sm animate-pop">
@@ -1255,7 +1257,7 @@ function PathwayOverview({
             <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">Ba không gian học tập</p>
             <h2 id="learning-library-title" className="mt-1 font-display text-2xl text-text sm:text-3xl">Con muốn học ở đâu?</h2>
           </div>
-          <div className="grid gap-4 lg:grid-cols-3">
+          <div className="grid gap-4 md:grid-cols-3">
             {categories.map((category) => {
               const courses = visibleCourses.filter((course) => sourceOf(course) === category.id)
               const active = courses.filter((course) => course.status === 'active').length
@@ -1314,8 +1316,9 @@ function PathwayOverview({
           <AikidCatCharacter pose="walking" className="world-guide-mascot" />
           <div className="world-guide-copy">
             <div className="min-w-0">
-              <p className="text-xs font-extrabold uppercase tracking-widest text-brand-500">
-                🌟 Không gian học chính thức
+              <p className="flex items-center gap-1.5 text-xs font-extrabold uppercase tracking-widest text-brand-500">
+                <FlatClayIcon name="sparkles" size={14} />
+                <span>Không gian học chính thức</span>
               </p>
               <h1 className="font-display text-3xl sm:text-4xl leading-tight">
                 AIKid của em
@@ -1391,93 +1394,16 @@ function PathwayOverview({
           </div>
 
           <div className="grid gap-6">
-            {/* 1. Card lớn chính thức: Khóa sáng tạo nội dung cùng AIKID */}
-            <div className="ui-card relative overflow-hidden rounded-3xl border-2 border-brand-200 bg-gradient-to-br from-white via-white to-brand-50/40 p-6 sm:p-8 shadow-clay transition-all hover:shadow-hover">
-              <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between">
-                <div className="flex-1 space-y-3">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-mint-100 border border-mint-200 px-3 py-1 text-xs font-black text-mint-800 shadow-2xs">
-                      🌟 CHƯƠNG TRÌNH CHÍNH THỨC
-                    </span>
-                    <span className="inline-flex items-center gap-1 rounded-full bg-brand-100 border border-brand-200 px-2.5 py-1 text-xs font-extrabold text-brand-800">
-                      {selectedCourses.length || 6} Đảo học tập
-                    </span>
-                  </div>
-
-                  <h3 className="font-display text-2xl sm:text-3xl text-text">
-                    Khóa sáng tạo nội dung cùng AIKID
-                  </h3>
-
-                  <p className="text-sm sm:text-base font-medium text-muted leading-relaxed max-w-2xl">
-                    Nắm vững 10 quy tắc vàng an toàn, cùng AKI sáng tạo nhân vật, viết truyện tranh và xây dựng các thế giới diệu kỳ.
-                  </p>
-
-                  {/* Thống kê tiến độ */}
-                  <div className="pt-2">
-                    <div className="flex flex-wrap items-center gap-4 text-xs font-extrabold text-slate-600 mb-2">
-                      <span className="flex items-center gap-1">
-                        <CheckCircle2 size={15} className="text-mint-600" />
-                        {completedStations}/{totalStations} trạm hoàn thành
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Trophy size={15} className="text-sun-500" />
-                        {completedCount}/{selectedCourses.length || 6} đảo chinh phục
-                      </span>
-                      {totalStars > 0 && (
-                        <span className="flex items-center gap-1">
-                          <Star size={15} className="fill-sun-400 text-sun-400" />
-                          {totalStars} sao đạt được
-                        </span>
-                      )}
-                    </div>
-                    <div className="max-w-md">
-                      <CuteProgress
-                        value={totalProgress}
-                        label="Tiến độ chương trình"
-                        tone="mint"
-                      />
-                    </div>
-                  </div>
-                </div>
-
-                {/* Nút hành động */}
-                <div className="flex flex-col sm:flex-row lg:flex-col items-center gap-4 shrink-0 w-full sm:w-auto">
-                  <Button
-                    className="w-full sm:w-auto px-8 py-4 text-base font-black shadow-clay active:shadow-press"
-                    onClick={() => navigate('/world/program/aikid_official/creator')}
-                  >
-                    {totalProgress > 0 ? 'Tiếp tục học các đảo →' : 'Khám phá các đảo →'}
-                  </Button>
-                </div>
-              </div>
-            </div>
-
-            {/* 2. Card phụ: Toán tư duy & Khoa học AI (ASMO Lab) - Coming Soon */}
-            <div className="ui-card relative overflow-hidden rounded-3xl border-2 border-dashed border-slate-200 bg-slate-50/70 p-6 sm:p-7 opacity-80 transition-all">
-              <div className="flex flex-col sm:flex-row gap-5 items-start sm:items-center justify-between">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2">
-                    <span className="inline-flex items-center gap-1 rounded-full bg-slate-200 px-3 py-1 text-xs font-extrabold text-slate-600">
-                      🚀 SẮP RA MẮT
-                    </span>
-                    <span className="rounded-full bg-amber-100 border border-amber-200 px-2.5 py-0.5 text-xs font-bold text-amber-800">
-                      Đang biên soạn
-                    </span>
-                  </div>
-                  <h3 className="font-display text-xl sm:text-2xl text-slate-700">
-                    Toán tư duy & Khoa học AI (ASMO Lab)
-                  </h3>
-                  <p className="text-sm font-medium text-slate-500 leading-relaxed max-w-xl">
-                    Rèn luyện tư duy logic, giải toán thực tế và mô phỏng 3D tương tác cùng AI.
-                  </p>
-                </div>
-                <div className="shrink-0 w-full sm:w-auto">
-                  <Button variant="secondary" disabled className="w-full sm:w-auto opacity-60 cursor-not-allowed">
-                    Đang biên soạn...
-                  </Button>
-                </div>
-              </div>
-            </div>
+            <WorldProgramIslandCard
+              type="aikid"
+              totalProgress={totalProgress}
+              completedStations={completedStations}
+              totalStations={totalStations}
+              completedCount={completedCount}
+              totalCourses={selectedCourses.length || 6}
+              totalStars={totalStars}
+            />
+            <WorldProgramIslandCard type="asmo" />
           </div>
 
           {/* 3. Nút nhỏ cuối trang */}
@@ -1568,7 +1494,7 @@ function PathwayOverview({
   const isCreatorTrack = selectedSource === 'aikid_official' && trackId === 'creator'
 
   return (
-    <div className="page-enter flex flex-col gap-5">
+    <div className="page-enter flex flex-col gap-4 sm:gap-5">
       <header className="world-guide-panel">
         {selectedSource && (
           <img

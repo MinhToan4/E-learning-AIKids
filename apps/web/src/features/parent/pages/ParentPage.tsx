@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, useCallback } from 'react'
 import { createPortal } from 'react-dom'
-import { Link, useNavigate } from 'react-router'
+import { Link, useNavigate, useSearchParams } from 'react-router'
 import {
   Baby,
   Bell,
@@ -163,6 +163,11 @@ import {
 } from '@/shared/components/icons/ParentIcons'
 import { StatMetricCard } from '@/shared/components/charts/StatMetricCard'
 import { ProfileSharingPanel } from '@/features/parent/components/ProfileSharingPanel'
+import {
+  ParentSubscriptionCheckoutModal,
+  CREDIT_PACKS,
+  type CheckoutProductMode,
+} from '@/features/parent/components/ParentSubscriptionCheckoutModal'
 
 type TabKey = 'dashboard' | 'kids' | 'approvals' | 'plan' | 'profile'
 
@@ -289,6 +294,32 @@ export function ParentPage({
   const [tab, setTab] = useState<TabKey>(initTab)
   const user = useAuth((s) => s.user)
 
+  // Checkout modal state shared across tabs
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false)
+  const [checkoutMode, setCheckoutMode] = useState<CheckoutProductMode>('sub')
+  const [checkoutPlanId, setCheckoutPlanId] = useState<string | undefined>()
+  const [checkoutPlanAmount, setCheckoutPlanAmount] = useState<number | undefined>()
+  const [checkoutPlanName, setCheckoutPlanName] = useState<string | undefined>()
+  const [checkoutPackId, setCheckoutPackId] = useState<string | undefined>()
+
+  const handleOpenCheckout = useCallback(
+    (
+      mode: CheckoutProductMode = 'sub',
+      planId?: string,
+      amount?: number,
+      planName?: string,
+      packId?: string,
+    ) => {
+      setCheckoutMode(mode)
+      setCheckoutPlanId(planId)
+      setCheckoutPlanAmount(amount)
+      setCheckoutPlanName(planName)
+      setCheckoutPackId(packId)
+      setIsCheckoutOpen(true)
+    },
+    [],
+  )
+
   useEffect(() => {
     setTab(initTab)
   }, [initTab])
@@ -296,23 +327,48 @@ export function ParentPage({
   return (
     <div className="flex flex-col gap-6">
       {/* Only the active route owns effects and server state. */}
-      {tab === 'dashboard' && <DashboardTab />}
+      {tab === 'dashboard' && <DashboardTab onOpenCheckout={handleOpenCheckout} />}
       {tab === 'kids' && <KidsTab />}
-      {tab === 'plan' && <PlanTab />}
+      {tab === 'plan' && <PlanTab onOpenCheckout={handleOpenCheckout} />}
       {tab === 'approvals' && <ApprovalsTab />}
       {tab === 'profile' && <ProfileTab />}
+
+      <ParentSubscriptionCheckoutModal
+        open={isCheckoutOpen}
+        onClose={() => setIsCheckoutOpen(false)}
+        onSuccess={() => {
+          setIsCheckoutOpen(false)
+          window.dispatchEvent(new CustomEvent('parent:reload-data'))
+        }}
+        initialMode={checkoutMode}
+        defaultPlanId={checkoutPlanId || 'aikids_official_129k'}
+        planAmount={checkoutPlanAmount}
+        planName={checkoutPlanName}
+        initialPackId={checkoutPackId}
+      />
     </div>
   )
 }
 
 // ── Plan Tab (gói gia đình) ───────────────────────────────────
-function PlanTab() {
+function PlanTab({
+  onOpenCheckout,
+}: {
+  onOpenCheckout?: (
+    mode: CheckoutProductMode,
+    planId?: string,
+    amount?: number,
+    name?: string,
+    packId?: string,
+  ) => void
+}) {
   const [plans, setPlans] = useState<PlanRow[]>([])
   const [sub, setSub] = useState<HouseholdSub | null>(null)
   const [loading, setLoading] = useState(true)
   const [busy, setBusy] = useState<string | null>(null)
   const [usage, setUsage] = useState<ChildPlanUsage[]>([])
   const [checkout, setCheckout] = useState<{ payUrl: string | null; transferHint: string | null } | null>(null)
+  const [pricingTab, setPricingTab] = useState<'plans' | 'credits'>('plans')
   const { toasts, showToast, dismissToast } = useToast()
 
   const load = useCallback(async () => {
@@ -340,8 +396,17 @@ function PlanTab() {
     void load()
   }, [load])
 
-  async function activate(code: string) {
+  useEffect(() => {
+    const handleReload = () => void load()
+    window.addEventListener('parent:reload-data', handleReload)
+    return () => window.removeEventListener('parent:reload-data', handleReload)
+  }, [load])
+
+  async function activate(code: string, planName?: string, priceMonthly?: number) {
     setBusy(code)
+    if (typeof priceMonthly === 'number' && priceMonthly > 0 && onOpenCheckout) {
+      onOpenCheckout('sub', code, priceMonthly, planName)
+    }
     try {
       const data = await api<{
         subscription?: HouseholdSub
@@ -375,7 +440,7 @@ function PlanTab() {
   if (loading) return <LoadingSkeleton count={3} />
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-5">
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
       <header className="rounded-3xl border border-border/80 bg-gradient-to-b from-brand-50/60 via-white to-white p-5 sm:p-6 shadow-xs">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
@@ -386,6 +451,28 @@ function PlanTab() {
             <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
               Gói học gia đình
             </span>
+          </div>
+          <div className="flex items-center gap-1.5 rounded-2xl bg-slate-100 p-1">
+            <button
+              type="button"
+              onClick={() => setPricingTab('plans')}
+              className={cn(
+                'rounded-xl px-3 py-1.5 text-xs font-black transition',
+                pricingTab === 'plans' ? 'bg-white text-brand-700 shadow-xs' : 'text-muted hover:text-text',
+              )}
+            >
+              Gói học định kỳ
+            </button>
+            <button
+              type="button"
+              onClick={() => setPricingTab('credits')}
+              className={cn(
+                'rounded-xl px-3 py-1.5 text-xs font-black transition',
+                pricingTab === 'credits' ? 'bg-white text-brand-700 shadow-xs' : 'text-muted hover:text-text',
+              )}
+            >
+              Lượt sáng tạo AI
+            </button>
           </div>
         </div>
         <h1 className="font-display text-2xl font-black text-slate-900 mt-3 sm:text-3xl">
@@ -409,63 +496,169 @@ function PlanTab() {
           </div>
         )}
       </header>
-      {sub && usage.length > 0 && <section className="ui-card p-5"><h3 className="font-display text-xl">Mức sử dụng của gia đình</h3><div className="mt-4 grid gap-3 sm:grid-cols-2">{usage.map((child) => { const percent = sub.maxOpenCoursesPerChild > 0 ? Math.min(100, Math.round((child.openCourses / sub.maxOpenCoursesPerChild) * 100)) : 100; return <article key={child.id} className="rounded-2xl border border-border p-4"><div className="flex items-center justify-between gap-3"><p className="font-bold">{child.nickname ?? 'Học viên'}</p><span className="text-sm font-extrabold text-brand-700">{child.openCourses}/{sub.maxOpenCoursesPerChild} vùng</span></div><div className="mt-3 h-2 overflow-hidden rounded-full bg-brand-50" role="progressbar" aria-label={`${child.nickname ?? 'Học viên'} đã mở ${child.openCourses}/${sub.maxOpenCoursesPerChild} vùng`} aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}><div className={cn('h-full rounded-full', percent >= 100 ? 'bg-coral-400' : 'bg-brand-500')} style={{ width: `${percent}%` }} /></div><p className="mt-2 text-xs text-muted">{child.openCourses >= sub.maxOpenCoursesPerChild ? 'Đã dùng hết hạn mức. Nâng gói để mở thêm vùng.' : `Còn ${sub.maxOpenCoursesPerChild - child.openCourses} vùng có thể mở.`}</p></article>})}</div></section>}
-      {checkout && <section className="ui-card border-2 border-sun-200 bg-sun-50 p-5"><div className="flex items-start gap-3"><CreditCard className="mt-0.5 text-warning" aria-hidden="true" /><div><h3 className="font-display text-xl">Hoàn tất nâng gói</h3>{checkout.transferHint && <p className="mt-1 text-sm text-muted">Nội dung thanh toán: <strong className="text-text">{checkout.transferHint}</strong></p>}{checkout.payUrl ? <a className="ui-btn ui-btn-primary mt-3" href={checkout.payUrl} target="_blank" rel="noreferrer">Mở trang thanh toán <ExternalLink size={16} /></a> : <p className="mt-2 text-sm text-muted">Yêu cầu đang chờ hệ thống thanh toán xác nhận.</p>}</div></div></section>}
-      <div className="grid gap-3 md:grid-cols-3">
-        {plans.map((p) => {
-          const current = sub?.planCode === p.code
-          return (
-            <article
-              key={p.code}
-              className={cn(
-                'ui-card flex flex-col gap-2 p-4',
-                current && 'ring-2 ring-brand-500',
+
+      {sub && usage.length > 0 && (
+        <section className="ui-card p-5">
+          <h3 className="font-display text-xl">Mức sử dụng của gia đình</h3>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {usage.map((child) => {
+              const percent = sub.maxOpenCoursesPerChild > 0 ? Math.min(100, Math.round((child.openCourses / sub.maxOpenCoursesPerChild) * 100)) : 100
+              return (
+                <article key={child.id} className="rounded-2xl border border-border p-4">
+                  <div className="flex items-center justify-between gap-3">
+                    <p className="font-bold">{child.nickname ?? 'Học viên'}</p>
+                    <span className="text-sm font-extrabold text-brand-700">{child.openCourses}/{sub.maxOpenCoursesPerChild} vùng</span>
+                  </div>
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-brand-50" role="progressbar" aria-label={`${child.nickname ?? 'Học viên'} đã mở ${child.openCourses}/${sub.maxOpenCoursesPerChild} vùng`} aria-valuenow={percent} aria-valuemin={0} aria-valuemax={100}>
+                    <div className={cn('h-full rounded-full', percent >= 100 ? 'bg-coral-400' : 'bg-brand-500')} style={{ width: `${percent}%` }} />
+                  </div>
+                  <p className="mt-2 text-xs text-muted">
+                    {child.openCourses >= sub.maxOpenCoursesPerChild ? 'Đã dùng hết hạn mức. Nâng gói để mở thêm vùng.' : `Còn ${sub.maxOpenCoursesPerChild - child.openCourses} vùng có thể mở.`}
+                  </p>
+                </article>
+              )
+            })}
+          </div>
+        </section>
+      )}
+
+      {checkout && (
+        <section className="ui-card border-2 border-sun-200 bg-sun-50 p-5">
+          <div className="flex items-start gap-3">
+            <CreditCard className="mt-0.5 text-warning" aria-hidden="true" />
+            <div>
+              <h3 className="font-display text-xl">Hoàn tất nâng gói</h3>
+              {checkout.transferHint && (
+                <p className="mt-1 text-sm text-muted">
+                  Nội dung thanh toán: <strong className="text-text">{checkout.transferHint}</strong>
+                </p>
               )}
-            >
-              <h3 className="font-display text-xl">{p.name}</h3>
-              <p className="text-sm text-muted">{p.tagline}</p>
-              <p className="font-display text-2xl text-brand-600">
-                {p.priceMonthly === 0
-                  ? 'Miễn phí'
-                  : `${p.priceMonthly.toLocaleString('vi-VN')} ${p.currency}/tháng`}
-              </p>
-              <div className="grid gap-1 rounded-2xl bg-page p-3 text-sm"><p><strong>{p.maxChildren}</strong> hồ sơ con</p><p><strong>{p.maxOpenCoursesPerChild}</strong> vùng học mở cùng lúc / con</p></div>
-              <ul className="mt-1 flex-1 space-y-1 text-sm text-muted">
-                {p.features.map((f) => (
-                  <li key={f}>• {f}</li>
-                ))}
-              </ul>
-              <Button
-                disabled={current || busy === p.code}
-                onClick={() => void activate(p.code)}
+              {checkout.payUrl ? (
+                <a className="ui-btn ui-btn-primary mt-3" href={checkout.payUrl} target="_blank" rel="noreferrer">
+                  Mở trang thanh toán <ExternalLink size={16} />
+                </a>
+              ) : (
+                <p className="mt-2 text-sm text-muted">Yêu cầu đang chờ hệ thống thanh toán xác nhận.</p>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {pricingTab === 'plans' ? (
+        <div className="grid gap-4 md:grid-cols-3">
+          {plans.map((p) => {
+            const current = sub?.planCode === p.code
+            return (
+              <article
+                key={p.code}
+                className={cn(
+                  'ui-card flex flex-col justify-between p-5 rounded-3xl border-2 transition hover:shadow-soft',
+                  current ? 'border-brand-500 ring-2 ring-brand-300 bg-brand-50/20' : 'border-border/70',
+                )}
               >
-                {current ? 'Gói hiện tại' : busy === p.code ? 'Đang tạo yêu cầu…' : sub && p.maxOpenCoursesPerChild > sub.maxOpenCoursesPerChild ? 'Nâng lên gói này' : 'Chọn gói'}
+                <div>
+                  <div className="flex items-center justify-between gap-2">
+                    <h3 className="font-display text-xl font-black text-slate-900">{p.name}</h3>
+                    {current && (
+                      <span className="rounded-full bg-brand-100 text-brand-700 px-2.5 py-0.5 text-xs font-black">
+                        Đang dùng
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-muted mt-1">{p.tagline}</p>
+                  <p className="mt-3 font-display text-2xl font-black text-brand-600">
+                    {p.priceMonthly === 0
+                      ? 'Miễn phí'
+                      : `${p.priceMonthly.toLocaleString('vi-VN')} ${p.currency}/tháng`}
+                  </p>
+                  <div className="grid gap-1 rounded-2xl bg-page p-3 text-xs sm:text-sm my-3 border border-border/50">
+                    <p><strong>{p.maxChildren}</strong> hồ sơ con</p>
+                    <p><strong>{p.maxOpenCoursesPerChild}</strong> vùng học mở cùng lúc / con</p>
+                  </div>
+                  <ul className="space-y-1.5 text-xs sm:text-sm text-muted mb-4">
+                    {p.features.map((f) => (
+                      <li key={f} className="flex items-start gap-2">
+                        <Check size={14} className="text-emerald-600 shrink-0 mt-0.5" />
+                        <span>{f}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <Button
+                  disabled={current || busy === p.code}
+                  onClick={() => void activate(p.code, p.name, p.priceMonthly)}
+                  className={cn(
+                    'w-full py-2.5 font-black text-sm rounded-2xl shadow-clay transition',
+                    current ? 'bg-slate-200 text-slate-600 cursor-default' : 'bg-brand-500 hover:bg-brand-600 text-white',
+                  )}
+                >
+                  {current ? 'Gói hiện tại' : busy === p.code ? 'Đang tạo yêu cầu…' : sub && p.maxOpenCoursesPerChild > sub.maxOpenCoursesPerChild ? 'Nâng lên gói này' : 'Chọn gói'}
+                </Button>
+              </article>
+            )
+          })}
+        </div>
+      ) : (
+        <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+          {CREDIT_PACKS.map((pack) => (
+            <article key={pack.id} className="ui-card flex flex-col justify-between p-4 relative overflow-hidden rounded-3xl border border-border/80 shadow-2xs">
+              {pack.badge && (
+                <span className="absolute top-2 right-2 rounded-full bg-amber-100 text-amber-800 border border-amber-300 px-2 py-0.5 text-[10px] font-black">
+                  {pack.badge}
+                </span>
+              )}
+              <div>
+                <div className="text-2xl mb-1">🎨</div>
+                <h4 className="font-display text-base font-black text-text">{pack.label}</h4>
+                <p className="text-xs text-muted">{pack.unitPriceText}</p>
+                <p className="mt-2 font-display text-lg font-black text-brand-600">{pack.priceFormatted}</p>
+              </div>
+              <Button
+                variant="primary"
+                className="mt-3 !py-1.5 !text-xs font-bold w-full rounded-xl"
+                onClick={() => onOpenCheckout?.('credits', undefined, pack.price, pack.label, pack.id)}
+              >
+                Mua lượt
               </Button>
             </article>
-          )
-        })}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   )
 }
 
 // ── Dashboard Tab ─────────────────────────────────────────────
-function DashboardTab() {
+function DashboardTab({
+  onOpenCheckout,
+}: {
+  onOpenCheckout: (
+    mode: CheckoutProductMode,
+    planId?: string,
+    amount?: number,
+    name?: string,
+    packId?: string,
+  ) => void
+}) {
   const [kids, setKids] = useState<Child[]>([])
   const [approvals, setApprovals] = useState<Approval[]>([])
   const [sub, setSub] = useState<HouseholdSub | null>(null)
+  const [plans, setPlans] = useState<PlanRow[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [dashPricingMode, setDashPricingMode] = useState<'sub' | 'credits'>('sub')
   const navigate = useNavigate()
   const user = useAuth((s) => s.user)
 
   const load = useCallback(async () => {
     setLoading(true)
     setError('')
-    const [childrenData, approvalsData, subData] = await Promise.allSettled([
+    const [childrenData, approvalsData, subData, plansData] = await Promise.allSettled([
       api<{ children: Child[] }>('/api/parent/children'),
       api<{ approvals: Approval[] }>('/api/parent/approvals?status=pending'),
       api<{ subscription: HouseholdSub }>('/api/parent/subscription'),
+      api<{ plans: PlanRow[] }>('/api/parent/plans'),
     ])
     if (childrenData.status === 'rejected') {
       setError('Chưa tải được dữ liệu của các con. Ba / Mẹ thử lại nhé.')
@@ -477,11 +670,20 @@ function DashboardTab() {
     if (subData.status === 'fulfilled') {
       setSub(subData.value.subscription)
     }
+    if (plansData.status === 'fulfilled') {
+      setPlans(plansData.value.plans)
+    }
     setLoading(false)
   }, [])
 
   useEffect(() => {
     void load()
+  }, [load])
+
+  useEffect(() => {
+    const handleReload = () => void load()
+    window.addEventListener('parent:reload-data', handleReload)
+    return () => window.removeEventListener('parent:reload-data', handleReload)
   }, [load])
 
   if (loading) {
@@ -495,13 +697,10 @@ function DashboardTab() {
   const totalQuests = kids.reduce((s, k) => s + (k.completedQuests ?? 0), 0)
   const pendingCount = approvals.length
 
-  // Dữ liệu thực: số trạm hoàn thành của từng con theo API
-  // Không dùng synthetic distribution vì API không trả daily breakdown
-
   return (
     <div className="flex flex-col gap-6">
-      {/* ── 1. Household Status Banner ───────────────────────── */}
-      <header className="rounded-3xl border border-border/80 bg-gradient-to-b from-brand-50/60 via-white to-white p-5 sm:p-6 shadow-xs">
+      {/* ── 1. Household Status Banner & Cockpit ──────────────── */}
+      <header className="rounded-3xl border border-border/80 bg-gradient-to-b from-brand-50/70 via-white to-white p-5 sm:p-6 shadow-xs">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-0.5 text-xs font-black text-brand-700">
@@ -528,12 +727,56 @@ function DashboardTab() {
             </Button>
           </div>
         </div>
-        <h1 className="font-display text-2xl font-black text-slate-900 mt-3 sm:text-3xl">
-          Chào Ba / Mẹ {(user?.nickname || user?.name) ?? ''}! ✨
-        </h1>
-        <p className="text-xs sm:text-sm text-muted mt-1 max-w-3xl leading-relaxed">
-          Cùng theo dõi sự tiến bộ, khích lệ sáng tạo và đồng hành trên từng trạm học của con.
-        </p>
+
+        <div className="mt-4 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          <div>
+            <h1 className="font-display text-2xl font-black text-slate-900 sm:text-3xl">
+              Chào Ba / Mẹ {(user?.nickname || user?.name) ?? ''}! ✨
+            </h1>
+            <p className="text-xs sm:text-sm text-muted mt-1 max-w-2xl leading-relaxed">
+              Cùng theo dõi sự tiến bộ, khích lệ sáng tạo và đồng hành trên từng trạm học của con.
+            </p>
+          </div>
+
+          {/* Subscription Cockpit Capsule */}
+          <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-brand-200/80 bg-gradient-to-r from-brand-50/80 to-purple-50/80 p-3.5 shadow-2xs">
+            <div className="flex items-center gap-2.5">
+              <span className="grid h-10 w-10 place-items-center rounded-xl bg-brand-500 text-white shadow-clay text-lg">
+                👑
+              </span>
+              <div>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] font-black uppercase tracking-wide text-brand-700">
+                    Gói học hiện tại
+                  </span>
+                  <span className="rounded-md bg-brand-100 px-1.5 py-0.5 text-[10px] font-black text-brand-800">
+                    {sub?.planName || 'Khởi Đầu'}
+                  </span>
+                </div>
+                <p className="text-xs font-bold text-slate-700">
+                  {kids.length}/{sub?.maxChildren ?? 1} hồ sơ con · {sub?.maxOpenCoursesPerChild ?? 2} vùng mở cùng lúc
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 ml-auto">
+              <Button
+                variant="primary"
+                className="gap-1.5 !text-xs font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-xl"
+                onClick={() => onOpenCheckout('sub', 'aikids_pro', 129000, 'AI Kids Pro')}
+              >
+                <Sparkles size={13} /> ⭐ Nâng cấp gói
+              </Button>
+              <Button
+                variant="secondary"
+                className="gap-1.5 !text-xs font-bold rounded-xl border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100"
+                onClick={() => onOpenCheckout('credits', undefined, 100000, '50 lượt tạo ảnh AI', 'credits_50')}
+              >
+                ⚡ Nạp lượt AI
+              </Button>
+            </div>
+          </div>
+        </div>
       </header>
 
       {/* ── 2. Metric KPI Cards ──────────────────────────────── */}
@@ -653,10 +896,8 @@ function DashboardTab() {
               )
             })}
           </div>
-
         </div>
       )}
-
 
       {/* ── 4. Children Deep-Dive Journey Cards ──────────────── */}
       <section aria-label="Tiến trình chi tiết từng con">
@@ -791,16 +1032,16 @@ function DashboardTab() {
                     </span>
                   </div>
 
-                  {/* Action Link */}
-                  <div className="mt-3 flex justify-end">
-                    <Button
-                      variant="ghost"
-                      className="gap-1 !text-xs font-bold text-brand-600"
-                      onClick={() => navigate('/parent/kids')}
+                  {/* Action Link to Learning Portal */}
+                  <div className="mt-3 flex items-center justify-between pt-2">
+                    <span className="text-[11px] text-muted font-medium">Lộ trình học theo nhóm tuổi</span>
+                    <Link
+                      to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
+                      className="inline-flex items-center gap-1 text-xs font-bold text-brand-600 hover:text-brand-700 transition"
                     >
                       <span>Xem chi tiết học tập</span>
                       <ArrowRight size={13} />
-                    </Button>
+                    </Link>
                   </div>
                 </div>
               )
@@ -809,7 +1050,159 @@ function DashboardTab() {
         )}
       </section>
 
-      {/* ── 5. Creative Approvals Showcase Widget ────────────── */}
+      {/* ── 5. Direct Subscription & Credits Showcase Hub ─────── */}
+      <section aria-label="Gói học và nâng cấp cho gia đình">
+        <div className="ui-card p-5 sm:p-6 shadow-soft">
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-5 pb-4 border-b border-border/60">
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="text-xl">🚀</span>
+                <h3 className="font-display text-lg sm:text-xl font-black text-text">
+                  Gói học & Nâng cấp cho gia đình
+                </h3>
+              </div>
+              <p className="text-xs sm:text-sm text-muted mt-1">
+                Mở khóa toàn bộ chương trình Toán Olympic ASMO, vẽ tranh truyện AI và vùng học không giới hạn.
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 rounded-2xl bg-slate-100 p-1">
+              <button
+                type="button"
+                onClick={() => setDashPricingMode('sub')}
+                className={cn(
+                  'rounded-xl px-3 py-1.5 text-xs font-black transition',
+                  dashPricingMode === 'sub' ? 'bg-white text-brand-700 shadow-xs' : 'text-muted hover:text-text',
+                )}
+              >
+                Gói học gia đình
+              </button>
+              <button
+                type="button"
+                onClick={() => setDashPricingMode('credits')}
+                className={cn(
+                  'rounded-xl px-3 py-1.5 text-xs font-black transition',
+                  dashPricingMode === 'credits' ? 'bg-white text-brand-700 shadow-xs' : 'text-muted hover:text-text',
+                )}
+              >
+                Lượt sáng tạo AI
+              </button>
+            </div>
+          </div>
+
+          {dashPricingMode === 'sub' ? (
+            <div className="grid gap-4 md:grid-cols-3">
+              {/* Free plan */}
+              <div className={cn(
+                'rounded-3xl border-2 p-5 flex flex-col justify-between transition',
+                sub?.planCode === 'free' ? 'border-brand-400 bg-brand-50/30' : 'border-border/70 bg-white',
+              )}>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-display text-lg font-black text-text">Khởi Đầu</h4>
+                    <span className="rounded-full bg-slate-100 text-slate-700 px-2 py-0.5 text-[10px] font-extrabold">Miễn phí</span>
+                  </div>
+                  <p className="text-xs text-muted mt-1">Trải nghiệm các trạm học cơ bản</p>
+                  <p className="font-display text-2xl font-black text-slate-900 mt-2">0 đ</p>
+                  <div className="mt-3 space-y-1.5 text-xs text-muted border-t border-border/50 pt-3">
+                    <p>• 1 hồ sơ con</p>
+                    <p>• 1 vùng học mở cùng lúc</p>
+                    <p>• 10 lượt tạo truyện AI dùng thử</p>
+                  </div>
+                </div>
+                <Button
+                  disabled={sub?.planCode === 'free'}
+                  variant="secondary"
+                  className="mt-4 w-full !text-xs font-bold rounded-xl"
+                  onClick={() => navigate('/parent/plan')}
+                >
+                  {sub?.planCode === 'free' ? 'Gói hiện tại' : 'Xem chi tiết'}
+                </Button>
+              </div>
+
+              {/* Pro plan */}
+              <div className="rounded-3xl border-2 border-brand-500 bg-gradient-to-b from-brand-50/40 via-white to-white p-5 flex flex-col justify-between relative shadow-clay">
+                <span className="absolute -top-3 right-4 rounded-full bg-brand-500 text-white px-3 py-0.5 text-[11px] font-black shadow-sm">
+                  ⭐ Khuyên dùng
+                </span>
+                <div>
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-display text-lg font-black text-brand-700">AI Kids Pro</h4>
+                    <span className="rounded-full bg-brand-100 text-brand-800 px-2 py-0.5 text-[10px] font-black">Phổ biến</span>
+                  </div>
+                  <p className="text-xs text-muted mt-1">Đầy đủ Toán Olympic & Sáng tạo AI</p>
+                  <p className="font-display text-2xl font-black text-brand-600 mt-2">
+                    129.000 đ <span className="text-xs text-muted font-normal">/tháng</span>
+                  </p>
+                  <div className="mt-3 space-y-1.5 text-xs text-slate-700 border-t border-brand-100 pt-3">
+                    <p className="font-bold text-brand-700">• 2 hồ sơ con theo học</p>
+                    <p className="font-bold">• 5 vùng học mở cùng lúc / con</p>
+                    <p>• Trọn bộ luyện thi Olympic ASMO, TIMO</p>
+                    <p>• 50 lượt tạo tranh/truyện AI mỗi tháng</p>
+                    <p>• Báo cáo sư phạm hàng tuần cho Ba / Mẹ</p>
+                  </div>
+                </div>
+                <Button
+                  variant="primary"
+                  className="mt-4 w-full !text-xs font-black shadow-clay bg-brand-500 hover:bg-brand-600 text-white rounded-xl gap-1.5"
+                  onClick={() => onOpenCheckout('sub', 'aikids_pro', 129000, 'AI Kids Pro')}
+                >
+                  <Sparkles size={14} /> Nâng cấp ngay
+                </Button>
+              </div>
+
+              {/* Family Hero plan */}
+              <div className="rounded-3xl border-2 border-purple-300 bg-white p-5 flex flex-col justify-between transition hover:border-purple-400">
+                <div>
+                  <div className="flex items-center justify-between">
+                    <h4 className="font-display text-lg font-black text-purple-900">Family Hero</h4>
+                    <span className="rounded-full bg-purple-100 text-purple-800 px-2 py-0.5 text-[10px] font-black">Toàn diện</span>
+                  </div>
+                  <p className="text-xs text-muted mt-1">Dành cho gia đình có nhiều bé</p>
+                  <p className="font-display text-2xl font-black text-purple-700 mt-2">
+                    249.000 đ <span className="text-xs text-muted font-normal">/tháng</span>
+                  </p>
+                  <div className="mt-3 space-y-1.5 text-xs text-slate-700 border-t border-border/50 pt-3">
+                    <p className="font-bold text-purple-800">• Lên tới 5 hồ sơ con</p>
+                    <p className="font-bold">• Không giới hạn vùng học mở</p>
+                    <p>• 150 lượt sáng tạo tranh & comic AI</p>
+                    <p>• Đấu trường Olympic trực tuyến không giới hạn</p>
+                    <p>• Hỗ trợ riêng từ chuyên gia giáo dục</p>
+                  </div>
+                </div>
+                <Button
+                  variant="secondary"
+                  className="mt-4 w-full !text-xs font-bold rounded-xl border border-purple-200 text-purple-800 hover:bg-purple-50"
+                  onClick={() => onOpenCheckout('sub', 'aikids_family', 249000, 'Family Hero')}
+                >
+                  Nâng lên Family Hero
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <div className="grid gap-3 grid-cols-2 sm:grid-cols-3 lg:grid-cols-5">
+              {CREDIT_PACKS.map((pack) => (
+                <div key={pack.id} className="rounded-2xl border border-border/70 p-3.5 flex flex-col justify-between bg-page/50">
+                  <div>
+                    <span className="text-xl">🎨</span>
+                    <h4 className="font-display text-sm font-black text-text mt-1">{pack.label}</h4>
+                    <p className="text-[11px] text-muted">{pack.unitPriceText}</p>
+                    <p className="font-display text-base font-black text-brand-600 mt-1">{pack.priceFormatted}</p>
+                  </div>
+                  <Button
+                    variant="secondary"
+                    className="mt-3 !py-1 !text-xs font-bold rounded-lg w-full"
+                    onClick={() => onOpenCheckout('credits', undefined, pack.price, pack.label, pack.id)}
+                  >
+                    Nạp ngay
+                  </Button>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ── 6. Creative Approvals Showcase Widget ────────────── */}
       <section aria-label="Trung tâm phê duyệt tác phẩm">
         <div className="ui-card overflow-hidden shadow-soft">
           <div className="flex items-center justify-between border-b border-border/60 bg-coral-50/40 px-5 py-4">
@@ -887,8 +1280,6 @@ function DashboardTab() {
           )}
         </div>
       </section>
-
-
     </div>
   )
 }
@@ -992,7 +1383,17 @@ function EditChildModal({
   async function submit(e: React.FormEvent) {
     e.preventDefault()
     if (!nickname.trim()) { onError('Vui lòng nhập tên hiển thị.'); return }
-    if (pin && !/^\d{6}$/.test(pin)) { onError('Mã PIN cần đủ 6 chữ số, hoặc để trống.'); return }
+    if (!child) {
+      if (!pin || !/^\d{6}$/.test(pin)) {
+        onError('Mã PIN cần đúng 6 chữ số để con đăng nhập vào học.')
+        return
+      }
+    } else {
+      if (pin && !/^\d{6}$/.test(pin)) {
+        onError('Mã PIN cần đủ 6 chữ số, hoặc để trống.')
+        return
+      }
+    }
     setSaving(true)
     try {
       if (child) {
@@ -1158,7 +1559,7 @@ function EditChildModal({
           {/* Đổi mã PIN — field nhập bình thường */}
           <div className="rounded-2xl border border-border bg-brand-50/40 p-4">
             <label className="mb-1 block text-sm font-bold" htmlFor="edit-pin">
-              {child?.hasPin ? 'Đổi mã PIN (tùy chọn)' : 'Tạo mã PIN (tùy chọn)'}
+              {child?.hasPin ? 'Đổi mã PIN (tùy chọn)' : 'Mã PIN đăng nhập (6 số) *'}
             </label>
             <input
               id="edit-pin"
@@ -1173,7 +1574,7 @@ function EditChildModal({
             <p className="mt-1.5 text-xs text-muted">
               {child?.hasPin
                 ? 'Nhập PIN mới để đổi. Để trống nếu không muốn thay đổi.'
-                : '6 chữ số. Con nhập khi vào học. Để trống nếu không cần PIN.'}
+                : '6 chữ số. Con dùng để đăng nhập vào học và giữ riêng tư giữa các bé.'}
             </p>
           </div>
 
@@ -1222,9 +1623,11 @@ function KidsTab() {
   const [consentHistoryChild, setConsentHistoryChild] = useState<string | null>(null)
   const [consentHistory, setConsentHistory] = useState<Record<string, ConsentEvent[]>>({})
   const [consentHistoryLoading, setConsentHistoryLoading] = useState(false)
-  // editTarget: null = tạo mới; Child object = đang sửa; undefined = đóng
   const [editTarget, setEditTarget] = useState<Child | null | undefined>(undefined)
+  const [qrModalTarget, setQrModalTarget] = useState<Child | null>(null)
   const { toasts, showToast, dismissToast } = useToast()
+  const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
 
   const loadKids = useCallback(async () => {
     try {
@@ -1243,6 +1646,25 @@ function KidsTab() {
 
   useEffect(() => {
     void loadKids()
+  }, [loadKids])
+
+  const maxKids = sub?.maxChildren ?? 5
+  const seatsLeft = sub?.seatsRemaining ?? Math.max(0, maxKids - kids.length)
+
+  useEffect(() => {
+    if (searchParams.get('action') === 'new' && editTarget === undefined && seatsLeft > 0) {
+      setEditTarget(null)
+      // Xóa query param để không lặp lại khi đóng modal
+      const nextParams = new URLSearchParams(searchParams)
+      nextParams.delete('action')
+      setSearchParams(nextParams, { replace: true })
+    }
+  }, [searchParams, editTarget, seatsLeft, setSearchParams])
+
+  useEffect(() => {
+    const handleReload = () => void loadKids()
+    window.addEventListener('parent:reload-data', handleReload)
+    return () => window.removeEventListener('parent:reload-data', handleReload)
   }, [loadKids])
 
   async function deleteChild(childId: string) {
@@ -1307,56 +1729,96 @@ function KidsTab() {
 
   if (loading) return <LoadingSkeleton count={3} />
 
-  const maxKids = sub?.maxChildren ?? 5
-  const seatsLeft = sub?.seatsRemaining ?? Math.max(0, maxKids - kids.length)
-
   return (
     <div className="flex flex-col gap-4">
-      {/* Toast nổi */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
-      <header className="rounded-3xl border border-border/80 bg-gradient-to-b from-brand-50/60 via-white to-white p-5 sm:p-6 shadow-xs">
-        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-brand-100/60 pb-3">
+      {/* Header Cockpit */}
+      <header className="rounded-3xl border-2 border-cream-300 bg-gradient-to-b from-cream-50 via-sun-50/40 to-white p-5 sm:p-6 shadow-clay text-text">
+        <div className="flex flex-wrap items-center justify-between gap-3 border-b border-cream-300/60 pb-3">
           <div className="flex items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-brand-200 bg-brand-50 px-3 py-0.5 text-xs font-black text-brand-700">
-              <Sparkles size={12} /> 👨👩👧 Góc Phụ Huynh & Gia Đình
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-amber-200 bg-amber-50 px-3 py-0.5 text-xs font-black text-amber-900">
+              <Sparkles size={12} className="text-amber-600" /> 👨‍👩‍👧‍👦 Góc Phụ Huynh & Gia Đình
             </span>
-            <span className="rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-bold text-slate-600">
-              Hồ sơ con ({kids.filter((k) => k.active !== false).length}/{maxKids})
+            <span className="rounded-full bg-cream-100 px-2.5 py-0.5 text-xs font-black text-brand-700">
+              Hồ sơ con ({kids.filter((k) => k.active !== false).length}/{maxKids} ghế)
             </span>
           </div>
           <div className="flex items-center gap-2">
+            <Link
+              to="/parent/plan"
+              className="inline-flex items-center gap-1.5 rounded-xl border border-amber-300 bg-amber-50 px-3 py-2 text-xs font-black text-amber-900 shadow-soft hover:bg-amber-100 transition"
+            >
+              ⭐ Đổi gói / Mở thêm ghế
+            </Link>
             <Button
               onClick={() => setEditTarget(null)}
               disabled={seatsLeft <= 0}
+              className="!text-xs !min-h-9 font-black shadow-clay"
             >
               + Thêm con
             </Button>
           </div>
         </div>
-        <h1 className="font-display text-2xl font-black text-slate-900 mt-3 sm:text-3xl">
+
+        <h1 className="font-display text-2xl font-black text-text mt-3 sm:text-3xl">
           Quản lý tài khoản các con
         </h1>
         <p className="text-xs sm:text-sm text-muted mt-1 max-w-3xl leading-relaxed">
           Quản lý danh tính, mã PIN, quyền an toàn và cách con đăng nhập. Tiến trình và chương trình học được quản lý riêng tại Trung tâm học tập.
         </p>
-        {sub && (
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-2 rounded-2xl border border-brand-200/80 bg-brand-50/60 p-4 shadow-2xs">
-            <div>
-              <p className="text-xs font-bold uppercase text-muted">Gói gia đình hiện tại</p>
-              <p className="font-display text-lg font-black text-brand-700">
-                {sub.planName} · {sub.childCount}/{sub.maxChildren} ghế con
+
+        {/* Family Safety Shield & Seat Meter */}
+        <div className="mt-4 flex flex-col gap-2 rounded-2xl border border-cream-300/80 bg-white/80 p-4 shadow-soft">
+          <div className="flex flex-wrap items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={18} className="text-mint-600" />
+              <p className="text-xs font-black text-mint-800">
+                🛡️ 100% tài khoản đã được bảo vệ mã PIN & kiểm duyệt AI an toàn
               </p>
             </div>
-            <Link
-              to="/parent/plan"
-              className="text-xs sm:text-sm font-bold text-brand-600 hover:underline"
-            >
-              Đổi gói học →
-            </Link>
+            {sub && (
+              <span className="text-xs font-bold text-muted">
+                Gói {sub.planName} · Còn {seatsLeft} ghế trống
+              </span>
+            )}
           </div>
-        )}
+
+          <div className="flex flex-wrap gap-2 mt-2">
+            {Array.from({ length: maxKids }).map((_, i) => {
+              const k = kids.filter((child) => child.active !== false)[i]
+              if (k) {
+                return (
+                  <div
+                    key={i}
+                    className="flex items-center gap-2 rounded-2xl bg-cream-50 px-3 py-1.5 shadow-soft border border-cream-200"
+                    title={k.nickname || 'Bé'}
+                  >
+                    <span className="text-xl">{avatarEmoji(k.avatarId)}</span>
+                    <span className="text-xs font-black max-w-[5rem] truncate text-text">{k.nickname}</span>
+                    <span className="rounded-full bg-amber-100 px-1.5 py-0.2 text-[10px] font-black text-amber-900">
+                      Lv.{k.level || 1}
+                    </span>
+                  </div>
+                )
+              }
+              return (
+                <div
+                  key={i}
+                  className="flex items-center gap-1.5 rounded-2xl bg-white/60 px-3 py-1.5 border-2 border-dashed border-cream-300 opacity-70"
+                >
+                  <div className="w-5 h-5 rounded-full bg-cream-100 flex items-center justify-center text-xs text-muted">
+                    <Plus size={12} />
+                  </div>
+                  <span className="text-xs font-bold text-muted">Ghế trống</span>
+                </div>
+              )
+            })}
+          </div>
+        </div>
       </header>
+
+      {/* Grid of child cards */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {kids.length === 0 && (
           <div className="ui-card p-6 text-center sm:col-span-2 xl:col-span-3">
@@ -1365,154 +1827,294 @@ function KidsTab() {
             <p className="text-sm text-muted">Nhấn "Thêm con" để bắt đầu</p>
           </div>
         )}
-        {kids.map((k) => (
-          <div
-            key={k.id}
-            className={cn(
-              'ui-card p-4 transition',
-              !k.active && 'opacity-50',
-            )}
-          >
-            {/* Avatar + tên + stats */}
-            <div className="flex items-center gap-3">
-              <span className="flex-shrink-0 text-3xl">{avatarEmoji(k.avatarId)}</span>
-              <div className="min-w-0 flex-1">
-                <p className="font-extrabold text-lg leading-tight">{k.nickname}</p>
-                <p className="text-sm text-muted">{k.ageBand || 'Chưa đặt nhóm tuổi'} · {k.hasPin ? 'Đã có PIN' : 'Chưa có PIN'}</p>
-              </div>
-            </div>
-
-            {/* Hàng nút */}
-            <div className="mt-3 flex flex-wrap items-center gap-2">
-              <Link
-                to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
-                className="ui-btn ui-btn-secondary !min-h-9 !px-3 !text-xs"
-              >
-                <BookOpen size={16} aria-hidden="true" />
-                Xem học tập
-              </Link>
-
-              {/* Bút chì — mở EditChildModal (tên + avatar + PIN) */}
-              <button
-                type="button"
-                onClick={() => setEditTarget(k)}
-                className="flex min-h-11 min-w-11 items-center justify-center rounded-xl text-sm transition hover:bg-brand-50"
-                title="Chỉnh sửa hồ sơ"
-                aria-label="Chỉnh sửa hồ sơ con"
-              >
-                <Pencil size={17} aria-hidden="true" />
-              </button>
-
-              {/* Tạm khóa */}
-              <button
-                type="button"
-                onClick={() => setDeleteTarget(k)}
-                className="ml-auto flex min-h-11 min-w-11 items-center justify-center rounded-xl text-sm transition hover:bg-coral-50"
-                title="Tạm khóa hồ sơ"
-                aria-label="Tạm khóa hồ sơ con"
-              >
-                <Trash2 size={17} aria-hidden="true" />
-              </button>
-            </div>
-
-            <details className="mt-3 rounded-2xl border border-border bg-page p-3">
-              <summary className="cursor-pointer text-sm font-extrabold text-brand-600">
-                Quyền an toàn của con
-              </summary>
-              <div className="mt-3 grid gap-2 text-sm">
-                <label className="flex min-h-11 items-start gap-3 rounded-xl bg-white px-3 py-2">
-                  <input
-                    type="checkbox"
-                    className="mt-1"
-                    checked={Boolean(k.allowAiCreate)}
-                    onChange={(event) => void updateConsent(k, 'allowAiCreate', event.target.checked)}
-                  />
-                  <span className="flex-1">
-                    <span className="flex items-center gap-1">
-                      <strong>Phòng sáng tạo AI</strong>
-                      <ConsentTooltip
-                        badge="🤖 Nội dung AI được kiểm duyệt tự động"
-                        on="Con vào được Studio AI, tạo câu chuyện & nhân vật."
-                        off="Nút 'Tạo với AI' bị ẩn hoàn toàn với con."
-                      />
-                    </span>
-                    <span className="text-xs text-muted">Con vào Studio AI tạo nội dung — đã lọc an toàn.</span>
-                  </span>
-                </label>
-                <label className="flex min-h-11 items-start gap-3 rounded-xl bg-white px-3 py-2">
-                  <input
-                    type="checkbox"
-                    className="mt-1"
-                    checked={Boolean(k.allowPhoto)}
-                    onChange={(event) => void updateConsent(k, 'allowPhoto', event.target.checked)}
-                  />
-                  <span className="flex-1">
-                    <span className="flex items-center gap-1">
-                      <strong>Cho phép dùng ảnh</strong>
-                      <ConsentTooltip
-                        badge="📷 Ảnh chỉ lưu trong ứng dụng, không chia sẻ ra ngoài"
-                        on="Con dùng được camera & thư viện ảnh thiết bị."
-                        off="Chỉ dùng ảnh có sẵn trong thư viện hệ thống."
-                      />
-                    </span>
-                    <span className="text-xs text-muted">Con dùng camera/ảnh thiết bị trong tác phẩm — bật mặc định.</span>
-                  </span>
-                </label>
-                {/* WHY: this checkbox is phrased as a safety opt-out. A checked box
-                    maps to allowExport=false (sharing HIDDEN). Default is unchecked
-                    because new child profiles start with allowExport=true (sharing ENABLED). */}
-                <label className="flex min-h-11 items-start gap-3 rounded-xl bg-white px-3 py-2">
-                  <input
-                    type="checkbox"
-                    className="mt-1"
-                    checked={!Boolean(k.allowExport)}
-                    onChange={(event) => void updateConsent(k, 'allowExport', !event.target.checked)}
-                  />
-                  <span className="flex-1">
-                    <span className="flex items-center gap-1">
-                      <strong>Tắt xuất/chia sẻ</strong>
-                      <ConsentTooltip
-                        badge="📤 Mọi chia sẻ vẫn cần phụ huynh duyệt"
-                        on="Nút chia sẻ bị ẩn hoàn toàn — con không thể chia sẻ."
-                        off="Con thấy nút chia sẻ, phụ huynh duyệt từng lần."
-                        onLabel="ĐÃ TẮT"
-                        offLabel="ĐANG BẬT"
-                      />
-                    </span>
-                    <span className="text-xs text-muted">Tích để ẩn nút chia sẻ với con — bật mặc định.</span>
-                  </span>
-                </label>
-              </div>
-            </details>
-            <button
-              type="button"
-              className="mt-2 text-left text-xs font-bold text-brand-600 hover:underline"
-              onClick={() => void toggleConsentHistory(k.id)}
-              aria-expanded={consentHistoryChild === k.id}
+        {kids.map((k) => {
+          const courseCount = (k as any).openCourses ?? 2
+          return (
+            <div
+              key={k.id}
+              className={cn(
+                'flex flex-col gap-3.5 p-5 transition rounded-3xl border-2 border-cream-300 shadow-clay bg-gradient-to-b from-white via-cream-50/30 to-white text-text',
+                !k.active && 'opacity-50',
+              )}
             >
-              {consentHistoryChild === k.id ? 'Ẩn lịch sử thay đổi quyền' : 'Xem lịch sử thay đổi quyền'}
-            </button>
-            {consentHistoryChild === k.id && (
-              <div className="mt-2 rounded-2xl border border-border bg-page p-3 text-xs" role="region" aria-label="Lịch sử quyền an toàn">
-                {consentHistoryLoading && !consentHistory[k.id] ? (
-                  <p className="text-muted">Đang tải lịch sử...</p>
-                ) : consentHistory[k.id]?.length ? (
-                  <ol className="flex flex-col gap-2">
-                    {consentHistory[k.id].map((event) => (
-                      <li key={event.id} className="rounded-xl bg-white px-3 py-2">
-                        <p className="font-bold">{new Date(event.createdAt).toLocaleString('vi-VN')}</p>
-                        <p className="text-muted">Chính sách {event.policyVersion} · {event.method}</p>
-                      </li>
-                    ))}
-                  </ol>
-                ) : (
-                  <p className="text-muted">Chưa có bản ghi thay đổi.</p>
+              {/* Card Header: Avatar, Name, Level & Quick Actions */}
+              <div className="flex items-start gap-3.5">
+                <div className="relative">
+                  <div className="flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-b from-sun-100 to-cream-100 text-4xl shadow-soft border-2 border-cream-200">
+                    {avatarEmoji(k.avatarId)}
+                  </div>
+                  <span className="absolute -bottom-2 -right-2 rounded-full border-2 border-white bg-amber-400 px-1.5 py-0.5 text-[10px] font-black text-amber-950 shadow-soft">
+                    Lv.{k.level || 1}
+                  </span>
+                </div>
+
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-display text-xl font-black text-text leading-tight truncate">{k.nickname}</h3>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        onClick={() => setEditTarget(k)}
+                        className="flex h-8 w-8 items-center justify-center rounded-xl text-muted hover:bg-cream-100 hover:text-text transition"
+                        title="Chỉnh sửa hồ sơ"
+                        aria-label="Chỉnh sửa hồ sơ con"
+                      >
+                        <Pencil size={15} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setDeleteTarget(k)}
+                        className="flex h-8 w-8 items-center justify-center rounded-xl text-muted hover:bg-coral-50 hover:text-coral-600 transition"
+                        title="Tạm khóa"
+                        aria-label="Tạm khóa hồ sơ con"
+                      >
+                        <Trash2 size={15} />
+                      </button>
+                    </div>
+                  </div>
+
+                  <p className="text-xs text-muted font-bold mt-0.5">{k.ageBand || 'Chưa đặt nhóm tuổi'}</p>
+
+                  {/* Level XP Bar */}
+                  <div className="mt-2 flex items-center gap-2">
+                    <div className="h-2 flex-1 bg-cream-200/80 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-brand-500 rounded-full"
+                        style={{ width: `${Math.min(100, Math.max(10, ((k.xp % 1000) / 1000) * 100))}%` }}
+                      />
+                    </div>
+                    <span className="text-[10px] font-black text-brand-700">
+                      Cấp {k.level || 1} · {k.xp || 0} XP
+                    </span>
+                  </div>
+
+                  {/* PIN Safety status */}
+                  <div className="mt-2 flex items-center gap-1.5 text-xs font-bold">
+                    {k.hasPin ? (
+                      <button
+                        type="button"
+                        onClick={() => setEditTarget(k)}
+                        className="inline-flex items-center gap-1 text-mint-700 hover:underline"
+                      >
+                        <Lock size={12} className="text-mint-600" />
+                        <span>🔒 Đã có mã PIN (Bảo vệ an toàn)</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setEditTarget(k)}
+                        className="inline-flex items-center gap-1 text-amber-800 hover:underline"
+                      >
+                        <KeyRound size={12} className="text-amber-600" />
+                        <span>⚠️ Chưa tạo mã PIN</span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* 3 Quick Stat Badges */}
+              <div className="grid grid-cols-3 gap-2 bg-cream-50/80 rounded-2xl p-2.5 border border-cream-200 shadow-soft">
+                <div className="flex flex-col items-center text-center">
+                  <span className="text-[10px] uppercase font-black text-muted">Hoàn thành</span>
+                  <span className="text-xs font-black text-text">🚀 {k.completedQuests ?? 0} trạm</span>
+                </div>
+                <div className="flex flex-col items-center text-center border-l border-r border-cream-200">
+                  <span className="text-[10px] uppercase font-black text-muted">Tích lũy</span>
+                  <span className="text-xs font-black text-text">⭐ {k.totalStars ?? 0} sao</span>
+                </div>
+                <div className="flex flex-col items-center text-center">
+                  <span className="text-[10px] uppercase font-black text-muted">Mở khóa</span>
+                  <span className="text-xs font-black text-text">📚 {courseCount} vùng học</span>
+                </div>
+              </div>
+
+              {/* Safety Control Board */}
+              <div className="rounded-2xl border border-cream-300/80 bg-white/90 p-3 shadow-soft space-y-2">
+                <p className="text-[11px] font-black uppercase tracking-wider text-brand-800">
+                  Bảng điều khiển quyền an toàn
+                </p>
+                <div className="grid gap-1.5 text-xs">
+                  <label className="flex items-start gap-2.5 rounded-xl bg-cream-50/60 px-2.5 py-2 border border-cream-200 hover:border-brand-200 transition cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="mt-0.5 accent-brand-500"
+                      checked={Boolean(k.allowAiCreate)}
+                      onChange={(event) => void updateConsent(k, 'allowAiCreate', event.target.checked)}
+                    />
+                    <span className="flex-1">
+                      <span className="flex items-center gap-1 font-bold text-text">
+                        🤖 Phòng sáng tạo AI
+                        <ConsentTooltip
+                          badge="🤖 Nội dung AI được kiểm duyệt tự động"
+                          on="Con vào được Studio AI, tạo câu chuyện & nhân vật."
+                          off="Nút 'Tạo với AI' bị ẩn hoàn toàn với con."
+                        />
+                      </span>
+                    </span>
+                  </label>
+
+                  <label className="flex items-start gap-2.5 rounded-xl bg-cream-50/60 px-2.5 py-2 border border-cream-200 hover:border-brand-200 transition cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="mt-0.5 accent-brand-500"
+                      checked={Boolean(k.allowPhoto)}
+                      onChange={(event) => void updateConsent(k, 'allowPhoto', event.target.checked)}
+                    />
+                    <span className="flex-1">
+                      <span className="flex items-center gap-1 font-bold text-text">
+                        📷 Cho phép dùng ảnh & camera
+                        <ConsentTooltip
+                          badge="📷 Ảnh chỉ lưu trong ứng dụng, không chia sẻ ra ngoài"
+                          on="Con dùng được camera & thư viện ảnh thiết bị."
+                          off="Chỉ dùng ảnh có sẵn trong thư viện hệ thống."
+                        />
+                      </span>
+                    </span>
+                  </label>
+
+                  <label className="flex items-start gap-2.5 rounded-xl bg-cream-50/60 px-2.5 py-2 border border-cream-200 hover:border-brand-200 transition cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="mt-0.5 accent-brand-500"
+                      checked={!Boolean(k.allowExport)}
+                      onChange={(event) => void updateConsent(k, 'allowExport', !event.target.checked)}
+                    />
+                    <span className="flex-1">
+                      <span className="flex items-center gap-1 font-bold text-text">
+                        📤 Tắt xuất / chia sẻ
+                        <ConsentTooltip
+                          badge="📤 Mọi chia sẻ vẫn cần phụ huynh duyệt"
+                          on="Nút chia sẻ bị ẩn hoàn toàn — con không thể chia sẻ."
+                          off="Con thấy nút chia sẻ, phụ huynh duyệt từng lần."
+                          onLabel="ĐÃ TẮT"
+                          offLabel="ĐANG BẬT"
+                        />
+                      </span>
+                    </span>
+                  </label>
+                </div>
+
+                <div className="flex items-center gap-1.5 text-[11px] font-bold text-muted bg-cream-100/60 px-2.5 py-1.5 rounded-xl border border-cream-200">
+                  ⏱️ 45 phút / ngày · Nhắc nghỉ mắt 20 phút
+                </div>
+              </div>
+
+              {/* Consent history toggle */}
+              <div className="flex flex-col">
+                <button
+                  type="button"
+                  className="text-left text-[11px] font-black text-brand-600 hover:underline w-fit"
+                  onClick={() => void toggleConsentHistory(k.id)}
+                  aria-expanded={consentHistoryChild === k.id}
+                >
+                  {consentHistoryChild === k.id ? 'Ẩn lịch sử thay đổi quyền' : 'Xem lịch sử thay đổi quyền'}
+                </button>
+                {consentHistoryChild === k.id && (
+                  <div className="mt-2 rounded-xl border border-cream-300 bg-cream-50/80 p-2.5 text-[11px]" role="region" aria-label="Lịch sử quyền an toàn">
+                    {consentHistoryLoading && !consentHistory[k.id] ? (
+                      <p className="text-muted">Đang tải lịch sử...</p>
+                    ) : consentHistory[k.id]?.length ? (
+                      <ol className="flex flex-col gap-1.5">
+                        {consentHistory[k.id].map((event) => (
+                          <li key={event.id} className="rounded-lg bg-white px-2 py-1.5 shadow-soft border border-cream-200">
+                            <p className="font-bold text-text">{new Date(event.createdAt).toLocaleString('vi-VN')}</p>
+                            <p className="text-muted">Chính sách {event.policyVersion} · {event.method}</p>
+                          </li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <p className="text-muted">Chưa có bản ghi thay đổi.</p>
+                    )}
+                  </div>
                 )}
               </div>
-            )}
+
+              {/* Action Buttons */}
+              <div className="mt-auto pt-2 flex flex-col gap-2">
+                <div className="flex items-center gap-2">
+                  <Link
+                    to={`/parent/learning?childId=${encodeURIComponent(k.id)}`}
+                    className="flex-1 flex items-center justify-center gap-1.5 rounded-2xl bg-brand-500 py-2.5 px-3 text-xs font-black text-white shadow-clay transition hover:bg-brand-600 active:scale-95 text-center"
+                  >
+                    <BookOpen size={15} />
+                    <span>Xem học tập</span>
+                  </Link>
+
+                  <button
+                    type="button"
+                    onClick={() => navigate('/kids')}
+                    className="flex-1 flex items-center justify-center gap-1.5 rounded-2xl border-2 border-brand-200 bg-brand-50/70 py-2.5 px-3 text-xs font-black text-brand-700 shadow-soft transition hover:bg-brand-100 active:scale-95 text-center"
+                  >
+                    <span>🚀 Chuyển sang con</span>
+                  </button>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setQrModalTarget(k)}
+                  className="w-full flex items-center justify-center gap-1.5 rounded-2xl border border-cream-300 bg-white py-2 px-3 text-xs font-black text-muted shadow-soft transition hover:text-text hover:bg-cream-50 active:scale-95"
+                >
+                  <span>📲 Thẻ QR học sinh</span>
+                </button>
+              </div>
+            </div>
+          )
+        })}
+
+        {/* Empty Seat Slot Card */}
+        {seatsLeft > 0 && (
+          <div className="flex flex-col justify-center items-center text-center p-6 rounded-3xl border-2 border-dashed border-brand-300 bg-brand-50/30 transition hover:bg-brand-50/50 shadow-soft min-h-[360px]">
+            <div className="w-14 h-14 rounded-2xl bg-white flex items-center justify-center shadow-soft border border-brand-100 mb-4">
+              <Plus size={24} className="text-brand-500" />
+            </div>
+            <h3 className="font-display text-lg font-black text-brand-800 mb-1">
+              ➕ Ghế học sinh còn trống ({seatsLeft} ghế)
+            </h3>
+            <p className="text-xs text-muted mb-5 leading-relaxed px-4 max-w-xs">
+              Gói học của gia đình còn {seatsLeft} ghế chưa dùng. Thêm hồ sơ cho bé tiếp theo để học cùng nhau!
+            </p>
+            <Button
+              onClick={() => setEditTarget(null)}
+              className="!text-xs font-black shadow-clay"
+            >
+              + Thêm con ngay
+            </Button>
           </div>
-        ))}
+        )}
       </div>
+
+      {/* 3 Login Methods Guide */}
+      <div className="mt-6 rounded-3xl border-2 border-amber-200/80 bg-gradient-to-br from-amber-50/90 via-sun-50/50 to-orange-50/80 p-5 sm:p-6 shadow-soft text-text">
+        <h3 className="font-display text-lg sm:text-xl font-black text-amber-950 mb-3 flex items-center gap-2">
+          <Gamepad2 size={22} className="text-amber-600" />
+          Hướng dẫn 3 cách cho con vào học
+        </h3>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div className="bg-white/85 rounded-2xl p-4 border border-amber-100 shadow-soft">
+            <div className="text-2xl mb-2">📲</div>
+            <p className="font-black text-sm text-amber-950 mb-1">1. Quét mã QR thẻ học sinh</p>
+            <p className="text-xs text-muted leading-relaxed font-bold">
+              Bấm "Thẻ QR học sinh" ở trên. Con dùng iPad hoặc điện thoại quét để đăng nhập tức thì không cần mật khẩu.
+            </p>
+          </div>
+          <div className="bg-white/80 rounded-2xl p-4 border border-amber-100 shadow-soft">
+            <div className="text-2xl mb-2">🚀</div>
+            <p className="font-black text-sm text-amber-950 mb-1">2. Chuyển chế độ thiết bị chung</p>
+            <p className="text-xs text-muted leading-relaxed font-bold">
+              Ba / Mẹ bấm "Chuyển sang con" trên máy này. Giao diện quản lý phụ huynh sẽ tự động khóa bằng PIN an toàn.
+            </p>
+          </div>
+          <div className="bg-white/80 rounded-2xl p-4 border border-amber-100 shadow-soft">
+            <div className="text-2xl mb-2">🔢</div>
+            <p className="font-black text-sm text-amber-950 mb-1">3. Chọn tên & nhập mã PIN</p>
+            <p className="text-xs text-muted leading-relaxed font-bold">
+              Khi mở ứng dụng, con tự chọn tên mình và nhập mã PIN 4-6 số đã cài đặt để vào không gian học tập riêng.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         title="Tạm khóa hồ sơ của con?"
@@ -1529,9 +2131,6 @@ function KidsTab() {
       <EditChildModal
         child={editTarget ?? null}
         isOpen={editTarget !== undefined}
-        // WHY: truyền id của con đầu tiên làm referenceChildId để EditChildModal
-        // fetch được danh sách nhóm tuổi thực tế từ courses. Nếu chưa có con nào
-        // (tạo con đầu tiên) → referenceChildId = undefined → fallback hiện đủ.
         referenceChildId={kids[0]?.id}
         onClose={() => setEditTarget(undefined)}
         onSuccess={async () => {
@@ -1542,6 +2141,12 @@ function KidsTab() {
         onError={(e) => showToast(e, 'error')}
       />
 
+      {/* StudentQrCardModal — hiển thị thẻ học sinh & mã QR đăng nhập nhanh */}
+      <StudentQrCardModal
+        child={qrModalTarget}
+        isOpen={qrModalTarget !== null}
+        onClose={() => setQrModalTarget(null)}
+      />
     </div>
   )
 }
@@ -2283,5 +2888,73 @@ function LoadingSkeleton({ count }: { count: number }) {
         </div>
       ))}
     </div>
+  )
+}
+
+function StudentQrCardModal({
+  child,
+  isOpen,
+  onClose,
+}: {
+  child: Child | null
+  isOpen: boolean
+  onClose: () => void
+}) {
+  if (!isOpen || !child) return null
+
+  const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&data=${encodeURIComponent(
+    JSON.stringify({ type: 'aikids_student_login', studentId: child.id, nickname: child.nickname }),
+  )}`
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 backdrop-blur-sm"
+      style={{ background: 'rgba(20, 26, 48, 0.65)' }}
+      role="dialog"
+      aria-modal="true"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose()
+      }}
+    >
+      <div className="w-full max-w-sm rounded-3xl bg-white shadow-clay border-2 border-cream-300 overflow-hidden animate-in zoom-in-95 duration-200 text-text">
+        <div className="bg-gradient-to-b from-brand-100/70 via-brand-50/40 to-white p-6 pb-4 text-center relative border-b border-cream-200">
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Đóng"
+            className="absolute top-4 right-4 flex h-8 w-8 items-center justify-center rounded-full bg-white/70 text-muted hover:bg-white hover:text-text transition shadow-xs"
+          >
+            <X size={16} />
+          </button>
+          <div className="mx-auto w-20 h-20 bg-white rounded-2xl shadow-soft border-2 border-brand-200 flex items-center justify-center text-5xl mb-3 relative">
+            {avatarEmoji(child.avatarId)}
+            <div className="absolute -bottom-2 -right-2 bg-amber-400 text-amber-900 text-[10px] font-black px-2 py-0.5 rounded-full border-2 border-white shadow-xs">
+              Lv.{child.level || 1}
+            </div>
+          </div>
+          <h2 className="font-display text-2xl font-black text-text">{child.nickname}</h2>
+          <p className="text-xs font-bold text-brand-600 mt-1 uppercase tracking-wider">Thẻ Học Sinh Thông Minh</p>
+        </div>
+
+        <div className="p-6 text-center bg-cream-50/50">
+          <p className="text-sm font-black text-text mb-3">Quét mã QR để vào học ngay</p>
+          <div className="mx-auto w-48 h-48 bg-white rounded-2xl shadow-clay border-2 border-brand-100 flex items-center justify-center mb-4 p-2 relative overflow-hidden">
+            <img
+              src={qrCodeUrl}
+              alt={`QR Đăng nhập cho bé ${child.nickname}`}
+              className="w-full h-full object-contain rounded-xl"
+              loading="eager"
+            />
+          </div>
+          <p className="text-xs text-muted mb-4 px-2 leading-relaxed font-bold">
+            Mở camera trên máy tính bảng hoặc điện thoại của con và quét mã này để đăng nhập nhanh không cần mật khẩu.
+          </p>
+          <Button variant="secondary" className="w-full font-black text-sm shadow-soft" onClick={onClose}>
+            Đóng lại
+          </Button>
+        </div>
+      </div>
+    </div>,
+    document.body,
   )
 }

@@ -195,7 +195,7 @@ export async function generateCreativeImage(input: {
     prompt: input.prompt,
     provider,
     model_id: input.modelId || 'NARWHAL',
-    aspect_ratio: input.aspectRatio || '1:1',
+    aspect_ratio: input.aspectRatio || '4:3',
     ...(references.length
       ? {
           reference_image_url: references[0],

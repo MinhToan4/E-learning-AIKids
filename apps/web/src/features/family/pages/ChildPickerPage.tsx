@@ -162,7 +162,7 @@ export function ChildPickerPage() {
             <p className="text-sm text-muted">
               Ba / Mẹ thêm biệt danh và ảnh đại diện cho con trước nhé.
             </p>
-            <Link to="/parent/kids">
+            <Link to="/parent/kids?action=new">
               <Button>Thêm hồ sơ con</Button>
             </Link>
           </div>

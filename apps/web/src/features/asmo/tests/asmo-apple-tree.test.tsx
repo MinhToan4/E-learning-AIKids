@@ -35,6 +35,7 @@ describe('FlatClay Apple Vector Components', () => {
 
 describe('AsmoInteractiveAppleTreeCanvas Component', () => {
   let container: HTMLDivElement | null = null
+  let root: ReturnType<typeof createRoot> | null = null
 
   beforeEach(() => {
     // @ts-expect-error React 19 act environment flag
@@ -44,6 +45,12 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
   })
 
   afterEach(() => {
+    if (root) {
+      act(() => {
+        root!.unmount()
+      })
+      root = null
+    }
     if (container) {
       document.body.removeChild(container)
       container = null
@@ -114,10 +121,10 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
   it('tracks unique apple identity: tapping specific tree apple removes only that apple from tree and adds it to basket', async () => {
     const onAddApple = vi.fn()
     const onSubApple = vi.fn()
-    const root = createRoot(container!)
+    root = createRoot(container!)
 
     await act(async () => {
-      root.render(
+      root!.render(
         createElement(AsmoInteractiveAppleTreeCanvas, {
           applesA: 4, // IDs 0, 1, 2, 3 in basket A; tree has IDs 4..9
           applesB: 3, // IDs 0, 1, 2 in basket B; tree has IDs 3..9
@@ -175,10 +182,10 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
   it('supports drag and drop 2-way transitions with appleId preservation', async () => {
     const onAddApple = vi.fn()
     const onSubApple = vi.fn()
-    const root = createRoot(container!)
+    root = createRoot(container!)
 
     await act(async () => {
-      root.render(
+      root!.render(
         createElement(AsmoInteractiveAppleTreeCanvas, {
           applesA: 2,
           applesB: 2,
@@ -230,10 +237,10 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
   })
 
   it('synchronizes correctly when controlled props change from outside', async () => {
-    const root = createRoot(container!)
+    root = createRoot(container!)
 
     await act(async () => {
-      root.render(
+      root!.render(
         createElement(AsmoInteractiveAppleTreeCanvas, {
           applesA: 3,
           applesB: 2,
@@ -246,7 +253,7 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
 
     // Parent updates applesA to 5
     await act(async () => {
-      root.render(
+      root!.render(
         createElement(AsmoInteractiveAppleTreeCanvas, {
           applesA: 5,
           applesB: 2,
@@ -259,7 +266,7 @@ describe('AsmoInteractiveAppleTreeCanvas Component', () => {
 
     // Parent resets applesA to 0
     await act(async () => {
-      root.render(
+      root!.render(
         createElement(AsmoInteractiveAppleTreeCanvas, {
           applesA: 0,
           applesB: 0,

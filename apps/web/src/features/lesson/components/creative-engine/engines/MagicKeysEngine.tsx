@@ -9,6 +9,14 @@ import {
   BICYCLE_BLOCKS,
   NOTEBOOK_BLOCKS,
   CLOCK_BLOCKS,
+  CAT_BASE_BLOCKS,
+  CAT_SLEEPING_BLOCKS,
+  CAT_BUTTERFLY_BLOCKS,
+  CAT_ASTRONAUT_BLOCKS,
+  TREEHOUSE_BASE_BLOCKS,
+  FIRE_FORTRESS_BLOCKS,
+  SPACE_STATION_BLOCKS,
+  DETECTIVE_OFFICE_BLOCKS,
 } from '../data/creative-blocks-dataset'
 import { BlockSlotTray } from '../components/BlockSlotTray'
 import { BlockPalette } from '../components/BlockPalette'
@@ -221,15 +229,63 @@ export const MagicKeysEngine: React.FC<MagicKeysEngineProps> = ({
 
   const currentObjectBlocks = useMemo(() => {
     const s = (effectiveSubject || '').toLowerCase()
-    if (s.includes('xe') || s.includes('đạp')) return BICYCLE_BLOCKS
-    if (s.includes('sổ') || s.includes('sách')) return NOTEBOOK_BLOCKS
+    if (s.includes('phi hành gia') || s.includes('astronaut')) return CAT_ASTRONAUT_BLOCKS
+    if (s.includes('bướm') || s.includes('butterfly')) return CAT_BUTTERFLY_BLOCKS
+    if ((s.includes('ngủ') && s.includes('mèo')) || s.includes('ghế mây')) return CAT_SLEEPING_BLOCKS
+    if (s.includes('mèo') || s.includes('cat') || s.includes('mimi')) return CAT_BASE_BLOCKS
+    if (
+      s.includes('hốc cây') ||
+      (s.includes('căn cứ') && s.includes('sóc')) ||
+      (s.includes('căn cứ bí mật') && !s.includes('cáo') && !s.includes('robot') && !s.includes('mèo')) ||
+      lessonId?.includes('3-4') ||
+      lessonId?.includes('3.4')
+    ) {
+      return TREEHOUSE_BASE_BLOCKS
+    }
+    if (s.includes('pháo đài') || (s.includes('căn cứ') && s.includes('cáo'))) return FIRE_FORTRESS_BLOCKS
+    if (s.includes('trạm không gian') || (s.includes('căn cứ') && s.includes('robot'))) return SPACE_STATION_BLOCKS
+    if (s.includes('thám tử') || (s.includes('căn cứ') && s.includes('mèo'))) return DETECTIVE_OFFICE_BLOCKS
+
+    if (s.includes('xe') || s.includes('đạp') || s.includes('bike')) return BICYCLE_BLOCKS
+    if (s.includes('sổ') || s.includes('sách') || s.includes('note')) return NOTEBOOK_BLOCKS
     if (s.includes('đồng hồ') || s.includes('clock')) return CLOCK_BLOCKS
-    if (s.includes('cốc') || s.includes('ly') || lessonId?.includes('1-2') || lessonId?.includes('1.2')) return CERAMIC_CUP_BLOCKS
+    if (s.includes('cốc') || s.includes('ly') || s.includes('cup') || lessonId?.includes('1-2') || lessonId?.includes('1.2')) return CERAMIC_CUP_BLOCKS
     return [...COLOR_SHAPE_BLOCKS, ...ACTION_BLOCKS, ...CONTEXT_BLOCKS]
   }, [effectiveSubject, lessonId])
 
   // Tập trung vào các nhóm thuộc tính mô tả
   const allBlocks = currentObjectBlocks
+
+  // Bổ sung hiệu ứng đồng bộ ngược từ currentPrompt vào slots của MagicKeysEngine
+  useEffect(() => {
+    if (!currentPrompt) return
+    setSlots((prev) => {
+      const parts = prev
+        .map((s) => s.currentBlock?.text?.trim())
+        .filter(Boolean)
+      const currentAssembled = parts.join(' ')
+      if (currentAssembled === currentPrompt) return prev
+
+      const next = prev.map((slot) => {
+        if (slot.keyId === 'subject') {
+          return {
+            ...slot,
+            currentBlock: buildSubjectBlock(effectiveSubject),
+            locked: false,
+            subjectImage: getSubjectImage(effectiveSubject),
+          }
+        }
+        const matchedBlock = currentObjectBlocks.find(
+          (b) => b.category === slot.keyId && (currentPrompt.includes(b.text) || currentPrompt.includes(b.label))
+        )
+        return {
+          ...slot,
+          currentBlock: matchedBlock || null,
+        }
+      })
+      return next
+    })
+  }, [currentPrompt, effectiveSubject, buildSubjectBlock, currentObjectBlocks])
 
   const categories = [
     { id: 'color-shape', label: '2. Trông thế nào', icon: '🎨' },

@@ -41,8 +41,8 @@ describe('Focus Studio AI Studio practice parts & 4-key options configuration', 
   it('suggests appropriate four keys and practice objects based on subject name', () => {
     const catSuggestion = suggestFourKeysForSubject('Chú mèo mướp vui nhộn')
     expect(catSuggestion.parts[0].title).toContain('Mèo')
-    expect(catSuggestion.fourKeys.what).toContain('Mèo mướp vàng')
-    expect(catSuggestion.fourKeys.how).toContain('béo tròn bụ bẫm')
+    expect(catSuggestion.fourKeys.what).toContain('Chú Mèo Mướp Vàng')
+    expect(catSuggestion.fourKeys.how).toContain('Béo tròn bụ bẫm')
 
     const defaultSuggestion = suggestFourKeysForSubject('Bốn chiếc chìa khóa')
     expect(defaultSuggestion.parts[0].title).toBe('Cái cốc sứ trắng')

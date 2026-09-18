@@ -273,7 +273,7 @@ describe('AikiStudioWorkspace', () => {
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({
         prompt: 'Chú Sóc',
-        aspectRatio: '1:1',
+        aspectRatio: '4:3',
       })
     )
 
@@ -323,7 +323,7 @@ describe('AikiStudioWorkspace', () => {
     expect(spy).toHaveBeenCalledWith(
       expect.objectContaining({
         prompt: 'Chú Sóc',
-        aspectRatio: '1:1',
+        aspectRatio: '4:3',
       })
     )
 
@@ -838,13 +838,19 @@ describe('AikiStudioWorkspace', () => {
     expect(container.textContent).toContain('✓ Đã vẽ')
     expect(container.textContent).toContain('Chưa vẽ')
 
-    // 2. Khung ảnh to đang hiển thị ảnh Lượt 1, kiểm tra responsive max-h giải phóng chiều cao cho Prompt Bar
+    // 2. Khung ảnh to đang hiển thị ảnh Lượt 1, kiểm tra responsive max-h giải phóng chiều cao cho Prompt Bar và max-w bảo toàn tỷ lệ 4:3
     const liveCanvas = container.querySelector('[data-testid="studio-live-canvas-display"]')
     expect(liveCanvas).not.toBeNull()
     expect(liveCanvas?.textContent).toContain('Lượt 1')
     expect(liveCanvas?.className).toContain('lg:max-h-[290px]')
     expect(liveCanvas?.className).toContain('xl:max-h-[310px]')
     expect(liveCanvas?.className).toContain('2xl:max-h-[350px]')
+    expect(liveCanvas?.className).toContain('max-w-md')
+    expect(liveCanvas?.className).toContain('sm:max-w-lg')
+    expect(liveCanvas?.className).toContain('xl:max-w-none')
+    expect(liveCanvas?.className).toContain('mx-auto')
+    const liveImg = liveCanvas?.querySelector('img')
+    expect(liveImg?.className).toContain('object-contain')
 
     // 3. Click chuyển sang Tab Lượt 2
     const buttons = container.querySelectorAll('button')
@@ -855,13 +861,17 @@ describe('AikiStudioWorkspace', () => {
       turn2Btn?.click()
     })
 
-    // 4. Vì chưa vẽ lượt 2, canvas to chuyển sang studio-canvas-empty, kiểm tra responsive max-h
+    // 4. Vì chưa vẽ lượt 2, canvas to chuyển sang studio-canvas-empty, kiểm tra responsive max-h và max-w
     const emptyCanvas = container.querySelector('[data-testid="studio-canvas-empty"]')
     expect(emptyCanvas).not.toBeNull()
     expect(emptyCanvas?.textContent).toContain('Khung Tranh Của Bé Đang Chờ!')
     expect(emptyCanvas?.className).toContain('lg:max-h-[290px]')
     expect(emptyCanvas?.className).toContain('xl:max-h-[310px]')
     expect(emptyCanvas?.className).toContain('2xl:max-h-[350px]')
+    expect(emptyCanvas?.className).toContain('max-w-md')
+    expect(emptyCanvas?.className).toContain('sm:max-w-lg')
+    expect(emptyCanvas?.className).toContain('xl:max-w-none')
+    expect(emptyCanvas?.className).toContain('mx-auto')
 
     // 5. Kiểm tra Dải phim Mini Filmstrip Gallery
     expect(container.textContent).toContain('Balo bài học:')
@@ -1336,5 +1346,45 @@ describe('AikiStudioWorkspace', () => {
     container.remove()
     spy.mockRestore()
   })
+
+  it('displays studio-live-canvas-prompt and synchronizes prompt when viewing saved image', async () => {
+    const testPrompt = 'Cái cốc sứ trắng men sữa bóng bẩy đang bốc khói trên bàn gỗ'
+    const container = document.createElement('div')
+    document.body.appendChild(container)
+    const root = createRoot(container)
+
+    await act(async () => {
+      root.render(
+        <AikiStudioWorkspace
+          lessonId="bai-1-2"
+          characterName="Cái cốc sứ trắng"
+          preloadedImages={[
+            {
+              id: 'img-1',
+              url: '/sample-test.jpg',
+              prompt: testPrompt,
+              time: '12:00',
+              toneBg: 'from-amber-100 to-amber-200',
+              turn: 1,
+              partIndex: 0,
+              partTurn: 1,
+            },
+          ]}
+        />
+      )
+    })
+
+    // Banner câu lệnh đã kết hợp xuất hiện trên canvas
+    const promptBanner = container.querySelector('[data-testid="studio-live-canvas-prompt"]')
+    expect(promptBanner).not.toBeNull()
+    expect(promptBanner?.textContent).toContain('Câu lệnh đã kết hợp:')
+    expect(promptBanner?.textContent).toContain(testPrompt)
+
+    act(() => {
+      root.unmount()
+    })
+    container.remove()
+  })
 })
+
 

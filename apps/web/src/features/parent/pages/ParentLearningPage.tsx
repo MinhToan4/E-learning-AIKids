@@ -572,7 +572,7 @@ function LearningOverview({
       </section>
 
       <section className="ui-card overflow-hidden">
-        <div className="grid gap-5 bg-gradient-to-br from-brand-50 via-white to-sky-50 p-5 sm:p-6 lg:grid-cols-[1fr_auto] lg:items-center">
+        <div className="grid gap-5 bg-gradient-to-br from-brand-50 via-white to-sky-50 p-5 sm:p-6 md:grid-cols-[1fr_auto] md:items-center">
           <div>
             <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">Bước tiếp theo</p>
             <h2 className="mt-1 font-display text-2xl">
@@ -690,7 +690,7 @@ function LearningActivitySection({ studentId, initialProgress }: { studentId: st
       ) : (
         <>
           <section className="ui-card overflow-hidden">
-            <div className="grid gap-5 bg-gradient-to-br from-brand-50 via-white to-mint-50 p-5 sm:p-6 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div className="grid gap-5 bg-gradient-to-br from-brand-50 via-white to-mint-50 p-5 sm:p-6 md:grid-cols-[1fr_auto] md:items-center">
               <div>
                 <p className="text-xs font-extrabold uppercase tracking-wide text-brand-600">{currentQuest ? 'Đang học' : phaseLabel}</p>
                 <h3 className="mt-1 font-display text-2xl">{currentQuest?.title ?? (completionPercent === 100 ? 'Đã hoàn thành chương trình' : 'Sẵn sàng cho trạm tiếp theo')}</h3>

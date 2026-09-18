@@ -2,7 +2,7 @@ import { cn } from '@/shared/lib/cn'
 
 type CuteProgressProps = {
   value: number
-  label: string
+  label?: string
   tone?: 'violet' | 'mint' | 'coral'
   compact?: boolean
   className?: string
@@ -19,14 +19,18 @@ export function CuteProgress({
 
   return (
     <div className={cn('cute-progress', compact && 'cute-progress-compact', className)}>
-      <div className="cute-progress-header">
-        <span>{label}</span>
-        <strong>{safeValue}%</strong>
-      </div>
+      {label && (
+        <div className="cute-progress-header flex items-center justify-between mb-1.5 px-1">
+          <span className="text-xs font-black uppercase tracking-wider text-slate-700">{label}</span>
+          <strong className="inline-flex items-center px-2 py-0.5 rounded-full bg-brand-100 text-brand-800 text-[11px] font-black border border-brand-200 shadow-2xs">
+            {safeValue}%
+          </strong>
+        </div>
+      )}
       <div
         className="cute-progress-track"
         role="progressbar"
-        aria-label={label}
+        aria-label={label || 'Tiến độ'}
         aria-valuenow={safeValue}
         aria-valuemin={0}
         aria-valuemax={100}

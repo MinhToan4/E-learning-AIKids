@@ -28,6 +28,9 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
         writeText: vi.fn().mockResolvedValue(undefined),
       },
     })
+
+    // Mock anchor click to prevent jsdom navigation error
+    vi.spyOn(HTMLAnchorElement.prototype, 'click').mockImplementation(() => {})
   })
 
   afterEach(() => {
@@ -438,5 +441,86 @@ describe('ParentSubscriptionCheckoutModal Component', () => {
     expect(document.body.textContent).toContain(
       'Đặc biệt: Khoản tiền thừa của Ba Mẹ đã được tự động tặng thêm 10 lượt tạo ảnh AI cho bé sáng tạo!',
     )
+  })
+
+  it('downloads QR code and copies full payment info correctly', async () => {
+    global.fetch = vi.fn().mockResolvedValue({
+      blob: () => Promise.resolve(new Blob(['fake-png-data'], { type: 'image/png' })),
+    })
+    const createObjectURLSpy = vi.fn().mockReturnValue('blob:http://localhost/fake-qr')
+    const revokeObjectURLSpy = vi.fn()
+    window.URL.createObjectURL = createObjectURLSpy
+    window.URL.revokeObjectURL = revokeObjectURLSpy
+
+    act(() => {
+      root.render(
+        createElement(ParentSubscriptionCheckoutModal, {
+          open: true,
+          onClose: vi.fn(),
+          paymentCode: 'AK129K9999',
+        }),
+      )
+    })
+
+    const downloadBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Tải mã QR về máy'),
+    )
+    expect(downloadBtn).toBeDefined()
+
+    await act(async () => {
+      downloadBtn?.click()
+    })
+    expect(global.fetch).toHaveBeenCalled()
+
+    // Test Copy All button
+    const copyAllBtn = Array.from(document.body.querySelectorAll('button')).find((b) =>
+      b.textContent?.includes('Sao chép toàn bộ thông tin'),
+    )
+    expect(copyAllBtn).toBeDefined()
+
+    await act(async () => {
+      copyAllBtn?.click()
+    })
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      expect.stringContaining('MBBank'),
+    )
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      expect.stringContaining('0382228888'),
+    )
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith(
+      expect.stringContaining('AK129K9999'),
+    )
+  })
+
+  it('renders popular bank apps and handles deep link click', async () => {
+    act(() => {
+      root.render(
+        createElement(ParentSubscriptionCheckoutModal, {
+          open: true,
+          onClose: vi.fn(),
+          paymentCode: 'AK129K8888',
+        }),
+      )
+    })
+
+    // Bank app buttons
+    expect(document.body.textContent).toContain('Mở Nhanh Ứng Dụng Ngân Hàng / Ví Điện Tử')
+    expect(document.body.textContent).toContain('MB Bank')
+    expect(document.body.textContent).toContain('Vietcombank')
+    expect(document.body.textContent).toContain('Techcombank')
+    expect(document.body.textContent).toContain('Ví MoMo')
+    expect(document.body.textContent).toContain('ZaloPay')
+
+    // Click on MB Bank
+    const mbBtn = document.body.querySelector('button[aria-label="Mở app MB Bank"]') as HTMLButtonElement | null
+    expect(mbBtn).not.toBeNull()
+
+    await act(async () => {
+      mbBtn?.click()
+    })
+
+    // Copies payment code to clipboard
+    expect(navigator.clipboard.writeText).toHaveBeenCalledWith('AK129K8888')
+    expect(document.body.textContent).toContain('Đã chép mã!')
   })
 })

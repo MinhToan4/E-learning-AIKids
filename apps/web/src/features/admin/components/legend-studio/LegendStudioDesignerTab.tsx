@@ -1,5 +1,27 @@
-import { useMemo, useState, type FormEvent } from 'react'
-import { AlertTriangle, ArrowDown, ArrowUp, Gift, Pencil, Plus, Settings2, Trash2, UploadCloud } from 'lucide-react'
+import { useMemo, useState, useRef, type FormEvent, type DragEvent } from 'react'
+import {
+  AlertTriangle,
+  ArrowDown,
+  ArrowUp,
+  CheckCircle2,
+  ChevronDown,
+  Gift,
+  HelpCircle,
+  Image as ImageIcon,
+  Layers,
+  LayoutTemplate,
+  Pencil,
+  Plus,
+  Rocket,
+  RotateCcw,
+  Settings2,
+  Sparkles,
+  Tag,
+  Trash2,
+  UploadCloud,
+  User as UserIcon,
+  X,
+} from 'lucide-react'
 import { Button } from '@/shared/components/ui/Button'
 import { BookSpread } from '@/features/storybook/components/BookSpread'
 import type { StorybookPage } from '@/features/storybook/storybook-data'
@@ -8,6 +30,7 @@ import { uploadCmsImage } from '@/shared/lib/media-api'
 import type { AssetSpec, ChapterStickerItem, ContentType, RewardKind, StudioFormState, StudioItem } from './types'
 import {
   assetDimensionLabel,
+  assetSpecs,
   achievementFamilyLabel,
   achievementFamilyLabels,
   displayTemplate,
@@ -31,7 +54,29 @@ export interface LegendStudioDesignerTabProps {
   setMessage: (msg: string) => void
   onCancel: () => void
   message: string
+  onPublishNow?: () => Promise<void>
 }
+
+function slugifyVietnamese(text: string): string {
+  return text
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .replace(/[^a-z0-9\s-]/g, '')
+    .trim()
+    .replace(/\s+/g, '-')
+    .slice(0, 36)
+}
+
+const RARITY_OPTIONS = [
+  { value: 'common', label: 'Common', color: 'border-slate-300 bg-slate-100 text-slate-700' },
+  { value: 'rare', label: 'Rare', color: 'border-sky-300 bg-sky-100 text-sky-800' },
+  { value: 'epic', label: 'Epic', color: 'border-purple-300 bg-purple-100 text-purple-800' },
+  { value: 'legendary', label: 'Legendary', color: 'border-amber-300 bg-amber-100 text-amber-900 font-bold' },
+] as const
+
+const DEFAULT_AVATAR = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><rect width="256" height="256" rx="128" fill="#dbeafe"/><circle cx="128" cy="105" r="52" fill="#f6c89f"/><path d="M72 104c0-67 112-72 112 2-25-3-46-19-58-38-11 22-31 34-54 36Z" fill="#4338ca"/><circle cx="108" cy="108" r="6" fill="#1e293b"/><circle cx="148" cy="108" r="6" fill="#1e293b"/><path d="M108 137c13 13 28 13 41 0" fill="none" stroke="#b45309" stroke-width="6" stroke-linecap="round"/><path d="M55 256c5-63 39-92 73-92s68 29 73 92" fill="#60a5fa"/></svg>')}`
 
 export function LegendStudioDesignerTab({
   form,
@@ -46,6 +91,7 @@ export function LegendStudioDesignerTab({
   setMessage,
   onCancel,
   message,
+  onPublishNow,
 }: LegendStudioDesignerTabProps) {
   const [uploading, setUploading] = useState(false)
   const [thumbnailUploading, setThumbnailUploading] = useState(false)
@@ -56,6 +102,11 @@ export function LegendStudioDesignerTab({
   const [chapterUploading, setChapterUploading] = useState('')
   const [milestoneUploading, setMilestoneUploading] = useState<number | null>(null)
   const [storybookPreviewMode, setStorybookPreviewMode] = useState<'locked' | 'complete'>('locked')
+  const [previewTab, setPreviewTab] = useState<'student_card' | 'raw_asset'>('student_card')
+  const [isDragOver, setIsDragOver] = useState(false)
+  const [codeManuallyEdited, setCodeManuallyEdited] = useState(Boolean(editingItem))
+
+  const fileInputRef = useRef<HTMLInputElement>(null)
 
   const chapterStickers = useMemo<ChapterStickerItem[]>(() => {
     try {
@@ -264,407 +315,792 @@ export function LegendStudioDesignerTab({
     } finally { setMilestoneUploading(null) }
   }
 
+  // Handle Drag and Drop
+  const handleDragOver = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragOver(true)
+  }
+
+  const handleDragLeave = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragOver(false)
+  }
+
+  const handleDrop = (e: DragEvent<HTMLDivElement>) => {
+    e.preventDefault()
+    e.stopPropagation()
+    setIsDragOver(false)
+    const file = e.dataTransfer.files?.[0]
+    if (file) void uploadAsset(file)
+  }
+
+  // Auto-slugify name to code
+  const handleNameChange = (nameVal: string) => {
+    if (!editingItem && !codeManuallyEdited) {
+      const generated = slugifyVietnamese(nameVal)
+      setForm((cur) => ({ ...cur, name: nameVal, code: generated }))
+    } else {
+      setForm((cur) => ({ ...cur, name: nameVal }))
+    }
+  }
+
+  const activeAssetSrc = form.assetUrl || previewUrl
+
   return (
-    <div className="grid items-start gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(520px,640px)]">
-      <form onSubmit={onSubmit} className="ui-card order-2 space-y-5 p-5 xl:order-1">
-        <div>
-          <p className="text-xs font-black uppercase tracking-wider text-brand-600">{editingItem ? `Đang sửa ${editingItem.code}` : 'Tạo cấu hình mới'}</p>
-          <h2 className="font-display text-2xl">{editingItem ? editingItem.name : 'Thiết kế nội dung'}</h2>
-          <p className="text-sm text-muted">{editingItem?.status === 'published' || editingItem?.status === 'retired' ? 'Bản đã phát hành là bất biến. Khi lưu, hệ thống tạo một version nháp mới cùng mã.' : editingItem ? 'Các thay đổi sẽ cập nhật version chưa phát hành hiện tại.' : 'Mỗi nhóm thông tin được tách riêng để dễ kiểm tra trước khi lưu.'}</p>
+    <div className="grid items-start gap-6 lg:grid-cols-[minmax(420px,1fr)_minmax(460px,560px)]">
+      {/* CỘT TRÁI: FORM NHẬP THÔNG SỐ GỌN GÀNG */}
+      <form onSubmit={onSubmit} className="ui-card space-y-5 p-6 border border-border shadow-xs">
+        {/* Header & Status Indicator */}
+        <div className="flex items-start justify-between gap-3 border-b border-border pb-4">
+          <div>
+            <div className="flex items-center gap-2">
+              <span className={`inline-block h-2.5 w-2.5 rounded-full ${editingItem ? 'bg-amber-500' : 'bg-brand-600'}`} />
+              <p className="text-xs font-black uppercase tracking-wider text-brand-600">
+                {editingItem ? `Đang sửa: ${editingItem.code}` : 'Thiết kế mới'}
+              </p>
+            </div>
+            <h2 className="mt-1 font-display text-2xl text-slate-900">
+              {editingItem ? editingItem.name : 'Tạo Tài sản Đồ họa'}
+            </h2>
+          </div>
+          {editingItem && (
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-bold text-slate-600">
+              v{editingItem.version} · {editingItem.status}
+            </span>
+          )}
         </div>
 
-        <section className="space-y-4 rounded-3xl border border-border bg-slate-50/70 p-4">
-          <h3 className="font-extrabold">1. Thông tin cơ bản</h3>
-          <label className="block text-sm font-bold">Loại nội dung
-            <select disabled={Boolean(editingItem)} className={fieldClass} value={form.contentType} onChange={(event) => setForm({ ...form, contentType: event.target.value as ContentType })}>
-              <option value="reward">Reward / vật phẩm</option><option value="achievement">Achievement tiến hoá</option><option value="chapter">Chapter Storybook</option><option value="event">Sự kiện</option>
-            </select>
-          </label>
-          <div className={`grid gap-3 ${form.contentType === 'reward' ? 'sm:grid-cols-2' : ''}`}>
-            <label className="text-sm font-bold">Mã định danh
-              <input required minLength={3} disabled={Boolean(editingItem)} className={fieldClass} placeholder={form.contentType === 'reward' ? 'frame-galaxy' : form.contentType === 'chapter' ? 'P09' : 'summer-creative-2026'} value={form.code} onChange={(event) => setForm({ ...form, code: event.target.value })} />
-              {editingItem && <span className="mt-1 block text-xs text-muted">Mã được giữ cố định để bảo toàn liên kết inventory.</span>}
-            </label>
-            {form.contentType === 'reward' && <label className="text-sm font-bold">Độ hiếm
-              <select className={fieldClass} value={form.rarity} onChange={(event) => setForm({ ...form, rarity: event.target.value })}>
-                <option value="common">Common</option><option value="rare">Rare</option><option value="epic">Epic</option><option value="legendary">Legendary</option>
-              </select>
-            </label>}
-          </div>
-          <label className="block text-sm font-bold">Tên hiển thị
-            <input required className={fieldClass} placeholder="Ví dụ: Khung Dải Ngân Hà" value={form.name} onChange={(event) => setForm({ ...form, name: event.target.value })} />
-          </label>
-          <label className="block text-sm font-bold">Mô tả
-            <textarea className={`${fieldClass} min-h-32 py-3`} placeholder="Mô tả giá trị và cách trẻ nhận phần thưởng…" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
-          </label>
-        </section>
-
-        <section className="space-y-4 rounded-3xl border border-border bg-slate-50/70 p-4">
-          <h3 className="font-extrabold">
-            {form.contentType === 'reward' ? '2. Asset reward' : form.contentType === 'achievement' ? '2. Các mốc tiến hoá' : form.contentType === 'chapter' ? '2. Nội dung cuốn sách' : '2. Nội dung sự kiện'}
-          </h3>
-          {form.contentType === 'chapter' && (
-            <LegendStudioChapterEditor
-              form={form}
-              setForm={setForm}
-              fieldClass={fieldClass}
-              chapterUploading={chapterUploading}
-              onUploadChapterMedia={uploadChapterMedia}
-              chapterStickers={chapterStickers}
-              updateChapterSticker={updateChapterSticker}
-              items={items}
-              storybookPreviewMode={storybookPreviewMode}
-              setStorybookPreviewMode={setStorybookPreviewMode}
-            />
-          )}
-          {form.contentType === 'event' && (
-            <>
-              <div className="rounded-2xl border-2 border-sky-200 bg-sky-50 p-4 text-sm">
-                Event Builder quản lý banner, thời gian diễn ra, luật tham gia và reward pool; không sử dụng cấu trúc trang sách hoặc layer avatar.
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="text-sm font-bold">Bắt đầu
-                  <input required type="datetime-local" className={fieldClass} value={form.eventStartsAt} onChange={(event) => setForm({ ...form, eventStartsAt: event.target.value })} />
-                </label>
-                <label className="text-sm font-bold">Kết thúc
-                  <input required type="datetime-local" className={fieldClass} value={form.eventEndsAt} onChange={(event) => setForm({ ...form, eventEndsAt: event.target.value })} />
-                </label>
-              </div>
-            </>
-          )}
-          {form.contentType === 'achievement' && (
-            <div className="space-y-4">
-              <div className="rounded-2xl border-2 border-brand-200 bg-brand-50 p-4">
-                <p className="text-xs font-black uppercase tracking-wider text-brand-700">Một danh hiệu · nhiều hình thái</p>
-                <p className="mt-1 text-sm text-brand-950">Mỗi mốc bên dưới là một cấp tiến hoá của cùng danh hiệu. Trẻ giữ tiến độ liên tục; khi đạt ngưỡng mới, ảnh, mô tả và quà của mốc đó được mở.</p>
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2">
-                <label className="text-sm font-bold">Nhóm danh hiệu
-                  <select className={fieldClass} value={form.achievementCategory} onChange={(event) => setForm({ ...form, achievementCategory: event.target.value })}>
-                    {Object.entries(achievementFamilyLabels).filter(([key]) => key !== 'other').map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-                  </select>
-                </label>
-                <label className="text-sm font-bold">Action / metric theo dõi
-                  <select required className={fieldClass} value={form.achievementMetric} onChange={(event) => {
-                    const metric = event.target.value
-                    setForm((current) => ({
-                      ...current,
-                      achievementMetric: metric,
-                      achievementMilestonesJson: JSON.stringify(achievementMilestones.map((milestone) => ({ ...milestone, metric })), null, 2),
-                    }))
-                  }}>
-                    {ACHIEVEMENT_METRIC_REGISTRY.map((metric) => <option key={metric.value} value={metric.value}>{metric.label} · {metric.unit} · {metric.source}</option>)}
-                  </select>
-                  <span className="mt-1 block text-xs text-muted">Chọn dữ liệu hệ thống cần đếm. Metric này dùng chung cho toàn bộ các mốc của danh hiệu.</span>
-                </label>
-              </div>
-              <div className="flex flex-wrap items-center justify-between gap-3">
-                <div><h4 className="font-extrabold">Lộ trình tiến hoá</h4><p className="text-xs text-muted">Sắp xếp từ ngưỡng thấp đến cao. Mỗi mốc cần ảnh và requirement riêng.</p></div>
-                <Button type="button" variant="secondary" onClick={() => setAchievementMilestones([...achievementMilestones, { label: achievementEvolutionTier(achievementMilestones.length).label, description: '', metric: form.achievementMetric, operator: 'gte', threshold: (achievementMilestones.at(-1)?.threshold ?? 0) + 1, imageUrl: '', points: 10, rewardLabel: '', rewardAssetId: '' }])}><Plus className="h-4 w-4" aria-hidden="true" /> Thêm mốc</Button>
-              </div>
-              <div className="space-y-3">
-                {achievementMilestones.map((milestone, index) => (
-                  <article key={`${index}-${milestone.label}`} className="grid gap-4 rounded-2xl border-2 border-slate-200 bg-white p-4 md:grid-cols-[140px_1fr]">
-                    <label className="cursor-pointer text-center">
-                      <span className="flex aspect-square items-center justify-center overflow-hidden rounded-2xl border-2 border-dashed border-brand-300 bg-brand-50">
-                        {milestone.imageUrl ? <img src={milestone.imageUrl} alt={`Mốc ${index + 1}: ${milestone.label}`} className="h-full w-full object-contain" /> : <Gift className="h-10 w-10 text-brand-400" aria-hidden="true" />}
-                      </span>
-                      <span className="mt-2 block text-xs font-extrabold text-brand-700">{milestoneUploading === index ? 'Đang tải…' : milestone.imageUrl ? 'Thay ảnh mốc' : 'Tải ảnh mốc'}</span>
-                      <span className="block text-[10px] text-muted">PNG/WebP/SVG · ≤ 2 MB</span>
-                      <input type="file" accept=".png,.webp,.jpg,.jpeg,.svg" className="sr-only" disabled={milestoneUploading !== null} onChange={(event) => { const file = event.target.files?.[0]; if (file) void uploadMilestoneImage(file, index) }} />
-                    </label>
-                    <div className="min-w-0 space-y-3">
-                      <div className="flex items-center gap-2">
-                        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-brand-600 text-sm font-black text-white">{index + 1}</span>
-                        <div className="min-h-12 flex-1 rounded-xl border-2 border-brand-200 bg-brand-50 px-4 py-3">
-                          <strong className="text-brand-900">{achievementEvolutionTier(index).label}</strong>
-                          <span className="ml-2 text-xs font-bold text-brand-600">Cấp tiến hoá dùng chung</span>
-                        </div>
-                        <button type="button" className="rounded-lg p-2 text-muted hover:bg-slate-100 disabled:opacity-30" disabled={index === 0} onClick={() => { const next = [...achievementMilestones]; [next[index - 1], next[index]] = [next[index], next[index - 1]]; setAchievementMilestones(next) }} aria-label="Đưa mốc lên"><ArrowUp className="h-4 w-4" /></button>
-                        <button type="button" className="rounded-lg p-2 text-muted hover:bg-slate-100 disabled:opacity-30" disabled={index === achievementMilestones.length - 1} onClick={() => { const next = [...achievementMilestones]; [next[index + 1], next[index]] = [next[index], next[index + 1]]; setAchievementMilestones(next) }} aria-label="Đưa mốc xuống"><ArrowDown className="h-4 w-4" /></button>
-                        <button type="button" className="rounded-lg p-2 text-danger hover:bg-coral-50 disabled:opacity-30" disabled={achievementMilestones.length === 1} onClick={() => setAchievementMilestones(achievementMilestones.filter((_, position) => position !== index))} aria-label="Xoá mốc"><Trash2 className="h-4 w-4" /></button>
-                      </div>
-                      <textarea required className={`${fieldClass} min-h-20 py-3`} aria-label={`Mô tả mốc ${index + 1}`} value={milestone.description ?? ''} onChange={(event) => updateAchievementMilestone(index, { description: event.target.value })} placeholder="Mô tả hình thái và lời chúc khi trẻ đạt mốc…" />
-                      <div className="grid gap-3 sm:grid-cols-[1fr_150px_110px]">
-                        <div className="rounded-xl bg-slate-50 p-3 text-xs"><strong>{ACHIEVEMENT_METRIC_REGISTRY.find((metric) => metric.value === form.achievementMetric)?.label}</strong><span className="mt-1 block text-muted">Metric: <code>{form.achievementMetric}</code></span></div>
-                        <label className="text-xs font-bold">Điều kiện<select className={`${fieldClass} min-h-10 text-sm`} value={milestone.operator ?? 'gte'} onChange={(event) => updateAchievementMilestone(index, { operator: event.target.value })}><option value="gte">≥ đạt ít nhất</option><option value="eq">= đúng bằng</option></select></label>
-                        <label className="text-xs font-bold">Ngưỡng<input required type="number" min={1} className={`${fieldClass} min-h-10 text-sm`} value={milestone.threshold} onChange={(event) => updateAchievementMilestone(index, { threshold: Math.max(1, Number(event.target.value)) })} /></label>
-                      </div>
-                      <div className="grid gap-3 sm:grid-cols-3">
-                        <label className="text-xs font-bold">Điểm thưởng<input type="number" min={0} className={`${fieldClass} min-h-10 text-sm`} value={milestone.points ?? 0} onChange={(event) => updateAchievementMilestone(index, { points: Math.max(0, Number(event.target.value)) })} /></label>
-                        <label className="text-xs font-bold">Tên quà (tuỳ chọn)<input className={`${fieldClass} min-h-10 text-sm`} value={milestone.rewardLabel ?? ''} onChange={(event) => updateAchievementMilestone(index, { rewardLabel: event.target.value })} /></label>
-                        <label className="text-xs font-bold">Reward asset ID<input className={`${fieldClass} min-h-10 text-sm`} value={milestone.rewardAssetId ?? ''} onChange={(event) => updateAchievementMilestone(index, { rewardAssetId: event.target.value })} /></label>
-                      </div>
-                      <p className="rounded-xl bg-mint-50 px-3 py-2 text-xs font-bold text-emerald-900">Khi {form.achievementMetric} {milestone.operator === 'eq' ? '=' : '≥'} {milestone.threshold} → mở “{achievementEvolutionTier(index).label}”{milestone.points ? ` +${milestone.points} điểm` : ''}</p>
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-          )}
-          {form.contentType === 'reward' && (
-            <label className="block text-sm font-bold">Loại vật phẩm
-              <select className={fieldClass} value={form.kind} onChange={(event) => {
-                const kind = event.target.value as RewardKind
-                setForm({ ...form, kind, displayJson: displayTemplate(kind), assetUrl: '' })
-                setPreviewUrl('')
-                setAssetInfo('')
-                setAssetUploadError('')
-              }}>
-                {kindOptions.map((kind) => <option key={kind} value={kind}>{selectedSpec.label}</option>)}
+        {/* 1. Chọn loại nội dung & loại vật phẩm */}
+        <section className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600">
+              Loại nội dung
+              <select
+                disabled={Boolean(editingItem)}
+                className={`${fieldClass} mt-1 h-11 text-sm font-bold`}
+                value={form.contentType}
+                onChange={(event) => setForm({ ...form, contentType: event.target.value as ContentType })}
+              >
+                <option value="reward">Phần thưởng / Vật phẩm</option>
+                <option value="chapter">Chapter Storybook</option>
+                <option value="event">Sự kiện</option>
+                <option value="achievement">Achievement tiến hoá</option>
               </select>
             </label>
-          )}
-          {form.contentType === 'reward' && (
-            <div className="rounded-2xl border-2 border-brand-200 bg-brand-50/70 p-4">
-              <div className="flex flex-wrap items-start justify-between gap-3">
-                <div>
-                  <p className="text-xs font-black uppercase tracking-wider text-brand-600">Template bắt buộc</p>
-                  <h4 className="mt-1 text-lg font-extrabold">{selectedSpec.label}</h4>
-                </div>
-                <span className="rounded-full bg-white px-3 py-1 text-sm font-black text-brand-700">{assetDimensionLabel(selectedSpec)}</span>
-              </div>
-              <div className="mt-4 grid gap-3 sm:grid-cols-2">
-                <p className="rounded-xl bg-white p-3 text-sm"><strong>Định dạng:</strong><br />{selectedSpec.formats.map((format) => format.split('/')[1].toUpperCase()).join(' · ')}</p>
-                <p className="rounded-xl bg-white p-3 text-sm"><strong>Dung lượng:</strong><br />Tối đa {selectedSpec.maxMb} MB</p>
-                <p className="rounded-xl bg-white p-3 text-sm"><strong>Nền:</strong><br />{selectedSpec.transparent ? 'Bắt buộc trong suốt' : 'Được phép phủ toàn bộ nền'}</p>
-                <p className="rounded-xl bg-white p-3 text-sm"><strong>Safe area:</strong><br />{selectedSpec.safeArea}</p>
-              </div>
-              <div className="mt-3 rounded-xl bg-emerald-50 p-3 text-sm text-emerald-900">
-                <strong>Ghép lớp:</strong> {selectedSpec.combinesWith}<br />
-                <span className="text-xs">Slot <code>{selectedSpec.slot}</code> · layer {selectedSpec.layer}. Mỗi profile chỉ dùng tối đa một asset cho mỗi slot.</span>
-              </div>
-            </div>
-          )}
-          {form.contentType !== 'chapter' && form.contentType !== 'achievement' && (
-            <label className="block min-h-40 cursor-pointer rounded-2xl border-2 border-dashed border-brand-400 bg-white p-8 text-center shadow-sm hover:border-brand-600 hover:bg-brand-50/30">
-              <UploadCloud className="mx-auto h-9 w-9 text-brand-600" aria-hidden="true" />
-              <span className="mt-3 block text-base font-extrabold">{uploading ? 'Đang kiểm tra và tải lên…' : editingItem ? 'Tải asset mới cho version này' : 'Chọn file đúng template để preview'}</span>
-              <span className="mt-1 block text-sm text-muted">{form.contentType === 'reward' ? `${assetDimensionLabel(selectedSpec)} · tối đa ${selectedSpec.maxMb} MB` : 'PNG, WebP, JPG, JSON hoặc WebM'}</span>
-              <input type="file" accept={form.contentType === 'reward' ? selectedSpec.formats.join(',') : '.png,.webp,.jpg,.jpeg,.svg,.json,.webm'} className="sr-only" disabled={uploading} onChange={(event) => {
-                const file = event.target.files?.[0]
-                event.currentTarget.value = ''
-                if (file) void uploadAsset(file)
-              }} />
-            </label>
-          )}
-          {form.contentType !== 'chapter' && form.contentType !== 'achievement' && assetUploadError && (
-            <div className="rounded-2xl border-2 border-rose-200 bg-rose-50 p-4 text-rose-900" role="alert" aria-live="assertive">
-              <div className="flex items-start gap-3"><AlertTriangle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden="true" /><div><p className="font-extrabold">Upload chưa thành công</p><p className="mt-1 text-sm font-bold">{assetUploadError}</p></div></div>
-              {form.contentType === 'reward' && <p className="mt-3 rounded-xl bg-white/80 px-3 py-2 text-xs font-bold">Yêu cầu: {selectedSpec.formats.map((format) => format.split('/')[1].toUpperCase()).join(' / ')} · {assetDimensionLabel(selectedSpec)} · tối đa {selectedSpec.maxMb} MB · {selectedSpec.transparent ? 'nền trong suốt' : 'không bắt buộc nền trong suốt'}.</p>}
-              <p className="mt-2 text-xs font-semibold">File chưa được đưa lên Storage. Chọn lại file sau khi sửa; bạn có thể chọn lại chính file vừa chọn.</p>
-            </div>
-          )}
-          {form.contentType !== 'chapter' && form.contentType !== 'achievement' && !assetUploadError && message.includes('đã tải lên') && (
-            <p className="rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800" role="status" aria-live="polite">✓ {message}</p>
-          )}
-          {form.contentType !== 'chapter' && form.contentType !== 'achievement' && assetInfo && <p className="rounded-xl bg-emerald-50 p-3 text-sm font-bold text-emerald-800">✓ {assetInfo}</p>}
-          {form.contentType !== 'chapter' && form.contentType !== 'achievement' && <p className="break-all rounded-xl bg-white p-3 text-xs text-muted">{form.assetUrl || 'Chưa có URL asset — preview tạm sẽ xuất hiện ngay khi chọn file.'}</p>}
-          {form.contentType !== 'chapter' && form.contentType !== 'achievement' && (
-            <div className="rounded-2xl border border-brand-200 bg-white p-4 shadow-sm">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <div>
-                  <h4 className="text-sm font-extrabold text-brand-900">Ảnh icon / preview đại diện (Thumbnail)</h4>
-                  <p className="text-xs text-muted">Hiển thị trong Ba lô, danh mục phần thưởng và cây mở khóa.</p>
-                </div>
-                {form.thumbnailUrl && (
-                  <button type="button" onClick={() => setForm((curr) => ({ ...curr, thumbnailUrl: '' }))} className="text-xs font-bold text-danger hover:underline">
-                    Xóa icon riêng (dùng ảnh chính)
-                  </button>
-                )}
-              </div>
-              <div className="mt-3 flex items-center gap-3">
-                <div className="flex h-14 w-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-50 shadow-inner">
-                  {form.thumbnailUrl || form.assetUrl ? (
-                    <img src={form.thumbnailUrl || form.assetUrl} alt="Thumbnail preview" className="h-full w-full object-cover" />
-                  ) : (
-                    <span className="text-2xl">🎁</span>
-                  )}
-                </div>
-                <label className="flex min-h-11 flex-1 cursor-pointer items-center justify-center gap-2 rounded-xl border border-brand-300 bg-white px-4 text-xs font-extrabold text-brand-700 shadow-sm transition hover:bg-brand-50">
-                  <UploadCloud className="h-4 w-4" aria-hidden="true" />
-                  <span>{thumbnailUploading ? 'Đang tải icon…' : form.thumbnailUrl ? 'Thay đổi ảnh icon / preview' : 'Tải ảnh icon / preview riêng (512×512)'}</span>
-                  <input
-                    type="file"
-                    accept=".png,.webp,.jpg,.jpeg,.svg"
-                    className="sr-only"
-                    disabled={thumbnailUploading}
-                    onChange={(event) => {
-                      const file = event.target.files?.[0]
-                      event.currentTarget.value = ''
-                      if (file) void uploadThumbnail(file)
-                    }}
-                  />
-                </label>
-              </div>
-              {thumbnailUploadError && <p className="mt-2 text-xs font-bold text-danger">{thumbnailUploadError}</p>}
-            </div>
-          )}
-        </section>
 
-        {form.contentType !== 'achievement' && (
-          <section className="space-y-4 rounded-3xl border border-border bg-slate-50/70 p-4">
-            <h3 className="font-extrabold">3. Điều kiện mở khóa</h3>
-            <div className="grid gap-3 sm:grid-cols-2">
-              <label className="text-sm font-bold">Điều kiện
-                <select className={fieldClass} value={form.unlockType} onChange={(event) => setForm({ ...form, unlockType: event.target.value })}>
-                  <option value="xp_level">XP level</option><option value="storybook_sticker">Tiến độ Storybook</option><option value="event">Tham gia sự kiện</option>
+            {form.contentType === 'reward' && (
+              <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600">
+                Loại vật phẩm (Slot)
+                <select
+                  className={`${fieldClass} mt-1 h-11 text-sm font-bold`}
+                  value={form.kind}
+                  onChange={(event) => {
+                    const kind = event.target.value as RewardKind
+                    setForm({ ...form, kind, displayJson: displayTemplate(kind), assetUrl: '' })
+                    setPreviewUrl('')
+                    setAssetInfo('')
+                    setAssetUploadError('')
+                  }}
+                >
+                  {kindOptions.map((k) => (
+                    <option key={k} value={k}>
+                      {assetSpecs[k]?.label ?? k}
+                    </option>
+                  ))}
                 </select>
               </label>
-              <label className="text-sm font-bold">Giá trị
-                <input className={fieldClass} value={form.unlockValue} onChange={(event) => setForm({ ...form, unlockValue: event.target.value })} />
+            )}
+          </div>
+
+          {/* Standard Spec Badge displayed directly next to/under the selection */}
+          {form.contentType === 'reward' && (
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl border border-brand-200 bg-brand-50/70 px-3.5 py-2 text-xs">
+              <span className="font-extrabold text-brand-900">
+                Chuẩn: {selectedSpec.label}
+              </span>
+              <div className="flex items-center gap-1.5 font-mono">
+                <span className="rounded-md bg-white px-2 py-0.5 font-bold text-brand-800 shadow-2xs">
+                  {assetDimensionLabel(selectedSpec)}
+                </span>
+                <span className="rounded-md bg-white px-2 py-0.5 text-slate-600 shadow-2xs">
+                  {selectedSpec.formats.map((f) => f.split('/')[1].toUpperCase()).join('/')}
+                </span>
+                <span className="rounded-md bg-white px-2 py-0.5 text-slate-600 shadow-2xs">
+                  &lt; {selectedSpec.maxMb}MB
+                </span>
+                {selectedSpec.transparent && (
+                  <span className="rounded-md bg-emerald-100 px-2 py-0.5 font-bold text-emerald-800">
+                    Nền trong suốt
+                  </span>
+                )}
+              </div>
+            </div>
+          )}
+        </section>
+
+        {/* 2. Tên hiển thị & Mã định danh (Auto Slug) */}
+        <section className="space-y-4">
+          <div className="grid gap-3 sm:grid-cols-2">
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600">
+              Tên hiển thị
+              <input
+                required
+                className={`${fieldClass} mt-1 h-11 text-sm font-semibold`}
+                placeholder="Ví dụ: Khung Dải Ngân Hà"
+                value={form.name}
+                onChange={(event) => handleNameChange(event.target.value)}
+              />
+            </label>
+
+            <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600">
+              Mã code định danh
+              <input
+                required
+                minLength={3}
+                disabled={Boolean(editingItem)}
+                className={`${fieldClass} mt-1 h-11 font-mono text-sm ${editingItem ? 'bg-slate-100 text-muted' : ''}`}
+                placeholder="frame-dai-ngan-ha"
+                value={form.code}
+                onChange={(event) => {
+                  setCodeManuallyEdited(true)
+                  setForm({ ...form, code: event.target.value })
+                }}
+              />
+            </label>
+          </div>
+
+          {/* 3. Độ hiếm (Rarity Chips) */}
+          {form.contentType === 'reward' && (
+            <div>
+              <span className="block text-xs font-extrabold uppercase tracking-wider text-slate-600 mb-2">
+                Độ hiếm (Rarity)
+              </span>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+                {RARITY_OPTIONS.map((opt) => {
+                  const isSelected = form.rarity === opt.value
+                  return (
+                    <button
+                      key={opt.value}
+                      type="button"
+                      onClick={() => setForm({ ...form, rarity: opt.value })}
+                      className={`h-10 rounded-xl border-2 px-3 text-xs font-bold transition ${
+                        isSelected
+                          ? `${opt.color} ring-2 ring-brand-500 shadow-xs`
+                          : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
+                      }`}
+                    >
+                      {opt.label}
+                    </button>
+                  )
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* 4. Mục gán nhanh mở khóa (Level, Storybook... hoặc để trống) */}
+          {form.contentType === 'reward' && (
+            <div className="rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
+              <span className="block text-xs font-extrabold uppercase tracking-wider text-slate-700">
+                Gán điều kiện mở khóa
+              </span>
+              <div className="mt-2.5 grid gap-3 sm:grid-cols-[160px_1fr]">
+                <select
+                  className={`${fieldClass} h-11 text-xs font-bold`}
+                  value={form.unlockType}
+                  onChange={(e) => {
+                    const val = e.target.value
+                    setForm({
+                      ...form,
+                      unlockType: val,
+                      unlockValue: val === 'unconfigured' ? '' : val === 'xp_level' && !form.unlockValue ? '1' : form.unlockValue,
+                    })
+                  }}
+                >
+                  <option value="xp_level">🎯 Theo Level (1–100)</option>
+                  <option value="storybook_sticker">📖 Storybook</option>
+                  <option value="event">📅 Sự kiện</option>
+                  <option value="unconfigured">⚪ Gán sau (Cây level)</option>
+                </select>
+
+                {form.unlockType === 'xp_level' && (
+                  <div className="relative">
+                    <input
+                      type="number"
+                      min={1}
+                      max={100}
+                      className={`${fieldClass} h-11 text-sm font-bold`}
+                      placeholder="Nhập Level (vd: 5)"
+                      value={form.unlockValue}
+                      onChange={(e) => setForm({ ...form, unlockValue: e.target.value })}
+                    />
+                    <span className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">
+                      Level 1–100
+                    </span>
+                  </div>
+                )}
+
+                {form.unlockType === 'storybook_sticker' && (
+                  <input
+                    className={`${fieldClass} h-11 text-sm`}
+                    placeholder="Mã sticker (vd: P09-S1)"
+                    value={form.unlockValue}
+                    onChange={(e) => setForm({ ...form, unlockValue: e.target.value })}
+                  />
+                )}
+
+                {form.unlockType === 'event' && (
+                  <input
+                    className={`${fieldClass} h-11 text-sm`}
+                    placeholder="Mã sự kiện (vd: summer-quest-2026)"
+                    value={form.unlockValue}
+                    onChange={(e) => setForm({ ...form, unlockValue: e.target.value })}
+                  />
+                )}
+
+                {form.unlockType === 'unconfigured' && (
+                  <div className="flex items-center rounded-xl bg-slate-100 px-3 text-xs text-muted">
+                    Sẽ hiển thị trong mục "⚪ Chưa gán" trên Kho tài sản để gán sau.
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* 5. Mô tả ngắn */}
+          <label className="block text-xs font-extrabold uppercase tracking-wider text-slate-600">
+            Mô tả ngắn
+            <textarea
+              className={`${fieldClass} mt-1 min-h-20 py-2.5 text-sm`}
+              placeholder="Mô tả ngắn gọn về phần thưởng hoặc cách bé nhận được…"
+              value={form.description}
+              onChange={(event) => setForm({ ...form, description: event.target.value })}
+            />
+          </label>
+        </section>
+
+        {/* Special Content Type Editors */}
+        {form.contentType === 'chapter' && (
+          <LegendStudioChapterEditor
+            form={form}
+            setForm={setForm}
+            fieldClass={fieldClass}
+            chapterUploading={chapterUploading}
+            onUploadChapterMedia={uploadChapterMedia}
+            chapterStickers={chapterStickers}
+            updateChapterSticker={updateChapterSticker}
+            items={items}
+            storybookPreviewMode={storybookPreviewMode}
+            setStorybookPreviewMode={setStorybookPreviewMode}
+          />
+        )}
+
+        {form.contentType === 'event' && (
+          <section className="space-y-3 rounded-2xl border border-sky-200 bg-sky-50/60 p-4">
+            <h4 className="text-xs font-extrabold uppercase text-sky-900">Thời gian diễn ra sự kiện</h4>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="text-xs font-bold text-slate-700">
+                Bắt đầu
+                <input
+                  required
+                  type="datetime-local"
+                  className={`${fieldClass} h-10 text-sm`}
+                  value={form.eventStartsAt}
+                  onChange={(e) => setForm({ ...form, eventStartsAt: e.target.value })}
+                />
+              </label>
+              <label className="text-xs font-bold text-slate-700">
+                Kết thúc
+                <input
+                  required
+                  type="datetime-local"
+                  className={`${fieldClass} h-10 text-sm`}
+                  value={form.eventEndsAt}
+                  onChange={(e) => setForm({ ...form, eventEndsAt: e.target.value })}
+                />
               </label>
             </div>
           </section>
         )}
 
+        {form.contentType === 'achievement' && (
+          <section className="space-y-4 rounded-2xl border border-border bg-slate-50/70 p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <h4 className="text-sm font-extrabold text-slate-900">Các mốc tiến hoá của Danh hiệu</h4>
+                <p className="text-xs text-muted">Trẻ giữ tiến độ và nhận hình thái mới khi vượt ngưỡng.</p>
+              </div>
+              <Button
+                type="button"
+                variant="secondary"
+                onClick={() => setAchievementMilestones([...achievementMilestones, {
+                  label: achievementEvolutionTier(achievementMilestones.length).label,
+                  description: '',
+                  metric: form.achievementMetric,
+                  operator: 'gte',
+                  threshold: (achievementMilestones.at(-1)?.threshold ?? 0) + 1,
+                  imageUrl: '',
+                  points: 10,
+                }])}
+              >
+                <Plus className="h-4 w-4" /> Thêm mốc
+              </Button>
+            </div>
+
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="text-xs font-bold text-slate-700">
+                Nhóm danh hiệu
+                <select
+                  className={`${fieldClass} h-10 text-sm`}
+                  value={form.achievementCategory}
+                  onChange={(e) => setForm({ ...form, achievementCategory: e.target.value })}
+                >
+                  {Object.entries(achievementFamilyLabels).filter(([k]) => k !== 'other').map(([k, label]) => (
+                    <option key={k} value={k}>{label}</option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-xs font-bold text-slate-700">
+                Metric đo lường
+                <select
+                  required
+                  className={`${fieldClass} h-10 text-sm`}
+                  value={form.achievementMetric}
+                  onChange={(e) => {
+                    const metric = e.target.value
+                    setForm((cur) => ({
+                      ...cur,
+                      achievementMetric: metric,
+                      achievementMilestonesJson: JSON.stringify(achievementMilestones.map((m) => ({ ...m, metric })), null, 2),
+                    }))
+                  }}
+                >
+                  {ACHIEVEMENT_METRIC_REGISTRY.map((m) => (
+                    <option key={m.value} value={m.value}>{m.label} ({m.source})</option>
+                  ))}
+                </select>
+              </label>
+            </div>
+
+            <div className="space-y-3">
+              {achievementMilestones.map((milestone, index) => (
+                <div key={`${index}-${milestone.label}`} className="rounded-xl border border-slate-200 bg-white p-3 text-xs">
+                  <div className="flex items-center justify-between gap-2 border-b border-slate-100 pb-2">
+                    <span className="font-extrabold text-brand-700">
+                      Mốc {index + 1}: {achievementEvolutionTier(index).label}
+                    </span>
+                    <div className="flex items-center gap-1">
+                      <button
+                        type="button"
+                        disabled={index === 0}
+                        onClick={() => {
+                          const next = [...achievementMilestones];
+                          [next[index - 1], next[index]] = [next[index], next[index - 1]];
+                          setAchievementMilestones(next)
+                        }}
+                        className="rounded p-1 text-slate-400 hover:bg-slate-100 disabled:opacity-30"
+                      >
+                        <ArrowUp className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={index === achievementMilestones.length - 1}
+                        onClick={() => {
+                          const next = [...achievementMilestones];
+                          [next[index + 1], next[index]] = [next[index], next[index + 1]];
+                          setAchievementMilestones(next)
+                        }}
+                        className="rounded p-1 text-slate-400 hover:bg-slate-100 disabled:opacity-30"
+                      >
+                        <ArrowDown className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        type="button"
+                        disabled={achievementMilestones.length === 1}
+                        onClick={() => setAchievementMilestones(achievementMilestones.filter((_, pos) => pos !== index))}
+                        className="rounded p-1 text-danger hover:bg-rose-50 disabled:opacity-30"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                  <div className="mt-2 grid gap-2 sm:grid-cols-2">
+                    <input
+                      type="number"
+                      min={1}
+                      className={`${fieldClass} h-9 text-xs`}
+                      placeholder="Ngưỡng đạt"
+                      value={milestone.threshold}
+                      onChange={(e) => updateAchievementMilestone(index, { threshold: Number(e.target.value) || 1 })}
+                    />
+                    <input
+                      className={`${fieldClass} h-9 text-xs`}
+                      placeholder="Mô tả mốc"
+                      value={milestone.description ?? ''}
+                      onChange={(e) => updateAchievementMilestone(index, { description: e.target.value })}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Collapsible Advanced JSON */}
         {form.contentType !== 'chapter' && form.contentType !== 'achievement' && (
-          <details className="rounded-3xl border border-border bg-slate-50/70 p-4">
-            <summary className="cursor-pointer font-extrabold">4. Cấu hình nâng cao (JSON)</summary>
-            <label className="mt-4 block text-xs font-bold">Display JSON
-              <textarea className={`${fieldClass} min-h-40 py-3 font-mono text-xs`} value={form.displayJson} onChange={(event) => setForm({ ...form, displayJson: event.target.value })} />
-            </label>
-            <label className="mt-3 block text-xs font-bold">Chapter / Event JSON
-              <textarea className={`${fieldClass} min-h-32 py-3 font-mono text-xs`} value={form.contentJson} onChange={(event) => setForm({ ...form, contentJson: event.target.value })} />
-            </label>
+          <details className="rounded-2xl border border-slate-200 bg-slate-50/50 p-3 text-xs">
+            <summary className="cursor-pointer font-bold text-slate-600 hover:text-slate-900">
+              Cấu hình nâng cao (JSON Payload)
+            </summary>
+            <div className="mt-3 space-y-3">
+              <label className="block font-mono">
+                Display JSON
+                <textarea
+                  className={`${fieldClass} mt-1 min-h-28 py-2 font-mono text-xs`}
+                  value={form.displayJson}
+                  onChange={(e) => setForm({ ...form, displayJson: e.target.value })}
+                />
+              </label>
+              <label className="block font-mono">
+                Content JSON
+                <textarea
+                  className={`${fieldClass} mt-1 min-h-24 py-2 font-mono text-xs`}
+                  value={form.contentJson}
+                  onChange={(e) => setForm({ ...form, contentJson: e.target.value })}
+                />
+              </label>
+            </div>
           </details>
         )}
-        <div className="flex gap-3">
-          <Button type="button" variant="secondary" onClick={() => { setEditingItem(null); setForm(emptyForm()); setPreviewUrl(''); setAssetInfo(''); setAssetUploadError(''); setThumbnailUploadError(''); setMessage(''); onCancel() }} className="flex-1">Hủy</Button>
-          <Button type="submit" disabled={busy || uploading || thumbnailUploading || Boolean(assetUploadError)} className="flex-[2]">{assetUploadError ? 'Sửa lỗi upload trước khi lưu' : editingItem?.status === 'published' || editingItem?.status === 'retired' ? 'Lưu thành bản nháp mới' : editingItem ? 'Lưu thay đổi bản nháp' : 'Lưu bản nháp'}</Button>
+
+        {/* 1-Click Action Buttons */}
+        <div className="flex flex-wrap items-center gap-3 border-t border-border pt-4">
+          <Button
+            type="button"
+            variant="secondary"
+            onClick={() => {
+              setEditingItem(null)
+              setForm(emptyForm())
+              setPreviewUrl('')
+              setAssetInfo('')
+              setAssetUploadError('')
+              setThumbnailUploadError('')
+              setMessage('')
+              onCancel()
+            }}
+            className="flex-1"
+          >
+            Hủy
+          </Button>
+
+          {/* Lưu bản nháp */}
+          <Button
+            type="submit"
+            variant="secondary"
+            disabled={busy || uploading || Boolean(assetUploadError)}
+            className="flex-[1.5] border-2 border-brand-200 bg-brand-50 font-extrabold text-brand-800 hover:bg-brand-100"
+          >
+            {editingItem?.status === 'published' ? 'Lưu bản nháp mới' : 'Lưu bản nháp'}
+          </Button>
+
+          {/* Phát hành ngay */}
+          <Button
+            type="button"
+            disabled={busy || uploading || Boolean(assetUploadError)}
+            onClick={async () => {
+              if (onPublishNow) {
+                await onPublishNow()
+              } else {
+                // Submit form directly
+                const formEl = document.querySelector('form')
+                formEl?.requestSubmit()
+              }
+            }}
+            className="flex-[2] bg-emerald-600 font-extrabold text-white shadow-sm hover:bg-emerald-700"
+          >
+            <Rocket className="h-4 w-4" aria-hidden="true" />
+            <span>Phát hành ngay</span>
+          </Button>
         </div>
       </form>
 
-      <aside className="ui-card order-1 space-y-4 p-5 xl:order-2 xl:sticky xl:top-5">
-        <div>
-          <p className="text-xs font-black uppercase tracking-wider text-brand-600">Preview trực tiếp</p>
-          <h2 className="font-display text-xl">Trẻ sẽ nhìn thấy</h2>
-        </div>
-        {form.contentType === 'chapter' ? (
-          <div className="space-y-3">
-            <div className="flex rounded-xl border border-border bg-slate-50 p-1" role="group" aria-label="Trạng thái preview Storybook">
-              <button type="button" onClick={() => setStorybookPreviewMode('locked')} className={`min-h-10 flex-1 rounded-lg px-3 text-xs font-extrabold ${storybookPreviewMode === 'locked' ? 'bg-white text-brand-700 shadow-sm' : 'text-muted'}`}>Chưa mở sticker</button>
-              <button type="button" onClick={() => setStorybookPreviewMode('complete')} className={`min-h-10 flex-1 rounded-lg px-3 text-xs font-extrabold ${storybookPreviewMode === 'complete' ? 'bg-white text-brand-700 shadow-sm' : 'text-muted'}`}>Đã hoàn thành</button>
+      {/* CỘT PHẢI: LIVE PREVIEW CANVAS & INSTANT DROPZONE */}
+      <aside className="space-y-4 lg:sticky lg:top-5">
+        <section className="ui-card overflow-hidden border border-border p-5 shadow-xs">
+          {/* Header & Preview Mode Switcher */}
+          <div className="flex items-center justify-between border-b border-border pb-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-wider text-brand-600">Khung Live Preview</p>
+              <h3 className="font-display text-lg text-slate-900">Xem trước Trực quan</h3>
             </div>
-            <div className="overflow-hidden rounded-3xl bg-slate-100 p-2">
-              <BookSpread
-                page={chapterPreviewPage}
-                pages={[chapterPreviewPage]}
-                pageIndex={0}
-                onPageChange={() => undefined}
-                earned={chapterPreviewEarned}
-                ownedRewards={new Set<string>()}
-              />
-            </div>
+
+            {form.contentType === 'reward' && (
+              <div className="flex rounded-lg border border-slate-200 bg-slate-100 p-0.5 text-xs font-bold" role="group">
+                <button
+                  type="button"
+                  onClick={() => setPreviewTab('student_card')}
+                  className={`rounded-md px-2.5 py-1 transition ${
+                    previewTab === 'student_card' ? 'bg-white text-brand-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Thẻ học sinh
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPreviewTab('raw_asset')}
+                  className={`rounded-md px-2.5 py-1 transition ${
+                    previewTab === 'raw_asset' ? 'bg-white text-brand-700 shadow-2xs' : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Asset gốc
+                </button>
+              </div>
+            )}
           </div>
-        ) : (
-          <div className="overflow-hidden rounded-3xl border border-brand-100 bg-gradient-to-br from-violet-100 via-sky-50 to-amber-50 p-5 text-center shadow-inner">
-            {form.contentType === 'reward' && (form.kind === 'background' || form.kind === 'theme' || form.kind === 'title' || form.kind === 'event_ticket') ? (
+
+          {/* INSTANT DRAG & DROP UPLOAD DROPZONE */}
+          {form.contentType !== 'chapter' && form.contentType !== 'achievement' && (
+            <div className="mt-4">
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => fileInputRef.current?.click()}
+                className={`relative flex min-h-28 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-4 text-center transition-all ${
+                  isDragOver
+                    ? 'border-brand-600 bg-brand-50 scale-[1.01]'
+                    : assetUploadError
+                      ? 'border-rose-400 bg-rose-50/50'
+                      : activeAssetSrc
+                        ? 'border-emerald-300 bg-emerald-50/30 hover:bg-emerald-50/60'
+                        : 'border-slate-300 bg-slate-50/60 hover:border-brand-400 hover:bg-brand-50/30'
+                }`}
+              >
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept={form.contentType === 'reward' ? selectedSpec.formats.join(',') : '.png,.webp,.jpg,.jpeg,.svg,.json,.webm'}
+                  className="sr-only"
+                  disabled={uploading}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0]
+                    e.currentTarget.value = ''
+                    if (f) void uploadAsset(f)
+                  }}
+                />
+
+                <div className="flex h-10 w-10 items-center justify-center rounded-full bg-white text-brand-600 shadow-xs">
+                  <UploadCloud className="h-5 w-5" aria-hidden="true" />
+                </div>
+
+                <div className="mt-2">
+                  <p className="text-xs font-extrabold text-slate-800">
+                    {uploading ? 'Đang kiểm tra & tải lên…' : 'Kéo thả file ảnh vào đây hoặc bấm để chọn'}
+                  </p>
+                  <p className="mt-0.5 text-[11px] text-muted">
+                    {form.contentType === 'reward'
+                      ? `${assetDimensionLabel(selectedSpec)} · tối đa ${selectedSpec.maxMb}MB`
+                      : 'PNG, WebP, JPG, JSON hoặc WebM'}
+                  </p>
+                </div>
+              </div>
+
+              {/* Real-time Pixel Inspection Badge */}
+              {assetInfo && !assetUploadError && (
+                <div className="mt-2 flex items-center gap-2 rounded-xl bg-emerald-50 px-3 py-2 text-xs font-bold text-emerald-800">
+                  <CheckCircle2 className="h-4 w-4 shrink-0 text-emerald-600" />
+                  <span className="truncate">{assetInfo}</span>
+                </div>
+              )}
+
+              {/* Error Notice */}
+              {assetUploadError && (
+                <div className="mt-2 rounded-xl border border-rose-200 bg-rose-50 p-3 text-xs text-rose-900">
+                  <div className="flex items-center gap-2 font-extrabold">
+                    <AlertTriangle className="h-4 w-4 text-rose-600" />
+                    <span>Lỗi kiểm tra kích thước / định dạng:</span>
+                  </div>
+                  <p className="mt-1 font-medium">{assetUploadError}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* LIVE PREVIEW CANVAS */}
+          <div className="mt-4">
+            {form.contentType === 'chapter' ? (
               <div className="space-y-3">
-                <div className="mx-auto w-full overflow-hidden rounded-2xl border-4 border-white bg-white/70 shadow-lg">
-                  <div className={`w-full ${form.kind === 'background' ? 'aspect-[15/4]' : form.kind === 'title' ? 'aspect-[1200/320]' : form.kind === 'event_ticket' ? 'aspect-[16/9]' : 'aspect-[2540/1300]'} flex items-center justify-center overflow-hidden bg-slate-100`}>
-                    {(form.assetUrl || previewUrl) ? (
-                      studioAssetPreviewKind(form.assetUrl || previewUrl) === 'config' ? (
-                        <div className="px-5 text-brand-700"><Settings2 className="mx-auto h-10 w-10" aria-hidden="true" /><span className="mt-2 block text-xs font-black">Theme JSON</span></div>
-                      ) : (
-                        <img src={form.assetUrl || previewUrl} alt="Preview asset vừa tải" className={`h-full w-full ${selectedSpec.transparent ? 'object-contain p-2' : 'object-cover'}`} />
-                      )
-                    ) : (
-                      <div className="p-4 text-muted"><span className="block text-3xl">🖼️</span><span className="mt-1 block text-xs font-bold">Chưa chọn asset</span></div>
-                    )}
+                <div className="flex rounded-xl border border-border bg-slate-50 p-1" role="group">
+                  <button
+                    type="button"
+                    onClick={() => setStorybookPreviewMode('locked')}
+                    className={`min-h-9 flex-1 rounded-lg px-3 text-xs font-extrabold ${storybookPreviewMode === 'locked' ? 'bg-white text-brand-700 shadow-xs' : 'text-muted'}`}
+                  >
+                    Chưa mở sticker
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStorybookPreviewMode('complete')}
+                    className={`min-h-9 flex-1 rounded-lg px-3 text-xs font-extrabold ${storybookPreviewMode === 'complete' ? 'bg-white text-brand-700 shadow-xs' : 'text-muted'}`}
+                  >
+                    Đã hoàn thành
+                  </button>
+                </div>
+                <div className="overflow-hidden rounded-3xl bg-slate-100 p-2">
+                  <BookSpread
+                    page={chapterPreviewPage}
+                    pages={[chapterPreviewPage]}
+                    pageIndex={0}
+                    onPageChange={() => undefined}
+                    earned={chapterPreviewEarned}
+                    ownedRewards={new Set<string>()}
+                  />
+                </div>
+              </div>
+            ) : previewTab === 'student_card' && form.contentType === 'reward' ? (
+              /* PHÔI THẺ HỌC SINH MOCKUP */
+              <div className="relative mx-auto w-full max-w-sm overflow-hidden rounded-3xl border-2 border-slate-200 bg-white shadow-lg">
+                {/* Profile Card Header / Background */}
+                <div className="relative h-28 w-full overflow-hidden bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500">
+                  {form.kind === 'background' && activeAssetSrc ? (
+                    <img src={activeAssetSrc} alt="Background" className="h-full w-full object-cover" />
+                  ) : (
+                    <div className="absolute inset-0 bg-slate-900/10 backdrop-blur-3xs" />
+                  )}
+                  <div className="absolute right-3 top-3 rounded-full bg-white/80 px-2.5 py-0.5 text-[10px] font-black text-slate-800 backdrop-blur-xs">
+                    THẺ HỌC SINH
                   </div>
                 </div>
-                <div className="flex items-center justify-between gap-3 rounded-2xl bg-white/90 p-3 text-left shadow-sm">
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center overflow-hidden rounded-xl border-2 border-brand-200 bg-white shadow-inner">
-                      {form.thumbnailUrl || form.assetUrl || previewUrl ? (
-                        <img src={form.thumbnailUrl || form.assetUrl || previewUrl} alt="Icon đại diện" className="h-full w-full object-cover" />
+
+                {/* Avatar Slot with Frame, Effect, and Companion layers */}
+                <div className="relative -mt-12 px-6 pb-6 text-center">
+                  <div className="relative mx-auto flex h-24 w-24 items-center justify-center">
+                    {/* Base Kid Avatar */}
+                    <div className="h-20 w-20 overflow-hidden rounded-full border-4 border-white bg-amber-100 shadow-md">
+                      {form.kind === 'avatar' && activeAssetSrc ? (
+                        <img src={activeAssetSrc} alt="Avatar" className="h-full w-full object-cover" />
                       ) : (
-                        <span className="text-xl">🎁</span>
+                        <img src={DEFAULT_AVATAR} alt="Default Avatar" className="h-full w-full object-cover" />
                       )}
                     </div>
-                    <div className="min-w-0">
-                      <strong className="block truncate text-xs font-extrabold text-brand-950">Icon đại diện</strong>
-                      <span className="block text-[11px] text-muted">{form.thumbnailUrl ? 'Dùng icon riêng' : 'Tự lấy từ ảnh chính'}</span>
+
+                    {/* Frame Layer */}
+                    {form.kind === 'frame' && activeAssetSrc && (
+                      <div className="pointer-events-none absolute inset-0 -m-2 flex items-center justify-center">
+                        <img src={activeAssetSrc} alt="Frame" className="h-full w-full object-contain scale-110" />
+                      </div>
+                    )}
+
+                    {/* Effect Layer */}
+                    {form.kind === 'effect' && activeAssetSrc && (
+                      <div className="pointer-events-none absolute inset-0 -m-3 flex items-center justify-center animate-pulse">
+                        <img src={activeAssetSrc} alt="Effect" className="h-full w-full object-contain" />
+                      </div>
+                    )}
+
+                    {/* Companion Layer (Bottom-right corner) */}
+                    {form.kind === 'companion' && activeAssetSrc && (
+                      <div className="absolute -bottom-1 -right-2 h-11 w-11 rounded-full border-2 border-white bg-white p-0.5 shadow-md">
+                        <img src={activeAssetSrc} alt="Companion" className="h-full w-full object-contain" />
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Student Name */}
+                  <h4 className="mt-2 text-base font-extrabold text-slate-900">Bé Minh Anh</h4>
+
+                  {/* Title / Badge Slot */}
+                  <div className="mt-1 flex justify-center">
+                    {form.kind === 'title' && activeAssetSrc ? (
+                      <div className="h-8 max-w-[200px] overflow-hidden">
+                        <img src={activeAssetSrc} alt="Title" className="h-full w-full object-contain" />
+                      </div>
+                    ) : (
+                      <span className="inline-flex items-center gap-1 rounded-full bg-amber-50 px-2.5 py-0.5 text-xs font-bold text-amber-800 border border-amber-200">
+                        <Sparkles className="h-3 w-3 text-amber-600" />
+                        Nhà Khám Phá Nhí
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Mock Level & XP bar */}
+                  <div className="mt-3 rounded-2xl bg-slate-50 p-2.5 text-left border border-slate-100">
+                    <div className="flex items-center justify-between text-xs font-bold text-slate-700">
+                      <span>Cấp độ: Level 12</span>
+                      <span className="text-brand-600">3,450 / 4,000 XP</span>
+                    </div>
+                    <div className="mt-1.5 h-2 w-full rounded-full bg-slate-200 overflow-hidden">
+                      <div className="h-full w-4/5 rounded-full bg-brand-500" />
                     </div>
                   </div>
-                  <label className="flex min-h-9 shrink-0 cursor-pointer items-center justify-center gap-1 rounded-xl bg-brand-50 px-2.5 text-xs font-black text-brand-700 hover:bg-brand-100">
-                    <Pencil className="h-3 w-3" aria-hidden="true" />
-                    <span>Sửa icon</span>
-                    <input
-                      type="file"
-                      accept=".png,.webp,.jpg,.jpeg,.svg"
-                      className="sr-only"
-                      disabled={thumbnailUploading}
-                      onChange={(event) => {
-                        const file = event.target.files?.[0]
-                        event.currentTarget.value = ''
-                        if (file) void uploadThumbnail(file)
-                      }}
-                    />
-                  </label>
                 </div>
               </div>
             ) : (
-              <div className="mx-auto flex aspect-square max-w-56 items-center justify-center overflow-hidden rounded-3xl border-4 border-white bg-white/70 shadow-lg">
-                {previewUrl
-                  ? studioAssetPreviewKind(previewUrl) === 'video'
-                    ? <video src={previewUrl} autoPlay loop muted className="h-full w-full object-contain" />
-                    : studioAssetPreviewKind(previewUrl) === 'config'
-                      ? <div className="px-5 text-brand-700"><Settings2 className="mx-auto h-14 w-14" aria-hidden="true" /><span className="mt-3 block text-sm font-black">Theme JSON đã tải lên</span><span className="mt-1 block text-xs text-muted">Màu và token được áp dụng khi preview hồ sơ.</span></div>
-                      : <img src={previewUrl} alt="Preview asset vừa tải" className={`h-full w-full ${selectedSpec.transparent ? 'object-contain' : 'object-cover'}`} />
-                  : <div className="px-4 text-muted"><span className="block text-5xl">🖼️</span><span className="mt-3 block text-sm font-bold">Chọn asset để xem ngay tại đây</span></div>}
+              /* RAW ASSET CANVAS VIEW */
+              <div className="relative flex aspect-square w-full items-center justify-center overflow-hidden rounded-3xl border-2 border-slate-200 bg-slate-100 p-6">
+                {activeAssetSrc ? (
+                  studioAssetPreviewKind(activeAssetSrc) === 'video' ? (
+                    <video src={activeAssetSrc} autoPlay loop muted className="h-full w-full object-contain" />
+                  ) : studioAssetPreviewKind(activeAssetSrc) === 'config' ? (
+                    <div className="text-center text-brand-700">
+                      <Settings2 className="mx-auto h-12 w-12" />
+                      <span className="mt-2 block text-xs font-bold">Theme JSON Config</span>
+                    </div>
+                  ) : (
+                    <img
+                      src={activeAssetSrc}
+                      alt="Raw Asset Preview"
+                      className={`h-full w-full ${selectedSpec.transparent ? 'object-contain' : 'object-cover rounded-2xl'}`}
+                    />
+                  )
+                ) : (
+                  <div className="text-center text-slate-400">
+                    <ImageIcon className="mx-auto h-12 w-12 text-slate-300" />
+                    <p className="mt-2 text-xs font-bold">Chưa tải ảnh asset</p>
+                  </div>
+                )}
               </div>
             )}
-            {form.contentType === 'reward' && !(form.kind === 'background' || form.kind === 'theme' || form.kind === 'title' || form.kind === 'event_ticket') && (
-              <label className="mt-3 inline-flex min-h-9 cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-brand-200 bg-white/90 px-3 text-xs font-extrabold text-brand-700 shadow-sm transition hover:bg-brand-50">
-                <Pencil className="h-3.5 w-3.5" aria-hidden="true" />
-                <span>{form.thumbnailUrl ? 'Đổi ảnh icon / preview' : 'Sửa ảnh icon / preview'}</span>
+          </div>
+
+          {/* Quick Thumbnail Slot */}
+          {form.contentType === 'reward' && (
+            <div className="mt-4 flex items-center justify-between rounded-2xl border border-slate-100 bg-slate-50 p-3">
+              <div className="flex items-center gap-2.5">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center overflow-hidden rounded-xl border border-slate-200 bg-white">
+                  {form.thumbnailUrl || activeAssetSrc ? (
+                    <img src={form.thumbnailUrl || activeAssetSrc} alt="Thumbnail" className="h-full w-full object-cover" />
+                  ) : (
+                    <Gift className="h-5 w-5 text-slate-400" />
+                  )}
+                </div>
+                <div>
+                  <span className="block text-xs font-extrabold text-slate-800">Ảnh Icon / Ba lô</span>
+                  <span className="block text-[10px] text-muted">
+                    {form.thumbnailUrl ? 'Dùng icon riêng' : 'Tự lấy từ ảnh chính'}
+                  </span>
+                </div>
+              </div>
+
+              <label className="flex h-8 cursor-pointer items-center gap-1 rounded-lg border border-brand-200 bg-white px-2.5 text-xs font-bold text-brand-700 shadow-2xs hover:bg-brand-50">
+                <Pencil className="h-3 w-3" />
+                <span>{form.thumbnailUrl ? 'Đổi icon' : 'Tải icon riêng'}</span>
                 <input
                   type="file"
                   accept=".png,.webp,.jpg,.jpeg,.svg"
                   className="sr-only"
                   disabled={thumbnailUploading}
-                  onChange={(event) => {
-                    const file = event.target.files?.[0]
-                    event.currentTarget.value = ''
-                    if (file) void uploadThumbnail(file)
+                  onChange={(e) => {
+                    const f = e.target.files?.[0]
+                    e.currentTarget.value = ''
+                    if (f) void uploadThumbnail(f)
                   }}
                 />
               </label>
-            )}
-            <span className="mt-4 inline-block rounded-full bg-white/90 px-3 py-1 text-xs font-black uppercase text-brand-700 shadow">{form.rarity}</span>
-            <h3 className="mt-2 font-display text-xl">{form.name || 'Tên nội dung'}</h3>
-            <p className="mt-1 text-xs text-muted">{form.description || 'Mô tả sẽ hiển thị tại đây.'}</p>
-          </div>
-        )}
-        <div className="rounded-2xl border border-border p-4 text-sm">
-          <p><strong>Nhóm:</strong> {form.contentType === 'reward' ? `Reward · ${form.kind}` : form.contentType === 'achievement' ? `Achievement · ${achievementFamilyLabel(form.achievementCategory)}` : form.contentType === 'chapter' ? 'Storybook chapter' : 'Sự kiện'}</p>
-          <p className="mt-1"><strong>Mở khóa:</strong> {form.unlockType} = {form.unlockValue}</p>
-          <p className="mt-1 break-all"><strong>Mã:</strong> {form.code || 'chưa nhập'}</p>
-        </div>
-        {form.contentType === 'reward' && (
-          <div className="rounded-2xl border border-border p-4">
-            <h3 className="text-sm font-extrabold">Cấu trúc ghép reward</h3>
-            <div className="mt-3 space-y-2 text-xs">
-              {[
-                ['60', 'Danh hiệu / badge', 'bg-amber-100'],
-                ['50', 'Hiệu ứng glow / animation', 'bg-fuchsia-100'],
-                ['40', 'Paco / bạn đồng hành', 'bg-sky-100'],
-                ['30', 'Khung avatar trong suốt', 'bg-violet-100'],
-                ['20', 'Avatar của trẻ', 'bg-emerald-100'],
-                ['10', 'Nền toàn trang cá nhân', 'bg-slate-100'],
-                ['0', 'Nền thẻ hồ sơ', 'bg-orange-100'],
-              ].map(([layer, label, color]) => (
-                <div key={layer} className={`flex items-center justify-between rounded-lg px-3 py-2 ${color}`}>
-                  <span className="font-bold">{label}</span><code>layer {layer}</code>
-                </div>
-              ))}
             </div>
-            <p className="mt-3 text-xs text-muted">Frame, effect và companion phải có nền trong suốt. Nền thẻ hồ sơ là lớp duy nhất phủ kín card; nền trang chỉ phủ khu vực trang cá nhân. Mỗi slot chỉ trang bị một reward.</p>
-          </div>
-        )}
-        <p className="text-xs text-muted">Preview tạm xuất hiện ngay khi chọn file; URL chính thức được thay thế sau khi upload thành công.</p>
+          )}
+        </section>
       </aside>
     </div>
   )

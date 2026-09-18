@@ -1,14 +1,20 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from 'react'
 import {
   Archive, CheckCircle2, Gift, LayoutTemplate, Map as MapIcon,
-  PackageOpen, Pencil, Settings2, UploadCloud
+  PackageOpen, Pencil, Plus, Settings2, UploadCloud
 } from 'lucide-react'
+import { Button } from '@/shared/components/ui/Button'
 import { gamificationApi, legendStudioApi } from '@/shared/lib/gamification-api'
 import { ApiError } from '@/shared/lib/api'
-import { RewardPackAdmin } from './RewardPackAdmin'
 import { rewardBadgeThumbnail } from '@/features/achievements/achievement-badge-assets'
 import { PROFILE_CARD_LAYOUT_CODE } from '@/features/profile/profile-card-layout'
-import { ProfileCardLayoutEditor } from './ProfileCardLayoutEditor'
+
+const RewardPackAdmin = lazy(() =>
+  import('./RewardPackAdmin').then((m) => ({ default: m.RewardPackAdmin }))
+)
+const ProfileCardLayoutEditor = lazy(() =>
+  import('./ProfileCardLayoutEditor').then((m) => ({ default: m.ProfileCardLayoutEditor }))
+)
 import {
   assetDimensionLabel,
   assetSpecs,
@@ -295,6 +301,131 @@ export function LegendRewardStudio() {
     }
   }
 
+  const assignItemToLevel = async (item: StudioItem, level: number) => {
+    setBusy(true)
+    try {
+      const payload = {
+        contentType: item.contentType,
+        code: item.code,
+        name: item.name,
+        description: item.description,
+        kind: item.contentType === 'reward' ? item.kind : null,
+        rarity: item.rarity,
+        assets: item.assets,
+        displayConfig: item.displayConfig,
+        unlockRule: { type: 'xp_level', value: level },
+        content: item.content,
+      }
+      if (item.source === 'studio' && (item.status === 'draft' || item.status === 'review')) {
+        await legendStudioApi.update(item.id, payload)
+        setMessage(`Đã gán "${item.name}" vào Level ${level}.`)
+      } else {
+        await legendStudioApi.create(payload)
+        setMessage(`Đã tạo bản nháp gán "${item.name}" vào Level ${level}.`)
+      }
+      await load()
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Không thể gán vào Level.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
+  const saveAndPublishNow = async () => {
+    setBusy(true)
+    setMessage('')
+    try {
+      const displayConfig = form.contentType === 'chapter'
+        ? {
+            emoji: form.chapterEmoji,
+            colors: [form.chapterColorStart, form.chapterColorEnd],
+            themeKey: form.chapterTheme,
+            layout: 'book_spread',
+            coverUrl: form.chapterCoverUrl,
+            leftBackgroundUrl: form.chapterLeftBackgroundUrl,
+            stickerPageUrl: form.chapterStickerPageUrl,
+            stickerSheetUrl: form.chapterStickerSheetUrl,
+          }
+        : JSON.parse(form.displayJson) as Record<string, unknown>
+      const content = form.contentType === 'chapter'
+        ? {
+            slug: form.chapterSlug.toUpperCase(),
+            group: form.chapterGroup,
+            story: form.chapterStory,
+            rewardId: form.chapterRewardId,
+            stickers: JSON.parse(form.chapterStickersJson) as unknown[],
+            buttonAssets: {
+              chapterTabUrl: form.chapterButtonUrl,
+              stickerTabUrl: form.stickerButtonUrl,
+              helpUrl: form.helpButtonUrl,
+              claimUrl: form.claimButtonUrl,
+              previousUrl: form.previousButtonUrl,
+              nextUrl: form.nextButtonUrl,
+            },
+          }
+        : form.contentType === 'event'
+          ? { ...JSON.parse(form.contentJson) as Record<string, unknown>, startsAt: form.eventStartsAt, endsAt: form.eventEndsAt }
+          : form.contentType === 'achievement'
+            ? {
+                category: form.achievementCategory,
+                requirements: { metric: form.achievementMetric, operator: 'gte' },
+                milestones: (JSON.parse(form.achievementMilestonesJson) as Array<Record<string, unknown>>),
+              }
+          : JSON.parse(form.contentJson) as Record<string, unknown>
+      const updatesExistingVersion = editingItem && (editingItem.status === 'draft' || editingItem.status === 'review')
+      const payload = {
+        contentType: form.contentType,
+        code: form.code,
+        name: form.name,
+        description: form.description,
+        kind: form.contentType === 'reward' ? form.kind : null,
+        rarity: form.rarity,
+        assets: form.contentType === 'chapter'
+          ? {
+              thumbnailUrl: form.chapterCoverUrl || form.chapterLeftBackgroundUrl,
+              coverUrl: form.chapterCoverUrl,
+              leftBackgroundUrl: form.chapterLeftBackgroundUrl,
+              stickerPageUrl: form.chapterStickerPageUrl,
+              stickerSheetUrl: form.chapterStickerSheetUrl,
+            }
+          : (form.assetUrl || form.thumbnailUrl)
+            ? {
+                thumbnailUrl: form.thumbnailUrl || form.assetUrl,
+                imageUrl: form.assetUrl || form.thumbnailUrl,
+                previewUrl: form.thumbnailUrl || form.assetUrl,
+              }
+            : {},
+        displayConfig,
+        unlockRule: form.contentType === 'achievement'
+          ? { type: 'action', metric: form.achievementMetric, value: form.achievementMetric }
+          : { type: form.unlockType, value: form.unlockValue },
+        content,
+      }
+      let targetId: string | undefined
+      if (updatesExistingVersion) {
+        await legendStudioApi.update(editingItem.id, payload)
+        targetId = editingItem.id
+      } else {
+        const result = await legendStudioApi.create<{ item?: StudioItem; id?: string }>(payload)
+        targetId = result.item?.id ?? result.id
+      }
+      if (targetId) {
+        await legendStudioApi.transition(targetId, 'publish')
+        setMessage('Đã lưu và phát hành trực tiếp lên production!')
+      } else {
+        setMessage('Đã lưu bản ghi.')
+      }
+      setForm(emptyForm())
+      setEditingItem(null)
+      setView('library')
+      await load()
+    } catch (error) {
+      setMessage(error instanceof SyntaxError ? 'JSON cấu hình chưa hợp lệ.' : error instanceof Error ? error.message : 'Không phát hành được nội dung.')
+    } finally {
+      setBusy(false)
+    }
+  }
+
   const requestLifecycle = async (item: StudioItem, action: LifecycleAction) => {
     if (action !== 'archive') {
       setPendingLifecycle({ item, action })
@@ -369,20 +500,102 @@ export function LegendRewardStudio() {
         <div className="flex items-center gap-2 text-sm"><span className="h-2.5 w-2.5 rounded-full bg-mint-500" /><strong>{sourceCounts.studio}</strong><span className="text-muted">Studio</span></div>
         <div className="flex items-center gap-2 text-sm"><span className="h-2.5 w-2.5 rounded-full bg-amber-400" /><strong>{sourceCounts.legacy}</strong><span className="text-muted">Legacy cần migrate</span></div>
         <div className="flex items-center gap-2 text-sm"><span className="h-2.5 w-2.5 rounded-full bg-brand-500" /><strong>{sourceCounts.runtime}</strong><span className="text-muted">Achievement runtime</span></div>
+        <Button onClick={() => setShowCreateMenu(true)} className="ml-auto flex items-center gap-1.5 shadow-sm">
+          <Plus className="h-4 w-4" aria-hidden="true" /> Tạo mới
+        </Button>
       </section>
 
-      <nav className="ui-card grid grid-cols-1 gap-1 p-2 sm:grid-cols-2 xl:grid-cols-4" aria-label="Chế độ Legend Studio">
-        <button type="button" onClick={() => setView('map')} className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-black ${view === 'map' ? 'bg-brand-600 text-white shadow-md' : 'text-muted hover:bg-brand-50'}`}>
-          <MapIcon className="h-5 w-5" aria-hidden="true" /> Bản đồ cấu hình
+      <nav className="ui-card grid grid-cols-1 gap-2 p-2.5 sm:grid-cols-2 xl:grid-cols-4" aria-label="Chế độ Legend Studio">
+        <button
+          type="button"
+          onClick={() => setView('map')}
+          aria-current={view === 'map' ? 'page' : undefined}
+          className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${
+            view === 'map'
+              ? 'border-brand-500 bg-brand-50 text-brand-950 shadow-xs'
+              : 'border-transparent text-slate-700 hover:border-border hover:bg-slate-50'
+          }`}
+        >
+          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition ${
+            view === 'map' ? 'bg-brand-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600'
+          }`}>
+            <MapIcon className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-extrabold tracking-tight">Cây tiến trình</div>
+            <div className={`mt-0.5 text-xs line-clamp-1 ${view === 'map' ? 'font-medium text-brand-700' : 'text-muted'}`}>
+              Mốc Level (1–100), Storybook & Sự kiện
+            </div>
+          </div>
         </button>
-        <button type="button" onClick={() => setView('library')} className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-black ${view === 'library' ? 'bg-brand-600 text-white shadow-md' : 'text-muted hover:bg-brand-50'}`}>
-          <Archive className="h-5 w-5" aria-hidden="true" /> Kho nội dung
+
+        <button
+          type="button"
+          onClick={() => setView('library')}
+          aria-current={view === 'library' ? 'page' : undefined}
+          className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${
+            view === 'library'
+              ? 'border-brand-500 bg-brand-50 text-brand-950 shadow-xs'
+              : 'border-transparent text-slate-700 hover:border-border hover:bg-slate-50'
+          }`}
+        >
+          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition ${
+            view === 'library' ? 'bg-brand-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600'
+          }`}>
+            <Archive className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-extrabold tracking-tight">Kho tài sản</div>
+            <div className={`mt-0.5 text-xs line-clamp-1 ${view === 'library' ? 'font-medium text-brand-700' : 'text-muted'}`}>
+              Quản lý catalog, versioning & audit
+            </div>
+          </div>
         </button>
-        <button type="button" onClick={() => openDesigner('single')} className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-black ${view === 'designer' ? 'bg-brand-600 text-white shadow-md' : 'text-muted hover:bg-brand-50'}`}>
-          <UploadCloud className="h-5 w-5" aria-hidden="true" /> Designer Workspace
+
+        <button
+          type="button"
+          onClick={() => openDesigner('single')}
+          aria-current={view === 'designer' ? 'page' : undefined}
+          className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${
+            view === 'designer'
+              ? 'border-brand-500 bg-brand-50 text-brand-950 shadow-xs'
+              : 'border-transparent text-slate-700 hover:border-border hover:bg-slate-50'
+          }`}
+        >
+          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition ${
+            view === 'designer' ? 'bg-brand-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600'
+          }`}>
+            <UploadCloud className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-extrabold tracking-tight">Xưởng thiết kế</div>
+            <div className={`mt-0.5 text-xs line-clamp-1 ${view === 'designer' ? 'font-medium text-brand-700' : 'text-muted'}`}>
+              Upload ảnh, kiểm tra spec & pack ZIP
+            </div>
+          </div>
         </button>
-        <button type="button" onClick={() => setView('profile-card')} className={`flex min-h-12 items-center justify-center gap-2 rounded-xl px-4 py-2 text-sm font-black ${view === 'profile-card' ? 'bg-sky-600 text-white shadow-md' : 'text-muted hover:bg-sky-50'}`}>
-          <LayoutTemplate className="h-5 w-5" aria-hidden="true" /> Profile Card Editor
+
+        <button
+          type="button"
+          onClick={() => setView('profile-card')}
+          aria-current={view === 'profile-card' ? 'page' : undefined}
+          className={`flex items-start gap-3 rounded-xl border p-3 text-left transition ${
+            view === 'profile-card'
+              ? 'border-sky-500 bg-sky-50 text-sky-950 shadow-xs'
+              : 'border-transparent text-slate-700 hover:border-border hover:bg-slate-50'
+          }`}
+        >
+          <span className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl transition ${
+            view === 'profile-card' ? 'bg-sky-600 text-white shadow-xs' : 'bg-slate-100 text-slate-600'
+          }`}>
+            <LayoutTemplate className="h-5 w-5" aria-hidden="true" />
+          </span>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-extrabold tracking-tight">Bố cục thẻ hồ sơ</div>
+            <div className={`mt-0.5 text-xs line-clamp-1 ${view === 'profile-card' ? 'font-medium text-sky-700' : 'text-muted'}`}>
+              Visual editor kéo thả slot trang bị
+            </div>
+          </div>
         </button>
       </nav>
 
@@ -401,15 +614,20 @@ export function LegendRewardStudio() {
               <button type="button" onClick={() => setDesignerMode('pack')} className={`flex min-h-11 items-center gap-2 rounded-lg px-4 text-sm font-extrabold ${designerMode === 'pack' ? 'bg-brand-600 text-white' : 'text-muted'}`}><PackageOpen className="h-4 w-4" aria-hidden="true" /> Import ZIP</button>
             </div>
           </div>
-          <ol className="mt-4 grid gap-2 text-sm sm:grid-cols-4" aria-label="Quy trình designer">
-            {['1. Chọn template', '2. Upload & kiểm tra', '3. Lưu draft', '4. Reviewer publish'].map((step) => <li key={step} className="rounded-xl bg-brand-50 px-3 py-2 font-bold text-brand-700">{step}</li>)}
-          </ol>
         </section>
       )}
 
-      {view === 'designer' && designerMode === 'pack' && <RewardPackAdmin />}
+      {view === 'designer' && designerMode === 'pack' && (
+        <Suspense fallback={<div className="ui-card p-6 text-center text-xs font-bold text-muted">Đang tải Xưởng đóng gói ZIP…</div>}>
+          <RewardPackAdmin />
+        </Suspense>
+      )}
 
-      {view === 'profile-card' && <ProfileCardLayoutEditor item={profileLayoutItem} onChanged={load} />}
+      {view === 'profile-card' && (
+        <Suspense fallback={<div className="ui-card p-6 text-center text-xs font-bold text-muted">Đang tải Bố cục thẻ hồ sơ…</div>}>
+          <ProfileCardLayoutEditor item={profileLayoutItem} onChanged={load} />
+        </Suspense>
+      )}
 
       {view === 'map' && (
         <LegendStudioMapView
@@ -443,6 +661,8 @@ export function LegendRewardStudio() {
           auditPanel={auditPanel}
           onOpenCreateMenu={() => setShowCreateMenu(true)}
           StudioArtwork={StudioArtwork}
+          onNavigateToMap={(level?: number) => setView('map')}
+          onAssignToLevel={assignItemToLevel}
         />
       )}
 
@@ -460,6 +680,7 @@ export function LegendRewardStudio() {
           setMessage={setMessage}
           onCancel={() => setView('map')}
           message={message}
+          onPublishNow={saveAndPublishNow}
         />
       )}
 

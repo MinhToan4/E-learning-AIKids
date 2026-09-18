@@ -12,9 +12,13 @@ const sourceFiles = globSync('**/*.{ts,tsx}', {
 //   shared/lib/api.ts          — the API client itself
 //   features/lesson/lib/offline-learning.ts — caches media URLs into Cache API
 //                                             (Service Worker pattern; not an API call)
+//   features/parent/components/ParentSubscriptionCheckoutModal.tsx — VietQR PNG image blob download
+//                                             (api() only handles JSON; raw
+//                                              image downloads require blob pipeline)
 const FETCH_ALLOWLIST = new Set([
   'shared/lib/api.ts',
   'features/lesson/lib/offline-learning.ts',
+  'features/parent/components/ParentSubscriptionCheckoutModal.tsx',
 ])
 
 describe('frontend backend boundary', () => {
